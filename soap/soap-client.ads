@@ -30,6 +30,7 @@
 
 --  $Id$
 
+with AWS.Client;
 with SOAP.Message.Payload;
 with SOAP.Message.Response;
 
@@ -45,6 +46,13 @@ package SOAP.Client is
    --  Send a SOAP HTTP request to URL address. The P is the Payload and
    --  SOAPAction is the required HTTP field. If it is not specified then the
    --  URI (URL resource) will be used for the SOAP action field.
+
+   function Call
+     (Connection : access AWS.Client.HTTP_Connection;
+      P          : in     Message.Payload.Object;
+      SOAPAction : in     String                     := Not_Specified)
+     return Message.Response.Object'Class;
+   --  Idem as above, but use an already opened connection.
 
 private
 
