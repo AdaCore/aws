@@ -63,6 +63,49 @@ package body AWS.URL is
       return Res (1 .. K);
    end Encode;
 
+   ---------------
+   -- Normalize --
+   ---------------
+
+   procedure Normalize (URL : in out Object) is
+      K : Natural;
+      P : Natural;
+   begin
+      --  checks for parent directory
+
+      loop
+         K:= Index (URL.URI, "/../");
+
+         exit when K = 0;
+
+         --  look for previous directory, which should be removed.
+
+         P := Strings.Fixed.Index
+           (Slice (URL.URI, 1, K - 1), "/", Strings.Backward);
+
+         exit when P = 0;
+
+         Delete (URL.URI, P, K + 2);
+      end loop;
+
+      --  checks for current directory
+
+      loop
+         K:= Index (URL.URI, "/./");
+
+         exit when K = 0;
+
+         --  look for previous directory, which should be removed.
+
+         P := Strings.Fixed.Index
+           (Slice (URL.URI, 1, K - 1), "/", Strings.Backward);
+
+         exit when P = 0;
+
+         Delete (URL.URI, P, K + 1);
+      end loop;
+   end Normalize;
+
    -----------
    -- Parse --
    -----------
@@ -187,5 +230,46 @@ package body AWS.URL is
          return To_String (URL.URI);
       end if;
    end URI;
+
+   ---------
+   -- URL --
+   ---------
+
+   function URL (URL : in Object) return String is
+
+      function HTTP return String;
+      pragma Inline (HTTP);
+      --  Returns the HTTP protocol to be used.
+
+      function Port return String;
+      pragma Inline (Port);
+      --  Returns the port number if not the standard HTTP Port and the empty
+      --  string otherwise.
+
+      ----------
+      -- HTTP --
+      ----------
+
+      function HTTP return String is
+      begin
+         if URL.Security then
+            return "https://";
+         else
+            return "http://";
+         end if;
+      end HTTP;
+
+      function Port return String is
+      begin
+         if URL.Port /= 80 then
+            return ':' & Port (URL);
+         else
+            return "";
+         end if;
+      end Port;
+
+   begin
+      return HTTP & Server_Name (URL) & Port & URI (URL);
+   end URL;
 
 end AWS.URL;
