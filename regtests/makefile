@@ -23,7 +23,7 @@ ifeq ($(MODE),ssl)
 # With SSL support
 
 ifeq (${OS}, Windows_NT)
-LARGS = $(LFLAGS) $(LIBS) -L../ssl -L../win32 -lssl -lcrypto
+LARGS = $(LFLAGS) $(LIBS) -L../lib -lssl -lcrypto
 else
 LARGS = $(LFLAGS) $(LIBS) -lssl -lcrypto
 endif
