@@ -150,6 +150,10 @@ implemented:
 
 - Add more certificate information in AWS.Net.SSL.Certificate.
 
+- Support socket timeout options (send and receive timeout) at the OS
+  level on the server side. Right now a task is doing the job.
+  Note that socket timeout is already used on the client side.
+
 =============== Point to fix/implement/review before next release (2.1)
 
 - Add reply all support to the Web_Mail service.
