@@ -356,6 +356,7 @@ stockquoteservice-server.ads
 stockquoteservice-types.adb
 stockquoteservice-types.ads
 stockquoteservice.ads
+stream_response
 strm
 strm.res
 strm.tmp
