@@ -151,7 +151,7 @@ begin
       if Method = Status.GET then
          Client.Get (Connect, Data);
       else
-         Client.Put (Connection  => Connect,
+         Client.Put (Connection => Connect,
                      Result => Data,
                      Data   => "Un essai");
       end if;
