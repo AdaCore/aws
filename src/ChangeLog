@@ -1,3 +1,15 @@
+2003-03-10  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-ldap-client.adb:
+	(Check_Handle): New routine.
+	Use it in all routines using a Dir parameter to check whether the
+	 LDAP handle is initialized.
+	(Unbind): Call thin ldap_unbind_s only if Dir is not null (open).
+
+	* aws-ldap-client.ads:
+	(Unbind): Add comments.
+	Update copyright header.
+
 2003-03-09  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* aws-session.adb:
