@@ -46,13 +46,10 @@ package AWS.Net.Std is
    -- Initialize --
    ----------------
 
-   function Socket return Socket_Access;
-   --  Create a socket INET/SOCK_STREAM
-
    procedure Bind
-     (Socket : in Socket_Type;
-      Port   : in Natural;
-      Host   : in String := "");
+     (Socket : in out Socket_Type;
+      Port   : in     Natural;
+      Host   : in     String := "");
    --  Bind a socket on a given port.
 
    procedure Listen
@@ -61,15 +58,14 @@ package AWS.Net.Std is
    --  Set the queue size of the socket
 
    procedure Accept_Socket
-     (Socket     : in     Socket_Type;
-      New_Socket :    out Socket_Access);
-   --  Accept a connection on a socket. If Security is true a secure socket
-   --  will be used.
+     (Socket     : in     Net.Socket_Type'Class;
+      New_Socket :    out Socket_Type);
+   --  Accept a connection on a socket.
 
    procedure Connect
-     (Socket   : in Socket_Type;
-      Host     : in String;
-      Port     : in Positive);
+     (Socket   :    out Socket_Type;
+      Host     : in     String;
+      Port     : in     Positive);
    --  Connect a socket on a given host/port. If Security is true an secure
    --  socket will be used.
 
@@ -103,10 +99,6 @@ package AWS.Net.Std is
    function Peer_Addr (Socket : in Socket_Type) return String;
 
    function Host_Name return String;
-
-   procedure Assign
-     (Left  : in out Socket_Type;
-      Right : in     Net.Socket_Type'Class);
 
 private
 

@@ -80,6 +80,12 @@ package body AWS.Net is
 
    procedure Set_Cache (Socket : in out Socket_Type'Class) is
    begin
+      --  Recreate cache if it is already exist.
+
+      if Socket.C /= null then
+         Release_Cache (Socket);
+      end if;
+
       Socket.C := new RW_Cache;
    end Set_Cache;
 
@@ -87,22 +93,26 @@ package body AWS.Net is
    -- Socket --
    ------------
 
-   function Socket
-     (Security : in Boolean)
-      return Socket_Access
-   is
-      Sock : Socket_Access;
+   function Socket (Security : in Boolean) return Socket_Type'Class is
    begin
       if Security then
-         Sock := SSL.Socket;
+         declare
+            Result : SSL.Socket_Type;
+         begin
+            return Result;
+         end;
       else
-         Sock := Std.Socket;
+         declare
+            Result : Std.Socket_Type;
+         begin
+            return Result;
+         end;
       end if;
+   end Socket;
 
-      --  Create the cache structure
-      Set_Cache (Sock.all);
-
-      return Sock;
+   function Socket (Security : in Boolean) return Socket_Access is
+   begin
+      return new Socket_Type'Class'(Socket (Security));
    end Socket;
 
 end AWS.Net;
