@@ -62,60 +62,60 @@ ALL_OPTIONS	= GFLAGS="$(GFLAGS)" INCLUDES="$(INCLUDES)" LIBS="$(LIBS)" LFLAGS="$
 
 set_ssl:
 	echo "MODE=ssl" > makefile.conf
-	make -C src ssl_mode
+	${MAKE} -C src ssl_mode
 
 set_std:
 	echo "MODE=std" > makefile.conf
-	make -C src std_mode
+	${MAKE} -C src std_mode
 
 build: build_ssllib build_include build_aws build_win32 build_demo
 
 build_aws:
-	make -C src build $(ALL_OPTIONS)
+	${MAKE} -C src build $(ALL_OPTIONS)
 
 build_demo:
-	make -C demos build $(ALL_OPTIONS)
+	${MAKE} -C demos build $(ALL_OPTIONS)
 
 build_soap_demo:
-	make -C demos build_soap $(ALL_OPTIONS)
+	${MAKE} -C demos build_soap $(ALL_OPTIONS)
 
 build_ssllib:
 ifeq ($(MODE),ssl)
-	make -C ssl build $(ALL_OPTIONS)
+	${MAKE} -C ssl build $(ALL_OPTIONS)
 endif
 
 build_soaplib: build_include
-	make -C soap build $(ALL_OPTIONS)
+	${MAKE} -C soap build $(ALL_OPTIONS)
 
 build_soap: build_soaplib build_soap_demo
 
 gnat_oslib:
-	make -C src gnat_oslib
+	${MAKE} -C src gnat_oslib
 
 posix_oslib:
-	make -C src posix_oslib
+	${MAKE} -C src posix_oslib
 
 win32_oslib:
-	make -C src win32_oslib
+	${MAKE} -C src win32_oslib
 
 build_doc:
-	make -C docs build
+	${MAKE} -C docs build
 
 build_include:
-	make -C include build $(ALL_OPTIONS)
+	${MAKE} -C include build $(ALL_OPTIONS)
 
 build_win32:
-	make -C win32 build $(ALL_OPTIONS)
+	${MAKE} -C win32 build $(ALL_OPTIONS)
 
 clean:
-	make -C include clean
-	make -C src clean
-	make -C demos clean
-	make -C ssl clean
-	make -C docs clean
-	make -C soap clean
-	make -C regtests clean
-	make -C win32 clean
+	${MAKE} -C include clean
+	${MAKE} -C src clean
+	${MAKE} -C demos clean
+	${MAKE} -C ssl clean
+	${MAKE} -C docs clean
+	${MAKE} -C soap clean
+	${MAKE} -C regtests clean
+	${MAKE} -C win32 clean
 	-rm *.~*.*~
 	rm makefile.conf
 	echo MODE=std > makefile.conf
