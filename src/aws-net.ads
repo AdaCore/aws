@@ -163,8 +163,8 @@ package AWS.Net is
    procedure Set_Blocking_Mode
      (Socket   : in out Socket_Type;
       Blocking : in     Boolean);
-   --  Set the blocking mode for the socket.
-   --  Obsolete routine, use Set_Timeout instead.
+   pragma Obsolescent ("Use Set_Timeout instead");
+   --  Set the blocking mode for the socket
 
    procedure Set_Timeout
      (Socket   : in out Socket_Type;
