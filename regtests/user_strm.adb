@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2002                          --
+--                         Copyright (C) 2000-2003                          --
 --                               ACT-Europe                                 --
 --                                                                          --
 --  Authors: Dmitriy Anisimokv - Pascal Obry                                --
@@ -78,6 +78,9 @@ package body User_Strm is
       Symbol_Last   : constant Character := 'z';
       Symbol_Length : constant Stream_Element
         := Character'Pos (Symbol_Last) - Character'Pos (Symbol_First) + 1;
+
+      Item          : Stream_Element;
+
    begin
       Last := Buffer'First - 1;
 
@@ -86,12 +89,14 @@ package body User_Strm is
          Last := I;
 
          Resource.Offset := Resource.Offset + 1;
-         Buffer (I) := Character'Pos (Symbol_First)
-            + Stream_Element (Resource.Offset) mod Symbol_Length;
 
-         if Stream_Element (Resource.Offset)
-            mod (Symbol_Length - 1) = 0
-         then
+         Item := Stream_Element
+           (Resource.Offset mod Stream_Element_Offset (Stream_Element'Last));
+
+         Buffer (I) := Character'Pos (Symbol_First)
+           + Item mod Symbol_Length;
+
+         if Item  mod (Symbol_Length - 1) = 0 then
             Buffer (I) := 10;
          end if;
 
