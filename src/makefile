@@ -34,7 +34,7 @@ ifdef XMLADA
 SOURCES := $(SOURCES) aws-jabber.adb
 endif
 
-build: aws-translator-conversion.adb
+build: aws-translator-conversion.adb aws-net-std.adb
 # compile aws-services-directory.adb without optimisation
 # work around a bug in GNAT 3.14, 3.15.
 	echo Building aws-services-directory.adb
@@ -53,6 +53,13 @@ aws-translator-conversion.adb:
 adasockets:
 	-rm -f *.o *.ali
 	cp ../include/aws-net-std-adasockets.adb aws-net-std.adb
+
+aws-net-std.adb:
+ifdef ADASOCKETS
+	cp ../include/aws-os_lib-gnat.adb aws-os_lib.adb
+else
+	cp ../include/aws-net-std-gnat.adb aws-net-std.adb
+endif
 
 gnatsockets:
 	-rm -f *.o *.ali
