@@ -1,3 +1,30 @@
+2004-09-02  Pascal Obry  <pascal@obry.org>
+
+	* ai302-containers-hash_tables.ads, ai302-containers-hash_tables.adb: 
+	Update to new version of the AI302 containers.
+
+	* ai302-containers-indefinite_hashed_maps.ads,
+	  ai302-containers-indefinite_hashed_maps.adb:
+	Update to new version of the AI302 containers.
+
+	* ai302-containers-indefinite_ordered_sets.ads, 
+	  ai302-containers-indefinite_ordered_sets.adb:
+	Update to new version of the AI302 containers.
+
+	* ai302-containers-indefinite_vectors.ads, 
+	  ai302-containers-indefinite_vectors.adb: 
+	Update to new version of the AI302 containers.
+
+	* ai302-containers-prime_numbers.ads,
+	  ai302-containers-prime_numbers.adb:
+	Update to new version of the AI302 containers.
+
+	* ai302-containers-vectors.ads, ai302-containers-vectors.adb:
+	Update to new version of the AI302 containers.
+
+	* ai302-strings-hash.adb:
+	Update to new version of the AI302 containers.
+
 2004-08-08  Pascal Obry  <pascal@obry.org>
 
 	* zlib-thin.ads:

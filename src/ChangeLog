@@ -1,3 +1,17 @@
+2004-09-02  Pascal Obry  <pascal@obry.org>
+
+	* templates_parser.adb:
+	Fix to new AI302 container Is_In prototype.
+
+	* aws-session.adb:
+	Fix to new AI302 container Is_In prototype.
+
+	* aws-resources-embedded.adb:
+	Fix to new AI302 container Is_In prototype.
+
+	* aws-containers-tables.adb:
+	Fix to new AI302 container Is_In prototype.
+
 2004-08-27  Pascal Obry  <obry@act-europe.fr>
 
 	* aws-server.ads:
