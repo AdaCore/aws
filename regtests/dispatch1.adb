@@ -88,6 +88,15 @@ procedure Dispatch1 is
       return AWS.Response.Build ("text/html", "Dispatch 4 !");
    end CB4;
 
+   function CB5
+     (Request : in AWS.Status.Data)
+      return AWS.Response.Data
+   is
+      pragma Unreferenced (Request);
+   begin
+      return AWS.Response.Build ("text/html", "Dispatch 5 !");
+   end CB5;
+
    function Default
      (Request : in AWS.Status.Data)
       return AWS.Response.Data
@@ -112,6 +121,9 @@ procedure Dispatch1 is
 begin
    Services.Dispatchers.URI.Register
      (H, "/disp", CB1'Unrestricted_Access);
+
+   Services.Dispatchers.URI.Register
+     (H, "/prefix/", CB5'Unrestricted_Access, Prefix => True);
 
    Services.Dispatchers.URI.Register_Regexp
      (H, "/disp.*", CB4'Unrestricted_Access);
@@ -144,6 +156,9 @@ begin
    Test ("/abc");
    Test ("/abcdisp");
    Test ("/notknown");
+   Test ("/prefix/");
+   Test ("/prefix/toto");
+   Test ("/prefix/azerty/tutu");
 
    --  Close servers.
 

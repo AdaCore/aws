@@ -14,3 +14,9 @@
 > Dispatch 3 !
 /notknown
 > Default /notknown
+/prefix/
+> Dispatch 5 !
+/prefix/toto
+> Dispatch 5 !
+/prefix/azerty/tutu
+> Dispatch 5 !
