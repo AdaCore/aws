@@ -1,8 +1,18 @@
+<html> 
+<head> 
+<title>AWS Web Mail Demo</title>
+</head>
 
+<body>
 <p>Simple Web Mail (AWS @_AWS_VERSION_@)
 
 <p>Message @_WM_INDEX_@ for mailbox <b>@_WM_USER_NAME_@</b>
 on server @_WM_POP_SERVER_@
+
+<p>
+<a href="/wm_summary">summary</a>
+- <a href="/wm_delete?NO_MESSAGE=@_WM_MESSAGE_@">delete</a>
+- <a href="/wm_reply?NO_MESSAGE=@_WM_MESSAGE_@">reply</a>
 
 <br>
 <br>
@@ -15,9 +25,7 @@ on server @_WM_POP_SERVER_@
 </table>
 
 <hr>
-<pre>
 @_LF_2_BR:WEB_ESCAPE:WM_CONTENT_@
-</pre>
 <hr>
 
 @@IF@@ @_WM_ATT_NAME_V'LENGTH_@ > 0
@@ -27,3 +35,6 @@ on server @_WM_POP_SERVER_@
 <p><a href="@_WM_ATT_REF_V_@">@_WM_ATT_NAME_V_@</a>
 @@END_TABLE@@
 @@END_IF@@
+
+</body>
+</html>
