@@ -45,7 +45,7 @@ package body AWS.Net is
    SSL_Initialized : Boolean := False;
 
    procedure Init;
-   --  Initializa OpenSSL library
+   --  Initialize OpenSSL library
 
    -------------------
    -- Accept_Socket --
