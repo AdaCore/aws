@@ -1,3 +1,42 @@
+2001-09-30  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-url.adb:
+	(Parse): properly check for URI without server and port
+	 information.
+	(URL): if this is a simple URI (no server info) return the URI.
+
+	* aws-client.adb: 
+	(Get): add Timeouts parameter.
+	(Head): idem.
+	(Put): idem.
+	(Post): idem.
+	(Get): correctly report a timeout with a 408 message code.
+	(Head): idem.
+	(Put): idem.
+	(Post): idem.
+	(SOAP_Post): idem.
+	(Set_Phase): new procedure.
+	(Open_Send_Common_Header): set properly phase at the start and the
+	 end of the routine.
+	(Get_Response): idem.
+	Put routines in alphabetical order.
+	
+	* aws-client.ads:
+	(Timeouts_Values): new type.
+	(Get): add Timeouts parameter.
+	(Head): idem.
+	(Put): idem.
+	(Post): idem.
+	(HTTP_Connection): add With_Timeouts discriminant and it is now a
+	 limited private type. Add parameters Current_Phase, Timeouts and
+	 Cleaner.
+	(Create): now a procedure (was a function) this is required to be
+	 able to initialize the limited private type.
+	(Client_Phase): new type.
+	(Cleaner_Task): new task type.
+	(Cleaner_Access): an access type to task type above.
+	(Build_Cleaner): new function.
+
 2001-09-27  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-url.ads, aws-url.adb:
