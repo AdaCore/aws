@@ -1,3 +1,9 @@
+2001-09-03  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-session.adb:
+	(Key_Exist): Add exception handler to properly exit from this
+	 routine and set Result to False.
+
 2001-09-02  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-messages.ads:
