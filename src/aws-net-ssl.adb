@@ -43,6 +43,7 @@ with Ada.Unchecked_Deallocation;
 
 with AWS.Config;
 with AWS.Net.Std;
+with AWS.OS_Lib;
 with AWS.Utils;
 
 with Interfaces.C.Strings;
@@ -278,6 +279,12 @@ package body AWS.Net.SSL is
    begin
       if Config = null then
          Config := new TS_SSL;
+      end if;
+
+      if not OS_Lib.Is_Regular_File (Certificate_Filename) then
+         Exceptions.Raise_Exception
+           (Socket_Error'Identity,
+            "Certificate '" & Certificate_Filename & "' not found.");
       end if;
 
       Config.Initialize
