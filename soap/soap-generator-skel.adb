@@ -169,19 +169,18 @@ package body Skel is
       Text_IO.Put_Line (Skel_Ads, "   generic");
       Text_IO.Put      (Skel_Ads, "      with ");
 
-      Put_Header       (Skel_Ads, O, Proc, Input, Output);
-      Text_IO.Put_Line (Skel_Ads, ";");
+      Put_Header       (Skel_Ads, O, Proc, Input, Output, Mode => Skel_Spec);
 
       Text_IO.Put_Line
         (Skel_Ads, "   function " & L_Proc & "_CB");
       Text_IO.Put_Line
-        (Skel_Ads, "      (SOAPAction : in String;");
+        (Skel_Ads, "     (SOAPAction : in String;");
       Text_IO.Put_Line
-        (Skel_Ads, "       Payload    : in SOAP.Message.Payload.Object;");
+        (Skel_Ads, "      Payload    : in SOAP.Message.Payload.Object;");
       Text_IO.Put_Line
-        (Skel_Ads, "       Request    : in AWS.Status.Data)");
+        (Skel_Ads, "      Request    : in AWS.Status.Data)");
       Text_IO.Put_Line
-        (Skel_Ads, "       return AWS.Response.Data;");
+        (Skel_Ads, "      return AWS.Response.Data;");
 
       --  Body
 
@@ -192,13 +191,13 @@ package body Skel is
       Text_IO.Put_Line
         (Skel_Adb, "   function " & L_Proc & "_CB");
       Text_IO.Put_Line
-        (Skel_Adb, "      (SOAPAction : in String;");
+        (Skel_Adb, "     (SOAPAction : in String;");
       Text_IO.Put_Line
-        (Skel_Adb, "       Payload    : in SOAP.Message.Payload.Object;");
+        (Skel_Adb, "      Payload    : in SOAP.Message.Payload.Object;");
       Text_IO.Put_Line
-        (Skel_Adb, "       Request    : in AWS.Status.Data)");
+        (Skel_Adb, "      Request    : in AWS.Status.Data)");
       Text_IO.Put_Line
-        (Skel_Adb, "       return AWS.Response.Data");
+        (Skel_Adb, "      return AWS.Response.Data");
       Text_IO.Put_Line (Skel_Adb, "   is");
       Text_IO.Put_Line
         (Skel_Adb, "      Proc_Name  : constant String");
