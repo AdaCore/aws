@@ -1,0 +1,17 @@
+Pimg : <?xml version="1.0"?>
+<SOAP-ENV:Envelope SOAP-ENV:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/" xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsd="http://www.w3.org/1999/XMLSchema" xmlns:xsi="http://www.w3.org/1999/XMLSchema-instance">
+<SOAP-ENV:Body>
+<awsns:Test xmlns:awsns="http://mns.org/">
+<Workorder>
+   <Woid xsi:type="xsd:string">Wo1</Woid>
+   <Orderline SOAP-ENC:arrayType="xsd:ur-type[1]" xsi:type="SOAP-ENC:Array">
+      <Orderline>
+         <Woid xsi:type="xsd:string"></Woid>
+         <Produced xsi:type="xsd:int">0</Produced>
+      </Orderline>
+   </Orderline>
+</Workorder>
+</awsns:Test>
+</SOAP-ENV:Body>
+</SOAP-ENV:Envelope>
+
