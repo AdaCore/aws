@@ -50,6 +50,11 @@ aws-services-dispatchers-uri.ads.texi
 aws-services-dispatchers-virtual_host.ads.texi
 aws-services-dispatchers.ads.texi
 aws-services-page_server.ads.texi
+aws-services-split_pages-alpha-bounded.ads.texi
+aws-services-split_pages-alpha.ads.texi
+aws-services-split_pages-uniform-alpha.ads.texi
+aws-services-split_pages-uniform-overlapping.ads.texi
+aws-services-split_pages-uniform.ads.texi
 aws-services-split_pages.ads.texi
 aws-services-transient_pages.ads.texi
 aws-session.ads.texi
@@ -72,6 +77,7 @@ aws.info-10
 aws.info-11
 aws.info-12
 aws.info-13
+aws.info-14
 aws.info-2
 aws.info-3
 aws.info-4
@@ -81,6 +87,7 @@ aws.info-7
 aws.info-8
 aws.info-9
 aws.ky
+aws.log
 aws.pdf
 aws.pg
 aws.ps
@@ -91,6 +98,7 @@ aws.txt
 aws.vr
 b~build.adb
 b~build.ads
+genout
 soap-client.ads.texi
 soap-dispatchers-callback.ads.texi
 soap-dispatchers.ads.texi
