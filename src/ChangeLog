@@ -1,7 +1,7 @@
 2001-07-23  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-session.adb: 
-	(Destroy):
+	(Destroy): Destroy the root tree.
 	(Generate_ID): new function.
 	(Key_Exist): avoid raising an exception if the SID is not present
 	 into the sessions table.
