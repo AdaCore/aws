@@ -1,3 +1,24 @@
+2003-11-25  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-os_lib__posix.adb:
+	(Base_Name): New routine.
+	(File_Extension): Idem.
+	(File_Name): Idem.
+	(For_Every_Directory_Entry): Idem.
+	Put routines in alphabetical order.
+	Reformat code.
+	Update copyright notice.
+
+	* aws-os_lib__gnat.adb:
+	(Dir_Type_Hidden): Removed.
+	(G_Dir_Type): Removed.
+	(Close): Idem.
+	(For_Every_Directory_Entry): New routine. Generic iterator instead
+	 of the Open/Read/Close. Cleaner, code is simpler.
+	(Open): Removed.
+	(Read): Idem.
+	Minor reformatting.
+
 2003-11-17  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-os_lib__gnat.adb:

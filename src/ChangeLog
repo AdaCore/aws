@@ -1,3 +1,22 @@
+2003-11-25  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-os_lib.ads:
+	(Dir_Type): Removed.
+	(Directory_Error): Removed.
+	(Open): Idem.
+	(Read): Idem.
+	(Close): Idem.
+	(For_Every_Directory_Entry): New routine. Generic directory
+	 iterator.
+	(Dir_Type_Hidden): Removed (private type).
+	Minor reformatting.
+
+	* aws-services-directory.adb:
+	(Read_Directory): New routine.
+	Do not use anymore GNAT.Directory_Operations.
+	Part of work for ObjectAda compatibility.
+	Code cleanup.
+
 2003-11-17  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-os_lib.ads:
