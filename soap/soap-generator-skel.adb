@@ -403,7 +403,7 @@ package body Skel is
                   if Output.Next = null then
                      --  A single simple parameter as return
 
-                     Text_IO.Put (Skel_Adb, SOAP_Constructor (N.P_Type));
+                     Text_IO.Put (Skel_Adb, WSDL.Set_Routine (N.P_Type));
 
                      Text_IO.Put
                        (Skel_Adb, " (Result, """ & To_String (N.Name) & """)");
@@ -411,11 +411,10 @@ package body Skel is
                   else
                      --  Multiple value returned, this is a record
 
-                     if N.P_Type = WSDL.P_String then
-                        Text_IO.Put (Skel_Adb, "SOAP.Utils.US");
-                     else
-                        Text_IO.Put (Skel_Adb, SOAP_Constructor (N.P_Type));
-                     end if;
+                     Text_IO.Put
+                       (Skel_Adb,
+                        WSDL.Set_Routine
+                          (N.P_Type, Context => WSDL.Component));
 
                      Text_IO.Put
                        (Skel_Adb, " (Result."
