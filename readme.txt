@@ -1,14 +1,14 @@
 
 			    A W S - Ada Web Server
-			    1.5 release / SOAP 1.2
+			    2.0 release / SOAP 1.2
 				       
 Authors:
    Dmitriy Anisimkov
-   Pascal Obry                                             November 15th, 2003
+   Pascal Obry                                             December 17th, 2003
 
 
 
-We are happy to announce the availability of the AWS 1.5 release. The API
+We are happy to announce the availability of the AWS 2.0 release. The API
 could change slightly at this stage but should be fairly stable now.
 
 AWS stand for Ada Web Server. It is a small yet powerful HTTP component to
@@ -109,6 +109,8 @@ Here are the main changes since AWS 1.4 :
        REPLACE_ALL   As above but replace all occurences not the first one.
        FORMAT_DATE   To format a date using GNU/Date pattern format.
 
+   - New template engine NOW variable tag.
+
    - Templates engine should be a bit faster as it uses less recursivity.
 
    - New version of the "&" operator to prepend data into the
@@ -133,6 +135,11 @@ Here are the main changes since AWS 1.4 :
      events that repeats periodically.
 
    - ZLib library updated to version 1.2.1.
+
+   - Add client and server certificate support.
+
+   - The security options are now per server, it means that HTTPS servers
+     running on the same AWS process can have different settings.
 
    - Plus many small fixes, enhancements, API comments, and documentation work.
 
@@ -197,7 +204,7 @@ See documentation for build information.
 Validation:
 -----------
 
-AWS 1.5 has been compiled and has passed all tests on:
+AWS 2.0 has been compiled and has passed all tests on:
 
    Windows XP, GNAT 3.15a1, 3.16a, 3.17w and 5.01w
 
@@ -244,7 +251,7 @@ Templates_Parser sources:
 
 GNU/Ada - GNAT
 
-   You need at least version 3.15 to build and use AWS 1.5.
+   You need at least version 3.15 to build and use AWS 2.0.
 
    http://libre.act-europe.fr/GNAT/
 
