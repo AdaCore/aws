@@ -1,3 +1,29 @@
+2003-03-02  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-communication-client.ads:
+	Minor reformatting.
+	Update copyright notice.	
+
+	* aws-communication-server.adb:
+	Minor reformatting.
+	Add some comments.
+	Update copyright notice.	
+
+	* aws-communication-server.ads:
+	Minor reformatting.
+	Update copyright notice.	
+
+	* aws-communication.adb:
+	Add routine header box.
+	Update copyright notice.
+
+	* aws-communication.ads:
+	(Null_Parameter_Set): Move definition to the private part
+	 (deferred constant).
+	Add comments.
+	Minor reformatting.
+	Update copyright notice.
+
 2003-03-02  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* aws-client.adb:
