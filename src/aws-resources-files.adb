@@ -79,73 +79,6 @@ package body AWS.Resources.Files is
          raise Resource_Error;
    end File_Timestamp;
 
-   --------------
-   -- Get_Line --
-   --------------
-
-   procedure Get_Line
-     (Resource  : in out File_Tagged;
-      Buffer    :    out String;
-      Last      :    out Natural)
-   is
-      C : Character;
-      --  Current character.
-
-      procedure Next_Char;
-      --  Set C with next character in the file, update Resource.Last.
-
-      ---------------
-      -- Next_Char --
-      ---------------
-
-      procedure Next_Char is
-      begin
-         if Resource.Current > Resource.Last then
-            Read (Resource.Stream.all, Resource.Buffer, Resource.Last);
-            Resource.Current := Resource.Buffer'First;
-         end if;
-
-         C := Character'Val (Resource.Buffer (Resource.Current));
-         Resource.Current := Resource.Current + 1;
-      end Next_Char;
-
-   begin
-      Last         := 0;
-      Resource.LFT := False;
-
-      loop
-         Next_Char;
-
-         if Resource.Last < Resource.Buffer'First then
-            exit;
-
-         else
-            if C = ASCII.LF then         -- UNIX style line terminator
-               Resource.LFT := True;
-               exit;
-
-            elsif C = ASCII.CR then      -- DOS style line terminator
-               Next_Char;
-
-               if Resource.Last < Resource.Buffer'First then -- no more char
-                  exit;
-               elsif  C = ASCII.LF then  --  Ok, found CR+LF
-                  Resource.LFT := True;
-                  exit;
-
-               else                      --  CR, but no LF, continue reading
-                  Last := Last + 1;
-                  Buffer (Last) := C;
-               end if;
-
-            else
-               Last := Last + 1;
-               Buffer (Last) := C;
-            end if;
-         end if;
-      end loop;
-   end Get_Line;
-
    ---------------------
    -- Is_Regular_File --
    ---------------------
@@ -157,15 +90,6 @@ package body AWS.Resources.Files is
       when others =>
          raise Resource_Error;
    end Is_Regular_File;
-
-   -------------------
-   -- LF_Terminated --
-   -------------------
-
-   function LF_Terminated (Resource : in File_Tagged) return Boolean is
-   begin
-      return Resource.LFT;
-   end LF_Terminated;
 
    ----------
    -- Open --
@@ -220,7 +144,8 @@ package body AWS.Resources.Files is
               (Buffer'First + Stream_Element_Offset (Buf_Len) .. Buffer'Last),
             Last);
 
-         Resource.Current := Resource.Last + 1;
+         Read (Resource.Stream.all, Resource.Buffer, Resource.Last);
+         Resource.Current := Resource.Buffer'First;
       end if;
    end Read;
 
