@@ -1,5 +1,8 @@
 2000-07-26    Pascal Obry <p.obry@wanadoo.fr>
 
+	* aws.ads:
+	(Version): updated to 0.6
+	
 	* aws-net.ads:
 	Fix copyright notice.
 	
