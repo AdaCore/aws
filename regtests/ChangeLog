@@ -1,3 +1,16 @@
+2003-03-07  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* makefile:
+	Add description for WSDL_TESTS, WSDL_ATESTS and OTH_TESTS.
+	(ALL_EXEC): Add WSDL_TESTS and WSDL_ATESTS.
+	(WSDL_ATESTS): New variable.
+	(build): Add $(WSDL_ATESTS).
+	(WSDL_ATESTS): New targets.
+	(clean): Add stockquoteservice* stock_quote_service*
+
+	* test_wsdl3.adb, test_wsdl3.out, test_wsdl3.wsdl:
+	Initial revision.
+
 2003-03-07  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* makefile:
