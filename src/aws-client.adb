@@ -40,7 +40,6 @@ with Ada.Streams.Stream_IO;
 with Ada.Unchecked_Deallocation;
 
 with GNAT.Calendar.Time_IO;
-with GNAT.Table;
 
 with AWS.Digest;
 with AWS.Headers.Set;
