@@ -1,3 +1,8 @@
+2003-08-29  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* templates_parser.adb:
+	Remove commented out with clause.
+
 2003-08-28  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* templates_parser.adb:
