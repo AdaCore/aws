@@ -30,9 +30,9 @@
 
 --  $Id$
 
-with Huge_Response_Proc;
+with Huge_Response_Pack;
 
 procedure Huge_Response_Sec is
 begin
-   Huge_Response_Proc (4457, True);
+   Huge_Response_Pack.Run (4457, True);
 end Huge_Response_Sec;
