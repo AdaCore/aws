@@ -91,6 +91,16 @@ package body Templates_Parser.Input is
       Get_Line (File.all, Buffer, Last);
    end Get_Line;
 
+   -------------------
+   -- LF_Terminated --
+   -------------------
+
+   function LF_Terminated (File : in File_Type) return Boolean is
+   begin
+      Check_Open (File);
+      return LF_Terminated (File.all);
+   end LF_Terminated;
+
    ----------
    -- Open --
    ----------
