@@ -129,6 +129,16 @@ package body SOAP.Message.XML is
    --  Raises SOAP_Error with the Message as exception message.
 
    -----------
+   -- Error --
+   -----------
+
+   procedure Error (Node : in DOM.Core.Node; Message : in String) is
+      Name : constant String := Local_Name (Node);
+   begin
+      Exceptions.Raise_Exception (SOAP_Error'Identity, Name & " - " & Message);
+   end Error;
+
+   -----------
    -- Image --
    -----------
 
@@ -595,15 +605,5 @@ package body SOAP.Message.XML is
          S.Parameters := S.Parameters & Parse_Param (Item (NL, K), S);
       end loop;
    end Parse_Wrapper;
-
-   -----------
-   -- Error --
-   -----------
-
-   procedure Error (Node : in DOM.Core.Node; Message : in String) is
-      Name : constant String := Local_Name (Node);
-   begin
-      Exceptions.Raise_Exception (SOAP_Error'Identity, Name & " - " & Message);
-   end Error;
 
 end SOAP.Message.XML;
