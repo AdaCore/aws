@@ -65,7 +65,7 @@ begin
       CB'Unrestricted_Access,
       Port           => Port,
       Security       => Security,
-      Max_Connection => 5);
+      Max_Connection => 1);
 
    Ada.Text_IO.Put_Line ("started"); Ada.Text_IO.Flush;
 
