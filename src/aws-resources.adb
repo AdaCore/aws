@@ -96,30 +96,35 @@ package body AWS.Resources is
    --------------
 
    procedure Get_Line
-     (Resource  : in out File_Type;
-      Buffer    :    out String;
-      Last      :    out Natural)
+     (Resource : in out File_Type;
+      Buffer   :    out String;
+      Last     :    out Natural)
    is
       Byte     : Stream_Element_Array (1 .. 1);
       Last_Ind : Stream_Element_Offset;
    begin
-      Last := 0;
+      Last         := 0;
       Resource.LFT := False;
 
       for I in Buffer'Range loop
 
          Read (Resource.all, Byte, Last_Ind);
+
          exit when Last_Ind < Byte'Last;
 
          Buffer (I) := Character'Val (Byte (1));
 
          --  Check for end of line
+
          if Buffer (I) = ASCII.LF then
+            --  This is LF
             if I > Buffer'First
               and then Buffer (I - 1) = ASCII.CR
             then
+               -- And previous char was a CR, skip it
                Last := Last - 1;
             end if;
+
             Resource.LFT := True;
             exit;
          end if;
