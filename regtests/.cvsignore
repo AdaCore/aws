@@ -445,6 +445,14 @@ wsdl_4_service-types.ads
 wsdl_4_service.ads
 wsdl_a.res
 wsdl_a.wsdl
+wsdl_parse_1-client.adb
+wsdl_parse_1-client.ads
+wsdl_parse_1-server.adb
+wsdl_parse_1-server.ads
+wsdl_parse_1-types.adb
+wsdl_parse_1-types.ads
+wsdl_parse_1.ads
+wsdl_parse_1.res
 zapp
 zapp.res
 zbig
