@@ -124,29 +124,47 @@ package body AWS.Client.XML.Input_Sources is
       ES := Get_Encoding (From);
       CS := Get_Character_Set (From);
 
-      while (From.Last - From.First) in 0 .. 4 loop
+      if From.Buffer'Last - From.First < 5 then
          --  UTF8 encoding character length could be from 1 to 6 bytes.
          --  UTF16 could be 2 or 4 bytes.
          --  Unicode.CES.Read routine is in danger to violate byte sequence
-         --  range if last character in buffer only portion. We have to use
-         --  5 dummy characters for be able to know that there is not enought
-         --  bytes in the buffer.
+         --  range if last character in buffer only portion. We have to move
+         --  remain data in buffer to the begin, to have a place for parce
+         --  encoding.
 
-         if From.First > From.Buffer'First then
-            --  Move remain bytes to the begin of buffer
+         Temp := From.Buffer'First + From.Last - From.First;
 
-            Temp := From.Buffer'First + From.Last - From.First;
+         From.Buffer (From.Buffer'First .. Temp)
+           := From.Buffer (From.First .. From.Last);
 
-            From.Buffer (From.Buffer'First .. Temp)
-              := From.Buffer (From.First .. From.Last);
+         From.First := From.Buffer'First;
+         From.Last  := Temp;
 
-            From.First := From.Buffer'First;
-            From.Last  := Temp;
-         end if;
+      end if;
+
+      loop
+         --  We would need loop for append data to buffer, if last character in
+         --  buffer is only portion.
 
          Temp := From.First;
 
-         ES.Read (+From.Buffer, Integer (From.First), C);
+         begin
+            ES.Read (+From.Buffer, Integer (From.First), C);
+         exception
+            when Unicode.CES.Invalid_Encoding =>
+               if From.Last - From.First < 5 then
+                  --  It could be just portion of the UTF8 or UTF16 encoding
+                  --  Emulate normal encoding with overrange.
+                  --  ??? Note, we could not distinguish character portion from
+                  --  the wrong encoding in the first attempt when number of
+                  --  bytes is less then 5 with the current XMLAda interface.
+
+                  From.First := From.Buffer'Last;
+
+               else
+                  raise;
+               end if;
+         end;
 
          if From.First > From.Last + 1 then
             --  Last character is only portion. We have to read some more data
@@ -161,13 +179,9 @@ package body AWS.Client.XML.Input_Sources is
 
          else
             C := CS.To_Unicode (C);
-            return;
+            exit;
          end if;
       end loop;
-
-      ES.Read (+From.Buffer, Integer (From.First), C);
-
-      C := CS.To_Unicode (C);
    end Next_Char;
 
 end AWS.Client.XML.Input_Sources;

@@ -1,3 +1,9 @@
+2004-05-29  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* aws-client-xml-input_sources.adb:
+	(Next_Char): Set First on buffer movement.
+	 Catch Invalid_Encoding in case of character portion.
+
 2004-05-29  Pascal Obry  <pascal@obry.org>
 
 	* aws-client-xml.ads:
