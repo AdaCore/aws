@@ -150,6 +150,11 @@ implemented:
   level on the server side. Right now a task is doing the job.
   Note that socket timeout is already used on the client side.
 
+- Would be nice to support HTTPS Server response that makes the browser (IE
+  can do that) to ask for a certificate. This client certificate can then be
+  used to authenticate the user at the other side. This certificate based
+  authentication is more secure than the standard user/password only.
+
 =============== Point to fix/implement/review before next release (2.1)
 
 - Add reply-all support to the Web_Mail service.
