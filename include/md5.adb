@@ -1,432 +1,559 @@
+------------------------------------------------------------------------------
+--                                                                          --
+--                         GNAT LIBRARY COMPONENTS                          --
+--                                                                          --
+--                             G N A T . M D 5                              --
+--                                                                          --
+--                                B o d y                                   --
+--                                                                          --
+--            Copyright (C) 2002-2004 Ada Core Technologies, Inc.           --
+--                                                                          --
+-- GNAT is free software;  you can  redistribute it  and/or modify it under --
+-- terms of the  GNU General Public License as published  by the Free Soft- --
+-- ware  Foundation;  either version 2,  or (at your option) any later ver- --
+-- sion.  GNAT is distributed in the hope that it will be useful, but WITH- --
+-- OUT ANY WARRANTY;  without even the  implied warranty of MERCHANTABILITY --
+-- or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License --
+-- for  more details.  You should have  received  a copy of the GNU General --
+-- Public License  distributed with GNAT;  see file COPYING.  If not, write --
+-- to  the Free Software Foundation,  59 Temple Place - Suite 330,  Boston, --
+-- MA 02111-1307, USA.                                                      --
+--                                                                          --
+-- As a special exception,  if other files  instantiate  generics from this --
+-- unit, or you link  this unit with other files  to produce an executable, --
+-- this  unit  does not  by itself cause  the resulting  executable  to  be --
+-- covered  by the  GNU  General  Public  License.  This exception does not --
+-- however invalidate  any other reasons why  the executable file  might be --
+-- covered by the  GNU Public License.                                      --
+--                                                                          --
+-- GNAT was originally developed  by the GNAT team at  New York University. --
+-- Extensive contributions were provided by Ada Core Technologies Inc.      --
+--                                                                          --
+------------------------------------------------------------------------------
+
 with Ada.Unchecked_Conversion;
 
 package body MD5 is
 
-  --====================================================================
-  -- Authors   Rolf Ebert,
-  --           Christoph Grein <Christ-Usch.Grein@T-Online.de>
-  -- Version   1.1
-  -- Date      16 January 1999
-  --====================================================================
-  -- This is a direct translation into Ada of the C language Reference
-  -- Implementation given in the official MD5 algorithm description.
-  -- It was originally written by Rolf Ebert (unknown address).
-  --
-  -- The official description of the MD5 algorithm can be found at
-  --   <ftp://ftp.rsa.com/pub/md5.txt>
-  -- License is granted by RSA Data Security, Inc. <http://www.rsa.com>
-  -- to make and use derivative works provided that such works are
-  -- identified as "derived from the RSA Data Security, Inc. MD5
-  -- Message-Digest Algorithm" in all material mentioning or referencing
-  -- the derived work. (See the copyright notice in the official
-  -- description.)
-  --====================================================================
-  -- History
-  -- Author Version   Date    Reason for change
-  --  R.E.    1.0  04.06.1997 Original as found in internet
-  --  C.G.    1.1  16.01.1999 Minor code changes; commented to make
-  --                          publication legal
-  --====================================================================
+   use Interfaces;
 
-  function Rotate_Left (Value: Word; Amount: Natural) return Word;
-  function Shift_Left  (Value: Word; Amount: Natural) return Word;
-  function Shift_Right (Value: Word; Amount: Natural) return Word;
-  pragma Import (Intrinsic, Rotate_Left);
-  pragma Import (Intrinsic, Shift_Left);
-  pragma Import (Intrinsic, Shift_Right);
+   Padding : constant String :=
+     (1 => Character'Val (16#80#), 2 .. 64 => ASCII.NUL);
 
-  ------------------------------------------------------------------------
-  --  F, G, H, I are the basic MD5 functions
+   Hex_Digit : constant array (Unsigned_32 range 0 .. 15) of Character :=
+     ('0', '1', '2', '3', '4', '5', '6', '7',
+      '8', '9', 'a', 'b', 'c', 'd', 'e', 'f');
+   --  Look-up table for each hex digit of the Message-Digest.
+   --  Used by function Digest (Context).
 
-  function F (X, Y, Z: Word) return Word is
-  begin
-    return (X and Y) or ((not X) and Z);
-  end F;
-  pragma Inline (F);
+   --  The sixten values used to rotate the context words.
+   --  Four for each rounds. Used in procedure Transform.
 
-  function G (X, Y, Z: Word) return Word is
-  begin
-    return (X and Z) or (Y and (not Z));
-  end G;
-  pragma Inline (G);
+   --  Round 1
 
-  function H (X, Y, Z: Word) return Word is
-  begin
-    return X xor Y xor Z;
-  end H;
-  pragma Inline (H);
+   S11 : constant := 7;
+   S12 : constant := 12;
+   S13 : constant := 17;
+   S14 : constant := 22;
 
-  function I (X, Y, Z: Word) return Word is
-  begin
-    return Y xor (X or (not Z));
-  end I;
-  pragma Inline (I);
+   --  Round 2
 
-  ------------------------------------------------------------------------
+   S21 : constant := 5;
+   S22 : constant := 9;
+   S23 : constant := 14;
+   S24 : constant := 20;
 
-  procedure FF (A         : in out Word;
-                B, C, D, X: in     Word;
-                S         : in     Natural;
-                AC        : in     Word) is
-  begin
-    A := A + F (B, C, D) + X + AC;
-    A := Rotate_Left (A, S) + B;
-  end FF;
-  pragma Inline (FF);
+   --  Round 3
 
-  procedure GG (A         : in out Word;
-                B, C, D, X: in     Word;
-                S         : in     Natural;
-                AC        : in     Word) is
-  begin
-    A := A + G (B, C, D) + X + AC;
-    A := Rotate_Left (A, S) + B;
-  end GG;
-  pragma Inline (GG);
+   S31 : constant := 4;
+   S32 : constant := 11;
+   S33 : constant := 16;
+   S34 : constant := 23;
 
-  procedure HH (A         : in out Word;
-                B, C, D, X: in     Word;
-                S         : in     Natural;
-                AC        : in     Word) is
-  begin
-    A := A + H (B, C, D) + X + AC;
-    A := Rotate_Left (A, S) + B;
-  end HH;
-  pragma Inline (HH);
+   --  Round 4
 
-  procedure II (A         : in out Word;
-                B, C, D, X: in     Word;
-                S         : in     Natural;
-                AC        : in     Word) is
-  begin
-     A := A + I (B, C, D) + X + AC;
-     A := Rotate_Left (A, S) + B;
-  end II;
-  pragma Inline (II);
+   S41 : constant := 6;
+   S42 : constant := 10;
+   S43 : constant := 15;
+   S44 : constant := 21;
 
-  ------------------------------------------------------------------------
+   type Sixteen_Words is array (Natural range 0 .. 15)
+     of Interfaces.Unsigned_32;
+   --  Sixteen 32-bit words, converted from block of 64 characters.
+   --  Used in procedure Decode and Transform.
 
-  procedure Encode (Output:    out Byte_Array;
-                    Input : in     Word_Array) is
+   procedure Decode
+     (Block : String;
+      X     : out Sixteen_Words);
+   --  Convert a String of 64 characters into 16 32-bit numbers
 
-    J: Long_Integer := Output'First;
+   --  The following functions (F, FF, G, GG, H, HH, I and II) are the
+   --  equivalent of the macros of the same name in the example
+   --  C implementation in the annex of RFC 1321.
 
-  begin
+   function F (X, Y, Z : Unsigned_32) return Unsigned_32;
+   pragma Inline (F);
 
-    for I in Input'range loop
-      Output (J    ) := Byte (             Input (I)      and 16#FF#);
-      Output (J + 1) := Byte (Shift_Right (Input (I),  8) and 16#FF#);
-      Output (J + 2) := Byte (Shift_Right (Input (I), 16) and 16#FF#);
-      Output (J + 3) := Byte (Shift_Right (Input (I), 24) and 16#FF#);
-      J := J + 4;
-    end loop;
+   procedure FF
+     (A       : in out Unsigned_32;
+      B, C, D : Unsigned_32;
+      X       : Unsigned_32;
+      AC      : Unsigned_32;
+      S       : Positive);
+   pragma Inline (FF);
 
-  end Encode;
+   function G (X, Y, Z : Unsigned_32) return Unsigned_32;
+   pragma Inline (G);
 
-  procedure Decode (Output:    out Word_Array;
-                    Input : in     Byte_Array) is
+   procedure GG
+     (A       : in out Unsigned_32;
+      B, C, D : Unsigned_32;
+      X       : Unsigned_32;
+      AC      : Unsigned_32;
+      S       : Positive);
+   pragma Inline (GG);
 
-    J : Long_Integer := Input'First;
+   function H (X, Y, Z : Unsigned_32) return Unsigned_32;
+   pragma Inline (H);
 
-  begin
+   procedure HH
+     (A       : in out Unsigned_32;
+      B, C, D : Unsigned_32;
+      X       : Unsigned_32;
+      AC      : Unsigned_32;
+      S       : Positive);
+   pragma Inline (HH);
 
-    for I in Output'range loop
-      Output (I) :=             Word (Input (J    ))      or
-                    Shift_Left (Word (Input (J + 1)),  8) or
-                    Shift_Left (Word (Input (J + 2)), 16) or
-                    Shift_Left (Word (Input (J + 3)), 24);
-      J := J + 4;
-    end loop;
+   function I (X, Y, Z : Unsigned_32) return Unsigned_32;
+   pragma Inline (I);
 
-  end Decode;
+   procedure II
+     (A       : in out Unsigned_32;
+      B, C, D : Unsigned_32;
+      X       : Unsigned_32;
+      AC      : Unsigned_32;
+      S       : Positive);
+   pragma Inline (II);
 
-  ------------------------------------------------------------------------
+   procedure Transform
+     (C     : in out Context;
+      Block : String);
+   --  Process one block of 64 characters.
 
-  S11: constant :=  7;
-  S12: constant := 12;
-  S13: constant := 17;
-  S14: constant := 22;
-  S21: constant :=  5;
-  S22: constant :=  9;
-  S23: constant := 14;
-  S24: constant := 20;
-  S31: constant :=  4;
-  S32: constant := 11;
-  S33: constant := 16;
-  S34: constant := 23;
-  S41: constant :=  6;
-  S42: constant := 10;
-  S43: constant := 15;
-  S44: constant := 21;
+   ------------
+   -- Decode --
+   ------------
 
-  procedure Transform (State: in out ABCD_State;
-                       Block: in     Buffer_T) is
+   procedure Decode
+     (Block : String;
+      X     : out Sixteen_Words)
+   is
+      Cur   : Positive := Block'First;
 
-    A: Word := State (1);
-    B: Word := State (2);
-    C: Word := State (3);
-    D: Word := State (4);
+   begin
+      pragma Assert (Block'Length = 64);
 
-    X: Word_Array (0 .. 15);
+      for Index in X'Range loop
+         X (Index) :=
+           Unsigned_32 (Character'Pos (Block (Cur))) +
+           Shift_Left (Unsigned_32 (Character'Pos (Block (Cur + 1))), 8) +
+           Shift_Left (Unsigned_32 (Character'Pos (Block (Cur + 2))), 16) +
+           Shift_Left (Unsigned_32 (Character'Pos (Block (Cur + 3))), 24);
+         Cur := Cur + 4;
+      end loop;
+   end Decode;
 
-  begin
+   ------------
+   -- Digest --
+   ------------
 
-    Decode (X, Block);
+   function Digest (C : Context) return Message_Digest is
+      Result : Message_Digest;
 
-    -- Round 1
+      Cur : Natural := 1;
+      --  Index in Result where the next character will be placed.
 
-    FF (A, B, C, D, X ( 0), S11, 16#D76AA478#);  --  1
-    FF (D, A, B, C, X ( 1), S12, 16#E8C7B756#);  --  2
-    FF (C, D, A, B, X ( 2), S13, 16#242070DB#);  --  3
-    FF (B, C, D, A, X ( 3), S14, 16#C1BDCEEE#);  --  4
-    FF (A, B, C, D, X ( 4), S11, 16#F57C0FAF#);  --  5
-    FF (D, A, B, C, X ( 5), S12, 16#4787C62A#);  --  6
-    FF (C, D, A, B, X ( 6), S13, 16#A8304613#);  --  7
-    FF (B, C, D, A, X ( 7), S14, 16#FD469501#);  --  8
-    FF (A, B, C, D, X ( 8), S11, 16#698098D8#);  --  9
-    FF (D, A, B, C, X ( 9), S12, 16#8B44F7AF#);  -- 10
-    FF (C, D, A, B, X (10), S13, 16#FFFF5BB1#);  -- 11
-    FF (B, C, D, A, X (11), S14, 16#895CD7BE#);  -- 12
-    FF (A, B, C, D, X (12), S11, 16#6B901122#);  -- 13
-    FF (D, A, B, C, X (13), S12, 16#FD987193#);  -- 14
-    FF (C, D, A, B, X (14), S13, 16#A679438E#);  -- 15
-    FF (B, C, D, A, X (15), S14, 16#49B40821#);  -- 16
+      Last_Block : String (1 .. 64);
 
-    -- Round 2
+      C1 : Context := C;
 
-    GG (A, B, C, D, X ( 1), S21, 16#F61E2562#);  -- 17
-    GG (D, A, B, C, X ( 6), S22, 16#C040B340#);  -- 18
-    GG (C, D, A, B, X (11), S23, 16#265E5A51#);  -- 19
-    GG (B, C, D, A, X ( 0), S24, 16#E9B6C7AA#);  -- 20
-    GG (A, B, C, D, X ( 5), S21, 16#D62F105D#);  -- 21
-    GG (D, A, B, C, X (10), S22, 16#02441453#);  -- 22
-    GG (C, D, A, B, X (15), S23, 16#D8A1E681#);  -- 23
-    GG (B, C, D, A, X ( 4), S24, 16#E7D3FBC8#);  -- 24
-    GG (A, B, C, D, X ( 9), S21, 16#21E1CDE6#);  -- 25
-    GG (D, A, B, C, X (14), S22, 16#C33707D6#);  -- 26
-    GG (C, D, A, B, X ( 3), S23, 16#F4D50D87#);  -- 27
-    GG (B, C, D, A, X ( 8), S24, 16#455A14ED#);  -- 28
-    GG (A, B, C, D, X (13), S21, 16#A9E3E905#);  -- 29
-    GG (D, A, B, C, X ( 2), S22, 16#FCEFA3F8#);  -- 30
-    GG (C, D, A, B, X ( 7), S23, 16#676F02D9#);  -- 31
-    GG (B, C, D, A, X (12), S24, 16#8D2A4C8A#);  -- 32
+      procedure Convert (X : Unsigned_32);
+      --  Put the contribution of one of the four words (A, B, C, D) of the
+      --  Context in Result. Increments Cur.
 
-    -- Round 3
+      -------------
+      -- Convert --
+      -------------
 
-    HH (A, B, C, D, X ( 5), S31, 16#FFFA3942#);  -- 33
-    HH (D, A, B, C, X ( 8), S32, 16#8771F681#);  -- 34
-    HH (C, D, A, B, X (11), S33, 16#6D9D6122#);  -- 35
-    HH (B, C, D, A, X (14), S34, 16#FDE5380C#);  -- 36
-    HH (A, B, C, D, X ( 1), S31, 16#A4BEEA44#);  -- 37
-    HH (D, A, B, C, X ( 4), S32, 16#4BDECFA9#);  -- 38
-    HH (C, D, A, B, X ( 7), S33, 16#F6BB4B60#);  -- 39
-    HH (B, C, D, A, X (10), S34, 16#BEBFBC70#);  -- 40
-    HH (A, B, C, D, X (13), S31, 16#289B7EC6#);  -- 41
-    HH (D, A, B, C, X ( 0), S32, 16#EAA127FA#);  -- 42
-    HH (C, D, A, B, X ( 3), S33, 16#D4EF3085#);  -- 43
-    HH (B, C, D, A, X ( 6), S34, 16#04881D05#);  -- 44
-    HH (A, B, C, D, X ( 9), S31, 16#D9D4D039#);  -- 45
-    HH (D, A, B, C, X (12), S32, 16#E6DB99E5#);  -- 46
-    HH (C, D, A, B, X (15), S33, 16#1FA27CF8#);  -- 47
-    HH (B, C, D, A, X ( 2), S34, 16#C4AC5665#);  -- 48
+      procedure Convert (X : Unsigned_32) is
+         Y : Unsigned_32 := X;
 
-    --  Round 4
+      begin
+         for J in 1 .. 4 loop
+            Result (Cur + 1) := Hex_Digit (Y and Unsigned_32'(16#0F#));
+            Y := Shift_Right (Y, 4);
+            Result (Cur) := Hex_Digit (Y and Unsigned_32'(16#0F#));
+            Y := Shift_Right (Y, 4);
+            Cur := Cur + 2;
+         end loop;
+      end Convert;
 
-    II (A, B, C, D, X ( 0), S41, 16#F4292244#);  -- 49
-    II (D, A, B, C, X ( 7), S42, 16#432AFF97#);  -- 50
-    II (C, D, A, B, X (14), S43, 16#AB9423A7#);  -- 51
-    II (B, C, D, A, X ( 5), S44, 16#FC93A039#);  -- 52
-    II (A, B, C, D, X (12), S41, 16#655B59C3#);  -- 53
-    II (D, A, B, C, X ( 3), S42, 16#8F0CCC92#);  -- 54
-    II (C, D, A, B, X (10), S43, 16#FFEFF47D#);  -- 55
-    II (B, C, D, A, X ( 1), S44, 16#85845DD1#);  -- 56
-    II (A, B, C, D, X ( 8), S41, 16#6FA87E4F#);  -- 57
-    II (D, A, B, C, X (15), S42, 16#FE2CE6E0#);  -- 58
-    II (C, D, A, B, X ( 6), S43, 16#A3014314#);  -- 59
-    II (B, C, D, A, X (13), S44, 16#4E0811A1#);  -- 60
-    II (A, B, C, D, X ( 4), S41, 16#F7537E82#);  -- 61
-    II (D, A, B, C, X (11), S42, 16#BD3AF235#);  -- 62
-    II (C, D, A, B, X ( 2), S43, 16#2AD7D2BB#);  -- 63
-    II (B, C, D, A, X ( 9), S44, 16#EB86D391#);  -- 64
+   --  Start of processing for Digest
 
-    State (1) := State (1) + A;
-    State (2) := State (2) + B;
-    State (3) := State (3) + C;
-    State (4) := State (4) + D;
+   begin
+      --  Process characters in the context buffer, if any
 
-    --  Zeroize sensitive information.
+      Last_Block (1 .. C.Last) := C.Buffer (1 .. C.Last);
 
-    X := (others => 0);
+      if C.Last > 56 then
+         Last_Block (C.Last + 1 .. 64) := Padding (1 .. 64 - C.Last);
+         Transform (C1, Last_Block);
+         Last_Block := (others => ASCII.NUL);
 
-  end Transform;
+      else
+         Last_Block (C.Last + 1 .. 56) := Padding (1 .. 56 - C.Last);
+      end if;
 
-  ------------------------------------------------------------------------
+      --  Add the input length (as stored in the context) as 8 characters
 
-  procedure Init (Ctx: out Context) is
-  begin
-    Ctx := (State  => (1 => 16#67452301#,
-                       2 => 16#Efcdab89#,
-                       3 => 16#98badcfe#,
-                       4 => 16#10325476#),
-            Count  => (others => 0),
-            Buffer => (others => 0));
-  end Init;
+      Last_Block (57 .. 64) := (others => ASCII.NUL);
 
-  procedure Update (Ctx: in out Context; Data: in Byte_Array) is
+      declare
+         L : Unsigned_64 := Unsigned_64 (C.Length) * 8;
+         Idx : Positive := 57;
 
-    Index   : Long_Integer;
-    Part_Len: Long_Integer;
-    I       : Long_Integer;
+      begin
+         while L > 0 loop
+            Last_Block (Idx) := Character'Val (L and 16#Ff#);
+            L := Shift_Right (L, 8);
+            Idx := Idx + 1;
+         end loop;
+      end;
 
-  begin
+      Transform (C1, Last_Block);
 
-    -- compute number of bytes mod 64
-    Index := Long_Integer (Shift_Right (Ctx.Count (1), 3) and 16#3F#);
+      Convert (C1.A);
+      Convert (C1.B);
+      Convert (C1.C);
+      Convert (C1.D);
+      return Result;
+   end Digest;
 
-    -- update number of bits
-    Ctx.Count (1) := Ctx.Count (1) + Shift_Left (Word (Data'Length), 3);
-    if Ctx.Count (1) < Shift_Left (Word (Data'Length), 3) then
-      Ctx.Count (2) := Ctx.Count (2) + 1;
-    end if;
-    Ctx.Count (2) := Ctx.Count (2) + Shift_Right (Word (Data'Length), 29);
+   function Digest (S : String) return Message_Digest is
+      C : Context;
 
-    Part_Len := 64 - Index;
+   begin
+      Update (C, S);
+      return Digest (C);
+   end Digest;
 
-    -- Transform as many times as possible.
-    if Data'Length >= Part_Len then
+   function Digest
+     (A    : Ada.Streams.Stream_Element_Array)
+      return Message_Digest
+   is
+      C : Context;
 
-      Ctx.Buffer (Index + 1 .. Index + Part_Len) :=
-        Data (Data'First .. Data'First + Part_Len - 1);
+   begin
+      Update (C, A);
+      return Digest (C);
+   end Digest;
 
-      Transform (Ctx.State, Ctx.Buffer);
+   -------
+   -- F --
+   -------
 
-      I := Part_Len;
-      while I + 63 < Data'Length loop
-        Transform (Ctx.State, Data (I + 1 .. I + 64));
-        I := I + 64;
+   function F (X, Y, Z : Unsigned_32) return Unsigned_32 is
+   begin
+      return (X and Y) or ((not X) and Z);
+   end F;
+
+   --------
+   -- FF --
+   --------
+
+   procedure FF
+     (A       : in out Unsigned_32;
+      B, C, D : Unsigned_32;
+      X       : Unsigned_32;
+      AC      : Unsigned_32;
+      S       : Positive)
+   is
+   begin
+      A := A + F (B, C, D) + X + AC;
+      A := Rotate_Left (A, S);
+      A := A + B;
+   end FF;
+
+   -------
+   -- G --
+   -------
+
+   function G (X, Y, Z : Unsigned_32) return Unsigned_32 is
+   begin
+      return (X and Z) or (Y and (not Z));
+   end G;
+
+   --------
+   -- GG --
+   --------
+
+   procedure GG
+     (A       : in out Unsigned_32;
+      B, C, D : Unsigned_32;
+      X       : Unsigned_32;
+      AC      : Unsigned_32;
+      S       : Positive)
+   is
+   begin
+      A := A + G (B, C, D) + X + AC;
+      A := Rotate_Left (A, S);
+      A := A + B;
+   end GG;
+
+   -------
+   -- H --
+   -------
+
+   function H (X, Y, Z : Unsigned_32) return Unsigned_32 is
+   begin
+      return X xor Y xor Z;
+   end H;
+
+   --------
+   -- HH --
+   --------
+
+   procedure HH
+     (A       : in out Unsigned_32;
+      B, C, D : Unsigned_32;
+      X       : Unsigned_32;
+      AC      : Unsigned_32;
+      S       : Positive)
+   is
+   begin
+      A := A + H (B, C, D) + X + AC;
+      A := Rotate_Left (A, S);
+      A := A + B;
+   end HH;
+
+   -------
+   -- I --
+   -------
+
+   function I (X, Y, Z : Unsigned_32) return Unsigned_32 is
+   begin
+      return Y xor (X or (not Z));
+   end I;
+
+   --------
+   -- II --
+   --------
+
+   procedure II
+     (A       : in out Unsigned_32;
+      B, C, D : Unsigned_32;
+      X       : Unsigned_32;
+      AC      : Unsigned_32;
+      S       : Positive)
+   is
+   begin
+      A := A + I (B, C, D) + X + AC;
+      A := Rotate_Left (A, S);
+      A := A + B;
+   end II;
+
+   ---------------
+   -- Transform --
+   ---------------
+
+   procedure Transform
+     (C     : in out Context;
+      Block : String)
+   is
+      X : Sixteen_Words;
+
+      AA : Unsigned_32 := C.A;
+      BB : Unsigned_32 := C.B;
+      CC : Unsigned_32 := C.C;
+      DD : Unsigned_32 := C.D;
+
+   begin
+      pragma Assert (Block'Length = 64);
+
+      Decode (Block, X);
+
+      --  Round 1
+
+      FF (AA, BB, CC, DD, X (00), 16#D76aa478#, S11); --  1
+      FF (DD, AA, BB, CC, X (01), 16#E8c7b756#, S12); --  2
+      FF (CC, DD, AA, BB, X (02), 16#242070db#, S13); --  3
+      FF (BB, CC, DD, AA, X (03), 16#C1bdceee#, S14); --  4
+
+      FF (AA, BB, CC, DD, X (04), 16#f57c0faf#, S11); --  5
+      FF (DD, AA, BB, CC, X (05), 16#4787c62a#, S12); --  6
+      FF (CC, DD, AA, BB, X (06), 16#a8304613#, S13); --  7
+      FF (BB, CC, DD, AA, X (07), 16#fd469501#, S14); --  8
+
+      FF (AA, BB, CC, DD, X (08), 16#698098d8#, S11); --  9
+      FF (DD, AA, BB, CC, X (09), 16#8b44f7af#, S12); --  10
+      FF (CC, DD, AA, BB, X (10), 16#ffff5bb1#, S13); --  11
+      FF (BB, CC, DD, AA, X (11), 16#895cd7be#, S14); --  12
+
+      FF (AA, BB, CC, DD, X (12), 16#6b901122#, S11); --  13
+      FF (DD, AA, BB, CC, X (13), 16#fd987193#, S12); --  14
+      FF (CC, DD, AA, BB, X (14), 16#a679438e#, S13); --  15
+      FF (BB, CC, DD, AA, X (15), 16#49b40821#, S14); --  16
+
+      --  Round 2
+
+      GG (AA, BB, CC, DD, X (01), 16#f61e2562#, S21); --  17
+      GG (DD, AA, BB, CC, X (06), 16#c040b340#, S22); --  18
+      GG (CC, DD, AA, BB, X (11), 16#265e5a51#, S23); --  19
+      GG (BB, CC, DD, AA, X (00), 16#e9b6c7aa#, S24); --  20
+
+      GG (AA, BB, CC, DD, X (05), 16#d62f105d#, S21); --  21
+      GG (DD, AA, BB, CC, X (10), 16#02441453#, S22); --  22
+      GG (CC, DD, AA, BB, X (15), 16#d8a1e681#, S23); --  23
+      GG (BB, CC, DD, AA, X (04), 16#e7d3fbc8#, S24); --  24
+
+      GG (AA, BB, CC, DD, X (09), 16#21e1cde6#, S21); --  25
+      GG (DD, AA, BB, CC, X (14), 16#c33707d6#, S22); --  26
+      GG (CC, DD, AA, BB, X (03), 16#f4d50d87#, S23); --  27
+      GG (BB, CC, DD, AA, X (08), 16#455a14ed#, S24); --  28
+
+      GG (AA, BB, CC, DD, X (13), 16#a9e3e905#, S21); --  29
+      GG (DD, AA, BB, CC, X (02), 16#fcefa3f8#, S22); --  30
+      GG (CC, DD, AA, BB, X (07), 16#676f02d9#, S23); --  31
+      GG (BB, CC, DD, AA, X (12), 16#8d2a4c8a#, S24); --  32
+
+      --  Round 3
+
+      HH (AA, BB, CC, DD, X (05), 16#fffa3942#, S31); --  33
+      HH (DD, AA, BB, CC, X (08), 16#8771f681#, S32); --  34
+      HH (CC, DD, AA, BB, X (11), 16#6d9d6122#, S33); --  35
+      HH (BB, CC, DD, AA, X (14), 16#fde5380c#, S34); --  36
+
+      HH (AA, BB, CC, DD, X (01), 16#a4beea44#, S31); --  37
+      HH (DD, AA, BB, CC, X (04), 16#4bdecfa9#, S32); --  38
+      HH (CC, DD, AA, BB, X (07), 16#f6bb4b60#, S33); --  39
+      HH (BB, CC, DD, AA, X (10), 16#bebfbc70#, S34); --  40
+
+      HH (AA, BB, CC, DD, X (13), 16#289b7ec6#, S31); --  41
+      HH (DD, AA, BB, CC, X (00), 16#eaa127fa#, S32); --  42
+      HH (CC, DD, AA, BB, X (03), 16#d4ef3085#, S33); --  43
+      HH (BB, CC, DD, AA, X (06), 16#04881d05#, S34); --  44
+
+      HH (AA, BB, CC, DD, X (09), 16#d9d4d039#, S31); --  45
+      HH (DD, AA, BB, CC, X (12), 16#e6db99e5#, S32); --  46
+      HH (CC, DD, AA, BB, X (15), 16#1fa27cf8#, S33); --  47
+      HH (BB, CC, DD, AA, X (02), 16#c4ac5665#, S34); --  48
+
+      --  Round 4
+
+      II (AA, BB, CC, DD, X (00), 16#f4292244#, S41); --  49
+      II (DD, AA, BB, CC, X (07), 16#432aff97#, S42); --  50
+      II (CC, DD, AA, BB, X (14), 16#ab9423a7#, S43); --  51
+      II (BB, CC, DD, AA, X (05), 16#fc93a039#, S44); --  52
+
+      II (AA, BB, CC, DD, X (12), 16#655b59c3#, S41); --  53
+      II (DD, AA, BB, CC, X (03), 16#8f0ccc92#, S42); --  54
+      II (CC, DD, AA, BB, X (10), 16#ffeff47d#, S43); --  55
+      II (BB, CC, DD, AA, X (01), 16#85845dd1#, S44); --  56
+
+      II (AA, BB, CC, DD, X (08), 16#6fa87e4f#, S41); --  57
+      II (DD, AA, BB, CC, X (15), 16#fe2ce6e0#, S42); --  58
+      II (CC, DD, AA, BB, X (06), 16#a3014314#, S43); --  59
+      II (BB, CC, DD, AA, X (13), 16#4e0811a1#, S44); --  60
+
+      II (AA, BB, CC, DD, X (04), 16#f7537e82#, S41); --  61
+      II (DD, AA, BB, CC, X (11), 16#bd3af235#, S42); --  62
+      II (CC, DD, AA, BB, X (02), 16#2ad7d2bb#, S43); --  63
+      II (BB, CC, DD, AA, X (09), 16#eb86d391#, S44); --  64
+
+      C.A := C.A + AA;
+      C.B := C.B + BB;
+      C.C := C.C + CC;
+      C.D := C.D + DD;
+
+   end Transform;
+
+   ------------
+   -- Update --
+   ------------
+
+   procedure Update
+     (C     : in out Context;
+      Input : String)
+   is
+      Inp : constant String := C.Buffer (1 .. C.Last) & Input;
+      Cur        : Positive := Inp'First;
+
+   begin
+      C.Length := C.Length + Input'Length;
+
+      while Cur + 63 <= Inp'Last loop
+         Transform (C, Inp (Cur .. Cur + 63));
+         Cur := Cur + 64;
       end loop;
 
-      Index := 0;
+      C.Last := Inp'Last - Cur + 1;
+      C.Buffer (1 .. C.Last) := Inp (Cur .. Inp'Last);
+   end Update;
 
-    else
+   procedure Update
+     (C     : in out Context;
+      Input : Ada.Streams.Stream_Element_Array)
+   is
+      subtype Stream_Array is Ada.Streams.Stream_Element_Array (Input'Range);
+      subtype Stream_String is
+        String (1 + Integer (Input'First) .. 1 + Integer (Input'Last));
 
-      I := 0;
+      function To_String is new Ada.Unchecked_Conversion
+        (Stream_Array, Stream_String);
 
-    end if;
+      String_Input : constant String := To_String (Input);
+   begin
+      Update (C, String_Input);
+   end Update;
 
-    -- Buffer remaining input
-    Ctx.Buffer (Index + 1 .. Index + Data'Length - I) := Data (I + 1 .. Data'Length);
+   -----------------
+   -- Wide_Digest --
+   -----------------
 
-  end Update;
+   function Wide_Digest (W : Wide_String) return Message_Digest is
+      C : Context;
 
-  procedure Update (Ctx: in out Context; Data: in String) is
+   begin
+      Wide_Update (C, W);
+      return Digest (C);
+   end Wide_Digest;
 
-    subtype Data_Byte_Array is Byte_Array (1 .. Data'Length);
-    subtype Data_String     is String     (1 .. Data'Length);
+   -----------------
+   -- Wide_Update --
+   -----------------
 
-    function String_To_Byte_Array is new Ada.Unchecked_Conversion
-      (Source => Data_String,
-       Target => Data_Byte_Array);
+   procedure Wide_Update
+     (C     : in out Context;
+      Input : Wide_String)
+   is
 
-  begin
+      String_Input : String (1 .. 2 * Input'Length);
+      Cur          : Positive := 1;
 
-    Update (Ctx, String_To_Byte_Array (Data_String (Data)));
+   begin
+      for Index in Input'Range loop
+         String_Input (Cur) :=
+           Character'Val
+            (Unsigned_32 (Wide_Character'Pos (Input (Index))) and 16#FF#);
+         Cur := Cur + 1;
+         String_Input (Cur) :=
+           Character'Val
+           (Shift_Right (Unsigned_32 (Wide_Character'Pos (Input (Index))), 8)
+            and 16#FF#);
+         Cur := Cur + 1;
+      end loop;
 
-  end Update;
-
-  procedure Final (Ctx: in out Context; Digest: out Fingerprint) is
-
-    Bits      : Byte_Array (1 .. 8);
-    Index     : Long_Integer;
-    Pad_Length: Long_Integer;
-
-    Padding   : constant Buffer_T := (1 => 16#80#, others => 0);
-
-  begin
-
-    -- save number of bits
-    Encode (Bits, Ctx.Count);
-
-    -- Pad out to 56 mod 64.
-    Index := Long_Integer (Shift_Right (Ctx.Count(1), 3) and 16#3F#);
-    if Index < 56 then
-      Pad_Length := 56 - Index;
-    else
-      Pad_Length := 120 - Index;
-    end if;
-
-    Update (Ctx, Padding (1 .. Pad_Length));
-
-    -- Append length (before padding)
-    Update (Ctx, Bits);
-
-    -- Store state in digest
-    Encode (Digest, Ctx.State);
-
-    -- Zeroize sensitive information.
-    Ctx := (State  => (others => 0),
-            Count  => (others => 0),
-            Buffer => (others => 0));
-
-  end Final;
-
-  ------------------------------------------------------------------------
-
-  Hex_Tab: constant array (0 .. 15) of Character := "0123456789abcdef";
-
-  function Digest_From_Text (S: in Digest_String) return Fingerprint is
-
-    Digest: Fingerprint;
-    Val   : Word;
-    Ch    : Character;
-
-  begin
-
-    for I in Digest'range loop
-
-      Ch := S (2 * Integer (I));
-      case Ch is
-        when '0' .. '9' => Val := Character'Pos (Ch) - Character'Pos ('0');
-        when 'a' .. 'f' => Val := Character'Pos (Ch) - Character'Pos ('a') + 10;
-        when 'A' .. 'F' => Val := Character'Pos (Ch) - Character'Pos ('A') + 10;
-        when others     => raise Malformed;
-      end case;
-
-      Val := Shift_Left (Val, 4);
-
-      Ch := S (2 * Integer (I) + 1);
-      case Ch is
-        when '0' .. '9' => Val := Val + (Character'Pos (Ch) - Character'Pos ('0'));
-        when 'a' .. 'f' => Val := Val + (Character'Pos (Ch) - Character'Pos ('a') + 10);
-        when 'A' .. 'F' => Val := Val + (Character'Pos (Ch) - Character'Pos ('A') + 10);
-        when others     => raise Malformed;
-      end case;
-
-      Digest (I) := Byte (Val);
-
-    end loop;
-
-    return Digest;
-
-  end Digest_From_Text;
-
-  function Digest_To_Text (A: in Fingerprint) return Digest_String is
-
-    Str: Digest_String;
-    J  : Positive;
-
-  begin
-
-    for I in A'range loop
-
-      J           := 2 * Integer (I) - 1;
-      Str (J)     := Hex_Tab (Natural (Shift_Right (Word (A (I)), 4)));
-      Str (J + 1) := Hex_Tab (Natural (A (I) and 16#F#));
-
-    end loop;
-
-    return Str;
-
-  end Digest_To_Text;
+      Update (C, String_Input);
+   end Wide_Update;
 
 end MD5;
