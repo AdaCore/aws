@@ -311,6 +311,8 @@ regtests/once.adb
 regtests/once.out
 regtests/param.adb
 regtests/param.out
+regtests/plain2ssl.adb
+regtests/plain2ssl.out
 regtests/print_tasks.adb
 regtests/redirect.adb
 regtests/redirect.out
