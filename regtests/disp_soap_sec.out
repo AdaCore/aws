@@ -1,0 +1,18 @@
+Start main, wait for server to start...
+Server started
+
+SOAP_Proc : multProc
+Result =  6
+SOAP_Proc : multProc
+Result =  81
+SOAP_Proc : multProc
+Result =  730
+This is not SOAP request.
+Fault Code = Client
+Fault Message = SOAPAction 'Wrong' is not expected.
+SOAP_Proc : addProc
+Result =  5
+SOAP_Proc : addProc
+Result =  18
+SOAP_Proc : addProc
+Result =  83
