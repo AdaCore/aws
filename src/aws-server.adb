@@ -66,6 +66,15 @@ package body AWS.Server is
       Index       : in     Positive);
    --  Handle the lines, this is where all the HTTP protocol is defined.
 
+   ------------
+   -- Config --
+   ------------
+
+   function Config (Web_Server : in HTTP) return AWS.Config.Object is
+   begin
+      return Web_Server.Properties;
+   end Config;
+
    ---------------------
    -- File_Upload_UID --
    ---------------------
@@ -80,110 +89,152 @@ package body AWS.Server is
 
    end File_Upload_UID;
 
-   -----------
-   -- Start --
-   -----------
+   ----------
+   -- Line --
+   ----------
 
-   procedure Start
-     (Web_Server                : in out HTTP;
-      Name                      : in     String;
-      Callback                  : in     Response.Callback;
-      Admin_URI                 : in     String            := Def_Admin_URI;
-      Port                      : in     Positive          := Def_Port;
-      Security                  : in     Boolean           := False;
-      Session                   : in     Boolean           := False;
-      Case_Sensitive_Parameters : in     Boolean           := True;
-      Upload_Directory          : in     String            := Def_Upload_Dir)
-   is
-   begin
-      Config.Set.Server_Name (Web_Server.Properties, Name);
-      Config.Set.Admin_URI (Web_Server.Properties, Admin_URI);
-      Config.Set.Server_Port (Web_Server.Properties, Port);
-      Config.Set.Security (Web_Server.Properties, Security);
-      Config.Set.Session (Web_Server.Properties, Session);
-      Config.Set.Case_Sensitive_Parameters (Web_Server.Properties,
-         Case_Sensitive_Parameters);
-      Config.Set.Upload_Directory (Web_Server.Properties, Upload_Directory);
-      Start (Web_Server, Callback);
-   end Start;
+   task body Line is
 
-   procedure Start
-     (Web_Server : in out HTTP;
-      Callback   : in     Response.Callback;
-      Config     : in     AWS.Config.Object) is
-   begin
-      Web_Server.Properties := Config;
-      Start (Web_Server, Callback);
-   end Start;
+      HTTP_Server : HTTP_Access;
+      Slot_Index  : Positive;
 
-   procedure Start
-     (Web_Server : in out HTTP;
-      Callback   : in     Response.Callback)
-   is
-      Accepting_Socket : Sockets.Socket_FD;
+      function Get_Peername (Sock : in Sockets.Socket_FD) return String;
+      --  Returns the peername for Sock.
+
+      function Get_Peername (Sock : in Sockets.Socket_FD)
+         return String
+      is
+         package C renames Interfaces.C;
+         use type C.int;
+         use Sockets;
+
+         Sockaddr    : aliased Thin.Sockaddr;
+         Sockaddr_In : Thin.Sockaddr_In;
+
+         function To_Sockaddr_In is new
+           Ada.Unchecked_Conversion (Thin.Sockaddr, Thin.Sockaddr_In);
+
+         Len      : aliased C.int := Thin.Sockaddr'Size / 8;
+         Result   : C.int;
+      begin
+         Result := Sockets.Thin.C_Getpeername (Sockets.Get_FD (Sock),
+                                               Sockaddr'Address,
+                                               Len'Unchecked_Access);
+
+         Sockaddr_In := To_Sockaddr_In (Sockaddr);
+
+         return Sockets.Naming.Image (Sockaddr_In.Sin_Addr);
+      end Get_Peername;
+
    begin
 
-      Web_Server.CB := Callback;
+      select
+         accept Start (Server : HTTP;
+                       Index  : Positive)
+         do
+            HTTP_Server := Server.Self;
+            Slot_Index  := Index;
+         end Start;
+      or
+         terminate;
+      end select;
 
-      Web_Server.Slots.Set_Timeouts
-        ((Cleaner => -- Timeouts for Line_Cleaner
-            (Wait_For_Client  =>
-               Config.Cleaner_Wait_For_Client_Timeout (Web_Server.Properties),
-             Client_Header    =>
-               Config.Cleaner_Client_Header_Timeout (Web_Server.Properties),
-             Client_Data      =>
-               Config.Cleaner_Client_Data_Timeout (Web_Server.Properties),
-             Server_Response  =>
-               Config.Cleaner_Server_Response_Timeout (Web_Server.Properties)),
+      loop
+         declare
+            --  Wait for an incoming connection.
 
-          Force   => -- Force timeouts used when there is no free slot
-            (Wait_For_Client  =>
-               Config.Force_Wait_For_Client_Timeout (Web_Server.Properties),
-             Client_Header    =>
-               Config.Force_Client_Header_Timeout (Web_Server.Properties),
-             Client_Data      =>
-               Config.Force_Client_Data_Timeout (Web_Server.Properties),
-             Server_Response  =>
-               Config.Cleaner_Server_Response_Timeout
-                 (Web_Server.Properties))),
+            Sock : aliased Sockets.Socket_FD'Class :=
+              AWS.Net.Accept_Socket
+              (HTTP_Server.Sock,
+               CNF.Security (HTTP_Server.Properties));
 
-         (Client_Data     =>
-            Config.Receive_Timeout (Web_Server.Properties),
-          Server_Response =>
-            Config.Send_Timeout (Web_Server.Properties)));
+         begin
+            begin
+               --  If there is only one more slot available and we have many
+               --  of them, try to abort one of them.
 
-      Sockets.Socket
-        (Accepting_Socket,
-         Sockets.AF_INET,
-         Sockets.SOCK_STREAM);
+               if HTTP_Server.Slots.Free_Slots = 1
+                 and then HTTP_Server.Max_Connection > 1
+               then
+                  HTTP_Server.Cleaner.Force;
+               end if;
 
-      Sockets.Setsockopt
-        (Accepting_Socket,
-         Sockets.SOL_SOCKET,
-         Sockets.SO_REUSEADDR,
-         1);
+               HTTP_Server.Slots.Get (Sockets.Socket_FD (Sock), Slot_Index);
 
-      Sockets.Bind (Accepting_Socket,
-                    Config.Server_Port (Web_Server.Properties));
+               HTTP_Server.Slots.Set_Peername
+                 (Slot_Index,
+                  Get_Peername (Sockets.Socket_FD (Sock)));
 
-      Sockets.Listen (Accepting_Socket);
+               Protocol_Handler (Sock, HTTP_Server.all, Slot_Index);
 
-      Web_Server.Sock := Accepting_Socket;
+            exception
 
-      --  initialize each connection lines.
+               --  We must never exit from the outer loop as a Line task is
+               --  supposed to live forever.
+               --  We have here a pool of Line and each line is recycled when
+               --  needed.
 
-      for I in 1 .. Web_Server.Max_Connection loop
-         Web_Server.Lines (I).Start (Web_Server, I);
+               when Sockets.Connection_Closed | Connection_Error =>
+                  null;
+
+               when E : others =>
+                  Text_IO.Put_Line ("A problem has been detected!");
+                  Text_IO.Put_Line ("Connection will be closed...");
+                  Text_IO.New_Line;
+                  Text_IO.Put_Line (Ada.Exceptions.Exception_Information (E));
+            end;
+
+            HTTP_Server.Slots.Release (Slot_Index);
+
+         end;
       end loop;
 
-      if AWS.Config.Session (Web_Server.Properties) then
-         AWS.Session.Control.Start
-           (Session_Check_Interval =>
-              Config.Session_Cleanup_Interval (Web_Server.Properties),
-            Session_Lifetime =>
-              Config.Session_Lifetime (Web_Server.Properties));
-      end if;
-   end Start;
+   exception
+
+      when E : others =>
+
+         if not HTTP_Server.Shutdown then
+            Text_IO.Put_Line ("Slot problem has been detected!");
+            Text_IO.Put_Line (Ada.Exceptions.Exception_Information (E));
+         end if;
+
+   end Line;
+
+   ------------------
+   -- Line_Cleaner --
+   ------------------
+
+   task body Line_Cleaner is
+      Mode : Timeout_Mode;
+      Done : Boolean := False;
+   begin
+      loop
+         select
+            accept Force do
+               Mode := Force;
+            end Force;
+         or
+            delay 30.0;
+            Mode := Cleaner;
+         end select;
+
+         loop
+            Server.Slots.Abort_On_Timeout (Mode, Done);
+            exit when Mode /= Force or else Done;
+            delay 1.0;
+         end loop;
+
+      end loop;
+   end Line_Cleaner;
+
+   ----------------------
+   -- Protocol_Handler --
+   ----------------------
+
+   procedure Protocol_Handler
+     (Sock        : in     Sockets.Socket_FD'Class;
+      HTTP_Server : in out HTTP;
+      Index       : in     Positive) is separate;
 
    --------------
    -- Shutdown --
@@ -200,7 +251,7 @@ package body AWS.Server is
          Web_Server.Slots.Release (S);
       end loop;
 
-      if AWS.Config.Session (Web_Server.Properties) then
+      if CNF.Session (Web_Server.Properties) then
          Session.Control.Shutdown;
       end if;
    end Shutdown;
@@ -372,150 +423,144 @@ package body AWS.Server is
 
    end Slots;
 
-   ------------------
-   -- Line_Cleaner --
-   ------------------
+   -----------
+   -- Start --
+   -----------
 
-   task body Line_Cleaner is
-      Mode : Timeout_Mode;
-      Done : Boolean := False;
+   procedure Start
+     (Web_Server                : in out HTTP;
+      Name                      : in     String;
+      Callback                  : in     Response.Callback;
+      Admin_URI                 : in     String          := Def_Admin_URI;
+      Port                      : in     Positive        := Def_Port;
+      Security                  : in     Boolean         := False;
+      Session                   : in     Boolean         := False;
+      Case_Sensitive_Parameters : in     Boolean         := True;
+      Upload_Directory          : in     String          := Def_Upload_Dir;
+      Log_Split_Mode            : in     Log.Split_Mode  := Log.None) is
    begin
-      loop
-         select
-            accept Force do
-               Mode := Force;
-            end Force;
-         or
-            delay 30.0;
-            Mode := Cleaner;
-         end select;
+      CNF.Set.Server_Name (Web_Server.Properties, Name);
+      CNF.Set.Admin_URI   (Web_Server.Properties, Admin_URI);
+      CNF.Set.Server_Port (Web_Server.Properties, Port);
+      CNF.Set.Security    (Web_Server.Properties, Security);
+      CNF.Set.Session     (Web_Server.Properties, Session);
 
-         loop
-            Server.Slots.Abort_On_Timeout (Mode, Done);
-            exit when Mode /= Force or else Done;
-            delay 1.0;
-         end loop;
+      CNF.Set.Log_Split_Mode
+        (Web_Server.Properties, Log.Split_Mode'Image (Log_Split_Mode));
 
-      end loop;
-   end Line_Cleaner;
+      CNF.Set.Case_Sensitive_Parameters
+        (Web_Server.Properties, Case_Sensitive_Parameters);
 
-   ----------------------
-   -- Protocol_Handler --
-   ----------------------
+      CNF.Set.Upload_Directory
+        (Web_Server.Properties, Upload_Directory);
 
-   procedure Protocol_Handler
-     (Sock        : in     Sockets.Socket_FD'Class;
-      HTTP_Server : in out HTTP;
-      Index       : in     Positive) is separate;
+      Start (Web_Server, Callback);
+   end Start;
 
-   ----------
-   -- Line --
-   ----------
+   -----------
+   -- Start --
+   -----------
 
-   task body Line is
-
-      HTTP_Server : HTTP_Access;
-      Slot_Index  : Positive;
-
-      function Get_Peername (Sock : in Sockets.Socket_FD) return String;
-      --  Returns the peername for Sock.
-
-      function Get_Peername (Sock : in Sockets.Socket_FD)
-         return String
-      is
-         package C renames Interfaces.C;
-         use type C.int;
-         use Sockets;
-
-         Sockaddr    : aliased Thin.Sockaddr;
-         Sockaddr_In : Thin.Sockaddr_In;
-
-         function To_Sockaddr_In is new
-           Ada.Unchecked_Conversion (Thin.Sockaddr, Thin.Sockaddr_In);
-
-         Len      : aliased C.int := Thin.Sockaddr'Size / 8;
-         Result   : C.int;
-      begin
-         Result := Sockets.Thin.C_Getpeername (Sockets.Get_FD (Sock),
-                                               Sockaddr'Address,
-                                               Len'Unchecked_Access);
-
-         Sockaddr_In := To_Sockaddr_In (Sockaddr);
-
-         return Sockets.Naming.Image (Sockaddr_In.Sin_Addr);
-      end Get_Peername;
-
+   procedure Start
+     (Web_Server           : in out HTTP;
+      Callback             : in     Response.Callback;
+      Config               : in     AWS.Config.Object) is
    begin
+      Web_Server.Properties      := Config;
+      Start (Web_Server, Callback);
+   end Start;
 
-      select
-         accept Start (Server : HTTP;
-                       Index  : Positive)
-         do
-            HTTP_Server := Server.Self;
-            Slot_Index  := Index;
-         end Start;
-      or
-         terminate;
-      end select;
+   -----------
+   -- Start --
+   -----------
 
-      loop
-         declare
-            --  Wait for an incoming connection.
+   procedure Start
+     (Web_Server : in out HTTP;
+      Callback   : in     Response.Callback)
+   is
+      Accepting_Socket : Sockets.Socket_FD;
+   begin
+      Web_Server.CB := Callback;
 
-            Sock : aliased Sockets.Socket_FD'Class :=
-              AWS.Net.Accept_Socket (HTTP_Server.Sock,
-                                     Config.Security (HTTP_Server.Properties));
+      Web_Server.Slots.Set_Timeouts
+        ((Cleaner => -- Timeouts for Line_Cleaner
+            (Wait_For_Client  =>
+               CNF.Cleaner_Wait_For_Client_Timeout (Web_Server.Properties),
+             Client_Header    =>
+               CNF.Cleaner_Client_Header_Timeout (Web_Server.Properties),
+             Client_Data      =>
+               CNF.Cleaner_Client_Data_Timeout (Web_Server.Properties),
+             Server_Response  =>
+               CNF.Cleaner_Server_Response_Timeout (Web_Server.Properties)),
 
-         begin
-            begin
-               --  If there is only one more slot available and we have many
-               --  of them, try to abort one of them.
+          Force   => -- Force timeouts used when there is no free slot
+            (Wait_For_Client  =>
+               CNF.Force_Wait_For_Client_Timeout (Web_Server.Properties),
+             Client_Header    =>
+               CNF.Force_Client_Header_Timeout (Web_Server.Properties),
+             Client_Data      =>
+               CNF.Force_Client_Data_Timeout (Web_Server.Properties),
+             Server_Response  =>
+               CNF.Cleaner_Server_Response_Timeout (Web_Server.Properties))),
 
-               if HTTP_Server.Slots.Free_Slots = 1
-                 and then HTTP_Server.Max_Connection > 1
-               then
-                  HTTP_Server.Cleaner.Force;
-               end if;
+         (Client_Data     =>
+            CNF.Receive_Timeout (Web_Server.Properties),
+          Server_Response =>
+            CNF.Send_Timeout (Web_Server.Properties)));
 
-               HTTP_Server.Slots.Get (Sockets.Socket_FD (Sock), Slot_Index);
+      Sockets.Socket
+        (Accepting_Socket,
+         Sockets.AF_INET,
+         Sockets.SOCK_STREAM);
 
-               HTTP_Server.Slots.Set_Peername
-                 (Slot_Index,
-                  Get_Peername (Sockets.Socket_FD (Sock)));
+      Sockets.Setsockopt
+        (Accepting_Socket,
+         Sockets.SOL_SOCKET,
+         Sockets.SO_REUSEADDR,
+         1);
 
-               Protocol_Handler (Sock, HTTP_Server.all, Slot_Index);
+      Sockets.Bind (Accepting_Socket,
+                    CNF.Server_Port (Web_Server.Properties));
 
-            exception
+      Sockets.Listen (Accepting_Socket);
 
-               --  We must never exit from the outer loop as a Line task is
-               --  supposed to live forever.
-               --  We have here a pool of Line and each line is recycled when
-               --  needed.
+      Web_Server.Sock := Accepting_Socket;
 
-               when Sockets.Connection_Closed | Connection_Error =>
-                  null;
+      --  initialize each connection lines.
 
-               when E : others =>
-                  Text_IO.Put_Line ("A problem has been detected!");
-                  Text_IO.Put_Line ("Connection will be closed...");
-                  Text_IO.New_Line;
-                  Text_IO.Put_Line (Ada.Exceptions.Exception_Information (E));
-            end;
-
-            HTTP_Server.Slots.Release (Slot_Index);
-
-         end;
+      for I in 1 .. Web_Server.Max_Connection loop
+         Web_Server.Lines (I).Start (Web_Server, I);
       end loop;
 
-   exception
+      --  initialize session server.
 
-      when E : others =>
+      if AWS.Config.Session (Web_Server.Properties) then
+         AWS.Session.Control.Start
+           (Session_Check_Interval => CNF.Session_Cleanup_Interval,
+            Session_Lifetime       => CNF.Session_Lifetime);
+      end if;
+   end Start;
 
-         if not HTTP_Server.Shutdown then
-            Text_IO.Put_Line ("Slot problem has been detected!");
-            Text_IO.Put_Line (Ada.Exceptions.Exception_Information (E));
-         end if;
+   ---------------
+   -- Start_Log --
+   ---------------
 
-   end Line;
+   procedure Start_Log (Web_Server : in out HTTP) is
+   begin
+      Log.Start
+        (Web_Server.Log,
+         Log.Split_Mode'Value (CNF.Log_Split_Mode (Web_Server.Properties)),
+         CNF.Log_File_Directory (Web_Server.Properties),
+         CNF.Log_File_Prefix (Web_Server.Properties));
+   end Start_Log;
+
+   --------------
+   -- Stop_Log --
+   --------------
+
+   procedure Stop_Log (Web_Server : in out HTTP) is
+   begin
+      Log.Stop (Web_Server.Log);
+   end Stop_Log;
 
 end AWS.Server;
