@@ -19,6 +19,7 @@ aws-log.ads.texi
 aws-messages.ads.texi
 aws-mime.ads.texi
 aws-parameters.ads.texi
+aws-pop.ads.texi
 aws-resources-embedded.ads.texi
 aws-resources-files.ads.texi
 aws-resources-streams-memory-zlib-deflate.ads.texi
@@ -56,6 +57,7 @@ aws.html
 aws.info
 aws.info-1
 aws.info-10
+aws.info-11
 aws.info-2
 aws.info-3
 aws.info-4

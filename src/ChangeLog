@@ -1,7 +1,16 @@
 2003-11-30  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-pop.adb:
-	Pass Index to Action.
+	(For_Every_Attachment): Pass Index to Action.
+
+	* aws-pop.ads:
+	(For_Every_Attachment): Add Index parameter to formal generic
+	 procedure.
+
+2003-11-30  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-pop.adb:
+	(For_Every_Message): Pass Index to Action.
 
 	* aws-pop.ads:
 	(For_Every_Message): Add Index parameter to formal generic procedure.
