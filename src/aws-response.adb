@@ -145,7 +145,7 @@ package body AWS.Response is
       Message_Body  : in String;
       Status_Code   : in Messages.Status_Code  := Messages.S200;
       Cache_Control : in Messages.Cache_Option := Messages.Unspecified)
-      return        Data
+      return Data
    is
       Result : Data;
    begin
@@ -175,8 +175,8 @@ package body AWS.Response is
    function Build
      (Content_Type  : in String;
       Message_Body  : in Streams.Stream_Element_Array;
-      Status_Code   : in Messages.Status_Code         := Messages.S200;
-      Cache_Control : in Messages.Cache_Option        := Messages.Unspecified)
+      Status_Code   : in Messages.Status_Code  := Messages.S200;
+      Cache_Control : in Messages.Cache_Option := Messages.Unspecified)
       return Data
    is
       Result : Data;
@@ -307,9 +307,12 @@ package body AWS.Response is
       Object.Ref_Counter.Counter := Object.Ref_Counter.Counter - 1;
 
       if Object.Ref_Counter.Counter = 0 then
+         --  No more reference to this object
+
          if not Object.Ref_Counter.Stream_Taken
            and then Object.Stream /= null
          then
+            --  We can finalize it as the socket has not been recorded
             Close (Object.Stream.all);
             Free (Object.Stream);
          end if;
@@ -526,9 +529,9 @@ package body AWS.Response is
    function Stream
      (Content_Type  : in     String;
       Handle        : access Resources.Streams.Stream_Type'Class;
-      Status_Code   : in     Messages.Status_Code    := Messages.S200;
-      Cache_Control : in     Messages.Cache_Option   := Messages.No_Cache)
-      return        Data
+      Status_Code   : in     Messages.Status_Code  := Messages.S200;
+      Cache_Control : in     Messages.Cache_Option := Messages.No_Cache)
+      return Data
    is
       Result : Data;
    begin
@@ -548,7 +551,7 @@ package body AWS.Response is
    begin
       Set.Status_Code (Result, Messages.S301);
       Set.Location    (Result, Location);
-      Set.Mode (Result, Header);
+      Set.Mode        (Result, Header);
       return Result;
    end URL;
 
