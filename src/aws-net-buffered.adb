@@ -39,20 +39,14 @@ package body AWS.Net.Buffered is
    CRLF : constant Stream_Element_Array
      := Translator.To_Stream_Element_Array (ASCII.CR & ASCII.LF);
 
-   procedure Write
-     (Socket : in Socket_Type'Class;
-      Item   : in Stream_Element);
-   --  Write Item into the buffered socket, flush the buffer if there is not
-   --  enough space left
-
    procedure Read (Socket : in Socket_Type'Class);
    --  Refill the read-cache, the cache must be empty before the call
 
-   procedure Push (C : in out Cache; Item : in Stream_Element);
+   procedure Push (C : in out Read_Cache; Item : in Stream_Element);
    pragma Inline (Push);
    --  Add item into the cache C
 
-   procedure Pop (C : in out Cache; Item : out Stream_Element);
+   procedure Pop (C : in out Read_Cache; Item : out Stream_Element);
    pragma Inline (Pop);
    --  Retreive on item from cache C and place it into Item
 
@@ -65,19 +59,11 @@ package body AWS.Net.Buffered is
    -----------
 
    procedure Flush (Socket : in Socket_Type'Class) is
-      C : Cache renames Socket.C.W_Cache;
+      C : Write_Cache renames Socket.C.W_Cache;
    begin
-      if C.Size /= 0 then
-
-         declare
-            Data : Stream_Element_Array (1 .. C.Size);
-         begin
-            for K in Data'Range loop
-               Pop (C, Data (K));
-            end loop;
-
-            Send (Socket, Data);
-         end;
+      if C.Last > 0 then
+         Send (Socket, C.Buffer (1 .. C.Last));
+         C.Last := 0;
       end if;
    end Flush;
 
@@ -86,7 +72,7 @@ package body AWS.Net.Buffered is
    --------------
 
    function Get_Byte (Socket : in Socket_Type'Class) return Stream_Element is
-      C    : Cache renames Socket.C.R_Cache;
+      C    : Read_Cache renames Socket.C.R_Cache;
       Byte : Stream_Element;
    begin
       if C.Size = 0 then
@@ -160,7 +146,7 @@ package body AWS.Net.Buffered is
    ---------------
 
    function Peek_Char (Socket : in Socket_Type'Class) return Character is
-      C : Cache renames Socket.C.R_Cache;
+      C : Read_Cache renames Socket.C.R_Cache;
    begin
       if C.Size = 0 then
          Read (Socket);
@@ -173,7 +159,7 @@ package body AWS.Net.Buffered is
    -- Pop --
    ---------
 
-   procedure Pop (C : in out Cache; Item : out Stream_Element) is
+   procedure Pop (C : in out Read_Cache; Item : out Stream_Element) is
    begin
       Item := C.Buffer (C.First);
 
@@ -190,7 +176,7 @@ package body AWS.Net.Buffered is
    -- Push --
    ----------
 
-   procedure Push (C : in out Cache; Item : in Stream_Element) is
+   procedure Push (C : in out Read_Cache; Item : in Stream_Element) is
    begin
       C.Last := C.Last + 1;
 
@@ -226,7 +212,7 @@ package body AWS.Net.Buffered is
 
    procedure Read (Socket : in Socket_Type'Class) is
 
-      C      : Cache renames Socket.C.R_Cache;
+      C      : Read_Cache renames Socket.C.R_Cache;
 
       Buffer : constant Stream_Element_Array := Receive (Socket, R_Cache_Size);
       --  Read a chunk of data from the socket
@@ -242,7 +228,7 @@ package body AWS.Net.Buffered is
       Max    : in Stream_Element_Count := 4096)
       return Stream_Element_Array
    is
-      C : Cache renames Socket.C.R_Cache;
+      C : Read_Cache renames Socket.C.R_Cache;
    begin
       Flush (Socket);
 
@@ -290,7 +276,14 @@ package body AWS.Net.Buffered is
 
    procedure Shutdown (Socket : in Socket_Type'Class) is
    begin
-      Flush (Socket);
+      begin
+         Flush (Socket);
+      exception
+         when Socket_Error =>
+            --  Ignore recent cache buffer send error.
+            null;
+      end;
+
       Net.Shutdown (Socket);
    end Shutdown;
 
@@ -300,34 +293,18 @@ package body AWS.Net.Buffered is
 
    procedure Write
      (Socket : in Socket_Type'Class;
-      Item   : in Stream_Element)
+      Item   : in Stream_Element_Array)
    is
-      C : Cache renames Socket.C.W_Cache;
+      C : Write_Cache renames Socket.C.W_Cache;
+      Next_Last : constant Stream_Element_Offset := C.Last + Item'Length;
    begin
-      if C.Size = C.Max_Size then
-         --  The buffer is full, write part of it
-
-         declare
-            Chunk : Stream_Element_Array (1 .. W_Cache_Chunk);
-         begin
-            for K in Chunk'Range loop
-               Pop (C, Chunk (K));
-            end loop;
-
-            Send (Socket, Chunk);
-         end;
+      if Next_Last > C.Max_Size then
+         Send (Socket, C.Buffer (1 .. C.Last) & Item);
+         C.Last := 0;
+      else
+         C.Buffer (C.Last + 1 .. Next_Last) := Item;
+         C.Last := Next_Last;
       end if;
-
-      Push (C, Item);
-   end Write;
-
-   procedure Write
-     (Socket : in Socket_Type'Class;
-      Item   : in Stream_Element_Array) is
-   begin
-      for K in Item'Range loop
-         Write (Socket, Item (K));
-      end loop;
    end Write;
 
 end AWS.Net.Buffered;
