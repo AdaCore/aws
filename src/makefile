@@ -52,7 +52,7 @@ aws-translator-conversion.adb:
 
 aws-net-std.adb:
 ifdef ADASOCKETS
-	cp ../include/aws-os_lib-gnat.adb aws-os_lib.adb
+	cp ../include/aws-net-std-adasockets.adb aws-net-std.adb
 else
 	cp ../include/aws-net-std-gnat.adb aws-net-std.adb
 endif
