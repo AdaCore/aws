@@ -190,6 +190,3 @@ implemented:
 
 - Check that AWS builds fine with GNAT 3.4.3 with SOAP support.
   We should be able to remove the tools/makefile kludge (-largs -laws).
-
-- Add a way to select/exclude a specific set of operations from a WSDL
-  document from wsdl2aws.
