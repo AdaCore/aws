@@ -1,3 +1,13 @@
+2003-03-13  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-response.adb:
+	(Authenticate): New parameter Message. Remove Auth_Mess constant.
+
+	* aws-response.ads:
+	(Default_Moved_Message): Put definition in private part.
+	(Default_Authenticate_Message): New constant.
+	(Authenticate): New parameter Message.
+
 2003-03-11  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-client.adb:
