@@ -315,6 +315,7 @@ build_tarball:
 	$(CP) docs/gentexifile docs/TODO docs/openssl.license $${AWS}/docs;\
 	$(CP) -r docs/html/* $${AWS}/docs/html;\
 	$(CP) win32/*.dll win32/makefile win32/*.txt $${AWS}/win32;\
+	$(CP) win32/*.ad* $${AWS}/win32;\
 	$(CP) win32/aws.ico win32/aws.rc win32/wldap32.def $${AWS}/win32;\
 	$(CP) ssl/*.ad[sb] ssl/ChangeLog ssl/makefile $${AWS}/ssl;\
 	$(CP) include/*.ad[sb] include/makefile $${AWS}/include;\
@@ -379,6 +380,7 @@ build_http_tarball:
 	$(CP) docs/gentexifile docs/TODO docs/openssl.license $${AWS}/docs;\
 	$(CP) -r docs/html/* $${AWS}/docs/html;\
 	$(CP) win32/*.txt $${AWS}/win32;\
+	$(CP) win32/*.ad* $${AWS}/win32;\
 	$(CP) win32/aws.ico win32/aws.rc win32/wldap32.def $${AWS}/win32;\
 	$(CP) ssl/*.ad[sb] ssl/ChangeLog ssl/makefile $${AWS}/ssl;\
 	$(CP) include/*.ad[sb] $${AWS}/include;\
