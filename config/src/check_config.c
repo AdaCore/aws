@@ -21,10 +21,6 @@
 int
 main (void)
 {
-  const int s_long   = sizeof (long);
-  const int s_int    = sizeof (int);
-  const int s_short  = sizeof (short);
-
   const struct addrinfo ai;
 
   const void *ai_ptr = &ai;
@@ -40,9 +36,9 @@ main (void)
 
 #ifdef _WIN32
   const char *i_conv      = "Stdcall";
-  const int s_nfds_t      = s_long;
-  const int s_fd_type     = s_int;
-  const int s_events_type = s_short;
+  const int s_nfds_t      = sizeof (int) * 8;
+  const int s_fd_type     = sizeof (int) * 8;
+  const int s_events_type = sizeof (short) * 8;
   const int v_POLLIN      = 1;
   const int v_POLLPRI     = 2;
   const int v_POLLOUT     = 4;
@@ -52,9 +48,9 @@ main (void)
 #else
   const char *i_conv      = "C";
   const struct pollfd v_pollfd;
-  const int s_nfds_t      = sizeof (nfds_t);
-  const int s_fd_type     = sizeof (v_pollfd.fd);
-  const int s_events_type = sizeof (v_pollfd.events);
+  const int s_nfds_t      = sizeof (nfds_t) * 8;
+  const int s_fd_type     = sizeof (v_pollfd.fd) * 8;
+  const int s_events_type = sizeof (v_pollfd.events) * 8;
   const int v_POLLIN      = POLLIN;
   const int v_POLLPRI     = POLLPRI;
   const int v_POLLOUT     = POLLOUT;
@@ -71,7 +67,7 @@ main (void)
   printf ("   use Interfaces;\n\n");
 
 #ifdef _WIN32
-  // libpoll.a need for poll call emulation.
+  // libaws_win32.a need for emulate some unix routines not available in Win32.
   printf ("   pragma Linker_Options (\"-laws_win32\");\n");
   // libws2_32.a need for getaddrinfo freeaddrinfo routines in Windows XP/2003.
   printf ("   pragma Linker_Options (\"-lws2_32\");\n\n");
@@ -115,33 +111,18 @@ main (void)
 
   /* nfds_t */
 
-  if (s_nfds_t == s_long)
-    printf ("   type nfds_t is new C.unsigned_long;\n\n");
-  else
-    printf ("   type nfds_t is new C.unsigned;\n\n");
+  printf ("   type nfds_t is mod 2 ** %d;\n", s_nfds_t);
+  printf ("   for nfds_t'Size use %d;\n\n", s_nfds_t);
 
   /* FD_Type */
 
-  if (s_fd_type == s_long) {
-    printf ("   type FD_Type is mod 2 ** C.unsigned_long'Size;\n");
-    printf ("   for FD_Type'Size use C.unsigned_long'Size;\n\n");
-  } else {
-    printf ("   type FD_Type is mod 2 ** C.int'Size;\n");
-    printf ("   for FD_Type'Size use C.int'Size;\n\n");
-  }
+  printf ("   type FD_Type is mod 2 ** %d;\n", s_fd_type);
+  printf ("   for FD_Type'Size use %d;\n\n", s_fd_type);
 
   /* Events_Type */
 
-  if (s_events_type == s_long) {
-    printf ("   type Events_Type is mod 2 ** C.unsigned_long'Size;\n");
-    printf ("   for Events_Type'Size use C.unsigned_long'Size;\n\n");
-  } else if (s_events_type == s_int) {
-    printf ("   type Events_Type is mod 2 ** C.int'Size;\n");
-    printf ("   for Events_Type'Size use C.int'Size;\n\n");
-  } else {
-    printf ("   type Events_Type is mod 2 ** C.short'Size;\n");
-    printf ("   for Events_Type'Size use C.short'Size;\n\n");
-  }
+  printf ("   type Events_Type is mod 2 ** %d;\n", s_events_type);
+  printf ("   for Events_Type'Size use %d;\n\n", s_events_type);
 
   /* Addr_Info */
 
@@ -219,3 +200,4 @@ main (void)
 
   return 0;
 }
+
