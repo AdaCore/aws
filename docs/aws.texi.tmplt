@@ -3697,6 +3697,11 @@ Mapped to a Character schema definition.
 @end cartouche
 @end smallexample
 
+@item SOAP.Utils.SOAP_Base64
+Mapped to @b{xsd:base64Binary}. @code{SOAP.Utils.SOAP_Base64} is a
+subtype of string which is is recognized by @code{ada2wsdl} to
+generate the proper SOAP type.
+
 @item Enumerations
 Mapped to an enumeration schema definition. For example:
 
