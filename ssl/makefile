@@ -9,4 +9,4 @@ build:
 	gnatmake $(GARGS) ssl.adb
 
 clean:
-	-rm *.ali *.o
+	-rm *.ali *.o *.a
