@@ -42,6 +42,7 @@ build:
 	$(GCC) -c -O2 -g -I../include $(INCLUDES) aws-session.adb
 	$(GCC) -c -O2 -g -I../include $(INCLUDES) aws-key_value.ads
 	$(GCC) -c -O2 -g -I../include $(INCLUDES) aws-server-get_status.adb
+	$(GCC) -c -O0 -g -I../include $(INCLUDES) aws-server-push.adb
 	$(GCC) -c -O0 -g -I../include $(INCLUDES) aws-services-directory.adb
 # no optimization because a bug in GNAT 3.13 (no problem with 3.14 though).
 	for file in $(SOURCES); do gnatmake $(GFLAGS) $$file; done
