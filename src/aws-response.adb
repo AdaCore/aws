@@ -210,13 +210,14 @@ package body AWS.Response is
 
    function File
      (Content_Type : in String;
-      Filename     : in String)
+      Filename     : in String;
+      Status_Code  : in Messages.Status_Code := Messages.S200)
      return Data is
    begin
       return Data'(Finalization.Controlled with
                    new Natural'(1),
                    File,
-                   Messages.S200,
+                   Status_Code,
                    Integer (OS_Lib.File_Size (Filename)),
                    To_Unbounded_String (Content_Type),
                    To_Unbounded_String (Filename),
