@@ -99,9 +99,14 @@ package body SOAP.WSDL.Parameters is
                  (To_String (P.Name) & " ; " & To_Ada (P.P_Type));
 
             else
-               Text_IO.Put ("[composite] ");
+               if P.Mode = Parameters.K_Array then
+                  Text_IO.Put ("[array] ");
+               else
+                  Text_IO.Put ("[record] ");
+               end if;
+
                Text_IO.Put_Line
-                 (To_String (P.Name) & " ; " & To_String (P.C_Name));
+                 (To_String (P.Name) & " ; " & To_String (P.T_Name));
 
                Output (P.P, K + 3);
             end if;
@@ -124,7 +129,7 @@ package body SOAP.WSDL.Parameters is
 
    begin
       if P /= null then
-         if P.Mode = K_Composite then
+         if P.Mode /= K_Simple then
             Release (P.P);
          end if;
 
