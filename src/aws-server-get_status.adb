@@ -33,6 +33,7 @@ with Templates_Parser;
 with GNAT.Calendar.Time_IO;
 
 with AWS.Session;
+with AWS.Hotplug.Get_Status;
 
 function AWS.Server.Get_Status (Server : in HTTP) return String is
 
@@ -199,7 +200,8 @@ function AWS.Server.Get_Status (Server : in HTTP) return String is
          Templates_Parser.Assoc ("LOGO",
                                  To_String (Server.Admin_URI) & "-logo"))
      & Slot_Table
-     & Session_Table;
+     & Session_Table
+     & Hotplug.Get_Status (Server.Filters);
 
 begin
    return Templates_Parser.Parse ("status.tmplt", Translations);
