@@ -30,7 +30,7 @@
 
 with Ada.Strings.Unbounded;
 
-with AVL_Tree_Generic;
+with Avl_Tree_Generic;
 
 package body AWS.Session is
 
@@ -53,7 +53,7 @@ package body AWS.Session is
       return To_String (Item.Key);
    end Key_For;
 
-   package Key_Value is new AVL_Tree_Generic (String, KV_Data, Key_For);
+   package Key_Value is new Avl_Tree_Generic (String, KV_Data, Key_For);
 
    --  table of session ID
 
@@ -71,7 +71,7 @@ package body AWS.Session is
       return To_String (Item.SID);
    end Key_For;
 
-   package Session_Set is new AVL_Tree_Generic (String, Session_Node, Key_For);
+   package Session_Set is new Avl_Tree_Generic (String, Session_Node, Key_For);
 
    --------------
    -- Database --
@@ -292,7 +292,7 @@ package body AWS.Session is
          exception
             when Key_Value.Duplicate_Key =>
                Key_Value.Update_Node (Key, KV, N.Root);
-         end ;
+         end;
 
          --  set back the node
 
@@ -382,7 +382,7 @@ package body AWS.Session is
       procedure In_Order is
          new Session_Set.In_Order_Tree_Traversal (Process);
 
-      Sessions : Session_Set.AVL_Tree;
+      Sessions : Session_Set.Avl_Tree;
 
    begin
       Database.Get_Sessions_And_Lock (Sessions);
@@ -431,7 +431,7 @@ package body AWS.Session is
          new Key_Value.In_Order_Tree_Traversal (Process);
 
       N        : Session_Node;
-      Sessions : Session_Set.AVL_Tree;
+      Sessions : Session_Set.Avl_Tree;
 
    begin
       Database.Get_Sessions_And_Lock (Sessions);
