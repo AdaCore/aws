@@ -105,6 +105,24 @@ package body AWS.Resources.Streams.ZLib is
       return Resource.End_Of_File;
    end End_Of_File;
 
+   --------------------
+   -- Inflate_Create --
+   --------------------
+
+   function Inflate_Create
+     (Source       : in Streams.Stream_Access;
+      Window_Bits  : in Window_Bits_Type      := ZL.Default_Window_Bits;
+      Header       : in Header_Type           := ZL.Default)
+      return Stream_Access
+   is
+      Result : Streams.Stream_Access := new Stream_Type;
+   begin
+      Inflate_Initialize
+        (Stream_Type (Result.all), Source, Window_Bits, Header);
+
+      return Result;
+   end Inflate_Create;
+
    ------------------------
    -- Inflate_Initialize --
    ------------------------

@@ -79,8 +79,16 @@ package AWS.Resources.Streams.ZLib is
       Memory_Level : in Memory_Level_Type     := ZL.Default_Memory_Level;
       Header       : in Header_Type           := ZL.Default)
       return Stream_Access;
-   --  Initialize the compression of the user defined stream
-   --  ??? What is the difference with Deflate_Initialize
+   --  Creates dynamically allocated Stream_Type and initialize the compression
+   --  of the user defined stream.
+
+   function Inflate_Create
+     (Source       : in Streams.Stream_Access;
+      Window_Bits  : in Window_Bits_Type      := ZL.Default_Window_Bits;
+      Header       : in Header_Type           := ZL.Default)
+      return Stream_Access;
+   --  Creates dynamically allocated Stream_Type and initialize the
+   --  decompression of the user defined stream.
 
    procedure Read
      (Resource : in out Stream_Type;
