@@ -1,3 +1,8 @@
+2003-12-04  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-services-files.adb:
+	(Open): Use Z_Filename everywhere. Minor comment fix and reformatting.
+
 2003-12-04  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* aws-resources-streams-zlib.ads, aws-resources-streams-zlib.adb:
