@@ -33,9 +33,12 @@
 with Ada.Streams;
 with Ada.Strings.Unbounded;
 
+with AWS.Resources.Streams.Memory.ZLib;
 with AWS.Utils;
 
 package AWS.Translator is
+
+   package ZL renames AWS.Resources.Streams.Memory.ZLib;
 
    ------------
    -- Base64 --
@@ -90,13 +93,13 @@ package AWS.Translator is
    --  Compress/Decompress --
    --------------------------
 
-   type Compression_Level is new Integer range -1 .. 9;
+   subtype Compression_Level is ZL.Compression_Level;
 
-   Default_Compression : constant Compression_Level := -1;
+   Default_Compression : constant Compression_Level := ZL.Default_Compression;
 
    function Compress
      (Data  : access Ada.Streams.Stream_Element_Array;
-      Level : in     Compression_Level                := -1)
+      Level : in     Compression_Level                := Default_Compression)
       return Utils.Stream_Element_Array_Access;
    --  Returns Data compressed with a standard deflate algorithm based on the
    --  zlib library. The results is dynamically allocated and must be
