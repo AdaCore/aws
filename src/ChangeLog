@@ -1,3 +1,15 @@
+2004-09-23  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* aws-net-generic_sets.ads:
+	(Waiting_Mode): Become subtype of AWS.Net.Wait_Event_Set.
+	(Input): Become AWS.Net.Wait_Event_Set constant.
+	(Output): Idem.
+	(Both): Idem.
+	(None): Idem.
+
+	* aws-net-generic_sets.adb:
+	(Add_Private): Adjust implementation for type Waiting_Mode.
+
 2004-09-21  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* aws-server-protocol_handler.adb:
