@@ -1,3 +1,8 @@
+2004-06-03  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* makefile:
+	Move xmlt test to RT_SOAP section.
+
 2004-06-02  Pascal Obry  <pascal@obry.org>
 
 	* xmlt_proc.adb:
