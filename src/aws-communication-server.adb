@@ -31,6 +31,7 @@
 with Ada.Unchecked_Deallocation;
 
 with AWS.Messages;
+with AWS.Parameters;
 with AWS.Server;
 with AWS.Status;
 with AWS.Utils;
@@ -47,7 +48,8 @@ package body AWS.Communication.Server is
    -------------
 
    function Receive (Request : in Status.Data) return Response.Data is
-      URI : constant String := Status.URI (Request);
+      URI   : constant String              := Status.URI (Request);
+      P_Set : constant AWS.Parameters.List := Status.Parameters (Request);
 
       procedure Fill_Parameter_Set;
       --  Put all paramters into the PS structure.
@@ -67,10 +69,10 @@ package body AWS.Communication.Server is
             declare
                P : constant String := 'P' & Utils.Image (K);
             begin
-               if Status.Parameter (Request, P) /= "" then
+               if AWS.Parameters.Get (P_Set, P) /= "" then
                   I := I + 1;
                   PS (I) :=
-                    To_Unbounded_String (Status.Parameter (Request, P));
+                    To_Unbounded_String (AWS.Parameters.Get (P_Set, P));
                end if;
             end;
          end loop;
@@ -79,8 +81,8 @@ package body AWS.Communication.Server is
    begin
       if URI = AWS_Com then
          Fill_Parameter_Set;
-         return Callback (Status.Parameter (Request, "HOST"),
-                          Status.Parameter (Request, "NAME"),
+         return Callback (AWS.Parameters.Get (P_Set, "HOST"),
+                          AWS.Parameters.Get (P_Set, "NAME"),
                           Context,
                           PS (1 .. I));
       else
