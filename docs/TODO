@@ -159,8 +159,6 @@ implemented:
 - Move regtests/demos depending on XML/Ada out of the aws-http tarball in
   the MANIFEST file.
 
-- Check why huge_response hangs on GNU/Linux multiprocessors machines.
-
 - Add Templates_Parser command tag to be able to have a relative path for
   included template files. Problem is when 2 templates files (in 2
   different directories) include the same file and this file has a reference
@@ -168,3 +166,6 @@ implemented:
 
   Possible syntax: @_PATH:"../file.css"_@
   Means take ../file.css as relatif to current file location.
+
+- Add a way to enable/disable file upload in the server. Today it is always
+  possible to upload a file to a server.
