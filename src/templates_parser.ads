@@ -108,6 +108,8 @@ package Templates_Parser is
 
    type Association is private;
 
+   Null_Association : constant Association;
+
    type Association_Kind is (Std, Composite);
    --  The kind of association which is either Std (a simple value), a vector
    --  tag or a Matrix tag.
@@ -177,6 +179,14 @@ package Templates_Parser is
    --  Add Items into the translate set. If an association for variables in
    --  Items already exists it just replaces it by the new one.
 
+   procedure Remove (Set : in out Translate_Set; Name : in String);
+   --  Removes association named Name from the Set. Does nothing if there is
+   --  not such association in the set.
+
+   function Get (Set : in Translate_Set; Name : in String) return Association;
+   --  Returns the association named Name in the Set. Returns Null_Association
+   --  is no such association if found in Set.
+
    function Exists
      (Set      : in Translate_Set;
       Variable : in String) return Boolean;
@@ -192,10 +202,8 @@ package Templates_Parser is
    type Context is tagged private;
    type Context_Access is access all Context'Class;
 
-   subtype TP_Context is Context;
-
    procedure Callback
-     (Context  : access TP_Context;
+     (Context  : access Templates_Parser.Context;
       Variable : in     String;
       Result   :    out Unbounded_String;
       Found    :    out Boolean);
@@ -207,19 +215,17 @@ package Templates_Parser is
    --  always return with Found set to False.
 
    Null_Context : constant Context_Access;
-   --  ??? With Ada0Y it will be possible to use an anonymous access
-   --  "access Context"
 
    -----------------------------
    -- Parsing and Translating --
    -----------------------------
 
    function Parse
-     (Filename          : in     String;
-      Translations      : in     Translate_Table  := No_Translation;
-      Cached            : in     Boolean          := False;
-      Keep_Unknown_Tags : in     Boolean          := False;
-      Context           : access TP_Context'Class := Null_Context)
+     (Filename          : in String;
+      Translations      : in Translate_Table := No_Translation;
+      Cached            : in Boolean         := False;
+      Keep_Unknown_Tags : in Boolean         := False;
+      Context           : in Context_Access  := Null_Context)
       return String;
    --  Parse the Template_File replacing variables' occurrences by the
    --  corresponding values. If Cached is set to True, Filename tree will be
@@ -230,29 +236,29 @@ package Templates_Parser is
    --  False.
 
    function Parse
-     (Filename          : in     String;
-      Translations      : in     Translate_Table  := No_Translation;
-      Cached            : in     Boolean          := False;
-      Keep_Unknown_Tags : in     Boolean          := False;
-      Context           : access TP_Context'Class := Null_Context)
+     (Filename          : in String;
+      Translations      : in Translate_Table := No_Translation;
+      Cached            : in Boolean         := False;
+      Keep_Unknown_Tags : in Boolean         := False;
+      Context           : in Context_Access  := Null_Context)
       return Unbounded_String;
    --  Idem but returns an Unbounded_String
 
    function Parse
-     (Filename          : in     String;
-      Translations      : in     Translate_Set;
-      Cached            : in     Boolean          := False;
-      Keep_Unknown_Tags : in     Boolean          := False;
-      Context           : access TP_Context'Class := Null_Context)
+     (Filename          : in String;
+      Translations      : in Translate_Set;
+      Cached            : in Boolean        := False;
+      Keep_Unknown_Tags : in Boolean        := False;
+      Context           : in Context_Access := Null_Context)
       return String;
    --  Idem with a Translation_Set
 
    function Parse
-     (Filename          : in     String;
-      Translations      : in     Translate_Set;
-      Cached            : in     Boolean          := False;
-      Keep_Unknown_Tags : in     Boolean          := False;
-      Context           : access TP_Context'Class := Null_Context)
+     (Filename          : in String;
+      Translations      : in Translate_Set;
+      Cached            : in Boolean        := False;
+      Keep_Unknown_Tags : in Boolean        := False;
+      Context           : in Context_Access := Null_Context)
       return Unbounded_String;
    --  Idem with a Translation_Set
 
@@ -343,10 +349,10 @@ private
       end case;
    end record;
 
-   No_Translation : constant Translate_Table
-     := (2 .. 1 => Association'(Std,
-                                Null_Unbounded_String,
-                                Null_Unbounded_String));
+   Null_Association  : constant Association
+     := (Std, Null_Unbounded_String, Null_Unbounded_String);
+
+   No_Translation : constant Translate_Table := (2 .. 1 => Null_Association);
 
    procedure Print_Tree (Filename : in String);
    --  Use for debugging purpose only, it will output the internal tree
