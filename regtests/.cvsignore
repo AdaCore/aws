@@ -190,6 +190,7 @@ redirect.res
 redirect.tmp
 run1
 run2
+sback.res
 server_config.res
 server_info.res
 sessions.res
@@ -210,6 +211,7 @@ sock1.res
 sock1.tmp
 sp.res
 sp.tmp
+ssback.res
 ssp.res
 ssp.tmp
 stock_quote_service-client.adb
