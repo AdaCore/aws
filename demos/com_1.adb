@@ -30,9 +30,20 @@
 
 --  Com_1 and Com_2 are two demos programs which are using the AWS
 --  communication protocol. You must first launch Com_1 then Com_2.
+--
+--  Let's say that you will launch com_1 on computer1 and com_2 on
+--  computer2. Then the commands to launch the demo are:
+--
+--  on computer1:
+--    $ com_1 computer2
+--
+--  on computer2:
+--    $ com_2 computer1
+--
 
-with Ada.Text_IO;
+with Ada.Command_Line;
 with Ada.Strings.Unbounded;
+with Ada.Text_IO;
 
 with AWS.Communication.Client;
 with AWS.Communication.Server;
@@ -79,6 +90,11 @@ procedure Com_1 is
    Answer : Response.Data;
 
 begin
+   if Command_Line.Argument_Count = 0 then
+      Text_IO.Put_Line ("Usage: com_1 <computer>");
+      return;
+   end if;
+
    --  Wait for com_2 to become active
    while Wait loop
       delay 1.0;
@@ -88,7 +104,7 @@ begin
 
    for K in 1 .. 10 loop
       Answer := Communication.Client.Send_Message
-        ("localhost", 3456, "mes1." & Utils.Image (K),
+        (Command_Line.Argument (1), 3456, "mes1." & Utils.Image (K),
          Communication.Parameters ("param1", "param2"));
 
       Text_IO.Put_Line ("< reply " & Response.Message_Body (Answer));
