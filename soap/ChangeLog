@@ -1,4 +1,10 @@
 2003-03-08  Pascal Obry  <p.obry@wanadoo.fr>
+	
+	* soap-generator.adb:
+	(Generate_Record): Align generated record fields for the
+	 spec. Generated code looks better.
+
+2003-03-08  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* soap-generator.adb:
 	(Create): Use AWS.OS_Lib instead of GNAT.OS_Lib. Fix build failure
