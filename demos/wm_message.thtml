@@ -1,0 +1,27 @@
+
+<p>Simple Web Mail (AWS @_AWS_VERSION_@)
+
+<p>Message @_WM_INDEX_@ for mailbox <b>@_WM_USER_NAME_@</b> on server @_SERVER_NAME_@
+
+<br>
+<br>
+
+<table>
+<tr><td><b>Date:</b><td>@_WM_DATE_@</tr>
+<tr><td><b>From:</b><td>@_WM_FROM_@</tr>
+<tr><td><b>Subject:</b><td>@_WM_SUBJECT_@</tr>
+</table>
+
+<hr>
+<pre>
+@_LF_2_BR:WEB_ESCAPE:WM_CONTENT_@
+</pre>
+<hr>
+
+@@IF@@ @_WM_ATT_NAME_V'LENGTH_@ > 0
+<p>Attachments :
+
+@@TABLE@@
+<p><a href="@_WM_ATT_REF_V_@">@_WM_ATT_NAME_V_@</a>
+@@END_TABLE@@
+@@END_IF@@
