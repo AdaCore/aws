@@ -1,3 +1,15 @@
+2003-03-08  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* aws-default.adb:
+	(Free_Slots_Keep_Alive_Limit): New default value.
+
+	* aws-config.ads, aws-config.adb:
+	(Free_Slots_Keep_Alive_Limit): New configuration parameter.
+
+	* aws-server.adb:
+	(Line):	Use Free_Slots_Keep_Alive_Limit for enable keep-alive
+	 connections.
+
 2003-03-07  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-ldap-client.adb:
