@@ -1,3 +1,30 @@
+2003-10-06  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-containers-tables.ads:
+	Minor comment fix.
+
+	* aws-ldap-client.adb:
+	Minor comment fix.
+
+	* aws-resources-streams-memory-zlib.ads:
+	Minor comment fix.
+	Removes comment that should not be part of the spec.
+
+	* aws-response-set.adb:
+	Minor comment fix.
+
+	* aws-response.ads:
+	Minor reformatting.
+
+	* aws-session.adb:
+	Minor comment fix.
+
+	* aws-status-set.adb:
+	Minor comment fix and reformatting.
+
+	* aws-status.adb:
+	Minor comment fix.
+
 2003-10-06  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* aws-response-set.ads:
