@@ -80,7 +80,8 @@ package body Sp_Pck is
         (HTTP,
          "Testing server push.",
          CB'Access,
-         Port => Port,
+         Port           => Port,
+         Security       => Protocol = "https",
          Max_Connection => 3);
 
       Data := 1000.0;
