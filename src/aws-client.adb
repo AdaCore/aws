@@ -927,7 +927,6 @@ package body AWS.Client is
    is
       Sock      : Net.Socket_Access := Connection.Socket;
       No_Data   : Unbounded_String renames Null_Unbounded_String;
-      Tunneling : Boolean := False;
 
       procedure Send_Authentication_Header
         (Token : in     String;
@@ -1159,7 +1158,9 @@ package body AWS.Client is
       else
          --  We have a proxy configured
 
-         if AWS.URL.Security (Connection.Host_URL) then
+         if AWS.URL.Security (Connection.Host_URL)
+           and then not Connection.Tunneling
+         then
             --  We want to connect to the host using HTTPS, this can only be
             --  done by opening a tunnel through the proxy.
             --
@@ -1169,7 +1170,7 @@ package body AWS.Client is
             --  <other headers>
             --  <empty line>
 
-            Tunneling := True;
+            Connection.Tunneling := True;
 
             Send_Header
               (Sock.all, "CONNECT " & Host_Address & ' ' & HTTP_Version);
@@ -1251,7 +1252,7 @@ package body AWS.Client is
                  & Host_Address & URI & ' ' & HTTP_Version);
          end if;
 
-         if not Tunneling then
+         if not Connection.Tunneling then
             Send_Header
               (Sock.all, Messages.Proxy_Connection (Persistence));
          end if;
@@ -1284,7 +1285,7 @@ package body AWS.Client is
       Send_Authentication_Header
         (Messages.Authorization_Token, Connection.Auth (WWW));
 
-      if not Tunneling then
+      if not Connection.Tunneling then
          --  Proxy Authentication
 
          Send_Authentication_Header
