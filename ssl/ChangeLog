@@ -1,3 +1,8 @@
+2004-10-07  Pascal Obry  <pascal@obry.org>
+
+	* ssl_lib.gpr, crypto_lib.gpr:
+	Import nossl project.
+
 2004-10-06  Pascal Obry  <pascal@obry.org>
 
 	* makefile:
