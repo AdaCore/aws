@@ -196,6 +196,8 @@ package body SOAP.Message.XML is
 
       Parse_Document (Doc, S);
 
+      Free (Doc);
+
       return Message.Payload.Build (To_String (S.Wrapper_Name), S.Parameters);
    end Load_Payload;
 
@@ -231,6 +233,8 @@ package body SOAP.Message.XML is
       Doc := Get_Tree (Reader);
 
       Parse_Document (Doc, S);
+
+      Free (Doc);
 
       if SOAP.Parameters.Exist (S.Parameters, "faultcode") then
          return Message.Response.Error.Build
@@ -396,7 +400,7 @@ package body SOAP.Message.XML is
 
    function Parse_Float (N : in DOM.Core.Node) return Types.Object'Class is
       Name  : constant String := Local_Name (N);
-      Value : DOM.Core.Node := First_Child (N);
+      Value : constant DOM.Core.Node := First_Child (N);
    begin
       return Types.F (Long_Float'Value (Node_Value (Value)), Name);
    end Parse_Float;
@@ -407,7 +411,7 @@ package body SOAP.Message.XML is
 
    function Parse_Int (N : in DOM.Core.Node) return Types.Object'Class is
       Name  : constant String := Local_Name (N);
-      Value : DOM.Core.Node := First_Child (N);
+      Value : constant DOM.Core.Node := First_Child (N);
    begin
       return Types.I (Integer'Value (Node_Value (Value)), Name);
    end Parse_Int;
