@@ -29,6 +29,7 @@
 --  $Id$
 
 with Ada.Exceptions;
+with Ada.Unchecked_Conversion;
 with Ada.Unchecked_Deallocation;
 
 with AWS.Net.Log;
@@ -419,6 +420,11 @@ package body AWS.Net.Std is
       type In6_Addr is array (1 .. 8) of Unsigned_16;
       pragma Convention (C, In6_Addr);
 
+      type U8_2 is array (1 .. 2) of Unsigned_8;
+      pragma Convention (C, U8_2);
+
+      function Split is new Ada.Unchecked_Conversion (Unsigned_16, U8_2);
+
       type Sockaddr_In6 is record
          Family    : C.short;          -- AF_INET6
          Port      : C.unsigned_short; -- transport layer port #
@@ -464,6 +470,20 @@ package body AWS.Net.Std is
                   end if;
 
                else
+                  if Zero and then J = 6 and then Sin6.Addr (J) = 16#FFFF# then
+                     --  ::ffff: - IPv4 mapped address on IPv6 protocol.
+
+                     declare
+                        W7 : constant U8_2 := Split (Sin6.Addr (7));
+                        W8 : constant U8_2 := Split (Sin6.Addr (8));
+                     begin
+                        return "::ffff:" & Utils.Image (Integer (W7 (1)))
+                                   & '.' & Utils.Image (Integer (W7 (2)))
+                                   & '.' & Utils.Image (Integer (W8 (1)))
+                                   & '.' & Utils.Image (Integer (W8 (2)));
+                     end;
+                  end if;
+
                   Zero := False;
 
                   declare
