@@ -157,6 +157,10 @@ implemented:
 
 - Add WSDL support for SOAP messages with attachments.
 
+- Would be nice to provides a file upload support via a socket. This would
+  avoid writing to the disk or memory. The end-user will be responsible to do
+  whatever is needed with the uploaded file. If file upload is not permitted
+  the file will never be transmitted.
 
 
 =============== Point to fix/implement/review before next release (2.1)
@@ -165,29 +169,13 @@ implemented:
 
 - Add support for SOAP hotplug modules
 
-- Add Templates_Parser command tag to be able to have a relative path for
-  included template files. Problem is when 2 templates files (in 2
-  different directories) include the same file and this file has a reference
-  to another file like: <link... "file.css">
-
-  Possible syntax: @_PATH:"../file.css"_@
-  Means take ../file.css as relatif to current file location.
-
 - Make the upload server support more secure. It would be nice to be able to
   control the file upload. Right now everybody can send a file to the server
   and it will accept it. So ideas:
 
-  1. Add a specific upload callback to check the validity (to be analysed, is
-     it possible).
-
-  2. Remove all uploaded files after calling the user callback. The user is
+     Remove all uploaded files after calling the user callback. The user is
      responsible to move/rename/whatever the uploaded file is necessary
      otherwise it is just removed.
-
-  3. Make API for read file upload inside of regular user callback just from
-     socket hidden in the AWS.Status.Data. We would not need intermediate data
-     file with distorted name and would reach upload authentication before
-     real upload.
 
 - Remove the build based on makefile rules and only support GNAT Project files.
   Having both to support is a pain.
