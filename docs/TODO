@@ -78,9 +78,6 @@ implemented:
   AWS.Response.Data internal data storage instead of one dynamically
   allocated data array.
 
-- Have a way to record specific MIME types for filenames matching a regular
-  expression.
-
 - Add some high level routines in AWS.Server.Status to get some server
   information like the number of current users connected...
 
@@ -94,8 +91,6 @@ implemented:
   payload) can be passed to other SOAP callbacks to avoid re-parsing it. With
   the SOAP/WSDL generator this is not possible, we end up parsing two times the
   same payload. Not efficient.
-
-- Document the wsdl2aws tool.
 
 - Add support for more XML Schema types
   byte, unsignedByte, short, unsignedShort, unsignedInt, long, unsignedLong
