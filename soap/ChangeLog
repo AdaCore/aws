@@ -1,5 +1,11 @@
 2003-03-12  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* soap-generator.adb:
+	(Start_Service): Avoid ending spaces in the documentation line as
+	 this violate the style rules.
+
+2003-03-12  Pascal Obry  <p.obry@wanadoo.fr>
+
 	* soap-generator-skel.adb:
 	(Output_Parameters): Correctly handle the case of a single Base64
 	 returned.
