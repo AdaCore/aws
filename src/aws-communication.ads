@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2001                          --
+--                         Copyright (C) 2000-2003                          --
 --                               ACT-Europe                                 --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -36,10 +36,13 @@ package AWS.Communication is
 
    use Ada.Strings.Unbounded;
 
+   --  The communication protocol use a light encoding scheme based on
+   --  the HTTP GET protocol. For standard communication you can use the
+   --  SOAP protocol.
+
    type Parameter_Set is array (Positive range <>) of Unbounded_String;
 
-   Null_Parameter_Set : constant Parameter_Set (2 .. 1)
-     := Parameter_Set'(2 .. 1 => Null_Unbounded_String);
+   Null_Parameter_Set : constant Parameter_Set;
 
    function Parameters (P1, P2, P3, P4, P5 : in String := "")
      return Parameter_Set;
@@ -51,5 +54,8 @@ private
 
    AWS_Com : constant String := "/AWS_Com";
    --  This is the URI for communication messages.
+
+   Null_Parameter_Set : constant Parameter_Set (2 .. 1)
+     := Parameter_Set'(2 .. 1 => Null_Unbounded_String);
 
 end AWS.Communication;
