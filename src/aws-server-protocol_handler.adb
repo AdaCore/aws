@@ -794,12 +794,24 @@ is
    begin
       --  Get and parse request line
 
-      declare
-         Data : constant String := Net.Buffered.Get_Line (Sock);
-      begin
-         HTTP_Server.Slots.Mark_Phase (Index, Client_Header);
-         Parse_Request_Line (Data);
-      end;
+      loop
+         declare
+            Data : constant String := Net.Buffered.Get_Line (Sock);
+         begin
+            --  RFC 2616
+            --  4.1 Message Types
+            --  ....................
+            --  In the interest of robustness, servers SHOULD ignore any empty
+            --  line(s) received where a Request-Line is expected.
+
+            if Data /= "" then
+               Parse_Request_Line (Data);
+               exit;
+            end if;
+         end;
+      end loop;
+
+      HTTP_Server.Slots.Mark_Phase (Index, Client_Header);
 
       Status.Set.Read_Header (Socket => Sock, D => C_Stat);
 
