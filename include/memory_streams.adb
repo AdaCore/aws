@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                       Generic memory stream                              --
 --                                                                          --
---                       Copyright (C) 2003-2004                            --
+--                      Copyright (C) 2003-2005                             --
 --                        Dmitriy Anisimkov                                 --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
