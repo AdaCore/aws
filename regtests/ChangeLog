@@ -1,6 +1,18 @@
 2003-11-02  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* makefile:
+	(RT_SOAP_ASIS): Add comment about naming scheme.
+	($(ASIS_TESTS)): Compute port using test filename.
+
+	* wsdl_1_main.adb:
+	Set server port to 7701.
+
+	* wsdl_2_main.adb:
+	Set server port to 7702.
+	
+2003-11-02  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* makefile:
 	($(ASIS_TESTS)): Add -types option to wsdl2aws.
 
 	* interoplab_main.adb, test_wsdl2.adb, test_wsdl3.adb:
