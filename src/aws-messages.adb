@@ -163,6 +163,24 @@ package body AWS.Messages is
          S504 => (S504_Code'Access, S504_Message'Access),
          S505 => (S505_Code'Access, S505_Message'Access));
 
+   -----------
+   -- Image --
+   -----------
+
+   function Image (S : in Status_Code) return String is
+   begin
+      return Status_Messages (S).Code.all;
+   end Image;
+
+   -------------------
+   -- Reason_Phrase --
+   -------------------
+
+   function Reason_Phrase (S : in Status_Code) return String is
+   begin
+      return Status_Messages (S).Reason_Phrase.all;
+   end Reason_Phrase;
+
    -----------------
    -- Status_Line --
    -----------------
@@ -191,6 +209,15 @@ package body AWS.Messages is
    begin
       return Content_Type_Token & Format;
    end Content_Type;
+
+   ----------------
+   -- Connection --
+   ----------------
+
+   function Connection (Mode : in String) return String is
+   begin
+      return Connection_Token & Mode;
+   end Connection;
 
    --------------
    -- Is_Match --

@@ -28,12 +28,17 @@
 
 --  $Id$
 
-with Ada.Characters.Handling;
+with Ada.Calendar;
+with Ada.Exceptions;
 with Ada.Text_IO;
 with Ada.Integer_Text_IO;
 with Ada.Strings.Fixed;
-with Ada.Strings.Unbounded;
 with Ada.Streams.Stream_IO;
+with Ada.Task_Identification;
+
+with POSIX;
+with POSIX_File_Status;
+with POSIX_Calendar;
 
 with AWS.Messages;
 with AWS.Status;
@@ -43,12 +48,75 @@ package body AWS.Connection is
 
    use Ada;
    use Ada.Strings;
-   use Ada.Strings.Unbounded;
+
+   type Slot is record
+      L    : Line;
+      Free : Boolean := True;
+   end record;
+
+   type Slot_Set is array (Positive range <>) of Slot;
+   type Slot_Set_Access is access Slot_Set;
+
+   Slots : Slot_Set_Access;
+
+   -------------
+   -- Counter --
+   -------------
+
+   --  protected operation to access the slots.
+
+   protected type Counter (N : Positive) is
+
+      entry Get;
+
+      procedure Free;
+
+   private
+      Count : Natural := N;
+   end Counter;
+
+   protected body Counter is
+
+      entry Get when Count > 0 is
+      begin
+         Count := Count - 1;
+      end Get;
+
+      procedure Free is
+      begin
+         Count := Count + 1;
+      end Free;
+
+   end Counter;
+
+   type Counter_Access is access Counter;
+
+   Ressources : Counter_Access;
+
 
    End_Of_Message : constant String := "";
 
+   Internal_Error : exception;
+
    HTTP_10 : constant String := "HTTP/1.0";
    HTTP_11 : constant String := "HTTP/1.1";
+
+   ----------
+   -- Free --
+   ----------
+
+   procedure Free (T : in Task_Identification.Task_ID) is
+      use type Task_Identification.Task_ID;
+   begin
+      for K in Slots'Range loop
+         if Slots (K).L'Identity = T then
+            Slots (K).Free := True;
+            exit;
+         end if;
+      end loop;
+      Exceptions.Raise_Exception (Internal_Error'Identity,
+                                  Message => ("Free: Task_ID not found."));
+   end Free;
 
    ----------
    -- Line --
@@ -63,9 +131,232 @@ package body AWS.Connection is
       procedure Parse (Command : in String);
       --  parse a line sent by the client and do what is needed
 
-      procedure Send_File (Filename     : in String;
-                           HTTP_Version : in String);
+      procedure Send_File (Filename          : in String;
+                           HTTP_Version      : in String);
       --  send content of filename as chunk data
+
+      procedure Answer_To_Client;
+      --  This procedure use the C_Stat status data to send the correct answer
+      --  to the client.
+
+      procedure Get_Message_Header;
+      --  parse HTTP message header. This procedure fill in the C_Stat status
+      --  data.
+
+      procedure Get_Message_Data;
+      --  If the client sent us some data read them. Right now only the
+      --  POST method is handled. This procedure fill in the C_Stat status
+      --  data.
+
+      function File_Timestamp (Filename : in String)
+                              return Calendar.Time;
+      --  returns the last modification time stamp for filename.
+
+      ----------------------
+      -- Answer_To_Client --
+      ----------------------
+
+      procedure Answer_To_Client is
+         use type Messages.Status_Code;
+         use type Response.Data_Mode;
+
+         Answer : constant Response.Data := Handler (C_Stat);
+
+         Status : constant Messages.Status_Code :=
+           Response.Status_Code (Answer);
+
+         procedure Header_Date_Serv;
+         --  send the Date: and Server: data
+
+         procedure Send_Connection;
+         --  send the Connection: data
+
+         procedure Send_File;
+         --  send a binary file to the client
+
+         procedure Send_Message;
+         --  answer by a text or HTML message.
+
+         ----------------------
+         -- Header_Date_Serv --
+         ----------------------
+
+         procedure Header_Date_Serv is
+         begin
+            Sockets.Put_Line (Sock,
+                              "Date: "
+                              & Messages.To_HTTP_Date (Calendar.Clock));
+
+            Sockets.Put_Line (Sock,
+                              "Server: AWS (Ada Web Server) v"
+                              & Version);
+         end Header_Date_Serv;
+
+         ---------------------
+         -- Send_Connection --
+         ---------------------
+
+         procedure Send_Connection is
+         begin
+            if AWS.Status.Connection (C_Stat) = "" then
+               Sockets.Put_Line (Sock, Messages.Connection_Token & "close");
+            else
+               Sockets.Put_Line
+                 (Sock,
+                  Messages.Connection (AWS.Status.Connection (C_Stat)));
+            end if;
+         end Send_Connection;
+
+         ---------------
+         -- Send_File --
+         ---------------
+
+         procedure Send_File is
+            use type Calendar.Time;
+         begin
+            AWS.Status.Set_File_Up_To_Date
+              (C_Stat,
+               AWS.Status.If_Modified_Since (C_Stat) /= ""
+               and then File_Timestamp (Response.Message_Body (Answer))
+                 >= Messages.To_Time (AWS.Status.If_Modified_Since (C_Stat)));
+
+            if AWS.Status.File_Up_To_Date (C_Stat) then
+               Sockets.Put_Line (Sock,
+                                 Messages.Status_Line (Messages.S304));
+               Sockets.New_Line (Sock);
+               return;
+            else
+               Sockets.Put_Line (Sock, Messages.Status_Line (Status));
+            end if;
+
+            Header_Date_Serv;
+
+            Send_Connection;
+
+            Sockets.Put_Line (Sock,
+                              Messages.Content_Type
+                              (Response.Content_Type (Answer)));
+
+            Send_File (Response.Message_Body (Answer),
+                       AWS.Status.HTTP_Version (C_Stat));
+
+         end Send_File;
+
+         ------------------
+         -- Send_Message --
+         ------------------
+
+         procedure Send_Message is
+         begin
+            --  First let's output the status line
+
+            Sockets.Put_Line (Sock, Messages.Status_Line (Status));
+
+            Header_Date_Serv;
+
+            --  Now we output the message body length
+
+            Sockets.Put_Line (Sock,
+                              Messages.Content_Length
+                              (Response.Content_Length (Answer)));
+
+            --  the message content type
+
+            Sockets.Put_Line (Sock,
+                              Messages.Content_Type
+                              (Response.Content_Type (Answer)));
+
+            if Status = Messages.S401 then
+               Sockets.Put_Line (Sock,
+                                 "Www-Authenticate: Basic realm="""
+                                 & Response.Realm (Answer)
+                                 & """");
+            end if;
+
+            --  End of header
+
+            Sockets.New_Line (Sock);
+
+            Sockets.Put_Line (Sock, Response.Message_Body (Answer));
+         end Send_Message;
+
+      begin
+         if Response.Mode (Answer) = Response.Message then
+            Send_Message;
+
+         elsif Response.Mode (Answer) = Response.File then
+            Send_File;
+
+         else
+            raise Constraint_Error;
+         end if;
+      end Answer_To_Client;
+
+      --------------------
+      -- File_Timestamp --
+      --------------------
+
+      function File_Timestamp (Filename : in String)
+                              return Calendar.Time is
+      begin
+         return POSIX_Calendar.To_Time
+           (Posix_File_Status.Last_Modification_Time_Of
+            (POSIX_File_Status.Get_File_Status
+             (POSIX.To_POSIX_String (Filename))));
+      end File_Timestamp;
+
+      ----------------------
+      -- Get_Message_Data --
+      ----------------------
+
+      procedure Get_Message_Data is
+         use type Status.Request_Method;
+      begin
+         if Status.Method (C_Stat) = Status.POST
+           and then Status.Content_Length (C_Stat) /= 0
+         then
+
+            declare
+               Data : constant Streams.Stream_Element_Array
+                 := Sockets.Receive (Sock);
+               Char_Data : String (1 .. Data'Length);
+               CDI       : Positive := 1;
+            begin
+               CDI := 1;
+               for K in Data'Range loop
+                  Char_Data (CDI) := Character'Val (Data (K));
+                  CDI := CDI + 1;
+               end loop;
+               Status.Set_Parameters (C_Stat,
+                                      Translater.Decode_URL (Char_Data));
+            end;
+
+         end if;
+      end Get_Message_Data;
+
+      ------------------------
+      -- Get_Message_Header --
+      ------------------------
+
+      procedure Get_Message_Header is
+      begin
+         loop
+            begin
+               declare
+                  Data : constant String := Sockets.Get_Line (Sock);
+               begin
+                  Text_IO.Put_Line ("H=" & Data);
+                  exit when Data = End_Of_Message;
+
+                  Parse (Data);
+               end;
+            exception
+               when Constraint_Error =>
+                  --  here we time-out on Sockets.Get_Line
+                  raise Sockets.Connection_Closed;
+            end;
+         end loop;
+      end Get_Message_Header;
 
       -----------
       -- Parse --
@@ -188,15 +479,26 @@ package body AWS.Connection is
                (Command (Messages.Content_Length_Token'Length + 1
                          .. Command'Last)));
 
+         elsif Messages.Is_Match
+           (Command, Messages.If_Modified_Since_Token)
+         then
+            Status.Set_If_Modified_Since
+              (C_Stat,
+               Command (Messages.If_Modified_Since_Token'Length + 1
+                        .. Command'Last));
+
          end if;
+      exception
+         when others =>
+            raise Internal_Error;
       end Parse;
 
       ---------------
       -- Send_File --
       ---------------
 
-      procedure Send_File (Filename     : in String;
-                           HTTP_Version : in String)
+      procedure Send_File (Filename          : in String;
+                           HTTP_Version      : in String)
       is
 
          procedure Send_File;
@@ -256,7 +558,6 @@ package body AWS.Connection is
             --  terminate header
 
             Sockets.Put_Line (Sock, "Transfer-Encoding: chunked");
-            Sockets.Put_Line (Sock, "Last-Modified: Sun, 16 Jan 2000 10:41:32 GMT");
             Sockets.New_Line (Sock);
 
             loop
@@ -271,12 +572,18 @@ package body AWS.Connection is
             end loop;
 
             --  last chunk
+
             Sockets.Put_Line (Sock, "0");
             Sockets.New_Line (Sock);
          end Send_File_Chunked;
 
       begin
          Streams.Stream_IO.Open (File, Streams.Stream_IO.In_File, Filename);
+
+         Sockets.Put_Line
+           (Sock,
+            "Last-Modified: " &
+            Messages.To_HTTP_Date (File_Timestamp (Filename)));
 
          if HTTP_Version = HTTP_10 then
             Send_File;
@@ -287,149 +594,96 @@ package body AWS.Connection is
          Streams.Stream_IO.Close (File);
       end Send_File;
 
-
-      use type Status.Request_Method;
-
    begin
-      select
-         accept Start (FD : in Sockets.Socket_FD;
-                       CB : in Response.Callback) do
-            Sock    := FD;
-            Handler := CB;
-         end Start;
-      or
-         terminate;
-      end select;
 
-      --  this new connection has been initialized because some data are
-      --  beeing sent. read the header now.
+      begin
+         loop
+            select
+               accept Start (FD : in Sockets.Socket_FD;
+                             CB : in Response.Callback) do
+                  Sock    := FD;
+                  Handler := CB;
+               end Start;
+            or
+               terminate;
+            end select;
 
-      Text_IO.Put_Line ("New connection...");
+            --  this new connection has been initialized because some data are
+            --  beeing sent. Were are by default using HTTP/1.1 persistent
+            --  connection. We will exit this loop only if the client request
+            --  so or if we time-out on waiting for a request.
 
-      loop
+            For_Every_Request: loop
 
-         Text_IO.Put_Line ("*** Read request...");
+               Get_Message_Header;
 
-         Get_Message_Header : loop
-            declare
-               Data : constant String := Sockets.Get_Line (Sock);
-            begin
-               exit when Data = End_Of_Message;
+               Get_Message_Data;
 
-               Text_IO.Put_Line ("H=" & Data);
-               Parse (Data);
-            end;
-         end loop Get_Message_Header;
+               Answer_To_Client;
 
-         Text_IO.New_Line;
-         Text_IO.Put_Line ("*** Ok let me answer to that...");
+               exit when Status.Connection (C_Stat) /= "Keep-Alive";
 
-         if Status.Method (C_Stat) = Status.POST
-           and then Status.Content_Length (C_Stat) /= 0
-         then
+            end loop For_Every_Request;
 
-            Text_IO.Put_Line ("*** Now read POST data...");
+            Sockets.Shutdown (Sock);
 
-            declare
-               Data : constant Streams.Stream_Element_Array
-                 := Sockets.Receive (Sock);
-               Char_Data : String (1 .. Data'Length);
-               CDI       : Positive := 1;
-            begin
-               CDI := 1;
-               for K in Data'Range loop
-                  Char_Data (CDI) := Character'Val (Data (K));
-                  CDI := CDI + 1;
-               end loop;
-               Status.Set_Parameters (C_Stat,
-                                      Translater.Decode_URL (Char_Data));
-            end;
+            Free (Task_Identification.Current_Task);
+            Ressources.Free;
+         end loop;
 
-         end if;
+      exception
 
-         --  Get the message body from user's callback
+         when Sockets.Connection_Closed =>
+            Text_IO.Put_Line ("Connection time-out, close it.");
 
-         declare
-            use type Messages.Status_Code;
-            use type Response.Data_Mode;
+            Sockets.Put_Line (Sock, Messages.Status_Line (Messages.S500));
+            Sockets.Put_Line (Sock, Messages.Connection ("close"));
+            Sockets.New_Line (Sock);
 
-            Answer : constant Response.Data := Handler (C_Stat);
+            Free (Task_Identification.Current_Task);
+            Ressources.Free;
 
-            Status : constant Messages.Status_Code :=
-              Response.Status_Code (Answer);
-         begin
+         when E : others =>
+            Text_IO.Put_Line ("A problem has been detected!");
+            Text_IO.Put_Line ("Connection will be closed...");
+            Text_IO.New_Line;
+            Text_IO.Put_Line (Exceptions.Exception_Information (E));
 
-            --  First let's output the status line
+            Sockets.Put_Line (Sock, Messages.Status_Line (Messages.S500));
+            Sockets.Put_Line (Sock, "Connection: close");
+            Sockets.New_Line (Sock);
+            Sockets.Shutdown (Sock, Sockets.Both);
 
-            Sockets.Put_Line (Sock, Messages.Status_Line (Status));
-
-            Sockets.Put_Line (Sock,
-                              "Date: Mon, 16 Jan 2000 22:00:00 GMT");
-
-            Sockets.Put_Line (Sock,
-                              "Server: AWS (Ada Web Server) v"
-                              & Version);
-
-            if Response.Mode (Answer) = Response.Message then
-
-               --  Now we output the message body length
-
-               Sockets.Put_Line (Sock,
-                                 Messages.Content_Length
-                                 (Response.Content_Length (Answer)));
-
-               --  We handle only text/html message type
-
-               Sockets.Put_Line (Sock,
-                                 Messages.Content_Type
-                                 (Response.Content_Type (Answer)));
-
-               if Status = Messages.S401 then
-                  Sockets.Put_Line (Sock,
-                                    "Www-Authenticate: Basic realm="""
-                                    & Response.Realm (Answer)
-                                    & """");
-               end if;
-
-               --  End of header
-
-               Sockets.New_Line (Sock);
-
-               Sockets.Put_Line (Sock, Response.Message_Body (Answer));
-
-            elsif Response.Mode (Answer) = Response.File then
-
-               Sockets.Put_Line (Sock,
-                                 Messages.Content_Type
-                                 (Response.Content_Type (Answer)));
-
-               Send_File (Response.Message_Body (Answer),
-                          AWS.Status.HTTP_Version (C_Stat));
-
-            else
-               raise Constraint_Error;
-            end if;
-
-         end;
-
-         exit when Status.Connection (C_Stat) /= "Keep-Alive";
-
-      end loop;
-
-      Sockets.Shutdown (Sock);
-
-      Text_IO.Put_Line ("End connection.");
-
-   exception
-
-      when Sockets.Connection_Closed =>
-         Text_IO.Put_Line ("Connection closed.");
-         Sockets.Shutdown (Sock, Sockets.Both);
-
-      when E : others =>
-         Text_IO.Put_Line ("Connection error...");
-         Sockets.Shutdown (Sock, Sockets.Both);
+            Free (Task_Identification.Current_Task);
+            Ressources.Free;
+      end;
 
    end Line;
+
+   ------------------
+   -- Create_Slots --
+   ------------------
+
+   procedure Create_Slots (N : in Positive) is
+   begin
+      Slots := new Slot_Set (1 .. N);
+      Ressources := new Counter (N);
+   end Create_Slots;
+
+   -------------------
+   -- Get_Free_Slot --
+   -------------------
+
+   function Get_Free_Slot return Line is
+   begin
+      Ressources.Get;
+
+      for K in Slots'Range loop
+         if Slots (K).Free then
+            Slots (K).Free := False;
+            return Slots (K).L;
+         end if;
+      end loop;
+   end Get_Free_Slot;
 
 end AWS.Connection;

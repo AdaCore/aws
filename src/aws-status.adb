@@ -52,6 +52,15 @@ package body AWS.Status is
       return D.Content_Length;
    end Content_Length;
 
+   ---------------------
+   -- File_Up_To_Date --
+   ---------------------
+
+   function File_Up_To_Date (D : in Data) return Boolean is
+   begin
+      return D.File_Up_To_Date;
+   end File_Up_To_Date;
+
    ----------
    -- Host --
    ----------
@@ -69,6 +78,15 @@ package body AWS.Status is
    begin
       return To_String (D.HTTP_Version);
    end HTTP_Version;
+
+   -----------------------
+   -- If_Modified_Since --
+   -----------------------
+
+   function If_Modified_Since (D : in Data) return String is
+   begin
+      return To_String (D.If_Modified_Since);
+   end If_Modified_Since;
 
    ------------
    -- Method --
@@ -160,6 +178,16 @@ package body AWS.Status is
       D.Content_Length := Content_Length;
    end Set_Content_Length;
 
+   -------------------------
+   -- Set_File_Up_To_Date --
+   -------------------------
+
+   procedure Set_File_Up_To_Date (D               : in out Data;
+                                  File_Up_To_Date : in     Boolean) is
+   begin
+      D.File_Up_To_Date := File_Up_To_Date;
+   end Set_File_Up_To_Date;
+
    --------------
    -- Set_Host --
    --------------
@@ -168,6 +196,16 @@ package body AWS.Status is
    begin
       D.Host := To_Unbounded_String (Host);
    end Set_Host;
+
+   ---------------------------
+   -- Set_If_Modified_Since --
+   ---------------------------
+
+   procedure Set_If_Modified_Since (D                 : in out Data;
+                                    If_Modified_Since : in     String) is
+   begin
+      D.If_Modified_Since := To_Unbounded_String (If_Modified_Since);
+   end Set_If_Modified_Since;
 
    --------------------
    -- Set_Parameters --

@@ -34,6 +34,8 @@ package AWS.Messages is
 
    use Ada;
 
+   HTTP_Token : constant String := "HTTP/";
+
    Host_Token : constant String := "Host: ";
    subtype Host_Range is Positive range Host_Token'Range;
 
@@ -51,6 +53,14 @@ package AWS.Messages is
 
    Content_Length_Token : constant String := "Content-Length: ";
    subtype Content_Length_Range is Positive range Content_Length_Token'Range;
+
+   If_Modified_Since_Token : constant String := "If-Modified-Since: ";
+   subtype If_Modified_Since_Range is
+     Positive range If_Modified_Since_Token'Range;
+
+   Transfer_Encoding_Token : constant String := "Transfer-Encoding: ";
+   subtype Transfer_Encoding_Range is
+     Positive range Transfer_Encoding_Token'Range;
 
    type Status_Code is
      (S100, S101,
@@ -74,6 +84,11 @@ package AWS.Messages is
       --  valid request
       );
 
+   function Image (S : in Status_Code) return String;
+
+   function Reason_Phrase (S : in Status_Code) return String;
+
+
    --  HTTP message constructors
 
    function Status_Line (Code : in Status_Code) return String;
@@ -81,6 +96,9 @@ package AWS.Messages is
    function Content_Length (Size : in Positive) return String;
 
    function Content_Type (Format : in String) return String;
+
+   function Connection (Mode : in String) return String;
+
 
    --  helper functions
 

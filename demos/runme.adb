@@ -75,7 +75,7 @@ procedure Runme is
 
    use Ada;
 
-   WS : AWS.Server.HTTP (1234, Runme_CB.Get'Access);
+   WS : AWS.Server.HTTP (10, 1234, Runme_CB.Get'Access);
 
 begin
    Text_IO.Put_Line ("Kill me when you want me to stop...");

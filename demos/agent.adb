@@ -31,18 +31,91 @@
 --  usage : agent URL
 
 with Ada.Text_IO;
-with Ada.Command_Line;
+with Ada.Strings.Unbounded;
+with GNAT.Command_Line;
 
 with AWS.Client;
 with AWS.Response;
+with AWS.Messages;
 
 procedure Agent is
 
    use AWS;
    use Ada;
+   use Ada.Strings.Unbounded;
 
-   Data : constant Response.Data := Client.Get (Command_Line.Argument (1));
+   User       : Unbounded_String;
+   Pwd        : Unbounded_String;
+   URL        : Unbounded_String;
+   Proxy      : Unbounded_String;
+   Proxy_User : Unbounded_String;
+   Proxy_Pwd  : Unbounded_String;
+
+   procedure Parse_Command_Line;
+   --  parse Agent command line:
+   --  Usage: agent [-u -p -proxy -pu -pp] URL
+
+   procedure Parse_Command_Line is
+   begin
+     loop
+        case GNAT.Command_Line.Getopt ("u: p: pu: pp: proxy:") is
+
+           when ASCII.NUL =>
+              exit;
+
+           when 'u' =>
+              User := To_Unbounded_String (GNAT.Command_Line.Parameter);
+
+           when 'p' =>
+              if GNAT.Command_Line.Full_Switch = "p" then
+                 Pwd := To_Unbounded_String (GNAT.Command_Line.Parameter);
+
+              elsif GNAT.Command_Line.Full_Switch = "pu" then
+                 Proxy_User :=
+                   To_Unbounded_String (GNAT.Command_Line.Parameter);
+
+              elsif GNAT.Command_Line.Full_Switch = "pp" then
+                 Proxy_Pwd :=
+                   To_Unbounded_String (GNAT.Command_Line.Parameter);
+
+              elsif GNAT.Command_Line.Full_Switch = "proxy" then
+                 Proxy :=
+                   To_Unbounded_String (GNAT.Command_Line.Parameter);
+              end if;
+
+           when others =>
+              raise Program_Error;         -- cannot occur!
+        end case;
+     end loop;
+
+     URL := To_Unbounded_String (GNAT.Command_Line.Get_Argument);
+   end Parse_Command_Line;
 
 begin
-   Text_IO.Put_Line (Response.Message_Body (Data));
+   Parse_Command_Line;
+
+   declare
+      Data : constant Response.Data :=
+        Client.Get (URL        => To_String (URL),
+                    User       => To_String (User),
+                    Pwd        => To_String (Pwd),
+                    Proxy      => To_String (Proxy),
+                    Proxy_User => To_String (Proxy_User),
+                    Proxy_Pwd  => To_String (Proxy_Pwd));
+   begin
+      Text_IO.Put_Line
+        ("Status Code = "
+         & Messages.Image (Response.Status_Code (Data))
+         & " - "
+         & Messages.Reason_Phrase (Response.Status_Code (Data)));
+
+      if Response.Content_Type (Data) = "text/html" then
+         Text_IO.Put_Line (Response.Message_Body (Data));
+      else
+         Text_IO.Put_Line ("Content-Type: "
+                           & Response.Content_Type (Data));
+         Text_IO.Put_Line ("Content-Length: "
+                           & Natural'Image (Response.Content_Length (Data)));
+      end if;
+   end;
 end Agent;

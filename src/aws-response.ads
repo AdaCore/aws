@@ -29,11 +29,17 @@
 --  $Id$
 
 with Ada.Strings.Unbounded;
+with Ada.Streams;
 
 with AWS.Status;
 with AWS.Messages;
 
 package AWS.Response is
+
+   use Ada;
+
+   --  ??? this package should certainly be rewritten using an OO design using
+   --  a set of tagged objects
 
    type Data is private;
 
@@ -41,6 +47,11 @@ package AWS.Response is
 
    function Build (Content_Type : in String;
                    Message_Body : in String;
+                   Status_Code  : in Messages.Status_Code := Messages.S200)
+                  return Data;
+
+   function Build (Content_Type : in String;
+                   Message_Body : in Streams.Stream_Element_Array;
                    Status_Code  : in Messages.Status_Code := Messages.S200)
                   return Data;
 
@@ -55,6 +66,7 @@ package AWS.Response is
    function Content_Type   (D : in Data) return String;
    function Message_Body   (D : in Data) return String;
    function Realm          (D : in Data) return String;
+   function Binary         (D : in Data) return Streams.Stream_Element_Array;
 
    type Callback is access function (Request : in Status.Data) return Data;
 
@@ -64,6 +76,8 @@ private
 
    use Ada.Strings.Unbounded;
 
+   type Stream_Element_Array_Access is access Streams.Stream_Element_Array;
+
    type Data is record
       Mode           : Data_Mode;
       Status_Code    : Messages.Status_Code;
@@ -71,6 +85,7 @@ private
       Content_Type   : Unbounded_String;
       Message_Body   : Unbounded_String;
       Realm          : Unbounded_String;
+      Elements       : Stream_Element_Array_Access;
    end record;
 
 end AWS.Response;

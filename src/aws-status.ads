@@ -46,6 +46,14 @@ package AWS.Status is
                                  Content_Length : in     Natural);
    function Content_Length (D : in Data) return Natural;
 
+   procedure Set_If_Modified_Since (D                 : in out Data;
+                                    If_Modified_Since : in     String);
+   function If_Modified_Since (D : in Data) return String;
+
+   procedure Set_File_Up_To_Date (D               : in out Data;
+                                  File_Up_To_Date : in     Boolean);
+   function File_Up_To_Date (D : in Data) return Boolean;
+
    procedure Set_Request (D            : in out Data;
                           Method       : in     Request_Method;
                           URI          : in     String;
@@ -72,13 +80,15 @@ private
    use Ada.Strings.Unbounded;
 
    type Data is record
-      Connection     : Unbounded_String;
-      Host           : Unbounded_String;
-      Method         : Request_Method;
-      URI            : Unbounded_String;
-      Parameters     : Unbounded_String;
-      HTTP_Version   : Unbounded_String;
-      Content_Length : Natural;
+      Connection        : Unbounded_String;
+      Host              : Unbounded_String;
+      Method            : Request_Method;
+      URI               : Unbounded_String;
+      Parameters        : Unbounded_String;
+      HTTP_Version      : Unbounded_String;
+      Content_Length    : Natural;
+      If_Modified_Since : Unbounded_String;
+      File_Up_To_Date   : Boolean := False;
    end record;
 
 end AWS.Status;

@@ -33,7 +33,6 @@ with Ada.Text_IO;
 with AWS.Server;
 with AWS.Response;
 with AWS.Status;
-with AWS.Messages;
 
 procedure Auth is
 

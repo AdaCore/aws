@@ -28,160 +28,138 @@
 
 --  $Id$
 
-with Ada.Text_IO;
 with Ada.Strings.Unbounded;
-with Ada.Strings.Fixed;
+with Ada.Streams;
 
 with Sockets;
+
+with AWS.Messages;
+with AWS.Translater;
+with AWS.URL;
 
 package body AWS.Client is
 
    use Ada;
-   use Ada.Strings;
    use Ada.Strings.Unbounded;
 
-   HTTP_Token : constant String := "http://";
-   subtype HTTP_Range is Positive range HTTP_Token'Range;
-
    End_Section : constant String := "";
-   CRLF        : constant String := ASCII.CR & ASCII.LF;
-   CRLF_Size   : constant        := 2;
 
    ---------
    -- Get --
    ---------
 
-   function Get (URL : in String) return Response.Data is
+   function Get (URL        : in String;
+                 User       : in String := No_Data;
+                 Pwd        : in String := No_Data;
+                 Proxy      : in String := No_Data;
+                 Proxy_User : in String := No_Data;
+                 Proxy_Pwd  : in String := No_Data) return Response.Data
+   is
 
-      I1 : Natural; --  start index for the server name
-      I2 : Natural; --  start index for the port number
-      I3 : Natural; --  start index for the URI
-
-      procedure Cut_URL;
-      --  parse URL and set I1 and I2. Raises URL_Error if the URL is not well
-      --  writen.
-
-      function Server return String;
-      --  return server name from URL. Cut_URL must have been called before.
-
-      function Port return Positive;
-      --  return port number from URL. Cut_URL must have been called before.
-
-      function URI return String;
-      --  return URI from URL. Cut_URL must have been called before.
-
-      function Image (P : in Positive) return String;
-      --  return P image without leading space
+      function Read_Chunk return Streams.Stream_Element_Array;
+      --  read a chunk object from the stream
 
       Sock    : Sockets.Socket_FD;
       CT      : Unbounded_String;
       CT_Len  : Natural;
+      TE      : Unbounded_String;
+      Status  : Messages.Status_Code;
       Message : Unbounded_String;
-      M_Len   : Natural := 0;
+      Proxy_Data, URL_Data : AWS.URL.Object;
 
-      -------------
-      -- Cut_URL --
-      -------------
+      function Read_Chunk return Streams.Stream_Element_Array is
 
-      procedure Cut_URL is
+         use type Streams.Stream_Element_Array;
+         use type Streams.Stream_Element_Offset;
+
+         procedure Skip_Line;
+         --  skip a line on the socket
+
+         --  read the chunk size that is an hex number
+
+         Size     : Streams.Stream_Element_Offset
+           := Streams.Stream_Element_Offset'Value
+           ("16#" & Sockets.Get_Line (Sock) & '#');
+
+         Elements : Streams.Stream_Element_Array (1 .. Size);
+
+         procedure Skip_Line is
+            D : constant String := Sockets.Get_Line (Sock);
+         begin
+            null;
+         end Skip_Line;
+
       begin
-         if URL'Length < HTTP_Range'Last
-           or else URL (HTTP_Range) /= HTTP_Token
-         then
-            raise URL_Error;
+         if Size = 0 then
+            Skip_Line;
+            return Elements;
          else
-            I1 := HTTP_Range'Last + 1;
-            I2 := Fixed.Index (URL (HTTP_Range'Last + 1 .. URL'Last), ":");
-            I3 := Fixed.Index (URL (HTTP_Range'Last + 1 .. URL'Last), "/");
+            Sockets.Receive (Sock, Elements);
+            Skip_Line;
+            return Elements & Read_Chunk;
          end if;
-      end Cut_URL;
-
-      ------------
-      -- Server --
-      ------------
-
-      function Server return String is
-      begin
-         if I2 = 0 then
-            if I3 = 0 then
-               return URL (I1 .. URL'Last);
-            else
-               return URL (I1 .. I3 - 1);
-            end if;
-         else
-            return URL (I1 .. I2 - 1);
-         end if;
-      end Server;
-
-      ----------
-      -- Port --
-      ----------
-
-      function Port return Positive is
-      begin
-         if I2 = 0 then
-            return 80;
-         else
-            if I3 = 0 then
-               return Positive'Value (URL (I2 + 1 .. URL'Last));
-            else
-               return Positive'Value (URL (I2 + 1 .. I3 - 1));
-            end if;
-         end if;
-      end Port;
-
-      ---------
-      -- URI --
-      ---------
-
-      function URI return String is
-      begin
-         if I3 = 0 then
-            return "/";
-         else
-            return URL (I3 .. URL'Last);
-         end if;
-      end URI;
-
-      -----------
-      -- Image --
-      -----------
-
-      function Image (P : in Positive) return String is
-         PI : constant String := Positive'Image (P);
-      begin
-         return PI (2 .. PI'Last);
-      end Image;
+      end Read_Chunk;
 
    begin
 
-      Cut_URL;
+      URL_Data   := AWS.URL.Parse (URL);
+      Proxy_Data := AWS.URL.Parse (Proxy);
 
       -- Connect to server
 
-      Sock := Sockets.Socket (Sockets.AF_INET, Sockets.SOCK_STREAM);
+      if Proxy = No_Data then
+         Sock := Sockets.Socket (Sockets.AF_INET, Sockets.SOCK_STREAM);
 
-      Text_IO.Put_Line ("Connect to " & Server & Positive'Image (Port));
+         Sockets.Connect (Sock,
+                          AWS.URL.Server_Name (URL_Data),
+                          AWS.URL.Port (URL_Data));
 
-      Sockets.Connect (Sock, Server, Port);
+         Sockets.Put_Line (Sock, "GET "
+                           & AWS.URL.URI (URL_Data)
+                           & ' ' & HTTP_Version);
+         Sockets.Put_Line (Sock, "Connection: Keep-Alive");
 
-      Text_IO.Put_Line ("Send request...");
+      else
+         Sock := Sockets.Socket (Sockets.AF_INET, Sockets.SOCK_STREAM);
 
-      Sockets.Put_Line (Sock, "GET " & URI & ' ' & HTTP_Version);
-      Sockets.Put_Line (Sock, "Accept: text/html");
+         Sockets.Connect (Sock,
+                          AWS.URL.Server_Name (Proxy_Data),
+                          AWS.URL.Port (Proxy_Data));
+
+         Sockets.Put_Line (Sock, "GET " & URL & ' ' & HTTP_Version);
+         Sockets.Put_Line (Sock, "Proxy-Connection: Keep-Alive");
+      end if;
+
+      Sockets.Put_Line (Sock, "Accept: text/html, */*");
       Sockets.Put_Line (Sock, "Accept-Language: fr, us");
-      Sockets.Put_Line (Sock, "User-Agent: AWS v" & Version);
-      Sockets.Put_Line (Sock, "Host: " & Server & ':' & Image (Port));
-      Sockets.Put_Line (Sock, "Connection: Keep-Alive");
+      Sockets.Put_Line (Sock, "User-Agent: AWS/v" & Version);
+      Sockets.Put_Line (Sock, "Host: whatever_for_now");
+
+      if User /= No_Data and then Pwd /= No_Data then
+         Sockets.Put_Line
+           (Sock, "Authorization: Basic " &
+            AWS.Translater.Base64_Encode (User & ':' & Pwd));
+      end if;
+
+      if Proxy_User /= No_Data and then Proxy_Pwd /= No_Data then
+         Sockets.Put_Line
+           (Sock, "Proxy-Authorization: Basic " &
+            AWS.Translater.Base64_Encode (Proxy_User & ':' & Proxy_Pwd));
+      end if;
+
       Sockets.New_Line (Sock);
 
       Parse_Header : loop
          declare
             Line : constant String := Sockets.Get_Line (Sock);
          begin
-            Text_IO.Put_Line ("H=" & Line);
             if Line = End_Section then
                exit Parse_Header;
+
+            elsif Messages.Is_Match (Line, Messages.HTTP_Token) then
+               Status := Messages.Status_Code'Value
+                 ('S' & Line (Messages.HTTP_Token'Last + 5
+                              .. Messages.HTTP_Token'Last + 7));
 
             elsif Messages.Is_Match (Line, Messages.Content_Type_Token) then
                CT := To_Unbounded_String
@@ -190,6 +168,14 @@ package body AWS.Client is
             elsif Messages.Is_Match (Line, Messages.Content_Length_Token) then
                CT_Len := Natural'Value
                  (Line (Messages.Content_Length_Range'Last + 1 .. Line'Last));
+
+            elsif Messages.Is_Match (Line,
+                                     Messages.Transfer_Encoding_Token)
+            then
+               TE := To_Unbounded_String
+                 (Line (Messages.Transfer_Encoding_Range'Last + 1
+                        .. Line'Last));
+
             else
                --  everything else is ignore right now
                null;
@@ -197,23 +183,61 @@ package body AWS.Client is
          end;
       end loop Parse_Header;
 
-      Parse_Body : loop
+      --  read the message body
+
+      if To_String (TE) = "chunked" then
+
+         --  a chuncked message is written on the stream as list of data
+         --  chunk. Each chunk has the following format:
+         --
+         --  <N : the chunk size in hexadecimal> CRLF
+         --  <N * BYTES : the data> CRLF
+         --
+         --  The termination chunk is:
+         --
+         --  0 CRLF
+         --  CRLF
+         --
+
          declare
-            Line : constant String := Sockets.Get_Line (Sock);
+            Elements : Streams.Stream_Element_Array := Read_Chunk;
          begin
-            Text_IO.Put_Line ("B=" & Line);
-            M_Len := M_Len + Line'Length + CRLF_Size;
-
-            Message := Message & Line & CRLF;
-
-            exit when M_Len = CT_Len;
+            return Response.Build (To_String (CT),
+                                   Elements,
+                                   Status);
          end;
-      end loop Parse_Body;
 
-      Sockets.Shutdown (Sock);
+      else
 
-      return Response.Build (To_String (CT),
-                             To_String (Message));
+         declare
+            Elements : Streams.Stream_Element_Array
+              (1 .. Streams.Stream_Element_Offset (CT_Len));
+         begin
+            Sockets.Receive (Sock, Elements);
+            Sockets.Shutdown (Sock);
+
+            if CT = "text/html" then
+
+               --  if the content is textual info put it in a string
+
+               for K in Elements'Range loop
+                  Append (Message, Character'Val (Natural (Elements (K))));
+               end loop;
+
+               return Response.Build (To_String (CT),
+                                      To_String (Message),
+                                      Status);
+            else
+
+               --  this is some kind of binary data.
+
+               return Response.Build (To_String (CT),
+                                      Elements,
+                                      Status);
+            end if;
+         end;
+      end if;
+
    exception
       when others =>
          raise URL_Error;

@@ -42,6 +42,10 @@ procedure Base64 is
    Last   : Streams.Stream_Element_Offset;
 
 begin
+
+   Text_IO.Put_Line
+     ('[' & AWS.Translater.Base64_Encode ("Aladdin:open sesame") & ']');
+
    Streams.Stream_IO.Open (File, Streams.Stream_IO.In_File, "adains.gif");
    Streams.Stream_IO.Read (File, Buffer, Last);
    Streams.Stream_IO.Close (File);

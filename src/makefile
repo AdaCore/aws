@@ -3,7 +3,7 @@
 
 .SILENT: all build distrib
 
-GFLAGS	= -I/usr/tools/sockets -g
+GFLAGS	= -I/usr/tools/sockets -g -gnatwu
 
 all:
 	echo "Targets:"

@@ -39,6 +39,11 @@ package AWS.Connection is
                    CB : in Response.Callback);
    end Line;
 
-   type Line_Access is access Line;
+   procedure Create_Slots (N : in Positive);
+   --  creates N slot lines. This is the maximum number of connection that
+   --  will be available at the same time.
+
+   function Get_Free_Slot return Line;
+   --  return a free line to answer to a client.
 
 end AWS.Connection;

@@ -18,6 +18,7 @@ clean:
 	make -C demos clean
 
 distrib:
+	-rm -f aws.tar*
 	tar cf aws.tar makefile src/makefile demos/makefile \
-		src/*.ad[sb] demos/*.ad[sb]
+		src/*.ad[sb] demos/*.ads demos/[ar]*.adb demos/*.gif
 	gzip -9 aws.tar

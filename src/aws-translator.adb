@@ -159,6 +159,19 @@ package body AWS.Translater is
       return To_String (Result);
    end Base64_Encode;
 
+   function Base64_Encode (Data : in String) return String is
+      use type Streams.Stream_Element_Offset;
+      Stream_Data : Streams.Stream_Element_Array
+        (1 .. Streams.Stream_Element_Offset (Data'Length));
+      I : Streams.Stream_Element_Offset := 1;
+   begin
+      for K in Data'Range loop
+         Stream_Data (I) := Character'Pos (Data (K));
+         I := I + 1;
+      end loop;
+      return Base64_Encode (Stream_Data);
+   end Base64_Encode;
+
    -------------------
    -- Base64_Decode --
    -------------------

@@ -37,14 +37,14 @@ package body AWS.Server is
    Accepting_Socket : Sockets.Socket_FD;
    Incoming_Socket  : Sockets.Socket_FD;
 
-   Line : Connection.Line_Access;
-
    ----------------
    -- Web_Server --
    ----------------
 
    task body HTTP is
    begin
+      Connection.Create_Slots (Max_Connection);
+
       Accepting_Socket := Sockets.Socket (Sockets.AF_INET,
                                           Sockets.SOCK_STREAM);
       Sockets.Setsockopt (Accepting_Socket,
@@ -58,8 +58,7 @@ package body AWS.Server is
 
       loop
          Incoming_Socket := Sockets.Accept_Socket (Accepting_Socket);
-         Line := new Connection.Line;
-         Line.Start (Incoming_Socket, CB);
+         Connection.Get_Free_Slot.Start (Incoming_Socket, CB);
       end loop;
    end HTTP;
 

@@ -56,8 +56,18 @@ package body AWS.Response is
                    Auth_Mess'Length,
                    To_Unbounded_String ("text/html"),
                    To_Unbounded_String (Auth_Mess),
-                   To_Unbounded_String (Realm));
+                   To_Unbounded_String (Realm),
+                   null);
    end Authenticate;
+
+   ------------
+   -- Binary --
+   ------------
+
+   function Binary (D : in Data) return Streams.Stream_Element_Array is
+   begin
+      return D.Elements.all;
+   end Binary;
 
    -----------
    -- Build --
@@ -73,7 +83,22 @@ package body AWS.Response is
                    Message_Body'Length,
                    To_Unbounded_String (Content_Type),
                    To_Unbounded_String (Message_Body),
-                   Null_Unbounded_String);
+                   Null_Unbounded_String,
+                   null);
+   end Build;
+
+   function Build (Content_Type : in String;
+                   Message_Body : in Streams.Stream_Element_Array;
+                   Status_Code  : in Messages.Status_Code := Messages.S200)
+                  return Data is
+   begin
+      return Data'(Message,
+                   Status_Code,
+                   Message_Body'Length,
+                   To_Unbounded_String (Content_Type),
+                   Null_Unbounded_String,
+                   Null_Unbounded_String,
+                   new Streams.Stream_Element_Array'(Message_Body));
    end Build;
 
    --------------------
@@ -106,7 +131,8 @@ package body AWS.Response is
                    0,
                    To_Unbounded_String (Content_Type),
                    To_Unbounded_String (Filename),
-                   Null_Unbounded_String);
+                   Null_Unbounded_String,
+                   null);
    end File;
 
    ------------------
