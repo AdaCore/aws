@@ -1,8 +1,14 @@
+2002-11-23  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* aws-headers-values.adb:
+	Avoid possible Constraint_Error in case of
+	 Name= at the end of line.
+
 2002-11-22  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* makefile:
 	Fix stupid typo.
-	
+
 2002-11-22  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* makefile:
@@ -17,7 +23,7 @@
 	* aws-headers-values.adb:
 	Reformat code.
 	Change Set to Data_Date.
-	
+
 2002-11-22  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-headers-values.adb:
