@@ -182,10 +182,6 @@ package SSL.Thin is
 
 private
 
-   pragma Linker_Options ("-lssl");
-   pragma Linker_Options ("-lcrypto");
-   pragma Linker_Options ("-lRSAglue");
-
    pragma Import (C, Rand_Seed, "RAND_seed");
    pragma Import (C, SSL_Set_Fd, "SSL_set_fd");
    pragma Import (C, SSL_Accept, "SSL_accept");
