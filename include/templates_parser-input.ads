@@ -48,6 +48,11 @@ package Templates_Parser.Input is
    --  Like Text_IO.End_Of_File. Raises Text_IO.Status_Error is file is not
    --  open.
 
+   function LF_Terminated (File : in File_Type) return Boolean;
+   pragma Inline (LF_Terminated);
+   --  Returns True if last line returned by Get_Line was terminated with a LF
+   --  or CR+LF on DOS based systems.
+
    procedure Get_Line
      (File   : in     File_Type;
       Buffer :    out String;
