@@ -128,10 +128,14 @@ private
 
    type ID is new String (1 .. 11);
 
-   task type Cleaner;
+   task type Cleaner is
+      entry Stop;
+   end Cleaner;
    --  Call Database.Clean every Session_Lifetime seconds.
 
    type Cleaner_Access is access Cleaner;
+
+   Cleaner_Task : Cleaner_Access;
 
    ---------------------
    -- Cleaner_Control --
@@ -144,12 +148,12 @@ private
          Session_Lifetime       : in Duration);
       --  Launch the cleaner task the first time and does nothing after.
 
-      procedure Stop;
-      --  Stop the cleaner task when there is no more server using it.
+      procedure Stop (Need_Release : out Boolean);
+      --  Stop the cleaner task when there is no more server using it. Release
+      --  is set to True if the Cleaner_Task can be released.
 
    private
       Server_Count : Natural := 0;
-      Cleaner_Task : Cleaner_Access;
    end Cleaner_Control;
 
 end AWS.Session;
