@@ -112,4 +112,12 @@ package AWS.Headers.Values is
       return String;
    --  Returns N-th un-named value from Header_Value.
 
+   function Exist_Unnamed_Value
+     (Header_Value   : in String;
+      Value          : in String;
+      Case_Sensitive : in Boolean := True)
+      return Boolean;
+   --  Returns True if the unnamed value specified has been found in
+   --  Header_Value.
+
 end AWS.Headers.Values;
