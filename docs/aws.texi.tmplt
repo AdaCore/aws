@@ -3831,77 +3831,77 @@ SOAP User API:
 @appendixsec AWS
 @cindex AWS
 
-@include ../src/aws.ads.texi
+@include aws.ads.texi
 
 @page
 @node AWS.Client
 @appendixsec AWS.Client
 @cindex AWS.Client
 
-@include ../src/aws-client.ads.texi
+@include aws-client.ads.texi
 
 @page
 @node AWS.Communication
 @appendixsec AWS.Communication
 @cindex AWS.Communication
 
-@include ../src/aws-communication.ads.texi
+@include aws-communication.ads.texi
 
 @page
 @node AWS.Communication.Client
 @appendixsec AWS.Communication.Client
 @cindex AWS.Communication.Client
 
-@include ../src/aws-communication-client.ads.texi
+@include aws-communication-client.ads.texi
 
 @page
 @node AWS.Communication.Server
 @appendixsec AWS.Communication.Server
 @cindex AWS.Communication.Server
 
-@include ../src/aws-communication-server.ads.texi
+@include aws-communication-server.ads.texi
 
 @page
 @node AWS.Config
 @appendixsec AWS.Config
 @cindex AWS.Config
 
-@include ../src/aws-config.ads.texi
+@include aws-config.ads.texi
 
 @page
 @node AWS.Config.Ini
 @appendixsec AWS.Config.Ini
 @cindex AWS.Config.Ini
 
-@include ../src/aws-config-ini.ads.texi
+@include aws-config-ini.ads.texi
 
 @page
 @node AWS.Config.Set
 @appendixsec AWS.Config.Set
 @cindex AWS.Config.Set
 
-@include ../src/aws-config-set.ads.texi
+@include aws-config-set.ads.texi
 
 @page
 @node AWS.Containers.Tables
 @appendixsec AWS.Containers.Tables
 @cindex AWS.Containers.Tables
 
-@include ../src/aws-containers-tables.ads.texi
+@include aws-containers-tables.ads.texi
 
 @page
 @node AWS.Default
 @appendixsec AWS.Default
 @cindex AWS.Default
 
-@include ../src/aws-default.ads.texi
+@include aws-default.ads.texi
 
 @page
 @node AWS.Dispatchers
 @appendixsec AWS.Dispatchers
 @cindex AWS.Dispatchers
 
-@include ../src/aws-dispatchers.ads.texi
+@include aws-dispatchers.ads.texi
 
 @page
 @node AWS.Dispatchers.Callback
@@ -3909,7 +3909,7 @@ SOAP User API:
 @cindex AWS.Dispatchers.Callback
 @cindex Callback, dispatcher API
 
-@include ../src/aws-dispatchers-callback.ads.texi
+@include aws-dispatchers-callback.ads.texi
 
 @page
 @node AWS.Exceptions
@@ -3917,21 +3917,21 @@ SOAP User API:
 @cindex AWS.Exceptions
 @cindex Exceptions, Unexpected exceptions, Exceptions handler
 
-@include ../src/aws-exceptions.ads.texi
+@include aws-exceptions.ads.texi
 
 @page
 @node AWS.Headers
 @appendixsec AWS.Headers
 @cindex AWS.Headers
 
-@include ../src/aws-headers.ads.texi
+@include aws-headers.ads.texi
 
 @page
 @node AWS.Headers.Values
 @appendixsec AWS.Headers.Values
 @cindex AWS.Headers.Values
 
-@include ../src/aws-headers-values.ads.texi
+@include aws-headers-values.ads.texi
 
 @page
 @node AWS.Jabber
@@ -3939,7 +3939,7 @@ SOAP User API:
 @cindex AWS.Jabber
 @cindex Jabber Binding
 
-@include ../src/aws-jabber.ads.texi
+@include aws-jabber.ads.texi
 
 @page
 @node AWS.LDAP.Client
@@ -3947,203 +3947,203 @@ SOAP User API:
 @cindex AWS.LDAP.Client
 @cindex LDAP Binding
 
-@include ../src/aws-ldap-client.ads.texi
+@include aws-ldap-client.ads.texi
 
 @page
 @node AWS.Log
 @appendixsec AWS.Log
 @cindex AWS.Log
 
-@include ../src/aws-log.ads.texi
+@include aws-log.ads.texi
 
 @page
 @node AWS.MIME
 @appendixsec AWS.MIME
 @cindex AWS.MIME
 
-@include ../src/aws-mime.ads.texi
+@include aws-mime.ads.texi
 
 @page
 @node AWS.Parameters
 @appendixsec AWS.Parameters
 @cindex AWS.Parameters
 
-@include ../src/aws-parameters.ads.texi
+@include aws-parameters.ads.texi
 
 @page
 @node AWS.Resources
 @appendixsec AWS.Resources
 @cindex AWS.Resources
 
-@include ../src/aws-resources.ads.texi
+@include aws-resources.ads.texi
 
 @page
 @node AWS.Resources.Streams
 @appendixsec AWS.Resources.Streams
 @cindex AWS.Resources.Streams
 
-@include ../src/aws-resources-streams.ads.texi
+@include aws-resources-streams.ads.texi
 
 @page
 @node AWS.Response
 @appendixsec AWS.Response
 @cindex AWS.Response
 
-@include ../src/aws-response.ads.texi
+@include aws-response.ads.texi
 
 @page
 @node AWS.Server
 @appendixsec AWS.Server
 @cindex AWS.Server
 
-@include ../src/aws-server.ads.texi
+@include aws-server.ads.texi
 
 @page
 @node AWS.Server.Hotplug
 @appendixsec AWS.Server.Hotplug
 @cindex AWS.Server.Hotplug
 
-@include ../src/aws-server-hotplug.ads.texi
+@include aws-server-hotplug.ads.texi
 
 @page
 @node AWS.Server.Push
 @appendixsec AWS.Server.Push
 @cindex AWS.Server.Push
 
-@include ../src/aws-server-push.ads.texi
+@include aws-server-push.ads.texi
 
 @page
 @node AWS.Server.Status
 @appendixsec AWS.Server.Status
 @cindex AWS.Server.Status
 
-@include ../src/aws-server-status.ads.texi
+@include aws-server-status.ads.texi
 
 @page
 @node AWS.Services.Directory
 @appendixsec AWS.Services.Directory
 @cindex AWS.Services.Directory
 
-@include ../src/aws-services-directory.ads.texi
+@include aws-services-directory.ads.texi
 
 @page
 @node AWS.Services.Dispatchers
 @appendixsec AWS.Services.Dispatchers
 @cindex AWS.Services.Dispatchers
 
-@include ../src/aws-services-dispatchers.ads.texi
+@include aws-services-dispatchers.ads.texi
 
 @page
 @node AWS.Services.Dispatchers.Method
 @appendixsec AWS.Services.Dispatchers.Method
 @cindex AWS.Services.Dispatchers.Method
 
-@include ../src/aws-services-dispatchers-method.ads.texi
+@include aws-services-dispatchers-method.ads.texi
 
 @page
 @node AWS.Services.Dispatchers.URI
 @appendixsec AWS.Services.Dispatchers.URI
 @cindex AWS.Services.Dispatchers.URI
 
-@include ../src/aws-services-dispatchers-uri.ads.texi
+@include aws-services-dispatchers-uri.ads.texi
 
 @page
 @node AWS.Services.Dispatchers.Virtual_Host
 @appendixsec AWS.Services.Dispatchers.Virtual_Host
 @cindex AWS.Services.Dispatchers.Virtual_Host
 
-@include ../src/aws-services-dispatchers-virtual_host.ads.texi
+@include aws-services-dispatchers-virtual_host.ads.texi
 
 @page
 @node AWS.Services.Page_Server
 @appendixsec AWS.Services.Page_Server
 @cindex AWS.Services.Page_Server
 
-@include ../src/aws-services-page_server.ads.texi
+@include aws-services-page_server.ads.texi
 
 @page
 @node AWS.Session
 @appendixsec AWS.Session
 @cindex AWS.Session
 
-@include ../src/aws-session.ads.texi
+@include aws-session.ads.texi
 
 @page
 @node AWS.SMTP
 @appendixsec AWS.SMTP
 @cindex AWS.SMTP
 
-@include ../src/aws-smtp.ads.texi
+@include aws-smtp.ads.texi
 
 @page
 @node AWS.SMTP.Client
 @appendixsec AWS.SMTP.Client
 @cindex AWS.SMTP.Client
 
-@include ../src/aws-smtp-client.ads.texi
+@include aws-smtp-client.ads.texi
 
 @page
 @node AWS.Status
 @appendixsec AWS.Status
 @cindex AWS.Status
 
-@include ../src/aws-status.ads.texi
+@include aws-status.ads.texi
 
 @page
 @node AWS.Templates
 @appendixsec AWS.Templates
 @cindex AWS.Templates
 
-@include ../src/aws-templates.ads.texi
+@include aws-templates.ads.texi
 
 @page
 @node AWS.URL
 @appendixsec AWS.URL
 @cindex AWS.URL
 
-@include ../src/aws-url.ads.texi
+@include aws-url.ads.texi
 
 @page
 @node SOAP
 @appendixsec SOAP
 @cindex SOAP (API)
 
-@include ../soap/soap.ads.texi
+@include soap.ads.texi
 
 @page
 @node SOAP.Client
 @appendixsec SOAP.Client
 @cindex SOAP.Client
 
-@include ../soap/soap-client.ads.texi
+@include soap-client.ads.texi
 
 @page
 @node SOAP.Message
 @appendixsec SOAP.Message
 @cindex SOAP.Message
 
-@include ../soap/soap-message.ads.texi
+@include soap-message.ads.texi
 
 @page
 @node SOAP.Message.XML
 @appendixsec SOAP.Message.XML
 @cindex SOAP.Message.XML
 
-@include ../soap/soap-message-xml.ads.texi
+@include soap-message-xml.ads.texi
 
 @page
 @node SOAP.Parameters
 @appendixsec SOAP.Parameters
 @cindex SOAP.Parameters
 
-@include ../soap/soap-parameters.ads.texi
+@include soap-parameters.ads.texi
 
 @page
 @node SOAP.Types
 @appendixsec SOAP.Types
 @cindex SOAP.Types
 
-@include ../soap/soap-types.ads.texi
+@include soap-types.ads.texi
 
 @c ----------------------------------------------------------------------
 
