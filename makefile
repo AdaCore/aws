@@ -227,7 +227,6 @@ endif
 	-$(CP) -r docs/html/* $(INSTALL)/AWS/docs/html
 	$(CP) demos/*.thtml $(INSTALL)/AWS/templates
 	$(CP) demos/wm_login.html $(INSTALL)/AWS/templates
-	$(CP) icons/*.gif $(INSTALL)/AWS/icons
 	$(CP) demos/aws_*.png $(INSTALL)/AWS/images
 	$(CP) -p include/*.ad? $(INSTALL)/AWS/components
 ifeq (${AI302},Internal)
