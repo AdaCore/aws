@@ -414,13 +414,13 @@ package body AWS.Client is
    ----------
 
    function Post
-     (URL        : in     String;
-      Data       : in     String;
-      User       : in     String := No_Data;
-      Pwd        : in     String := No_Data;
-      Proxy      : in     String := No_Data;
-      Proxy_User : in     String := No_Data;
-      Proxy_Pwd  : in     String := No_Data)
+     (URL        : in String;
+      Data       : in String;
+      User       : in String := No_Data;
+      Pwd        : in String := No_Data;
+      Proxy      : in String := No_Data;
+      Proxy_User : in String := No_Data;
+      Proxy_Pwd  : in String := No_Data)
      return Response.Data
    is
 
@@ -468,7 +468,7 @@ package body AWS.Client is
 
       No_Data : Unbounded_String renames Null_Unbounded_String;
 
-      function HTTP_Prefix (Security : Boolean) return String;
+      function HTTP_Prefix (Security : in Boolean) return String;
       --  Returns "http://" or "https://" if Security is set to True.
 
       function Persistence return String;
@@ -484,8 +484,9 @@ package body AWS.Client is
       -- Port_Not_Default --
       ----------------------
 
-      function Port_Not_Default (Port : in Positive)
-                                return String is
+      function Port_Not_Default
+        (Port : in Positive)
+        return String is
       begin
          if Port = 80 then
             return "";
@@ -502,7 +503,7 @@ package body AWS.Client is
       -- HTTP_Prefix --
       -----------------
 
-      function HTTP_Prefix (Security : Boolean) return String is
+      function HTTP_Prefix (Security : in Boolean) return String is
       begin
          if Security then
             return "https://";
