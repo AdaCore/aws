@@ -1862,8 +1862,13 @@ package body AWS.Client is
      (Connection : in     HTTP_Connection;
       Result     :    out Response.Data;
       SOAPAction : in     String;
-      Data       : in     String) is
+      Data       : in     String;
+      Streaming  : in     Boolean := False)
+   is
+      Save_Streaming : Boolean := Connection.Streaming;
    begin
+      Connection.Self.Streaming := Streaming;
+
       Internal_Post
         (Connection   => Connection.Self.all,
          Result       => Result,
@@ -1871,6 +1876,8 @@ package body AWS.Client is
          URI          => No_Data,
          SOAPAction   => SOAPAction,
          Content_Type => MIME.Text_XML);
+
+      Connection.Self.Streaming := Save_Streaming;
    end SOAP_Post;
 
    ------------
