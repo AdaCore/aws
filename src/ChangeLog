@@ -1,5 +1,18 @@
 2003-12-03  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* aws-resources-files.adb:
+	(File_Size): Catch only OS_Lib.No_Such_File.
+	(File_Timestamp): Idem.
+	(Is_Regular_File): Remove exception handler.
+
+	* aws-server-hotplug.ads, aws-server-hotplug.adb:
+	Reformat code.
+	Update copyright header.
+	
+	* aws-hotplug.ads, aws-hotplug.adb:
+	Reformat code.
+	Update copyright header.
+
 	* aws-server-protocol_handler.adb:
 	(Get_Message_Header): Uses AWS.Status.Is_Supported service,
 	 cleaner implementation.
