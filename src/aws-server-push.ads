@@ -113,7 +113,16 @@ package AWS.Server.Push is
      (Server       : in out Object;
       Data         : in     Client_Output_Type;
       Content_Type : in     String             := "");
-   --  Push data to the every client (broadcast) subscribed to the server.
+   --  Push data to every client (broadcast) subscribed to the server.
+
+   generic
+      with procedure Client_Gone (Client_ID : String);
+   procedure Send_G
+     (Server       : in out Object;
+      Data         : in     Client_Output_Type;
+      Content_Type : in     String             := "");
+   --  Push data to every client (broadcast) subscribed to the server.
+   --  Call Client_Gone for each client with broken socket.
 
    function Count (Server : in Object) return Natural;
    --  Number of server push clients
@@ -158,9 +167,12 @@ private
       --  Send Data to the client whose ID is Client_ID.
 
       procedure Send
-        (Data         : in Client_Output_Type;
-         Content_Type : in String);
-      --  Send Data to all clients registered.
+        (Data           : in     Client_Output_Type;
+         Content_Type   : in     String;
+         Not_Responding : in out Table.Table_Type);
+      --  Send Data to all clients registered. Not_Responding will contain a
+      --  list of client that have have not responded to the request. These
+      --  clients have been removed from the list of registered client.
 
       procedure Unregister (Client_ID : in Client_Key);
       --  Unregister Client_ID client from this object. Does nothing if
