@@ -33,9 +33,8 @@
 
 package AWS.Services.Split_Pages.Alpha is
 
-   --  Split in (at most) 28 pages, one for one for empty fields, one for
-   --  all fields that start with a digit, and one for each different
-   --  initial letter.
+   --  Split in (at most) 28 pages, one for empty fields, one for all fields
+   --  that start with a digit, and one for each different initial letter.
    --  Note that leading spaces in the key field are ignored; this means that a
    --  key field containing only spaces is treated as an empty field.
    --  The key field is set by calling Set_Key. If no key is defined, or no
