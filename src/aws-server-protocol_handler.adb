@@ -48,6 +48,7 @@ with AWS.Server.Get_Status;
 with AWS.Status.Set;
 with AWS.Translator;
 with AWS.Utils;
+with AWS.URL;
 
 separate (AWS.Server)
 
@@ -1133,6 +1134,8 @@ is
       I1, I2 : Natural;
       --  Index of first space and second space
 
+      URI : Unbounded_String;
+
       I3 : Natural;
       --  Index of ? if present in the URI (means that there is some
       --  parameters)
@@ -1140,8 +1143,8 @@ is
       procedure Cut_Command;
       --  Parse Command and set I1, I2 and I3
 
-      function URI return String;
-      pragma Inline (URI);
+      function Resource return String;
+      pragma Inline (Resource);
       --  Returns first parameter. parameters are separated by spaces.
 
       function Parameters return String;
@@ -1157,9 +1160,10 @@ is
 
       procedure Cut_Command is
       begin
-         I1 := Fixed.Index (Command, " ");
-         I2 := Fixed.Index (Command (I1 + 1 .. Command'Last), " ", Backward);
-         I3 := Fixed.Index (Command (I1 + 1 .. I2), "?");
+         I1  := Fixed.Index (Command, " ");
+         I2  := Fixed.Index (Command (I1 + 1 .. Command'Last), " ", Backward);
+         URI := To_Unbounded_String (URL.Decode (Command (I1 + 1 .. I2 - 1)));
+         I3  := Unbounded.Index (URI, "?");
       end Cut_Command;
 
       ------------------
@@ -1180,7 +1184,7 @@ is
          if I3 = 0 then
             return "";
          else
-            return Command (I3 + 1 .. I2 - 1);
+            return Slice (URI, I3 + 1, Length (URI));
          end if;
       end Parameters;
 
@@ -1188,27 +1192,27 @@ is
       -- URI --
       ---------
 
-      function URI return String is
+      function Resource return String is
       begin
          if I3 = 0 then
-            return Translator.Decode_URL (Command (I1 + 1 .. I2 - 1));
+            return To_String (URI);
          else
-            return Translator.Decode_URL (Command (I1 + 1 .. I3 - 1));
+            return Slice (URI, 1, I3 - 1);
          end if;
-      end URI;
+      end Resource;
 
    begin
       Cut_Command;
 
       if Messages.Is_Match (Command, Messages.Get_Token) then
-         Status.Set.Request (C_Stat, Status.GET, URI, HTTP_Version);
+         Status.Set.Request (C_Stat, Status.GET, Resource, HTTP_Version);
          AWS.Parameters.Set.Add (P_List, Parameters);
 
       elsif Messages.Is_Match (Command, Messages.Head_Token) then
-         Status.Set.Request (C_Stat, Status.HEAD, URI, HTTP_Version);
+         Status.Set.Request (C_Stat, Status.HEAD, Resource, HTTP_Version);
 
       elsif Messages.Is_Match (Command, Messages.Post_Token) then
-         Status.Set.Request (C_Stat, Status.POST, URI, HTTP_Version);
+         Status.Set.Request (C_Stat, Status.POST, Resource, HTTP_Version);
 
       end if;
    end Parse_Request_Line;
