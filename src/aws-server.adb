@@ -230,7 +230,13 @@ package body AWS.Server is
                if HTTP_Server.Slots.Free_Slots = 1
                  and then CNF.Max_Connection (HTTP_Server.Properties) > 1
                then
-                  HTTP_Server.Cleaner.Force;
+                  select
+                     HTTP_Server.Cleaner.Force;
+                  or
+                     delay 4.0;
+                     Ada.Text_IO.Put_Line (Text_IO.Current_Error,
+                                           "Server too busy.");
+                  end select;
                end if;
 
                HTTP_Server.Slots.Get (Sock'Unchecked_Access, Slot_Index);
@@ -309,7 +315,12 @@ package body AWS.Server is
          loop
             Server.Slots.Abort_On_Timeout (Mode, Done);
             exit when Mode /= Force or else Done;
-            delay 1.0;
+
+            select
+               accept Force;
+            or
+               delay 1.0;
+            end select;
          end loop;
 
       end loop;
