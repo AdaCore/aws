@@ -86,6 +86,9 @@ Here are the main changes:
 
    - Boolean types are now directly handled on sessions.
 
+   - Now always install AWS under directory AWS, INSTALL make variable must
+     point to the AWS parent directory.
+
    - Plus many small fixes, enhancements and documentation work.
 
 You can have a look at docs/TODO file to see what are the topics that we will
@@ -266,7 +269,8 @@ AWS uses
 
   Also the server seems to be fastest, there is no more CGI to spawn.
 
-- Internet Currency Trading System at www.actforex.com by Dmitriy Anisimkov
+- Internet Currency Trading System at http://www.actforex.com by 
+  Dmitriy Anisimkov
 
   This is a server is used to keep historical data about currency trading to
   build charts of currency prices. The charts viewer part is written in Java
@@ -277,6 +281,8 @@ AWS uses
   an heavy loaded server, it handle something like 40 to 50 requests per
   seconds on a Windows 2000 Server.
 
+- http://www.forexcoach.com site is powered by AWS. This site has been done by
+  Dmitriy Anisimkov.
 
 Thanks to all who have reported bugs and have sent us patches.
 
