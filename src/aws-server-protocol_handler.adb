@@ -1035,16 +1035,32 @@ is
            (C_Stat,
             Command (Messages.Authorization_Token'Length + 1 .. Command'Last));
 
-      elsif Messages.Is_Match (Command, Messages.Cookie_Token)
-        and then Command (Messages.Cookie_Token'Length + 1
-                          .. Messages.Cookie_Token'Length + 3) = "AWS"
-      then
-         --  the expected Cookie line is:
-         --  Cookie: AWS=<cookieID>
+      elsif Messages.Is_Match (Command, Messages.Cookie_Token) then
+         declare
+            use Ada.Strings;
 
-         Status.Set.Session
-           (C_Stat,
-            Command (Messages.Cookie_Token'Length + 5 .. Command'Last));
+            --  The expected Cookie line is:
+            --  Cookie: ... AWS=<cookieID>[,;] ...
+
+            Cookies : constant String
+              := Command (Messages.Cookie_Token'Length + 1 .. Command'Last);
+
+            AWS_Idx : constant Natural := Fixed.Index (Cookies, "AWS=");
+            Last    : Natural;
+
+         begin
+            if AWS_Idx /= 0 then
+               Last := Fixed.Index (Cookies (AWS_Idx .. Cookies'Last),
+                                    Maps.To_Set (",;"));
+               if Last = 0 then
+                  Last := Cookies'Last;
+               else
+                  Last := Last - 1;
+               end if;
+
+               Status.Set.Session (C_Stat, Cookies (AWS_Idx + 4 .. Last));
+            end if;
+         end;
       end if;
 
    exception
