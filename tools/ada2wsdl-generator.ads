@@ -88,7 +88,7 @@ package Ada2WSDL.Generator is
    procedure Register_Derived (NS, Name, Parent_Name : in String);
    --  Register a derived type
 
-   function Type_Exists (Name : in String) return Boolean;
+   function Type_Exists (NS, Name : in String) return Boolean;
    --  Returns True if Name exists in the type list
 
    ------------------
