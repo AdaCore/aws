@@ -174,7 +174,9 @@ package body AWS.Log is
 
    procedure Stop (Log : in out Object) is
    begin
-      Text_IO.Close (Log.File);
+      if Text_IO.Is_Open (Log.File) then
+         Text_IO.Close (Log.File);
+      end if;
    end Stop;
 
    -----------
