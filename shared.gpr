@@ -1,0 +1,101 @@
+------------------------------------------------------------------------------
+--                              Ada Web Server                              --
+--                                                                          --
+--                            Copyright (C) 2003                            --
+--                                ACT-Europe                                --
+--                                                                          --
+--  Authors: Dmitriy Anisimkov - Pascal Obry                                --
+--                                                                          --
+--  This library is free software; you can redistribute it and/or modify    --
+--  it under the terms of the GNU General Public License as published by    --
+--  the Free Software Foundation; either version 2 of the License, or (at   --
+--  your option) any later version.                                         --
+--                                                                          --
+--  This library is distributed in the hope that it will be useful, but     --
+--  WITHOUT ANY WARRANTY; without even the implied warranty of              --
+--  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU       --
+--  General Public License for more details.                                --
+--                                                                          --
+--  You should have received a copy of the GNU General Public License       --
+--  along with this library; if not, write to the Free Software Foundation, --
+--  Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.          --
+--                                                                          --
+--  As a special exception, if other files instantiate generics from this   --
+--  unit, or you link this unit with other files to produce an executable,  --
+--  this  unit  does not  by itself cause  the resulting executable to be   --
+--  covered by the GNU General Public License. This exception does not      --
+--  however invalidate any other reasons why the executable file  might be  --
+--  covered by the  GNU Public License.                                     --
+------------------------------------------------------------------------------
+
+--  $Id$
+
+--  Just Comment out if XMLAda is not installed on your machine
+
+with "xmlada";
+
+project Shared is
+
+   type Build_Type is ("Debug", "Production");
+   Build : Build_Type := external ("AWS_BUILD", "Debug");
+
+   type OS_Type is ("GNU/Linux", "Windows_NT");
+   OS : OS_Type := external ("OS", "GNU/Linux");
+
+   type SSL_Type is ("Enabled", "Disabled");
+   SSL : SSL_Type := external ("AWS_SSL", "Disabled");
+
+   for Source_Dirs use ();
+
+   ------------
+   -- XMLAda --
+   ------------
+
+   type XMLAda_Type is ("Installed", "Disabled");
+   XMLAda : XMLAda_Type := external ("AWS_XMLAda", "Installed");
+
+   --------------
+   -- Compiler --
+   --------------
+
+   package Compiler is
+
+      case Build is
+         when "Debug" =>
+            for Default_Switches ("Ada") use
+              ("-m", "-g", "-gnata", "-gnatVa", "-gnatQ", "-gnatwcfipru",
+               "-gnatwe", "-gnaty3abcefhiklmnoprst", "-gnatwjmbeur", "-Wall");
+
+         when "Production" =>
+            for Default_Switches ("Ada") use ("-O2", "-gnatws", "-gnatn");
+      end case;
+
+   end Compiler;
+
+   ------------
+   -- Linker --
+   ------------
+
+   package Linker is
+
+      case Build is
+         when "Production" =>
+            for Default_Switches ("Ada") use ("-s");
+      end case;
+
+   end Linker;
+
+   -------------
+   -- Builder --
+   -------------
+
+   package Builder is
+
+      case Build is
+         when "Debug" =>
+            for Default_Switches ("Ada") use ("-m");
+      end case;
+
+   end Builder;
+
+end Shared;

@@ -1,0 +1,17 @@
+2003-05-06  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* src/test_uconv.adb:
+	Moved (and renamed) from ../src.
+
+	* aws-translator-conversion__f.adb, aws-translator-conversion__p.adb:
+	Moved (and renamed) from ../src.
+
+	* makefile:
+	Initial revision.
+
+	* aws-os_lib__gnat.adb, aws-os_lib__posix.adb, 
+          aws-os_lib__adasockets.adb:
+	Moved (and renamed) from ../include.
+
+	* aws-net-std__gnat.adb, aws-net-std__adasockets.adb:
+	Moved (and renamed) from ../include.
