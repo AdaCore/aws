@@ -1,3 +1,16 @@
+2003-05-08  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-log.ads:
+	(Start): Fix comments.
+
+	* aws-response-set.ads, aws-response-set.adb:
+	(Stream): Change mode of Stream_Handle to access.
+
+	* aws-response.ads, aws-response.adb:
+	(Stream): Change mode of Stream_Handle to access. Change name of
+	 the parameters Stream_Handle to Stream and Stream_Size to
+	 Size. This is more consistent with AWS.Response.Set API.
+
 2003-05-08  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* aws-log.ads, aws-log.adb:
@@ -11,6 +24,9 @@
 	 Cascade Style Sheet files without Content-Type: text/css
 	 
 2003-05-06  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* src.gpr:
+	Initial revision.
 
 	* makefile:
 	(SOURCES): Change path for aws-jabber.ad* sources.
