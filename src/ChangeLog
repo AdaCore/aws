@@ -1,6 +1,13 @@
 2002-11-25  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-server-protocol_handler.adb:
+	(End_Boundary_Signature): Use Translator.To_Stream_Element_Array.
+	(Get_Message_Data): Use Translator.To_String.
+	Minor reformatting in many places.
+	
+2002-11-25  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-server-protocol_handler.adb:
 	(Answer_To_Client): Length is now a Response.Content_Length_Type
 	 variable.
 	(Send_Data): Get File_Size and set Length. Do not output the
