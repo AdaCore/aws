@@ -28,7 +28,9 @@
 
 --  $Id$
 
+with Ada.Calendar;
 with Ada.Strings.Unbounded;
+with GNAT.Calendar;
 
 with AWS.Key_Value;
 
@@ -39,7 +41,11 @@ package body AWS.Session is
    use Ada;
    use Ada.Strings.Unbounded;
 
+   SID_Prefix       : constant String := "SID-";
+
    Session_Lifetime : Duration := Default_Session_Lifetime;
+
+   type UID is mod 8;
 
    --  table of session ID
 
@@ -104,7 +110,12 @@ package body AWS.Session is
 
       Lock     : Natural := 0;
 
-      ID       : Session.ID := 0;
+      ID       : UID := 0;
+      --  A session ID is based on a number computed with the following
+      --  format: MMDDHHMMSSnn (Month - Day - Hour - Minute - Second - UID)
+      --  So ID must be uniq for the same second. Here we handle no more than
+      --  128 connections during the same second. It seems safe enough for a
+      --  Web framework.
 
       Sessions : Session_Set.Avl_Tree;
 
@@ -241,10 +252,34 @@ package body AWS.Session is
       -----------------
 
       entry New_Session (SID : out Session.ID) when Lock = 0 is
+
+         use Ada.Calendar;
+         use GNAT.Calendar;
+
          New_Node : Session_Node;
+         Y        : Year_Number;
+         M        : Month_Number;
+         D        : Day_Number;
+         H        : Hour_Number;
+         Mi       : Minute_Number;
+         S        : Second_Number;
+         SS       : Second_Duration;
       begin
-         SID := ID;
-         New_Node.SID        := To_Unbounded_String (Image (ID));
+         Split (Ada.Calendar.Clock, Y, M, D, H, Mi, S, SS);
+
+         --  SID format MMDDHHMMSSNN (40 bits)
+         --      MM : month 5 bits
+         --      DD : day 6 bits
+         --      HH : hour 7 bits
+         --      MM : minute 7 bits
+         --      SS : second 7 bits
+         --      NN : uniq ID 8 bits
+
+         SID := Session.ID
+           (((((((((M * 32) + D) * 64) + H) * 64) + Mi * 64) + S) * 128)
+            + Natural (ID));
+
+         New_Node.SID        := To_Unbounded_String (Image (SID));
          New_Node.Time_Stamp := Calendar.Clock;
 
          ID := ID + 1;
@@ -487,7 +522,7 @@ package body AWS.Session is
    function Image (SID : in ID) return String is
       IID : constant String := ID'Image (SID);
    begin
-      return "sid-" & IID (2 .. IID'Last);
+      return SID_Prefix & IID (2 .. IID'Last);
    end Image;
 
    ---------
@@ -564,7 +599,7 @@ package body AWS.Session is
 
    function Value (SID : in String) return ID is
    begin
-      return ID'Value (SID (5 .. SID'Last));
+      return ID'Value (SID (SID'First + SID_Prefix'Length .. SID'Last));
    end Value;
 
 end AWS.Session;
