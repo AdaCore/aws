@@ -589,13 +589,16 @@ package body Ada2WSDL.Parser is
 
          E   : Asis.Element := Elem;
          CFS : Asis.Declaration;
+         CND : Asis.Declaration;
+
       begin
          if Elements.Expression_Kind (E) = A_Selected_Component then
             E := Expressions.Selector (E);
          end if;
 
-         CFS := Declarations.Corresponding_First_Subtype
-           (Expressions.Corresponding_Name_Declaration (E));
+         CND := Expressions.Corresponding_Name_Declaration (E);
+
+         CFS := Declarations.Corresponding_First_Subtype (CND);
 
          --  Get type view
 
@@ -633,7 +636,13 @@ package body Ada2WSDL.Parser is
 
             when A_Floating_Point_Definition =>
                Check_Float (E);
-               return Image (Text.Element_Image (Elem));
+
+               if Flat_Element_Kind (CND) = A_Subtype_Declaration then
+                  --  ??? What about a subtype of Long_Long_Float
+                  return "float";
+               else
+                  return Image (Text.Element_Image (Elem));
+               end if;
 
             when A_Signed_Integer_Type_Definition
               | A_Modular_Type_Definition
