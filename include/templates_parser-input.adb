@@ -38,14 +38,24 @@ with AWS.Resources;
 
 package body Templates_Parser.Input is
 
-   use Ada;
-   use AWS;
+   type File_Record is new AWS.Resources.File_Type;
 
-   type File_Record is record
-      File : Resources.File_Access;
-   end record;
+   procedure Check_Open (File : in File_Type);
+   pragma Inline (Check_Open);
+   --  Check if File is opened (File variable is not null).
 
    procedure Free is new Ada.Unchecked_Deallocation (File_Record, File_Type);
+
+   ----------------
+   -- Check_Open --
+   ----------------
+
+   procedure Check_Open (File : in File_Type) is
+   begin
+      if File = null then
+         raise Ada.Text_IO.Status_Error;
+      end if;
+   end Check_Open;
 
    -----------
    -- Close --
@@ -53,15 +63,9 @@ package body Templates_Parser.Input is
 
    procedure Close (File : in out File_Type) is
    begin
-      if File = null then
-         raise Text_IO.Status_Error;
-      else
-         Resources.Close (File.File);
-      end if;
+      Check_Open (File);
+      Close (File.all);
       Free (File);
-   exception
-      when others =>
-         Free (File);
    end Close;
 
    -----------------
@@ -70,11 +74,8 @@ package body Templates_Parser.Input is
 
    function End_Of_File (File : in File_Type) return Boolean is
    begin
-      if File = null then
-         raise Text_IO.Status_Error;
-      else
-         return Resources.End_Of_File (File.File.all);
-      end if;
+      Check_Open (File);
+      return End_Of_File (File.all);
    end End_Of_File;
 
    --------------
@@ -86,11 +87,8 @@ package body Templates_Parser.Input is
       Buffer :    out String;
       Last   :    out Natural) is
    begin
-      if File = null then
-         raise Text_IO.Status_Error;
-      else
-         Resources.Get_Line (File.File.all, Buffer, Last);
-      end if;
+      Check_Open (File);
+      Get_Line (File.all, Buffer, Last);
    end Get_Line;
 
    ----------
@@ -107,7 +105,7 @@ package body Templates_Parser.Input is
       end if;
 
       File := new File_Record;
-      Resources.Open (File.File, Name, Form);
+      Open (File.all, Name, Form);
    end Open;
 
 end Templates_Parser.Input;
