@@ -489,11 +489,12 @@ Now you are ready to use @code{AWS} !
 * Configuration files::
 * Session handling::
 * File upload::
-* Client side::
 * Communication::
 * Hotplug module::
 * Server Push::
 * Server Log::
+* Secure server::
+* Client side::
 @end menu
 
 @node Setting up environment
@@ -1323,88 +1324,6 @@ The value is the full pathname of the file on the client side.
 The value is "Send File"
 @end table
 
-@node Client side
-@section Client side
-@cindex Client protocol
-@cindex client HTTP
-
-@noindent
-@code{AWS} is not only a server it also implement the HTTP and HTTPS
-protocol from the client side. For example with @code{AWS} it is
-possible to get a Web page content using the @code{AWS.Client} API,
-@xref{AWS.Client}.
-
-@noindent
-It also support client @b{Keep-Alive} connections. It is then possible to
-request many URI from the same server using the same connection
-(i.e. the same sockets).
-
-@noindent
-@code{AWS} client API also support proxy, proxy authentication and Web server
-authentication. Only basic (and not digest) authentication is
-supported at this time.
-
-@noindent
-Let's say that you want to retrieve the @code{contrib.html} Web page from
-Pascal Obry's homepage which is @url{http://perso.wanadoo.fr/pascal.obry}. The
-code to do so is:
-
-@smallexample
-@cartouche
-@group
-Data := Client.Get
-  (URL => "http://perso.wanadoo.fr/pascal.obry/contrib.html");
-@end group
-@end cartouche
-@end smallexample
-
-@noindent
-From there you can ask for the result's content type:
-
-@smallexample
-@cartouche
-@group
-@b{if} Response.Content_Type (Data) = "text/html" @b{then}
-   ...
-@b{end if};
-@end group
-@end cartouche
-@end smallexample
-
-@noindent
-Or using the MIME types defined in @code{AWS.MIME} unit:
-
-@smallexample
-@cartouche
-@group
-@b{if} Response.Content_Type (Data) = MIME.Text_HTML @b{then}
-   ...
-@b{end if};
-@end group
-@end cartouche
-@end smallexample
-
-@noindent
-And display the content if it is some kind of text data:
-
-@smallexample
-@cartouche
-@group
-Text_IO.Put_Line (Response.Message_Body (Data));
-@end group
-@end cartouche
-@end smallexample
-
-@noindent
-If the content is some kind of binary data (executable, PNG image, Zip
-archive...), then it is possible to write the result to a file for
-example. Look at the @code{agent} program in the @code{demos} directory.
-
-@noindent
-@cindex upload, client
-The client upload protocol is implemented. Using @code{AWS.Client.Upload} it
-is possible to send a file to a server which support the file upload protocol.
-
 @node Communication
 @section Communication
 @cindex Communication
@@ -1730,6 +1649,150 @@ For example:
 @end group
 @end cartouche
 @end smallexample
+
+@node Secure server
+@section Secure server
+@cindex Secure server
+@cindex HTTPS
+
+@noindent
+It is not much difficult to use a secure server (HTTPS) than a
+standard one. Here we describe only what is specific to an HTTPS
+server.
+
+@noindent
+Before going further you must check that @code{AWS} has been
+configured with @code{SSL} support. @pxref{Building}. You must also
+have installed the @code{OpenSSL} library on your system. If this is
+done, you can continue reading this section.
+
+@menu
+* Initialization::
+* Protocol::
+@end menu
+
+@node Initialization
+@subsection Initialization
+@cindex certificate
+
+@noindent
+A server is configured as using the HTTPS protocol at the time it is
+started. The only thing to do is to set the Start's Security parameter
+to True. This will start a server and activate the @code{SSL} layer by
+default. A secure server must use a valid certificate, the default one
+is @file{@_DEFAULT_CERTIFICATE_@}. This certificate has been
+created by the openssl tool and is valid until year 2008. Yet, this
+certificate has not been signed. To build a secure server user's can
+rely on you must have a valid certificate signed by one of the
+@b{Certificate Authorities}.
+
+@noindent
+The certificate to be used must be specified before starting the
+secure server with AWS.Server.Set_Security.
+
+@smallexample
+@cartouche
+@group
+AWS.Server.Set_Security (Certificate_Filename => "/xyz/aws.cert");
+@end group
+@end cartouche
+@end smallexample
+
+@node Protocol
+@subsection Protocol
+@cindex SSL
+@cindex TLS
+
+@noindent
+There are different security options, either @code{SSLv2}, @code{SSLv3} or
+@code{TLSv1}. @code{SSLv2} and @code{SSLv3} are supported by most if
+not all Web browsers. These are the default protocol used by
+@code{AWS}.
+
+@noindent
+@code{TLSv1} is not supported at this point.
+
+@node Client side
+@section Client side
+@cindex Client protocol
+@cindex client HTTP
+
+@noindent
+@code{AWS} is not only a server it also implement the HTTP and HTTPS
+protocol from the client side. For example with @code{AWS} it is
+possible to get a Web page content using the @code{AWS.Client} API,
+@xref{AWS.Client}.
+
+@noindent
+It also support client @b{Keep-Alive} connections. It is then possible to
+request many URI from the same server using the same connection
+(i.e. the same sockets).
+
+@noindent
+@code{AWS} client API also support proxy, proxy authentication and Web server
+authentication. Only basic (and not digest) authentication is
+supported at this time.
+
+@noindent
+Let's say that you want to retrieve the @code{contrib.html} Web page from
+Pascal Obry's homepage which is @url{http://perso.wanadoo.fr/pascal.obry}. The
+code to do so is:
+
+@smallexample
+@cartouche
+@group
+Data := Client.Get
+  (URL => "http://perso.wanadoo.fr/pascal.obry/contrib.html");
+@end group
+@end cartouche
+@end smallexample
+
+@noindent
+From there you can ask for the result's content type:
+
+@smallexample
+@cartouche
+@group
+@b{if} Response.Content_Type (Data) = "text/html" @b{then}
+   ...
+@b{end if};
+@end group
+@end cartouche
+@end smallexample
+
+@noindent
+Or using the MIME types defined in @code{AWS.MIME} unit:
+
+@smallexample
+@cartouche
+@group
+@b{if} Response.Content_Type (Data) = MIME.Text_HTML @b{then}
+   ...
+@b{end if};
+@end group
+@end cartouche
+@end smallexample
+
+@noindent
+And display the content if it is some kind of text data:
+
+@smallexample
+@cartouche
+@group
+Text_IO.Put_Line (Response.Message_Body (Data));
+@end group
+@end cartouche
+@end smallexample
+
+@noindent
+If the content is some kind of binary data (executable, PNG image, Zip
+archive...), then it is possible to write the result to a file for
+example. Look at the @code{agent} program in the @code{demos} directory.
+
+@noindent
+@cindex upload, client
+The client upload protocol is implemented. Using @code{AWS.Client.Upload} it
+is possible to send a file to a server which support the file upload protocol.
 
 @c ----------------------------------------------------------------------
 
