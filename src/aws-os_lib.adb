@@ -49,6 +49,9 @@ package body AWS.OS_Lib is
    begin
       return POSIX.File_Status.Is_Regular_File
         (POSIX.File_Status.Get_File_Status (POSIX.To_POSIX_String (Filename)));
+   exception
+      when others =>
+         return False;
    end Is_Regular_File;
 
    ------------------
@@ -59,6 +62,9 @@ package body AWS.OS_Lib is
    begin
       return POSIX.File_Status.Is_Directory
         (POSIX.File_Status.Get_File_Status (POSIX.To_POSIX_String (Filename)));
+   exception
+      when others =>
+         return False;
    end Is_Directory;
 
    --------------------
