@@ -33,11 +33,7 @@
 
 with Sock2_Proc;
 
-with Get_Free_Port;
-
 procedure SSock2 is
-   Port : Natural := 4400;
 begin
-   Get_Free_Port (Port);
-   Sock2_Proc (True, Port);
+   Sock2_Proc (True, 4400);
 end SSock2;
