@@ -179,31 +179,31 @@ package body AWS.Net.Std is
       end if;
    end Get_Inet_Addr;
 
-   ------------------------
-   -- Get_Receive_Buffer --
-   ------------------------
+   -----------------------------
+   -- Get_Receive_Buffer_Size --
+   -----------------------------
 
-   function Get_Receive_Buffer (Socket : in Socket_Type) return Natural is
+   function Get_Receive_Buffer_Size (Socket : in Socket_Type) return Natural is
       use Sockets;
    begin
       return Get_Socket_Option (Socket.S.FD, Name => Receive_Buffer).Size;
    exception
       when E : Socket_Error =>
-         Raise_Exception (E, "Get_Receive_Buffer");
-   end Get_Receive_Buffer;
+         Raise_Exception (E, "Get_Receive_Buffer_Size");
+   end Get_Receive_Buffer_Size;
 
-   ---------------------
-   -- Get_Send_Buffer --
-   ---------------------
+   --------------------------
+   -- Get_Send_Buffer_Size --
+   --------------------------
 
-   function Get_Send_Buffer (Socket : in Socket_Type) return Natural is
+   function Get_Send_Buffer_Size (Socket : in Socket_Type) return Natural is
       use Sockets;
    begin
       return Get_Socket_Option (Socket.S.FD, Name => Send_Buffer).Size;
    exception
       when E : Socket_Error =>
-         Raise_Exception (E, "Get_Send_Buffer");
-   end Get_Send_Buffer;
+         Raise_Exception (E, "Get_Send_Buffer_Size");
+   end Get_Send_Buffer_Size;
 
    ---------------
    -- Host_Name --
@@ -323,11 +323,11 @@ package body AWS.Net.Std is
          Raise_Exception (E, "Set_Blocking_Mode");
    end Set_Blocking_Mode;
 
-   ------------------------
-   -- Set_Receive_Buffer --
-   ------------------------
+   -----------------------------
+   -- Set_Receive_Buffer_Size --
+   -----------------------------
 
-   procedure Set_Receive_Buffer
+   procedure Set_Receive_Buffer_Size
      (Socket : in Socket_Type;
       Size   : in Natural)
    is
@@ -335,15 +335,15 @@ package body AWS.Net.Std is
    begin
       Set_Socket_Option (Socket.S.FD, Option => (Receive_Buffer, Size));
    exception
-      when E : others =>
-         Raise_Exception (E, "Set_Receive_Buffer");
-   end Set_Receive_Buffer;
+      when E : Sockets.Socket_Error =>
+         Raise_Exception (E, "Set_Receive_Buffer_Size");
+   end Set_Receive_Buffer_Size;
 
-   ---------------------
-   -- Set_Send_Buffer --
-   ---------------------
+   --------------------------
+   -- Set_Send_Buffer_Size --
+   --------------------------
 
-   procedure Set_Send_Buffer
+   procedure Set_Send_Buffer_Size
      (Socket : in Socket_Type;
       Size   : in Natural)
    is
@@ -351,9 +351,9 @@ package body AWS.Net.Std is
    begin
       Set_Socket_Option (Socket.S.FD, Option => (Send_Buffer, Size));
    exception
-      when E : others =>
-         Raise_Exception (E, "Set_Send_Buffer");
-   end Set_Send_Buffer;
+      when E : Sockets.Socket_Error =>
+         Raise_Exception (E, "Set_Send_Buffer_Size");
+   end Set_Send_Buffer_Size;
 
    --------------
    -- Shutdown --

@@ -1,3 +1,9 @@
+2004-01-12  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* aws-net-std__adasockets.adb, aws-net-std__gnat.adb:
+	(Get_Send_Buffer): Renamed to Get_Send_Buffer_Size.
+	(Get_Receive_Buffer): Renamed to Get_Receive_Buffer_Size.
+
 2004-01-11  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* aws-net-std__adasockets.adb:
