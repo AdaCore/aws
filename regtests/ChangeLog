@@ -1,3 +1,17 @@
+2003-12-18  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* zres.adb, zres.out:
+	Add test getting compressed disk files.
+
+	* file2.adb, file2.out:
+	New test for gzipped files transfer.
+
+	* tmem.adb, tmem.out:
+	Test generic memory stream interface.
+
+	* makefile:
+	Include tmem and file2 tests.
+
 2003-12-17  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* makefile:
