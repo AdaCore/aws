@@ -1,3 +1,55 @@
+2003-11-23  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* zdemo_cb.ads, zdemo_cb.adb:
+	Initial revision.
+	Work to build on ObjectAda.
+
+	* wsdl_demo_server_cb.ads, wsdl_demo_server_cb.adb:
+	Initial revision.
+	Work to build on ObjectAda.
+
+	* vh_demo_cb.ads, vh_demo_cb.adb:
+	Initial revision.
+	Work to build on ObjectAda.
+
+	* text_input_cb.ads, text_input_cb.adb:
+	Initial revision.
+	Work to build on ObjectAda.
+
+	* soap_svs_cb.ads, soap_svs_cb.adb:
+	Initial revision.
+	Work to build on ObjectAda.
+
+	* soap_server_disp_cb.ads, soap_server_disp_cb.adb:
+	Initial revision.
+	Work to build on ObjectAda.
+
+	* soap_server_cb.ads, soap_server_cb.adb:
+	Initial revision.
+	Work to build on ObjectAda.
+
+	* res_demo_cb.ads, res_demo_cb.adb:
+	Initial revision.
+	Work to build on ObjectAda.
+
+	* hello_world_cb.ads, hello_world_cb.adb:
+	Initial revision.
+	Work to build on ObjectAda.
+
+	* dispatch_cb.ads, dispatch_cb.adb: 
+	Initial revision.
+	Work to build on ObjectAda.
+
+	* auth_cb.ads, auth_cb.adb:
+	Initial revision.
+	Work to build on ObjectAda.
+
+	* auth.adb, dispatch.adb, hello_world.adb, res_demo.adb,
+	  soap_server.adb, soap_server_disp.adb, soap_svs.adb,
+	  text_input.adb, vh_demo.adb, wsdl_demo_server.adb, zdemo.adb:
+	Move callbacks into a package. Update copyright notice.
+	Work to build on ObjectAda.
+
 2003-11-17  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* com_2.adb, interoplab_main.adb:

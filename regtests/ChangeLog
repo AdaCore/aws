@@ -1,5 +1,15 @@
 2003-11-23  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* tsgetparam.adb, tgetparam.adb, head.adb:
+	Remove use of 'Img.
+	Update copyright notice.
+
+	* zstrm.adb, strm.adb, interoplab_main.adb, dispatch_method.adb,
+	  compress.adb, check_mem.adb:
+	Remove use of 'Img.
+	
+2003-11-23  Pascal Obry  <p.obry@wanadoo.fr>
+
 	* makefile:
 	(GARGS): Removes -i, this was the cause of the recompilation of
 	 all AWS components after a non-regression test run.
