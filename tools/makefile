@@ -3,7 +3,7 @@
 
 .SILENT: build clean awsres
 
-GARGS	 = -q $(GFLAGS) -I../src -I../soap -I../include $(INCLUDES)
+GARGS	 = -q $(GFLAGS) -I../src -I../soap -I../ssl -I../include $(INCLUDES)
 
 TOOLS	 = awsres 
 
