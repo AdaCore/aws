@@ -32,6 +32,7 @@
 
 with Ada.Calendar;
 with Ada.Streams;
+with Ada.Unchecked_Deallocation;
 
 package AWS.Resources is
 
@@ -56,6 +57,9 @@ package AWS.Resources is
    --  Open file in mode In_File. Only reading from the file is supported.
    --  This procedure open the in-memory file if present, otherwise the file
    --  on disk is opened.
+
+   procedure Reset (Resource : in out File_Type);
+   --  Reset the file, reading will restart at the beginning
 
    procedure Close (Resource : in out File_Type);
    --  Close the file
@@ -136,11 +140,10 @@ private
    procedure Close (File : in out File_Tagged)
       is abstract;
 
-   procedure Release
-     (File        : in     File_Tagged;
-      File_Access : in out File_Type);
-   --  This procedure must release memory associated with File_Access if
-   --  necessary. For transient pages for example this is not needed as the
-   --  release of the memory must not controlled by the server.
+   procedure Reset (File : in out File_Tagged)
+      is abstract;
+
+   procedure Free is
+      new Ada.Unchecked_Deallocation (Resources.File_Tagged'Class, File_Type);
 
 end AWS.Resources;
