@@ -48,7 +48,14 @@ package body AWS.Client is
    use Ada;
    use Ada.Strings.Unbounded;
 
+   Debug_On    : Boolean := False;
+
    End_Section : constant String := "";
+
+   procedure Debug_Message (Prefix, Message : in String);
+   pragma Inline (Debug_Message);
+   --  Output Message prefixed with Prefix if Debug_On is True and does
+   --  nothing otherwise.
 
    procedure Get_Response
      (Connection : in out HTTP_Connection;
@@ -85,6 +92,12 @@ package body AWS.Client is
    pragma Inline (Set_Phase);
    --  Set the phase for the connection. This will activate the Send and
    --  Receive timeouts of the cleaner task if needed.
+
+   procedure Send_Header
+     (Sock : in Sockets.Socket_FD'Class;
+      Data : in String);
+   pragma Inline (Send_Header);
+   --  Send header Data to socket and call Debug_Message.
 
    -------------------
    -- Build_Cleaner --
@@ -256,6 +269,17 @@ package body AWS.Client is
          Connection.Timeouts     := No_Timeout;
       end if;
    end Create;
+
+   -------------------
+   -- Debug_Message --
+   -------------------
+
+   procedure Debug_Message (Prefix, Message : in String) is
+   begin
+      if Debug_On then
+         Text_IO.Put_Line (Prefix & Message);
+      end if;
+   end Debug_Message;
 
    ----------------
    -- Disconnect --
@@ -496,7 +520,21 @@ package body AWS.Client is
          --  CRLF
          --
 
-         Result := Response.Build (To_String (CT), Read_Chunk, Status);
+         declare
+            CT  : constant String := To_String (Get_Response.CT);
+         begin
+            if CT'Length > 5
+              and then CT (CT'First .. CT'First + 4) = "text/"
+            then
+               --  This is a textual chunked encoded body
+               Result := Response.Build
+                 (CT, Translator.To_String (Read_Chunk), Status);
+
+            else
+               --  This is really some kind of binary data
+               Result := Response.Build (CT, Read_Chunk, Status);
+            end if;
+         end;
 
       else
          if CT_Len = 0 and then CT = MIME.Text_HTML then
@@ -762,54 +800,53 @@ package body AWS.Client is
       if Connection.Proxy = No_Data then
 
          if URI = "" then
-            Sockets.Put_Line (Sock, Method & ' '
-                              & AWS.URL.URI (Connection.Host_URL, True)
-                              & ' ' & HTTP_Version);
+            Send_Header (Sock, Method & ' '
+                         & AWS.URL.URI (Connection.Host_URL, True)
+                         & ' ' & HTTP_Version);
          else
-            Sockets.Put_Line (Sock, Method & ' '
-                              & AWS.URL.Encode (URI)
-                              & ' ' & HTTP_Version);
+            Send_Header (Sock, Method & ' '
+                         & AWS.URL.Encode (URI)
+                         & ' ' & HTTP_Version);
          end if;
 
-         Sockets.Put_Line (Sock, Messages.Connection (Persistence));
+         Send_Header (Sock, Messages.Connection (Persistence));
 
       else
          if URI = "" then
-            Sockets.Put_Line (Sock, Method & ' '
-                              & To_String (Connection.Host)
-                              & ' ' & HTTP_Version);
+            Send_Header (Sock, Method & ' '
+                         & To_String (Connection.Host)
+                         & ' ' & HTTP_Version);
          else
-            Sockets.Put_Line
+            Send_Header
               (Sock, Method & ' '
                & HTTP_Prefix (AWS.URL.Security (Connection.Host_URL))
                & Host_Address & URI
                & ' ' & HTTP_Version);
          end if;
 
-         Sockets.Put_Line (Sock, Messages.Proxy_Connection (Persistence));
+         Send_Header (Sock, Messages.Proxy_Connection (Persistence));
 
       end if;
 
       --  Cookie
 
       if Connection.Cookie /= No_Data then
-         Sockets.Put_Line
+         Send_Header
            (Sock, Messages.Cookie_Token & To_String (Connection.Cookie));
       end if;
 
-      Sockets.Put_Line (Sock, Messages.Host (Host_Address));
-      Sockets.Put_Line (Sock, Messages.Accept_Type ("text/html, */*"));
-      Sockets.Put_Line (Sock, Messages.Accept_Language ("fr, us"));
-      Sockets.Put_Line
-        (Sock,
-         Messages.User_Agent ("AWS (Ada Web Server) v" & Version));
+      Send_Header (Sock, Messages.Host (Host_Address));
+      Send_Header (Sock, Messages.Accept_Type ("text/html, */*"));
+      Send_Header (Sock, Messages.Accept_Language ("fr, us"));
+      Send_Header
+        (Sock, Messages.User_Agent ("AWS (Ada Web Server) v" & Version));
 
       --  User Authentification
 
       if Connection.User /= No_Data
         and then Connection.Pwd /= No_Data
       then
-         Sockets.Put_Line
+         Send_Header
            (Sock,
             Messages.Authorization
             ("Basic",
@@ -823,21 +860,20 @@ package body AWS.Client is
       if Connection.Proxy_User /= No_Data
         and then Connection.Proxy_Pwd /= No_Data
       then
-         Sockets.Put_Line
-         (Sock,
-          Messages.Proxy_Authorization
-          ("Basic",
-           AWS.Translator.Base64_Encode
-           (To_String (Connection.Proxy_User)
-            & ':' & To_String (Connection.Proxy_Pwd))));
+         Send_Header
+           (Sock,
+            Messages.Proxy_Authorization
+            ("Basic",
+             AWS.Translator.Base64_Encode
+             (To_String (Connection.Proxy_User)
+              & ':' & To_String (Connection.Proxy_Pwd))));
       end if;
 
       --  SOAP header
 
       if Connection.SOAPAction /= No_Data then
-         Sockets.Put_Line
-           (Sock,
-            Messages.SOAPAction (To_String (Connection.SOAPAction)));
+         Send_Header
+           (Sock, Messages.SOAPAction (To_String (Connection.SOAPAction)));
       end if;
 
       Set_Phase (Connection, Not_Monitored);
@@ -863,6 +899,8 @@ package body AWS.Client is
          declare
             Line : constant String := Sockets.Get_Line (Sock);
          begin
+            Debug_Message ("< ", Line);
+
             if Line = End_Section then
                exit;
 
@@ -989,19 +1027,19 @@ package body AWS.Client is
             begin
 
                if Connection.SOAPAction = No_Data then
-                  Sockets.Put_Line
+                  Send_Header
                     (Sock,
                      Messages.Content_Type (MIME.Appl_Form_Data));
 
                else
-                  Sockets.Put_Line
+                  Send_Header
                     (Sock,
                      Messages.Content_Type (MIME.Text_XML));
                end if;
 
                --  Send message Content_Length
 
-               Sockets.Put_Line (Sock, Messages.Content_Length (Data'Length));
+               Send_Header (Sock, Messages.Content_Length (Data'Length));
 
                Sockets.New_Line (Sock);
 
@@ -1104,17 +1142,17 @@ package body AWS.Client is
          begin
             Open_Send_Common_Header (Connection, "PUT", URI);
 
-            --  send message Content_Length
+            --  Send message Content_Length
 
-            Sockets.Put_Line (Sock, Messages.Content_Length (Data'Length));
+            Send_Header (Sock, Messages.Content_Length (Data'Length));
 
             Sockets.New_Line (Sock);
 
-            --  send message body
+            --  Send message body
 
             Sockets.Put_Line (Sock, Data);
 
-            --  get answer from server
+            --  Get answer from server
 
             Parse_Header (Sock, Status, CT_Len, CT, TE,
                           Location, Connect, Connection.Cookie);
@@ -1142,6 +1180,27 @@ package body AWS.Client is
          end;
       end loop;
    end Put;
+
+   -----------------
+   -- Send_Header --
+   -----------------
+
+   procedure Send_Header
+     (Sock : in Sockets.Socket_FD'Class;
+      Data : in String) is
+   begin
+      Sockets.Put_Line (Sock, Data);
+      Debug_Message ("> ", Data);
+   end Send_Header;
+
+   ---------------
+   -- Set_Debug --
+   ---------------
+
+   procedure Set_Debug (On : in Boolean) is
+   begin
+      Debug_On := On;
+   end Set_Debug;
 
    ---------------
    -- Set_Phase --
