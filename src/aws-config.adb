@@ -64,6 +64,15 @@ package body AWS.Config is
       return O.P (Case_Sensitive_Parameters).Bool_Value;
    end Case_Sensitive_Parameters;
 
+   ------------------------
+   -- Check_URL_Validity --
+   ------------------------
+
+   function Check_URL_Validity (O : in Object) return Boolean is
+   begin
+      return O.P (Check_URL_Validity).Bool_Value;
+   end Check_URL_Validity;
+
    ---------------------------------
    -- Cleaner_Client_Data_Timeout --
    ---------------------------------

@@ -163,6 +163,9 @@ package AWS.Config is
    function Case_Sensitive_Parameters (O : in Object) return Boolean;
    --  HTTP parameters are case sensitive.
 
+   function Check_URL_Validity (O : in Object) return Boolean;
+   --  Server have to check URI for valididity.
+
    function Line_Stack_Size (O : in Object) return Positive;
    --  HTTP lines stack size.
 
@@ -210,6 +213,7 @@ private
       Down_Image,
       Logo_Image,
       Case_Sensitive_Parameters,
+      Check_URL_Validity,
       Line_Stack_Size);
 
    --  List of token (keyword) recognized by the parser. There must be one
@@ -245,6 +249,7 @@ private
       Down_Image,
       Logo_Image,
       Line_Stack_Size,
+      Check_URL_Validity,
       Case_Sensitive_Parameters,
       Session_Cleanup_Interval,
       Session_Lifetime);
@@ -367,6 +372,9 @@ private
 
          Case_Sensitive_Parameters =>
            (Bool, Default.Case_Sensitive_Parameters),
+
+         Check_URL_Validity =>
+           (Bool, Default.Check_URL_Validity),
 
          Line_Stack_Size =>
            (Pos, Default.Line_Stack_Size));
