@@ -54,6 +54,7 @@ procedure Upload2 is
    function CB (Request : in Status.Data) return Response.Data;
 
    task Server is
+      entry Start;
       entry Started;
       entry Stopped;
    end Server;
@@ -112,6 +113,8 @@ procedure Upload2 is
    task body Server is
       Web_Config : Config.Object;
    begin
+      accept Start;
+
       Config.Set.Server_Name (Web_Config, "upload2");
       Config.Set.Server_Port (Web_Config, 7643);
       Config.Set.Max_Connection (Web_Config, 5);
@@ -122,10 +125,10 @@ procedure Upload2 is
 
       AWS.Server.Start (HTTP, CB'Unrestricted_Access, Web_Config);
 
-      accept Started;
-
       Put_Line ("Server started");
       New_Line;
+
+      accept Started;
 
       select
          accept Stopped;
@@ -157,6 +160,8 @@ procedure Upload2 is
 
 begin
    Put_Line ("Start main, wait for server to start...");
+
+   Server.Start;
 
    Server.Started;
 
