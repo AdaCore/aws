@@ -1,3 +1,8 @@
+2001-09-13  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-log.adb: 
+	(Write): Fix log format. Minor reformating.
+
 2001-09-12  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-session-control.adb:
