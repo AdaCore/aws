@@ -209,6 +209,7 @@ file.tmplt
 file1.html
 file2.html
 file3.html
+get_post
 get_post.res
 gmem.out
 googlesearch
@@ -358,6 +359,7 @@ test_wsdl2.tmp
 test_wsdl3
 test_wsdl3.res
 test_wsdl3.tmp
+test_wsdl4
 test_wsdl4.res
 testxml
 testxml.res
@@ -520,3 +522,4 @@ zstrm
 zstrm.res
 zstrm2
 zstrm2.res
+zstrm3

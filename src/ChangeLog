@@ -1,3 +1,28 @@
+2003-12-02  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-resources-streams-memory-zlib.ads,
+	  aws-resources-streams-memory-zlib.adb:
+	(Is_Compressed): New routine.
+
+	* aws-resources-streams-zlib.ads, aws-resources-streams-zlib.adb:
+	(Is_Compressed): New routine.
+
+	* aws-resources.adb:
+	(Read_Uncompressed): New routine.
+	(Close): Close the Zlib filter if needed.
+	(Is_Compressed): New routine.
+	(Read): Uncompress data, if client does not support compressed and
+	 data compressed.
+	(Support_Compressed): New routine.
+	Minor reformatting.
+
+	* aws-resources.ads:
+	(Is_Compressed): New routine.
+	(Support_Compressed): New routine.
+	(File_Tagged): Add U_Buffer, R_First, R_Last, U_Filter and
+	 Support_Compressed fields.
+	Minor reformatting.
+
 2003-12-01  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-server-protocol_handler.adb:
