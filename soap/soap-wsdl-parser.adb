@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2003                            --
+--                         Copyright (C) 2003-2004                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -459,6 +459,8 @@ package body SOAP.WSDL.Parser is
             E := E - 1;
             N := Get_Node_Int (N, Element (K .. E), "");
          end if;
+
+         exit when N = null;
 
          K := E + 2;
       end loop;
@@ -1026,6 +1028,11 @@ package body SOAP.WSDL.Parser is
                N := Get_Node
                  (First_Child (DOM.Core.Node (Document)),
                   "types.schema.complexType", T_No_NS);
+            end if;
+
+            if N = null then
+               Raise_Exception
+                 (WSDL_Error'Identity, "Definition for " & T & " not found.");
             end if;
 
             Parse_Element (O, N, Document);
