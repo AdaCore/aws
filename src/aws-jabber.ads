@@ -151,7 +151,9 @@ private
    --  Mailbox. This task will terminate with the connection socket will be
    --  closed by the client.
 
-   task type Incoming_Stream (Server : access Jabber.Server);
+   task type Incoming_Stream (Server : access Jabber.Server) is
+      pragma Storage_Size (16#200_000#);
+   end Incoming_Stream;
 
    type Incoming_Stream_Access is access Incoming_Stream;
 
