@@ -60,6 +60,7 @@ APIFILES = ../src/aws.ads.texi \
 	../src/aws-templates.ads.texi \
 	../src/aws-translator.ads.texi \
 	../src/aws-url.ads.texi \
+	../src/templates_parser.ads.texi \
 	../xsrc/aws-jabber.ads.texi \
 	../soap/soap.ads.texi \
 	../soap/soap-client.ads.texi \
@@ -148,7 +149,7 @@ apiref: gnathtml_apiref
 # API cross-references using gnathtml
 gnathtml_apiref: check_api
 	(cd ..; fileset=; \
-	for file in src/a*.ad[sb] include/templates*.ad[sb] \
+	for file in src/a*.ad[sb] src/templates*.ad[sb] \
 	   	include/strings_cutter.ad[sb] include/zlib*.ad[sb] \
 		include/memory_streams.ad[sb] \
 		soap/soap*.ad[sb]; \
@@ -167,7 +168,7 @@ gnathtml_apiref: check_api
 # API cross-references using AdaBrowse
 adabrowse_apiref: check_api
 	(cd ..; \
-	for file in src/a*.ad[sb] include/templates*.ad[sb] \
+	for file in src/a*.ad[sb] src/templates*.ad[sb] \
 	   	include/strings_cutter.ad[sb] include/zlib*.ad[sb] \
 		include/memory_streams.ad[sb] \
 		soap/soap*.ad[sb]; \
