@@ -44,5 +44,5 @@ distrib:
 		src/*.ad[sb] demos/r*.ads demos/[ar]*.adb demos/*.gif \
 		docs/aws.texi docs/aws.html docs/aws.txt docs/aws.info \
 		docs/aws.ps docs/makefile win32/*.a win32/*.txt \
-		demos/cert.pem ssl/*.ad*
+		demos/cert.pem ssl/*.ad* ssl/ChangeLog
 	gzip -9 aws.tar
