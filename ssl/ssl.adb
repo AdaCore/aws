@@ -44,28 +44,26 @@ package body SSL is
    use Interfaces;
    use type C.int;
 
-   Private_Key_Internal : Thin.RSA := Null_Ptr;
+   CRLF                 : constant String := ASCII.CR & ASCII.LF;
+
+   Private_Key_Internal : Thin.RSA     := Null_Ptr;
    Context              : Thin.SSL_Ctx := Null_Ptr;
 
    function Error_Str (Code : in Thin.Error_Code) return String;
-   --  return error message for Code
+   --  Returns error message for Code
 
    procedure Error_If (Error  : in Boolean;
                        Except : in Ada.Exceptions.Exception_Id);
-   --  raises exception Except if Error is true.
+   --  Raises exception Except if Error is true.
 
    procedure Init_Random;
    --  Initialize the random number generator for OpenSSL
 
-   procedure Read (Socket : in     Handle;
-                   Item   :    out String;
-                   Last   :    out Natural);
-
    procedure Set_Fd (Socket : in out Handle);
-   --  associate a secure socket to Socket
+   --  Associate a secure socket to Socket
 
    function Private_Key return Thin.RSA;
-   --  returns the private key that will be used for the certificate.
+   --  Returns the private key that will be used for the certificate.
 
    -------------------
    -- Accept_Socket --
@@ -200,11 +198,13 @@ package body SSL is
    procedure Init_Random is
       use Ada.Calendar;
       use System.Storage_Elements;
-      Buf : String := Duration'Image (Clock - Time_Of (
-            Year => Year_Number'First,
-            Month => Month_Number'First,
-            Day => Day_Number'First)) &
-         Integer_Address'Image (To_Integer (Init_Random'Address));
+
+      Buf : String
+        := Duration'Image
+        (Clock - Time_Of (Year  => Year_Number'First,
+                          Month => Month_Number'First,
+                          Day   => Day_Number'First))
+        & Integer_Address'Image (To_Integer (Init_Random'Address));
    begin
       Thin.Rand_Seed (Buf'Address, Buf'Length);
    end Init_Random;
@@ -213,12 +213,13 @@ package body SSL is
    -- New_Line --
    --------------
 
-   procedure New_Line (Socket : in Handle;
-                       Count  : in Natural := 1)
+   procedure New_Line
+     (Socket : in Handle;
+      Count  : in Natural := 1)
    is
       use Ada.Strings.Fixed;
    begin
-      Put (Socket, Count * (ASCII.CR & ASCII.LF));
+      Put (Socket, Count * CRLF);
    end New_Line;
 
    -------------
@@ -255,7 +256,7 @@ package body SSL is
 
    procedure Put_Line (Socket : in Handle; Item : in String) is
    begin
-      Put (Socket, Item & ASCII.CR & ASCII.LF);
+      Put (Socket, Item & CRLF);
    end Put_Line;
 
    ---------
@@ -268,22 +269,6 @@ package body SSL is
                 Lib_Error'Identity);
    end Put;
 
-   ----------
-   -- Read --
-   ----------
-
-   procedure Read
-     (Socket : in     Handle;
-      Item   :    out String;
-      Last   :    out Natural)
-   is
-      Len : Interfaces.C.int
-        := Thin.SSL_Read (Socket.H, Item'Address, Item'Length);
-   begin
-      Error_If (Len = -1, Lib_Error'Identity);
-      Last := Item'First - 1 + Integer (Len);
-   end Read;
-
    -------------
    -- Receive --
    -------------
@@ -291,7 +276,7 @@ package body SSL is
    function Receive
      (Socket : in Handle;
       Max    : in Ada.Streams.Stream_Element_Count := 4096)
-     return Ada.Streams.Stream_Element_Array
+      return Ada.Streams.Stream_Element_Array
    is
       use Ada.Streams; --  Stream_Element_Count;
 
@@ -348,16 +333,16 @@ package body SSL is
    begin
       Error_If
         (Thin.SSL_Ctx_Use_Privatekey_File
-         (Ctx    => Context,
-          File   => To_C (Key_File_Name),
-          C_Type => Thin.SSL_Filetype_Pem) = -1,
+           (Ctx    => Context,
+            File   => To_C (Key_File_Name),
+            C_Type => Thin.SSL_Filetype_Pem) = -1,
          Lib_Error'Identity);
 
       Error_If
         (Thin.SSL_Ctx_Use_Certificate_File
-         (Ctx    => Context,
-          File   => To_C (Cert_Filename),
-          C_Type => Thin.SSL_Filetype_Pem) = -1,
+           (Ctx    => Context,
+            File   => To_C (Cert_Filename),
+            C_Type => Thin.SSL_Filetype_Pem) = -1,
          Lib_Error'Identity);
 
       Error_If (Thin.SSL_Ctx_Check_Private_Key (Ctx  => Context) = -1,
