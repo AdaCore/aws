@@ -74,10 +74,9 @@ package body AWS.Config.Set is
    -- Certificate --
    -----------------
 
-   procedure Certificate (Filename : in String) is
+   procedure Certificate (O : in out Object; Filename : in String) is
    begin
-      Process_Options (Certificate).Str_Value
-        := To_Unbounded_String (Filename);
+      O.P (Certificate).Str_Value := To_Unbounded_String (Filename);
    end Certificate;
 
    ---------------------------------
@@ -161,6 +160,15 @@ package body AWS.Config.Set is
       O.P (Error_Log_Split_Mode).Str_Value := To_Unbounded_String (Value);
    end Error_Log_Split_Mode;
 
+   --------------------------
+   -- Exchange_Certificate --
+   --------------------------
+
+   procedure Exchange_Certificate (O : in out Object; Value : in Boolean) is
+   begin
+      O.P (Exchange_Certificate).Bool_Value := Value;
+   end Exchange_Certificate;
+
    -------------------------------
    -- Force_Client_Data_Timeout --
    -------------------------------
@@ -224,6 +232,15 @@ package body AWS.Config.Set is
    begin
       O.P (Hotplug_Port).Pos_Value := Value;
    end Hotplug_Port;
+
+   ---------
+   -- Key --
+   ---------
+
+   procedure Key (O : in out Object; Filename : in String) is
+   begin
+      O.P (Key).Str_Value := To_Unbounded_String (Filename);
+   end Key;
 
    ---------------------
    -- Line_Stack_Size --
@@ -417,6 +434,15 @@ package body AWS.Config.Set is
    begin
       O.P (Security).Bool_Value := Value;
    end Security;
+
+   -------------------
+   -- Security_Mode --
+   -------------------
+
+   procedure Security_Mode (O : in out Object; Mode : in String) is
+   begin
+      O.P (Security_Mode).Str_Value := To_Unbounded_String (Mode);
+   end Security_Mode;
 
    ------------------
    -- Send_Timeout --

@@ -39,7 +39,7 @@ package AWS.Config.Set is
    ------------------------
 
    procedure Server_Name (O : in out Object; Value : in String);
-   --  This is the name of the server as set by AWS.Server.Start.
+   --  This is the name of the server as set by AWS.Server.Start
 
    procedure WWW_Root (O : in out Object; Value : in String);
    --  This is the root directory name for the server. This variable is not
@@ -48,19 +48,29 @@ package AWS.Config.Set is
    --  pages...). The default value is the current working directory.
 
    procedure Admin_URI (O : in out Object; Value : in String);
-   --  This is the name of the admin server page as set by AWS.Server.Start.
+   --  This is the name of the admin server page as set by AWS.Server.Start
 
    procedure Server_Host (O : in out Object; Value : in String);
-   --  This is the server host as set by the HTTP object declaration.
+   --  This is the server host as set by the HTTP object declaration
 
    procedure Server_Port (O : in out Object; Value : in Positive);
-   --  This is the server port as set by the HTTP object declaration.
+   --  This is the server port as set by the HTTP object declaration
 
    procedure Security (O : in out Object; Value : in Boolean);
-   --  Enable security (HTTPS/SSL) if Value is True.
+   --  Enable security (HTTPS/SSL) if Value is True
 
-   procedure Certificate (Filename : in String);
-   --  Set the certificate to be used with the secure server.
+   procedure Certificate (O : in out Object; Filename : in String);
+   --  Set the certificate to be used with the secure server
+
+   procedure Key (O : in out Object; Filename : in String);
+   --  Set the key to be used with the secure server
+
+   procedure Security_Mode (O : in out Object; Mode : in String);
+   --  Set the security mode to be used with the secure server. Only values
+   --  from AWS.Net.SSL.Method can be used.
+
+   procedure Exchange_Certificate (O : in out Object; Value : in Boolean);
+   --  Set to True to request the client to send its certificate to the server
 
    procedure Hotplug_Port (O : in out Object; Value : in Positive);
    --  This is the hotplug communication port needed to register and
