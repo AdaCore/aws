@@ -1,3 +1,16 @@
+2002-12-17  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-server.ads, aws-server.adb:
+	(Slots.Get): Renamed Slots.Set.
+	(Slots.Set): Protected data renamed Table.
+	Minor reformatting.
+
+	* aws-client.adb:
+	(Free): Removed.
+	(Close): Call Net.Free to release memory associated with the
+	 socket. Right fix for the memory leak, see previous check-in.
+	(Create): If connect fail, correctly release socket memory.
+
 2002-12-16  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-client.adb:
