@@ -113,6 +113,9 @@ build_include:
 build_win32:
 	${MAKE} -C win32 build $(ALL_OPTIONS)
 
+run_regtests:
+	${MAKE} -C regtests $(ALL_OPTIONS)
+
 clean:
 	${MAKE} -C include clean
 	${MAKE} -C src clean
@@ -146,7 +149,8 @@ distrib: clean build_doc
 	cp demos/[shrw]*.ads demos/[ahmrstvw]*.adb $${AWS}/demos;\
 	cp demos/*.png demos/cert.pem demos/page*.html $${AWS}/demos;\
 	cp demos/aws_*.thtml demos/com*.adb  demos/ws.ini $${AWS}/demos;\
-	cp regtests/*.out regtests/*.adb regtests/makefile $${AWS}/regtests;\
+	cp regtests/*.out regtests/*.ad* regtests/makefile $${AWS}/regtests;\
+	cp regtests/ChangeLog $${AWS}/regtests;\
 	cp docs/aws.texi.tmplt docs/build.adb $${AWS}/docs;\
 	cp docs/aws.texi docs/[at]*.html docs/aws.txt $${AWS}/docs;\
 	cp docs/aws.info* docs/aws.ps docs/makefile $${AWS}/docs;\
@@ -157,7 +161,7 @@ distrib: clean build_doc
 	cp include/*.ad[sb] include/makefile $${AWS}/include;\
 	cp include/readme.txt $${AWS}/include;\
 	cp icons/*.gif $${AWS}/icons;\
-	cp soap/*.ad[sb] soap/makefile $${AWS}/soap;\
+	cp soap/*.ad[sb] soap/makefile soap/ChangeLog $${AWS}/soap;\
 	tar cf $${AWS}.tar $${AWS};\
 	gzip -9 $${AWS}.tar;\
 	rm -fr $${AWS})
