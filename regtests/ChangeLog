@@ -1,3 +1,8 @@
+2003-01-13  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* hval.out:
+	Update output, no more ';' after un-named value.
+
 2002-12-24  Dmitriy Anisimkov  <anisimkov@yahoo.com>
 
 	* auth.adb, auth.out:
