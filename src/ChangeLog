@@ -1,3 +1,9 @@
+2003-09-21  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* aws-server.adb:
+	(Accept_Socket_Serialized): Use Accepting Boolean variable for better
+	 isolate accept socket mode from give back socket mode.
+
 2003-09-18  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-server.adb:
