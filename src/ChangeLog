@@ -1,6 +1,25 @@
 2004-01-27  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* makefile:
+	(GY_tmp): New variable.
+	(TGARGS): New variable.
+	(TMPLT_SOURCES): New variable.
+	(TMPLT_UNITS): New variable.
+	(build): Add $(TMPLT_SOURCES)
+	Uses less restrictive rules to build the Templates_Engine.
+	
+	* templates_parser.adb, templates_parser-expr.adb:
+	Fix style errors.
+	
+	* templates_parser-cached_files.adb, templates_parser-filter.adb:
+	Fix style errors.
+	
+	* templates_parser-query.adb:
+	Fix style errors.
+	
+2004-01-27  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* makefile:
 	(SOURCES): Add templates_parser.adb templates_parser-input.adb
 	 and templates_parser-query.adb.
 
@@ -22,7 +41,7 @@
 	* templates_parser-query.ads, templates_parser-query.ads: 
 	Moved here from the include directory.
 
-	* templates_parser.ads, templates_parser.ads:
+	* templates_parser.ads, templates_parser.adb:
 	Moved here from the include directory.
 
 2004-01-25  Pascal Obry  <p.obry@wanadoo.fr>
