@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2003                          --
+--                            Copyright (C) 2003                            --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -39,39 +39,31 @@ package SOAP.Dispatchers.Callback is
    --  function). It will be used to build dispatchers services and for the
    --  main server callback.
 
-   type Callback_Routine is
-      access function (Action  : in String;
-                       Request : in Message.Payload.Object)
-                       return  AWS.Response.Data;
-   --  This is the SOAP Server Callback procedure.
-   --  ??? We should move this type declaration somewhere upper,
-   --  To the SOAP specification, or to the SOAP.Types.
-
    function Create
-     (Base_Callback : in AWS.Response.Callback;
-      SOAP_Callback : in Callback_Routine)
-      return        Handler;
-   pragma Inline (Create);
+     (HTTP_Callback : in AWS.Response.Callback;
+      SOAP_Callback : in Dispatchers.SOAP_Callback)
+      return Handler;
    --  Build a dispatcher for the specified callback.
 
 private
 
    function Dispatch_SOAP
      (Dispatcher : in Handler;
-      Action     : in String;
-      Request    : in Message.Payload.Object)
-      return     AWS.Response.Data;
-   --  This dispatch function would call SOAP callback.
+      SOAPAction : in String;
+      Payload    : in Message.Payload.Object;
+      Request    : in AWS.Status.Data)
+      return AWS.Response.Data;
+   --  This dispatch function is called for SOAP requests
 
-   function Dispatch_Base
+   function Dispatch_HTTP
      (Dispatcher : in Handler;
       Request    : in AWS.Status.Data)
-      return     AWS.Response.Data;
-   --  This dispatch function would call non SOAP callback.
+      return AWS.Response.Data;
+   --  This dispatch function is called for standard HTTP requests
 
    type Handler is new Dispatchers.Handler with record
-      Base_Callback : AWS.Response.Callback;
-      SOAP_Callback : Callback_Routine;
+      HTTP_Callback : AWS.Response.Callback;
+      SOAP_Callback : Dispatchers.SOAP_Callback;
    end record;
 
 end SOAP.Dispatchers.Callback;
