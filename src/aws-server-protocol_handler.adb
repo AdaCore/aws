@@ -337,8 +337,8 @@ is
             when Templates_Parser.Template_Error =>
                Answer := Response.Build
                  (Content_Type => MIME.Text_HTML,
-                  Message_Body => "Status template error. Please check "
-                                  & "that 'status.tmplt' file is valid.");
+                  Message_Body =>  "Status template error. Please check "
+                                 & "that 'status.tmplt' file is valid.");
          end;
 
       elsif URI = Admin_URI & "-logo" then
@@ -364,14 +364,14 @@ is
          Hotplug.Move_Up
            (HTTP_Server.Filters,
             Positive'Value (AWS.Status.Parameter (C_Stat, "N")));
-         Answer := Response.Moved (Admin_URI);
+         Answer := Response.URL (Admin_URI);
 
       elsif URI = Admin_URI & "-HPdown" then
          --  Status page hotplug down message
          Hotplug.Move_Down
            (HTTP_Server.Filters,
             Positive'Value (AWS.Status.Parameter (C_Stat, "N")));
-         Answer := Response.Moved (Admin_URI);
+         Answer := Response.URL (Admin_URI);
 
       --  End of Internal status page handling.
 
@@ -1151,6 +1151,9 @@ is
       Streams.Stream_IO.Close (File);
 
    exception
+      when Text_IO.Name_Error =>
+         raise;
+
       when others =>
          Streams.Stream_IO.Close (File);
    end Send_File;
