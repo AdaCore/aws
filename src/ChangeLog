@@ -1,5 +1,16 @@
 2003-03-05  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* aws-resources-files.adb:
+	(Open): Free allocated memory if a Name_Error exception is raised.
+	Fix memory leak.
+
+	* aws-resources.adb:
+	(Free): Moved to the private part.
+
+	* aws-resources.ads:
+	(Free): Move in private part from the body to be able to use it
+	 from child packages.
+
 	* aws.ads:
 	(Version): Set to 1.4w.	
 
