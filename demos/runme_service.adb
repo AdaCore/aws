@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2001                          --
+--                         Copyright (C) 2000-2004                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -30,6 +30,7 @@
 
 --  $Id$
 
+with Ada.Exceptions;
 with Ada.Text_IO;
 with GNAT.Directory_Operations;
 
@@ -37,7 +38,7 @@ with Service.Status;
 
 with SSL;
 
-with AWS.Server;
+with AWS.Server.Log;
 pragma Elaborate_All (AWS.Server);
 with AWS.Log;
 with Runme_CB;
@@ -45,6 +46,7 @@ with Runme_CB;
 package body Runme_Service is
 
    use Ada;
+   use Ada.Exceptions;
    use GNAT;
 
    Stop_Request   : Boolean := False;
@@ -68,7 +70,7 @@ package body Runme_Service is
 
       AWS.Server.Shutdown (WS);
       AWS.Server.Shutdown (WSS);
-      AWS.Server.Stop_Log (WS);
+      AWS.Server.Log.Stop (WS);
       Text_IO.Close (Output);
 
       Running := False;
@@ -104,7 +106,8 @@ package body Runme_Service is
       Directory_Operations.Change_Dir (Runme_Info.Get_Executable_Path);
 
       --  Set SSL certificate
-      AWS.Server.Set_Security (Runme_Info.Get_Executable_Path & "\cert.pem");
+      AWS.Server.Set_Security
+        (WSS, Runme_Info.Get_Executable_Path & "\cert.pem");
 
       --  All output goes to a log file.
       Text_IO.Create (Output, Text_IO.Out_File, "runme.service.log");
@@ -120,20 +123,27 @@ package body Runme_Service is
 
       Running := True;
 
-      AWS.Server.Start (WSS, "Runme Secure",
-                        Runme_CB.Service_Sec'Access,
-                        Max_Connection => 3,
-                        Port => 4433, Security => True);
+      AWS.Server.Start
+        (WSS, "Runme Secure",
+         Runme_CB.Service_Sec'Access,
+         Max_Connection => 3, Port => 4433, Security => True);
 
-      AWS.Server.Start (WS, "Runme", Runme_CB.Service'Access,
-                        3, "/Admin-Page", 1234, False, True);
+      AWS.Server.Start
+        (WS, "Runme", Runme_CB.Service'Access,
+         3, "/Admin-Page", 1234, False, True);
 
-      AWS.Server.Start_Log (WS, Split_Mode => AWS.Log.Daily);
+      AWS.Server.Log.Start (WS, Split_Mode => AWS.Log.Daily);
 
       loop
          delay 10.0;
          exit when Stop_Request;
       end loop;
+
+   exception
+      when E: others =>
+         Text_IO.Put_Line ("Service Error : " & Exception_Information (E));
+         Text_IO.Flush;
+         raise;
    end Main;
 
 end Runme_Service;
