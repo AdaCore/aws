@@ -90,6 +90,10 @@ Here are the main changes:
    - Fix chunked encoding over SSL incompatibiliy with Opera browser (really
      an Opera bug)
 
+   - Update to Templates_Parser 4.2 (add +,add,-,sub,*,mult,/,div,mod filters,
+     support attributes for vectors and matrix, add not and /= operators).
+     This new version completely preserve the template's format.
+
    - Plus many small fixes, enhancements and documentation work.
 
 You can have a look at docs/TODO file to see what are the topics that we will
