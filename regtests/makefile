@@ -40,7 +40,7 @@ endif
 
 # SOAP regression tests
 RT_SOAP = soap1 soap2 soap3 workorder testxml test_speed test_soap \
-	test_soap2 test_soap3 $(RT_SOAP_SEC)
+	test_soap2 test_soap3 test_soap4 $(RT_SOAP_SEC)
 
 # Standard regression tests
 RT_STD = turl tgetparam param dummy simple tclientto shutdown strm strm2 \
