@@ -46,7 +46,24 @@ package AWS.Server.Status is
    function Start_Time (Server : in HTTP) return Ada.Calendar.Time;
    --  Returns the server's start time
 
+   function Resources_Served (Server : in HTTP) return Natural;
+   --  Returns the total number of resources (static file, templates,
+   --  in-memory string) served by the server.
+
    function Socket (Server : in HTTP) return Net.Std.Socket_Type;
    --  Returns the server's socket
+
+   function Current_Connections (Server : in HTTP) return Natural;
+   --  Returns the current number of connections
+
+   function Is_Session_Activated (Server : in HTTP) return Boolean;
+   --  Returns True if the session feature has been activated
+
+   function Is_Security_Activated (Server : in HTTP) return Boolean;
+   --  Returns True if the HTTPS protocol is used
+
+   function Is_Shutdown (Server : in HTTP) return Boolean;
+   --  Returns True if server has been stopped (the server could still be in
+   --  the shutdown phase).
 
 end AWS.Server.Status;
