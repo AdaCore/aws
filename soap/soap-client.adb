@@ -73,7 +73,7 @@ package body SOAP.Client is
                Response := AWS.Client.SOAP_Post
                  (URL,
                   To_String (Message_Body),
-                  AWS.URL.URI (URL_Object));
+                  AWS.URL.URL (URL_Object));
             end;
 
          else
