@@ -1,5 +1,12 @@
 2004-11-26  Pascal Obry  <pascal@obry.org>
 
+	* soap-wsdl-parser.adb:
+	(Parse_Element): Check for null or abstract complexType, issue a
+	 proper warning instead of crashing.
+
+	* soap-message-xml.adb:
+	Minor reformatting.
+
 	* soap-types.ads, soap-types.adb:
         Add support for xsd:short types.
         Minor reformatting.
