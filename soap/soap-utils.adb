@@ -294,8 +294,8 @@ package body SOAP.Utils is
       use SOAP.Types;
       Result : T_Array;
    begin
-      for K in From'Range loop
-         Result (Index (K)) := Get (-From (K));
+      for K in Result'Range loop
+         Result (K) := Get (-From (Integer (K)));
       end loop;
 
       return Result;
