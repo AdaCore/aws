@@ -71,64 +71,65 @@ package body AWS.URL is
    -- Decode --
    ------------
 
-   function Decode (URL : in String) return String is
-      Res : String (1 .. URL'Length);
+   function Decode (Str : in String) return String is
+      Res : String (1 .. Str'Length);
       K   : Natural := 0;
-      I   : Positive := URL'First;
+      I   : Positive := Str'First;
    begin
+      if Str = "" then
+         return "";
+      end if;
+
       loop
          K := K + 1;
 
-         if URL (I) = '%'
-           and then I + 2 <= URL'Length
-           and then Characters.Handling.Is_Hexadecimal_Digit (URL (I + 1))
-           and then Characters.Handling.Is_Hexadecimal_Digit (URL (I + 2))
+         if Str (I) = '%'
+           and then I + 2 <= Str'Last
+           and then Characters.Handling.Is_Hexadecimal_Digit (Str (I + 1))
+           and then Characters.Handling.Is_Hexadecimal_Digit (Str (I + 2))
          then
             Res (K) := Character'Val
-              (Natural'Value ("16#" & URL (I + 1 .. I + 2) & '#'));
+              (Natural'Value ("16#" & Str (I + 1 .. I + 2) & '#'));
             I := I + 2;
 
-         elsif URL (I) = '+' then
+         elsif Str (I) = '+' then
             Res (K) := ' ';
 
          else
-            Res (K) := URL (I);
+            Res (K) := Str (I);
          end if;
 
          I := I + 1;
-         exit when I > URL'Last;
+         exit when I > Str'Last;
       end loop;
 
       return Res (1 .. K);
-   exception
-      when others =>
-         return URL;
    end Decode;
 
    ------------
    -- Encode --
    ------------
 
-   function Encode (URL : in String) return String is
-      Res : String (1 .. URL'Length * 3);
+   function Encode (Str : in String) return String is
+      Res : String (1 .. Str'Length * 3);
       K   : Natural := 0;
    begin
-      for I in URL'Range loop
-         if URL (I) = ' ' then
+      for I in Str'Range loop
+         if Str (I) = ' ' then
             --  special case for the space that can be encoded as %20 or
             --  '+'. The later being more readable we use this encoding here.
             K := K + 1;
             Res (K) := '+';
 
-         elsif Hex_Escape (URL (I)) = Not_Escaped then
+         elsif Hex_Escape (Str (I)) = Not_Escaped then
             K := K + 1;
-            Res (K) := URL (I);
+            Res (K) := Str (I);
 
          else
             K := K + 1;
             Res (K) := '%';
             K := K + 1;
-            Res (K .. K + 1) := Hex_Escape (URL (I));
+            Res (K .. K + 1) := Hex_Escape (Str (I));
             K := K + 1;
          end if;
       end loop;
