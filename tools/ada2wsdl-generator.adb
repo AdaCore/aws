@@ -416,7 +416,7 @@ package body Ada2WSDL.Generator is
                            & "http://schemas.xmlsoap.org/soap/encoding/""");
                Put_Line ("               namespace=""urn:aws:"
                            & WS_Name & '"');
-               Put_Line ("               use=""literal""/>");
+               Put_Line ("               use=""encoded""/>");
             end Write_SOAP_Body;
 
             Name : constant String := -R.Name;
