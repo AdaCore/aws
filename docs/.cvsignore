@@ -44,6 +44,7 @@ aws-server-log.ads.texi
 aws-server-push.ads.texi
 aws-server-status.ads.texi
 aws-server.ads.texi
+aws-services-callbacks.ads.texi
 aws-services-directory.ads.texi
 aws-services-dispatchers-method.ads.texi
 aws-services-dispatchers-uri.ads.texi
@@ -96,9 +97,11 @@ aws.toc
 aws.tp
 aws.txt
 aws.vr
+aws_api.xml
 b~build.adb
 b~build.ads
 genout
+html
 soap-client.ads.texi
 soap-dispatchers-callback.ads.texi
 soap-dispatchers.ads.texi
