@@ -11,6 +11,7 @@
    will run ok on both Win2000 and WinXP.  */
 #include <ws2tcpip.h>
 #else /* ! _WIN32 */
+#include <sys/types.h>
 #include <sys/poll.h>
 #include <sys/socket.h>
 #include <sys/ioctl.h>
@@ -35,6 +36,12 @@ main (void)
   const int ai_canonname_offset = (void *)&ai.ai_canonname - ai_ptr;
   const int ai_next_offset      = (void *)&ai.ai_next      - ai_ptr;
 
+#if defined(__FreeBSD__) || defined(_WIN32)
+  const int s_nfds_t = sizeof (int) * 8;
+#else
+  const int s_nfds_t = sizeof (nfds_t) * 8;
+#endif
+
 #ifdef _WIN32
   #define ETIMEDOUT   WSAETIMEDOUT
   #define EWOULDBLOCK WSAEWOULDBLOCK
@@ -46,7 +53,6 @@ main (void)
   // instead, because Win32 use the same error codes in Errno report.
 
   const char *i_conv      = "Stdcall";
-  const int s_nfds_t      = sizeof (int) * 8;
   const int s_fd_type     = sizeof (int) * 8;
   const int s_events_type = sizeof (short) * 8;
   const int v_POLLIN      = 1;
@@ -58,7 +64,6 @@ main (void)
 #else
   const char *i_conv      = "C";
   const struct pollfd v_pollfd;
-  const int s_nfds_t      = sizeof (nfds_t) * 8;
   const int s_fd_type     = sizeof (v_pollfd.fd) * 8;
   const int s_events_type = sizeof (v_pollfd.events) * 8;
   const int v_POLLIN      = POLLIN;
