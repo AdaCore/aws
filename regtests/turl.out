@@ -116,3 +116,30 @@ http://sinetics.der.edf.fr/./afficher_liste.php
    Server    : 
    Port      : 80
    URI       : 
+http://www.myserver.com:89/app/request?p1=9&p2=toto
+http://www.myserver.com:89/app/request?p1=9&p2=toto
+   Server    : www.myserver.com
+   Port      : 89
+   URI       : /app/request?p1=9&p2=toto
+   *
+   Server    : www.myserver.com
+   Port      : 89
+   URI       : /app/request?p1=9&p2=toto
+http://www.myserver.com:89/app/request/?p1=9&p2=toto
+http://www.myserver.com:89/app/request/?p1=9&p2=toto
+   Server    : www.myserver.com
+   Port      : 89
+   URI       : /app/request/?p1=9&p2=toto
+   *
+   Server    : www.myserver.com
+   Port      : 89
+   URI       : /app/request/?p1=9&p2=toto
+http://www.myserver.com:89/app/request/?p1=9&url=http://titi
+http://www.myserver.com:89/app/request/?p1=9&url=http://titi
+   Server    : www.myserver.com
+   Port      : 89
+   URI       : /app/request/?p1=9&url=http://titi
+   *
+   Server    : www.myserver.com
+   Port      : 89
+   URI       : /app/request/?p1=9&url=http://titi
