@@ -62,7 +62,8 @@ is
    End_Of_Message : constant String := "";
    HTTP_10        : constant String := "HTTP/1.0";
 
-   C_Stat         : AWS.Status.Data;         --  connection status
+   C_Stat         : AWS.Status.Data (HTTP_Server.Case_Sensitive_Parameters);
+   --  Connection status
 
    Will_Close     : Boolean;
    --  Will_Close is set to true when the connection will be closed by the
@@ -1188,14 +1189,14 @@ is
    end Send_File_Size;
 
 begin
-   C_Stat := Status.No_Data;
-
    --  This new connection has been initialized because some data are
    --  beeing sent. We are by default using HTTP/1.1 persistent
    --  connection. We will exit this loop only if the client request
    --  so or if we time-out on waiting for a request.
 
    For_Every_Request : loop
+
+      Status.Set.Reset (C_Stat);
 
       HTTP_Server.Slots.Increment_Slot_Activity_Counter (Index);
 
@@ -1205,8 +1206,12 @@ begin
 
       Will_Close :=
         AWS.Messages.Is_Match (Status.Connection (C_Stat), "close")
-        or else Status.HTTP_Version (C_Stat) = HTTP_10
-        or else HTTP_Server.Slots.N = 1;
+        or else HTTP_Server.Slots.N = 1
+        or else
+        (Status.HTTP_Version (C_Stat) = HTTP_10
+         and then
+         AWS.Messages.Does_Not_Match
+           (Status.Connection (C_Stat), "keep-alive"));
 
       Answer_To_Client;
 
@@ -1214,8 +1219,6 @@ begin
       --  on HTTP/1.0 protocol or we have a single slot.
 
       exit For_Every_Request when Will_Close;
-
-      Status.Set.Reset (C_Stat);
 
    end loop For_Every_Request;
 
