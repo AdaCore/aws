@@ -1,5 +1,10 @@
+auth.res
+b~auth.adb
+b~auth.ads
 b~dummy.adb
 b~dummy.ads
+b~moved.adb
+b~moved.ads
 b~param.adb
 b~param.ads
 b~shutdown.adb
@@ -28,6 +33,8 @@ b~tres2.adb
 b~tres2.ads
 b~turl.adb
 b~turl.ads
+b~turl2.adb
+b~turl2.ads
 b~unexph.adb
 b~unexph.ads
 b~upload.adb
@@ -35,6 +42,7 @@ b~upload.ads
 b~workorder.adb
 b~workorder.ads
 dummy.res
+moved.res
 param.res
 shutdown.res
 simple.res
@@ -49,6 +57,7 @@ tgetparam.res
 tres.res
 tres2.res
 turl.res
+turl2.res
 unexph.res
 upload.res
 workorder.res
