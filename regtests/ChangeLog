@@ -1,5 +1,21 @@
 2003-11-14  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* makefile:
+	(WSDL2AWS): New variable.
+	($(WSDL2AWS)): New targets.
+
+	* wsdl_parse_1.wsdl, wsdl_parse_1.out:
+	Initial revision.
+
+	* wsdl_parse_2.wsdl, wsdl_parse_2.out:
+	Initial revision.
+
+	* wsdl_parse_3.wsdl, wsdl_parse_3.out:
+	Initial revision.
+
+	* wsdl_parse_4.wsdl, wsdl_parse_4.out:
+	Initial revision.
+
 	* wsdl_4.out:
 	Update output.
 
