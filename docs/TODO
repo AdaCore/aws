@@ -15,9 +15,6 @@ implemented:
 
   Actually only the first format is supported.
 
-- support standard method encoding under HTTP/1.1 for small files instead of
-  the chuncked encoding.
-
 - implement multi-server with a dispatcher of request to build server which
   must support a lot of requests. Could be using GLADE or a standard
   redirector of request (using HTTP redirection).
