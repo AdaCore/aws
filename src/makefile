@@ -16,7 +16,8 @@ SOURCES	= aws-client.adb aws-messages.adb aws-mime.adb aws-os_lib.adb \
 	aws-server-hotplug.adb aws-status-set.adb aws-parameters-set.adb \
 	aws-services.ads aws-services-directory.adb aws-default.ads \
 	aws-config.adb aws-config-ini.adb aws-config-set.adb \
-	aws-net.adb aws-net-stream_io.adb aws-services-page_server.adb \
+	aws-net.adb aws-net-stream_io.adb aws-net-std.adb aws-net-ssl.adb \
+	aws-net-buffered.adb aws-services-page_server.adb \
 	aws-templates.ads aws-dispatchers.adb aws-dispatchers-callback.adb \
 	aws-services-dispatchers.ads aws-services-dispatchers-uri.adb \
 	aws-services-dispatchers-method.adb \
@@ -29,7 +30,6 @@ SOURCES	= aws-client.adb aws-messages.adb aws-mime.adb aws-os_lib.adb \
 	aws-containers-tables.adb aws-containers-tables-set.adb
 
 build: aws-translator-conversion.adb
-	(if ! [ -e aws-net.adb ]; then cp aws-net-std.adb aws-net.adb; fi)
 # compile aws-services-directory.adb without optimisation
 # work around a bug in GNAT 3.14, 3.15.
 	echo Building aws-services-directory.adb
@@ -43,14 +43,6 @@ aws-translator-conversion.adb:
 	echo Setup conversion support
 	gnatmake -q test_uconv
 	./test_uconv
-
-ssl_mode:
-	-rm -f *.o *.ali
-	cp aws-net-ssl.adb aws-net.adb
-
-std_mode:
-	-rm -f *.o *.ali
-	cp aws-net-std.adb aws-net.adb
 
 gnat_oslib:
 	-rm -f *.o *.ali
