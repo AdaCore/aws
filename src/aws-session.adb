@@ -52,7 +52,7 @@ package body AWS.Session is
 
    Session_Check_Interval : Duration
      := Default.Session_Cleanup_Interval;
-   --  Check for obsolete section every 10 minutes.
+   --  Check for obsolete section every 10 minutes
 
    Session_Lifetime       : Duration := Default.Session_Lifetime;
    --  A session is obsolete if not used after Session_Lifetime seconds.
