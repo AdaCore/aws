@@ -37,6 +37,7 @@
 * Last notes::
 * AWS API::
 * References::
+* Index::
 @end menu
 @end ifinfo
 
@@ -237,6 +238,7 @@ the include path for the libraries @code{POSIX}, @code{OpenSSL} and
 @ifinfo
 @menu
 * Building an AWS server::
+* Callback procedure::
 * Form parameters::
 * Distribution of an AWS server::
 @end menu
@@ -247,7 +249,7 @@ the include path for the libraries @code{POSIX}, @code{OpenSSL} and
 embedded HTTP protocol in an application. It means that it is possible
 to build an application which can also answer to a standard browser like
 @i{Internet Explorer} or @i{Netscape Navigator}. Since @code{AWS} provides
-support client and server HTTP protocol applications can communicate
+support client and server HTTP protocol, applications can communicate
 through the HTTP channel. This give a way to build distributed
 applications, @xref{AWS.Client}.
 
@@ -441,6 +443,109 @@ AWS.Response.File (Content_Type => "image/png",
 
 @end enumerate
 
+@node Callback procedure
+@subsection Callback procedure
+@cindex Callback
+@cindex Callback procedure
+
+@noindent
+The callback procedure is the user's code that will be called by the AWS
+component to get the right answer for the requested ressource. In fact
+AWS just open the HTTP message, parsing the HTTP header and it builds
+an object of type @code{AWS.Status.Data}. At this point it calls the
+user's callback procedure, passing the object. The callback procedure
+must returns the right response for the requested ressources. Now AWS
+will just build up the HTTP response message and send it back to
+user's browser.
+
+@noindent
+@b{But what is the ressource ?}
+@cindex ressources
+
+@noindent
+Indeed in a standard Web development a ressource is either a static
+object - an HTML page, an XML or SSL document - or a CGI script. With
+AWS a ressource is @i{just a string} to identify the ressource, it
+does not represent the name of a static object or CGI script.
+
+@noindent
+So this string is just an internal representation of the
+ressource. The callback procedure must be implemented to handle each
+internal ressource and answer the right response.
+
+@noindent
+Let's have a small example. For example we want to build a Web server
+that will answer ``Hello World'' if we ask for the internal ressource 
+@b{/hello}, and must answer ``Hum...'' otherwise.
+
+@cindex Hello world
+@smallexample
+@cartouche
+@group
+@b{with} AWS.Response;
+@b{with} AWS.Server;
+@b{with} AWS.Status;
+
+@b{procedure} Hello_World @b{is}
+
+   WS  : AWS.Server.HTTP (1);
+
+   @b{function} HW_CB (Request : @b{in} AWS.Status.Data)
+     @b{return} AWS.Response.Data 
+   @b{is}
+      URI : @b{constant} String := Status.URI (Request);
+   @b{begin}
+      @b{if} URI = "/hello" @b{then}
+         @b{return} AWS.Response.Build ("text/html", "<p>Hello world !");
+      @b{else}
+         @b{return} AWS.Response.Build ("text/html", "<p>Hum...");
+      @b{end if};
+   @b{end} HW_CB;
+
+@b{begin}
+   AWS.Server.Start (WS, "Hello World", Callback => HW_CB'Unrestricted_Access);
+@b{end} Hello_World;
+@end group
+@end cartouche
+@end smallexample
+
+@noindent
+Now of course the ressource internal name can represent a file on
+disk. It is not mandatory but it is possible. For example it is
+perfectly possible to build with AWS a simple page server.
+
+@cindex Page server
+@cindex Simple server
+@noindent
+As an example, let's build a simple page server. This server will
+returns files in the current directory. Here there ressource internal
+name represents an HTML page or a GIF or PNG image for example. This
+server will return a 404 message (Web Page Not Found) if the file does
+not exist. Here is the callback procedure that implement such simple
+page server:
+
+@smallexample
+@cartouche
+@group
+@b{function} Get (Request : @b{in} AWS.Status.Data) @b{return} AWS.Response.Data @b{is}
+   URI      : @b{constant} String := AWS.Status.URI (Request);
+   Filename : @b{constant} String := URI (2 .. URI'Last);
+@b{begin}
+   @b{if} OS_Lib.Is_Regular_File (Filename) @b{then}
+      @b{return} AWS.Response.File
+        (Content_Type => AWS.MIME.Content_Type (Filename),
+         Filename     => Filename);
+
+   @b{else}
+      return AWS.Response.Acknowledge
+        (Messages.S404,
+         "<p>Page '" & URI & "' Not found.");
+   @b{end if};
+@b{end} Get;
+@end group
+@end cartouche
+@end smallexample
+
 @node Form parameters
 @subsection Form parameters
 @cindex Form parameters
@@ -463,6 +568,11 @@ Enter your name
 @end group
 @end cartouche
 @end smallexample
+
+@noindent
+Note that as explained above @pxref{Callback procedure}, the ressource
+described in @code{ACTION} is just an internal string representation
+for the ressource.
 
 @noindent
 In this example there is two form parameters:
