@@ -7,6 +7,9 @@
 	(EAI_SYSTEM): Use Win32 definition instead of different generation.
 	Change "other constants" comment.
 
+	* aws-net-std__ipv6.adb:
+	Support for IPv6 protocol.
+
 2004-11-14  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* src/check_config.c:
