@@ -1,3 +1,9 @@
+2004-09-07  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* wait_pack.ads, wait_pack.adb, wait2.adb, wait2.out, wait2_sec.adb,
+	  wait2_sec.out, makefile:
+	New regression test.
+
 2004-09-06  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* dispatch.adb, dispatch_method.adb, dispatch_vh.adb, dispatch_vh.out,
