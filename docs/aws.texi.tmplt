@@ -78,7 +78,7 @@ is possible as @code{AWS} also implement the client side of the HTTP protocol.
 @noindent
 Moreover with this library it is possible to have more than one server
 in a single application. It is then possible to export different kind
-of services by using different HTTP ports, or two have different port
+of services by using different HTTP ports, or to have different ports
 for different services priority. Client which must be served with a
 very high priority can be assigned a specific port for example.
 
@@ -2088,7 +2088,26 @@ Text_IO.Put_Line (Response.Message_Body (Data));
 @noindent
 If the content is some kind of binary data (executable, PNG image, Zip
 archive...), then it is possible to write the result to a file for
-example. Look at the @code{agent} program in the @code{demos} directory.
+example. Look at the @code{agent} program in the @code{demos}
+directory.
+
+@noindent
+If the Web page is protected and you must pass the request through an
+authenticating proxy, the call will becomes:
+
+@smallexample
+@cartouche
+@group
+Data := Client.Get
+  (URL        => "http://www.mydomain.net/protected/index.html"
+   User       => "me",
+   Pwd        => "mypwd",
+   Proxy      => "192.168.67.1",
+   Proxy_User => "puser",
+   Proxy_Pwd  => "ppwd");
+@end group
+@end cartouche
+@end smallexample
 
 @noindent
 @cindex upload, client
