@@ -2,7 +2,7 @@
 --                              Ada Web Server                              --
 --                                                                          --
 --                            Copyright (C) 2000                            --
---                               Pascal Obry                                --
+--                      Dmitriy Anisimov - Pascal Obry                      --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -45,6 +45,8 @@ package AWS.URL is
    function Port (URL : in Object) return Positive;
    function Port (URL : in Object) return String;
 
+   function Security (URL : in Object) return Boolean;
+
    function URI (URL : in Object) return String;
 
 private
@@ -54,6 +56,7 @@ private
    type Object is record
       Server_Name : Unbounded_String;
       Port        : Positive := Default_Port;
+      Security    : Boolean := False;
       URI         : Unbounded_String;
    end record;
 
