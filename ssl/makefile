@@ -9,6 +9,7 @@ force:
 
 ssl-thin: force
 	echo Building ssl-thin
+	gnatmake -q $(GARGS) ssl
 	gnatmake -q $(GARGS) ssl-thin
 
 ssl-wrappers: force
