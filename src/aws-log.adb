@@ -38,6 +38,7 @@ with Ada.Strings.Maps;
 with GNAT.Calendar.Time_IO;
 with GNAT.OS_Lib;
 
+with AWS.Messages;
 with AWS.Utils;
 
 package body AWS.Log is
@@ -185,7 +186,7 @@ package body AWS.Log is
    procedure Write
      (Log          : in out Object;
       Connect_Stat : in     Status.Data;
-      Answer_Stat  : in     Messages.Status_Code;
+      Answer       : in     Response.Data;
       Peername     : in     String)
    is
       Now : constant Calendar.Time := Calendar.Clock;
@@ -215,7 +216,9 @@ package body AWS.Log is
             & ' '
             & Status.URI (Connect_Stat) & " "
             & Status.HTTP_Version (Connect_Stat) & """ "
-            & Messages.Image (Answer_Stat));
+            & Messages.Image (Response.Status_Code (Answer))
+            & ' '
+            & Utils.Image (Response.Content_Length (Answer)));
 
          Text_IO.Flush (Log.File);
       end if;
