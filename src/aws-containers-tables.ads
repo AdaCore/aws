@@ -133,11 +133,9 @@ private
 
    subtype Index_Table_Type is Index_Table.Map;
 
-   type Index_Access is access Index_Table_Type;
-
    type Table_Type is tagged record
       Case_Sensitive : Boolean := True;
-      Index          : Index_Access;
+      Index          : Index_Table.Map;
       --  Index to find appropriate Name/Value pairs in Data by the name
       Data           : Data_Table.Vector;
       --  Ordered array of name and value pairs
