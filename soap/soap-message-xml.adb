@@ -1,3 +1,34 @@
+------------------------------------------------------------------------------
+--                              Ada Web Server                              --
+--                                                                          --
+--                         Copyright (C) 2000-2001                          --
+--                                ACT-Europe                                --
+--                                                                          --
+--  Authors: Dmitriy Anisimov - Pascal Obry                                 --
+--                                                                          --
+--  This library is free software; you can redistribute it and/or modify    --
+--  it under the terms of the GNU General Public License as published by    --
+--  the Free Software Foundation; either version 2 of the License, or (at   --
+--  your option) any later version.                                         --
+--                                                                          --
+--  This library is distributed in the hope that it will be useful, but     --
+--  WITHOUT ANY WARRANTY; without even the implied warranty of              --
+--  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU       --
+--  General Public License for more details.                                --
+--                                                                          --
+--  You should have received a copy of the GNU General Public License       --
+--  along with this library; if not, write to the Free Software Foundation, --
+--  Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.          --
+--                                                                          --
+--  As a special exception, if other files instantiate generics from this   --
+--  unit, or you link this unit with other files to produce an executable,  --
+--  this  unit  does not  by itself cause  the resulting executable to be   --
+--  covered by the GNU General Public License. This exception does not      --
+--  however invalidate any other reasons why the executable file  might be  --
+--  covered by the  GNU Public License.                                     --
+------------------------------------------------------------------------------
+
+--  $Id$
 
 with Ada.Text_IO; use Ada.Text_IO;
 with Ada.Strings.Unbounded;
@@ -23,8 +54,8 @@ package body SOAP.Message.XML is
 
    URL_Enc    : constant String := "http://schemas.xmlsoap.org/soap/encoding/";
    URL_Env    : constant String := "http://schemas.xmlsoap.org/soap/envelope/";
-   URL_Xsd    : constant String := "http://www.w3.org/1999/XMLSchema";
-   URL_Xsi    : constant String := "http://www.w3.org/1999/XMLSchema-instance";
+   URL_xsd    : constant String := "http://www.w3.org/1999/XMLSchema";
+   URL_xsi    : constant String := "http://www.w3.org/1999/XMLSchema-instance";
 
    Start_Env  : constant String := "<SOAP-ENV:Envelope";
    End_Env    : constant String := "</SOAP-ENV:Envelope>";
@@ -37,8 +68,8 @@ package body SOAP.Message.XML is
      & "xmlns:xsd=""" & URL_xsd & """ "
      & "xmlns:xsi=""" & URL_xsi & """>";
 
-   Start_Body : constant String := "<SOAP-ENV:Body>";
-   End_Body   : constant String := "</SOAP-ENV:Body>";
+   Start_Body      : constant String := "<SOAP-ENV:Body>";
+   End_Body        : constant String := "</SOAP-ENV:Body>";
 
    Start_Fault_Env : constant String := "<SOAP-ENV:Fault>";
 
@@ -61,6 +92,13 @@ package body SOAP.Message.XML is
          Handler.Parameters := Handler.Parameters
            & F (To_String (Handler.Last_Name), Float'Value (Ch));
 
+      elsif Handler.S = P_Str then
+         if Handler.Last_Str /= Null_Unbounded_String then
+            Append (Handler.Last_Str, ' ');
+         end if;
+
+         Append (Handler.Last_Str, Ch);
+
       else
          Put_Line ("Not recognized " & Ch & " - " & State'Image (Handler.S));
       end if;
@@ -71,10 +109,13 @@ package body SOAP.Message.XML is
    -----------------
 
    procedure End_Element
-     (Handler       : in out Payload_Reader;
+     (Handler       : in out SOAP_Reader;
       Namespace_URI : in     Unicode.CES.Byte_Sequence := "";
       Local_Name    : in     Unicode.CES.Byte_Sequence := "";
-      Qname         : in     Unicode.CES.Byte_Sequence := "") is
+      Qname         : in     Unicode.CES.Byte_Sequence := "")
+   is
+      use SOAP.Types;
+      use type SOAP.Parameters.Set;
    begin
       if Handler.S in State_Param
         and then Local_Name = To_String (Handler.Wrapper_Name)
@@ -82,19 +123,26 @@ package body SOAP.Message.XML is
          Handler.S := E_Wrap;
 
       elsif Handler.S = E_Wrap and then Local_Name = "Body" then
-        Handler.S := E_Body;
+         Handler.S := E_Body;
 
       elsif Handler.S = E_Body and then Local_Name = "Envelope" then
          Handler.S := E_Env;
 
       elsif Handler.S in State_Param then
-         null;
+
+         if Handler.S = P_Str then
+            Handler.Parameters := Handler.Parameters
+              & S (To_String (Handler.Last_Name),
+                   To_String (Handler.Last_Str));
+
+            Handler.Last_Str := Null_Unbounded_String;
+         end if;
 
       else
          Ada.Exceptions.Raise_Exception
            (Types.Data_Error'Identity,
-            "End element " & Local_Name & " while on state "
-            & State'Image (Handler.S));
+            "End element " & Local_Name
+            & " while on state " & State'Image (Handler.S));
       end if;
    end End_Element;
 
@@ -125,7 +173,7 @@ package body SOAP.Message.XML is
 
       --  Wrapper
 
-      Append (Message_Body, Message.Image (O));
+      Append (Message_Body, Message.XML_Image (O));
 
       --  End of Body and Envelope
 
@@ -134,6 +182,25 @@ package body SOAP.Message.XML is
 
       return Message_Body;
    end Image;
+
+   --------------
+   -- Is_Error --
+   --------------
+
+   function Is_Error (Handler : in SOAP_Reader) return Boolean is
+   begin
+      return False;
+   end Is_Error;
+
+   function Is_Error (Handler : in Payload_Reader) return Boolean is
+   begin
+      return False;
+   end Is_Error;
+
+   function Is_Error (Handler : in Response_Reader) return Boolean is
+   begin
+      return Handler.Is_Error;
+   end Is_Error;
 
    ------------------
    -- Load_Payload --
@@ -158,7 +225,7 @@ package body SOAP.Message.XML is
       Parse (Reader, Source);
       Close (Source);
 
-      Message.Payload.Set_Parameters (Reader.Payload, Reader.Parameters);
+      Message.Set_Parameters (Reader.Payload, Reader.Parameters);
 
       return Reader.Payload;
    end Load_Payload;
@@ -167,7 +234,10 @@ package body SOAP.Message.XML is
    -- Load_Response --
    -------------------
 
-   function Load_Response (XML : in String) return Object'Class is
+   function Load_Response
+     (XML : in String)
+     return Message.Response.Object'Class
+   is
       use Input_Sources.Strings;
 
       Str    : aliased String := XML;
@@ -186,19 +256,21 @@ package body SOAP.Message.XML is
       Parse (Reader, Source);
       Close (Source);
 
+      Message.Set_Parameters (Reader.Response, Reader.Parameters);
+
       if Reader.Is_Error then
-         return Reader.Error;
+         return Reader.Response;
 
       else
          --  Check that there is only one parameter
-         if Parameters.Argument_Count (Reader.Parameters) /= 1 then
+
+         if SOAP.Parameters.Argument_Count (Reader.Parameters) /= 1 then
             return Message.Error.Build
               (Message.Error.Client,
                "more than one parameters returned");
          end if;
 
-         Message.Response.Set_Parameters (Reader.Response, Reader.Parameters);
-         return Reader.Response;
+         return Message.Response.Object (Reader.Response);
       end if;
    end Load_Response;
 
@@ -225,11 +297,12 @@ package body SOAP.Message.XML is
      (Handler : in out Response_Reader;
       Name    : in     String) is
    begin
-      if Name = Start_Fault_Env then
+      if Name = "Fault" then
          Handler.Is_Error := True;
       else
-         SOAP.Message.Payload.Set_Procedure_Name (Handler.Response, Name);
+         SOAP.Message.Set_Wrapper_Name (Handler.Response, Name);
       end if;
+
       Set_Wrapper_Name (SOAP_Reader (Handler), Name);
    end Set_Wrapper_Name;
 
@@ -252,28 +325,37 @@ package body SOAP.Message.XML is
       begin
          Handler.Last_Name := To_Unbounded_String (Local_Name);
 
-         while K <= N
-           and then Sax.Attributes.Get_Qname (Atts, K) /= "xsi:type"
-         loop
-            K := K + 1;
-         end loop;
-
-         if K > N then
-            --  xsi:type not found
-            raise Constraint_Error;
+         if Is_Error (SOAP_Reader'Class (Handler)) then
+            Handler.S := P_Str;
 
          else
-            declare
-               xsi_type : constant String
-                 := Sax.Attributes.Get_Value (Atts, K);
-            begin
-               if xsi_type = SOAP.Types.XML_Int then
-                  Handler.S := P_Int;
 
-               elsif xsi_type = SOAP.Types.XML_Float then
-                  Handler.S := P_Float;
-               end if;
-            end;
+            while K <= N
+              and then Sax.Attributes.Get_Qname (Atts, K) /= "xsi:type"
+            loop
+               K := K + 1;
+            end loop;
+
+            if K > N then
+               --  xsi:type not found
+               raise Constraint_Error;
+
+            else
+               declare
+                  xsi_type : constant String
+                    := Sax.Attributes.Get_Value (Atts, K);
+               begin
+                  if xsi_type = SOAP.Types.XML_Int then
+                     Handler.S := P_Int;
+
+                  elsif xsi_type = SOAP.Types.XML_Float then
+                     Handler.S := P_Float;
+
+                  elsif xsi_type = SOAP.Types.XML_String then
+                     Handler.S := P_Str;
+                  end if;
+               end;
+            end if;
          end if;
       end Read_Parameters;
 
