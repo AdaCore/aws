@@ -110,6 +110,7 @@ is
    Status_Connection         : Unbounded_String;
    Status_Multipart_Boundary : Unbounded_String;
    Status_Content_Type       : Unbounded_String;
+   Support_Compressed        : Boolean;
 
    procedure Send_Resource
      (Method : in     Status.Request_Method;
@@ -790,6 +791,18 @@ is
    ------------------------
 
    procedure Get_Message_Header is
+
+      function Check_Encoding (Encoding : in String) return Boolean;
+      pragma Inline (Check_Encoding);
+      --  Returns True if deflate encoding supported
+
+      function Check_Encoding (Encoding : in String) return Boolean is
+         L_Encoding : constant String
+           := Characters.Handling.To_Lower (Encoding);
+      begin
+         return Strings.Fixed.Index (L_Encoding, "deflate") /= 0;
+      end Check_Encoding;
+
    begin
       --  Get and parse request line
 
@@ -803,6 +816,8 @@ is
       Status.Set.Read_Header (Socket => Sock, D => C_Stat);
 
       Status_Connection := To_Unbounded_String (Status.Connection (C_Stat));
+
+      Support_Compressed := Check_Encoding (Status.Accept_Encoding (C_Stat));
 
       --  Get necessary data from header for reading HTTP body
 
@@ -1068,6 +1083,7 @@ is
          --  message length comming from a user's stream.
 
          Response.Create_Resource (Answer, File);
+         Resources.Support_Compressed (File, Support_Compressed);
 
          --  Length is the real resource/file size
 
