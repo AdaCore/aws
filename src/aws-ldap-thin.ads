@@ -599,8 +599,8 @@ package AWS.LDAP.Thin is
       return chars_ptr;
 
    function ldap_first_attribute
-     (ld      : in LDAP_Type;
-      entries : in LDAPMessage;
+     (ld      : in     LDAP_Type;
+      entries : in     LDAPMessage;
       ber     : access BerElement)
       return chars_ptr;
 
