@@ -219,6 +219,8 @@ MANIFEST
 makefile
 makefile.conf
 readme.txt
+regtests/afile.adb
+regtests/afile.out
 regtests/alldifs.out
 regtests/append.adb
 regtests/append.out
@@ -238,6 +240,8 @@ regtests/compress.adb
 regtests/compress.out
 regtests/ctab.adb
 regtests/ctab.out
+regtests/ctable.adb
+regtests/ctable.out
 regtests/dirop.adb
 regtests/dirop.out
 regtests/dirop.tmplt
@@ -324,6 +328,8 @@ regtests/sock1.adb
 regtests/sock1.out
 regtests/sock2.adb
 regtests/sock2.out
+regtests/sockto.adb
+regtests/sockto.out
 regtests/sp.adb
 regtests/sp.out
 regtests/split.adb
@@ -337,6 +343,8 @@ regtests/ssock2.adb
 regtests/ssock2.out
 regtests/ssp.adb
 regtests/ssp.out
+regtests/sto.adb
+regtests/sto.out
 regtests/stream_response.adb
 regtests/stream_response.out
 regtests/strm.adb
@@ -389,6 +397,8 @@ regtests/tmem.adb
 regtests/tmem.out
 regtests/tmime.adb
 regtests/tmime.out
+regtests/tpc.adb
+regtests/tpc.out
 regtests/tres.adb
 regtests/tres.out
 regtests/tres2.adb
@@ -664,8 +674,6 @@ src/templates_parser-input.ads
 src/templates_parser-print_tree.adb
 src/templates_parser-query.adb
 src/templates_parser-query.ads
-src/templates_parser-xml.ads
-src/templates_parser-xml.adb
 src/templates_parser.adb
 src/templates_parser.ads
 ssl/ChangeLog
@@ -761,5 +769,7 @@ win32/libeay32.dll
 win32/libssl32.dll
 xsrc/aws-jabber.adb
 xsrc/aws-jabber.ads
+xsrc/templates_parser-xml.ads
+xsrc/templates_parser-xml.adb
 xsrc/ChangeLog
 xsrc/README
