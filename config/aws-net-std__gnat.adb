@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2002                          --
+--                         Copyright (C) 2000-2004                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -178,6 +178,32 @@ package body AWS.Net.Std is
          return Sockets.Addresses (Sockets.Get_Host_By_Name (Host), 1);
       end if;
    end Get_Inet_Addr;
+
+   ------------------------
+   -- Get_Receive_Buffer --
+   ------------------------
+
+   function Get_Receive_Buffer (Socket : in Socket_Type) return Natural is
+      use Sockets;
+   begin
+      return Get_Socket_Option (Socket.S.FD, Name => Receive_Buffer).Size;
+   exception
+      when E : Socket_Error =>
+         Raise_Exception (E, "Get_Receive_Buffer");
+   end Get_Receive_Buffer;
+
+   ---------------------
+   -- Get_Send_Buffer --
+   ---------------------
+
+   function Get_Send_Buffer (Socket : in Socket_Type) return Natural is
+      use Sockets;
+   begin
+      return Get_Socket_Option (Socket.S.FD, Name => Send_Buffer).Size;
+   exception
+      when E : Socket_Error =>
+         Raise_Exception (E, "Get_Send_Buffer");
+   end Get_Send_Buffer;
 
    ---------------
    -- Host_Name --
