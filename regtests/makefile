@@ -112,5 +112,5 @@ checks: checks_header checks_out
 
 clean:
 	-rm *.o *.ali b~*.ad* *.~*.*.~ *.res *.exe res.ad[sb] res2.ad[sb]
-	-rm file file1.html file2.html file3.html file.tmplt tresres*
+	-rm file.tmp file1.html file2.html file3.html file.tmplt tresres*
 	-rm ?.upload.* strm-*.log cert.pem
