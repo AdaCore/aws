@@ -10,7 +10,7 @@ SOURCES	= soap.ads soap-types.adb soap-parameters.adb soap-message.adb \
 	soap-message-response-error.adb soap-message-payload.adb \
 	soap-client.adb soap-utils.adb soap-message-reader.adb \
 	soap-wsdl.adb soap-wsdl-parser.adb soap-wsdl-parameters.adb \
-	soap-generator.adb
+	soap-generator.adb soap-dispatchers.adb soap-dispatchers-callback.adb
 
 UNITS = $(sort $(basename $(SOURCES)))
 
