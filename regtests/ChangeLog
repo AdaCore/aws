@@ -1,5 +1,10 @@
 2004-01-05  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
+	* makefile:
+	Concatenate most regression tests into single executable file.
+
+2004-01-05  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
 	* generate.adb:
 	Remove DOS style CR at the end of line.
 
