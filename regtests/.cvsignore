@@ -5,6 +5,8 @@ b~ctab.adb
 b~ctab.ads
 b~dummy.adb
 b~dummy.ads
+b~file.adb
+b~file.ads
 b~head.adb
 b~head.ads
 b~hval.adb
@@ -23,6 +25,8 @@ b~soap2.adb
 b~soap2.ads
 b~soap3.adb
 b~soap3.ads
+b~sock1.adb
+b~sock1.ads
 b~strm.adb
 b~strm.ads
 b~tclientto.adb
@@ -60,6 +64,7 @@ b~upload.ads
 b~workorder.adb
 b~workorder.ads
 dummy.res
+file.res
 file.tmplt
 file1.html
 file2.html
@@ -73,6 +78,7 @@ simple.res
 soap1.res
 soap2.res
 soap3.res
+sock1.res
 strm.res
 tclientto.res
 test_soap.res
