@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2001                          --
+--                         Copyright (C) 2000-2002                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -34,13 +34,23 @@ with Ada.Strings.Unbounded;
 
 package AWS.URL is
 
-   --  The general URL form is:
+   --  The general URL form as described in RFC2616 is:
+   --
+   --  http_URL = "http:" "//" host [ ":" port ] [ abs_path [ "?" query ]]
+   --
+   --  Note also that there are different RFC describing URL like the 2616 and
+   --  1738 but they use different terminologies. Here we try to follow the
+   --  names used in RFC2616 but we have implemented some extensions at the
+   --  end of this package. For example the way Path and File are separated or
+   --  the handling of user/password which is explicitly not allowed in the
+   --  RFC but are used and supported in many browsers. Here are the extended
+   --  URL supported:
    --
    --  http://username:password@www.here.com:80/dir1/dir2/xyz.html?p=8&x=doh
    --   |                            |       | |          |       |
    --   protocol                     host port path       file    parameters
    --
-   --                                          <--       pathname        -->
+   --                                          <--  pathname  -->
 
    type Object is private;
 
@@ -72,10 +82,11 @@ package AWS.URL is
    --  Returns full URL string, this can be different to the URL passed if it
    --  has been normalized.
 
+   function Protocol_Name (URL : in Object) return String;
+   --  Returns "http" or "https" depending on the protocol used by URL.
+
    function Host (URL : in Object) return String;
    --  Returns the hostname.
-
-   function Server_Name (URL : in Object) return String renames Host;
 
    function Port (URL : in Object) return Positive;
    --  Returns the port as a positive.
@@ -83,32 +94,71 @@ package AWS.URL is
    function Port (URL : in Object) return String;
    --  Returns the port as a string.
 
-   function Protocol_Name (URL : in Object) return String;
-   --  Returns "http" or "https" depending on the protocol used by URL.
+   function Abs_Path
+     (URL    : in Object;
+      Encode : in Boolean := False)
+      return String;
+   --  Returns the absolute path. This is the complete resource reference
+   --  without the query part.
+
+   function Query
+     (URL    : in Object;
+      Encode : in Boolean := False)
+      return String;
+   --  Returns the Query part of the URL or the empty string if none was
+   --  specified. Note that character '?' is not part of the Query and is
+   --  therefore not returned.
+
+   --
+   --  Below are extended API not part of the RFC 2616 URL specification.
+   --
+
+   function User (URL : in Object) return String;
+   --  Returns user name part of the URL. Returns the empty string if user was
+   --  not specified.
+
+   function Password (URL : in Object) return String;
+   --  Returns user's password part of the URL. Returns the empty string if
+   --  password was not specified.
+
+   function Server_Name (URL : in Object) return String renames Host;
 
    function Security (URL : in Object) return Boolean;
-   --  Returns True if it is an secure HTTP (HTTPS) URL.
+   --  Returns True if it is a Secure HTTP (HTTPS) URL.
 
    function Path (URL : in Object; Encode : in Boolean := False) return String;
    --  Returns the Path (including the leading slash). If Encode is True then
-   --  the URI will be encoded using the Encode routine.
+   --  the URL will be encoded using the Encode routine.
 
    function File (URL : in Object; Encode : in Boolean := False) return String;
-   --  Returns the File. If Encode is True then the URI will be encoded using
-   --  the Encode routine.
+   --  Returns the File. If Encode is True then the URL will be encoded using
+   --  the Encode routine. Not that by File here we mean the latest part of
+   --  the URL, it could be a real file or a diretory into the filesystem.
+   --  Parent and current directories are part of the path.
 
    function Parameters
      (URL    : in Object;
       Encode : in Boolean := False)
       return String;
    --  Returns the Parameters (including the starting ? character). If Encode
-   --  is True then the URI will be encoded using the Encode routine.
+   --  is True then the URL will be encoded using the Encode routine.
 
    function Pathname
      (URL    : in Object;
       Encode : in Boolean := False)
+      return String
+      renames Abs_Path;
+
+   function Pathname_And_Parameters
+     (URL    : in Object;
+      Encode : in Boolean := False)
       return String;
-   --  Returns Path & File & Parameters.
+   --  Returns the pathname and the parameters. This is equivalent to:
+   --  Pathname & Parameters.
+
+   --
+   --  URL Encoding and Decoding
+   --
 
    function Encode (Str : in String) return String;
    --  Encode Str into a URL-safe form. Many characters are forbiden into an
@@ -126,6 +176,8 @@ private
    type Path_Status is (Valid, Wrong);
 
    type Object is record
+      User     : Unbounded_String;
+      Password : Unbounded_String;
       Host     : Unbounded_String;
       Port     : Positive          := Default_HTTP_Port;
       Security : Boolean           := False;
