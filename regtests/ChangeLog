@@ -3,6 +3,12 @@
 	* sp.adb, ssp.adb, sp_pck.ads, sp_pck.adb:
 	Move server start to the common code.
 
+	* sp_pck.ads, sp_pck.adb:
+	Rename Client_Process to Run. Move all except Run from spec to body.
+
+	* sp.adb, ssp.adb:
+	Call SP_Pack.Run instead of Client_Process.
+
 2004-06-27  Pascal Obry  <pascal@obry.org>
 
 	* datafeed_service.adb:
