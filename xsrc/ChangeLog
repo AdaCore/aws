@@ -1,4 +1,9 @@
 2004-06-01  Pascal Obry  <pascal@obry.org>
+	
+	* aws-client-xml-input_sources.adb:
+	Fix style error introduced in previous check-in.
+	
+2004-06-01  Pascal Obry  <pascal@obry.org>
 
 	* aws-client-xml-input_sources.adb:
 	(Create): Remove Input.EOF initialization.
