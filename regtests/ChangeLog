@@ -1,3 +1,14 @@
+2002-06-23  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* makefile:
+	Add tres and tres2.
+
+	* tres.adb, tres.out:
+	Initial revision.
+	
+	* tres2.adb, tres2.out:
+	Initial revision.
+
 2002-05-25  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* makefile:
