@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2001                          --
+--                         Copyright (C) 2000-2003                          --
 --                               ACT-Europe                                 --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -40,7 +40,7 @@ package AWS.Digest is
 
    function Create_Nonce return String;
    --  Create a Nonce value for the digest authentication
-   --  see RFC-2617 3.2.1
+   --  see [RFC-2617 - 3.2.1]
 
    function Check_Nonce (Value : in String) return Boolean;
    --  Check Nonce for validity and expiration.
