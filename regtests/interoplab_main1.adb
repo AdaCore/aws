@@ -452,13 +452,13 @@ procedure Interoplab_Main1 is
       Payload    : constant SOAP.Message.Payload.Object
         := SOAP.Message.XML.Load_Payload (AWS.Status.Payload (Request));
    begin
-      if SOAPAction = "http://soapinterop.org/#echoString" then
+      if SOAPAction = "http://t_soapinterop.org/#echoString" then
          return echoString_CB (SOAPAction, Payload, Request);
 
-      elsif SOAPAction = "http://soapinterop.org/#echoVoid" then
+      elsif SOAPAction = "http://t_soapinterop.org/#echoVoid" then
          return echoVoid_CB (SOAPAction, Payload, Request);
 
-      elsif SOAPAction = "http://soapinterop.org/" then
+      elsif SOAPAction = "http://t_soapinterop.org/" then
          declare
             Proc : constant String
               := SOAP.Message.Payload.Procedure_Name (Payload);
