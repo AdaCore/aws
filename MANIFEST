@@ -669,7 +669,10 @@ tools/awsres.adb
 tools/makefile
 win32/aws.ico
 win32/aws.rc
+win32/ChangeLog
 win32/makefile
+win32/poll.adb
+win32/poll.ads
 win32/readme.txt
 win32/wldap32.def
 
