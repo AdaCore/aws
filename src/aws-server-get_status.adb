@@ -198,23 +198,27 @@ function AWS.Server.Get_Status (Server : in HTTP) return String is
 
    use type Templates_Parser.Translate_Table;
 
+   Admin_URI : constant String := Config.Admin_URI (Server.Properties);
+
    Translations : constant Templates_Parser.Translate_Table
-     := (Assoc ("SERVER_NAME",      Server.Name),
+     := (Assoc ("SERVER_NAME",      Config.Server_Name (Server.Properties)),
          Assoc ("MAX_CONNECTION",   Server.Max_Connection),
-         Assoc ("SERVER_PORT",      Server.Port),
-         Assoc ("SECURITY",         Server.Security),
+         Assoc ("SERVER_PORT",      Config.Server_Port (Server.Properties)),
+         Assoc ("SECURITY",         Config.Security (Server.Properties)),
          Assoc ("SERVER_SOCK",      Integer (Sockets.Get_FD (Server.Sock))),
          Assoc ("VERSION",          Version),
-         Assoc ("SESSION",          Server.Session),
+         Assoc ("SESSION",          Config.Session (Server.Properties)),
          Assoc ("SESSION_LIFETIME", Utils.Image (Session.Get_Lifetime)),
          Assoc ("SESSION_CLEANUP_INTERVAL",
-                Utils.Image (Config.Session_Cleanup_Interval)),
-         Assoc ("LOGO",             Server.Admin_URI & "-logo"),
-         Assoc ("ADMIN",            Server.Admin_URI))
+                Utils.Image (Config.Session_Cleanup_Interval
+                   (Server.Properties))),
+         Assoc ("LOGO",             Admin_URI & "-logo"),
+         Assoc ("ADMIN",            Admin_URI))
      & Slot_Table
      & Session_Table
      & Hotplug.Get_Status (Server.Filters);
 
 begin
-   return Templates_Parser.Parse (Config.Status_Page, Translations);
+   return Templates_Parser.Parse
+     (Config.Status_Page (Server.Properties), Translations);
 end AWS.Server.Get_Status;
