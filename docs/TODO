@@ -160,3 +160,10 @@ implemented:
   the MANIFEST file.
 
 - Check why huge_response hangs on GNU/Linux multiprocessors machines.
+
+- Add support for namespaces in part. For example AXIS can return something
+  like:
+     <artificial xmlns:ns5="http://www.w3.org/2001/XMLSchema" 
+         xsi:type="ns5:boolean">false</artificial>
+  AWS supports only:
+     <artificial xsi:type="xsd:boolean">false</artificial>
