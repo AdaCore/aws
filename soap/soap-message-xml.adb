@@ -82,8 +82,10 @@ package body SOAP.Message.XML is
    Start_Body : constant String := "<SOAP-ENV:Body>";
    End_Body   : constant String := "</SOAP-ENV:Body>";
 
-   type Array_State is (Void, A_Undefined, A_Int, A_Float, A_Double, A_String,
-                        A_Boolean, A_Time_Instant, A_Base64);
+   type Array_State is
+     (Void, A_Undefined,
+      A_Int, A_Float, A_Double, A_Long,
+      A_String, A_Boolean, A_Time_Instant, A_Base64);
 
    type State is record
       Name_Space   : Unbounded_String;
@@ -103,6 +105,11 @@ package body SOAP.Message.XML is
    procedure Parse_Wrapper  (N : in DOM.Core.Node; S : in out State);
 
    function Parse_Int
+     (Name : in String;
+      N    : in DOM.Core.Node)
+      return Types.Object'Class;
+
+   function Parse_Long
      (Name : in String;
       N    : in DOM.Core.Node)
       return Types.Object'Class;
@@ -217,12 +224,12 @@ package body SOAP.Message.XML is
    function Load_Payload (XML : in String) return Message.Payload.Object is
       use Input_Sources.Strings;
 
-      Str     : aliased String := XML;
+      Str    : aliased String := XML;
 
-      Source  : String_Input;
-      Reader  : Tree_Reader;
-      S       : State;
-      Doc     : DOM.Core.Document;
+      Source : String_Input;
+      Reader : Tree_Reader;
+      S      : State;
+      Doc    : DOM.Core.Document;
 
    begin
       Open (Str'Unchecked_Access,
@@ -256,10 +263,10 @@ package body SOAP.Message.XML is
    is
       use AWS.Client.XML.Input_Sources;
 
-      Source  : HTTP_Input;
-      Reader  : Tree_Reader;
-      S       : State;
-      Doc     : DOM.Core.Document;
+      Source : HTTP_Input;
+      Reader : Tree_Reader;
+      S      : State;
+      Doc    : DOM.Core.Document;
 
    begin
       Create (Connection, Source);
@@ -301,10 +308,10 @@ package body SOAP.Message.XML is
    is
       use Input_Sources.Strings;
 
-      Source  : String_Input;
-      Reader  : Tree_Reader;
-      S       : State;
-      Doc     : DOM.Core.Document;
+      Source : String_Input;
+      Reader : Tree_Reader;
+      S      : State;
+      Doc    : DOM.Core.Document;
 
    begin
       Open (XML'Unrestricted_Access,
@@ -388,6 +395,9 @@ package body SOAP.Message.XML is
       begin
          if T = Types.XML_Int then
             return A_Int;
+
+         elsif T = Types.XML_Long then
+            return A_Long;
 
          elsif T = Types.XML_Float then
             return A_Float;
@@ -609,6 +619,20 @@ package body SOAP.Message.XML is
       return Types.I (Integer'Value (Node_Value (Value)), Name);
    end Parse_Int;
 
+   ----------------
+   -- Parse_Long --
+   ----------------
+
+   function Parse_Long
+     (Name : in String;
+      N    : in DOM.Core.Node)
+      return Types.Object'Class
+   is
+      Value : constant DOM.Core.Node := First_Child (N);
+   begin
+      return Types.L (Types.Long'Value (Node_Value (Value)), Name);
+   end Parse_Long;
+
    -----------------
    -- Parse_Param --
    -----------------
@@ -699,6 +723,9 @@ package body SOAP.Message.XML is
                when A_Int =>
                   return Parse_Int (Name, Ref);
 
+               when A_Long =>
+                  return Parse_Long (Name, Ref);
+
                when A_Float =>
                   return Parse_Float (Name, Ref);
 
@@ -739,6 +766,9 @@ package body SOAP.Message.XML is
                      begin
                         if xsd = Types.XML_Int then
                            return Parse_Int (Name, Ref);
+
+                        elsif xsd = Types.XML_Long then
+                           return Parse_Long (Name, Ref);
 
                         elsif xsd = Types.XML_Float then
                            return Parse_Float (Name, Ref);
