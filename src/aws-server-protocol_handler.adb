@@ -751,12 +751,14 @@ is
             --  The body as the format: name1=value1;name2=value2...
 
             declare
-               Data : constant Streams.Stream_Element_Array
-                 := Sockets.Receive (Sock);
+               Data : Streams.Stream_Element_Array
+                 (1 .. Streams.Stream_Element_Offset
+                  (Status.Content_Length (C_Stat)));
                Char_Data : String (1 .. Data'Length);
                CDI       : Positive := 1;
             begin
                CDI := 1;
+               Sockets.Receive (Sock, Data);
                for K in Data'Range loop
                   Char_Data (CDI) := Character'Val (Data (K));
                   CDI := CDI + 1;
