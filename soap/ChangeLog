@@ -1,3 +1,22 @@
+2002-07-31  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* soap-types.ads:
+	Composite types are now handed by reference to gain speed while
+	 handling large array or record. Problem reported by Wiljan Derks.
+	(Initialize): New routines for SOAP_Array and SOAP_Record.
+	(Finalize): Idem.
+	Minor reformatting.
+	
+	* soap-types.adb:
+	A lot of changes due to data structure change for handling
+	 composite types by reference.
+	(Initialize): New routines for SOAP_Array and SOAP_Record.
+	(Finalize): Idem.
+	Minor reformatting.
+
+	* soap.ads:
+	(Version): Set 1.0
+
 2002-05-25  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* soap-message-xml.adb:
