@@ -52,6 +52,7 @@ package AWS.Resources.Streams.Memory.ZLib is
    subtype Memory_Level_Type  is ZL.Memory_Level_Type;
 
    Default_Compression : constant Compression_Level := ZL.Default_Compression;
+   Default_Header      : constant Header_Type       := ZL.Default;
 
    procedure Deflate_Initialize
      (Resource     : in out Stream_Type;
