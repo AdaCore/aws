@@ -229,39 +229,48 @@ are:
 
 @table @file
 
-@item agent.exe
+@item agent
 
 A program using the AWS client interface. This simple tool can be used
 to retrieve Web page content. It supports passing through a proxy with
 authentication and basic authentication on the Web site.
 
-@item auth.exe
+@item auth
 
 A simple program to test the Web Basic authentication feature.
 
-@item com_1.exe
-@item com_2.exe
+@item com_1
+@item com_2
 
 Two simples program that uses the AWS communication service.
 
-@item hello_world.exe
+@item hello_world
 
 The famous Hello World program. This is a server that will always
 return a Web page saying ``Hello World!''.
 
-@item main.exe
-@item hotplug.exe
+@item main
+@item hotplug
 
 A simple test for the hotplug feature.
 
-@item runme.exe
+@item runme
 
 A complete example that test many AWS features. If this test runs fine
 on your platform, AWS is certainly ok.
 
-@item ws.exe
+@item vh_demo
 
-A simple static Web page server.
+Two servers on the same machine... virtual hosting demo.
+
+@item ws
+
+A static Web page server and push enabled server.
+
+@item wps
+
+A very simple static Web page server based on @code{AWS.Services.Page_Server}. 
+@xref{AWS.Services.Page_Server}.
 
 @end table
 
@@ -278,18 +287,18 @@ There is four demos:
 
 @table @file
 
-@item soap_client.exe
-@item soap_server.exe
+@item soap_client
+@item soap_server
 
 A simple client/server program to test the SOAP protocol.
 
-@item soap_svs.exe
+@item soap_svs
 
 A server that implements the seven SOAP procedures for the validation
 suite on @url{http://validator.soapware.org/}. This demo can be used
 to validate @code{AWS/SOAP} on your platform.
 
-@item soap_cvs.exe
+@item soap_cvs
 
 The client SOAP program that test all seven SOAP procedure of the
 above server.
@@ -1482,22 +1491,51 @@ For example:
 @node High level services
 @chapter High level services
 
+@noindent
+Here you will find a description of high level services. These services are
+ready to use with AWS and can be used together with user's callbacks.
+
+@noindent
+Refer to the Ada spec for a complete API and usage description.
+
 @menu
-* Static Page server::
-* Dispatchers::
 * Directory browser::
+* Dispatchers::
+* Static Page server::
 @end menu
 
-This section is left blank.
+@node Directory browser
+@section Directory browser
+@cindex Directory browser
 
-@node Static Page server
-@section Static Page server
+@noindent
+This service will help building a Web directory browser. It has a lot
+of options to sort directory entries and is based on the templates
+interface @pxref{AWS.Templates}. This means that you can use the
+default directory template or provide your own.
 
-This section is left blank.
-@pxref{AWS.Services.Page_Server}
+@pxref{AWS.Services.Directory} for complete spec and services descriptions.
 
 @node Dispatchers
 @section Dispatchers
+@cindex Dispatchers
+
+@noindent
+In many AWS applications it is needed to check the URI to give the
+right answer. This means that part of the application is a big
+@b{if/elsif} procedure. Also, in standard callback it is not possible
+to have user data. Both of these restrictions are addressed with the
+Dispatchers facilities.
+
+@noindent
+Working with a dispatcher is quite easy:
+
+@enumerate
+@item Create a new dispatcher by inheriting from the service you want
+to build.
+@item Register a set of action based on rules (strings, regural
+expressions depending on the service)
+@end enumerate
 
 @menu
 * Callback dispatcher::
@@ -1508,33 +1546,94 @@ This section is left blank.
 
 @node Callback dispatcher
 @subsection Callback dispatcher
+@cindex Dispatchers callback
 
-This section is left blank.
-@pxref{AWS.Services.Dispatchers.Callback}
+@noindent
+This is a wrapper around the standard callback procedure. It is needed
+to mix dispatcher based callback and access to procedure callback.
+
+@pxref{AWS.Services.Dispatchers.Callback} for complete spec description.
 
 @node Method dispatcher
 @subsection Method dispatcher
+@cindex Dispatchers method
 
-This section is left blank.
-@pxref{AWS.Services.Dispatchers.Method}
+@noindent
+This is a dispatcher based on the request method. A different callback
+procedure can be registered for the supported request methods: GET,
+POST, PUT, HEAD.
+
+@pxref{AWS.Services.Dispatchers.Method} for complete spec description.
 
 @node URI dispatcher
 @subsection URI dispatcher
+@cindex Dispatchers URI
 
-This section is left blank.
-@pxref{AWS.Services.Dispatchers.URI}
+@noindent
+This is a dispatcher based on the request ressource. A different callback
+procedure can be registered for specific ressources. The ressource is
+described either by its full name (string) or a regular expression.
+
+@pxref{AWS.Services.Dispatchers.URI} for complete spec description.
 
 @node Virtual host dispatcher
 @subsection Virtual host dispatcher
+@cindex Dispatchers virtual host
 
-This section is left blank.
-@pxref{AWS.Services.Dispatchers.Virtual_Host}
+@noindent
+This is a dispatcher based on the host name. A different callback
+procedure can be registered for specific host. This is also known as
+virtual hosting.
 
-@node Directory browser
-@section Directory browser
+@noindent
+The same computer can be registered into the DNS with different
+names. So all names point to the same machine. But in fact you want
+each name to be seen as a different Web server. This is called virtual
+hosting. This service will just do that, call different @b{callback}
+procedures or redirect to some @b{mahine/port} based on the host name
+in the client's request.
 
-This section is left blank.
-@pxref{AWS.Services.Directory}
+@pxref{AWS.Services.Dispatchers.Virtual_Host} for complete spec description.
+
+@node Static Page server
+@section Static Page server
+@cindex Static Page server
+@cindex Simple Page server
+@cindex Page server
+
+@noindent
+This service is a ready to use static page server callback. Using it
+is possible to build a simple static page server, as simple as:
+
+@smallexample
+@b{with} AWS.Server;
+@b{with} AWS.Services.Page_Server;
+
+@b{procedure} WPS @b{is}
+   WS : AWS.Server.HTTP;
+@b{begin}
+   AWS.Server.Start
+     (WS, "Simple Page Server demo",
+      Port           => 8080,
+      Callback       => AWS.Services.Page_Server.Callback'Access,
+      Max_Connection => 5);
+
+   AWS.Server.Wait (AWS.Server.Q_Key_Pressed);
+
+   AWS.Server.Shutdown (WS);
+@b{end} WPS;
+@end smallexample
+
+@noindent
+Build this program and launch it, it will server HTML pages and images
+in the current directory.
+
+@noindent
+It is possible to activate the directory browsing facility of this
+simple page server. This is not activated by default. This feature
+is based on the directory browsing service @pxref{Directory browser}.
+
+@pxref{AWS.Services.Page_Server} for a complete spec description.
 
 @c ----------------------------------------------------------------------
 
