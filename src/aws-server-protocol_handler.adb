@@ -96,11 +96,10 @@ is
    procedure Parse (Command : in String);
    --  Parse a line sent by the client and do what is needed
 
-   procedure Send_File
-     (Filename     : in String;
-      File_Size    : in Natural;
-      HTTP_Version : in String);
-   --  Send content of filename as chunk data
+   procedure Send_Resource_Body (File : in out Resources.File_Type);
+   --  Send the last header line Transfer-encoding if necessary.
+   --  terminate header
+   --  and message body from the File.
 
    procedure Answer_To_Client;
    --  This procedure use the C_Stat status data to send the correct answer
@@ -118,11 +117,6 @@ is
    procedure Parse_Request_Line (Command : in String);
    --  Parse the request line:
    --  Request-Line = Method SP Request-URI SP HTTP-Version CRLF
-
-   procedure Send_File_Time
-     (Sock     : in Sockets.Socket_FD'Class;
-      Filename : in String);
-   --  Send Last-Modified: header for the filename.
 
    function Is_Valid_HTTP_Date (HTTP_Date : in String) return Boolean;
    --  Check the date format as some Web brower seems to return invalid date
@@ -151,11 +145,8 @@ is
       --  Send HTTP message header only. This is used to implement the HEAD
       --  request.
 
-      procedure Send_File;
-      --  Send a text/binary file to the client.
-
-      procedure Send_Message;
-      --  Answer is a text or HTML message.
+      procedure Send_Data;
+      --  Send a text/binary data to the client.
 
       procedure Answer_File (File_Name : in String);
       --  Assign File to Answer response data.
@@ -188,19 +179,22 @@ is
       end Create_Session;
 
       ---------------
-      -- Send_File --
+      -- Send_Data --
       ---------------
 
-      procedure Send_File is
+      procedure Send_Data is
          use type Calendar.Time;
          use type AWS.Status.Request_Method;
 
          Filename      : constant String := Response.Filename (Answer);
          Is_Up_To_Date : Boolean;
 
+         File_Mode     : Boolean := Response.Mode (Answer) = Response.File;
+         File          : Resources.File_Type;
+
       begin
-         Is_Up_To_Date :=
-           Is_Valid_HTTP_Date (AWS.Status.If_Modified_Since (C_Stat))
+         Is_Up_To_Date := File_Mode
+            and then Is_Valid_HTTP_Date (AWS.Status.If_Modified_Since (C_Stat))
             and then
            Resources.File_Timestamp (Filename)
             = Messages.To_Time (AWS.Status.If_Modified_Since (C_Stat));
@@ -217,29 +211,46 @@ is
             Sockets.Put_Line (Sock, Messages.Status_Line (Status));
          end if;
 
+         --  Handle redirection
+
+         if Status = Messages.S301 then
+            Sockets.Put_Line
+              (Sock,
+               Messages.Location (Response.Location (Answer)));
+         end if;
+
          Send_General_Header;
+
+         --  Send file info in case of file
+
+         if File_Mode then
+
+            Sockets.Put_Line
+              (Sock,
+               Messages.Last_Modified (Resources.File_Timestamp (Filename)));
+
+         end if;
 
          Sockets.Put_Line
            (Sock, Messages.Content_Type (Response.Content_Type (Answer)));
 
+         --  The message body length
+
+         Sockets.Put_Line
+           (Sock,
+            Messages.Content_Length (Response.Content_Length (Answer)));
+
          --  Send message body only if needed
 
          if AWS.Status.Method (C_Stat) = AWS.Status.HEAD then
-            --  Send file info and terminate header
 
-            Send_File_Time (Sock, Filename);
-
-            Sockets.Put_Line
-              (Sock,
-               Messages.Content_Length (Response.Content_Length (Answer)));
             Sockets.New_Line (Sock);
 
          else
-            Send_File (Filename,
-                       Response.Content_Length (Answer),
-                       AWS.Status.HTTP_Version (C_Stat));
+            Response.Create_Resource (File, Answer);
+            Send_Resource_Body (File);
          end if;
-      end Send_File;
+      end Send_Data;
 
       -------------------------
       -- Send_General_Header --
@@ -341,78 +352,6 @@ is
 
          Sockets.New_Line (Sock);
       end Send_Header_Only;
-
-      ------------------
-      -- Send_Message --
-      ------------------
-
-      procedure Send_Message is
-         use type AWS.Status.Request_Method;
-      begin
-         --  First let's output the status line
-
-         Sockets.Put_Line (Sock, Messages.Status_Line (Status));
-
-         --  Handle redirection
-
-         if Status = Messages.S301 then
-            Sockets.Put_Line
-              (Sock,
-               Messages.Location (Response.Location (Answer)));
-         end if;
-
-         Send_General_Header;
-
-         --  Now we output the message body length
-
-         Sockets.Put_Line
-           (Sock,
-            Messages.Content_Length (Response.Content_Length (Answer)));
-
-         --  The message content type
-
-         Sockets.Put_Line
-           (Sock,
-            Messages.Content_Type (Response.Content_Type (Answer)));
-
-         --  End of header
-
-         Sockets.New_Line (Sock);
-
-         --  Send message body only if needed
-
-         if AWS.Status.Method (C_Stat) /= AWS.Status.HEAD then
-
-            declare
-               use Streams;
-
-               Message_Body   : constant Stream_Element_Array
-                 := Response.Message_Body (Answer);
-
-               Message_Length : constant Stream_Element_Offset
-                 := Message_Body'Length;
-
-               I          : Stream_Element_Offset := 1;
-               I_Next     : Stream_Element_Offset;
-
-               Piece_Size : constant := 16#4000#;
-            begin
-               Send_Message_Body : loop
-                  I_Next := I + Piece_Size;
-
-                  if I_Next > Message_Length then
-                     Sockets.Send (Sock, Message_Body (I .. Message_Length));
-                     exit Send_Message_Body;
-                  else
-                     Sockets.Send (Sock, Message_Body (I .. I_Next - 1));
-                  end if;
-
-                  HTTP_Server.Slots.Mark_Data_Time_Stamp (Index);
-                  I := I_Next;
-               end loop Send_Message_Body;
-            end;
-         end if;
-      end Send_Message;
 
       URL : constant AWS.URL.Object := AWS.Status.URI (C_Stat);
       URI : constant String         := AWS.URL.URL (URL);
@@ -535,11 +474,8 @@ is
 
       case Response.Mode (Answer) is
 
-         when Response.Message =>
-            Send_Message;
-
-         when Response.File =>
-            Send_File;
+         when Response.File | Response.Message =>
+            Send_Data;
 
          when Response.Header =>
             Send_Header_Only;
@@ -1284,14 +1220,11 @@ is
       end if;
    end Parse_Request_Line;
 
-   ---------------
-   -- Send_File --
-   ---------------
+   ------------------------
+   -- Send_Resource_Body --
+   ------------------------
 
-   procedure Send_File
-     (Filename     : in String;
-      File_Size    : in Natural;
-      HTTP_Version : in String)
+   procedure Send_Resource_Body (File         : in out Resources.File_Type)
    is
       use type Streams.Stream_Element_Offset;
 
@@ -1301,7 +1234,6 @@ is
       procedure Send_File_Chunked;
       --  Send file in chunk (HTTP/1.1 only)
 
-      File : Resources.File_Type;
       Last : Streams.Stream_Element_Offset;
 
       ---------------
@@ -1355,13 +1287,8 @@ is
       end Send_File_Chunked;
 
    begin
-      Resources.Open (File, Filename, "shared=no");
 
-      Send_File_Time (Sock, Filename);
-
-      Sockets.Put_Line (Sock, Messages.Content_Length (File_Size));
-
-      if HTTP_Version = HTTP_10 then
+      if Status.HTTP_Version (C_Stat) = HTTP_10 then
          --  Terminate header
 
          Sockets.New_Line (Sock);
@@ -1391,19 +1318,7 @@ is
       when others =>
          Resources.Close (File);
          raise;
-   end Send_File;
-
-   --------------------
-   -- Send_File_Time --
-   --------------------
-
-   procedure Send_File_Time
-     (Sock     : in Sockets.Socket_FD'Class;
-      Filename : in String) is
-   begin
-      Sockets.Put_Line
-        (Sock, Messages.Last_Modified (Resources.File_Timestamp (Filename)));
-   end Send_File_Time;
+   end Send_Resource_Body;
 
 begin
    --  This new connection has been initialized because some data are
