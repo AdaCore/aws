@@ -172,6 +172,7 @@ package body AWS.Net.SSL is
       use Interfaces;
       use type TSSL.Error_Code;
       Buffer : C.char_array := (0 .. 511 => Interfaces.C.nul);
+      pragma Warnings (Off, Buffer);
    begin
       if Code = 0 then
          return "Not an error";
