@@ -1,5 +1,16 @@
 2000-09-02  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* aws-session.adb: 
+	(Start): new procedure.
+	(Cleaner): is now a task type.
+	(Cleaner_Task): a pointer to a Cleaner task.
+
+	* aws-session.ads:
+	(Start): new procedure.
+
+	* aws-server.adb: 
+	(Start): call Session.Start to start session server.
+
 	* aws-session.adb:
 	Fix some bad casing. Remove a space.
 
