@@ -110,6 +110,12 @@ package AWS.Headers is
    --  Returns the Nth Value in Table or the empty string if there is
    --  no parameter with this number.
 
+   --  function Get
+   --    (Table : in Table_Type;
+   --     N     : in Positive)
+   --     return Element;
+
+   --  Return N'th name/value pair.
    --  function Get_Names (Table : in Table_Type) return VString_Array;
    --  Returns array of unique key names.
 
