@@ -106,6 +106,18 @@ Here are the main changes since AWS 1.4 :
    - New template engine filter REPLACE. Pattern matching with replacement
      facility.
 
+   - New awsres options -u/-z to add uncompressed or compressed items into the
+     resources. Compressed resources are decompressed on-the-fly if needed
+     (this is completely transparent to users). It is needed for the
+     templates engine for example (as it needs to parse the file) or if
+     the client does not support compressed resources.
+
+   - New high level service to handle transparently compressed or uncompressed
+     files. This callback routine will either returns the compressed version
+     of the file if it exists and the client support compressed encoding, the
+     uncompressed file if it exists otherwise it will return a decompressed
+     version of the file using a decompression stream.
+
    - Plus many small fixes, enhancements, API comments, and documentation work.
 
 
