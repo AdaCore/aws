@@ -49,6 +49,8 @@ package Memory_Streams is
       Value  : in     Element_Array;
       Trim   : in     Boolean := False);
    --  Append the data to the resource.
+   --  Set Trim to true disable remaining free spaces at the end of stream,
+   --  Set Trim to true for every call to stream would decrease performance.
 
    procedure Append
      (Stream     : in out Stream_Type;
