@@ -2017,10 +2017,7 @@ package body Templates_Parser is
          end;
       end if;
 
-      if N = T.Data.Count then
-         Result := T.Data.Last;
-
-      elsif N > T.Data.Count then
+      if N > T.Data.Count then
          --  No such item for this position
          Result := null;
          Found  := False;
