@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2001                          --
+--                         Copyright (C) 2000-2003                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -39,49 +39,16 @@
 with Ada.Text_IO;
 
 with AWS.Config;
-with AWS.Response;
-with AWS.Server;
-with AWS.Status;
 with AWS.Default;
-with AWS.Parameters;
+with AWS.Server;
 with AWS.Services.Dispatchers.Virtual_Host;
+
+with VH_Demo_CB;
 
 procedure VH_Demo is
 
    WS : AWS.Server.HTTP;
    VH : AWS.Services.Dispatchers.Virtual_Host.Handler;
-
-   -----------
-   -- H1_CB --
-   -----------
-
-   function H1_CB
-     (Request : in AWS.Status.Data)
-     return AWS.Response.Data
-   is
-      P : AWS.Parameters.List := AWS.Status.Parameters (Request);
-   begin
-      return AWS.Response.Build
-        ("text/html",
-         "<p>This is server 1"
-         & "<br>" & AWS.Parameters.Get (P, "PARAM"));
-   end H1_CB;
-
-   -----------
-   -- H2_CB --
-   -----------
-
-   function H2_CB
-     (Request : in AWS.Status.Data)
-     return AWS.Response.Data
-   is
-      P : AWS.Parameters.List := AWS.Status.Parameters (Request);
-   begin
-      return AWS.Response.Build
-        ("text/html",
-         "<p>This is server 2"
-         & "<br>" & AWS.Parameters.Get (P, "PARAM"));
-   end H2_CB;
 
 begin
    Ada.Text_IO.Put_Line
@@ -90,10 +57,10 @@ begin
       & ", I will stop in 60 seconds...");
 
    AWS.Services.Dispatchers.Virtual_Host.Register
-     (VH, "localhost", H1_CB'Unrestricted_Access);
+     (VH, "localhost", VH_Demo_CB.H1_CB'Access);
 
    AWS.Services.Dispatchers.Virtual_Host.Register
-     (VH, "pascal", H2_CB'Unrestricted_Access);
+     (VH, "pascal", VH_Demo_CB.H2_CB'Access);
 
 --     AWS.Services.Dispatchers.Virtual_Host.Register
 --       (VH, "pascal", "localhost:8080");

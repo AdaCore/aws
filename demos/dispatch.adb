@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2001                          --
+--                         Copyright (C) 2000-2003                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -35,22 +35,13 @@ with Ada.Text_IO;
 with AWS.Config;
 with AWS.Server;
 with AWS.Services.Dispatchers.URI;
-with AWS.Status;
-with AWS.Response;
+
+with Dispatch_CB;
 
 procedure Dispatch is
 
    use Ada;
    use AWS.Services;
-
-   function HW_CB
-     (Request : in AWS.Status.Data)
-      return AWS.Response.Data
-   is
-      pragma Unreferenced (Request);
-   begin
-      return AWS.Response.Build ("text/html", "<p>Hello Dispatcher !");
-   end HW_CB;
 
    H  : AWS.Services.Dispatchers.URI.Handler;
 
@@ -60,8 +51,7 @@ begin
    Text_IO.Put_Line ("AWS " & AWS.Version);
    Text_IO.Put_Line ("Enter 'q' key to exit...");
 
-   Dispatchers.URI.Register
-     (H, "/disp", HW_CB'Unrestricted_Access);
+   Dispatchers.URI.Register (H, "/disp", Dispatch_CB.HW_CB'Access);
 
    AWS.Server.Start (WS, Dispatcher => H, Config => AWS.Config.Get_Current);
 

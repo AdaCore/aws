@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2001                          --
+--                         Copyright (C) 2000-2003                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -34,23 +34,14 @@
 
 with Ada.Text_IO;
 
-with AWS.Response;
-with AWS.Server;
-with AWS.Status;
 with AWS.Default;
+with AWS.Server;
+
+with Hello_World_CB;
 
 procedure Hello_World is
 
    WS : AWS.Server.HTTP;
-
-   function HW_CB
-     (Request : in AWS.Status.Data)
-      return AWS.Response.Data
-   is
-      pragma Unreferenced (Request);
-   begin
-      return AWS.Response.Build ("text/html", "<p>Hello world !");
-   end HW_CB;
 
 begin
    Ada.Text_IO.Put_Line
@@ -60,7 +51,7 @@ begin
 
    AWS.Server.Start (WS, "Hello World",
                      Max_Connection => 1,
-                     Callback       => HW_CB'Unrestricted_Access);
+                     Callback       => Hello_World_CB.HW_CB'Access);
 
    delay 60.0;
 

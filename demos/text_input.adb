@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2001                          --
+--                         Copyright (C) 2000-2003                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -34,44 +34,15 @@
 
 with Ada.Text_IO;
 
-with AWS.Response;
 with AWS.Server;
-with AWS.Parameters;
-with AWS.Status;
 with AWS.Log;
 with AWS.Default;
 
+with Text_Input_CB;
+
 procedure Text_Input is
 
-   WS       : AWS.Server.HTTP;
-   Text_Log : AWS.Log.Object;
-
-   function Text_CB
-     (Request : in AWS.Status.Data)
-      return AWS.Response.Data
-   is
-      Text : constant String
-        := AWS.Parameters.Get (AWS.Status.Parameters (Request), "text");
-   begin
-      if Text = "" then
-         return AWS.Response.Build
-           ("text/html", "<html><body>"
-              & "<form>"
-              & "<textarea rows=""7"" name=""text"" cols=""48""></textarea>"
-              & "<br><input type=""Submit"">"
-              & "</form></body></html>");
-      end if;
-
-      AWS.Log.Write (Text_Log, Request, Text);
-
-      return AWS.Response.Build
-        ("text/html", "<html><body>"
-           & "<p>Thanks for you comment <br><pre>"
-           & Text & "</pre>"
-           & "<form>"
-           & "<input type=""Submit"" value=""Back"">"
-           & "</form></body></html>");
-   end Text_CB;
+   WS : AWS.Server.HTTP;
 
 begin
    Ada.Text_IO.Put_Line
@@ -80,17 +51,17 @@ begin
         & "press Q key if you want me to stop.");
 
    AWS.Log.Start
-     (Text_Log,
+     (Text_Input_CB.Text_Log,
       Split           => AWS.Log.Daily,
       Filename_Prefix => "text_input");
 
    AWS.Server.Start
      (WS, "Text input",
       Max_Connection => 4,
-      Callback       => Text_CB'Unrestricted_Access);
+      Callback       => Text_Input_CB.Text_CB'Access);
 
    AWS.Server.Wait (AWS.Server.Q_Key_Pressed);
 
-   AWS.Log.Stop (Text_Log);
+   AWS.Log.Stop (Text_Input_CB.Text_Log);
    AWS.Server.Shutdown (WS);
 end Text_Input;
