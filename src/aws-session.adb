@@ -549,6 +549,15 @@ package body AWS.Session is
       Cleaner_Task := new Cleaner;
    end Start;
 
+   --------------
+   -- Shutdown --
+   --------------
+
+   procedure Shutdown is
+   begin
+      abort Cleaner_Task.all;
+   end Shutdown;
+
    -----------
    -- Value --
    -----------
