@@ -1,3 +1,8 @@
+2005-02-07  Pascal Obry  <pascal@obry.org>
+
+	* aws.ads:
+	(Version): Set to 2.2w.
+
 2005-02-05  Pascal Obry  <pascal@obry.org>
 
 	* aws.ads:
