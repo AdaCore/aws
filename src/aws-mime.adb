@@ -49,6 +49,7 @@ package body AWS.MIME is
 
    Dot_Html : aliased constant String := ".html";
    Dot_Htm  : aliased constant String := ".htm";
+   Dot_XML  : aliased constant String := ".xml";
    Dot_Txt  : aliased constant String := ".txt";
    Dot_Ada  : aliased constant String := ".ada";
    Dot_Ads  : aliased constant String := ".ads";
@@ -69,6 +70,7 @@ package body AWS.MIME is
    Type_Table : constant array (Positive range <>) of Mapping :=
      ((Dot_Html'Access, Text_HTML'Access),
       (Dot_Htm'Access,  Text_HTML'Access),
+      (Dot_XML'Access,  Text_XML'Access),
 
       (Dot_Txt'Access,  Text_Plain'Access),
       (Dot_Ada'Access,  Text_Plain'Access),
