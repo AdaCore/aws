@@ -19,9 +19,6 @@ else
 ifeq (${PRJ_BUILD}, Release)
 AWSRES   = ../.build/release/tools/awsres
 WSDL2AWS = ../.build/release/tools/wsdl2aws
-else
-AWSRES   = ../tools/awsres
-WSDL2AWS = ../tools/wsdl2aws
 endif
 endif
 
@@ -35,7 +32,7 @@ setup:
 
 build: build_res $(BUILD_EXT)
 	$(GNATMAKE) -Pdemos -XBuild=${PRJ_BUILD} -XXMLADA=${PRJ_XMLADA}
-	$(GNATMAKE) -Pdemos_ssl -XSocket=${SOCKET} \
+	$(GNATMAKE) -Pdemos_ssl -XSOCKET=${SOCKET} \
 		-XBuild=${PRJ_BUILD} -XXMLADA=${PRJ_XMLADA}
 
 clean:
