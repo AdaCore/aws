@@ -41,6 +41,7 @@ with AWS.Exceptions;
 with AWS.Hotplug;
 with AWS.Log;
 with AWS.Net.Std;
+with AWS.Net.SSL;
 with AWS.Response;
 with AWS.Utils;
 
@@ -125,7 +126,7 @@ package AWS.Server is
    --------------------------
 
    function Config (Web_Server : in HTTP) return AWS.Config.Object;
-   --  Returns configuration object for Web_Server.
+   --  Returns configuration object for Web_Server
 
    procedure Set_Unexpected_Exception_Handler
      (Web_Server : in out HTTP;
@@ -144,11 +145,17 @@ package AWS.Server is
    --  complete set of callback procedures will be changed when calling this
    --  routine.
 
-   procedure Set_Security (Certificate_Filename : in String);
+   procedure Set_Security
+     (Web_Server           : in out HTTP;
+      Certificate_Filename : in     String;
+      Security_Mode        : in     Net.SSL.Method := Net.SSL.SSLv23;
+      Key_Filename         : in     String         := "");
    --  Set security option for AWS. Certificate_Filename is the name of a file
-   --  containing a certificate and the private key. This must be called
-   --  before starting the first secure server. After that the call will have
-   --  no effect.
+   --  containing a certificate. Key_Filename is the name of the file
+   --  containing the key, if the empty string the key will be taken from the
+   --  certificate filename. This must be called before starting the secure
+   --  server otherwise the default security options or options set in the
+   --  config files will be used. After that the call will have no effect.
 
    type HTTP_Access is access all HTTP;
 
@@ -450,6 +457,8 @@ private
          := Default_Unexpected_Exception_Handler'Access;
       --  Exception handle used for unexpected errors found on the server
       --  implementation.
+
+      SSL_Config        : Net.SSL.Config;
    end record;
 
    procedure Initialize (Web_Server : in out HTTP);
