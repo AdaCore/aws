@@ -236,6 +236,9 @@ ifeq (${AI302},Internal)
 	$(SED) -e 's,ai302,\.\./components/ai302/ai302,g' \
 		< config/projects/aws_ssl.gpr \
 		> $(INSTALL)/AWS/projects/aws_ssl.gpr
+else
+	$(CP) config/projects/aws.gpr $(INSTALL)/AWS/projects
+	$(CP) config/projects/aws_ssl.gpr $(INSTALL)/AWS/projects
 endif
 ifneq ($(XMLADA),true)
 	-$(CP) $(PRJDIR)/xmlada.gpr $(INSTALL)/AWS/projects
