@@ -47,7 +47,7 @@ with AWS.Utils;
 package AWS.Server is
 
    type HTTP is limited private;
-   --  A Web server.
+   --  A Web server
 
    ---------------------------
    -- Server initialization --
