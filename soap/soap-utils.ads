@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2003                          --
+--                         Copyright (C) 2000-2004                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -47,7 +47,7 @@ package SOAP.Utils is
    --  is returned otherwise an XML end element is returned.
 
    function Encode (Str : in String) return String;
-   --  Encode XML entities and return the resulting string.
+   --  Encode XML entities and return the resulting string
 
    function NS (Name : in String) return String;
    --  Returns the namespace for Name, string prefix separated with a ':'
