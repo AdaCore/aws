@@ -36,6 +36,7 @@
 * Status page::
 * Last notes::
 * AWS API::
+* References::
 @end menu
 @end ifinfo
 
@@ -200,12 +201,21 @@ the include path for the libraries @code{POSIX}, @code{OpenSSL} and
 @menu
 * Basic notion::
 * Session handling::
+* File upload::
 * Client side::
 @end menu
 @end ifinfo
 
 @node Basic notion
 @section Basic notion
+
+@ifinfo
+@menu
+* Building an AWS server::
+* Form parameters::
+* Distribution of an AWS server::
+@end menu
+@end ifinfo
 
 @noindent
 @code{AWS} is not a Web Server like @i{IIS} or @i{Apache}, it is a component to
@@ -220,6 +230,9 @@ applications, @xref{AWS.Client}.
 An application using @code{AWS} can open many HTTP channels. Each
 channel will use a specific port. So it is possible to embedded some
 HTTP and some HTTPS channels in the same application.
+
+@node Building an AWS server
+@subsection Building an AWS server
 
 @noindent
 To build a server you must:
@@ -305,6 +318,66 @@ AWS.Response.File (Content_Type => "image/gif",
 @end smallexample
 
 @end itemize
+
+@node Form parameters
+@subsection Form parameters
+
+@noindent
+Form parameters are stored into a table of key/value pair. The key is the form
+input tag name and the value is the content of the input field as filled by
+the user.
+
+@smallexample
+Enter your name 
+
+<FORM METHOD=GET ACTION=/get-form>"
+<INPUT TYPE=TEXT NAME=name VALUE="<default>" size=15>
+<INPUT TYPE=SUBMIT NAME=go VALUE="Ok">
+</FORM>
+@end smallexample
+
+@noindent
+In this example there is two form parameters:
+
+@table @b
+@item name
+The value is the content of this text field as filled by the client.
+
+@item go
+The value is "Ok".
+@end table
+
+@noindent
+There is three functions (in @code{AWS.Status}) to retreive the tag name
+or value. Here are some examples:
+
+@table @code
+@item AWS.Status.Parameter (Request, "name")
+Returns the value for parameter named @b{name}
+
+@item AWS.Status.Parameter_Name (Request, 1)
+Returns the string "name".
+
+@item AWS.Status.Parameter (Request, 1)
+Returns the value for parameter named @b{name}
+
+@item AWS.Status.Parameter (Request, "go")
+Returns the string "Ok".
+
+@item AWS.Status.Parameter_Name (Request, 2)
+Returns the string "go".
+
+@item AWS.Status.Parameter (Request, 2)
+Returns the string "Ok".
+@end table
+
+@noindent
+@code{Request} is the @code{AWS} current connection status passed to the
+callback procedure. For a discussion about the callback procedure
+@xref{Building an AWS server}.
+
+@node Distribution of an AWS server
+@subsection Distribution of an AWS server
 
 @noindent
 The directory containing the server program must contain the following
@@ -392,6 +465,39 @@ key is "@code{counter}", increment this counter and then set back it to
 the new value.
 
 @end itemize
+
+@node File upload
+@section File upload
+
+@noindent
+File upload is the way to send a file from the client to the server. To
+enable file upload on the client side the Web page must contain a @b{FORM}
+with an @b{INPUT} tag of type @b{FILE}.
+
+@smallexample
+<FORM ACION=/whatever METHOD=POST>
+File to process: <INPUT NAME=filename TYPE=FILE>
+<INPUT TYPE=SUBMIT NAME=go VALUE="Send File">
+</FORM>
+@end smallexample
+
+@noindent
+On the server side, AWS will retreive the file and put it into the
+upload directory. This directory can be changed using
+@code{Set_Upload_Directory} in @code{AWS.Server.Config}.
+
+@noindent
+AWS will also setup the form parameters as usual. In the above example
+there is two parameters (@xref{Form parameters}.)
+
+@table @b
+@item filename
+The value is the full pathname of the file on the server. (i.e. the
+upload directory concatenated with the filename).
+
+@item go
+The value is "Send File"
+@end table
 
 @node Client side
 @section Client side
@@ -562,6 +668,7 @@ So thanks goes to Sune Falck, David C. Hoos, Jean-Fran@,cois Rameau.
 * AWS.Client::
 * AWS.Response::
 * AWS.Server::
+* AWS.Server.Config::
 * AWS.Session::
 * AWS.Status::
 @end menu
@@ -582,6 +689,11 @@ So thanks goes to Sune Falck, David C. Hoos, Jean-Fran@,cois Rameau.
 
 @include ../src/aws-server.ads.texi
 
+@node AWS.Server.Config
+@section AWS.Server.Config
+
+@include ../src/aws-server-config.ads.texi
+
 @node AWS.Session
 @section AWS.Session
 
@@ -591,5 +703,112 @@ So thanks goes to Sune Falck, David C. Hoos, Jean-Fran@,cois Rameau.
 @section AWS.Status
 
 @include ../src/aws-status.ads.texi
+
+@node References
+@chapter References
+
+@noindent
+Here are a list of documents used to implement AWS:
+
+@enumerate 1
+
+@item RFC 1867
+
+@smallexample
+Network Working Group                                           E. Nebel
+Request For Comments: 1867                                   L. Masinter
+Category: Experimental                                 Xerox Corporation
+                                                           November 1995
+
+
+                     Form-based File Upload in HTML
+@end smallexample
+
+@item RFC 1945
+
+@smallexample
+Network Working Group                                     T. Berners-Lee
+Request for Comments: 1945                                       MIT/LCS
+Category: Informational                                      R. Fielding
+                                                               UC Irvine
+                                                              H. Frystyk
+                                                                 MIT/LCS
+                                                                May 1996
+
+
+                Hypertext Transfer Protocol -- HTTP/1.0
+@end smallexample
+
+@item RFC 2616
+
+@smallexample
+Network Working Group                                      R. Fielding
+Request for Comments: 2616                                   UC Irvine
+Obsoletes: 2068                                              J. Gettys
+Category: Standards Track                                   Compaq/W3C
+                                                              J. Mogul
+                                                                Compaq
+                                                            H. Frystyk
+                                                               W3C/MIT
+                                                           L. Masinter
+                                                                 Xerox
+                                                              P. Leach
+                                                             Microsoft
+                                                        T. Berners-Lee
+                                                               W3C/MIT
+                                                             June 1999
+
+
+                Hypertext Transfer Protocol -- HTTP/1.1
+@end smallexample
+
+@item RFC 2617
+
+@smallexample
+Network Working Group                                          J. Franks
+Request for Comments: 2617                       Northwestern University
+Obsoletes: 2069                                          P. Hallam-Baker
+Category: Standards Track                                 Verisign, Inc.
+                                                            J. Hostetler
+                                                         AbiSource, Inc.
+                                                             S. Lawrence
+                                                   Agranat Systems, Inc.
+                                                                P. Leach
+                                                   Microsoft Corporation
+                                                             A. Luotonen
+                                     Netscape Communications Corporation
+                                                              L. Stewart
+                                                       Open Market, Inc.
+                                                               June 1999
+
+
+      HTTP Authentication: Basic and Digest Access Authentication
+@end smallexample
+
+@item draft 302
+
+@smallexample
+Transport Layer Security Working Group                  Alan O. Freier
+INTERNET-DRAFT                                 Netscape Communications
+Expire in six months                                    Philip Karlton
+                                               Netscape Communications
+                                                        Paul C. Kocher
+                                                Independent Consultant
+                                                     November 18, 1996
+
+
+
+
+
+
+
+
+
+
+                          The SSL Protocol
+                            Version 3.0
+@end smallexample
+
+@end enumerate
 
 @bye
