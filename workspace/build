@@ -11,8 +11,10 @@ if [ "$OS" = "Windows_NT" ]; then
 fi;
 
 XMLADA=/opt/xmlada
+AWS=..
 
-gnatmake -O2 -g $1 -I. -I$XMLADA/include/xmlada -I../include -I../soap \
--I../src -I../ssl -I../xsrc -largs -L$XMLADA/lib -lxmlada_input_sources \
--lxmlada_dom -lxmlada_sax -lxmlada_unicode -L../lib -lz $lopts -lcrypto -lssl \
--bargs -E
+gnatmake -O0 -g $1 -I. -I$XMLADA/include/xmlada -I$XMLADA/include/xmlada/obj \
+-I$AWS/include -I$AWS/soap -I$AWS/src -I$AWS/ssl -I$AWS/xsrc \
+-largs -L$XMLADA/lib -lxmlada_input_sources \
+-lxmlada_dom -lxmlada_sax -lxmlada_unicode -L$AWS/lib -lz $lopts \
+-lcrypto -lssl -bargs -E
