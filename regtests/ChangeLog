@@ -1,3 +1,12 @@
+2003-11-24  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* makefile:
+	($(ASIS_TESTS)): Use lower-case for AWS directories (fix GNU/Linux
+	 regression introduced in previous check-in).
+
+	* zstrm.adb:
+	(ZStrm): Fix code introduced in previous check-in.
+
 2003-11-23  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* tsgetparam.adb, tgetparam.adb, head.adb:
