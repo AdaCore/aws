@@ -40,7 +40,7 @@ with System;
 
 with Table_Of_Static_Keys_And_Dynamic_Values_G;
 
-with AWS.Config;
+with AWS.Default;
 with AWS.Key_Value;
 
 package body AWS.Session is
@@ -55,11 +55,11 @@ package body AWS.Session is
    SID_Generator          : SID_Random.Generator;
    SID_Prefix             : constant String := "SID-";
 
-   Session_Check_Interval : constant Duration
-     := Config.Session_Cleanup_Interval;
+   Session_Check_Interval : Duration
+     := Default.Session_Cleanup_Interval;
    --  Check for obsolete section every 10 minutes.
 
-   Session_Lifetime       : Duration := Config.Session_Lifetime;
+   Session_Lifetime       : Duration := Default.Session_Lifetime;
    --  A session is obsolete if not used after Session_Lifetime seconds.
 
    --  table of session ID
@@ -195,11 +195,15 @@ package body AWS.Session is
       -- Start --
       -----------
 
-      procedure Start is
+      procedure Start
+        (Session_Check_Interval : in Duration;
+         Session_Lifetime       : in Duration) is
       begin
          Server_Count := Server_Count + 1;
 
          if Server_Count = 1 then
+            Session.Session_Check_Interval := Start.Session_Check_Interval;
+            Session.Session_Lifetime       := Start.Session_Lifetime;
             Cleaner_Task := new Cleaner;
          end if;
       end Start;

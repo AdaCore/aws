@@ -36,9 +36,11 @@ package body AWS.Session.Control is
    -- Start --
    -----------
 
-   procedure Start is
+   procedure Start
+     (Session_Check_Interval : Duration;
+      Session_Lifetime       : Duration) is
    begin
-      Cleaner_Control.Start;
+      Cleaner_Control.Start (Session_Check_Interval, Session_Lifetime);
    end Start;
 
    --------------

@@ -139,7 +139,9 @@ private
 
    protected Cleaner_Control is
 
-      procedure Start;
+      procedure Start
+        (Session_Check_Interval : in Duration;
+         Session_Lifetime       : in Duration);
       --  Launch the cleaner task the first time and does nothing after.
 
       procedure Stop;
