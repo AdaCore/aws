@@ -92,3 +92,15 @@ implemented:
 - AWS.Client support a single cookie. This is a bad limitation and must be
   fixed. It must also handle properly the case where a cookie value is
   updated.
+
+- WSDL parser/generator does not handle routines without parameter and/or
+  returning nothing.
+
+- In a SOAP callback it is needed to parse the payload (XML parser) to be able
+  to retrieve the procedure name to dispatch to the right routine. This was
+  not a problem with hand-written SOAP interface as the XML object (parsed
+  payload) can be passed to other SOAP callbacks to avoid re-parsing it. With
+  the SOAP/WSDL generator this is not possible, we end up parsing two times the
+  same payload. Not efficient.
+
+- Document the wsdl2aws tool.
