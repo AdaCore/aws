@@ -1,5 +1,10 @@
 2003-01-27  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* aws-server.adb:
+	(Line): Remove on block as it was not needed anymore.
+
+2003-01-27  Pascal Obry  <p.obry@wanadoo.fr>
+
 	* aws-server-protocol_handler.adb:
 	(Answer_To_Client): Move all code sending the response to the
 	 socket to procedure Send.
