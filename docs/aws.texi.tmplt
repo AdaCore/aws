@@ -1700,6 +1700,8 @@ the number of available sockets per process is limited by the OS.
 @cindex logs
 @cindex Start_Log
 @cindex Stop_Log
+@cindex Start_Error_Log
+@cindex Stop_Error_Log
 
 @noindent
 It is possible to have the server activity logged into the file
@@ -1725,6 +1727,11 @@ For example:
 @end group
 @end cartouche
 @end smallexample
+
+@noindent
+@code{AWS} also support error log files. If activated every error
+detected by @code{AWS} will gets logged into this file. See 
+@code{AWS.Server.Start_Error_Log} and @code{AWS.Server.Stop_Error_Log}.
 
 @node Secure server
 @section Secure server
@@ -1820,7 +1827,7 @@ The handler can be called in two modes:
 @item Non fatal error (Error.Fatal is False)
 
 In this case @code{AWS} will continue working without problem. A
-problem has been detected but it was not fatal to the thread (slot in
+bug has been detected but it was not fatal to the thread (slot in
 @code{AWS}'s terminology) handling. In this case it is possible to
 send back an application level message to the client's browser. For
 that you just have to fill the unexpected handler's @var{Answer} parameter
@@ -1829,10 +1836,10 @@ information about the problem, see @pxref{AWS.Exceptions}.
 
 @item Fatal error (Error.Fatal is True)
 
-In this case @code{AWS} will continue working but a thread (slot in
-@code{AWS}'s terminology) will be killed. It means that @code{AWS}
-will have lost one the simultaneous connection handler. The server
-will continue working unless it was the last slot handler
+In this case @code{AWS} will continue working but a thread (slot number
+@var{Error.Slot} in @code{AWS}'s terminology) will be killed. It means
+that @code{AWS} will have lost one the simultaneous connection
+handler. The server will continue working unless it was the last slot handler
 available. Note that a Fatal error means an @code{AWS} internal bug
 and it should be reported if possible. In this mode there is no way to
 send back an answer to the client's browser and @var{Error} value must
