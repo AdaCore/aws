@@ -4,7 +4,7 @@
 				       
 Authors:
    Dmitriy Anisimkov
-   Pascal Obry                                             December 20th, 2003
+   Pascal Obry                                             January 30th, 2004
 
 
 
@@ -323,6 +323,15 @@ Windows Services API (optional):
    the services API made by Ted Dennison for his SETI@Home project.
 
       http://www.telepath.com/~dennison/Ted/SETI/SETI_Service.html
+
+License:
+--------
+
+AWS is distributed under the GMGPL (GNAT Modified GPL) license. This license
+ensure that it is possible to build commercial software with AWS. Note that
+AWS comes with a set of components. Those components are using a license
+compatible with the AWS's one. For information about component's individual
+licenses see include/readme.txt.
 
 
 Reporting bugs:
