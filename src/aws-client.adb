@@ -531,15 +531,10 @@ package body AWS.Client is
       Result     :    out Response.Data;
       Get_Body   : in     Boolean         := True)
    is
-
-      subtype Stream_Element_Array_Access is Utils.Stream_Element_Array_Access;
-
       procedure Read_Chunked;
       --  Read a chunked object from the stream
 
-      function Read_Binary_Message
-        (Len : in Positive)
-         return Stream_Element_Array_Access;
+      procedure Read_Binary_Message (Len : in Positive);
       pragma Inline (Read_Binary_Message);
       --  Read a binary message of Len bytes from the socket.
 
@@ -565,38 +560,29 @@ package body AWS.Client is
       -- Read_Binary_Message --
       -------------------------
 
-      function Read_Binary_Message
-        (Len    : in Positive)
-         return Stream_Element_Array_Access
-      is
+      procedure Read_Binary_Message (Len : in Positive) is
          use Streams;
 
-         Elements : Stream_Element_Array_Access
-           := new Stream_Element_Array (1 .. Stream_Element_Offset (Len));
-         S, E     : Stream_Element_Offset;
-      begin
-         S := 1;
+         Elements : Stream_Element_Array (1 .. 10_240);
 
+         Remain   : Stream_Element_Offset := Stream_Element_Offset (Len);
+      begin
          --  Read the message, 10k at a time
 
          loop
-            E := Stream_Element_Offset'Min
-              (Stream_Element_Offset (Len), S + 10_239);
+            if Elements'Length < Remain then
+               Net.Buffered.Read (Sock, Elements);
+               Response.Set.Append_Body (Result, Elements);
 
-            Net.Buffered.Read (Sock, Elements (S .. E));
+            else
+               Net.Buffered.Read (Sock, Elements (1 .. Remain));
+               Response.Set.Append_Body (Result, Elements (1 .. Remain));
 
-            S := E + 1;
+               exit;
+            end if;
 
-            exit when S > Stream_Element_Offset (Len);
+            Remain := Remain - Elements'Length;
          end loop;
-
-         return Elements;
-
-      exception
-         when Net.Socket_Error =>
-            --  Could have been killed by a timeout.
-            Utils.Free (Elements);
-            raise;
       end Read_Binary_Message;
 
       ------------------
@@ -642,18 +628,11 @@ package body AWS.Client is
 
             else
                declare
-                  Chunk : Stream_Element_Array_Access
-                     := new Stream_Element_Array (1 .. Size);
+                  Chunk : Stream_Element_Array (1 .. Size);
                begin
-                  Net.Buffered.Read (Sock, Chunk.all);
+                  Net.Buffered.Read (Sock, Chunk);
 
                   Response.Set.Append_Body (Result, Chunk);
-               exception
-                  when Net.Socket_Error =>
-                     --  Could have been killed by a timeout
-
-                     Utils.Free (Chunk);
-                     raise;
                end;
 
                Skip_Line;
@@ -665,6 +644,11 @@ package body AWS.Client is
       Set_Phase (Connection, Receive);
 
       Parse_Header (Connection, Result, Keep_Alive);
+
+      --  Clear the data in the Responce.
+
+      Response.Set.Message_Body
+        (Result, Streams.Stream_Element_Array'(1 .. 0 => 0));
 
       if not Get_Body then
          Disconnect;
@@ -712,17 +696,8 @@ package body AWS.Client is
                end Read_Until_Close;
 
             else
-               if CT_Len = 0 then
-                  Response.Set.Message_Body
-                    (Result, Streams.Stream_Element_Array'(1 .. 0 => 0));
-
-               else
-                  declare
-                     Elements : constant Stream_Element_Array_Access
-                       := Read_Binary_Message (CT_Len);
-                  begin
-                     Response.Set.Message_Body (Result, Elements);
-                  end;
+               if CT_Len > 0 then
+                  Read_Binary_Message (CT_Len);
                end if;
             end if;
          end if;
