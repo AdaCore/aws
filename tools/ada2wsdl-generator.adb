@@ -323,6 +323,7 @@ package body Ada2WSDL.Generator is
    begin
       if Ada_Type = "character" then
          Character_Schema := True;
+         return "tns:Character";
       end if;
 
       WSDL.From_Ada (Ada_Type, P, Standard);
@@ -333,7 +334,7 @@ package body Ada2WSDL.Generator is
       else
          --  We suppose here that this is a composite type (record/array)
          --  and that a corresponding entry will be found in the schema.
-         return Ada_Type;
+         return "tns:" & Ada_Type;
       end if;
    end To_XSD;
 
@@ -435,7 +436,7 @@ package body Ada2WSDL.Generator is
 
       begin
          New_Line;
-         Put_Line ("   <binding name=""" & WS_Name & "_Binding"" type="""
+         Put_Line ("   <binding name=""" & WS_Name & "_Binding"" type=""tns:"
                      & WS_Name & "_PortType"">");
          Put_Line ("      <soap:binding style=""rpc""");
          Put_Line ("         transport="""
@@ -470,6 +471,8 @@ package body Ada2WSDL.Generator is
       begin
          Put_Line ("<?xml version=""1.0"" encoding=""UTF-8""?>");
          Put_Line ("<definitions name=""" & WS_Name  & """");
+         Put_Line ("   targetNamespace=""urn:aws:" & WS_Name & """");
+         Put_Line ("   xmlns:tns=""urn:aws:" & WS_Name & """");
          Put_Line ("   xmlns=""http://schemas.xmlsoap.org/wsdl/""");
          Put_Line ("   xmlns:soap=""http://schemas.xmlsoap.org/wsdl/soap/""");
          Put_Line ("   xmlns:xsd=""http://www.w3.org/2001/XMLSchema"">");
@@ -554,13 +557,14 @@ package body Ada2WSDL.Generator is
 
             if R.Parameters /= null then
                --  Notification operation
-               Put_Line ("         <input message=""" & Name & "_Request""/>");
+               Put_Line
+                 ("         <input message=""tns:" & Name & "_Request""/>");
             end if;
 
             if R.Return_Type /= null then
                --  Request-response operation
                Put_Line
-                 ("         <output message=""" & Name & "_Response""/>");
+                 ("         <output message=""tns:" & Name & "_Response""/>");
             end if;
 
             Put_Line ("      </operation>");
@@ -728,7 +732,7 @@ package body Ada2WSDL.Generator is
       begin
          New_Line;
          Put_Line ("   <service name=""" & WS_Name & "_Service"">");
-         Put_Line ("      <port name=""" & WS_Name & "_Port"" binding="""
+         Put_Line ("      <port name=""" & WS_Name & "_Port"" binding=""tns:"
                      & WS_Name & "_Binding"">");
          Put_Line ("         <soap:address location="""
                      & To_String (Options.SOAP_Address) & """/>");
