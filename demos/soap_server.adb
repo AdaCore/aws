@@ -136,4 +136,15 @@ begin
    AWS.Server.Start (WS, "SOAP demo",
                      Max_Connection => 5,
                      Callback       => CB'Unrestricted_Access);
+
+   Text_IO.Put_Line ("SOAP Server - hit a key to exit");
+
+   --  Wait a charcter to exit
+
+   declare
+      C : Character;
+   begin
+      Text_IO.Get_Immediate (C);
+   end;
+
 end SOAP_Server;
