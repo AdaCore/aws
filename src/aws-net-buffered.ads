@@ -75,6 +75,14 @@ package AWS.Net.Buffered is
    pragma Inline (Read);
    --  Returns an array of bytes read from the socket.
 
+   procedure Read
+     (Socket : in     Socket_Type'Class;
+      Data   :    out Stream_Element_Array;
+      Last   :    out Stream_Element_Offset);
+   --  Read any available data from buffered socket.
+   --  Wait if no data available.
+   --  Same semantic with Net.Receive procedure.
+
    function Get_Line (Socket : in Socket_Type'Class) return String;
    --  Returns a line read from Socket. A line is a set of character
    --  terminated by CRLF.

@@ -42,13 +42,6 @@ package body AWS.Net.Buffered is
    procedure Read (Socket : in Socket_Type'Class);
    --  Refill the read-cache, the cache must be empty before the call
 
-   procedure Read
-     (Socket : in     Socket_Type'Class;
-      Data   :    out Stream_Element_Array;
-      Last   :    out Stream_Element_Offset);
-   --  Same semantic with Net.Receive procedure.
-   --  May be we should publish it.
-
    function Is_Empty (C : in Read_Cache) return Boolean;
    pragma Inline (Is_Empty);
 
