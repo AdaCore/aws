@@ -115,6 +115,16 @@ package body Skel is
                   Text_IO.Put_Line (Skel_Adb, """);");
                end if;
 
+            when WSDL.Parameters.K_Derived =>
+               Text_IO.Put_Line
+                 (Skel_Adb, " := " & To_String (N.D_Name) & "_Type ("
+                    & WSDL.To_Ada (N.Parent_Type) & "'");
+
+               Text_IO.Put      (Skel_Adb, "                ");
+               Text_IO.Put (Skel_Adb, "(SOAP.Parameters.Get (Params, """);
+               Text_IO.Put      (Skel_Adb, To_String (N.Name));
+               Text_IO.Put_Line (Skel_Adb, """)));");
+
             when WSDL.Parameters.K_Array =>
                raise Constraint_Error;
 
@@ -264,7 +274,9 @@ package body Skel is
       while N /= null loop
          Text_IO.Put      (Skel_Adb, "         ");
 
-         if N.Mode /= WSDL.Parameters.K_Simple then
+         if N.Mode /= WSDL.Parameters.K_Simple
+           and then N.Mode /= WSDL.Parameters.K_Derived
+         then
 
             if N.Mode = WSDL.Parameters.K_Array then
                Text_IO.Put_Line
@@ -305,6 +317,10 @@ package body Skel is
          case N.Mode is
             when WSDL.Parameters.K_Simple =>
                Text_IO.Put_Line (Skel_Adb, WSDL.To_Ada (N.P_Type));
+               Output_Parameters (N);
+
+            when WSDL.Parameters.K_Derived =>
+               Text_IO.Put_Line (Skel_Adb, To_String (N.D_Name) & "_Type");
                Output_Parameters (N);
 
             when WSDL.Parameters.K_Array =>
@@ -403,7 +419,7 @@ package body Skel is
             end if;
 
             case N.Mode is
-               when WSDL.Parameters.K_Simple =>
+               when WSDL.Parameters.K_Simple | WSDL.Parameters.K_Derived =>
                   if Output.Next = null then
                      --  A single simple parameter as return
 
