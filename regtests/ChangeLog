@@ -1,8 +1,13 @@
 2003-11-19  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* makefile:
-	(RT_SOAP_ASIS): Add wsdl_6.
+	(clean): Add WSDL_6 and wsdl_6.class.
 	
+2003-11-19  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* makefile:
+	(RT_SOAP_ASIS): Add wsdl_6.
+
 	* wsdl_6_main.adb:
 	Add support for option -j to be able to run this as a server only
 	 program to test the Java client (wsdl_6.java).
