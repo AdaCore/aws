@@ -1,3 +1,11 @@
+2003-02-08  Dmitriy Anisimkov  <anisimkov@yahoo.com>
+
+	* tlog.adb:
+	(Today): Constant instead or routine.
+
+	* tlog.out:
+	Update line numbers in exception messages.
+
 2003-02-07  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* tlog.out:
