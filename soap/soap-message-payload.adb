@@ -1,5 +1,34 @@
+------------------------------------------------------------------------------
+--                              Ada Web Server                              --
+--                                                                          --
+--                         Copyright (C) 2000-2001                          --
+--                                ACT-Europe                                --
+--                                                                          --
+--  Authors: Dmitriy Anisimov - Pascal Obry                                 --
+--                                                                          --
+--  This library is free software; you can redistribute it and/or modify    --
+--  it under the terms of the GNU General Public License as published by    --
+--  the Free Software Foundation; either version 2 of the License, or (at   --
+--  your option) any later version.                                         --
+--                                                                          --
+--  This library is distributed in the hope that it will be useful, but     --
+--  WITHOUT ANY WARRANTY; without even the implied warranty of              --
+--  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU       --
+--  General Public License for more details.                                --
+--                                                                          --
+--  You should have received a copy of the GNU General Public License       --
+--  along with this library; if not, write to the Free Software Foundation, --
+--  Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.          --
+--                                                                          --
+--  As a special exception, if other files instantiate generics from this   --
+--  unit, or you link this unit with other files to produce an executable,  --
+--  this  unit  does not  by itself cause  the resulting executable to be   --
+--  covered by the GNU General Public License. This exception does not      --
+--  however invalidate any other reasons why the executable file  might be  --
+--  covered by the  GNU Public License.                                     --
+------------------------------------------------------------------------------
 
-with SOAP.Types;
+--  $Id$
 
 package body SOAP.Message.Payload is
 
@@ -14,55 +43,9 @@ package body SOAP.Message.Payload is
       return Object is
    begin
       return (To_Unbounded_String (Name_Space),
-              P_Set,
-              To_Unbounded_String (Procedure_Name));
+              To_Unbounded_String (Procedure_Name),
+              P_Set);
    end Build;
-
-   -----------
-   -- Image --
-   -----------
-
-   function Image (P : in Object) return Unbounded_String is
-      NL           : constant String := ASCII.CR & ASCII.LF;
-      Message_Body : Unbounded_String;
-
-   begin
-      --  Procedure
-
-      Append (Message_Body,
-              "<awsns:" & Procedure_Name (P)
-              & " xmlns:awsns=""http://mns.org/"">" & NL);
-
-      --  Procedure's parameters
-
-      declare
-         Pars : constant SOAP.Parameters.Set := Parameters (P);
-      begin
-         for K in 1 .. SOAP.Parameters.Argument_Count (Pars) loop
-            Append
-              (Message_Body,
-               "   "
-               & Types.Payload_Image (SOAP.Parameters.Argument (Pars, K))
-               & NL);
-         end loop;
-      end;
-
-      --  Close payload objects.
-
-      Append (Message_Body, "</awsns:"
-              & Procedure_Name (P) & '>' & NL);
-
-      return Message_Body;
-   end Image;
-
-   ----------------
-   -- Parameters --
-   ----------------
-
-   function Parameters (P : in Object'Class) return SOAP.Parameters.Set is
-   begin
-      return P.P;
-   end Parameters;
 
    --------------------
    -- Procedure_Name --
@@ -70,34 +53,8 @@ package body SOAP.Message.Payload is
 
    function Procedure_Name (P : in Object'Class) return String is
    begin
-      return To_String (P.Procedure_Name);
+      return Wrapper_Name (P);
    end Procedure_Name;
-
-   ---------
-   -- Set --
-   ---------
-
-   procedure Set
-     (P              : in out Object'Class;
-      Procedure_Name : in     String;
-      P_Set          : in     SOAP.Parameters.Set;
-      Name_Space     : in     String              := "") is
-   begin
-      P.Name_Space     := To_Unbounded_String (Name_Space);
-      P.P              := P_Set;
-      P.Procedure_Name := To_Unbounded_String (Procedure_Name);
-   end Set;
-
-   --------------------
-   -- Set_Parameters --
-   --------------------
-
-   procedure Set_Parameters
-     (P : in out Object'Class;
-      P_Set : in SOAP.Parameters.Set) is
-   begin
-      P.P := P_Set;
-   end Set_Parameters;
 
    ------------------------
    -- Set_Procedure_Name --
@@ -105,7 +62,7 @@ package body SOAP.Message.Payload is
 
    procedure Set_Procedure_Name (P : in out Object'Class; Name  : in String) is
    begin
-      P.Procedure_Name := To_Unbounded_String (Name);
+      Set_Wrapper_Name (P, Name);
    end Set_Procedure_Name;
 
 end SOAP.Message.Payload;
