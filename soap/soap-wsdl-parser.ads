@@ -109,6 +109,7 @@ private
       Params          : All_Parameters;   -- All parameters
       Current_Name    : Unbounded_String; -- Current parameter name
       Array_Elements  : Unbounded_String; -- Type of the array's elements
+      Array_Length    : Natural;          -- Number of items (0 = unbounded)
       Accept_Document : Boolean := False;
    end record;
 
