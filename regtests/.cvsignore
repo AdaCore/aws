@@ -246,6 +246,13 @@ generate
 get_post
 get_post.res
 gmem.out
+google_search_service-client.adb
+google_search_service-client.ads
+google_search_service-server.adb
+google_search_service-server.ads
+google_search_service-types.adb
+google_search_service-types.ads
+google_search_service.ads
 googlesearch
 googlesearch.res
 googlesearchservice-client.adb
@@ -405,6 +412,7 @@ test_wsdl3.res
 test_wsdl3.tmp
 test_wsdl4
 test_wsdl4.res
+test_wsdl5.res
 testxml
 testxml.res
 testxml.tmp
