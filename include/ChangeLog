@@ -1,3 +1,11 @@
+2003-05-06  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* makefile:
+	(../src/aws-os_lib.adb): Copy from the config directory.
+
+	* include.gpr:
+	Initial revision.
+
 2003-03-27  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* templates_parser.adb:
