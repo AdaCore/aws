@@ -70,6 +70,8 @@ Here are the main changes:
 
    - Add support to send SMTP e-mail (MIME attachments are supported).
 
+   - Add LDAP client binding (support read access LDAP servers).
+
    - Add support for user/password in URL.
 
    - Add fast support for string/stream_element_array conversion in
