@@ -1,3 +1,76 @@
+2000-09-02  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-session.adb:
+	Fix some bad casing. Remove a space.
+
+	* aws.ads: 
+	(Version): set to 0.8.
+
+	* aws-status.ads: 
+	(Session): ne functions.
+	(Set_Session): new procedure.
+	(Data): add Session_ID field to this record.
+	(No_Data): add intialization for new field Session_ID.
+	
+	* aws-status.adb:
+	(Session): ne functions.
+	(Set_Session): new procedure.
+
+	* aws-server.ads: 
+	(Keep_Open_Duration): set to 30 seconds (was 120).
+	(HTTP): add Session field.
+
+	* aws-server-protocol_handler.adb: 
+	(Send_Session_Cookie): new boolean.
+	(Create_Session): new procedure.
+	(Header_Date_Serv): send a cookie to the client browser if needed.
+	(Answer_To_Client): add code to return the AWS status page
+	 logo. Call Create_Session to initialize session.
+	(Parse): handle cookie.
+
+	* aws-server-get_status.adb:
+	(Session_Table): new function.
+	(Slot_Table): rename all tag variable to end by _L and not _T
+	(Get_Status): add tag variables LOGO and SESSION.
+
+	* aws-messages.ads: 
+	(Cookie_Token): new constant.
+	(Cookie_Range): new subtype.
+
+	* aws-session.ads, aws-session.adb: 
+	Initial revision.
+
+2000-09-01  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws.ads:
+	(Version): set to 0.7
+
+	* aws-server-get_status.ads: 
+	Initial revision.
+
+	* aws-server-get_status.adb: 
+	Initial revision.
+
+	* aws-server.adb:
+	(Protocol_Handler): simplify prototype now that we have a
+	 reference to the HTTP server (no need to drag around so much
+	 data). 
+	(Line): remove many variable not needed anymore.
+	(Start): add Admin_URI parameter.
+	
+	* aws-server.ads:
+	(HTTP): add the field Self to the record. It is an auto-pointer
+	 (i.e. pointing to itself).
+	(Start): add Admin_URI parameter.
+
+	* aws-server-protocol_handler.adb:
+	(Protocol_Handler): simplify prototype now that we have a
+	 reference to the HTTP server (no need to drag around so much
+	 data). Simplify the code to use the HTTP reference.
+
+	* aws-messages.ads: 
+	Fix typo.
+
 2000-08-27  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-response.ads, aws-response.adb:
