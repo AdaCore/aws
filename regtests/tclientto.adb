@@ -127,12 +127,46 @@ procedure Tclientto is
       New_Line;
    end Request;
 
+   -------------------
+   -- Alive_Request --
+   -------------------
+
+   procedure Alive_Request is
+      R : Response.Data;
+      Connect : Client.HTTP_Connection;
+   begin
+      Client.Create
+        (Connection => Connect,
+         Host       => "http://localhost:7645",
+         Timeouts => (0, 5));
+
+      Client.Get (Connect, R, "/3sec");
+      Put_Line ("-> " & Response.Message_Body (R));
+      New_Line;
+
+      Client.Get (Connect, R, "/10sec");
+      Put_Line ("-> " & Response.Message_Body (R));
+      New_Line;
+
+      Client.Get (Connect, R, "/3sec");
+      Put_Line ("-> " & Response.Message_Body (R));
+      New_Line;
+
+      Client.Get (Connect, R, "/10sec");
+      Put_Line ("-> " & Response.Message_Body (R));
+      New_Line;
+
+      Client.Close (Connect);
+   end Alive_Request;
+
 begin
    Put_Line ("Start main, wait for server to start...");
 
    delay 2.0;
 
    Request;
+
+   Alive_Request;
 
    Stopped := True;
 
