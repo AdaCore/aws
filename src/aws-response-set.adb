@@ -274,10 +274,10 @@ package body AWS.Response.Set is
 
    procedure Stream
      (D              : in out Data;
-      Handle         : in     Resources.Streams.Stream_Access;
+      Handle         : access Resources.Streams.Stream_Type'Class;
       Content_Length : in     Content_Length_Type) is
    begin
-      D.Stream         := Handle;
+      D.Stream         := Resources.Streams.Stream_Access (Handle);
       D.Content_Length := Content_Length;
       D.Mode           := Stream;
    end Stream;

@@ -113,7 +113,7 @@ package AWS.Response.Set is
 
    procedure Stream
      (D              : in out Data;
-      Handle         : in     Resources.Streams.Stream_Access;
+      Handle         : access Resources.Streams.Stream_Type'Class;
       Content_Length : in     Content_Length_Type);
    pragma Inline (Stream);
    --  Set the user defined data stream. Set the Mode field to Stream.
