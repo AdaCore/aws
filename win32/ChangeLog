@@ -1,3 +1,8 @@
+2004-09-20  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* libeay32.dll, libssl32.dll:
+	DLL updated to OpenSSL version 0.9.7d, build under Mingw GCC 3.4.1.
+
 2004-09-17  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* wspiapi.h:
