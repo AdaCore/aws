@@ -31,7 +31,7 @@ RT_STD_SEC = tsgetparam
 else
 # Without SSL support
 
-LARGS = $(LFLAGS) $(LIBS) ../ssl/ssl-wrappers.o
+LARGS = $(LFLAGS) $(LIBS) -L../ssl -lnosslaws
 
 endif
 
