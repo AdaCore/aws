@@ -223,6 +223,7 @@ package body AWS.Net.SSL is
    begin
       if Error_Code = 0 then
          return "";
+
       else
          declare
             Error_Text : constant String := Error_Str (Error_Code);
@@ -554,18 +555,19 @@ package body AWS.Net.SSL is
          is
             use Interfaces.C;
 
-            procedure File_Error (Name : in String);
+            procedure File_Error (Prefix, Name : in String);
+            --  Prefix is the type of file key or certificate that was expected
             pragma No_Return (File_Error);
 
             -------------------
             -- Could_Not_Use --
             -------------------
 
-            procedure File_Error (Name : in String) is
+            procedure File_Error (Prefix, Name : in String) is
             begin
                Ada.Exceptions.Raise_Exception
                  (Socket_Error'Identity,
-                  "File """ & Name & """ error" & ASCII.LF
+                  Prefix & " file """ & Name & """ error." & ASCII.LF
                   & Error_Stack);
             end File_Error;
 
@@ -579,7 +581,7 @@ package body AWS.Net.SSL is
                      File   => To_C (Cert_Filename),
                      C_Type => TSSL.SSL_FILETYPE_PEM) /= 1
                then
-                  File_Error (Cert_Filename);
+                  File_Error ("Certificate", Cert_Filename);
                end if;
 
                if TSSL.SSL_CTX_use_PrivateKey_file
@@ -587,18 +589,18 @@ package body AWS.Net.SSL is
                      File   => To_C (Cert_Filename),
                      C_Type => TSSL.SSL_FILETYPE_PEM) /= 1
                then
-                  File_Error (Cert_Filename);
+                  File_Error ("Key", Cert_Filename);
                end if;
 
             else
                --  Get the single certificate or certificate chain from
-               --  the file Cert_Filename
+               --  the file Cert_Filename.
 
                if TSSL.SSL_CTX_use_certificate_chain_file
                     (Ctx    => Context,
                      File   => To_C (Cert_Filename)) /= 1
                then
-                  File_Error (Cert_Filename);
+                  File_Error ("Certificate", Cert_Filename);
                end if;
 
                if TSSL.SSL_CTX_use_PrivateKey_file
@@ -606,7 +608,7 @@ package body AWS.Net.SSL is
                      File   => To_C (Key_Filename),
                      C_Type => TSSL.SSL_FILETYPE_PEM) /= 1
                then
-                  File_Error (Key_Filename);
+                  File_Error ("Key", Key_Filename);
                end if;
             end if;
 
