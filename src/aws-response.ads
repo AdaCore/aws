@@ -221,7 +221,7 @@ package AWS.Response is
    --  Returns an empty message (Data_Mode = No_Data and Status_Code is 204).
    --  It is used to say that user's handlers were not able to do something
    --  with the request. This is used by the callback's chain in the
-   --  dispatcher and should not be used by users.
+   --  dispatchers and should not be used by users.
 
    --
    --  API to retrieve response data
