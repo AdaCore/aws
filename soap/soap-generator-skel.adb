@@ -181,6 +181,11 @@ package body Skel is
       Text_IO.Put_Line
         (Skel_Adb, "        := AWS.Status.Payload (Request);");
       Text_IO.Put_Line
+        (Skel_Adb, "      Proc       : constant String");
+      Text_IO.Put_Line
+        (Skel_Adb, "        := SOAP.Message.Payload.Procedure_Name"
+           & " (Payload);");
+      Text_IO.Put_Line
         (Skel_Adb, "      Params     : constant SOAP.Parameters.List");
       Text_IO.Put_Line
         (Skel_Adb, "        := SOAP.Message.Parameters (Payload);");
@@ -204,10 +209,30 @@ package body Skel is
         (Skel_Adb, "              (SOAP.Message.Response.Error.Client,");
       Text_IO.Put_Line
         (Skel_Adb, "               """
-           & "SOAPAction "" & SOAPAction & "" in " & L_Proc & ",""");
+           & "SOAPAction "" & SOAPAction & "" in " & L_Proc & ", """);
       Text_IO.Put_Line
         (Skel_Adb, "               "
-           & "  & "" expected " & SOAPAction & ".""));");
+           & "  & """ & SOAPAction & " expected.""));");
+      Text_IO.Put_Line
+        (Skel_Adb, "      end if;");
+      Text_IO.New_Line (Skel_Adb);
+
+      --  Then check the procedure name
+
+      Text_IO.Put_Line
+        (Skel_Adb, "      if Proc /= """ & Proc & """ then");
+      Text_IO.Put_Line
+        (Skel_Adb, "         return SOAP.Message.Response.Build");
+      Text_IO.Put_Line
+        (Skel_Adb, "           (SOAP.Message.Response.Error.Build");
+      Text_IO.Put_Line
+        (Skel_Adb, "              (SOAP.Message.Response.Error.Client,");
+      Text_IO.Put_Line
+        (Skel_Adb, "               """
+           & "Found procedure "" & Proc & "" in " & L_Proc & ", """);
+      Text_IO.Put_Line
+        (Skel_Adb, "               "
+           & "  & """ & Proc & " expected.""));");
       Text_IO.Put_Line
         (Skel_Adb, "      end if;");
       Text_IO.New_Line (Skel_Adb);
@@ -487,6 +512,8 @@ package body Skel is
    begin
       --  Spec
 
+      Text_IO.Put_Line (Skel_Ads, "pragma Warnings (Off);");
+      Text_IO.New_Line (Skel_Ads);
       Text_IO.Put_Line (Skel_Ads, "with Ada.Calendar;");
       Text_IO.New_Line (Skel_Ads);
       Text_IO.Put_Line (Skel_Ads, "with AWS.Status;");
