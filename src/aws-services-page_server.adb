@@ -30,17 +30,14 @@
 
 --  $Id$
 
-with GNAT.OS_Lib;
-
 with AWS.Config;
 with AWS.Messages;
 with AWS.MIME;
+with AWS.OS_Lib;
 with AWS.Services.Directory;
 with AWS.Templates;
 
 package body AWS.Services.Page_Server is
-
-   use GNAT;
 
    WWW_Root         : String renames AWS.Config.WWW_Root (Config.Get_Current);
    Browse_Directory : Boolean := False;
