@@ -1,3 +1,9 @@
+2004-10-08  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* makefile:
+	(GCC_342_FIX): Define for workaround project linking bug.
+	Use BDIR macros instead of PRJ_BUILD comparision.
+
 2004-10-07  Pascal Obry  <pascal@obry.org>
 
 	* demos_ssl.gpr:
@@ -5,13 +11,13 @@
 
 	* demos.gpr:
 	Remove nossl project.
-	
+
 2004-10-06  Pascal Obry  <pascal@obry.org>
 
 	* demos.gpr:
 	(Source_Files): Update to include all sources files. This is
 	 required to build with GNAT 5.03.
-	
+
 2004-10-06  Pascal Obry  <pascal@obry.org>
 
 	* demos_shared.gpr:
@@ -32,7 +38,7 @@
 	* makefile:
 	(build): Capitalize SOCKET.
 	Remove some unused declarations.
-	
+
 2004-10-02  Pascal Obry  <pascal@obry.org>
 
 	* makefile:
@@ -45,7 +51,7 @@
 	 SSL based demos. Part of the code as been moved to demos_shared
 	 to be shared with demos_ssl project which handles SSL basesd
 	 demos.
-	
+
 	* demos_shared.gpr, demos_ssl.gpr:
 	Initial revision.
 
@@ -53,7 +59,7 @@
 
 	* demos.gpr:
 	Add test_jabber.adb demo for build with XML/Ada support.
-	
+
 2004-09-29  Pascal Obry  <pascal@obry.org>
 
 	* makefile:
