@@ -39,7 +39,8 @@ with "../ssl/ssl";
 
 project Src is
 
-   for Source_Dirs use (".", "../templates_parser/src");
+   for Source_Dirs
+     use (".", "../templates_parser/src", "../config");
 
    --  XMLAda Installed, add xsrc and soap directories
 
@@ -119,5 +120,22 @@ project Src is
    -------------
 
    package Builder renames Shared.Builder;
+
+   ------------
+   -- Naming --
+   ------------
+
+   package Naming is
+
+      for Specification ("Templates_Parser.Configuration")
+        use "templates_parser-configuration__aws.ads";
+
+      for Implementation ("Templates_Parser.Input")
+        use "templates_parser-input__aws.adb";
+
+      for Implementation ("Templates_Parser.Tasking")
+        use "templates_parser-tasking__standard_tasking.adb";
+
+   end Naming;
 
 end Src;
