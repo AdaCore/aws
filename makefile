@@ -239,7 +239,7 @@ build_tarball:
 	$(CP) demos/*.png demos/cert.pem demos/page*.html $${AWS}/demos;\
 	$(CP) demos/aws_*.thtml demos/com*.adb  demos/ws.ini $${AWS}/demos;\
 	$(CP) demos/*.wsdl $${AWS}/demos;\
-	$(CP) regtests/*.out regtests/*.ad* $${AWS}/regtests;\
+	$(CP) regtests/*.out regtests/*.ad* regtests/*.wsdl $${AWS}/regtests;\
 	$(CP) regtests/ChangeLog regtests/check_mem.tmplt $${AWS}/regtests;\
 	$(CP) regtests/ftp.thtml regtests/zerolength.html $${AWS}/regtests;\
 	$(CP) regtests/dirop.tmplt regtests/makefile $${AWS}/regtests;\
