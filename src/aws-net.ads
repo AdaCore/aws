@@ -50,6 +50,19 @@ package AWS.Net is
 
    type Socket_Set is array (Positive range <>) of Socket_Access;
 
+   type Event_Type is (Error, Input, Output);
+   --  Error  - socket is in error state.
+   --  Input  - socket ready for read.
+   --  Output - socket available for write.
+
+   type Event_Set is array (Event_Type) of Boolean;
+   --  Type for get result of events waiting.
+
+   subtype Wait_Event_Type is Event_Type range Input .. Output;
+   type Wait_Event_Set is array (Wait_Event_Type) of Boolean;
+   --  Type for set events to wait, note that Error event would be waited
+   --  anyway.
+
    Forever : constant Duration;
    --  The longest delay possible on the implementation
 
@@ -195,11 +208,19 @@ package AWS.Net is
    pragma Inline (Set_Timeout);
    --  Sets the timeout for the socket read/write operations
 
+   function Wait
+     (Socket : in Socket_Type'Class;
+      Events : in Wait_Event_Set)
+      return Event_Set;
+   --  Waiting for Input/Output/Error events.
+   --  Waiting time is defined by Set_Timeout.
+   --  Empty event set in result mean that timeout occured.
+
 private
 
-   type Wait_Mode is (Input, Output);
-
-   procedure Wait_For (Mode : in Wait_Mode; Socket : in Socket_Type'Class);
+   procedure Wait_For
+     (Mode   : in Wait_Event_Type;
+      Socket : in Socket_Type'Class);
    --  Wait for a socket to be ready for input or output operation.
    --  Raises Socket_Error if an error or timeout occurs.
 
