@@ -86,31 +86,23 @@ package AWS.Session is
       Value : in Boolean);
    --  Set key/pair value for the SID.
 
-   function Get
-     (SID : in ID;
-      Key : in String)
-     return String;
+   function Get (SID : in ID; Key : in String) return String;
+   pragma Inline (Get);
    --  Returns the Value for Key in the session SID or the emptry string if
    --  key does not exist.
 
-   function Get
-     (SID : in ID;
-      Key : in String)
-      return Integer;
+   function Get (SID : in ID; Key : in String) return Integer;
+   pragma Inline (Get);
    --  Returns the Value for Key in the session SID or the integer value 0 if
    --  key does not exist or is not an integer.
 
-   function Get
-     (SID : in ID;
-      Key : in String)
-      return Float;
+   function Get (SID : in ID; Key : in String) return Float;
+   pragma Inline (Get);
    --  Returns the Value for Key in the session SID or the float value 0.0 if
    --  key does not exist or is not a float.
 
-   function Get
-     (SID : in ID;
-      Key : in String)
-      return Boolean;
+   function Get (SID : in ID; Key : in String) return Boolean;
+   pragma Inline (Get);
    --  Returns the Value for Key in the session SID or the boolean False if
    --  key does not exist or is not a boolean.
 
