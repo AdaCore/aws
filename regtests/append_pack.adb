@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                          Copyright (C) 2003-2004                         --
+--                            Copyright (C) 2004                            --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -91,9 +91,9 @@ package body Append_Pack is
       return Answer;
    end CB;
 
-   procedure Run (Protocol : String) is
+   procedure Run (Protocol : in String) is
       Port : Positive := 1200;
-      R : Response.Data;
+      R    : Response.Data;
    begin
       Get_Free_Port (Port);
 
