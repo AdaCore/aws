@@ -196,8 +196,5 @@ implemented:
 
 - Analyse and fix regression found on FreeBSD GCC 3.4.3.
 
-- Check if it is possible to pass some more information into the template
-  parsers context when using callbacks.
-
 - Would be nice to use the new template engine @@SET@@ command tag
   in the Web Elements.
