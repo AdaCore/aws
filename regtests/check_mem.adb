@@ -34,13 +34,14 @@ with Ada.Command_Line;
 with Ada.Text_IO;
 with Ada.Exceptions;
 
-with AWS.Server;
 with AWS.Client;
-with AWS.Status;
 with AWS.MIME;
-with AWS.Response;
-with AWS.Parameters;
 with AWS.Messages;
+with AWS.Parameters;
+with AWS.Response;
+with AWS.Server;
+with AWS.Status;
+with AWS.Templates;
 
 with SOAP.Client;
 with SOAP.Message.Payload;
@@ -75,7 +76,7 @@ procedure Check_Mem is
 
    procedure Check (Str : in String) is
    begin
-      null;
+      Put_Line (Str);
    end Check;
 
    --------
@@ -122,6 +123,26 @@ procedure Check_Mem is
       elsif URI = "/file" then
          return Response.File (MIME.Text_Plain, "check_mem.adb");
 
+      elsif URI = "/template" then
+
+         declare
+            use type Templates.Vector_Tag;
+
+            Vect   : constant Templates.Vector_Tag := +"V1" & "V2" & "V3";
+            Matrix : constant Templates.Matrix_Tag := +Vect & Vect;
+
+            Trans : constant Templates.Translate_Table
+              := (1 => Templates.Assoc ("ONE", 1),
+                  2 => Templates.Assoc ("TWO", 2),
+                  3 => Templates.Assoc ("EXIST", True),
+                  4 => Templates.Assoc ("V", Vect),
+                  5 => Templates.Assoc ("M", Matrix));
+         begin
+            return Response.Build
+              (MIME.Text_HTML,
+               String'(Templates.Parse ("check_mem.tmplt", Trans)));
+         end;
+
       else
          Check ("Unknown URI " & URI);
          return Response.Build
@@ -147,7 +168,7 @@ procedure Check_Mem is
       select
          accept Stopped;
       or
-         delay 5.0;
+         delay 10.0;
          Put_Line ("Too much time to do the job !");
       end select;
 
@@ -253,6 +274,7 @@ procedure Check_Mem is
 
       Request ("/simple?p1=8&p2=azerty%20qwerty");
       Request ("/file");
+      Request ("/template");
 
       Request ("multProc", 2, 3);
       Request ("multProc", 98, 123);
