@@ -118,6 +118,10 @@ package body AWS.SMTP.Client is
    --  Send textual message as a MIME content. This procedure send the
    --  MIME headers but does not send the MIME boundary.
 
+   procedure Shutdown (Sock : in out Net.Socket_Access);
+   --  Shutdown and close the socket. Do not raise an exception if the Socket
+   --  is not connected.
+
    ---------
    -- Add --
    ---------
@@ -227,8 +231,7 @@ package body AWS.SMTP.Client is
    function Initialize
      (Server_Name : in String;
       Port        : in Positive := Default_SMTP_Port)
-      return Receiver
-   is
+      return Receiver is
    begin
       return (To_Unbounded_String (Server_Name), Port, null);
    end Initialize;
@@ -262,15 +265,16 @@ package body AWS.SMTP.Client is
            (Sock.all, "HELO " & Net.Host_Name);
          Check_Answer (Sock.all, Answer);
 
-         --  If no succes close the connection
+         --  If no success, close the connection
+
          if Answer.Code /= Requested_Action_Ok then
             Add (Answer, Status);
-            Net.Buffered.Shutdown (Sock.all);
+            Shutdown (Sock);
          end if;
 
       else
          Add (Answer, Status);
-         Net.Buffered.Shutdown (Sock.all);
+         Shutdown (Sock);
       end if;
    end Open;
 
@@ -486,8 +490,7 @@ package body AWS.SMTP.Client is
       --  Raise Server_Error for all problems encountered
 
       when E : others =>
-         Net.Buffered.Shutdown (Sock.all);
-         Net.Free (Sock);
+         Shutdown (Sock);
 
          if Text_IO.Is_Open (File) then
             Text_IO.Close (File);
@@ -540,8 +543,7 @@ package body AWS.SMTP.Client is
       --  Raise Server_Error for all problems encountered
 
       when E : others =>
-         Net.Buffered.Shutdown (Sock.all);
-         Net.Free (Sock);
+         Shutdown (Sock);
 
          Ada.Exceptions.Raise_Exception
            (Server_Error'Identity, Ada.Exceptions.Exception_Information (E));
@@ -624,8 +626,7 @@ package body AWS.SMTP.Client is
       --  Raise Server_Error for all problem encountered
 
       when E : others =>
-         Net.Buffered.Shutdown (Sock.all);
-         Net.Free (Sock);
+         Shutdown (Sock);
 
          Ada.Exceptions.Raise_Exception
            (Server_Error'Identity, Ada.Exceptions.Exception_Information (E));
@@ -713,7 +714,7 @@ package body AWS.SMTP.Client is
       --  MIME content
 
       case File.Kind is
-         when Client.File        => Send_File;
+         when Client.File => Send_File;
          when Base64_Data => Send_Base64;
       end case;
    end Send_MIME_Attachment;
@@ -732,6 +733,19 @@ package body AWS.SMTP.Client is
 
       Put_Translated_Line (Sock, Message);
    end Send_MIME_Message;
+
+   --------------
+   -- Shutdown --
+   --------------
+
+   procedure Shutdown (Sock : in out Net.Socket_Access) is
+      use type Net.Socket_Access;
+   begin
+      if Sock /= null then
+         Net.Buffered.Shutdown (Sock.all);
+         Net.Free (Sock);
+      end if;
+   end Shutdown;
 
    -------------------------
    -- Terminate_Mail_Data --
