@@ -1,3 +1,31 @@
+2003-03-16  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* soap-generator-skel.adb:
+	(New_Procedure): A string inside a record is encoded as
+	 Unbounded_String, properly encode it with SOAP.Utils.US.
+
+	* soap-generator-stub.adb:
+	(Output_Array): Handle arrays in records.
+	(Output_Result): Generate code to properly convert string to
+	 Unbounded_String.
+
+	* soap-generator.adb:
+	(Generate_Record): Properly handle nested records.
+	(Get_Routine): Fix record convertion routine name.
+	(Type_Name): Idem.
+	(Start_Service): Generate renaming for To_Unbounded_String.
+	
+	* soap-wsdl-parser.adb:
+	(Parse_Parameter): Handle arrays.
+	(Verbose): Use a Verbose_Level to support multi-level verbose mode.
+	(Parse_PortType): Output service spec if verbose level 1.
+	(Trace): Activate output if verbose level 2.
+	Minor reformatting.
+
+	* soap-wsdl-parser.ads:
+	(Verbose_Level): New type.
+	(Verbose): Use a Verbose_Level to support multi-level verbose mode.
+
 2003-03-15  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* soap-generator-skel.adb: 
