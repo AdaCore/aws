@@ -65,7 +65,9 @@ package SOAP.Types is
    --  memory is freed automatically.
 
    type Object_Set is array (Positive range <>) of Object_Safe_Pointer;
-   --  A set of SOAP types. This is used to build arrays or records.
+   --  A set of SOAP types. This is used to build arrays or records. We use
+   --  Positive for the index to have the item index map the SOAP array
+   --  element order.
 
    function Image (O : in Object) return String;
    --  Returns O value image.
