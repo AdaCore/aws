@@ -39,6 +39,7 @@ with Sockets.Stream_IO;
 
 with AWS.Messages;
 with AWS.MIME;
+with AWS.Net;
 with AWS.Utils;
 
 package body AWS.Server.Push is
@@ -95,6 +96,7 @@ package body AWS.Server.Push is
 
    begin
       Sockets.Shutdown (Socket.Socket.all);
+      AWS.Net.Free (Socket.Socket.all);
       Free (Socket.Stream);
       Free (Socket.Socket);
    end Close;
