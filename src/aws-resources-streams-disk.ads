@@ -30,6 +30,9 @@
 
 --  $Id$
 
+--  An ready-to-use implementation of the stream API where the stream content
+--  is read from an on-disk file.
+
 with Ada.Streams.Stream_IO;
 
 package AWS.Resources.Streams.Disk is
