@@ -41,15 +41,26 @@ package AWS.URL is
    Default_Port : constant := 80;
 
    function Parse (URL : in String) return Object;
+   --  Parse an URL and return an Object representing this URL. It is then
+   --  possible to extract each part of the URL with the services bellow.
+   --  An URL has the following form: http://server_name:port/uri. The port
+   --  being optional and the protocol could be a secure HTTP (https://
+   --  prefix).
 
    function Server_Name (URL : in Object) return String;
+   --  Returns the server name.
 
    function Port (URL : in Object) return Positive;
+   --  Returns the port as a positive.
+
    function Port (URL : in Object) return String;
+   --  Returns the port as a string.
 
    function Security (URL : in Object) return Boolean;
+   --  Returns True if it is an secure HTTP (HTTPS) URL.
 
    function URI (URL : in Object) return String;
+   --  Returns the URI.
 
 private
 
