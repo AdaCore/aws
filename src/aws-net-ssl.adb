@@ -51,9 +51,10 @@ package body AWS.Net is
    -- Accept_Socket --
    -------------------
 
-   function Accept_Socket (Socket   : in Sockets.Socket_FD;
-                           Security : Boolean)
-                          return Sockets.Socket_FD'Class is
+   function Accept_Socket
+     (Socket   : in Sockets.Socket_FD;
+      Security : Boolean)
+     return Sockets.Socket_FD'Class is
    begin
       if Security then
          declare
@@ -76,9 +77,10 @@ package body AWS.Net is
    -- Connect --
    -------------
 
-   function Connect (Host     : String;
-                     Port     : Positive;
-                     Security : Boolean) return Sockets.Socket_FD'Class is
+   function Connect
+     (Host     : String;
+      Port     : Positive;
+      Security : Boolean) return Sockets.Socket_FD'Class is
    begin
       if Security then
          declare
