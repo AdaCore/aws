@@ -1,3 +1,11 @@
+2004-11-03  Pascal Obry  <pascal@obry.org>
+
+	* framework.ads:
+	Add a selected component for the register test.
+
+	* register.out:
+	Update output accordingly.
+
 2004-11-02  Pascal Obry  <pascal@obry.org>
 
 	* makefile:
