@@ -304,6 +304,7 @@ package body AWS.Client is
       exception
          when others =>
             Connection.Opened := False;
+
             Exceptions.Raise_Exception
               (Connection_Error'Identity,
                "can't connect to " & AWS.URL.URL (Connect_URL));
@@ -1391,8 +1392,10 @@ package body AWS.Client is
          Line : constant String := Sockets.Get_Line (Sock);
       begin
          Debug_Message ("< ", Line);
+
          --  Checking the first line in the HTTP header.
-         --  It should match Messages.HTTP_Token.
+         --  It must match Messages.HTTP_Token.
+
          if Messages.Match (Line, Messages.HTTP_Token) then
             Status := Messages.Status_Code'Value
               ('S' & Line (Messages.HTTP_Token'Last + 5
@@ -1424,13 +1427,13 @@ package body AWS.Client is
 
             elsif Messages.Match (Line, Messages.Content_Type_Token) then
                Content_Type := To_Unbounded_String
-                 (Line (Messages.Content_Type_Token'Last + 1 .. Line'
-                          Last));
+                 (Line (Messages.Content_Type_Token'Last + 1
+                          .. Line'Last));
 
             elsif Messages.Match (Line, Messages.Content_Length_Token) then
                Content_Length := Natural'Value
-                 (Line (Messages.Content_Length_Range'Last + 1 .. Line'
-                          Last));
+                 (Line (Messages.Content_Length_Range'Last + 1
+                          .. Line'Last));
 
             elsif Messages.Match (Line, Messages.Location_Token) then
                Location := To_Unbounded_String
