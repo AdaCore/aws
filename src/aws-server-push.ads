@@ -83,8 +83,8 @@ package AWS.Server.Push is
    --  Chuncked  : data are chunked, a piece of data is sent in small pieces.
 
    subtype Client_Key is String;
-   --  The Client ID key representation. In a server each client must have a
-   --  uniq ID. This ID is used for registration and for sending data to
+   --  The Client Id key representation. In a server each client must have a
+   --  uniq ID. This Id is used for registration and for sending data to
    --  specific client.
 
    procedure Register

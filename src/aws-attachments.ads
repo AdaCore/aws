@@ -46,7 +46,7 @@ package AWS.Attachments is
    procedure Add
      (Attachments : in out List;
       Filename    : in     String;
-      Content_ID  : in     String);
+      Content_Id  : in     String);
    --  Adds an Attachment to the list. The header of the Attachment is
    --  generated.
 
@@ -73,9 +73,9 @@ package AWS.Attachments is
 
    function Get
      (Attachments : in List;
-      Content_ID  : in String)
+      Content_Id  : in String)
       return Element;
-   --  Returns the Attachment with the Content ID
+   --  Returns the Attachment with the Content Id
 
    generic
       with procedure Action
@@ -92,7 +92,7 @@ package AWS.Attachments is
    function Content_Type (Attachment : in Element) return String;
    --  Get value for "Content-Type:" header
 
-   function Content_ID (Attachment : in Element) return String;
+   function Content_Id (Attachment : in Element) return String;
    --  Returns Attachment's content id
 
    function Local_Filename (Attachment : in Element) return String;

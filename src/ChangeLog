@@ -1,5 +1,14 @@
 2004-09-15  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
+	* aws-attachments.adb, aws-attachments.ads, aws-client.adb,
+	  aws-client.ads, aws-messages.ads, aws-server-protocol_handler.adb,
+	  aws-server-push.ads, aws-server-status.adb, aws-server.ads,
+	  aws-services-web_mail.adb, aws-session.ads, aws-status-set.adb,
+	  aws-status.adb, aws-status.ads:
+	Change Anything_ID to Anything_Id casing.
+
+2004-09-15  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
 	* aws-net-thin.ads:
 	(AI_PASSIVE): Removed. Use from AWS.OS_Lib.Definitions.
 	(AI_CANONNAME): Idem.

@@ -36,72 +36,72 @@ with Ada.Calendar;
 
 package AWS.Session is
 
-   type ID is private;
+   type Id is private;
 
-   No_Session : constant ID;
+   No_Session : constant Id;
 
-   function Create return ID;
-   --  Create a new uniq Session ID
+   function Create return Id;
+   --  Create a new uniq Session Id
 
-   procedure Delete (SID : in ID);
+   procedure Delete (SID : in Id);
    --  Delete session, does nothing if SID does not exists
 
-   function Image (SID : in ID) return String;
+   function Image (SID : in Id) return String;
    pragma Inline (Image);
    --  Return ID image
 
-   function Value (SID : in String) return ID;
+   function Value (SID : in String) return Id;
    pragma Inline (Value);
    --  Build an ID from a String, returns No_Session if SID is not recongnized
    --  as an AWS session ID.
 
-   function Exist (SID : in ID) return Boolean;
+   function Exist (SID : in Id) return Boolean;
    --  Returns True if SID exist
 
-   procedure Touch (SID : in ID);
+   procedure Touch (SID : in Id);
    --  Update to current time the timestamp associated with SID. Does nothing
    --  if SID does not exists.
 
    procedure Set
-     (SID   : in ID;
+     (SID   : in Id;
       Key   : in String;
       Value : in String);
    --  Set key/pair value for the SID
 
    procedure Set
-     (SID   : in ID;
+     (SID   : in Id;
       Key   : in String;
       Value : in Integer);
    --  Set key/pair value for the SID
 
    procedure Set
-     (SID   : in ID;
+     (SID   : in Id;
       Key   : in String;
       Value : in Float);
    --  Set key/pair value for the SID
 
    procedure Set
-     (SID   : in ID;
+     (SID   : in Id;
       Key   : in String;
       Value : in Boolean);
    --  Set key/pair value for the SID
 
-   function Get (SID : in ID; Key : in String) return String;
+   function Get (SID : in Id; Key : in String) return String;
    pragma Inline (Get);
    --  Returns the Value for Key in the session SID or the emptry string if
    --  key does not exist.
 
-   function Get (SID : in ID; Key : in String) return Integer;
+   function Get (SID : in Id; Key : in String) return Integer;
    pragma Inline (Get);
    --  Returns the Value for Key in the session SID or the integer value 0 if
    --  key does not exist or is not an integer.
 
-   function Get (SID : in ID; Key : in String) return Float;
+   function Get (SID : in Id; Key : in String) return Float;
    pragma Inline (Get);
    --  Returns the Value for Key in the session SID or the float value 0.0 if
    --  key does not exist or is not a float.
 
-   function Get (SID : in ID; Key : in String) return Boolean;
+   function Get (SID : in Id; Key : in String) return Boolean;
    pragma Inline (Get);
    --  Returns the Value for Key in the session SID or the boolean False if
    --  key does not exist or is not a boolean.
@@ -112,12 +112,12 @@ package AWS.Session is
    package Generic_Data is
 
       procedure Set
-        (SID   : in ID;
+        (SID   : in Id;
          Key   : in String;
          Value : in Data);
       --  Set key/pair value for the SID
 
-      function Get (SID : in ID; Key : in String) return Data;
+      function Get (SID : in Id; Key : in String) return Data;
       pragma Inline (Get);
    --  Returns the Value for Key in the session SID or Null_Data if
    --  key does not exist.
@@ -125,12 +125,12 @@ package AWS.Session is
    end Generic_Data;
 
    procedure Remove
-     (SID : in ID;
+     (SID : in Id;
       Key : in String);
    --  Removes Key from the specified session
 
    function Exist
-     (SID : in ID;
+     (SID : in Id;
       Key : in String)
       return Boolean;
    --  Returns True if Key exist in session SID
@@ -145,7 +145,7 @@ package AWS.Session is
    generic
       with procedure Action
         (N          : in     Positive;
-         SID        : in     ID;
+         SID        : in     Id;
          Time_Stamp : in     Ada.Calendar.Time;
          Quit       : in out Boolean);
    procedure For_Every_Session;
@@ -162,7 +162,7 @@ package AWS.Session is
         (N          : in     Positive;
          Key, Value : in     String;
          Quit       : in out Boolean);
-   procedure For_Every_Session_Data (SID : in ID);
+   procedure For_Every_Session_Data (SID : in Id);
    --  Iterator which returns all the key/value pair defined for session SID.
    --  Quit is set to False by default, it is possible to control the iterator
    --  termination by setting its value to True. Note that in the Action
@@ -184,7 +184,7 @@ package AWS.Session is
    -- Session Callback --
    ----------------------
 
-   type Callback is access procedure (SID : in ID);
+   type Callback is access procedure (SID : in Id);
    --  Callback procedure called when a sesssion is deleted from the server.
 
    procedure Set_Callback (Callback : in Session.Callback);

@@ -110,7 +110,7 @@ package AWS.Messages is
    Cookie_Token              : constant String := "Cookie";
    Set_Cookie_Token          : constant String := "Set-Cookie";
    SOAPAction_Token          : constant String := "SOAPAction";
-   Content_ID_Token          : constant String := "Content-ID";
+   Content_Id_Token          : constant String := "Content-ID";
    Content_Transfer_Encoding_Token : constant String
      := "Content-Transfer-Encoding";
 

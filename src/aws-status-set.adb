@@ -290,7 +290,7 @@ package body AWS.Status.Set is
       D.Auth_QOP          := Null_Unbounded_String;
       D.Auth_URI          := Null_Unbounded_String;
       D.Auth_Response     := Null_Unbounded_String;
-      D.Session_ID        := AWS.Session.No_Session;
+      D.Session_Id        := AWS.Session.No_Session;
       D.Session_Created   := False;
 
       AWS.Parameters.Set.Reset (D.Parameters);
@@ -304,7 +304,7 @@ package body AWS.Status.Set is
 
    procedure Session (D : in out Data) is
    begin
-      D.Session_ID      := AWS.Session.Create;
+      D.Session_Id      := AWS.Session.Create;
       D.Session_Created := True;
    end Session;
 
@@ -351,7 +351,7 @@ package body AWS.Status.Set is
                --  The expected Cookie line is:
                --  Cookie: ... AWS=<cookieID>[,;] ...
 
-               use type AWS.Session.ID;
+               use type AWS.Session.Id;
 
                procedure Value
                  (Item : in     String;
@@ -379,21 +379,21 @@ package body AWS.Status.Set is
                      return;
                   end if;
 
-                  D.Session_ID := AWS.Session.Value (Value);
+                  D.Session_Id := AWS.Session.Value (Value);
 
                   --  Check if the cookie value was correct.
 
-                  if D.Session_ID = AWS.Session.No_Session then
+                  if D.Session_Id = AWS.Session.No_Session then
                      return;
                   end if;
 
                   --  Check if cookie exists in the server.
 
-                  if not AWS.Session.Exist (D.Session_ID) then
+                  if not AWS.Session.Exist (D.Session_Id) then
                      --  Reset to empty cookie if session does not exists.
                      --  We are not interested by non existing values.
 
-                     D.Session_ID := AWS.Session.No_Session;
+                     D.Session_Id := AWS.Session.No_Session;
 
                      return;
                   end if;
@@ -429,7 +429,7 @@ package body AWS.Status.Set is
                Parse (To_String (Cookies_Set (Idx)));
 
                --  Exit when we have found an existing cookie
-               exit when D.Session_ID /= AWS.Session.No_Session;
+               exit when D.Session_Id /= AWS.Session.No_Session;
             end;
          end loop;
       end;

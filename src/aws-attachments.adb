@@ -56,7 +56,7 @@ package body AWS.Attachments is
    procedure Add
      (Attachments : in out List;
       Filename    : in     String;
-      Content_ID  : in     String)
+      Content_Id  : in     String)
    is
       use type Attachment_Table.Vector;
 
@@ -89,8 +89,8 @@ package body AWS.Attachments is
 
       AWS.Headers.Set.Add
         (Headers => Tmp.Headers,
-         Name    => AWS.Messages.Content_ID_Token,
-         Value   => '<' & Content_ID & '>');
+         Name    => AWS.Messages.Content_Id_Token,
+         Value   => '<' & Content_Id & '>');
 
       Tmp.Total_Length := AWS.Headers.Length (Tmp.Headers) + File_Size;
 
@@ -121,13 +121,13 @@ package body AWS.Attachments is
    end Add;
 
    ----------------
-   -- Content_ID --
+   -- Content_Id --
    ----------------
 
-   function Content_ID (Attachment : in Element) return String is
+   function Content_Id (Attachment : in Element) return String is
    begin
-      return AWS.Headers.Get (Attachment.Headers, Messages.Content_ID_Token);
-   end Content_ID;
+      return AWS.Headers.Get (Attachment.Headers, Messages.Content_Id_Token);
+   end Content_Id;
 
    ------------------
    -- Content_Type --
@@ -178,45 +178,45 @@ package body AWS.Attachments is
 
    function Get
      (Attachments : in List;
-      Content_ID  : in String)
+      Content_Id  : in String)
       return Element
    is
 
-      function Get_CID (Content_ID : in String) return String;
+      function Get_CID (Content_Id : in String) return String;
       --  Returns Content_Id stripped from possibly surrounding
       --  '<' '>' and prefixing "cid:".
 
       -------------
-      -- Get_Cid --
+      -- Get_CID --
       -------------
 
-      function Get_CID (Content_ID : in String) return String is
+      function Get_CID (Content_Id : in String) return String is
       begin
-         if Content_ID (Content_ID'First) = '<'
-           and then Content_ID (Content_ID'Last) = '>'
+         if Content_Id (Content_Id'First) = '<'
+           and then Content_Id (Content_Id'Last) = '>'
          then
             return Get_CID
-              (Content_ID (Content_ID'First + 1 .. Content_ID'Last - 1));
+              (Content_Id (Content_Id'First + 1 .. Content_Id'Last - 1));
 
-         elsif Content_ID'Length > 4
+         elsif Content_Id'Length > 4
            and then
-             Content_ID (Content_ID'First .. Content_ID'First + 3) = "cid:"
+             Content_Id (Content_Id'First .. Content_Id'First + 3) = "cid:"
          then
-            return Content_ID (Content_ID'First + 4 .. Content_ID'Last);
+            return Content_Id (Content_Id'First + 4 .. Content_Id'Last);
          else
-            return Content_ID;
+            return Content_Id;
          end if;
       end Get_CID;
 
-      CID        : constant String := Get_CID (Content_ID);
+      CID        : constant String := Get_CID (Content_Id);
       Attachment : Element;
 
    begin
       for J in 1 .. Count (Attachments) loop
          Attachment := Get (Attachments, J);
 
-         if AWS.Attachments.Content_ID (Attachment) = CID
-           or else AWS.Attachments.Content_ID (Attachment) = '<' & CID & '>'
+         if AWS.Attachments.Content_Id (Attachment) = CID
+           or else AWS.Attachments.Content_Id (Attachment) = '<' & CID & '>'
          then
             return Attachment;
          end if;

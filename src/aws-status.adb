@@ -259,9 +259,9 @@ package body AWS.Status is
    -----------------
 
    function Has_Session (D : in Data) return Boolean is
-      use type AWS.Session.ID;
+      use type AWS.Session.Id;
    begin
-      return D.Session_ID /= AWS.Session.No_Session;
+      return D.Session_Id /= AWS.Session.No_Session;
    end Has_Session;
 
    ------------
@@ -556,11 +556,11 @@ package body AWS.Status is
    -- Session --
    -------------
 
-   function Session (D : in Data) return AWS.Session.ID is
+   function Session (D : in Data) return AWS.Session.Id is
       use Ada.Exceptions;
    begin
       if Has_Session (D) then
-         return D.Session_ID;
+         return D.Session_Id;
 
       else
          Raise_Exception

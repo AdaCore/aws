@@ -322,7 +322,7 @@ is
       --------------------
 
       procedure Create_Session is
-         use type Session.ID;
+         use type Session.Id;
       begin
          if CNF.Session (HTTP_Server.Properties)
            and then (not AWS.Status.Has_Session (C_Stat)
@@ -855,7 +855,7 @@ is
          AWS.Headers.Set.Read (Sock, Headers);
 
          Content_ID := To_Unbounded_String
-           (AWS.Headers.Get (Headers, Messages.Content_ID_Token));
+           (AWS.Headers.Get (Headers, Messages.Content_Id_Token));
 
          --  Read file/field data
 

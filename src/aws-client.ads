@@ -250,7 +250,7 @@ package AWS.Client is
    procedure Copy_Cookie
      (Source      : in     HTTP_Connection;
       Destination : in out HTTP_Connection);
-   --  Copy a session ID from connection Source to connection Destination.
+   --  Copy a session Id from connection Source to connection Destination.
    --  Allow both connections to share the same user environment. Note that
    --  user's environment are thread-safe.
 
