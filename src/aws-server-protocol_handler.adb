@@ -33,7 +33,7 @@
 with Ada.Streams.Stream_IO;
 with Ada.Strings.Fixed;
 with Ada.Strings.Maps;
-with Interfaces.C;
+with Ada.Strings.Unbounded;
 
 with Templates_Parser;
 
@@ -53,13 +53,13 @@ with AWS.URL;
 separate (AWS.Server)
 
 procedure Protocol_Handler
-  (Sock        : in     Sockets.Socket_FD'Class;
-   HTTP_Server : in out HTTP;
+  (HTTP_Server : in out HTTP;
    Index       : in     Positive)
 is
 
    use Ada;
    use Ada.Strings;
+   use Ada.Strings.Unbounded;
 
    Admin_URI      : constant String
      := CNF.Admin_URI (HTTP_Server.Properties);
@@ -72,6 +72,9 @@ is
 
    C_Stat         : AWS.Status.Data;     -- Connection status
    P_List         : AWS.Parameters.List; -- Form data
+
+   Sock           : Sockets.Socket_FD'Class
+     renames HTTP_Server.Slots.Get (Index).Sock.all;
 
    Socket_Taken   : Boolean := False;
    --  Set to True if a socket has been reserved for a push session.
