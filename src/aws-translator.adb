@@ -233,14 +233,9 @@ package body AWS.Translator is
    end Base64_Encode;
 
    function Base64_Encode (Data : in String) return String is
-      Stream_Data : Stream_Element_Array
-        (1 .. Stream_Element_Offset (Data'Length));
-      I : Stream_Element_Offset := 1;
+      Stream_Data : constant Stream_Element_Array
+        := To_Stream_Element_Array (Data);
    begin
-      for K in Data'Range loop
-         Stream_Data (I) := Character'Pos (Data (K));
-         I := I + 1;
-      end loop;
       return Base64_Encode (Stream_Data);
    end Base64_Encode;
 
