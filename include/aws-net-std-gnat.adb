@@ -31,6 +31,7 @@
 --  $Id$
 
 with Ada.Exceptions;
+with Ada.Strings.Maps;
 with Ada.Unchecked_Deallocation;
 
 with GNAT.Sockets;
@@ -53,6 +54,10 @@ package body AWS.Net.Std is
    pragma No_Return (Raise_Exception);
    --  Raise exception Socket_Error with E's message and a reference to the
    --  routine name.
+
+   function Get_Inet_Addr (Host : in String) return Sockets.Inet_Addr_Type;
+   pragma Inline (Get_Inet_Addr);
+   --  Returns the inet address for the given host.
 
    -------------------
    -- Accept_Socket --
@@ -93,7 +98,7 @@ package body AWS.Net.Std is
       if Host = "" then
          Inet_Addr := Sockets.Any_Inet_Addr;
       else
-         Inet_Addr := Sockets.Addresses (Sockets.Get_Host_By_Name (Host));
+         Inet_Addr := Get_Inet_Addr (Host);
       end if;
 
       if Socket.S = null then
@@ -127,7 +132,7 @@ package body AWS.Net.Std is
       end if;
 
       Sock_Addr := (Sockets.Family_Inet,
-                    Sockets.Addresses (Sockets.Get_Host_By_Name (Host), 1),
+                    Get_Inet_Addr (Host),
                     Sockets.Port_Type (Port));
       Sockets.Connect_Socket (SFD (Socket.S.all), Sock_Addr);
 
@@ -157,6 +162,22 @@ package body AWS.Net.Std is
    begin
       return Sockets.To_C (SFD (Socket.S.all));
    end Get_FD;
+
+   -------------------
+   -- Get_Inet_Addr --
+   -------------------
+
+   function Get_Inet_Addr (Host : in String) return Sockets.Inet_Addr_Type is
+      use Strings.Maps;
+      IP : constant Character_Set := To_Set ("0123456789.");
+   begin
+      if Is_Subset (To_Set (Host), IP) then
+         --  Only numbers, this is an IP address
+         return Sockets.Inet_Addr (Host);
+      else
+         return Sockets.Addresses (Sockets.Get_Host_By_Name (Host), 1);
+      end if;
+   end Get_Inet_Addr;
 
    ---------------
    -- Host_Name --
