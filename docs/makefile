@@ -9,6 +9,7 @@ ADA_KW    = use package is in out exception function with type constant \
 		pragma new case when null
 
 APIFILES = ../src/aws.ads.texi \
+	../src/aws-attachments.ads.texi \
 	../src/aws-client.ads.texi \
 	../src/aws-client-hotplug.ads.texi \
 	../src/aws-communication-client.ads.texi \
@@ -127,8 +128,7 @@ aws.texi: prog aws.texi.tmplt
 	./build | tr -d '\r' > aws.texi
 
 check_api:
-	if [ -f ../soap/soap.ali ]; then \
-		rm -f ../src/test_uconv.ali; \
+	if [ -f ../$(BDIR)/obj/soap.ali ]; then \
 		exit 0; \
 	else \
 		echo SOAP not activated, cannot generate API documentation ; \
@@ -139,32 +139,37 @@ check_api:
 # used to generate the API cross-reference.
 apiref: gnathtml_apiref
 
-# API cross-references using gnathtml
-gnathtml_apiref: check_api
-	(cd ..; fileset=; \
-	for file in src/a*.ad[sb] src/templates*.ad[sb] xsrc/*.ad* \
+APIREFS = src/a*.ad[sb] src/templates*.ad[sb] xsrc/*.ad* \
 	   	include/strings_cutter.ad[sb] include/zlib*.ad[sb] \
 		include/memory_streams.ad[sb] \
-		soap/soap*.ad[sb]; \
-	do \
+		soap/soap*.ad[sb]
+
+pref1	= $(BDIR)/obj
+pref2	= $(BDIR)/include
+
+# API cross-references using gnathtml
+
+gnathtml_apiref: check_api
+	(cd ..; fileset=; \
+	for file in $(APIREFS); do \
 		echo -n $$file; \
-		if [ -f `echo $$file | sed -e 's/\.ad[sb]/.ali/'` ]; then \
+		bfile=`basename $$file | sed -e 's/\.ad[sb]/.ali/'`; \
+		if [ -f $(pref1)/$$bfile ] || [ -f $(pref2)/$$bfile ]; then \
 			echo "    included"; \
-			fileset="$$fileset $$file"; \
+			fileset="$$fileset `basename $$file`"; \
 		else \
 			echo "    skipped"; \
 		fi; \
 	done; \
-	gnathtml.pl -odocs/html $$fileset; \
+	gnathtml.pl -Isrc -Iinclude -Isoap -Ixsrc -I$(pref1) -I$(pref2) \
+		-odocs/html $$fileset; \
 	)
 
 # API cross-references using AdaBrowse
+
 adabrowse_apiref: check_api
 	(cd ..; \
-	for file in src/a*.ad[sb] src/templates*.ad[sb] xsrc/*.ad* \
-	   	include/strings_cutter.ad[sb] include/zlib*.ad[sb] \
-		include/memory_streams.ad[sb] \
-		soap/soap*.ad[sb]; \
+	for file in $(APIREFS); \
 	do \
 		echo -n $$file; \
 		if [ -f `echo $$file | sed -e 's/\.ad[sb]/.ali/'` ]; then \
