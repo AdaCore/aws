@@ -1142,6 +1142,19 @@ Category: Informational                                      R. Fielding
                 Hypertext Transfer Protocol -- HTTP/1.0
 @end smallexample
 
+@item RFC 2109
+
+@smallexample
+Network Working Group                                         D. Kristol
+Request for Comments: 2109        Bell Laboratories, Lucent Technologies
+Category: Standards Track                                    L. Montulli
+                                                 Netscape Communications
+                                                           February 1997
+
+
+                    HTTP State Management Mechanism
+@end smallexample
+
 @item RFC 2616
 
 @smallexample
