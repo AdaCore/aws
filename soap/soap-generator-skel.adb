@@ -98,12 +98,27 @@ package body Skel is
       begin
          Text_IO.Put      (Skel_Adb, "          ");
 
-         if N.Mode = WSDL.Parameters.K_Composite then
+         case N.Mode is
+            when WSDL.Parameters.K_Simple =>
+               --  Check for Base64 case
 
-            if Utils.Is_Array (To_String (N.C_Name)) then
+               if N.P_Type = WSDL.P_B64 then
+                  Text_IO.Put
+                    (Skel_Adb,
+                     " := V (SOAP_Base64'(SOAP.Parameters.Get (Params, """);
+                  Text_IO.Put      (Skel_Adb, To_String (N.Name));
+                  Text_IO.Put_Line (Skel_Adb, """)));");
+               else
+                  Text_IO.Put
+                    (Skel_Adb, " := SOAP.Parameters.Get (Params, """);
+                  Text_IO.Put      (Skel_Adb, To_String (N.Name));
+                  Text_IO.Put_Line (Skel_Adb, """);");
+               end if;
+
+            when WSDL.Parameters.K_Array =>
                raise Constraint_Error;
 
-            else
+            when WSDL.Parameters.K_Record =>
                Text_IO.Put (Skel_Adb, " := (");
 
                R := N.P;
@@ -111,7 +126,7 @@ package body Skel is
                while R /= null loop
                   Text_IO.Put
                     (Skel_Adb, "SOAP.Parameters.Get ("
-                       & Format_Name (O, To_String (N.C_Name)) & "_Record, """
+                       & Format_Name (O, To_String (N.T_Name)) & "_Record, """
                        & Format_Name (O, To_String (R.Name)) & """)");
 
                   if R.Next /= null then
@@ -123,24 +138,7 @@ package body Skel is
 
                   R := R.Next;
                end loop;
-            end if;
-
-         else
-            --  Check for Base64 case
-
-            if N.P_Type = WSDL.P_B64 then
-               Text_IO.Put
-                 (Skel_Adb,
-                  " := V (SOAP_Base64'(SOAP.Parameters.Get (Params, """);
-               Text_IO.Put      (Skel_Adb, To_String (N.Name));
-               Text_IO.Put_Line (Skel_Adb, """)));");
-            else
-               Text_IO.Put
-                 (Skel_Adb, " := SOAP.Parameters.Get (Params, """);
-               Text_IO.Put      (Skel_Adb, To_String (N.Name));
-               Text_IO.Put_Line (Skel_Adb, """);");
-            end if;
-         end if;
+         end case;
       end Output_Parameters;
 
    begin
@@ -265,12 +263,12 @@ package body Skel is
       while N /= null loop
          Text_IO.Put      (Skel_Adb, "         ");
 
-         if N.Mode = WSDL.Parameters.K_Composite then
+         if N.Mode /= WSDL.Parameters.K_Simple then
 
-            if Utils.Is_Array (To_String (N.C_Name)) then
+            if N.Mode = WSDL.Parameters.K_Array then
                Text_IO.Put_Line
                  (Skel_Adb,
-                  Format_Name (O, To_String (N.C_Name)) & "_Array : "
+                  Format_Name (O, To_String (N.T_Name)) & "_Array : "
                     & "constant SOAP.Types.SOAP_Array");
                Text_IO.Put_Line
                  (Skel_Adb,
@@ -281,7 +279,7 @@ package body Skel is
             else
                Text_IO.Put_Line
                  (Skel_Adb,
-                  Format_Name (O, To_String (N.C_Name)) & "_Record : "
+                  Format_Name (O, To_String (N.T_Name)) & "_Record : "
                     & "constant SOAP.Types.SOAP_Record");
                Text_IO.Put_Line
                  (Skel_Adb,
@@ -301,29 +299,27 @@ package body Skel is
 
          Text_IO.Put      (Skel_Adb, " : constant ");
 
-         if N.Mode = WSDL.Parameters.K_Simple then
-            Text_IO.Put_Line (Skel_Adb, WSDL.To_Ada (N.P_Type));
-            Output_Parameters (N);
+         case N.Mode is
+            when WSDL.Parameters.K_Simple =>
+               Text_IO.Put_Line (Skel_Adb, WSDL.To_Ada (N.P_Type));
+               Output_Parameters (N);
 
-         else
-            if Utils.Is_Array (To_String (N.C_Name)) then
+            when WSDL.Parameters.K_Array =>
                Text_IO.Put_Line
-                 (Skel_Adb, Format_Name (O, To_String (N.C_Name)));
+                 (Skel_Adb, Format_Name (O, To_String (N.T_Name)));
                Text_IO.Put_Line
                  (Skel_Adb, "           := To_"
-                    & Format_Name (O, To_String (N.C_Name)) & " (V ("
-                    & Format_Name (O, To_String (N.C_Name)) & "_Array));");
+                    & Format_Name (O, To_String (N.T_Name)) & " (V ("
+                    & Format_Name (O, To_String (N.T_Name)) & "_Array));");
 
-            else
+            when WSDL.Parameters.K_Record =>
                Text_IO.Put_Line
-                 (Skel_Adb, Format_Name (O, To_String (N.C_Name)) & "_Type");
+                 (Skel_Adb, Format_Name (O, To_String (N.T_Name)) & "_Type");
                Text_IO.Put_Line
                  (Skel_Adb, "           := To_"
-                    & Format_Name (O, To_String (N.C_Name)) & "_Type ("
-                    & Format_Name (O, To_String (N.C_Name)) & "_Record);");
-            end if;
-         end if;
-
+                    & Format_Name (O, To_String (N.T_Name)) & "_Type ("
+                    & Format_Name (O, To_String (N.T_Name)) & "_Record);");
+         end case;
 
          N := N.Next;
       end loop;
@@ -401,34 +397,32 @@ package body Skel is
                  (Skel_Adb, "           & ");
             end if;
 
-            if N.Mode = WSDL.Parameters.K_Simple then
+            case N.Mode is
+               when WSDL.Parameters.K_Simple =>
+                  if Output.Next = null then
+                     --  A single simple parameter as return
 
-               if Output.Next = null then
-                  --  A single simple parameter as return
-
-                  Text_IO.Put (Skel_Adb, SOAP_Constructor (N.P_Type));
-
-                  Text_IO.Put
-                    (Skel_Adb, " (Result, """ & To_String (N.Name) & """)");
-
-               else
-                  --  Multiple value returned, this is a record
-
-                  if N.P_Type = WSDL.P_String then
-                     Text_IO.Put (Skel_Adb, "SOAP.Utils.US");
-                  else
                      Text_IO.Put (Skel_Adb, SOAP_Constructor (N.P_Type));
+
+                     Text_IO.Put
+                       (Skel_Adb, " (Result, """ & To_String (N.Name) & """)");
+
+                  else
+                     --  Multiple value returned, this is a record
+
+                     if N.P_Type = WSDL.P_String then
+                        Text_IO.Put (Skel_Adb, "SOAP.Utils.US");
+                     else
+                        Text_IO.Put (Skel_Adb, SOAP_Constructor (N.P_Type));
+                     end if;
+
+                     Text_IO.Put
+                       (Skel_Adb, " (Result."
+                          & Format_Name (O, To_String (N.Name))
+                          & ", """ & To_String (N.Name) & """)");
                   end if;
 
-                  Text_IO.Put
-                    (Skel_Adb, " (Result."
-                       & Format_Name (O, To_String (N.Name))
-                       & ", """ & To_String (N.Name) & """)");
-               end if;
-
-            else
-               if Utils.Is_Array (To_String (N.C_Name)) then
-
+               when WSDL.Parameters.K_Array =>
                   if Output.Next = null then
                      --  A single array as returned parameter
                      Text_IO.Put
@@ -443,12 +437,11 @@ package body Skel is
                           & To_String (N.Name) & """)");
                   end if;
 
-               else
+               when WSDL.Parameters.K_Record =>
                   Text_IO.Put
                     (Skel_Adb, "To_SOAP_Object (Result, """
                        &  To_String (N.Name) & """)");
-               end if;
-            end if;
+            end case;
 
             if N.Next = null then
                Text_IO.Put_Line (Skel_Adb, ";");

@@ -149,17 +149,16 @@ package body Stub is
                end if;
             end if;
 
-            if N.Mode = WSDL.Parameters.K_Simple then
-               Output_Simple (K, Prefix, N);
+            case N.Mode is
+               when WSDL.Parameters.K_Simple =>
+                  Output_Simple (K, Prefix, N);
 
-            else
-
-               if Utils.Is_Array (To_String (N.C_Name)) then
+               when WSDL.Parameters.K_Array =>
                   Output_Array (K, Prefix, N);
-               else
+
+               when WSDL.Parameters.K_Record =>
                   Output_Record (K + 1, Prefix, N);
-               end if;
-            end if;
+            end case;
          end if;
       end Output_Parameter;
 
@@ -193,11 +192,9 @@ package body Stub is
          use type WSDL.Parameters.Kind;
          use type WSDL.Parameter_Type;
       begin
-         if N.Mode = WSDL.Parameters.K_Composite
-           and then Utils.Is_Array (To_String (N.C_Name))
-         then
+         if N.Mode = WSDL.Parameters.K_Array then
             declare
-               Name : constant String := Format_Name (O, To_String (N.C_Name));
+               Name : constant String := Format_Name (O, To_String (N.T_Name));
             begin
                Text_IO.Put_Line
                  (Stub_Adb,
@@ -406,30 +403,28 @@ package body Stub is
          if WSDL.Parameters.Length (Output) = 1 then
             --  A single parameter is returned
 
-            if Output.Mode = WSDL.Parameters.K_Simple then
+            case Output.Mode is
+               when WSDL.Parameters.K_Simple =>
+                  if Output.P_Type = WSDL.P_B64 then
+                     Text_IO.Put_Line
+                       (Stub_Adb,
+                        "                 "
+                          & ":= V (SOAP_Base64'(SOAP.Parameters.Get "
+                          & "(R_Param, """
+                          & To_String (Output.Name) & """)));");
+                  else
+                     Text_IO.Put_Line
+                       (Stub_Adb,
+                        "                 := SOAP.Parameters.Get (R_Param, """
+                          & To_String (Output.Name)
+                          & """);");
+                  end if;
 
-               if Output.P_Type = WSDL.P_B64 then
+               when WSDL.Parameters.K_Array =>
                   Text_IO.Put_Line
                     (Stub_Adb,
                      "                 "
-                       & ":= V (SOAP_Base64'(SOAP.Parameters.Get (R_Param, """
-                       & To_String (Output.Name)
-                       & """)));");
-               else
-                  Text_IO.Put_Line
-                    (Stub_Adb,
-                     "                 := SOAP.Parameters.Get (R_Param, """
-                       & To_String (Output.Name)
-                       & """);");
-               end if;
-
-            else
-
-               if Utils.Is_Array (To_String (Output.C_Name)) then
-                  Text_IO.Put_Line
-                    (Stub_Adb,
-                     "                 "
-                       & ":= To_" & To_String (Output.C_Name));
+                       & ":= To_" & To_String (Output.T_Name));
                   Text_IO.Put_Line
                     (Stub_Adb,
                      "                 "
@@ -437,20 +432,18 @@ package body Stub is
                        & To_String (Output.Name)
                        & """))));");
 
-               else
+               when WSDL.Parameters.K_Record =>
                   Text_IO.Put_Line
                     (Stub_Adb,
                      "                 "
-                       & ":= To_" & To_String (Output.C_Name) & "_Type");
+                       & ":= To_" & To_String (Output.T_Name) & "_Type");
                   Text_IO.Put_Line
                     (Stub_Adb,
                      "                 "
                        & "(SOAP_Record'(SOAP.Parameters.Get (R_Param, """
                        & To_String (Output.Name)
                        & """)));");
-               end if;
-
-            end if;
+            end case;
 
          else
             Text_IO.Put
