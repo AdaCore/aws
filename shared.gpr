@@ -30,10 +30,6 @@
 
 --  $Id$
 
---  Just Comment out if XMLAda is not installed on your machine
-
---  with "xmlada";
-
 project Shared is
 
    type Build_Type is ("Debug", "Release");
