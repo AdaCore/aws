@@ -50,6 +50,8 @@ package AWS.MIME is
 
    Multipart_Form_Data : aliased constant String := "multipart/form-data";
 
+   Multipart_Mixed_Replace : constant String := "multipart/x-mixed-replace";
+
    function Content_Type (Filename : in String) return String;
    --  Determine the MIME Content Type from the file's type extension.
    --  Returns "application/octet-stream" if the file type is unknown.
