@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2001                          --
+--                         Copyright (C) 2000-2003                          --
 --                               ACT-Europe                                 --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -45,6 +45,10 @@ package body AWS.Communication is
 
       PS : Parameter_Set (1 .. 5);
       I  : Natural := 0;
+
+      ---------
+      -- Add --
+      ---------
 
       procedure Add (P : in String) is
       begin
