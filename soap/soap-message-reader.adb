@@ -57,7 +57,10 @@ package body SOAP.Message.Reader is
         := Unicode.CES.Basic_8bit.From_Utf32 (Unicode.CES.Utf8.To_Utf32 (Ch));
 
       Tmp : Node;
-      pragma Unreferenced (Tmp);
+      pragma Warnings (Off, Tmp);
+      --  We are not using pragma Unreferenced here becouse of GNAT 3.15p.
+      --  It is count left side assignment as a reference.
+
    begin
       Tmp := Append_Child
         (Handler.Current_Node, Create_Text_Node (Handler.Tree, Str));
@@ -98,7 +101,10 @@ package body SOAP.Message.Reader is
       Ch      : in     Unicode.CES.Byte_Sequence)
    is
       Tmp : Node;
-      pragma Unreferenced (Tmp);
+      pragma Warnings (Off, Tmp);
+      --  We are not using pragma Unreferenced here becouse of GNAT 3.15p.
+      --  It is count left side assignment as a reference.
+
    begin
       --  Ignore these white spaces at the toplevel
       if Ch'Length >= 1
