@@ -1,6 +1,12 @@
 2004-03-09  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* aws-net-std__adasockets.adb:
+	(Bind): Catch Sockets.Naming.Naming_Error too.
+	(Connect): Idem.
+
+2004-03-09  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* aws-net-std__adasockets.adb:
 	(Accept_Socket): Catch only Sockets.Socket_Error.
 	(Bind): Catch only Sockets.Socket_Error.
 	(Connect): Don't shutdown socket if socket creation was failed.
