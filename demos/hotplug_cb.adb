@@ -28,7 +28,13 @@
 
 --  $Id$
 
+with Ada.Strings.Unbounded;
+
+with AWS.Parameters;
+
 package body Hotplug_CB is
+
+   use Ada.Strings.Unbounded;
 
    ----------
    -- Main --
@@ -38,11 +44,21 @@ package body Hotplug_CB is
      return AWS.Response.Data
    is
       URI : constant String := AWS.Status.URI (Request);
+      P   : constant AWS.Parameters.List := AWS.Status.Parameters (Request);
+
+      Parameters : Unbounded_String;
    begin
+      for K in 1 .. AWS.Parameters.Count (P) loop
+         Append (Parameters, "<p>" & Positive'Image (K) & ") Name = "
+                 & AWS.Parameters.Get_Name (P, K));
+         Append (Parameters, " Value = " & AWS.Parameters.Get_Value (P, K));
+      end loop;
+
       return AWS.Response.Build
         (Content_Type => "text/html",
          Message_Body =>
-           "<p>Ok, I'm the main server, you have asked for " & URI);
+           "<p>Ok, I'm the main server, you have asked for " & URI
+           & To_String (Parameters));
    end Main;
 
    -------------
@@ -53,11 +69,21 @@ package body Hotplug_CB is
      return AWS.Response.Data
    is
       URI : constant String := AWS.Status.URI (Request);
+      P   : constant AWS.Parameters.List := AWS.Status.Parameters (Request);
+
+      Parameters : Unbounded_String;
    begin
+      for K in 1 .. AWS.Parameters.Count (P) loop
+         Append (Parameters, "<p>" & Positive'Image (K) & ") Name = "
+                 & AWS.Parameters.Get_Name (P, K));
+         Append (Parameters, " Value = " & AWS.Parameters.Get_Value (P, K));
+      end loop;
+
       return AWS.Response.Build
         (Content_Type => "text/html",
          Message_Body =>
-           "<p>Ok, I'm the Hotplug server, you have asked for " & URI);
+           "<p>Ok, I'm the Hotplug server, you have asked for " & URI
+           & To_String (Parameters));
    end Hotplug;
 
 end Hotplug_CB;
