@@ -96,5 +96,3 @@ implemented:
 - Documentation for AWS.SMTP
 
 - Add an LDAP binding
-
-- Add a way to retrieve the original name of an uploaded file
