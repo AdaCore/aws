@@ -54,6 +54,8 @@ package body SOAP.WSDL is
         or else XSD_Type = "float"
         or else XSD_Type = "boolean"
         or else XSD_Type = "timeInstant"
+        or else XSD_Type = "dateTime"
+        or else XSD_Type = "base64Binary"
       then
          return True;
 
@@ -98,6 +100,7 @@ package body SOAP.WSDL is
          when P_String  => return "String";
          when P_Boolean => return "Boolean";
          when P_Time    => return "Ada.Calendar.Time";
+         when P_B64     => return "String";
       end case;
    end To_Ada;
 
@@ -120,8 +123,11 @@ package body SOAP.WSDL is
       elsif XSD_Type = "boolean" then
          return P_Boolean;
 
-      elsif XSD_Type = "timeInstant" then
+      elsif XSD_Type = "timeInstant" or else XSD_Type = "dateTime" then
          return P_Time;
+
+      elsif XSD_Type = "base64Binary" then
+         return P_B64;
 
       else
          Raise_Exception
