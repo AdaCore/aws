@@ -52,20 +52,20 @@ package body AWS.Session is
    --  table of session ID
 
    type Session_Node is record
-      SID        : Unbounded_String;
+      SID        : ID;
       Time_Stamp : Calendar.Time;
       Root       : AWS.Key_Value.Set;
    end record;
 
-   function Key_For (Item : in Session_Node) return String;
+   function Key_For (Item : in Session_Node) return ID;
    --  returns the Key for Session_Node
 
-   function Key_For (Item : in Session_Node) return String is
+   function Key_For (Item : in Session_Node) return ID is
    begin
-      return To_String (Item.SID);
+      return Item.SID;
    end Key_For;
 
-   package Session_Set is new Avl_Tree_Generic (String, Session_Node, Key_For);
+   package Session_Set is new Avl_Tree_Generic (ID, Session_Node, Key_For);
 
    --------------
    -- Database --
@@ -73,26 +73,29 @@ package body AWS.Session is
 
    protected Database is
 
-      entry New_Session (SID : out Session.ID);
+      entry New_Session (SID : out ID);
       --  Add a new session named Session_Name into the database
 
-      entry Delete_Session (Session_Name : in String);
+      entry Delete_Session (SID : in ID);
       --  Removes Session_Name from the Tree.
 
-      function Session_Exist (Session_Name : in String) return Boolean;
+      function Session_Exist (SID : in ID) return Boolean;
       --  Return True if session named Session_Name exist in the database
 
-      entry Key_Exist (Session_Name, Key : in    String;
-                       Result            :    out Boolean);
+      entry Key_Exist (SID    : in     ID;
+                       Key    : in     String;
+                       Result :    out Boolean);
       --  Result is set to True if Key_Name exist in session named
       --  Session_Name.
 
-      entry Get_Value (Session_Name, Key : in     String;
-                       Value             :    out Unbounded_String);
+      entry Get_Value (SID   : in     ID;
+                       Key   : in     String;
+                       Value :    out Unbounded_String);
       --  Value is set with the value associated with the key Key_Name in
       --  session Session_Name.
 
-      entry Set_Value (Session_Name, Key, Value : in String);
+      entry Set_Value (SID        : in ID;
+                       Key, Value : in String);
       --  Add the pair key/value into the session named Session_Name
 
       entry Clean;
@@ -200,16 +203,16 @@ package body AWS.Session is
       -- Delete_Session --
       --------------------
 
-      entry Delete_Session (Session_Name : in String) when Lock = 0 is
+      entry Delete_Session (SID : in ID) when Lock = 0 is
 
          N  : Session_Node;
 
       begin
-         Session_Set.Inquire (Session_Name, Sessions, N);
+         Session_Set.Inquire (SID, Sessions, N);
 
          Key_Value.Delete_Tree (N.Root);
 
-         Session_Set.Delete_Node (Session_Name, Sessions);
+         Session_Set.Delete_Node (SID, Sessions);
       exception
          when Key_Value.Tree.Node_Not_Found =>
             raise Internal_Error;
@@ -219,14 +222,15 @@ package body AWS.Session is
       -- Get_Value --
       ---------------
 
-      entry Get_Value (Session_Name, Key : in     String;
-                       Value             :    out Unbounded_String)
+      entry Get_Value (SID   : in     ID;
+                       Key   : in     String;
+                       Value :    out Unbounded_String)
         when Lock = 0
       is
          N  : Session_Node;
          KV : Key_Value.Data;
       begin
-         Session_Set.Inquire (Session_Name, Sessions, N);
+         Session_Set.Inquire (SID, Sessions, N);
 
          N.Time_Stamp := Calendar.Clock;
 
@@ -243,14 +247,15 @@ package body AWS.Session is
       -- Key_Exist --
       ---------------
 
-      entry Key_Exist (Session_Name, Key : in    String;
-                       Result            :    out Boolean)
+      entry Key_Exist (SID    : in     ID;
+                       Key    : in     String;
+                       Result :    out Boolean)
         when Lock = 0
       is
          N  : Session_Node;
          KV : Key_Value.Data;
       begin
-         Session_Set.Inquire (Session_Name, Sessions, N);
+         Session_Set.Inquire (SID, Sessions, N);
 
          N.Time_Stamp := Calendar.Clock;
 
@@ -258,7 +263,6 @@ package body AWS.Session is
 
          Key_Value.Inquire (Key, N.Root, KV);
          Result := True;
-
       exception
          when Key_Value.Tree.Node_Not_Found =>
             Result := False;
@@ -268,7 +272,7 @@ package body AWS.Session is
       -- New_Session --
       -----------------
 
-      entry New_Session (SID : out Session.ID) when Lock = 0 is
+      entry New_Session (SID : out ID) when Lock = 0 is
 
          New_Node : Session_Node;
 
@@ -277,9 +281,8 @@ package body AWS.Session is
          New_Node.Time_Stamp := Calendar.Clock;
 
          loop
-            SID := Random (SID_Generator);
-
-            New_Node.SID := To_Unbounded_String (Image (SID));
+            New_Node.SID := Random (SID_Generator);
+            SID := New_Node.SID;
 
             begin
                Session_Set.Insert_Node (New_Node, Sessions);
@@ -297,10 +300,10 @@ package body AWS.Session is
       -- Session_Exist --
       -------------------
 
-      function Session_Exist (Session_Name : in String) return Boolean is
+      function Session_Exist (SID : in ID) return Boolean is
          N  : Session_Node;
       begin
-         Session_Set.Inquire (Session_Name, Sessions, N);
+         Session_Set.Inquire (SID, Sessions, N);
          return True;
       exception
          when Session_Set.Node_Not_Found =>
@@ -311,12 +314,14 @@ package body AWS.Session is
       -- Set_Value --
       ---------------
 
-      entry Set_Value (Session_Name, Key, Value : in String) when Lock = 0 is
+      entry Set_Value (SID        : in ID;
+                       Key, Value : in String) when Lock = 0
+      is
          N  : Session_Node;
          KV : Key_Value.Data := (To_Unbounded_String (Key),
                                  To_Unbounded_String (Value));
       begin
-         Session_Set.Inquire (Session_Name, Sessions, N);
+         Session_Set.Inquire (SID, Sessions, N);
          N.Time_Stamp := Calendar.Clock;
 
          begin
@@ -361,7 +366,7 @@ package body AWS.Session is
 
    procedure Delete (SID : in ID) is
    begin
-      Database.Delete_Session (Image (SID));
+      Database.Delete_Session (SID);
    end Delete;
 
    -----------
@@ -370,7 +375,7 @@ package body AWS.Session is
 
    function Exist (SID : in ID) return Boolean is
    begin
-      return Database.Session_Exist (Image (SID));
+      return Database.Session_Exist (SID);
    exception
       when others =>
          return False;
@@ -382,7 +387,7 @@ package body AWS.Session is
    is
       Result : Boolean;
    begin
-      Database.Key_Exist (Image (SID), Key, Result);
+      Database.Key_Exist (SID, Key, Result);
       return Result;
    end Exist;
 
@@ -408,7 +413,7 @@ package body AWS.Session is
          Quit : Boolean := False;
       begin
          Action (Index,
-                 Value (To_String (Session.SID)),
+                 Session.SID,
                  Session.Time_Stamp,
                  Quit);
 
@@ -477,7 +482,7 @@ package body AWS.Session is
    begin
       Database.Get_Sessions_And_Lock (Sessions);
 
-      Session_Set.Inquire (Image (SID), Sessions, N);
+      Session_Set.Inquire (SID, Sessions, N);
 
       In_Order (Key_Value.Tree.Avl_Tree (N.Root));
 
@@ -498,7 +503,7 @@ package body AWS.Session is
    is
       Value : Unbounded_String;
    begin
-      Database.Get_Value (Image (SID), Key, Value);
+      Database.Get_Value (SID, Key, Value);
       return To_String (Value);
    end Get;
 
@@ -509,7 +514,7 @@ package body AWS.Session is
    is
       Value : Unbounded_String;
    begin
-      Database.Get_Value (Image (SID), Key, Value);
+      Database.Get_Value (SID, Key, Value);
       return Integer'Value (To_String (Value));
    exception
       when others =>
@@ -523,7 +528,7 @@ package body AWS.Session is
    is
       Value : Unbounded_String;
    begin
-      Database.Get_Value (Image (SID), Key, Value);
+      Database.Get_Value (SID, Key, Value);
       return Float'Value (To_String (Value));
    exception
       when others =>
@@ -549,7 +554,7 @@ package body AWS.Session is
       Key   : in String;
       Value : in String) is
    begin
-      Database.Set_Value (Image (SID), Key, Value);
+      Database.Set_Value (SID, Key, Value);
    end Set;
 
    procedure Set
@@ -560,9 +565,9 @@ package body AWS.Session is
       V : constant String := Integer'Image (Value);
    begin
       if V (1) = ' ' then
-         Database.Set_Value (Image (SID), Key, V (2 .. V'Last));
+         Database.Set_Value (SID, Key, V (2 .. V'Last));
       else
-         Database.Set_Value (Image (SID), Key, V);
+         Database.Set_Value (SID, Key, V);
       end if;
    end Set;
 
@@ -574,9 +579,9 @@ package body AWS.Session is
       V : constant String := Float'Image (Value);
    begin
       if V (1) = ' ' then
-         Database.Set_Value (Image (SID), Key, V (2 .. V'Last));
+         Database.Set_Value (SID, Key, V (2 .. V'Last));
       else
-         Database.Set_Value (Image (SID), Key, V);
+         Database.Set_Value (SID, Key, V);
       end if;
    end Set;
 
