@@ -249,7 +249,7 @@ package body AWS.Net.Std is
       if Last = Buffer'First - 1 then
          Ada.Exceptions.Raise_Exception
            (Socket_Error'Identity,
-            Message => "Reseive : Socket closed by peer.");
+            Message => "Receive : Socket closed by peer.");
       end if;
 
       return Buffer (1 .. Last);
