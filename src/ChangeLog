@@ -1,3 +1,12 @@
+2002-10-29  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* aws-response-set.ads, aws-response-set.adb:
+	New package.
+
+	* aws-response.ads, aws-response.adb:
+	Using AWS.Response.Set package in all AWS.Response.Data constuctors.
+	Update copyright header.
+
 2002-10-28  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-net-stream_io.adb:
