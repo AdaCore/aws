@@ -37,7 +37,7 @@ with Ada.Streams;
 
 with AWS.Net;
 
-procedure STO is
+procedure SSTO is
 
    use AWS;
    use Ada;
@@ -165,4 +165,4 @@ begin
 exception
    when E : others =>
       Text_IO.Put_Line (Exceptions.Exception_Information (E));
-end STO;
+end SSTO;

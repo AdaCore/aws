@@ -1,3 +1,8 @@
+2004-04-19  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* ssto.adb:
+	Fix typo in main procedure name.
+
 2004-04-19  Pascal Obry  <pascal@obry.org>
 
 	* makefile:
