@@ -1,3 +1,8 @@
+2004-05-28  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* afile.adb:
+	(CB): Add share mode to file open.
+
 2004-05-27  Pascal Obry  <pascal@obry.org>
 
 	* makefile:
