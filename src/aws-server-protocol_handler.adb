@@ -490,7 +490,9 @@ is
                   Socket : aliased Sockets.Socket_FD'Class := Sock;
                begin
                   AWS.Status.Set.Socket (C_Stat, Socket'Unchecked_Access);
-                  Answer := HTTP_Server.CB (C_Stat);
+
+                  Answer := Services.Dispatchers.Dispatch
+                    (HTTP_Server.Dispatcher.all, C_Stat);
                end;
             end if;
 
@@ -517,10 +519,7 @@ is
 
       end case;
 
-      AWS.Log.Write (HTTP_Server.Log,
-                     C_Stat,
-                     Answer);
-
+      AWS.Log.Write (HTTP_Server.Log, C_Stat, Answer);
    end Answer_To_Client;
 
    ----------------------
@@ -876,9 +875,8 @@ is
                  (1 .. Stream_Element_Offset (Status.Content_Length (C_Stat)));
 
                Char_Data : String (1 .. Data'Length);
-               CDI       : Positive := 1;
+               CDI       : Positive := Char_Data'First;
             begin
-               CDI := 1;
                Sockets.Receive (Sock, Data);
 
                AWS.Status.Set.Binary (C_Stat, Data);
@@ -966,7 +964,6 @@ is
             declare
                Data : constant String := Sockets.Get_Line (Sock);
             begin
-
                --  A request by the client has been received, do not abort
                --  until this request is handled.
 
@@ -1364,6 +1361,8 @@ begin
 
    For_Every_Request : loop
 
+      HTTP_Server.Slots.Mark_Phase (Index, Wait_For_Client);
+
       Status.Set.Reset (C_Stat);
 
       P_List := Status.Parameters (C_Stat);
@@ -1397,8 +1396,6 @@ begin
       --  on HTTP/1.0 protocol or we have a single slot.
 
       exit For_Every_Request when Will_Close or else Socket_Taken;
-
-      HTTP_Server.Slots.Mark_Phase (Index, Wait_For_Client);
 
    end loop For_Every_Request;
 
