@@ -299,7 +299,7 @@ package body AWS.Status is
             --  last parameter
 
             Set_Parameters (D, P (C .. I - 1), P (S .. P'Last));
-            C := P'Last;
+            exit;
 
          else
             Set_Parameters (D, P (C .. I - 1), P (S .. E - 1));
