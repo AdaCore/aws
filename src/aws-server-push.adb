@@ -145,10 +145,30 @@ package body AWS.Server.Push is
       Client_ID   : in     Client_Key;
       Socket      : in     Socket_Type;
       Environment : in     Client_Environment;
-      Kind        : in     Mode               := Plain) is
+      Kind        : in     Mode               := Plain)
+   is
+      Duplicate : Boolean;
    begin
-      Server.Register (Client_ID,
-                       To_Holder (Socket, Environment, Kind));
+      Server.Register
+        (Client_ID,
+         To_Holder (Socket, Environment, Kind), Duplicate);
+
+      if Duplicate then
+         raise Duplicate_Client_ID;
+      end if;
+   end Register;
+
+   procedure Register
+     (Server      : in out Object;
+      Client_ID   : in     Client_Key;
+      Socket      : in     Socket_Type;
+      Environment : in     Client_Environment;
+      Kind        : in     Mode;
+      Duplicate   :    out Boolean) is
+   begin
+      Server.Register
+        (Client_ID,
+         To_Holder (Socket, Environment, Kind), Duplicate);
    end Register;
 
    -----------------
@@ -182,6 +202,42 @@ package body AWS.Server.Push is
             Unregister (Table.Min_Key (Container));
          end loop;
       end Destroy;
+
+      --------------
+      -- Register --
+      --------------
+
+      procedure Register
+        (Client_ID : in     Client_Key;
+         Holder    : in     Client_Holder;
+         Duplicate :    out Boolean) is
+      begin
+         Table.Insert (Container, Client_ID, Holder, Duplicate);
+
+         if Duplicate then
+            return;
+         end if;
+
+         String'Write (Holder.Stream,
+                       "HTTP/1.1 200 OK" & New_Line
+                       & "Server: AWS (Ada Web Server) v" & Version & New_Line
+                       & Messages.Connection ("Close") & New_Line);
+
+         if Holder.Kind = Chunked then
+            String'Write
+              (Holder.Stream,
+               Messages.Transfer_Encoding ("chunked") & New_Line & New_Line);
+
+         elsif Holder.Kind = Multipart then
+            String'Write
+              (Holder.Stream,
+               Messages.Content_Type (MIME.Multipart_Mixed_Replace, Boundary)
+               & New_Line);
+         end if;
+
+         AWS.Net.Stream_IO.Flush (Holder.Stream);
+
+      end Register;
 
       ----------
       -- Send --
@@ -245,55 +301,6 @@ package body AWS.Server.Push is
          Table.Destroy (For_Remove);
       end Send;
 
-      -------------
-      -- Send_To --
-      -------------
-
-      procedure Send_To
-        (Client_ID    : in Client_Key;
-         Data         : in Client_Output_Type;
-         Content_Type : in String)
-      is
-         Value : constant Client_Holder := Table.Value (Container, Client_ID);
-      begin
-         Send_Data (Value, Data, Content_Type);
-      exception
-         when others =>
-            Unregister (Client_ID);
-            raise Client_Gone;
-      end Send_To;
-
-      --------------
-      -- Register --
-      --------------
-
-      procedure Register
-        (Client_ID : in Client_Key;
-         Holder    : in Client_Holder) is
-      begin
-         Table.Insert (Container, Client_ID, Holder);
-
-         String'Write (Holder.Stream,
-                       "HTTP/1.1 200 OK" & New_Line
-                       & "Server: AWS (Ada Web Server) v" & Version & New_Line
-                       & Messages.Connection ("Close") & New_Line);
-
-         if Holder.Kind = Chunked then
-            String'Write
-              (Holder.Stream,
-               Messages.Transfer_Encoding ("chunked") & New_Line & New_Line);
-
-         elsif Holder.Kind = Multipart then
-            String'Write
-              (Holder.Stream,
-               Messages.Content_Type (MIME.Multipart_Mixed_Replace, Boundary)
-               & New_Line);
-         end if;
-
-         AWS.Net.Stream_IO.Flush (Holder.Stream);
-
-      end Register;
-
       ---------------
       -- Send_Data --
       ---------------
@@ -333,6 +340,24 @@ package body AWS.Server.Push is
 
       end Send_Data;
 
+      -------------
+      -- Send_To --
+      -------------
+
+      procedure Send_To
+        (Client_ID    : in Client_Key;
+         Data         : in Client_Output_Type;
+         Content_Type : in String)
+      is
+         Value : constant Client_Holder := Table.Value (Container, Client_ID);
+      begin
+         Send_Data (Value, Data, Content_Type);
+      exception
+         when others =>
+            Unregister (Client_ID);
+            raise Client_Gone;
+      end Send_To;
+
       ----------------
       -- Unregister --
       ----------------
@@ -342,6 +367,9 @@ package body AWS.Server.Push is
       begin
          Table.Remove (Container, Client_ID, Value);
          Close (Value);
+      exception
+         when Table.Missing_Item_Error =>
+            null;
       end Unregister;
 
    end Object;
