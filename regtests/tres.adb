@@ -113,7 +113,8 @@ procedure Tres is
 
       select
          accept Stopped;
-      or delay 5.0;
+      or
+         delay 5.0;
          Put_Line ("Too much time to do the job !");
       end select;
 
