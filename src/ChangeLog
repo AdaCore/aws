@@ -1,5 +1,14 @@
 2004-09-15  Pascal Obry  <pascal@obry.org>
 
+	* aws-attachments.adb:
+	(Add): Fix Content_ID casing.
+
+	* aws-attachments.ads: 
+	(Add): Fix Content_ID casing.
+	Fix typo in comment.
+	
+2004-09-15  Pascal Obry  <pascal@obry.org>
+
 	* aws-client.ads, aws-client.adb, aws-headers.ads, aws-headers.adb,
 	  aws-messages.ads, aws-mime.ads, aws-mime.adb, aws-status.ads,
 	  aws-status.adb, aws-status-set.ads, aws-status-set.adb,

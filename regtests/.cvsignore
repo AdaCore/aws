@@ -1,4 +1,5 @@
 1.upload.adb
+4.upload.adb
 WSDL_6
 afile
 afile.res
@@ -7,6 +8,7 @@ alldifs
 append
 append.res
 append_sec.res
+attachment.res
 auth
 auth.res
 auth.tmp

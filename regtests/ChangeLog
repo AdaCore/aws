@@ -1,3 +1,14 @@
+2004-09-15  Pascal Obry  <pascal@obry.org>
+
+	* upload.out:
+	Update upload file number due to attachment test.
+
+	* attachment.adb, attachment.out, attachment1.txt, attachment2.txt:
+	Initial revision. Test the HTTP messages with attachments support.
+
+	* makefile:
+	(RT_STD): Add attachment test.
+
 2004-09-15  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* makefile:
