@@ -138,6 +138,7 @@ package body AWS.Headers.Set is
       end Parse_Header_Lines;
 
    begin
+      Reset (Headers);
       Parse_Header_Lines (Net.Buffered.Get_Line (Socket));
    end Read;
 
