@@ -243,6 +243,11 @@ package body SOAP.Generator is
       function Ada_Format (Name : in String) return String is
          Result : Unbounded_String;
       begin
+         --  No need to reformat this name
+         if not O.Ada_Style then
+            return Name;
+         end if;
+
          for K in Name'Range loop
             if K = Name'First then
                Append (Result, Characters.Handling.To_Upper (Name (K)));
@@ -265,11 +270,13 @@ package body SOAP.Generator is
          return To_String (Result);
       end Ada_Format;
 
+      Ada_Name : constant String := Ada_Format (Name);
+
    begin
-      if O.Ada_Style then
-         return Ada_Format (Name);
+      if WSDL.Is_Ada_Reserved_Word (Name) then
+         return "v_" & Ada_Name;
       else
-         return Name;
+         return Ada_Name;
       end if;
    end Format_Name;
 
@@ -488,8 +495,11 @@ package body SOAP.Generator is
       function Type_Name (N : in WSDL.Parameters.P_Set) return String;
       --  Returns the name of the type for parameter on node N
 
-      function Array_Type (Name : in String) return String;
-      --  Returns the type of the array element given the array Name
+      function Array_Type
+        (Name : in String; Cut : in Boolean := True)
+         return String;
+      --  Returns the type of the array element given the array Name. If Cut
+      --  is set to true tariling _xyz will be removed.
 
       procedure Generate_Array (P : in WSDL.Parameters.P_Set);
       --  Generate array definitions (type and routine conversion)
@@ -510,16 +520,21 @@ package body SOAP.Generator is
       -- Array_Type --
       ----------------
 
-      function Array_Type (Name : in String) return String is
+      function Array_Type
+        (Name : in String; Cut : in Boolean := True)
+         return String
+      is
          K : Natural := Strings.Fixed.Index (Name, "_");
       begin
-         if K = 0 then
+         --  Skip trailing _xyz
+
+         if not Cut or else K = 0 then
             K := Name'Last;
          else
             K := K - 1;
          end if;
 
-         return Name (8 .. K);
+         return Utils.Array_Type (Name (Name'First .. K));
       end Array_Type;
 
       --------------------
@@ -540,6 +555,9 @@ package body SOAP.Generator is
             if Name = "Float" or else Name = "float" then
                return "Long_Float";
 
+            elsif Name = "Double" or else Name = "double" then
+               return "Long_Long_Float";
+
             elsif Name = "String" or else Name = "string" then
                return "Unbounded_String";
 
@@ -558,7 +576,7 @@ package body SOAP.Generator is
            := Format_Name (O, To_String (P.C_Name));
 
          T_Name : constant String
-           := Slice (P.C_Name, 8, Length (P.C_Name));
+           := Array_Type (To_String (P.C_Name), Cut => False);
 
       begin
          Text_IO.New_Line (Type_Ads);
@@ -694,7 +712,7 @@ package body SOAP.Generator is
             begin
                Text_IO.Put
                  (Type_Ads, "      "
-                    &  F_Name
+                    & F_Name
                     & String'(1 .. Max - F_Name'Length => ' ') & " : ");
             end;
 
@@ -1012,6 +1030,9 @@ package body SOAP.Generator is
             elsif Name = "Long_Float" then
                return "SOAP.Types.F";
 
+            elsif Name = "Long_Long_Float" then
+               return "SOAP.Types.D";
+
             elsif Name = "Boolean" or else Name = "boolean" then
                return "SOAP.Types.B";
 
@@ -1069,6 +1090,9 @@ package body SOAP.Generator is
 
          elsif Name = "Long_Float" then
             return "SOAP.Types.XSD_Float";
+
+         elsif Name = "Long_Long_Float" then
+            return "SOAP.Types.XSD_Double";
 
          elsif Name = "Boolean" or else Name = "boolean" then
             return "SOAP.Types.XSD_Boolean";
@@ -1205,6 +1229,7 @@ package body SOAP.Generator is
       case P_Type is
          when WSDL.P_Integer => return "I";
          when WSDL.P_Float   => return "F";
+         when WSDL.P_Double  => return "D";
          when WSDL.P_String  => return "S";
          when WSDL.P_Boolean => return "B";
          when WSDL.P_Time    => return "T";
