@@ -73,14 +73,19 @@ package body SOAP.Generator is
       Output : in WSDL.Parameters.P_Set);
    --  This must be called to create the data types for composite objects
 
+   type Header_Mode is (Stub_Spec, Stub_Body, Skel_Spec, Skel_Body);
+
+   subtype Stub_Header is Header_Mode range Stub_Spec .. Stub_Body;
+
    procedure Put_Header
      (File   : in Text_IO.File_Type;
       O      : in Object;
       Proc   : in String;
       Input  : in WSDL.Parameters.P_Set;
-      Output : in WSDL.Parameters.P_Set);
-   --  Output procedure header into File. The terminating ';' or 'is' is not
-   --  outputed for this routine to be used to generate the spec and body.
+      Output : in WSDL.Parameters.P_Set;
+      Mode   : in Header_Mode);
+   --  Output procedure header into File. The terminating ';' or 'is' is
+   --  outputed depending on Spec value.
 
    function Result_Type
      (O      : in Object;
@@ -95,9 +100,7 @@ package body SOAP.Generator is
       Name : in String);
    --  Generate header box
 
-   function To_Unit_Name
-     (Filename : in String)
-      return String;
+   function To_Unit_Name (Filename : in String) return String;
    --  Returns the unit name given a filename following the GNAT
    --  naming scheme.
 
@@ -471,14 +474,30 @@ package body SOAP.Generator is
       O      : in Object;
       Proc   : in String;
       Input  : in WSDL.Parameters.P_Set;
-      Output : in WSDL.Parameters.P_Set)
+      Output : in WSDL.Parameters.P_Set;
+      Mode   : in Header_Mode)
    is
       use Ada.Strings.Fixed;
       use type SOAP.WSDL.Parameters.P_Set;
       use type SOAP.WSDL.Parameters.Kind;
 
+      procedure Put_Indent (Last : in Character := ' ');
+      --  Ouput proper indentation spaces
+
+      ----------------
+      -- Put_Indent --
+      ----------------
+
+      procedure Put_Indent (Last : in Character := ' ') is
+      begin
+         if Mode = Skel_Spec then
+            Text_IO.Put (File, "   ");
+         end if;
+         Text_IO.Put (File, "     " & Last);
+      end Put_Indent;
+
       L_Proc  : constant String := Format_Name (O, Proc);
-      Max_Len : Positive := 1;
+      Max_Len : Positive := 8;
 
       N       : WSDL.Parameters.P_Set;
    begin
@@ -496,7 +515,7 @@ package body SOAP.Generator is
       if Output = null then
          Text_IO.Put (File, "procedure " & L_Proc);
 
-         if Input /= null then
+         if Mode in Stub_Header or else Input /= null then
             Text_IO.New_Line (File);
          end if;
 
@@ -504,9 +523,13 @@ package body SOAP.Generator is
          Text_IO.Put_Line (File, "function " & L_Proc);
       end if;
 
-      if Input /= null then
-         Text_IO.Put      (File, "     (");
+      --  Input parameters
 
+      if Input /= null or else Mode in Stub_Header then
+         Put_Indent ('(');
+      end if;
+
+      if Input /= null then
          --  Output parameters
 
          N := Input;
@@ -537,17 +560,32 @@ package body SOAP.Generator is
                     (File, Format_Name (O, To_String (N.T_Name) & "_Type"));
             end case;
 
-            if N.Next = null then
-               Text_IO.Put (File, ")");
-
-            else
+            if N.Next /= null then
                Text_IO.Put_Line (File, ";");
-               Text_IO.Put      (File, "      ");
+               Put_Indent;
             end if;
 
             N := N.Next;
          end loop;
       end if;
+
+      if Mode in Stub_Header then
+         if Input /= null then
+            Text_IO.Put_Line (File, ";");
+            Put_Indent;
+         end if;
+
+         Text_IO.Put (File, "Endpoint");
+         Text_IO.Put (File, (Max_Len - 8) * ' ');
+         Text_IO.Put
+           (File, " : in String := " & To_String (O.Unit) & ".URL");
+      end if;
+
+      if Input /= null or else Mode in Stub_Header then
+         Text_IO.Put (File, ")");
+      end if;
+
+      --  Output parameters
 
       if Output /= null then
 
@@ -555,10 +593,25 @@ package body SOAP.Generator is
             Text_IO.New_Line (File);
          end if;
 
-         Text_IO.Put (File, "      return ");
+         Put_Indent;
+         Text_IO.Put (File, "return ");
 
          Text_IO.Put (File, Result_Type (O, Proc, Output));
       end if;
+
+      --  End header depending on the mode
+
+      case Mode is
+         when Stub_Spec | Skel_Spec =>
+            Text_IO.Put_Line (File, ";");
+
+         when Stub_Body =>
+            Text_IO.New_Line (Stub_Adb);
+            Text_IO.Put_Line (Stub_Adb, "   is");
+
+         when Skel_Body =>
+            null;
+      end case;
    end Put_Header;
 
    ---------------
@@ -1976,9 +2029,7 @@ package body SOAP.Generator is
    -- To_Unit_Name --
    ------------------
 
-   function To_Unit_Name
-     (Filename : in String)
-      return String is
+   function To_Unit_Name (Filename : in String) return String is
    begin
       return Strings.Fixed.Translate
         (Filename, Strings.Maps.To_Mapping ("-", "."));
