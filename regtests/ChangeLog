@@ -1,5 +1,27 @@
 2003-01-31  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* unexph2.adb:
+	Remove traceback info to have a stable output.
+	
+	* unexph2.out:
+	Update output to new stable format.
+
+2003-01-31  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* tlog.out:
+	Fix output. New tlog.adb line reference due to change in tlog.adb.
+
+	* tlog.adb:
+	Change test to not output target/compiler's version dependant output.
+
+	* makefile:
+	(RT_STD): Add unexph2.
+	
+	* unexph2.adb, unexph2.out:
+	Initial revision.
+
+2003-01-31  Pascal Obry  <p.obry@wanadoo.fr>
+
 	* makefile:
 	(RT_STD): Add tlog.
 

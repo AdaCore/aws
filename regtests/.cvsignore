@@ -67,6 +67,8 @@ b~turl4.adb
 b~turl4.ads
 b~unexph.adb
 b~unexph.ads
+b~unexph2.adb
+b~unexph2.ads
 b~upload.adb
 b~upload.ads
 b~upload2.adb
@@ -78,6 +80,7 @@ b~workorder.ads
 ctab.res
 dummy.res
 file.res
+file.tmp
 file.tmplt
 file1.html
 file2.html
@@ -119,6 +122,7 @@ turl2.res
 turl3.res
 turl4.res
 unexph.res
+unexph2.res
 upload.res
 upload2.res
 upload3.res
