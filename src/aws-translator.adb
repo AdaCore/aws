@@ -32,9 +32,6 @@
 
 with Interfaces;
 
-with AWS.Resources.Streams.Memory.ZLib.Deflate;
-with AWS.Resources.Streams.Memory.ZLib.Inflate;
-
 package body AWS.Translator is
 
    use Ada.Streams;
@@ -254,15 +251,13 @@ package body AWS.Translator is
 
    function Compress
      (Data  : access Ada.Streams.Stream_Element_Array;
-      Level : in     Compression_Level                := -1)
+      Level : in     Compression_Level                := Default_Compression)
       return Utils.Stream_Element_Array_Access
    is
-      package Deflate renames AWS.Resources.Streams.Memory.ZLib.Deflate;
-
-      Stream : Deflate.Stream_Type;
+      Stream : ZL.Stream_Type;
       Result : Utils.Stream_Element_Array_Access;
    begin
-      Deflate.Initialize (Stream, Level => Deflate.Compression_Level (Level));
+      ZL.Deflate_Initialize (Stream, Level => Level);
 
       Compress_Decompress (Stream, Data, Result);
       return Result;
@@ -277,7 +272,7 @@ package body AWS.Translator is
       Data   : access Ada.Streams.Stream_Element_Array;
       Result :    out Utils.Stream_Element_Array_Access)
    is
-      use AWS.Resources.Streams.Memory.ZLib;
+      use ZL;
 
       Chunk_Size  : constant := 4_096;
       --  This variable must be kept with a reasonable value as a chunk is
@@ -334,12 +329,10 @@ package body AWS.Translator is
    function Decompress (Data : access Ada.Streams.Stream_Element_Array)
      return Utils.Stream_Element_Array_Access
    is
-      package Inflate renames AWS.Resources.Streams.Memory.ZLib.Inflate;
-
-      Stream : Inflate.Stream_Type;
+      Stream : ZL.Stream_Type;
       Result : Utils.Stream_Element_Array_Access;
    begin
-      Inflate.Initialize (Stream);
+      ZL.Inflate_Initialize (Stream);
 
       Compress_Decompress (Stream, Data, Result);
       return Result;
