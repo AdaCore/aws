@@ -200,6 +200,7 @@ the include path for the libraries @code{POSIX}, @code{OpenSSL} and
 @ifinfo
 @menu
 * Basic notion::
+* Configuration file::
 * Session handling::
 * File upload::
 * Client side::
@@ -255,7 +256,9 @@ WS  : AWS.Server.HTTP (Max_Connection => 3,
 @noindent
 Here we have declared an HTTP channel with a maximum of 3 simultaneous
 connections using the port 1234. This channel is not secure (False) and
-answer will be given by the procedure Service.
+answer will be given by the procedure Service. It is possible to
+configure the server via a configuration file named @file{aws.ini}
+@xref{Configuration file}.
 
 @item Start the server
 
@@ -265,16 +268,20 @@ You need to start the server before using it. This is done by calling
 
 @smallexample
    procedure Start (Web_Server : @b{in out} HTTP;
+                    Name       : @b{in}     String;
                     Admin_URI  : @b{in}     String := No_Admin);
    --  @i{Start the Web server. It initialize the connections lines.}
    --  @i{Admin_URI must be set to enable the admin status page.}
 @end smallexample
 
 @noindent
-@code{Start} takes two parameters, the first one if the HTTP server to
-start and the second one is the name of the administrative page if
+@code{Start} takes three parameters, the first one if the HTTP server to
+start, the second one is the server name as shown in the administrative page,
+and the third one is the name of the administrative page if 
 needed. By default the value if the null string. The administrative page
-returns many information about the server.
+returns many information about the server. It is possible to
+configure the server via a configuration file named @file{aws.ini}
+@xref{Configuration file}.
 
 @item provides a callback procedure
 
@@ -414,6 +421,55 @@ Almost all features are used by the samples there.
 @end cartouche
 @end smallexample
 
+@node Configuration file
+@section Configuration file
+
+@noindent
+The configuration file is a way to configure the server without
+recompiling it. The server file is named @file{aws.ini}, current
+supported option are:
+
+@table @code
+@item Server_Name
+The name of the server. This must be used when calling @code{AWS.Server.Start}.
+
+@item Server_Port
+The port where server will wait for incomming connection. This must be
+used when declaring the @code{HTTP} object.
+
+@item Max_Connection
+This is the maximum number of connection for the server. This must be
+used when declaring the @code{HTTP} object.
+
+@item Admin_URI
+This is the URI to call the administrative page. This must be used when
+calling @code{AWS.Server.Start}.
+
+@item Log_File_Directory
+This is to set the directory where log file must be written. This
+parameter will be used automatically by @code{AWS.Log} if logging
+facility is enabled. By default log files are written in the current directory.
+
+@item Upload_Directory
+This is to set the directory where upload files must be stored. By
+default uploaded files are written in the current directory.
+@end table
+
+@noindent
+Each option value can be retrieved using the @code{AWS.Config} unit.
+
+@noindent
+For example to build a server where the @i{port} and the @i{maximum number} of
+connection can be changed via the configuration file:
+
+@smallexample
+WS  : AWS.Server.HTTP (Max_Connection => AWS.Config.Max_Connection, 
+                       Port           => AWS.Config.Server_Port,
+                       Security       => False,
+                       CB             => Service'Access,
+                       Session        => False);
+@end smallexample
+
 @node Session handling
 @section Session handling
 
@@ -494,8 +550,8 @@ File to process: <INPUT NAME=filename TYPE=FILE>
 
 @noindent
 On the server side, AWS will retrieve the file and put it into the
-upload directory. This directory can be changed using
-@code{Set_Upload_Directory} in @code{AWS.Server.Config}.
+upload directory. This directory can be changed using the configuration file.
+@xref{Configuration file}.
 
 @noindent
 AWS will also setup the form parameters as usual. In the above example
@@ -736,9 +792,10 @@ A complete example can be found in the demos directory. Look for
 
 @noindent
 It is possible to have the server activitly logged into the file
-@file{aws.log}. To activate the logging you must call the
+@file{aws-<date>.log}. To activate the logging you must call the
 @code{AWS.Log.Start}, and it is possible to stop logging by calling
-@code{AWS.Log.Stop}. @xref{AWS.Log}.
+@code{AWS.Log.Stop}. @xref{AWS.Log}. Log file can be changed
+automatically each day or month, see @code{AWS.Log.Start} parameter.
 
 @noindent
 The log format is very close to the Apache Web server one.
@@ -881,11 +938,11 @@ So thanks goes to Sune Falck, David C. Hoos, Jean-Fran@,cois Rameau.
 * AWS.Communication::
 * AWS.Communication.Client::
 * AWS.Communication.Server::
+* AWS.Config::
 * AWS.Log::
 * AWS.MIME::
 * AWS.Response::
 * AWS.Server::
-* AWS.Server.Config::
 * AWS.Server.Hotplug::
 * AWS.Session::
 * AWS.Status::
@@ -912,6 +969,11 @@ So thanks goes to Sune Falck, David C. Hoos, Jean-Fran@,cois Rameau.
 
 @include ../src/aws-communication-server.ads.texi
 
+@node AWS.Config
+@section AWS.Config
+
+@include ../src/aws-config.ads.texi
+
 @node AWS.Log
 @section AWS.Log
 
@@ -931,11 +993,6 @@ So thanks goes to Sune Falck, David C. Hoos, Jean-Fran@,cois Rameau.
 @section AWS.Server
 
 @include ../src/aws-server.ads.texi
-
-@node AWS.Server.Config
-@section AWS.Server.Config
-
-@include ../src/aws-server-config.ads.texi
 
 @node AWS.Server.Hotplug
 @section AWS.Server.Hotplug
