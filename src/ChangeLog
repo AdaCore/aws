@@ -1,5 +1,8 @@
 2002-10-26  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* makefile:
+	(clean): Remove aws-translator-conversion.adb.
+
 	* aws-response.ads:
 	(Undefined_Length): Minor comment fix.
 
