@@ -154,7 +154,7 @@ package body AWS.Status is
    function Check_Digest
      (D        : in Data;
       Password : in String)
-      return   Messages.Status_Code
+      return Messages.Status_Code
    is
       Nonce    : constant String := Authorization_Nonce (D);
       Auth_URI : constant String := To_String (D.Auth_URI);
