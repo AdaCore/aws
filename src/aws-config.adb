@@ -28,12 +28,12 @@
 
 --  $Id$
 
+with Ada.Characters.Handling;
 with Ada.Command_Line;
 with Ada.Strings.Fixed;
+with Ada.Strings.Maps;
 with Ada.Strings.Unbounded;
 with Ada.Text_IO;
-
-with GNAT.Regpat;
 
 with AWS.Utils;
 
@@ -197,7 +197,6 @@ package body AWS.Config is
 
    procedure Initialize is
 
-      use GNAT;
       use Ada;
 
       procedure Error_Message (Filename : in String; Message : in String);
@@ -230,20 +229,23 @@ package body AWS.Config is
 
       procedure Process_Ini (Filename : in String) is
 
-         use type GNAT.Regpat.Match_Location;
-
-         Regexp  : constant String := "^ *([#a-zA-Z_]+) +([0-9a-zA-Z/\-:.]+)";
-         Matcher : constant Regpat.Pattern_Matcher := Regpat.Compile (Regexp);
-         Matches : Regpat.Match_Array (1 .. 2);
+         Separators : constant Strings.Maps.Character_Set
+           := Strings.Maps.To_Set (' ' & ASCII.HT);
 
          File    : Text_IO.File_Type;
          Buffer  : String (1 .. 1024);
          Last    : Natural;
+
+         K_First : Natural;
+         K_Last  : Natural;
+
+         V_First : Natural;
+         V_Last  : Natural;
+
       begin
          Text_IO.Open (Name => Filename,
                        File => File,
                        Mode => Text_IO.In_File);
-
          Line := 0;
 
          while not Text_IO.End_Of_File (File) loop
@@ -259,22 +261,37 @@ package body AWS.Config is
             end loop;
 
             if Last /= 0 then
-               Regpat.Match (Matcher, Buffer (1 .. Last), Matches);
 
-               if Matches (2) /= Regpat.No_Match then
+               --  Looks for Key token
+
+               Strings.Fixed.Find_Token
+                 (Buffer (1 .. Last), Separators, Strings.Outside,
+                  K_First, K_Last);
+
+               --  Looks for associated value
+
+               Strings.Fixed.Find_Token
+                 (Buffer (K_Last + 1 .. Last), Separators, Strings.Outside,
+                  V_First, V_Last);
+
+               if K_Last /= 0 and then V_Last /= 0 then
+
                   declare
-                     Key   : constant String
-                       := Buffer (Matches (1).First .. Matches (1).Last);
-                     Value : constant String
-                       := Buffer (Matches (2).First .. Matches (2).Last);
+                     use Characters.Handling;
+
+                     Key   : constant String :=
+                       To_Upper (Buffer (K_First .. K_Last));
+
+                     Value : constant String := Buffer (V_First .. V_Last);
+
                   begin
-                     if Key = "Server_Name" then
+                     if Key = "SERVER_NAME" then
                         Server_Name_Value := To_Unbounded_String (Value);
 
-                     elsif Key = "Admin_URI" then
+                     elsif Key = "ADMIN_URI" then
                         Admin_URI_Value := To_Unbounded_String (Value);
 
-                     elsif Key = "Log_File_Directory" then
+                     elsif Key = "LOG_FILE_DIRECTORY" then
                         if Value (Value'Last) = '/' then
                            Log_File_Directory_Value
                              := To_Unbounded_String (Value);
@@ -283,7 +300,7 @@ package body AWS.Config is
                              := To_Unbounded_String (Value & '/');
                         end if;
 
-                     elsif Key = "Upload_Directory" then
+                     elsif Key = "UPLOAD_DIRECTORY" then
                         if Value (Value'Last) = '/' then
                            Upload_Directory_Value
                              := To_Unbounded_String (Value);
@@ -292,7 +309,7 @@ package body AWS.Config is
                              := To_Unbounded_String (Value & '/');
                         end if;
 
-                     elsif Key = "Max_Connection" then
+                     elsif Key = "MAX_CONNECTION" then
                         begin
                            Max_Connection_Value := Positive'Value (Value);
                         exception
@@ -301,7 +318,7 @@ package body AWS.Config is
                                 (Filename, "wrong value for " & Key);
                         end;
 
-                     elsif Key = "Server_Port" then
+                     elsif Key = "SERVER_PORT" then
                         begin
                            Server_Port_Value := Positive'Value (Value);
                         exception
@@ -310,7 +327,7 @@ package body AWS.Config is
                                 (Filename, "wrong value for " & Key);
                         end;
 
-                     elsif Key = "Cleaner_Wait_For_Client_Timeout" then
+                     elsif Key = "CLEANER_WAIT_FOR_CLIENT_TIMEOUT" then
                         begin
                            Cleaner_Wait_For_Client_Timeout_Value
                              := Duration'Value (Value);
@@ -320,7 +337,7 @@ package body AWS.Config is
                                 (Filename, "wrong value for " & Key);
                         end;
 
-                     elsif Key = "Cleaner_Wait_For_Client_Timeout" then
+                     elsif Key = "CLEANER_WAIT_FOR_CLIENT_TIMEOUT" then
                         begin
                            Cleaner_Wait_For_Client_Timeout_Value
                              := Duration'Value (Value);
@@ -330,7 +347,7 @@ package body AWS.Config is
                                 (Filename, "wrong value for " & Key);
                         end;
 
-                     elsif Key = "Cleaner_Client_Header_Timeout" then
+                     elsif Key = "CLEANER_CLIENT_HEADER_TIMEOUT" then
                         begin
                            Cleaner_Client_Header_Timeout_Value
                              := Duration'Value (Value);
@@ -340,7 +357,7 @@ package body AWS.Config is
                                 (Filename, "wrong value for " & Key);
                         end;
 
-                     elsif Key = "Cleaner_Client_Data_Timeout" then
+                     elsif Key = "CLEANER_CLIENT_DATA_TIMEOUT" then
                         begin
                            Cleaner_Client_Data_Timeout_Value
                              := Duration'Value (Value);
@@ -350,7 +367,7 @@ package body AWS.Config is
                                 (Filename, "wrong value for " & Key);
                         end;
 
-                     elsif Key = "Cleaner_Server_Response_Timeout" then
+                     elsif Key = "CLEANER_SERVER_RESPONSE_TIMEOUT" then
                         begin
                            Cleaner_Server_Response_Timeout_Value
                              := Duration'Value (Value);
@@ -360,7 +377,7 @@ package body AWS.Config is
                                 (Filename, "wrong value for " & Key);
                         end;
 
-                     elsif Key = "Force_Wait_For_Client_Timeout" then
+                     elsif Key = "FORCE_WAIT_FOR_CLIENT_TIMEOUT" then
                         begin
                            Force_Wait_For_Client_Timeout_Value
                              := Duration'Value (Value);
@@ -370,7 +387,7 @@ package body AWS.Config is
                                 (Filename, "wrong value for " & Key);
                         end;
 
-                     elsif Key = "Force_Client_Header_Timeout" then
+                     elsif Key = "FORCE_CLIENT_HEADER_TIMEOUT" then
                         begin
                            Force_Client_Header_Timeout_Value
                              := Duration'Value (Value);
@@ -380,7 +397,7 @@ package body AWS.Config is
                                 (Filename, "wrong value for " & Key);
                         end;
 
-                     elsif Key = "Force_Client_Data_Timeout" then
+                     elsif Key = "FORCE_CLIENT_DATA_TIMEOUT" then
                         begin
                            Force_Client_Data_Timeout_Value
                              := Duration'Value (Value);
@@ -390,7 +407,7 @@ package body AWS.Config is
                                 (Filename, "wrong value for " & Key);
                         end;
 
-                     elsif Key = "Force_Server_Response_Timeout" then
+                     elsif Key = "FORCE_SERVER_RESPONSE_TIMEOUT" then
                         begin
                            Force_Server_Response_Timeout_Value
                              := Duration'Value (Value);
@@ -400,7 +417,7 @@ package body AWS.Config is
                                 (Filename, "wrong value for " & Key);
                         end;
 
-                     elsif Key = "Send_Timeout" then
+                     elsif Key = "SEND_TIMEOUT" then
                         begin
                            Send_Timeout_Value
                              := Duration'Value (Value);
@@ -410,7 +427,7 @@ package body AWS.Config is
                                 (Filename, "wrong value for " & Key);
                         end;
 
-                     elsif Key = "Receive_Timeout" then
+                     elsif Key = "RECEIVE_TIMEOUT" then
                         begin
                            Receive_Timeout_Value
                              := Duration'Value (Value);
@@ -454,7 +471,7 @@ package body AWS.Config is
       end Program_Ini_File;
 
    begin
-      Process_Ini ("awi.ini");
+      Process_Ini ("aws.ini");
       Process_Ini (Program_Ini_File);
    end Initialize;
 
