@@ -70,6 +70,7 @@ STD_TESTS   := $(STD_TESTS) $(RT_SOAP)
 OTH_TESTS   := $(OTH_TESTS) check_mem
 WSDL_TESTS  = test_wsdl test_wsdl2 interoplab_main googlesearch
 WSDL_ATESTS = test_wsdl3
+WSDL2AWS    = wsdl_parse_1 wsdl_parse_2 wsdl_parse_3 wsdl_parse_4
 endif
 
 ifdef ASIS
@@ -87,7 +88,7 @@ run : build checks
 force:
 
 build: init $(sort $(STD_TESTS) $(WSDL_TESTS) $(WSDL_ATESTS) \
-	$(ASIS_TESTS) $(ASIS2_TESTS)) $(OTH_TESTS)
+	$(ASIS_TESTS) $(ASIS2_TESTS) $(WSDL2AWS)) $(OTH_TESTS)
 
 init:
 	cp ../demos/cert.pem .
@@ -133,6 +134,13 @@ ifdef GDB_REGTESTS
 else
 	./$@ > $@.res
 endif
+	-diff -c -w $@.out $@.res >> alldifs
+
+$(WSDL2AWS): force
+	echo -n Building $@
+	echo ",  run it"
+	rm -f $@.res
+	../tools/wsdl2aws -q -f -a -doc $@.wsdl | grep Message > $@.res
 	-diff -c -w $@.out $@.res >> alldifs
 
 $(ASIS_TESTS): force
