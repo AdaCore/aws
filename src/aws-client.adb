@@ -927,8 +927,8 @@ package body AWS.Client is
       No_Data : Unbounded_String renames Null_Unbounded_String;
 
       procedure Send_Authentication_Header
-        (Token       : in     String;
-         Data        : in out Authentication_Type);
+        (Token : in     String;
+         Data  : in out Authentication_Type);
       --  Send the authentication header for proxy or for server
 
       function HTTP_Prefix (Security : in Boolean) return String;
@@ -1146,8 +1146,7 @@ package body AWS.Client is
                end loop;
 
                Send_Header
-                 (Sock.all,
-                  Method & ' ' & E_URI & ' ' & HTTP_Version);
+                 (Sock.all, Method & ' ' & E_URI & ' ' & HTTP_Version);
             end;
          end if;
 
@@ -1155,23 +1154,38 @@ package body AWS.Client is
            (Sock.all, Messages.Connection (Persistence));
 
       else
+         --  We have a proxy configured
+
+         if AWS.URL.Security (Connection.Host_URL) then
+            --  We want to connect to the host using HTTPS, this can only be
+            --  done by opening a tunnel through the proxy.
+            --
+            --  CONNECT <host> HTTP/1.1
+            --  HOST <host>
+            --  [empty line]
+
+            Send_Header
+              (Sock.all, "CONNECT " & Host_Address & ' ' & HTTP_Version);
+            Send_Header
+              (Sock.all, Messages.Host (Host_Address));
+            Net.Buffered.New_Line (Sock.all);
+         end if;
+
          if URI = "" then
-            Send_Header (Sock.all,
-                         Method & ' '
-                           & To_String (Connection.Host)
-                           & ' ' & HTTP_Version);
+            Send_Header
+              (Sock.all,
+               Method & ' '
+               & To_String (Connection.Host) & ' ' & HTTP_Version);
          else
             Send_Header
               (Sock.all,
                Method & ' '
                  & HTTP_Prefix (AWS.URL.Security (Connection.Host_URL))
-                 & Host_Address & URI
-                 & ' ' & HTTP_Version);
+                 & Host_Address & URI & ' ' & HTTP_Version);
          end if;
 
          Send_Header
            (Sock.all, Messages.Proxy_Connection (Persistence));
-
       end if;
 
       --  Cookie
