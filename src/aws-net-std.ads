@@ -131,6 +131,9 @@ package AWS.Net.Std is
    pragma Inline (Errno);
    --  Return error code for the last socket operation
 
+   function Errno (Socket : in Socket_Type) return Integer;
+   --  Returns and clears error state in socket.
+
 private
 
    type Socket_Hidden;
