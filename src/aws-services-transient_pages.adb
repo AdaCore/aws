@@ -70,8 +70,9 @@ package body AWS.Services.Transient_Pages is
       --  Generate a unique ID used to create a transient URI
 
       procedure Register
-        (URI      : in String;
-         Resource : in Item);
+        (URI      : in     String;
+         Resource : in     Item;
+         Start    :    out Boolean);
       --  Register URI into the database
 
       procedure Get_Value
@@ -85,6 +86,7 @@ package body AWS.Services.Transient_Pages is
 
    private
       K         : Natural := 0;
+      Started   : Boolean := False;
       Resources : Table.Map;
    end Database;
 
@@ -267,14 +269,17 @@ package body AWS.Services.Transient_Pages is
       --------------
 
       procedure Register
-        (URI      : in String;
-         Resource : in Item)
+        (URI      : in     String;
+         Resource : in     Item;
+         Start    :    out Boolean)
       is
          Cursor  : Table.Cursor;
          Success : Boolean;
       begin
-         if Cleaner_Task = null then
-            Cleaner_Task := new Cleaner;
+         Start := Cleaner_Task = null and then not Started;
+
+         if Start then
+            Started := True;
          end if;
 
          Table.Insert (Resources, URI, Resource, Cursor, Success);
@@ -322,8 +327,13 @@ package body AWS.Services.Transient_Pages is
       Lifetime : in Duration := Default.Transient_Lifetime)
    is
       use type Calendar.Time;
+      Start : Boolean;
    begin
-      Database.Register (URI, (Resource, Calendar.Clock + Lifetime));
+      Database.Register (URI, (Resource, Calendar.Clock + Lifetime), Start);
+
+      if Start then
+         Cleaner_Task := new Cleaner;
+      end if;
    end Register;
 
 end AWS.Services.Transient_Pages;
