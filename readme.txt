@@ -1,10 +1,10 @@
 
 			    A W S - Ada Web Server
-			    2.1 release / SOAP 1.3
+			    2.2 release / SOAP 1.3
 
 Authors:
    Dmitriy Anisimkov
-   Pascal Obry                                              February 5th, 2005
+   Pascal Obry                                              February 7th, 2005
 
 
 
@@ -38,171 +38,7 @@ interoperability. Some users have also reported to have used AWS/SOAP with
 Changes
 -------
 
-Here are the main changes since AWS 2.0 :
-
-   - Improve Nonce value generation. It is far less probable to generate
-     the same Nonce value twice.
-
-   - Completely new hotplug implementation. This is the first secure version
-     and can now be used as all other AWS features.
-
-   - Support for Content-Disposition for file and stream. This make it
-     possible to properly pass the filename to be used by the client browser
-     to save the file locally. See Disposition and User_Filename parameters of
-     Response.File and Response.Stream constructors.
-
-   - Uses the Ada.Containers reference implementation (known as AI302). These
-     containers are based on an hash table and is therefore faster than the
-     previous containers based on an AVL tree. A two times speedup has been
-     experienced. Also the GNAT specific dynamic tables have been replaced
-     by an Ada.Containers.Vectors.
-
-   - A new templates engine child package provides a way to save/load a
-     Translate_Table to/from an XML document. See Templates_Parser.XML.
-
-   - A new templates engine child package provides a way to store/retrieve a
-     Tag to/from a string. This can be useful to store a complete template tag
-     into a session variable. See Templates_Parser.Utils.
-
-   - Use socket timeout based on poll(), this is cleaner as it is not
-     needed anymore to have a cleaner task on the client side to watch
-     and close connections after the timeout.
-
-   - Better support for project files for developers.
-
-   - Templates Engine is again faster, it provides a new way to store
-     translations (see Translate_Set) which is not a fixed structure like
-     Translate_Table.
-
-   - New templates engine with unified tags which can be nested at any
-     level. Vector_Tag and Matrix_Tag are now just subtype of the new type
-     Tag. Note that this new implementation is 99% upward compatible.
-
-   - Support for certificates chain.
-
-   - Support for streaming response in the HTTP client interface.
-
-   - Properly support SOAP envelope nodes containing an optional header node.
-
-   - Add support for SOAP long (xsd:long).
-
-   - Properly handle empty SOAPAction in SOAP requests.
-
-   - Better support for name-spaces in SOAP requests.
-
-   - Fix a wsdl2aws bug for array's element whose name contains an underscore.
-
-   - Add possibility to select the endpoint URL when using generated client
-     stubs (only the default URL defined in the WSDL document was handled
-     before).
-
-   - Add a new option (-d) in wsdl2aws to generate debug code. This is useful
-     to debug a SOAP client or server. It displays the SOAPAction, Procedure
-     name, Payload and response.
-
-   - Add exception handler in generated SOAP code for callback and server
-     skeleton.
-
-   - Add a new package AWS.Net.Generic_Sets which support waiting for
-     input/output availability on group of sockets and user's data
-     associated with each sockets in group.
-
-   - New support for HTTP/SOAP messages with attachments. This support is for
-     now only at the library level, there is no WSDL support nor direct
-     interface with the SOAP engine. This feature has been contributed by
-     Henrik Sundberg.
-
-   - Properly fill in the cache in buffered Read, this makes file upload
-     more efficient.
-
-   - New Templates_Parser NO_CONTEXT command filter.
-
-   - Templates_Parser table now support section blocks. This permits better
-     code sharing amongst sections.
-
-   - File upload is more secure now. All files upload to the server are
-     removed after calling the callback function.
-
-   - Add support for client's HTTPS requests through a proxy (tunneling).
-
-   - Add support for logging the sockets activity (sent and received data)
-     This API (AWS.Net.Log) can be used to debug complex applications.
-     This feature has been contributed by Henrik Sundberg.
-
-   - Add support for SOAP hotplug modules. Only standard HTTP requests were
-     supported by an hotplug module.
-
-   - Fix bug in ada2wsdl generator preventing the array component type
-     definitions to be generated in some cases.
-
-   - Fix bug in ada2wsdl generator which generated duplicate definitions for
-     record components in some cases.
-
-   - New filters ABS and NEG in the templates engine.
-
-   - Add association iterator for a Template_Set in the templates engine.
-
-   - Include template parameters can now be used as filter parameters.
-
-   - A new set of page splitters has been implemented. These splitters have
-     different ways to organize the pages, for example one can create
-     automatically an alphabetical index. Check the AWS.Services.Split_Pages
-     hierarchy for more information.
-     This feature has been contributed by Jean-Pierre Rosen.
-
-   - Fix bug in the directory browser when the URL given did not end with a
-     slash. In this case it was not possible to access the files under this
-     directory.
-
-   - Fix bug in template engine preventing the use of some characters as
-     filter parameters.
-
-   - Add support for non standard SMTP/POP ports in the Web_Mail service.
-
-   - Add new templates engine tag attribute Up_Level(n). This attribute can be
-     used on a vector to use as index an upper level table.
-
-   - Add new templates engine filter FILE_EXISTS.
-
-   - Add support for xsd:short SOAP type.
-
-   - Improve wsdl2aws to properly handle multiple schema inside WSDL
-     documents.
-
-   - Add new wsdl2aws's option to exclude a set of operations from the code
-     generator.
-
-   - Add support for WSDL/SOAP anyType objects. It is now possible to
-     exchange array of heterogeneous objects. wsdl2aws tool will generate the
-     appropriate code.
-
-   - Lot of rewrite to better support namespaces in schema in both wsdl2aws
-     and ada2wsdl tools. For example, now wsdl2aws can generate code that is
-     shared by multiple WSDL documents. A type defined in schema with the
-     same name and namespace in multiple WSDL documents will share the very
-     same code.
-
-   - Add new wsdl2aws option to force the use of a specified endpoint instead
-     of the one found in the WSDL document.
-
-   - AWS.Services.Dispatchers.URI.Register add a way to match using the URI
-     prefix instead of the full URI.
-
-   - New root directory web_elements which contains a set of reusable
-     Web design elements.
-
-   - The templates parse has now a way to set constant or aliases inside a
-     template page. This makes it easier to build reusable template files.
-
-   - The templates parser have now support for tag command attributes. The two
-     first such attributes are the table tag attributes TERMINATE_SECTIONS and
-     REVERSE.
-
-   - It is now possible to get the current request status (Status.Data) from
-     inside any callback routine. This is useful in the templates engine
-     context callback for example.
-
-   - Add support for reply all in the Web Mail service.
+Here are the main changes since AWS 2.1 :
 
    - Plus many small fixes, enhancements, API comments, and documentation work.
 
@@ -215,22 +51,6 @@ In such a case we try to give proper advice on how to change the code
 to work properly. Of course we try to avoid this as much as possible
 but we really prefer to have a clean API instead of keeping awkward
 implementations.
-
-   - In templates engine, the Vector routine is not present anymore.
-     Use Composite routine instead.
-
-   - In AWS.Client interface, Timeout_Values record field types have been
-     changed from Natural to Duration. It is possible to use less then one
-     second timeout value now. Just change all http client timeout values to
-     Duration type.
-
-   - By default an AWS server does not accept upload files. It is required to
-     activate this feature by properly setting the Upload_Directory either
-     with the Start routine procedure or a config object.
-
-   - File uploaded to the server are deleted after calling the user's
-     callback function. It is up to the user to copy/rename the file to keep
-     it around.
 
 
 Obsolescent features:
@@ -246,9 +66,6 @@ have tagged all obsolescent features with a pragma.
 
 Note that pragma Obsolescent and -gnatwj option is only supported
 since GNAT 3.16.
-
-   - AWS.Net.Set_Blocking_Mode should not be used anymore. Use
-     AWS.Net.Set_Timeout instead.
 
 
 Notes
