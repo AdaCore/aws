@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2001                          --
+--                         Copyright (C) 2000-2003                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -75,8 +75,7 @@ package body AWS.Headers.Set is
    -- Read --
    ----------
 
-   procedure Read (Headers : in out List; Socket : in Net.Socket_Type'Class)
-   is
+   procedure Read (Socket : in Net.Socket_Type'Class; Headers : in out List) is
 
       procedure Parse_Header_Lines (Line : in String);
       --  Parse the Line eventually catenated with the next line if it is a
@@ -91,12 +90,13 @@ package body AWS.Headers.Set is
       begin
          if Line = End_Of_Message then
             return;
+
          else
             declare
                use Ada.Strings;
 
-               Next_Line       : constant String :=
-                  Net.Buffered.Get_Line (Socket);
+               Next_Line       : constant String
+                 := Net.Buffered.Get_Line (Socket);
                Delimiter_Index : Natural;
 
             begin
