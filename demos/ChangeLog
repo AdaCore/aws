@@ -1,3 +1,13 @@
+2004-01-25  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* runme_service.adb:
+	(Stop): Use new server Log API.
+	(Start): Idem.
+	(Main): Add exception handler to trace exception in service log
+	 file.
+	Minor reformatting.
+	Update copyright notice.
+
 2004-01-21  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* demos.gpr:
