@@ -212,12 +212,6 @@ package body AWS.Server is
       begin
          for S in Set'Range loop
             if Is_Abortable (S, Mode) then
-               if Mode = Force then
-                  --  ??? not sure we want to keep this, should be removed at
-                  --  some point.
-                  Text_IO.Put_Line
-                    ("Aborted " & Slot_Phase'Image (Set (S).Phase));
-               end if;
                Sockets.Shutdown (Set (S).Sock);
                Mark_Phase (S, Closed);
             end if;
