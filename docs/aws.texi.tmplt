@@ -1959,6 +1959,7 @@ Jean-Fran@,cois Rameau.
 * AWS.Config::
 * AWS.Config.Ini::
 * AWS.Config.Set::
+* AWS.Dispatchers::
 * AWS.Log::
 * AWS.MIME::
 * AWS.Parameters::
@@ -2025,6 +2026,12 @@ Jean-Fran@,cois Rameau.
 @cindex AWS.Config.Set
 
 @include ../src/aws-config-set.ads.texi
+
+@node AWS.Dispatchers
+@section AWS.Dispatchers
+@cindex AWS.Dispatchers
+
+@include ../src/aws-dispatchers.ads.texi
 
 @node AWS.Log
 @section AWS.Log
