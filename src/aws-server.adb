@@ -184,6 +184,7 @@ package body AWS.Server is
    ----------------
 
    procedure Initialize (Web_Server : in out HTTP) is
+      pragma Warnings (Off, Web_Server);
    begin
       Counter.Add;
    end Initialize;
