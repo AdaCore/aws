@@ -11,7 +11,7 @@ APIFILES  = ../src/aws-response.ads.texi ../src/aws-status.ads.texi \
 	../src/aws-server.ads.texi ../src/aws-config.ads.texi \
 	../src/aws-session.ads.texi ../src/aws-client.ads.texi \
 	../src/aws-mime.ads.texi ../src/aws-communication.ads.texi \
-	../src/aws-communication-client.ads.texi \
+	../src/aws-url.ads.texi ../src/aws-communication-client.ads.texi \
 	../src/aws-communication-server.ads.texi \
 	../src/aws-server-hotplug.ads.texi ../src/aws-log.ads.texi \
 	../src/aws-parameters.ads.texi ../src/aws-config-ini.ads.texi \
@@ -24,7 +24,8 @@ build: aws.ps aws.html aws.txt aws.info
 	echo done
 
 ada.sed: makefile
-	echo "s/-- \(.*\)$$/-- @i{\1}/" > ada.sed
+	echo "s/\([^@]\)@\([^@]\)/\1@@\2/g" > ada.sed
+	echo "s/-- \(.*\)$$/-- @i{\1}/" >> ada.sed
 	echo "s/\([^-][^-][^\"]*\)\"\([^\"]*\)\"/\1\"@i{\2}\"/g" >> ada.sed
 	echo "s/@@/@@@@/g" >> ada.sed
 	echo "s/_@_/_@@_/g" >> ada.sed
