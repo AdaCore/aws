@@ -28,6 +28,8 @@
 
 --  $Id$
 
+--  with Ada.Text_IO;
+
 with Ada.Exceptions;
 with Ada.Characters.Handling;
 with Ada.Calendar;
@@ -2365,7 +2367,8 @@ package body Templates_Parser is
       --  raise Template_Error exception with message.
 
       function Get_Next_Line return Boolean;
-      --  Get new line in File and set Buffer, Last and First.
+      --  Get new line in File and set Buffer, Last and First. Returns True if
+      --  end of file reached.
 
       function Get_First_Parameter return Unbounded_String;
       --  Get first parameter in current line (second word), words beeing
@@ -2410,7 +2413,10 @@ package body Templates_Parser is
          Parse_Section_Content   --  in section content
         );
 
-      function Parse (Mode : in Parse_Mode) return Tree;
+      function Parse
+        (Mode    : in Parse_Mode;
+         No_Read : in Boolean := False)
+         return Tree;
       --  Get a line in File and returns the Tree.
 
       ----------------------------
@@ -2571,10 +2577,16 @@ package body Templates_Parser is
       -- Parse --
       -----------
 
-      function Parse (Mode : in Parse_Mode) return Tree is
+      function Parse
+        (Mode    : in Parse_Mode;
+         No_Read : in Boolean := False)
+         return Tree
+      is
          T : Tree;
       begin
-         if Mode /= Parse_Section and then Mode /= Parse_Elsif then
+         if not No_Read
+           and then (Mode /= Parse_Section and then Mode /= Parse_Elsif)
+         then
             if Get_Next_Line then
                return null;
             end if;
@@ -2583,7 +2595,8 @@ package body Templates_Parser is
          case Mode is
             when Parse_Std =>
                if Is_Stmt (End_If_Token) then
-                  Fatal_Error ("@@END_IF@@ found outside an @@IF@@ statement");
+                  Fatal_Error
+                    ("@@END_IF@@ found outside an @@IF@@ statement");
                end if;
 
                if Is_Stmt (End_Table_Token) then
@@ -2690,8 +2703,8 @@ package body Templates_Parser is
                Fatal_Error ("EOF found, @@END_IF@@ expected");
 
             else
-               T.N_False := Parse (Parse_Else);
 
+               T.N_False := Parse (Parse_Else);
             end if;
 
             T.Next := Parse (Mode);
@@ -2703,8 +2716,8 @@ package body Templates_Parser is
 
             T.Line := Line;
 
-            T.Terminate_Sections :=
-              Get_First_Parameter = Terminate_Sections_Token;
+            T.Terminate_Sections
+              := Get_First_Parameter = Terminate_Sections_Token;
 
             T.Sections := Parse (Parse_Section);
             T.Next     := Parse (Mode);
@@ -2724,8 +2737,8 @@ package body Templates_Parser is
                when others =>
                   --  Error while parsing the include file, record this
                   --  error. Let the parser exit properly from the recursion
-                  --  to be able to release properly the memory before raising
-                  --  an exception.
+                  --  to be able to release properly the memory before
+                  --  raising an exception.
 
                   Error_Include_Filename := Get_First_Parameter;
                   Free (T);
@@ -2744,23 +2757,57 @@ package body Templates_Parser is
             return T;
 
          else
-            T := new Node (Text);
+            declare
+               Root, N : Tree;
+            begin
+               loop
+                  N := new Node (Text);
 
-            T.Line := Line;
+                  if Root = null then
+                     Root := N;
+                  else
+                     T.Next := N;
+                  end if;
 
-            if Input.LF_Terminated (File)
-              and then (not Input.End_Of_File (File) or else Include_File)
-            then
-               --  Add a LF is the read line with terminated by a LF. Do not
-               --  add this LF if we reach the end of file except for included
-               --  files.
-               T.Text := Data.Parse (Buffer (1 .. Last) & ASCII.LF);
-            else
-               T.Text := Data.Parse (Buffer (1 .. Last));
-            end if;
+                  T      := N;
+                  T.Line := Line;
 
-            T.Next := Parse (Mode);
-            return T;
+                  if Input.LF_Terminated (File)
+                    and then (not Input.End_Of_File (File)
+                                or else Include_File)
+                  then
+                     --  Add a LF is the read line with terminated by a LF. Do
+                     --  not add this LF if we reach the end of file except for
+                     --  included files.
+
+                     T.Text := Data.Parse (Buffer (1 .. Last) & ASCII.LF);
+                  else
+                     T.Text := Data.Parse (Buffer (1 .. Last));
+                  end if;
+
+                  if Get_Next_Line then
+                     --  Nothing more, returns the result now.
+                     return Root;
+                  end if;
+
+                  --  If this is a statement just call the parsing routine
+
+                  if Is_Stmt (If_Token)
+                    or else Is_Stmt (ElsIf_Token)
+                    or else Is_Stmt (Else_Token)
+                    or else Is_Stmt (End_If_Token)
+                    or else Is_Stmt (Include_Token)
+                    or else Is_Stmt (Table_Token)
+                    or else Is_Stmt (Section_Token)
+                    or else Is_Stmt (End_Table_Token)
+                  then
+                     T.Next := Parse (Mode, No_Read => True);
+                     return Root;
+                  end if;
+               end loop;
+
+               return Root;
+            end;
          end if;
       end Parse;
 
@@ -3084,7 +3131,7 @@ package body Templates_Parser is
 
          Release (New_T);
          Fatal_Error
-           (To_String (Error_Include_Filename) & " include file missing.");
+           (To_String (Error_Include_Filename) & " include file missing");
       end if;
 
       if Cached then
