@@ -36,11 +36,6 @@ with AWS.Digest;
 
 package body AWS.Response.Set is
 
-   procedure Update_Data_From_Header (D : in out Data);
-   --  Update some Data fields from the internal Data header container.
-   --  The Update_Data_From_Header should be called after the complete
-   --  header parsing.
-
    ----------------
    -- Add_Header --
    ----------------
@@ -111,17 +106,6 @@ package body AWS.Response.Set is
          Value => String (Value));
    end Cache_Control;
 
-   --------------------
-   -- Content_Length --
-   --------------------
-
-   procedure Content_Length
-     (D     : in out Data;
-      Value : in     Natural) is
-   begin
-      D.Content_Length := Value;
-   end Content_Length;
-
    ------------------
    -- Content_Type --
    ------------------
@@ -146,7 +130,6 @@ package body AWS.Response.Set is
    begin
       D.Filename       := To_Unbounded_String (Value);
       D.Mode           := File;
-      D.Content_Length := Integer (Resources.File_Size (Value));
    end Filename;
 
    --------------
@@ -206,7 +189,6 @@ package body AWS.Response.Set is
    begin
       Utils.Free (D.Message_Body);
       D.Message_Body   := new Streams.Stream_Element_Array'(Value);
-      D.Content_Length := Value'Length;
       D.Mode           := Message;
    end Message_Body;
 
@@ -216,7 +198,6 @@ package body AWS.Response.Set is
    begin
       Utils.Free (D.Message_Body);
       D.Message_Body   := Value;
-      D.Content_Length := Value'Length;
       D.Mode           := Message;
    end Message_Body;
 
@@ -254,7 +235,6 @@ package body AWS.Response.Set is
       D      : in out Data) is
    begin
       Headers.Set.Read (Socket, D.Header);
-      Update_Data_From_Header (D);
    end Read_Header;
 
    -----------------
@@ -273,29 +253,12 @@ package body AWS.Response.Set is
    ------------
 
    procedure Stream
-     (D              : in out Data;
-      Handle         : access Resources.Streams.Stream_Type'Class;
-      Content_Length : in     Content_Length_Type) is
+     (D        : in out Data;
+      Handle   : access Resources.Streams.Stream_Type'Class) is
    begin
-      D.Stream         := Resources.Streams.Stream_Access (Handle);
-      D.Content_Length := Content_Length;
-      D.Mode           := Stream;
+      D.Stream := Resources.Streams.Stream_Access (Handle);
+      D.Mode   := Stream;
    end Stream;
-
-   -----------------------------
-   -- Update_Data_From_Header --
-   -----------------------------
-
-   procedure Update_Data_From_Header (D : in out Data) is
-      Content_Length_Image : constant String
-        := Headers.Get (D.Header, Messages.Content_Length_Token);
-   begin
-      if Content_Length_Image = "" then
-         D.Content_Length := Undefined_Length;
-      else
-         D.Content_Length := Content_Length_Type'Value (Content_Length_Image);
-      end if;
-   end Update_Data_From_Header;
 
    -------------------
    -- Update_Header --
