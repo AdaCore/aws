@@ -349,6 +349,15 @@ package body SOAP.Generator is
       O.Gen_Stub := False;
    end No_Stub;
 
+   -------------
+   -- Options --
+   -------------
+
+   procedure Options (O : in out Object; Options : in String) is
+   begin
+      O.Options := To_Unbounded_String (Options);
+   end Options;
+
    ---------------
    -- Overwrite --
    ---------------
@@ -369,6 +378,8 @@ package body SOAP.Generator is
       Text_IO.Put_Line (File, "--");
       Text_IO.Put_Line (File, Version_String);
       Text_IO.Put_Line (File, Time_Stamp);
+      Text_IO.Put_Line (File, "--");
+      Text_IO.Put_Line (File, "--  $ wsdl2aws " & To_String (O.Options));
       Text_IO.New_Line (File);
 
       if O.CVS_Tag then
@@ -1190,6 +1201,7 @@ package body SOAP.Generator is
 
       Text_IO.Put_Line (Root, "--  Service at : " & Location);
       Text_IO.New_Line (Root);
+
       Text_IO.Put_Line (Root, "package " & L_Name & " is");
 
       if O.WSDL_File /= Null_Unbounded_String then
