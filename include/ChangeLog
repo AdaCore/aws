@@ -1,3 +1,8 @@
+2004-09-25  Pascal Obry  <obry@act-europe.fr>
+
+	* ai302-containers-indefinite_ordered_sets.adb:
+	(Copy_Tree): Set Y to constant as not modified.
+
 2003-09-16  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* zlib/*:
