@@ -31,7 +31,6 @@
 --  $Id$
 
 with Ada.Exceptions;
-with Ada.Text_IO;
 with Ada.Unchecked_Deallocation;
 
 with Sockets.Naming;
@@ -120,6 +119,7 @@ package body AWS.Net.Std is
    procedure Free (Socket : in out Socket_Type) is
    begin
       Free (Socket.S);
+      Release_Cache (Socket);
    end Free;
 
    ------------
@@ -192,9 +192,6 @@ package body AWS.Net.Std is
       Max    : in Stream_Element_Count := 4096)
       return Stream_Element_Array is
    begin
-      if Socket.S = null then
-         Ada.Text_IO.Put_Line ("NULL !!");
-      end if;
       return Sockets.Receive (SFD (Socket.S.all), Max);
    exception
       when E : others =>
@@ -237,6 +234,7 @@ package body AWS.Net.Std is
       Sock                     := new Socket_Type;
       Socket_Type (Sock.all).S := new Socket_Hidden;
       Sockets.Socket (SFD (Socket_Type (Sock.all).S.all));
+
       return Sock;
    exception
       when E : others =>
