@@ -40,25 +40,31 @@ with Sockets;
 with AWS.Net;
 with AWS.Messages;
 with AWS.Status;
+with AWS.Server.Get_Status;
 
 package body AWS.Server is
 
    use Ada;
 
    procedure Protocol_Handler
-     (Sock    : in Sockets.Socket_FD'Class;
-      Handler : in Response.Callback;
-      Slots   : in Slots_Access;
-      Index   : in Positive);
+     (Sock        : in Sockets.Socket_FD'Class;
+      HTTP_Server : in HTTP;
+      Index       : in Positive);
    --  handle the line, this is where the HTTP protocol is defined.
 
    -----------
    -- Start --
    -----------
 
-   procedure Start (Web_Server : in out HTTP) is
+   procedure Start (Web_Server : in out HTTP;
+                    Name       : in     String;
+                    Admin_URI  : in     String := No_Admin)
+   is
       Accepting_Socket : Sockets.Socket_FD;
    begin
+      Web_Server.Name      := To_Unbounded_String (Name);
+      Web_Server.Admin_URI := To_Unbounded_String (Admin_URI);
+
       Sockets.Socket (Accepting_Socket,
                       Sockets.AF_INET,
                       Sockets.SOCK_STREAM);
@@ -164,10 +170,20 @@ package body AWS.Server is
       begin
          Set (Index).Sock   := FD;
          Set (Index).Opened := True;
+         Set (Index).Activity_Counter := Set (Index).Activity_Counter + 1;
          Count := Count - 1;
          if Count = 0 and then Set'Length > 1 then
             Abort_Oldest (True);
          end if;
+      end Get;
+
+      ---------
+      -- Get --
+      ---------
+
+      function Get (Index : in Positive) return Slot is
+      begin
+         return Set (Index);
       end Get;
 
       -------------
@@ -221,10 +237,9 @@ package body AWS.Server is
    ----------------------
 
    procedure Protocol_Handler
-     (Sock    : in Sockets.Socket_FD'Class;
-      Handler : in Response.Callback;
-      Slots   : in Slots_Access;
-      Index   : in Positive) is separate;
+     (Sock        : in Sockets.Socket_FD'Class;
+      HTTP_Server : in HTTP;
+      Index       : in Positive) is separate;
 
    ----------
    -- Line --
@@ -232,10 +247,7 @@ package body AWS.Server is
 
    task body Line is
 
-      Server_Sock : Sockets.Socket_FD;
-      Security    : Boolean;
-      CB          : Response.Callback;
-      Slots       : Slots_Access;
+      HTTP_Server : HTTP_Access;
       Slot_Index  : Positive;
 
    begin
@@ -244,11 +256,8 @@ package body AWS.Server is
          accept Start (Server : HTTP;
                        Index  : Positive)
          do
-            Slots       := Server.Slots;
-            Server_Sock := Server.Sock;
-            Security    := Server.Security;
+            HTTP_Server := Server.Self;
             Slot_Index  := Index;
-            CB          := Server.CB;
          end Start;
       or
          terminate;
@@ -259,14 +268,15 @@ package body AWS.Server is
             --  Wait for an incoming connection.
 
             Sock : aliased Sockets.Socket_FD'Class :=
-              AWS.Net.Accept_Socket (Server_Sock, Security);
+              AWS.Net.Accept_Socket (HTTP_Server.Sock,
+                                     HTTP_Server.Security);
 
          begin
             begin
-               Slots.Get (Sockets.Socket_FD (Sock), Slot_Index);
-               Slots.Set_Abortable (Slot_Index, True);
+               HTTP_Server.Slots.Get (Sockets.Socket_FD (Sock), Slot_Index);
+               HTTP_Server.Slots.Set_Abortable (Slot_Index, True);
 
-               Protocol_Handler (Sock, CB, Slots, Slot_Index);
+               Protocol_Handler (Sock, HTTP_Server.all, Slot_Index);
 
             exception
 
@@ -286,8 +296,8 @@ package body AWS.Server is
                   Text_IO.Put_Line (Ada.Exceptions.Exception_Information (E));
             end;
 
-            Slots.Set_Abortable (Slot_Index, False);
-            Slots.Release (Slot_Index);
+            HTTP_Server.Slots.Set_Abortable (Slot_Index, False);
+            HTTP_Server.Slots.Release (Slot_Index);
             Sockets.Shutdown (Sock);
          end;
       end loop;
