@@ -115,6 +115,11 @@ Here are the main changes since AWS 1.4 :
 
    - Templates engine should be a bit faster as it uses less recursivity.
 
+   - On GNAT 3.15 the templates engine should be lot faster as it uses a cache
+     buffer to work around the slow Unbounded_String implementation. It
+     improves also the performance on more recent version of GNAT by 14%.
+     This patch has been contributed by Jean Pierre Rosen.
+
    - New version of the "&" operator to prepend data into the
      templates engine's vector tags.
 
