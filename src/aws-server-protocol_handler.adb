@@ -488,20 +488,19 @@ is
 
       --  End of Internal status page handling.
 
-      --  Checking is the URL trying to see upper than Web root directory.
-      elsif CNF.Check_URL_Validity (HTTP_Server.Properties)
-         and then not AWS.URL.Is_Valid (URL)
-      then
+      --  Check if the URL is trying to reference resource above Web root
+      --  directory.
 
+      elsif CNF.Check_URL_Validity (HTTP_Server.Properties)
+        and then not AWS.URL.Is_Valid (URL)
+      then
          --  403 status code "Forbidden".
-         --  Maybe we should use 400 "Bad request".
 
          Answer := Response.Build
            (Status_Code   => Messages.S403,
             Content_Type  => "text/plain",
             Message_Body  => "Request " & URI & ASCII.LF
-            & " trying to reach resource upper than Web root directory.");
-
+            & " trying to reach resource above the Web root directory.");
 
       else
          --  Otherwise, check if a session needs to be created
