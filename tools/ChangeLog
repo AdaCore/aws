@@ -1,6 +1,20 @@
 2003-11-26  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* ada2wsdl-parser.adb:
+	(Analyse_Node): Handle A_Subtype_Declaration.
+	(Analyse_Field): Handle subtypes.
+	(Analyse_Type): Handle subtypes.
+
+	* ada2wsdl-generator.adb:
+	(Array_Constraint): New routine, returns array constraint.
+	(Write_Array): Call Array_Constraint.
+
+	* ada2wsdl.ads:
+	(Version): Set to 1.0.
+
+2003-11-26  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* ada2wsdl-parser.adb:
 	(Register_Deferred): Moved to package level.
 	(Analyse_Type): Add Deferred_U_Arrays table to handle properly
 	 field in record whose type is an array with constraint. Code
