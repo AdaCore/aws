@@ -3,7 +3,7 @@
 
 .SILENT: run rt_soap rt_std turl tgetparam param dummy simple tclientto
 .SILENT: checks checks_header checks_soap
-.SILENT: soap1 soap2 workorder
+.SILENT: soap1 soap2 workorder tres
 
 #INCLUDES = -I../src -I../ssl -I../include
 #LIBS     = -L../ssl -lssl -lcrypto
@@ -32,7 +32,7 @@ endif
 rt_soap: soap1 soap2 workorder testxml
 
 # Standard regression tests
-rt_std: turl tgetparam param dummy simple tclientto shutdown
+rt_std: turl tgetparam param dummy simple tclientto shutdown tres tres2
 
 ifeq ($(XMLADA),)
 run : rt_std checks
@@ -86,6 +86,38 @@ shutdown: force
 	gnatmake -g shutdown $(GARGS) -largs $(LARGS) -bargs -E
 	./shutdown > shutdown.res
 
+tres: force
+	echo "line 1, file 1" > file1.html
+	echo "line 2, file 1" >> file1.html
+	echo "line 1, file 2" > file2.html
+	echo "line 2, file 2" >> file2.html
+	echo "line 3, file 2" >> file2.html
+	echo "line 1, file 3" > file3.html
+	echo "line 2, file 3" >> file3.html
+	echo "line 1 : @_TAG1_@" > file.tmplt
+	echo "line 2 : @_TAG2_@" >> file.tmplt
+	echo "@@TABLE@@" >> file.tmplt
+	echo "line 3.1 : @_TAG_V_@" >> file.tmplt
+	echo "@@SECTION@@" >> file.tmplt
+	echo "line 3.2 : @_TAG_V_@" >> file.tmplt
+	echo "@@END_TABLE@@" >> file.tmplt
+	echo "@@IF@@ @_COND_@" >> file.tmplt
+	echo "   ok" >> file.tmplt
+	echo "@@ELSE@@" >> file.tmplt
+	echo "   nok" >> file.tmplt
+	echo "@@END_IF@@" >> file.tmplt
+	../tools/awsres -q -r tresres file1.html file2.html file.tmplt
+	gnatmake -g tres $(GARGS) -largs $(LARGS) -bargs -E
+	./tres > tres.res
+	echo "line 3, file 1" >> file1.html
+	echo "line 4, file 2" >> file2.html
+	echo "line 3, file 3" >> file3.html
+	./tres >> tres.res
+
+tres2: force
+	gnatmake -g tres2 $(GARGS) -largs $(LARGS) -bargs -E
+	./tres2 > tres2.res
+
 checks_soap:
 	-diff -c -w soap1.out soap1.res
 	-diff -c -w soap2.out soap2.res
@@ -107,6 +139,9 @@ endif
 	-diff -c -w simple.out simple.res
 	-diff -c -w tclientto.out tclientto.res
 	-diff -c -w shutdown.out shutdown.res
+	-diff -c -w tres.out tres.res
+	-diff -c -w tres2.out tres2.res
 
 clean:
 	-rm *.o *.ali b~*.ad* *.~*.*.~ *.res *.exe
+	-rm file1.html file2.html file3.html file.tmplt tresres*
