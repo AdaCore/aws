@@ -30,6 +30,7 @@
 
 --  $Id$
 
+with Ada.Command_Line;
 with Ada.Integer_Text_IO;
 with Ada.Strings.Unbounded;
 with Ada.Text_IO;
@@ -50,17 +51,34 @@ procedure WSDL_6_Main is
 
    use AWS;
 
+   ------------
+   -- Client --
+   ------------
+
    procedure Client is
+
       use Ada;
       use Ada.Integer_Text_IO;
       use Ada.Strings.Unbounded;
       use Ada.Text_IO;
 
+      ---------------
+      -- Double_IO --
+      ---------------
+
       package Double_IO is new Float_IO (Long_Long_Float);
       use Double_IO;
 
+      --------------
+      -- Float_IO --
+      --------------
+
       package Float_IO is new Text_IO.Float_IO (Long_Float);
       use Client.Float_IO;
+
+      -------------
+      -- Put_Rec --
+      -------------
 
       procedure Put_Rec (Rec : in WSDL_6.Rec) is
       begin
@@ -119,7 +137,14 @@ begin
 
    AWS.Server.Start (WS, Disp, Conf);
 
-   Client;
+   if Ada.Command_Line.Argument_Count = 1
+     and then Ada.Command_Line.Argument (1) = "-j"
+   then
+      AWS.Server.Wait (AWS.Server.Forever);
 
-   AWS.Server.Shutdown (WS);
+   else
+      Client;
+
+      AWS.Server.Shutdown (WS);
+   end if;
 end WSDL_6_Main;
