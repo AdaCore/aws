@@ -1,5 +1,9 @@
 2004-06-01  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
+	* xmlt_proc.adb, xmlt.adb, xmlt.out, xmlt_sec.adb, xmlt_sec.out,
+	  makefile:
+	New regression tests.
+
 	* huge_response_sec.adb, huge_response_sec.out:
 	New regtest for huge response over secure connection.
 
