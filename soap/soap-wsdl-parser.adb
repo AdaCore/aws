@@ -169,10 +169,10 @@ package body SOAP.WSDL.Parser is
    -- Accept_RPC --
    ----------------
 
-   procedure Accept_RPC (O : in out Object'Class) is
+   procedure Accept_Document (O : in out Object'Class) is
    begin
-      O.Accept_RPC := True;
-   end Accept_RPC;
+      O.Accept_Document := True;
+   end Accept_Document;
 
    -------------------
    -- Add_Parameter --
@@ -473,11 +473,11 @@ package body SOAP.WSDL.Parser is
 
       --  Check for style (only Document is supported)
 
-      if not O.Accept_RPC
-        and then Get_Attr_Value (N, "style") /= "document"
+      if not O.Accept_Document
+        and then Get_Attr_Value (N, "style") = "document"
       then
          Raise_Exception
-           (WSDL_Error'Identity, "RPC Web Service style not supported.");
+           (WSDL_Error'Identity, "Document Web Service style not supported.");
       end if;
 
       --  Check for transport (only HTTP is supported)
