@@ -38,10 +38,12 @@ with Ada.Strings.Unbounded;
 with Ada.Text_IO;
 
 with AWS.Config.Set;
+with AWS.Net.Log.Callbacks;
 with AWS.Server;
 with AWS.Status;
 with AWS.Response;
 with SOAP.Dispatchers.Callback;
+with SOAP.Types;
 
 with WSDL_6;
 with WSDL_5_Server;
@@ -62,6 +64,7 @@ procedure WSDL_6_Main is
       use Ada;
       use Ada.Strings.Unbounded;
       use Ada.Text_IO;
+      use type SOAP.Types.Long;
 
       ---------------
       -- Double_IO --
@@ -75,6 +78,18 @@ procedure WSDL_6_Main is
 
       package Float_IO is new Text_IO.Float_IO (Long_Float);
 
+      -------------
+      -- Long_IO --
+      -------------
+
+      package Long_IO is new Text_IO.Integer_IO (SOAP.Types.Long);
+
+      --------------
+      -- Short_IO --
+      --------------
+
+      package Short_IO is new Text_IO.Integer_IO (SOAP.Types.Short);
+
       ---------
       -- Put --
       ---------
@@ -82,6 +97,16 @@ procedure WSDL_6_Main is
       procedure Put (V : in Integer) is
       begin
          Integer_Text_IO.Put (V, Width => 0);
+      end Put;
+
+      procedure Put (V : in SOAP.Types.Long) is
+      begin
+         Long_IO.Put (V, Width => 0);
+      end Put;
+
+      procedure Put (V : in SOAP.Types.Short) is
+      begin
+         Short_IO.Put (V, Width => 0);
       end Put;
 
       procedure Put (V : in Boolean) is
@@ -162,6 +187,8 @@ procedure WSDL_6_Main is
 
       Put (WSDL_6_Service.Client.Echo_Int (8)); New_Line;
       Put (WSDL_6_Service.Client.Echo_Int (3)); New_Line;
+      Put (WSDL_6_Service.Client.Echo_Short (987)); New_Line;
+      Put (WSDL_6_Service.Client.Echo_Long (-543876)); New_Line;
       Put (WSDL_6_Service.Client.Echo_Float (89.12)); New_Line;
       Put (WSDL_6_Service.Client.Echo_Double (998877.123456)); New_Line;
       Put (WSDL_6_Service.Client.Echo_Boolean (True));
@@ -237,6 +264,9 @@ begin
      (Wsdl_5_Server.HTTP_CB'Access, WSDL_6_Service.CB.SOAP_CB'Access);
 
    AWS.Server.Start (WS, Disp, Conf);
+
+   AWS.Net.Log.Callbacks.Initialize
+     ("wsdl_6.log", AWS.Net.Log.Callbacks.Text'Access);
 
    if Ada.Command_Line.Argument_Count = 1
      and then Ada.Command_Line.Argument (1) = "-j"
