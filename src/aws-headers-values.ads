@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2001                          --
+--                            Copyright (C) 2002                            --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -36,33 +36,53 @@ package AWS.Headers.Values is
 
    use Ada.Strings.Unbounded;
 
+   --  Data represent a token from an header line. There is two kinds of
+   --  token, either named or un-named.
+   --
+   --     Content-Type: xyz boundary="uvt"
+   --
+   --  Here xyz is an un-named value and uvt a named value the name is
+   --  boundary.
+
    type Data (Named_Value : Boolean := True) is record
       Value : Unbounded_String;
       case Named_Value is
-         when True  => Name : Unbounded_String;
-         when False => null;
+         when True =>
+            Name : Unbounded_String;
+         when False =>
+            null;
       end case;
    end record;
 
    type Set is array (Positive range <>) of Data;
 
    generic
-      with procedure Alone_Value (Item : in String; Quit : in out Boolean);
+
+      with procedure Value
+        (Item : in     String;
+         Quit : in out Boolean);
+      --  Called for every un-named value read from the header value
+
       with procedure Named_Value
         (Name  : in     String;
          Value : in     String;
          Quit  : in out Boolean);
-   procedure Parse (Value : String);
-   --  Looking for unnamed values and Name="Value" pairs in the header line,
-   --  and call appropriate routines when found.
+      --  Called for every named value read from the header value
 
-   function Split (Value : in String) return Set;
-   --  Returns a Set with each name and named value splited from Data.
+   procedure Parse (Header_Value : in String);
+   --  Look for un-named values and named ones (Name="Value" pairs) in the
+   --  header line, and call appropriate routines when found. Quit is set to
+   --  False before calling Value or Named_Value, the parsing can be stopped
+   --  by setting Quit to True.
+
+   function Split (Header_Value : in String) return Set;
+   --  Returns a Set with each named and un-named values splited from Data.
 
    function Index
      (S              : in Set;
       Name           : in String;
-      Case_Sensitive : in Boolean := True) return Natural;
+      Case_Sensitive : in Boolean := True)
+      return Natural;
    --  Returns index for Name in the set or 0 if Name not found.
    --  If Case_Sensitive is false the find is case_insensitive.
 
