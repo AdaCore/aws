@@ -44,8 +44,9 @@ package AWS.Status is
 
    type Request_Method is (GET, HEAD, POST, PUT);
 
-   procedure Set_Host (D : in out Data; Host : in String);
-   --  set value for "Host:" parameter
+   procedure Set_Authorization (D             : in out Data;
+                                Authorization : in     String);
+   --  set value for "Authorization:" parameter
 
    procedure Set_Connection (D : in out Data; Connection : in String);
    --  set value for "Connection:" parameter
@@ -58,14 +59,17 @@ package AWS.Status is
                                Content_Type : in     String);
    --  set value for "Content-Type:" parameter
 
-   procedure Set_If_Modified_Since (D                 : in out Data;
-                                    If_Modified_Since : in     String);
-   --  set value for "If-Modified-Since:" parameter
-
    procedure Set_File_Up_To_Date (D               : in out Data;
                                   File_Up_To_Date : in     Boolean);
    --  File_Up_To_Date is true if the file to be transfered is already
    --  up-to-date on the client side.
+
+   procedure Set_Host (D : in out Data; Host : in String);
+   --  set value for "Host:" parameter
+
+   procedure Set_If_Modified_Since (D                 : in out Data;
+                                    If_Modified_Since : in     String);
+   --  set value for "If-Modified-Since:" parameter
 
    procedure Set_Request (D            : in out Data;
                           Method       : in     Request_Method;
@@ -93,15 +97,17 @@ package AWS.Status is
 
    --  All the following function are used to access the status settings.
 
-   function File_Up_To_Date   (D : in Data) return Boolean;
-   function If_Modified_Since (D : in Data) return String;
-   function Content_Type      (D : in Data) return String;
-   function Content_Length    (D : in Data) return Natural;
-   function Connection        (D : in Data) return String;
-   function Host              (D : in Data) return String;
-   function Method            (D : in Data) return Request_Method;
-   function URI               (D : in Data) return String;
-   function HTTP_Version      (D : in Data) return String;
+   function Authorization_Name     (D : in Data) return String;
+   function Authorization_Password (D : in Data) return String;
+   function Connection             (D : in Data) return String;
+   function Content_Length         (D : in Data) return Natural;
+   function Content_Type           (D : in Data) return String;
+   function File_Up_To_Date        (D : in Data) return Boolean;
+   function Host                   (D : in Data) return String;
+   function HTTP_Version           (D : in Data) return String;
+   function If_Modified_Since      (D : in Data) return String;
+   function Method                 (D : in Data) return Request_Method;
+   function URI                    (D : in Data) return String;
 
    function Parameter_Name    (D : in Data; N : in Positive) return String;
    --  returns Nth parameter name.
@@ -120,6 +126,8 @@ package AWS.Status is
 
 private
 
+   pragma Inline (Authorization_Name);
+   pragma Inline (Authorization_Password);
    pragma Inline (Set_Host);
    pragma Inline (Host);
    pragma Inline (Set_Request);
@@ -143,6 +151,8 @@ private
       Content_Length    : Natural;
       If_Modified_Since : Unbounded_String;
       File_Up_To_Date   : Boolean := False;
+      Auth_Name         : Unbounded_String;
+      Auth_Password     : Unbounded_String;
    end record;
 
    No_Data : constant Data :=
@@ -156,6 +166,8 @@ private
       Null_Unbounded_String,
       0,
       Null_Unbounded_String,
-      False);
+      False,
+      Null_Unbounded_String,
+      Null_Unbounded_String);
 
 end AWS.Status;
