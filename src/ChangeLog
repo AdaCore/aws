@@ -1,3 +1,12 @@
+2003-01-25  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-server-protocol_handler.adb:
+	(Get_File_Data): Handle exception Name_Error and Device_Error that
+	 could happen during a file upload and add clear error messages.
+
+	* aws-config-set.adb:
+	(Upload_Directory): Add ending directory separator is not present.
+
 2003-01-24  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-response.adb:
