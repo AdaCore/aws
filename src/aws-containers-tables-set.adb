@@ -69,7 +69,7 @@ package body AWS.Containers.Tables.Set is
         (Key   : in     String;
          Value : in out Name_Index_Table)
       is
-         pragma Warnings (Off, Key);
+         pragma Unreferenced (Key);
       begin
          Name_Indexes.Append (Value, Data_Table.Last (Table.Data));
       end Add_Value;
@@ -171,9 +171,9 @@ package body AWS.Containers.Tables.Set is
          Order_Number : in     Positive;
          Continue     : in out Boolean)
       is
-         pragma Warnings (Off, Key);
-         pragma Warnings (Off, Order_Number);
-         pragma Warnings (Off, Continue);
+         pragma Unreferenced (Key);
+         pragma Unreferenced (Order_Number);
+         pragma Unreferenced (Continue);
       begin
          Name_Indexes.Free (Value);
       end Release_Value;
@@ -228,7 +228,7 @@ package body AWS.Containers.Tables.Set is
         (Key    : in     String;
          Values : in out Name_Index_Table)
       is
-         pragma Warnings (Off, Key);
+         pragma Unreferenced (Key);
       begin
          if Key_Positive (N) <= Name_Indexes.Last (Values) then
 
