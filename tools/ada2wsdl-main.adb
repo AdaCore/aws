@@ -62,7 +62,7 @@ procedure Ada2WSDL.Main is
    procedure Parse_Command_Line is
    begin
       loop
-         case GNAT.Command_Line.Getopt ("f q v a: o: s:") is
+         case GNAT.Command_Line.Getopt ("f q v a: o: s: I:") is
 
             when ASCII.NUL =>
                exit;
@@ -89,7 +89,9 @@ procedure Ada2WSDL.Main is
                Options.Verbose := True;
                Text_IO.New_Line;
                Text_IO.Put_Line ("Ada2WSDL v" & Version);
-               Text_IO.New_Line;
+
+            when 'I' =>
+               Parser.Add_Option ("-I" & GNAT.Command_Line.Parameter);
 
             when others =>
                Usage;
@@ -160,6 +162,8 @@ procedure Ada2WSDL.Main is
       Put_Line ("  -f       replace an existing WSDL document");
       Put_Line ("  -q       quiet mode");
       Put_Line ("  -v       verbose mode - output the version");
+      Put_Line
+        ("  -I path  A path to a directory containing a set of sources");
       Put_Line ("  -o file  WSDL file, <filename>.wsdl by default");
       Put_Line ("  -a url   Web Service server address (URL)");
       Put_Line ("  -s name  Web Service name (default package name)");
@@ -189,7 +193,7 @@ begin
          raise Parameter_Error;
       end if;
 
-      Parser.Create_Sample;
+      Parser.Start;
 
       Generator.Write (Filename);
    end;
