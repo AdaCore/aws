@@ -1,0 +1,12 @@
+started
+first   = inline; filename="afile.o"
+second  = attachment; filename="afile.o"
+third   = inline; filename="you_got_this.o"
+fourth  = attachment; filename="you_got_this.o"
+fifth   = inline; filename="afile.o"
+sixth   = attachment; filename="afile.o"
+seventh = inline; filename="a_stream.o"
+eighth  = attachment; filename="a_stream.o"
+nineth  = 
+tenth   = 
+shutdown
