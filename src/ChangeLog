@@ -1,4 +1,31 @@
+2001-08-08  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-default.ads, aws-config.ads, aws-config.adb,
+	  aws-config-set.ads, aws-config-set.adb:
+	Rename Log_File_Prefix to Log_Filename_Prefix.
+
+	* aws-server.ads:
+	(Start): removes Log_Split_Mode parameter, this is now on
+	 Start_Log routine.
+	(Start_Log): add Split_Mode and Filename_Prefix parameters.
+
+	* aws-server.adb:
+	(Start): removes Log_Split_Mode parameter, this is now on
+	 Start_Log routine.
+	(Start): do not set SO_REUSEADDR for the accepting server socket.
+	(Start_Log): add Split_Mode and Filename_Prefix parameters. Set
+	 the configuration accordingly.
+
 2001-08-07  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-config.adb, aws-config-set.adb, aws-config-ini.adb: 
+	Lot of changes to accommodate for new Object declaration.
+
+	* aws-config.ads: 
+	(Object): now a record to be able to initialize the all parameters.
+
+	* aws-log.ads: 
+	(Object): Initialize Split field.
 
 	* aws-server-protocol_handler.adb: 
 	Use CNF renaming for AWS.Config to avoid name clash.
