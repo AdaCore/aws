@@ -1,5 +1,8 @@
 2003-11-15  Pascal Obry  <p.obry@wanadoo.fr>
-	
+
+	* soap-generator-stub.adb:
+	Minor reformatting.
+
 	* soap-generator-skel.adb:
 	(New_Procedure): Fix generated code layout for routine without
 	 parameter.
