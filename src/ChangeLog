@@ -1,5 +1,8 @@
 2001-08-17  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* aws-server.adb:
+	Minor style fix.
+
 	* aws-server-protocol_handler.adb:
 	Many changes to support server push.
 	(Socket_Taklen): new boolean.
