@@ -45,8 +45,10 @@ package body AWS.Server is
    begin
       Connection.Create_Slots (Max_Connection);
 
-      Accepting_Socket := Sockets.Socket (Sockets.AF_INET,
-                                          Sockets.SOCK_STREAM);
+      Sockets.Socket (Accepting_Socket,
+                      Sockets.AF_INET,
+                      Sockets.SOCK_STREAM);
+
       Sockets.Setsockopt (Accepting_Socket,
                           Sockets.SOL_SOCKET,
                           Sockets.SO_REUSEADDR,
@@ -57,7 +59,7 @@ package body AWS.Server is
       Sockets.Listen (Accepting_Socket);
 
       loop
-         Incoming_Socket := Sockets.Accept_Socket (Accepting_Socket);
+         Sockets.Accept_Socket (Accepting_Socket, Incoming_Socket);
          Connection.Get_Free_Slot.Start (Incoming_Socket, CB);
       end loop;
    end HTTP;
