@@ -216,17 +216,21 @@ package body AWS.Client is
       Connection.Current_Phase := Stopped;
 
       if Connection.Cleaner /= null then
-
-         begin
+         if not Connection.Cleaner'Terminated then
             --  We don't want to fail here, we really want to free the cleaner
             --  object.
-            if not Connection.Cleaner'Terminated then
+
+            begin
                Connection.Cleaner.Next_Phase;
-            end if;
-         exception
-            when others =>
-               null;
-         end;
+            exception
+               when Tasking_Error =>
+                  --  We could fail on the entry call in case of task complete.
+                  --  others exceptions should be treated as unexpected,
+                  --  and we should know about it for inverstigation
+
+                  null;
+            end;
+         end if;
 
          while not Connection.Cleaner'Terminated loop
             delay 0.01;
