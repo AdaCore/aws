@@ -614,6 +614,7 @@ Now you are ready to use @code{AWS} !
 * Server Log::
 * Secure server::
 * Unexpected exception handler::
+* Socket log::
 * Client side::
 @end menu
 
@@ -2710,6 +2711,21 @@ The complete URI
 
 @noindent
 For more information @pxref{AWS.Server} and @pxref{AWS.Exceptions}.
+
+@c ----------------------------------------------------------------------
+
+@node Socket log
+@section Socket log
+@cindex Socket log
+
+@noindent
+To ease @code{AWS} applications debugging it is possible to log all data
+sent/received to/from the sockets. For this you need to call the
+@code{AWS.Net.Log.Start} routine by passing a write procedure
+callback. You have to create such procedure or use one read-to-use
+provided in @code{AWS.Net.Log.Callbacks} package.
+
+For more information @pxref{AWS.Net.Log} and @pxref{AWS.Net.Log.Callbacks}.
 
 @c ----------------------------------------------------------------------
 
@@ -5658,6 +5674,10 @@ AWS User's API:
 * AWS.Log::
 * AWS.Messages::
 * AWS.MIME::
+* AWS.Net::
+* AWS.Net.Buffered::
+* AWS.Net.Log::
+* AWS.Net.Log.Callbacks::
 * AWS.Net.SSL::
 * AWS.Net.SSL.Certificate::
 * AWS.Parameters::
@@ -5862,6 +5882,34 @@ SOAP User's API:
 @cindex AWS.MIME
 
 @include aws-mime.ads.texi
+
+@page
+@node AWS.Net
+@appendixsec AWS.Net
+@cindex AWS.Net
+
+@include aws-net.ads.texi
+
+@page
+@node AWS.Net.Buffered
+@appendixsec AWS.Net.Buffered
+@cindex AWS.Net.Buffered
+
+@include aws-net-buffered.ads.texi
+
+@page
+@node AWS.Net.Log
+@appendixsec AWS.Net.Log
+@cindex AWS.Net.Log
+
+@include aws-net-log.ads.texi
+
+@page
+@node AWS.Net.Log.Callbacks
+@appendixsec AWS.Net.Log.Callbacks
+@cindex AWS.Net.Log.Callbacks
+
+@include aws-net-log-callbacks.ads.texi
 
 @page
 @node AWS.Net.SSL
