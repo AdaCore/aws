@@ -159,11 +159,14 @@ implemented:
 - Add support for transient page on-disk after a certain amount of time.
   Is that a good idea ?
 
-- Improve the Web_Mail high level service to be able to reply and to handle CC
-  recipients.
+- Improve the Web_Mail high level service to be able to reply and to
+  handle CC recipients.
 
 - Add more certificate information in AWS.Net.SSL.Certificate
 
-- Add AWS.Net.SSL.Supported Boolean constant.
-
 - Let SSL sockets to be used without explicitly set SSL config.
+
+- Check that Base64 ada2wsdl support is ok
+
+- Add a way to stream a response (needed to write a large responses into files
+  for example as done in agent).
