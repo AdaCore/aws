@@ -98,12 +98,12 @@ init:
 	   ../icons/*.gif
 	echo "" > alldifs
 	echo "### Every output after this line is a regression ###" >> alldifs
-	-rm file[abc].txt*
+	-rm file[abc].txt* > /dev/null 2>&1
 	echo "content of filea.txt" > filea.txt
 	echo "content of fileb.txt" > fileb.txt
 	echo "content of filec.txt" > filec.txt
-	-gzip -2 fileb.txt
-	-gzip -9 filec.txt
+	-$(GZIP) -2 fileb.txt > /dev/null 2>&1
+	-$(GZIP) -9 filec.txt > /dev/null 2>&1
 
 $(STD_TESTS): force
 	echo -n Building $@
