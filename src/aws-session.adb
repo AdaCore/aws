@@ -68,6 +68,7 @@ package body AWS.Session is
       Source      : in     Session_Node);
 
    procedure Destroy (Value : in out Session_Node);
+   --  Release the Set associated with the Session_Node.
 
    package Session_Set is new Table_Of_Static_Keys_And_Dynamic_Values_G
      (ID, "<", "=", Session_Node, Assign, Destroy);
@@ -286,6 +287,10 @@ package body AWS.Session is
             Continue : in out Boolean);
          --  Iterator callback
 
+         -------------
+         -- Process --
+         -------------
+
          procedure Process
            (SID      : in     ID;
             Session  : in     Session_Node;
@@ -340,9 +345,10 @@ package body AWS.Session is
 
          type NID is new AWS.Utils.Random_Integer;
 
-         Chars : constant String := "0123456789"
-            & "abcdefghijklmnopqrstuvwxyz"
-            & "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+         Chars : constant String
+           := "0123456789"
+           & "abcdefghijklmnopqrstuvwxyz"
+           & "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
          Rand   : NID := 0;
          Result : ID;
 
@@ -386,6 +392,10 @@ package body AWS.Session is
 
          Found : Boolean;
 
+         ------------
+         -- Modify --
+         ------------
+
          procedure Modify
            (SID  : in     ID;
             Node : in out Session_Node) is
@@ -394,6 +404,10 @@ package body AWS.Session is
             Node.Time_Stamp := Calendar.Clock;
             Key_Value.Get_Value (Node.Root, Key, Value);
          end Modify;
+
+         ------------------
+         -- Update_Value --
+         ------------------
 
          procedure Update_Value is
             new Session_Set.Update_Value_Or_Status_G (Modify);
@@ -425,6 +439,10 @@ package body AWS.Session is
             Node : in out Session_Node);
          --  Adjust time stamp and check if Key is present.
 
+         ------------
+         -- Modify --
+         ------------
+
          procedure Modify
            (SID  : in     ID;
             Node : in out Session_Node) is
@@ -433,6 +451,10 @@ package body AWS.Session is
             Node.Time_Stamp := Calendar.Clock;
             Result := Key_Value.Is_Present (Node.Root, Key);
          end Modify;
+
+         ------------------
+         -- Update_Value --
+         ------------------
 
          procedure Update_Value is
             new Session_Set.Update_Value_Or_Exception_G (Modify);
@@ -487,6 +509,10 @@ package body AWS.Session is
 
          Found : Boolean;
 
+         ------------
+         -- Modify --
+         ------------
+
          procedure Modify
            (SID  : in     ID;
             Node : in out Session_Node)
@@ -497,6 +523,10 @@ package body AWS.Session is
             Node.Time_Stamp := Calendar.Clock;
             Key_Value.Remove (Node.Root, Key, Was_Present);
          end Modify;
+
+         ------------------
+         -- Update_Value --
+         ------------------
 
          procedure Update_Value is
             new Session_Set.Update_Value_Or_Status_G (Modify);
@@ -530,6 +560,10 @@ package body AWS.Session is
 
          Found : Boolean;
 
+         ------------
+         -- Modify --
+         ------------
+
          procedure Modify
            (SID  : in     ID;
             Node : in out Session_Node)
@@ -540,6 +574,10 @@ package body AWS.Session is
             Node.Time_Stamp := Calendar.Clock;
             Key_Value.Insert_Or_Replace_Value (Node.Root, Key, V);
          end Modify;
+
+         ------------------
+         -- Update_Value --
+         ------------------
 
          procedure Update_Value is
             new Session_Set.Update_Value_Or_Status_G (Modify);
@@ -560,6 +598,10 @@ package body AWS.Session is
 
          Found : Boolean;
 
+         ------------
+         -- Modify --
+         ------------
+
          procedure Modify
            (Key  : in     ID;
             Node : in out Session_Node) is
@@ -567,6 +609,10 @@ package body AWS.Session is
          begin
             Node.Time_Stamp := Calendar.Clock;
          end Modify;
+
+         ------------
+         -- Update --
+         ------------
 
          procedure Update is new Session_Set.Update_Value_Or_Status_G (Modify);
 
@@ -615,7 +661,7 @@ package body AWS.Session is
    function Exist
      (SID : in ID;
       Key : in String)
-     return Boolean
+      return Boolean
    is
       Result : Boolean;
    begin
@@ -889,6 +935,7 @@ package body AWS.Session is
 
    procedure Save (File_Name : in String) is
       use Ada.Streams.Stream_IO;
+
       File       : File_Type;
       Sessions   : Session_Set_Access;
       Stream_Ptr : Stream_Access;
