@@ -1,3 +1,21 @@
+2004-05-27  Pascal Obry  <pascal@obry.org>
+
+	* makefile:
+	(SOURCES): Add ai302-containers-generic_array_sort.adb,
+	 ai302-containers-generic_constrained_array_sort.adb and
+	 ai302-containers-vectors.adb
+
+	* ai302-containers-generic_array_sort.ads,
+	  ai302-containers-generic_array_sort.adb:
+	Initial revision.
+	
+	* ai302-containers-generic_constrained_array_sort.ads,
+	  ai302-containers-generic_constrained_array_sort.adb:
+	Initial revision.
+
+	* ai302-containers-vectors.ads, ai302-containers-vectors.adb:
+	Initial revision.
+
 2004-05-20  Pascal Obry  <pascal@obry.org>
 
 	* ai302-strings-hash.adb:
