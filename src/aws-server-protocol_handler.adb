@@ -1116,10 +1116,6 @@ is
               (Messages.Referer_Token'Length + 1 .. Command'Last));
 
       end if;
-
-   exception
-      when others =>
-         raise Internal_Error;
    end Parse;
 
    ------------------------
