@@ -160,6 +160,15 @@ package body AWS.Messages is
       return Authorization_Token & Mode & ' ' & Password;
    end Authorization;
 
+   -------------------
+   -- Cache_Control --
+   -------------------
+
+   function Cache_Control (Option : in Cache_Option) return String is
+   begin
+      return Cache_Control_Token & ' ' & String (Option);
+   end Cache_Control;
+
    ----------------
    -- Connection --
    ----------------
