@@ -121,6 +121,9 @@ Here are the main changes since AWS 1.3 :
    - Templates_Parser use lot less stack space than before while parsing a
      template file. It is now possible to parse very large template file.
 
+   - Important Templates_Parser speed-up for template files containing large
+     vector or matrix tags.
+
    - Slots activity counters are updated only if an answer as been handled.
 
    - The directory browser's template file can now be configured using the
@@ -177,8 +180,9 @@ AWS Home Page (sources and documentation):
 
 Templates_Parser sources: 
    Templates_Parser module (sources and documentation) is provided with AWS
-   distribution. Latest version of this module and the documentation can be
-   found at:
+   distribution. Version 6.0 is distributed with AWS 1.4.
+
+   Latest version of this module and the documentation can be found at:
 
    http://perso.wanadoo.fr/pascal.obry/contrib.html
    http://perso.wanadoo.fr/pascal.obry/templates_parser.html
