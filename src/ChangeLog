@@ -28,6 +28,7 @@
 	(Get_Response.Read_Chunk): Function removed.
 	(Get_Response.Read_Chunked): New procedure.
 	(Get_Response.Read_Until_Close): Removed. Use loop instead.
+	Remove with GNAT.Table.
 
 2003-09-29  Pascal Obry  <p.obry@wanadoo.fr>
 
