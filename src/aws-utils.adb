@@ -165,20 +165,10 @@ package body AWS.Utils is
    ---------------
 
    function Is_Number (S : in String) return Boolean is
-      use Strings;
+      use Strings.Maps;
    begin
-      if S'Length = 0 then
-         --  S is empty, can't be a number
-         return False;
-      end if;
-
-      for K in S'Range loop
-         if not Maps.Is_In (S (K), Maps.Constants.Decimal_Digit_Set) then
-            return False;
-         end if;
-      end loop;
-
-      return True;
+      return S'Length > 0
+        and then Is_Subset (To_Set (S), Constants.Decimal_Digit_Set);
    end Is_Number;
 
    -----------
