@@ -46,6 +46,11 @@ package body Runme_CB is
          return AWS.Response.File (Content_Type => "image/gif",
                                    Filename     => "adains.gif");
 
+      elsif URI = "/logo.gif" then
+         --  this is for the status page
+         return AWS.Response.File (Content_Type => "image/gif",
+                                   Filename     => "logo.gif");
+
       elsif URI = "/last" then
          return AWS.Response.Build
            (Content_Type => "text/html",
