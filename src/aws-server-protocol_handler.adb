@@ -632,8 +632,12 @@ begin
 
       Answer_To_Client;
 
+      --  exit if connection has not the Keep-Alive status or we are working
+      --  on HTTP/1.0 protocol or we have a single slot.
+
       exit when Status.Connection (C_Stat) /= "Keep-Alive"
-        or else Status.HTTP_Version (C_Stat) = HTTP_10;
+        or else Status.HTTP_Version (C_Stat) = HTTP_10
+        or else Slots.N = 1;
 
    end loop For_Every_Request;
 
