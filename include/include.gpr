@@ -34,27 +34,35 @@ with "../shared";
 
 project Include is
 
-  for Object_Dir use "../obj";
+   case Shared.Build is
+      when "Debug" =>
+         for Object_Dir use "../.build/debug/include";
+      when "Release" =>
+         for Object_Dir use "../.build/release/include";
+   end case;
 
-  for Source_Dirs use (".");
+   for Source_Dirs use (".");
 
-  --------------
-  -- Compiler --
-  --------------
+   --------------
+   -- Compiler --
+   --------------
 
-  package Compiler is
+   package Compiler is
 
       case Shared.Build is
          when "Debug" =>
             for Default_Switches ("Ada") use ("-m", "-g");
 
-         when "Production" =>
+         when "Release" =>
             for Default_Switches ("Ada") use ("-O2", "-gnatws", "-gnatn");
       end case;
 
-      for Switches ("templates_parser-input.adb") use ("-I../src");
-      --  Special case for this file as it uses the AWS resource support
-
    end Compiler;
+
+   -------------
+   -- Builder --
+   -------------
+
+   package Builder renames Shared.Builder;
 
 end Include;

@@ -31,6 +31,7 @@
 --  $Id$
 
 with "../shared";
+with "../include/include";
 with "../src/src";
 with "../ssl/ssl";
 with "../ssl/nossl";
@@ -40,7 +41,7 @@ project Demos is
    for Main use ("hello_world.adb", "runme.adb", "com_1.adb", "com_2.adb",
                  "main.adb", "hotplug.adb", "dispatch.adb", "wps.adb",
                  "ws.adb", "auth.adb", "agent.adb", "text_input.adb",
-                 "vh_demo.adb");
+                 "vh_demo.adb", "res_demo.adb");
 
    case Shared.XMLAda is
       when "Installed" =>
@@ -49,7 +50,14 @@ project Demos is
               "wsdl_demo_client.adb", "wsdl_demo_server.adb");
    end case;
 
-   for Object_Dir use "obj";
+   case Shared.Build is
+      when "Debug" =>
+         for Object_Dir use "../.build/debug/demos/obj";
+         for Exec_Dir use "../.build/debug/demos";
+      when "Release" =>
+         for Object_Dir use "../.build/release/demos/obj";
+         for Exec_Dir use "../.build/release/demos";
+   end case;
 
    --------------
    -- Compiler --
@@ -62,7 +70,7 @@ project Demos is
             for Default_Switches ("Ada")
               use ("-m", "-g", "-gnaty3abcefhiklmnoprt");
 
-         when "Production" =>
+         when "Release" =>
             for Default_Switches ("Ada")
               use ("-O2", "-gnatws", "-gnatn");
       end case;

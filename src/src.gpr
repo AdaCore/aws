@@ -36,23 +36,18 @@ with "../ssl/ssl";
 
 project Src is
 
-   ------------
-   -- Socket --
-   ------------
+   for Source_Dirs use (".");
 
-   type Socket_Type is ("GNAT", "AdaSockets");
-   Socket : Socket_Type := external ("Socket", "GNAT");
+   case Shared.Build is
+      when "Debug" =>
+         for Object_Dir use "../.build/debug/obj";
+      when "Release" =>
+         for Object_Dir use "../.build/release/obj";
+   end case;
 
-   ------------
-   -- OS_Lib --
-   ------------
-
-   type OS_Lib_Type is ("GNAT", "Win32", "POSIX");
-   OS_Lib : OS_Lib_Type := external ("OS_Lib", "GNAT");
-
-   for Source_Dirs use (".", "../config");
-
-   for Object_Dir use "../obj";
+--     for Library_Dir use "../lib";
+--     for Library_Name use "aws";
+--     for Library_Kind use "static";
 
    --------------
    -- Compiler --
@@ -70,41 +65,5 @@ project Src is
       when "Installed" =>
          for Source_Dirs use project'Source_Dirs & ("../xsrc", "../soap");
    end case;
-
-   ------------
-   -- Naming --
-   ------------
-
-   package Naming is
-
-      --  Socket implementation
-
-      case Socket is
-         when "GNAT" =>
-            for Implementation ("aws.net.std")
-              use "aws-net-std__gnat.adb";
-
-         when "AdaSockets" =>
-            for Implementation ("aws.net.std")
-              use "aws-net-std__adasockets.adb";
-      end case;
-
-      --  OS_Lib implementation
-
-      case OS_Lib is
-         when "GNAT" =>
-            for Implementation ("aws.os_lib")
-              use "aws-os_lib__gnat.adb";
-
-         when "Win32" =>
-            for Implementation ("aws.os_lib")
-              use "aws-os_lib__gnat.adb";
-
-         when "POSIX" =>
-            for Implementation ("aws.os_lib")
-              use "aws-os_lib__gnat.adb";
-      end case;
-
-   end Naming;
 
 end Src;
