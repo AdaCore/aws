@@ -1,6 +1,11 @@
 
 # $Id$
 
+# Try to remove define below after GCC newer then 3.4.2 release.
+# This is for work around bug in project linker sequence.
+
+GCC_342_FIX = -largs -laws
+
 build_res:
 	echo Generate resources for res_demo
 	$(AWSRES) -q -r rdemo adains.png page3.html
@@ -12,15 +17,8 @@ build_wsdl:
 
 force:
 
-ifeq (${PRJ_BUILD}, Debug)
-AWSRES	 = ../.build/debug/tools/awsres
-WSDL2AWS = ../.build/debug/tools/wsdl2aws
-else
-ifeq (${PRJ_BUILD}, Release)
-AWSRES   = ../.build/release/tools/awsres
-WSDL2AWS = ../.build/release/tools/wsdl2aws
-endif
-endif
+AWSRES   = .$(BDIR)/tools/awsres
+WSDL2AWS = .$(BDIR)/tools/wsdl2aws
 
 ifeq (${PRJ_XMLADA}, Installed)
 BUILD_EXT = build_wsdl
@@ -31,9 +29,9 @@ setup:
 	-$(MKDIR) -p ../.build/release/demos/obj
 
 build: build_res $(BUILD_EXT)
-	$(GNATMAKE) -Pdemos -XBuild=${PRJ_BUILD} -XXMLADA=${PRJ_XMLADA}
+	$(GNATMAKE) -Pdemos -XBuild=${PRJ_BUILD} -XXMLADA=${PRJ_XMLADA} $(GCC_342_FIX)
 	$(GNATMAKE) -Pdemos_ssl -XSOCKET=${SOCKET} \
-		-XBuild=${PRJ_BUILD} -XXMLADA=${PRJ_XMLADA}
+		-XBuild=${PRJ_BUILD} -XXMLADA=${PRJ_XMLADA} $(GCC_342_FIX)
 
 clean:
 	$(RM) -fr ../.build/debug/demos
