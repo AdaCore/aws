@@ -125,6 +125,18 @@ package AWS.Net.SSL is
       Config : in     SSL.Config);
    --  Set the SSL configuration object for the secure socket
 
+   function Secure_Client
+     (Socket : in Net.Socket_Type'Class;
+      Config : in SSL.Config := Null_Config) return Socket_Type;
+   --  Make client side SSL connection from plain socket.
+   --  Do not free or close source socket after this call.
+
+   function Secure_Server
+     (Socket : in Net.Socket_Type'Class;
+      Config : in SSL.Config := Null_Config) return Socket_Type;
+   --  Make server side SSL connection from plain socket.
+   --  Do not free or close source socket after this call.
+
 private
 
    package TSSL renames Standard.SSL.Thin;
