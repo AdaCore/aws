@@ -104,7 +104,7 @@ package AWS.Messages is
    Expires_Token             : constant String := "Expires";
    Last_Modified_Token       : constant String := "Last-Modified";
 
-   --  Other tokens.
+   --  Other tokens
    Proxy_Connection_Token    : constant String := "Proxy-Connection";
    Content_Disposition_Token : constant String := "Content-Disposition";
    Cookie_Token              : constant String := "Cookie";
