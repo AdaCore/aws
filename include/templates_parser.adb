@@ -841,6 +841,28 @@ package body Templates_Parser is
       V.Count     := 0;
    end Initialize;
 
+   ----------
+   -- Item --
+   ----------
+
+   function Item (Vect : in Vector_Tag; N : in Positive) return String is
+      K : Positive := 1;
+      V : Vector_Tag_Node_Access := Vect.Head;
+   begin
+      loop
+         if K = N then
+            return To_String (V.Value);
+         end if;
+
+         V := V.Next;
+         K := K + 1;
+
+         if V = null then
+            raise Constraint_Error;
+         end if;
+      end loop;
+   end Item;
+
    --------------
    -- Finalize --
    --------------
