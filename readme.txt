@@ -4,7 +4,7 @@
 				       
 Authors:
    Dmitriy Anisimkov
-   Pascal Obry                                                 Marsh 18th, 2003
+   Pascal Obry                                                 Marsh 19th, 2003
 
 
 
@@ -29,7 +29,9 @@ The SOAP implementation has been validated on http://validator.soapware.org/.
 Here are the main changes since AWS 1.3 :
 
    - Add WSDL parser and SOAP stub/skeleton generator. This implementation has 
-     passed many tests on http://www.whitemesa.com/interop/proposal2.html
+     passed many tests (base and B tests) from the SOAP Interoperability Tests
+     Specification (see http://www.xmethods.net/ilab/ and
+     http://www.whitemesa.com/interop/proposal2.html)
 
    - wsdl2aws, new tool. Generate SOAP/AWS stub/skeleton from a WSDL
      document. With this tool it is very easy to build or to connect to Web
@@ -57,6 +59,10 @@ Here are the main changes since AWS 1.3 :
      from the parsed string.
 
    - Handle properly accents in SOAP messages.
+
+   - It is now possible to retrieve the running server from a callback
+     procedure. From there it is also possible to get the server
+     configuration. See AWS.Server.Get_Current.
 
    - Plus many small fixes, enhancements and documentation work.
 
