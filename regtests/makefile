@@ -1,7 +1,9 @@
 
 # $Id$
 
-.SILENT: run turl tgetparam param dummy simple checks
+.SILENT: run rt_soap rt_std turl tgetparam param dummy simple tclientto
+.SILENT: checks checks_header checks_soap
+.SILENT: soap1 soap2 workorder
 
 #INCLUDES = -I../src -I../ssl -I../include
 #LIBS     = -L../ssl -lssl -lcrypto
@@ -26,7 +28,17 @@ BARGS = -E
 LARGS = $(LFLAGS) $(LIBS)
 endif
 
-run : turl tgetparam param dummy simple soap1 soap2 workorder checks
+# SOAP regression tests
+rt_soap: soap1 soap2 workorder
+
+# Standard regression tests
+rt_std: turl tgetparam param dummy simple tclientto
+
+ifeq ($(XMLADA),)
+run : rt_std checks
+else
+run : rt_std rt_soap checks
+endif
 
 force:
 
@@ -62,16 +74,29 @@ workorder: force
 	gnatmake -g workorder $(GARGS) -largs $(LARGS) -bargs -E
 	./workorder > workorder.res
 
-checks:
+tclientto: force
+	gnatmake -g tclientto $(GARGS) -largs $(LARGS) -bargs -E
+	./tclientto > tclientto.res
+
+checks_soap:
+	-diff -c -w soap1.out soap1.res
+	-diff -c -w soap2.out soap2.res
+	-diff -c -w workorder.out workorder.res
+
+checks_header:
 	echo "### Every output after this line means there is a regression ###"
+
+ifeq ($(XMLADA),)
+checks: checks_header
+else
+checks: checks_header checks_soap
+endif
 	-diff -c -w turl.out turl.res
 	-diff -c -w tgetparam.out tgetparam.res
 	-diff -c -w param.out param.res
 	-diff -c -w dummy.out dummy.res
 	-diff -c -w simple.out simple.res
-	-diff -c -w soap1.out soap1.res
-	-diff -c -w soap2.out soap2.res
-	-diff -c -w workorder.out workorder.res
+	-diff -c -w tclientto.out tclientto.res
 
 clean:
 	-rm *.o *.ali b~*.ad* *.~*.*.~ *.res *.exe
