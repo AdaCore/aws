@@ -40,7 +40,7 @@ with AWS.Messages;
 with AWS.OS_Lib;
 with AWS.Session;
 with AWS.Status;
-with AWS.Server.Config;
+with AWS.Config;
 with AWS.Server.Get_Status;
 with AWS.Utils;
 
@@ -587,11 +587,11 @@ is
          begin
             File_Upload_UID.Get (UID);
             if I = 0 then
-               return Server.Config.Upload_Directory (HTTP_Server)
+               return Config.Upload_Directory
                  & Utils.Image (UID) & '_'
                  & Filename;
             else
-               return Server.Config.Upload_Directory (HTTP_Server)
+               return Config.Upload_Directory
                  & Utils.Image (UID) & '_'
                  & Filename (I + 1 .. Filename'Last);
             end if;
