@@ -16,6 +16,8 @@ APIFILES  = ../src/aws-response.ads.texi ../src/aws-status.ads.texi \
 	../src/aws-server-hotplug.ads.texi ../src/aws-log.ads.texi \
 	../src/aws-parameters.ads.texi ../src/aws-config-ini.ads.texi \
 	../src/aws-config-set.ads.texi ../src/aws-server-push.ads.texi \
+	../src/aws-services-directory.ads.texi \
+	../src/aws-services-page_server.ads.texi \
 	../soap/soap-message.ads.texi ../soap/soap-message-xml.ads.texi \
 	../soap/soap-parameters.ads.texi ../soap/soap-types.ads.texi \
 	../soap/soap-client.ads.texi
