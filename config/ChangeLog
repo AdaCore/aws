@@ -1,6 +1,28 @@
-2004-01-13  Dmitriy Anisimkov <anisimkov@yahoo.com>
+2004-03-09  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
-	* aws-net-std__adasockets.adb, aws-os_lib__gnat.adb:
+	* aws-net-std__adasockets.adb:
+	(Accept_Socket): Catch only Sockets.Socket_Error.
+	(Bind): Catch only Sockets.Socket_Error.
+	(Connect): Don't shutdown socket if socket creation was failed.
+	 catch only Sockets.Connection_Refused and Sockets.Socket_Error.
+	(Listen): Catch only Sockets.Socket_Error.
+
+	* aws-net-std__gnat.adb:
+	(Accept_Socket): Catch only Sockets.Socket_Error.
+	(Bind): Catch only Sockets.Socket_Error and Sockets.Host_Error.
+	(Connect): Don't shutdown socket if socket creation was failed.
+	 catch only Sockets.Host_Error and Sockets.Socket_Error.
+	(Get_Receive_Buffer_Size): Catch Sockets.Socket_Error.
+	(Get_Send_Buffer_Size): Idem.
+	(Listen): Idem.
+	(Peer_Addr): Idem.
+	(Receive): Idem.
+	(Send): Idem.
+	(Set_Blocking_Mode): Idem.
+
+2004-03-01  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* aws-net-std__adasockets.adb, aws-net-std__gnat.adb:
 	(Errno): New routine.
 
 2004-01-14  Pascal Obry  <p.obry@wanadoo.fr>
