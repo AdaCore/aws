@@ -8,8 +8,9 @@ ifeq ($(MODE),ssl)
 # For SSL support, note that -lgdi32 is Win32 specific and should be removed
 # under others platforms.
 
-GARGS = -I../src -I../ssl -I../include -I../soap $(INCLUDES) -i -gnatwu -g
+GARGS = -m -I../src -I../ssl -I../include -I../soap $(INCLUDES) -i -gnatwu -g
 BARGS = -E
+
 ifeq (${OS}, Windows_NT)
 LARGS = $(LIBS) -L../win32 -lssl -lcrypto -lRSAglue -lgdi32
 else
@@ -19,7 +20,7 @@ endif
 else
 # Without SSL support
 
-GARGS = -I../src -I../include -I../soap $(INCLUDES) -i -gnatwu -g
+GARGS = -m -I../src -I../include -I../soap $(INCLUDES) -i -gnatwu -g
 BARGS = -E
 LARGS = $(LIBS)
 endif
@@ -57,6 +58,8 @@ soap:
 	(if [ -e ../soap/soap.o ] ; then \
 	gnatmake $(GARGS) soap_client -bargs $(BARGS) -largs $(LARGS); \
 	gnatmake $(GARGS) soap_server -bargs $(BARGS) -largs $(LARGS); \
+	gnatmake $(GARGS) soap_svs -bargs $(BARGS) -largs $(LARGS); \
+	gnatmake $(GARGS) soap_cvs -bargs $(BARGS) -largs $(LARGS); \
 	else \
 	echo ""; \
 	echo Please build SOAP library before building SOAP demos;\
