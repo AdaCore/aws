@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<SOAP-ENV:Envelope SOAP-ENV:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/" xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsd="http://www.w3.org/1999/XMLSchema" xmlns:xsi="http://www.w3.org/1999/XMLSchema-instance">
+<SOAP-ENV:Body>
+<awsns:Workorder xmlns:awsns="http://mns.org/">
+<my_record_out>
+   <name1 xsi:type="xsd:string">Wo1</name1>
+   <name2 xsi:type="xsd:string">idle</name2>
+   <my_array SOAP-ENC:arrayType="xsd:ur-type[1]" xsi:type="SOAP-ENC:Array">
+      <my_record>
+         <name3 xsi:type="xsd:string">idle</name3>
+         <name4 xsi:type="xsd:string">Wo1</name4>
+      </my_record>
+   </my_array>
+</my_record_out>
+</awsns:Workorder>
+</SOAP-ENV:Body>
+</SOAP-ENV:Envelope>
+
+
+Payload coding/decoding is ok
