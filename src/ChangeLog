@@ -13,6 +13,7 @@
 
 	* aws-containers-tables-set.adb:
 	Use pragma Unreferenced instead of pragma Warning.
+	Split CVS macro, becouse macro Id too long with my last name.
 
 2003-08-28  Pascal Obry  <p.obry@wanadoo.fr>
 
