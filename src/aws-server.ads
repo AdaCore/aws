@@ -31,6 +31,7 @@
 --  $Id$
 
 with Ada.Calendar;
+with Ada.Finalization;
 with Ada.Strings.Unbounded;
 
 with Sockets;
@@ -43,15 +44,13 @@ with AWS.Log;
 
 package AWS.Server is
 
-   Def_Admin_URI  : String renames Default.Admin_URI;
-   Def_Upload_Dir : String renames Default.Upload_Directory;
-   Def_Port       : constant := Default.Server_Port;
+   Def_Admin_URI   : String renames Default.Admin_URI;
+   Def_Upload_Dir  : String renames Default.Upload_Directory;
+   Def_Max_Connect : constant := Default.Server_Port;
+   Def_Port        : constant := Default.Server_Port;
 
-   type HTTP
-     (Max_Connection : Positive := Default.Max_Connection)
-   is limited private;
-   --  Max_Connection is the maximum number of simultaneous connection
-   --  handled by the server.
+   type HTTP is limited private;
+   --  A Web server.
 
    procedure Start
      (Web_Server                : in out HTTP;
@@ -67,6 +66,7 @@ package AWS.Server is
      (Web_Server                : in out HTTP;
       Name                      : in     String;
       Callback                  : in     Response.Callback;
+      Max_Connection            : in     Positive          := Def_Max_Connect;
       Admin_URI                 : in     String            := Def_Admin_URI;
       Port                      : in     Positive          := Def_Port;
       Security                  : in     Boolean           := False;
@@ -233,6 +233,8 @@ private
 
    end Slots;
 
+   type Slots_Access is access Slots;
+
    ----------
    -- Line --
    ----------
@@ -258,9 +260,7 @@ private
 
    use Ada.Strings.Unbounded;
 
-   type HTTP
-     (Max_Connection : Positive := Default.Max_Connection) is
-   limited record
+   type HTTP is new Ada.Finalization.Limited_Controlled with record
       Self            : HTTP_Access := HTTP'Unchecked_Access;
       --  Point to the record.
 
@@ -292,9 +292,11 @@ private
       Lines           : Line_Set_Access;
       --  The tasks doing the job.
 
-      Slots           : Server.Slots (Max_Connection);
+      Slots           : Slots_Access;
       --  Information about each tasks above. This is a protected object to
       --  support concurrency.
    end record;
+
+   procedure Finalize (Web_Server : in out HTTP);
 
 end AWS.Server;
