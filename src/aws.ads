@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2000                            --
---                               Pascal Obry                                --
+--                          Copyright (C) 2000-2001                         --
+--                      Dmitriy Anisimkov & Pascal Obry                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -35,7 +35,7 @@ package AWS is
    Internal_Error   : exception;
    Connection_Error : exception;
 
-   Version        : constant String := "0.9.12";
+   Version        : constant String := "0.10";
 
    HTTP_Version   : constant String := "HTTP/1.1";
 
