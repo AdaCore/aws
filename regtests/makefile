@@ -93,7 +93,7 @@ endif
 
 $(WSDL_TESTS): force
 	echo -n Building $@
-	../tools/wsdl2aws -q -f -rpc $@.wsdl
+	../tools/wsdl2aws -q -f -doc $@.wsdl
 	gnatmake -g $@ $(GARGS) -largs $(LARGS) -bargs -E
 	echo ",  run it"
 	rm -f $@.res
@@ -106,7 +106,7 @@ endif
 
 $(WSDL_ATESTS): force
 	echo -n Building $@
-	../tools/wsdl2aws -q -f -a $@.wsdl
+	../tools/wsdl2aws -q -f -a -doc $@.wsdl
 	gnatmake -g $@ $(GARGS) -largs $(LARGS) -bargs -E
 	echo ",  run it"
 	rm -f $@.res
