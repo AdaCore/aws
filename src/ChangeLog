@@ -1,3 +1,37 @@
+2003-03-31  Pascal Obry  <obry@act-europe.fr>
+
+	* aws-client.adb:
+	(Post): Use new MIME type name.
+
+	* aws-server-protocol_handler.adb:
+	(Get_Message_Data): Use new MIME type name.
+
+	* aws-server-push.adb:
+	(Register): Use new MIME type name.
+
+	* aws-mime.adb:
+	This new implementation is based on a table and can be updated by
+	 users either with extension or regular expression on the full
+	 file name.
+	(Add_Extension): New procedure.
+	(Add_Regexp): Idem.
+	(Is_Audio): New function.
+	(Is_Image): Idem.
+	(Is_Video): Idem.
+	(Is_Application): Idem.
+	Update copyright notice.
+
+	* aws-mime.ads:
+	New implementation, far more complete than the previous one.
+	Add many MIME type constants.
+	(Add_Extension): New procedure.
+	(Add_Regexp): Idem.
+	(Is_Audio): New function.
+	(Is_Image): Idem.
+	(Is_Video): Idem.
+	(Is_Application): Idem.
+	Update copyright notice.
+
 2003-03-24  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* aws-resources-streams.ads, aws-resources-streams.adb:

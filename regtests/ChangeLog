@@ -1,3 +1,11 @@
+2003-03-31  Pascal Obry  <obry@act-europe.fr>
+
+	* makefile:
+	(RT_STD): Add tmime.
+
+	* tmime.adb, tmime.out:
+	Initial revision.
+
 2003-03-29  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* makefile:
