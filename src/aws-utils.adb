@@ -47,6 +47,20 @@ package body AWS.Utils is
 
    Random_Generator : Integer_Random.Generator;
 
+   -------------
+   -- Get_MD5 --
+   -------------
+
+   function Get_MD5 (Data : in String) return MD5.Digest_String is
+      Ctx : MD5.Context;
+      HA  : MD5.Fingerprint;
+   begin
+      MD5.Init (Ctx);
+      MD5.Update (Ctx, Data);
+      MD5.Final (Ctx, HA);
+      return MD5.Digest_To_Text (HA);
+   end Get_MD5;
+
    -----------------
    -- Gethostname --
    -----------------
@@ -65,20 +79,6 @@ package body AWS.Utils is
       Res := Sockets.Thin.C_Gethostname (Name, Len);
       return C.Strings.Value (Name, C.size_t (Len));
    end Gethostname;
-
-   -------------
-   -- Get_MD5 --
-   -------------
-
-   function Get_MD5 (Data : in String) return MD5.Digest_String is
-      Ctx : MD5.Context;
-      HA  : MD5.Fingerprint;
-   begin
-      MD5.Init (Ctx);
-      MD5.Update (Ctx, Data);
-      MD5.Final (Ctx, HA);
-      return MD5.Digest_To_Text (HA);
-   end Get_MD5;
 
    ---------
    -- Hex --
