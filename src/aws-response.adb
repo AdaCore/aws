@@ -133,16 +133,16 @@ package body AWS.Response is
    end Build;
 
    function Build
-     (Content_Type : in String;
-      Message_Body : in Strings.Unbounded.Unbounded_String;
-      Status_Code  : in Messages.Status_Code := Messages.S200)
+     (Content_Type    : in String;
+      UString_Message : in Strings.Unbounded.Unbounded_String;
+      Status_Code     : in Messages.Status_Code := Messages.S200)
      return Data is
    begin
       return Data'(Message,
                    Status_Code,
-                   Length (Message_Body),
+                   Length (UString_Message),
                    To_Unbounded_String (Content_Type),
-                   Message_Body,
+                   UString_Message,
                    Null_Unbounded_String,
                    Null_Unbounded_String,
                    null);
