@@ -30,6 +30,8 @@
 
 --  $Id$
 
+with Ada.Calendar;
+
 with SOAP.Types;
 
 package SOAP.Parameters is
@@ -68,6 +70,10 @@ package SOAP.Parameters is
    function Get (P : in List; Name : in String) return Boolean;
    --  Returns parameter named Name in P as a Boolean value. Raises
    --  Types.Data_Error if this parameter does not exist or is not a Boolean.
+
+   function Get (P : in List; Name : in String) return Ada.Calendar.Time;
+   --  Returns parameter named Name in P as a Time value. Raises
+   --  Types.Data_Error if this parameter does not exist or is not a time.
 
    function Get (P : in List; Name : in String) return Types.SOAP_Base64;
    --  Returns parameter named Name in P as a SOAP Base64 value. Raises
