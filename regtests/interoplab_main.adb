@@ -127,7 +127,7 @@ procedure Interoplab_Main is
    begin
       Text_IO.Put_Line ("Echo ArrayOfstring");
       for K in Res'Range loop
-         Text_IO.Put_Line (K'Img & " = " & To_String (Res (K)));
+         Text_IO.Put_Line (Integer'Image (K) & " = " & To_String (Res (K)));
       end loop;
       Text_IO.New_Line;
    end T_echoStringArray;
@@ -247,7 +247,7 @@ procedure Interoplab_Main is
    begin
       Text_IO.Put_Line ("Echo ArrayOfint");
       for K in Res'Range loop
-         Text_IO.Put (K'Img & " = ");
+         Text_IO.Put (Integer'Image (K) & " = ");
          Integer_Text_IO.Put (Res (K));
          Text_IO.New_Line;
       end loop;
@@ -379,7 +379,7 @@ procedure Interoplab_Main is
       Text_IO.Put_Line ("Echo ArrayOfFloat");
 
       for K in Res'Range loop
-         Text_IO.Put (K'Img & " = ");
+         Text_IO.Put (Integer'Image (K) & " = ");
          LFIO.Put (Res (K), Aft => 2, Exp => 0);
          Text_IO.New_Line;
       end loop;

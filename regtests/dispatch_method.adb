@@ -103,7 +103,7 @@ begin
 
    R := Client.Head ("http://localhost:1267/test");
    Text_IO.Put_Line ("> " & Response.Message_Body (R));
-   Text_IO.Put_Line ("> " & Response.Content_Length (R)'Img);
+   Text_IO.Put_Line ("> " & Integer'Image (Response.Content_Length (R)));
 
    --  Close servers.
 
