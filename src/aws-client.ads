@@ -43,9 +43,9 @@ package AWS.Client is
 
    No_Data       : constant String := "";
 
-   Retry_Default : constant := 1;
-   --  Number of time a data is requested from the Server if the connection
-   --  fails.
+   Retry_Default : constant := 0;
+   --  Number of time a data is requested from the Server if the first
+   --  time fails.
 
    type Timeouts_Values is record
       Send    : Natural;
@@ -153,7 +153,7 @@ package AWS.Client is
       Proxy      : in     String          := No_Data;
       Proxy_User : in     String          := No_Data;
       Proxy_Pwd  : in     String          := No_Data;
-      Retry      : in     Positive        := Retry_Default;
+      Retry      : in     Natural         := Retry_Default;
       SOAPAction : in     String          := No_Data;
       Persistent : in     Boolean         := True;
       Timeouts   : in     Timeouts_Values := No_Timeout);
@@ -246,7 +246,7 @@ private
       SOAPAction    : Unbounded_String;
       Cookie        : Unbounded_String;
       Socket        : Socket_Access;
-      Retry         : Positive;
+      Retry         : Natural;
       Current_Phase : Client_Phase;
       Timeouts      : Timeouts_Values;
       Cleaner       : Cleaner_Access := Build_Cleaner (HTTP_Connection'Access);
