@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2001                          --
+--                         Copyright (C) 2000-2003                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -38,27 +38,24 @@ package AWS.OS_Lib is
    No_Such_File : exception;
 
    function Is_Regular_File (Filename : in String) return Boolean;
+   pragma Inline (Is_Regular_File);
    --  Returns True if Filename is a regular file and is readable.
 
    function Is_Directory (Filename : in String) return Boolean;
+   pragma Inline (Is_Directory);
    --  Returns True if Filename is a directory.
 
    function File_Size (Filename : in String)
       return Ada.Streams.Stream_Element_Offset;
+   pragma Inline (File_Size);
    --  Returns Filename's size in bytes.
 
    function File_Timestamp (Filename : in String) return Ada.Calendar.Time;
+   pragma Inline (File_Timestamp);
    --  Get the time for last modification to a file in UTC/GMT.
 
    function GMT_Clock return Ada.Calendar.Time;
-   --  Returns current UTC/GMT time.
-
-private
-
-   pragma Inline (Is_Regular_File);
-   pragma Inline (Is_Directory);
-   pragma Inline (File_Size);
-   pragma Inline (File_Timestamp);
    pragma Inline (GMT_Clock);
+   --  Returns current UTC/GMT time.
 
 end AWS.OS_Lib;
