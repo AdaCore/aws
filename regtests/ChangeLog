@@ -1,3 +1,11 @@
+2003-03-09  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* test_wsdl3.wsdl:
+	Use port 9123 (9122 already used in test_wsdl2.wsdl).
+
+	* sp.adb:
+	Use port 1249 (1244 already used by head.adb).
+
 2003-03-09  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* test_wsdl2.out, test_wsdl3.out:
