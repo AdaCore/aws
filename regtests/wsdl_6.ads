@@ -31,6 +31,7 @@
 --  $Id$
 
 with Ada.Strings.Unbounded;
+with SOAP.Utils;
 
 package WSDL_6 is
 
@@ -56,6 +57,15 @@ package WSDL_6 is
 
    type Set_Of_Rec is array (Positive range <>) of Rec;
 
+   type Set_Of_Int_Access is access Set_Of_Int;
+
+   package Set_Of_Int_Safe_Pointer is
+      new SOAP.Utils.Safe_Pointers (Set_Of_Int, Set_Of_Int_Access);
+
+   type Complex_Rec is record
+      SI : Set_Of_Int_Safe_Pointer.Safe_Pointer;
+   end record;
+
    function Plus (Value : in Natural) return Natural;
 
    function Next (Col : in Color) return Color;
@@ -75,5 +85,7 @@ package WSDL_6 is
    function Echo_Set (Set : in Set_Of_Int) return Set_Of_Int;
 
    function Echo_Set_Rec (Set : in Set_Of_Rec) return Set_Of_Rec;
+
+   function Echo_Complex_Rec (C_Rec : in Complex_Rec) return Complex_Rec;
 
 end WSDL_6;
