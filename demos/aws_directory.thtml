@@ -1,0 +1,40 @@
+<HTML><HEAD><TITLE>Index of @_URI_@</TITLE>
+<META content="Ada Web Server" name=GENERATOR></HEAD>
+<BODY>
+<H1>Index of @_URI_@</H1>
+
+<table width="100%">
+<tr>
+<td><A href="@_ORIG_ORDR_@">orig</A>
+<td><A href="@_DIR_ORDR_@">dir</A>
+<td><A href="@_DIR_NAME_ORDR_@">dir / Name</A>
+<br><A href="@_NAME_ORDR_@">Name</A>
+<td><A href="@_DIR_TIME_ORDR_@">dir / Last modified</A>
+<br><A href="@_TIME_ORDR_@">Last modified</A>
+<td align=right><A href="@_SIZE_ORDR_@">Size</A>
+</td></tr>
+
+<tr><td colspan=4><hr></td></tr>
+
+<tr>
+
+@@TABLE@@
+<td><td>
+
+@@IF@@ @_IS_DIR_@ 
+<a href="@_NAME_@"><img border=0 src="/folder.gif" ALT="[DIR]"></a>
+@@ELSE@@
+&nbsp;
+@@END_IF@@
+
+<td><a href="@_NAMES_@">@_NAMES_@</a>
+<td><tt>@_TIMES_@
+<td align=right>@_SIZES_@
+</td>
+</tr>
+@@END_TABLE@@
+
+</table>
+<hr>
+<i>Ada Web Server/@_VERSION_@
+</BODY></HTML>
