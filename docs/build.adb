@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2003                          --
+--                         Copyright (C) 2000-2004                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -45,6 +45,13 @@ procedure Build is
    use AWS;
    use AWS.Utils;
    use Templates_Parser;
+
+   function Image (D : in Duration) return String;
+   --  D string representation
+
+   -----------
+   -- Image --
+   -----------
 
    function Image (D : in Duration) return String is
       D_S : constant String   := Duration'Image (D);
