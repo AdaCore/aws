@@ -1289,7 +1289,7 @@ is
       then
          --  If content length is undefined and we handle an HTTP/1.0 protocol
          --  then the end of the stream will be determined by closing the
-         --  connection. [RFC 1945 7.2.2] See the Will_Close local variable.
+         --  connection. [RFC 1945 - 7.2.2] See the Will_Close local variable.
 
          if Length /= Response.Undefined_Length then
             Net.Buffered.Put_Line (Sock, Messages.Content_Length (Length));
