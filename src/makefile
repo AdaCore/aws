@@ -17,25 +17,49 @@ SOURCES	= aws-client.adb aws-messages.adb aws-mime.adb aws-os_lib.adb \
 all:
 	echo "Targets:"
 	echo ""
-	echo "build:     build library MODE=[std/ssl]"
-	echo "           $ make build MODE=ssl"
+	echo "build:        build library"
+	echo ""
+	echo "ssl_mode:     set SSL mode (Secure Socket Layer)"
+	echo "std_mode:     set non-SSL mode [default]"
+	echo ""
+	echo "gnat_oslib:   OS_Lib implementation for GNAT only [default]"
+	echo "posix_oslib:  OS_Lib implementation based on POSIX"
+	echo "win32_oslib:  OS_Lib implementation for Win32 only"
+	echo ""
+	echo "To build with SSL support:"
+	echo "           $ make build_ssl build"
+	echo ""
+	echo "To build with SSL support and OS_Lib based on POSIX:"
+	echo "           $ make ssl_mode posix_oslib build"
 	echo ""
 
-build: build_$(MODE)
+build:
+	(if ! [ -e aws-net.adb ]; then cp aws-net-std.adb aws-net.adb; fi)
+	(if ! [ -e aws-os_lib.adb ]; then cp ../include/aws-os_lib-gnat.adb aws-os_lib.adb; fi)
 	gcc -c -O2 -g -I../include $(INCLUDES) aws-session.adb
 	gcc -c -O2 -g -I../include $(INCLUDES) aws-key_value.adb
 	gcc -c -O2 -g -I../include $(INCLUDES) aws-server-get_status.adb
 	for file in $(SOURCES); do gnatmake $(GFLAGS) $$file; done
 
-build_ssl:
-	-rm *.o *.ali build_std
-	echo > build_ssl
+ssl_mode:
+	-rm *.o *.ali
 	cp aws-net-ssl.adb aws-net.adb
 
-build_std:
-	-rm *.o *.ali build_ssl
-	echo > build_std
+std_mode:
+	-rm *.o *.ali
 	cp aws-net-std.adb aws-net.adb
 
+gnat_oslib:
+	-rm *.o *.ali
+	cp ../include/aws-os_lib-gnat.adb aws-os_lib.adb
+
+posix_oslib:
+	-rm *.o *.ali
+	cp ../include/aws-os_lib-posix.adb aws-os_lib.adb
+
+win32_oslib:
+	-rm *.o *.ali
+	cp ../include/aws-os_lib-win32.adb aws-os_lib.adb
+
 clean:
-	-rm *.o *.ali gnat.adc build_ssl build_std aws-net.adb
+	-rm *.o *.ali aws-net.adb aws-os_lib.adb
