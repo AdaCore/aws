@@ -411,7 +411,6 @@ install: force
 	$(CP) src/[at]*.ali $(INSTALL)/AWS/lib
 	-$(CP) ssl/*.ali $(INSTALL)/AWS/lib
 	-$(CP) soap/*.ali $(INSTALL)/AWS/lib
-	$(CHMOD) uog-w $(INSTALL)/AWS/lib/*.ali
 	$(CP) lib/libaws.a $(INSTALL)/AWS/lib
 	$(CP) lib/libnosslaws.a $(INSTALL)/AWS/lib
 	$(CP) lib/libz.a $(INSTALL)/AWS/lib
@@ -434,6 +433,9 @@ install: force
 	$(CP) config/projects/aws.gpr $(INSTALL)/AWS
 	$(CP) config/projects/components.gpr $(INSTALL)/AWS/components
 	-$(CHMOD) -R og+r $(INSTALL)/AWS
+	-$(CHMOD) uog-w $(INSTALL)/AWS/components/*.ali
+	-$(CHMOD) uog-w $(INSTALL)/AWS/lib/*.ali
+	-$(CHMOD) uog-w $(INSTALL)/AWS/obj/*.ali
 ifeq (${OS}, Windows_NT)
 	$(CP) lib/lib*.a $(INSTALL)/AWS/lib
 	-$(CP) win32/*.dll $(INSTALL)/AWS/lib
