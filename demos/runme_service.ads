@@ -36,13 +36,13 @@ with Runme_Info;
 package Runme_Service is
 
    procedure Interrogate;
-   --  update service state.
+   --  Update service state.
 
    procedure Stop;
-   --  stop service.
+   --  Stop service.
 
    procedure Main;
-   --  start service.
+   --  Start service.
 
    package Server is new Service.Server
      (Name                => Runme_Info.Service_Name,
