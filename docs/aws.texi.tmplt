@@ -40,6 +40,8 @@
 * Introduction::
 * How to build it ?::
 * How to use it ?::
+* High level services::
+* SOAP::
 * Status page::
 * Last notes::
 * AWS API Reference::
@@ -331,7 +333,6 @@ Now you are ready to use AWS !
 * Hotplug module::
 * Server Push::
 * Server Log::
-* SOAP::
 @end menu
 
 @node Basic notion
@@ -1476,8 +1477,69 @@ For example:
 100.99.12.1 -  - [22/Nov/2000:11:44:14] "GET /whatever HTTP/1.1" 200 1789
 @end smallexample
 
+@c ----------------------------------------------------------------------
+
+@node High level services
+@chapter High level services
+
+@menu
+* Static Page server::
+* Dispatchers::
+* Directory browser::
+@end menu
+
+This section is left blank.
+
+@node Static Page server
+@section Static Page server
+
+This section is left blank.
+@pxref{AWS.Services.Page_Server}
+
+@node Dispatchers
+@section Dispatchers
+
+@menu
+* Callback dispatcher::
+* Method dispatcher::
+* URI dispatcher::
+* Virtual host dispatcher::
+@end menu
+
+@node Callback dispatcher
+@subsection Callback dispatcher
+
+This section is left blank.
+@pxref{AWS.Services.Dispatchers.Callback}
+
+@node Method dispatcher
+@subsection Method dispatcher
+
+This section is left blank.
+@pxref{AWS.Services.Dispatchers.Method}
+
+@node URI dispatcher
+@subsection URI dispatcher
+
+This section is left blank.
+@pxref{AWS.Services.Dispatchers.URI}
+
+@node Virtual host dispatcher
+@subsection Virtual host dispatcher
+
+This section is left blank.
+@pxref{AWS.Services.Dispatchers.Virtual_Host}
+
+@node Directory browser
+@section Directory browser
+
+This section is left blank.
+@pxref{AWS.Services.Directory}
+
+@c ----------------------------------------------------------------------
+
 @node SOAP
-@section SOAP
+@chapter SOAP
 @cindex SOAP
 @cindex Simple Object Access Protocol
 
@@ -1497,7 +1559,7 @@ this server corresponds to the AWS version string
 (@code{SOAP.Version}).
 
 @node SOAP Server
-@subsection SOAP Server
+@section SOAP Server
 @cindex SOAP Server
 @cindex SOAPAction
 
@@ -1613,7 +1675,7 @@ it as the body of an HTTP message.
 @end enumerate
 
 @node SOAP Client
-@subsection SOAP Client
+@section SOAP Client
 @cindex SOAP Client
 
 @noindent
@@ -1905,9 +1967,15 @@ Jean-Fran@,cois Rameau.
 * AWS.Server.Hotplug::
 * AWS.Server.Push::
 * AWS.Services.Directory::
+* AWS.Services.Dispatchers::
+* AWS.Services.Dispatchers.Callback::
+* AWS.Services.Dispatchers.Method::
+* AWS.Services.Dispatchers.URI::
+* AWS.Services.Dispatchers.Virtual_Host::
 * AWS.Services.Page_Server::
 * AWS.Session::
 * AWS.Status::
+* AWS.Templates::
 * AWS.URL::
 * SOAP.Client::
 * SOAP.Message::
@@ -2006,6 +2074,36 @@ Jean-Fran@,cois Rameau.
 
 @include ../src/aws-services-directory.ads.texi
 
+@node AWS.Services.Dispatchers
+@section AWS.Services.Dispatchers
+@cindex AWS.Services.Dispatchers
+
+@include ../src/aws-services-dispatchers.ads.texi
+
+@node AWS.Services.Dispatchers.Callback
+@section AWS.Services.Dispatchers.Callback
+@cindex AWS.Services.Dispatchers.Callback
+
+@include ../src/aws-services-dispatchers-callback.ads.texi
+
+@node AWS.Services.Dispatchers.Method
+@section AWS.Services.Dispatchers.Method
+@cindex AWS.Services.Dispatchers.Method
+
+@include ../src/aws-services-dispatchers-method.ads.texi
+
+@node AWS.Services.Dispatchers.URI
+@section AWS.Services.Dispatchers.URI
+@cindex AWS.Services.Dispatchers.URI
+
+@include ../src/aws-services-dispatchers-uri.ads.texi
+
+@node AWS.Services.Dispatchers.Virtual_Host
+@section AWS.Services.Dispatchers.Virtual_Host
+@cindex AWS.Services.Dispatchers.Virtual_Host
+
+@include ../src/aws-services-dispatchers-virtual_host.ads.texi
+
 @node AWS.Services.Page_Server
 @section AWS.Services.Page_Server
 @cindex AWS.Services.Page_Server
@@ -2023,6 +2121,12 @@ Jean-Fran@,cois Rameau.
 @cindex AWS.Status
 
 @include ../src/aws-status.ads.texi
+
+@node AWS.Templates
+@section AWS.Templates
+@cindex AWS.Templates
+
+@include ../src/aws-templates.ads.texi
 
 @node AWS.URL
 @section AWS.URL
