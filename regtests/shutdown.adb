@@ -13,8 +13,8 @@ procedure Shutdown is
 begin
    Text_IO.Put_Line ("start"); Text_IO.Flush;
 
-   Server.Start (Srv.WS, "demo", Srv.CB'Access);
-   Server.Start (WS, "demo", Srv.CB'Access, Port => 8081);
+   Server.Start (Srv.WS, "demo", Srv.CB'Access, Port => 1262);
+   Server.Start (WS, "demo", Srv.CB'Access, Port => 1263);
 
    delay 2.0;
 
