@@ -171,7 +171,11 @@ package Templates_Parser is
 
    procedure Insert (Set : in out Translate_Set; Item : in Association);
    --  Add Item into the translate set. If an association for this variable
-   --  already exist it just replaces it by the new item.
+   --  already exists it just replaces it by the new item.
+
+   procedure Insert (Set : in out Translate_Set; Items : in Translate_Set);
+   --  Add Items into the translate set. If an association for variables in
+   --  Items already exists it just replaces it by the new one.
 
    function Exists
      (Set      : in Translate_Set;
