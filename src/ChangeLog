@@ -1,3 +1,11 @@
+2004-02-06  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* templates_parser.adb:
+	Integrates Jean-Pierre Rosen's patch to improve performances by
+	 using a static buffer to cache result. This work around a slow
+	 Unbounded_String implementation on GNAT 3.15. It still improves
+	 the performance by 14% on GNAT 3.16.
+
 2004-02-02  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* aws-resources.ads, aws-resources.adb,
