@@ -31,6 +31,8 @@
 separate (SOAP.Generator)
 package body CB is
 
+   Tmp_Adb : Text_IO.File_Type; -- Temporary files with callback definitions
+
    -----------------
    -- End_Service --
    -----------------
@@ -89,6 +91,8 @@ package body CB is
 
       Text_IO.New_Line (CB_Adb);
       Text_IO.Put_Line (CB_Adb, "end " & U_Name & ".CB;");
+
+      Text_IO.Close (Tmp_Adb);
    end End_Service;
 
    -------------------
@@ -147,6 +151,8 @@ package body CB is
 
       U_Name : constant String := To_Unit_Name (Format_Name (O, Name));
    begin
+      Text_IO.Create (Tmp_Adb, Text_IO.Out_File);
+
       --  Spec
 
       Text_IO.Put_Line (CB_Ads, "with AWS.Response;");
