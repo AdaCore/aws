@@ -1,3 +1,17 @@
+2003-12-19  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* memory_streams.ads;
+	(Constant_Access): New generic type parameter.
+	(Append): New routine with Constant_Access parameter.
+	(Append): New parameter Trim.
+	(Append): Removed parameter Allow_Free.
+	(Buffer_Type): Now constrained by Steady parameter.
+
+	* memory_streams.adb:
+	(Trim_Last_Block): New routine.
+	(First): New routine.
+	(Last): New routine.
+
 2003-12-18  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* templates_parser-input.adb:
