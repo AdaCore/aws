@@ -385,6 +385,8 @@ sock1
 sock1.res
 sock1.tmp
 sock2.res
+sock3.res
+sock3_sec.res
 sockext.res
 sockext_sec.res
 sockto.res
@@ -525,6 +527,7 @@ upload3
 upload3.res
 upload3.tmp
 upload4.res
+upload5.res
 wait
 wait.res
 wait2.res
