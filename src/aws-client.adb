@@ -112,11 +112,12 @@ package body AWS.Client is
    --  for all requests like the proxy, authentification, user agent, host.
 
    procedure Internal_Post
-     (Connection : in out HTTP_Connection;
-      Result     :    out Response.Data;
-      Data       : in     Streams.Stream_Element_Array;
-      URI        : in     String;
-      SOAPAction : in     String);
+     (Connection   : in out HTTP_Connection;
+      Result       :    out Response.Data;
+      Data         : in     Streams.Stream_Element_Array;
+      URI          : in     String;
+      SOAPAction   : in     String;
+      Content_Type : in     String);
    --  Common base routine for Post and SOAP_Post routines.
 
    procedure Set_Phase
@@ -835,13 +836,13 @@ package body AWS.Client is
    -------------------
 
    procedure Internal_Post
-     (Connection : in out HTTP_Connection;
-      Result     :    out Response.Data;
-      Data       : in     Streams.Stream_Element_Array;
-      URI        : in     String;
-      SOAPAction : in     String)
+     (Connection   : in out HTTP_Connection;
+      Result       :    out Response.Data;
+      Data         : in     Streams.Stream_Element_Array;
+      URI          : in     String;
+      SOAPAction   : in     String;
+      Content_Type : in     String)
    is
-      No_Data   : Unbounded_String renames Null_Unbounded_String;
       Try_Count : Natural := Connection.Retry;
 
       Auth_Attempts : Auth_Attempts_Count := (others => 2);
@@ -856,19 +857,14 @@ package body AWS.Client is
                Sock : Net.Socket_Type'Class renames Connection.Socket.all;
             begin
 
-               if SOAPAction = No_Data then
-                  Send_Header
-                    (Sock,
-                     Messages.Content_Type (MIME.Application_Form_Data));
+               if Content_Type /= No_Data then
+                  Send_Header (Sock, Messages.Content_Type (Content_Type));
+               end if;
 
-               else
+               if SOAPAction /= No_Data then
                   --  SOAP header
 
                   Send_Header (Sock, Messages.SOAPAction (SOAPAction));
-
-                  Send_Header
-                    (Sock,
-                     Messages.Content_Type (MIME.Text_XML));
                end if;
 
                --  Send message Content_Length
@@ -1513,10 +1509,23 @@ package body AWS.Client is
       Timeouts   : in Timeouts_Values := No_Timeout)
       return Response.Data
    is
-      use Streams;
+      Connection : HTTP_Connection;
+      Result     : Response.Data;
+
    begin
-      return Post (URL, Translator.To_Stream_Element_Array (Data),
-                   User, Pwd, Proxy, Proxy_User, Proxy_Pwd, Timeouts);
+      Create (Connection,
+              URL, User, Pwd, Proxy, Proxy_User, Proxy_Pwd,
+              Persistent => False,
+              Timeouts   => Timeouts);
+
+      Post (Connection, Result, Data);
+      Close (Connection);
+      return Result;
+
+   exception
+      when others =>
+         Close (Connection);
+         raise;
    end Post;
 
    ----------
@@ -1563,7 +1572,13 @@ package body AWS.Client is
       Data       : in     Streams.Stream_Element_Array;
       URI        : in     String := No_Data) is
    begin
-      Internal_Post (Connection, Result, Data, URI, SOAPAction => No_Data);
+      Internal_Post
+        (Connection,
+         Result,
+         Data,
+         URI,
+         SOAPAction   => No_Data,
+         Content_Type => MIME.Application_Octet_Stream);
    end Post;
 
    ----------
@@ -1576,8 +1591,13 @@ package body AWS.Client is
       Data       : in     String;
       URI        : in     String := No_Data) is
    begin
-      Post (Connection, Result,
-            Translator.To_Stream_Element_Array (Data), URI);
+      Internal_Post
+        (Connection,
+         Result,
+         Translator.To_Stream_Element_Array (Data),
+         URI,
+         SOAPAction   => No_Data,
+         Content_Type => MIME.Application_Form_Data);
    end Post;
 
    ---------
@@ -1878,11 +1898,12 @@ package body AWS.Client is
       Data       : in     String) is
    begin
       Internal_Post
-        (Connection => Connection.Self.all,
-         Result     => Result,
-         Data       => AWS.Translator.To_Stream_Element_Array (Data),
-         URI        => No_Data,
-         SOAPAction => SOAPAction);
+        (Connection   => Connection.Self.all,
+         Result       => Result,
+         Data         => AWS.Translator.To_Stream_Element_Array (Data),
+         URI          => No_Data,
+         SOAPAction   => SOAPAction,
+         Content_Type => MIME.Text_XML);
    end SOAP_Post;
 
    ------------
