@@ -277,6 +277,22 @@ package body AWS.Response is
       return To_String (D.Realm);
    end Realm;
 
+   ------------------
+   -- Socket_Taken --
+   ------------------
+
+   function Socket_Taken return Data is
+   begin
+      return Data'(Response.Socket_Taken,
+                   Messages.S200,
+                   0,
+                   Null_Unbounded_String,
+                   Null_Unbounded_String,
+                   Null_Unbounded_String,
+                   Null_Unbounded_String,
+                   null);
+   end Socket_Taken;
+
    -----------------
    -- Status_Code --
    -----------------
