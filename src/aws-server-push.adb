@@ -280,7 +280,6 @@ package body AWS.Server.Push is
          end if;
 
          AWS.Net.Stream_IO.Flush (Holder.Stream);
-
       end Register;
 
       ----------
@@ -288,9 +287,9 @@ package body AWS.Server.Push is
       ----------
 
       procedure Send
-        (Data           : in     Client_Output_Type;
-         Content_Type   : in     String;
-         Not_Responding : in out Table.Table_Type)
+        (Data         : in     Client_Output_Type;
+         Content_Type : in     String;
+         Unregistered : in out Table.Table_Type)
       is
 
          procedure Action
@@ -318,7 +317,7 @@ package body AWS.Server.Push is
             Send_Data (Value, Data, Content_Type);
          exception
             when others =>
-               Table.Insert (Not_Responding, Key, Value);
+               Table.Insert (Unregistered, Key, Value);
          end Action;
 
          ----------
@@ -340,7 +339,7 @@ package body AWS.Server.Push is
 
       begin
          For_Each (Container);
-         Remove_Each (Not_Responding);
+         Remove_Each (Unregistered);
       end Send;
 
       ---------------
