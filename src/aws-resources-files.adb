@@ -121,10 +121,10 @@ package body AWS.Resources.Files is
    is
       use type Stream_Element_Offset;
 
-      Buf_Len : constant Natural
-        := Integer (Resource.Last - Resource.Current) + 1;
+      Buf_Len : constant Stream_Element_Offset
+        := Resource.Last - Resource.Current + 1;
    begin
-      if Buffer'Length <= Buf_Len then
+      if Buffer'Length <= Natural (Buf_Len) then
          --  Enough chars in the buffer, return them
          Buffer := Resource.Buffer
            (Resource.Current .. Resource.Current + Buffer'Length - 1);
@@ -133,19 +133,27 @@ package body AWS.Resources.Files is
 
       else
          --  Return the current buffer
+
          Buffer
-           (Buffer'First .. Buffer'First + Stream_Element_Offset (Buf_Len) - 1)
+           (Buffer'First .. Buffer'First + Buf_Len - 1)
            := Resource.Buffer (Resource.Current .. Resource.Last);
 
-         --  And read the remaining data on the file
-         Read
-           (Resource.Stream.all,
-            Buffer
-              (Buffer'First + Stream_Element_Offset (Buf_Len) .. Buffer'Last),
-            Last);
+         --  And read the remaining data directly on the file
 
-         Read (Resource.Stream.all, Resource.Buffer, Resource.Last);
+         Read (Resource.Stream.all,
+               Buffer (Buffer'First + Buf_Len .. Buffer'Last),
+               Last);
+
          Resource.Current := Resource.Buffer'First;
+
+         if Last < Buffer'Last then
+            --  There is no more data, set the Resource object
+            Resource.Last := 0;
+
+         else
+            --  Fill Resource buffer
+            Read (Resource.Stream.all, Resource.Buffer, Resource.Last);
+         end if;
       end if;
    end Read;
 
