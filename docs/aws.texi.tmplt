@@ -515,6 +515,10 @@ A simple demo which handle textarea and display the content.
 Two servers on the same machine... virtual hosting demo.
 @pxref{Virtual host dispatcher}.
 
+@item web_elements
+
+A driver to browse the Web Elements library and see some examples.
+
 @item web_mail
 
 A simple Web Mail implementation that works on a POP mailbox.
