@@ -189,7 +189,8 @@ implemented:
 
 =============== Point to fix/implement/review before next release (2.1)
 
-- Check that AWS builds fine with GNAT 3.4.3 with SOAP support.
+- Check that AWS builds fine with GNAT 3.4.3 on Windows with SOAP support. It
+  fails with Mingw32 GNAT 3.4.2.
   We should be able to remove the tools/makefile kludge (-largs -laws).
 
 - Analyse and fix regression found on FreeBSD GCC 3.4.3.
