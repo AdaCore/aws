@@ -48,20 +48,6 @@ procedure SOAP_CVS is
    use SOAP.Types;
    use type SOAP.Parameters.Set;
 
-   -----------
-   -- Error --
-   -----------
-
-   procedure Error (E : in Message.Response.Error.Object) is
-      P : constant Parameters.Set := SOAP.Message.Parameters (E);
-   begin
-      Text_IO.Put_Line ("Faultcode   : "
-                        & SOAP.Parameters.Get (P, "faultcode"));
-
-      Text_IO.Put_Line ("Faultstring : "
-                        & SOAP.Parameters.Get (P, "faultstring"));
-   end Error;
-
    ----------------------
    -- countTheEntities --
    ----------------------
