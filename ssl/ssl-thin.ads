@@ -94,6 +94,16 @@ package SSL.Thin is
    SSL_VERIFY_CLIENT_ONCE            : constant := 4;
    SSL_F_SSL_VERIFY_CERT_CHAIN       : constant := 207;
 
+   SSL_ERROR_NONE             : constant := 0;
+   SSL_ERROR_SSL              : constant := 1;
+   SSL_ERROR_WANT_READ        : constant := 2;
+   SSL_ERROR_WANT_WRITE       : constant := 3;
+   SSL_ERROR_WANT_X509_LOOKUP : constant := 4;
+   SSL_ERROR_SYSCALL          : constant := 5;
+   SSL_ERROR_ZERO_RETURN      : constant := 6;
+   SSL_ERROR_WANT_CONNECT     : constant := 7;
+   SSL_ERROR_WANT_ACCEPT      : constant := 8;
+
    RSA_3  : constant := 3;
    RSA_F4 : constant := 16#10001#;
 
@@ -202,6 +212,8 @@ package SSL.Thin is
       return int;
 
    function SSL_pending (S : in SSL_Handle) return int;
+
+   function SSL_get_error (SSL : in SSL_Handle; ret : in int) return int;
 
    type Generate_Key_Callback is access
      procedure (I1, I2 : in Integer; Param : in Pointer);
@@ -319,7 +331,6 @@ private
    pragma Import (C, ERR_error_string, "ERR_error_string");
    pragma Import (C, ERR_error_string_n, "ERR_error_string_n");
 
-
    pragma Import (C, CRYPTO_set_mem_functions, "CRYPTO_set_mem_functions");
 
    pragma Import (C, SSL_CTX_new, "SSL_CTX_new");
@@ -341,6 +352,7 @@ private
    pragma Import (C, SSL_new, "SSL_new");
    pragma Import (C, SSL_free, "SSL_free");
    pragma Import (C, SSL_clear, "SSL_clear");
+   pragma Import (C, SSL_get_error, "SSL_get_error");
 
    pragma Import (C, SSL_get_peer_certificate, "SSL_get_peer_certificate");
    pragma Import (C, X509_free, "X509_free");
