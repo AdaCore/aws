@@ -108,23 +108,12 @@ package body AWS.Client is
    ------------------
 
    task body Cleaner_Task is
-      P             : Client_Phase;
-      W             : Duration;
-      Socket_Ptr    : Socket_Access;
-      Open_Flag_Ptr : Boolean_Access;
-      Timeouts      : Timeouts_Values;
-      Phase_Ptr     : Phase_Access;
+      Connection : HTTP_Connection_Access;
+      P          : Client_Phase;
+      W          : Duration;
    begin
-      accept Start
-        (Socket_Ptr    : in Socket_Access;
-         Open_Flag_Ptr : in Boolean_Access;
-         Phase_Ptr     : in Phase_Access;
-         Timeouts      : in Timeouts_Values)
-      do
-         Cleaner_Task.Socket_Ptr := Start.Socket_Ptr;
-         Cleaner_Task.Open_Flag_Ptr := Start.Open_Flag_Ptr;
-         Cleaner_Task.Phase_Ptr := Start.Phase_Ptr;
-         Cleaner_Task.Timeouts := Start.Timeouts;
+      accept Start (Connection : in HTTP_Connection_Access) do
+         Cleaner_Task.Connection := Connection;
       end Start;
 
       Phase_Loop : loop
@@ -133,12 +122,12 @@ package body AWS.Client is
 
          select
             accept Send do
-               W := Duration (Timeouts.Send);
+               W := Duration (Connection.Timeouts.Send);
                P := Send;
             end Send;
          or
             accept Receive do
-               W := Duration (Timeouts.Receive);
+               W := Duration (Connection.Timeouts.Receive);
                P := Receive;
             end Receive;
 
@@ -166,11 +155,9 @@ package body AWS.Client is
          --  Still in the same phase after the delay, just close the socket
          --  now.
 
-         if Phase_Ptr.all = P
-           and then Open_Flag_Ptr.all
-         then
-            Open_Flag_Ptr.all := False;
-            Sockets.Shutdown (Socket_Ptr.all);
+         if Connection.Current_Phase = P and then Connection.Opened then
+            Connection.Opened := False;
+            Sockets.Shutdown (Connection.Socket.all);
          end if;
 
       end loop Phase_Loop;
@@ -215,7 +202,6 @@ package body AWS.Client is
 
       Disconnect (Connection);
       Free (Connection.Socket);
-
    end Close;
 
    ------------
@@ -299,11 +285,7 @@ package body AWS.Client is
       if Connection.Timeouts /= No_Timeout then
          --  If we have some timeouts, initialize the cleaner task.
          Connection.Cleaner := new Cleaner_Task;
-         Connection.Cleaner.Start
-           (Connection.Socket,
-            Connection.Opened'Unchecked_Access,
-            Connection.Current_Phase'Unchecked_Access,
-            Timeouts);
+         Connection.Cleaner.Start (Connection.Self);
       end if;
    end Create;
 
@@ -324,7 +306,7 @@ package body AWS.Client is
 
    procedure Disconnect (Connection : in out HTTP_Connection) is
    begin
-      if not Connection.Opened then
+      if Connection.Opened then
          Connection.Opened := False;
          Sockets.Shutdown (Connection.Socket.all);
       end if;
@@ -884,7 +866,6 @@ package body AWS.Client is
         & Port_Not_Default (AWS.URL.Port (Connection.Host_URL));
 
    begin
-
       --  Open socket if needed.
 
       if not Connection.Opened then
