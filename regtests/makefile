@@ -12,6 +12,7 @@
 #      RT_STD       : for standard tests using HTTP
 #      RT_SOAP_SEC  : for SOAP tests using HTTPS
 #      RT_STD_SEC   : for standard tests using HTTPS
+#      RT_STD_ALONE : for standard tests, each in separate executable.
 #      OTH_TESTS    : tests with specific target (not using standard procedure)
 #      WSDL_TESTS   : WSDL tests
 #      WSDL_ATESTS  : WSDL tests using the wsdl2aws -a option (Ada Name Style)
@@ -49,17 +50,20 @@ RT_SOAP_ASIS = wsdl_1 wsdl_2 wsdl_3 wsdl_4 wsdl_5 wsdl_6
 
 RT_SOAP_ASIS_PARSE = wsdl_a wsdl_b
 
+# Standard regression tests, could be only each in separate executable
+RT_STD_ALONE = dispatch dispatch_method dispatch_vh tlog upload2 upload3 \
+	server_config
+
 # Standard regression tests
 RT_STD = turl tgetparam param dummy simple tclientto shutdown strm strm2 \
 	tres2 upload unexph auth auth2 moved turl2 turl3 test_templates_if \
-	head hval turl4 ctab sock1 file redirect hostip upload2 upload3 \
-	tlog unexph2 sp sessions dirop multiple tcom tmime sessions2 \
-	sessions3 huge_response server_info server_config sback append \
-	compress zapp zbig zfile zstrm dispatch dispatch_vh dispatch_method \
-	split zstrm2 once get_post zopen timer tmem file2 eres zres \
-	$(RT_STD_SEC)
+	head hval turl4 ctab sock1 file redirect hostip unexph2 sp sessions \
+	dirop multiple tcom tmime sessions2 sessions3 huge_response sback \
+	server_info append compress zapp zbig zfile zstrm split zstrm2 once \
+	get_post zopen timer tmem file2 eres zres $(RT_STD_SEC)
 
 STD_TESTS    = $(RT_STD)
+ALONE_TESTS  = $(RT_STD_ALONE)
 OTH_TESTS    = tres
 WSDL_TESTS   =
 WSDL_ATESTS  =
@@ -80,21 +84,34 @@ ASIS_TESTS   = $(RT_SOAP_ASIS)
 ASIS2_TESTS  = $(RT_SOAP_ASIS_PARSE)
 endif
 
-ALL_EXEC = $(addsuffix $(EXEEXT), $(STD_TESTS)) \
-	$(addsuffix $(EXEEXT), $(OTH_TESTS)) \
-	$(addsuffix $(EXEEXT), $(WSDL_TESTS)) \
-	$(addsuffix $(EXEEXT), $(WSDL_ATESTS))
+ALL_EXEC = $(addsuffix $(EXEEXT), $(ALONE_TESTS) $(OTH_TESTS) generate test_all)
 
-run : build checks
+TOGETHER = $(sort $(STD_TESTS) $(WSDL_TESTS) $(WSDL_ATESTS))
 
 force:
 
-build: init $(sort $(STD_TESTS) $(WSDL_TESTS) $(WSDL_ATESTS) \
-	$(ASIS_TESTS) $(ASIS2_TESTS) $(WSDL2AWS)) $(OTH_TESTS)
+run: init $(sort $(ALONE_TESTS) $(WSDL_TESTS) $(WSDL_ATESTS) \
+	$(ASIS_TESTS) $(ASIS2_TESTS) $(WSDL2AWS) $(OTH_TESTS))
+	gnatmake -m -g generate.adb $(GARGS)
+	./generate $(TOGETHER) $(addsuffix _main, $(ASIS_TESTS))
+	gnatmake -m -g test_all $(GARGS) -largs $(LARGS) -bargs -E
+ifdef GDB_REGTESTS
+	gdb --exec=test_all --command=cmd.gdb --batch
+else
+	./test_all
+endif
+	for file in $(TOGETHER); do \
+	   diff -c -w $$file.out $$file.res 1>> alldifs 2>> alldifs; \
+	done
+ifdef ASIS
+	for file in $(ASIS_TESTS); do \
+	   diff -c -w $$file.out "$$file"_main.res 1>> alldifs 2>> alldifs; \
+	done
+endif
+	cat alldifs
 
 init:
 	cp ../demos/cert.pem .
-	rm -f alldifs
 	touch -t `date --date='Feb 3 04:05:00 GMT 2001' +%Y%m%d%H%M` \
 	   ../icons/*.gif
 	echo "" > alldifs
@@ -112,66 +129,38 @@ init:
 	echo "line 3, file 2" >> file2.txt
 	echo "Number @_ONE_@ following by @_TWO_@." > file.tmplt
 	../tools/awsres -q -r zresres file1.txt -z file2.txt file.tmplt
+	rm -f *.res
 
-$(STD_TESTS): force
+$(ALONE_TESTS): force
 	echo -n Building $@
 	gnatmake -m -g $@ $(GARGS) -largs $(LARGS) -bargs -E
 	echo ",  run it"
-	rm -f $@.res
 ifdef GDB_REGTESTS
 	./tgdb $@ > $@.res
 else
 	./$@ > $@.res
 endif
-	-diff -c -w $@.out $@.res >> alldifs
+	-diff -c -w $@.out $@.res 1>> alldifs 2>> alldifs
 
 $(WSDL_TESTS): force
 	echo -n Building $@
 	../tools/wsdl2aws -q -f -doc $@.wsdl
-	gnatmake -m -g $@ $(GARGS) -largs $(LARGS) -bargs -E
-	echo ",  run it"
-	rm -f $@.res
-ifdef GDB_REGTESTS
-	./tgdb $@ > $@.res
-else
-	./$@ > $@.res
-endif
-	-diff -c -w $@.out $@.res >> alldifs
 
 $(WSDL_ATESTS): force
 	echo -n Building $@
 	../tools/wsdl2aws -q -f -a -doc $@.wsdl
-	gnatmake -m -g $@ $(GARGS) -largs $(LARGS) -bargs -E
-	echo ",  run it"
-	rm -f $@.res
-ifdef GDB_REGTESTS
-	./tgdb $@ > $@.res
-else
-	./$@ > $@.res
-endif
-	-diff -c -w $@.out $@.res >> alldifs
 
 $(WSDL2AWS): force
 	echo -n Building $@
 	echo ",  run it"
-	rm -f $@.res
 	../tools/wsdl2aws -q -f -doc $@.wsdl | grep Message > $@.res
-	-diff -c -w $@.out $@.res >> alldifs
+	-diff -c -w $@.out $@.res 1>> alldifs 2>> alldifs
 
 $(ASIS_TESTS): force
 	echo -n Building $@
 	../tools/ada2wsdl -q -f $(INCLUDES) -I../include -I../soap -I../src \
 		-a http://localhost:770`echo $@ | cut -c 6-` $@.ads -o $@.wsdl
 	../tools/wsdl2aws -q -f -cb -types $@ $@.wsdl
-	gnatmake -m -g $@_main $(GARGS) -largs $(LARGS) -bargs -E
-	echo ",  run it"
-	rm -f $@.res
-ifdef GDB_REGTESTS
-	./tgdb $@_main > $@.res
-else
-	./$@_main > $@.res
-endif
-	-diff -c -w $@.out $@.res >> alldifs
 
 $(ASIS2_TESTS): force
 	rm -f $@.res
@@ -179,8 +168,7 @@ $(ASIS2_TESTS): force
 	../tools/ada2wsdl -v -f $@.ads -o $@.wsdl > tmp 2>&1
 	tail +3 tmp > $@.res
 	rm tmp
-	echo ",  run it"
-	-diff -c -w $@.out $@.res >> alldifs
+	-diff -c -w $@.out $@.res 1>> alldifs 2>> alldifs
 
 tres: force
 	echo -n Building tres
@@ -213,7 +201,7 @@ tres: force
 	echo ",  run it again"
 	./tres 1246 > tres-2.res
 	cat tres-1.res tres-2.res > tres.res
-	-diff -c -w tres.out tres.res >> alldifs
+	-diff -c -w tres.out tres.res 1>> alldifs 2>> alldifs
 
 # We change 2 values in aws-containers-tables.ads because its implementation
 # is based on GNAT.Dynamic_Tables which uses a low-level realloc. This
@@ -236,10 +224,7 @@ check_mem: force
 	./check_mem 30 1249 >> check_mem.res
 	gnatmem 3 -i gmem.out ./check_mem$(EXEEXT) 30 1249 > check_mem.run2
 	grep "   Final" check_mem.run2 > run2
-	-diff -c -w run1 run2 >> alldifs
-
-checks:
-	cat alldifs
+	diff -c -w run1 run2 1>> alldifs 2>> alldifs
 
 clean:
 	-rm -f *.o *.ali b~*.ad* *.~*.*.~ *.res res.ad[sb] res2.ad[sb]
@@ -250,3 +235,5 @@ clean:
 	-rm -f interoplab-* interoplab.ad* googlesearchservice*
 	-rm -f wsdl_?_service* wsdl4*
 	-rm -fr WSDL_6 wsdl_6.class file[abc].txt* zresres*
+	-rm -f $(addsuffix .ads, $(TOGETHER))
+	-rm -f $(addsuffix _main.ads, $(ASIS_TESTS))
