@@ -18,6 +18,8 @@ aws-ldap-client.ads.texi
 aws-log.ads.texi
 aws-messages.ads.texi
 aws-mime.ads.texi
+aws-net-ssl-certificate.ads.texi
+aws-net-ssl.ads.texi
 aws-parameters.ads.texi
 aws-pop.ads.texi
 aws-resources-embedded.ads.texi
