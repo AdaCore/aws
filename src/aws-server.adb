@@ -462,8 +462,7 @@ package body AWS.Server is
    begin
       Web_Server.Dispatcher_Sem.Write;
 
-      Web_Server.Dispatcher :=
-        new Dispatchers.Handler'Class'(Dispatcher);
+      Web_Server.Dispatcher := new Dispatchers.Handler'Class'(Dispatcher);
 
       Web_Server.Dispatcher_Sem.Release_Write;
 
@@ -595,6 +594,8 @@ package body AWS.Server is
       end if;
 
       Services.Transient_Pages.Control.Shutdown;
+
+      Net.SSL.Release (Web_Server.SSL_Config);
 
       --  Close logs, this ensure that all data will be written to the file.
 
