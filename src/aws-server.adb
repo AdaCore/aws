@@ -40,7 +40,7 @@ with Sockets.Thin;
 with Sockets.Naming;
 
 with AWS.Net;
-with AWS.Session;
+with AWS.Session.Control;
 
 package body AWS.Server is
 
@@ -125,7 +125,7 @@ package body AWS.Server is
       end loop;
 
       if Session then
-         AWS.Session.Start;
+         AWS.Session.Control.Start;
       end if;
    end Start;
 
@@ -145,7 +145,7 @@ package body AWS.Server is
       end loop;
 
       if Web_Server.Session then
-         Session.Shutdown;
+         Session.Control.Shutdown;
       end if;
    end Shutdown;
 
