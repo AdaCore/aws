@@ -4,7 +4,7 @@
 .SILENT: run turl tgetparam checks
 
 INCLUDES = -I../src -I../ssl -I../include
-LIBS     = -lssl -lcrypto
+LIBS     = -L../ssl -lssl -lcrypto
 
 run : turl tgetparam checks
 
