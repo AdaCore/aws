@@ -106,7 +106,7 @@ procedure Interoplab_Main is
    --------------------------
 
    function T_echoStringArray_CB
-      (inputStringArray : in ArrayOfstring)
+      (inputStringArray : in ArrayOfstring_Type)
        return echoStringArray_Result is
    begin
       return inputStringArray;
@@ -120,9 +120,9 @@ procedure Interoplab_Main is
    -----------------------
 
    procedure T_echoStringArray is
-      Arr : constant ArrayOfstring := (+"first", +"second", +"third");
+      Arr : constant ArrayOfstring_Type := (+"first", +"second", +"third");
 
-      Res : constant ArrayOfstring
+      Res : constant ArrayOfstring_Type
         := interopLab.Client.echoStringArray (Arr);
    begin
       Text_IO.Put_Line ("Echo ArrayOfstring");
@@ -226,7 +226,7 @@ procedure Interoplab_Main is
    ---------------------------
 
    function T_echoIntegerArray_CB
-      (inputIntegerArray : in ArrayOfint)
+      (inputIntegerArray : in ArrayOfint_Type)
        return echoIntegerArray_Result is
    begin
       return inputIntegerArray;
@@ -240,9 +240,9 @@ procedure Interoplab_Main is
    ------------------------
 
    procedure T_echoIntegerArray is
-      Arr : constant ArrayOfint := (34, 67, 98, 54, 78, 65, 1);
+      Arr : constant ArrayOfint_Type := (34, 67, 98, 54, 78, 65, 1);
 
-      Res : constant ArrayOfint
+      Res : constant ArrayOfint_Type
         := interopLab.Client.echoIntegerArray (Arr);
    begin
       Text_IO.Put_Line ("Echo ArrayOfint");
@@ -356,7 +356,7 @@ procedure Interoplab_Main is
    -------------------------
 
    function T_echoFloatArray_CB
-      (inputFloatArray : in ArrayOffloat)
+      (inputFloatArray : in ArrayOffloat_Type)
        return EchoFloatArray_Result is
    begin
       return inputFloatArray;
@@ -370,9 +370,10 @@ procedure Interoplab_Main is
    ----------------------
 
    procedure T_echoFloatArray is
-      Arr : constant ArrayOfFloat := (34.1, 67.2, 98.3, 54.4, 78.5, 65.6, 1.7);
+      Arr : constant ArrayOfFloat_Type
+        := (34.1, 67.2, 98.3, 54.4, 78.5, 65.6, 1.7);
 
-      Res : constant ArrayOfFloat
+      Res : constant ArrayOfFloat_Type
         := interopLab.Client.echoFloatArray (Arr);
    begin
       Text_IO.Put_Line ("Echo ArrayOfFloat");
@@ -390,7 +391,7 @@ procedure Interoplab_Main is
    ---------------------
 
    function T_echoStructArray_CB
-      (inputStructArray : in ArrayOfSOAPStruct)
+      (inputStructArray : in ArrayOfSOAPStruct_Type)
        return echoStructArray_Result is
    begin
       return inputStructArray;
@@ -404,10 +405,10 @@ procedure Interoplab_Main is
    -----------------------
 
    procedure T_echoStructArray is
-      A_Struct : constant ArrayOfSOAPStruct
+      A_Struct : constant ArrayOfSOAPStruct_Type
         := ((1, 1.1, +"one"), (2, 2.2, +"two"), (3, 3.3, +"three"));
 
-      Res : constant ArrayOfSOAPStruct
+      Res : constant ArrayOfSOAPStruct_Type
         := interopLab.Client.echoStructArray (A_Struct);
    begin
       Text_IO.Put_Line ("Echo ArrayOfStruct");
