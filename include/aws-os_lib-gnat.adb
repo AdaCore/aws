@@ -37,6 +37,14 @@ package body AWS.OS_Lib is
 
    function OS_Time_To_Calendar_Time (UTC : in GNAT.OS_Lib.OS_Time)
      return Ada.Calendar.Time;
+   --  Returns a Calendar.Time from an OS_Time variable.
+
+   ------------------
+   -- Is_Directory --
+   ------------------
+
+   function Is_Directory (Filename : in String) return Boolean
+     renames GNAT.OS_Lib.Is_Directory;
 
    ---------------------
    -- Is_Regular_File --
