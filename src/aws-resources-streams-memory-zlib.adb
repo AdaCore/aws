@@ -69,6 +69,7 @@ package body AWS.Resources.Streams.Memory.ZLib is
      (Resource : in out Stream_Type;
       Buffer   : in     Stream_Element_Access) is
    begin
+      --  ??? This is wrong, Buffer.all could be too big to fit on the stack
       Append (Memory.Stream_Type (Resource), Buffer.all);
    end Append;
 
