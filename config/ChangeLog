@@ -1,3 +1,8 @@
+2004-10-16  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* aws-net-std__gnat.adb, aws-net-std__adasockets.adb:
+	(Connect): Do not wait for connection in case of Wait parameter false.
+
 2004-10-08  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* aws-net-std__gnat.adb:

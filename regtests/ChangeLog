@@ -1,3 +1,9 @@
+2004-10-16  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* nbconn.adb, nbconn_proc.adb, nbconn_sec.adb,
+	  nbconn_sec.out, nbconn.out:
+	Test for non blocking connection.
+
 2004-10-12  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* makefile:
