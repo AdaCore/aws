@@ -147,20 +147,19 @@ package body AWS.Headers.Values is
       Value_First :    out Positive;
       Value_Last  :    out Natural)
    is
-      EDel   : constant Maps.Character_Set := Maps.To_Set (",;");
+      use type Maps.Character_Set;
+
+      EDel   : constant Maps.Character_Set := Maps.To_Set (" ,;");
       --  Delimiter between name/value pairs in the HTTP header lines.
       --  In WWW-Authenticate, header delimiter between name="Value"
       --  pairs is a comma.
       --  In the Set-Cookie header, value delimiter between name="Value"
       --  pairs is a semi-colon.
 
-      UVDel  : constant Character := ' ';
-      --  Delimiter of the un-named value
-
       NVDel  : constant Character := '=';
       --  Delimiter between name and Value for a named value
 
-      VDel   : constant Maps.Character_Set := Maps.To_Set (UVDel & NVDel);
+      VDel   : constant Maps.Character_Set := EDel or Maps.To_Set (NVDel);
       --  Delimiter between name and value is '=' and it is a space between
       --  un-named values.
 
@@ -178,20 +177,7 @@ package body AWS.Headers.Values is
          Value_Last  := Data'Last;
          First       := 0; -- Mean end of line
 
-      elsif Data (Last) = UVDel then
-         --  This is an un-named value
-
-         Value_First := First;
-         Value_Last  := Last - 1;
-         First       := Last + 1;
-
-         --  Do not return the delimiter as part of the value
-
-         while Maps.Is_In (Data (Value_Last), EDel) loop
-            Value_Last := Value_Last - 1;
-         end loop;
-
-      else
+      elsif Data (Last) = '=' then
          --  Here we have a named value
 
          Name_First := First;
@@ -234,6 +220,19 @@ package body AWS.Headers.Values is
                First      := Last + 1;
             end if;
          end if;
+      else
+         --  This is an un-named value
+
+         Value_First := First;
+         Value_Last  := Last - 1;
+         First       := Last + 1;
+
+         --  Do not return the delimiter as part of the value
+
+         while Maps.Is_In (Data (Value_Last), EDel) loop
+            Value_Last := Value_Last - 1;
+         end loop;
+
       end if;
 
       if First > Data'Last then
