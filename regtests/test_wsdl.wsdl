@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <definitions name="HelloService"
-   targetNamespace=" http://www.ecerami.com/wsdl/HelloService.wsdl"
-   xmlns=" http://schemas.xmlsoap.org/wsdl/"
-   xmlns:soap=" http://schemas.xmlsoap.org/wsdl/soap/"
-   xmlns:tns=" http://www.ecerami.com/wsdl/HelloService.wsdl"
-   xmlns:xsd=" http://www.w3.org/2001/XMLSchema">
+   targetNamespace="http://www.ecerami.com/wsdl/HelloService.wsdl"
+   xmlns="http://schemas.xmlsoap.org/wsdl/"
+   xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+   xmlns:tns="http://www.ecerami.com/wsdl/HelloService.wsdl"
+   xmlns:xsd="http://www.w3.org/2001/XMLSchema">
  
    <message name="SayHelloRequest">
       <part name="firstName" type="xsd:string"/>
@@ -22,18 +22,18 @@
    
    <binding name="Hello_Binding" type="tns:Hello_PortType">
       <soap:binding style="document" 
-         transport=" http://schemas.xmlsoap.org/soap/http"/>
+         transport="http://schemas.xmlsoap.org/soap/http"/>
       <operation name="sayHello">
          <soap:operation soapAction="sayHello"/>
          <input>
             <soap:body
-               encodingStyle=" http://schemas.xmlsoap.org/soap/encoding/"
+               encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"
                namespace="urn:examples:helloservice"
                use="literal"/>
          </input>
          <output>
             <soap:body
-               encodingStyle=" http://schemas.xmlsoap.org/soap/encoding/"
+               encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"
                namespace="urn:examples:helloservice"
                use="literal"/>
          </output>
@@ -44,7 +44,7 @@
       <documentation>WSDL File for Hello AWS Demo</documentation>
       <port binding="tns:Hello_Binding" name="Hello_Port">
          <soap:address 
-            location=" http://localhost:9111/hello"/>
+            location="http://localhost:9111/hello"/>
       </port>
    </service>
 </definitions>
