@@ -95,6 +95,9 @@ is
    Wfds : aliased FD_Set_Type;
    Efds : aliased FD_Set_Type;
 
+   Rfdsa : System.Address;
+   Wfdsa : System.Address;
+
    FD_Events : Thin.Events_Type;
    Rs        : C.int;
 
@@ -130,14 +133,27 @@ begin
       FD_SET (C.int (Poll_Ptr (J).FD), Efds);
    end loop;
 
+   --  Any non-null descriptor set must contain at least one handle
+   --  to a socket (MSDN).
+
+   if Rfds.Count = 0 then
+      Rfdsa := System.Null_Address;
+   else
+      Rfdsa := Rfds'Address;
+   end if;
+
+   if Wfds.Count = 0 then
+      Wfdsa := System.Null_Address;
+   else
+      Wfdsa := Wfds'Address;
+   end if;
+
    --  Call Win32 Select
 
    if Timeout < 0 then
-      Rs := C_Select
-        (0, Rfds'Address, Wfds'Address, Efds'Address, System.Null_Address);
+      Rs := C_Select (0, Rfdsa, Wfdsa, Efds'Address, System.Null_Address);
    else
-      Rs := C_Select
-        (0, Rfds'Address, Wfds'Address, Efds'Address, Timeout_V'Address);
+      Rs := C_Select (0, Rfdsa, Wfdsa, Efds'Address, Timeout_V'Address);
    end if;
 
    --  Build result (convert back from Select to Poll layout)
