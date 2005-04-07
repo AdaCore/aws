@@ -1,3 +1,10 @@
+2005-04-06  Dmitriy Anisimkov <anisimkov@ada-ru.org>
+
+	* poll.adb:
+	Send Null_Address instead of empty descriptor set to C_Select as
+	 proposed in Win32 API documentation. Fix very rare glitch in hard
+	 loaded server.
+
 2005-02-01  Pascal Obry  <pascal@obry.org>
 
 	* wspiapi.c:
@@ -34,7 +41,7 @@
 	* makefile:
 	(BUILD): New variable only set on Windows platforms.
 	(build): Use it.
-	
+
 2004-09-29  Pascal Obry  <pascal@obry.org>
 
 	* makefile:
@@ -49,7 +56,7 @@
 2004-09-29  Pascal Obry  <pascal@obry.org>
 
 	* win32.gpr:
-	Initial revision.	
+	Initial revision.
 
 	* crypto.def, ssl.def:
 	Initial revision.
