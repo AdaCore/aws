@@ -1,6 +1,16 @@
+2005-04-23  Pascal Obry  <pascal@obry.net>
+
+	* aws-server-protocol_handler.adb:
+	Minor reformatting.
+
+	* aws-communication.adb, aws-jabber.adb, aws-ldap-thin.ads,
+        aws-server-push.adb, aws-session-control.ads,
+        soap-generator-skel.adb, soap-generator.adb:
+	Removes duplicate empty lines or empty line at end of file.
+
 2005-03-23  Pascal Obry  <pascal@obry.net>
 
-	* src.gpr: 
+	* src.gpr:
 	(Full_Debug_Switches): Variable removed.
 	(Limited_Debug_Switches): Idem.
 	(TP_Common_Switches): New variable.
