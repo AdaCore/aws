@@ -1009,7 +1009,8 @@ is
 
          procedure Named_Value
            (Name, Value : in String;
-            Quit        : in out Boolean) is
+            Quit        : in out Boolean)
+         is
             pragma Unreferenced (Quit);
             L_Name : constant String :=
                        Ada.Characters.Handling.To_Lower (Name);
@@ -1224,12 +1225,12 @@ is
          use type AWS.Status.Request_Method;
 
          Filename      : constant String
-         := Response.Filename (Answer);
+           := Response.Filename (Answer);
 
          Is_Up_To_Date : Boolean;
 
          File_Mode     : constant Boolean
-         := Response.Mode (Answer) = Response.File;
+           := Response.Mode (Answer) = Response.File;
 
          File          : Resources.File_Type;
       begin
@@ -1595,10 +1596,10 @@ is
    end Set_Close_Status;
 
 begin
-   --  This new connection has been initialized because some data are
-   --  beeing sent. We are by default using HTTP/1.1 persistent
-   --  connection. We will exit this loop only if the client request
-   --  so or if we time-out on waiting for a request.
+   --  This new connection has been initialized because some data are being
+   --  sent. We are by default using HTTP/1.1 persistent connection. We will
+   --  exit this loop only if the client request so or if we time-out on
+   --  waiting for a request.
 
    Line_Attribute.Set_Value
      ((HTTP_Server.Self, Index, C_Stat'Unchecked_Access));
