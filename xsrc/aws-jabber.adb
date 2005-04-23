@@ -292,7 +292,6 @@ package body AWS.Jabber is
            & " xmlns='jabber:client'"
            & " xmlns:stream='http://etherx.jabber.org/streams'>");
 
-
       Net.Buffered.Flush (Server.Sock.all);
 
       Server.MB.Get (Message);

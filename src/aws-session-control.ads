@@ -44,4 +44,3 @@ package AWS.Session.Control is
    --  Stop session cleaner task
 
 end AWS.Session.Control;
-

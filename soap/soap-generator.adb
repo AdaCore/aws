@@ -2146,7 +2146,6 @@ package body SOAP.Generator is
                        & Format_Name (O, To_String (Output.D_Name))
                        & "_Type;");
 
-
                when WSDL.Parameters.K_Enumeration =>
                   --  A single declaration, this is an enumeration type create
                   --  a subtype.
@@ -2157,7 +2156,6 @@ package body SOAP.Generator is
                      "   subtype " & L_Proc & "_Result is "
                        & Format_Name (O, To_String (Output.E_Name))
                        & "_Type;");
-
 
                when WSDL.Parameters.K_Record | WSDL.Parameters.K_Array =>
                   --  A single declaration, this is a composite type create

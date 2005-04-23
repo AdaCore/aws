@@ -321,7 +321,6 @@ package body AWS.Server.Push is
          Unregister_Clients (Close_Sockets => Close_Sockets);
       end Shutdown;
 
-
       procedure Shutdown
         (Final_Data         : in Client_Output_Type;
          Final_Content_Type : in String)

@@ -243,7 +243,6 @@ package AWS.LDAP.Thin is
    LDAP_TAG_SASL_RES_CREDS : constant := 16#87#;
    --  context specific + primitive
 
-
    --  possible operations a client can invoke
 
    LDAP_REQ_BIND                   : constant := 16#60#;
@@ -306,7 +305,6 @@ package AWS.LDAP.Thin is
    LDAP_SASL_SIMPLE : constant System.Address := System.Null_Address;
    LDAP_SASL_NULL   : constant chars_ptr      := NS ("");
 
-
    --  authentication methods available
 
    LDAP_AUTH_NONE   : constant := 16#00#; -- no authentication
@@ -315,7 +313,6 @@ package AWS.LDAP.Thin is
    LDAP_AUTH_KRBV4  : constant := 16#Ff#; -- means do both of the following
    LDAP_AUTH_KRBV41 : constant := 16#81#; -- context specific + primitive
    LDAP_AUTH_KRBV42 : constant := 16#82#; -- context specific + primitive
-
 
    --  filter types
 

@@ -652,7 +652,6 @@ package body Skel is
          "   Port : constant := "
            & AWS.Utils.Image (AWS.URL.Port (URL)) & ';');
 
-
       --  Body
 
       if O.Debug then
