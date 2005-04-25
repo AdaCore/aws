@@ -1,3 +1,8 @@
+2005-04-25  Pascal Obry  <pascal@obry.net>
+
+	* soap-utils.adb:
+	(Is_Ada_Reserved_Word): Add Ada 2006 reserved words.
+
 2005-03-09  Pascal Obry  <pascal@obry.org>
 
 	* soap-generator.adb:
