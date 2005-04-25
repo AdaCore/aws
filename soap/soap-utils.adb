@@ -187,6 +187,8 @@ package body SOAP.Utils is
         or else Name = "loop" or else Name = "rem" or else Name = "with"
         or else Name = "digits" or else Name = "renames" or else Name = "do"
         or else Name = "mod" or else Name = "requeue" or else Name = "xor"
+        or else Name = "synchronized" or else Name = "overriding"
+        or else Name = "interface"
       then
          return True;
       else
