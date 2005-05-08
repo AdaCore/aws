@@ -4,7 +4,7 @@
 
 Authors:
    Dmitriy Anisimkov
-   Pascal Obry                                                 April 1st, 2005
+   Pascal Obry                                                   May 8th, 2005
 
 
 
@@ -54,6 +54,9 @@ Here are the main changes since AWS 2.1 :
 
    - Add a templates engine routine to release the template cache.
 
+   - Add support for Lazy_Tag. This replaces the previous Context object which
+     was not generic enough.
+
    - Plus many small fixes, enhancements, API comments, and documentation work.
 
 
@@ -65,6 +68,12 @@ In such a case we try to give proper advice on how to change the code
 to work properly. Of course we try to avoid this as much as possible
 but we really prefer to have a clean API instead of keeping awkward
 implementations.
+
+   - The Templates_Parser Context object has been replaced by the more generic
+     Lazy_Tag one. Changing the code to use the new Lazy_Tag is straight
+     forward. Context must be renamed to Lazy_Tag, the inherited Callback
+     procedure to Value and the spec must be updated to correspond to the
+     overridden Value method (see templates_parser.ads).
 
 
 Obsolescent features:
