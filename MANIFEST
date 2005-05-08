@@ -939,6 +939,7 @@ templates_parser/src/templates_parser-data.adb
 templates_parser/src/templates_parser-debug.adb
 templates_parser/src/templates_parser-debug.ads
 templates_parser/src/templates_parser-definitions.adb
+templates_parser/src/templates_parser-dynamic.adb
 templates_parser/src/templates_parser-expr.adb
 templates_parser/src/templates_parser-filter.adb
 templates_parser/src/templates_parser-input.adb
