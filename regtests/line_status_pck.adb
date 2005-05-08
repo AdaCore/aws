@@ -46,13 +46,12 @@ package body Line_Status_Pck is
    use Ada.Strings.Unbounded;
    use AWS;
 
-   type Parse_Context is new Templates.Context with null record;
+   type Parse_Context is new Templates.Dynamic.Lazy_Tag with null record;
 
-   procedure Callback
-     (Context  : access Parse_Context;
-      Variable : in     String;
-      Result   :    out Unbounded_String;
-      Found    :    out Boolean);
+   procedure Value
+     (Context      : in out Parse_Context;
+      Variable     : in     String;
+      Translations : in out Templates.Translate_Set);
 
    function CB (Request : in Status.Data) return Response.Data;
 
@@ -63,15 +62,14 @@ package body Line_Status_Pck is
    Ctx    : aliased Parse_Context;
    C1, C2 : Client.HTTP_Connection;
 
-   --------------
-   -- Callback --
-   --------------
+   -----------
+   -- Value --
+   -----------
 
-   procedure Callback
-     (Context  : access Parse_Context;
-      Variable : in     String;
-      Result   :    out Unbounded_String;
-      Found    :    out Boolean)
+   procedure Value
+     (Context      : in out Parse_Context;
+      Variable     : in     String;
+      Translations : in out Templates.Translate_Set)
    is
       Request : constant Status.Data := Server.Get_Status;
       SID     : constant Session.Id  := Status.Session (Request);
@@ -88,10 +86,10 @@ package body Line_Status_Pck is
       Index := Index + 1;
       Session.Set (SID, "index", Index);
 
-      Found  := True;
-      Result := To_Unbounded_String
-        ("Index " & Positive'Image (Index));
-   end Callback;
+      Templates.Insert
+        (Translations,
+         Templates.Assoc ("UNKNOWN_VAR", "Index " & Positive'Image (Index)));
+   end Value;
 
    --------
    -- CB --
@@ -103,7 +101,7 @@ package body Line_Status_Pck is
       return Response.Build
         (MIME.Text_HTML,
          String'(Templates.Parse
-                   ("line_status.tmplt", Context => Ctx'Access)));
+                   ("line_status.tmplt", Lazy_Tag => Ctx'Access)));
    end CB;
 
    -----------
