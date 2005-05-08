@@ -1,3 +1,9 @@
+2005-05-08  Pascal Obry  <pascal@obry.net>
+
+	* line_status_pck.adb:
+	Updated to use Lazy_Tag instead of Context.
+	Part of work for E423-002.
+
 2005-04-02  Dmitriy Anisimkov <anisimkov@ada-ru.org>
 
 	* wait_proc.adb:
