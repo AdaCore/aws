@@ -1,3 +1,9 @@
+2005-05-15  Pascal Obry  <pascal@obry.net>
+
+	* line_status_pck.adb:
+	(Value): Update spec to conform to new Lazy_Tag one.
+	Update copyright notice.
+
 2005-05-08  Pascal Obry  <pascal@obry.net>
 
 	* line_status_pck.adb:
