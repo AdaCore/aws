@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2004                            --
---                                ACT-Europe                                --
+--                         Copyright (C) 2004 - 2005                        --
+--                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -49,7 +49,7 @@ package body Line_Status_Pck is
    type Parse_Context is new Templates.Dynamic.Lazy_Tag with null record;
 
    procedure Value
-     (Context      : in out Parse_Context;
+     (Context      : access Parse_Context;
       Variable     : in     String;
       Translations : in out Templates.Translate_Set);
 
@@ -67,7 +67,7 @@ package body Line_Status_Pck is
    -----------
 
    procedure Value
-     (Context      : in out Parse_Context;
+     (Context      : access Parse_Context;
       Variable     : in     String;
       Translations : in out Templates.Translate_Set)
    is
