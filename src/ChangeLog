@@ -1,3 +1,12 @@
+2005-05-18  Dmitriy Anisimkov <anisimkov@ada-ru.org>
+
+	* aws-net-buffered.ads:
+	(Read_Buffer): New routine.
+
+	* aws-net-buffered.adb:
+	(Read_Buffer): New routine.
+	(Read): Use Read_Buffer.
+
 2005-04-23  Pascal Obry  <pascal@obry.net>
 
 	* aws-server-protocol_handler.adb:
