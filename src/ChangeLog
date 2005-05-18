@@ -1,3 +1,8 @@
+2005-05-18  Pascal Obry  <pascal@obry.net>
+
+	* aws-net-buffered.ads:
+	(Read_Buffer): Fix comment.
+
 2005-05-18  Dmitriy Anisimkov <anisimkov@ada-ru.org>
 
 	* aws-net-buffered.ads:
