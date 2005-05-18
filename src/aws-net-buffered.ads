@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                          Copyright (C) 2002-2003                         --
---                                ACT-Europe                                --
+--                          Copyright (C) 2002-2005                         --
+--                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -38,7 +38,7 @@ package AWS.Net.Buffered is
    ------------
 
    procedure Put (Socket : in Socket_Type'Class; Item : in String);
-   --  Write Item into Socket's buffer. Send the buffer to the socket if full.
+   --  Write Item into Socket's buffer. Send the buffer to the socket if full
 
    procedure Put_Line (Socket : in Socket_Type'Class; Item : in String);
    --  Write Item & CRLF into Socket's buffer. Send the buffer to the socket
@@ -54,7 +54,7 @@ package AWS.Net.Buffered is
    --  Write Item into Socket's buffer. Send the buffer to the socket if full.
 
    procedure Flush (Socket : in Socket_Type'Class);
-   --  Send the buffer to the socket.
+   --  Send the buffer to the socket
 
    -----------
    -- Input --
@@ -64,14 +64,14 @@ package AWS.Net.Buffered is
      (Socket : in     Socket_Type'Class;
       Data   :    out Stream_Element_Array);
    pragma Inline (Read);
-   --  Returns Data array read from the socket.
+   --  Returns Data array read from the socket
 
    function Read
      (Socket : in Socket_Type'Class;
       Max    : in Stream_Element_Count := 4096)
       return Ada.Streams.Stream_Element_Array;
    pragma Inline (Read);
-   --  Returns an array of bytes read from the socket.
+   --  Returns an array of bytes read from the socket
 
    procedure Read
      (Socket : in     Socket_Type'Class;
@@ -99,8 +99,9 @@ package AWS.Net.Buffered is
      (Socket : in     Socket_Type'Class;
       Data   :    out Stream_Element_Array;
       Last   :    out Stream_Element_Offset);
-   --  Read data only from socket read buffer, internal OS socket buffer
-   --  would remain untouched. Could be usable to switch to non buffered input.
+   --  Returns data read from the internal socket's read buffer. No data are
+   --  read from the socket. This can be useful when switching to non buffered
+   --  mode.
 
    -------------
    -- Control --
