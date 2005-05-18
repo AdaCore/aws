@@ -1,3 +1,9 @@
+2005-05-18  Pascal Obry  <pascal@obry.net>
+
+	* soap-generator.adb:
+	Fix minor typo in comment.
+        Update copyright notice.
+
 2005-04-25  Pascal Obry  <pascal@obry.net>
 
 	* soap-utils.adb:
