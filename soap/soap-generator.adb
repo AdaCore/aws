@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                          Copyright (C) 2003-2004                         --
---                                ACT-Europe                                --
+--                          Copyright (C) 2003-2005                         --
+--                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -721,7 +721,7 @@ package body SOAP.Generator is
          F_Ads, F_Adb :    out Text_IO.File_Type;
          Regen        : in     Boolean := False);
       --  Creates the full namespaces if needed and return it in Prefix.
-      --  Creates also the package heierarchy. Returns a spec and body file
+      --  Creates also the package hierarchy. Returns a spec and body file
       --  descriptor.
 
       procedure Finalize_Types_Package
