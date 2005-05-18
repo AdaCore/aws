@@ -200,14 +200,7 @@ package body AWS.Net.Buffered is
          end if;
       end if;
 
-      declare
-         C_Last : constant Stream_Element_Offset
-           := Stream_Element_Offset'Min (C.Last, C.First + Data'Length - 1);
-      begin
-         Last := Data'First + C_Last - C.First;
-         Data (Data'First .. Last) := C.Buffer (C.First .. C_Last);
-         C.First := C_Last + 1;
-      end;
+      Read_Buffer (Socket, Data, Last);
 
       --  Data could remain in internal socket buffer, if there is some
       --  space on the buffer, read the socket.
@@ -243,6 +236,24 @@ package body AWS.Net.Buffered is
          First := Last + 1;
       end loop;
    end Read;
+
+   -----------------
+   -- Read_Buffer --
+   -----------------
+
+   procedure Read_Buffer
+     (Socket : in     Socket_Type'Class;
+      Data   :    out Stream_Element_Array;
+      Last   :    out Stream_Element_Offset)
+   is
+      C      : Read_Cache renames Socket.C.R_Cache;
+      C_Last : constant Stream_Element_Offset
+        := Stream_Element_Offset'Min (C.Last, C.First + Data'Length - 1);
+   begin
+      Last := Data'First + C_Last - C.First;
+      Data (Data'First .. Last) := C.Buffer (C.First .. C_Last);
+      C.First := C_Last + 1;
+   end Read_Buffer;
 
    --------------
    -- Shutdown --
