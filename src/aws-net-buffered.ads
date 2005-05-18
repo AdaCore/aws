@@ -95,6 +95,13 @@ package AWS.Net.Buffered is
    --  actually consume the character, this character will be returned by
    --  the next read operation on the socket.
 
+   procedure Read_Buffer
+     (Socket : in     Socket_Type'Class;
+      Data   :    out Stream_Element_Array;
+      Last   :    out Stream_Element_Offset);
+   --  Read data only from socket read buffer, internal OS socket buffer
+   --  would remain untouched. Could be usable to switch to non buffered input.
+
    -------------
    -- Control --
    -------------
