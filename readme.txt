@@ -4,7 +4,7 @@
 
 Authors:
    Dmitriy Anisimkov
-   Pascal Obry                                                   May 8th, 2005
+   Pascal Obry                                                   May 18th, 2005
 
 
 
@@ -56,6 +56,13 @@ Here are the main changes since AWS 2.1 :
 
    - Add support for Lazy_Tag. This replaces the previous Context object which
      was not generic enough.
+
+   - Add support for Cursor_Tag. This new tag can be used as an iterator for
+     complex data structure. In this case the data remain on the Ada side.
+
+   - New routine Read_Buffer in AWS.Net.Buffered to retrieve the buffer
+     content. Can be useful when switching from buffered mode to un-buffered
+     mode.
 
    - Plus many small fixes, enhancements, API comments, and documentation work.
 
