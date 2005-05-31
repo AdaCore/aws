@@ -2,8 +2,8 @@
 --                              Ada Web Server                              --
 --                       P O P - Post Office Protocol                       --
 --                                                                          --
---                          Copyright (C) 2003-2004                         --
---                                ACT-Europe                                --
+--                          Copyright (C) 2003-2005                         --
+--                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -105,6 +105,7 @@ package body AWS.POP is
    begin
       if N = 0 then
          return CC_Values;
+
       else
          Strings_Cutter.Create (Cut_CC, CC_Values, ",");
 
@@ -789,6 +790,43 @@ package body AWS.POP is
    begin
       return Header (Message, "Subject");
    end Subject;
+
+   --------
+   -- To --
+   --------
+
+   function To (Message : in POP.Message; N : Natural := 0) return String is
+      To_Values : constant String := Header (Message, "To");
+      Cut_To    : Strings_Cutter.Cut_String;
+   begin
+      if N = 0 then
+         return To_Values;
+
+      else
+         Strings_Cutter.Create (Cut_To, To_Values, ",");
+
+         declare
+            Result : constant String := Strings_Cutter.Field (Cut_To, N);
+         begin
+            Strings_Cutter.Destroy (Cut_To);
+            return Strings.Fixed.Trim (Result, Strings.Both);
+         end;
+      end if;
+   end To;
+
+   --------------
+   -- To_Count --
+   --------------
+
+   function To_Count (Message : in POP.Message) return Natural is
+      To_Values : constant String  := Header (Message, "To");
+   begin
+      if To_Values = "" then
+         return 0;
+      else
+         return Strings.Fixed.Count (To_Values, ",") + 1;
+      end if;
+   end To_Count;
 
    ---------------
    -- User_Name --

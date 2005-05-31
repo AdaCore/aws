@@ -2,8 +2,8 @@
 --                              Ada Web Server                              --
 --                       P O P - Post Office Protocol                       --
 --                                                                          --
---                         Copyright (C) 2003-2004                          --
---                                ACT-Europe                                --
+--                         Copyright (C) 2003-2005                          --
+--                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -132,6 +132,14 @@ package AWS.POP is
 
    function From (Message : in POP.Message) return String;
    --  Returns From header value
+
+   function To (Message : in POP.Message; N : Natural := 0) return String;
+   --  Returns the To header value. If N = 0 returns all recipients separated
+   --  by a coma otherwise it returns the Nth To recipient.
+
+   function To_Count (Message : in POP.Message) return Natural;
+   --  Returns the number of To recipient for Message. returns 0 if there is
+   --  no To for this message.
 
    function CC (Message : in POP.Message; N : Natural := 0) return String;
    --  Retruns the CC header value. If N = 0 returns all recipients separated
