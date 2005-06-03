@@ -1,3 +1,15 @@
+2005-06-03  Dmitriy Anisimkov <anisimkov@ada-ru.org>
+
+	* aws-server-protocol_handler.adb:
+	Remove Support_Compressed intermediate variable. It was once
+	 initialized and once used. By the way fix not initalized usage of
+	 Support_Compressed in header line format error handling.
+	Remove Status_Connection intermediate variable. It is once initalised
+	 and once used. Does not need To_Unbounded_String and back convertion.
+	Move AWS.Status.Set.Peername call before any data reception for be able
+	 to show IP address in incoming data format error logging.
+	Minor reformat in exception hander.
+
 2005-05-31  Pascal Obry  <pascal@obry.net>
 
 	* aws-pop.ads, aws-pop.adb:
