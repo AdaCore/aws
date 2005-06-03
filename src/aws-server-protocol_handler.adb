@@ -108,11 +108,9 @@ is
 
    --  Duplication of some status fields for faster access
 
-   Status_Connection         : Unbounded_String;
    Status_Multipart_Boundary : Unbounded_String;
    Status_Root_Part_CID      : Unbounded_String;
    Status_Content_Type       : Unbounded_String;
-   Support_Compressed        : Boolean;
 
    procedure Send_Resource
      (Method : in     Status.Request_Method;
@@ -332,11 +330,6 @@ is
       end Create_Session;
 
    begin
-      --  Set status peername
-
-      AWS.Status.Set.Peername
-        (C_Stat, HTTP_Server.Slots.Get_Peername (Index));
-
       Build_Answer;
 
       Send (Answer);
@@ -986,10 +979,6 @@ is
 
       Status.Set.Read_Header (Socket => Sock, D => C_Stat);
 
-      Status_Connection := To_Unbounded_String (Status.Connection (C_Stat));
-
-      Support_Compressed := Status.Is_Supported (C_Stat, Messages.GZip);
-
       --  Get necessary data from header for reading HTTP body
 
       declare
@@ -1260,7 +1249,8 @@ is
          --  setup Content-Encoding header field to Answer. Answer header
          --  lines would be send below in the Send_General_Header.
 
-         Response.Create_Resource (Answer, File, Support_Compressed);
+         Response.Create_Resource
+           (Answer, File, AWS.Status.Is_Supported (C_Stat, Messages.GZip));
 
          --  Length is the real resource/file size
 
@@ -1583,7 +1573,7 @@ is
    ----------------------
 
    procedure Set_Close_Status is
-      Connection : constant String := To_String (Status_Connection);
+      Connection : constant String := Status.Connection (C_Stat);
    begin
       --  Connection, check connection string with Match to skip connection
       --  options [RFC 2616 - 14.10].
@@ -1612,6 +1602,11 @@ begin
          HTTP_Server.Slots.Mark_Phase (Index, Wait_For_Client);
 
          Status.Set.Reset (C_Stat);
+
+         --  Set status peername
+
+         Status.Set.Peername
+           (C_Stat, HTTP_Server.Slots.Get_Peername (Index));
 
          P_List := Status.Parameters (C_Stat);
 
@@ -1646,8 +1641,7 @@ begin
             --  Exit from keep-alive loop in case of socket error
             exit For_Every_Request;
 
-            when E : others =>
-
+         when E : others =>
             declare
                use type Response.Data_Mode;
 
