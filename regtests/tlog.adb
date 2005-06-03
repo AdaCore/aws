@@ -34,7 +34,6 @@ with Ada.Calendar;
 with Ada.Characters.Handling;
 with Ada.Exceptions;
 with Ada.Streams.Stream_IO;
-with Ada.Strings.Fixed;
 with Ada.Text_IO;
 
 with GNAT.AWK;
@@ -47,6 +46,7 @@ with AWS.Exceptions;
 with AWS.Log;
 with AWS.Messages;
 with AWS.MIME;
+with AWS.Net.Buffered;
 with AWS.Response;
 with AWS.Status;
 with AWS.Server.Log;
@@ -104,7 +104,7 @@ procedure Tlog is
          "012345678901234567890123456789012345678901234567890123456789"
            & "0123456",
         Messages.S500);
-   end;
+   end UEH;
 
    ---------
    -- Del --
@@ -276,6 +276,28 @@ begin
    Client.Get (Connect, R, "/file");
 
    Client.Close (Connect);
+
+   --  test for invalid header line logging.
+
+   declare
+      use AWS.Net;
+      Sock : Socket_Type'Class := Socket (False);
+   begin
+      Net.Connect (Sock, "localhost", Port);
+      Buffered.Put_Line (Sock, "GET /header/line/error HTTP/1.1");
+      Buffered.Put_Line (Sock, "header line error");
+      Buffered.New_Line (Sock);
+
+      loop
+         declare
+            Data : constant String := Buffered.Get_Line (Sock);
+         begin
+            null;
+         end;
+      end loop;
+   exception
+      when Socket_Error => Net.Shutdown (Sock);
+   end;
 
    Server.Shutdown (WS);
 
