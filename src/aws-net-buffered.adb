@@ -111,6 +111,14 @@ package body AWS.Net.Buffered is
       end loop Get_Until_LF;
 
       return To_String (Result);
+
+   exception
+      when Socket_Error =>
+         if Index = Buffer'First and then Length (Result) = 0 then
+            raise;
+         else
+            return To_String (Result) & Buffer (1 .. Index - 1);
+         end if;
    end Get_Line;
 
    --------------
