@@ -1,3 +1,8 @@
+2005-06-03  Dmitriy Anisimkov <anisimkov@ada-ru.org>
+
+	* tlog.adb, tlog.out:
+	Add test for header line format error logging.
+
 2005-05-15  Pascal Obry  <pascal@obry.net>
 
 	* line_status_pck.adb:
