@@ -13,6 +13,8 @@ you also need to set it properly if you use XML/Ada for example.
 
    $ export ADA_PROJECT_PATH=<aws_root>/.build/projects
 
+<aws_root> refer to the AWS source build directory not the install directory.
+
 If you have XML/Ada installed and plan to build AWS with SOAP support you must
 be sure that ADA_PROJECT_PATH point to the XML/Ada projects. See XML/Ada
 documentation.
