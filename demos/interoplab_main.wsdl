@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<definitions name="interopLab" xmlns="http://schemas.xmlsoap.org/wsdl/" xmlns:w="http://schemas.xmlsoap.org/wsdl/" xmlns:ns1="http://soapinterop.org/xsd" xmlns:tns="http://tempuri.org/4s4c/1/3/wsdl/def/interopLab" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:mstk2="http://schemas.microsoft.com/soap-toolkit/wsdl-extension" xmlns:soap-enc="http://schemas.xmlsoap.org/soap/encoding/" targetNamespace="http://tempuri.org/4s4c/1/3/wsdl/def/interopLab">
+<definitions name="interopLab" xmlns="http://schemas.xmlsoap.org/wsdl/" xmlns:w="http://schemas.xmlsoap.org/wsdl/" xmlns:ns1="http://soapinterop.org/xsd" xmlns:tns="http://tempuri.org/4s4c/1/3/wsdl/def/interopLab" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:mstk2="http://schemas.microsoft.com/soap-toolkit/wsdl-extension" xmlns:soap-enc="http://schemas.xmlsoap.org/soap/encoding/" targetNamespace="http://tempuri.org/4s4c/1/3/wsdl/def/interopLab" xmlns:ns9="http://soapinterop.org/">
 	<types>
 		<schema xmlns="http://www.w3.org/2001/XMLSchema" targetNamespace="http://soapinterop.org/xsd">
 			<import namespace="http://schemas.xmlsoap.org/soap/encoding/"/>
