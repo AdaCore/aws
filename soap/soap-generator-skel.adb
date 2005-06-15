@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2003-2004                          --
---                                ACT-Europe                                --
+--                         Copyright (C) 2003-2005                          --
+--                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -63,7 +63,7 @@ package body Skel is
      (O          : in out Object;
       Proc       : in     String;
       SOAPAction : in     String;
-      Namespace  : in     String;
+      Namespace  : in     Name_Space.Object;
       Input      : in     WSDL.Parameters.P_Set;
       Output     : in     WSDL.Parameters.P_Set;
       Fault      : in     WSDL.Parameters.P_Set)
@@ -217,6 +217,14 @@ package body Skel is
       --  First check the SOAPAction
 
       if O.Debug then
+         Text_IO.Put_Line
+           (Skel_Adb,
+            "      Put_Line (""[SERVER/" & L_Proc & "_CB] Payload recv : """);
+         Text_IO.Put_Line
+           (Skel_Adb,
+            "                & AWS.Status.Payload (Request));");
+         Text_IO.New_Line (Skel_Adb);
+
          Text_IO.Put_Line
            (Skel_Adb,
             "      Put_Line (""[SERVER/" & L_Proc & "_CB] SOAPAction : """
