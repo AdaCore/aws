@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2001                          --
---                                ACT-Europe                                --
+--                         Copyright (C) 2000-2005                          --
+--                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -37,12 +37,10 @@ package body SOAP.Message.Payload is
    function Build
      (Procedure_Name : in String;
       P_Set          : in SOAP.Parameters.List;
-      Name_Space     : in String               := Default_Name_Space)
+      Name_Space     : in SOAP.Name_Space.Object := SOAP.Name_Space.AWS)
       return Object is
    begin
-      return (To_Unbounded_String (Name_Space),
-              To_Unbounded_String (Procedure_Name),
-              P_Set);
+      return (Name_Space, To_Unbounded_String (Procedure_Name), P_Set);
    end Build;
 
    --------------------
