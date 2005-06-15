@@ -4,7 +4,7 @@
 
 Authors:
    Dmitriy Anisimkov
-   Pascal Obry                                                   May 18th, 2005
+   Pascal Obry                                                 June 15th, 2005
 
 
 
@@ -64,6 +64,13 @@ Here are the main changes since AWS 2.1 :
      content. Can be useful when switching from buffered mode to un-buffered
      mode.
 
+   - Yet another large clean-up in the handling of namespaces to have better
+     support of SOAP namespaces in responses. See obsolescent features section
+     below.
+
+   - In debug mode, the SOAP/WSDL generated server will output the XML payload
+     as received (as-is and before parsing) from the client.
+
    - Plus many small fixes, enhancements, API comments, and documentation work.
 
 
@@ -83,8 +90,8 @@ implementations.
      overridden Value method (see templates_parser.ads).
 
 
-Obsolescent features:
----------------------
+Obsolescent features
+--------------------
 
 In each new version we try to be upward compatible with previous
 version. This is really important, but in some cases it seems that a
@@ -96,6 +103,26 @@ have tagged all obsolescent features with a pragma.
 
 Note that pragma Obsolescent and -gnatwj option is only supported
 since GNAT 3.16.
+
+   - SOAP.Message.Payload.Build spec has been changed.
+     The previous format was not correct regarding the namespace support.
+     Change the code to pass a Name_Space.Object instead of a string. A
+     call like:
+
+        Build ("proc_name", Params, "http://ns.org");
+
+     must be change to:
+
+        Build
+          ("proc_name", Params, 
+           SOAP.Name_Space.Create ("awsns", "http://ns.org"));
+
+
+   - SOAP.Message routines Name_Space and Set_Name_Space have been change
+     to take a Name_Space.Object. See above for possible way to change
+     the code.
+
+     Default_Name_Space object has been removed. Use AWS.Name_Space.AWS.
 
 
 Notes
@@ -117,16 +144,14 @@ need to build and install OpenLDAP.
 See documentation for build information.
 
 
-Validation:
------------
+Validation
+----------
 
-AWS 2.1 has been compiled and has passed all tests on:
+AWS 2.2 has been compiled and has passed all tests on:
 
-   Windows XP, GCC 3.4.2, GNAT 5.02a1, 5.03a
+   Windows XP, GNAT 5.03a
 
-   GNU/Linux x86, GCC 3.4.4 and GNAT 5.01a, 5.02a1 and 5.03a
-
-   SPARC Solaris 8, GNAT 5.03a
+   GNU/Linux x86, 5.03a
 
 Others platforms / compiler version combinations have not been tested, it
 does not mean that it's not working.
@@ -134,8 +159,8 @@ does not mean that it's not working.
 Previous version of AWS have been built on FreeBSD 4.1 and MacOSX.
 
 
-Known problems:
----------------
+Known problems
+--------------
 
 - There is a bug in Internet Explorer which prevents to download a file when
   the connection is using the SSL encryption and there is the "Cache-Control"
@@ -144,8 +169,8 @@ Known problems:
   See: http://support.microsoft.com/?kbid=323308
 
 
-Pointers:
----------
+Pointers
+--------
 
 AWS User's Mailing List:
    http://lists.act-europe.fr/mailman/listinfo/aws
@@ -236,8 +261,8 @@ Windows Services API (optional):
 
       http://www.telepath.com/~dennison/Ted/SETI/SETI_Service.html
 
-License:
---------
+License
+-------
 
 AWS is distributed under the GMGPL (GNAT Modified GPL) license. This license
 ensures that commercial applications can be built using AWS. Note that
@@ -246,8 +271,8 @@ compatible with the AWS's one. For information about component's individual
 licenses see include/readme.txt.
 
 
-Reporting bugs:
----------------
+Reporting bugs
+--------------
 
 You can report bugs to:
 
@@ -259,8 +284,8 @@ to know if it is used at all or not :) And if you are ok, we'll add an entry
 for your project in the next section.
 
 
-AWS User's Mailing List:
-------------------------
+AWS User's Mailing List
+-----------------------
 
 A good way to keep informed of AWS news and to share experiences with other
 AWS users is to register to the AWS dedicated mailing list. See:
@@ -268,8 +293,8 @@ AWS users is to register to the AWS dedicated mailing list. See:
    http://lists.act-europe.fr/mailman/listinfo/aws
 
 
-Contributors:
--------------
+Contributors
+------------
 
 Thanks to the contributors and peoples who send feedbacks, ideas
 about AWS. In the early stage of the project this is very valuable.
@@ -280,8 +305,8 @@ Maxim Reznik, Jean-Pierre Rosen, Jerme Roussel, Ariane Sinibardy,
 Henrik Sundberg.
 
 
-AWS uses:
----------
+AWS uses
+--------
 
 - SETI@Home from Ted Dennison. AWS is used as a "plugable" GUI to retrieve
   different program status.
