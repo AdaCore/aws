@@ -1,3 +1,125 @@
+2005-06-15  Pascal Obry  <pascal@obry.net>
+
+	* soap-types.adb:
+	(Array_Type): In the case of homegeneous array use the item's
+         namespace in the soapenc:arrayType description.
+        This change is needed for better support of WSDL name spaces in
+        SOAP responses.
+        Work for E614-015.
+        Update copyright notice.
+
+	* soap-message.ads:
+	(Default_Name_Space): Removed.
+        (Name_Space): Returns now a Name_Space.Object.
+        (Set_Name_Space): Takes a Name_Space.Object parameter.
+        (Object): Name_Space field is now a Name_Space.Object instead
+         of a simple string.
+        This change is needed for better support of WSDL name spaces in
+        SOAP responses.
+        Work for E614-015.
+        Update copyright notice.
+
+	* soap-message.adb:
+        (Name_Space): Returns now a Name_Space.Object.
+        (Set_Name_Space): Takes a Name_Space.Object parameter.
+        (XML_Image): Adjust code to use the new Name_Space.Object. This is
+         cleaner and we ensure to use the proper namespace as parser from the
+         payload or the response derived from the request payload.
+        (Add_Namespaces): Fix check for an object being a composite one. This
+         fix namespace generation for composite object.
+        This change is needed for better support of WSDL name spaces in
+        SOAP responses.
+        Work for E614-015.
+        Update copyright notice.
+
+	* soap-message-payload.ads, soap-message-payload.adb:
+	(Build): Takes a Name_Space.Object parameter.
+        This change is needed for better support of WSDL name spaces in
+        SOAP responses.
+        Work for E614-015.
+        Update copyright notice.
+
+	* soap-message-xml.adb:
+        (NS_Set): New array used to store user's namespaces.
+        (Namespaces): Add a field to contain user's namespaces. All namespaces
+         are now strored in a Name_Space.Object. Cleaner and stores not only
+         the namspace value but also the name.
+        (State): Name_Space is now a Name_Space object instead of a string.
+         Removes comment about this anticipated change.
+        ("-"): Removed not used anymore.
+        (Get_Namespace_Value): New routine, returns the Namespace name given a
+         namespace value. Walk up the DOM tree.
+        (Load_Payload): Adjust call to Payload.Build to new spec.
+        (Parse_Array): Adjust code to new namespace objects.
+        (Parse_Namespaces): Idem. Also store User's namespaces.
+        (Is_Array): Adjust code to new namespace objects.
+        (Parse_Param): Idem.
+        (Parse_Record): Idem.
+        (Parse_Wrapper): Idem. Fix the way the wrapper namespace was computed.
+        (To_Type): Adjust code to new namespace objects.
+        This change is needed for better support of WSDL name spaces in
+        SOAP responses.
+        Work for E614-015.
+        Update copyright notice.
+
+	* soap-generator-cb.adb:
+	(New_Procedure): Namespace parameter is now a Name_Space.Object.
+        This change is needed for better support of WSDL name spaces in
+        SOAP responses.
+        Work for E614-015.
+        Update copyright notice.
+
+	* soap-generator-stub.adb:
+	(New_Procedure): Namespace parameter is now a Name_Space.Object.
+         Fix code generation to conform to new Payload.Build spec taking
+         a Name_Space.Object instead of a string.
+        (Start_Service): Add generation of with clause for
+         SOAP.Name_Space unit.
+        This change is needed for better support of WSDL name spaces in
+        SOAP responses.
+        Work for E614-015.
+        Update copyright notice.
+
+	* soap-generator-skel.adb:
+	(New_Procedure): Namespace parameter is now a Name_Space.Object.
+         In debug mode also output the XML payload as received from the
+         client.
+        This change is needed for better support of WSDL name spaces in
+        SOAP responses.
+        Work for E614-015.
+        Update copyright notice.
+
+	* soap-generator.ads, soap-generator.adb:
+	(New_Procedure): Namespace parameter is now a Name_Space.Object.
+        This change is needed for better support of WSDL name spaces in
+        SOAP responses.
+        Work for E614-015.
+        Update copyright notice.
+
+	* soap-wsdl-parser.ads:
+	(New_Procedure): Namespace parameter is now a Name_Space.Object.
+        (Object): Namespace field is now a Name_Space.Object instead
+         of a simple string.
+        This change is needed for better support of WSDL name spaces in
+        SOAP responses.
+        Work for E614-015.
+        Update copyright notice.
+
+	* soap-wsdl-parser.adb:
+        (Get_NS_Name_For): New procedure.
+	(New_Procedure): Namespace parameter is now a Name_Space.Object.
+        (Parse_Operation): Properly check for the namespace name and value, set
+         the Namespace field accordingly.
+        (Parse_PortType): Adjust call to New_Procedure.
+        This change is needed for better support of WSDL name spaces in
+        SOAP responses.
+        Work for E614-015.
+        Update copyright notice.
+
+	* soap-message-response.ads:
+        Minor reformatting.
+        Update copyright notice.
+
 2005-05-18  Pascal Obry  <pascal@obry.net>
 
 	* soap-generator.adb:

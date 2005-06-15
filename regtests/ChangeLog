@@ -1,3 +1,33 @@
+2005-06-15  Pascal Obry  <pascal@obry.net>
+
+	* wsdl_6.java:
+	Document the way to generate the sources using wsdl2aws.
+	Fix build procedure in comment to conform to new code generator.
+	Fix code to conform to new code generator.
+        Work for E614-015.
+	Update copyright notice.
+
+	* anytype.java:
+	Document the way to generate the sources using wsdl2aws.
+	Update copyright notice.
+
+	* interoplab_main1.wsdl, test_wsdl.wsdl, test_wsdl2.wsdl,
+	  test_wsdl3.wsdl, wsdl_parse_1.wsdl, wsdl_parse_2.wsdl,
+	  wsdl_parse_3.wsdl, wsdl_parse_4.wsdl:
+	Add missing namespace.
+        Work for E614-015.
+
+	* soap1.out, soap2.out, soap3.out, soap4.out, soap5.out,
+	  soap6.out, soap7.out, workorder.out, testxml.out:
+	Update to new output.
+        Work for E614-015.
+
+	* soap3.adb:
+	Adjust call to Payload.Build to conform to new spec (using a
+         Name_Space.Object instead of a string).
+        Work for E614-015.
+        Update copyright notice.
+
 2005-06-03  Dmitriy Anisimkov <anisimkov@ada-ru.org>
 
 	* tlog.adb, tlog.out:

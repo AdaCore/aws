@@ -485,6 +485,14 @@ soapaws-wsdl_6_def-set_of_rec_type_pkg.ads
 soapaws-wsdl_6_def.ads
 soapaws-wsdl_6_pkg-color_type_pkg.adb
 soapaws-wsdl_6_pkg-color_type_pkg.ads
+soapaws-wsdl_6_pkg-complex_rec_type_pkg.adb
+soapaws-wsdl_6_pkg-complex_rec_type_pkg.ads
+soapaws-wsdl_6_pkg-new_rec_type_pkg.adb
+soapaws-wsdl_6_pkg-new_rec_type_pkg.ads
+soapaws-wsdl_6_pkg-rec_type_pkg.adb
+soapaws-wsdl_6_pkg-rec_type_pkg.ads
+soapaws-wsdl_6_pkg-set_of_int_type_pkg.ads
+soapaws-wsdl_6_pkg-set_of_rec_type_pkg.ads
 soapaws-wsdl_6_pkg.ads
 soapaws-wsdl_8_def-file_data_type_pkg.adb
 soapaws-wsdl_8_def-file_data_type_pkg.ads
