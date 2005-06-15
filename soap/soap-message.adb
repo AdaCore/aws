@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2004                          --
---                                ACT-Europe                                --
+--                         Copyright (C) 2000-2005                          --
+--                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -28,7 +28,6 @@
 
 --  $Id$
 
-with SOAP.Name_Space;
 with SOAP.Types;
 with SOAP.Utils;
 
@@ -38,9 +37,9 @@ package body SOAP.Message is
    -- Name_Space --
    ----------------
 
-   function Name_Space (M : in Object'Class) return String is
+   function Name_Space (M : in Object'Class) return SOAP.Name_Space.Object is
    begin
-      return To_String (M.Name_Space);
+      return M.Name_Space;
    end Name_Space;
 
    ----------------
@@ -56,9 +55,11 @@ package body SOAP.Message is
    -- Set_Name_Space --
    --------------------
 
-   procedure Set_Name_Space (M : in out Object'Class; Name  : in String) is
+   procedure Set_Name_Space
+     (M  : in out Object'Class;
+      NS : in     SOAP.Name_Space.Object) is
    begin
-      M.Name_Space := To_Unbounded_String (Name);
+      M.Name_Space := NS;
    end Set_Name_Space;
 
    --------------------
@@ -101,8 +102,8 @@ package body SOAP.Message is
       procedure Add_Namespaces (O : in Types.Object'Class);
       --  Add name space reference into Message_Header
 
-      New_Line       : constant String := ASCII.CR & ASCII.LF;
-      NS             : constant String := Name_Space (M);
+      New_Line       : constant String                 := ASCII.CR & ASCII.LF;
+      NS             : constant SOAP.Name_Space.Object := Name_Space (M);
       Message_Header : Unbounded_String;
       Message_Body   : Unbounded_String;
 
@@ -123,7 +124,9 @@ package body SOAP.Message is
             Append (Message_Header, " " & Image (NS));
          end if;
 
-         if O in Types.Composite then
+         --  If this is a composite object, check components
+
+         if O in Types.Composite'Class then
             declare
                OS : constant Object_Set := V (Composite'Class (O));
             begin
@@ -137,8 +140,14 @@ package body SOAP.Message is
    begin
       --  Procedure
 
-      Append (Message_Header, "<awsns:" & Wrapper_Name (M));
-      Append (Message_Body, " xmlns:awsns=""" & NS & """>" & New_Line);
+      Append
+        (Message_Header,
+         "<" & SOAP.Name_Space.Name (NS) & ":" & Wrapper_Name (M));
+
+      Append
+        (Message_Body,
+         " xmlns:" & SOAP.Name_Space.Name (NS)
+         & "=""" & SOAP.Name_Space.Value (NS) & """>" & New_Line);
 
       --  Procedure's parameters
 
@@ -154,10 +163,12 @@ package body SOAP.Message is
          end loop;
       end;
 
-      --  Close payload objects.
+      --  Close payload objects
 
-      Append (Message_Body,
-              Utils.Tag ("awsns:" & Wrapper_Name (M), False) & New_Line);
+      Append
+        (Message_Body,
+         Utils.Tag (SOAP.Name_Space.Name (NS) & ':' & Wrapper_Name (M), False)
+         & New_Line);
 
       return Message_Header & Message_Body;
    end XML_Image;
