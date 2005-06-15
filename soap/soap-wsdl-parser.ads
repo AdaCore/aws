@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2003                            --
---                                ACT-Europe                                --
+--                         Copyright (C) 2003-2005                          --
+--                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -32,6 +32,7 @@ with Ada.Strings.Unbounded;
 
 with AI302.Containers.Indefinite_Ordered_Sets;
 
+with SOAP.Name_Space;
 with SOAP.WSDL.Parameters;
 
 package SOAP.WSDL.Parser is
@@ -58,7 +59,7 @@ package SOAP.WSDL.Parser is
      (O          : in out Object;
       Proc       : in     String;
       SOAPAction : in     String;
-      Namespace  : in     String;
+      Namespace  : in     Name_Space.Object;
       Input      : in     Parameters.P_Set;
       Output     : in     Parameters.P_Set;
       Fault      : in     Parameters.P_Set);
@@ -110,7 +111,7 @@ private
       Self            : Object_Access := Object'Unchecked_Access;
       Proc            : Unbounded_String; -- SOAP procedure name
       SOAPAction      : Unbounded_String; -- SOAPAction string
-      Namespace       : Unbounded_String;
+      Namespace       : Name_Space.Object;
       Mode            : Parameter_Mode;   -- Current parameter parsing mode
       Params          : All_Parameters;   -- All parameters
       Current_Name    : Unbounded_String; -- Current parameter name
