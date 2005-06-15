@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                          Copyright (C) 2003-2004                         --
---                                ACT-Europe                                --
+--                          Copyright (C) 2003-2005                         --
+--                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -62,7 +62,7 @@ package body Stub is
      (O          : in out Object;
       Proc       : in     String;
       SOAPAction : in     String;
-      Namespace  : in     String;
+      Namespace  : in     Name_Space.Object;
       Input      : in     WSDL.Parameters.P_Set;
       Output     : in     WSDL.Parameters.P_Set;
       Fault      : in     WSDL.Parameters.P_Set)
@@ -344,6 +344,7 @@ package body Stub is
 
       use type WSDL.Parameters.Kind;
       use type WSDL.Parameter_Type;
+      use type Name_Space.Object;
 
    begin
       --  Spec
@@ -386,10 +387,14 @@ package body Stub is
       Text_IO.Put
         (Stub_Adb, "        (""" & Proc & """, P_Set");
 
-      if Namespace = "" then
+      if Namespace = Name_Space.No_Name_Space then
          Text_IO.Put_Line (Stub_Adb, ");");
       else
-         Text_IO.Put_Line (Stub_Adb, ", """ & Namespace & """);");
+         Text_IO.Put_Line (Stub_Adb, ",");
+         Text_IO.Put_Line
+           (Stub_Adb, "         SOAP.Name_Space.Create ("""
+            & Name_Space.Name (Namespace) & """, """
+            & Name_Space.Value (Namespace) & """));");
       end if;
 
       if O.Debug then
@@ -656,6 +661,7 @@ package body Stub is
       Text_IO.Put_Line (Stub_Adb, "with SOAP.Client;");
       Text_IO.Put_Line (Stub_Adb, "with SOAP.Message.Payload;");
       Text_IO.Put_Line (Stub_Adb, "with SOAP.Message.Response;");
+      Text_IO.Put_Line (Stub_Adb, "with SOAP.Name_Space;");
       Text_IO.Put_Line (Stub_Adb, "with SOAP.Parameters;");
       Text_IO.Put_Line (Stub_Adb, "with SOAP.Utils;");
       Text_IO.New_Line (Stub_Adb);
