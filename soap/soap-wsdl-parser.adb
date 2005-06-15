@@ -185,6 +185,11 @@ package body SOAP.WSDL.Parser is
      (N : in DOM.Core.Node) return Name_Space.Object;
    --  Returns the targetNamespace
 
+   function Get_NS_Name_For
+     (N : in DOM.Core.Node; Value : in String) return String;
+   --  Returns the namespace Name given the Value. The value is checked
+   --  starting from N.
+
    -----------
    -- Debug --
    -----------
@@ -490,6 +495,38 @@ package body SOAP.WSDL.Parser is
       return Get_Node_Int (Parent, Element, Name);
    end Get_Node;
 
+   ---------------------
+   -- Get_NS_Name_For --
+   ---------------------
+
+   function Get_NS_Name_For
+     (N : in DOM.Core.Node; Value : in String) return String is
+   begin
+      if N = null then
+         return "";
+
+      else
+         declare
+            Atts : constant DOM.Core.Named_Node_Map :=
+                     DOM.Core.Nodes.Attributes (N);
+         begin
+            for K in reverse 0 .. DOM.Core.Nodes.Length (Atts) - 1 loop
+               declare
+                  N : constant DOM.Core.Node := DOM.Core.Nodes.Item (Atts, K);
+               begin
+                  if DOM.Core.Nodes.Node_Value (N) = Value
+                    and then DOM.Core.Nodes.Local_Name (N) /= "targetNamespace"
+                  then
+                     return DOM.Core.Nodes.Local_Name (N);
+                  end if;
+               end;
+            end loop;
+         end;
+
+         return Get_NS_Name_For (DOM.Core.Nodes.Parent_Node (N), Value);
+      end if;
+   end Get_NS_Name_For;
+
    ---------------------------
    -- Get_Target_Name_Space --
    ---------------------------
@@ -647,7 +684,7 @@ package body SOAP.WSDL.Parser is
      (O          : in out Object;
       Proc       : in     String;
       SOAPAction : in     String;
-      Namespace  : in     String;
+      Namespace  : in     Name_Space.Object;
       Input      : in     Parameters.P_Set;
       Output     : in     Parameters.P_Set;
       Fault      : in     Parameters.P_Set)
@@ -712,7 +749,7 @@ package body SOAP.WSDL.Parser is
         (R /= null
          and then Utils.No_NS (DOM.Core.Nodes.Node_Name (R)) = "complexType");
 
-      P.NS := Get_Target_Name_Space (DOM.Core.Nodes.Parent_Node (R));
+      P.NS := Get_Target_Name_Space (R);
 
       declare
          Name : constant String := XML.Get_Attr_Value (R, "name", False);
@@ -985,7 +1022,21 @@ package body SOAP.WSDL.Parser is
       N := XML.Next_Sibling (N);
       N := XML.First_Child (N);
 
-      O.Namespace  := +XML.Get_Attr_Value (N, "namespace");
+      declare
+         NS_Value : constant String := XML.Get_Attr_Value (N, "namespace");
+         NS_Name  : constant String
+           := Get_NS_Name_For (DOM.Core.Nodes.Parent_Node (N), NS_Value);
+      begin
+         if NS_Value /= "" then
+            if NS_Name = "" then
+               Raise_Exception
+                 (WSDL_Error'Identity,
+                  "Missing definition for namespace " & NS_Value);
+            else
+               O.Namespace := Name_Space.Create (NS_Name, NS_Value);
+            end if;
+         end if;
+      end;
 
       --  Check that input/output/fault is literal
       --  ???
@@ -1233,7 +1284,7 @@ package body SOAP.WSDL.Parser is
       end if;
 
       New_Procedure
-        (O, -O.Proc, -O.SOAPAction, -O.Namespace,
+        (O, -O.Proc, -O.SOAPAction, O.Namespace,
          O.Params (Input), O.Params (Output), O.Params (Fault));
 
       Parameters.Release (O.Params (Input));
@@ -1260,7 +1311,7 @@ package body SOAP.WSDL.Parser is
         (R /= null
          and then Utils.No_NS (DOM.Core.Nodes.Node_Name (R)) = "complexType");
 
-      P.NS := Get_Target_Name_Space (DOM.Core.Nodes.Parent_Node (R));
+      P.NS := Get_Target_Name_Space (R);
 
       declare
          Name : constant String := XML.Get_Attr_Value (R, "name", False);
