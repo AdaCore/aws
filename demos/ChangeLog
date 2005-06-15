@@ -1,3 +1,9 @@
+2005-06-15  Pascal Obry  <pascal@obry.net>
+
+	* hello.wsdl, interoplab_main.wsdl:
+	Add missing namespace.
+        Work for E614-015.
+
 2004-12-23  Pascal Obry  <pascal@obry.net>
 
 	* wm_message.thtml, wm_reply.thtml:
