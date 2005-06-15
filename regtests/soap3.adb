@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2002-2004                          --
---                                ACT-Europe                                --
+--                         Copyright (C) 2002-2005                          --
+--                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -34,6 +34,7 @@ with Ada.Text_IO;      use Ada.Text_IO;
 with Ada.Calendar;     use Ada.Calendar;
 with SOAP.Types;       use SOAP.Types;
 with SOAP.Parameters;  use SOAP.Parameters;
+with SOAP.Name_Space;
 with SOAP.Message;
 with SOAP.Message.Payload;
 with SOAP.Message.XML;
@@ -45,7 +46,8 @@ procedure SOAP3 is
    Payload1 : constant SOAP.Message.Payload.Object'Class :=
      SOAP.Message.Payload.Build
      ("Workorder",
-      +B64 ("", "file"), "http://dummyns.org");
+      +B64 ("", "file"),
+      SOAP.Name_Space.Create ("tns", "http://dummyns.org"));
 
    Payload2 : constant SOAP.Message.Payload.Object'Class :=
      SOAP.Message.Payload.Build
