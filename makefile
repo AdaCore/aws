@@ -255,9 +255,10 @@ endif
 
 install-gnat: install
 	$(SED) -e 's,\.\./,AWS/,g;s,nossl_,AWS/projects/nossl_,g' \
+		-e 's,shared,AWS/projects/shared,g'\
 		< $(INSTALL)/AWS/projects/aws.gpr > aws_tmp.gpr
 	$(SED) -e 's,\.\./,AWS/,g;s,crypto,AWS/projects/crypto,g' \
-		-e 's,ssl_,AWS/projects/ssl_,g' \
+		-e 's,ssl_,AWS/projects/ssl_,g;s,shared,AWS/projects/shared,g'\
 		< $(INSTALL)/AWS/projects/aws_ssl.gpr > aws_ssl_tmp.gpr
 ifneq ($(XMLADA),true)
 	$(SED) -e 's,xmlada,AWS/projects/xmlada,g' aws_tmp.gpr \
