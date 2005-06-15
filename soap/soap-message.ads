@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2004                          --
---                                ACT-Europe                                --
+--                         Copyright (C) 2000-2005                          --
+--                                 AdaCore                                --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -30,6 +30,7 @@
 
 with Ada.Strings.Unbounded;
 
+with SOAP.Name_Space;
 with SOAP.Parameters;
 
 package SOAP.Message is
@@ -38,14 +39,11 @@ package SOAP.Message is
 
    type Object is tagged private;
 
-   Default_Name_Space : constant String := "http://mns.org/";
-   --  Default name space used by AWS if none as been specified
-
    function XML_Image (M : in Object) return Unbounded_String;
    --  Returns the XML image for the wrapper and parameters. This is designed
    --  to be used by Payload and Response object.
 
-   function Name_Space   (M : in Object'Class) return String;
+   function Name_Space   (M : in Object'Class) return SOAP.Name_Space.Object;
    --  Returns message Namespace
 
    function Wrapper_Name (M : in Object'class) return String;
@@ -55,8 +53,8 @@ package SOAP.Message is
    --  Returns the parameter
 
    procedure Set_Name_Space
-     (M    : in out Object'Class;
-      Name : in     String);
+     (M  : in out Object'Class;
+      NS : in     SOAP.Name_Space.Object);
    --  Set message's Namespace
 
    procedure Set_Wrapper_Name
@@ -72,8 +70,7 @@ package SOAP.Message is
 private
 
    type Object is tagged record
-      Name_Space   : Unbounded_String
-        := To_Unbounded_String (Default_Name_Space);
+      Name_Space   : SOAP.Name_Space.Object;
       Wrapper_Name : Unbounded_String;
       P            : SOAP.Parameters.List;
    end record;
