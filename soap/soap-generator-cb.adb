@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                          Copyright (C) 2003-2004                         --
---                                ACT-Europe                                --
+--                          Copyright (C) 2003-2005                         --
+--                                 AdaCore                                --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -103,7 +103,7 @@ package body CB is
      (O          : in out Object;
       Proc       : in     String;
       SOAPAction : in     String;
-      Namespace  : in     String;
+      Namespace  : in     Name_Space.Object;
       Input      : in     WSDL.Parameters.P_Set;
       Output     : in     WSDL.Parameters.P_Set;
       Fault      : in     WSDL.Parameters.P_Set)

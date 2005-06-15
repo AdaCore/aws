@@ -139,7 +139,7 @@ package body SOAP.Generator is
         (O          : in out Object;
          Proc       : in     String;
          SOAPAction : in     String;
-         Namespace  : in     String;
+         Namespace  : in     Name_Space.Object;
          Input      : in     WSDL.Parameters.P_Set;
          Output     : in     WSDL.Parameters.P_Set;
          Fault      : in     WSDL.Parameters.P_Set);
@@ -164,7 +164,7 @@ package body SOAP.Generator is
         (O          : in out Object;
          Proc       : in     String;
          SOAPAction : in     String;
-         Namespace  : in     String;
+         Namespace  : in     Name_Space.Object;
          Input      : in     WSDL.Parameters.P_Set;
          Output     : in     WSDL.Parameters.P_Set;
          Fault      : in     WSDL.Parameters.P_Set);
@@ -189,7 +189,7 @@ package body SOAP.Generator is
         (O          : in out Object;
          Proc       : in     String;
          SOAPAction : in     String;
-         Namespace  : in     String;
+         Namespace  : in     Name_Space.Object;
          Input      : in     WSDL.Parameters.P_Set;
          Output     : in     WSDL.Parameters.P_Set;
          Fault      : in     WSDL.Parameters.P_Set);
@@ -416,7 +416,7 @@ package body SOAP.Generator is
      (O          : in out Object;
       Proc       : in     String;
       SOAPAction : in     String;
-      Namespace  : in     String;
+      Namespace  : in     Name_Space.Object;
       Input      : in     WSDL.Parameters.P_Set;
       Output     : in     WSDL.Parameters.P_Set;
       Fault      : in     WSDL.Parameters.P_Set) is
