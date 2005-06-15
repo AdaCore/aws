@@ -51,11 +51,11 @@ targetNamespace="http://example.com/stockquote.wsdl"
         <operation name="GetLastTradePrice">
            <soap:operation soapAction="http://localhost/GetTradePrices"/>
            <input>
-               <soap:body use="encoded" namespace="http://example.com/stockquote"
+               <soap:body use="encoded" namespace="http://example.com/stockquote.wsdl"
                           encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
            </input>
            <output>
-               <soap:body use="encoded" namespace="http://example.com/stockquote"
+               <soap:body use="encoded" namespace="http://example.com/stockquote.wsdl"
                           encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
            </output>
         </operation>>
