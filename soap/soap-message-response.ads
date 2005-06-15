@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2001                          --
---                                ACT-Europe                                --
+--                         Copyright (C) 2000-2005                          --
+--                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -39,7 +39,7 @@ package SOAP.Message.Response is
    function Build (R : in Object'Class) return AWS.Response.Data;
 
    function From (P : in Message.Payload.Object) return Object;
-   --  Returns a Response object, initialized from a payload object.
+   --  Returns a Response object, initialized from a payload object
 
    function Is_Error (R : in Object) return Boolean;
 
