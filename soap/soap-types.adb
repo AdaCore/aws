@@ -1028,7 +1028,9 @@ package body SOAP.Types is
 
                --  The array is composed of only records having the same
                --  name. Use this name for the array component type.
-               return "awsns:" & Name;
+
+               return SOAP.Name_Space.Name
+                 (Name_Space (O.O (O.O'First).O.all)) & ":" & Name;
             end;
          end if;
 
