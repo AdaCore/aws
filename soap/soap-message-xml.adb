@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2004                          --
---                                ACT-Europe                                --
+--                         Copyright (C) 2000-2005                          --
+--                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -106,26 +106,23 @@ package body SOAP.Message.XML is
       T_Int, T_Float, T_Double, T_Long, T_Short,
       T_String, T_Boolean, T_Time_Instant, T_Base64);
 
+   type NS_Set is array (1 .. 10) of SOAP.Name_Space.Object;
+
    type Namespaces is record
-      --  ??? we will probably have to support more namespaces here
-      xsd : Unbounded_String;
-      xsi : Unbounded_String;
-      enc : Unbounded_String;
+      xsd   : SOAP.Name_Space.Object;
+      xsi   : SOAP.Name_Space.Object;
+      enc   : SOAP.Name_Space.Object;
+      User  : NS_Set;
+      Index : Natural := 0;
    end record;
 
    type State is record
-      Name_Space   : Unbounded_String; -- Wrapper routine namespace
-      --  ??? we can probably use a SOAP.Name_Space object
+      Name_Space   : SOAP.Name_Space.Object;
       Wrapper_Name : Unbounded_String;
       Parameters   : SOAP.Parameters.List;
       A_State      : Type_State := Void;
       NS           : Namespaces;
    end record;
-
-   function "-"
-     (Str : in Unbounded_String)
-      return String
-      renames To_String;
 
    function To_Type
      (Type_Name : in String;
@@ -137,6 +134,11 @@ package body SOAP.Message.XML is
      (N  : in     DOM.Core.Node;
       NS : in out Namespaces);
    --  Read namespaces from node and set NS accordingly
+
+   function Get_Namespace_Value
+     (NS   : in Namespaces;
+      Name : in String) return String;
+   --  Returns the user's namspace value for the given namespace name
 
    procedure Parse_Document
      (N : in     DOM.Core.Node;
@@ -285,6 +287,23 @@ package body SOAP.Message.XML is
       Exceptions.Raise_Exception (SOAP_Error'Identity, Name & " - " & Message);
    end Error;
 
+   -------------------------
+   -- Get_Namespace_Value --
+   -------------------------
+
+   function Get_Namespace_Value
+     (NS   : in Namespaces;
+      Name : in String) return String is
+   begin
+      for K in 1 .. NS.Index loop
+         if SOAP.Name_Space.Name (NS.User (K)) = Name then
+            return SOAP.Name_Space.Value (NS.User (K));
+         end if;
+      end loop;
+
+      return "";
+   end Get_Namespace_Value;
+
    -----------
    -- Image --
    -----------
@@ -355,7 +374,7 @@ package body SOAP.Message.XML is
       Free (Doc);
 
       return Message.Payload.Build
-        (To_String (S.Wrapper_Name), S.Parameters, To_String (S.Name_Space));
+        (To_String (S.Wrapper_Name), S.Parameters, S.Name_Space);
    end Load_Payload;
 
    -------------------
@@ -528,7 +547,8 @@ package body SOAP.Message.XML is
       Parse_Namespaces (N, LS.NS);
 
       declare
-         A_Name    : constant String := -LS.NS.enc & ":arrayType";
+         A_Name    : constant String :=
+                       SOAP.Name_Space.Name (LS.NS.enc) & ":arrayType";
          --  Attribute name
 
          Type_Name : constant String
@@ -754,11 +774,15 @@ package body SOAP.Message.XML is
          begin
             if Utils.NS (Name) = "xmlns" then
                if Value = URL_xsd or else Value = URL_xsd_01 then
-                  NS.xsd := To_Unbounded_String (Utils.No_NS (Name));
+                  NS.xsd := SOAP.Name_Space.Create (Utils.No_NS (Name), Value);
                elsif Value = URL_xsi or else Value = URL_xsi_01 then
-                  NS.xsi := To_Unbounded_String (Utils.No_NS (Name));
+                  NS.xsi := SOAP.Name_Space.Create (Utils.No_NS (Name), Value);
                elsif Value = URL_Enc then
-                  NS.enc := To_Unbounded_String (Utils.No_NS (Name));
+                  NS.enc := SOAP.Name_Space.Create (Utils.No_NS (Name), Value);
+               elsif NS.Index < NS.User'Last then
+                  NS.Index := NS.Index + 1;
+                  NS.User (NS.Index) :=
+                    SOAP.Name_Space.Create (Utils.No_NS (Name), Value);
                end if;
             end if;
          end;
@@ -792,9 +816,11 @@ package body SOAP.Message.XML is
 
       function Is_Array return Boolean is
          XSI_Type : constant DOM.Core.Node
-           := Get_Named_Item (Atts, -(LS.NS.xsi) & ":type");
+           := Get_Named_Item
+               (Atts, SOAP.Name_Space.Name (LS.NS.xsi) & ":type");
          SOAP_Enc : constant DOM.Core.Node
-           := Get_Named_Item (Atts, -(LS.NS.enc) & ":arrayType");
+           := Get_Named_Item
+               (Atts, SOAP.Name_Space.Name (LS.NS.enc) & ":arrayType");
       begin
          return
          --  Either we have xsi:type="soapenc:Array"
@@ -811,7 +837,8 @@ package body SOAP.Message.XML is
    begin
       Parse_Namespaces (Ref, LS.NS);
 
-      XSI_Type := Get_Named_Item (Atts, To_String (LS.NS.xsi) & ":type");
+      XSI_Type :=
+        Get_Named_Item (Atts, SOAP.Name_Space.Name (LS.NS.xsi) & ":type");
 
       if To_String (S.Wrapper_Name) = "Fault" then
          return Parse_String (Name, Ref);
@@ -825,7 +852,9 @@ package body SOAP.Message.XML is
          then
             --  No xsi:type attribute found
 
-            if Get_Named_Item (Atts, -LS.NS.xsi & ":null") /= null then
+            if Get_Named_Item
+              (Atts, SOAP.Name_Space.Name (LS.NS.xsi) & ":null") /= null
+            then
                return Types.N (Name);
 
             elsif S_Type /= null
@@ -921,7 +950,8 @@ package body SOAP.Message.XML is
          --  A record can't have a text child node.
          return Types.E
            (Node_Value (First_Child (Field)),
-            Utils.No_NS (SOAP.XML.Get_Attr_Value (Field, -S.NS.xsi & ":type")),
+            Utils.No_NS (SOAP.XML.Get_Attr_Value
+                           (Field, SOAP.Name_Space.Name (S.NS.xsi) & ":type")),
             Name);
 
       else
@@ -1023,43 +1053,38 @@ package body SOAP.Message.XML is
       use type SOAP.Parameters.List;
       use type DOM.Core.Node_Types;
 
-      function Prefix return String;
-      --  Returns node prefix (with a ':' in front) if a prefix is used for
-      --  the node N.
-
-      NL   : constant DOM.Core.Node_List      := Child_Nodes (N);
-      Name : constant String                  := Local_Name (N);
-      Atts : constant DOM.Core.Named_Node_Map := Attributes (N);
-      LS   : State := S;
-
-      ------------
-      -- Prefix --
-      ------------
-
-      function Prefix return String is
-         Prefix : constant String := DOM.Core.Nodes.Prefix (N);
-      begin
-         if Prefix = "" then
-            return "";
-         else
-            return ':' & Prefix;
-         end if;
-      end Prefix;
+      NL     : constant DOM.Core.Node_List      := Child_Nodes (N);
+      Prefix : constant String                  := DOM.Core.Nodes.Prefix (N);
+      Name   : constant String                  := Local_Name (N);
+      Atts   : constant DOM.Core.Named_Node_Map := Attributes (N);
+      LS     : State := S;
 
    begin
       Parse_Namespaces (N, LS.NS);
 
-      if Length (Atts) /= 0 then
-         declare
-            use type DOM.Core.Node;
+      if Prefix /= "" then
+         --  The wrapper has a prefix
 
-            xmlns : constant DOM.Core.Node
-              := Get_Named_Item (Atts, "xmlns" & Prefix);
-         begin
-            if xmlns /= null then
-               S.Name_Space := To_Unbounded_String (Node_Value (xmlns));
-            end if;
-         end;
+         if Length (Atts) /= 0 then
+            declare
+               use type DOM.Core.Node;
+
+               xmlns : constant DOM.Core.Node
+                 := Get_Named_Item (Atts, "xmlns:" & Prefix);
+            begin
+               if xmlns /= null then
+                  S.Name_Space :=
+                    SOAP.Name_Space.Create (Prefix, Node_Value (xmlns));
+               end if;
+            end;
+
+         else
+            --  There is no attribute for this node, yet the wrapper is using
+            --  a name space.
+            S.Name_Space :=
+              SOAP.Name_Space.Create
+                (Prefix, Get_Namespace_Value (S.NS, Prefix));
+         end if;
       end if;
 
       S.Wrapper_Name := To_Unbounded_String (Name);
@@ -1082,7 +1107,7 @@ package body SOAP.Message.XML is
    is
       function Is_A
         (T1_Name, T2_Name : in String;
-         NS               : in Unbounded_String) return Boolean;
+         NS               : in String) return Boolean;
       pragma Inline (Is_A);
       --  Returns True if T1_Name is equal to T2_Name based on namespace
 
@@ -1092,9 +1117,9 @@ package body SOAP.Message.XML is
 
       function Is_A
         (T1_Name, T2_Name : in String;
-         NS               : in Unbounded_String) return Boolean is
+         NS               : in String) return Boolean is
       begin
-         return T1_Name = Utils.With_NS (-NS, T2_Name);
+         return T1_Name = Utils.With_NS (NS, T2_Name);
       end Is_A;
 
    begin
@@ -1102,8 +1127,10 @@ package body SOAP.Message.XML is
          if Handlers (K).Name /= null
            and then
              ((Handlers (K).Encoded
-               and then Is_A (Type_Name, Handlers (K).Name.all, NS.enc))
-              or else Is_A (Type_Name, Handlers (K).Name.all, NS.xsd))
+               and then Is_A (Type_Name, Handlers (K).Name.all,
+                              SOAP.Name_Space.Name (NS.enc)))
+              or else Is_A (Type_Name, Handlers (K).Name.all,
+                            SOAP.Name_Space.Name (NS.xsd)))
          then
             return K;
          end if;
