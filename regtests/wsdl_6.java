@@ -1,8 +1,8 @@
 //--------------------------------------------------------------------------
 //                              Ada Web Server
 //
-//                         Copyright (C) 2003-2004
-//                                ACT-Europe
+//                         Copyright (C) 2003-2005
+//                                 AdaCore
 //                                                                          
 //  This library is free software; you can redistribute it and/or modify    
 //  it under the terms of the GNU General Public License as published by    
@@ -33,6 +33,7 @@
 //
 // First build and launch the AWS server:
 //
+//    $ wsdl2aws -q -f -cb -types wsdl_6 wsdl_6.wsdl
 //    $ gnatmake -Pregtests wsdl_6_main
 //    $ wsdl_6_main -j
 //
@@ -42,7 +43,9 @@
 //
 // Compile generated code:
 //
-//   $ javac WSDL_6/aws/*.java
+//   $ javac soapaws/WSDL_6_def/*.java
+//   $ javac soapaws/WSDL_6_pkg/*.java
+//   $ javac soapaws/Standard_pkg/*.java
 //
 // Compile this Java client program:
 //
@@ -58,11 +61,13 @@
 //
 // No difference should be reported.
 
-import WSDL_6.aws.*;
+import soapaws.Standard_pkg.*;
+import soapaws.WSDL_6_def.*;
+import soapaws.WSDL_6_pkg.*;
 
 public class wsdl_6 {
 
-    protected static void printlnRec (WSDL_6.aws.Rec rec) {
+    protected static void printlnRec (Rec rec) {
 	System.out.println ("-----");
 	System.out.println (rec.getA());
 	System.out.println (rec.getB());
@@ -103,7 +108,8 @@ public class wsdl_6 {
 	data.setB ((float)0.1);
 	data.setC (0.2);
 
-	WSDL_6.aws.Character c = new WSDL_6.aws.Character();
+	soapaws.Standard_pkg.Character c = 
+	    new soapaws.Standard_pkg.Character();
 	c.setValue ("r");
 	data.setD (c);
 
@@ -142,14 +148,14 @@ public class wsdl_6 {
 	Rec[] rarr = new Rec[12];
 	Rec[] rres;
 
-	WSDL_6.aws.Character cc;
+	soapaws.Standard_pkg.Character cc;
 
 	for (int k=0; k<12; k++) {
 	    rarr[k] = new Rec();
 	    rarr[k].setA (k);
 	    rarr[k].setB ((float)k);
 	    rarr[k].setC ((double)k);
-	    cc = new WSDL_6.aws.Character();
+	    cc = new soapaws.Standard_pkg.Character();
 	    cc.setValue (new String ("" + (char)(k + 'a')));
 	    rarr[k].setD (cc);
 	    rarr[k].setE ("This is number " + k);
