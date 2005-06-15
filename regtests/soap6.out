@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <soap:Envelope soap:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsd="http://www.w3.org/1999/XMLSchema" xmlns:xsi="http://www.w3.org/1999/XMLSchema-instance">
 <soap:Body>
-<awsns:getLastResponse xmlns:awsns="urn:datafeed.dukascopy.com">
+<ns3:getLastResponse xmlns:ns3="urn:datafeed.dukascopy.com">
 <getLastReturn soapenc:arrayType="awsns:Candle[1]" xsi:type="soapenc:Array">
    <item>
       <artificial xsi:type="xsd:boolean">0</artificial>
@@ -17,7 +17,7 @@
       <volume xsi:type="xsd:long">0</volume>
    </item>
 </getLastReturn>
-</awsns:getLastResponse>
+</ns3:getLastResponse>
 </soap:Body>
 </soap:Envelope>
 

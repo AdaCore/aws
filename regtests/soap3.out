@@ -3,16 +3,16 @@ Ok, payloads parsed
 <?xml version='1.0' encoding='UTF-8'?>
 <soap:Envelope soap:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsd="http://www.w3.org/1999/XMLSchema" xmlns:xsi="http://www.w3.org/1999/XMLSchema-instance">
 <soap:Body>
-<awsns:Workorder xmlns:awsns="http://dummyns.org">
+<tns:Workorder xmlns:tns="http://dummyns.org">
 <file xsi:type="soapenc:base64"></file>
-</awsns:Workorder>
+</tns:Workorder>
 </soap:Body>
 </soap:Envelope>
 
 <?xml version='1.0' encoding='UTF-8'?>
 <soap:Envelope soap:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsd="http://www.w3.org/1999/XMLSchema" xmlns:xsi="http://www.w3.org/1999/XMLSchema-instance">
 <soap:Body>
-<awsns:Workorder xmlns:awsns="http://mns.org/">
+<awsns:Workorder xmlns:awsns="http://soapaws/">
 <string xsi:type="xsd:string"></string>
 </awsns:Workorder>
 </soap:Body>

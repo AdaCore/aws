@@ -1,7 +1,7 @@
 Pimg : <?xml version='1.0' encoding='UTF-8'?>
 <soap:Envelope soap:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsd="http://www.w3.org/1999/XMLSchema" xmlns:xsi="http://www.w3.org/1999/XMLSchema-instance">
 <soap:Body>
-<awsns:Test xmlns:awsns="http://mns.org/">
+<awsns:Test xmlns:awsns="http://soapaws/">
 <Workorder>
    <Woid xsi:type="xsd:string">Wo1</Woid>
    <Orderline soapenc:arrayType="awsns:Orderline[1]" xsi:type="soapenc:Array">
