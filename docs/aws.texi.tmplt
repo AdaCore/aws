@@ -4497,6 +4497,10 @@ supported with the current version.
 
 @item abstract types are not supported.
 
+@item SOAP MIME attachments are not supported.
+
+@item WSDL type inheritance not supported.
+
 @end itemize
 
 @c ----------------------------------------------------------------------
