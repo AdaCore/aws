@@ -4501,6 +4501,9 @@ supported with the current version.
 
 @item WSDL type inheritance not supported.
 
+@item Only the RPC/Encoded SOAP messages' style is supported (the
+Document/Literal is not)
+
 @end itemize
 
 @c ----------------------------------------------------------------------
