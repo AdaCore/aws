@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2003-2004                          --
---                                ACT-Europe                                --
+--                         Copyright (C) 2003-2005                          --
+--                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -64,7 +64,9 @@ procedure WSDL_6_Main is
       use Ada;
       use Ada.Strings.Unbounded;
       use Ada.Text_IO;
+
       use type SOAP.Types.Long;
+      use type SOAP.Types.Byte;
 
       ---------------
       -- Double_IO --
@@ -90,6 +92,40 @@ procedure WSDL_6_Main is
 
       package Short_IO is new Text_IO.Integer_IO (SOAP.Types.Short);
 
+      -------------
+      -- Byte_IO --
+      -------------
+
+      package Byte_IO is new Text_IO.Integer_IO (SOAP.Types.Byte);
+
+      ----------------------
+      -- Unsigned_Long_IO --
+      ----------------------
+
+      package Unsigned_Long_IO is
+        new Text_IO.Modular_IO (SOAP.Types.Unsigned_Long);
+
+      ---------------------
+      -- Unsigned_Int_IO --
+      ---------------------
+
+      package Unsigned_Int_IO is
+        new Text_IO.Modular_IO (SOAP.Types.Unsigned_Int);
+
+      -----------------------
+      -- Unsigned_Short_IO --
+      -----------------------
+
+      package Unsigned_Short_IO is
+        new Text_IO.Modular_IO (SOAP.Types.Unsigned_Short);
+
+      ----------------------
+      -- Unsigned_Byte_IO --
+      ----------------------
+
+      package Unsigned_Byte_IO is
+        new Text_IO.Modular_IO (SOAP.Types.Unsigned_Byte);
+
       ---------
       -- Put --
       ---------
@@ -107,6 +143,31 @@ procedure WSDL_6_Main is
       procedure Put (V : in SOAP.Types.Short) is
       begin
          Short_IO.Put (V, Width => 0);
+      end Put;
+
+      procedure Put (V : in SOAP.Types.Byte) is
+      begin
+         Byte_IO.Put (V, Width => 0);
+      end Put;
+
+      procedure Put (V : in SOAP.Types.Unsigned_Long) is
+      begin
+         Unsigned_Long_IO.Put (V, Width => 0);
+      end Put;
+
+      procedure Put (V : in SOAP.Types.Unsigned_Int) is
+      begin
+         Unsigned_Int_IO.Put (V, Width => 0);
+      end Put;
+
+      procedure Put (V : in SOAP.Types.Unsigned_Short) is
+      begin
+         Unsigned_Short_IO.Put (V, Width => 0);
+      end Put;
+
+      procedure Put (V : in SOAP.Types.Unsigned_Byte) is
+      begin
+         Unsigned_Byte_IO.Put (V, Width => 0);
       end Put;
 
       procedure Put (V : in Boolean) is
@@ -189,6 +250,11 @@ procedure WSDL_6_Main is
       Put (WSDL_6_Service.Client.Echo_Int (3)); New_Line;
       Put (WSDL_6_Service.Client.Echo_Short (987)); New_Line;
       Put (WSDL_6_Service.Client.Echo_Long (-543876)); New_Line;
+      Put (WSDL_6_Service.Client.Echo_Byte (-102)); New_Line;
+      Put (WSDL_6_Service.Client.Echo_Unsigned_Long (101_666_666)); New_Line;
+      Put (WSDL_6_Service.Client.Echo_Unsigned_Int (8_654)); New_Line;
+      Put (WSDL_6_Service.Client.Echo_Unsigned_Short (65_000)); New_Line;
+      Put (WSDL_6_Service.Client.Echo_Unsigned_Byte (101)); New_Line;
       Put (WSDL_6_Service.Client.Echo_Float (89.12)); New_Line;
       Put (WSDL_6_Service.Client.Echo_Double (998877.123456)); New_Line;
       Put (WSDL_6_Service.Client.Echo_Boolean (True));
