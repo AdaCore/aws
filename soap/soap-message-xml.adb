@@ -103,7 +103,8 @@ package body SOAP.Message.XML is
 
    type Type_State is
      (Void, T_Undefined, T_Any_Type,
-      T_Int, T_Float, T_Double, T_Long, T_Short,
+      T_Int, T_Float, T_Double, T_Long, T_Short, T_Byte,
+      T_Unsigned_Long, T_Unsigned_Int, T_Unsigned_Short, T_Unsigned_Byte,
       T_String, T_Boolean, T_Time_Instant, T_Base64);
 
    type NS_Set is array (1 .. 10) of SOAP.Name_Space.Object;
@@ -167,6 +168,11 @@ package body SOAP.Message.XML is
       N    : in DOM.Core.Node)
       return Types.Object'Class;
 
+   function Parse_Long
+     (Name : in String;
+      N    : in DOM.Core.Node)
+      return Types.Object'Class;
+
    function Parse_Int
      (Name : in String;
       N    : in DOM.Core.Node)
@@ -177,7 +183,7 @@ package body SOAP.Message.XML is
       N    : in DOM.Core.Node)
       return Types.Object'Class;
 
-   function Parse_Long
+   function Parse_Byte
      (Name : in String;
       N    : in DOM.Core.Node)
       return Types.Object'Class;
@@ -203,6 +209,26 @@ package body SOAP.Message.XML is
       return Types.Object'Class;
 
    function Parse_Base64
+     (Name : in String;
+      N    : in DOM.Core.Node)
+      return Types.Object'Class;
+
+   function Parse_Unsigned_Long
+     (Name : in String;
+      N    : in DOM.Core.Node)
+      return Types.Object'Class;
+
+   function Parse_Unsigned_Int
+     (Name : in String;
+      N    : in DOM.Core.Node)
+      return Types.Object'Class;
+
+   function Parse_Unsigned_Short
+     (Name : in String;
+      N    : in DOM.Core.Node)
+      return Types.Object'Class;
+
+   function Parse_Unsigned_Byte
      (Name : in String;
       N    : in DOM.Core.Node)
       return Types.Object'Class;
@@ -256,25 +282,36 @@ package body SOAP.Message.XML is
            (null, null, False),
          T_Undefined    =>
            (Types.XML_Undefined'Access, null, False),
-         T_Any_Type    =>
+         T_Any_Type      =>
            (Types.XML_Any_Type'Access, Parse_Any_Type'Access, False),
-         T_Int          =>
-           (Types.XML_Int'Access, Parse_Int'Access, False),
-         T_Short        =>
-           (Types.XML_Short'Access, Parse_Short'Access, False),
-         T_Long         =>
+         T_Long          =>
            (Types.XML_Long'Access, Parse_Long'Access, False),
-         T_Float        =>
+         T_Int            =>
+           (Types.XML_Int'Access, Parse_Int'Access, False),
+         T_Short          =>
+           (Types.XML_Short'Access, Parse_Short'Access, False),
+         T_Byte           =>
+           (Types.XML_Byte'Access, Parse_Byte'Access, False),
+         T_Float          =>
            (Types.XML_Float'Access, Parse_Float'Access, False),
-         T_Double       =>
+         T_Double         =>
            (Types.XML_Double'Access, Parse_Double'Access, False),
-         T_String       =>
+         T_String         =>
            (Types.XML_String'Access, Parse_String'Access, False),
-         T_Boolean      =>
+         T_Boolean        =>
            (Types.XML_Boolean'Access, Parse_Boolean'Access, False),
-         T_Base64       =>
+         T_Base64         =>
            (Types.XML_Base64'Access, Parse_Base64'Access, True),
-         T_Time_Instant =>
+         T_Unsigned_Long  =>
+           (Types.XML_Unsigned_Long'Access, Parse_Unsigned_Long'Access, False),
+         T_Unsigned_Int  =>
+           (Types.XML_Unsigned_Int'Access, Parse_Unsigned_Int'Access, False),
+         T_Unsigned_Short =>
+           (Types.XML_Unsigned_Short'Access,
+            Parse_Unsigned_Short'Access, False),
+         T_Unsigned_Byte  =>
+           (Types.XML_Unsigned_Byte'Access, Parse_Unsigned_Byte'Access, False),
+         T_Time_Instant   =>
            (Types.XML_Time_Instant'Access, Parse_Time_Instant'Access, False));
 
    -----------
@@ -628,6 +665,20 @@ package body SOAP.Message.XML is
          return Types.B (False, Name);
       end if;
    end Parse_Boolean;
+
+   ----------------
+   -- Parse_Byte --
+   ----------------
+
+   function Parse_Byte
+     (Name : in String;
+      N    : in DOM.Core.Node)
+      return Types.Object'Class
+   is
+      Value : constant DOM.Core.Node := First_Child (N);
+   begin
+      return Types.B (Types.Byte'Value (Node_Value (Value)), Name);
+   end Parse_Byte;
 
    --------------------
    -- Parse_Document --
@@ -1044,6 +1095,62 @@ package body SOAP.Message.XML is
          return Types.T (T, Name, Types.TZ'Value (TI (20 .. 22)));
       end if;
    end Parse_Time_Instant;
+
+   -------------------------
+   -- Parse_Unsigned_Byte --
+   -------------------------
+
+   function Parse_Unsigned_Byte
+     (Name : in String;
+      N    : in DOM.Core.Node)
+      return Types.Object'Class
+   is
+      Value : constant DOM.Core.Node := First_Child (N);
+   begin
+      return Types.UB (Types.Unsigned_Byte'Value (Node_Value (Value)), Name);
+   end Parse_Unsigned_Byte;
+
+   ------------------------
+   -- Parse_Unsigned_Int --
+   ------------------------
+
+   function Parse_Unsigned_Int
+     (Name : in String;
+      N    : in DOM.Core.Node)
+      return Types.Object'Class
+   is
+      Value : constant DOM.Core.Node := First_Child (N);
+   begin
+      return Types.UI (Types.Unsigned_Int'Value (Node_Value (Value)), Name);
+   end Parse_Unsigned_Int;
+
+   -------------------------
+   -- Parse_Unsigned_Long --
+   -------------------------
+
+   function Parse_Unsigned_Long
+     (Name : in String;
+      N    : in DOM.Core.Node)
+      return Types.Object'Class
+   is
+      Value : constant DOM.Core.Node := First_Child (N);
+   begin
+      return Types.UL (Types.Unsigned_Long'Value (Node_Value (Value)), Name);
+   end Parse_Unsigned_Long;
+
+   --------------------------
+   -- Parse_Unsigned_Short --
+   --------------------------
+
+   function Parse_Unsigned_Short
+     (Name : in String;
+      N    : in DOM.Core.Node)
+      return Types.Object'Class
+   is
+      Value : constant DOM.Core.Node := First_Child (N);
+   begin
+      return Types.US (Types.Unsigned_Short'Value (Node_Value (Value)), Name);
+   end Parse_Unsigned_Short;
 
    -------------------
    -- Parse_Wrapper --
