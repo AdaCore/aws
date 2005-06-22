@@ -61,6 +61,8 @@
 //
 // No difference should be reported.
 
+import org.apache.axis.types.*;
+
 import soapaws.Standard_pkg.*;
 import soapaws.WSDL_6_def.*;
 import soapaws.WSDL_6_pkg.*;
@@ -92,10 +94,20 @@ public class wsdl_6 {
 
 	// Call echo routines
 
+	UnsignedLong ul = new UnsignedLong (101666666);
+	UnsignedInt ui = new UnsignedInt (8654);
+	UnsignedShort us = new UnsignedShort (65000);
+	UnsignedByte ub = new UnsignedByte (101);
+
 	System.out.println (port.echo_Int (8));
 	System.out.println (port.echo_Int (3));
 	System.out.println (port.echo_Short ((short)987));
 	System.out.println (port.echo_Long ((long)-543876));
+	System.out.println (port.echo_Byte ((byte)-102));
+	System.out.println (port.echo_Unsigned_Long (ul));
+	System.out.println (port.echo_Unsigned_Int (ui));
+	System.out.println (port.echo_Unsigned_Short (us));
+	System.out.println (port.echo_Unsigned_Byte (ub));
 	System.out.println (port.echo_Float ((float)89.12));
 	System.out.println (port.echo_Double (998877.123456));
 	System.out.println (port.echo_Boolean (true));
