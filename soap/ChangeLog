@@ -1,3 +1,60 @@
+2005-06-22  Pascal Obry  <pascal@obry.net>
+
+	* soap-types.ads, soap-types.adb:
+        (XSD_Byte): New type to support SOAP xsd:byte type. Add all methods
+         for proper support of this type (Image, XML_Image, V, XML_Type).
+        (XSD_Unsigned_Long): Idem.
+        (XSD_Unsigned_Int): Idem.
+        (XSD_Unsigned_Short): Idem.
+        (XSD_Unsigned_Byte): Idem.
+        (B): XSD_Byte constructor.
+        (UL): XSD_Unsigned_Long constructor.
+        (UI): XSD_Unsigned_Int constructor.
+        (US): XSD_Unsigned_Short constructor.
+        (UB): XSD_Unsigned_Byte constructor.
+        (Get): Add routines for new types Byte and Unsigned_??.
+        Part of work for E617-003.
+        Minor typo fix.
+	Update copyright notice.
+
+	* soap-message-xml.adb:
+        (Type_State): Add T_Byte, T_Unsigned_Long, T_Unsigned_Int,
+         T_Unsigned_Short, T_Unsigned_Byte.
+        (Parse_Byte): New routine.
+        (Parse_Unsigned_Long): Idem.
+        (Parse_Unsigned_Int): Idem.
+        (Parse_Unsigned_Short): Idem.
+        (Parse_Unsigned_Byte): Idem.
+        (Handlers): Add entry for new supported types (Byte, Unsigned_??).
+        Part of work for E617-003.
+
+	* soap-parameters.ads, soap-parameters.adb:
+        (Get) [Byte]: New routine.
+        (Get) [Unsigned_Long]: Idem.
+        (Get) [Unsigned_Int]: Idem.
+        (Get) [Unsigned_Short]: Idem.
+        (Get) [Unsigned_Byte]: Idem.
+        Part of work for E617-003.
+	Update copyright notice.
+
+	* soap-wsdl.adb:
+        (From_Ada): Add support for new types (Byte and Unsigned_??).
+        (Get_Routine): Idem.
+        (Set_Routine): Idem.
+        (Set_Type): Idem.
+        (To_Ada): Idem.
+        (To_Type): Idem.
+        (To_XSD): Idem.
+        (V_Routine): Idem.
+        Part of work for E617-003.
+	Update copyright notice.
+
+	* soap-wsdl.adb:
+        (Parameter_Type): Add P_Byte, P_Unsigned_Long, P_Unsigned_Int,
+         P_Unsigned_Short, P_Unsigned_Byte.
+        Part of work for E617-003.
+	Update copyright notice.
+
 2005-06-15  Pascal Obry  <pascal@obry.net>
 
 	* soap-types.adb:

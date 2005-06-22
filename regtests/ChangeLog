@@ -1,3 +1,25 @@
+2005-06-22  Pascal Obry  <pascal@obry.net>
+
+	* wsdl_6.ads, wsdl_6.adb:
+        Add echo routines for the SOAP Byte, Unsigned_Long, Unsigned_Int,
+         Unsigned_Short, Unsigned_Byte types.
+        Part of work for E617-003.
+
+	* wsdl_6_main.adb:
+	Add call to the new echo routines to test the SOAP Byte,
+         Unsigned_Long, Unsigned_Int, Unsigned_Short, Unsigned_Byte types.
+        Note that this test must be synchronized with the corresponding Java
+         version, see below.
+        Part of work for E617-003.
+
+	* wsdl_6.java:
+	Sync with wsdl_6_main as those tests must output the same result.
+        Part of work for E617-003.
+
+	* wsdl_6_main.out:
+	Update expected output.
+        Part of work for E617-003.
+
 2005-06-15  Pascal Obry  <pascal@obry.net>
 
 	* wsdl_6.java:
