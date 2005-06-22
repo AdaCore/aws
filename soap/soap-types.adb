@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2004                          --
---                                ACT-Europe                                --
+--                         Copyright (C) 2000-2005                          --
+--                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -148,6 +148,16 @@ package body SOAP.Types is
          with To_Unbounded_String (Name), No_Name_Space, V);
    end B;
 
+   function B
+     (V    : in Byte;
+      Name : in String  := "item")
+      return XSD_Byte is
+   begin
+      return
+        (Finalization.Controlled
+         with To_Unbounded_String (Name), No_Name_Space, V);
+   end B;
+
    ---------
    -- B64 --
    ---------
@@ -240,6 +250,22 @@ package body SOAP.Types is
       return Any (O, Name (O));
    end Get;
 
+   function Get (O : in Object'Class) return Long is
+      use type Ada.Tags.Tag;
+   begin
+      if O'Tag = Types.XSD_Long'Tag then
+         return V (XSD_Long (O));
+
+      elsif O'Tag = Types.XSD_Any_Type'Tag
+        and then XSD_Any_Type (O).O.O'Tag = Types.XSD_Long'Tag
+      then
+         return V (XSD_Long (XSD_Any_Type (O).O.O.all));
+
+      else
+         Get_Error ("Long", O);
+      end if;
+   end Get;
+
    function Get (O : in Object'Class) return Integer is
       use type Ada.Tags.Tag;
    begin
@@ -272,19 +298,19 @@ package body SOAP.Types is
       end if;
    end Get;
 
-   function Get (O : in Object'Class) return Long is
+   function Get (O : in Object'Class) return Byte is
       use type Ada.Tags.Tag;
    begin
-      if O'Tag = Types.XSD_Long'Tag then
-         return V (XSD_Long (O));
+      if O'Tag = Types.XSD_Byte'Tag then
+         return V (XSD_Byte (O));
 
       elsif O'Tag = Types.XSD_Any_Type'Tag
-        and then XSD_Any_Type (O).O.O'Tag = Types.XSD_Long'Tag
+        and then XSD_Any_Type (O).O.O'Tag = Types.XSD_Byte'Tag
       then
-         return V (XSD_Long (XSD_Any_Type (O).O.O.all));
+         return V (XSD_Byte (XSD_Any_Type (O).O.O.all));
 
       else
-         Get_Error ("Long", O);
+         Get_Error ("Byte", O);
       end if;
    end Get;
 
@@ -381,6 +407,70 @@ package body SOAP.Types is
 
       else
          Get_Error ("timeInstant", O);
+      end if;
+   end Get;
+
+   function Get (O : in Object'Class) return Unsigned_Long is
+      use type Ada.Tags.Tag;
+   begin
+      if O'Tag = Types.XSD_Unsigned_Long'Tag then
+         return V (XSD_Unsigned_Long (O));
+
+      elsif O'Tag = Types.XSD_Any_Type'Tag
+        and then XSD_Any_Type (O).O.O'Tag = Types.XSD_Unsigned_Long'Tag
+      then
+         return V (XSD_Unsigned_Long (XSD_Any_Type (O).O.O.all));
+
+      else
+         Get_Error ("Unsigned_Long", O);
+      end if;
+   end Get;
+
+   function Get (O : in Object'Class) return Unsigned_Int is
+      use type Ada.Tags.Tag;
+   begin
+      if O'Tag = Types.XSD_Unsigned_Int'Tag then
+         return V (XSD_Unsigned_Int (O));
+
+      elsif O'Tag = Types.XSD_Any_Type'Tag
+        and then XSD_Any_Type (O).O.O'Tag = Types.XSD_Unsigned_Int'Tag
+      then
+         return V (XSD_Unsigned_Int (XSD_Any_Type (O).O.O.all));
+
+      else
+         Get_Error ("Unsigned_Int", O);
+      end if;
+   end Get;
+
+   function Get (O : in Object'Class) return Unsigned_Short is
+      use type Ada.Tags.Tag;
+   begin
+      if O'Tag = Types.XSD_Unsigned_Short'Tag then
+         return V (XSD_Unsigned_Short (O));
+
+      elsif O'Tag = Types.XSD_Any_Type'Tag
+        and then XSD_Any_Type (O).O.O'Tag = Types.XSD_Unsigned_Short'Tag
+      then
+         return V (XSD_Unsigned_Short (XSD_Any_Type (O).O.O.all));
+
+      else
+         Get_Error ("Unsigned_Short", O);
+      end if;
+   end Get;
+
+   function Get (O : in Object'Class) return Unsigned_Byte is
+      use type Ada.Tags.Tag;
+   begin
+      if O'Tag = Types.XSD_Unsigned_Byte'Tag then
+         return V (XSD_Unsigned_Byte (O));
+
+      elsif O'Tag = Types.XSD_Any_Type'Tag
+        and then XSD_Any_Type (O).O.O'Tag = Types.XSD_Unsigned_Byte'Tag
+      then
+         return V (XSD_Unsigned_Byte (XSD_Any_Type (O).O.O.all));
+
+      else
+         Get_Error ("Unsigned_Byte", O);
       end if;
    end Get;
 
@@ -481,6 +571,16 @@ package body SOAP.Types is
       return Image (O.O.O.all);
    end Image;
 
+   function Image (O : in XSD_Long) return String is
+      V : constant String := Long'Image (O.V);
+   begin
+      if O.V >= 0 then
+         return V (V'First + 1 .. V'Last);
+      else
+         return V;
+      end if;
+   end Image;
+
    function Image (O : in XSD_Integer) return String is
       V : constant String := Integer'Image (O.V);
    begin
@@ -501,8 +601,8 @@ package body SOAP.Types is
       end if;
    end Image;
 
-   function Image (O : in XSD_Long) return String is
-      V : constant String := Long'Image (O.V);
+   function Image (O : in XSD_Byte) return String is
+      V : constant String := Byte'Image (O.V);
    begin
       if O.V >= 0 then
          return V (V'First + 1 .. V'Last);
@@ -586,6 +686,30 @@ package body SOAP.Types is
    begin
       return GNAT.Calendar.Time_IO.Image (O.T, "%Y-%m-%dT%H:%M:%S")
         & Image (O.Timezone);
+   end Image;
+
+   function Image (O : in XSD_Unsigned_Long) return String is
+      V : constant String := Unsigned_Long'Image (O.V);
+   begin
+      return V (V'First + 1 .. V'Last);
+   end Image;
+
+   function Image (O : in XSD_Unsigned_Int) return String is
+      V : constant String := Unsigned_Int'Image (O.V);
+   begin
+      return V (V'First + 1 .. V'Last);
+   end Image;
+
+   function Image (O : in XSD_Unsigned_Short) return String is
+      V : constant String := Unsigned_Short'Image (O.V);
+   begin
+      return V (V'First + 1 .. V'Last);
+   end Image;
+
+   function Image (O : in XSD_Unsigned_Byte) return String is
+      V : constant String := Unsigned_Byte'Image (O.V);
+   begin
+      return V (V'First + 1 .. V'Last);
    end Image;
 
    function Image (O : in SOAP_Base64) return String is
@@ -803,6 +927,58 @@ package body SOAP.Types is
          with To_Unbounded_String (Name), No_Name_Space, V, Timezone);
    end T;
 
+   --------
+   -- UB --
+   --------
+
+   function UB
+     (V    : in Unsigned_Byte;
+      Name : in String := "item") return XSD_Unsigned_Byte is
+   begin
+      return
+        (Finalization.Controlled
+         with To_Unbounded_String (Name), No_Name_Space, V);
+   end UB;
+
+   --------
+   -- UI --
+   --------
+
+   function UI
+     (V    : in Unsigned_Int;
+      Name : in String := "item") return XSD_Unsigned_Int is
+   begin
+      return
+        (Finalization.Controlled
+         with To_Unbounded_String (Name), No_Name_Space, V);
+   end UI;
+
+   --------
+   -- UL --
+   --------
+
+   function UL
+     (V    : in Unsigned_Long;
+      Name : in String := "item") return XSD_Unsigned_Long is
+   begin
+      return
+        (Finalization.Controlled
+         with To_Unbounded_String (Name), No_Name_Space, V);
+   end UL;
+
+   --------
+   -- US --
+   --------
+
+   function US
+     (V    : in Unsigned_Short;
+      Name : in String := "item") return XSD_Unsigned_Short is
+   begin
+      return
+        (Finalization.Controlled
+         with To_Unbounded_String (Name), No_Name_Space, V);
+   end US;
+
    -------
    -- V --
    -------
@@ -810,6 +986,11 @@ package body SOAP.Types is
    function V (O : in XSD_Any_Type) return Object_Access is
    begin
       return O.O.O;
+   end V;
+
+   function V (O : in XSD_Long) return Long is
+   begin
+      return O.V;
    end V;
 
    function V (O : in XSD_Integer) return Integer is
@@ -822,7 +1003,7 @@ package body SOAP.Types is
       return O.V;
    end V;
 
-   function V (O : in XSD_Long) return Long is
+   function V (O : in XSD_Byte) return Byte is
    begin
       return O.V;
    end V;
@@ -855,6 +1036,26 @@ package body SOAP.Types is
    function V (O : in XSD_Time_Instant) return Calendar.Time is
    begin
       return O.T;
+   end V;
+
+   function V (O : in XSD_Unsigned_Long) return Unsigned_Long is
+   begin
+      return O.V;
+   end V;
+
+   function V (O : in XSD_Unsigned_Int) return Unsigned_Int is
+   begin
+      return O.V;
+   end V;
+
+   function V (O : in XSD_Unsigned_Short) return Unsigned_Short is
+   begin
+      return O.V;
+   end V;
+
+   function V (O : in XSD_Unsigned_Byte) return Unsigned_Byte is
+   begin
+      return O.V;
    end V;
 
    function V (O : in SOAP_Base64) return String is
@@ -921,6 +1122,11 @@ package body SOAP.Types is
       return XML_Image (Object (O.O.O.all));
    end XML_Image;
 
+   function XML_Image (O : in XSD_Long) return String is
+   begin
+      return XML_Image (Object (O));
+   end XML_Image;
+
    function XML_Image (O : in XSD_Integer) return String is
    begin
       return XML_Image (Object (O));
@@ -931,7 +1137,7 @@ package body SOAP.Types is
       return XML_Image (Object (O));
    end XML_Image;
 
-   function XML_Image (O : in XSD_Long) return String is
+   function XML_Image (O : in XSD_Byte) return String is
    begin
       return XML_Image (Object (O));
    end XML_Image;
@@ -957,6 +1163,26 @@ package body SOAP.Types is
    end XML_Image;
 
    function XML_Image (O : in XSD_Time_Instant) return String is
+   begin
+      return XML_Image (Object (O));
+   end XML_Image;
+
+   function XML_Image (O : in XSD_Unsigned_Long) return String is
+   begin
+      return XML_Image (Object (O));
+   end XML_Image;
+
+   function XML_Image (O : in XSD_Unsigned_Int) return String is
+   begin
+      return XML_Image (Object (O));
+   end XML_Image;
+
+   function XML_Image (O : in XSD_Unsigned_Short) return String is
+   begin
+      return XML_Image (Object (O));
+   end XML_Image;
+
+   function XML_Image (O : in XSD_Unsigned_Byte) return String is
    begin
       return XML_Image (Object (O));
    end XML_Image;
@@ -1152,6 +1378,12 @@ package body SOAP.Types is
       return XML_Type (O.O.O.all);
    end XML_Type;
 
+   function XML_Type (O : in XSD_Long) return String is
+      pragma Warnings (Off, O);
+   begin
+      return XML_Long;
+   end XML_Type;
+
    function XML_Type (O : in XSD_Integer) return String is
       pragma Warnings (Off, O);
    begin
@@ -1164,10 +1396,10 @@ package body SOAP.Types is
       return XML_Short;
    end XML_Type;
 
-   function XML_Type (O : in XSD_Long) return String is
+   function XML_Type (O : in XSD_Byte) return String is
       pragma Warnings (Off, O);
    begin
-      return XML_Long;
+      return XML_Byte;
    end XML_Type;
 
    function XML_Type (O : in XSD_Float) return String is
@@ -1198,6 +1430,30 @@ package body SOAP.Types is
       pragma Warnings (Off, O);
    begin
       return XML_Time_Instant;
+   end XML_Type;
+
+   function XML_Type (O : in XSD_Unsigned_Long) return String is
+      pragma Warnings (Off, O);
+   begin
+      return XML_Unsigned_Long;
+   end XML_Type;
+
+   function XML_Type (O : in XSD_Unsigned_Int) return String is
+      pragma Warnings (Off, O);
+   begin
+      return XML_Unsigned_Int;
+   end XML_Type;
+
+   function XML_Type (O : in XSD_Unsigned_Short) return String is
+      pragma Warnings (Off, O);
+   begin
+      return XML_Unsigned_Short;
+   end XML_Type;
+
+   function XML_Type (O : in XSD_Unsigned_Byte) return String is
+      pragma Warnings (Off, O);
+   begin
+      return XML_Unsigned_Byte;
    end XML_Type;
 
    function XML_Type (O : in XSD_Null) return String is

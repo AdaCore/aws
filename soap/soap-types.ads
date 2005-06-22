@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2001-2004                          --
---                                ACT-Europe                                --
+--                         Copyright (C) 2001-2005                          --
+--                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -37,7 +37,7 @@
 --     a constructor for this new type and a routine named V to get the
 --     value as an Ada type.
 --
---  2. In SOAP.Parameters add corrsponding Get routine.
+--  2. In SOAP.Parameters add corresponding Get routine.
 --
 --  3. In SOAP.WSDL, add the new type name in Parameter_Type.
 --
@@ -188,6 +188,23 @@ package SOAP.Types is
 
    function B (V : in Boolean; Name : in String  := "item") return XSD_Boolean;
    function V (O : in XSD_Boolean) return Boolean;
+
+   ----------
+   -- Byte --
+   ----------
+
+   type Byte is range -2**7 .. 2**7 - 1;
+
+   XML_Byte : aliased constant String := "xsd:byte";
+
+   type XSD_Byte is new Scalar with private;
+
+   function Image     (O : in XSD_Byte) return String;
+   function XML_Image (O : in XSD_Byte) return String;
+   function XML_Type  (O : in XSD_Byte) return String;
+
+   function B (V : in Byte; Name : in String := "item") return XSD_Byte;
+   function V (O : in XSD_Byte) return Byte;
 
    ------------
    -- Double --
@@ -359,6 +376,82 @@ package SOAP.Types is
    function V (O : in XSD_Time_Instant) return Ada.Calendar.Time;
    --  Returns a GMT date and time
 
+   ----_--------------
+   -- Unsigned_Long --
+   ----_--------------
+
+   type Unsigned_Long is mod 2**64;
+
+   XML_Unsigned_Long : aliased constant String := "xsd:unsignedLong";
+
+   type XSD_Unsigned_Long is new Scalar with private;
+
+   function Image     (O : in XSD_Unsigned_Long) return String;
+   function XML_Image (O : in XSD_Unsigned_Long) return String;
+   function XML_Type  (O : in XSD_Unsigned_Long) return String;
+
+   function UL
+     (V    : in Unsigned_Long;
+      Name : in String := "item") return XSD_Unsigned_Long;
+   function V (O : in XSD_Unsigned_Long) return Unsigned_Long;
+
+   ----_-------------
+   -- Unsigned_Int --
+   ----_-------------
+
+   type Unsigned_Int is mod 2**32;
+
+   XML_Unsigned_Int : aliased constant String := "xsd:unsignedInt";
+
+   type XSD_Unsigned_Int is new Scalar with private;
+
+   function Image     (O : in XSD_Unsigned_Int) return String;
+   function XML_Image (O : in XSD_Unsigned_Int) return String;
+   function XML_Type  (O : in XSD_Unsigned_Int) return String;
+
+   function UI
+     (V    : in Unsigned_Int;
+      Name : in String := "item") return XSD_Unsigned_Int;
+   function V (O : in XSD_Unsigned_Int) return Unsigned_Int;
+
+   --------------------
+   -- Unsigned_Short --
+   --------------------
+
+   type Unsigned_Short is mod 2**16;
+
+   XML_Unsigned_Short : aliased constant String := "xsd:unsignedShort";
+
+   type XSD_Unsigned_Short is new Scalar with private;
+
+   function Image     (O : in XSD_Unsigned_Short) return String;
+   function XML_Image (O : in XSD_Unsigned_Short) return String;
+   function XML_Type  (O : in XSD_Unsigned_Short) return String;
+
+   function US
+     (V    : in Unsigned_Short;
+      Name : in String := "item") return XSD_Unsigned_Short;
+   function V (O : in XSD_Unsigned_Short) return Unsigned_Short;
+
+   -------------------
+   -- Unsigned_Byte --
+   -------------------
+
+   type Unsigned_Byte is mod 2**8;
+
+   XML_Unsigned_Byte : aliased constant String := "xsd:unsignedByte";
+
+   type XSD_Unsigned_Byte is new Scalar with private;
+
+   function Image     (O : in XSD_Unsigned_Byte) return String;
+   function XML_Image (O : in XSD_Unsigned_Byte) return String;
+   function XML_Type  (O : in XSD_Unsigned_Byte) return String;
+
+   function UB
+     (V    : in Unsigned_Byte;
+      Name : in String := "item") return XSD_Unsigned_Byte;
+   function V (O : in XSD_Unsigned_Byte) return Unsigned_Byte;
+
    -----------------
    -- Enumeration --
    -----------------
@@ -389,6 +482,10 @@ package SOAP.Types is
    --  Returns O value as an XSD_Any_Type. Raises Data_Error if O is not a
    --  SOAP anyType.
 
+   function Get (O : in Object'Class) return Long;
+   --  Returns O value as a Long. Raises Data_Error if O is not a SOAP
+   --  Long.
+
    function Get (O : in Object'Class) return Integer;
    --  Returns O value as an Integer. Raises Data_Error if O is not a SOAP
    --  Integer.
@@ -397,9 +494,9 @@ package SOAP.Types is
    --  Returns O value as a Short. Raises Data_Error if O is not a SOAP
    --  Short.
 
-   function Get (O : in Object'Class) return Long;
-   --  Returns O value as a Long. Raises Data_Error if O is not a SOAP
-   --  Long.
+   function Get (O : in Object'Class) return Byte;
+   --  Returns O value as a Byte. Raises Data_Error if O is not a SOAP
+   --  Byte.
 
    function Get (O : in Object'Class) return Long_Float;
    --  Returns O value as a Long_Float. Raises Data_Error if O is not a SOAP
@@ -423,6 +520,22 @@ package SOAP.Types is
    function Get (O : in Object'Class) return Ada.Calendar.Time;
    --  Returns O value as a Time. Raises Data_Error if O is not a SOAP
    --  Time.
+
+   function Get (O : in Object'Class) return Unsigned_Long;
+   --  Returns O value as a Unsigned_Long. Raises Data_Error if O is not a SOAP
+   --  Unsigned_Long.
+
+   function Get (O : in Object'Class) return Unsigned_Int;
+   --  Returns O value as a Unsigned_Byte. Raises Data_Error if O is not a SOAP
+   --  Unsigned_Int.
+
+   function Get (O : in Object'Class) return Unsigned_Short;
+   --  Returns O value as a Unsigned_Short. Raises Data_Error if O is not a
+   --  SOAP Unsigned_Short.
+
+   function Get (O : in Object'Class) return Unsigned_Byte;
+   --  Returns O value as a Unsigned_Byte. Raises Data_Error if O is not a SOAP
+   --  Unsigned_Byte.
 
    function Get (O : in Object'Class) return SOAP_Base64;
    --  Returns O value as a SOAP Base64. Raises Data_Error if O is not a SOAP
@@ -503,6 +616,10 @@ private
 
    --  Simple SOAP types
 
+   type XSD_Long is new Scalar with record
+      V : Long;
+   end record;
+
    type XSD_Integer is new Scalar with record
       V : Integer;
    end record;
@@ -511,8 +628,8 @@ private
       V : Short;
    end record;
 
-   type XSD_Long is new Scalar with record
-      V : Long;
+   type XSD_Byte is new Scalar with record
+      V : Byte;
    end record;
 
    type XSD_Float is new Scalar with record
@@ -534,6 +651,22 @@ private
    type XSD_Time_Instant is new Scalar with record
       T        : Ada.Calendar.Time;
       Timezone : TZ;
+   end record;
+
+   type XSD_Unsigned_Long is new Scalar with record
+      V : Unsigned_Long;
+   end record;
+
+   type XSD_Unsigned_Int is new Scalar with record
+      V : Unsigned_Int;
+   end record;
+
+   type XSD_Unsigned_Short is new Scalar with record
+      V : Unsigned_Short;
+   end record;
+
+   type XSD_Unsigned_Byte is new Scalar with record
+      V : Unsigned_Byte;
    end record;
 
    type XSD_Null is new Scalar with null record;
