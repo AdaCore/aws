@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2003-2004                          --
---                                ACT-Europe                                --
+--                         Copyright (C) 2003-2005                          --
+--                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -72,6 +72,12 @@ package body SOAP.WSDL is
       elsif L_Type = "character" then
          Result := P_Character;
 
+      elsif L_Type = "long"
+        or else L_Type = "long_long_integer"
+        or else L_Type = "soap.types.long"
+      then
+         Result := P_Long;
+
       elsif L_Type = "integer"
         or else L_Type = "long_integer"
         or else L_Type = "natural"
@@ -85,17 +91,36 @@ package body SOAP.WSDL is
       then
          Result := P_Short;
 
-      elsif L_Type = "long"
-        or else L_Type = "long_long_integer"
-        or else L_Type = "soap.types.long"
+      elsif L_Type = "byte"
+        or else L_Type = "soap.types.byte"
       then
-         Result := P_Long;
+         Result := P_Byte;
 
       elsif L_Type = "float" or else L_Type = "long_float" then
          Result := P_Float;
 
       elsif L_Type = "long_long_float" then
          Result := P_Double;
+
+      elsif L_Type = "unsigned_long"
+        or else L_Type = "soap.types.unsigned_long"
+      then
+         Result := P_Unsigned_Long;
+
+      elsif L_Type = "unsigned_int"
+        or else L_Type = "soap.types.unsigned_int"
+      then
+         Result := P_Unsigned_Int;
+
+      elsif L_Type = "unsigned_short"
+        or else L_Type = "soap.types.unsigned_short"
+      then
+         Result := P_Unsigned_Short;
+
+      elsif L_Type = "unsigned_byte"
+        or else L_Type = "soap.types.unsigned_byte"
+      then
+         Result := P_Unsigned_Byte;
 
       elsif L_Type = "boolean" then
          Result := P_Boolean;
@@ -128,9 +153,10 @@ package body SOAP.WSDL is
          when P_Character =>
             return "SOAP.Utils.Get";
 
-         when P_Integer | P_Short | P_Long | P_Double | P_Float | P_Boolean
-           | P_Time | P_B64 | P_Any_Type
-           =>
+         when P_Long | P_Integer | P_Short | P_Byte | P_Double | P_Float
+            | P_Boolean | P_Time | P_B64 | P_Any_Type | P_Unsigned_Long
+            | P_Unsigned_Int | P_Unsigned_Short | P_Unsigned_Byte
+              =>
             return "SOAP.Types.Get";
       end case;
    end Get_Routine;
@@ -182,22 +208,27 @@ package body SOAP.WSDL is
       return String is
    begin
       case P is
-         when P_Integer   => return "SOAP.Types.I";
-         when P_Short     => return "SOAP.Types.S";
-         when P_Long      => return "SOAP.Types.L";
-         when P_Float     => return "SOAP.Types.F";
-         when P_Double    => return "SOAP.Types.D";
-         when P_Boolean   => return "SOAP.Types.B";
-         when P_Time      => return "SOAP.Types.T";
-         when P_B64       => return "SOAP.Types.B64";
-         when P_Character => return "SOAP.Utils.C";
-         when P_Any_Type  =>
+         when P_Long           => return "SOAP.Types.L";
+         when P_Integer        => return "SOAP.Types.I";
+         when P_Short          => return "SOAP.Types.S";
+         when P_Byte           => return "SOAP.Types.B";
+         when P_Float          => return "SOAP.Types.F";
+         when P_Double         => return "SOAP.Types.D";
+         when P_Boolean        => return "SOAP.Types.B";
+         when P_Time           => return "SOAP.Types.T";
+         when P_B64            => return "SOAP.Types.B64";
+         when P_Character      => return "SOAP.Utils.C";
+         when P_Unsigned_Long  => return "SOAP.Types.UL";
+         when P_Unsigned_Int   => return "SOAP.Types.UI";
+         when P_Unsigned_Short => return "SOAP.Types.US";
+         when P_Unsigned_Byte  => return "SOAP.Types.UB";
+         when P_Any_Type       =>
             if Context = Parameter then
                return "SOAP.Types.Any";
             else
                return "SOAP.Utils.Any";
             end if;
-         when P_String  =>
+         when P_String         =>
             if Context = Parameter then
                return "SOAP.Types.S";
             else
@@ -213,17 +244,22 @@ package body SOAP.WSDL is
    function Set_Type (P : in Parameter_Type) return String is
    begin
       case P is
-         when P_Integer   => return "SOAP.Types.XSD_Integer";
-         when P_Short     => return "SOAP.Types.XSD_Short";
-         when P_Long      => return "SOAP.Types.XSD_Long";
-         when P_Float     => return "SOAP.Types.XSD_Float";
-         when P_Double    => return "SOAP.Types.XSD_Double";
-         when P_Boolean   => return "SOAP.Types.XSD_Boolean";
-         when P_Time      => return "SOAP.Types.XSD_Time_Instant";
-         when P_B64       => return "SOAP.Types.SOAP_Base64";
-         when P_String    => return "SOAP.Types.XSD_String";
-         when P_Character => return "SOAP.Types.SOAP_Enumeration";
-         when P_Any_Type  => return "SOAP.Types.XSD_Any_Type";
+         when P_Long           => return "SOAP.Types.XSD_Long";
+         when P_Integer        => return "SOAP.Types.XSD_Integer";
+         when P_Short          => return "SOAP.Types.XSD_Short";
+         when P_Byte           => return "SOAP.Types.XSD_Byte";
+         when P_Float          => return "SOAP.Types.XSD_Float";
+         when P_Double         => return "SOAP.Types.XSD_Double";
+         when P_Boolean        => return "SOAP.Types.XSD_Boolean";
+         when P_Time           => return "SOAP.Types.XSD_Time_Instant";
+         when P_B64            => return "SOAP.Types.SOAP_Base64";
+         when P_String         => return "SOAP.Types.XSD_String";
+         when P_Character      => return "SOAP.Types.SOAP_Enumeration";
+         when P_Unsigned_Long  => return "SOAP.Types.XSD_Unsigned_Long";
+         when P_Unsigned_Int   => return "SOAP.Types.XSD_Unsigned_Int";
+         when P_Unsigned_Short => return "SOAP.Types.XSD_Unsigned_Short";
+         when P_Unsigned_Byte  => return "SOAP.Types.XSD_Unsigned_Byte";
+         when P_Any_Type       => return "SOAP.Types.XSD_Any_Type";
       end case;
    end Set_Type;
 
@@ -237,22 +273,27 @@ package body SOAP.WSDL is
       return String is
    begin
       case P is
-         when P_Integer    => return "Integer";
-         when P_Short      => return "SOAP.Types.Short";
-         when P_Long       => return "SOAP.Types.Long";
-         when P_Float      => return "Long_Float";
-         when P_Double     => return "Long_Long_Float";
-         when P_Boolean    => return "Boolean";
-         when P_Time       => return "Ada.Calendar.Time";
-         when P_B64        => return "String";
-         when P_Character  => return "Character";
-         when P_Any_Type   =>
+         when P_Long           => return "SOAP.Types.Long";
+         when P_Integer        => return "Integer";
+         when P_Short          => return "SOAP.Types.Short";
+         when P_Byte           => return "SOAP.Types.Byte";
+         when P_Float          => return "Long_Float";
+         when P_Double         => return "Long_Long_Float";
+         when P_Boolean        => return "Boolean";
+         when P_Time           => return "Ada.Calendar.Time";
+         when P_B64            => return "String";
+         when P_Character      => return "Character";
+         when P_Unsigned_Long  => return "SOAP.Types.Unsigned_Long";
+         when P_Unsigned_Int   => return "SOAP.Types.Unsigned_Int";
+         when P_Unsigned_Short => return "SOAP.Types.Unsigned_Short";
+         when P_Unsigned_Byte  => return "SOAP.Types.Unsigned_Byte";
+         when P_Any_Type       =>
             if Context = Parameter then
                return "SOAP.Types.Object'Class";
             else
                return "SOAP.Types.XSD_Any_Type";
             end if;
-         when P_String  =>
+         when P_String         =>
             if Context = Parameter then
                return "String";
             else
@@ -277,14 +318,17 @@ package body SOAP.WSDL is
       if L_Type = "string" then
          Result := P_String;
 
+      elsif L_Type = "long" then
+         Result := P_Long;
+
       elsif L_Type = "integer" or else L_Type = "int" then
          Result := P_Integer;
 
       elsif L_Type = "short" then
          Result := P_Short;
 
-      elsif L_Type = "long" then
-         Result := P_Long;
+      elsif L_Type = "byte" then
+         Result := P_Byte;
 
       elsif L_Type = "float" then
          Result := P_Float;
@@ -303,6 +347,18 @@ package body SOAP.WSDL is
 
       elsif L_Type = "character" then
          Result := P_Character;
+
+      elsif L_Type = "unsignedlong" then
+         Result := P_Unsigned_Long;
+
+      elsif L_Type = "unsignedint" then
+         Result := P_Unsigned_Int;
+
+      elsif L_Type = "unsignedshort" then
+         Result := P_Unsigned_Short;
+
+      elsif L_Type = "unsignedbyte" then
+         Result := P_Unsigned_Byte;
 
       elsif L_Type = "anytype" then
          Result := P_Any_Type;
@@ -336,17 +392,22 @@ package body SOAP.WSDL is
       use SOAP.Types;
    begin
       case P is
-         when P_Integer   => return XML_Int;
-         when P_Short     => return XML_Short;
-         when P_Long      => return XML_Long;
-         when P_Float     => return XML_Float;
-         when P_Double    => return XML_Double;
-         when P_Boolean   => return XML_Boolean;
-         when P_Time      => return XML_Time_Instant;
-         when P_B64       => return "xsd:base64";
-         when P_String    => return XML_String;
-         when P_Character => return "Character";
-         when P_Any_Type  => return XML_Any_Type;
+         when P_Long           => return XML_Long;
+         when P_Integer        => return XML_Int;
+         when P_Short          => return XML_Short;
+         when P_Byte           => return XML_Byte;
+         when P_Float          => return XML_Float;
+         when P_Double         => return XML_Double;
+         when P_Boolean        => return XML_Boolean;
+         when P_Time           => return XML_Time_Instant;
+         when P_B64            => return "xsd:base64";
+         when P_String         => return XML_String;
+         when P_Character      => return "Character";
+         when P_Unsigned_Long  => return XML_Unsigned_Long;
+         when P_Unsigned_Int   => return XML_Unsigned_Int;
+         when P_Unsigned_Short => return XML_Unsigned_Short;
+         when P_Unsigned_Byte  => return XML_Unsigned_Byte;
+         when P_Any_Type       => return XML_Any_Type;
       end case;
    end To_XSD;
 
@@ -370,9 +431,10 @@ package body SOAP.WSDL is
          when P_Character =>
             return "SOAP.Utils.V";
 
-         when P_Integer | P_Short | P_Long | P_Double | P_Float | P_Boolean
-           | P_Time | P_B64 | P_Any_Type
-           =>
+         when P_Long | P_Integer | P_Short | P_Byte | P_Double | P_Float
+            | P_Boolean | P_Time | P_B64 | P_Unsigned_Long | P_Unsigned_Int
+            | P_Unsigned_Short | P_Unsigned_Byte | P_Any_Type
+              =>
             return "SOAP.Types.V";
       end case;
    end V_Routine;
