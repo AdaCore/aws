@@ -76,11 +76,25 @@ package WSDL_6 is
 
    function Echo_Long (V : in SOAP.Types.Long) return SOAP.Types.Long;
 
+   function Echo_Byte (V : in SOAP.Types.Byte) return SOAP.Types.Byte;
+
    function Echo_Float (V : in Long_Float) return Long_Float;
 
    function Echo_Boolean (V : in Boolean) return Boolean;
 
    function Echo_Double (V : in Long_Long_Float) return Long_Long_Float;
+
+   function Echo_Unsigned_Long
+     (V : in SOAP.Types.Unsigned_Long) return SOAP.Types.Unsigned_Long;
+
+   function Echo_Unsigned_Int
+     (V : in SOAP.Types.Unsigned_Int) return SOAP.Types.Unsigned_Int;
+
+   function Echo_Unsigned_Short
+     (V : in SOAP.Types.Unsigned_Short) return SOAP.Types.Unsigned_Short;
+
+   function Echo_Unsigned_Byte
+     (V : in SOAP.Types.Unsigned_Byte) return SOAP.Types.Unsigned_Byte;
 
    function Echo_Rec (V : in Rec) return Rec;
 

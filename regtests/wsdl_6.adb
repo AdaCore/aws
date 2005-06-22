@@ -102,6 +102,55 @@ package body WSDL_6 is
       return V;
    end Echo_Long;
 
+   ---------------
+   -- Echo_Byte --
+   ---------------
+
+   function Echo_Byte (V : in SOAP.Types.Byte) return SOAP.Types.Byte is
+   begin
+      return V;
+   end Echo_Byte;
+
+   ------------------------
+   -- Echo_Unsigned_Long --
+   ------------------------
+
+   function Echo_Unsigned_Long
+     (V : in SOAP.Types.Unsigned_Long) return SOAP.Types.Unsigned_Long is
+   begin
+      return V;
+   end Echo_Unsigned_Long;
+
+   -----------------------
+   -- Echo_Unsigned_Int --
+   -----------------------
+
+   function Echo_Unsigned_Int
+     (V : in SOAP.Types.Unsigned_Int) return SOAP.Types.Unsigned_Int is
+   begin
+      return V;
+   end Echo_Unsigned_Int;
+
+   -------------------------
+   -- Echo_Unsigned_Short --
+   -------------------------
+
+   function Echo_Unsigned_Short
+     (V : in SOAP.Types.Unsigned_Short) return SOAP.Types.Unsigned_Short is
+   begin
+      return V;
+   end Echo_Unsigned_Short;
+
+   ------------------------
+   -- Echo_Unsigned_Byte --
+   ------------------------
+
+   function Echo_Unsigned_Byte
+     (V : in SOAP.Types.Unsigned_Byte) return SOAP.Types.Unsigned_Byte is
+   begin
+      return V;
+   end Echo_Unsigned_Byte;
+
    ------------------
    -- Echo_New_Rec --
    ------------------
