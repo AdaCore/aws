@@ -4463,7 +4463,7 @@ model. A subtype definition is also created for every routine's returned type.
 In fact, all definitions here are only alias or renaming of types
 and/or routines generated in other packages. The real definitions for
 structs, arrays, enumerations and derived types are generated into a
-package whose name depends on the name space use for these
+package whose name depends on the name space used for these
 entities. This package act as a container for all definitions and it
 is the only one used in the other generated packages.
 
@@ -4488,9 +4488,7 @@ It is hard to know all current limitations as the @code{WSDL} and
 
 @itemize @bullet
 
-@item Many @code{SOAP} base types are not supported : @i{byte, unsignedByte,
-unsignedShort, unsignedInt, unsignedLong, date, time, xsd:hexBinary,
-decimal}. All these are easy to add (except decimal), it is just not
+@item Some @code{SOAP} base types are not supported : @i{date, time, xsd:hexBinary, decimal}. All these are easy to add (except decimal), it is just not
 supported with the current version.
 
 @item Multi-dimension arrays are not supported.
