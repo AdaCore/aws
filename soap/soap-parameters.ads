@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2004                          --
---                                ACT-Europe                                --
+--                         Copyright (C) 2000-2005                          --
+--                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -56,6 +56,10 @@ package SOAP.Parameters is
    function Exist (P : in List; Name : in String) return Boolean;
    --  Returns True if parameter named Name exist in P and False otherwise
 
+   function Get (P : in List; Name : in String) return Types.Long;
+   --  Returns parameter named Name in P as a Long value. Raises
+   --  Types.Data_Error if this parameter does not exist or is not a Long.
+
    function Get (P : in List; Name : in String) return Integer;
    --  Returns parameter named Name in P as an Integer value. Raises
    --  Types.Data_Error if this parameter does not exist or is not an Integer.
@@ -64,9 +68,9 @@ package SOAP.Parameters is
    --  Returns parameter named Name in P as a Short value. Raises
    --  Types.Data_Error if this parameter does not exist or is not an Short.
 
-   function Get (P : in List; Name : in String) return Types.Long;
-   --  Returns parameter named Name in P as a Long value. Raises
-   --  Types.Data_Error if this parameter does not exist or is not a Long.
+   function Get (P : in List; Name : in String) return Types.Byte;
+   --  Returns parameter named Name in P as a Byte value. Raises
+   --  Types.Data_Error if this parameter does not exist or is not a Byte.
 
    function Get (P : in List; Name : in String) return Long_Float;
    --  Returns parameter named Name in P as a Float value. Raises
@@ -90,6 +94,26 @@ package SOAP.Parameters is
    function Get (P : in List; Name : in String) return Ada.Calendar.Time;
    --  Returns parameter named Name in P as a Time value. Raises
    --  Types.Data_Error if this parameter does not exist or is not a time.
+
+   function Get (P : in List; Name : in String) return Types.Unsigned_Long;
+   --  Returns parameter named Name in P as a Unsigned_Long value. Raises
+   --  Types.Data_Error if this parameter does not exist or is not an
+   --  Unsigned_Long.
+
+   function Get (P : in List; Name : in String) return Types.Unsigned_Int;
+   --  Returns parameter named Name in P as a Unsigned_Int value. Raises
+   --  Types.Data_Error if this parameter does not exist or is not an
+   --  Unsigned_Int.
+
+   function Get (P : in List; Name : in String) return Types.Unsigned_Short;
+   --  Returns parameter named Name in P as a Unsigned_Short value. Raises
+   --  Types.Data_Error if this parameter does not exist or is not an
+   --  Unsigned_Short.
+
+   function Get (P : in List; Name : in String) return Types.Unsigned_Byte;
+   --  Returns parameter named Name in P as a Unsigned_Byte value. Raises
+   --  Types.Data_Error if this parameter does not exist or is not an
+   --  Unsigned_Byte.
 
    function Get (P : in List; Name : in String) return Types.SOAP_Base64;
    --  Returns parameter named Name in P as a SOAP Base64 value. Raises

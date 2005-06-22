@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2004                          --
---                                ACT-Europe                                --
+--                         Copyright (C) 2000-2005                          --
+--                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -259,6 +259,11 @@ package body SOAP.Parameters is
    -- Get --
    ---------
 
+   function Get (P : in List; Name : in String) return Types.Long is
+   begin
+      return Types.Get (Argument (P, Name));
+   end Get;
+
    function Get (P : in List; Name : in String) return Integer is
    begin
       return Types.Get (Argument (P, Name));
@@ -269,7 +274,7 @@ package body SOAP.Parameters is
       return Types.Get (Argument (P, Name));
    end Get;
 
-   function Get (P : in List; Name : in String) return Types.Long is
+   function Get (P : in List; Name : in String) return Types.Byte is
    begin
       return Types.Get (Argument (P, Name));
    end Get;
@@ -300,6 +305,26 @@ package body SOAP.Parameters is
    end Get;
 
    function Get (P : in List; Name : in String) return Ada.Calendar.Time is
+   begin
+      return Types.Get (Argument (P, Name));
+   end Get;
+
+   function Get (P : in List; Name : in String) return Types.Unsigned_Long is
+   begin
+      return Types.Get (Argument (P, Name));
+   end Get;
+
+   function Get (P : in List; Name : in String) return Types.Unsigned_Int is
+   begin
+      return Types.Get (Argument (P, Name));
+   end Get;
+
+   function Get (P : in List; Name : in String) return Types.Unsigned_Short is
+   begin
+      return Types.Get (Argument (P, Name));
+   end Get;
+
+   function Get (P : in List; Name : in String) return Types.Unsigned_Byte is
    begin
       return Types.Get (Argument (P, Name));
    end Get;
