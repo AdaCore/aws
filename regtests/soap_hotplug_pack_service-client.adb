@@ -15,6 +15,7 @@ with Ada.Exceptions;
 with SOAP.Client;
 with SOAP.Message.Payload;
 with SOAP.Message.Response;
+with SOAP.Name_Space;
 with SOAP.Parameters;
 with SOAP.Utils;
 
@@ -42,7 +43,8 @@ package body SOAP_Hotplug_Pack_Service.Client is
       P_Set := +SOAP.Types.I (X, "X")
          & SOAP.Types.I (Y, "Y");
       Payload := SOAP.Message.Payload.Build
-        ("Job1", P_Set, "urn:aws:SOAP_Hotplug_Pack");
+        ("Job1", P_Set,
+         SOAP.Name_Space.Create ("awsns", "urn:aws:SOAP_Hotplug_Pack"));
 
       declare
          Response : constant SOAP.Message.Response.Object'Class
@@ -83,7 +85,8 @@ package body SOAP_Hotplug_Pack_Service.Client is
       P_Set := +SOAP.Types.I (X, "X")
          & SOAP.Types.I (Y, "Y");
       Payload := SOAP.Message.Payload.Build
-        ("Job2", P_Set, "urn:aws:SOAP_Hotplug_Pack");
+        ("Job2", P_Set,
+         SOAP.Name_Space.Create ("awsns", "urn:aws:SOAP_Hotplug_Pack"));
 
       declare
          Response : constant SOAP.Message.Response.Object'Class
