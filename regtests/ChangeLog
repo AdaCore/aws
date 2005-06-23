@@ -1,3 +1,9 @@
+2005-06-23  Pascal Obry  <pascal@obry.net>
+
+	* soap_hotplug_pack_service-client.adb:
+	Update to properly compile after name spaces changes.
+        Continued work for E614-015.
+
 2005-06-22  Pascal Obry  <pascal@obry.net>
 
 	* wsdl_6.ads, wsdl_6.adb:
