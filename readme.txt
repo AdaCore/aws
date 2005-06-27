@@ -4,7 +4,7 @@
 
 Authors:
    Dmitriy Anisimkov
-   Pascal Obry                                                 June 15th, 2005
+   Pascal Obry                                                 June 27th, 2005
 
 
 
@@ -70,6 +70,12 @@ Here are the main changes since AWS 2.1 :
 
    - In debug mode, the SOAP/WSDL generated server will output the XML payload
      as received (as-is and before parsing) from the client.
+
+   - Add support for Byte, Unsigned_Long, Unsigned_Int, Unsigned_Short and
+     Unsigned_Byte SOAP types.
+
+   - Change Templates_Parser Release routine to use less stack space. Fixes a
+     problem found on FreeBSD.
 
    - Plus many small fixes, enhancements, API comments, and documentation work.
 
