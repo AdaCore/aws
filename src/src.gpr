@@ -75,7 +75,7 @@ project Src is
 
    TP_Common_Switches
      := ("-gnatwcefijkmruv", "-gnaty3abcefhiklmnprt", "-Wall");
-   --  Limited style check options (no spec, not alphabetical ordrer)
+   --  Limited style check options (no spec, not alphabetical order)
 
    --------------
    -- Compiler --
