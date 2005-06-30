@@ -132,8 +132,9 @@ package body AWS.Server.Push is
 
          if not Success then
             if Close_Duplicate then
-               Unregister (Client_Id, True);
-               Table.Replace_Element (Cursor, Holder);
+               Unregister (Client_Id, Close_Socket => True);
+               Table.Insert (Container, Client_Id, Holder, Cursor, Success);
+               pragma Assert (Success);
             else
                Net.Stream_IO.Free (Holder.Stream, False);
                raise Duplicate_Client_Id;
