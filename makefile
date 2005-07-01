@@ -442,6 +442,18 @@ gai302_internal:
 	echo '         for Object_Dir use "../../.build/release/include/ai302";' \
 		>> $(PRJDIR)/ai302.gpr
 	echo "   end case;" >> $(PRJDIR)/ai302.gpr
+
+	echo '   package Compiler is' >> $(PRJDIR)/ai302.gpr
+	echo '      case Build is' >> $(PRJDIR)/ai302.gpr
+	echo '         when "Debug" =>' >> $(PRJDIR)/ai302.gpr
+	echo '            for Default_Switches ("Ada") use ("-g", "-gnata");' \
+	        >> $(PRJDIR)/ai302.gpr
+	echo '         when "Release" =>' >> $(PRJDIR)/ai302.gpr
+	echo '            for Default_Switches ("Ada") use ("-O2");' \
+	        >> $(PRJDIR)/ai302.gpr
+	echo '      end case;' >> $(PRJDIR)/ai302.gpr
+	echo '   end Compiler;' >> $(PRJDIR)/ai302.gpr
+
 	echo "end AI302;" >> $(PRJDIR)/ai302.gpr
 
 gai302_external:
