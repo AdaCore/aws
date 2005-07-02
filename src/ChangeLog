@@ -1,3 +1,8 @@
+2005-07-02  Dmitriy Anisimkov <anisimkov@ada-ru.org>
+
+	* src.gpr:
+	(Naming): Add IPv6 sockets implementation.
+
 2005-06-30  Dmitriy Anisimkov <anisimkov@ada-ru.org>
 
 	* aws-server-push.adb:
