@@ -469,12 +469,16 @@ setup_dir:
 setup_config:
 	echo 'project Config is' > $(BDIR)/config.gpr
 	echo '   for Source_Dirs use ();' >> $(BDIR)/config.gpr
-	echo '   type SOCKLIB_Type is ("GNAT", "AdaSockets");' \
+	echo '   type SOCKLIB_Type is ("GNAT", "AdaSockets", "IPv6");' \
 		>> $(BDIR)/config.gpr
 ifdef ADASOCKETS
 	echo '   SOCKLIB : SOCKLIB_Type := "AdaSockets";' >> $(BDIR)/config.gpr
 else
+ifdef IPv6
+	echo '   SOCKLIB : SOCKLIB_Type := "IPv6";' >> $(BDIR)/config.gpr
+else
 	echo '   SOCKLIB : SOCKLIB_Type := "GNAT";' >> $(BDIR)/config.gpr
+endif
 endif
 	echo '   type OSLIB_Type is ("GNAT", "Win32", "POSIX");' \
 		>> $(BDIR)/config.gpr
