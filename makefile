@@ -306,7 +306,11 @@ GEXT_MODULE := $(GEXT_MODULE) gadasockets
 PRJ_SOCKLIB=AdaSockets
 else
 GEXT_MODULE := $(GEXT_MODULE) gsockets_dummy
+ifdef IPv6
+PRJ_SOCKLIB=IPv6
+else
 PRJ_SOCKLIB=GNAT
+endif
 endif
 
 ## ASIS
