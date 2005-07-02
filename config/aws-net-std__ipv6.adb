@@ -477,10 +477,10 @@ package body AWS.Net.Std is
                         W7 : constant U8_2 := Split (Sin6.Addr (7));
                         W8 : constant U8_2 := Split (Sin6.Addr (8));
                      begin
-                        return "::ffff:" & Utils.Image (Integer (W7 (1)))
-                                   & '.' & Utils.Image (Integer (W7 (2)))
-                                   & '.' & Utils.Image (Integer (W8 (1)))
-                                   & '.' & Utils.Image (Integer (W8 (2)));
+                        return Utils.Image (Integer (W7 (1)))
+                                & '.' & Utils.Image (Integer (W7 (2)))
+                                & '.' & Utils.Image (Integer (W8 (1)))
+                                & '.' & Utils.Image (Integer (W8 (2)));
                      end;
                   end if;
 

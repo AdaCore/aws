@@ -1,3 +1,8 @@
+2005-07-02  Dmitriy Anisimkov <anisimkov@ada-ru.org>
+
+	* aws-net-std__ipv6.adb:
+	(Peer_Addr): Show IPv4 addresses mapped to IPv6 in IPv4 format.
+
 2005-02-17  Pascal Obry  <pascal@obry.org>
 
 	* templates_parser-input__aws.adb:
