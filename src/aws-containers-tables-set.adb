@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2004                          --
+--                         Copyright (C) 2000-2005                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -33,9 +33,6 @@
 
 package body AWS.Containers.Tables.Set is
 
-   procedure Reset (Table : in out Index_Table_Type);
-   --  Free all elements and destroy his entries
-
    ---------
    -- Add --
    ---------
@@ -63,27 +60,39 @@ package body AWS.Containers.Tables.Set is
 
       Cursor := Index_Table.Find (Table.Index, L_Key);
 
-      if Index_Table.Has_Element (Cursor) then
-         declare
-            Item : Name_Index_Table := Index_Table.Element (Cursor);
-         begin
-            Name_Indexes.Append
-              (Item, Key_Positive (Data_Table.Length (Table.Data)));
-            Index_Table.Replace_Element (Cursor, By => Item);
-         end;
+      if not Index_Table.Has_Element (Cursor) then
+         --  Create empty element in container Table.Index.
 
-      else
          declare
             Value   : Name_Index_Table;
             Success : Boolean;
          begin
-            Name_Indexes.Append
-              (Value, Key_Positive (Data_Table.Length (Table.Data)));
             Index_Table.Insert
               (Table.Index, L_Key, Value, Cursor, Success);
             pragma Assert (Success);
          end;
       end if;
+
+      --  Generic update just in place (without copy vector from/to container).
+
+      declare
+         procedure Process (Element : in out Name_Index_Table);
+
+         -------------
+         -- Process --
+         -------------
+
+         procedure Process (Element : in out Name_Index_Table) is
+         begin
+            Name_Indexes.Append
+              (Element, Key_Positive (Data_Table.Length (Table.Data)));
+         end Process;
+
+         procedure Update is
+           new Index_Table.Generic_Update_Element (Process);
+      begin
+         Update (Cursor);
+      end;
    end Add;
 
    --------------------
@@ -101,36 +110,15 @@ package body AWS.Containers.Tables.Set is
    -- Free --
    ----------
 
-   procedure Free (Table : in out Table_Type) is
-   begin
-      Reset (Table.Index);
-      Data_Table.Clear (Table.Data);
-   end Free;
+   procedure Free (Table : in out Table_Type) renames Reset;
 
    -----------
    -- Reset --
    -----------
 
-   procedure Reset (Table : in out Index_Table_Type) is
-      Cursor : Index_Table.Cursor;
-   begin
-      Cursor := Index_Table.First (Table);
-
-      while Index_Table.Has_Element (Cursor) loop
-         declare
-            Item : Name_Index_Table := Index_Table.Element (Cursor);
-         begin
-            Name_Indexes.Clear (Item);
-         end;
-         Index_Table.Next (Cursor);
-      end loop;
-
-      Index_Table.Clear (Table);
-   end Reset;
-
    procedure Reset (Table : in out Table_Type) is
    begin
-      Reset (Table.Index);
+      Index_Table.Clear (Table.Index);
       Data_Table.Clear (Table.Data);
    end Reset;
 
