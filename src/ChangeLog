@@ -1,3 +1,14 @@
+2005-07-04  Dmitriy Anisimkov <anisimkov@ada-ru.org>
+
+	* aws-containers-tables-set.adb:
+	(Add): Use Generic_Update_Element for update vector controlled type
+	 just in place insead of copying it from container, modify and put
+	 back.
+	(Reset): Do not loop over all elements in container and Clear it
+	 because elements is of controlled type.
+	(Free): Idem.
+	Update copyright years range.
+
 2005-07-02  Dmitriy Anisimkov <anisimkov@ada-ru.org>
 
 	* src.gpr:
