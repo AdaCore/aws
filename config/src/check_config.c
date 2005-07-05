@@ -17,6 +17,7 @@
 #include <sys/ioctl.h>
 #include <netdb.h>
 #include <netinet/in.h>
+#include <netinet/tcp.h>
 #include <errno.h>
 #endif
 
