@@ -1,3 +1,14 @@
+2005-07-05  Dmitriy Anisimkov <anisimkov@ada-ru.org>
+
+	* aws-containers-tables-set.adb:
+	(Update_Internal): New routine with common code of Add and Update.
+	(Add): Call Update_Internal.
+	(Update): Call Update_Internal.
+
+	* aws-mime.adb:
+	Minor reformat.
+	Update copyright years range.
+
 2005-07-04  Dmitriy Anisimkov <anisimkov@ada-ru.org>
 
 	* aws-containers-tables-set.adb:
