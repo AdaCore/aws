@@ -33,66 +33,28 @@
 
 package body AWS.Containers.Tables.Set is
 
+   procedure Update_Internal
+     (Table : in out Table_Type;
+      Name  : in     String;
+      Value : in     String;
+      N     : in     Natural);
+   --  Update the N-th Value with the given Name into the Table.
+   --  The container could already have more than one value associated with
+   --  this name. If there is M values with this Name, then if:
+   --     N <= M      => update the value
+   --     N  = 0      => the pair name=value is appended to the table
+   --     N  = M + 1  => idem
+   --     N  > M + 1  => Constraint_Error raised
+
    ---------
    -- Add --
    ---------
 
    procedure Add
      (Table       : in out Table_Type;
-      Name, Value : in     String)
-   is
-      L_Key  : constant String
-        :=  Normalize_Name (Name, not Table.Case_Sensitive);
-
-      Cursor : Index_Table.Cursor;
+      Name, Value : in     String) is
    begin
-      --  Add name/value pair into the Data table
-
-      Data_Table.Append
-        (Table.Data,
-         Element'
-           (Name_Length  => Name'Length,
-            Value_Length => Value'Length,
-            Name         => Name,
-            Value        => Value));
-
-      --  Add Data_Table.Last index into the corresponding Name_Indexes table
-
-      Cursor := Index_Table.Find (Table.Index, L_Key);
-
-      if not Index_Table.Has_Element (Cursor) then
-         --  Create empty element in container Table.Index.
-
-         declare
-            Value   : Name_Index_Table;
-            Success : Boolean;
-         begin
-            Index_Table.Insert
-              (Table.Index, L_Key, Value, Cursor, Success);
-            pragma Assert (Success);
-         end;
-      end if;
-
-      --  Generic update just in place (without copy vector from/to container).
-
-      declare
-         procedure Process (Element : in out Name_Index_Table);
-
-         -------------
-         -- Process --
-         -------------
-
-         procedure Process (Element : in out Name_Index_Table) is
-         begin
-            Name_Indexes.Append
-              (Element, Key_Positive (Data_Table.Length (Table.Data)));
-         end Process;
-
-         procedure Update is
-           new Index_Table.Generic_Update_Element (Process);
-      begin
-         Update (Cursor);
-      end;
+      Update_Internal (Table, Name, Value, 0);
    end Add;
 
    --------------------
@@ -130,17 +92,66 @@ package body AWS.Containers.Tables.Set is
      (Table : in out Table_Type;
       Name  : in     String;
       Value : in     String;
-      N     : in     Positive := 1)
+      N     : in     Positive := 1) is
+   begin
+      Update_Internal (Table, Name, Value, N);
+   end Update;
+
+   ---------------------
+   -- Update_Internal --
+   ---------------------
+
+   procedure Update_Internal
+     (Table : in out Table_Type;
+      Name  : in     String;
+      Value : in     String;
+      N     : in     Natural)
    is
       L_Key  : constant String
         :=  Normalize_Name (Name, not Table.Case_Sensitive);
 
-      Cursor : Index_Table.Cursor;
-   begin
-      Cursor := Index_Table.Find (Table.Index, L_Key);
+      Cursor : Index_Table.Cursor := Index_Table.Find (Table.Index, L_Key);
 
+      procedure Process (Item : in out Name_Index_Table);
+
+      -------------
+      -- Process --
+      -------------
+
+      procedure Process (Item : in out Name_Index_Table) is
+         NV : constant Element := (Name_Length  => Name'Length,
+                                   Value_Length => Value'Length,
+                                   Name         => Name,
+                                   Value        => Value);
+      begin
+         if N = 0 or else N = Natural (Name_Indexes.Length (Item)) + 1 then
+            --  Add item at then end of the table
+
+            Data_Table.Append (Table.Data, NV);
+
+            Name_Indexes.Append
+              (Item, Key_Positive (Data_Table.Length (Table.Data)));
+
+         elsif N <= Natural (Name_Indexes.Length (Item)) then
+            --  Replace item
+
+            Data_Table.Replace_Element
+              (Table.Data, Positive (Name_Indexes.Element (Item, N)), NV);
+
+         else
+            --  This item does not exist
+
+            raise Constraint_Error;
+         end if;
+      end Process;
+
+      procedure Update is new Index_Table.Generic_Update_Element (Process);
+
+   begin
       if not Index_Table.Has_Element (Cursor) then
-         if N /= 1 then
+         --  Insert empty vector into Table.Index.
+
+         if N > 1 then
             raise Constraint_Error;
          end if;
 
@@ -148,61 +159,16 @@ package body AWS.Containers.Tables.Set is
             Values  : Name_Index_Table;
             Success : Boolean;
          begin
-            Data_Table.Append
-              (Table.Data,
-               Element'
-                 (Name_Length  => Name'Length,
-                  Value_Length => Value'Length,
-                  Name         => Name,
-                  Value        => Value));
-
-            Name_Indexes.Append
-              (Values, Key_Positive (Data_Table.Length (Table.Data)));
             Index_Table.Insert
               (Table.Index, L_Key, Values, Cursor, Success);
             pragma Assert (Success);
          end;
-
-      else
-         declare
-            Item : Name_Index_Table := Index_Table.Element (Cursor);
-         begin
-            if N <= Natural (Name_Indexes.Length (Item)) then
-               --  Replace item
-               declare
-                  Index : constant Positive
-                    := Positive (Name_Indexes.Element (Item, N));
-               begin
-                  Data_Table.Replace_Element
-                    (Table.Data,
-                     Index,
-                     Element'
-                       (Name_Length  => Name'Length,
-                        Value_Length => Value'Length,
-                        Name         => Name,
-                        Value        => Value));
-               end;
-
-            elsif N = Natural (Name_Indexes.Length (Item)) + 1 then
-               --  Add item at then end of the table
-               Data_Table.Append
-                 (Table.Data,
-                  Element'
-                    (Name_Length  => Name'Length,
-                     Value_Length => Value'Length,
-                     Name         => Name,
-                     Value        => Value));
-
-               Name_Indexes.Append
-                 (Item, Key_Positive (Data_Table.Length (Table.Data)));
-               Index_Table.Replace_Element (Cursor, By => Item);
-
-            else
-               --  This item does not exist
-               raise Constraint_Error;
-            end if;
-         end;
       end if;
-   end Update;
+
+      --  Update index vector just in place.
+
+      Update (Cursor);
+
+   end Update_Internal;
 
 end AWS.Containers.Tables.Set;
