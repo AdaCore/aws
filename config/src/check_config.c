@@ -128,7 +128,7 @@ main (void)
 
   printf ("   AI_PASSIVE     : constant := %d;\n",   AI_PASSIVE);
   printf ("   AI_CANONNAME   : constant := %d;\n",   AI_CANONNAME);
-  printf ("   AI_NUMERICHOST : constant := %d;\n", AI_NUMERICHOST);
+  printf ("   AI_NUMERICHOST : constant := %d;\n",   AI_NUMERICHOST);
   printf ("   EAI_SYSTEM     : constant := %d;\n\n", EAI_SYSTEM);
 
   /* other constants */
@@ -143,6 +143,7 @@ main (void)
   printf ("   SO_ERROR    : constant := %d;\n", SO_ERROR);
   printf ("   SO_SNDBUF   : constant := %d;\n", SO_SNDBUF);
   printf ("   SO_RCVBUF   : constant := %d;\n", SO_RCVBUF);
+  printf ("   TCP_NODELAY : constant := %d;\n", TCP_NODELAY);
   printf ("   SOCK_STREAM : constant := %d;\n", SOCK_STREAM);
   printf ("   SOL_SOCKET  : constant := %d;\n", SOL_SOCKET);
   printf ("   SHUT_RDWR   : constant := %d;\n", SHUT_RDWR);
@@ -216,6 +217,13 @@ main (void)
 
   printf ("   function GAI_StrError (ecode : in C.int) return C.Strings.chars_ptr;\n\n");
 
+  printf ("   function Set_Sock_Opt\n");
+  printf ("     (S       : in C.int;\n");
+  printf ("      Level   : in C.int;\n");
+  printf ("      OptName : in C.int;\n");
+  printf ("      OptVal  : in System.Address;\n");
+  printf ("      OptLen  : in C.int) return C.int;\n\n");
+
   printf ("private\n\n");
 
 #ifdef WIN2000SUPPORT
@@ -238,6 +246,8 @@ main (void)
 #else
   printf ("   pragma Import (C, GAI_StrError, \"gai_strerror\");\n\n");
 #endif
+
+  printf ("   pragma Import (%s, Set_Sock_Opt, \"setsockopt\");\n\n", i_conv);
 
   printf ("end AWS.OS_Lib.Definitions;\n");
 
