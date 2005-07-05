@@ -201,9 +201,9 @@ package AWS.Session is
 
 private
 
-   type ID is new String (1 .. 11);
+   type Id is new String (1 .. 11);
 
-   No_Session : constant ID := (others => ' ');
+   No_Session : constant Id := (others => ' ');
 
    task type Cleaner is
       entry Stop;
