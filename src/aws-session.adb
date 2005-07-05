@@ -59,6 +59,9 @@ package body AWS.Session is
    package Key_Value renames Containers.Key_Value.Table.Containers;
    type Key_Value_Set_Access is access Containers.Key_Value.Set;
 
+   procedure Free is new Ada.Unchecked_Deallocation
+     (Containers.Key_Value.Set, Key_Value_Set_Access);
+
    --  table of session ID
 
    type Session_Node is record
@@ -71,7 +74,7 @@ package body AWS.Session is
 
    procedure Get_Node
      (Sessions : in    Session_Set.Map;
-      SID      : in    ID;
+      SID      : in    Id;
       Node     :   out Session_Node;
       Cursor   :   out Session_Set.Cursor;
       Found    :   out Boolean);
@@ -89,7 +92,7 @@ package body AWS.Session is
 
    Max_Expired : constant := 50;
 
-   Expired_SID : array (1 .. Max_Expired) of ID;
+   Expired_SID : array (1 .. Max_Expired) of Id;
    E_Index     : Natural := 0;
 
    ----------------------
@@ -104,42 +107,42 @@ package body AWS.Session is
 
    protected Database is
 
-      entry Add_Session (SID : in ID);
-      --  Acdd a new session ID into the database
+      entry Add_Session (SID : in Id);
+      --  Add a new session ID into the database
 
-      entry New_Session (SID : out ID);
+      entry New_Session (SID : out Id);
       --  Add a new session SID into the database
 
-      entry Delete_Session (SID : in ID);
+      entry Delete_Session (SID : in Id);
       --  Removes session SID from the Tree
 
-      function Session_Exist (SID : in ID) return Boolean;
+      function Session_Exist (SID : in Id) return Boolean;
       --  Return True if session SID exist in the database
 
-      procedure Touch_Session (SID : in ID);
+      procedure Touch_Session (SID : in Id);
       --  Updates the session Time_Stamp to current time. Does nothing if SID
       --  does not exist.
 
       procedure Key_Exist
-        (SID    : in     ID;
+        (SID    : in     Id;
          Key    : in     String;
          Result :    out Boolean);
       --  Result is set to True if Key_Name exist in session SID
 
       procedure Get_Value
-        (SID   : in     ID;
+        (SID   : in     Id;
          Key   : in     String;
          Value :    out Unbounded_String);
       --  Value is set with the value associated with the key Key_Name in
       --  session SID.
 
       entry Set_Value
-        (SID        : in ID;
+        (SID        : in Id;
          Key, Value : in String);
       --  Add the pair key/value into the session SID
 
       entry Remove_Key
-        (SID : in ID;
+        (SID : in Id;
          Key : in String);
       --  Removes Key from the session SID
 
@@ -164,7 +167,7 @@ package body AWS.Session is
       --  database should be locked before calling this routine. It is not safe
       --  to use the returned value on an unlocked database.
 
-      procedure Unsafe_Delete_Session (SID : in ID);
+      procedure Unsafe_Delete_Session (SID : in Id);
       --  Remove this session ID, the database should be locked before calling
       --  this routine
 
@@ -177,7 +180,7 @@ package body AWS.Session is
 
       Sessions : aliased Session_Set.Map;
 
-      function Generate_ID return ID;
+      function Generate_Id return Id;
       --  Retruns a session ID. This ID is not certified to be uniq in the
       --  system. It is required that the caller check for uniqness if
       --  necessary.
@@ -267,11 +270,11 @@ package body AWS.Session is
    -- Create --
    ------------
 
-   function Create return ID is
-      New_ID : ID;
+   function Create return Id is
+      New_Id : Id;
    begin
-      Database.New_Session (New_ID);
-      return New_ID;
+      Database.New_Session (New_Id);
+      return New_Id;
    end Create;
 
    ---------------------
@@ -324,7 +327,7 @@ package body AWS.Session is
       -- Add_Session --
       -----------------
 
-      entry Add_Session (SID : in ID) when Lock_Counter = 0 is
+      entry Add_Session (SID : in Id) when Lock_Counter = 0 is
          New_Node : Session_Node;
          Cursor   : Session_Set.Cursor;
          Success  : Boolean;
@@ -334,13 +337,17 @@ package body AWS.Session is
 
          Session_Set.Insert
            (Sessions, String (SID), New_Node, Cursor, Success);
+
+         if not Success then
+            Free (New_Node.Root);
+         end if;
       end Add_Session;
 
       --------------------
       -- Delete_Session --
       --------------------
 
-      entry Delete_Session (SID : in ID) when Lock_Counter = 0 is
+      entry Delete_Session (SID : in Id) when Lock_Counter = 0 is
       begin
          Unsafe_Delete_Session (SID);
       end Delete_Session;
@@ -358,12 +365,8 @@ package body AWS.Session is
          -------------
 
          procedure Destroy (Cursor : in Session_Set.Cursor) is
-            procedure Free is new Ada.Unchecked_Deallocation
-              (Containers.Key_Value.Set, Key_Value_Set_Access);
-
             Item : Session_Node := Session_Set.Element (Cursor);
          begin
-            Key_Value.Clear (Item.Root.all);
             Free (Item.Root);
          end Destroy;
 
@@ -383,7 +386,7 @@ package body AWS.Session is
       -- Generate_UID --
       ------------------
 
-      function Generate_ID return ID is
+      function Generate_Id return Id is
 
          type NID is new AWS.Utils.Random_Integer;
 
@@ -392,10 +395,10 @@ package body AWS.Session is
              & "abcdefghijklmnopqrstuvwxyz"
              & "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
          Rand   : NID := 0;
-         Result : ID;
+         Result : Id;
 
       begin
-         for I in ID'Range loop
+         for I in Id'Range loop
             if Rand = 0 then
                Rand := Random;
             end if;
@@ -405,14 +408,14 @@ package body AWS.Session is
          end loop;
 
          return Result;
-      end Generate_ID;
+      end Generate_Id;
 
       ---------------
       -- Get_Value --
       ---------------
 
       procedure Get_Value
-        (SID   : in     ID;
+        (SID   : in     Id;
          Key   : in     String;
          Value :    out Unbounded_String)
       is
@@ -426,10 +429,9 @@ package body AWS.Session is
 
          if Found then
             declare
-               Cursor : Key_Value.Cursor;
+               Cursor : constant Key_Value.Cursor
+                 := Key_Value.Find (Node.Root.all, Key);
             begin
-               Cursor := Key_Value.Find (Node.Root.all, Key);
-
                if Key_Value.Has_Element (Cursor) then
                   Value := Key_Value.Element (Cursor);
                end if;
@@ -442,7 +444,7 @@ package body AWS.Session is
       ---------------
 
       procedure Key_Exist
-        (SID    : in     ID;
+        (SID    : in     Id;
          Key    : in     String;
          Result :    out Boolean)
       is
@@ -480,8 +482,7 @@ package body AWS.Session is
 
             if Node.Time_Stamp + Session_Lifetime < Now then
                E_Index := E_Index + 1;
-               Expired_SID (E_Index)
-                 := ID (Session_Set.Key (Cursor));
+               Expired_SID (E_Index) := Id (Session_Set.Key (Cursor));
 
                exit when E_Index = Max_Expired;
                --  No more space in the expired mailbox, quit now.
@@ -505,23 +506,22 @@ package body AWS.Session is
       -- New_Session --
       -----------------
 
-      entry New_Session (SID : out ID) when Lock_Counter = 0 is
-         New_Node : Session_Node;
+      entry New_Session (SID : out Id) when Lock_Counter = 0 is
+         New_Node : constant Session_Node
+           := (Time_Stamp => Calendar.Clock,
+               Root       => new Containers.Key_Value.Set);
+
          Cursor   : Session_Set.Cursor;
-         Found    : Boolean;
+         Success  : Boolean;
 
       begin
          Generate_UID : loop
-            SID := Generate_ID;
+            SID := Generate_Id;
 
-            New_Node := (Time_Stamp => Calendar.Clock,
-                         Root       => new Containers.Key_Value.Set);
+            Session_Set.Insert
+              (Sessions, String (SID), New_Node, Cursor, Success);
 
-            if not Session_Set.Is_In (String (SID), Sessions) then
-               Session_Set.Insert
-                 (Sessions, String (SID), New_Node, Cursor, Found);
-               exit Generate_UID;
-            end if;
+            exit Generate_UID when Success;
          end loop Generate_UID;
       end New_Session;
 
@@ -530,7 +530,7 @@ package body AWS.Session is
       ------------
 
       entry Remove_Key
-        (SID : in ID;
+        (SID : in Id;
          Key : in String) when Lock_Counter = 0
       is
          Cursor : Session_Set.Cursor;
@@ -540,11 +540,7 @@ package body AWS.Session is
          Get_Node (Sessions, SID, Node, Cursor, Found);
 
          if Found then
-            if Found then
-               Key_Value.Delete (Node.Root.all, Key);
-            end if;
-
-            Session_Set.Replace_Element (Cursor, Node);
+            Key_Value.Delete (Node.Root.all, Key);
          end if;
       end Remove_Key;
 
@@ -552,7 +548,7 @@ package body AWS.Session is
       -- Session_Exist --
       -------------------
 
-      function Session_Exist (SID : in ID) return Boolean is
+      function Session_Exist (SID : in Id) return Boolean is
       begin
          return Session_Set.Is_In (String (SID), Sessions);
       end Session_Exist;
@@ -562,7 +558,7 @@ package body AWS.Session is
       ---------------
 
       entry Set_Value
-        (SID        : in ID;
+        (SID        : in Id;
          Key, Value : in String) when Lock_Counter = 0
       is
          Cursor : Session_Set.Cursor;
@@ -588,8 +584,6 @@ package body AWS.Session is
                      Cursor, Success);
                end if;
             end;
-
-            Session_Set.Replace_Element (Cursor, Node);
          end if;
       end Set_Value;
 
@@ -597,7 +591,7 @@ package body AWS.Session is
       -- Touch_Session --
       -------------------
 
-      procedure Touch_Session (SID : in ID) is
+      procedure Touch_Session (SID : in Id) is
          Cursor : Session_Set.Cursor;
          Node   : Session_Node;
          Found  : Boolean;
@@ -618,9 +612,13 @@ package body AWS.Session is
       -- Unsafe_Delete_Session --
       ---------------------------
 
-      procedure Unsafe_Delete_Session (SID : in ID) is
+      procedure Unsafe_Delete_Session (SID : in Id) is
+         Cursor : Session_Set.Cursor
+           := Session_Set.Find (Sessions, String (SID));
+         Node   : Session_Node := Session_Set.Element (Cursor);
       begin
-         Session_Set.Delete (Sessions, String (SID));
+         Free (Node.Root);
+         Session_Set.Delete (Sessions, Cursor);
       end Unsafe_Delete_Session;
 
    end Database;
@@ -629,7 +627,7 @@ package body AWS.Session is
    -- Delete --
    ------------
 
-   procedure Delete (SID : in ID) is
+   procedure Delete (SID : in Id) is
    begin
       Database.Delete_Session (SID);
    end Delete;
@@ -638,13 +636,13 @@ package body AWS.Session is
    -- Exist --
    -----------
 
-   function Exist (SID : in ID) return Boolean is
+   function Exist (SID : in Id) return Boolean is
    begin
       return Database.Session_Exist (SID);
    end Exist;
 
    function Exist
-     (SID : in ID;
+     (SID : in Id;
       Key : in String)
       return Boolean
    is
@@ -675,7 +673,7 @@ package body AWS.Session is
       while Session_Set.Has_Element (Cursor) loop
          Action
            (Order,
-            ID (Session_Set.Key (Cursor)),
+            Id (Session_Set.Key (Cursor)),
             Session_Set.Element (Cursor).Time_Stamp,
             Quit);
          exit when Quit;
@@ -695,7 +693,7 @@ package body AWS.Session is
    -- For_Every_Session_Data --
    ----------------------------
 
-   procedure For_Every_Session_Data (SID : in ID) is
+   procedure For_Every_Session_Data (SID : in Id) is
 
       procedure For_Every_Data (Node : in Session_Node);
       --  Iterate through all Key/Value pairs
@@ -764,7 +762,7 @@ package body AWS.Session is
       -- Get --
       ---------
 
-      function Get (SID : in ID; Key : in String) return Data is
+      function Get (SID : in Id; Key : in String) return Data is
          Result : constant String := Get (SID, Key);
       begin
          if Result = "" then
@@ -779,7 +777,7 @@ package body AWS.Session is
       ---------
 
       procedure Set
-        (SID   : in ID;
+        (SID   : in Id;
          Key   : in String;
          Value : in Data) is
       begin
@@ -792,14 +790,14 @@ package body AWS.Session is
    -- Get --
    ---------
 
-   function Get (SID : in ID; Key : in String) return String is
+   function Get (SID : in Id; Key : in String) return String is
       Value : Unbounded_String;
    begin
       Database.Get_Value (SID, Key, Value);
       return To_String (Value);
    end Get;
 
-   function Get (SID : in ID; Key : in String) return Integer is
+   function Get (SID : in Id; Key : in String) return Integer is
       Value : constant String := Get (SID, Key);
    begin
       return Integer'Value (Value);
@@ -808,7 +806,7 @@ package body AWS.Session is
          return 0;
    end Get;
 
-   function Get (SID : in ID; Key : in String) return Float is
+   function Get (SID : in Id; Key : in String) return Float is
       Value : constant String := Get (SID, Key);
    begin
       return Float'Value (Value);
@@ -817,7 +815,7 @@ package body AWS.Session is
          return 0.0;
    end Get;
 
-   function Get (SID : in ID; Key : in String) return Boolean is
+   function Get (SID : in Id; Key : in String) return Boolean is
    begin
       return Get (SID, Key) = "T";
    end Get;
@@ -837,24 +835,32 @@ package body AWS.Session is
 
    procedure Get_Node
      (Sessions : Session_Set.Map;
-      SID      : in     ID;
+      SID      : in     Id;
       Node     :   out Session_Node;
       Cursor   :   out Session_Set.Cursor;
-      Found    :   out Boolean) is
+      Found    :   out Boolean)
+   is
+      procedure Process (Item : in out Session_Node);
+
+      -------------
+      -- Process --
+      -------------
+
+      procedure Process (Item : in out Session_Node) is
+      begin
+         Item.Time_Stamp := Calendar.Clock;
+         Node := Item;
+      end Process;
+
+      procedure Update is new Session_Set.Generic_Update_Element (Process);
+
    begin
       Cursor := Session_Set.Find (Sessions, String (SID));
 
-      if Session_Set.Has_Element (Cursor) then
-         Found := True;
-         Node  := Session_Set.Element (Cursor);
+      Found := Session_Set.Has_Element (Cursor);
 
-         --  Update time stamp, and replace this item into the map
-         Node.Time_Stamp := Calendar.Clock;
-
-         Session_Set.Replace_Element (Cursor, Node);
-
-      else
-         Found := False;
+      if Found then
+         Update (Cursor);
       end if;
    end Get_Node;
 
@@ -862,7 +868,7 @@ package body AWS.Session is
    -- Image --
    -----------
 
-   function Image (SID : in ID) return String is
+   function Image (SID : in Id) return String is
    begin
       return SID_Prefix & String (SID);
    end Image;
@@ -883,7 +889,7 @@ package body AWS.Session is
 
       while not End_Of_File (File) loop
          declare
-            SID : constant ID := ID'Input (Stream_Ptr);
+            SID : constant Id := Id'Input (Stream_Ptr);
             Key_Value_Size : Natural;
          begin
             Database.Add_Session (SID);
@@ -910,7 +916,7 @@ package body AWS.Session is
    ------------
 
    procedure Remove
-     (SID : in ID;
+     (SID : in Id;
       Key : in String) is
    begin
       Database.Remove_Key (SID, Key);
@@ -929,7 +935,7 @@ package body AWS.Session is
 
       procedure Process
         (N          : in     Positive;
-         SID        : in     ID;
+         SID        : in     Id;
          Time_Stamp : in     Ada.Calendar.Time;
          Quit       : in out Boolean);
       --  Callback for each session node in the table
@@ -940,7 +946,7 @@ package body AWS.Session is
 
       procedure Process
         (N          : in     Positive;
-         SID        : in     ID;
+         SID        : in     Id;
          Time_Stamp : in     Ada.Calendar.Time;
          Quit       : in out Boolean)
       is
@@ -989,7 +995,7 @@ package body AWS.Session is
          Key_Value_Size := Natural (Key_Value.Length (Node.Root.all));
 
          if Key_Value_Size > 0 then
-            ID'Output (Stream_Ptr, SID);
+            Id'Output (Stream_Ptr, SID);
             Natural'Output (Stream_Ptr, Key_Value_Size);
             Each_Key_Value (SID);
          end if;
@@ -1025,7 +1031,7 @@ package body AWS.Session is
    ---------
 
    procedure Set
-     (SID   : in ID;
+     (SID   : in Id;
       Key   : in String;
       Value : in String) is
    begin
@@ -1033,7 +1039,7 @@ package body AWS.Session is
    end Set;
 
    procedure Set
-     (SID   : in ID;
+     (SID   : in Id;
       Key   : in String;
       Value : in Integer)
    is
@@ -1047,7 +1053,7 @@ package body AWS.Session is
    end Set;
 
    procedure Set
-     (SID   : in ID;
+     (SID   : in Id;
       Key   : in String;
       Value : in Float)
    is
@@ -1061,7 +1067,7 @@ package body AWS.Session is
    end Set;
 
    procedure Set
-     (SID   : in ID;
+     (SID   : in Id;
       Key   : in String;
       Value : in Boolean)
    is
@@ -1098,7 +1104,7 @@ package body AWS.Session is
    -- Touch --
    -----------
 
-   procedure Touch (SID : in ID) is
+   procedure Touch (SID : in Id) is
    begin
       Database.Touch_Session (SID);
    end Touch;
@@ -1107,9 +1113,9 @@ package body AWS.Session is
    -- Value --
    -----------
 
-   function Value (SID : in String) return ID is
+   function Value (SID : in String) return Id is
    begin
-      if SID'Length /= ID'Length + SID_Prefix'Length
+      if SID'Length /= Id'Length + SID_Prefix'Length
         or else
         (SID'Length > SID_Prefix'Length
            and then
@@ -1117,7 +1123,7 @@ package body AWS.Session is
       then
          return No_Session;
       else
-         return ID (SID (SID'First + SID_Prefix'Length .. SID'Last));
+         return Id (SID (SID'First + SID_Prefix'Length .. SID'Last));
       end if;
    end Value;
 
