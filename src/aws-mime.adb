@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2004                          --
+--                         Copyright (C) 2000-2005                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -447,9 +447,9 @@ package body AWS.MIME is
 
          procedure Process (Position : in Containers.Key_Value.Cursor) is
          begin
-            if Result = "" and then
-              Containers.Key_Value.Has_Element (Position) then
-
+            if Result = ""
+              and then Containers.Key_Value.Has_Element (Position)
+            then
                if
                  Containers.Key_Value.Table.Containers.Element (Position) = CT
                then
