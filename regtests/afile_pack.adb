@@ -123,7 +123,8 @@ package body AFile_Pack is
            (Resources.Streams.Disk.Stream_Type (Strm.all), "afile.o");
          return Response.Stream (MIME.Application_Octet_Stream, Strm);
       else
-         return Response.Build (MIME.Text_HTML, "URI not supported");
+         return Response.Build
+                  (MIME.Text_HTML, "URI """ & URI & """ not supported");
       end if;
 
    exception
