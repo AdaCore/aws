@@ -13,6 +13,26 @@
 	 routine, because iteration doing over existing elements. Do not
 	 do conversion To_Unbounded_String ("txt"), just return "txt".
 
+	* aws-session.ads:
+	Make Id case in private part identical to public part.
+	Update copyright years range.
+
+	* aws-session.adb:
+	Make Id case identical to specification.
+	(Add_Session): Fix typo in comment. Free Node.Root if not successful
+	 insert.
+	(Destroy): Do not Key_Value.Clear (Item.Root.all) because Item.Root is
+	 controlled type and next line is Free (Item.Root).
+	(Get_Value): Initialize constant Cursor in declaration.
+	(New_Session): Put Node constant creation out of Id generation loop.
+	(Remove_Key): Remove double check for Found. Do not call
+	 Replace_Element because modified Node.Root is access to container.
+	(Unsafe_Delete_Session): Fix memory leak, call Free (Node.Root) before
+	 delete session.
+	(Get_Node): Use Generic_Update_Element for update instead of copy
+	 from/to container.
+	Minor reformat.
+
 2005-07-04  Dmitriy Anisimkov <anisimkov@ada-ru.org>
 
 	* aws-containers-tables-set.adb:
