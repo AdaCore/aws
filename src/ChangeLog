@@ -36,6 +36,9 @@
 	* aws-session.adb:
 	(Get_Node): Remove Cursor out parameter.
 
+	* aws-net.ads, aws-net.adb:
+	(Set_No_Delay): New routine.
+
 2005-07-04  Dmitriy Anisimkov <anisimkov@ada-ru.org>
 
 	* aws-containers-tables-set.adb:

@@ -1,3 +1,9 @@
+2005-07-04  Dmitriy Anisimkov <anisimkov@ada-ru.org>
+
+	* src/check_config.c:
+	(TCP_NODELAY): New constant.
+	(Set_Sock_Opt): Thin binding to setsockopt routine.
+
 2005-07-02  Dmitriy Anisimkov <anisimkov@ada-ru.org>
 
 	* aws-net-std__ipv6.adb:
@@ -12,10 +18,10 @@
 
 	* templates_parser-configuration__aws.ads:
 	Split CVS tag to avoid long lines.
-	
+
 	* templates_parser-input__aws.adb:
 	Split CVS tag to avoid long lines.
-	
+
 2005-02-16  Pascal Obry  <pascal@obry.org>
 
 	* templates_parser-configuration__aws.ads:
