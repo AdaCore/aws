@@ -8,6 +8,10 @@
 	* aws-mime.adb:
 	Minor reformat.
 	Update copyright years range.
+	(Extension): Use Exit_Iteration exception to exit iteration when
+	 Content_Type found. DO not check for Has_Element inside of Process
+	 routine, because iteration doing over existing elements. Do not
+	 do conversion To_Unbounded_String ("txt"), just return "txt".
 
 2005-07-04  Dmitriy Anisimkov <anisimkov@ada-ru.org>
 
