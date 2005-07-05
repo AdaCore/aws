@@ -212,6 +212,11 @@ package AWS.Net is
    pragma Inline (Set_Timeout);
    --  Sets the timeout for the socket read/write operations
 
+   procedure Set_No_Delay
+     (Socket : in Socket_Type;
+      Value  : in Boolean := True);
+   --  Set/clear TCP_NODELAY option on socket.
+
    function Wait
      (Socket : in Socket_Type'Class;
       Events : in Wait_Event_Set)

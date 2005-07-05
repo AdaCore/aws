@@ -37,6 +37,8 @@ with AWS.Net.Std;
 with AWS.Net.SSL;
 with AWS.OS_Lib.Definitions;
 
+with System;
+
 package body AWS.Net is
 
    use Ada;
@@ -146,6 +148,31 @@ package body AWS.Net is
 
       Socket.C := new RW_Cache;
    end Set_Cache;
+
+   ------------------
+   -- Set_No_Delay --
+   ------------------
+
+   procedure Set_No_Delay
+     (Socket : in Socket_Type;
+      Value  : in Boolean := True)
+   is
+      use Interfaces;
+      use type C.int;
+      Flag : aliased Integer := Boolean'Pos (Value);
+   begin
+      if OS_Lib.Definitions.Set_Sock_Opt
+           (S       => C.int (Get_FD (Socket_Type'Class (Socket))),
+            Level   => OS_Lib.Definitions.IPPROTO_TCP,
+            OptName => OS_Lib.Definitions.TCP_NODELAY,
+            OptVal  => Flag'Address,
+            OptLen  => Flag'Size / System.Storage_Unit) /= 0
+      then
+         Ada.Exceptions.Raise_Exception
+           (Socket_Error'Identity,
+            "Set_No_Delay error code" & Integer'Image (Std.Errno));
+      end if;
+   end Set_No_Delay;
 
    -----------------
    -- Set_Timeout --
