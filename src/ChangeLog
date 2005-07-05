@@ -33,6 +33,9 @@
 	 from/to container.
 	Minor reformat.
 
+	* aws-session.adb:
+	(Get_Node): Remove Cursor out parameter.
+
 2005-07-04  Dmitriy Anisimkov <anisimkov@ada-ru.org>
 
 	* aws-containers-tables-set.adb:
