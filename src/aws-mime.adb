@@ -438,6 +438,8 @@ package body AWS.MIME is
                     To_Unbounded_String (Content_Type);
          Result : Unbounded_String;
 
+         Exit_Iteration : exception;
+
          procedure Process (Position : in Containers.Key_Value.Cursor);
          --  Iterator callback procedure
 
@@ -447,15 +449,13 @@ package body AWS.MIME is
 
          procedure Process (Position : in Containers.Key_Value.Cursor) is
          begin
-            if Result = ""
-              and then Containers.Key_Value.Has_Element (Position)
+            if
+              Containers.Key_Value.Table.Containers.Element (Position) = CT
             then
-               if
-                 Containers.Key_Value.Table.Containers.Element (Position) = CT
-               then
-                  Result := To_Unbounded_String
-                    (Containers.Key_Value.Table.Containers.Key (Position));
-               end if;
+               Result
+                 := To_Unbounded_String
+                      (Containers.Key_Value.Table.Containers.Key (Position));
+               raise Exit_Iteration;
             end if;
          end Process;
 
@@ -469,12 +469,16 @@ package body AWS.MIME is
          if Content_Type = Default_Content_Type then
             null; -- We don't want give unknown data the exe extension
          elsif Content_Type = Text_Plain then
-            Result := To_Unbounded_String ("txt");
+            return "txt";
          else
             Iteration (Ext_Set);
          end if;
 
-         return To_String (Result);
+         return "";
+
+      exception
+         when Exit_Iteration =>
+            return To_String (Result);
       end Extension;
 
       ---------
