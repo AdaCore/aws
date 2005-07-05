@@ -73,11 +73,10 @@ package body AWS.Session is
    package Session_Set renames Session_Set_Container.Containers;
 
    procedure Get_Node
-     (Sessions : in    Session_Set.Map;
-      SID      : in    Id;
-      Node     :   out Session_Node;
-      Cursor   :   out Session_Set.Cursor;
-      Found    :   out Boolean);
+     (Sessions : in     Session_Set.Map;
+      SID      : in     Id;
+      Node     :    out Session_Node;
+      Found    :    out Boolean);
    --  Returns Node for specified SID, if found update the timestamp for
    --  this node and set Found to True, otherwise set Found to False.
 
@@ -420,12 +419,11 @@ package body AWS.Session is
          Value :    out Unbounded_String)
       is
          Node   : Session_Node;
-         Cursor : Session_Set.Cursor;
          Found  : Boolean;
       begin
          Value := Null_Unbounded_String;
 
-         Get_Node (Sessions, SID, Node, Cursor, Found);
+         Get_Node (Sessions, SID, Node, Found);
 
          if Found then
             declare
@@ -449,9 +447,8 @@ package body AWS.Session is
          Result :    out Boolean)
       is
          Node   : Session_Node;
-         Cursor : Session_Set.Cursor;
       begin
-         Get_Node (Sessions, SID, Node, Cursor, Result);
+         Get_Node (Sessions, SID, Node, Result);
 
          if Result then
             Result := Key_Value.Is_In (Key, Node.Root.all);
@@ -533,11 +530,10 @@ package body AWS.Session is
         (SID : in Id;
          Key : in String) when Lock_Counter = 0
       is
-         Cursor : Session_Set.Cursor;
          Node   : Session_Node;
          Found  : Boolean;
       begin
-         Get_Node (Sessions, SID, Node, Cursor, Found);
+         Get_Node (Sessions, SID, Node, Found);
 
          if Found then
             Key_Value.Delete (Node.Root.all, Key);
@@ -561,11 +557,10 @@ package body AWS.Session is
         (SID        : in Id;
          Key, Value : in String) when Lock_Counter = 0
       is
-         Cursor : Session_Set.Cursor;
          Node   : Session_Node;
          Found  : Boolean;
       begin
-         Get_Node (Sessions, SID, Node, Cursor, Found);
+         Get_Node (Sessions, SID, Node, Found);
 
          if Found then
             declare
@@ -592,11 +587,10 @@ package body AWS.Session is
       -------------------
 
       procedure Touch_Session (SID : in Id) is
-         Cursor : Session_Set.Cursor;
          Node   : Session_Node;
          Found  : Boolean;
       begin
-         Get_Node (Sessions, SID, Node, Cursor, Found);
+         Get_Node (Sessions, SID, Node, Found);
       end Touch_Session;
 
       ------------
@@ -699,7 +693,6 @@ package body AWS.Session is
       --  Iterate through all Key/Value pairs
 
       Sessions : Session_Set.Map;
-      Cursor   : Session_Set.Cursor;
       Node     : Session_Node;
       Order    : Positive := 1;
       Quit     : Boolean  := False;
@@ -730,7 +723,7 @@ package body AWS.Session is
    begin
       Database.Lock_And_Get_Sessions (Sessions);
 
-      Get_Node (Sessions, SID, Node, Cursor, Found);
+      Get_Node (Sessions, SID, Node, Found);
 
       if Found then
          For_Every_Data (Node);
@@ -834,12 +827,14 @@ package body AWS.Session is
    --------------
 
    procedure Get_Node
-     (Sessions : Session_Set.Map;
+     (Sessions : in     Session_Set.Map;
       SID      : in     Id;
-      Node     :   out Session_Node;
-      Cursor   :   out Session_Set.Cursor;
-      Found    :   out Boolean)
+      Node     :    out Session_Node;
+      Found    :    out Boolean)
    is
+      Cursor : constant Session_Set.Cursor
+        := Session_Set.Find (Sessions, String (SID));
+
       procedure Process (Item : in out Session_Node);
 
       -------------
@@ -855,8 +850,6 @@ package body AWS.Session is
       procedure Update is new Session_Set.Generic_Update_Element (Process);
 
    begin
-      Cursor := Session_Set.Find (Sessions, String (SID));
-
       Found := Session_Set.Has_Element (Cursor);
 
       if Found then
@@ -954,7 +947,6 @@ package body AWS.Session is
          pragma Unreferenced (Time_Stamp);
          pragma Unreferenced (Quit);
 
-         Cursor   : Session_Set.Cursor;
          Node     : Session_Node;
          Found    : Boolean;
 
@@ -990,7 +982,7 @@ package body AWS.Session is
          Key_Value_Size : Natural;
 
       begin
-         Get_Node (Sessions, SID, Node, Cursor, Found);
+         Get_Node (Sessions, SID, Node, Found);
 
          Key_Value_Size := Natural (Key_Value.Length (Node.Root.all));
 
