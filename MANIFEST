@@ -234,6 +234,7 @@ regtests/auth1.out
 regtests/auth2.adb
 regtests/auth2.out
 regtests/aws.ini
+regtests/aws.mime
 regtests/back_pack.adb
 regtests/back_pack.ads
 regtests/cert.adb
