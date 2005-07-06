@@ -81,6 +81,9 @@ begin
    Test ("aaa.jtmb");
    Test ("aaa.jtmc");
    Test ("aaa.jtmd");
+   Test ("readme.file");
+   Test ("readme");
+   Test ("read.me");
 
    Text_IO.Put_Line (Boolean'Image (MIME.Is_Text (MIME.Text_XML)));
    Text_IO.Put_Line (Boolean'Image (MIME.Is_Audio (MIME.Audio_Basic)));

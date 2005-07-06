@@ -25,6 +25,9 @@ aaa.jtma                 => application/x-test-mime
 aaa.jtmb                 => application/x-multy-test-mime
 aaa.jtmc                 => application/x-multy-test-mime
 aaa.jtmd                 => application/x-multy-test-mime
+readme.file              => text/plain
+readme                   => text/plain
+read.me                  => text/plain
 TRUE
 TRUE
 TRUE
