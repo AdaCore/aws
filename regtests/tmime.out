@@ -19,6 +19,12 @@ known-problems           => text/plain
 known-problems-316a      => application/octet-stream
 features-316             => text/plain
 features-317             => text/plain
+aaa.jnlp                 => application/x-java-jnlp-file
+aaa.jnl                  => application/x-java-jnlp-file
+aaa.jtma                 => application/x-test-mime
+aaa.jtmb                 => application/x-multy-test-mime
+aaa.jtmc                 => application/x-multy-test-mime
+aaa.jtmd                 => application/x-multy-test-mime
 TRUE
 TRUE
 TRUE

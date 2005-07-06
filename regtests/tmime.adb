@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2003-2004                          --
+--                         Copyright (C) 2003-2005                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -73,10 +73,20 @@ begin
    Test ("features-316");
    Test ("features-317");
 
+   --  Test for user defined in aws.mime types.
+
+   Test ("aaa.jnlp");
+   Test ("aaa.jnl");
+   Test ("aaa.jtma");
+   Test ("aaa.jtmb");
+   Test ("aaa.jtmc");
+   Test ("aaa.jtmd");
+
    Text_IO.Put_Line (Boolean'Image (MIME.Is_Text (MIME.Text_XML)));
    Text_IO.Put_Line (Boolean'Image (MIME.Is_Audio (MIME.Audio_Basic)));
    Text_IO.Put_Line (Boolean'Image (MIME.Is_Video (MIME.Video_X_Msvideo)));
    Text_IO.Put_Line (Boolean'Image (MIME.Is_Image (MIME.Image_Png)));
    Text_IO.Put_Line
      (Boolean'Image (MIME.Is_Application (MIME.Application_Msword)));
+
 end Tmime;
