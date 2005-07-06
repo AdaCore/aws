@@ -1,3 +1,11 @@
+2005-07-06  Dmitriy Anisimkov <anisimkov@ada-ru.org>
+
+	* aws.mime:
+	New MIME configuration file.
+
+	* tmime.adb, tmime.out:
+	Add test for user defined MIME types in aws.mime configuration file.
+
 2005-07-05  Dmitriy Anisimkov <anisimkov@ada-ru.org>
 
 	* afile_pack.adb:
