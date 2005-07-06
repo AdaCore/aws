@@ -6,6 +6,10 @@
 	* tmime.adb, tmime.out:
 	Add test for user defined MIME types in aws.mime configuration file.
 
+	* tmime.adb, tmime.out, aws.mime:
+	Add test for regular expression in user defined MIME types in aws.mime
+	 configuration file.
+
 2005-07-05  Dmitriy Anisimkov <anisimkov@ada-ru.org>
 
 	* afile_pack.adb:

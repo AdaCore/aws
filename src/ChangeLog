@@ -2,6 +2,8 @@
 
 	* aws-mime.adb:
 	(Initialize.Load): Fix End_Of_File condition. Fix Read_Extension loop.
+	(Initialize.Load): Able to use regular expression in brackets
+	 in aws.mime configuration file.
 
 2005-07-05  Dmitriy Anisimkov <anisimkov@ada-ru.org>
 
