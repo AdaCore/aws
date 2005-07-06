@@ -31,7 +31,7 @@
 with Ada.Characters.Handling;
 with Ada.Exceptions;
 with Ada.Strings.Fixed;
-with Ada.Strings.Maps.Constants;
+with Ada.Strings.Maps;
 with Ada.Strings.Unbounded;
 
 with GNAT.Regexp;
@@ -186,7 +186,9 @@ package body AWS.MIME is
          use type Strings.Maps.Character_Set;
 
          MIME_Set : constant Strings.Maps.Character_Set
-           := Strings.Maps.Constants.Letter_Set or Strings.Maps.To_Set ("/-");
+           := not Strings.Maps.To_Set (" " & ASCII.HT);
+         --  The token would be any characters sequence
+         --  other then space an tab.
 
          File     : Resources.File_Type;
 
@@ -223,9 +225,16 @@ package body AWS.MIME is
 
                exit Read_Extension when E_Last = 0;
 
-               Set.Add_Extension
-                 (Buffer (E_First .. E_Last),
-                  Buffer (M_First .. M_Last));
+               if Buffer (E_First) = '(' and then Buffer (E_Last) = ')' then
+                  --  Regular expression is in brackets.
+                  Add_Regexp
+                    (Buffer (E_First + 1 .. E_Last - 1),
+                     Buffer (M_First .. M_Last));
+               else
+                  Set.Add_Extension
+                    (Buffer (E_First .. E_Last),
+                     Buffer (M_First .. M_Last));
+               end if;
 
                E_First := E_Last + 1;
             end loop Read_Extension;
