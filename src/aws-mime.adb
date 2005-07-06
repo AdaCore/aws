@@ -205,7 +205,7 @@ package body AWS.MIME is
       begin
          Resources.Files.Open (File, AWS_MIME);
 
-         while Resources.End_Of_File (File) loop
+         while not Resources.End_Of_File (File) loop
             Resources.Get_Line (File, Buffer, Last);
 
             --  Look for the MIME type
@@ -226,6 +226,8 @@ package body AWS.MIME is
                Set.Add_Extension
                  (Buffer (E_First .. E_Last),
                   Buffer (M_First .. M_Last));
+
+               E_First := E_Last + 1;
             end loop Read_Extension;
 
          end loop;
