@@ -1,4 +1,4 @@
 application/x-java-jnlp-file	jnlp jnl
 application/x-test-mime		jtma
 application/x-multy-test-mime	jtmb jtmc jtmd
-text/plain  			(read(\.)?me(\..*)?)
+text/plain  			/read(\.)?me(\..*)?/
