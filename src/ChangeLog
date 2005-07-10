@@ -1,3 +1,12 @@
+2005-07-10  Dmitriy Anisimkov <anisimkov@ada-ru.org>
+
+	* aws-mime.ads:
+	(Content_Type): Add Default parameter.
+
+	* aws-mime.adb:
+	(Content_Type): Add Default parameter.
+	(Set.Get): Add Default parameter.
+
 2005-07-07  Dmitriy Anisimkov <anisimkov@ada-ru.org>
 
 	* aws-mime.adb:
