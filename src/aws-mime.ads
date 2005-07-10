@@ -137,12 +137,14 @@ package AWS.MIME is
    -- MIME Type --
    ---------------
 
-   function Content_Type (Filename : in String) return String;
+   function Content_Type
+      (Filename : in String;
+       Default  : in String := Application_Octet_Stream) return String;
    --  Returns the MIME Content Type based on filename's extension or if not
    --  found the MIME Content type where Filename matches one of the specific
    --  rules set by Add_Regexp (see below).
-   --  Returns "application/octet-stream" if the file type is unknown
-   --  (i.e. no extension and no regular expression match filename).
+   --  Returns Default if the file type is unknown (i.e. no extension and
+   --  no regular expression match filename).
 
    function Extension (Content_Type : in String) return String;
    --  Returns the best guess of the extension to use for the Content Type.
