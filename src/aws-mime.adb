@@ -70,7 +70,7 @@ package body AWS.MIME is
 
    protected Set is
 
-      function Get (Filename : in String) return String;
+      function Get (Filename : in String; Default : in String) return String;
       --  Returns Filename's MIME content type
 
       function Extension (Content_Type : in String) return String;
@@ -134,13 +134,15 @@ package body AWS.MIME is
             "Regexp " & Filename & " can't be compiled");
    end Add_Regexp;
 
-   -------------
-   -- Content --
-   -------------
+   ------------------
+   -- Content_Type --
+   ------------------
 
-   function Content_Type (Filename : in String) return String is
+   function Content_Type
+     (Filename : in String;
+      Default  : in String := Application_Octet_Stream) return String is
    begin
-      return Set.Get (Filename);
+      return Set.Get (Filename, Default => Default);
    end Content_Type;
 
    ---------------
@@ -496,7 +498,7 @@ package body AWS.MIME is
       -- Get --
       ---------
 
-      function Get (Filename : in String) return String is
+      function Get (Filename : in String; Default : in String) return String is
          Ext    : constant String := File_Extension (Filename);
          Cursor : Containers.Key_Value.Cursor;
       begin
@@ -521,7 +523,7 @@ package body AWS.MIME is
             end;
          end if;
 
-         return Default_Content_Type;
+         return Default;
       end Get;
 
    end Set;
