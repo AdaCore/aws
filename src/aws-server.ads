@@ -193,17 +193,17 @@ private
 
    type Slot_Phase is
      (Closed,
-      --  Socket has been closed by one of the peer
+      --  Socket has been closed on the server side
 
       In_Shutdown,
-      --  Phase when socket is in protected object for shutdown
+      --  Phase when socket is marked in protected Slots for shutdown
 
       Release_Deferred,
       --  Phase when socket was not relased because of socket was in
-      --  In_Shutdown state.
+      --  In_Shutdown state
 
       Aborted,
-      --  After socket shutdown
+      --  Slot was aborted by means of socket shutdown
 
       Wait_For_Client,
       --  We can abort keep-alive connection in this stage
@@ -218,10 +218,10 @@ private
 
       Server_Response,
       --  We are trusting ourselves but client may be too slow purposely in
-      --  receiving data and we should disconnect him.
+      --  receiving data and we should disconnect him
 
       Server_Processing
-      --  While in the User's Callback procedure
+      --  While in the User defined Dispatch procedure
      );
 
    subtype Abortable_Phase is Slot_Phase
