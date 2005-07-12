@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2004                          --
+--                         Copyright (C) 2000-2005                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -1682,7 +1682,7 @@ begin
                   --  certainly been closed while sending back the answer.
                   exit For_Every_Request;
 
-                  when E : others =>
+               when E : others =>
                   --  Here we got an exception (other than Net.Socket_Error).
                   --  It is probably due to a problem in a user's stream
                   --  implementation. Just log the problem and exit.
