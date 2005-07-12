@@ -4,6 +4,9 @@
 	Minor reformat.
 	Update copyright years range.
 
+	* aws-server.ads:
+	Fix comments.
+
 2005-07-10  Dmitriy Anisimkov <anisimkov@ada-ru.org>
 
 	* aws-mime.ads:
