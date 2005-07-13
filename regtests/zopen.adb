@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2003-2004                          --
+--                         Copyright (C) 2003-2005                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -38,6 +38,9 @@ with AWS.MIME;
 with AWS.Response;
 with AWS.Server;
 with AWS.Status;
+with AWS.Utils;
+
+with Get_Free_Port;
 
 procedure ZOpen is
 
@@ -46,7 +49,21 @@ procedure ZOpen is
 
    WS : Server.HTTP;
 
+   Port : Positive := 1271;
+
+   procedure Call_It (URI : in String);
    function CB (Request : in Status.Data) return Response.Data;
+
+   -------------
+   -- Call_It --
+   -------------
+
+   procedure Call_It (URI : in String) is
+      R : Response.Data;
+   begin
+      R := Client.Get ("http://localhost:" & Utils.Image (Port) & URI);
+      Ada.Text_IO.Put (Response.Message_Body (R));
+   end Call_It;
 
    --------
    -- CB --
@@ -59,25 +76,20 @@ procedure ZOpen is
       return Response.File (MIME.Content_Type (Filename), Filename);
    end CB;
 
-   R : Response.Data;
-
 begin
+   Get_Free_Port (Port);
+
    Server.Start
      (WS, "zopen",
       CB'Unrestricted_Access,
-      Port           => 1271,
+      Port           => Port,
       Max_Connection => 5);
 
    Ada.Text_IO.Put_Line ("ZOpen started");
 
-   R := Client.Get ("http://localhost:1271/filea.txt");
-   Ada.Text_IO.Put (Response.Message_Body (R));
-
-   R := Client.Get ("http://localhost:1271/fileb.txt");
-   Ada.Text_IO.Put (Response.Message_Body (R));
-
-   R := Client.Get ("http://localhost:1271/filec.txt");
-   Ada.Text_IO.Put (Response.Message_Body (R));
+   Call_It ("/filea.txt");
+   Call_It ("/fileb.txt");
+   Call_It ("/filec.txt");
 
    Server.Shutdown (WS);
 

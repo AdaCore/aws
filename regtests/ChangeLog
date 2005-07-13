@@ -1,3 +1,8 @@
+2005-07-13  Dmitriy Anisimkov <anisimkov@ada-ru.org>
+
+	* zopen.adb:
+	Use Get_Free_Port.
+
 2005-07-07  Dmitriy Anisimkov <anisimkov@ada-ru.org>
 
 	* aws.mime:
