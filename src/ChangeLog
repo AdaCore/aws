@@ -1,3 +1,22 @@
+2005-07-14  Dmitriy Anisimkov <anisimkov@ada-ru.org>
+
+	* aws-server.ads:
+	(Slot_Phase): Remove Release_Deferred value.
+	(Slots): Add Shutdown_Count.
+	(Release): Is entry now. Release would wait until shutdown in different
+	 thread complete to avoid shutdown Socket in terminated task stack.
+	 Problem detected by valgrind memory debugger under Linux.
+
+	* aws-server.adb:
+	(Shutdown): Call Shutdown_Done only if Get_For_Shutdown gave
+	 not null Socket_Access.
+	(Get_For_Shutdown): Increment Shutdown_Count.
+	(Mark_Phase): Remove Release_Deferred handling.
+	(Release): Is entry with barier Shutdown_Count = 0 now.
+	 Remove In_Shutdown handling, it is impossible state here now.
+	(Shutdown_Done): Remove Release_Deferred handling.
+	 Decrement Shutdown_Count.
+
 2005-07-12  Dmitriy Anisimkov <anisimkov@ada-ru.org>
 
 	* aws-server-protocol_handler.adb:
