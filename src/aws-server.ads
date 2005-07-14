@@ -198,10 +198,6 @@ private
       In_Shutdown,
       --  Phase when socket is marked in protected Slots for shutdown
 
-      Release_Deferred,
-      --  Phase when socket was not relased because of socket was in
-      --  In_Shutdown state
-
       Aborted,
       --  Slot was aborted by means of socket shutdown
 
@@ -331,7 +327,7 @@ private
       procedure Shutdown_Done (Index : in Positive);
       --  Called when Shutdown is complete, Slot phase is set to Aborted
 
-      procedure Release
+      entry Release
         (Index    : in     Positive;
          Shutdown :    out Boolean);
       --  Release slot number Index. Slot phase is set to Closed.
@@ -367,6 +363,8 @@ private
 
       Table : Slot_Set (1 .. N);
       Count : Natural := N;
+
+      Shutdown_Count : Natural := 0;
 
    end Slots;
 
