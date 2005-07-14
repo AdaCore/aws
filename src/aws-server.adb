@@ -622,9 +622,9 @@ package body AWS.Server is
 
             if Socket /= null then
                Net.Shutdown (Socket.all);
+               Web_Server.Slots.Shutdown_Done (S);
             end if;
 
-            Web_Server.Slots.Shutdown_Done (S);
          exception
             when others =>
                Web_Server.Slots.Shutdown_Done (S);
@@ -775,6 +775,7 @@ package body AWS.Server is
       begin
          if Table (Index).Phase not in Closed .. Aborted then
             Mark_Phase (Index, In_Shutdown);
+            Shutdown_Count := Shutdown_Count + 1;
             Socket := Table (Index).Sock;
          else
             Socket := null;
@@ -875,10 +876,7 @@ package body AWS.Server is
          --  Check if the Aborted phase happen between after socket operation
          --  and before Mark_Phase call.
 
-         if Table (Index).Phase = Release_Deferred then
-            Net.Free (Table (Index).Sock);
-
-         elsif Table (Index).Phase in In_Shutdown .. Aborted
+         if Table (Index).Phase in In_Shutdown .. Aborted
            and then Phase in Wait_For_Client .. Server_Processing
          then
             raise Net.Socket_Error;
@@ -896,10 +894,10 @@ package body AWS.Server is
       -- Release --
       -------------
 
-      procedure Release
+      entry Release
         (Index    : in     Positive;
          Shutdown :    out Boolean)
-      is
+      when Shutdown_Count = 0 is
          use type Socket_Access;
       begin
          pragma Assert (Count < N);
@@ -922,23 +920,6 @@ package body AWS.Server is
                   --  If it was aborted, we can free it here
 
                   Net.Free (Table (Index).Sock.all);
-
-               elsif Table (Index).Phase = In_Shutdown then
-                  --  We could not let caller to shutdown, and we could not
-                  --  Free the socket here  because different task is
-                  --  shutdowning socket now.
-
-                  --  We have to make a copy, because task could terminate
-                  --  when we would call Socket_Done. The socket access is
-                  --  pointing to a stack object in the line, we make sure
-                  --  that we have a copy of this object in the heap to be
-                  --  able to properly free it later.
-
-                  Table (Index).Sock
-                     := new Net.Socket_Type'Class'(Table (Index).Sock.all);
-
-                  Mark_Phase (Index, Release_Deferred);
-                  return;
 
                else
                   --  We have to shutdown socket only if it is not in state:
@@ -994,10 +975,9 @@ package body AWS.Server is
 
       procedure Shutdown_Done (Index : in Positive) is
       begin
-         if Table (Index).Phase = Release_Deferred then
-            Mark_Phase (Index, Closed);
-         elsif Table (Index).Phase = In_Shutdown then
+         if Table (Index).Phase = In_Shutdown then
             Mark_Phase (Index, Aborted);
+            Shutdown_Count := Shutdown_Count - 1;
          end if;
       end Shutdown_Done;
 
