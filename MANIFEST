@@ -1249,6 +1249,8 @@ soap/soap-name_space.adb
 soap/soap-name_space.ads
 soap/soap-parameters.adb
 soap/soap-parameters.ads
+soap/soap-types-untyped.adb
+soap/soap-types-untyped.ads
 soap/soap-types.adb
 soap/soap-types.ads
 soap/soap-utils.adb
@@ -1266,9 +1268,9 @@ templates_parser/regtests/check_mem.adb
 templates_parser/regtests/check_mem.tmplt
 templates_parser/regtests/translations_demo.adb
 templates_parser/regtests/translations_demo.out
+templates_parser/xsrc/ChangeLog
 templates_parser/xsrc/templates_parser-xml.adb
 templates_parser/xsrc/templates_parser-xml.ads
-templates_parser/xsrc/ChangeLog
 tools/ada2wsdl-generator.adb
 tools/ada2wsdl-generator.ads
 tools/ada2wsdl-main.adb
