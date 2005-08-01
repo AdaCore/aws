@@ -28,7 +28,6 @@
 
 --  $Id$
 
-with Ada.Calendar;
 with Ada.Characters.Handling;
 with Ada.Strings.Unbounded;
 with Ada.Strings.Fixed;
@@ -44,7 +43,7 @@ with Sax.Readers;
 with SOAP.Message.Reader;
 with SOAP.Message.Response.Error;
 with SOAP.Name_Space;
-with SOAP.Types;
+with SOAP.Types.Untyped;
 with SOAP.Utils;
 with SOAP.XML;
 
@@ -232,6 +231,13 @@ package body SOAP.Message.XML is
      (Name : in String;
       N    : in DOM.Core.Node)
       return Types.Object'Class;
+
+   function Parse_Untyped
+     (Name : in String;
+      N    : in DOM.Core.Node)
+      return Types.Object'Class;
+   --  Parse a node whose type is unknown. This is used to workaround the fact
+   --  that AWS parser is not aware of the WSDL schema.
 
    function Parse_Time_Instant
      (Name : in String;
@@ -464,8 +470,7 @@ package body SOAP.Message.XML is
    end Load_Response;
 
    function Load_Response
-     (XML : in String)
-      return Message.Response.Object'Class
+     (XML : in String) return Message.Response.Object'Class
    is
       use Input_Sources.Strings;
 
@@ -511,8 +516,7 @@ package body SOAP.Message.XML is
    end Load_Response;
 
    function Load_Response
-     (XML : in Unbounded_String)
-      return Message.Response.Object'Class
+     (XML : in Unbounded_String) return Message.Response.Object'Class
    is
       S : String_Access := new String (1 .. Length (XML));
    begin
@@ -919,22 +923,20 @@ package body SOAP.Message.XML is
             elsif First_Child (Ref) /= null
               and then First_Child (Ref).Node_Type = DOM.Core.Text_Node
             then
-               --  No xsi:type and no type information.
-               --  Children are some kind of text data, so this is a data node
-               --  with no type information. Note that this code is to
-               --  workaround an interoperability problem with Microsoft SOAP
+               --  No xsi:type and no type information. Children are some kind
+               --  of text data, so this is a data node with no type
+               --  information. Note that this code is to workaround an
+               --  interoperability problem found with gSOAP and Microsoft SOAP
                --  implementation based on WSDL were the type information is
                --  not provided into the payload but only on the WSDL file. As
-               --  AWS/SOAP is not WSDL compliant at this point we treat
-               --  undefined type as string values, it is up to the developper
-               --  to convert the string to the right type. Note that this
-               --  code is only there to parse data received from a SOAP
-               --  server. AWS/SOAP always send type information into the
-               --  payload.
-               --  ??? If payload xsi:type information becomes mandatory this
-               --  conditional section should be removed.
+               --  AWS/SOAP parser is not WSDL compliant at this point we
+               --  record such type as undefined. Later the value will be
+               --  converted to to right type when read by one of the
+               --  Types.Get routine. Note that this code is only there to
+               --  parse data received from a SOAP server. AWS/SOAP always send
+               --  type information into the payload.
 
-               return Parse_String (Name, Ref);
+               return Parse_Untyped (Name, Ref);
 
             else
                --  This is a type defined in a schema, either a SOAP record
@@ -1068,32 +1070,10 @@ package body SOAP.Message.XML is
       N    : in DOM.Core.Node)
       return Types.Object'Class
    is
-      use Ada.Calendar;
-
       Value : constant DOM.Core.Node := First_Child (N);
       TI    : constant String        := Node_Value (Value);
-
-      T     : Time;
    begin
-      --  timeInstant format is CCYY-MM-DDThh:mm:ss[[+|-]hh:mm | Z]
-
-      T := Time_Of (Year    => Year_Number'Value (TI (1 .. 4)),
-                    Month   => Month_Number'Value (TI (6 .. 7)),
-                    Day     => Day_Number'Value (TI (9 .. 10)),
-                    Seconds => Duration (Natural'Value (TI (12 .. 13)) * 3600
-                                           + Natural'Value (TI (15 .. 16)) * 60
-                                           + Natural'Value (TI (18 .. 19))));
-
-      if TI'Last = 19                           -- No timezone
-        or else
-          (TI'Last = 20 and then TI (20) = 'Z') -- GMT timezone
-        or else
-          TI'Last < 22                          -- No enough timezone data
-      then
-         return Types.T (T, Name);
-      else
-         return Types.T (T, Name, Types.TZ'Value (TI (20 .. 22)));
-      end if;
+      return Utils.Time_Instant (TI, Name);
    end Parse_Time_Instant;
 
    -------------------------
@@ -1151,6 +1131,32 @@ package body SOAP.Message.XML is
    begin
       return Types.US (Types.Unsigned_Short'Value (Node_Value (Value)), Name);
    end Parse_Unsigned_Short;
+
+   -------------------
+   -- Parse_Untyped --
+   -------------------
+
+   function Parse_Untyped
+     (Name : in String;
+      N    : in DOM.Core.Node)
+      return Types.Object'Class
+   is
+      use type DOM.Core.Node;
+      use type DOM.Core.Node_Types;
+
+      L : constant DOM.Core.Node_List := Child_Nodes (N);
+      S : Unbounded_String;
+      P : DOM.Core.Node;
+   begin
+      for I in 0 .. Length (L) - 1 loop
+         P := Item (L, I);
+         if P.Node_Type = DOM.Core.Text_Node then
+            Append (S, Node_Value (P));
+         end if;
+      end loop;
+
+      return Types.Untyped.S (S, Name);
+   end Parse_Untyped;
 
    -------------------
    -- Parse_Wrapper --
