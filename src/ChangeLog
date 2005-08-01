@@ -1,3 +1,55 @@
+2005-08-01  Pascal Obry  <pascal@obry.net>
+
+	* aws-net.adb:
+	Minor style fix.
+	Update copyright notice.
+
+	* aws-server-protocol_handler.adb:
+	Remove lot of routines which are now in AWS.Client.HTTP_Utils.
+	The code has been moved for the PolyORB interoperability.
+	Update copyright notice.
+	Code reorganisation contributed by Selvaratnam Senthuran.
+	Work for D609-015.
+
+	* aws-server.adb:
+	(File_Upload_UID): Move to AWS.Server.HTTP_Utils.
+	Minor reformatting.
+	Code reorganisation contributed by Selvaratnam Senthuran.
+	Work for D609-015.
+
+	* aws-server.ads:
+	Minor reformatting.
+
+	* aws-client.adb:
+	Remove lot of routines which are now in AWS.Client.HTTP_Utils.
+	The code has been moved for the PolyORB interoperability.
+	Update copyright notice.
+	Code reorganisation contributed by Selvaratnam Senthuran.
+	Work for D609-015.
+
+	* aws-client.ads:
+	(Authentication_Level): Make this type visible in the spec.
+	(Authentication_Type): Idem.
+	(Auth_Attemps_Count): Private type move here from body.
+	Minor reformatting.
+	Update copyright notice.
+	Code reorganisation contributed by Selvaratnam Senthuran.
+	Work for D609-015.
+
+	* aws-server-http_utils.ads, aws-server-http_utils.adb:
+	Initial revision.
+	This unit contains code initially in AWS.Server.Protocol_Handler.
+	The code has been moved here for the PolyORB interoperability.
+	Code reorganisation contributed by Selvaratnam Senthuran.
+	Work for D609-015.
+
+	* aws-client-http_utils.ads, aws-client-http_utils.adb:
+	Initial revision.
+	This unit contains code initially in AWS.Client. The code has been
+	 moved here for the PolyORB interoperability.
+	Code reorganisation contributed by Selvaratnam Senthuran.
+	Work for D609-015.
+
 2005-07-14  Dmitriy Anisimkov <anisimkov@ada-ru.org>
 
 	* aws-server.ads:
