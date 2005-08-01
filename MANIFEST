@@ -485,6 +485,8 @@ src/aws-attachments.adb
 src/aws-attachments.ads
 src/aws-client-hotplug.adb
 src/aws-client-hotplug.ads
+src/aws-client-http_utils.adb
+src/aws-client-http_utils.ads
 src/aws-client.adb
 src/aws-client.ads
 src/aws-communication-client.adb
@@ -586,6 +588,8 @@ src/aws-server-get_status.adb
 src/aws-server-get_status.ads
 src/aws-server-hotplug.adb
 src/aws-server-hotplug.ads
+src/aws-server-http_utils.adb
+src/aws-server-http_utils.ads
 src/aws-server-log.adb
 src/aws-server-log.ads
 src/aws-server-protocol_handler.adb
