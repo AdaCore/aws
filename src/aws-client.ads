@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2004                          --
---                               ACT-Europe                                 --
+--                         Copyright (C) 2000-2005                          --
+--                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -56,8 +56,6 @@ package AWS.Client is
    --  Number of time a data is requested from the Server if the first
    --  time fails.
 
-   type Authentication_Mode is new AWS.Response.Authentication_Mode;
-
    type Timeouts_Values is record
       Send    : Duration;
       Receive : Duration;
@@ -66,6 +64,14 @@ package AWS.Client is
 
    No_Timeout : constant Timeouts_Values;
    --  No timeout, allow infinite time to send or retrieve data
+
+   type Authentication_Mode is new AWS.Response.Authentication_Mode;
+
+   type Authentication_Level is private;
+
+   type Authentication_Type is private;
+
+   type Auth_Attempts_Count is private;
 
    --------------
    -- Messages --
@@ -81,7 +87,7 @@ package AWS.Client is
       Timeouts           : in Timeouts_Values := No_Timeout;
       Follow_Redirection : in Boolean         := False)
       return Response.Data;
-   --  retrieve the message data given a specific URL. It open a connection
+   --  Retrieve the message data given a specific URL. It open a connection
    --  with the server and ask for the resource specified in the URL it then
    --  return it in the Response.Data structure.
    --  If User/Pwd are given then it uses it to access the URL.
@@ -395,6 +401,9 @@ private
 
    type Authentication_Set is
      array (Authentication_Level) of Authentication_Type;
+
+   type Auth_Attempts_Count is
+     array (Authentication_Level) of Natural range 0 .. 2;
 
    type Transfer_Type is
      (None,           -- Connection is not in transfer state
