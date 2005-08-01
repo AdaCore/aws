@@ -39,6 +39,7 @@ with Ada.Unchecked_Deallocation;
 with AWS.Utils;
 with GNAT.Calendar.Time_IO;
 
+with SOAP.Types.Untyped;
 with SOAP.Utils;
 
 package body SOAP.Types is
@@ -256,6 +257,14 @@ package body SOAP.Types is
       if O'Tag = Types.XSD_Long'Tag then
          return V (XSD_Long (O));
 
+      elsif O'Tag = Types.Untyped.Untyped'Tag then
+         begin
+            return Long'Value (V (XSD_String (O)));
+         exception
+            when others =>
+               Get_Error ("Long", O);
+         end;
+
       elsif O'Tag = Types.XSD_Any_Type'Tag
         and then XSD_Any_Type (O).O.O'Tag = Types.XSD_Long'Tag
       then
@@ -271,6 +280,14 @@ package body SOAP.Types is
    begin
       if O'Tag = Types.XSD_Integer'Tag then
          return V (XSD_Integer (O));
+
+      elsif O'Tag = Types.Untyped.Untyped'Tag then
+         begin
+            return Integer'Value (V (XSD_String (O)));
+         exception
+            when others =>
+               Get_Error ("Integer", O);
+         end;
 
       elsif O'Tag = Types.XSD_Any_Type'Tag
         and then XSD_Any_Type (O).O.O'Tag = Types.XSD_Integer'Tag
@@ -288,6 +305,14 @@ package body SOAP.Types is
       if O'Tag = Types.XSD_Short'Tag then
          return V (XSD_Short (O));
 
+      elsif O'Tag = Types.Untyped.Untyped'Tag then
+         begin
+            return Short'Value (V (XSD_String (O)));
+         exception
+            when others =>
+               Get_Error ("Short", O);
+         end;
+
       elsif O'Tag = Types.XSD_Any_Type'Tag
         and then XSD_Any_Type (O).O.O'Tag = Types.XSD_Short'Tag
       then
@@ -303,6 +328,14 @@ package body SOAP.Types is
    begin
       if O'Tag = Types.XSD_Byte'Tag then
          return V (XSD_Byte (O));
+
+      elsif O'Tag = Types.Untyped.Untyped'Tag then
+         begin
+            return Byte'Value (V (XSD_String (O)));
+         exception
+            when others =>
+               Get_Error ("Byte", O);
+         end;
 
       elsif O'Tag = Types.XSD_Any_Type'Tag
         and then XSD_Any_Type (O).O.O'Tag = Types.XSD_Byte'Tag
@@ -320,6 +353,14 @@ package body SOAP.Types is
       if O'Tag = Types.XSD_Float'Tag then
          return V (XSD_Float (O));
 
+      elsif O'Tag = Types.Untyped.Untyped'Tag then
+         begin
+            return Long_Float'Value (V (XSD_String (O)));
+         exception
+            when others =>
+               Get_Error ("Float", O);
+         end;
+
       elsif O'Tag = Types.XSD_Any_Type'Tag
         and then XSD_Any_Type (O).O.O'Tag = Types.XSD_Float'Tag
       then
@@ -336,6 +377,14 @@ package body SOAP.Types is
       if O'Tag = Types.XSD_Double'Tag then
          return V (XSD_Double (O));
 
+      elsif O'Tag = Types.Untyped.Untyped'Tag then
+         begin
+            return Long_Long_Float'Value (V (XSD_String (O)));
+         exception
+            when others =>
+               Get_Error ("Double", O);
+         end;
+
       elsif O'Tag = Types.XSD_Any_Type'Tag
         and then XSD_Any_Type (O).O.O'Tag = Types.XSD_Double'Tag
       then
@@ -349,7 +398,9 @@ package body SOAP.Types is
    function Get (O : in Object'Class) return String is
       use type Ada.Tags.Tag;
    begin
-      if O'Tag = Types.XSD_String'Tag then
+      if O'Tag = Types.XSD_String'Tag
+        or else O'Tag = Types.Untyped.Untyped'Tag
+      then
          return V (XSD_String (O));
 
       elsif O'Tag = Types.XSD_Any_Type'Tag
@@ -365,7 +416,9 @@ package body SOAP.Types is
    function Get (O : in Object'Class) return Unbounded_String is
       use type Ada.Tags.Tag;
    begin
-      if O'Tag = Types.XSD_String'Tag then
+      if O'Tag = Types.XSD_String'Tag
+        or else O'Tag = Types.Untyped.Untyped'Tag
+      then
          return V (XSD_String (O));
 
       elsif O'Tag = Types.XSD_Any_Type'Tag
@@ -384,6 +437,14 @@ package body SOAP.Types is
       if O'Tag = Types.XSD_Boolean'Tag then
          return V (XSD_Boolean (O));
 
+      elsif O'Tag = Types.Untyped.Untyped'Tag then
+         begin
+            return Boolean'Value (V (XSD_String (O)));
+         exception
+            when others =>
+               Get_Error ("Boolean", O);
+         end;
+
       elsif O'Tag = Types.XSD_Any_Type'Tag
         and then XSD_Any_Type (O).O.O'Tag = Types.XSD_Boolean'Tag
       then
@@ -399,6 +460,14 @@ package body SOAP.Types is
    begin
       if O'Tag = Types.XSD_Time_Instant'Tag then
          return V (XSD_Time_Instant (O));
+
+      elsif O'Tag = Types.Untyped.Untyped'Tag then
+         begin
+            return V (Utils.Time_Instant (V (XSD_String (O)), Name (O)));
+         exception
+            when others =>
+               Get_Error ("timeInstant", O);
+         end;
 
       elsif O'Tag = Types.XSD_Any_Type'Tag
         and then XSD_Any_Type (O).O.O'Tag = Types.XSD_Time_Instant'Tag
@@ -416,6 +485,14 @@ package body SOAP.Types is
       if O'Tag = Types.XSD_Unsigned_Long'Tag then
          return V (XSD_Unsigned_Long (O));
 
+      elsif O'Tag = Types.Untyped.Untyped'Tag then
+         begin
+            return Unsigned_Long'Value (V (XSD_String (O)));
+         exception
+            when others =>
+               Get_Error ("Unsigned_Long", O);
+         end;
+
       elsif O'Tag = Types.XSD_Any_Type'Tag
         and then XSD_Any_Type (O).O.O'Tag = Types.XSD_Unsigned_Long'Tag
       then
@@ -431,6 +508,14 @@ package body SOAP.Types is
    begin
       if O'Tag = Types.XSD_Unsigned_Int'Tag then
          return V (XSD_Unsigned_Int (O));
+
+      elsif O'Tag = Types.Untyped.Untyped'Tag then
+         begin
+            return Unsigned_Int'Value (V (XSD_String (O)));
+         exception
+            when others =>
+               Get_Error ("Unsigned_Int", O);
+         end;
 
       elsif O'Tag = Types.XSD_Any_Type'Tag
         and then XSD_Any_Type (O).O.O'Tag = Types.XSD_Unsigned_Int'Tag
@@ -448,6 +533,14 @@ package body SOAP.Types is
       if O'Tag = Types.XSD_Unsigned_Short'Tag then
          return V (XSD_Unsigned_Short (O));
 
+      elsif O'Tag = Types.Untyped.Untyped'Tag then
+         begin
+            return Unsigned_Short'Value (V (XSD_String (O)));
+         exception
+            when others =>
+               Get_Error ("Unsigned_Short", O);
+         end;
+
       elsif O'Tag = Types.XSD_Any_Type'Tag
         and then XSD_Any_Type (O).O.O'Tag = Types.XSD_Unsigned_Short'Tag
       then
@@ -464,6 +557,14 @@ package body SOAP.Types is
       if O'Tag = Types.XSD_Unsigned_Byte'Tag then
          return V (XSD_Unsigned_Byte (O));
 
+      elsif O'Tag = Types.Untyped.Untyped'Tag then
+         begin
+            return Unsigned_Byte'Value (V (XSD_String (O)));
+         exception
+            when others =>
+               Get_Error ("Unsigned_Byte", O);
+         end;
+
       elsif O'Tag = Types.XSD_Any_Type'Tag
         and then XSD_Any_Type (O).O.O'Tag = Types.XSD_Unsigned_Byte'Tag
       then
@@ -479,6 +580,9 @@ package body SOAP.Types is
    begin
       if O'Tag = Types.SOAP_Base64'Tag then
          return SOAP_Base64 (O);
+
+      elsif O'Tag = Types.Untyped.Untyped'Tag then
+         return B64 (V (XSD_String (O)), Name (O));
 
       elsif O'Tag = Types.XSD_Any_Type'Tag
         and then XSD_Any_Type (O).O.O'Tag = Types.SOAP_Base64'Tag
