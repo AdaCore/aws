@@ -30,8 +30,6 @@
 
 with Ada.Calendar;
 with Ada.Exceptions;
-with Ada.Strings.Fixed;
-with Ada.Strings.Maps;
 with Ada.Task_Attributes;
 with Ada.Text_IO;
 with Ada.Unchecked_Deallocation;
@@ -41,7 +39,6 @@ with AWS.Dispatchers.Callback;
 with AWS.Log;
 with AWS.Messages;
 with AWS.MIME;
-with AWS.Net.Buffered;
 with AWS.Net.SSL;
 with AWS.OS_Lib;
 with AWS.Server.Log;
@@ -65,14 +62,6 @@ package body AWS.Server is
 
    procedure Free is new Ada.Unchecked_Deallocation
      (Dispatchers.Handler'Class, Dispatchers.Handler_Class_Access);
-
-   protected File_Upload_UID is
-      procedure Get (ID : out Natural);
-      --  returns a UID for file upload. This is to ensure that files
-      --  coming from clients will always have different name.
-   private
-      UID : Natural := 0;
-   end File_Upload_UID;
 
    procedure Start
      (Web_Server : in out HTTP;
@@ -105,9 +94,7 @@ package body AWS.Server is
       --  Accepted only when counter is equal to 0 (no more active server)
 
    private
-
       C : Natural := 0;
-
    end Counter;
 
    package Line_Attribute is
@@ -275,24 +262,6 @@ package body AWS.Server is
       end if;
    end Default_Unexpected_Exception_Handler;
 
-   ---------------------
-   -- File_Upload_UID --
-   ---------------------
-
-   protected body File_Upload_UID is
-
-      ---------
-      -- Get --
-      ---------
-
-      procedure Get (ID : out Natural) is
-      begin
-         ID  := UID;
-         UID := UID + 1;
-      end Get;
-
-   end File_Upload_UID;
-
    --------------
    -- Finalize --
    --------------
@@ -346,10 +315,8 @@ package body AWS.Server is
    ----------
 
    task body Line is
-
       HTTP_Server : HTTP_Access;
       Slot_Index  : Positive;
-
    begin
 
       select
@@ -897,7 +864,8 @@ package body AWS.Server is
       entry Release
         (Index    : in     Positive;
          Shutdown :    out Boolean)
-      when Shutdown_Count = 0 is
+        when Shutdown_Count = 0
+      is
          use type Socket_Access;
       begin
          pragma Assert (Count < N);
