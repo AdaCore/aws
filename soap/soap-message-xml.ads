@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2004                          --
---                                ACT-Europe                                --
+--                         Copyright (C) 2000-2005                          --
+--                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -39,9 +39,7 @@ package SOAP.Message.XML is
 
    use Ada.Strings.Unbounded;
 
-   function Load_Payload
-     (XML : in String)
-      return Message.Payload.Object;
+   function Load_Payload (XML : in String) return Message.Payload.Object;
    --  Build a Payload object by parsing the XML payload string
 
    function Load_Response
@@ -51,14 +49,12 @@ package SOAP.Message.XML is
    --  response) by parsing the HTTP client connection output.
 
    function Load_Response
-     (XML : in String)
-      return Message.Response.Object'Class;
+     (XML : in String) return Message.Response.Object'Class;
    --  Build a Response object (either a standard response or an error
    --  response) by parsing the XML response string.
 
    function Load_Response
-     (XML : in Unbounded_String)
-     return Message.Response.Object'Class;
+     (XML : in Unbounded_String) return Message.Response.Object'Class;
    --  As above but using an Unbounded_String
 
    function Image (O : in Object'Class) return String;
