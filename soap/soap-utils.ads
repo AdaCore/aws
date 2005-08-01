@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2004                          --
---                                ACT-Europe                                --
+--                         Copyright (C) 2000-2005                          --
+--                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -58,6 +58,9 @@ package SOAP.Utils is
 
    function Is_Ada_Reserved_Word (Name : in String) return Boolean;
    --  Returns True if Name is an Ada reserved word
+
+   function Time_Instant (TI, Name : in String) return Types.XSD_Time_Instant;
+   --  Returns the timeInstant given an string encoded time
 
    ----------------------------------
    -- Basic_8bit string conversion --
@@ -152,7 +155,8 @@ package SOAP.Utils is
       return Types.XSD_Any_Type;
    --  Return V with the given name
 
-   function US     (V    : in Unbounded_String;
+   function US
+     (V    : in Unbounded_String;
       Name : in String  := "item")
       return Types.XSD_String;
    --  Returns the SOAP string for the given Unbounded_String value and name

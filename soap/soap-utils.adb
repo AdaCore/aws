@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2004                          --
---                                ACT-Europe                                --
+--                         Copyright (C) 2000-2005                          --
+--                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -28,6 +28,7 @@
 
 --  $Id$
 
+with Ada.Calendar;
 with Ada.Strings.Fixed;
 with Ada.Strings.Unbounded;
 with Ada.Unchecked_Deallocation;
@@ -313,6 +314,37 @@ package body SOAP.Utils is
          return "</" & Name & '>';
       end if;
    end Tag;
+
+   ------------------
+   -- Time_Instant --
+   ------------------
+
+   function Time_Instant
+     (TI, Name : in String) return Types.XSD_Time_Instant
+   is
+      use Ada.Calendar;
+      T : Time;
+   begin
+      --  timeInstant format is CCYY-MM-DDThh:mm:ss[[+|-]hh:mm | Z]
+
+      T := Time_Of (Year    => Year_Number'Value (TI (1 .. 4)),
+                    Month   => Month_Number'Value (TI (6 .. 7)),
+                    Day     => Day_Number'Value (TI (9 .. 10)),
+                    Seconds => Duration (Natural'Value (TI (12 .. 13)) * 3600
+                                           + Natural'Value (TI (15 .. 16)) * 60
+                                           + Natural'Value (TI (18 .. 19))));
+
+      if TI'Last = 19                           -- No timezone
+        or else
+          (TI'Last = 20 and then TI (20) = 'Z') -- GMT timezone
+        or else
+          TI'Last < 22                          -- No enough timezone data
+      then
+         return Types.T (T, Name);
+      else
+         return Types.T (T, Name, Types.TZ'Value (TI (20 .. 22)));
+      end if;
+   end Time_Instant;
 
    -------------------
    -- To_Object_Set --
