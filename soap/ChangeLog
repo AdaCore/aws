@@ -1,3 +1,42 @@
+2005-08-01  Pascal Obry  <pascal@obry.net>
+
+	* soap-message-xml.adb:
+	(Parse_Untyped): New routine which returns an Untyped object.
+	(Parse_Param): If no xsi:type found call Parse_Untyped. Update
+	 comments about this case.
+	(Parse_Time_Instant): Use SOAP.Utils.Time_Instant.
+	Minor reformatting.
+	Update copyright notice.
+	Work for E708-002.
+	
+	* soap-message-xml.ads:
+	Minor reformatting.
+	Update copyright notice.
+
+	* soap-types-untyped.ads, soap-types-untyped.adb:
+	Initial revision.
+	Used to record untyped value as string.
+	This is an internal unit and should not be used by end-users.
+	Work for E708-002.
+
+	* soap-types.adb:
+	(Get) [*]: Check in every Get routine for an Untyped object. If
+	 such object is found we convert the untyped (string) value to the
+	 corresponding type. This circuitry is used in the when the
+	 payload does not contains the xsi:type information. In such cases
+	 the type can be determined in the WSDL document. At this stage
+	 AWS does not have access to the WSDL schema at runtime. This
+	 implementation will bring better interoperability with other SOAP
+	 implementations like gSOAP and Microsoft .NET.
+	Work for E708-002.
+
+	* soap-utils.ads, soap-utils.adb:
+	(Time_Instant): New routine to convert a SOAP time instant string
+	 to an XSD_Time_Instant. The code comes from SOAP.Message.XML and
+	 is moved here because it is shared with SOAP.Types.
+	Update copyright notice.
+	Work for E708-002.
+	
 2005-06-22  Pascal Obry  <pascal@obry.net>
 
 	* soap-types.ads, soap-types.adb:
