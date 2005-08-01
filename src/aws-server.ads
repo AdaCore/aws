@@ -182,7 +182,7 @@ private
       Log    : in out AWS.Log.Object;
       Error  : in     Exceptions.Data;
       Answer : in out Response.Data);
-   --  Default unexpected exception handler.
+   --  Default unexpected exception handler
 
    procedure Socket_Taken (Flag : in Boolean);
    --  Mark socket of the cureent line of the current server taken
