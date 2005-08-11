@@ -2,7 +2,7 @@
 --                              Ada Web Server                              --
 --                                                                          --
 --                          Copyright (C) 2004-2005                         --
---                                ACT-Europe                                --
+--                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -84,7 +84,7 @@ procedure Gen_GPS_Ref is
    begin
       Put_Line ("<?xml version=""1.0"" ?>");
       Put_Line ("<!-- This is a GPS Help support file with AWS's API");
-      Put_Line ("  -- Just copy this file into ~/.gps/customize -->");
+      Put_Line ("     Just copy this file into ~/.gps/customize -->");
       Put_Line ("<doc>");
       Put_Line ("   <submenu before=""About"" action = """">");
       Put_Line ("      <title>/Help/AWS API</title>");
