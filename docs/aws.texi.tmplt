@@ -356,12 +356,6 @@ Note that it should be possible to use @code{XML/Ada} 1.0 but in this
 case you'll have to create the set of project files yourself.
 
 @noindent
-The last step is to to add directory @file{<prefix>/AWS/.build/projects} at
-the end of @var{ADA_PROJECT_PATH} variable. This directory contains
-generated project files for packages that are not yet based on GNAT
-Project files.
-
-@noindent
 At this point you can build @code{AWS} with:
 
 @cartouche

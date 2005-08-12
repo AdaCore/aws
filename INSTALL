@@ -8,13 +8,6 @@ Building a release
 To build AWS you need to change some settings in the top level 
 makefile.conf file.
 
-You also need to set ADA_PROJECT_PATH to at least point to .build/projects,
-you also need to set it properly if you use XML/Ada for example.
-
-   $ export ADA_PROJECT_PATH=<aws_root>/.build/projects
-
-<aws_root> refer to the AWS source build directory not the install directory.
-
 If you have XML/Ada installed and plan to build AWS with SOAP support you must
 be sure that ADA_PROJECT_PATH point to the XML/Ada projects. See XML/Ada
 documentation.
@@ -35,5 +28,5 @@ Building from CVS
 
 If you got the AWS sources from CVS you'll need to adjust the
 templates_parser/templates_parser.gpr file to build with XML/Ada support.
-For now this needs to be done manually. If you have XML/Ada installed you can
-uncomment the 'with "xmlada";' line.
+For now this needs to be done manually. If you have XML/Ada installed you
+can uncomment the 'with "xmlada";' line.
