@@ -26,6 +26,14 @@ endif
 # NO NEED TO CHANGE ANYTHING PAST THIS POINT
 #############################################################################
 
+APP := $(ADA_PROJECT_PATH)
+
+ifeq (${OS}, Windows_NT)
+export ADA_PROJECT_PATH = $(PWD)/.build/projects\;${APP}
+else
+export ADA_PROJECT_PATH = $(PWD)/.build/projects:${APP}
+endif
+
 all:
 	echo ""
 	echo "Targets :"
