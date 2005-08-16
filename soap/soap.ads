@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2004                          --
---                                ACT-Europe                                --
+--                         Copyright (C) 2000-2005                          --
+--                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -37,7 +37,7 @@ package SOAP is
    --  Will be raised when an error occurs in the SOAP implementation. The
    --  exception message will described the problem.
 
-   Version : constant String := "1.3";
+   Version : constant String := "1.4";
    --  Version number for this implementation
 
    No_SOAPAction : constant String := (1 => ASCII.Nul);
