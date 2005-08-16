@@ -1,3 +1,13 @@
+2005-08-16  Pascal Obry  <pascal@obry.net>
+
+	* src/check_config.c:
+	Update to output file in UNIX format. The file is written on disk
+	 and not sent to the standard ouput where it is not possible to
+	 avoid the CR+LF on Windows.
+
+	* makefile:
+	Change call to check_config accordingly.
+
 2005-07-04  Dmitriy Anisimkov <anisimkov@ada-ru.org>
 
 	* src/check_config.c:

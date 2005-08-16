@@ -1,3 +1,9 @@
+2005-08-16  Pascal Obry  <pascal@obry.net>
+
+	* soap.ads:
+	(Version): Bump to 1.4.
+	Update copyright header.
+
 2005-08-01  Pascal Obry  <pascal@obry.net>
 
 	* soap-message-xml.adb:
