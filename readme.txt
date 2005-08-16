@@ -1,10 +1,10 @@
 
 			    A W S - Ada Web Server
-			    2.2 release / SOAP 1.3
+			    2.2 release / SOAP 1.4
 
 Authors:
    Dmitriy Anisimkov
-   Pascal Obry                                                 June 27th, 2005
+   Pascal Obry                                               August 16th, 2005
 
 
 
@@ -76,6 +76,20 @@ Here are the main changes since AWS 2.1 :
 
    - Change Templates_Parser Release routine to use less stack space. Fixes a
      problem found on FreeBSD.
+
+   - Simplify a bit the build procedure as it is not needed to set the
+     ADA_PROJECT_PATH to the <aws_root>/.build/projects directory.
+
+   - Work as been done in AWS architecture for better interoperability with
+     PolyORB.
+
+   - Fix SOAP/WSDL interoperability problem when the xsi:type information was
+     not present in the payload. This has been tested against gSOAP
+     implementation.
+
+   - MIME.Content_Type routine has now a default parameter. It is possible to
+     specify something else than the application/octet-stream default mime
+     type.
 
    - Plus many small fixes, enhancements, API comments, and documentation work.
 
