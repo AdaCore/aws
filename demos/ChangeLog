@@ -1,3 +1,10 @@
+2005-08-29  Pascal Obry  <pascal@obry.net>
+
+	* runme.adb:
+        Properly enable file uploading for the non-secure server.
+	Minor reformatting.
+        Update copyright notice.
+
 2005-06-15  Pascal Obry  <pascal@obry.net>
 
 	* hello.wsdl, interoplab_main.wsdl:
