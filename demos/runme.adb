@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2001                          --
---                                ACT-Europe                                --
+--                         Copyright (C) 2000-2005                          --
+--                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -73,18 +73,21 @@ begin
    Text_IO.Put_Line ("AWS " & AWS.Version);
    Text_IO.Put_Line ("Enter 'q' key to exit...");
 
-   AWS.Server.Start (WSS, "Runme Secure",
-                     Max_Connection => 3,
-                     Port           => 4433,
-                     Security       => True,
-                     Callback       => Runme_CB.Service_Sec'Access);
+   AWS.Server.Start
+     (WSS, "Runme Secure",
+      Max_Connection   => 3,
+      Port             => 4433,
+      Security         => True,
+      Callback         => Runme_CB.Service_Sec'Access);
 
-   AWS.Server.Start (WS, "Runme",
-                     Max_Connection => 3,
-                     Admin_URI      => "/Admin-Page",
-                     Port           => 1234,
-                     Session        => True,
-                     Callback       => Runme_CB.Service'Access);
+   AWS.Server.Start
+     (WS, "Runme",
+      Max_Connection   => 3,
+      Admin_URI        => "/Admin-Page",
+      Port             => 1234,
+      Session          => True,
+      Callback         => Runme_CB.Service'Access,
+      Upload_Directory => ".");
 
    AWS.Server.Log.Start (WS, Split_Mode => AWS.Log.Daily);
    AWS.Server.Log.Start (WSS, Filename_Prefix => "runme-secure");
