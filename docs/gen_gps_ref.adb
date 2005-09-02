@@ -84,7 +84,7 @@ procedure Gen_GPS_Ref is
    begin
       Put_Line ("<?xml version=""1.0"" ?>");
       Put_Line ("<!-- This is a GPS Help support file with AWS's API");
-      Put_Line ("     Just copy this file into ~/.gps/customize -->");
+      Put_Line ("     Just copy this file into ~/.gps/plug-ins -->");
       Put_Line ("<doc>");
       Put_Line ("   <submenu before=""About"" action = """">");
       Put_Line ("      <title>/Help/AWS API</title>");
@@ -184,7 +184,8 @@ procedure Gen_GPS_Ref is
            ("      <shell>Editor.edit """
             & (-API (K).Filename) & """</shell>");
          Put_Line ("      <descr>" & (-API (K).API_Name) & "</descr>");
-         Put_Line ("      <menu>/Help/AWS API/" & Get_Menu (K) & "</menu>");
+         Put_Line ("      <menu>/Help/AWS/AWS API/"
+                     & Get_Menu (K) & "</menu>");
          Put_Line ("      <category>AWS API</category>");
          Put_Line ("   </documentation_file>");
       end loop;
