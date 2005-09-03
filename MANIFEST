@@ -124,6 +124,7 @@ docs/build.adb
 docs/docs.gpr
 docs/gen_gps_ref.adb
 docs/gentexifile
+docs/gps_index.xml
 docs/makefile
 docs/openssl.license
 docs/style-guide.texi
