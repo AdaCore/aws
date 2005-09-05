@@ -1,3 +1,8 @@
+2005-09-05  Dmitriy Anisimkov <anisimkov@ada-ru.org>
+
+	* zlib/*:
+	Synchronize with zlib 1.2.3 releaze.
+
 2005-02-16  Pascal Obry  <pascal@obry.org>
 
 	* makefile:
@@ -30,7 +35,7 @@
 
 2004-10-06  Pascal Obry  <pascal@obry.org>
 
-	* ai302*, charles*: 
+	* ai302*, charles*:
 	Move all ai302 files into ai302 sub-directory to be able to use an
 	 external AI302 installation.
 
