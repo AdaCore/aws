@@ -82,7 +82,7 @@ package AWS.Log is
      (Log            : in out Object;
       Connect_Stat   : in     Status.Data;
       Status_Code    : in     Messages.Status_Code;
-      Content_Length : in     Natural);
+      Content_Length : in     Response.Content_Length_Type);
    --  Write log info if activated (i.e. Start routine above has been called).
    --  This version separated the Content_Length from Status.Data, this is
    --  required for example in the case of a user defined stream content. See

@@ -253,12 +253,23 @@ package body AWS.Log is
      (Log            : in out Object;
       Connect_Stat   : in     Status.Data;
       Status_Code    : in     Messages.Status_Code;
-      Content_Length : in     Natural) is
+      Content_Length : in     Response.Content_Length_Type)
+   is
+      function Length_Image return String;
+      pragma Inline (Length_Image);
+
+      function Length_Image return String is
+      begin
+         if Content_Length = Response.Undefined_Length then
+            return "";
+         else
+            return Utils.Image (Content_Length);
+         end if;
+      end Length_Image;
+
    begin
-      Write (Log, Connect_Stat,
-             Messages.Image (Status_Code)
-               & ' '
-               & Utils.Image (Content_Length));
+      Write
+        (Log, Connect_Stat, Messages.Image (Status_Code) & ' ' & Length_Image);
    end Write;
 
    procedure Write
