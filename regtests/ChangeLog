@@ -2,7 +2,7 @@
 
 	* strm.adb, strm.out:
 	Add test for header answer with undefined responce length.
-	Add UEH routine for show unexpected exceptions.
+	Add UEH routine for to unexpected exceptions.
 	Update copyright years.
 	Reorder "with" part.
 
