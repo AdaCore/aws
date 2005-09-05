@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2004                          --
+--                         Copyright (C) 2000-2005                          --
 --                               ACT-Europe                                 --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -36,12 +36,13 @@ with Ada.Text_IO;
 with Ada.Exceptions;
 with Ada.Streams;
 
-with AWS.Server.Log;
 with AWS.Client;
-with AWS.Status;
-with AWS.MIME;
-with AWS.Response;
+with AWS.Exceptions;
+with AWS.Log;
 with AWS.Messages;
+with AWS.Response;
+with AWS.Server.Log;
+with AWS.Status;
 
 with AWS.Resources.Streams;
 
@@ -54,6 +55,12 @@ procedure Strm is
    use AWS;
 
    function CB (Request : in Status.Data) return Response.Data;
+
+   procedure UEH
+     (E      : in     Ada.Exceptions.Exception_Occurrence;
+      Log    : in out AWS.Log.Object;
+      Error  : in     AWS.Exceptions.Data;
+      Answer : in out Response.Data);
 
    procedure Compare_Message;
 
@@ -117,6 +124,9 @@ procedure Strm is
 
    task body Server is
    begin
+      AWS.Server.Set_Unexpected_Exception_Handler
+        (HTTP, UEH'Unrestricted_Access);
+
       AWS.Server.Start
         (HTTP, "Testing user defined stream.",
          CB'Unrestricted_Access, Port => 1238, Max_Connection => 3);
@@ -128,7 +138,7 @@ procedure Strm is
 
    exception
       when E : others =>
-         Put_Line ("Server Error " & Exceptions.Exception_Information (E));
+         Put_Line ("Server Error " & Ada.Exceptions.Exception_Information (E));
    end Server;
 
    ---------------------
@@ -165,6 +175,17 @@ procedure Strm is
       end if;
    end Compare_Message;
 
+   procedure UEH
+     (E      : in     Ada.Exceptions.Exception_Occurrence;
+      Log    : in out AWS.Log.Object;
+      Error  : in     AWS.Exceptions.Data;
+      Answer : in out Response.Data)
+   is
+      pragma Unreferenced (Log, Error, Answer);
+   begin
+      Put_Line (Ada.Exceptions.Exception_Information (E));
+   end UEH;
+
 begin
    Server.Wait_Start;
 
@@ -187,6 +208,14 @@ begin
    Client.Get (Connect, R, GZip_URI);
    Compare_Message;
 
+   --  Test for header answer with undefined responce length.
+
+   Client.Head (Connect, R, Length_Undefined_URI);
+   Put_Line
+     (Messages.Status_Code'Image (Response.Status_Code (R))
+      & ' ' & Response.Content_Type (R)
+      & ' ' & Integer'Image (Response.Content_Length (R)));
+
    Client.Close (Connect);
 
    --  Non keep-alive test.
@@ -208,5 +237,5 @@ begin
 exception
    when E : others =>
       Server.Stop;
-      Put_Line ("Main Error " & Exceptions.Exception_Information (E));
+      Put_Line ("Main Error " & Ada.Exceptions.Exception_Information (E));
 end Strm;
