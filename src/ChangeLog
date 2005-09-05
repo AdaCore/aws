@@ -4,6 +4,7 @@
 	(Write): Type of Content_Length parameter is Response.Content_Length_Type.
 	 Do not try to show Undefined_Length in log file, Constraint_Error would
 	 occur. ??? Maybe we should write something in this case.
+	Update copyright years.
 
 2005-08-01  Pascal Obry  <pascal@obry.net>
 
