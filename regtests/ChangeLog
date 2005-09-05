@@ -1,3 +1,11 @@
+2005-09-05  Dmitriy Anisimkov <anisimkov@ada-ru.org>
+
+	* strm.adb, strm.out:
+	Add test for header answer with undefined responce length.
+	Add UEH routine for show unexpected exceptions.
+	Update copyright years.
+	Reorder "with" part.
+
 2005-07-13  Dmitriy Anisimkov <anisimkov@ada-ru.org>
 
 	* zopen.adb:
