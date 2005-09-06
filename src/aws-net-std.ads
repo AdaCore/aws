@@ -105,6 +105,9 @@ package AWS.Net.Std is
 
    function Peer_Addr (Socket : in Socket_Type) return String;
 
+   function Get_Port (Socket : in Socket_Type) return Positive;
+   --  Return port number of the socket.
+
    function Host_Name return String;
 
    procedure Set_Send_Buffer_Size

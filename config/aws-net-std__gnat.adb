@@ -296,6 +296,18 @@ package body AWS.Net.Std is
       end if;
    end Get_Inet_Addr;
 
+   --------------
+   -- Get_Port --
+   --------------
+
+   function Get_Port (Socket : in Socket_Type) return Positive is
+   begin
+      return Positive (Sockets.Get_Socket_Name (Socket.S.FD).Port);
+   exception
+      when E : Sockets.Socket_Error =>
+         Raise_Exception (E, "Get_Port");
+   end Get_Port;
+
    -----------------------------
    -- Get_Receive_Buffer_Size --
    -----------------------------
