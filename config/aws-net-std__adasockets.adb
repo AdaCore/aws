@@ -70,7 +70,7 @@ package body AWS.Net.Std is
 
    function Get_Addr_Info
      (Host  : in String;
-      Port  : in Positive;
+      Port  : in Natural;
       Flags : in Interfaces.C.int := 0)
       return OSD.Addr_Info_Access;
    --  Returns the inet address information for the given host and port.
@@ -271,7 +271,7 @@ package body AWS.Net.Std is
 
    function Get_Addr_Info
      (Host  : in String;
-      Port  : in Positive;
+      Port  : in Natural;
       Flags : in Interfaces.C.int := 0)
       return OSD.Addr_Info_Access
    is
@@ -324,6 +324,18 @@ package body AWS.Net.Std is
    begin
       return Integer (Sockets.Get_FD (Socket.S.FD));
    end Get_FD;
+
+   --------------
+   -- Get_Port --
+   --------------
+
+   function Get_Port (Socket : in Socket_Type) return Positive is
+   begin
+      return Sockets.Naming.Get_Sock_Port (Socket.S.FD);
+   exception
+      when E : Sockets.Naming.Naming_Error =>
+         Raise_Exception (E, "Get_Port");
+   end Get_Port;
 
    -----------------------------
    -- Get_Receive_Buffer_Size --
