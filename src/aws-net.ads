@@ -80,6 +80,9 @@ package AWS.Net is
       Host   : in     String := "")
       is abstract;
    --  Bind a socket on a given port, Create a server socket if necessary
+   --  Using 0 for the port will tell the OS to allocate a non-privileged
+   --  free port. The port can be later retrieved using Get_Port on the
+   --  bound socket.
 
    procedure Listen
      (Socket     : in Socket_Type;
@@ -107,6 +110,9 @@ package AWS.Net is
    --  not waiting for the connection to be establised. It is possible to wait
    --  for the Connection completion by calling Wait routine with Output set to
    --  True in Events parameter.
+
+   procedure Socket_Pair (S1, S2 : out Socket_Type);
+   --  Create 2 sockets and connect them together.
 
    procedure Shutdown (Socket : in Socket_Type) is abstract;
    --  Shutdown both side of the socket and close it. Does not raise
@@ -172,6 +178,9 @@ package AWS.Net is
    function Peer_Addr (Socket : in Socket_Type) return String
      is abstract;
    --  Returns the peer name/address
+
+   function Get_Port (Socket : in Socket_Type) return Positive is abstract;
+   --  Return port number of the socket.
 
    function Host_Name return String;
    --  Returns the running host name
