@@ -1,3 +1,16 @@
+2005-09-06  Dmitriy Anisimkov <anisimkov@ada-ru.org>
+
+	* aws-net.ads:
+	(Get_Port): New abstract routine.
+	(Socket_Pair): New routine.
+	(Bind): Add comment about 0 value in Port parameter.
+
+	* aws-net.adb, aws-net-ssl.ads, aws-net-ssl.adb:
+	(Socket_Pair): New routine.
+
+	* aws-net-std.ads:
+	(Get_Port): New routine.
+
 2005-09-05  Dmitriy Anisimkov <anisimkov@ada-ru.org>
 
 	* aws-log.ads, aws-log.adb:

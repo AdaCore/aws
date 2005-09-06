@@ -1,3 +1,18 @@
+2005-09-06  Dmitriy Anisimkov <anisimkov@ada-ru.org>
+
+	* aws-net-std__gnat.adb:
+	(Get_Port): New routine.
+
+	* aws-net-std__adasockets.adb:
+	(Get_Addr_Info): Port parameter become Natural, was Positive.
+	(Get_Port): New routine.
+
+	* aws-net-std__ipv6.adb:
+	(Get_Addr_Info): Port parameter become Natural, was Positive.
+	(Get_Port): New routine.
+	(In6_Addr): Moved from Peer_Addr into library level.
+	(Sockaddr_In6): Moved from Peer_Addr into library level.
+
 2005-08-16  Pascal Obry  <pascal@obry.net>
 
 	* src/check_config.c:
