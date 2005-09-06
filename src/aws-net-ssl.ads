@@ -67,6 +67,9 @@ package AWS.Net.SSL is
    --  SSL handshake. It is possible to wait for the Connection completion by
    --  calling Wait routine with Output set to True in Events parameter.
 
+   procedure Socket_Pair (S1, S2 : out Socket_Type);
+   --  Create 2 sockets and connect them together.
+
    procedure Shutdown (Socket : in Socket_Type);
    --  Shutdown both side of the socket and close it
 

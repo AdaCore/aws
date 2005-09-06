@@ -212,6 +212,22 @@ package body AWS.Net is
       return new Socket_Type'Class'(Socket (Security));
    end Socket;
 
+   -----------------
+   -- Socket_Pair --
+   -----------------
+
+   procedure Socket_Pair (S1, S2 : out Socket_Type) is
+      Server : Std.Socket_Type;
+   begin
+      Std.Bind (Server, 0);
+      Std.Listen (Server);
+      Connect (Socket_Type'Class (S1), "127.0.0.1", Std.Get_Port (Server));
+      Accept_Socket (Server, New_Socket => Socket_Type'Class (S2));
+
+      Std.Shutdown (Server);
+      Std.Free (Server);
+   end Socket_Pair;
+
    ----------
    -- Wait --
    ----------

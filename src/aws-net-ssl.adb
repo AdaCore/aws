@@ -551,6 +551,18 @@ package body AWS.Net.SSL is
       Net.Std.Shutdown (NSST (Socket));
    end Shutdown;
 
+   -----------------
+   -- Socket_Pair --
+   -----------------
+
+   procedure Socket_Pair (S1, S2 : out Socket_Type) is
+      ST1, ST2 : Std.Socket_Type;
+   begin
+      Std.Socket_Pair (ST1, ST2);
+      S1 := Secure_Server (ST1);
+      S2 := Secure_Client (ST2);
+   end Socket_Pair;
+
    ------------
    -- TS_SSL --
    ------------
