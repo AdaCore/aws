@@ -58,6 +58,18 @@ package body AWS.Net.Std is
       FD : Interfaces.C.int;
    end record;
 
+   type In6_Addr is array (1 .. 8) of Interfaces.Unsigned_16;
+   pragma Convention (C, In6_Addr);
+
+   type Sockaddr_In6 is record
+      Family    : Interfaces.C.short;          -- AF_INET6
+      Port      : Interfaces.C.unsigned_short; -- transport layer port #
+      FlowInfo  : Interfaces.C.unsigned_long;  -- IPv6 traffic class&flow info
+      Addr      : In6_Addr;                    -- IPv6 address
+      Scope_Id  : Interfaces.C.unsigned_long;  -- set of interfaces for a scope
+   end record;
+   pragma Convention (C, Sockaddr_In6);
+
    procedure Free is
       new Ada.Unchecked_Deallocation (Socket_Hidden, Socket_Hidden_Access);
 
@@ -66,7 +78,7 @@ package body AWS.Net.Std is
 
    function Get_Addr_Info
      (Host  : in String;
-      Port  : in Positive;
+      Port  : in Natural;
       Flags : in Interfaces.C.int := 0)
       return OSD.Addr_Info_Access;
    --  Returns the inet address information for the given host and port.
@@ -275,7 +287,7 @@ package body AWS.Net.Std is
 
    function Get_Addr_Info
      (Host  : in String;
-      Port  : in Positive;
+      Port  : in Natural;
       Flags : in Interfaces.C.int := 0)
       return OSD.Addr_Info_Access
    is
@@ -358,6 +370,26 @@ package body AWS.Net.Std is
       return Integer (Res);
    end Get_Int_Sock_Opt;
 
+   --------------
+   -- Get_Port --
+   --------------
+
+   function Get_Port (Socket : in Socket_Type) return Positive is
+      use GNAT.Sockets.Thin;
+      use type Interfaces.C.int;
+
+      Name : aliased Sockaddr_In6;
+      Len  : aliased Interfaces.C.int := Name'Size / 8;
+
+   begin
+      if C_Getsockname (Socket.S.FD, Name'Address, Len'Access) = Failure then
+         Raise_Socket_Error (Errno);
+      end if;
+
+      return Positive
+               (Swap_Little_Endian (Interfaces.Unsigned_16 (Name.Port)));
+   end Get_Port;
+
    -----------------------------
    -- Get_Receive_Buffer_Size --
    -----------------------------
@@ -414,22 +446,10 @@ package body AWS.Net.Std is
       use type C.int;
       use type C.short;
 
-      type In6_Addr is array (1 .. 8) of Unsigned_16;
-      pragma Convention (C, In6_Addr);
-
       type U8_2 is array (1 .. 2) of Unsigned_8;
       pragma Convention (C, U8_2);
 
       function Split is new Ada.Unchecked_Conversion (Unsigned_16, U8_2);
-
-      type Sockaddr_In6 is record
-         Family    : C.short;          -- AF_INET6
-         Port      : C.unsigned_short; -- transport layer port #
-         FlowInfo  : C.unsigned_long;  -- IPv6 traffic class & flow info
-         Addr      : In6_Addr;         -- IPv6 address
-         Scope_Id  : C.unsigned_long;  -- set of interfaces for a scope
-      end record;
-      pragma Convention (C, Sockaddr_In6);
 
       Sin6 : aliased Sockaddr_In6;
       Sin  : aliased Thin.Sockaddr_In;
