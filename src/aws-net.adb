@@ -218,11 +218,27 @@ package body AWS.Net is
 
    procedure Socket_Pair (S1, S2 : out Socket_Type) is
       Server : Std.Socket_Type;
+      subtype STC is Socket_Type'Class;
    begin
       Std.Bind (Server, 0);
       Std.Listen (Server);
-      Connect (Socket_Type'Class (S1), "127.0.0.1", Std.Get_Port (Server));
-      Accept_Socket (Server, New_Socket => Socket_Type'Class (S2));
+
+      Connect (STC (S1), "127.0.0.1", Std.Get_Port (Server));
+
+      Std.Set_Timeout (Server, 0.25);
+
+      loop
+         Accept_Socket (Server, New_Socket => STC (S2));
+
+         --  to be shure that it is S1 and S2 connected together.
+
+         exit when Peer_Addr (STC (S2)) = "127.0.0.1"
+           and then Peer_Port (STC (S2)) = Get_Port (STC (S1))
+           and then Peer_Port (STC (S1)) = Get_Port (STC (S2));
+
+         Shutdown (STC (S2));
+         Free (STC (S2));
+      end loop;
 
       Std.Shutdown (Server);
       Std.Free (Server);
