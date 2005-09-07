@@ -1,5 +1,13 @@
 2005-09-06  Dmitriy Anisimkov <anisimkov@ada-ru.org>
 
+	* aws-net.ads, aws-net-std.ads:
+	(Peer_Port): New routine.
+
+	* aws-net.adb:
+	(Socket_Pair): Be shure that S1 and S2 are connected together.
+
+2005-09-06  Dmitriy Anisimkov <anisimkov@ada-ru.org>
+
 	* aws-net.ads:
 	(Get_Port): New abstract routine.
 	(Socket_Pair): New routine.
