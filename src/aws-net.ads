@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2004                          --
+--                         Copyright (C) 2000-2005                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -171,16 +171,17 @@ package AWS.Net is
    -- Others --
    ------------
 
-   function Get_FD (Socket : in Socket_Type) return Integer
-     is abstract;
+   function Get_FD (Socket : in Socket_Type) return Integer is abstract;
    --  Returns the file descriptor associated with the socket
 
-   function Peer_Addr (Socket : in Socket_Type) return String
-     is abstract;
+   function Peer_Addr (Socket : in Socket_Type) return String is abstract;
    --  Returns the peer name/address
 
+   function Peer_Port (Socket : in Socket_Type) return Positive is abstract;
+   --  Returns the port of the peer socket
+
    function Get_Port (Socket : in Socket_Type) return Positive is abstract;
-   --  Return port number of the socket.
+   --  Returns the port of the socket
 
    function Host_Name return String;
    --  Returns the running host name

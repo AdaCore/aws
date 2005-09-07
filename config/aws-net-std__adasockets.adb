@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2004                          --
+--                         Copyright (C) 2000-2005                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -402,9 +402,21 @@ package body AWS.Net.Std is
         (Sockets.Naming.Address'
            (Sockets.Naming.Get_Peer_Addr (Socket.S.FD)));
    exception
-      when E : others =>
+      when E : Sockets.Naming.Naming_Error =>
          Raise_Exception (E, "Peer_Addr");
    end Peer_Addr;
+
+   ---------------
+   -- Peer_Port --
+   ---------------
+
+   function Peer_Port (Socket : in Socket_Type) return Positive is
+   begin
+      return Sockets.Naming.Get_Peer_Port (Socket.S.FD);
+   exception
+      when E : Sockets.Naming.Naming_Error =>
+         Raise_Exception (E, "Peer_Port");
+   end Peer_Port;
 
    -------------
    -- Pending --

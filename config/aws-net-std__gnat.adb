@@ -370,6 +370,18 @@ package body AWS.Net.Std is
          Raise_Exception (E, "Peer_Addr");
    end Peer_Addr;
 
+   ---------------
+   -- Peer_Port --
+   ---------------
+
+   function Peer_Port (Socket : in Socket_Type) return Positive is
+   begin
+      return Positive (Sockets.Get_Peer_Name (Socket.S.FD).Port);
+   exception
+      when E : Sockets.Socket_Error =>
+         Raise_Exception (E, "Peer_Port");
+   end Peer_Port;
+
    -------------
    -- Pending --
    -------------

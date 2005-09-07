@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2002-2004                          --
+--                         Copyright (C) 2002-2005                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -102,11 +102,16 @@ package AWS.Net.Std is
    ------------
 
    function Get_FD (Socket : in Socket_Type) return Integer;
+   --  Returns the file descriptor associated with the socket
 
    function Peer_Addr (Socket : in Socket_Type) return String;
+   --  Returns the peer name/address
+
+   function Peer_Port (Socket : in Socket_Type) return Positive;
+   --  Returns the port of the peer socket
 
    function Get_Port (Socket : in Socket_Type) return Positive;
-   --  Return port number of the socket.
+   --  Returns the port of the socket
 
    function Host_Name return String;
 

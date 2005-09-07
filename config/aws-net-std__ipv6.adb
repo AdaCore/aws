@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2004                            --
+--                         Copyright (C) 2004-2005                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -526,6 +526,26 @@ package body AWS.Net.Std is
          return "unknown protocol family" & C.short'Image (Sin6.Family);
       end if;
    end Peer_Addr;
+
+   ---------------
+   -- Peer_Port --
+   ---------------
+
+   function Peer_Port (Socket : in Socket_Type) return Positive is
+      use GNAT.Sockets.Thin;
+      use type Interfaces.C.int;
+
+      Name : aliased Sockaddr_In6;
+      Len  : aliased Interfaces.C.int := Name'Size / 8;
+
+   begin
+      if C_Getpeername (Socket.S.FD, Name'Address, Len'Access) = Failure then
+         Raise_Socket_Error (Errno);
+      end if;
+
+      return Positive
+               (Swap_Little_Endian (Interfaces.Unsigned_16 (Name.Port)));
+   end Peer_Port;
 
    -------------
    -- Pending --
