@@ -79,7 +79,7 @@ package AWS.Net is
       Port   : in     Natural;
       Host   : in     String := "")
       is abstract;
-   --  Bind a socket on a given port, Create a server socket if necessary
+   --  Create the server socket and bind it on the given port.
    --  Using 0 for the port will tell the OS to allocate a non-privileged
    --  free port. The port can be later retrieved using Get_Port on the
    --  bound socket.
