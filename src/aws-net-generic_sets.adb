@@ -242,6 +242,21 @@ package body AWS.Net.Generic_Sets is
       return (Set.Poll (Index).REvents and (POLLIN or POLLPRI)) /= 0;
    end Is_Read_Ready;
 
+   procedure Is_Read_Ready
+     (Set   : in     Socket_Set_Type;
+      Index : in     Socket_Index;
+      Ready :    out Boolean;
+      Error :    out Boolean)
+   is
+      use AWS.OS_Lib.Definitions;
+   begin
+      Check_Range (Set, Index);
+
+      Ready := (Set.Poll (Index).REvents and (POLLIN or POLLPRI)) /= 0;
+      Error := (Set.Poll (Set.Last).REvents
+                and (POLLERR or POLLHUP or POLLNVAL)) /= 0;
+   end Is_Read_Ready;
+
    --------------------
    -- Is_Write_Ready --
    --------------------

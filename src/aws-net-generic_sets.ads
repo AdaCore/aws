@@ -107,6 +107,16 @@ package AWS.Net.Generic_Sets is
    --  Return True if data could be read from socket and socket was in Input
    --  or Both waiting mode.
 
+   procedure Is_Read_Ready
+     (Set   : in     Socket_Set_Type;
+      Index : in     Socket_Index;
+      Ready :    out Boolean;
+      Error :    out Boolean);
+   pragma Inline (Is_Read_Ready);
+   --  Return True in Ready out parameter if data could be read from socket and
+   --  socket was in Input or Both waiting mode. Return True in Error out
+   --  parameter if socket become into the error state.
+
    function Is_Write_Ready
      (Set   : in Socket_Set_Type;
       Index : in Socket_Index)
