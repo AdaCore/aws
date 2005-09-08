@@ -19,6 +19,9 @@
 	 after semaphore release. This would move potentially long blocking operation
 	 out of critical section.
 
+	* aws-net-generic_sets.ads, aws-net-generic_sets.adb:
+	(Remove_Socket): One more Remove_Socket routine.
+
 2005-09-06  Dmitriy Anisimkov <anisimkov@ada-ru.org>
 
 	* aws-net.ads, aws-net-std.ads:
