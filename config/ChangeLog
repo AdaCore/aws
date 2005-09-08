@@ -1,5 +1,11 @@
 2005-09-08  Dmitriy Anisimkov <anisimkov@ada-ru.org>
 
+	* src/check_config.c:
+	Add include for stdlib.h, avoid warning about incompatible implicit
+	 declaration of built-in function 'exit' in GCC 4.0.1.
+
+2005-09-08  Dmitriy Anisimkov <anisimkov@ada-ru.org>
+
 	* aws-net-std__gnat.adb, aws-net-std__adasockets.adb, aws-net-std__ipv6.adb:
 	(Accept_Socket): Do not try to reuse allocated Socket_Hidden. It is dangerouse,
 	 because it could be deallocated in the copy of socket.
