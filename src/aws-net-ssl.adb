@@ -125,11 +125,7 @@ package body AWS.Net.SSL is
          exit SSL_Accept when Success;
 
          Shutdown (New_Socket);
-
-         --  We cannot reuse allocated SSL handle, Free it before the next use
-
-         TSSL.SSL_free (New_Socket.SSL);
-         New_Socket.SSL := TSSL.Null_Pointer;
+         Free (New_Socket);
       end loop SSL_Accept;
 
    exception
@@ -767,15 +763,10 @@ package body AWS.Net.SSL is
 
       procedure Set_FD (Socket : in out Socket_Type) is
       begin
-         if Socket.SSL = TSSL.Null_Pointer then
-            Socket.SSL := TSSL.SSL_new (Context);
-            Error_If (Socket.SSL = TSSL.Null_Pointer);
+         Socket.SSL := TSSL.SSL_new (Context);
+         Error_If (Socket.SSL = TSSL.Null_Pointer);
 
-            TSSL.SSL_set_read_ahead (S => Socket.SSL, Yes => 1);
-
-         else
-            Error_If (TSSL.SSL_clear (Socket.SSL) /= 1);
-         end if;
+         TSSL.SSL_set_read_ahead (S => Socket.SSL, Yes => 1);
 
          Error_If
            (TSSL.SSL_set_fd
