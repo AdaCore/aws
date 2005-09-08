@@ -1,3 +1,16 @@
+2005-09-08  Dmitriy Anisimkov <anisimkov@ada-ru.org>
+
+	* aws-net.ads
+	(Bind): Fix comment.
+
+	* aws-net-ssl.adb:
+	(Set_FD): Do not try to reuse allocated SSL handle. It is dangerouse,
+	 because it could be deallocated or reused in the socket copy.
+
+	* aws-net.adb:
+	(Set_Cache): Do not try to reuse allocated cache. It is dangerouse,
+	 because it could be deallocated or reused in the socket copy.
+
 2005-09-06  Dmitriy Anisimkov <anisimkov@ada-ru.org>
 
 	* aws-net.ads, aws-net-std.ads:
