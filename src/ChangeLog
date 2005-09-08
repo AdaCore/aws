@@ -13,6 +13,12 @@
 	(Free): Do not need call to Release_Cache in the Free (Socket_Access).
 	 It is in the Free (Socket_Type) routine.
 
+	* aws-server.adb:
+	(Accept_Socket_Serialized): Do not Free socket on shutdown.
+	 It was not allocated. Always accept non-SSL socket, and make SSL socket
+	 after semaphore release. This would move potentially long blocking operation
+	 out of critical section.
+
 2005-09-06  Dmitriy Anisimkov <anisimkov@ada-ru.org>
 
 	* aws-net.ads, aws-net-std.ads:
