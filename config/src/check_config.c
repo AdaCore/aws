@@ -4,6 +4,7 @@
 */
 
 #include <stdio.h>
+#include <stdlib.h>
 
 #ifdef _WIN32
 #define WIN2000SUPPORT
