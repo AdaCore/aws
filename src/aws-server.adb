@@ -109,8 +109,7 @@ package body AWS.Server is
      (Server : in HTTP_Access)
       return Net.Socket_Type'Class
    is
-      Security   : constant Boolean      := CNF.Security (Server.Properties);
-      New_Socket : Net.Socket_Type'Class := Net.Socket (Security);
+      New_Socket : Net.Std.Socket_Type;
 
       Released_Socket : Net.Socket_Access;
 
@@ -134,32 +133,35 @@ package body AWS.Server is
          if Server.Shutdown then
             --  The server is beeing shutdown, raise an exception this will
             --  terminate the line.
-            Net.Free (New_Socket);
+
             Server.Sock_Sem.Release;
             raise Net.Socket_Error;
          end if;
 
-         if Security then
-            Net.SSL.Set_Config
-              (Net.SSL.Socket_Type (New_Socket), Server.SSL_Config);
-         end if;
-
-         Net.Accept_Socket (Server.Sock, New_Socket);
+         Net.Std.Accept_Socket (Server.Sock, New_Socket);
 
          Server.Sock_Sem.Release;
+
+         if CNF.Security (Server.Properties) then
+            return Net.SSL.Secure_Server (New_Socket, Server.SSL_Config);
+         else
+            return New_Socket;
+         end if;
 
       else
          --  A socket was given back to the server, return it
 
-         New_Socket := Released_Socket.all;
+         declare
+            Result : Net.Socket_Type'Class := Released_Socket.all;
+         begin
+            --  We do not call AWS.Net.Free as we do not want to destroy the
+            --  socket buffers.
 
-         --  We do not call AWS.Net.Free as we do not want to destroy the
-         --  socket buffers.
+            Free (Released_Socket);
+            return Result;
+         end;
 
-         Free (Released_Socket);
       end if;
-
-      return New_Socket;
 
    exception
       when others =>
