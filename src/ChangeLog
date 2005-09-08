@@ -10,6 +10,8 @@
 	* aws-net.adb:
 	(Set_Cache): Do not try to reuse allocated cache. It is dangerouse,
 	 because it could be deallocated or reused in the socket copy.
+	(Free): Do not need call to Release_Cache in the Free (Socket_Access).
+	 It is in the Free (Socket_Type) routine.
 
 2005-09-06  Dmitriy Anisimkov <anisimkov@ada-ru.org>
 
