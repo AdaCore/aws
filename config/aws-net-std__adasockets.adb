@@ -88,9 +88,7 @@ package body AWS.Net.Std is
      (Socket     : in     Net.Socket_Type'Class;
       New_Socket : in out Socket_Type) is
    begin
-      if New_Socket.S = null then
-         New_Socket.S := new Socket_Hidden;
-      end if;
+      New_Socket.S := new Socket_Hidden;
 
       --  Check for Accept_Socket timeout.
 
@@ -124,20 +122,18 @@ package body AWS.Net.Std is
       Info  : constant OSD.Addr_Info_Access
         := Get_Addr_Info (Host, Port, OSD.AI_PASSIVE);
    begin
-      if Socket.S = null then
-         Socket.S := new Socket_Hidden;
+      Socket.S := new Socket_Hidden;
 
-         begin
-            Sockets.Socket (Socket.S.FD);
-         exception
-            when E : Sockets.Socket_Error =>
-               Free (Socket.S);
-               OSD.FreeAddrInfo (Info);
-               Raise_Exception (E, "Bind.Create_Socket");
-         end;
+      begin
+         Sockets.Socket (Socket.S.FD);
+      exception
+         when E : Sockets.Socket_Error =>
+            Free (Socket.S);
+            OSD.FreeAddrInfo (Info);
+            Raise_Exception (E, "Bind.Create_Socket");
+      end;
 
-         Set_Non_Blocking_Mode (Socket);
-      end if;
+      Set_Non_Blocking_Mode (Socket);
 
       Res := Sockets.Thin.C_Bind
         (C.int (Get_FD (Socket)),
@@ -170,18 +166,16 @@ package body AWS.Net.Std is
       Errno : Integer;
       Info  : constant OSD.Addr_Info_Access := Get_Addr_Info (Host, Port);
    begin
-      if Socket.S = null then
-         Socket.S := new Socket_Hidden;
+      Socket.S := new Socket_Hidden;
 
-         begin
-            Sockets.Socket (Socket.S.FD);
-         exception
-            when E : Sockets.Socket_Error =>
-               Free (Socket.S);
-               OSD.FreeAddrInfo (Info);
-               Raise_Exception (E, "Connect.Create_Socket");
-         end;
-      end if;
+      begin
+         Sockets.Socket (Socket.S.FD);
+      exception
+         when E : Sockets.Socket_Error =>
+            Free (Socket.S);
+            OSD.FreeAddrInfo (Info);
+            Raise_Exception (E, "Connect.Create_Socket");
+      end;
 
       Set_Non_Blocking_Mode (Socket);
 

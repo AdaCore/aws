@@ -88,9 +88,7 @@ package body AWS.Net.Std is
    is
       Sock_Addr : Sockets.Sock_Addr_Type;
    begin
-      if New_Socket.S = null then
-         New_Socket.S := new Socket_Hidden;
-      end if;
+      New_Socket.S := new Socket_Hidden;
 
       --  Check for Accept_Socket timeout.
 
@@ -120,18 +118,20 @@ package body AWS.Net.Std is
    is
       use Ada.Strings.Maps;
       Inet_Addr : Sockets.Inet_Addr_Type;
+      Created : Boolean := False;
    begin
+      Socket.S := new Socket_Hidden;
+
       if Host = "" then
          Inet_Addr := Sockets.Any_Inet_Addr;
       else
          Inet_Addr := Get_Inet_Addr (Host);
       end if;
 
-      if Socket.S = null then
-         Socket.S := new Socket_Hidden;
-         Sockets.Create_Socket (Socket.S.FD);
-         Set_Non_Blocking_Mode (Socket);
-      end if;
+      Sockets.Create_Socket (Socket.S.FD);
+      Created := True;
+
+      Set_Non_Blocking_Mode (Socket);
 
       Sockets.Bind_Socket
         (Socket.S.FD,
@@ -139,6 +139,12 @@ package body AWS.Net.Std is
 
    exception
       when E : Sockets.Socket_Error | Sockets.Host_Error =>
+         if Created then
+            Sockets.Close_Socket (Socket.S.FD);
+         end if;
+
+         Free (Socket);
+
          Raise_Exception (E, "Bind");
    end Bind;
 
@@ -154,15 +160,12 @@ package body AWS.Net.Std is
    is
       Sock_Addr : Sockets.Sock_Addr_Type;
 
-      Close_On_Exception : Boolean := True;
+      Close_On_Exception : Boolean := False;
    begin
-      if Socket.S = null then
-         Socket.S := new Socket_Hidden;
+      Socket.S := new Socket_Hidden;
 
-         Close_On_Exception := False;
-         Sockets.Create_Socket (Socket.S.FD);
-         Close_On_Exception := True;
-      end if;
+      Sockets.Create_Socket (Socket.S.FD);
+      Close_On_Exception := True;
 
       Sock_Addr := (Sockets.Family_Inet,
                     Get_Inet_Addr (Host),

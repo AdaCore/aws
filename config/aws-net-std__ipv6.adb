@@ -124,11 +124,7 @@ package body AWS.Net.Std is
          Raise_Socket_Error (Std.Errno);
       end if;
 
-      if New_Socket.S = null then
-         New_Socket.S := new Socket_Hidden;
-      end if;
-
-      New_Socket.S.FD := Sock;
+      New_Socket.S := new Socket_Hidden'(FD => Sock);
 
       Set_Non_Blocking_Mode (New_Socket);
 
@@ -153,21 +149,17 @@ package body AWS.Net.Std is
       Errno : Integer;
 
    begin
-      if Socket.S = null then
-         Res := Sockets.Thin.C_Socket
-                  (Info.ai_family, Info.ai_socktype, Info.ai_protocol);
+      Res := Sockets.Thin.C_Socket
+               (Info.ai_family, Info.ai_socktype, Info.ai_protocol);
 
-         if Res = Sockets.Thin.Failure then
-            OSD.FreeAddrInfo (Info);
-            Raise_Socket_Error (Std.Errno);
-         end if;
-
-         Socket.S := new Socket_Hidden;
-
-         Socket.S.FD := Res;
-
-         Set_Non_Blocking_Mode (Socket);
+      if Res = Sockets.Thin.Failure then
+         OSD.FreeAddrInfo (Info);
+         Raise_Socket_Error (Std.Errno);
       end if;
+
+      Socket.S := new Socket_Hidden'(FD => Res);
+
+      Set_Non_Blocking_Mode (Socket);
 
       Res := Sockets.Thin.C_Bind
                (Socket.S.FD,
@@ -210,11 +202,7 @@ package body AWS.Net.Std is
          Raise_Socket_Error (Std.Errno);
       end if;
 
-      if Socket.S = null then
-         Socket.S := new Socket_Hidden;
-      end if;
-
-      Socket.S.FD := Res;
+      Socket.S := new Socket_Hidden'(FD => Res);
 
       Set_Non_Blocking_Mode (Socket);
 
