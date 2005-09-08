@@ -222,7 +222,7 @@ package body AWS.Net.Generic_Sets is
    begin
       Check_Range (Set, Index);
 
-      return (Set.Poll (Set.Last).REvents
+      return (Set.Poll (Index).REvents
               and (POLLERR or POLLHUP or POLLNVAL)) /= 0;
    end Is_Error;
 
@@ -253,7 +253,7 @@ package body AWS.Net.Generic_Sets is
       Check_Range (Set, Index);
 
       Ready := (Set.Poll (Index).REvents and (POLLIN or POLLPRI)) /= 0;
-      Error := (Set.Poll (Set.Last).REvents
+      Error := (Set.Poll (Index).REvents
                 and (POLLERR or POLLHUP or POLLNVAL)) /= 0;
    end Is_Read_Ready;
 

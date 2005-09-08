@@ -22,6 +22,7 @@
 	* aws-net-generic_sets.ads, aws-net-generic_sets.adb:
 	(Remove_Socket): One more Remove_Socket routine.
 	(Is_Read_Ready): One more Is_Read_Ready routine.
+	(Is_Error): Fix typo Set.LAst instead of Index.
 
 2005-09-06  Dmitriy Anisimkov <anisimkov@ada-ru.org>
 
