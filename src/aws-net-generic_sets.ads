@@ -156,6 +156,14 @@ package AWS.Net.Generic_Sets is
    --  last position in the set, last socket would be placed instead of
    --  deleted one.
 
+   procedure Remove_Socket
+     (Set    : in out Socket_Set_Type;
+      Index  : in     Socket_Index;
+      Socket :    out Socket_Access);
+   --  Delete socket from Index position from the Set and return delete socket
+   --  access. If the Index is not last position in the set, last socket would
+   --  be placed instead of deleted one.
+
    procedure Next (Set : in Socket_Set_Type; Index : in out Socket_Index);
    --  Looking for active socket starting from Index and return Index of the
    --  found active socket. After search use functions In_Range,

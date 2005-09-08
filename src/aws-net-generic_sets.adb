@@ -296,6 +296,21 @@ package body AWS.Net.Generic_Sets is
       Set.Last := Set.Last - 1;
    end Remove_Socket;
 
+   procedure Remove_Socket
+     (Set    : in out Socket_Set_Type;
+      Index  : in     Socket_Index;
+      Socket :    out Socket_Access) is
+   begin
+      Check_Range (Set, Index);
+
+      Socket := Set.Set (Index).Socket;
+
+      Set.Set (Index)  := Set.Set (Set.Last);
+      Set.Poll (Index) := Set.Poll (Set.Last);
+
+      Set.Last := Set.Last - 1;
+   end Remove_Socket;
+
    -----------
    -- Reset --
    -----------
