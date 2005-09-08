@@ -347,6 +347,11 @@ regtests/shutdown.adb
 regtests/shutdown.out
 regtests/simple.adb
 regtests/simple.out
+regtests/smem.adb
+regtests/smem.out
+regtests/smem_sec.adb
+regtests/smem_sec.out
+regtests/smem_proc.adb
 regtests/smtp.adb
 regtests/smtp.out
 regtests/sock1.adb
