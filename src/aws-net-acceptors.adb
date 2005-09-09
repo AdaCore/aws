@@ -67,6 +67,11 @@ package body AWS.Net.Acceptors is
       use type Sets.Socket_Count;
       Ready, Error : Boolean;
    begin
+      if Sets.Count (Acceptor.Set) = 0 then
+         --  After shutdown of the server socket.
+         raise Socket_Error;
+      end if;
+
       loop
          Read_Ready : loop
             exit Read_Ready when Acceptor.Index > Acceptor.Last;
@@ -209,9 +214,9 @@ package body AWS.Net.Acceptors is
 
    --  !!! Debug only.
    procedure Print (Line : in String) is
-      --  pragma Unreferenced (Line);
+      pragma Unreferenced (Line);
    begin
-      Ada.Text_IO.Put_Line (Line);
+      --  Ada.Text_IO.Put_Line (Line);
       null;
    end Print;
 
