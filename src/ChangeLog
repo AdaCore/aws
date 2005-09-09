@@ -1,3 +1,9 @@
+2005-09-09  Dmitriy Anisimkov <anisimkov@ada-ru.org>
+
+	* aws-net-acceptors.ads, aws-net-acceptors.adb:
+	Candidate package for help dramatically increase number of simulteneous
+	 keep-alive connections.
+
 2005-09-08  Dmitriy Anisimkov <anisimkov@ada-ru.org>
 
 	* aws-net.ads
