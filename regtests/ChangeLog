@@ -1,7 +1,7 @@
 2005-09-09  Dmitriy Anisimkov <anisimkov@ada-ru.org>
 
 	* accs.adb accs_proc.adb:
-	Test for package AWS.Net.Acceptors. Without regtest macro becouse not
+	Test for package AWS.Net.Acceptors. Without regtest macro because not
 	 complete for now.
 
 2005-09-08  Dmitriy Anisimkov <anisimkov@ada-ru.org>
