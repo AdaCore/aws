@@ -29,6 +29,7 @@
 --  $Id$
 
 with Ada.Exceptions;
+with Ada.Task_Identification;
 with Ada.Text_IO;
 
 with AWS.Net.Acceptors;
@@ -66,7 +67,7 @@ procedure Accs_Proc (Security : in Boolean) is
       Set_Timeout (Sock, 3.0);
 
       for J in 1 .. 10 loop
-         Ada.Text_IO.Put_Line ("send"); -- Ada.Text_IO.Flush;
+         Ada.Text_IO.Put_Line ("send" & Positive'Image (Index));
 
          Buffered.Put_Line
            (Sock, Prefix & Positive'Image (Index) & Positive'Image (J));
@@ -104,9 +105,9 @@ procedure Accs_Proc (Security : in Boolean) is
    begin
       loop
          begin
-            --  Ada.Text_IO.Put_Line
-            --  ("server ___ " & Ada.Task_Identification.Image
-            --                   (Ada.Task_Identification.Current_Task));
+            Ada.Text_IO.Put_Line
+              ("server ___ " & Ada.Task_Identification.Image
+                              (Ada.Task_Identification.Current_Task));
             Semaphore.Seize;
             Acceptors.Get (Acceptor, Sock);
             Semaphore.Release;
@@ -118,14 +119,15 @@ procedure Accs_Proc (Security : in Boolean) is
 
          Set_Timeout (Sock.all, 2.0);
 
-         declare
-            Request : constant String := Buffered.Get_Line (Sock.all);
          begin
-            Buffered.Put_Line (Sock.all, '(' & Request & ')');
+            Buffered.Put_Line
+              (Sock.all, '(' & Buffered.Get_Line (Sock.all) & ')');
             Buffered.Flush (Sock.all);
+
+            Acceptors.Give_Back (Acceptor, Sock);
+         exception when E : Socket_Error => null;
          end;
 
-         Acceptors.Give_Back (Acceptor, Sock);
       end loop;
 
    exception
@@ -134,7 +136,7 @@ procedure Accs_Proc (Security : in Boolean) is
          Ada.Text_IO.Put_Line (Ada.Exceptions.Exception_Information (E));
    end Server_Task;
 
-   Clients : array (1 .. 2) of Client_Task;
+   Clients : array (1 .. 7) of Client_Task;
 
 begin
    Semaphore.Seize;
@@ -143,7 +145,7 @@ begin
    Acceptors.Listen (Acceptor, "", Free_Port, 11);
 
    declare
-      Servers : array (1 .. 1) of Server_Task;
+      Servers : array (1 .. 3) of Server_Task;
       pragma Unreferenced (Servers);
    begin
       Semaphore.Release;
