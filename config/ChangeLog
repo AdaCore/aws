@@ -1,3 +1,13 @@
+2005-09-09  Dmitriy Anisimkov <anisimkov@ada-ru.org>
+
+	* src/check_config.c:
+	Use P with variable parameter list for all generated lines.
+	(P): Do not need to convert \n into \0xA, it is the same character in Unix
+	 and Windows. It is enought to use binary file mode "wb" for avoid DOS end of
+	 line.
+	(PI): Remove.
+	(PS): Remove.
+
 2005-09-08  Pascal Obry  <pascal@obry.net>
 
 	* src/check_config.c:
@@ -21,7 +31,7 @@
 
 2005-09-07  Dmitriy Anisimkov <anisimkov@ada-ru.org>
 
-	* aws-net-std__gnat.adb, aws-net-std__adasockets.adb, 
+	* aws-net-std__gnat.adb, aws-net-std__adasockets.adb,
 	  aws-net-std__ipv6.adb:
 	(Peer_Port): New routine.
 
