@@ -59,12 +59,12 @@ package AWS.Net.Acceptors is
      (Acceptor : in out Acceptor_Type;
       Socket   : in     Socket_Access);
    --  Give back socket which have been handled.
-   --  Should be called from tasks dirrerent from task where Get routine is
+   --  Should be called from tasks different from task where Get routine is
    --  waiting.
 
    procedure Shutdown (Acceptor : in out Acceptor_Type);
    --  Shutdown all internal sockets.
-   --  Should be called from task dirrerent from task where Get routine is
+   --  Should be called from task different from task where Get routine is
    --  waiting.
 
 private
