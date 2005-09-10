@@ -1,12 +1,17 @@
+2005-09-10  Dmitriy Anisimkov <anisimkov@ada-ru.org>
+
+	* accs.adb, accs_proc.adb, accs_sec.adb, accs.out accs_sec.out:
+	Complete and include into regtest process.
+
 2005-09-09  Dmitriy Anisimkov <anisimkov@ada-ru.org>
 
-	* accs.adb accs_proc.adb:
+	* accs.adb, accs_proc.adb:
 	Test for package AWS.Net.Acceptors. Without regtest macro because not
 	 complete for now.
 
 2005-09-08  Dmitriy Anisimkov <anisimkov@ada-ru.org>
 
-	* smem.out smem.adb smem_proc.adb smem_sec.adb smem_sec.out:
+	* smem.out, smem.adb, smem_proc.adb, smem_sec.adb, smem_sec.out:
 	New regtest for copy and reuse socket.
 
 2005-09-06  Dmitriy Anisimkov <anisimkov@ada-ru.org>
