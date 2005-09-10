@@ -162,7 +162,6 @@ begin
 
    declare
       Servers : array (1 .. 3) of Server_Task;
-      pragma Unreferenced (Servers);
    begin
       Semaphore.Release;
 
@@ -177,6 +176,14 @@ begin
       end loop;
 
       Acceptors.Shutdown (Acceptor);
+
+      --  Wait for servers termination only for order console output.
+
+      for J in Servers'Range loop
+         while not Servers (J)'Terminated loop
+            delay 0.25;
+         end loop;
+      end loop;
 
       if Counter = Client_Request_Count * Clients'Length then
          Ada.Text_IO.Put_Line ("Done.");
