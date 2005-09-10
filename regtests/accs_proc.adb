@@ -29,10 +29,12 @@
 --  $Id$
 
 with Ada.Exceptions;
-with Ada.Task_Identification;
+with Ada.Tags;
 with Ada.Text_IO;
+with Ada.Unchecked_Deallocation;
 
 with AWS.Net.Acceptors;
+with AWS.Net.SSL;
 with AWS.Net.Buffered;
 with AWS.Utils;
 
@@ -40,8 +42,13 @@ with Get_Free_Port;
 
 procedure Accs_Proc (Security : in Boolean) is
    use AWS.Net;
+
+   Client_Request_Count : constant := 10;
+
    Free_Port : Positive := 8421;
    Acceptor  : Acceptors.Acceptor_Type;
+   Counter   : Natural := 0;
+   pragma Atomic (Counter);
 
    Semaphore : AWS.Utils.Semaphore;
 
@@ -62,13 +69,9 @@ procedure Accs_Proc (Security : in Boolean) is
 
       Connect (Sock, "127.0.0.1", Free_Port);
 
-      delay 0.15;
-
       Set_Timeout (Sock, 3.0);
 
-      for J in 1 .. 10 loop
-         Ada.Text_IO.Put_Line ("send" & Positive'Image (Index));
-
+      for J in 1 .. Client_Request_Count loop
          Buffered.Put_Line
            (Sock, Prefix & Positive'Image (Index) & Positive'Image (J));
 
@@ -83,13 +86,12 @@ procedure Accs_Proc (Security : in Boolean) is
                Ada.Text_IO.Put_Line ("Error " & Response);
             end if;
          end;
-
       end loop;
 
       Shutdown (Sock);
       Free (Sock);
 
-      Ada.Text_IO.Put_Line ("Client gone " & Positive'Image (Index));
+      Ada.Text_IO.Put_Line ("Client gone.");
 
    exception
       when E : others =>
@@ -105,17 +107,26 @@ procedure Accs_Proc (Security : in Boolean) is
    begin
       loop
          begin
-            Ada.Text_IO.Put_Line
-              ("server ___ " & Ada.Task_Identification.Image
-                              (Ada.Task_Identification.Current_Task));
             Semaphore.Seize;
             Acceptors.Get (Acceptor, Sock);
             Semaphore.Release;
-         exception when E : Socket_Error =>
+
+         exception when Socket_Error =>
             Semaphore.Release;
             Ada.Text_IO.Put_Line ("Acceptor closed.");
             raise;
          end;
+
+         if Security and not Ada.Tags."=" (Sock'Tag, SSL.Socket_Type'Tag) then
+            declare
+               procedure Free is new Ada.Unchecked_Deallocation
+                                       (Socket_Type'Class, Socket_Access);
+               Tmp : Socket_Access := Sock;
+            begin
+               Sock := new SSL.Socket_Type'(SSL.Secure_Server (Sock.all));
+               Free (Tmp);
+            end;
+         end if;
 
          Set_Timeout (Sock.all, 2.0);
 
@@ -124,14 +135,19 @@ procedure Accs_Proc (Security : in Boolean) is
               (Sock.all, '(' & Buffered.Get_Line (Sock.all) & ')');
             Buffered.Flush (Sock.all);
 
+            Counter := Counter + 1;
+
             Acceptors.Give_Back (Acceptor, Sock);
-         exception when E : Socket_Error => null;
+
+         exception when Socket_Error =>
+            Shutdown (Sock.all);
+            Free (Sock);
          end;
 
       end loop;
 
    exception
-      when E : Socket_Error => Ada.Text_IO.Put_Line ("Server done");
+      when Socket_Error => null;
       when E : others =>
          Ada.Text_IO.Put_Line (Ada.Exceptions.Exception_Information (E));
    end Server_Task;
@@ -161,5 +177,14 @@ begin
       end loop;
 
       Acceptors.Shutdown (Acceptor);
+
+      if Counter = Client_Request_Count * Clients'Length then
+         Ada.Text_IO.Put_Line ("Done.");
+      else
+         Ada.Text_IO.Put_Line
+           ("Regression" & Integer'Image (Counter)
+            & " /=" & Integer'Image (Client_Request_Count)
+            & " *" & Integer'Image (Clients'Length));
+      end if;
    end;
 end Accs_Proc;

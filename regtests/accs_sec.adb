@@ -28,11 +28,11 @@
 
 --  $Id$
 
---  ~ MAIN [STD]
+--  ~ MAIN [SSL]
 
 with Accs_Proc;
 
-procedure Accs is
+procedure Accs_Sec is
 begin
-   Accs_Proc (False);
-end Accs;
+   Accs_Proc (True);
+end Accs_Sec;
