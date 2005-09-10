@@ -3,6 +3,10 @@
 	* aws-net-acceptors.adb:
 	Remove debug output.
 
+	* aws-server-http_utils.adb:
+	(Send_Resource): Remove separate handle for Text_IO.Name_Error
+	 exception, there is no any file open routines in the Send_Resource.
+
 2005-09-09  Dmitriy Anisimkov <anisimkov@ada-ru.org>
 
 	* aws-net-acceptors.ads, aws-net-acceptors.adb:

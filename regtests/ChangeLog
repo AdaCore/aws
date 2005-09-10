@@ -3,6 +3,12 @@
 	* accs.adb, accs_proc.adb, accs_sec.adb, accs.out accs_sec.out:
 	Complete and include into regtest process.
 
+	* afile_sec.adb, hload_sec.adb:
+	Add ~ MAIN [SSL] macro.
+
+	* spair_proc.adb, smem_proc.adb:
+	Add copyright header and comment.
+
 2005-09-09  Dmitriy Anisimkov <anisimkov@ada-ru.org>
 
 	* accs.adb, accs_proc.adb:
