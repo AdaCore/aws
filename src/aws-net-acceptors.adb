@@ -30,10 +30,6 @@
 
 with Ada.Streams;
 
-pragma Warnings (Off);
-with Ada.Text_IO;
-pragma Warnings (On);
-
 package body AWS.Net.Acceptors is
 
    Server_Index : constant := 1;
@@ -42,8 +38,6 @@ package body AWS.Net.Acceptors is
 
    Shutdown_Command : constant := 0;
    Socket_Command   : constant := 1;
-
-   procedure Print (Line : in String);
 
    --------------
    -- Finalize --
@@ -84,12 +78,10 @@ package body AWS.Net.Acceptors is
                Acceptor.Last := Acceptor.Last - 1;
 
                if Error then
-                  --  Print ("!!! free" & Acceptor.Index'Img);
                   Shutdown (Socket.all);
                   Free (Socket);
 
                elsif Ready then
-                  Print ("!!! read" & Acceptor.Index'Img);
                   return;
                else
                   raise Program_Error;
@@ -119,7 +111,6 @@ package body AWS.Net.Acceptors is
 
                Std.Accept_Socket (Acceptor.Server, New_Socket);
                Sets.Add (Acceptor.Set, New_Socket, Sets.Input);
-               Print ("!!! accepted" & Sets.Count (Acceptor.Set)'Img);
             end;
          end if;
 
@@ -139,7 +130,6 @@ package body AWS.Net.Acceptors is
                      when Socket_Command =>
                         Acceptor.Box.Get (Socket);
                         Sets.Add (Acceptor.Set, Socket, Sets.Input);
-                        Print ("!!! back" & Sets.Count (Acceptor.Set)'Img);
 
                      when Shutdown_Command =>
                         Std.Shutdown (Acceptor.Server);
@@ -211,14 +201,6 @@ package body AWS.Net.Acceptors is
       Acceptor.Index := First_Index;
       Acceptor.Last  := Sets.Count (Acceptor.Set);
    end Listen;
-
-   --  !!! Debug only.
-   procedure Print (Line : in String) is
-      pragma Unreferenced (Line);
-   begin
-      --  Ada.Text_IO.Put_Line (Line);
-      null;
-   end Print;
 
    --------------
    -- Shutdown --
