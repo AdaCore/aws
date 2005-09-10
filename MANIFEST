@@ -213,6 +213,11 @@ makefile
 makefile.conf
 readme.txt
 regtests/ChangeLog
+regtests/accs.adb
+regtests/accs.out
+regtests/accs_sec.adb
+regtests/accs_sec.out
+regtests/accs_proc.adb
 regtests/afile.adb
 regtests/afile.out
 regtests/afile_pack.adb
