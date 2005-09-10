@@ -30,6 +30,8 @@
 
 --  Test file as attachment
 
+--  ~ MAIN [SSL]
+
 with AFile_Pack;
 
 procedure AFile_Sec is

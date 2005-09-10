@@ -28,11 +28,13 @@
 
 --  $Id$
 
---  Test for heavy loading.
+--  Test for heavy loading SSL server.
+
+--  ~ MAIN [SSL]
 
 with HLoad_Pack;
 
-procedure HLoad_sec is
+procedure HLoad_Sec is
 begin
    HLoad_Pack.Run ("https", 4321);
-end HLoad_sec;
+end HLoad_Sec;
