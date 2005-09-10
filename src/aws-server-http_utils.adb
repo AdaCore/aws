@@ -1545,9 +1545,6 @@ package body AWS.Server.HTTP_Utils is
       end if;
 
    exception
-      when Text_IO.Name_Error =>
-         raise;
-
       when others =>
          if Close then
             Resources.Close (File);
