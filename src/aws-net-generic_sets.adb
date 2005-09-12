@@ -82,6 +82,28 @@ package body AWS.Net.Generic_Sets is
       Set.Set (Set.Last).Allocated := False;
    end Add;
 
+   procedure Add
+     (Set    : in out Socket_Set_Type;
+      Socket : in     Socket_Type'Class;
+      Data   : in     Data_Type;
+      Mode   : in     Waiting_Mode) is
+   begin
+      Add_Private (Set, new Socket_Type'Class'(Socket), Mode);
+      Set.Set (Set.Last).Allocated := True;
+      Set.Set (Set.Last).Data      := Data;
+   end Add;
+
+   procedure Add
+     (Set    : in out Socket_Set_Type;
+      Socket : in     Socket_Access;
+      Data   : in     Data_Type;
+      Mode   : in     Waiting_Mode) is
+   begin
+      Add_Private (Set, Socket, Mode);
+      Set.Set (Set.Last).Allocated := False;
+      Set.Set (Set.Last).Data      := Data;
+   end Add;
+
    -----------------
    -- Add_Private --
    -----------------
@@ -132,8 +154,8 @@ package body AWS.Net.Generic_Sets is
 
       Set.Last := Set.Last + 1;
 
-      Set.Set (Set.Last).Socket := Socket;
-      Set.Poll (Set.Last).FD := Thin.FD_Type (Get_FD (Socket.all));
+      Set.Set  (Set.Last).Socket := Socket;
+      Set.Poll (Set.Last).FD     := Thin.FD_Type (Get_FD (Socket.all));
 
       Set_Mode (Set, Set.Last, Mode);
    end Add_Private;

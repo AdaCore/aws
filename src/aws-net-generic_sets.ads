@@ -65,6 +65,7 @@ package AWS.Net.Generic_Sets is
      (Set    : in out Socket_Set_Type;
       Socket : in     Socket_Type'Class;
       Mode   : in     Waiting_Mode);
+   pragma Inline (Add);
    --  Add socket to the set. Socket can be retreived from the set using
    --  Get_Socket.
 
@@ -72,7 +73,24 @@ package AWS.Net.Generic_Sets is
      (Set    : in out Socket_Set_Type;
       Socket : in     Socket_Access;
       Mode   : in     Waiting_Mode);
+   pragma Inline (Add);
    --  Add socket to the set
+
+   procedure Add
+     (Set    : in out Socket_Set_Type;
+      Socket : in     Socket_Type'Class;
+      Data   : in     Data_Type;
+      Mode   : in     Waiting_Mode);
+   pragma Inline (Add);
+   --  Add socket and associated data to the set
+
+   procedure Add
+     (Set    : in out Socket_Set_Type;
+      Socket : in     Socket_Access;
+      Data   : in     Data_Type;
+      Mode   : in     Waiting_Mode);
+   pragma Inline (Add);
+   --  Add socket and associated data to the set
 
    procedure Set_Mode
      (Set    : in out Socket_Set_Type;
