@@ -28,6 +28,7 @@
 
 --  $Id$
 
+with Ada.Calendar;
 with Ada.Streams;
 
 package body AWS.Net.Acceptors is
@@ -36,8 +37,8 @@ package body AWS.Net.Acceptors is
    Signal_Index : constant := 2;
    First_Index  : constant := 3;
 
-   Shutdown_Command : constant := 0;
-   Socket_Command   : constant := 1;
+   Shutdown_Command      : constant := 0;
+   Socket_Command        : constant := 1;
 
    --------------
    -- Finalize --
@@ -59,12 +60,25 @@ package body AWS.Net.Acceptors is
       Socket   :    out Socket_Access)
    is
       use type Sets.Socket_Count;
-      Ready, Error : Boolean;
+      Ready, Error  : Boolean;
+      Wait_Timeout  : Duration;
+      First   : constant Boolean := True;
+      Timeout : array (Boolean) of Duration;
    begin
       if Sets.Count (Acceptor.Set) = 0 then
          --  After shutdown of the server socket.
          raise Socket_Error;
       end if;
+
+      if Sets.Count (Acceptor.Set) > Acceptor.Force_Length then
+         Timeout (First)     := Acceptor.Force_First_Timeout;
+         Timeout (not First) := Acceptor.Force_Timeout;
+      else
+         Timeout (First)     := Acceptor.First_Timeout;
+         Timeout (not First) := Acceptor.Timeout;
+      end if;
+
+      Wait_Timeout := Forever;
 
       loop
          Read_Ready : loop
@@ -88,11 +102,32 @@ package body AWS.Net.Acceptors is
                end if;
 
             else
-               Acceptor.Index := Acceptor.Index + 1;
+               --  Check for timeout.
+
+               declare
+                  use Ada.Calendar;
+                  Data : constant Socket_Data_Type
+                    := Sets.Get_Data (Acceptor.Set, Acceptor.Index);
+                  Diff : constant Duration
+                     := Timeout (Data.First) - (Clock - Data.Time);
+               begin
+                  if Diff <= 0.0 then
+                     Sets.Remove_Socket (Acceptor.Set, Acceptor.Index, Socket);
+                     Acceptor.Last := Acceptor.Last - 1;
+                     Shutdown (Socket.all);
+                     Free (Socket);
+                  else
+                     if Diff < Wait_Timeout then
+                        Wait_Timeout := Diff;
+                     end if;
+
+                     Acceptor.Index := Acceptor.Index + 1;
+                  end if;
+               end;
             end if;
          end loop Read_Ready;
 
-         Sets.Wait (Acceptor.Set, Forever);
+         Sets.Wait (Acceptor.Set, Wait_Timeout);
 
          Acceptor.Last := Sets.Count (Acceptor.Set);
 
@@ -103,6 +138,7 @@ package body AWS.Net.Acceptors is
 
          elsif Ready then
             declare
+               use Ada.Calendar;
                New_Socket : Std.Socket_Type;
             begin
                --  We could not accept SSL socket because SSL handshake could
@@ -110,12 +146,21 @@ package body AWS.Net.Acceptors is
                --  SSL later outside acceptor if necessary.
 
                Std.Accept_Socket (Acceptor.Server, New_Socket);
-               Sets.Add (Acceptor.Set, New_Socket, Sets.Input);
+
+               --  Set time earlier. First timeout would be shorter.
+
+               Sets.Add
+                 (Acceptor.Set,
+                  New_Socket,
+                  Data => (Time => Clock, First => True),
+                  Mode => Sets.Input);
             end;
          end if;
 
          if Sets.Is_Read_Ready (Acceptor.Set, Signal_Index) then
             declare
+               use Ada.Calendar;
+
                Socket : Socket_Access;
                Bytes  : Ada.Streams.Stream_Element_Array (1 .. 16);
                Last   : Ada.Streams.Stream_Element_Offset;
@@ -129,7 +174,11 @@ package body AWS.Net.Acceptors is
                   case Bytes (J) is
                      when Socket_Command =>
                         Acceptor.Box.Get (Socket);
-                        Sets.Add (Acceptor.Set, Socket, Sets.Input);
+                        Sets.Add
+                          (Acceptor.Set,
+                           Socket,
+                           Data  => (Time => Clock, First => False),
+                           Mode  => Sets.Input);
 
                      when Shutdown_Command =>
                         Std.Shutdown (Acceptor.Server);
@@ -182,10 +231,15 @@ package body AWS.Net.Acceptors is
    ------------
 
    procedure Listen
-     (Acceptor   : in out Acceptor_Type;
-      Host       : in     String;
-      Port       : in     Positive;
-      Queue_Size : in     Positive)
+     (Acceptor            : in out Acceptor_Type;
+      Host                : in     String;
+      Port                : in     Positive;
+      Queue_Size          : in     Positive;
+      Timeout             : in     Duration := Forever;
+      First_Timeout       : in     Duration := Forever;
+      Force_Timeout       : in     Duration := Forever;
+      Force_First_Timeout : in     Duration := Forever;
+      Force_Length        : in     Positive := Positive'Last)
    is
       use type Sets.Socket_Count;
    begin
@@ -198,8 +252,20 @@ package body AWS.Net.Acceptors is
       Sets.Add (Acceptor.Set, Acceptor.Server, Sets.Input);
       Sets.Add (Acceptor.Set, Acceptor.R_Signal, Sets.Input);
 
-      Acceptor.Index := First_Index;
-      Acceptor.Last  := Sets.Count (Acceptor.Set);
+      Acceptor.Index               := First_Index;
+      Acceptor.Last                := Sets.Count (Acceptor.Set);
+      Acceptor.Timeout             := Timeout;
+      Acceptor.Force_Timeout       := Force_Timeout;
+      Acceptor.First_Timeout       := First_Timeout;
+      Acceptor.Force_First_Timeout := Force_First_Timeout;
+
+      --  Take in account 2 auxiliary sockets, Server and R_Signal.
+
+      if Force_Length >= Positive'Last - 2 then
+         Acceptor.Force_Length := Sets.Socket_Count (Force_Length);
+      else
+         Acceptor.Force_Length := Sets.Socket_Count (Force_Length + 2);
+      end if;
    end Listen;
 
    --------------

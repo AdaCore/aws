@@ -31,10 +31,11 @@
 --  Waiting for group of sockets for read data availability and accept for new
 --  connections.
 
+with Ada.Calendar;
 with Ada.Finalization;
 
 with AWS.Net.Std;
-with AWS.Net.Sets;
+with AWS.Net.Generic_Sets;
 
 with AWS.Utils;
 
@@ -43,11 +44,21 @@ package AWS.Net.Acceptors is
    type Acceptor_Type is limited private;
 
    procedure Listen
-     (Acceptor   : in out Acceptor_Type;
-      Host       : in     String;
-      Port       : in     Positive;
-      Queue_Size : in     Positive);
+     (Acceptor            : in out Acceptor_Type;
+      Host                : in     String;
+      Port                : in     Positive;
+      Queue_Size          : in     Positive;
+      Timeout             : in     Duration := Forever;
+      First_Timeout       : in     Duration := Forever;
+      Force_Timeout       : in     Duration := Forever;
+      Force_First_Timeout : in     Duration := Forever;
+      Force_Length        : in     Positive := Positive'Last);
    --  Prepare Acceptor to accept sockets and wait for incoming data.
+   --  First_Timeout is for wait data in the first time after socket accepted.
+   --  Timeout is for wait next data in the socket, should be longer
+   --  than First_Timeout for HTTP protocol handlers.
+   --  Force_Timeout shorter timeout forced when number of sockets exceed
+   --  Force_Length.
 
    procedure Get
      (Acceptor : in out Acceptor_Type;
@@ -71,14 +82,26 @@ private
 
    package Mailboxes is new Utils.Mailbox_G (Socket_Access);
 
+   type Socket_Data_Type is record
+      Time  : Ada.Calendar.Time;
+      First : Boolean;
+   end record;
+
+   package Sets is new Generic_Sets (Socket_Data_Type);
+
    type Acceptor_Type is new Ada.Finalization.Limited_Controlled with record
-      Set      : Sets.Socket_Set_Type;
-      W_Signal : Std.Socket_Type;
-      R_Signal : Std.Socket_Type;
-      Server   : Std.Socket_Type;
-      Box      : Mailboxes.Mailbox (8);
-      Index    : Sets.Socket_Count;
-      Last     : Sets.Socket_Count;
+      Set                 : Sets.Socket_Set_Type;
+      W_Signal            : Std.Socket_Type;
+      R_Signal            : Std.Socket_Type;
+      Server              : Std.Socket_Type;
+      Box                 : Mailboxes.Mailbox (8);
+      Index               : Sets.Socket_Count;
+      Last                : Sets.Socket_Count;
+      Timeout             : Duration;
+      First_Timeout       : Duration;
+      Force_Timeout       : Duration;
+      Force_First_Timeout : Duration;
+      Force_Length        : Sets.Socket_Count;
    end record;
 
    procedure Finalize (Acceptor : in out Acceptor_Type);
