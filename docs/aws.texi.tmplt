@@ -2030,7 +2030,7 @@ File to process: <INPUT NAME=filename TYPE=FILE>
 @noindent
 On the server side, AWS will retrieve the file and put it into the
 upload directory. AWS add a prefix to the file to ensure that the
-filename will be uniq on the server side. The upload directory can be
+filename will be unique on the server side. The upload directory can be
 changed using the configuration options. @xref{Configuration options}.
 
 @noindent
