@@ -89,8 +89,8 @@ project Shared is
    -- Compiler --
    --------------
 
-   Common_Options  := ("-gnatwcefijkmruv", "-gnaty3abcefhiklmnoprst", "-Wall");
-   Debug_Options   := ("-g", "-gnata", "-gnatVa", "-gnatQ");
+   Common_Options  := ("-gnatwcfijkmruv", "-gnaty3abcefhiklmnoprstx", "-Wall", "-gnat05");
+   Debug_Options   := ("-g", "-gnata", "-gnatVa", "-gnatQ", "-gnato", "-gnatwe");
    Release_Options := ("-O2", "-gnatn");
 
    package Compiler is
