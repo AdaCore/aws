@@ -2,7 +2,7 @@
 --                              Ada Web Server                              --
 --                                                                          --
 --                         Copyright (C) 2000-2005                          --
---                                ACT-Europe                                --
+--                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -178,10 +178,10 @@ package AWS.Net is
    --  Returns the peer name/address
 
    function Peer_Port (Socket : in Socket_Type) return Positive is abstract;
-   --  Returns the port of the peer socket
+   --  Returns the peer socket's port number
 
    function Get_Port (Socket : in Socket_Type) return Positive is abstract;
-   --  Returns the port of the socket
+   --  Returns the socket's port number
 
    function Host_Name return String;
    --  Returns the running host name
