@@ -1,5 +1,13 @@
 2005-09-14  Pascal Obry  <pascal@obry.net>
 
+	* regtests.gpr:
+	(Compiler): Add -gnat05 switch.
+
+	* nonce.adb:
+	Fix compilation of this test after the change of containers.
+
+2005-09-14  Pascal Obry  <pascal@obry.net>
+
 	* nvect.ads, nonce.adb:
 	Use Ada.Containers instead of internal AI302.
 	Update copyright notice.
