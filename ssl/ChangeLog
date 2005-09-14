@@ -1,3 +1,12 @@
+2005-09-14  Pascal Obry  <pascal@obry.net>
+
+	* makefile:
+	Add support for shared OpenSSL libraries.
+
+	* crypto_lib.gpr, ssl_lib.gpr:
+	(Externally_Built): Add this attribute, set to true.
+	Update copyright notice.
+
 2004-10-11  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* makefile:
