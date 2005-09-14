@@ -1,3 +1,9 @@
+2005-09-14  Pascal Obry  <pascal@obry.net>
+
+	* nvect.ads, nonce.adb:
+	Use Ada.Containers instead of internal AI302.
+	Update copyright notice.
+
 2005-09-10  Dmitriy Anisimkov <anisimkov@ada-ru.org>
 
 	* accs_proc.adb:

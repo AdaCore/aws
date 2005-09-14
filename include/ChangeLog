@@ -1,3 +1,8 @@
+2005-09-14  Pascal Obry  <pascal@obry.net>
+
+	* include.gpr, strings_maps.ads:
+	Remove with of ai302 as AWS uses the standard Ada.Containers now.
+
 2005-09-05  Dmitriy Anisimkov <anisimkov@ada-ru.org>
 
 	* zlib/*:

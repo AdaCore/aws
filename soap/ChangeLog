@@ -1,3 +1,9 @@
+2005-09-14  Pascal Obry  <pascal@obry.net>
+
+	* soap-wsdl-parser.ads, soap-wsdl-parser.adb:
+        Use Ada.Containers instead of internal AI302.
+	Update copyright notice.
+
 2005-08-16  Pascal Obry  <pascal@obry.net>
 
 	* soap.ads:
@@ -14,7 +20,7 @@
 	Minor reformatting.
 	Update copyright notice.
 	Work for E708-002.
-	
+
 	* soap-message-xml.ads:
 	Minor reformatting.
 	Update copyright notice.
@@ -42,7 +48,7 @@
 	 is moved here because it is shared with SOAP.Types.
 	Update copyright notice.
 	Work for E708-002.
-	
+
 2005-06-22  Pascal Obry  <pascal@obry.net>
 
 	* soap-types.ads, soap-types.adb:

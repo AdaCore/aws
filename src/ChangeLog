@@ -1,3 +1,22 @@
+2005-09-14  Pascal Obry  <pascal@obry.net>
+
+	* src.gpr:
+	Remove with "ai302".
+	With config and use it to select the right library kind. Ongoing
+	 work for D507-003.
+	(TP_Common_Switches): Remove -gnatwe to be able to build AWS using
+	 GNAT GPL in release mode.
+
+	* aws-attachments.ads, aws-containers-tables-set.adb,
+          aws-containers-tables.adb, aws-mime.adb, aws-session.adb,
+          aws-resources-embedded.adb, aws-server-hotplug.adb,
+          aws-server-push.adb, aws-services-directory.adb,
+          aws-services-dispatchers-timer.ads,
+          aws-services-dispatchers-uri.ads, aws-hotplug.ads,
+          aws-containers-tables.ads:
+        Use Ada.Containers instead of internal AI302.
+	Update copyright notice.
+
 2005-09-13 Dmitriy Anisimkov <anisimkov@ada-ru.org>
 
 	* aws-net-generic_sets.ads, aws-net-generic_sets.adb:

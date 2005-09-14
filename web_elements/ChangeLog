@@ -1,3 +1,9 @@
+2005-09-14  Pascal Obry  <pascal@obry.net>
+
+	* makefile:
+	(I_WEL): New variable, install directory for the Web Elements.
+	Update the build directories to match the GNAT defaults.
+
 2004-12-23  Pascal Obry  <pascal@obry.net>
 
 	* menu_css/menu.tcss, notebook/notebook.thtml, 

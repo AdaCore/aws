@@ -1,3 +1,9 @@
+2005-09-14  Pascal Obry  <pascal@obry.net>
+
+	* aws-jabber.adb:
+	Use Ada.Containers instead of internal AI302.
+	Update copyright notice.
+
 2005-02-12  Pascal Obry  <pascal@obry.org>
 
 	* templates_parser-xml.ads, templates_parser-xml.adb:
@@ -19,7 +25,7 @@
 2004-09-02  Pascal Obry  <pascal@obry.org>
 
 	* aws-jabber.adb, templates_parser-xml.adb:
-	Adjust to new AI302 version.	
+	Adjust to new AI302 version.
 
 2004-07-07  Pascal Obry  <pascal@obry.org>
 
@@ -29,8 +35,8 @@
 
 2004-06-25  Pascal Obry  <pascal@obry.org>
 
-	* aws-jabber.adb, templates_parser-xml.adb: 
-	Adjust to new AI302 version.	
+	* aws-jabber.adb, templates_parser-xml.adb:
+	Adjust to new AI302 version.
 
 2004-06-10  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
