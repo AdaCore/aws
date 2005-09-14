@@ -2,7 +2,7 @@
 --                              Ada Web Server                              --
 --                                                                          --
 --                         Copyright (C) 2002-2005                          --
---                                ACT-Europe                                --
+--                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -48,7 +48,7 @@ package AWS.Net.Std is
      (Socket : in out Socket_Type;
       Port   : in     Natural;
       Host   : in     String := "");
-   --  Bind a socket on a given port.
+   --  Bind a socket on a given port
 
    procedure Listen
      (Socket     : in Socket_Type;
@@ -108,10 +108,10 @@ package AWS.Net.Std is
    --  Returns the peer name/address
 
    function Peer_Port (Socket : in Socket_Type) return Positive;
-   --  Returns the port of the peer socket
+   --  Returns the peer socket's port number
 
    function Get_Port (Socket : in Socket_Type) return Positive;
-   --  Returns the port of the socket
+   --  Returns the socket's port number
 
    function Host_Name return String;
 
@@ -140,7 +140,7 @@ package AWS.Net.Std is
    --  Return error code for the last socket operation
 
    function Errno (Socket : in Socket_Type) return Integer;
-   --  Returns and clears error state in socket.
+   --  Returns and clears error state in socket
 
 private
 
