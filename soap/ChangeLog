@@ -1,5 +1,9 @@
 2005-09-14  Pascal Obry  <pascal@obry.net>
 
+	* soap-message-reader.ads:
+	Minor reformatting.
+        Update copyright notice.
+
 	* soap-wsdl-parser.ads, soap-wsdl-parser.adb:
         Use Ada.Containers instead of internal AI302.
 	Update copyright notice.
