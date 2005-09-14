@@ -32,6 +32,7 @@
 
 with "xmlada";
 with "sockets";
+with "config";
 
 with "../shared";
 with "../include/include";
@@ -65,7 +66,7 @@ project Src is
    end case;
 
    for Library_Name use "aws";
-   for Library_Kind use "static";
+   for Library_Kind use Config.Lib_Kind;
 
    ---------
    -- Ide --
@@ -74,7 +75,7 @@ project Src is
    package Ide renames Shared.IDE;
 
    TP_Common_Switches
-     := ("-gnatwcefijkmruv", "-gnaty3abcefhiklmnprt", "-Wall");
+     := ("-gnatwcfijkmruv", "-gnaty3abcefhiklmnprt", "-Wall");
    --  Limited style check options (no spec, not alphabetical order)
 
    --------------
