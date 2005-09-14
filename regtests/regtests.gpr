@@ -100,7 +100,7 @@ project Regtests is
    --------------
 
    package Compiler is
-      for Default_Switches ("Ada") use ("-g");
+      for Default_Switches ("Ada") use ("-g", "-gnat05");
    end Compiler;
 
    -------------
