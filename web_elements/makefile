@@ -3,14 +3,16 @@
 
 DIRS = menu_css notebook rounded_boxes icons javascripts
 
+I_WEL	= $(INSTALL)/share/aws/web_elements
+
 init:
-	$(MKDIR) $(INSTALL)/AWS/web_elements
-	$(CP) readme.txt $(INSTALL)/AWS/web_elements
+	$(MKDIR) -p $(I_WEL)
+	$(CP) readme.txt $(I_WEL)
 
 force:
 
 $(DIRS): force
-	$(MKDIR) $(INSTALL)/AWS/web_elements/$@
-	$(CP) $@/*.* $(INSTALL)/AWS/web_elements/$@
+	$(MKDIR) $(I_WEL)/$@
+	$(CP) $@/*.* $(I_WEL)/$@
 
 install: init $(DIRS)
