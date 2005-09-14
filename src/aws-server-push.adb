@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2004                          --
---                                ACT-Europe                                --
+--                         Copyright (C) 2000-2005                          --
+--                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -29,7 +29,7 @@
 --  $Id$
 
 with Ada.Calendar;
-with AI302.Containers;
+with Ada.Containers;
 
 with AWS.Messages;
 with AWS.MIME;
@@ -338,7 +338,7 @@ package body AWS.Server.Push is
       -----------------------
 
       procedure Shutdown_If_Empty (Open : out Boolean) is
-         use type AI302.Containers.Count_Type;
+         use type Ada.Containers.Count_Type;
       begin
          if Table.Length (Container) = 0 then
             Object.Open := False;

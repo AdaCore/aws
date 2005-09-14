@@ -2,7 +2,7 @@
 --                              Ada Web Server                              --
 --                                                                          --
 --                         Copyright (C) 2000-2005                          --
---                                ACT-Europe                                --
+--                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -107,22 +107,29 @@ package body AWS.Containers.Tables.Set is
       Value : in     String;
       N     : in     Natural)
    is
-      L_Key  : constant String
+      L_Key : constant String
         :=  Normalize_Name (Name, not Table.Case_Sensitive);
 
       Cursor : Index_Table.Cursor := Index_Table.Find (Table.Index, L_Key);
 
-      procedure Process (Item : in out Name_Index_Table);
+      procedure Process
+        (Key  : in     String;
+         Item : in out Name_Index_Table);
 
       -------------
       -- Process --
       -------------
 
-      procedure Process (Item : in out Name_Index_Table) is
-         NV : constant Element := (Name_Length  => Name'Length,
-                                   Value_Length => Value'Length,
-                                   Name         => Name,
-                                   Value        => Value);
+      procedure Process
+        (Key  : in String;
+         Item : in out Name_Index_Table)
+      is
+         pragma Unreferenced (Key);
+         NV : constant Element :=
+                (Name_Length  => Name'Length,
+                 Value_Length => Value'Length,
+                 Name         => Name,
+                 Value        => Value);
       begin
          if N = 0 or else N = Natural (Name_Indexes.Length (Item)) + 1 then
             --  Add item at then end of the table
@@ -145,11 +152,9 @@ package body AWS.Containers.Tables.Set is
          end if;
       end Process;
 
-      procedure Update is new Index_Table.Generic_Update_Element (Process);
-
    begin
       if not Index_Table.Has_Element (Cursor) then
-         --  Insert empty vector into Table.Index.
+         --  Insert empty vector into Table.Index
 
          if N > 1 then
             raise Constraint_Error;
@@ -165,9 +170,9 @@ package body AWS.Containers.Tables.Set is
          end;
       end if;
 
-      --  Update index vector just in place.
+      --  Update index vector just in place
 
-      Update (Cursor);
+      Index_Table.Update_Element (Cursor, Process'Access);
 
    end Update_Internal;
 

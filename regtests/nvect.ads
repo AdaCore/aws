@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2004                            --
---                               ACT-Europe                                 --
+--                         Copyright (C) 2004-2005                          --
+--                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -30,7 +30,7 @@
 
 with AWS.Digest;
 
-with AI302.Containers.Vectors;
+with Ada.Containers.Vectors;
 
 package Nvect is
-   new AI302.Containers.Vectors (Positive, AWS.Digest.Nonce, "=");
+   new Ada.Containers.Vectors (Positive, AWS.Digest.Nonce, "=");

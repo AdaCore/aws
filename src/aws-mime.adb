@@ -2,7 +2,7 @@
 --                              Ada Web Server                              --
 --                                                                          --
 --                         Copyright (C) 2000-2005                          --
---                                ACT-Europe                                --
+--                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -103,8 +103,7 @@ package body AWS.MIME is
 
    function Is_Type
      (MIME_Type : in String;
-      Type_Name : in String)
-      return Boolean;
+      Type_Name : in String) return Boolean;
    pragma Inline (Is_Type);
    --  Returns True if MIME_Type is of Type_Name type. The type name is the
    --  first part of the MIME Type (the part before the /).
@@ -378,8 +377,7 @@ package body AWS.MIME is
 
    function Is_Type
      (MIME_Type : in String;
-      Type_Name : in String)
-      return Boolean is
+      Type_Name : in String) return Boolean is
    begin
       return MIME_Type'Length > Type_Name'Length
           and then
@@ -472,19 +470,13 @@ package body AWS.MIME is
             end if;
          end Process;
 
-         ---------------
-         -- Iteration --
-         ---------------
-
-         procedure Iteration is new Key_Value.Generic_Iteration (Process);
-
       begin
          if Content_Type = Default_Content_Type then
             null; -- We don't want give unknown data the exe extension
          elsif Content_Type = Text_Plain then
             return "txt";
          else
-            Iteration (Ext_Set);
+            Key_Value.Iterate (Ext_Set, Process'Access);
          end if;
 
          return "";

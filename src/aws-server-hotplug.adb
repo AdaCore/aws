@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2004                          --
---                                ACT-Europe                                --
+--                         Copyright (C) 2000-2005                          --
+--                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -33,8 +33,8 @@ with Ada.Exceptions;
 with Ada.Strings.Unbounded;
 with Ada.Text_IO;
 
-with AI302.Containers.Indefinite_Hashed_Maps;
-with AI302.Strings.Hash;
+with Ada.Containers.Indefinite_Hashed_Maps;
+with Ada.Strings.Hash;
 with Strings_Cutter;
 
 with AWS.Communication;
@@ -70,8 +70,8 @@ package body AWS.Server.Hotplug is
       Nonce    : Digest.Nonce;
    end record;
 
-   package Client_Table is new AI302.Containers.Indefinite_Hashed_Maps
-     (String, Client_Data, AI302.Strings.Hash);
+   package Client_Table is new Ada.Containers.Indefinite_Hashed_Maps
+     (String, Client_Data, Ada.Strings.Hash, "=");
 
    Null_Nonce : constant Digest.Nonce := (others => ' ');
 

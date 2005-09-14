@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2003-2004                          --
---                                ACT-Europe                                --
+--                         Copyright (C) 2003-2005                          --
+--                                  AdaCore                                 --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -831,8 +831,8 @@ package body SOAP.WSDL.Parser is
                S : constant DOM.Core.Node := DOM.Core.Nodes.Item (NL, K);
             begin
                if Utils.No_NS (DOM.Core.Nodes.Node_Name (S)) = "operation"
-                 and then not Exclude_Set.Is_In
-                   (XML.Get_Attr_Value (S, "name"), O.Exclude)
+                 and then not Exclude_Set.Contains
+                   (O.Exclude, XML.Get_Attr_Value (S, "name"))
                then
                   begin
                      Parse_Operation

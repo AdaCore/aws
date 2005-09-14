@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2004                          --
---                                ACT-Europe                                --
+--                         Copyright (C) 2000-2005                          --
+--                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -42,7 +42,7 @@
 
 with Ada.Characters.Handling;
 
-with AI302.Containers.Generic_Array_Sort;
+with Ada.Containers.Generic_Array_Sort;
 
 package body AWS.Containers.Tables is
 
@@ -96,8 +96,8 @@ package body AWS.Containers.Tables is
       Name  : in String)
       return Boolean is
    begin
-      return Index_Table.Is_In
-        (Normalize_Name (Name, not Table.Case_Sensitive), Table.Index);
+      return Index_Table.Contains
+        (Table.Index, Normalize_Name (Name, not Table.Case_Sensitive));
    end Exist;
 
    ---------
@@ -185,7 +185,7 @@ package body AWS.Containers.Tables is
       return VString_Array
    is
       procedure Sort_Names is
-        new AI302.Containers.Generic_Array_Sort
+        new Ada.Containers.Generic_Array_Sort
           (Positive, Unbounded_String, VString_Array);
 
       Result : VString_Array (1 .. Name_Count (Table));

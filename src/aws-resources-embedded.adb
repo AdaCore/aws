@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                          Copyright (C) 2002-2004                         --
---                                ACT-Europe                                --
+--                          Copyright (C) 2002-2005                         --
+--                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -87,15 +87,15 @@ package body AWS.Resources.Embedded is
    function Exist (Name : in String) return File_Instance is
    begin
       if not Is_GZip (Name)
-        and then Res_Files.Is_In (Name & GZip_Ext, Files_Table)
+        and then Res_Files.Contains (Files_Table, Name & GZip_Ext)
       then
-         if Res_Files.Is_In (Name, Files_Table) then
+         if Res_Files.Contains (Files_Table, Name) then
             return Both;
          else
             return GZip;
          end if;
 
-      elsif Res_Files.Is_In (Name, Files_Table) then
+      elsif Res_Files.Contains (Files_Table, Name) then
          return Plain;
 
       else
@@ -166,9 +166,9 @@ package body AWS.Resources.Embedded is
 
    function Is_Regular_File (Name : in String) return Boolean is
    begin
-      return Res_Files.Is_In (Name, Files_Table)
+      return Res_Files.Contains (Files_Table, Name)
         or else (not Is_GZip (Name)
-                 and then Res_Files.Is_In (Name & GZip_Ext, Files_Table));
+                 and then Res_Files.Contains (Files_Table, Name & GZip_Ext));
    end Is_Regular_File;
 
    ----------

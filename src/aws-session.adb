@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2004                          --
---                                ACT-Europe                                --
+--                         Copyright (C) 2000-2005                          --
+--                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -369,15 +369,8 @@ package body AWS.Session is
             Free (Item.Root);
          end Destroy;
 
-         -------------------
-         -- For_All_Items --
-         -------------------
-
-         procedure For_All_Items is
-           new Session_Set.Generic_Iteration (Destroy);
-
       begin
-         For_All_Items (Sessions);
+         Session_Set.Iterate (Sessions, Destroy'Access);
          Session_Set.Clear (Sessions);
       end Destroy;
 
@@ -451,7 +444,7 @@ package body AWS.Session is
          Get_Node (Sessions, SID, Node, Result);
 
          if Result then
-            Result := Key_Value.Is_In (Key, Node.Root.all);
+            Result := Key_Value.Contains (Node.Root.all, Key);
          end if;
       end Key_Exist;
 
@@ -546,7 +539,7 @@ package body AWS.Session is
 
       function Session_Exist (SID : in Id) return Boolean is
       begin
-         return Session_Set.Is_In (String (SID), Sessions);
+         return Session_Set.Contains (Sessions, String (SID));
       end Session_Exist;
 
       ---------------
@@ -835,25 +828,29 @@ package body AWS.Session is
       Cursor : constant Session_Set.Cursor
         := Session_Set.Find (Sessions, String (SID));
 
-      procedure Process (Item : in out Session_Node);
+      procedure Process
+        (Key  : in String;
+         Item : in out Session_Node);
 
       -------------
       -- Process --
       -------------
 
-      procedure Process (Item : in out Session_Node) is
+      procedure Process
+        (Key  : in String;
+         Item : in out Session_Node)
+      is
+         pragma Unreferenced (Key);
       begin
          Item.Time_Stamp := Calendar.Clock;
          Node := Item;
       end Process;
 
-      procedure Update is new Session_Set.Generic_Update_Element (Process);
-
    begin
       Found := Session_Set.Has_Element (Cursor);
 
       if Found then
-         Update (Cursor);
+         Session_Set.Update_Element (Cursor, Process'Access);
       end if;
    end Get_Node;
 
