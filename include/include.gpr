@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                          Copyright (C) 2003-2004                         --
---                                ACT-Europe                                --
+--                          Copyright (C) 2003-2005                         --
+--                                 AdaCore                                  --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
 --                                                                          --
@@ -32,7 +32,6 @@
 
 with "../shared";
 with "zlib/zlib";
-with "ai302";
 
 project Include is
 
