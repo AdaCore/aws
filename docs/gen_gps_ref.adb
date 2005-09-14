@@ -87,7 +87,7 @@ procedure Gen_GPS_Ref is
       Put_Line ("     Just copy this file into ~/.gps/plug-ins -->");
       Put_Line ("<doc>");
       Put_Line ("   <submenu before=""About"" action = """">");
-      Put_Line ("      <title>/Help/AWS API</title>");
+      Put_Line ("      <title>/Help/AWS/AWS API</title>");
       Put_Line ("   </submenu>");
    end Gen_Header;
 
