@@ -2,7 +2,7 @@
 --                              Ada Web Server                              --
 --                                                                          --
 --                          Copyright (C) 2004-2005                         --
---                                ACT-Europe                                --
+--                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -28,22 +28,21 @@
 
 --  $Id$
 
-with "../components/components";
+with "../../include/aws/components/components";
 with "crypto_lib";
 with "ssl_lib";
 with "xmlada";
-with "ai302";
 with "shared";
+with "config";
 
 project AWS_SSL is
 
-   for Source_Dirs use ("../include");
+   for Source_Dirs use ("../../include/aws");
 
-   for Object_Dir use "../obj";
-
-   for Library_Dir use "../lib";
+   for Library_Dir use "../../lib/aws";
    for Library_Name use "aws";
-   for Library_Kind use "static";
+   for Library_Kind use Config.Lib_Kind;
+   for Externally_Built use "true";
 
    package Naming renames Shared.Naming;
 
