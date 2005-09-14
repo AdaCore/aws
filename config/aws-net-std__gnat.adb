@@ -2,7 +2,7 @@
 --                              Ada Web Server                              --
 --                                                                          --
 --                         Copyright (C) 2000-2005                          --
---                                ACT-Europe                                --
+--                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -181,7 +181,7 @@ package body AWS.Net.Std is
          when E : GNAT.Sockets.Socket_Error =>
             --  Ignore EWOULDBLOCK and EINPROGRESS errors, because we are
             --  using none blocking connect.
-            --  !!! Note, we should change it when GNAT would support
+            --  ??? Note, we should change this when GNAT will support
             --  Non-blocking connect.
 
             case Resolve_Exception (E) is
