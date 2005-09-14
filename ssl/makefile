@@ -8,6 +8,20 @@ force:
 ifneq (${OS}, Windows_NT)
 SSL_PATH1 := $(shell ls /usr/lib/libcrypto.a 2> /dev/null)
 SSL_PATH2 := $(shell ls /lib/libcrypto.a 2> /dev/null)
+SSL_PATH3 := $(shell ls /usr/lib/libcrypto.so 2> /dev/null)
+SSL_PATH4 := $(shell ls /lib/libcrypto.so 2> /dev/null)
+endif
+
+SSL_PATH = $(SSL_PATH1)
+
+ifeq (${SSL_PATH},)
+	SSL_PATH = $(SSL_PATH2)
+endif
+ifeq (${SSL_PATH},)
+	SSL_PATH = $(SSL_PATH3)
+endif
+ifeq (${SSL_PATH},)
+	SSL_PATH = $(SSL_PATH4)
 endif
 
 build:
@@ -24,11 +38,7 @@ else
 ifeq (${OS}, Windows_NT)
 	echo '   LIB_Path := "../lib";' >> ssl_shared.gpr
 else
-ifneq (${SSL_PATH1},)
-	echo '   LIB_Path := "'$(dir $(SSL_PATH1))'";' >> ssl_shared.gpr
-else
-	echo '   LIB_Path := "'$(dir $(SSL_PATH2))'";' >> ssl_shared.gpr
-endif
+	echo '   LIB_Path := "'$(dir $(SSL_PATH))'";' >> ssl_shared.gpr
 endif
 endif
 	echo "end SSL_Shared;" >> ssl_shared.gpr
