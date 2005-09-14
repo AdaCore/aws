@@ -9,9 +9,11 @@
 include makefile.conf
 
 ifeq (${OS}, Windows_NT)
-EXEEXT = .exe
+EXEEXT	= .exe
+SOEXT	= .dll
 else
-EXEEXT =
+SOEXT	= .so
+EXEEXT	=
 endif
 
 ifdef DEBUG
@@ -171,116 +173,6 @@ distrib: build_apiref build_doc build_tarballs
 
 force:
 
-install: force
-	-rm -fr $(INSTALL)/AWS
-	$(MKDIR) $(INSTALL)/AWS
-	$(MKDIR) $(INSTALL)/AWS/obj
-	$(MKDIR) $(INSTALL)/AWS/lib
-	$(MKDIR) $(INSTALL)/AWS/include
-	$(MKDIR) $(INSTALL)/AWS/icons
-	$(MKDIR) $(INSTALL)/AWS/images
-	$(MKDIR) $(INSTALL)/AWS/templates
-	$(MKDIR) $(INSTALL)/AWS/docs
-	$(MKDIR) $(INSTALL)/AWS/docs/html
-	$(MKDIR) $(INSTALL)/AWS/components
-	$(MKDIR) $(INSTALL)/AWS/components/ai302
-	$(MKDIR) $(INSTALL)/AWS/tools
-	$(MKDIR) $(INSTALL)/AWS/projects
-	$(CP) -p src/a*.ad[sb] ssl/*.ad[sb] $(INSTALL)/AWS/include
-	$(CP) -p templates_parser/src/t*.ad[sb] $(INSTALL)/AWS/include
-	$(CP) -p config/aws-net-std__* $(INSTALL)/AWS/include
-	$(CP) -p config/aws-os_lib__* $(INSTALL)/AWS/include
-	$(CP) -p config/templates_parser-* $(INSTALL)/AWS/include
-ifeq ($(XMLADA),true)
-	$(CP) -p soap/*.ad[sb] $(INSTALL)/AWS/include
-	$(CP) -p xsrc/*.ad[sb] $(INSTALL)/AWS/include
-	$(CP) -p templates_parser/xsrc/*.ad[sb] $(INSTALL)/AWS/include
-endif
-	$(CP) -p $(BDIR)/lib/* $(INSTALL)/AWS/lib
-	$(CP) -p $(BDIR)/obj/* $(INSTALL)/AWS/obj
-	-$(CP) -p $(BDIR)/ssl/lib/* $(INSTALL)/AWS/lib
-	-$(CP) -p $(BDIR)/ssl/obj/* $(INSTALL)/AWS/obj
-	-$(CP) -p $(BDIR)/ssl/obj/* $(INSTALL)/AWS/lib
-	$(CP) lib/libz.a $(INSTALL)/AWS/lib
-	-$(CP) docs/aws.html $(INSTALL)/AWS/docs
-	-$(CP) docs/aws_api.xml $(INSTALL)/AWS/docs
-	-$(CP) templates_parser/docs/templates_parser.html $(INSTALL)/AWS/docs
-	-$(CP) templates_parser/docs/templates_parser.info* $(INSTALL)/AWS/docs
-	-$(CP) docs/aws.txt $(INSTALL)/AWS/docs
-	-$(CP) docs/*.info* $(INSTALL)/AWS/docs
-	-$(CP) -r docs/html/* $(INSTALL)/AWS/docs/html
-	$(CP) demos/*.thtml $(INSTALL)/AWS/templates
-	$(CP) demos/wm_login.html $(INSTALL)/AWS/templates
-	$(CP) demos/aws_*.png $(INSTALL)/AWS/images
-	$(CP) -p include/*.ad? $(INSTALL)/AWS/components
-ifeq (${AI302},Internal)
-	$(CP) -p include/ai302/*.ad? $(INSTALL)/AWS/components/ai302
-	$(CP) -p $(BDIR)/include/ai302/* $(INSTALL)/AWS/components/ai302
-	$(CP) config/projects/ai302.gpr $(INSTALL)/AWS/components/ai302
-	$(SED) -e 's,ai302,\.\./components/ai302/ai302,g' \
-		< config/projects/aws.gpr > $(INSTALL)/AWS/projects/aws.gpr
-	$(SED) -e 's,ai302,\.\./components/ai302/ai302,g' \
-		< config/projects/aws_ssl.gpr \
-		> $(INSTALL)/AWS/projects/aws_ssl.gpr
-else
-	$(CP) config/projects/aws.gpr $(INSTALL)/AWS/projects
-	$(CP) config/projects/aws_ssl.gpr $(INSTALL)/AWS/projects
-endif
-ifneq ($(XMLADA),true)
-	-$(CP) $(PRJDIR)/xmlada.gpr $(INSTALL)/AWS/projects
-endif
-	-$(CP) -p $(BDIR)/include/*.o $(INSTALL)/AWS/components
-	-$(CP) -p $(BDIR)/include/*.ali $(INSTALL)/AWS/components
-	-$(CP) $(BDIR)/tools/awsres${EXEEXT} $(INSTALL)/AWS/tools
-	-$(CP) $(BDIR)/tools/hotplug_password${EXEEXT} $(INSTALL)/AWS/tools
-	-$(CP) $(BDIR)/tools/wsdl2aws${EXEEXT} $(INSTALL)/AWS/tools
-	-$(CP) $(BDIR)/tools/ada2wsdl-main${EXEEXT} \
-		$(INSTALL)/AWS/tools/ada2wsdl${EXEEXT}
-ifeq (${OS}, Windows_NT)
-	-$(CP) -p $(BDIR)/win32/lib/* $(INSTALL)/AWS/lib
-	-$(CP) -p $(BDIR)/win32/obj/* $(INSTALL)/AWS/obj
-	$(CP) -p lib/lib*.a $(INSTALL)/AWS/lib
-	-$(CP) -p win32/*.dll $(INSTALL)/AWS/lib
-endif
-	$(CP) config/projects/components.gpr $(INSTALL)/AWS/components
-	$(CP) config/projects/*_lib.gpr $(INSTALL)/AWS/projects
-	$(CP) config/projects/shared.gpr $(INSTALL)/AWS/projects
-	$(CP) $(BDIR)/config.gpr $(INSTALL)/AWS/projects
-# Regenerate the SSL project to properly point to the ssl/crypto libraries
-	$(MAKE) -C ssl SOCKET=ssl setup_ssl
-	$(CP) ssl/ssl_shared.gpr $(INSTALL)/AWS/projects
-	-$(CHMOD) -R og+r $(INSTALL)/AWS
-	-$(CHMOD) uog-w $(INSTALL)/AWS/components/*.ali
-	-$(CHMOD) uog-w $(INSTALL)/AWS/lib/*.ali
-	-$(CHMOD) uog-w $(INSTALL)/AWS/obj/*.ali
-# We need to touch the libraries as we have changed the .gpr
-	-$(TOUCH) $(INSTALL)/AWS/lib/*.a
-	make -C web_elements install $(GALL_OPTIONS)
-
-# install-gnat is used to install AWS into the GNAT standard library
-# location. In this case there is no need to set ADA_PROJECT_PATH. This is
-# supported starting with GNAT 5.03.
-
-install-gnat: install
-	$(SED) -e 's,\.\./,AWS/,g;s,nossl_,AWS/projects/nossl_,g' \
-		-e 's,shared,AWS/projects/shared,g'\
-		< $(INSTALL)/AWS/projects/aws.gpr > aws_tmp.gpr
-	$(SED) -e 's,\.\./,AWS/,g;s,crypto,AWS/projects/crypto,g' \
-		-e 's,ssl_,AWS/projects/ssl_,g;s,shared,AWS/projects/shared,g'\
-		< $(INSTALL)/AWS/projects/aws_ssl.gpr > aws_ssl_tmp.gpr
-ifneq ($(XMLADA),true)
-	$(SED) -e 's,xmlada,AWS/projects/xmlada,g' aws_tmp.gpr \
-		> $(INSTALL)/aws.gpr
-	$(SED) -e 's,xmlada,AWS/projects/xmlada,g' aws_ssl_tmp.gpr \
-		> $(INSTALL)/aws_ssl.gpr
-	$(RM) -f aws_tmp.gpr aws_ssl_tmp.gpr
-else
-	$(MV) aws_tmp.gpr $(INSTALL)/aws.gpr
-	$(MV) aws_ssl_tmp.gpr $(INSTALL)/aws_ssl.gpr
-endif
-	$(RM) -f $(INSTALL)/AWS/projects/aws.gpr
-	$(RM) -f $(INSTALL)/AWS/projects/aws_ssl.gpr
-
 #############################################################################
 # Configuration for GNAT Projet Files
 
@@ -340,16 +232,6 @@ endif
 else
 PRJ_ASIS=Disabled
 GEXT_MODULE := $(GEXT_MODULE) gasis_dummy
-endif
-
-# AI302
-
-ifeq ($(AI302), Internal)
-PRJ_AI302=Internal
-GEXT_MODULE := $(GEXT_MODULE) gai302_internal
-else
-PRJ_AI302=External
-GEXT_MODULE := $(GEXT_MODULE) gai302_external
 endif
 
 ## Debug
@@ -438,67 +320,120 @@ gxmlada_dummy:
 	echo "   for Source_Dirs use ();" >> $(PRJDIR)/xmlada.gpr
 	echo "end XMLADA;" >> $(PRJDIR)/xmlada.gpr
 
-gai302_internal:
-	echo "project AI302 is" > $(PRJDIR)/ai302.gpr
-	echo '   for Source_Dirs use ("../../include/ai302");' \
-		>> $(PRJDIR)/ai302.gpr
-	echo '   type Build_Type is ("Debug", "Release");' \
-		>> $(PRJDIR)/ai302.gpr
-	echo '   Build : Build_Type := external ("PRJ_BUILD", "Debug");' \
-		>> $(PRJDIR)/ai302.gpr
-	echo "   case Build is" >> $(PRJDIR)/ai302.gpr
-	echo '      when "Debug" =>' >> $(PRJDIR)/ai302.gpr
-	echo '         for Object_Dir use "../../.build/debug/include/ai302";' \
-		>> $(PRJDIR)/ai302.gpr
-	echo '      when "Release" =>' >> $(PRJDIR)/ai302.gpr
-	echo '         for Object_Dir use "../../.build/release/include/ai302";' \
-		>> $(PRJDIR)/ai302.gpr
-	echo "   end case;" >> $(PRJDIR)/ai302.gpr
-
-	echo '   package Compiler is' >> $(PRJDIR)/ai302.gpr
-	echo '      case Build is' >> $(PRJDIR)/ai302.gpr
-	echo '         when "Debug" =>' >> $(PRJDIR)/ai302.gpr
-	echo '            for Default_Switches ("Ada") use ("-g", "-gnata");' \
-	        >> $(PRJDIR)/ai302.gpr
-	echo '         when "Release" =>' >> $(PRJDIR)/ai302.gpr
-	echo '            for Default_Switches ("Ada") use ("-O2");' \
-	        >> $(PRJDIR)/ai302.gpr
-	echo '      end case;' >> $(PRJDIR)/ai302.gpr
-	echo '   end Compiler;' >> $(PRJDIR)/ai302.gpr
-
-	echo "end AI302;" >> $(PRJDIR)/ai302.gpr
-
-gai302_external:
-	-$(RM) -f $(PRJDIR)/ai302.gpr
-
 setup_dir:
 	-$(MKDIR) -p $(PRJDIR)
 
 setup_config:
-	echo 'project Config is' > $(BDIR)/config.gpr
-	echo '   for Source_Dirs use ();' >> $(BDIR)/config.gpr
+	echo 'project Config is' > $(PRJDIR)/config.gpr
+	echo '   Lib_Kind := "static";' >> $(PRJDIR)/config.gpr
+	echo '   for Source_Dirs use ();' >> $(PRJDIR)/config.gpr
 	echo '   type SOCKLIB_Type is ("GNAT", "AdaSockets", "IPv6");' \
-		>> $(BDIR)/config.gpr
+		>> $(PRJDIR)/config.gpr
 ifdef ADASOCKETS
-	echo '   SOCKLIB : SOCKLIB_Type := "AdaSockets";' >> $(BDIR)/config.gpr
+	echo '   SOCKLIB : SOCKLIB_Type := "AdaSockets";' \
+		>> $(PRJDIR)/config.gpr
 else
 ifdef IPv6
-	echo '   SOCKLIB : SOCKLIB_Type := "IPv6";' >> $(BDIR)/config.gpr
+	echo '   SOCKLIB : SOCKLIB_Type := "IPv6";' >> $(PRJDIR)/config.gpr
 else
-	echo '   SOCKLIB : SOCKLIB_Type := "GNAT";' >> $(BDIR)/config.gpr
+	echo '   SOCKLIB : SOCKLIB_Type := "GNAT";' >> $(PRJDIR)/config.gpr
 endif
 endif
 	echo '   type OSLIB_Type is ("GNAT", "Win32", "POSIX");' \
-		>> $(BDIR)/config.gpr
+		>> $(PRJDIR)/config.gpr
 ifeq (${OSLIB}, GNAT)
-	echo '   OSLIB : OSLIB_Type := "GNAT";' >> $(BDIR)/config.gpr
+	echo '   OSLIB : OSLIB_Type := "GNAT";' >> $(PRJDIR)/config.gpr
 endif
 ifeq (${OSLIB}, Win32)
-	echo '   OSLIB : OSLIB_Type := "Win32";' >> $(BDIR)/config.gpr
+	echo '   OSLIB : OSLIB_Type := "Win32";' >> $(PRJDIR)/config.gpr
 endif
 ifeq (${OSLIB}, POSIX)
-	echo '   OSLIB : OSLIB_Type := "POSIX";' >> $(BDIR)/config.gpr
+	echo '   OSLIB : OSLIB_Type := "POSIX";' >> $(PRJDIR)/config.gpr
 endif
-	echo 'end Config;' >> $(BDIR)/config.gpr
+	echo 'end Config;' >> $(PRJDIR)/config.gpr
 
 setup: setup_dir $(GEXT_MODULE) $(MODULES_SETUP) setup_config
+
+# Install directories
+
+I_BIN	= $(INSTALL)/bin
+I_INC	= $(INSTALL)/include/aws
+I_CPN	= $(INSTALL)/include/aws/components
+I_LIB	= $(INSTALL)/lib/aws
+I_DOC	= $(INSTALL)/doc/aws
+I_GPR	= $(INSTALL)/lib/gnat
+I_TPL	= $(INSTALL)/share/aws/templates
+I_IMG	= $(INSTALL)/share/aws/images
+I_SBN	= $(INSTALL)/share/aws/bin
+
+install_dirs: force
+	$(MKDIR) $(I_BIN)
+	$(MKDIR) $(I_INC)
+	$(MKDIR) $(I_CPN)
+	$(MKDIR) $(I_LIB)
+	$(MKDIR) $(I_DOC)
+	$(MKDIR) $(I_GPR)
+	$(MKDIR) $(I_TPL)
+	$(MKDIR) $(I_IMG)
+	$(MKDIR) $(I_SBN)
+
+install: install_dirs
+	$(CP) -p src/a*.ad[sb] ssl/*.ad[sb] $(I_INC)
+	$(CP) -p templates_parser/src/t*.ad[sb] $(I_INC)
+	$(CP) -p config/aws-net-std__* $(I_INC)
+	$(CP) -p config/aws-os_lib__* $(I_INC)
+	$(CP) -p config/templates_parser-* $(I_INC)
+ifeq ($(XMLADA),true)
+	$(CP) -p soap/*.ad[sb] $(I_INC)
+	$(CP) -p xsrc/*.ad[sb] $(I_INC)
+	$(CP) -p templates_parser/xsrc/*.ad[sb] $(I_INC)
+endif
+	$(CP) -p $(BDIR)/lib/* $(I_LIB)
+	-$(CP) -p $(BDIR)/ssl/lib/* $(I_LIB)
+	-$(CP) -p $(BDIR)/ssl/obj/*.ali $(I_LIB)
+	$(CP) lib/libz.a $(I_LIB)
+	-$(CP) docs/aws.html $(I_DOC)
+	-$(CP) docs/aws_api.xml $(I_DOC)
+	-$(CP) docs/gps_index.xml $(I_DOC)
+	-$(CP) templates_parser/docs/templates_parser.html $(I_DOC)
+	-$(CP) templates_parser/docs/templates_parser.info* $(I_DOC)
+	-$(CP) docs/aws.txt $(I_DOC)
+	-$(CP) docs/*.info* $(I_DOC)
+	-$(CP) -r docs/html $(I_DOC)
+	$(CP) demos/*.thtml $(I_TPL)
+	$(CP) demos/wm_login.html $(I_TPL)
+	$(CP) demos/aws_*.png $(I_IMG)
+	$(CP) -p include/*.ad? $(I_CPN)
+	-$(CP) -p $(BDIR)/include/*.o $(I_CPN)
+	-$(CP) -p $(BDIR)/include/*.ali $(I_CPN)
+	-$(CP) $(BDIR)/tools/awsres${EXEEXT} $(I_BIN)
+	-$(STRIP) $(I_BIN)/awsres${EXEEXT}
+	-$(CP) $(BDIR)/tools/hotplug_password${EXEEXT} $(I_BIN)
+	-$(STRIP) $(I_BIN)/hotplug_password${EXEEXT}
+	-$(CP) $(BDIR)/tools/wsdl2aws${EXEEXT} $(I_BIN)
+	-$(STRIP) $(I_BIN)/wsdl2aws${EXEEXT}
+	-$(CP) $(BDIR)/tools/ada2wsdl-main${EXEEXT} $(I_BIN)/ada2wsdl${EXEEXT}
+	-$(STRIP) $(I_BIN)/ada2wsdl${EXEEXT}
+	-$(CP) $(BDIR)/demos/agent${EXEEXT} $(I_SBN)
+	-$(STRIP) $(I_SBN)/agent${EXEEXT}
+ifeq (${OS}, Windows_NT)
+	-$(CP) -p $(BDIR)/win32/lib/* $(I_LIB)
+	$(CP) -p lib/lib*.a $(I_LIB)
+	-$(CP) -p win32/*.dll $(I_LIB)
+endif
+	$(CP) config/projects/components.gpr $(I_CPN)
+	$(CP) config/projects/aws.gpr $(I_GPR)
+	$(CP) config/projects/aws_ssl.gpr $(I_GPR)
+	$(CP) config/projects/*_lib.gpr $(I_GPR)
+	$(CP) config/projects/shared.gpr $(I_GPR)
+	$(CP) $(PRJDIR)/config.gpr $(I_GPR)
+# Regenerate the SSL project to properly point to the ssl/crypto libraries
+	$(MAKE) -C ssl SOCKET=ssl setup_ssl
+	$(CP) ssl/ssl_shared.gpr $(I_GPR)
+	-$(CHMOD) -R og+r $(INSTALL)
+	-$(CHMOD) uog-w $(I_LIB)
+	-$(CHMOD) uog-w $(I_CPN)
+# We need to touch the libraries as we have changed the .gpr
+	-$(TOUCH) $(I_LIB)/*.a
+	-$(TOUCH) $(I_LIB)/*$(SOEXT)
+	make -C web_elements install $(GALL_OPTIONS)
