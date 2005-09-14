@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2004                            --
---                                ACT-Europe                                --
+--                         Copyright (C) 2004-2005                          --
+--                                 AdaCore                                  --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
 --                                                                          --
@@ -41,5 +41,6 @@ project Crypto_Lib is
   for Library_Dir use SSL_Shared.LIB_Path;
   for Library_Name use "crypto";
   for Library_Kind use "static";
+  for Externally_Built use "true";
 
 end Crypto_Lib;
