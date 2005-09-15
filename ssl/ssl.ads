@@ -33,7 +33,8 @@ package SSL is
 
    pragma Pure;
 
-   --  There is two children. One for the thin binding to the SSL library
-   --  OpenSSL, and one with dummy wrappers for non SSL support.
+   --  There is only one children SSL.Thin for the thin binding to the
+   --  SSL library OpenSSL. The SSL_Wrappers is independent package to stub all
+   --  SSL.Thin routines.
 
 end SSL;
