@@ -82,6 +82,15 @@ package body SSL_Wrappers is
       null;
    end RAND_seed;
 
+   -----------------
+   -- RAND_status --
+   -----------------
+
+   function RAND_status return Integer is
+   begin
+      return 1;
+   end RAND_status;
+
    ----------------------
    -- RSA_generate_key --
    ----------------------

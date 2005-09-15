@@ -292,6 +292,8 @@ package SSL.Thin is
 
    procedure RAND_seed (Buf : in Pointer; Num : in Integer);
 
+   function RAND_status return Integer;
+
    --  Certificate
 
    function SSL_get_peer_certificate (SSL : in SSL_Handle) return X509;
@@ -313,6 +315,7 @@ private
 
    pragma Import (C, SSLeay, "SSLeay");
    pragma Import (C, RAND_seed, "RAND_seed");
+   pragma Import (C, RAND_status, "RAND_status");
    pragma Import (C, SSL_set_fd, "SSL_set_fd");
    pragma Import (C, SSL_accept, "SSL_accept");
    pragma Import (C, ERR_Remove_State, "ERR_remove_state");

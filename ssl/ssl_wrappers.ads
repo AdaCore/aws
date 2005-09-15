@@ -44,6 +44,9 @@ package SSL_Wrappers is
    procedure RAND_seed;
    pragma Export (C, RAND_seed, "RAND_seed");
 
+   function RAND_status return Integer;
+   pragma Export (C, RAND_status, "RAND_status");
+
    --  All routines below raise Program_Error
 
    procedure SSL_set_shutdown;
