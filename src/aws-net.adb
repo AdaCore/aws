@@ -258,22 +258,27 @@ package body AWS.Net is
             REvents => 0);
       RC      : C.int;
       Timeout : C.int;
+      Errno   : Integer;
    begin
-      if Events (Input) then
-         PFD.Events := POLLIN or POLLPRI;
-      end if;
-
-      if Events (Output) then
-         PFD.Events := PFD.Events or POLLOUT;
-      end if;
-
       if Socket.Timeout >= Duration (C.int'Last / 1_000) then
          Timeout := C.int'Last;
       else
          Timeout := C.int (Socket.Timeout * 1_000);
       end if;
 
-      RC := Thin.Poll (PFD'Address, 1, Timeout);
+      loop
+         if Events (Input) then
+            PFD.Events := POLLIN or POLLPRI;
+         end if;
+
+         if Events (Output) then
+            PFD.Events := PFD.Events or POLLOUT;
+         end if;
+
+         RC := Thin.Poll (PFD'Address, 1, Timeout);
+         Errno := Std.Errno;
+         exit when not (RC = -1 and then Errno = EINTR);
+      end loop;
 
       case RC is
          when -1 =>
