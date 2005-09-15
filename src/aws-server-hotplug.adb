@@ -388,7 +388,7 @@ package body AWS.Server.Hotplug is
             begin
                CD.Nonce := Digest.Create_Nonce;
                Nonce    := CD.Nonce;
-               Client_Table.Replace_Element (Cursor, CD);
+               Client_Table.Replace_Element (Clients, Cursor, CD);
             end;
 
          else
