@@ -73,7 +73,7 @@ package body AWS.Session is
    package Session_Set renames Session_Set_Container.Containers;
 
    procedure Get_Node
-     (Sessions : in     Session_Set.Map;
+     (Sessions : in out Session_Set.Map;
       SID      : in     Id;
       Node     :    out Session_Node;
       Found    :    out Boolean);
@@ -556,22 +556,8 @@ package body AWS.Session is
          Get_Node (Sessions, SID, Node, Found);
 
          if Found then
-            declare
-               Cursor  : Key_Value.Cursor;
-               Success : Boolean;
-            begin
-               Cursor := Key_Value.Find (Node.Root.all, Key);
-
-               if Key_Value.Has_Element (Cursor) then
-                  Key_Value.Replace_Element
-                    (Cursor, To_Unbounded_String (Value));
-
-               else
-                  Key_Value.Insert
-                    (Node.Root.all, Key, To_Unbounded_String (Value),
-                     Cursor, Success);
-               end if;
-            end;
+            Key_Value.Include
+              (Node.Root.all, Key, To_Unbounded_String (Value));
          end if;
       end Set_Value;
 
@@ -820,7 +806,7 @@ package body AWS.Session is
    --------------
 
    procedure Get_Node
-     (Sessions : in     Session_Set.Map;
+     (Sessions : in out Session_Set.Map;
       SID      : in     Id;
       Node     :    out Session_Node;
       Found    :    out Boolean)
@@ -850,7 +836,7 @@ package body AWS.Session is
       Found := Session_Set.Has_Element (Cursor);
 
       if Found then
-         Session_Set.Update_Element (Cursor, Process'Access);
+         Session_Set.Update_Element (Sessions, Cursor, Process'Access);
       end if;
    end Get_Node;
 
