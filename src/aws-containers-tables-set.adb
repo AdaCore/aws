@@ -121,7 +121,7 @@ package body AWS.Containers.Tables.Set is
       -------------
 
       procedure Process
-        (Key  : in String;
+        (Key  : in     String;
          Item : in out Name_Index_Table)
       is
          pragma Unreferenced (Key);
@@ -172,8 +172,7 @@ package body AWS.Containers.Tables.Set is
 
       --  Update index vector just in place
 
-      Index_Table.Update_Element (Cursor, Process'Access);
-
+      Index_Table.Update_Element (Table.Index, Cursor, Process'Access);
    end Update_Internal;
 
 end AWS.Containers.Tables.Set;
