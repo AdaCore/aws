@@ -407,16 +407,8 @@ package body AWS.MIME is
       -------------------
 
       procedure Add_Extension (Ext : in String; MIME_Type : in String) is
-         Cursor  : Containers.Key_Value.Cursor;
-         Success : Boolean;
       begin
-         Key_Value.Insert
-           (Ext_Set, Ext, To_Unbounded_String (MIME_Type), Cursor, Success);
-
-         if not Success then
-            Key_Value.Replace_Element
-              (Cursor, To_Unbounded_String (MIME_Type));
-         end if;
+         Key_Value.Include (Ext_Set, Ext, To_Unbounded_String (MIME_Type));
       end Add_Extension;
 
       ----------------
