@@ -252,15 +252,9 @@ package body AWS.Resources.Embedded is
       Content   : in Buffer_Access;
       File_Time : in Calendar.Time)
    is
-      N       : constant Node := (Content, File_Time);
-      Cursor  : Res_Files.Cursor;
-      Success : Boolean;
+      N : constant Node := (Content, File_Time);
    begin
-      Res_Files.Insert (Files_Table, Name, N, Cursor, Success);
-
-      if not Success then
-         Res_Files.Replace_Element (Cursor, By => N);
-      end if;
+      Res_Files.Include (Files_Table, Name, N);
    end Register;
 
 end AWS.Resources.Embedded;
