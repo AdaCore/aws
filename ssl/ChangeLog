@@ -1,3 +1,13 @@
+2005-09-15  Dmitriy Anisimkov  <anisimkov@ada-ru.org>
+
+	* ssl.ads:
+	Fix comment.
+	Change copyright years.
+
+	* ssl-thin.ads, ssl_wrappers.ads, ssl_wrappers.adb:
+	(RAND_status): New routine.
+	Change copyright years.
+
 2005-09-14  Pascal Obry  <pascal@obry.net>
 
 	* makefile:

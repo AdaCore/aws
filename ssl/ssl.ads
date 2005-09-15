@@ -2,7 +2,7 @@
 --                            Secure Sockets Layer                          --
 --                         Binding to OpenSSL library                       --
 --                                                                          --
---                         Copyright (C) 2000-2001                          --
+--                         Copyright (C) 2000-2005                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --

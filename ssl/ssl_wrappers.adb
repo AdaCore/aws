@@ -2,7 +2,7 @@
 --                            Secure Sockets Layer                          --
 --                     Dummy Binding for non SSL support                    --
 --                                                                          --
---                         Copyright (C) 2002-2004                          --
+--                         Copyright (C) 2002-2005                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
