@@ -1,3 +1,38 @@
+2005-09-15  Pascal Obry  <pascal@obry.net>
+
+	* aws-containers-tables-set.adb:
+	(Update_Internal): Fix call to Update_Element to match latest
+	 Ada.Containers API.
+	
+	* aws-mime.adb:
+	(Add_Extension): Clean-up code by using Ada.Containers Include
+	 instead of Insert/Replace_Element.
+
+	* aws-resources-embedded.adb:
+	(Register): Clean-up code by using Ada.Containers Include instead
+	 of Insert/Replace_Element.
+
+	* aws-server-hotplug.adb:
+	(Get_Nonce): Fix call to Update_Element to match latest
+	 Ada.Containers API.
+
+	* aws-services-dispatchers-virtual_host.adb:
+	(Register): Clean-up code by using Ada.Containers Include instead
+	 of Insert/Replace_Element.
+	Update copyright notice.
+
+	* aws-session.adb:
+	(Set_Value): Clean-up code by using Ada.Containers Include instead
+	 of Find/Has_Element/Replace_Element/Insert.
+	(Get_Node): Sessions has now an in-out mode. Fix call to
+	 Update_Element to match latest Ada.Containers API.
+
+	* aws-net.adb:
+	(Wait): Loop until the poll call returns something else than EINTR.
+         The poll call can be interrupted by signals as defined in the POSIX
+         specifications.
+        Fixes E912-010.
+
 2005-09-14  Pascal Obry  <pascal@obry.net>
 
 	* src.gpr:
