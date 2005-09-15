@@ -1,3 +1,9 @@
+2005-09-15  Pascal Obry  <pascal@obry.net>
+
+	* src/check_config.c:
+	Add support for EINTR.
+	Part of work for E912-010.
+
 2005-09-09  Dmitriy Anisimkov <anisimkov@ada-ru.org>
 
 	* src/check_config.c:
