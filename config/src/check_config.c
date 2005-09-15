@@ -92,6 +92,7 @@ main (int argc, char *argv[])
   #define EINPROGRESS WSAEINPROGRESS
   #define SHUT_RDWR   SD_BOTH
   #define EAI_SYSTEM  EAI_AGAIN
+  #define EINTR       WSAEINTR
   // EAI_SYSTEM getaddrinfo error code does not supported by Win32, but need
   // for correct error handling, we could use any Win32 socket error code
   // instead, because Win32 use the same error codes in Errno report.
@@ -175,6 +176,7 @@ main (int argc, char *argv[])
   P ("   ETIMEDOUT   : constant := %d;\n", ETIMEDOUT);
   P ("   EWOULDBLOCK : constant := %d;\n", EWOULDBLOCK);
   P ("   EINPROGRESS : constant := %d;\n", EINPROGRESS);
+  P ("   EINTR       : constant := %d;\n", EINTR);
   P ("   FIONBIO     : constant := %d;\n", FIONBIO);
   P ("   FIONREAD    : constant := %d;\n\n", FIONREAD);
 
