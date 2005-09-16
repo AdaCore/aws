@@ -1,3 +1,8 @@
+2005-09-16  Pascal Obry  <pascal@obry.net>
+
+	* ai302.gpr:
+	Removed, not needed anymore.
+
 2005-07-02  Dmitriy Anisimkov <anisimkov@ada-ru.org>
 
 	* shared.gpr:

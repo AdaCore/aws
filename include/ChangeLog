@@ -1,3 +1,8 @@
+2005-09-16  Pascal Obry  <pascal@obry.net>
+
+	* makefile:
+	(setup): Do not create the ai302 directory, not needed anymore.
+
 2005-09-14  Pascal Obry  <pascal@obry.net>
 
 	* include.gpr, strings_maps.ads:
