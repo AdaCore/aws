@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2003-2004                          --
---                                ACT-Europe                                --
+--                         Copyright (C) 2003-2005                          --
+--                                 AdaCore                                  --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
 --                                                                          --
@@ -151,9 +151,9 @@ package body Ada2WSDL.Generator is
       P       : Cursor;
       Success : Boolean;
    begin
-      if not Containers.Is_In (Value, Name_Spaces) then
+      if not NS_Maps.Containers.Contains (Name_Spaces, Value) then
          NS_Num := NS_Num + 1;
-         Containers.Insert (Name_Spaces, Value, NS_Num, P, Success);
+         NS_Maps.Containers.Insert (Name_Spaces, Value, NS_Num, P, Success);
       end if;
    end Insert_NS;
 
@@ -258,7 +258,8 @@ package body Ada2WSDL.Generator is
       if Value = "" then
          return "tns";
       else
-         return 'n' & Utils.Image (Containers.Element (Name_Spaces, Value));
+         return 'n' &
+           Utils.Image (NS_Maps.Containers.Element (Name_Spaces, Value));
       end if;
    end NS_Prefix;
 
@@ -636,15 +637,15 @@ package body Ada2WSDL.Generator is
 
          --  Write all name spaces
 
-         P := Containers.First (Name_Spaces);
+         P := NS_Maps.Containers.First (Name_Spaces);
 
          while Has_Element (P) loop
-            N := Containers.Element (P);
+            N := NS_Maps.Containers.Element (P);
 
             New_Line;
             Put ("   xmlns:n" & Utils.Image (N)
-                 & "=""" & Containers.Key (P) & '"');
-            P := Containers.Next (P);
+                 & "=""" & NS_Maps.Containers.Key (P) & '"');
+            P := NS_Maps.Containers.Next (P);
          end loop;
 
          --  Close definition
