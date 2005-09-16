@@ -91,8 +91,8 @@ main (int argc, char *argv[])
   #define EWOULDBLOCK WSAEWOULDBLOCK
   #define EINPROGRESS WSAEINPROGRESS
   #define SHUT_RDWR   SD_BOTH
-  #define EAI_SYSTEM  EAI_AGAIN
   #define EINTR       WSAEINTR
+  #define EAI_SYSTEM  EAI_AGAIN
   // EAI_SYSTEM getaddrinfo error code does not supported by Win32, but need
   // for correct error handling, we could use any Win32 socket error code
   // instead, because Win32 use the same error codes in Errno report.
