@@ -1,3 +1,9 @@
+2005-09-16  Pascal Obry  <pascal@obry.net>
+
+	* ada2wsdl.adb, ada2wsdl-generator.adb, ada2wsdl-parser.adb:
+	Clean-up code to use Ada2005 Ada.Characters.Conversions routine
+	 to avoid warnings.
+
 2005-02-16  Pascal Obry  <pascal@obry.org>
 
 	* awsres.adb:
