@@ -2,6 +2,7 @@
 
 	* src/check_config.c:
 	Put Win32 define EAI_SYSTEM close to its comment again.
+	Move comment about UNIX line ending to open file code.
 
 2005-09-15  Pascal Obry  <pascal@obry.net>
 

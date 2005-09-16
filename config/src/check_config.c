@@ -27,8 +27,6 @@
 #include <sys/filio.h>
 #endif
 
-/* File output routines to ensure UNIX line ending */
-
 FILE *fd;
 
 void
@@ -118,6 +116,8 @@ main (int argc, char *argv[])
   const int v_POLLHUP     = POLLHUP;
   const int v_POLLNVAL    = POLLNVAL;
 #endif
+
+  /* Open output file in binary mode to ensure UNIX line ending */
 
   if (argc == 2)
     fd = fopen (argv[1], "wb");
