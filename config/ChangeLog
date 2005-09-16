@@ -1,3 +1,8 @@
+2005-09-16  Dmitriy Anisimkov <anisimkov@ada-ru.org>
+
+	* src/check_config.c:
+	Put Win32 define EAI_SYSTEM close to its comment again.
+
 2005-09-15  Pascal Obry  <pascal@obry.net>
 
 	* src/check_config.c:
