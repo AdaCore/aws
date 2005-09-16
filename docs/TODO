@@ -197,8 +197,7 @@ implemented:
 
 - Use GNAT.MD5 instead of include/md5.
 
-- Use Ada.Containers (remove AI302 components).
-  AWS.Services.Directory should use Ordered_Sets instead of
+- AWS.Services.Directory should use Ordered_Sets instead of
   Indefinite_Ordered_Sets.
 
 - Clean-up ASIS configuration. Use new ASIS setup based on project files.
@@ -209,3 +208,6 @@ implemented:
   selector facilities instead of the AWS's poll() support.
 
 - Add support for shared libraries.
+
+- Remove use of specific OS_Lib implementations and provide a single
+  implementation based on standard Ada.Directories.
