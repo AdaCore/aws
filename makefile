@@ -100,7 +100,6 @@ common_tarball:
 	$(MKDIR) $${AWS}/docs/html; \
 	$(MKDIR) $${AWS}/icons; \
 	$(MKDIR) $${AWS}/include; \
-	$(MKDIR) $${AWS}/include/ai302; \
 	$(MKDIR) $${AWS}/include/zlib; \
 	$(MKDIR) $${AWS}/lib; \
 	$(MKDIR) $${AWS}/ssl; \
