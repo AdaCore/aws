@@ -1,9 +1,16 @@
+2005-09-16 Dmitriy Anisimkov <anisimkov@ada-ru.org>
+
+	* aws-net.adb:
+	(Wait): Use Errno local variable instead of second call into Std.Errno
+	 in Socket_Error exception message. Move case statement into loop to do
+	 not compare RC with -1 twice.
+
 2005-09-15  Pascal Obry  <pascal@obry.net>
 
 	* aws-containers-tables-set.adb:
 	(Update_Internal): Fix call to Update_Element to match latest
 	 Ada.Containers API.
-	
+
 	* aws-mime.adb:
 	(Add_Extension): Clean-up code by using Ada.Containers Include
 	 instead of Insert/Replace_Element.
