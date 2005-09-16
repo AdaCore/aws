@@ -277,24 +277,25 @@ package body AWS.Net is
 
          RC := Thin.Poll (PFD'Address, 1, Timeout);
          Errno := Std.Errno;
-         exit when not (RC = -1 and then Errno = EINTR);
+
+         case RC is
+            when -1 =>
+               if Errno /= EINTR then
+                  Ada.Exceptions.Raise_Exception
+                    (Socket_Error'Identity,
+                     "Wait error code" & Integer'Image (Errno));
+               end if;
+
+            when 0  => return (others => False);
+            when 1  =>
+               return (Input  => (PFD.REvents and (POLLIN or POLLPRI)) /= 0,
+                       Output => (PFD.REvents and POLLOUT) /= 0,
+                       Error  => (PFD.REvents
+                                  and (POLLERR or POLLHUP or POLLNVAL)) /= 0);
+            when others =>
+               raise Program_Error;
+         end case;
       end loop;
-
-      case RC is
-         when -1 =>
-            Ada.Exceptions.Raise_Exception
-              (Socket_Error'Identity,
-               "Wait error code" & Integer'Image (Std.Errno));
-
-         when 0  => return (others => False);
-         when 1  =>
-            return (Input  => (PFD.REvents and (POLLIN or POLLPRI)) /= 0,
-                    Output => (PFD.REvents and POLLOUT) /= 0,
-                    Error  => (PFD.REvents
-                               and (POLLERR or POLLHUP or POLLNVAL)) /= 0);
-         when others =>
-            raise Program_Error;
-      end case;
    end Wait;
 
    --------------
