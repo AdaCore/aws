@@ -276,10 +276,11 @@ package body AWS.Net is
          end if;
 
          RC := Thin.Poll (PFD'Address, 1, Timeout);
-         Errno := Std.Errno;
 
          case RC is
             when -1 =>
+               Errno := Std.Errno;
+
                if Errno /= EINTR then
                   Ada.Exceptions.Raise_Exception
                     (Socket_Error'Identity,
