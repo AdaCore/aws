@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2004                            --
---                                ACT-Europe                                --
+--                          Copyright (C) 2004-2005                         --
+--                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -31,7 +31,6 @@
 --  $Date$
 --  $Author$
 
-with Ada.Streams;
 with Input_Sources;
 
 with Unicode;
@@ -58,8 +57,6 @@ package AWS.Client.XML.Input_Sources is
    --  True if From is past the last character in the file
 
 private
-
-   use Ada.Streams;
 
    type HTTP_Input is new Sources.Input_Source with record
       Self   : HTTP_Input_Access := HTTP_Input'Unchecked_Access;
