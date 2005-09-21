@@ -48,8 +48,6 @@ with AWS.Utils;
 package body AWS.Client is
 
    use Ada;
-   use Ada.Strings.Unbounded;
-
    use AWS.Client.HTTP_Utils;
 
    -----------
@@ -600,7 +598,6 @@ package body AWS.Client is
       Data       :    out Ada.Streams.Stream_Element_Array;
       Last       :    out Ada.Streams.Stream_Element_Offset)
    is
-      use Ada.Streams;
       First : Stream_Element_Offset := Data'First;
    begin
       loop
@@ -632,7 +629,6 @@ package body AWS.Client is
         (Data : out Ada.Streams.Stream_Element_Array;
          Last : out Ada.Streams.Stream_Element_Offset)
       is
-         use Ada.Streams;
          Sock  : Net.Socket_Type'Class renames Connection.Socket.all;
 
          procedure Skip_Line;

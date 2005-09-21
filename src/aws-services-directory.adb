@@ -247,8 +247,6 @@ package body AWS.Services.Directory is
       Request        : in AWS.Status.Data)
       return Translate_Table
    is
-      use Templates_Parser;
-
       Max_Order_Length : constant := 8;
 
       Default_Order : constant String := "DN";

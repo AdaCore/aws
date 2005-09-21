@@ -33,7 +33,6 @@ with Ada.Streams;
 with Ada.Streams.Stream_IO;
 with Ada.Strings.Fixed;
 with Ada.Strings.Maps;
-with Ada.Strings.Unbounded;
 with Ada.Text_IO;
 
 with AWS.Attachments;
@@ -62,7 +61,6 @@ package body AWS.Server.HTTP_Utils is
 
    use Ada;
    use Ada.Strings;
-   use Ada.Strings.Unbounded;
    use Ada.Streams;
    use AWS.Templates;
 
@@ -858,8 +856,6 @@ package body AWS.Server.HTTP_Utils is
             --  The body has the format: name1=value1&name2=value2...
 
             declare
-               use Streams;
-
                Data : Stream_Element_Array
                  (1 .. Stream_Element_Offset (Status.Content_Length (C_Stat)));
             begin
@@ -899,8 +895,6 @@ package body AWS.Server.HTTP_Utils is
             --  binary data.
 
             declare
-               use Streams;
-
                Data : Stream_Element_Array
                  (1 .. Stream_Element_Offset (Status.Content_Length (C_Stat)));
             begin

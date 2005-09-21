@@ -29,7 +29,6 @@
 --  $Id$
 
 with Ada.Characters.Handling;
-with Ada.Strings.Unbounded;
 with Ada.Strings.Fixed;
 with Ada.Exceptions;
 

@@ -563,8 +563,6 @@ package SOAP.Types is
 
 private
 
-   use Ada.Strings.Unbounded;
-
    --  Object
 
    type Object is abstract new Ada.Finalization.Controlled with record

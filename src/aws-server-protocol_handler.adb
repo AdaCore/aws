@@ -56,8 +56,6 @@ procedure Protocol_Handler
    Index       : in     Positive;
    Keep_Alive  : in     Boolean)
 is
-
-   use Ada;
    use Ada.Strings;
    use Ada.Strings.Unbounded;
 

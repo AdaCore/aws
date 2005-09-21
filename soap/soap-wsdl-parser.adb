@@ -31,7 +31,6 @@
 with Ada.Characters.Handling;
 with Ada.Exceptions;
 with Ada.Strings.Fixed;
-with Ada.Strings.Unbounded;
 with Ada.Text_IO;
 
 with Strings_Maps;
@@ -47,7 +46,6 @@ package body SOAP.WSDL.Parser is
 
    use Ada;
    use Ada.Exceptions;
-   use Ada.Strings.Unbounded;
    use type DOM.Core.Node;
 
    Verbose_Mode  : Verbose_Level := 0;

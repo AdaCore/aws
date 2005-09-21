@@ -53,7 +53,6 @@ with AWS.Utils;
 package body AWS.Client.HTTP_Utils is
 
    use Ada;
-   use Ada.Strings.Unbounded;
 
    use AWS.Client;
 
@@ -330,7 +329,6 @@ package body AWS.Client.HTTP_Utils is
 
       loop
          declare
-            use Ada.Streams;
             Buffer : Stream_Element_Array (1 .. 8096);
             Last   : Stream_Element_Offset;
          begin

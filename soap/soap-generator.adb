@@ -33,7 +33,6 @@ with Ada.Characters.Handling;
 with Ada.Exceptions;
 with Ada.Strings.Fixed;
 with Ada.Strings.Maps;
-with Ada.Strings.Unbounded;
 with Ada.Text_IO;
 
 with GNAT.Calendar.Time_IO;
@@ -50,7 +49,6 @@ package body SOAP.Generator is
 
    use Ada;
    use Ada.Exceptions;
-   use Ada.Strings.Unbounded;
 
    function Format_Name (O : in Object; Name : in String) return String;
    --  Returns Name formated with the Ada style if O.Ada_Style is true and

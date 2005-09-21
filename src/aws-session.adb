@@ -191,7 +191,6 @@ package body AWS.Session is
    -------------
 
    task body Cleaner is
-      use Ada;
       use type Calendar.Time;
 
       Next_Run : Calendar.Time := Calendar.Clock + Session_Check_Interval;

@@ -30,7 +30,6 @@
 
 with Ada.Calendar;
 with Ada.Strings.Fixed;
-with Ada.Strings.Unbounded;
 with Ada.Unchecked_Deallocation;
 
 with Unicode.CES.Utf8;
@@ -40,8 +39,6 @@ with AWS.Utils;
 with SOAP.Message.XML;
 
 package body SOAP.Utils is
-
-   use Ada.Strings.Unbounded;
 
    ---------
    -- Any --
