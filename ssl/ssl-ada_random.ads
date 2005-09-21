@@ -3,7 +3,7 @@
 --                         Binding to OpenSSL library                       --
 --                                                                          --
 --                            Copyright (C) 2005                            --
---                                ACT-Europe                                --
+--                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -29,14 +29,14 @@
 
 --  $Id$
 
---  Package for replace default OpenSSL random numbers generator by the Ada RTL
---  rundom numbers generator. It is used to avoid valgrind (debug memory tool
+--  Package to replace default OpenSSL random numbers generator by the Ada RTL
+--  random numbers generator. It is used to avoid valgrind (debug memory tool
 --  for Linux) error messages about default OpenSSL random numbers generator
---  usage of unitialized memory.
+--  using unitialized memory.
 
 package SSL.Ada_Random is
 
    procedure Initialize;
-   --  Replace OpenSSL random numbers generator by the Ada RTL one.
+   --  Replace OpenSSL random numbers generator by the Ada RTL one
 
 end SSL.Ada_Random;
