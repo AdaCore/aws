@@ -60,10 +60,11 @@ project Include is
 
       case Shared.Build is
          when "Debug" =>
-            for Default_Switches ("Ada") use ("-g");
+            for Default_Switches ("Ada") use ("-gnat05", "-g");
 
          when "Release" =>
-            for Default_Switches ("Ada") use ("-O2", "-gnatws", "-gnatn");
+            for Default_Switches ("Ada") use
+              ("-gnat05", "-O2", "-gnatws", "-gnatn");
       end case;
 
    end Compiler;
