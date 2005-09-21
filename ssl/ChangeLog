@@ -10,6 +10,9 @@
 	* ssl-ada_random.ads, ssl-ada_random.adb:
 	New package for replace default OpenSSL random numbers generator.
 
+	* ssl.gpr:
+	Add ssl-ada_random.ad?.
+
 2005-09-15  Dmitriy Anisimkov  <anisimkov@ada-ru.org>
 
 	* ssl.ads:
