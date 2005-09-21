@@ -39,7 +39,13 @@ project SSL is
 
    for Languages use ("Ada", "ChangeLog", "Project file");
 
-   for Source_Files use ("ssl.ads", "ssl-thin.ads", "ChangeLog", "ssl.gpr");
+   for Source_Files use
+     ("ssl.ads",
+      "ssl-thin.ads",
+      "ssl-ada_random.ads",
+      "ssl-ada_random.adb",
+      "ChangeLog",
+      "ssl.gpr");
 
    case Shared.Build is
       when "Debug" =>
