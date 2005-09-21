@@ -1,3 +1,12 @@
+2005-09-21  Pascal Obry  <pascal@obry.net>
+
+	* tools.gpr:
+	Clean-up project file using constructs supported since GNAT 5.03a.
+	Update copyright notice.
+
+	* ada2wsdl-parser.adb:
+	Remove redundant use clause.
+
 2005-09-16  Pascal Obry  <pascal@obry.net>
 
 	* ada2wsdl.adb, ada2wsdl-generator.adb, ada2wsdl-parser.adb:
