@@ -1,3 +1,16 @@
+2005-09-21  Pascal Obry  <pascal@obry.net>
+
+	* ssl-ada_random.adb:
+	Merged from ada95 branch.
+	Minor reformatting.
+	Add missing routine header boxes.
+	Update copyright notice.
+
+	* ssl-ada_random.ads:
+	Merged from ada95 branch.
+	Minor reformatting.
+	Update copyright notice.
+
 2005-09-21  Dmitriy Anisimkov  <anisimkov@ada-ru.org>
 
 	* ssl-thin.ads:
