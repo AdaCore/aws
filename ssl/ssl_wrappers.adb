@@ -82,6 +82,15 @@ package body SSL_Wrappers is
       null;
    end RAND_seed;
 
+   --------------------------
+   -- RAND_set_rand_method --
+   --------------------------
+
+   procedure RAND_set_rand_method is
+   begin
+      null;
+   end RAND_set_rand_method;
+
    -----------------
    -- RAND_status --
    -----------------
