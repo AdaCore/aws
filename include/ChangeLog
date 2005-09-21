@@ -1,3 +1,8 @@
+2005-09-21  Pascal Obry  <pascal@obry.net>
+
+	* include.gpr:
+	Add -gnat05 option for the build.
+
 2005-09-16  Pascal Obry  <pascal@obry.net>
 
 	* makefile:

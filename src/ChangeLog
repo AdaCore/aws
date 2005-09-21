@@ -1,3 +1,59 @@
+2005-09-21  Pascal Obry  <pascal@obry.net>
+
+	* aws-url.adb:
+	Remove redundant with/use clause.
+	Update copyright notice.	
+
+	* aws-status-set.adb:
+	Remove redundant with/use clause.
+	Update copyright notice.	
+
+	* aws-smtp-client.ads:
+	Remove redundant with/use clause.
+	Update copyright notice.	
+
+	* aws-session.adb:
+	Remove redundant with/use clause.
+
+	* aws-services-directory.adb:
+	Remove redundant with/use clause.	
+
+	* aws-server-http_utils.adb, aws-server-protocol_handler.adb:
+	Remove redundant with/use clause.
+
+	* aws-resources-streams-memory.ads, aws-resources-streams-zlib.ads:
+	Remove redundant with/use clause.
+	Update copyright notice.	
+
+	* aws-parameters-set.adb:
+	Remove redundant with/use clause.
+	Update copyright notice.
+
+	* aws-net-stream_io.ads:
+	Remove redundant with/use clause.
+	Update copyright notice.
+
+	* aws-net-std.ads:
+	Remove redundant with/use clause.
+
+	* aws-net-ssl.ads:
+	Remove redundant with/use clause.
+	Update copyright notice.
+
+	* aws-hotplug.adb:
+	Remove redundant with/use clause.
+	Update copyright notice.
+
+	* aws-config-ini.adb:
+	Remove redundant with/use clause.
+	Update copyright notice.
+
+	* aws-client.adb:
+	Remove redundant with/use clause.
+
+	* aws-client-http_utils.ads, aws-client-http_utils.adb:
+	Remove redundant with/use clause.
+
 2005-09-16 Dmitriy Anisimkov <anisimkov@ada-ru.org>
 
 	* aws-net.adb:

@@ -1,3 +1,20 @@
+2005-09-21  Pascal Obry  <pascal@obry.net>
+
+	* soap-wsdl-parser.adb:
+	Remove redundant with/use clause.	
+
+	* soap-utils.adb:
+	Remove redundant with/use clause.	
+
+	* soap-types.ads, soap-types.adb:
+	Remove redundant with/use clause.
+
+	* soap-message-xml.ads, soap-message-xml.adb:
+	Remove redundant with/use clause.
+
+	* soap-generator.adb:
+	Remove redundant with/use clause.
+
 2005-09-14  Pascal Obry  <pascal@obry.net>
 
 	* soap-message-reader.ads:
