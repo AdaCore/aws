@@ -638,8 +638,6 @@ package body Ada2WSDL.Parser is
             end if;
 
             declare
-               use Extensions.Flat_Kinds;
-
                T : constant Flat_Element_Kinds
                  := Flat_Element_Kind
                       (Declarations.Type_Declaration_View
