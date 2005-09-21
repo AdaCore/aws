@@ -2,8 +2,8 @@
 --                              Ada Web Server                              --
 --                   S M T P - Simple Mail Transfer Protocol                --
 --                                                                          --
---                         Copyright (C) 2000-2002                          --
---                                ACT-Europe                                --
+--                         Copyright (C) 2000-2005                          --
+--                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -52,11 +52,7 @@
 --         Message => "now Ada can send SMTP mail!",
 --         Status  => Result);
 
-with Ada.Strings.Unbounded;
-
 package AWS.SMTP.Client is
-
-   use Ada.Strings.Unbounded;
 
    function Initialize
      (Server_Name : in String;

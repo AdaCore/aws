@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2003                            --
---                                ACT-Europe                                --
+--                          Copyright (C) 2003-2005                         --
+--                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -39,8 +39,6 @@ with AWS.Utils;
 with Memory_Streams;
 
 package AWS.Resources.Streams.Memory is
-
-   use Ada;
 
    type Stream_Type is new Streams.Stream_Type with private;
 

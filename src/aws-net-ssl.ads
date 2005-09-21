@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2002-2004                          --
---                                ACT-Europe                                --
+--                         Copyright (C) 2002-2005                          --
+--                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -32,14 +32,10 @@
 --  should depend only on AWS.Net.Std and the SSL library. It is important to
 --  not call directly a socket binding here to ease porting.
 
-with Ada.Streams;
-
 with AWS.Net.Std;
 with SSL.Thin;
 
 package AWS.Net.SSL is
-
-   use Ada.Streams;
 
    type Socket_Type is new Net.Std.Socket_Type with private;
 

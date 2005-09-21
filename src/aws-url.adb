@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2004                          --
---                                ACT-Europe                                --
+--                         Copyright (C) 2000-2005                          --
+--                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -37,8 +37,6 @@ with AWS.Utils;
 with AWS.URL.Raise_URL_Error;
 
 package body AWS.URL is
-
-   use Ada;
 
    subtype Escape_Code is String (1 .. 2);
 

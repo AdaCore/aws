@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2004                          --
---                                ACT-Europe                                --
+--                         Copyright (C) 2000-2005                          --
+--                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -31,7 +31,6 @@
 with Ada.Characters.Handling;
 with Ada.Exceptions;
 with Ada.Strings.Fixed;
-with Ada.Strings.Unbounded;
 
 with AWS.Headers.Set;
 with AWS.Headers.Values;
@@ -42,7 +41,6 @@ with AWS.Parameters.Set;
 package body AWS.Status.Set is
 
    use Ada.Strings;
-   use Ada.Strings.Unbounded;
 
    procedure Authorization (D : in out Data);
    --  Parse the Authorization parameters from the Authorization header value.
