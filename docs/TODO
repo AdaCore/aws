@@ -200,9 +200,6 @@ implemented:
 - AWS.Services.Directory should use Ordered_Sets instead of
   Indefinite_Ordered_Sets.
 
-- Clean-up ASIS configuration. Use new ASIS setup based on project files.
-  Remove the setup for older version of ASIS having no project file.
-
 - Revisit the AdaSockets support. Should we continue supporting this ?
   It would certainly be easier to support only GNAT.Sockets and use the
   selector facilities instead of the AWS's poll() support.
