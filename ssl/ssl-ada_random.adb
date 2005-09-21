@@ -3,7 +3,7 @@
 --                         Binding to OpenSSL library                       --
 --                                                                          --
 --                            Copyright (C) 2005                            --
---                                ACT-Europe                                --
+--                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -29,16 +29,12 @@
 
 --  $Id$
 
---  Package for replace default OpenSSL random numbers generator by the Ada RTL
---  rundom numbers generator. It is used to avoid valgrind (debug memory tool
---  for Linux) error messages about default OpenSSL random numbers generator
---  usage of unitialized memory.
-
 with Ada.Numerics.Discrete_Random;
 with Ada.Unchecked_Conversion;
 with Interfaces.C.Strings;
-with SSL.Thin;
 with System;
+
+with SSL.Thin;
 
 package body SSL.Ada_Random is
 
@@ -101,8 +97,8 @@ package body SSL.Ada_Random is
    procedure Add (Buf : in C_Byte_Array; Num : Integer;  Entropy : Integer) is
       use Unsigned_Random;
    begin
-      Reset (Generator, To_Initiator (To_Bytes_4 (Random (Generator))
-                        & Buf (1 .. Num)));
+      Reset (Generator,
+             To_Initiator (To_Bytes_4 (Random (Generator)) & Buf (1 .. Num)));
 
       Initialized := True;
    end Add;
@@ -112,10 +108,14 @@ package body SSL.Ada_Random is
    -----------
 
    function Bytes (Buf : access C_Byte_Array; Num : Integer) return Integer is
-      B4 : Bytes_4;
+      B4    : Bytes_4;
       Index : Positive := B4'Last + 1;
 
       function Get_Next return Byte_Type;
+
+      --------------
+      -- Get_Next --
+      --------------
 
       function Get_Next return Byte_Type is
       begin
@@ -183,22 +183,26 @@ package body SSL.Ada_Random is
             function Next_Unsigned return Unsigned;
             pragma Inline (Next_Unsigned);
 
+            -------------------
+            -- Next_Unsigned --
+            -------------------
+
             function Next_Unsigned return Unsigned is
             begin
                case Buf'Last - J is
-               when 0 =>
-                  return To_Unsigned ((Buf (J), Buf (Buf'First), 0, 0));
-               when 1 =>
-                  return To_Unsigned
-                           ((Buf (J), Buf (J + 1), Buf (Buf'First), 0));
-               when 2 =>
-                  return To_Unsigned
-                           ((Buf (J),
-                             Buf (J + 1),
-                             Buf (J + 2),
-                             Buf (Buf'First)));
-               when others =>
-                  return To_Unsigned (Buf (J .. J + 3));
+                  when 0 =>
+                     return To_Unsigned ((Buf (J), Buf (Buf'First), 0, 0));
+                  when 1 =>
+                     return To_Unsigned
+                       ((Buf (J), Buf (J + 1), Buf (Buf'First), 0));
+                  when 2 =>
+                     return To_Unsigned
+                       ((Buf (J),
+                         Buf (J + 1),
+                         Buf (J + 2),
+                         Buf (Buf'First)));
+                  when others =>
+                     return To_Unsigned (Buf (J .. J + 3));
                end case;
             end Next_Unsigned;
          begin
