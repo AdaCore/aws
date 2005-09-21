@@ -29,10 +29,13 @@ using the following compilers :
 	GNAT GPL 2005 Edition
 
 
+
 Building from CVS
 -----------------
 
-If you got the AWS sources from CVS you'll need to adjust the
-templates_parser/templates_parser.gpr file to build with XML/Ada support.
-For now this needs to be done manually. If you have XML/Ada installed you
-can uncomment the 'with "xmlada";' line.
+If you are using GNAT GPL 2005 Edition or GNAT GAP 2005 Edition you need to
+apply the patch found in support/gnat-2005-editions.dif.
+
+To run the templates_parser's non-regression tests with XML/Ada support, you
+need to uncomment the 'with "xmlada";' line in templates_parser.gpr project
+file.
