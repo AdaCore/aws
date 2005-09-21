@@ -645,6 +645,8 @@ ssl/ChangeLog
 ssl/crypto_lib.gpr
 ssl/makefile
 ssl/nossl.gpr
+ssl/ssl-ada_random.ads
+ssl/ssl-ada_random.adb
 ssl/ssl-thin.ads
 ssl/ssl.ads
 ssl/ssl.gpr
