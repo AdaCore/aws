@@ -188,7 +188,7 @@ MODULES_CLEAN = ${MODULES:%=%_clean}
 
 ifeq (${XMLADA}, true)
 PRJ_XMLADA=Installed
-GEXT_MODULE := gxmlada
+GEXT_MODULE := gxmlada_clean
 else
 PRJ_XMLADA=Disabled
 GEXT_MODULE := gxmlada_dummy
@@ -196,6 +196,16 @@ endif
 
 ifndef TP_XMLADA
 TP_XMLADA="$(PRJ_XMLADA)"
+endif
+
+## ASIS
+
+ifeq (${ASIS}, true)
+PRJ_ASIS=Installed
+GEXT_MODULE := $(GEXT_MODULE) gasis_clean
+else
+PRJ_ASIS=Disabled
+GEXT_MODULE := $(GEXT_MODULE) gasis_dummy
 endif
 
 ## AdaSockets
@@ -210,27 +220,6 @@ PRJ_SOCKLIB=IPv6
 else
 PRJ_SOCKLIB=GNAT
 endif
-endif
-
-## ASIS
-
-ifdef ASIS
-ifeq (${ASIS}, Installed)
-PRJ_ASIS=Installed
-GEXT_MODULE := $(GEXT_MODULE) gasis_clean
-else
-ifeq (${ASIS}, Disabled)
-PRJ_ASIS=Disabled
-GEXT_MODULE := $(GEXT_MODULE) gasis_clean
-else
-PRJ_ASIS=Installed
-GEXT_MODULE := $(GEXT_MODULE) gasis
-endif
-endif
-
-else
-PRJ_ASIS=Disabled
-GEXT_MODULE := $(GEXT_MODULE) gasis_dummy
 endif
 
 ## Debug
@@ -266,22 +255,21 @@ clean: $(MODULES_CLEAN)
 
 PRJDIR = .build/projects
 
-gasis:
-	echo "project ASIS is" > $(PRJDIR)/asis.gpr;
-	echo "   Path := \"$(ASIS)\";" >> $(PRJDIR)/asis.gpr;
-	echo "   for Source_Dirs use (Path);" >> $(PRJDIR)/asis.gpr;
-	echo "   for Object_Dir use Path;" >> $(PRJDIR)/asis.gpr;
-	echo "   LIB_Path := \"-L\" & Path;" >> $(PRJDIR)/asis.gpr;
-	echo "end ASIS;" >> $(PRJDIR)/asis.gpr;
-
 gasis_dummy:
 	echo "project ASIS is" > $(PRJDIR)/asis.gpr;
 	echo "   for Source_Dirs use ();" >> $(PRJDIR)/asis.gpr;
-	echo "   LIB_Path := \"\";" >> $(PRJDIR)/asis.gpr;
 	echo "end ASIS;" >> $(PRJDIR)/asis.gpr;
 
 gasis_clean:
 	-$(RM) -f $(PRJDIR)/asis.gpr
+
+gxmlada_dummy:
+	echo "project XMLADA is" > $(PRJDIR)/xmlada.gpr
+	echo "   for Source_Dirs use ();" >> $(PRJDIR)/xmlada.gpr
+	echo "end XMLADA;" >> $(PRJDIR)/xmlada.gpr
+
+gxmlada_clean:
+	-$(RM) -f $(PRJDIR)/xmlada.gpr
 
 gadasockets:
 	echo "project Sockets is" > $(PRJDIR)/sockets.gpr
@@ -310,14 +298,6 @@ gposix_dummy:
 	echo "project POSIX is" > $(PRJDIR)/posix.gpr
 	echo "   for Source_Dirs use ();" >> $(PRJDIR)/posix.gpr
 	echo "end POSIX;" >> $(PRJDIR)/posix.gpr
-
-gxmlada:
-	-$(RM) -f $(PRJDIR)/xmlada.gpr
-
-gxmlada_dummy:
-	echo "project XMLADA is" > $(PRJDIR)/xmlada.gpr
-	echo "   for Source_Dirs use ();" >> $(PRJDIR)/xmlada.gpr
-	echo "end XMLADA;" >> $(PRJDIR)/xmlada.gpr
 
 setup_dir:
 	-$(MKDIR) -p $(PRJDIR)
