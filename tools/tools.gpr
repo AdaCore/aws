@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2003-2004                          --
---                                ACT-Europe                                --
+--                         Copyright (C) 2003-2005                          --
+--                                 AdaCore                                  --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
 --                                                                          --
@@ -47,16 +47,14 @@ project Tools is
       when "Installed" =>
          for Main use project'Main & ("wsdl2aws.adb");
       when "Disabled" =>
-         --  Should be replaced by null as supported by GNAT 5.03
-         for Main use project'Main;
+         null;
    end case;
 
    case Shared.ASIS is
       when "Installed" =>
          for Main use project'Main & ("ada2wsdl-main.adb");
       when "Disabled" =>
-         --  Should be replaced by null as supported by GNAT 5.03
-         for Main use project'Main;
+         null;
    end case;
 
    case Shared.Build is
