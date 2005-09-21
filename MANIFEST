@@ -698,9 +698,6 @@ templates_parser/regtests/blocks6.tmplt
 templates_parser/regtests/blocks6_pt.out
 templates_parser/regtests/blocks7.out
 templates_parser/regtests/blocks7.tmplt
-templates_parser/regtests/context.adb
-templates_parser/regtests/context.out
-templates_parser/regtests/context.tmplt
 templates_parser/regtests/dir/file.tmplt
 templates_parser/regtests/dir/header.tmplt
 templates_parser/regtests/dir/subdir/footer.tmplt
@@ -945,8 +942,8 @@ templates_parser/src/templates_parser-debug.ads
 templates_parser/src/templates_parser-definitions.adb
 templates_parser/src/templates_parser-expr.adb
 templates_parser/src/templates_parser-filter.adb
-templates_parser/src/templates_parser-input.adb
 templates_parser/src/templates_parser-input.ads
+templates_parser/src/templates_parser-input__standalone.adb
 templates_parser/src/templates_parser-print_tree.adb
 templates_parser/src/templates_parser-query.adb
 templates_parser/src/templates_parser-query.ads
