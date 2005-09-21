@@ -1,3 +1,15 @@
+2005-09-21  Dmitriy Anisimkov  <anisimkov@ada-ru.org>
+
+	* ssl-thin.ads:
+	(Rand_Meth_St): New type.
+	(RAND_set_rand_method): New routine.
+
+	* ssl_wrappers.ads, ssl_wrappers.adb:
+	(RAND_set_rand_method): New routine.
+
+	* ssl-ada_random.ads, ssl-ada_random.adb:
+	New package for replace default OpenSSL random numbers generator.
+
 2005-09-15  Dmitriy Anisimkov  <anisimkov@ada-ru.org>
 
 	* ssl.ads:
