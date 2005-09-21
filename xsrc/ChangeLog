@@ -1,3 +1,9 @@
+2005-09-21  Pascal Obry  <pascal@obry.net>
+
+	* aws-client-xml-input_sources.ads:
+	Remove redundant with/use clause.
+	Update copyright notice.		
+
 2005-09-14  Pascal Obry  <pascal@obry.net>
 
 	* aws-jabber.adb:
