@@ -2,7 +2,7 @@
 --                            Secure Sockets Layer                          --
 --                         Binding to OpenSSL library                       --
 --                                                                          --
---                         Copyright (C) 2000-2004                          --
+--                         Copyright (C) 2000-2005                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -37,6 +37,11 @@ package SSL.Thin is
    use Interfaces.C;
 
    package Cstr renames Interfaces.C.Strings;
+
+   type Rand_Meth_St is record
+      Seed, Bytes, Cleanup, Add, Pseudorand, Status : System.Address;
+   end record;
+   pragma Convention (C, Rand_Meth_St);
 
    subtype Pointer is System.Address;
    Null_Pointer : constant Pointer := System.Null_Address;
@@ -294,6 +299,8 @@ package SSL.Thin is
 
    function RAND_status return Integer;
 
+   procedure RAND_set_rand_method (Method : access Rand_Meth_St);
+
    --  Certificate
 
    function SSL_get_peer_certificate (SSL : in SSL_Handle) return X509;
@@ -316,6 +323,7 @@ private
    pragma Import (C, SSLeay, "SSLeay");
    pragma Import (C, RAND_seed, "RAND_seed");
    pragma Import (C, RAND_status, "RAND_status");
+   pragma Import (C, RAND_set_rand_method, "RAND_set_rand_method");
    pragma Import (C, SSL_set_fd, "SSL_set_fd");
    pragma Import (C, SSL_accept, "SSL_accept");
    pragma Import (C, ERR_Remove_State, "ERR_remove_state");
