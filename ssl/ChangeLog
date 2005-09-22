@@ -1,3 +1,8 @@
+2005-09-22  Dmitriy Anisimkov  <anisimkov@ada-ru.org>
+
+	* ssl-ada_random.adb:
+	Synchronize task access to the generator.
+
 2005-09-21  Pascal Obry  <pascal@obry.net>
 
 	* ssl-ada_random.adb:
