@@ -58,12 +58,25 @@ package body SSL.Ada_Random is
 
    package Unsigned_Random is new Ada.Numerics.Discrete_Random (Unsigned);
 
-   Generator   : Unsigned_Random.Generator;
-   Initialized : Boolean := False;
+   protected Generator is
+      procedure Reset  (Initiator : in Integer);
+      procedure Random (Result    : out Unsigned);
+      --  Use protected procedure to get random number, because
+      --  function Ada.Numerics.Discrete_Random.Random is modifying state of the
+      --  random numbers generator.
+      function Is_Initialized return Boolean;
+   private
+      Gen : Unsigned_Random.Generator;
+      Initialized : Boolean := False;
+   end Generator;
 
-   function To_Integer is new Ada.Unchecked_Conversion (Unsigned, Integer);
-   function To_Bytes_4 is new Ada.Unchecked_Conversion (Unsigned, Bytes_4);
+   function To_Integer  is new Ada.Unchecked_Conversion (Unsigned, Integer);
+   function To_Unsigned is new Ada.Unchecked_Conversion (Integer, Unsigned);
+   function To_Bytes_4  is new Ada.Unchecked_Conversion (Unsigned, Bytes_4);
    function To_Unsigned is new Ada.Unchecked_Conversion (Bytes_4, Unsigned);
+
+   function Random return Unsigned;
+   pragma Inline (Random);
 
    procedure Seed (Buf : in C_Byte_Array; Num : Integer);
    pragma Convention (C, Seed);
@@ -95,12 +108,8 @@ package body SSL.Ada_Random is
    ---------
 
    procedure Add (Buf : in C_Byte_Array; Num : Integer;  Entropy : Integer) is
-      use Unsigned_Random;
    begin
-      Reset (Generator,
-             To_Initiator (To_Bytes_4 (Random (Generator)) & Buf (1 .. Num)));
-
-      Initialized := True;
+      Generator.Reset (To_Initiator (To_Bytes_4 (Random) & Buf (1 .. Num)));
    end Add;
 
    -----------
@@ -123,7 +132,7 @@ package body SSL.Ada_Random is
 
          if Index > B4'Last then
             Index := B4'First;
-            B4    := To_Bytes_4 (Unsigned_Random.Random (Generator));
+            B4    := To_Bytes_4 (Random);
          end if;
 
          return B4 (Index);
@@ -143,8 +152,54 @@ package body SSL.Ada_Random is
 
    procedure Cleanup is
    begin
-      Unsigned_Random.Reset (Generator, 0);
+      Generator.Reset (0);
    end Cleanup;
+
+   ---------------
+   -- Generator --
+   ---------------
+
+   protected body Generator is
+
+      --------------------
+      -- Is_Initialized --
+      --------------------
+
+      function Is_Initialized return Boolean is
+      begin
+         return Initialized;
+      end Is_Initialized;
+      ------------
+      -- Random --
+      ------------
+
+      procedure Random (Result : out Unsigned) is
+      begin
+         Result  := Unsigned_Random.Random (Gen);
+      end Random;
+
+      -----------
+      -- Reset --
+      -----------
+
+      procedure Reset  (Initiator : in Integer) is
+      begin
+         Unsigned_Random.Reset (Gen, Initiator);
+         Initialized := True;
+      end Reset;
+
+   end Generator;
+
+   ------------
+   -- Random --
+   ------------
+
+   function Random return Unsigned is
+      Result : Unsigned;
+   begin
+      Generator.Random (Result);
+      return Result;
+   end Random;
 
    ----------------
    -- Initialize --
@@ -161,9 +216,7 @@ package body SSL.Ada_Random is
 
    procedure Seed (Buf : in C_Byte_Array; Num : Integer) is
    begin
-      Unsigned_Random.Reset (Generator, To_Initiator (Buf (1 .. Num)));
-
-      Initialized := True;
+      Generator.Reset (To_Initiator (Buf (1 .. Num)));
    end Seed;
 
    ------------
@@ -172,7 +225,7 @@ package body SSL.Ada_Random is
 
    function Status return Integer is
    begin
-      return Boolean'Pos (Initialized);
+      return Boolean'Pos (Generator.Is_Initialized);
    end Status;
 
    function To_Initiator (Buf : in Byte_Array) return Integer is
