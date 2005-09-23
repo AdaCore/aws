@@ -415,4 +415,4 @@ endif
 # We need to touch the libraries as we have changed the .gpr
 	-$(TOUCH) $(I_LIB)/*.a
 	-$(TOUCH) $(I_LIB)/*$(SOEXT)
-	make -C web_elements install $(GALL_OPTIONS)
+	${MAKE} -C web_elements install $(GALL_OPTIONS)
