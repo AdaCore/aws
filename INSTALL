@@ -39,3 +39,10 @@ apply the patch found in support/gnat-2005-editions.dif.
 To run the templates_parser's non-regression tests with XML/Ada support, you
 need to uncomment the 'with "xmlada";' line in templates_parser.gpr project
 file.
+
+
+Building on Windows
+-------------------
+
+On Windows based system you need to install either the Cygwin or MSYS
+toolset. This is required as the build procedure uses some UNIX tools.
