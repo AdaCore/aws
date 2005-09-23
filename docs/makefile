@@ -184,6 +184,7 @@ gnathtml_apiref: check_api
 		-Itemplates_parser/src -Itemplates_parser/xsrc \
 		-odocs/html $$fileset; \
 	)
+	$(MV) html/index.htm html/aws_index.htm
 
 # API cross-references using AdaBrowse
 
