@@ -341,6 +341,7 @@ I_CPN	= $(INSTALL)/include/aws/components
 I_LIB	= $(INSTALL)/lib/aws
 I_DOC	= $(INSTALL)/doc/aws
 I_GPR	= $(INSTALL)/lib/gnat
+I_AGP	= $(INSTALL)/lib/gnat/aws
 I_TPL	= $(INSTALL)/share/aws/templates
 I_IMG	= $(INSTALL)/share/aws/images
 I_SBN	= $(INSTALL)/share/aws/bin
@@ -352,6 +353,7 @@ install_dirs: force
 	$(MKDIR) $(I_LIB)
 	$(MKDIR) $(I_DOC)
 	$(MKDIR) $(I_GPR)
+	$(MKDIR) $(I_AGP)
 	$(MKDIR) $(I_TPL)
 	$(MKDIR) $(I_IMG)
 	$(MKDIR) $(I_SBN)
@@ -403,12 +405,12 @@ endif
 	$(CP) config/projects/components.gpr $(I_CPN)
 	$(CP) config/projects/aws.gpr $(I_GPR)
 	$(CP) config/projects/aws_ssl.gpr $(I_GPR)
-	$(CP) config/projects/*_lib.gpr $(I_GPR)
-	$(CP) config/projects/shared.gpr $(I_GPR)
-	$(CP) $(PRJDIR)/config.gpr $(I_GPR)
+	$(CP) config/projects/*_lib.gpr $(I_AGP)
+	$(CP) config/projects/shared.gpr $(I_AGP)
+	$(CP) $(PRJDIR)/config.gpr $(I_AGP)
 # Regenerate the SSL project to properly point to the ssl/crypto libraries
 	$(MAKE) -C ssl SOCKET=ssl setup_ssl
-	$(CP) ssl/ssl_shared.gpr $(I_GPR)
+	$(CP) ssl/ssl_shared.gpr $(I_AGP)
 	-$(CHMOD) -R og+r $(INSTALL)
 	-$(CHMOD) uog-w $(I_LIB)
 	-$(CHMOD) uog-w $(I_CPN)
