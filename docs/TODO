@@ -30,8 +30,6 @@ implemented:
   session data across the network. Something needed to do load balancing into
   a Web Farm.
 
-- Replace OpenSSL by GNUTLS library when this library will become stable.
-
 - Would be nice to have an ActiveX component to support Server Push on
   Internet Explorer.
 
@@ -195,8 +193,6 @@ implemented:
 
 - Analyse and fix regression found on FreeBSD GCC 3.4.3.
 
-- Use GNAT.MD5 instead of include/md5.
-
 - AWS.Services.Directory should use Ordered_Sets instead of
   Indefinite_Ordered_Sets.
 
@@ -208,3 +204,5 @@ implemented:
 
 - Remove use of specific OS_Lib implementations and provide a single
   implementation based on standard Ada.Directories.
+
+- Replace OpenSSL by GNUTLS library when this library will become stable.
