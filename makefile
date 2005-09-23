@@ -339,12 +339,12 @@ I_BIN	= $(INSTALL)/bin
 I_INC	= $(INSTALL)/include/aws
 I_CPN	= $(INSTALL)/include/aws/components
 I_LIB	= $(INSTALL)/lib/aws
-I_DOC	= $(INSTALL)/doc/aws
 I_GPR	= $(INSTALL)/lib/gnat
 I_AGP	= $(INSTALL)/lib/gnat/aws
-I_TPL	= $(INSTALL)/share/aws/templates
-I_IMG	= $(INSTALL)/share/aws/images
-I_SBN	= $(INSTALL)/share/aws/bin
+I_TPL	= $(INSTALL)/share/examples/aws/templates
+I_IMG	= $(INSTALL)/share/examples/aws/images
+I_SBN	= $(INSTALL)/share/examples/aws/bin
+I_DOC	= $(INSTALL)/share/doc/aws
 
 install_dirs: force
 	$(MKDIR) $(I_BIN)
@@ -401,6 +401,7 @@ ifeq (${OS}, Windows_NT)
 	-$(CP) -p $(BDIR)/win32/lib/* $(I_LIB)
 	$(CP) -p lib/lib*.a $(I_LIB)
 	-$(CP) -p win32/*.dll $(I_LIB)
+	-$(CP) -p win32/*.dll $(I_LIB)/..
 endif
 	$(CP) config/projects/components.gpr $(I_CPN)
 	$(CP) config/projects/aws.gpr $(I_GPR)
