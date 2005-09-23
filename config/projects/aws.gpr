@@ -28,11 +28,12 @@
 
 --  $Id$
 
-with "../../include/aws/components/components";
-with "nossl_lib";
 with "xmlada";
-with "shared";
-with "config";
+
+with "../../include/aws/components/components";
+with "aws/nossl_lib";
+with "aws/shared";
+with "aws/config";
 
 project AWS is
 

@@ -28,12 +28,13 @@
 
 --  $Id$
 
-with "../../include/aws/components/components";
-with "crypto_lib";
-with "ssl_lib";
 with "xmlada";
-with "shared";
-with "config";
+
+with "../../include/aws/components/components";
+with "aws/crypto_lib";
+with "aws/ssl_lib";
+with "aws/shared";
+with "aws/config";
 
 project AWS_SSL is
 

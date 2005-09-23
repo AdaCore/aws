@@ -33,7 +33,7 @@
 project NOSSL_Lib is
 
   for Source_Files use ();
-  for Library_Dir use "../../lib/aws";
+  for Library_Dir use "../../../lib/aws";
   for Library_Name use "aws_nossl";
   for Library_Kind use "static";
   for Externally_Built use "true";
