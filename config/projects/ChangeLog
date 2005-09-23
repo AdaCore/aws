@@ -1,3 +1,10 @@
+2005-09-23  Pascal Obry  <pascal@obry.net>
+
+	* aws.gpr, aws_ssl.gpr, nossl_lib.gpr:
+	Update path to project. All AWS subprojects are now under
+	 lib/gnat/aws. This change is to have a better integration with
+	 other tools.
+
 2005-09-16  Pascal Obry  <pascal@obry.net>
 
 	* ai302.gpr:
