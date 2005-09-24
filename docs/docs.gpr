@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2004                            --
---                                ACT-Europe                                --
+--                          Copyright (C) 2004-2005                         --
+--                                 AdaCore                                  --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
 --                                                                          --
@@ -38,7 +38,7 @@ project Docs is
 
    for Languages use ("Ada", "Project file");
 
-   for Main use ("build.adb", "gen_gps_ref.adb");
+   for Main use ("build.adb");
 
    ---------
    -- Ide --
