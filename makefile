@@ -385,6 +385,8 @@ endif
 	$(CP) gps/aws_api.xml $(I_PLG)
 	$(CP) gps/aws.py $(I_PLG)
 	$(CP) gps/gps_index.xml $(I_PLG)
+	$(CP) gps/ada2wsdl.xml $(I_PLG)
+	$(CP) gps/wsdl2aws.xml $(I_PLG)
 	$(CP) demos/*.thtml $(I_TPL)
 	$(CP) demos/wm_login.html $(I_TPL)
 	$(CP) demos/aws_*.png $(I_IMG)
