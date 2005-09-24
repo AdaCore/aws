@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                          Copyright (C) 2003-2004                         --
---                                ACT-Europe                                --
+--                          Copyright (C) 2003-2005                         --
+--                                  AdaCore                                 --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
 --                                                                          --
@@ -39,6 +39,7 @@ with "demos/demos";
 with "demos/demos_ssl";
 with "tools/tools";
 with "docs/docs";
+with "gps/gps_support";
 with "regtests/regtests";
 
 project AWS is
