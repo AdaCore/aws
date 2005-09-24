@@ -125,11 +125,13 @@ docs/gentexifile
 docs/makefile
 docs/openssl.license
 docs/style-guide.texi
+gps/ada2wsdl.xml
 gps/awp.py
 gps/gen_gps_ref.adb
 gps/gps_index.xml
 gps/gps_support.gpr
 gps/makefile
+gps/wsdl2aws.xml
 include/ChangeLog
 include/include.gpr
 include/makefile
