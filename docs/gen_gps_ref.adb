@@ -83,11 +83,10 @@ procedure Gen_GPS_Ref is
    procedure Gen_Header is
    begin
       Put_Line ("<?xml version=""1.0"" ?>");
-      Put_Line ("<!-- This is a GPS Help support file with AWS's API");
-      Put_Line ("     Just copy this file into ~/.gps/plug-ins -->");
+      Put_Line ("<!-- This is a GPS Help support file with AWS's API -->");
       Put_Line ("<doc>");
       Put_Line ("   <submenu before=""About"" action = """">");
-      Put_Line ("      <title>/Help/AWS/AWS API</title>");
+      Put_Line ("      <title>/Help/AWS</title>");
       Put_Line ("   </submenu>");
    end Gen_Header;
 
@@ -181,8 +180,8 @@ procedure Gen_GPS_Ref is
       for K in 1 .. A loop
          Put_Line ("   <documentation_file>");
          Put_Line
-           ("      <shell>Editor.edit """
-            & (-API (K).Filename) & """</shell>");
+           ("      <shell lang=""python"">aws.open_file ("""
+            & (-API (K).Filename) & """)</shell>");
          Put_Line ("      <descr>" & (-API (K).API_Name) & "</descr>");
          Put_Line ("      <menu>/Help/AWS/AWS API/"
                      & Get_Menu (K) & "</menu>");
