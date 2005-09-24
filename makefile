@@ -96,6 +96,7 @@ common_tarball:
 	$(MKDIR) $${AWS}/src; \
 	$(MKDIR) $${AWS}/demos; \
 	$(MKDIR) $${AWS}/regtests; \
+	$(MKDIR) $${AWS}/gps; \
 	$(MKDIR) $${AWS}/docs; \
 	$(MKDIR) $${AWS}/docs/html; \
 	$(MKDIR) $${AWS}/icons; \
@@ -176,7 +177,7 @@ force:
 # Configuration for GNAT Projet Files
 
 EXTRA_MODULES = demos regtests
-MODULES = config ssl include src win32 tools docs ${EXTRA_MODULES}
+MODULES = config ssl include src win32 tools gps docs ${EXTRA_MODULES}
 
 MODULES_BUILD = ${MODULES:%=%_build}
 
@@ -376,14 +377,14 @@ endif
 	-$(CP) -p $(BDIR)/ssl/obj/*.ali $(I_LIB)
 	$(CP) lib/libz.a $(I_LIB)
 	-$(CP) docs/aws.html $(I_DOC)
-	-$(CP) docs/aws_api.xml $(I_PLG)
-	-$(CP) docs/aws.py $(I_PLG)
-	-$(CP) docs/gps_index.xml $(I_PLG)
+	-$(CP) -r docs/html $(I_DOC)
 	-$(CP) templates_parser/docs/templates_parser.html $(I_DOC)
 	-$(CP) templates_parser/docs/templates_parser.info* $(I_DOC)
 	-$(CP) docs/aws.txt $(I_DOC)
 	-$(CP) docs/*.info* $(I_DOC)
-	-$(CP) -r docs/html $(I_DOC)
+	$(CP) gps/aws_api.xml $(I_PLG)
+	$(CP) gps/aws.py $(I_PLG)
+	$(CP) gps/gps_index.xml $(I_PLG)
 	$(CP) demos/*.thtml $(I_TPL)
 	$(CP) demos/wm_login.html $(I_TPL)
 	$(CP) demos/aws_*.png $(I_IMG)
