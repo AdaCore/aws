@@ -1,3 +1,9 @@
+2005-09-24  Pascal Obry  <pascal@obry.net>
+
+	* makefile:
+	(I_WEL): Change value to point to the install right directory.
+	Work for E923-010.
+
 2005-09-14  Pascal Obry  <pascal@obry.net>
 
 	* makefile:
