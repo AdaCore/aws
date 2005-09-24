@@ -82,9 +82,6 @@ APIFILES = ../src/aws.ads.texi \
 	../soap/soap-parameters.ads.texi \
 	../soap/soap-types.ads.texi
 
-ALL_API = $(sort $(shell ls ../src/*.ads ../xsrc/*.ads ../soap/*.ads \
-	../templates_parser/src/*.ads ../templates_parser/xsrc/*.ads))
-
 force:
 
 aws_docs: aws.ps aws.pdf aws.html aws.txt aws.info
@@ -92,10 +89,7 @@ aws_docs: aws.ps aws.pdf aws.html aws.txt aws.info
 sg_docs: style-guide.ps style-guide.pdf style-guide.html style-guide.txt \
 	style-guide.info
 
-build: prog force
-	./gen_gps_ref $(ALL_API)
-
-build_doc: aws_docs sg_docs
+build_doc: prog aws_docs sg_docs
 	echo ""
 	echo Documentation built with success.
 
@@ -210,7 +204,7 @@ adabrowse_apiref: check_api
 
 clean:
 	-$(RM) -f aws.texi aws.dvi aws.html aws.info* aws.log aws.ps aws.txt \
-          $(APIFILES) *~ *.o *.ali genout aws_api.xml
+          $(APIFILES) *~ *.o *.ali genout
 	-$(RM) -f style-guide.dvi style-guide.html style-guide.info* \
 		style-guide.log style-guide.ps style-guide.txt
 
