@@ -1,0 +1,48 @@
+<?xml version="1.0" ?>
+<!--  This file adds support for the ada2wsdl utility to GPS. -->
+
+<ada2wsdl>
+   <action name="Ada2WSDL" output="none">
+      <description>Generates a WSDL document from an Ada spec.</description>
+      <!-- This action only applies to Ada files -->
+      <filter language="ada" error="Ada to WSDL requires an Ada file" />
+
+      <shell>MDI.save_all</shell>
+      <shell lang="python">aws.ada2wsdl("%F");</shell>
+   </action>
+
+   <submenu>
+      <Title>Edit</Title>
+      <menu action="Ada2WSDL" before="Unit Testing" >
+         <title>Generate WSDL</title>
+      </menu>
+   </submenu>
+
+   <tool name="Ada2WSDL" package="Ide" index="Ada2WSDL" >
+      <language>Ada</language>
+      <switches lines="2">
+         <title line="1" >General</title>
+         <title line="2" >Mapping</title>
+
+	 <!-- section 1 -->
+         <check label="Fore overwrite" switch="-f" line="1"/>
+
+         <check label="Quiet mode" switch="-q" line="1"
+                tip="No output except for errors"/>
+
+         <check label="Verbose mode" switch="-v" line="1"
+                tip="Very verbose mode"/>
+
+	 <!-- section 2 -->
+         <check label="Enumetation as xsd:string" switch="-noenum" line="2"
+                tip="Enumeration are by default mapped to a proper schema definition, some implementations just map enumeration to standard strings."/>
+
+         <field label="Web Service name " switch="-s"
+	        separator=" " line="2"/>
+
+         <field label="Web Service endpoint" switch="-a"
+                tip="Specify the URL endpoint to use for this Web Service"
+                separator=" " line="2"/>
+      </switches>
+   </tool>
+</ada2wsdl>

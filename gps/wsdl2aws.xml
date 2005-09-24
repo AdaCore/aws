@@ -1,0 +1,84 @@
+<?xml version="1.0" ?>
+<!--  This file adds support for the wsdl2aws utility to GPS. -->
+
+<wsdl2aws>
+  <language>
+    <Name>WSDL</Name>
+    <spec_suffix>.wsdl</spec_suffix>
+  </language>
+
+   <action name="WSDL2AWS" output="none">
+      <description>Generates AWS SOAP stubs/skeletons from a WSDL document.</description>
+      <!-- This action only applies to Ada files -->
+      <filter language="wsdl" 
+              error="WSDL to AWS generator requires a WSDL document." />
+
+      <shell>MDI.save_all</shell>
+      <shell lang="python">aws.wsdl2aws("%F");</shell>
+   </action>
+
+   <submenu>
+      <title>Edit</title>
+      <menu action="WSDL2AWS" after="Generate WSDL" >
+         <title>Generate Web Services</title>
+      </menu>
+   </submenu>
+
+   <tool name="WSDL2AWS" package="Ide" index="WSDL2AWS" >
+      <language>WSDL</language>
+      <switches lines="2">
+         <title line="1" >General</title>
+         <title line="2" >Code generation</title>
+
+	 <!-- section 1 -->
+         <check label="Fore overwrite" switch="-f" line="1"/>
+
+         <check label="Quiet mode" switch="-q" line="1"
+                tip="No output except for errors"/>
+
+         <check label="Verbose mode" switch="-v" line="1"
+                tip="Very verbose mode"/>
+
+	 <!-- section 2 -->
+         <check label="Generate debug code" switch="-d" line="2"
+                tip="Instrument generated code to help debugging"/>
+
+         <check label="Skip non supported SOAP routines" switch="-s" line="2"/>
+
+         <check label="Do not generate stubs" switch="-nostub" line="2"/>
+
+         <check label="Do not generate skeletons" switch="-noskel" line="2"/>
+
+         <check label="Ada style identifier" switch="-a" line="2"
+                tip="Code generation use Ada style identifier (add underscores)"/>
+         <check label="Add WSDL document in comment" switch="-wsdl" line="2"
+                tip="The WSDL document itself is inserted in comment into the parent"/>
+
+         <check label="Add CVS tag" switch="-cvs" line="2"
+                tip="Add CVS's Id Tag in comment"/>
+
+         <check label="Generate SOAP callback" switch="-cb" line="2"/>
+
+         <field label="Web Service endpoint" switch="-e"
+                tip="Specify the URL endpoint to use for this Web Service"
+                separator=" " line="2"/>
+
+         <field label="Generate SOAP main procedure" 
+                tip="Specify the name of the file for the main procedure"
+	        switch="-main" separator=" " line="2"/>
+
+         <field label="Use routines/types from spec " switch="-spec"
+                tip="Specify the name of the spec to use to references the routines/spec when generating the callbacks"
+	        separator=" " line="2"/>
+
+         <field label="Use types from spec " switch="-types"
+                tip="If specified types are used from this spec instead of the one specified above"
+	        separator=" " line="2"/>
+
+         <dependency master-page="WSDL2AWS" slave-page="WSDL2AWS"
+                     master-switch="-main" slave-switch="-cb"
+                     master-status="on" slave-status="on" />
+
+      </switches>
+   </tool>
+</wsdl2aws>
