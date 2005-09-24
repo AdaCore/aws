@@ -82,21 +82,24 @@ APIFILES = ../src/aws.ads.texi \
 	../soap/soap-parameters.ads.texi \
 	../soap/soap-types.ads.texi
 
-ALL_API = $(sort $(shell ls ../src/*.ads ../xsrc/*.ads ../soap/*.ads))
+ALL_API = $(sort $(shell ls ../src/*.ads ../xsrc/*.ads ../soap/*.ads \
+	../templates_parser/src/*.ads ../templates_parser/xsrc/*.ads))
 
 force:
 
-aws_api.xml: prog force
-	./gen_gps_ref $(ALL_API)
-
-aws_docs: aws_api.xml aws.ps aws.pdf aws.html aws.txt aws.info
+aws_docs: aws.ps aws.pdf aws.html aws.txt aws.info
 
 sg_docs: style-guide.ps style-guide.pdf style-guide.html style-guide.txt \
 	style-guide.info
 
-build: aws_docs sg_docs
+build: prog force
+	./gen_gps_ref $(ALL_API)
+
+build_doc: aws_docs sg_docs
 	echo ""
 	echo Documentation built with success.
+
+setup:
 
 ada.sed: makefile
 	echo "s/\([^@_]\)@\([^@_]\)/\1@@\2/" > ada.sed
@@ -140,8 +143,10 @@ ada.sed: makefile
 aws.dvi: aws.texi $(APIFILES)
 	-texi2dvi --clean --quiet aws.texi
 
+# Note that we force XMLADA=Installed, this is not a problem as it is only to
+# give the visibility to soap.ads to get the SOAP's version number.
 prog:
-	$(GNATMAKE) -Pdocs -XBuild=${PRJ_BUILD} -XXMLADA=${PRJ_XMLADA}
+	$(GNATMAKE) -Pdocs -XPRJ_Build=${PRJ_BUILD} -XPRJ_XMLADA=Installed
 
 aws.texi: prog aws.texi.tmplt
 	./build | tr -d '\r' > aws.texi
@@ -205,7 +210,7 @@ adabrowse_apiref: check_api
 
 clean:
 	-$(RM) -f aws.texi aws.dvi aws.html aws.info* aws.log aws.ps aws.txt \
-          $(APIFILES) *~ *.o *.ali genout
+          $(APIFILES) *~ *.o *.ali genout aws_api.xml
 	-$(RM) -f style-guide.dvi style-guide.html style-guide.info* \
 		style-guide.log style-guide.ps style-guide.txt
 
