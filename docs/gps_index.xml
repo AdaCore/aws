@@ -1,5 +1,11 @@
 <?xml version="1.0"?>
 <index>
+   <doc_path>share/doc/aws</doc_path>
+
+   <submenu before="About" action = "">
+      <title>/Help/AWS</title>
+   </submenu>
+
    <documentation_file>
       <name>aws.html</name>
       <descr>AWS User's Guide</descr>
