@@ -68,7 +68,7 @@ ALL_OPTIONS	= $(MAKE_OPT) SOCKET="$(SOCKET)" XMLADA="$(XMLADA)" \
 build_doc:
 	echo ""
 	echo "=== Build doc"
-	${MAKE} -C docs build $(GALL_OPTIONS)
+	${MAKE} -C docs build_doc $(GALL_OPTIONS)
 	${MAKE} -C templates_parser doc $(GALL_OPTIONS)
 
 build_apiref:
@@ -176,7 +176,7 @@ force:
 # Configuration for GNAT Projet Files
 
 EXTRA_MODULES = demos regtests
-MODULES = config ssl include src win32 tools ${EXTRA_MODULES}
+MODULES = config ssl include src win32 tools docs ${EXTRA_MODULES}
 
 MODULES_BUILD = ${MODULES:%=%_build}
 
@@ -345,6 +345,7 @@ I_TPL	= $(INSTALL)/share/examples/aws/templates
 I_IMG	= $(INSTALL)/share/examples/aws/images
 I_SBN	= $(INSTALL)/share/examples/aws/bin
 I_DOC	= $(INSTALL)/share/doc/aws
+I_PLG	= $(INSTALL)/share/gps/plug-ins
 
 install_dirs: force
 	$(MKDIR) $(I_BIN)
@@ -357,6 +358,7 @@ install_dirs: force
 	$(MKDIR) $(I_TPL)
 	$(MKDIR) $(I_IMG)
 	$(MKDIR) $(I_SBN)
+	$(MKDIR) $(I_PLG)
 
 install: install_dirs
 	$(CP) -p src/a*.ad[sb] ssl/*.ad[sb] $(I_INC)
@@ -374,8 +376,9 @@ endif
 	-$(CP) -p $(BDIR)/ssl/obj/*.ali $(I_LIB)
 	$(CP) lib/libz.a $(I_LIB)
 	-$(CP) docs/aws.html $(I_DOC)
-	-$(CP) docs/aws_api.xml $(I_DOC)
-	-$(CP) docs/gps_index.xml $(I_DOC)
+	-$(CP) docs/aws_api.xml $(I_PLG)
+	-$(CP) docs/aws.py $(I_PLG)
+	-$(CP) docs/gps_index.xml $(I_PLG)
 	-$(CP) templates_parser/docs/templates_parser.html $(I_DOC)
 	-$(CP) templates_parser/docs/templates_parser.info* $(I_DOC)
 	-$(CP) docs/aws.txt $(I_DOC)
