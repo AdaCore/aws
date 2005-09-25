@@ -348,7 +348,14 @@ I_SBN	= $(INSTALL)/share/examples/aws/bin
 I_DOC	= $(INSTALL)/share/doc/aws
 I_PLG	= $(INSTALL)/share/gps/plug-ins
 
-install_dirs: force
+install_clean:
+	$(RM) -fr $(I_INC)
+	$(RM) -fr $(I_LIB)
+	$(RM) -fr $(I_AGP)
+	$(RM) -fr $(INSTALL)/share/examples/aws
+	$(RM) -fr $(I_DOC)
+
+install_dirs: install_clean
 	$(MKDIR) $(I_BIN)
 	$(MKDIR) $(I_INC)
 	$(MKDIR) $(I_CPN)
@@ -418,9 +425,8 @@ endif
 # Regenerate the SSL project to properly point to the ssl/crypto libraries
 	$(MAKE) -C ssl SOCKET=ssl setup_ssl
 	$(CP) ssl/ssl_shared.gpr $(I_AGP)
-	-$(CHMOD) -R og+r $(INSTALL)
-	-$(CHMOD) uog-w $(I_LIB)
-	-$(CHMOD) uog-w $(I_CPN)
+	-$(CHMOD) uog-w $(I_LIB)/*
+	-$(CHMOD) uog-w $(I_CPN)/*.ali
 # We need to touch the libraries as we have changed the .gpr
 	-$(TOUCH) $(I_LIB)/*.a
 	-$(TOUCH) $(I_LIB)/*$(SOEXT)
