@@ -116,6 +116,7 @@ demos/zdemo_cb.ads
 docs/TODO
 docs/aws.html
 docs/aws.info*
+docs/aws.pdf
 docs/aws.texi
 docs/aws.texi.tmplt
 docs/aws.txt
@@ -124,6 +125,9 @@ docs/docs.gpr
 docs/gentexifile
 docs/makefile
 docs/openssl.license
+docs/style-guide.html
+docs/style-guide.info*
+docs/style-guide.pdf
 docs/style-guide.texi
 gps/ada2wsdl.xml
 gps/aws.py
