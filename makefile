@@ -177,7 +177,7 @@ force:
 # Configuration for GNAT Projet Files
 
 EXTRA_MODULES = demos regtests
-MODULES = config ssl include src win32 tools gps docs ${EXTRA_MODULES}
+MODULES = config ssl include src win32 tools gps ${EXTRA_MODULES}
 
 MODULES_BUILD = ${MODULES:%=%_build}
 
