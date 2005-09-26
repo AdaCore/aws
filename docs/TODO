@@ -193,9 +193,6 @@ implemented:
 
 - Analyse and fix regression found on FreeBSD GCC 3.4.3.
 
-- AWS.Services.Directory should use Ordered_Sets instead of
-  Indefinite_Ordered_Sets.
-
 - Revisit the AdaSockets support. Should we continue supporting this ?
   It would certainly be easier to support only GNAT.Sockets and use the
   selector facilities instead of the AWS's poll() support.
@@ -205,4 +202,4 @@ implemented:
 - Remove use of specific OS_Lib implementations and provide a single
   implementation based on standard Ada.Directories.
 
-- Replace OpenSSL by GNUTLS library when this library will become stable.
+- Replace OpenSSL by GNUTLS library as this library is now stable.
