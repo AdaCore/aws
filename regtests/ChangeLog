@@ -1,3 +1,10 @@
+2005-09-26  Pascal Obry  <pascal@obry.net>
+
+	* regtests.gpr:
+	Merge from ada95 branch.
+	(Linker): Add -g option.
+	Update copyright notice.
+
 2005-09-26  Dmitriy Anisimkov <anisimkov@ada-ru.org>
 
 	* accs_proc.adb:
