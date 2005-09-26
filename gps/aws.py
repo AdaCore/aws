@@ -46,16 +46,16 @@ def open_file (filename):
         GPS.EditorBuffer.get(file)
     elif os.path.isfile(GPS.get_system_dir() + "include/aws/" + bfile):
 	GPS.Console ("Messages").write \
-	  ("File " + bfile + " not part of project.")
+	  ("File " + bfile + " is not part of current project.\n")
 	file=GPS.File(GPS.get_system_dir() + "include/aws/" + bfile)
         GPS.EditorBuffer.get(file);
     elif os.path.isfile(gnat_root() + "include/aws/" + bfile):
 	GPS.Console ("Messages").write \
-	  ("File " + bfile + " not part of project.")
+	  ("File " + bfile + " is not part of current project.\n")
 	file=GPS.File(gnat_root() + "include/aws/" + bfile)
         GPS.EditorBuffer.get(file)
     else:
-	GPS.Console ("Messages").write ("File " + bfile + " not found.")
+	GPS.Console ("Messages").write ("File " + bfile + " not found.\n")
 
 # For SOAP support
 
