@@ -1,3 +1,9 @@
+2005-09-26  Pascal Obry  <pascal@obry.net>
+
+	* aws-services-directory.adb:
+	Use Ada.Containers Ordered_Sets instead of Indefinite_Ordered_Sets.
+	Code clean-up as we now have access to all Ada containers.
+
 2005-09-21  Pascal Obry  <pascal@obry.net>
 
 	* aws-url.adb:
