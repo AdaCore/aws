@@ -203,3 +203,8 @@ implemented:
   implementation based on standard Ada.Directories.
 
 - Replace OpenSSL by GNUTLS library as this library is now stable.
+
+- Add support for the Content-Range: HTTP header to support resumable download
+  as used by download managers.
+
+- Add a generic download queue service.
