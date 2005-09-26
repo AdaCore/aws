@@ -1,3 +1,8 @@
+2005-09-26  Dmitriy Anisimkov <anisimkov@ada-ru.org>
+
+	* accs_proc.adb:
+	Do not close not connected socket.
+
 2005-09-14  Pascal Obry  <pascal@obry.net>
 
 	* regtests.gpr:
