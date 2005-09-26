@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2004                            --
---                                ACT-Europe                                --
+--                          Copyright (C) 2004-2005                         --
+--                                  AdaCore                                 --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
 --                                                                          --
@@ -122,7 +122,7 @@ project Regtests is
    ------------
 
    package Linker is
-      for Default_Switches ("Ada") use ("-L../lib");
+      for Default_Switches ("Ada") use ("-g", "-L../lib");
       for Switches ("check_mem.adb") use ("-L../lib", "-lgmem");
    end Linker;
 
