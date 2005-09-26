@@ -30,10 +30,10 @@
 
 with Ada.Calendar;
 with Ada.Characters.Handling;
+with Ada.Containers.Ordered_Sets;
 with Ada.Strings.Unbounded;
 with Ada.Strings.Fixed;
 with Ada.Strings.Maps;
-with Ada.Containers.Indefinite_Ordered_Sets;
 
 with AWS.OS_Lib;
 with AWS.Parameters;
@@ -61,7 +61,7 @@ package body AWS.Services.Directory is
    pragma Inline ("=");
 
    package File_Tree is
-     new Ada.Containers.Indefinite_Ordered_Sets (File_Record, "<", "=");
+      new Ada.Containers.Ordered_Sets (File_Record, "<", "=");
 
    type Order_Mode is
      (O,  -- original order, as read on the file system
