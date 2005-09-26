@@ -62,12 +62,14 @@ procedure Accs_Proc (Security : in Boolean) is
       Sock   : Socket_Type'Class := Socket (Security);
       Index  : Positive;
       Prefix : constant String := "index";
+      Connected : Boolean := False;
    begin
       accept Start (Index : Positive) do
          Client_Task.Index := Index;
       end Start;
 
       Connect (Sock, "127.0.0.1", Free_Port);
+      Connected := True;
 
       Set_Timeout (Sock, 3.0);
 
@@ -98,8 +100,10 @@ procedure Accs_Proc (Security : in Boolean) is
          Ada.Text_IO.Put_Line
            ("Client " & Ada.Exceptions.Exception_Information (E));
 
-         Shutdown (Sock);
-         Free (Sock);
+         if Connected then
+            Shutdown (Sock);
+            Free (Sock);
+         end if;
    end Client_Task;
 
    task body Server_Task is
