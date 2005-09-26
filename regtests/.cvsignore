@@ -1,6 +1,8 @@
 1.upload.adb
 4.upload.adb
 WSDL_6
+accs.res
+accs_sec.res
 afile
 afile.res
 afile_sec.res
@@ -431,6 +433,8 @@ shutdown.tmp
 simple
 simple.res
 simple.tmp
+smem.res
+smem_sec.res
 smtp
 smtp.res
 soap1
@@ -526,6 +530,8 @@ sockto.res
 sp
 sp.res
 sp.tmp
+spair.res
+spair_sec.res
 split1
 split1.res
 ssback
