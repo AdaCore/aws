@@ -1,3 +1,12 @@
+2005-09-27  Pascal Obry  <pascal@obry.net>
+
+	* aws-containers-tables.adb:
+	Remove with Ada.Strings.Unbounded now in the spec.
+
+	* aws-containers-tables.ads:
+	Reoder with clauses.
+	Minor code clean-up.
+
 2005-09-26  Pascal Obry  <pascal@obry.net>
 
 	* aws-services-directory.adb:
