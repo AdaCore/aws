@@ -1,3 +1,23 @@
+2005-09-27  Dmitriy Anisimkov  <anisimkov@ada-ru.org>
+
+	* ssl-locking.ads, ssl-locking.adb:
+	To make OpenSSL thread safe.
+
+	* ssl-thin.ads, ssl_wrappers.ads, ssl_wrappers.adb:
+	(CRYPTO_num_locks): New routine.
+	(CRYPTO_set_id_callback): New routine.
+	(CRYPTO_set_locking_callback): New routine.
+	(CRYPTO_get_locking_callback): New routine.
+	(CRYPTO_set_dynlock_create_callback): New routine.
+	(CRYPTO_set_dynlock_lock_callback): New routine.
+	(CRYPTO_set_dynlock_destroy_callback): New routine.
+	(CRYPTO_get_dynlock_create_callback): New routine.
+	(CRYPTO_get_dynlock_lock_callback): New routine.
+	(CRYPTO_get_dynlock_destroy_callback): New routine.
+
+	* ssl.gpr:
+	Add ssl-locking.ads and ssl-locking.adb source files.
+
 2005-09-22  Dmitriy Anisimkov  <anisimkov@ada-ru.org>
 
 	* ssl-ada_random.adb:
