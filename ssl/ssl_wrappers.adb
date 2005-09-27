@@ -44,6 +44,96 @@ package body SSL_Wrappers is
       null;
    end CRYPTO_set_mem_functions;
 
+   ----------------------
+   -- CRYPTO_num_locks --
+   ----------------------
+
+   function CRYPTO_num_locks return Natural is
+   begin
+      return 0;
+   end CRYPTO_num_locks;
+
+   ----------------------------
+   -- CRYPTO_set_id_callback --
+   ----------------------------
+
+   procedure CRYPTO_set_id_callback is
+   begin
+      null;
+   end CRYPTO_set_id_callback;
+
+   ---------------------------------
+   -- CRYPTO_set_locking_callback --
+   ---------------------------------
+
+   procedure CRYPTO_set_locking_callback is
+   begin
+      null;
+   end CRYPTO_set_locking_callback;
+
+   ---------------------------------
+   -- CRYPTO_get_locking_callback --
+   ---------------------------------
+
+   function CRYPTO_get_locking_callback return Integer is
+   begin
+      return 0;
+   end CRYPTO_get_locking_callback;
+
+   ----------------------------------------
+   -- CRYPTO_set_dynlock_create_callback --
+   ----------------------------------------
+
+   procedure CRYPTO_set_dynlock_create_callback is
+   begin
+      null;
+   end CRYPTO_set_dynlock_create_callback;
+
+   --------------------------------------
+   -- CRYPTO_set_dynlock_lock_callback --
+   --------------------------------------
+
+   procedure CRYPTO_set_dynlock_lock_callback is
+   begin
+      null;
+   end CRYPTO_set_dynlock_lock_callback;
+
+   -----------------------------------------
+   -- CRYPTO_set_dynlock_destroy_callback --
+   -----------------------------------------
+
+   procedure CRYPTO_set_dynlock_destroy_callback is
+   begin
+      null;
+   end CRYPTO_set_dynlock_destroy_callback;
+
+   ----------------------------------------
+   -- CRYPTO_get_dynlock_create_callback --
+   ----------------------------------------
+
+   function CRYPTO_get_dynlock_create_callback return Integer is
+   begin
+      return 0;
+   end CRYPTO_get_dynlock_create_callback;
+
+   --------------------------------------
+   -- CRYPTO_get_dynlock_lock_callback --
+   --------------------------------------
+
+   function CRYPTO_get_dynlock_lock_callback return Integer is
+   begin
+      return 0;
+   end CRYPTO_get_dynlock_lock_callback;
+
+   -----------------------------------------
+   -- CRYPTO_get_dynlock_destroy_callback --
+   -----------------------------------------
+
+   function CRYPTO_get_dynlock_destroy_callback return Integer is
+   begin
+      return 0;
+   end CRYPTO_get_dynlock_destroy_callback;
+
    ------------------------
    -- ERR_error_string_n --
    ------------------------

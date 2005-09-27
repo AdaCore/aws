@@ -35,6 +35,44 @@ package SSL_Wrappers is
    procedure CRYPTO_set_mem_functions;
    pragma Export (C, CRYPTO_set_mem_functions, "CRYPTO_set_mem_functions");
 
+   function CRYPTO_num_locks return Natural;
+   pragma Export (C, CRYPTO_num_locks, "CRYPTO_num_locks");
+
+   procedure CRYPTO_set_id_callback;
+   pragma Export (C, CRYPTO_set_id_callback, "CRYPTO_set_id_callback");
+
+   procedure CRYPTO_set_locking_callback;
+   pragma Export (C, CRYPTO_set_locking_callback,
+                    "CRYPTO_set_locking_callback");
+
+   function CRYPTO_get_locking_callback return Integer;
+   pragma Export (C, CRYPTO_get_locking_callback,
+                    "CRYPTO_get_locking_callback");
+
+   procedure CRYPTO_set_dynlock_create_callback;
+   pragma Export (C, CRYPTO_set_dynlock_create_callback,
+                    "CRYPTO_set_dynlock_create_callback");
+
+   procedure CRYPTO_set_dynlock_lock_callback;
+   pragma Export (C, CRYPTO_set_dynlock_lock_callback,
+                    "CRYPTO_set_dynlock_lock_callback");
+
+   procedure CRYPTO_set_dynlock_destroy_callback;
+   pragma Export (C, CRYPTO_set_dynlock_destroy_callback,
+                    "CRYPTO_set_dynlock_destroy_callback");
+
+   function CRYPTO_get_dynlock_create_callback return Integer;
+   pragma Export (C, CRYPTO_get_dynlock_create_callback,
+                    "CRYPTO_get_dynlock_create_callback");
+
+   function CRYPTO_get_dynlock_lock_callback return Integer;
+   pragma Export (C, CRYPTO_get_dynlock_lock_callback,
+                    "CRYPTO_get_dynlock_lock_callback");
+
+   function CRYPTO_get_dynlock_destroy_callback return Integer;
+   pragma Export (C, CRYPTO_get_dynlock_destroy_callback,
+                    "CRYPTO_get_dynlock_destroy_callback");
+
    procedure SSL_library_init;
    pragma Export (C, SSL_library_init, "SSL_library_init");
 

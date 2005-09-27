@@ -131,6 +131,37 @@ package SSL.Thin is
    SSL_MODE_NO_AUTO_CHAIN : constant := 8;
    --  Don't attempt to automatically build certificate chain.
 
+   -----------------------------------------------
+   -- Multithread data access locking constants --
+   -----------------------------------------------
+
+   CRYPTO_LOCK   : constant := 1;
+   CRYPTO_UNLOCK : constant := 2;
+   CRYPTO_READ   : constant := 4;
+   CRYPTO_WRITE  : constant := 8;
+
+   ----------------------------------------------------
+   -- Multithread data access setup locking routines --
+   ----------------------------------------------------
+
+   function  CRYPTO_num_locks return Natural;
+
+   procedure CRYPTO_set_id_callback (Id_Function : Pointer);
+   procedure CRYPTO_set_locking_callback (Locking_Function : Pointer);
+   function  CRYPTO_get_locking_callback return Pointer;
+
+   procedure CRYPTO_set_dynlock_create_callback  (Create_Function : Pointer);
+   procedure CRYPTO_set_dynlock_lock_callback    (Lock_Function : Pointer);
+   procedure CRYPTO_set_dynlock_destroy_callback (Destroy_Function : Pointer);
+
+   function CRYPTO_get_dynlock_create_callback  return Pointer;
+   function CRYPTO_get_dynlock_lock_callback    return Pointer;
+   function CRYPTO_get_dynlock_destroy_callback return Pointer;
+
+   -----------------------------------------------------------
+   -- End of multithread data access setup locking routines --
+   -----------------------------------------------------------
+
    function SSLeay return long;
    --  Returns OpenSSL numeric release version identifier.
 
@@ -320,6 +351,24 @@ package SSL.Thin is
 
 private
 
+   pragma Import (C, CRYPTO_num_locks, "CRYPTO_num_locks");
+   pragma Import (C, CRYPTO_set_id_callback, "CRYPTO_set_id_callback");
+   pragma Import (C, CRYPTO_set_locking_callback,
+                    "CRYPTO_set_locking_callback");
+   pragma Import (C, CRYPTO_get_locking_callback,
+                    "CRYPTO_get_locking_callback");
+   pragma Import (C, CRYPTO_set_dynlock_create_callback,
+                    "CRYPTO_set_dynlock_create_callback");
+   pragma Import (C, CRYPTO_set_dynlock_lock_callback,
+                    "CRYPTO_set_dynlock_lock_callback");
+   pragma Import (C, CRYPTO_set_dynlock_destroy_callback,
+                    "CRYPTO_set_dynlock_destroy_callback");
+   pragma Import (C, CRYPTO_get_dynlock_create_callback,
+                    "CRYPTO_get_dynlock_create_callback");
+   pragma Import (C, CRYPTO_get_dynlock_lock_callback,
+                    "CRYPTO_get_dynlock_lock_callback");
+   pragma Import (C, CRYPTO_get_dynlock_destroy_callback,
+                    "CRYPTO_get_dynlock_destroy_callback");
    pragma Import (C, SSLeay, "SSLeay");
    pragma Import (C, RAND_seed, "RAND_seed");
    pragma Import (C, RAND_status, "RAND_status");
