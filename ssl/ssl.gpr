@@ -44,6 +44,8 @@ project SSL is
       "ssl-thin.ads",
       "ssl-ada_random.ads",
       "ssl-ada_random.adb",
+      "ssl-locking.ads",
+      "ssl-locking.adb",
       "ChangeLog",
       "ssl.gpr");
 
