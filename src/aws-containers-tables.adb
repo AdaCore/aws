@@ -46,8 +46,6 @@ with Ada.Containers.Generic_Array_Sort;
 
 package body AWS.Containers.Tables is
 
-   use Ada.Strings.Unbounded;
-
    procedure Get_Indexes
      (Table   : in     Table_Type;
       Name    : in     String;
