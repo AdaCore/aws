@@ -1,3 +1,8 @@
+2005-09-29  Dmitriy Anisimkov <anisimkov@ada-ru.org>
+
+	* wait_pack.adb:
+	Remove abort Client_Task because it conflict with SSL.Locking on Win32.
+
 2005-09-26  Pascal Obry  <pascal@obry.net>
 
 	* regtests.gpr:

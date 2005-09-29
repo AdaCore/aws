@@ -192,7 +192,10 @@ package body Wait_Pack is
 
       Net.Shutdown (Server);
 
-      abort Client_Side;
+      --  abort Client_Side;
+      --  The task Client_Side terminating itself without abort statement.
+      --  But abort statement cause error on Win32 platform after add SSL.Locking package.
+      --  It could be treated as regression.
 
    exception
       when E : others =>
