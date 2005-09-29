@@ -1,3 +1,8 @@
+2005-09-29  Dmitriy Anisimkov <anisimkov@ada-ru.org>
+
+	* aws-net-ssl.adb:
+	Turn on SSL.Locking.
+
 2005-09-27  Pascal Obry  <pascal@obry.net>
 
 	* aws-containers-tables.adb:
@@ -69,7 +74,7 @@
 	* aws-client-http_utils.ads, aws-client-http_utils.adb:
 	Remove redundant with/use clause.
 
-2005-09-16 Dmitriy Anisimkov <anisimkov@ada-ru.org>
+2005-09-16  Dmitriy Anisimkov <anisimkov@ada-ru.org>
 
 	* aws-net.adb:
 	(Wait): Use Errno local variable instead of second call into Std.Errno
@@ -130,7 +135,7 @@
         Use Ada.Containers instead of internal AI302.
 	Update copyright notice.
 
-2005-09-13 Dmitriy Anisimkov <anisimkov@ada-ru.org>
+2005-09-13  Dmitriy Anisimkov <anisimkov@ada-ru.org>
 
 	* aws-net-generic_sets.ads, aws-net-generic_sets.adb:
 	(Add): New Add routines with Data_Type parameter.

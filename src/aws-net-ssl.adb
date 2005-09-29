@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2004                          --
+--                         Copyright (C) 2000-2005                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -44,6 +44,9 @@ with AWS.Net.Std;
 with AWS.Utils;
 
 with Interfaces.C.Strings;
+
+with SSL.Locking;
+
 with System.Storage_Elements;
 with System;
 
@@ -793,5 +796,6 @@ package body AWS.Net.SSL is
 begin
    TSSL.SSL_load_error_strings;
    TSSL.SSL_library_init;
+   Standard.SSL.Locking.Initialize;
    Init_Random;
 end AWS.Net.SSL;
