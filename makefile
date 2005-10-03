@@ -478,9 +478,10 @@ endif
 	$(CP) config/projects/components.gpr $(I_CPN)
 	$(CP) config/projects/*_lib.gpr $(I_AGP)
 	$(CP) config/projects/shared.gpr $(I_AGP)
+	$(CP) config/projects/ssl_support.gpr $(I_AGP)
 	$(CP) $(PRJDIR)/config.gpr $(I_AGP)
 # Regenerate the SSL project to properly point to the ssl/crypto libraries
-	$(MAKE) -C ssl SOCKET=ssl setup_ssl
+	$(MAKE) -C ssl SOCKET=ssl setup_ssl_install
 	$(CP) ssl/ssl_shared.gpr $(I_AGP)
 	-$(CHMOD) uog-w $(I_LIB)/*
 	-$(CHMOD) uog-w $(I_CPN)/*.ali
