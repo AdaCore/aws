@@ -30,10 +30,10 @@
 
 with Ada.Calendar;
 with Ada.Characters.Handling;
-with Ada.Containers.Ordered_Sets;
 with Ada.Strings.Unbounded;
 with Ada.Strings.Fixed;
 with Ada.Strings.Maps;
+with AI302.Containers.Indefinite_Ordered_Sets;
 
 with AWS.OS_Lib;
 with AWS.Parameters;
@@ -61,7 +61,7 @@ package body AWS.Services.Directory is
    pragma Inline ("=");
 
    package File_Tree is
-      new Ada.Containers.Ordered_Sets (File_Record, "<", "=");
+     new AI302.Containers.Indefinite_Ordered_Sets (File_Record, "<", "=");
 
    type Order_Mode is
      (O,  -- original order, as read on the file system
@@ -263,6 +263,9 @@ package body AWS.Services.Directory is
 
       function End_Slash (Name : in String) return String;
       --  Return Name terminated with a directory separator.
+
+      procedure For_Each_File is
+         new File_Tree.Generic_Iteration (Process => Each_Entry);
 
       procedure Read_Directory (Directory_Name : in String);
       --  Read Dir_Name entries and insert them into the Order_Tree table
@@ -518,7 +521,7 @@ package body AWS.Services.Directory is
       --  Iterate through the tree and fill the vector tag before insertion
       --  into the translate table.
 
-      Iterate (Order_Tree, Each_Entry'Access);
+      For_Each_File (Order_Tree);
 
       Clear (Order_Tree);
 

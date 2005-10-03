@@ -29,6 +29,7 @@
 --  $Id$
 
 with "xmlada";
+with "ai302";
 
 with "../../include/aws/components/components";
 with "aws/crypto_lib";

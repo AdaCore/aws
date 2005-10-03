@@ -42,9 +42,11 @@
 
 with Ada.Characters.Handling;
 
-with Ada.Containers.Generic_Array_Sort;
+with AI302.Containers.Generic_Array_Sort;
 
 package body AWS.Containers.Tables is
+
+   use Ada.Strings.Unbounded;
 
    procedure Get_Indexes
      (Table   : in     Table_Type;
@@ -94,8 +96,8 @@ package body AWS.Containers.Tables is
       Name  : in String)
       return Boolean is
    begin
-      return Index_Table.Contains
-        (Table.Index, Normalize_Name (Name, not Table.Case_Sensitive));
+      return Index_Table.Is_In
+        (Normalize_Name (Name, not Table.Case_Sensitive), Table.Index);
    end Exist;
 
    ---------
@@ -183,7 +185,7 @@ package body AWS.Containers.Tables is
       return VString_Array
    is
       procedure Sort_Names is
-        new Ada.Containers.Generic_Array_Sort
+        new AI302.Containers.Generic_Array_Sort
           (Positive, Unbounded_String, VString_Array);
 
       Result : VString_Array (1 .. Name_Count (Table));

@@ -90,7 +90,7 @@ project Shared is
    --------------
 
    Common_Options  :=
-     ("-gnatwecfijkmruv", "-gnaty3abcefhiklmnoprstx", "-Wall", "-gnat05");
+     ("-gnatwecfijkmruv", "-gnaty3abcefhiklmnoprstx", "-Wall");
    Debug_Options   :=
      ("-g", "-gnata", "-gnatVa", "-gnatQ", "-gnato");
    Release_Options :=

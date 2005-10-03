@@ -52,7 +52,11 @@
 --         Message => "now Ada can send SMTP mail!",
 --         Status  => Result);
 
+with Ada.Strings.Unbounded;
+
 package AWS.SMTP.Client is
+
+   use Ada.Strings.Unbounded;
 
    function Initialize
      (Server_Name : in String;

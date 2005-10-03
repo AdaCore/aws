@@ -119,7 +119,6 @@ package body AWS.Config.Ini is
          Key      : in String;
          Value    : in String)
       is
-
          function "+" (S : in String)
            return Unbounded_String
            renames To_Unbounded_String;

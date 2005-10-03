@@ -33,8 +33,8 @@ with Ada.Exceptions;
 with Ada.Strings.Unbounded;
 with Ada.Text_IO;
 
-with Ada.Containers.Indefinite_Hashed_Maps;
-with Ada.Strings.Hash;
+with AI302.Containers.Indefinite_Hashed_Maps;
+with AI302.Strings.Hash;
 with Strings_Cutter;
 
 with AWS.Communication;
@@ -70,8 +70,8 @@ package body AWS.Server.Hotplug is
       Nonce    : Digest.Nonce;
    end record;
 
-   package Client_Table is new Ada.Containers.Indefinite_Hashed_Maps
-     (String, Client_Data, Ada.Strings.Hash, "=");
+   package Client_Table is new AI302.Containers.Indefinite_Hashed_Maps
+     (String, Client_Data, AI302.Strings.Hash);
 
    Null_Nonce : constant Digest.Nonce := (others => ' ');
 
@@ -388,7 +388,7 @@ package body AWS.Server.Hotplug is
             begin
                CD.Nonce := Digest.Create_Nonce;
                Nonce    := CD.Nonce;
-               Client_Table.Replace_Element (Clients, Cursor, CD);
+               Client_Table.Replace_Element (Cursor, CD);
             end;
 
          else

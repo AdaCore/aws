@@ -73,7 +73,7 @@ package body AWS.Session is
    package Session_Set renames Session_Set_Container.Containers;
 
    procedure Get_Node
-     (Sessions : in out Session_Set.Map;
+     (Sessions : in     Session_Set.Map;
       SID      : in     Id;
       Node     :    out Session_Node;
       Found    :    out Boolean);
@@ -368,8 +368,15 @@ package body AWS.Session is
             Free (Item.Root);
          end Destroy;
 
+         -------------------
+         -- For_All_Items --
+         -------------------
+
+         procedure For_All_Items is
+           new Session_Set.Generic_Iteration (Destroy);
+
       begin
-         Session_Set.Iterate (Sessions, Destroy'Access);
+         For_All_Items (Sessions);
          Session_Set.Clear (Sessions);
       end Destroy;
 
@@ -443,7 +450,7 @@ package body AWS.Session is
          Get_Node (Sessions, SID, Node, Result);
 
          if Result then
-            Result := Key_Value.Contains (Node.Root.all, Key);
+            Result := Key_Value.Is_In (Key, Node.Root.all);
          end if;
       end Key_Exist;
 
@@ -538,7 +545,7 @@ package body AWS.Session is
 
       function Session_Exist (SID : in Id) return Boolean is
       begin
-         return Session_Set.Contains (Sessions, String (SID));
+         return Session_Set.Is_In (String (SID), Sessions);
       end Session_Exist;
 
       ---------------
@@ -555,8 +562,22 @@ package body AWS.Session is
          Get_Node (Sessions, SID, Node, Found);
 
          if Found then
-            Key_Value.Include
-              (Node.Root.all, Key, To_Unbounded_String (Value));
+            declare
+               Cursor  : Key_Value.Cursor;
+               Success : Boolean;
+            begin
+               Cursor := Key_Value.Find (Node.Root.all, Key);
+
+               if Key_Value.Has_Element (Cursor) then
+                  Key_Value.Replace_Element
+                    (Cursor, To_Unbounded_String (Value));
+
+               else
+                  Key_Value.Insert
+                    (Node.Root.all, Key, To_Unbounded_String (Value),
+                     Cursor, Success);
+               end if;
+            end;
          end if;
       end Set_Value;
 
@@ -805,7 +826,7 @@ package body AWS.Session is
    --------------
 
    procedure Get_Node
-     (Sessions : in out Session_Set.Map;
+     (Sessions : in     Session_Set.Map;
       SID      : in     Id;
       Node     :    out Session_Node;
       Found    :    out Boolean)
@@ -813,29 +834,25 @@ package body AWS.Session is
       Cursor : constant Session_Set.Cursor
         := Session_Set.Find (Sessions, String (SID));
 
-      procedure Process
-        (Key  : in String;
-         Item : in out Session_Node);
+      procedure Process (Item : in out Session_Node);
 
       -------------
       -- Process --
       -------------
 
-      procedure Process
-        (Key  : in String;
-         Item : in out Session_Node)
-      is
-         pragma Unreferenced (Key);
+      procedure Process (Item : in out Session_Node) is
       begin
          Item.Time_Stamp := Calendar.Clock;
          Node := Item;
       end Process;
 
+      procedure Update is new Session_Set.Generic_Update_Element (Process);
+
    begin
       Found := Session_Set.Has_Element (Cursor);
 
       if Found then
-         Session_Set.Update_Element (Sessions, Cursor, Process'Access);
+         Update (Cursor);
       end if;
    end Get_Node;
 

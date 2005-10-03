@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                          Copyright (C) 2004-2005                         --
+--                         Copyright (C) 2004-2005                          --
 --                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -29,7 +29,7 @@
 --  $Id$
 
 with Ada.Strings.Unbounded;
-with Ada.Containers.Indefinite_Vectors;
+with AI302.Containers.Indefinite_Vectors;
 
 with AWS.Headers;
 with AWS.Net;
@@ -120,7 +120,7 @@ private
    end record;
 
    package Attachment_Table is
-     new Ada.Containers.Indefinite_Vectors (Positive, Element);
+     new AI302.Containers.Indefinite_Vectors (Positive, Element);
 
    type List is tagged record
       Vector : Attachment_Table.Vector;

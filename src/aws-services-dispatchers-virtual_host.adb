@@ -151,9 +151,17 @@ package body AWS.Services.Dispatchers.Virtual_Host is
    procedure Register
      (Dispatcher       : in out Handler;
       Virtual_Hostname : in     String;
-      Node             : in     VH_Node) is
+      Node             : in     VH_Node)
+   is
+      Cursor  : Virtual_Host_Table.Cursor;
+      Success : Boolean;
    begin
-      VH_Table.Include (Dispatcher.Table, Virtual_Hostname, Node);
+      VH_Table.Insert
+        (Dispatcher.Table, Virtual_Hostname, Node, Cursor, Success);
+
+      if not Success then
+         Virtual_Host_Table.Containers.Replace_Element (Cursor, Node);
+      end if;
    end Register;
 
    procedure Register

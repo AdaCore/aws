@@ -31,7 +31,7 @@
 with Ada.Strings.Unbounded;
 with GNAT.Regexp;
 
-with Ada.Containers.Vectors;
+with AI302.Containers.Vectors;
 
 with AWS.Response;
 with AWS.Status;
@@ -101,7 +101,7 @@ private
    --  Returns True if Left.Regexp and Right.Regexp are equals
 
    package Filter_Table is
-     new Ada.Containers.Vectors (Positive, Filter_Data, Equal_Data);
+     new AI302.Containers.Vectors (Positive, Filter_Data, Equal_Data);
 
    type Filter_Set is record
       Mode : Register_Mode;

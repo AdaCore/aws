@@ -50,8 +50,7 @@ project Src is
          for Source_Dirs use project'Source_Dirs &
            ("../xsrc", "../templates_parser/xsrc", "../soap");
       when "Disabled" =>
-         --  Should be replaced by null as supported by GNAT 5.03
-         for Source_Dirs use project'Source_Dirs;
+	 null;
    end case;
 
    for Languages use ("Ada", "Changelog", "Project file", "makefile");

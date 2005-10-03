@@ -101,6 +101,7 @@ common_tarball:
 	$(MKDIR) $${AWS}/docs/html; \
 	$(MKDIR) $${AWS}/icons; \
 	$(MKDIR) $${AWS}/include; \
+	$(MKDIR) $${AWS}/include/ai302; \
 	$(MKDIR) $${AWS}/include/zlib; \
 	$(MKDIR) $${AWS}/lib; \
 	$(MKDIR) $${AWS}/ssl; \
@@ -223,6 +224,16 @@ PRJ_SOCKLIB=GNAT
 endif
 endif
 
+# AI302
+
+ifeq ($(AI302), Internal)
+PRJ_AI302=Internal
+GEXT_MODULE := $(GEXT_MODULE) gai302_internal
+else
+PRJ_AI302=External
+GEXT_MODULE := $(GEXT_MODULE) gai302_external
+endif
+
 ## Debug
 
 ifdef DEBUG
@@ -271,6 +282,39 @@ gxmlada_dummy:
 
 gxmlada_clean:
 	-$(RM) -f $(PRJDIR)/xmlada.gpr
+
+gai302_internal:
+	echo "project AI302 is" > $(PRJDIR)/ai302.gpr
+	echo '   for Source_Dirs use ("../../include/ai302");' \
+		>> $(PRJDIR)/ai302.gpr
+	echo '   type Build_Type is ("Debug", "Release");' \
+		>> $(PRJDIR)/ai302.gpr
+	echo '   Build : Build_Type := external ("PRJ_BUILD", "Debug");' \
+		>> $(PRJDIR)/ai302.gpr
+	echo "   case Build is" >> $(PRJDIR)/ai302.gpr
+	echo '      when "Debug" =>' >> $(PRJDIR)/ai302.gpr
+	echo '         for Object_Dir use "../../.build/debug/include/ai302";' \
+		>> $(PRJDIR)/ai302.gpr
+	echo '      when "Release" =>' >> $(PRJDIR)/ai302.gpr
+	echo '         for Object_Dir use "../../.build/release/include/ai302";' \
+		>> $(PRJDIR)/ai302.gpr
+	echo "   end case;" >> $(PRJDIR)/ai302.gpr
+
+	echo '   package Compiler is' >> $(PRJDIR)/ai302.gpr
+	echo '      case Build is' >> $(PRJDIR)/ai302.gpr
+	echo '         when "Debug" =>' >> $(PRJDIR)/ai302.gpr
+	echo '            for Default_Switches ("Ada") use ("-g", "-gnata");' \
+	        >> $(PRJDIR)/ai302.gpr
+	echo '         when "Release" =>' >> $(PRJDIR)/ai302.gpr
+	echo '            for Default_Switches ("Ada") use ("-O2");' \
+	        >> $(PRJDIR)/ai302.gpr
+	echo '      end case;' >> $(PRJDIR)/ai302.gpr
+	echo '   end Compiler;' >> $(PRJDIR)/ai302.gpr
+
+	echo "end AI302;" >> $(PRJDIR)/ai302.gpr
+
+gai302_external:
+	-$(RM) -f $(PRJDIR)/ai302.gpr
 
 gadasockets:
 	echo "project Sockets is" > $(PRJDIR)/sockets.gpr
@@ -339,6 +383,7 @@ setup: setup_dir $(GEXT_MODULE) $(MODULES_SETUP) setup_config
 I_BIN	= $(INSTALL)/bin
 I_INC	= $(INSTALL)/include/aws
 I_CPN	= $(INSTALL)/include/aws/components
+I_AIC	= $(INSTALL)/include/aws/components/ai302
 I_LIB	= $(INSTALL)/lib/aws
 I_GPR	= $(INSTALL)/lib/gnat
 I_AGP	= $(INSTALL)/lib/gnat/aws
@@ -359,6 +404,7 @@ install_dirs: install_clean
 	$(MKDIR) $(I_BIN)
 	$(MKDIR) $(I_INC)
 	$(MKDIR) $(I_CPN)
+	$(MKDIR) $(I_AIC)
 	$(MKDIR) $(I_LIB)
 	$(MKDIR) $(I_DOC)
 	$(MKDIR) $(I_GPR)
@@ -374,6 +420,19 @@ install: install_dirs
 	$(CP) -p config/aws-net-std__* $(I_INC)
 	$(CP) -p config/aws-os_lib__* $(I_INC)
 	$(CP) -p config/templates_parser-* $(I_INC)
+ifeq (${AI302},Internal)
+	$(CP) -p include/ai302/*.ad? $(I_AIC)
+	$(CP) -p $(BDIR)/include/ai302/* $(I_AIC)
+	$(CP) config/projects/ai302.gpr $(I_AIC)
+	$(SED) -e 's,ai302,\.\./\.\./include/aws/components/ai302/ai302,g' \
+		< config/projects/aws.gpr > $(I_GPR)/aws.gpr
+	$(SED) -e 's,ai302,\.\./\.\./include/aws/components/ai302/ai302,g' \
+		< config/projects/aws_ssl.gpr \
+		> $(I_GPR)/aws_ssl.gpr
+else
+	$(CP) config/projects/aws.gpr $(I_GPR)
+	$(CP) config/projects/aws_ssl.gpr $(I_GPR)
+endif
 ifeq ($(XMLADA),true)
 	$(CP) -p soap/*.ad[sb] $(I_INC)
 	$(CP) -p xsrc/*.ad[sb] $(I_INC)
@@ -417,8 +476,6 @@ ifeq (${OS}, Windows_NT)
 	-$(CP) -p win32/*.dll $(I_LIB)/..
 endif
 	$(CP) config/projects/components.gpr $(I_CPN)
-	$(CP) config/projects/aws.gpr $(I_GPR)
-	$(CP) config/projects/aws_ssl.gpr $(I_GPR)
 	$(CP) config/projects/*_lib.gpr $(I_AGP)
 	$(CP) config/projects/shared.gpr $(I_AGP)
 	$(CP) $(PRJDIR)/config.gpr $(I_AGP)

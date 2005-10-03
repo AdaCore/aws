@@ -32,6 +32,7 @@
 
 with "../shared";
 with "zlib/zlib";
+with "ai302";
 
 project Include is
 
@@ -60,11 +61,11 @@ project Include is
 
       case Shared.Build is
          when "Debug" =>
-            for Default_Switches ("Ada") use ("-gnat05", "-g");
+            for Default_Switches ("Ada") use ("-g");
 
          when "Release" =>
             for Default_Switches ("Ada") use
-              ("-gnat05", "-O2", "-gnatws", "-gnatn");
+              ("-O2", "-gnatws", "-gnatn");
       end case;
 
    end Compiler;

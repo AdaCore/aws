@@ -44,7 +44,7 @@ package AWS.Net.Std is
      (Socket : in out Socket_Type;
       Port   : in     Natural;
       Host   : in     String := "");
-   --  Bind a socket on a given port
+   --  Bind a socket on a given port.
 
    procedure Listen
      (Socket     : in Socket_Type;
@@ -104,10 +104,10 @@ package AWS.Net.Std is
    --  Returns the peer name/address
 
    function Peer_Port (Socket : in Socket_Type) return Positive;
-   --  Returns the peer socket's port number
+   --  Returns the port of the peer socket
 
    function Get_Port (Socket : in Socket_Type) return Positive;
-   --  Returns the socket's port number
+   --  Returns the port of the socket
 
    function Host_Name return String;
 
@@ -136,7 +136,7 @@ package AWS.Net.Std is
    --  Return error code for the last socket operation
 
    function Errno (Socket : in Socket_Type) return Integer;
-   --  Returns and clears error state in socket
+   --  Returns and clears error state in socket.
 
 private
 

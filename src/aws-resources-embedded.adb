@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                          Copyright (C) 2002-2005                         --
+--                         Copyright (C) 2002-2005                          --
 --                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -87,15 +87,15 @@ package body AWS.Resources.Embedded is
    function Exist (Name : in String) return File_Instance is
    begin
       if not Is_GZip (Name)
-        and then Res_Files.Contains (Files_Table, Name & GZip_Ext)
+        and then Res_Files.Is_In (Name & GZip_Ext, Files_Table)
       then
-         if Res_Files.Contains (Files_Table, Name) then
+         if Res_Files.Is_In (Name, Files_Table) then
             return Both;
          else
             return GZip;
          end if;
 
-      elsif Res_Files.Contains (Files_Table, Name) then
+      elsif Res_Files.Is_In (Name, Files_Table) then
          return Plain;
 
       else
@@ -166,9 +166,9 @@ package body AWS.Resources.Embedded is
 
    function Is_Regular_File (Name : in String) return Boolean is
    begin
-      return Res_Files.Contains (Files_Table, Name)
+      return Res_Files.Is_In (Name, Files_Table)
         or else (not Is_GZip (Name)
-                 and then Res_Files.Contains (Files_Table, Name & GZip_Ext));
+                 and then Res_Files.Is_In (Name & GZip_Ext, Files_Table));
    end Is_Regular_File;
 
    ----------
@@ -252,9 +252,15 @@ package body AWS.Resources.Embedded is
       Content   : in Buffer_Access;
       File_Time : in Calendar.Time)
    is
-      N : constant Node := (Content, File_Time);
+      N       : constant Node := (Content, File_Time);
+      Cursor  : Res_Files.Cursor;
+      Success : Boolean;
    begin
-      Res_Files.Include (Files_Table, Name, N);
+      Res_Files.Insert (Files_Table, Name, N, Cursor, Success);
+
+      if not Success then
+         Res_Files.Replace_Element (Cursor, By => N);
+      end if;
    end Register;
 
 end AWS.Resources.Embedded;

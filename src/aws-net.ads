@@ -178,10 +178,10 @@ package AWS.Net is
    --  Returns the peer name/address
 
    function Peer_Port (Socket : in Socket_Type) return Positive is abstract;
-   --  Returns the peer socket's port number
+   --  Returns the port of the peer socket
 
    function Get_Port (Socket : in Socket_Type) return Positive is abstract;
-   --  Returns the socket's port number
+   --  Returns the port of the socket
 
    function Host_Name return String;
    --  Returns the running host name

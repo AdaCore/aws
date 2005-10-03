@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                             Templates Parser                             --
 --                                                                          --
---                          Copyright (C) 2004-2005                         --
+--                         Copyright (C) 2004-2005                          --
 --                               Pascal Obry                                --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -28,8 +28,8 @@
 
 --  $Id$
 
-with Ada.Containers.Indefinite_Hashed_Maps;
-with Ada.Strings.Hash;
+with AI302.Containers.Indefinite_Hashed_Maps;
+with AI302.Strings.Hash;
 
 generic
 
@@ -41,8 +41,8 @@ generic
 package Strings_Maps is
 
    package Containers is
-     new Ada.Containers.Indefinite_Hashed_Maps
-       (String, Element_Type, Ada.Strings.Hash, "=", "=");
+     new AI302.Containers.Indefinite_Hashed_Maps
+       (String, Element_Type, AI302.Strings.Hash, "=", "=");
 
    subtype Map is Containers.Map;
 

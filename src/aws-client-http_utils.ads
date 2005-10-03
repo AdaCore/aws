@@ -37,6 +37,7 @@ with AWS.Response;
 package AWS.Client.HTTP_Utils is
 
    use AWS.Client;
+   use Ada.Streams;
    use Ada.Strings.Unbounded;
 
    Debug_On : Boolean := False;

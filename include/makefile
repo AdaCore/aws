@@ -14,6 +14,7 @@ build: build_zlib
 
 setup:
 	-$(MKDIR) -p ../$(BDIR)/include
+	-$(MKDIR) -p ../$(BDIR)/include/ai302
 
 clean:
 	${MAKE} -C zlib clean

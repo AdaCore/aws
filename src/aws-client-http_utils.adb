@@ -53,7 +53,6 @@ with AWS.Utils;
 package body AWS.Client.HTTP_Utils is
 
    use Ada;
-
    use AWS.Client;
 
    procedure Debug_Message (Prefix, Message : in String);
