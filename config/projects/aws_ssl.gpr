@@ -32,6 +32,7 @@ with "xmlada";
 with "ai302";
 
 with "../../include/aws/components/components";
+with "aws/ssl_support";
 with "aws/crypto_lib";
 with "aws/ssl_lib";
 with "aws/shared";
