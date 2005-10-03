@@ -1,3 +1,14 @@
+2005-10-03  Pascal Obry  <pascal@obry.net>
+
+	* aws.gpr, aws_ssl.gpr:
+	Merged from ada05.
+	With ssl_support project.
+
+	* ssl_support.gpr:
+	Merged from ada05.
+	Initial revision.
+	This project contains the SSL support object code.
+
 2005-09-23  Pascal Obry  <pascal@obry.net>
 
 	* aws.gpr, aws_ssl.gpr, nossl_lib.gpr:

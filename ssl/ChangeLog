@@ -1,3 +1,16 @@
+2005-10-03  Pascal Obry  <pascal@obry.net>
+
+	* makefile:
+	Merged from ada05.
+	(setup_ssl_install): New target used to generate the proper path
+	 for the installed projects.
+
+	* ssl.gpr:
+	Merged from ada05.
+	Is now a library project file. This is needed for recent GNAT
+	 versions as the SSL objects are not anymore included into the main
+	 AWS library.
+
 2005-09-27  Dmitriy Anisimkov  <anisimkov@ada-ru.org>
 
 	* ssl-locking.ads, ssl-locking.adb:
