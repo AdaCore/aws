@@ -33,7 +33,6 @@
 with Ada.Exceptions;
 with Ada.Strings.Fixed;
 with Ada.Characters.Handling;
-with Ada.Characters.Conversions;
 
 with Asis.Elements;
 with Asis.Declarations;
@@ -64,7 +63,7 @@ package body Ada2WSDL is
       begin
          return Characters.Handling.To_Lower
            (Strings.Fixed.Trim
-             (Characters.Conversions.To_String (Str), Strings.Both));
+              (Characters.Handling.To_String (Str), Strings.Both));
       end Image;
 
       E_Span    : constant Text.Span := Text.Element_Span (E);

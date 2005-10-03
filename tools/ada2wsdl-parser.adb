@@ -33,7 +33,6 @@
 with Ada.Text_IO;
 with Ada.Exceptions;
 with Ada.Characters.Handling;
-with Ada.Characters.Conversions;
 with Ada.Strings;
 with Ada.Strings.Fixed;
 with Ada.Strings.Maps;
@@ -1380,7 +1379,7 @@ package body Ada2WSDL.Parser is
    function Image (Str : in Wide_String) return String is
    begin
       return Strings.Fixed.Trim
-        (Characters.Conversions.To_String (Str), Strings.Both);
+        (Characters.Handling.To_String (Str), Strings.Both);
    end Image;
 
    ----------------
@@ -1405,7 +1404,7 @@ package body Ada2WSDL.Parser is
    function Name (Elem : in Asis.Element) return String is
       Def_Name : constant Asis.Element := Declarations.Names (Elem) (1);
    begin
-      return Characters.Conversions.To_String
+      return Characters.Handling.To_String
         (Declarations.Defining_Name_Image (Def_Name));
    end Name;
 
@@ -1443,7 +1442,7 @@ package body Ada2WSDL.Parser is
       Ada_Environments.Associate
         (My_Context,
         "My_Context",
-        "-C1 " & Characters.Conversions.To_Wide_String (Tree_Name.all));
+        "-C1 " & Characters.Handling.To_Wide_String (Tree_Name.all));
 
       Ada_Environments.Open (My_Context);
 
@@ -1500,7 +1499,7 @@ package body Ada2WSDL.Parser is
          Put_Line (Standard_Error, " raised");
          Put
            (Standard_Error, "ada2wsdl: ASIS Diagnosis is "
-              & Characters.Conversions.To_String
+              & Characters.Handling.To_String
                   (Asis.Implementation.Diagnosis));
          New_Line (Standard_Error);
          Put      (Standard_Error, "ada2wsdl: Status Value   is ");
