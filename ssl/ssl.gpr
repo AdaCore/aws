@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2003-2004                          --
---                                ACT-Europe                                --
+--                         Copyright (C) 2003-2005                          --
+--                                 AdaCore                                  --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
 --                                                                          --
@@ -52,9 +52,14 @@ project SSL is
    case Shared.Build is
       when "Debug" =>
          for Object_Dir use "../.build/debug/ssl/obj";
+         for Library_Dir use "../.build/debug/ssl/lib";
       when "Release" =>
          for Object_Dir use "../.build/release/ssl/obj";
+         for Library_Dir use "../.build/release/ssl/lib";
    end case;
+
+   for Library_Name use "aws_ssl";
+   for Library_Kind use "static";
 
    ---------
    -- Ide --
