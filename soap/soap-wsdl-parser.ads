@@ -30,7 +30,7 @@
 
 with Ada.Strings.Unbounded;
 
-with Ada.Containers.Indefinite_Ordered_Sets;
+with AI302.Containers.Indefinite_Ordered_Sets;
 
 with SOAP.Name_Space;
 with SOAP.WSDL.Parameters;
@@ -98,7 +98,7 @@ private
    use Ada.Strings.Unbounded;
 
    package Exclude_Set is
-     new Ada.Containers.Indefinite_Ordered_Sets (String);
+     new AI302.Containers.Indefinite_Ordered_Sets (String);
 
    type Parameter_Mode is (Input, Output, Fault);
    --  Current parameter parsing mode
