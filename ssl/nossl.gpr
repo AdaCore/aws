@@ -38,11 +38,11 @@ project NOSSL is
 
    case Shared.Build is
       when "Debug" =>
-         for Object_Dir use "../.build/debug/ssl/lobj";
-         for Library_Dir use "../.build/debug/ssl/lib";
+         for Object_Dir use "../.build/debug/ssl/nobj";
+         for Library_Dir use "../.build/debug/ssl/nlib";
       when "Release" =>
-         for Object_Dir use "../.build/release/ssl/lobj";
-         for Library_Dir use "../.build/release/ssl/lib";
+         for Object_Dir use "../.build/release/ssl/nobj";
+         for Library_Dir use "../.build/release/ssl/nlib";
    end case;
 
    for Library_Name use "aws_nossl";
