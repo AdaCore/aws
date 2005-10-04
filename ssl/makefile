@@ -57,7 +57,8 @@ endif
 setup: setup_ssl
 	-$(MKDIR) -p ../$(BDIR)/ssl/obj
 	-$(MKDIR) -p ../$(BDIR)/ssl/lib
-	-$(MKDIR) -p ../$(BDIR)/ssl/lobj
+	-$(MKDIR) -p ../$(BDIR)/ssl/nobj
+	-$(MKDIR) -p ../$(BDIR)/ssl/nlib
 
 clean:
 	-$(RM) -f ssl_shared.gpr
