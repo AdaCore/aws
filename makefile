@@ -441,6 +441,8 @@ endif
 	$(CP) -p $(BDIR)/lib/* $(I_LIB)
 	-$(CP) -p $(BDIR)/ssl/lib/* $(I_LIB)
 	-$(CP) -p $(BDIR)/ssl/obj/*.ali $(I_LIB)
+	-$(CP) -p $(BDIR)/ssl/nlib/* $(I_LIB)
+	-$(CP) -p $(BDIR)/ssl/nobj/*.ali $(I_LIB)
 	$(CP) lib/libz.a $(I_LIB)
 	-$(CP) docs/aws.html $(I_DOC)
 	-$(CP) -r docs/html $(I_DOC)
