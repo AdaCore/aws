@@ -1,3 +1,15 @@
+2005-10-04  Pascal Obry  <pascal@obry.net>
+
+	* makefile:
+	Merged from ada05.
+	(setup): Create new directories.
+
+	* nossl.gpr:
+	Merged from ada05.
+	Use an object and library directory different to the one used for
+	 the SSL library. Cleaner and is compatible with GNAT 5.03a1 and
+	 more recent GNAT versions.
+
 2005-10-03  Pascal Obry  <pascal@obry.net>
 
 	* makefile:
