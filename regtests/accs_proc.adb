@@ -2,7 +2,7 @@
 --                              Ada Web Server                              --
 --                                                                          --
 --                            Copyright (C) 2005                            --
---                                ACT-Europe                                --
+--                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -41,6 +41,8 @@ with AWS.Utils;
 with Get_Free_Port;
 
 procedure Accs_Proc (Security : in Boolean) is
+
+   use type Ada.Tags.Tag;
    use AWS.Net;
 
    Client_Request_Count : constant := 10;
@@ -58,10 +60,14 @@ procedure Accs_Proc (Security : in Boolean) is
       entry Start (Index : Positive);
    end Client_Task;
 
+   -----------------
+   -- Client_Task --
+   -----------------
+
    task body Client_Task is
-      Sock   : Socket_Type'Class := Socket (Security);
-      Index  : Positive;
-      Prefix : constant String := "index";
+      Sock      : Socket_Type'Class := Socket (Security);
+      Index     : Positive;
+      Prefix    : constant String := "index";
       Connected : Boolean := False;
    begin
       accept Start (Index : Positive) do
@@ -106,6 +112,10 @@ procedure Accs_Proc (Security : in Boolean) is
          end if;
    end Client_Task;
 
+   -----------------
+   -- Server_Task --
+   -----------------
+
    task body Server_Task is
       Sock : Socket_Access;
    begin
@@ -115,16 +125,20 @@ procedure Accs_Proc (Security : in Boolean) is
             Acceptors.Get (Acceptor, Sock);
             Semaphore.Release;
 
-         exception when Socket_Error =>
-            Semaphore.Release;
-            Ada.Text_IO.Put_Line ("Acceptor closed.");
-            raise;
+         exception
+            when Socket_Error =>
+               Semaphore.Release;
+               Ada.Text_IO.Put_Line ("Acceptor closed.");
+               raise;
+            when others =>
+               Semaphore.Release;
+               raise;
          end;
 
-         if Security and not Ada.Tags."=" (Sock'Tag, SSL.Socket_Type'Tag) then
+         if Security and then not (Sock'Tag = SSL.Socket_Type'Tag) then
             declare
                procedure Free is new Ada.Unchecked_Deallocation
-                                       (Socket_Type'Class, Socket_Access);
+                 (Socket_Type'Class, Socket_Access);
                Tmp : Socket_Access := Sock;
             begin
                Sock := new SSL.Socket_Type'(SSL.Secure_Server (Sock.all));
@@ -151,7 +165,8 @@ procedure Accs_Proc (Security : in Boolean) is
       end loop;
 
    exception
-      when Socket_Error => null;
+      when Socket_Error =>
+         null;
       when E : others =>
          Ada.Text_IO.Put_Line (Ada.Exceptions.Exception_Information (E));
    end Server_Task;
@@ -181,7 +196,7 @@ begin
 
       Acceptors.Shutdown (Acceptor);
 
-      --  Wait for servers termination only for order console output.
+      --  Wait for servers termination only for console output ordering
 
       for J in Servers'Range loop
          while not Servers (J)'Terminated loop
