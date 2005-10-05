@@ -1,5 +1,9 @@
 2005-10-05  Pascal Obry  <pascal@obry.net>
 
+	* nvect.ads, nonce.adb:
+	Revert previous changes for this unit to be compatible with an
+	 Ada95 compiler.
+
 	* accs_proc.adb:
 	Merged from ada05 branch.
 	Add exception handler to make sure the semaphore is always released.
