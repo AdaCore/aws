@@ -1,3 +1,11 @@
+2005-10-05  Pascal Obry  <pascal@obry.net>
+
+	* accs_proc.adb:
+	Merged from ada05 branch.
+	Add exception handler to make sure the semaphore is always released.
+	Minor reformatting.
+	Update copyright notice.
+
 2005-09-29  Dmitriy Anisimkov <anisimkov@ada-ru.org>
 
 	* wait_pack.adb:
