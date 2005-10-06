@@ -28,7 +28,7 @@
 
 --  $Id$
 
---  Server push regression test.
+--  Server push regression test
 
 with Ada.Strings.Fixed;
 with Ada.Text_IO.Editing;
@@ -53,8 +53,7 @@ package body Sp_Pck is
 
    function Image
      (Data : in Push_Data_Type;
-      Env  : in Text_IO.Editing.Picture)
-      return String;
+      Env  : in Text_IO.Editing.Picture) return String;
 
    package Server_Push is new AWS.Server.Push
      (Client_Output_Type => Push_Data_Type,
@@ -64,7 +63,7 @@ package body Sp_Pck is
 
    function CB (Request : in Status.Data) return Response.Data;
 
-   Push        : Server_Push.Object;
+   Push : Server_Push.Object;
 
    --------
    -- CB --
@@ -105,7 +104,7 @@ package body Sp_Pck is
 
       procedure Output (Data : String);
       --  Ignore random string --AWS.Push.Boundary_1044468257,
-      --  and by the way ignore ASCII.CR becouse on the Win32 platform
+      --  and by the way ignore ASCII.CR because on the Win32 platform
       --  the Ada.Text_IO.Put_Line add the ASCII.CR before ASCII.LF even so
       --  the ASCII.CR already exists before ASCII.LF.
 
@@ -197,7 +196,7 @@ package body Sp_Pck is
       end loop;
 
       if Server_Push.Count (Push) /= 1 then
-         Ada.Text_IO.Put_Line ("Auto unregister error.");
+         Put_Line ("Auto unregister error." & Server_Push.Count (Push)'Img);
       end if;
 
       Server_Push.Unregister_Clients (Push);
