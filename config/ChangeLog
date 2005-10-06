@@ -1,3 +1,16 @@
+2005-10-06  Pascal Obry  <pascal@obry.net>
+
+	* src/check_config.c:
+	Add new constant MSG_NOSIGNAL. This constant can be passed to
+	 Send() to avoid a SIGPIPE when writting to a closed socket.
+
+	* aws-net-std__gnat.adb:
+	(Send): Pass MSG_NOSIGNAL to C_Send calls to avoid a SIGPIPE that
+	 kill the running process. This is fine in the context of AWS as
+	 we still get an error code. It fixes a long standing regression
+	 on the push server implementation on GNU/Linux.
+	Minor reformatting.
+
 2005-09-16  Dmitriy Anisimkov <anisimkov@ada-ru.org>
 
 	* src/check_config.c:
