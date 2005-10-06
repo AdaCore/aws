@@ -33,6 +33,7 @@ with Ada.Strings.Maps;
 with Ada.Unchecked_Deallocation;
 
 with AWS.Net.Log;
+with AWS.OS_Lib.Definitions;
 
 pragma Warnings (Off);
 
@@ -515,14 +516,13 @@ package body AWS.Net.Std is
               (C.int (Get_FD (Socket)),
                Data'Address,
                Data'Length,
-               0);
+               OS_Lib.Definitions.MSG_NOSIGNAL);
 
       if RC = Sockets.Thin.Failure then
          Errno := Std.Errno;
 
          if Errno = Sockets.Constants.EWOULDBLOCK then
             Last := Data'First - 1;
-
             return;
 
          else
