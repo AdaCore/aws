@@ -117,6 +117,12 @@ main (int argc, char *argv[])
   const int v_POLLNVAL    = POLLNVAL;
 #endif
 
+#ifdef MSG_NOSIGNAL
+  const int v_MSG_NOSIGNAL = MSG_NOSIGNAL;
+#else
+  const int v_MSG_NOSIGNAL = 0;
+#endif
+
   /* Open output file in binary mode to ensure UNIX line ending */
 
   if (argc == 2)
@@ -159,26 +165,27 @@ main (int argc, char *argv[])
 
   /* other constants */
 
-  P ("   IPPROTO_TCP : constant := %d;\n", IPPROTO_TCP);
-  P ("   IPPROTO_IP  : constant := %d;\n", IPPROTO_IP);
-  P ("   PF_UNSPEC   : constant := %d;\n", PF_UNSPEC);
-  P ("   PF_INET     : constant := %d;\n", PF_INET);
-  P ("   PF_INET6    : constant := %d;\n", PF_INET6);
-  P ("   AF_INET     : constant := %d;\n", AF_INET);
-  P ("   AF_INET6    : constant := %d;\n", AF_INET6);
-  P ("   SO_ERROR    : constant := %d;\n", SO_ERROR);
-  P ("   SO_SNDBUF   : constant := %d;\n", SO_SNDBUF);
-  P ("   SO_RCVBUF   : constant := %d;\n", SO_RCVBUF);
-  P ("   TCP_NODELAY : constant := %d;\n", TCP_NODELAY);
-  P ("   SOCK_STREAM : constant := %d;\n", SOCK_STREAM);
-  P ("   SOL_SOCKET  : constant := %d;\n", SOL_SOCKET);
-  P ("   SHUT_RDWR   : constant := %d;\n", SHUT_RDWR);
-  P ("   ETIMEDOUT   : constant := %d;\n", ETIMEDOUT);
-  P ("   EWOULDBLOCK : constant := %d;\n", EWOULDBLOCK);
-  P ("   EINPROGRESS : constant := %d;\n", EINPROGRESS);
-  P ("   EINTR       : constant := %d;\n", EINTR);
-  P ("   FIONBIO     : constant := %d;\n", FIONBIO);
-  P ("   FIONREAD    : constant := %d;\n\n", FIONREAD);
+  P ("   IPPROTO_TCP  : constant := %d;\n", IPPROTO_TCP);
+  P ("   IPPROTO_IP   : constant := %d;\n", IPPROTO_IP);
+  P ("   PF_UNSPEC    : constant := %d;\n", PF_UNSPEC);
+  P ("   PF_INET      : constant := %d;\n", PF_INET);
+  P ("   PF_INET6     : constant := %d;\n", PF_INET6);
+  P ("   AF_INET      : constant := %d;\n", AF_INET);
+  P ("   AF_INET6     : constant := %d;\n", AF_INET6);
+  P ("   SO_ERROR     : constant := %d;\n", SO_ERROR);
+  P ("   SO_SNDBUF    : constant := %d;\n", SO_SNDBUF);
+  P ("   SO_RCVBUF    : constant := %d;\n", SO_RCVBUF);
+  P ("   TCP_NODELAY  : constant := %d;\n", TCP_NODELAY);
+  P ("   SOCK_STREAM  : constant := %d;\n", SOCK_STREAM);
+  P ("   SOL_SOCKET   : constant := %d;\n", SOL_SOCKET);
+  P ("   SHUT_RDWR    : constant := %d;\n", SHUT_RDWR);
+  P ("   ETIMEDOUT    : constant := %d;\n", ETIMEDOUT);
+  P ("   EWOULDBLOCK  : constant := %d;\n", EWOULDBLOCK);
+  P ("   EINPROGRESS  : constant := %d;\n", EINPROGRESS);
+  P ("   EINTR        : constant := %d;\n", EINTR);
+  P ("   FIONBIO      : constant := %d;\n", FIONBIO);
+  P ("   FIONREAD     : constant := %d;\n", FIONREAD);
+  P ("   MSG_NOSIGNAL : constant := %d;\n\n", v_MSG_NOSIGNAL);
 
   /* nfds_t */
 
