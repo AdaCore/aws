@@ -2,10 +2,10 @@
 <!--  This file adds support for the wsdl2aws utility to GPS. -->
 
 <wsdl2aws>
-  <language>
+  <Language>
     <Name>WSDL</Name>
-    <spec_suffix>.wsdl</spec_suffix>
-  </language>
+    <Spec_Suffix>.wsdl</Spec_Suffix>
+  </Language>
 
    <action name="WSDL2AWS" output="none">
       <description>Generates AWS SOAP stubs/skeletons from a WSDL document.</description>
