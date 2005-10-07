@@ -34,7 +34,7 @@
                 tip="Very verbose mode"/>
 
 	 <!-- section 2 -->
-         <check label="Enumetation as xsd:string" switch="-noenum" line="2"
+         <check label="Enumeration as xsd:string" switch="-noenum" line="2"
                 tip="Enumeration are by default mapped to a proper schema definition, some implementations just map enumeration to standard strings."/>
 
          <field label="Web Service name " switch="-s"
