@@ -349,34 +349,36 @@ setup_dir:
 	-$(MKDIR) -p $(PRJDIR)
 	-$(MKDIR) -p templates_parser/obj
 
+CONFGPR	= $(PRJDIR)/aws_config.gpr
+
 setup_config:
-	echo 'project Config is' > $(PRJDIR)/config.gpr
-	echo '   Lib_Kind := "static";' >> $(PRJDIR)/config.gpr
-	echo '   for Source_Dirs use ();' >> $(PRJDIR)/config.gpr
+	echo 'project AWS_Config is' > $(CONFGPR)
+	echo '   Lib_Kind := "static";' >> $(CONFGPR)
+	echo '   for Source_Dirs use ();' >> $(CONFGPR)
 	echo '   type SOCKLIB_Type is ("GNAT", "AdaSockets", "IPv6");' \
-		>> $(PRJDIR)/config.gpr
+		>> $(CONFGPR)
 ifdef ADASOCKETS
 	echo '   SOCKLIB : SOCKLIB_Type := "AdaSockets";' \
-		>> $(PRJDIR)/config.gpr
+		>> $(CONFGPR)
 else
 ifdef IPv6
-	echo '   SOCKLIB : SOCKLIB_Type := "IPv6";' >> $(PRJDIR)/config.gpr
+	echo '   SOCKLIB : SOCKLIB_Type := "IPv6";' >> $(CONFGPR)
 else
-	echo '   SOCKLIB : SOCKLIB_Type := "GNAT";' >> $(PRJDIR)/config.gpr
+	echo '   SOCKLIB : SOCKLIB_Type := "GNAT";' >> $(CONFGPR)
 endif
 endif
 	echo '   type OSLIB_Type is ("GNAT", "Win32", "POSIX");' \
-		>> $(PRJDIR)/config.gpr
+		>> $(CONFGPR)
 ifeq (${OSLIB}, GNAT)
-	echo '   OSLIB : OSLIB_Type := "GNAT";' >> $(PRJDIR)/config.gpr
+	echo '   OSLIB : OSLIB_Type := "GNAT";' >> $(CONFGPR)
 endif
 ifeq (${OSLIB}, Win32)
-	echo '   OSLIB : OSLIB_Type := "Win32";' >> $(PRJDIR)/config.gpr
+	echo '   OSLIB : OSLIB_Type := "Win32";' >> $(CONFGPR)
 endif
 ifeq (${OSLIB}, POSIX)
-	echo '   OSLIB : OSLIB_Type := "POSIX";' >> $(PRJDIR)/config.gpr
+	echo '   OSLIB : OSLIB_Type := "POSIX";' >> $(CONFGPR)
 endif
-	echo 'end Config;' >> $(PRJDIR)/config.gpr
+	echo 'end AWS_Config;' >> $(CONFGPR)
 
 setup: setup_dir $(GEXT_MODULE) $(MODULES_SETUP) setup_config
 
@@ -479,14 +481,14 @@ ifeq (${OS}, Windows_NT)
 	-$(CP) -p win32/*.dll $(I_LIB)
 	-$(CP) -p win32/*.dll $(I_LIB)/..
 endif
-	$(CP) config/projects/components.gpr $(I_CPN)
+	$(CP) config/projects/aws_components.gpr $(I_CPN)
 	$(CP) config/projects/*_lib.gpr $(I_AGP)
-	$(CP) config/projects/shared.gpr $(I_AGP)
-	$(CP) config/projects/ssl_support.gpr $(I_AGP)
-	$(CP) $(PRJDIR)/config.gpr $(I_AGP)
+	$(CP) config/projects/aws_shared.gpr $(I_AGP)
+	$(CP) config/projects/aws_ssl_support.gpr $(I_AGP)
+	$(CP) $(PRJDIR)/aws_config.gpr $(I_AGP)
 # Regenerate the SSL project to properly point to the ssl/crypto libraries
 	$(MAKE) -C ssl SOCKET=ssl setup_ssl_install
-	$(CP) ssl/ssl_shared.gpr $(I_AGP)
+	$(CP) ssl/aws_ssl_shared.gpr $(I_AGP)
 	-$(CHMOD) uog-w $(I_LIB)/*
 	-$(CHMOD) uog-w $(I_CPN)/*.ali
 # We need to touch the libraries as we have changed the .gpr
