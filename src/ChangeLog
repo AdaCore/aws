@@ -3,6 +3,9 @@
 	* aws-status.adb:
 	(Preferred_Coding): Use "and then" to avoid using unitialized Next_QValue.
 
+	* aws-server-http_utils.adb:
+	(Send): Do not flush socket if it was taken.
+
 2005-09-29  Dmitriy Anisimkov <anisimkov@ada-ru.org>
 
 	* aws-net-ssl.adb:
