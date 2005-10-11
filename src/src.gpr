@@ -32,7 +32,7 @@
 
 with "xmlada";
 with "sockets";
-with "config";
+with "aws_config";
 
 with "../shared";
 with "../include/include";
@@ -50,7 +50,7 @@ project Src is
          for Source_Dirs use project'Source_Dirs &
            ("../xsrc", "../templates_parser/xsrc", "../soap");
       when "Disabled" =>
-	 null;
+         null;
    end case;
 
    for Languages use ("Ada", "Changelog", "Project file", "makefile");
@@ -65,7 +65,7 @@ project Src is
    end case;
 
    for Library_Name use "aws";
-   for Library_Kind use Config.Lib_Kind;
+   for Library_Kind use AWS_Config.Lib_Kind;
 
    ---------
    -- Ide --
