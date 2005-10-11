@@ -495,7 +495,7 @@ package body AWS.Status is
       procedure Named_Value (Name, Value : in String; Quit : in out Boolean) is
          pragma Unreferenced (Quit);
       begin
-         if Supported and (Name = "Q" or Name = "q") then
+         if Supported and then (Name = "Q" or Name = "q") then
             Next_QValue := Float'Value (Value);
          end if;
       end Named_Value;
@@ -506,7 +506,7 @@ package body AWS.Status is
 
       procedure Value (Item : in String; Quit : in out Boolean) is
       begin
-         if Supported and Next_QValue > Best_QValue then
+         if Supported and then Next_QValue > Best_QValue then
             Best_Encoding := Next_Encoding;
             Best_QValue   := Next_QValue;
 
