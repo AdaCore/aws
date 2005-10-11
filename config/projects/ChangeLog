@@ -1,3 +1,19 @@
+2005-10-11  Pascal Obry  <pascal@obry.net>
+
+	* aws_ssl.gpr, aws.gpr:
+	Add "aws_" prefix for all installed GNAT project.
+	Work for EA11-014.
+
+	* aws_ssl_support.gpr, aws_components.gpr, aws_crypto_lib.gpr, 
+	  aws_nossl_lib.gpr, aws_shared.gpr, aws_ssl_lib.gpr:
+	File renamed with "aws_" prefix.
+	Work for EA11-014.
+	
+	* ssl_support.gpr, components.gpr, crypto_lib.gpr, nossl_lib.gpr,
+	  shared.gpr, ssl_lib.gpr:
+	Remove, renamed with "aws_" prefix.
+	Work for EA11-014.
+
 2005-10-03  Pascal Obry  <pascal@obry.net>
 
 	* aws.gpr, aws_ssl.gpr:
