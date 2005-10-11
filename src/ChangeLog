@@ -4,7 +4,7 @@
 	(Preferred_Coding): Use "and then" to avoid using unitialized Next_QValue.
 
 	* aws-server-http_utils.adb:
-	(Send): Do not flush socket if it was taken.
+	(Send): Do not flush socket if it was taken in the user callback.
 
 2005-09-29  Dmitriy Anisimkov <anisimkov@ada-ru.org>
 
@@ -30,28 +30,28 @@
 
 	* aws-url.adb:
 	Remove redundant with/use clause.
-	Update copyright notice.	
+	Update copyright notice.
 
 	* aws-status-set.adb:
 	Remove redundant with/use clause.
-	Update copyright notice.	
+	Update copyright notice.
 
 	* aws-smtp-client.ads:
 	Remove redundant with/use clause.
-	Update copyright notice.	
+	Update copyright notice.
 
 	* aws-session.adb:
 	Remove redundant with/use clause.
 
 	* aws-services-directory.adb:
-	Remove redundant with/use clause.	
+	Remove redundant with/use clause.
 
 	* aws-server-http_utils.adb, aws-server-protocol_handler.adb:
 	Remove redundant with/use clause.
 
 	* aws-resources-streams-memory.ads, aws-resources-streams-zlib.ads:
 	Remove redundant with/use clause.
-	Update copyright notice.	
+	Update copyright notice.
 
 	* aws-parameters-set.adb:
 	Remove redundant with/use clause.
