@@ -114,6 +114,7 @@ common_tarball:
 	$(MKDIR) $${AWS}/templates_parser; \
 	$(MKDIR) $${AWS}/templates_parser/docs; \
 	$(MKDIR) $${AWS}/templates_parser/src; \
+	$(MKDIR) $${AWS}/templates_parser/include; \
 	$(MKDIR) $${AWS}/templates_parser/xsrc; \
 	$(MKDIR) $${AWS}/templates_parser/regtests; \
 	$(MKDIR) $${AWS}/templates_parser/regtests/dir; \
