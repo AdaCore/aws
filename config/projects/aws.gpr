@@ -31,11 +31,11 @@
 with "xmlada";
 with "ai302";
 
-with "../../include/aws/components/components";
-with "aws/ssl_support";
-with "aws/nossl_lib";
-with "aws/shared";
-with "aws/config";
+with "../../include/aws/components/aws_components";
+with "aws/aws_ssl_support";
+with "aws/aws_nossl_lib";
+with "aws/aws_shared";
+with "aws/aws_config";
 
 project AWS is
 
@@ -43,9 +43,9 @@ project AWS is
 
    for Library_Dir use "../../lib/aws";
    for Library_Name use "aws";
-   for Library_Kind use Config.Lib_Kind;
+   for Library_Kind use AWS_Config.Lib_Kind;
    for Externally_Built use "true";
 
-   package Naming renames Shared.Naming;
+   package Naming renames AWS_Shared.Naming;
 
 end AWS;
