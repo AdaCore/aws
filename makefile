@@ -346,6 +346,7 @@ gposix_dummy:
 
 setup_dir:
 	-$(MKDIR) -p $(PRJDIR)
+	-$(MKDIR) -p templates_parser/obj
 
 setup_config:
 	echo 'project Config is' > $(PRJDIR)/config.gpr
