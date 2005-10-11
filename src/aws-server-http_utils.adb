@@ -1367,7 +1367,9 @@ package body AWS.Server.HTTP_Utils is
                "Answer not properly initialized (No_Data)");
       end case;
 
-      Net.Buffered.Flush (Sock);
+      if not Socket_Taken then
+         Net.Buffered.Flush (Sock);
+      end if;
 
       AWS.Log.Write (HTTP_Server.Log, C_Stat, Status, Integer (Length));
    end Send;
