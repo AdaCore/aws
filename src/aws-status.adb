@@ -537,7 +537,7 @@ package body AWS.Status is
          Parse (Headers.Get (D.Header, Messages.Accept_Encoding_Token, K));
       end loop;
 
-      if Supported and Next_QValue > Best_QValue then
+      if Supported and then Next_QValue > Best_QValue then
          Best_Encoding := Next_Encoding;
          Best_QValue   := Next_QValue;
       end if;
