@@ -1,3 +1,8 @@
+2005-10-11  Dmitriy Anisimkov <anisimkov@ada-ru.org>
+
+	* aws-status.adb:
+	(Preferred_Coding): Use "and then" to avoid using unitialized Next_QValue.
+
 2005-09-29  Dmitriy Anisimkov <anisimkov@ada-ru.org>
 
 	* aws-net-ssl.adb:
