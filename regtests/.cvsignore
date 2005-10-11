@@ -51,6 +51,8 @@ b~disp_soap.adb
 b~disp_soap.ads
 b~dispatch.adb
 b~dispatch.ads
+b~dispatch1.adb
+b~dispatch1.ads
 b~dispatch_method.adb
 b~dispatch_method.ads
 b~dispatch_vh.adb
@@ -85,6 +87,8 @@ b~multiple.adb
 b~multiple.ads
 b~no_param.adb
 b~no_param.ads
+b~nonce.adb
+b~nonce.ads
 b~once.adb
 b~once.ads
 b~param.adb

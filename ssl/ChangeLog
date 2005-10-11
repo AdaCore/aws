@@ -1,3 +1,16 @@
+2005-10-11  Pascal Obry  <pascal@obry.net>
+
+	* ssl_lib.gpr, crypto_lib.gpr:
+	Rename project from "ssl_shared" to "aws_ssl_shared".
+	Work for EA11-014.
+
+	* makefile:
+	(setup_ssl): Generate file with "aws_" prefix to avoid project
+	 file name conflict.
+	(setup_ssl_install): Idem.
+	(clean): Add "aws_" prefix to project file name.
+	Work for EA11-014.
+
 2005-10-04  Pascal Obry  <pascal@obry.net>
 
 	* makefile:
