@@ -29,29 +29,31 @@ build:
 		-XAWS_BUILD=${PRJ_BUILD} -XXMLADA=${PRJ_XMLADA}
 	$(GNATMAKE) -Pnossl -XAWS_BUILD=${PRJ_BUILD} -XXMLADA=${PRJ_XMLADA}
 
+SSLGPR	=	aws_ssl_shared.gpr
+
 setup_ssl:
-	echo "project SSL_Shared is" > ssl_shared.gpr
-	echo "   for Source_Files use ();" >> ssl_shared.gpr
+	echo "project AWS_SSL_Shared is" > $(SSLGPR)
+	echo "   for Source_Files use ();" >> $(SSLGPR)
 ifeq (${SOCKET}, std)
-	echo '   LIB_Path := "";' >> ssl_shared.gpr
+	echo '   LIB_Path := "";' >> $(SSLGPR)
 else
 ifeq (${OS}, Windows_NT)
-	echo '   LIB_Path := "../lib";' >> ssl_shared.gpr
+	echo '   LIB_Path := "../lib";' >> $(SSLGPR)
 else
-	echo '   LIB_Path := "'$(dir $(SSL_PATH))'";' >> ssl_shared.gpr
+	echo '   LIB_Path := "'$(dir $(SSL_PATH))'";' >> $(SSLGPR)
 endif
 endif
-	echo "end SSL_Shared;" >> ssl_shared.gpr
+	echo "end AWS_SSL_Shared;" >> $(SSLGPR)
 
 setup_ssl_install:
-	echo "project SSL_Shared is" > ssl_shared.gpr
-	echo "   for Source_Files use ();" >> ssl_shared.gpr
+	echo "project AWS_SSL_Shared is" > $(SSLGPR)
+	echo "   for Source_Files use ();" >> $(SSLGPR)
 ifeq (${OS}, Windows_NT)
-	echo '   LIB_Path := "../../../lib";' >> ssl_shared.gpr
+	echo '   LIB_Path := "../../../lib";' >> $(SSLGPR)
 else
-	echo '   LIB_Path := "'$(dir $(SSL_PATH))'";' >> ssl_shared.gpr
+	echo '   LIB_Path := "'$(dir $(SSL_PATH))'";' >> $(SSLGPR)
 endif
-	echo "end SSL_Shared;" >> ssl_shared.gpr
+	echo "end AWS_SSL_Shared;" >> $(SSLGPR)
 
 
 setup: setup_ssl
@@ -61,4 +63,4 @@ setup: setup_ssl
 	-$(MKDIR) -p ../$(BDIR)/ssl/nlib
 
 clean:
-	-$(RM) -f ssl_shared.gpr
+	-$(RM) -f $(SSLGPR)
