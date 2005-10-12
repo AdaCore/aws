@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2003-2004                          --
---                                ACT-Europe                                --
+--                         Copyright (C) 2003-2005                          --
+--                                 AdaCore                                  --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
 --                                                                          --
@@ -42,7 +42,7 @@ project Demos_SSL is
 
    Mains := ("runme.adb", "runme_cb.adb", "agent.adb");
 
-   for Source_Files use Mains;
+   for Source_Files use Mains & "demos_ssl.gpr";
 
    case Shared.Socket is
       when "ssl" => for Main use Mains;
