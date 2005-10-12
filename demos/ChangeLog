@@ -1,3 +1,14 @@
+2005-10-12  Pascal Obry  <pascal@obry.net>
+
+	* demos.gpr:
+	(Source_Files): Add demos.gpr project.
+	Clean-up project file using null in case statement.
+	Update copyright notice.
+
+	* demos_ssl.gpr:
+	(Source_Files): Add demos_ssl.gpr project.
+	Update copyright notice.
+
 2005-08-29  Pascal Obry  <pascal@obry.net>
 
 	* runme.adb:
