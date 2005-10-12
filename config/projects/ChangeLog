@@ -1,3 +1,8 @@
+2005-10-12  Pascal Obry  <pascal@obry.net>
+
+	* aws_crypto_lib.gpr, aws_ssl_lib.gpr:
+	(Library_Dir): Fix reference to project file.
+
 2005-10-11  Pascal Obry  <pascal@obry.net>
 
 	* aws_ssl.gpr, aws.gpr:
