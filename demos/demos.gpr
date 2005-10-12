@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2003-2004                          --
---                                ACT-Europe                                --
+--                         Copyright (C) 2003-2005                          --
+--                                 AdaCore                                  --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
 --                                                                          --
@@ -54,7 +54,7 @@ project Demos is
      Mains & ("dispatch_cb.adb", "auth_cb.adb", "text_input_cb.adb",
               "vh_demo_cb.adb", "ws_cb.adb", "zdemo_cb.adb", "rdemo.adb",
               "hotplug_cb.adb", "hello_world_cb.adb", "res_demo_cb.adb",
-              "rdemo-adains_png.ads", "rdemo-page3_html.ads");
+              "rdemo-adains_png.ads", "rdemo-page3_html.ads", "demos.gpr");
 
    for Main use Mains;
 
@@ -79,8 +79,7 @@ project Demos is
                 "soapinterop-org-xsd.ads",
                 "soapinterop-org.ads", "soapinterop.ads");
       when "Disabled" =>
-         --  Should be replaced by null as supported by GNAT 5.03
-         for Main use project'Main;
+         null;
    end case;
 
    case Shared.Build is
