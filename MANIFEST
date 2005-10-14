@@ -16,6 +16,7 @@ config/aws-translator-conversion__f.adb
 config/aws-translator-conversion__p.adb
 config/makefile
 config/projects/ChangeLog
+config/projects/ai302.gpr
 config/projects/aws.gpr
 config/projects/aws_components.gpr
 config/projects/aws_crypto_lib.gpr
@@ -719,11 +720,13 @@ templates_parser/docs/all_sources.ada
 templates_parser/docs/demo.tmplt
 templates_parser/docs/docs.gpr
 templates_parser/docs/gentexifile
+templates_parser/docs/if_inline.tmplt
 templates_parser/docs/makefile
 templates_parser/docs/matrix.tmplt
 templates_parser/docs/table.tmplt
 templates_parser/docs/table_block.tmplt
 templates_parser/docs/table_if.tmplt
+templates_parser/docs/table_inline.tmplt
 templates_parser/docs/table_section.tmplt
 templates_parser/docs/templates_parser.html
 templates_parser/docs/templates_parser.info*
