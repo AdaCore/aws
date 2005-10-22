@@ -441,6 +441,8 @@ ifeq ($(XMLADA),true)
 	$(CP) -p soap/*.ad[sb] $(I_INC)
 	$(CP) -p xsrc/*.ad[sb] $(I_INC)
 	$(CP) -p templates_parser/xsrc/*.ad[sb] $(I_INC)
+	$(CP) $(BDIR)/tools/wsdl2aws${EXEEXT} $(I_BIN)
+	$(STRIP) $(I_BIN)/wsdl2aws${EXEEXT}
 endif
 	$(CP) -p $(BDIR)/lib/* $(I_LIB)
 	-$(CP) -p $(BDIR)/ssl/lib/* $(I_LIB)
@@ -469,17 +471,19 @@ endif
 	-$(STRIP) $(I_BIN)/awsres${EXEEXT}
 	-$(CP) $(BDIR)/tools/hotplug_password${EXEEXT} $(I_BIN)
 	-$(STRIP) $(I_BIN)/hotplug_password${EXEEXT}
-	-$(CP) $(BDIR)/tools/wsdl2aws${EXEEXT} $(I_BIN)
-	-$(STRIP) $(I_BIN)/wsdl2aws${EXEEXT}
-	-$(CP) $(BDIR)/tools/ada2wsdl-main${EXEEXT} $(I_BIN)/ada2wsdl${EXEEXT}
-	-$(STRIP) $(I_BIN)/ada2wsdl${EXEEXT}
-	-$(CP) $(BDIR)/demos/agent${EXEEXT} $(I_SBN)
-	-$(STRIP) $(I_SBN)/agent${EXEEXT}
+ifeq (${ASIS},true)
+	$(CP) $(BDIR)/tools/ada2wsdl-main${EXEEXT} $(I_BIN)/ada2wsdl${EXEEXT}
+	$(STRIP) $(I_BIN)/ada2wsdl${EXEEXT}
+endif
+ifeq ($(SOCKET),ssl)
+	$(CP) $(BDIR)/demos/agent${EXEEXT} $(I_SBN)
+	$(STRIP) $(I_SBN)/agent${EXEEXT}
+endif
 ifeq (${OS}, Windows_NT)
-	-$(CP) -p $(BDIR)/win32/lib/* $(I_LIB)
+	$(CP) -p $(BDIR)/win32/lib/* $(I_LIB)
 	$(CP) -p lib/lib*.a $(I_LIB)
-	-$(CP) -p win32/*.dll $(I_LIB)
-	-$(CP) -p win32/*.dll $(I_LIB)/..
+	$(CP) -p win32/*.dll $(I_LIB)
+	$(CP) -p win32/*.dll $(I_LIB)/..
 endif
 	$(CP) config/projects/aws_components.gpr $(I_CPN)
 	$(CP) config/projects/*_lib.gpr $(I_AGP)
