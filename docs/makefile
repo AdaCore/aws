@@ -3,6 +3,12 @@
 
 .SILENT:
 
+
+MAKEINFO	= $(shell which makeinfo 2> /dev/null)
+DVIPS		= $(shell which dvips 2> /dev/null)
+TEXI2DVI	= $(shell which texi2dvi 2> /dev/null)
+PDFTEX		= $(shell which pdftex 2> /dev/null)
+
 ADA_KW    = use package is in out exception function with type constant \
 		private of return range procedure begin end array record \
 		subtype generic limited access all tagged abstract renames \
@@ -84,12 +90,12 @@ APIFILES = ../src/aws.ads.texi \
 
 force:
 
-aws_docs: aws.ps aws.pdf aws.html aws.txt aws.info
+aws_docs: aws.texi aws.pdf aws.ps aws.html aws.txt aws.info
 
 sg_docs: style-guide.ps style-guide.pdf style-guide.html style-guide.txt \
 	style-guide.info
 
-build_doc: prog aws_docs sg_docs
+build_doc: prog $(APIFILES) aws_docs sg_docs
 	echo ""
 	echo Documentation built with success.
 
@@ -117,25 +123,64 @@ ada.sed: makefile
 	./gentexifile $< NOGROUP
 
 %.dvi: %.texi
-	-texi2dvi --clean --quiet $<
+ifneq (${TEXI2DVI},)
+	-${TEXI2DVI} --clean --quiet $<
+else
+	@echo "--------------------------------------------------------"
+	@echo "texi2dvi not found, cannot build DVI or PS documentation"
+	@echo "--------------------------------------------------------"
+endif
 
 %.ps: %.dvi
-	-dvips -q $< -o $@
+ifneq (${DVIPS},)
+	-${DVIPS} -q $< -o $@
+else
+	@echo "------------------------------------------------------"
+	@echo "dvips not found, cannot build POSTSCRIPT documentation"
+	@echo "------------------------------------------------------"
+endif
 
-%.pdf: %.ps
-	-ps2pdf $< $@
+%.pdf: %.texi
+ifneq (${TEXI2DVI},)
+ifneq (${PDFTEX},)
+	${TEXI2DVI} -p --clean $<
+else
+	@echo "-----------------------------------------------"
+	@echo "pdftex not fond, cannot build PDF documentation"
+	@echo "-----------------------------------------------"
+endif
+else
+	@echo "--------------------------------------------------"
+	@echo "texi2dvi not found, cannot build PDF documentation"
+	@echo "--------------------------------------------------"
+endif
 
 %.info: %.texi
-	-makeinfo $<
+ifneq (${MAKEINFO},)
+	-${MAKEINFO} $<
+else
+	@echo "---------------------------------------------------"
+	@echo "makeinfo not found, cannot build INFO documentation"
+	@echo "---------------------------------------------------"
+endif
 
 %.html: %.texi
-	-makeinfo --html --no-split --ifinfo $<
+ifneq (${MAKEINFO},)
+	-${MAKEINFO} --html --no-split --ifinfo $<
+else
+	@echo "---------------------------------------------------"
+	@echo "makeinfo not found, cannot build HTML documentation"
+	@echo "---------------------------------------------------"
+endif
 
 %.txt: %.texi
-	-makeinfo --no-headers $< > $@
-
-aws.dvi: aws.texi $(APIFILES)
-	-texi2dvi --clean --quiet aws.texi
+ifneq (${MAKEINFO},)
+	-${MAKEINFO} --no-headers $< > $@
+else
+	@echo "---------------------------------------------------"
+	@echo "makeinfo not found, cannot build TEXT documentation"
+	@echo "---------------------------------------------------"
+endif
 
 # Note that we force XMLADA=Installed, this is not a problem as it is only to
 # give the visibility to soap.ads to get the SOAP's version number.
