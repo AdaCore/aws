@@ -29,7 +29,6 @@ using the following compilers :
 	GNAT GPL 2005 Edition
 
 
-
 Building from CVS
 -----------------
 
@@ -39,6 +38,13 @@ apply the patch found in support/gnat-2005-editions.dif.
 To run the templates_parser's non-regression tests with XML/Ada support, you
 need to uncomment the 'with "xmlada";' line in templates_parser.gpr project
 file.
+
+
+To build the documentation in HTML, PDF, PostScript, INFO and plain text
+format you need to have a working makeinfo and Tex package installed on
+your system.
+
+   $ make build_doc
 
 
 Building on Windows
