@@ -10,6 +10,31 @@
 @afourpaper
 @end iftex
 
+@c ----------------------------------------- MACRO
+
+@c Macro used for all AWS examples
+@c No cartouche on HTML as this is part of the css
+@macro AWSEXP{TXT}
+@ifhtml
+@smallexample
+@group
+\TXT\
+@end group
+@end smallexample
+@end ifhtml
+@ifnothtml
+@cartouche
+@smallexample
+@group
+\TXT\
+@end group
+@end smallexample
+@end cartouche
+@end ifnothtml
+@end macro
+
+@c ----------------------------------------- END MACRO
+
 @titlepage
 
 @title Ada Web Server User's Guide
@@ -89,7 +114,6 @@
 @code{AWS} stand for @i{Ada Web Server}. It is an Ada implementation of the
 @code{HTTP/1.1} protocol as defined in the RFC 2616 from June 1999.
 
-@sp 1
 @noindent
 The goal is not to build a full Web server but more to make it possible
 to use a Web browser (like Internet Explorer, or Netscape Navigator) to
@@ -97,7 +121,6 @@ control an Ada application. As we'll see later it is also possible to
 have two Ada programs exchange informations via the @code{HTTP} protocol. This
 is possible as @code{AWS} also implement the client side of the HTTP protocol.
 
-@sp 1
 @noindent
 Moreover with this library it is possible to have more than one server
 in a single application. It is then possible to export different kind
@@ -105,7 +128,6 @@ of services by using different @code{HTTP} ports, or to have different ports
 for different services priority. Client which must be served with a
 very high priority can be assigned a specific port for example.
 
-@sp 1
 @noindent
 As designed, @code{AWS} big difference with a standard @code{CGI} server
 is that there is only one executable. A @code{CGI} server has one
@@ -113,7 +135,6 @@ executable for each request or so, this becomes a pain to build and
 to distribute when the project gets bigger. We will also see that it is
 easier with @code{AWS} to deal with session data.
 
-@sp 1
 @noindent
 @code{AWS} support also @code{HTTPS} (secure @code{HTTP}) using
 @code{SSL}. This is based on @code{OpenSSL} a very good and Open Source SSL
@@ -254,13 +275,7 @@ of course.
 Version using @code{GNAT.OS_Lib} is GNAT dependent and will run on whatever
 OS GNAT has be ported to. This is the @b{default implementation} used.
 
-@cartouche
-@smallexample
-@group
-$ make gnat_oslib
-@end group
-@end smallexample
-@end cartouche
+@AWSEXP {$ make gnat_oslib}
 
 @item POSIX implementation
 
@@ -269,26 +284,14 @@ have a @code{POSIX} implementation for your OS). Check out @code{Florist}
 which is available on many @code{UNIX} and the version for Win32 is
 available on @url{http://perso.wanadoo.fr/pascal.obry/contrib.html}.
 
-@cartouche
-@smallexample
-@group
-$ make posix_oslib
-@end group
-@end smallexample
-@end cartouche
+@AWSEXP {$ make posix_oslib}
 
 @item Win32 implementation (not anymore supported)
 
 Version for Win32 should be usable by any Ada compiler for Windows 
 95/98/NT/2000/XP.
 
-@cartouche
-@smallexample
-@group
-$ make win32_oslib
-@end group
-@end smallexample
-@end cartouche
+@AWSEXP {$ make win32_oslib}
 
 @end table
 
@@ -310,26 +313,14 @@ Version based on @code{GNAT.Sockets}, is @code{GNAT} dependent and will
 run on whatever OS @code{GNAT} has be ported to. This is the 
 @b{default implementation} used. To select this implementation just do:
 
-@cartouche
-@smallexample
-@group
-$ make gnatsockets
-@end group
-@end smallexample
-@end cartouche
+@AWSEXP {$ make gnatsockets}
 
 @item AdaSockets implementation
 
 Version using @code{AdaSockets} packages. This was the default implementation
 used up to @code{AWS} 1.2. To select this implementation just do:
 
-@cartouche
-@smallexample
-@group
-$ make adasockets
-@end group
-@end smallexample
-@end cartouche
+@AWSEXP {$ make adasockets}
 
 @end table
 
@@ -353,14 +344,7 @@ the different packages. For @code{XML/Ada} support, you also need to set
 @noindent
 At this point you can build @code{AWS} with:
 
-@cartouche
-@smallexample
-@group
-$ make setup
-$ make build
-@end group
-@end smallexample
-@end cartouche
+@AWSEXP {$ make setup build}
 
 @noindent
 Note that by default @code{AWS} demos will be built without @code{SSL}
@@ -372,14 +356,7 @@ rebuild with:
 @cindex libssl.a
 @cindex libcrypto.a
 
-@cartouche
-@smallexample
-@group
-$ make setup
-$ make build
-@end group
-@end smallexample
-@end cartouche
+@AWSEXP {$ make setup build}
 
 @noindent
 It is important to understand that @code{AWS SSL} support is
@@ -389,40 +366,19 @@ selected at @b{link time} and not at configure time.
 It is is possible to build @code{AWS} in debug mode by setting
 @var{DEBUG} make's variable in @file{makefile.conf}, or just:
 
-@cartouche
-@smallexample
-@group
-$ make DEBUG=1 build 
-@end group
-@end smallexample
-@end cartouche
+@AWSEXP {$ make DEBUG=1 setup build}
 
 @noindent
-For example, if you use @code{GNAT} and want to use the @code{GNAT.Sockets}
-implementation, you can build and install @code{AWS} with (you do not need to
-edit the makefile.conf):
+Note that by default @code{AWS} is configured to use the @code{GNAT}
+compiler. So, if you use @code{GNAT} you can build @code{AWS} just with:
 
-@cartouche
-@smallexample
-@group
-$ make setup
-$ make build
-$ make INSTALL=/opt install
-@end group
-@end smallexample
-@end cartouche
+@AWSEXP {$ make setup build}
 
 @noindent
 If you want to build only the AWS libraries and tools and do not want
 to build the demos you can set @code{EXTRA_MODULES} to "" as in:
 
-@cartouche
-@smallexample
-@group
-$ make EXTRA_MODULES="" build
-@end group
-@end smallexample
-@end cartouche
+@AWSEXP {$ make EXTRA_MODULES="" build}
 
 @c ----------------------------------------------------------------------
 
@@ -531,13 +487,7 @@ A simple demo of the Gzip content encoding feature.
 If @code{XMLAda} is installed it is possible to build the @code{SOAP} binding
 and the @code{SOAP} demos, for this just type:
 
-@cartouche
-@smallexample
-@group
-$ make build_soap
-@end group
-@end smallexample
-@end cartouche
+@AWSEXP {$ make build_soap}
 
 @noindent
 There is four demos:
@@ -579,40 +529,23 @@ location. The target directory is defined with the @var{INSTALL}
 @file{makefile.conf} variable. The default value is your home directory. To
 install:
 
-@cartouche
-@smallexample
-@group
-$ make install
-@end group
-@end smallexample
-@end cartouche
+@AWSEXP {$ make install}
 
 @noindent
 To install @code{AWS} into another directory you can either edit
 @file{makefile.conf} and set @var{INSTALL} to the directory you like
 to install @code{AWS} or just force the make @code{INSTALL} variable:
 
-@cartouche
-@smallexample
-@group
-$ make install INSTALL=/opt
-@end group
-@end smallexample
-@end cartouche
+@AWSEXP {$ make INSTALL=/opt install}
 
 @noindent
 Alternatively, with @code{GNAT} 5.03 and above it is possible to
 install @code{AWS} into the GNAT Standard Library location. In this
 case @code{AWS} is ready-to-use as there is no need to set
-@var{ADA_PROJECT_PATH}.
+@var{ADA_PROJECT_PATH}, just set INSTALL to point to @code{GNAT} root
+directory:
 
-@cartouche
-@smallexample
-@group
-$ make install-gnat INSTALL=/opt/gnatpro/5.03a/lib/gnat
-@end group
-@end smallexample
-@end cartouche
+@AWSEXP {$ make INSTALL=/opt/gnatpro/5.03a install}
 
 @noindent
 Now you are ready to use @code{AWS} !
@@ -717,10 +650,7 @@ point to the @code{AWS} and @code{XMLAda} install directories. From
 there you just have to with the @code{AWS} project file in your GNAT
 Project file, nothing else to set.
 
-@cartouche
-@smallexample
-@group
-@b{with} "aws";
+@AWSEXP {@b{with} "aws";
 
 @b{project} Simple @b{is}
 
@@ -730,27 +660,18 @@ Project file, nothing else to set.
 
    @b{for} Object_Dir @b{use} ".";
 
-@b{end} Simple;
-@end group
-@end smallexample
-@end cartouche
+@b{end} Simple;}
 
 @noindent
 If your application must support SSL, you have to link against the
 @file{-lcrypto} and @file{-lssl} libraries. Add a package
 @code{Linker} in your project file, something like:
 
-@cartouche
-@smallexample
-@group
-@b{package} Linker @b{is}
+@AWSEXP {@b{package} Linker @b{is}
 
    @b{for} Default_Switches ("Ada") @b{use} ("-lcrypto", "-lssl");
 
-@b{end} Linker;
-@end group
-@end smallexample
-@end cartouche
+@b{end} Linker;}
 
 @noindent
 See the @i{GNAT User's Guide} for more information about GNAT Project Files.
@@ -793,13 +714,7 @@ To build a server you must:
 @item declare the HTTP Web Server
 @cindex HTTP declaration
 
-@cartouche
-@smallexample
-@group
-WS  : AWS.Server.HTTP;
-@end group
-@end smallexample
-@end cartouche
+@AWSEXP {WS  : AWS.Server.HTTP;}
 
 @item Start the server
 @cindex starting server
@@ -808,10 +723,7 @@ WS  : AWS.Server.HTTP;
 You need to start the server before using it. This is done by calling
 @code{AWS.Server.Start} (@xref{AWS.Server}.)
 
-@cartouche
-@smallexample
-@group
-@b{procedure} Start
+@AWSEXP {@b{procedure} Start
   (Web_Server                : @b{in out} HTTP;
    Name                      : @b{in}     String;
    Callback                  : @b{in}     Response.Callback;
@@ -832,10 +744,7 @@ You need to start the server before using it. This is done by calling
 @i{--  connected. A session ID is used for that, on the client side it is a}
 @i{--  cookie. Case_Sensitive_Parameters if set to False it means that the CGI}
 @i{--  parameters name will be handled without case sensitivity. Upload}
-@i{--  directory point to a directory where uploaded files will be stored.}
-@end group
-@end smallexample
-@end cartouche
+@i{--  directory point to a directory where uploaded files will be stored.}}
 
 @noindent
 @code{Start} takes many parameters:
@@ -920,13 +829,7 @@ generic one.
 @noindent
 The callback procedure has the following prototype:
 
-@cartouche
-@smallexample
-@group
-@b{function} Service (Request : @b{in} AWS.Status.Data) @b{return} AWS.Response.Data;
-@end group
-@end smallexample
-@end cartouche
+@AWSEXP {@b{function} Service (Request : @b{in} AWS.Status.Data) @b{return} AWS.Response.Data;}
 
 @noindent
 This procedure receive the request status. It is possible to retrieve
@@ -936,44 +839,26 @@ information about the request through the @code{AWS.Status} API
 @noindent
 For example, to know what URI has been asked:
 
-@cartouche
-@smallexample
-@group
-URI : @b{constant} String := AWS.Status.URI (Request);
+@AWSEXP {URI : @b{constant} String := AWS.Status.URI (Request);
 
 @b{if} URI = "/whatever" @b{then}
    ...
-@b{end if};
-@end group
-@end smallexample
-@end cartouche
+@b{end if};}
 
 @noindent
 Then this function should return an answer using one of the constructors
 in @code{AWS.Response} (@xref{AWS.Response}.). For example, to return an
 HTML message:
 
-@cartouche
-@smallexample
-@group
-AWS.Response.Build (Content_Type => "text/html",
-                    Message_Body => "<p>just a demo");
-@end group
-@end smallexample
-@end cartouche
+@AWSEXP {AWS.Response.Build (Content_Type => "text/html",
+                    Message_Body => "<p>just a demo");}
 
 @noindent
 It is also possible to return a file. For example, here is the way to
 return a PNG image:
 
-@cartouche
-@smallexample
-@group
-AWS.Response.File (Content_Type => "image/png",
-                   Filename     => "adains.png");
-@end group
-@end smallexample
-@end cartouche
+@AWSEXP {AWS.Response.File (Content_Type => "image/png",
+                   Filename     => "adains.png");}
 
 @end enumerate
 
@@ -1024,10 +909,7 @@ that will answer ``Hello World'' if we ask for the internal resource
 @b{/hello}, and must answer ``Hum...'' otherwise.
 
 @cindex Hello world
-@cartouche
-@smallexample
-@group
-@b{with} AWS.Response;
+@AWSEXP {@b{with} AWS.Response;
 @b{with} AWS.Server;
 @b{with} AWS.Status;
 
@@ -1051,10 +933,7 @@ that will answer ``Hello World'' if we ask for the internal resource
    AWS.Server.Start
       (WS, "Hello World", Callback => HW_CB'Unrestricted_Access);
    @b{delay} 30.0;
-@b{end} Hello_World;
-@end group
-@end smallexample
-@end cartouche
+@b{end} Hello_World;}
 
 @noindent
 Now of course the resource internal name can represent a file on
@@ -1071,10 +950,7 @@ server will return a 404 message (Web Page Not Found) if the file does
 not exist. Here is the callback procedure that implement such simple
 page server:
 
-@cartouche
-@smallexample
-@group
-@b{function} Get (Request : @b{in} AWS.Status.Data) @b{return} AWS.Response.Data @b{is}
+@AWSEXP {@b{function} Get (Request : @b{in} AWS.Status.Data) @b{return} AWS.Response.Data @b{is}
    URI      : @b{constant} String := AWS.Status.URI (Request);
    Filename : @b{constant} String := URI (2 .. URI'Last);
 @b{begin}
@@ -1088,10 +964,7 @@ page server:
         (Messages.S404,
          "<p>Page '" & URI & "' Not found.");
    @b{end if};
-@b{end} Get;
-@end group
-@end smallexample
-@end cartouche
+@b{end} Get;}
 
 @node Form parameters
 @subsection Form parameters
@@ -1103,18 +976,12 @@ Form parameters are stored into a table of key/value pair. The key is the form
 input tag name and the value is the content of the input field as filled by
 the user.
 
-@cartouche
-@smallexample
-@group
-Enter your name 
+@AWSEXP {Enter your name 
 
 <FORM METHOD=GET ACTION=/get-form>"
 <INPUT TYPE=TEXT NAME=name VALUE="<default>" size=15>
 <INPUT TYPE=SUBMIT NAME=go VALUE="Ok">
-</FORM>
-@end group
-@end smallexample
-@end cartouche
+</FORM>}
 
 @noindent
 Note that as explained above @pxref{Callback procedure}, the resource
@@ -1136,17 +1003,11 @@ The value is "Ok".
 There is many functions (in @code{AWS.Parameters}) to retrieve the tag name
 or value and the number of parameters. Here are some examples:
 
-@cartouche
-@smallexample
-@group
-@b{function} Service (Request : @b{in} AWS.Status.Data) 
+@AWSEXP {@b{function} Service (Request : @b{in} AWS.Status.Data) 
   @b{return} AWS.Response.Data
 @b{is}
    P : @b{constant} AWS.Parameters.List := AWS.Status.Parameters (Request);
-   ...
-@end group
-@end smallexample
-@end cartouche
+   ...}
 
 
 @table @code
@@ -1245,13 +1106,7 @@ URL. Client's won't notice that a redirection has occurs. As soon as
 the browser has received the response from the server it will retrieve
 the page as pointed by the redirection.
 
-@cartouche
-@smallexample
-@group
-   @b{return} Response.URL (Location => "/use-this-one");
-@end group
-@end smallexample
-@end cartouche
+@AWSEXP {@b{return} Response.URL (Location => "/use-this-one");}
 
 @node New location for a page
 @subsection New location for a page
@@ -1260,15 +1115,9 @@ the page as pointed by the redirection.
 User will receive a Web page saying that this page has moved and
 eventually pointing to the new location.
 
-@cartouche
-@smallexample
-@group
-   @b{return} Response.Moved
-     (Location => "/use-this-one";
-      Message  => "This page has moved, please update your reference");
-@end group
-@end smallexample
-@end cartouche
+@AWSEXP {@b{return} Response.Moved
+  (Location => "/use-this-one";
+   Message  => "This page has moved, please update your reference");}
 
 @node Authentication required
 @subsection Authentication required
@@ -1286,16 +1135,10 @@ many kind of status code, see @code{Message.Status_Code}
 definition. Together with the status code it is possible to pass
 textual error message in @code{Message_Body} parameter.
 
-@cartouche
-@smallexample
-@group
-   @b{return} Response.Acknowledge
-     (Status_Code  => Messages.S503,
-      Message_Body => "Can't connect to the database, please retry later.",
-      Content_Type => MIME.Text_Plain);
-@end group
-@end smallexample
-@end cartouche
+@AWSEXP {@b{return} Response.Acknowledge
+  (Status_Code  => Messages.S503,
+   Message_Body => "Can't connect to the database, please retry later.",
+   Content_Type => MIME.Text_Plain);}
 
 @node Response from a string
 @subsection Response from a string
@@ -1305,13 +1148,7 @@ This is the simplest way to build a response object. There is two
 constructors in @code{AWS.Response}, one based on a standard string
 and one for Unbounded_String.
 
-@cartouche
-@smallexample
-@group
-   @b{return} Response.Build (MIME.Text_HTML, "My answer");
-@end group
-@end smallexample
-@end cartouche
+@AWSEXP {@b{return} Response.Build (MIME.Text_HTML, "My answer");}
 
 @noindent
 The Build routine takes also a status code parameter to handle
@@ -1334,13 +1171,7 @@ To build a @code{File} response there is a single constructor named
 @code{File}. This routine is very similar to the one above except that
 we specify a filename as the response.
 
-@cartouche
-@smallexample
-@group
-   @b{return} Response.File (MIME.Text_HTML, "index.html");
-@end group
-@end smallexample
-@end cartouche
+@AWSEXP {@b{return} Response.File (MIME.Text_HTML, "index.html");}
 
 @noindent
 Again there parameters to control the status code and cache. No check
@@ -1389,23 +1220,17 @@ implementation.
 @noindent
 The second step is to build the response object:
 
-@cartouche
-@smallexample
-@group
-   @b{type} SQL_Stream @b{is new} Resources.Streams.Stream_Type;
+@AWSEXP {@b{type} SQL_Stream @b{is new} Resources.Streams.Stream_Type;
 
-   Stream_Object : SQL_Stream;
+Stream_Object : SQL_Stream;
 
-   @b{procedure} Read (...) @b{is} ...
-   @b{function} End_Of_File (...) @b{return} Boolean @b{is} ...
-   @b{procedure} Close (...) @b{is}
+@b{procedure} Read (...) @b{is} ...
+@b{function} End_Of_File (...) @b{return} Boolean @b{is} ...
+@b{procedure} Close (...) @b{is}
 
-   ...
+...
 
-   @b{return} Response.Stream (MIME.Text_HTML, Stream_Object);
-@end group
-@end smallexample
-@end cartouche
+@b{return} Response.Stream (MIME.Text_HTML, Stream_Object);}
 
 @noindent
 Note that in some cases it is needed to create a file containing the
@@ -1448,20 +1273,14 @@ routines it is possible to add chunk of data to it. It is of course
 possible to call @code{Append} as many times as needed. When done just
 return this object to the server.
 
-@cartouche
-@smallexample
-@group
-   Data : AWS.Resources.Streams.Memory.Stream_Type;
+@AWSEXP {Data : AWS.Resources.Streams.Memory.Stream_Type;
 
-   Append (Data, Translator.To_Stream_Element_Array ("First chunk"));
-   Append (Data, Translator.To_Stream_Element_Array ("Second chunk..."));
+Append (Data, Translator.To_Stream_Element_Array ("First chunk"));
+Append (Data, Translator.To_Stream_Element_Array ("Second chunk..."));
 
-   ...
+...
 
-   @b{return} Response.Stream (MIME.Text_HTML, Data);
-@end group
-@end smallexample
-@end cartouche
+@b{return} Response.Stream (MIME.Text_HTML, Data);}
 
 @noindent
 Note that you do not have to take care of releasing the allocated
@@ -1483,22 +1302,16 @@ takes many parameters to select the right options for the compression
 algorithm, all of them have good default values. When initialized the
 compressed stream object is used exactly as a standard stream.
 
-@cartouche
-@smallexample
-@group
-   Data : AWS.Resources.Streams.Memory.ZLib.Stream_Type;
+@AWSEXP {Data : AWS.Resources.Streams.Memory.ZLib.Stream_Type;
 
-   Deflate_Initialize (Data);
+Deflate_Initialize (Data);
 
-   Append (Data, Translator.To_Stream_Element_Array ("First chunk"));
-   Append (Data, Translator.To_Stream_Element_Array ("Second chunk..."));
+Append (Data, Translator.To_Stream_Element_Array ("First chunk"));
+Append (Data, Translator.To_Stream_Element_Array ("Second chunk..."));
 
-   ...
+...
 
-   @b{return} Response.Stream (MIME.Text_HTML, Data);
-@end group
-@end smallexample
-@end cartouche
+@b{return} Response.Stream (MIME.Text_HTML, Data);}
 
 @noindent
 Note that there is the reverse implementation to decompress a
@@ -1717,17 +1530,11 @@ default is @_MAX_CONNECT_@.
 
 Note that the total number of threads used by a server is:
 
-@cartouche
-@smallexample
-@group
-N = <main server thread> + <max connections> [+ <session>]
+@AWSEXP {N = <main server thread> + <max connections> [+ <session>]
 
   Note: [...] means optional value
         Add 1 only if the session feature is activated. This is
-        due to the session cleaner task.
-@end group
-@end smallexample
-@end cartouche
+        due to the session cleaner task.}
 
 @item Receive_Timeout (duration)
 @cindex Receive_Timeout
@@ -1817,17 +1624,11 @@ For example to build a server where the @i{port} and the maximum number of
 @i{connection} can be changed via a configuration file (either
 @file{aws.ini} or @file{<program_name>.ini}):
 
-@cartouche
-@smallexample
-@group
-WS   : AWS.Server.HTTP;
+@AWSEXP {WS   : AWS.Server.HTTP;
 
 Conf : @b{constant} AWS.Config.Object := AWS.Config.Get_Current;
 
-Server.Start (WS, Service'Access, Conf);
-@end group
-@end smallexample
-@end cartouche
+Server.Start (WS, Service'Access, Conf);}
 
 @c ----------------------------------------------------------------------
 
@@ -1847,18 +1648,12 @@ are key/value pair each of them being strings. How to deal with that ?
 
 @item First you declare and start an HTTP channel with session enabled:
 
-@cartouche
-@smallexample
-@group
-WS : AWS.Server.HTTP;
+@AWSEXP {WS : AWS.Server.HTTP;
 
 Server.Start (WS,
               Port     => 1234,
               Callback => Service'Access,
-              Session  => True);
-@end group
-@end smallexample
-@end cartouche
+              Session  => True);}
 
 @noindent
 Here we have built an HTTP channel with a maximum of 3 simultaneous
@@ -1871,41 +1666,23 @@ for a resource to the server.
 must retrieve the Session ID. As we have seen, the callback procedure
 has the following prototype:
 
-@cartouche
-@smallexample
-@group
-@b{function} Service (Request : @b{in} AWS.Status.Data) @b{return} AWS.Response.Data;
-@end group
-@end smallexample
-@end cartouche
+@AWSEXP {@b{function} Service (Request : @b{in} AWS.Status.Data) @b{return} AWS.Response.Data;}
 
 @noindent
 The Session ID is kept in the Request object and can be retrieved using:
 
-@cartouche
-@smallexample
-@group
-Session_ID  : @b{constant} AWS.Session.ID := AWS.Status.Session (Request);
-@end group
-@end smallexample
-@end cartouche
+@AWSEXP {Session_ID  : @b{constant} AWS.Session.ID := AWS.Status.Session (Request);}
 
 @item From there it is quite easy to get or set some session data using
 the provided API. For example:
 
-@cartouche
-@smallexample
-@group
-@b{declare}
+@AWSEXP {@b{declare}
    C : Integer;
 @b{begin}
    C := AWS.Session.Get (Session_ID, "counter");
    C := C + 1;
    AWS.Session.Set (Session_ID, "counter", C);
-@b{end};
-@end group
-@end smallexample
-@end cartouche
+@b{end};}
 
 @noindent
 This example first get the value (as an Integer) for session data whose
@@ -1943,14 +1720,10 @@ The authentication process is as follow:
 
 @item Send authentication request
 
-@sp 1
 From the callback routine return an authentication request when
 needed.
 
-@cartouche
-@smallexample
-@group
-@b{function} Service (Request : @b{in} Status.Data) @b{return} Response.Data @b{is}
+@AWSEXP {@b{function} Service (Request : @b{in} Status.Data) @b{return} Response.Data @b{is}
    URI  : @b{constant} String := Status.URI (Request);
    User : @b{constant} String := Status.Authorization_Name (Request);
 @b{begin}
@@ -1958,10 +1731,7 @@ needed.
    @b{if} URI (URI'First .. URI'First + 5) = "/prot/" 
      @b{and then} User = ""
    @b{then}
-      @b{return} Response.Authenticate ("AWS", Response.Basic);
-@end group
-@end smallexample
-@end cartouche
+      @b{return} Response.Authenticate ("AWS", Response.Basic);}
 
 The first parameter is the @b{Realm}, it is just a string that will be
 displayed (on the authentication dialog box) by the browser to
@@ -1969,15 +1739,11 @@ indicate for which resource the authentication is needed.
 
 @item Check authentication
 
-@sp 1
 When an authentication as been done the callback's request data
 contain the user and password. Checks the values against an ACL for
 each protected resources.
 
-@cartouche
-@smallexample
-@group
-@b{function} Protected_Service 
+@AWSEXP {@b{function} Protected_Service 
   (Request : @b{in} AWS.Status.Data) 
    @b{return} AWS.Response.Data 
 @b{is}
@@ -1985,10 +1751,7 @@ each protected resources.
    Pwd  : @b{constant} String := Status.Authorization_Password (Request);
 @b{begin}
    @b{if} User = "xyz" @b{and then} Pwd = "azerty" @b{then}
-      @b{return} ...;
-@end group
-@end smallexample
-@end cartouche
+      @b{return} ...;}
 
 @end enumerate
 
@@ -2011,16 +1774,10 @@ enable file upload on the client side the Web page must contain a @b{FORM}
 with an @b{INPUT} tag of type @b{FILE}. The @b{FORM} must also contain
 the @b{enctype} attribute set to @i{multipart/form-data}.
 
-@cartouche
-@smallexample
-@group
-<FORM enctype="multipart/form-data" ACTION=/whatever METHOD=POST>
+@AWSEXP {<FORM enctype="multipart/form-data" ACTION=/whatever METHOD=POST>
 File to process: <INPUT NAME=filename TYPE=FILE>
 <INPUT TYPE=SUBMIT NAME=go VALUE="Send File">
-</FORM>
-@end group
-@end smallexample
-@end cartouche
+</FORM>}
 
 @noindent
 On the server side, AWS will retrieve the file and put it into the
@@ -2085,18 +1842,12 @@ done on both sides to have programs talking together.
 On the client side it is quite simple. You just have to send a message
 using @code{AWS.Communication.Client.Send_Message}.
 
-@cartouche
-@smallexample
-@group
-@b{function} Send_Message
+@AWSEXP {@b{function} Send_Message
   (Server     : @b{in} String;
    Port       : @b{in} Positive;
    Name       : @b{in} String;
    Parameters : @b{in} Parameter_Set := Null_Parameter_Set)
-   @b{return} Response.Data;
-@end group
-@end smallexample
-@end cartouche
+   @b{return} Response.Data;}
 
 @noindent
 The message is sent to the specified server using the given port. A
@@ -2119,10 +1870,7 @@ procedure will must handle all kind of message that a client will send.
 During instantiation you must also pass a context for the communication
 server. This context will be passed back to the callback procedure.
 
-@cartouche
-@smallexample
-@group
-@b{generic}
+@AWSEXP {@b{generic}
 
    @b{type} T (<>) @b{is limited private};
    @b{type} T_Access @b{is access} T;
@@ -2135,19 +1883,12 @@ server. This context will be passed back to the callback procedure.
       @b{return} Response.Data;
 
 @b{package} AWS.Communication.Server @b{is}
-   ...
-@end group
-@end smallexample
-@end cartouche
+   ...}
 
-@cartouche
-@smallexample
-@group
-A complete example can be found in the demos directory. Look for 
-@file{com_1.adb} and @file{com_2.adb}.
-@end group
-@end smallexample
-@end cartouche
+@*
+
+@AWSEXP {A complete example can be found in the demos directory. Look for 
+@file{com_1.adb} and @file{com_2.adb}.}
 
 @noindent
 Note that this communication API is used by the Hotplug module facility
@@ -2185,13 +1926,7 @@ The first step is to properly create the main server hotplug module
 registration file. This file must list all hotplug modules that can
 register into the main server. Each line have the following format:
 
-@cartouche
-@smallexample
-@group
-hotplug_module_name:password:server:port
-@end group
-@end smallexample
-@end cartouche
+@AWSEXP {hotplug_module_name:password:server:port}
 
 @table @b
 
@@ -2223,24 +1958,12 @@ password depends on the hotplug module name. A tool named
 @code{hotplug_password} is provided with @code{AWS} to generate such
 password. Usage is simple:
 
-@cartouche
-@smallexample
-@group
-$ hotplug_password <hotplug_module_name> <password>
-@end group
-@end smallexample
-@end cartouche
+@AWSEXP {$ hotplug_password <hotplug_module_name> <password>}
 
 @noindent
 Then, after starting the main server you must activate the Hotplug feature:
 
-@cartouche
-@smallexample
-@group
-AWS.Server.Hotplug.Activate (WS'Unchecked_Access, 2222, "hotplug_conf.ini");
-@end group
-@end smallexample
-@end cartouche
+@AWSEXP {AWS.Server.Hotplug.Activate (WS'Unchecked_Access, 2222, "hotplug_conf.ini");}
 
 @noindent
 @file{hotplug_conf.ini} is the hotplug module registration file
@@ -2255,37 +1978,22 @@ Here is how to create an Hotplug module:
 @enumerate 1
 
 @item First you create a standard Web server @xref{Building an AWS server}.
-@sp 1
 
-@cartouche
-@smallexample
-@group
-WS : AWS.Server.HTTP
-  (3, 1235, False, Hotplug_CB.Hotplug'Access, False);
-@end group
-@end smallexample
-@end cartouche
+@AWSEXP {WS : AWS.Server.HTTP
+  (3, 1235, False, Hotplug_CB.Hotplug'Access, False);}
 
 Here we have a server listening to the port 1235. This server can be
 used alone if needed as any Server developed with AWS.
-@sp 1
 
 @item Then you register the Hotplug module to the main server
 @xref{AWS.Client.Hotplug}.
-@sp 1
 
-@cartouche
-@smallexample
-@group
-Response := AWS.Client.Hotplug.Register
+@AWSEXP {Response := AWS.Client.Hotplug.Register
   (Name     => "Hotplug_Module_Demo",
    Password => "my_password",
    Server   => "http://dieppe:2222",
    Regexp   => ".*AWS.*",
-   URL      => "http://omsk:1235/");
-@end group
-@end smallexample
-@end cartouche
+   URL      => "http://omsk:1235/");}
 
 @noindent
 The hotplug module @code{Hotplug_Module_Demo} must have been declared
@@ -2297,22 +2005,13 @@ on the machine @code{dieppe} and ask it to redirect all @code{URL}
 containing @code{AWS} to the server running on machine @code{omsk} on
 port @code{1235}.
 
-@sp 1
-
 @item When the Hotplug module is stopped, you must unregister it
-@sp 1
 
-@cartouche
-@smallexample
-@group
-Response := AWS.Client.Hotplug.Unregister
+@AWSEXP {Response := AWS.Client.Hotplug.Unregister
   (Name     => "Hotplug_Module_Demo",
    Password => "my_password",
    Server   => "http://dieppe:2222",
-   Regexp   => ".*AWS.*");
-@end group
-@end smallexample
-@end cartouche
+   Regexp   => ".*AWS.*");}
 
 Here we ask to unregister @code{Hotplug_Module_Demo} from server
 @code{dieppe}. As for the registration process a proper password must
@@ -2320,14 +2019,8 @@ be specified @pxref{Hotplug module - server activation}.
 
 @end enumerate
 
-@cartouche
-@smallexample
-@group
-A complete example can be found in the demos directory. Look for 
-@file{main.adb} and @file{hotplug.adb}.
-@end group
-@end smallexample
-@end cartouche
+@AWSEXP {A complete example can be found in the demos directory. Look for 
+@file{main.adb} and @file{hotplug.adb}.}
 
 @c ----------------------------------------------------------------------
 
@@ -2351,46 +2044,40 @@ Server:
 
 @enumerate
 
-@sp 1
 @item The data to be sent
-@sp 1
+
 First you must create a type that will contains the data to be sent to
 client's browser except if it is a standard Ada type. See
 @code{Client_Output_Type} formal parameter.
 
-@sp 1
 @item The data that will be streamed
-@sp 1
+
 This is the representation of the data that will be sent to client's
 browser. This will be either a @code{String} for Web pages or
 @code{Stream_Element_Array} for binary data like pictures. See
 @code{Stream_Output_Type} formal parameter.
 
-@sp 1
 @item The context
-@sp 1
+
 It is often nice to be able to configure each client with different
 parameters if needed. This can be achieved with the Context data type
 that will be passed as parameter of the conversion function described
 below. See @code{Client_Environment} formal parameter.
 
-@sp 1
 @item Provides a function to convert from the data type to be sent to
 the data that will be streamed.
-@sp 1
+
 This is a function that will transform the data described on point 1
 above to the form described on point 2 above. See
 @code{To_Stream_Output} formal parameter.
 
-@sp 1
 @item Build the Push Server
-@sp 1
+
 To do so you just need to instantiate @code{AWS.Server.Push} with the
 above declarations.
 
-@sp 1
 @item Registering new clients
-@sp 1
+
 In the standard @code{AWS} procedure callback it is possible to register a
 client if requested. This is done by calling
 @code{AWS.Server.Push.Register}. It is possible to unregister a
@@ -2400,12 +2087,10 @@ from the callback procedure you must return the
 @code{AWS.Response.Socket_Taken} message. This is very important, it
 tells the server to not close this socket.
 
-@sp 1
 @item Sending the data
-@sp 1
+
 At this point it is possible to send data to clients. To do so
 two routines are available.
-@sp 1
 
 @table @code
 @item AWS.Server.Push.Send_To
@@ -2452,9 +2137,7 @@ server.
 
 @itemize @bullet
 
-@sp 1
 @item Take a socket from the server
-@sp 1
 
 This first step is done form the callback function. A user instead of
 replying immediatly decides to take away the socket from the
@@ -2468,9 +2151,7 @@ serve other clients.
 Note that this feature is used by the server push implementation 
 @pxref{Server Push}.
 
-@sp 1
 @item Give back the socket to the server
-@sp 1
 
 Calling @code{AWS.Sever.Give_Back_Socket} will register the socket for
 reuse. This socket will be placed into a spool, next time the server
@@ -2507,17 +2188,11 @@ spec. This is very useful to avoid having very big log files.
 @noindent
 The log format is using the same format than the Apache Web server.
 
-@cartouche
-@smallexample
-<client IP> - <auth name> - [<date and time>] "<request>" <status code> <size>
+@AWSEXP {<client IP> - <auth name> - [<date and time>] "<request>" <status code> <size>
 
 For example:
 
-@group
-100.99.12.1 -  - [22/Nov/2000:11:44:14] "GET /whatever HTTP/1.1" 200 1789
-@end group
-@end smallexample
-@end cartouche
+100.99.12.1 -  - [22/Nov/2000:11:44:14] "GET /whatever HTTP/1.1" 200 1789}
 
 @noindent
 @code{AWS} also support error log files. If activated every internal error
@@ -2572,13 +2247,7 @@ rely on, you must have a valid certificate signed by one of the
 The certificate to be used must be specified before starting the
 secure server with @code{AWS.Server.Set_Security}.
 
-@cartouche
-@smallexample
-@group
-AWS.Server.Set_Security (WS, Certificate_Filename => "/xyz/aws.pem");
-@end group
-@end smallexample
-@end cartouche
+@AWSEXP {AWS.Server.Set_Security (WS, Certificate_Filename => "/xyz/aws.pem");}
 
 @node Creating a test certificate
 @subsection Creating a test certificate
@@ -2593,13 +2262,7 @@ test server.
 
 @item The RSA key
 
-@cartouche
-@smallexample
-@group
-$ openssl genrsa -rand <filename> -out ca-key.pem
-@end group
-@end smallexample
-@end cartouche
+@AWSEXP {$ openssl genrsa -rand <filename> -out ca-key.pem}
 
 @noindent
 Filename must be point to any file, this is used to initialized the
@@ -2607,23 +2270,11 @@ random seed.
 
 @item The Certificate
 
-@cartouche
-@smallexample
-@group
-$ openssl req -new -x509 -days 730 -key ca-key.pem -out ca-cert.pem
-@end group
-@end smallexample
-@end cartouche
+@AWSEXP {$ openssl req -new -x509 -days 730 -key ca-key.pem -out ca-cert.pem}
 
 @item Create a single self contained file
 
-@cartouche
-@smallexample
-@group
-$ cat ca-key.pem ca-cert.pem > aws.pem
-@end group
-@end smallexample
-@end cartouche
+@AWSEXP {$ cat ca-key.pem ca-cert.pem > aws.pem}
 
 @end table
 
@@ -2658,17 +2309,11 @@ message or build the answer to be sent back to the client's browser.
 @noindent
 Here is the spec for this handler:
 
-@cartouche
-@smallexample
-@group
-@b{type} Unexpected_Exception_Handler @b{is access}
+@AWSEXP {@b{type} Unexpected_Exception_Handler @b{is access}
   @b{procedure} (E      : @b{in}     Ada.Exceptions.Exception_Occurrence;
              Log    : @b{in out} AWS.Log.Object;
              Error  : @b{in}     Data;
-             Answer : @b{in out} Response.Data);
-@end group
-@end smallexample
-@end cartouche
+             Answer : @b{in out} Response.Data);}
 
 @noindent
 The handler can be called in two modes:
@@ -2778,51 +2423,27 @@ Let's say that you want to retrieve the @code{contrib.html} Web page from
 Pascal Obry's homepage which is @url{http://perso.wanadoo.fr/pascal.obry}. The
 code to do so is:
 
-@cartouche
-@smallexample
-@group
-Data := Client.Get
-  (URL => "http://perso.wanadoo.fr/pascal.obry/contrib.html");
-@end group
-@end smallexample
-@end cartouche
+@AWSEXP {Data := Client.Get
+  (URL => "http://perso.wanadoo.fr/pascal.obry/contrib.html");}
 
 @noindent
 From there you can ask for the result's content type:
 
-@cartouche
-@smallexample
-@group
-@b{if} Response.Content_Type (Data) = "text/html" @b{then}
+@AWSEXP {@b{if} Response.Content_Type (Data) = "text/html" @b{then}
    ...
-@b{end if};
-@end group
-@end smallexample
-@end cartouche
+@b{end if};}
 
 @noindent
 Or using the MIME types defined in @code{AWS.MIME} unit:
 
-@cartouche
-@smallexample
-@group
-@b{if} Response.Content_Type (Data) = MIME.Text_HTML @b{then}
+@AWSEXP {@b{if} Response.Content_Type (Data) = MIME.Text_HTML @b{then}
    ...
-@b{end if};
-@end group
-@end smallexample
-@end cartouche
+@b{end if};}
 
 @noindent
 And display the content if it is some kind of text data:
 
-@cartouche
-@smallexample
-@group
-Text_IO.Put_Line (Response.Message_Body (Data));
-@end group
-@end smallexample
-@end cartouche
+@AWSEXP {Text_IO.Put_Line (Response.Message_Body (Data));}
 
 @noindent
 If the content is some kind of binary data (executable, PNG image, Zip
@@ -2834,19 +2455,13 @@ directory.
 If the Web page is protected and you must pass the request through an
 authenticating proxy, the call will becomes:
 
-@cartouche
-@smallexample
-@group
-Data := Client.Get
+@AWSEXP {Data := Client.Get
   (URL        => "http://www.mydomain.net/protected/index.html"
    User       => "me",
    Pwd        => "mypwd",
    Proxy      => "192.168.67.1",
    Proxy_User => "puser",
-   Proxy_Pwd  => "ppwd");
-@end group
-@end smallexample
-@end cartouche
+   Proxy_Pwd  => "ppwd");}
 
 @noindent
 @cindex upload, client
@@ -3068,10 +2683,7 @@ callback routines.
 This service is a ready to use static page server callback. Using it
 is possible to build a simple static page server, as simple as:
 
-@cartouche
-@smallexample
-@group
-@b{with} AWS.Server;
+@AWSEXP {@b{with} AWS.Server;
 @b{with} AWS.Services.Page_Server;
 
 @b{procedure} WPS @b{is}
@@ -3086,10 +2698,7 @@ is possible to build a simple static page server, as simple as:
    AWS.Server.Wait (AWS.Server.Q_Key_Pressed);
 
    AWS.Server.Shutdown (WS);
-@b{end} WPS;
-@end group
-@end smallexample
-@end cartouche
+@b{end} WPS;}
 
 @noindent
 Build this program and launch it, it will server HTML pages and images
@@ -3209,7 +2818,7 @@ customized splitter algorithm. @pxref{AWS.Services.Split_Pages}.
 @c ======================================================================
 
 @node Using SOAP
-@chapter Using @code{SOAP}
+@chapter Using SOAP
 @cindex SOAP
 @cindex Simple Object Access Protocol
 
@@ -3249,7 +2858,7 @@ the programer to convert such strings to the desired type.
 @c ----------------------------------------------------------------------
 
 @node SOAP Client
-@section @code{SOAP} Client
+@section SOAP Client
 @cindex SOAP Client
 
 @noindent
@@ -3259,72 +2868,41 @@ instructions to call a @code{SOAP} Web Service:
 @enumerate
 
 @item Build the @code{SOAP} parameters
-@sp 1
 
 @noindent
 As for the @code{SOAP} servers, the @code{SOAP} parameters are built using a
 @code{SOAP.Parameters.List} object.
 
-@cartouche
-@smallexample
-@group
-Params : @b{constant} Parameters.List 
-  := +I (10, "v1") & I (32, "v2");
-@end group
-@end smallexample
-@end cartouche
+@AWSEXP {Params : @b{constant} Parameters.List 
+  := +I (10, "v1") & I (32, "v2");}
 
-@sp 1
 @item Build the @code{SOAP} Payload
-@sp 1
 
 @noindent
 The Payload object is the procedure name and the associated parameters.
 
-@cartouche
-@smallexample
-@group
-@b{declare}
+@AWSEXP {@b{declare}
    Payload : Message.Payload.Object;
 @b{begin}
-   Payload := Message.Payload.Build ("Add", Params);
-@end group
-@end smallexample
-@end cartouche
+   Payload := Message.Payload.Build ("Add", Params);}
 
-@sp 1
 @item Call the @code{SOAP} Web Service
-@sp 1
 
 @noindent
 Here we send the above Payload to the Web Server which handles the Web
 Service. Let's say that this server is named @code{myserver}, it is
 listening on port @code{8082} and the @code{SOAPAction} is @code{soapdemo}.
 
-@cartouche
-@smallexample
-@group
-Resp : @b{constant} Message.Response.Object'Class :=
-   SOAP.Client.Call ("http://myserver:8082/soapdemo", Payload);
-@end group
-@end smallexample
-@end cartouche
+@AWSEXP {Resp : @b{constant} Message.Response.Object'Class :=
+   SOAP.Client.Call ("http://myserver:8082/soapdemo", Payload);}
 
-@sp 1
 @item Retrieve the result
-@sp 1
 
 @noindent
 Let's say that the answer is sent back into the parameter named
 "myres", to get it:
 
-@cartouche
-@smallexample
-@group
-My_Res : @b{constant} Integer := SOAP.Parameters.Get (Params, "myres");
-@end group
-@end smallexample
-@end cartouche
+@AWSEXP {My_Res : @b{constant} Integer := SOAP.Parameters.Get (Params, "myres");}
 
 @end enumerate
 
@@ -3332,19 +2910,13 @@ My_Res : @b{constant} Integer := SOAP.Parameters.Get (Params, "myres");
 In the above example we have called a Web Service whose spec could be
 described in Ada as follow:
 
-@cartouche
-@smallexample
-@group
-@b{function} Add (V1, V2 : @b{in} Integer) @b{return} Integer;
-@i{--  Add V1 and V2 and returns the result. In SOAP the result is named "myres"}
-@end group
-@end smallexample
-@end cartouche
+@AWSEXP {@b{function} Add (V1, V2 : @b{in} Integer) @b{return} Integer;
+@i{--  Add V1 and V2 and returns the result. In SOAP the result is named "myres"}}
 
 @c ----------------------------------------------------------------------
 
 @node SOAP Server
-@section @code{SOAP} Server
+@section SOAP Server
 @cindex SOAP Server
 @cindex SOAPAction
 
@@ -3371,26 +2943,19 @@ callback procedure:
 
 @item Retrieve the @code{SOAP} Payload
 @cindex Payload
-@sp 1
 
 @noindent
 The @code{SOAP} Payload is the @code{XML} message, it contains the
 procedure name to be called and the associated parameters.
 
-@cartouche
-@smallexample
-@group
-@b{function} SOAP_CB (Request : @b{in} AWS.Status.Data) 
+@AWSEXP {@b{function} SOAP_CB (Request : @b{in} AWS.Status.Data) 
   @b{return} AWS.Response.Data 
 @b{is}
    @b{use} SOAP.Types;
    @b{use} SOAP.Parameters;
 
    Payload : @b{constant} SOAP.Message.Payload.Object
-     := SOAP.Message.XML.Load_Payload (AWS.Status.Payload (Request));
-@end group
-@end smallexample
-@end cartouche
+     := SOAP.Message.XML.Load_Payload (AWS.Status.Payload (Request));}
 
 @noindent
 @code{AWS.Status.Payload} returns the @code{XML} Payload as sent by
@@ -3398,66 +2963,39 @@ the @code{SOAP} Client. This @code{XML} Payload is then parsed using
 @code{SOAP.Message.XML.Load_Payload} which returns a
 @code{SOAP.Message.Payload.Object} object.
 
-@sp 1
 @item Retrieve the @code{SOAP} Parameters
-@sp 1
 
 The @code{SOAP} procedure's parameters.
 
-@cartouche
-@smallexample
-@group
-Params  : @b{constant} SOAP.Parameters.List
-  := SOAP.Message.Parameters (Payload);
-@end group
-@end smallexample
-@end cartouche
+@AWSEXP {Params  : @b{constant} SOAP.Parameters.List
+  := SOAP.Message.Parameters (Payload);}
 
 @code{SOAP.Parameters.List} is a structure which holds the @code{SOAP}
 parameters. Each parameter can be retrieved using a
 @code{SOAP.Parameters} API, @pxref{SOAP.Parameters}. For example to
 get the parameter named @code{myStruc} which is a @code{SOAP} struct:
 
-@cartouche
-@smallexample
-@group
-My_Struct : @b{constant} SOAP_Record 
-  := SOAP.Parameters.Get (Params, "myStruct");
-@end group
-@end smallexample
-@end cartouche
+@AWSEXP {My_Struct : @b{constant} SOAP_Record 
+  := SOAP.Parameters.Get (Params, "myStruct");}
 
 Another example, to get the parameter named @code{myInt} which is a
 @code{SOAP} integer:
 
-@cartouche
-@smallexample
-@group
-My_Int : @b{constant} Integer := SOAP.Parameters.Get (Params, "myInt");
-@end group
-@end smallexample
-@end cartouche
+@AWSEXP {My_Int : @b{constant} Integer := SOAP.Parameters.Get (Params, "myInt");}
 
-@sp 1
 @item Implements the Web Service
-@sp 1
 
 @noindent
 This is the real job, as for any procedure you can do whatever is
 needed to compute the result.
 
-@sp 1
 @item Build the @code{SOAP} answer
-@sp 1
 
 @noindent
 This is the procedure answer. A @code{SOAP} answer is built from the
 @code{SOAP} Payload and by setting the returned parameters.
 
-@cartouche
-@smallexample
-@group
-@b{declare}
+@AWSEXP {@b{declare}
    Resp        : SOAP.Message.Response.Object;
    Resp_Params : SOAP.Parameters.List;
 @b{begin}
@@ -3465,29 +3003,18 @@ This is the procedure answer. A @code{SOAP} answer is built from the
 
    Resp_Params := +I (My_Int * 2, "answer");
 
-   SOAP.Message.Set_Parameters (Resp, Resp_Params);
-@end group
-@end smallexample
-@end cartouche
+   SOAP.Message.Set_Parameters (Resp, Resp_Params);}
 
 This build a response which is a single integer value named
 @code{answer} with the value @code{My_Int * 2}.
 
-@sp 1
 @item Returns the answer back to the client
-@sp 1
 
 @noindent
 This last step will encode the response object in @code{XML} and will
 returns it as the body of an @code{HTTP} message.
 
-@cartouche
-@smallexample
-@group
-@b{return} SOAP.Message.Response.Build (Resp);
-@end group
-@end smallexample
-@end cartouche
+@AWSEXP {@b{return} SOAP.Message.Response.Build (Resp);}
 
 @end enumerate
 
@@ -3498,17 +3025,11 @@ returns it as the body of an @code{HTTP} message.
 There is two ways to help building the @code{SOAP}
 callbacks. @code{AWS} provides a @code{SOAP} specific callback, the spec is :
 
-@cartouche
-@smallexample
-@group
-@b{function} SOAP_Callback 
+@AWSEXP {@b{function} SOAP_Callback 
   (SOAPAction : @b{in} String;
    Payload    : @b{in} Message.Payload.Object;
    Request    : @b{in} AWS.Status.Data)
-   @b{return} AWS.Response.Data;
-@end group
-@end smallexample
-@end cartouche
+   @b{return} AWS.Response.Data;}
 
 @noindent
 With both solutions exposed below, @code{AWS} retrieve the
@@ -3524,10 +3045,7 @@ is transparent to the user.
 It is possible to dispatch to such callback by using the
 @code{SOAP.Utils.SOAP_Wrapper} generic routine.
 
-@cartouche
-@smallexample
-@group
-@b{generic}
+@AWSEXP {@b{generic}
    @b{with function} SOAP_CB
      (SOAPAction : @b{in} String;
       Payload    : @b{in} Message.Payload.Object;
@@ -3538,18 +3056,12 @@ It is possible to dispatch to such callback by using the
    @b{return} AWS.Response.Data;
 @i{--  From a standard HTTP callback call the SOAP callback passed as generic}
 @i{--  formal procedure. Raise Constraint_Error if Request is not a SOAP}
-@i{--  request.}
-@end group
-@end smallexample
-@end cartouche
+@i{--  request.}}
 
 For example, from the standard HTTP callback @code{CB} we want to call
 @code{SOAP_CB} for all @code{SOAP} requests:
 
-@cartouche
-@smallexample
-@group
-@b{function} SOAP_CB 
+@AWSEXP {@b{function} SOAP_CB 
   (SOAPAction : @b{in} String;
    Payload    : @b{in} Message.Payload.Object;
    Request    : @b{in} AWS.Status.Data)
@@ -3569,10 +3081,7 @@ For example, from the standard HTTP callback @code{CB} we want to call
    @b{if} SOAPAction /= "" @b{then}
       SOAP_Wrapper (Request);
    @b{else}
-      ...
-@end group
-@end smallexample
-@end cartouche
+      ...}
 
 @item Using a SOAP Dispatcher
 @cindex SOAP Dispatcher
@@ -3586,10 +3095,7 @@ the @code{SOAP} callback otherwise it will call the standard @code{HTTP}
 callback. This is by far the easiest integration procedure. Using
 dispatcher the above code will be written:
 
-@cartouche
-@smallexample
-@group
-@b{function} SOAP_CB 
+@AWSEXP {@b{function} SOAP_CB 
   (SOAPAction : @b{in} String;
    Payload    : @b{in} Message.Payload.Object;
    Request    : @b{in} AWS.Status.Data)
@@ -3615,10 +3121,7 @@ dispatcher the above code will be written:
       Dispatcher => 
         SOAP.Dispatchers.Callback.Create (CB'Access, SOAP_CB'Access),
       Config     => 
-        AWS.Config.Default_Config);
-@end group
-@end smallexample
-@end cartouche
+        AWS.Config.Default_Config);}
 
 @noindent
 @cindex SOAP.Dispatchers.Callback
@@ -3630,7 +3133,7 @@ callback procedure and the other is the @code{SOAP} callback procedure.
 @c ======================================================================
 
 @node Using WSDL
-@chapter Using @code{WSDL}
+@chapter Using WSDL
 @cindex WSDL
 @cindex Web Service Definition Language
 
@@ -3670,7 +3173,7 @@ automatically.
 @c ----------------------------------------------------------------------
 
 @node Creating WSDL documents
-@section Creating @code{WSDL} documents
+@section Creating WSDL documents
 @cindex ada2wsdl
 
 @menu
@@ -3693,34 +3196,19 @@ Note that this tool is based on @code{ASIS}.
 @noindent
 The simplest way to use it is:
 
-@cartouche
-@smallexample
-@group
-$ ada2wsdl simple.ads
-@end group
-@end smallexample
-@end cartouche
+@AWSEXP {$ ada2wsdl simple.ads}
 
 @noindent
 Given the following Ada spec file:
 
-@cartouche
-@smallexample
-@group
-@b{package} Simple @b{is}
+@AWSEXP {@b{package} Simple @b{is}
    @b{function} Plus (Value : @b{in} Natural) @b{return} Natural;
-@b{end} Simple;
-@end group
-@end smallexample
-@end cartouche
+@b{end} Simple;}
 
 @noindent
 It will generate the following @code{WSDL} document:
 
-@cartouche
-@smallexample
-@group
-<?xml version="1.0" encoding="UTF-8"?>
+@AWSEXP {<?xml version="1.0" encoding="UTF-8"?>
 <definitions @b{name="Simple"}
    targetNamespace="urn:aws:Simple"
    xmlns:tns="urn:aws:Simple"
@@ -3772,10 +3260,7 @@ It will generate the following @code{WSDL} document:
          <soap:address location="http://.../"/>
       </port>
    </service>
-</definitions>
-@end group
-@end smallexample
-@end cartouche
+</definitions>}
 
 @noindent
 In bold are marked the important parts from a spec point of view. The
@@ -3834,17 +3319,11 @@ only inside a record for full interoperability. This is a current limitation.
 @item Character
 Mapped to a Character schema definition.
 
-@cartouche
-@smallexample
-@group
-<simpleType name="Character">
+@AWSEXP {<simpleType name="Character">
    <restriction base="xsd:string">
       <length value="1"/>
    </restriction>
-</simpleType>
-@end group
-@end smallexample
-@end cartouche
+</simpleType>}
 
 @item SOAP.Utils.SOAP_Base64
 Mapped to @b{xsd:base64Binary}. @code{SOAP.Utils.SOAP_Base64} is a
@@ -3854,54 +3333,33 @@ generate the proper SOAP type.
 @item Enumerations
 Mapped to an enumeration schema definition. For example:
 
-@cartouche
-@smallexample
-@group
-type Color is (Red, Green, Blue);
-@end group
-@end smallexample
-@end cartouche
+@AWSEXP {type Color is (Red, Green, Blue);}
 
 is defined as:
 
-@cartouche
-@smallexample
-@group
-<simpleType name="Color">
+@AWSEXP {<simpleType name="Color">
    <restriction base="xsd:string">
       <enumeration value="Red"/>
       <enumeration value="Green"/>
       <enumeration value="Blue"/>
    </restriction>
-</simpleType>
-@end group
-@end smallexample
-@end cartouche
+</simpleType>}
 
 @item Records
 Mapped to an struct schema definition. For example:
 
-@cartouche
-@smallexample
-@group
-@b{type} Rec @b{is record}
+@AWSEXP {@b{type} Rec @b{is record}
    A : Integer;
    B : Long_Float;
    C : Long_Long_Float;
    D : Character;
    E : Unbounded_String;
    F : Boolean;
-@b{end record};
-@end group
-@end smallexample
-@end cartouche
+@b{end record};}
 
 is defined as:
 
-@cartouche
-@smallexample
-@group
-<complexType name="Rec">
+@AWSEXP {<complexType name="Rec">
    <all>
       <element name="A" type="xsd:int"/>
       <element name="B" type="xsd:float"/>
@@ -3910,37 +3368,22 @@ is defined as:
       <element name="E" type="xsd:string"/>
       <element name="F" type="xsd:boolean"/>
    </all>
-</complexType>
-@end group
-@end smallexample
-@end cartouche
+</complexType>}
 
 @item Arrays
 Mapped to an array schema definition. For example:
 
-@cartouche
-@smallexample
-@group
-@b{type} Set_Of_Rec @b{is array} (Positive @b{range} <>) @b{of} Rec;
-@end group
-@end smallexample
-@end cartouche
+@AWSEXP {@b{type} Set_Of_Rec @b{is array} (Positive @b{range} <>) @b{of} Rec;}
 
 is defined as:
 
-@cartouche
-@smallexample
-@group
-<complexType name="Set_Of_Rec">
+@AWSEXP {<complexType name="Set_Of_Rec">
    <complexContent>
       <restriction base="soap-enc:Array">
          <attribute ref="soap-enc:arrayType" wsdl:arrayType="tns:Rec[]"/>
       </restriction>
    </complexContent>
-</complexType>
-@end group
-@end smallexample
-@end cartouche
+</complexType>}
 
 @item Array inside a record
 This part is a bit delicate. A record field must be constrained but a
@@ -3954,26 +3397,14 @@ when no more reference exists for a given object.
 For example, let's say that we have an array of integer that we want
 to put inside a record:
 
-@cartouche
-@smallexample
-@group
-@b{type} Set_Of_Int @b{is array} (Positive @b{range} <>) @b{of} Integer;
-@end group
-@end smallexample
-@end cartouche
+@AWSEXP {@b{type} Set_Of_Int @b{is array} (Positive @b{range} <>) @b{of} Integer;}
 
 The first step is to create the safe array access support:
 
-@cartouche
-@smallexample
-@group
-@b{type} Set_Of_Int_Access @b{is access} Set_Of_Int;
+@AWSEXP {@b{type} Set_Of_Int_Access @b{is access} Set_Of_Int;
 
 @b{package} Set_Of_Int_Safe_Pointer @b{is}
-   @b{new} SOAP.Utils.Safe_Pointers (Set_Of_Int, Set_Of_Int_Access);
-@end group
-@end smallexample
-@end cartouche
+   @b{new} SOAP.Utils.Safe_Pointers (Set_Of_Int, Set_Of_Int_Access);}
 
 Note that the name @code{Set_Of_Int_Safe_Pointer} (@i{<type>_Safe_Pointer})
 is mandatory (and checked by @file{ada2wsdl}) to achieve
@@ -3981,15 +3412,9 @@ interoperability with @file{wsdl2aws}. @pxref{Working with WSDL documents}.
 
 From there the safe array access can be placed into the record:
 
-@cartouche
-@smallexample
-@group
-@b{type} Complex_Rec @b{is record}
+@AWSEXP {@b{type} Complex_Rec @b{is record}
    SI : Set_Of_Int_Safe_Pointer.Safe_Pointer;
-@b{end record};
-@end group
-@end smallexample
-@end cartouche
+@b{end record};}
 
 To create a Safe_Pointer given a @code{Set_Of_Int} one must use
 @code{Set_Of_Int_Safe_Pointer.To_Safe_Pointer} routine. Accessing
@@ -3998,10 +3423,7 @@ individual items is done with @code{SI.Item (K)}.
 These Ada definitions are full recognized by @file{ada2wsdl} and will
 generate standard array and record @code{WSDL} definitions as seen above.
 
-@cartouche
-@smallexample
-@group
-<complexType name="Set_Of_Int">
+@AWSEXP {<complexType name="Set_Of_Int">
    <complexContent>
       <restriction base="soap-enc:Array">
          <attribute ref="soap-enc:arrayType" wsdl:arrayType="xsd:int[]"/>
@@ -4013,19 +3435,14 @@ generate standard array and record @code{WSDL} definitions as seen above.
    <all>
       <element name="SI" type="tns:Set_Of_Int"/>
    </all>
-</complexType>
-@end group
-@end smallexample
-@end cartouche
+</complexType>}
 
 @end table
 
 @node ada2wsdl
 @subsection ada2wsdl
 
-@smallexample
-Usage: ada2wsdl [options] ada_spec
-@end smallexample
+@AWSEXP{Usage: ada2wsdl [options] ada_spec}
 
 @noindent
 @code{ada2wsdl} options are:
@@ -4081,7 +3498,7 @@ Verbose mode, display the parsed spec.
 @c ----------------------------------------------------------------------
 
 @node Working with WSDL documents
-@section Working with @code{WSDL} documents
+@section Working with WSDL documents
 
 @menu
 * Client side (stub)::
@@ -4106,37 +3523,22 @@ the price as floating point.
 
 The first step is to generate the client interface (stub):
 
-@cartouche
-@smallexample
-@group
-$ wsdl2aws -noskel http://www.xmethods.net/sd/2001/BNQuoteService.wsdl
-@end group
-@end smallexample
-@end cartouche
+@AWSEXP {$ wsdl2aws -noskel http://www.xmethods.net/sd/2001/BNQuoteService.wsdl}
 
 @noindent
 This will create many files, the interesting one at this point is
 @file{bnquoteservice-client.ads}, inside we have:
 
-@cartouche
-@smallexample
-@group
-@b{function} getPrice
+@AWSEXP {@b{function} getPrice
   (isbn : @b{in} String)
    @b{return} Long_Float;
---  @i{Raises SOAP.SOAP_Error if the procedure fails}
-@end group
-@end smallexample
-@end cartouche
+--  @i{Raises SOAP.SOAP_Error if the procedure fails}}
 
 @noindent
 Let's call this service to find out the price for
 @i{The Sword of Shannara Trilogy} book.
 
-@cartouche
-@smallexample
-@group
-@b{with} Ada.Text_IO;
+@AWSEXP {@b{with} Ada.Text_IO;
 @b{with} BNQuoteService.Client;
 
 @b{procedure} Price @b{is}
@@ -4150,10 +3552,7 @@ Let's call this service to find out the price for
 @b{begin}
    Text_IO.Put_Line ("B&N Price for The Sword of Shannara Trilogy");
    LFIO.Put (BNQuoteService.Client.getPrice (ISBN), Aft => 2, Exp => 0);
-@b{end} Price;
-@end group
-@end smallexample
-@end cartouche
+@b{end} Price;}
 
 @noindent
 That's all is needed to use this Web Service. This program is fully
@@ -4172,22 +3571,13 @@ say that you are Barnes & Noble and that you want to build Web Service
 You have created the @code{WSDL} document to specify the service spec.
 From there you can create the skeleton:
 
-@cartouche
-@smallexample
-@group
-$ wsdl2aws -nostub http://www.xmethods.net/sd/2001/BNQuoteService.wsdl
-@end group
-@end smallexample
-@end cartouche
+@AWSEXP {$ wsdl2aws -nostub http://www.xmethods.net/sd/2001/BNQuoteService.wsdl}
 
 @noindent
 This will create many files, the interesting one here is 
 @file{bnquoteservice-server.ads}, inside we have:
 
-@cartouche
-@smallexample
-@group
-Port : @b{constant} := 80;
+@AWSEXP {Port : @b{constant} := 80;
 
 @b{generic}
   @b{with function} getPrice
@@ -4197,20 +3587,14 @@ Port : @b{constant} := 80;
   (SOAPAction : @b{in} String;
    Payload    : @b{in} SOAP.Message.Payload.Object;
    Request    : @b{in} AWS.Status.Data)
-   @b{return} AWS.Response.Data;
-@end group
-@end smallexample
-@end cartouche
+   @b{return} AWS.Response.Data;}
 
 @noindent
 This is a @code{SOAP AWS}'s callback routine that can be instantiated
 with the right routine to retrieve the price of a book given its ISBN
 number. A possible implementation of such routine could be:
 
-@cartouche
-@smallexample
-@group
-@b{function} getPrice
+@AWSEXP {@b{function} getPrice
   (isbn : @b{in} String)
    @b{return} Long_Float @b{is}
 @b{begin}
@@ -4219,10 +3603,7 @@ number. A possible implementation of such routine could be:
    @b{elsif} ...
 @b{end} getPrice;
 
-@b{function} SOAP_getPrice @b{is new} BNQuoteService.Server.getPrice_CB (getPrice);
-@end group
-@end smallexample
-@end cartouche
+@b{function} SOAP_getPrice @b{is new} BNQuoteService.Server.getPrice_CB (getPrice);}
 
 @noindent
 @code{SOAP_getPrice} is a @code{SOAP AWS}'s callback routine (i.e. it is not
@@ -4234,13 +3615,7 @@ a standard callback). To use it there is different solutions:
 This generic function can be used to translate a standard callback
 based on @code{AWS.Status.Data} into a @code{SOAP} callback routine.
 
-@cartouche
-@smallexample
-@group
-@b{function} getPrice_Wrapper @b{is new} SOAP.Utils.SOAP_Wrapper (SOAP_getPrice);
-@end group
-@end smallexample
-@end cartouche
+@AWSEXP {@b{function} getPrice_Wrapper @b{is new} SOAP.Utils.SOAP_Wrapper (SOAP_getPrice);}
 
 @noindent
 The routine @code{getPrice_Wrapper} can be used as any other AWS's
@@ -4256,10 +3631,7 @@ parsed the @code{XML} payload twice, this is not efficient.
 This solution is more efficient if there is many @code{SOAP}
 procedures as the payload is parsed only once.
 
-@cartouche
-@smallexample
-@group
-@b{function} CB (Request : @b{in} Status.Data) @b{return} Response.Data @b{is}
+@AWSEXP {@b{function} CB (Request : @b{in} Status.Data) @b{return} Response.Data @b{is}
    SOAPAction : @b{constant} String := Status.SOAPAction (Request);
    Payload    : @b{constant} SOAP.Message.Payload.Object
      := SOAP.Message.XML.Load_Payload (AWS.Status.Payload (Request));
@@ -4276,10 +3648,7 @@ procedures as the payload is parsed only once.
 
    @b{else}
       ...
-   @b{end if};
-@end group
-@end smallexample
-@end cartouche
+   @b{end if};}
 
 @end table
 
@@ -4388,14 +3757,8 @@ reference the following variable tags:
 The name of the service as described into the @code{WSDL}
 document. This tag can be used to include the right units
 
-@cartouche
-@smallexample
-@group
-@b{with} @@_SOAP_SERVICE_@@.Client;
-@b{with} @@_SOAP_SERVICE_@@.CB;
-@end group
-@end smallexample
-@end cartouche
+@AWSEXP {@b{with} @@_SOAP_SERVICE_@@.Client;
+@b{with} @@_SOAP_SERVICE_@@.CB;}
 
 @item SOAP_VERSION
 The AWS's SOAP version.
@@ -4407,15 +3770,9 @@ The AWS's version.
 The name of the generated unit. This is the name of the procedure that
 will be created.
 
-@cartouche
-@smallexample
-@group
-@b{procedure} @@_UNIT_NAME_@@ @b{is}
+@AWSEXP {@b{procedure} @@_UNIT_NAME_@@ @b{is}
 @b{begin}
-   ...
-@end group
-@end smallexample
-@end cartouche
+   ...}
 
 @end table
 
@@ -4503,10 +3860,7 @@ Using both tools together is an effective way to build rapidely a @code{SOAP}
 server. It can be said that doing so is quite trivial in fact. Let's
 take the following spec:
 
-@cartouche
-@smallexample
-@group
-@b{package} Graphics @b{is}
+@AWSEXP {@b{package} Graphics @b{is}
 
    @b{type} Point @b{is} record
       X, Y : Long_Float;
@@ -4515,34 +3869,19 @@ take the following spec:
    @b{function} Distance (P1, P2 : @b{in} Point) @b{return} Long_Float;
    --  @i{Returns the distance between points P1 and P2}
 
-@b{end} Graphics;
-@end group
-@end smallexample
-@end cartouche
+@b{end} Graphics;}
 
 @noindent
 We do not show the body here but we suppose it is implemented. To
 build a server for this service it is as easy as:
 
-@cartouche
-@smallexample
-@group
-$ ada2wsdl -a http://localhost:8787 -o graphics.wsdl graphics.ads
-@end group
-@end smallexample
-@end cartouche
+@AWSEXP {$ ada2wsdl -a http://localhost:8787 -o graphics.wsdl graphics.ads}
 
 @noindent
 The server will be available on localhost at port 8787.
 
-@cartouche
-@smallexample
-@group
-$ wsdl2aws -cb -main server -types graphics graphics.wsdl
-$ gnatmake server -largs ...
-@end group
-@end smallexample
-@end cartouche
+@AWSEXP {$ wsdl2aws -cb -main server -types graphics graphics.wsdl
+$ gnatmake server -largs ...}
 
 @noindent
 Options
@@ -4588,14 +3927,8 @@ send a simple e-mail:
 
 @item Initialize the SMTP server
 
-@cartouche
-@smallexample
-@group
-SMTP_Server : SMTP.Receiver 
-   := SMTP.Client.Initialize ("smtp.hostname");
-@end group
-@end smallexample
-@end cartouche
+@AWSEXP {SMTP_Server : SMTP.Receiver 
+   := SMTP.Client.Initialize ("smtp.hostname");}
 
 Here @code{AWS} uses the default SMTP port to create an SMTP mail server but
 it is possible to specify a different one. The hostname specified
@@ -4603,13 +3936,9 @@ must be a valid SMTP server.
 
 @item Send the e-mail
 
-@sp 1
 To send an e-mail there is many different API. Let's send a simple text mail.
 
-@cartouche
-@smallexample
-@group
-Status : SMTP.Status;
+@AWSEXP {Status : SMTP.Status;
 
 SMTP.Client.Send 
   (SMTP_Server,
@@ -4617,17 +3946,13 @@ SMTP.Client.Send
    To      => SMTP.E_Mail ("John Doe", "john.doe@@here.com"),
    Subject => "About AWS SMTP protocol",
    Message => "AWS can now send mails",
-   Status  => Status);
-@end group
-@end smallexample
-@end cartouche
+   Status  => Status);}
 
 @noindent
 Here Status will contain the SMTP returned status.
 
 @item Check that everything is ok
 
-@sp 1
 @noindent
 Using above status data it is possible to check that the message was
 sent or not by the server. The status contain a code and an error
@@ -4635,15 +3960,9 @@ message, both of them can be retrieved using specific routines,
 @xref{AWS.SMTP}. It is also possible to check that the call was
 successful with @code{SMTP.Is_Ok} routine.
 
-@cartouche
-@smallexample
-@group
-@b{if not} SMTP.Is_Ok (Status) @b{then}
+@AWSEXP {@b{if not} SMTP.Is_Ok (Status) @b{then}
    Put_Line ("Can't send message: " & SMTP.Status_Message (Status));
-@b{end if};
-@end group
-@end smallexample
-@end cartouche
+@b{end if};}
 
 @end itemize
 
@@ -4687,14 +4006,8 @@ almost not supported by @code{ISP} for the moment (and will probably
 never be supported as a more secure protocol named @code{SPA} -Secure
 Password Authentication- could be used instead).
 
-@cartouche
-@smallexample
-@group
-Mailbox : POP.Mailbox
-   := POP.Initialize ("pop.hostname", "john.does", "mysuperpwd");
-@end group
-@end smallexample
-@end cartouche
+@AWSEXP {Mailbox : POP.Mailbox
+   := POP.Initialize ("pop.hostname", "john.does", "mysuperpwd");}
 
 @noindent
 The default Authentication method is @code{Clear_Text}.
@@ -4706,15 +4019,9 @@ When the connection is opened it is possible to get information about
 the mailbox like the number of messages or the total number of bytes
 in the mailbox.
 
-@cartouche
-@smallexample
-@group
-N     : @b{constant} Natural := POP.Message_Count (Mailbox);
+@AWSEXP {N     : @b{constant} Natural := POP.Message_Count (Mailbox);
 
-Bytes : @b{constant} Natural := POP.Size (Mailbox);
-@end group
-@end smallexample
-@end cartouche
+Bytes : @b{constant} Natural := POP.Size (Mailbox);}
 
 @item Retreiving individual e-mail
 
@@ -4722,13 +4029,7 @@ Bytes : @b{constant} Natural := POP.Size (Mailbox);
 Each message is numbered starting from 1. A function named @code{Get}
 will return a message given its mailbox's number.
 
-@cartouche
-@smallexample
-@group
-Message : @b{constant} POP.Message := POP.Get (Mailbox, 2, Remove => True);
-@end group
-@end smallexample
-@end cartouche
+@AWSEXP {Message : @b{constant} POP.Message := POP.Get (Mailbox, 2, Remove => True);}
 
 @noindent
 Remove can be set to @code{False} for the message to stay on the
@@ -4739,10 +4040,7 @@ mailbox. The default value is @code{False}.
 @noindent
 Another way to retreive message is by using an iterator.
 
-@cartouche
-@smallexample
-@group
-@b{procedure} Print_Subject
+@AWSEXP {@b{procedure} Print_Subject
   (Message : @b{in}     POP.Message
    Index   : @b{in}     Positive;
    Quit    : @b{in out} Boolean) @b{is}
@@ -4754,10 +4052,7 @@ Another way to retreive message is by using an iterator.
 
 ...
 
-Print_All_Subjects (Mailbox, Remove => True);
-@end group
-@end smallexample
-@end cartouche
+Print_All_Subjects (Mailbox, Remove => True);}
 
 @noindent
 It exists a set of routines on a @code{POP.Message} object to get the subject
@@ -4770,24 +4065,15 @@ attachments. See point below.
 A message can have a set of @code{MIME} attachments. The number of
 attachments can be retrieved using @code{Attachment_Count}.
 
-@cartouche
-@smallexample
-@group
-Message : @b{constant} POP.Message := ...;
+@AWSEXP {Message : @b{constant} POP.Message := ...;
 
-A_Count : @b{constant} Natural := POP.Attachment_Count (Message);
-@end group
-@end smallexample
-@end cartouche
+A_Count : @b{constant} Natural := POP.Attachment_Count (Message);}
 
 @noindent
 As for messages it is possible to get a single attachment using its
 index in the message or by using an iterator.
 
-@cartouche
-@smallexample
-@group
-First_Attachment : @b{constant} POP.Attachment := POP.Get (Message, 1);
+@AWSEXP {First_Attachment : @b{constant} POP.Attachment := POP.Get (Message, 1);
 
 @b{procedure} Write_Attachment
   (Attachment : @b{in}     POP.Attachment
@@ -4801,10 +4087,7 @@ First_Attachment : @b{constant} POP.Attachment := POP.Get (Message, 1);
 
 ...
 
-Write_All_Attachments (Message);
-@end group
-@end smallexample
-@end cartouche
+Write_All_Attachments (Message);}
 
 @noindent
 It is also possible to retrieve the attachment's filename, the content
@@ -4812,13 +4095,7 @@ as a memory stream. @pxref{AWS.POP}.
 
 @item Closing the connection
 
-@cartouche
-@smallexample
-@group
-POP.Close (POP_Server);
-@end group
-@end smallexample
-@end cartouche
+@AWSEXP {POP.Close (POP_Server);}
 
 @end itemize
 
@@ -4835,7 +4112,6 @@ POP.Close (POP_Server);
 Note that there is no support for updating, modifying or deleting
 information only to read information from the server.
 
-@sp 1
 @noindent
 The @code{AWS/LDAP} implementation is based on @code{OpenLDAP}. To
 build an LDAP application you need to link with the @file{libldap.a}
@@ -4851,16 +4127,10 @@ The steps required to read information from an LDAP server are:
 
 @item Initialize the LDAP directory
 
-@cartouche
-@smallexample
-@group
-@b{declare}
+@AWSEXP {@b{declare}
    Directory : LDAP.Client.Directory;
 @b{begin}
-   Directory := LDAP.Client.Init (Host);
-@end group
-@end smallexample
-@end cartouche
+   Directory := LDAP.Client.Init (Host);}
 
 Host is the hostname where the LDAP directory is running. It is
 possible to specify the port if the LDAP server does not use the
@@ -4871,13 +4141,7 @@ default one.
 This step is the way to pass a login/password if the LDAP server
 required an authentication. If not, the login/password must be empty strings.
 
-@cartouche
-@smallexample
-@group
-LDAP.Client.Bind (Directory, "", "");
-@end group
-@end smallexample
-@end cartouche
+@AWSEXP {LDAP.Client.Bind (Directory, "", "");}
 
 @item Do the search
 
@@ -4885,16 +4149,10 @@ LDAP.Client.Bind (Directory, "", "");
 For the search you must specify the base name, a filter, the scope and
 a set of attributes to retrieve.
 
-@cartouche
-@smallexample
-@group
-Response_Set := LDAP.Client.Search
+@AWSEXP {Response_Set := LDAP.Client.Search
   (Directory, Base_DN, Filter, LDAP.Client.LDAP_Scope_Subtree,
    LDAP.Client.Attributes
-     ("cn", "sn", "telephonenumber"));
-@end group
-@end smallexample
-@end cartouche
+     ("cn", "sn", "telephonenumber"));}
 
 @table @b
 @item Attributes
@@ -4917,10 +4175,7 @@ For more information @pxref{AWS.LDAP.Client}.
 For this there is two iterators. @code{First_Entry}/@code{Next_Entry} or the
 generic high level iterator @code{For_Every_Entry}.
 
-@cartouche
-@smallexample
-@group
-@b{declare}
+@AWSEXP {@b{declare}
    Message : LDAP.Client.LDAP_Message;
 @b{begin}
    Message := LDAP.Client.First_Entry (Directory, Response_Set);
@@ -4931,10 +4186,7 @@ generic high level iterator @code{For_Every_Entry}.
 
       Message := LDAP.Client.Next_Entry (Directory, Message);
    @b{end loop};
-@b{end};
-@end group
-@end smallexample
-@end cartouche
+@b{end};}
 
 @item Read attributes for each entry
 
@@ -4943,10 +4195,7 @@ Each entry has an associated set of attributes. To retrieve attributes
 values there is two iterators. @code{First_Attribute} / @code{Next_Attribute}
 or the generic high level iterator @code{For_Every_Attribute}.
 
-@cartouche
-@smallexample
-@group
-@b{declare}
+@AWSEXP {@b{declare}
    BER : @b{aliased} LDAP.Client.BER_Element;
 
    Attr : @b{constant} String := LDAP.Client.First_Attribute
@@ -4963,10 +4212,7 @@ or the generic high level iterator @code{For_Every_Attribute}.
          Do_Job (Attr);
       @b{end};
   @b{end loop};
-@b{end};
-@end group
-@end smallexample
-@end cartouche
+@b{end};}
 
 @item Cleanup
 
@@ -4974,18 +4220,11 @@ or the generic high level iterator @code{For_Every_Attribute}.
 At the end of the processing it is important to release memory
 associated with LDAP objects.
 
-@cartouche
-@smallexample
-@group
-LDAP.Client.Free (Message);
-LDAP.Client.Unbind (Directory);
-@end group
-@end smallexample
-@end cartouche
+@AWSEXP {LDAP.Client.Free (Message);
+LDAP.Client.Unbind (Directory);}
 
 @end table
 
-@sp 1
 @noindent
 @pxref{AWS.LDAP.Client} for all high level supported API and documentation.
 
@@ -5042,47 +4281,23 @@ unless the JID have permitted you to see its presence.
 
 @item First declare the server and status objects
 
-@cartouche
-@smallexample
-@group
-Server : AWS.Jabber.Server;
-Status : AWS.Jabber.Presence_Status;
-@end group
-@end smallexample
-@end cartouche
+@AWSEXP {Server : AWS.Jabber.Server;
+Status : AWS.Jabber.Presence_Status;}
 
 @item Connect to the server, you must have an account created and must
 know the login and password
 
-@cartouche
-@smallexample
-@group
-AWS.Jabber.Connect
-  (Server, "jabber.domain.org", "joe", "mysuperpwd");
-@end group
-@end smallexample
-@end cartouche
+@AWSEXP {AWS.Jabber.Connect
+  (Server, "jabber.domain.org", "joe", "mysuperpwd");}
 
 @item Then, to check the presence of user "john"
 
-@cartouche
-@smallexample
-@group
-AWS.Jabber.Check_Presence
-  (Server, "john@@jabber.domain.org", Status);
-@end group
-@end smallexample
-@end cartouche
+@AWSEXP {AWS.Jabber.Check_Presence
+  (Server, "john@@jabber.domain.org", Status);}
 
 @item Then, you just have to close the server
 
-@cartouche
-@smallexample
-@group
-AWS.Jabber.Close (Server);
-@end group
-@end smallexample
-@end cartouche
+@AWSEXP {AWS.Jabber.Close (Server);}
 
 @end itemize
 
@@ -5098,17 +4313,11 @@ the server as above and close the server when you don't need to
 communicate with it anymore. The only different part is to send the
 message, here is an example:
 
-@cartouche
-@smallexample
-@group
-Send_Message
+@AWSEXP {Send_Message
    (Server,
     JID     => "john@@jabber.domain.org",
     Subject => "Hello there!",
-    Content => "Are you using AWS ?");
-@end group
-@end smallexample
-@end cartouche
+    Content => "Are you using AWS ?");}
 
 @noindent
 It is as simple as that !
@@ -5148,13 +4357,7 @@ page containing some text and one PNG image. The text is handled
 directly in the callback procedure and contain a reference to the
 image @file{logo.png}. To build the resource tree:
 
-@cartouche
-@smallexample
-@group
-$ awsres logo.png
-@end group
-@end smallexample
-@end cartouche
+@AWSEXP {$ awsres logo.png}
 
 @noindent
 This will create a set of packages whose root is the unit @code{res} by
