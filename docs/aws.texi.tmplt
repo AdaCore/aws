@@ -41,19 +41,29 @@
 @subtitle AWS - version @_AWS_VERSION_@
 @subtitle Support for SOAP 1.1 - version @_SOAP_VERSION_@
 @subtitle SMTP, POP, LDAP and Jabber protocols.
-@subtitle $Revision$
+@subtitle Document revision level $Revision$
 @subtitle Date: @today{}
-@author Dmitriy Anisimkov (anisimkov@@yahoo.com)
-@author Pascal Obry (pascal@@obry.org)
+@author AdaCore
 
 @sp 1
-@url{http://libre.act-europe.fr}
-@sp 1
-@url{http://www.obry.org}
+@url{http://libre.act-europe.fr/aws}
 
 @vskip 0pt plus 1filll
 
 @page
+
+Copyright @copyright{} 2000, Pascal Obry
+
+Copyright @copyright{} 2001, Pascal Obry, Dmitriy Anisimkov
+
+Copyright @copyright{} 2002-2005, AdaCore
+
+@*
+
+This document may be copied, in whole or in part, in any form or by any
+means, as is or with alterations, provided that (1) alterations are clearly
+marked as alterations and (2) this copyright notice is included
+unmodified in any copy.
 
 @end titlepage
 
@@ -64,18 +74,27 @@
 <p>AWS - version @_AWS_VERSION_@
 <p>Support for SOAP 1.1 - version @_SOAP_VERSION_@
 <p>SMTP, POP, LDAP and Jabber protocols.
-<p>$Revision$
+<p>Document revision level $Revision$
 <p>Date: @today{}
-<p>Dmitriy Anisimkov (anisimkov@@yahoo.com)
-<p>Pascal Obry (pascal@@obry.org)
+<p>AdaCore
 </font>
 
 <font size="+1">
-<p>@url{http://libre.act-europe.fr}
-<p>@url{http://www.obry.org}
+<p>@url{http://libre.act-europe.fr/aws}
 </font>
 
 @page
+
+<p>Copyright @copyright{} 2000, Pascal Obry
+
+<p>Copyright @copyright{} 2001, Pascal Obry, Dmitriy Anisimkov
+
+<p>Copyright @copyright{} 2002-2005, AdaCore
+
+<p>This document may be copied, in whole or in part, in any form or by any
+means, as is or with alterations, provided that (1) alterations are clearly
+marked as alterations and (2) this copyright notice is included
+unmodified in any copy.
 @end html
 @end ifhtml
 
@@ -220,7 +239,7 @@ to use @code{AdaSockets} (@code{AdaSockets} was used in AWS v 1.2) and
 in this case you must install the @code{AdaSockets} package.
 
 On Windows you must use the one distributed at @*
-@url{http://perso.wanadoo.fr/pascal.obry/contrib.html} which is a
+@url{http://www.obry.net/contrib} which is a
 Win32 port (done by Dmitriy Anisimkov) of the ENST version.
 
 On UNIX you must use the socket binding from ENST @*
@@ -230,7 +249,7 @@ On UNIX you must use the socket binding from ENST @*
 @cindex POSIX
 
 On Windows you can use the one distributed at: 
-@url{http://perso.wanadoo.fr/pascal.obry}. On UNIX look for the 
+@url{http://www.obry.net/archive/w32posix}. On UNIX look for the 
 Florist package at @url{http://www.cs.fsu.edu/~baker/florist.html}.
 
 @item OpenSSL (@b{optional}) ;
@@ -282,7 +301,7 @@ OS GNAT has be ported to. This is the @b{default implementation} used.
 Version with @code{POSIX} is compiler and OS independent (well if you
 have a @code{POSIX} implementation for your OS). Check out @code{Florist}
 which is available on many @code{UNIX} and the version for Win32 is
-available on @url{http://perso.wanadoo.fr/pascal.obry/contrib.html}.
+available on @url{http://www.obry.net/contrib}.
 
 @AWSEXP {$ make posix_oslib}
 
@@ -869,8 +888,7 @@ For this you can use the @code{AWS.Server.Wait} service.
 @noindent
 A better solution is to use a template engine like Templates_Parser to
 build the HTML Web Server answer. Templates_Parser module is
-distributed with this version of AWS. For the latest version see
-@url{http://perso.wanadoo.fr/pascal.obry/contrib.html}.
+distributed with this version of AWS.
 
 @node Callback procedure
 @subsection Callback procedure
@@ -4462,8 +4480,7 @@ To display the information @code{AWS} use a template file. The
 template file (default is @file{@_STATUS_PAGE_@}) is an HTML file with
 some specific tags recognized by the parser. For more information
 about how the template parser works, please look for the template
-parser documentation distributed with @code{AWS} or on the Web at
-@url{http://perso.wanadoo.fr/} in the Ada section.
+parser documentation distributed with @code{AWS}.
 
 @noindent
 Here are the tag variables recognized by @code{AWS} status page:
