@@ -92,7 +92,7 @@ force:
 
 aws_docs: aws.texi aws.pdf aws.ps aws.html aws.txt aws.info
 
-sg_docs: style-guide.ps style-guide.pdf style-guide.html style-guide.txt \
+sg_docs: style-guide.pdf style-guide.ps style-guide.html style-guide.txt \
 	style-guide.info
 
 build_doc: prog $(APIFILES) aws_docs sg_docs
@@ -124,7 +124,8 @@ ada.sed: makefile
 
 %.dvi: %.texi
 ifneq (${TEXI2DVI},)
-	-${TEXI2DVI} --clean --quiet $<
+	echo Building $@
+	-${TEXI2DVI} --expand --clean --quiet $<
 else
 	@echo "--------------------------------------------------------"
 	@echo "texi2dvi not found, cannot build DVI or PS documentation"
@@ -133,6 +134,7 @@ endif
 
 %.ps: %.dvi
 ifneq (${DVIPS},)
+	echo Building $@
 	-${DVIPS} -q $< -o $@
 else
 	@echo "------------------------------------------------------"
@@ -143,7 +145,8 @@ endif
 %.pdf: %.texi
 ifneq (${TEXI2DVI},)
 ifneq (${PDFTEX},)
-	${TEXI2DVI} -p --clean $<
+	echo Building $@
+	${TEXI2DVI} -p --expand --clean --quiet $<
 else
 	@echo "-----------------------------------------------"
 	@echo "pdftex not fond, cannot build PDF documentation"
@@ -157,6 +160,7 @@ endif
 
 %.info: %.texi
 ifneq (${MAKEINFO},)
+	echo Building $@
 	-${MAKEINFO} $<
 else
 	@echo "---------------------------------------------------"
@@ -166,7 +170,8 @@ endif
 
 %.html: %.texi
 ifneq (${MAKEINFO},)
-	-${MAKEINFO} --html --no-split --ifinfo $<
+	echo Building $@
+	-${MAKEINFO} --html --no-split --css-include=aws.css --ifinfo $<
 else
 	@echo "---------------------------------------------------"
 	@echo "makeinfo not found, cannot build HTML documentation"
@@ -175,7 +180,8 @@ endif
 
 %.txt: %.texi
 ifneq (${MAKEINFO},)
-	-${MAKEINFO} --no-headers $< > $@
+	echo Building $@
+	-${MAKEINFO} --plaintext --no-headers $< > $@
 else
 	@echo "---------------------------------------------------"
 	@echo "makeinfo not found, cannot build TEXT documentation"
