@@ -116,6 +116,7 @@ demos/zdemo.adb
 demos/zdemo_cb.adb
 demos/zdemo_cb.ads
 docs/TODO
+docs/aws.css
 docs/aws.html
 docs/aws.info*
 docs/aws.pdf
