@@ -29,9 +29,15 @@ endif
 #############################################################################
 
 APP := $(ADA_PROJECT_PATH)
+PTH := $(PATH)
 
 ifeq (${OS}, Windows_NT)
 export ADA_PROJECT_PATH = $(PWD)/.build/projects\;${APP}
+
+AWS_PTH	= $(PWD)/$(BDIR)/lib:$(PWD)/win32:$(PWD)/lib:$(PWD)/$(BDIR)/include/lib
+AWS_PTH	:= $(PWD)/$(BDIR)/ssl/lib:$(PWD)/$(BDIR)/ssl/nlib:$(AWS_PTH)
+AWS_PTH := $(PWD)/$(BDIR)/include/ai302/lib:$(AWS_PTH)
+export PATH = $(AWS_PTH):${PTH}
 else
 export ADA_PROJECT_PATH = $(PWD)/.build/projects:${APP}
 endif
@@ -63,7 +69,8 @@ ALL_OPTIONS	= $(MAKE_OPT) SOCKET="$(SOCKET)" XMLADA="$(XMLADA)" \
 	DLLTOOL="$(DLLTOOL)" DLL2DEF="$(DLL2DEF)" WINDRES="$(WINDRES)" \
 	GNATMAKE_FOR_HOST="$(GNATMAKE_FOR_HOST)" ADASOCKETS="$(ADASOCKETS)" \
 	EXTRA_TESTS="$(EXTRA_TESTS)" GCC="$(GCC)" AWK="$(AWK)" CAT="$(CAT)" \
-	GCC_FOR_HOST="$(GCC_FOR_HOST)" BDIR="$(BDIR)" INSTALL="$(INSTALL)"
+	GCC_FOR_HOST="$(GCC_FOR_HOST)" BDIR="$(BDIR)" INSTALL="$(INSTALL)" \
+	SHARED="$(SHARED)" SOEXT="$(SOEXT)"
 
 build_doc:
 	echo ""
@@ -89,7 +96,7 @@ aws_regtests:
 run_regtests: tp_regtests aws_regtests
 
 common_tarball:
-	$(CHMOD) uog+rx win32/*.dll
+	$(CHMOD) a+rx win32/*.dll
 	(VERSION=`grep " Version" src/aws.ads | cut -d\" -f2`; \
 	AWS=aws-$${VERSION}; \
 	$(MKDIR) $${AWS}; \
@@ -179,7 +186,7 @@ force:
 # Configuration for GNAT Projet Files
 
 EXTRA_MODULES = demos regtests
-MODULES = config ssl include src win32 tools gps ${EXTRA_MODULES}
+MODULES = config ssl include win32 src tools gps ${EXTRA_MODULES}
 
 MODULES_BUILD = ${MODULES:%=%_build}
 
@@ -285,7 +292,8 @@ gxmlada_clean:
 	-$(RM) -f $(PRJDIR)/xmlada.gpr
 
 gai302_internal:
-	echo "project AI302 is" > $(PRJDIR)/ai302.gpr
+	echo 'with "aws_config";' > $(PRJDIR)/ai302.gpr
+	echo 'project AI302 is' >> $(PRJDIR)/ai302.gpr
 	echo '   for Source_Dirs use ("../../include/ai302");' \
 		>> $(PRJDIR)/ai302.gpr
 	echo '   type Build_Type is ("Debug", "Release");' \
@@ -294,12 +302,19 @@ gai302_internal:
 		>> $(PRJDIR)/ai302.gpr
 	echo "   case Build is" >> $(PRJDIR)/ai302.gpr
 	echo '      when "Debug" =>' >> $(PRJDIR)/ai302.gpr
-	echo '         for Object_Dir use "../../.build/debug/include/ai302";' \
+	echo '         for Object_Dir use "../../.build/debug/include/ai302/obj";' \
+		>> $(PRJDIR)/ai302.gpr
+	echo '         for Library_Dir use "../../.build/debug/include/ai302/lib";' \
 		>> $(PRJDIR)/ai302.gpr
 	echo '      when "Release" =>' >> $(PRJDIR)/ai302.gpr
-	echo '         for Object_Dir use "../../.build/release/include/ai302";' \
+	echo '         for Object_Dir use "../../.build/release/include/ai302/obj";' \
 		>> $(PRJDIR)/ai302.gpr
-	echo "   end case;" >> $(PRJDIR)/ai302.gpr
+	echo '         for Library_Dir use "../../.build/release/include/ai302/lib";' \
+		>> $(PRJDIR)/ai302.gpr
+	echo '   end case;' >> $(PRJDIR)/ai302.gpr
+	echo '   for Library_Name use "ai302";' >> $(PRJDIR)/ai302.gpr
+	echo '   for Library_Kind use AWS_Config.Lib_Kind;' \
+		>> $(PRJDIR)/ai302.gpr
 
 	echo '   package Compiler is' >> $(PRJDIR)/ai302.gpr
 	echo '      case Build is' >> $(PRJDIR)/ai302.gpr
@@ -312,7 +327,7 @@ gai302_internal:
 	echo '      end case;' >> $(PRJDIR)/ai302.gpr
 	echo '   end Compiler;' >> $(PRJDIR)/ai302.gpr
 
-	echo "end AI302;" >> $(PRJDIR)/ai302.gpr
+	echo 'end AI302;' >> $(PRJDIR)/ai302.gpr
 
 gai302_external:
 	-$(RM) -f $(PRJDIR)/ai302.gpr
@@ -353,7 +368,12 @@ CONFGPR	= $(PRJDIR)/aws_config.gpr
 
 setup_config:
 	echo 'project AWS_Config is' > $(CONFGPR)
-	echo '   Lib_Kind := "static";' >> $(CONFGPR)
+	echo '   type Lib_Type is ("static", "relocatable");' >> $(CONFGPR)
+ifeq ($(SHARED), true)
+	echo '   Lib_Kind : Lib_Type := "relocatable";' >> $(CONFGPR)
+else
+	echo '   Lib_Kind : Lib_Type := "static";' >> $(CONFGPR)
+endif
 	echo '   for Source_Dirs use ();' >> $(CONFGPR)
 	echo '   type SOCKLIB_Type is ("GNAT", "AdaSockets", "IPv6");' \
 		>> $(CONFGPR)
@@ -403,6 +423,8 @@ install_clean:
 	$(RM) -fr $(I_AGP)
 	$(RM) -fr $(INSTALL)/share/examples/aws
 	$(RM) -fr $(I_DOC)
+	$(RM) -f $(I_GPR)/aws.gpr
+	$(RM) -f $(I_GPR)/aws_ssl.gpr
 
 install_dirs: install_clean
 	$(MKDIR) $(I_BIN)
@@ -426,7 +448,7 @@ install: install_dirs
 	$(CP) -p config/templates_parser-* $(I_INC)
 ifeq (${AI302},Internal)
 	$(CP) -p include/ai302/*.ad? $(I_AIC)
-	$(CP) -p $(BDIR)/include/ai302/* $(I_AIC)
+	$(CP) -p $(BDIR)/include/ai302/lib/* $(I_AIC)
 	$(CP) config/projects/ai302.gpr $(I_AIC)
 	$(SED) -e 's,ai302,\.\./\.\./include/aws/components/ai302/ai302,g' \
 		< config/projects/aws.gpr > $(I_GPR)/aws.gpr
@@ -446,10 +468,7 @@ ifeq ($(XMLADA),true)
 endif
 	$(CP) -p $(BDIR)/lib/* $(I_LIB)
 	-$(CP) -p $(BDIR)/ssl/lib/* $(I_LIB)
-	-$(CP) -p $(BDIR)/ssl/obj/*.ali $(I_LIB)
 	-$(CP) -p $(BDIR)/ssl/nlib/* $(I_LIB)
-	-$(CP) -p $(BDIR)/ssl/nobj/*.ali $(I_LIB)
-	$(CP) lib/libz.a $(I_LIB)
 	-$(CP) docs/aws.html $(I_DOC)
 	-$(CP) -r docs/html $(I_DOC)
 	-$(CP) templates_parser/docs/templates_parser.html $(I_DOC)
@@ -465,8 +484,7 @@ endif
 	$(CP) demos/wm_login.html $(I_TPL)
 	$(CP) demos/aws_*.png $(I_IMG)
 	$(CP) -p include/*.ad? $(I_CPN)
-	-$(CP) -p $(BDIR)/include/*.o $(I_CPN)
-	-$(CP) -p $(BDIR)/include/*.ali $(I_CPN)
+	-$(CP) -p $(BDIR)/include/lib/* $(I_CPN)
 	-$(CP) $(BDIR)/tools/awsres${EXEEXT} $(I_BIN)
 	-$(STRIP) $(I_BIN)/awsres${EXEEXT}
 	-$(CP) $(BDIR)/tools/hotplug_password${EXEEXT} $(I_BIN)
@@ -490,11 +508,20 @@ endif
 	$(CP) config/projects/aws_shared.gpr $(I_AGP)
 	$(CP) config/projects/aws_ssl_support.gpr $(I_AGP)
 	$(CP) $(PRJDIR)/aws_config.gpr $(I_AGP)
+# Copy all shared libraries into the main lib directory
+ifeq (${SHARED}, true)
+	$(CP) -p $(I_LIB)/*$(SOEXT) $(I_LIB)/..
+	$(CP) -p $(I_CPN)/*$(SOEXT) $(I_LIB)/..
+	$(CP) -p $(I_AIC)/*$(SOEXT) $(I_LIB)/..
+	$(CP) -p lib/*$(SOEXT) $(I_LIB)/..
+else
+	$(CP) lib/libz.a $(I_LIB)
+endif
 # Regenerate the SSL project to properly point to the ssl/crypto libraries
 	$(MAKE) -C ssl SOCKET=ssl setup_ssl_install
 	$(CP) ssl/aws_ssl_shared.gpr $(I_AGP)
-	-$(CHMOD) uog-w $(I_LIB)/*
-	-$(CHMOD) uog-w $(I_CPN)/*.ali
+	-$(CHMOD) a-w $(I_LIB)/*
+	-$(CHMOD) a-w $(I_CPN)/*.ali
 # We need to touch the libraries as we have changed the .gpr
 	-$(TOUCH) $(I_LIB)/*.a
 	-$(TOUCH) $(I_LIB)/*$(SOEXT)
