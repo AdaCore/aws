@@ -34,7 +34,6 @@ with "../shared.gpr";
 with "../include/include";
 with "../src/src";
 with "../ssl/nossl";
-with "../win32/win32";
 with "asis";
 
 project Tools is
