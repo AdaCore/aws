@@ -11,20 +11,34 @@ CC = gcc
 CFLAGS = -O3
 #CFLAGS=-g -DDEBUG
 
-LIBZ = ../../lib/libz.a
+LIBZ_static = ../../lib/libz.a
 
-AR = ar
+
+ifeq (${OS}, Windows_NT)
+	LIBZ_shared = ../../lib/z$(SOEXT)
+else
+	LIBZ_shared = ../../lib/libz$(SOEXT)
+endif
+
+ifeq (${SHARED}, true)
+	LIB = $(LIBZ_shared)
+else
+	LIB = $(LIBZ_static)
+endif
 
 OBJS = adler32.o compress.o crc32.o gzio.o uncompr.o deflate.o trees.o \
        zutil.o inflate.o infback.o inftrees.o inffast.o
 
-all: $(LIBZ)
+all: $(LIB)
 
-$(LIBZ): $(OBJS)
+$(LIBZ_static): $(OBJS)
 	$(AR) rc $@ $(OBJS)
 
+$(LIBZ_shared): $(OBJS)
+	$(GCC) -shared -o $@ $(OBJS)
+
 clean:
-	-rm -f $(LIBZ) *.o *~
+	-rm -f $(LIB) *.o *~
 
 # DO NOT DELETE THIS LINE -- make depend depends on it.
 
