@@ -1,3 +1,10 @@
+2005-10-27  Pascal Obry  <pascal@obry.net>
+
+	* ssl.gpr, nossl.gpr:
+	(aws_config): Import project.
+	(Library_Kind): Use AWS_Config.Lib_Kind.
+	Work for D507-003.
+
 2005-10-11  Pascal Obry  <pascal@obry.net>
 
 	* ssl_lib.gpr, crypto_lib.gpr:

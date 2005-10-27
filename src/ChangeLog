@@ -1,3 +1,11 @@
+2005-10-27  Pascal Obry  <pascal@obry.net>
+
+	* src.gpr:
+	(Sources_Dirs): Add ../win32 when building on Windows.
+	(Library_Options) [Windows_NT/relocatable]: Add -laws_win32,
+	 -lwsock32, -lldap, -lws2_32 needed to have a proper DLL build.
+	Work for D507-003.
+
 2005-10-11  Pascal Obry  <pascal@obry.net>
 
 	* src.gpr:

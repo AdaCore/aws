@@ -1,3 +1,14 @@
+2005-10-27  Pascal Obry  <pascal@obry.net>
+
+	* ai302.gpr:
+	Changed to a library project.
+	Update copyright notice.
+	Work for D507-003.
+
+	* aws_components.gpr:
+	Changed to a library project.
+	Work for D507-003.
+
 2005-10-12  Pascal Obry  <pascal@obry.net>
 
 	* aws_crypto_lib.gpr, aws_ssl_lib.gpr:

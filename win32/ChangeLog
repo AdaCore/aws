@@ -1,3 +1,19 @@
+2005-10-27  Pascal Obry  <pascal@obry.net>
+
+	* makefile:
+	(LDIR): New variable.
+	(build): Remove call to gnatmake, not needed anymore.
+	(build_win32): Create a static library with the C support code.
+	(setup_dir): Use LDIR variable.
+	Work for D507-003.
+
+	* win32.gpr:
+	Do not import project src anymore.
+	(Sources_Files): Empty in all case. Poll is now part of the main
+	 src project. The win32 project contains only the object for the C
+	 support code.
+	Work for D507-003.
+
 2005-09-02  Dmitriy Anisimkov <anisimkov@ada-ru.org>
 
 	* libeay32.dll, libssl32.dll:

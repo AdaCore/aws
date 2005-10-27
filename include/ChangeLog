@@ -1,3 +1,14 @@
+2005-10-27  Pascal Obry  <pascal@obry.net>
+
+	* include.gpr:
+	Changed to a library project.
+	Work for D507-003.
+
+	* makefile:
+	(build_zlib): Pass GALL_OPTIONS to make.
+	(setup): Adjust to create the obj/lib directory for include and ai302.
+	Work for D507-003.
+
 2005-09-21  Pascal Obry  <pascal@obry.net>
 
 	* include.gpr:
