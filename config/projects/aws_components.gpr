@@ -28,10 +28,13 @@
 
 --  $Id$
 
+with "../../../lib/gnat/aws/aws_config";
+
 project AWS_Components is
-
-  for Source_Dirs use (".");
-
-  for Object_Dir use ".";
-
+   for Source_Dirs use (".");
+   for Object_Dir use ".."; -- dummy, must be different than Library_Dir
+   for Library_Dir use ".";
+   for Library_Name use "aws_include";
+   for Library_Kind use AWS_Config.Lib_Kind;
+   for Externally_Built use "true";
 end AWS_Components;

@@ -31,6 +31,7 @@
 --  $Id$
 
 with "../../shared";
+with "aws_config";
 
 project Zlib is
 
@@ -40,5 +41,9 @@ project Zlib is
 
    for Source_Dirs use (".");
    for Object_Dir use ".";
+   for Library_Dir use "../../lib";
+   for Library_Name use "z";
+   for Library_Kind use AWS_Config.Lib_Kind;
+   for Externally_Built use "true";
 
 end Zlib;
