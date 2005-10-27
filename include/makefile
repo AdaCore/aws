@@ -7,14 +7,16 @@ force:
 
 build_zlib: force
 	echo "Building libz.a (Zlib library)"
-	${MAKE} -C zlib
+	${MAKE} -C zlib GALL_OPTIONS=$(GALL_OPTIONS)
 
 build: build_zlib
 	$(GNATMAKE) -Pinclude -XAWS_BUILD=${PRJ_BUILD} -XXMLADA=${PRJ_XMLADA}
 
 setup:
-	-$(MKDIR) -p ../$(BDIR)/include
-	-$(MKDIR) -p ../$(BDIR)/include/ai302
+	-$(MKDIR) -p ../$(BDIR)/include/obj
+	-$(MKDIR) -p ../$(BDIR)/include/lib
+	-$(MKDIR) -p ../$(BDIR)/include/ai302/obj
+	-$(MKDIR) -p ../$(BDIR)/include/ai302/lib
 
 clean:
 	${MAKE} -C zlib clean
