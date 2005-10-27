@@ -37,8 +37,11 @@ with "aws_config";
 with "../shared";
 with "../include/include";
 with "../ssl/ssl";
+with "../win32/win32";
 
 project Src is
+
+   for Languages use ("Ada", "Changelog", "Project file", "makefile");
 
    for Source_Dirs
      use (".", "../templates_parser/src", "../config");
@@ -53,7 +56,14 @@ project Src is
          null;
    end case;
 
-   for Languages use ("Ada", "Changelog", "Project file", "makefile");
+   -- For Windows OS add the Win32 directory
+
+   case Shared.OS is
+      when "Windows_NT" =>
+         for Source_Dirs use project'Source_Dirs & ("../win32");
+      when others =>
+         null;
+   end case;
 
    case Shared.Build is
       when "Debug" =>
@@ -62,6 +72,19 @@ project Src is
       when "Release" =>
          for Object_Dir use "../.build/release/obj";
          for Library_Dir use "../.build/release/lib";
+   end case;
+
+   case AWS_Config.Lib_Kind is
+      when "static" =>
+         null;
+      when "relocatable" =>
+         case Shared.OS is
+            when "GNU/Linux" =>
+               null;
+            when "Windows_NT" =>
+               for Library_Options use
+                 ("-laws_win32", "-lwsock32", "-lldap", "-lws2_32");
+         end case;
    end case;
 
    for Library_Name use "aws";
