@@ -31,17 +31,17 @@
 --  $Id$
 
 with "../shared";
-with "../src/src";
 
 project Win32 is
 
+  for Source_Files use ();
+
    case Shared.OS is
       when "Windows_NT" =>
-         for Source_Files use ("poll.adb");
          for Library_Name use "aws_win32";
          for Library_Kind use "static";
       when others =>
-         for Source_Files use ();
+         null;
    end case;
 
    case Shared.Build is
