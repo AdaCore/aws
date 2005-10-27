@@ -197,8 +197,6 @@ implemented:
   It would certainly be easier to support only GNAT.Sockets and use the
   selector facilities instead of the AWS's poll() support.
 
-- Add support for shared libraries.
-
 - Remove use of specific OS_Lib implementations and provide a single
   implementation based on standard Ada.Directories.
 
