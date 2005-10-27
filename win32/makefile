@@ -13,7 +13,7 @@ AWS_COFF	= ../lib/aws.coff
 
 ifeq (${OS}, Windows_NT)
    RES        = $(AWS_COFF)
-   IMPORT_LIB = $(LIBSSL) $(LIBCRYPTO) $(LIBWIN32) $(LIBLDAP)
+   IMPORT_LIB = $(LIBSSL) $(LIBCRYPTO) $(LIBLDAP)
    BUILD      = build_win32
 else
    RES        =
@@ -22,13 +22,14 @@ else
 endif
 
 ODIR = ../$(BDIR)/win32/obj
+LDIR = ../$(BDIR)/win32/lib
 
 force:
 
 build: $(BUILD)
 
 build_win32: $(ODIR)/gai_strerror.o $(ODIR)/wspiapi.o
-	$(GNATMAKE) -Pwin32 -XAWS_BUILD=${PRJ_BUILD}
+	$(AR) cr $(LDIR)/libaws_win32.a $+
 
 $(ODIR)/%.o: %.o
 	$(CP) $< $(ODIR)/$<
@@ -57,6 +58,6 @@ clean:
 
 setup_dir:
 	-$(MKDIR) -p $(ODIR)
-	-$(MKDIR) -p ../$(BDIR)/win32/lib
+	-$(MKDIR) -p $(LDIR)
 
 setup: setup_dir $(RES) $(IMPORT_LIB)
