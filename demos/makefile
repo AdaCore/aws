@@ -4,8 +4,6 @@
 # Try to remove define below after GCC newer then 3.4.2 release.
 # This is for work around bug in project linker sequence.
 
-GCC_342_FIX = -largs -laws
-
 build_res:
 	echo Generate resources for res_demo
 	$(AWSRES) -q -r rdemo adains.png page3.html
@@ -28,9 +26,9 @@ setup:
 	-$(MKDIR) -p ../$(BDIR)/demos/obj
 
 build: build_res $(BUILD_EXT)
-	$(GNATMAKE) -Pdemos -XBuild=${PRJ_BUILD} -XXMLADA=${PRJ_XMLADA} $(GCC_342_FIX)
+	$(GNATMAKE) -Pdemos -XBuild=${PRJ_BUILD} -XXMLADA=${PRJ_XMLADA}
 	$(GNATMAKE) -Pdemos_ssl -XSOCKET=${SOCKET} \
-		-XBuild=${PRJ_BUILD} -XXMLADA=${PRJ_XMLADA} $(GCC_342_FIX)
+		-XBuild=${PRJ_BUILD} -XXMLADA=${PRJ_XMLADA}
 
 clean:
 	$(RM) -fr ../$(BDIR)/demos

@@ -93,8 +93,7 @@ gen_sources: $(sort $(WSDL_TESTS) $(WSDL_ATESTS) $(ASIS_TESTS) \
 build_drivers: gen_main
 	echo "Building drivers (takes some time)"
 	$(GNATMAKE) -q -m -Pregtests -XTest_Mode=Grouped \
-		-XBuild=${PRJ_BUILD} -XXMLADA=${PRJ_XMLADA} -largs -laws
-# ??? "-largs -laws" to workaround a GCC 3.4.2 project link bug.
+		-XBuild=${PRJ_BUILD} -XXMLADA=${PRJ_XMLADA}
 
 empty:=
 space:= $(empty) $(empty)
