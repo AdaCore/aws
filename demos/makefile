@@ -1,9 +1,6 @@
 
 # $Id$
 
-# Try to remove define below after GCC newer then 3.4.2 release.
-# This is for work around bug in project linker sequence.
-
 build_res:
 	echo Generate resources for res_demo
 	$(AWSRES) -q -r rdemo adains.png page3.html
