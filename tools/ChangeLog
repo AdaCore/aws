@@ -1,3 +1,8 @@
+2005-10-28  Dmitriy Anisimkov <anisimkov@ada-ru.org>
+
+	* makefile:
+	Remove '-largs -laws' workaround of GCC 3.4.2 bug.
+
 2005-10-27  Pascal Obry  <pascal@obry.net>
 
 	* tools.gpr:
