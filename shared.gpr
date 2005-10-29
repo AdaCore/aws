@@ -35,8 +35,8 @@ project Shared is
    type Build_Type is ("Debug", "Release");
    Build : Build_Type := external ("PRJ_BUILD", "Debug");
 
-   type OS_Type is ("GNU/Linux", "Windows_NT");
-   OS : OS_Type := external ("OS", "GNU/Linux");
+   type OS_Type is ("UNIX", "Windows_NT");
+   OS : OS_Type := external ("OS", "UNIX");
 
    type Socket_Type is ("std", "ssl");
    Socket : Socket_Type := external ("SOCKET", "std");
