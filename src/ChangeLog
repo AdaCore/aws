@@ -1,3 +1,8 @@
+2005-10-29  Pascal Obry  <pascal@obry.net>
+
+	* src.gpr:
+	(Shares.OS) [case]: Use others instead of "GNU/Linux".
+
 2005-10-27  Pascal Obry  <pascal@obry.net>
 
 	* src.gpr:
