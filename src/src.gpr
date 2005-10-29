@@ -79,11 +79,11 @@ project Src is
          null;
       when "relocatable" =>
          case Shared.OS is
-            when "GNU/Linux" =>
-               null;
             when "Windows_NT" =>
                for Library_Options use
                  ("-laws_win32", "-lwsock32", "-lldap", "-lws2_32");
+            when others =>
+               null;
          end case;
    end case;
 
