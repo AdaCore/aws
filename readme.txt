@@ -4,7 +4,7 @@
 
 Authors:
    Dmitriy Anisimkov
-   Pascal Obry                                               August 16th, 2005
+   Pascal Obry                                              November 1st, 2005
 
 
 
@@ -90,6 +90,13 @@ Here are the main changes since AWS 2.1 :
    - MIME.Content_Type routine has now a default parameter. It is possible to
      specify something else than the application/octet-stream default mime
      type.
+
+   - Add a new dispatcher (Linker) to chain two other dispatchers.
+
+   - Add a Download Manager to free the main server from serving long
+     downloads. This Download Manager contains a waiting queue and send
+     appropriate response to the client about the status of the download
+     (position in the waiting queue, download about to start).
 
    - Plus many small fixes, enhancements, API comments, and documentation work.
 
