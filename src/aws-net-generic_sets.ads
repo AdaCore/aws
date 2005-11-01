@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2004                            --
---                                ACT-Europe                                --
+--                         Copyright (C) 2004-2005                          --
+--                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -28,7 +28,7 @@
 
 --  $Id$
 
---  Waiting on group of sockets for input/output availability.
+--  Waiting on group of sockets for input/output availability
 
 with Ada.Finalization;
 
@@ -96,7 +96,7 @@ package AWS.Net.Generic_Sets is
      (Set    : in out Socket_Set_Type;
       Index  : in     Socket_Index;
       Mode   : in     Waiting_Mode);
-   --  Change waiting mode for the socket in the set.
+   --  Change waiting mode for the socket in the set
 
    function Count (Set : in Socket_Set_Type) return Socket_Count;
    pragma Inline (Count);
@@ -114,7 +114,7 @@ package AWS.Net.Generic_Sets is
       Timeout : in     Duration;
       Count   :    out Socket_Count);
    --  Wait for a socket in the set to be ready for input or output operation.
-   --  Raises Socket_Error if an error occurs. Count would return number of
+   --  Raises Socket_Error if an error occurs. Count is set with the number of
    --  activated sockets.
 
    function Is_Read_Ready
@@ -133,7 +133,7 @@ package AWS.Net.Generic_Sets is
    pragma Inline (Is_Read_Ready);
    --  Return True in Ready out parameter if data could be read from socket and
    --  socket was in Input or Both waiting mode. Return True in Error out
-   --  parameter if socket become into the error state.
+   --  parameter if socket is in error state.
 
    function Is_Write_Ready
      (Set   : in Socket_Set_Type;
