@@ -59,10 +59,12 @@ APIFILES = ../src/aws.ads.texi \
 	../src/aws-server.ads.texi \
 	../src/aws-services-callbacks.ads.texi \
 	../src/aws-services-directory.ads.texi \
+	../src/aws-services-dispatchers-linker.ads.texi \
 	../src/aws-services-dispatchers-method.ads.texi \
 	../src/aws-services-dispatchers-uri.ads.texi \
 	../src/aws-services-dispatchers-virtual_host.ads.texi \
 	../src/aws-services-dispatchers.ads.texi \
+	../src/aws-services-download.ads.texi \
 	../src/aws-services-page_server.ads.texi \
 	../src/aws-services-split_pages.ads.texi \
 	../src/aws-services-split_pages-uniform.ads.texi \
@@ -181,7 +183,7 @@ endif
 %.txt: %.texi
 ifneq (${MAKEINFO},)
 	echo Building $@
-	-${MAKEINFO} --plaintext --no-headers $< > $@
+	-${MAKEINFO} --plaintext --no-headers $< --output $@
 else
 	@echo "---------------------------------------------------"
 	@echo "makeinfo not found, cannot build TEXT documentation"
