@@ -252,6 +252,8 @@ regtests/auth2.adb
 regtests/auth2.out
 regtests/aws.ini
 regtests/aws.mime
+regtests/aws_download_manager_start.thtml
+regtests/aws_download_manager_waiting.thtml
 regtests/back_pack.adb
 regtests/back_pack.ads
 regtests/cert.adb
@@ -277,6 +279,8 @@ regtests/dispatch_method.out
 regtests/dispatch_vh.adb
 regtests/dispatch_vh.ini
 regtests/dispatch_vh.out
+regtests/dm.adb
+regtests/dm.out
 regtests/dummy.adb
 regtests/dummy.out
 regtests/eres.adb
@@ -632,6 +636,8 @@ src/aws-services-callbacks.adb
 src/aws-services-callbacks.ads
 src/aws-services-directory.adb
 src/aws-services-directory.ads
+src/aws-services-dispatchers-linker.adb
+src/aws-services-dispatchers-linker.ads
 src/aws-services-dispatchers-method.adb
 src/aws-services-dispatchers-method.ads
 src/aws-services-dispatchers-timer.adb
@@ -643,6 +649,8 @@ src/aws-services-dispatchers-uri.ads
 src/aws-services-dispatchers-virtual_host.adb
 src/aws-services-dispatchers-virtual_host.ads
 src/aws-services-dispatchers.ads
+src/aws-services-download.adb
+src/aws-services-download.ads
 src/aws-services-page_server.adb
 src/aws-services-page_server.ads
 src/aws-services-split_pages-alpha-bounded.adb
