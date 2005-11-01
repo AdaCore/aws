@@ -1,3 +1,9 @@
+2005-11-01  Pascal Obry  <pascal@obry.net>
+
+	* win32.gpr:
+	(Languages): Add attribute (project contains only C sources).
+        (Externaly_Built): New attribute set to true.
+
 2005-10-27  Pascal Obry  <pascal@obry.net>
 
 	* makefile:
