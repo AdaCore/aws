@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2001                          --
---                                ACT-Europe                                --
+--                         Copyright (C) 2000-2005                          --
+--                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -57,5 +57,9 @@ package AWS.Services.Dispatchers is
    --
    --  Timer (AWS.Services.Dispatchers.Timer)
    --     to dispatch to a specific callback depending on the current time.
+   --
+   --  Linker (AWS.Services.Dispatchers.Linker)
+   --     to link two dispatchers together, if the first one retruns 404 tries
+   --     the second one.
 
 end AWS.Services.Dispatchers;
