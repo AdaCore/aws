@@ -78,14 +78,14 @@ package AWS.Hotplug is
    procedure Move_Up
      (Filters : in Filter_Set;
       N       : in Positive);
-   --  Move filters number N up one position, it gives filter number N a
-   --  better priority.
+   --  Move filter number N up one position, it gives filter number N an
+   --  higher priority.
 
    procedure Move_Down
      (Filters : in Filter_Set;
       N       : in Positive);
-   --  Move filters number N down one position, it gives filter number N less
-   --  priority.
+   --  Move filter number N down one position, it gives filter number N a
+   --  lower priority.
 
 private
 
