@@ -1,3 +1,17 @@
+2005-11-01  Pascal Obry  <pascal@obry.net>
+
+	* aws_download_manager_waiting.thtml:
+	Initial revision.
+        Work for EB01-001.
+
+	* aws_download_manager_start.thtml:
+	Initial revision.
+        Work for EB01-001.
+
+	* dm.adb, dm.out:
+	New test for the download manager.
+        Work for EB01-001.
+
 2005-10-28  Dmitriy Anisimkov <anisimkov@ada-ru.org>
 
 	* makefile:

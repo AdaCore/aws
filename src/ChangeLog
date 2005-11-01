@@ -1,3 +1,73 @@
+2005-11-01  Pascal Obry  <pascal@obry.net>
+
+	* aws-services-dispatchers.ads:
+	Add documentation for the new Linker child.
+        Update copyright notice.
+        Work for EB01-001.
+
+	* aws-response.ads, aws-response.adb:
+        (URL): Add parameter Cache_Control.
+        (Moved): Idem.
+        Minor reformatting.
+        Update copyright notice.
+        Work for EB01-001.
+
+	* aws-default.ads:
+        (Max_Concurrent_Download): New constant set to 25.
+        Update copyright notice.
+        Work for EB01-001.
+
+	* aws-config.ads:
+        (Max_Concurrent_Download): New routine.
+        (Parameter_Name): Add Max_Concurrent_Download.
+        (Process_Parameter_Name): Include Max_Concurrent_Download.
+        (Process_Options): Add support for Max_Concurrent_Download.
+        Update copyright notice.
+        Work for EB01-001.
+
+	* aws-config.adb:
+        (Max_Concurrent_Download): New routine.
+        Update copyright notice.
+        Work for EB01-001.
+
+	* aws-services-dispatchers-method.adb,
+          aws-services-dispatchers-timer.adb,
+          aws-services-dispatchers-uri.adb:
+	(Dispatch): Returns 404 is the routine cannot found the needed
+         resource. Cleaner and required for the new Dispatchers.Linker
+         service.
+        Update copyright notice.
+        Work for EB01-001.
+
+	* aws-services-dispatchers-virtual_host.adb:
+	(Dispatch): Returns 404 is the routine cannot found the needed
+         resource. Cleaner and required for the new Dispatchers.Linker
+         service.
+        Work for EB01-001.
+
+	* aws-services-download.ads, aws-services-download.adb:
+	Initial revision.
+        Work for EB01-001.
+
+	* aws-services-dispatchers-linker.ads,
+          aws-services-dispatchers-linker.adb:
+	Initial revision.
+        Work for EB01-001.
+
+	* aws-server-http_utils.adb:
+	Minor reformatting.
+
+	* aws-net-generic_sets.adb:
+        (Wait): Properly handle the case where the set is empty.
+        Found while working on EB01-001.
+
+	* aws-net-generic_sets.ads:
+	Fix some comments.
+        Update copyright notice.
+
+	* aws-net-acceptors.adb:
+	Minor reformatting.
+
 2005-10-29  Pascal Obry  <pascal@obry.net>
 
 	* src.gpr:
