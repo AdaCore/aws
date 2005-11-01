@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2003                          --
---                               ACT-Europe                                 --
+--                         Copyright (C) 2000-2005                          --
+--                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -277,6 +277,15 @@ package body AWS.Config is
    begin
       return To_String (O.P (Logo_Image).Str_Value);
    end Logo_Image;
+
+   -----------------------------
+   -- Max_Concurrent_Download --
+   -----------------------------
+
+   function Max_Concurrent_Download return Positive is
+   begin
+      return Process_Options (Max_Concurrent_Download).Pos_Value;
+   end Max_Concurrent_Download;
 
    --------------------
    -- Max_Connection --

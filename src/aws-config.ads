@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2003                          --
---                               ACT-Europe                                 --
+--                         Copyright (C) 2000-2005                          --
+--                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -294,6 +294,11 @@ package AWS.Config is
    --  Number of seconds to keep a transient page. After this period the
    --  transient page is obsoleted and will be removed during next cleanup.
 
+   function Max_Concurrent_Download return Positive;
+   pragma Inline (Max_Concurrent_Download);
+   --  Number of maximum concurrent download supported by the download manager
+   --  service.
+
 private
 
    --  List of token (keyword) recognized by the parser. There must be one
@@ -344,18 +349,18 @@ private
       Session_Cleanup_Interval,
       Session_Lifetime,
       Transient_Cleanup_Interval,
-      Transient_Lifetime);
+      Transient_Lifetime,
+      Max_Concurrent_Download);
 
    subtype Server_Parameter_Name is Parameter_Name
      range Server_Name .. Case_Sensitive_Parameters;
 
    subtype Process_Parameter_Name is Parameter_Name
-     range Session_Cleanup_Interval .. Transient_Lifetime;
+     range Session_Cleanup_Interval .. Max_Concurrent_Download;
 
    type Value_Type  is (Str, Dir, Pos, Dur, Bool);
 
    type Values (Kind : Value_Type := Str) is record
-
       case Kind is
          when Str =>
             Str_Value : Unbounded_String;
@@ -515,6 +520,9 @@ private
            (Dur, Default.Transient_Cleanup_Interval),
 
          Transient_Lifetime =>
-           (Dur, Default.Transient_Lifetime));
+           (Dur, Default.Transient_Lifetime),
+
+         Max_Concurrent_Download    =>
+           (Pos, Default.Max_Concurrent_Download));
 
 end AWS.Config;
