@@ -32,7 +32,7 @@
 with Ada.Strings.Fixed;
 
 with AWS.Dispatchers.Callback;
-with AWS.MIME;
+with AWS.Messages;
 with AWS.Status;
 with AWS.Parameters;
 
@@ -96,8 +96,8 @@ package body AWS.Services.Dispatchers.Virtual_Host is
       end if;
 
       if Dispatcher.Action = null then
-         return AWS.Response.Build
-           (MIME.Text_HTML,
+         return Response.Acknowledge
+           (Messages.S404,
             "<p>Virtual Hosting is activated but no virtual host match "
             & Status.Host (Request)
             & "<p>Please check your AWS Virtual Host configuration");
@@ -111,7 +111,7 @@ package body AWS.Services.Dispatchers.Virtual_Host is
    --------------
 
    procedure Finalize (Dispatcher : in out Handler) is
-      Cursor  : Virtual_Host_Table.Cursor;
+      Cursor : Virtual_Host_Table.Cursor;
    begin
       Finalize (AWS.Dispatchers.Handler (Dispatcher));
 
