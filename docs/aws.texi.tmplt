@@ -2504,6 +2504,7 @@ Refer to the Ada spec for a complete API and usage description.
 * Static Page server::
 * Transient Pages::
 * Split pages::
+* Download Manager::
 @end menu
 
 @c ----------------------------------------------------------------------
@@ -2550,6 +2551,7 @@ expressions depending on the service)
 * Virtual host dispatcher::
 * Transient pages dispatcher::
 * Timer dispatcher::
+* Linker dispatcher::
 * SOAP dispatcher::
 @end menu
 
@@ -2675,8 +2677,18 @@ a second.
 
 @end table
 
+@node Linker dispatcher
+@subsection Linker dispatcher
+@cindex Dispatchers Linker
+@cindex linker, dispatcher
+
+@noindent
+A dispatcher that can be used to chain two dispatchers. The response
+of the first dispatcher is returned except if it is a 404 (Not Found)
+error. In this case, the response of the second dispatcher is returned.
+
 @node SOAP dispatcher
-@subsection @code{SOAP} dispatcher
+@subsection SOAP dispatcher
 @cindex Dispatchers SOAP
 @cindex SOAP, dispatcher
 
@@ -2832,6 +2844,132 @@ Max_Per_Page lines. @pxref{AWS.Services.Split_Pages.Uniform.Overlapping}.
 @noindent
 Using the spliter abstract interface it is possible to build a
 customized splitter algorithm. @pxref{AWS.Services.Split_Pages}.
+
+@c ----------------------------------------------------------------------
+
+@node Download Manager
+@section Download Manager
+@cindex Download Manager
+
+@noindent
+A server that need to handle lot of large downloads can run out of
+connection to answer the standard Web pages. A solution is to increase the
+number of simultaneous connections, but this is not really efficient
+as a task is created for each connection and does not ensure that all
+the connections will be used for the downloads anyway.
+
+@noindent
+The download manager can be used for that, and provides the following
+feature:
+
+@itemize
+@item use a single task for all downloads
+@item can be configured to limit the number of simultaneous connections
+@item downloads past this limit are queued
+@item send messages to the client with the position in the waiting line
+@item send messages to the client when the download is about to start
+@end itemize
+
+@noindent
+The server must be configured to use dispatchers (standard callbacks
+are not supported, note that it is possible to create a dispatcher for
+standard callbacks. @pxref{AWS.Dispatchers.Callback}).
+
+@noindent
+To start the download manager you need to pass the main server
+dispatcher object. The start routine will return a new dispatcher,
+linked with the download server specific dispatcher, that must be used
+to start the standard Web server. See comment in
+@pxref{AWS.Services.Download}.
+
+@noindent
+To queue a download request in the download manager you just need to
+create a stream object (can be any kind of stream, see
+@code{AWS.Resources.Streams.*}) for the resource to download.
+
+@noindent
+The download manager needs two templates files:
+
+@table @code
+
+@item aws_download_manager_waiting.thtml
+
+This template is used for sending a message to the client when the
+request is on the waiting line. The tags defined in this template file
+are:
+
+@table @b
+@item NAME
+the name of the resource to download (the filename), this is the
+default filename used for the client side save dialog.
+
+@item RES_URI
+the URI used to access the resource.
+
+@item POSITION
+the position in the waiting line (not counting the current served clients).
+@end table
+
+@item aws_download_manager_start.thtml
+
+This template is used for sending a message to the client when the
+download is about to start (the request is out of the waiting
+line). The tags defined in this template file are:
+
+@table @b
+@item NAME
+as above
+
+@item RES_URI
+as above
+@end table
+@end table
+
+@noindent
+It is important to note that those templates must be reloaded
+periodically. The best way to do that in the context of an @code{HTML}
+document is to use a meta-tag. For example to refresh the page every
+two seconds:
+
+@AWSEXP{<meta http-equiv="refresh" content="2">}
+
+@noindent
+The templates could look like:
+
+@table @code
+@item aws_download_manager_waiting.thtml
+
+@AWSEXP{<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+        "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+  <meta http-equiv="refresh" content="2">
+  <title>Download Manager - waiting</title>
+</head>
+<body>
+  <p>Waiting for downloading @@_NAME_@@
+  <p>Position in the waiting line @@_POSITION_@@
+</body>
+</html>
+}
+
+@item aws_download_manager_start.thtml
+
+@AWSEXP{<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+        "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+  <meta http-equiv="refresh" content="2">
+  <title>Download Manager - waiting</title>
+</head>
+<body>
+  <p>Waiting for downloading @@_NAME_@@
+  <p>The download will start in a moment
+</body>
+</html>
+}
+
+@end table
 
 @c ======================================================================
 
@@ -3037,7 +3175,7 @@ returns it as the body of an @code{HTTP} message.
 @end enumerate
 
 @node SOAP helpers
-@subsection @code{SOAP} helpers
+@subsection SOAP helpers
 
 @noindent
 There is two ways to help building the @code{SOAP}
@@ -5003,9 +5141,11 @@ AWS User's API:
 * AWS.Services.Callbacks::
 * AWS.Services.Directory::
 * AWS.Services.Dispatchers::
+* AWS.Services.Dispatchers.Linker::
 * AWS.Services.Dispatchers.Method::
 * AWS.Services.Dispatchers.URI::
 * AWS.Services.Dispatchers.Virtual_Host::
+* AWS.Services.Download::
 * AWS.Services.Page_Server::
 * AWS.Services.Split_Pages::
 * AWS.Services.Split_Pages.Alpha::
@@ -5369,6 +5509,13 @@ SOAP User's API:
 @include aws-services-dispatchers.ads.texi
 
 @page
+@node AWS.Services.Dispatchers.Linker
+@appendixsec AWS.Services.Dispatchers.Linker
+@cindex AWS.Services.Dispatchers.Linker
+
+@include aws-services-dispatchers-linker.ads.texi
+
+@page
 @node AWS.Services.Dispatchers.Method
 @appendixsec AWS.Services.Dispatchers.Method
 @cindex AWS.Services.Dispatchers.Method
@@ -5388,6 +5535,13 @@ SOAP User's API:
 @cindex AWS.Services.Dispatchers.Virtual_Host
 
 @include aws-services-dispatchers-virtual_host.ads.texi
+
+@page
+@node AWS.Services.Download
+@appendixsec AWS.Services.Download
+@cindex AWS.Services.Download
+
+@include aws-services-download.ads.texi
 
 @page
 @node AWS.Services.Page_Server
