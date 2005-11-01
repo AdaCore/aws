@@ -2,7 +2,7 @@
 --                              Ada Web Server                              --
 --                                                                          --
 --                            Copyright (C) 2005                            --
---                                ACT-Europe                                --
+--                                  AdaCore                                 --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -33,12 +33,12 @@ with Ada.Streams;
 
 package body AWS.Net.Acceptors is
 
-   Server_Index : constant := 1;
-   Signal_Index : constant := 2;
-   First_Index  : constant := 3;
+   Server_Index     : constant := 1;
+   Signal_Index     : constant := 2;
+   First_Index      : constant := 3;
 
-   Shutdown_Command      : constant := 0;
-   Socket_Command        : constant := 1;
+   Shutdown_Command : constant := 0;
+   Socket_Command   : constant := 1;
 
    --------------
    -- Finalize --
@@ -60,13 +60,13 @@ package body AWS.Net.Acceptors is
       Socket   :    out Socket_Access)
    is
       use type Sets.Socket_Count;
-      Ready, Error  : Boolean;
-      Wait_Timeout  : Duration;
-      First   : constant Boolean := True;
-      Timeout : array (Boolean) of Duration;
+      Ready, Error : Boolean;
+      Wait_Timeout : Duration;
+      First        : constant Boolean := True;
+      Timeout      : array (Boolean) of Duration;
    begin
       if Sets.Count (Acceptor.Set) = 0 then
-         --  After shutdown of the server socket.
+         --  After shutdown of the server socket
          raise Socket_Error;
       end if;
 
@@ -102,7 +102,7 @@ package body AWS.Net.Acceptors is
                end if;
 
             else
-               --  Check for timeout.
+               --  Check for timeout
 
                declare
                   use Ada.Calendar;
@@ -197,7 +197,7 @@ package body AWS.Net.Acceptors is
                            Shutdown (Socket.all);
 
                            --  We could free other sockets, becuse it is not
-                           --  using anywhere else whan it is in socket set
+                           --  using anywhere else whan it is in socket set.
 
                            Free (Socket);
                         end loop;
@@ -259,7 +259,7 @@ package body AWS.Net.Acceptors is
       Acceptor.First_Timeout       := First_Timeout;
       Acceptor.Force_First_Timeout := Force_First_Timeout;
 
-      --  Take in account 2 auxiliary sockets, Server and R_Signal.
+      --  Take in account 2 auxiliary sockets, Server and R_Signal
 
       if Force_Length >= Positive'Last - 2 then
          Acceptor.Force_Length := Sets.Socket_Count (Force_Length);
