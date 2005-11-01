@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2003-2004                          --
---                                ACT-Europe                                --
+--                         Copyright (C) 2003-2005                          --
+--                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -32,7 +32,7 @@
 with Ada.Unchecked_Deallocation;
 
 with AWS.Dispatchers.Callback;
-with AWS.MIME;
+with AWS.Messages;
 
 package body AWS.Services.Dispatchers.Timer is
 
@@ -272,8 +272,8 @@ package body AWS.Services.Dispatchers.Timer is
          return Dispatch (Dispatcher.Action.all, Request);
       end if;
 
-      return Response.Build
-        (MIME.Text_HTML,
+      return Response.Acknowledge
+        (Messages.S404,
          "<p>AWS " & Version
            & "<p>No rule found for the time dispatcher and no "
            & "default dispatcher defined.");
