@@ -415,6 +415,11 @@ package body AWS.Net.Generic_Sets is
       Result       : Socket_Count'Base;
       Poll_Timeout : Thin.Timeout_Type;
    begin
+      if Set.Last = 0 then
+         Count := 0;
+         return;
+      end if;
+
       if Timeout >= Duration (Thin.Timeout_Type'Last / 1_000) then
          Poll_Timeout := Thin.Timeout_Type'Last;
       else
