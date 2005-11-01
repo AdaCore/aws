@@ -1,5 +1,10 @@
 2005-11-01  Pascal Obry  <pascal@obry.net>
 
+	* aws-hotplug.ads:
+	Minor comment fixes.
+
+2005-11-01  Pascal Obry  <pascal@obry.net>
+
 	* aws-services-dispatchers.ads:
 	Add documentation for the new Linker child.
         Update copyright notice.
