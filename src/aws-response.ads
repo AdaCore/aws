@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2004                          --
---                                ACT-Europe                                --
+--                         Copyright (C) 2000-2005                          --
+--                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -176,12 +176,16 @@ package AWS.Response is
    -- Redirection Constructors --
    ------------------------------
 
-   function URL (Location : in String) return Data;
+   function URL
+     (Location      : in String;
+      Cache_Control : in Messages.Cache_Option := Messages.Unspecified)
+      return Data;
    --  This ask the server for a redirection to the specified URL
 
    function Moved
-     (Location : in String;
-      Message  : in String := Default_Moved_Message)
+     (Location      : in String;
+      Message       : in String                := Default_Moved_Message;
+      Cache_Control : in Messages.Cache_Option := Messages.Unspecified)
       return Data;
    --  This send back a moved message (Messages.S301) with the specified
    --  message body.
@@ -191,9 +195,9 @@ package AWS.Response is
    ------------------------
 
    function Acknowledge
-     (Status_Code  : in Messages.Status_Code;
-      Message_Body : in String := "";
-      Content_Type : in String := MIME.Text_HTML)
+     (Status_Code   : in Messages.Status_Code;
+      Message_Body  : in String := "";
+      Content_Type  : in String := MIME.Text_HTML)
       return Data;
    --  Returns a message to the Web browser. This routine must be used to
    --  send back an error message to the Web browser. For example if a

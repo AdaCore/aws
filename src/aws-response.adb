@@ -540,13 +540,12 @@ package body AWS.Response is
    -----------
 
    function Moved
-     (Location : in String;
-      Message  : in String := Default_Moved_Message)
+     (Location      : in String;
+      Message       : in String                := Default_Moved_Message;
+      Cache_Control : in Messages.Cache_Option := Messages.Unspecified)
       return Data
    is
       use Ada.Strings;
-
-      Result : Data;
 
       function Build_Message_Body return String;
       --  Returns proper message body using Message template. It replaces _@_
@@ -567,12 +566,14 @@ package body AWS.Response is
       end Build_Message_Body;
 
       Message_Body : constant String := Build_Message_Body;
+      Result       : Data;
 
    begin
-      Set.Location     (Result, Location);
-      Set.Status_Code  (Result, Messages.S301);
-      Set.Message_Body (Result, Message_Body);
-      Set.Content_Type (Result, AWS.MIME.Text_HTML);
+      Set.Location      (Result, Location);
+      Set.Status_Code   (Result, Messages.S301);
+      Set.Message_Body  (Result, Message_Body);
+      Set.Content_Type  (Result, AWS.MIME.Text_HTML);
+      Set.Cache_Control (Result, Cache_Control);
       return Result;
    end Moved;
 
@@ -684,12 +685,17 @@ package body AWS.Response is
    -- URL --
    ---------
 
-   function URL (Location : in String) return Data is
+   function URL
+     (Location      : in String;
+      Cache_Control : in Messages.Cache_Option := Messages.Unspecified)
+      return Data
+   is
       Result : Data;
    begin
-      Set.Status_Code (Result, Messages.S301);
-      Set.Location    (Result, Location);
-      Set.Mode        (Result, Header);
+      Set.Status_Code   (Result, Messages.S301);
+      Set.Location      (Result, Location);
+      Set.Mode          (Result, Header);
+      Set.Cache_Control (Result, Cache_Control);
       return Result;
    end URL;
 
