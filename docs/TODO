@@ -198,5 +198,3 @@ implemented:
 
 - Add support for the Content-Range: HTTP header to support resumable download
   as used by download managers.
-
-- Add a generic download queue service.
