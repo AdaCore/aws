@@ -126,7 +126,7 @@ package body AWS.Server.HTTP_Utils is
          --  are requested. These are AWS internal data that should not be
          --  handled by AWS users.
 
-         --  AWS Internal status page handling.
+         --  AWS Internal status page handling
 
          if Admin_URI'Length > 0
            and then
@@ -185,7 +185,7 @@ package body AWS.Server.HTTP_Utils is
                     "Invalid use of reserved status URI prefix: " & Admin_URI);
             end if;
 
-            --  End of Internal status page handling.
+            --  End of Internal status page handling
 
             --  Check if the URL is trying to reference resource above Web root
             --  directory.
@@ -193,7 +193,7 @@ package body AWS.Server.HTTP_Utils is
          elsif CNF.Check_URL_Validity (HTTP_Server.Properties)
            and then not AWS.URL.Is_Valid (URL)
          then
-            --  403 status code "Forbidden".
+            --  403 status code "Forbidden"
 
             Answer := Response.Build
               (Status_Code   => Messages.S403,
@@ -1210,8 +1210,7 @@ package body AWS.Server.HTTP_Utils is
          if Is_Up_To_Date then
             --  [RFC 2616 - 10.3.5]
             Net.Buffered.Put_Line
-              (Sock,
-               Messages.Status_Line (Messages.S304));
+              (Sock, Messages.Status_Line (Messages.S304));
 
             Send_General_Header;
             Net.Buffered.New_Line (Sock);
@@ -1516,7 +1515,7 @@ package body AWS.Server.HTTP_Utils is
          end if;
 
       else
-         --  HTTP/1.1 case and we do not know the message lenght.
+         --  HTTP/1.1 case and we do not know the message length
          --
          --  Terminate header, do not send the Content_Length see
          --  [RFC 2616 - 4.4]. It could be possible to send the Content_Length
@@ -1578,8 +1577,7 @@ package body AWS.Server.HTTP_Utils is
       Sock_Ptr        : in     AWS.Net.Socket_Access;
       Index           : in     Positive;
       Free_Slots      :    out Natural;
-      Max_Connections : in     Positive)
-   is
+      Max_Connections : in     Positive) is
    begin
       HTTP_Server.Slots := new Slots (Max_Connections);
       HTTP_Server.Slots.Set (Sock_Ptr, Index, Free_Slots);
