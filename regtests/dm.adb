@@ -30,9 +30,13 @@
 
 --  ~ MAIN [STD]
 
+with Ada.Numerics.Discrete_Random;
 with Ada.Strings.Fixed;
 with Ada.Strings.Unbounded;
 with Ada.Text_IO;
+with Ada.Streams.Stream_IO;
+
+with GNAT.MD5;
 
 with AWS.Client;
 with AWS.Config.Set;
@@ -41,11 +45,12 @@ with AWS.MIME;
 with AWS.OS_Lib;
 with AWS.Resources.Streams.Disk;
 with AWS.Response;
-with AWS.Server.Log;
+with AWS.Server;
 with AWS.Services.Download;
 with AWS.Services.Dispatchers.Linker;
 with AWS.Services.Dispatchers.URI;
 with AWS.Status;
+with AWS.Translator;
 with AWS.Utils;
 
 with Get_Free_Port;
@@ -53,9 +58,11 @@ with Get_Free_Port;
 procedure DM is
 
    use Ada;
+   use Ada.Streams;
    use Ada.Strings;
    use Ada.Strings.Unbounded;
    use Ada.Text_IO;
+   use GNAT;
    use AWS;
 
    Debug : constant Boolean := False;
@@ -64,21 +71,44 @@ procedure DM is
 
    Port : Positive := 5629;
 
+   type Download_Info is record
+      Size      : Positive;
+      Signature : MD5.Message_Digest;
+   end record;
+
    function CB (Request : in Status.Data) return Response.Data;
 
    task type Client is
       entry Start (N : in Positive);
-      entry Stop (Size : out Positive);
+      entry Stop (Info : out Download_Info);
    end Client;
 
-   Filename : constant String := "test_speed.exe";
+   Filename : constant String := "dm_file.data";
 
    procedure Put_Line (Str : in String);
    --  Output Str if in Debug mode
 
+   function Create_Filename return MD5.Message_Digest;
+   --  Generate file content and return the MD5 signature
+
+   function MD5_Signature
+     (Content : in Unbounded_String) return MD5.Message_Digest;
+   --  Returns the MD5 signature for Content
+
    Some_Waiting : Boolean := False;
    Starting     : Natural := 0;
    Downloads    : Natural := 0;
+
+   Signature    : MD5.Message_Digest;
+
+   -----------------
+   -- Char_Random --
+   -----------------
+
+   package Char_Random is new Numerics.Discrete_Random (Character);
+   use Char_Random;
+
+   Rand_Generator : Char_Random.Generator;
 
    --------
    -- CB --
@@ -190,14 +220,63 @@ procedure DM is
          end;
       end loop;
 
-      accept Stop (Size : out Positive) do
-         Size := Length (Response.Message_Body (R));
+      accept Stop (Info : out Download_Info) do
+         Info.Size      := Length (Response.Message_Body (R));
+         Info.Signature := MD5_Signature (Response.Message_Body (R));
       end Stop;
 
    exception
       when others =>
          Put_Line ("Client " & Utils.Image (N) & " error!");
    end Client;
+
+   ---------------------
+   -- Create_Filename --
+   ---------------------
+
+   function Create_Filename return MD5.Message_Digest is
+      subtype Buffer is String (1 .. 20);
+      Ctx  : MD5.Context;
+      File : Stream_IO.File_Type;
+      Str  : Buffer;
+   begin
+      Stream_IO.Create (File, Stream_IO.Out_File, Filename);
+
+      for K in 1 .. 10_000 loop
+         for K in Buffer'Range loop
+            Str (K) := Random (Rand_Generator);
+         end loop;
+         MD5.Update (Ctx, Str);
+         Stream_IO.Write (File, Translator.To_Stream_Element_Array (Str));
+      end loop;
+
+      Stream_IO.Close (File);
+
+      return MD5.Digest (Ctx);
+   end Create_Filename;
+
+   -------------------
+   -- MD5_Signature --
+   -------------------
+
+   function MD5_Signature
+     (Content : in Unbounded_String) return MD5.Message_Digest
+   is
+      Chunk_Size  : constant := 4 * 1_024;
+      Len         : constant Positive := Length (Content);
+      Ctx         : MD5.Context;
+      First, Last : Positive;
+   begin
+      First := 1;
+      loop
+         Last := Positive'Min (First + Chunk_Size - 1, Len);
+         MD5.Update (Ctx, Slice (Content, First, Last));
+         exit when Last = Len;
+         First := Last + 1;
+      end loop;
+
+      return MD5.Digest (Ctx);
+   end MD5_Signature;
 
    --------------
    -- Put_Line --
@@ -219,11 +298,17 @@ procedure DM is
 
    Clients : array (1 .. Nb_Client) of Client;
 
-   Results : array (1 .. Nb_Client) of Positive;
+   Results : array (1 .. Nb_Client) of Download_Info;
 
    Size    : Positive;
-   Ok      : Boolean := True;
+   Size_Ok : Boolean := True;
+   Sig_Ok  : Boolean := True;
+
 begin
+   Reset (Rand_Generator);
+
+   Signature := Create_Filename;
+
    Get_Free_Port (Port);
    Config.Set.Server_Port (Conf, Port);
 
@@ -239,7 +324,6 @@ begin
    Text_IO.Put_Line ("Start main server...");
 
    Server.Start (WS, D, Conf);
-   Server.Log.Start (WS);
 
    R := AWS.Client.Get
      ("http://localhost:" & Utils.Image (Port) & "/welcome");
@@ -270,8 +354,16 @@ begin
    --  Check the size of each download
 
    for K in Results'Range loop
-      if Results (K) /= Size then
-         Ok := False;
+      if Results (K).Size /= Size then
+         Size_Ok := False;
+      end if;
+   end loop;
+
+   --  Check the signature
+
+   for K in Results'Range loop
+      if Results (K).Signature /= Signature then
+         Sig_Ok := False;
       end if;
    end loop;
 
@@ -284,14 +376,19 @@ begin
    Text_IO.Put_Line ("Started   " & Utils.Image (Starting));
    Text_IO.Put_Line ("Donwloads " & Utils.Image (Downloads));
 
-   if Ok then
+   if Size_Ok then
       Text_IO.Put_Line ("OK: All downloads have the correct size");
    else
       Text_IO.Put_Line ("ERROR: some download are not correct");
    end if;
 
+   if Sig_Ok then
+      Text_IO.Put_Line ("OK: All downloads have the correct signature");
+   else
+      Text_IO.Put_Line ("ERROR: some download have not a correct signature");
+   end if;
+
    Text_IO.Put_Line ("Stop servers...");
-   Server.Log.Stop (WS);
    Server.Shutdown (WS);
    Services.Download.Stop;
 end DM;
