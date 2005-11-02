@@ -739,7 +739,9 @@ templates_parser/docs/table_inline.tmplt
 templates_parser/docs/table_section.tmplt
 templates_parser/docs/templates_parser.html
 templates_parser/docs/templates_parser.info*
+templates_parser/docs/templates_parser.pdf
 templates_parser/docs/templates_parser.texi
+templates_parser/docs/tp.css
 templates_parser/docs/user.tmplt
 templates_parser/include/ai302-containers-hash_tables.adb
 templates_parser/include/ai302-containers-hash_tables.ads
