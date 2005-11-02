@@ -1,3 +1,12 @@
+2005-11-02  Pascal Obry  <pascal@obry.net>
+
+	* dm.adb:
+	Improve test to create a file randomly and check the MD5 signature
+	 of the downloaded files. Do not create a log file.
+
+	* dm.out:
+	Update to new output for the signature.
+
 2005-11-01  Pascal Obry  <pascal@obry.net>
 
 	* aws_download_manager_waiting.thtml:
