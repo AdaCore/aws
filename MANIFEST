@@ -135,7 +135,7 @@ docs/style-guide.texi
 gps/ada2wsdl.xml
 gps/aws.py
 gps/gen_gps_ref.adb
-gps/aws_index.xml
+gps/aws.xml
 gps/gps_support.gpr
 gps/makefile
 gps/wsdl2aws.xml
