@@ -2,7 +2,7 @@
 --                              Ada Web Server                              --
 --                                                                          --
 --                            Copyright (C) 2005                            --
---                                ACT-Europe                                --
+--                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -28,8 +28,7 @@
 
 --  $Id$
 
---  Waiting for group of sockets for read data availability and accept for new
---  connections.
+--  Waiting on a group of sockets for reading and accept new connections
 
 with Ada.Calendar;
 with Ada.Finalization;
@@ -53,30 +52,31 @@ package AWS.Net.Acceptors is
       Force_Timeout       : in     Duration := Forever;
       Force_First_Timeout : in     Duration := Forever;
       Force_Length        : in     Positive := Positive'Last);
-   --  Prepare Acceptor to accept sockets and wait for incoming data.
-   --  First_Timeout is for wait data in the first time after socket accepted.
-   --  Timeout is for wait next data in the socket, should be longer
-   --  than First_Timeout for HTTP protocol handlers.
-   --  Force_Timeout shorter timeout forced when number of sockets exceed
-   --  Force_Length.
+   --  Prepare Acceptor to accept sockets and wait for incoming data from the
+   --  given Host and Port. Use Queue_Size for the Listen call.
+   --  Timeout is to wait for the next data from the socket, should be longer
+   --  than First_Timeout for HTTP protocol handlers. First_Timeout is the
+   --  time to wait for data just after a socket is accepted. Force_Timeout
+   --  used when the number of sockets exceed Force_Length (generally this
+   --  timeout is shorter than the others).
 
    procedure Get
      (Acceptor : in out Acceptor_Type;
       Socket   :    out Socket_Access);
-   --  Wait and get the socket from internal socket set which have a data to
-   --  process. Should not be called simultaneously from different tasks.
+   --  Returns a socket from the internal socket set which has data to read.
+   --  Should not be called simultaneously from different tasks.
 
    procedure Give_Back
      (Acceptor : in out Acceptor_Type;
       Socket   : in     Socket_Access);
-   --  Give back socket which have been handled.
-   --  Should be called from tasks different from task where Get routine is
-   --  waiting.
+   --  Give back socket which has been taken from Get routine above. Generally
+   --  this is called from a different task while the Get routine is blocked
+   --  waiting for a socket.
 
    procedure Shutdown (Acceptor : in out Acceptor_Type);
-   --  Shutdown all internal sockets.
-   --  Should be called from task different from task where Get routine is
-   --  waiting.
+   --  Shutdown all internal sockets. Generally this is called from a
+   --  different task while the Get routine is blocked waiting for a
+   --  socket.
 
 private
 
@@ -105,6 +105,6 @@ private
    end record;
 
    procedure Finalize (Acceptor : in out Acceptor_Type);
-   --  Automatic finalization.
+   --  Automatic finalization
 
 end AWS.Net.Acceptors;
