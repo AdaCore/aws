@@ -1,3 +1,13 @@
+2005-11-08  Pascal Obry  <pascal@obry.net>
+
+	* ai302.gpr, aws_components.gpr:
+	Fix this project. Recent GNAT versions check that the Library_Dir
+	 be different than the Source_Dirs. The library and project file
+	 are now installed into lib/aws and lib/gnat/aws respectively.
+
+	* aws.gpr, aws_ssl.gpr:
+	(aws_components): Use new path for this project.
+
 2005-10-27  Pascal Obry  <pascal@obry.net>
 
 	* ai302.gpr:
