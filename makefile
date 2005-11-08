@@ -448,11 +448,11 @@ install: install_dirs
 	$(CP) -p config/templates_parser-* $(I_INC)
 ifeq (${AI302},Internal)
 	$(CP) -p include/ai302/*.ad? $(I_AIC)
-	$(CP) -p $(BDIR)/include/ai302/lib/* $(I_AIC)
-	$(CP) config/projects/ai302.gpr $(I_AIC)
-	$(SED) -e 's,ai302,\.\./\.\./include/aws/components/ai302/ai302,g' \
+	$(CP) -p $(BDIR)/include/ai302/lib/* $(I_LIB)
+	$(CP) config/projects/ai302.gpr $(I_AGP)
+	$(SED) -e 's,ai302,aws/ai302,g' \
 		< config/projects/aws.gpr > $(I_GPR)/aws.gpr
-	$(SED) -e 's,ai302,\.\./\.\./include/aws/components/ai302/ai302,g' \
+	$(SED) -e 's,ai302,aws/ai302,g' \
 		< config/projects/aws_ssl.gpr \
 		> $(I_GPR)/aws_ssl.gpr
 else
@@ -484,7 +484,7 @@ endif
 	$(CP) demos/wm_login.html $(I_TPL)
 	$(CP) demos/aws_*.png $(I_IMG)
 	$(CP) -p include/*.ad? $(I_CPN)
-	-$(CP) -p $(BDIR)/include/lib/* $(I_CPN)
+	-$(CP) -p $(BDIR)/include/lib/* $(I_LIB)
 	-$(CP) $(BDIR)/tools/awsres${EXEEXT} $(I_BIN)
 	-$(STRIP) $(I_BIN)/awsres${EXEEXT}
 	-$(CP) $(BDIR)/tools/hotplug_password${EXEEXT} $(I_BIN)
@@ -503,7 +503,7 @@ ifeq (${OS}, Windows_NT)
 	$(CP) -p win32/*.dll $(I_LIB)
 	$(CP) -p win32/*.dll $(I_LIB)/..
 endif
-	$(CP) config/projects/aws_components.gpr $(I_CPN)
+	$(CP) config/projects/aws_components.gpr $(I_AGP)
 	$(CP) config/projects/*_lib.gpr $(I_AGP)
 	$(CP) config/projects/aws_shared.gpr $(I_AGP)
 	$(CP) config/projects/aws_ssl_support.gpr $(I_AGP)
@@ -521,8 +521,4 @@ endif
 	$(MAKE) -C ssl SOCKET=ssl setup_ssl_install
 	$(CP) ssl/aws_ssl_shared.gpr $(I_AGP)
 	-$(CHMOD) a-w $(I_LIB)/*
-	-$(CHMOD) a-w $(I_CPN)/*.ali
-# We need to touch the libraries as we have changed the .gpr
-	-$(TOUCH) $(I_LIB)/*.a
-	-$(TOUCH) $(I_LIB)/*$(SOEXT)
 	${MAKE} -C web_elements install $(GALL_OPTIONS)
