@@ -1,3 +1,8 @@
+2005-11-16  Pascal Obry  <pascal@obry.net>
+
+	* aws-net.ads:
+	(Receive): Improve comments.
+
 2005-11-07  Pascal Obry  <pascal@obry.net>
 
 	* aws-net-acceptors.ads:
