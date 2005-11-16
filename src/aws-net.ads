@@ -150,15 +150,15 @@ package AWS.Net is
       Last   :    out Stream_Element_Offset)
       is abstract;
    --  Read a chunk of data from the socket and set appropriate Last value.
-   --  It always return something and then must wait for available data on the
-   --  socket.
+   --  This call always returns some data and will wait for incoming data only
+   --  if necessary.
 
    function Receive
      (Socket : in Socket_Type'Class;
       Max    : in Stream_Element_Count := 4096)
       return Stream_Element_Array;
-   --  Read a chunk of data from the socket and returns it. It always return
-   --  something and then must wait for available data on the socket.
+   --  Read a chunk of data from the socket and returns it. This call always
+   --  returns some data and will wait for incoming data only if necessary.
 
    function Pending
      (Socket : in Socket_Type)
