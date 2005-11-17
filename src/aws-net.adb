@@ -101,7 +101,7 @@ package body AWS.Net is
    ----------
 
    procedure Send
-     (Socket : in Socket_Type'CLass;
+     (Socket : in Socket_Type'Class;
       Data   : in Stream_Element_Array)
    is
       First : Stream_Element_Offset := Data'First;
@@ -114,7 +114,11 @@ package body AWS.Net is
 
          Wait_For (Output, Socket);
 
-         First := Last + 1;
+         if Last < Data'Last then
+            --  Otherwise First should be unchanged, because no data sent.
+
+            First := Last + 1;
+         end if;
       end loop;
    end Send;
 
