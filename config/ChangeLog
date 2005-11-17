@@ -1,3 +1,10 @@
+2004-11-17  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* aws-net-std__adasockets.adb, aws-net-std__gnat.adb,
+	  aws-net-std__ipv6.adb:
+	(Send): Set Last into Stream_Element_Offset'Last is not data sent and
+	 Data'First = Stream_Element_Offset'First.
+
 2005-10-06  Pascal Obry  <pascal@obry.net>
 
 	* src/check_config.c:
