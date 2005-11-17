@@ -28,6 +28,8 @@
 
 --  $Id$
 
+--  ~ MAIN [STD]
+
 --  Test for output buffer overflow.
 
 with Ada.Text_IO;
@@ -76,13 +78,18 @@ procedure SockOver is
 
       loop
          Net.Send (Client, Sample, Last);
-         exit when Last < Sample'Last;
+         exit when not (Last in Sample'Range);
       end loop;
 
       --  provoke to timeout.
 
       begin
-         Net.Send (Client, Sample);
+         loop
+            --  Loop because some data could be transferred from send buffer
+            --  into receive buffer internally.
+
+            Net.Send (Client, Sample);
+         end loop;
       exception
          when E : Net.Socket_Error =>
             --  Expected timeout exception message.
