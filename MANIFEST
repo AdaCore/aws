@@ -389,6 +389,8 @@ regtests/sockext.out
 regtests/sockext_proc.adb
 regtests/sockext_sec.adb
 regtests/sockext_sec.out
+regtests/sockover.adb
+regtests/sockover.out
 regtests/sockto.adb
 regtests/sockto.out
 regtests/sockto_proc.adb
