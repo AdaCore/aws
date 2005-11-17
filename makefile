@@ -441,14 +441,14 @@ install_dirs: install_clean
 	$(MKDIR) $(I_PLG)
 
 install: install_dirs
-	$(CP) -p src/a*.ad[sb] ssl/*.ad[sb] $(I_INC)
-	$(CP) -p templates_parser/src/t*.ad[sb] $(I_INC)
-	$(CP) -p config/aws-net-std__* $(I_INC)
-	$(CP) -p config/aws-os_lib__* $(I_INC)
-	$(CP) -p config/templates_parser-* $(I_INC)
+	$(CP) src/a*.ad[sb] ssl/*.ad[sb] $(I_INC)
+	$(CP) templates_parser/src/t*.ad[sb] $(I_INC)
+	$(CP) config/aws-net-std__* $(I_INC)
+	$(CP) config/aws-os_lib__* $(I_INC)
+	$(CP) config/templates_parser-* $(I_INC)
 ifeq (${AI302},Internal)
-	$(CP) -p include/ai302/*.ad? $(I_AIC)
-	$(CP) -p $(BDIR)/include/ai302/lib/* $(I_LIB)
+	$(CP) include/ai302/*.ad? $(I_AIC)
+	$(CP) $(BDIR)/include/ai302/lib/* $(I_LIB)
 	$(CP) config/projects/ai302.gpr $(I_AGP)
 	$(SED) -e 's,ai302,aws/ai302,g' \
 		< config/projects/aws.gpr > $(I_GPR)/aws.gpr
@@ -460,15 +460,15 @@ else
 	$(CP) config/projects/aws_ssl.gpr $(I_GPR)
 endif
 ifeq ($(XMLADA),true)
-	$(CP) -p soap/*.ad[sb] $(I_INC)
-	$(CP) -p xsrc/*.ad[sb] $(I_INC)
-	$(CP) -p templates_parser/xsrc/*.ad[sb] $(I_INC)
+	$(CP) soap/*.ad[sb] $(I_INC)
+	$(CP) xsrc/*.ad[sb] $(I_INC)
+	$(CP) templates_parser/xsrc/*.ad[sb] $(I_INC)
 	$(CP) $(BDIR)/tools/wsdl2aws${EXEEXT} $(I_BIN)
 	$(STRIP) $(I_BIN)/wsdl2aws${EXEEXT}
 endif
-	$(CP) -p $(BDIR)/lib/* $(I_LIB)
-	-$(CP) -p $(BDIR)/ssl/lib/* $(I_LIB)
-	-$(CP) -p $(BDIR)/ssl/nlib/* $(I_LIB)
+	$(CP) $(BDIR)/lib/* $(I_LIB)
+	-$(CP) $(BDIR)/ssl/lib/* $(I_LIB)
+	-$(CP) $(BDIR)/ssl/nlib/* $(I_LIB)
 	-$(CP) docs/aws.html $(I_DOC)
 	-$(CP) -r docs/html $(I_DOC)
 	-$(CP) templates_parser/docs/templates_parser.html $(I_DOC)
@@ -483,8 +483,8 @@ endif
 	$(CP) demos/*.thtml $(I_TPL)
 	$(CP) demos/wm_login.html $(I_TPL)
 	$(CP) demos/aws_*.png $(I_IMG)
-	$(CP) -p include/*.ad? $(I_CPN)
-	-$(CP) -p $(BDIR)/include/lib/* $(I_LIB)
+	$(CP) include/*.ad? $(I_CPN)
+	-$(CP) $(BDIR)/include/lib/* $(I_LIB)
 	-$(CP) $(BDIR)/tools/awsres${EXEEXT} $(I_BIN)
 	-$(STRIP) $(I_BIN)/awsres${EXEEXT}
 	-$(CP) $(BDIR)/tools/hotplug_password${EXEEXT} $(I_BIN)
@@ -498,10 +498,10 @@ ifeq ($(SOCKET),ssl)
 	$(STRIP) $(I_SBN)/agent${EXEEXT}
 endif
 ifeq (${OS}, Windows_NT)
-	$(CP) -p $(BDIR)/win32/lib/* $(I_LIB)
-	$(CP) -p lib/lib*.a $(I_LIB)
-	$(CP) -p win32/*.dll $(I_LIB)
-	$(CP) -p win32/*.dll $(I_LIB)/..
+	$(CP) $(BDIR)/win32/lib/* $(I_LIB)
+	$(CP) lib/lib*.a $(I_LIB)
+	$(CP) win32/*.dll $(I_LIB)
+	$(CP) win32/*.dll $(I_LIB)/..
 endif
 	$(CP) config/projects/aws_components.gpr $(I_AGP)
 	$(CP) config/projects/*_lib.gpr $(I_AGP)
@@ -510,10 +510,8 @@ endif
 	$(CP) $(PRJDIR)/aws_config.gpr $(I_AGP)
 # Copy all shared libraries into the main lib directory
 ifeq (${SHARED}, true)
-	$(CP) -p $(I_LIB)/*$(SOEXT) $(I_LIB)/..
-	$(CP) -p $(I_CPN)/*$(SOEXT) $(I_LIB)/..
-	$(CP) -p $(I_AIC)/*$(SOEXT) $(I_LIB)/..
-	$(CP) -p lib/*$(SOEXT) $(I_LIB)/..
+	$(CP) $(I_LIB)/*$(SOEXT) $(I_LIB)/..
+	$(CP) lib/*$(SOEXT) $(I_LIB)/..
 else
 	$(CP) lib/libz.a $(I_LIB)
 endif
