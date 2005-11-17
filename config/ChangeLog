@@ -4,6 +4,7 @@
 	  aws-net-std__ipv6.adb:
 	(Send): Set Last into Stream_Element_Offset'Last is not data sent and
 	 Data'First = Stream_Element_Offset'First.
+	 Use OS_Lib.Definitions.MSG_NOSIGNAL.
 
 2005-10-06  Pascal Obry  <pascal@obry.net>
 

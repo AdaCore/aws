@@ -662,7 +662,7 @@ package body AWS.Net.Std is
               (Socket.S.FD,
                Data'Address,
                Data'Length,
-               0);
+               OS_Lib.Definitions.MSG_NOSIGNAL);
 
       if RC = Sockets.Thin.Failure then
          Errno := Std.Errno;

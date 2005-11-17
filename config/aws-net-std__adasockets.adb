@@ -502,7 +502,7 @@ package body AWS.Net.Std is
               (C.int (Get_FD (Socket)),
                Data'Address,
                Data'Length,
-               0);
+               OS_Lib.Definitions.MSG_NOSIGNAL);
 
       if RC = Thin.Failure then
          Errno := Thin.Errno;
