@@ -508,7 +508,11 @@ package body AWS.Net.Std is
          Errno := Thin.Errno;
 
          if Errno = Constants.Ewouldblock then
-            Last := Data'First - 1;
+            if Data'First = Stream_Element_Offset'First then
+               Last := Stream_Element_Offset'Last;
+            else
+               Last := Data'First - 1;
+            end if;
 
             return;
 
@@ -517,7 +521,13 @@ package body AWS.Net.Std is
          end if;
       end if;
 
-      Last := Data'First - 1 + Stream_Element_Offset (RC);
+      if RC = 0 and then Data'First = Stream_Element_Offset'First then
+         --  Could not Last := Data'First - 1;
+
+         Last := Stream_Element_Offset'Last;
+      else
+         Last := Data'First + Stream_Element_Offset (RC) - 1;
+      end if;
 
       if Net.Log.Is_Active then
          Net.Log.Write
