@@ -1,0 +1,216 @@
+
+@@INCLUDE@@ ../web_elements/javascripts/aws.tjs
+
+<html>
+   <head>
+@@INCLUDE@@ ../web_elements/notebook/notebook.thtml Tabs currentPage TabContents page1
+<style>
+h1             { font-size: large; text-align: center; }
+.TabContents   { background: white; height: 20em;}
+.TabContents2  { background: #aaa; }
+
+/* trick IE which won't understand html>div */
+html>div, #page1         { height: 15em; }
+html>div, #page2         { height: 32em; }
+html>div, #page3         { height: 20em; }
+html>div, #page4         { height: 36em; }
+
+.Demo          { position: relative; top: 1em; width: 40%;
+                 float: left;
+                 background-color: #a7aedb; padding: 10px;
+               }
+.Result        { position: relative; top: 2em; width: 50%;
+                 float: left; left: 10px; height: 2em;
+                 background-color: #dddddd; padding: 10px;
+                 font-size: small; font-family: courier;
+               }
+.CResult       { position: relative; top: 1em; width: 50%;
+                 float: left; left: 10px; height: 15em;
+                 background-color: #dddddd; padding: 10px;
+               }
+.Code          { position: relative; top: 2em; width: 90%;
+                 float: left;
+                 background-color: #f5f691; padding: 10px;
+                 font-size: small; font-family: courier;
+               }
+
+</style>
+   </head>
+
+   <body>
+      <h1>Ajax - <i>Asynchronous JavaScript language and XML</i> demos</h1>
+
+      <table width="80%" align="center">
+      <td>
+      <ul id="Tabs">
+        <li id="page1" class="currentPage">
+            <a href="#" onclick="switchTabPage_Tabs('page1')">
+            Button</a></li>
+        <li id="page2">
+            <a href="#" onclick="switchTabPage_Tabs('page2')">
+            Button/Clear</a></li>
+        <li id="page3">
+            <a href="#" onclick="switchTabPage_Tabs('page3')">Select</a></li>
+        <li id="page4">
+            <a href="#" onclick="switchTabPage_Tabs('page4')">
+            Select/Form</a></li>
+        <li id="page5">
+            <a href="#" onclick="switchTabPage_Tabs('page5')">
+            Complex Form</a></li>
+      </ul>
+
+      <!-- Button -->
+
+      <div class="TabContents" id="page1">
+
+      <div class="Demo">
+      <p>Click on the button...</p>
+      <p><input id="clickme" type="button" value="Clik Me"></p>
+      </div>
+
+      <div Class="Result" id="placeholder">... result here ...
+      @@INCLUDE@@ ../web_elements/javascripts/aws_action_replace.tjs onclick clickme placeholder
+      </div>
+
+      <div class="Code">
+      Click on the button...
+      <br>&lt;input id="<strong>clickme</strong>" type="button" value="Clik Me"&gt;
+      <br>&lt;div id="<strong>placeholder</strong>"&gt;... result here ...&lt;/div&gt;
+      <br>@@INCLUDE@@ aws_action_replace.tjs onclick <strong>clickme</strong> <strong>placeholder</strong>
+      </div>
+      </div>
+
+      <!-- Button/Clear -->
+
+      <div class="TabContents" id="page2">
+
+      <div class="Demo">
+      <p>Enter some text in the following entry:
+      <p><input id="field" type="text" value="enter some text here">
+      <p>Click on the button...</p>
+      <p><input id="data" type="button" value="Clik Me"></p>
+      <p>Clear the entry:
+      <p><input id="cdata" type="button" value="Clear">
+      </div>
+
+      <div Class="Result" id="placeholder2">... result here ...
+      @@INCLUDE@@ ../web_elements/javascripts/aws_action_replace.tjs (onclick, data, placeholder2, 5=>field)
+      @@INCLUDE@@ ../web_elements/javascripts/aws_action_clear.tjs (onclick, cdata, field)
+      </div>
+
+      <div class="Code">
+      <br>Enter some text in the following entry:
+      <br>&lt;input id="<strong>field</strong>" type="text" value="enter some text here"&gt;
+      <br>Click on the button...
+      <br>&lt;input id="<strong>data</strong>" type="button" value="Clik Me"&gt;
+      <br>Clear the entry:
+      <br>&lt;input id="<strong>cdata</strong>" type="button" value="Clear"&gt;
+      <br>&lt;div id="<strong>placeholder</strong>"&gt;... result here ...&lt;/div&gt;
+      <br>@@INCLUDE@@ aws_action_replace.tjs (onclick, <strong>data</strong>, <strong>placeholder</strong>, 5=&gt;<strong>field</strong>)
+      <br>@@INCLUDE@@ aws_action_clear.tjs (onclick, </strong>cdata</strong>, <strong>field</strong>)
+      </div>
+      </div>
+
+      <!-- Select -->
+
+      <div class="TabContents" id="page3">
+
+      <div class="Demo">
+      <p>Select a value from the select:</p>
+      <select id="select_color" name="select_color">
+         <option value="red">Red</option>
+         <option value="green">Green</option>
+         <option value="blue">Blue</option>
+      </select>
+      </div>
+
+      <div Class="Result" id="placeholder3">... result here ...
+      @@INCLUDE@@ ../web_elements/javascripts/aws_action_replace.tjs (onchange, select_color, placeholder3, 5=>select_color)
+      </div>
+
+      <div class="Code">
+      <br>Select a value from the select:
+      <br>&lt;select id="<strong>select_color</strong>" name="select_color"&gt;
+      <br>&nbsp;&nbsp;&nbsp;&lt;option value="red"&gt;Red&lt;/option&gt;
+      <br>&nbsp;&nbsp;&nbsp;&lt;option value="green"&gt;Green&lt;/option&gt;
+      <br>&nbsp;&nbsp;&nbsp;&lt;option value="blue"&gt;Blue&lt;/option&gt;
+      <br>&lt;/select&gt;
+      <br>&lt;div Class="Result" id="<strong>placeholder</strong>"&gt;... result here ...&lt;/div&gt;
+      <br>@@INCLUDE@@ aws_action_replace.tjs (onchange, <strong>select_color</strong>, <strong>placeholder</strong>, 5=&gt;<strong>select_color</strong>)
+      </div>
+      </div>
+
+      <!-- Select/Form -->
+
+      <div class="TabContents" id="page4">
+
+      <div class="Demo">
+      <p>Select a value from a form</p>
+      <form id="small_form" name="small_form">
+      <select id="form_color" name="form_color">
+         <option value="red">Red</option>
+         <option value="green">Green</option>
+         <option value="blue">Blue</option>
+      </select>
+      <br><br>
+      <fieldset>
+         <legend>Select one size</legend>
+         <input type=radio name=size value=large>Large
+         <input type=radio name=size value=medium>Medium
+         <input type=radio name=size value=small>Small
+      </fieldset>
+      <br>
+      <input type="submit" value="Send"/>
+      </form>
+      </div>
+
+      <div Class="Result" id="form_result">... result here ...
+      @@INCLUDE@@ ../web_elements/javascripts/aws_action_replace.tjs (onsubmit, small_form, form_result, 5=>small_form)
+      </div>
+
+      <div class="Code">
+      <br>Select a color:
+      <br>&lt;form id="<strong>small_form</strong>" name="small_form"&gt;
+      <br>&lt;select id="form_color" name="form_color"&gt;
+      <br>&nbsp;&nbsp;&nbsp;&lt;option value="red"&gt;Red&lt;/option&gt;
+      <br>&nbsp;&nbsp;&nbsp;&lt;option value="green"&gt;Green&lt;/option&gt;
+      <br>&nbsp;&nbsp;&nbsp;&lt;option value="blue"&gt;Blue&lt;/option&gt;
+      <br>&lt;/select&gt;
+      <br>&lt;fieldset&gt;
+      <br>&nbsp;&nbsp;&nbsp;&lt;legend&gt;Select one size&lt;/legend&gt;
+      <br>&nbsp;&nbsp;&nbsp;&lt;input type=radio name=size value=large&gt;Large
+      <br>&nbsp;&nbsp;&nbsp;&lt;input type=radio name=size value=medium&gt;Medium
+      <br>&nbsp;&nbsp;&nbsp;&lt;input type=radio name=size value=small&gt;Small
+      <br>&lt;/fieldset&gt;
+      <br>&lt;input type="submit" value="Send"/&gt;
+      <br>&lt;/form&gt;
+      <br>&lt;div Class="Result" id="<strong>form_result</strong>"&gt;...result here...&lt;/div&gt;
+      <br>@@INCLUDE@@ aws_action_replace.tjs (onsubmit, <strong>small_form</strong>, <strong>form_result</strong>, 5=&gt;<strong>small_form</strong>)
+      </div>
+      </div>
+
+      <!-- Complex -->
+
+      <div class="TabContents" id="page5">
+      <div class="Demo">
+      <fieldset>
+         <legend>Action</legend>
+         <input id="db_sel1" type="button" name="action1" value="Create Group">
+         <br><br>
+         <input id="db_sel2" type="button" name="action2" value="Create User">
+         <br>
+      </fieldset>
+      <br>
+      @@INCLUDE@@ ../web_elements/javascripts/aws_action_replace.tjs onclick db_sel1 action
+      @@INCLUDE@@ ../web_elements/javascripts/aws_action_replace.tjs onclick db_sel2 action
+      </form>
+      </div>
+
+      <div id="action" class="CResult"></div>
+      @@INCLUDE@@ ../web_elements/javascripts/aws_action_replace.tjs (onclick, g_action, action, 5=>db_group)
+      @@INCLUDE@@ ../web_elements/javascripts/aws_action_replace.tjs (onclick, u_action, action, 5=>db_user)
+      </div>
+      </td>
+      </table>
+   </body>
+</html>
