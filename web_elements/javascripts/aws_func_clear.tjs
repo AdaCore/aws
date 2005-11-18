@@ -9,5 +9,5 @@
       if (placeholder.tagName == "TEXTAREA" || placeholder.tagName == "INPUT")
          placeholder.value = "";
       else
-         placeholder.value = ""; <!-- this part is to be done -->
+         placeholder.innerHTML = "";
    }
