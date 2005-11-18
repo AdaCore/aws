@@ -1,3 +1,17 @@
+2005-11-18  Pascal Obry  <obry@roxy>
+
+	* demos.gpr:
+	(Mains): Add web_elements_containers.ads, web_elements_containers.adb.
+
+	* we_test_ajax.html, we_ajax_group.html, we_ajax_user.html:
+	Initial revision. For the Ajax demo.
+
+	* web_elements.adb, we_library.html:
+	Add support for the Ajax demo.
+
+	* web_elements_containers.ads, web_elements_containers.adb:
+	Initial revision. For the Ajax demo.
+
 2005-10-28  Dmitriy Anisimkov <anisimkov@ada-ru.org>
 
 	* makefile:

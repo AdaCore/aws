@@ -1,3 +1,26 @@
+2005-11-18  Pascal Obry  <obry@roxy>
+
+	* javascripts/aws.tjs:
+	Initial revision.
+
+	* javascripts/aws_action_clear.tjs:
+	Initial revision.
+
+	* javascripts/aws_action_js.tjs:
+	Initial revision.
+
+	* javascripts/aws_action_replace.tjs:
+	Initial revision.
+
+	* javascripts/aws_func_clear.tjs:
+	Initial revision.
+
+	* javascripts/aws_func_replace.tjs:
+	Initial revision.
+
+	* javascripts/prototype.js, javascripts/behaviour.js:
+	Initial revision.
+
 2005-09-24  Pascal Obry  <pascal@obry.net>
 
 	* makefile:
