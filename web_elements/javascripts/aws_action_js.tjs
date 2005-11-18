@@ -1,0 +1,20 @@
+
+@@-- $1 action to register, default onclick
+@@-- $2 the tag node ID to handle in the DOM tree
+@@-- $3 the name of the javascript routine to execute
+
+@@SET@@ ACTION = $1
+@@SET@@ ID = $2
+@@SET@@ ROUTINE = $3
+
+<script>
+   var rule_@_ID_@ = {
+      @@IF@@ @_ROUTINE_@ = ""
+	'#@_ID_@' : function(el) {el.@_ACTION_@ = call_@_ACTION_@_@_ID_@;}
+      @@ELSE@@
+	'#@_ID_@' : function(el) {el.@_ACTION_@ = @_ROUTINE_@;}
+      @@END_IF@@
+   };
+
+   Behaviour.register (rule_@_ID_@);
+</script>

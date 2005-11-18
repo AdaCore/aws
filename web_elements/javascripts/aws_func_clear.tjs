@@ -1,0 +1,13 @@
+
+@@-- Function Body
+@@-- $1 = the id of the area to clear
+
+@@SET@@ FC_PLACEHOLDER = $1
+
+   {
+      var placeholder = $('@_FC_PLACEHOLDER_@');
+      if (placeholder.tagName == "TEXTAREA" || placeholder.tagName == "INPUT")
+         placeholder.value = "";
+      else
+         placeholder.value = ""; <!-- this part is to be done -->
+   }

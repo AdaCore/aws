@@ -1,0 +1,60 @@
+
+@@-- $1    the tag node ID to handle in the DOM tree
+@@-- $2    the placeholder for the resulting data
+@@-- $3    a set of parameters to pass to the URL
+@@-- $4-$8 are linked fields id to this request, all fields are passed as
+@@--       parameters to the request.
+@@--
+@@-- The final request is : /$1?$4&$5=value($5)&$6=value($6)
+@@-- with value(name) being the value for the field named "name".
+
+@@SET@@ FR_ID = $1
+@@SET@@ FR_PLACEHOLDER = $2
+@@SET@@ FR_PARAMETERS = $3
+@@SET@@ FR_F1 = $4
+@@SET@@ FR_F2 = $5
+@@SET@@ FR_F3 = $6
+@@SET@@ FR_F4 = $7
+@@SET@@ FR_F5 = $8
+
+   {
+      var rurl="/@_FR_ID_@";
+      var rpars = "";
+      var rplaceholder = $('@_FR_PLACEHOLDER_@');
+@@IF@@ @_FR_PARAMETERS_@ /= ""
+      rpars = "@_FR_PARAMETERS_@";
+   @@IF@@ @_FR_F1_@ /= ""
+      rpars = rpars + "&";
+   @@END_IF@@
+@@END_IF@@
+@@IF@@ @_FR_F1_@ /= ""
+      rpars = rpars + serialize('@_FR_F1_@');
+@@END_IF@@
+@@IF@@ @_FR_F2_@ /= ""
+      rpars = rpars + serialize('@_FR_F2_@');
+@@END_IF@@
+@@IF@@ @_FR_F3_@ /= ""
+      rpars = rpars + serialize('@_FR_F3_@');
+@@END_IF@@
+@@IF@@ @_FR_F4_@ /= ""
+      rpars = rpars + serialize('@_FR_F4_@');
+@@END_IF@@
+@@IF@@ @_FR_F5_@ /= ""
+      rpars = rpars + serialize('@_FR_F5_@');
+@@END_IF@@
+      if (rplaceholder.tagName == "TEXTAREA" || 
+          rplaceholder.tagName == "INPUT")
+         var O_ajax = new Ajax.Request
+            (rurl,
+             {method: 'get', parameters: rpars, 
+              onComplete: function(req) 
+                            {rplaceholder.value = req.responseText;},
+              onFailure: report_error});
+      else
+         var O_ajax = new Ajax.Updater
+            ({success: '@_FR_PLACEHOLDER_@'},
+             rurl,
+             {method: 'get', parameters: rpars, onFailure:report_error, onComplete: update_behaviour});
+     
+      return (false);
+   }

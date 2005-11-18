@@ -1,0 +1,15 @@
+
+@@-- $1    action name onclick/onchange
+@@-- $2    the tag node ID in the DOM tree where the action must be placed
+@@-- $3    the id of the recipient to clear
+
+@@SET@@ C_ACTION = $1
+@@SET@@ C_ID = $2
+@@SET@@ C_PLACEHOLDER = $3
+
+<script>
+   function call_@_C_ACTION_@_@_C_ID_@()
+      @@INCLUDE@@ aws_func_clear.tjs @_C_PLACEHOLDER_@
+</script>
+
+@@INCLUDE@@ aws_action_js.tjs @_C_ACTION_@ @_C_ID_@

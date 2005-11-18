@@ -1,0 +1,40 @@
+
+@@--  This file must be included when any .tjs templates are used
+
+<script src="/we_js/prototype.js" type="text/javascript"></script>
+<script src="/we_js/behaviour.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+
+@@-- --------------------------------
+@@-- Used to report javascript errors
+
+   function report_error (request)
+   {
+      alert ('Sorry. There was an error.');
+   }
+
+@@-- --------------------------------
+@@-- Update the behavior rules, needed when loading new section 
+@@-- containing JavaScript code.
+
+   function update_behaviour ()
+   {
+      Behaviour.apply ();
+   }
+
+@@-- --------------------------------
+@@-- Serialize a tag or all fields in a form
+
+   function serialize (elm)
+   {
+      var param = "";
+
+      if ($(elm).tagName == "FORM")
+         param = Form.serialize (elm);
+      else 
+         param = elm + "=" + $F(elm);
+      
+      return (param);
+   }
+</script>
