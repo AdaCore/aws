@@ -4,7 +4,7 @@
 
 Authors:
    Dmitriy Anisimkov
-   Pascal Obry                                              November 1st, 2005
+   Pascal Obry                                              November 18th, 2005
 
 
 
@@ -97,6 +97,10 @@ Here are the main changes since AWS 2.1 :
      downloads. This Download Manager contains a waiting queue and send
      appropriate response to the client about the status of the download
      (position in the waiting queue, download about to start).
+
+   - Implements a set of JavaScript templates to ease Ajax (Asynchronous
+     JavaScript language and XML demos) based developments with with AWS.
+     This is also known as XML HTTP Requests.
 
    - Plus many small fixes, enhancements, API comments, and documentation work.
 
