@@ -20,7 +20,6 @@
    {
       var rurl="/@_FR_ID_@";
       var rpars = "";
-      var rplaceholder = $('@_FR_PLACEHOLDER_@');
 @@IF@@ @_FR_PARAMETERS_@ /= ""
       rpars = "@_FR_PARAMETERS_@";
    @@IF@@ @_FR_F1_@ /= ""
@@ -42,19 +41,7 @@
 @@IF@@ @_FR_F5_@ /= ""
       rpars = rpars + serialize('@_FR_F5_@');
 @@END_IF@@
-      if (rplaceholder.tagName == "TEXTAREA" || 
-          rplaceholder.tagName == "INPUT")
-         var O_ajax = new Ajax.Request
-            (rurl,
-             {method: 'get', parameters: rpars, 
-              onComplete: function(req) 
-                            {rplaceholder.value = req.responseText;},
-              onFailure: report_error});
-      else
-         var O_ajax = new Ajax.Updater
-            ({success: '@_FR_PLACEHOLDER_@'},
-             rurl,
-             {method: 'get', parameters: rpars, onFailure:report_error, onComplete: update_behaviour});
-     
+
+      aws_replace (rurl, rpars, '@_FR_PLACEHOLDER_@');     
       return (false);
    }
