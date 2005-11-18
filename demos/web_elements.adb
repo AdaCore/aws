@@ -33,6 +33,7 @@ with AWS.Default;
 with AWS.Dispatchers.Callback;
 with AWS.MIME;
 with AWS.OS_Lib;
+with AWS.Parameters;
 with AWS.Response;
 with AWS.Server;
 with AWS.Services.Callbacks;
@@ -41,12 +42,17 @@ with AWS.Status;
 with AWS.Templates;
 with AWS.Utils;
 
+with Web_Elements_Containers;
+
 procedure Web_Elements is
 
    use Ada;
    use AWS;
+   use Web_Elements_Containers;
 
    WWW_Root : constant String := "../web_elements";
+
+   C        : Natural := 0;
 
    --------
    -- CB --
@@ -55,11 +61,63 @@ procedure Web_Elements is
    function CB (Request : in Status.Data) return Response.Data is
       URI      : constant String := Status.URI (Request);
       Filename : constant String := URI (URI'First + 1 .. URI'Last);
+      P_List   : constant Parameters.List := Status.Parameters (Request);
    begin
       if URI = "/" then
          return Response.Build
-           ("text/html",
+           (MIME.Text_HTML,
             Message_Body => Templates.Parse ("we_library.html"));
+
+      elsif URI = "/clickme" then
+         C := C + 1;
+         return Response.Build
+           (MIME.Text_HTML,
+            Message_Body => Natural'Image (C) &
+               ". response for the click me button!");
+
+      elsif URI = "/select_color" then
+         return Response.Build
+           (MIME.Text_HTML, "<p><b>You have choosen the " &
+            Parameters.Get (P_List, "select_color") & " color");
+
+      elsif URI = "/data" then
+         C := C + 1;
+         return Response.Build
+           (MIME.Text_HTML,
+            Message_Body => Natural'Image (C) &
+              ". some data from the server, and the field value '" &
+              Parameters.Get (P_List, "field") & ''');
+
+      elsif URI = "/small_form" then
+         return Response.Build
+           (MIME.Text_HTML,
+            Message_Body =>
+              "You have ordered a pant " &
+              Parameters.Get (P_List, "size") & " and " &
+              Parameters.Get (P_List, "form_color") & '.');
+
+      elsif URI = "/db_sel1" then
+         return Response.File
+           (MIME.Text_HTML, "we_ajax_group.html");
+
+      elsif URI = "/db_sel2" then
+         return Response.Build
+           (MIME.Text_HTML,
+            String'(Templates.Parse
+              ("we_ajax_user.html",
+                 (1 => Templates.Assoc ("GROUP_V", Get_Groups)))));
+
+      elsif URI = "/g_action" then
+         Add_Group (Parameters.Get (P_List, "g_name"));
+         return Response.File
+           (MIME.Text_HTML, "we_ajax_group.html");
+
+      elsif URI = "/u_action" then
+         return Response.Build
+           (MIME.Text_HTML,
+            String'(Templates.Parse
+              ("we_ajax_user.html",
+                 (1 => Templates.Assoc ("GROUP_V", Get_Groups)))));
 
       elsif OS_Lib.Is_Regular_File (WWW_Root & URI) then
          return AWS.Response.File
@@ -68,7 +126,7 @@ procedure Web_Elements is
 
       else
          return AWS.Response.Build
-           ("text/html", Message_Body => Templates.Parse (Filename));
+           (MIME.Text_HTML, Message_Body => Templates.Parse (Filename));
       end if;
    end CB;
 
