@@ -89,13 +89,15 @@ html>div, #page4         { height: 36em; }
       <p><input id="field" type="text" value="enter some text here">
       <p>Click on the button...</p>
       <p><input id="data" type="button" value="Clik Me"></p>
-      <p>Clear the entry:
-      <p><input id="cdata" type="button" value="Clear">
+      <p>Clear actions:
+      <p><input id="cdata" type="button" value="Clear Field">
+      <p><input id="cplaceh" type="button" value="Clear Result">
       </div>
 
       <div Class="Result" id="placeholder2">... result here ...
       @@INCLUDE@@ ../web_elements/javascripts/aws_action_replace.tjs (onclick, data, placeholder2, 5=>field)
       @@INCLUDE@@ ../web_elements/javascripts/aws_action_clear.tjs (onclick, cdata, field)
+      @@INCLUDE@@ ../web_elements/javascripts/aws_action_clear.tjs (onclick, cplaceh, placeholder2)
       </div>
 
       <div class="Code">
