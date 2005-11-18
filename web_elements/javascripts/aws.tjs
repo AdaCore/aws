@@ -37,4 +37,26 @@
       
       return (param);
    }
+
+@@-- --------------------------------
+@@-- Call url?pars and put result into placeholder
+
+   function aws_replace (url, pars, placeholder)
+   {
+      var rplaceholder = $(placeholder);
+
+      if (rplaceholder.tagName == "TEXTAREA" || 
+          rplaceholder.tagName == "INPUT")
+         var O_ajax = new Ajax.Request
+            (url,
+             {method: 'get', parameters: pars, 
+              onComplete: function(req) 
+                            {rplaceholder.value = req.responseText;},
+              onFailure: report_error});
+      else
+         var O_ajax = new Ajax.Updater
+            ({success: placeholder},
+             url,
+             {method: 'get', parameters: pars, onFailure:report_error, onComplete: update_behaviour});
+   }
 </script>
