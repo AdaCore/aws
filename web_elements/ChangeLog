@@ -1,4 +1,19 @@
-2005-11-18  Pascal Obry  <obry@roxy>
+2005-11-18  Pascal Obry  <pascal@obry.net>
+
+	* javascripts/aws_func_clear.tjs:
+	Implements the clear for other objects than TEXTAREA and INPUT.
+	Continued work for EB06-001.
+
+	* javascripts/aws_func_replace.tjs:
+	Call aws_replace function (shared code) as this macro will be
+	 expanded for all actions placed in a Web page.
+	Continued work for EB06-001.
+
+	* javascripts/aws.tjs:
+	(aws_replace): New function used to share code for replacing data.
+	Continued work for EB06-001.
+
+2005-11-18  Pascal Obry  <pascal@obry.net>
 
 	* javascripts/aws.tjs:
 	Initial revision.

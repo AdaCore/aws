@@ -1,4 +1,10 @@
-2005-11-18  Pascal Obry  <obry@roxy>
+2005-11-18  Pascal Obry  <pascal@obry.net>
+
+	* we_test_ajax.html:
+	Add a new button to clear the result div section.
+	Continued work for EB06-001.
+
+2005-11-18  Pascal Obry  <pascal@obry.net>
 
 	* demos.gpr:
 	(Mains): Add web_elements_containers.ads, web_elements_containers.adb.
