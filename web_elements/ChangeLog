@@ -1,3 +1,13 @@
+2005-11-21  Pascal Obry  <pascal@obry.net>
+
+	* javascripts/aws_func_replace.tjs:
+	(FR_ONCOMPLETE): New variable for parameter $20. Call aws_replace
+	 with the oncomplete routine if defined.
+
+	* javascripts/aws.tjs:
+	(aws_replace): Add parameter oncomplete. This is a routine to be
+	 executed after the callback completion.
+
 2005-11-18  Pascal Obry  <pascal@obry.net>
 
 	* javascripts/aws_func_clear.tjs:
