@@ -19,9 +19,11 @@
 @@SET@@ F4 = $8
 @@SET@@ F5 = $9
 
+@@SET@@ ONCOMPLETE = $20
+
 <script>
    function call_@_ACTION_@_@_ID_@()
-      @@INCLUDE@@ aws_func_replace.tjs @_ID_@ @_PLACEHOLDER_@ @_PARAMETERS_@ @_F1_@ @_F2_@ @_F3_@ @_F4_@ @_F5_@ 
+      @@INCLUDE@@ aws_func_replace.tjs (@_ID_@, @_PLACEHOLDER_@, @_PARAMETERS_@, @_F1_@, @_F2_@, @_F3_@, @_F4_@, @_F5_@, 20=>@_ONCOMPLETE_@) 
 </script>
 
 @@INCLUDE@@ aws_action_js.tjs @_ACTION_@ @_ID_@
