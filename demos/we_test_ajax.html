@@ -11,9 +11,10 @@ h1             { font-size: large; text-align: center; }
 
 /* trick IE which won't understand html>div */
 html>div, #page1         { height: 15em; }
-html>div, #page2         { height: 32em; }
+html>div, #page2         { height: 33em; }
 html>div, #page3         { height: 20em; }
 html>div, #page4         { height: 36em; }
+html>div, #page5         { height: 30em; }
 
 .Demo          { position: relative; top: 1em; width: 40%;
                  float: left;
@@ -25,8 +26,20 @@ html>div, #page4         { height: 36em; }
                  font-size: small; font-family: courier;
                }
 .CResult       { position: relative; top: 1em; width: 50%;
-                 float: left; left: 10px; height: 15em;
+                 float: left; left: 10px; height: 10em;
                  background-color: #dddddd; padding: 10px;
+               }
+.List          { position: relative; width: 70%;
+                 float: left; left: 10px;
+                 padding: 10px;
+               }
+.HList         { position: relative; top: 2em; width: 40%;
+                 float: left; left: 10px;
+                 padding: 10px;
+               }
+.BList         { position: relative; top: 3em; width: 40%;
+                 float: left; left: 10px; height: 10em;
+                 background-color: #8dc387; padding: 10px;
                }
 .Code          { position: relative; top: 2em; width: 90%;
                  float: left;
@@ -208,10 +221,28 @@ html>div, #page4         { height: 36em; }
       </form>
       </div>
 
+<script>
+   function list_group()
+   {
+      @@INCLUDE@@ ../web_elements/javascripts/aws_func_replace.tjs (g_list, group_list)
+   }
+   function list_user()
+   {
+      @@INCLUDE@@ ../web_elements/javascripts/aws_func_replace.tjs (u_list, user_list)
+   }
+</script>
       <div id="action" class="CResult"></div>
-      @@INCLUDE@@ ../web_elements/javascripts/aws_action_replace.tjs (onclick, g_action, action, 5=>db_group)
-      @@INCLUDE@@ ../web_elements/javascripts/aws_action_replace.tjs (onclick, u_action, action, 5=>db_user)
+      @@INCLUDE@@ ../web_elements/javascripts/aws_action_replace.tjs (onclick, g_action, action, 5=>db_group, 20=>list_group)
+      @@INCLUDE@@ ../web_elements/javascripts/aws_action_replace.tjs (onclick, u_action, action, 5=>db_user, 20=>list_user)
+      <div class="List">
+      <div class="HList">Groups</div>
+      <div class="HList">Users</div>
+      <div id="group_list" class="BList"></div>
+      <div id="user_list" class="BList">
       </div>
+      </div>
+      </div>
+
       </td>
       </table>
    </body>
