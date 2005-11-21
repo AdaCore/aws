@@ -1,13 +1,22 @@
-<form id="db_group">
-<fieldset>
-  <legend>Create a group</legend>
-  Name <input type="text" name="g_name" width="25">
-  <br><br>Access rights
-  <select>
-     <option value="r">read</option>
-     <option value="w">write</option>
-     <option value="rw">read-write</option>
-  </select>
-  <br><br><input id="g_action" type="button" name="go" value="enter">
-</fieldset>
-</form>
+@@IF@@ @_LIST_@
+   <ul>
+   @@TABLE@@     
+      <li>@_GROUP_V_@</li>
+   @@END_TABLE@@
+   </ul>
+
+@@ELSE@@
+   <form id="db_group">
+   <fieldset>
+      <legend>Create a group</legend>
+      Name <input type="text" name="g_name" width="25">
+      <br><br>Access rights
+      <select>
+         <option value="r">read</option>
+         <option value="w">write</option>
+         <option value="rw">read-write</option>
+      </select>
+      <br><br><input id="g_action" type="button" name="go" value="enter">
+   </fieldset>
+   </form>
+@@END_IF@@
