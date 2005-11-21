@@ -1,3 +1,27 @@
+2005-11-21  Pascal Obry  <pascal@obry.net>
+
+	* web_elements_containers.ads, web_elements_containers.adb:
+	(Add_User): New routine.
+	(Get_Users): Idem.
+	Continued work for EB06-001.
+
+	* web_elements.adb:
+	(CB): Handles callback for listing groups and users.
+	Continued work for EB06-001.
+
+	* we_test_ajax.html:
+	Add code to display the current groups and users for the complex
+	 demo. This demo the chaining of XML HTTP Requests.
+	Continued work for EB06-001.
+
+	* we_ajax_user.html:
+	Add support for listing the users.
+	Continued work for EB06-001.
+
+	* we_ajax_group.html:
+	Add support for listing the groups.
+	Continued work for EB06-001.
+
 2005-11-18  Pascal Obry  <pascal@obry.net>
 
 	* we_test_ajax.html:

@@ -1,12 +1,20 @@
 2005-11-21  Pascal Obry  <pascal@obry.net>
 
+	* javascripts/aws_action_replace.tjs:
+	(ONCOMPLETE): New variable used to chain XML HTTP Request.
+	Continued work for EB06-001.
+
+2005-11-21  Pascal Obry  <pascal@obry.net>
+
 	* javascripts/aws_func_replace.tjs:
 	(FR_ONCOMPLETE): New variable for parameter $20. Call aws_replace
 	 with the oncomplete routine if defined.
+	Continued work for EB06-001.
 
 	* javascripts/aws.tjs:
 	(aws_replace): Add parameter oncomplete. This is a routine to be
 	 executed after the callback completion.
+	Continued work for EB06-001.
 
 2005-11-18  Pascal Obry  <pascal@obry.net>
 
