@@ -1,14 +1,23 @@
-<form id="db_user">
-<fieldset>
-  <legend>Create a user</legend>
-  Name <input type="text" name="u_name" width="25">
-  <br><br>Group
-  <select name="g_name">
-     <option value="no-group">No group</option>
-@@TABLE@@     
-     <option value="@_GROUP_V_@">@_GROUP_V_@</option>
-@@END_TABLE@@
-  </select>
-  <br><br><input id="u_action" type="button" name="go" value="enter">
-</fieldset>
-</form>
+@@IF@@ @_LIST_@
+   <ul>
+   @@TABLE@@     
+      <li>@_USER_V_@</li>
+   @@END_TABLE@@
+   </ul>
+
+@@ELSE@@
+   <form id="db_user">
+   <fieldset>
+      <legend>Create a user</legend>
+      Name <input type="text" name="u_name" width="25">
+      <br><br>Group
+      <select name="g_name">
+         <option value="no-group">No group</option>
+         @@TABLE@@     
+         <option value="@_GROUP_V_@">@_GROUP_V_@</option>
+         @@END_TABLE@@
+      </select>
+      <br><br><input id="u_action" type="button" name="go" value="enter">
+   </fieldset>
+   </form>
+@@END_IF@@
