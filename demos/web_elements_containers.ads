@@ -34,6 +34,12 @@ package Web_Elements_Containers is
    --  Add a new group
 
    function Get_Groups return AWS.Templates.Vector_Tag;
-   --  Returns the list of group as a vector tag
+   --  Returns the list of groups as a vector tag
+
+   procedure Add_User (Name : in String);
+   --  Add a new user
+
+   function Get_Users return AWS.Templates.Vector_Tag;
+   --  Returns the list of users as a vector tag
 
 end Web_Elements_Containers;

@@ -38,6 +38,7 @@ package body Web_Elements_Containers is
      new AI302.Containers.Indefinite_Vectors (Positive, String);
 
    Groups : String_Vectors.Vector;
+   Users  : String_Vectors.Vector;
 
    ---------------
    -- Add_Group --
@@ -47,6 +48,15 @@ package body Web_Elements_Containers is
    begin
       String_Vectors.Append (Groups, Name);
    end Add_Group;
+
+   --------------
+   -- Add_User --
+   --------------
+
+   procedure Add_User (Name : in String) is
+   begin
+      String_Vectors.Append (Users, Name);
+   end Add_User;
 
    ----------------
    -- Get_Groups --
@@ -61,5 +71,19 @@ package body Web_Elements_Containers is
 
       return Result;
    end Get_Groups;
+
+   ---------------
+   -- Get_Users --
+   ---------------
+
+   function Get_Users return AWS.Templates.Vector_Tag is
+      Result : Vector_Tag;
+   begin
+      for K in 1 .. String_Vectors.Length (Users) loop
+         Result := Result & String_Vectors.Element (Users, Positive (K));
+      end loop;
+
+      return Result;
+   end Get_Users;
 
 end Web_Elements_Containers;
