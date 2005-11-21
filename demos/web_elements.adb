@@ -97,8 +97,9 @@ procedure Web_Elements is
               Parameters.Get (P_List, "form_color") & '.');
 
       elsif URI = "/db_sel1" then
-         return Response.File
-           (MIME.Text_HTML, "we_ajax_group.html");
+         return Response.Build
+           (MIME.Text_HTML,
+            String'(Templates.Parse ("we_ajax_group.html")));
 
       elsif URI = "/db_sel2" then
          return Response.Build
@@ -109,15 +110,33 @@ procedure Web_Elements is
 
       elsif URI = "/g_action" then
          Add_Group (Parameters.Get (P_List, "g_name"));
-         return Response.File
-           (MIME.Text_HTML, "we_ajax_group.html");
+         return Response.Build
+           (MIME.Text_HTML,
+            String'(Templates.Parse ("we_ajax_group.html")));
 
       elsif URI = "/u_action" then
+         Add_User (Parameters.Get (P_List, "u_name"));
          return Response.Build
            (MIME.Text_HTML,
             String'(Templates.Parse
               ("we_ajax_user.html",
                  (1 => Templates.Assoc ("GROUP_V", Get_Groups)))));
+
+      elsif URI = "/u_list" then
+         return Response.Build
+           (MIME.Text_HTML,
+            String'(Templates.Parse
+              ("we_ajax_user.html",
+                 (1 => Templates.Assoc ("LIST", True),
+                  2 => Templates.Assoc ("USER_V", Get_Users)))));
+
+      elsif URI = "/g_list" then
+         return Response.Build
+           (MIME.Text_HTML,
+            String'(Templates.Parse
+              ("we_ajax_group.html",
+                 (1 => Templates.Assoc ("LIST", True),
+                  2 => Templates.Assoc ("GROUP_V", Get_Groups)))));
 
       elsif OS_Lib.Is_Regular_File (WWW_Root & URI) then
          return AWS.Response.File
