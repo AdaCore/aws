@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2003                          --
---                                ACT-Europe                                --
+--                         Copyright (C) 2000-2005                          --
+--                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -58,9 +58,7 @@ package body User_Strm is
    -----------------
 
    function End_Of_File
-     (Resource : in File_Tagged)
-      return Boolean
-   is
+     (Resource : in File_Tagged) return Boolean is
    begin
       return Resource.Offset >= Resource.Size;
    end End_Of_File;
@@ -118,6 +116,17 @@ package body User_Strm is
    begin
       null;
    end Reset;
+
+   ---------------
+   -- Set_Index --
+   ---------------
+
+   procedure Set_Index
+     (File     : in out File_Tagged;
+      Position : in     Stream_Element_Offset) is
+   begin
+      null;
+   end Set_Index;
 
    ----------
    -- Size --

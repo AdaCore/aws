@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2003                          --
---                                ACT-Europe                                --
+--                         Copyright (C) 2000-2005                          --
+--                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -28,7 +28,7 @@
 
 --  $Id$
 
---  Test for user defined stream.
+--  Test for user defined streams
 
 with Ada.Streams;
 
@@ -55,6 +55,10 @@ package User_Strm is
    procedure Close (File : in out File_Tagged);
 
    procedure Reset (File : in out File_Tagged);
+
+   procedure Set_Index
+     (File     : in out File_Tagged;
+      Position : in     Stream_Element_Offset);
 
    procedure Create
      (Resource       : in out AWS.Resources.Streams.Stream_Type'Class;
