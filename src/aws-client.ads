@@ -65,6 +65,17 @@ package AWS.Client is
    No_Timeout : constant Timeouts_Values;
    --  No timeout, allow infinite time to send or retrieve data
 
+   type Content_Bound is new Integer range -1 .. Integer'Last;
+
+   Undefined : constant Content_Bound := -1;
+
+   type Content_Range is record
+      First, Last : Content_Bound := Undefined;
+   end record;
+   --  Range for partial download
+
+   No_Range : constant Content_Range := (Undefined, Undefined);
+
    type Authentication_Mode is new AWS.Response.Authentication_Mode;
 
    type Authentication_Level is private;
@@ -85,6 +96,7 @@ package AWS.Client is
       Proxy_User         : in String          := No_Data;
       Proxy_Pwd          : in String          := No_Data;
       Timeouts           : in Timeouts_Values := No_Timeout;
+      Data_Range         : in Content_Range   := No_Range;
       Follow_Redirection : in Boolean         := False)
       return Response.Data;
    --  Retrieve the message data given a specific URL. It open a connection
@@ -297,7 +309,8 @@ package AWS.Client is
    procedure Get
      (Connection : in out HTTP_Connection;
       Result     :    out Response.Data;
-      URI        : in     String          := No_Data);
+      URI        : in     String          := No_Data;
+      Data_Range : in     Content_Range   := No_Range);
    --  Same as Get above but using a Connection
 
    procedure Head
@@ -429,6 +442,7 @@ private
       Retry         : Natural;
       Read_Timeout  : Duration;
       Write_Timeout : Duration;
+      Data_Range    : Content_Range;
       Certificate   : Unbounded_String;
       User_Agent    : Unbounded_String;
       SSL_Config    : AWS.Net.SSL.Config;
