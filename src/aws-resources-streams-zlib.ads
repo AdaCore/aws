@@ -97,6 +97,10 @@ package AWS.Resources.Streams.ZLib is
 
    procedure Reset (Resource : in out Stream_Type);
 
+   procedure Set_Index
+     (Resource : in out Stream_Type;
+      To       : in     Stream_Element_Offset);
+
    function End_Of_File (Resource : in Stream_Type) return Boolean;
    --  Returns true if there is no more data to read
 

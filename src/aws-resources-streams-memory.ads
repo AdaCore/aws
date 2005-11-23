@@ -80,6 +80,12 @@ package AWS.Resources.Streams.Memory is
    procedure Reset (Resource : in out Stream_Type);
    --  Reset the streaming data to the first position
 
+   procedure Set_Index
+     (Resource : in out Stream_Type;
+      To       : in     Stream_Element_Offset);
+   --  Set the position in the stream, next Read will start at the position
+   --  whose index is To.
+
    function Size (Resource : in Stream_Type) return Stream_Element_Offset;
    --  Returns the number of bytes in the memory stream
 
