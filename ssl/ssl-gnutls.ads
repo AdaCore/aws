@@ -1,3 +1,5 @@
+--  $Id$
+
 with Interfaces.C.Strings;
 with System;
 
@@ -131,9 +133,9 @@ package SSL.GNUTLS is
                     "gnutls_certificate_allocate_credentials");
 
    function GNUTLS_Certificate_Set_X509_Trust_File
-     (Res  : GNUTLS_Certificate_Credentials,
-      File : CS.chars_ptr,
-      Fmt  : GNUTLS_x509_crt_fmt);
+     (Res  : GNUTLS_Certificate_Credentials;
+      File : CS.chars_ptr;
+      Fmt  : GNUTLS_x509_crt_fmt) return C.int;
    pragma Import (C, GNUTLS_Certificate_Set_X509_Trust_File,
                     "gnutls_certificate_set_x509_trust_file");
 
@@ -151,6 +153,12 @@ package SSL.GNUTLS is
      (Session : in GNUTLS_Session;
       List    : in Int_Array) return C.int;
    pragma Import (C, GNUTLS_KX_Set_Priority, "gnutls_kx_set_priority");
+
+   function GNUTLS_Certificate_Type_Set_Priority
+     (Session : in GNUTLS_Session;
+      List    : in Int_Array) return C.int;
+   pragma Import (C, GNUTLS_Certificate_Type_Set_Priority,
+                     "gnutls_certificate_type_set_priority");
 
    function GNUTLS_Credentials_Set
      (Session : in GNUTLS_Session;
@@ -205,6 +213,11 @@ package SSL.GNUTLS is
      (SC : in GNUTLS_Anon_Client_Credentials);
    pragma Import (C, GNUTLS_Anon_Free_Client_Credentials,
                     "gnutls_anon_free_client_credentials");
+
+   procedure GNUTLS_Certificate_Free_Credentials
+     (SC : GNUTLS_Certificate_Credentials);
+   pragma Import (C, GNUTLS_Certificate_Free_Credentials,
+                    "gnutls_certificate_free_credentials");
 
    procedure GNUTLS_Global_Deinit;
    pragma Import (C, GNUTLS_Global_Deinit, "gnutls_global_deinit");
