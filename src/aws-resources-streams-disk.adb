@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                          Copyright (C) 2003-2004                         --
---                                ACT-Europe                                --
+--                          Copyright (C) 2003-2005                         --
+--                                  AdaCore                                 --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -128,6 +128,26 @@ package body AWS.Resources.Streams.Disk is
    begin
       Stream_IO.Reset (Resource.File);
    end Reset;
+
+   ---------------
+   -- Set_Index --
+   ---------------
+
+   procedure Set_Index
+     (Resource : in out Stream_Type;
+      To       : in     Stream_Element_Offset)
+   is
+      use type Stream_IO.Count;
+      Size : constant Stream_Element_Offset :=
+               Stream_Element_Offset (Stream_IO.Size (Resource.File));
+      Pos  : Stream_Element_Offset := To;
+   begin
+      if To < 1 or else To > Size then
+         Pos := Size + 1;
+      end if;
+
+      Stream_IO.Set_Index (Resource.File, Stream_IO.Count (Pos));
+   end Set_Index;
 
    ----------
    -- Size --

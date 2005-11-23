@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2003                            --
---                                ACT-Europe                                --
+--                         Copyright (C) 2003-2005                          --
+--                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -106,6 +106,17 @@ package body AWS.Resources.Streams.Memory is
    begin
       Containers.Reset (Resource.Data);
    end Reset;
+
+   ---------------
+   -- Set_Index --
+   ---------------
+
+   procedure Set_Index
+     (Resource : in out Stream_Type;
+      To       : in     Stream_Element_Offset) is
+   begin
+      Containers.Set_Index (Resource.Data, To);
+   end Set_Index;
 
    ----------
    -- Size --

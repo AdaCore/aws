@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2003-2004                          --
---                                ACT-Europe                                --
+--                         Copyright (C) 2003-2005                          --
+--                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -54,6 +54,10 @@ package AWS.Resources.Streams.Disk is
    function Name (Resource : in Stream_Type) return String;
 
    procedure Reset (Resource : in out Stream_Type);
+
+   procedure Set_Index
+     (Resource : in out Stream_Type;
+      To       : in     Stream_Element_Offset);
 
    procedure Close (Resource : in out Stream_Type);
 
