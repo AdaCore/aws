@@ -1,3 +1,14 @@
+2005-11-23  Pascal Obry  <pascal@obry.net>
+
+	* memory_streams.ads:
+        (Set_Index): New routine.
+        Minor reformatting.
+        Update copyright notice.
+
+	* memory_streams.adb:
+        (Set_Index): New routine.
+        Update copyright notice.
+
 2005-10-27  Pascal Obry  <pascal@obry.net>
 
 	* include.gpr:

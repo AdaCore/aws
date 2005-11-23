@@ -1,3 +1,62 @@
+2005-11-23  Pascal Obry  <pascal@obry.net>
+
+	* aws-mime.ads:
+        (Multipart_Byteranges): New constant.
+        Update copyright notice.
+
+	* aws-resources-streams-disk.ads, aws-resources-streams-disk.adb:
+        (Set_Index): Implement this abstract routine.
+        Update copyright notice.
+
+	* aws-resources-streams-memory.adb:
+        (Set_Index): Implement this abstract routine.
+        Update copyright notice.
+
+	* aws-resources-streams-memory.ads:
+        (Set_Index): Implement this abstract routine.
+
+	* aws-resources-streams-zlib.adb:
+        (Set_Index): Implement this abstract routine.
+        Update copyright notice.
+
+	* aws-resources-streams-zlib.ads:
+        (Set_Index): Implement this abstract routine.
+
+	* aws-resources-streams.ads:
+        (Set_Index): New abstract routine.
+        Minor reformatting.
+        Update copyright notice.
+
+	* aws-resources.ads, aws-resources.adb:
+        (Set_Index): New routine.
+        Minor reformatting.
+        Update copyright notice.
+
+	* aws-client-http_utils.adb:
+	(Image) [Content_Range]: New routine.
+        (Open_Send_Common_Header): Send Range header if needed.
+
+	* aws-client.adb:
+        (Get): Add parameter Data_Range.
+        (Get) [HTTP_Connection]: Add parameter Data_Range, record the value
+         into the connection object.
+
+	* aws-client.ads:
+        (Content_Bound): New type.
+        (Undefined): New constant.
+        (Content_Range): New record.
+        (No_Range): New constant.
+        (Get): Add parameter Data_Range.
+        (Get) [HTTP_Connection]: Idem.
+
+	* aws-server-http_utils.adb:
+        (Get_File_Data): Minor update.
+        (Send_Data): Declare Method and use it instead of recomputing the
+         value. Send the 206 status (Partial Download) if the Range header
+         is part of the request.
+        (Send_Resource): Update to support partial downloads.
+        (Send_Ranges): New routine.
+
 2005-11-17  Dmitriy Anisimkov <anisimkov@ada-ru.org>
 
 	* aws-net.adb:

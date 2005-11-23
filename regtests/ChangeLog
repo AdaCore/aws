@@ -1,3 +1,13 @@
+2005-11-23  Pascal Obry  <pascal@obry.net>
+
+	* partial.adb:
+        New non regression test for the partial download.
+
+	* user_strm.ads, user_strm.adb:
+        (Set_Index): Implement this abstract routine.
+        Minor reformatting.
+        Update copyright notice.
+
 2005-11-17  Dmitriy Anisimkov <anisimkov@ada-ru.org>
 
 	* sockover.adb, sockover.out:
