@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2004                          --
---                                ACT-Europe                                --
+--                         Copyright (C) 2000-2005                          --
+--                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -116,6 +116,7 @@ package AWS.MIME is
    ---------------
 
    Multipart_Form_Data         : constant String := "multipart/form-data";
+   Multipart_Byteranges        : constant String := "multipart/byteranges";
    Multipart_Related           : constant String := "multipart/related";
    Multipart_X_Mixed_Replace   : constant String
      := "multipart/x-mixed-replace";
