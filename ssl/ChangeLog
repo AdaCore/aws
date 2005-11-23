@@ -1,3 +1,9 @@
+2005-11-23  Dmitriy Anisimkov  <anisimkov@ada-ru.org>
+
+	* ssl-gnutls.ads:
+	(GNUTLS_Certificate_Type_Set_Priority): New routine.
+	(GNUTLS_Certificate_Free_Credentials): New routine.
+
 2005-10-27  Pascal Obry  <pascal@obry.net>
 
 	* ssl.gpr, nossl.gpr:
