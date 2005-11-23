@@ -60,6 +60,10 @@ package body AWS.Client.HTTP_Utils is
    --  Output Message prefixed with Prefix if Debug_On is True and does
    --  nothing otherwise.
 
+   function Image (Data_Range : in Content_Range) return String;
+   --  Returns the partial content range parameter to be passed to the Range
+   --  header.
+
    -------------
    -- Connect --
    -------------
@@ -341,6 +345,28 @@ package body AWS.Client.HTTP_Utils is
 
       Disconnect;
    end Get_Response;
+
+   -----------
+   -- Image --
+   -----------
+
+   function Image (Data_Range : in Content_Range) return String is
+      Result : Unbounded_String;
+   begin
+      Append (Result, "bytes=");
+
+      if Data_Range.First /= Undefined then
+         Append (Result, Utils.Image (Natural (Data_Range.First)));
+      end if;
+
+      Append (Result, "-");
+
+      if Data_Range.Last /= Undefined then
+         Append (Result, Utils.Image (Natural (Data_Range.Last)));
+      end if;
+
+      return To_String (Result);
+   end Image;
 
    -------------------
    -- Internal_Post --
@@ -716,20 +742,31 @@ package body AWS.Client.HTTP_Utils is
            (Sock.all, Messages.Cookie (To_String (Connection.Cookie)));
       end if;
 
-      Send_Header (Sock.all,
-                   Messages.Host (Host_Address));
+      Send_Header
+        (Sock.all,
+         Messages.Host (Host_Address));
 
-      Send_Header (Sock.all,
-                   Messages.Accept_Type ("text/html, */*"));
+      Send_Header
+        (Sock.all,
+         Messages.Accept_Type ("text/html, */*"));
 
-      Send_Header (Sock.all,
-                   Messages.Accept_Encoding_Token & ": deflate, gzip");
+      Send_Header
+        (Sock.all,
+         Messages.Accept_Encoding_Token & ": deflate, gzip");
 
-      Send_Header (Sock.all,
-                   Messages.Accept_Language ("fr, ru, us"));
+      Send_Header
+        (Sock.all,
+         Messages.Accept_Language ("fr, ru, us"));
 
-      Send_Header (Sock.all,
-                   Messages.User_Agent (To_String (Connection.User_Agent)));
+      Send_Header
+        (Sock.all,
+         Messages.User_Agent (To_String (Connection.User_Agent)));
+
+      if Connection.Data_Range /= No_Range then
+         Send_Header
+           (Sock.all,
+            Messages.Range_Token & ": " & Image (Connection.Data_Range));
+      end if;
 
       --  User Authentication
 
