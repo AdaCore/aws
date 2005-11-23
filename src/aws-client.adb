@@ -171,6 +171,7 @@ package body AWS.Client is
       Proxy_User         : in String          := No_Data;
       Proxy_Pwd          : in String          := No_Data;
       Timeouts           : in Timeouts_Values := No_Timeout;
+      Data_Range         : in Content_Range   := No_Range;
       Follow_Redirection : in Boolean         := False)
       return Response.Data
    is
@@ -186,7 +187,7 @@ package body AWS.Client is
                  Persistent => False,
                  Timeouts   => Timeouts);
 
-         Get (Connection, Result);
+         Get (Connection, Result, Data_Range => Data_Range);
 
          Close (Connection);
       exception
@@ -213,7 +214,8 @@ package body AWS.Client is
          --  All other redirections, 304 is not one of them.
          return Get
            (Response.Location (Result), User, Pwd,
-            Proxy, Proxy_User, Proxy_Pwd, Timeouts, Follow_Redirection);
+            Proxy, Proxy_User, Proxy_Pwd, Timeouts,
+            Data_Range, Follow_Redirection);
       else
          return Result;
       end if;
@@ -226,13 +228,16 @@ package body AWS.Client is
    procedure Get
      (Connection : in out HTTP_Connection;
       Result     :    out Response.Data;
-      URI        : in     String          := No_Data)
+      URI        : in     String          := No_Data;
+      Data_Range : in     Content_Range   := No_Range)
    is
       Try_Count     : Natural := Connection.Retry;
 
       Auth_Attempts : Auth_Attempts_Count := (others => 2);
       Auth_Is_Over  : Boolean;
    begin
+      Connection.Data_Range := Data_Range;
+
       Retry : loop
          begin
             Open_Send_Common_Header (Connection, "GET", URI);
