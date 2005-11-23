@@ -2,7 +2,7 @@
 --                       Generic memory stream                              --
 --                                                                          --
 --                      Copyright (C) 2003-2005                             --
---                        Dmitriy Anisimkov                                 --
+--                         Dmitriy Anisimkov                                --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -398,6 +398,31 @@ package body Memory_Streams is
       Stream.Current        := Stream.First;
       Stream.Current_Offset := 1;
    end Reset;
+
+   ---------------
+   -- Set_Index --
+   ---------------
+
+   procedure Set_Index
+     (Stream : in out Stream_Type;
+      To     : in     Element_Offset)
+   is
+      Idx : Element_Offset := Last (Stream.First);
+   begin
+      if To < 1 or else To > Size (Stream) then
+         Stream.Current        := Stream.Last;
+         Stream.Current_Offset := Last (Stream.Current) + 1;
+
+      else
+         Stream.Current_Offset := To;
+         Stream.Current        := Stream.First;
+
+         while Idx < To loop
+            Stream.Current := Stream.Current.Next;
+            Idx := Last (Stream.Current);
+         end loop;
+      end if;
+   end Set_Index;
 
    ----------
    -- Size --
