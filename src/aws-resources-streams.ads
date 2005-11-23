@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2002-2003                          --
---                                ACT-Europe                                --
+--                         Copyright (C) 2002-2005                          --
+--                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -36,20 +36,23 @@ package AWS.Resources.Streams is
 
    type Stream_Access is access all Stream_Type'Class;
 
-   function End_Of_File (Resource : in Stream_Type) return Boolean
-      is abstract;
+   function End_Of_File (Resource : in Stream_Type) return Boolean is abstract;
 
    procedure Read
      (Resource : in out Stream_Type;
       Buffer   :    out Stream_Element_Array;
-      Last     :    out Stream_Element_Offset)
-      is abstract;
+      Last     :    out Stream_Element_Offset) is abstract;
 
-   procedure Reset (Resource : in out Stream_Type)
-      is abstract;
+   procedure Reset (Resource : in out Stream_Type) is abstract;
 
-   procedure Close (Resource : in out Stream_Type)
-      is abstract;
+   procedure Set_Index
+     (Resource : in out Stream_Type;
+      To       : in     Stream_Element_Offset) is abstract;
+   --  Set the position in the stream, next Read will start at the position
+   --  whose index is To. If To is outside the content the index is set to
+   --  Last + 1 to ensure that next End_Of_File will return True.
+
+   procedure Close (Resource : in out Stream_Type) is abstract;
 
    function Size (Resource : in Stream_Type) return Stream_Element_Offset;
    --  This default implementation returns Undefined_Length. If the derived
