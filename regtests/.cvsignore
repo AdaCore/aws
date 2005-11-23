@@ -95,6 +95,8 @@ b~once.adb
 b~once.ads
 b~param.adb
 b~param.ads
+b~partial.adb
+b~partial.ads
 b~redirect.adb
 b~redirect.ads
 b~sback.adb
@@ -402,6 +404,7 @@ once.res
 param
 param.res
 param.tmp
+partial.res
 plain2ssl.res
 r_hello_demo-client.adb
 r_hello_demo-client.ads
