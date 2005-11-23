@@ -4,7 +4,7 @@
 
 Authors:
    Dmitriy Anisimkov
-   Pascal Obry                                              November 18th, 2005
+   Pascal Obry                                              November 23th, 2005
 
 
 
@@ -101,6 +101,10 @@ Here are the main changes since AWS 2.1 :
    - Implements a set of JavaScript templates to ease Ajax (Asynchronous
      JavaScript language and XML demos) based developments with with AWS.
      This is also known as XML HTTP Requests.
+
+   - Add support for partial downloads on client and server side. AWS can
+     now properly answer to download managers that can stop and restart a
+     download.
 
    - Plus many small fixes, enhancements, API comments, and documentation work.
 
