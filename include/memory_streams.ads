@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                       Generic memory stream                              --
 --                                                                          --
---                       Copyright (C) 2003-2004                            --
---                        Dmitriy Anisimkov                                 --
+--                      Copyright (C) 2003-2005                             --
+--                         Dmitriy Anisimkov                                --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -56,7 +56,7 @@ package Memory_Streams is
      (Stream     : in out Stream_Type;
       Data       : in     Element_Access);
    --  Append dynamically allocated data or access to the static data
-   --  to the stream. Application could not use Data after send it to the
+   --  to the stream. Application must not use Data after send it to the
    --  Stream. Stream would care about it, and free when necessary.
 
    procedure Append
@@ -70,7 +70,14 @@ package Memory_Streams is
    --  Returns the size of the stream in bytes
 
    procedure Reset (Stream : in out Stream_Type);
-   --  Set read index at the start of the stream.
+   --  Set read index at the start of the stream
+
+   procedure Set_Index
+     (Stream : in out Stream_Type;
+      To     : in     Element_Offset);
+   --  Set the position in the stream, next Read will start at the position
+   --  whose index is To. If To is outside the content the index is set to
+   --  Last + 1 to ensure that next End_Of_File will return True.
 
    function End_Of_File (Stream : in Stream_Type) return Boolean;
    --  Returns true if there is no more data to read on the stream
@@ -94,7 +101,7 @@ private
    type Buffer_Access is access all Buffer_Type;
 
    type Buffer_Type (Steady : Boolean) is record
-      Next       : Buffer_Access;
+      Next : Buffer_Access;
       case Steady is
          when True  => Const : Constant_Access;
          when False => Data  : Element_Access;

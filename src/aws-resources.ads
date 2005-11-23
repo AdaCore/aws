@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2002-2003                          --
---                                ACT-Europe                                --
+--                         Copyright (C) 2002-2005                          --
+--                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -80,6 +80,13 @@ package AWS.Resources is
    procedure Reset (Resource : in out File_Type);
    --  Reset the file, reading will restart at the beginning
 
+   procedure Set_Index
+     (Resource : in out File_Type;
+      To       : in     Stream_Element_Offset);
+   --  Set the position in the stream, next Read will start at the position
+   --  whose index is To. If To is outside the content the index is set to
+   --  Last + 1 to ensure that next End_Of_File will return True.
+
    procedure Close (Resource : in out File_Type);
    --  Close the file
 
@@ -145,27 +152,23 @@ private
    function Is_GZip (Name : in String) return Boolean;
    --  Return true if filename is with .gz extension.
 
-   function End_Of_File
-     (Resource : in File_Tagged)
-      return Boolean
-      is abstract;
+   function End_Of_File (Resource : in File_Tagged) return Boolean is abstract;
 
    procedure Read
      (Resource : in out File_Tagged;
       Buffer   :    out Stream_Element_Array;
-      Last     :    out Stream_Element_Offset)
-      is abstract;
+      Last     :    out Stream_Element_Offset) is abstract;
 
    function Size
-     (Resource : in File_Tagged)
-      return Stream_Element_Offset
-      is abstract;
+     (Resource : in File_Tagged) return Stream_Element_Offset is abstract;
 
-   procedure Close (File : in out File_Tagged)
-      is abstract;
+   procedure Close (File : in out File_Tagged) is abstract;
 
-   procedure Reset (File : in out File_Tagged)
-      is abstract;
+   procedure Reset (File : in out File_Tagged) is abstract;
+
+   procedure Set_Index
+     (File : in out File_Tagged;
+      To   : in Stream_Element_Offset) is abstract;
 
    procedure Free is
       new Ada.Unchecked_Deallocation (Resources.File_Tagged'Class, File_Type);
