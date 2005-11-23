@@ -555,7 +555,7 @@ package body AWS.Server.HTTP_Utils is
          --  Write buffer to the file, handle the Device_Error exception
 
          File    : Streams.Stream_IO.File_Type;
-         Buffer  : Streams.Stream_Element_Array (1 .. 4096);
+         Buffer  : Streams.Stream_Element_Array (1 .. 4 * 1_024);
          Index   : Streams.Stream_Element_Offset := Buffer'First;
 
          Content : AWS.Resources.Streams.Memory.Stream_Type;
@@ -1191,6 +1191,8 @@ package body AWS.Server.HTTP_Utils is
          use type Calendar.Time;
          use type AWS.Status.Request_Method;
 
+         Method        : constant AWS.Status.Request_Method :=
+                           AWS.Status.Method (C_Stat);
          Filename      : constant String :=
                            Response.Filename (Answer);
          File_Mode     : constant Boolean :=
@@ -1215,6 +1217,13 @@ package body AWS.Server.HTTP_Utils is
             Send_General_Header;
             Net.Buffered.New_Line (Sock);
             return;
+
+         elsif Headers.Get_Values
+           (AWS.Status.Header (C_Stat), Messages.Range_Token) /= ""
+         then
+            --  Partial range request, answer accordingly
+            Net.Buffered.Put_Line (Sock, Messages.Status_Line (Messages.S206));
+
          else
             Net.Buffered.Put_Line (Sock, Messages.Status_Line (Status));
          end if;
@@ -1237,7 +1246,7 @@ package body AWS.Server.HTTP_Utils is
          if Length = Resources.Undefined_Length
            and then AWS.Status.HTTP_Version (C_Stat) = HTTP_10
          --  We cannot use transfer-encoding chunked in HTTP_10
-           and then AWS.Status.Method (C_Stat) /= AWS.Status.HEAD
+           and then Method /= AWS.Status.HEAD
          --  We have to send message_body
          then
             --  In this case we need to close the connection explicitly at the
@@ -1266,8 +1275,7 @@ package body AWS.Server.HTTP_Utils is
          --  Send message body
 
          Send_Resource
-           (AWS.Status.Method (C_Stat),
-            Response.Close_Resource (Answer), File, Length,
+           (Method, Response.Close_Resource (Answer), File, Length,
             HTTP_Server, Index, C_Stat, Sock);
       end Send_Data;
 
@@ -1391,14 +1399,22 @@ package body AWS.Server.HTTP_Utils is
       use type Streams.Stream_Element_Offset;
 
       Buffer_Size : constant := 4 * 1_024;
-      --  Size of the buffer used to send the file.
+      --  Size of the buffer used to send the file
 
       Chunk_Size  : constant := 1_024;
       --  Size of the buffer used to send the file with the chunked encoding.
       --  This is the maximum size of each chunk.
 
+      Ranges      : constant String :=
+                      Headers.Get_Values
+                        (Status.Header (C_Stat), Messages.Range_Token);
+      --  The ranges for partial sending if defined
+
       procedure Send_File;
       --  Send file in one part
+
+      procedure Send_Ranges;
+      --  Send a set of ranges of file content
 
       procedure Send_File_Chunked;
       --  Send file in chunks, used in HTTP/1.1 and when the message length
@@ -1492,8 +1508,146 @@ package body AWS.Server.HTTP_Utils is
          end loop Send_Chunks;
       end Send_File_Chunked;
 
+      -----------------
+      -- Send_Ranges --
+      -----------------
+
+      procedure Send_Ranges is
+
+         Boundary    : constant String := "aws_range_separator";
+         N_Range     : constant Positive := 1 + Fixed.Count (Ranges, ",");
+         N_Minus     : constant Natural  := Fixed.Count (Ranges, "-");
+         --  Number of ranges defined
+         Equal       : constant Natural := Fixed.Index (Ranges, "=");
+         First, Last : Positive;
+
+         procedure Send_Range (R : in String);
+         --  Send a single range as defined by R
+
+         ----------------
+         -- Send_Range --
+         ----------------
+
+         procedure Send_Range (R : in String) is
+            I_Minus  : constant Positive := Fixed.Index (R, "-");
+            First    : Stream_Element_Offset;
+            Last     : Stream_Element_Offset;
+            R_Length : Stream_Element_Offset;
+         begin
+            if N_Range /= 1 then
+               --  Send the multipart/byteranges
+               Net.Buffered.Put_Line (Sock, "--" & Boundary);
+            end if;
+
+            --  Computer First / Last and the range length
+
+            if R (I_Minus + 1 .. R'Last) = "" then
+               Last := Length - 1;
+            else
+               Last := Stream_Element_Offset'Value
+                 (R (I_Minus + 1 .. R'Last));
+            end if;
+
+            if R (R'First .. I_Minus - 1) = "" then
+               --  In this case we want to get the last N bytes from the file
+               First := Length - Last;
+               Last := Length - 1;
+            else
+               First := Stream_Element_Offset'Value
+                 (R (R'First .. I_Minus - 1));
+            end if;
+
+            R_Length := Last - First + 1;
+
+            --  Content-Range: bytes <first>-<last>/<length>
+
+            Net.Buffered.Put_Line
+              (Sock, Messages.Content_Range_Token & ": bytes "
+               & Utils.Image (Natural (First)) & "-"
+               & Utils.Image (Natural (Last))
+               & "/" & Utils.Image (Natural (Length)));
+            Net.Buffered.Put_Line
+              (Sock, Messages.Content_Length (Positive (R_Length)));
+            Net.Buffered.New_Line (Sock);
+
+            Resources.Set_Index (File, First + 1);
+
+            declare
+               use type Stream_Element_Offset;
+               Buffer : Streams.Stream_Element_Array (1 .. Buffer_Size);
+               Sent   : Stream_Element_Offset := 0;
+               Size   : Stream_Element_Offset := 0;
+               Last   : Stream_Element_Offset;
+            begin
+               loop
+                  Size := Stream_Element_Offset'Min
+                    (R_Length - Sent, Buffer_Size);
+
+                  exit when Size = 0;
+
+                  Resources.Read (File, Buffer (1 .. Size), Last);
+
+                  exit when Last < Buffer'First;
+
+                  Net.Buffered.Write (Sock, Buffer (1 .. Last));
+
+                  Sent := Sent + Last;
+
+                  HTTP_Server.Slots.Mark_Data_Time_Stamp (Index);
+               end loop;
+            end;
+         end Send_Range;
+
+      begin
+         --  Check range definition
+         if N_Range /= N_Minus
+           or else Equal = 0
+           or else Ranges (Ranges'First .. Equal - 1) /= "bytes"
+         then
+            --  Range is wrong, let's send the whole file then
+            Send_File;
+         end if;
+
+         if N_Range /= 1 then
+            --  Then we will send a multipart/byteranges
+            Net.Buffered.Put_Line
+              (Sock,
+               Messages.Content_Type
+                 (MIME.Multipart_Byteranges & "; boundary=" & Boundary));
+         end if;
+
+         First := Equal + 1;
+
+         for K in 1 .. N_Range loop
+            if K = N_Range then
+               Last := Ranges'Last;
+            else
+               Last := Fixed.Index (Ranges (First .. Ranges'Last), ",") - 1;
+            end if;
+
+            Send_Range (Ranges (First .. Last));
+            First := Last + 2;
+         end loop;
+
+         --  End the multipart/byteranges message
+
+         if N_Range /= 1 then
+            --  Send the multipart/byteranges
+            Net.Buffered.Put_Line (Sock, "--" & Boundary & "--");
+         end if;
+      end Send_Ranges;
+
    begin
-      if Status.HTTP_Version (C_Stat) = HTTP_10
+      if Ranges /= "" and then Length /= Resources.Undefined_Length then
+         --  Range: header present, we need to send only the specified bytes
+
+         Net.Buffered.Put_Line
+           (Sock, Messages.Accept_Ranges_Token & ": bytes");
+         --  Only bytes supported
+
+         Send_Ranges;
+
+      elsif Status.HTTP_Version (C_Stat) = HTTP_10
         or else Length /= Resources.Undefined_Length
       then
          --  If content length is undefined and we handle an HTTP/1.0 protocol
