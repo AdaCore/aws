@@ -346,6 +346,8 @@ regtests/once.adb
 regtests/once.out
 regtests/param.adb
 regtests/param.out
+regtests/partial.adb
+regtests/partial.out
 regtests/plain2ssl.adb
 regtests/plain2ssl.out
 regtests/print_tasks.adb
