@@ -414,13 +414,14 @@ package body Memory_Streams is
          Stream.Current_Offset := Last (Stream.Current) + 1;
 
       else
-         Stream.Current_Offset := To;
          Stream.Current        := Stream.First;
 
          while Idx < To loop
             Stream.Current := Stream.Current.Next;
-            Idx := Last (Stream.Current);
+            Idx := Idx + Last (Stream.Current);
          end loop;
+
+         Stream.Current_Offset := Last (Stream.Current) - Idx + To;
       end if;
    end Set_Index;
 
