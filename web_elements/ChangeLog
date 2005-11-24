@@ -1,3 +1,9 @@
+2005-11-24  Pascal Obry  <pascal@obry.net>
+
+	* javascripts/aws_func_replace.tjs:
+	Properly add '&' between parameters.
+	Continued work for EB06-001.
+
 2005-11-21  Pascal Obry  <pascal@obry.net>
 
 	* javascripts/aws_action_replace.tjs:
