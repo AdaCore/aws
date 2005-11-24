@@ -26,30 +26,36 @@
       var roncomplete = "";
 @@IF@@ @_FR_PARAMETERS_@ /= ""
       rpars = "@_FR_PARAMETERS_@";
-   @@IF@@ @_FR_F1_@ /= ""
-      rpars = rpars + "&";
-   @@END_IF@@
 @@END_IF@@
 @@IF@@ @_FR_F1_@ /= ""
+      if (rpars != "")
+         rpars = rpars + "&";
       rpars = rpars + serialize('@_FR_F1_@');
 @@END_IF@@
 @@IF@@ @_FR_F2_@ /= ""
+      if (rpars != "")
+         rpars = rpars + "&";
       rpars = rpars + serialize('@_FR_F2_@');
 @@END_IF@@
 @@IF@@ @_FR_F3_@ /= ""
+      if (rpars != "")
+         rpars = rpars + "&";
       rpars = rpars + serialize('@_FR_F3_@');
 @@END_IF@@
 @@IF@@ @_FR_F4_@ /= ""
+      if (rpars != "")
+         rpars = rpars + "&";
       rpars = rpars + serialize('@_FR_F4_@');
 @@END_IF@@
 @@IF@@ @_FR_F5_@ /= ""
+      if (rpars != "")
+         rpars = rpars + "&";
       rpars = rpars + serialize('@_FR_F5_@');
 @@END_IF@@
 
 @@IF@@ @_FR_ONCOMPLETE_@ /= ""
       roncomplete = @_FR_ONCOMPLETE_@
 @@END_IF@@
-
       aws_replace (rurl, rpars, '@_FR_PLACEHOLDER_@', roncomplete);
       return (false);
    }
