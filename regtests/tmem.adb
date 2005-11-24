@@ -67,6 +67,42 @@ procedure TMem is
 
    Last   : Natural;
 
+   procedure Compare_Result (Offset : Positive) is
+      Str   : String (1 .. 200);
+      Last  : Natural;
+      Index : Positive := Offset;
+   begin
+      if Length (UStr) /= Size (Stream) then
+         Put_Line ("Length error");
+         raise Constraint_Error;
+      end if;
+
+      loop
+         Str := (others => '-');
+
+         Read (Stream, Str, Last);
+
+         if Str (1 .. Last) /= Slice (UStr, Index, Index + Last - 1) then
+            Put_Line ("Content error " & Integer'Image (Last));
+            raise Constraint_Error;
+         end if;
+
+         Index := Index + Last;
+
+         exit when Last < Str'Last;
+      end loop;
+
+      if Index /= Size (Stream) + 1 then
+         Put_Line ("Read length error.");
+         raise Constraint_Error;
+      end if;
+
+      if not End_Of_File (Stream) then
+         Put_Line ("End of file error.");
+         raise Constraint_Error;
+      end if;
+   end Compare_Result;
+
 begin
    Ptr := new String'((1010 .. 1070 => '=', 1071 => ASCII.LF));
    Append (Stream, Ptr);
@@ -132,43 +168,21 @@ begin
 
    --  Compare result.
 
-   declare
-      Str   : String (1 .. 200);
-      Last  : Natural;
-      Index : Positive := 1;
-   begin
-      if Length (UStr) /= Size (Stream) then
-         Put_Line ("Length error");
-         raise Constraint_Error;
-      end if;
+   Put_Line ("Size " & Integer'Image (Size (Stream)));
 
-      Put_Line ("Size " & Integer'Image (Size (Stream)));
+   Compare_Result (1);
 
-      loop
-         Str := (others => '-');
+   Set_Index (Stream, 188_894);
+   Compare_Result (188_894);
 
-         Read (Stream, Str, Last);
+   Set_Index (Stream, 7);
+   Compare_Result (7);
 
-         if Str (1 .. Last) /= Slice (UStr, Index, Index + Last - 1) then
-            Put_Line ("Content error " & Integer'Image (Last));
-            raise Constraint_Error;
-         end if;
+   Set_Index (Stream, 200_000);
+   Compare_Result (200_000);
 
-         Index := Index + Last;
-
-         exit when Last < Str'Last;
-      end loop;
-
-      if Index /= Size (Stream) + 1 then
-         Put_Line ("Read length error.");
-         raise Constraint_Error;
-      end if;
-
-      if not End_Of_File (Stream) then
-         Put_Line ("End of file error.");
-         raise Constraint_Error;
-      end if;
-   end;
+   Set_Index (Stream, 388_894);
+   Compare_Result (388_894);
 
    Close (Stream);
 
