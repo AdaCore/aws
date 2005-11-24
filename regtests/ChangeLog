@@ -1,3 +1,8 @@
+2005-11-24  Dmitriy Anisimkov <anisimkov@ada-ru.org>
+
+	* tmem.adb:
+	Add test for Memory_Streams.Set_Index.
+
 2005-11-23  Pascal Obry  <pascal@obry.net>
 
 	* partial.out:
