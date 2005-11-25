@@ -1,3 +1,8 @@
+2005-11-24  Dmitriy Anisimkov <anisimkov@ada-ru.org>
+
+	* memory_streams.adb:
+        (Set_Index): Fix offset in multiblock positioning.
+
 2005-11-23  Pascal Obry  <pascal@obry.net>
 
 	* memory_streams.ads:
