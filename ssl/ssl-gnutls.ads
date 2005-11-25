@@ -1,4 +1,36 @@
+------------------------------------------------------------------------------
+--                            Secure Sockets Layer                          --
+--                         Binding to GNUTLS library                        --
+--                                                                          --
+--                            Copyright (C) 2005                            --
+--                                 AdaCore                                  --
+--                                                                          --
+--  This library is free software; you can redistribute it and/or modify    --
+--  it under the terms of the GNU General Public License as published by    --
+--  the Free Software Foundation; either version 2 of the License, or (at   --
+--  your option) any later version.                                         --
+--                                                                          --
+--  This library is distributed in the hope that it will be useful, but     --
+--  WITHOUT ANY WARRANTY; without even the implied warranty of              --
+--  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU       --
+--  General Public License for more details.                                --
+--                                                                          --
+--  You should have received a copy of the GNU General Public License       --
+--  along with this library; if not, write to the Free Software Foundation, --
+--  Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.          --
+--                                                                          --
+--  As a special exception, if other files instantiate generics from this   --
+--  unit, or you link this unit with other files to produce an executable,  --
+--  this  unit  does not  by itself cause  the resulting executable to be   --
+--  covered by the GNU General Public License. This exception does not      --
+--  however invalidate any other reasons why the executable file  might be  --
+--  covered by the  GNU Public License.                                     --
+------------------------------------------------------------------------------
+
 --  $Id$
+
+--  Draft bind was converted by CBIND from GNUTLS C library header files,
+--  then manually fixed and gnatpp reformatted.
 
 with Interfaces.C.Strings;
 with System;
@@ -8,218 +40,1876 @@ package SSL.GNUTLS is
    use Interfaces;
    package CS renames C.Strings;
 
-   type GCry_Ctl_Cmds is new C.int;
+   GNUTLS_MAX_ALGORITHM_NUM : constant := 16#0010#;
+   GNUTLS_MAX_SESSION_ID    : constant := 16#0020#;
 
-   GCRYCTL_SET_KEY                   : constant GCry_Ctl_Cmds := 1;
-   GCRYCTL_SET_IV                    : constant GCry_Ctl_Cmds := 2;
-   GCRYCTL_CFB_SYNC                  : constant GCry_Ctl_Cmds := 3;
-   GCRYCTL_RESET                     : constant GCry_Ctl_Cmds := 4;
-   GCRYCTL_FINALIZE                  : constant GCry_Ctl_Cmds := 5;
-   GCRYCTL_GET_KEYLEN                : constant GCry_Ctl_Cmds := 6;
-   GCRYCTL_GET_BLKLEN                : constant GCry_Ctl_Cmds := 7;
-   GCRYCTL_TEST_ALGO                 : constant GCry_Ctl_Cmds := 8;
-   GCRYCTL_IS_SECURE                 : constant GCry_Ctl_Cmds := 9;
-   GCRYCTL_GET_ASNOID                : constant GCry_Ctl_Cmds := 10;
-   GCRYCTL_ENABLE_ALGO               : constant GCry_Ctl_Cmds := 11;
-   GCRYCTL_DISABLE_ALGO              : constant GCry_Ctl_Cmds := 12;
-   GCRYCTL_DUMP_RANDOM_STATS         : constant GCry_Ctl_Cmds := 13;
-   GCRYCTL_DUMP_SECMEM_STATS         : constant GCry_Ctl_Cmds := 14;
-   GCRYCTL_GET_ALGO_NPKEY            : constant GCry_Ctl_Cmds := 15;
-   GCRYCTL_GET_ALGO_NSKEY            : constant GCry_Ctl_Cmds := 16;
-   GCRYCTL_GET_ALGO_NSIGN            : constant GCry_Ctl_Cmds := 17;
-   GCRYCTL_GET_ALGO_NENCR            : constant GCry_Ctl_Cmds := 18;
-   GCRYCTL_SET_VERBOSITY             : constant GCry_Ctl_Cmds := 19;
-   GCRYCTL_SET_DEBUG_FLAGS           : constant GCry_Ctl_Cmds := 20;
-   GCRYCTL_CLEAR_DEBUG_FLAGS         : constant GCry_Ctl_Cmds := 21;
-   GCRYCTL_USE_SECURE_RNDPOOL        : constant GCry_Ctl_Cmds := 22;
-   GCRYCTL_DUMP_MEMORY_STATS         : constant GCry_Ctl_Cmds := 23;
-   GCRYCTL_INIT_SECMEM               : constant GCry_Ctl_Cmds := 24;
-   GCRYCTL_TERM_SECMEM               : constant GCry_Ctl_Cmds := 25;
-   GCRYCTL_DISABLE_SECMEM_WARN       : constant GCry_Ctl_Cmds := 27;
-   GCRYCTL_SUSPEND_SECMEM_WARN       : constant GCry_Ctl_Cmds := 28;
-   GCRYCTL_RESUME_SECMEM_WARN        : constant GCry_Ctl_Cmds := 29;
-   GCRYCTL_DROP_PRIVS                : constant GCry_Ctl_Cmds := 30;
-   GCRYCTL_ENABLE_M_GUARD            : constant GCry_Ctl_Cmds := 31;
-   GCRYCTL_START_DUMP                : constant GCry_Ctl_Cmds := 32;
-   GCRYCTL_STOP_DUMP                 : constant GCry_Ctl_Cmds := 33;
-   GCRYCTL_GET_ALGO_USAGE            : constant GCry_Ctl_Cmds := 34;
-   GCRYCTL_IS_ALGO_ENABLED           : constant GCry_Ctl_Cmds := 35;
-   GCRYCTL_DISABLE_INTERNAL_LOCKING  : constant GCry_Ctl_Cmds := 36;
-   GCRYCTL_DISABLE_SECMEM            : constant GCry_Ctl_Cmds := 37;
-   GCRYCTL_INITIALIZATION_FINISHED   : constant GCry_Ctl_Cmds := 38;
-   GCRYCTL_INITIALIZATION_FINISHED_P : constant GCry_Ctl_Cmds := 39;
-   GCRYCTL_ANY_INITIALIZATION_P      : constant GCry_Ctl_Cmds := 40;
-   GCRYCTL_SET_CBC_CTS               : constant GCry_Ctl_Cmds := 41;
-   GCRYCTL_SET_CBC_MAC               : constant GCry_Ctl_Cmds := 42;
-   GCRYCTL_SET_CTR                   : constant GCry_Ctl_Cmds := 43;
-   GCRYCTL_ENABLE_QUICK_RANDOM       : constant GCry_Ctl_Cmds := 44;
-   GCRYCTL_SET_RANDOM_SEED_FILE      : constant GCry_Ctl_Cmds := 45;
-   GCRYCTL_UPDATE_RANDOM_SEED_FILE   : constant GCry_Ctl_Cmds := 46;
-   GCRYCTL_SET_THREAD_CBS            : constant GCry_Ctl_Cmds := 47;
+   GNUTLS_KEY_DIGITAL_SIGNATURE : constant := 16#0080#;
+   GNUTLS_KEY_NON_REPUDIATION   : constant := 16#0040#;
+   GNUTLS_KEY_KEY_ENCIPHERMENT  : constant := 16#0020#;
+   GNUTLS_KEY_DATA_ENCIPHERMENT : constant := 16#0010#;
+   GNUTLS_KEY_KEY_AGREEMENT     : constant := 8;
+   GNUTLS_KEY_KEY_CERT_SIGN     : constant := 4;
+   GNUTLS_KEY_CRL_SIGN          : constant := 2;
+   GNUTLS_KEY_ENCIPHER_ONLY     : constant := 1;
+   GNUTLS_KEY_DECIPHER_ONLY     : constant := 16#8000#;
 
-   type GNUTLS_Connection_End is new C.int;
+   GNUTLS_E_SUCCESS                             : constant := 8#0000#;
+   GNUTLS_E_UNKNOWN_COMPRESSION_ALGORITHM       : constant := -3;
+   GNUTLS_E_UNKNOWN_CIPHER_TYPE                 : constant := -6;
+   GNUTLS_E_LARGE_PACKET                        : constant := -7;
+   GNUTLS_E_UNSUPPORTED_VERSION_PACKET          : constant := -8;
+   GNUTLS_E_UNEXPECTED_PACKET_LENGTH            : constant := -9;
+   GNUTLS_E_INVALID_SESSION                     : constant := -10;
+   GNUTLS_E_FATAL_ALERT_RECEIVED                : constant := -12;
+   GNUTLS_E_UNEXPECTED_PACKET                   : constant := -15;
+   GNUTLS_E_WARNING_ALERT_RECEIVED              : constant := -16;
+   GNUTLS_E_ERROR_IN_FINISHED_PACKET            : constant := -18;
+   GNUTLS_E_UNEXPECTED_HANDSHAKE_PACKET         : constant := -19;
+   GNUTLS_E_UNKNOWN_CIPHER_SUITE                : constant := -21;
+   GNUTLS_E_UNWANTED_ALGORITHM                  : constant := -22;
+   GNUTLS_E_MPI_SCAN_FAILED                     : constant := -23;
+   GNUTLS_E_DECRYPTION_FAILED                   : constant := -24;
+   GNUTLS_E_MEMORY_ERROR                        : constant := -25;
+   GNUTLS_E_DECOMPRESSION_FAILED                : constant := -26;
+   GNUTLS_E_COMPRESSION_FAILED                  : constant := -27;
+   GNUTLS_E_AGAIN                               : constant := -28;
+   GNUTLS_E_EXPIRED                             : constant := -29;
+   GNUTLS_E_DB_ERROR                            : constant := -30;
+   GNUTLS_E_SRP_PWD_ERROR                       : constant := -31;
+   GNUTLS_E_INSUFFICIENT_CREDENTIALS            : constant := -32;
+   GNUTLS_E_INSUFICIENT_CREDENTIALS             : constant := -32;
+   GNUTLS_E_INSUFFICIENT_CRED                   : constant := -32;
+   GNUTLS_E_INSUFICIENT_CRED                    : constant := -32;
+   GNUTLS_E_HASH_FAILED                         : constant := -33;
+   GNUTLS_E_BASE64_DECODING_ERROR               : constant := -34;
+   GNUTLS_E_MPI_PRINT_FAILED                    : constant := -35;
+   GNUTLS_E_REHANDSHAKE                         : constant := -37;
+   GNUTLS_E_GOT_APPLICATION_DATA                : constant := -38;
+   GNUTLS_E_RECORD_LIMIT_REACHED                : constant := -39;
+   GNUTLS_E_ENCRYPTION_FAILED                   : constant := -40;
+   GNUTLS_E_PK_ENCRYPTION_FAILED                : constant := -44;
+   GNUTLS_E_PK_DECRYPTION_FAILED                : constant := -45;
+   GNUTLS_E_PK_SIGN_FAILED                      : constant := -46;
+   GNUTLS_E_X509_UNSUPPORTED_CRITICAL_EXTENSION : constant := -47;
+   GNUTLS_E_KEY_USAGE_VIOLATION                 : constant := -48;
+   GNUTLS_E_NO_CERTIFICATE_FOUND                : constant := -49;
+   GNUTLS_E_INVALID_REQUEST                     : constant := -50;
+   GNUTLS_E_SHORT_MEMORY_BUFFER                 : constant := -51;
+   GNUTLS_E_INTERRUPTED                         : constant := -52;
+   GNUTLS_E_PUSH_ERROR                          : constant := -53;
+   GNUTLS_E_PULL_ERROR                          : constant := -54;
+   GNUTLS_E_RECEIVED_ILLEGAL_PARAMETER          : constant := -55;
+   GNUTLS_E_REQUESTED_DATA_NOT_AVAILABLE        : constant := -56;
+   GNUTLS_E_PKCS1_WRONG_PAD                     : constant := -57;
+   GNUTLS_E_RECEIVED_ILLEGAL_EXTENSION          : constant := -58;
+   GNUTLS_E_INTERNAL_ERROR                      : constant := -59;
+   GNUTLS_E_DH_PRIME_UNACCEPTABLE               : constant := -63;
+   GNUTLS_E_FILE_ERROR                          : constant := -64;
+   GNUTLS_E_TOO_MANY_EMPTY_PACKETS              : constant := -78;
+   GNUTLS_E_UNKNOWN_PK_ALGORITHM                : constant := -80;
+   GNUTLS_E_INIT_LIBEXTRA                       : constant := -82;
+   GNUTLS_E_LIBRARY_VERSION_MISMATCH            : constant := -83;
+   GNUTLS_E_NO_TEMPORARY_RSA_PARAMS             : constant := -84;
+   GNUTLS_E_LZO_INIT_FAILED                     : constant := -85;
+   GNUTLS_E_NO_COMPRESSION_ALGORITHMS           : constant := -86;
+   GNUTLS_E_NO_CIPHER_SUITES                    : constant := -87;
+   GNUTLS_E_OPENPGP_GETKEY_FAILED               : constant := -88;
+   GNUTLS_E_PK_SIG_VERIFY_FAILED                : constant := -89;
+   GNUTLS_E_ILLEGAL_SRP_USERNAME                : constant := -90;
+   GNUTLS_E_SRP_PWD_PARSING_ERROR               : constant := -91;
+   GNUTLS_E_NO_TEMPORARY_DH_PARAMS              : constant := -93;
+   GNUTLS_E_ASN1_ELEMENT_NOT_FOUND              : constant := -67;
+   GNUTLS_E_ASN1_IDENTIFIER_NOT_FOUND           : constant := -68;
+   GNUTLS_E_ASN1_DER_ERROR                      : constant := -69;
+   GNUTLS_E_ASN1_VALUE_NOT_FOUND                : constant := -70;
+   GNUTLS_E_ASN1_GENERIC_ERROR                  : constant := -71;
+   GNUTLS_E_ASN1_VALUE_NOT_VALID                : constant := -72;
+   GNUTLS_E_ASN1_TAG_ERROR                      : constant := -73;
+   GNUTLS_E_ASN1_TAG_IMPLICIT                   : constant := -74;
+   GNUTLS_E_ASN1_TYPE_ANY_ERROR                 : constant := -75;
+   GNUTLS_E_ASN1_SYNTAX_ERROR                   : constant := -76;
+   GNUTLS_E_ASN1_DER_OVERFLOW                   : constant := -77;
+   GNUTLS_E_OPENPGP_TRUSTDB_VERSION_UNSUPPORTED : constant := -81;
+   GNUTLS_E_OPENPGP_UID_REVOKED                 : constant := -79;
+   GNUTLS_E_CERTIFICATE_ERROR                   : constant := -43;
+   GNUTLS_E_X509_CERTIFICATE_ERROR              : constant := -43;
+   GNUTLS_E_CERTIFICATE_KEY_MISMATCH            : constant := -60;
+   GNUTLS_E_UNSUPPORTED_CERTIFICATE_TYPE        : constant := -61;
+   GNUTLS_E_X509_UNKNOWN_SAN                    : constant := -62;
+   GNUTLS_E_OPENPGP_FINGERPRINT_UNSUPPORTED     : constant := -94;
+   GNUTLS_E_X509_UNSUPPORTED_ATTRIBUTE          : constant := -95;
+   GNUTLS_E_UNKNOWN_HASH_ALGORITHM              : constant := -96;
+   GNUTLS_E_UNKNOWN_PKCS_CONTENT_TYPE           : constant := -97;
+   GNUTLS_E_UNKNOWN_PKCS_BAG_TYPE               : constant := -98;
+   GNUTLS_E_INVALID_PASSWORD                    : constant := -99;
+   GNUTLS_E_MAC_VERIFY_FAILED                   : constant := -100;
+   GNUTLS_E_CONSTRAINT_ERROR                    : constant := -101;
+   GNUTLS_E_BASE64_ENCODING_ERROR               : constant := -201;
+   GNUTLS_E_INCOMPATIBLE_GCRYPT_LIBRARY         : constant := -202;
+   GNUTLS_E_INCOMPATIBLE_CRYPTO_LIBRARY         : constant := -202;
+   GNUTLS_E_INCOMPATIBLE_LIBTASN1_LIBRARY       : constant := -203;
+   GNUTLS_E_OPENPGP_KEYRING_ERROR               : constant := -204;
+   GNUTLS_E_X509_UNSUPPORTED_OID                : constant := -205;
+   GNUTLS_E_RANDOM_FAILED                       : constant := -206;
+   GNUTLS_E_UNIMPLEMENTED_FEATURE               : constant := -1250;
 
-   GNUTLS_SERVER : constant GNUTLS_Connection_End := 1;
-   GNUTLS_CLIENT : constant GNUTLS_Connection_End := 2;
+   type time_t is new C.long;
 
-   GNUTLS_KX_RSA        : constant := 1;
-   GNUTLS_KX_DHE_DSS    : constant := 2;
-   GNUTLS_KX_DHE_RSA    : constant := 3;
-   GNUTLS_KX_ANON_DH    : constant := 4;
-   GNUTLS_KX_SRP        : constant := 5;
-   GNUTLS_KX_RSA_EXPORT : constant := 6;
-   GNUTLS_KX_SRP_RSA    : constant := 7;
-   GNUTLS_KX_SRP_DSS    : constant := 8;
+   type enum_anonymous0_t is
+     (GNUTLS_CIPHER_NULL,
+      GNUTLS_CIPHER_ARCFOUR_128,
+      GNUTLS_CIPHER_3DES_CBC,
+      GNUTLS_CIPHER_AES_128_CBC,
+      GNUTLS_CIPHER_AES_256_CBC,
+      GNUTLS_CIPHER_ARCFOUR_40);
+   for enum_anonymous0_t use
+     (GNUTLS_CIPHER_NULL        => 1,
+      GNUTLS_CIPHER_ARCFOUR_128 => 2,
+      GNUTLS_CIPHER_3DES_CBC    => 3,
+      GNUTLS_CIPHER_AES_128_CBC => 4,
+      GNUTLS_CIPHER_AES_256_CBC => 5,
+      GNUTLS_CIPHER_ARCFOUR_40  => 6);
+   for enum_anonymous0_t'Size use 32;
+   subtype gnutls_cipher_algorithm_t is enum_anonymous0_t;
 
-   type GNUTLS_Credentials_Type is new C.int;
+   type enum_anonymous1_t is
+     (GNUTLS_KX_RSA,
+      GNUTLS_KX_DHE_DSS,
+      GNUTLS_KX_DHE_RSA,
+      GNUTLS_KX_ANON_DH,
+      GNUTLS_KX_SRP,
+      GNUTLS_KX_RSA_EXPORT,
+      GNUTLS_KX_SRP_RSA,
+      GNUTLS_KX_SRP_DSS);
+   for enum_anonymous1_t use
+     (GNUTLS_KX_RSA        => 1,
+      GNUTLS_KX_DHE_DSS    => 2,
+      GNUTLS_KX_DHE_RSA    => 3,
+      GNUTLS_KX_ANON_DH    => 4,
+      GNUTLS_KX_SRP        => 5,
+      GNUTLS_KX_RSA_EXPORT => 6,
+      GNUTLS_KX_SRP_RSA    => 7,
+      GNUTLS_KX_SRP_DSS    => 8);
+   for enum_anonymous1_t'Size use 32;
+   subtype gnutls_kx_algorithm_t is enum_anonymous1_t;
 
-   GNUTLS_CRD_CERTIFICATE : constant GNUTLS_Credentials_Type := 1;
-   GNUTLS_CRD_ANON        : constant GNUTLS_Credentials_Type := 2;
-   GNUTLS_CRD_SRP         : constant GNUTLS_Credentials_Type := 3;
+   type enum_anonymous2_t is (GNUTLS_PARAMS_RSA_EXPORT, GNUTLS_PARAMS_DH);
+   for enum_anonymous2_t use
+     (GNUTLS_PARAMS_RSA_EXPORT => 1,
+      GNUTLS_PARAMS_DH         => 2);
+   for enum_anonymous2_t'Size use 32;
+   subtype gnutls_params_type_t is enum_anonymous2_t;
 
-   type GNUTLS_Close_Request is new C.int;
+   type enum_anonymous3_t is
+     (GNUTLS_CRD_CERTIFICATE,
+      GNUTLS_CRD_ANON,
+      GNUTLS_CRD_SRP);
+   for enum_anonymous3_t use
+     (GNUTLS_CRD_CERTIFICATE => 1,
+      GNUTLS_CRD_ANON        => 2,
+      GNUTLS_CRD_SRP         => 3);
+   for enum_anonymous3_t'Size use 32;
+   subtype gnutls_credentials_type_t is enum_anonymous3_t;
 
-   GNUTLS_SHUT_RDWR : constant GNUTLS_Close_Request := 0;
-   GNUTLS_SHUT_WR   : constant GNUTLS_Close_Request := 1;
+   type enum_anonymous4_t is
+     (GNUTLS_MAC_NULL,
+      GNUTLS_MAC_MD5,
+      GNUTLS_MAC_SHA,
+      GNUTLS_MAC_RMD160);
+   for enum_anonymous4_t use
+     (GNUTLS_MAC_NULL   => 1,
+      GNUTLS_MAC_MD5    => 2,
+      GNUTLS_MAC_SHA    => 3,
+      GNUTLS_MAC_RMD160 => 4);
+   for enum_anonymous4_t'Size use 32;
+   subtype gnutls_mac_algorithm_t is enum_anonymous4_t;
 
-   type GNUTLS_x509_crt_fmt is new C.int;
+   type enum_anonymous5_t is
+     (GNUTLS_DIG_NULL,
+      GNUTLS_DIG_MD5,
+      GNUTLS_DIG_SHA,
+      GNUTLS_DIG_RIPEMD160);
+   for enum_anonymous5_t use
+     (GNUTLS_DIG_NULL      => 1,
+      GNUTLS_DIG_MD5       => 2,
+      GNUTLS_DIG_SHA       => 3,
+      GNUTLS_DIG_RIPEMD160 => 4);
+   for enum_anonymous5_t'Size use 32;
+   subtype gnutls_digest_algorithm_t is enum_anonymous5_t;
 
-   GNUTLS_X509_FMT_DER : constant GNUTLS_x509_crt_fmt := 0;
-   GNUTLS_X509_FMT_PEM : constant GNUTLS_x509_crt_fmt := 1;
+   type enum_anonymous6_t is
+     (GNUTLS_COMP_NULL,
+      GNUTLS_COMP_DEFLATE,
+      GNUTLS_COMP_LZO -- only available if gnutls-extra has been initialized
+     );
+   for enum_anonymous6_t use
+     (GNUTLS_COMP_NULL    => 1,
+      GNUTLS_COMP_DEFLATE => 2,
+      GNUTLS_COMP_LZO     => 3);
+   for enum_anonymous6_t'Size use 32;
+   subtype gnutls_compression_method_t is enum_anonymous6_t;
 
-   subtype GNUTLS_Transport_Ptr is System.Address;
+   type enum_anonymous7_t is (GNUTLS_SERVER, GNUTLS_CLIENT);
+   for enum_anonymous7_t use (GNUTLS_SERVER => 1, GNUTLS_CLIENT => 2);
+   for enum_anonymous7_t'Size use 32;
+   subtype gnutls_connection_end_t is enum_anonymous7_t;
 
-   subtype GPG_Error_T is C.unsigned;
-   subtype GCry_Error_T is GPG_Error_T;
+   type enum_anonymous8_t is (GNUTLS_AL_WARNING, GNUTLS_AL_FATAL);
+   for enum_anonymous8_t use (GNUTLS_AL_WARNING => 1, GNUTLS_AL_FATAL => 2);
+   for enum_anonymous8_t'Size use 32;
+   subtype gnutls_alert_level_t is enum_anonymous8_t;
 
-   type GCry_Thread_Cbs is record
-      Option        : C.int := 1;     -- GCRY_THREAD_OPTION_USER
-      Init          : System.Address; -- int (*init) (void);
-      Mutex_Init    : System.Address; -- int (*mutex_init) (void **priv);
-      Mutex_Destroy : System.Address; -- int (*mutex_destroy) (void **priv);
-      Mutex_Lock    : System.Address; -- int (*mutex_lock) (void **priv);
-      Mutex_Unlock  : System.Address; -- int (*mutex_unlock) (void **priv);
-      Read          : System.Address := System.Null_Address;
-      Write         : System.Address := System.Null_Address;
-      Select_Socket : System.Address := System.Null_Address;
-      WaitPid       : System.Address := System.Null_Address;
-      Accept_Socket : System.Address := System.Null_Address;
-      Connect       : System.Address := System.Null_Address;
-      SendMsg       : System.Address := System.Null_Address;
-      RecvMsg       : System.Address := System.Null_Address;
+   type enum_anonymous9_t is
+     (GNUTLS_A_CLOSE_NOTIFY,
+      GNUTLS_A_UNEXPECTED_MESSAGE,
+      GNUTLS_A_BAD_RECORD_MAC,
+      GNUTLS_A_DECRYPTION_FAILED,
+      GNUTLS_A_RECORD_OVERFLOW,
+      GNUTLS_A_DECOMPRESSION_FAILURE,
+      GNUTLS_A_HANDSHAKE_FAILURE,
+      GNUTLS_A_SSL3_NO_CERTIFICATE,
+      GNUTLS_A_BAD_CERTIFICATE,
+      GNUTLS_A_UNSUPPORTED_CERTIFICATE,
+      GNUTLS_A_CERTIFICATE_REVOKED,
+      GNUTLS_A_CERTIFICATE_EXPIRED,
+      GNUTLS_A_CERTIFICATE_UNKNOWN,
+      GNUTLS_A_ILLEGAL_PARAMETER,
+      GNUTLS_A_UNKNOWN_CA,
+      GNUTLS_A_ACCESS_DENIED,
+      GNUTLS_A_DECODE_ERROR,
+      GNUTLS_A_DECRYPT_ERROR,
+      GNUTLS_A_EXPORT_RESTRICTION,
+      GNUTLS_A_PROTOCOL_VERSION,
+      GNUTLS_A_INSUFFICIENT_SECURITY,
+      GNUTLS_A_INTERNAL_ERROR,
+      GNUTLS_A_USER_CANCELED,
+      GNUTLS_A_NO_RENEGOTIATION,
+      GNUTLS_A_UNSUPPORTED_EXTENSION,
+      GNUTLS_A_CERTIFICATE_UNOBTAINABLE,
+      GNUTLS_A_UNRECOGNIZED_NAME,
+      GNUTLS_A_UNKNOWN_SRP_USERNAME,
+      GNUTLS_A_MISSING_SRP_USERNAME);
+   for enum_anonymous9_t use
+     (GNUTLS_A_CLOSE_NOTIFY             => 0,
+      GNUTLS_A_UNEXPECTED_MESSAGE       => 10,
+      GNUTLS_A_BAD_RECORD_MAC           => 20,
+      GNUTLS_A_DECRYPTION_FAILED        => 21,
+      GNUTLS_A_RECORD_OVERFLOW          => 22,
+      GNUTLS_A_DECOMPRESSION_FAILURE    => 30,
+      GNUTLS_A_HANDSHAKE_FAILURE        => 40,
+      GNUTLS_A_SSL3_NO_CERTIFICATE      => 41,
+      GNUTLS_A_BAD_CERTIFICATE          => 42,
+      GNUTLS_A_UNSUPPORTED_CERTIFICATE  => 43,
+      GNUTLS_A_CERTIFICATE_REVOKED      => 44,
+      GNUTLS_A_CERTIFICATE_EXPIRED      => 45,
+      GNUTLS_A_CERTIFICATE_UNKNOWN      => 46,
+      GNUTLS_A_ILLEGAL_PARAMETER        => 47,
+      GNUTLS_A_UNKNOWN_CA               => 48,
+      GNUTLS_A_ACCESS_DENIED            => 49,
+      GNUTLS_A_DECODE_ERROR             => 50,
+      GNUTLS_A_DECRYPT_ERROR            => 51,
+      GNUTLS_A_EXPORT_RESTRICTION       => 60,
+      GNUTLS_A_PROTOCOL_VERSION         => 70,
+      GNUTLS_A_INSUFFICIENT_SECURITY    => 71,
+      GNUTLS_A_INTERNAL_ERROR           => 80,
+      GNUTLS_A_USER_CANCELED            => 90,
+      GNUTLS_A_NO_RENEGOTIATION         => 100,
+      GNUTLS_A_UNSUPPORTED_EXTENSION    => 110,
+      GNUTLS_A_CERTIFICATE_UNOBTAINABLE => 111,
+      GNUTLS_A_UNRECOGNIZED_NAME        => 112,
+      GNUTLS_A_UNKNOWN_SRP_USERNAME     => 120,
+      GNUTLS_A_MISSING_SRP_USERNAME     => 121);
+   for enum_anonymous9_t'Size use 32;
+   subtype gnutls_alert_description_t is enum_anonymous9_t;
+
+   type enum_anonymous10_t is
+     (GNUTLS_HANDSHAKE_HELLO_REQUEST,
+      GNUTLS_HANDSHAKE_CLIENT_HELLO,
+      GNUTLS_HANDSHAKE_SERVER_HELLO,
+      GNUTLS_HANDSHAKE_CERTIFICATE_PKT,
+      GNUTLS_HANDSHAKE_SERVER_KEY_EXCHANGE,
+      GNUTLS_HANDSHAKE_CERTIFICATE_REQUEST,
+      GNUTLS_HANDSHAKE_SERVER_HELLO_DONE,
+      GNUTLS_HANDSHAKE_CERTIFICATE_VERIFY,
+      GNUTLS_HANDSHAKE_CLIENT_KEY_EXCHANGE,
+      GNUTLS_HANDSHAKE_FINISHED);
+   for enum_anonymous10_t use
+     (GNUTLS_HANDSHAKE_HELLO_REQUEST       => 0,
+      GNUTLS_HANDSHAKE_CLIENT_HELLO        => 1,
+      GNUTLS_HANDSHAKE_SERVER_HELLO        => 2,
+      GNUTLS_HANDSHAKE_CERTIFICATE_PKT     => 11,
+      GNUTLS_HANDSHAKE_SERVER_KEY_EXCHANGE => 12,
+      GNUTLS_HANDSHAKE_CERTIFICATE_REQUEST => 13,
+      GNUTLS_HANDSHAKE_SERVER_HELLO_DONE   => 14,
+      GNUTLS_HANDSHAKE_CERTIFICATE_VERIFY  => 15,
+      GNUTLS_HANDSHAKE_CLIENT_KEY_EXCHANGE => 16,
+      GNUTLS_HANDSHAKE_FINISHED            => 20);
+   for enum_anonymous10_t'Size use 32;
+   subtype gnutls_handshake_description_t is enum_anonymous10_t;
+
+   type enum_anonymous11_t is
+     (GNUTLS_CERT_INVALID, -- will be set if the certificate was not verified.
+      GNUTLS_CERT_REVOKED,
+      --  in X.509 this will be set only if CRLs are checked
+      GNUTLS_CERT_SIGNER_NOT_FOUND,
+      GNUTLS_CERT_SIGNER_NOT_CA);
+   for enum_anonymous11_t use
+     (GNUTLS_CERT_INVALID          => 2,
+      GNUTLS_CERT_REVOKED          => 32,
+      GNUTLS_CERT_SIGNER_NOT_FOUND => 64,
+      GNUTLS_CERT_SIGNER_NOT_CA    => 128);
+   for enum_anonymous11_t'Size use 32;
+   subtype gnutls_certificate_status_t is enum_anonymous11_t;
+
+   type enum_anonymous12_t is
+     (GNUTLS_CERT_IGNORE,
+      GNUTLS_CERT_REQUEST,
+      GNUTLS_CERT_REQUIRE);
+   for enum_anonymous12_t'Size use 32;
+   subtype gnutls_certificate_request_t is enum_anonymous12_t;
+
+   type enum_anonymous13_t is
+     (GNUTLS_OPENPGP_KEY,
+      GNUTLS_OPENPGP_KEY_FINGERPRINT);
+   for enum_anonymous13_t'Size use 32;
+   subtype gnutls_openpgp_key_status_t is enum_anonymous13_t;
+
+   type enum_anonymous14_t is (GNUTLS_SHUT_RDWR, GNUTLS_SHUT_WR);
+   for enum_anonymous14_t'Size use 32;
+   subtype gnutls_close_request_t is enum_anonymous14_t;
+
+   type enum_anonymous15_t is (GNUTLS_SSL3, GNUTLS_TLS1_0, GNUTLS_TLS1_1);
+   for enum_anonymous15_t use
+     (GNUTLS_SSL3   => 1,
+      GNUTLS_TLS1_0 => 2,
+      GNUTLS_TLS1_1 => 3);
+   for enum_anonymous15_t'Size use 32;
+   subtype gnutls_protocol_t is enum_anonymous15_t;
+
+   type enum_anonymous16_t is (GNUTLS_CRT_X509, GNUTLS_CRT_OPENPGP);
+   for enum_anonymous16_t use (GNUTLS_CRT_X509 => 1, GNUTLS_CRT_OPENPGP => 2);
+   for enum_anonymous16_t'Size use 32;
+   subtype gnutls_certificate_type_t is enum_anonymous16_t;
+
+   type enum_anonymous17_t is (GNUTLS_X509_FMT_DER, GNUTLS_X509_FMT_PEM);
+   for enum_anonymous17_t'Size use 32;
+   subtype gnutls_x509_crt_fmt_t is enum_anonymous17_t;
+
+   type enum_anonymous18_t is
+     (GNUTLS_PK_RSA,
+      GNUTLS_PK_DSA,
+      GNUTLS_PK_UNKNOWN);
+   for enum_anonymous18_t use
+     (GNUTLS_PK_RSA     => 1,
+      GNUTLS_PK_DSA     => 2,
+      GNUTLS_PK_UNKNOWN => 255);
+   for enum_anonymous18_t'Size use 32;
+   subtype gnutls_pk_algorithm_t is enum_anonymous18_t;
+
+   type enum_anonymous19_t is
+     (GNUTLS_SIGN_RSA_SHA,
+      GNUTLS_SIGN_DSA_SHA,
+      GNUTLS_SIGN_RSA_MD5,
+      GNUTLS_SIGN_RSA_MD2,
+      GNUTLS_SIGN_UNKNOWN);
+   for enum_anonymous19_t use
+     (GNUTLS_SIGN_RSA_SHA => 1,
+      GNUTLS_SIGN_DSA_SHA => 2,
+      GNUTLS_SIGN_RSA_MD5 => 3,
+      GNUTLS_SIGN_RSA_MD2 => 4,
+      GNUTLS_SIGN_UNKNOWN => 255);
+   for enum_anonymous19_t'Size use 32;
+   subtype gnutls_sign_algorithm_t is enum_anonymous19_t;
+
+   type enum_anonymous21_t is (GNUTLS_NAME_DNS);
+   for enum_anonymous21_t use (GNUTLS_NAME_DNS => 1);
+   for enum_anonymous21_t'Size use 32;
+   subtype gnutls_server_name_type_t is enum_anonymous21_t;
+
+   type enum_gnutls_x509_subject_alt_name_t is
+     (GNUTLS_SAN_DNSNAME,
+      GNUTLS_SAN_RFC822NAME,
+      GNUTLS_SAN_URI,
+      GNUTLS_SAN_IPADDRESS);
+   for enum_gnutls_x509_subject_alt_name_t use
+     (GNUTLS_SAN_DNSNAME    => 1,
+      GNUTLS_SAN_RFC822NAME => 2,
+      GNUTLS_SAN_URI        => 3,
+      GNUTLS_SAN_IPADDRESS  => 4);
+   for enum_gnutls_x509_subject_alt_name_t'Size use 32;
+   subtype gnutls_x509_subject_alt_name_t is
+     enum_gnutls_x509_subject_alt_name_t;
+
+   type a_c_signed_char_t is access all C.unsigned_char;
+   type a_size_t is access all C.size_t;
+   type gnutls_transport_ptr_t is new System.Address;
+   type gnutls_srp_server_credentials_function is new System.Address;
+   type gnutls_srp_client_credentials_function is new System.Address;
+   type gnutls_certificate_client_retrieve_function is new System.Address;
+   type gnutls_certificate_server_retrieve_function is new System.Address;
+   type gnutls_params_function is new System.Address;
+
+   type struct_anonymous20_t;
+   type STRUCT_DSTRUCT;
+   type union_cert;
+   type union_key;
+   type struct_gnutls_retr_st;
+   type union_params;
+   type struct_gnutls_params_st;
+
+   type gnutls_session_t is access all STRUCT_DSTRUCT;
+   type gnutls_dh_params_t is access all STRUCT_DSTRUCT;
+   type gnutls_rsa_params_t is access all STRUCT_DSTRUCT;
+   type a_gnutls_session_t is access all gnutls_session_t;
+   type gnutls_certificate_credentials_t is access all STRUCT_DSTRUCT;
+   type gnutls_certificate_server_credentials is access all STRUCT_DSTRUCT;
+   type gnutls_certificate_client_credentials is access all STRUCT_DSTRUCT;
+   type gnutls_anon_server_credentials_t is access all STRUCT_DSTRUCT;
+   type gnutls_anon_client_credentials_t is access all STRUCT_DSTRUCT;
+   type a_gnutls_anon_server_credentials_t is access all
+     gnutls_anon_server_credentials_t;
+   type a_gnutls_anon_client_credentials_t is access all
+     gnutls_anon_client_credentials_t;
+   type a_gnutls_certificate_credentials_t is access all
+     gnutls_certificate_credentials_t;
+   type a_gnutls_datum_t is access constant struct_anonymous20_t;
+   type gnutls_x509_privkey_t is access all STRUCT_DSTRUCT;
+   type gnutls_x509_crl_t is access all STRUCT_DSTRUCT;
+   type gnutls_x509_crt_t is access all STRUCT_DSTRUCT;
+   type a_gnutls_x509_crt_t is access all gnutls_x509_crt_t;
+   type a_gnutls_x509_crl_t is access all gnutls_x509_crl_t;
+   type a_gnutls_dh_params_t is access all gnutls_dh_params_t;
+   type a_gnutls_rsa_params_t is access all gnutls_rsa_params_t;
+   type gnutls_srp_server_credentials_t is access all STRUCT_DSTRUCT;
+   type gnutls_srp_client_credentials_t is access all STRUCT_DSTRUCT;
+   type a_gnutls_srp_client_credentials_t is access all
+     gnutls_srp_client_credentials_t;
+   type a_gnutls_srp_server_credentials_t is access all
+     gnutls_srp_server_credentials_t;
+   type gnutls_openpgp_key_t is access all STRUCT_DSTRUCT;
+   type gnutls_openpgp_privkey_t is access all STRUCT_DSTRUCT;
+
+   type struct_anonymous20_t is record
+      data : a_c_signed_char_t;
+      size : C.unsigned;
    end record;
 
-   type GNUTLS_Anon_Client_Credentials is new System.Address;
-   type GNUTLS_Certificate_Credentials is new System.Address;
+   pragma Convention (C, struct_anonymous20_t);
 
-   type GNUTLS_Session is new System.Address;
-   type Int_Array is array (1 .. Integer'Last) of C.int;
+   subtype gnutls_datum_t is struct_anonymous20_t;
 
-   function GCry_Control
-     (Cmd : in GCry_Ctl_Cmds; Cbs : in GCry_Thread_Cbs) return GCry_Error_T;
-   pragma Import (C, GCry_Control, "gcry_control");
+   type gnutls_db_store_func is access function
+     (p1   : System.Address;
+      key  : gnutls_datum_t;
+      data : gnutls_datum_t)
+   return    C.int;
 
-   procedure GNUTLS_Global_Init;
-   pragma Import (C, GNUTLS_Global_Init, "gnutls_global_init");
+   type gnutls_db_remove_func is access function
+     (p1   : System.Address;
+      key  : gnutls_datum_t)
+   return    C.int;
 
-   function GNUTLS_Anon_Allocate_Client_Credentials
-     (SC : access GNUTLS_Anon_Client_Credentials) return C.int;
-   pragma Import (C, GNUTLS_Anon_Allocate_Client_Credentials,
-                    "gnutls_anon_allocate_client_credentials");
+   type gnutls_db_retr_func is access function
+     (p1   : System.Address;
+      key  : gnutls_datum_t)
+   return    gnutls_datum_t;
 
-   function GNUTLS_Certificate_Allocate_Credentials
-     (SC : access GNUTLS_Certificate_Credentials) return C.int;
-   pragma Import (C, GNUTLS_Certificate_Allocate_Credentials,
-                    "gnutls_certificate_allocate_credentials");
+   type STRUCT_DSTRUCT is record
+      null;
+   end record;
 
-   function GNUTLS_Certificate_Set_X509_Trust_File
-     (Res  : GNUTLS_Certificate_Credentials;
-      File : CS.chars_ptr;
-      Fmt  : GNUTLS_x509_crt_fmt) return C.int;
-   pragma Import (C, GNUTLS_Certificate_Set_X509_Trust_File,
-                    "gnutls_certificate_set_x509_trust_file");
+   type gnutls_alloc_function is access function
+     (p1 : C.size_t) return System.Address;
 
-   function GNUTLS_Init
-     (Session : access GNUTLS_Session;
-      Con_End : in     GNUTLS_Connection_End) return C.int;
-   pragma Import (C, GNUTLS_Init, "gnutls_init");
+   type gnutls_calloc_function is access function
+     (p1 : C.size_t; p2 : C.size_t) return System.Address;
 
-   function GNUTLS_Set_Default_Priority
-     (Session : in GNUTLS_Session) return C.int;
-   pragma Import (C, GNUTLS_Set_Default_Priority,
-                    "gnutls_set_default_priority");
+   type gnutls_is_secure_function is access function
+     (p1 : System.Address) return C.int;
 
-   function GNUTLS_KX_Set_Priority
-     (Session : in GNUTLS_Session;
-      List    : in Int_Array) return C.int;
-   pragma Import (C, GNUTLS_KX_Set_Priority, "gnutls_kx_set_priority");
+   type gnutls_free_function is access procedure (p1 : System.Address);
 
-   function GNUTLS_Certificate_Type_Set_Priority
-     (Session : in GNUTLS_Session;
-      List    : in Int_Array) return C.int;
-   pragma Import (C, GNUTLS_Certificate_Type_Set_Priority,
-                     "gnutls_certificate_type_set_priority");
+   type gnutls_realloc_function is access function
+     (p1 : System.Address; p2 : C.size_t) return System.Address;
 
-   function GNUTLS_Credentials_Set
-     (Session : in GNUTLS_Session;
-      Kind    : in GNUTLS_Credentials_Type;
-      Cred    : in System.Address) return C.int;
-   pragma Import (C, GNUTLS_Credentials_Set, "gnutls_credentials_set");
+   type gnutls_log_func is access procedure (p1 : C.int; p2 : CS.chars_ptr);
 
-   procedure GNUTLS_Transport_Set_Ptr
-     (Session : in GNUTLS_Session;
-      Ptr     : in GNUTLS_Transport_Ptr);
-   pragma Import (C, GNUTLS_Transport_Set_Ptr, "gnutls_transport_set_ptr");
+   type union_cert_kind is (x509_kind, pgp_kind);
 
-   procedure GNUTLS_Transport_Set_Push_Function
-     (Session   : in GNUTLS_Session;
-      Push_Func : in System.Address);
-   pragma Import (C, GNUTLS_Transport_Set_Push_Function,
-                    "gnutls_transport_set_push_function");
+   type union_cert (Which : union_cert_kind := x509_kind) is record
+      case Which is
+         when x509_kind => x509 : a_gnutls_x509_crt_t;
+         when pgp_kind  => pgp  : gnutls_openpgp_key_t;
+      end case;
+   end record;
 
-   procedure GNUTLS_Transport_Set_Pull_Function
-     (Session   : in GNUTLS_Session;
-      Pull_Func : in System.Address);
-   pragma Import (C, GNUTLS_Transport_Set_Pull_Function,
-                    "gnutls_transport_set_pull_function");
+   pragma Convention (C, union_cert);
+   pragma Unchecked_Union (union_cert);
 
-   function GNUTLS_Handshake (Session : in GNUTLS_Session) return C.int;
-   pragma Import (C, GNUTLS_Handshake, "gnutls_handshake");
+   type union_key_kind is (x509_kind, pgp_kind);
 
-   function GNUTLS_StrError (Error : C.int) return CS.chars_ptr;
-   pragma Import (C, GNUTLS_StrError, "gnutls_strerror");
+   type union_key (Which : union_key_kind := x509_kind) is record
+      case Which is
+         when x509_kind => x509 : gnutls_x509_privkey_t;
+         when pgp_kind  => pgp  : gnutls_openpgp_privkey_t;
+      end case;
+   end record;
 
-   function GNUTLS_Record_Send
-     (Session : in GNUTLS_Session;
-      Data    : in System.Address;
-      Size_Of : in C.size_t) return C.size_t;
-   pragma Import (C, GNUTLS_Record_Send, "gnutls_record_send");
+   pragma Convention (C, union_key);
+   pragma Unchecked_Union (union_key);
 
-   function GNUTLS_Record_Recv
-     (Session : in GNUTLS_Session;
-      Data    : in System.Address;
-      Size_Of : in C.size_t) return C.size_t;
-   pragma Import (C, GNUTLS_Record_Recv, "gnutls_record_recv");
+   type struct_gnutls_retr_st is record
+      c_type     : gnutls_certificate_type_t;
+      cert       : union_cert;
+      ncerts     : C.unsigned; -- one for pgp keys
+      key        : union_key;
+      deinit_all : C.unsigned; -- if non zero all keys will be deinited
+   end record;
 
-   function GNUTLS_Bye
-     (Session : in GNUTLS_Session;
-      How     : in GNUTLS_Close_Request) return C.int;
-   pragma Import (C, GNUTLS_Bye, "gnutls_bye");
+   pragma Convention (C, struct_gnutls_retr_st);
 
-   procedure GNUTLS_Deinit (Session : in GNUTLS_Session);
-   pragma Import (C, GNUTLS_Deinit, "gnutls_deinit");
+   subtype gnutls_retr_st is struct_gnutls_retr_st;
 
-   procedure GNUTLS_Anon_Free_Client_Credentials
-     (SC : in GNUTLS_Anon_Client_Credentials);
-   pragma Import (C, GNUTLS_Anon_Free_Client_Credentials,
-                    "gnutls_anon_free_client_credentials");
+   type union_params_kind is (dh_kind, rsa_export_kind);
 
-   procedure GNUTLS_Certificate_Free_Credentials
-     (SC : GNUTLS_Certificate_Credentials);
-   pragma Import (C, GNUTLS_Certificate_Free_Credentials,
-                    "gnutls_certificate_free_credentials");
+   type union_params (Which : union_params_kind := dh_kind) is record
+      case Which is
+         when dh_kind         => dh         : gnutls_dh_params_t;
+         when rsa_export_kind => rsa_export : gnutls_rsa_params_t;
+      end case;
+   end record;
 
-   procedure GNUTLS_Global_Deinit;
-   pragma Import (C, GNUTLS_Global_Deinit, "gnutls_global_deinit");
+   pragma Convention (C, union_params);
+   pragma Unchecked_Union (union_params);
+
+   type struct_gnutls_params_st is record
+      c_type : gnutls_params_type_t;
+      params : union_params;
+      deinit : C.int;
+   end record;
+
+   pragma Convention (C, struct_gnutls_params_st);
+
+   subtype gnutls_params_st is struct_gnutls_params_st;
+
+   gnutls_malloc                   : gnutls_alloc_function;
+   gnutls_calloc                   : gnutls_calloc_function;
+   gnutls_free                     : gnutls_free_function;
+   gnutls_strdup                   : System.Address;
+   gnutls_srp_2048_group_prime     : gnutls_datum_t;
+   gnutls_srp_2048_group_generator : gnutls_datum_t;
+   gnutls_srp_1536_group_prime     : gnutls_datum_t;
+   gnutls_srp_1536_group_generator : gnutls_datum_t;
+   gnutls_srp_1024_group_prime     : gnutls_datum_t;
+   gnutls_srp_1024_group_generator : gnutls_datum_t;
+
+   function gnutls_pk_algorithm_get_name
+     (algorithm : gnutls_pk_algorithm_t)
+      return      CS.chars_ptr;
+
+   function gnutls_sign_algorithm_get_name
+     (algorithm : gnutls_sign_algorithm_t)
+      return      CS.chars_ptr;
+
+   function gnutls_init
+     (session : a_gnutls_session_t;
+      con_end : gnutls_connection_end_t)
+      return    C.int;
+
+   procedure gnutls_deinit (session : gnutls_session_t);
+
+   function gnutls_bye
+     (session : gnutls_session_t;
+      how     : gnutls_close_request_t)
+      return    C.int;
+
+   function gnutls_handshake (session : gnutls_session_t) return C.int;
+
+   function gnutls_rehandshake (session : gnutls_session_t) return C.int;
+
+   function gnutls_alert_get
+     (session : gnutls_session_t)
+      return    gnutls_alert_description_t;
+
+   function gnutls_alert_send
+     (p1   : gnutls_session_t;
+      p2   : gnutls_alert_level_t;
+      p3   : gnutls_alert_description_t)
+      return C.int;
+
+   function gnutls_alert_send_appropriate
+     (session : gnutls_session_t;
+      err     : C.int)
+      return    C.int;
+
+   function gnutls_alert_get_name
+     (alert : gnutls_alert_description_t)
+      return  CS.chars_ptr;
+
+   function gnutls_cipher_get
+     (session : gnutls_session_t)
+      return    gnutls_cipher_algorithm_t;
+
+   function gnutls_kx_get
+     (session : gnutls_session_t)
+      return    gnutls_kx_algorithm_t;
+
+   function gnutls_mac_get
+     (session : gnutls_session_t)
+      return    gnutls_mac_algorithm_t;
+
+   function gnutls_compression_get
+     (session : gnutls_session_t)
+      return    gnutls_compression_method_t;
+
+   function gnutls_certificate_type_get
+     (session : gnutls_session_t)
+      return    gnutls_certificate_type_t;
+
+   function gnutls_cipher_get_key_size
+     (algorithm : gnutls_cipher_algorithm_t)
+      return      C.size_t;
+
+   function gnutls_cipher_get_name
+     (p1   : gnutls_cipher_algorithm_t)
+      return CS.chars_ptr;
+
+   function gnutls_mac_get_name
+     (p1   : gnutls_mac_algorithm_t)
+      return CS.chars_ptr;
+
+   function gnutls_compression_get_name
+     (p1   : gnutls_compression_method_t)
+      return CS.chars_ptr;
+
+   function gnutls_kx_get_name
+     (algorithm : gnutls_kx_algorithm_t)
+      return      CS.chars_ptr;
+
+   function gnutls_certificate_type_get_name
+     (c_type : gnutls_certificate_type_t)
+      return   CS.chars_ptr;
+
+   function gnutls_error_is_fatal (error : C.int) return C.int;
+
+   function gnutls_error_to_alert
+     (err   : C.int;
+      level : access C.int)
+      return  C.int;
+
+   procedure gnutls_perror (error : C.int);
+
+   function gnutls_strerror (error : C.int) return CS.chars_ptr;
+
+   procedure gnutls_handshake_set_private_extensions
+     (session : gnutls_session_t;
+      allow   : C.int);
+
+   function gnutls_handshake_get_last_out
+     (session : gnutls_session_t)
+      return    gnutls_handshake_description_t;
+
+   function gnutls_handshake_get_last_in
+     (session : gnutls_session_t)
+      return    gnutls_handshake_description_t;
+
+   function gnutls_record_send
+     (session    : gnutls_session_t;
+      data       : System.Address;
+      sizeofdata : C.size_t)
+      return       C.size_t;
+
+   function gnutls_record_recv
+     (session    : gnutls_session_t;
+      data       : System.Address;
+      sizeofdata : C.size_t)
+      return       C.size_t;
+
+   function gnutls_record_get_direction
+     (session : gnutls_session_t)
+      return    C.int;
+
+   function gnutls_record_get_max_size
+     (session : gnutls_session_t)
+      return    C.size_t;
+
+   function gnutls_record_set_max_size
+     (session : gnutls_session_t;
+      size    : C.size_t)
+      return    C.size_t;
+
+   function gnutls_record_check_pending
+     (session : gnutls_session_t)
+      return    C.size_t;
+
+   function gnutls_server_name_set
+     (session     : gnutls_session_t;
+      c_type      : gnutls_server_name_type_t;
+      name        : System.Address;
+      name_length : C.size_t)
+      return        C.int;
+
+   function gnutls_server_name_get
+     (session     : gnutls_session_t;
+      data        : System.Address;
+      data_length : a_size_t;
+      c_type      : access C.unsigned;
+      indx        : C.unsigned)
+      return        C.int;
+
+   function gnutls_cipher_set_priority
+     (session : gnutls_session_t;
+      p2      : C.int)
+      return    C.int;
+
+   function gnutls_mac_set_priority
+     (session : gnutls_session_t;
+      p2      : C.int)
+      return    C.int;
+
+   function gnutls_compression_set_priority
+     (session : gnutls_session_t;
+      p2      : C.int)
+      return    C.int;
+
+   function gnutls_kx_set_priority
+     (session : gnutls_session_t;
+      p2      : C.int)
+      return    C.int;
+
+   function gnutls_protocol_set_priority
+     (session : gnutls_session_t;
+      p2      : C.int)
+      return    C.int;
+
+   function gnutls_certificate_type_set_priority
+     (session : gnutls_session_t;
+      p2      : C.int)
+      return    C.int;
+
+   function gnutls_set_default_priority
+     (session : gnutls_session_t)
+      return    C.int;
+
+   function gnutls_set_default_export_priority
+     (session : gnutls_session_t)
+      return    C.int;
+
+   function gnutls_cipher_suite_get_name
+     (kx_algorithm     : gnutls_kx_algorithm_t;
+      cipher_algorithm : gnutls_cipher_algorithm_t;
+      mac_algorithm    : gnutls_mac_algorithm_t)
+      return             CS.chars_ptr;
+
+   function gnutls_protocol_get_version
+     (session : gnutls_session_t)
+      return    gnutls_protocol_t;
+
+   function gnutls_protocol_get_name
+     (version : gnutls_protocol_t)
+      return    CS.chars_ptr;
+
+   function gnutls_session_set_data
+     (session           : gnutls_session_t;
+      session_data      : System.Address;
+      session_data_size : C.size_t)
+      return              C.int;
+
+   function gnutls_session_get_data
+     (session           : gnutls_session_t;
+      session_data      : System.Address;
+      session_data_size : a_size_t)
+      return              C.int;
+
+   function gnutls_session_get_id
+     (session         : gnutls_session_t;
+      session_id      : System.Address;
+      session_id_size : a_size_t)
+      return            C.int;
+
+   function gnutls_session_is_resumed
+     (session : gnutls_session_t)
+      return    C.int;
+
+   procedure gnutls_db_set_cache_expiration
+     (session : gnutls_session_t;
+      seconds : C.int);
+
+   procedure gnutls_db_remove_session (session : gnutls_session_t);
+
+   procedure gnutls_db_set_retrieve_function
+     (p1 : gnutls_session_t;
+      p2 : gnutls_db_retr_func);
+
+   procedure gnutls_db_set_remove_function
+     (p1 : gnutls_session_t;
+      p2 : gnutls_db_remove_func);
+
+   procedure gnutls_db_set_store_function
+     (p1 : gnutls_session_t;
+      p2 : gnutls_db_store_func);
+
+   procedure gnutls_db_set_ptr
+     (p1     : gnutls_session_t;
+      db_ptr : System.Address);
+
+   function gnutls_db_get_ptr (p1 : gnutls_session_t) return System.Address;
+
+   function gnutls_db_check_entry
+     (session       : gnutls_session_t;
+      session_entry : gnutls_datum_t)
+      return          C.int;
+
+   procedure gnutls_handshake_set_max_packet_length
+     (session : gnutls_session_t;
+      max     : C.int);
+
+   function gnutls_check_version (p1 : CS.chars_ptr) return CS.chars_ptr;
+
+   function gnutls_credentials_clear
+     (session : gnutls_session_t)
+      return    C.int;
+
+   function gnutls_credentials_set
+     (p1     : gnutls_session_t;
+      c_type : gnutls_credentials_type_t;
+      cred   : System.Address)
+      return   C.int;
+
+   procedure gnutls_anon_free_server_credentials
+     (sc : gnutls_anon_server_credentials_t);
+
+   function gnutls_anon_allocate_server_credentials
+     (sc   : a_gnutls_anon_server_credentials_t)
+      return C.int;
+
+   procedure gnutls_anon_set_server_dh_params
+     (res       : gnutls_anon_server_credentials_t;
+      dh_params : gnutls_dh_params_t);
+
+   procedure gnutls_anon_free_client_credentials
+     (sc : gnutls_anon_client_credentials_t);
+
+   function gnutls_anon_allocate_client_credentials
+     (sc   : a_gnutls_anon_client_credentials_t)
+      return C.int;
+
+   procedure gnutls_certificate_free_credentials
+     (sc : gnutls_certificate_credentials_t);
+
+   function gnutls_certificate_allocate_credentials
+     (sc   : a_gnutls_certificate_credentials_t)
+      return C.int;
+
+   procedure gnutls_certificate_free_keys
+     (sc : gnutls_certificate_credentials_t);
+
+   procedure gnutls_certificate_free_cas
+     (sc : gnutls_certificate_credentials_t);
+
+   procedure gnutls_certificate_free_ca_names
+     (sc : gnutls_certificate_credentials_t);
+
+   procedure gnutls_certificate_free_crls
+     (sc : gnutls_certificate_credentials_t);
+
+   procedure gnutls_certificate_set_dh_params
+     (res : gnutls_certificate_credentials_t;
+      p2  : gnutls_dh_params_t);
+
+   procedure gnutls_certificate_set_rsa_export_params
+     (res        : gnutls_certificate_credentials_t;
+      rsa_params : gnutls_rsa_params_t);
+
+   procedure gnutls_certificate_set_verify_flags
+     (res   : gnutls_certificate_credentials_t;
+      flags : C.unsigned);
+
+   procedure gnutls_certificate_set_verify_limits
+     (res       : gnutls_certificate_credentials_t;
+      max_bits  : C.unsigned;
+      max_depth : C.unsigned);
+
+   function gnutls_certificate_set_x509_trust_file
+     (res    : gnutls_certificate_credentials_t;
+      CAFILE : CS.chars_ptr;
+      p3     : gnutls_x509_crt_fmt_t)
+      return   C.int;
+
+   function gnutls_certificate_set_x509_trust_mem
+     (res  : gnutls_certificate_credentials_t;
+      CA   : a_gnutls_datum_t;
+      p3   : gnutls_x509_crt_fmt_t)
+      return C.int;
+
+   function gnutls_certificate_set_x509_crl_file
+     (res     : gnutls_certificate_credentials_t;
+      crlfile : CS.chars_ptr;
+      c_type  : gnutls_x509_crt_fmt_t)
+      return    C.int;
+
+   function gnutls_certificate_set_x509_crl_mem
+     (res    : gnutls_certificate_credentials_t;
+      CRL    : a_gnutls_datum_t;
+      c_type : gnutls_x509_crt_fmt_t)
+      return   C.int;
+
+   function gnutls_certificate_set_x509_key_file
+     (res      : gnutls_certificate_credentials_t;
+      CERTFILE : CS.chars_ptr;
+      KEYFILE  : CS.chars_ptr;
+      p4       : gnutls_x509_crt_fmt_t)
+      return     C.int;
+
+   function gnutls_certificate_set_x509_key_mem
+     (res  : gnutls_certificate_credentials_t;
+      CERT : a_gnutls_datum_t;
+      KEY  : a_gnutls_datum_t;
+      p4   : gnutls_x509_crt_fmt_t)
+      return C.int;
+
+   function gnutls_certificate_set_x509_key
+     (res            : gnutls_certificate_credentials_t;
+      cert_list      : a_gnutls_x509_crt_t;
+      cert_list_size : C.int;
+      key            : gnutls_x509_privkey_t)
+      return           C.int;
+
+   function gnutls_certificate_set_x509_trust
+     (res          : gnutls_certificate_credentials_t;
+      ca_list      : a_gnutls_x509_crt_t;
+      ca_list_size : C.int)
+      return         C.int;
+
+   function gnutls_certificate_set_x509_crl
+     (res           : gnutls_certificate_credentials_t;
+      crl_list      : a_gnutls_x509_crl_t;
+      crl_list_size : C.int)
+      return          C.int;
+
+   function gnutls_global_init return C.int;
+
+   procedure gnutls_global_deinit;
+
+   procedure gnutls_global_set_mem_functions
+     (p1 : gnutls_alloc_function;
+      p2 : gnutls_alloc_function;
+      p3 : gnutls_is_secure_function;
+      p4 : gnutls_realloc_function;
+      p5 : gnutls_free_function);
+
+   procedure gnutls_global_set_log_function (log_func : gnutls_log_func);
+
+   procedure gnutls_global_set_log_level (level : C.int);
+
+   function gnutls_dh_params_init (p1 : a_gnutls_dh_params_t) return C.int;
+
+   procedure gnutls_dh_params_deinit (p1 : gnutls_dh_params_t);
+
+   function gnutls_dh_params_import_raw
+     (dh_params : gnutls_dh_params_t;
+      prime     : a_gnutls_datum_t;
+      generator : a_gnutls_datum_t)
+      return      C.int;
+
+   function gnutls_dh_params_import_pkcs3
+     (params       : gnutls_dh_params_t;
+      pkcs3_params : a_gnutls_datum_t;
+      format       : gnutls_x509_crt_fmt_t)
+      return         C.int;
+
+   function gnutls_dh_params_generate2
+     (params : gnutls_dh_params_t;
+      bits   : C.int)
+      return   C.int;
+
+   function gnutls_dh_params_export_pkcs3
+     (params           : gnutls_dh_params_t;
+      format           : gnutls_x509_crt_fmt_t;
+      params_data      : a_c_signed_char_t;
+      params_data_size : a_size_t)
+      return             C.int;
+
+   function gnutls_dh_params_export_raw
+     (params    : gnutls_dh_params_t;
+      prime     : a_gnutls_datum_t;
+      generator : a_gnutls_datum_t;
+      bits      : access C.unsigned)
+      return      C.int;
+
+   function gnutls_dh_params_cpy
+     (dst  : gnutls_dh_params_t;
+      src  : gnutls_dh_params_t)
+      return C.int;
+
+   function gnutls_rsa_params_init
+     (rsa_params : a_gnutls_rsa_params_t)
+      return       C.int;
+
+   procedure gnutls_rsa_params_deinit (rsa_params : gnutls_rsa_params_t);
+
+   function gnutls_rsa_params_cpy
+     (dst  : gnutls_rsa_params_t;
+      src  : gnutls_rsa_params_t)
+      return C.int;
+
+   function gnutls_rsa_params_import_raw
+     (rsa_params : gnutls_rsa_params_t;
+      m          : a_gnutls_datum_t;
+      e          : a_gnutls_datum_t;
+      d          : a_gnutls_datum_t;
+      p          : a_gnutls_datum_t;
+      q          : a_gnutls_datum_t;
+      u          : a_gnutls_datum_t)
+      return       C.int;
+
+   function gnutls_rsa_params_generate2
+     (params : gnutls_rsa_params_t;
+      bits   : C.int)
+      return   C.int;
+
+   function gnutls_rsa_params_export_raw
+     (params : gnutls_rsa_params_t;
+      m      : a_gnutls_datum_t;
+      e      : a_gnutls_datum_t;
+      d      : a_gnutls_datum_t;
+      p      : a_gnutls_datum_t;
+      q      : a_gnutls_datum_t;
+      u      : a_gnutls_datum_t;
+      bits   : access C.unsigned)
+      return   C.int;
+
+   function gnutls_rsa_params_export_pkcs1
+     (params           : gnutls_rsa_params_t;
+      format           : gnutls_x509_crt_fmt_t;
+      params_data      : a_c_signed_char_t;
+      params_data_size : a_size_t)
+      return             C.int;
+
+   function gnutls_rsa_params_import_pkcs1
+     (params       : gnutls_rsa_params_t;
+      pkcs1_params : a_gnutls_datum_t;
+      format       : gnutls_x509_crt_fmt_t)
+      return         C.int;
+
+   function gnutls_transport_get_ptr
+     (session : gnutls_session_t)
+      return    gnutls_transport_ptr_t;
+
+   procedure gnutls_transport_get_ptr2
+     (session  : gnutls_session_t;
+      recv_ptr : gnutls_transport_ptr_t;
+      send_ptr : gnutls_transport_ptr_t);
+
+   procedure gnutls_transport_set_lowat
+     (session : gnutls_session_t;
+      num     : C.int);
+
+   procedure gnutls_session_set_ptr
+     (session : gnutls_session_t;
+      ptr     : System.Address);
+
+   function gnutls_session_get_ptr
+     (session : gnutls_session_t)
+      return    System.Address;
+
+   procedure gnutls_openpgp_send_key
+     (session : gnutls_session_t;
+      status  : gnutls_openpgp_key_status_t);
+
+   function gnutls_fingerprint
+     (algo        : gnutls_digest_algorithm_t;
+      data        : a_gnutls_datum_t;
+      result      : System.Address;
+      result_size : a_size_t)
+      return        C.int;
+
+   procedure gnutls_srp_free_client_credentials
+     (sc : gnutls_srp_client_credentials_t);
+
+   function gnutls_srp_allocate_client_credentials
+     (sc   : a_gnutls_srp_client_credentials_t)
+      return C.int;
+
+   function gnutls_srp_set_client_credentials
+     (res      : gnutls_srp_client_credentials_t;
+      username : CS.chars_ptr;
+      password : CS.chars_ptr)
+      return     C.int;
+
+   procedure gnutls_srp_free_server_credentials
+     (sc : gnutls_srp_server_credentials_t);
+
+   function gnutls_srp_allocate_server_credentials
+     (sc : a_gnutls_srp_server_credentials_t) return C.int;
+
+   function gnutls_srp_set_server_credentials_file
+     (res                : gnutls_srp_server_credentials_t;
+      password_file      : CS.chars_ptr;
+      password_conf_file : CS.chars_ptr)
+      return               C.int;
+
+   function gnutls_srp_server_get_username
+     (state : gnutls_session_t)
+      return  CS.chars_ptr;
+
+   function gnutls_srp_verifier
+     (username : CS.chars_ptr;
+      password : CS.chars_ptr;
+      salt     : a_gnutls_datum_t;
+      g        : a_gnutls_datum_t;
+      n        : a_gnutls_datum_t;
+      res      : a_gnutls_datum_t)
+      return     C.int;
+
+   procedure gnutls_srp_set_server_credentials_function
+     (p1 : gnutls_srp_server_credentials_t;
+      p2 : gnutls_srp_server_credentials_function);
+
+   procedure gnutls_srp_set_client_credentials_function
+     (p1 : gnutls_srp_client_credentials_t;
+      p2 : gnutls_srp_client_credentials_function);
+
+   function gnutls_auth_get_type
+     (session : gnutls_session_t)
+      return    gnutls_credentials_type_t;
+
+   function gnutls_auth_server_get_type
+     (session : gnutls_session_t)
+      return    gnutls_credentials_type_t;
+
+   function gnutls_auth_client_get_type
+     (session : gnutls_session_t)
+      return    gnutls_credentials_type_t;
+
+   procedure gnutls_dh_set_prime_bits
+     (session : gnutls_session_t;
+      bits    : C.int);
+
+   function gnutls_dh_get_secret_bits (p1 : gnutls_session_t) return C.int;
+
+   function gnutls_dh_get_peers_public_bits
+     (p1   : gnutls_session_t)
+      return C.int;
+
+   function gnutls_dh_get_prime_bits (p1 : gnutls_session_t) return C.int;
+
+   function gnutls_dh_get_group
+     (p1    : gnutls_session_t;
+      gen   : a_gnutls_datum_t;
+      prime : a_gnutls_datum_t)
+      return  C.int;
+
+   function gnutls_dh_get_pubkey
+     (p1   : gnutls_session_t;
+      pub  : a_gnutls_datum_t)
+      return C.int;
+
+   function gnutls_rsa_export_get_pubkey
+     (session : gnutls_session_t;
+      exp     : a_gnutls_datum_t;
+      c_mod   : a_gnutls_datum_t)
+      return    C.int;
+
+   function gnutls_rsa_export_get_modulus_bits
+     (session : gnutls_session_t)
+      return    C.int;
+
+   procedure gnutls_certificate_client_set_retrieve_function
+     (cc : gnutls_certificate_credentials_t;
+      rf : gnutls_certificate_client_retrieve_function);
+
+   procedure gnutls_certificate_server_set_retrieve_function
+     (cc : gnutls_certificate_credentials_t;
+      rf : gnutls_certificate_server_retrieve_function);
+
+   procedure gnutls_certificate_server_set_request
+     (p1 : gnutls_session_t;
+      p2 : gnutls_certificate_request_t);
+
+   function gnutls_pkcs3_extract_dh_params
+     (params     : a_gnutls_datum_t;
+      format     : gnutls_x509_crt_fmt_t;
+      prime      : a_gnutls_datum_t;
+      generator  : a_gnutls_datum_t;
+      prime_bits : C.int)
+      return       C.int;
+
+   function gnutls_pkcs3_export_dh_params
+     (prime            : a_gnutls_datum_t;
+      generator        : a_gnutls_datum_t;
+      format           : gnutls_x509_crt_fmt_t;
+      params_data      : a_c_signed_char_t;
+      params_data_size : C.int)
+      return             C.int;
+
+   function gnutls_certificate_get_peers
+     (p1        : gnutls_session_t;
+      list_size : access C.unsigned)
+      return      a_gnutls_datum_t;
+
+   function gnutls_certificate_get_ours
+     (session : gnutls_session_t)
+      return    a_gnutls_datum_t;
+
+   function gnutls_certificate_activation_time_peers
+     (session : gnutls_session_t)
+      return    time_t;
+
+   function gnutls_certificate_expiration_time_peers
+     (session : gnutls_session_t)
+      return    time_t;
+
+   function gnutls_certificate_client_get_request_status
+     (p1   : gnutls_session_t)
+      return C.int;
+
+   function gnutls_certificate_verify_peers2
+     (p1     : gnutls_session_t;
+      status : access C.unsigned)
+      return   C.int;
+
+   function gnutls_pem_base64_encode
+     (header      : CS.chars_ptr;
+      data        : a_gnutls_datum_t;
+      result      : CS.chars_ptr;
+      result_size : a_size_t)
+      return        C.int;
+
+   function gnutls_pem_base64_decode
+     (header      : CS.chars_ptr;
+      b64_data    : a_gnutls_datum_t;
+      result      : a_c_signed_char_t;
+      result_size : a_size_t)
+      return        C.int;
+
+   function gnutls_pem_base64_encode_alloc
+     (header : CS.chars_ptr;
+      data   : a_gnutls_datum_t;
+      result : a_gnutls_datum_t)
+      return   C.int;
+
+   function gnutls_pem_base64_decode_alloc
+     (header   : CS.chars_ptr;
+      b64_data : a_gnutls_datum_t;
+      result   : a_gnutls_datum_t)
+      return     C.int;
+
+   procedure gnutls_certificate_set_params_function
+     (res  : gnutls_certificate_credentials_t;
+      func : gnutls_params_function);
+
+   procedure gnutls_anon_set_params_function
+     (res  : gnutls_certificate_credentials_t;
+      func : gnutls_params_function);
+
+private
+
+   pragma Import
+     (C,
+      gnutls_pk_algorithm_get_name,
+      "gnutls_pk_algorithm_get_name");
+
+   pragma Import
+     (C,
+      gnutls_sign_algorithm_get_name,
+      "gnutls_sign_algorithm_get_name");
+
+   pragma Import (C, gnutls_init, "gnutls_init");
+
+   pragma Import (C, gnutls_deinit, "gnutls_deinit");
+
+   pragma Import (C, gnutls_bye, "gnutls_bye");
+
+   pragma Import (C, gnutls_handshake, "gnutls_handshake");
+
+   pragma Import (C, gnutls_rehandshake, "gnutls_rehandshake");
+
+   pragma Import (C, gnutls_alert_get, "gnutls_alert_get");
+
+   pragma Import (C, gnutls_alert_send, "gnutls_alert_send");
+
+   pragma Import
+     (C,
+      gnutls_alert_send_appropriate,
+      "gnutls_alert_send_appropriate");
+
+   pragma Import (C, gnutls_alert_get_name, "gnutls_alert_get_name");
+
+   pragma Import (C, gnutls_cipher_get, "gnutls_cipher_get");
+
+   pragma Import (C, gnutls_kx_get, "gnutls_kx_get");
+
+   pragma Import (C, gnutls_mac_get, "gnutls_mac_get");
+
+   pragma Import (C, gnutls_compression_get, "gnutls_compression_get");
+
+   pragma Import
+     (C,
+      gnutls_certificate_type_get,
+      "gnutls_certificate_type_get");
+
+   pragma Import
+     (C,
+      gnutls_cipher_get_key_size,
+      "gnutls_cipher_get_key_size");
+
+   pragma Import (C, gnutls_cipher_get_name, "gnutls_cipher_get_name");
+
+   pragma Import (C, gnutls_mac_get_name, "gnutls_mac_get_name");
+
+   pragma Import
+     (C,
+      gnutls_compression_get_name,
+      "gnutls_compression_get_name");
+
+   pragma Import (C, gnutls_kx_get_name, "gnutls_kx_get_name");
+
+   pragma Import
+     (C,
+      gnutls_certificate_type_get_name,
+      "gnutls_certificate_type_get_name");
+
+   pragma Import (C, gnutls_error_is_fatal, "gnutls_error_is_fatal");
+
+   pragma Import (C, gnutls_error_to_alert, "gnutls_error_to_alert");
+
+   pragma Import (C, gnutls_perror, "gnutls_perror");
+
+   pragma Import (C, gnutls_strerror, "gnutls_strerror");
+
+   pragma Import
+     (C,
+      gnutls_handshake_set_private_extensions,
+      "gnutls_handshake_set_private_extensions");
+
+   pragma Import
+     (C,
+      gnutls_handshake_get_last_out,
+      "gnutls_handshake_get_last_out");
+
+   pragma Import
+     (C,
+      gnutls_handshake_get_last_in,
+      "gnutls_handshake_get_last_in");
+
+   pragma Import (C, gnutls_record_send, "gnutls_record_send");
+
+   pragma Import (C, gnutls_record_recv, "gnutls_record_recv");
+
+   pragma Import
+     (C,
+      gnutls_record_get_direction,
+      "gnutls_record_get_direction");
+
+   pragma Import
+     (C,
+      gnutls_record_get_max_size,
+      "gnutls_record_get_max_size");
+
+   pragma Import
+     (C,
+      gnutls_record_set_max_size,
+      "gnutls_record_set_max_size");
+
+   pragma Import
+     (C,
+      gnutls_record_check_pending,
+      "gnutls_record_check_pending");
+
+   pragma Import (C, gnutls_server_name_set, "gnutls_server_name_set");
+
+   pragma Import (C, gnutls_server_name_get, "gnutls_server_name_get");
+
+   pragma Import
+     (C,
+      gnutls_cipher_set_priority,
+      "gnutls_cipher_set_priority");
+
+   pragma Import (C, gnutls_mac_set_priority, "gnutls_mac_set_priority");
+
+   pragma Import
+     (C,
+      gnutls_compression_set_priority,
+      "gnutls_compression_set_priority");
+
+   pragma Import (C, gnutls_kx_set_priority, "gnutls_kx_set_priority");
+
+   pragma Import
+     (C,
+      gnutls_protocol_set_priority,
+      "gnutls_protocol_set_priority");
+
+   pragma Import
+     (C,
+      gnutls_certificate_type_set_priority,
+      "gnutls_certificate_type_set_priority");
+
+   pragma Import
+     (C,
+      gnutls_set_default_priority,
+      "gnutls_set_default_priority");
+
+   pragma Import
+     (C,
+      gnutls_set_default_export_priority,
+      "gnutls_set_default_export_priority");
+
+   pragma Import
+     (C,
+      gnutls_cipher_suite_get_name,
+      "gnutls_cipher_suite_get_name");
+
+   pragma Import
+     (C,
+      gnutls_protocol_get_version,
+      "gnutls_protocol_get_version");
+
+   pragma Import (C, gnutls_protocol_get_name, "gnutls_protocol_get_name");
+
+   pragma Import (C, gnutls_session_set_data, "gnutls_session_set_data");
+
+   pragma Import (C, gnutls_session_get_data, "gnutls_session_get_data");
+
+   pragma Import (C, gnutls_session_get_id, "gnutls_session_get_id");
+
+   pragma Import (C, gnutls_session_is_resumed, "gnutls_session_is_resumed");
+
+   pragma Import
+     (C,
+      gnutls_db_set_cache_expiration,
+      "gnutls_db_set_cache_expiration");
+
+   pragma Import (C, gnutls_db_remove_session, "gnutls_db_remove_session");
+
+   pragma Import
+     (C,
+      gnutls_db_set_retrieve_function,
+      "gnutls_db_set_retrieve_function");
+
+   pragma Import
+     (C,
+      gnutls_db_set_remove_function,
+      "gnutls_db_set_remove_function");
+
+   pragma Import
+     (C,
+      gnutls_db_set_store_function,
+      "gnutls_db_set_store_function");
+
+   pragma Import (C, gnutls_db_set_ptr, "gnutls_db_set_ptr");
+
+   pragma Import (C, gnutls_db_get_ptr, "gnutls_db_get_ptr");
+
+   pragma Import (C, gnutls_db_check_entry, "gnutls_db_check_entry");
+
+   pragma Import
+     (C,
+      gnutls_handshake_set_max_packet_length,
+      "gnutls_handshake_set_max_packet_length");
+
+   pragma Import (C, gnutls_check_version, "gnutls_check_version");
+
+   pragma Import (C, gnutls_credentials_clear, "gnutls_credentials_clear");
+
+   pragma Import (C, gnutls_credentials_set, "gnutls_credentials_set");
+
+   pragma Import
+     (C,
+      gnutls_anon_free_server_credentials,
+      "gnutls_anon_free_server_credentials");
+
+   pragma Import
+     (C,
+      gnutls_anon_allocate_server_credentials,
+      "gnutls_anon_allocate_server_credentials");
+
+   pragma Import
+     (C,
+      gnutls_anon_set_server_dh_params,
+      "gnutls_anon_set_server_dh_params");
+
+   pragma Import
+     (C,
+      gnutls_anon_free_client_credentials,
+      "gnutls_anon_free_client_credentials");
+
+   pragma Import
+     (C,
+      gnutls_anon_allocate_client_credentials,
+      "gnutls_anon_allocate_client_credentials");
+
+   pragma Import
+     (C,
+      gnutls_certificate_free_credentials,
+      "gnutls_certificate_free_credentials");
+
+   pragma Import
+     (C,
+      gnutls_certificate_allocate_credentials,
+      "gnutls_certificate_allocate_credentials");
+
+   pragma Import
+     (C,
+      gnutls_certificate_free_keys,
+      "gnutls_certificate_free_keys");
+
+   pragma Import
+     (C,
+      gnutls_certificate_free_cas,
+      "gnutls_certificate_free_cas");
+
+   pragma Import
+     (C,
+      gnutls_certificate_free_ca_names,
+      "gnutls_certificate_free_ca_names");
+
+   pragma Import
+     (C,
+      gnutls_certificate_free_crls,
+      "gnutls_certificate_free_crls");
+
+   pragma Import
+     (C,
+      gnutls_certificate_set_dh_params,
+      "gnutls_certificate_set_dh_params");
+
+   pragma Import
+     (C,
+      gnutls_certificate_set_rsa_export_params,
+      "gnutls_certificate_set_rsa_export_params");
+
+   pragma Import
+     (C,
+      gnutls_certificate_set_verify_flags,
+      "gnutls_certificate_set_verify_flags");
+
+   pragma Import
+     (C,
+      gnutls_certificate_set_verify_limits,
+      "gnutls_certificate_set_verify_limits");
+
+   pragma Import
+     (C,
+      gnutls_certificate_set_x509_trust_file,
+      "gnutls_certificate_set_x509_trust_file");
+
+   pragma Import
+     (C,
+      gnutls_certificate_set_x509_trust_mem,
+      "gnutls_certificate_set_x509_trust_mem");
+
+   pragma Import
+     (C,
+      gnutls_certificate_set_x509_crl_file,
+      "gnutls_certificate_set_x509_crl_file");
+
+   pragma Import
+     (C,
+      gnutls_certificate_set_x509_crl_mem,
+      "gnutls_certificate_set_x509_crl_mem");
+
+   pragma Import
+     (C,
+      gnutls_certificate_set_x509_key_file,
+      "gnutls_certificate_set_x509_key_file");
+
+   pragma Import
+     (C,
+      gnutls_certificate_set_x509_key_mem,
+      "gnutls_certificate_set_x509_key_mem");
+
+   pragma Import
+     (C,
+      gnutls_certificate_set_x509_key,
+      "gnutls_certificate_set_x509_key");
+
+   pragma Import
+     (C,
+      gnutls_certificate_set_x509_trust,
+      "gnutls_certificate_set_x509_trust");
+
+   pragma Import
+     (C,
+      gnutls_certificate_set_x509_crl,
+      "gnutls_certificate_set_x509_crl");
+
+   pragma Import (C, gnutls_global_init, "gnutls_global_init");
+
+   pragma Import (C, gnutls_global_deinit, "gnutls_global_deinit");
+
+   pragma Import
+     (C,
+      gnutls_global_set_mem_functions,
+      "gnutls_global_set_mem_functions");
+
+   pragma Import
+     (C,
+      gnutls_global_set_log_function,
+      "gnutls_global_set_log_function");
+
+   pragma Import
+     (C,
+      gnutls_global_set_log_level,
+      "gnutls_global_set_log_level");
+
+   pragma Import (C, gnutls_dh_params_init, "gnutls_dh_params_init");
+
+   pragma Import (C, gnutls_dh_params_deinit, "gnutls_dh_params_deinit");
+
+   pragma Import
+     (C,
+      gnutls_dh_params_import_raw,
+      "gnutls_dh_params_import_raw");
+
+   pragma Import
+     (C,
+      gnutls_dh_params_import_pkcs3,
+      "gnutls_dh_params_import_pkcs3");
+
+   pragma Import
+     (C,
+      gnutls_dh_params_generate2,
+      "gnutls_dh_params_generate2");
+
+   pragma Import
+     (C,
+      gnutls_dh_params_export_pkcs3,
+      "gnutls_dh_params_export_pkcs3");
+
+   pragma Import
+     (C,
+      gnutls_dh_params_export_raw,
+      "gnutls_dh_params_export_raw");
+
+   pragma Import (C, gnutls_dh_params_cpy, "gnutls_dh_params_cpy");
+
+   pragma Import (C, gnutls_rsa_params_init, "gnutls_rsa_params_init");
+
+   pragma Import (C, gnutls_rsa_params_deinit, "gnutls_rsa_params_deinit");
+
+   pragma Import (C, gnutls_rsa_params_cpy, "gnutls_rsa_params_cpy");
+
+   pragma Import
+     (C,
+      gnutls_rsa_params_import_raw,
+      "gnutls_rsa_params_import_raw");
+
+   pragma Import
+     (C,
+      gnutls_rsa_params_generate2,
+      "gnutls_rsa_params_generate2");
+
+   pragma Import
+     (C,
+      gnutls_rsa_params_export_raw,
+      "gnutls_rsa_params_export_raw");
+
+   pragma Import
+     (C,
+      gnutls_rsa_params_export_pkcs1,
+      "gnutls_rsa_params_export_pkcs1");
+
+   pragma Import
+     (C,
+      gnutls_rsa_params_import_pkcs1,
+      "gnutls_rsa_params_import_pkcs1");
+
+   pragma Import (C, gnutls_transport_get_ptr, "gnutls_transport_get_ptr");
+
+   pragma Import (C, gnutls_transport_get_ptr2, "gnutls_transport_get_ptr2");
+
+   pragma Import
+     (C,
+      gnutls_transport_set_lowat,
+      "gnutls_transport_set_lowat");
+
+   pragma Import (C, gnutls_session_set_ptr, "gnutls_session_set_ptr");
+
+   pragma Import (C, gnutls_session_get_ptr, "gnutls_session_get_ptr");
+
+   pragma Import (C, gnutls_openpgp_send_key, "gnutls_openpgp_send_key");
+
+   pragma Import (C, gnutls_fingerprint, "gnutls_fingerprint");
+
+   pragma Import
+     (C,
+      gnutls_srp_free_client_credentials,
+      "gnutls_srp_free_client_credentials");
+
+   pragma Import
+     (C,
+      gnutls_srp_allocate_client_credentials,
+      "gnutls_srp_allocate_client_credentials");
+
+   pragma Import
+     (C,
+      gnutls_srp_set_client_credentials,
+      "gnutls_srp_set_client_credentials");
+
+   pragma Import
+     (C,
+      gnutls_srp_free_server_credentials,
+      "gnutls_srp_free_server_credentials");
+
+   pragma Import
+     (C,
+      gnutls_srp_allocate_server_credentials,
+      "gnutls_srp_allocate_server_credentials");
+
+   pragma Import
+     (C,
+      gnutls_srp_set_server_credentials_file,
+      "gnutls_srp_set_server_credentials_file");
+
+   pragma Import
+     (C,
+      gnutls_srp_server_get_username,
+      "gnutls_srp_server_get_username");
+
+   pragma Import (C, gnutls_srp_verifier, "gnutls_srp_verifier");
+
+   pragma Import
+     (C,
+      gnutls_srp_set_server_credentials_function,
+      "gnutls_srp_set_server_credentials_function");
+
+   pragma Import
+     (C,
+      gnutls_srp_set_client_credentials_function,
+      "gnutls_srp_set_client_credentials_function");
+
+   pragma Import (C, gnutls_auth_get_type, "gnutls_auth_get_type");
+
+   pragma Import
+     (C,
+      gnutls_auth_server_get_type,
+      "gnutls_auth_server_get_type");
+
+   pragma Import
+     (C,
+      gnutls_auth_client_get_type,
+      "gnutls_auth_client_get_type");
+
+   pragma Import (C, gnutls_dh_set_prime_bits, "gnutls_dh_set_prime_bits");
+
+   pragma Import (C, gnutls_dh_get_secret_bits, "gnutls_dh_get_secret_bits");
+
+   pragma Import
+     (C,
+      gnutls_dh_get_peers_public_bits,
+      "gnutls_dh_get_peers_public_bits");
+
+   pragma Import (C, gnutls_dh_get_prime_bits, "gnutls_dh_get_prime_bits");
+
+   pragma Import (C, gnutls_dh_get_group, "gnutls_dh_get_group");
+
+   pragma Import (C, gnutls_dh_get_pubkey, "gnutls_dh_get_pubkey");
+
+   pragma Import
+     (C,
+      gnutls_rsa_export_get_pubkey,
+      "gnutls_rsa_export_get_pubkey");
+
+   pragma Import
+     (C,
+      gnutls_rsa_export_get_modulus_bits,
+      "gnutls_rsa_export_get_modulus_bits");
+
+   pragma Import
+     (C,
+      gnutls_certificate_client_set_retrieve_function,
+      "gnutls_certificate_client_set_retrieve_function");
+
+   pragma Import
+     (C,
+      gnutls_certificate_server_set_retrieve_function,
+      "gnutls_certificate_server_set_retrieve_function");
+
+   pragma Import
+     (C,
+      gnutls_certificate_server_set_request,
+      "gnutls_certificate_server_set_request");
+
+   pragma Import
+     (C,
+      gnutls_pkcs3_extract_dh_params,
+      "gnutls_pkcs3_extract_dh_params");
+
+   pragma Import
+     (C,
+      gnutls_pkcs3_export_dh_params,
+      "gnutls_pkcs3_export_dh_params");
+
+   pragma Import
+     (C,
+      gnutls_certificate_get_peers,
+      "gnutls_certificate_get_peers");
+
+   pragma Import
+     (C,
+      gnutls_certificate_get_ours,
+      "gnutls_certificate_get_ours");
+
+   pragma Import
+     (C,
+      gnutls_certificate_activation_time_peers,
+      "gnutls_certificate_activation_time_peers");
+
+   pragma Import
+     (C,
+      gnutls_certificate_expiration_time_peers,
+      "gnutls_certificate_expiration_time_peers");
+
+   pragma Import
+     (C,
+      gnutls_certificate_client_get_request_status,
+      "gnutls_certificate_client_get_request_status");
+
+   pragma Import
+     (C,
+      gnutls_certificate_verify_peers2,
+      "gnutls_certificate_verify_peers2");
+
+   pragma Import (C, gnutls_pem_base64_encode, "gnutls_pem_base64_encode");
+
+   pragma Import (C, gnutls_pem_base64_decode, "gnutls_pem_base64_decode");
+
+   pragma Import
+     (C,
+      gnutls_pem_base64_encode_alloc,
+      "gnutls_pem_base64_encode_alloc");
+
+   pragma Import
+     (C,
+      gnutls_pem_base64_decode_alloc,
+      "gnutls_pem_base64_decode_alloc");
+
+   pragma Import
+     (C,
+      gnutls_certificate_set_params_function,
+      "gnutls_certificate_set_params_function");
+
+   pragma Import
+     (C,
+      gnutls_anon_set_params_function,
+      "gnutls_anon_set_params_function");
+
+   pragma Import (C, gnutls_malloc, "gnutls_malloc");
+   pragma Import (C, gnutls_calloc, "gnutls_calloc");
+   pragma Import (C, gnutls_free, "gnutls_free");
+   pragma Import (C, gnutls_strdup, "gnutls_strdup");
+   pragma Import (C, gnutls_srp_2048_group_prime,
+                    "gnutls_srp_2048_group_prime");
+   pragma Import (C, gnutls_srp_2048_group_generator,
+                    "gnutls_srp_2048_group_generator");
+   pragma Import (C, gnutls_srp_1536_group_prime,
+                    "gnutls_srp_1536_group_prime");
+   pragma Import (C, gnutls_srp_1536_group_generator,
+                    "gnutls_srp_1536_group_generator");
+   pragma Import (C, gnutls_srp_1024_group_prime,
+                    "gnutls_srp_1024_group_prime");
+   pragma Import (C, gnutls_srp_1024_group_generator,
+                    "gnutls_srp_1024_group_generator");
 
 end SSL.GNUTLS;
