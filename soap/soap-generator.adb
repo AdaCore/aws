@@ -336,6 +336,7 @@ package body SOAP.Generator is
                Append (Result, Characters.Handling.To_Upper (Name (K)));
 
             elsif Characters.Handling.Is_Upper (Name (K))
+              and then not Characters.Handling.Is_Upper (Name (K - 1))
               and then K > Name'First
               and then Name (K - 1) /= '_'
               and then Name (K - 1) /= '.'
