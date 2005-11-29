@@ -1239,6 +1239,8 @@ regtests/test_wsdl5.wsdl
 regtests/test_wsdl6.adb
 regtests/test_wsdl6.out
 regtests/test_wsdl6.wsdl
+regtests/test_wsdl7.out
+regtests/test_wsdl7.wsdl
 regtests/testxml.adb
 regtests/testxml.out
 regtests/workorder.adb
