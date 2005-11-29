@@ -3,6 +3,12 @@
 WSDL_6
 accs.res
 accs_sec.res
+ada_name-client.adb
+ada_name-client.ads
+ada_name-server.adb
+ada_name-server.ads
+ada_name-types.ads
+ada_name.ads
 afile
 afile.res
 afile_sec.res
@@ -632,6 +638,8 @@ test_wsdl3.tmp
 test_wsdl4
 test_wsdl4.res
 test_wsdl5.res
+test_wsdl6.res
+test_wsdl7.adb
 testxml
 testxml.res
 testxml.tmp
@@ -882,6 +890,12 @@ wsdl_parse_1.res
 wsdl_parse_2.res
 wsdl_parse_3.res
 wsdl_parse_4.res
+www-dummy-net-ada_name_wsdl-size_of_table_type_pkg.adb
+www-dummy-net-ada_name_wsdl-size_of_table_type_pkg.ads
+www-dummy-net-ada_name_wsdl.ads
+www-dummy-net.ads
+www-dummy.ads
+www.ads
 xmlt.res
 xmlt_sec.res
 zapp

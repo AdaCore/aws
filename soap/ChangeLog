@@ -1,10 +1,17 @@
+2005-11-29  Pascal Obry  <pascal@obry.net>
+
+	* soap-generator.adb:
+	(Ada_Format): Fix to add an underscore only between a lower case
+         an an upper case letter.
+        Fixes EB29-007.
+
 2005-09-21  Pascal Obry  <pascal@obry.net>
 
 	* soap-wsdl-parser.adb:
-	Remove redundant with/use clause.	
+	Remove redundant with/use clause.
 
 	* soap-utils.adb:
-	Remove redundant with/use clause.	
+	Remove redundant with/use clause.
 
 	* soap-types.ads, soap-types.adb:
 	Remove redundant with/use clause.
