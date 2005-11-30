@@ -1,3 +1,9 @@
+2005-11-30  Pascal Obry  <pascal@obry.net>
+
+	* test_wsdl7.adb:
+	Initial revision.
+	Work for EB29-007.
+
 2005-11-29  Pascal Obry  <pascal@obry.net>
 
 	* test_wsdl7.wsdl, test_wsdl7.out:

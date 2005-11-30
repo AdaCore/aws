@@ -639,7 +639,7 @@ test_wsdl4
 test_wsdl4.res
 test_wsdl5.res
 test_wsdl6.res
-test_wsdl7.adb
+test_wsdl7.res
 testxml
 testxml.res
 testxml.tmp
