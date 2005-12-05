@@ -1015,6 +1015,8 @@ templates_parser/regtests/testme70.out
 templates_parser/regtests/testme70.tmplt
 templates_parser/regtests/testme71.out
 templates_parser/regtests/testme71.tmplt
+templates_parser/regtests/testme72.out
+templates_parser/regtests/testme72.tmplt
 templates_parser/regtests/testme7_pt.out
 templates_parser/regtests/testme8.out
 templates_parser/regtests/testme8.tmplt
