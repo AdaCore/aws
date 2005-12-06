@@ -98,8 +98,8 @@ Here are the main changes since AWS 2.1 :
      appropriate response to the client about the status of the download
      (position in the waiting queue, download about to start).
 
-   - Implements a set of JavaScript templates to ease Ajax (Asynchronous
-     JavaScript language and XML demos) based developments with with AWS.
+   - Implement a set of JavaScript templates to ease Ajax (Asynchronous
+     JavaScript language and XML demos) based developments with AWS.
      This is also known as XML HTTP Requests.
 
    - Add support for partial downloads on client and server side. AWS can
