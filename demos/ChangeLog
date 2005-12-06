@@ -1,3 +1,8 @@
+2005-12-06  name  <villoing@>
+
+	* we_library.html:
+	Fix incomplete closing tags. Minor rewording.
+
 2005-11-21  Pascal Obry  <pascal@obry.net>
 
 	* web_elements_containers.ads, web_elements_containers.adb:
