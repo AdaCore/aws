@@ -3,7 +3,7 @@
 	* agent.adb:
 	Add receive timeout parameter.
 
-2005-12-06  name  <villoing@>
+2005-12-06  Florian Villoing  <villoing@>
 
 	* we_library.html:
 	Fix incomplete closing tags. Minor rewording.
