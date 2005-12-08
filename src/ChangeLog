@@ -1,7 +1,7 @@
 2005-12-08  Dmitriy Anisimkov <anisimkov@ada-ru.org>
 
 	* aws-client.adb:
-	Do not retry request is read timeout exceeded.
+	Do not retry request if read timeout exceeded.
 
 2005-11-23  Pascal Obry  <pascal@obry.net>
 
