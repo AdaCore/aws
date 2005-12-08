@@ -76,9 +76,15 @@ procedure Web_Elements is
                ". response for the click me button!");
 
       elsif URI = "/select_color" then
-         return Response.Build
-           (MIME.Text_HTML, "<p><b>You have choosen the " &
-            Parameters.Get (P_List, "select_color") & " color");
+         declare
+            Color : constant String := Parameters.Get (P_List, "select_color");
+         begin
+            return Response.Build
+              (MIME.Text_HTML,
+               "<p>You have chosen the " &
+               "<span class=""" & Color & """><b>" & Color & "</b></span> " &
+               "color</p>");
+         end;
 
       elsif URI = "/data" then
          C := C + 1;
@@ -89,12 +95,18 @@ procedure Web_Elements is
               Parameters.Get (P_List, "field") & ''');
 
       elsif URI = "/small_form" then
-         return Response.Build
-           (MIME.Text_HTML,
-            Message_Body =>
-              "You have ordered a pant " &
-              Parameters.Get (P_List, "size") & " and " &
-              Parameters.Get (P_List, "form_color") & '.');
+         declare
+            Color : constant String := Parameters.Get (P_List, "form_color");
+            Size  : constant String := Parameters.Get (P_List, "size");
+         begin
+            return Response.Build
+              (MIME.Text_HTML,
+               Message_Body =>
+                 "You have ordered a " &
+               "<span class=""" & Size & """><b>" & Size & "</b></span> " &
+               "<span class=""" & Color & """><b>" & Color & "</b></span> " &
+               "pant.");
+         end;
 
       elsif URI = "/db_sel1" then
          return Response.Build
