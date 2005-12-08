@@ -1,3 +1,9 @@
+2005-12-08  Florian Villoing  <villoing@adacore.com>
+
+	* we_test_ajax.html, web_elements.adb:
+        When selecting a size or a color, make the corresponding text appear
+        with the selected siez and color.
+
 2005-12-08  Dmitriy Anisimkov <anisimkov@ada-ru.org>
 
 	* agent.adb:
