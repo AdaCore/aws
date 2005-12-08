@@ -1,3 +1,8 @@
+2005-12-08  Dmitriy Anisimkov <anisimkov@ada-ru.org>
+
+	* agent.adb:
+	Add receive timeout parameter.
+
 2005-12-06  name  <villoing@>
 
 	* we_library.html:
