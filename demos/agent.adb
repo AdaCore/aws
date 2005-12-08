@@ -37,6 +37,7 @@
 --         -n                      non stop for stress test.
 --         -d                      debug mode, view HTTP headers.
 --         -c                      display server certificate.
+--         -t                      wait response timeout.
 --         -proxy <proxy_url>
 --         -u <user_name>
 --         -p <password>
@@ -94,6 +95,7 @@ procedure Agent is
    Follow_Redirection : Boolean := False;
    Wait_Key           : Boolean := True;
    Show_Cert          : Boolean := False;
+   Timeouts           : Client.Timeouts_Values := Client.No_Timeout;
    Connect            : AWS.Client.HTTP_Connection;
 
    procedure Parse_Command_Line;
@@ -127,7 +129,7 @@ procedure Agent is
    begin
       loop
          case GNAT.Command_Line.Getopt
-           ("f o d u: p: a: pu: pp: pa: proxy: k n s r c")
+           ("f o d u: p: a: pu: pp: pa: proxy: k n s r c t:")
          is
             when ASCII.NUL =>
                exit;
@@ -162,6 +164,10 @@ procedure Agent is
             when 'a' =>
                WWW_Auth :=
                   Get_Auth_Mode (GNAT.Command_Line.Parameter);
+
+            when 't' =>
+               Timeouts.Receive
+                 := Duration'Value (GNAT.Command_Line.Parameter);
 
             when 'p' =>
                if GNAT.Command_Line.Full_Switch = "p" then
@@ -229,6 +235,7 @@ begin
       Text_IO.Put_Line ("       -r           follow redirection.");
       Text_IO.Put_Line ("       -d           debug mode, view HTTP headers.");
       Text_IO.Put_Line ("       -c           display server certificate.");
+      Text_IO.Put_Line ("       -t           wait response timeout.");
       Text_IO.Put_Line ("       -proxy <proxy_url>");
       Text_IO.Put_Line ("       -u <user_name>");
       Text_IO.Put_Line ("       -p <password>");
@@ -251,7 +258,8 @@ begin
          Host        => To_String (URL),
          Proxy       => To_String (Proxy),
          Persistent  => Keep_Alive,
-         Server_Push => Server_Push);
+         Server_Push => Server_Push,
+         Timeouts    => Timeouts);
 
       Client.Set_WWW_Authentication
         (Connection => Connect,
