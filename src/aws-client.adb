@@ -231,6 +231,9 @@ package body AWS.Client is
       URI        : in     String          := No_Data;
       Data_Range : in     Content_Range   := No_Range)
    is
+      use Ada.Calendar;
+      Stamp         : constant Time := Clock;
+
       Try_Count     : Natural := Connection.Retry;
 
       Auth_Attempts : Auth_Attempts_Count := (others => 2);
@@ -258,7 +261,9 @@ package body AWS.Client is
 
                Disconnect (Connection);
 
-               if Try_Count = 0 then
+               if Try_Count = 0
+                 or else Clock - Stamp >= Connection.Read_Timeout
+               then
                   Result := Response.Build
                     (MIME.Text_HTML, "Get Timeout", Messages.S408);
 
@@ -335,6 +340,8 @@ package body AWS.Client is
       Result     :    out Response.Data;
       URI        : in     String := No_Data)
    is
+      use Ada.Calendar;
+      Stamp         : constant Time := Clock;
       Try_Count     : Natural := Connection.Retry;
       Auth_Attempts : Auth_Attempts_Count := (others => 2);
       Auth_Is_Over  : Boolean;
@@ -359,7 +366,9 @@ package body AWS.Client is
 
                Disconnect (Connection);
 
-               if Try_Count = 0 then
+               if Try_Count = 0
+                 or else Clock - Stamp >= Connection.Read_Timeout
+               then
                   Result := Response.Build
                     (MIME.Text_HTML, "Head Timeout", Messages.S408);
                   exit Retry;
@@ -541,6 +550,8 @@ package body AWS.Client is
       Data       : in     String;
       URI        : in     String          := No_Data)
    is
+      use Ada.Calendar;
+      Stamp         : constant Time := Clock;
       Keep_Alive    : Boolean;
       Try_Count     : Natural := Connection.Retry;
       Auth_Attempts : Auth_Attempts_Count := (others => 2);
@@ -583,7 +594,9 @@ package body AWS.Client is
 
                Disconnect (Connection);
 
-               if Try_Count = 0 then
+               if Try_Count = 0
+                 or else Clock - Stamp >= Connection.Read_Timeout
+               then
                   Result := Response.Build
                     (MIME.Text_HTML, "Put Timeout", Messages.S408);
                   exit Retry;
@@ -930,6 +943,8 @@ package body AWS.Client is
       Filename   : in     String;
       URI        : in     String := No_Data)
    is
+      use Ada.Calendar;
+      Stamp     : constant Time := Clock;
       Pref_Suf  : constant String        := "--";
       Now       : constant Calendar.Time := Calendar.Clock;
       Boundary  : constant String
@@ -1058,7 +1073,9 @@ package body AWS.Client is
 
                Disconnect (Connection);
 
-               if Try_Count = 0 then
+               if Try_Count = 0
+                 or else Clock - Stamp >= Connection.Read_Timeout
+               then
                   Result := Response.Build
                     (MIME.Text_HTML, "Upload Timeout", Messages.S408);
                   exit Retry;
