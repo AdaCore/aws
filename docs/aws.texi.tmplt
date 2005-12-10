@@ -4123,6 +4123,10 @@ a @code{WSDL} document on the Web by passing it's @code{URL}.
 @item -q
 Quiet mode (no output)
 
+@item -d
+Generate debug code. Will output some information about the payload to
+help debug a Web Service.
+
 @item -a
 Generate using Ada style names. For example @code{getPrice} will be converted
 to @code{Get_Price}. This formatting is done for packages, routines and formal
