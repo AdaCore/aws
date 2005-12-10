@@ -3869,7 +3869,7 @@ To create a Safe_Pointer given a @code{Set_Of_Int} one must use
 @code{Set_Of_Int_Safe_Pointer.To_Safe_Pointer} routine. Accessing
 individual items is done with @code{SI.Item (K)}.
 
-These Ada definitions are full recognized by @file{ada2wsdl} and will
+These Ada definitions are fully recognized by @file{ada2wsdl} and will
 generate standard array and record @code{WSDL} definitions as seen above.
 
 @AWSEXP {<complexType name="Set_Of_Int">
