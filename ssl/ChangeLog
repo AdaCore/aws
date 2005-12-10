@@ -1,3 +1,8 @@
+2005-12-10  Pascal Obry  <pascal@obry.net>
+
+	* ssl-gnutls.ads:
+	Fix typo.
+
 2005-11-25  Dmitriy Anisimkov  <anisimkov@ada-ru.org>
 
 	* ssl-gnutls.ads:
