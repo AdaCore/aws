@@ -3751,6 +3751,34 @@ Mapped to @b{xsd:base64Binary}. @code{SOAP.Utils.SOAP_Base64} is a
 subtype of string which is is recognized by @code{ada2wsdl} to
 generate the proper SOAP type.
 
+@item SOAP.Types.Byte
+Mapped to @b{xsd:byte}. @code{SOAP.Types.Byte} is a type which is
+recognized by @code{ada2wsdl} to generate the proper SOAP type.
+
+@item SOAP.Types.Short
+Mapped to @b{xsd:short}. @code{SOAP.Types.Short} is a type which is
+recognized by @code{ada2wsdl} to generate the proper SOAP type.
+
+@item SOAP.Types.Long
+Mapped to @b{xsd:long}. @code{SOAP.Types.Long} is a type which is
+recognized by @code{ada2wsdl} to generate the proper SOAP type.
+
+@item SOAP.Types.Unsigned_Byte
+Mapped to @b{xsd:unsignedByte}. @code{SOAP.Types.Unsigned_Byte} is a
+type which is recognized by @code{ada2wsdl} to generate the proper SOAP type.
+
+@item SOAP.Types.Unsigned_Short
+Mapped to @b{xsd:unsignedShort}. @code{SOAP.Types.Unsigned_Short} is a
+type which is recognized by @code{ada2wsdl} to generate the proper SOAP type.
+
+@item SOAP.Types.Unsigned_Int
+Mapped to @b{xsd:unsignedInt}. @code{SOAP.Types.Unsigned_Int} is a
+type which is recognized by @code{ada2wsdl} to generate the proper SOAP type.
+
+@item SOAP.Types.Unsigned_Long
+Mapped to @b{xsd:unsignedLong}. @code{SOAP.Types.Unsigned_Long} is a
+type which is recognized by @code{ada2wsdl} to generate the proper SOAP type.
+
 @item Enumerations
 Mapped to an enumeration schema definition. For example:
 
