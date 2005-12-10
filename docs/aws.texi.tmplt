@@ -2505,6 +2505,7 @@ Refer to the Ada spec for a complete API and usage description.
 * Transient Pages::
 * Split pages::
 * Download Manager::
+* Web Elements::
 @end menu
 
 @c ----------------------------------------------------------------------
@@ -2971,6 +2972,270 @@ The templates could look like:
 
 @end table
 
+@c ----------------------------------------------------------------------
+
+@node Web Elements
+@section Web Elements
+@cindex Web Elements
+
+@menu
+* Ajax::
+* Installation and requirements::
+@end menu
+
+@noindent
+@code{AWS} provides some components to help creating nice looking Web
+interfaces. It is possible to browse those Web Elements using the
+@code{web_elements} demo. Just launch this Web application from the
+demos directory and turn your Web browser to
+@url{http://localhost:2400}.
+
+Currently @code{AWS} provides:
+
+@itemize
+@item Notebooks (based on CSS)
+@item CSS Menu
+@item Rounded boxes
+@item Ajax
+@end itemize
+
+@noindent
+All of them are based on templates to be easily reused in other
+applications. The three first are best described by the Web Elements
+demos as they are 100% design. The @code{Ajax} one is a bit more complex, we
+will present its use in the following section.
+
+@node Installation and requirements
+@subsection Installation
+@cindex we_icons
+@cindex we_js
+
+To ease integration we have used the following design:
+
+@itemize
+
+@item Sub-directories found in the @code{AWS}'s web_elements directory
+are self contained. The content must be copied into the project. Note
+that the icons and javascripts directories contain the
+icons and javascripts code shared by all web elements and must also be
+copied, see below.
+
+@item Each graphic elements (icons) is referenced into the templates with the
+alias @code{/we_icons/<icon_name>}. So users must provide the right alias
+("@code{/we_icons/}") in the  Web server.
+
+@item Each JavaScripts code is referenced into the templates with the
+alias @code{/we_js/<script>}. So users must provide the right alias
+(@code{"/we_js/"}) in the  Web server.
+@end itemize
+
+@node Ajax
+@subsection Ajax
+@cindex Ajax
+@cindex aws_action_replace.tjs
+@cindex aws_action_clear.tjs
+
+@noindent
+First of all, @code{Ajax} stand for 
+@i{Asynchronous JavaScript language and XML}, and is not well defined
+at the moment. @code{Ajax} is on one side able to send HTTP requests
+to the Web server and on the other side able to manipulate directly the Web
+browser's @code{DOM} tree. On the @code{DOM} it can add, remove or
+replace @code{XML} nodes. So, it is possible to change the content of
+a Web page without reloading it from the server.
+
+@noindent
+Most importantly, @code{Ajax} changes the way Web applications are
+thought from @b{page} based to @b{event} based.
+
+@noindent
+As implemented into @code{AWS}, @code{Ajax} support comes as a set of
+@code{JavaScript} templates. Using those templates there is no need to
+know @code{JavaScript} (except for the @code{JavaScript} event names) and it
+makes @code{Ajax} programming lot easier. Two actions are provided,
+one for replacing another for clearing part of the web page content.
+
+@subsubsection Steps to do Ajax
+
+@noindent
+What are the steps to do @code{Ajax} ?
+
+@noindent
+Remember, do not think about the Web page but about a specific widget
+(HTML fragments) with the associated event and action.
+
+@enumerate
+@item Include the AWS/Ajax support file
+
+This is the @code{AWS/Ajax} runtime, it contains @code{JavaScript}
+code needed for the @code{AWS/Ajax} support.
+
+@item Create the Web widgets/forms
+
+There is nothing special here, use your favorite Web designer tool.
+
+@item Create Web area
+
+Using some @code{HTML} <div> tags we create areas where we will place
+@code{HTML} fragments later. For example when clicking on a button
+(described above) in our Web interface we want to display a new form
+in this area.
+
+@item Name the widgets/forms/area using id="name" attribute
+
+Give a different name to the widgets using id="name". This name will
+be later used to identify the widgets on which the envent and
+corresponding action must be placed. We do not want to clutter the Web
+design with @code{JavaScript} code like @code{onclick="dothis()"} or
+@code{onchange="dothat()"}.
+
+@item Add the proper event/action to the widgets using the AWS/Ajax templates
+
+This is the interresting part. At this point we link events/actions
+to the widgets and specify in which area the results sent by the
+server will be placed.
+
+@end enumerate
+
+@noindent
+This is not the only way to do @code{Ajax}, we just presented here a simple
+approach that works well with the @code{AWS/Ajax} templates.
+
+@subsubsection Basic Ajax support
+
+@noindent
+Let's have a very simple example:
+
+@itemize @bullet
+@item The AWS/Ajax runtime support
+
+@AWSEXP{@@@@INCLUDE@@@@@ aws.tjs}
+
+@item The widget: a button
+
+@AWSEXP{<input @b{id="clickme"} type="button" value="Clik Me">}
+
+@item The result area: a div
+
+@AWSEXP{<div @b{id="placeholder"}>... result here ...</div>}
+
+@item The AWS/Ajax
+
+@AWSEXP{@@@@INCLUDE@@@@ aws_action_replace.tjs onclick @b{clickme} @b{placeholder}}
+
+Basically it places an @b{onclick} attribute (the event) in the HTML
+@code{<input>} identified as @b{clickme} (the action) above. Here is
+what happen when the button is clicked:
+
+@itemize
+@item send the "/clickme" HTTP request to the server
+@item asynchronously wait for the answer, when received place the
+message body into the @code{<div>} @b{placeholder}.
+@end itemize
+
+@end itemize
+
+@noindent
+On the server side the code would look like this:
+
+@AWSEXP{@b{function} Callback (Request : @b{in} Status.Data) @b{return} Response.Data @b{is}
+   URI : @b{constant} String := Status.URI (Request);
+begin
+   @b{if} URI = "/clickme" @b{then}
+      @b{return} Response.Build (MIME.Text_HTML, "you click me!");
+   ...
+}
+
+@noindent
+So when the button is clicked the string @b{"you click me!"} will replace
+the @b{"... result here ..."} string of the place holder div above.
+
+@noindent
+This is a simple and very limited example as there is no parameter
+passed to the HTTP request. In real Web applications it is necessary to
+send a context with the request. This can be either the value of
+other widgets or all values of widgets' form.
+
+@noindent
+References to widgets or forms can be passed to the
+@file{aws_action_replace.tjs} template starting with the 5th
+parameter.
+
+@AWSEXP{<input @b{id="field"} type="text" value="default value">
+
+...
+
+@@@@INCLUDE@@@@ aws_action_replace.tjs (onclick @b{clickme} @b{placeholder} 5=>@b{field})
+}
+
+or
+
+@AWSEXP{<form @b{id="small_form"} name="small_form">
+...
+</form>
+
+@@@@INCLUDE@@@@ aws_action_replace.tjs (onclick @b{clickme} @b{placeholder} 5=>@b{small_form})
+}
+
+@noindent
+Note that the @code{onclick} event is only one of the possible
+@code{JavaScript} event on a @code{button}. It is possible to used
+any supported event, for example on an @code{HTML} @code{<select>} widget
+it is common to map the action to the @code{onchange} event.
+
+@noindent
+@code{AWS} also provides support for clearing an area or a widget
+content (like an input).
+
+@AWSEXP{@@@@INCLUDE@@@@ aws_action_clear.tjs (onclick, clear, field)}
+
+@noindent
+This simple action adds the @b{onclick} event to the @b{clear} button
+to erase the content of the @b{field} widget.
+
+@subsubsection Advanced Ajax
+
+@noindent
+Finally, if replacing or clearing is not what you are looking for,
+@code{AWS} provides a template to add an event to a specific widget
+the action being the name of a @code{JavaScript} routine, see
+@file{aws_action_js.tjs}.
+
+@noindent
+This template together with @file{aws_func_replace.tjs} and
+@file{aws_func_clear.tjs} can be used to chain multiple actions. Those
+templates are the function body used by the corresponding templates
+@file{aws_action_replace.tjs} and @file{aws_action_clear.tjs}.
+
+@noindent
+Let say you want to clear a widget and change the content of another one
+when clicking on a button. It is not possible to have mutiple
+@code{onclick} events on the same widget, the solution is the
+following:
+
+@itemize
+@item Create the JavaScript routine to clear and replace
+
+For this in the the body of the @code{clear_replace()} JavaScript
+routine we place:
+
+function clear_replace() @*
+@{
+@AWSEXP{@@@@INCLUDE@@@@ aws_func_replace.tjs (@b{clickme} @b{placeholder} 4=>@b{field})
+@@@@INCLUDE@@@@ aws_func_clear.tjs (@b{area})
+}
+@}
+
+Then to add the event on the widget:
+
+@AWSEXP{@@@@INCLUDE@@@@ aws_action_js.tjs (@b{onclick} @b{clickme} @b{clear_replace})}
+
+@end itemize
+
+@noindent
+Note that the @code{AWS/Ajax} templates have a set of comments at the start
+explaining in details the usage.
+
 @c ======================================================================
 
 @node Using SOAP
@@ -2982,7 +3247,7 @@ The templates could look like:
 @code{SOAP} can be used to implements Web Services. The @code{SOAP}
 implementation uses @code{AWS HTTP} as the transport layer. @code{SOAP} is
 platforms and languages independent, to ensure a good
-inter-operability, @code{AWS/SOAP} implementations have been validated through
+inter-operability, @code{AWS/SOAP} implementation has been validated through
 @url{http://validator.soapware.org/}, the version number listed on
 this server corresponds to the AWS version string
 (@code{AWS.Version}) catenated with the @code{SOAP} version string
