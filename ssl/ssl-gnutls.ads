@@ -29,7 +29,7 @@
 
 --  $Id$
 
---  Draft bind was converted by CBIND from GNUTLS C library header files,
+--  Draft binding converted by CBIND from GNUTLS C library header files,
 --  then manually fixed and gnatpp reformatted.
 
 with Interfaces.C.Strings;
