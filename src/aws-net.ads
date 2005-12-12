@@ -241,6 +241,8 @@ package AWS.Net is
 
    function Is_Timeout
      (E : in Ada.Exceptions.Exception_Occurrence) return Boolean;
+   --  Returns True if the message associated with the Exception_Occurence for
+   --  a Socket_Error is a timeout.
 
 private
 
