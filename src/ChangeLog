@@ -1,3 +1,11 @@
+2005-12-12  Dmitriy Anisimkov <anisimkov@ada-ru.org>
+
+	* aws-net.ads, aws-net.adb:
+	(Is_Timeout): New routine.
+
+	* aws-net-buffered.adb:
+	Do not hide exception on socket timeout.
+
 2005-12-08  Dmitriy Anisimkov <anisimkov@ada-ru.org>
 
 	* aws-client.adb:
