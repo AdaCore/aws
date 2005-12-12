@@ -1,3 +1,8 @@
+2005-12-12  Pascal Obry  <pascal@obry.net>
+
+	* aws-net.ads:
+	(Is_Timeout): Document this routine.
+
 2005-12-12  Dmitriy Anisimkov <anisimkov@ada-ru.org>
 
 	* aws-net.ads, aws-net.adb:
