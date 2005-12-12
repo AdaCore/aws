@@ -29,6 +29,7 @@
 --  $Id$
 
 with Ada.Exceptions;
+with Ada.Strings.Fixed;
 with Ada.Unchecked_Deallocation;
 with Interfaces.C;
 
@@ -42,6 +43,8 @@ with System;
 package body AWS.Net is
 
    use Ada;
+
+   Timeout_Token : constant String := " timeout.";
 
    function Errno return Integer renames Std.Errno;
 
@@ -67,6 +70,17 @@ package body AWS.Net is
    begin
       return Net.Std.Host_Name;
    end Host_Name;
+
+   ----------------
+   -- Is_Timeout --
+   ----------------
+
+   function Is_Timeout
+     (E : in Ada.Exceptions.Exception_Occurrence) return Boolean is
+   begin
+      return Strings.Fixed.Index
+               (Ada.Exceptions.Exception_Message (E), Timeout_Token) > 0;
+   end Is_Timeout;
 
    -------------
    -- Receive --
@@ -321,7 +335,7 @@ package body AWS.Net is
       if Result = Event_Set'(others => False) then
          Ada.Exceptions.Raise_Exception
            (Socket_Error'Identity,
-            Wait_Event_Type'Image (Mode) & " timeout.");
+            Wait_Event_Type'Image (Mode) & Timeout_Token);
 
       elsif Result = Event_Set'(Error => True, others => False) then
          Ada.Exceptions.Raise_Exception

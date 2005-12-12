@@ -33,6 +33,7 @@
 --  socket too, this is controlled with the Security boolean on rountine
 --  below. The corresponding implementation will be selected at build time.
 
+with Ada.Exceptions;
 with Ada.Streams;
 
 package AWS.Net is
@@ -237,6 +238,9 @@ package AWS.Net is
 
    function Errno (Socket : in Socket_Type) return Integer is abstract;
    --  Returns and clears error state in socket
+
+   function Is_Timeout
+     (E : in Ada.Exceptions.Exception_Occurrence) return Boolean;
 
 private
 
