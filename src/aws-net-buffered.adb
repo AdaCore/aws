@@ -113,8 +113,10 @@ package body AWS.Net.Buffered is
       return To_String (Result);
 
    exception
-      when Socket_Error =>
-         if Index = Buffer'First and then Length (Result) = 0 then
+      when E : Socket_Error =>
+         if (Index = Buffer'First and then Length (Result) = 0)
+           or else Is_Timeout (E)
+         then
             raise;
          else
             return To_String (Result) & Buffer (1 .. Index - 1);
