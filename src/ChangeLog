@@ -1,5 +1,9 @@
 2005-12-13  Pascal Obry  <pascal@obry.net>
 
+	* aws-session.ads:
+	(Set_Lifetime): Reference the Session_Timed_Out routine.
+	Continued work for EC13-008.
+
 	* aws-status.ads, aws-status.adb, aws-status-set.adb:
 	(Session_Timeout): Renamed to Session_Timed_Out.
 	Continued work for EC13-008.
