@@ -187,6 +187,10 @@ package AWS.Status is
    --  Returns True if session was just created and is going to be sent to
    --  client.
 
+   function Session_Timeout        (D : in Data) return Boolean;
+   --  Returns True if a previous session was timeout (even if a new session
+   --  has been created).
+
    ----------
    -- SOAP --
    ----------
@@ -322,6 +326,7 @@ private
       --  Session
       Session_Id        : AWS.Session.Id        := AWS.Session.No_Session;
       Session_Created   : Boolean               := False;
+      Session_Timeout   : Boolean               := False;
    end record;
 
 end AWS.Status;
