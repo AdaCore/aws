@@ -581,6 +581,15 @@ package body AWS.Status is
       return D.Session_Created;
    end Session_Created;
 
+   ---------------------
+   -- Session_Timeout --
+   ---------------------
+
+   function Session_Timeout (D : in Data) return Boolean is
+   begin
+      return D.Session_Timeout;
+   end Session_Timeout;
+
    ----------------
    -- SOAPAction --
    ----------------
