@@ -1,5 +1,11 @@
 2005-12-13  Pascal Obry  <pascal@obry.net>
 
+	* sessions5.adb:
+	(Session_Timeout): Renamed to Session_Timed_Out.
+	Continued work for EC13-008.
+
+2005-12-13  Pascal Obry  <pascal@obry.net>
+
 	* sessions5.adb, sessions5.out:
 	New version.
 	Work for EC13-008.

@@ -1,5 +1,11 @@
 2005-12-13  Pascal Obry  <pascal@obry.net>
 
+	* aws-status.ads, aws-status.adb, aws-status-set.adb:
+	(Session_Timeout): Renamed to Session_Timed_Out.
+	Continued work for EC13-008.
+
+2005-12-13  Pascal Obry  <pascal@obry.net>
+
 	* aws-status-set.adb:
 	(Reset): Set Session_Timeout to False.
 	(Update_Data_From_Header): Set Session_Timeout if a previous
