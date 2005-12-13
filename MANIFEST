@@ -370,6 +370,8 @@ regtests/sessions3.adb
 regtests/sessions3.out
 regtests/sessions4.adb
 regtests/sessions4.out
+regtests/sessions5.adb
+regtests/sessions5.out
 regtests/shutdown.adb
 regtests/shutdown.out
 regtests/simple.adb
