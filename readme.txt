@@ -4,7 +4,7 @@
 
 Authors:
    Dmitriy Anisimkov
-   Pascal Obry                                              November 29th, 2005
+   Pascal Obry                                              December 13th, 2005
 
 
 
