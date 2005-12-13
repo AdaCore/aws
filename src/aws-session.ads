@@ -2,7 +2,7 @@
 --                              Ada Web Server                              --
 --                                                                          --
 --                         Copyright (C) 2000-2005                          --
---                                ACT-Europe                                --
+--                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -173,7 +173,8 @@ package AWS.Session is
    --------------
 
    procedure Set_Lifetime (Seconds : in Duration);
-   --  Set the lifetime for session data
+   --  Set the lifetime for session data. At the point a session is deleted,
+   --  reusing the session ID makes AWS.Status.Session_Timed_Out return True.
 
    function Get_Lifetime return Duration;
    --  Get current session lifetime for session data
