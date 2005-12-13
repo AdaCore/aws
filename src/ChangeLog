@@ -1,3 +1,20 @@
+2005-12-13  Pascal Obry  <pascal@obry.net>
+
+	* aws-status-set.adb:
+	(Reset): Set Session_Timeout to False.
+	(Update_Data_From_Header): Set Session_Timeout if a previous
+	 session was received in the headers.
+	Work for EC13-008.
+
+	* aws-status.adb:
+	(Session_Timeout): New routine.
+	Work for EC13-008.
+
+	* aws-status.ads:
+	(Session_Timeout): New routine.
+	(Data): Session_Timeout new field.
+	Work for EC13-008.
+
 2005-12-12  Pascal Obry  <pascal@obry.net>
 
 	* aws-net.ads:
