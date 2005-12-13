@@ -288,6 +288,7 @@ package body AWS.Status.Set is
       D.Auth_Response     := Null_Unbounded_String;
       D.Session_Id        := AWS.Session.No_Session;
       D.Session_Created   := False;
+      D.Session_Timeout   := False;
 
       AWS.Parameters.Set.Reset (D.Parameters);
       AWS.Headers.Set.Reset (D.Header);
@@ -387,9 +388,10 @@ package body AWS.Status.Set is
 
                   if not AWS.Session.Exist (D.Session_Id) then
                      --  Reset to empty cookie if session does not exists.
-                     --  We are not interested by non existing values.
+                     --  This is a case where a session has timeout.
 
-                     D.Session_Id := AWS.Session.No_Session;
+                     D.Session_Id      := AWS.Session.No_Session;
+                     D.Session_Timeout := True;
 
                      return;
                   end if;
