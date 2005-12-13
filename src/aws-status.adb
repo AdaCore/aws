@@ -2,7 +2,7 @@
 --                              Ada Web Server                              --
 --                                                                          --
 --                         Copyright (C) 2000-2005                          --
---                                ACT-Europe                                --
+--                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -581,14 +581,14 @@ package body AWS.Status is
       return D.Session_Created;
    end Session_Created;
 
-   ---------------------
-   -- Session_Timeout --
-   ---------------------
+   -----------------------
+   -- Session_Timed_out --
+   -----------------------
 
-   function Session_Timeout (D : in Data) return Boolean is
+   function Session_Timed_Out (D : in Data) return Boolean is
    begin
-      return D.Session_Timeout;
-   end Session_Timeout;
+      return D.Session_Timed_Out;
+   end Session_Timed_Out;
 
    ----------------
    -- SOAPAction --

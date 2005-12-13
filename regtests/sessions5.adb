@@ -77,7 +77,7 @@ procedure Sessions5 is
 
       Session.Set (SID, "toto", N);
 
-      if Status.Session_Timeout (Request) then
+      if Status.Session_Timed_Out (Request) then
          return Response.Build
            (MIME.Text_HTML, "Timeout, this is call " & Natural'Image (N));
       else
