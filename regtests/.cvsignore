@@ -117,6 +117,8 @@ b~sessions2.adb
 b~sessions2.ads
 b~sessions3.adb
 b~sessions3.ads
+b~sessions5.adb
+b~sessions5.ads
 b~shutdown.adb
 b~shutdown.ads
 b~simple.adb
@@ -410,6 +412,7 @@ once.res
 param
 param.res
 param.tmp
+partial.o.downloaded
 partial.res
 plain2ssl.res
 r_hello_demo-client.adb
@@ -445,6 +448,7 @@ sessions2.res
 sessions3
 sessions3.res
 sessions4.res
+sessions5.res
 shutdown
 shutdown.res
 shutdown.tmp
@@ -544,6 +548,7 @@ sock3.res
 sock3_sec.res
 sockext.res
 sockext_sec.res
+sockover.res
 sockto.res
 sp
 sp.res
