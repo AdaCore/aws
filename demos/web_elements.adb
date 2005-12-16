@@ -150,6 +150,13 @@ procedure Web_Elements is
                  (1 => Templates.Assoc ("LIST", True),
                   2 => Templates.Assoc ("GROUP_V", Get_Groups)))));
 
+      elsif URI'Length > 4
+        and then URI (URI'First .. URI'First + 3) = "/xml"
+      then
+         return AWS.Response.File
+           (MIME.Text_XML,
+            Filename => URI (URI'First + 1 .. URI'Last) & ".xml");
+
       elsif OS_Lib.Is_Regular_File (WWW_Root & URI) then
          return AWS.Response.File
            (MIME.Content_Type (Filename),
