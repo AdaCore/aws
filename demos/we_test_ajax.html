@@ -15,6 +15,7 @@ html>div, #page2         { height: 33em; }
 html>div, #page3         { height: 20em; }
 html>div, #page4         { height: 36em; }
 html>div, #page5         { height: 30em; }
+html>div, #page6         { height: 23em; }
 
 .Demo          { position: relative; top: 1em; width: 40%;
                  float: left;
@@ -22,6 +23,11 @@ html>div, #page5         { height: 30em; }
                }
 .Result        { position: relative; top: 2em; width: 50%;
                  float: left; left: 10px; height: 2em;
+                 background-color: #dddddd; padding: 10px;
+                 font-size: small; font-family: courier;
+               }
+.XML_Result    { position: relative; top: 2em; width: 50%;
+                 float: left; left: 10px; height: 20em;
                  background-color: #dddddd; padding: 10px;
                  font-size: small; font-family: courier;
                }
@@ -45,6 +51,11 @@ html>div, #page5         { height: 30em; }
                  float: left;
                  background-color: #f5f691; padding: 10px;
                  font-size: small; font-family: courier;
+               }
+.Status        { position: relative; top: 2em; width: 90%;
+                 float: left;
+                 background-color: #f5f691; padding: 10px;
+                 font-size: large; font-weight: bold;
                }
 .green         {
                  color: #00FF00;
@@ -87,6 +98,9 @@ html>div, #page5         { height: 30em; }
         <li id="page5">
             <a href="#" onclick="switchTabPage_Tabs('page5')">
             Complex Form</a></li>
+        <li id="page6">
+            <a href="#" onclick="switchTabPage_Tabs('page6')">
+            XML Based Requests</a></li>
       </ul>
 
       <!-- Button -->
@@ -226,7 +240,7 @@ html>div, #page5         { height: 30em; }
       <div class="TabContents" id="page5">
       <div class="Demo">
       <fieldset>
-         <legend>Action</legend>
+         <legend>Actions</legend>
          <input id="db_sel1" type="button" name="action1" value="Create Group">
          <br><br>
          <input id="db_sel2" type="button" name="action2" value="Create User">
@@ -260,6 +274,50 @@ html>div, #page5         { height: 30em; }
       </div>
       </div>
 
+      <!-- XML Based Requests -->
+
+      <div class="TabContents" id="page6">
+      <div class="Demo">
+      <fieldset>
+         <legend>Actions</legend>
+         <input id="xml1" type="button" name="action1" value="Fill Widgets">
+         <br><br>
+         <input id="xml2" type="button" name="action2" value="Clear Widgets">
+         <br><br>
+         <input id="xml3" type="button" name="action3" value="Mixed Fill/Clear"
+         <br>
+      </fieldset>
+      @@INCLUDE@@ ../web_elements/javascripts/aws_action_xml.tjs (onclick, xml1)
+      @@INCLUDE@@ ../web_elements/javascripts/aws_action_xml.tjs (onclick, xml2)
+      @@INCLUDE@@ ../web_elements/javascripts/aws_action_xml.tjs (onclick, xml3)
+      </div>
+
+      <div Class="XML_Result">
+        <div id="text1">text1</div>
+        <div id="text2">text2</div>
+	<br>
+	<input id="input1" type="text" value="enter here 1">
+	<input id="input2" type="text" value="enter here 2">
+	<br><br>
+	<select id="xmlsel"></select>
+	<br><br>
+	<fieldset>
+           <legend>Options</legend>
+	   <input id="radio1" type="radio" name="rsel">option1</input>
+	   <input id="radio2" type="radio" name="rsel">option2</input>
+	   <input id="radio3" type="radio" name="rsel">option3</input>
+        </fieldset>
+	<br><br>
+	<fieldset>
+           <legend>Multiple Options</legend>
+	   <input id="check1" type="checkbox" name="csel">optiona</input>
+	   <input id="check2" type="checkbox" name="csel">optionb</input>
+	   <input id="check3" type="checkbox" name="csel">optionc</input>
+        </fieldset>
+      </div>
+
+      <br><br>
+      <div Class="Status" id="xml_status_bar">Click on the buttons</div>
       </td>
       </table>
    </body>
