@@ -1,3 +1,20 @@
+2005-12-16  Pascal Obry  <pascal@obry.net>
+
+	* javascripts/aws_action_xml.tjs, javascripts/aws_func_xml.tjs:
+	Initial revision.
+	Add support for handling response as an XML document. This make it
+	possible to control multiple action on the GUI at once.
+
+	* javascripts/aws.tjs:
+	(aws_xml_request): New routine.
+	(aws_xml_handler): New routine.
+	(addToSelect): New routine.
+	(clearSelect): New routine.
+	(delSelectOption): New routine.
+	(selectChangeSelected): New routine.
+	Add support for handling response as an XML document. This make it
+	possible to control multiple action on the GUI at once.
+
 2005-11-24  Pascal Obry  <pascal@obry.net>
 
 	* javascripts/aws_func_replace.tjs:

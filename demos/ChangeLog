@@ -1,3 +1,14 @@
+2005-12-16  Pascal Obry  <pascal@obry.net>
+
+	* we_test_ajax.html:
+	Add the Ajax XML based demo.
+
+	* xml1.xml, xml2.xml, xml3.xml:
+	Initial revision.
+
+	* web_elements.adb:
+	Add support for xml?.xml files. Part of the Ajax XML based demo.
+
 2005-12-10  Pascal Obry  <pascal@obry.net>
 
 	* we_test_ajax.html:
