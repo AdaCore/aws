@@ -66,4 +66,159 @@
                             {update_behaviour(); 
                              if (oncomplete != "") oncomplete();}});
    }
+
+@@-- --------------------------------
+@@-- Call url?pars and execute aws_xml_handler methods then the
+@@-- oncomplete method (to chain commands) if defined
+
+   function aws_xml_request (url, pars, oncomplete)
+   {
+       var myAjax = new Ajax.Request
+           (url,
+            {method: 'get',
+             parameters: pars,
+             onFailure : report_error,
+             onComplete : function(req)
+                            {aws_xml_handler(req);
+                             if (oncomplete != "") oncomplete();}});
+   }
+
+   function aws_xml_handler (result)
+   {
+       // get XML result
+       var xml_result = result.responseXML;
+
+       var replace_ids = xml_result.getElementsByTagName("replace");
+       var replace_id;
+
+       var clear_ids = xml_result.getElementsByTagName("clear");
+       var clear_id;
+       
+       var selects = xml_result.getElementsByTagName("select");
+
+       var radios = xml_result.getElementsByTagName("radio");
+
+       var checks = xml_result.getElementsByTagName("check");
+
+       var placeholder_content;
+       var placeholder_id;
+
+       var i;
+
+       // loop through <replace> elements
+       for (i = 0; i < replace_ids.length; i++) {
+           replace_id = replace_ids[i];
+           placeholder_id = replace_id.getAttribute("id");
+           if (replace_id.childNodes.length > 1) {
+               placeholder_content = replace_id.childNodes[1].nodeValue;
+           } else {
+               placeholder_content = replace_id.firstChild.nodeValue;
+           }
+           if ($(placeholder_id).tagName == "TEXTAREA" || 
+               $(placeholder_id).tagName == "INPUT") {
+               $(placeholder_id).value = placeholder_content;
+           } else {
+               $(placeholder_id).innerHTML = placeholder_content;
+           }
+       }
+
+       // loop through <clear> elements
+       for (i = 0; i < clear_ids.length; i++) {
+           clear_id = clear_ids[i];
+           placeholder_id = clear_id.getAttribute("id");
+           if ($(placeholder_id).tagName == "TEXTAREA" || 
+               $(placeholder_id).tagName == "INPUT") {
+               $(placeholder_id).value = "";
+           } else {
+               $(placeholder_id).innerHTML = "";
+           }
+       }
+
+       // loop through <select> elements
+       for (i = 0; i < selects.length; i++) {
+           var select_action = selects[i].getAttribute("action");
+           var select_id     = selects[i].getAttribute("id");
+           if (select_action == "add") {
+               var option_value = selects[i].getAttribute("option_value");
+               var option_content = selects[i].getAttribute("option_content");
+               addToSelect(select_id, option_value, option_content);
+           } else if (select_action == "clear") {
+               clearSelect(select_id);
+           } else if (select_action == "delete") {
+               var option_value = selects[i].getAttribute("option_value");
+               delSelectOption(select_id, option_value);
+           } else if (select_action == "select") {
+               var option_value = selects[i].getAttribute("option_value");
+               selectChangeSelected(select_id, option_value);
+           }
+       }
+
+       // loop through <radio> elements
+       for (i = 0; i < radios.length; i++) {
+           var radio_action = radios[i].getAttribute("action");
+           var radio_id     = radios[i].getAttribute("id");
+           if (radio_action == "select") {
+	       $(radio_id).checked = 1;
+           }
+       }
+
+       // loop through <check> elements
+       for (i = 0; i < checks.length; i++) {
+           var check_action = checks[i].getAttribute("action");
+           var check_id     = checks[i].getAttribute("id");
+           if (check_action == "select") {
+	       $(check_id).checked = 1;
+           } else if (check_action == "clear") {
+	       $(check_id).checked = 0;
+           }
+       }
+   }
+
+   // Add option_value/option_content into the given select
+   function addToSelect (select_id, option_value, option_content)
+   {
+       // Create a new option
+       var new_option = document.createElement("option");
+       new_option.value = option_value;
+       var content = document.createTextNode(option_content);
+       new_option.appendChild(content);
+
+       // And add it to select
+       $(select_id).appendChild(new_option);
+   }
+
+   // Clear select content
+   function clearSelect (select_id)
+   {
+       while ($(select_id).length > 0) {
+           $(select_id).remove(0);
+       }
+   }
+
+   // Delete a given option from the select
+   function delSelectOption (select_id, option)
+   {
+       var idx = 0;
+       while (idx < $(select_id).length) {
+           if ($(select_id).options[idx].value == option) {
+               $(select_id).remove(idx);
+               return;
+           }
+           idx = idx + 1;
+       }
+   }
+
+   // Select the given option from the select
+   function selectChangeSelected (select_id, option)
+   {
+    var idx = 0;
+       while (idx < $(select_id).length) {
+           if ($(select_id).options[idx].value == option) {
+               $(select_id).selectedIndex = idx;
+               return;
+           }
+           idx = idx + 1;
+       }
+   }
+  
 </script>
