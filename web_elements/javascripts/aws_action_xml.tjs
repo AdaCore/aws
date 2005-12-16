@@ -1,0 +1,27 @@
+
+@@-- $1    action name onclick onchange
+@@-- $2    the tag node ID to handle in the DOM tree
+@@-- $3    a set of parameters to pass to the URL
+@@-- $4-$8 are linked fields id to this request, all fields are passed as
+@@--       parameters to the request.
+@@--
+@@-- The finale request is : /$2?$3&$4=value($4)&$5=value($5)
+@@-- with value(name) being the value for the field named "name".
+
+@@SET@@ ACTION = $1
+@@SET@@ ID = $2
+@@SET@@ PARAMETERS = $3
+@@SET@@ F1 = $4
+@@SET@@ F2 = $5
+@@SET@@ F3 = $6
+@@SET@@ F4 = $7
+@@SET@@ F5 = $8
+
+@@SET@@ ONCOMPLETE = $20
+
+<script>
+   function call_@_ACTION_@_@_ID_@()
+      @@INCLUDE@@ aws_func_xml.tjs (@_ID_@, @_PARAMETERS_@, @_F1_@, @_F2_@, @_F3_@, @_F4_@, @_F5_@, 20=>@_ONCOMPLETE_@)
+</script>         
+
+@@INCLUDE@@ aws_action_js.tjs @_ACTION_@ @_ID_@

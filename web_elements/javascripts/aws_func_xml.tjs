@@ -1,0 +1,59 @@
+
+@@-- $1    the tag node ID to handle in the DOM tree
+@@-- $2    a set of parameters to pass to the URL
+@@-- $3-$7 are linked fields id to this request, all fields are passed as
+@@--       parameters to the request.
+@@-- $20   the name of a function to call when this routine terminate
+@@--
+@@-- The final request is : /$1?$4&$5=value($5)&$6=value($6)
+@@-- with value(name) being the value for the field named "name".
+
+@@SET@@ XML_ID = $1
+@@SET@@ XML_PARAMETERS = $2
+@@SET@@ XML_F1 = $3
+@@SET@@ XML_F2 = $4
+@@SET@@ XML_F3 = $5
+@@SET@@ XML_F4 = $6
+@@SET@@ XML_F5 = $7
+
+@@SET@@ XML_ONCOMPLETE = $20
+
+   {
+      var rurl="/@_XML_ID_@";
+      var rpars = "";
+      var roncomplete = "";
+@@IF@@ @_XML_PARAMETERS_@ /= ""
+      rpars = "@_XML_PARAMETERS_@";
+@@END_IF@@
+@@IF@@ @_XML_F1_@ /= ""
+      if (rpars != "")
+         rpars = rpars + "&";
+      rpars = rpars + serialize('@_XML_F1_@');
+@@END_IF@@
+@@IF@@ @_XML_F2_@ /= ""
+      if (rpars != "")
+         rpars = rpars + "&";
+      rpars = rpars + serialize('@_XML_F2_@');
+@@END_IF@@
+@@IF@@ @_XML_F3_@ /= ""
+      if (rpars != "")
+         rpars = rpars + "&";
+      rpars = rpars + serialize('@_XML_F3_@');
+@@END_IF@@
+@@IF@@ @_XML_F4_@ /= ""
+      if (rpars != "")
+         rpars = rpars + "&";
+      rpars = rpars + serialize('@_XML_F4_@');
+@@END_IF@@
+@@IF@@ @_XML_F5_@ /= ""
+      if (rpars != "")
+         rpars = rpars + "&";
+      rpars = rpars + serialize('@_XML_F5_@');
+@@END_IF@@
+
+@@IF@@ @_XML_ONCOMPLETE_@ /= ""
+      roncomplete = @_XML_ONCOMPLETE_@
+@@END_IF@@
+      aws_xml_request (rurl, rpars, roncomplete);
+      return (false);
+   }
