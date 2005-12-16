@@ -117,6 +117,9 @@ demos/wsdl_demo_client.adb
 demos/wsdl_demo_server.adb
 demos/wsdl_demo_server_cb.adb
 demos/wsdl_demo_server_cb.ads
+demos/xml1.xml
+demos/xml2.xml
+demos/xml3.xml
 demos/zdemo.adb
 demos/zdemo_cb.adb
 demos/zdemo_cb.ads
@@ -1103,8 +1106,10 @@ web_elements/javascripts/aws.tjs
 web_elements/javascripts/aws_action_clear.tjs
 web_elements/javascripts/aws_action_js.tjs
 web_elements/javascripts/aws_action_replace.tjs
+web_elements/javascripts/aws_action_xml.tjs
 web_elements/javascripts/aws_func_clear.tjs
 web_elements/javascripts/aws_func_replace.tjs
+web_elements/javascripts/aws_func_xml.tjs
 web_elements/javascripts/behaviour.js
 web_elements/javascripts/cookies.js
 web_elements/javascripts/prototype.js
