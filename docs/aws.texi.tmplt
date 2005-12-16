@@ -867,7 +867,7 @@ For example, to know what URI has been asked:
 @noindent
 Then this function should return an answer using one of the constructors
 in @code{AWS.Response} (@xref{AWS.Response}.). For example, to return an
-HTML message:
+@code{HTML} message:
 
 @AWSEXP {AWS.Response.Build (Content_Type => "text/html",
                     Message_Body => "<p>just a demo");}
@@ -887,7 +887,7 @@ For this you can use the @code{AWS.Server.Wait} service.
 
 @noindent
 A better solution is to use a template engine like Templates_Parser to
-build the HTML Web Server answer. Templates_Parser module is
+build the @code{HTML} Web Server answer. Templates_Parser module is
 distributed with this version of AWS.
 
 @node Callback procedure
@@ -911,10 +911,10 @@ user's browser.
 
 @noindent
 Indeed in a standard Web development a resource is either a static
-object - an HTML page, an @code{XML} or @code{XSL} document - or a @code{CGI}
-script. With @code{AWS} a resource is @i{just a string} to identify
-the resource, it does not represent the name of a static object or
-@code{CGI} script.
+object - an @code{HTML} page, an @code{XML} or @code{XSL} document -
+or a @code{CGI} script. With @code{AWS} a resource is @i{just a
+string} to identify the resource, it does not represent the name of a
+static object or @code{CGI} script.
 
 @noindent
 So this string is just an internal representation for the
@@ -956,17 +956,17 @@ that will answer ``Hello World'' if we ask for the internal resource
 @noindent
 Now of course the resource internal name can represent a file on
 disk. It is not mandatory but it is possible. For example it is
-perfectly possible to build with AWS a simple page server.
+perfectly possible to build with @code{AWS} a simple page server.
 
 @cindex Page server
 @cindex Simple server
 @noindent
 As an example, let's build a simple page server. This server will
 returns files in the current directory. Resources internal name
-represent an HTML page or a GIF or PNG image for example. This
-server will return a 404 message (Web Page Not Found) if the file does
-not exist. Here is the callback procedure that implement such simple
-page server:
+represent an @code{HTML} page or a @code{GIF} or @code{PNG} image for
+example. This server will return a 404 message (Web Page Not Found) if
+the file does not exist. Here is the callback procedure that implements
+such simple page server:
 
 @AWSEXP {@b{function} Get (Request : @b{in} AWS.Status.Data) @b{return} AWS.Response.Data @b{is}
    URI      : @b{constant} String := AWS.Status.URI (Request);
@@ -1067,7 +1067,7 @@ files if you plan to use a status page @xref{Status page}.
 @table @file
 @item @_STATUS_PAGE_@
 
-The template HTML file for the @code{AWS} status page.
+The template @code{HTML} file for the @code{AWS} status page.
 
 @item @_LOGO_IMAGE_@
 
@@ -2732,7 +2732,7 @@ is possible to build a simple static page server, as simple as:
 @b{end} WPS;}
 
 @noindent
-Build this program and launch it, it will server HTML pages and images
+Build this program and launch it, it will server @code{HTML} pages and images
 in the current directory.
 
 @noindent
@@ -3035,6 +3035,13 @@ alias @code{/we_js/<script>}. So users must provide the right alias
 @cindex aws_action_replace.tjs
 @cindex aws_action_clear.tjs
 
+@menu
+* Steps to do Ajax::
+* Basic Ajax support::
+* XML based Ajax::
+* Advanced Ajax::
+@end menu
+
 @noindent
 First of all, @code{Ajax} stand for 
 @i{Asynchronous JavaScript language and XML}, and is not well defined
@@ -3055,6 +3062,7 @@ know @code{JavaScript} (except for the @code{JavaScript} event names) and it
 makes @code{Ajax} programming lot easier. Two actions are provided,
 one for replacing another for clearing part of the web page content.
 
+@node Steps to do Ajax
 @subsubsection Steps to do Ajax
 
 @noindent
@@ -3062,7 +3070,7 @@ What are the steps to do @code{Ajax} ?
 
 @noindent
 Remember, do not think about the Web page but about a specific widget
-(HTML fragments) with the associated event and action.
+(@code{HTML} fragments) with the associated event and action.
 
 @enumerate
 @item Include the AWS/Ajax support file
@@ -3101,6 +3109,7 @@ server will be placed.
 This is not the only way to do @code{Ajax}, we just presented here a simple
 approach that works well with the @code{AWS/Ajax} templates.
 
+@node Basic Ajax support
 @subsubsection Basic Ajax support
 
 @noindent
@@ -3123,7 +3132,7 @@ Let's have a very simple example:
 
 @AWSEXP{@@@@INCLUDE@@@@ aws_action_replace.tjs onclick @b{clickme} @b{placeholder}}
 
-Basically it places an @b{onclick} attribute (the event) in the HTML
+Basically it places an @b{onclick} attribute (the event) in the @code{HTML}
 @code{<input>} identified as @b{clickme} (the action) above. Here is
 what happen when the button is clicked:
 
@@ -3193,28 +3202,174 @@ content (like an input).
 This simple action adds the @b{onclick} event to the @b{clear} button
 to erase the content of the @b{field} widget.
 
+@node XML based Ajax
+@subsubsection XML based Ajax
+
+@noindent
+In many cases you'll like to update and/or clear multiple areas in your
+Web interface. With the templates above only a single action is
+possible. @code{AWS} provides support for @code{XML} based answers. In
+this @code{XML} documents it is possible to:
+
+@itemize @bullet
+@item replace an area with a new content
+
+@AWSEXP{<replace id="@b{item_id}">@i{new text}</replace>}
+
+@item clear an area
+
+@AWSEXP{<clear id="@b{item_id}"/>}
+
+@item add an item into a select widget
+
+@AWSEXP{<select action="@b{add}" id="@b{item_id}"
+option_value="value" option_content="content"/>}
+
+@item remove an item from a select widget
+
+@AWSEXP{<select action="@b{delete}" id="@b{item_id}" option_value="value"/>}
+
+@item select a specific item in a select widget
+
+@AWSEXP{<select action="@b{select}" id="@b{item_id}" option_value="value"/>}
+
+@item clear a select widget (remove all items)
+
+@AWSEXP{<select action="@b{clear}" id="@b{item_id}"/>}
+
+@item select a radio button
+
+@AWSEXP{<radio action="@b{select}" id="@b{item_id}"/>}
+
+@item check a checkbox
+
+@AWSEXP{<check action="@b{select}" id="@b{item_id}"/>}
+
+@item clear a checkbox
+
+@AWSEXP{<check action="@b{clear}" id="@b{item_id}"/>}
+
+@end itemize
+
+@noindent
+Here is an example of such XML document:
+
+@AWSEXP{<response>
+   <replace id="xml_status_bar">Fill Widgets...</replace>
+   <replace id="text1">Response from XML</replace>
+   <replace id="text2">Another response for text2</replace>
+   <replace id="input1">tag is input1</replace>
+   <replace id="input2">tag is input2</replace>
+   <select action="add" id="xmlsel" option_value="one" option_content="1"/>
+   <select action="add" id="xmlsel" option_value="two" option_content="2"/>
+   <select action="add" id="xmlsel" option_value="three" option_content="3"/>
+   <select action="select" id="xmlsel" option_value="two"/>
+   <radio action="select" id="radio1"/>
+   <check action="select" id="check1"/>
+   <check action="select" id="check3"/>
+   <check action="clear" id="check2"/>
+</response>
+}
+
+@noindent
+The template to use this feature is @file{aws_action_xml.tjs}. The
+usage is similar to what is described in the previous section
+(@pxref{Basic Ajax support}) expect that in this case we do not have to
+pass the placeholder.
+
+@noindent
+Let's revisit the first example above to use the @code{XML}
+@code{Ajax} support.
+
+@itemize @bullet
+@item The AWS/Ajax runtime support
+
+@AWSEXP{@@@@INCLUDE@@@@@ aws.tjs}
+
+@item The widget: a button
+
+@AWSEXP{<input @b{id="clickme"} type="button" value="Clik Me">}
+
+@item The result area: a div
+
+@AWSEXP{<div @b{id="placeholder"}>... result here ...</div>}
+
+@item The AWS/Ajax
+
+@AWSEXP{@@@@INCLUDE@@@@ aws_action_xml.tjs onclick @b{clickme}}
+
+Basically it places an @b{onclick} attribute (the event) in the @code{HTML}
+@code{<input>} identified as @b{clickme} (the action) above. Here is
+what happen when the button is clicked:
+
+@itemize
+@item send the "/clickme" HTTP request to the server
+@item asynchronously wait for the XML answer, when received parse the
+answer and perform the actions according to the @code{XML} content.
+@end itemize
+
+@end itemize
+
+@noindent
+To set the placeholder with "@b{new text}", the @code{XML} document
+returned by the server must be:
+
+@AWSEXP{<response>
+   <replace id="@b{placeholder}">@b{new text}</replace>
+</response>
+}
+
+@noindent
+If we want also to clear the input field named @b{field} and to select the
+radio button named @b{radio1} we must return:
+
+@AWSEXP{<response>
+   <replace id="@b{placeholder}">@b{new text}</replace>
+   <clear id="@b{field}"/>
+   <radio action="select" id="@b{radio1}"/>
+</response>
+}
+
+@noindent
+This is by far the most flexible solution as it is possible to return, from the
+server, a structured answer.
+
+@noindent
+A final comment, if the text returned by the server to replace a
+specific area is an @code{HTML} fragment, the content must be placed into a
+@code{CDATA} tag:
+
+@AWSEXP{<response>
+   <replace id="item_id">
+      <![CDATA[ @i{HTML CODE HERE} ]]>
+   </replace>
+</response>
+}
+
+@node Advanced Ajax
 @subsubsection Advanced Ajax
 
 @noindent
-Finally, if replacing or clearing is not what you are looking for,
-@code{AWS} provides a template to add an event to a specific widget
-the action being the name of a @code{JavaScript} routine, see
-@file{aws_action_js.tjs}.
+Finally, if this is not enough because you need to use some specific
+@code{JavaScript} code, @code{AWS} provides a template to add an event
+to a specific widget, the action being the name of a @code{JavaScript}
+routine, see @file{aws_action_js.tjs}.
 
 @noindent
-This template together with @file{aws_func_replace.tjs} and
-@file{aws_func_clear.tjs} can be used to chain multiple actions. Those
-templates are the function body used by the corresponding templates
-@file{aws_action_replace.tjs} and @file{aws_action_clear.tjs}.
+This template together with @file{aws_func_replace.tjs},
+@file{aws_func_clear.tjs} and @file{aws_func_xml.tjs} can be used to
+chain multiple actions. Those templates are the function body used by
+the corresponding templates @file{aws_action_replace.tjs},
+@file{aws_action_clear.tjs} and @file{aws_action_xml.tjs}.
 
 @noindent
-Let say you want to clear a widget and change the content of another one
-when clicking on a button. It is not possible to have mutiple
-@code{onclick} events on the same widget, the solution is the
-following:
+Let say you want to clear a widget, change the content of another one
+and calling one of your specific @code{JavaScript} routine when clicking on
+a button. It is not possible to have mutiple @code{onclick} events on
+the same widget, the solution is the following:
 
 @itemize
-@item Create the JavaScript routine to clear and replace
+@item Create the JavaScript routine to do the job
 
 For this in the the body of the @code{clear_replace()} JavaScript
 routine we place:
@@ -3223,6 +3378,7 @@ function clear_replace() @*
 @{
 @AWSEXP{@@@@INCLUDE@@@@ aws_func_replace.tjs (@b{clickme} @b{placeholder} 4=>@b{field})
 @@@@INCLUDE@@@@ aws_func_clear.tjs (@b{area})
+call_this_routine();
 }
 @}
 
@@ -3233,8 +3389,13 @@ Then to add the event on the widget:
 @end itemize
 
 @noindent
-Note that the @code{AWS/Ajax} templates have a set of comments at the start
-explaining in details the usage.
+Furthermore, it is possible to pass (as the parameter number 20) a
+routine to call after a specific action to all templates. This is another
+way to chain multiple actions for a single event.
+
+@noindent
+Note that all @code{AWS/Ajax} templates have a set of comments at the start
+explaining in details the usage of each parameter.
 
 @c ======================================================================
 
@@ -4785,9 +4946,9 @@ It is as simple as that !
 @noindent
 @code{AWS} support embedded resources. It means that it is possible to build
 a fully self dependent executable. This is useful when distributing a
-server. The server program contains the code but also the images (PNG,
-JPEG, GIF), the templates, the HTML pages... more generally any file the
-Web Server must serve to clients.
+server. The server program contains the code but also the images (@code{PNG},
+@code{JPEG}, @code{GIF}), the templates, the @code{HTML} pages... more
+generally any file the Web Server must serve to clients.
 
 @menu
 * Building resources::
@@ -4912,7 +5073,7 @@ connection, the number of time a connection has been used...
 
 @noindent
 To display the information @code{AWS} use a template file. The
-template file (default is @file{@_STATUS_PAGE_@}) is an HTML file with
+template file (default is @file{@_STATUS_PAGE_@}) is an @code{HTML} file with
 some specific tags recognized by the parser. For more information
 about how the template parser works, please look for the template
 parser documentation distributed with @code{AWS}.
@@ -4992,14 +5153,14 @@ request answered.
 @cindex KEYS_M
 
 A list of set of keys (for each key correspond a value in the tag
-VALUES_L, see below). Each key in the vector tag start with an HTML
+VALUES_L, see below). Each key in the vector tag start with an @code{HTML}
 "<td>" tag. This is to be able to display the key/value in column.
 
 @item LOGO
 @cindex LOGO
 
-A string to be placed in an img HTML tag. This is the name of the AWS
-logo image.
+A string to be placed in an img @code{HTML} tag. This is the name of
+the @code{AWS} logo image.
 
 @item LOG (boolean tag)
 @cindex LOG
@@ -5124,8 +5285,8 @@ A list of sockets ID. One for each connection.
 @cindex VALUES_M
 
 A list of set of values (for each value correspond a key in the vector tag
-KEYS_L, see above). Each key in the vector tag start with an HTML "<td>"
-tag. This is to be able to display the key/value in column.
+KEYS_L, see above). Each key in the vector tag start with an @code{HTML}
+"<td>" tag. This is to be able to display the key/value in column.
 
 @item VERSION
 @cindex VERSION
