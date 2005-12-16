@@ -1,0 +1,15 @@
+<response>
+   <replace id="xml_status_bar">Fill Widgets...</replace>
+   <replace id="text1">Response from XML</replace>
+   <replace id="text2">Another response for text2</replace>
+   <replace id="input1">tag is input1</replace>
+   <replace id="input2">tag is input2</replace>
+   <select action="add" id="xmlsel" option_value="one" option_content="1"/>
+   <select action="add" id="xmlsel" option_value="two" option_content="2"/>
+   <select action="add" id="xmlsel" option_value="three" option_content="3"/>
+   <select action="select" id="xmlsel" option_value="two"/>
+   <radio action="select" id="radio1"/>
+   <check action="select" id="check1"/>
+   <check action="select" id="check3"/>
+   <check action="clear" id="check2"/>
+</response>

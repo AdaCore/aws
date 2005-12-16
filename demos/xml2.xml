@@ -1,0 +1,11 @@
+<response>
+   <replace id="xml_status_bar">Clear Widgets...</replace>
+   <clear id="text1"/>
+   <clear id="text2"/>
+   <clear id="input1"/>
+   <clear id="input2"/>
+   <clear id="xmlsel"/>
+   <check action="clear" id="check1"/>
+   <check action="clear" id="check2"/>
+   <check action="clear" id="check3"/>
+</response>

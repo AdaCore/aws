@@ -1,0 +1,14 @@
+<response>
+   <replace id="xml_status_bar">Mixed Fill/Clear...</replace>
+   <replace id="text1">Another text</replace>
+   <clear id="text2"/>
+   <replace id="input1">input1</replace>
+   <clear id="input2"/>
+   <select action="add" id="xmlsel" option_value="four" option_content="4"/>
+   <select action="add" id="xmlsel" option_value="five" option_content="5"/>
+   <select action="select" id="xmlsel" option_value="five"/>
+   <radio action="select" id="radio2"/>
+   <check action="select" id="check3"/>
+   <check action="clear" id="check1"/>
+   <check action="clear" id="check2"/>
+</response>
