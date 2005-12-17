@@ -5,7 +5,6 @@ AUTHORS
 INSTALL
 MANIFEST
 aws.gpr
-config/ChangeLog
 config/aws-net-std__adasockets.adb
 config/aws-net-std__gnat.adb
 config/aws-net-std__ipv6.adb
@@ -15,7 +14,6 @@ config/aws-os_lib__win32.adb
 config/aws-translator-conversion__f.adb
 config/aws-translator-conversion__p.adb
 config/makefile
-config/projects/ChangeLog
 config/projects/ai302.gpr
 config/projects/aws.gpr
 config/projects/aws_components.gpr
@@ -30,7 +28,6 @@ config/src/test_uconv.adb
 config/templates_parser-configuration__aws.ads
 config/templates_parser-input__aws.adb
 demos/404.thtml
-demos/ChangeLog
 demos/adains.png
 demos/adains.png.gz
 demos/agent.adb
@@ -147,7 +144,6 @@ gps/gen_gps_ref.adb
 gps/gps_support.gpr
 gps/makefile
 gps/wsdl2aws.xml
-include/ChangeLog
 include/ai302/ai302-containers-generic_array_sort.adb
 include/ai302/ai302-containers-generic_array_sort.ads
 include/ai302/ai302-containers-generic_constrained_array_sort.adb
@@ -199,7 +195,6 @@ include/zlib-thin.adb
 include/zlib-thin.ads
 include/zlib.adb
 include/zlib.ads
-include/zlib/ChangeLog
 include/zlib/FAQ
 include/zlib/README
 include/zlib/adler32.c
@@ -226,12 +221,10 @@ include/zlib/zlib.gpr
 include/zlib/zlib.h
 include/zlib/zutil.c
 include/zlib/zutil.h
-lib/ChangeLog
 lib/makefile
 makefile
 makefile.conf
 readme.txt
-regtests/ChangeLog
 regtests/accs.adb
 regtests/accs.out
 regtests/accs_proc.adb
@@ -525,7 +518,6 @@ regtests/zstrm2.adb
 regtests/zstrm2.out
 regtests/zstrm3.out
 shared.gpr
-src/ChangeLog
 src/aws-attachments.adb
 src/aws-attachments.ads
 src/aws-client-hotplug.adb
@@ -714,7 +706,6 @@ src/aws-utils.ads
 src/aws.ads
 src/makefile
 src/src.gpr
-ssl/ChangeLog
 ssl/crypto_lib.gpr
 ssl/makefile
 ssl/nossl.gpr
@@ -728,7 +719,6 @@ ssl/ssl.gpr
 ssl/ssl_lib.gpr
 ssl/ssl_wrappers.adb
 ssl/ssl_wrappers.ads
-support/ChangeLog
 support/README.TXT
 support/g-calend.adb
 support/g-calend.ads
@@ -1034,7 +1024,6 @@ templates_parser/regtests/testme_pt.out
 templates_parser/regtests/ts_assoc.adb
 templates_parser/regtests/ts_assoc.out
 templates_parser/regtests/ts_assoc.tmplt
-templates_parser/src/ChangeLog
 templates_parser/src/templates_parser-cached_files.adb
 templates_parser/src/templates_parser-configuration__standalone.ads
 templates_parser/src/templates_parser-data.adb
@@ -1056,12 +1045,10 @@ templates_parser/src/templates_parser-utils.ads
 templates_parser/src/templates_parser.adb
 templates_parser/src/templates_parser.ads
 templates_parser/templates_parser.gpr
-tools/ChangeLog
 tools/awsres.adb
 tools/hotplug_password.adb
 tools/makefile
 tools/tools.gpr
-web_elements/ChangeLog
 web_elements/icons/ada.gif
 web_elements/icons/adb.gif
 web_elements/icons/ads.gif
@@ -1121,7 +1108,6 @@ web_elements/notebook/notebook.thtml
 web_elements/readme.txt
 web_elements/rounded_boxes/rcorner.gif
 web_elements/rounded_boxes/rounded_boxes.tcss
-win32/ChangeLog
 win32/aws.ico
 win32/aws.rc
 win32/crypto.def
@@ -1318,7 +1304,6 @@ regtests/xmlt.out
 regtests/xmlt_proc.adb
 regtests/xmlt_sec.adb
 regtests/xmlt_sec.out
-soap/ChangeLog
 soap/soap-client.adb
 soap/soap-client.ads
 soap/soap-dispatchers-callback.adb
@@ -1366,7 +1351,6 @@ templates_parser/regtests/check_mem.adb
 templates_parser/regtests/check_mem.tmplt
 templates_parser/regtests/translations_demo.adb
 templates_parser/regtests/translations_demo.out
-templates_parser/xsrc/ChangeLog
 templates_parser/xsrc/templates_parser-xml.adb
 templates_parser/xsrc/templates_parser-xml.ads
 tools/ada2wsdl-generator.adb
@@ -1381,7 +1365,6 @@ tools/ada2wsdl.ads
 tools/wsdl2aws.adb
 win32/libeay32.dll
 win32/libssl32.dll
-xsrc/ChangeLog
 xsrc/README
 xsrc/aws-client-xml-input_sources.adb
 xsrc/aws-client-xml-input_sources.ads
