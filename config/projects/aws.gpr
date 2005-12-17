@@ -34,6 +34,7 @@ with "aws/aws_ssl_support";
 with "aws/aws_nossl_lib";
 with "aws/aws_shared";
 with "aws/aws_config";
+with "aws/aws_libz";
 
 project AWS is
 

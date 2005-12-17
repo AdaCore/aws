@@ -35,6 +35,7 @@ with "aws/aws_crypto_lib";
 with "aws/aws_ssl_lib";
 with "aws/aws_shared";
 with "aws/aws_config";
+with "aws/aws_libz";
 
 project AWS_SSL is
 
