@@ -1,6 +1,4 @@
 
-# $Id$
-
 .SILENT:
 
 ifeq (${OS}, Windows_NT)

@@ -1,6 +1,4 @@
 
-# $Id$
-
 .SILENT:
 
 # Build the library only if Win32 OS. On other OS these libraries must be

@@ -1,6 +1,4 @@
 
-# $Id$
-
 .SILENT:
 
 force:

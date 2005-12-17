@@ -1,6 +1,4 @@
 
-# $Id$
-
 .SILENT:
 
 # NOTE: You should not have to change this makefile. Configuration options can

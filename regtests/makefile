@@ -1,6 +1,4 @@
 
-# $Id$
-
 .SILENT:
 
 # To add a new test:

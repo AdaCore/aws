@@ -1,6 +1,4 @@
 
-# $Id$
-
 .SILENT:
 
 ALL_API = $(sort $(shell ls ../src/*.ads ../xsrc/*.ads ../soap/*.ads \

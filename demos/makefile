@@ -1,6 +1,4 @@
 
-# $Id$
-
 build_res:
 	echo Generate resources for res_demo
 	$(AWSRES) -q -r rdemo adains.png page3.html

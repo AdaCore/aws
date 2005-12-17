@@ -1,6 +1,4 @@
 
-# $Id$
-
 DIRS = menu_css notebook rounded_boxes icons javascripts
 
 I_WEL	= $(INSTALL)/share/examples/aws/web_elements
