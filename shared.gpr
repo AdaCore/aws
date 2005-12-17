@@ -28,8 +28,6 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  $Id$
-
 project Shared is
 
    type Build_Type is ("Debug", "Release");

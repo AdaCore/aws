@@ -26,8 +26,6 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  $Id$
-
 --  Project for libaws_ssl.a external library
 
 project AWS_SSL_Support is

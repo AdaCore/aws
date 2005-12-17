@@ -28,8 +28,6 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  $Id$
-
 with "../shared";
 
 project Win32 is

@@ -28,8 +28,6 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  $Id$
-
 --  Project for libcrypto.a external library
 
 with "aws_ssl_shared";

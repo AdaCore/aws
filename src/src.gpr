@@ -28,8 +28,6 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  $Id$
-
 with "xmlada";
 with "sockets";
 with "aws_config";

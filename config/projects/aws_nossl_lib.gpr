@@ -26,8 +26,6 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  $Id$
-
 --  Project for libaws_nossl.a external library
 
 project AWS_NOSSL_Lib is
