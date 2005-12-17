@@ -39,7 +39,7 @@ with "../win32/win32";
 
 project Src is
 
-   for Languages use ("Ada", "Changelog", "Project file", "makefile");
+   for Languages use ("Ada", "Project file", "makefile");
 
    for Source_Dirs
      use (".", "../templates_parser/src", "../config");

@@ -36,7 +36,7 @@ with "asis";
 
 project Tools is
 
-   for Languages use ("Ada", "Changelog", "Project file", "makefile");
+   for Languages use ("Ada", "Project file", "makefile");
 
    for Main use ("awsres.adb", "hotplug_password.adb");
 

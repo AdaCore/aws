@@ -36,7 +36,7 @@ with "regtests_lst";
 
 project Regtests is
 
-   for Languages use ("Ada", "ChangeLog", "Project file");
+   for Languages use ("Ada", "Project file");
 
    type Build_Mode is ("Separated", "Generator", "Grouped");
    Mode : Build_Mode := external ("Test_Mode", "Separated");

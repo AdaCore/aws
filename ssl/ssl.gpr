@@ -36,7 +36,7 @@ with "aws_config";
 
 project SSL is
 
-   for Languages use ("Ada", "ChangeLog", "Project file");
+   for Languages use ("Ada", "Project file");
 
    for Source_Files use
      ("ssl.ads",
@@ -45,7 +45,6 @@ project SSL is
       "ssl-ada_random.adb",
       "ssl-locking.ads",
       "ssl-locking.adb",
-      "ChangeLog",
       "ssl.gpr");
 
    case Shared.Build is

@@ -36,7 +36,7 @@ with "demos_shared";
 
 project Demos_SSL is
 
-   for Languages use ("Ada", "ChangeLog", "Project file");
+   for Languages use ("Ada", "Project file");
 
    Mains := ("runme.adb", "runme_cb.adb", "agent.adb");
 
