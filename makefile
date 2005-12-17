@@ -504,12 +504,13 @@ endif
 	$(CP) config/projects/aws_components.gpr $(I_AGP)
 	$(CP) config/projects/*_lib.gpr $(I_AGP)
 	$(CP) config/projects/aws_shared.gpr $(I_AGP)
+	$(CP) config/projects/aws_libz.gpr $(I_AGP)
 	$(CP) config/projects/aws_ssl_support.gpr $(I_AGP)
 	$(CP) $(PRJDIR)/aws_config.gpr $(I_AGP)
 # Copy all shared libraries into the main lib directory
 ifeq (${SHARED}, true)
+	$(CP) lib/*$(SOEXT) $(I_LIB)
 	$(CP) $(I_LIB)/*$(SOEXT) $(I_LIB)/..
-	$(CP) lib/*$(SOEXT) $(I_LIB)/..
 else
 	$(CP) lib/libz.a $(I_LIB)
 endif
