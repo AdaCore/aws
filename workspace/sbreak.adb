@@ -1,9 +1,10 @@
+
 --  Test break socket operation by close.
---  $Id$
---
+
 with Ada.Exceptions;
 with Ada.Streams;
 with Ada.Text_IO;
+
 
 with GNAT.Sockets;
 

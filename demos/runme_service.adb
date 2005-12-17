@@ -26,8 +26,6 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  $Id$
-
 with Ada.Exceptions;
 with Ada.Text_IO;
 with GNAT.Directory_Operations;

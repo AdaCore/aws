@@ -26,8 +26,6 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  $Id$
-
 --  This is a very simple Web Page Server using the AWS.Services.Page_Server.
 
 with Ada.Text_IO;

@@ -26,8 +26,6 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  $Id$
-
 --  ~ MAIN [SOAP]
 
 with Disp_SOAP_Proc;

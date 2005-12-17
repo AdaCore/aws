@@ -26,8 +26,6 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  $Id$
-
 --  This must be the exact same test than tgetparam. The only difference is
 --  that it uses HTTPS protocol. We test that output is the same as the non
 --  secure version.

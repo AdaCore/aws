@@ -26,9 +26,6 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  $RCSfile$
---  $Revision$ $Date$ $Author$
-
 package body AWS.Services.Split_Pages.Alpha.Bounded is
 
    ---------------------

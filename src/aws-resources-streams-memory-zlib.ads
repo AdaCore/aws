@@ -26,11 +26,6 @@
 --  covered by the GNU Public License.                                      --
 ------------------------------------------------------------------------------
 
---  $RCSfile$
---  $Revision$
---  $Date$
---  $Author$
-
 --  This API is used as for standard memory stream (see parent package), the
 --  only difference is that the stream is compressing/decompressing on append.
 

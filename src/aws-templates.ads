@@ -26,8 +26,6 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  $Id$
-
 with Templates_Parser;
 
 package AWS.Templates renames Templates_Parser;

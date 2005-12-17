@@ -26,8 +26,6 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  $Id$
-
 --  Handle .ini style configuration file. In this file each option is on one
 --  line. The first word is the option name and the second one is the option
 --  value.

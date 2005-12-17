@@ -26,8 +26,6 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  $Id$
-
 --  This implementation use a POSIX interface and should be usable under many
 --  systems and is compiler independant.
 

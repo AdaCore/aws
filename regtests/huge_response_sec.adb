@@ -26,8 +26,6 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  $Id$
-
 --  ~ MAIN [SSL]
 
 with Huge_Response_Pack;

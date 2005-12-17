@@ -26,9 +26,6 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  $RCSfile$
---  $Revision$ $Date$ $Author$
-
 function AWS.Status.Translate_Table
   (Status : in Data)
    return Templates.Translate_Table

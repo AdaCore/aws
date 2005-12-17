@@ -26,8 +26,6 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  $Id$
-
 --  Dispatcher for SOAP requests.
 
 with AWS.Dispatchers;

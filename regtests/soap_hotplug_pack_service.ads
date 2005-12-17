@@ -6,8 +6,6 @@
 --
 --  $ wsdl2aws -f -cvs -cb -types soap_hotplug_pack.ads soap_hotplug_pack.ads.wsdl
 
---  $Id$
-
 package SOAP_Hotplug_Pack_Service is
 
    URL : constant String := "http://.../";

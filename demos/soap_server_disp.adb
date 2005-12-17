@@ -26,8 +26,6 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  $Id$
-
 --  A simple SOAP server. Same as SOAP_Server but using SOAP dispatchers
 
 with Ada.Text_IO;

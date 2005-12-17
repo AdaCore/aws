@@ -28,8 +28,6 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  $Id$
-
 --  Create a password for the hotplug server authorization file
 
 with Ada.Command_Line;

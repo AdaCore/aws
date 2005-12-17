@@ -26,8 +26,6 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  $Id$
-
 --  ~ MAIN [STD]
 
 --  Program that tests the <<if ... elsif ... else ... end if>>

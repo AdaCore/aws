@@ -26,8 +26,6 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  $Id$
-
 with Ada.Exceptions;
 with Ada.Strings.Fixed;
 with Ada.Text_IO;

@@ -26,8 +26,6 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  $Id$
-
 --  The communication protocol uses a light encoding scheme based on the HTTP
 --  GET method. For standard, XML based, communication you can use the SOAP
 --  protocol. This API can be convenient if you do not plan to build AWS with

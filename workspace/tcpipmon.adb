@@ -1,5 +1,4 @@
 
---  $Id$
 --  TCP monitor, display all exchanged data
 
 with Ada.Text_IO;         use Ada.Text_IO;

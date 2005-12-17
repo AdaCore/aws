@@ -26,8 +26,6 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  $Id$
-
 private function AWS.Server.Get_Status (Server : in HTTP) return String;
 --  Returns Server status information. Data returned by this function will
 --  be displayed in the administrative server page.

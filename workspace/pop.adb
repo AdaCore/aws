@@ -1,6 +1,4 @@
 
---  $Id$
-
 --  Simple POP demo, it depends on the mailbox content
 
 with Ada.Text_IO;

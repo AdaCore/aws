@@ -26,8 +26,6 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  $Id$
-
 --  Com_1 and Com_2 are two demos programs which are using the AWS
 --  communication protocol. See documentation about these demos on com_1.adb.
 

@@ -26,8 +26,6 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  $Id$
-
 --  Use direct calls to Win32 system routines instead of the POSIX library
 --  and get the current UTC/GMT time from the system.
 

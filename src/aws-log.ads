@@ -26,8 +26,6 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  $Id$
-
 --  This package handle the logging facility for AWS. The log file is named
 --  '<progname>-Y-M-D.log' and is written by default in the directory where
 --  the server is launched, see configuration file.

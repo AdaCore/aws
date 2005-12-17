@@ -28,8 +28,6 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  $Id$
-
 procedure Ada2WSDL.Main;
 --  This is the top-level Ada2WSDL driver. It reads the command-line
 --  arguments and creates a WSDL document if possible and necessary.

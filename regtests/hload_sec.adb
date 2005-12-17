@@ -26,8 +26,6 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  $Id$
-
 --  Test for heavy loading SSL server.
 
 --  ~ MAIN [SSL]

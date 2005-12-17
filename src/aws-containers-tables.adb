@@ -26,8 +26,6 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  $Id$
-
 --  Parameters name/value are put into the Table_Type.Data field (vector). The
 --  name as a key and the numeric index as a value is placed into map for fast
 --  retrieval of all Name/Value pairs having the same name. Each value in the

@@ -26,8 +26,6 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  $Id$
-
 --  This package provides a service to build Callbacks which can support
 --  user's data. It is possible to build a new dispatcher by inheriting the
 --  handler type and to provides the Dispatch routine.

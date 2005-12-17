@@ -26,8 +26,6 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  $Id$
-
 --  Services to be used to declare aliases based on URI. This is mostly
 --  designed to be used with AWS.services.Dispatchers.URI.
 

@@ -26,8 +26,6 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  $Id$
-
 package AWS.Headers.Set is
 
    procedure Add (Headers : in out List; Name, Value : in String);

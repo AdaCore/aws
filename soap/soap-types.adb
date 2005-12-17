@@ -26,8 +26,6 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  $Id$
-
 with Ada.Long_Float_Text_IO;
 with Ada.Long_Long_Float_Text_IO;
 with Ada.Exceptions;

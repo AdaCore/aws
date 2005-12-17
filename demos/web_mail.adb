@@ -26,8 +26,6 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  $Id$
-
 --  This is a demo for the Web Mail AWS's feature.
 
 with Ada.Text_IO;

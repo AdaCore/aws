@@ -26,8 +26,6 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  $Id$
-
 package Huge_Response_Pack is
 
    procedure Run (Port : Positive; Security : Boolean);

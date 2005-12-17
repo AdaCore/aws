@@ -26,8 +26,6 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  $Id$
-
 --  Test for the embedded compressed resource feature
 
 --  ~ MAIN [STD]

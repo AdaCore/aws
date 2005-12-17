@@ -26,8 +26,6 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  $Id$
-
 with AWS.Config;
 with AWS.MIME;
 with AWS.Resources.Streams.Memory;

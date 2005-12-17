@@ -1,6 +1,4 @@
 
---  $Id$
-
 with SOAP.Types; use SOAP.Types;
 
 package Tc_Soap_Names is

@@ -27,8 +27,6 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  $Id$
-
 with Ada.Numerics.Discrete_Random;
 with Ada.Unchecked_Conversion;
 with Interfaces.C.Strings;

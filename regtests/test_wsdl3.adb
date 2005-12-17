@@ -26,8 +26,6 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  $Id$
-
 --  ~ MAIN [SOAP]
 
 --  SOAP/WSDL test (same as test_wsdl2 but uses -a option)

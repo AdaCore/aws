@@ -26,11 +26,6 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  $RCSfile$
---  $Revision$
---  $Date$
---  $Author$
-
 --  Fast conversion between String and Stream_Element_Array.
 --  Only for Ada compilers and platforms, where it is possible.
 

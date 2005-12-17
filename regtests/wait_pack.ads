@@ -26,8 +26,6 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  $Id$
-
 package Wait_Pack is
 
    procedure Run (Security : Boolean; Port : Positive);

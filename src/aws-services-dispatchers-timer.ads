@@ -26,9 +26,6 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  $RCSfile$
---  $Revision$$ $Dat$ $Author$
-
 --  Dispatch a specific request to a callback depending on current time
 
 with Ada.Calendar;

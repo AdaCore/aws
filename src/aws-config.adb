@@ -26,8 +26,6 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  $Id$
-
 with AWS.Config.Ini;
 --  This package is not used, but it is loaded here to initialize the
 --  Server_Config variable.

@@ -26,11 +26,6 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  $RCSfile$
---  $Revision$
---  $Date$
---  $Author$
-
 with Input_Sources;
 
 with Unicode;

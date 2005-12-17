@@ -26,8 +26,6 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  $Id$
-
 --  Same as Test_SOAP but with a persistent connection. Check also that SOAP
 --  and non-SOAP request are handled properly in this case.
 

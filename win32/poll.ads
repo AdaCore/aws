@@ -26,8 +26,6 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  $Id$
-
 --  Emulates UNIX "poll" call under Win32
 
 with Interfaces.C; use Interfaces;

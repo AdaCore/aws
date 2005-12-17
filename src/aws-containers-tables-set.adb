@@ -26,9 +26,6 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  $RCSfile$
---  $Revision$ $Date$ $Author$
-
 --  with Ada.Unchecked_Deallocation;
 
 package body AWS.Containers.Tables.Set is

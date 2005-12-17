@@ -26,8 +26,6 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  $Id$
-
 with SOAP.Message.XML;
 
 package body SOAP.Dispatchers is

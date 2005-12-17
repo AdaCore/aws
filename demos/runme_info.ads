@@ -26,8 +26,6 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  $Id$
-
 package Runme_Info is
 
    Service_Name : constant String := "AWS-Runme";

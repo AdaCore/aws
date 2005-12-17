@@ -26,8 +26,6 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  $Id$
-
 --  A SOAP server that implements all Web Services on the following validation
 --  suite: http://soap.weblogs.com/validator1. This implementation has passed
 --  all the tests on:

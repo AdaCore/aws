@@ -25,7 +25,6 @@
 --  however invalidate any other reasons why the executable file  might be  --
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
---  $Id$
 
 --  Test for big data send/receive over secure socket
 

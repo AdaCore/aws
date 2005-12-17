@@ -26,7 +26,6 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  $Id$
 --  Dummy body to check that the client and server code generated from WSDL
 --  compile without problem.
 

@@ -26,9 +26,6 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  $RCSfile$
---  $Revision$ $Date$ $Author$
-
 --  Dispatch a specific request to a callback depending on the request method.
 
 with AWS.Dispatchers;

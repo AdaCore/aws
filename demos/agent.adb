@@ -26,8 +26,6 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  $Id$
-
 --  Usage: agent [options] [GET/PUT] <URL>
 --         -f                      force display of message body.
 --         -o                      output result in file agent.out.

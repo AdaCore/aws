@@ -26,8 +26,6 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  $Id$
-
 --  Waiting on a group of sockets for reading and accept new connections
 
 with Ada.Calendar;

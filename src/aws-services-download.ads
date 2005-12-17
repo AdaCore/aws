@@ -26,8 +26,6 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  $Id$
-
 --  This is a download manager service, can be used to avoid polluting the main
 --  server slot with long downloads. A single task is used in this
 --  implementation.

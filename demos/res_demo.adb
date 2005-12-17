@@ -26,8 +26,6 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  $Id$
-
 --  A standalone Web server, with pages embedded into the executable.
 
 with Ada.Text_IO;

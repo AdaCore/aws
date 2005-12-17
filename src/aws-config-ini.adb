@@ -26,8 +26,6 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  $Id$
-
 with Ada.Command_Line;
 with Ada.Strings.Fixed;
 with Ada.Strings.Maps;

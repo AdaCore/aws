@@ -26,8 +26,6 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  $Id$
-
 --  The famous Hello Word demo, using AWS framework.
 
 with Ada.Text_IO;

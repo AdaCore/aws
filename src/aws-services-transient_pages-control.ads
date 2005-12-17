@@ -26,11 +26,6 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  $RCSfile$
---  $Revision$
---  $Date$
---  $Author$
-
 --  This API control the transient pages cleaner task. Register must
 --  be called by each Web server and Shutdown to terminate it. This is
 --  done during sever initialization and finalization. Users should

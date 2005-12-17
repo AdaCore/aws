@@ -26,8 +26,6 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  $Id$
-
 --  This package is used when parsing the HTTP protocol from the client. It is
 --  used to keep the values for the currently handled HTTP parameters.
 

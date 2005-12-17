@@ -1,8 +1,6 @@
 --  TestXML program modified for get XML source from AWS HTTP client
 --  connection.
 
---  $Id$
-
 with GNAT.Command_Line;  use GNAT.Command_Line;
 with DOM.Readers;        use DOM.Readers;
 with Sax.Readers;        use Sax.Readers;

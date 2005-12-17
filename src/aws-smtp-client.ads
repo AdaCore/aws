@@ -27,8 +27,6 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  $Id$
-
 --
 --  This unit implement API to send mail message. It is possible to send
 --  simple mail [RFC 821] and mail with MIME attachments [RFC 2045 & 2049].

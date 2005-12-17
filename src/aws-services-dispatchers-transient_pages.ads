@@ -26,9 +26,6 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  $RCSfile$
---  $Revision$ $Date$ $Author$
-
 --  Dispatch to the user's callback, if a 404 (Page Not Found) is returned it
 --  checks if the resource is a transient page and return it if found.
 

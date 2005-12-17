@@ -26,8 +26,6 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  $Id$
-
 --  This is the SSL based implementation of the Net package. The implementation
 --  should depend only on AWS.Net.Std and the SSL library. It is important to
 --  not call directly a socket binding here to ease porting.

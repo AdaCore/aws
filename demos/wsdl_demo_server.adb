@@ -26,8 +26,6 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  $Id$
-
 --  The famous Hello Word demo, using AWS/SOAP framework.
 --
 --  SOAP Server

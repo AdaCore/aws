@@ -26,8 +26,6 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  $Id$
-
 --  Some ready to use write procedures
 
 package AWS.Net.Log.Callbacks is

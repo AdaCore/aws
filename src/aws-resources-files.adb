@@ -26,8 +26,6 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  $Id$
-
 with Ada.IO_Exceptions;
 with Ada.Unchecked_Deallocation;
 

@@ -26,8 +26,6 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  $Id$
-
 --  This package provide an easy way to handle server configuration options.
 --
 --  If initialization of this package is not done all functions below will

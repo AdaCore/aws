@@ -26,8 +26,6 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  $Id$
-
 --  See main.adb on how to run this demo.
 
 with Ada.Command_Line;

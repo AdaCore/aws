@@ -26,8 +26,6 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  $Id$
-
 --  Use the OS support routines in GNAT.OS_Lib instead of the POSIX library
 --  and get the current UTC/GMT time from the C library.
 

@@ -26,8 +26,6 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  $Id$
-
 with AI302.Containers.Indefinite_Hashed_Maps;
 with AI302.Strings.Hash;
 

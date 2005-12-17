@@ -26,8 +26,6 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  $Id$
-
 --  This is a way to build a simple HTML page server. Just a part of a full
 --  Web server.
 

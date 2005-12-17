@@ -26,8 +26,6 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  $Id$
-
 with Ada.Exceptions;
 
 procedure AWS.URL.Raise_URL_Error (URL : in String; Message : in String) is

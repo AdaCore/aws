@@ -26,8 +26,6 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  $Id$
-
 --  Waiting on group of sockets for input/output availability
 
 with Ada.Finalization;

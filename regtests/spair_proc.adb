@@ -26,8 +26,6 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  $Id$
-
 --  Common code for plain and SSL testing Socket_Pair routine
 
 with Ada.Streams;

@@ -28,8 +28,6 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  $Id$
-
 package SOAP_Hotplug_Pack is
 
    function Job1 (X, Y : in Integer) return Integer;

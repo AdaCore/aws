@@ -26,8 +26,6 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  $Id$
-
 with Ada.Calendar;
 with Ada.Exceptions;
 with Ada.Task_Attributes;

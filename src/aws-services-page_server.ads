@@ -26,8 +26,6 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  $Id$
-
 --  The Callback is an implementation of a simple static Web page server. It
 --  will return the Web pages found in the Web server directory. If directory
 --  browsing is activated, it will be possible to browse directory content if

@@ -26,8 +26,6 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  $Id$
-
 package AWS.Net.Stream_IO is
 
    type Socket_Stream_Type is new Ada.Streams.Root_Stream_Type with private;

@@ -26,9 +26,6 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  $RCSfile$
---  $Revision$$ $Dat$ $Author$
-
 with Ada.Unchecked_Deallocation;
 
 with AWS.Dispatchers.Callback;

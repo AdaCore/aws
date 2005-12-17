@@ -26,8 +26,6 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  $Id$
-
 --  A simple SOAP client that call each test on the SOAP 1.1 Validation Suite.
 --  (see http://soap.weblogs.com/validator1). This can be used with soap_svs
 --  the SOAP server that implements all Web Services for the validation.

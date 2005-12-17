@@ -26,8 +26,6 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  $Id$
-
 --  This is the standard (non-SSL) socket support. Only the implementation of
 --  this package depends on a specific socket binding. To port AWS to another
 --  socket implementation you need only to rewrite the body.

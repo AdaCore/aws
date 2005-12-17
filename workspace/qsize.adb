@@ -1,5 +1,4 @@
 
---  $Id$
 --  check for socket queue size.
 
 with Ada.Exceptions;

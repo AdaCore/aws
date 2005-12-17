@@ -26,8 +26,6 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  $Id$
-
 --  Test XML parse on the fly from client connection program modified for get
 --  XML source from AWS HTTP client connection.
 

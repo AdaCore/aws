@@ -25,12 +25,10 @@
 --  however invalidate any other reasons why the executable file  might be  --
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
---
---  $Id$
-
---  ~ MAIN [STD]
 
 --  Generator for fast regression test execution.
+
+--  ~ MAIN [STD]
 
 with Ada.Command_Line;
 with Ada.Strings.Unbounded;

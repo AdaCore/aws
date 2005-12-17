@@ -26,8 +26,6 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  $Id$
-
 --  Common code for plain and SSL test for broke memory on socket reusing.
 
 with Ada.Exceptions;

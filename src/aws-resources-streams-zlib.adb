@@ -26,11 +26,6 @@
 --  covered by the GNU Public License.                                      --
 ------------------------------------------------------------------------------
 
---  $RCSfile$
---  $Revision$
---  $Date$
---  $Author$
-
 package body AWS.Resources.Streams.ZLib is
 
    -----------

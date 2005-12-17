@@ -6,8 +6,6 @@
 --
 --  $ wsdl2aws -f -cvs -cb -types soap_hotplug_pack.ads soap_hotplug_pack.ads.wsdl
 
---  $Id$
-
 package body SOAP_Hotplug_Pack_Service.Types is
 
    use SOAP.Types;

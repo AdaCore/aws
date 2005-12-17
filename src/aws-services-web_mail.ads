@@ -26,8 +26,6 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  $Id$
-
 --  The Callback is an implementation of a simple Web Mail that works on a
 --  POP mailbox. It is possible to customize this service using the following
 --  template files:

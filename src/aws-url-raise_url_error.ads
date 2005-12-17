@@ -26,8 +26,6 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  $Id$
-
 --  Raises exception URL_Error, exception message contains reference to URL
 --  and the specified message.
 

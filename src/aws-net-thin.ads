@@ -26,8 +26,6 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  $Id$
-
 --  Package with declarations for the Poll operation. This API is used to
 --  implement AWS.Net.Sets.
 

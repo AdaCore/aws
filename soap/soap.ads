@@ -26,8 +26,6 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  $Id$
-
 package SOAP is
 
    --  This is the root package for the SOAP implementation. It supports

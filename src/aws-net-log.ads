@@ -26,8 +26,6 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  $Id$
-
 --  This package handles the Net logging facility for AWS.
 --
 --  AWS calls the Write procedure which in turn calls the callback routine

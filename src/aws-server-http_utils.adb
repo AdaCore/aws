@@ -26,8 +26,6 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  $Id$
-
 with Ada.Characters.Handling;
 with Ada.Streams;
 with Ada.Streams.Stream_IO;

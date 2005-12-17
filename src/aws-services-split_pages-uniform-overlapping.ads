@@ -26,9 +26,6 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  $RCSfile$
---  $Revision$ $Date$ $Author$
-
 package AWS.Services.Split_Pages.Uniform.Overlapping is
 
    --  Same as the uniform splitter, but pages (except the first one)

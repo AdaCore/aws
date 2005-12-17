@@ -26,8 +26,6 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  $Id$
-
 --  This package is to be used to build answer to be sent to the client
 --  browser. It is also used as the object returned from the client API. So
 --  it is either a response built on the server side or the response received

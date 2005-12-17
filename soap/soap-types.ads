@@ -26,8 +26,6 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  $Id$
-
 --  This package contains all SOAP types supported by this implementation.
 --  Here are some notes about adding support for a new SOAP type (not a
 --  container) and the corresponding WSDL support:

@@ -26,8 +26,6 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  $Id$
-
 --  This is two implementations for this spec. One for standard sockets and
 --  one for SSL socket. Note that the SSL implementation does support standard
 --  socket too, this is controlled with the Security boolean on rountine

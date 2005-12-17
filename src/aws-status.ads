@@ -26,8 +26,6 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  $Id$
-
 --  This package is used to keep the HTTP protocol status. Client can then
 --  request the status for various values like the requested URI, the
 --  Content_Length and the Session ID for example.

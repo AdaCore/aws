@@ -26,8 +26,6 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  $Id$
-
 --  Dispatch on a Callback procedure.
 
 with AWS.Dispatchers;

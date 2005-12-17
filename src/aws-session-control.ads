@@ -26,8 +26,6 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  $Id$
-
 --  This API control the session cleaner task. Start must be called to launch
 --  the cleaner task and Shutdown to terminate it. This is done during sever
 --  initialization and finalization. Users should not call directly these

@@ -26,8 +26,6 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  $Id$
-
 --  An ready-to-use implementation of the stream API where the stream content
 --  is read from an on-disk file.
 

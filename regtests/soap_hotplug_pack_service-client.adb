@@ -6,8 +6,6 @@
 --
 --  $ wsdl2aws -f -cvs -cb -types soap_hotplug_pack.ads soap_hotplug_pack.ads.wsdl
 
---  $Id$
-
 pragma Warnings (Off);
 
 with Ada.Exceptions;

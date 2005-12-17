@@ -27,8 +27,6 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  $Id$
-
 --  This library implement the Simple Mail Transfer Protocol. Only part of the
 --  RFC 821 is covered. There is no support to send a message to a console for
 --  example.

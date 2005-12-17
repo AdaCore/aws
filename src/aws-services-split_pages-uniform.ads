@@ -26,9 +26,6 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  $RCSfile$
---  $Revision$ $Date$ $Author$
-
 package AWS.Services.Split_Pages.Uniform is
 
    --  Split in pages of length Max_Per_Page (except the last one)

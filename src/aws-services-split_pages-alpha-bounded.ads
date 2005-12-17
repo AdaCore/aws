@@ -26,9 +26,6 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  $RCSfile$
---  $Revision$ $Date$ $Author$
-
 package AWS.Services.Split_Pages.Alpha.Bounded is
 
    --  Same as the alpha splitter, but pages larger than Max_Per_Page are

@@ -26,8 +26,6 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  $Id$
-
 --  Routines here are wrappers around standard sockets and SSL.
 --
 --  IMPORTANT: The default certificate used for the SSL connection is

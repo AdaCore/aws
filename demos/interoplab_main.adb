@@ -26,8 +26,6 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  $Id$
-
 --  Test from the Interoplab Web site.
 --  http://www.whitemesa.com/interop/proposal2.html
 --

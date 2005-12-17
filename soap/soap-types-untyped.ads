@@ -26,8 +26,6 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  $Id$
-
 --  Internal unit only, should not be used by end-user. This is designed to
 --  convert simple value without xsi:type information to typed data by the
 --  SOAP engine.

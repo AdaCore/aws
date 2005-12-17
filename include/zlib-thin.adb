@@ -6,8 +6,6 @@
 --  Open source license information is in the zlib.ads file.  --
 ----------------------------------------------------------------
 
---  $Id$
-
 package body ZLib.Thin is
 
    ZLIB_VERSION  : constant Chars_Ptr := zlibVersion;

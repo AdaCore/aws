@@ -26,8 +26,6 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  $Id$
-
 with System.Address_To_Access_Conversions;
 
 with AWS.Net.Thin;

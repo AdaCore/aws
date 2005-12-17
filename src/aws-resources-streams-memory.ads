@@ -26,11 +26,6 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  $RCSfile$
---  $Revision$
---  $Date$
---  $Author$
-
 --  API to handle a memory stream. A memory stream is first created
 --  empty. User can add chunk of data using the Append routines. The stream
 --  is then read using the Read procedure.

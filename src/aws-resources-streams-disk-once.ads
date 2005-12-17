@@ -26,11 +26,6 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  $RCSfile$
---  $Revision$
---  $Date$
---  $Author$
-
 --  An ready-to-use implementation of the stream API where the stream content
 --  is read from an on-disk file. The file is removed from the file system
 --  when the transfer is completed.

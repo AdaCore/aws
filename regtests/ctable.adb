@@ -26,7 +26,6 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  $Id$
 --  Simple table test, see ctab for a more complete one
 
 --  ~ MAIN [STD]

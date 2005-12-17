@@ -26,8 +26,6 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  $Id$
-
 function AWS.Hotplug.Get_Status
   (Filters : in Filter_Set) return Templates_Parser.Translate_Table
 is

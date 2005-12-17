@@ -26,11 +26,6 @@
 --  covered by the GNU Public License.                                      --
 ------------------------------------------------------------------------------
 
---  $RCSfile$
---  $Revision$
---  $Date$
---  $Author$
-
 package body AWS.Resources.Streams.Memory.ZLib is
 
    pragma Linker_Options ("-lz");

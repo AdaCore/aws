@@ -28,8 +28,6 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  $Id$
-
 --  This programs create a parent package Root_Pck and one children for any
 --  files passed as argument.
 

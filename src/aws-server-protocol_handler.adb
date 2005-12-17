@@ -26,11 +26,6 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  $RCSfile$
---  $Revision$
---  $Date$
---  $Author$
-
 --  This procedure is responsible of handling the HTTP protocol. Every
 --  responses and incoming requests are parsed/formated here.
 

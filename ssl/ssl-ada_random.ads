@@ -27,8 +27,6 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  $Id$
-
 --  Package to replace default OpenSSL random numbers generator by the Ada RTL
 --  random numbers generator. It is used to avoid valgrind (debug memory tool
 --  for Linux) error messages about default OpenSSL random numbers generator

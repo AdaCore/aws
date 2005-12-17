@@ -1,6 +1,5 @@
 
 --  Test from Wiljan Derks. It tests if AWS/SOAP does handle null string.
---  $Id$
 
 --  ~ MAIN [SOAP]
 

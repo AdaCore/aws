@@ -26,8 +26,6 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  $Id$
-
 --  This program test the Virtual Host service.
 --
 --  To use this demo change "pascal" by your hostname. Then using

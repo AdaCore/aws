@@ -27,8 +27,6 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  $Id$
-
 --  Draft binding converted by CBIND from GNUTLS C library header files,
 --  then manually fixed and gnatpp reformatted.
 

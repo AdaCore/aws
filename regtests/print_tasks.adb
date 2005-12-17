@@ -25,9 +25,7 @@
 --  however invalidate any other reasons why the executable file  might be  --
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
---
---  $Id$
---
+
 --  Print all tasks except current.
 --
 --  Used to detect tasks leaking during the regression tests.

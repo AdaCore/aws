@@ -1,6 +1,4 @@
 
---  $Id$
-
 --  Check heavy loaded server and how a client reuse a socket or not.
 --  There is a problem here in the client API, after some time the program
 --  fails because a socket is reused it seems to be closed but it can't be

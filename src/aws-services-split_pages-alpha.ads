@@ -26,9 +26,6 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  $RCSfile$
---  $Revision$ $Date$ $Author$
-
 package AWS.Services.Split_Pages.Alpha is
 
    --  Split in (at most) 28 pages, one for empty fields, one for all fields

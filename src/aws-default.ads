@@ -26,8 +26,6 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  $Id$
-
 --  This package contains the default AWS configuration values. These values
 --  are used to initialize the configuration objects. Users should not modify
 --  the values here, see AWS.Config.* API.

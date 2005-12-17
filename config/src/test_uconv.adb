@@ -26,8 +26,6 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  $Id$
-
 --  Detection of the fast unchecked conversion availability between
 --  String and Stream_Element_Array. Copy file
 --  aws-translator-conversion__f.adb to aws-translator-conversion.adb

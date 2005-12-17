@@ -26,8 +26,6 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  $Id$
-
 with AWS.Net.Std;
 
 procedure Get_Free_Port (Port : in out Natural) is

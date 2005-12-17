@@ -26,8 +26,6 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  $Id$
-
 --  Package to support Server Push feature. This is only supported by Netscape
 --  browsers. It will not work with Microsoft Internet Explorer.
 --  For Microsoft Internet Explorer complementary active components

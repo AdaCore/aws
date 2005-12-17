@@ -1,4 +1,4 @@
---  $Id$
+
 --  Test availability of the Unchecked_Conversion between
 --  Stream_Element_Array and String
 
