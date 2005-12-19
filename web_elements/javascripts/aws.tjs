@@ -80,6 +80,7 @@
              onFailure : report_error,
              onComplete : function(req)
                             {aws_xml_handler(req);
+                             update_behaviour();
                              if (oncomplete != "") oncomplete();}});
    }
 
@@ -220,5 +221,4 @@
            idx = idx + 1;
        }
    }
-  
 </script>
