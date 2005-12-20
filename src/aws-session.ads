@@ -40,7 +40,14 @@ package AWS.Session is
    --  Create a new uniq Session Id
 
    procedure Delete (SID : in Id);
-   --  Delete session, does nothing if SID does not exists
+   --  Delete session, does nothing if SID does not exists.
+   --  In most cases, the client browser will still send the cookie identifying
+   --  the session on its next request. In such a case, the function
+   --  AWS.Status.Timed_Out will return True, same as when the session was
+   --  deleted automatically by AWS when it expired.
+   --  The recommended practice is therefore to call
+   --  AWS.Response.Set.Clear_Session when you send a response to the customer
+   --  after deleting the session, so that the cookie is not sent again.
 
    function Image (SID : in Id) return String;
    pragma Inline (Image);
