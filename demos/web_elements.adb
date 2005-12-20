@@ -150,6 +150,14 @@ procedure Web_Elements is
                  (1 => Templates.Assoc ("LIST", True),
                   2 => Templates.Assoc ("GROUP_V", Get_Groups)))));
 
+      elsif URI = "/xml_action" then
+         C := C + 1;
+         return Response.Build
+           (MIME.Text_XML,
+            String'(Templates.Parse
+              ("xml_action.txml",
+                 (1 => Templates.Assoc ("COUNTER", C)))));
+
       elsif URI'Length > 4
         and then URI (URI'First .. URI'First + 3) = "/xml"
       then
