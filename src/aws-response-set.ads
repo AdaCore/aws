@@ -95,6 +95,11 @@ package AWS.Response.Set is
    --  Set the authentication mode requested by server. Set the status code to
    --  the 401.
 
+   procedure Clear_Session (D : in out Data);
+   --  Send a command to clear the cookie on the client side. This will remove
+   --  the session Id from the client. This routine should be used when a
+   --  client logout from the Web application.
+
    ----------
    -- Data --
    ----------

@@ -197,6 +197,15 @@ package body AWS.Response.Set is
       end if;
    end Clear_Memory_Stream;
 
+   -------------------
+   -- Clear_Session --
+   -------------------
+
+   procedure Clear_Session (D : in out Data) is
+   begin
+      Add_Header (D, "Set-Cookie", "AWS=");
+   end Clear_Session;
+
    --------------------
    -- Close_Resource --
    --------------------
