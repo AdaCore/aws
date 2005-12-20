@@ -36,7 +36,7 @@ with Ada.Text_IO;
 with AWS.Client;
 with AWS.Config.Set;
 with AWS.MIME;
-with AWS.Response;
+with AWS.Response.Set;
 with AWS.Server;
 with AWS.Session;
 with AWS.Status;
@@ -67,6 +67,7 @@ procedure Sessions5 is
    function CB (Request : in Status.Data) return Response.Data is
       SID : constant Session.ID := Status.Session (Request);
       N   : Natural := 0;
+      R   : Response.Data;
    begin
       if Session.Exist (SID, "toto") then
          N := Session.Get (SID, "toto");
@@ -76,12 +77,18 @@ procedure Sessions5 is
       Session.Set (SID, "toto", N);
 
       if Status.Session_Timed_Out (Request) then
-         return Response.Build
+         R := Response.Build
            (MIME.Text_HTML, "Timeout, this is call " & Natural'Image (N));
       else
-         return Response.Build
+         R := Response.Build
            (MIME.Text_HTML, "this is call " & Natural'Image (N));
       end if;
+
+      if N = 7 then
+         Response.Set.Clear_Session (R);
+      end if;
+
+      return R;
    end CB;
 
    ------------
