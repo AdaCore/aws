@@ -81,7 +81,7 @@ project Src is
                for Library_Options use
                  ("-laws_win32", "-lwsock32", "-lldap", "-lws2_32");
             when others =>
-               null;
+               for Library_Options use ("-lldap");
          end case;
    end case;
 
