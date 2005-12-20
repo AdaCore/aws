@@ -89,27 +89,21 @@
        // get XML result
        var xml_result = result.responseXML;
 
-       var replace_ids = xml_result.getElementsByTagName("replace");
-       var replace_id;
-
-       var clear_ids = xml_result.getElementsByTagName("clear");
-       var clear_id;
-       
-       var selects = xml_result.getElementsByTagName("select");
-
-       var radios = xml_result.getElementsByTagName("radio");
-
-       var checks = xml_result.getElementsByTagName("check");
-
-       var placeholder_content;
-       var placeholder_id;
+       var replaces = xml_result.getElementsByTagName("replace");
+       var clears   = xml_result.getElementsByTagName("clear");
+       var selects  = xml_result.getElementsByTagName("select");
+       var radios   = xml_result.getElementsByTagName("radio");
+       var checks   = xml_result.getElementsByTagName("check");
+       var gets     = xml_result.getElementsByTagName("get");
 
        var i;
 
        // loop through <replace> elements
-       for (i = 0; i < replace_ids.length; i++) {
-           replace_id = replace_ids[i];
-           placeholder_id = replace_id.getAttribute("id");
+       for (i = 0; i < replaces.length; i++) {
+           var replace_id = replaces[i];
+           var placeholder_id = replace_id.getAttribute("id");
+           var placeholder_content;
+
            if (replace_id.childNodes.length > 1) {
                placeholder_content = replace_id.childNodes[1].nodeValue;
            } else {
@@ -124,9 +118,9 @@
        }
 
        // loop through <clear> elements
-       for (i = 0; i < clear_ids.length; i++) {
-           clear_id = clear_ids[i];
-           placeholder_id = clear_id.getAttribute("id");
+       for (i = 0; i < clears.length; i++) {
+           var clear_id = clears[i];
+           var placeholder_id = clear_id.getAttribute("id");
            if ($(placeholder_id).tagName == "TEXTAREA" || 
                $(placeholder_id).tagName == "INPUT") {
                $(placeholder_id).value = "";
@@ -172,6 +166,29 @@
            } else if (check_action == "clear") {
 	       $(check_id).checked = 0;
            }
+       }
+
+       // loop through <gets> elements
+       for (i = 0; i < gets.length; i++) {
+           var url  = gets[i].getAttribute("url");
+           var pars = ""
+           var j = 0;
+           for (j = 0; j < gets[i].childNodes.length; j++) {
+               if (gets[i].childNodes[j].nodeName == "parameters") {
+                   if (pars != "") {
+                       pars = pars + '&';
+                   }
+                   pars = pars + gets[i].childNodes[j].getAttribute("value");
+               } else if (gets[i].childNodes[j].nodeName == "field") {
+                   if (pars != "") {
+                       pars = pars + '&';
+                   }
+                   var field_id = gets[i].childNodes[j].getAttribute("id");
+                   pars = pars + serialize (field_id);
+               }
+           }
+           update_behaviour();  // update behaviour before requesting url
+           aws_xml_request (url, pars, "");
        }
    }
 
