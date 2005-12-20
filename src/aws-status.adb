@@ -142,7 +142,7 @@ package body AWS.Status is
    -- Authorization_Tail --
    ------------------------
 
-   function Authorization_Tail     (D : in Data) return String is
+   function Authorization_Tail (D : in Data) return String is
    begin
       return AWS.Digest.Tail
         (Nonce  => Authorization_Nonce (D),
