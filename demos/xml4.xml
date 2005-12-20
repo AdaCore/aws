@@ -1,0 +1,9 @@
+<response>
+   <replace id="xml_status_bar">Some actions and call another URL...</replace>
+   <replace id="text1">This is a test for...</replace>
+   <replace id="text2">...chaining calls.</replace>
+   <get url="http://localhost:2400/xml_action">
+      <parameters value="name=Ajax"/>
+      <field id="input1"/>
+   </get>
+</response>

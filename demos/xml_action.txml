@@ -1,0 +1,3 @@
+<response>
+   <replace id="input1">Counter : @_COUNTER_@</replace>
+</response>
