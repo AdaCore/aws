@@ -118,6 +118,8 @@ demos/wsdl_demo_server_cb.ads
 demos/xml1.xml
 demos/xml2.xml
 demos/xml3.xml
+demos/xml4.xml
+demos/xml_action.txml
 demos/zdemo.adb
 demos/zdemo_cb.adb
 demos/zdemo_cb.ads
