@@ -590,16 +590,16 @@ package SSL.GNUTLS is
 
    subtype gnutls_params_st is struct_gnutls_params_st;
 
-   gnutls_malloc                   : gnutls_alloc_function;
-   gnutls_calloc                   : gnutls_calloc_function;
-   gnutls_free                     : gnutls_free_function;
-   gnutls_strdup                   : System.Address;
-   gnutls_srp_2048_group_prime     : gnutls_datum_t;
-   gnutls_srp_2048_group_generator : gnutls_datum_t;
-   gnutls_srp_1536_group_prime     : gnutls_datum_t;
-   gnutls_srp_1536_group_generator : gnutls_datum_t;
-   gnutls_srp_1024_group_prime     : gnutls_datum_t;
-   gnutls_srp_1024_group_generator : gnutls_datum_t;
+   gnutls_malloc                   : constant gnutls_alloc_function;
+   gnutls_calloc                   : constant gnutls_calloc_function;
+   gnutls_free                     : constant gnutls_free_function;
+   gnutls_strdup                   : constant System.Address;
+   gnutls_srp_2048_group_prime     : constant gnutls_datum_t;
+   gnutls_srp_2048_group_generator : constant gnutls_datum_t;
+   gnutls_srp_1536_group_prime     : constant gnutls_datum_t;
+   gnutls_srp_1536_group_generator : constant gnutls_datum_t;
+   gnutls_srp_1024_group_prime     : constant gnutls_datum_t;
+   gnutls_srp_1024_group_generator : constant gnutls_datum_t;
 
    function gnutls_pk_algorithm_get_name
      (algorithm : gnutls_pk_algorithm_t)
