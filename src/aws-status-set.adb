@@ -41,7 +41,7 @@ package body AWS.Status.Set is
    use Ada.Strings;
 
    procedure Authorization (D : in out Data);
-   --  Parse the Authorization parameters from the Authorization header value.
+   --  Parse the Authorization parameters from the Authorization header value
 
    procedure Update_Data_From_Header (D : in out Data);
    --  Update some Data fields from the internal Data header container.
@@ -368,7 +368,7 @@ package body AWS.Status.Set is
                   Value : in     String;
                   Quit  : in out Boolean) is
                begin
-                  --  Check if it is AWS Cookie.
+                  --  Check if it is AWS Cookie
 
                   if Name /= "AWS" then
                      return;
@@ -376,17 +376,17 @@ package body AWS.Status.Set is
 
                   D.Session_Id := AWS.Session.Value (Value);
 
-                  --  Check if the cookie value was correct.
+                  --  Check if the cookie value was correct
 
                   if D.Session_Id = AWS.Session.No_Session then
                      return;
                   end if;
 
-                  --  Check if cookie exists in the server.
+                  --  Check if cookie exists in the server
 
                   if not AWS.Session.Exist (D.Session_Id) then
                      --  Reset to empty cookie if session does not exists.
-                     --  This is a case where a session has timeout.
+                     --  This is a case where a session has timed out.
 
                      D.Session_Id        := AWS.Session.No_Session;
                      D.Session_Timed_Out := True;
@@ -409,7 +409,7 @@ package body AWS.Status.Set is
                   pragma Warnings (Off, Item);
                   pragma Warnings (Off, Quit);
                begin
-                  --  Just ignore for now.
+                  --  Just ignore, nothing to do there
                   --  We are looking only for AWS=<cookieID>
                   null;
                end Value;
