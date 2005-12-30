@@ -61,9 +61,9 @@ package AWS.Server.HTTP_Utils is
       C_Stat                    : in out AWS.Status.Data;
       P_List                    : in out AWS.Parameters.List;
       Sock                      : in     Net.Socket_Type'Class;
-      Status_Multipart_Boundary : in out Unbounded_String;
-      Status_Root_Part_CID      : in out Unbounded_String;
-      Status_Content_Type       : in out Unbounded_String);
+      Status_Multipart_Boundary : in     Unbounded_String;
+      Status_Root_Part_CID      : in     Unbounded_String;
+      Status_Content_Type       : in     Unbounded_String);
    --  If the client sent us some data read them. Right now only the
    --  POST method is handled. This procedure fill in the C_Stat status
    --  data.

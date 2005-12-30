@@ -290,13 +290,13 @@ package body AWS.Server.HTTP_Utils is
 
    procedure Get_Message_Data
      (HTTP_Server               : in out AWS.Server.HTTP;
-      Protocol_Handler_Index    : in Positive;
+      Protocol_Handler_Index    : in     Positive;
       C_Stat                    : in out AWS.Status.Data;
       P_List                    : in out AWS.Parameters.List;
-      Sock                      : in Net.Socket_Type'Class;
-      Status_Multipart_Boundary : in out Unbounded_String;
-      Status_Root_Part_CID      : in out Unbounded_String;
-      Status_Content_Type       : in out Unbounded_String)
+      Sock                      : in     Net.Socket_Type'Class;
+      Status_Multipart_Boundary : in     Unbounded_String;
+      Status_Root_Part_CID      : in     Unbounded_String;
+      Status_Content_Type       : in     Unbounded_String)
    is
 
       use type Status.Request_Method;
