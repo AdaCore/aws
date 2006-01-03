@@ -31,6 +31,7 @@ with Ada.Streams;
 with Ada.Streams.Stream_IO;
 with Ada.Strings.Fixed;
 with Ada.Strings.Maps;
+with Ada.Strings.Unbounded;
 with Ada.Text_IO;
 
 with AWS.Attachments;
@@ -59,6 +60,7 @@ package body AWS.Server.HTTP_Utils is
 
    use Ada;
    use Ada.Strings;
+   use Ada.Strings.Unbounded;
    use Ada.Streams;
    use AWS.Templates;
 
@@ -79,7 +81,6 @@ package body AWS.Server.HTTP_Utils is
       Index        : in     Positive;
       C_Stat       : in out AWS.Status.Data;
       P_List       : in     AWS.Parameters.List;
-      Sock_Ptr     : in     Net.Socket_Access;
       Socket_Taken : in out Boolean;
       Will_Close   : in out Boolean;
       Data_Sent    : in out Boolean)
@@ -90,7 +91,6 @@ package body AWS.Server.HTTP_Utils is
         := CNF.Admin_URI (HTTP_Server.Properties);
 
       Answer    : Response.Data;
-      Sock      : Net.Socket_Type'Class renames Sock_Ptr.all;
 
       procedure Build_Answer;
       --  Build the Answer that should be sent to the client's browser
@@ -218,8 +218,6 @@ package body AWS.Server.HTTP_Utils is
                --  If no one applied, run the user callback
 
                if not Found then
-                  AWS.Status.Set.Socket (C_Stat, Sock_Ptr);
-
                   HTTP_Server.Dispatcher_Sem.Read;
 
                   --  Be sure to always release the read semaphore
@@ -262,7 +260,7 @@ package body AWS.Server.HTTP_Utils is
       Build_Answer;
 
       Send (Answer,
-            HTTP_Server, Index, C_Stat, Sock,
+            HTTP_Server, Index, C_Stat,
             Socket_Taken, Will_Close, Data_Sent);
    end Answer_To_Client;
 
@@ -292,13 +290,8 @@ package body AWS.Server.HTTP_Utils is
      (HTTP_Server               : in out AWS.Server.HTTP;
       Protocol_Handler_Index    : in     Positive;
       C_Stat                    : in out AWS.Status.Data;
-      P_List                    : in out AWS.Parameters.List;
-      Sock                      : in     Net.Socket_Type'Class;
-      Status_Multipart_Boundary : in     Unbounded_String;
-      Status_Root_Part_CID      : in     Unbounded_String;
-      Status_Content_Type       : in     Unbounded_String)
+      P_List                    : in out AWS.Parameters.List)
    is
-
       use type Status.Request_Method;
 
       type Message_Mode is
@@ -327,11 +320,11 @@ package body AWS.Server.HTTP_Utils is
          Root_Part_CID                : in String);
       --  Store attachments coming from the client browser
 
-      Multipart_Boundary : constant String
-        := To_String (Status_Multipart_Boundary);
+      Status_Multipart_Boundary : Unbounded_String;
+      Status_Root_Part_CID      : Unbounded_String;
+      Status_Content_Type       : Unbounded_String;
 
-      Root_Part_CID : constant String
-        := To_String (Status_Root_Part_CID);
+      Sock : constant Net.Socket_Type'Class := Status.Socket (C_Stat);
 
       Attachments : AWS.Attachments.List;
 
@@ -845,6 +838,64 @@ package body AWS.Server.HTTP_Utils is
       --  Is there something to read ?
 
       if Status.Content_Length (C_Stat) /= 0 then
+         --  Get necessary data from header for reading HTTP body
+
+         declare
+
+            procedure Named_Value
+              (Name, Value : in String;
+               Quit        : in out Boolean);
+            --  Looking for the Boundary value in the  Content-Type header line
+
+            procedure Value (Item : in String; Quit : in out Boolean);
+            --  Reading the first unnamed value into the Status_Content_Type
+            --  variable from the Content-Type header line.
+
+            -----------------
+            -- Named_Value --
+            -----------------
+
+            procedure Named_Value
+              (Name, Value : in String;
+               Quit        : in out Boolean)
+            is
+               pragma Unreferenced (Quit);
+               L_Name : constant String :=
+                          Ada.Characters.Handling.To_Lower (Name);
+            begin
+               if L_Name = "boundary" then
+                  Status_Multipart_Boundary := To_Unbounded_String (Value);
+               elsif L_Name = "start" then
+                  Status_Root_Part_CID := To_Unbounded_String (Value);
+               end if;
+            end Named_Value;
+
+            -----------
+            -- Value --
+            -----------
+
+            procedure Value (Item : in String; Quit : in out Boolean) is
+            begin
+               if Status_Content_Type /= Null_Unbounded_String then
+                  --  Only first unnamed value is the Content_Type
+
+                  Quit := True;
+
+               elsif Item'Length > 0 then
+                  Status_Content_Type := To_Unbounded_String (Item);
+               end if;
+            end Value;
+
+            procedure Parse is new Headers.Values.Parse (Value, Named_Value);
+
+         begin
+            --  Clear Content-Type status as this could have already been set
+            --  in previous request.
+
+            Status_Content_Type := Null_Unbounded_String;
+
+            Parse (Status.Content_Type (C_Stat));
+         end;
 
          if Status.Method (C_Stat) = Status.POST
            and then Status_Content_Type = MIME.Application_Form_Data
@@ -874,8 +925,8 @@ package body AWS.Server.HTTP_Utils is
          then
             --  This is a file upload
 
-            File_Upload ("--" & Multipart_Boundary,
-                         "--" & Multipart_Boundary & "--",
+            File_Upload ("--" & To_String (Status_Multipart_Boundary),
+                         "--" & To_String (Status_Multipart_Boundary) & "--",
                          True);
 
          elsif Status.Method (C_Stat) = Status.POST
@@ -883,10 +934,11 @@ package body AWS.Server.HTTP_Utils is
          then
             --  Attachments are to be written to separate files
 
-            Store_Attachments ("--" & Multipart_Boundary,
-                               "--" & Multipart_Boundary & "--",
-                               True,
-                               Root_Part_CID);
+            Store_Attachments
+              ("--" & To_String (Status_Multipart_Boundary),
+               "--" & To_String (Status_Multipart_Boundary) & "--",
+               True,
+               To_String (Status_Root_Part_CID));
 
          else
             --  Let's suppose for now that all others content type data are
@@ -909,15 +961,12 @@ package body AWS.Server.HTTP_Utils is
    ------------------------
 
    procedure Get_Message_Header
-     (HTTP_Server               : in     AWS.Server.HTTP;
-      Index                     : in     Positive;
-      C_Stat                    : in out AWS.Status.Data;
-      P_List                    : in out AWS.Parameters.List;
-      Sock                      : in     Net.Socket_Type'Class;
-      Status_Multipart_Boundary : in out Unbounded_String;
-      Status_Root_Part_CID      : in out Unbounded_String;
-      Status_Content_Type       : in out Unbounded_String)
+     (HTTP_Server : in     AWS.Server.HTTP;
+      Index       : in     Positive;
+      C_Stat      : in out AWS.Status.Data;
+      P_List      : in out AWS.Parameters.List)
    is
+      Sock : constant Net.Socket_Type'Class := Status.Socket (C_Stat);
    begin
       --  Get and parse request line
 
@@ -942,63 +991,6 @@ package body AWS.Server.HTTP_Utils is
 
       Status.Set.Read_Header (Socket => Sock, D => C_Stat);
 
-      --  Get necessary data from header for reading HTTP body
-
-      declare
-
-         procedure Named_Value
-           (Name, Value : in String;
-            Quit        : in out Boolean);
-         --  Looking for the Boundary value in the  Content-Type header line
-
-         procedure Value (Item : in String; Quit : in out Boolean);
-         --  Reading the first unnamed value into the Status_Content_Type
-         --  variable from the Content-Type header line.
-
-         -----------------
-         -- Named_Value --
-         -----------------
-
-         procedure Named_Value
-           (Name, Value : in String;
-            Quit        : in out Boolean)
-         is
-            pragma Unreferenced (Quit);
-            L_Name : constant String :=
-                       Ada.Characters.Handling.To_Lower (Name);
-         begin
-            if L_Name = "boundary" then
-               Status_Multipart_Boundary := To_Unbounded_String (Value);
-            elsif L_Name = "start" then
-               Status_Root_Part_CID := To_Unbounded_String (Value);
-            end if;
-         end Named_Value;
-
-         -----------
-         -- Value --
-         -----------
-
-         procedure Value (Item : in String; Quit : in out Boolean) is
-         begin
-            if Status_Content_Type /= Null_Unbounded_String then
-               --  Only first unnamed value is the Content_Type
-
-               Quit := True;
-
-            elsif Item'Length > 0 then
-               Status_Content_Type := To_Unbounded_String (Item);
-            end if;
-         end Value;
-
-         procedure Parse is new Headers.Values.Parse (Value, Named_Value);
-
-      begin
-         --  Clear Content-Type status as this could have already been set in
-         --  previous request.
-         Status_Content_Type := Null_Unbounded_String;
-
-         Parse (Status.Content_Type (C_Stat));
-      end;
    end Get_Message_Header;
 
    ------------------------
@@ -1159,7 +1151,6 @@ package body AWS.Server.HTTP_Utils is
       HTTP_Server  : in out AWS.Server.HTTP;
       Index        : in     Positive;
       C_Stat       : in     AWS.Status.Data;
-      Sock         : in     Net.Socket_Type'Class;
       Socket_Taken : in out Boolean;
       Will_Close   : in out Boolean;
       Data_Sent    : in out Boolean)
@@ -1167,8 +1158,8 @@ package body AWS.Server.HTTP_Utils is
 
       use type Response.Data_Mode;
 
+      Sock   : constant Net.Socket_Type'Class := Status.Socket (C_Stat);
       Status : Messages.Status_Code;
-
       Length : Resources.Content_Length_Type := 0;
 
       procedure Send_General_Header;
@@ -1274,7 +1265,7 @@ package body AWS.Server.HTTP_Utils is
 
          Send_Resource
            (Method, Response.Close_Resource (Answer), File, Length,
-            HTTP_Server, Index, C_Stat, Sock);
+            HTTP_Server, Index, C_Stat);
       end Send_Data;
 
       -------------------------
@@ -1390,11 +1381,12 @@ package body AWS.Server.HTTP_Utils is
       Length      : in out Resources.Content_Length_Type;
       HTTP_Server : in     AWS.Server.HTTP;
       Index       : in     Positive;
-      C_Stat      : in     AWS.Status.Data;
-      Sock        : in     Net.Socket_Type'Class)
+      C_Stat      : in     AWS.Status.Data)
    is
       use type Status.Request_Method;
       use type Streams.Stream_Element_Offset;
+
+      Sock : constant Net.Socket_Type'Class := Status.Socket (C_Stat);
 
       Buffer_Size : constant := 4 * 1_024;
       --  Size of the buffer used to send the file
@@ -1719,20 +1711,5 @@ package body AWS.Server.HTTP_Utils is
                  and then
                  AWS.Messages.Does_Not_Match (Connection, "keep-alive"));
    end Set_Close_Status;
-
-   -------------------
-   -- Set_HTTP_Slot --
-   -------------------
-
-   procedure Set_HTTP_Slot
-     (HTTP_Server     : in out HTTP;
-      Sock_Ptr        : in     AWS.Net.Socket_Access;
-      Index           : in     Positive;
-      Free_Slots      :    out Natural;
-      Max_Connections : in     Positive) is
-   begin
-      HTTP_Server.Slots := new Slots (Max_Connections);
-      HTTP_Server.Slots.Set (Sock_Ptr, Index, Free_Slots);
-   end Set_HTTP_Slot;
 
 end AWS.Server.HTTP_Utils;
