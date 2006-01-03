@@ -26,18 +26,13 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-with Ada.Strings.Unbounded;
-
 with AWS.Server;
 with AWS.Status;
-with AWS.Net;
 with AWS.Parameters;
 with AWS.Resources;
 with AWS.Response;
 
 package AWS.Server.HTTP_Utils is
-
-   use Ada.Strings.Unbounded;
 
    HTTP_10 : constant String := "HTTP/1.0";
 
@@ -46,7 +41,6 @@ package AWS.Server.HTTP_Utils is
       Index        : in     Positive;
       C_Stat       : in out AWS.Status.Data;
       P_List       : in     AWS.Parameters.List;
-      Sock_Ptr     : in     Net.Socket_Access;
       Socket_Taken : in out Boolean;
       Will_Close   : in out Boolean;
       Data_Sent    : in out Boolean);
@@ -56,27 +50,19 @@ package AWS.Server.HTTP_Utils is
    --  callback.
 
    procedure Get_Message_Data
-     (HTTP_Server               : in out AWS.Server.HTTP;
-      Protocol_Handler_Index    : in     Positive;
-      C_Stat                    : in out AWS.Status.Data;
-      P_List                    : in out AWS.Parameters.List;
-      Sock                      : in     Net.Socket_Type'Class;
-      Status_Multipart_Boundary : in     Unbounded_String;
-      Status_Root_Part_CID      : in     Unbounded_String;
-      Status_Content_Type       : in     Unbounded_String);
+     (HTTP_Server            : in out AWS.Server.HTTP;
+      Protocol_Handler_Index : in     Positive;
+      C_Stat                 : in out AWS.Status.Data;
+      P_List                 : in out AWS.Parameters.List);
    --  If the client sent us some data read them. Right now only the
    --  POST method is handled. This procedure fill in the C_Stat status
    --  data.
 
    procedure Get_Message_Header
-     (HTTP_Server               : in     AWS.Server.HTTP;
-      Index                     : in     Positive;
-      C_Stat                    : in out AWS.Status.Data;
-      P_List                    : in out AWS.Parameters.List;
-      Sock                      : in     Net.Socket_Type'Class;
-      Status_Multipart_Boundary : in out Unbounded_String;
-      Status_Root_Part_CID      : in out Unbounded_String;
-      Status_Content_Type       : in out Unbounded_String);
+     (HTTP_Server  : in     AWS.Server.HTTP;
+      Index        : in     Positive;
+      C_Stat       : in out AWS.Status.Data;
+      P_List       : in out AWS.Parameters.List);
    --  Parse HTTP message header. This procedure fill in the C_Stat status
    --  data.
 
@@ -96,7 +82,6 @@ package AWS.Server.HTTP_Utils is
       HTTP_Server  : in out AWS.Server.HTTP;
       Index        : in     Positive;
       C_Stat       : in     AWS.Status.Data;
-      Sock         : in     Net.Socket_Type'Class;
       Socket_Taken : in out Boolean;
       Will_Close   : in out Boolean;
       Data_Sent    : in out Boolean);
@@ -109,8 +94,7 @@ package AWS.Server.HTTP_Utils is
       Length      : in out Resources.Content_Length_Type;
       HTTP_Server : in     AWS.Server.HTTP;
       Index       : in     Positive;
-      C_Stat      : in     AWS.Status.Data;
-      Sock        : in     Net.Socket_Type'Class);
+      C_Stat      : in     AWS.Status.Data);
    --  Send the last header line Transfer-Encoding and Content_Length if
    --  necessary and send the file content. Length is the size of the
    --  resource/file as known before the call, Length returned value is the
@@ -124,14 +108,5 @@ package AWS.Server.HTTP_Utils is
    --  Set Will_Close properly depending on the HTTP version and current
    --  request status. This routine must be called after Get_Message_header as
    --  the request header must have been parsed.
-
-   procedure Set_HTTP_Slot
-     (HTTP_Server     : in out HTTP;
-      Sock_Ptr        : in     AWS.Net.Socket_Access;
-      Index           : in     Positive;
-      Free_Slots      :    out Natural;
-      Max_Connections : in     Positive);
-   --  Initialize HTTP_Server with Max_Connections Connections, Position
-   --  Sock_Ptr at Index and return number of free slots.
 
 end AWS.Server.HTTP_Utils;
