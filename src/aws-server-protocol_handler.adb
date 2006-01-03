@@ -29,8 +29,6 @@
 --  This procedure is responsible of handling the HTTP protocol. Every
 --  responses and incoming requests are parsed/formated here.
 
-with Ada.Strings.Unbounded;
-
 with AWS.Config;
 with AWS.Log;
 with AWS.Messages;
@@ -51,9 +49,6 @@ procedure Protocol_Handler
    Index       : in     Positive;
    Keep_Alive  : in     Boolean)
 is
-   use Ada.Strings;
-   use Ada.Strings.Unbounded;
-
    use AWS.Server.HTTP_Utils;
 
    use type Resources.Content_Length_Type;
@@ -67,8 +62,6 @@ is
 
    Sock_Ptr       : constant Socket_Access
      := HTTP_Server.Slots.Get (Index => Index).Sock;
-
-   Sock           : Net.Socket_Type'Class renames Sock_Ptr.all;
 
    Socket_Taken   : Boolean := False;
    --  Set to True if a socket has been reserved for a push session.
@@ -84,12 +77,6 @@ is
    --  client. At this point it is not possible to send an unexpected
    --  exception message to the client. The only option in case of problems is
    --  to close the connection.
-
-   --  Duplication of some status fields for faster access
-
-   Status_Multipart_Boundary : Unbounded_String;
-   Status_Root_Part_CID      : Unbounded_String;
-   Status_Content_Type       : Unbounded_String;
 
 begin
    --  This new connection has been initialized because some data are being
@@ -111,17 +98,14 @@ begin
 
          --  Set status peername
 
-         Status.Set.Peername
-           (C_Stat, HTTP_Server.Slots.Get_Peername (Index));
+         Status.Set.Peername (C_Stat, HTTP_Server.Slots.Get_Peername (Index));
+         Status.Set.Socket (C_Stat, Sock_Ptr);
 
          P_List := Status.Parameters (C_Stat);
 
          Parameters.Set.Case_Sensitive (P_List, Case_Sensitive_Parameters);
 
-         Get_Message_Header
-           (HTTP_Server, Index, C_Stat, P_List, Sock,
-            Status_Multipart_Boundary, Status_Root_Part_CID,
-            Status_Content_Type);
+         Get_Message_Header (HTTP_Server, Index, C_Stat, P_List);
 
          HTTP_Server.Slots.Increment_Slot_Activity_Counter (Index);
 
@@ -129,11 +113,7 @@ begin
 
          HTTP_Server.Slots.Mark_Phase (Index, Client_Data);
 
-         Get_Message_Data
-           (HTTP_Server, Index, C_Stat, P_List, Sock,
-            Status_Multipart_Boundary, Status_Root_Part_CID,
-            Status_Content_Type);
-
+         Get_Message_Data (HTTP_Server, Index, C_Stat, P_List);
 
          Status.Set.Keep_Alive (C_Stat, not Will_Close);
 
@@ -142,8 +122,8 @@ begin
          HTTP_Server.Slots.Mark_Phase (Index, Server_Response);
 
          Answer_To_Client
-           (HTTP_Server, Index, C_Stat, P_List, Sock_Ptr, Socket_Taken,
-            Will_Close, Data_Sent);
+           (HTTP_Server, Index, C_Stat, P_List, Socket_Taken, Will_Close,
+            Data_Sent);
 
       exception
             --  We must never exit the loop with an exception. This loop is
@@ -190,7 +170,7 @@ begin
                   HTTP_Server.Slots.Mark_Phase (Index, Server_Response);
 
                   Send
-                    (Answer, HTTP_Server, Index, C_Stat, Sock,
+                    (Answer, HTTP_Server, Index, C_Stat,
                      Socket_Taken, Will_Close, Data_Sent);
                end if;
 
