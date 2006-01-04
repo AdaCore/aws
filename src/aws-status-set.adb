@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2005                          --
+--                         Copyright (C) 2000-2006                          --
 --                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -425,7 +425,7 @@ package body AWS.Status.Set is
                   --  Check if the session has expired, even though it hasn't
                   --  been deleted yet by the cleaner task
 
-                  if AWS.Session.Session_Has_Expired (D.Session_Id) then
+                  if AWS.Session.Has_Expired (D.Session_Id) then
                      AWS.Session.Delete (D.Session_Id);
                      D.Session_Id        := AWS.Session.No_Session;
                      D.Session_Timed_Out := True;
