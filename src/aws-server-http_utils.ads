@@ -28,7 +28,6 @@
 
 with AWS.Server;
 with AWS.Status;
-with AWS.Parameters;
 with AWS.Resources;
 with AWS.Response;
 
@@ -40,7 +39,6 @@ package AWS.Server.HTTP_Utils is
      (HTTP_Server  : in out AWS.Server.HTTP;
       Index        : in     Positive;
       C_Stat       : in out AWS.Status.Data;
-      P_List       : in     AWS.Parameters.List;
       Socket_Taken : in out Boolean;
       Will_Close   : in out Boolean;
       Data_Sent    : in out Boolean);
@@ -52,8 +50,7 @@ package AWS.Server.HTTP_Utils is
    procedure Get_Message_Data
      (HTTP_Server            : in out AWS.Server.HTTP;
       Protocol_Handler_Index : in     Positive;
-      C_Stat                 : in out AWS.Status.Data;
-      P_List                 : in out AWS.Parameters.List);
+      C_Stat                 : in out AWS.Status.Data);
    --  If the client sent us some data read them. Right now only the
    --  POST method is handled. This procedure fill in the C_Stat status
    --  data.
@@ -61,8 +58,7 @@ package AWS.Server.HTTP_Utils is
    procedure Get_Message_Header
      (HTTP_Server  : in     AWS.Server.HTTP;
       Index        : in     Positive;
-      C_Stat       : in out AWS.Status.Data;
-      P_List       : in out AWS.Parameters.List);
+      C_Stat       : in out AWS.Status.Data);
    --  Parse HTTP message header. This procedure fill in the C_Stat status
    --  data.
 
@@ -72,8 +68,7 @@ package AWS.Server.HTTP_Utils is
 
    procedure Parse_Request_Line
      (Command : in     String;
-      C_Stat  : in out AWS.Status.Data;
-      P_List  : in out AWS.Parameters.List);
+      C_Stat  : in out AWS.Status.Data);
    --  Parse the request line:
    --  Request-Line = Method SP Request-URI SP HTTP-Version CRLF
 
