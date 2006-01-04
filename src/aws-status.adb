@@ -33,6 +33,7 @@ with Ada.Strings;
 with AWS.Digest;
 with AWS.Headers.Values;
 with AWS.Messages;
+with AWS.Parameters;
 with AWS.Translator;
 
 package body AWS.Status is
@@ -435,6 +436,16 @@ package body AWS.Status is
         (Get (D.Header, Messages.Content_Type_Token),
          "Boundary", Case_Sensitive => False);
    end Multipart_Boundary;
+
+   ---------------
+   -- Parameter --
+   ---------------
+
+   function Parameter
+     (D : in Data; Name : in String; N : in Positive := 1) return String is
+   begin
+      return AWS.Parameters.Get (D.Parameters, Name, N);
+   end Parameter;
 
    ----------------
    -- Parameters --

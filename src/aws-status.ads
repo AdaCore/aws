@@ -71,6 +71,10 @@ package AWS.Status is
    --  Returns the list of parameters for the request. This list can be empty
    --  if there was no form or URL parameters.
 
+   function Parameter
+     (D : in Data; Name : in String; N : in Positive := 1) return String;
+   pragma Inline (Parameter);
+
    function HTTP_Version           (D : in Data) return String;
    pragma Inline (HTTP_Version);
    --  Returns the HTTP version used by the client
