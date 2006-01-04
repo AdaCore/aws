@@ -422,6 +422,16 @@ package body AWS.Status.Set is
                      return;
                   end if;
 
+                  --  Check if the session has expired, even though it hasn't
+                  --  been deleted yet by the cleaner task
+
+                  if AWS.Session.Session_Has_Expired (D.Session_Id) then
+                     AWS.Session.Delete (D.Session_Id);
+                     D.Session_Id        := AWS.Session.No_Session;
+                     D.Session_Timed_Out := True;
+                     return;
+                  end if;
+
                   --  If all filters done, we found our cookie !
                   Quit := True;
                end Named_Value;
