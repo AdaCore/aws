@@ -45,7 +45,6 @@ with AWS.MIME;
 with AWS.Net;
 with AWS.Net.Buffered;
 with AWS.OS_Lib;
-with AWS.Parameters.Set;
 with AWS.Resources;
 with AWS.Resources.Streams.Memory;
 with AWS.Session;
@@ -80,7 +79,6 @@ package body AWS.Server.HTTP_Utils is
      (HTTP_Server  : in out AWS.Server.HTTP;
       Index        : in     Positive;
       C_Stat       : in out AWS.Status.Data;
-      P_List       : in     AWS.Parameters.List;
       Socket_Taken : in out Boolean;
       Will_Close   : in out Boolean;
       Data_Sent    : in out Boolean)
@@ -166,14 +164,14 @@ package body AWS.Server.HTTP_Utils is
                --  Status page hotplug up message
                Hotplug.Move_Up
                  (HTTP_Server.Filters,
-                  Positive'Value (AWS.Parameters.Get (P_List, "N")));
+                  Positive'Value (Status.Parameter (C_Stat, "N")));
                Answer := Response.URL (Admin_URI);
 
             elsif URI = Admin_URI & "-HPdown" then
                --  Status page hotplug down message
                Hotplug.Move_Down
                  (HTTP_Server.Filters,
-                  Positive'Value (AWS.Parameters.Get (P_List, "N")));
+                  Positive'Value (Status.Parameter (C_Stat, "N")));
                Answer := Response.URL (Admin_URI);
 
             else
@@ -289,8 +287,7 @@ package body AWS.Server.HTTP_Utils is
    procedure Get_Message_Data
      (HTTP_Server               : in out AWS.Server.HTTP;
       Protocol_Handler_Index    : in     Positive;
-      C_Stat                    : in out AWS.Status.Data;
-      P_List                    : in out AWS.Parameters.List)
+      C_Stat                    : in out AWS.Status.Data)
    is
       use type Status.Request_Method;
 
@@ -433,22 +430,20 @@ package body AWS.Server.HTTP_Utils is
             if To_String (Filename) /= "" then
                --  First value is the unique name on the server side
 
-               AWS.Parameters.Set.Add
-                 (P_List,
+               Status.Set.Add_Parameter
+                 (C_Stat,
                   To_String (Name),
-                  To_String (Server_Filename),
-                  Decode => False);
-               --  Do not decode values for multipart/form-data
+                  To_String (Server_Filename));
+               --  Status.Set.Add_Parameter does not decode values.
 
                --  Second value is the original name as found on the client
                --  side.
 
-               AWS.Parameters.Set.Add
-                 (P_List,
+               Status.Set.Add_Parameter
+                 (C_Stat,
                   To_String (Name),
-                  To_String (Filename),
-                  Decode => False);
-               --  Do not decode values for multipart/form-data
+                  To_String (Filename));
+               --  Status.Set.Add_Parameter does not decode values.
 
                --  Read file data, set End_Found if the end-boundary signature
                --  has been read.
@@ -503,11 +498,10 @@ package body AWS.Server.HTTP_Utils is
                   end;
                end loop;
 
-               AWS.Parameters.Set.Add
-                 (P_List,
+               Status.Set.Add_Parameter
+                 (C_Stat,
                   To_String (Name),
-                  To_String (Value),
-                  Decode => False);
+                  To_String (Value));
                --  Do not decode values for multipart/form-data
             end;
 
@@ -917,7 +911,7 @@ package body AWS.Server.HTTP_Utils is
                --  We then decode it and add the parameters read in the
                --  message body.
 
-               AWS.Parameters.Set.Add (P_List, Translator.To_String (Data));
+               Status.Set.Add_Parameters (C_Stat, Translator.To_String (Data));
             end;
 
          elsif Status.Method (C_Stat) = Status.POST
@@ -963,8 +957,7 @@ package body AWS.Server.HTTP_Utils is
    procedure Get_Message_Header
      (HTTP_Server : in     AWS.Server.HTTP;
       Index       : in     Positive;
-      C_Stat      : in out AWS.Status.Data;
-      P_List      : in out AWS.Parameters.List)
+      C_Stat      : in out AWS.Status.Data)
    is
       Sock : constant Net.Socket_Type'Class := Status.Socket (C_Stat);
    begin
@@ -981,7 +974,7 @@ package body AWS.Server.HTTP_Utils is
             --  line(s) received where a Request-Line is expected.
 
             if Data /= "" then
-               Parse_Request_Line (Data, C_Stat, P_List);
+               Parse_Request_Line (Data, C_Stat);
                exit;
             end if;
          end;
@@ -1032,8 +1025,7 @@ package body AWS.Server.HTTP_Utils is
 
    procedure Parse_Request_Line
      (Command : in     String;
-      C_Stat  : in out AWS.Status.Data;
-      P_List  : in out AWS.Parameters.List)
+      C_Stat  : in out AWS.Status.Data)
    is
 
       I1, I2 : Natural;
@@ -1139,7 +1131,7 @@ package body AWS.Server.HTTP_Utils is
          Status.Set.Request (C_Stat, Status.POST, Resource, HTTP_Version);
       end if;
 
-      AWS.Parameters.Set.Add (P_List, Parameters);
+      Status.Set.Add_Parameters (C_Stat, Parameters);
    end Parse_Request_Line;
 
    ----------
