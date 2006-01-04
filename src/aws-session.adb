@@ -116,6 +116,9 @@ package body AWS.Session is
       function Session_Exist (SID : in Id) return Boolean;
       --  Return True if session SID exist in the database
 
+      function Session_Has_Expired (SID : in Id) return Boolean;
+      --  Return True if session SID has exceeded its lifetime
+
       procedure Touch_Session (SID : in Id);
       --  Updates the session Time_Stamp to current time. Does nothing if SID
       --  does not exist.
@@ -545,6 +548,26 @@ package body AWS.Session is
       begin
          return Session_Set.Is_In (String (SID), Sessions);
       end Session_Exist;
+
+      -------------------------
+      -- Session_Has_Expired --
+      -------------------------
+
+      function Session_Has_Expired (SID : in Id) return Boolean is
+         use type Calendar.Time;
+         Now   : constant Calendar.Time := Calendar.Clock;
+         Node  : Session_Node;
+         Cursor : constant Session_Set.Cursor :=
+           Session_Set.Find (Sessions, String (SID));
+      begin
+         --  Do not use Get_Node, since that would update the timestamp
+
+         if Session_Set.Has_Element (Cursor) then
+            Node := Session_Set.Element (Cursor);
+            return Node.Time_Stamp + Session_Lifetime < Now;
+         end if;
+         return False;
+      end Session_Has_Expired;
 
       ---------------
       -- Set_Value --
@@ -1014,6 +1037,15 @@ package body AWS.Session is
       Database.Unlock;
       Close (File);
    end Save;
+
+   -------------------------
+   -- Session_Has_Expired --
+   -------------------------
+
+   function Session_Has_Expired (SID : in Id) return Boolean is
+   begin
+      return Database.Session_Has_Expired (SID);
+   end Session_Has_Expired;
 
    ---------
    -- Set --
