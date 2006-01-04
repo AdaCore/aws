@@ -62,6 +62,15 @@ package body AWS.Log is
       end if;
    end Filename;
 
+   --------------
+   -- Finalize --
+   --------------
+
+   procedure Finalize (Log : in out Object) is
+   begin
+      Stop (Log);
+   end Finalize;
+
    -----------
    -- Flush --
    -----------
@@ -225,6 +234,7 @@ package body AWS.Log is
    procedure Stop (Log : in out Object) is
    begin
       if Text_IO.Is_Open (Log.File) then
+         Write (Log, "Stop logging.");
          Text_IO.Close (Log.File);
       end if;
    end Stop;
