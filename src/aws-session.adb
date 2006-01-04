@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2005                          --
+--                         Copyright (C) 2000-2006                          --
 --                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -530,8 +530,8 @@ package body AWS.Session is
         (SID : in Id;
          Key : in String) when Lock_Counter = 0
       is
-         Node   : Session_Node;
-         Found  : Boolean;
+         Node  : Session_Node;
+         Found : Boolean;
       begin
          Get_Node (Sessions, SID, Node, Found);
 
@@ -555,10 +555,10 @@ package body AWS.Session is
 
       function Session_Has_Expired (SID : in Id) return Boolean is
          use type Calendar.Time;
-         Now   : constant Calendar.Time := Calendar.Clock;
-         Node  : Session_Node;
+         Now    : constant Calendar.Time := Calendar.Clock;
          Cursor : constant Session_Set.Cursor :=
-           Session_Set.Find (Sessions, String (SID));
+                    Session_Set.Find (Sessions, String (SID));
+         Node   : Session_Node;
       begin
          --  Do not use Get_Node, since that would update the timestamp
 
@@ -877,6 +877,15 @@ package body AWS.Session is
       end if;
    end Get_Node;
 
+   -----------------
+   -- Has_Expired --
+   -----------------
+
+   function Has_Expired (SID : in Id) return Boolean is
+   begin
+      return Database.Session_Has_Expired (SID);
+   end Has_Expired;
+
    -----------
    -- Image --
    -----------
@@ -1037,15 +1046,6 @@ package body AWS.Session is
       Database.Unlock;
       Close (File);
    end Save;
-
-   -------------------------
-   -- Session_Has_Expired --
-   -------------------------
-
-   function Session_Has_Expired (SID : in Id) return Boolean is
-   begin
-      return Database.Session_Has_Expired (SID);
-   end Session_Has_Expired;
 
    ---------
    -- Set --
