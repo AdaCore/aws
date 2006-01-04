@@ -34,7 +34,6 @@ with AWS.Log;
 with AWS.Messages;
 with AWS.MIME;
 with AWS.OS_Lib;
-with AWS.Parameters.Set;
 with AWS.Resources;
 with AWS.Server.HTTP_Utils;
 with AWS.Session;
@@ -57,8 +56,6 @@ is
      := CNF.Case_Sensitive_Parameters (HTTP_Server.Properties);
 
    C_Stat         : aliased AWS.Status.Data; -- Connection status
-
-   P_List         : AWS.Parameters.List;     -- Form data
 
    Sock_Ptr       : constant Socket_Access
      := HTTP_Server.Slots.Get (Index => Index).Sock;
@@ -101,11 +98,10 @@ begin
          Status.Set.Peername (C_Stat, HTTP_Server.Slots.Get_Peername (Index));
          Status.Set.Socket (C_Stat, Sock_Ptr);
 
-         P_List := Status.Parameters (C_Stat);
+         Status.Set.Case_Sensitive_Parameters
+           (C_Stat, Case_Sensitive_Parameters);
 
-         Parameters.Set.Case_Sensitive (P_List, Case_Sensitive_Parameters);
-
-         Get_Message_Header (HTTP_Server, Index, C_Stat, P_List);
+         Get_Message_Header (HTTP_Server, Index, C_Stat);
 
          HTTP_Server.Slots.Increment_Slot_Activity_Counter (Index);
 
@@ -113,17 +109,14 @@ begin
 
          HTTP_Server.Slots.Mark_Phase (Index, Client_Data);
 
-         Get_Message_Data (HTTP_Server, Index, C_Stat, P_List);
+         Get_Message_Data (HTTP_Server, Index, C_Stat);
 
          Status.Set.Keep_Alive (C_Stat, not Will_Close);
-
-         Status.Set.Parameters (C_Stat, P_List);
 
          HTTP_Server.Slots.Mark_Phase (Index, Server_Response);
 
          Answer_To_Client
-           (HTTP_Server, Index, C_Stat, P_List, Socket_Taken, Will_Close,
-            Data_Sent);
+           (HTTP_Server, Index, C_Stat, Socket_Taken, Will_Close, Data_Sent);
 
       exception
             --  We must never exit the loop with an exception. This loop is
