@@ -167,36 +167,40 @@ procedure Tlog is
             AWK.Get_Line;
          end if;
 
-         Text_IO.Put (AWK.Field (1));
-         Text_IO.Put (" | ");
-
-         Text_IO.Put (AWK.Field (2));
-         Text_IO.Put (" | ");
-
-         Text_IO.Put (AWK.Field (3));
-         Text_IO.Put (" | ");
-
-         if AWK.Field (3) = "-" then
+         if AWK.Field (2) = "Stop" and AWK.Field (3) = "logging." then
+            I := 0;
+         elsif AWK.Field (3) = "-" then
             I := 4;
          else
             I := 5;
          end if;
 
-         declare
-            V : constant String := AWK.Field (I);
-         begin
-            Text_IO.Put (V (V'First));
-            Text_IO.Put ("<date>");
-            Text_IO.Put (V (V'Last));
+         if I > 0 then
+            Text_IO.Put (AWK.Field (1));
             Text_IO.Put (" | ");
-         end;
 
-         for K in I + 1 .. AWK.Count'Min (10 + I, AWK.NF) loop
-            Text_IO.Put (AWK.Field (K));
+            Text_IO.Put (AWK.Field (2));
             Text_IO.Put (" | ");
-         end loop;
 
-         Text_IO.New_Line;
+            Text_IO.Put (AWK.Field (3));
+            Text_IO.Put (" | ");
+
+            declare
+               V : constant String := AWK.Field (I);
+            begin
+               Text_IO.Put (V (V'First));
+               Text_IO.Put ("<date>");
+               Text_IO.Put (V (V'Last));
+               Text_IO.Put (" | ");
+            end;
+
+            for K in I + 1 .. AWK.Count'Min (10 + I, AWK.NF) loop
+               Text_IO.Put (AWK.Field (K));
+               Text_IO.Put (" | ");
+            end loop;
+
+            Text_IO.New_Line;
+         end if;
       end loop;
 
       AWK.Close (AWK.Current_Session);
