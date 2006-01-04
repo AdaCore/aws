@@ -67,6 +67,18 @@ package AWS.Status.Set is
    procedure Parameters (D : in out Data; Set : in AWS.Parameters.List);
    --  Associate the parameters in Set to the status data
 
+   procedure Case_Sensitive_Parameters (D : in out Data; Mode : in Boolean);
+   pragma Inline (Case_Sensitive_Parameters);
+
+   procedure Add_Parameter (D : in out Data; Name, Value : in String);
+   pragma Inline (Add_Parameter);
+   --  Add one parameter into the internal parameters list.
+   --  The Name and Value should be already decoded.
+
+   procedure Add_Parameters (D : in out Data; Parameters : in String);
+   pragma Inline (Add_Parameters);
+   --  Parse and add parameters into the internal parameters list.
+
    procedure Binary
      (D         : in out Data;
       Parameter : in     Stream_Element_Array);

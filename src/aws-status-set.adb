@@ -33,6 +33,7 @@ with Ada.Strings.Fixed;
 with AWS.Headers.Set;
 with AWS.Headers.Values;
 with AWS.Messages;
+with AWS.Parameters.Set;
 with AWS.Translator;
 with AWS.Parameters.Set;
 
@@ -47,6 +48,24 @@ package body AWS.Status.Set is
    --  Update some Data fields from the internal Data header container.
    --  The Update_Data_From_Header should be called after the complete
    --  header parsing.
+
+   -------------------
+   -- Add_Parameter --
+   -------------------
+
+   procedure Add_Parameter (D : in out Data; Name, Value : in String) is
+   begin
+      AWS.Parameters.Set.Add (D.Parameters, Name, Value, Decode => False);
+   end Add_Parameter;
+
+   --------------------
+   -- Add_Parameters --
+   --------------------
+
+   procedure Add_Parameters (D : in out Data; Parameters : in String) is
+   begin
+      AWS.Parameters.Set.Add (D.Parameters, Parameters => Parameters);
+   end Add_Parameters;
 
    -----------------
    -- Attachments --
@@ -191,6 +210,15 @@ package body AWS.Status.Set is
    begin
       D.Binary_Data := new Stream_Element_Array'(Parameter);
    end Binary;
+
+   -------------------------------
+   -- Case_Sensitive_Parameters --
+   -------------------------------
+
+   procedure Case_Sensitive_Parameters (D : in out Data; Mode : in Boolean) is
+   begin
+      AWS.Parameters.Set.Case_Sensitive (D.Parameters, Mode);
+   end Case_Sensitive_Parameters;
 
    ----------
    -- Free --
