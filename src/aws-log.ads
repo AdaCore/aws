@@ -35,6 +35,7 @@
 --
 --  This package is thread safe.
 
+with Ada.Finalization;
 with Ada.Text_IO;
 with Ada.Strings.Unbounded;
 
@@ -124,7 +125,7 @@ private
 
    Not_Specified : constant String := "";
 
-   type Object is limited record
+   type Object is new Ada.Finalization.Limited_Controlled with record
       File            : Text_IO.File_Type;
       File_Directory  : Unbounded_String;
       Filename_Prefix : Unbounded_String;
@@ -133,5 +134,7 @@ private
       Semaphore       : Utils.Semaphore;
       Auto_Flush      : Boolean;
    end record;
+
+   procedure Finalize (Log : in out Object);
 
 end AWS.Log;
