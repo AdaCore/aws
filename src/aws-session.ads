@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2005                          --
+--                         Copyright (C) 2000-2006                          --
 --                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -184,10 +184,10 @@ package AWS.Session is
    function Get_Lifetime return Duration;
    --  Get current session lifetime for session data
 
-   function Session_Has_Expired (SID : in Id) return Boolean;
-   --  Return true if SID should be considered as expired (ie there hasn't been
-   --  any transaction on it since Get_Lifetime seconds. Such a session should
-   --  be deleted. Calling this function is mostly internal to AWS, and
+   function Has_Expired (SID : in Id) return Boolean;
+   --  Returns true if SID should be considered as expired (ie there hasn't
+   --  been any transaction on it since Get_Lifetime seconds. Such a session
+   --  should be deleted. Calling this function is mostly internal to AWS, and
    --  sessions are deleted automatically when they expire.
 
    ----------------------
