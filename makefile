@@ -363,10 +363,13 @@ setup_dir:
 	-$(MKDIR) -p templates_parser/obj
 
 CONFGPR	= $(PRJDIR)/aws_config.gpr
+CONFADC	= $(BDIR)/gnat.adc
 
 setup_config:
 	echo 'project AWS_Config is' > $(CONFGPR)
 	echo '   type Lib_Type is ("static", "relocatable");' >> $(CONFGPR)
+	echo -n 'pragma Source_File_Name (AWS.Net.Std, Body_File_Name => ' \
+		> $(CONFADC)
 ifeq ($(SHARED), true)
 	echo '   Lib_Kind : Lib_Type := "relocatable";' >> $(CONFGPR)
 else
@@ -376,25 +379,32 @@ endif
 	echo '   type SOCKLIB_Type is ("GNAT", "AdaSockets", "IPv6");' \
 		>> $(CONFGPR)
 ifdef ADASOCKETS
-	echo '   SOCKLIB : SOCKLIB_Type := "AdaSockets";' \
-		>> $(CONFGPR)
+	echo '   SOCKLIB : SOCKLIB_Type := "AdaSockets";' >> $(CONFGPR)
+	echo '"aws-net-std__adasockets.adb");' >> $(CONFADC)
 else
 ifdef IPv6
 	echo '   SOCKLIB : SOCKLIB_Type := "IPv6";' >> $(CONFGPR)
+	echo '"aws-net-std__ipv6.adb");' >> $(CONFADC)
 else
 	echo '   SOCKLIB : SOCKLIB_Type := "GNAT";' >> $(CONFGPR)
+	echo '"aws-net-std__gnat.adb");' >> $(CONFADC)
 endif
 endif
 	echo '   type OSLIB_Type is ("GNAT", "Win32", "POSIX");' \
 		>> $(CONFGPR)
+	echo -n 'pragma Source_File_Name (AWS.OS_Lib, Body_File_Name => ' \
+		>> $(CONFADC)
 ifeq (${OSLIB}, GNAT)
 	echo '   OSLIB : OSLIB_Type := "GNAT";' >> $(CONFGPR)
+	echo '"aws-os_lib__gnat.adb");' >> $(CONFADC)
 endif
 ifeq (${OSLIB}, Win32)
 	echo '   OSLIB : OSLIB_Type := "Win32";' >> $(CONFGPR)
+	echo '"aws-os_lib__win32.adb");' >> $(CONFADC)
 endif
 ifeq (${OSLIB}, POSIX)
 	echo '   OSLIB : OSLIB_Type := "POSIX";' >> $(CONFGPR)
+	echo '"aws-os_lib__posix.adb");' >> $(CONFADC)
 endif
 	echo 'end AWS_Config;' >> $(CONFGPR)
 
@@ -465,6 +475,7 @@ ifeq ($(XMLADA),true)
 	$(STRIP) $(I_BIN)/wsdl2aws${EXEEXT}
 endif
 	$(CP) $(BDIR)/lib/* $(I_LIB)
+	$(CP) $(CONFADC) $(I_LIB)
 	-$(CP) $(BDIR)/ssl/lib/* $(I_LIB)
 	-$(CP) $(BDIR)/ssl/nlib/* $(I_LIB)
 	-$(CP) docs/aws.html $(I_DOC)
