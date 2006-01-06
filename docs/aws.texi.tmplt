@@ -3113,6 +3113,13 @@ approach that works well with the @code{AWS/Ajax} templates.
 @subsubsection Basic Ajax support
 
 @noindent
+This section describes the @code{AWS/Ajax} support where the answer from the
+server is an @code{HTML} fragment. This basic support is designed to
+be used for migration of a Web server to @code{Ajax}. For new
+applications, it is worth considering using the XML based Ajax support,
+@pxref{XML based Ajax}.
+
+@noindent
 Let's have a very simple example:
 
 @itemize @bullet
@@ -3161,8 +3168,8 @@ the @b{"... result here ..."} string of the place holder div above.
 
 @noindent
 This is a simple and very limited example as there is no parameter
-passed to the HTTP request. In real Web applications it is necessary to
-send a context with the request. This can be either the value of
+passed to the @code{HTTP} request. In real Web applications it is necessary
+to send a context with the request. This can be either the value of
 other widgets or all values of widgets' form.
 
 @noindent
@@ -3248,6 +3255,21 @@ option_value="value" option_content="content"/>}
 @item clear a checkbox
 
 @AWSEXP{<check action="@b{clear}" id="@b{item_id}"/>}
+
+@item call another URL
+
+@AWSEXP{<get url="http://thishost/action">
+   <parameters value="name=Ajax"/>
+   <field id="input1"/>
+</get>
+}
+
+This will send the following request:
+
+@AWSEXP{http://thishost/action?name=Ajax&input1=<val_input1>}
+
+Where @b{val_input1} is the current value of the @b{input1} input
+widget. The result must be an @code{XML/Ajax} document that will be parsed.
 
 @end itemize
 
