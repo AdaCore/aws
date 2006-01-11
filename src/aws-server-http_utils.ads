@@ -37,7 +37,7 @@ package AWS.Server.HTTP_Utils is
 
    procedure Answer_To_Client
      (HTTP_Server  : in out AWS.Server.HTTP;
-      Index        : in     Positive;
+      Line_Index   : in     Positive;
       C_Stat       : in out AWS.Status.Data;
       Socket_Taken : in out Boolean;
       Will_Close   : in out Boolean;
@@ -48,16 +48,16 @@ package AWS.Server.HTTP_Utils is
    --  callback.
 
    procedure Get_Message_Data
-     (HTTP_Server            : in out AWS.Server.HTTP;
-      Protocol_Handler_Index : in     Positive;
-      C_Stat                 : in out AWS.Status.Data);
+     (HTTP_Server  : in out AWS.Server.HTTP;
+      Line_Index   : in     Positive;
+      C_Stat       : in out AWS.Status.Data);
    --  If the client sent us some data read them. Right now only the
    --  POST method is handled. This procedure fill in the C_Stat status
    --  data.
 
    procedure Get_Message_Header
      (HTTP_Server  : in     AWS.Server.HTTP;
-      Index        : in     Positive;
+      Line_Index   : in     Positive;
       C_Stat       : in out AWS.Status.Data);
    --  Parse HTTP message header. This procedure fill in the C_Stat status
    --  data.
@@ -75,7 +75,7 @@ package AWS.Server.HTTP_Utils is
    procedure Send
      (Answer       : in out Response.Data;
       HTTP_Server  : in out AWS.Server.HTTP;
-      Index        : in     Positive;
+      Line_Index   : in     Positive;
       C_Stat       : in     AWS.Status.Data;
       Socket_Taken : in out Boolean;
       Will_Close   : in out Boolean;
@@ -88,7 +88,7 @@ package AWS.Server.HTTP_Utils is
       File        : in out Resources.File_Type;
       Length      : in out Resources.Content_Length_Type;
       HTTP_Server : in     AWS.Server.HTTP;
-      Index       : in     Positive;
+      Line_Index  : in     Positive;
       C_Stat      : in     AWS.Status.Data);
    --  Send the last header line Transfer-Encoding and Content_Length if
    --  necessary and send the file content. Length is the size of the

@@ -77,7 +77,7 @@ package body AWS.Server.HTTP_Utils is
 
    procedure Answer_To_Client
      (HTTP_Server  : in out AWS.Server.HTTP;
-      Index        : in     Positive;
+      Line_Index   : in     Positive;
       C_Stat       : in out AWS.Status.Data;
       Socket_Taken : in out Boolean;
       Will_Close   : in out Boolean;
@@ -207,7 +207,7 @@ package body AWS.Server.HTTP_Utils is
             declare
                Found : Boolean;
             begin
-               HTTP_Server.Slots.Mark_Phase (Index, Server_Processing);
+               HTTP_Server.Slots.Mark_Phase (Line_Index, Server_Processing);
 
                --  Check the hotplug filters
 
@@ -233,7 +233,7 @@ package body AWS.Server.HTTP_Utils is
 
                end if;
 
-               HTTP_Server.Slots.Mark_Phase (Index, Server_Response);
+               HTTP_Server.Slots.Mark_Phase (Line_Index, Server_Response);
             end;
          end if;
       end Build_Answer;
@@ -258,7 +258,7 @@ package body AWS.Server.HTTP_Utils is
       Build_Answer;
 
       Send (Answer,
-            HTTP_Server, Index, C_Stat,
+            HTTP_Server, Line_Index, C_Stat,
             Socket_Taken, Will_Close, Data_Sent);
    end Answer_To_Client;
 
@@ -285,9 +285,9 @@ package body AWS.Server.HTTP_Utils is
    ----------------------
 
    procedure Get_Message_Data
-     (HTTP_Server               : in out AWS.Server.HTTP;
-      Protocol_Handler_Index    : in     Positive;
-      C_Stat                    : in out AWS.Status.Data)
+     (HTTP_Server : in out AWS.Server.HTTP;
+      Line_Index  : in     Positive;
+      C_Stat      : in out AWS.Status.Data)
    is
       use type Status.Request_Method;
 
@@ -668,8 +668,7 @@ package body AWS.Server.HTTP_Utils is
                Write (Buffer);
                Index := Buffer'First;
 
-               HTTP_Server.Slots.Mark_Data_Time_Stamp
-                 (Protocol_Handler_Index);
+               HTTP_Server.Slots.Mark_Data_Time_Stamp (Line_Index);
             end if;
          end loop Read_File;
 
@@ -956,7 +955,7 @@ package body AWS.Server.HTTP_Utils is
 
    procedure Get_Message_Header
      (HTTP_Server : in     AWS.Server.HTTP;
-      Index       : in     Positive;
+      Line_Index  : in     Positive;
       C_Stat      : in out AWS.Status.Data)
    is
       Sock : constant Net.Socket_Type'Class := Status.Socket (C_Stat);
@@ -980,7 +979,7 @@ package body AWS.Server.HTTP_Utils is
          end;
       end loop;
 
-      HTTP_Server.Slots.Mark_Phase (Index, Client_Header);
+      HTTP_Server.Slots.Mark_Phase (Line_Index, Client_Header);
 
       Status.Set.Read_Header (Socket => Sock, D => C_Stat);
 
@@ -1141,7 +1140,7 @@ package body AWS.Server.HTTP_Utils is
    procedure Send
      (Answer       : in out Response.Data;
       HTTP_Server  : in out AWS.Server.HTTP;
-      Index        : in     Positive;
+      Line_Index   : in     Positive;
       C_Stat       : in     AWS.Status.Data;
       Socket_Taken : in out Boolean;
       Will_Close   : in out Boolean;
@@ -1257,7 +1256,7 @@ package body AWS.Server.HTTP_Utils is
 
          Send_Resource
            (Method, Response.Close_Resource (Answer), File, Length,
-            HTTP_Server, Index, C_Stat);
+            HTTP_Server, Line_Index, C_Stat);
       end Send_Data;
 
       -------------------------
@@ -1346,7 +1345,7 @@ package body AWS.Server.HTTP_Utils is
             Send_Header_Only;
 
          when Response.Socket_Taken =>
-            HTTP_Server.Slots.Socket_Taken (Index, True);
+            HTTP_Server.Slots.Socket_Taken (Line_Index, True);
             Socket_Taken := True;
 
          when Response.No_Data =>
@@ -1372,7 +1371,7 @@ package body AWS.Server.HTTP_Utils is
       File        : in out Resources.File_Type;
       Length      : in out Resources.Content_Length_Type;
       HTTP_Server : in     AWS.Server.HTTP;
-      Index       : in     Positive;
+      Line_Index  : in     Positive;
       C_Stat      : in     AWS.Status.Data)
    is
       use type Status.Request_Method;
@@ -1424,7 +1423,7 @@ package body AWS.Server.HTTP_Utils is
 
             Length := Length + Last;
 
-            HTTP_Server.Slots.Mark_Data_Time_Stamp (Index);
+            HTTP_Server.Slots.Mark_Data_Time_Stamp (Line_Index);
          end loop;
       end Send_File;
 
@@ -1460,7 +1459,7 @@ package body AWS.Server.HTTP_Utils is
 
             Length := Length + Last;
 
-            HTTP_Server.Slots.Mark_Data_Time_Stamp (Index);
+            HTTP_Server.Slots.Mark_Data_Time_Stamp (Line_Index);
 
             declare
                H_Last : constant String := Utils.Hex (Positive (Last));
@@ -1575,7 +1574,7 @@ package body AWS.Server.HTTP_Utils is
 
                   Sent := Sent + Last;
 
-                  HTTP_Server.Slots.Mark_Data_Time_Stamp (Index);
+                  HTTP_Server.Slots.Mark_Data_Time_Stamp (Line_Index);
                end loop;
             end;
          end Send_Range;
