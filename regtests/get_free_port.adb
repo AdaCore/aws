@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2004                            --
+--                         Copyright (C) 2004-2006                          --
 --                               ACT-Europe                                 --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -34,7 +34,7 @@ procedure Get_Free_Port (Port : in out Natural) is
 begin
    loop
       begin
-         Net.Std.Bind (Sock, Port, "localhost");
+         Net.Std.Bind (Sock, Port);
          Net.Std.Shutdown (Sock);
          Net.Std.Free (Sock);
          return;
