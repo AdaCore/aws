@@ -31,7 +31,7 @@ with AI302.Strings.Hash;
 
 generic
 
-   type Element_Type is private;
+   type Element_Type (<>) is private;
 
    with function "=" (Left, Right : Element_Type)
       return Boolean is <>;
