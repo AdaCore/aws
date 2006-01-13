@@ -417,7 +417,7 @@ package body AWS.Jabber is
          then
             Key_Value.Insert
               (Handler.R.all, To_String (Handler.Key),
-               Handler.Value, Cursor, Found);
+               To_String (Handler.Value), Cursor, Found);
          end if;
       end if;
 
@@ -718,7 +718,7 @@ package body AWS.Jabber is
                Key_Value.Insert
                  (Handler.R.all,
                   Key,
-                  To_Unbounded_String (Get_Value (Atts, J)),
+                  Get_Value (Atts, J),
                   Cursor, Found);
             end if;
          end;
@@ -774,7 +774,7 @@ package body AWS.Jabber is
       Cursor := Key_Value.Find (M.all, Key);
 
       if Key_Value.Has_Element (Cursor) then
-         return To_String (Key_Value.Element (M.all, Key));
+         return Key_Value.Element (M.all, Key);
       else
          return "";
       end if;
