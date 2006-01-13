@@ -431,7 +431,7 @@ package body AWS.Session is
                  := Key_Value.Find (Node.Root.all, Key);
             begin
                if Key_Value.Has_Element (Cursor) then
-                  Value := Key_Value.Element (Cursor);
+                  Value := To_Unbounded_String (Key_Value.Element (Cursor));
                end if;
             end;
          end if;
@@ -590,13 +590,11 @@ package body AWS.Session is
                Cursor := Key_Value.Find (Node.Root.all, Key);
 
                if Key_Value.Has_Element (Cursor) then
-                  Key_Value.Replace_Element
-                    (Cursor, To_Unbounded_String (Value));
+                  Key_Value.Replace_Element (Cursor, Value);
 
                else
                   Key_Value.Insert
-                    (Node.Root.all, Key, To_Unbounded_String (Value),
-                     Cursor, Success);
+                    (Node.Root.all, Key, Value, Cursor, Success);
                end if;
             end;
          end if;
@@ -731,7 +729,7 @@ package body AWS.Session is
             Action
               (Order,
                Key_Value.Key (Cursor),
-               To_String (Key_Value.Element (Cursor)),
+               Key_Value.Element (Cursor),
                Quit);
             exit when Quit;
 
