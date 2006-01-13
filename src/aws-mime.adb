@@ -410,12 +410,10 @@ package body AWS.MIME is
          Cursor  : Containers.Key_Value.Cursor;
          Success : Boolean;
       begin
-         Key_Value.Insert
-           (Ext_Set, Ext, To_Unbounded_String (MIME_Type), Cursor, Success);
+         Key_Value.Insert (Ext_Set, Ext, MIME_Type, Cursor, Success);
 
          if not Success then
-            Key_Value.Replace_Element
-              (Cursor, To_Unbounded_String (MIME_Type));
+            Key_Value.Replace_Element (Cursor, MIME_Type);
          end if;
       end Add_Extension;
 
@@ -444,9 +442,6 @@ package body AWS.MIME is
       ---------------
 
       function Extension (Content_Type : in String) return String is
-
-         CT     : constant Unbounded_String :=
-                    To_Unbounded_String (Content_Type);
          Result : Unbounded_String;
 
          Exit_Iteration : exception;
@@ -461,7 +456,8 @@ package body AWS.MIME is
          procedure Process (Position : in Containers.Key_Value.Cursor) is
          begin
             if
-              Containers.Key_Value.Table.Containers.Element (Position) = CT
+              Containers.Key_Value.Table.Containers.Element (Position)
+              = Content_Type
             then
                Result
                  := To_Unbounded_String
@@ -503,7 +499,7 @@ package body AWS.MIME is
          Cursor := Key_Value.Find (Ext_Set, Ext);
 
          if Key_Value.Has_Element (Cursor) then
-            return To_String (Key_Value.Element (Cursor));
+            return Key_Value.Element (Cursor);
 
          else
             --  Check now in regexp list
