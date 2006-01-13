@@ -26,15 +26,11 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-with Ada.Strings.Unbounded;
-
 with Strings_Maps;
 
 package AWS.Containers.Key_Value is
 
-   use Ada.Strings.Unbounded;
-
-   package Table is new Strings_Maps (Unbounded_String, "=");
+   package Table is new Strings_Maps (String, "=");
 
    subtype Set is Table.Containers.Map;
    type Set_Access is access Set;
