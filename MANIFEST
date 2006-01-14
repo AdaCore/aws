@@ -119,7 +119,12 @@ demos/xml1.xml
 demos/xml2.xml
 demos/xml3.xml
 demos/xml4.xml
+demos/xml5.xml
+demos/xml6.xml
 demos/xml_action.txml
+demos/xml_clear.xml
+demos/xml_clear_no.xml
+demos/xml_get_list.txml
 demos/zdemo.adb
 demos/zdemo_cb.adb
 demos/zdemo_cb.ads
@@ -1100,9 +1105,13 @@ web_elements/javascripts/aws_action_xml.tjs
 web_elements/javascripts/aws_func_clear.tjs
 web_elements/javascripts/aws_func_replace.tjs
 web_elements/javascripts/aws_func_xml.tjs
+web_elements/javascripts/aws_sortable.tjs
 web_elements/javascripts/behaviour.js
 web_elements/javascripts/cookies.js
+web_elements/javascripts/dragdrop.js
+web_elements/javascripts/effects.js
 web_elements/javascripts/prototype.js
+web_elements/javascripts/scriptaculous.js
 web_elements/makefile
 web_elements/menu_css/arrow.png
 web_elements/menu_css/menu.tcss
