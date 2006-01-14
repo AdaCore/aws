@@ -3271,6 +3271,61 @@ This will send the following request:
 Where @b{val_input1} is the current value of the @b{input1} input
 widget. The result must be an @code{XML/Ajax} document that will be parsed.
 
+@item make a list sortable
+
+@AWSEXP{<make_sortable>
+   <list id="firstlist"/>
+   <list id="secondlist"/>
+</make_sortable>
+}
+
+Here @b{firstlist} and @b{secondlist} are @b{id} of @code{UL} elements. It is
+possible to specified as many list id as needed. A drag and drop is
+then possible for all elements in those lists. It is then possible to
+reference such list by passing the list id as a field to the
+template. Items on those list will be serialized and passed to the @code{AWS}
+callback. Note that for the serialization to work properly, each
+@code{LI} elements must be given the id of the list and then the value
+we want to pass.
+
+@AWSEXP{<ul id="firstlist">
+   <li id="firstlist_red">Red</li>
+   <li id="firstlist_green">Green</li>
+   <li id="firstlist_blue">Blue</li>
+</ul>
+}
+
+The serialization will send each value on this list using a
+multi-valued parameter named @b{firstlist[]}.
+
+@AWSEXP{http://server?firstlist[]=red&firstlist[]=green&firstlist[]=blue}
+
+@item make a list not sortable
+
+@AWSEXP{<destroy_sortable>
+   <list id="firstlist"/>
+   <list id="secondlist"/>
+</destroy_sortable>
+}
+
+Remove the sortable properly from the specified lists.
+
+@item redirect to another URL
+
+@AWSEXP{<location url="http://thishost/go_there"/>}
+
+Redirect the browser to the specified URL.
+
+@item Add a CSS style to a given node
+
+@AWSEXP{<apply_style id="node_id">
+   <attribute id="display" value="none"/>
+</apply_style>
+}
+
+Add the CSS style @code{display:none} to the @b{node_id} element. It
+is possible to specify multiple attributes if needed.
+
 @end itemize
 
 @noindent
