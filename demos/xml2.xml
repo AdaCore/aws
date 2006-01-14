@@ -8,4 +8,7 @@
    <check action="clear" id="check1"/>
    <check action="clear" id="check2"/>
    <check action="clear" id="check3"/>
+   <apply_style id="dialog_yes_no">
+      <attribute id="display" value="none"/>
+   </apply_style>
 </response>
