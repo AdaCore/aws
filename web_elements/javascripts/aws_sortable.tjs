@@ -1,0 +1,29 @@
+
+@@-- $1-$n the tag node ID in the DOM tree where the action must be placed
+
+<script type="text/javascript">
+   var list = [];
+
+@@IF@@ @_$1_@ /= ""
+   list.push("@_$1_@");
+@@END_IF@@
+@@IF@@ @_$2_@ /= ""
+   list.push("@_$2_@");
+@@END_IF@@
+@@IF@@ @_$3_@ /= ""
+   list.push("@_$3_@");
+@@END_IF@@
+@@IF@@ @_$4_@ /= ""
+   list.push("@_$4_@");
+@@END_IF@@
+@@IF@@ @_$5_@ /= ""
+   list.push("@_$5_@");
+@@END_IF@@
+
+   list.each (function (item) {
+      Sortable.create(item,
+   	{dropOnEmpty:true,containment:list,constraint:false});
+      var elm = document.getElementById (item);
+      elm.style.cursor = 'move';
+    });
+</script>
