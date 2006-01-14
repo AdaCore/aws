@@ -158,6 +158,26 @@ procedure Web_Elements is
               ("xml_action.txml",
                  (1 => Templates.Assoc ("COUNTER", C)))));
 
+      elsif URI = "/xml_get_list" then
+         C := C + 1;
+         declare
+            use type Templates.Tag;
+            Result : constant Parameters.VString_Array :=
+                       Parameters.Get_Values (P_List, "tolist[]");
+            List_V : Templates.Tag;
+         begin
+            for K in Result'Range loop
+               List_V := List_V & Result (K);
+            end loop;
+
+            return Response.Build
+              (MIME.Text_XML,
+               String'(Templates.Parse
+                 ("xml_get_list.txml",
+                    (1 => Templates.Assoc ("COUNTER", C),
+                     2 => Templates.Assoc ("LIST_V", List_V)))));
+         end;
+
       elsif URI'Length > 4
         and then URI (URI'First .. URI'First + 3) = "/xml"
       then
