@@ -3,6 +3,7 @@
 
 <script src="/we_js/prototype.js" type="text/javascript"></script>
 <script src="/we_js/behaviour.js" type="text/javascript"></script>
+<script src="/we_js/scriptaculous.js" type="text/javascript"></script>
 
 <script type="text/javascript">
 
@@ -30,13 +31,17 @@
    {
       var param = "";
 
-      if ($(elm).tagName == "FORM")
+      if ($(elm).tagName == "FORM") {
          param = Form.serialize (elm);
-      else 
+      } else if ($(elm).tagName == "UL") {
+         param = Sortable.serialize(elm);
+      } else {
          param = elm + "=" + $F(elm);
+      }
       
       return (param);
    }
+
 
 @@-- --------------------------------
 @@-- Call url?pars and put result into placeholder
@@ -86,110 +91,217 @@
 
    function aws_xml_handler (result)
    {
-       // get XML result
-       var xml_result = result.responseXML;
+      // get XML result
+      var xml_result = result.responseXML;
+      var response   = xml_result.getElementsByTagName('response');
+      var i = 0;
+      for (i = 0; i < response[0].childNodes.length; i++) {
+         var node = response[0].childNodes[i];
+         if (node.nodeName == 'replace') {
+            aws_xml_handler_replace (node);
+         } else if (node.nodeName == 'clear') {
+            aws_xml_handler_clear (node);
+         } else if (node.nodeName == 'select') {
+            aws_xml_handler_select (node);
+         } else if (node.nodeName == 'radio') {
+            aws_xml_handler_radio (node);
+         } else if (node.nodeName == 'check') {
+            aws_xml_handler_check (node);
+         } else if (node.nodeName == 'get') {
+            aws_xml_handler_get (node);
+         } else if (node.nodeName == 'location') {
+            aws_xml_handler_location (node);
+         } else if (node.nodeName == 'create_sortable') {
+            aws_xml_handler_create_sortable (node);
+         } else if (node.nodeName == 'destroy_sortable') {
+            aws_xml_handler_destroy_sortable (node);
+         } else if (node.nodeName == 'apply_style') {
+            aws_xml_handler_apply_style (node);
+         }
+      }
+   }
 
-       var replaces = xml_result.getElementsByTagName("replace");
-       var clears   = xml_result.getElementsByTagName("clear");
-       var selects  = xml_result.getElementsByTagName("select");
-       var radios   = xml_result.getElementsByTagName("radio");
-       var checks   = xml_result.getElementsByTagName("check");
-       var gets     = xml_result.getElementsByTagName("get");
+   // Replace a node content by an HTML String
+   function aws_xml_handler_replace (node)
+   {
+      var placeholder_id = node.getAttribute("id");
+      var placeholder_content;
+      
+      if (node.childNodes.length > 1) {
+         placeholder_content = node.childNodes[1].nodeValue;
+      } else {
+         placeholder_content = node.firstChild.nodeValue;
+      }
+      if ($(placeholder_id).tagName == "TEXTAREA" || 
+          $(placeholder_id).tagName == "INPUT") {
+         $(placeholder_id).value = placeholder_content;
+      } else {
+         $(placeholder_id).innerHTML = placeholder_content;
+      }
+   }
 
-       var i;
+   // Clear a node
+   function aws_xml_handler_clear (node)
+   {
+      var placeholder_id = node.getAttribute("id");
+      if ($(placeholder_id).tagName == "TEXTAREA" || 
+          $(placeholder_id).tagName == "INPUT") {
+         $(placeholder_id).value = "";
+      } else {
+         $(placeholder_id).innerHTML = "";
+      }
+   }
 
-       // loop through <replace> elements
-       for (i = 0; i < replaces.length; i++) {
-           var replace_id = replaces[i];
-           var placeholder_id = replace_id.getAttribute("id");
-           var placeholder_content;
+   // Action on select : add, delete or select an option, or clear a select
+   function aws_xml_handler_select (node)
+   {
+      var select_action = node.getAttribute("action");
+      var select_id     = node.getAttribute("id");
+      if (select_action == "add") {
+         var option_value = node.getAttribute("option_value");
+         var option_content = node.getAttribute("option_content");
+         addToSelect(select_id, option_value, option_content);
+      } else if (select_action == "clear") {
+         clearSelect(select_id);
+      } else if (select_action == "delete") {
+         var option_value = node.getAttribute("option_value");
+         delSelectOption(select_id, option_value);
+      } else if (select_action == "select") {
+         var option_value = node.getAttribute("option_value");
+         selectChangeSelected(select_id, option_value);
+      }
+   }
 
-           if (replace_id.childNodes.length > 1) {
-               placeholder_content = replace_id.childNodes[1].nodeValue;
-           } else {
-               placeholder_content = replace_id.firstChild.nodeValue;
-           }
-           if ($(placeholder_id).tagName == "TEXTAREA" || 
-               $(placeholder_id).tagName == "INPUT") {
-               $(placeholder_id).value = placeholder_content;
-           } else {
-               $(placeholder_id).innerHTML = placeholder_content;
-           }
-       }
+   // Action on radio
+   function aws_xml_handler_radio (node)
+   {
+      var action = node.getAttribute('action');
+      var id     = node.getAttribute('id');
+      if (action == 'select') {
+         $(id).checked = 1;
+      }
+   }
 
-       // loop through <clear> elements
-       for (i = 0; i < clears.length; i++) {
-           var clear_id = clears[i];
-           var placeholder_id = clear_id.getAttribute("id");
-           if ($(placeholder_id).tagName == "TEXTAREA" || 
-               $(placeholder_id).tagName == "INPUT") {
-               $(placeholder_id).value = "";
-           } else {
-               $(placeholder_id).innerHTML = "";
-           }
-       }
+   // Action on check
+   function aws_xml_handler_check (node)
+   {
+      var action = node.getAttribute('action');
+      var id     = node.getAttribute('id');
+      if (action == 'select') {
+         $(id).checked = 1;
+      } else if (action == 'clear') {
+         $(id).checked = 0;
+      }
+   }
 
-       // loop through <select> elements
-       for (i = 0; i < selects.length; i++) {
-           var select_action = selects[i].getAttribute("action");
-           var select_id     = selects[i].getAttribute("id");
-           if (select_action == "add") {
-               var option_value = selects[i].getAttribute("option_value");
-               var option_content = selects[i].getAttribute("option_content");
-               addToSelect(select_id, option_value, option_content);
-           } else if (select_action == "clear") {
-               clearSelect(select_id);
-           } else if (select_action == "delete") {
-               var option_value = selects[i].getAttribute("option_value");
-               delSelectOption(select_id, option_value);
-           } else if (select_action == "select") {
-               var option_value = selects[i].getAttribute("option_value");
-               selectChangeSelected(select_id, option_value);
-           }
-       }
+   // Action on get
+   function aws_xml_handler_get (node)
+   {
+      var url  = node.getAttribute('url');
+      var pars = '';
+      var i    = 0;
 
-       // loop through <radio> elements
-       for (i = 0; i < radios.length; i++) {
-           var radio_action = radios[i].getAttribute("action");
-           var radio_id     = radios[i].getAttribute("id");
-           if (radio_action == "select") {
-	       $(radio_id).checked = 1;
-           }
-       }
+      for (i = 0; i < node.childNodes.length; i++) {
+         var current_node = node.childNodes[i];
+         if (current_node.nodeName == 'parameters') {
+            if (pars != '') {
+               pars = pars + '&';
+            }
+            pars = pars + current_node.getAttribute('value');
+         } else if (current_node.nodeName == 'field') {
+            if (pars != '') {
+               pars = pars + '&';
+            }
+            var id = current_node.getAttribute('id');
+            pars = pars + serialize (id);
+         }
+      }
+      update_behaviour (); /* Update behaviour before request url */
+      aws_xml_request (url, pars, '');
+   }
 
-       // loop through <check> elements
-       for (i = 0; i < checks.length; i++) {
-           var check_action = checks[i].getAttribute("action");
-           var check_id     = checks[i].getAttribute("id");
-           if (check_action == "select") {
-	       $(check_id).checked = 1;
-           } else if (check_action == "clear") {
-	       $(check_id).checked = 0;
-           }
-       }
+   // Action on location
+   function aws_xml_handler_location (node)
+   {
+      var url = node.getAttribute('url');
 
-       // loop through <gets> elements
-       for (i = 0; i < gets.length; i++) {
-           var url  = gets[i].getAttribute("url");
-           var pars = ""
-           var j = 0;
-           for (j = 0; j < gets[i].childNodes.length; j++) {
-               if (gets[i].childNodes[j].nodeName == "parameters") {
-                   if (pars != "") {
-                       pars = pars + '&';
-                   }
-                   pars = pars + gets[i].childNodes[j].getAttribute("value");
-               } else if (gets[i].childNodes[j].nodeName == "field") {
-                   if (pars != "") {
-                       pars = pars + '&';
-                   }
-                   var field_id = gets[i].childNodes[j].getAttribute("id");
-                   pars = pars + serialize (field_id);
-               }
-           }
-           update_behaviour();  // update behaviour before requesting url
-           aws_xml_request (url, pars, "");
-       }
+      /* Redirect to url */
+
+      document.location.href = location.getAttribute('url');
+   }
+
+   // Action on create_sortable
+   function aws_xml_handler_create_sortable (node)
+   {
+      var lists = []; /* Get all list for containment */
+      
+      var i = 0;
+     
+      for (i = 0; i < node.childNodes.length; i++) {
+         var current_node = node.childNodes[i];
+         if (current_node.nodeName == 'list') {
+            lists.push (current_node.getAttribute('id'));
+         }
+      }
+
+      /* Call Sortable.create for each element */
+
+      for (i = 0; i < node.childNodes.length; i++) {
+         var current_node = node.childNodes[i];
+         if (current_node.nodeName == 'list') {
+            var id = current_node.getAttribute('id');
+
+            /* Add cursor style */
+
+            var elm = document.getElementById (id);
+            elm.style.cursor = 'move';
+
+            /* Create sortable */
+
+            Sortable.create
+               (id, { containment:lists, constraint:false, dropOnEmpty:true });
+         }
+      }
+   }
+
+   // Action on destroy_sortable
+   function aws_xml_handler_destroy_sortable (node)
+   {
+      var i = 0;
+
+      /* Call Sortable.destroy for each element */
+
+      for (i = 0; i < node.childNodes.length; i++) {
+         var current_node = node.childNodes[i];
+         if (current_node.nodeName == 'list') {
+            var list_id = current_node.getAttribute('id');
+
+            /* Revert cursor style */
+
+            var elm = document.getElementById (list_id);
+            elm.style.cursor = 'default';
+
+            /* Destroy sortable */
+
+            Sortable.destroy (list_id);
+         }
+      }
+   }
+
+   //  Action on apply_style
+   function aws_xml_handler_apply_style (node)
+   {
+      var elm_id = node.getAttribute('id');
+
+      var i = 0;
+      for (i = 0; i < node.childNodes.length; i++) {
+         var current_node = node.childNodes[i];
+         if (current_node.nodeName == 'attribute') {
+            var id    = current_node.getAttribute('id');
+            var value = current_node.getAttribute('value');
+            $(elm_id).style[id] = value;
+         }
+      }
    }
 
    // Add option_value/option_content into the given select
