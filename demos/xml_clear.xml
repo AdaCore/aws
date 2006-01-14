@@ -1,0 +1,6 @@
+<response>
+   <replace id="xml_status_bar">Clear widgets...</replace>
+   <apply_style id="dialog_yes_no">
+      <attribute id="display" value="block"/>
+   </apply_style>
+</response>

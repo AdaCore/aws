@@ -1,0 +1,6 @@
+<response>
+   <replace id="xml_status_bar">Clear canceled...</replace>
+   <apply_style id="dialog_yes_no">
+      <attribute id="display" value="none"/>
+   </apply_style>
+</response>
