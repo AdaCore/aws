@@ -31,12 +31,33 @@ with AWS.Utils;
 package body AWS.Net.Log is
 
    type Log_State is record
-      Active    : Boolean := False;
       Write     : Write_Callback;
+      Event     : Event_Callback;
       Semaphore : Utils.Semaphore;
    end record;
 
    State : Log_State;
+
+   -----------
+   -- Event --
+   -----------
+
+   procedure Event (Action : in Event_Type; FD : in Integer) is
+   begin
+      State.Semaphore.Seize;
+
+      if State.Event /= null then
+         begin
+            --  This call must never fail, catch all exceptions
+            State.Event (Action, FD);
+         exception
+            when others =>
+               null;
+         end;
+      end if;
+
+      State.Semaphore.Release;
+   end Event;
 
    ---------------
    -- Is_Active --
@@ -44,18 +65,37 @@ package body AWS.Net.Log is
 
    function Is_Active return Boolean is
    begin
-      return State.Active;
+      return State.Write /= null or else State.Event /= null;
    end Is_Active;
+
+   ---------------------
+   -- Is_Event_Active --
+   ---------------------
+
+   function Is_Event_Active return Boolean is
+   begin
+      return State.Event /= null;
+   end Is_Event_Active;
+
+   ---------------------
+   -- Is_Write_Active --
+   ---------------------
+
+   function Is_Write_Active return Boolean is
+   begin
+      return State.Write /= null;
+   end Is_Write_Active;
 
    -----------
    -- Start --
    -----------
 
-   procedure Start (Write : in Write_Callback) is
+   procedure Start
+     (Write : in Write_Callback; Event : Event_Callback := null) is
    begin
       State.Semaphore.Seize;
-      State.Write  := Write;
-      State.Active := True;
+      State.Write := Write;
+      State.Event := Event;
       State.Semaphore.Release;
    end Start;
 
@@ -66,8 +106,8 @@ package body AWS.Net.Log is
    procedure Stop is
    begin
       State.Semaphore.Seize;
-      State.Active := False;
-      State.Write  := null;
+      State.Event := null;
+      State.Write := null;
       State.Semaphore.Release;
    end Stop;
 
@@ -83,7 +123,7 @@ package body AWS.Net.Log is
    begin
       State.Semaphore.Seize;
 
-      if State.Active then
+      if State.Write /= null then
          begin
             --  This call must never fail, catch all exceptions
             State.Write
