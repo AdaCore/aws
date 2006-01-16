@@ -40,6 +40,8 @@ package AWS.Net.Log is
    type Data_Direction is (Sent, Received);
    --  The direction of the data, sent or received to/from the socket
 
+   type Event_Type is (Connect, Accept_Socket, Shutdown);
+
    type Write_Callback is access procedure
      (Direction : in Data_Direction;
       FD        : in Integer;
@@ -47,12 +49,26 @@ package AWS.Net.Log is
       Last      : in Stream_Element_Offset);
    --  The callback procedure which is called for each incoming/outgoing data
 
-   procedure Start (Write : in Write_Callback);
+   type Event_Callback is access procedure
+     (Action : in Event_Type; FD : in Integer);
+   --  The callback procedure which is called for every socket creation,
+   --  connect and accept.
+
+   procedure Start
+     (Write : in Write_Callback; Event : in Event_Callback := null);
    --  Activate the logging
 
    function Is_Active return Boolean;
    pragma Inline (Is_Active);
    --  Returns True if Log is activated and False otherwise
+
+   function Is_Write_Active return Boolean;
+   pragma Inline (Is_Write_Active);
+   --  Returns True if Write Log is activated and False otherwise
+
+   function Is_Event_Active return Boolean;
+   pragma Inline (Is_Event_Active);
+   --  Returns True if Write Log is activated and False otherwise
 
    procedure Write
      (Direction : in Data_Direction;
@@ -62,6 +78,10 @@ package AWS.Net.Log is
    --  Write sent/received data indirectly through the callback routine,
    --  if activated (i.e. Start routine above has been called). Otherwise this
    --  call does nothing.
+
+   procedure Event (Action : in Event_Type; FD : in Integer);
+   --  Call Event callback if activated (i.e. Start routine above has been
+   --  called). Otherwise this call does nothing.
 
    procedure Stop;
    --  Stop logging activity
