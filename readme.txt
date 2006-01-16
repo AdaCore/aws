@@ -114,6 +114,8 @@ Here are the main changes since AWS 2.1 :
      designed to be used when a client explicitly logout from the Web
      application. See AWS.Response.Set.Clear_Session.
 
+   - Add support for Accept/Connect/Shutdown logging to AWS.Net.Log package.
+
    - Plus many small fixes, enhancements, API comments, and documentation work.
 
 
@@ -157,7 +159,7 @@ since GNAT 3.16.
      must be change to:
 
         Build
-          ("proc_name", Params, 
+          ("proc_name", Params,
            SOAP.Name_Space.Create ("awsns", "http://ns.org"));
 
 
