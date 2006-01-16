@@ -97,6 +97,10 @@ package body AWS.Net.Std is
         (Socket_Type (Socket).S.FD,
          New_Socket.S.FD, Sock_Addr);
 
+      if Net.Log.Is_Event_Active then
+         Net.Log.Event (Net.Log.Accept_Socket, Get_FD (Socket));
+      end if;
+
       Set_Non_Blocking_Mode (New_Socket);
 
       Set_Cache (New_Socket);
@@ -219,6 +223,10 @@ package body AWS.Net.Std is
                Raise_Error (Sockets.Constants.ETIMEDOUT);
             end if;
          end;
+      end if;
+
+      if Net.Log.Is_Event_Active then
+         Net.Log.Event (Net.Log.Connect, Get_FD (Socket));
       end if;
 
       Set_Cache (Socket);
@@ -483,7 +491,7 @@ package body AWS.Net.Std is
             Message => "Receive : Socket closed by peer.");
       end if;
 
-      if Net.Log.Is_Active then
+      if Net.Log.Is_Write_Active then
          Net.Log.Write
            (Direction => Net.Log.Received,
             FD        => Get_FD (Socket),
@@ -541,7 +549,7 @@ package body AWS.Net.Std is
          Last := Data'First + Stream_Element_Offset (RC) - 1;
       end if;
 
-      if Net.Log.Is_Active then
+      if Net.Log.Is_Write_Active then
          Net.Log.Write
            (Direction => Net.Log.Sent,
             FD        => Get_FD (Socket),
@@ -605,6 +613,10 @@ package body AWS.Net.Std is
    procedure Shutdown (Socket : in Socket_Type) is
    begin
       if Socket.S /= null then
+         if Net.Log.Is_Event_Active then
+            Net.Log.Event (Net.Log.Shutdown, Get_FD (Socket));
+         end if;
+
          begin
             --  We catch socket exceptions here as we do not want this call to
             --  fail. A shutdown will fail on non connected sockets.

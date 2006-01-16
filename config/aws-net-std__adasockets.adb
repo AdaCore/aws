@@ -95,6 +95,10 @@ package body AWS.Net.Std is
       Sockets.Accept_Socket
         (Socket_Type (Socket).S.FD, New_Socket.S.FD);
 
+      if Net.Log.Is_Event_Active then
+         Net.Log.Event (Net.Log.Accept_Socket, Get_FD (Socket));
+      end if;
+
       Set_Non_Blocking_Mode (New_Socket);
 
       Set_Cache (New_Socket);
@@ -211,6 +215,10 @@ package body AWS.Net.Std is
             Free (Socket.S);
             Raise_Exception (Errno, "Connect");
          end if;
+      end if;
+
+      if Net.Log.Is_Event_Active then
+         Net.Log.Event (Net.Log.Connect, Get_FD (Socket));
       end if;
 
       Set_Cache (Socket);
@@ -468,7 +476,7 @@ package body AWS.Net.Std is
 
       Sockets.Receive_Some (Socket.S.FD, Data, Last);
 
-      if Net.Log.Is_Active then
+      if Net.Log.Is_Write_Active then
          Net.Log.Write
            (Direction => Net.Log.Received,
             FD        => Get_FD (Socket),
@@ -527,7 +535,7 @@ package body AWS.Net.Std is
          Last := Data'First + Stream_Element_Offset (RC) - 1;
       end if;
 
-      if Net.Log.Is_Active then
+      if Net.Log.Is_Write_Active then
          Net.Log.Write
            (Direction => Net.Log.Sent,
             FD        => Get_FD (Socket),
@@ -593,6 +601,10 @@ package body AWS.Net.Std is
 
    procedure Shutdown (Socket : in Socket_Type) is
    begin
+      if Net.Log.Is_Event_Active then
+         Net.Log.Event (Net.Log.Shutdown, Get_FD (Socket));
+      end if;
+
       Sockets.Shutdown (Socket.S.FD);
    exception
       when E : others =>

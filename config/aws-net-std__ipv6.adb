@@ -122,6 +122,10 @@ package body AWS.Net.Std is
          Raise_Socket_Error (Std.Errno);
       end if;
 
+      if Net.Log.Is_Event_Active then
+         Net.Log.Event (Net.Log.Accept_Socket, Get_FD (Socket));
+      end if;
+
       New_Socket.S := new Socket_Hidden'(FD => Sock);
 
       Set_Non_Blocking_Mode (New_Socket);
@@ -238,6 +242,10 @@ package body AWS.Net.Std is
             Free (Socket.S);
             Raise_Socket_Error (Errno);
          end if;
+      end if;
+
+      if Net.Log.Is_Event_Active then
+         Net.Log.Event (Net.Log.Connect, Get_FD (Socket));
       end if;
 
       Set_Cache (Socket);
@@ -632,7 +640,7 @@ package body AWS.Net.Std is
 
       Last := Data'First + Ada.Streams.Stream_Element_Offset (Res - 1);
 
-      if Net.Log.Is_Active then
+      if Net.Log.Is_Write_Active then
          Net.Log.Write
            (Direction => Net.Log.Received,
             FD        => Get_FD (Socket),
@@ -687,7 +695,7 @@ package body AWS.Net.Std is
          Last := Data'First + Stream_Element_Offset (RC) - 1;
       end if;
 
-      if Net.Log.Is_Active then
+      if Net.Log.Is_Write_Active then
          Net.Log.Write
            (Direction => Net.Log.Sent,
             FD        => Get_FD (Socket),
@@ -771,6 +779,10 @@ package body AWS.Net.Std is
       Dummy : C.int;
       pragma Unreferenced (Dummy);
    begin
+      if Net.Log.Is_Event_Active then
+         Net.Log.Event (Net.Log.Shutdown, Get_FD (Socket));
+      end if;
+
       Dummy := Thin.C_Shutdown (Socket.S.FD, OSD.SHUT_RDWR);
       Dummy := Thin.C_Close (Socket.S.FD);
    end Shutdown;
