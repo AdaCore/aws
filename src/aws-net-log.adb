@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2004                            --
+--                         Copyright (C) 2004-2006                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -33,10 +33,40 @@ package body AWS.Net.Log is
    type Log_State is record
       Write     : Write_Callback;
       Event     : Event_Callback;
+      Error     : Error_Callback;
       Semaphore : Utils.Semaphore;
    end record;
 
    State : Log_State;
+
+   -----------
+   -- Error --
+   -----------
+
+   procedure Error (FD : in Integer; Message : in String) is
+   begin
+      --  Draft check for State.Error before enter critical section.
+
+      if State.Error = null then
+         return;
+      end if;
+
+      State.Semaphore.Seize;
+
+      --  Explicit check for State.Error inside of critical section.
+
+      if State.Error /= null then
+         begin
+            --  This call must never fail, catch all exceptions
+            State.Error (FD, Message);
+         exception
+            when others =>
+               null;
+         end;
+      end if;
+
+      State.Semaphore.Release;
+   end Error;
 
    -----------
    -- Event --
@@ -65,7 +95,9 @@ package body AWS.Net.Log is
 
    function Is_Active return Boolean is
    begin
-      return State.Write /= null or else State.Event /= null;
+      return State.Write /= null
+               or else State.Event /= null
+               or else State.Error /= null;
    end Is_Active;
 
    ---------------------
@@ -91,11 +123,14 @@ package body AWS.Net.Log is
    -----------
 
    procedure Start
-     (Write : in Write_Callback; Event : Event_Callback := null) is
+     (Write : in Write_Callback;
+      Event : Event_Callback := null;
+      Error : Error_Callback := null) is
    begin
       State.Semaphore.Seize;
       State.Write := Write;
       State.Event := Event;
+      State.Error := Error;
       State.Semaphore.Release;
    end Start;
 
