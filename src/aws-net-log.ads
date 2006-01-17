@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2004                            --
+--                         Copyright (C) 2004-2006                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -54,8 +54,14 @@ package AWS.Net.Log is
    --  The callback procedure which is called for every socket creation,
    --  connect and accept.
 
+   type Error_Callback is access procedure
+     (FD : in Integer; Message : in String);
+   --  The callback procedure which is called for every socket error.
+
    procedure Start
-     (Write : in Write_Callback; Event : in Event_Callback := null);
+     (Write : in Write_Callback;
+      Event : in Event_Callback := null;
+      Error : in Error_Callback := null);
    --  Activate the logging
 
    function Is_Active return Boolean;
@@ -68,7 +74,7 @@ package AWS.Net.Log is
 
    function Is_Event_Active return Boolean;
    pragma Inline (Is_Event_Active);
-   --  Returns True if Write Log is activated and False otherwise
+   --  Returns True if Event Log is activated and False otherwise
 
    procedure Write
      (Direction : in Data_Direction;
@@ -81,6 +87,10 @@ package AWS.Net.Log is
 
    procedure Event (Action : in Event_Type; FD : in Integer);
    --  Call Event callback if activated (i.e. Start routine above has been
+   --  called). Otherwise this call does nothing.
+
+   procedure Error (FD : in Integer; Message : in String);
+   --  Call Error callback if activated (i.e. Start routine above has been
    --  called). Otherwise this call does nothing.
 
    procedure Stop;
