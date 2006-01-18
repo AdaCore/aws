@@ -503,8 +503,8 @@ ifeq (${ASIS},true)
 	$(STRIP) $(I_BIN)/ada2wsdl${EXEEXT}
 endif
 ifeq ($(SOCKET),ssl)
-	$(CP) $(BDIR)/demos/agent${EXEEXT} $(I_SBN)
-	$(STRIP) $(I_SBN)/agent${EXEEXT}
+	-$(CP) $(BDIR)/demos/agent${EXEEXT} $(I_SBN)
+	-$(STRIP) $(I_SBN)/agent${EXEEXT}
 endif
 ifeq (${OS}, Windows_NT)
 	$(CP) $(BDIR)/win32/lib/* $(I_LIB)
