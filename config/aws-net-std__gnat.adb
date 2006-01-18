@@ -214,7 +214,7 @@ package body AWS.Net.Std is
             -----------------
 
             procedure Raise_Error (Errno : Integer) is
-               FD : Integer := Get_FD (Socket);
+               FD : constant Integer := Get_FD (Socket);
             begin
                Sockets.Close_Socket (Socket.S.FD);
                Free (Socket);
@@ -445,7 +445,7 @@ package body AWS.Net.Std is
       Routine : in     String;
       Socket  : in out Socket_Type)
    is
-      FD : Integer := Get_FD (Socket);
+      FD : constant Integer := Get_FD (Socket);
    begin
       Free (Socket);
       Raise_Exception (E, Routine, FD);
