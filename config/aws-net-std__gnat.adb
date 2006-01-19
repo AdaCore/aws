@@ -62,7 +62,7 @@ package body AWS.Net.Std is
    procedure Raise_Exception
      (E       : in Exceptions.Exception_Occurrence;
       Routine : in String;
-      FD      : in Integer);
+      Socket  : in Socket_Type);
    pragma No_Return (Raise_Exception);
    --  Raise and log exception Socket_Error with E's message and a reference to
    --  the routine name.
@@ -75,8 +75,10 @@ package body AWS.Net.Std is
    --  Raise and log exception Socket_Error with E's message and a reference to
    --  the routine name. Free Socket after log error.
 
-   procedure Raise_Socket_Error (Error : in Integer; FD : Integer);
+   procedure Raise_Socket_Error (Error : in Integer; Socket : Socket_Type);
    pragma No_Return (Raise_Socket_Error);
+
+   function Error_Message (Error : in Integer) return String;
 
    function Get_Inet_Addr (Host : in String) return Sockets.Inet_Addr_Type;
    pragma Inline (Get_Inet_Addr);
@@ -107,7 +109,7 @@ package body AWS.Net.Std is
          New_Socket.S.FD, Sock_Addr);
 
       if Net.Log.Is_Event_Active then
-         Net.Log.Event (Net.Log.Accept_Socket, Get_FD (Socket));
+         Net.Log.Event (Net.Log.Accept_Socket, New_Socket);
       end if;
 
       Set_Non_Blocking_Mode (New_Socket);
@@ -214,11 +216,12 @@ package body AWS.Net.Std is
             -----------------
 
             procedure Raise_Error (Errno : Integer) is
-               FD : constant Integer := Get_FD (Socket);
+               Msg : constant String := Error_Message (Errno);
             begin
+               Log.Error (Socket, Msg);
                Sockets.Close_Socket (Socket.S.FD);
                Free (Socket);
-               Raise_Socket_Error (Errno, FD);
+               Ada.Exceptions.Raise_Exception (Socket_Error'Identity, Msg);
             end Raise_Error;
 
          begin
@@ -231,7 +234,7 @@ package body AWS.Net.Std is
       end if;
 
       if Net.Log.Is_Event_Active then
-         Net.Log.Event (Net.Log.Connect, Get_FD (Socket));
+         Net.Log.Event (Net.Log.Connect, Socket);
       end if;
 
       Set_Cache (Socket);
@@ -269,11 +272,52 @@ package body AWS.Net.Std is
                Optlen  => Len'Access);
 
       if RC = Thin.Failure then
-         Raise_Socket_Error (Errno, Get_FD (Socket));
+         Raise_Socket_Error (Errno, Socket);
       end if;
 
       return Integer (Res);
    end Errno;
+
+   -------------------
+   -- Error_Message --
+   -------------------
+
+   function Error_Message (Error : in Integer) return String is
+      use Interfaces;
+
+      pragma Warnings (Off);
+      --  Kill warnings as one of the following procedure won't be used
+
+      function To_String (Str : in String)              return String;
+      pragma Inline (To_String);
+      function To_String (Str : in C.Strings.chars_ptr) return String;
+      pragma Inline (To_String);
+      --  The GNAT.Sockets.Thin.Socket_Error_Message has a different
+      --  spec in GNAT 5.02 and 5.03. Those routines are there to be
+      --  able to accommodate both compilers.
+
+      ---------------
+      -- To_String --
+      ---------------
+
+      function To_String (Str : in String) return String is
+      begin
+         return Str;
+      end To_String;
+
+      function To_String (Str : in C.Strings.chars_ptr) return String is
+      begin
+         return C.Strings.Value (Str);
+      end To_String;
+
+      pragma Warnings (On);
+
+      Msg : String := Integer'Image (Error) & "] "
+                      & To_String (Sockets.Thin.Socket_Error_Message (Error));
+   begin
+      Msg (Msg'First) := '[';
+      return Msg;
+   end Error_Message;
 
    ----------
    -- Free --
@@ -323,7 +367,7 @@ package body AWS.Net.Std is
       return Positive (Sockets.Get_Socket_Name (Socket.S.FD).Port);
    exception
       when E : Sockets.Socket_Error =>
-         Raise_Exception (E, "Get_Port", Get_FD (Socket));
+         Raise_Exception (E, "Get_Port", Socket);
    end Get_Port;
 
    -----------------------------
@@ -336,7 +380,7 @@ package body AWS.Net.Std is
       return Get_Socket_Option (Socket.S.FD, Name => Receive_Buffer).Size;
    exception
       when E : Sockets.Socket_Error =>
-         Raise_Exception (E, "Get_Receive_Buffer_Size", Get_FD (Socket));
+         Raise_Exception (E, "Get_Receive_Buffer_Size", Socket);
    end Get_Receive_Buffer_Size;
 
    --------------------------
@@ -349,7 +393,7 @@ package body AWS.Net.Std is
       return Get_Socket_Option (Socket.S.FD, Name => Send_Buffer).Size;
    exception
       when E : Sockets.Socket_Error =>
-         Raise_Exception (E, "Get_Send_Buffer_Size", Get_FD (Socket));
+         Raise_Exception (E, "Get_Send_Buffer_Size", Socket);
    end Get_Send_Buffer_Size;
 
    ---------------
@@ -372,7 +416,7 @@ package body AWS.Net.Std is
       Sockets.Listen_Socket (Socket.S.FD, Queue_Size);
    exception
       when E : Sockets.Socket_Error =>
-         Raise_Exception (E, "Listen", Get_FD (Socket));
+         Raise_Exception (E, "Listen", Socket);
    end Listen;
 
    ---------------
@@ -385,7 +429,7 @@ package body AWS.Net.Std is
       return Image (Get_Peer_Name (Socket.S.FD).Addr);
    exception
       when E : Sockets.Socket_Error =>
-         Raise_Exception (E, "Peer_Addr", Get_FD (Socket));
+         Raise_Exception (E, "Peer_Addr", Socket);
    end Peer_Addr;
 
    ---------------
@@ -397,7 +441,7 @@ package body AWS.Net.Std is
       return Positive (Sockets.Get_Peer_Name (Socket.S.FD).Port);
    exception
       when E : Sockets.Socket_Error =>
-         Raise_Exception (E, "Peer_Port", Get_FD (Socket));
+         Raise_Exception (E, "Peer_Port", Socket);
    end Peer_Port;
 
    -------------
@@ -414,7 +458,7 @@ package body AWS.Net.Std is
                                  Arg'Unchecked_Access);
    begin
       if Res = Sockets.Thin.Failure then
-         Raise_Socket_Error (Errno, Get_FD (Socket));
+         Raise_Socket_Error (Errno, Socket);
       end if;
 
       return Stream_Element_Count (Arg);
@@ -427,12 +471,12 @@ package body AWS.Net.Std is
    procedure Raise_Exception
      (E       : in Exceptions.Exception_Occurrence;
       Routine : in String;
-      FD      : in Integer)
+      Socket  : in Socket_Type)
    is
       use Ada.Exceptions;
       Msg : constant String := Routine & " : " & Exception_Message (E);
    begin
-      Log.Error (FD => FD, Message => Msg);
+      Log.Error (Socket, Message => Msg);
       Raise_Exception (Socket_Error'Identity, Message => Msg);
    end Raise_Exception;
 
@@ -445,52 +489,24 @@ package body AWS.Net.Std is
       Routine : in     String;
       Socket  : in out Socket_Type)
    is
-      FD : constant Integer := Get_FD (Socket);
+      use Ada.Exceptions;
+      Msg : constant String := Routine & " : " & Exception_Message (E);
    begin
+      Log.Error (Socket, Message => Msg);
       Free (Socket);
-      Raise_Exception (E, Routine, FD);
+      Raise_Exception (Socket_Error'Identity, Message => Msg);
    end Raise_Exception_Free_Socket;
 
    ------------------------
    -- Raise_Socket_Error --
    ------------------------
 
-   procedure Raise_Socket_Error (Error : in Integer; FD : in Integer) is
-
-      use Interfaces;
-
-      pragma Warnings (Off);
-      --  Kill warnings as one of the following procedure won't be used
-
-      function To_String (Str : in String)              return String;
-      pragma Inline (To_String);
-      function To_String (Str : in C.Strings.chars_ptr) return String;
-      pragma Inline (To_String);
-      --  The GNAT.Sockets.Thin.Socket_Error_Message has a different
-      --  spec in GNAT 5.02 and 5.03. Those routines are there to be
-      --  able to accommodate both compilers.
-
-      ---------------
-      -- To_String --
-      ---------------
-
-      function To_String (Str : in String) return String is
-      begin
-         return Str;
-      end To_String;
-
-      function To_String (Str : in C.Strings.chars_ptr) return String is
-      begin
-         return C.Strings.Value (Str);
-      end To_String;
-
-      pragma Warnings (On);
-
-      Msg : String := Integer'Image (Error) & "] "
-                      & To_String (Sockets.Thin.Socket_Error_Message (Error));
+   procedure Raise_Socket_Error
+     (Error : in Integer; Socket : in Socket_Type)
+   is
+      Msg : constant String := Error_Message (Error);
    begin
-      Msg (Msg'First) := '[';
-      Log.Error (FD => FD, Message => Msg);
+      Log.Error (Socket, Message => Msg);
       Ada.Exceptions.Raise_Exception (Socket_Error'Identity, Msg);
    end Raise_Socket_Error;
 
@@ -518,13 +534,13 @@ package body AWS.Net.Std is
       if Net.Log.Is_Write_Active then
          Net.Log.Write
            (Direction => Net.Log.Received,
-            FD        => Get_FD (Socket),
+            Socket    => Socket,
             Data      => Data,
             Last      => Last);
       end if;
    exception
       when E : Sockets.Socket_Error =>
-         Raise_Exception (E, "Receive", Get_FD (Socket));
+         Raise_Exception (E, "Receive", Socket);
    end Receive;
 
    ----------
@@ -561,7 +577,7 @@ package body AWS.Net.Std is
             return;
 
          else
-            Raise_Socket_Error (Errno, Get_FD (Socket));
+            Raise_Socket_Error (Errno, Socket);
          end if;
       end if;
 
@@ -576,7 +592,7 @@ package body AWS.Net.Std is
       if Net.Log.Is_Write_Active then
          Net.Log.Write
            (Direction => Net.Log.Sent,
-            FD        => Get_FD (Socket),
+            Socket    => Socket,
             Data      => Data,
             Last      => Last);
       end if;
@@ -595,7 +611,7 @@ package body AWS.Net.Std is
       Control_Socket (Socket.S.FD, Mode);
    exception
       when E : Sockets.Socket_Error =>
-         Raise_Exception (E, "Set_Non_Blocking_Mode", Get_FD (Socket));
+         Raise_Exception (E, "Set_Non_Blocking_Mode", Socket);
    end Set_Non_Blocking_Mode;
 
    -----------------------------
@@ -611,7 +627,7 @@ package body AWS.Net.Std is
       Set_Socket_Option (Socket.S.FD, Option => (Receive_Buffer, Size));
    exception
       when E : Sockets.Socket_Error =>
-         Raise_Exception (E, "Set_Receive_Buffer_Size", Get_FD (Socket));
+         Raise_Exception (E, "Set_Receive_Buffer_Size", Socket);
    end Set_Receive_Buffer_Size;
 
    --------------------------
@@ -627,7 +643,7 @@ package body AWS.Net.Std is
       Set_Socket_Option (Socket.S.FD, Option => (Send_Buffer, Size));
    exception
       when E : Sockets.Socket_Error =>
-         Raise_Exception (E, "Set_Send_Buffer_Size", Get_FD (Socket));
+         Raise_Exception (E, "Set_Send_Buffer_Size", Socket);
    end Set_Send_Buffer_Size;
 
    --------------
@@ -638,7 +654,7 @@ package body AWS.Net.Std is
    begin
       if Socket.S /= null then
          if Net.Log.Is_Event_Active then
-            Net.Log.Event (Net.Log.Shutdown, Get_FD (Socket));
+            Net.Log.Event (Net.Log.Shutdown, Socket);
          end if;
 
          begin
@@ -647,8 +663,11 @@ package body AWS.Net.Std is
 
             Sockets.Shutdown_Socket (Socket.S.FD);
          exception
-            when Sockets.Socket_Error =>
-               null;
+            when E : Sockets.Socket_Error =>
+               Log.Error
+                 (Socket,
+                  Message => "Shutdown : "
+                             & Ada.Exceptions.Exception_Message (E));
          end;
 
          begin
@@ -659,8 +678,11 @@ package body AWS.Net.Std is
 
             Sockets.Close_Socket (Socket.S.FD);
          exception
-            when Sockets.Socket_Error | Constraint_Error =>
-               null;
+            when E : Sockets.Socket_Error | Constraint_Error =>
+               Log.Error
+                 (Socket,
+                  Message => "Close : "
+                             & Ada.Exceptions.Exception_Message (E));
          end;
       end if;
    end Shutdown;
