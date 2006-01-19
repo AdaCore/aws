@@ -135,6 +135,8 @@ implementations.
      procedure to Value and the spec must be updated to correspond to the
      overridden Value method (see templates_parser.ads).
 
+   - The AWS.Net.Log routines gives Socket_Type parameter instead of
+     FD : Integer.
 
 Obsolescent features
 --------------------
