@@ -802,16 +802,13 @@ package body AWS.Net.Std is
    procedure Shutdown (Socket : in Socket_Type) is
       use Sockets;
       use type C.int;
+      FD : constant C.int := Socket.S.FD;
    begin
       if Net.Log.Is_Event_Active then
          Net.Log.Event (Net.Log.Shutdown, Socket);
       end if;
 
-      if Thin.C_Shutdown (Socket.S.FD, OSD.SHUT_RDWR) = Thin.Failure then
-         Log.Error (Socket, Error_Message (Std.Errno));
-      end if;
-
-      if Thin.C_Close (Socket.S.FD) = Thin.Failure then
+      if Thin.C_Shutdown (FD, OSD.SHUT_RDWR) = Thin.Failure then
          Log.Error (Socket, Error_Message (Std.Errno));
       end if;
 
@@ -819,6 +816,14 @@ package body AWS.Net.Std is
       --  Reduce risk to send/receive data on other new created sockets.
 
       Socket.S.FD := No_Socket;
+
+      if Thin.C_Close (FD) = Thin.Failure then
+         --  Back true FD for logging.
+
+         Socket.S.FD := FD;
+         Log.Error (Socket, Error_Message (Std.Errno));
+         Socket.S.FD := No_Socket;
+      end if;
    end Shutdown;
 
    ------------------------

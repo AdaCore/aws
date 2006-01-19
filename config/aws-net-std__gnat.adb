@@ -670,26 +670,33 @@ package body AWS.Net.Std is
                              & Ada.Exceptions.Exception_Message (E));
          end;
 
+         declare
+            FD : constant Sockets.Socket_Type := Socket.S.FD;
          begin
+            --  Avoid any activity under closed socket in other threads.
+            --  Reduce risk to send/receive data on other new created sockets.
+
+            Socket.S.FD := Sockets.No_Socket;
+
             --  ??? In some cases the call above fails because the socket
             --  descriptor is not valid (errno = EABF). This happen on
             --  GNU/Linux only and the problem is not fully understood at this
             --  point. We catch the exception here to hide this problem.
 
-            Sockets.Close_Socket (Socket.S.FD);
+            Sockets.Close_Socket (FD);
          exception
             when E : Sockets.Socket_Error | Constraint_Error =>
+               --  Back original socket handle to log.
+
+               Socket.S.FD := FD;
+
                Log.Error
                  (Socket,
                   Message => "Close : "
                              & Ada.Exceptions.Exception_Message (E));
+               Socket.S.FD := Sockets.No_Socket;
          end;
       end if;
-
-      --  Avoid any activity under closed socket in other threads.
-      --  Reduce risk to send/receive data on other new created sockets.
-
-      Socket.S.FD := Sockets.No_Socket;
    end Shutdown;
 
 begin
