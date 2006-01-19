@@ -43,7 +43,7 @@ package body AWS.Net.Log is
    -- Error --
    -----------
 
-   procedure Error (FD : in Integer; Message : in String) is
+   procedure Error (Socket : in Socket_Type'Class; Message : in String) is
    begin
       --  Draft check for State.Error before enter critical section.
 
@@ -58,7 +58,7 @@ package body AWS.Net.Log is
       if State.Error /= null then
          begin
             --  This call must never fail, catch all exceptions
-            State.Error (FD, Message);
+            State.Error (Socket, Message);
          exception
             when others =>
                null;
@@ -72,14 +72,14 @@ package body AWS.Net.Log is
    -- Event --
    -----------
 
-   procedure Event (Action : in Event_Type; FD : in Integer) is
+   procedure Event (Action : in Event_Type; Socket : in Socket_Type'Class) is
    begin
       State.Semaphore.Seize;
 
       if State.Event /= null then
          begin
             --  This call must never fail, catch all exceptions
-            State.Event (Action, FD);
+            State.Event (Action, Socket);
          exception
             when others =>
                null;
@@ -152,7 +152,7 @@ package body AWS.Net.Log is
 
    procedure Write
      (Direction : in Data_Direction;
-      FD        : in Integer;
+      Socket    : in Socket_Type'Class;
       Data      : in Stream_Element_Array;
       Last      : in Stream_Element_Offset) is
    begin
@@ -163,7 +163,7 @@ package body AWS.Net.Log is
             --  This call must never fail, catch all exceptions
             State.Write
               (Direction => Direction,
-               FD        => FD,
+               Socket    => Socket,
                Data      => Data,
                Last      => Last);
          exception
