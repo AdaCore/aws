@@ -51,7 +51,7 @@ package body AWS.Net.Log.Callbacks is
    procedure Put_Header
      (File      : in Text_IO.File_Type;
       Direction : in Data_Direction;
-      FD        : in Integer;
+      Socket    : in Socket_Type'Class;
       Data      : in Stream_Element_Array;
       Last      : in Stream_Element_Offset);
    --  Output log header into File
@@ -74,7 +74,7 @@ package body AWS.Net.Log.Callbacks is
 
    procedure Binary
      (Direction : in Data_Direction;
-      FD        : in Integer;
+      Socket    : in Socket_Type'Class;
       Data      : in Stream_Element_Array;
       Last      : in Stream_Element_Offset)
    is
@@ -103,7 +103,7 @@ package body AWS.Net.Log.Callbacks is
       end Put_Chars;
 
    begin
-      Put_Header (F, Direction, FD, Data, Last);
+      Put_Header (F, Direction, Socket, Data, Last);
 
       for K in Data'First .. Last loop
          if (K - 1) mod Max_Line = 0 then
@@ -204,7 +204,7 @@ package body AWS.Net.Log.Callbacks is
    procedure Put_Header
      (File      : in Text_IO.File_Type;
       Direction : in Data_Direction;
-      FD        : in Integer;
+      Socket    : in Socket_Type'Class;
       Data      : in Stream_Element_Array;
       Last      : in Stream_Element_Offset) is
    begin
@@ -215,7 +215,7 @@ package body AWS.Net.Log.Callbacks is
          when Received => Text_IO.Put (File, "received from ");
       end case;
 
-      Text_IO.Put (File, "socket " & Utils.Image (FD));
+      Text_IO.Put (File, "socket " & Utils.Image (Get_FD (Socket)));
       Text_IO.Put_Line
         (File, " (" & Utils.Image (Natural (Last))
          & "/" & Utils.Image (Natural (Data'Last)) & ')');
@@ -236,7 +236,7 @@ package body AWS.Net.Log.Callbacks is
 
    procedure Text
      (Direction : in Data_Direction;
-      FD        : in Integer;
+      Socket    : in Socket_Type'Class;
       Data      : in Stream_Element_Array;
       Last      : in Stream_Element_Offset)
    is
@@ -246,7 +246,7 @@ package body AWS.Net.Log.Callbacks is
       F        : Text_IO.File_Type renames Current_State.Log_File;
       C        : Natural := 0;
    begin
-      Put_Header (F, Direction, FD, Data, Last);
+      Put_Header (F, Direction, Socket, Data, Last);
 
       for K in Data'First .. Last loop
          if C mod Max_Line = 0 or else Data (K) = LF then
