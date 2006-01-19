@@ -57,7 +57,7 @@ procedure Test_Net_Log is
 
    procedure HTTP_Log
      (Direction : in Net.Log.Data_Direction;
-      FD        : in Integer;
+      Socket    : in Net.Socket_Type'Class;
       Data      : in Streams.Stream_Element_Array;
       Last      : in Streams.Stream_Element_Offset)
    is
