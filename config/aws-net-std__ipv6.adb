@@ -814,6 +814,11 @@ package body AWS.Net.Std is
       if Thin.C_Close (Socket.S.FD) = Thin.Failure then
          Log.Error (Socket, Error_Message (Std.Errno));
       end if;
+
+      --  Avoid any activity under closed socket in other threads.
+      --  Reduce risk to send/receive data on other new created sockets.
+
+      Socket.S.FD := No_Socket;
    end Shutdown;
 
    ------------------------

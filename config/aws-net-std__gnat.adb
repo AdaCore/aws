@@ -685,6 +685,11 @@ package body AWS.Net.Std is
                              & Ada.Exceptions.Exception_Message (E));
          end;
       end if;
+
+      --  Avoid any activity under closed socket in other threads.
+      --  Reduce risk to send/receive data on other new created sockets.
+
+      Socket.S.FD := Sockets.No_Socket;
    end Shutdown;
 
 begin
