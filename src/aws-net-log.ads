@@ -44,18 +44,18 @@ package AWS.Net.Log is
 
    type Write_Callback is access procedure
      (Direction : in Data_Direction;
-      FD        : in Integer;
+      Socket    : in Socket_Type'Class;
       Data      : in Stream_Element_Array;
       Last      : in Stream_Element_Offset);
    --  The callback procedure which is called for each incoming/outgoing data
 
    type Event_Callback is access procedure
-     (Action : in Event_Type; FD : in Integer);
+     (Action : in Event_Type; Socket : in Socket_Type'Class);
    --  The callback procedure which is called for every socket creation,
    --  connect and accept.
 
    type Error_Callback is access procedure
-     (FD : in Integer; Message : in String);
+     (Socket : in Socket_Type'Class; Message : in String);
    --  The callback procedure which is called for every socket error.
 
    procedure Start
@@ -78,18 +78,18 @@ package AWS.Net.Log is
 
    procedure Write
      (Direction : in Data_Direction;
-      FD        : in Integer;
+      Socket    : in Socket_Type'Class;
       Data      : in Stream_Element_Array;
       Last      : in Stream_Element_Offset);
    --  Write sent/received data indirectly through the callback routine,
    --  if activated (i.e. Start routine above has been called). Otherwise this
    --  call does nothing.
 
-   procedure Event (Action : in Event_Type; FD : in Integer);
+   procedure Event (Action : in Event_Type; Socket : in Socket_Type'Class);
    --  Call Event callback if activated (i.e. Start routine above has been
    --  called). Otherwise this call does nothing.
 
-   procedure Error (FD : in Integer; Message : in String);
+   procedure Error (Socket : in Socket_Type'Class; Message : in String);
    --  Call Error callback if activated (i.e. Start routine above has been
    --  called). Otherwise this call does nothing.
 
