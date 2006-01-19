@@ -40,7 +40,7 @@ package AWS.Net.Log.Callbacks is
 
    procedure Text
      (Direction : in Data_Direction;
-      FD        : in Integer;
+      Socket    : in Socket_Type'Class;
       Data      : in Stream_Element_Array;
       Last      : in Stream_Element_Offset);
    --  A text output, each chunk is output with an header and footer:
@@ -50,7 +50,7 @@ package AWS.Net.Log.Callbacks is
 
    procedure Binary
      (Direction : in Data_Direction;
-      FD        : in Integer;
+      Socket    : in Socket_Type'Class;
       Data      : in Stream_Element_Array;
       Last      : in Stream_Element_Offset);
    --  A binary output, each chunk is output with an header and footer. The
