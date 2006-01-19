@@ -53,9 +53,14 @@ package body AWS.Net.Std is
 
    package OSD renames AWS.OS_Lib.Definitions;
 
+   No_Socket : constant Interfaces.C.int := Interfaces.C."-" (1);
+
    type Socket_Hidden is record
-      FD : Interfaces.C.int;
+      FD : Interfaces.C.int := No_Socket;
    end record;
+
+   Null_Socket : constant Socket_Type
+     := (S => null, C => null, Timeout => 0.0);
 
    type In6_Addr is array (1 .. 8) of Interfaces.Unsigned_16;
    pragma Convention (C, In6_Addr);
@@ -72,13 +77,16 @@ package body AWS.Net.Std is
    procedure Free is
       new Ada.Unchecked_Deallocation (Socket_Hidden, Socket_Hidden_Access);
 
-   procedure Raise_Socket_Error (Error : in Integer; FD : in C.int);
+   procedure Raise_Socket_Error (Error : in Integer; Socket : in Socket_Type);
    pragma No_Return (Raise_Socket_Error);
    --  Log socket error and raise exception.
 
-   function Error_Message (Error : in Integer) return String;
+   procedure Raise_Error_Free_Socket
+     (Error : in Integer; Socket : in out Socket_Type);
+   pragma No_Return (Raise_Error_Free_Socket);
+   --  Log socket error, free socket and raise exception.
 
-   procedure Set_Non_Blocking_Mode (FD : in C.int);
+   function Error_Message (Error : in Integer) return String;
 
    function Get_Addr_Info
      (Host  : in String;
@@ -124,14 +132,14 @@ package body AWS.Net.Std is
                 (C.int (Get_FD (Socket)), Dummy'Address, Len'Access);
 
       if Sock = Thin.Failure then
-         Raise_Socket_Error (Std.Errno, 0);
-      end if;
-
-      if Net.Log.Is_Event_Active then
-         Net.Log.Event (Net.Log.Accept_Socket, Get_FD (Socket));
+         Raise_Socket_Error (Std.Errno, Socket_Type (Socket));
       end if;
 
       New_Socket.S := new Socket_Hidden'(FD => Sock);
+
+      if Net.Log.Is_Event_Active then
+         Net.Log.Event (Net.Log.Accept_Socket, New_Socket);
+      end if;
 
       Set_Non_Blocking_Mode (New_Socket);
 
@@ -161,8 +169,10 @@ package body AWS.Net.Std is
 
       if FD = Sockets.Thin.Failure then
          OSD.FreeAddrInfo (Info);
-         Raise_Socket_Error (Std.Errno, 0);
+         Raise_Socket_Error (Std.Errno, Null_Socket);
       end if;
+
+      Socket.S := new Socket_Hidden'(FD => FD);
 
       Res := Sockets.Thin.C_Bind (FD, Info.ai_addr, C.int (Info.ai_addrlen));
 
@@ -171,12 +181,10 @@ package body AWS.Net.Std is
       if Res = Sockets.Thin.Failure then
          Errno := Std.Errno;
          Res   := Sockets.Thin.C_Close (FD);
-         Raise_Socket_Error (Errno, FD);
+         Raise_Error_Free_Socket (Errno, Socket);
       end if;
 
-      Set_Non_Blocking_Mode (FD);
-
-      Socket.S := new Socket_Hidden'(FD => FD);
+      Set_Non_Blocking_Mode (Socket);
    end Bind;
 
    -------------
@@ -202,12 +210,12 @@ package body AWS.Net.Std is
 
       if FD = Sockets.Thin.Failure then
          OSD.FreeAddrInfo (Info);
-         Raise_Socket_Error (Std.Errno, 0);
+         Raise_Socket_Error (Std.Errno, Null_Socket);
       end if;
 
-      Set_Non_Blocking_Mode (FD);
-
       Socket.S := new Socket_Hidden'(FD => FD);
+
+      Set_Non_Blocking_Mode (Socket);
 
       Res := Sockets.Thin.C_Connect
                (FD, Info.ai_addr, C.int (Info.ai_addrlen));
@@ -238,13 +246,12 @@ package body AWS.Net.Std is
 
          if Errno /= 0 then
             Res := Sockets.Thin.C_Close (FD);
-            Free (Socket.S);
-            Raise_Socket_Error (Errno, FD);
+            Raise_Error_Free_Socket (Errno, Socket);
          end if;
       end if;
 
       if Net.Log.Is_Event_Active then
-         Net.Log.Event (Net.Log.Connect, Integer (FD));
+         Net.Log.Event (Net.Log.Connect, Socket);
       end if;
 
       Set_Cache (Socket);
@@ -355,7 +362,7 @@ package body AWS.Net.Std is
                 res     => Result'Access);
 
       if Res = OSD.EAI_SYSTEM then
-         Raise_Socket_Error (Errno, 0);
+         Raise_Socket_Error (Errno, Null_Socket);
 
       elsif Res /= 0 then
          Ada.Exceptions.Raise_Exception
@@ -371,7 +378,11 @@ package body AWS.Net.Std is
 
    function Get_FD (Socket : in Socket_Type) return Integer is
    begin
-      return Integer (Socket.S.FD);
+      if Socket.S = null then
+         return Integer (No_Socket);
+      else
+         return Integer (Socket.S.FD);
+      end if;
    end Get_FD;
 
    ----------------------
@@ -396,7 +407,7 @@ package body AWS.Net.Std is
               Optlen  => Len'Access);
    begin
       if RC = Thin.Failure then
-         Raise_Socket_Error (Errno, Socket.S.FD);
+         Raise_Socket_Error (Errno, Socket);
       end if;
 
       return Integer (Res);
@@ -415,7 +426,7 @@ package body AWS.Net.Std is
 
    begin
       if C_Getsockname (Socket.S.FD, Name'Address, Len'Access) = Failure then
-         Raise_Socket_Error (Errno, Socket.S.FD);
+         Raise_Socket_Error (Errno, Socket);
       end if;
 
       return Positive
@@ -463,7 +474,7 @@ package body AWS.Net.Std is
       if Thin.C_Listen (Socket.S.FD, C.int (Queue_Size))
          = Thin.Failure
       then
-         Raise_Socket_Error (Errno, FD => Socket.S.FD);
+         Raise_Socket_Error (Errno, Socket);
       end if;
    end Listen;
 
@@ -492,7 +503,7 @@ package body AWS.Net.Std is
       if Thin.C_Getpeername
            (Socket.S.FD, Sin6'Address, Len'Access) = Thin.Failure
       then
-         Raise_Socket_Error (Std.Errno, FD => Socket.S.FD);
+         Raise_Socket_Error (Std.Errno, Socket);
       end if;
 
       if Sin6.Family = OSD.PF_INET then
@@ -570,7 +581,7 @@ package body AWS.Net.Std is
 
    begin
       if C_Getpeername (Socket.S.FD, Name'Address, Len'Access) = Failure then
-         Raise_Socket_Error (Errno, FD => Socket.S.FD);
+         Raise_Socket_Error (Errno, Socket);
       end if;
 
       return Positive
@@ -590,20 +601,36 @@ package body AWS.Net.Std is
                                  Arg'Unchecked_Access);
    begin
       if Res = Sockets.Thin.Failure then
-         Raise_Socket_Error (Errno, FD => Socket.S.FD);
+         Raise_Socket_Error (Errno, Socket);
       end if;
 
       return Stream_Element_Count (Arg);
    end Pending;
 
+   -----------------------------
+   -- Raise_Error_Free_Socket --
+   -----------------------------
+
+   procedure Raise_Error_Free_Socket
+     (Error : in Integer; Socket : in out Socket_Type)
+   is
+      Msg : constant String := Error_Message (Error);
+   begin
+      Log.Error (Socket, Message => Msg);
+      Free (Socket);
+      Ada.Exceptions.Raise_Exception (Socket_Error'Identity, Msg);
+   end Raise_Error_Free_Socket;
+
    ------------------------
    -- Raise_Socket_Error --
    ------------------------
 
-   procedure Raise_Socket_Error (Error : in Integer; FD : in C.int) is
+   procedure Raise_Socket_Error
+     (Error : in Integer; Socket : in Socket_Type)
+   is
       Msg : constant String := Error_Message (Error);
    begin
-      Log.Error (FD => Integer (FD), Message => Msg);
+      Log.Error (Socket, Message => Msg);
 
       Ada.Exceptions.Raise_Exception (Socket_Error'Identity, Msg);
    end Raise_Socket_Error;
@@ -631,7 +658,7 @@ package body AWS.Net.Std is
          0);
 
       if Res = Thin.Failure then
-         Raise_Socket_Error (Errno, FD => Socket.S.FD);
+         Raise_Socket_Error (Errno, Socket);
 
       elsif Res = 0 then
          --  socket closed by peer.
@@ -646,7 +673,7 @@ package body AWS.Net.Std is
       if Net.Log.Is_Write_Active then
          Net.Log.Write
            (Direction => Net.Log.Received,
-            FD        => Get_FD (Socket),
+            Socket    => Socket,
             Data      => Data,
             Last      => Last);
       end if;
@@ -685,7 +712,7 @@ package body AWS.Net.Std is
             return;
 
          else
-            Raise_Socket_Error (Errno, FD => Socket.S.FD);
+            Raise_Socket_Error (Errno, Socket);
          end if;
       end if;
 
@@ -700,7 +727,7 @@ package body AWS.Net.Std is
       if Net.Log.Is_Write_Active then
          Net.Log.Write
            (Direction => Net.Log.Sent,
-            FD        => Get_FD (Socket),
+            Socket    => Socket,
             Data      => Data,
             Last      => Last);
       end if;
@@ -726,7 +753,7 @@ package body AWS.Net.Std is
 
    begin
       if Res = Thin.Failure then
-         Raise_Socket_Error (Errno, FD => Socket.S.FD);
+         Raise_Socket_Error (Errno, Socket);
       end if;
    end Set_Int_Sock_Opt;
 
@@ -734,19 +761,16 @@ package body AWS.Net.Std is
    -- Set_Non_Blocking_Mode --
    ---------------------------
 
-   procedure Set_Non_Blocking_Mode (FD : in C.int) is
+   procedure Set_Non_Blocking_Mode (Socket : in Socket_Type) is
       use Sockets;
       use Interfaces.C;
       Enabled : aliased int := 1;
    begin
-      if Thin.C_Ioctl (FD, OSD.FIONBIO, Enabled'Unchecked_Access) /= 0 then
-         Raise_Socket_Error (Errno, FD);
+      if Thin.C_Ioctl (Socket.S.FD, OSD.FIONBIO, Enabled'Unchecked_Access)
+         /= 0
+      then
+         Raise_Socket_Error (Errno, Socket);
       end if;
-   end Set_Non_Blocking_Mode;
-
-   procedure Set_Non_Blocking_Mode (Socket : in Socket_Type) is
-   begin
-      Set_Non_Blocking_Mode (Socket.S.FD);
    end Set_Non_Blocking_Mode;
 
    -----------------------------
@@ -780,15 +804,15 @@ package body AWS.Net.Std is
       use type C.int;
    begin
       if Net.Log.Is_Event_Active then
-         Net.Log.Event (Net.Log.Shutdown, Get_FD (Socket));
+         Net.Log.Event (Net.Log.Shutdown, Socket);
       end if;
 
       if Thin.C_Shutdown (Socket.S.FD, OSD.SHUT_RDWR) = Thin.Failure then
-         Log.Error (Integer (Socket.S.FD), Error_Message (Std.Errno));
+         Log.Error (Socket, Error_Message (Std.Errno));
       end if;
 
       if Thin.C_Close (Socket.S.FD) = Thin.Failure then
-         Log.Error (Integer (Socket.S.FD), Error_Message (Std.Errno));
+         Log.Error (Socket, Error_Message (Std.Errno));
       end if;
    end Shutdown;
 
