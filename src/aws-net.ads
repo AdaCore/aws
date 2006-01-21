@@ -141,8 +141,8 @@ package AWS.Net is
    --  Try to place data to Socket's output buffer.
    --  If all data cannot be placed to the socket output buffer, Last will
    --  be lower than Data'Last, if no data has been placed into the output
-   --  buffer, Last is set to out of Data'Range, either Data'First - 1
-   --  or Stream_Element_Offset'Last.
+   --  buffer, Last is set to be out of Data'Range, either Data'First - 1
+   --  or Stream_Element_Offset'Last is used.
 
    procedure Receive
      (Socket : in     Socket_Type;
