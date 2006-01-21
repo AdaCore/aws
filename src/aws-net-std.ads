@@ -134,7 +134,7 @@ package AWS.Net.Std is
    --  Return error code for the last socket operation
 
    function Errno (Socket : in Socket_Type) return Integer;
-   --  Returns and clears error state in socket.
+   --  Returns and clears error state in socket
 
 private
 
