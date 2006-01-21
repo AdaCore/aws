@@ -38,6 +38,7 @@ with Ada.Exceptions;
 with Ada.Unchecked_Deallocation;
 
 with AWS.Config;
+with AWS.Net.Log;
 with AWS.Net.Std;
 with AWS.Utils;
 
@@ -170,8 +171,15 @@ package body AWS.Net.SSL is
 
          if not Success then
             Net.Std.Shutdown (NSST (Socket));
-            Free (Socket);
-            Raise_Socket_Error (Socket, Error_Stack);
+
+            declare
+               Error_Text : constant String := Error_Stack;
+            begin
+               Net.Log.Error (Socket, Error_Text);
+               Free (Socket);
+               Ada.Exceptions.Raise_Exception
+                 (Socket_Error'Identity, Error_Text);
+            end;
          end if;
       end if;
    end Connect;
