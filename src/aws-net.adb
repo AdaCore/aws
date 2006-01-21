@@ -31,6 +31,7 @@ with Ada.Strings.Fixed;
 with Ada.Unchecked_Deallocation;
 with Interfaces.C;
 
+with AWS.Net.Log;
 with AWS.Net.Thin;
 with AWS.Net.Std;
 with AWS.Net.SSL;
@@ -79,6 +80,17 @@ package body AWS.Net is
       return Strings.Fixed.Index
                (Ada.Exceptions.Exception_Message (E), Timeout_Token) > 0;
    end Is_Timeout;
+
+   ------------------------
+   -- Raise_Socket_Error --
+   ------------------------
+
+   procedure Raise_Socket_Error
+     (Socket : Socket_Type'Class; Text : in String) is
+   begin
+      Log.Error (Socket, Text);
+      Ada.Exceptions.Raise_Exception (Socket_Error'Identity, Text);
+   end Raise_Socket_Error;
 
    -------------
    -- Receive --
@@ -177,9 +189,8 @@ package body AWS.Net is
             OptVal  => Flag'Address,
             OptLen  => Flag'Size / System.Storage_Unit) /= 0
       then
-         Ada.Exceptions.Raise_Exception
-           (Socket_Error'Identity,
-            "Set_No_Delay error code" & Integer'Image (Std.Errno));
+         Raise_Socket_Error
+           (Socket, "Set_No_Delay error code" & Integer'Image (Std.Errno));
       end if;
    end Set_No_Delay;
 
@@ -298,9 +309,8 @@ package body AWS.Net is
                Errno := Std.Errno;
 
                if Errno /= EINTR then
-                  Ada.Exceptions.Raise_Exception
-                    (Socket_Error'Identity,
-                     "Wait error code" & Integer'Image (Errno));
+                  Raise_Socket_Error
+                    (Socket, "Wait error code" & Integer'Image (Errno));
                end if;
 
             when 0  => return (others => False);
@@ -331,14 +341,12 @@ package body AWS.Net is
       Result := Wait (Socket, Events);
 
       if Result = Event_Set'(others => False) then
-         Ada.Exceptions.Raise_Exception
-           (Socket_Error'Identity,
-            Wait_Event_Type'Image (Mode) & Timeout_Token);
+         Raise_Socket_Error
+           (Socket, Wait_Event_Type'Image (Mode) & Timeout_Token);
 
       elsif Result = Event_Set'(Error => True, others => False) then
-         Ada.Exceptions.Raise_Exception
-           (Socket_Error'Identity,
-            Wait_Event_Type'Image (Mode) & "_Wait error.");
+         Raise_Socket_Error
+           (Socket, Wait_Event_Type'Image (Mode) & "_Wait error.");
 
       elsif not Result (Mode) then
          raise Program_Error;

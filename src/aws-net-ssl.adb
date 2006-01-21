@@ -63,6 +63,11 @@ package body AWS.Net.SSL is
    pragma Inline (Error_If);
    --  Raises Socket_Error if Error is true. Attach the SSL error message
 
+   procedure Error_If (Socket : in Socket_Type; Error : in Boolean);
+   pragma Inline (Error_If);
+   --  Raises and log Socket_Error if Error is true.
+   --  Attach the SSL error message
+
    procedure Do_Handshake (Socket : in out Socket_Type; Success : out Boolean);
    --  Perform SSL handshake.
 
@@ -166,8 +171,7 @@ package body AWS.Net.SSL is
          if not Success then
             Net.Std.Shutdown (NSST (Socket));
             Free (Socket);
-            Ada.Exceptions.Raise_Exception
-              (Socket_Error'Identity, Error_Stack);
+            Raise_Socket_Error (Socket, Error_Stack);
          end if;
       end if;
    end Connect;
@@ -201,7 +205,7 @@ package body AWS.Net.SSL is
       Do_Handshake (Socket, Success);
 
       if not Success then
-         Ada.Exceptions.Raise_Exception (Socket_Error'Identity, Error_Stack);
+         Raise_Socket_Error (Socket, Error_Stack);
       end if;
    end Do_Handshake;
 
@@ -213,6 +217,13 @@ package body AWS.Net.SSL is
    begin
       if Error then
          Ada.Exceptions.Raise_Exception (Socket_Error'Identity, Error_Stack);
+      end if;
+   end Error_If;
+
+   procedure Error_If (Socket : in Socket_Type; Error : in Boolean) is
+   begin
+      if Error then
+         Raise_Socket_Error (Socket, Error_Stack);
       end if;
    end Error_If;
 
@@ -340,7 +351,7 @@ package body AWS.Net.SSL is
    function Pending (Socket : in Socket_Type) return Stream_Element_Count is
       Res : constant Interfaces.C.int := TSSL.SSL_pending (Socket.SSL);
    begin
-      Error_If (Res < 0);
+      Error_If (Socket, Res < 0);
       return Stream_Element_Count (Res);
    end Pending;
 
@@ -398,7 +409,7 @@ package body AWS.Net.SSL is
             case Error_Code is
                when TSSL.SSL_ERROR_WANT_READ  => Wait_For (Input, Socket);
                when TSSL.SSL_ERROR_WANT_WRITE => Wait_For (Output, Socket);
-               when others => Error_If (True);
+               when others => Raise_Socket_Error (Socket, Error_Stack);
             end case;
          end;
       end loop;
@@ -512,13 +523,12 @@ package body AWS.Net.SSL is
                      Err_Code := TSSL.ERR_get_error;
 
                      if Err_Code = 0 then
-                        Ada.Exceptions.Raise_Exception
-                          (Socket_Error'Identity,
+                        Raise_Socket_Error
+                          (Socket,
                            "Error (" & Utils.Image (Integer (Error_Code))
                            & ") on SSL send");
                      else
-                        Ada.Exceptions.Raise_Exception
-                          (Socket_Error'Identity, Error_Str (Err_Code));
+                        Raise_Socket_Error (Socket, Error_Str (Err_Code));
                      end if;
                end case;
             end;
@@ -765,12 +775,13 @@ package body AWS.Net.SSL is
       procedure Set_FD (Socket : in out Socket_Type) is
       begin
          Socket.SSL := TSSL.SSL_new (Context);
-         Error_If (Socket.SSL = TSSL.Null_Pointer);
+         Error_If (Socket, Socket.SSL = TSSL.Null_Pointer);
 
          TSSL.SSL_set_read_ahead (S => Socket.SSL, Yes => 1);
 
          Error_If
-           (TSSL.SSL_set_fd
+           (Socket,
+            TSSL.SSL_set_fd
               (Socket.SSL,
                Interfaces.C.int (Get_FD (Socket))) = -1);
       end Set_FD;
