@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2005                          --
+--                         Copyright (C) 2000-2006                          --
 --                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -170,13 +170,14 @@ package body AWS.Net.SSL is
          Do_Handshake (Socket, Success);
 
          if not Success then
-            Net.Std.Shutdown (NSST (Socket));
-
             declare
                Error_Text : constant String := Error_Stack;
             begin
                Net.Log.Error (Socket, Error_Text);
+
+               Net.Std.Shutdown (NSST (Socket));
                Free (Socket);
+
                Ada.Exceptions.Raise_Exception
                  (Socket_Error'Identity, Error_Text);
             end;
