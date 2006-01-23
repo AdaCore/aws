@@ -93,9 +93,8 @@ begin
 
          Status.Set.Reset (C_Stat);
 
-         --  Set status peername
+         --  Set status socket and peername
 
-         Status.Set.Peername (C_Stat, HTTP_Server.Slots.Get_Peername (Index));
          Status.Set.Socket (C_Stat, Sock_Ptr);
 
          Status.Set.Case_Sensitive_Parameters
