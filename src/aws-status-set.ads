@@ -49,11 +49,6 @@ package AWS.Status.Set is
    procedure Session (D : in out Data);
    --  Generate new Session ID
 
-   procedure Peername
-     (D        : in out Data;
-      Peername : in     String);
-   --  Set peername field
-
    procedure Request
      (D            : in out Data;
       Method       : in     Request_Method;

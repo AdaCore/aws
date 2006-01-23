@@ -253,17 +253,6 @@ package body AWS.Status.Set is
       D.Parameters := Set;
    end Parameters;
 
-   --------------
-   -- Peername --
-   --------------
-
-   procedure Peername
-     (D        : in out Data;
-      Peername : in     String) is
-   begin
-      D.Peername := To_Unbounded_String (Peername);
-   end Peername;
-
    -----------------
    -- Read_Header --
    -----------------
@@ -339,7 +328,8 @@ package body AWS.Status.Set is
      (D    : in out Data;
       Sock : in     Net.Socket_Access) is
    begin
-      D.Socket := Sock;
+      D.Socket   := Sock;
+      D.Peername := To_Unbounded_String (Net.Peer_Addr (Sock.all));
    end Socket;
 
    -----------------------------
