@@ -38,11 +38,13 @@ with AWS.Client;
 with AWS.Exceptions;
 with AWS.Log;
 with AWS.Messages;
+with AWS.Resources.Streams;
 with AWS.Response;
 with AWS.Server.Log;
 with AWS.Status;
+with AWS.Utils;
 
-with AWS.Resources.Streams;
+with Get_Free_Port;
 
 with User_Strm;
 
@@ -71,12 +73,14 @@ procedure Strm is
    Connect : Client.HTTP_Connection;
    R       : Response.Data;
 
+   Free_Port : Positive := 1238;
+
    File_Size : constant := 98_100;
    --  !!! Do not change the file size.
    --  It is just for control error when only CRC in the last chunk
    --  of the deflate compressed data.
 
-   Base_URL : constant String := "http://localhost:1238";
+   Base_URL : String := "http://localhost:0000";
 
    Length_Defined_URI   : constant String := "/length_defined";
    Length_Undefined_URI : constant String := "/length_undefined";
@@ -127,7 +131,7 @@ procedure Strm is
 
       AWS.Server.Start
         (HTTP, "Testing user defined stream.",
-         CB'Unrestricted_Access, Port => 1238, Max_Connection => 3);
+         CB'Unrestricted_Access, Port => Free_Port, Max_Connection => 3);
 
       AWS.Server.Log.Start (HTTP);
 
@@ -185,6 +189,10 @@ procedure Strm is
    end UEH;
 
 begin
+   Get_Free_Port (Free_Port);
+
+   Base_URL (Base_URL'Last - 3 .. Base_URL'Last) := Utils.Image (Free_Port);
+
    Server.Wait_Start;
 
    --  Keep-alive test.
