@@ -1123,6 +1123,9 @@ package body AWS.Server.HTTP_Utils is
       if Messages.Match (Command, Messages.Get_Token) then
          Status.Set.Request (C_Stat, Status.GET, Resource, HTTP_Version);
 
+      elsif Messages.Match (Command, Messages.Put_Token) then
+         Status.Set.Request (C_Stat, Status.PUT, Resource, HTTP_Version);
+
       elsif Messages.Match (Command, Messages.Head_Token) then
          Status.Set.Request (C_Stat, Status.HEAD, Resource, HTTP_Version);
 

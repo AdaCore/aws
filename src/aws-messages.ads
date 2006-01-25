@@ -38,6 +38,7 @@ package AWS.Messages is
 
    HTTP_Token : constant String := "HTTP/";
    Get_Token  : constant String := "GET ";
+   Put_Token  : constant String := "PUT ";
    Head_Token : constant String := "HEAD ";
    Post_Token : constant String := "POST ";
 
