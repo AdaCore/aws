@@ -168,8 +168,13 @@ package body AWS.Status is
    -----------------
 
    function Binary_Data (D : in Data) return Stream_Element_Array is
+      use type Utils.Stream_Element_Array_Access;
    begin
-      return D.Binary_Data.all;
+      if D.Binary_Data = null then
+         return (1 .. 0 => 0); -- Empty array.
+      else
+         return D.Binary_Data.all;
+      end if;
    end Binary_Data;
 
    ------------------
