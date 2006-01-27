@@ -27,6 +27,7 @@
 ------------------------------------------------------------------------------
 
 with Ada.Streams;
+with Ada.Task_Identification;
 with Ada.Unchecked_Deallocation;
 
 with ZLib;
@@ -81,12 +82,19 @@ package AWS.Utils is
    --  This is a binary semaphore, only a single task can enter it (Seize) and
    --  must call Release when the resource is not needed anymore. This
    --  implement a standard semaphore (P/V mutex).
+   --  After first successful Seize call the same task could call Seize without
+   --  blocking. This prevents a task from deadlocking itself while waiting for
+   --  a Semaphore that it already owns. To release its ownership under such
+   --  circumstances, the task must call Release so much times, how many times
+   --  Seize was called.
 
    protected type Semaphore is
       entry Seize;
       procedure Release;
    private
-      Seized : Boolean := False;
+      TID     : Ada.Task_Identification.Task_Id;
+      Seized  : Natural := 0;
+      entry Seize_Internal;
    end Semaphore;
 
    ------------------

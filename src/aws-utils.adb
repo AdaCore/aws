@@ -37,6 +37,7 @@ with AWS.OS_Lib;
 package body AWS.Utils is
 
    use Ada;
+   use Ada.Task_Identification;
 
    package Integer_Random is new Ada.Numerics.Discrete_Random (Random_Integer);
 
@@ -414,17 +415,35 @@ package body AWS.Utils is
 
       procedure Release is
       begin
-         Seized := False;
+         if TID = Current_Task then
+            Seized := Seized - 1;
+         else
+            raise Tasking_Error;
+         end if;
       end Release;
 
       -----------
       -- Seize --
       -----------
 
-      entry Seize when not Seized is
+      entry Seize when True is
       begin
-         Seized := True;
+         if TID = Seize'Caller then
+            Seized := Seized + 1;
+         else
+            requeue Seize_Internal;
+         end if;
       end Seize;
+
+      --------------------
+      -- Seize_Internal --
+      --------------------
+
+      entry Seize_Internal when Seized = 0 is
+      begin
+         TID    := Seize_Internal'Caller;
+         Seized := 1;
+      end Seize_Internal;
 
    end Semaphore;
 
