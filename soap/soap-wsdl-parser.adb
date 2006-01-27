@@ -1330,7 +1330,7 @@ package body SOAP.WSDL.Parser is
 
       --  Look for the right binding
 
-      Binding := +XML.Get_Attr_Value (N, "binding", False);
+      Binding := +XML.Get_Attr_Value (Port, "binding", False);
 
       N := Get_Node
         (XML.First_Child (DOM.Core.Node (Document)), "binding", -Binding);
