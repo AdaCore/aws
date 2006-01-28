@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2004                          --
---                                ACT-Europe                                --
+--                         Copyright (C) 2000-2006                          --
+--                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -36,10 +36,7 @@ with AWS.OS_Lib;
 
 package body AWS.Utils is
 
-   use Ada;
-   use Ada.Task_Identification;
-
-   package Integer_Random is new Ada.Numerics.Discrete_Random (Random_Integer);
+   package Integer_Random is new Numerics.Discrete_Random (Random_Integer);
 
    procedure Compress_Decompress
      (Filter       : in out ZLib.Filter_Type;
@@ -82,14 +79,13 @@ package body AWS.Utils is
       Filename_Out : in     String)
    is
       use Streams;
-
       procedure Data_In
-        (Item : out Ada.Streams.Stream_Element_Array;
-         Last : out Ada.Streams.Stream_Element_Offset);
+        (Item : out Stream_Element_Array;
+         Last : out Stream_Element_Offset);
       --  Retrieve a chunk of data from the file
 
       procedure Data_Out
-        (Item : in Ada.Streams.Stream_Element_Array);
+        (Item : in Stream_Element_Array);
       --  Write a chunk of data into the compressed file
 
       procedure Translate is new ZLib.Generic_Translate (Data_In, Data_Out);
@@ -101,8 +97,8 @@ package body AWS.Utils is
       -------------
 
       procedure Data_In
-        (Item : out Ada.Streams.Stream_Element_Array;
-         Last : out Ada.Streams.Stream_Element_Offset) is
+        (Item : out Stream_Element_Array;
+         Last : out Stream_Element_Offset) is
       begin
          Stream_IO.Read (File_In, Item, Last);
       end Data_In;
@@ -111,8 +107,7 @@ package body AWS.Utils is
       -- Data_Out --
       --------------
 
-      procedure Data_Out
-        (Item : in Ada.Streams.Stream_Element_Array) is
+      procedure Data_Out (Item : in Stream_Element_Array) is
       begin
          Stream_IO.Write (File_Out, Item);
       end Data_Out;
@@ -183,7 +178,7 @@ package body AWS.Utils is
 
       Hex_V : String (1 .. Integer'Size / 4 + 4);
    begin
-      Ada.Integer_Text_IO.Put (Hex_V, V, 16);
+      Integer_Text_IO.Put (Hex_V, V, 16);
 
       declare
          Result : constant String
