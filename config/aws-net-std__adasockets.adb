@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2005                          --
---                                ACT-Europe                                --
+--                         Copyright (C) 2000-2006                          --
+--                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -100,8 +100,6 @@ package body AWS.Net.Std is
       end if;
 
       Set_Non_Blocking_Mode (New_Socket);
-
-      Set_Cache (New_Socket);
    exception
       when E : Sockets.Socket_Error =>
          Free (New_Socket);
@@ -220,8 +218,6 @@ package body AWS.Net.Std is
       if Net.Log.Is_Event_Active then
          Net.Log.Event (Net.Log.Connect, Get_FD (Socket));
       end if;
-
-      Set_Cache (Socket);
    end Connect;
 
    -----------
@@ -262,7 +258,6 @@ package body AWS.Net.Std is
    procedure Free (Socket : in out Socket_Type) is
    begin
       Free (Socket.S);
-      Release_Cache (Socket);
    end Free;
 
    -------------------
