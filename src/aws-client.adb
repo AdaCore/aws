@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2005                          --
+--                         Copyright (C) 2000-2006                          --
 --                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -57,7 +57,7 @@ package body AWS.Client is
       Net.SSL.Release (Connection.SSL_Config);
 
       Disconnect (Connection);
-      Net.Free (Connection.Socket);
+      Net.Release (Connection.Socket);
 
       if ZLib.Is_Open (Connection.Decode_Filter) then
          ZLib.Close (Connection.Decode_Filter, Ignore_Error => True);
