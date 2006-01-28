@@ -113,8 +113,6 @@ package body AWS.Net.Std is
       end if;
 
       Set_Non_Blocking_Mode (New_Socket);
-
-      Set_Cache (New_Socket);
    exception
       when E : Sockets.Socket_Error =>
          Raise_Exception_Free_Socket (E, "Accept_Socket", New_Socket);
@@ -236,8 +234,6 @@ package body AWS.Net.Std is
       if Net.Log.Is_Event_Active then
          Net.Log.Event (Net.Log.Connect, Socket);
       end if;
-
-      Set_Cache (Socket);
    exception
       when E : Sockets.Socket_Error | Sockets.Host_Error =>
          if Close_On_Exception then
@@ -326,7 +322,6 @@ package body AWS.Net.Std is
    procedure Free (Socket : in out Socket_Type) is
    begin
       Free (Socket.S);
-      Release_Cache (Socket);
    end Free;
 
    ------------
@@ -473,7 +468,6 @@ package body AWS.Net.Std is
       Routine : in String;
       Socket  : in Socket_Type)
    is
-      use Ada.Exceptions;
       Msg : constant String := Routine & " : " & Exception_Message (E);
    begin
       Log.Error (Socket, Message => Msg);
@@ -489,7 +483,6 @@ package body AWS.Net.Std is
       Routine : in     String;
       Socket  : in out Socket_Type)
    is
-      use Ada.Exceptions;
       Msg : constant String := Routine & " : " & Exception_Message (E);
    begin
       Log.Error (Socket, Message => Msg);
