@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2002-2005                          --
+--                         Copyright (C) 2002-2006                          --
 --                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -234,7 +234,7 @@ package body AWS.Jabber is
 
          Net.Buffered.Put_Line (Server.Sock.all, "</stream:stream>");
          Net.Buffered.Shutdown (Server.Sock.all);
-         Net.Free (Server.Sock);
+         Net.Release (Server.Sock);
 
          --  Terminate task Incoming_Stream
 
