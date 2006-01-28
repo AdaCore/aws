@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2003                            --
---                                ACT-Europe                                --
+--                         Copyright (C) 2003-2006                          --
+--                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -91,9 +91,9 @@ package body AWS.Server.Status is
    -- Socket --
    ------------
 
-   function Socket (Server : in HTTP) return Net.Std.Socket_Type is
+   function Socket (Server : in HTTP) return Net.Socket_Type'Class is
    begin
-      return Server.Sock;
+      return Server.Sock.all;
    end Socket;
 
    ----------------
@@ -303,7 +303,7 @@ package body AWS.Server.Status is
                      CNF.Security (Server.Properties)),
 
               Assoc ("SERVER_SOCK",
-                     Integer (Net.Std.Get_FD (Server.Sock))),
+                     Integer (Net.Get_FD (Server.Sock.all))),
 
               Assoc ("VERSION",
                      Version),

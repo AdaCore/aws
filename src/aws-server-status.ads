@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2003                            --
---                                ACT-Europe                                --
+--                         Copyright (C) 2003-2006                          --
+--                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -46,7 +46,7 @@ package AWS.Server.Status is
    --  Returns the total number of resources (static file, templates,
    --  in-memory string) served by the server.
 
-   function Socket (Server : in HTTP) return Net.Std.Socket_Type;
+   function Socket (Server : in HTTP) return Net.Socket_Type'Class;
    --  Returns the server's socket
 
    function Current_Connections (Server : in HTTP) return Natural;
