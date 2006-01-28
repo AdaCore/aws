@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2005                          --
+--                         Copyright (C) 2000-2006                          --
 --                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -37,6 +37,7 @@ with Ada.Streams;
 package AWS.Net is
 
    use Ada.Streams;
+   use Ada.Exceptions;
 
    Socket_Error : exception;
    --  Raised by all routines below, a message will indicate the nature of
@@ -97,6 +98,9 @@ package AWS.Net is
    --  resources used by new_Socket have been released.
    --  There is not need to call Free or Shutdown.
 
+   type Socket_Constructor is access
+     function (Security : in Boolean) return Socket_Type'Class;
+
    procedure Connect
      (Socket : in out Socket_Type;
       Host   : in     String;
@@ -111,7 +115,7 @@ package AWS.Net is
    --  True in Events parameter.
 
    procedure Socket_Pair (S1, S2 : out Socket_Type);
-   --  Create 2 sockets and connect them together.
+   --  Create 2 sockets and connect them together
 
    procedure Shutdown (Socket : in Socket_Type) is abstract;
    --  Shutdown both side of the socket and close it. Does not raise
@@ -120,9 +124,18 @@ package AWS.Net is
    procedure Free (Socket : in out Socket_Type) is abstract;
    --  Release memory associated with the socket object
 
-   procedure Free (Socket : in out Socket_Access);
+   procedure Release (Socket : in out Socket_Access);
    --  Release memory associated with the socket access and socket object
-   --  implemntation.
+   --  implemntation. This is the routine that must be called to free a socket.
+   --  Release will call the Free routine above and free the socket generic
+   --  implementation memory (the socket cache for example will be released
+   --  here). It is not possible to reuse a socket object after.
+
+   procedure Release (Socket : in out Socket_Type'Class);
+   --  See above
+
+   procedure Free (Socket : in out Socket_Access);
+   pragma Obsolescent ("Use Release instead");
 
    --------
    -- IO --
@@ -238,8 +251,7 @@ package AWS.Net is
    function Errno (Socket : in Socket_Type) return Integer is abstract;
    --  Returns and clears error state in socket
 
-   function Is_Timeout
-     (E : in Ada.Exceptions.Exception_Occurrence) return Boolean;
+   function Is_Timeout (E : in Exception_Occurrence) return Boolean;
    --  Returns True if the message associated with the Exception_Occurence for
    --  a Socket_Error is a timeout.
 
@@ -278,22 +290,16 @@ private
    end record;
 
    type RW_Cache is record
-      W_Cache : Write_Cache (W_Cache_Size);
       R_Cache : Read_Cache (R_Cache_Size);
+      W_Cache : Write_Cache (W_Cache_Size);
    end record;
 
    type RW_Cache_Access is access RW_Cache;
 
    type Socket_Type is abstract tagged record
-      C       : RW_Cache_Access;
-      Timeout : Duration := Forever;
+      C       : RW_Cache_Access := new RW_Cache;
+      Timeout : Duration        := Forever;
    end record;
-
-   procedure Set_Cache (Socket : in out Socket_Type'Class);
-   --  Allocate cache object
-
-   procedure Release_Cache (Socket : in out Socket_Type'Class);
-   --  Release cache object memory
 
    function Errno return Integer;
    --  Return error code for the last socket operation
