@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2005                          --
+--                         Copyright (C) 2000-2006                          --
 --                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -36,7 +36,6 @@ with AWS.Dispatchers;
 with AWS.Exceptions;
 with AWS.Hotplug;
 with AWS.Log;
-with AWS.Net.Std;
 with AWS.Net.SSL;
 with AWS.Response;
 with AWS.Status;
@@ -152,6 +151,17 @@ package AWS.Server is
    --  server otherwise the default security options or options set in the
    --  config files will be used. After that the call will have no effect.
 
+   procedure Set_Socket_Constructor
+     (Web_Server         : in out HTTP;
+      Socket_Constructor : in     Net.Socket_Constructor);
+   --  Set the socket constructor routine to use when creating new sockets on
+   --  the server. By calling this routine it is possible to replace the
+   --  default AWS communication layer used. The default constructor is
+   --  AWS.Net.Socket. Note that this routine must be called before starting
+   --  the server. It is also important to note that sockets returned by the
+   --  constructor must have the cache properly initialized. See AWS.Net.Cache
+   --  for more information.
+
    type HTTP_Access is access all HTTP;
 
    function Get_Current return HTTP_Access;
@@ -160,7 +170,7 @@ package AWS.Server is
    --  procedure is shared by multiple servers.
 
    function Get_Status return Status.Data;
-   --  Returns the current status data. This is usefull to get the full status
+   --  Returns the current status data. This is useful to get the full status
    --  in a templates engine callback procedure for example.
 
    ---------------
@@ -431,58 +441,63 @@ private
    ----------
 
    type HTTP is new Ada.Finalization.Limited_Controlled with record
-      Self              : HTTP_Access := HTTP'Unchecked_Access;
+      Self               : HTTP_Access := HTTP'Unchecked_Access;
       --  Point to the record
 
-      Start_Time        : Ada.Calendar.Time;
+      Start_Time         : Ada.Calendar.Time;
       --  Date and Time when server was started
 
-      Shutdown          : Boolean := True;
+      Shutdown           : Boolean := True;
       --  True when server is shutdown. This will be set to False when server
       --  will be started.
 
-      Sock              : Net.Std.Socket_Type;
+      Sock               : Net.Socket_Access;
       --  This is the server socket for incoming connection
 
-      Sock_Sem          : Socket_Semaphore;
+      Sock_Sem           : Socket_Semaphore;
       --  Semaphore used to serialize the accepts call on the server socket
       --  or accept gave back sockets.
 
-      Cleaner           : Line_Cleaner_Access;
+      Cleaner            : Line_Cleaner_Access;
       --  Task in charge of cleaning slots status. It checks from time to time
       --  if the slots is still in used and closed it if possible.
 
-      Properties        : CNF.Object := CNF.Get_Current;
+      Properties         : CNF.Object := CNF.Get_Current;
       --  All server properties controled by the configuration file
 
-      Log               : AWS.Log.Object;
+      Log                : AWS.Log.Object;
       --  Logging support
 
-      Error_Log         : aliased AWS.Log.Object;
+      Error_Log          : aliased AWS.Log.Object;
       --  Error loggin support
 
-      Dispatcher        : Dispatchers.Handler_Class_Access;
+      Dispatcher         : Dispatchers.Handler_Class_Access;
       --  Dispatcher for the user actions
 
-      Dispatcher_Sem    : Utils.RW_Semaphore (Writers => 1);
+      Dispatcher_Sem     : Utils.RW_Semaphore (Writers => 1);
       --  RW semaphore to be able to change dynamically the Dispatcher object
 
-      Filters           : Hotplug.Filter_Set;
+      Filters            : Hotplug.Filter_Set;
       --  Hotplug filters are recorded here
 
-      Lines             : Line_Set_Access;
+      Lines              : Line_Set_Access;
       --  The tasks doing the job
 
-      Slots             : Slots_Access;
+      Slots              : Slots_Access;
       --  Information about each tasks above. This is a protected object to
       --  support concurrency.
 
-      Exception_Handler : Exceptions.Unexpected_Exception_Handler
+      Exception_Handler  : Exceptions.Unexpected_Exception_Handler
          := Default_Unexpected_Exception_Handler'Access;
       --  Exception handle used for unexpected errors found on the server
       --  implementation.
 
-      SSL_Config        : Net.SSL.Config;
+      Socket_Constructor : Net.Socket_Constructor := AWS.Net.Socket'Access;
+      --  The routine to call to wait for an incoming socket. Changing this
+      --  permits to setup a specialize communication layer for the server
+      --  instead of relying on the AWS.Net.Std default.
+
+      SSL_Config         : Net.SSL.Config;
    end record;
 
    procedure Initialize (Web_Server : in out HTTP);
