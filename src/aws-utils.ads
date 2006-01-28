@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2004                          --
---                                ACT-Europe                                --
+--                         Copyright (C) 2000-2006                          --
+--                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -33,6 +33,9 @@ with Ada.Unchecked_Deallocation;
 with ZLib;
 
 package AWS.Utils is
+
+   use Ada;
+   use Ada.Task_Identification;
 
    type Random_Integer is range 0 .. Integer'Last;
    --  Integer type for random number generation
@@ -85,15 +88,15 @@ package AWS.Utils is
    --  After first successful Seize call the same task could call Seize without
    --  blocking. This prevents a task from deadlocking itself while waiting for
    --  a Semaphore that it already owns. To release its ownership under such
-   --  circumstances, the task must call Release so much times, how many times
-   --  Seize was called.
+   --  circumstances, the task must call Release as many times as Seize was
+   --  called.
 
    protected type Semaphore is
       entry Seize;
       procedure Release;
    private
-      TID     : Ada.Task_Identification.Task_Id;
-      Seized  : Natural := 0;
+      TID    : Task_Id := Null_Task_Id;
+      Seized : Natural := 0;
       entry Seize_Internal;
    end Semaphore;
 
@@ -133,10 +136,10 @@ package AWS.Utils is
    -- Streams --
    -------------
 
-   type Stream_Element_Array_Access is access Ada.Streams.Stream_Element_Array;
+   type Stream_Element_Array_Access is access Streams.Stream_Element_Array;
 
-   procedure Free is new Ada.Unchecked_Deallocation
-     (Ada.Streams.Stream_Element_Array, Stream_Element_Array_Access);
+   procedure Free is new Unchecked_Deallocation
+     (Streams.Stream_Element_Array, Stream_Element_Array_Access);
 
    -------------
    -- Mailbox --
