@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2005                          --
+--                         Copyright (C) 2000-2006                          --
 --                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -28,7 +28,7 @@
 
 package AWS.Net.Stream_IO is
 
-   type Socket_Stream_Type is new Ada.Streams.Root_Stream_Type with private;
+   type Socket_Stream_Type is new Root_Stream_Type with private;
 
    type Socket_Stream_Access is access Socket_Stream_Type;
 
@@ -57,19 +57,19 @@ package AWS.Net.Stream_IO is
 
    procedure Read
      (Stream : in out Socket_Stream_Type;
-      Item   :    out Ada.Streams.Stream_Element_Array;
-      Last   :    out Ada.Streams.Stream_Element_Offset);
+      Item   :    out Stream_Element_Array;
+      Last   :    out Stream_Element_Offset);
    --  Read a piece of data from the Stream. Returns the data into Item, Last
    --  point to the last Steam_Element read.
 
    procedure Write
      (Stream : in out Socket_Stream_Type;
-      Item   : in     Ada.Streams.Stream_Element_Array);
+      Item   : in     Stream_Element_Array);
    --  Write Item to the stream
 
 private
 
-   type Socket_Stream_Type is new Ada.Streams.Root_Stream_Type with record
+   type Socket_Stream_Type is new Root_Stream_Type with record
       Socket : Socket_Access := null;
    end record;
 
