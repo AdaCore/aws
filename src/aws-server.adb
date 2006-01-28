@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2005                          --
+--                         Copyright (C) 2000-2006                          --
 --                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -107,17 +107,18 @@ package body AWS.Server is
      (Server : in HTTP_Access)
       return Net.Socket_Type'Class
    is
-      New_Socket : Net.Std.Socket_Type;
+      New_Socket      : Net.Socket_Type'Class
+        := Server.Socket_Constructor (Security => False);
 
       Released_Socket : Net.Socket_Access;
 
-      Accepting : Boolean := False;
+      Accepting       : Boolean := False;
       --  Determine either "accept socket" mode or "give back" mode.
       --  Init to False to not Release semaphore in case of exception
       --  in Seize_Or_Socket call.
 
-      procedure Free is new
-        Ada.Unchecked_Deallocation (Net.Socket_Type'Class, Net.Socket_Access);
+      procedure Free is new Ada.Unchecked_Deallocation
+        (Net.Socket_Type'Class, Net.Socket_Access);
 
    begin
       Server.Sock_Sem.Seize_Or_Socket (Released_Socket);
@@ -129,14 +130,14 @@ package body AWS.Server is
          --  the server socket.
 
          if Server.Shutdown then
-            --  The server is beeing shutdown, raise an exception this will
+            --  The server is being shutdown, raise an exception this will
             --  terminate the line.
 
             Server.Sock_Sem.Release;
             raise Net.Socket_Error;
          end if;
 
-         Net.Std.Accept_Socket (Server.Sock, New_Socket);
+         Net.Accept_Socket (Server.Sock.all, New_Socket);
 
          Server.Sock_Sem.Release;
 
@@ -375,7 +376,7 @@ package body AWS.Server is
 
             if Need_Shutdown then
                Net.Shutdown (Socket);
-               Net.Free (Socket);
+               Net.Release (Socket);
             end if;
          end;
       end loop;
@@ -499,6 +500,17 @@ package body AWS.Server is
         (Web_Server.Properties, Net.SSL.Method'Image (Security_Mode));
    end Set_Security;
 
+   ----------------------------
+   -- Set_Socket_Constructor --
+   ----------------------------
+
+   procedure Set_Socket_Constructor
+     (Web_Server         : in out HTTP;
+      Socket_Constructor : in     Net.Socket_Constructor) is
+   begin
+      Web_Server.Socket_Constructor := Socket_Constructor;
+   end Set_Socket_Constructor;
+
    --------------------------------------
    -- Set_Unexpected_Exception_Handler --
    --------------------------------------
@@ -559,24 +571,24 @@ package body AWS.Server is
       --  termination is a bit tricky and requires some attention.
 
       declare
-         Sock : Net.Std.Socket_Type;
+         Sock : Net.Socket_Type'Class := Web_Server.Socket_Constructor (False);
       begin
          --  First we want to have the line waiting on the Wait_For for a
          --  connection to exit from the poll and to continue its
          --  execution. For this we connect to the server here.
 
-         Net.Std.Connect
+         Net.Connect
            (Sock, "127.0.0.1", CNF.Server_Port (Web_Server.Properties),
             Wait => False);
 
          --  At this point the line is waiting for some data. It is possible
          --  to close the server socket, this won't lock anymore.
 
-         Net.Std.Shutdown (Web_Server.Sock);
+         Net.Shutdown (Web_Server.Sock.all);
 
          --  Close the dummy socket to the server
 
-         Net.Std.Shutdown (Sock);
+         Net.Shutdown (Sock);
       end;
 
       --  Release the slots
@@ -654,7 +666,7 @@ package body AWS.Server is
          Free (Web_Server.Lines (K));
       end loop;
 
-      Net.Std.Free (Web_Server.Sock);
+      Net.Release (Web_Server.Sock);
 
       Free (Web_Server.Lines);
 
@@ -1133,13 +1145,18 @@ package body AWS.Server is
               CNF.Exchange_Certificate ((Web_Server.Properties)));
       end if;
 
-      Net.Std.Bind
-        (Web_Server.Sock,
+      --  Create the Web Server socket
+
+      Web_Server.Sock := new Net.Socket_Type'Class'
+        (Web_Server.Socket_Constructor (Security => False));
+
+      Net.Bind
+        (Web_Server.Sock.all,
          CNF.Server_Port (Web_Server.Properties),
          CNF.Server_Host (Web_Server.Properties));
 
-      Net.Std.Listen
-        (Web_Server.Sock,
+      Net.Listen
+        (Web_Server.Sock.all,
          Queue_Size => CNF.Accept_Queue_Size (Web_Server.Properties));
 
       Web_Server.Dispatcher := new Dispatchers.Handler'Class'(Dispatcher);
@@ -1195,13 +1212,13 @@ package body AWS.Server is
 
       Web_Server.Shutdown := False;
 
-      --  Start each connection lines.
+      --  Start each connection lines
 
       for I in 1 .. Max_Connection loop
          Web_Server.Lines (I).Start (Web_Server, I);
       end loop;
 
-      --  Initialize session server.
+      --  Initialize session server
 
       if AWS.Config.Session (Web_Server.Properties) then
          AWS.Session.Control.Start
