@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2005                            --
+--                         Copyright (C) 2005-2006                          --
 --                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -80,7 +80,7 @@ package body AWS.Client.HTTP_Utils is
       --  and have to free it.
 
       if Connection.Socket /= null then
-         Net.Free (Connection.Socket);
+         Net.Release (Connection.Socket);
       end if;
 
       Sock := Net.Socket (Security);
