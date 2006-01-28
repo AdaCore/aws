@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2004                          --
---                                ACT-Europe                                --
+--                         Copyright (C) 2000-2006                          --
+--                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -57,7 +57,7 @@ package body AWS.Net.Stream_IO is
 
    begin
       if Socket then
-         AWS.Net.Free (Stream.Socket);
+         Release (Stream.Socket);
       else
          Free (Stream.Socket);
       end if;
@@ -71,8 +71,8 @@ package body AWS.Net.Stream_IO is
 
    procedure Read
      (Stream : in out Socket_Stream_Type;
-      Item   :    out Ada.Streams.Stream_Element_Array;
-      Last   :    out Ada.Streams.Stream_Element_Offset) is
+      Item   :    out Stream_Element_Array;
+      Last   :    out Stream_Element_Offset) is
    begin
       Buffered.Read (Stream.Socket.all, Item);
       Last := Item'Last;
