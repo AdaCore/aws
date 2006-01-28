@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2005                            --
+--                         Copyright (C) 2005-2006                          --
 --                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -982,7 +982,6 @@ package body AWS.Server.HTTP_Utils is
       HTTP_Server.Slots.Mark_Phase (Line_Index, Client_Header);
 
       Status.Set.Read_Header (Socket => Sock, D => C_Stat);
-
    end Get_Message_Header;
 
    ------------------------
