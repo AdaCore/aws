@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2005                          --
+--                         Copyright (C) 2000-2006                          --
 --                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -52,13 +52,8 @@ package body AWS.Net is
    ----------
 
    procedure Free (Socket : in out Socket_Access) is
-      procedure Free is
-         new Ada.Unchecked_Deallocation (Socket_Type'Class, Socket_Access);
    begin
-      if Socket /= null then
-         Free (Socket.all);
-         Free (Socket);
-      end if;
+      Release (Socket);
    end Free;
 
    ---------------
@@ -74,11 +69,9 @@ package body AWS.Net is
    -- Is_Timeout --
    ----------------
 
-   function Is_Timeout
-     (E : in Ada.Exceptions.Exception_Occurrence) return Boolean is
+   function Is_Timeout (E : in Exception_Occurrence) return Boolean is
    begin
-      return Strings.Fixed.Index
-               (Ada.Exceptions.Exception_Message (E), Timeout_Token) > 0;
+      return Strings.Fixed.Index (Exception_Message (E), Timeout_Token) > 0;
    end Is_Timeout;
 
    ------------------------
@@ -89,7 +82,7 @@ package body AWS.Net is
      (Socket : Socket_Type'Class; Text : in String) is
    begin
       Log.Error (Socket, Text);
-      Ada.Exceptions.Raise_Exception (Socket_Error'Identity, Text);
+      Raise_Exception (Socket_Error'Identity, Text);
    end Raise_Socket_Error;
 
    -------------
@@ -109,16 +102,27 @@ package body AWS.Net is
       return Result (1 .. Last);
    end Receive;
 
-   -------------------
-   -- Release_Cache --
-   -------------------
+   -------------
+   -- Release --
+   -------------
 
-   procedure Release_Cache (Socket : in out Socket_Type'Class) is
+   procedure Release (Socket : in out Socket_Access) is
       procedure Free is
-         new Ada.Unchecked_Deallocation (RW_Cache, RW_Cache_Access);
+        new Ada.Unchecked_Deallocation (Socket_Type'Class, Socket_Access);
    begin
+      if Socket /= null then
+         Release (Socket.all);
+         Free (Socket);
+      end if;
+   end Release;
+
+   procedure Release (Socket : in out Socket_Type'Class) is
+      procedure Free is
+        new Ada.Unchecked_Deallocation (RW_Cache, RW_Cache_Access);
+   begin
+      Free (Socket);
       Free (Socket.C);
-   end Release_Cache;
+   end Release;
 
    ----------
    -- Send --
@@ -161,15 +165,6 @@ package body AWS.Net is
       end if;
    end Set_Blocking_Mode;
 
-   ---------------
-   -- Set_Cache --
-   ---------------
-
-   procedure Set_Cache (Socket : in out Socket_Type'Class) is
-   begin
-      Socket.C := new RW_Cache;
-   end Set_Cache;
-
    ------------------
    -- Set_No_Delay --
    ------------------
@@ -199,8 +194,8 @@ package body AWS.Net is
    -----------------
 
    procedure Set_Timeout
-     (Socket   : in out Socket_Type;
-      Timeout  : in     Duration) is
+     (Socket  : in out Socket_Type;
+      Timeout : in     Duration) is
    begin
       Socket.Timeout := Timeout;
    end Set_Timeout;
