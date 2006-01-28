@@ -2,8 +2,8 @@
 --                              Ada Web Server                              --
 --                   S M T P - Simple Mail Transfer Protocol                --
 --                                                                          --
---                         Copyright (C) 2000-2004                          --
---                                ACT-Europe                                --
+--                         Copyright (C) 2000-2006                          --
+--                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -169,7 +169,7 @@ package body AWS.SMTP.Client is
       end if;
 
       Net.Buffered.Shutdown (Sock.all);
-      Net.Free (Sock);
+      Net.Release (Sock);
    end Close;
 
    ----------
@@ -711,7 +711,7 @@ package body AWS.SMTP.Client is
    begin
       if Sock /= null then
          Net.Buffered.Shutdown (Sock.all);
-         Net.Free (Sock);
+         Net.Release (Sock);
       end if;
    end Shutdown;
 
