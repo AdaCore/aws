@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2005                            --
---                                  AdaCore                                 --
+--                         Copyright (C) 2005-2006                          --
+--                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -91,7 +91,7 @@ package body AWS.Net.Acceptors is
 
                if Error then
                   Shutdown (Socket.all);
-                  Free (Socket);
+                  Release (Socket);
 
                elsif Ready then
                   return;
@@ -113,7 +113,7 @@ package body AWS.Net.Acceptors is
                      Sets.Remove_Socket (Acceptor.Set, Acceptor.Index, Socket);
                      Acceptor.Last := Acceptor.Last - 1;
                      Shutdown (Socket.all);
-                     Free (Socket);
+                     Release (Socket);
                   else
                      if Diff < Wait_Timeout then
                         Wait_Timeout := Diff;
@@ -197,7 +197,7 @@ package body AWS.Net.Acceptors is
                            --  We could free other sockets, becuse it is not
                            --  using anywhere else whan it is in socket set.
 
-                           Free (Socket);
+                           Release (Socket);
                         end loop;
 
                         raise Socket_Error;
