@@ -497,6 +497,7 @@ regtests/upload4.out
 regtests/upload5.adb
 regtests/upload5.out
 regtests/user_sock.adb
+regtests/user_sock.out
 regtests/user_strm.adb
 regtests/user_strm.ads
 regtests/usock.adb
