@@ -223,6 +223,8 @@ b~upload4.adb
 b~upload4.ads
 b~upload5.adb
 b~upload5.ads
+b~user_sock.adb
+b~user_sock.ads
 b~workorder.adb
 b~workorder.ads
 b~wsdl_1_main.adb
@@ -764,6 +766,7 @@ urn-googlesearch-resultelement_type_pkg.ads
 urn-googlesearch-resultelementarray_type_pkg.ads
 urn-googlesearch.ads
 urn.ads
+user_sock.res
 wait
 wait.res
 wait2.res
