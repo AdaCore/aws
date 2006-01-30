@@ -30,6 +30,7 @@ with Ada.Calendar;
 with Ada.Command_Line;
 with Ada.Strings.Fixed;
 with Ada.Strings.Maps;
+with Ada.Text_IO;
 
 with GNAT.Calendar.Time_IO;
 
@@ -332,7 +333,11 @@ package body AWS.Log is
             (Log.Split = Monthly
              and then Log.Current_Tag /= Calendar.Month (Now))
          then
-            Stop (Log);
+            --  Could not call Stop, because Stop would write to log again and
+            --  it cause unlimited recursion.
+
+            Text_IO.Close (Log.File);
+
             Start (Log,
                    Log.Split,
                    To_String (Log.File_Directory),
