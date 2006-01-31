@@ -97,7 +97,6 @@ package AWS.Utils is
    private
       TID    : Task_Id := Null_Task_Id;
       Seized : Natural := 0;
-      entry Seize_Internal;
    end Semaphore;
 
    ------------------

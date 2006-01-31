@@ -421,24 +421,11 @@ package body AWS.Utils is
       -- Seize --
       -----------
 
-      entry Seize when True is
+      entry Seize when Seized = 0 or else TID = Current_Task is
       begin
-         if TID = Seize'Caller then
-            Seized := Seized + 1;
-         else
-            requeue Seize_Internal;
-         end if;
+         Seized := Seized + 1;
+         TID    := Seize'Caller;
       end Seize;
-
-      --------------------
-      -- Seize_Internal --
-      --------------------
-
-      entry Seize_Internal when Seized = 0 is
-      begin
-         TID    := Seize_Internal'Caller;
-         Seized := 1;
-      end Seize_Internal;
 
    end Semaphore;
 
