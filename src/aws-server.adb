@@ -26,18 +26,14 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-with Ada.Calendar;
-with Ada.Exceptions;
 with Ada.Task_Attributes;
 with Ada.Text_IO;
 with Ada.Unchecked_Deallocation;
 
 with AWS.Config.Set;
 with AWS.Dispatchers.Callback;
-with AWS.Log;
 with AWS.Messages;
 with AWS.MIME;
-with AWS.Net.SSL;
 with AWS.OS_Lib;
 with AWS.Server.Log;
 with AWS.Services.Transient_Pages.Control;

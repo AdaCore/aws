@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2005                            --
+--                         Copyright (C) 2005-2006                          --
 --                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -32,14 +32,12 @@ with Ada.Unchecked_Deallocation;
 
 with AI302.Containers.Vectors;
 
-with AWS.Dispatchers;
 with AWS.Messages;
 with AWS.MIME;
 with AWS.Net.Buffered;
 with AWS.Net.Generic_Sets;
 with AWS.OS_Lib;
 with AWS.Parameters;
-with AWS.Resources.Streams;
 with AWS.Services.Dispatchers.URI;
 with AWS.Templates;
 with AWS.Utils;

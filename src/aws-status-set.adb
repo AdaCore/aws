@@ -35,7 +35,6 @@ with AWS.Headers.Values;
 with AWS.Messages;
 with AWS.Parameters.Set;
 with AWS.Translator;
-with AWS.Parameters.Set;
 
 package body AWS.Status.Set is
 

@@ -26,7 +26,6 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-with Ada.Calendar;
 with Ada.Streams;
 
 package body AWS.Net.Acceptors is

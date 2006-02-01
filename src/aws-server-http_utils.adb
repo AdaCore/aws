@@ -45,7 +45,6 @@ with AWS.MIME;
 with AWS.Net;
 with AWS.Net.Buffered;
 with AWS.OS_Lib;
-with AWS.Resources;
 with AWS.Resources.Streams.Memory;
 with AWS.Session;
 with AWS.Server.Get_Status;

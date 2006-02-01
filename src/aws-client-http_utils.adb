@@ -36,7 +36,6 @@ with Ada.Unchecked_Deallocation;
 
 with GNAT.Calendar.Time_IO;
 
-with AWS.Client;
 with AWS.Digest;
 with AWS.Headers.Set;
 with AWS.Headers.Values;

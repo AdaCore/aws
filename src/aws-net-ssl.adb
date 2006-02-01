@@ -39,7 +39,6 @@ with Ada.Unchecked_Deallocation;
 
 with AWS.Config;
 with AWS.Net.Log;
-with AWS.Net.Std;
 with AWS.Utils;
 
 with Interfaces.C.Strings;

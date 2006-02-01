@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2005                          --
+--                         Copyright (C) 2000-2006                          --
 --                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -28,7 +28,6 @@
 
 with Ada.Characters.Handling;
 with Ada.Strings.Fixed;
-with Ada.Strings.Maps;
 
 with AWS.Messages;
 with AWS.Utils;

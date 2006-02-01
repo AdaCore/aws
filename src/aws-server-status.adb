@@ -31,7 +31,6 @@ with GNAT.Calendar.Time_IO;
 with AWS.Config;
 with AWS.Hotplug.Get_Status;
 with AWS.Session;
-with AWS.Templates;
 with AWS.Utils;
 
 package body AWS.Server.Status is

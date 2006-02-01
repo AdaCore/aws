@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2005                          --
+--                         Copyright (C) 2000-2006                          --
 --                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -30,7 +30,6 @@ with Ada.Strings.Fixed;
 
 with AWS.Dispatchers.Callback;
 with AWS.Messages;
-with AWS.Status;
 with AWS.Parameters;
 
 package body AWS.Services.Dispatchers.Virtual_Host is

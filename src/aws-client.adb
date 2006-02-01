@@ -27,7 +27,6 @@
 ------------------------------------------------------------------------------
 
 with Ada.Calendar;
-with Ada.Strings.Unbounded;
 with Ada.Strings.Fixed;
 with Ada.Streams.Stream_IO;
 
@@ -41,7 +40,6 @@ with AWS.Net.Buffered;
 with AWS.Net.SSL;
 with AWS.OS_Lib;
 with AWS.Translator;
-with AWS.Utils;
 
 package body AWS.Client is
 

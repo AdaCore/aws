@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2004                            --
---                                ACT-Europe                                --
+--                         Copyright (C) 2004-2006                          --
+--                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -31,7 +31,6 @@ with MD5;
 with AWS.Communication.Client;
 with AWS.Digest;
 with AWS.Messages;
-with AWS.Response;
 with AWS.Server.Hotplug;
 with AWS.URL;
 

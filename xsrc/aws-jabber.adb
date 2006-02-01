@@ -41,7 +41,6 @@ with Unicode.CES.Basic_8bit;
 
 with AWS.Net.Buffered;
 with AWS.Translator;
-with AWS.Utils;
 
 package body AWS.Jabber is
 
