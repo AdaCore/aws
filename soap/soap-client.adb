@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2004                          --
---                                ACT-Europe                                --
+--                         Copyright (C) 2000-2006                          --
+--                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -27,9 +27,7 @@
 ------------------------------------------------------------------------------
 
 with SOAP.Message.XML;
-with SOAP.Message.Payload;
 
-with AWS.Client;
 with AWS.Response;
 with AWS.URL;
 

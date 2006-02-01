@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2003-2005                          --
+--                         Copyright (C) 2003-2006                          --
 --                                  AdaCore                                 --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -35,7 +35,6 @@ with Strings_Maps;
 with DOM.Core.Nodes;
 
 with AWS.Utils;
-with SOAP.Name_Space;
 with SOAP.Types;
 with SOAP.Utils;
 with SOAP.XML;
