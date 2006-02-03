@@ -242,6 +242,17 @@ package body AWS.Net.Std is
       return Integer (Res);
    end Errno;
 
+   ----------
+   -- Free --
+   ----------
+
+   procedure Free (Socket : in out Socket_Type) is
+      procedure Free is
+         new Ada.Unchecked_Deallocation (Socket_Hidden, Socket_Hidden_Access);
+   begin
+      Free (Socket.S);
+   end Free;
+
    -------------------
    -- Get_Addr_Info --
    -------------------
@@ -465,17 +476,6 @@ package body AWS.Net.Std is
                Sockets.Connection_Closed  |
                Sockets.Connection_Refused => Raise_Exception (E, "Receive");
    end Receive;
-
-   -------------
-   -- Release --
-   -------------
-
-   procedure Release (Socket : in out Socket_Type) is
-      procedure Free is
-         new Ada.Unchecked_Deallocation (Socket_Hidden, Socket_Hidden_Access);
-   begin
-      Free (Socket.S);
-   end Release;
 
    ----------
    -- Send --

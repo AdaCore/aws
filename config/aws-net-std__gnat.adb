@@ -305,6 +305,15 @@ package body AWS.Net.Std is
       return Msg;
    end Error_Message;
 
+   ----------
+   -- Free --
+   ----------
+
+   procedure Free (Socket : in out Socket_Type) is
+   begin
+      Free (Socket.S);
+   end Free;
+
    ------------
    -- Get_FD --
    ------------
@@ -500,15 +509,6 @@ package body AWS.Net.Std is
       when E : Sockets.Socket_Error =>
          Raise_Exception (E, "Receive", Socket);
    end Receive;
-
-   -------------
-   -- Release --
-   -------------
-
-   procedure Release (Socket : in out Socket_Type) is
-   begin
-      Free (Socket.S);
-   end Release;
 
    ----------
    -- Send --

@@ -292,7 +292,7 @@ private
       Timeout : Duration        := Forever;
    end record;
 
-   procedure Release (Socket : in out Socket_Type);
+   procedure Free (Socket : in out Socket_Type);
    --  Release memory associated with the socket object. This default version
    --  can be overriden to properly release the memory for the derived
    --  implementation. The controlled Finalize routine is in charge of calling

@@ -276,6 +276,20 @@ package body AWS.Net.SSL is
       end if;
    end Error_Str;
 
+   ----------
+   -- Free --
+   ----------
+
+   procedure Free (Socket : in out Socket_Type) is
+   begin
+      if Socket.SSL /= TSSL.Null_Pointer then
+         TSSL.SSL_free (Socket.SSL);
+         Socket.SSL := TSSL.Null_Pointer;
+      end if;
+
+      Net.Std.Free (NSST (Socket));
+   end Free;
+
    -----------------
    -- Init_Random --
    -----------------
@@ -413,16 +427,6 @@ package body AWS.Net.SSL is
          Config.Finalize;
          Free (Config);
       end if;
-   end Release;
-
-   procedure Release (Socket : in out Socket_Type) is
-   begin
-      if Socket.SSL /= TSSL.Null_Pointer then
-         TSSL.SSL_free (Socket.SSL);
-         Socket.SSL := TSSL.Null_Pointer;
-      end if;
-
-      Net.Std.Release (NSST (Socket));
    end Release;
 
    ------------

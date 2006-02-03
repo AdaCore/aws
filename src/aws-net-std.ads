@@ -69,7 +69,7 @@ package AWS.Net.Std is
    procedure Shutdown (Socket : in Socket_Type);
    --  Shutdown both side of the socket and close it
 
-   procedure Release (Socket : in out Socket_Type);
+   procedure Free (Socket : in out Socket_Type);
    --  Release memory associated with the socket object
 
    --------

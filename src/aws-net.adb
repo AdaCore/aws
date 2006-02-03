@@ -64,7 +64,7 @@ package body AWS.Net is
       Socket.C.Ref_Count := Socket.C.Ref_Count - 1;
 
       if Socket.C.Ref_Count = 0 then
-         Release (Socket_Type'Class (Socket));
+         Free (Socket_Type'Class (Socket));
          Free (Socket.C);
       end if;
    end Finalize;
@@ -78,6 +78,12 @@ package body AWS.Net is
         new Ada.Unchecked_Deallocation (Socket_Type'Class, Socket_Access);
    begin
       Free (Socket);
+   end Free;
+
+   procedure Free (Socket : in out Socket_Type) is
+      pragma Unreferenced (Socket);
+   begin
+      null;
    end Free;
 
    ---------------
@@ -137,16 +143,6 @@ package body AWS.Net is
 
       return Result (1 .. Last);
    end Receive;
-
-   -------------
-   -- Release --
-   -------------
-
-   procedure Release (Socket : in out Socket_Type) is
-      pragma Unreferenced (Socket);
-   begin
-      null;
-   end Release;
 
    ----------
    -- Send --

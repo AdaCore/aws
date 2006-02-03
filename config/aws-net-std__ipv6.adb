@@ -298,6 +298,17 @@ package body AWS.Net.Std is
       return Msg & To_String (Sockets.Thin.Socket_Error_Message (Error));
    end Error_Message;
 
+   ----------
+   -- Free --
+   ----------
+
+   procedure Free (Socket : in out Socket_Type) is
+      procedure Free is
+         new Ada.Unchecked_Deallocation (Socket_Hidden, Socket_Hidden_Access);
+   begin
+      Free (Socket.S);
+   end Free;
+
    -------------------
    -- Get_Addr_Info --
    -------------------
@@ -640,17 +651,6 @@ package body AWS.Net.Std is
             Last      => Last);
       end if;
    end Receive;
-
-   -------------
-   -- Release --
-   -------------
-
-   procedure Release (Socket : in out Socket_Type) is
-      procedure Free is
-         new Ada.Unchecked_Deallocation (Socket_Hidden, Socket_Hidden_Access);
-   begin
-      Free (Socket.S);
-   end Release;
 
    ----------
    -- Send --
