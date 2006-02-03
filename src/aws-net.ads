@@ -32,10 +32,13 @@
 --  below. The corresponding implementation will be selected at build time.
 
 with Ada.Exceptions;
+with Ada.Finalization;
+
 with Ada.Streams;
 
 package AWS.Net is
 
+   use Ada;
    use Ada.Streams;
    use Ada.Exceptions;
 
@@ -121,21 +124,8 @@ package AWS.Net is
    --  Shutdown both side of the socket and close it. Does not raise
    --  Socket_Error if the socket is not connected.
 
-   procedure Free (Socket : in out Socket_Type) is abstract;
-   --  Release memory associated with the socket object
-
-   procedure Release (Socket : in out Socket_Access);
-   --  Release memory associated with the socket access and socket object
-   --  implemntation. This is the routine that must be called to free a socket.
-   --  Release will call the Free routine above and free the socket generic
-   --  implementation memory (the socket cache for example will be released
-   --  here). It is not possible to reuse a socket object after.
-
-   procedure Release (Socket : in out Socket_Type'Class);
-   --  See above
-
    procedure Free (Socket : in out Socket_Access);
-   pragma Obsolescent ("Use Release instead");
+   --  Release memory associated with the socket
 
    --------
    -- IO --
@@ -290,16 +280,23 @@ private
    end record;
 
    type RW_Cache is record
-      R_Cache : Read_Cache (R_Cache_Size);
-      W_Cache : Write_Cache (W_Cache_Size);
+      Ref_Count : Natural;
+      R_Cache   : Read_Cache (R_Cache_Size);
+      W_Cache   : Write_Cache (W_Cache_Size);
    end record;
 
    type RW_Cache_Access is access RW_Cache;
 
-   type Socket_Type is abstract tagged record
-      C       : RW_Cache_Access := new RW_Cache;
+   type Socket_Type is abstract new Finalization.Controlled with record
+      C       : RW_Cache_Access;
       Timeout : Duration        := Forever;
    end record;
+
+   procedure Release (Socket : in out Socket_Type);
+   --  Release memory associated with the socket object. This default version
+   --  can be overriden to properly release the memory for the derived
+   --  implementation. The controlled Finalize routine is in charge of calling
+   --  Release.
 
    function Errno return Integer;
    --  Return error code for the last socket operation
@@ -307,5 +304,11 @@ private
    procedure Raise_Socket_Error
      (Socket : Socket_Type'Class; Text : in String);
    pragma No_Return (Raise_Socket_Error);
+
+   --  Controlled primitives
+
+   procedure Initialize (Socket : in out Socket_Type);
+   procedure Adjust     (Socket : in out Socket_Type);
+   procedure Finalize   (Socket : in out Socket_Type);
 
 end AWS.Net;
