@@ -32,7 +32,6 @@ with Ada.Exceptions;
 with Ada.Text_IO;
 with Ada.Strings.Unbounded;
 with Ada.Strings.Fixed;
-with Ada.Unchecked_Deallocation;
 
 with GNAT.Calendar.Time_IO;
 
@@ -79,7 +78,7 @@ package body AWS.Client.HTTP_Utils is
       --  and have to free it.
 
       if Connection.Socket /= null then
-         Net.Release (Connection.Socket);
+         Net.Free (Connection.Socket);
       end if;
 
       Sock := Net.Socket (Security);
@@ -178,12 +177,9 @@ package body AWS.Client.HTTP_Utils is
          --  around this tunnel.
 
          declare
-            procedure Free is new Ada.Unchecked_Deallocation
-              (Net.Socket_Type'Class, Net.Socket_Access);
-
             SS : Net.SSL.Socket_Type := Net.SSL.Secure_Client (Sock.all);
          begin
-            Free (Sock);
+            Net.Free (Sock);
             Connection.Socket := new Net.SSL.Socket_Type'(SS);
 
             --  Do explicit handshake for be able to get server certificate
@@ -250,6 +246,7 @@ package body AWS.Client.HTTP_Utils is
 
          if Connection.Socket /= null then
             Net.Shutdown (Connection.Socket.all);
+            Net.Free (Connection.Socket);
          end if;
       end if;
    end Disconnect;
