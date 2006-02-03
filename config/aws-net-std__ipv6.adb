@@ -47,7 +47,6 @@ with System;
 
 package body AWS.Net.Std is
 
-   use Ada;
    use GNAT;
    use Interfaces;
 
@@ -74,17 +73,9 @@ package body AWS.Net.Std is
    end record;
    pragma Convention (C, Sockaddr_In6);
 
-   procedure Free is
-      new Ada.Unchecked_Deallocation (Socket_Hidden, Socket_Hidden_Access);
-
    procedure Raise_Socket_Error (Error : in Integer; Socket : in Socket_Type);
    pragma No_Return (Raise_Socket_Error);
-   --  Log socket error and raise exception.
-
-   procedure Raise_Error_Free_Socket
-     (Error : in Integer; Socket : in out Socket_Type);
-   pragma No_Return (Raise_Error_Free_Socket);
-   --  Log socket error, free socket and raise exception.
+   --  Log socket error and raise exception
 
    function Error_Message (Error : in Integer) return String;
 
@@ -98,11 +89,11 @@ package body AWS.Net.Std is
 
    function Get_Int_Sock_Opt
      (Socket : in Socket_Type; Name : in Interfaces.C.int) return Integer;
-   --  Return socket option with Integer size.
+   --  Return socket option with Integer size
 
    procedure Set_Int_Sock_Opt
      (Socket : in Socket_Type; Name : in Interfaces.C.int; Value : Integer);
-   --  Return socket option with Integer size.
+   --  Return socket option with Integer size
 
    procedure Set_Non_Blocking_Mode (Socket : in Socket_Type);
    --  Set the socket to the non-blocking mode.
@@ -179,7 +170,7 @@ package body AWS.Net.Std is
       if Res = Sockets.Thin.Failure then
          Errno := Std.Errno;
          Res   := Sockets.Thin.C_Close (FD);
-         Raise_Error_Free_Socket (Errno, Socket);
+         Raise_Socket_Error (Errno, Socket);
       end if;
 
       Set_Non_Blocking_Mode (Socket);
@@ -244,7 +235,7 @@ package body AWS.Net.Std is
 
          if Errno /= 0 then
             Res := Sockets.Thin.C_Close (FD);
-            Raise_Error_Free_Socket (Errno, Socket);
+            Raise_Socket_Error (Errno, Socket);
          end if;
       end if;
 
@@ -306,15 +297,6 @@ package body AWS.Net.Std is
 
       return Msg & To_String (Sockets.Thin.Socket_Error_Message (Error));
    end Error_Message;
-
-   ----------
-   -- Free --
-   ----------
-
-   procedure Free (Socket : in out Socket_Type) is
-   begin
-      Free (Socket.S);
-   end Free;
 
    -------------------
    -- Get_Addr_Info --
@@ -509,7 +491,7 @@ package body AWS.Net.Std is
 
       elsif Sin6.Family = OSD.PF_INET6
         or else Sin6.Family = OSD.PF_INET6 * 256 + OSD.PF_INET6
-      --  ??? looks like FreeBSD 4.10 error in ipv6 address structure result.
+      --  ??? looks like FreeBSD 4.10 error in ipv6 address structure result
       then
          declare
             Result : String (1 .. 8 * 5);
@@ -602,20 +584,6 @@ package body AWS.Net.Std is
       return Stream_Element_Count (Arg);
    end Pending;
 
-   -----------------------------
-   -- Raise_Error_Free_Socket --
-   -----------------------------
-
-   procedure Raise_Error_Free_Socket
-     (Error : in Integer; Socket : in out Socket_Type)
-   is
-      Msg : constant String := Error_Message (Error);
-   begin
-      Log.Error (Socket, Message => Msg);
-      Free (Socket);
-      Ada.Exceptions.Raise_Exception (Socket_Error'Identity, Msg);
-   end Raise_Error_Free_Socket;
-
    ------------------------
    -- Raise_Socket_Error --
    ------------------------
@@ -626,7 +594,6 @@ package body AWS.Net.Std is
       Msg : constant String := Error_Message (Error);
    begin
       Log.Error (Socket, Message => Msg);
-
       Ada.Exceptions.Raise_Exception (Socket_Error'Identity, Msg);
    end Raise_Socket_Error;
 
@@ -673,6 +640,17 @@ package body AWS.Net.Std is
             Last      => Last);
       end if;
    end Receive;
+
+   -------------
+   -- Release --
+   -------------
+
+   procedure Release (Socket : in out Socket_Type) is
+      procedure Free is
+         new Ada.Unchecked_Deallocation (Socket_Hidden, Socket_Hidden_Access);
+   begin
+      Free (Socket.S);
+   end Release;
 
    ----------
    -- Send --
