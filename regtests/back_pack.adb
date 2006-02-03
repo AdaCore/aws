@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2004                            --
---                                ACT-Europe                                --
+--                         Copyright (C) 2004-2006                          --
+--                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -82,6 +82,7 @@ package body Back_Pack is
          Wait_Socket.Set;
 
          return Response.Socket_Taken;
+
       else
          Net.Buffered.Put_Line
            (Store_Socket.all, Messages.Status_Line (Messages.S200));
@@ -110,6 +111,7 @@ package body Back_Pack is
 
          if Store_Keep_Alive then
             Server.Give_Back_Socket (Server.Get_Current.all, Store_Socket.all);
+            Net.Free (Store_Socket);
 
             return Response.Build (MIME.Text_Plain, "was keep-alive.");
          else
@@ -288,6 +290,8 @@ package body Back_Pack is
       delay 1.0;
 
       Server.Shutdown (WS);
+
+      Net.Free (Store_Socket);
 
    exception
       when E: others =>
