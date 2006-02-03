@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2004                            --
---                                ACT-Europe                                --
+--                         Copyright (C) 2004-2006                          --
+--                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -58,7 +58,7 @@ procedure Plain2SSL is
 
       task body Send_Task is
       begin
-         --  We have to send in task for SSL negotiation.
+         --  We have to send in task for SSL negotiation
 
          Send (Source, Sample);
       end Send_Task;
@@ -96,12 +96,12 @@ begin
    Test (Peer, Client);
 
    declare
-      --  Convert to SSL connection.
+      --  Convert to SSL connection
 
       SSL_Client : SSL.Socket_Type := SSL.Secure_Client (Client);
       SSL_Peer   : SSL.Socket_Type := SSL.Secure_Server (Peer);
    begin
-      --  Between SSL.
+      --  Between SSL
 
       Test (SSL_Client, SSL_Peer);
       Test (SSL_Peer, SSL_Client);
@@ -122,7 +122,5 @@ begin
 
       SSL.Shutdown (SSL_Client);
       SSL.Shutdown (SSL_Peer);
-      SSL.Free (SSL_Client);
-      SSL.Free (SSL_Peer);
    end;
 end Plain2SSL;

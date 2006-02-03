@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2004                            --
---                               ACT-Europe                                 --
+--                         Copyright (C) 2004-2006                          --
+--                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -106,7 +106,6 @@ package body Wait_Pack is
                accept Next;
                delay A_Bit;
                Net.Shutdown (Socket);
-               Net.Free (Socket);
             end;
          end loop;
 
@@ -173,7 +172,6 @@ package body Wait_Pack is
                      Put_Line ("Close socket.");
 
                      Net.Shutdown (Socket);
-                     Net.Free (Socket);
                      Sets.Remove_Socket (Set, Index);
 
                      Socket_Removed := True;
@@ -191,9 +189,10 @@ package body Wait_Pack is
       Net.Shutdown (Server);
 
       --  abort Client_Side;
-      --  The task Client_Side terminating itself without abort statement.
-      --  But abort statement cause error on Win32 platform after add SSL.Locking package.
-      --  It could be treated as regression.
+      --  The task Client_Side terminates itself without abort statement.
+      --  The abort statement above causes an error on Win32 platform after
+      --  introducing the SSL.Locking package.
+      --  Probably a regression!
 
    exception
       when E : others =>

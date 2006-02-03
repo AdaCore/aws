@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2005                            --
---                                ACT-Europe                                --
+--                         Copyright (C) 2005-2006                          --
+--                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -26,7 +26,7 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  Common code for plain and SSL test for broke memory on socket reusing.
+--  Common code for plain and SSL test for broke memory on socket reusing
 
 with Ada.Exceptions;
 with Ada.Streams;
@@ -114,17 +114,12 @@ begin
    Test (S2, S1);
 
    Shutdown (C1);
-   Free (C1);
    Shutdown (C2);
-   Free (C2);
 
    Test (S1, S2);
    Test (S2, S1);
 
    Shutdown (S2);
-   Free (S2);
    Shutdown (S1);
-   Free (S1);
    Std.Shutdown (Server);
-   Std.Free (Server);
 end SMem_Proc;

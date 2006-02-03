@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2004                            --
---                               ACT-Europe                                 --
+--                         Copyright (C) 2004-2006                          --
+--                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -108,7 +108,6 @@ procedure Wait_Proc (Security : Boolean; Port : Positive) is
 
                   exception when Net.Socket_Error =>
                      Net.Shutdown (Socket);
-                     Net.Free (Socket);
                      Sets.Remove_Socket (Set, Index);
                   end;
 
@@ -116,7 +115,6 @@ procedure Wait_Proc (Security : Boolean; Port : Positive) is
                   Put_Line ("Socket error" & Integer'Image (Errno (Socket)));
 
                   Net.Shutdown (Socket);
-                  Net.Free (Socket);
                   Sets.Remove_Socket (Set, Index);
 
                else
@@ -158,7 +156,6 @@ begin
 
          delay 0.5;
          Net.Shutdown (New_Sock);
-         Net.Free (New_Sock);
       end;
    end loop;
 

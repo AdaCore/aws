@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2005                            --
---                                ACT-Europe                                --
+--                         Copyright (C) 2005-2006                          --
+--                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -82,6 +82,4 @@ begin
    Test (S2, S1);
    AWS.Net.Shutdown (S1);
    AWS.Net.Shutdown (S2);
-   AWS.Net.Free (S1);
-   AWS.Net.Free (S2);
 end SPair_Proc;

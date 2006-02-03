@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2005                            --
+--                         Copyright (C) 2005-2006                          --
 --                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -95,7 +95,6 @@ procedure Accs_Proc (Security : in Boolean) is
       end loop;
 
       Shutdown (Sock);
-      Free (Sock);
 
       Ada.Text_IO.Put_Line ("Client gone.");
 
@@ -106,7 +105,6 @@ procedure Accs_Proc (Security : in Boolean) is
 
          if Connected then
             Shutdown (Sock);
-            Free (Sock);
          end if;
    end Client_Task;
 
