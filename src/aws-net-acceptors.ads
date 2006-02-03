@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2005                            --
+--                         Copyright (C) 2005-2006                          --
 --                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -29,7 +29,6 @@
 --  Waiting on a group of sockets for reading and accept new connections
 
 with Ada.Calendar;
-with Ada.Finalization;
 
 with AWS.Net.Std;
 with AWS.Net.Generic_Sets;
@@ -87,7 +86,7 @@ private
 
    package Sets is new Generic_Sets (Socket_Data_Type);
 
-   type Acceptor_Type is new Ada.Finalization.Limited_Controlled with record
+   type Acceptor_Type is tagged limited record
       Set                 : Sets.Socket_Set_Type;
       W_Signal            : Std.Socket_Type;
       R_Signal            : Std.Socket_Type;
@@ -101,8 +100,5 @@ private
       Force_First_Timeout : Duration;
       Force_Length        : Sets.Socket_Count;
    end record;
-
-   procedure Finalize (Acceptor : in out Acceptor_Type);
-   --  Automatic finalization
 
 end AWS.Net.Acceptors;
