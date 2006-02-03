@@ -372,7 +372,6 @@ package body AWS.Server is
 
             if Need_Shutdown then
                Net.Shutdown (Socket);
-               Net.Release (Socket);
             end if;
          end;
       end loop;
@@ -662,7 +661,7 @@ package body AWS.Server is
          Free (Web_Server.Lines (K));
       end loop;
 
-      Net.Release (Web_Server.Sock);
+      Net.Free (Web_Server.Sock);
 
       Free (Web_Server.Lines);
 
@@ -892,12 +891,7 @@ package body AWS.Server is
 
          if Table (Index).Phase /= Closed then
             if not Table (Index).Socket_Taken  then
-               if Table (Index).Phase = Aborted then
-                  --  If it was aborted, we can free it here
-
-                  Net.Free (Table (Index).Sock.all);
-
-               else
+               if Table (Index).Phase /= Aborted then
                   --  We have to shutdown socket only if it is not in state:
                   --  In_Shutdow, Aborted or Closed.
 
