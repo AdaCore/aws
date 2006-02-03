@@ -49,7 +49,6 @@ with System;
 
 package body AWS.Net.Std is
 
-   use Ada;
    use GNAT;
 
    type Socket_Hidden is record
@@ -66,14 +65,6 @@ package body AWS.Net.Std is
    pragma No_Return (Raise_Exception);
    --  Raise and log exception Socket_Error with E's message and a reference to
    --  the routine name.
-
-   procedure Raise_Exception_Free_Socket
-     (E       : in     Exceptions.Exception_Occurrence;
-      Routine : in     String;
-      Socket  : in out Socket_Type);
-   pragma No_Return (Raise_Exception_Free_Socket);
-   --  Raise and log exception Socket_Error with E's message and a reference to
-   --  the routine name. Free Socket after log error.
 
    procedure Raise_Socket_Error (Error : in Integer; Socket : Socket_Type);
    pragma No_Return (Raise_Socket_Error);
@@ -115,7 +106,7 @@ package body AWS.Net.Std is
       Set_Non_Blocking_Mode (New_Socket);
    exception
       when E : Sockets.Socket_Error =>
-         Raise_Exception_Free_Socket (E, "Accept_Socket", New_Socket);
+         Raise_Exception (E, "Accept_Socket", New_Socket);
    end Accept_Socket;
 
    ----------
@@ -154,7 +145,7 @@ package body AWS.Net.Std is
             Sockets.Close_Socket (Socket.S.FD);
          end if;
 
-         Raise_Exception_Free_Socket (E, "Bind", Socket);
+         Raise_Exception (E, "Bind", Socket);
    end Bind;
 
    -------------
@@ -198,7 +189,7 @@ package body AWS.Net.Std is
                     | Resource_Temporarily_Unavailable => null;
                when others =>
                   Sockets.Close_Socket (Socket.S.FD);
-                  Raise_Exception_Free_Socket (E, "Connect", Socket);
+                  Raise_Exception (E, "Connect", Socket);
             end case;
       end;
 
@@ -218,7 +209,6 @@ package body AWS.Net.Std is
             begin
                Log.Error (Socket, Msg);
                Sockets.Close_Socket (Socket.S.FD);
-               Free (Socket);
                Ada.Exceptions.Raise_Exception (Socket_Error'Identity, Msg);
             end Raise_Error;
 
@@ -240,7 +230,7 @@ package body AWS.Net.Std is
             Sockets.Close_Socket (Socket.S.FD);
          end if;
 
-         Raise_Exception_Free_Socket (E, "Connect", Socket);
+         Raise_Exception (E, "Connect", Socket);
    end Connect;
 
    -----------
@@ -314,15 +304,6 @@ package body AWS.Net.Std is
       Msg (Msg'First) := '[';
       return Msg;
    end Error_Message;
-
-   ----------
-   -- Free --
-   ----------
-
-   procedure Free (Socket : in out Socket_Type) is
-   begin
-      Free (Socket.S);
-   end Free;
 
    ------------
    -- Get_FD --
@@ -474,22 +455,6 @@ package body AWS.Net.Std is
       Raise_Exception (Socket_Error'Identity, Message => Msg);
    end Raise_Exception;
 
-   ---------------------------------
-   -- Raise_Exception_Free_Socket --
-   ---------------------------------
-
-   procedure Raise_Exception_Free_Socket
-     (E       : in     Exceptions.Exception_Occurrence;
-      Routine : in     String;
-      Socket  : in out Socket_Type)
-   is
-      Msg : constant String := Routine & " : " & Exception_Message (E);
-   begin
-      Log.Error (Socket, Message => Msg);
-      Free (Socket);
-      Raise_Exception (Socket_Error'Identity, Message => Msg);
-   end Raise_Exception_Free_Socket;
-
    ------------------------
    -- Raise_Socket_Error --
    ------------------------
@@ -516,7 +481,7 @@ package body AWS.Net.Std is
 
       Sockets.Receive_Socket (Socket.S.FD, Data, Last);
 
-      --  Check if socket closed by peer.
+      --  Check if socket closed by peer
 
       if Last = Data'First - 1 then
          Ada.Exceptions.Raise_Exception
@@ -535,6 +500,15 @@ package body AWS.Net.Std is
       when E : Sockets.Socket_Error =>
          Raise_Exception (E, "Receive", Socket);
    end Receive;
+
+   -------------
+   -- Release --
+   -------------
+
+   procedure Release (Socket : in out Socket_Type) is
+   begin
+      Free (Socket.S);
+   end Release;
 
    ----------
    -- Send --
@@ -679,7 +653,7 @@ package body AWS.Net.Std is
             Sockets.Close_Socket (FD);
          exception
             when E : Sockets.Socket_Error | Constraint_Error =>
-               --  Back original socket handle to log.
+               --  Back original socket handle to log
 
                Socket.S.FD := FD;
 
