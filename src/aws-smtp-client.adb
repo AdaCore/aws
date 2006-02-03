@@ -169,7 +169,7 @@ package body AWS.SMTP.Client is
       end if;
 
       Net.Buffered.Shutdown (Sock.all);
-      Net.Release (Sock);
+      Net.Free (Sock);
    end Close;
 
    ----------
@@ -711,7 +711,7 @@ package body AWS.SMTP.Client is
    begin
       if Sock /= null then
          Net.Buffered.Shutdown (Sock.all);
-         Net.Release (Sock);
+         Net.Free (Sock);
       end if;
    end Shutdown;
 
