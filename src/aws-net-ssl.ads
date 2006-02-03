@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2002-2005                          --
+--                         Copyright (C) 2002-2006                          --
 --                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -67,7 +67,7 @@ package AWS.Net.SSL is
    procedure Shutdown (Socket : in Socket_Type);
    --  Shutdown both side of the socket and close it
 
-   procedure Free (Socket : in out Socket_Type);
+   procedure Release (Socket : in out Socket_Type);
    --  Release memory associated with the socket object
 
    --------
@@ -176,7 +176,7 @@ private
    Null_Config : constant Config := null;
 
    type Socket_Type is new Net.Std.Socket_Type with record
-      Config : SSL.Config;
+      Config : SSL.Config := Null_Config;
       SSL    : SSL_Handle := TSSL.Null_Pointer;
    end record;
 
