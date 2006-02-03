@@ -233,7 +233,7 @@ package body AWS.Jabber is
 
          Net.Buffered.Put_Line (Server.Sock.all, "</stream:stream>");
          Net.Buffered.Shutdown (Server.Sock.all);
-         Net.Release (Server.Sock);
+         Net.Free (Server.Sock);
 
          --  Terminate task Incoming_Stream
 
