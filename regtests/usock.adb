@@ -189,16 +189,6 @@ package body USock is
    end Shutdown;
 
    ----------
-   -- Free --
-   ----------
-
-   procedure Free (Socket : in out U_Socket) is
-      pragma Unreferenced (Socket);
-   begin
-      null;
-   end Free;
-
-   ----------
    -- Send --
    ----------
 

@@ -64,8 +64,6 @@ package USock is
 
    procedure Shutdown (Socket : in U_Socket);
 
-   procedure Free (Socket : in out U_Socket);
-
    procedure Send
      (Socket : in     U_Socket;
       Data   : in     Stream_Element_Array;
