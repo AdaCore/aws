@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                          Copyright (C) 2003-2004                         --
---                               ACT-Europe                                 --
+--                         Copyright (C) 2003-2006                          --
+--                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -38,6 +38,8 @@ with Ada.Text_IO;
 with AWS.Client;
 with AWS.MIME;
 with AWS.Messages;
+with AWS.Net.Std;
+with AWS.Net.SSL;
 with AWS.Parameters;
 with AWS.Response.Set;
 with AWS.Resources.Streams.Disk;
@@ -78,6 +80,8 @@ procedure Check_Mem is
    procedure Check_Memory_Streams;
 
    procedure Check_Dynamic_Message (Encoding : Messages.Content_Encoding);
+
+   procedure Check_Socket;
 
    task Server is
       entry Started;
@@ -503,6 +507,23 @@ procedure Check_Mem is
       R := AWS.Client.Get ("http://localhost:" & S_Port & "/filec.txt");
    end Check_ZOpen;
 
+   ------------------
+   -- Check_Socket --
+   ------------------
+
+   procedure Check_Socket is
+   begin
+      for K in 1 .. 10 loop
+         declare
+            S1 : Net.Std.Socket_Type;
+            S2 : Net.SSL.Socket_Type;
+            pragma Unreferenced (S1, S2);
+         begin
+            null;
+         end;
+      end loop;
+   end Check_Socket;
+
 begin
    Put_Line ("Start main, wait for server to start...");
 
@@ -522,6 +543,7 @@ begin
       Check_Dynamic_Message (Messages.Deflate);
       Check_Transient;
       Check_Zopen;
+      Check_Socket;
    end loop;
 
    delay 4.0;
