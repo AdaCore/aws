@@ -40,19 +40,44 @@ with System;
 
 package body AWS.Net is
 
-   use Ada;
-
    Timeout_Token : constant String := " timeout.";
 
    function Errno return Integer renames Std.Errno;
+
+   ------------
+   -- Adjust --
+   ------------
+
+   procedure Adjust (Socket : in out Socket_Type) is
+   begin
+      Socket.C.Ref_Count := Socket.C.Ref_Count + 1;
+   end Adjust;
+
+   --------------
+   -- Finalize --
+   --------------
+
+   procedure Finalize (Socket : in out Socket_Type) is
+      procedure Free is
+        new Unchecked_Deallocation (RW_Cache, RW_Cache_Access);
+   begin
+      Socket.C.Ref_Count := Socket.C.Ref_Count - 1;
+
+      if Socket.C.Ref_Count = 0 then
+         Release (Socket_Type'Class (Socket));
+         Free (Socket.C);
+      end if;
+   end Finalize;
 
    ----------
    -- Free --
    ----------
 
    procedure Free (Socket : in out Socket_Access) is
+      procedure Free is
+        new Ada.Unchecked_Deallocation (Socket_Type'Class, Socket_Access);
    begin
-      Release (Socket);
+      Free (Socket);
    end Free;
 
    ---------------
@@ -63,6 +88,18 @@ package body AWS.Net is
    begin
       return Net.Std.Host_Name;
    end Host_Name;
+
+   ----------------
+   -- Initialize --
+   ----------------
+
+   procedure Initialize (Socket : in out Socket_Type) is
+   begin
+      if Socket.C = null then
+         Socket.C := new RW_Cache;
+         Socket.C.Ref_Count := 1;
+      end if;
+   end Initialize;
 
    ----------------
    -- Is_Timeout --
@@ -105,22 +142,10 @@ package body AWS.Net is
    -- Release --
    -------------
 
-   procedure Release (Socket : in out Socket_Access) is
-      procedure Free is
-        new Ada.Unchecked_Deallocation (Socket_Type'Class, Socket_Access);
+   procedure Release (Socket : in out Socket_Type) is
+      pragma Unreferenced (Socket);
    begin
-      if Socket /= null then
-         Release (Socket.all);
-         Free (Socket);
-      end if;
-   end Release;
-
-   procedure Release (Socket : in out Socket_Type'Class) is
-      procedure Free is
-        new Ada.Unchecked_Deallocation (RW_Cache, RW_Cache_Access);
-   begin
-      Free (Socket);
-      Free (Socket.C);
+      null;
    end Release;
 
    ----------
@@ -142,7 +167,7 @@ package body AWS.Net is
          Wait_For (Output, Socket);
 
          if Last < Data'Last then
-            --  Otherwise First should be unchanged, because no data sent.
+            --  Otherwise First should be unchanged, because no data sent
 
             First := Last + 1;
          end if;
@@ -208,6 +233,7 @@ package body AWS.Net is
       if Security then
          declare
             Result : SSL.Socket_Type;
+            pragma Warnings (Off, Result);
          begin
             return Result;
          end;
@@ -215,6 +241,7 @@ package body AWS.Net is
       else
          declare
             Result : Std.Socket_Type;
+            pragma Warnings (Off, Result);
          begin
             return Result;
          end;
@@ -244,18 +271,16 @@ package body AWS.Net is
       loop
          Accept_Socket (Server, New_Socket => STC (S2));
 
-         --  to be shure that it is S1 and S2 connected together.
+         --  to be shure that it is S1 and S2 connected together
 
          exit when Peer_Addr (STC (S2)) = "127.0.0.1"
            and then Peer_Port (STC (S2)) = Get_Port (STC (S1))
            and then Peer_Port (STC (S1)) = Get_Port (STC (S2));
 
          Shutdown (STC (S2));
-         Free (STC (S2));
       end loop;
 
       Std.Shutdown (Server);
-      Std.Free (Server);
    end Socket_Pair;
 
    ----------
