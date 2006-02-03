@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2005                          --
+--                         Copyright (C) 2000-2006                          --
 --                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -122,7 +122,7 @@ package body AWS.Server.Push is
          Success : Boolean;
       begin
          if not Open then
-            Net.Stream_IO.Free (Holder.Stream, False);
+            Net.Stream_IO.Free (Holder.Stream);
             raise Closed;
          end if;
 
@@ -134,7 +134,7 @@ package body AWS.Server.Push is
                Table.Insert (Container, Client_Id, Holder, Cursor, Success);
                pragma Assert (Success);
             else
-               Net.Stream_IO.Free (Holder.Stream, False);
+               Net.Stream_IO.Free (Holder.Stream);
                raise Duplicate_Client_Id;
             end if;
          end if;
@@ -364,7 +364,7 @@ package body AWS.Server.Push is
                Net.Stream_IO.Shutdown (Value.Stream);
             end if;
 
-            Net.Stream_IO.Free (Value.Stream, Close_Socket);
+            Net.Stream_IO.Free (Value.Stream);
 
             Table.Delete (Container, Cursor);
          end if;
