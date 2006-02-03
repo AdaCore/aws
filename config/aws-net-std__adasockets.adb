@@ -43,7 +43,6 @@ with System;
 
 package body AWS.Net.Std is
 
-   use Ada;
    use Interfaces;
 
    package OSD renames AWS.OS_Lib.Definitions;
@@ -51,9 +50,6 @@ package body AWS.Net.Std is
    type Socket_Hidden is record
       FD : Sockets.Socket_FD;
    end record;
-
-   procedure Free is
-      new Ada.Unchecked_Deallocation (Socket_Hidden, Socket_Hidden_Access);
 
    procedure Raise_Exception (Errno : in Integer; Routine : in String);
    pragma No_Return (Raise_Exception);
@@ -102,7 +98,6 @@ package body AWS.Net.Std is
       Set_Non_Blocking_Mode (New_Socket);
    exception
       when E : Sockets.Socket_Error =>
-         Free (New_Socket);
          Raise_Exception (E, "Accept_Socket");
    end Accept_Socket;
 
@@ -128,7 +123,6 @@ package body AWS.Net.Std is
          Sockets.Socket (Socket.S.FD);
       exception
          when E : Sockets.Socket_Error =>
-            Free (Socket.S);
             OSD.FreeAddrInfo (Info);
             Raise_Exception (E, "Bind.Create_Socket");
       end;
@@ -145,7 +139,6 @@ package body AWS.Net.Std is
       if Res = Sockets.Thin.Failure then
          Errno := Std.Errno;
          Res := Sockets.Thin.C_Close (C.int (Get_FD (Socket)));
-         Free (Socket.S);
          Raise_Exception (Errno, "Bind");
       end if;
    end Bind;
@@ -172,7 +165,6 @@ package body AWS.Net.Std is
          Sockets.Socket (Socket.S.FD);
       exception
          when E : Sockets.Socket_Error =>
-            Free (Socket.S);
             OSD.FreeAddrInfo (Info);
             Raise_Exception (E, "Connect.Create_Socket");
       end;
@@ -210,7 +202,6 @@ package body AWS.Net.Std is
 
          if Errno /= 0 then
             Res := Sockets.Thin.C_Close (C.int (Get_FD (Socket)));
-            Free (Socket.S);
             Raise_Exception (Errno, "Connect");
          end if;
       end if;
@@ -250,15 +241,6 @@ package body AWS.Net.Std is
 
       return Integer (Res);
    end Errno;
-
-   ----------
-   -- Free --
-   ----------
-
-   procedure Free (Socket : in out Socket_Type) is
-   begin
-      Free (Socket.S);
-   end Free;
 
    -------------------
    -- Get_Addr_Info --
@@ -483,6 +465,17 @@ package body AWS.Net.Std is
                Sockets.Connection_Closed  |
                Sockets.Connection_Refused => Raise_Exception (E, "Receive");
    end Receive;
+
+   -------------
+   -- Release --
+   -------------
+
+   procedure Release (Socket : in out Socket_Type) is
+      procedure Free is
+         new Ada.Unchecked_Deallocation (Socket_Hidden, Socket_Hidden_Access);
+   begin
+      Free (Socket.S);
+   end Release;
 
    ----------
    -- Send --
