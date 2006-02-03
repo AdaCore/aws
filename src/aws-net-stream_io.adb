@@ -45,23 +45,11 @@ package body AWS.Net.Stream_IO is
    -- Free --
    ----------
 
-   procedure Free
-     (Stream : in out Socket_Stream_Access;
-      Socket : in     Boolean)
-   is
+   procedure Free (Stream : in out Socket_Stream_Access) is
       procedure Free is new Ada.Unchecked_Deallocation
         (Socket_Stream_Type, Socket_Stream_Access);
-
-      procedure Free is new Ada.Unchecked_Deallocation
-        (Socket_Type'Class, Socket_Access);
-
    begin
-      if Socket then
-         Release (Stream.Socket);
-      else
-         Free (Stream.Socket);
-      end if;
-
+      Free (Stream.Socket);
       Free (Stream);
    end Free;
 
