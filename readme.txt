@@ -4,7 +4,7 @@
 
 Authors:
    Dmitriy Anisimkov
-   Pascal Obry                                              January 18th, 2006
+   Pascal Obry                                              February 3rd, 2006
 
 
 
@@ -116,6 +116,12 @@ Here are the main changes since AWS 2.1 :
 
    - Add support for Accept/Connect/Shutdown and Error logging to AWS.Net.Log
      package.
+
+   - Add support for user defined communication layer. The AWS communication
+     layer can be replaced by a specific one (derived from Socket_Type).
+
+   - The Socket_Type is now controlled. This clean-up the code and it is
+     easier to provide user socket implementations.
 
    - Plus many small fixes, enhancements, API comments, and documentation work.
 
