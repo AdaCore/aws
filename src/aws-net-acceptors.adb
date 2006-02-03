@@ -37,17 +37,6 @@ package body AWS.Net.Acceptors is
    Shutdown_Command : constant := 0;
    Socket_Command   : constant := 1;
 
-   --------------
-   -- Finalize --
-   --------------
-
-   procedure Finalize (Acceptor : in out Acceptor_Type) is
-   begin
-      Std.Free (Acceptor.Server);
-      Std.Free (Acceptor.R_Signal);
-      Std.Free (Acceptor.W_Signal);
-   end Finalize;
-
    ---------
    -- Get --
    ---------
@@ -90,7 +79,7 @@ package body AWS.Net.Acceptors is
 
                if Error then
                   Shutdown (Socket.all);
-                  Release (Socket);
+                  Free (Socket);
 
                elsif Ready then
                   return;
@@ -112,7 +101,7 @@ package body AWS.Net.Acceptors is
                      Sets.Remove_Socket (Acceptor.Set, Acceptor.Index, Socket);
                      Acceptor.Last := Acceptor.Last - 1;
                      Shutdown (Socket.all);
-                     Release (Socket);
+                     Free (Socket);
                   else
                      if Diff < Wait_Timeout then
                         Wait_Timeout := Diff;
@@ -193,10 +182,10 @@ package body AWS.Net.Acceptors is
                            Sets.Remove_Socket (Acceptor.Set, 1, Socket);
                            Shutdown (Socket.all);
 
-                           --  We could free other sockets, becuse it is not
-                           --  using anywhere else whan it is in socket set.
+                           --  We can free other sockets, because it is not
+                           --  used anywhere else when it is in socket set.
 
-                           Release (Socket);
+                           Free (Socket);
                         end loop;
 
                         raise Socket_Error;
