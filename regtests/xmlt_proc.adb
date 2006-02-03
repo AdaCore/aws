@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2004                            --
---                                ACT-Europe                                --
+--                         Copyright (C) 2004-2006                          --
+--                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -122,7 +122,6 @@ procedure XMLT_Proc (Port : in Positive; Security : in Boolean) is
       Ada.Text_IO.Put_Line (Name & " parsed.");
 
       Close (Read);
-      AWS.Client.Close (HTTP);
 
       Normalize (Get_Tree (My_Tree_Reader));
 
@@ -133,7 +132,6 @@ procedure XMLT_Proc (Port : in Positive; Security : in Boolean) is
    exception
       when E : others =>
          Close (Read);
-         AWS.Client.Close (HTTP);
          Free (My_Tree_Reader);
 
          raise;
@@ -181,6 +179,8 @@ begin
    end;
 
    delay 0.5;
+
+   Client.Close (HTTP);
 
    Server.Shutdown (Web);
 
