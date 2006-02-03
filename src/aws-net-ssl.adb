@@ -50,8 +50,6 @@ with System;
 
 package body AWS.Net.SSL is
 
-   use Ada;
-
    use type Interfaces.C.int;
    use type System.Address;
 
@@ -72,7 +70,7 @@ package body AWS.Net.SSL is
    --  Perform SSL handshake.
 
    function Error_Stack return String;
-   --  Returns error stack of the last SSL error in multiple lines.
+   --  Returns error stack of the last SSL error in multiple lines
 
    function Error_Str (Code : in TSSL.Error_Code) return String;
    --  Returns the SSL error message for error Code
@@ -102,7 +100,7 @@ package body AWS.Net.SSL is
      (Source : in     Net.Socket_Type'Class;
       Target :    out Socket_Type;
       Config : in     SSL.Config);
-   --  Common code for Secure_Server and Secure_Client routines.
+   --  Common code for Secure_Server and Secure_Client routines
 
    -------------------
    -- Accept_Socket --
@@ -131,13 +129,7 @@ package body AWS.Net.SSL is
          exit SSL_Accept when Success;
 
          Shutdown (New_Socket);
-         Free (New_Socket);
       end loop SSL_Accept;
-
-   exception
-      when others =>
-         Free (New_Socket);
-         raise;
    end Accept_Socket;
 
    -------------
@@ -175,7 +167,6 @@ package body AWS.Net.SSL is
                Net.Log.Error (Socket, Error_Text);
 
                Net.Std.Shutdown (NSST (Socket));
-               Free (Socket);
 
                Ada.Exceptions.Raise_Exception
                  (Socket_Error'Identity, Error_Text);
@@ -285,20 +276,6 @@ package body AWS.Net.SSL is
       end if;
    end Error_Str;
 
-   ----------
-   -- Free --
-   ----------
-
-   procedure Free (Socket : in out Socket_Type) is
-   begin
-      if Socket.SSL /= TSSL.Null_Pointer then
-         TSSL.SSL_free (Socket.SSL);
-         Socket.SSL := TSSL.Null_Pointer;
-      end if;
-
-      Net.Std.Free (NSST (Socket));
-   end Free;
-
    -----------------
    -- Init_Random --
    -----------------
@@ -403,7 +380,7 @@ package body AWS.Net.SSL is
    is
       use Interfaces;
 
-      Len    : C.int;
+      Len : C.int;
    begin
       loop
          Len := TSSL.SSL_read (Socket.SSL, Data'Address, Data'Length);
@@ -436,6 +413,16 @@ package body AWS.Net.SSL is
          Config.Finalize;
          Free (Config);
       end if;
+   end Release;
+
+   procedure Release (Socket : in out Socket_Type) is
+   begin
+      if Socket.SSL /= TSSL.Null_Pointer then
+         TSSL.SSL_free (Socket.SSL);
+         Socket.SSL := TSSL.Null_Pointer;
+      end if;
+
+      Net.Std.Release (NSST (Socket));
    end Release;
 
    ------------
