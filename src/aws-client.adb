@@ -52,10 +52,9 @@ package body AWS.Client is
 
    procedure Close (Connection : in out HTTP_Connection) is
    begin
-      Net.SSL.Release (Connection.SSL_Config);
-
       Disconnect (Connection);
-      Net.Release (Connection.Socket);
+
+      Net.SSL.Release (Connection.SSL_Config);
 
       if ZLib.Is_Open (Connection.Decode_Filter) then
          ZLib.Close (Connection.Decode_Filter, Ignore_Error => True);
@@ -282,15 +281,15 @@ package body AWS.Client is
       use type Net.Socket_Access;
    begin
       if not Connection.Opened then
-         --  SSL socket have to be created to get certificate.
+         --  SSL socket have to be created to get certificate
          Connect (Connection.Self.all);
       end if;
 
-      if Connection.Socket.all not in AWS.Net.SSL.Socket_Type'Class then
-         return Net.SSL.Certificate.Undefined;
-      else
+      if Connection.Socket.all in AWS.Net.SSL.Socket_Type'Class then
          return Net.SSL.Certificate.Get
            (Net.SSL.Socket_Type (Connection.Socket.all));
+      else
+         return Net.SSL.Certificate.Undefined;
       end if;
    end Get_Certificate;
 
