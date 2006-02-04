@@ -196,7 +196,7 @@ MODULES_CLEAN = ${MODULES:%=%_clean}
 
 ifeq (${XMLADA}, true)
 PRJ_XMLADA=Installed
-GEXT_MODULE := gxmlada_clean
+GEXT_MODULE := gxmlada_setup
 else
 PRJ_XMLADA=Disabled
 GEXT_MODULE := gxmlada_dummy
@@ -282,12 +282,15 @@ gasis_clean:
 	-$(RM) -f $(PRJDIR)/asis.gpr
 
 gxmlada_dummy:
-	echo "project XMLADA is" > $(PRJDIR)/xmlada.gpr
-	echo "   for Source_Dirs use ();" >> $(PRJDIR)/xmlada.gpr
-	echo "end XMLADA;" >> $(PRJDIR)/xmlada.gpr
+	echo "project AWS_XMLADA is" > $(PRJDIR)/aws_xmlada.gpr
+	echo "   for Source_Dirs use ();" >> $(PRJDIR)/aws_xmlada.gpr
+	echo "end AWS_XMLADA;" >> $(PRJDIR)/aws_xmlada.gpr
 
-gxmlada_clean:
-	-$(RM) -f $(PRJDIR)/xmlada.gpr
+gxmlada_setup:
+	echo 'with "xmlada";' > $(PRJDIR)/aws_xmlada.gpr
+	echo "project AWS_XMLADA is" >> $(PRJDIR)/aws_xmlada.gpr
+	echo "   for Source_Dirs use ();" >> $(PRJDIR)/aws_xmlada.gpr
+	echo "end AWS_XMLADA;" >> $(PRJDIR)/aws_xmlada.gpr
 
 gai302_internal:
 	echo 'with "aws_config";' > $(PRJDIR)/ai302.gpr
@@ -518,6 +521,7 @@ endif
 	$(CP) config/projects/aws_libz.gpr $(I_AGP)
 	$(CP) config/projects/aws_ssl_support.gpr $(I_AGP)
 	$(CP) $(PRJDIR)/aws_config.gpr $(I_AGP)
+	$(CP) $(PRJDIR)/aws_xmlada.gpr $(I_AGP)
 # Copy all shared libraries into the main lib directory
 ifeq (${SHARED}, true)
 	$(CP) lib/*$(SOEXT) $(I_LIB)
