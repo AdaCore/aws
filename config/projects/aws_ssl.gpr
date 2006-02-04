@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                          Copyright (C) 2004-2005                         --
---                                 AdaCore                                  --
+--                          Copyright (C) 2004-2006                         --
+--                                  AdaCore                                 --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -26,8 +26,8 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-with "xmlada";
 with "ai302";
+with "aws_xmlada";
 
 with "aws//aws_components";
 with "aws/aws_ssl_support";

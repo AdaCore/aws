@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                          Copyright (C) 2003-2005                         --
+--                          Copyright (C) 2003-2006                         --
 --                                 AdaCore                                  --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -28,8 +28,8 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-with "xmlada";
 with "sockets";
+with "aws_xmlada";
 with "aws_config";
 
 with "../shared";
