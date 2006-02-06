@@ -50,7 +50,7 @@ package body AWS.Net is
 
    procedure Adjust (Socket : in out Socket_Type) is
    begin
-      Socket.C.Ref_Count := Socket.C.Ref_Count + 1;
+      Socket.C.Ref_Count.Increment;
    end Adjust;
 
    --------------
@@ -61,9 +61,9 @@ package body AWS.Net is
       procedure Free is
         new Unchecked_Deallocation (RW_Cache, RW_Cache_Access);
    begin
-      Socket.C.Ref_Count := Socket.C.Ref_Count - 1;
+      Socket.C.Ref_Count.Decrement;
 
-      if Socket.C.Ref_Count = 0 then
+      if Socket.C.Ref_Count.Value = 0 then
          Free (Socket_Type'Class (Socket));
          Free (Socket.C);
       end if;
@@ -103,7 +103,6 @@ package body AWS.Net is
    begin
       if Socket.C = null then
          Socket.C := new RW_Cache;
-         Socket.C.Ref_Count := 1;
       end if;
    end Initialize;
 
