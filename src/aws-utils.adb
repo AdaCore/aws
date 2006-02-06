@@ -151,6 +151,12 @@ package body AWS.Utils is
          C := C - Amount;
       end Decrement;
 
+      procedure Decrement (Amount : Natural := 1; Value : out Natural) is
+      begin
+         C := C - Amount;
+         Value := C;
+      end Decrement;
+
       ---------------
       -- Increment --
       ---------------

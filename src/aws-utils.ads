@@ -184,6 +184,9 @@ package AWS.Utils is
       procedure Decrement (Amount : Natural := 1);
       --  Removes one to the counter
 
+      procedure Decrement (Amount : Natural := 1; Value : out Natural);
+      --  Removes one to the counter and return the current value
+
       function Value return Natural;
       --  Returns the current counter value
 
