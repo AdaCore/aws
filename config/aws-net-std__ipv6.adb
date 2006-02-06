@@ -58,8 +58,6 @@ package body AWS.Net.Std is
       FD : Interfaces.C.int := No_Socket;
    end record;
 
-   Null_Socket : constant Socket_Type := (Net.Socket_Type with S => null);
-
    type In6_Addr is array (1 .. 8) of Interfaces.Unsigned_16;
    pragma Convention (C, In6_Addr);
 
@@ -71,6 +69,9 @@ package body AWS.Net.Std is
       Scope_Id  : Interfaces.C.unsigned_long;  -- set of interfaces for a scope
    end record;
    pragma Convention (C, Sockaddr_In6);
+
+   procedure Raise_Socket_Error (Error : in Integer);
+   pragma No_Return (Raise_Socket_Error);
 
    procedure Raise_Socket_Error (Error : in Integer; Socket : in Socket_Type);
    pragma No_Return (Raise_Socket_Error);
@@ -157,7 +158,7 @@ package body AWS.Net.Std is
 
       if FD = Sockets.Thin.Failure then
          OSD.FreeAddrInfo (Info);
-         Raise_Socket_Error (Std.Errno, Null_Socket);
+         Raise_Socket_Error (Std.Errno);
       end if;
 
       Socket.S := new Socket_Hidden'(FD => FD);
@@ -198,7 +199,7 @@ package body AWS.Net.Std is
 
       if FD = Sockets.Thin.Failure then
          OSD.FreeAddrInfo (Info);
-         Raise_Socket_Error (Std.Errno, Null_Socket);
+         Raise_Socket_Error (Std.Errno);
       end if;
 
       Socket.S := new Socket_Hidden'(FD => FD);
@@ -349,7 +350,7 @@ package body AWS.Net.Std is
                 res     => Result'Access);
 
       if Res = OSD.EAI_SYSTEM then
-         Raise_Socket_Error (Errno, Null_Socket);
+         Raise_Socket_Error (Errno);
 
       elsif Res /= 0 then
          Ada.Exceptions.Raise_Exception
@@ -605,6 +606,12 @@ package body AWS.Net.Std is
    begin
       Log.Error (Socket, Message => Msg);
       Ada.Exceptions.Raise_Exception (Socket_Error'Identity, Msg);
+   end Raise_Socket_Error;
+
+   procedure Raise_Socket_Error (Error : in Integer) is
+      Null_Socket : constant Socket_Type := (Net.Socket_Type with S => null);
+   begin
+      Raise_Socket_Error (Error, Null_Socket);
    end Raise_Socket_Error;
 
    -------------
