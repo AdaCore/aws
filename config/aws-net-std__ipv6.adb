@@ -58,8 +58,7 @@ package body AWS.Net.Std is
       FD : Interfaces.C.int := No_Socket;
    end record;
 
-   Null_Socket : constant Socket_Type
-     := (S => null, C => null, Timeout => 0.0);
+   Null_Socket : constant Socket_Type := (Net.Socket_Type with S => null);
 
    type In6_Addr is array (1 .. 8) of Interfaces.Unsigned_16;
    pragma Convention (C, In6_Addr);
