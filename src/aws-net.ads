@@ -33,8 +33,9 @@
 
 with Ada.Exceptions;
 with Ada.Finalization;
-
 with Ada.Streams;
+
+with Aws.Utils;
 
 package AWS.Net is
 
@@ -280,7 +281,7 @@ private
    end record;
 
    type RW_Cache is record
-      Ref_Count : Natural;
+      Ref_Count : Utils.Counter (Initial_Value => 1);
       R_Cache   : Read_Cache (R_Cache_Size);
       W_Cache   : Write_Cache (W_Cache_Size);
    end record;
