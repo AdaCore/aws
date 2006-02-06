@@ -76,20 +76,7 @@ package body AWS.Server is
    --  Do a protected accept on the HTTP socket. It is not safe to call
    --  multiple accept on the same socket on some platforms.
 
-   protected Counter is
-
-      procedure Add;
-      --  Add one to the server counter.
-
-      procedure Remove;
-      --  Removes one to the server counter.
-
-      entry Zero;
-      --  Accepted only when counter is equal to 0 (no more active server)
-
-   private
-      C : Natural := 0;
-   end Counter;
+   Server_Counter : Utils.Counter (Initial_Value => 0);
 
    package Line_Attribute is
      new Task_Attributes (Line_Attribute_Record, (null, 1, null));
@@ -175,41 +162,6 @@ package body AWS.Server is
    begin
       return Web_Server.Properties;
    end Config;
-
-   -------------
-   -- Counter --
-   -------------
-
-   protected body Counter is
-
-      ---------
-      -- Add --
-      ---------
-
-      procedure Add is
-      begin
-         C := C + 1;
-      end Add;
-
-      ------------
-      -- Remove --
-      ------------
-
-      procedure Remove is
-      begin
-         C := C - 1;
-      end Remove;
-
-      ----------
-      -- Zero --
-      ----------
-
-      entry Zero when C = 0 is
-      begin
-         null;
-      end Zero;
-
-   end Counter;
 
    ------------------------------------------
    -- Default_Unexpected_Exception_Handler --
@@ -689,7 +641,7 @@ package body AWS.Server is
 
       --  Server removed
 
-      Counter.Remove;
+      Server_Counter.Decrement;
    end Shutdown;
 
    -----------
@@ -1221,7 +1173,7 @@ package body AWS.Server is
       Services.Transient_Pages.Control.Register
         (Transient_Check_Interval => CNF.Transient_Cleanup_Interval);
 
-      Counter.Add;
+      Server_Counter.Increment;
    end Start;
 
    ----------
@@ -1232,7 +1184,7 @@ package body AWS.Server is
    begin
       case Mode is
          when No_Server =>
-            Counter.Zero;
+            Server_Counter.Zero;
 
          when Q_Key_Pressed =>
             declare
