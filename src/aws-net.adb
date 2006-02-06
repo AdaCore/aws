@@ -60,10 +60,11 @@ package body AWS.Net is
    procedure Finalize (Socket : in out Socket_Type) is
       procedure Free is
         new Unchecked_Deallocation (RW_Cache, RW_Cache_Access);
+      Ref_Count : Natural;
    begin
-      Socket.C.Ref_Count.Decrement;
+      Socket.C.Ref_Count.Decrement (Value => Ref_Count);
 
-      if Socket.C.Ref_Count.Value = 0 then
+      if Ref_Count = 0 then
          Free (Socket_Type'Class (Socket));
          Free (Socket.C);
       end if;
