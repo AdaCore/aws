@@ -136,6 +136,50 @@ package body AWS.Utils is
          raise;
    end Compress_Decompress;
 
+   -------------
+   -- Counter --
+   -------------
+
+   protected body Counter is
+
+      ---------------
+      -- Decrement --
+      ---------------
+
+      procedure Decrement (Amount : Natural := 1) is
+      begin
+         C := C - Amount;
+      end Decrement;
+
+      ---------------
+      -- Increment --
+      ---------------
+
+      procedure Increment (Amount : Natural := 1) is
+      begin
+         C := C + Amount;
+      end Increment;
+
+      -----------
+      -- Value --
+      -----------
+
+      function Value return Natural is
+      begin
+         return C;
+      end Value;
+
+      ----------
+      -- Zero --
+      ----------
+
+      entry Zero when C = 0 is
+      begin
+         null;
+      end Zero;
+
+   end Counter;
+
    -------------------
    -- CRLF_2_Spaces --
    -------------------

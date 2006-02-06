@@ -172,6 +172,28 @@ package AWS.Utils is
 
    end Mailbox_G;
 
+   -------------
+   -- Counter --
+   -------------
+
+   protected type Counter (Initial_Value : Natural) is
+
+      procedure Increment (Amount : Natural := 1);
+      --  Adds one to the counter
+
+      procedure Decrement (Amount : Natural := 1);
+      --  Removes one to the counter
+
+      function Value return Natural;
+      --  Returns the current counter value
+
+      entry Zero;
+      --  Accepted only when counter is equal to 0
+
+   private
+      C : Natural := Initial_Value;
+   end Counter;
+
    -----------------------
    -- File compresssion --
    -----------------------
