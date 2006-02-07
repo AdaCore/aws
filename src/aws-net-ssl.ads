@@ -168,7 +168,7 @@ private
       procedure Finalize;
 
    private
-      Context : TSSL.SSL_CTX := TSSL.Null_Pointer;
+      Context : TSSL.SSL_CTX := TSSL.Null_CTX;
    end TS_SSL;
 
    type Config is access TS_SSL;
@@ -177,7 +177,7 @@ private
 
    type Socket_Type is new Net.Std.Socket_Type with record
       Config : SSL.Config := Null_Config;
-      SSL    : SSL_Handle := TSSL.Null_Pointer;
+      SSL    : SSL_Handle := TSSL.Null_Handle;
    end record;
 
 end AWS.Net.SSL;
