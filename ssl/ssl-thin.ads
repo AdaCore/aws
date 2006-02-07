@@ -2,7 +2,7 @@
 --                            Secure Sockets Layer                          --
 --                         Binding to OpenSSL library                       --
 --                                                                          --
---                         Copyright (C) 2000-2005                          --
+--                         Copyright (C) 2000-2006                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -50,6 +50,9 @@ package SSL.Thin is
    subtype RSA        is Pointer;
    subtype X509       is Pointer;
    subtype X509_Name  is Pointer;
+
+   Null_CTX    : SSL_CTX    renames Null_Pointer;
+   Null_Handle : SSL_Handle renames Null_Pointer;
 
    subtype Error_Code is unsigned_long;
 
