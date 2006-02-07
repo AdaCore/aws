@@ -460,8 +460,6 @@ package SSL.GNUTLS is
    type gnutls_rsa_params_t is access all STRUCT_DSTRUCT;
    type a_gnutls_session_t is access all gnutls_session_t;
    type gnutls_certificate_credentials_t is access all STRUCT_DSTRUCT;
-   type gnutls_certificate_server_credentials is access all STRUCT_DSTRUCT;
-   type gnutls_certificate_client_credentials is access all STRUCT_DSTRUCT;
    type gnutls_anon_server_credentials_t is access all STRUCT_DSTRUCT;
    type gnutls_anon_client_credentials_t is access all STRUCT_DSTRUCT;
    type a_gnutls_anon_server_credentials_t is access all
@@ -1308,6 +1306,9 @@ package SSL.GNUTLS is
 
    function SSLeay (Dummy : in C.int := 0) return C.int;
    pragma Import (C, SSLeay, "gnutls_check_version");
+
+   subtype SSL_Handle is gnutls_session_t;
+   subtype SSL_CTX is gnutls_certificate_credentials_t;
 
 private
 
