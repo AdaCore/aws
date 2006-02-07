@@ -1301,6 +1301,14 @@ package SSL.GNUTLS is
      (res  : gnutls_certificate_credentials_t;
       func : gnutls_params_function);
 
+   ---------------------------------------------------------------------
+   -- Tricks to support AWS.Net.SSL specification compartibility with --
+   -- OpenSSL thin binding.                                           --
+   ---------------------------------------------------------------------
+
+   function SSLeay (Dummy : in C.int := 0) return C.int;
+   pragma Import (C, SSLeay, "gnutls_check_version");
+
 private
 
    pragma Import
