@@ -1515,7 +1515,7 @@ default file is @file{@_DEFAULT_KEY_@}.
 @cindex Line_Stack_Size
 The HTTP lines stack size. The stack size must be adjusted for each
 applications depending on the use of the stack done by the callback
-procedures. The default is @_FORMAT_NUMBER:LINE_STACK_SIZE_@.
+procedures. The default is @_LINE_STACK_SIZE_@.
 
 @item Log_File_Directory (string)
 @cindex Log_File_Directory
