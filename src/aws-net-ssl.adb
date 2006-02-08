@@ -55,6 +55,23 @@ package body AWS.Net.SSL is
 
    subtype NSST is Net.Std.Socket_Type;
 
+   protected type TS_SSL is
+
+      procedure Set_FD (Socket : in out Socket_Type);
+      --  Bind the SSL socket handle with the socket
+
+      procedure Initialize
+        (Certificate_Filename : in String;
+         Security_Mode        : in Method;
+         Key_Filename         : in String;
+         Exchange_Certificate : in Boolean);
+
+      procedure Finalize;
+
+   private
+      Context : TSSL.SSL_CTX := TSSL.Null_CTX;
+   end TS_SSL;
+
    Default_Config : constant Config := new TS_SSL;
 
    procedure Error_If (Error : in Boolean);

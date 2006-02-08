@@ -154,22 +154,7 @@ private
 
    subtype SSL_Handle is TSSL.SSL_Handle;
 
-   protected type TS_SSL is
-
-      procedure Set_FD (Socket : in out Socket_Type);
-      --  Bind the SSL socket handle with the socket
-
-      procedure Initialize
-        (Certificate_Filename : in String;
-         Security_Mode        : in Method;
-         Key_Filename         : in String;
-         Exchange_Certificate : in Boolean);
-
-      procedure Finalize;
-
-   private
-      Context : TSSL.SSL_CTX := TSSL.Null_CTX;
-   end TS_SSL;
+   type TS_SSL;
 
    type Config is access TS_SSL;
 
