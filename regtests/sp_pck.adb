@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2004-2005                          --
+--                         Copyright (C) 2004-2006                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -164,7 +164,7 @@ package body Sp_Pck is
 
          Data := Data + 1.0;
 
-         Server_Push.Send (Push, Data, "text/plain");
+         Server_Push.Send (Push, Data => Data, Content_Type => "text/plain");
 
          for J in Connect'Range loop
             Put_Line ("--------------------------------");
@@ -188,7 +188,7 @@ package body Sp_Pck is
          --  closed in previous iterations.
          --  Last connection would not be unregistered.
 
-         Server_Push.Send (Push, Data, "text/plain");
+         Server_Push.Send (Push, Data => Data, Content_Type => "text/plain");
 
          Client.Close (Connect (J));
       end loop;
