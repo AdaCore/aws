@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2004                          --
---                                ACT-Europe                                --
+--                         Copyright (C) 2000-2006                          --
+--                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -42,6 +42,8 @@ procedure Build is
    use AWS.Utils;
    use Templates_Parser;
 
+   File : Text_IO.File_Type;
+
    function Image (D : in Duration) return String;
    --  D string representation
 
@@ -56,6 +58,7 @@ procedure Build is
       return D_S (D_S'First + 1 .. I + 1);
    end Image;
 
+   --  If a tag is added into this table make sure to update gen_doc.sed.tmplt
 
    T : Translate_Table
      := (Assoc ("AWS_VERSION", AWS.Version),
@@ -121,5 +124,35 @@ procedure Build is
         );
 
 begin
-   Text_IO.Put_Line (Parse ("aws.texi.tmplt", T, Keep_Unknown_Tags => True));
+   --  Generates the documentation
+
+   Text_IO.Put_Line
+     (Parse ("aws.texi.tmplt", T, Keep_Unknown_Tags => True));
+
+   --  Generates a script that can be used to create the documentation from
+   --  the document template.
+
+   Text_IO.Create (File, Text_IO.Out_File, "gen_doc.sed");
+
+   declare
+      use Strings.Fixed;
+      Script : String :=
+        Parse ("gen_doc.sed.tmplt", T, Keep_Unknown_Tags => True);
+      I      : Natural;
+   begin
+      loop
+         I := Index (Script, "x_");
+         exit when I = 0;
+         Replace_Slice (Script, I, I + 1, "@_");
+      end loop;
+
+      loop
+         I := Index (Script, "_x");
+         exit when I = 0;
+         Replace_Slice (Script, I, I + 1, "_@");
+      end loop;
+
+      Text_IO.Put_Line (File, Script);
+   end;
+   Text_IO.Close (File);
 end Build;
