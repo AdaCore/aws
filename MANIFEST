@@ -138,6 +138,7 @@ docs/aws.texi.tmplt
 docs/aws.txt
 docs/build.adb
 docs/docs.gpr
+docs/gen_doc.sed
 docs/gen_doc.sed.tmplt
 docs/gentexifile
 docs/makefile
