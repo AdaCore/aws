@@ -188,13 +188,14 @@ implemented:
   socket/stream pair into the socket set in the download task.
 
 
-=============== Point to fix/implement/review before next release (2.2)
+- Remove use of specific OS_Lib implementations and provide a single
+  implementation based on standard Ada.Directories.
+  Will be part of the move to Ada-05
 
 - Revisit the AdaSockets support. Should we continue supporting this ?
   It would certainly be easier to support only GNAT.Sockets and use the
   selector facilities instead of the AWS's poll() support.
 
-- Remove use of specific OS_Lib implementations and provide a single
-  implementation based on standard Ada.Directories.
+=============== Point to fix/implement/review before next release (2.2)
 
 - Replace OpenSSL by GNUTLS library as this library is now stable.
