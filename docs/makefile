@@ -2,6 +2,8 @@
 .SILENT:
 
 
+BUILD_DOC_SCRIPT = true
+
 MAKEINFO	= $(shell which makeinfo 2> /dev/null)
 DVIPS		= $(shell which dvips 2> /dev/null)
 TEXI2DVI	= $(shell which texi2dvi 2> /dev/null)
@@ -88,14 +90,14 @@ APIFILES = ../src/aws.ads.texi \
 	../soap/soap-parameters.ads.texi \
 	../soap/soap-types.ads.texi
 
-force:
-
 aws_docs: aws.texi aws.pdf aws.ps aws.html aws.txt aws.info
+
+force:
 
 sg_docs: style-guide.pdf style-guide.ps style-guide.html style-guide.txt \
 	style-guide.info
 
-build_doc: prog $(APIFILES) aws_docs sg_docs
+build_doc: $(APIFILES) aws_docs sg_docs
 	echo ""
 	echo Documentation built with success.
 
@@ -148,9 +150,9 @@ ifneq (${PDFTEX},)
 	echo Building $@
 	${TEXI2DVI} -p --expand --clean --quiet $<
 else
-	@echo "-----------------------------------------------"
-	@echo "pdftex not fond, cannot build PDF documentation"
-	@echo "-----------------------------------------------"
+	@echo "------------------------------------------------"
+	@echo "pdftex not found, cannot build PDF documentation"
+	@echo "------------------------------------------------"
 endif
 else
 	@echo "--------------------------------------------------"
@@ -193,8 +195,15 @@ endif
 prog:
 	$(GNATMAKE) -Pdocs -XPRJ_Build=${PRJ_BUILD} -XPRJ_XMLADA=Installed
 
+ifeq (${BUILD_DOC_SCRIPT},false)
 aws.texi: prog aws.texi.tmplt
+	echo build from ada
 	./build | tr -d '\r' > aws.texi
+else
+aws.texi: aws.texi.tmplt
+	echo build from script
+	sed -f ./gen_doc.sed < aws.texi.tmplt > aws.texi
+endif
 
 check_api:
 	if [ -f ../$(BDIR)/obj/soap.ali ]; then \
