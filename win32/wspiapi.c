@@ -25,5 +25,5 @@ int WSPIAPI_init ()
    rc = WspiapiGetAddrInfo (NULL, "5001", &Hints, &Addr);
    WspiapiFreeAddrInfo (Addr);
 
-   return rc; 
+   return rc;
 }

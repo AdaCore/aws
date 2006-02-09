@@ -11,9 +11,9 @@ To ease integration we have used the following design:
   web_elements demo.
 
 - Each graphic elements (icons) is referenced into the templates with the
-  alias /we_icons/<icon_name>. So users must provide the right alias 
+  alias /we_icons/<icon_name>. So users must provide the right alias
   ("/we_icons/") in the  Web server.
 
 - Each javascripts code is referenced into the templates with the
-  alias /we_js/<script>. So users must provide the right alias 
+  alias /we_js/<script>. So users must provide the right alias
   ("/we_js/") in the  Web server.
