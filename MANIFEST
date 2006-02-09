@@ -411,6 +411,8 @@ regtests/sockto.out
 regtests/sockto_proc.adb
 regtests/sp.adb
 regtests/sp.out
+regtests/sp_pack.ads
+regtests/sp_pack.adb
 regtests/sp_pck.adb
 regtests/sp_pck.ads
 regtests/spair.adb
@@ -418,6 +420,10 @@ regtests/spair.out
 regtests/spair_proc.adb
 regtests/spair_sec.adb
 regtests/spair_sec.out
+regtests/spg.adb
+regtests/spg.out
+regtests/spg_sec.adb
+regtests/spg_sec.out
 regtests/split1.adb
 regtests/split1.out
 regtests/split1.tmplt
