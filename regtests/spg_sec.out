@@ -1,0 +1,690 @@
+Content-Type: text/number
+
+     $0.01.
+C
+000000.01.
+     0.01.
+Content-Type: text/number
+
+     $0.01.
+C
+000000.01.
+     0.01.
+Content-Type: text/number
+
+     $0.01.
+C
+000000.01.
+     0.01.
+Content-Type: text/number
+
+     $0.01.
+C
+000000.01.
+     0.01.
+Content-Type: text/number
+
+     $0.01.
+C
+000000.01.
+     0.01.
+Content-Type: text/number
+
+     $0.01.
+C
+000000.01.
+     0.01.
+Content-Type: text/number
+
+     $0.01.
+C
+000000.01.
+     0.01.
+Content-Type: text/number
+
+     $0.01.
+C
+000000.01.
+     0.01.
+Content-Type: text/number
+
+     $0.01.
+C
+000000.01.
+     0.01.
+Content-Type: text/number
+
+     $0.01.
+C
+000000.01.
+     0.01.
+----
+
+
+Content-Type: broadcast
+
+ $1,001.00.
+
+
+Content-Type: exact
+
+ $1,001.01.
+----
+
+C
+001001.00.
+
+C
+001001.02.
+----
+  1001.00.
+  1001.03.
+----
+
+
+Content-Type: broadcast
+
+ $1,001.00.
+
+
+Content-Type: exact
+
+ $1,001.04.
+----
+
+C
+001001.00.
+
+C
+001001.05.
+----
+  1001.00.
+  1001.06.
+----
+
+
+Content-Type: broadcast
+
+ $1,001.00.
+
+
+Content-Type: exact
+
+ $1,001.07.
+----
+
+C
+001001.00.
+
+C
+001001.08.
+----
+  1001.00.
+  1001.09.
+----
+
+
+Content-Type: broadcast
+
+ $1,001.00.
+
+
+Content-Type: exact
+
+ $1,001.10.
+----
+
+C
+001001.00.
+
+C
+001001.11.
+----
+  1001.00.
+  1001.12.
+----
+
+
+Content-Type: broadcast
+
+ $1,001.00.
+
+
+Content-Type: exact
+
+ $1,001.13.
+----
+
+C
+001001.00.
+
+C
+001001.14.
+----
+  1001.00.
+  1001.15.
+----
+
+
+Content-Type: broadcast
+
+ $1,001.00.
+
+
+Content-Type: exact
+
+ $1,001.16.
+----
+
+C
+001001.00.
+
+C
+001001.17.
+----
+  1001.00.
+  1001.18.
+----
+
+
+Content-Type: broadcast
+
+ $1,001.00.
+
+
+Content-Type: exact
+
+ $1,001.19.
+----
+
+C
+001001.00.
+
+C
+001001.20.
+----
+  1001.00.
+  1001.21.
+----
+
+
+Content-Type: broadcast
+
+ $1,001.00.
+
+
+Content-Type: exact
+
+ $1,001.22.
+----
+
+C
+001001.00.
+
+C
+001001.23.
+----
+  1001.00.
+  1001.24.
+----
+
+
+Content-Type: broadcast
+
+ $1,001.00.
+
+
+Content-Type: exact
+
+ $1,001.25.
+----
+
+C
+001001.00.
+
+C
+001001.26.
+----
+  1001.00.
+  1001.27.
+----
+
+
+Content-Type: broadcast
+
+ $1,001.00.
+
+
+Content-Type: exact
+
+ $1,001.28.
+----
+
+C
+001001.00.
+
+C
+001001.29.
+----
+  1001.00.
+  1001.30.
+----
+
+
+Content-Type: broadcast
+
+ $1,002.30.
+
+
+Content-Type: exact
+
+ $1,002.31.
+----
+
+C
+001002.30.
+
+C
+001002.32.
+----
+  1002.30.
+  1002.33.
+----
+
+
+Content-Type: broadcast
+
+ $1,002.30.
+
+
+Content-Type: exact
+
+ $1,002.34.
+----
+
+C
+001002.30.
+
+C
+001002.35.
+----
+  1002.30.
+  1002.36.
+----
+
+
+Content-Type: broadcast
+
+ $1,002.30.
+
+
+Content-Type: exact
+
+ $1,002.37.
+----
+
+C
+001002.30.
+
+C
+001002.38.
+----
+  1002.30.
+  1002.39.
+----
+
+
+Content-Type: broadcast
+
+ $1,002.30.
+
+
+Content-Type: exact
+
+ $1,002.40.
+----
+
+C
+001002.30.
+
+C
+001002.41.
+----
+  1002.30.
+  1002.42.
+----
+
+
+Content-Type: broadcast
+
+ $1,002.30.
+
+
+Content-Type: exact
+
+ $1,002.43.
+----
+
+C
+001002.30.
+
+C
+001002.44.
+----
+  1002.30.
+  1002.45.
+----
+
+
+Content-Type: broadcast
+
+ $1,002.30.
+
+
+Content-Type: exact
+
+ $1,002.46.
+----
+
+C
+001002.30.
+
+C
+001002.47.
+----
+  1002.30.
+  1002.48.
+----
+
+
+Content-Type: broadcast
+
+ $1,002.30.
+
+
+Content-Type: exact
+
+ $1,002.49.
+----
+
+C
+001002.30.
+
+C
+001002.50.
+----
+  1002.30.
+  1002.51.
+----
+
+
+Content-Type: broadcast
+
+ $1,002.30.
+
+
+Content-Type: exact
+
+ $1,002.52.
+----
+
+C
+001002.30.
+
+C
+001002.53.
+----
+  1002.30.
+  1002.54.
+----
+
+
+Content-Type: broadcast
+
+ $1,002.30.
+
+
+Content-Type: exact
+
+ $1,002.55.
+----
+
+C
+001002.30.
+
+C
+001002.56.
+----
+  1002.30.
+  1002.57.
+----
+
+
+Content-Type: broadcast
+
+ $1,002.30.
+
+
+Content-Type: exact
+
+ $1,002.58.
+----
+
+C
+001002.30.
+
+C
+001002.59.
+----
+  1002.30.
+  1002.60.
+---
+
+
+Content-Type: group-5
+
+$22,222.22.
+
+
+Content-Type: group-boolean
+
+    $11.11.
+---
+
+C
+033333.33.
+
+C
+000022.22.
+---
+ 44444.44.
+    11.11.
+---
+
+
+Content-Type: group-5
+
+$55,555.55.
+
+
+Content-Type: group-boolean
+
+    $22.22.
+---
+
+C
+011111.11.
+
+C
+000011.11.
+---
+ 22222.22.
+    22.22.
+---
+
+
+Content-Type: group-5
+
+$33,333.33.
+
+
+Content-Type: group-boolean
+
+    $11.11.
+---
+
+C
+044444.44.
+
+C
+000022.22.
+---
+ 55555.55.
+    11.11.
+---
+
+
+Content-Type: group-5
+
+$11,111.11.
+
+
+Content-Type: group-boolean
+
+    $22.22.
+---
+
+C
+022222.22.
+
+C
+000011.11.
+---
+ 33333.33.
+    22.22.
+---
+
+
+Content-Type: group-5
+
+$44,444.44.
+
+
+Content-Type: group-boolean
+
+    $11.11.
+---
+
+C
+055555.55.
+
+C
+000022.22.
+---
+ 11111.11.
+    11.11.
+---
+
+
+Content-Type: group-5
+
+$22,222.22.
+
+
+Content-Type: group-boolean
+
+    $22.22.
+---
+
+C
+033333.33.
+
+C
+000011.11.
+---
+ 44444.44.
+    22.22.
+---
+
+
+Content-Type: group-5
+
+$55,555.55.
+
+
+Content-Type: group-boolean
+
+    $11.11.
+---
+
+C
+011111.11.
+
+C
+000022.22.
+---
+ 22222.22.
+    11.11.
+---
+
+
+Content-Type: group-5
+
+$33,333.33.
+
+
+Content-Type: group-boolean
+
+    $22.22.
+---
+
+C
+044444.44.
+
+C
+000011.11.
+---
+ 55555.55.
+    22.22.
+---
+
+
+Content-Type: group-5
+
+$11,111.11.
+
+
+Content-Type: group-boolean
+
+    $11.11.
+---
+
+C
+022222.22.
+
+C
+000022.22.
+---
+ 33333.33.
+    11.11.
+---
+
+
+Content-Type: group-5
+
+$44,444.44.
+
+
+Content-Type: group-boolean
+
+    $22.22.
+---
+
+C
+055555.55.
+
+C
+000011.11.
+---
+ 11111.11.
+    22.22.
