@@ -27,8 +27,8 @@
 ------------------------------------------------------------------------------
 
 with "ai302";
-with "aws_xmlada";
 
+with "aws/aws_xmlada";
 with "aws/aws_components";
 with "aws/aws_ssl_support";
 with "aws/aws_nossl_lib";
