@@ -27,6 +27,8 @@
 ------------------------------------------------------------------------------
 
 with Ada.Calendar;
+with Ada.Unchecked_Deallocation;
+
 with AI302.Containers;
 
 with AWS.Messages;
@@ -43,8 +45,11 @@ package body AWS.Server.Push is
    function To_Holder
      (Socket      : in Net.Socket_Type'Class;
       Environment : in Client_Environment;
-      Kind        : in Mode)
+      Kind        : in Mode;
+      Groups      : in Group_Set)
       return Client_Holder;
+
+   procedure Free (Holder : in out Client_Holder);
 
    function To_Stream (Socket : in Net.Socket_Type'Class) return Stream_Access
      renames AWS.Net.Stream_IO.Stream;
@@ -65,6 +70,18 @@ package body AWS.Server.Push is
    begin
       return Server.Count;
    end Count;
+
+   ----------
+   -- Free --
+   ----------
+
+   procedure Free (Holder : in out Client_Holder) is
+      procedure Free
+        is new Ada.Unchecked_Deallocation (Group_Set, Groups_Access);
+   begin
+      Net.Stream_IO.Free (Holder.Stream);
+      Free (Holder.Groups);
+   end Free;
 
    -------------
    -- Is_Open --
@@ -122,7 +139,7 @@ package body AWS.Server.Push is
          Success : Boolean;
       begin
          if not Open then
-            Net.Stream_IO.Free (Holder.Stream);
+            Free (Holder);
             raise Closed;
          end if;
 
@@ -134,9 +151,36 @@ package body AWS.Server.Push is
                Table.Insert (Container, Client_Id, Holder, Cursor, Success);
                pragma Assert (Success);
             else
-               Net.Stream_IO.Free (Holder.Stream);
+               Free (Holder);
                raise Duplicate_Client_Id;
             end if;
+         end if;
+
+         if Holder.Groups /= null then
+            for J in Holder.Groups'Range loop
+               declare
+                  use Group_Maps;
+                  Name : constant String := To_String (Holder.Groups (J));
+
+                  C : constant Group_Maps.Cursor := Find (Groups, Name);
+                  G : Map_Access;
+
+                  Dummy_B : Boolean;
+                  Dummy_C : Group_Maps.Cursor;
+                  Dummy_0 : Table.Cursor;
+               begin
+                  if Has_Element (C) then
+                     G := Element (C);
+                  else
+                     G := new Table.Map;
+                     Insert (Groups, Name, G, Dummy_C, Dummy_B);
+                     pragma Assert (Dummy_B);
+                  end if;
+
+                  Table.Insert (G.all, Client_Id, Holder, Dummy_0, Dummy_B);
+                  pragma Assert (Dummy_B);
+               end;
+            end loop;
          end if;
 
          begin
@@ -208,12 +252,26 @@ package body AWS.Server.Push is
 
       procedure Send
         (Data         : in     Client_Output_Type;
+         Group_Id     : in     String;
          Content_Type : in     String;
          Unregistered : in out Table.Map)
       is
          Cursor : Table.Cursor;
       begin
-         Cursor := Table.First (Container);
+         if Group_Id = "" then
+            Cursor := Table.First (Container);
+         else
+            declare
+               use Group_Maps;
+               C : constant Group_Maps.Cursor := Find (Groups, Group_Id);
+            begin
+               if not Has_Element (C) then
+                  return;
+               end if;
+
+               Cursor := Table.First (Element (C).all);
+            end;
+         end if;
 
          while Table.Has_Element (Cursor) loop
             declare
@@ -326,7 +384,7 @@ package body AWS.Server.Push is
       is
          Gone : Table.Map;
       begin
-         Send (Final_Data, Final_Content_Type, Gone);
+         Send (Final_Data, "", Final_Content_Type, Gone);
          Table.Clear (Gone);
          Shutdown (Close_Sockets => True);
       end Shutdown;
@@ -360,11 +418,20 @@ package body AWS.Server.Push is
          if Table.Has_Element (Cursor) then
             Value := Table.Element (Cursor);
 
+            if Value.Groups /= null then
+               for J in Value.Groups'Range loop
+                  Table.Delete
+                    (Group_Maps.Element
+                       (Groups, To_String (Value.Groups (J))).all,
+                     Client_Id);
+               end loop;
+            end if;
+
             if Close_Socket then
                Net.Stream_IO.Shutdown (Value.Stream);
             end if;
 
-            Net.Stream_IO.Free (Value.Stream);
+            Free (Value);
 
             Table.Delete (Container, Cursor);
          end if;
@@ -400,9 +467,10 @@ package body AWS.Server.Push is
       Init_Data         : in     Client_Output_Type;
       Init_Content_Type : in     String := "";
       Kind              : in     Mode := Plain;
-      Close_Duplicate   : in     Boolean := False)
+      Close_Duplicate   : in     Boolean := False;
+      Groups            : in     Group_Set          := Empty_Group)
    is
-      Holder : Client_Holder := To_Holder (Socket, Environment, Kind);
+      Holder : Client_Holder := To_Holder (Socket, Environment, Kind, Groups);
    begin
       Server.Register
         (Client_Id,
@@ -418,9 +486,10 @@ package body AWS.Server.Push is
       Socket          : in     Net.Socket_Type'Class;
       Environment     : in     Client_Environment;
       Kind            : in     Mode               := Plain;
-      Close_Duplicate : in     Boolean := False)
+      Close_Duplicate : in     Boolean            := False;
+      Groups          : in     Group_Set          := Empty_Group)
    is
-      Holder : Client_Holder := To_Holder (Socket, Environment, Kind);
+      Holder : Client_Holder := To_Holder (Socket, Environment, Kind, Groups);
    begin
       Server.Register (Client_Id, Holder, Close_Duplicate);
    end Register;
@@ -440,12 +509,13 @@ package body AWS.Server.Push is
 
    procedure Send
      (Server       : in out Object;
+      Group_Id     : in     String             := "";
       Data         : in     Client_Output_Type;
       Content_Type : in     String             := "")
    is
       Gone : Table.Map;
    begin
-      Server.Send (Data, Content_Type, Gone);
+      Server.Send (Data, Group_Id, Content_Type, Gone);
       Table.Clear (Gone);
    end Send;
 
@@ -455,13 +525,14 @@ package body AWS.Server.Push is
 
    procedure Send_G
      (Server       : in out Object;
+      Group_Id     : in     String             := "";
       Data         : in     Client_Output_Type;
       Content_Type : in     String             := "")
    is
       Cursor : Table.Cursor;
       Gone   : Table.Map;
    begin
-      Server.Send (Data, Content_Type, Gone);
+      Server.Send (Data, Group_Id, Content_Type, Gone);
 
       Cursor := Table.First (Gone);
 
@@ -521,12 +592,20 @@ package body AWS.Server.Push is
    function To_Holder
      (Socket      : in Net.Socket_Type'Class;
       Environment : in Client_Environment;
-      Kind        : in Mode)
-      return Client_Holder is
+      Kind        : in Mode;
+      Groups      : in Group_Set)
+      return Client_Holder
+   is
+      Groups_Ptr : Groups_Access;
    begin
+      if Groups /= Empty_Group then
+         Groups_Ptr := new Group_Set'(Groups);
+      end if;
+
       return (Kind        => Kind,
               Environment => Environment,
-              Stream      => To_Stream (Socket));
+              Stream      => To_Stream (Socket),
+              Groups      => Groups_Ptr);
    end To_Holder;
 
    ----------------

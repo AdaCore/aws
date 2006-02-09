@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2004                          --
+--                         Copyright (C) 2000-2006                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -31,6 +31,8 @@
 --  For Microsoft Internet Explorer complementary active components
 --  should be used like java applets or ActiveX controls.
 
+with Ada.Strings.Unbounded;
+
 with AWS.Net.Stream_IO;
 
 with Strings_Maps;
@@ -56,6 +58,8 @@ generic
    --  clients.
 
 package AWS.Server.Push is
+
+   use Ada.Strings.Unbounded;
 
    Client_Gone : exception;
    --  Raised when a client is not responding
@@ -83,6 +87,10 @@ package AWS.Server.Push is
    --  uniq ID. This Id is used for registration and for sending data to
    --  specific client.
 
+   type Group_Set is array (Positive range <>) of Unbounded_String;
+
+   Empty_Group : constant Group_Set := (1 .. 0 => Null_Unbounded_String);
+
    procedure Register
      (Server            : in out Object;
       Client_Id         : in     Client_Key;
@@ -91,7 +99,8 @@ package AWS.Server.Push is
       Init_Data         : in     Client_Output_Type;
       Init_Content_Type : in     String             := "";
       Kind              : in     Mode               := Plain;
-      Close_Duplicate   : in     Boolean            := False);
+      Close_Duplicate   : in     Boolean            := False;
+      Groups            : in     Group_Set          := Empty_Group);
    --  Add client identified by Client_Id to the server subscription
    --  list and send the Init_Data (as a Data_Content_Type mime content) to
    --  him. After registering this client will be able to receive pushed data
@@ -105,7 +114,8 @@ package AWS.Server.Push is
       Socket          : in     Net.Socket_Type'Class;
       Environment     : in     Client_Environment;
       Kind            : in     Mode               := Plain;
-      Close_Duplicate : in     Boolean            := False);
+      Close_Duplicate : in     Boolean            := False;
+      Groups          : in     Group_Set          := Empty_Group);
    --  Same as above but without sending initial data
 
    procedure Unregister
@@ -133,17 +143,21 @@ package AWS.Server.Push is
 
    procedure Send
      (Server       : in out Object;
+      Group_Id     : in     String             := "";
       Data         : in     Client_Output_Type;
       Content_Type : in     String             := "");
-   --  Push data to every client (broadcast) subscribed to the server
+   --  Push data to group of clients (broadcast) subscribed to the server.
+   --  If Group_Id is empty, data transferred to each client.
 
    generic
       with procedure Client_Gone (Client_Id : in String);
    procedure Send_G
      (Server       : in out Object;
+      Group_Id     : in     String             := "";
       Data         : in     Client_Output_Type;
       Content_Type : in     String             := "");
-   --  Push data to every client (broadcast) subscribed to the server.
+   --  Push data to group of clients (broadcast) subscribed to the server.
+   --  If Group_Id is empty, data transferred to each client.
    --  Call Client_Gone for each client with broken socket.
 
    function Count (Server : in Object) return Natural;
@@ -190,14 +204,22 @@ private
 
    subtype Stream_Access is AWS.Net.Stream_IO.Socket_Stream_Access;
 
+   type Groups_Access is access all Group_Set;
+
    type Client_Holder is record
       Stream      : Stream_Access;
       Kind        : Mode;
       Environment : Client_Environment;
+      Groups      : Groups_Access;
    end record;
 
    package Table_Container is new Strings_Maps (Client_Holder, "=");
    package Table renames Table_Container.Containers;
+
+   type Map_Access is access all Table.Map;
+
+   package Group_Container is new Strings_Maps (Map_Access, "=");
+   package Group_Maps renames Group_Container.Containers;
 
    protected type Object is
 
@@ -247,6 +269,7 @@ private
 
       procedure Send
         (Data         : in     Client_Output_Type;
+         Group_Id     : in     String;
          Content_Type : in     String;
          Unregistered : in out Table.Map);
       --  Send Data to all clients registered. Unregistered will contain a
@@ -263,6 +286,7 @@ private
 
    private
       Container : Table.Map;
+      Groups    : Group_Maps.Map;
       Open      : Boolean := True;
    end Object;
 
