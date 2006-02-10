@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2002-2004                          --
---                                ACT-Europe                                --
+--                         Copyright (C) 2002-2006                          --
+--                                 AdaCore                                  --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
 --                                                                          --
@@ -398,6 +398,8 @@ begin
 
    Text_IO.Close (R_File);
 
+   Ada.Command_Line.Set_Exit_Status (Ada.Command_Line.Success);
+
 exception
    when Syntax_Error =>
       Text_IO.Put_Line ("AWSRes - Resource Creator v" & Version);
@@ -414,4 +416,6 @@ exception
         ("        -u      : disable compression of following resources");
       Text_IO.Put_Line
         ("        -q      : quiet mode");
+
+   Ada.Command_Line.Set_Exit_Status (Ada.Command_Line.Failure);
 end AwsRes;
