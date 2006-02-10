@@ -143,8 +143,8 @@ package AWS.Server.Push is
 
    procedure Send
      (Server       : in out Object;
-      Group_Id     : in     String             := "";
       Data         : in     Client_Output_Type;
+      Group_Id     : in     String             := "";
       Content_Type : in     String             := "");
    --  Push data to group of clients (broadcast) subscribed to the server.
    --  If Group_Id is empty, data transferred to each client.
@@ -153,8 +153,8 @@ package AWS.Server.Push is
       with procedure Client_Gone (Client_Id : in String);
    procedure Send_G
      (Server       : in out Object;
-      Group_Id     : in     String             := "";
       Data         : in     Client_Output_Type;
+      Group_Id     : in     String             := "";
       Content_Type : in     String             := "");
    --  Push data to group of clients (broadcast) subscribed to the server.
    --  If Group_Id is empty, data transferred to each client.
