@@ -32,6 +32,7 @@
 --  files passed as argument.
 
 with Ada.Calendar;
+with Ada.Command_Line;
 with Ada.Integer_Text_IO;
 with Ada.Streams;
 with Ada.Strings.Fixed;
