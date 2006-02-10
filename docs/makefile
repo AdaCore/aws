@@ -90,16 +90,16 @@ APIFILES = ../src/aws.ads.texi \
 	../soap/soap-parameters.ads.texi \
 	../soap/soap-types.ads.texi
 
+build_doc: $(APIFILES) aws_docs sg_docs
+	echo ""
+	echo Documentation built with success.
+
 aws_docs: aws.texi aws.pdf aws.ps aws.html aws.txt aws.info
 
 force:
 
 sg_docs: style-guide.pdf style-guide.ps style-guide.html style-guide.txt \
 	style-guide.info
-
-build_doc: $(APIFILES) aws_docs sg_docs
-	echo ""
-	echo Documentation built with success.
 
 setup:
 
