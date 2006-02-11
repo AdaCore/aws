@@ -177,7 +177,7 @@ build_http_tarball:
 
 build_tarballs: common_tarball build_http_tarball build_tarball
 
-distrib: build_apiref build_doc build_tarballs
+distrib: build_apiref build_tarballs
 
 force:
 
