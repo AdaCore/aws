@@ -92,7 +92,8 @@ APIFILES = ../src/aws.ads.texi \
 
 build_doc: $(APIFILES) aws_docs sg_docs
 	echo ""
-	echo Documentation built with success.
+	echo AWS Documentation built with success.
+	${MAKE} -C ../templates_parser doc
 
 aws_docs: aws.texi aws.pdf aws.ps aws.html aws.txt aws.info
 
