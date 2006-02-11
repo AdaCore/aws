@@ -357,7 +357,6 @@ regtests/partial.out
 regtests/plain2ssl.adb
 regtests/plain2ssl.out
 regtests/print_tasks.adb
-regtests/readme.txt
 regtests/redirect.adb
 regtests/redirect.out
 regtests/regtests.gpr
