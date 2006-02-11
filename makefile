@@ -75,7 +75,6 @@ build_doc:
 	echo ""
 	echo "=== Build doc"
 	${MAKE} -C docs build_doc $(GALL_OPTIONS)
-	${MAKE} -C templates_parser doc $(GALL_OPTIONS)
 
 build_apiref:
 	echo ""
