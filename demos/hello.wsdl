@@ -23,18 +23,18 @@
    
    <binding name="Hello_Binding" type="tns:Hello_PortType">
       <soap:binding style="document" 
-         transport=" http://schemas.xmlsoap.org/soap/http"/>
+         transport="http://schemas.xmlsoap.org/soap/http"/>
       <operation name="sayHello">
          <soap:operation soapAction="sayHello"/>
          <input>
             <soap:body
-               encodingStyle=" http://schemas.xmlsoap.org/soap/encoding/"
+               encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"
                namespace="urn:examples:helloservice"
                use="literal"/>
          </input>
          <output>
             <soap:body
-               encodingStyle=" http://schemas.xmlsoap.org/soap/encoding/"
+               encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"
                namespace="urn:examples:helloservice"
                use="literal"/>
          </output>
