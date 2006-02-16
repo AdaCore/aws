@@ -2,7 +2,7 @@
 --                            Secure Sockets Layer                          --
 --                         Binding to GNUTLS library                        --
 --                                                                          --
---                            Copyright (C) 2005                            --
+--                          Copyright (C) 2005-2006                         --
 --                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -1299,6 +1299,46 @@ package SSL.GNUTLS is
      (res  : gnutls_certificate_credentials_t;
       func : gnutls_params_function);
 
+   --------------------------
+   -- GCrypt thread safety --
+   --------------------------
+
+   GCRY_THREAD_OPTION_DEFAULT : constant := 0;
+   GCRY_THREAD_OPTION_USER    : constant := 1;
+   GCRY_THREAD_OPTION_PTH     : constant := 2;
+   GCRY_THREAD_OPTION_PTHREAD : constant := 3;
+   --  enum gcry_thread_option
+
+   GCRYCTL_SET_THREAD_CBS : constant := 47;
+   --  enum gcry_ctl_cmds
+   --  Codes used with the gcry_control function.
+
+   type gcry_thread_cbs is record
+      Option        : C.int          := GCRY_THREAD_OPTION_DEFAULT;
+      Init          : System.Address := System.Null_Address;
+      Mutex_Init    : System.Address := System.Null_Address;
+      Mutex_Destroy : System.Address := System.Null_Address;
+      Mutex_Lock    : System.Address := System.Null_Address;
+      Mutex_Unlock  : System.Address := System.Null_Address;
+      Read          : System.Address := System.Null_Address;
+      Write         : System.Address := System.Null_Address;
+      Select_Socket : System.Address := System.Null_Address;
+      WaitPID       : System.Address := System.Null_Address;
+      Accept_Socket : System.Address := System.Null_Address;
+      Connect       : System.Address := System.Null_Address;
+      SendMsg       : System.Address := System.Null_Address;
+      RecvMsg       : System.Address := System.Null_Address;
+   end record;
+
+   subtype gpg_error_t is C.unsigned;
+   subtype gcry_error_t is gpg_error_t;
+
+   function gcry_control
+     (CMD        : in C.int := GCRYCTL_SET_THREAD_CBS;
+      Thread_CBS : in gcry_thread_cbs)
+      return gcry_error_t;
+   pragma Import (C, gcry_control, "gcry_control");
+
    ---------------------------------------------------------------------
    -- Tricks to support AWS.Net.SSL specification compartibility with --
    -- OpenSSL thin binding.                                           --
@@ -1308,7 +1348,8 @@ package SSL.GNUTLS is
    pragma Import (C, SSLeay, "gnutls_check_version");
 
    subtype SSL_Handle is gnutls_session_t;
-   subtype SSL_CTX is gnutls_certificate_credentials_t;
+
+   Null_Handle : constant SSL_Handle := null;
 
 private
 
