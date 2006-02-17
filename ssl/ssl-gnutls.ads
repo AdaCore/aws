@@ -153,24 +153,23 @@ package SSL.GNUTLS is
 
    type time_t is new C.long;
 
-   type enum_anonymous0_t is
+   type gnutls_cipher_algorithm_t is
      (GNUTLS_CIPHER_NULL,
       GNUTLS_CIPHER_ARCFOUR_128,
       GNUTLS_CIPHER_3DES_CBC,
       GNUTLS_CIPHER_AES_128_CBC,
       GNUTLS_CIPHER_AES_256_CBC,
       GNUTLS_CIPHER_ARCFOUR_40);
-   for enum_anonymous0_t use
+   for gnutls_cipher_algorithm_t use
      (GNUTLS_CIPHER_NULL        => 1,
       GNUTLS_CIPHER_ARCFOUR_128 => 2,
       GNUTLS_CIPHER_3DES_CBC    => 3,
       GNUTLS_CIPHER_AES_128_CBC => 4,
       GNUTLS_CIPHER_AES_256_CBC => 5,
       GNUTLS_CIPHER_ARCFOUR_40  => 6);
-   for enum_anonymous0_t'Size use 32;
-   subtype gnutls_cipher_algorithm_t is enum_anonymous0_t;
+   for gnutls_cipher_algorithm_t'Size use C.int'Size;
 
-   type enum_anonymous1_t is
+   type gnutls_kx_algorithm_t is
      (GNUTLS_KX_RSA,
       GNUTLS_KX_DHE_DSS,
       GNUTLS_KX_DHE_RSA,
@@ -179,7 +178,7 @@ package SSL.GNUTLS is
       GNUTLS_KX_RSA_EXPORT,
       GNUTLS_KX_SRP_RSA,
       GNUTLS_KX_SRP_DSS);
-   for enum_anonymous1_t use
+   for gnutls_kx_algorithm_t use
      (GNUTLS_KX_RSA        => 1,
       GNUTLS_KX_DHE_DSS    => 2,
       GNUTLS_KX_DHE_RSA    => 3,
@@ -188,76 +187,62 @@ package SSL.GNUTLS is
       GNUTLS_KX_RSA_EXPORT => 6,
       GNUTLS_KX_SRP_RSA    => 7,
       GNUTLS_KX_SRP_DSS    => 8);
-   for enum_anonymous1_t'Size use 32;
-   subtype gnutls_kx_algorithm_t is enum_anonymous1_t;
+   for gnutls_kx_algorithm_t'Size use C.int'Size;
 
-   type enum_anonymous2_t is (GNUTLS_PARAMS_RSA_EXPORT, GNUTLS_PARAMS_DH);
-   for enum_anonymous2_t use
-     (GNUTLS_PARAMS_RSA_EXPORT => 1,
-      GNUTLS_PARAMS_DH         => 2);
-   for enum_anonymous2_t'Size use 32;
-   subtype gnutls_params_type_t is enum_anonymous2_t;
-
-   type enum_anonymous3_t is
+   type gnutls_credentials_type_t is
      (GNUTLS_CRD_CERTIFICATE,
       GNUTLS_CRD_ANON,
       GNUTLS_CRD_SRP);
-   for enum_anonymous3_t use
+   for gnutls_credentials_type_t use
      (GNUTLS_CRD_CERTIFICATE => 1,
       GNUTLS_CRD_ANON        => 2,
       GNUTLS_CRD_SRP         => 3);
-   for enum_anonymous3_t'Size use 32;
-   subtype gnutls_credentials_type_t is enum_anonymous3_t;
+   for gnutls_credentials_type_t'Size use C.int'Size;
 
-   type enum_anonymous4_t is
+   type gnutls_mac_algorithm_t is
      (GNUTLS_MAC_NULL,
       GNUTLS_MAC_MD5,
       GNUTLS_MAC_SHA,
       GNUTLS_MAC_RMD160);
-   for enum_anonymous4_t use
+   for gnutls_mac_algorithm_t use
      (GNUTLS_MAC_NULL   => 1,
       GNUTLS_MAC_MD5    => 2,
       GNUTLS_MAC_SHA    => 3,
       GNUTLS_MAC_RMD160 => 4);
-   for enum_anonymous4_t'Size use 32;
-   subtype gnutls_mac_algorithm_t is enum_anonymous4_t;
+   for gnutls_mac_algorithm_t'Size use C.int'Size;
 
-   type enum_anonymous5_t is
+   type gnutls_digest_algorithm_t is
      (GNUTLS_DIG_NULL,
       GNUTLS_DIG_MD5,
       GNUTLS_DIG_SHA,
       GNUTLS_DIG_RIPEMD160);
-   for enum_anonymous5_t use
+   for gnutls_digest_algorithm_t use
      (GNUTLS_DIG_NULL      => 1,
       GNUTLS_DIG_MD5       => 2,
       GNUTLS_DIG_SHA       => 3,
       GNUTLS_DIG_RIPEMD160 => 4);
-   for enum_anonymous5_t'Size use 32;
-   subtype gnutls_digest_algorithm_t is enum_anonymous5_t;
+   for gnutls_digest_algorithm_t'Size use C.int'Size;
 
-   type enum_anonymous6_t is
+   type gnutls_compression_method_t is
      (GNUTLS_COMP_NULL,
       GNUTLS_COMP_DEFLATE,
       GNUTLS_COMP_LZO -- only available if gnutls-extra has been initialized
      );
-   for enum_anonymous6_t use
+   for gnutls_compression_method_t use
      (GNUTLS_COMP_NULL    => 1,
       GNUTLS_COMP_DEFLATE => 2,
       GNUTLS_COMP_LZO     => 3);
-   for enum_anonymous6_t'Size use 32;
-   subtype gnutls_compression_method_t is enum_anonymous6_t;
+   for gnutls_compression_method_t'Size use C.int'Size;
 
-   type enum_anonymous7_t is (GNUTLS_SERVER, GNUTLS_CLIENT);
-   for enum_anonymous7_t use (GNUTLS_SERVER => 1, GNUTLS_CLIENT => 2);
-   for enum_anonymous7_t'Size use 32;
-   subtype gnutls_connection_end_t is enum_anonymous7_t;
+   type gnutls_connection_end_t is (GNUTLS_SERVER, GNUTLS_CLIENT);
+   for gnutls_connection_end_t use (GNUTLS_SERVER => 1, GNUTLS_CLIENT => 2);
+   for gnutls_connection_end_t'Size use C.int'Size;
 
-   type enum_anonymous8_t is (GNUTLS_AL_WARNING, GNUTLS_AL_FATAL);
-   for enum_anonymous8_t use (GNUTLS_AL_WARNING => 1, GNUTLS_AL_FATAL => 2);
-   for enum_anonymous8_t'Size use 32;
-   subtype gnutls_alert_level_t is enum_anonymous8_t;
+   type gnutls_alert_level_t is (GNUTLS_AL_WARNING, GNUTLS_AL_FATAL);
+   for gnutls_alert_level_t use (GNUTLS_AL_WARNING => 1, GNUTLS_AL_FATAL => 2);
+   for gnutls_alert_level_t'Size use C.int'Size;
 
-   type enum_anonymous9_t is
+   type gnutls_alert_description_t is
      (GNUTLS_A_CLOSE_NOTIFY,
       GNUTLS_A_UNEXPECTED_MESSAGE,
       GNUTLS_A_BAD_RECORD_MAC,
@@ -287,7 +272,7 @@ package SSL.GNUTLS is
       GNUTLS_A_UNRECOGNIZED_NAME,
       GNUTLS_A_UNKNOWN_SRP_USERNAME,
       GNUTLS_A_MISSING_SRP_USERNAME);
-   for enum_anonymous9_t use
+   for gnutls_alert_description_t use
      (GNUTLS_A_CLOSE_NOTIFY             => 0,
       GNUTLS_A_UNEXPECTED_MESSAGE       => 10,
       GNUTLS_A_BAD_RECORD_MAC           => 20,
@@ -317,10 +302,9 @@ package SSL.GNUTLS is
       GNUTLS_A_UNRECOGNIZED_NAME        => 112,
       GNUTLS_A_UNKNOWN_SRP_USERNAME     => 120,
       GNUTLS_A_MISSING_SRP_USERNAME     => 121);
-   for enum_anonymous9_t'Size use 32;
-   subtype gnutls_alert_description_t is enum_anonymous9_t;
+   for gnutls_alert_description_t'Size use C.int'Size;
 
-   type enum_anonymous10_t is
+   type gnutls_handshake_description_t is
      (GNUTLS_HANDSHAKE_HELLO_REQUEST,
       GNUTLS_HANDSHAKE_CLIENT_HELLO,
       GNUTLS_HANDSHAKE_SERVER_HELLO,
@@ -331,7 +315,7 @@ package SSL.GNUTLS is
       GNUTLS_HANDSHAKE_CERTIFICATE_VERIFY,
       GNUTLS_HANDSHAKE_CLIENT_KEY_EXCHANGE,
       GNUTLS_HANDSHAKE_FINISHED);
-   for enum_anonymous10_t use
+   for gnutls_handshake_description_t use
      (GNUTLS_HANDSHAKE_HELLO_REQUEST       => 0,
       GNUTLS_HANDSHAKE_CLIENT_HELLO        => 1,
       GNUTLS_HANDSHAKE_SERVER_HELLO        => 2,
@@ -342,101 +326,64 @@ package SSL.GNUTLS is
       GNUTLS_HANDSHAKE_CERTIFICATE_VERIFY  => 15,
       GNUTLS_HANDSHAKE_CLIENT_KEY_EXCHANGE => 16,
       GNUTLS_HANDSHAKE_FINISHED            => 20);
-   for enum_anonymous10_t'Size use 32;
-   subtype gnutls_handshake_description_t is enum_anonymous10_t;
+   for gnutls_handshake_description_t'Size use C.int'Size;
 
-   type enum_anonymous11_t is
-     (GNUTLS_CERT_INVALID, -- will be set if the certificate was not verified.
-      GNUTLS_CERT_REVOKED,
-      --  in X.509 this will be set only if CRLs are checked
-      GNUTLS_CERT_SIGNER_NOT_FOUND,
-      GNUTLS_CERT_SIGNER_NOT_CA);
-   for enum_anonymous11_t use
-     (GNUTLS_CERT_INVALID          => 2,
-      GNUTLS_CERT_REVOKED          => 32,
-      GNUTLS_CERT_SIGNER_NOT_FOUND => 64,
-      GNUTLS_CERT_SIGNER_NOT_CA    => 128);
-   for enum_anonymous11_t'Size use 32;
-   subtype gnutls_certificate_status_t is enum_anonymous11_t;
-
-   type enum_anonymous12_t is
+   type gnutls_certificate_request_t is
      (GNUTLS_CERT_IGNORE,
       GNUTLS_CERT_REQUEST,
       GNUTLS_CERT_REQUIRE);
-   for enum_anonymous12_t'Size use 32;
-   subtype gnutls_certificate_request_t is enum_anonymous12_t;
+   for gnutls_certificate_request_t'Size use C.int'Size;
 
-   type enum_anonymous13_t is
+   type gnutls_openpgp_key_status_t is
      (GNUTLS_OPENPGP_KEY,
       GNUTLS_OPENPGP_KEY_FINGERPRINT);
-   for enum_anonymous13_t'Size use 32;
-   subtype gnutls_openpgp_key_status_t is enum_anonymous13_t;
+   for gnutls_openpgp_key_status_t'Size use C.int'Size;
 
-   type enum_anonymous14_t is (GNUTLS_SHUT_RDWR, GNUTLS_SHUT_WR);
-   for enum_anonymous14_t'Size use 32;
-   subtype gnutls_close_request_t is enum_anonymous14_t;
+   type gnutls_close_request_t is (GNUTLS_SHUT_RDWR, GNUTLS_SHUT_WR);
+   for gnutls_close_request_t'Size use C.int'Size;
 
-   type enum_anonymous15_t is (GNUTLS_SSL3, GNUTLS_TLS1_0, GNUTLS_TLS1_1);
-   for enum_anonymous15_t use
+   type gnutls_protocol_t is (GNUTLS_SSL3, GNUTLS_TLS1_0, GNUTLS_TLS1_1);
+   for gnutls_protocol_t use
      (GNUTLS_SSL3   => 1,
       GNUTLS_TLS1_0 => 2,
       GNUTLS_TLS1_1 => 3);
-   for enum_anonymous15_t'Size use 32;
-   subtype gnutls_protocol_t is enum_anonymous15_t;
+   for gnutls_protocol_t'Size use C.int'Size;
 
-   type enum_anonymous16_t is (GNUTLS_CRT_X509, GNUTLS_CRT_OPENPGP);
-   for enum_anonymous16_t use (GNUTLS_CRT_X509 => 1, GNUTLS_CRT_OPENPGP => 2);
-   for enum_anonymous16_t'Size use 32;
-   subtype gnutls_certificate_type_t is enum_anonymous16_t;
+   type gnutls_certificate_type_t is (GNUTLS_CRT_X509, GNUTLS_CRT_OPENPGP);
+   for gnutls_certificate_type_t use
+     (GNUTLS_CRT_X509 => 1, GNUTLS_CRT_OPENPGP => 2);
+   for gnutls_certificate_type_t'Size use C.int'Size;
 
-   type enum_anonymous17_t is (GNUTLS_X509_FMT_DER, GNUTLS_X509_FMT_PEM);
-   for enum_anonymous17_t'Size use 32;
-   subtype gnutls_x509_crt_fmt_t is enum_anonymous17_t;
+   type gnutls_x509_crt_fmt_t is (GNUTLS_X509_FMT_DER, GNUTLS_X509_FMT_PEM);
+   for gnutls_x509_crt_fmt_t'Size use C.int'Size;
 
-   type enum_anonymous18_t is
+   type gnutls_pk_algorithm_t is
      (GNUTLS_PK_RSA,
       GNUTLS_PK_DSA,
       GNUTLS_PK_UNKNOWN);
-   for enum_anonymous18_t use
+   for gnutls_pk_algorithm_t use
      (GNUTLS_PK_RSA     => 1,
       GNUTLS_PK_DSA     => 2,
       GNUTLS_PK_UNKNOWN => 255);
-   for enum_anonymous18_t'Size use 32;
-   subtype gnutls_pk_algorithm_t is enum_anonymous18_t;
+   for gnutls_pk_algorithm_t'Size use C.int'Size;
 
-   type enum_anonymous19_t is
+   type gnutls_sign_algorithm_t is
      (GNUTLS_SIGN_RSA_SHA,
       GNUTLS_SIGN_DSA_SHA,
       GNUTLS_SIGN_RSA_MD5,
       GNUTLS_SIGN_RSA_MD2,
       GNUTLS_SIGN_UNKNOWN);
-   for enum_anonymous19_t use
+   for gnutls_sign_algorithm_t use
      (GNUTLS_SIGN_RSA_SHA => 1,
       GNUTLS_SIGN_DSA_SHA => 2,
       GNUTLS_SIGN_RSA_MD5 => 3,
       GNUTLS_SIGN_RSA_MD2 => 4,
       GNUTLS_SIGN_UNKNOWN => 255);
-   for enum_anonymous19_t'Size use 32;
-   subtype gnutls_sign_algorithm_t is enum_anonymous19_t;
+   for gnutls_sign_algorithm_t'Size use C.int'Size;
 
-   type enum_anonymous21_t is (GNUTLS_NAME_DNS);
-   for enum_anonymous21_t use (GNUTLS_NAME_DNS => 1);
-   for enum_anonymous21_t'Size use 32;
-   subtype gnutls_server_name_type_t is enum_anonymous21_t;
-
-   type enum_gnutls_x509_subject_alt_name_t is
-     (GNUTLS_SAN_DNSNAME,
-      GNUTLS_SAN_RFC822NAME,
-      GNUTLS_SAN_URI,
-      GNUTLS_SAN_IPADDRESS);
-   for enum_gnutls_x509_subject_alt_name_t use
-     (GNUTLS_SAN_DNSNAME    => 1,
-      GNUTLS_SAN_RFC822NAME => 2,
-      GNUTLS_SAN_URI        => 3,
-      GNUTLS_SAN_IPADDRESS  => 4);
-   for enum_gnutls_x509_subject_alt_name_t'Size use 32;
-   subtype gnutls_x509_subject_alt_name_t is
-     enum_gnutls_x509_subject_alt_name_t;
+   type gnutls_server_name_type_t is (GNUTLS_NAME_DNS);
+   for gnutls_server_name_type_t use (GNUTLS_NAME_DNS => 1);
+   for gnutls_server_name_type_t'Size use C.int'Size;
 
    type a_c_signed_char_t is access all C.unsigned_char;
    type a_size_t is access all C.size_t;
