@@ -462,12 +462,6 @@ package SSL.GNUTLS is
    type gnutls_certificate_credentials_t is access all STRUCT_DSTRUCT;
    type gnutls_anon_server_credentials_t is access all STRUCT_DSTRUCT;
    type gnutls_anon_client_credentials_t is access all STRUCT_DSTRUCT;
-   type a_gnutls_anon_server_credentials_t is access all
-     gnutls_anon_server_credentials_t;
-   type a_gnutls_anon_client_credentials_t is access all
-     gnutls_anon_client_credentials_t;
-   type a_gnutls_certificate_credentials_t is access all
-     gnutls_certificate_credentials_t;
    type a_gnutls_datum_t is access constant struct_anonymous20_t;
    type gnutls_x509_privkey_t is access all STRUCT_DSTRUCT;
    type gnutls_x509_crl_t is access all STRUCT_DSTRUCT;
@@ -478,10 +472,6 @@ package SSL.GNUTLS is
    type a_gnutls_rsa_params_t is access all gnutls_rsa_params_t;
    type gnutls_srp_server_credentials_t is access all STRUCT_DSTRUCT;
    type gnutls_srp_client_credentials_t is access all STRUCT_DSTRUCT;
-   type a_gnutls_srp_client_credentials_t is access all
-     gnutls_srp_client_credentials_t;
-   type a_gnutls_srp_server_credentials_t is access all
-     gnutls_srp_server_credentials_t;
    type gnutls_openpgp_key_t is access all STRUCT_DSTRUCT;
    type gnutls_openpgp_privkey_t is access all STRUCT_DSTRUCT;
 
@@ -876,7 +866,7 @@ package SSL.GNUTLS is
      (sc : gnutls_anon_server_credentials_t);
 
    function gnutls_anon_allocate_server_credentials
-     (sc   : a_gnutls_anon_server_credentials_t)
+     (sc   : access gnutls_anon_server_credentials_t)
       return C.int;
 
    procedure gnutls_anon_set_server_dh_params
@@ -887,14 +877,14 @@ package SSL.GNUTLS is
      (sc : gnutls_anon_client_credentials_t);
 
    function gnutls_anon_allocate_client_credentials
-     (sc   : a_gnutls_anon_client_credentials_t)
+     (sc   : access gnutls_anon_client_credentials_t)
       return C.int;
 
    procedure gnutls_certificate_free_credentials
      (sc : gnutls_certificate_credentials_t);
 
    function gnutls_certificate_allocate_credentials
-     (sc   : a_gnutls_certificate_credentials_t)
+     (sc   : access gnutls_certificate_credentials_t)
       return C.int;
 
    procedure gnutls_certificate_free_keys
@@ -1124,8 +1114,7 @@ package SSL.GNUTLS is
      (sc : gnutls_srp_client_credentials_t);
 
    function gnutls_srp_allocate_client_credentials
-     (sc   : a_gnutls_srp_client_credentials_t)
-      return C.int;
+     (sc : access gnutls_srp_client_credentials_t) return C.int;
 
    function gnutls_srp_set_client_credentials
      (res      : gnutls_srp_client_credentials_t;
@@ -1137,7 +1126,7 @@ package SSL.GNUTLS is
      (sc : gnutls_srp_server_credentials_t);
 
    function gnutls_srp_allocate_server_credentials
-     (sc : a_gnutls_srp_server_credentials_t) return C.int;
+     (sc : access gnutls_srp_server_credentials_t) return C.int;
 
    function gnutls_srp_set_server_credentials_file
      (res                : gnutls_srp_server_credentials_t;
