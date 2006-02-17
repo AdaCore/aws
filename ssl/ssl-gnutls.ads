@@ -449,16 +449,10 @@ package SSL.GNUTLS is
 
    type struct_anonymous20_t;
    type STRUCT_DSTRUCT;
-   type union_cert;
-   type union_key;
-   type struct_gnutls_retr_st;
-   type union_params;
-   type struct_gnutls_params_st;
 
    type gnutls_session_t is access all STRUCT_DSTRUCT;
    type gnutls_dh_params_t is access all STRUCT_DSTRUCT;
    type gnutls_rsa_params_t is access all STRUCT_DSTRUCT;
-   type a_gnutls_session_t is access all gnutls_session_t;
    type gnutls_certificate_credentials_t is access all STRUCT_DSTRUCT;
    type gnutls_anon_server_credentials_t is access all STRUCT_DSTRUCT;
    type gnutls_anon_client_credentials_t is access all STRUCT_DSTRUCT;
@@ -468,8 +462,6 @@ package SSL.GNUTLS is
    type gnutls_x509_crt_t is access all STRUCT_DSTRUCT;
    type a_gnutls_x509_crt_t is access all gnutls_x509_crt_t;
    type a_gnutls_x509_crl_t is access all gnutls_x509_crl_t;
-   type a_gnutls_dh_params_t is access all gnutls_dh_params_t;
-   type a_gnutls_rsa_params_t is access all gnutls_rsa_params_t;
    type gnutls_srp_server_credentials_t is access all STRUCT_DSTRUCT;
    type gnutls_srp_client_credentials_t is access all STRUCT_DSTRUCT;
    type gnutls_openpgp_key_t is access all STRUCT_DSTRUCT;
@@ -479,7 +471,6 @@ package SSL.GNUTLS is
       data : a_c_signed_char_t;
       size : C.unsigned;
    end record;
-
    pragma Convention (C, struct_anonymous20_t);
 
    subtype gnutls_datum_t is struct_anonymous20_t;
@@ -520,64 +511,6 @@ package SSL.GNUTLS is
 
    type gnutls_log_func is access procedure (p1 : C.int; p2 : CS.chars_ptr);
 
-   type union_cert_kind is (x509_kind, pgp_kind);
-
-   type union_cert (Which : union_cert_kind := x509_kind) is record
-      case Which is
-         when x509_kind => x509 : a_gnutls_x509_crt_t;
-         when pgp_kind  => pgp  : gnutls_openpgp_key_t;
-      end case;
-   end record;
-
-   pragma Convention (C, union_cert);
-   pragma Unchecked_Union (union_cert);
-
-   type union_key_kind is (x509_kind, pgp_kind);
-
-   type union_key (Which : union_key_kind := x509_kind) is record
-      case Which is
-         when x509_kind => x509 : gnutls_x509_privkey_t;
-         when pgp_kind  => pgp  : gnutls_openpgp_privkey_t;
-      end case;
-   end record;
-
-   pragma Convention (C, union_key);
-   pragma Unchecked_Union (union_key);
-
-   type struct_gnutls_retr_st is record
-      c_type     : gnutls_certificate_type_t;
-      cert       : union_cert;
-      ncerts     : C.unsigned; -- one for pgp keys
-      key        : union_key;
-      deinit_all : C.unsigned; -- if non zero all keys will be deinited
-   end record;
-
-   pragma Convention (C, struct_gnutls_retr_st);
-
-   subtype gnutls_retr_st is struct_gnutls_retr_st;
-
-   type union_params_kind is (dh_kind, rsa_export_kind);
-
-   type union_params (Which : union_params_kind := dh_kind) is record
-      case Which is
-         when dh_kind         => dh         : gnutls_dh_params_t;
-         when rsa_export_kind => rsa_export : gnutls_rsa_params_t;
-      end case;
-   end record;
-
-   pragma Convention (C, union_params);
-   pragma Unchecked_Union (union_params);
-
-   type struct_gnutls_params_st is record
-      c_type : gnutls_params_type_t;
-      params : union_params;
-      deinit : C.int;
-   end record;
-
-   pragma Convention (C, struct_gnutls_params_st);
-
-   subtype gnutls_params_st is struct_gnutls_params_st;
-
    gnutls_malloc                   : constant gnutls_alloc_function;
    gnutls_calloc                   : constant gnutls_calloc_function;
    gnutls_free                     : constant gnutls_free_function;
@@ -598,9 +531,8 @@ package SSL.GNUTLS is
       return      CS.chars_ptr;
 
    function gnutls_init
-     (session : a_gnutls_session_t;
-      con_end : gnutls_connection_end_t)
-      return    C.int;
+     (session : access gnutls_session_t;
+      con_end : in     gnutls_connection_end_t) return C.int;
 
    procedure gnutls_deinit (session : gnutls_session_t);
 
@@ -988,7 +920,8 @@ package SSL.GNUTLS is
 
    procedure gnutls_global_set_log_level (level : C.int);
 
-   function gnutls_dh_params_init (p1 : a_gnutls_dh_params_t) return C.int;
+   function gnutls_dh_params_init
+     (p1 : access gnutls_dh_params_t) return C.int;
 
    procedure gnutls_dh_params_deinit (p1 : gnutls_dh_params_t);
 
@@ -1029,8 +962,7 @@ package SSL.GNUTLS is
       return C.int;
 
    function gnutls_rsa_params_init
-     (rsa_params : a_gnutls_rsa_params_t)
-      return       C.int;
+     (rsa_params : access gnutls_rsa_params_t) return C.int;
 
    procedure gnutls_rsa_params_deinit (rsa_params : gnutls_rsa_params_t);
 
