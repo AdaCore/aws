@@ -577,16 +577,14 @@ package SSL.GNUTLS is
      (session     : gnutls_session_t;
       c_type      : gnutls_server_name_type_t;
       name        : System.Address;
-      name_length : C.size_t)
-      return        C.int;
+      name_length : C.size_t) return C.int;
 
    function gnutls_server_name_get
      (session     : gnutls_session_t;
       data        : System.Address;
       data_length : a_size_t;
       c_type      : access C.unsigned;
-      indx        : C.unsigned)
-      return        C.int;
+      indx        : C.unsigned) return C.int;
 
    function gnutls_cipher_set_priority
      (session : gnutls_session_t; p2 : C.int) return C.int;
@@ -877,39 +875,31 @@ package SSL.GNUTLS is
       send_ptr : in gnutls_transport_ptr_t);
 
    procedure gnutls_transport_set_lowat
-     (session : in gnutls_session_t;
-      num     : in C.int);
+     (session : in gnutls_session_t; num : in C.int);
 
    procedure gnutls_transport_set_ptr
-     (session : in gnutls_session_t;
-      ptr     : in gnutls_transport_ptr_t);
+     (session : in gnutls_session_t; ptr : in gnutls_transport_ptr_t);
 
    procedure gnutls_transport_set_push_function
-     (session   : in gnutls_session_t;
-      push_func : in System.Address);
+     (session : in gnutls_session_t; push_func : in System.Address);
 
    procedure gnutls_transport_set_pull_function
-     (session   : in gnutls_session_t;
-      pull_func : in System.Address);
+     (session : in gnutls_session_t; pull_func : in System.Address);
 
    procedure gnutls_session_set_ptr
-     (session : gnutls_session_t;
-      ptr     : System.Address);
+     (session : in gnutls_session_t; ptr : in System.Address);
 
    function gnutls_session_get_ptr
-     (session : gnutls_session_t)
-      return    System.Address;
+     (session : in gnutls_session_t) return System.Address;
 
    procedure gnutls_openpgp_send_key
-     (session : gnutls_session_t;
-      status  : gnutls_openpgp_key_status_t);
+     (session : in gnutls_session_t; status : in gnutls_openpgp_key_status_t);
 
    function gnutls_fingerprint
      (algo        : gnutls_digest_algorithm_t;
       data        : a_gnutls_datum_t;
       result      : System.Address;
-      result_size : a_size_t)
-      return        C.int;
+      result_size : a_size_t) return C.int;
 
    procedure gnutls_srp_free_client_credentials
      (sc : gnutls_srp_client_credentials_t);
