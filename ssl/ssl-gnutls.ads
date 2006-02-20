@@ -394,7 +394,7 @@ package SSL.GNUTLS is
    type gnutls_certificate_server_retrieve_function is new System.Address;
    type gnutls_params_function is new System.Address;
 
-   type struct_anonymous20_t;
+   type gnutls_datum_t;
    type STRUCT_DSTRUCT;
 
    type gnutls_session_t is access all STRUCT_DSTRUCT;
@@ -403,7 +403,7 @@ package SSL.GNUTLS is
    type gnutls_certificate_credentials_t is access all STRUCT_DSTRUCT;
    type gnutls_anon_server_credentials_t is access all STRUCT_DSTRUCT;
    type gnutls_anon_client_credentials_t is access all STRUCT_DSTRUCT;
-   type a_gnutls_datum_t is access constant struct_anonymous20_t;
+   type a_gnutls_datum_t is access constant gnutls_datum_t;
    type gnutls_x509_privkey_t is access all STRUCT_DSTRUCT;
    type gnutls_x509_crl_t is access all STRUCT_DSTRUCT;
    type gnutls_x509_crt_t is access all STRUCT_DSTRUCT;
@@ -414,13 +414,11 @@ package SSL.GNUTLS is
    type gnutls_openpgp_key_t is access all STRUCT_DSTRUCT;
    type gnutls_openpgp_privkey_t is access all STRUCT_DSTRUCT;
 
-   type struct_anonymous20_t is record
+   type gnutls_datum_t is record
       data : a_c_signed_char_t;
       size : C.unsigned;
    end record;
-   pragma Convention (C, struct_anonymous20_t);
-
-   subtype gnutls_datum_t is struct_anonymous20_t;
+   pragma Convention (C, gnutls_datum_t);
 
    type gnutls_db_store_func is access function
      (p1   : System.Address;
@@ -773,6 +771,26 @@ package SSL.GNUTLS is
       crl_list      : a_gnutls_x509_crl_t;
       crl_list_size : C.int) return C.int;
 
+   function gnutls_x509_crt_init
+     (cert : access gnutls_x509_crt_t) return C.int;
+
+   procedure gnutls_x509_crt_deinit (cert : in gnutls_x509_crt_t);
+
+   function gnutls_x509_crt_import
+     (cert   : in gnutls_x509_crt_t;
+      data   : in gnutls_datum_t;
+      format : in gnutls_x509_crt_fmt_t) return C.int;
+
+   function gnutls_x509_crt_get_dn
+     (cert       : in     gnutls_x509_crt_t;
+      buf        : in     CS.chars_ptr;
+      sizeof_buf : access C.size_t) return C.int;
+
+   function gnutls_x509_crt_get_issuer_dn
+     (cert       : in     gnutls_x509_crt_t;
+      buf        : in     CS.chars_ptr;
+      sizeof_buf : access C.size_t) return C.int;
+
    function gnutls_global_init return C.int;
 
    procedure gnutls_global_deinit;
@@ -1105,14 +1123,10 @@ package SSL.GNUTLS is
 private
 
    pragma Import
-     (C,
-      gnutls_pk_algorithm_get_name,
-      "gnutls_pk_algorithm_get_name");
+     (C, gnutls_pk_algorithm_get_name, "gnutls_pk_algorithm_get_name");
 
    pragma Import
-     (C,
-      gnutls_sign_algorithm_get_name,
-      "gnutls_sign_algorithm_get_name");
+     (C, gnutls_sign_algorithm_get_name, "gnutls_sign_algorithm_get_name");
 
    pragma Import (C, gnutls_init, "gnutls_init");
 
@@ -1129,9 +1143,7 @@ private
    pragma Import (C, gnutls_alert_send, "gnutls_alert_send");
 
    pragma Import
-     (C,
-      gnutls_alert_send_appropriate,
-      "gnutls_alert_send_appropriate");
+     (C, gnutls_alert_send_appropriate, "gnutls_alert_send_appropriate");
 
    pragma Import (C, gnutls_alert_get_name, "gnutls_alert_get_name");
 
@@ -1144,30 +1156,21 @@ private
    pragma Import (C, gnutls_compression_get, "gnutls_compression_get");
 
    pragma Import
-     (C,
-      gnutls_certificate_type_get,
-      "gnutls_certificate_type_get");
+     (C, gnutls_certificate_type_get, "gnutls_certificate_type_get");
 
-   pragma Import
-     (C,
-      gnutls_cipher_get_key_size,
-      "gnutls_cipher_get_key_size");
+   pragma Import (C, gnutls_cipher_get_key_size, "gnutls_cipher_get_key_size");
 
    pragma Import (C, gnutls_cipher_get_name, "gnutls_cipher_get_name");
 
    pragma Import (C, gnutls_mac_get_name, "gnutls_mac_get_name");
 
    pragma Import
-     (C,
-      gnutls_compression_get_name,
-      "gnutls_compression_get_name");
+     (C, gnutls_compression_get_name, "gnutls_compression_get_name");
 
    pragma Import (C, gnutls_kx_get_name, "gnutls_kx_get_name");
 
    pragma Import
-     (C,
-      gnutls_certificate_type_get_name,
-      "gnutls_certificate_type_get_name");
+     (C, gnutls_certificate_type_get_name, "gnutls_certificate_type_get_name");
 
    pragma Import (C, gnutls_error_is_fatal, "gnutls_error_is_fatal");
 
@@ -1183,61 +1186,43 @@ private
       "gnutls_handshake_set_private_extensions");
 
    pragma Import
-     (C,
-      gnutls_handshake_get_last_out,
-      "gnutls_handshake_get_last_out");
+     (C, gnutls_handshake_get_last_out, "gnutls_handshake_get_last_out");
 
    pragma Import
-     (C,
-      gnutls_handshake_get_last_in,
-      "gnutls_handshake_get_last_in");
+     (C, gnutls_handshake_get_last_in, "gnutls_handshake_get_last_in");
 
    pragma Import (C, gnutls_record_send, "gnutls_record_send");
 
    pragma Import (C, gnutls_record_recv, "gnutls_record_recv");
 
    pragma Import
-     (C,
-      gnutls_record_get_direction,
-      "gnutls_record_get_direction");
+     (C, gnutls_record_get_direction, "gnutls_record_get_direction");
 
    pragma Import
-     (C,
-      gnutls_record_get_max_size,
-      "gnutls_record_get_max_size");
+     (C, gnutls_record_get_max_size, "gnutls_record_get_max_size");
 
    pragma Import
-     (C,
-      gnutls_record_set_max_size,
-      "gnutls_record_set_max_size");
+     (C, gnutls_record_set_max_size, "gnutls_record_set_max_size");
 
    pragma Import
-     (C,
-      gnutls_record_check_pending,
-      "gnutls_record_check_pending");
+     (C, gnutls_record_check_pending, "gnutls_record_check_pending");
 
    pragma Import (C, gnutls_server_name_set, "gnutls_server_name_set");
 
    pragma Import (C, gnutls_server_name_get, "gnutls_server_name_get");
 
    pragma Import
-     (C,
-      gnutls_cipher_set_priority,
-      "gnutls_cipher_set_priority");
+     (C, gnutls_cipher_set_priority, "gnutls_cipher_set_priority");
 
    pragma Import (C, gnutls_mac_set_priority, "gnutls_mac_set_priority");
 
    pragma Import
-     (C,
-      gnutls_compression_set_priority,
-      "gnutls_compression_set_priority");
+     (C, gnutls_compression_set_priority, "gnutls_compression_set_priority");
 
    pragma Import (C, gnutls_kx_set_priority, "gnutls_kx_set_priority");
 
    pragma Import
-     (C,
-      gnutls_protocol_set_priority,
-      "gnutls_protocol_set_priority");
+     (C, gnutls_protocol_set_priority, "gnutls_protocol_set_priority");
 
    pragma Import
      (C,
@@ -1245,9 +1230,7 @@ private
       "gnutls_certificate_type_set_priority");
 
    pragma Import
-     (C,
-      gnutls_set_default_priority,
-      "gnutls_set_default_priority");
+     (C, gnutls_set_default_priority, "gnutls_set_default_priority");
 
    pragma Import
      (C,
@@ -1255,9 +1238,7 @@ private
       "gnutls_set_default_export_priority");
 
    pragma Import
-     (C,
-      gnutls_cipher_suite_get_name,
-      "gnutls_cipher_suite_get_name");
+     (C, gnutls_cipher_suite_get_name, "gnutls_cipher_suite_get_name");
 
    pragma Import
      (C,
@@ -1275,26 +1256,18 @@ private
    pragma Import (C, gnutls_session_is_resumed, "gnutls_session_is_resumed");
 
    pragma Import
-     (C,
-      gnutls_db_set_cache_expiration,
-      "gnutls_db_set_cache_expiration");
+     (C, gnutls_db_set_cache_expiration, "gnutls_db_set_cache_expiration");
 
    pragma Import (C, gnutls_db_remove_session, "gnutls_db_remove_session");
 
    pragma Import
-     (C,
-      gnutls_db_set_retrieve_function,
-      "gnutls_db_set_retrieve_function");
+     (C, gnutls_db_set_retrieve_function, "gnutls_db_set_retrieve_function");
 
    pragma Import
-     (C,
-      gnutls_db_set_remove_function,
-      "gnutls_db_set_remove_function");
+     (C, gnutls_db_set_remove_function, "gnutls_db_set_remove_function");
 
    pragma Import
-     (C,
-      gnutls_db_set_store_function,
-      "gnutls_db_set_store_function");
+     (C, gnutls_db_set_store_function, "gnutls_db_set_store_function");
 
    pragma Import (C, gnutls_db_set_ptr, "gnutls_db_set_ptr");
 
@@ -1324,9 +1297,7 @@ private
       "gnutls_anon_allocate_server_credentials");
 
    pragma Import
-     (C,
-      gnutls_anon_set_server_dh_params,
-      "gnutls_anon_set_server_dh_params");
+     (C, gnutls_anon_set_server_dh_params, "gnutls_anon_set_server_dh_params");
 
    pragma Import
      (C,
@@ -1349,29 +1320,19 @@ private
       "gnutls_certificate_allocate_credentials");
 
    pragma Import
-     (C,
-      gnutls_certificate_free_keys,
-      "gnutls_certificate_free_keys");
+     (C, gnutls_certificate_free_keys, "gnutls_certificate_free_keys");
 
    pragma Import
-     (C,
-      gnutls_certificate_free_cas,
-      "gnutls_certificate_free_cas");
+     (C, gnutls_certificate_free_cas, "gnutls_certificate_free_cas");
 
    pragma Import
-     (C,
-      gnutls_certificate_free_ca_names,
-      "gnutls_certificate_free_ca_names");
+     (C, gnutls_certificate_free_ca_names, "gnutls_certificate_free_ca_names");
 
    pragma Import
-     (C,
-      gnutls_certificate_free_crls,
-      "gnutls_certificate_free_crls");
+     (C, gnutls_certificate_free_crls, "gnutls_certificate_free_crls");
 
    pragma Import
-     (C,
-      gnutls_certificate_set_dh_params,
-      "gnutls_certificate_set_dh_params");
+     (C, gnutls_certificate_set_dh_params, "gnutls_certificate_set_dh_params");
 
    pragma Import
      (C,
@@ -1419,9 +1380,7 @@ private
       "gnutls_certificate_set_x509_key_mem");
 
    pragma Import
-     (C,
-      gnutls_certificate_set_x509_key,
-      "gnutls_certificate_set_x509_key");
+     (C, gnutls_certificate_set_x509_key, "gnutls_certificate_set_x509_key");
 
    pragma Import
      (C,
@@ -1429,57 +1388,46 @@ private
       "gnutls_certificate_set_x509_trust");
 
    pragma Import
-     (C,
-      gnutls_certificate_set_x509_crl,
-      "gnutls_certificate_set_x509_crl");
+     (C, gnutls_certificate_set_x509_crl, "gnutls_certificate_set_x509_crl");
+
+   pragma Import (C, gnutls_x509_crt_init, "gnutls_x509_crt_init");
+   pragma Import (C, gnutls_x509_crt_deinit, "gnutls_x509_crt_deinit");
+   pragma Import (C, gnutls_x509_crt_import, "gnutls_x509_crt_import");
+   pragma Import (C, gnutls_x509_crt_get_dn, "gnutls_x509_crt_get_dn");
+   pragma Import
+     (C, gnutls_x509_crt_get_issuer_dn, "gnutls_x509_crt_get_issuer_dn");
 
    pragma Import (C, gnutls_global_init, "gnutls_global_init");
 
    pragma Import (C, gnutls_global_deinit, "gnutls_global_deinit");
 
    pragma Import
-     (C,
-      gnutls_global_set_mem_functions,
-      "gnutls_global_set_mem_functions");
+     (C, gnutls_global_set_mem_functions, "gnutls_global_set_mem_functions");
 
    pragma Import
-     (C,
-      gnutls_global_set_log_function,
-      "gnutls_global_set_log_function");
+     (C, gnutls_global_set_log_function, "gnutls_global_set_log_function");
 
    pragma Import
-     (C,
-      gnutls_global_set_log_level,
-      "gnutls_global_set_log_level");
+     (C, gnutls_global_set_log_level, "gnutls_global_set_log_level");
 
    pragma Import (C, gnutls_dh_params_init, "gnutls_dh_params_init");
 
    pragma Import (C, gnutls_dh_params_deinit, "gnutls_dh_params_deinit");
 
    pragma Import
-     (C,
-      gnutls_dh_params_import_raw,
-      "gnutls_dh_params_import_raw");
+     (C, gnutls_dh_params_import_raw, "gnutls_dh_params_import_raw");
 
    pragma Import
-     (C,
-      gnutls_dh_params_import_pkcs3,
-      "gnutls_dh_params_import_pkcs3");
+     (C, gnutls_dh_params_import_pkcs3, "gnutls_dh_params_import_pkcs3");
 
    pragma Import
-     (C,
-      gnutls_dh_params_generate2,
-      "gnutls_dh_params_generate2");
+     (C, gnutls_dh_params_generate2, "gnutls_dh_params_generate2");
 
    pragma Import
-     (C,
-      gnutls_dh_params_export_pkcs3,
-      "gnutls_dh_params_export_pkcs3");
+     (C, gnutls_dh_params_export_pkcs3, "gnutls_dh_params_export_pkcs3");
 
    pragma Import
-     (C,
-      gnutls_dh_params_export_raw,
-      "gnutls_dh_params_export_raw");
+     (C, gnutls_dh_params_export_raw, "gnutls_dh_params_export_raw");
 
    pragma Import (C, gnutls_dh_params_cpy, "gnutls_dh_params_cpy");
 
@@ -1490,38 +1438,26 @@ private
    pragma Import (C, gnutls_rsa_params_cpy, "gnutls_rsa_params_cpy");
 
    pragma Import
-     (C,
-      gnutls_rsa_params_import_raw,
-      "gnutls_rsa_params_import_raw");
+     (C, gnutls_rsa_params_import_raw, "gnutls_rsa_params_import_raw");
 
    pragma Import
-     (C,
-      gnutls_rsa_params_generate2,
-      "gnutls_rsa_params_generate2");
+     (C, gnutls_rsa_params_generate2, "gnutls_rsa_params_generate2");
 
    pragma Import
-     (C,
-      gnutls_rsa_params_export_raw,
-      "gnutls_rsa_params_export_raw");
+     (C, gnutls_rsa_params_export_raw, "gnutls_rsa_params_export_raw");
 
    pragma Import
-     (C,
-      gnutls_rsa_params_export_pkcs1,
-      "gnutls_rsa_params_export_pkcs1");
+     (C, gnutls_rsa_params_export_pkcs1, "gnutls_rsa_params_export_pkcs1");
 
    pragma Import
-     (C,
-      gnutls_rsa_params_import_pkcs1,
-      "gnutls_rsa_params_import_pkcs1");
+     (C, gnutls_rsa_params_import_pkcs1, "gnutls_rsa_params_import_pkcs1");
 
    pragma Import (C, gnutls_transport_get_ptr, "gnutls_transport_get_ptr");
 
    pragma Import (C, gnutls_transport_get_ptr2, "gnutls_transport_get_ptr2");
 
    pragma Import
-     (C,
-      gnutls_transport_set_lowat,
-      "gnutls_transport_set_lowat");
+     (C, gnutls_transport_set_lowat, "gnutls_transport_set_lowat");
 
    pragma Import (C, gnutls_transport_set_ptr, "gnutls_transport_set_ptr");
 
@@ -1574,9 +1510,7 @@ private
       "gnutls_srp_set_server_credentials_file");
 
    pragma Import
-     (C,
-      gnutls_srp_server_get_username,
-      "gnutls_srp_server_get_username");
+     (C, gnutls_srp_server_get_username, "gnutls_srp_server_get_username");
 
    pragma Import (C, gnutls_srp_verifier, "gnutls_srp_verifier");
 
@@ -1593,23 +1527,17 @@ private
    pragma Import (C, gnutls_auth_get_type, "gnutls_auth_get_type");
 
    pragma Import
-     (C,
-      gnutls_auth_server_get_type,
-      "gnutls_auth_server_get_type");
+     (C, gnutls_auth_server_get_type, "gnutls_auth_server_get_type");
 
    pragma Import
-     (C,
-      gnutls_auth_client_get_type,
-      "gnutls_auth_client_get_type");
+     (C, gnutls_auth_client_get_type, "gnutls_auth_client_get_type");
 
    pragma Import (C, gnutls_dh_set_prime_bits, "gnutls_dh_set_prime_bits");
 
    pragma Import (C, gnutls_dh_get_secret_bits, "gnutls_dh_get_secret_bits");
 
    pragma Import
-     (C,
-      gnutls_dh_get_peers_public_bits,
-      "gnutls_dh_get_peers_public_bits");
+     (C, gnutls_dh_get_peers_public_bits, "gnutls_dh_get_peers_public_bits");
 
    pragma Import (C, gnutls_dh_get_prime_bits, "gnutls_dh_get_prime_bits");
 
@@ -1618,9 +1546,7 @@ private
    pragma Import (C, gnutls_dh_get_pubkey, "gnutls_dh_get_pubkey");
 
    pragma Import
-     (C,
-      gnutls_rsa_export_get_pubkey,
-      "gnutls_rsa_export_get_pubkey");
+     (C, gnutls_rsa_export_get_pubkey, "gnutls_rsa_export_get_pubkey");
 
    pragma Import
      (C,
@@ -1643,24 +1569,16 @@ private
       "gnutls_certificate_server_set_request");
 
    pragma Import
-     (C,
-      gnutls_pkcs3_extract_dh_params,
-      "gnutls_pkcs3_extract_dh_params");
+     (C, gnutls_pkcs3_extract_dh_params, "gnutls_pkcs3_extract_dh_params");
 
    pragma Import
-     (C,
-      gnutls_pkcs3_export_dh_params,
-      "gnutls_pkcs3_export_dh_params");
+     (C, gnutls_pkcs3_export_dh_params, "gnutls_pkcs3_export_dh_params");
 
    pragma Import
-     (C,
-      gnutls_certificate_get_peers,
-      "gnutls_certificate_get_peers");
+     (C, gnutls_certificate_get_peers, "gnutls_certificate_get_peers");
 
    pragma Import
-     (C,
-      gnutls_certificate_get_ours,
-      "gnutls_certificate_get_ours");
+     (C, gnutls_certificate_get_ours, "gnutls_certificate_get_ours");
 
    pragma Import
      (C,
@@ -1678,23 +1596,17 @@ private
       "gnutls_certificate_client_get_request_status");
 
    pragma Import
-     (C,
-      gnutls_certificate_verify_peers2,
-      "gnutls_certificate_verify_peers2");
+     (C, gnutls_certificate_verify_peers2, "gnutls_certificate_verify_peers2");
 
    pragma Import (C, gnutls_pem_base64_encode, "gnutls_pem_base64_encode");
 
    pragma Import (C, gnutls_pem_base64_decode, "gnutls_pem_base64_decode");
 
    pragma Import
-     (C,
-      gnutls_pem_base64_encode_alloc,
-      "gnutls_pem_base64_encode_alloc");
+     (C, gnutls_pem_base64_encode_alloc, "gnutls_pem_base64_encode_alloc");
 
    pragma Import
-     (C,
-      gnutls_pem_base64_decode_alloc,
-      "gnutls_pem_base64_decode_alloc");
+     (C, gnutls_pem_base64_decode_alloc, "gnutls_pem_base64_decode_alloc");
 
    pragma Import
      (C,
@@ -1702,9 +1614,7 @@ private
       "gnutls_certificate_set_params_function");
 
    pragma Import
-     (C,
-      gnutls_anon_set_params_function,
-      "gnutls_anon_set_params_function");
+     (C, gnutls_anon_set_params_function, "gnutls_anon_set_params_function");
 
    pragma Import (C, gnutls_malloc, "gnutls_malloc");
    pragma Import (C, gnutls_calloc, "gnutls_calloc");
