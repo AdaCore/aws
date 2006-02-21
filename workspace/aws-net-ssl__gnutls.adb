@@ -89,9 +89,9 @@ package body AWS.Net.SSL is
    procedure Initialize
      (Config               : in out TS_SSL;
       Certificate_Filename : in     String;
-      Security_Mode        : in     Method     := SSLv23;
-      Key_Filename         : in     String     := "";
-      Exchange_Certificate : in     Boolean    := False);
+      Security_Mode        : in     Method  := SSLv23;
+      Key_Filename         : in     String  := "";
+      Exchange_Certificate : in     Boolean := False);
 
    procedure Session_Client (Socket : in out Socket_Type);
    procedure Session_Server (Socket : in out Socket_Type);
@@ -101,7 +101,13 @@ package body AWS.Net.SSL is
 
    procedure Finalize (Config : in out TS_SSL);
 
-   Default_Config : constant Config := new TS_SSL;
+   Default_Config : aliased TS_SSL;
+
+   protected Default_Config_Synch is
+      procedure Create_Default_Config;
+   private
+      Done : Boolean := False;
+   end Default_Config_Synch;
 
    DH_Bits : constant := 1024;
 
@@ -126,7 +132,7 @@ package body AWS.Net.SSL is
 
       if New_Socket.Config = null then
          Initialize_Default_Config;
-         New_Socket.Config := Default_Config;
+         New_Socket.Config := Default_Config'Access;
       end if;
 
       Session_Server (New_Socket);
@@ -170,11 +176,36 @@ package body AWS.Net.SSL is
 
       if Socket.Config = null then
          Initialize_Default_Config;
-         Socket.Config := Default_Config;
+         Socket.Config := Default_Config'Access;
       end if;
 
       Session_Client (Socket);
    end Connect;
+
+   --------------------------
+   -- Default_Config_Synch --
+   --------------------------
+
+   protected body Default_Config_Synch is
+
+      procedure Create_Default_Config is
+         package CNF renames AWS.Config;
+         Default : CNF.Object renames CNF.Default_Config;
+      begin
+         if not Done then
+            Initialize
+              (Config               => SSL.Default_Config,
+               Certificate_Filename => CNF.Certificate (Default),
+               Security_Mode        => Method'Value
+                                         (CNF.Security_Mode (Default)),
+               Key_Filename         => CNF.Key (Default),
+               Exchange_Certificate => CNF.Exchange_Certificate (Default));
+
+            Done := True;
+         end if;
+      end Create_Default_Config;
+
+   end Default_Config_Synch;
 
    ------------------
    -- Do_Handshake --
@@ -305,15 +336,10 @@ package body AWS.Net.SSL is
    -------------------------------
 
    procedure Initialize_Default_Config is
-      package CNF renames AWS.Config;
-      Default : CNF.Object renames CNF.Default_Config;
    begin
-      Initialize
-        (Config               => SSL.Default_Config.all,
-         Certificate_Filename => CNF.Certificate (Default),
-         Security_Mode        => Method'Value (CNF.Security_Mode (Default)),
-         Key_Filename         => CNF.Key (Default),
-         Exchange_Certificate => CNF.Exchange_Certificate (Default));
+      if Default_Config = (null, null, null) then
+         Default_Config_Synch.Create_Default_Config;
+      end if;
    end Initialize_Default_Config;
 
    -------------
@@ -429,7 +455,7 @@ package body AWS.Net.SSL is
 
       if Config = null then
          Initialize_Default_Config;
-         Target.Config := Default_Config;
+         Target.Config := Default_Config'Access;
       else
          Target.Config := Config;
       end if;
