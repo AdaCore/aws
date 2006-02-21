@@ -156,7 +156,7 @@ private
 
    type TS_SSL;
 
-   type Config is access TS_SSL;
+   type Config is access all TS_SSL;
 
    Null_Config : constant Config := null;
 
