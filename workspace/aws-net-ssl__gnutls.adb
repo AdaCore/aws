@@ -246,16 +246,19 @@ package body AWS.Net.SSL is
    ----------
 
    procedure Free (Socket : in out Socket_Type) is
+      use type TSSL.gnutls_session_t;
       function To_Access is new Ada.Unchecked_Conversion
         (TSSL.gnutls_transport_ptr_t, Socket_Access);
-      Sock : Socket_Access
-        := To_Access (TSSL.gnutls_transport_get_ptr (Socket.SSL));
+      Sock : Socket_Access;
    begin
-      Free (Sock);
-      Net.Std.Free (NSST (Socket));
+      if Socket.SSL /= null then
+         Sock := To_Access (TSSL.gnutls_transport_get_ptr (Socket.SSL));
+         Free (Sock);
+         TSSL.gnutls_deinit (Socket.SSL);
+         Socket.SSL := null;
+      end if;
 
-      TSSL.gnutls_deinit (Socket.SSL);
-      Socket.SSL := null;
+      Net.Std.Free (NSST (Socket));
    end Free;
 
    ----------------
@@ -436,7 +439,7 @@ package body AWS.Net.SSL is
    procedure Release (Config : in out SSL.Config) is
       procedure Free is new Ada.Unchecked_Deallocation (TS_SSL, SSL.Config);
    begin
-      if Config /= null then
+      if Config /= null and then Config /= Default_Config'Access then
          Finalize (Config.all);
          Free (Config);
       end if;
