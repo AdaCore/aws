@@ -1,10 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2003-2005                          --
+--                         Copyright (C) 2003-2006                          --
 --                                 AdaCore                                  --
---                                                                          --
---  Authors: Dmitriy Anisimkov - Pascal Obry                                --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -43,8 +41,8 @@ project Demos_SSL is
    for Source_Files use Mains & "demos_ssl.gpr";
 
    case Shared.Socket is
-      when "ssl" => for Main use Mains;
-      when "std" => for Main use ();
+      when "ssl" | "openssl" | "gnutls" => for Main use Mains;
+      when "std"                        => for Main use ();
    end case;
 
    case Shared.Build is
