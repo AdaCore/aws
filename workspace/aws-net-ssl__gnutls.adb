@@ -52,6 +52,8 @@ package body AWS.Net.SSL is
    procedure Check_Error_Code (Code : in C.int);
    procedure Check_Error_Code (Code : in C.int; Socket : in Socket_Type'Class);
 
+   procedure Check_Config (Socket : in out Socket_Type);
+
    function Push
      (Socket : in Std.Socket_Type;
       Data   : in Stream_Array;
@@ -129,14 +131,20 @@ package body AWS.Net.SSL is
       New_Socket : in out Socket_Type) is
    begin
       Net.Std.Accept_Socket (Socket, NSST (New_Socket));
-
-      if New_Socket.Config = null then
-         Initialize_Default_Config;
-         New_Socket.Config := Default_Config'Access;
-      end if;
-
       Session_Server (New_Socket);
    end Accept_Socket;
+
+   ------------------
+   -- Check_Config --
+   ------------------
+
+   procedure Check_Config (Socket : in out Socket_Type) is
+   begin
+      if Socket.Config = null then
+         Initialize_Default_Config;
+         Socket.Config := Default_Config'Access;
+      end if;
+   end Check_Config;
 
    ----------------------
    -- Check_Error_Code --
@@ -173,12 +181,6 @@ package body AWS.Net.SSL is
       Wait     : in     Boolean := True) is
    begin
       Net.Std.Connect (NSST (Socket), Host, Port, Wait);
-
-      if Socket.Config = null then
-         Initialize_Default_Config;
-         Socket.Config := Default_Config'Access;
-      end if;
-
       Session_Client (Socket);
    end Connect;
 
@@ -455,13 +457,8 @@ package body AWS.Net.SSL is
       Config : in     SSL.Config) is
    begin
       Std.Socket_Type (Target) := Std.Socket_Type (Source);
-
-      if Config = null then
-         Initialize_Default_Config;
-         Target.Config := Default_Config'Access;
-      else
-         Target.Config := Config;
-      end if;
+      Target.Config := Config;
+      Check_Config (Target);
    end Secure;
 
    -------------------
@@ -517,6 +514,8 @@ package body AWS.Net.SSL is
    procedure Session_Client (Socket : in out Socket_Type) is
       Session : aliased TSSL.gnutls_session_t;
    begin
+      Check_Config (Socket);
+
       Check_Error_Code
         (TSSL.gnutls_init (Session'Access, TSSL.GNUTLS_CLIENT), Socket);
 
@@ -526,8 +525,7 @@ package body AWS.Net.SSL is
         (TSSL.gnutls_set_default_priority (Session), Socket);
 
       Check_Error_Code
-        (TSSL.gnutls_credentials_set
-           (Session, TSSL.GNUTLS_CRD_ANON, Socket.Config.ACC.all'Address));
+        (TSSL.gnutls_credentials_set (Session, cred => Socket.Config.ACC));
 
       Session_Transport (Socket);
    end Session_Client;
@@ -539,6 +537,8 @@ package body AWS.Net.SSL is
    procedure Session_Server (Socket : in out Socket_Type) is
       Session : aliased TSSL.gnutls_session_t;
    begin
+      Check_Config (Socket);
+
       Check_Error_Code
         (TSSL.gnutls_init (Session'Access, TSSL.GNUTLS_SERVER), Socket);
 
@@ -548,8 +548,7 @@ package body AWS.Net.SSL is
         (TSSL.gnutls_set_default_priority (Session), Socket);
 
       Check_Error_Code
-        (TSSL.gnutls_credentials_set
-           (Session, TSSL.GNUTLS_CRD_ANON, Socket.Config.ASC.all'Address));
+        (TSSL.gnutls_credentials_set (Session, cred => Socket.Config.ASC));
 
       TSSL.gnutls_dh_set_prime_bits (Session, DH_Bits);
 
