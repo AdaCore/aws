@@ -243,19 +243,42 @@ package body AWS.Net.SSL is
       end if;
    end Finalize;
 
+   --------------
+   -- Finalize --
+   --------------
+
+   procedure Finalize (Socket : in out Socket_Type) is
+      use type TSSL.gnutls_session_t;
+      function To_Access is new Ada.Unchecked_Conversion
+        (TSSL.gnutls_transport_ptr_t, Socket_Access);
+      Sock : Socket_Access;
+   begin
+      if Socket.SSL /= null
+        and then Net.Socket_Type (Socket).C.Ref_Count.Value = 2
+      then
+         --  Free one more reference from gnutls_transport_ptr_t.
+
+         Sock := To_Access (TSSL.gnutls_transport_get_ptr (Socket.SSL));
+
+         --  Avoid double Free in recursion.
+
+         TSSL.gnutls_transport_set_ptr
+           (Socket.SSL, TSSL.gnutls_transport_ptr_t (System.Null_Address));
+
+         Free (Sock);
+      end if;
+
+      Std.Finalize (Std.Socket_Type (Socket));
+   end Finalize;
+
    ----------
    -- Free --
    ----------
 
    procedure Free (Socket : in out Socket_Type) is
       use type TSSL.gnutls_session_t;
-      function To_Access is new Ada.Unchecked_Conversion
-        (TSSL.gnutls_transport_ptr_t, Socket_Access);
-      Sock : Socket_Access;
    begin
       if Socket.SSL /= null then
-         Sock := To_Access (TSSL.gnutls_transport_get_ptr (Socket.SSL));
-         Free (Sock);
          TSSL.gnutls_deinit (Socket.SSL);
          Socket.SSL := null;
       end if;
@@ -560,10 +583,13 @@ package body AWS.Net.SSL is
    -----------------------
 
    procedure Session_Transport (Socket : in out Socket_Type) is
-      type Std_Access is access all Net.Std.Socket_Type;
-      Sock : constant Std_Access
+      Sock : constant Socket_Access
         := new Std.Socket_Type'(Std.Socket_Type (Socket));
    begin
+      --  !!! we make a copy of socket, hidden inside of Socket.SSL
+      --  Finalize procedure have to Free the copy when reference counter would
+      --  be 2.
+
       TSSL.gnutls_transport_set_ptr
         (Socket.SSL, TSSL.gnutls_transport_ptr_t (Sock.all'Address));
       TSSL.gnutls_transport_set_push_function (Socket.SSL, Push'Address);
