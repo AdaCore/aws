@@ -25,7 +25,6 @@ endif
 build:
 	$(GNATMAKE) -Pssl -XSOCKET=${SOCKET} \
 		-XAWS_BUILD=${PRJ_BUILD} -XXMLADA=${PRJ_XMLADA}
-	$(GNATMAKE) -Pnossl -XAWS_BUILD=${PRJ_BUILD} -XXMLADA=${PRJ_XMLADA}
 
 SSLGPR	=	aws_ssl_shared.gpr
 
