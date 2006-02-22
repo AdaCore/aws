@@ -672,6 +672,21 @@ package SSL.GNUTLS is
       c_type : gnutls_credentials_type_t;
       cred   : System.Address) return C.int;
 
+   function gnutls_credentials_set
+     (p1     : gnutls_session_t;
+      c_type : gnutls_credentials_type_t := GNUTLS_CRD_ANON;
+      cred   : gnutls_anon_client_credentials_t) return C.int;
+
+   function gnutls_credentials_set
+     (p1     : gnutls_session_t;
+      c_type : gnutls_credentials_type_t := GNUTLS_CRD_ANON;
+      cred   : gnutls_anon_server_credentials_t) return C.int;
+
+   function gnutls_credentials_set
+     (p1     : gnutls_session_t;
+      c_type : gnutls_credentials_type_t := GNUTLS_CRD_CERTIFICATE;
+      cred   : gnutls_certificate_credentials_t) return C.int;
+
    procedure gnutls_anon_free_server_credentials
      (sc : gnutls_anon_server_credentials_t);
 
