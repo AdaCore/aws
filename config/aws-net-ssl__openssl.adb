@@ -44,8 +44,6 @@ with AWS.Config;
 with AWS.Net.Log;
 with AWS.Utils;
 
-with SSL.Thin;
-
 package body AWS.Net.SSL is
 
    use type Interfaces.C.int;
