@@ -448,11 +448,17 @@ package body AWS.Net.SSL is
    procedure Receive
      (Socket : in     Socket_Type;
       Data   :    out Stream_Element_Array;
-      Last   :    out Stream_Element_Offset) is
+      Last   :    out Stream_Element_Offset)
+   is
+      use type TSSL.ssize_t;
+      Code : constant TSSL.ssize_t
+        := TSSL.gnutls_record_recv (Socket.SSL, Data'Address, Data'Length);
    begin
-      Last := Stream_Element_Offset
-                (TSSL.gnutls_record_recv
-                   (Socket.SSL, Data'Address, Data'Length));
+      if Code < 0 then
+         Check_Error_Code (Code, Socket);
+      end if;
+
+      Last := Data'First + Stream_Element_Offset (Code) - 1;
    end Receive;
 
    -------------
@@ -521,11 +527,17 @@ package body AWS.Net.SSL is
    procedure Send
      (Socket : in     Socket_Type;
       Data   : in     Stream_Element_Array;
-      Last   :    out Stream_Element_Offset) is
+      Last   :    out Stream_Element_Offset)
+   is
+      use type TSSL.ssize_t;
+      Code : constant TSSL.ssize_t
+        := TSSL.gnutls_record_send (Socket.SSL, Data'Address, Data'Length);
    begin
-      Last := Stream_Element_Offset
-                (TSSL.gnutls_record_send
-                   (Socket.SSL, Data'Address, Data'Length));
+      if Code < 0 then
+         Check_Error_Code (Code, Socket);
+      end if;
+
+      Last := Data'First + Stream_Element_Offset (Code) - 1;
    end Send;
 
    --------------------
