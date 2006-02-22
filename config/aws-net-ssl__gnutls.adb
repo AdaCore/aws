@@ -435,10 +435,12 @@ package body AWS.Net.SSL is
    function Push
      (Socket : in Std.Socket_Type;
       Data   : in Stream_Array;
-      Length : in Stream_Element_Count) return Stream_Element_Count is
+      Length : in Stream_Element_Count) return Stream_Element_Count
+   is
+      Last : Stream_Element_Count;
    begin
-      Send (Socket, Data (1 .. Length));
-      return Length;
+      Std.Send (Socket, Data (1 .. Length), Last);
+      return Last;
    end Push;
 
    -------------
@@ -537,7 +539,11 @@ package body AWS.Net.SSL is
          Check_Error_Code (Code, Socket);
       end if;
 
-      Last := Data'First + Stream_Element_Offset (Code) - 1;
+      if Data'First = Stream_Element_Offset'First and Code = 0 then
+         Last := Data'Last + 1;
+      else
+         Last := Data'First + Stream_Element_Offset (Code) - 1;
+      end if;
    end Send;
 
    --------------------
