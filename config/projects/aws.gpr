@@ -31,7 +31,6 @@ with "ai302";
 with "aws/aws_xmlada";
 with "aws/aws_components";
 with "aws/aws_ssl_support";
-with "aws/aws_nossl_lib";
 with "aws/aws_shared";
 with "aws/aws_config";
 with "aws/aws_libz";
