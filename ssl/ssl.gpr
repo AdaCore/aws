@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2003-2005                          --
+--                         Copyright (C) 2003-2006                          --
 --                                 AdaCore                                  --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -32,20 +32,14 @@ with "../shared";
 
 with "crypto_lib";
 with "ssl_lib";
+with "ssl_error_lib";
 with "aws_config";
 
 project SSL is
 
    for Languages use ("Ada", "Project file");
 
-   for Source_Files use
-     ("ssl.ads",
-      "ssl-thin.ads",
-      "ssl-ada_random.ads",
-      "ssl-ada_random.adb",
-      "ssl-locking.ads",
-      "ssl-locking.adb",
-      "ssl.gpr");
+   for Source_Dirs use (".", "../config");
 
    case Shared.Build is
       when "Debug" =>
@@ -64,5 +58,24 @@ project SSL is
    ---------
 
    package Ide renames Shared.Ide;
+
+   ------------
+   -- Naming --
+   ------------
+
+   package Naming is
+
+      --  SSL Lib
+
+      case Shared.Socket is
+         when "std" =>
+            for Specification ("SSL.Thin") use "ssl-thin__dummy.ads";
+         when "ssl" | "openssl" =>
+            for Specification ("SSL.Thin") use "ssl-thin__openssl.ads";
+         when "gnutls" =>
+            for Specification ("SSL.Thin") use "ssl-thin__gnutls.ads";
+      end case;
+
+   end Naming;
 
 end SSL;
