@@ -521,11 +521,11 @@ package body AWS.Net.SSL is
 
       Socket.SSL := Session;
 
-      Check_Error_Code
-        (TSSL.gnutls_set_default_priority (Session), Socket);
+      Check_Error_Code (TSSL.gnutls_set_default_priority (Session), Socket);
 
       Check_Error_Code
-        (TSSL.gnutls_credentials_set (Session, cred => Socket.Config.ACC));
+        (TSSL.gnutls_credentials_set (Session, cred => Socket.Config.ACC),
+         Socket);
 
       Session_Transport (Socket);
    end Session_Client;
@@ -544,11 +544,11 @@ package body AWS.Net.SSL is
 
       Socket.SSL := Session;
 
-      Check_Error_Code
-        (TSSL.gnutls_set_default_priority (Session), Socket);
+      Check_Error_Code (TSSL.gnutls_set_default_priority (Session), Socket);
 
       Check_Error_Code
-        (TSSL.gnutls_credentials_set (Session, cred => Socket.Config.ASC));
+        (TSSL.gnutls_credentials_set (Session, cred => Socket.Config.ASC),
+         Socket);
 
       TSSL.gnutls_dh_set_prime_bits (Session, DH_Bits);
 
