@@ -46,10 +46,12 @@ aws-server-status.ads.texi
 aws-server.ads.texi
 aws-services-callbacks.ads.texi
 aws-services-directory.ads.texi
+aws-services-dispatchers-linker.ads.texi
 aws-services-dispatchers-method.ads.texi
 aws-services-dispatchers-uri.ads.texi
 aws-services-dispatchers-virtual_host.ads.texi
 aws-services-dispatchers.ads.texi
+aws-services-download.ads.texi
 aws-services-page_server.ads.texi
 aws-services-split_pages-alpha-bounded.ads.texi
 aws-services-split_pages-alpha.ads.texi
