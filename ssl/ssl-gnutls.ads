@@ -152,6 +152,7 @@ package SSL.GNUTLS is
    GNUTLS_E_UNIMPLEMENTED_FEATURE               : constant := -1250;
 
    type time_t is new C.long;
+   subtype ssize_t is C.int;
 
    type gnutls_cipher_algorithm_t is
      (GNUTLS_CIPHER_NULL,
@@ -552,12 +553,12 @@ package SSL.GNUTLS is
    function gnutls_record_send
      (session    : gnutls_session_t;
       data       : System.Address;
-      sizeofdata : C.size_t) return C.size_t;
+      sizeofdata : C.size_t) return ssize_t;
 
    function gnutls_record_recv
      (session    : gnutls_session_t;
       data       : System.Address;
-      sizeofdata : C.size_t) return C.size_t;
+      sizeofdata : C.size_t) return ssize_t;
 
    function gnutls_record_get_direction
      (session : gnutls_session_t) return C.int;
