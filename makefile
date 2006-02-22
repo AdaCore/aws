@@ -409,6 +409,26 @@ ifeq (${OSLIB}, POSIX)
 	echo '   OSLIB : OSLIB_Type := "POSIX";' >> $(CONFGPR)
 	echo '"aws-os_lib__posix.adb");' >> $(CONFADC)
 endif
+	echo '   type SOCKET_Type is ("std", "openssl", "gnutls");' \
+		>> $(CONFGPR)
+	echo -n 'pragma Source_File_Name (AWS.Net.SSL, Body_File_Name => ' \
+		>> $(CONFADC)
+ifeq (${SOCKET}, std)
+	echo '   SOCKET : SOCKET_Type := "std";' >> $(CONFGPR)
+	echo '"aws-net_ssl__dummy.adb");' >> $(CONFADC)
+endif
+ifeq (${SOCKET}, ssl)
+	echo '   SOCKET : SOCKET_Type := "openssl";' >> $(CONFGPR)
+	echo '"aws-net_ssl__openssl.adb");' >> $(CONFADC)
+endif
+ifeq (${SOCKET}, openssl)
+	echo '   SOCKET : SOCKET_Type := "openssl";' >> $(CONFGPR)
+	echo '"aws-net_ssl__openssl.adb");' >> $(CONFADC)
+endif
+ifeq (${SOCKET}, gnutls)
+	echo '   SOCKET : SOCKET_Type := "gnutls";' >> $(CONFGPR)
+	echo '"aws-net_ssl__gnutls.adb");' >> $(CONFADC)
+endif
 	echo 'end AWS_Config;' >> $(CONFGPR)
 
 setup: setup_dir $(GEXT_MODULE) $(MODULES_SETUP) setup_config
@@ -480,7 +500,6 @@ endif
 	$(CP) $(BDIR)/lib/* $(I_LIB)
 	$(CP) $(CONFADC) $(I_LIB)
 	-$(CP) $(BDIR)/ssl/lib/* $(I_LIB)
-	-$(CP) $(BDIR)/ssl/nlib/* $(I_LIB)
 	-$(CP) docs/aws.html $(I_DOC)
 	-$(CP) -r docs/html $(I_DOC)
 	-$(CP) templates_parser/docs/templates_parser.html $(I_DOC)
