@@ -70,6 +70,29 @@ project AWS_Shared is
               use "aws-net-std__ipv6.adb";
       end case;
 
+      --  SSL Lib
+
+      case AWS_Config.Socket is
+         when "std" =>
+            for Specification ("SSL.Thin") use "ssl-thin__dummy.ads";
+            for Implementation ("AWS.Net.SSL")
+              use "aws-net-ssl__dummy.adb";
+            for Implementation ("AWS.Net.SSL.Certificate")
+              use "aws-net-ssl-certificate__dummy.adb";
+         when "openssl" =>
+            for Specification ("SSL.Thin") use "ssl-thin__openssl.ads";
+            for Implementation ("AWS.Net.SSL")
+              use "aws-net-ssl__openssl.adb";
+            for Implementation ("AWS.Net.SSL.Certificate")
+              use "aws-net-ssl-certificate__openssl.adb";
+         when "gnutls" =>
+            for Specification ("SSL.Thin") use "ssl-thin__gnutls.ads";
+            for Implementation ("AWS.Net.SSL")
+              use "aws-net-ssl__gnutls.adb";
+            for Implementation ("AWS.Net.SSL.Certificate")
+              use "aws-net-ssl-certificate__gnutls.adb";
+      end case;
+
    end Naming;
 
 end AWS_Shared;
