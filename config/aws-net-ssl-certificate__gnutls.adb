@@ -64,6 +64,7 @@ package body AWS.Net.SSL.Certificate is
    function Get (Socket : in Socket_Type) return Object is
       use type C.unsigned;
       use type System.Address;
+      use type TSSL.a_gnutls_datum_t;
 
       List_Size : aliased C.unsigned;
       Datum : constant TSSL.a_gnutls_datum_t
@@ -75,7 +76,7 @@ package body AWS.Net.SSL.Certificate is
       Issuer   : aliased C.char_array := (1 .. 256 => C.nul);
       Iss_Len  : aliased C.size_t;
    begin
-      if List_Size = 0 then
+      if List_Size = 0 or else Datum = null then
          return Undefined;
       end if;
 
