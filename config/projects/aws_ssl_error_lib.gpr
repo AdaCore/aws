@@ -28,7 +28,7 @@
 
 --  Project for libssl.a external library
 
-with "aws/aws_config";
+with "aws_config";
 with "aws_ssl_shared";
 
 project AWS_SSL_Error_Lib is
