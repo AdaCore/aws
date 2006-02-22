@@ -28,6 +28,7 @@
 
 --  Project for libcrypto.a external library
 
+with "aws_config";
 with "aws_ssl_shared";
 
 project AWS_Crypto_Lib is
