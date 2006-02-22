@@ -1,10 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2004-2005                          --
+--                         Copyright (C) 2004-2006                          --
 --                                 AdaCore                                  --
---                                                                          --
---  Authors: Dmitriy Anisimkov - Pascal Obry                                --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -30,14 +28,23 @@
 
 --  Project for libssl.a external library
 
+with "aws_config";
 with "aws_ssl_shared";
-with "nossl";
 
 project SSL_Lib is
 
   for Source_Files use ();
   for Library_Dir use AWS_SSL_Shared.LIB_Path;
-  for Library_Name use "ssl";
+
+  case AWS_Config.Socket is
+     when "std" =>
+        null;
+     when "openssl" =>
+        for Library_Name use "ssl";
+     when "gnutls" =>
+        for Library_Name use "gnutls";
+  end case;
+
   for Library_Kind use "static";
   for Externally_Built use "true";
 
