@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                          Copyright (C) 2003-2006                         --
+--                         Copyright (C) 2003-2006                          --
 --                                 AdaCore                                  --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -196,6 +196,26 @@ project Src is
          when "IPv6" =>
             for Implementation ("AWS.Net.Std")
               use "aws-net-std__ipv6.adb";
+      end case;
+
+      --  SSL Lib
+
+      case Shared.Socket is
+         when "std" =>
+            for Implementation ("AWS.Net.SSL")
+              use "aws-net-ssl__dummy.adb";
+            for Implementation ("AWS.Net.SSL.Certificate")
+              use "aws-net-ssl-certificate__dummy.adb";
+         when "ssl"| "openssl" =>
+            for Implementation ("AWS.Net.SSL")
+              use "aws-net-ssl__openssl.adb";
+            for Implementation ("AWS.Net.SSL.Certificate")
+              use "aws-net-ssl-certificate__openssl.adb";
+         when "gnutls" =>
+            for Implementation ("AWS.Net.SSL")
+              use "aws-net-ssl__gnutls.adb";
+            for Implementation ("AWS.Net.SSL.Certificate")
+              use "aws-net-ssl-certificate__gnutls.adb";
       end case;
 
    end Naming;
