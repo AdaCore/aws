@@ -43,7 +43,10 @@ ifeq (${XMLADA}, true)
 XMLADA_UNICODE = ${shell gnat list -Pxmlada -s unicode.ads}
 XMLADA_SRC     = ${subst \,/,${dir $(XMLADA_UNICODE)}}
 
+ifneq (${SOCKET}, std)
 OTH_TESTS     := $(OTH_TESTS) check_mem
+endif
+
 WSDL_TESTS     = test_wsdl test_wsdl2 test_wsdl4 test_wsdl6 \
 	interoplab_main1 googlesearch datafeed_service anytype
 WSDL_ATESTS    = test_wsdl3 test_wsdl5 test_wsdl7
