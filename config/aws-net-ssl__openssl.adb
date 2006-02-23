@@ -297,6 +297,15 @@ package body AWS.Net.SSL is
       end if;
    end Error_Str;
 
+   --------------
+   -- Finalize --
+   --------------
+
+   procedure Finalize (Socket : in out Socket_Type) is
+   begin
+      Std.Finalize (Std.Socket_Type (Socket));
+   end Finalize;
+
    ----------
    -- Free --
    ----------

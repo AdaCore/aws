@@ -69,6 +69,15 @@ package body AWS.Net.SSL is
       raise Program_Error;
    end Do_Handshake;
 
+   --------------
+   -- Finalize --
+   --------------
+
+   procedure Finalize (Socket : in out Socket_Type) is
+   begin
+      Std.Finalize (Std.Socket_Type (Socket));
+   end Finalize;
+
    ----------
    -- Free --
    ----------

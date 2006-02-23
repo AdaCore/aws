@@ -165,4 +165,8 @@ private
       SSL    : SSL_Handle := TSSL.Null_Handle;
    end record;
 
+   procedure Finalize (Socket : in out Socket_Type);
+   --  Finalize overriden for GNUTLS implementation.
+   --  for OpenSSL implementation, it have to call inherited routine.
+
 end AWS.Net.SSL;
