@@ -67,7 +67,7 @@ project Regtests is
                for Main use project'Main & Common_SOAP & Regtests_Lst.T_SOAP;
 
                case Shared.SOCKET is
-                  when "ssl" =>
+                  when "ssl" | "openssl" | "gnutls" =>
                      for Main use project'Main & Regtests_Lst.T_SEC_SOAP;
                   when "std" =>
                      for Main use project'Main;
@@ -75,7 +75,7 @@ project Regtests is
 
             when "Disabled" =>
                case Shared.SOCKET is
-                  when "ssl" =>
+                  when "ssl" | "openssl" | "gnutls" =>
                      for Main use project'Main & Regtests_Lst.T_SEC;
                   when "std" =>
                      for Main use project'Main;
