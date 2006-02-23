@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2003-2004                          --
---                                ACT-Europe                                --
+--                         Copyright (C) 2003-2006                          --
+--                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -41,7 +41,8 @@ procedure Sock1 is
      := Net.Std.Socket_Type (Net.Socket_Type'Class'(Net.Socket (False)));
 
 begin
-   Net.Std.Bind (Sock, 1111, "hostname");
+   Net.Std.Bind (Sock, 1111, "hostname.here.com");
+   Text_IO.Put_Line ("Should not be there!");
 exception
    when Net.Socket_Error =>
       Text_IO.Put_Line ("OK : Socket_Error");
