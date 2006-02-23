@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                          Copyright (C) 2003-2004                         --
---                                ACT-Europe                                --
+--                         Copyright (C) 2003-2006                          --
+--                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -108,7 +108,8 @@ procedure Dispatch1 is
       R : Response.Data;
    begin
       Text_IO.Put_Line (URI);
-      R := Client.Get ("http://localhost:" & AWS.Utils.Image (Free_Port) & URI);
+      R := Client.Get
+        ("http://localhost:" & AWS.Utils.Image (Free_Port) & URI);
       Text_IO.Put_Line ("> " & Response.Message_Body (R));
    end Test;
 
