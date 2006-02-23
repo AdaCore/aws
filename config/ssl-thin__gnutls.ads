@@ -585,22 +585,22 @@ package SSL.Thin is
       indx        : C.unsigned) return C.int;
 
    function gnutls_cipher_set_priority
-     (session : gnutls_session_t; p2 : C.int) return C.int;
+     (session : gnutls_session_t; p2 : System.Address) return C.int;
 
    function gnutls_mac_set_priority
-     (session : gnutls_session_t; p2 : C.int) return C.int;
+     (session : gnutls_session_t; p2 : System.Address) return C.int;
 
    function gnutls_compression_set_priority
-     (session : gnutls_session_t; p2 : C.int) return C.int;
+     (session : gnutls_session_t; p2 : System.Address) return C.int;
 
    function gnutls_kx_set_priority
-     (session : gnutls_session_t; p2 : C.int) return C.int;
+     (session : gnutls_session_t; p2 : System.Address) return C.int;
 
    function gnutls_protocol_set_priority
-     (session : gnutls_session_t; p2 : C.int) return C.int;
+     (session : gnutls_session_t; p2 : System.Address) return C.int;
 
    function gnutls_certificate_type_set_priority
-     (session : gnutls_session_t; p2 : C.int) return C.int;
+     (session : gnutls_session_t; p2 : System.Address) return C.int;
 
    function gnutls_set_default_priority
      (session : gnutls_session_t) return C.int;
