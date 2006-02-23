@@ -631,7 +631,9 @@ package body AWS.Server is
 
       Services.Transient_Pages.Control.Shutdown;
 
-      Net.SSL.Release (Web_Server.SSL_Config);
+      if CNF.Security (Web_Server.Properties) then
+         Net.SSL.Release (Web_Server.SSL_Config);
+      end if;
 
       --  Close logs, this ensure that all data will be written to the file.
 
