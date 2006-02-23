@@ -26,7 +26,7 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  Project for libssl.a external library
+--  Project for libgpg-error.a external library
 
 with "aws_config";
 with "aws_ssl_shared";
