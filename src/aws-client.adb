@@ -54,7 +54,9 @@ package body AWS.Client is
    begin
       Disconnect (Connection);
 
-      Net.SSL.Release (Connection.SSL_Config);
+      if URL.Security (Connection.Host_URL) then
+         Net.SSL.Release (Connection.SSL_Config);
+      end if;
 
       if ZLib.Is_Open (Connection.Decode_Filter) then
          ZLib.Close (Connection.Decode_Filter, Ignore_Error => True);
