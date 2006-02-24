@@ -368,6 +368,16 @@ setup_dir:
 CONFGPR	= $(PRJDIR)/aws_config.gpr
 CONFADC	= $(BDIR)/gnat.adc
 
+ifeq (${SOCKET}, ssl)
+SOCKET = openssl
+endif
+
+SSL_SUFFIX=$(SOCKET)
+
+ifeq (${SOCKET}, std)
+SSL_SUFFIX = dummy
+endif
+
 setup_config:
 	echo 'project AWS_Config is' > $(CONFGPR)
 	echo '   type Lib_Type is ("static", "relocatable");' >> $(CONFGPR)
@@ -411,25 +421,15 @@ ifeq (${OSLIB}, POSIX)
 endif
 	echo '   type SOCKET_Type is ("std", "openssl", "gnutls");' \
 		>> $(CONFGPR)
-	echo -n 'pragma Source_File_Name (AWS.Net.SSL, Body_File_Name => ' \
-		>> $(CONFADC)
-ifeq (${SOCKET}, std)
-	echo '   SOCKET : SOCKET_Type := "std";' >> $(CONFGPR)
-	echo '"aws-net_ssl__dummy.adb");' >> $(CONFADC)
-endif
-ifeq (${SOCKET}, ssl)
-	echo '   SOCKET : SOCKET_Type := "openssl";' >> $(CONFGPR)
-	echo '"aws-net_ssl__openssl.adb");' >> $(CONFADC)
-endif
-ifeq (${SOCKET}, openssl)
-	echo '   SOCKET : SOCKET_Type := "openssl";' >> $(CONFGPR)
-	echo '"aws-net_ssl__openssl.adb");' >> $(CONFADC)
-endif
-ifeq (${SOCKET}, gnutls)
-	echo '   SOCKET : SOCKET_Type := "gnutls";' >> $(CONFGPR)
-	echo '"aws-net_ssl__gnutls.adb");' >> $(CONFADC)
-endif
+	echo '   SOCKET : SOCKET_Type := "$(SOCKET)";' >> $(CONFGPR)
 	echo 'end AWS_Config;' >> $(CONFGPR)
+	echo 'pragma Source_File_Name (SSL.Thin, \
+	 Body_File_Name => "ssl-thin__$(SSL_SUFFIX).ads");' >> $(CONFADC)
+	echo 'pragma Source_File_Name (AWS.Net.SSL, Body_File_Name => \
+	  "aws-net_ssl__$(SSL_SUFFIX).adb");' >> $(CONFADC)
+	echo 'pragma Source_File_Name (AWS.Net.SSL.Certificate, \
+	 Body_File_Name => "aws-net-ssl-certificate__$(SSL_SUFFIX).adb");' \
+	  >> $(CONFADC)
 
 setup: setup_dir $(GEXT_MODULE) $(MODULES_SETUP) setup_config
 
