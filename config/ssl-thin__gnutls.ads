@@ -170,7 +170,8 @@ package SSL.Thin is
    for gnutls_cipher_algorithm_t'Size use C.int'Size;
 
    type gnutls_kx_algorithm_t is
-     (GNUTLS_KX_RSA,
+     (GNUTLS_KX_0,
+      GNUTLS_KX_RSA,
       GNUTLS_KX_DHE_DSS,
       GNUTLS_KX_DHE_RSA,
       GNUTLS_KX_ANON_DH,
@@ -179,7 +180,8 @@ package SSL.Thin is
       GNUTLS_KX_SRP_RSA,
       GNUTLS_KX_SRP_DSS);
    for gnutls_kx_algorithm_t use
-     (GNUTLS_KX_RSA        => 1,
+     (GNUTLS_KX_0          => 0,
+      GNUTLS_KX_RSA        => 1,
       GNUTLS_KX_DHE_DSS    => 2,
       GNUTLS_KX_DHE_RSA    => 3,
       GNUTLS_KX_ANON_DH    => 4,
