@@ -424,7 +424,7 @@ endif
 	echo '   SOCKET : SOCKET_Type := "$(SOCKET)";' >> $(CONFGPR)
 	echo 'end AWS_Config;' >> $(CONFGPR)
 	echo 'pragma Source_File_Name (SSL.Thin, \
-	 Body_File_Name => "ssl-thin__$(SSL_SUFFIX).ads");' >> $(CONFADC)
+	 Spec_File_Name => "ssl-thin__$(SSL_SUFFIX).ads");' >> $(CONFADC)
 	echo 'pragma Source_File_Name (AWS.Net.SSL, Body_File_Name => \
 	  "aws-net_ssl__$(SSL_SUFFIX).adb");' >> $(CONFADC)
 	echo 'pragma Source_File_Name (AWS.Net.SSL.Certificate, \
