@@ -426,14 +426,17 @@ package SSL.Thin is
      (p1   : System.Address;
       key  : gnutls_datum_t;
       data : gnutls_datum_t) return C.int;
+   pragma Convention (C, gnutls_db_store_func);
 
    type gnutls_db_remove_func is access function
      (p1   : System.Address;
       key  : gnutls_datum_t) return C.int;
+   pragma Convention (C, gnutls_db_remove_func);
 
    type gnutls_db_retr_func is access function
      (p1   : System.Address;
       key  : gnutls_datum_t) return gnutls_datum_t;
+   pragma Convention (C, gnutls_db_retr_func);
 
    type STRUCT_DSTRUCT is record
       null;
@@ -441,19 +444,26 @@ package SSL.Thin is
 
    type gnutls_alloc_function is access function
      (p1 : C.size_t) return System.Address;
+   pragma Convention (C, gnutls_alloc_function);
 
    type gnutls_calloc_function is access function
      (p1 : C.size_t; p2 : C.size_t) return System.Address;
+   pragma Convention (C, gnutls_calloc_function);
 
    type gnutls_is_secure_function is access function
      (p1 : System.Address) return C.int;
+   pragma Convention (C, gnutls_is_secure_function);
 
    type gnutls_free_function is access procedure (p1 : System.Address);
+   pragma Convention (C, gnutls_free_function);
 
    type gnutls_realloc_function is access function
      (p1 : System.Address; p2 : C.size_t) return System.Address;
+   pragma Convention (C, gnutls_realloc_function);
 
-   type gnutls_log_func is access procedure (p1 : C.int; p2 : CS.chars_ptr);
+   type gnutls_log_func is access procedure
+     (level : in C.int; text : in CS.chars_ptr);
+   pragma Convention (C, gnutls_log_func);
 
    gnutls_malloc                   : constant gnutls_alloc_function;
    gnutls_calloc                   : constant gnutls_calloc_function;
