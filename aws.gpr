@@ -32,7 +32,6 @@ with "shared";
 with "include/include";
 with "src/src";
 with "ssl/ssl";
-with "ssl/nossl";
 with "demos/demos";
 with "demos/demos_ssl";
 with "tools/tools";
