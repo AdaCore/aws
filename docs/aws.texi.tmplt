@@ -370,16 +370,12 @@ Note that by default @code{AWS} demos will be built without @code{SSL}
 support except on Windows. If you want to build the demos with
 @code{SSL} on UNIX (in this case you must have @file{libssl.a} and
 @file{libcrypto.a} available on your platform), open
-@file{makefile.conf} and set the @var{MODE} variable to ssl. Then
-rebuild with:
+@file{makefile.conf} and set the @var{SOCKET} variable to
+@code{openssl}. Then rebuild with:
 @cindex libssl.a
 @cindex libcrypto.a
 
 @AWSEXP {$ make setup build}
-
-@noindent
-It is important to understand that @code{AWS SSL} support is
-selected at @b{link time} and not at configure time.
 
 @noindent
 It is is possible to build @code{AWS} in debug mode by setting
@@ -394,7 +390,7 @@ compiler. So, if you use @code{GNAT} you can build @code{AWS} just with:
 @AWSEXP {$ make setup build}
 
 @noindent
-If you want to build only the AWS libraries and tools and do not want
+If you want to build only the @code{AWS} libraries and tools and do not want
 to build the demos you can set @code{EXTRA_MODULES} to "" as in:
 
 @AWSEXP {$ make EXTRA_MODULES="" build}
@@ -503,7 +499,7 @@ A simple demo of the Gzip content encoding feature.
 @end table
 
 @noindent
-If @code{XMLAda} is installed it is possible to build the @code{SOAP} binding
+If @code{XML/Ada} is installed it is possible to build the @code{SOAP} binding
 and the @code{SOAP} demos, for this just type:
 
 @AWSEXP {$ make build_soap}
@@ -520,9 +516,7 @@ A simple client/server program to test the @code{SOAP} protocol.
 
 @item soap_svs
 
-A server that implements the seven @code{SOAP} procedures for the validation
-suite on @url{http://validator.soapware.org/}. This demo can be used
-to validate @code{AWS/SOAP} on your platform.
+A server that implements seven @code{SOAP} procedures for testing purpose.
 
 @item soap_cvs
 
@@ -534,7 +528,7 @@ procedure of the above server.
 @noindent
 In each case you'll certainly have to edit the makefile to correctly set
 the include path for the libraries @code{POSIX}, @code{OpenSSL}, 
-@code{Socket} and @code{XMLAda}. For more information, look at the makefiles.
+@code{Socket} and @code{XML/Ada}. For more information, look at the makefiles.
 
 @c ----------------------------------------------------------------------
 
@@ -661,11 +655,11 @@ be using. For example you'll have to point @code{GNAT} to the
 @noindent
 The best solution is to use the installed GNAT Project File
 @file{aws.gpr}. This is supported only for @code{GNAT 5.01} or
-above. You must have installed @code{XMLAda} with project file
+above. You must have installed @code{XML/Ada} with project file
 support too.
 
 If this is the case just set the @var{ADA_PROJECT_PATH} variable to
-point to the @code{AWS} and @code{XMLAda} install directories. From
+point to the @code{AWS} and @code{XML/Ada} install directories. From
 there you just have to with the @code{AWS} project file in your GNAT
 Project file, nothing else to set.
 
