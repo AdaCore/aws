@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2004                          --
---                                ACT-Europe                                --
+--                         Copyright (C) 2000-2006                          --
+--                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -28,16 +28,12 @@
 
 --  $Id$
 
-with Ada.Strings.Unbounded;
-
 with AWS.Client;
 
 with SOAP.Message.Payload;
 with SOAP.Message.Response;
 
 package SOAP.Message.XML is
-
-   use Ada.Strings.Unbounded;
 
    function Load_Payload
      (XML : in String)

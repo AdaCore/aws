@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2004                          --
---                                ACT-Europe                                --
+--                         Copyright (C) 2000-2006                          --
+--                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -247,8 +247,6 @@ package body AWS.Services.Directory is
       Request        : in AWS.Status.Data)
       return Translate_Table
    is
-      use Templates_Parser;
-
       Max_Order_Length : constant := 8;
 
       Default_Order : constant String := "DN";

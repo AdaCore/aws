@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2002-2004                          --
---                                ACT-Europe                                --
+--                         Copyright (C) 2002-2006                          --
+--                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -32,14 +32,10 @@
 --  should depend only on AWS.Net.Std and the SSL library. It is important to
 --  not call directly a socket binding here to ease porting.
 
-with Ada.Streams;
-
 with AWS.Net.Std;
 with SSL.Thin;
 
 package AWS.Net.SSL is
-
-   use Ada.Streams;
 
    type Socket_Type is new Net.Std.Socket_Type with private;
 
@@ -56,10 +52,10 @@ package AWS.Net.SSL is
    --  Accept a connection on a socket
 
    procedure Connect
-     (Socket   : in out Socket_Type;
-      Host     : in     String;
-      Port     : in     Positive;
-      Wait     : in     Boolean := True);
+     (Socket : in out Socket_Type;
+      Host   : in     String;
+      Port   : in     Positive;
+      Wait   : in     Boolean := True);
    --  Connect a socket on a given host/port. If Wait is True Connect will wait
    --  for the connection to be established for timeout seconds, specified by
    --  Set_Timeout routine. If Wait is False Connect will return immediately,

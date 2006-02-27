@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                          Copyright (C) 2003-2004                         --
---                                ACT-Europe                                --
+--                          Copyright (C) 2003-2006                         --
+--                                  AdaCore                                 --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -50,7 +50,6 @@ package body SOAP.Generator is
 
    use Ada;
    use Ada.Exceptions;
-   use Ada.Strings.Unbounded;
 
    function Format_Name (O : in Object; Name : in String) return String;
    --  Returns Name formated with the Ada style if O.Ada_Style is true and

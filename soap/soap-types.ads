@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2001-2004                          --
---                                ACT-Europe                                --
+--                         Copyright (C) 2001-2006                          --
+--                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -449,8 +449,6 @@ package SOAP.Types is
    --  Returns name space associated with object O
 
 private
-
-   use Ada.Strings.Unbounded;
 
    --  Object
 

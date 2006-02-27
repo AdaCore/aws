@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2004                          --
---                                ACT-Europe                                --
+--                         Copyright (C) 2000-2006                          --
+--                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -39,8 +39,6 @@ with AWS.Utils;
 with SOAP.Message.XML;
 
 package body SOAP.Utils is
-
-   use Ada.Strings.Unbounded;
 
    ---------
    -- Any --

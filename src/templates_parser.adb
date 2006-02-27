@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                             Templates Parser                             --
 --                                                                          --
---                        Copyright (C) 1999 - 2004                         --
+--                        Copyright (C) 1999 - 2006                         --
 --                               Pascal Obry                                --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -1057,7 +1057,6 @@ package body Templates_Parser is
          function Name_Parameter
            (Filter : in String) return Templates_Parser.Filter.Routine
          is
-            use Strings;
 
             package F renames Templates_Parser.Filter;
 

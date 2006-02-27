@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                             Templates Parser                             --
 --                                                                          --
---                        Copyright (C) 1999 - 2004                         --
+--                        Copyright (C) 1999 - 2006                         --
 --                               Pascal Obry                                --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -137,7 +137,7 @@ package body Expr is
       ----------------
 
       procedure Next_Token is
-         use Ada.Strings, Ada.Characters.Handling;
+         use Ada.Characters.Handling;
          I : Natural;
       begin
          --  Skip blanks

@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2003-2004                          --
---                                ACT-Europe                                --
+--                         Copyright (C) 2003-2006                          --
+--                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -47,7 +47,6 @@ package body SOAP.WSDL.Parser is
 
    use Ada;
    use Ada.Exceptions;
-   use Ada.Strings.Unbounded;
    use type DOM.Core.Node;
 
    Verbose_Mode  : Verbose_Level := 0;

@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2002-2004                          --
---                                ACT-Europe                                --
+--                         Copyright (C) 2002-2006                          --
+--                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -32,11 +32,7 @@
 --  this package depends on a specific socket binding. To port AWS to another
 --  socket implementation you need only to rewrite the body.
 
-with Ada.Streams;
-
 package AWS.Net.Std is
-
-   use Ada.Streams;
 
    type Socket_Type is new Net.Socket_Type with private;
 

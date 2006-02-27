@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2004                          --
---                                ACT-Europe                                --
+--                         Copyright (C) 2000-2006                          --
+--                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -512,8 +512,6 @@ package body SOAP.Types is
    end Image;
 
    function Image (O : in XSD_Float) return String is
-      use Ada;
-
       Result : String (1 .. Long_Float'Width);
    begin
       Long_Float_Text_IO.Put (Result, O.V, Exp => 0);
@@ -521,8 +519,6 @@ package body SOAP.Types is
    end Image;
 
    function Image (O : in XSD_Double) return String is
-      use Ada;
-
       Result : String (1 .. Long_Long_Float'Width);
    begin
       Long_Long_Float_Text_IO.Put (Result, O.V, Exp => 0);

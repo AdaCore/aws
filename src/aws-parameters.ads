@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2002                          --
---                                ACT-Europe                                --
+--                         Copyright (C) 2000-2006                          --
+--                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -46,6 +46,7 @@ package AWS.Parameters is
    --  See AWS.Containers.Tables for inherited routines.
 
 private
+
    use Ada.Strings.Unbounded;
 
    type List is new AWS.Containers.Tables.Table_Type with record

@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2004                          --
---                                ACT-Europe                                --
+--                         Copyright (C) 2000-2006                          --
+--                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -189,7 +189,6 @@ package body AWS.Session is
    -------------
 
    task body Cleaner is
-      use Ada;
       use type Calendar.Time;
 
       Next_Run : Calendar.Time := Calendar.Clock + Session_Check_Interval;

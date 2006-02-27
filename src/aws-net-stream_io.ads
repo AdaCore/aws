@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2003                          --
---                                ACT-Europe                                --
+--                         Copyright (C) 2000-2006                          --
+--                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -72,8 +72,6 @@ package AWS.Net.Stream_IO is
    --  Write Item to the stream
 
 private
-
-   use Ada.Streams;
 
    type Socket_Stream_Type is new Ada.Streams.Root_Stream_Type with record
       Socket : Socket_Access := null;

@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2004                          --
---                                ACT-Europe                                --
+--                         Copyright (C) 2000-2006                          --
+--                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -54,7 +54,6 @@ with AWS.Utils;
 package body AWS.Client is
 
    use Ada;
-   use Ada.Strings.Unbounded;
 
    type Auth_Attempts_Count is
      array (Authentication_Level) of Natural range 0 .. 2;
@@ -669,7 +668,6 @@ package body AWS.Client is
 
       loop
          declare
-            use Ada.Streams;
             Buffer : Stream_Element_Array (1 .. 8096);
             Last   : Stream_Element_Offset;
          begin
@@ -1758,7 +1756,6 @@ package body AWS.Client is
       Data       :    out Ada.Streams.Stream_Element_Array;
       Last       :    out Ada.Streams.Stream_Element_Offset)
    is
-      use Ada.Streams;
       First : Stream_Element_Offset := Data'First;
    begin
       loop
@@ -1790,7 +1787,6 @@ package body AWS.Client is
         (Data       :    out Ada.Streams.Stream_Element_Array;
          Last       :    out Ada.Streams.Stream_Element_Offset)
       is
-         use Ada.Streams;
          Sock  : Net.Socket_Type'Class renames Connection.Socket.all;
 
          procedure Skip_Line;
