@@ -132,6 +132,7 @@ package body AWS.Net.SSL is
    begin
       Net.Std.Accept_Socket (Socket, NSST (New_Socket));
       Session_Server (New_Socket);
+      --  Do_Handshake (New_Socket);
    end Accept_Socket;
 
    ------------------
@@ -181,7 +182,12 @@ package body AWS.Net.SSL is
       Wait     : in     Boolean := True) is
    begin
       Net.Std.Connect (NSST (Socket), Host, Port, Wait);
+
       Session_Client (Socket);
+
+      if Wait then
+         Do_Handshake (Socket);
+      end if;
    end Connect;
 
    --------------------------
@@ -215,7 +221,7 @@ package body AWS.Net.SSL is
 
    procedure Do_Handshake (Socket : in out Socket_Type) is
    begin
-      Check_Error_Code (TSSL.gnutls_handshake (Socket.SSL));
+      Check_Error_Code (TSSL.gnutls_handshake (Socket.SSL), Socket);
    end Do_Handshake;
 
    --------------
@@ -551,20 +557,26 @@ package body AWS.Net.SSL is
    --------------------
 
    procedure Session_Client (Socket : in out Socket_Type) is
-      Session : aliased TSSL.gnutls_session_t;
+      use TSSL;
+      Session : aliased gnutls_session_t;
+      type Priority_List is array (0 .. 1) of gnutls_kx_algorithm_t;
+      pragma Convention (C, Priority_List);
+
+      kx_prio : constant Priority_List := (GNUTLS_KX_ANON_DH, GNUTLS_KX_0);
    begin
       Check_Config (Socket);
 
-      Check_Error_Code
-        (TSSL.gnutls_init (Session'Access, TSSL.GNUTLS_CLIENT), Socket);
+      Check_Error_Code (gnutls_init (Session'Access, GNUTLS_CLIENT), Socket);
 
       Socket.SSL := Session;
 
-      Check_Error_Code (TSSL.gnutls_set_default_priority (Session), Socket);
-
+      Check_Error_Code (gnutls_set_default_priority (Session), Socket);
       Check_Error_Code
-        (TSSL.gnutls_credentials_set (Session, cred => Socket.Config.ACC),
-         Socket);
+        (gnutls_kx_set_priority (Session, kx_prio'Address), Socket);
+      Check_Error_Code
+        (gnutls_credentials_set (Session, cred => Socket.Config.ACC), Socket);
+
+      gnutls_dh_set_prime_bits (Session, DH_Bits);
 
       Session_Transport (Socket);
    end Session_Client;
@@ -574,22 +586,25 @@ package body AWS.Net.SSL is
    --------------------
 
    procedure Session_Server (Socket : in out Socket_Type) is
-      Session : aliased TSSL.gnutls_session_t;
+      use TSSL;
+      Session : aliased gnutls_session_t;
+      type Priority_List is array (0 .. 1) of gnutls_kx_algorithm_t;
+      pragma Convention (C, Priority_List);
+      kx_prio : constant Priority_List := (GNUTLS_KX_ANON_DH, GNUTLS_KX_0);
    begin
       Check_Config (Socket);
 
-      Check_Error_Code
-        (TSSL.gnutls_init (Session'Access, TSSL.GNUTLS_SERVER), Socket);
+      Check_Error_Code (gnutls_init (Session'Access, GNUTLS_SERVER), Socket);
 
       Socket.SSL := Session;
 
-      Check_Error_Code (TSSL.gnutls_set_default_priority (Session), Socket);
-
+      Check_Error_Code (gnutls_set_default_priority (Session), Socket);
       Check_Error_Code
-        (TSSL.gnutls_credentials_set (Session, cred => Socket.Config.ASC),
-         Socket);
+        (gnutls_kx_set_priority (Session, kx_prio'Address), Socket);
+      Check_Error_Code
+        (gnutls_credentials_set (Session, cred => Socket.Config.ASC), Socket);
 
-      TSSL.gnutls_dh_set_prime_bits (Session, DH_Bits);
+      gnutls_dh_set_prime_bits (Session, DH_Bits);
 
       Session_Transport (Socket);
    end Session_Server;
@@ -629,9 +644,17 @@ package body AWS.Net.SSL is
    --------------
 
    procedure Shutdown (Socket : in Socket_Type) is
-      Code : constant C.int
-        := TSSL.gnutls_bye (Socket.SSL, TSSL.GNUTLS_SHUT_RDWR);
+      Code : C.int := 0;
    begin
+      begin
+         Code := TSSL.gnutls_bye (Socket.SSL, TSSL.GNUTLS_SHUT_RDWR);
+      exception
+         when Socket_Error =>
+            --  Catch socket exceptions, because SSL shutdown could make some
+            --  data transfer over the Push/Pull routines.
+            null;
+      end;
+
       if Code /= 0 then
          Net.Log.Error (Socket, C.Strings.Value (TSSL.gnutls_strerror (Code)));
       end if;
