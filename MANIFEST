@@ -472,6 +472,8 @@ regtests/test_speed.adb
 regtests/test_speed.out
 regtests/test_templates_if.adb
 regtests/test_templates_if.out
+regtests/test_zlib.adb
+regtests/test_zlib.ads
 regtests/tgdb
 regtests/tgetparam.adb
 regtests/tgetparam.out
