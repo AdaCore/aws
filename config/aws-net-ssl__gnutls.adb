@@ -679,17 +679,9 @@ package body AWS.Net.SSL is
    --------------
 
    procedure Shutdown (Socket : in Socket_Type) is
-      Code : C.int := 0;
+      Code : constant C.int
+        := TSSL.gnutls_bye (Socket.SSL, TSSL.GNUTLS_SHUT_RDWR);
    begin
-      begin
-         Code := TSSL.gnutls_bye (Socket.SSL, TSSL.GNUTLS_SHUT_RDWR);
-      exception
-         when Socket_Error =>
-            --  Catch socket exceptions, because SSL shutdown could make some
-            --  data transfer over the Push/Pull routines.
-            null;
-      end;
-
       if Code /= 0 then
          Net.Log.Error (Socket, C.Strings.Value (TSSL.gnutls_strerror (Code)));
       end if;
