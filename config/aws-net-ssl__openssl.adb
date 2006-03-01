@@ -620,26 +620,7 @@ package body AWS.Net.SSL is
          Id_Counter : Task_Identifier := 0;
       end Task_Id_Generator;
 
-      protected type RW_Mutex is
-
-         --  Readers must call Read to enter the critical section and call
-         --  Release_Read at the end.
-
-         entry Read;
-
-         procedure Release_Read;
-
-         --  Writers must call Write to enter the critical section and call
-         --  Release_Write at the end.
-
-         entry Write;
-
-         procedure Release_Write;
-
-      private
-         Readers : Natural := 0;
-         Writer  : Boolean := False;
-      end RW_Mutex;
+      subtype RW_Mutex is AWS.Utils.RW_Semaphore (1);
 
       type RW_Mutex_Access is access all RW_Mutex;
 
@@ -793,50 +774,6 @@ package body AWS.Net.SSL is
       begin
          Lock (Mode, Locks (N));
       end Locking_Function;
-
-      --------------
-      -- RW_Mutex --
-      --------------
-
-      protected body RW_Mutex is
-
-         ----------
-         -- Read --
-         ----------
-
-         entry Read when not Writer is
-         begin
-            Readers := Readers + 1;
-         end Read;
-
-         ------------------
-         -- Release_Read --
-         ------------------
-
-         procedure Release_Read is
-         begin
-            Readers := Readers - 1;
-         end Release_Read;
-
-         -------------------
-         -- Release_Write --
-         -------------------
-
-         procedure Release_Write is
-         begin
-            Writer := False;
-         end Release_Write;
-
-         -----------
-         -- Write --
-         -----------
-
-         entry Write when Readers = 0 and then not Writer is
-         begin
-            Writer := True;
-         end Write;
-
-      end RW_Mutex;
 
       -----------------------
       -- Task_Id_Generator --
