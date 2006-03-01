@@ -48,7 +48,8 @@ project Regtests is
 
    Common :=
      ("dispatch1.adb", "dispatch_method.adb", "dispatch_vh.adb", "tres.adb",
-      "upload2.adb", "upload3.adb", "server_config.adb", "tlog.adb");
+      "upload2.adb", "upload3.adb", "server_config.adb", "tlog.adb",
+      "test_zlib");
 
    --  Common tests using SOAP support
 
