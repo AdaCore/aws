@@ -208,6 +208,8 @@ include/readme.txt
 include/strings_cutter.adb
 include/strings_cutter.ads
 include/strings_maps.ads
+include/zlib-streams.adb
+include/zlib-streams.ads
 include/zlib-thin.adb
 include/zlib-thin.ads
 include/zlib.adb
