@@ -26,6 +26,8 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
+with Ada.Exceptions;
+with Ada.Task_Attributes;
 with Ada.Unchecked_Conversion;
 with Ada.Unchecked_Deallocation;
 
@@ -42,6 +44,10 @@ package body AWS.Net.SSL is
    use type C.unsigned;
    use type C.int;
 
+   package Skip_Exceptions is
+     new Ada.Task_Attributes
+           (Ada.Exceptions.Exception_Occurrence_Access, null);
+
    subtype NSST is Net.Std.Socket_Type;
 
    type Mutex_Access is access all AWS.Utils.Semaphore;
@@ -54,16 +60,18 @@ package body AWS.Net.SSL is
 
    procedure Check_Config (Socket : in out Socket_Type);
 
+   procedure Save_Exception (E : in Ada.Exceptions.Exception_Occurrence);
+
    function Push
      (Socket : in Std.Socket_Type;
       Data   : in Stream_Array;
-      Length : in Stream_Element_Count) return Stream_Element_Count;
+      Length : in Stream_Element_Count) return Stream_Element_Offset;
    pragma Convention (C, Push);
 
    function Pull
      (Socket : in     Std.Socket_Type;
       Data   : access Stream_Array;
-      Length : in     Stream_Element_Count) return Stream_Element_Count;
+      Length : in     Stream_Element_Count) return Stream_Element_Offset;
    pragma Convention (C, Pull);
 
    package Locking is
@@ -154,7 +162,11 @@ package body AWS.Net.SSL is
    procedure Check_Error_Code
      (Code : in C.int; Socket : in Socket_Type'Class) is
    begin
-      if Code /= 0 then
+      if Code = TSSL.GNUTLS_E_PULL_ERROR
+        or else Code = TSSL.GNUTLS_E_PUSH_ERROR
+      then
+         Ada.Exceptions.Reraise_Occurrence (Skip_Exceptions.Value.all);
+      elsif Code /= 0 then
          declare
             Error : constant String
               := C.Strings.Value (TSSL.gnutls_strerror (Code));
@@ -426,12 +438,16 @@ package body AWS.Net.SSL is
    function Pull
      (Socket : in     Std.Socket_Type;
       Data   : access Stream_Array;
-      Length : in     Stream_Element_Count) return Stream_Element_Count
+      Length : in     Stream_Element_Count) return Stream_Element_Offset
    is
       Last : Stream_Element_Offset;
    begin
       Std.Receive (Socket, Data (1 .. Length), Last);
       return Last;
+   exception
+      when E : others =>
+         Save_Exception (E);
+         return -1;
    end Pull;
 
    ----------
@@ -441,12 +457,16 @@ package body AWS.Net.SSL is
    function Push
      (Socket : in Std.Socket_Type;
       Data   : in Stream_Array;
-      Length : in Stream_Element_Count) return Stream_Element_Count
+      Length : in Stream_Element_Count) return Stream_Element_Offset
    is
       Last : Stream_Element_Count;
    begin
       Std.Send (Socket, Data (1 .. Length), Last);
       return Last;
+   exception
+      when E : others =>
+         Save_Exception (E);
+         return -1;
    end Push;
 
    -------------
@@ -481,6 +501,21 @@ package body AWS.Net.SSL is
          Free (Config);
       end if;
    end Release;
+
+   --------------------
+   -- Save_Exception --
+   --------------------
+
+   procedure Save_Exception (E : in Ada.Exceptions.Exception_Occurrence) is
+      TA : constant Skip_Exceptions.Attribute_Handle
+        := Skip_Exceptions.Reference;
+   begin
+      if TA.all = null then
+         TA.all := Ada.Exceptions.Save_Occurrence (E);
+      else
+         Ada.Exceptions.Save_Occurrence (TA.all.all, E);
+      end if;
+   end Save_Exception;
 
    ------------
    -- Secure --
