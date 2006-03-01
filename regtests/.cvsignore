@@ -183,6 +183,8 @@ b~test_wsdl3.adb
 b~test_wsdl3.ads
 b~test_wsdl4.adb
 b~test_wsdl4.ads
+b~test_zlib.adb
+b~test_zlib.ads
 b~testxml.adb
 b~testxml.ads
 b~tgetparam.adb
@@ -648,6 +650,7 @@ test_wsdl4.res
 test_wsdl5.res
 test_wsdl6.res
 test_wsdl7.res
+test_zlib.res
 testxml
 testxml.res
 testxml.tmp
