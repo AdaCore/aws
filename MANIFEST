@@ -6,8 +6,10 @@ INSTALL
 MANIFEST
 aws.gpr
 config/aws-net-ssl-certificate__dummy.adb
+config/aws-net-ssl-certificate__gnutls.adb
 config/aws-net-ssl-certificate__openssl.adb
 config/aws-net-ssl__dummy.adb
+config/aws-net-ssl__gnutls.adb
 config/aws-net-ssl__openssl.adb
 config/aws-net-std__adasockets.adb
 config/aws-net-std__gnat.adb
@@ -473,7 +475,6 @@ regtests/test_speed.out
 regtests/test_templates_if.adb
 regtests/test_templates_if.out
 regtests/test_zlib.adb
-regtests/test_zlib.ads
 regtests/tgdb
 regtests/tgetparam.adb
 regtests/tgetparam.out
@@ -738,7 +739,6 @@ src/makefile
 src/src.gpr
 ssl/crypto_lib.gpr
 ssl/makefile
-ssl/ssl-thin.ads
 ssl/ssl.ads
 ssl/ssl.gpr
 ssl/ssl_error_lib.gpr
