@@ -445,8 +445,6 @@ regtests/ssback.adb
 regtests/ssback.out
 regtests/sslcfg.adb
 regtests/sslcfg.out
-regtests/ssock2.adb
-regtests/ssock2.out
 regtests/ssockto.adb
 regtests/ssockto.out
 regtests/ssp.adb
