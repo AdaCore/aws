@@ -27,6 +27,8 @@
 ------------------------------------------------------------------------------
 
 with Ada.Exceptions;
+with Ada.Streams.Stream_IO;
+with Ada.Strings.Fixed;
 with Ada.Task_Attributes;
 with Ada.Unchecked_Conversion;
 with Ada.Unchecked_Deallocation;
@@ -93,7 +95,9 @@ package body AWS.Net.SSL is
    type TS_SSL is record
       ASC       : aliased TSSL.gnutls_anon_server_credentials_t;
       ACC       : aliased TSSL.gnutls_anon_client_credentials_t;
+      CSC       : aliased TSSL.gnutls_certificate_credentials_t;
       DH_Params : aliased TSSL.gnutls_dh_params_t;
+      RCC       : Boolean := False; -- Request client certificate.
    end record;
 
    procedure Initialize
@@ -243,6 +247,7 @@ package body AWS.Net.SSL is
    procedure Finalize (Config : in out TS_SSL) is
       use type TSSL.gnutls_anon_client_credentials_t;
       use type TSSL.gnutls_anon_server_credentials_t;
+      use type TSSL.gnutls_certificate_credentials_t;
       use type TSSL.gnutls_dh_params_t;
    begin
       if Config.ASC /= null then
@@ -253,6 +258,11 @@ package body AWS.Net.SSL is
       if Config.ACC /= null then
          TSSL.gnutls_anon_free_client_credentials (Config.ACC);
          Config.ACC := null;
+      end if;
+
+      if Config.CSC /= null then
+         TSSL.gnutls_certificate_free_credentials (Config.CSC);
+         Config.CSC := null;
       end if;
 
       if Config.DH_Params /= null then
@@ -332,9 +342,6 @@ package body AWS.Net.SSL is
       Key_Filename         : in     String     := "";
       Exchange_Certificate : in     Boolean    := False)
    is
-      pragma Unreferenced -- ??? temporarily
-        (Certificate_Filename, Key_Filename, Exchange_Certificate);
-
       use type TSSL.gnutls_anon_client_credentials_t;
       use type TSSL.gnutls_anon_server_credentials_t;
       use type TSSL.gnutls_dh_params_t;
@@ -350,14 +357,147 @@ package body AWS.Net.SSL is
         and then Config.ASC = null
       then
          Check_Error_Code
-           (TSSL.gnutls_anon_allocate_server_credentials (Config.ASC'Access));
-
-         Check_Error_Code
            (TSSL.gnutls_dh_params_init (Config.DH_Params'Access));
          Check_Error_Code
            (TSSL.gnutls_dh_params_generate2 (Config.DH_Params, DH_Bits));
 
-         TSSL.gnutls_anon_set_server_dh_params (Config.ASC, Config.DH_Params);
+         if Certificate_Filename = "" then
+            Check_Error_Code
+              (TSSL.gnutls_anon_allocate_server_credentials
+                 (Config.ASC'Access));
+            TSSL.gnutls_anon_set_server_dh_params
+              (Config.ASC, Config.DH_Params);
+         else
+            Check_Error_Code
+              (TSSL.gnutls_certificate_allocate_credentials
+                 (Config.CSC'Access));
+
+            if Key_Filename = "" then
+               --  Load certificates and private key from Certificate_File.
+
+               declare
+                  use Ada.Strings;
+                  use type C.unsigned;
+
+                  function Get_File_Data return String;
+
+                  Prefix : constant String := "-----BEGIN ";
+                  Suffix : constant String := "-----END ";
+                  Cert_C : constant String := "CERTIFICATE-----";
+                  First  : Natural := 1;
+                  Last   : Natural;
+                  Cert   : aliased TSSL.gnutls_datum_t
+                    := (System.Null_Address, 0);
+                  Key    : aliased TSSL.gnutls_datum_t
+                    := (System.Null_Address, 0);
+
+                  -------------------
+                  -- Get_File_Data --
+                  -------------------
+
+                  function Get_File_Data return String is
+                     use Ada.Streams.Stream_IO;
+                     File : File_Type;
+                  begin
+                     Open
+                       (File, In_File, Certificate_Filename,
+                        Form => "shared=no");
+
+                     declare
+                        Result : aliased String (1 .. Natural (Size (File)));
+                     begin
+                        String'Read (Stream (File), Result);
+                        Close (File);
+                        return Result;
+                     end;
+                  end Get_File_Data;
+
+                  Data : aliased constant String := Get_File_Data;
+
+               begin
+                  loop
+                     First := Fixed.Index (Data (First .. Data'Last), Prefix);
+                     exit when First = 0;
+
+                     Last := Fixed.Index (Data (First .. Data'Last), Suffix);
+
+                     if Last = 0 then
+                        Last := Data'Last;
+                     else
+                        Last := Fixed.Index
+                                  (Data (Last .. Data'Last), "" & ASCII.LF);
+                        if Last = 0 then
+                           Last := Data'Last;
+                        end if;
+                     end if;
+
+                     if Data (First + Prefix'Length
+                              .. First + Prefix'Length + Cert_C'Length - 1)
+                        = Cert_C
+                     then
+                        if Cert.size = 0 then
+                           Cert.data  := Data (First)'Address;
+
+                           if Key.size = 0 then
+                              --  Store first certificate position temporary
+                              --  in size field and wait for private key.
+
+                              Cert.size  := C.unsigned (First);
+
+                           else
+                              --  If key already gotten then all other data
+                              --  is certificates list.
+
+                              Cert.size  := C.unsigned (Data'Last - First);
+
+                              exit;
+                           end if;
+                        end if;
+
+                     else
+                        Key.data := Data (First)'Address;
+                        Key.size := C.unsigned (Last - First);
+
+                        if Cert.size > 0 then
+                           --  If key gotten after certificate, calculate
+                           --  size of certificates list.
+
+                           Cert.size  := C.unsigned (First) - Cert.size;
+                           exit;
+                        end if;
+                     end if;
+
+                     exit when Last = Data'Last;
+                     First := Last;
+                  end loop;
+
+                  Check_Error_Code
+                    (TSSL.gnutls_certificate_set_x509_key_mem
+                       (Config.CSC,
+                        cert => Cert'Unchecked_Access,
+                        key  => Key'Unchecked_Access,
+                        p4   => TSSL.GNUTLS_X509_FMT_PEM));
+               end;
+
+            else
+               declare
+                  Cert : aliased C.char_array := C.To_C (Certificate_Filename);
+                  Key  : aliased C.char_array := C.To_C (Key_Filename);
+               begin
+                  Check_Error_Code
+                    (TSSL.gnutls_certificate_set_x509_key_file
+                       (Config.CSC,
+                        C.Strings.To_Chars_Ptr (Cert'Unchecked_Access),
+                        C.Strings.To_Chars_Ptr (Key'Unchecked_Access),
+                        TSSL.GNUTLS_X509_FMT_PEM));
+               end;
+            end if;
+
+            TSSL.gnutls_certificate_set_dh_params
+              (Config.CSC, Config.DH_Params);
+         end if;
+
+         Config.RCC := Exchange_Certificate;
       end if;
 
       if (Security_Mode = SSLv2
@@ -381,7 +521,7 @@ package body AWS.Net.SSL is
 
    procedure Initialize_Default_Config is
    begin
-      if Default_Config = (null, null, null) then
+      if Default_Config = (null, null, null, null, False) then
          Default_Config_Synch.Create_Default_Config;
       end if;
    end Initialize_Default_Config;
@@ -634,10 +774,24 @@ package body AWS.Net.SSL is
       Socket.SSL := Session;
 
       Check_Error_Code (gnutls_set_default_priority (Session), Socket);
-      Check_Error_Code
-        (gnutls_kx_set_priority (Session, kx_prio'Address), Socket);
-      Check_Error_Code
-        (gnutls_credentials_set (Session, cred => Socket.Config.ASC), Socket);
+
+      if Socket.Config.CSC = null then
+         Check_Error_Code
+           (gnutls_kx_set_priority (Session, kx_prio'Address), Socket);
+         Check_Error_Code
+           (gnutls_credentials_set (Session, cred => Socket.Config.ASC),
+            Socket);
+      else
+         Check_Error_Code
+           (gnutls_credentials_set
+              (Session, GNUTLS_CRD_CERTIFICATE, Socket.Config.CSC),
+            Socket);
+
+         if Socket.Config.RCC then
+            gnutls_certificate_server_set_request
+              (Session, GNUTLS_CERT_REQUEST);
+         end if;
+      end if;
 
       gnutls_dh_set_prime_bits (Session, DH_Bits);
 

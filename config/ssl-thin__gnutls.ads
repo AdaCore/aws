@@ -387,7 +387,7 @@ package SSL.Thin is
    for gnutls_server_name_type_t use (GNUTLS_NAME_DNS => 1);
    for gnutls_server_name_type_t'Size use C.int'Size;
 
-   type a_c_signed_char_t is access all C.unsigned_char;
+   subtype a_c_signed_char_t is System.Address;
    type a_size_t is access all C.size_t;
    type gnutls_transport_ptr_t is new System.Address;
    type gnutls_srp_server_credentials_function is new System.Address;
