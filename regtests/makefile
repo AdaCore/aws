@@ -243,23 +243,23 @@ endif
 ifeq (${XMLADA}, true)
 	-$(GREP) "\[SOAP\]" all_mains.lst >> s_mains.lst
 endif
-ifeq (${SOCKET}, ssl)
+ifneq (${SOCKET}, std)
 	-$(GREP) "\[SSL\]" all_mains.lst >> s_mains.lst
 endif
 ifeq (${XMLADA}, true)
  ifdef ASIS
 	-$(GREP) "\[ASIS+SOAP\]" all_mains.lst >> s_mains.lst
-  ifeq (${SOCKET}, ssl)
+  ifneq (${SOCKET}, std)
 	-$(GREP) "\[ASIS+SOAP+SSL\]" all_mains.lst >> s_mains.lst
   endif
  else
-  ifeq (${SOCKET}, ssl)
+  ifneq (${SOCKET}, std)
 	-$(GREP) "\[SOAP+SSL\]" all_mains.lst >> s_mains.lst
   endif
  endif
 else
  ifdef ASIS
-  ifeq (${SOCKET}, ssl)
+  ifneq (${SOCKET}, std)
 	-$(GREP) "\[ASIS+SSL\]" all_mains.lst >> s_mains.lst
   endif
  endif
