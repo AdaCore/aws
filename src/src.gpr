@@ -95,7 +95,8 @@ project Src is
    package Ide renames Shared.IDE;
 
    TP_Common_Switches
-     := ("-gnatwcfijkmruv", "-gnaty3abcefhiklmnprt", "-Wall");
+     := ("-gnatwcfijkmruv", "-gnaty3abcefhiklmnprt", "-Wall")
+        & Shared.Global_Options;
    --  Limited style check options (no spec, not alphabetical order)
 
    --------------
