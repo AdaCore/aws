@@ -59,6 +59,12 @@ project SSL is
 
    package Ide renames Shared.Ide;
 
+   --------------
+   -- Compiler --
+   --------------
+
+   package Compiler renames Shared.Compiler;
+
    ------------
    -- Naming --
    ------------
