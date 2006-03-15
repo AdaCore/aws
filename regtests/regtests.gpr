@@ -99,7 +99,7 @@ project Regtests is
    --------------
 
    package Compiler is
-      for Default_Switches ("Ada") use ("-g");
+      for Default_Switches ("Ada") use ("-g") & Shared.Global_Options;
    end Compiler;
 
    -------------
@@ -112,9 +112,7 @@ project Regtests is
    -- Binder --
    ------------
 
-   package Binder is
-      for Default_Switches ("Ada") use ("-E");
-   end Binder;
+   package Binder renames Shared.Binder;
 
    ------------
    -- Linker --
