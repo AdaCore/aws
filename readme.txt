@@ -123,6 +123,10 @@ Here are the main changes since AWS 2.1 :
    - The Socket_Type is now controlled. This clean-up the code and it is
      easier to provide user socket implementations.
 
+   - It is now possible to compile SOAP applications using the dynamic
+     elaboration model as the SOAP stub/skeletons are now generated
+     with a pragma Elaborate_All for all AWS units.
+
    - Plus many small fixes, enhancements, API comments, and documentation work.
 
 
