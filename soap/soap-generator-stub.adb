@@ -634,11 +634,11 @@ package body Stub is
 
       Text_IO.Put_Line (Stub_Ads, "pragma Warnings (Off);");
       Text_IO.New_Line (Stub_Ads);
-      Text_IO.Put_Line (Stub_Ads, "with Ada.Calendar;");
+      With_Unit (Stub_Ads, "Ada.Calendar", Elab => Off);
       Text_IO.New_Line (Stub_Ads);
-      Text_IO.Put_Line (Stub_Ads, "with SOAP.Types;");
+      With_Unit (Stub_Ads, "SOAP.Types", Elab => Children);
       Text_IO.New_Line (Stub_Ads);
-      Text_IO.Put_Line (Stub_Ads, "with " & U_Name & ".Types;");
+      With_Unit (Stub_Ads, U_Name & ".Types", Elab => Off);
       Text_IO.New_Line (Stub_Ads);
       Text_IO.Put_Line (Stub_Ads, "package " & U_Name & ".Client is");
       Text_IO.New_Line (Stub_Ads);
@@ -650,18 +650,18 @@ package body Stub is
       Text_IO.New_Line (Stub_Adb);
 
       if O.Debug then
-         Text_IO.Put_Line (Stub_Adb, "with Ada.Text_IO;");
-         Text_IO.Put_Line (Stub_Adb, "with SOAP.Message.XML;");
+         With_Unit (Stub_Adb, "Ada.Text_IO", Elab => Off);
+         With_Unit (Stub_Adb, "SOAP.Message.XML");
       end if;
 
-      Text_IO.Put_Line (Stub_Adb, "with Ada.Exceptions;");
+      With_Unit (Stub_Adb, "Ada.Exceptions", Elab => Off);
       Text_IO.New_Line (Stub_Adb);
-      Text_IO.Put_Line (Stub_Adb, "with SOAP.Client;");
-      Text_IO.Put_Line (Stub_Adb, "with SOAP.Message.Payload;");
-      Text_IO.Put_Line (Stub_Adb, "with SOAP.Message.Response;");
-      Text_IO.Put_Line (Stub_Adb, "with SOAP.Name_Space;");
-      Text_IO.Put_Line (Stub_Adb, "with SOAP.Parameters;");
-      Text_IO.Put_Line (Stub_Adb, "with SOAP.Utils;");
+      With_Unit (Stub_Adb, "SOAP.Client");
+      With_Unit (Stub_Adb, "SOAP.Message.Payload", Elab => Children);
+      With_Unit (Stub_Adb, "SOAP.Message.Response");
+      With_Unit (Stub_Adb, "SOAP.Name_Space");
+      With_Unit (Stub_Adb, "SOAP.Parameters");
+      With_Unit (Stub_Adb, "SOAP.Utils");
       Text_IO.New_Line (Stub_Adb);
       Text_IO.Put_Line (Stub_Adb, "package body " & U_Name & ".Client is");
       Text_IO.New_Line (Stub_Adb);

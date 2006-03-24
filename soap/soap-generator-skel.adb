@@ -639,15 +639,15 @@ package body Skel is
 
       Text_IO.Put_Line (Skel_Ads, "pragma Warnings (Off);");
       Text_IO.New_Line (Skel_Ads);
-      Text_IO.Put_Line (Skel_Ads, "with Ada.Calendar;");
+      With_Unit (Skel_Ads, "Ada.Calendar", Elab => Off);
       Text_IO.New_Line (Skel_Ads);
-      Text_IO.Put_Line (Skel_Ads, "with AWS.Status;");
-      Text_IO.Put_Line (Skel_Ads, "with AWS.Response;");
+      With_Unit (Skel_Ads, "AWS.Status");
+      With_Unit (Skel_Ads, "AWS.Response");
       Text_IO.New_Line (Skel_Ads);
-      Text_IO.Put_Line (Skel_Ads, "with SOAP.Message.Payload;");
-      Text_IO.Put_Line (Skel_Ads, "with SOAP.Types;");
+      With_Unit (Skel_Ads, "SOAP.Message.Payload", Elab => Children);
+      With_Unit (Skel_Ads, "SOAP.Types");
       Text_IO.New_Line (Skel_Ads);
-      Text_IO.Put_Line (Skel_Ads, "with " & U_Name & ".Types;");
+      With_Unit (Skel_Ads, U_Name & ".Types");
       Text_IO.New_Line (Skel_Ads);
       Text_IO.Put_Line (Skel_Ads, "package " & U_Name & ".Server is");
       Text_IO.New_Line (Skel_Ads);
@@ -661,15 +661,15 @@ package body Skel is
       --  Body
 
       if O.Debug then
-         Text_IO.Put_Line (Skel_Adb, "with Ada.Text_IO;");
-         Text_IO.Put_Line (Skel_Adb, "with SOAP.Message.XML;");
+         With_Unit (Skel_Adb, "Ada.Text_IO", Elab => Off);
+         With_Unit (Skel_Adb, "SOAP.Message.XML");
       end if;
 
-      Text_IO.Put_Line (Skel_Adb, "with Ada.Exceptions;");
+      With_Unit (Skel_Adb, "Ada.Exceptions", Elab => Off);
       Text_IO.New_Line (Skel_Adb);
-      Text_IO.Put_Line (Skel_Adb, "with SOAP.Message.Response.Error;");
-      Text_IO.Put_Line (Skel_Adb, "with SOAP.Parameters;");
-      Text_IO.Put_Line (Skel_Adb, "with SOAP.Utils;");
+      With_Unit (Skel_Adb, "SOAP.Message.Response.Error", Elab => Children);
+      With_Unit (Skel_Adb, "SOAP.Parameters");
+      With_Unit (Skel_Adb, "SOAP.Utils");
       Text_IO.New_Line (Skel_Adb);
       Text_IO.Put_Line (Skel_Adb, "package body " & U_Name & ".Server is");
       Text_IO.New_Line (Skel_Adb);
