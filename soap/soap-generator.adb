@@ -105,6 +105,20 @@ package body SOAP.Generator is
    --  Returns the unit name given a filename following the GNAT
    --  naming scheme.
 
+   type Elab_Pragma is (Off, Single, Children);
+   --  Off      - no pragma Elaborate
+   --  Single   - a single pragma for the unit
+   --  Children - a pragma for each child unit
+
+   procedure With_Unit
+     (File       : Text_IO.File_Type;
+      Name       : String;
+      Elab       : Elab_Pragma := Single;
+      Use_Clause : Boolean := False);
+   --  Output a with clause for unit Name, also output a use clause if
+   --  Use_Clause is set. A pragma Elaborate_All is issued for this unit if
+   --  Elab is set.
+
    Root     : Text_IO.File_Type; -- Parent packages
    Type_Ads : Text_IO.File_Type; -- Child with all type definitions
    Tmp_Ads  : Text_IO.File_Type; -- Temp file for spec types
@@ -1788,12 +1802,11 @@ package body SOAP.Generator is
                     := Format_Name (O, SOAP.WSDL.Parameters.Type_Name (N));
                   Prefix : constant String := Generate_Namespace (N.NS, False);
                begin
-                  Text_IO.Put_Line
-                    (File, "with " & To_Unit_Name (Prefix)
-                     & '.' & F_Name & "_Type_Pkg;");
-                  Text_IO.Put_Line
-                    (File, "use  " & To_Unit_Name (Prefix)
-                     & '.' & F_Name & "_Type_Pkg;");
+                  With_Unit
+                    (File,
+                     To_Unit_Name (Prefix) & '.' & F_Name & "_Type_Pkg",
+                     Elab      => Off,
+                     Use_Clause => True);
                end;
             end if;
             N := N.Next;
@@ -1856,10 +1869,10 @@ package body SOAP.Generator is
          --  Add references into the main types package
 
          if not Regen then
-            Text_IO.Put_Line
-              (Type_Ads, "with " & To_Unit_Name (To_String (Prefix)) & ';');
-            Text_IO.Put_Line
-              (Type_Ads, "use  " & To_Unit_Name (To_String (Prefix)) & ';');
+            With_Unit
+              (Type_Ads,
+               To_Unit_Name (To_String (Prefix)),
+               Use_Clause => True);
             Text_IO.New_Line (Type_Ads);
          end if;
 
@@ -2179,7 +2192,7 @@ package body SOAP.Generator is
    is
       pragma Unreferenced (O);
    begin
-      Text_IO.Put_Line (File, "with SOAP.Name_Space;");
+      With_Unit (File, "SOAP.Name_Space", Elab => Children);
       Text_IO.New_Line (File);
 
       Text_IO.Put_Line
@@ -2198,20 +2211,20 @@ package body SOAP.Generator is
    procedure Put_Types_Header_Spec
      (O : in Object; File : in Text_IO.File_Type; Unit_Name : in String) is
    begin
-      Text_IO.Put_Line (File, "with Ada.Calendar;");
-      Text_IO.Put_Line (File, "with Ada.Strings.Unbounded;");
+      With_Unit (File, "Ada.Calendar", Elab => Off);
+      With_Unit (File, "Ada.Strings.Unbounded", Elab => Off);
       Text_IO.New_Line (File);
-      Text_IO.Put_Line (File, "with SOAP.Types;");
-      Text_IO.Put_Line (File, "with SOAP.Utils;");
+      With_Unit (File, "SOAP.Types", Elab => Children);
+      With_Unit (File, "SOAP.Utils");
       Text_IO.New_Line (File);
 
       if Types_Spec (O) /= "" then
-         Text_IO.Put_Line (File, "with " & Types_Spec (O) & ';');
+         With_Unit (File, Types_Spec (O));
          Text_IO.New_Line (File);
       end if;
 
       if Procs_Spec (O) /= "" and then Procs_Spec (O) /= Types_Spec (O) then
-         Text_IO.Put_Line (File, "with " & Procs_Spec (O) & ';');
+         With_Unit (File, Procs_Spec (O));
          Text_IO.New_Line (File);
       end if;
 
@@ -2382,14 +2395,14 @@ package body SOAP.Generator is
 
          else
             --  Generate a minimal main for the server
-            Put_Line (File, "with AWS.Config.Set;");
-            Put_Line (File, "with AWS.Server;");
-            Put_Line (File, "with AWS.Status;");
-            Put_Line (File, "with AWS.Response;");
-            Put_Line (File, "with SOAP.Dispatchers.Callback;");
+            With_Unit (File, "AWS.Config.Set");
+            With_Unit (File, "AWS.Server");
+            With_Unit (File, "AWS.Status");
+            With_Unit (File, "AWS.Response");
+            With_Unit (File, "SOAP.Dispatchers.Callback");
             New_Line (File);
-            Put_Line (File, "with " & U_Name & ".CB;");
-            Put_Line (File, "with " & U_Name& ".Server;");
+            With_Unit (File, U_Name & ".CB");
+            With_Unit (File, U_Name & ".Server");
             New_Line (File);
             Put_Line (File, "procedure " & To_Unit_Name (Filename) & " is");
             New_Line (File);
@@ -2600,6 +2613,47 @@ package body SOAP.Generator is
       return "--  AWS " & AWS.Version
         & " - SOAP " & SOAP.Version;
    end Version_String;
+
+   ---------------
+   -- With_Unit --
+   ---------------
+
+   procedure With_Unit
+     (File       : Text_IO.File_Type;
+      Name       : String;
+      Elab       : Elab_Pragma := Single;
+      Use_Clause : Boolean := False) is
+   begin
+      Text_IO.Put_Line (File, "with " & Name & ';');
+
+      if Elab = Children then
+         declare
+            Index : Natural := Name'First;
+         begin
+            loop
+               Index := Strings.Fixed.Index (Name (Index .. Name'Last), ".");
+               exit when Index = 0;
+               Text_IO.Put_Line
+                 (File,
+                  "pragma Elaborate_All (" & Name (Name'First .. Index - 1)
+                  & ");");
+               Index := Index + 1;
+            end loop;
+         end;
+      end if;
+
+      case Elab is
+         when Off =>
+            null;
+
+         when Single | Children =>
+            Text_IO.Put_Line (File, "pragma Elaborate_All (" & Name & ");");
+      end case;
+
+      if Use_Clause then
+         Text_IO.Put_Line (File, "use " & Name & ';');
+      end if;
+   end With_Unit;
 
    ---------------
    -- WSDL_File --
