@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2005                          --
+--                         Copyright (C) 2000-2006                          --
 --                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -262,7 +262,7 @@ package body SOAP.Utils is
          SP.Ref := new Natural'(1);
       end Initialize;
 
-      ----------------------mart
+      ----------------------
       -- To_Safe_Pointer --
       ----------------------
 
@@ -318,26 +318,30 @@ package body SOAP.Utils is
      (TI, Name : in String) return Types.XSD_Time_Instant
    is
       use Ada.Calendar;
+      subtype Year_Range is Positive range TI'First .. TI'First + 3;
+      subtype Month_Range is Positive range TI'First + 5 .. TI'First + 6;
+      subtype Day_Range is Positive range TI'First + 8 .. TI'First + 9;
+      subtype Hour_Range is Positive range TI'First + 11 .. TI'First + 12;
+      subtype Minute_Range is Positive range TI'First + 14 .. TI'First + 15;
+      subtype Second_Range is Positive range TI'First + 17 .. TI'First + 18;
+      subtype TZ_Range is Positive range TI'First + 19 .. TI'First + 21;
       T : Time;
    begin
       --  timeInstant format is CCYY-MM-DDThh:mm:ss[[+|-]hh:mm | Z]
 
-      T := Time_Of (Year    => Year_Number'Value (TI (1 .. 4)),
-                    Month   => Month_Number'Value (TI (6 .. 7)),
-                    Day     => Day_Number'Value (TI (9 .. 10)),
-                    Seconds => Duration (Natural'Value (TI (12 .. 13)) * 3600
-                                           + Natural'Value (TI (15 .. 16)) * 60
-                                           + Natural'Value (TI (18 .. 19))));
+      T := Time_Of (Year    => Year_Number'Value (TI (Year_Range)),
+                    Month   => Month_Number'Value (TI (Month_Range)),
+                    Day     => Day_Number'Value (TI (Day_Range)),
+                    Seconds => Duration
+                      (Natural'Value (TI (Hour_Range)) * 3600
+                       + Natural'Value (TI (Minute_Range)) * 60
+                       + Natural'Value (TI (Second_Range))));
 
-      if TI'Last = 19                           -- No timezone
-        or else
-          (TI'Last = 20 and then TI (20) = 'Z') -- GMT timezone
-        or else
-          TI'Last < 22                          -- No enough timezone data
-      then
+      if TI'Length < 22 then
+         --  No timezone data
          return Types.T (T, Name);
       else
-         return Types.T (T, Name, Types.TZ'Value (TI (20 .. 22)));
+         return Types.T (T, Name, Types.TZ'Value (TI (TZ_Range)));
       end if;
    end Time_Instant;
 
