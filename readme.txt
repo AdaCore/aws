@@ -127,6 +127,8 @@ Here are the main changes since AWS 2.1 :
      elaboration model as the SOAP stub/skeletons are now generated
      with a pragma Elaborate_All for all AWS units.
 
+   - Add project files support to Ada2WSDL.
+
    - Plus many small fixes, enhancements, API comments, and documentation work.
 
 
