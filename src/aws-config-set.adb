@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2003                          --
---                               ACT-Europe                                 --
+--                         Copyright (C) 2000-2006                          --
+--                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -224,9 +224,9 @@ package body AWS.Config.Set is
 
    procedure Free_Slots_Keep_Alive_Limit
      (O     : in out Object;
-      Value : in     Positive) is
+      Value : in     Natural) is
    begin
-      O.P (Free_Slots_Keep_Alive_Limit).Pos_Value := Value;
+      O.P (Free_Slots_Keep_Alive_Limit).Nat_Value := Value;
    end Free_Slots_Keep_Alive_Limit;
 
    ------------------
@@ -378,6 +378,10 @@ package body AWS.Config.Set is
             when Pos =>
                Expected_Type := +"positive";
                Param.Pos_Value := Positive'Value (Value);
+
+            when Nat =>
+               Expected_Type := +"natural";
+               Param.Nat_Value := Natural'Value (Value);
 
             when Dur =>
                Expected_Type := +"duration";
