@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2003                            --
---                                ACT-Europe                                --
+--                         Copyright (C) 2003-2006                          --
+--                                 AdaCore                                  --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
 --                                                                          --
@@ -60,7 +60,7 @@ procedure Ada2WSDL.Main is
    procedure Parse_Command_Line is
    begin
       loop
-         case GNAT.Command_Line.Getopt ("f q v a: o: s: I: noenum") is
+         case GNAT.Command_Line.Getopt ("f q v a: o: s: I: P: noenum") is
 
             when ASCII.NUL =>
                exit;
@@ -98,6 +98,9 @@ procedure Ada2WSDL.Main is
 
             when 'I' =>
                Parser.Add_Option ("-I" & GNAT.Command_Line.Parameter);
+
+            when 'P' =>
+               Parser.Add_Option ("-P" & GNAT.Command_Line.Parameter);
 
             when others =>
                Usage;
@@ -170,6 +173,8 @@ procedure Ada2WSDL.Main is
       Put_Line ("  -v       Verbose mode - output the version");
       Put_Line
         ("  -I path  A path to a directory containing a set of sources");
+      Put_Line
+        ("  -P proj  A project file to use for building the spec");
       Put_Line ("  -o file  WSDL file, <filename>.wsdl by default");
       Put_Line ("  -a url   Web Service server address (URL)");
       Put_Line ("  -s name  Web Service name (default package name)");
