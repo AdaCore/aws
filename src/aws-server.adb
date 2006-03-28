@@ -290,7 +290,7 @@ package body AWS.Server is
             --  is serialized as some platforms do not handle properly
             --  multiple accepts on the same socket.
 
-            Keep_Alive_Limit : constant Positive
+            Keep_Alive_Limit : constant Natural
               := CNF.Free_Slots_Keep_Alive_Limit (HTTP_Server.Properties);
 
             Socket           : aliased Net.Socket_Type'Class
