@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2005                          --
+--                         Copyright (C) 2000-2006                          --
 --                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -199,9 +199,9 @@ package body AWS.Config is
    -- Free_Slots_Keep_Alive_Limit --
    ---------------------------------
 
-   function Free_Slots_Keep_Alive_Limit (O : in Object) return Positive is
+   function Free_Slots_Keep_Alive_Limit (O : in Object) return Natural is
    begin
-      return O.P (Free_Slots_Keep_Alive_Limit).Pos_Value;
+      return O.P (Free_Slots_Keep_Alive_Limit).Nat_Value;
    end Free_Slots_Keep_Alive_Limit;
 
    -----------------
