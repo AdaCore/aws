@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2003-2005                          --
+--                         Copyright (C) 2003-2006                          --
 --                                 AdaCore                                  --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -93,6 +93,9 @@ package body Ada2WSDL.Parser is
    --  form appropriate for calling gcc to create the tree file.
 
    Arg_Index : Natural := 0;
+
+   GNATMAKE : constant String_Access :=
+                OS_Lib.Locate_Exec_On_Path ("gnatmake");
 
    ----------------------
    -- Status variables --
@@ -1296,7 +1299,10 @@ package body Ada2WSDL.Parser is
    begin
       File_Name := new String'(To_String (Options.File_Name));
 
-      Compile (File_Name, Arg_List (Arg_List'First .. Arg_Index), Success);
+      Compile
+        (File_Name, Arg_List (Arg_List'First .. Arg_Index), Success,
+         GCC          => GNATMAKE,
+         Use_GNATMAKE => True);
 
       Tree_Name := new String'(Get_Tree_Name);
 
