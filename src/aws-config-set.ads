@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2003                          --
---                               ACT-Europe                                 --
+--                         Copyright (C) 2000-2006                          --
+--                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -70,7 +70,7 @@ package AWS.Config.Set is
 
    procedure Free_Slots_Keep_Alive_Limit
      (O     : in out Object;
-      Value : in     Positive);
+      Value : in     Natural);
    --  The minimum number of free slots where keep-alive connections are still
    --  enabled. After this limit no more keep-alive connection will be
    --  accepted by the server. This parameter must be used for heavy-loaded
