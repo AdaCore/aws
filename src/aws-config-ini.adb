@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2005                          --
+--                         Copyright (C) 2000-2006                          --
 --                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -83,7 +83,7 @@ package body AWS.Config.Ini is
    is
 
       procedure Error_Message (Filename : in String; Message : in String);
-      --  Output error message with filename and line number.
+      --  Output error message with filename and line number
 
       procedure Set_Value
         (Filename : in String;
@@ -157,6 +157,10 @@ package body AWS.Config.Ini is
                   Expected_Type := +"positive";
                   Config.P (P).Pos_Value := Positive'Value (Value);
 
+               when Nat =>
+                  Expected_Type := +"natural";
+                  Config.P (P).Nat_Value := Natural'Value (Value);
+
                when Dur =>
                   Expected_Type := +"duration";
                   Config.P (P).Dur_Value := Duration'Value (Value);
@@ -196,6 +200,10 @@ package body AWS.Config.Ini is
                when Pos =>
                   Expected_Type := +"positive";
                   Process_Options (P).Pos_Value := Positive'Value (Value);
+
+               when Nat =>
+                  Expected_Type := +"natural";
+                  Process_Options (P).Nat_Value := Natural'Value (Value);
 
                when Dur =>
                   Expected_Type := +"duration";
