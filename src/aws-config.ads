@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2005                          --
+--                         Copyright (C) 2000-2006                          --
 --                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -92,7 +92,7 @@ package AWS.Config is
    --  This is the max simultaneous connections as set by the HTTP object
    --  declaration.
 
-   function Free_Slots_Keep_Alive_Limit (O : in Object) return Positive;
+   function Free_Slots_Keep_Alive_Limit (O : in Object) return Natural;
    pragma Inline (Free_Slots_Keep_Alive_Limit);
    --  The minimum number of free slots where keep-alive connections are still
    --  enabled. After this limit no more keep-alive connection will be
@@ -356,7 +356,7 @@ private
    subtype Process_Parameter_Name is Parameter_Name
      range Session_Cleanup_Interval .. Max_Concurrent_Download;
 
-   type Value_Type  is (Str, Dir, Pos, Dur, Bool);
+   type Value_Type  is (Str, Dir, Nat, Pos, Dur, Bool);
 
    type Values (Kind : Value_Type := Str) is record
       case Kind is
@@ -368,6 +368,9 @@ private
 
          when Pos =>
             Pos_Value : Positive;
+
+         when Nat =>
+            Nat_Value : Natural;
 
          when Dur =>
             Dur_Value : Duration;
@@ -456,7 +459,7 @@ private
            (Pos, Default.Max_Connection),
 
          Free_Slots_Keep_Alive_Limit =>
-           (Pos, Default.Free_Slots_Keep_Alive_Limit),
+           (Nat, Default.Free_Slots_Keep_Alive_Limit),
 
          Accept_Queue_Size =>
            (Pos, Default.Accept_Queue_Size),
