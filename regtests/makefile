@@ -188,8 +188,7 @@ $(WSDL2AWS_TESTS): force
 
 $(ASIS_TESTS): force
 	echo Preparing $@
-	$(ADA2WSDL) -q -f $(INCLUDES) -I../include -I../include/ai302 \
-		-I../soap -I../src -I../xsrc -I../ssl -I$(XMLADA_SRC) \
+	$(ADA2WSDL) -q -f $(INCLUDES) -P../aws \
 		-a http://localhost:770`echo $@ | cut -c 6-` $@.ads -o $@.wsdl
 	$(WSDL2AWS) -q -f -cb -types $@ $@.wsdl
 
