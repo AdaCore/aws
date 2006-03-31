@@ -41,5 +41,6 @@ project SSL_Lib is
   for Library_Dir use SSL_Shared.LIB_Path;
   for Library_Name use "ssl";
   for Library_Kind use "static";
+  for Externally_Built use "true";
 
 end SSL_Lib;
