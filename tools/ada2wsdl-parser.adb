@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2003-2004                          --
---                                ACT-Europe                                --
+--                         Copyright (C) 2003-2006                          --
+--                                 AdaCore                                  --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
 --                                                                          --
@@ -637,8 +637,6 @@ package body Ada2WSDL.Parser is
             end if;
 
             declare
-               use Extensions.Flat_Kinds;
-
                T : constant Flat_Element_Kinds
                  := Flat_Element_Kind
                       (Declarations.Type_Declaration_View
