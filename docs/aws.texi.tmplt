@@ -1195,7 +1195,8 @@ for the file and to properly send back the 404 message if necessary.
 Note that this routine takes an optional parameter named @code{Once}
 that is to be used for temporary files created on the server side for
 the client. With @code{Once} set to @code{True} the file will be
-deleted by the server after sending it.
+deleted by the server after sending it (this includes the case where
+the download is suspended).
 
 @node Response from a stream
 @subsection Response from a stream
