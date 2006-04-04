@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2001-2005                          --
+--                         Copyright (C) 2001-2006                          --
 --                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -374,9 +374,9 @@ package SOAP.Types is
    function V (O : in XSD_Time_Instant) return Ada.Calendar.Time;
    --  Returns a GMT date and time
 
-   ----_--------------
+   -------------------
    -- Unsigned_Long --
-   ----_--------------
+   -------------------
 
    type Unsigned_Long is mod 2**64;
 
@@ -393,9 +393,9 @@ package SOAP.Types is
       Name : in String := "item") return XSD_Unsigned_Long;
    function V (O : in XSD_Unsigned_Long) return Unsigned_Long;
 
-   ----_-------------
+   ------------------
    -- Unsigned_Int --
-   ----_-------------
+   ------------------
 
    type Unsigned_Int is mod 2**32;
 

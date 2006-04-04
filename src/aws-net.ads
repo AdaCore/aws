@@ -35,7 +35,7 @@ with Ada.Exceptions;
 with Ada.Finalization;
 with Ada.Streams;
 
-with Aws.Utils;
+with AWS.Utils;
 
 package AWS.Net is
 
