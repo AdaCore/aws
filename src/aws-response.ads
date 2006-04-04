@@ -148,7 +148,9 @@ package AWS.Response is
    --  Returns a message whose message body is the content of the file. The
    --  Content_Type must indicate the MIME type for the file. User_Filename
    --  can be used to force the filename on the client side. This can be
-   --  different from the server side Filename.
+   --  different from the server side Filename. If Once is set to True the
+   --  file will be deleted after the download (this includes the case where
+   --  the download is suspended).
 
    function Stream
      (Content_Type  : in     String;
