@@ -351,9 +351,10 @@ package SSL.Thin is
       GNUTLS_TLS1_1 => 3);
    for gnutls_protocol_t'Size use C.int'Size;
 
-   type gnutls_certificate_type_t is (GNUTLS_CRT_X509, GNUTLS_CRT_OPENPGP);
+   type gnutls_certificate_type_t is
+     (GNUTLS_CRT_0, GNUTLS_CRT_X509, GNUTLS_CRT_OPENPGP);
    for gnutls_certificate_type_t use
-     (GNUTLS_CRT_X509 => 1, GNUTLS_CRT_OPENPGP => 2);
+     (GNUTLS_CRT_0 => 0, GNUTLS_CRT_X509 => 1, GNUTLS_CRT_OPENPGP => 2);
    for gnutls_certificate_type_t'Size use C.int'Size;
 
    type gnutls_x509_crt_fmt_t is (GNUTLS_X509_FMT_DER, GNUTLS_X509_FMT_PEM);
