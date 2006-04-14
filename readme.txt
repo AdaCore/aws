@@ -4,7 +4,7 @@
 
 Authors:
    Dmitriy Anisimkov
-   Pascal Obry                                              February 3rd, 2006
+   Pascal Obry                                              April 14th, 2006
 
 
 
@@ -207,11 +207,13 @@ See documentation for build information.
 Validation
 ----------
 
-AWS 2.2 has been compiled and has passed all tests on:
+AWS 2.2 has been compiled and tested on:
 
-   Windows XP, GNAT 5.03a
+   Windows XP, GNAT 5.04a, GNAT 5.05w
 
-   GNU/Linux x86, 5.03a
+   GNU/Linux x86, 5.04a, GNAT 5.05w
+
+   Solaris, 5.04a
 
 Others platforms / compiler version combinations have not been tested, it
 does not mean that it's not working.
@@ -362,5 +364,3 @@ Ariane Sinibardy, Henrik Sundberg.
 
 
 Thanks to all who have reported bugs and have sent us patches.
-
-Dmitriy & Pascal.
