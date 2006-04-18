@@ -418,6 +418,9 @@ regtests/sockext_sec.adb
 regtests/sockext_sec.out
 regtests/sockover.adb
 regtests/sockover.out
+regtests/sockover_proc.adb
+regtests/sockover_sec.adb
+regtests/sockover_sec.out
 regtests/sockto.adb
 regtests/sockto.out
 regtests/sockto_proc.adb
