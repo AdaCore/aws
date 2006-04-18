@@ -527,7 +527,7 @@ package body AWS.Net.SSL is
          RC := TSSL.SSL_write (Socket.SSL, Data'Address, Data'Length);
 
          if RC > 0 then
-            Last  := Data'First - 1 + Stream_Element_Offset (RC);
+            Last  := Data'First + Stream_Element_Offset (RC) - 1;
 
             return;
 
@@ -545,7 +545,12 @@ package body AWS.Net.SSL is
                      Wait_For (Input, Socket);
 
                   when TSSL.SSL_ERROR_WANT_WRITE =>
-                     Last := Data'First - 1;
+                     if Data'First = Stream_Element_Offset'First then
+                        Last := Stream_Element_Offset'Last;
+                     else
+                        Last := Data'First - 1;
+                     end if;
+
                      return;
 
                   when others =>
