@@ -319,13 +319,14 @@ package body AWS.Net.Std is
       Flags : in Interfaces.C.int := 0)
       return OSD.Addr_Info_Access
    is
-      use Interfaces.C;
+      package CS renames Interfaces.C.Strings;
+      use type C.int;
       use type OSD.Addr_Info_Access;
 
-      C_Node : aliased char_array := To_C (Host);
-      P_Node : Strings.chars_ptr;
-      C_Serv : aliased char_array := To_C (AWS.Utils.Image (Port));
-      Res    : int;
+      C_Node : aliased C.char_array := C.To_C (Host);
+      P_Node : CS.chars_ptr;
+      C_Serv : aliased C.char_array := C.To_C (AWS.Utils.Image (Port));
+      Res    : C.int;
       Result : aliased OSD.Addr_Info_Access;
       Hints  : constant OSD.Addr_Info
         := (ai_family    => OSD.PF_UNSPEC,
@@ -333,19 +334,19 @@ package body AWS.Net.Std is
             ai_protocol  => OSD.IPPROTO_IP,
             ai_flags     => Flags,
             ai_addrlen   => 0,
-            ai_canonname => Strings.Null_Ptr,
+            ai_canonname => CS.Null_Ptr,
             ai_addr      => System.Null_Address,
             ai_next      => null);
    begin
       if Host = "" then
-         P_Node := Strings.Null_Ptr;
+         P_Node := CS.Null_Ptr;
       else
-         P_Node := Strings.To_Chars_Ptr (C_Node'Unchecked_Access);
+         P_Node := CS.To_Chars_Ptr (C_Node'Unchecked_Access);
       end if;
 
       Res := OSD.GetAddrInfo
                (node    => P_Node,
-                service => Strings.To_Chars_Ptr (C_Serv'Unchecked_Access),
+                service => CS.To_Chars_Ptr (C_Serv'Unchecked_Access),
                 hints   => Hints,
                 res     => Result'Access);
 
@@ -354,7 +355,7 @@ package body AWS.Net.Std is
 
       elsif Res /= 0 then
          Ada.Exceptions.Raise_Exception
-           (Socket_Error'Identity, Strings.Value (OSD.GAI_StrError (Res)));
+           (Socket_Error'Identity, CS.Value (OSD.GAI_StrError (Res)));
       end if;
 
       return Result;
