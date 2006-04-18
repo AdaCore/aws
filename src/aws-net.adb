@@ -294,14 +294,21 @@ package body AWS.Net is
       use type C.int;
       use type Thin.Events_Type;
 
-      PFD : aliased Thin.Pollfd
-        := (Fd      => Thin.FD_Type (Get_FD (Socket)),
-            Events  => 0,
-            REvents => 0);
+      FD  : constant Integer := Get_FD (Socket);
+
+      PFD : aliased Thin.Pollfd;
       RC      : C.int;
       Timeout : C.int;
       Errno   : Integer;
    begin
+      if FD < 0 then
+         Raise_Socket_Error (Socket, "Socket already closed.");
+      end if;
+
+      PFD := (Fd      => Thin.FD_Type (FD),
+              Events  => 0,
+              REvents => 0);
+
       if Socket.Timeout >= Duration (C.int'Last / 1_000) then
          Timeout := C.int'Last;
       else
