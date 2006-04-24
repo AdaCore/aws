@@ -63,8 +63,7 @@ implemented:
 - Add support for more XML Schema types
   See "C Datatypes and Facets" in XML Schema Part 2 Datatypes.
 
-  byte, unsignedByte, unsignedShort, unsignedInt,
-  unsignedLong, date, time, xsd:hexBinary, decimal
+  date, time, xsd:hexBinary, decimal
 
   decimal is certainly a bit difficult to support, we need an arbitrary
   precision package.
@@ -196,6 +195,8 @@ implemented:
   It would certainly be easier to support only GNAT.Sockets and use the
   selector facilities instead of the AWS's poll() support.
 
-=============== Point to fix/implement/review before next release (2.2)
-
 - Replace OpenSSL by GNUTLS library as this library is now stable.
+
+
+
+=============== Point to fix/implement/review before next release (2.2)
