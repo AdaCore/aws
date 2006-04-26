@@ -29,7 +29,7 @@
 project Shared is
 
    type Build_Type is ("Debug", "Release");
-   Build : Build_Type := external ("PRJ_BUILD", "Debug");
+   Build : Build_Type := external ("PRJ_BUILD", "Release");
 
    type OS_Type is ("UNIX", "Windows_NT");
    OS : OS_Type := external ("OS", "UNIX");
@@ -87,14 +87,16 @@ project Shared is
    -- Compiler --
    --------------
 
-   Global_Options := ();
+   Global_Options := ("");
    --  Options used for all Ada units in both Debug and Release modes
 
    Common_Options  :=
-     ("-gnatwecfijkmruv", "-gnaty3abcefhiklmnoprstx", "-Wall")
-     & Global_Options;
+     ("-gnatwcfijkmruv", "-gnaty3abcefhiklmnoprstx", "-Wall") & Global_Options;
+   --  Common options used for the Debug and Release mode
+
    Debug_Options   :=
-     ("-g", "-gnata", "-gnatVa", "-gnatQ", "-gnato");
+     ("-g", "-gnata", "-gnatVa", "-gnatQ", "-gnato", "-gnatwe");
+
    Release_Options :=
      ("-O2", "-gnatn");
 
