@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2004                            --
---                                ACT-Europe                                --
+--                         Copyright (C) 2004-2006                          --
+--                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -44,12 +44,15 @@ procedure Test_Net_Log is
 
    use Ada;
    use AWS;
+   use type Streams.Stream_Element_Offset;
 
    WS     : AWS.Server.HTTP;
    Port   : Natural := 4789;
    Result : Response.Data;
 
    DS, DR : File_Type;
+
+   Adjust : constant Streams.Stream_Element_Offset := AWS.Version'Length - 4;
 
    --------------
    -- HTTP_Log --
@@ -72,12 +75,27 @@ procedure Test_Net_Log is
          Buffer : String (1 .. 1024);
          K      : Natural := 0;
          Output : Boolean := False;
+         S1, S2 : Streams.Stream_Element_Offset;
       begin
          New_Line (F, 2);
+
+         --  Adjust size depending on the AWS version length
+
+         S1 := Last;
+         S2 := Data'Last;
+
+         case Direction is
+            when Net.Log.Sent    =>
+               S1 := S1 - Adjust;
+               S2 := S2 - Adjust;
+            when Net.Log.Received =>
+               S1 := S1 - Adjust;
+         end case;
+
          Put_Line (F, "@@@ " & Net.Log.Data_Direction'Image (Direction)
                    & " (" &
-                   Streams.Stream_Element_Offset'Image (Last) & "/" &
-                   Streams.Stream_Element_Offset'Image (Data'Last) &
+                   Streams.Stream_Element_Offset'Image (S1) & "/" &
+                   Streams.Stream_Element_Offset'Image (S2) &
                    " buffer usage) @@@");
 
          for I in Data'First .. Last loop
