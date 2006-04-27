@@ -15,7 +15,7 @@ HTTP/1.1 200 OK
 
 Date: xxx, xx xxx xxxx xx:xx:xx xxx
 
-Server: AWS (Ada Web Server) vy.yv
+Server: AWS (Ada Web Server) vx.y.z
 
 Connection: close
 
