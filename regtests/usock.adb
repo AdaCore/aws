@@ -218,10 +218,12 @@ package body USock is
          end loop;
 
          First := Strings.Fixed.Index (D, "Server) v");
+         Last := Strings.Fixed.Index (D (First .. D'Last), (1 => ASCII.CR));
 
-         D (First + 9 .. First + 12) := "y.yv";
+         D (First + 9 .. First + 13) := "x.y.z";
 
-         Text_IO.Put_Line (D);
+         Text_IO.Put (D (D'First .. First + 13));
+         Text_IO.Put_Line (D (Last .. D'Last));
       end;
       Text_IO.Put_Line ("--");
       Last := Data'Last;
