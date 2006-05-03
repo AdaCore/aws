@@ -47,7 +47,7 @@ package AWS.Services.Dispatchers.URI is
    --  Dispatch will return the value returned by the first callback matching
    --  the request. Note that if a callback returns the Response.Empty
    --  message, Dispatch will just continue to the next matching callback. In
-   --  any cases, if no handler matches it will call the default callback. If
+   --  any case, if no handler matches it will call the default callback. If
    --  no default callback is registered an error HTML message will be
    --  returned.
 
@@ -72,7 +72,7 @@ package AWS.Services.Dispatchers.URI is
       URI        : in     String;
       Action     : in     AWS.Dispatchers.Handler'Class);
    --  Register URI to use the specified dispatcher. URI is a regular
-   --  expression that must math the ressource requested (with the leading /).
+   --  expression that must match the ressource requested (with the leading /).
 
    procedure Register_Regexp
      (Dispatcher : in out Handler;
