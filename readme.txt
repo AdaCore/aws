@@ -4,7 +4,7 @@
 
 Authors:
    Dmitriy Anisimkov
-   Pascal Obry                                              April 14th, 2006
+   Pascal Obry                                                May 10th, 2006
 
 
 
@@ -39,6 +39,8 @@ Changes
 -------
 
 Here are the main changes since AWS 2.2 :
+
+   - Support for user defined filters in the template engine.
 
    - Plus many small fixes, enhancements, API comments, and documentation work.
 
