@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2005                          --
+--                         Copyright (C) 2000-2006                          --
 --                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -45,11 +45,15 @@ package body AWS.Services.Dispatchers.Method is
       Method : constant Status.Request_Method := Status.Method (Request);
    begin
       if Dispatcher.Table (Method) = null then
-         return Response.Acknowledge
-           (Messages.S404,
-            "<p>AWS " & Version
-            & "<p>No rule found in dispatch for "
-            & Status.Request_Method'Image (Method) & " method call.");
+         if Dispatcher.Action = null then
+            return Response.Acknowledge
+              (Messages.S404,
+               "<p>AWS " & Version
+               & "<p>No rule found in dispatch for "
+               & Status.Request_Method'Image (Method) & " method call.");
+         else
+            return Dispatch (Dispatcher.Action.all, Request);
+         end if;
 
       else
          return Dispatch (Dispatcher.Table (Method).all, Request);
