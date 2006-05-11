@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2005                          --
+--                         Copyright (C) 2000-2006                          --
 --                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -26,7 +26,7 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  Dispatch a specific request to a callback depending on the URI.
+--  Dispatch a specific request to a callback depending on the URI
 
 with Ada.Strings.Unbounded;
 
@@ -45,11 +45,10 @@ package AWS.Services.Dispatchers.URI is
       Request    : in Status.Data)
       return Response.Data;
    --  Dispatch will return the value returned by the first callback matching
-   --  the request. Note that if a callback returns the Response.Empty
-   --  message, Dispatch will just continue to the next matching callback. In
-   --  any case, if no handler matches it will call the default callback. If
-   --  no default callback is registered an error HTML message will be
-   --  returned.
+   --  the request. Note that if a callback returns the Response.Empty message,
+   --  Dispatch will just continue to the next matching callback. In any case,
+   --  if no handler matches it will call the default callback. If no default
+   --  callback is registered an error (code 404) HTML message is returned.
 
    procedure Register
      (Dispatcher : in out Handler;

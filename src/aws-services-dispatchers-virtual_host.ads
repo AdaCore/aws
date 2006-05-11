@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2001                          --
---                                ACT-Europe                                --
+--                         Copyright (C) 2000-2006                          --
+--                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -42,6 +42,7 @@ package AWS.Services.Dispatchers.Virtual_Host is
      (Dispatcher : in Handler;
       Request    : in Status.Data)
       return Response.Data;
+   --  Returns an error message (code 404) if there is no match for the request
 
    procedure Register
      (Dispatcher       : in out Handler;

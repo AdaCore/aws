@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2003-2005                          --
+--                         Copyright (C) 2003-2006                          --
 --                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -52,7 +52,7 @@ package AWS.Services.Dispatchers.Timer is
    --  Note that if a callback returns the Response.Empty message, Dispatch
    --  will just continue to the next matching callback. In any cases, if no
    --  handler matches it will call the default callback. If no default
-   --  callback is registered an error HTML message will be returned.
+   --  callback is registered an error HTML message (code 404) is returned.
 
    type Period is private;
 

@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2003                          --
---                                ACT-Europe                                --
+--                         Copyright (C) 2000-2006                          --
+--                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -40,6 +40,9 @@ package AWS.Services.Dispatchers.Method is
      (Dispatcher : in Handler;
       Request    : in Status.Data)
       return Response.Data;
+   --  Dispatch to the corresponding method callback, if no such callback
+   --  registered it dispatches to the default callback. If there is no default
+   --  callback it returns an error message (code 404).
 
    procedure Register
      (Dispatcher : in out Handler;

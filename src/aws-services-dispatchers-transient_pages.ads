@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2003                            --
---                                ACT-Europe                                --
+--                         Copyright (C) 2003-2006                          --
+--                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -41,6 +41,7 @@ package AWS.Services.Dispatchers.Transient_Pages is
      (Dispatcher : in Handler;
       Request    : in Status.Data)
       return Response.Data;
+   --  Returns an error message (code 404) if no transient page were found
 
    procedure Register
      (Dispatcher : in out Handler;
