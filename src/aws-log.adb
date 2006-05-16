@@ -45,7 +45,7 @@ package body AWS.Log is
    --  is No_Prefix otherwise Prefix is returned.
 
    procedure Check_Split (Log : in out Object; Now : in Ada.Calendar.Time);
-   --  Split log file if necessary.
+   --  Split log file if necessary
 
    procedure Write_Log
      (Log  : in out Object;
@@ -398,7 +398,7 @@ package body AWS.Log is
 
    begin
       if Length = 0 then
-         --  It is not extended log.
+         --  It is not extended log
          return;
       end if;
 

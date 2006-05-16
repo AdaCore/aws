@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2005                          --
---                               ACT-Europe                                 --
+--                         Copyright (C) 2000-2006                          --
+--                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -60,7 +60,7 @@ package AWS.Log is
    --  Monthly  : a new log file is created each month.
 
    type Fields_Table is private;
-   --  Type to keep record for Extended Log File Format.
+   --  Type to keep record for Extended Log File Format
 
    Not_Specified : constant String;
 
@@ -78,16 +78,16 @@ package AWS.Log is
    --  entries per second as the flush has a performance penalty.
 
    procedure Register_Field (Log : in out Object; Id : in String);
-   --  Registered field would be written into extended file format.
+   --  Register field to be written into extended log format
 
    procedure Clear (Data : in out Fields_Table);
-   --  Clear the extended file format record.
+   --  Clear the extended file format record
 
    procedure Add (Data : in out Fields_Table; Name, Value : in String);
-   --  Add field value into the extended file record.
+   --  Add field value into the extended file record
 
    procedure Write (Log : in out Object; Data : in Fields_Table);
-   --  Write extended format record to log file.
+   --  Write extended format record to log file
 
    procedure Write
      (Log          : in out Object;
