@@ -39,10 +39,13 @@ with Ada.Finalization;
 with Ada.Text_IO;
 with Ada.Strings.Unbounded;
 
+with AWS.Containers.Key_Value;
 with AWS.Status;
 with AWS.Response;
 with AWS.Messages;
 with AWS.Utils;
+
+with Strings_Maps;
 
 package AWS.Log is
 
@@ -55,6 +58,9 @@ package AWS.Log is
    --  Each_Run : a new log file is created each time the server is started.
    --  Daily    : a new log file is created each day.
    --  Monthly  : a new log file is created each month.
+
+   type Fields_Table is private;
+   --  Type to keep record for Extended Log File Format.
 
    Not_Specified : constant String;
 
@@ -70,6 +76,18 @@ package AWS.Log is
    --  Set Auto_Flush to True if you want every write to the log to be flushed
    --  (not buffered). Auto_Flush should be set to True only for logs with few
    --  entries per second as the flush has a performance penalty.
+
+   procedure Register_Field (Log : in out Object; Id : in String);
+   --  Registered field would be written into extended file format.
+
+   procedure Clear (Data : in out Fields_Table);
+   --  Clear the extended file format record.
+
+   procedure Add (Data : in out Fields_Table; Name, Value : in String);
+   --  Add field value into the extended file record.
+
+   procedure Write (Log : in out Object; Data : in Fields_Table);
+   --  Write extended format record to log file.
 
    procedure Write
      (Log          : in out Object;
@@ -94,9 +112,7 @@ package AWS.Log is
    --  Write user's log info if activated.  (i.e. Start routine above has been
    --  called).
 
-   procedure Write
-     (Log  : in out Object;
-      Data : in     String);
+   procedure Write (Log : in out Object; Data : in String);
    --  Write Data into the log file. This Data is unstructured, only a time
    --  tag prefix is prepended to Data. This routine is designed to be used
    --  for user's info in error log file.
@@ -123,10 +139,19 @@ private
    use Ada;
    use Ada.Strings.Unbounded;
 
+   package Strings_Positive is new Strings_Maps (Positive);
+   package SN renames Strings_Positive.Containers;
+
+   type Fields_Table is record
+      Data : AWS.Containers.Key_Value.Set;
+   end record;
+
    Not_Specified : constant String := "";
 
    type Object is new Ada.Finalization.Limited_Controlled with record
       File            : Text_IO.File_Type;
+      Extended_Fields : SN.Map;
+      Header_Written  : Boolean;
       File_Directory  : Unbounded_String;
       Filename_Prefix : Unbounded_String;
       Split           : Split_Mode := None;
