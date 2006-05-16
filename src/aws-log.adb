@@ -37,10 +37,15 @@ with AWS.OS_Lib;
 
 package body AWS.Log is
 
+   package KV renames AWS.Containers.Key_Value.Table.Containers;
+
    function Log_Prefix (Prefix : in String) return String;
    --  Returns the prefix to be added before the log filename. The returned
    --  value is the executable name without directory and filetype if Prefix
    --  is No_Prefix otherwise Prefix is returned.
+
+   procedure Check_Split (Log : in out Object; Now : in Ada.Calendar.Time);
+   --  Split log file if necessary.
 
    procedure Write_Log
      (Log  : in out Object;
@@ -48,6 +53,55 @@ package body AWS.Log is
       Data : in     String);
    --  Write data into the log file, change log file depending on the log file
    --  split mode and Now.
+
+   ---------
+   -- Add --
+   ---------
+
+   procedure Add (Data : in out Fields_Table; Name, Value : in String) is
+      Dummy   : KV.Cursor;
+      Success : Boolean;
+   begin
+      KV.Insert (Data.Data, Name, Value, Dummy, Success);
+
+      if not Success then
+         KV.Delete (Data.Data, Name);
+         KV.Insert (Data.Data, Name, "*duplicated*" & Value, Dummy, Success);
+      end if;
+   end Add;
+
+   -----------------
+   -- Check_Split --
+   -----------------
+
+   procedure Check_Split (Log : in out Object; Now : in Ada.Calendar.Time) is
+   begin
+      if (Log.Split = Daily
+          and then Log.Current_Tag /= Calendar.Day (Now))
+        or else
+         (Log.Split = Monthly
+          and then Log.Current_Tag /= Calendar.Month (Now))
+      then
+         --  Could not call Stop, because Stop would write to log again and
+         --  it cause unlimited recursion.
+
+         Text_IO.Close (Log.File);
+
+         Start (Log,
+                Log.Split,
+                To_String (Log.File_Directory),
+                To_String (Log.Filename_Prefix));
+      end if;
+   end Check_Split;
+
+   -----------
+   -- Clear --
+   -----------
+
+   procedure Clear (Data : in out Fields_Table) is
+   begin
+      KV.Clear (Data.Data);
+   end Clear;
 
    --------------
    -- Filename --
@@ -171,6 +225,20 @@ package body AWS.Log is
       return Log.Split;
    end Mode;
 
+   --------------------
+   -- Register_Field --
+   --------------------
+
+   procedure Register_Field (Log : in out Object; Id : in String) is
+      Dummy   : SN.Cursor;
+      Success : Boolean;
+   begin
+      SN.Insert
+        (Log.Extended_Fields,
+         Id, Natural (SN.Length (Log.Extended_Fields)) + 1,
+         Dummy, Success);
+   end Register_Field;
+
    -----------
    -- Start --
    -----------
@@ -190,6 +258,7 @@ package body AWS.Log is
       Log.File_Directory  := To_Unbounded_String (File_Directory);
       Log.Split           := Split;
       Log.Auto_Flush      := Auto_Flush;
+      Log.Header_Written  := False;
 
       Filename := To_Unbounded_String
         (File_Directory
@@ -302,15 +371,96 @@ package body AWS.Log is
            & Data);
    end Write;
 
-   procedure Write
-     (Log  : in out Object;
-      Data : in     String)
-   is
+   procedure Write (Log : in out Object; Data : in String) is
       Now : constant Calendar.Time := Calendar.Clock;
    begin
       Write_Log (Log, Now,
                  "[" & GNAT.Calendar.Time_IO.Image (Now, "%d/%b/%Y:%T") & "] "
                    & Data);
+   end Write;
+
+   --  Here is the extended log format:
+   --
+   --  #Version: 1.0
+   --  #Date: 12-Jan-1996 00:00:00
+   --  #Fields: time cs-method cs-uri
+   --  00:34:23 GET /foo/bar.html
+
+   procedure Write (Log  : in out Object; Data : in Fields_Table) is
+      use GNAT.Calendar.Time_IO;
+
+      Length : constant Natural := Natural (SN.Length (Log.Extended_Fields));
+      Order  : array (1 .. Length) of KV.Cursor;
+      Now    : Ada.Calendar.Time;
+
+      C : KV.Cursor := KV.First (Data.Data);
+      S : SN.Cursor;
+
+   begin
+      if Length = 0 then
+         --  It is not extended log.
+         return;
+      end if;
+
+      Log.Semaphore.Seize;
+
+      if Text_IO.Is_Open (Log.File) then
+         while KV.Has_Element (C) loop
+            S := SN.Find (Log.Extended_Fields, KV.Element (C));
+
+            if SN.Has_Element (S) then
+               Order (SN.Element (S)) := C;
+            end if;
+
+            C := KV.Next (C);
+         end loop;
+
+         Now := Ada.Calendar.Clock;
+
+         Check_Split (Log, Now);
+
+         if not Log.Header_Written then
+            Log.Header_Written := True;
+
+            Text_IO.Put_Line (Log.File, "#Version: 1.0");
+            Text_IO.Put_Line
+              (Log.File, "#Software: AWS (Ada Web Server) v" & Version);
+            Text_IO.Put_Line
+              (Log.File, "#Date: " & Image (Now, ISO_Date & " %T"));
+            Text_IO.Put (Log.File, "#Fields:");
+
+            for J in Order'Range loop
+               Text_IO.Put (Log.File, ' ' & KV.Key (Order (J)));
+            end loop;
+
+            Text_IO.New_Line (Log.File);
+         end if;
+
+         for J in Order'Range loop
+            if KV.Has_Element (Order (J)) then
+               Text_IO.Put (Log.File, KV.Element (Order (J)));
+            else
+               Text_IO.Put (Log.File, '-');
+            end if;
+
+            if J = Order'Last then
+               Text_IO.New_Line;
+            else
+               Text_IO.Put (Log.File, ' ');
+            end if;
+         end loop;
+
+         if Log.Auto_Flush then
+            Text_IO.Flush (Log.File);
+         end if;
+      end if;
+
+      Log.Semaphore.Release;
+
+   exception
+      when others =>
+         Log.Semaphore.Release;
+         raise;
    end Write;
 
    ---------------
@@ -326,22 +476,7 @@ package body AWS.Log is
 
       if Text_IO.Is_Open (Log.File) then
 
-         if (Log.Split = Daily
-             and then Log.Current_Tag /= Calendar.Day (Now))
-           or else
-            (Log.Split = Monthly
-             and then Log.Current_Tag /= Calendar.Month (Now))
-         then
-            --  Could not call Stop, because Stop would write to log again and
-            --  it cause unlimited recursion.
-
-            Text_IO.Close (Log.File);
-
-            Start (Log,
-                   Log.Split,
-                   To_String (Log.File_Directory),
-                   To_String (Log.Filename_Prefix));
-         end if;
+         Check_Split (Log, Now);
 
          Text_IO.Put_Line (Log.File, Data);
 
