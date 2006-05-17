@@ -262,6 +262,10 @@ package body AWS.Utils is
       pragma Inline (Value);
       --  Return value for single character C.
 
+      -----------
+      -- Value --
+      -----------
+
       function Value (C : in Character) return Natural is
       begin
          case C is
