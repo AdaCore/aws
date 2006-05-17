@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                          Copyright (C) 2003-2004                         --
---                                ACT-Europe                                --
+--                          Copyright (C) 2003-2006                         --
+--                                  AdaCore                                 --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -71,7 +71,7 @@ procedure Dispatch_VH is
    procedure Test (URL : in String) is
       R : Response.Data;
    begin
-      Text_IO.Put_Line (URL (1 .. 16));
+      Text_IO.Put_Line (URL (URL'First .. URL'First + 15));
       R := Client.Get (URL);
       Text_IO.Put_Line ("> " & Response.Message_Body (R));
    end Test;
