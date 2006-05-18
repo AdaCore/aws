@@ -106,9 +106,24 @@ package body AWS.Config.Utils is
       -----------
 
       procedure Error (Message : in String) is
+         function Error_Message return String;
+
+         -------------------
+         -- Error_Message --
+         -------------------
+
+         function Error_Message return String is
+         begin
+            if Error_Context = "" then
+               return Message;
+            else
+               return Error_Context & ' ' & Message;
+            end if;
+         end Error_Message;
+
       begin
          Ada.Exceptions.Raise_Exception
-           (Constraint_Error'Identity, Error_Context & Message & '.');
+           (Constraint_Error'Identity, Error_Message & '.');
       end Error;
 
       Expected_Type : Unbounded_String;

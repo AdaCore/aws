@@ -37,9 +37,7 @@ private package AWS.Config.Utils is
    --  parameter value. Error_Context should contain additional information
    --  about the parameter. This  message will be added to the Constraint_Error
    --  exception. One way to use Error_Context is to set it with information
-   --  about where this parameter come form. Error_Context if exists, should
-   --  have line feed or space at the end, because exception message would be
-   --  attached.
+   --  about where this parameter come form.
 
    function Value
      (Item : in String; Error_Context : in String) return Parameter_Name;
