@@ -169,7 +169,7 @@ package body AWS.Status is
       use type Utils.Stream_Element_Array_Access;
    begin
       if D.Binary_Data = null then
-         return (1 .. 0 => 0); -- Empty array.
+         return (1 .. 0 => 0); -- Empty array
       else
          return D.Binary_Data.all;
       end if;
@@ -203,7 +203,7 @@ package body AWS.Status is
       if URL.Abs_Path (Data_URL) /= URL.Abs_Path (Auth_URL)
         or else Nonce = ""
       then
-         --  Bad request.
+         --  Bad request
 
          return Messages.S400;
 
@@ -220,12 +220,12 @@ package body AWS.Status is
                Method   => Request_Method'Image (D.Method),
                URI      => Auth_URI)
       then
-         --  Unauthorized.
+         --  Unauthorized
 
          return Messages.S401;
 
       else
-         --  Successful.
+         --  Successful
 
          return Messages.S200;
       end if;
@@ -330,15 +330,15 @@ package body AWS.Status is
 
       Found_Encoding  : Boolean := False;
       Enable_Encoding : Boolean := True;
-      --  QValue is 1 by default, i.e enought.
+      --  QValue is 1 by default, i.e enought
 
       Just_Found_Others : Boolean := False;
 
       Found_Others  : Boolean := False;
-      --  Found others - "*" symbol.
+      --  Found others - "*" symbol
 
       Enable_Others : Boolean := True;
-      --  All others encoding enabled by default.
+      --  All others encoding enabled by default
 
       procedure Named_Value (Name, Value : in String; Quit : in out Boolean);
 
@@ -374,7 +374,7 @@ package body AWS.Status is
 
                return;
             else
-               --  Encoding is enable if qvalue is not specified.
+               --  Encoding is enable if qvalue is not specified
 
                Enable_Encoding := True;
             end if;
@@ -491,7 +491,7 @@ package body AWS.Status is
       Next_Encoding : Messages.Content_Encoding;
 
       Supported     : Boolean := False;
-      --  Next coding supported by AWS.
+      --  Next coding supported by AWS
 
       Best_QValue : Float := 0.0;
       Next_QValue : Float;
@@ -523,7 +523,7 @@ package body AWS.Status is
             Best_QValue   := Next_QValue;
 
             if Best_QValue = 1.0 then
-               --  Could not be more then 1.
+               --  Could not be more then 1
 
                Quit := True;
                return;
@@ -532,7 +532,7 @@ package body AWS.Status is
 
          begin
             Next_Encoding := Messages.Content_Encoding'Value (Item);
-            Next_QValue   := 1.0; --  Default qvalue.
+            Next_QValue   := 1.0; --  Default qvalue
             Supported     := True;
          exception
             when Constraint_Error =>
