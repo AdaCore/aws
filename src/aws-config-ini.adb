@@ -27,25 +27,17 @@
 ------------------------------------------------------------------------------
 
 with Ada.Command_Line;
+with Ada.Exceptions;
 with Ada.Strings.Fixed;
 with Ada.Strings.Maps;
 with Ada.Text_IO;
 
+with AWS.Config.Utils;
 with AWS.Utils;
 
 package body AWS.Config.Ini is
 
    use Ada;
-
-   function Program_Ini_File return String;
-   --  Returns initialization filename for current server (using the
-   --  executable name and adding .ini)
-
-   procedure Read_If_Present
-     (Config   : in out Object;
-      Filename : in     String);
-   --  Read and parse Filename, does not raise an exception if the file does
-   --  not exists.
 
    ----------------------
    -- Program_Ini_File --
@@ -81,147 +73,48 @@ package body AWS.Config.Ini is
      (Config   : in out Object;
       Filename : in     String)
    is
+      procedure Raise_Error (Message : in String);
+      --  Raise error message with filename and line number
 
-      procedure Error_Message (Filename : in String; Message : in String);
-      --  Output error message with filename and line number
+      function Error_Context return String;
+      --  Return the string with filename and line number.
 
-      procedure Set_Value
-        (Filename : in String;
-         Key      : in String;
-         Value    : in String);
+      procedure Set_Value (Key : in String; Value : in String);
 
       Line : Natural;
       --  current line number parsed
-
-      Process_Mode : constant Boolean := True;
-      --  Set to True when parsing a file that can support per process
-      --  options.
 
       -------------------
       -- Error_Message --
       -------------------
 
-      procedure Error_Message (Filename : in String; Message : in String) is
+      function Error_Context return String is
       begin
-         Text_IO.Put (Text_IO.Current_Error, '(' & Filename & ':');
-         Text_IO.Put (Text_IO.Current_Error, AWS.Utils.Image (Line));
-         Text_IO.Put_Line (Text_IO.Current_Error, ") " & Message & '.');
-      end Error_Message;
+         return '(' & Filename & ':' & AWS.Utils.Image (Line) & ") ";
+      end Error_Context;
+
+      -----------------
+      -- Raise_Error --
+      -----------------
+
+      procedure Raise_Error (Message : in String) is
+      begin
+         Ada.Exceptions.Raise_Exception
+           (Constraint_Error'Identity, Error_Context & Message);
+      end Raise_Error;
 
       ---------------
       -- Set_Value --
       ---------------
 
-      procedure Set_Value
-        (Filename : in String;
-         Key      : in String;
-         Value    : in String)
-      is
-         function "+" (S : in String)
-           return Unbounded_String
-           renames To_Unbounded_String;
-
-         Expected_Type : Unbounded_String;
-
-         P : Parameter_Name;
-
+      procedure Set_Value (Key : in String; Value : in String) is
+         P : constant Parameter_Name := Utils.Value (Key, Error_Context);
       begin
-
-         begin
-            P := Parameter_Name'Value (Key);
-         exception
-            when others =>
-               Error_Message (Filename, "unrecognized option " & Key);
-               return;
-         end;
-
          if P in Server_Parameter_Name then
-
-            case Config.P (P).Kind is
-               when Str =>
-                  Expected_Type := +"string";
-                  Config.P (P).Str_Value := +Value;
-
-               when Dir =>
-                  Expected_Type := +"string";
-
-                  if Value (Value'Last) = '/'
-                    or else Value (Value'Last) = '\'
-                  then
-                     Config.P (P).Dir_Value := +Value;
-                  else
-                     Config.P (P).Dir_Value := +(Value & '/');
-                  end if;
-
-               when Pos =>
-                  Expected_Type := +"positive";
-                  Config.P (P).Pos_Value := Positive'Value (Value);
-
-               when Nat =>
-                  Expected_Type := +"natural";
-                  Config.P (P).Nat_Value := Natural'Value (Value);
-
-               when Dur =>
-                  Expected_Type := +"duration";
-                  Config.P (P).Dur_Value := Duration'Value (Value);
-
-               when Bool =>
-                  Expected_Type := +"boolean";
-                  Config.P (P).Bool_Value := Boolean'Value (Value);
-
-            end case;
-
+            Utils.Set_Parameter (Config.P, P, Value, Error_Context);
          else
-
-            if not Process_Mode then
-               Error_Message
-                 (Filename,
-                  "Per process option (" & Key
-                  & ") not supported for this file");
-            end if;
-
-            case Process_Options (P).Kind is
-
-               when Str =>
-                  Expected_Type := +"string";
-                  Process_Options (P).Str_Value := +Value;
-
-               when Dir =>
-                  Expected_Type := +"string";
-
-                  if Value (Value'Last) = '/'
-                    or else Value (Value'Last) = '\'
-                  then
-                     Process_Options (P).Dir_Value := +Value;
-                  else
-                     Process_Options (P).Dir_Value := +(Value & '/');
-                  end if;
-
-               when Pos =>
-                  Expected_Type := +"positive";
-                  Process_Options (P).Pos_Value := Positive'Value (Value);
-
-               when Nat =>
-                  Expected_Type := +"natural";
-                  Process_Options (P).Nat_Value := Natural'Value (Value);
-
-               when Dur =>
-                  Expected_Type := +"duration";
-                  Process_Options (P).Dur_Value := Duration'Value (Value);
-
-               when Bool =>
-                  Expected_Type := +"boolean";
-                  Process_Options (P).Bool_Value := Boolean'Value (Value);
-            end case;
-
+            Utils.Set_Parameter (Process_Options, P, Value, Error_Context);
          end if;
-
-      exception
-         when others =>
-            Error_Message
-              (Filename,
-               "wrong value for " & Key
-               & " " & To_String (Expected_Type) & " expected");
 
       end Set_Value;
 
@@ -256,7 +149,6 @@ package body AWS.Config.Ini is
          end loop;
 
          if Last /= 0 then
-
             --  Looks for Key token
 
             Strings.Fixed.Find_Token
@@ -271,37 +163,21 @@ package body AWS.Config.Ini is
                     (Buffer (K_Last + 1 .. Last), Separators, Separators);
                begin
                   if Value = "" then
-                     Error_Message (Filename, "No value for " & Key);
+                     Raise_Error ("No value for " & Key);
                   else
-                     Set_Value (Filename, Key, Value);
+                     Set_Value (Key, Value);
                   end if;
                end;
 
             else
-               Error_Message (Filename, "wrong format");
+               Raise_Error ("wrong format");
             end if;
 
          end if;
       end loop;
 
       Text_IO.Close (File);
+
    end Read;
 
-   ---------------------
-   -- Read_If_Present --
-   ---------------------
-
-   procedure Read_If_Present
-     (Config   : in out Object;
-      Filename : in     String) is
-   begin
-      Read (Config, Filename);
-   exception
-      when Text_IO.Name_Error =>
-         null;
-   end Read_If_Present;
-
-begin
-   Read_If_Present (Server_Config, "aws.ini");
-   Read_If_Present (Server_Config, Program_Ini_File);
 end AWS.Config.Ini;
