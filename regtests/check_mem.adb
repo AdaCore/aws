@@ -59,6 +59,8 @@ with SOAP.Message.XML;
 with SOAP.Parameters;
 with SOAP.Types;
 
+with Get_Free_Port;
+
 procedure Check_Mem is
 
    use Ada;
@@ -83,6 +85,8 @@ procedure Check_Mem is
 
    procedure Check_Socket;
 
+   function Get_Free_Port return Positive;
+
    task Server is
       entry Started;
       entry Stopped;
@@ -90,8 +94,19 @@ procedure Check_Mem is
 
    HTTP      : AWS.Server.HTTP;
 
-   S_Port    : constant String   := Command_Line.Argument (2);
-   Port      : constant Positive := Positive'Value (S_Port);
+   -------------------
+   -- Get_Free_Port --
+   -------------------
+
+   function Get_Free_Port return Positive is
+      Free_Port : Positive := 8188;
+   begin
+      Get_Free_Port (Free_Port);
+      return Free_Port;
+   end Get_Free_Port;
+
+   Port      : constant Positive := Get_Free_Port;
+   S_Port    : constant String   := AWS.Utils.Image (Port);
 
    Iteration : Positive;
 
