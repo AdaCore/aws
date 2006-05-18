@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                           Copyright (C) 2006                             --
+--                            Copyright (C) 2006                            --
 --                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -43,12 +43,14 @@ package body AWS.Config.Utils is
 
    procedure Parse_Strings (Vector : in out SV.Vector; Line : in String) is
       use Ada.Strings;
+
       First  : Positive := Line'First;
       Last   : Natural;
       Spaces : constant Maps.Character_Set
         := Maps.To_Set (" " & ASCII.HT & ASCII.CR & ASCII.LF);
 
       procedure Append (Item : in String);
+      --  Add item into Vector removing leading and trailing spaces
 
       ------------
       -- Append --
@@ -101,6 +103,9 @@ package body AWS.Config.Utils is
         return Unbounded_String
         renames To_Unbounded_String;
 
+      Expected_Type : Unbounded_String;
+      --  The expected type name for the current option
+
       -----------
       -- Error --
       -----------
@@ -125,8 +130,6 @@ package body AWS.Config.Utils is
          Ada.Exceptions.Raise_Exception
            (Constraint_Error'Identity, Error_Message & '.');
       end Error;
-
-      Expected_Type : Unbounded_String;
 
       -------------------
       -- Set_Parameter --
@@ -192,10 +195,10 @@ package body AWS.Config.Utils is
             end if;
          end;
          return;
+
       else
          Set_Parameter (Param_Set (Name));
       end if;
-
    end Set_Parameter;
 
    -----------
