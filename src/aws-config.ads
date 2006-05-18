@@ -33,6 +33,7 @@
 
 with Ada.Strings.Unbounded;
 
+with AWS.Containers.String_Vectors;
 with AWS.Default;
 
 package AWS.Config is
@@ -299,6 +300,8 @@ package AWS.Config is
 
 private
 
+   package SV renames AWS.Containers.String_Vectors;
+
    --  List of token (keyword) recognized by the parser. There must be one
    --  entry for every option name to be handled.
 
@@ -320,6 +323,7 @@ private
       Accept_Queue_Size,
       Log_File_Directory,
       Log_Filename_Prefix,
+      Log_Extended_Fields,
       Log_Split_Mode,
       Error_Log_Filename_Prefix,
       Error_Log_Split_Mode,
@@ -356,7 +360,7 @@ private
    subtype Process_Parameter_Name is Parameter_Name
      range Session_Cleanup_Interval .. Max_Concurrent_Download;
 
-   type Value_Type  is (Str, Dir, Nat, Pos, Dur, Bool);
+   type Value_Type  is (Str, Dir, Nat, Pos, Dur, Bool, Str_Vect);
 
    type Values (Kind : Value_Type := Str) is record
       case Kind is
@@ -377,6 +381,9 @@ private
 
          when Bool =>
             Bool_Value : Boolean;
+
+         when Str_Vect =>
+            Strs_Value : SV.Vector;
       end case;
    end record;
 
@@ -443,6 +450,9 @@ private
          Log_Filename_Prefix =>
            (Str, To_Unbounded_String (Default.Log_Filename_Prefix)),
 
+         Log_Extended_Fields =>
+           (Str_Vect, SV.Empty_Vector),
+
          Log_Split_Mode =>
            (Str, To_Unbounded_String (Default.Log_Split_Mode)),
 
@@ -505,10 +515,6 @@ private
    end record;
 
    Default_Config : constant Object := (P => Default_Parameters);
-
-   Server_Config : Object;
-   --  This variable will be updated with options found in 'aws.ini' and
-   --  '<progname>.ini'.
 
    Process_Options : Parameter_Set (Process_Parameter_Name)
      := (Session_Cleanup_Interval =>
