@@ -115,7 +115,6 @@ package body AWS.Config.Ini is
          else
             Utils.Set_Parameter (Process_Options, P, Value, Error_Context);
          end if;
-
       end Set_Value;
 
       Separators : constant Strings.Maps.Character_Set
@@ -177,7 +176,6 @@ package body AWS.Config.Ini is
       end loop;
 
       Text_IO.Close (File);
-
    end Read;
 
 end AWS.Config.Ini;

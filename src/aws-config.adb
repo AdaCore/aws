@@ -37,6 +37,7 @@ package body AWS.Config is
    --  '<progname>.ini'.
 
    Ini_Loaded : Boolean := False;
+   --  Set to True when initialization (.ini) files have been loaded
 
    procedure Read_If_Present (Filename : in String);
    --  Read and parse Filename, does not raise an exception if the file does
