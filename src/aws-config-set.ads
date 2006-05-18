@@ -252,7 +252,9 @@ package AWS.Config.Set is
    --  Error_Context may contain additional information about the parameter.
    --  This  message will be added to the Constraint_Error exception.
    --  One way to use Error_Context is to set it with information about
-   --  where this parameter come form.
+   --  where this parameter come form. Error_Context if exists, should have
+   --  line feed or space at the end, because exception message would be
+   --  attached.
 
    procedure Parameter
      (Name          : in String;
