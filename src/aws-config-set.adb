@@ -304,7 +304,7 @@ package body AWS.Config.Set is
       Value         : in     String;
       Error_Context : in     String := "") is
    begin
-      Utils.Parameter
+      Utils.Set_Parameter
         (Config.P, Utils.Value (Name, Error_Context), Value, Error_Context);
    end Parameter;
 
@@ -313,7 +313,7 @@ package body AWS.Config.Set is
       Value         : in String;
       Error_Context : in String := "") is
    begin
-      Utils.Parameter
+      Utils.Set_Parameter
         (Process_Options,
          Utils.Value (Name, Error_Context),
          Value,
