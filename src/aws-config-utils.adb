@@ -1,3 +1,31 @@
+------------------------------------------------------------------------------
+--                              Ada Web Server                              --
+--                                                                          --
+--                           Copyright (C) 2006                             --
+--                                 AdaCore                                  --
+--                                                                          --
+--  This library is free software; you can redistribute it and/or modify    --
+--  it under the terms of the GNU General Public License as published by    --
+--  the Free Software Foundation; either version 2 of the License, or (at   --
+--  your option) any later version.                                         --
+--                                                                          --
+--  This library is distributed in the hope that it will be useful, but     --
+--  WITHOUT ANY WARRANTY; without even the implied warranty of              --
+--  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU       --
+--  General Public License for more details.                                --
+--                                                                          --
+--  You should have received a copy of the GNU General Public License       --
+--  along with this library; if not, write to the Free Software Foundation, --
+--  Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.          --
+--                                                                          --
+--  As a special exception, if other files instantiate generics from this   --
+--  unit, or you link this unit with other files to produce an executable,  --
+--  this  unit  does not  by itself cause  the resulting executable to be   --
+--  covered by the GNU General Public License. This exception does not      --
+--  however invalidate any other reasons why the executable file  might be  --
+--  covered by the  GNU Public License.                                     --
+------------------------------------------------------------------------------
+
 with Ada.Exceptions;
 
 with Ada.Strings.Fixed;
@@ -9,7 +37,54 @@ package body AWS.Config.Utils is
    --  Split comma separated values from Line into Vector.
    --  Trim spaces from both sides.
 
-   procedure Parameter
+   -------------------
+   -- Parse_Strings --
+   -------------------
+
+   procedure Parse_Strings (Vector : in out SV.Vector; Line : in String) is
+      use Ada.Strings;
+      First  : Positive := Line'First;
+      Last   : Natural;
+      Spaces : constant Maps.Character_Set
+        := Maps.To_Set (" " & ASCII.HT & ASCII.CR & ASCII.LF);
+
+      procedure Append (Item : in String);
+
+      ------------
+      -- Append --
+      ------------
+
+      procedure Append (Item : in String) is
+      begin
+         SV.Append (Vector, Fixed.Trim (Item, Spaces, Spaces));
+      end Append;
+
+   begin
+      SV.Clear (Vector);
+
+      if Line = "" then
+         return;
+      end if;
+
+      loop
+         Last := Fixed.Index (Line (First .. Line'Last), ",");
+
+         if Last = 0 then
+            Append (Line (First .. Line'Last));
+            exit;
+         end if;
+
+         Append (Line (First .. Last - 1));
+
+         First := Last + 1;
+      end loop;
+   end Parse_Strings;
+
+   -------------------
+   -- Set_Parameter --
+   -------------------
+
+   procedure Set_Parameter
      (Param_Set     : in out Parameter_Set;
       Name          : in     Parameter_Name;
       Value         : in     String;
@@ -106,50 +181,7 @@ package body AWS.Config.Utils is
          Set_Parameter (Param_Set (Name));
       end if;
 
-   end Parameter;
-
-   -------------------
-   -- Parse_Strings --
-   -------------------
-
-   procedure Parse_Strings (Vector : in out SV.Vector; Line : in String) is
-      use Ada.Strings;
-      First  : Positive := Line'First;
-      Last   : Natural;
-      Spaces : constant Maps.Character_Set
-        := Maps.To_Set (" " & ASCII.HT & ASCII.CR & ASCII.LF);
-
-      procedure Append (Item : in String);
-
-      ------------
-      -- Append --
-      ------------
-
-      procedure Append (Item : in String) is
-      begin
-         SV.Append (Vector, Fixed.Trim (Item, Spaces, Spaces));
-      end Append;
-
-   begin
-      SV.Clear (Vector);
-
-      if Line = "" then
-         return;
-      end if;
-
-      loop
-         Last := Fixed.Index (Line (First .. Line'Last), ",");
-
-         if Last = 0 then
-            Append (Line (First .. Line'Last));
-            exit;
-         end if;
-
-         Append (Line (First .. Last - 1));
-
-         First := Last + 1;
-      end loop;
-   end Parse_Strings;
+   end Set_Parameter;
 
    -----------
    -- Value --
