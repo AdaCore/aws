@@ -26,12 +26,21 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
+with Ada.Text_IO;
+
 with AWS.Config.Ini;
---  This package is not used, but it is loaded here to initialize the
---  Server_Config variable.
-pragma Warnings (Off, AWS.Config.Ini);
 
 package body AWS.Config is
+
+   Server_Config : Object;
+   --  This variable will be updated with options found in 'aws.ini' and
+   --  '<progname>.ini'.
+
+   Ini_Loaded : Boolean := False;
+
+   procedure Read_If_Present (Filename : in String);
+   --  Read and parse Filename, does not raise an exception if the file does
+   --  not exists.
 
    -----------------------
    -- Accept_Queue_Size --
@@ -210,6 +219,13 @@ package body AWS.Config is
 
    function Get_Current return Object is
    begin
+      if not Ini_Loaded then
+         Ini_Loaded := True;
+
+         Read_If_Present ("aws.ini");
+         Read_If_Present (Ini.Program_Ini_File);
+      end if;
+
       return Server_Config;
    end Get_Current;
 
@@ -293,6 +309,18 @@ package body AWS.Config is
    begin
       return O.P (Max_Connection).Pos_Value;
    end Max_Connection;
+
+   ---------------------
+   -- Read_If_Present --
+   ---------------------
+
+   procedure Read_If_Present (Filename : in String) is
+   begin
+      Ini.Read (Server_Config, Filename);
+   exception
+      when Ada.Text_IO.Name_Error =>
+         null;
+   end Read_If_Present;
 
    ---------------------
    -- Receive_Timeout --
