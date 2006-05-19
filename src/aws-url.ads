@@ -198,6 +198,6 @@ private
          (Span => (Low  => Character'Val (128),
                    High => Character'Val (Character'Pos (Character'Last))))
      or
-       Strings.Maps.To_Set (";/?:@&=+$,<>#%""{}|\^[]` ");
+       Strings.Maps.To_Set (";/?:@&=+$,<>#%""{}|\^[]`' ");
 
 end AWS.URL;
