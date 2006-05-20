@@ -120,7 +120,7 @@ package body AWS.Net.Std is
    is
       use Ada.Strings.Maps;
       Inet_Addr : Sockets.Inet_Addr_Type;
-      Created : Boolean := False;
+      Created   : Boolean := False;
    begin
       Socket.S := new Socket_Hidden;
 
