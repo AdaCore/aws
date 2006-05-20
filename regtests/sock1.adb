@@ -41,7 +41,7 @@ procedure Sock1 is
      := Net.Std.Socket_Type (Net.Socket_Type'Class'(Net.Socket (False)));
 
 begin
-   Net.Std.Bind (Sock, 1111, "azertytoto.titi_impossible.com");
+   Net.Std.Bind (Sock, 1111, "azertytoto.titi_impossible.zzz");
    Text_IO.Put_Line ("Should not be there!");
 exception
    when Net.Socket_Error =>
