@@ -361,11 +361,7 @@ package body Ada2WSDL.Parser is
             else
                exit;
             end if;
-
          end loop;
-
-         --  Finalizing the enclosing construct:
-         Next_Node := Next_Node.Up;
       end Analyse_Node_List;
 
       ---------------------
@@ -1294,7 +1290,6 @@ package body Ada2WSDL.Parser is
 
          return F_Name (First .. Last) & ".adt";
       end Get_Tree_Name;
-
 
    begin
       File_Name := new String'(To_String (Options.File_Name));
