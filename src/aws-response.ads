@@ -236,18 +236,16 @@ package AWS.Response is
    function Header
      (D    : in Data;
       Name : in String;
-      N    : in Positive)
-      return String;
+      N    : in Positive) return String;
    pragma Inline (Header);
    --  Return the N-th value for header Name
 
-   function Header
-     (D    : in Data;
-      Name : in String)
-      return String;
+   function Header (D : in Data; Name : in String) return String;
    pragma Inline (Header);
    --  Return all values as a comma-separated string for header Name.
    --  See [RFC 2616 - 4.2] last paragraph.
+
+   function Header (D : in Data) return AWS.Headers.List;
 
    procedure Send_Header (Socket : in Net.Socket_Type'Class; D : in Data);
    pragma Inline (Send_Header);

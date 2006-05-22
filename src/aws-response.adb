@@ -412,6 +412,11 @@ package body AWS.Response is
    -- Header --
    ------------
 
+   function Header (D : in Data) return AWS.Headers.List is
+   begin
+      return D.Header;
+   end Header;
+
    function Header
      (D    : in Data;
       Name : in String;
