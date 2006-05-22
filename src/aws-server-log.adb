@@ -86,6 +86,21 @@ package body AWS.Server.Log is
       Auto_Flush      : in     Boolean            := False)
    is
       use type AWS.Log.Split_Mode;
+
+      procedure Register_Extended_Field (Id : in String);
+
+      -----------------------------
+      -- Register_Extended_Field --
+      -----------------------------
+
+      procedure Register_Extended_Field (Id : in String) is
+      begin
+         AWS.Log.Register_Field (Web_Server.Log, Id);
+      end Register_Extended_Field;
+
+      procedure Register_Extended_Fields is
+         new CNF.Log_Extended_Fields_Generic_Iterate (Register_Extended_Field);
+
    begin
       if Split_Mode /= AWS.Log.None then
          CNF.Set.Log_Split_Mode
@@ -96,6 +111,8 @@ package body AWS.Server.Log is
          CNF.Set.Log_Filename_Prefix
            (Web_Server.Properties, Filename_Prefix);
       end if;
+
+      Register_Extended_Fields (Web_Server.Properties);
 
       AWS.Log.Start
         (Web_Server.Log,
