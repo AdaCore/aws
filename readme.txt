@@ -42,6 +42,8 @@ Here are the main changes since AWS 2.2 :
 
    - Support for user defined filters in the template engine.
 
+   - Support for extended log file format.
+
    - Plus many small fixes, enhancements, API comments, and documentation work.
 
 
