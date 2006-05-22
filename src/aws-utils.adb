@@ -419,7 +419,7 @@ package body AWS.Utils is
 
    begin
       if Replace'Length = 1 then
-         --  When length of replace string is 1, we could replace if faster.
+         --  When length of replace string is 1, we could replace it faster.
 
          if Replace (Replace'First) = '"' then
             --  Do not need to replace.
