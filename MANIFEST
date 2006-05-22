@@ -484,6 +484,7 @@ regtests/timer.adb
 regtests/timer.out
 regtests/tlog.adb
 regtests/tlog.out
+regtests/tlog_proc.adb
 regtests/tmem.adb
 regtests/tmem.out
 regtests/tmime.adb
@@ -570,6 +571,8 @@ src/aws-config-ini.adb
 src/aws-config-ini.ads
 src/aws-config-set.adb
 src/aws-config-set.ads
+src/aws-config-utils.ads
+src/aws-config-utils.adb
 src/aws-config.adb
 src/aws-config.ads
 src/aws-containers-key_value.ads
