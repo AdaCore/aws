@@ -394,9 +394,56 @@ package body AWS.Utils is
    -- Quote --
    -----------
 
-   function Quote (Str : in String) return String is
+   function Quote
+     (Str : in String; Replace : in String := """") return String
+   is
+      function Replace_Quote (Source : in String) return String;
+
+      -------------------
+      -- Replace_Quote --
+      -------------------
+
+      function Replace_Quote (Source : in String) return String is
+         use Ada.Strings.Fixed;
+         Idx : Natural;
+      begin
+         Idx := Index (Source, """");
+
+         if Idx = 0 then
+            return Source;
+         else
+            return Source (Source'First .. Idx - 1) & Replace &
+                   Replace_Quote (Source (Idx + 1 .. Source'Last));
+         end if;
+      end Replace_Quote;
+
    begin
-      return '"' & Str & '"';
+      if Replace'Length = 1 then
+         --  When length of replace string is 1, we could replace if faster.
+
+         if Replace (Replace'First) = '"' then
+            --  Do not need to replace.
+            return '"' & Str & '"';
+
+         else
+            declare
+               Result : String (Str'Range);
+            begin
+               for J in Str'Range loop
+                  if Str (J) = '"' then
+                     Result (J) := Replace (Replace'First);
+                  else
+                     Result (J) := Str (J);
+                  end if;
+               end loop;
+
+               return '"' & Result & '"';
+            end;
+         end if;
+
+      else
+         return '"' & Replace_Quote (Str) & '"';
+      end if;
    end Quote;
 
    ------------

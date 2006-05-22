@@ -70,9 +70,10 @@ package AWS.Utils is
    function Is_Number (S : in String) return Boolean;
    --  Returns True is S contains only decimal digits and is not empty
 
-   function Quote (Str : in String) return String;
-   pragma Inline (Quote);
+   function Quote (Str : in String; Replace : in String := """") return String;
    --  Returns Str with character '"' added at the start and the end
+   --  Replace parameter is for replace the '"' inside of string.
+   --  It is not replaced by default.
 
    function CRLF_2_Spaces (Str : in String) return String;
    --  Returns an str in a single line. All CR and LF are converted to spaces,
