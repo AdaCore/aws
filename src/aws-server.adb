@@ -49,9 +49,10 @@ package body AWS.Server is
    type Data_Access is access all Status.Data;
 
    type Line_Attribute_Record is record
-      Server : HTTP_Access;
-      Line   : Positive;
-      Data   : Data_Access;
+      Server     : HTTP_Access;
+      Line       : Positive;
+      Data       : Data_Access;
+      Log_Data   : AWS.Log.Fields_Table;
    end record;
 
    procedure Free is new Ada.Unchecked_Deallocation
@@ -79,7 +80,9 @@ package body AWS.Server is
    Server_Counter : Utils.Counter (Initial_Value => 0);
 
    package Line_Attribute is
-     new Task_Attributes (Line_Attribute_Record, (null, 1, null));
+     new Task_Attributes
+           (Line_Attribute_Record,
+            (null, 1, null, AWS.Log.Empty_Fields_Table));
    --  A line specific attribute
 
    ------------------------------
@@ -226,8 +229,17 @@ package body AWS.Server is
 
    function Get_Current return HTTP_Access is
    begin
-      return Line_Attribute.Value.Server;
+      return Line_Attribute.Reference.Server;
    end Get_Current;
+
+   ----------------
+   -- Get_Fields --
+   ----------------
+
+   function Get_Log_Data return AWS.Log.Fields_Table is
+   begin
+      return Line_Attribute.Reference.Log_Data;
+   end Get_Log_Data;
 
    ----------------
    -- Get_Status --
@@ -235,7 +247,7 @@ package body AWS.Server is
 
    function Get_Status return Status.Data is
    begin
-      return Line_Attribute.Value.Data.all;
+      return Line_Attribute.Reference.Data.all;
    end Get_Status;
 
    ----------------------
@@ -424,6 +436,18 @@ package body AWS.Server is
 
       Free (Old);
    end Set;
+
+   ---------------
+   -- Set_Field --
+   ---------------
+
+   procedure Set_Field (Id, Value : in String) is
+      Task_Ptr : constant Line_Attribute.Attribute_Handle
+        := Line_Attribute.Reference;
+   begin
+      AWS.Log.Set_Field
+        (Task_Ptr.Server.Log, Task_Ptr.Log_Data, Id, Value);
+   end Set_Field;
 
    ------------------
    -- Set_Security --
