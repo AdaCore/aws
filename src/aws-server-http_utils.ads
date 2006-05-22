@@ -26,7 +26,6 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-with AWS.Server;
 with AWS.Status;
 with AWS.Resources;
 with AWS.Response;
