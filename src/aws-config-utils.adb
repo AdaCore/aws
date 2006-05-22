@@ -33,10 +33,6 @@ with Ada.Strings.Maps;
 
 package body AWS.Config.Utils is
 
-   procedure Parse_Strings (Vector : in out SV.Vector; Line : String);
-   --  Split comma separated values from Line into Vector.
-   --  Trim spaces from both sides.
-
    -------------------
    -- Parse_Strings --
    -------------------
