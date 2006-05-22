@@ -39,7 +39,8 @@ with Ada.Finalization;
 with Ada.Text_IO;
 with Ada.Strings.Unbounded;
 
-with AWS.Containers.Key_Value;
+with AWS.Containers.String_Vectors;
+with AWS.Headers;
 with AWS.Status;
 with AWS.Response;
 with AWS.Messages;
@@ -62,6 +63,8 @@ package AWS.Log is
    type Fields_Table is private;
    --  Type to keep record for Extended Log File Format
 
+   Empty_Fields_Table : constant Fields_Table;
+
    Not_Specified : constant String;
 
    procedure Start
@@ -80,14 +83,25 @@ package AWS.Log is
    procedure Register_Field (Log : in out Object; Id : in String);
    --  Register field to be written into extended log format
 
-   procedure Clear (Data : in out Fields_Table);
-   --  Clear the extended file format record
+   procedure Set_Field
+     (Log : in Object; Data : in out Fields_Table; Id, Value : in String);
+   --  Set field value into the extended log record. Data could be used only
+   --  in one task and with one log file. Different tasks could write own Data
+   --  using the next declared routine.
 
-   procedure Add (Data : in out Fields_Table; Name, Value : in String);
-   --  Add field value into the extended file record
+   procedure Set_Header_Fields
+     (Log    : in     Object;
+      Data   : in out Fields_Table;
+      Prefix : in     String;
+      Header : in     AWS.Headers.List);
+   --  Set header fields into extended log record.
+   --  Name of the header fields would be <Prefix>(<Header_Name>).
+   --  Prefix should be "cs" - Client to Server or "sc" - Server to Client.
 
-   procedure Write (Log : in out Object; Data : in Fields_Table);
-   --  Write extended format record to log file
+   procedure Write (Log : in out Object; Data : in out Fields_Table);
+   --  Write extended format record to log file and prepare record for the next
+   --  data. It is not allowed to use same Fields_Table with different extended
+   --  logs.
 
    procedure Write
      (Log          : in out Object;
@@ -142,9 +156,13 @@ private
    package Strings_Positive is new Strings_Maps (Positive);
    package SN renames Strings_Positive.Containers;
 
+   package SV renames AWS.Containers.String_Vectors;
+
    type Fields_Table is record
-      Data : AWS.Containers.Key_Value.Set;
+      Values : SV.Vector;
    end record;
+
+   Empty_Fields_Table : constant Fields_Table := (Values => SV.Empty_Vector);
 
    Not_Specified : constant String := "";
 

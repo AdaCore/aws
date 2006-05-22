@@ -33,11 +33,10 @@ with Ada.Strings.Maps;
 
 with GNAT.Calendar.Time_IO;
 
+with AWS.Containers.Tables;
 with AWS.OS_Lib;
 
 package body AWS.Log is
-
-   package KV renames AWS.Containers.Key_Value.Table.Containers;
 
    function Log_Prefix (Prefix : in String) return String;
    --  Returns the prefix to be added before the log filename. The returned
@@ -53,22 +52,6 @@ package body AWS.Log is
       Data : in     String);
    --  Write data into the log file, change log file depending on the log file
    --  split mode and Now.
-
-   ---------
-   -- Add --
-   ---------
-
-   procedure Add (Data : in out Fields_Table; Name, Value : in String) is
-      Dummy   : KV.Cursor;
-      Success : Boolean;
-   begin
-      KV.Insert (Data.Data, Name, Value, Dummy, Success);
-
-      if not Success then
-         KV.Delete (Data.Data, Name);
-         KV.Insert (Data.Data, Name, "*duplicated*" & Value, Dummy, Success);
-      end if;
-   end Add;
 
    -----------------
    -- Check_Split --
@@ -93,15 +76,6 @@ package body AWS.Log is
                 To_String (Log.Filename_Prefix));
       end if;
    end Check_Split;
-
-   -----------
-   -- Clear --
-   -----------
-
-   procedure Clear (Data : in out Fields_Table) is
-   begin
-      KV.Clear (Data.Data);
-   end Clear;
 
    --------------
    -- Filename --
@@ -235,9 +209,76 @@ package body AWS.Log is
    begin
       SN.Insert
         (Log.Extended_Fields,
-         Id, Natural (SN.Length (Log.Extended_Fields)) + 1,
-         Dummy, Success);
+         Id, Natural (SN.Length (Log.Extended_Fields)) + 1, Dummy, Success);
    end Register_Field;
+
+   ---------------
+   -- Set_Field --
+   ---------------
+
+   procedure Set_Field
+     (Log : in Object; Data : in out Fields_Table; Id, Value : in String)
+   is
+      Ext_Len  : constant Natural := Natural (SN.Length (Log.Extended_Fields));
+      Data_Len : constant Natural := Natural (SV.Length (Data.Values));
+   begin
+      if Ext_Len = 0 then
+         return;
+      end if;
+
+      if Data_Len = 0 then
+         --  Fields record is not initialized. We have to define fields set
+         --  with empty "-" values.
+
+         for J in 1 .. Ext_Len loop
+            SV.Append (Data.Values, "-");
+         end loop;
+
+      elsif Data_Len /= Ext_Len then
+         --  Looks like the record was used with different log file.
+
+         raise Constraint_Error;
+      end if;
+
+      declare
+         CSN : constant SN.Cursor := SN.Find (Log.Extended_Fields, Id);
+      begin
+         if Value /= "" and then SN.Has_Element (CSN) then
+            SV.Replace_Element (Data.Values, SN.Element (CSN), Value);
+         end if;
+      end;
+   end Set_Field;
+
+   -----------------------
+   -- Set_Header_Fields --
+   -----------------------
+
+   procedure Set_Header_Fields
+     (Log    : in     Object;
+      Data   : in out Fields_Table;
+      Prefix : in     String;
+      Header : in     AWS.Headers.List)
+   is
+      procedure Process (Name, Value : in String);
+
+      -------------
+      -- Process --
+      -------------
+
+      procedure Process (Name, Value : in String) is
+      begin
+         Set_Field
+           (Log, Data, Prefix & '(' & Name & ')',
+            AWS.Utils.Quote (Value, """"""));
+      end Process;
+
+      procedure Each_Header_Field is
+        new Containers.Tables.Generic_Iterate_Names (Process);
+
+   begin
+      Each_Header_Field
+        (Containers.Tables.Table_Type (Header), Coupler => ", ");
+   end Set_Header_Fields;
 
    -----------
    -- Start --
@@ -386,15 +427,28 @@ package body AWS.Log is
    --  #Fields: time cs-method cs-uri
    --  00:34:23 GET /foo/bar.html
 
-   procedure Write (Log  : in out Object; Data : in Fields_Table) is
+   procedure Write (Log  : in out Object; Data : in out Fields_Table) is
       use GNAT.Calendar.Time_IO;
 
       Length : constant Natural := Natural (SN.Length (Log.Extended_Fields));
-      Order  : array (1 .. Length) of KV.Cursor;
       Now    : Ada.Calendar.Time;
+      First_Field : Boolean := True;
 
-      C : KV.Cursor := KV.First (Data.Data);
-      S : SN.Cursor;
+      procedure Write_And_Clear (Position : SV.Cursor);
+
+      procedure Write_And_Clear (Position : SV.Cursor) is
+      begin
+         if First_Field then
+            First_Field := False;
+            Text_IO.Put (Log.File, SV.Element (Position));
+         else
+            Text_IO.Put (Log.File, ' ' & SV.Element (Position));
+         end if;
+         SV.Replace_Element (Position, "-");
+      end Write_And_Clear;
+
+      procedure Write_And_Clear_Record is
+         new SV.Generic_Iteration (Write_And_Clear);
 
    begin
       if Length = 0 then
@@ -405,16 +459,6 @@ package body AWS.Log is
       Log.Semaphore.Seize;
 
       if Text_IO.Is_Open (Log.File) then
-         while KV.Has_Element (C) loop
-            S := SN.Find (Log.Extended_Fields, KV.Element (C));
-
-            if SN.Has_Element (S) then
-               Order (SN.Element (S)) := C;
-            end if;
-
-            C := KV.Next (C);
-         end loop;
-
          Now := Ada.Calendar.Clock;
 
          Check_Split (Log, Now);
@@ -429,26 +473,58 @@ package body AWS.Log is
               (Log.File, "#Date: " & Image (Now, ISO_Date & " %T"));
             Text_IO.Put (Log.File, "#Fields:");
 
-            for J in Order'Range loop
-               Text_IO.Put (Log.File, ' ' & KV.Key (Order (J)));
-            end loop;
+            declare
+               Order  : array (1 .. Length) of SN.Cursor;
 
-            Text_IO.New_Line (Log.File);
+               procedure Process (Position : SN.Cursor);
+               pragma Inline (Process);
+
+               procedure Process (Position : SN.Cursor) is
+               begin
+                  Order (SN.Element (Position)) := Position;
+               end Process;
+
+               procedure Set_Order is new SN.Generic_Iteration (Process);
+
+            begin
+               Set_Order (Log.Extended_Fields);
+
+               for J in Order'Range loop
+                  Text_IO.Put (Log.File, ' ' & SN.Key (Order (J)));
+               end loop;
+
+               Text_IO.New_Line (Log.File);
+            end;
          end if;
 
-         for J in Order'Range loop
-            if KV.Has_Element (Order (J)) then
-               Text_IO.Put (Log.File, KV.Element (Order (J)));
-            else
-               Text_IO.Put (Log.File, '-');
+         --  Set date and time fields if the used does not fill it
+
+         declare
+            CSN : SN.Cursor := SN.Find (Log.Extended_Fields, "date");
+            P   : Positive;
+         begin
+            if SN.Has_Element (CSN) then
+               P := SN.Element (CSN);
+
+               if SV.Element (Data.Values, P) = "-" then
+                  SV.Replace_Element (Data.Values, P, Image (Now, ISO_Date));
+               end if;
             end if;
 
-            if J = Order'Last then
-               Text_IO.New_Line;
-            else
-               Text_IO.Put (Log.File, ' ');
+            CSN := SN.Find (Log.Extended_Fields, "time");
+
+            if SN.Has_Element (CSN) then
+               P := SN.Element (CSN);
+
+               if SV.Element (Data.Values, P) = "-" then
+                  SV.Replace_Element (Data.Values, P, Image (Now, "%T"));
+               end if;
             end if;
-         end loop;
+         end;
+
+         Write_And_Clear_Record (Data.Values);
+
+         Text_IO.New_Line (Log.File);
 
          if Log.Auto_Flush then
             Text_IO.Flush (Log.File);
