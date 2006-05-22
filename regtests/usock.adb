@@ -309,6 +309,15 @@ package body USock is
    end Peer_Port;
 
    --------------
+   -- Get_Addr --
+   --------------
+
+   function Get_Addr (Socket : in U_Socket) return String is
+   begin
+      return "here";
+   end Get_Addr;
+
+   --------------
    -- Get_Port --
    --------------
 

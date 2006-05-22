@@ -104,6 +104,9 @@ package AWS.Net.Std is
    function Peer_Port (Socket : in Socket_Type) return Positive;
    --  Returns the port of the peer socket
 
+   function Get_Addr (Socket : in Socket_Type) return String;
+   --  Returns the name/address of the socket
+
    function Get_Port (Socket : in Socket_Type) return Positive;
    --  Returns the port of the socket
 

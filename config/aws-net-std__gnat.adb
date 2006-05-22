@@ -314,6 +314,19 @@ package body AWS.Net.Std is
       Free (Socket.S);
    end Free;
 
+   --------------
+   -- Get_Addr --
+   --------------
+
+   function Get_Addr (Socket : in Socket_Type) return String is
+      use Sockets;
+   begin
+      return Image (Get_Socket_Name (Socket.S.FD).Addr);
+   exception
+      when E : Sockets.Socket_Error =>
+         Raise_Exception (E, "Get_Addr", Socket);
+   end Get_Addr;
+
    ------------
    -- Get_FD --
    ------------

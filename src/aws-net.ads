@@ -184,6 +184,9 @@ package AWS.Net is
    function Peer_Port (Socket : in Socket_Type) return Positive is abstract;
    --  Returns the port of the peer socket
 
+   function Get_Addr (Socket : in Socket_Type) return String is abstract;
+   --  Returns the name/address of the socket
+
    function Get_Port (Socket : in Socket_Type) return Positive is abstract;
    --  Returns the port of the socket
 

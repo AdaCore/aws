@@ -84,6 +84,8 @@ package USock is
 
    function Peer_Port (Socket : in U_Socket) return Positive;
 
+   function Get_Addr (Socket : in U_Socket) return String;
+
    function Get_Port (Socket : in U_Socket) return Positive;
 
    procedure Set_Send_Buffer_Size
