@@ -1359,7 +1359,72 @@ package body AWS.Server.HTTP_Utils is
          Net.Buffered.Flush (Sock);
       end if;
 
-      AWS.Log.Write (HTTP_Server.Log, C_Stat, Status, Integer (Length));
+      if CNF.Log_Extended_Fields_Length (HTTP_Server.Properties) > 0 then
+         declare
+            use type Strings.Maps.Character_Set;
+
+            Fields : AWS.Log.Fields_Table := Get_Log_Data;
+
+         begin
+            AWS.Log.Set_Header_Fields
+              (HTTP_Server.Log, Fields, "cs", AWS.Status.Header (C_Stat));
+            AWS.Log.Set_Header_Fields
+              (HTTP_Server.Log, Fields, "sc", Response.Header (Answer));
+            AWS.Log.Set_Field
+              (HTTP_Server.Log, Fields, "c-ip", Net.Peer_Addr (Sock));
+            AWS.Log.Set_Field
+              (HTTP_Server.Log, Fields, "c-port",
+               AWS.Utils.Image (Net.Peer_Port (Sock)));
+            AWS.Log.Set_Field
+              (HTTP_Server.Log, Fields, "s-ip", Net.Get_Addr (Sock));
+            AWS.Log.Set_Field
+              (HTTP_Server.Log, Fields, "s-port",
+               AWS.Utils.Image (Net.Get_Port (Sock)));
+            AWS.Log.Set_Field
+              (HTTP_Server.Log, Fields, "c-method",
+               AWS.Status.Request_Method'Image (AWS.Status.Method (C_Stat)));
+            AWS.Log.Set_Field
+              (HTTP_Server.Log, Fields, "c-username",
+               AWS.Status.Authorization_Name (C_Stat));
+
+            declare
+               use AWS.URL;
+
+               URI : Object := AWS.Status.URI (C_Stat);
+
+               Encoding : constant Strings.Maps.Character_Set
+                 := Strings.Maps.To_Set
+                     (Span => (Low  => Character'Val (128),
+                               High => Character'Last))
+                      or
+                    Strings.Maps.To_Set ("+"" ");
+            begin
+               AWS.Log.Set_Field
+                 (HTTP_Server.Log, Fields, "c-uri-stem",
+                  Encode (Pathname (URI), Encoding));
+               AWS.Log.Set_Field
+                 (HTTP_Server.Log, Fields, "c-uri-query",
+                  Encode (Parameters (URI), Encoding));
+               AWS.Log.Set_Field
+                 (HTTP_Server.Log, Fields, "c-uri",
+                  Encode (Pathname_And_Parameters (URI), Encoding));
+            end;
+
+            AWS.Log.Set_Field
+              (HTTP_Server.Log, Fields, "c-version",
+               AWS.Status.HTTP_Version (C_Stat));
+            AWS.Log.Set_Field
+              (HTTP_Server.Log, Fields, "s-status", Messages.Image (Status));
+            AWS.Log.Set_Field
+              (HTTP_Server.Log, Fields, "s-bytes",
+               AWS.Utils.Image (Integer (Length)));
+
+            AWS.Log.Write (HTTP_Server.Log, Fields);
+         end;
+      else
+         AWS.Log.Write (HTTP_Server.Log, C_Stat, Status, Integer (Length));
+      end if;
+
    end Send;
 
    -------------------
