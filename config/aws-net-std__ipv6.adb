@@ -77,6 +77,9 @@ package body AWS.Net.Std is
    pragma No_Return (Raise_Socket_Error);
    --  Log socket error and raise exception
 
+   function Image (Sin6 : in Sockaddr_In6) return String;
+   --  Returns image of the socket address
+
    function Error_Message (Error : in Integer) return String;
 
    function Get_Addr_Info
@@ -309,6 +312,25 @@ package body AWS.Net.Std is
       Free (Socket.S);
    end Free;
 
+   --------------
+   -- Get_Addr --
+   --------------
+
+   function Get_Addr (Socket : in Socket_Type) return String is
+      use GNAT.Sockets.Thin;
+      use type Interfaces.C.int;
+
+      Name : aliased Sockaddr_In6;
+      Len  : aliased Interfaces.C.int := Name'Size / 8;
+
+   begin
+      if C_Getsockname (Socket.S.FD, Name'Address, Len'Access) = Failure then
+         Raise_Socket_Error (Errno, Socket);
+      end if;
+
+      return Image (Name);
+   end Get_Addr;
+
    -------------------
    -- Get_Addr_Info --
    -------------------
@@ -449,52 +471,24 @@ package body AWS.Net.Std is
       return Sockets.Host_Name;
    end Host_Name;
 
-   ------------
-   -- Listen --
-   ------------
+   -----------
+   -- Image --
+   -----------
 
-   procedure Listen
-     (Socket     : in Socket_Type;
-      Queue_Size : in Positive := 5)
-   is
+   function Image (Sin6 : in Sockaddr_In6) return String  is
       use Sockets;
-      use type C.int;
-   begin
-      if Thin.C_Listen (Socket.S.FD, C.int (Queue_Size))
-         = Thin.Failure
-      then
-         Raise_Socket_Error (Errno, Socket);
-      end if;
-   end Listen;
-
-   ---------------
-   -- Peer_Addr --
-   ---------------
-
-   function Peer_Addr (Socket : in Socket_Type) return String is
-      use Sockets;
-      use type C.int;
       use type C.short;
+
+      Sin  : aliased Thin.Sockaddr_In;
+      pragma Import (C, Sin);
+      for Sin'Address use Sin6'Address;
 
       type U8_2 is array (1 .. 2) of Unsigned_8;
       pragma Convention (C, U8_2);
 
       function Split is new Ada.Unchecked_Conversion (Unsigned_16, U8_2);
 
-      Sin6 : aliased Sockaddr_In6;
-      Sin  : aliased Thin.Sockaddr_In;
-      pragma Import (C, Sin);
-      for Sin'Address use Sin6'Address;
-
-      Len : aliased C.int := Sin6'Size / 8;
-
    begin
-      if Thin.C_Getpeername
-           (Socket.S.FD, Sin6'Address, Len'Access) = Thin.Failure
-      then
-         Raise_Socket_Error (Std.Errno, Socket);
-      end if;
-
       if Sin6.Family = OSD.PF_INET then
          return Utils.Image (Integer (Sin.Sin_Addr.S_B1))
             & '.' & Utils.Image (Integer (Sin.Sin_Addr.S_B2))
@@ -555,6 +549,47 @@ package body AWS.Net.Std is
       else
          return "unknown protocol family" & C.short'Image (Sin6.Family);
       end if;
+
+   end Image;
+
+   ------------
+   -- Listen --
+   ------------
+
+   procedure Listen
+     (Socket     : in Socket_Type;
+      Queue_Size : in Positive := 5)
+   is
+      use Sockets;
+      use type C.int;
+   begin
+      if Thin.C_Listen (Socket.S.FD, C.int (Queue_Size))
+         = Thin.Failure
+      then
+         Raise_Socket_Error (Errno, Socket);
+      end if;
+   end Listen;
+
+   ---------------
+   -- Peer_Addr --
+   ---------------
+
+   function Peer_Addr (Socket : in Socket_Type) return String is
+      use Sockets;
+      use type C.int;
+
+      Sin6 : aliased Sockaddr_In6;
+      Len  : aliased C.int := Sin6'Size / 8;
+
+   begin
+      if Thin.C_Getpeername
+           (Socket.S.FD, Sin6'Address, Len'Access) = Thin.Failure
+      then
+         Raise_Socket_Error (Std.Errno, Socket);
+      end if;
+
+      return Image (Sin6);
+
    end Peer_Addr;
 
    ---------------
