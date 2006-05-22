@@ -114,6 +114,9 @@ package AWS.Config.Set is
    --  This is split mode for the log file. Possible values are : Each_Run,
    --  Daily, Monthly and None. Any other values will raise an exception.
 
+   procedure Log_Extended_Fields (O : in out Object; Value : in String);
+   --  Space separated list of the extended log field names.
+
    procedure Error_Log_Filename_Prefix (O : in out Object; Value : in String);
    --  This is the prefix to use for the log filename.
 

@@ -249,6 +249,15 @@ package body AWS.Config.Set is
       O.P (Line_Stack_Size).Pos_Value := Value;
    end Line_Stack_Size;
 
+   -------------------------
+   -- Log_Extended_Fields --
+   -------------------------
+
+   procedure Log_Extended_Fields (O : in out Object; Value : in String) is
+   begin
+      Utils.Parse_Strings (O.P (Log_Extended_Fields).Strs_Value, Value);
+   end Log_Extended_Fields;
+
    ------------------------
    -- Log_File_Directory --
    ------------------------
