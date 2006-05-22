@@ -104,6 +104,13 @@ package AWS.Containers.Tables is
       return VString_Array;
    --  Returns all values for the specified parameter key name.
 
+   generic
+      with procedure Process (Name, Value : in String);
+   procedure Generic_Iterate_Names
+     (Table : in Table_Type; Coupler : in String);
+   --  Iterates over all names in the table.
+   --  All Values of the same name would be given Coupler separated.
+
 private
 
    Null_Element : constant Element := (0, 0, "", "");

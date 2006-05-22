@@ -98,6 +98,56 @@ package body AWS.Containers.Tables is
         (Normalize_Name (Name, not Table.Case_Sensitive), Table.Index);
    end Exist;
 
+   ---------------------------
+   -- Generic_Iterate_Names --
+   ---------------------------
+
+   procedure Generic_Iterate_Names
+     (Table : in Table_Type; Coupler : in String)
+   is
+      use type AI302.Containers.Count_Type;
+
+      CN : Index_Table.Cursor;
+      NI : Name_Indexes.Vector;
+
+      Idx : Positive;
+
+   begin
+      CN := Index_Table.First (Table.Index);
+
+      while Index_Table.Has_Element (CN) loop
+         NI := Index_Table.Element (CN);
+
+         Idx := Positive (Name_Indexes.Element (NI, 1));
+
+         if Name_Indexes.Length (NI) = 1 then
+            Process
+              (Data_Table.Element (Table.Data, Idx).Name,
+               Data_Table.Element (Table.Data, Idx).Value);
+         else
+            declare
+               Value : Unbounded_String;
+            begin
+               for J in 1 .. Positive (Name_Indexes.Length (NI)) loop
+                  Idx := Positive (Name_Indexes.Element (NI, J));
+
+                  Append (Value, Data_Table.Element (Table.Data, Idx).Value);
+
+                  if J < Positive (Name_Indexes.Length (NI)) then
+                     Append (Value, Coupler);
+                  end if;
+               end loop;
+
+               Process
+                 (Data_Table.Element (Table.Data, Idx).Name,
+                  To_String (Value));
+            end;
+         end if;
+
+         CN := Index_Table.Next (CN);
+      end loop;
+   end Generic_Iterate_Names;
+
    ---------
    -- Get --
    ---------
