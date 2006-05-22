@@ -183,6 +183,10 @@ package AWS.Server is
    --  Give the socket back to the server. Socket must have been taken from
    --  the server using the Response.Socket_Taken routine in a callback.
 
+   procedure Set_Field (Id, Value : in String);
+   --  Set the extended log field value for the server the controlling the
+   --  current task.
+
 private
 
    procedure Default_Unexpected_Exception_Handler
@@ -194,6 +198,9 @@ private
 
    procedure Socket_Taken (Flag : in Boolean);
    --  Mark socket of the cureent line of the current server taken
+
+   function Get_Log_Data return AWS.Log.Fields_Table;
+   --  Returns the extended fields table.
 
    ------------
    -- Phases --
