@@ -82,7 +82,8 @@ begin
    --  waiting for a request.
 
    Line_Attribute.Set_Value
-     ((HTTP_Server.Self, Index, C_Stat'Unchecked_Access));
+     ((HTTP_Server.Self, Index, C_Stat'Unchecked_Access,
+       AWS.Log.Empty_Fields_Table));
 
    For_Every_Request : loop
 
