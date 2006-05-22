@@ -46,6 +46,7 @@ with AWS.Net;
 with AWS.Net.Buffered;
 with AWS.OS_Lib;
 with AWS.Resources.Streams.Memory;
+with AWS.Parameters;
 with AWS.Session;
 with AWS.Server.Get_Status;
 with AWS.Status.Set;
@@ -1390,24 +1391,25 @@ package body AWS.Server.HTTP_Utils is
             declare
                use AWS.URL;
 
-               URI : Object := AWS.Status.URI (C_Stat);
-
                Encoding : constant Strings.Maps.Character_Set
                  := Strings.Maps.To_Set
                      (Span => (Low  => Character'Val (128),
                                High => Character'Last))
                       or
                     Strings.Maps.To_Set ("+"" ");
+
+               URI : constant String
+                  := Encode (AWS.Status.URI (C_Stat), Encoding);
+
+               Query : constant String
+                 := AWS.Parameters.URI_Format (AWS.Status.Parameters (C_Stat));
+
             begin
+               AWS.Log.Set_Field (HTTP_Server.Log, Fields, "c-uri-stem", URI);
                AWS.Log.Set_Field
-                 (HTTP_Server.Log, Fields, "c-uri-stem",
-                  Encode (Pathname (URI), Encoding));
+                 (HTTP_Server.Log, Fields, "c-uri-query", Query);
                AWS.Log.Set_Field
-                 (HTTP_Server.Log, Fields, "c-uri-query",
-                  Encode (Parameters (URI), Encoding));
-               AWS.Log.Set_Field
-                 (HTTP_Server.Log, Fields, "c-uri",
-                  Encode (Pathname_And_Parameters (URI), Encoding));
+                 (HTTP_Server.Log, Fields, "c-uri", URI & Query);
             end;
 
             AWS.Log.Set_Field
