@@ -257,6 +257,26 @@ package body AWS.Config is
       return O.P (Line_Stack_Size).Pos_Value;
    end Line_Stack_Size;
 
+   -----------------------------------------
+   -- Log_Extended_Fields_Generic_Iterate --
+   -----------------------------------------
+
+   procedure Log_Extended_Fields_Generic_Iterate (O : in Object) is
+   begin
+      for J in 1 .. Log_Extended_Fields_Length (O) loop
+         Field_Id (SV.Element (O.P (Log_Extended_Fields).Strs_Value, J));
+      end loop;
+   end Log_Extended_Fields_Generic_Iterate;
+
+   --------------------------------
+   -- Log_Extended_Fields_Length --
+   --------------------------------
+
+   function Log_Extended_Fields_Length (O : in Object) return Natural is
+   begin
+      return Natural (SV.Length (O.P (Log_Extended_Fields).Strs_Value));
+   end Log_Extended_Fields_Length;
+
    ------------------------
    -- Log_File_Directory --
    ------------------------

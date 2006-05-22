@@ -149,6 +149,16 @@ package AWS.Config is
    --  This is split mode for the log file. Possible values are : Each_Run,
    --  Daily, Monthly and None. Any other values will raise an exception.
 
+   generic
+      with procedure Field_Id (Id : in String);
+   procedure Log_Extended_Fields_Generic_Iterate (O : in Object);
+   --  Calls procedure Field_Id for each extended http log field identifier.
+
+   function Log_Extended_Fields_Length (O : in Object) return Natural;
+   pragma Inline (Log_Extended_Fields_Length);
+   --  Returns the number of extended http log fileds identifiers.
+   --  If returned value is zero then http log is not extended.
+
    function Error_Log_Filename_Prefix (O : in Object) return String;
    pragma Inline (Error_Log_Filename_Prefix);
    --  This is the prefix to use for the log filename.
