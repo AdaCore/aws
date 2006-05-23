@@ -1371,22 +1371,28 @@ package body AWS.Server.HTTP_Utils is
               (HTTP_Server.Log, Fields, "cs", AWS.Status.Header (C_Stat));
             AWS.Log.Set_Header_Fields
               (HTTP_Server.Log, Fields, "sc", Response.Header (Answer));
+
             AWS.Log.Set_Field
               (HTTP_Server.Log, Fields, "c-ip", Net.Peer_Addr (Sock));
             AWS.Log.Set_Field
               (HTTP_Server.Log, Fields, "c-port",
                AWS.Utils.Image (Net.Peer_Port (Sock)));
+
             AWS.Log.Set_Field
               (HTTP_Server.Log, Fields, "s-ip", Net.Get_Addr (Sock));
             AWS.Log.Set_Field
               (HTTP_Server.Log, Fields, "s-port",
                AWS.Utils.Image (Net.Get_Port (Sock)));
+
             AWS.Log.Set_Field
-              (HTTP_Server.Log, Fields, "c-method",
+              (HTTP_Server.Log, Fields, "cs-method",
                AWS.Status.Request_Method'Image (AWS.Status.Method (C_Stat)));
             AWS.Log.Set_Field
-              (HTTP_Server.Log, Fields, "c-username",
+              (HTTP_Server.Log, Fields, "cs-username",
                AWS.Status.Authorization_Name (C_Stat));
+            AWS.Log.Set_Field
+              (HTTP_Server.Log, Fields, "cs-version",
+               AWS.Status.HTTP_Version (C_Stat));
 
             declare
                use AWS.URL;
@@ -1405,20 +1411,17 @@ package body AWS.Server.HTTP_Utils is
                  := AWS.Parameters.URI_Format (AWS.Status.Parameters (C_Stat));
 
             begin
-               AWS.Log.Set_Field (HTTP_Server.Log, Fields, "c-uri-stem", URI);
+               AWS.Log.Set_Field (HTTP_Server.Log, Fields, "cs-uri-stem", URI);
                AWS.Log.Set_Field
-                 (HTTP_Server.Log, Fields, "c-uri-query", Query);
+                 (HTTP_Server.Log, Fields, "cs-uri-query", Query);
                AWS.Log.Set_Field
-                 (HTTP_Server.Log, Fields, "c-uri", URI & Query);
+                 (HTTP_Server.Log, Fields, "cs-uri", URI & Query);
             end;
 
             AWS.Log.Set_Field
-              (HTTP_Server.Log, Fields, "c-version",
-               AWS.Status.HTTP_Version (C_Stat));
+              (HTTP_Server.Log, Fields, "sc-status", Messages.Image (Status));
             AWS.Log.Set_Field
-              (HTTP_Server.Log, Fields, "s-status", Messages.Image (Status));
-            AWS.Log.Set_Field
-              (HTTP_Server.Log, Fields, "s-bytes",
+              (HTTP_Server.Log, Fields, "sc-bytes",
                AWS.Utils.Image (Integer (Length)));
 
             AWS.Log.Write (HTTP_Server.Log, Fields);
