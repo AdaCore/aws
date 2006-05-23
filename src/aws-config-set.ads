@@ -115,7 +115,38 @@ package AWS.Config.Set is
    --  Daily, Monthly and None. Any other values will raise an exception.
 
    procedure Log_Extended_Fields (O : in out Object; Value : in String);
-   --  Space separated list of the extended log field names.
+   --  Comma separated list of the extended log field names. If this parameter
+   --  is empty, the HTTP log would have fixed apache compartible format:
+   --
+   --  127.0.0.1 - - [25/Apr/1998:15:37:29 +0200] "GET / HTTP/1.0" 200 1363
+   --
+   --  If the extended fields list is not empty, the log file format would have
+   --  user defined fields set:
+   --
+   --  #Version: 1.0
+   --  #Date: 2006-01-09 00:00:01
+   --  #Fields: date time cs-method cs-uri cs-version sc-status sc-bytes
+   --  2006-01-09 00:34:23 GET /foo/bar.html HTTP/1.1 200 30
+   --
+   --  Fields in the list could be:
+   --
+   --  date         Date at which transaction completed
+   --  time         Time at which transaction completed
+   --  c-ip         Client side connected IP address
+   --  c-port       Client side connected port
+   --  s-ip         Server side connected IP address
+   --  s-port       Server side connected port
+   --  cs-method    HTTP request method
+   --  cs-username  Client authentication username
+   --  cs-version   Client supported HTTP version
+   --  cs-uri       Request URI
+   --  cs-uri-stem  Stem portion alone of URI (omitting query)
+   --  cs-uri-query Query portion alone of URI
+   --  sc-status    Responce status code
+   --  sc-bytes     Length of response message body
+   --  cs(<header>) Any header field name sent from client to server
+   --  sc(<header>) Any header field name sent from server to client
+   --  x-<appfield> Any application defined field name
 
    procedure Error_Log_Filename_Prefix (O : in out Object; Value : in String);
    --  This is the prefix to use for the log filename.
