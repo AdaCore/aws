@@ -2,7 +2,7 @@
 --                              Ada Web Server                              --
 --                                                                          --
 --                         Copyright (C) 2004-2006                          --
---                                ACT-Europe                                --
+--                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -56,7 +56,7 @@ package AWS.Net.Log is
 
    type Error_Callback is access procedure
      (Socket : in Socket_Type'Class; Message : in String);
-   --  The callback procedure which is called for every socket error.
+   --  The callback procedure which is called for every socket error
 
    procedure Start
      (Write : in Write_Callback;
