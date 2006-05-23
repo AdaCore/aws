@@ -34,6 +34,6 @@ procedure TLog is
 begin
    TLog_Proc ("");
    TLog_Proc
-     ("c-ip, s-ip, c-username, date, time, c-method, c-uri-stem, c-version,"
-      & " s-status, s-bytes, x-counter");
+     ("c-ip, s-ip, cs-username, date, time, cs-method, cs-uri-stem, "
+      & "cs-version, sc-status, sc-bytes, x-counter");
 end TLog;
