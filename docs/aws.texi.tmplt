@@ -248,8 +248,8 @@ On UNIX you must use the socket binding from ENST @*
 @item a POSIX binding - Interface to the underlying OS services (@b{optional}) ;
 @cindex POSIX
 
-On Windows you can use the one distributed at: 
-@url{http://www.obry.net/archive/w32posix}. On UNIX look for the 
+On Windows you can use the one distributed at:
+@url{http://www.obry.net/archive/w32posix}. On UNIX look for the
 Florist package at @url{http://www.cs.fsu.edu/~baker/florist.html}.
 
 @item OpenSSL (@b{optional}) ;
@@ -263,7 +263,7 @@ distribution from @url{http://www.openssl.org} and build it.
 @item OpenLDAP (@b{optional}) ;
 @cindex OpenLDAP
 
-OpenLDAP is an Open Source toolkit implementing the 
+OpenLDAP is an Open Source toolkit implementing the
 @i{Lightweight Directory Access Protocol}.
 If you want to use the @code{AWS/LDAP} API
 on UNIX based systems, you need to install properly the @code{OpenLDAP}
@@ -307,7 +307,7 @@ available on @url{http://www.obry.net/contrib}.
 
 @item Win32 implementation (not anymore supported)
 
-Version for Win32 should be usable by any Ada compiler for Windows 
+Version for Win32 should be usable by any Ada compiler for Windows
 95/98/NT/2000/XP.
 
 @AWSEXP {$ make win32_oslib}
@@ -329,7 +329,7 @@ different implementation of this package:
 @item GNAT implementation
 
 Version based on @code{GNAT.Sockets}, is @code{GNAT} dependent and will
-run on whatever OS @code{GNAT} has be ported to. This is the 
+run on whatever OS @code{GNAT} has be ported to. This is the
 @b{default implementation} used. To select this implementation just do:
 
 @AWSEXP {$ make gnatsockets}
@@ -489,7 +489,7 @@ A static Web page server and push enabled server.
 
 @item wps
 
-A very simple static Web page server based on @code{AWS.Services.Page_Server}. 
+A very simple static Web page server based on @code{AWS.Services.Page_Server}.
 @pxref{Static Page server}.
 
 @item zdemo
@@ -527,7 +527,7 @@ procedure of the above server.
 
 @noindent
 In each case you'll certainly have to edit the makefile to correctly set
-the include path for the libraries @code{POSIX}, @code{OpenSSL}, 
+the include path for the libraries @code{POSIX}, @code{OpenSSL},
 @code{Socket} and @code{XML/Ada}. For more information, look at the makefiles.
 
 @c ----------------------------------------------------------------------
@@ -846,7 +846,7 @@ The callback procedure has the following prototype:
 
 @noindent
 This procedure receive the request status. It is possible to retrieve
-information about the request through the @code{AWS.Status} API 
+information about the request through the @code{AWS.Status} API
 (@xref{AWS.Status}.).
 
 @noindent
@@ -917,7 +917,7 @@ internal resource and return the right response.
 
 @noindent
 Let's have a small example. For example we want to build a Web server
-that will answer ``Hello World'' if we ask for the internal resource 
+that will answer ``Hello World'' if we ask for the internal resource
 @b{/hello}, and must answer ``Hum...'' otherwise.
 
 @cindex Hello world
@@ -930,7 +930,7 @@ that will answer ``Hello World'' if we ask for the internal resource
    WS : AWS.Server.HTTP;
 
    @b{function} HW_CB (Request : @b{in} AWS.Status.Data)
-     @b{return} AWS.Response.Data 
+     @b{return} AWS.Response.Data
    @b{is}
       URI : @b{constant} String := Status.URI (Request);
    @b{begin}
@@ -988,7 +988,7 @@ Form parameters are stored into a table of key/value pair. The key is the form
 input tag name and the value is the content of the input field as filled by
 the user.
 
-@AWSEXP {Enter your name 
+@AWSEXP {Enter your name
 
 <FORM METHOD=GET ACTION=/get-form>"
 <INPUT TYPE=TEXT NAME=name VALUE="<default>" size=15>
@@ -1015,7 +1015,7 @@ The value is "Ok".
 There is many functions (in @code{AWS.Parameters}) to retrieve the tag name
 or value and the number of parameters. Here are some examples:
 
-@AWSEXP {@b{function} Service (Request : @b{in} AWS.Status.Data) 
+@AWSEXP {@b{function} Service (Request : @b{in} AWS.Status.Data)
   @b{return} AWS.Response.Data
 @b{is}
    P : @b{constant} AWS.Parameters.List := AWS.Status.Parameters (Request);
@@ -1482,7 +1482,7 @@ is a timeout for urgent request when resources are missing. The default is
 
 @item Force_Server_Response_Timeout (duration)
 @cindex Force_Server_Response_Timeout
-Number of seconds to timeout on waiting for client to accept answer. This 
+Number of seconds to timeout on waiting for client to accept answer. This
 is a timeout for urgent request when resources are missing. The default is
 @_FT_SERVER_RESPONSE_@ seconds.
 
@@ -1741,7 +1741,7 @@ needed.
    User : @b{constant} String := Status.Authorization_Name (Request);
 @b{begin}
    @i{--  URI starting with "/prot/" are protected}
-   @b{if} URI (URI'First .. URI'First + 5) = "/prot/" 
+   @b{if} URI (URI'First .. URI'First + 5) = "/prot/"
      @b{and then} User = ""
    @b{then}
       @b{return} Response.Authenticate ("AWS", Response.Basic);}
@@ -1756,9 +1756,9 @@ When an authentication as been done the callback's request data
 contain the user and password. Checks the values against an ACL for
 each protected resources.
 
-@AWSEXP {@b{function} Protected_Service 
-  (Request : @b{in} AWS.Status.Data) 
-   @b{return} AWS.Response.Data 
+@AWSEXP {@b{function} Protected_Service
+  (Request : @b{in} AWS.Status.Data)
+   @b{return} AWS.Response.Data
 @b{is}
    User : @b{constant} String := Status.Authorization_Name (Request);
    Pwd  : @b{constant} String := Status.Authorization_Password (Request);
@@ -1900,7 +1900,7 @@ server. This context will be passed back to the callback procedure.
 
 @*
 
-@AWSEXP {A complete example can be found in the demos directory. Look for 
+@AWSEXP {A complete example can be found in the demos directory. Look for
 @file{com_1.adb} and @file{com_2.adb}.}
 
 @noindent
@@ -1916,7 +1916,7 @@ Note that this communication API is used by the Hotplug module facility
 @noindent
 An @b{Hotplug module} is a module that can by dynamically binded to a
 running server. It is a Web server and the development process is very
-similar to what we have seen until now @xref{Building an AWS server}. 
+similar to what we have seen until now @xref{Building an AWS server}.
 The Hotplug module will register itself into a Web server by
 sending a message using the communication API. The Hotplug module send
 to the server a regular expression and an URL. The main server will
@@ -2011,7 +2011,7 @@ used alone if needed as any Server developed with AWS.
 @noindent
 The hotplug module @code{Hotplug_Module_Demo} must have been declared
 on the main server, the password and redirection must have been
-properly recorded too for security reasons 
+properly recorded too for security reasons
 @pxref{Hotplug module - server activation}.
 This command register @code{Hotplug_Module_Demo} into the server running
 on the machine @code{dieppe} and ask it to redirect all @code{URL}
@@ -2032,7 +2032,7 @@ be specified @pxref{Hotplug module - server activation}.
 
 @end enumerate
 
-@AWSEXP {A complete example can be found in the demos directory. Look for 
+@AWSEXP {A complete example can be found in the demos directory. Look for
 @file{main.adb} and @file{hotplug.adb}.}
 
 @c ----------------------------------------------------------------------
@@ -2161,7 +2161,7 @@ from the callback function. At this point the server will continue to
 serve other clients.
 
 @noindent
-Note that this feature is used by the server push implementation 
+Note that this feature is used by the server push implementation
 @pxref{Server Push}.
 
 @item Give back the socket to the server
@@ -2209,7 +2209,7 @@ For example:
 
 @noindent
 @code{AWS} also support error log files. If activated every internal error
-detected by @code{AWS} will gets logged into this special file. See 
+detected by @code{AWS} will gets logged into this special file. See
 @code{AWS.Server.Log.Start_Error} and
 @code{AWS.Server.Log.Stop_Error}.
 
@@ -2352,7 +2352,7 @@ handler. The server will continue working unless it was the last slot handler
 available. Note that a Fatal error means an @code{AWS} internal bug
 and it should be reported if possible. In this mode there is no way to
 send back an answer to the client's browser and @var{Error} value must
-be ignored. 
+be ignored.
 
 @end table
 
@@ -3038,7 +3038,7 @@ alias @code{/we_js/<script>}. So users must provide the right alias
 @end menu
 
 @noindent
-First of all, @code{Ajax} stand for 
+First of all, @code{Ajax} stand for
 @i{Asynchronous JavaScript language and XML}, and is not well defined
 at the moment. @code{Ajax} is on one side able to send HTTP requests
 to the Web server and on the other side able to manipulate directly the Web
@@ -3527,7 +3527,7 @@ instructions to call a @code{SOAP} Web Service:
 As for the @code{SOAP} servers, the @code{SOAP} parameters are built using a
 @code{SOAP.Parameters.List} object.
 
-@AWSEXP {Params : @b{constant} Parameters.List 
+@AWSEXP {Params : @b{constant} Parameters.List
   := +I (10, "v1") & I (32, "v2");}
 
 @item Build the @code{SOAP} Payload
@@ -3602,8 +3602,8 @@ callback procedure:
 The @code{SOAP} Payload is the @code{XML} message, it contains the
 procedure name to be called and the associated parameters.
 
-@AWSEXP {@b{function} SOAP_CB (Request : @b{in} AWS.Status.Data) 
-  @b{return} AWS.Response.Data 
+@AWSEXP {@b{function} SOAP_CB (Request : @b{in} AWS.Status.Data)
+  @b{return} AWS.Response.Data
 @b{is}
    @b{use} SOAP.Types;
    @b{use} SOAP.Parameters;
@@ -3629,7 +3629,7 @@ parameters. Each parameter can be retrieved using a
 @code{SOAP.Parameters} API, @pxref{SOAP.Parameters}. For example to
 get the parameter named @code{myStruc} which is a @code{SOAP} struct:
 
-@AWSEXP {My_Struct : @b{constant} SOAP_Record 
+@AWSEXP {My_Struct : @b{constant} SOAP_Record
   := SOAP.Parameters.Get (Params, "myStruct");}
 
 Another example, to get the parameter named @code{myInt} which is a
@@ -3679,7 +3679,7 @@ returns it as the body of an @code{HTTP} message.
 There is two ways to help building the @code{SOAP}
 callbacks. @code{AWS} provides a @code{SOAP} specific callback, the spec is :
 
-@AWSEXP {@b{function} SOAP_Callback 
+@AWSEXP {@b{function} SOAP_Callback
   (SOAPAction : @b{in} String;
    Payload    : @b{in} Message.Payload.Object;
    Request    : @b{in} AWS.Status.Data)
@@ -3715,11 +3715,11 @@ It is possible to dispatch to such callback by using the
 For example, from the standard HTTP callback @code{CB} we want to call
 @code{SOAP_CB} for all @code{SOAP} requests:
 
-@AWSEXP {@b{function} SOAP_CB 
+@AWSEXP {@b{function} SOAP_CB
   (SOAPAction : @b{in} String;
    Payload    : @b{in} Message.Payload.Object;
    Request    : @b{in} AWS.Status.Data)
-   @b{return} AWS.Response.Data 
+   @b{return} AWS.Response.Data
 @b{is}
 @b{begin}
    @i{--  Code here}
@@ -3727,8 +3727,8 @@ For example, from the standard HTTP callback @code{CB} we want to call
 
 @b{procedure} SOAP_Wrapper @b{is new} SOAP.Utils.SOAP_Wrapper (SOAP_CB);
 
-@b{function} CB (Request : @b{in} AWS.Status.Data) 
-  @b{return} AWS.Response.Data 
+@b{function} CB (Request : @b{in} AWS.Status.Data)
+  @b{return} AWS.Response.Data
 @b{is}
    SOAPAction : @b{constant} String := Status.SOAPAction (Request);
 @b{begin}
@@ -3749,18 +3749,18 @@ the @code{SOAP} callback otherwise it will call the standard @code{HTTP}
 callback. This is by far the easiest integration procedure. Using
 dispatcher the above code will be written:
 
-@AWSEXP {@b{function} SOAP_CB 
+@AWSEXP {@b{function} SOAP_CB
   (SOAPAction : @b{in} String;
    Payload    : @b{in} Message.Payload.Object;
    Request    : @b{in} AWS.Status.Data)
-   @b{return} AWS.Response.Data 
+   @b{return} AWS.Response.Data
 @b{is}
 @b{begin}
    @i{--  Code here}
 @b{end} SOAP_CB;
 
-@b{function} CB (Request : @b{in} AWS.Status.Data) 
-  @b{return} AWS.Response.Data 
+@b{function} CB (Request : @b{in} AWS.Status.Data)
+  @b{return} AWS.Response.Data
 @b{is}
    SOAPAction : @b{constant} String := Status.SOAPAction (Request);
 @b{begin}
@@ -3772,14 +3772,14 @@ dispatcher the above code will be written:
 @b{begin}
    AWS.Server.Start
      (WS,
-      Dispatcher => 
+      Dispatcher =>
         SOAP.Dispatchers.Callback.Create (CB'Access, SOAP_CB'Access),
-      Config     => 
+      Config     =>
         AWS.Config.Default_Config);}
 
 @noindent
 @cindex SOAP.Dispatchers.Callback
-The dispacther is created using @code{SOAP.Dispatchers.Callback.Create}. 
+The dispacther is created using @code{SOAP.Dispatchers.Callback.Create}.
 This routine takes two parameters, one is the standard HTTP
 callback procedure and the other is the @code{SOAP} callback procedure.
 @end enumerate
@@ -4197,7 +4197,7 @@ Verbose mode, display the parsed spec.
 @noindent
 This section describe how to use a Web Service. Let's say that we want
 to use the Barnes & Noble Price Quote service. The WSDL document for
-this service can be found at 
+this service can be found at
 @url{http://www.xmethods.net/sd/2001/BNQuoteService.wsdl}. In summary
 this document says that there is a service named @code{getPrice}
 taking as input a string representing the ISBN number and returning
@@ -4247,7 +4247,7 @@ functional, It is possible to build it and to run it to get the answer.
 @noindent
 Building a Web Service can also be done from a @code{WSDL} document. Let's
 say that you are Barnes & Noble and that you want to build Web Service
-@code{getPrice} as described in the previous section. 
+@code{getPrice} as described in the previous section.
 
 @noindent
 You have created the @code{WSDL} document to specify the service spec.
@@ -4256,7 +4256,7 @@ From there you can create the skeleton:
 @AWSEXP {$ wsdl2aws -nostub http://www.xmethods.net/sd/2001/BNQuoteService.wsdl}
 
 @noindent
-This will create many files, the interesting one here is 
+This will create many files, the interesting one here is
 @file{bnquoteservice-server.ads}, inside we have:
 
 @AWSEXP {Port : @b{constant} := 80;
@@ -4382,7 +4382,7 @@ generated files.
 
 @item -o name
 Specify the name of the local @code{WSDL} document. This option can be used
-only when using a Web @code{WSDL} document (i.e. passing an URL to 
+only when using a Web @code{WSDL} document (i.e. passing an URL to
 @code{wsdl2aws}).
 
 @item -doc
@@ -4573,7 +4573,7 @@ $ gnatmake server -largs ...}
 Options
 
 @table @code
-@item -cb 
+@item -cb
 is to create the @code{SOAP} dispatcher callback routine,
 
 @item -main server
@@ -4613,7 +4613,7 @@ send a simple e-mail:
 
 @item Initialize the SMTP server
 
-@AWSEXP {SMTP_Server : SMTP.Receiver 
+@AWSEXP {SMTP_Server : SMTP.Receiver
    := SMTP.Client.Initialize ("smtp.hostname");}
 
 Here @code{AWS} uses the default SMTP port to create an SMTP mail server but
@@ -4626,7 +4626,7 @@ To send an e-mail there is many different API. Let's send a simple text mail.
 
 @AWSEXP {Status : SMTP.Status;
 
-SMTP.Client.Send 
+SMTP.Client.Send
   (SMTP_Server,
    From    => SMTP.E_Mail ("Pascal Obry", "p.obry@@wanadoo.fr"),
    To      => SMTP.E_Mail ("John Doe", "john.doe@@here.com"),
@@ -5247,7 +5247,7 @@ The log file full pathname.
 @item LOG_MODE
 @cindex LOG_MODE
 
-The rotating log mode, this is either @code{NONE}, @code{DAILY}, 
+The rotating log mode, this is either @code{NONE}, @code{DAILY},
 @code{MONTHLY} or @code{EACH_RUN}.
 
 @item MAX_CONNECTION
@@ -5390,10 +5390,10 @@ Here is a list of documents used to implement @code{AWS}, the
 
 @smallexample
                      SIMPLE MAIL TRANSFER PROTOCOL
-                                    
+
                            Jonathan B. Postel
                               August 1982
-                                    
+
                      Information Sciences Institute
                    University of Southern California
                            4676 Admiralty Way
@@ -5578,17 +5578,17 @@ Expire in six months                                    Philip Karlton
 @cindex SOAP 1.1
 
 @smallexample
-Simple Object Access Protocol (SOAP) 1.1 
+Simple Object Access Protocol (SOAP) 1.1
 
 W3C Note 08 May 2000
 
-This version: 
-   http://www.w3.org/TR/2000/NOTE-SOAP-20000508 
+This version:
+   http://www.w3.org/TR/2000/NOTE-SOAP-20000508
 
-Latest version: 
-   http://www.w3.org/TR/SOAP 
+Latest version:
+   http://www.w3.org/TR/SOAP
 
-Authors (alphabetically): 
+Authors (alphabetically):
    Don Box, DevelopMentor
    David Ehnebuske, IBM
    Gopal Kakivaya, Microsoft
@@ -5596,7 +5596,7 @@ Authors (alphabetically):
    Noah Mendelsohn, Lotus Development Corp.
    Henrik Frystyk Nielsen, Microsoft
    Satish Thatte, Microsoft
-   Dave Winer, UserLand Software, Inc. 
+   Dave Winer, UserLand Software, Inc.
 
 Copyright© 2000 DevelopMentor, International Business Machines Corporation,
 Lotus Development Corporation, Microsoft, UserLand Software
