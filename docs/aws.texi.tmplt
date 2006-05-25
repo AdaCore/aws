@@ -1512,6 +1512,12 @@ The HTTP lines stack size. The stack size must be adjusted for each
 applications depending on the use of the stack done by the callback
 procedures. The default is @_LINE_STACK_SIZE_@.
 
+@item Log_Extended_Fields (string list)
+@cindex Log_Extended_Fields
+Comma separated list of the extended log field names. If this parameter
+is empty, the HTTP log would be in the apache compartible format, otherwise
+log file would be in Extended format. For more information @pxref{Server Log}.
+
 @item Log_File_Directory (string)
 @cindex Log_File_Directory
 This is to set the directory where log file must be written. This
@@ -2199,7 +2205,8 @@ the log file each day, each month or at every run. See @code{AWS.Log}
 spec. This is very useful to avoid having very big log files.
 
 @noindent
-The log format is using the same format than the Apache Web server.
+The log format depend on Log_Extended_Fields configuration parameter.
+If this parameter is empty, the HTTP log would have fixed apache compartible format:
 
 @AWSEXP {<client IP> - <auth name> - [<date and time>] "<request>" <status code> <size>
 
@@ -2207,11 +2214,57 @@ For example:
 
 100.99.12.1 -  - [22/Nov/2000:11:44:14] "GET /whatever HTTP/1.1" 200 1789}
 
+If the extended fields list is not empty, the log file format would have
+user defined fields set:
+
+@AWSEXP {#Version: 1.0
+#Date: 2006-01-09 00:00:01
+#Fields: date time c-ip cs-method cs-uri cs-version sc-status sc-bytes
+2006-01-09 00:34:23 100.99.12.1 GET /foo/bar.html HTTP/1.1 200 30}
+
+Fields in the comma separated Log_Extended_Fields list could be:
+@table @i
+@item date
+Date at which transaction completed
+@item time
+Time at which transaction completed
+@item c-ip
+Client side connected IP address
+@item c-port
+Client side connected port
+@item s-ip
+Server side connected IP address
+@item s-port
+Server side connected port
+@item cs-method
+HTTP request method
+@item cs-username
+Client authentication username
+@item cs-version
+Client supported HTTP version
+@item cs-uri
+Request URI
+@item cs-uri-stem
+Stem portion alone of URI (omitting query)
+@item cs-uri-query
+Query portion alone of URI
+@item sc-status
+Responce status code
+@item sc-bytes
+Length of response message body
+@item cs(<header>)
+Any header field name sent from client to server
+@item sc(<header>)
+Any header field name sent from server to client
+@item x-<appfield>
+Any application defined field name
+@end table
+
 @noindent
 @code{AWS} also support error log files. If activated every internal error
-detected by @code{AWS} will gets logged into this special file. See
-@code{AWS.Server.Log.Start_Error} and
-@code{AWS.Server.Log.Stop_Error}.
+detected by @code{AWS} will gets logged into this special file.
+Log file for errors would be in simple apache compartible format.
+See @code{AWS.Server.Log.Start_Error} and @code{AWS.Server.Log.Stop_Error}.
 
 @noindent
 For the full set of routines supporting the log facility
