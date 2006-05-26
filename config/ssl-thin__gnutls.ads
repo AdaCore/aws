@@ -1127,12 +1127,13 @@ package SSL.Thin is
       SendMsg       : System.Address := System.Null_Address;
       RecvMsg       : System.Address := System.Null_Address;
    end record;
+   pragma Convention (C, gcry_thread_cbs);
 
    subtype gpg_error_t is C.unsigned;
    subtype gcry_error_t is gpg_error_t;
 
    function gcry_control
-     (CMD        : in C.int := GCRYCTL_SET_THREAD_CBS;
+     (CMD        : in C.int;
       Thread_CBS : in gcry_thread_cbs) return gcry_error_t;
    pragma Import (C, gcry_control, "gcry_control");
 
