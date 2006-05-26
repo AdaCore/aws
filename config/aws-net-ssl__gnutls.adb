@@ -170,6 +170,7 @@ package body AWS.Net.SSL is
         or else Code = TSSL.GNUTLS_E_PUSH_ERROR
       then
          Ada.Exceptions.Reraise_Occurrence (Skip_Exceptions.Value.all);
+
       elsif Code /= 0 then
          declare
             Error : constant String
@@ -192,10 +193,10 @@ package body AWS.Net.SSL is
    -------------
 
    procedure Connect
-     (Socket   : in out Socket_Type;
-      Host     : in     String;
-      Port     : in     Positive;
-      Wait     : in     Boolean := True) is
+     (Socket : in out Socket_Type;
+      Host   : in     String;
+      Port   : in     Positive;
+      Wait   : in     Boolean := True) is
    begin
       Net.Std.Connect (NSST (Socket), Host, Port, Wait);
 
@@ -211,6 +212,10 @@ package body AWS.Net.SSL is
    --------------------------
 
    protected body Default_Config_Synch is
+
+      ---------------------------
+      -- Create_Default_Config --
+      ---------------------------
 
       procedure Create_Default_Config is
          package CNF renames AWS.Config;
@@ -533,6 +538,10 @@ package body AWS.Net.SSL is
    package body Locking is
       use AWS.Utils;
 
+      -------------
+      -- Destroy --
+      -------------
+
       function Destroy (Item : access Mutex_Access) return Integer is
          procedure Free is
            new Ada.Unchecked_Deallocation (Semaphore, Mutex_Access);
@@ -541,17 +550,29 @@ package body AWS.Net.SSL is
          return 0;
       end Destroy;
 
+      ----------
+      -- Init --
+      ----------
+
       function Init (Item : access Mutex_Access) return Integer is
       begin
          Item.all := new Semaphore;
          return 0;
       end Init;
 
+      ----------
+      -- Lock --
+      ----------
+
       function Lock (Item : access Mutex_Access) return Integer is
       begin
          Item.all.Seize;
          return 0;
       end Lock;
+
+      ------------
+      -- Unlock --
+      ------------
 
       function Unlock (Item : access Mutex_Access) return Integer is
       begin
@@ -857,13 +878,14 @@ package body AWS.Net.SSL is
 
 begin
    if TSSL.gcry_control
-        (Thread_CBS => (Option        => TSSL.GCRY_THREAD_OPTION_USER,
-                        Init          => System.Null_Address,
-                        Mutex_Init    => Locking.Init'Address,
-                        Mutex_Destroy => Locking.Destroy'Address,
-                        Mutex_Lock    => Locking.Lock'Address,
-                        Mutex_Unlock  => Locking.Unlock'Address,
-                        others        => System.Null_Address)) /= 0
+     (CMD        => TSSL.GCRYCTL_SET_THREAD_CBS,
+      Thread_CBS => (Option        => TSSL.GCRY_THREAD_OPTION_USER,
+                     Init          => System.Null_Address,
+                     Mutex_Init    => Locking.Init'Address,
+                     Mutex_Destroy => Locking.Destroy'Address,
+                     Mutex_Lock    => Locking.Lock'Address,
+                     Mutex_Unlock  => Locking.Unlock'Address,
+                     others        => System.Null_Address)) /= 0
    then
       raise Program_Error;
    end if;
