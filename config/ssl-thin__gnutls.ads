@@ -430,13 +430,13 @@ package SSL.Thin is
    pragma Convention (C, gnutls_db_store_func);
 
    type gnutls_db_remove_func is access function
-     (p1   : System.Address;
-      key  : gnutls_datum_t) return C.int;
+     (p1  : System.Address;
+      key : gnutls_datum_t) return C.int;
    pragma Convention (C, gnutls_db_remove_func);
 
    type gnutls_db_retr_func is access function
-     (p1   : System.Address;
-      key  : gnutls_datum_t) return gnutls_datum_t;
+     (p1  : System.Address;
+      key : gnutls_datum_t) return gnutls_datum_t;
    pragma Convention (C, gnutls_db_retr_func);
 
    type STRUCT_DSTRUCT is record
@@ -501,9 +501,9 @@ package SSL.Thin is
      (session : gnutls_session_t) return gnutls_alert_description_t;
 
    function gnutls_alert_send
-     (p1   : gnutls_session_t;
-      p2   : gnutls_alert_level_t;
-      p3   : gnutls_alert_description_t) return C.int;
+     (p1 : gnutls_session_t;
+      p2 : gnutls_alert_level_t;
+      p3 : gnutls_alert_description_t) return C.int;
 
    function gnutls_alert_send_appropriate
      (session : gnutls_session_t; err : C.int) return C.int;
@@ -704,7 +704,7 @@ package SSL.Thin is
      (sc : gnutls_anon_server_credentials_t);
 
    function gnutls_anon_allocate_server_credentials
-     (sc   : access gnutls_anon_server_credentials_t) return C.int;
+     (sc : access gnutls_anon_server_credentials_t) return C.int;
 
    procedure gnutls_anon_set_server_dh_params
      (res       : gnutls_anon_server_credentials_t;
@@ -714,13 +714,13 @@ package SSL.Thin is
      (sc : gnutls_anon_client_credentials_t);
 
    function gnutls_anon_allocate_client_credentials
-     (sc   : access gnutls_anon_client_credentials_t) return C.int;
+     (sc : access gnutls_anon_client_credentials_t) return C.int;
 
    procedure gnutls_certificate_free_credentials
      (sc : gnutls_certificate_credentials_t);
 
    function gnutls_certificate_allocate_credentials
-     (sc   : access gnutls_certificate_credentials_t) return C.int;
+     (sc : access gnutls_certificate_credentials_t) return C.int;
 
    procedure gnutls_certificate_free_keys
      (sc : gnutls_certificate_credentials_t);
@@ -757,9 +757,9 @@ package SSL.Thin is
       p3     : gnutls_x509_crt_fmt_t) return C.int;
 
    function gnutls_certificate_set_x509_trust_mem
-     (res  : gnutls_certificate_credentials_t;
-      CA   : a_gnutls_datum_t;
-      p3   : gnutls_x509_crt_fmt_t) return C.int;
+     (res : gnutls_certificate_credentials_t;
+      CA  : a_gnutls_datum_t;
+      p3  : gnutls_x509_crt_fmt_t) return C.int;
 
    function gnutls_certificate_set_x509_crl_file
      (res     : gnutls_certificate_credentials_t;
@@ -866,8 +866,8 @@ package SSL.Thin is
       bits      : access C.unsigned) return C.int;
 
    function gnutls_dh_params_cpy
-     (dst  : gnutls_dh_params_t;
-      src  : gnutls_dh_params_t) return C.int;
+     (dst : gnutls_dh_params_t;
+      src : gnutls_dh_params_t) return C.int;
 
    function gnutls_rsa_params_init
      (rsa_params : access gnutls_rsa_params_t) return C.int;
@@ -875,8 +875,8 @@ package SSL.Thin is
    procedure gnutls_rsa_params_deinit (rsa_params : gnutls_rsa_params_t);
 
    function gnutls_rsa_params_cpy
-     (dst  : gnutls_rsa_params_t;
-      src  : gnutls_rsa_params_t) return C.int;
+     (dst : gnutls_rsa_params_t;
+      src : gnutls_rsa_params_t) return C.int;
 
    function gnutls_rsa_params_import_raw
      (rsa_params : gnutls_rsa_params_t;
