@@ -439,9 +439,8 @@ package SSL.Thin is
       key : gnutls_datum_t) return gnutls_datum_t;
    pragma Convention (C, gnutls_db_retr_func);
 
-   type STRUCT_DSTRUCT is record
-      null;
-   end record;
+   type STRUCT_DSTRUCT is null record;
+   pragma Convention (C, STRUCT_DSTRUCT);
 
    type gnutls_alloc_function is access function
      (p1 : C.size_t) return System.Address;
