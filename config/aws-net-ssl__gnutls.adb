@@ -96,6 +96,7 @@ package body AWS.Net.SSL is
       ASC       : aliased TSSL.gnutls_anon_server_credentials_t;
       ACC       : aliased TSSL.gnutls_anon_client_credentials_t;
       CSC       : aliased TSSL.gnutls_certificate_credentials_t;
+      CCC       : aliased TSSL.gnutls_certificate_credentials_t;
       DH_Params : aliased TSSL.gnutls_dh_params_t;
       RCC       : Boolean := False; -- Request client certificate.
    end record;
@@ -347,8 +348,8 @@ package body AWS.Net.SSL is
       Key_Filename         : in     String     := "";
       Exchange_Certificate : in     Boolean    := False)
    is
-      use type TSSL.gnutls_anon_client_credentials_t;
       use type TSSL.gnutls_anon_server_credentials_t;
+      use type TSSL.gnutls_certificate_credentials_t;
       use type TSSL.gnutls_dh_params_t;
    begin
       if (Security_Mode = SSLv2
@@ -360,6 +361,7 @@ package body AWS.Net.SSL is
           or Security_Mode = TLSv1_Server
           or Security_Mode = SSLv3_Server)
         and then Config.ASC = null
+        and then Config.CSC = null
       then
          Check_Error_Code
            (TSSL.gnutls_dh_params_init (Config.DH_Params'Access));
@@ -513,10 +515,12 @@ package body AWS.Net.SSL is
           or Security_Mode = SSLv23_Client
           or Security_Mode = TLSv1_Client
           or Security_Mode = SSLv3_Client)
-        and then Config.ACC = null
+        and then Config.CCC = null
       then
          Check_Error_Code
            (TSSL.gnutls_anon_allocate_client_credentials (Config.ACC'Access));
+         Check_Error_Code
+           (TSSL.gnutls_certificate_allocate_credentials (Config.CCC'Access));
       end if;
    end Initialize;
 
@@ -526,7 +530,7 @@ package body AWS.Net.SSL is
 
    procedure Initialize_Default_Config is
    begin
-      if Default_Config = (null, null, null, null, False) then
+      if Default_Config = (null, null, null, null, null, False) then
          Default_Config_Synch.Create_Default_Config;
       end if;
    end Initialize_Default_Config;
@@ -755,10 +759,15 @@ package body AWS.Net.SSL is
    procedure Session_Client (Socket : in out Socket_Type) is
       use TSSL;
       Session : aliased gnutls_session_t;
-      type Priority_List is array (0 .. 1) of gnutls_kx_algorithm_t;
+      type Priority_List is array (0 .. 8) of gnutls_kx_algorithm_t;
       pragma Convention (C, Priority_List);
 
-      kx_prio : constant Priority_List := (GNUTLS_KX_ANON_DH, GNUTLS_KX_0);
+      kx_prio : constant Priority_List :=
+        (GNUTLS_KX_DHE_RSA, GNUTLS_KX_DHE_DSS, GNUTLS_KX_RSA,
+         GNUTLS_KX_SRP_RSA, GNUTLS_KX_SRP_DSS, GNUTLS_KX_SRP,
+         GNUTLS_KX_RSA_EXPORT, GNUTLS_KX_ANON_DH, GNUTLS_KX_0);
+      --  ??? maybe there is too many elements.
+
    begin
       Check_Config (Socket);
 
@@ -771,6 +780,8 @@ package body AWS.Net.SSL is
         (gnutls_kx_set_priority (Session, kx_prio'Address), Socket);
       Check_Error_Code
         (gnutls_credentials_set (Session, cred => Socket.Config.ACC), Socket);
+      Check_Error_Code
+        (gnutls_credentials_set (Session, cred => Socket.Config.CCC), Socket);
 
       gnutls_dh_set_prime_bits (Session, DH_Bits);
 
