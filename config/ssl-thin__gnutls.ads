@@ -154,14 +154,16 @@ package SSL.Thin is
    subtype ssize_t is C.int;
 
    type gnutls_cipher_algorithm_t is
-     (GNUTLS_CIPHER_NULL,
+     (GNUTLS_CIPHER_0,
+      GNUTLS_CIPHER_NULL,
       GNUTLS_CIPHER_ARCFOUR_128,
       GNUTLS_CIPHER_3DES_CBC,
       GNUTLS_CIPHER_AES_128_CBC,
       GNUTLS_CIPHER_AES_256_CBC,
       GNUTLS_CIPHER_ARCFOUR_40);
    for gnutls_cipher_algorithm_t use
-     (GNUTLS_CIPHER_NULL        => 1,
+     (GNUTLS_CIPHER_0           => 0,
+      GNUTLS_CIPHER_NULL        => 1,
       GNUTLS_CIPHER_ARCFOUR_128 => 2,
       GNUTLS_CIPHER_3DES_CBC    => 3,
       GNUTLS_CIPHER_AES_128_CBC => 4,
@@ -202,12 +204,14 @@ package SSL.Thin is
    for gnutls_credentials_type_t'Size use C.int'Size;
 
    type gnutls_mac_algorithm_t is
-     (GNUTLS_MAC_NULL,
+     (GNUTLS_MAC_0,
+      GNUTLS_MAC_NULL,
       GNUTLS_MAC_MD5,
       GNUTLS_MAC_SHA,
       GNUTLS_MAC_RMD160);
    for gnutls_mac_algorithm_t use
-     (GNUTLS_MAC_NULL   => 1,
+     (GNUTLS_MAC_0      => 0,
+      GNUTLS_MAC_NULL   => 1,
       GNUTLS_MAC_MD5    => 2,
       GNUTLS_MAC_SHA    => 3,
       GNUTLS_MAC_RMD160 => 4);
@@ -344,9 +348,11 @@ package SSL.Thin is
    type gnutls_close_request_t is (GNUTLS_SHUT_RDWR, GNUTLS_SHUT_WR);
    for gnutls_close_request_t'Size use C.int'Size;
 
-   type gnutls_protocol_t is (GNUTLS_SSL3, GNUTLS_TLS1_0, GNUTLS_TLS1_1);
+   type gnutls_protocol_t is
+     (GNUTLS_0, GNUTLS_SSL3, GNUTLS_TLS1_0, GNUTLS_TLS1_1);
    for gnutls_protocol_t use
-     (GNUTLS_SSL3   => 1,
+     (GNUTLS_0      => 0,
+      GNUTLS_SSL3   => 1,
       GNUTLS_TLS1_0 => 2,
       GNUTLS_TLS1_1 => 3);
    for gnutls_protocol_t'Size use C.int'Size;
