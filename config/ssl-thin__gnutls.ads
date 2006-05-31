@@ -154,7 +154,7 @@ package SSL.Thin is
    subtype ssize_t is C.int;
 
    type gnutls_cipher_algorithm_t is
-     (GNUTLS_CIPHER_0,
+     (GNUTLS_0,
       GNUTLS_CIPHER_NULL,
       GNUTLS_CIPHER_ARCFOUR_128,
       GNUTLS_CIPHER_3DES_CBC,
@@ -162,7 +162,7 @@ package SSL.Thin is
       GNUTLS_CIPHER_AES_256_CBC,
       GNUTLS_CIPHER_ARCFOUR_40);
    for gnutls_cipher_algorithm_t use
-     (GNUTLS_CIPHER_0           => 0,
+     (GNUTLS_0                  => 0,
       GNUTLS_CIPHER_NULL        => 1,
       GNUTLS_CIPHER_ARCFOUR_128 => 2,
       GNUTLS_CIPHER_3DES_CBC    => 3,
@@ -172,7 +172,7 @@ package SSL.Thin is
    for gnutls_cipher_algorithm_t'Size use C.int'Size;
 
    type gnutls_kx_algorithm_t is
-     (GNUTLS_KX_0,
+     (GNUTLS_0,
       GNUTLS_KX_RSA,
       GNUTLS_KX_DHE_DSS,
       GNUTLS_KX_DHE_RSA,
@@ -182,7 +182,7 @@ package SSL.Thin is
       GNUTLS_KX_SRP_RSA,
       GNUTLS_KX_SRP_DSS);
    for gnutls_kx_algorithm_t use
-     (GNUTLS_KX_0          => 0,
+     (GNUTLS_0             => 0,
       GNUTLS_KX_RSA        => 1,
       GNUTLS_KX_DHE_DSS    => 2,
       GNUTLS_KX_DHE_RSA    => 3,
@@ -204,13 +204,13 @@ package SSL.Thin is
    for gnutls_credentials_type_t'Size use C.int'Size;
 
    type gnutls_mac_algorithm_t is
-     (GNUTLS_MAC_0,
+     (GNUTLS_0,
       GNUTLS_MAC_NULL,
       GNUTLS_MAC_MD5,
       GNUTLS_MAC_SHA,
       GNUTLS_MAC_RMD160);
    for gnutls_mac_algorithm_t use
-     (GNUTLS_MAC_0      => 0,
+     (GNUTLS_0          => 0,
       GNUTLS_MAC_NULL   => 1,
       GNUTLS_MAC_MD5    => 2,
       GNUTLS_MAC_SHA    => 3,
@@ -230,12 +230,14 @@ package SSL.Thin is
    for gnutls_digest_algorithm_t'Size use C.int'Size;
 
    type gnutls_compression_method_t is
-     (GNUTLS_COMP_NULL,
+     (GNUTLS_0,
+      GNUTLS_COMP_NULL,
       GNUTLS_COMP_DEFLATE,
       GNUTLS_COMP_LZO -- only available if gnutls-extra has been initialized
      );
    for gnutls_compression_method_t use
-     (GNUTLS_COMP_NULL    => 1,
+     (GNUTLS_0            => 0,
+      GNUTLS_COMP_NULL    => 1,
       GNUTLS_COMP_DEFLATE => 2,
       GNUTLS_COMP_LZO     => 3);
    for gnutls_compression_method_t'Size use C.int'Size;
@@ -358,9 +360,9 @@ package SSL.Thin is
    for gnutls_protocol_t'Size use C.int'Size;
 
    type gnutls_certificate_type_t is
-     (GNUTLS_CRT_0, GNUTLS_CRT_X509, GNUTLS_CRT_OPENPGP);
+     (GNUTLS_0, GNUTLS_CRT_X509, GNUTLS_CRT_OPENPGP);
    for gnutls_certificate_type_t use
-     (GNUTLS_CRT_0 => 0, GNUTLS_CRT_X509 => 1, GNUTLS_CRT_OPENPGP => 2);
+     (GNUTLS_0 => 0, GNUTLS_CRT_X509 => 1, GNUTLS_CRT_OPENPGP => 2);
    for gnutls_certificate_type_t'Size use C.int'Size;
 
    type gnutls_x509_crt_fmt_t is (GNUTLS_X509_FMT_DER, GNUTLS_X509_FMT_PEM);
