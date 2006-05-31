@@ -33,14 +33,15 @@ with Ada.Task_Attributes;
 with Ada.Unchecked_Conversion;
 with Ada.Unchecked_Deallocation;
 
+with Interfaces.C.Strings;
+with System;
+
 with AWS.Config;
 with AWS.Net.Log;
 with AWS.Utils;
 
-with Interfaces.C.Strings;
-with System;
-
 package body AWS.Net.SSL is
+
    use Interfaces;
 
    use type C.unsigned;
@@ -98,7 +99,7 @@ package body AWS.Net.SSL is
       CSC       : aliased TSSL.gnutls_certificate_credentials_t;
       CCC       : aliased TSSL.gnutls_certificate_credentials_t;
       DH_Params : aliased TSSL.gnutls_dh_params_t;
-      RCC       : Boolean := False; -- Request client certificate.
+      RCC       : Boolean := False; -- Request client certificate
    end record;
 
    procedure Initialize
@@ -145,7 +146,7 @@ package body AWS.Net.SSL is
    begin
       Net.Std.Accept_Socket (Socket, NSST (New_Socket));
       Session_Server (New_Socket);
-      --  Do_Handshake (New_Socket);
+      Do_Handshake (New_Socket);
    end Accept_Socket;
 
    ------------------
@@ -290,7 +291,7 @@ package body AWS.Net.SSL is
       if Socket.SSL /= null
         and then Net.Socket_Type (Socket).C.Ref_Count.Value = 2
       then
-         --  Free one more reference from gnutls_transport_ptr_t.
+         --  Free one more reference from gnutls_transport_ptr_t
 
          Sock := To_Access (TSSL.gnutls_transport_get_ptr (Socket.SSL));
 
@@ -348,6 +349,7 @@ package body AWS.Net.SSL is
       Key_Filename         : in     String     := "";
       Exchange_Certificate : in     Boolean    := False)
    is
+      use type TSSL.gnutls_anon_client_credentials_t;
       use type TSSL.gnutls_anon_server_credentials_t;
       use type TSSL.gnutls_certificate_credentials_t;
       use type TSSL.gnutls_dh_params_t;
@@ -374,13 +376,14 @@ package body AWS.Net.SSL is
                  (Config.ASC'Access));
             TSSL.gnutls_anon_set_server_dh_params
               (Config.ASC, Config.DH_Params);
+
          else
             Check_Error_Code
               (TSSL.gnutls_certificate_allocate_credentials
                  (Config.CSC'Access));
 
             if Key_Filename = "" then
-               --  Load certificates and private key from Certificate_File.
+               --  Load certificates and private key from Certificate_File
 
                declare
                   use Ada.Strings;
@@ -443,19 +446,19 @@ package body AWS.Net.SSL is
                         = Cert_C
                      then
                         if Cert.size = 0 then
-                           Cert.data  := Data (First)'Address;
+                           Cert.data := Data (First)'Address;
 
                            if Key.size = 0 then
                               --  Store first certificate position temporary
                               --  in size field and wait for private key.
 
-                              Cert.size  := C.unsigned (First);
+                              Cert.size := C.unsigned (First);
 
                            else
                               --  If key already gotten then all other data
                               --  is certificates list.
 
-                              Cert.size  := C.unsigned (Data'Last - First);
+                              Cert.size := C.unsigned (Data'Last - First);
 
                               exit;
                            end if;
@@ -469,7 +472,7 @@ package body AWS.Net.SSL is
                            --  If key gotten after certificate, calculate
                            --  size of certificates list.
 
-                           Cert.size  := C.unsigned (First) - Cert.size;
+                           Cert.size := C.unsigned (First) - Cert.size;
                            exit;
                         end if;
                      end if;
@@ -725,6 +728,7 @@ package body AWS.Net.SSL is
    begin
       Secure (Socket, Result, Config);
       Session_Server (Result);
+      Do_Handshake (Result);
       return Result;
    end Secure_Server;
 
@@ -759,13 +763,14 @@ package body AWS.Net.SSL is
    procedure Session_Client (Socket : in out Socket_Type) is
       use TSSL;
       Session : aliased gnutls_session_t;
+
       type Priority_List is array (0 .. 8) of gnutls_kx_algorithm_t;
       pragma Convention (C, Priority_List);
 
       kx_prio : constant Priority_List :=
         (GNUTLS_KX_DHE_RSA, GNUTLS_KX_DHE_DSS, GNUTLS_KX_RSA,
          GNUTLS_KX_SRP_RSA, GNUTLS_KX_SRP_DSS, GNUTLS_KX_SRP,
-         GNUTLS_KX_RSA_EXPORT, GNUTLS_KX_ANON_DH, GNUTLS_KX_0);
+         GNUTLS_KX_RSA_EXPORT, GNUTLS_KX_ANON_DH, GNUTLS_0);
       --  ??? maybe there is too many elements.
 
    begin
@@ -776,10 +781,12 @@ package body AWS.Net.SSL is
       Socket.SSL := Session;
 
       Check_Error_Code (gnutls_set_default_priority (Session), Socket);
+
       Check_Error_Code
         (gnutls_kx_set_priority (Session, kx_prio'Address), Socket);
       Check_Error_Code
         (gnutls_credentials_set (Session, cred => Socket.Config.ACC), Socket);
+
       Check_Error_Code
         (gnutls_credentials_set (Session, cred => Socket.Config.CCC), Socket);
 
@@ -795,24 +802,29 @@ package body AWS.Net.SSL is
    procedure Session_Server (Socket : in out Socket_Type) is
       use TSSL;
       Session : aliased gnutls_session_t;
-      type Priority_List is array (0 .. 1) of gnutls_kx_algorithm_t;
+
+      type Priority_List is array (0 .. 4) of gnutls_kx_algorithm_t;
       pragma Convention (C, Priority_List);
-      kx_prio : constant Priority_List := (GNUTLS_KX_ANON_DH, GNUTLS_KX_0);
+      kx_prio : constant Priority_List :=
+                  (GNUTLS_KX_RSA, GNUTLS_KX_RSA_EXPORT,
+                   GNUTLS_KX_DHE_RSA, GNUTLS_KX_DHE_DSS,
+                   GNUTLS_0);
+
    begin
       Check_Config (Socket);
 
       Check_Error_Code (gnutls_init (Session'Access, GNUTLS_SERVER), Socket);
 
-      Socket.SSL := Session;
-
       Check_Error_Code (gnutls_set_default_priority (Session), Socket);
+
+      Check_Error_Code
+        (gnutls_kx_set_priority (Session, kx_prio'Address), Socket);
 
       if Socket.Config.CSC = null then
          Check_Error_Code
-           (gnutls_kx_set_priority (Session, kx_prio'Address), Socket);
-         Check_Error_Code
            (gnutls_credentials_set (Session, cred => Socket.Config.ASC),
             Socket);
+
       else
          Check_Error_Code
            (gnutls_credentials_set
@@ -822,10 +834,15 @@ package body AWS.Net.SSL is
          if Socket.Config.RCC then
             gnutls_certificate_server_set_request
               (Session, GNUTLS_CERT_REQUEST);
+         else
+            gnutls_certificate_server_set_request
+              (Session, GNUTLS_CERT_IGNORE);
          end if;
       end if;
 
       gnutls_dh_set_prime_bits (Session, DH_Bits);
+
+      Socket.SSL := Session;
 
       Session_Transport (Socket);
    end Session_Server;
@@ -838,9 +855,9 @@ package body AWS.Net.SSL is
       Sock : constant Socket_Access
         := new Std.Socket_Type'(Std.Socket_Type (Socket));
    begin
-      --  !!! we make a copy of socket, hidden inside of Socket.SSL
-      --  Finalize procedure have to Free the copy when reference counter would
-      --  be 2.
+      --  Note : We make a copy of socket into the GNU/TLS transport ptr.
+      --  Finalize have to Free Socket when reference counter is 2 and it must
+      --  free the internal copy.
 
       TSSL.gnutls_transport_set_ptr
         (Socket.SSL, TSSL.gnutls_transport_ptr_t (Sock.all'Address));
@@ -891,7 +908,6 @@ begin
    if TSSL.gcry_control
      (CMD        => TSSL.GCRYCTL_SET_THREAD_CBS,
       Thread_CBS => (Option        => TSSL.GCRY_THREAD_OPTION_USER,
-                     Init          => System.Null_Address,
                      Mutex_Init    => Locking.Init'Address,
                      Mutex_Destroy => Locking.Destroy'Address,
                      Mutex_Lock    => Locking.Lock'Address,
