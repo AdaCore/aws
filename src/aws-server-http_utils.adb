@@ -1362,11 +1362,17 @@ package body AWS.Server.HTTP_Utils is
 
       if CNF.Log_Extended_Fields_Length (HTTP_Server.Properties) > 0 then
          declare
+            use type Ada.Calendar.Time;
             use type Strings.Maps.Character_Set;
 
             Fields : AWS.Log.Fields_Table := Get_Log_Data;
 
          begin
+            AWS.Log.Set_Field
+              (HTTP_Server.Log, Fields, "time-taken",
+               Utils.Significant_Image
+                 (Ada.Calendar.Clock - AWS.Status.Request_Time (C_Stat), 3));
+
             AWS.Log.Set_Header_Fields
               (HTTP_Server.Log, Fields, "cs", AWS.Status.Header (C_Stat));
             AWS.Log.Set_Header_Fields
