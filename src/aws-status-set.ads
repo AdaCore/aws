@@ -58,6 +58,8 @@ package AWS.Status.Set is
    --
    --  GET URI[?parametrers] [HTTP/1.0 or HTTP/1.1]
    --  POST URI [HTTP/1.0 or HTTP/1.1]
+   --
+   --  Save the calendar time of the request.
 
    procedure Parameters (D : in out Data; Set : in AWS.Parameters.List);
    --  Associate the parameters in Set to the status data

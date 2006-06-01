@@ -274,6 +274,7 @@ package body AWS.Status.Set is
       URI          : in     String;
       HTTP_Version : in     String) is
    begin
+      D.Request_Time := Ada.Calendar.Clock;
       D.Method       := Method;
       D.URI          := URL.Parse (URI, False, False);
       D.HTTP_Version := To_Unbounded_String (HTTP_Version);
