@@ -373,6 +373,8 @@ regtests/redirect.out
 regtests/regtests.gpr
 regtests/sback.adb
 regtests/sback.out
+regtests/sdig.adb
+regtests/sdig.out
 regtests/server_config.adb
 regtests/server_config.ini
 regtests/server_config.out
