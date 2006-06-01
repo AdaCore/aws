@@ -566,6 +566,15 @@ package body AWS.Status is
       return Headers.Get (D.Header, Messages.Referer_Token);
    end Referer;
 
+   ------------------
+   -- Request_Time --
+   ------------------
+
+   function Request_Time (D : in Data) return Ada.Calendar.Time is
+   begin
+      return D.Request_Time;
+   end Request_Time;
+
    -------------
    -- Session --
    -------------

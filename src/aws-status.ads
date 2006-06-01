@@ -30,6 +30,7 @@
 --  request the status for various values like the requested URI, the
 --  Content_Length and the Session ID for example.
 
+with Ada.Calendar;
 with Ada.Streams;
 with Ada.Strings.Unbounded;
 
@@ -78,6 +79,10 @@ package AWS.Status is
    function HTTP_Version           (D : in Data) return String;
    pragma Inline (HTTP_Version);
    --  Returns the HTTP version used by the client
+
+   function Request_Time           (D : in Data) return Ada.Calendar.Time;
+   pragma Inline (Request_Time);
+   --  Returns the time of the request.
 
    ------------
    -- Header --
@@ -303,6 +308,7 @@ private
       HTTP_Version      : Unbounded_String;
       URI               : URL.Object;
       Parameters        : AWS.Parameters.List;
+      Request_Time      : Ada.Calendar.Time;
       Binary_Data       : Utils.Stream_Element_Array_Access;
       Content_Length    : Natural               := 0;
       Keep_Alive        : Boolean;
