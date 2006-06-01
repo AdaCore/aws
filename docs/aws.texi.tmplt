@@ -2228,6 +2228,8 @@ Fields in the comma separated Log_Extended_Fields list could be:
 Date at which transaction completed
 @item time
 Time at which transaction completed
+@item time-taken
+Time taken for transaction to complete in seconds
 @item c-ip
 Client side connected IP address
 @item c-port
