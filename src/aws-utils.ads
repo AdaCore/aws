@@ -55,8 +55,13 @@ package AWS.Utils is
    --  Returns image of N without the leading blank
 
    function Image (D : in Duration) return String;
-   --  Returns image of N without the leading blank and with only 2 decimals
+   --  Returns image of D without the leading blank and with only 2 decimals
    --  numbers.
+
+   function Significant_Image (Item : Duration; N : Positive) return String;
+   --  Returns image of D without the leading blank and with N significant
+   --  digits. If number of digits in integer part is more than N, the image
+   --  would represent the whole integer part.
 
    function Hex (V : in Natural; Width : in Natural := 0) return String;
    --  Returns the hexadecimal string representation of the decimal

@@ -27,9 +27,11 @@
 ------------------------------------------------------------------------------
 
 with Ada.Integer_Text_IO;
+with Ada.Numerics.Long_Elementary_Functions;
 with Ada.Streams.Stream_IO;
 with Ada.Strings.Fixed;
 with Ada.Strings.Maps.Constants;
+with Ada.Text_IO;
 with Ada.Numerics.Discrete_Random;
 
 with AWS.OS_Lib;
@@ -542,6 +544,33 @@ package body AWS.Utils is
       end Seize_Internal;
 
    end Semaphore;
+
+   -----------------------
+   -- Significant_Image --
+   -----------------------
+
+   function Significant_Image (Item : Duration; N : Positive) return String is
+      AI   : constant Duration   := abs Item;
+      L10  : constant Long_Float := Ada.Numerics.Long_Elementary_Functions.Log
+                                      (Long_Float (AI), 10.0);
+      L10T : constant Long_Float := Long_Float'Truncation (L10);
+      PP   : constant Integer    := Integer (L10T);
+      Aft  : constant Natural
+        := Integer'Max
+             (N - PP - Boolean'Pos (AI >= 1.0 or else L10 = L10T), 0);
+      Img  : String (1 .. Integer'Max (PP, 1) + Aft + 1 - Boolean'Pos (Aft = 0)
+                          + Boolean'Pos (AI >= 10.0)
+                          + Boolean'Pos (Item < 0.0));
+      package Duration_IO is new Ada.Text_IO.Fixed_IO (Duration);
+   begin
+      if Aft = 0 then
+         Ada.Integer_Text_IO.Put (Img, Integer (Item));
+      else
+         Duration_IO.Put (Img, Item, Aft => Aft);
+      end if;
+
+      return Img;
+   end Significant_Image;
 
 begin
    Integer_Random.Reset (Random_Generator);
