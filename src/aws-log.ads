@@ -87,7 +87,7 @@ package AWS.Log is
      (Log : in Object; Data : in out Fields_Table; Id, Value : in String);
    --  Set field value into the extended log record. Data could be used only
    --  in one task and with one log file. Different tasks could write own Data
-   --  using the next declared routine.
+   --  using the Write routine with Fields_Table parameter type.
 
    procedure Set_Header_Fields
      (Log    : in     Object;
