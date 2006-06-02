@@ -2,7 +2,7 @@
 --                              Ada Web Server                              --
 --                                                                          --
 --                            Copyright (C) 2006                            --
---                                ACT-Europe                                --
+--                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -66,15 +66,18 @@ package body AWS.Net.SSL.Certificate is
       use type System.Address;
       use type TSSL.a_gnutls_datum_t;
 
+      Buffer_Size : constant := 256;
+      --  Buffer size for the subject and issuer
+
       List_Size : aliased C.unsigned;
       Datum : constant TSSL.a_gnutls_datum_t
         := TSSL.gnutls_certificate_get_peers (Socket.SSL, List_Size'Access);
       Cert  : aliased TSSL.gnutls_x509_crt_t;
 
-      Subject  : aliased C.char_array := (1 .. 256 => C.nul);
-      Subj_Len : aliased C.size_t;
-      Issuer   : aliased C.char_array := (1 .. 256 => C.nul);
-      Iss_Len  : aliased C.size_t;
+      Subject  : aliased C.char_array := (1 .. Buffer_Size => C.nul);
+      Subj_Len : aliased C.size_t := Buffer_Size;
+      Issuer   : aliased C.char_array := (1 .. Buffer_Size => C.nul);
+      Iss_Len  : aliased C.size_t := Buffer_Size;
    begin
       if List_Size = 0 or else Datum = null then
          return Undefined;
