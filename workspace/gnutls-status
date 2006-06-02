@@ -1,0 +1,59 @@
+
+Here are the known regressions on the GNU/TLS support.
+
+cert.adb:
+   The client certificate is not sent to the server.
+
+sock2_sec.adb:
+   no-output and lock ?
+
+ssp.adb:
+   output ok, does not terminate properly.
+
+xmlt_sec.adb:
+   output ok, does not terminate properly.
+
+spg_sec.adb:
+   output ok, does not terminate properly.
+
+sock3_sec.adb:
+   lock.
+
+ssback.adb:
+   output ok, does not terminate properly.
+
+plain2ssl.adb:
+   error : A TLS packet with unexpected length was received.
+
+nbconn_sec.adb:
+   error: TLS Application data were received, while expecting handshake data.
+
+
+---------------------------------------------------------------------------
+
+Tests that are passing:
+
+	afile_sec.adb
+	append_sec.adb
+	tsgetparam.adb
+
+---------------------------------------------------------------------------
+
+Tests not analysed yet:
+
+accs_sec.adb
+check_mem.adb
+disp_soap_sec.adb
+hload_sec.adb
+huge_response_sec.adb
+smem_sec.adb
+sockext_sec.adb
+sockover_sec.adb
+spair_sec.adb
+sslcfg.adb
+ssockto.adb
+ssto.adb
+test_sec_soap.adb
+test_soap5_sec.adb
+wait2_sec.adb
+wait_sec.adb
