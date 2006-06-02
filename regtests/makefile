@@ -53,7 +53,7 @@ WSDL_ATESTS    = test_wsdl3 test_wsdl5 test_wsdl7
 WSDL2AWS_TESTS = wsdl_parse_1 wsdl_parse_2 wsdl_parse_3 wsdl_parse_4
 endif
 
-ifdef ASIS
+ifeq (${ASIS}, true)
 # SOAP/WSDL test using ada2wsdl (ASIS package required)
 # Names must start with wsdl_ and be followed by a single digit between 0
 # and 9. Socket port is then 770<digit>.
