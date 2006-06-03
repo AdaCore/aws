@@ -95,6 +95,7 @@ package AWS.Utils is
       entry Seize;
       procedure Release;
    private
+      entry Seize_Internal;
       TID    : Task_Id := Null_Task_Id;
       Seized : Natural := 0;
    end Semaphore;
