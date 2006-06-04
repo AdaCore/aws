@@ -353,6 +353,146 @@ package body AWS.Net.SSL is
       use type TSSL.gnutls_anon_server_credentials_t;
       use type TSSL.gnutls_certificate_credentials_t;
       use type TSSL.gnutls_dh_params_t;
+
+      procedure Set_Certificate
+        (CC : in out TSSL.gnutls_certificate_credentials_t);
+      --  Set credentials from Cetificate_Filename and Key_Filename
+
+      ---------------------
+      -- Set_Certificate --
+      ---------------------
+
+      procedure Set_Certificate
+        (CC : in out TSSL.gnutls_certificate_credentials_t) is
+      begin
+         if Key_Filename = "" then
+            --  Load certificates and private key from Certificate_File
+
+            declare
+               use Ada.Strings;
+               use type C.unsigned;
+
+               function Get_File_Data return String;
+
+               Prefix : constant String := "-----BEGIN ";
+               Suffix : constant String := "-----END ";
+               Cert_C : constant String := "CERTIFICATE-----";
+               First  : Natural := 1;
+               Last   : Natural;
+               Cert   : aliased TSSL.gnutls_datum_t
+                 := (System.Null_Address, 0);
+               Key    : aliased TSSL.gnutls_datum_t
+                 := (System.Null_Address, 0);
+
+               -------------------
+               -- Get_File_Data --
+               -------------------
+
+               function Get_File_Data return String is
+                  use Ada.Streams.Stream_IO;
+                  File : File_Type;
+               begin
+                  Open
+                    (File, In_File, Certificate_Filename,
+                     Form => "shared=no");
+
+                  declare
+                     Result : aliased String (1 .. Natural (Size (File)));
+                  begin
+                     String'Read (Stream (File), Result);
+                     Close (File);
+                     return Result;
+                  end;
+
+               exception
+                  when Name_Error =>
+                     Ada.Exceptions.Raise_Exception
+                       (Socket_Error'Identity,
+                        "file """ & Certificate_Filename & """ error.");
+               end Get_File_Data;
+
+               Data : aliased constant String := Get_File_Data;
+
+            begin
+               loop
+                  First := Fixed.Index (Data (First .. Data'Last), Prefix);
+                  exit when First = 0;
+
+                  Last := Fixed.Index (Data (First .. Data'Last), Suffix);
+
+                  if Last = 0 then
+                     Last := Data'Last;
+                  else
+                     Last := Fixed.Index
+                       (Data (Last .. Data'Last), "" & ASCII.LF);
+                     if Last = 0 then
+                        Last := Data'Last;
+                     end if;
+                  end if;
+
+                  if Data (First + Prefix'Length
+                           .. First + Prefix'Length + Cert_C'Length - 1)
+                    = Cert_C
+                  then
+                     if Cert.size = 0 then
+                        Cert.data := Data (First)'Address;
+
+                        if Key.size = 0 then
+                           --  Store first certificate position temporary
+                           --  in size field and wait for private key.
+
+                           Cert.size := C.unsigned (First);
+
+                        else
+                           --  If key already gotten then all other data
+                           --  is certificates list.
+
+                           Cert.size := C.unsigned (Data'Last - First);
+
+                           exit;
+                        end if;
+                     end if;
+
+                  else
+                     Key.data := Data (First)'Address;
+                     Key.size := C.unsigned (Last - First);
+
+                     if Cert.size > 0 then
+                        --  If key gotten after certificate, calculate
+                        --  size of certificates list.
+
+                        Cert.size := C.unsigned (First) - Cert.size;
+                        exit;
+                     end if;
+                  end if;
+
+                  exit when Last = Data'Last;
+                  First := Last;
+               end loop;
+
+               Check_Error_Code
+                 (TSSL.gnutls_certificate_set_x509_key_mem
+                    (CC,
+                     Cert => Cert'Unchecked_Access,
+                     Key  => Key'Unchecked_Access,
+                     P4   => TSSL.GNUTLS_X509_FMT_PEM));
+            end;
+
+         else
+            declare
+               Cert : aliased C.char_array := C.To_C (Certificate_Filename);
+               Key  : aliased C.char_array := C.To_C (Key_Filename);
+            begin
+               Check_Error_Code
+                 (TSSL.gnutls_certificate_set_x509_key_file
+                    (CC,
+                     C.Strings.To_Chars_Ptr (Cert'Unchecked_Access),
+                     C.Strings.To_Chars_Ptr (Key'Unchecked_Access),
+                     TSSL.GNUTLS_X509_FMT_PEM));
+            end;
+         end if;
+      end Set_Certificate;
+
    begin
       if (Security_Mode = SSLv2
           or Security_Mode = SSLv23
@@ -382,126 +522,7 @@ package body AWS.Net.SSL is
               (TSSL.gnutls_certificate_allocate_credentials
                  (Config.CSC'Access));
 
-            if Key_Filename = "" then
-               --  Load certificates and private key from Certificate_File
-
-               declare
-                  use Ada.Strings;
-                  use type C.unsigned;
-
-                  function Get_File_Data return String;
-
-                  Prefix : constant String := "-----BEGIN ";
-                  Suffix : constant String := "-----END ";
-                  Cert_C : constant String := "CERTIFICATE-----";
-                  First  : Natural := 1;
-                  Last   : Natural;
-                  Cert   : aliased TSSL.gnutls_datum_t
-                    := (System.Null_Address, 0);
-                  Key    : aliased TSSL.gnutls_datum_t
-                    := (System.Null_Address, 0);
-
-                  -------------------
-                  -- Get_File_Data --
-                  -------------------
-
-                  function Get_File_Data return String is
-                     use Ada.Streams.Stream_IO;
-                     File : File_Type;
-                  begin
-                     Open
-                       (File, In_File, Certificate_Filename,
-                        Form => "shared=no");
-
-                     declare
-                        Result : aliased String (1 .. Natural (Size (File)));
-                     begin
-                        String'Read (Stream (File), Result);
-                        Close (File);
-                        return Result;
-                     end;
-                  end Get_File_Data;
-
-                  Data : aliased constant String := Get_File_Data;
-
-               begin
-                  loop
-                     First := Fixed.Index (Data (First .. Data'Last), Prefix);
-                     exit when First = 0;
-
-                     Last := Fixed.Index (Data (First .. Data'Last), Suffix);
-
-                     if Last = 0 then
-                        Last := Data'Last;
-                     else
-                        Last := Fixed.Index
-                                  (Data (Last .. Data'Last), "" & ASCII.LF);
-                        if Last = 0 then
-                           Last := Data'Last;
-                        end if;
-                     end if;
-
-                     if Data (First + Prefix'Length
-                              .. First + Prefix'Length + Cert_C'Length - 1)
-                        = Cert_C
-                     then
-                        if Cert.size = 0 then
-                           Cert.data := Data (First)'Address;
-
-                           if Key.size = 0 then
-                              --  Store first certificate position temporary
-                              --  in size field and wait for private key.
-
-                              Cert.size := C.unsigned (First);
-
-                           else
-                              --  If key already gotten then all other data
-                              --  is certificates list.
-
-                              Cert.size := C.unsigned (Data'Last - First);
-
-                              exit;
-                           end if;
-                        end if;
-
-                     else
-                        Key.data := Data (First)'Address;
-                        Key.size := C.unsigned (Last - First);
-
-                        if Cert.size > 0 then
-                           --  If key gotten after certificate, calculate
-                           --  size of certificates list.
-
-                           Cert.size := C.unsigned (First) - Cert.size;
-                           exit;
-                        end if;
-                     end if;
-
-                     exit when Last = Data'Last;
-                     First := Last;
-                  end loop;
-
-                  Check_Error_Code
-                    (TSSL.gnutls_certificate_set_x509_key_mem
-                       (Config.CSC,
-                        cert => Cert'Unchecked_Access,
-                        key  => Key'Unchecked_Access,
-                        p4   => TSSL.GNUTLS_X509_FMT_PEM));
-               end;
-
-            else
-               declare
-                  Cert : aliased C.char_array := C.To_C (Certificate_Filename);
-                  Key  : aliased C.char_array := C.To_C (Key_Filename);
-               begin
-                  Check_Error_Code
-                    (TSSL.gnutls_certificate_set_x509_key_file
-                       (Config.CSC,
-                        C.Strings.To_Chars_Ptr (Cert'Unchecked_Access),
-                        C.Strings.To_Chars_Ptr (Key'Unchecked_Access),
-                        TSSL.GNUTLS_X509_FMT_PEM));
-               end;
-            end if;
+            Set_Certificate (Config.CSC);
 
             TSSL.gnutls_certificate_set_dh_params
               (Config.CSC, Config.DH_Params);
