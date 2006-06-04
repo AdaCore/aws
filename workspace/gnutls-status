@@ -7,20 +7,8 @@ cert.adb:
 sock2_sec.adb:
    no-output and lock ?
 
-ssp.adb:
-   output ok, does not terminate properly.
-
-xmlt_sec.adb:
-   output ok, does not terminate properly.
-
-spg_sec.adb:
-   output ok, does not terminate properly.
-
 sock3_sec.adb:
    lock.
-
-ssback.adb:
-   output ok, does not terminate properly.
 
 plain2ssl.adb:
    error : A TLS packet with unexpected length was received.
@@ -28,39 +16,48 @@ plain2ssl.adb:
 nbconn_sec.adb:
    error: TLS Application data were received, while expecting handshake data.
 
-wait_sec.adb:
-   error: Insufficient credentials for that request.
-   The Connect is non blocking, so we do not call Do_Handshake. We have
-   probably some GNU/TLS call done before the handshake.
-
 wait2_sec.adb:
    error: Insufficient credentials for that request.
    Raised from Do_Handshake called from Connect.
+
+ssto.adb:
+   wrong data received.
+
+ssockto.adb:
+   error: Insufficient credentials for that request.
+
+spair_sec.adb:
+   no output, and lock.
+
+sockext_sec.adb:
+   server/client start and lock.
 
 
 ---------------------------------------------------------------------------
 
 Tests that are passing:
 
+	accs_sec.adb
 	afile_sec.adb
 	append_sec.adb
 	tsgetparam.adb
+	ssp.adb
+	xmlt_sec.adb
+	spg_sec.adb
+	ssback.adb
+	wait_sec.adb
+
 
 ---------------------------------------------------------------------------
 
 Tests not analysed yet:
 
-accs_sec.adb
 check_mem.adb
 disp_soap_sec.adb
 hload_sec.adb
 huge_response_sec.adb
 smem_sec.adb
-sockext_sec.adb
 sockover_sec.adb
-spair_sec.adb
 sslcfg.adb
-ssockto.adb
-ssto.adb
 test_sec_soap.adb
 test_soap5_sec.adb
