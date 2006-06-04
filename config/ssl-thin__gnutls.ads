@@ -348,6 +348,9 @@ package SSL.Thin is
    for gnutls_openpgp_key_status_t'Size use C.int'Size;
 
    type gnutls_close_request_t is (GNUTLS_SHUT_RDWR, GNUTLS_SHUT_WR);
+   for gnutls_close_request_t use
+     (GNUTLS_SHUT_RDWR => 0,
+      GNUTLS_SHUT_WR   => 1);
    for gnutls_close_request_t'Size use C.int'Size;
 
    type gnutls_protocol_t is
