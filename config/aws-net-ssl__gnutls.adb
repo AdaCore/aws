@@ -283,9 +283,12 @@ package body AWS.Net.SSL is
    --------------
 
    procedure Finalize (Socket : in out Socket_Type) is
+      use System;
       use type TSSL.gnutls_session_t;
+
       function To_Access is new Ada.Unchecked_Conversion
         (TSSL.gnutls_transport_ptr_t, Socket_Access);
+
       Sock : Socket_Access;
    begin
       if Socket.SSL /= null
@@ -294,6 +297,12 @@ package body AWS.Net.SSL is
          --  Free one more reference from gnutls_transport_ptr_t
 
          Sock := To_Access (TSSL.gnutls_transport_get_ptr (Socket.SSL));
+
+         --  Unregister the push/pull callbacks to avoid access violation in
+         --  case the socket was not shutdown properly. on the
+
+         TSSL.gnutls_transport_set_push_function (Socket.SSL, Null_Address);
+         TSSL.gnutls_transport_set_pull_function (Socket.SSL, Null_Address);
 
          TSSL.gnutls_transport_set_ptr
            (Socket.SSL, TSSL.gnutls_transport_ptr_t (System.Null_Address));
@@ -903,9 +912,17 @@ package body AWS.Net.SSL is
    --------------
 
    procedure Shutdown (Socket : in Socket_Type) is
-      Code : constant C.int
-        := TSSL.gnutls_bye (Socket.SSL, TSSL.GNUTLS_SHUT_RDWR);
+      use System;
+      Code : C.int;
    begin
+      --  Unregister the push/pull callback to avoid locking on the
+      --  gnutls_bye() call.
+
+      TSSL.gnutls_transport_set_push_function (Socket.SSL, Null_Address);
+      TSSL.gnutls_transport_set_pull_function (Socket.SSL, Null_Address);
+
+      Code := TSSL.gnutls_bye (Socket.SSL, TSSL.GNUTLS_SHUT_RDWR);
+
       if Code /= 0 then
          Net.Log.Error (Socket, C.Strings.Value (TSSL.gnutls_strerror (Code)));
       end if;
