@@ -73,7 +73,7 @@ package body AWS.Net.Std is
 
    function Get_Inet_Addr (Host : in String) return Sockets.Inet_Addr_Type;
    pragma Inline (Get_Inet_Addr);
-   --  Returns the inet address for the given host.
+   --  Returns the inet address for the given host
 
    procedure Set_Non_Blocking_Mode (Socket : in Socket_Type);
    --  Set the socket to the non-blocking mode.
@@ -91,13 +91,12 @@ package body AWS.Net.Std is
    begin
       New_Socket.S := new Socket_Hidden;
 
-      --  Check for Accept_Socket timeout.
+      --  Check for Accept_Socket timeout
 
       Wait_For (Input, Socket);
 
       Sockets.Accept_Socket
-        (Socket_Type (Socket).S.FD,
-         New_Socket.S.FD, Sock_Addr);
+        (Socket_Type (Socket).S.FD, New_Socket.S.FD, Sock_Addr);
 
       if Net.Log.Is_Event_Active then
          Net.Log.Event (Net.Log.Accept_Socket, New_Socket);
