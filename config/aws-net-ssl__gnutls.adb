@@ -47,9 +47,8 @@ package body AWS.Net.SSL is
    use type C.unsigned;
    use type C.int;
 
-   package Skip_Exceptions is
-     new Ada.Task_Attributes
-           (Ada.Exceptions.Exception_Occurrence_Access, null);
+   package Skip_Exceptions is new Ada.Task_Attributes
+     (Ada.Exceptions.Exception_Occurrence_Access, null);
 
    subtype NSST is Net.Std.Socket_Type;
 
@@ -62,6 +61,7 @@ package body AWS.Net.SSL is
    procedure Check_Error_Code (Code : in C.int; Socket : in Socket_Type'Class);
 
    procedure Check_Config (Socket : in out Socket_Type);
+   pragma Inline (Check_Config);
 
    procedure Save_Exception (E : in Ada.Exceptions.Exception_Occurrence);
 
@@ -645,7 +645,7 @@ package body AWS.Net.SSL is
    exception
       when E : others =>
          Save_Exception (E);
-         return -1;
+         return TSSL.GNUTLS_E_PULL_ERROR;
    end Pull;
 
    ----------
@@ -681,7 +681,7 @@ package body AWS.Net.SSL is
         := TSSL.gnutls_record_recv (Socket.SSL, Data'Address, Data'Length);
    begin
       if Code < 0 then
-         Check_Error_Code (Code, Socket);
+         Check_Error_Code (TSSL.GNUTLS_E_PULL_ERROR, Socket);
       end if;
 
       Last := Data'First + Stream_Element_Offset (Code) - 1;
@@ -776,7 +776,7 @@ package body AWS.Net.SSL is
         := TSSL.gnutls_record_send (Socket.SSL, Data'Address, Data'Length);
    begin
       if Code < 0 then
-         Check_Error_Code (Code, Socket);
+         Check_Error_Code (TSSL.GNUTLS_E_PUSH_ERROR, Socket);
       end if;
 
       if Data'First = Stream_Element_Offset'First and Code = 0 then
@@ -794,14 +794,13 @@ package body AWS.Net.SSL is
       use TSSL;
       Session : aliased gnutls_session_t;
 
-      type Priority_List is array (0 .. 8) of gnutls_kx_algorithm_t;
+      type Priority_List is array (0 .. 4) of gnutls_kx_algorithm_t;
       pragma Convention (C, Priority_List);
 
       kx_prio : constant Priority_List :=
-        (GNUTLS_KX_DHE_RSA, GNUTLS_KX_DHE_DSS, GNUTLS_KX_RSA,
-         GNUTLS_KX_SRP_RSA, GNUTLS_KX_SRP_DSS, GNUTLS_KX_SRP,
-         GNUTLS_KX_RSA_EXPORT, GNUTLS_KX_ANON_DH, GNUTLS_0);
-      --  ??? maybe there is too many elements.
+                  (GNUTLS_KX_RSA, GNUTLS_KX_RSA_EXPORT,
+                   GNUTLS_KX_DHE_RSA, GNUTLS_KX_DHE_DSS,
+                   GNUTLS_0);
 
    begin
       Check_Config (Socket);
