@@ -33,10 +33,11 @@ with Ada.Exceptions;
 with Ada.Streams;
 
 with AWS.Net;
+with AWS.Net.SSL;
 
 with Get_Free_Port;
 
-procedure Sock3_Proc (Security : Boolean; Port : Positive) is
+procedure Sock3_Proc (Security : in Boolean; Port : in Positive) is
 
    use AWS;
    use Ada;
@@ -46,6 +47,7 @@ procedure Sock3_Proc (Security : Boolean; Port : Positive) is
 
    Server : Net.Socket_Type'Class := Net.Socket (False);
    Peer   : Net.Socket_Type'Class := Net.Socket (Security);
+   Config : AWS.Net.SSL.Config;
 
    Free_Port : Positive := Port;
 
@@ -77,8 +79,20 @@ procedure Sock3_Proc (Security : Boolean; Port : Positive) is
 
       delay 0.125;
 
+      if Security then
+         Net.SSL.Initialize (Config, "client.pem", Net.SSL.SSLv23_Client);
+
+         Net.SSL.Set_Config
+           (Net.SSL.Socket_Type (Client), Config);
+      end if;
+
+      if Security then
+         Net.Set_Timeout (Client, 2.0);
+      else
+         Net.Set_Timeout (Client, 0.5);
+      end if;
+
       Net.Connect (Client, "localhost", Free_Port);
-      Net.Set_Timeout (Client, 0.5);
 
       loop
          delay 0.01;
@@ -88,7 +102,7 @@ procedure Sock3_Proc (Security : Boolean; Port : Positive) is
             Last   : Stream_Element_Offset;
          begin
             --  Want see ?
-            --  Text_IO.Put_Line (Buffer'Length'Img);
+            --  Text_IO.Put_Line (Buffer'Length'Img); Text_IO.Flush;
 
             Net.Receive (Client, Buffer, Last);
 
