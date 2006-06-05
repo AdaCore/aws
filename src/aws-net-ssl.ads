@@ -165,6 +165,11 @@ private
       SSL    : SSL_Handle := TSSL.Null_Handle;
    end record;
 
+   procedure Set_Timeout
+     (Socket  : in out Socket_Type;
+      Timeout : in     Duration);
+   --  Overriden to change the status of the internal SSL data
+
    procedure Finalize (Socket : in out Socket_Type);
    --  Finalize overriden for GNUTLS implementation.
    --  for OpenSSL implementation, it have to call inherited routine.
