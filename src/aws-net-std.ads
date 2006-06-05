@@ -42,7 +42,7 @@ package AWS.Net.Std is
      (Socket : in out Socket_Type;
       Port   : in     Natural;
       Host   : in     String := "");
-   --  Bind a socket on a given port.
+   --  Bind a socket on a given port
 
    procedure Listen
      (Socket     : in Socket_Type;
