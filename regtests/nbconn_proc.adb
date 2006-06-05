@@ -32,17 +32,18 @@ with Ada.Exceptions;
 with Ada.Streams;
 with Ada.Text_IO;
 with AWS.Net.Buffered;
+with AWS.Net.SSL;
 with Get_Free_Port;
 
-procedure NBConn_Proc (Security : Boolean) is
+procedure NBConn_Proc (Security : in Boolean) is
    use Ada.Text_IO;
    use AWS;
 
    Queue_Size : constant := 5;
-   Port    : Positive := 7000;
-   Server  : Net.Socket_Type'Class := Net.Socket (False);
-   Clients : array (1 .. Queue_Size + 2) of Net.Socket_Access;
-   Sample  : constant Ada.Streams.Stream_Element_Array (1 .. 100)
+   Port       : Positive := 7000;
+   Server     : Net.Socket_Type'Class := Net.Socket (False);
+   Clients    : array (1 .. Queue_Size + 2) of Net.Socket_Access;
+   Sample     : constant Ada.Streams.Stream_Element_Array (1 .. 100)
      := (others => 1);
 
    task Server_Task is
@@ -51,10 +52,10 @@ procedure NBConn_Proc (Security : Boolean) is
    end Server_Task;
 
    task body Server_Task is
-      Peer  : Net.Socket_Access;
+      Peer : Net.Socket_Access;
    begin
       for J in Clients'Range loop
-         accept Get (N : Positive) do
+         accept Get (N : in Positive) do
             Peer := Net.Socket (Security);
          end Get;
 
@@ -117,6 +118,10 @@ begin
          Put_Line (Integer'Image (J));
 
          Server_Task.Get (J);
+
+         if Security then
+            Net.SSL.Do_Handshake (Net.SSL.Socket_Type (Clients (J).all));
+         end if;
 
          Net.Send (Clients (J).all, Sample);
       end;
