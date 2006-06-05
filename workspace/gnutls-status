@@ -7,9 +7,6 @@ cert.adb:
 plain2ssl.adb:
    error : A TLS packet with unexpected length was received.
 
-nbconn_sec.adb:
-   error: TLS Application data were received, while expecting handshake data.
-
 ssto.adb:
    wrong data received.
 
@@ -45,6 +42,7 @@ Tests that are passing:
 	hload_sec.adb
 	huge_response_sec.adb
 	smem_sec.adb
+	nbconn_sec.adb
 
 
 ---------------------------------------------------------------------------
