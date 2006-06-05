@@ -22,6 +22,9 @@ spair_sec.adb:
 sockext_sec.adb:
    server/client start and lock.
 
+sockover_sec.adb:
+   start and lock.
+   timeout problem.
 
 ---------------------------------------------------------------------------
 
@@ -39,6 +42,9 @@ Tests that are passing:
 	sock3_sec.adb
 	sock2_sec.adb
 	wait2_sec.adb
+	hload_sec.adb
+	huge_response_sec.adb
+	smem_sec.adb
 
 
 ---------------------------------------------------------------------------
@@ -47,10 +53,6 @@ Tests not analysed yet:
 
 check_mem.adb
 disp_soap_sec.adb
-hload_sec.adb
-huge_response_sec.adb
-smem_sec.adb
-sockover_sec.adb
 sslcfg.adb
 test_sec_soap.adb
 test_soap5_sec.adb
