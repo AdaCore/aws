@@ -121,7 +121,7 @@ package body AWS.Net is
    ------------------------
 
    procedure Raise_Socket_Error
-     (Socket : Socket_Type'Class; Text : in String) is
+     (Socket : in Socket_Type'Class; Text : in String) is
    begin
       Log.Error (Socket, Text);
       Raise_Exception (Socket_Error'Identity, Text);
@@ -335,7 +335,9 @@ package body AWS.Net is
                     (Socket, "Wait error code" & Integer'Image (Errno));
                end if;
 
-            when 0  => return (others => False);
+            when 0  =>
+               return (others => False);
+
             when 1  =>
                return (Input  => (PFD.REvents and (POLLIN or POLLPRI)) /= 0,
                        Output => (PFD.REvents and POLLOUT) /= 0,
