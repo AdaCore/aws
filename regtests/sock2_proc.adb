@@ -46,7 +46,6 @@ procedure Sock2_Proc (Security : Boolean; Port : Positive) is
 
    Server    : Net.Socket_Type'Class := Net.Socket (False);
    Peer      : Net.Socket_Type'Class := Net.Socket (Security);
-   Config    : AWS.Net.SSL.Config;
 
    Free_Port : Positive := Port;
 
@@ -66,12 +65,6 @@ procedure Sock2_Proc (Security : Boolean; Port : Positive) is
       accept Start;
 
       delay 0.125;
-
-      if Security then
-         Net.SSL.Initialize (Config, "", Net.SSL.SSLv23_Client);
-
-         Net.SSL.Set_Config (Net.SSL.Socket_Type (Client), Config);
-      end if;
 
       Net.Connect (Client, "localhost", Free_Port);
 

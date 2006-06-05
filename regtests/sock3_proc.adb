@@ -43,11 +43,10 @@ procedure Sock3_Proc (Security : in Boolean; Port : in Positive) is
    use Ada;
    use Ada.Streams;
 
-   Sample : Stream_Element_Array (1 .. 100_000) := (others => 12);
+   Sample    : Stream_Element_Array (1 .. 100_000) := (others => 12);
 
-   Server : Net.Socket_Type'Class := Net.Socket (False);
-   Peer   : Net.Socket_Type'Class := Net.Socket (Security);
-   Config : AWS.Net.SSL.Config;
+   Server    : Net.Socket_Type'Class := Net.Socket (False);
+   Peer      : Net.Socket_Type'Class := Net.Socket (Security);
 
    Free_Port : Positive := Port;
 
@@ -78,13 +77,6 @@ procedure Sock3_Proc (Security : in Boolean; Port : in Positive) is
       accept Start;
 
       delay 0.125;
-
-      if Security then
-         Net.SSL.Initialize (Config, "client.pem", Net.SSL.SSLv23_Client);
-
-         Net.SSL.Set_Config
-           (Net.SSL.Socket_Type (Client), Config);
-      end if;
 
       if Security then
          Net.Set_Timeout (Client, 2.0);
