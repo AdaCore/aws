@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2004                            --
---                               ACT-Europe                                 --
+--                          Copyright (C) 2004-2006                         --
+--                                  AdaCore                                 --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -32,7 +32,7 @@ with Ada.Text_IO;
 with Ada.Exceptions;
 with Ada.Streams;
 
-with AWS.Net;
+with AWS.Net.SSL;
 
 with Get_Free_Port;
 
@@ -42,10 +42,11 @@ procedure Sock2_Proc (Security : Boolean; Port : Positive) is
    use Ada;
    use Ada.Streams;
 
-   Sample : Stream_Element_Array (1 .. 100_000);
+   Sample    : Stream_Element_Array (1 .. 100_000);
 
-   Server : Net.Socket_Type'Class := Net.Socket (False);
-   Peer   : Net.Socket_Type'Class := Net.Socket (Security);
+   Server    : Net.Socket_Type'Class := Net.Socket (False);
+   Peer      : Net.Socket_Type'Class := Net.Socket (Security);
+   Config    : AWS.Net.SSL.Config;
 
    Free_Port : Positive := Port;
 
@@ -65,6 +66,12 @@ procedure Sock2_Proc (Security : Boolean; Port : Positive) is
       accept Start;
 
       delay 0.125;
+
+      if Security then
+         Net.SSL.Initialize (Config, "", Net.SSL.SSLv23_Client);
+
+         Net.SSL.Set_Config (Net.SSL.Socket_Type (Client), Config);
+      end if;
 
       Net.Connect (Client, "localhost", Free_Port);
 
