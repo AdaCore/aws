@@ -306,7 +306,7 @@ private
    --  Return error code for the last socket operation
 
    procedure Raise_Socket_Error
-     (Socket : Socket_Type'Class; Text : in String);
+     (Socket : in Socket_Type'Class; Text : in String);
    pragma No_Return (Raise_Socket_Error);
 
    --  Controlled primitives
