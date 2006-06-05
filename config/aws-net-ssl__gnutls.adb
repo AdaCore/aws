@@ -225,7 +225,7 @@ package body AWS.Net.SSL is
       begin
          if not Done then
             Initialize
-              (Config               => SSL.Default_Config,
+              (Config               => Default_Config,
                Certificate_Filename => CNF.Certificate (Default),
                Security_Mode        => Method'Value
                                          (CNF.Security_Mode (Default)),
@@ -563,9 +563,7 @@ package body AWS.Net.SSL is
 
    procedure Initialize_Default_Config is
    begin
-      if Default_Config = (null, null, null, null, null, False) then
-         Default_Config_Synch.Create_Default_Config;
-      end if;
+      Default_Config_Synch.Create_Default_Config;
    end Initialize_Default_Config;
 
    -------------
