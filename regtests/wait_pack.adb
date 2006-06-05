@@ -30,10 +30,13 @@ with Ada.Exceptions;
 with Ada.Streams;
 with Ada.Text_IO;
 with AWS.Net.Generic_Sets;
+with AWS.Net.SSL;
 
 with Get_Free_Port;
 
 package body Wait_Pack is
+
+   use Ada.Streams;
    use AWS;
 
    type Null_Record is null record;
@@ -44,16 +47,16 @@ package body Wait_Pack is
    -- Run --
    ---------
 
-   procedure Run (Security : Boolean; Port : Positive) is
+   procedure Run (Security : in Boolean; Port : in Positive) is
       use Ada.Text_IO;
       use type Sets.Socket_Count;
 
       Set_Size    : constant := 20;
       Sample_Size : constant := 10;
 
-      Free_Port : Positive := Port;
+      Free_Port   : Positive := Port;
 
-      Index : Sets.Socket_Index := 1;
+      Index       : Sets.Socket_Index := 1;
 
       task Client_Side is
          entry Next;
@@ -64,8 +67,8 @@ package body Wait_Pack is
       -----------------
 
       task body Client_Side is
-         Set    : Sets.Socket_Set_Type;
-         A_Bit  : constant Duration := 0.125;
+         A_Bit : constant Duration := 0.125;
+         Set   : Sets.Socket_Set_Type;
       begin
          for J in 1 .. Set_Size loop
             declare
@@ -79,8 +82,7 @@ package body Wait_Pack is
                delay A_Bit;
                Net.Send
                  (Socket,
-                  (1 .. Sample_Size => Ada.Streams.Stream_Element
-                                         (J rem 256)));
+                  (1 .. Sample_Size => Stream_Element (J rem 256)));
 
                Sets.Add (Set, Socket, Sets.Output);
             end;
@@ -100,8 +102,8 @@ package body Wait_Pack is
                delay A_Bit;
                Net.Send
                  (Socket,
-                  (1 .. Sample_Size => Ada.Streams.Stream_Element
-                                         (Sets.Count (Set) rem 256)));
+                  (1 .. Sample_Size =>
+                     Stream_Element (Sets.Count (Set) rem 256)));
 
                accept Next;
                delay A_Bit;
@@ -141,8 +143,9 @@ package body Wait_Pack is
          end if;
 
          declare
-            Socket : Net.Socket_Type'Class := Sets.Get_Socket (Set, Index);
-            New_Sock : Net.Socket_Type'Class := Net.Socket (Security);
+            Socket         : Net.Socket_Type'Class
+              := Sets.Get_Socket (Set, Index);
+            New_Sock       : Net.Socket_Type'Class := Net.Socket (Security);
             Socket_Removed : Boolean := False;
          begin
             if Net.Get_FD (Socket) = Net.Get_FD (Server) then
@@ -154,16 +157,15 @@ package body Wait_Pack is
                Sets.Add (Set, New_Sock, Sets.Input);
             else
                declare
-                  Data : Ada.Streams.Stream_Element_Array (1 .. Sample_Size);
+                  Data : Stream_Element_Array (1 .. Sample_Size);
                begin
                   Data := Net.Receive (Socket);
 
                   Put ("Data");
 
                   for J in Data'Range loop
-                     Put (Ada.Streams.Stream_Element_Offset'Image (J)
-                          & " =>" & Ada.Streams.Stream_Element'Image
-                                      (Data (J)));
+                     Put (Stream_Element_Offset'Image (J)
+                          & " =>" & Stream_Element'Image (Data (J)));
                   end loop;
 
                   New_Line;

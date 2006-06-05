@@ -46,7 +46,7 @@ procedure Wait_Proc (Security : in Boolean; Port : in Positive) is
    Set_Size    : constant := 20;
    Sample_Size : constant := 10;
 
-   Free_Port : Positive := Port;
+   Free_Port   : Positive := Port;
 
    task Client_Side is
       entry Start;
