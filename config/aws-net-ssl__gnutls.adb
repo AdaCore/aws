@@ -645,7 +645,7 @@ package body AWS.Net.SSL is
    exception
       when E : others =>
          Save_Exception (E);
-         return TSSL.GNUTLS_E_PULL_ERROR;
+         return -1;
    end Pull;
 
    ----------
