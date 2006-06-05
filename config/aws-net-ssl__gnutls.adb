@@ -50,6 +50,9 @@ package body AWS.Net.SSL is
    package Skip_Exceptions is new Ada.Task_Attributes
      (Ada.Exceptions.Exception_Occurrence_Access, null);
 
+   function To_Access is new Ada.Unchecked_Conversion
+     (TSSL.gnutls_transport_ptr_t, Socket_Access);
+
    subtype NSST is Net.Std.Socket_Type;
 
    type Mutex_Access is access all AWS.Utils.Semaphore;
@@ -285,9 +288,6 @@ package body AWS.Net.SSL is
    procedure Finalize (Socket : in out Socket_Type) is
       use System;
       use type TSSL.gnutls_session_t;
-
-      function To_Access is new Ada.Unchecked_Conversion
-        (TSSL.gnutls_transport_ptr_t, Socket_Access);
 
       Sock : Socket_Access;
    begin
@@ -903,6 +903,27 @@ package body AWS.Net.SSL is
    begin
       Socket.Config := Config;
    end Set_Config;
+
+   -----------------
+   -- Set_Timeout --
+   -----------------
+
+   procedure Set_Timeout
+     (Socket  : in out Socket_Type;
+      Timeout : in     Duration)
+   is
+      Sock : Socket_Access;
+   begin
+      --  This version set the timeout for both the Socket parameter and the
+      --  transport ptr stored socket.
+
+      Sock := To_Access (TSSL.gnutls_transport_get_ptr (Socket.SSL));
+
+      if Sock /= null then
+         Sock.Timeout := Timeout;
+         Set_Timeout (Net.Socket_Type (Socket), Timeout);
+      end if;
+   end Set_Timeout;
 
    --------------
    -- Shutdown --
