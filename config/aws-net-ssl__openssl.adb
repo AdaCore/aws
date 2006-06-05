@@ -85,10 +85,10 @@ package body AWS.Net.SSL is
    procedure Error_If (Socket : in Socket_Type; Error : in Boolean);
    pragma Inline (Error_If);
    --  Raises and log Socket_Error if Error is true.
-   --  Attach the SSL error message
+   --  Attach the SSL error message.
 
    procedure Do_Handshake (Socket : in out Socket_Type; Success : out Boolean);
-   --  Perform SSL handshake.
+   --  Perform SSL handshake
 
    function Error_Stack return String;
    --  Returns error stack of the last SSL error in multiple lines
@@ -580,6 +580,17 @@ package body AWS.Net.SSL is
    begin
       Socket.Config := Config;
    end Set_Config;
+
+   -----------------
+   -- Set_Timeout --
+   -----------------
+
+   procedure Set_Timeout
+     (Socket  : in out Socket_Type;
+      Timeout : in     Duration) is
+   begin
+      Set_Timeout (Net.Socket_Type (Socket), Timeout);
+   end Set_Timeout;
 
    --------------
    -- Shutdown --
