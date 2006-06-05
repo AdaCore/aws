@@ -46,6 +46,9 @@ Tests that are passing:
 	huge_response_sec.adb
 	smem_sec.adb
 	nbconn_sec.adb
+	test_sec_soap.adb
+	test_soap5_sec.adb
+	disp_soap_sec.adb
 
 
 ---------------------------------------------------------------------------
@@ -53,6 +56,3 @@ Tests that are passing:
 Tests not analysed yet:
 
 check_mem.adb
-disp_soap_sec.adb
-test_sec_soap.adb
-test_soap5_sec.adb
