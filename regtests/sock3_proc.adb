@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2004                            --
---                               ACT-Europe                                 --
+--                          Copyright (C) 2004-2006                         --
+--                                  AdaCore                                 --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -78,13 +78,13 @@ procedure Sock3_Proc (Security : in Boolean; Port : in Positive) is
 
       delay 0.125;
 
+      Net.Connect (Client, "localhost", Free_Port);
+
       if Security then
          Net.Set_Timeout (Client, 2.0);
       else
          Net.Set_Timeout (Client, 0.5);
       end if;
-
-      Net.Connect (Client, "localhost", Free_Port);
 
       loop
          delay 0.01;
