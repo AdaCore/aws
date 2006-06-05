@@ -179,9 +179,9 @@ package body AWS.Net is
       Blocking : in     Boolean) is
    begin
       if Blocking then
-         Socket.Timeout := Forever;
+         Set_Timeout (Socket_Type'Class (Socket), Forever);
       else
-         Socket.Timeout := 0.0;
+         Set_Timeout (Socket_Type'Class (Socket), 0.0);
       end if;
    end Set_Blocking_Mode;
 
