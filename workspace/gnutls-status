@@ -4,21 +4,11 @@ Here are the known regressions on the GNU/TLS support.
 cert.adb:
    The client certificate is not sent to the server.
 
-sock2_sec.adb:
-   no-output and lock ?
-
-sock3_sec.adb:
-   lock.
-
 plain2ssl.adb:
    error : A TLS packet with unexpected length was received.
 
 nbconn_sec.adb:
    error: TLS Application data were received, while expecting handshake data.
-
-wait2_sec.adb:
-   error: Insufficient credentials for that request.
-   Raised from Do_Handshake called from Connect.
 
 ssto.adb:
    wrong data received.
@@ -46,6 +36,9 @@ Tests that are passing:
 	spg_sec.adb
 	ssback.adb
 	wait_sec.adb
+	sock3_sec.adb
+	sock2_sec.adb
+	wait2_sec.adb
 
 
 ---------------------------------------------------------------------------
