@@ -912,17 +912,21 @@ package body AWS.Net.SSL is
      (Socket  : in out Socket_Type;
       Timeout : in     Duration)
    is
+      use type SSL_Handle;
       Sock : Socket_Access;
    begin
       --  This version set the timeout for both the Socket parameter and the
       --  transport ptr stored socket.
 
-      Sock := To_Access (TSSL.gnutls_transport_get_ptr (Socket.SSL));
+      if Socket.SSL /= null then
+         Sock := To_Access (TSSL.gnutls_transport_get_ptr (Socket.SSL));
+      end if;
 
       if Sock /= null then
          Sock.Timeout := Timeout;
-         Set_Timeout (Net.Socket_Type (Socket), Timeout);
       end if;
+
+      Set_Timeout (Net.Socket_Type (Socket), Timeout);
    end Set_Timeout;
 
    --------------
