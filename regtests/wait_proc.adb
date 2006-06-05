@@ -33,7 +33,10 @@ with AWS.Net.Sets;
 with AWS.Net.SSL;
 with Get_Free_Port;
 
-procedure Wait_Proc (Security : Boolean; Port : Positive) is
+procedure Wait_Proc (Security : in Boolean; Port : in Positive) is
+
+   use Ada.Exceptions;
+   use Ada.Streams;
    use Ada.Text_IO;
    use AWS;
    use AWS.Net;
@@ -55,10 +58,10 @@ procedure Wait_Proc (Security : Boolean; Port : Positive) is
 
    task body Client_Side is
       use type Ada.Streams.Stream_Element;
-      Set    : Sets.Socket_Set_Type;
-      Index  : Sets.Socket_Index;
-      Data   : Ada.Streams.Stream_Element_Array (1 .. Sample_Size);
-      Sum    : Ada.Streams.Stream_Element := 0;
+      Set   : Sets.Socket_Set_Type;
+      Index : Sets.Socket_Index;
+      Data  : Stream_Element_Array (1 .. Sample_Size);
+      Sum   : Stream_Element := 0;
    begin
       accept Start;
 
@@ -66,9 +69,9 @@ procedure Wait_Proc (Security : Boolean; Port : Positive) is
          declare
             Socket : Net.Socket_Type'Class := Net.Socket (Security);
          begin
-            Net.Connect (Socket, "localhost", Free_Port, Wait => False);
-
             Net.Set_Timeout (Socket, 1.0);
+
+            Net.Connect (Socket, "localhost", Free_Port, Wait => False);
 
             Sets.Add (Set, Socket, Sets.Output);
          end;
@@ -106,9 +109,10 @@ procedure Wait_Proc (Security : Boolean; Port : Positive) is
 
                      Index := Index + 1;
 
-                  exception when Net.Socket_Error =>
-                     Net.Shutdown (Socket);
-                     Sets.Remove_Socket (Set, Index);
+                  exception
+                     when Net.Socket_Error =>
+                        Net.Shutdown (Socket);
+                        Sets.Remove_Socket (Set, Index);
                   end;
 
                elsif Sets.Is_Error (Set, Index) then
@@ -125,12 +129,12 @@ procedure Wait_Proc (Security : Boolean; Port : Positive) is
          end loop;
       end loop Main;
 
-      Put_Line (Ada.Streams.Stream_Element'Image (Sum));
+      Put_Line (Stream_Element'Image (Sum));
 
    exception
       when E : others =>
          Put_Line
-           ("Client side " & Ada.Exceptions.Exception_Information (E));
+           ("Client side " & Exception_Information (E));
    end Client_Side;
 
    Server : Net.Socket_Type'Class := Net.Socket (False);
@@ -152,7 +156,7 @@ begin
          Net.Accept_Socket (Server, New_Socket => New_Sock);
 
          Net.Send
-           (New_Sock, (1 .. Sample_Size => Ada.Streams.Stream_Element (J)));
+           (New_Sock, (1 .. Sample_Size => Stream_Element (J)));
 
          delay 0.5;
          Net.Shutdown (New_Sock);
@@ -164,5 +168,5 @@ begin
 exception
    when E : others =>
       Put_Line
-        ("Server side " & Ada.Exceptions.Exception_Information (E));
+        ("Server side " & Exception_Information (E));
 end Wait_Proc;
