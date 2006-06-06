@@ -185,6 +185,17 @@ package body AWS.Net.SSL is
       raise Program_Error;
    end Set_Config;
 
+   -----------------
+   -- Set_Timeout --
+   -----------------
+
+   procedure Set_Timeout
+     (Socket  : in out Socket_Type;
+      Timeout : in     Duration) is
+   begin
+      raise Program_Error;
+   end Set_Timeout;
+
    --------------
    -- Shutdown --
    --------------
