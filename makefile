@@ -426,7 +426,7 @@ endif
 	echo 'pragma Source_File_Name (SSL.Thin, \
 	 Spec_File_Name => "ssl-thin__$(SSL_SUFFIX).ads");' >> $(CONFADC)
 	echo 'pragma Source_File_Name (AWS.Net.SSL, Body_File_Name => \
-	  "aws-net_ssl__$(SSL_SUFFIX).adb");' >> $(CONFADC)
+	  "aws-net-ssl__$(SSL_SUFFIX).adb");' >> $(CONFADC)
 	echo 'pragma Source_File_Name (AWS.Net.SSL.Certificate, \
 	 Body_File_Name => "aws-net-ssl-certificate__$(SSL_SUFFIX).adb");' \
 	  >> $(CONFADC)
