@@ -23,8 +23,6 @@ sockover_sec.adb:
    start and lock.
    timeout problem.
 
-sslcfg.adb:
-   Need to add check for wrong/missing certificate or key file.
 
 ---------------------------------------------------------------------------
 
@@ -49,7 +47,7 @@ Tests that are passing:
 	test_sec_soap.adb
 	test_soap5_sec.adb
 	disp_soap_sec.adb
-
+	sslcfg.adb
 
 ---------------------------------------------------------------------------
 
