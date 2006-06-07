@@ -110,7 +110,12 @@ else
 	./test_all
 endif
 	-for file in $(TOGETHER); do \
-	   diff -c -w $$file.out $$file.res 1>> alldifs 2>> alldifs; \
+	   if [ -f $$file.$(SOCKET).out ]; then \
+	      diff -c -w $$file.$(SOCKET).out $$file.res \
+		1>> alldifs 2>> alldifs; \
+	   else \
+	      diff -c -w $$file.out $$file.res 1>> alldifs 2>> alldifs; \
+	   fi; \
 	done
 	cat alldifs
 	diff -q -w alldifs alldifs.out
