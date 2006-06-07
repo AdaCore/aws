@@ -9,6 +9,10 @@ plain2ssl.adb:
 
 ssto.adb:
    wrong data received.
+   -> the problem comes from the fact that the Client socket is first
+      on input timeout. The next step is to actually get some data, but
+      the next Receice call fails with an input timeout. Reconnecting solve
+      the problem. It looks like a wrong reset of the socket state...
 
 ssockto.adb:
    error: Insufficient credentials for that request.
