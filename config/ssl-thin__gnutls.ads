@@ -402,13 +402,25 @@ package SSL.Thin is
    subtype a_c_signed_char_t is System.Address;
    type a_size_t is access all C.size_t;
    type gnutls_transport_ptr_t is new System.Address;
+
+   type gnutls_session_t;
+   type gnutls_datum_t;
+   type gnutls_retr_st;
+
    type gnutls_srp_server_credentials_function is new System.Address;
    type gnutls_srp_client_credentials_function is new System.Address;
-   type gnutls_certificate_client_retrieve_function is new System.Address;
    type gnutls_certificate_server_retrieve_function is new System.Address;
    type gnutls_params_function is new System.Address;
 
-   type gnutls_datum_t;
+   type gnutls_certificate_client_retrieve_function is access function
+     (Session         : in     gnutls_session_t;
+      Req_CA_DN       : access gnutls_datum_t;
+      nreqs           : in     C.int;
+      pk_algos        : access gnutls_pk_algorithm_t;
+      pk_algos_length : in     C.int;
+      st              : access gnutls_retr_st) return C.int;
+   pragma Convention (C, gnutls_certificate_client_retrieve_function);
+
    type STRUCT_DSTRUCT;
 
    type gnutls_session_t is access all STRUCT_DSTRUCT;
@@ -427,6 +439,15 @@ package SSL.Thin is
    type gnutls_srp_client_credentials_t is access all STRUCT_DSTRUCT;
    type gnutls_openpgp_key_t is access all STRUCT_DSTRUCT;
    type gnutls_openpgp_privkey_t is access all STRUCT_DSTRUCT;
+
+   type gnutls_retr_st is record
+      cert_type  : gnutls_certificate_type_t;
+      cert_x509  : a_gnutls_x509_crt_t;
+      ncerts     : C.int;              -- one for pgp keys
+      key_x509   : gnutls_x509_privkey_t;
+      deinit_all : C.unsigned;         -- if non zero all keys will be deinited
+   end record;
+   pragma Convention (C, gnutls_retr_st);
 
    type gnutls_datum_t is record
       data : a_c_signed_char_t;
