@@ -449,6 +449,7 @@ regtests/srv.ads
 regtests/ssback.adb
 regtests/ssback.out
 regtests/sslcfg.adb
+regtests/sslcfg.gnutls.out
 regtests/sslcfg.out
 regtests/ssockto.adb
 regtests/ssockto.out
