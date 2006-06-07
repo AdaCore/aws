@@ -38,6 +38,7 @@ with System;
 
 with AWS.Config;
 with AWS.Net.Log;
+with AWS.OS_Lib;
 with AWS.Utils;
 
 package body AWS.Net.SSL is
@@ -372,16 +373,40 @@ package body AWS.Net.SSL is
       ---------------------
 
       procedure Set_Certificate
-        (CC : in out TSSL.gnutls_certificate_credentials_t) is
+        (CC : in out TSSL.gnutls_certificate_credentials_t)
+      is
+
+         procedure Check_File (Prefix, Filename : in String);
+         --  Check that Filename is present, raise an exception adding
+         --  Prefix in front of the message.
+
+         ----------------
+         -- Check_File --
+         ----------------
+
+         procedure Check_File (Prefix, Filename : in String) is
+         begin
+            if not OS_Lib.Is_Regular_File (Filename) then
+               Raise_Exception
+                 (Socket_Error'Identity,
+                  Prefix & " file """ & Filename & """ error.");
+            end if;
+         end Check_File;
+
+         Code : C.int;
+
       begin
          if Key_Filename = "" then
             --  Load certificates and private key from Certificate_File
+
+            Check_File ("Certificate", Certificate_Filename);
 
             declare
                use Ada.Strings;
                use type C.unsigned;
 
                function Get_File_Data return String;
+               --  Returns certificate file data
 
                Prefix : constant String := "-----BEGIN ";
                Suffix : constant String := "-----END ";
@@ -412,12 +437,6 @@ package body AWS.Net.SSL is
                      Close (File);
                      return Result;
                   end;
-
-               exception
-                  when Name_Error =>
-                     Ada.Exceptions.Raise_Exception
-                       (Socket_Error'Identity,
-                        "file """ & Certificate_Filename & """ error.");
                end Get_File_Data;
 
                Data : aliased constant String := Get_File_Data;
@@ -479,25 +498,43 @@ package body AWS.Net.SSL is
                   First := Last;
                end loop;
 
-               Check_Error_Code
-                 (TSSL.gnutls_certificate_set_x509_key_mem
-                    (CC,
-                     Cert => Cert'Unchecked_Access,
-                     Key  => Key'Unchecked_Access,
-                     P4   => TSSL.GNUTLS_X509_FMT_PEM));
+               Code := TSSL.gnutls_certificate_set_x509_key_mem
+                 (CC,
+                  Cert => Cert'Unchecked_Access,
+                  Key  => Key'Unchecked_Access,
+                  P4   => TSSL.GNUTLS_X509_FMT_PEM);
+
+               if Code = TSSL.GNUTLS_E_BASE64_DECODING_ERROR then
+                  Raise_Exception
+                    (Socket_Error'Identity,
+                     "Certificate file """
+                     & Certificate_Filename & """ error.");
+               else
+                  Check_Error_Code (Code);
+               end if;
             end;
 
          else
+            Check_File ("Certificate", Certificate_Filename);
+            Check_File ("Key", Key_Filename);
+
             declare
                Cert : aliased C.char_array := C.To_C (Certificate_Filename);
                Key  : aliased C.char_array := C.To_C (Key_Filename);
             begin
-               Check_Error_Code
-                 (TSSL.gnutls_certificate_set_x509_key_file
-                    (CC,
-                     C.Strings.To_Chars_Ptr (Cert'Unchecked_Access),
-                     C.Strings.To_Chars_Ptr (Key'Unchecked_Access),
-                     TSSL.GNUTLS_X509_FMT_PEM));
+               Code := TSSL.gnutls_certificate_set_x509_key_file
+                 (CC,
+                  C.Strings.To_Chars_Ptr (Cert'Unchecked_Access),
+                  C.Strings.To_Chars_Ptr (Key'Unchecked_Access),
+                  TSSL.GNUTLS_X509_FMT_PEM);
+
+               if Code = TSSL.GNUTLS_E_BASE64_DECODING_ERROR then
+                  Raise_Exception
+                    (Socket_Error'Identity,
+                     "Certificate/Key file error.");
+               else
+                  Check_Error_Code (Code);
+               end if;
             end;
          end if;
       end Set_Certificate;
@@ -740,6 +777,7 @@ package body AWS.Net.SSL is
    begin
       Secure (Socket, Result, Config);
       Session_Client (Result);
+      Do_Handshake (Result);
       return Result;
    end Secure_Client;
 
