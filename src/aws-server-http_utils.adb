@@ -1180,16 +1180,20 @@ package body AWS.Server.HTTP_Utils is
          File_Mode     : constant Boolean :=
                            Response.Mode (Answer) = Response.File;
 
-         Is_Up_To_Date : Boolean;
+         Is_Up_To_Date : Boolean := False;
          File          : Resources.File_Type;
+         File_Time     : Ada.Calendar.Time;
       begin
-         Is_Up_To_Date := File_Mode
-           and then
-         Is_Valid_HTTP_Date (AWS.Status.If_Modified_Since (C_Stat))
-           and then
-         Resources.File_Timestamp (Filename)
-           = Messages.To_Time (AWS.Status.If_Modified_Since (C_Stat));
-         --  Equal used here see [RFC 2616 - 14.25]
+         if File_Mode then
+            File_Time := Resources.File_Timestamp (Filename);
+
+            Is_Up_To_Date
+              := Is_Valid_HTTP_Date (AWS.Status.If_Modified_Since (C_Stat))
+                    and then
+                 File_Time
+                   = Messages.To_Time (AWS.Status.If_Modified_Since (C_Stat));
+            --  Equal used here see [RFC 2616 - 14.25]
+         end if;
 
          if Is_Up_To_Date then
             --  [RFC 2616 - 10.3.5]
@@ -1241,9 +1245,7 @@ package body AWS.Server.HTTP_Utils is
          --  Send file last-modified timestamp info in case of a file
 
          if File_Mode then
-            Net.Buffered.Put_Line
-              (Sock,
-               Messages.Last_Modified (Resources.File_Timestamp (Filename)));
+            Net.Buffered.Put_Line (Sock, Messages.Last_Modified (File_Time));
          end if;
 
          --  Note that we cannot send the Content_Length header at this
