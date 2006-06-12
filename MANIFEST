@@ -579,6 +579,7 @@ src/aws-config-utils.adb
 src/aws-config.adb
 src/aws-config.ads
 src/aws-containers-key_value.ads
+src/aws-containers-string_vectors.ads
 src/aws-containers-tables-set.adb
 src/aws-containers-tables-set.ads
 src/aws-containers-tables.adb
