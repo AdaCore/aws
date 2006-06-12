@@ -83,8 +83,6 @@ package ZLib.Streams is
 
 private
 
-   use Ada.Streams;
-
    type Buffer_Access is access all Stream_Element_Array;
 
    type Stream_Type

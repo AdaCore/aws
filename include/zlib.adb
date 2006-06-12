@@ -245,7 +245,7 @@ package body ZLib is
       Out_Last  :    out Ada.Streams.Stream_Element_Offset;
       Flush     : in     Flush_Mode)
    is
-      No_Data : Stream_Element_Array := (1 .. 0 => 0);
+      No_Data : constant Stream_Element_Array := (1 .. 0 => 0);
       Last    : Stream_Element_Offset;
    begin
       Translate (Filter, No_Data, Last, Out_Data, Out_Last, Flush);

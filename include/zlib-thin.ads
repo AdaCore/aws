@@ -35,8 +35,8 @@ private package ZLib.Thin is
                                                 --  zconf.h:216
    type Int is new Interfaces.C.int;
 
-   type ULong is new Interfaces.C.unsigned_long;     --  32 bits or more
-                                                     --  zconf.h:217
+   type ULong is new Interfaces.C.unsigned_long; -- 32 bits or more zconf.h:217
+
    subtype Chars_Ptr is Interfaces.C.Strings.chars_ptr;
 
    type ULong_Access is access ULong;
@@ -371,12 +371,12 @@ private
       state     : Voidp;              -- not visible by applications
       zalloc    : alloc_func := null; -- used to allocate the internal state
       zfree     : free_func  := null; -- used to free the internal state
-      opaque    : Voidp;              -- private data object passed to
-                                      --  zalloc and zfree
-      data_type : Int;                -- best guess about the data type:
-                                      --  ascii or binary
-      adler     : ULong;              -- adler32 value of the uncompressed
-                                      --  data
+      opaque    : Voidp;
+      --  private data object passed to zalloc and zfree
+      data_type : Int;
+      --  best guess about the data type: ascii or binary
+      adler     : ULong;
+      --  adler32 value of the uncompressed data
       reserved  : ULong;              -- reserved for future use
    end record;
 
