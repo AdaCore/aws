@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2003                            --
---                                ACT-Europe                                --
+--                          Copyright (C) 2003-2006                         --
+--                                  AdaCore                                 --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -26,7 +26,7 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  This is a demo for the Web Mail AWS's feature.
+--  This is a demo for the Web Mail AWS's feature
 
 with Ada.Text_IO;
 
@@ -46,9 +46,9 @@ begin
 
    AWS.Server.Start
      (WS, "Web Mail Demo",
-      Port           => 1234,
-      Session        => True,
-      Callback       => AWS.Services.Web_Mail.Callback'Access);
+      Port     => 1234,
+      Session  => True,
+      Callback => AWS.Services.Web_Mail.Callback'Access);
 
    Text_IO.Put_Line ("Press 'Q' key to shutdown...");
 
