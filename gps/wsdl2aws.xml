@@ -7,7 +7,7 @@
     <Spec_Suffix>.wsdl</Spec_Suffix>
   </Language>
 
-   <action name="WSDL2AWS" output="none">
+   <action name="WSDL2AWS" output="none" category="AWS">
       <description>Generates AWS SOAP stubs/skeletons from a WSDL document.</description>
       <!-- This action only applies to Ada files -->
       <filter language="wsdl" 
