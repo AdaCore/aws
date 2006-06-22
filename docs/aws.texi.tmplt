@@ -45,9 +45,6 @@
 @subtitle Date: @today{}
 @author AdaCore
 
-@sp 1
-@url{http://libre.act-europe.fr/aws}
-
 @vskip 0pt plus 1filll
 
 @page
@@ -77,10 +74,6 @@ unmodified in any copy.
 <p>Document revision level $Revision$
 <p>Date: @today{}
 <p>AdaCore
-</font>
-
-<font size="+1">
-<p>@url{http://libre.act-europe.fr/aws}
 </font>
 
 @page
@@ -249,8 +242,8 @@ On UNIX you must use the socket binding from ENST @*
 @cindex POSIX
 
 On Windows you can use the one distributed at:
-@url{http://www.obry.net/archive/w32posix}. On UNIX look for the
-Florist package at @url{http://www.cs.fsu.edu/~baker/florist.html}.
+@url{http://www.obry.net/archive/w32posix}. On UNIX use the
+Florist package.
 
 @item OpenSSL (@b{optional}) ;
 @cindex OpenSSL
