@@ -14,6 +14,8 @@ ssto.adb:
       the next Receice call fails with an input timeout. Reconnecting solve
       the problem. It looks like a wrong reset of the socket state...
 
+      the gnutls_record_recv() returns GNUTLS_E_INVALID_SESSION
+
 ssockto.adb:
    error: Insufficient credentials for that request.
 
