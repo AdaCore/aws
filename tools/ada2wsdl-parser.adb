@@ -1260,6 +1260,9 @@ package body Ada2WSDL.Parser is
       function Get_Tree_Name return String;
       --  Returns the name of the tree file
 
+      procedure Set_I_Option;
+      --  Add -I option pointing to the source directory
+
       ----------
       -- Free --
       ----------
@@ -1271,16 +1274,12 @@ package body Ada2WSDL.Parser is
       -------------------
 
       function Get_Tree_Name return String is
-         F_Name      : constant String := To_String (Options.File_Name);
-         Dot_Index   : Natural;
-         Slash_Index : Natural;
-         First, Last : Natural;
+         F_Name    : constant String := To_String (Options.File_Name);
+         Dot_Index : Natural;
+         Last      : Natural;
 
       begin
-         Slash_Index := Strings.Fixed.Index (F_Name, "/", Strings.Backward);
          Dot_Index   := Strings.Fixed.Index (F_Name, ".", Strings.Backward);
-
-         First := Natural'Max (F_Name'First, Slash_Index + 1);
 
          if Dot_Index = 0 then
             Last := F_Name'Last;
@@ -1288,11 +1287,32 @@ package body Ada2WSDL.Parser is
             Last := Dot_Index - 1;
          end if;
 
-         return F_Name (First .. Last) & ".adt";
+         return F_Name (F_Name'First .. Last) & ".adt";
       end Get_Tree_Name;
+
+      ------------------
+      -- Set_I_Option --
+      ------------------
+
+      procedure Set_I_Option is
+         F_Name      : constant String := To_String (Options.File_Name);
+         Slash_Index : Natural;
+
+      begin
+         Slash_Index := Strings.Fixed.Index (F_Name, "/", Strings.Backward);
+
+         --  If we have a directory specified for the file name, add and -I
+         --  option for this directory.
+
+         if Slash_Index /= 0 then
+            Add_Option ("-I" & F_Name (F_Name'First .. Slash_Index - 1));
+         end if;
+      end Set_I_Option;
 
    begin
       File_Name := new String'(To_String (Options.File_Name));
+
+      Set_I_Option;
 
       Compile
         (File_Name, Arg_List (Arg_List'First .. Arg_Index), Success,
