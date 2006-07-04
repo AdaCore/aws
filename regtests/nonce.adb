@@ -31,7 +31,7 @@
 with Ada.Text_IO;
 with AWS.Digest;
 
-with AI302.Containers.Vectors;
+with Ada.Containers.Vectors;
 with Nvect;
 
 procedure Nonce is
@@ -42,7 +42,7 @@ procedure Nonce is
 
    N_Tests : constant := 200_000;
 
-   procedure Sort_Nvect is new Nvect.Generic_Sort;
+   package Sort_Nvect is new Nvect.Generic_Sorting;
 
    Nonces : Nvect.Vector;
    Result : Natural := 0;
@@ -52,7 +52,7 @@ begin
       Append (Nonces, Create_Nonce);
    end loop;
 
-   Sort_Nvect (Nonces);
+   Sort_Nvect.Sort (Nonces);
 
    for K in 1 .. N_Tests - 1 loop
       if Element (Nonces, K) = Element (Nonces, K + 1) then

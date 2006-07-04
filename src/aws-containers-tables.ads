@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2005                          --
+--                         Copyright (C) 2000-2006                          --
 --                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -28,12 +28,14 @@
 
 with Ada.Strings.Unbounded;
 
-with AI302.Containers.Indefinite_Hashed_Maps;
-with AI302.Strings.Hash;
-with AI302.Containers.Vectors;
-with AI302.Containers.Indefinite_Vectors;
+with Ada.Containers.Indefinite_Hashed_Maps;
+with Ada.Containers.Indefinite_Vectors;
+with Ada.Containers.Vectors;
+with Ada.Strings.Hash;
 
 package AWS.Containers.Tables is
+
+   use Ada.Strings.Unbounded;
 
    type Table_Type is tagged private;
 
@@ -45,8 +47,7 @@ package AWS.Containers.Tables is
 
    Null_Element : constant Element;
 
-   type VString_Array is array (Positive range <>)
-     of Ada.Strings.Unbounded.Unbounded_String;
+   type VString_Array is array (Positive range <>) of Unbounded_String;
 
    function Count (Table : in Table_Type) return Natural;
    --  Returns the number of item in Table
@@ -102,7 +103,7 @@ package AWS.Containers.Tables is
      (Table : in Table_Type;
       Name  : in String)
       return VString_Array;
-   --  Returns all values for the specified parameter key name.
+   --  Returns all values for the specified parameter key name
 
    generic
       with procedure Process (Name, Value : in String);
@@ -118,16 +119,16 @@ private
    type Key_Positive is new Positive;
 
    package Name_Indexes is
-     new AI302.Containers.Vectors (Positive, Key_Positive);
+     new Ada.Containers.Vectors (Positive, Key_Positive);
 
    subtype Name_Index_Table is Name_Indexes.Vector;
 
    package Data_Table is
-     new AI302.Containers.Indefinite_Vectors (Positive, Element);
+     new Ada.Containers.Indefinite_Vectors (Positive, Element);
 
    package Index_Table is
-     new AI302.Containers.Indefinite_Hashed_Maps
-       (String, Name_Index_Table, AI302.Strings.Hash, "=", Name_Indexes."=");
+     new Ada.Containers.Indefinite_Hashed_Maps
+       (String, Name_Index_Table, Ada.Strings.Hash, "=", Name_Indexes."=");
    --  Index of the Element_Array.
 
    subtype Index_Table_Type is Index_Table.Map;
@@ -142,8 +143,7 @@ private
 
    function Normalize_Name
      (Name     : in String;
-      To_Upper : in Boolean)
-      return String;
+      To_Upper : in Boolean) return String;
    --  Returns Name in upper case if To_Upper is set to True and it returns
    --  Name unchanged otherwise.
 

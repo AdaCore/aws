@@ -129,8 +129,8 @@ package body AWS.Hotplug is
    ---------------
 
    procedure Move_Down
-     (Filters : in Filter_Set;
-      N       : in Positive) is
+     (Filters : in out Filter_Set;
+      N       : in     Positive) is
    begin
       if Positive (Filter_Table.Length (Filters.Set)) > N then
          Filter_Table.Swap (Filters.Set, N, N + 1);
@@ -142,8 +142,8 @@ package body AWS.Hotplug is
    -------------
 
    procedure Move_Up
-     (Filters : in Filter_Set;
-      N       : in Positive) is
+     (Filters : in out Filter_Set;
+      N       : in     Positive) is
    begin
       if Positive (Filter_Table.Length (Filters.Set)) >= N
         and then N > 1
@@ -186,7 +186,7 @@ package body AWS.Hotplug is
 
          when Replace =>
             if Filter_Table.Has_Element (Cursor) then
-               Filter_Table.Replace_Element (Cursor, Item);
+               Filter_Table.Replace_Element (Filters.Set, Cursor, Item);
             else
                Filter_Table.Append (Filters.Set, Item);
             end if;

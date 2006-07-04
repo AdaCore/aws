@@ -29,7 +29,7 @@
 with Ada.Strings.Unbounded;
 with GNAT.Regexp;
 
-with AI302.Containers.Vectors;
+with Ada.Containers.Vectors;
 
 with AWS.Response;
 with AWS.Status;
@@ -74,14 +74,14 @@ package AWS.Hotplug is
    --  to False.
 
    procedure Move_Up
-     (Filters : in Filter_Set;
-      N       : in Positive);
+     (Filters : in out Filter_Set;
+      N       : in     Positive);
    --  Move filter number N up one position, it gives filter number N an
    --  higher priority.
 
    procedure Move_Down
-     (Filters : in Filter_Set;
-      N       : in Positive);
+     (Filters : in out Filter_Set;
+      N       : in     Positive);
    --  Move filter number N down one position, it gives filter number N a
    --  lower priority.
 
@@ -99,7 +99,7 @@ private
    --  Returns True if Left.Regexp and Right.Regexp are equals
 
    package Filter_Table is
-     new AI302.Containers.Vectors (Positive, Filter_Data, Equal_Data);
+     new Ada.Containers.Vectors (Positive, Filter_Data, Equal_Data);
 
    type Filter_Set is record
       Mode : Register_Mode;

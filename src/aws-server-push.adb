@@ -27,9 +27,8 @@
 ------------------------------------------------------------------------------
 
 with Ada.Calendar;
+with Ada.Containers;
 with Ada.Unchecked_Deallocation;
-
-with AI302.Containers;
 
 with AWS.Messages;
 with AWS.MIME;
@@ -394,7 +393,7 @@ package body AWS.Server.Push is
       -----------------------
 
       procedure Shutdown_If_Empty (Open : out Boolean) is
-         use type AI302.Containers.Count_Type;
+         use type Ada.Containers.Count_Type;
       begin
          if Table.Length (Container) = 0 then
             Object.Open := False;

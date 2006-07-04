@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2005                          --
+--                         Copyright (C) 2000-2006                          --
 --                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -40,11 +40,9 @@
 
 with Ada.Characters.Handling;
 
-with AI302.Containers.Generic_Array_Sort;
+with Ada.Containers.Generic_Array_Sort;
 
 package body AWS.Containers.Tables is
-
-   use Ada.Strings.Unbounded;
 
    procedure Get_Indexes
      (Table   : in     Table_Type;
@@ -94,8 +92,8 @@ package body AWS.Containers.Tables is
       Name  : in String)
       return Boolean is
    begin
-      return Index_Table.Is_In
-        (Normalize_Name (Name, not Table.Case_Sensitive), Table.Index);
+      return Index_Table.Contains
+        (Table.Index, Normalize_Name (Name, not Table.Case_Sensitive));
    end Exist;
 
    ---------------------------
@@ -105,7 +103,7 @@ package body AWS.Containers.Tables is
    procedure Generic_Iterate_Names
      (Table : in Table_Type; Coupler : in String)
    is
-      use type AI302.Containers.Count_Type;
+      use type Ada.Containers.Count_Type;
 
       CN : Index_Table.Cursor;
       NI : Name_Indexes.Vector;
@@ -233,7 +231,7 @@ package body AWS.Containers.Tables is
       return VString_Array
    is
       procedure Sort_Names is
-        new AI302.Containers.Generic_Array_Sort
+        new Ada.Containers.Generic_Array_Sort
           (Positive, Unbounded_String, VString_Array);
 
       Result : VString_Array (1 .. Name_Count (Table));

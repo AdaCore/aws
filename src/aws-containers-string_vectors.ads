@@ -26,8 +26,8 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-with AI302.Containers.Indefinite_Vectors;
+with Ada.Containers.Indefinite_Vectors;
 
 package AWS.Containers.String_Vectors is
-   new AI302.Containers.Indefinite_Vectors (Positive, String);
+   new Ada.Containers.Indefinite_Vectors (Positive, String);
 

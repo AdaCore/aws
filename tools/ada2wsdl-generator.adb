@@ -149,7 +149,7 @@ package body Ada2WSDL.Generator is
       P       : Cursor;
       Success : Boolean;
    begin
-      if not NS_Maps.Containers.Is_In (Value, Name_Spaces) then
+      if not NS_Maps.Containers.Contains (Name_Spaces, Value) then
          NS_Num := NS_Num + 1;
          NS_Maps.Containers.Insert (Name_Spaces, Value, NS_Num, P, Success);
       end if;

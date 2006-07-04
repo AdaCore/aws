@@ -318,7 +318,7 @@ package body AWS.Jabber is
       Server.MB.Get (Message);
       Check_Message (Message);
 
-      if Key_Value.Is_In ("digest", Message.all) then
+      if Key_Value.Contains (Message.all, "digest") then
          --  Digest authentication supported, this is the prefered method if
          --  supported to avoid sending the password in plain ASCII over the
          --  Internet.
@@ -335,7 +335,7 @@ package body AWS.Jabber is
               & "</query>"
               & "</iq>");
 
-      elsif Key_Value.Is_In ("password", Message.all) then
+      elsif Key_Value.Contains (Message.all, "password") then
          --  Plain authentication supported, use this one if digest is not
          --  supported by the server.
 
@@ -411,8 +411,8 @@ package body AWS.Jabber is
       Found  : Boolean;
    begin
       if Handler.Key /= Null_Unbounded_String then
-         if not Key_Value.Is_In
-           (To_String (Handler.Key), Handler.R.all)
+         if not Key_Value.Contains
+           (Handler.R.all, To_String (Handler.Key))
          then
             Key_Value.Insert
               (Handler.R.all, To_String (Handler.Key),
@@ -713,7 +713,7 @@ package body AWS.Jabber is
          declare
             Key : constant String := Local_Name & '.' & Get_Qname (Atts, J);
          begin
-            if not Key_Value.Is_In (Key, Handler.R.all) then
+            if not Key_Value.Contains (Handler.R.all, Key) then
                Key_Value.Insert
                  (Handler.R.all,
                   Key,

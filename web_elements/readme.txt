@@ -1,6 +1,4 @@
 
-$Id$
-
 This directory contains a set of ready to use Web design templates.
 
 To ease integration we have used the following design:

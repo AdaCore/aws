@@ -826,8 +826,8 @@ package body SOAP.WSDL.Parser is
                S : constant DOM.Core.Node := DOM.Core.Nodes.Item (NL, K);
             begin
                if Utils.No_NS (DOM.Core.Nodes.Node_Name (S)) = "operation"
-                 and then not Exclude_Set.Is_In
-                   (XML.Get_Attr_Value (S, "name"), O.Exclude)
+                 and then not Exclude_Set.Contains
+                   (O.Exclude, XML.Get_Attr_Value (S, "name"))
                then
                   begin
                      Parse_Operation

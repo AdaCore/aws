@@ -204,12 +204,10 @@ package body AWS.Log is
    --------------------
 
    procedure Register_Field (Log : in out Object; Id : in String) is
-      Dummy   : SN.Cursor;
-      Success : Boolean;
    begin
-      SN.Insert
+      SN.Include
         (Log.Extended_Fields,
-         Id, Natural (SN.Length (Log.Extended_Fields)) + 1, Dummy, Success);
+         Id, Natural (SN.Length (Log.Extended_Fields)) + 1);
    end Register_Field;
 
    ---------------
@@ -235,7 +233,7 @@ package body AWS.Log is
          end loop;
 
       elsif Data_Len /= Ext_Len then
-         --  Looks like the record was used with different log file.
+         --  Looks like the record was used with different log file
 
          raise Constraint_Error;
       end if;
@@ -312,7 +310,7 @@ package body AWS.Log is
 
          when Each_Run =>
             for K in 1 .. 86_400 loop
-               --  no more than one run per second during a full day.
+               --  no more than one run per second during a full day
 
                exit when not OS_Lib.Is_Regular_File (To_String (Filename));
 
@@ -444,11 +442,9 @@ package body AWS.Log is
          else
             Text_IO.Put (Log.File, ' ' & SV.Element (Position));
          end if;
-         SV.Replace_Element (Position, "-");
-      end Write_And_Clear;
 
-      procedure Write_And_Clear_Record is
-         new SV.Generic_Iteration (Write_And_Clear);
+         SV.Replace_Element (Data.Values, Position, "-");
+      end Write_And_Clear;
 
    begin
       if Length = 0 then
@@ -477,17 +473,14 @@ package body AWS.Log is
                Order  : array (1 .. Length) of SN.Cursor;
 
                procedure Process (Position : SN.Cursor);
-               pragma Inline (Process);
 
                procedure Process (Position : SN.Cursor) is
                begin
                   Order (SN.Element (Position)) := Position;
                end Process;
 
-               procedure Set_Order is new SN.Generic_Iteration (Process);
-
             begin
-               Set_Order (Log.Extended_Fields);
+               SN.Iterate (Log.Extended_Fields, Process'Access);
 
                for J in Order'Range loop
                   Text_IO.Put (Log.File, ' ' & SN.Key (Order (J)));
@@ -522,7 +515,7 @@ package body AWS.Log is
             end if;
          end;
 
-         Write_And_Clear_Record (Data.Values);
+         SV.Iterate (Data.Values, Write_And_Clear'Access);
 
          Text_IO.New_Line (Log.File);
 

@@ -30,7 +30,7 @@ with Ada.Streams;
 with Ada.Strings.Unbounded;
 with Ada.Unchecked_Deallocation;
 
-with AI302.Containers.Vectors;
+with Ada.Containers.Vectors;
 
 with AWS.Messages;
 with AWS.MIME;
@@ -47,7 +47,7 @@ package body AWS.Services.Download is
    use Ada;
    use Ada.Streams;
    use Ada.Strings.Unbounded;
-   use AI302.Containers;
+   use Ada.Containers;
 
    URI_Prefix : constant String := "$dm_prefix$";
    --  The URI prefix used for all the download manager request
@@ -77,7 +77,7 @@ package body AWS.Services.Download is
                        Null_Unbounded_String, False, False, null, null, 0, 1);
 
    package Download_Vectors is
-     new AI302.Containers.Vectors (Positive, Download_Information);
+     new Ada.Containers.Vectors (Positive, Download_Information);
    use Download_Vectors;
 
    --  The task that handles the downloads

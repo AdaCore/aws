@@ -106,7 +106,6 @@ common_tarball:
 	$(MKDIR) $${AWS}/docs/html; \
 	$(MKDIR) $${AWS}/icons; \
 	$(MKDIR) $${AWS}/include; \
-	$(MKDIR) $${AWS}/include/ai302; \
 	$(MKDIR) $${AWS}/include/zlib; \
 	$(MKDIR) $${AWS}/lib; \
 	$(MKDIR) $${AWS}/ssl; \
@@ -119,7 +118,6 @@ common_tarball:
 	$(MKDIR) $${AWS}/templates_parser; \
 	$(MKDIR) $${AWS}/templates_parser/docs; \
 	$(MKDIR) $${AWS}/templates_parser/src; \
-	$(MKDIR) $${AWS}/templates_parser/include; \
 	$(MKDIR) $${AWS}/templates_parser/xsrc; \
 	$(MKDIR) $${AWS}/templates_parser/regtests; \
 	$(MKDIR) $${AWS}/templates_parser/regtests/dir; \
@@ -230,16 +228,6 @@ PRJ_SOCKLIB=GNAT
 endif
 endif
 
-# AI302
-
-ifeq ($(AI302), Internal)
-PRJ_AI302=Internal
-GEXT_MODULE := $(GEXT_MODULE) gai302_internal
-else
-PRJ_AI302=External
-GEXT_MODULE := $(GEXT_MODULE) gai302_external
-endif
-
 ## Debug
 
 ifdef DEBUG
@@ -291,47 +279,6 @@ gxmlada_setup:
 	echo "project AWS_XMLADA is" >> $(PRJDIR)/aws_xmlada.gpr
 	echo "   for Source_Dirs use ();" >> $(PRJDIR)/aws_xmlada.gpr
 	echo "end AWS_XMLADA;" >> $(PRJDIR)/aws_xmlada.gpr
-
-gai302_internal:
-	echo 'with "aws_config";' > $(PRJDIR)/ai302.gpr
-	echo 'project AI302 is' >> $(PRJDIR)/ai302.gpr
-	echo '   for Source_Dirs use ("../../include/ai302");' \
-		>> $(PRJDIR)/ai302.gpr
-	echo '   type Build_Type is ("Debug", "Release");' \
-		>> $(PRJDIR)/ai302.gpr
-	echo '   Build : Build_Type := external ("PRJ_BUILD", "Debug");' \
-		>> $(PRJDIR)/ai302.gpr
-	echo "   case Build is" >> $(PRJDIR)/ai302.gpr
-	echo '      when "Debug" =>' >> $(PRJDIR)/ai302.gpr
-	echo '         for Object_Dir use "../../.build/debug/include/ai302/obj";' \
-		>> $(PRJDIR)/ai302.gpr
-	echo '         for Library_Dir use "../../.build/debug/include/ai302/lib";' \
-		>> $(PRJDIR)/ai302.gpr
-	echo '      when "Release" =>' >> $(PRJDIR)/ai302.gpr
-	echo '         for Object_Dir use "../../.build/release/include/ai302/obj";' \
-		>> $(PRJDIR)/ai302.gpr
-	echo '         for Library_Dir use "../../.build/release/include/ai302/lib";' \
-		>> $(PRJDIR)/ai302.gpr
-	echo '   end case;' >> $(PRJDIR)/ai302.gpr
-	echo '   for Library_Name use "ai302";' >> $(PRJDIR)/ai302.gpr
-	echo '   for Library_Kind use AWS_Config.Lib_Kind;' \
-		>> $(PRJDIR)/ai302.gpr
-
-	echo '   package Compiler is' >> $(PRJDIR)/ai302.gpr
-	echo '      case Build is' >> $(PRJDIR)/ai302.gpr
-	echo '         when "Debug" =>' >> $(PRJDIR)/ai302.gpr
-	echo '            for Default_Switches ("Ada") use ("-g", "-gnata");' \
-	        >> $(PRJDIR)/ai302.gpr
-	echo '         when "Release" =>' >> $(PRJDIR)/ai302.gpr
-	echo '            for Default_Switches ("Ada") use ("-O2");' \
-	        >> $(PRJDIR)/ai302.gpr
-	echo '      end case;' >> $(PRJDIR)/ai302.gpr
-	echo '   end Compiler;' >> $(PRJDIR)/ai302.gpr
-
-	echo 'end AI302;' >> $(PRJDIR)/ai302.gpr
-
-gai302_external:
-	-$(RM) -f $(PRJDIR)/ai302.gpr
 
 gadasockets:
 	echo "project Sockets is" > $(PRJDIR)/sockets.gpr
@@ -438,7 +385,6 @@ setup: setup_dir $(GEXT_MODULE) $(MODULES_SETUP) setup_config
 I_BIN	= $(INSTALL)/bin
 I_INC	= $(INSTALL)/include/aws
 I_CPN	= $(INSTALL)/include/aws/components
-I_AIC	= $(INSTALL)/include/aws/components/ai302
 I_LIB	= $(INSTALL)/lib/aws
 I_GPR	= $(INSTALL)/lib/gnat
 I_AGP	= $(INSTALL)/lib/gnat/aws
@@ -461,7 +407,6 @@ install_dirs: install_clean
 	$(MKDIR) $(I_BIN)
 	$(MKDIR) $(I_INC)
 	$(MKDIR) $(I_CPN)
-	$(MKDIR) $(I_AIC)
 	$(MKDIR) $(I_LIB)
 	$(MKDIR) $(I_DOC)
 	$(MKDIR) $(I_GPR)
@@ -480,19 +425,6 @@ install: install_dirs
 	$(CP) config/aws-os_lib__* $(I_INC)
 	$(CP) config/ssl-thin__* $(I_INC)
 	$(CP) config/templates_parser-* $(I_INC)
-ifeq (${AI302},Internal)
-	$(CP) include/ai302/*.ad? $(I_AIC)
-	$(CP) $(BDIR)/include/ai302/lib/* $(I_LIB)
-	$(CP) config/projects/ai302.gpr $(I_AGP)
-	$(SED) -e 's,ai302,aws/ai302,g' \
-		< config/projects/aws.gpr > $(I_GPR)/aws.gpr
-	$(SED) -e 's,ai302,aws/ai302,g' \
-		< config/projects/aws_ssl.gpr \
-		> $(I_GPR)/aws_ssl.gpr
-else
-	$(CP) config/projects/aws.gpr $(I_GPR)
-	$(CP) config/projects/aws_ssl.gpr $(I_GPR)
-endif
 ifeq ($(XMLADA),true)
 	$(CP) soap/*.ad[sb] $(I_INC)
 	$(CP) xsrc/*.ad[sb] $(I_INC)
@@ -538,11 +470,13 @@ ifeq (${OS}, Windows_NT)
 	$(CP) win32/*.dll $(I_LIB)/..
 endif
 	$(CP) config/projects/aws_components.gpr $(I_AGP)
+	$(CP) config/projects/aws.gpr $(I_GPR)
+	$(CP) config/projects/aws_ssl.gpr $(I_GPR)
 	$(CP) config/projects/*_lib.gpr $(I_AGP)
 	$(CP) config/projects/aws_shared.gpr $(I_AGP)
 	$(CP) config/projects/aws_libz.gpr $(I_AGP)
 	$(CP) config/projects/aws_ssl_support.gpr $(I_AGP)
-	$(CP) $(PRJDIR)/aws_config.gpr $(I_AGP)
+	$(CP) $(CONFGPR) $(I_AGP)
 	$(CP) $(PRJDIR)/aws_xmlada.gpr $(I_AGP)
 # Copy all shared libraries into the main lib directory
 ifeq (${SHARED}, true)

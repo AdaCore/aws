@@ -31,7 +31,7 @@
 with Ada.Calendar;
 with Ada.Strings.Unbounded;
 
-with AI302.Containers.Vectors;
+with Ada.Containers.Vectors;
 with GNAT.Calendar;
 
 with AWS.Dispatchers;
@@ -202,7 +202,7 @@ private
    type Node_Access is access Node;
 
    package Period_Table is
-     new AI302.Containers.Vectors (Positive, Node_Access, "=");
+     new Ada.Containers.Vectors (Positive, Node_Access, "=");
 
    type Handler is new AWS.Dispatchers.Handler with record
       Action : AWS.Dispatchers.Handler_Class_Access;

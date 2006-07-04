@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2004                            --
---                                ACT-Europe                                --
+--                          Copyright (C) 2004-2005                         --
+--                                  AdaCore                                 --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -26,7 +26,7 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-with AI302.Containers.Indefinite_Vectors;
+with Ada.Containers.Indefinite_Vectors;
 
 with AWS.Templates;
 
@@ -35,7 +35,7 @@ package body Web_Elements_Containers is
    use AWS.Templates;
 
    package String_Vectors is
-     new AI302.Containers.Indefinite_Vectors (Positive, String);
+     new Ada.Containers.Indefinite_Vectors (Positive, String);
 
    Groups : String_Vectors.Vector;
    Users  : String_Vectors.Vector;

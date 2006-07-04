@@ -99,7 +99,8 @@ project Regtests is
    --------------
 
    package Compiler is
-      for Default_Switches ("Ada") use ("-g") & Shared.Global_Options;
+      for Default_Switches ("Ada") use ("-gnat05", "-g")
+        & Shared.Global_Options;
    end Compiler;
 
    -------------

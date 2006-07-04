@@ -13,8 +13,6 @@ build: build_zlib
 setup:
 	-$(MKDIR) -p ../$(BDIR)/include/obj
 	-$(MKDIR) -p ../$(BDIR)/include/lib
-	-$(MKDIR) -p ../$(BDIR)/include/ai302/obj
-	-$(MKDIR) -p ../$(BDIR)/include/ai302/lib
 
 clean:
 	${MAKE} -C zlib clean

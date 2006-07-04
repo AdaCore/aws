@@ -12,18 +12,11 @@ Receive on U_Socket
 Callback... /toto
 Got : --
 HTTP/1.1 200 OK
-
 Date: xxx, xx xxx xxxx xx:xx:xx xxx
-
 Server: AWS (Ada Web Server) vx.y.z
-
 Connection: close
-
 Content-Type: text/html
-
 Content-Length: 22
-
-
 
 response from U_Socket
 --

@@ -1,7 +1,7 @@
 @_URI_@
 @@TABLE@@
    @@IF@@ @_IS_DIR_V_@
-      @@IF@@ @_NAME_V_@ /= "CVS/"
+      @@IF@@ @_NAME_V_@ /= "CVS/" and @_NAME_V_@ /= ".svn/"
          @@IF@@ @_NAME_V_@ = "./" or @_NAME_V_@ = "../"
       @_NAME_V_@
          @@ELSE@@

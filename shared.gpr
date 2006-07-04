@@ -91,7 +91,8 @@ project Shared is
    --  Options used for all Ada units in both Debug and Release modes
 
    Common_Options  :=
-     ("-gnatwcfijkmruv", "-gnaty3abcefhiklmnoprstx", "-Wall") & Global_Options;
+     ("-gnat05", "-gnatwcfijkmruv", "-gnaty3abcefhiklmnoprstx", "-Wall")
+     & Global_Options;
    --  Common options used for the Debug and Release mode
 
    Debug_Options   :=

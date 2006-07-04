@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2006                          --
+--                         Copyright (C) 2000-2005                          --
 --                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -70,7 +70,7 @@ package body AWS.Session is
    package Session_Set renames Session_Set_Container.Containers;
 
    procedure Get_Node
-     (Sessions : in     Session_Set.Map;
+     (Sessions : in out Session_Set.Map;
       SID      : in     Id;
       Node     :    out Session_Node;
       Found    :    out Boolean);
@@ -368,15 +368,8 @@ package body AWS.Session is
             Free (Item.Root);
          end Destroy;
 
-         -------------------
-         -- For_All_Items --
-         -------------------
-
-         procedure For_All_Items is
-           new Session_Set.Generic_Iteration (Destroy);
-
       begin
-         For_All_Items (Sessions);
+         Session_Set.Iterate (Sessions, Destroy'Access);
          Session_Set.Clear (Sessions);
       end Destroy;
 
@@ -450,7 +443,7 @@ package body AWS.Session is
          Get_Node (Sessions, SID, Node, Result);
 
          if Result then
-            Result := Key_Value.Is_In (Key, Node.Root.all);
+            Result := Key_Value.Contains (Node.Root.all, Key);
          end if;
       end Key_Exist;
 
@@ -529,8 +522,8 @@ package body AWS.Session is
         (SID : in Id;
          Key : in String) when Lock_Counter = 0
       is
-         Node  : Session_Node;
-         Found : Boolean;
+         Node   : Session_Node;
+         Found  : Boolean;
       begin
          Get_Node (Sessions, SID, Node, Found);
 
@@ -545,7 +538,7 @@ package body AWS.Session is
 
       function Session_Exist (SID : in Id) return Boolean is
       begin
-         return Session_Set.Is_In (String (SID), Sessions);
+         return Session_Set.Contains (Sessions, String (SID));
       end Session_Exist;
 
       -------------------------
@@ -582,20 +575,7 @@ package body AWS.Session is
          Get_Node (Sessions, SID, Node, Found);
 
          if Found then
-            declare
-               Cursor  : Key_Value.Cursor;
-               Success : Boolean;
-            begin
-               Cursor := Key_Value.Find (Node.Root.all, Key);
-
-               if Key_Value.Has_Element (Cursor) then
-                  Key_Value.Replace_Element (Cursor, Value);
-
-               else
-                  Key_Value.Insert
-                    (Node.Root.all, Key, Value, Cursor, Success);
-               end if;
-            end;
+            Key_Value.Include (Node.Root.all, Key, Value);
          end if;
       end Set_Value;
 
@@ -844,7 +824,7 @@ package body AWS.Session is
    --------------
 
    procedure Get_Node
-     (Sessions : in     Session_Set.Map;
+     (Sessions : in out Session_Set.Map;
       SID      : in     Id;
       Node     :    out Session_Node;
       Found    :    out Boolean)
@@ -852,25 +832,29 @@ package body AWS.Session is
       Cursor : constant Session_Set.Cursor
         := Session_Set.Find (Sessions, String (SID));
 
-      procedure Process (Item : in out Session_Node);
+      procedure Process
+        (Key  : in String;
+         Item : in out Session_Node);
 
       -------------
       -- Process --
       -------------
 
-      procedure Process (Item : in out Session_Node) is
+      procedure Process
+        (Key  : in String;
+         Item : in out Session_Node)
+      is
+         pragma Unreferenced (Key);
       begin
          Item.Time_Stamp := Calendar.Clock;
          Node := Item;
       end Process;
 
-      procedure Update is new Session_Set.Generic_Update_Element (Process);
-
    begin
       Found := Session_Set.Has_Element (Cursor);
 
       if Found then
-         Update (Cursor);
+         Session_Set.Update_Element (Sessions, Cursor, Process'Access);
       end if;
    end Get_Node;
 

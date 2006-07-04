@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2002-2005                          --
---                                 AdaCore                                  --
+--                          Copyright (C) 2002-2005                         --
+--                                  AdaCore                                 --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -85,15 +85,15 @@ package body AWS.Resources.Embedded is
    function Exist (Name : in String) return File_Instance is
    begin
       if not Is_GZip (Name)
-        and then Res_Files.Is_In (Name & GZip_Ext, Files_Table)
+        and then Res_Files.Contains (Files_Table, Name & GZip_Ext)
       then
-         if Res_Files.Is_In (Name, Files_Table) then
+         if Res_Files.Contains (Files_Table, Name) then
             return Both;
          else
             return GZip;
          end if;
 
-      elsif Res_Files.Is_In (Name, Files_Table) then
+      elsif Res_Files.Contains (Files_Table, Name) then
          return Plain;
 
       else
@@ -164,9 +164,9 @@ package body AWS.Resources.Embedded is
 
    function Is_Regular_File (Name : in String) return Boolean is
    begin
-      return Res_Files.Is_In (Name, Files_Table)
+      return Res_Files.Contains (Files_Table, Name)
         or else (not Is_GZip (Name)
-                 and then Res_Files.Is_In (Name & GZip_Ext, Files_Table));
+                 and then Res_Files.Contains (Files_Table, Name & GZip_Ext));
    end Is_Regular_File;
 
    ----------
@@ -250,15 +250,9 @@ package body AWS.Resources.Embedded is
       Content   : in Buffer_Access;
       File_Time : in Calendar.Time)
    is
-      N       : constant Node := (Content, File_Time);
-      Cursor  : Res_Files.Cursor;
-      Success : Boolean;
+      N : constant Node := (Content, File_Time);
    begin
-      Res_Files.Insert (Files_Table, Name, N, Cursor, Success);
-
-      if not Success then
-         Res_Files.Replace_Element (Cursor, By => N);
-      end if;
+      Res_Files.Include (Files_Table, Name, N);
    end Register;
 
 end AWS.Resources.Embedded;

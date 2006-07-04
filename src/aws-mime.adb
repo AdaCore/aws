@@ -101,8 +101,7 @@ package body AWS.MIME is
 
    function Is_Type
      (MIME_Type : in String;
-      Type_Name : in String)
-      return Boolean;
+      Type_Name : in String) return Boolean;
    pragma Inline (Is_Type);
    --  Returns True if MIME_Type is of Type_Name type. The type name is the
    --  first part of the MIME Type (the part before the /).
@@ -376,8 +375,7 @@ package body AWS.MIME is
 
    function Is_Type
      (MIME_Type : in String;
-      Type_Name : in String)
-      return Boolean is
+      Type_Name : in String) return Boolean is
    begin
       return MIME_Type'Length > Type_Name'Length
           and then
@@ -407,14 +405,8 @@ package body AWS.MIME is
       -------------------
 
       procedure Add_Extension (Ext : in String; MIME_Type : in String) is
-         Cursor  : Containers.Key_Value.Cursor;
-         Success : Boolean;
       begin
-         Key_Value.Insert (Ext_Set, Ext, MIME_Type, Cursor, Success);
-
-         if not Success then
-            Key_Value.Replace_Element (Cursor, MIME_Type);
-         end if;
+         Key_Value.Include (Ext_Set, Ext, MIME_Type);
       end Add_Extension;
 
       ----------------
@@ -466,19 +458,13 @@ package body AWS.MIME is
             end if;
          end Process;
 
-         ---------------
-         -- Iteration --
-         ---------------
-
-         procedure Iteration is new Key_Value.Generic_Iteration (Process);
-
       begin
          if Content_Type = Default_Content_Type then
             null; -- We don't want give unknown data the exe extension
          elsif Content_Type = Text_Plain then
             return "txt";
          else
-            Iteration (Ext_Set);
+            Key_Value.Iterate (Ext_Set, Process'Access);
          end if;
 
          return "";

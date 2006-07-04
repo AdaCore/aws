@@ -2,9 +2,7 @@
 --                              Ada Web Server                              --
 --                                                                          --
 --                          Copyright (C) 2003-2006                         --
---                                 AdaCore                                  --
---                                                                          --
---  Authors: Dmitriy Anisimkov - Pascal Obry                                --
+--                                  AdaCore                                 --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -32,7 +30,6 @@ with "../shared";
 with "aws_config";
 
 with "zlib/zlib";
-with "ai302";
 
 project Include is
 
@@ -56,11 +53,7 @@ project Include is
    -- Ide --
    ---------
 
-   package Ide is
-      for Vcs_Kind use "CVS";
-      for VCS_Log_Check use "style_checker -l70";
-      for VCS_File_Check use "style_checker -lang Ada -cP -cY";
-   end Ide;
+   package Ide renames Shared.Ide;
 
    --------------
    -- Compiler --
@@ -70,11 +63,12 @@ project Include is
 
       case Shared.Build is
          when "Debug" =>
-            for Default_Switches ("Ada") use ("-g") & Shared.Global_Options;
+            for Default_Switches ("Ada") use
+              ("-gnat05", "-g") & Shared.Global_Options;
 
          when "Release" =>
             for Default_Switches ("Ada") use
-              ("-O2", "-gnatws", "-gnatn") & Shared.Global_Options;
+              ("-gnat05", "-O2", "-gnatws", "-gnatn") & Shared.Global_Options;
       end case;
 
    end Compiler;
