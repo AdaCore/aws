@@ -1,10 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                          Copyright (C) 2004-2005                         --
+--                          Copyright (C) 2004-2006                         --
 --                                  AdaCore                                 --
---                                                                          --
---  Authors: Dmitriy Anisimkov - Pascal Obry                                --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -99,8 +97,8 @@ project Regtests is
    --------------
 
    package Compiler is
-      for Default_Switches ("Ada") use ("-gnat05", "-g")
-        & Shared.Global_Options;
+      for Default_Switches ("Ada")
+        use ("-gnat05", "-g") & Shared.Global_Options;
    end Compiler;
 
    -------------
