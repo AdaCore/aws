@@ -1,10 +1,8 @@
-$Id$
-
 
 Building a release
 ------------------
 
-To build AWS you need to change some settings in the top level 
+To build AWS you need to change some settings in the top level
 makefile.conf file.
 
 If you have not installed XML/Ada into the standard directory and plan to
@@ -23,9 +21,8 @@ This release requires an Ada compiler supporting some Ada 2005 features as it
 is using the Ada.Containers libraries. It is possible to build this release
 using the following compilers :
 
-	GNAT Pro 5.04w
-	GNAT GAP 2005 Edition
-	GNAT GPL 2005 Edition
+	GNAT Pro 5.04a
+	GNAT GPL 2006 Edition
 
 
 Building from CVS

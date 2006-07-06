@@ -44,6 +44,9 @@ Here are the main changes since AWS 2.2 :
 
    - Support for extended log file format.
 
+   - Start using Ada 2005. The main change is the switch from the temporary
+     AI302 containers implementation to the standard Ada.Containers.
+
    - Plus many small fixes, enhancements, API comments, and documentation work.
 
 
@@ -70,7 +73,6 @@ have tagged all obsolescent features with a pragma.
 
 Note that pragma Obsolescent and -gnatwj option is only supported
 since GNAT 3.16.
-
 
 
 Notes
@@ -208,6 +210,7 @@ Windows Services API (optional):
    the services API made by Ted Dennison for his SETI@Home project.
 
       http://www.telepath.com/~dennison/Ted/SETI/SETI_Service.html
+
 
 License
 -------
