@@ -1,10 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2004                            --
---                                ACT-Europe                                --
---                                                                          --
---  Authors: Dmitriy Anisimkov - Pascal Obry                                --
+--                         Copyright (C) 2004-2006                          --
+--                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -43,11 +41,11 @@ project Demos_Shared is
       case Shared.Build is
          when "Debug" =>
             for Default_Switches ("Ada")
-              use ("-g", "-gnaty3abcefhiklmnoprt");
+              use ("-g", "-gnat05", "-gnaty3abcefhiklmnoprt");
 
          when "Release" =>
             for Default_Switches ("Ada")
-              use ("-O2", "-gnatws", "-gnatn");
+              use ("-O2", "-gnat05", "-gnatws", "-gnatn");
       end case;
 
    end Compiler;
@@ -58,10 +56,10 @@ project Demos_Shared is
 
    package Linker is
 
-      COFF_Res  := ("../lib/aws.coff");
+      COFF_Res := ("../lib/aws.coff");
 
-      WIN_OPT   := COFF_Res & Shared.ZLIB;
-      UNX_OPT   := Shared.ZLIB;
+      WIN_OPT  := COFF_Res & Shared.ZLIB;
+      UNX_OPT  := Shared.ZLIB;
 
       case Shared.OS is
          when "Windows_NT" =>
