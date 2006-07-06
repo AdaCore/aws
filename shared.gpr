@@ -93,7 +93,7 @@ project Shared is
    Common_Options  :=
      ("-gnat05", "-gnatwcfijkmruv", "-gnaty3abcefhiklmnoprstx", "-Wall")
      & Global_Options;
-   --  Common options used for the Debug and Release mode
+   --  Common options used for the Debug and Release modes
 
    Debug_Options   :=
      ("-g", "-gnata", "-gnatVa", "-gnatQ", "-gnato", "-gnatwe");
