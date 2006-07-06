@@ -15,6 +15,7 @@
 
 @setfilename style-guide.info
 @settitle AWS Coding Style
+@setchapternewpage off
 @c %**end of header
 
 @ifinfo
@@ -31,25 +32,27 @@
 @subtitle Date: @today{}
 @author Pascal Obry.
 @end titlepage
-@raisesections
 
-@node    Top,       General,         , (dir)
-@comment node-name, next,    previous, up
+@ifinfo
+@node Top
+@top AWS Coding Style
 
 @menu
 * General::
+* Ada 2005::
 * Lexical Elements::
 * Declarations and Types::
 * Expressions and Names::
 * Statements::
 * Subprograms::
-* Packages::
-* Program Structure::
+* Packages and Visibility Rules::
+* Program Structure and Compilation Issues::
 @end menu
+@end ifinfo
 
 @c  -------------------------------------------------------------------------
-@node    General, Lexical Elements, Top, Top
-@section General
+@node General
+@chapter General
 @c  -------------------------------------------------------------------------
 
 @noindent
@@ -58,11 +61,50 @@ project. The goal is to have a consistent style used for all AWS
 codes.
 
 @c  -------------------------------------------------------------------------
-@node    Lexical Elements, Declarations and Types, General, Top
-@section Lexical Elements
+@node Ada 2005
+@chapter Ada 2005
 @c  -------------------------------------------------------------------------
 
-@subsection Character Set and Separators
+@noindent
+As the Ada 2005 support on GNAT is maturing, it is possible to use
+some Ada 2005 constructs for AWS development. We list here the
+features that can be used:
+
+@itemize @bullet
+@item Ada.Containers
+@item raise .. with "";
+@item object.method notation
+@item limited with
+@item anonymous access fields/parameters
+@item use of overriding keyword
+@end itemize
+
+Constructs that are not ready for use:
+
+@itemize @bullet
+@item interfaces
+@item extended return statement
+@end itemize
+
+In addition, all constructs should be compatible with GNAT 5.04a1 and
+GPL 2006.
+
+@c  -------------------------------------------------------------------------
+@node Lexical Elements
+@chapter Lexical Elements
+@c
+-------------------------------------------------------------------------
+
+@menu
+* Character Set and Separators::
+* Identifiers::
+* Numeric Literals::
+* Reserved Words::
+* Comments::
+@end menu
+
+@node Character Set and Separators
+@section Character Set and Separators
 @c  -------------------------------------------------------------------------
 
 @itemize @bullet
@@ -88,7 +130,8 @@ statements.
 
 @end itemize
 
-@subsection Identifiers
+@node Identifiers
+@section Identifiers
 @c  -------------------------------------------------------------------------
 @itemize @bullet
 @item
@@ -111,7 +154,8 @@ Don't use the variable I, use J instead, I is too easily mixed up with
 mixed up with zero.
 @end itemize
 
-@subsection Numeric Literals
+@node Numeric Literals
+@section Numeric Literals
 @c  -------------------------------------------------------------------------
 @itemize @bullet
 @item
@@ -125,7 +169,8 @@ readability.
 @end smallexample
 @end itemize
 
-@subsection Reserved Words
+@node Reserved Words
+@section Reserved Words
 @c  -------------------------------------------------------------------------
 @itemize @bullet
 @item
@@ -140,7 +185,8 @@ The words "@b{Access}", "@b{Delta}" and "@b{Digits}" are capitalized
 when used as attribute_designator.
 @end itemize
 
-@subsection Comments
+@node Comments
+@section Comments
 @c  -------------------------------------------------------------------------
 
 @itemize @bullet
@@ -218,8 +264,8 @@ Do NOT put two spaces after periods in comments.
 @end itemize
 
 @c  -------------------------------------------------------------------------
-@node    Declarations and Types, Expressions and Names, Lexical Elements,Top
-@section Declarations and Types
+@node Declarations and Types
+@chapter Declarations and Types
 @c  -------------------------------------------------------------------------
 
 @itemize @bullet
@@ -263,10 +309,9 @@ one context, where comments explain their purpose.
 
 @end itemize
 
-
 @c  -------------------------------------------------------------------------
-@node    Expressions and Names, Statements, Declarations and Types, Top
-@section Expressions and Names
+@node Expressions and Names
+@chapter Expressions and Names
 @c  -------------------------------------------------------------------------
 
 @itemize @bullet
@@ -291,11 +336,20 @@ operands with operators:
 @end itemize
 
 @c  -------------------------------------------------------------------------
-@node    Statements, Subprograms, Expressions and Names, Top
-@section Statements
+@node Statements
+@chapter Statements
 @c  -------------------------------------------------------------------------
 
-@subsection Simple and Compound Statements
+@menu
+* Simple and Compound Statements::
+* If Statements::
+* Case statements::
+* Loop statements::
+* Block Statements::
+@end menu
+
+@node Simple and Compound Statements
+@section Simple and Compound Statements
 @c  -------------------------------------------------------------------------
 @itemize @bullet
 @item
@@ -309,7 +363,8 @@ makes the expression easier to read or in "well-known" expressions for
 whose the reverse must be checked.
 @end itemize
 
-@subsection If Statements
+@node If Statements
+@section If Statements
 @c  -------------------------------------------------------------------------
 @itemize @bullet
 @item
@@ -384,7 +439,8 @@ where it begins or ends a sequence_of_statements.
 @end smallexample
 @end itemize
 
-@subsection Case statements
+@node Case statements
+@section Case statements
 @itemize @bullet
 
 @item
@@ -413,7 +469,8 @@ condition without a new-line.
 
 @end itemize
 
-@subsection Loop statements
+@node Loop statements
+@section Loop statements
 @itemize @bullet
 
 @noindent
@@ -448,7 +505,8 @@ If the loop_statement has an identifier, it is layout as follows:
 @end smallexample
 @end itemize
 
-@subsection Block Statements
+@node Block Statements
+@section Block Statements
 @itemize @bullet
 
 @item
@@ -466,12 +524,17 @@ except when the block_statement is named:
 @end itemize
 
 @c  -------------------------------------------------------------------------
-@node    Subprograms, Packages, Statements, Top
-@section Subprograms
+@node Subprograms
+@chapter Subprograms
 @c  -------------------------------------------------------------------------
 
+@menu
+* Subprogram Declarations::
+* Subprogram Bodies::
+@end menu
 
-@subsection Subprogram Declarations
+@node Subprogram Declarations
+@section Subprogram Declarations
 @c  -------------------------------------------------------------------------
 @itemize @bullet
 
@@ -522,7 +585,8 @@ The parameter list for a subprogram is preceded by a space
 
 @end itemize
 
-@subsection Subprogram Bodies
+@node Subprogram Bodies
+@section Subprogram Bodies
 @c  -------------------------------------------------------------------------
 @itemize @bullet
 
@@ -578,8 +642,8 @@ body, then just before the begin is a line:
 @end itemize
 
 @c  -------------------------------------------------------------------------
-@node    Packages, Program Structure, Subprograms, Top
-@section Packages and Visibility Rules
+@node Packages and Visibility Rules
+@chapter Packages and Visibility Rules
 @c  -------------------------------------------------------------------------
 
 @itemize @bullet
@@ -648,8 +712,8 @@ alphabetical order.
 @end itemize
 
 @c  -------------------------------------------------------------------------
-@node    Program Structure,, Packages, Top
-@section Program Structure and Compilation Issues
+@node Program Structure and Compilation Issues
+@chapter Program Structure and Compilation Issues
 @c  -------------------------------------------------------------------------
 
 @itemize @bullet
