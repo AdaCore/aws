@@ -32,10 +32,12 @@ with AWS.Utils;
 with Ada.Text_IO;
 
 procedure SDig is
+
    procedure Test (D : Duration; N : Positive) is
    begin
       Ada.Text_IO.Put_Line (AWS.Utils.Significant_Image (D, N));
    end Test;
+
 begin
    Test (0.0123456, 7);
    Test (0.0123456, 6);
@@ -75,4 +77,20 @@ begin
    Test (0.1, 3);
    Test (10.0, 3);
    Test (100.0, 3);
+   Test (Duration'Delta, 1);
+   Test (Duration'Delta, 2);
+   Test (-Duration'Delta, 1);
+   Test (-Duration'Delta, 2);
+   Test (Duration (Integer'First) - 1.0, 1);
+   Test (Duration (Integer'First) - 1.11111, 14);
+   Test (Duration'First, 2);
+   Test (Duration'First, 24);
+   Test (Duration'Last, 2);
+   Test (Duration'Last, 24);
+   Test (Duration (Integer'Last) * 2.0, 3);
+   Test (Duration (Integer'Last) + 1.1, 24);
+   Test (Duration (Integer'Last) + 1.1, 3);
+   Test (0.0, 1);
+   Test (0.0, 2);
+   Test (0.0, 3);
 end SDig;

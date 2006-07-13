@@ -36,6 +36,8 @@ with Ada.Numerics.Discrete_Random;
 
 with AWS.OS_Lib;
 
+with System;
+
 package body AWS.Utils is
 
    package Integer_Random is new Numerics.Discrete_Random (Random_Integer);
@@ -550,9 +552,28 @@ package body AWS.Utils is
    -----------------------
 
    function Significant_Image (Item : Duration; N : Positive) return String is
-      AI   : constant Duration   := abs Item;
-      L10  : constant Long_Float := Ada.Numerics.Long_Elementary_Functions.Log
-                                      (Long_Float (AI), 10.0);
+      type Largest_Integer is range System.Min_Int .. System.Max_Int;
+      package LIO is new Ada.Text_IO.Integer_IO (Largest_Integer);
+      package Duration_IO is new Ada.Text_IO.Fixed_IO (Duration);
+
+      function Log_10 return Long_Float;
+
+      AI   : constant Long_Float := abs Long_Float (Item);
+
+      ------------
+      -- Log_10 --
+      ------------
+
+      function Log_10 return Long_Float is
+      begin
+         if Item = 0.0 then
+            return 0.0;
+         else
+            return Ada.Numerics.Long_Elementary_Functions.Log (AI, 10.0);
+         end if;
+      end Log_10;
+
+      L10  : constant Long_Float := Log_10;
       L10T : constant Long_Float := Long_Float'Truncation (L10);
       PP   : constant Integer    := Integer (L10T);
       Aft  : constant Natural
@@ -561,10 +582,9 @@ package body AWS.Utils is
       Img  : String (1 .. Integer'Max (PP, 1) + Aft + 1 - Boolean'Pos (Aft = 0)
                           + Boolean'Pos (AI >= 10.0)
                           + Boolean'Pos (Item < 0.0));
-      package Duration_IO is new Ada.Text_IO.Fixed_IO (Duration);
    begin
       if Aft = 0 then
-         Ada.Integer_Text_IO.Put (Img, Integer (Item));
+         LIO.Put (Img, Largest_Integer (Item));
       else
          Duration_IO.Put (Img, Item, Aft => Aft);
       end if;
