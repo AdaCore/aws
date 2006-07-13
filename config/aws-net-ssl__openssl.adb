@@ -438,6 +438,12 @@ package body AWS.Net.SSL is
             case Error_Code is
                when TSSL.SSL_ERROR_WANT_READ  => Wait_For (Input, Socket);
                when TSSL.SSL_ERROR_WANT_WRITE => Wait_For (Output, Socket);
+               when TSSL.SSL_ERROR_SYSCALL =>
+                  Raise_Socket_Error
+                    (Socket,
+                     "System error (" & Utils.Image (Integer (Errno))
+                      & ") on SSL receive");
+
                when others => Raise_Socket_Error (Socket, Error_Stack);
             end case;
          end;
@@ -552,6 +558,12 @@ package body AWS.Net.SSL is
                      end if;
 
                      return;
+
+                  when TSSL.SSL_ERROR_SYSCALL =>
+                     Raise_Socket_Error
+                       (Socket,
+                        "System error (" & Utils.Image (Integer (Errno))
+                         & ") on SSL send");
 
                   when others =>
                      Err_Code := TSSL.ERR_get_error;
