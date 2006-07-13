@@ -1,7 +1,7 @@
 
 * How to use OpenSSL dynamic link libraries for Win32.
 
-   OpenSSL Version 0.9.7c
+   OpenSSL Version 0.9.8b
 
    1. Copy libeay32.dll and libssl32.dll to the directory referred in the
       PATH environment variable.
