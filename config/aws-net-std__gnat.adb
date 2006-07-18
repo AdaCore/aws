@@ -26,7 +26,6 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-with Ada.Exceptions;
 with Ada.Strings.Maps;
 with Ada.Unchecked_Deallocation;
 
@@ -208,7 +207,7 @@ package body AWS.Net.Std is
             begin
                Log.Error (Socket, Msg);
                Sockets.Close_Socket (Socket.S.FD);
-               Ada.Exceptions.Raise_Exception (Socket_Error'Identity, Msg);
+               raise Socket_Error with Msg;
             end Raise_Error;
 
          begin
@@ -473,7 +472,7 @@ package body AWS.Net.Std is
       Msg : constant String := Routine & " : " & Exception_Message (E);
    begin
       Log.Error (Socket, Message => Msg);
-      Raise_Exception (Socket_Error'Identity, Message => Msg);
+      raise Socket_Error with Msg;
    end Raise_Exception;
 
    ------------------------
@@ -486,7 +485,7 @@ package body AWS.Net.Std is
       Msg : constant String := Error_Message (Error);
    begin
       Log.Error (Socket, Message => Msg);
-      Ada.Exceptions.Raise_Exception (Socket_Error'Identity, Msg);
+      raise Socket_Error with Msg;
    end Raise_Socket_Error;
 
    -------------
@@ -505,9 +504,7 @@ package body AWS.Net.Std is
       --  Check if socket closed by peer
 
       if Last = Data'First - 1 then
-         Ada.Exceptions.Raise_Exception
-           (Socket_Error'Identity,
-            Message => "Receive : Socket closed by peer.");
+         raise Socket_Error with "Receive : Socket closed by peer.";
       end if;
 
       if Net.Log.Is_Write_Active then

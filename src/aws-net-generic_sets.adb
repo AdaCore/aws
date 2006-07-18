@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2004                            --
---                                ACT-Europe                                --
+--                         Copyright (C) 2004-2006                          --
+--                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -26,7 +26,6 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-with Ada.Exceptions;
 with Ada.Unchecked_Deallocation;
 
 with AWS.Net.Thin;
@@ -431,8 +430,7 @@ package body AWS.Net.Generic_Sets is
             Timeout => Poll_Timeout));
 
       if Result < 0 then
-         Ada.Exceptions.Raise_Exception
-           (Socket_Error'Identity, "Poll error code" & Integer'Image (Errno));
+         raise Socket_Error with "Poll error code" & Integer'Image (Errno);
       end if;
 
       Count := Result;

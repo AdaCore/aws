@@ -27,7 +27,6 @@
 ------------------------------------------------------------------------------
 
 with Ada.Characters.Handling;
-with Ada.Exceptions;
 with Ada.Strings.Fixed;
 
 with AWS.Headers.Set;
@@ -140,9 +139,8 @@ package body AWS.Status.Set is
             when URI       => D.Auth_URI      := +Value;
             when Algorithm =>
                if Value /= "MD5" then
-                  Ada.Exceptions.Raise_Exception
-                     (Constraint_Error'Identity,
-                      "Only MD5 algorithm is supported.");
+                  raise Constraint_Error
+                    with "Only MD5 algorithm is supported.";
                end if;
          end case;
       end Named_Value;

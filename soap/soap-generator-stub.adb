@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                          Copyright (C) 2003-2005                         --
+--                         Copyright (C) 2003-2006                          --
 --                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -463,21 +463,18 @@ package body Stub is
          "         if SOAP.Message.Response.Is_Error (Response) then");
       Text_IO.Put_Line
         (Stub_Adb,
-         "            Ada.Exceptions.Raise_Exception");
-      Text_IO.Put_Line
-        (Stub_Adb,
-         "              (SOAP.SOAP_Error'Identity,");
+         "            raise SOAP.SOAP_Error with");
 
       if WSDL.Parameters.Length (Fault) = 1 then
          Text_IO.Put_Line
            (Stub_Adb,
             "               SOAP.Parameters.Get (R_Param, "
-              & '"' & To_String (Fault.Name) & """));");
+              & '"' & To_String (Fault.Name) & """);");
       else
          Text_IO.Put_Line
            (Stub_Adb,
             "               SOAP.Parameters.Get (R_Param, "
-              & """faultstring""));");
+              & """faultstring"");");
       end if;
 
       if Output /= null then
@@ -654,8 +651,6 @@ package body Stub is
          With_Unit (Stub_Adb, "SOAP.Message.XML");
       end if;
 
-      With_Unit (Stub_Adb, "Ada.Exceptions", Elab => Off);
-      Text_IO.New_Line (Stub_Adb);
       With_Unit (Stub_Adb, "SOAP.Client");
       With_Unit (Stub_Adb, "SOAP.Message.Payload", Elab => Children);
       With_Unit (Stub_Adb, "SOAP.Message.Response");

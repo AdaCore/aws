@@ -415,10 +415,9 @@ package body AWS.Server.HTTP_Utils is
             --  This part of the multipart message contains file data
 
             if CNF.Upload_Directory (HTTP_Server.Properties) = "" then
-               Ada.Exceptions.Raise_Exception
-                 (Constraint_Error'Identity,
-                  "File upload not supported by server "
-                    & CNF.Server_Name (HTTP_Server.Properties));
+               raise Constraint_Error
+                 with "File upload not supported by server "
+                   & CNF.Server_Name (HTTP_Server.Properties);
             end if;
 
             --  Set Server_Filename, the name of the file in the local file
@@ -724,16 +723,14 @@ package body AWS.Server.HTTP_Utils is
 
          if Error = Name_Error then
             --  We can't create the file, add a clear exception message
-            Ada.Exceptions.Raise_Exception
-              (Text_IO.Name_Error'Identity,
-               "Cannot create file " & Server_Filename);
+            raise Text_IO.Name_Error
+              with "Cannot create file " & Server_Filename;
 
          elsif Error = Device_Error then
             --  We can't write to the file, there is probably no space left
             --  on devide.
-            Ada.Exceptions.Raise_Exception
-              (Text_IO.Device_Error'Identity,
-               "No space left on device while writting " & Server_Filename);
+            raise Text_IO.Device_Error
+              with "No space left on device while writting " & Server_Filename;
          end if;
       end Get_File_Data;
 
@@ -1353,9 +1350,8 @@ package body AWS.Server.HTTP_Utils is
             Socket_Taken := True;
 
          when Response.No_Data =>
-            Ada.Exceptions.Raise_Exception
-              (Constraint_Error'Identity,
-               "Answer not properly initialized (No_Data)");
+            raise Constraint_Error
+              with "Answer not properly initialized (No_Data)";
       end case;
 
       if not Socket_Taken then

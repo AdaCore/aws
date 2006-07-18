@@ -465,9 +465,7 @@ package body AWS.SMTP.Client is
             Text_IO.Close (File);
          end if;
 
-         Ada.Exceptions.Raise_Exception
-           (Server_Error'Identity, Ada.Exceptions.Exception_Information (E));
-
+         raise Server_Error with Ada.Exceptions.Exception_Information (E);
    end Send;
 
    ----------
@@ -514,9 +512,7 @@ package body AWS.SMTP.Client is
       when E : others =>
          Shutdown (Sock);
 
-         Ada.Exceptions.Raise_Exception
-           (Server_Error'Identity, Ada.Exceptions.Exception_Information (E));
-
+         raise Server_Error with Ada.Exceptions.Exception_Information (E);
    end Send;
 
    ----------
@@ -597,8 +593,7 @@ package body AWS.SMTP.Client is
       when E : others =>
          Shutdown (Sock);
 
-         Ada.Exceptions.Raise_Exception
-           (Server_Error'Identity, Ada.Exceptions.Exception_Information (E));
+         raise Server_Error with Ada.Exceptions.Exception_Information (E);
    end Send;
 
    --------------------------

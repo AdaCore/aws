@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2004                          --
---                                ACT-Europe                                --
+--                         Copyright (C) 2000-2006                          --
+--                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -26,7 +26,6 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-with Ada.Exceptions;
 with Ada.Strings.Fixed;
 with Ada.Text_IO;
 
@@ -119,8 +118,7 @@ package body AWS.Headers.Set is
                   if Delimiter_Index = 0 then
                      --  No delimiter, this is not a valid Header Line
 
-                     Ada.Exceptions.Raise_Exception
-                       (Format_Error'Identity, Line);
+                     raise Format_Error with Line;
                   end if;
 
                   Add (Headers,

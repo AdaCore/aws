@@ -27,7 +27,6 @@
 ------------------------------------------------------------------------------
 
 with Ada.Command_Line;
-with Ada.Exceptions;
 with Ada.Strings.Fixed;
 with Ada.Strings.Maps;
 with Ada.Text_IO;
@@ -99,8 +98,7 @@ package body AWS.Config.Ini is
 
       procedure Raise_Error (Message : in String) is
       begin
-         Ada.Exceptions.Raise_Exception
-           (Constraint_Error'Identity, Error_Context & Message);
+         raise Constraint_Error with Error_Context & Message;
       end Raise_Error;
 
       ---------------

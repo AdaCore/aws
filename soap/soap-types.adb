@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2005                          --
+--                         Copyright (C) 2000-2006                          --
 --                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -28,7 +28,6 @@
 
 with Ada.Long_Float_Text_IO;
 with Ada.Long_Long_Float_Text_IO;
-with Ada.Exceptions;
 with Ada.Strings.Fixed;
 with Ada.Tags;
 with Ada.Task_Attributes;
@@ -632,15 +631,13 @@ package body SOAP.Types is
       use type Ada.Tags.Tag;
    begin
       if O'Tag = Types.XSD_Any_Type'Tag then
-         Exceptions.Raise_Exception
-           (Data_Error'Identity,
-            Expected & " expected, found "
-            & Tags.Expanded_Name (XSD_Any_Type (O).O.O'Tag)
-            & " in an XSD_Any_Type object.");
+         raise Data_Error
+           with Expected & " expected, found "
+             & Tags.Expanded_Name (XSD_Any_Type (O).O.O'Tag)
+             & " in an XSD_Any_Type object.";
       else
-         Exceptions.Raise_Exception
-           (Data_Error'Identity,
-            Expected & " expected, found " & Tags.Expanded_Name (O'Tag));
+         raise Data_Error
+           with Expected & " expected, found " & Tags.Expanded_Name (O'Tag);
       end if;
    end Get_Error;
 
@@ -1184,9 +1181,8 @@ package body SOAP.Types is
          end if;
       end loop;
 
-      Exceptions.Raise_Exception
-        (Types.Data_Error'Identity,
-         "(V) Struct object " & Name & " not found");
+      raise Types.Data_Error
+        with "(V) Struct object " & Name & " not found";
    end V;
 
    function V (O : in SOAP_Record) return Object_Set is

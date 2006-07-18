@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2005                          --
+--                         Copyright (C) 2000-2006                          --
 --                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -324,7 +324,7 @@ package body SOAP.Message.XML is
    procedure Error (Node : in DOM.Core.Node; Message : in String) is
       Name : constant String := Local_Name (Node);
    begin
-      Exceptions.Raise_Exception (SOAP_Error'Identity, Name & " - " & Message);
+      raise SOAP_Error with Name & " - " & Message;
    end Error;
 
    -------------------------

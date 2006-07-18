@@ -2,7 +2,7 @@
 --                              Ada Web Server                              --
 --                                                                          --
 --                         Copyright (C) 2003-2006                          --
---                                  AdaCore                                 --
+--                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -27,7 +27,6 @@
 ------------------------------------------------------------------------------
 
 with Ada.Characters.Handling;
-with Ada.Exceptions;
 with Ada.Strings.Fixed;
 with Ada.Text_IO;
 
@@ -42,7 +41,6 @@ with SOAP.XML;
 package body SOAP.WSDL.Parser is
 
    use Ada;
-   use Ada.Exceptions;
    use type DOM.Core.Node;
 
    Verbose_Mode  : Verbose_Level := 0;
@@ -290,9 +288,8 @@ package body SOAP.WSDL.Parser is
             if Characters.Handling.To_Lower (Name) /= "character"
               or else Base /= "string"
             then
-               Raise_Exception
-                 (WSDL_Error'Identity,
-                  "Schema does not correspond to Ada Character type.");
+               raise WSDL_Error
+                 with "Schema does not correspond to Ada Character type.";
             end if;
 
             N := Character_Facet (N, Child => True);
@@ -303,10 +300,9 @@ package body SOAP.WSDL.Parser is
                --  Check length
 
                if XML.Get_Attr_Value (N, "value", False) /= "1" then
-                  Raise_Exception
-                    (WSDL_Error'Identity,
-                     "Schema does not correspond"
-                       & " to Ada Character type (length /= 1).");
+                  raise WSDL_Error
+                    with "Schema does not correspond"
+                      & " to Ada Character type (length /= 1).";
                end if;
 
             elsif N /= null
@@ -314,10 +310,9 @@ package body SOAP.WSDL.Parser is
             then
 
                if XML.Get_Attr_Value (N, "value", False) /= "1" then
-                  Raise_Exception
-                    (WSDL_Error'Identity,
-                     "Schema does not correspond"
-                       & " to Ada Character type (minLength /= 1).");
+                  raise WSDL_Error
+                    with "Schema does not correspond"
+                      & " to Ada Character type (minLength /= 1).";
                end if;
 
                N := Character_Facet (N);
@@ -330,10 +325,9 @@ package body SOAP.WSDL.Parser is
                      Text_IO.Put_Line ("N=null");
                   end if;
 
-                  Raise_Exception
-                    (WSDL_Error'Identity,
-                     "Schema does not correspond"
-                       & " to Ada Character type (maxLength /= 1).");
+                  raise WSDL_Error
+                    with "Schema does not correspond"
+                      & " to Ada Character type (maxLength /= 1).";
                end if;
 
             elsif N /= null
@@ -341,10 +335,9 @@ package body SOAP.WSDL.Parser is
             then
 
                if XML.Get_Attr_Value (N, "value", False) /= "1" then
-                  Raise_Exception
-                    (WSDL_Error'Identity,
-                     "Schema does not correspond"
-                       & " to Ada Character type (maxLength /= 1).");
+                  raise WSDL_Error
+                    with "Schema does not correspond"
+                      & " to Ada Character type (maxLength /= 1).";
                end if;
 
                N := Character_Facet (N);
@@ -353,17 +346,15 @@ package body SOAP.WSDL.Parser is
                  or else DOM.Core.Nodes.Local_Name (N) /= "minLength"
                  or else XML.Get_Attr_Value (N, "value", False) /= "1"
                then
-                  Raise_Exception
-                    (WSDL_Error'Identity,
-                     "Schema does not correspond"
-                       & " to Ada Character type (minLength /= 1).");
+                  raise WSDL_Error
+                    with "Schema does not correspond"
+                      & " to Ada Character type (minLength /= 1).";
                end if;
 
             else
-               Raise_Exception
-                 (WSDL_Error'Identity,
-                  "Schema does not correspond"
-                    & " to Ada Character type (no facet).");
+               raise WSDL_Error
+                 with "Schema does not correspond"
+                   & " to Ada Character type (no facet).";
             end if;
          end;
       end;
@@ -598,9 +589,7 @@ package body SOAP.WSDL.Parser is
                      Last  := Strings.Fixed.Index (Value, "]");
 
                      if First = 0 or else Last = 0 then
-                        Raise_Exception
-                          (WSDL_Error'Identity,
-                           "missing [] in arrayType value.");
+                        raise WSDL_Error with "missing [] in arrayType value.";
                      end if;
 
                      if Last > First + 1 then
@@ -617,8 +606,7 @@ package body SOAP.WSDL.Parser is
             end;
          end loop;
 
-         Raise_Exception
-           (WSDL_Error'Identity, "array element type not found.");
+         raise WSDL_Error with "array element type not found.";
       end Array_Elements;
 
    begin
@@ -790,9 +778,7 @@ package body SOAP.WSDL.Parser is
       N := Get_Node (Binding, Utils.With_NS (-NS_SOAP, "binding"), NS => True);
 
       if N = null then
-         Raise_Exception
-           (WSDL_Error'Identity,
-            "Binding style/transport definition not found.");
+         raise WSDL_Error with "Binding style/transport definition not found.";
       end if;
 
       --  Check for style (only Document is supported)
@@ -800,8 +786,7 @@ package body SOAP.WSDL.Parser is
       if not O.Accept_Document
         and then XML.Get_Attr_Value (N, "style") = "document"
       then
-         Raise_Exception
-           (WSDL_Error'Identity, "Document Web Service style not supported.");
+         raise WSDL_Error with "Document Web Service style not supported.";
       end if;
 
       --  Check for transport (only HTTP is supported)
@@ -810,8 +795,7 @@ package body SOAP.WSDL.Parser is
          T : constant String := XML.Get_Attr_Value (N, "transport");
       begin
          if T (T'Last - 4 .. T'Last) /= "/http" then
-            Raise_Exception
-              (WSDL_Error'Identity, "Only HTTP transport supported.");
+            raise WSDL_Error with "Only HTTP transport supported.";
          end if;
       end;
 
@@ -904,8 +888,7 @@ package body SOAP.WSDL.Parser is
       end loop;
 
       if N = null then
-         Raise_Exception
-           (WSDL_Error'Identity, "No element found in schema.");
+         raise WSDL_Error with "No element found in schema.";
       else
          CT_Node := N;
       end if;
@@ -923,13 +906,9 @@ package body SOAP.WSDL.Parser is
 
             if N = null then
                if XML.Get_Attr_Value (Parent, "abstract") = "true" then
-                  Raise_Exception
-                    (WSDL_Error'Identity,
-                     "abstract complexType not suported.");
+                  raise WSDL_Error with "abstract complexType not suported.";
                else
-                  Raise_Exception
-                    (WSDL_Error'Identity,
-                     "Found an empty complexType.");
+                  raise WSDL_Error with "Found an empty complexType.";
                end if;
             end if;
          end;
@@ -1002,8 +981,7 @@ package body SOAP.WSDL.Parser is
         (Operation, Utils.With_NS (-NS_SOAP, "operation"), NS => True);
 
       if N = null then
-         Raise_Exception
-           (WSDL_Error'Identity, "soap:operation not found.");
+         raise WSDL_Error with "soap:operation not found.";
       end if;
 
       if DOM.Core.Nodes.Get_Named_Item
@@ -1024,9 +1002,8 @@ package body SOAP.WSDL.Parser is
       begin
          if NS_Value /= "" then
             if NS_Name = "" then
-               Raise_Exception
-                 (WSDL_Error'Identity,
-                  "Missing definition for namespace " & NS_Value);
+               raise WSDL_Error
+                 with "Missing definition for namespace " & NS_Value;
             else
                O.Namespace := Name_Space.Create (NS_Name, NS_Value);
             end if;
@@ -1041,9 +1018,8 @@ package body SOAP.WSDL.Parser is
          "portType.operation", -O.Proc);
 
       if N = null then
-         Raise_Exception
-           (WSDL_Error'Identity,
-            "portType.operation for " & (-O.Proc) & " not found.");
+         raise WSDL_Error
+           with "portType.operation for " & (-O.Proc) & " not found.";
       end if;
 
       Parse_PortType (O, N, Document);
@@ -1069,8 +1045,7 @@ package body SOAP.WSDL.Parser is
             No_Name_Space, null, To_Type (P_Type));
 
       elsif P_Type = "anyType" then
-         Raise_Exception
-           (WSDL_Error'Identity, "Type anyType is not supported.");
+         raise WSDL_Error with "Type anyType is not supported.";
 
       else
          declare
@@ -1084,9 +1059,8 @@ package body SOAP.WSDL.Parser is
                               "definitions.types.schema.simpleType", P_Type);
 
                if R = null then
-                  Raise_Exception
-                    (WSDL_Error'Identity,
-                     "types.schema definition for " & P_Type & " not found.");
+                  raise WSDL_Error with
+                    "types.schema definition for " & P_Type & " not found.";
 
                else
                   O.Self.Current_Name := +XML.Get_Attr_Value (N, "name");
@@ -1131,9 +1105,8 @@ package body SOAP.WSDL.Parser is
       end if;
 
       if ET = Null_Unbounded_String then
-         Raise_Exception
-           (WSDL_Error'Identity,
-            "No type or element attribute found for part element.");
+         raise WSDL_Error
+           with "No type or element attribute found for part element.";
       end if;
 
       O.Current_Name := +XML.Get_Attr_Value (Part, "name");
@@ -1153,8 +1126,7 @@ package body SOAP.WSDL.Parser is
             Add_Parameter (O, -O.Current_Name, WSDL.To_Type (T_No_NS));
 
          elsif T = Types.XML_Any_Type then
-            Raise_Exception
-              (WSDL_Error'Identity, "Type anyType is not supported.");
+            raise WSDL_Error with "Type anyType is not supported.";
 
          else
             --  First search for element in the schema
@@ -1180,8 +1152,7 @@ package body SOAP.WSDL.Parser is
             end if;
 
             if N = null then
-               Raise_Exception
-                 (WSDL_Error'Identity, "Definition for " & T & " not found.");
+               raise WSDL_Error with "Definition for " & T & " not found.";
             end if;
 
             Parse_Element (O, N, Document);
@@ -1223,9 +1194,8 @@ package body SOAP.WSDL.Parser is
                "types.schema.element", -Message);
 
             if N = null then
-               Raise_Exception
-                 (WSDL_Error'Identity,
-                  "types.schema.element for " & (-Message) & " not found.");
+               raise WSDL_Error
+                 with "types.schema.element for " & (-Message) & " not found.";
             end if;
 
             Parse_Element (O, N, Document);
@@ -1363,7 +1333,7 @@ package body SOAP.WSDL.Parser is
       Port := Get_Node (Service, "port");
 
       if Port = null then
-         Raise_Exception (WSDL_Error'Identity, "port definition not found");
+         raise WSDL_Error with "port definition not found";
       end if;
 
       N := Get_Node (Port, Utils.With_NS (-NS_SOAP, "address"), NS => True);
@@ -1382,9 +1352,8 @@ package body SOAP.WSDL.Parser is
         (XML.First_Child (DOM.Core.Node (Document)), "binding", -Binding);
 
       if N = null then
-         Raise_Exception
-           (WSDL_Error'Identity,
-            "binding for " & (-Binding) & " not found.");
+         raise WSDL_Error
+           with "binding for " & (-Binding) & " not found.";
       end if;
 
       Parse_Binding (O, N, Document);
@@ -1443,9 +1412,7 @@ package body SOAP.WSDL.Parser is
             --  We do not support derived type at more than one level for
             --  now.
 
-            Raise_Exception
-              (WSDL_Error'Identity,
-               "Parent type must be a standard type.");
+            raise WSDL_Error with "Parent type must be a standard type.";
          end if;
 
          return P;

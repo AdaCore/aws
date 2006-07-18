@@ -355,16 +355,14 @@ package body AWS.Server.Push is
          if Table.Has_Element (Cursor) then
             Send_Data (Table.Element (Cursor), Data, Content_Type);
          else
-            Ada.Exceptions.Raise_Exception
-              (Client_Gone'Identity, "No such client id.");
+            raise Client_Gone with "No such client id.";
          end if;
 
       exception
          when E : Net.Socket_Error =>
             Unregister (Client_Id, True);
 
-            Ada.Exceptions.Raise_Exception
-              (Client_Gone'Identity, Ada.Exceptions.Exception_Message (E));
+            raise Client_Gone with Ada.Exceptions.Exception_Message (E);
       end Send_To;
 
       --------------

@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2005                          --
+--                         Copyright (C) 2000-2006                          --
 --                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -27,7 +27,6 @@
 ------------------------------------------------------------------------------
 
 with Ada.Characters.Handling;
-with Ada.Exceptions;
 with Ada.Strings.Fixed;
 with Ada.Strings.Maps;
 with Ada.Strings.Unbounded;
@@ -126,9 +125,8 @@ package body AWS.MIME is
       Set.Add_Regexp (R_Filename, MIME_Type);
    exception
       when Regexp.Error_In_Regexp =>
-         Exceptions.Raise_Exception
-           (Constraint_Error'Identity,
-            "Regexp " & Filename & " can't be compiled");
+         raise Constraint_Error
+           with "Regexp " & Filename & " can't be compiled";
    end Add_Regexp;
 
    ------------------

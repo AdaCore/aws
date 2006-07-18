@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2002                          --
---                                ACT-Europe                                --
+--                         Copyright (C) 2000-2006                          --
+--                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -26,11 +26,7 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-with Ada.Exceptions;
-
 procedure AWS.URL.Raise_URL_Error (URL : in String; Message : in String) is
 begin
-   Ada.Exceptions.Raise_Exception
-     (URL_Error'Identity,
-      "Wrong URL: (" & URL & ") " & Message & '.');
+   raise URL_Error with "Wrong URL: (" & URL & ") " & Message & '.';
 end AWS.URL.Raise_URL_Error;

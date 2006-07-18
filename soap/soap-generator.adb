@@ -28,7 +28,6 @@
 
 with Ada.Calendar;
 with Ada.Characters.Handling;
-with Ada.Exceptions;
 with Ada.Strings.Fixed;
 with Ada.Strings.Maps;
 with Ada.Text_IO;
@@ -44,7 +43,6 @@ with SOAP.Utils;
 package body SOAP.Generator is
 
    use Ada;
-   use Ada.Exceptions;
 
    function Format_Name (O : in Object; Name : in String) return String;
    --  Returns Name formated with the Ada style if O.Ada_Style is true and
@@ -2351,9 +2349,8 @@ package body SOAP.Generator is
          Filename : in     String) is
       begin
          if AWS.OS_Lib.Is_Regular_File (Filename) and then not O.Force then
-            Raise_Exception
-              (Generator_Error'Identity,
-               "File " & Filename & " exists, activate overwrite mode.");
+            raise Generator_Error
+              with "File " & Filename & " exists, activate overwrite mode.";
          else
             Text_IO.Create (File, Text_IO.Out_File, Filename);
          end if;

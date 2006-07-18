@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2003-2005                          --
+--                         Copyright (C) 2003-2006                          --
 --                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -26,9 +26,8 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  This package provides services to handle WSDL.
+--  This package provides services to handle WSDL
 
-with Ada.Exceptions;
 with Ada.Characters.Handling;
 
 with Input_Sources.File;
@@ -373,9 +372,8 @@ package body SOAP.WSDL is
       To_Type (XSD_Type, Result, Standard);
 
       if not Standard then
-         Exceptions.Raise_Exception
-           (WSDL_Error'Identity,
-            "(To_Type) Type " & XSD_Type & " not supported.");
+         raise WSDL_Error
+           with "(To_Type) Type " & XSD_Type & " not supported.";
       end if;
 
       return Result;

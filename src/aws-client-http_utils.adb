@@ -155,10 +155,9 @@ package body AWS.Client.HTTP_Utils is
                            .. Messages.HTTP_Token'Length + 7));
 
             if Status >= Messages.S400 then
-               Exceptions.Raise_Exception
-                 (Connection_Error'Identity,
-                  Message => "Can't connect to proxy, status "
-                  & Messages.Image (Status));
+               raise Connection_Error
+                 with "Can't connect to proxy, status "
+                   & Messages.Image (Status);
             end if;
          end;
 
@@ -193,10 +192,9 @@ package body AWS.Client.HTTP_Utils is
       when E : Net.Socket_Error =>
          Connection.Opened := False;
 
-         Exceptions.Raise_Exception
-           (Connection_Error'Identity,
-            "can't connect to " & AWS.URL.URL (Connect_URL)
-              & " -> " & Exceptions.Exception_Information (E));
+         raise Connection_Error
+           with "can't connect to " & AWS.URL.URL (Connect_URL)
+             & " -> " & Exceptions.Exception_Information (E);
    end Connect;
 
    -------------------
@@ -866,9 +864,8 @@ package body AWS.Client.HTTP_Utils is
 
             elsif U_Name = "ALGORITHM" then
                if Value /= "MD5" then
-                  Ada.Exceptions.Raise_Exception
-                    (Constraint_Error'Identity,
-                     "Only MD5 algorithm is supported.");
+                  raise Constraint_Error
+                    with "Only MD5 algorithm is supported.";
                end if;
 
             --  The parameter Stale is true when the Digest value is correct
@@ -978,7 +975,7 @@ package body AWS.Client.HTTP_Utils is
                          .. Messages.HTTP_Token'Length + 3) >= "1.1";
          else
             --  or else it is wrong answer from server
-            Ada.Exceptions.Raise_Exception (Protocol_Error'Identity, Line);
+            raise Protocol_Error with Line;
          end if;
       end Read_Status_Line;
 

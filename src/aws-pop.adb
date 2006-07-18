@@ -2,7 +2,7 @@
 --                              Ada Web Server                              --
 --                       P O P - Post Office Protocol                       --
 --                                                                          --
---                          Copyright (C) 2003-2005                         --
+--                          Copyright (C) 2003-2006                         --
 --                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -27,7 +27,6 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-with Ada.Exceptions;
 with AWS.Headers.Set;
 with Ada.Streams.Stream_IO;
 with Ada.Strings.Fixed;
@@ -44,8 +43,6 @@ with MD5;
 with Strings_Cutter;
 
 package body AWS.POP is
-
-   use Ada.Exceptions;
 
    --  MIME Headers
 
@@ -139,9 +136,7 @@ package body AWS.POP is
       if Response'Length > 3
         and then Response (Response'First .. Response'First + 3) = "-ERR"
       then
-         Raise_Exception
-           (POP_Error'Identity,
-            Response (Response'First + 5 .. Response'Last));
+         raise POP_Error with Response (Response'First + 5 .. Response'Last);
       end if;
    end Check_Response;
 
@@ -197,9 +192,8 @@ package body AWS.POP is
 
    begin
       if Is_File (Attachment) then
-         Raise_Exception
-           (Constraint_Error'Identity,
-            "This is a file attachment, can't return unbounded_string");
+         raise Constraint_Error
+           with "This is a file attachment, can't return unbounded_string";
       end if;
 
       Memory.Reset (Stream);
@@ -534,7 +528,7 @@ package body AWS.POP is
       for K in 2 .. Index loop
 
          if P = null then
-            Raise_Exception (Constraint_Error'Identity, "No such attachment");
+            raise Constraint_Error with "No such attachment";
          end if;
 
          P := P.Next;
@@ -661,9 +655,8 @@ package body AWS.POP is
                if First /= 0 and then Last /= 0 then
                   Timestamp := To_Unbounded_String (Response (First .. Last));
                else
-                  Raise_Exception
-                    (POP_Error'Identity,
-                     "APOP authentication not supported by server.");
+                  raise POP_Error
+                    with "APOP authentication not supported by server.";
                end if;
             end;
          end if;
@@ -851,9 +844,8 @@ package body AWS.POP is
 
    begin
       if not Is_File (Attachment) then
-         Raise_Exception
-           (Constraint_Error'Identity,
-            "This is not a file attachment, can't write content to a file.");
+         raise Constraint_Error with
+           "This is not a file attachment, can't write content to a file.";
       end if;
 
       Stream_IO.Create

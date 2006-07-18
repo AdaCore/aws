@@ -26,8 +26,6 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-with Ada.Exceptions;
-
 with Ada.Strings.Fixed;
 with Ada.Strings.Maps;
 
@@ -118,8 +116,7 @@ package body AWS.Config.Utils is
          end Error_Message;
 
       begin
-         Ada.Exceptions.Raise_Exception
-           (Constraint_Error'Identity, Error_Message & '.');
+         raise Constraint_Error with Error_Message & '.';
       end Error;
 
       Expected_Type : Unbounded_String;
@@ -204,9 +201,8 @@ package body AWS.Config.Utils is
       return Parameter_Name'Value (Item);
    exception
       when Constraint_Error =>
-         Ada.Exceptions.Raise_Exception
-           (Constraint_Error'Identity,
-            Error_Context & "unrecognized option " & Item);
+         raise Constraint_Error
+           with Error_Context & "unrecognized option " & Item;
    end Value;
 
 end AWS.Config.Utils;

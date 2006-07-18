@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                          Copyright (C) 2002-2003                         --
---                                ACT-Europe                                --
+--                          Copyright (C) 2002-2006                         --
+--                                  AdaCore                                 --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -26,7 +26,6 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-with Ada.Exceptions;
 with Ada.Strings.Fixed;
 with Ada.Strings.Maps.Constants;
 
@@ -192,9 +191,8 @@ package body AWS.Headers.Values is
             if Last = 0 then
                --  Format error as there is no closing quote
 
-               Ada.Exceptions.Raise_Exception
-                 (Format_Error'Identity,
-                  "HTTP header line format error : " & Data);
+               raise Format_Error
+                 with "HTTP header line format error : " & Data;
             else
                Value_Last := Last - 1;
             end if;

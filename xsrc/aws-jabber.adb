@@ -26,7 +26,6 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-with Ada.Exceptions;
 with Ada.Strings.Fixed;
 with Ada.Text_IO;
 with Ada.Unchecked_Deallocation;
@@ -637,7 +636,7 @@ package body AWS.Jabber is
 
    procedure Raise_Exception (Message : in String) is
    begin
-      Exceptions.Raise_Exception (Server_Error'Identity, "Jabber: " & Message);
+      raise Server_Error with "Jabber: " & Message;
    end Raise_Exception;
 
    -------------

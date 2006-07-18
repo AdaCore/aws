@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2005                          --
+--                         Copyright (C) 2000-2006                          --
 --                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -27,7 +27,6 @@
 ------------------------------------------------------------------------------
 
 with Ada.Characters.Handling;
-with Ada.Exceptions;
 with Ada.Strings.Unbounded;
 with Ada.Text_IO;
 
@@ -44,7 +43,6 @@ with AWS.URL;
 
 package body AWS.Server.Hotplug is
 
-   use Ada.Exceptions;
    use Ada.Strings.Unbounded;
 
    Authorization_Error : exception;
@@ -139,8 +137,7 @@ package body AWS.Server.Hotplug is
                     & Natural'Image (N);
             begin
                Log.Write (Web_Server.Error_Log, Error_Message);
-               Ada.Exceptions.Raise_Exception
-                 (Constraint_Error'Identity, Error_Message);
+               raise Constraint_Error with Error_Message;
             end;
          end if;
 

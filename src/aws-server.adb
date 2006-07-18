@@ -493,8 +493,8 @@ package body AWS.Server is
       if Web_Server.Shutdown then
          Web_Server.Exception_Handler := Handler;
       else
-         Ada.Exceptions.Raise_Exception (Constraint_Error'Identity,
-            "Could not change exception handler on the active server.");
+         raise Constraint_Error
+           with "Could not change exception handler on the active server.";
       end if;
    end Set_Unexpected_Exception_Handler;
 

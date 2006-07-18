@@ -625,10 +625,9 @@ package body AWS.LDAP.Client is
    procedure Raise_Error (Code : in Thin.Return_Code; Message : in String) is
       Err_Message : constant String := Value (Thin.ldap_err2string (Code));
    begin
-      Exceptions.Raise_Exception
-        (LDAP_Error'Identity,
-         Message & " - ["
-           & AWS.Utils.Image (Integer (Code)) & "] " & Err_Message);
+      raise LDAP_Error
+        with Message & " - ["
+          & AWS.Utils.Image (Integer (Code)) & "] " & Err_Message;
    end Raise_Error;
 
    ------------

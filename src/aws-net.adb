@@ -124,7 +124,7 @@ package body AWS.Net is
      (Socket : in Socket_Type'Class; Text : in String) is
    begin
       Log.Error (Socket, Text);
-      Raise_Exception (Socket_Error'Identity, Text);
+      raise Socket_Error with Text;
    end Raise_Socket_Error;
 
    -------------

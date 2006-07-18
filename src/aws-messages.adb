@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2004                          --
---                               ACT-Europe                                 --
+--                         Copyright (C) 2000-2006                          --
+--                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -27,7 +27,6 @@
 ------------------------------------------------------------------------------
 
 with Ada.Characters.Handling;
-with Ada.Exceptions;
 
 with AWS.Utils;
 
@@ -465,9 +464,8 @@ package body AWS.Messages is
             end if;
          end loop;
 
-         Exceptions.Raise_Exception
-           (Constraint_Error'Identity,
-            "Month_Number: Wrong Month name (" & Month_Name & ')');
+         raise Constraint_Error
+           with "Month_Number: Wrong Month name (" & Month_Name & ')';
       end Month_Number;
 
    begin
