@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                          Copyright (C) 2003-2006                         --
---                                  AdaCore                                 --
+--                            Copyright (C) 2006                            --
+--                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -26,23 +26,17 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-with "shared";
-with "include/include";
-with "src/src";
-with "ssl/ssl";
-with "demos/demos";
-with "demos/demos_ssl";
-with "tools/tools";
-with "docs/docs";
-with "gps/gps_support";
-with "regtests/regtests";
-with "config/setup";
+with "../shared";
 
-project Aws is
+project Setup is
 
-   for Source_Dirs use ();
-   for Object_Dir use ".build";
+   for Languages use ("Ada", "C");
+   for Main use ("test_uconv");
+
+   for Source_Dirs use ("src");
+   for Object_Dir use "obj";
+   for Exec_Dir use ".";
 
    package Ide renames Shared.Ide;
 
-end Aws;
+end Setup;

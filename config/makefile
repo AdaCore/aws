@@ -11,9 +11,8 @@ setup: ../src/aws-translator-conversion.adb ../src/aws-os_lib-definitions.ads
 
 ../src/aws-translator-conversion.adb: makefile
 	echo Setup conversion support
-	$(GNATMAKE_FOR_HOST) -q src/test_uconv
+	$(GNATMAKE_FOR_HOST) -Pcheck_config
 	./test_uconv
-	-$(RM) test_uconv$(EXEEXT) test_uconv.o test_uconv.ali
 	$(MV) aws-translator-conversion.adb ../src
 
 ../src/aws-os_lib-definitions.ads: makefile src/check_config.c
