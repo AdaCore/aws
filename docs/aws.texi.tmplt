@@ -598,36 +598,32 @@ After installing @code{AWS} you must set the build environment to
 point the compiler to the right libraries. First let's say that
 @code{AWS} has been installed in @file{awsroot} directory.
 
-@noindent
-This can be done automatically for the @code{GNAT} compiler by using
-the @file{<awsroot>/set-aws.sh} on UNIX or @file{<awsroot>\set-aws.cmd}
-on Windows.
-
-If you pefer setting the environment yourself here is how to do with
-@code{GNAT}.
+Following are the instructions to set the environment yourself. Note
+that the preferred solution is to use project files. In this case there
+is no manual configuration.
 
 @table @b
 
 @item spec files
 
-The spec files are installed in @file{<awsroot>/include}. Add this
+The spec files are installed in @file{<awsroot>/include/aws}. Add this
 path into @var{ADA_INCLUDE_PATH} or put it on the command line
-@code{-aI<awsroot>/include}.
+@code{-aI<awsroot>/include/aws}.
 
 @item components
 
 @code{AWS} uses some components they are installed in
-@file{<awsroot>/components}. Add this path into ADA_INCLUDE_PATH or
-put it on the command line @code{-I<awsroot>/components}.
+@file{<awsroot>/include/aws/components}. Add this path into ADA_INCLUDE_PATH 
+or put it on the command line @code{-I<awsroot>/include/aws/components}.
 
 @item libraries
 
 The GNAT library files (@file{.ali}) and the @code{AWS} libraries
-(@file{libaws.a}) are installed into @file{<awsroot>/lib}. Add this
+(@file{libaws.a}) are installed into @file{<awsroot>/lib/aws}. Add this
 path into @var{ADA_OBJECTS_PATH} or put it on the command line
-@code{-aO<awsroot>/lib}. Furthermore for @code{gnatlink} to find the
+@code{-aO<awsroot>/lib/aws}. Furthermore for @code{gnatlink} to find the
 libraries you must add the following library path option on the
-@code{gnatmake} command line @code{-largs -L<awsroot>/lib -laws}.
+@code{gnatmake} command line @code{-largs -L<awsroot>/lib/aws -laws}.
 
 Note that to build SSL applications you need to add @code{-lssl -lcrypto} on
 gnatmake's @code{-largs} section.
@@ -662,9 +658,9 @@ Project file, nothing else to set.
 
    @b{for} Main @b{use} ("prog.adb");
 
-   @b{for} Source_Dirs @b{use} (".");
+   @b{for} Source_Dirs @b{use} ("src");
 
-   @b{for} Object_Dir @b{use} ".";
+   @b{for} Object_Dir @b{use} "obj";
 
 @b{end} Simple;}
 
