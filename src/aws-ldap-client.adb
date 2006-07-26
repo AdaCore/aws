@@ -26,8 +26,6 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  $Id$:
-
 with Ada.Strings.Fixed;
 with Interfaces.C.Strings;
 
@@ -59,11 +57,11 @@ package body AWS.LDAP.Client is
 
    function Attrib (Name, Value : in String) return String;
    pragma Inline (Attrib);
-   --  Returns Name or Name=Value if Value is not the empty string.
+   --  Returns Name or Name=Value if Value is not the empty string
 
    procedure Check_Handle (Dir : in Directory);
    pragma Inline (Check_Handle);
-   --  Raises LDAP_Error if Dir is Null_Directory.
+   --  Raises LDAP_Error if Dir is Null_Directory
 
    ------------
    -- Attrib --
@@ -301,9 +299,9 @@ package body AWS.LDAP.Client is
    ---------------------
 
    function First_Attribute
-     (Dir  : in     Directory;
-      Node : in     LDAP_Message;
-      BER  : access BER_Element)
+     (Dir  : in  Directory;
+      Node : in LDAP_Message;
+      BER  : not null access BER_Element)
       return String
    is
       Result : chars_ptr;
@@ -643,10 +641,10 @@ package body AWS.LDAP.Client is
       Attrs_Only : in Boolean       := False)
       return LDAP_Message
    is
-      Res        : IC.int;
-      C_Base     : chars_ptr := New_String (Base);
-      C_Filter   : chars_ptr := New_String (Filter);
-      Result     : aliased LDAP_Message;
+      Res      : IC.int;
+      C_Base   : chars_ptr := New_String (Base);
+      C_Filter : chars_ptr := New_String (Filter);
+      Result   : aliased LDAP_Message;
    begin
       Check_Handle (Dir);
 
