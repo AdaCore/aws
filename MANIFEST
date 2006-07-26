@@ -441,6 +441,7 @@ regtests/test_speed.out
 regtests/test_templates_if.adb
 regtests/test_templates_if.out
 regtests/test_zlib.adb
+regtests/test_zlib.out
 regtests/tgdb
 regtests/tgetparam.adb
 regtests/tgetparam.out
@@ -990,6 +991,10 @@ templates_parser/regtests/testme71.out
 templates_parser/regtests/testme71.tmplt
 templates_parser/regtests/testme72.out
 templates_parser/regtests/testme72.tmplt
+templates_parser/regtests/testme73.out
+templates_parser/regtests/testme73.tmplt
+templates_parser/regtests/testme74.out
+templates_parser/regtests/testme74.tmplt
 templates_parser/regtests/testme7_pt.out
 templates_parser/regtests/testme8.out
 templates_parser/regtests/testme8.tmplt
