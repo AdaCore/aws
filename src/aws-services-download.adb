@@ -164,9 +164,9 @@ package body AWS.Services.Download is
    -----------
 
    function Build
-     (Request  : in     Status.Data;
-      Name     : in     String;
-      Resource : access Resources.Streams.Stream_Type'Class)
+     (Request  : in Status.Data;
+      Name     : in String;
+      Resource : not null access Resources.Streams.Stream_Type'Class)
       return Response.Data
    is
       UID : Positive;
