@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2002-2003                          --
---                               ACT-Europe                                 --
+--                         Copyright (C) 2002-2006                          --
+--                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -121,7 +121,7 @@ private
    --  Mailbox. This task will terminate with the connection socket will be
    --  closed by the client.
 
-   task type Incoming_Stream (Server : access Jabber.Server) is
+   task type Incoming_Stream (Server : not null access Jabber.Server) is
       pragma Storage_Size (16#1E8_000#);
       --  This value must be below 2 Mb as this is the GNU/Linux thread
       --  stack size limit.
