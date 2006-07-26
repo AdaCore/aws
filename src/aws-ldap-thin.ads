@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2002                            --
---                               ACT-Europe                                 --
+--                         Copyright (C) 2002-2006                          --
+--                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -25,8 +25,6 @@
 --  however invalidate any other reasons why the executable file  might be  --
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
-
---  $Id$:
 
 --  Thin binding to the LDAP API (derived from ldap.h). Only API to read from
 --  the server have been imported.
@@ -560,7 +558,7 @@ package AWS.LDAP.Thin is
       filter    : in chars_ptr;
       attrs     : in C.Strings.chars_ptr_array;
       attrsonly : in C.int;
-      res       : access LDAPMessage)
+      res       : not null access LDAPMessage)
       return C.int;
 
    function ldap_search_s
@@ -570,7 +568,7 @@ package AWS.LDAP.Thin is
       filter    : in chars_ptr;
       attrs     : in chars_ptr; -- To be able to pass a null ptr
       attrsonly : in C.int;
-      res       : access LDAPMessage)
+      res       : not null access LDAPMessage)
       return C.int;
 
    function ldap_count_entries
@@ -594,9 +592,9 @@ package AWS.LDAP.Thin is
       return chars_ptr;
 
    function ldap_first_attribute
-     (ld      : in     LDAP_Type;
-      entries : in     LDAPMessage;
-      ber     : access BerElement)
+     (ld      : in LDAP_Type;
+      entries : in LDAPMessage;
+      ber     : not null access BerElement)
       return chars_ptr;
 
    function ldap_next_attribute
