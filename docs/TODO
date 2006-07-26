@@ -199,5 +199,3 @@ implemented:
 - Remove use of specific OS_Lib implementations and provide a single
   implementation based on standard Ada.Directories.
   Will be part of the move to Ada-05
-
-- Merge the Ada 2005 branch into the HEAD.
