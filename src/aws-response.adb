@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2004                          --
---                                ACT-Europe                                --
+--                         Copyright (C) 2000-2006                          --
+--                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -627,14 +627,14 @@ package body AWS.Response is
    ------------
 
    function Stream
-     (Content_Type  : in     String;
-      Handle        : access Resources.Streams.Stream_Type'Class;
-      Status_Code   : in     Messages.Status_Code      := Messages.S200;
-      Cache_Control : in     Messages.Cache_Option     := Messages.No_Cache;
-      Encoding      : in     Messages.Content_Encoding := Messages.Identity;
-      Server_Close  : in     Boolean                   := True;
-      Disposition   : in     Disposition_Mode          := None;
-      User_Filename : in     String                    := "")
+     (Content_Type  : in String;
+      Handle        : not null access Resources.Streams.Stream_Type'Class;
+      Status_Code   : in Messages.Status_Code      := Messages.S200;
+      Cache_Control : in Messages.Cache_Option     := Messages.No_Cache;
+      Encoding      : in Messages.Content_Encoding := Messages.Identity;
+      Server_Close  : in Boolean                   := True;
+      Disposition   : in Disposition_Mode          := None;
+      User_Filename : in String                    := "")
       return Data
    is
       function CD_Filename return String;
