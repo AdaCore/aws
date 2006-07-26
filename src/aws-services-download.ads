@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2005                            --
+--                         Copyright (C) 2005-2006                          --
 --                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -57,9 +57,9 @@ package AWS.Services.Download is
    --  Stop the download server, all current download are interrupted
 
    function Build
-     (Request  : in     Status.Data;
-      Name     : in     String;
-      Resource : access Resources.Streams.Stream_Type'Class)
+     (Request  : in Status.Data;
+      Name     : in String;
+      Resource : not null access Resources.Streams.Stream_Type'Class)
       return Response.Data;
    --  Queue a download request. If there is room on the download manager the
    --  template page aws_download_manager_start.thtml is used to build the
