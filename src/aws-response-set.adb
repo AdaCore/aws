@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2002-2004                          --
---                                ACT-Europe                                --
+--                         Copyright (C) 2002-2006                          --
+--                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -430,8 +430,8 @@ package body AWS.Response.Set is
 
    procedure Stream
      (D        : in out Data;
-      Handle   : access Resources.Streams.Stream_Type'Class;
-      Encoding : in     Messages.Content_Encoding := Messages.Identity) is
+      Handle   : not null access Resources.Streams.Stream_Type'Class;
+      Encoding : in Messages.Content_Encoding := Messages.Identity) is
    begin
       case Encoding is
          when Messages.GZip     =>
