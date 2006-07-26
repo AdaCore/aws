@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2003                            --
---                               ACT-Europe                                 --
+--                         Copyright (C) 2003-2006                          --
+--                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -25,8 +25,6 @@
 --  however invalidate any other reasons why the executable file  might be  --
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
-
---  $Id$:
 
 --  Provides an API to read information from an LDAP server. This API does not
 --  cover modifing, adding or deleting information into the server. It is a
@@ -238,9 +236,9 @@ package AWS.LDAP.Client is
    --  stop iteration; its initial value is False.
 
    function First_Attribute
-     (Dir  : in     Directory;
-      Node : in     LDAP_Message;
-      BER  : access BER_Element)
+     (Dir  : in Directory;
+      Node : in LDAP_Message;
+      BER  : not null access BER_Element)
       return String;
    --  Returns the first attribute for the entry. It initialize an iteraror
    --  (the BER structure). The BER structure must be released after used by
