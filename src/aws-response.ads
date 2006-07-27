@@ -153,14 +153,14 @@ package AWS.Response is
    --  the download is suspended).
 
    function Stream
-     (Content_Type  : in     String;
-      Handle        : access Resources.Streams.Stream_Type'Class;
-      Status_Code   : in     Messages.Status_Code      := Messages.S200;
-      Cache_Control : in     Messages.Cache_Option     := Messages.No_Cache;
-      Encoding      : in     Messages.Content_Encoding := Messages.Identity;
-      Server_Close  : in     Boolean                   := True;
-      Disposition   : in     Disposition_Mode          := None;
-      User_Filename : in     String                    := "")
+     (Content_Type  : in String;
+      Handle        : not null access Resources.Streams.Stream_Type'Class;
+      Status_Code   : in Messages.Status_Code      := Messages.S200;
+      Cache_Control : in Messages.Cache_Option     := Messages.No_Cache;
+      Encoding      : in Messages.Content_Encoding := Messages.Identity;
+      Server_Close  : in Boolean                   := True;
+      Disposition   : in Disposition_Mode          := None;
+      User_Filename : in String                    := "")
       return Data;
    --  Returns a message whose message body is the content of the user defined
    --  stream. The Content_Type must indicate the MIME type for the data
