@@ -35,7 +35,7 @@ AWSRES   = ../$(BDIR)/tools/awsres
 # Standard regression tests that needs to be run in a separate executable
 
 ALONE_TESTS    = dispatch1 dispatch_method dispatch_vh upload2 \
-	upload3 server_config tlog test_zlib
+	upload3 server_config tlog
 
 OTH_TESTS      = tres
 
