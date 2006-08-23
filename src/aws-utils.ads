@@ -26,6 +26,7 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
+with Ada.Calendar;
 with Ada.Streams;
 with Ada.Task_Identification;
 with Ada.Unchecked_Deallocation;
@@ -35,6 +36,7 @@ with ZLib;
 package AWS.Utils is
 
    use Ada;
+   use Ada.Streams;
    use Ada.Task_Identification;
 
    type Random_Integer is range 0 .. Integer'Last;
@@ -203,6 +205,40 @@ package AWS.Utils is
    private
       C : Natural := Initial_Value;
    end Counter;
+
+   ----------------------------
+   -- File oriented routines --
+   ----------------------------
+
+   No_Such_File : exception;
+   --  Raised be the routines below when a file is not found
+
+   function Is_Regular_File (Filename : in String) return Boolean;
+   pragma Inline (Is_Regular_File);
+   --  Returns True if Filename is a regular file and is readable
+
+   function Is_Directory (Filename : in String) return Boolean;
+   pragma Inline (Is_Directory);
+   --  Returns True if Filename is a directory
+
+   function File_Size (Filename : in String) return Stream_Element_Offset;
+   pragma Inline (File_Size);
+   --  Returns Filename's size in bytes
+
+   function File_Time_Stamp (Filename : in String) return Ada.Calendar.Time;
+   pragma Inline (File_Time_Stamp);
+   --  Get the time for last modification to a file in UTC/GMT
+
+   generic
+      with procedure Action
+        (Filename     : in     String;
+         Is_Directory : in     Boolean;
+         Quit         : in out Boolean);
+   procedure For_Every_Directory_Entry (Directory_Name : in String);
+   --  Reads all entries in Directory_Name and calls Action for each
+   --  one. Is_Directory is set to True if Filename is a directory. Quit can
+   --  be set to True to stop the iterator. Raises No_Such_File if
+   --  Directory_Name does not exists.
 
    -----------------------
    -- File compresssion --

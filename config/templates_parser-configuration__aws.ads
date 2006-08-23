@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2005                            --
+--                         Copyright (C) 2005-2006                          --
 --                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -28,7 +28,7 @@
 
 with Ada.Calendar;
 
-with AWS.OS_Lib;
+with AWS.Utils;
 
 package Templates_Parser.Configuration is
 
@@ -42,11 +42,11 @@ package Templates_Parser.Configuration is
    function Is_Regular_File
      (Filename : in String)
       return Boolean
-      renames AWS.OS_Lib.Is_Regular_File;
+      renames AWS.Utils.Is_Regular_File;
 
    function File_Time_Stamp
      (Filename : in String)
       return Time_Stamp
-      renames AWS.OS_Lib.File_Time_Stamp;
+      renames AWS.Utils.File_Time_Stamp;
 
 end Templates_Parser.Configuration;

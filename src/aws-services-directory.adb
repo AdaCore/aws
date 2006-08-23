@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2005                          --
+--                         Copyright (C) 2000-2006                          --
 --                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -33,9 +33,9 @@ with Ada.Strings.Unbounded;
 with Ada.Strings.Fixed;
 with Ada.Strings.Maps;
 
-with AWS.OS_Lib;
 with AWS.Parameters;
 with AWS.MIME;
+with AWS.Utils;
 
 with GNAT.Calendar.Time_IO;
 
@@ -389,7 +389,7 @@ package body AWS.Services.Directory is
          ------------------------------
 
          procedure Insert_Directory_Entries is
-            new OS_Lib.For_Every_Directory_Entry (Insert);
+            new Utils.For_Every_Directory_Entry (Insert);
 
          ------------
          -- Insert --
@@ -411,11 +411,11 @@ package body AWS.Services.Directory is
                File_Entry.Size := -1;
             else
                File_Entry.Size
-                 := Integer (AWS.OS_Lib.File_Size (Full_Pathname));
+                 := Integer (Utils.File_Size (Full_Pathname));
             end if;
 
             File_Entry.Name      := To_Unbounded_String (Filename);
-            File_Entry.Time      := AWS.OS_Lib.File_Time_Stamp (Full_Pathname);
+            File_Entry.Time      := Utils.File_Time_Stamp (Full_Pathname);
             File_Entry.UID       := UID_Sq;
             File_Entry.Order_Set := Order_Set;
 

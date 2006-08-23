@@ -26,6 +26,7 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
+with Ada.Directories;
 with Ada.Integer_Text_IO;
 with Ada.Numerics.Long_Elementary_Functions;
 with Ada.Streams.Stream_IO;
@@ -34,11 +35,11 @@ with Ada.Strings.Maps.Constants;
 with Ada.Text_IO;
 with Ada.Numerics.Discrete_Random;
 
-with AWS.OS_Lib;
-
 with System;
 
 package body AWS.Utils is
+
+   use type Ada.Directories.File_Kind;
 
    package Integer_Random is new Numerics.Discrete_Random (Random_Integer);
 
@@ -82,7 +83,6 @@ package body AWS.Utils is
       Filename_In  : in     String;
       Filename_Out : in     String)
    is
-      use Streams;
       procedure Data_In
         (Item : out Stream_Element_Array;
          Last : out Stream_Element_Offset);
@@ -214,7 +214,7 @@ package body AWS.Utils is
       ZLib.Inflate_Init (Filter, Header => ZLib.GZip);
 
       Compress_Decompress
-        (Filter, Filename, OS_Lib.Base_Name (Filename, ".gz"));
+        (Filter, Filename, Directories.Base_Name (Filename));
 
       ZLib.Close (Filter);
    exception
@@ -222,6 +222,85 @@ package body AWS.Utils is
          ZLib.Close (Filter, Ignore_Error => True);
          raise;
    end Decompress;
+
+   ---------------
+   -- File_Size --
+   ---------------
+
+   function File_Size (Filename : in String) return Stream_Element_Offset is
+   begin
+      if Is_Regular_File (Filename) then
+         return Stream_Element_Offset (Directories.Size (Filename));
+      else
+         raise No_Such_File with "File " & Filename & " not found.";
+      end if;
+   end File_Size;
+
+   ---------------------
+   -- File_Time_Stamp --
+   ---------------------
+
+   function File_Time_Stamp (Filename : in String) return Ada.Calendar.Time is
+   begin
+      if Is_Regular_File (Filename)
+        or else Is_Directory (Filename)
+      then
+         return Directories.Modification_Time (Filename);
+      else
+         raise No_Such_File with "File " & Filename & " not found.";
+      end if;
+   end File_Time_Stamp;
+
+   -------------------------------
+   -- For_Every_Directory_Entry --
+   -------------------------------
+
+   procedure For_Every_Directory_Entry (Directory_Name : in String) is
+      Iter : Directories.Search_Type;
+      Item : Directories.Directory_Entry_Type;
+
+      Quit : Boolean := False;
+
+      function Get_Directory return String;
+      --  Returns directory with an ending slash
+
+      -------------------
+      -- Get_Directory --
+      -------------------
+
+      function Get_Directory return String is
+      begin
+         if Directory_Name /= ""
+           and then Directory_Name (Directory_Name'Last) = '/'
+         then
+            return Directory_Name;
+         else
+            return Directory_Name & '/';
+         end if;
+      end Get_Directory;
+
+      Dir_Name : constant String := Get_Directory;
+
+   begin
+      Directories.Start_Search (Iter, Directory_Name, "");
+
+      while Directories.More_Entries (Iter) loop
+         Directories.Get_Next_Entry (Iter, Item);
+
+         Action
+           (Directories.Simple_Name (Item),
+            Is_Directory (Dir_Name & Directories.Simple_Name (Item)),
+            Quit => Quit);
+
+         exit when Quit;
+      end loop;
+
+      Directories.End_Search (Iter);
+
+   exception
+      when Text_IO.Name_Error =>
+         raise No_Such_File;
+   end For_Every_Directory_Entry;
 
    ---------
    -- Hex --
@@ -330,6 +409,16 @@ package body AWS.Utils is
       end if;
    end Image;
 
+   ------------------
+   -- Is_Directory --
+   ------------------
+
+   function Is_Directory (Filename : in String) return Boolean is
+   begin
+      return Directories.Exists (Filename)
+        and then Directories.Kind (Filename) = Directories.Directory;
+   end Is_Directory;
+
    ---------------
    -- Is_Number --
    ---------------
@@ -340,6 +429,16 @@ package body AWS.Utils is
       return S'Length > 0
         and then Is_Subset (To_Set (S), Constants.Decimal_Digit_Set);
    end Is_Number;
+
+   ---------------------
+   -- Is_Regular_File --
+   ---------------------
+
+   function Is_Regular_File (Filename : in String) return Boolean is
+   begin
+      return Directories.Exists (Filename)
+        and then Directories.Kind (Filename) = Directories.Ordinary_File;
+   end Is_Regular_File;
 
    -------------
    -- Mailbox --
@@ -469,7 +568,7 @@ package body AWS.Utils is
       -- Read --
       ----------
 
-      entry Read when W = 0 and then Write'Count = 0 is
+      entry Read when W = 0 and then RW_Semaphore.Write'Count = 0 is
       begin
          R := R + 1;
       end Read;

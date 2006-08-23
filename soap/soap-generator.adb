@@ -35,7 +35,6 @@ with Ada.Text_IO;
 with GNAT.Calendar.Time_IO;
 
 with AWS;
-with AWS.OS_Lib;
 with AWS.Templates;
 with AWS.Utils;
 with SOAP.Utils;
@@ -2348,7 +2347,7 @@ package body SOAP.Generator is
         (File     : in out Text_IO.File_Type;
          Filename : in     String) is
       begin
-         if AWS.OS_Lib.Is_Regular_File (Filename) and then not O.Force then
+         if AWS.Utils.Is_Regular_File (Filename) and then not O.Force then
             raise Generator_Error
               with "File " & Filename & " exists, activate overwrite mode.";
          else
@@ -2376,7 +2375,7 @@ package body SOAP.Generator is
 
          Put_File_Header (O, File);
 
-         if AWS.OS_Lib.Is_Regular_File (Template_Filename) then
+         if AWS.Utils.Is_Regular_File (Template_Filename) then
             --  Use template file
             declare
                Translations : Templates.Translate_Table

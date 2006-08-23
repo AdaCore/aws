@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2005                            --
+--                         Copyright (C) 2005-2006                          --
 --                                  AdaCore                                 --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -37,7 +37,6 @@ with AWS.Digest;
 with AWS.Server;
 with AWS.Status;
 with AWS.MIME;
-with AWS.OS_Lib;
 with AWS.Response;
 with AWS.Messages;
 with AWS.Utils;
@@ -172,7 +171,7 @@ begin
    declare
       use type Client.Content_Bound;
       Size       : constant Stream_Element_Offset :=
-                     OS_Lib.File_Size ("partial.o");
+                     Utils.File_Size ("partial.o");
       R1, R2, R3 : Response.Data;
       File       : Stream_IO.File_Type;
    begin

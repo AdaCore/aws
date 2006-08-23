@@ -44,9 +44,9 @@ with Ada.Unchecked_Deallocation;
 with GNAT.Command_Line;
 with GNAT.Calendar.Time_IO;
 
-with AWS.OS_Lib;
 with AWS.Resources.Streams.Disk;
 with AWS.Resources.Streams.ZLib;
+with AWS.Utils;
 
 with ZLib;
 
@@ -122,7 +122,7 @@ procedure AwsRes is
          Text_IO.Put ("creating " & Filename);
       end if;
 
-      File_Time := AWS.OS_Lib.File_Time_Stamp (Filename);
+      File_Time := Utils.File_Time_Stamp (Filename);
 
       Text_IO.Create (O_File, Text_IO.Out_File, Pck_Name);
 

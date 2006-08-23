@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2004                            --
---                                ACT-Europe                                --
+--                         Copyright (C) 2004-2006                          --
+--                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -34,7 +34,7 @@ with AWS.Headers.Set;
 with AWS.Messages;
 with AWS.MIME;
 with AWS.Net.Buffered;
-with AWS.OS_Lib;
+with AWS.Utils;
 
 package body AWS.Attachments is
 
@@ -62,7 +62,7 @@ package body AWS.Attachments is
       --  Get the file size first, this will raise an exception
       --  if the file is missing.
 
-      File_Size := Natural (AWS.OS_Lib.File_Size (Filename));
+      File_Size := Natural (Utils.File_Size (Filename));
 
       Tmp.Filename := Value (Filename);
 
@@ -107,7 +107,7 @@ package body AWS.Attachments is
       --  Get the file size first, this will raise an exception
       --  if the file is missing.
 
-      File_Size := Natural (AWS.OS_Lib.File_Size (Filename));
+      File_Size := Natural (Utils.File_Size (Filename));
 
       Attachment_Table.Append
         (Attachments.Vector,

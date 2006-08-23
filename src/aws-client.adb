@@ -38,7 +38,6 @@ with AWS.Messages;
 with AWS.MIME;
 with AWS.Net.Buffered;
 with AWS.Net.SSL;
-with AWS.OS_Lib;
 with AWS.Translator;
 
 package body AWS.Client is
@@ -974,7 +973,7 @@ package body AWS.Client is
            + 10                                    -- 5 lines with CR+LF
            + CT'Length                             -- content length header
            + CD'Length                             -- content disposition head
-           + Integer (OS_Lib.File_Size (Filename)) -- file size
+           + Integer (Utils.File_Size (Filename))  -- file size
            + 2;                                    -- CR+LF after file data
       end Content_Length;
 

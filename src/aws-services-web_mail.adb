@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2003-2004                          --
---                                ACT-Europe                                --
+--                         Copyright (C) 2003-2006                          --
+--                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -31,7 +31,6 @@ with Ada.Strings.Unbounded;
 
 with AWS.Config;
 with AWS.MIME;
-with AWS.OS_Lib;
 with AWS.Parameters;
 with AWS.POP;
 with AWS.Resources.Streams;
@@ -172,7 +171,7 @@ package body AWS.Services.Web_Mail is
             else
                --  This is not a known resource
 
-               if OS_Lib.Is_Regular_File (WWW_Root & "404.thtml") then
+               if Utils.Is_Regular_File (WWW_Root & "404.thtml") then
 
                   declare
                      Table : constant AWS.Templates.Translate_Table

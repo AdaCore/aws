@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2004                          --
---                                ACT-Europe                                --
+--                         Copyright (C) 2000-2006                          --
+--                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -29,11 +29,11 @@
 with AWS.Config;
 with AWS.Messages;
 with AWS.MIME;
-with AWS.OS_Lib;
 with AWS.Resources;
 with AWS.Server;
 with AWS.Services.Directory;
 with AWS.Templates;
+with AWS.Utils;
 
 package body AWS.Services.Page_Server is
 
@@ -54,7 +54,7 @@ package body AWS.Services.Page_Server is
            (Content_Type => AWS.MIME.Content_Type (Filename),
             Filename     => Filename);
 
-      elsif Browse_Directory and then OS_Lib.Is_Directory (Filename) then
+      elsif Browse_Directory and then Utils.Is_Directory (Filename) then
          declare
             Directory_Browser_Page : constant String
               := Config.Directory_Browser_Page

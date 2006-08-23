@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2002-2003                          --
---                                ACT-Europe                                --
+--                         Copyright (C) 2002-2006                          --
+--                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -26,16 +26,20 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
+with Ada.Directories;
 with Ada.IO_Exceptions;
 with Ada.Unchecked_Deallocation;
 
-with AWS.OS_Lib;
 with AWS.Resources.Streams.Disk;
 with AWS.Resources.Streams.ZLib;
+with AWS.Utils;
 
 with ZLib;
 
 package body AWS.Resources.Files is
+
+   use Ada;
+   use type Directories.File_Kind;
 
    -----------
    -- Exist --
@@ -44,14 +48,14 @@ package body AWS.Resources.Files is
    function Exist (Name : in String) return File_Instance is
    begin
       if not Is_GZip (Name)
-        and then OS_Lib.Is_Regular_File (Name & GZip_Ext)
+        and then Utils.Is_Regular_File (Name & GZip_Ext)
       then
-         if OS_Lib.Is_Regular_File (Name) then
+         if Utils.Is_Regular_File (Name) then
             return Both;
          else
             return GZip;
          end if;
-      elsif OS_Lib.Is_Regular_File (Name) then
+      elsif Utils.Is_Regular_File (Name) then
          return Plain;
       else
          return None;
@@ -63,17 +67,18 @@ package body AWS.Resources.Files is
    ---------------
 
    function File_Size
-     (Name : in String)
-      return Ada.Streams.Stream_Element_Offset is
+     (Name : in String) return Stream_Element_Offset is
    begin
-      return OS_Lib.File_Size (Name);
-   exception
-      when OS_Lib.No_Such_File =>
+      if Utils.Is_Regular_File (Name) then
+         return Utils.File_Size (Name);
+
+      else
          if Is_GZip (Name) then
             raise Resource_Error;
          else
             return File_Size (Name & GZip_Ext);
          end if;
+      end if;
    end File_Size;
 
    --------------------
@@ -82,14 +87,16 @@ package body AWS.Resources.Files is
 
    function File_Timestamp (Name : in String) return Ada.Calendar.Time is
    begin
-      return OS_Lib.File_Time_Stamp (Name);
-   exception
-      when OS_Lib.No_Such_File =>
+      if Utils.Is_Regular_File (Name) then
+         return Directories.Modification_Time (Name);
+
+      else
          if Is_GZip (Name) then
             raise Resource_Error;
          else
             return File_Timestamp (Name & GZip_Ext);
          end if;
+      end if;
    end File_Timestamp;
 
    ---------------------
@@ -98,9 +105,10 @@ package body AWS.Resources.Files is
 
    function Is_Regular_File (Name : in String) return Boolean is
    begin
-      return OS_Lib.Is_Regular_File (Name)
-        or else (not Is_GZip (Name)
-                 and then OS_Lib.Is_Regular_File (Name & GZip_Ext));
+      return Utils.Is_Regular_File (Name)
+        or else
+          (not Is_GZip (Name)
+           and then Utils.Is_Regular_File (Name & GZip_Ext));
    end Is_Regular_File;
 
    ----------

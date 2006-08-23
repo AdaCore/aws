@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2005                            --
+--                         Copyright (C) 2005-2006                          --
 --                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -40,7 +40,6 @@ with AWS.Client;
 with AWS.Config.Set;
 with AWS.Messages;
 with AWS.MIME;
-with AWS.OS_Lib;
 with AWS.Resources.Streams.Disk;
 with AWS.Response;
 with AWS.Server;
@@ -347,7 +346,7 @@ begin
 
    --  Get the real size
 
-   Size := Positive (OS_Lib.File_Size (Filename));
+   Size := Positive (Utils.File_Size (Filename));
 
    --  Check the size of each download
 

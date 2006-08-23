@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2004                            --
---                                ACT-Europe                                --
+--                         Copyright (C) 2004-2006                          --
+--                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -41,7 +41,6 @@ with AWS.Client;
 with AWS.Status;
 with AWS.MIME;
 with AWS.Response;
-with AWS.OS_Lib;
 with AWS.Parameters;
 with AWS.Messages;
 with AWS.Utils;
@@ -91,7 +90,7 @@ procedure Upload5 is
 
             --  Checks that the first are in the upload directory
 
-            if AWS.OS_Lib.Is_Regular_File (Server_Filename) then
+            if AWS.Utils.Is_Regular_File (Server_Filename) then
 
                if First then
                   First := False;

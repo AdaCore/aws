@@ -26,11 +26,11 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
+with Ada.Directories;
 with Ada.Strings.Fixed;
 
 with AWS.Headers.Set;
 with AWS.Headers.Values;
-with AWS.OS_Lib;
 with AWS.Resources.Streams.Memory;
 with AWS.Resources.Streams.Disk.Once;
 with AWS.Response.Set;
@@ -313,7 +313,7 @@ package body AWS.Response is
       function CD_Filename return String is
       begin
          if User_Filename = "" then
-            return OS_Lib.File_Name (Filename);
+            return Directories.Simple_Name (Filename);
          else
             return User_Filename;
          end if;
@@ -648,7 +648,8 @@ package body AWS.Response is
       function CD_Filename return String is
       begin
          if User_Filename = "" then
-            return OS_Lib.File_Name (Resources.Streams.Name (Handle.all));
+            return Directories.Simple_Name
+              (Resources.Streams.Name (Handle.all));
          else
             return User_Filename;
          end if;

@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                          Copyright (C) 2000-2004                         --
---                                ACT-Europe                                --
+--                         Copyright (C) 2000-2006                          --
+--                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -37,7 +37,6 @@ with AWS.Status;
 with AWS.MIME;
 with AWS.Response;
 with AWS.Messages;
-with AWS.OS_Lib;
 with AWS.Utils;
 
 with Get_Free_Port;
@@ -89,7 +88,7 @@ begin
       Put_Line ("   HEAD " & Integer'Image (Response.Content_Length (R_Head)));
 
    elsif Response.Content_Length (R_Get)
-     /= Integer (OS_Lib.File_Size (My_Name))
+     /= Integer (Utils.File_Size (My_Name))
    then
       Put_Line ("Length difference between GET and real length.");
 

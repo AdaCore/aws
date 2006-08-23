@@ -28,6 +28,7 @@
 ------------------------------------------------------------------------------
 
 with Ada.Calendar;
+with Ada.Directories;
 with Ada.Text_IO;
 with Ada.Exceptions;
 with Ada.Streams.Stream_IO;
@@ -35,7 +36,6 @@ with Ada.Streams.Stream_IO;
 with GNAT.Calendar.Time_IO;
 
 with AWS.Net.Buffered;
-with AWS.OS_Lib;
 with AWS.Translator;
 
 package body AWS.SMTP.Client is
@@ -610,7 +610,7 @@ package body AWS.SMTP.Client is
       --  Send Base64 attachment content
 
       Filename      : constant String := To_String (File.Name);
-      Base_Filename : constant String := OS_Lib.File_Name (Filename);
+      Base_Filename : constant String := Directories.Simple_Name (Filename);
 
       -----------------
       -- Send_Base64 --

@@ -34,7 +34,6 @@ with AWS.Config.Set;
 with AWS.Dispatchers.Callback;
 with AWS.Messages;
 with AWS.MIME;
-with AWS.OS_Lib;
 with AWS.Server.Log;
 with AWS.Services.Transient_Pages.Control;
 with AWS.Session.Control;
@@ -192,7 +191,7 @@ package body AWS.Server is
            (Text_IO.Current_Error, Exception_Information (E));
 
       else
-         if AWS.OS_Lib.Is_Regular_File (Fatal_Error_Template) then
+         if AWS.Utils.Is_Regular_File (Fatal_Error_Template) then
             Answer := Response.Build
               (MIME.Text_HTML,
                String'(Templates.Parse

@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2003-2004                          --
---                                ACT-Europe                                --
+--                         Copyright (C) 2003-2006                          --
+--                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -33,7 +33,6 @@ with Ada.Text_IO;
 with AWS.Client;
 with AWS.Messages;
 with AWS.MIME;
-with AWS.OS_Lib;
 with AWS.Response;
 with AWS.Server;
 with AWS.Status;
@@ -57,7 +56,7 @@ procedure Once is
       URI : constant String := Status.URI (Request);
    begin
       if URI = "/once" then
-         if OS_Lib.Is_Regular_File ("once.html") then
+         if Utils.Is_Regular_File ("once.html") then
             return Response.File (MIME.Text_HTML, "once.html", Once => True);
          else
             return Response.Acknowledge (Messages.S404);

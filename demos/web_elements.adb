@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2004                            --
---                                ACT-Europe                                --
+--                         Copyright (C) 2004-2006                          --
+--                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -185,7 +185,7 @@ procedure Web_Elements is
            (MIME.Text_XML,
             Filename => URI (URI'First + 1 .. URI'Last) & ".xml");
 
-      elsif OS_Lib.Is_Regular_File (WWW_Root & URI) then
+      elsif Utils.Is_Regular_File (WWW_Root & URI) then
          return AWS.Response.File
            (MIME.Content_Type (Filename),
             Filename => WWW_Root & URI);

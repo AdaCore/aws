@@ -35,7 +35,7 @@ with Ada.Text_IO;
 
 with GNAT.Command_Line;
 
-with AWS.OS_Lib;
+with AWS.Utils;
 
 with Ada2WSDL.Generator;
 with Ada2WSDL.Options;
@@ -197,7 +197,7 @@ begin
    declare
       Filename : constant String := To_String (Options.WSDL_File_Name);
    begin
-      if AWS.OS_Lib.Is_Regular_File (Filename)
+      if AWS.Utils.Is_Regular_File (Filename)
         and then not Options.Overwrite_WSDL
       then
          Text_IO.Put_Line

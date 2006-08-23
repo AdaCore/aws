@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2001                          --
---                                ACT-Europe                                --
+--                         Copyright (C) 2000-2006                          --
+--                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -123,12 +123,12 @@ package body WS_CB is
 
          return AWS.Response.Socket_Taken;
 
-      elsif OS_Lib.Is_Regular_File (Filename) then
+      elsif Utils.Is_Regular_File (Filename) then
          return AWS.Response.File
            (Content_Type => AWS.MIME.Content_Type (Filename),
             Filename     => Filename);
 
-      elsif OS_Lib.Is_Directory (Filename) then
+      elsif Utils.Is_Directory (Filename) then
          return AWS.Response.Build
            (Content_Type => "text/html",
             Message_Body =>

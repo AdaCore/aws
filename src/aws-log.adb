@@ -28,13 +28,13 @@
 
 with Ada.Calendar;
 with Ada.Command_Line;
+with Ada.Directories;
 with Ada.Strings.Fixed;
 with Ada.Strings.Maps;
 
 with GNAT.Calendar.Time_IO;
 
 with AWS.Containers.Tables;
-with AWS.OS_Lib;
 
 package body AWS.Log is
 
@@ -312,7 +312,7 @@ package body AWS.Log is
             for K in 1 .. 86_400 loop
                --  no more than one run per second during a full day
 
-               exit when not OS_Lib.Is_Regular_File (To_String (Filename));
+               exit when not Directories.Exists (To_String (Filename));
 
                Filename := To_Unbounded_String
                  (File_Directory

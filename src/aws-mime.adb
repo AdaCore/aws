@@ -27,6 +27,7 @@
 ------------------------------------------------------------------------------
 
 with Ada.Characters.Handling;
+with Ada.Directories;
 with Ada.Strings.Fixed;
 with Ada.Strings.Maps;
 with Ada.Strings.Unbounded;
@@ -34,8 +35,8 @@ with Ada.Strings.Unbounded;
 with GNAT.Regexp;
 
 with AWS.Containers.Key_Value;
-with AWS.OS_Lib;
 with AWS.Resources.Files;
+with AWS.Utils;
 
 package body AWS.MIME is
 
@@ -94,10 +95,6 @@ package body AWS.MIME is
    procedure Initialize;
    --  Initialize MIME table
 
-   function File_Extension (Filename : in String) return String;
-   pragma Inline (File_Extension);
-   --  Returns file extension without the dot
-
    function Is_Type
      (MIME_Type : in String;
       Type_Name : in String) return Boolean;
@@ -148,20 +145,6 @@ package body AWS.MIME is
    begin
       return Set.Extension (Content_Type);
    end Extension;
-
-   --------------------
-   -- File_Extension --
-   --------------------
-
-   function File_Extension (Filename : in String) return String is
-      Ext : constant String := OS_Lib.File_Extension (Filename);
-   begin
-      if Ext'Length > 0 then
-         return Ext (Ext'First + 1 .. Ext'Last);
-      else
-         return Ext;
-      end if;
-   end File_Extension;
 
    ----------------
    -- Initialize --
@@ -326,7 +309,7 @@ package body AWS.MIME is
 
       --  Check if there is a aws.mime file to read
 
-      if AWS.OS_Lib.Is_Regular_File (AWS_MIME) then
+      if Utils.Is_Regular_File (AWS_MIME) then
          Load;
       end if;
    end Initialize;
@@ -477,7 +460,7 @@ package body AWS.MIME is
       ---------
 
       function Get (Filename : in String; Default : in String) return String is
-         Ext    : constant String := File_Extension (Filename);
+         Ext    : constant String := Directories.Extension (Filename);
          Cursor : Containers.Key_Value.Cursor;
       begin
          Cursor := Key_Value.Find (Ext_Set, Ext);
