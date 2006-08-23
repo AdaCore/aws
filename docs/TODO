@@ -1,6 +1,4 @@
 
-$Id$
-
 Here a some notes about things to fix, ideas and potential features to be
 implemented:
 
@@ -100,7 +98,6 @@ implemented:
         </sequence>
     </complexType>
 
-
     <complexType name='ArrayOfString'>
         <complexContent>
             <restriction base='SOAP-ENC:Array'>
@@ -195,7 +192,3 @@ implemented:
 =============== Point to fix/implement/review before next release (2.3.0)
 
 - Replace OpenSSL by GNUTLS library as this library is now stable.
-
-- Remove use of specific OS_Lib implementations and provide a single
-  implementation based on standard Ada.Directories.
-  Will be part of the move to Ada-05
