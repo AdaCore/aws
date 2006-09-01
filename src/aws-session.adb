@@ -53,11 +53,11 @@ package body AWS.Session is
    Session_Lifetime       : Duration := Default.Session_Lifetime;
    --  A session is obsolete if not used after Session_Lifetime seconds.
 
-   package Key_Value renames Containers.Key_Value.Table.Containers;
-   type Key_Value_Set_Access is access Containers.Key_Value.Set;
+   package Key_Value renames Containers.Key_Value;
+   type Key_Value_Set_Access is access Key_Value.Map;
 
    procedure Free is new Ada.Unchecked_Deallocation
-     (Containers.Key_Value.Set, Key_Value_Set_Access);
+     (Key_Value.Map, Key_Value_Set_Access);
 
    --  table of session ID
 
@@ -331,7 +331,7 @@ package body AWS.Session is
          Success  : Boolean;
       begin
          New_Node := (Time_Stamp => Calendar.Clock,
-                      Root       => new Containers.Key_Value.Set);
+                      Root       => new Key_Value.Map);
 
          Session_Set.Insert
            (Sessions, String (SID), New_Node, Cursor, Success);
@@ -498,7 +498,7 @@ package body AWS.Session is
       entry New_Session (SID : out Id) when Lock_Counter = 0 is
          New_Node : constant Session_Node
            := (Time_Stamp => Calendar.Clock,
-               Root       => new Containers.Key_Value.Set);
+               Root       => new Key_Value.Map);
 
          Cursor   : Session_Set.Cursor;
          Success  : Boolean;

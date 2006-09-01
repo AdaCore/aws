@@ -62,7 +62,7 @@ package body AWS.MIME is
       Next : Node_Access;
    end record;
 
-   package Key_Value renames Containers.Key_Value.Table.Containers;
+   package Key_Value renames Containers.Key_Value;
 
    --  Protected Set to access tables handling MIME types
 
@@ -83,7 +83,7 @@ package body AWS.MIME is
       --  Add Filename to the set of known content type regular expressions
 
    private
-      Ext_Set : Containers.Key_Value.Set;
+      Ext_Set : Key_Value.Map;
       R_Table : Node_Access;
       Last    : Node_Access;
    end Set;
@@ -419,22 +419,17 @@ package body AWS.MIME is
 
          Exit_Iteration : exception;
 
-         procedure Process (Position : in Containers.Key_Value.Cursor);
+         procedure Process (Position : in Key_Value.Cursor);
          --  Iterator callback procedure
 
          -------------
          -- Process --
          -------------
 
-         procedure Process (Position : in Containers.Key_Value.Cursor) is
+         procedure Process (Position : in Key_Value.Cursor) is
          begin
-            if
-              Containers.Key_Value.Table.Containers.Element (Position)
-              = Content_Type
-            then
-               Result
-                 := To_Unbounded_String
-                      (Containers.Key_Value.Table.Containers.Key (Position));
+            if Key_Value.Element (Position) = Content_Type then
+               Result := To_Unbounded_String (Key_Value.Key (Position));
                raise Exit_Iteration;
             end if;
          end Process;
@@ -461,7 +456,7 @@ package body AWS.MIME is
 
       function Get (Filename : in String; Default : in String) return String is
          Ext    : constant String := Directories.Extension (Filename);
-         Cursor : Containers.Key_Value.Cursor;
+         Cursor : Key_Value.Cursor;
       begin
          Cursor := Key_Value.Find (Ext_Set, Ext);
 

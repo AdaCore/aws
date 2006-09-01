@@ -26,21 +26,9 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-with Strings_Maps;
+with Ada.Containers.Indefinite_Hashed_Maps;
+with Ada.Strings.Hash;
 
 package AWS.Containers.Key_Value is
-
-   package Table is new Strings_Maps (String, "=");
-
-   subtype Set is Table.Containers.Map;
-   type Set_Access is access Set;
-
-   subtype Cursor is Table.Containers.Cursor;
-   No_Element : Cursor renames Table.Containers.No_Element;
-
-   function Has_Element
-     (C : in Cursor)
-      return Boolean
-      renames Table.Containers.Has_Element;
-
-end AWS.Containers.Key_Value;
+  new Ada.Containers.Indefinite_Hashed_Maps
+        (String, String, Ada.Strings.Hash, "=", "=");

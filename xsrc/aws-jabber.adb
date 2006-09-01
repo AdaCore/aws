@@ -114,7 +114,7 @@ package body AWS.Jabber is
    pragma Inline (User_JID);
    --  Returns the JID of the connected user.
 
-   package Key_Value renames Containers.Key_Value.Table.Containers;
+   package Key_Value renames Containers.Key_Value;
 
    ----------------
    -- Characters --
@@ -406,7 +406,7 @@ package body AWS.Jabber is
       pragma Unreferenced (Namespace_URI);
       pragma Unreferenced (Local_Name);
       pragma Unreferenced (Qname);
-      Cursor : Containers.Key_Value.Cursor;
+      Cursor : Key_Value.Cursor;
       Found  : Boolean;
    begin
       if Handler.Key /= Null_Unbounded_String then
@@ -699,7 +699,7 @@ package body AWS.Jabber is
 
       use Sax.Attributes;
 
-      Cursor : Containers.Key_Value.Cursor;
+      Cursor : Key_Value.Cursor;
       Found  : Boolean;
    begin
       Handler.Key := To_Unbounded_String (Local_Name);
@@ -767,7 +767,7 @@ package body AWS.Jabber is
    -----------
 
    function Value (M : in Message_Access; Key : in String) return String is
-      Cursor : Containers.Key_Value.Cursor;
+      Cursor : Key_Value.Cursor;
    begin
       Cursor := Key_Value.Find (M.all, Key);
 
