@@ -29,6 +29,7 @@ config/projects/aws_ssl.gpr
 config/projects/aws_ssl_error_lib.gpr
 config/projects/aws_ssl_lib.gpr
 config/projects/aws_ssl_support.gpr
+config/setup.gpr
 config/src/check_config.c
 config/src/test_uconv.adb
 config/ssl-thin__dummy.ads
