@@ -27,12 +27,13 @@
 ------------------------------------------------------------------------------
 
 with Ada.Characters.Handling;
+with Ada.Exceptions;
 with Ada.Strings.Fixed;
 with Ada.Text_IO;
 
-with Strings_Maps;
 with DOM.Core.Nodes;
 
+with AWS.Containers.Key_Value;
 with AWS.Utils;
 with SOAP.Types;
 with SOAP.Utils;
@@ -49,7 +50,7 @@ package body SOAP.WSDL.Parser is
 
    No_Name_Space : Name_Space.Object renames Name_Space.No_Name_Space;
 
-   package Name_Spaces is new Strings_Maps (Unbounded_String);
+   package Name_Spaces renames AWS.Containers.Key_Value;
    NS     : Name_Spaces.Map;
    NS_Num : Natural := 0;
 
@@ -528,19 +529,17 @@ package body SOAP.WSDL.Parser is
          return Get_Target_Name_Space (DOM.Core.Nodes.Parent_Node (N));
 
       else
-         P := Name_Spaces.Containers.Find (NS, V);
+         P := Name_Spaces.Find (NS, V);
 
-         if Name_Spaces.Containers.Has_Element (P) then
-            return Name_Space.Create
-              (To_String (Name_Spaces.Containers.Element (P)), V);
+         if Name_Spaces.Has_Element (P) then
+            return Name_Space.Create (Name_Spaces.Element (P), V);
 
          else
             NS_Num := NS_Num + 1;
             declare
                Name : constant String := "n" & AWS.Utils.Image (NS_Num);
             begin
-               Name_Spaces.Containers.Insert
-                 (NS, V, To_Unbounded_String (Name), P, R);
+               Name_Spaces.Insert (NS, V, Name, P, R);
                return Name_Space.Create (Name, V);
             end;
          end if;
