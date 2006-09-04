@@ -65,6 +65,7 @@ procedure Strm is
    procedure Compare_Message;
 
    task Server is
+      entry Start;
       entry Wait_Start;
       entry Stop;
    end Server;
@@ -129,6 +130,8 @@ procedure Strm is
       AWS.Server.Set_Unexpected_Exception_Handler
         (HTTP, UEH'Unrestricted_Access);
 
+      accept Start;
+
       AWS.Server.Start
         (HTTP, "Testing user defined stream.",
          CB'Unrestricted_Access, Port => Free_Port, Max_Connection => 3);
@@ -190,6 +193,8 @@ procedure Strm is
 
 begin
    Get_Free_Port (Free_Port);
+
+   Server.Start;
 
    Base_URL (Base_URL'Last - 3 .. Base_URL'Last) := Utils.Image (Free_Port);
 
