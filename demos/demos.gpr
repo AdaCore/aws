@@ -1,10 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2003-2005                          --
+--                         Copyright (C) 2003-2006                          --
 --                                 AdaCore                                  --
---                                                                          --
---  Authors: Dmitriy Anisimkov - Pascal Obry                                --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -68,7 +66,7 @@ project Demos is
                 "wsdl_demo_server_cb.adb", "interoplab.ads",
                 "interoplab-client.adb", "interoplab-types.ads",
                 "soap_server_cb.adb", "soap_server_disp_cb.adb",
-                "soap_svs_cb.adb", "soap_svs_cb.adb",
+                "soap_svs_cb.ads", "soap_svs_cb.adb",
                 "soapinterop-org-xsd-arrayoffloat_type_pkg.ads",
                 "soapinterop-org-xsd-arrayofint_type_pkg.ads",
                 "soapinterop-org-xsd-arrayofsoapstruct_type_pkg.ads",
