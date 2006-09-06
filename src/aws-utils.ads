@@ -240,6 +240,13 @@ package AWS.Utils is
    --  be set to True to stop the iterator. Raises No_Such_File if
    --  Directory_Name does not exists.
 
+   ----------------------------
+   -- Time oriented routines --
+   ----------------------------
+
+   function GMT_Clock return Calendar.Time;
+   --  Returns current UTC/GMT time
+
    -----------------------
    -- File compresssion --
    -----------------------

@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2004                            --
---                                ACT-Europe                                --
+--                         Copyright (C) 2004-2006                          --
+--                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -32,18 +32,16 @@
 with Interfaces.C.Strings;
 with System;
 
-with AWS.OS_Lib.Definitions;
+with AWS.OS_Lib;
 
 package AWS.Net.Thin is
 
    use Interfaces;
 
-   package OSD renames OS_Lib.Definitions;
-
-   subtype FD_Type is OSD.FD_Type;
-   subtype nfds_t is OSD.nfds_t;
+   subtype FD_Type is OS_Lib.FD_Type;
+   subtype nfds_t is OS_Lib.nfds_t;
    subtype Timeout_Type is C.int;
-   subtype Events_Type is OSD.Events_Type;
+   subtype Events_Type is OS_Lib.Events_Type;
 
    subtype chars_ptr is C.Strings.chars_ptr;
 

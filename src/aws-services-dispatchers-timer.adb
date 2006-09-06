@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2003-2005                          --
+--                         Copyright (C) 2003-2006                          --
 --                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -90,7 +90,7 @@ package body AWS.Services.Dispatchers.Timer is
       Hour       : Hour_Number;
       Minute     : Minute_Number;
       Second     : Second_Number;
-      Sub_Second : GNAT.Calendar.Second_Duration;
+      Sub_Second : Calendar.Formatting.Second_Duration;
 
       -----------------
       -- Match_Daily --
@@ -101,9 +101,9 @@ package body AWS.Services.Dispatchers.Timer is
          T        : Date_Time renames Item.Period.To;
          From, To : Calendar.Time;
       begin
-         From := GNAT.Calendar.Time_Of
+         From := Calendar.Formatting.Time_Of
            (Year, Month, Day, F.Hour, F.Minute, F.Second);
-         To := GNAT.Calendar.Time_Of
+         To := Calendar.Formatting.Time_Of
            (Year, Month, Day, T.Hour, T.Minute, T.Second);
 
          return From <= Now and then Now <= To;
@@ -118,9 +118,9 @@ package body AWS.Services.Dispatchers.Timer is
          T        : Date_Time renames Item.Period.To;
          From, To : Calendar.Time;
       begin
-         From := GNAT.Calendar.Time_Of
+         From := Calendar.Formatting.Time_Of
            (Year, Month, Day, Hour, F.Minute, F.Second);
-         To := GNAT.Calendar.Time_Of
+         To := Calendar.Formatting.Time_Of
            (Year, Month, Day, Hour, T.Minute, T.Second);
 
          return From <= Now and then Now <= To;
@@ -135,9 +135,9 @@ package body AWS.Services.Dispatchers.Timer is
          T        : Date_Time renames Item.Period.To;
          From, To : Calendar.Time;
       begin
-         From := GNAT.Calendar.Time_Of
+         From := Calendar.Formatting.Time_Of
            (Year, Month, Day, Hour, Minute, F.Second);
-         To := GNAT.Calendar.Time_Of
+         To := Calendar.Formatting.Time_Of
            (Year, Month, Day, Hour, Minute, T.Second);
 
          return From <= Now and then Now <= To;
@@ -152,9 +152,9 @@ package body AWS.Services.Dispatchers.Timer is
          T        : Date_Time renames Item.Period.To;
          From, To : Calendar.Time;
       begin
-         From := GNAT.Calendar.Time_Of
+         From := Calendar.Formatting.Time_Of
            (Year, Month, F.Day, F.Hour, F.Minute, F.Second);
-         To := GNAT.Calendar.Time_Of
+         To := Calendar.Formatting.Time_Of
            (Year, Month, T.Day, T.Hour, T.Minute, T.Second);
 
          return From <= Now and then Now <= To;
@@ -169,9 +169,9 @@ package body AWS.Services.Dispatchers.Timer is
          T        : Date_Time renames Item.Period.To;
          From, To : Calendar.Time;
       begin
-         From := GNAT.Calendar.Time_Of
+         From := Calendar.Formatting.Time_Of
            (F.Year, F.Month, F.Day, F.Hour, F.Minute, F.Second);
-         To := GNAT.Calendar.Time_Of
+         To := Calendar.Formatting.Time_Of
            (T.Year, T.Month, T.Day, T.Hour, T.Minute, T.Second);
 
          return From <= Now and then Now <= To;
@@ -186,11 +186,11 @@ package body AWS.Services.Dispatchers.Timer is
          T        : Date_Time renames Item.Period.To;
          From, To : Calendar.Time;
       begin
-         From := GNAT.Calendar.Time_Of
+         From := Calendar.Formatting.Time_Of
            (F.Year, F.Month,
             F.Day - (Day_Name'Pos (N_Day) - Day_Name'Pos (F.N_Day)),
             F.Hour, F.Minute, F.Second);
-         To := GNAT.Calendar.Time_Of
+         To := Calendar.Formatting.Time_Of
            (T.Year, T.Month,
             T.Day + (Day_Name'Pos (T.N_Day) - Day_Name'Pos (N_Day)),
             T.Hour, T.Minute, T.Second);
@@ -207,18 +207,18 @@ package body AWS.Services.Dispatchers.Timer is
          T        : Date_Time renames Item.Period.To;
          From, To : Calendar.Time;
       begin
-         From := GNAT.Calendar.Time_Of
+         From := Calendar.Formatting.Time_Of
            (Year, F.Month, F.Day, F.Hour, F.Minute, F.Second);
-         To := GNAT.Calendar.Time_Of
+         To := Calendar.Formatting.Time_Of
            (Year, T.Month, T.Day, T.Hour, T.Minute, T.Second);
 
          return From <= Now and then Now <= To;
       end Match_Yearly;
 
    begin
-      GNAT.Calendar.Split
+      Calendar.Formatting.Split
         (Now, Year, Month, Day, Hour, Minute, Second, Sub_Second);
-      N_Day := GNAT.Calendar.Day_Of_Week (Now);
+      N_Day := Calendar.Formatting.Day_Of_Week (Now);
 
       for K in 1 .. Period_Table.Length (Dispatcher.Table) loop
          declare

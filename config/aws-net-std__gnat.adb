@@ -30,7 +30,7 @@ with Ada.Strings.Maps;
 with Ada.Unchecked_Deallocation;
 
 with AWS.Net.Log;
-with AWS.OS_Lib.Definitions;
+with AWS.OS_Lib;
 
 pragma Warnings (Off);
 
@@ -538,7 +538,7 @@ package body AWS.Net.Std is
               (C.int (Get_FD (Socket)),
                Data'Address,
                Data'Length,
-               OS_Lib.Definitions.MSG_NOSIGNAL);
+               OS_Lib.MSG_NOSIGNAL);
 
       if RC = Sockets.Thin.Failure then
          Errno := Std.Errno;

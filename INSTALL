@@ -21,27 +21,21 @@ This release requires an Ada compiler supporting some Ada 2005 features as it
 is using the Ada.Containers libraries. It is possible to build this release
 using the following compilers :
 
-	GNAT Pro 5.04a
+	GNAT Pro 5.04a1
 	GNAT GPL 2006 Edition
-
 
 Building from CVS
 -----------------
 
-If you are using GNAT GPL 2005 Edition or GNAT GAP 2005 Edition you need to
-apply the patch found in support/gnat-2005-editions.dif.
-
 To run the templates_parser's non-regression tests with XML/Ada support, you
-need to uncomment the 'with "xmlada";' line in templates_parser.gpr project
-file.
-
+need to uncomment the 'with "aws_xmlada";' line in templates_parser.gpr
+project file.
 
 To build the documentation in HTML, PDF, PostScript, INFO and plain text
 format you need to have a working makeinfo and Tex package installed on
 your system.
 
    $ make build_doc
-
 
 Building on Windows
 -------------------

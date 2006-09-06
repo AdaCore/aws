@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2004                            --
---                                ACT-Europe                                --
+--                         Copyright (C) 2004-2006                          --
+--                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -31,11 +31,11 @@
 with Interfaces.C; use Interfaces;
 with System;
 
-with AWS.OS_Lib.Definitions;
+with AWS.OS_Lib;
 
 function Poll
   (Fds     : in System.Address;
-   Nfds    : in AWS.OS_Lib.Definitions.nfds_t;
+   Nfds    : in AWS.OS_Lib.nfds_t;
    Timeout : in C.int)
    return C.int;
 pragma Export (C, Poll, "poll");

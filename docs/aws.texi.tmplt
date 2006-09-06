@@ -195,7 +195,6 @@ Major supported features are:
 
 @menu
 * Requirements::
-* AWS.OS_Lib::
 * AWS.Net.Std::
 * Building::
 * Demos::
@@ -219,10 +218,10 @@ build @code{AWS} you need:
 @cindex GNAT
 @cindex GNU/Ada
 
-To build this version you need at least @code{GNAT GAP 2005 Edition},
-@code{GNAT GPL 2005 Edition} or @code{GNAT Pro 5.04w} as the Ada 2005
+To build this version you need at least @code{GNAT GAP 2006 Edition},
+@code{GNAT GPL 2006 Edition} or @code{GNAT Pro 5.04a1} as the Ada 2005
 @code{Ada.Containers} is used. The code should be fairly portable but
-has never been tested on another compiler than GNAT.
+has never been tested on another compiler than @code{GNAT}.
 
 @item a socket binding (@b{optional}) ;
 @cindex socket binding
@@ -237,13 +236,6 @@ Win32 port (done by Dmitriy Anisimkov) of the ENST version.
 
 On UNIX you must use the socket binding from ENST @*
 @url{http://www.rfc1149.net/devel/adasockets}.
-
-@item a POSIX binding - Interface to the underlying OS services (@b{optional}) ;
-@cindex POSIX
-
-On Windows you can use the one distributed at:
-@url{http://www.obry.net/archive/w32posix}. On UNIX use the
-Florist package.
 
 @item OpenSSL (@b{optional}) ;
 @cindex OpenSSL
@@ -267,45 +259,6 @@ standard Windows @code{LDAP DLL} @file{wldap32.dll}.
 You can download OpenLDAP from @url{http://www.openldap.org}.
 
 @end itemize
-
-@c ----------------------------------------------------------------------
-
-@node AWS.OS_Lib
-@section AWS.OS_Lib
-@cindex AWS.OS_Lib
-
-@noindent
-The @code{AWS.OS_Lib} has 3 implementations. One using @code{POSIX}, one using
-@code{GNAT.OS_Lib} and one using direct @code{Win32} calls. This last
-one is not anymore supported in this version. Contribution is welcome
-of course.
-
-@table @b
-
-@item GNAT.OS_Lib implementation
-
-Version using @code{GNAT.OS_Lib} is GNAT dependent and will run on whatever
-OS GNAT has be ported to. This is the @b{default implementation} used.
-
-@AWSEXP {$ make gnat_oslib}
-
-@item POSIX implementation
-
-Version with @code{POSIX} is compiler and OS independent (well if you
-have a @code{POSIX} implementation for your OS). Check out @code{Florist}
-which is available on many @code{UNIX} and the version for Win32 is
-available on @url{http://www.obry.net/contrib}.
-
-@AWSEXP {$ make posix_oslib}
-
-@item Win32 implementation (not anymore supported)
-
-Version for Win32 should be usable by any Ada compiler for Windows
-95/98/NT/2000/XP.
-
-@AWSEXP {$ make win32_oslib}
-
-@end table
 
 @c ----------------------------------------------------------------------
 
@@ -520,8 +473,8 @@ procedure of the above server.
 
 @noindent
 In each case you'll certainly have to edit the makefile to correctly set
-the include path for the libraries @code{POSIX}, @code{OpenSSL},
-@code{Socket} and @code{XML/Ada}. For more information, look at the makefiles.
+the include path for the libraries @code{OpenSSL}, @code{Socket} and
+@code{XML/Ada}. For more information, look at the makefiles.
 
 @c ----------------------------------------------------------------------
 
@@ -634,7 +587,7 @@ You must do the same thing for all external libraries that you will
 be using. For example you'll have to point @code{GNAT} to the
 @code{AdaSockets} libraries and pass @code{-ladasockets} on the gnatmake's
 @code{-largs} section. The same apply if you have built @code{AWS} with
-@code{POSIX} or with @code{SSL} support.
+@code{SSL} support.
 
 @end table
 
@@ -955,7 +908,7 @@ such simple page server:
    URI      : @b{constant} String := AWS.Status.URI (Request);
    Filename : @b{constant} String := URI (2 .. URI'Last);
 @b{begin}
-   @b{if} OS_Lib.Is_Regular_File (Filename) @b{then}
+   @b{if} Utils.Is_Regular_File (Filename) @b{then}
       @b{return} AWS.Response.File
         (Content_Type => AWS.MIME.Content_Type (Filename),
          Filename     => Filename);

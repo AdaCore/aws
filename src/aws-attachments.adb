@@ -26,9 +26,9 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
+with Ada.Directories;
 with Ada.Streams.Stream_IO;
-
-with GNAT.OS_Lib;
+with Ada.IO_Exceptions;
 
 with AWS.Headers.Set;
 with AWS.Messages;
@@ -272,15 +272,17 @@ package body AWS.Attachments is
 
    procedure Reset
      (Attachments  : in out List;
-      Delete_Files : in     Boolean)
-   is
-      Dummy : Boolean;
+      Delete_Files : in     Boolean) is
    begin
       if Delete_Files then
          for J in 1 .. Count (Attachments) loop
-            GNAT.OS_Lib.Delete_File
-              (Name    => Local_Filename (Get (Attachments, J)),
-               Success => Dummy);
+            begin
+               Directories.Delete_File
+                 (Name => Local_Filename (Get (Attachments, J)));
+            exception
+               when IO_Exceptions.Name_Error =>
+                  null;
+            end;
          end loop;
       end if;
       Attachment_Table.Clear (Attachments.Vector);

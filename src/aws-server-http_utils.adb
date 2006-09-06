@@ -44,7 +44,6 @@ with AWS.Messages;
 with AWS.MIME;
 with AWS.Net;
 with AWS.Net.Buffered;
-with AWS.OS_Lib;
 with AWS.Resources.Streams.Memory;
 with AWS.Parameters;
 with AWS.Session;
@@ -1285,7 +1284,7 @@ package body AWS.Server.HTTP_Utils is
 
          Net.Buffered.Put_Line
            (Sock,
-            "Date: " & Messages.To_HTTP_Date (OS_Lib.GMT_Clock));
+            "Date: " & Messages.To_HTTP_Date (Utils.GMT_Clock));
 
          --  Server
 

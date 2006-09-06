@@ -29,7 +29,7 @@
 with Ada.Unchecked_Deallocation;
 
 with AWS.Net.Thin;
-with AWS.OS_Lib.Definitions;
+with AWS.OS_Lib;
 
 package body AWS.Net.Generic_Sets is
 
@@ -237,7 +237,7 @@ package body AWS.Net.Generic_Sets is
       Index : in Socket_Index)
       return Boolean
    is
-      use AWS.OS_Lib.Definitions;
+      use AWS.OS_Lib;
    begin
       Check_Range (Set, Index);
 
@@ -254,7 +254,7 @@ package body AWS.Net.Generic_Sets is
       Index : in Socket_Index)
       return Boolean
    is
-      use AWS.OS_Lib.Definitions;
+      use AWS.OS_Lib;
    begin
       Check_Range (Set, Index);
 
@@ -267,7 +267,7 @@ package body AWS.Net.Generic_Sets is
       Ready :    out Boolean;
       Error :    out Boolean)
    is
-      use AWS.OS_Lib.Definitions;
+      use AWS.OS_Lib;
    begin
       Check_Range (Set, Index);
 
@@ -285,7 +285,7 @@ package body AWS.Net.Generic_Sets is
       Index : in Socket_Index)
       return Boolean
    is
-      use AWS.OS_Lib.Definitions;
+      use AWS.OS_Lib;
    begin
       Check_Range (Set, Index);
 
@@ -383,18 +383,18 @@ package body AWS.Net.Generic_Sets is
       Index  : in     Socket_Index;
       Mode   : in     Waiting_Mode)
    is
-      package OSD renames OS_Lib.Definitions;
+      use OS_Lib;
       use type Thin.Events_Type;
    begin
       if Mode (Net.Input) then
-         Set.Poll (Index).Events := OSD.POLLIN or OSD.POLLPRI;
+         Set.Poll (Index).Events := POLLIN or POLLPRI;
       else
          Set.Poll (Index).Events := 0;
       end if;
 
       if Mode (Net.Output) then
          Set.Poll (Index).Events
-           := Set.Poll (Index).Events or OSD.POLLOUT;
+           := Set.Poll (Index).Events or POLLOUT;
       end if;
    end Set_Mode;
 

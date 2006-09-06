@@ -241,7 +241,6 @@ GALL_OPTIONS := $(ALL_OPTIONS) \
 	PRJ_XMLADA="$(PRJ_XMLADA)" \
 	PRJ_ASIS="$(PRJ_ASIS)" \
 	PRJ_SOCKLIB="$(PRJ_SOCKLIB)" \
-	PRJ_OSLIB="$(OSLIB)" \
 	TP_XMLADA="$(TP_XMLADA)"
 
 ${MODULES_BUILD}: force
@@ -350,22 +349,6 @@ else
 	echo '"aws-net-std__gnat.adb");' >> $(CONFADC)
 endif
 endif
-	echo '   type OSLIB_Type is ("GNAT", "Win32", "POSIX");' \
-		>> $(CONFGPR)
-	echo -n 'pragma Source_File_Name (AWS.OS_Lib, Body_File_Name => ' \
-		>> $(CONFADC)
-ifeq (${OSLIB}, GNAT)
-	echo '   OSLIB : OSLIB_Type := "GNAT";' >> $(CONFGPR)
-	echo '"aws-os_lib__gnat.adb");' >> $(CONFADC)
-endif
-ifeq (${OSLIB}, Win32)
-	echo '   OSLIB : OSLIB_Type := "Win32";' >> $(CONFGPR)
-	echo '"aws-os_lib__win32.adb");' >> $(CONFADC)
-endif
-ifeq (${OSLIB}, POSIX)
-	echo '   OSLIB : OSLIB_Type := "POSIX";' >> $(CONFGPR)
-	echo '"aws-os_lib__posix.adb");' >> $(CONFADC)
-endif
 	echo '   type SOCKET_Type is ("std", "openssl", "gnutls");' \
 		>> $(CONFGPR)
 	echo '   SOCKET : SOCKET_Type := "$(SOCKET)";' >> $(CONFGPR)
@@ -422,7 +405,6 @@ install: install_dirs
 	$(CP) config/aws-net-std__* $(I_INC)
 	$(CP) config/aws-net-ssl__* $(I_INC)
 	$(CP) config/aws-net-ssl-certificate__* $(I_INC)
-	$(CP) config/aws-os_lib__* $(I_INC)
 	$(CP) config/ssl-thin__* $(I_INC)
 	$(CP) config/templates_parser-* $(I_INC)
 ifeq ($(XMLADA),true)

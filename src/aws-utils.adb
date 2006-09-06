@@ -26,6 +26,7 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
+with Ada.Calendar.Time_Zones;
 with Ada.Directories;
 with Ada.Integer_Text_IO;
 with Ada.Numerics.Long_Elementary_Functions;
@@ -301,6 +302,16 @@ package body AWS.Utils is
       when Text_IO.Name_Error =>
          raise No_Such_File;
    end For_Every_Directory_Entry;
+
+   ---------------
+   -- GMT_Clock --
+   ---------------
+
+   function GMT_Clock return Calendar.Time is
+      use type Calendar.Time;
+   begin
+      return Calendar.Clock - Duration (Calendar.Time_Zones.UTC_Time_Offset);
+   end GMT_Clock;
 
    ---------
    -- Hex --

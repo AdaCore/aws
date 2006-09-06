@@ -597,7 +597,6 @@ src/aws-net-stream_io.ads
 src/aws-net-thin.ads
 src/aws-net.adb
 src/aws-net.ads
-src/aws-os_lib.ads
 src/aws-parameters-set.adb
 src/aws-parameters-set.ads
 src/aws-parameters.adb

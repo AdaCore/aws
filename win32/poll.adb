@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2004                            --
---                                ACT-Europe                                --
+--                         Copyright (C) 2004-2006                          --
+--                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -32,7 +32,7 @@ with AWS.Net.Thin;
 
 function Poll
   (Fds     : in System.Address;
-   Nfds    : in AWS.OS_Lib.Definitions.nfds_t;
+   Nfds    : in AWS.OS_Lib.nfds_t;
    Timeout : in C.int)
    return C.int
 is
@@ -52,7 +52,7 @@ is
    end record;
    pragma Convention (C, Timeval);
 
-   subtype Nfds_Range is Definitions.nfds_t range 1 .. Nfds;
+   subtype Nfds_Range is nfds_t range 1 .. Nfds;
 
    type FD_Array is array (Nfds_Range) of C.int;
    pragma Convention (C, FD_Array);
@@ -106,7 +106,7 @@ is
    procedure FD_SET (FD : in C.int; Set : in out FD_Set_Type) is
    begin
       Set.Count := Set.Count + 1;
-      Set.Set (Definitions.nfds_t (Set.Count)) := FD;
+      Set.Set (nfds_t (Set.Count)) := FD;
    end FD_SET;
 
 begin
@@ -122,9 +122,9 @@ begin
    for J in Nfds_Range loop
       FD_Events := Poll_Ptr (J).Events;
 
-      if (FD_Events and (Definitions.POLLIN or Definitions.POLLPRI)) /= 0 then
+      if (FD_Events and (POLLIN or POLLPRI)) /= 0 then
          FD_SET (C.int (Poll_Ptr (J).FD), Rfds);
-      elsif (FD_Events and Definitions.POLLOUT) /= 0 then
+      elsif (FD_Events and POLLOUT) /= 0 then
          FD_SET (C.int (Poll_Ptr (J).FD), Wfds);
       end if;
 
@@ -163,19 +163,19 @@ begin
          Poll_Ptr (J).REvents := 0;
 
          if FD_ISSET (C.int (Poll_Ptr (J).FD), Rfds'Address) /= 0 then
-            Poll_Ptr (J).REvents := Poll_Ptr (J).REvents or Definitions.POLLIN;
+            Poll_Ptr (J).REvents := Poll_Ptr (J).REvents or POLLIN;
             Rs := Rs + 1;
          end if;
 
          if FD_ISSET (C.int (Poll_Ptr (J).FD), Wfds'Address) /= 0 then
             Poll_Ptr (J).REvents
-              := Poll_Ptr (J).REvents or Definitions.POLLOUT;
+              := Poll_Ptr (J).REvents or POLLOUT;
             Rs := Rs + 1;
          end if;
 
          if FD_ISSET (C.int (Poll_Ptr (J).FD), Efds'Address) /= 0 then
             Poll_Ptr (J).REvents
-              := Poll_Ptr (J).REvents or Definitions.POLLERR;
+              := Poll_Ptr (J).REvents or POLLERR;
             Rs := Rs + 1;
          end if;
       end loop;

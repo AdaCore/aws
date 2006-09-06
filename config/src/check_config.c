@@ -136,7 +136,7 @@ main (int argc, char *argv[])
   P ("--  Generator: check_config\n\n");
   P ("with Interfaces.C.Strings;\n");
   P ("with System;\n\n");
-  P ("package AWS.OS_Lib.Definitions is\n\n");
+  P ("package AWS.OS_Lib is\n\n");
   P ("   use Interfaces;\n\n");
 
 #ifdef _WIN32
@@ -285,7 +285,7 @@ main (int argc, char *argv[])
 
   P ("   pragma Import (%s, Set_Sock_Opt, \"setsockopt\");\n\n", i_conv);
 
-  P ("end AWS.OS_Lib.Definitions;\n");
+  P ("end AWS.OS_Lib;\n");
   fclose (fd);
 
   return 0;

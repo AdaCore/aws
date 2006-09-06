@@ -60,13 +60,6 @@ project Shared is
    type SOCKLIB_Type is ("GNAT", "AdaSockets", "IPv6");
    SOCKLIB : SOCKLIB_Type := external ("PRJ_SOCKLIB", "GNAT");
 
-   -----------
-   -- OSLIB --
-   -----------
-
-   type OSLIB_Type is ("GNAT", "Win32", "POSIX");
-   OSLIB : OSLIB_Type := external ("PRJ_OSLIB", "GNAT");
-
    -------------------------
    -- Compression library --
    -------------------------
@@ -79,8 +72,11 @@ project Shared is
 
    package Ide is
       for Vcs_Kind use "Subversion";
-      for VCS_Log_Check use "style_checker -l70";
-      for VCS_File_Check use "style_checker -lang Ada -cp -cy -lang XML -l256";
+      for VCS_Log_Check
+        use "style_checker -l70";
+      for VCS_File_Check
+        use "style_checker -ign tmplt -lang Ada -cp -cy -sp -gnat05 "
+         & "-lang XML -l256";
    end Ide;
 
    --------------

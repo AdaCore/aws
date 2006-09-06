@@ -34,7 +34,7 @@ with AWS.Net.Log;
 with AWS.Net.Thin;
 with AWS.Net.Std;
 with AWS.Net.SSL;
-with AWS.OS_Lib.Definitions;
+with AWS.OS_Lib;
 
 with System;
 
@@ -197,10 +197,10 @@ package body AWS.Net is
       use type C.int;
       Flag : aliased Integer := Boolean'Pos (Value);
    begin
-      if OS_Lib.Definitions.Set_Sock_Opt
+      if OS_Lib.Set_Sock_Opt
            (S       => C.int (Get_FD (Socket_Type'Class (Socket))),
-            Level   => OS_Lib.Definitions.IPPROTO_TCP,
-            OptName => OS_Lib.Definitions.TCP_NODELAY,
+            Level   => OS_Lib.IPPROTO_TCP,
+            OptName => OS_Lib.TCP_NODELAY,
             OptVal  => Flag'Address,
             OptLen  => Flag'Size / System.Storage_Unit) /= 0
       then
@@ -289,7 +289,7 @@ package body AWS.Net is
       return Event_Set
    is
       use Interfaces;
-      use OS_Lib.Definitions;
+      use OS_Lib;
 
       use type C.int;
       use type Thin.Events_Type;

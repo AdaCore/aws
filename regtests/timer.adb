@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2003-2004                          --
---                                ACT-Europe                                --
+--                         Copyright (C) 2003-2006                          --
+--                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -28,10 +28,8 @@
 
 --  ~ MAIN [STD]
 
-with Ada.Calendar;
+with Ada.Calendar.Formatting;
 with Ada.Text_IO;
-
-with GNAT.Calendar;
 
 with AWS.Client;
 with AWS.Config.Set;
@@ -56,10 +54,10 @@ procedure Timer is
    Year       : Calendar.Year_Number;
    Month      : Calendar.Month_Number;
    Day        : Calendar.Day_Number;
-   Hour       : GNAT.Calendar.Hour_Number;
-   Minute     : GNAT.Calendar.Minute_Number;
-   Second     : GNAT.Calendar.Second_Number;
-   Sub_Second : GNAT.Calendar.Second_Duration;
+   Hour       : Calendar.Formatting.Hour_Number;
+   Minute     : Calendar.Formatting.Minute_Number;
+   Second     : Calendar.Formatting.Second_Number;
+   Sub_Second : Calendar.Formatting.Second_Duration;
 
    WS   : Server.HTTP;
    Port : Natural := 1272;
@@ -90,7 +88,7 @@ procedure Timer is
 
 begin
    loop
-      GNAT.Calendar.Split
+      Calendar.Formatting.Split
         (Now, Year, Month, Day, Hour, Minute, Second, Sub_Second);
       exit when Second < 50;
 

@@ -36,7 +36,6 @@ with AWS.Messages;
 with AWS.MIME;
 with AWS.Net.Buffered;
 with AWS.Net.Generic_Sets;
-with AWS.OS_Lib;
 with AWS.Parameters;
 with AWS.Services.Dispatchers.URI;
 with AWS.Templates;
@@ -463,7 +462,7 @@ package body AWS.Services.Download is
 
          Net.Buffered.Put_Line
            (Sock,
-            "Date: " & Messages.To_HTTP_Date (OS_Lib.GMT_Clock));
+            "Date: " & Messages.To_HTTP_Date (Utils.GMT_Clock));
 
          --  Server
 

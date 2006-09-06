@@ -28,11 +28,9 @@
 
 --  Dispatch a specific request to a callback depending on current time
 
-with Ada.Calendar;
-with Ada.Strings.Unbounded;
-
+with Ada.Calendar.Formatting;
 with Ada.Containers.Vectors;
-with GNAT.Calendar;
+with Ada.Strings.Unbounded;
 
 with AWS.Dispatchers;
 with AWS.Response;
@@ -56,13 +54,13 @@ package AWS.Services.Dispatchers.Timer is
 
    type Period is private;
 
-   subtype Year_Number   is Ada.Calendar.Year_Number;
-   subtype Month_Number  is Ada.Calendar.Month_Number;
-   subtype Day_Number    is Ada.Calendar.Day_Number;
-   subtype Day_Name      is GNAT.Calendar.Day_Name;
-   subtype Hour_Number   is GNAT.Calendar.Hour_Number;
-   subtype Minute_Number is GNAT.Calendar.Minute_Number;
-   subtype Second_Number is GNAT.Calendar.Second_Number;
+   subtype Year_Number   is Calendar.Year_Number;
+   subtype Month_Number  is Calendar.Month_Number;
+   subtype Day_Number    is Calendar.Day_Number;
+   subtype Day_Name      is Calendar.Formatting.Day_Name;
+   subtype Hour_Number   is Calendar.Formatting.Hour_Number;
+   subtype Minute_Number is Calendar.Formatting.Minute_Number;
+   subtype Second_Number is Calendar.Formatting.Second_Number;
 
    function Once
      (From_Year   : in Year_Number;
