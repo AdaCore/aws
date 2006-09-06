@@ -310,7 +310,8 @@ package body AWS.Utils is
    function GMT_Clock return Calendar.Time is
       use type Calendar.Time;
    begin
-      return Calendar.Clock - Duration (Calendar.Time_Zones.UTC_Time_Offset);
+      return Calendar.Clock -
+        Duration (Calendar.Time_Zones.UTC_Time_Offset) * 60;
    end GMT_Clock;
 
    ---------
