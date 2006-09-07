@@ -48,6 +48,9 @@ package body AFile_Pack is
    use AWS;
 
    WS   : Server.HTTP;
+   FN   : constant String := "afile_pack.o";
+   Size : constant Response.Content_Length_Type
+    := Response.Content_Length_Type (Resources.File_Size (FN));
 
    --------
    -- CB --
@@ -59,30 +62,30 @@ package body AFile_Pack is
    begin
       if URI = "/first" then
          return Response.File
-           (MIME.Application_Octet_Stream, "afile.o",
+           (MIME.Application_Octet_Stream, FN,
             Disposition => Response.Inline);
 
       elsif URI = "/second" then
          return Response.File
-           (MIME.Application_Octet_Stream, "afile.o",
+           (MIME.Application_Octet_Stream, FN,
             Disposition => Response.Attachment);
 
       elsif URI = "/third" then
          return Response.File
-           (MIME.Application_Octet_Stream, "afile.o",
+           (MIME.Application_Octet_Stream, FN,
             User_Filename => "you_got_this.o",
             Disposition => Response.Inline);
 
       elsif URI = "/fourth" then
          return Response.File
-           (MIME.Application_Octet_Stream, "afile.o",
+           (MIME.Application_Octet_Stream, FN,
             Disposition   => Response.Attachment,
             User_Filename => "you_got_this.o");
 
       elsif URI = "/fifth" then
          Strm :=  new Resources.Streams.Disk.Stream_Type;
          Resources.Streams.Disk.Open
-           (Resources.Streams.Disk.Stream_Type (Strm.all), "afile.o");
+           (Resources.Streams.Disk.Stream_Type (Strm.all), FN);
          return Response.Stream
            (MIME.Application_Octet_Stream, Strm,
             Disposition => Response.Inline);
@@ -90,7 +93,7 @@ package body AFile_Pack is
       elsif URI = "/sixth" then
          Strm :=  new Resources.Streams.Disk.Stream_Type;
          Resources.Streams.Disk.Open
-           (Resources.Streams.Disk.Stream_Type (Strm.all), "afile.o");
+           (Resources.Streams.Disk.Stream_Type (Strm.all), FN);
          return Response.Stream
            (MIME.Application_Octet_Stream, Strm,
             Disposition => Response.Attachment);
@@ -98,7 +101,7 @@ package body AFile_Pack is
       elsif URI = "/seventh" then
          Strm :=  new Resources.Streams.Disk.Stream_Type;
          Resources.Streams.Disk.Open
-           (Resources.Streams.Disk.Stream_Type (Strm.all), "afile.o");
+           (Resources.Streams.Disk.Stream_Type (Strm.all), FN);
          return Response.Stream
            (MIME.Application_Octet_Stream, Strm,
             User_Filename => "a_stream.o", Disposition => Response.Inline);
@@ -106,19 +109,19 @@ package body AFile_Pack is
       elsif URI = "/eighth" then
          Strm :=  new Resources.Streams.Disk.Stream_Type;
          Resources.Streams.Disk.Open
-           (Resources.Streams.Disk.Stream_Type (Strm.all), "afile.o");
+           (Resources.Streams.Disk.Stream_Type (Strm.all), FN);
          return Response.Stream
            (MIME.Application_Octet_Stream, Strm,
             Disposition   => Response.Attachment,
             User_Filename => "a_stream.o");
 
       elsif URI = "/nineth" then
-         return Response.File (MIME.Application_Octet_Stream, "afile.o");
+         return Response.File (MIME.Application_Octet_Stream, FN);
 
       elsif URI = "/tenth" then
          Strm :=  new Resources.Streams.Disk.Stream_Type;
          Resources.Streams.Disk.Open
-           (Resources.Streams.Disk.Stream_Type (Strm.all), "afile.o");
+           (Resources.Streams.Disk.Stream_Type (Strm.all), FN);
          return Response.Stream (MIME.Application_Octet_Stream, Strm);
       else
          return Response.Build
@@ -149,7 +152,6 @@ package body AFile_Pack is
 
       procedure Call_It (Res : in String) is
          R : Response.Data;
-         Size : Natural := 0;
       begin
          R := Client.Get
                 (Protocol & "://localhost:" & AWS.Utils.Image (Port)
@@ -161,12 +163,13 @@ package body AFile_Pack is
            ("= " & Response.Header (R, Messages.Content_Disposition_Token, 1));
 
          declare
-            S : constant Natural := Response.Content_Length (R);
+            S : constant Response.Content_Length_Type
+              := Response.Content_Length (R);
          begin
-            if Size = 0 then
-               Size := S;
+            if S = Response.Undefined_Length then
+               Text_IO.Put_Line ("Error: " & Res & " undefined size.");
             elsif Size /= S then
-               Text_IO.Put_Line ("Error : Not same size.");
+               Text_IO.Put_Line ("Error : " & Res & " wrong size.");
             end if;
          end;
       end Call_It;
