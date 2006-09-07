@@ -308,10 +308,10 @@ package body AWS.Utils is
    ---------------
 
    function GMT_Clock return Calendar.Time is
-      use type Calendar.Time;
+      use Ada.Calendar;
+      Now : constant Time := Clock;
    begin
-      return Calendar.Clock -
-        Duration (Calendar.Time_Zones.UTC_Time_Offset) * 60;
+      return Now - Duration (Time_Zones.UTC_Time_Offset (Now)) * 60;
    end GMT_Clock;
 
    ---------
