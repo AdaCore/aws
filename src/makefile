@@ -15,7 +15,7 @@ setup:
 
 build:
 	$(GNATMAKE) -Psrc -XBuild=${PRJ_BUILD} -XXMLADA=${PRJ_XMLADA} \
-		-XSOCKLIB=${PRJ_SOCKLIB} -XOSLIB=${PRJ_OSLIB}
+		-XSOCKLIB=${PRJ_SOCKLIB}
 
 clean:
 	-$(RM) -f aws-translator-conversion.adb aws-os_lib-definitions.ads
