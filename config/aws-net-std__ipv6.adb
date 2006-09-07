@@ -31,7 +31,7 @@ with Ada.Unchecked_Conversion;
 with Ada.Unchecked_Deallocation;
 
 with AWS.Net.Log;
-with AWS.OS_Lib.Definitions;
+with AWS.OS_Lib;
 with AWS.Utils;
 
 pragma Warnings (Off);
@@ -49,8 +49,6 @@ package body AWS.Net.Std is
 
    use GNAT;
    use Interfaces;
-
-   package OSD renames AWS.OS_Lib.Definitions;
 
    No_Socket : constant Interfaces.C.int := Interfaces.C."-" (1);
 
@@ -86,7 +84,7 @@ package body AWS.Net.Std is
      (Host  : in String;
       Port  : in Natural;
       Flags : in Interfaces.C.int := 0)
-      return OSD.Addr_Info_Access;
+      return OS_Lib.Addr_Info_Access;
    --  Returns the inet address information for the given host and port.
    --  Flags should be used from getaddrinfo C routine.
 
@@ -149,8 +147,8 @@ package body AWS.Net.Std is
    is
       use type C.int;
 
-      Info  : constant OSD.Addr_Info_Access
-        := Get_Addr_Info (Host, Port, OSD.AI_PASSIVE);
+      Info  : constant OS_Lib.Addr_Info_Access
+        := Get_Addr_Info (Host, Port, OS_Lib.AI_PASSIVE);
       FD    : C.int;
       Res   : C.int;
       Errno : Integer;
@@ -160,7 +158,7 @@ package body AWS.Net.Std is
               (Info.ai_family, Info.ai_socktype, Info.ai_protocol);
 
       if FD = Sockets.Thin.Failure then
-         OSD.FreeAddrInfo (Info);
+         OS_Lib.FreeAddrInfo (Info);
          Raise_Socket_Error (Std.Errno);
       end if;
 
@@ -168,7 +166,7 @@ package body AWS.Net.Std is
 
       Res := Sockets.Thin.C_Bind (FD, Info.ai_addr, C.int (Info.ai_addrlen));
 
-      OSD.FreeAddrInfo (Info);
+      OS_Lib.FreeAddrInfo (Info);
 
       if Res = Sockets.Thin.Failure then
          Errno := Std.Errno;
@@ -191,7 +189,7 @@ package body AWS.Net.Std is
    is
       use type C.int;
 
-      Info  : constant OSD.Addr_Info_Access := Get_Addr_Info (Host, Port);
+      Info  : constant OS_Lib.Addr_Info_Access := Get_Addr_Info (Host, Port);
       FD    : C.int;
       Res   : C.int;
       Errno : Integer;
@@ -201,7 +199,7 @@ package body AWS.Net.Std is
               (Info.ai_family, Info.ai_socktype, Info.ai_protocol);
 
       if FD = Sockets.Thin.Failure then
-         OSD.FreeAddrInfo (Info);
+         OS_Lib.FreeAddrInfo (Info);
          Raise_Socket_Error (Std.Errno);
       end if;
 
@@ -212,13 +210,13 @@ package body AWS.Net.Std is
       Res := Sockets.Thin.C_Connect
                (FD, Info.ai_addr, C.int (Info.ai_addrlen));
 
-      OSD.FreeAddrInfo (Info);
+      OS_Lib.FreeAddrInfo (Info);
 
       if Res = Sockets.Thin.Failure then
          Errno := Std.Errno;
 
-         if Errno = OSD.EWOULDBLOCK
-           or else Errno = OSD.EINPROGRESS
+         if Errno = OS_Lib.EWOULDBLOCK
+           or else Errno = OS_Lib.EINPROGRESS
          then
             Errno := 0;
 
@@ -230,7 +228,7 @@ package body AWS.Net.Std is
                   if Events (Error) then
                      Errno := Std.Errno (Socket);
                   elsif not Events (Output) then
-                     Errno := OSD.ETIMEDOUT;
+                     Errno := OS_Lib.ETIMEDOUT;
                   end if;
                end;
             end if;
@@ -258,7 +256,7 @@ package body AWS.Net.Std is
 
    function Errno (Socket : in Socket_Type) return Integer is
    begin
-      return Get_Int_Sock_Opt (Socket, OSD.SO_ERROR);
+      return Get_Int_Sock_Opt (Socket, OS_Lib.SO_ERROR);
    end Errno;
 
    -------------------
@@ -339,21 +337,21 @@ package body AWS.Net.Std is
      (Host  : in String;
       Port  : in Natural;
       Flags : in Interfaces.C.int := 0)
-      return OSD.Addr_Info_Access
+      return OS_Lib.Addr_Info_Access
    is
       package CS renames Interfaces.C.Strings;
       use type C.int;
-      use type OSD.Addr_Info_Access;
+      use type OS_Lib.Addr_Info_Access;
 
       C_Node : aliased C.char_array := C.To_C (Host);
       P_Node : CS.chars_ptr;
       C_Serv : aliased C.char_array := C.To_C (AWS.Utils.Image (Port));
       Res    : C.int;
-      Result : aliased OSD.Addr_Info_Access;
-      Hints  : constant OSD.Addr_Info
-        := (ai_family    => OSD.PF_UNSPEC,
-            ai_socktype  => OSD.SOCK_STREAM,
-            ai_protocol  => OSD.IPPROTO_IP,
+      Result : aliased OS_Lib.Addr_Info_Access;
+      Hints  : constant OS_Lib.Addr_Info
+        := (ai_family    => OS_Lib.PF_UNSPEC,
+            ai_socktype  => OS_Lib.SOCK_STREAM,
+            ai_protocol  => OS_Lib.IPPROTO_IP,
             ai_flags     => Flags,
             ai_addrlen   => 0,
             ai_canonname => CS.Null_Ptr,
@@ -366,18 +364,18 @@ package body AWS.Net.Std is
          P_Node := CS.To_Chars_Ptr (C_Node'Unchecked_Access);
       end if;
 
-      Res := OSD.GetAddrInfo
+      Res := OS_Lib.GetAddrInfo
                (node    => P_Node,
                 service => CS.To_Chars_Ptr (C_Serv'Unchecked_Access),
                 hints   => Hints,
                 res     => Result'Access);
 
-      if Res = OSD.EAI_SYSTEM then
+      if Res = OS_Lib.EAI_SYSTEM then
          Raise_Socket_Error (Errno);
 
       elsif Res /= 0 then
          Ada.Exceptions.Raise_Exception
-           (Socket_Error'Identity, CS.Value (OSD.GAI_StrError (Res)));
+           (Socket_Error'Identity, CS.Value (OS_Lib.GAI_StrError (Res)));
       end if;
 
       return Result;
@@ -412,7 +410,7 @@ package body AWS.Net.Std is
       RC  : constant C.int
         := Thin.C_Getsockopt
              (S       => Socket.S.FD,
-              Level   => OSD.SOL_SOCKET,
+              Level   => OS_Lib.SOL_SOCKET,
               Optname => Name,
               Optval  => Res'Address,
               Optlen  => Len'Access);
@@ -450,7 +448,7 @@ package body AWS.Net.Std is
 
    function Get_Receive_Buffer_Size (Socket : in Socket_Type) return Natural is
    begin
-      return Get_Int_Sock_Opt (Socket, OSD.SO_RCVBUF);
+      return Get_Int_Sock_Opt (Socket, OS_Lib.SO_RCVBUF);
    end Get_Receive_Buffer_Size;
 
    --------------------------
@@ -459,7 +457,7 @@ package body AWS.Net.Std is
 
    function Get_Send_Buffer_Size (Socket : in Socket_Type) return Natural is
    begin
-      return Get_Int_Sock_Opt (Socket, OSD.SO_SNDBUF);
+      return Get_Int_Sock_Opt (Socket, OS_Lib.SO_SNDBUF);
    end Get_Send_Buffer_Size;
 
    ---------------
@@ -489,14 +487,14 @@ package body AWS.Net.Std is
       function Split is new Ada.Unchecked_Conversion (Unsigned_16, U8_2);
 
    begin
-      if Sin6.Family = OSD.PF_INET then
+      if Sin6.Family = OS_Lib.PF_INET then
          return Utils.Image (Integer (Sin.Sin_Addr.S_B1))
             & '.' & Utils.Image (Integer (Sin.Sin_Addr.S_B2))
             & '.' & Utils.Image (Integer (Sin.Sin_Addr.S_B3))
             & '.' & Utils.Image (Integer (Sin.Sin_Addr.S_B4));
 
-      elsif Sin6.Family = OSD.PF_INET6
-        or else Sin6.Family = OSD.PF_INET6 * 256 + OSD.PF_INET6
+      elsif Sin6.Family = OS_Lib.PF_INET6
+        or else Sin6.Family = OS_Lib.PF_INET6 * 256 + OS_Lib.PF_INET6
       --  ??? looks like FreeBSD 4.10 error in ipv6 address structure result
       then
          declare
@@ -621,7 +619,7 @@ package body AWS.Net.Std is
       Arg : aliased C.int;
       Res : constant C.int := Sockets.Thin.C_Ioctl
                                 (Socket.S.FD,
-                                 OSD.FIONREAD,
+                                 OS_Lib.FIONREAD,
                                  Arg'Unchecked_Access);
    begin
       if Res = Sockets.Thin.Failure then
@@ -712,12 +710,12 @@ package body AWS.Net.Std is
               (Socket.S.FD,
                Data'Address,
                Data'Length,
-               OS_Lib.Definitions.MSG_NOSIGNAL);
+               OS_Lib.MSG_NOSIGNAL);
 
       if RC = Sockets.Thin.Failure then
          Errno := Std.Errno;
 
-         if Errno = OSD.EWOULDBLOCK then
+         if Errno = OS_Lib.EWOULDBLOCK then
             if Data'First = Stream_Element_Offset'First then
                Last := Stream_Element_Offset'Last;
             else
@@ -761,7 +759,7 @@ package body AWS.Net.Std is
       Res : constant C.int
         := Thin.C_Setsockopt
              (Socket.S.FD,
-              OSD.SOL_SOCKET,
+              OS_Lib.SOL_SOCKET,
               Name,
               Value'Address,
               Value'Size / System.Storage_Unit);
@@ -781,7 +779,7 @@ package body AWS.Net.Std is
       use Interfaces.C;
       Enabled : aliased int := 1;
    begin
-      if Thin.C_Ioctl (Socket.S.FD, OSD.FIONBIO, Enabled'Unchecked_Access)
+      if Thin.C_Ioctl (Socket.S.FD, OS_Lib.FIONBIO, Enabled'Unchecked_Access)
          /= 0
       then
          Raise_Socket_Error (Errno, Socket);
@@ -796,7 +794,7 @@ package body AWS.Net.Std is
      (Socket : in Socket_Type;
       Size   : in Natural) is
    begin
-      Set_Int_Sock_Opt (Socket, OSD.SO_RCVBUF, Size);
+      Set_Int_Sock_Opt (Socket, OS_Lib.SO_RCVBUF, Size);
    end Set_Receive_Buffer_Size;
 
    --------------------------
@@ -807,7 +805,7 @@ package body AWS.Net.Std is
      (Socket : in Socket_Type;
       Size   : in Natural) is
    begin
-      Set_Int_Sock_Opt (Socket, OSD.SO_SNDBUF, Size);
+      Set_Int_Sock_Opt (Socket, OS_Lib.SO_SNDBUF, Size);
    end Set_Send_Buffer_Size;
 
    --------------
@@ -823,7 +821,7 @@ package body AWS.Net.Std is
          Net.Log.Event (Net.Log.Shutdown, Socket);
       end if;
 
-      if Thin.C_Shutdown (FD, OSD.SHUT_RDWR) = Thin.Failure then
+      if Thin.C_Shutdown (FD, OS_Lib.SHUT_RDWR) = Thin.Failure then
          Log.Error (Socket, Error_Message (Std.Errno));
       end if;
 
