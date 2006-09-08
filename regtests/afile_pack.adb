@@ -48,7 +48,7 @@ package body AFile_Pack is
    use AWS;
 
    WS   : Server.HTTP;
-   FN   : constant String := "afile_pack.o";
+   FN   : constant String := "afile.o";
    Size : constant Response.Content_Length_Type
     := Response.Content_Length_Type (Resources.File_Size (FN));
 
