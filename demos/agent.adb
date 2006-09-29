@@ -326,8 +326,10 @@ begin
          Text_IO.Put_Line
            (Messages.Content_Type (Response.Content_Type (Data)));
 
-         Text_IO.Put_Line
-           (Messages.Content_Length (Response.Content_Length (Data)));
+         if Response.Content_Length (Data) /= Response.Undefined_Length then
+            Text_IO.Put_Line
+              (Messages.Content_Length (Response.Content_Length (Data)));
+         end if;
 
          if Force or else File then
             --  This is not a text/html body, but output it anyway
