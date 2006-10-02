@@ -45,17 +45,6 @@ project AWS_Shared is
       for Implementation ("Templates_Parser.Tasking")
         use "templates_parser-tasking__standard_tasking.adb";
 
-      --  OSLIB
-
-      case AWS_Config.OSLIB is
-         when "GNAT" =>
-            for Implementation ("AWS.OS_Lib") use "aws-os_lib__gnat.adb";
-         when "Win32" =>
-            for Implementation ("AWS.OS_Lib") use "aws-os_lib__win32.adb";
-         when "POSIX" =>
-            for Implementation ("AWS.OS_Lib") use "aws-os_lib__posix.adb";
-      end case;
-
       --  SOCKLIB
 
       case AWS_Config.SOCKLIB is
