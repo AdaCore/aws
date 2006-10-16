@@ -76,6 +76,7 @@ begin
    Test (-0.1, 3);
    Test (0.1, 3);
    Test (10.0, 3);
+   Test (9.999, 3);
    Test (100.0, 3);
    Test (Duration'Delta, 1);
    Test (Duration'Delta, 2);

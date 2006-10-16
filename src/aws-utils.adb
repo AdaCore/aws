@@ -690,17 +690,27 @@ package body AWS.Utils is
       Aft  : constant Natural
         := Integer'Max
              (N - PP - Boolean'Pos (AI >= 1.0 or else L10 = L10T), 0);
-      Img  : String (1 .. Integer'Max (PP, 1) + Aft + 1 - Boolean'Pos (Aft = 0)
+      Img  : String (1 .. Integer'Max (PP, 1) + Aft + Boolean'Pos (Aft > 0) * 2
                           + Boolean'Pos (AI >= 10.0)
                           + Boolean'Pos (Item < 0.0));
    begin
       if Aft = 0 then
          LIO.Put (Img, Largest_Integer (Item));
+         return Img;
       else
          Duration_IO.Put (Img, Item, Aft => Aft);
-      end if;
 
-      return Img;
+         if Img (1) = ' ' then
+            return Img (2 .. Img'Last);
+         elsif Img (Img'Last) = '0'
+           and then (Img (1) = '1' or else Img (1 .. 2) = "-1")
+         then
+            return Img (1 .. Img'Last - 1);
+         else
+            raise Constraint_Error with
+              Duration'Image (Item) & Integer'Image (N);
+         end if;
+      end if;
    end Significant_Image;
 
 begin
