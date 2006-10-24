@@ -69,7 +69,7 @@ ALL_OPTIONS	= $(MAKE_OPT) SOCKET="$(SOCKET)" XMLADA="$(XMLADA)" \
 	EXTRA_TESTS="$(EXTRA_TESTS)" GCC="$(GCC)" AWK="$(AWK)" CAT="$(CAT)" \
 	GCC_FOR_HOST="$(GCC_FOR_HOST)" BDIR="$(BDIR)" INSTALL="$(INSTALL)" \
 	SHARED="$(SHARED)" SOEXT="$(SOEXT)" \
-	BUILD_DOC_SCRIPT="false"
+	BUILD_DOC_SCRIPT="false" T2A="../../$(BDIR)/tools/templates2ada"
 
 build_doc:
 	echo ""

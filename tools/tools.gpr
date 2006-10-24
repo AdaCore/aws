@@ -37,7 +37,9 @@ project Tools is
 
    for Languages use ("Ada", "Project file", "makefile");
 
-   for Main use ("awsres.adb", "hotplug_password.adb");
+   for Source_Dirs use (".", "../templates_parser/tools");
+
+   for Main use ("awsres", "hotplug_password", "templates2ada");
 
    case Shared.XMLAda is
       when "Installed" =>

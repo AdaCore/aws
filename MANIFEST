@@ -536,8 +536,8 @@ src/aws-config-ini.adb
 src/aws-config-ini.ads
 src/aws-config-set.adb
 src/aws-config-set.ads
-src/aws-config-utils.ads
 src/aws-config-utils.adb
+src/aws-config-utils.ads
 src/aws-config.adb
 src/aws-config.ads
 src/aws-containers-key_value.ads
@@ -807,6 +807,7 @@ templates_parser/regtests/regtst4.tmplt
 templates_parser/regtests/simple.tmplt
 templates_parser/regtests/speed.adb
 templates_parser/regtests/speed.tmplt
+templates_parser/regtests/t2a.out
 templates_parser/regtests/tag_demo.adb
 templates_parser/regtests/tag_demo.out
 templates_parser/regtests/tcache.adb
@@ -1002,6 +1003,8 @@ templates_parser/regtests/testme9.tmplt
 templates_parser/regtests/testme9_pt.out
 templates_parser/regtests/testme_big.tmplt
 templates_parser/regtests/testme_pt.out
+templates_parser/regtests/tpl1.tmpl
+templates_parser/regtests/tpl2.tmpl
 templates_parser/regtests/ts_assoc.adb
 templates_parser/regtests/ts_assoc.out
 templates_parser/regtests/ts_assoc.tmplt
@@ -1026,6 +1029,9 @@ templates_parser/src/templates_parser-utils.ads
 templates_parser/src/templates_parser.adb
 templates_parser/src/templates_parser.ads
 templates_parser/templates_parser.gpr
+templates_parser/tools/all_urls.thtml
+templates_parser/tools/templates.tads
+templates_parser/tools/templates2ada.adb
 tools/awsres.adb
 tools/hotplug_password.adb
 tools/makefile
