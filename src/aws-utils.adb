@@ -44,6 +44,9 @@ package body AWS.Utils is
 
    package Integer_Random is new Numerics.Discrete_Random (Random_Integer);
 
+   function Local_To_GMT (DT : Calendar.Time) return Calendar.Time;
+   pragma Inline (Local_To_GMT);
+
    procedure Compress_Decompress
      (Filter       : in out ZLib.Filter_Type;
       Filename_In  : in     String;
@@ -246,7 +249,7 @@ package body AWS.Utils is
       if Is_Regular_File (Filename)
         or else Is_Directory (Filename)
       then
-         return Directories.Modification_Time (Filename);
+         return Local_To_GMT (Directories.Modification_Time (Filename));
       else
          raise No_Such_File with "File " & Filename & " not found.";
       end if;
@@ -308,10 +311,8 @@ package body AWS.Utils is
    ---------------
 
    function GMT_Clock return Calendar.Time is
-      use Ada.Calendar;
-      Now : constant Time := Clock;
    begin
-      return Now - Duration (Time_Zones.UTC_Time_Offset (Now)) * 60;
+      return Local_To_GMT (Calendar.Clock);
    end GMT_Clock;
 
    ---------
@@ -451,6 +452,16 @@ package body AWS.Utils is
       return Directories.Exists (Filename)
         and then Directories.Kind (Filename) = Directories.Ordinary_File;
    end Is_Regular_File;
+
+   ------------------
+   -- Local_To_GMT --
+   ------------------
+
+   function Local_To_GMT (DT : in Calendar.Time) return Calendar.Time is
+      use Ada.Calendar;
+   begin
+      return DT - Duration (Time_Zones.UTC_Time_Offset (DT)) * 60;
+   end Local_To_GMT;
 
    -------------
    -- Mailbox --
