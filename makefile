@@ -236,12 +236,28 @@ else
 PRJ_BUILD=Release
 endif
 
+# Install directories
+
+I_BIN	= $(INSTALL)/bin
+I_INC	= $(INSTALL)/include/aws
+I_CPN	= $(INSTALL)/include/aws/components
+I_LIB	= $(INSTALL)/lib/aws
+I_GPR	= $(INSTALL)/lib/gnat
+I_AGP	= $(INSTALL)/lib/gnat/aws
+I_TPL	= $(INSTALL)/share/examples/aws/templates
+I_IMG	= $(INSTALL)/share/examples/aws/images
+I_SBN	= $(INSTALL)/share/examples/aws/bin
+I_DOC	= $(INSTALL)/share/doc/aws
+I_PLG	= $(INSTALL)/share/gps/plug-ins
+
 GALL_OPTIONS := $(ALL_OPTIONS) \
 	PRJ_BUILD="$(PRJ_BUILD)" \
 	PRJ_XMLADA="$(PRJ_XMLADA)" \
 	PRJ_ASIS="$(PRJ_ASIS)" \
 	PRJ_SOCKLIB="$(PRJ_SOCKLIB)" \
-	TP_XMLADA="$(TP_XMLADA)"
+	TP_XMLADA="$(TP_XMLADA)" \
+	I_INC="$(I_INC)" \
+	I_CPN="$(I_CPN)"
 
 ${MODULES_BUILD}: force
 	${MAKE} -C ${@:%_build=%} build $(GALL_OPTIONS)
@@ -363,20 +379,6 @@ endif
 
 setup: setup_dir $(GEXT_MODULE) $(MODULES_SETUP) setup_config
 
-# Install directories
-
-I_BIN	= $(INSTALL)/bin
-I_INC	= $(INSTALL)/include/aws
-I_CPN	= $(INSTALL)/include/aws/components
-I_LIB	= $(INSTALL)/lib/aws
-I_GPR	= $(INSTALL)/lib/gnat
-I_AGP	= $(INSTALL)/lib/gnat/aws
-I_TPL	= $(INSTALL)/share/examples/aws/templates
-I_IMG	= $(INSTALL)/share/examples/aws/images
-I_SBN	= $(INSTALL)/share/examples/aws/bin
-I_DOC	= $(INSTALL)/share/doc/aws
-I_PLG	= $(INSTALL)/share/gps/plug-ins
-
 install_clean:
 	$(RM) -fr $(I_INC)
 	$(RM) -fr $(I_LIB)
@@ -437,6 +439,8 @@ endif
 	-$(STRIP) $(I_BIN)/awsres${EXEEXT}
 	-$(CP) $(BDIR)/tools/hotplug_password${EXEEXT} $(I_BIN)
 	-$(STRIP) $(I_BIN)/hotplug_password${EXEEXT}
+	-$(CP) $(BDIR)/tools/templates2ada${EXEEXT} $(I_BIN)
+	-$(STRIP) $(I_BIN)/templates2ada${EXEEXT}
 ifeq (${ASIS},true)
 	$(CP) $(BDIR)/tools/ada2wsdl-main${EXEEXT} $(I_BIN)/ada2wsdl${EXEEXT}
 	$(STRIP) $(I_BIN)/ada2wsdl${EXEEXT}

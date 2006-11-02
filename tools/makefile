@@ -15,9 +15,9 @@ ada2wsdl-options.adb: force
 	echo "   procedure Set_Default is" >> ada2wsdl-options.adb
 	echo "   begin" >> ada2wsdl-options.adb
 	echo "      pragma Style_Checks (Off);" >> ada2wsdl-options.adb
-	echo "      Parser.Add_Option (\"-I"$(INSTALL)"/AWS/components\");" \
+	echo "      Parser.Add_Option (\"-I"$(I_CPN)"\");" \
 		>> ada2wsdl-options.adb
-	echo "      Parser.Add_Option (\"-I"$(INSTALL)"/AWS/include\");" \
+	echo "      Parser.Add_Option (\"-I"$(I_INC)"\");" \
 		>> ada2wsdl-options.adb
 	echo "   end Set_Default;" >> ada2wsdl-options.adb
 	echo "end Ada2WSDL.Options;" >> ada2wsdl-options.adb
