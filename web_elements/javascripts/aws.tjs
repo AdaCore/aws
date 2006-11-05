@@ -227,7 +227,7 @@
 
       /* Redirect to url */
 
-      document.location.href = location.getAttribute('url');
+      document.location.href = url;
    }
 
    // Action on create_sortable
