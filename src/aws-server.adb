@@ -48,10 +48,10 @@ package body AWS.Server is
    type Data_Access is access all Status.Data;
 
    type Line_Attribute_Record is record
-      Server     : HTTP_Access;
-      Line       : Positive;
-      Data       : Data_Access;
-      Log_Data   : AWS.Log.Fields_Table;
+      Server   : HTTP_Access;
+      Line     : Positive;
+      Data     : Data_Access;
+      Log_Data : AWS.Log.Fields_Table;
    end record;
 
    procedure Free is new Ada.Unchecked_Deallocation
