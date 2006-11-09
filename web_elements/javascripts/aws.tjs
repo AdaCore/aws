@@ -138,6 +138,7 @@
       } else {
          $(placeholder_id).innerHTML = placeholder_content;
       }
+      update_behaviour ();
    }
 
    // Clear a node
