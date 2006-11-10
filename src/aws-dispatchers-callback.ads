@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2001                          --
---                                ACT-Europe                                --
+--                         Copyright (C) 2000-2006                          --
+--                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -26,7 +26,7 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  Dispatch on a Callback procedure.
+--  Dispatch on a Callback procedure
 
 with AWS.Dispatchers;
 with AWS.Response;
@@ -43,7 +43,7 @@ package AWS.Dispatchers.Callback is
      (Callback : in Response.Callback)
       return Handler;
    pragma Inline (Create);
-   --  Build a dispatcher for the specified callback.
+   --  Build a dispatcher for the specified callback
 
    function Dispatch
      (Dispatcher : in Handler;
