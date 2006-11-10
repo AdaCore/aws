@@ -59,6 +59,19 @@ to work properly. Of course we try to avoid this as much as possible
 but we really prefer to have a clean API instead of keeping awkward
 implementations.
 
+Server push implementation slighty breaking the compartibility and improve
+performance.
+
+   Stream_Output_Type generic parameter removed.
+
+   To_Stream_Output function generic parameter renamed to To_Stream_Array and
+   have to return Ada.Streams.Stream_Element_Array instead of removed
+   Stream_Output_Type.
+
+   Close_Duplicate registration Boolean parameter replaced by
+   Duplicated_Age Duration parameter. It would be the age of client connection
+   while it could not be replaced by the new arrived client with the same
+   client id.
 
 Obsolescent features
 --------------------

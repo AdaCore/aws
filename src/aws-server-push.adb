@@ -27,11 +27,11 @@
 ------------------------------------------------------------------------------
 
 with Ada.Calendar;
-with Ada.Containers;
 with Ada.Unchecked_Deallocation;
 
 with AWS.Messages;
 with AWS.MIME;
+with AWS.Net.Buffered;
 with AWS.Utils;
 
 with GNAT.Calendar.Time_IO;
@@ -49,9 +49,6 @@ package body AWS.Server.Push is
       return Client_Holder;
 
    procedure Free (Holder : in out Client_Holder);
-
-   function To_Stream (Socket : in Net.Socket_Type'Class) return Stream_Access
-     renames AWS.Net.Stream_IO.Stream;
 
    New_Line : constant String := ASCII.CR & ASCII.LF;
    --  HTTP new line.
@@ -78,7 +75,7 @@ package body AWS.Server.Push is
       procedure Free
         is new Ada.Unchecked_Deallocation (Group_Set, Groups_Access);
    begin
-      Net.Stream_IO.Free (Holder.Stream);
+      Net.Free (Holder.Socket);
       Free (Holder.Groups);
    end Free;
 
@@ -113,7 +110,7 @@ package body AWS.Server.Push is
 
       function Count return Natural is
       begin
-         return Natural (Table.Length (Container));
+         return Natural (Container.Length);
       end Count;
 
       -------------
@@ -132,9 +129,11 @@ package body AWS.Server.Push is
       procedure Register
         (Client_Id       : in     Client_Key;
          Holder          : in out Client_Holder;
-         Close_Duplicate : in     Boolean)
+         Duplicated_Age  : in     Duration)
       is
-         Cursor  : Table.Cursor;
+         use Ada.Calendar;
+
+         Cursor  : Tables.Cursor;
          Success : Boolean;
       begin
          if not Open then
@@ -142,13 +141,12 @@ package body AWS.Server.Push is
             raise Closed;
          end if;
 
-         Table.Insert (Container, Client_Id, Holder, Cursor, Success);
+         Container.Insert (Client_Id, Holder, Cursor, Success);
 
          if not Success then
-            if Close_Duplicate then
+            if Duplicated_Age < Clock - Tables.Element (Cursor).Created  then
                Unregister (Client_Id, Close_Socket => True);
-               Table.Insert (Container, Client_Id, Holder, Cursor, Success);
-               pragma Assert (Success);
+               Container.Insert (Client_Id, Holder);
             else
                Free (Holder);
                raise Duplicate_Client_Id;
@@ -158,56 +156,46 @@ package body AWS.Server.Push is
          if Holder.Groups /= null then
             for J in Holder.Groups'Range loop
                declare
-                  use Group_Maps;
                   Name : constant String := To_String (Holder.Groups (J));
 
-                  C : constant Group_Maps.Cursor := Find (Groups, Name);
+                  C : constant Group_Maps.Cursor := Groups.Find (Name);
                   G : Map_Access;
-
-                  Dummy_B : Boolean;
-                  Dummy_C : Group_Maps.Cursor;
-                  Dummy_0 : Table.Cursor;
                begin
-                  if Has_Element (C) then
-                     G := Element (C);
+                  if Group_Maps.Has_Element (C) then
+                     G := Group_Maps.Element (C);
                   else
-                     G := new Table.Map;
-                     Insert (Groups, Name, G, Dummy_C, Dummy_B);
-                     pragma Assert (Dummy_B);
+                     G := new Tables.Map;
+                     Groups.Insert (Name, G);
                   end if;
 
-                  Table.Insert (G.all, Client_Id, Holder, Dummy_0, Dummy_B);
-                  pragma Assert (Dummy_B);
+                  G.Insert (Client_Id, Holder);
                end;
             end loop;
          end if;
 
          begin
-            String'Write
-              (Holder.Stream,
+            Net.Buffered.Put_Line
+              (Holder.Socket.all,
                "HTTP/1.1 200 OK" & New_Line
-                 & "Server: AWS (Ada Web Server) v"
-                 & Version & New_Line
-                 & Messages.Connection ("Close") & New_Line);
+                 & "Server: AWS (Ada Web Server) v" & Version & New_Line
+                 & Messages.Connection ("Close"));
 
             if Holder.Kind = Chunked then
-               String'Write
-                 (Holder.Stream,
-                  Messages.Transfer_Encoding ("chunked")
-                    & New_Line & New_Line);
+               Net.Buffered.Put_Line
+                 (Holder.Socket.all,
+                  Messages.Transfer_Encoding ("chunked") & New_Line);
 
             elsif Holder.Kind = Multipart then
-               String'Write
-                 (Holder.Stream,
+               Net.Buffered.Put_Line
+                 (Holder.Socket.all,
                   Messages.Content_Type
-                    (MIME.Multipart_X_Mixed_Replace, Boundary)
-                    & New_Line);
+                    (MIME.Multipart_X_Mixed_Replace, Boundary));
 
             else
-               String'Write (Holder.Stream, New_Line);
+               Net.Buffered.New_Line (Holder.Socket.all);
             end if;
 
-            Net.Stream_IO.Flush (Holder.Stream);
+            Net.Buffered.Flush (Holder.Socket.all);
 
             Socket_Taken (True);
          exception
@@ -222,9 +210,9 @@ package body AWS.Server.Push is
          Holder            : in out Client_Holder;
          Init_Data         : in     Client_Output_Type;
          Init_Content_Type : in     String;
-         Close_Duplicate   : in     Boolean) is
+         Duplicated_Age    : in     Duration) is
       begin
-         Register (Client_Id, Holder, Close_Duplicate);
+         Register (Client_Id, Holder, Duplicated_Age);
 
          begin
             Send_Data (Holder, Init_Data, Init_Content_Type);
@@ -253,51 +241,46 @@ package body AWS.Server.Push is
         (Data         : in     Client_Output_Type;
          Group_Id     : in     String;
          Content_Type : in     String;
-         Unregistered : in out Table.Map)
+         Unregistered : in out Tables.Map)
       is
-         Cursor : Table.Cursor;
+         Cursor : Tables.Cursor;
       begin
          if Group_Id = "" then
-            Cursor := Table.First (Container);
+            Cursor := Container.First;
          else
             declare
                use Group_Maps;
-               C : constant Group_Maps.Cursor := Find (Groups, Group_Id);
+               C : constant Group_Maps.Cursor := Groups.Find (Group_Id);
             begin
                if not Has_Element (C) then
                   return;
                end if;
 
-               Cursor := Table.First (Element (C).all);
+               Cursor := Element (C).First;
             end;
          end if;
 
-         while Table.Has_Element (Cursor) loop
+         while Tables.Has_Element (Cursor) loop
             declare
-               Holder : constant Client_Holder := Table.Element (Cursor);
+               Holder : constant Client_Holder := Tables.Element (Cursor);
             begin
-               declare
-                  Success : Boolean;
-               begin
-                  Send_Data (Holder, Data, Content_Type);
+               Send_Data (Holder, Data, Content_Type);
 
-                  Table.Next (Cursor);
-               exception
-                  when Net.Socket_Error =>
-                     declare
-                        C   : Table.Cursor;
-                        Key : constant Client_Key := Table.Key (Cursor);
-                     begin
-                        Table.Insert (Unregistered, Key, Holder, C, Success);
+               Tables.Next (Cursor);
+            exception
+               when Net.Socket_Error =>
+                  declare
+                     Key : constant Client_Key := Tables.Key (Cursor);
+                  begin
+                     Unregistered.Insert (Key, Holder);
 
-                        --  We have to move cursor to the next position before
-                        --  delete element from current position.
+                     --  We have to move cursor to the next position before
+                     --  delete element from current position.
 
-                        Table.Next (Cursor);
+                     Tables.Next (Cursor);
 
-                        Unregister (Key, True);
-                     end;
-               end;
+                     Unregister (Key, True);
+                  end;
             end;
          end loop;
       end Send;
@@ -311,32 +294,31 @@ package body AWS.Server.Push is
          Data         : in Client_Output_Type;
          Content_Type : in String)
       is
-         Data_To_Send : constant Stream_Output_Type
-           := To_Stream_Output (Data, Holder.Environment);
+         Data_To_Send : constant Ada.Streams.Stream_Element_Array
+           := To_Stream_Array (Data, Holder.Environment);
 
       begin
          if Holder.Kind = Multipart then
-            String'Write
-              (Holder.Stream,
-               Boundary
-                 & Messages.Content_Type (Content_Type) & New_Line & New_Line);
+            Net.Buffered.Put_Line
+              (Holder.Socket.all,
+               Boundary & Messages.Content_Type (Content_Type) & New_Line);
 
          elsif Holder.Kind = Chunked then
-            String'Write
-              (Holder.Stream,
-               Utils.Hex (Data_To_Send'Size / System.Storage_Unit) & New_Line);
+            Net.Buffered.Put_Line
+              (Holder.Socket.all,
+               Utils.Hex (Data_To_Send'Size / System.Storage_Unit));
          end if;
 
-         Stream_Output_Type'Write (Holder.Stream, Data_To_Send);
+         Net.Buffered.Write (Holder.Socket.all, Data_To_Send);
 
          if Holder.Kind = Multipart then
-            String'Write (Holder.Stream, New_Line & New_Line);
+            Net.Buffered.Put_Line (Holder.Socket.all, New_Line);
 
          elsif Holder.Kind = Chunked then
-            String'Write (Holder.Stream, New_Line);
+            Net.Buffered.New_Line (Holder.Socket.all);
          end if;
 
-         Net.Stream_IO.Flush (Holder.Stream);
+         Net.Buffered.Flush (Holder.Socket.all);
       end Send_Data;
 
       -------------
@@ -348,21 +330,23 @@ package body AWS.Server.Push is
          Data         : in Client_Output_Type;
          Content_Type : in String)
       is
-         Cursor : Table.Cursor;
+         Cursor : Tables.Cursor;
       begin
-         Cursor := Table.Find (Container, Client_Id);
+         Cursor := Container.Find (Client_Id);
 
-         if Table.Has_Element (Cursor) then
-            Send_Data (Table.Element (Cursor), Data, Content_Type);
+         if Tables.Has_Element (Cursor) then
+            Send_Data (Tables.Element (Cursor), Data, Content_Type);
          else
-            raise Client_Gone with "No such client id.";
+            Ada.Exceptions.Raise_Exception
+              (Client_Gone'Identity, "No such client id.");
          end if;
 
       exception
          when E : Net.Socket_Error =>
             Unregister (Client_Id, True);
 
-            raise Client_Gone with Ada.Exceptions.Exception_Message (E);
+            Ada.Exceptions.Raise_Exception
+              (Client_Gone'Identity, Ada.Exceptions.Exception_Message (E));
       end Send_To;
 
       --------------
@@ -379,10 +363,10 @@ package body AWS.Server.Push is
         (Final_Data         : in Client_Output_Type;
          Final_Content_Type : in String)
       is
-         Gone : Table.Map;
+         Gone : Tables.Map;
       begin
          Send (Final_Data, "", Final_Content_Type, Gone);
-         Table.Clear (Gone);
+         Gone.Clear;
          Shutdown (Close_Sockets => True);
       end Shutdown;
 
@@ -393,7 +377,7 @@ package body AWS.Server.Push is
       procedure Shutdown_If_Empty (Open : out Boolean) is
          use type Ada.Containers.Count_Type;
       begin
-         if Table.Length (Container) = 0 then
+         if Container.Length = 0 then
             Object.Open := False;
          end if;
          Shutdown_If_Empty.Open := Object.Open;
@@ -407,30 +391,29 @@ package body AWS.Server.Push is
         (Client_Id    : in Client_Key;
          Close_Socket : in Boolean)
       is
-         Cursor : Table.Cursor;
+         Cursor : Tables.Cursor;
          Value  : Client_Holder;
       begin
-         Cursor := Table.Find (Container, Client_Id);
+         Cursor := Container.Find (Client_Id);
 
-         if Table.Has_Element (Cursor) then
-            Value := Table.Element (Cursor);
+         if Tables.Has_Element (Cursor) then
+            Value := Tables.Element (Cursor);
 
             if Value.Groups /= null then
                for J in Value.Groups'Range loop
-                  Table.Delete
-                    (Group_Maps.Element
-                       (Groups, To_String (Value.Groups (J))).all,
+                  Tables.Delete
+                    (Groups.Element (To_String (Value.Groups (J))).all,
                      Client_Id);
                end loop;
             end if;
 
             if Close_Socket then
-               Net.Stream_IO.Shutdown (Value.Stream);
+               Net.Buffered.Shutdown (Value.Socket.all);
             end if;
 
             Free (Value);
 
-            Table.Delete (Container, Cursor);
+            Container.Delete (Cursor);
          end if;
       end Unregister;
 
@@ -439,14 +422,14 @@ package body AWS.Server.Push is
       ------------------------
 
       procedure Unregister_Clients (Close_Sockets : in Boolean) is
-         Cursor : Table.Cursor;
+         Cursor : Tables.Cursor;
       begin
          loop
-            Cursor := Table.First (Container);
+            Cursor := Container.First;
 
-            exit when not Table.Has_Element (Cursor);
+            exit when not Tables.Has_Element (Cursor);
 
-            Unregister (Table.Key (Cursor), Close_Sockets);
+            Unregister (Tables.Key (Cursor), Close_Sockets);
          end loop;
       end Unregister_Clients;
 
@@ -462,9 +445,9 @@ package body AWS.Server.Push is
       Socket            : in     Net.Socket_Type'Class;
       Environment       : in     Client_Environment;
       Init_Data         : in     Client_Output_Type;
-      Init_Content_Type : in     String := "";
-      Kind              : in     Mode := Plain;
-      Close_Duplicate   : in     Boolean := False;
+      Init_Content_Type : in     String             := "";
+      Kind              : in     Mode               := Plain;
+      Duplicated_Age    : in     Duration           := Duration'Last;
       Groups            : in     Group_Set          := Empty_Group)
    is
       Holder : Client_Holder := To_Holder (Socket, Environment, Kind, Groups);
@@ -474,7 +457,7 @@ package body AWS.Server.Push is
          Holder,
          Init_Data,
          Init_Content_Type,
-         Close_Duplicate);
+         Duplicated_Age);
    end Register;
 
    procedure Register
@@ -483,12 +466,12 @@ package body AWS.Server.Push is
       Socket          : in     Net.Socket_Type'Class;
       Environment     : in     Client_Environment;
       Kind            : in     Mode               := Plain;
-      Close_Duplicate : in     Boolean            := False;
+      Duplicated_Age  : in     Duration           := Duration'Last;
       Groups          : in     Group_Set          := Empty_Group)
    is
       Holder : Client_Holder := To_Holder (Socket, Environment, Kind, Groups);
    begin
-      Server.Register (Client_Id, Holder, Close_Duplicate);
+      Server.Register (Client_Id, Holder, Duplicated_Age);
    end Register;
 
    -------------
@@ -510,10 +493,36 @@ package body AWS.Server.Push is
       Group_Id     : in     String             := "";
       Content_Type : in     String             := "")
    is
-      Gone : Table.Map;
+      Gone : Tables.Map;
    begin
       Server.Send (Data, Group_Id, Content_Type, Gone);
-      Table.Clear (Gone);
+      Gone.Clear;
+   end Send;
+
+   ----------
+   -- Send --
+   ----------
+
+   procedure Send
+     (Server       : in out Object;
+      Data         : in     Client_Output_Type;
+      Client_Gone  : access procedure (Client_Id : in String);
+      Group_Id     : in     String             := "";
+      Content_Type : in     String             := "")
+   is
+      Cursor : Tables.Cursor;
+      Gone   : Tables.Map;
+   begin
+      Server.Send (Data, Group_Id, Content_Type, Gone);
+
+      Cursor := Gone.First;
+
+      while Tables.Has_Element (Cursor) loop
+         Client_Gone (Tables.Key (Cursor));
+         Tables.Next (Cursor);
+      end loop;
+
+      Gone.Clear;
    end Send;
 
    ------------
@@ -526,19 +535,22 @@ package body AWS.Server.Push is
       Group_Id     : in     String             := "";
       Content_Type : in     String             := "")
    is
-      Cursor : Table.Cursor;
-      Gone   : Table.Map;
+      Cursor : Tables.Cursor;
+      Gone   : Tables.Map;
    begin
       Server.Send (Data, Group_Id, Content_Type, Gone);
 
-      Cursor := Table.First (Gone);
+      --  Cursor := Gone.First; would cause GNAT compiler hungup here, at least
+      --  in version 5.04a1.
 
-      while Table.Has_Element (Cursor) loop
-         Client_Gone (Table.Key (Cursor));
-         Table.Next (Cursor);
+      Cursor := Tables.First (Gone);
+
+      while Tables.Has_Element (Cursor) loop
+         Client_Gone (Tables.Key (Cursor));
+         Tables.Next (Cursor);
       end loop;
 
-      Table.Clear (Gone);
+      Gone.Clear;
    end Send_G;
 
    -------------
@@ -601,7 +613,8 @@ package body AWS.Server.Push is
 
       return (Kind        => Kind,
               Environment => Environment,
-              Stream      => To_Stream (Socket),
+              Created     => Ada.Calendar.Clock,
+              Socket      => new Socket_Type'Class'(Socket),
               Groups      => Groups_Ptr);
    end To_Holder;
 

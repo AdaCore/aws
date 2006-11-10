@@ -32,10 +32,12 @@ with AWS.Messages;
 with AWS.MIME;
 with AWS.Services.Directory;
 with AWS.Server.Push;
+with AWS.Translator;
 with AWS.Parameters;
 
 with GNAT.Calendar.Time_IO;
 with Ada.Calendar;
+with Ada.Streams;
 with Ada.Strings.Unbounded;
 with Ada.Integer_Text_IO;
 with Ada.Exceptions;
@@ -64,16 +66,14 @@ package body WS_CB is
    task Server_Push_Task;
    --  The push data are generated here.
 
-   function Image
+   function To_Array
      (Time : in Ada.Calendar.Time;
-      Env  : in Client_Env)
-     return String;
+      Env  : in Client_Env) return Ada.Streams.Stream_Element_Array;
 
    package Time_Push is new AWS.Server.Push
      (Client_Output_Type => Ada.Calendar.Time,
-      Stream_Output_Type => String,
       Client_Environment => Client_Env,
-      To_Stream_Output   => Image);
+      To_Stream_Array    => To_Array);
 
    SP : Time_Push.Object;
 
@@ -142,21 +142,21 @@ package body WS_CB is
       end if;
    end Get;
 
-   -----------
-   -- Image --
-   -----------
+   --------------
+   -- To_Array --
+   --------------
 
-   function Image
+   function To_Array
      (Time : in Ada.Calendar.Time;
-      Env  : in Client_Env)
-     return String
+      Env  : in Client_Env) return Ada.Streams.Stream_Element_Array
    is
       use GNAT.Calendar.Time_IO;
    begin
-      return Image (Time, Picture_String (To_String (Env.Picture)))
-        & ASCII.CR & ASCII.LF
-        & Duration'Image (Time - Env.Start);
-   end Image;
+      return Translator.To_Stream_Element_Array
+               (Image (Time, Picture_String (To_String (Env.Picture)))
+                & ASCII.CR & ASCII.LF
+                & Duration'Image (Time - Env.Start));
+   end To_Array;
 
    ----------------------
    -- Server_Push_Task --

@@ -2,7 +2,7 @@
 --                              Ada Web Server                              --
 --                                                                          --
 --                         Copyright (C) 2000-2006                          --
---                                ACT-Europe                                --
+--                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -31,28 +31,26 @@
 --  For Microsoft Internet Explorer complementary active components
 --  should be used like java applets or ActiveX controls.
 
+with Ada.Containers.Indefinite_Hashed_Maps;
+with Ada.Strings.Hash;
+with Ada.Streams;
 with Ada.Strings.Unbounded;
 
-with AWS.Net.Stream_IO;
-
-with Strings_Maps;
+with AWS.Net;
 
 generic
 
    type Client_Output_Type (<>) is private;
    --  Data type client want to send through server push.
 
-   type Stream_Output_Type (<>) is private;
-   --  Data type to be sent through the socket stream.
-
    type Client_Environment is private;
    --  Data type to keep client context. This context will be passed to the
    --  conversion routine below.
 
-   with function To_Stream_Output
+   with function To_Stream_Array
      (Output : in Client_Output_Type;
       Client : in Client_Environment)
-      return Stream_Output_Type;
+      return Ada.Streams.Stream_Element_Array;
    --  Function used for convert Client_Output_Type to Stream_Output_Type.
    --  This is used by the server to prepare the data to be sent to the
    --  clients.
@@ -99,14 +97,14 @@ package AWS.Server.Push is
       Init_Data         : in     Client_Output_Type;
       Init_Content_Type : in     String             := "";
       Kind              : in     Mode               := Plain;
-      Close_Duplicate   : in     Boolean            := False;
+      Duplicated_Age    : in     Duration           := Duration'Last;
       Groups            : in     Group_Set          := Empty_Group);
    --  Add client identified by Client_Id to the server subscription
    --  list and send the Init_Data (as a Data_Content_Type mime content) to
    --  him. After registering this client will be able to receive pushed data
-   --  from the server in brodcasting mode. If Close_Duplicate is True and
-   --  Client_Id is already registered into the list then old one will be
-   --  unregistered first (no exception will be raised).
+   --  from the server in brodcasting mode.
+   --  If Duplicated_Age less than age of the already registered same Client_Id
+   --  then old one will be unregistered first (no exception will be raised).
 
    procedure Register
      (Server          : in out Object;
@@ -114,7 +112,7 @@ package AWS.Server.Push is
       Socket          : in     Net.Socket_Type'Class;
       Environment     : in     Client_Environment;
       Kind            : in     Mode               := Plain;
-      Close_Duplicate : in     Boolean            := False;
+      Duplicated_Age  : in     Duration           := Duration'Last;
       Groups          : in     Group_Set          := Empty_Group);
    --  Same as above but without sending initial data
 
@@ -149,6 +147,16 @@ package AWS.Server.Push is
    --  Push data to group of clients (broadcast) subscribed to the server.
    --  If Group_Id is empty, data transferred to each client.
 
+   procedure Send
+     (Server       : in out Object;
+      Data         : in     Client_Output_Type;
+      Client_Gone  : access procedure (Client_Id : in String);
+      Group_Id     : in     String             := "";
+      Content_Type : in     String             := "");
+   --  Push data to group of clients (broadcast) subscribed to the server.
+   --  If Group_Id is empty, data transferred to each client.
+   --  Call Client_Gone for each client with broken socket.
+
    generic
       with procedure Client_Gone (Client_Id : in String);
    procedure Send_G
@@ -156,9 +164,7 @@ package AWS.Server.Push is
       Data         : in     Client_Output_Type;
       Group_Id     : in     String             := "";
       Content_Type : in     String             := "");
-   --  Push data to group of clients (broadcast) subscribed to the server.
-   --  If Group_Id is empty, data transferred to each client.
-   --  Call Client_Gone for each client with broken socket.
+   --  Same like before, but generic for back compartibility.
 
    function Count (Server : in Object) return Natural;
    --  Returns the number of registered clients in the server
@@ -202,24 +208,25 @@ package AWS.Server.Push is
 
 private
 
-   subtype Stream_Access is AWS.Net.Stream_IO.Socket_Stream_Access;
-
    type Groups_Access is access all Group_Set;
 
    type Client_Holder is record
-      Stream      : Stream_Access;
+      Socket      : Net.Socket_Access;
       Kind        : Mode;
+      Created     : Ada.Calendar.Time;
       Environment : Client_Environment;
       Groups      : Groups_Access;
    end record;
 
-   package Table_Container is new Strings_Maps (Client_Holder, "=");
-   package Table renames Table_Container.Containers;
+   package Tables is
+     new Ada.Containers.Indefinite_Hashed_Maps
+       (String, Client_Holder, Ada.Strings.Hash, "=");
 
-   type Map_Access is access all Table.Map;
+   type Map_Access is access all Tables.Map;
 
-   package Group_Container is new Strings_Maps (Map_Access, "=");
-   package Group_Maps renames Group_Container.Containers;
+   package Group_Maps is
+     new Ada.Containers.Indefinite_Hashed_Maps
+       (String, Map_Access, Ada.Strings.Hash, "=");
 
    protected type Object is
 
@@ -248,7 +255,7 @@ private
       procedure Register
         (Client_Id       : in     Client_Key;
          Holder          : in out Client_Holder;
-         Close_Duplicate : in     Boolean);
+         Duplicated_Age  : in     Duration);
       --  See above.
       --  Holder would be released in case of registration failure.
 
@@ -257,7 +264,7 @@ private
          Holder            : in out Client_Holder;
          Init_Data         : in     Client_Output_Type;
          Init_Content_Type : in     String;
-         Close_Duplicate   : in     Boolean);
+         Duplicated_Age    : in     Duration);
       --  See above.
       --  Holder would be released in case of registration failure.
 
@@ -271,7 +278,7 @@ private
         (Data         : in     Client_Output_Type;
          Group_Id     : in     String;
          Content_Type : in     String;
-         Unregistered : in out Table.Map);
+         Unregistered : in out Tables.Map);
       --  Send Data to all clients registered. Unregistered will contain a
       --  list of clients that have not responded to the request. These
       --  clients have been removed from the list of registered client.
@@ -285,7 +292,7 @@ private
       --  See above
 
    private
-      Container : Table.Map;
+      Container : Tables.Map;
       Groups    : Group_Maps.Map;
       Open      : Boolean := True;
    end Object;

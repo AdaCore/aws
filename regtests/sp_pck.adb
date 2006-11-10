@@ -28,6 +28,7 @@
 
 --  Server push regression test
 
+with Ada.Streams;
 with Ada.Strings.Fixed;
 with Ada.Text_IO.Editing;
 
@@ -36,6 +37,7 @@ with AWS.Parameters;
 with AWS.Response;
 with AWS.Server.Push;
 with AWS.Status;
+with AWS.Translator;
 with AWS.Utils;
 
 package body Sp_Pck is
@@ -49,15 +51,15 @@ package body Sp_Pck is
    CRLF        : constant String := ASCII.CR & ASCII.LF;
    End_Of_Part : constant String := '.' & CRLF;
 
-   function Image
+   function To_Array
      (Data : in Push_Data_Type;
-      Env  : in Text_IO.Editing.Picture) return String;
+      Env  : in Text_IO.Editing.Picture)
+      return Ada.Streams.Stream_Element_Array;
 
    package Server_Push is new AWS.Server.Push
      (Client_Output_Type => Push_Data_Type,
-      Stream_Output_Type => String,
       Client_Environment => Text_IO.Editing.Picture,
-      To_Stream_Output   => Image);
+      To_Stream_Array    => To_Array);
 
    function CB (Request : in Status.Data) return Response.Data;
 
@@ -200,18 +202,19 @@ package body Sp_Pck is
       Server_Push.Unregister_Clients (Push);
    end Run;
 
-   -----------
-   -- Image --
-   -----------
+   --------------
+   -- To_Array --
+   --------------
 
-   function Image
+   function To_Array
      (Data : in Push_Data_Type;
       Env  : in Text_IO.Editing.Picture)
-      return String
+      return Ada.Streams.Stream_Element_Array
    is
       package Format is new Text_IO.Editing.Decimal_Output (Push_Data_Type);
    begin
-      return Format.Image (Data, Env) & End_Of_Part;
-   end Image;
+      return Translator.To_Stream_Element_Array
+               (Format.Image (Data, Env) & End_Of_Part);
+   end To_Array;
 
 end Sp_Pck;
