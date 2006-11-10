@@ -68,14 +68,14 @@ procedure Web_Elements is
            (MIME.Text_HTML,
             Message_Body => Templates.Parse ("we_library.html"));
 
-      elsif URI = "/clickme" then
+      elsif URI = "/onclick$clickme" then
          C := C + 1;
          return Response.Build
            (MIME.Text_HTML,
             Message_Body => Natural'Image (C) &
                ". response for the click me button!");
 
-      elsif URI = "/select_color" then
+      elsif URI = "/onchange$select_color" then
          declare
             Color : constant String := Parameters.Get (P_List, "select_color");
          begin
@@ -86,7 +86,7 @@ procedure Web_Elements is
                "color</p>");
          end;
 
-      elsif URI = "/data" then
+      elsif URI = "/onclick$data" then
          C := C + 1;
          return Response.Build
            (MIME.Text_HTML,
@@ -94,7 +94,7 @@ procedure Web_Elements is
               ". some data from the server, and the field value '" &
               Parameters.Get (P_List, "field") & ''');
 
-      elsif URI = "/small_form" then
+      elsif URI = "/onsubmit$small_form" then
          declare
             Color : constant String := Parameters.Get (P_List, "form_color");
             Size  : constant String := Parameters.Get (P_List, "size");
@@ -108,25 +108,25 @@ procedure Web_Elements is
                "pant.");
          end;
 
-      elsif URI = "/db_sel1" then
+      elsif URI = "/onclick$db_sel1" then
          return Response.Build
            (MIME.Text_HTML,
             String'(Templates.Parse ("we_ajax_group.html")));
 
-      elsif URI = "/db_sel2" then
+      elsif URI = "/onclick$db_sel2" then
          return Response.Build
            (MIME.Text_HTML,
             String'(Templates.Parse
               ("we_ajax_user.html",
                  (1 => Templates.Assoc ("GROUP_V", Get_Groups)))));
 
-      elsif URI = "/g_action" then
+      elsif URI = "/onclick$g_action" then
          Add_Group (Parameters.Get (P_List, "g_name"));
          return Response.Build
            (MIME.Text_HTML,
             String'(Templates.Parse ("we_ajax_group.html")));
 
-      elsif URI = "/u_action" then
+      elsif URI = "/onclick$u_action" then
          Add_User (Parameters.Get (P_List, "u_name"));
          return Response.Build
            (MIME.Text_HTML,
@@ -158,7 +158,7 @@ procedure Web_Elements is
               ("xml_action.txml",
                  (1 => Templates.Assoc ("COUNTER", C)))));
 
-      elsif URI = "/xml_get_list" then
+      elsif URI = "/onclick$xml_get_list" then
          C := C + 1;
          declare
             use type Templates.Tag;
@@ -178,12 +178,19 @@ procedure Web_Elements is
                      2 => Templates.Assoc ("LIST_V", List_V)))));
          end;
 
-      elsif URI'Length > 4
-        and then URI (URI'First .. URI'First + 3) = "/xml"
+--        elsif URI'Length > 4
+--          and then URI (URI'First .. URI'First + 3) = "/xml"
+--        then
+--           return AWS.Response.File
+--             (MIME.Text_XML,
+--              Filename => URI (URI'First + 1 .. URI'Last) & ".xml");
+
+      elsif URI'Length > 12
+        and then URI (URI'First .. URI'First + 11) = "/onclick$xml"
       then
          return AWS.Response.File
            (MIME.Text_XML,
-            Filename => URI (URI'First + 1 .. URI'Last) & ".xml");
+            Filename => URI (URI'First + 9 .. URI'Last) & ".xml");
 
       elsif Utils.Is_Regular_File (WWW_Root & URI) then
          return AWS.Response.File

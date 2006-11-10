@@ -6,7 +6,7 @@
 @@-- $5-$9 are linked fields id to this request, all fields are passed as
 @@--       parameters to the request.
 @@--
-@@-- The finale request is : /$2?$4&$5=value($5)&$6=value($6)
+@@-- The finale request is : /$1$$$2?$4&$5=value($5)&$6=value($6)
 @@-- with value(name) being the value for the field named "name".
 
 @@SET@@ ACTION = $1
@@ -23,7 +23,7 @@
 
 <script>
    function call_@_ACTION_@_@_ID_@()
-      @@INCLUDE@@ aws_func_replace.tjs (@_ID_@, @_PLACEHOLDER_@, @_PARAMETERS_@, @_F1_@, @_F2_@, @_F3_@, @_F4_@, @_F5_@, 20=>@_ONCOMPLETE_@) 
+      @@INCLUDE@@ aws_func_replace.tjs (@_ACTION_@, @_ID_@, @_PLACEHOLDER_@, @_PARAMETERS_@, @_F1_@, @_F2_@, @_F3_@, @_F4_@, @_F5_@, 20=>@_ONCOMPLETE_@) 
 </script>
 
 @@INCLUDE@@ aws_action_js.tjs @_ACTION_@ @_ID_@

@@ -1,25 +1,27 @@
 
-@@-- $1    the tag node ID to handle in the DOM tree
-@@-- $2    a set of parameters to pass to the URL
-@@-- $3-$7 are linked fields id to this request, all fields are passed as
+@@-- $1    action name onclick, onfocus
+@@-- $2    the tag node ID to handle in the DOM tree
+@@-- $3    a set of parameters to pass to the URL
+@@-- $4-$8 are linked fields id to this request, all fields are passed as
 @@--       parameters to the request.
 @@-- $20   the name of a function to call when this routine terminate
 @@--
-@@-- The final request is : /$1?$4&$5=value($5)&$6=value($6)
+@@-- The final request is : /$1$$$2?$3&$4=value($4)&$5=value($5)
 @@-- with value(name) being the value for the field named "name".
 
-@@SET@@ XML_ID = $1
-@@SET@@ XML_PARAMETERS = $2
-@@SET@@ XML_F1 = $3
-@@SET@@ XML_F2 = $4
-@@SET@@ XML_F3 = $5
-@@SET@@ XML_F4 = $6
-@@SET@@ XML_F5 = $7
+@@SET@@ XML_ACTION = $1
+@@SET@@ XML_ID = $2
+@@SET@@ XML_PARAMETERS = $3
+@@SET@@ XML_F1 = $4
+@@SET@@ XML_F2 = $5
+@@SET@@ XML_F3 = $6
+@@SET@@ XML_F4 = $7
+@@SET@@ XML_F5 = $8
 
 @@SET@@ XML_ONCOMPLETE = $20
 
    {
-      var rurl="/@_XML_ID_@";
+      var rurl="/@_XML_ACTION_@$@_XML_ID_@";
       var rpars = "";
       var roncomplete = "";
 @@IF@@ @_XML_PARAMETERS_@ /= ""

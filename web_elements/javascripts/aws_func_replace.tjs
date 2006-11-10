@@ -1,27 +1,33 @@
 
-@@-- $1    the tag node ID to handle in the DOM tree
-@@-- $2    the placeholder for the resulting data
-@@-- $3    a set of parameters to pass to the URL
-@@-- $4-$8 are linked fields id to this request, all fields are passed as
+@@-- $1    action name, onclick, onchange (null if no action associated)
+@@-- $2    the tag node ID to handle in the DOM tree
+@@-- $3    the placeholder for the resulting data
+@@-- $4    a set of parameters to pass to the URL
+@@-- $5-$9 are linked fields id to this request, all fields are passed as
 @@--       parameters to the request.
 @@-- $20   the name of a function to call when this routine terminate
 @@--
-@@-- The final request is : /$1?$4&$5=value($5)&$6=value($6)
+@@-- The final request is : /$1$$$2?$4&$5=value($5)&$6=value($6)
 @@-- with value(name) being the value for the field named "name".
 
-@@SET@@ FR_ID = $1
-@@SET@@ FR_PLACEHOLDER = $2
-@@SET@@ FR_PARAMETERS = $3
-@@SET@@ FR_F1 = $4
-@@SET@@ FR_F2 = $5
-@@SET@@ FR_F3 = $6
-@@SET@@ FR_F4 = $7
-@@SET@@ FR_F5 = $8
+@@SET@@ FR_ACTION = $1
+@@SET@@ FR_ID = $2
+@@SET@@ FR_PLACEHOLDER = $3
+@@SET@@ FR_PARAMETERS = $4
+@@SET@@ FR_F1 = $5
+@@SET@@ FR_F2 = $6
+@@SET@@ FR_F3 = $7
+@@SET@@ FR_F4 = $8
+@@SET@@ FR_F5 = $9
 
 @@SET@@ FR_ONCOMPLETE = $20
 
    {
+@@IF@@ @_FR_ACTION_@ = null
       var rurl="/@_FR_ID_@";
+@@ELSE@@
+      var rurl="/@_FR_ACTION_@$@_FR_ID_@";
+@@END_IF@@
       var rpars = "";
       var roncomplete = "";
 @@IF@@ @_FR_PARAMETERS_@ /= ""
