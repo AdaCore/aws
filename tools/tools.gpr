@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2003-2005                          --
+--                         Copyright (C) 2003-2006                          --
 --                                 AdaCore                                  --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -43,14 +43,14 @@ project Tools is
 
    case Shared.XMLAda is
       when "Installed" =>
-         for Main use project'Main & ("wsdl2aws.adb");
+         for Main use project'Main & ("wsdl2aws");
       when "Disabled" =>
          null;
    end case;
 
    case Shared.ASIS is
       when "Installed" =>
-         for Main use project'Main & ("ada2wsdl-main.adb");
+         for Main use project'Main & ("ada2wsdl-main");
       when "Disabled" =>
          null;
    end case;
