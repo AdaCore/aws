@@ -4,7 +4,7 @@
 
 Authors:
    Dmitriy Anisimkov
-   Pascal Obry                                                May 10th, 2006
+   Pascal Obry                                              November 11th, 2006
 
 
 
@@ -29,10 +29,10 @@ Both tools have mapping for standard Ada types but also supports Ada
 enumerations, character, records and arrays.
 
 The SOAP implementation has been validated on http://validator.soapware.org/.
-This on-line service is not anymore available but the current implementation
+This on-line service is not available anymore but the current implementation
 is validated against the Apache/AXIS SOAP implementation to ensure the
 interoperability. Some users have also reported to have used AWS/SOAP with
-.NET without trouble.
+.NET and gSOAP without trouble.
 
 
 Changes
@@ -47,6 +47,11 @@ Here are the main changes since AWS 2.2 :
    - Start using Ada 2005. The main change is the switch from the temporary
      AI302 containers implementation to the standard Ada.Containers.
 
+   - A new too templates2ada can be used to parse a template file and
+     generated Ada packages containing the name of the tag and Ajax
+     actions. Using this tool it is easier to keep the templates files
+     and the Ada code synchronized.
+
    - Plus many small fixes, enhancements, API comments, and documentation work.
 
 
@@ -59,19 +64,25 @@ to work properly. Of course we try to avoid this as much as possible
 but we really prefer to have a clean API instead of keeping awkward
 implementations.
 
-Server push implementation slighty breaking the compartibility and improve
-performance.
+   * Slight Server Push non upward compatibility and improved performance.
 
-   Stream_Output_Type generic parameter removed.
+     Stream_Output_Type generic parameter removed.
 
-   To_Stream_Output function generic parameter renamed to To_Stream_Array and
-   have to return Ada.Streams.Stream_Element_Array instead of removed
-   Stream_Output_Type.
+     To_Stream_Output function generic parameter renamed to To_Stream_Array and
+     is now returning Ada.Streams.Stream_Element_Array instead of a
+     Stream_Output_Type.
 
-   Close_Duplicate registration Boolean parameter replaced by
-   Duplicated_Age Duration parameter. It would be the age of client connection
-   while it could not be replaced by the new arrived client with the same
-   client id.
+     Close_Duplicate registration Boolean parameter replaced by
+     Duplicated_Age Duration parameter. It is the age of client connection
+     during the time it cannot be replaced by the new arrived client
+     with the same client id.
+
+   * AWS/Ajax URL where named based on the id of the DOM element on
+     which the event applied. With this scheme it was not easy to
+     support multiple event (onclick, onfocus, onchange) on the same
+     widget. For supporting this the URL are now : /<event>$<id>
+     For example "/onclick$form_enter".
+
 
 Obsolescent features
 --------------------
@@ -112,9 +123,9 @@ Validation
 
 AWS 2.3 has been compiled and has passed all tests on:
 
-   Windows XP, GNAT 5.03a
+   Windows XP, GNAT 6.0.0
 
-   GNU/Linux x86, 5.03a
+   GNU/Linux x86, GNAT 6.0.0
 
 Others platforms / compiler version combinations have not been tested, it
 does not mean that it's not working.
@@ -228,20 +239,20 @@ Windows Services API (optional):
 License
 -------
 
-AWS is distributed under the GMGPL (GNAT Modified GPL) license. This license
-ensures that commercial applications can be built using AWS. Note that
-AWS comes with a set of components. Those components are using a license
-compatible with the AWS's one. For information about component's individual
-licenses see include/readme.txt.
+AWS is distributed under a dual licencing. The AWS/GPL to be used with GNAT
+GPL Edition and AWS/GMGPL.
+
+AWS/GMGPL (GNAT Modified GPL) ensures that commercial applications can
+be built using AWS. Note that AWS comes with a set of
+components. Those components are using a license compatible with the
+AWS's one. For information about component's individual licenses see
+include/readme.txt.
 
 
 Reporting bugs
 --------------
 
-You can report bugs to:
-
-   Dmitriy Anisimkov	anisimkov@ada-ru.org
-   Pascal Obry		pascal@obry.net
+You can report bugs to AdaCore: report@adacore.com
 
 
 AWS User's Mailing List
