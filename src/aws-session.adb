@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2005                          --
+--                         Copyright (C) 2000-2006                          --
 --                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -528,7 +528,7 @@ package body AWS.Session is
          Get_Node (Sessions, SID, Node, Found);
 
          if Found then
-            Key_Value.Delete (Node.Root.all, Key);
+            Key_Value.Exclude (Node.Root.all, Key);
          end if;
       end Remove_Key;
 
