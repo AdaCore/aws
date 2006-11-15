@@ -26,12 +26,11 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-with Ada.Strings.Unbounded;
-
 with Ada.Containers.Indefinite_Hashed_Maps;
 with Ada.Containers.Indefinite_Vectors;
 with Ada.Containers.Vectors;
 with Ada.Strings.Hash;
+with Ada.Strings.Unbounded;
 
 package AWS.Containers.Tables is
 
@@ -65,44 +64,38 @@ package AWS.Containers.Tables is
    function Get
      (Table : in Table_Type;
       Name  : in String;
-      N     : in Positive := 1)
-      return String;
+      N     : in Positive := 1) return String;
    --  Returns the Nth value associated with Key into Table. Returns
    --  the emptry string if key does not exist.
 
    function Get_Name
      (Table : in Table_Type;
-      N     : in Positive := 1)
-      return String;
+      N     : in Positive := 1) return String;
    --  Returns the Nth Name in Table or the empty string if there is
    --  no parameter with this number.
 
    function Get_Value
      (Table : in Table_Type;
-      N     : in Positive := 1)
-      return String;
+      N     : in Positive := 1) return String;
    --  Returns the Nth Value in Table or the empty string if there is
    --  no parameter with this number.
 
    function Get
      (Table : in Table_Type;
-      N     : in Positive)
-      return Element;
+      N     : in Positive) return Element;
    --  Returns N'th name/value pair. Returns Null_Element if there is no
    --  such item in the table.
 
    function Get_Names
      (Table : in Table_Type;
-      Sort  : in Boolean := False)
-      return VString_Array;
+      Sort  : in Boolean := False) return VString_Array;
    --  Returns array of unique key names. If Sort is True, the returned names
    --  array is sorted in alphabetical order. This is of course slightly
    --  slower than returning unsorted results.
 
    function Get_Values
      (Table : in Table_Type;
-      Name  : in String)
-      return VString_Array;
+      Name  : in String) return VString_Array;
    --  Returns all values for the specified parameter key name
 
    generic
