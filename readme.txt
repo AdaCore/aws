@@ -57,6 +57,10 @@ Here are the main changes since AWS 2.2 :
    - Fix problem in AWS/Ajax where the apply_style was raising an
      exception when the node id was not present in the DOM tree.
 
+   - Fix a gSOAP interoperability problem. AWS was not handling the
+     SOAP href properly as it expected the referenced node to have
+     a specific name. Now only the node id attribute is checked.
+
    - Plus many small fixes, enhancements, API comments, and documentation work.
 
 
