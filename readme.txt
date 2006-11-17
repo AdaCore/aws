@@ -4,7 +4,7 @@
 
 Authors:
    Dmitriy Anisimkov
-   Pascal Obry                                              November 11th, 2006
+   Pascal Obry                                              November 17th, 2006
 
 
 
@@ -51,6 +51,11 @@ Here are the main changes since AWS 2.2 :
      generated Ada packages containing the name of the tag and Ajax
      actions. Using this tool it is easier to keep the templates files
      and the Ada code synchronized.
+
+   - Fix bug in handling of Templates_Parser.Null_Set
+
+   - Fix problem in AWS/Ajax where the apply_style was raising an
+     exception when the node id was not present in the DOM tree.
 
    - Plus many small fixes, enhancements, API comments, and documentation work.
 
