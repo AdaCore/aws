@@ -132,11 +132,9 @@ package body SOAP.XML is
             Id : constant String := DOM.Core.Nodes.Node_Value (Href);
             --  This is the Id we are looking for
          begin
-            --  We have an href, look for the corresponding multiRef item
+            --  We have an href, look for the corresponding node
 
-            while DOM.Core.Nodes.Local_Name (HN) /= "multiRef"
-              or else "#" & XML.Get_Attr_Value (HN, "id") /= Id
-            loop
+            while  "#" & XML.Get_Attr_Value (HN, "id") /= Id loop
                HN := DOM.Core.Nodes.Next_Sibling (HN);
             end loop;
 

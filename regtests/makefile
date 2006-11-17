@@ -58,7 +58,7 @@ ifeq (${ASIS}, true)
 # Names must start with wsdl_ and be followed by a single digit between 0
 # and 9. Socket port is then 770<digit>.
 
-ASIS_TESTS   = wsdl_1 wsdl_2 wsdl_3 wsdl_4 wsdl_5 wsdl_6 wsdl_7 wsdl_8
+ASIS_TESTS   = wsdl_1 wsdl_2 wsdl_3 wsdl_4 wsdl_5 wsdl_6 wsdl_7 wsdl_8 wsdl_9
 ASIS2_TESTS  = wsdl_a wsdl_b register
 endif
 
@@ -201,7 +201,7 @@ $(ASIS2_TESTS): force
 	rm -f $@.res
 	echo "Running  " $@
 	$(ADA2WSDL) -v -f $@.ads -o $@.wsdl > tmp 2>&1
-	tail +3 tmp > $@.res
+	tail -n +3 tmp > $@.res
 	rm tmp
 	-diff -c -w $@.out $@.res 1>> alldifs 2>> alldifs
 
