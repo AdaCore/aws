@@ -769,6 +769,9 @@ templates_parser/regtests/dynamic.tmplt
 templates_parser/regtests/empty.adb
 templates_parser/regtests/error.tmplt
 templates_parser/regtests/filter.adb
+templates_parser/regtests/nullset.adb
+templates_parser/regtests/nullset.out
+templates_parser/regtests/nullset.tmplt
 templates_parser/regtests/ftp.out
 templates_parser/regtests/ftp.tmplt
 templates_parser/regtests/ftp2.tmplt
@@ -1275,6 +1278,10 @@ regtests/wsdl_8.adb
 regtests/wsdl_8.ads
 regtests/wsdl_8_main.adb
 regtests/wsdl_8_main.out
+regtests/wsdl_9.adb
+regtests/wsdl_9.ads
+regtests/wsdl_9_main.adb
+regtests/wsdl_9_main.out
 regtests/wsdl_a.ads
 regtests/wsdl_a.out
 regtests/wsdl_a_pck.ads
