@@ -32,19 +32,29 @@ ADA2WSDL = ../$(BDIR)/tools/ada2wsdl-main
 WSDL2AWS = ../$(BDIR)/tools/wsdl2aws
 AWSRES   = ../$(BDIR)/tools/awsres
 
+# Test to be run in grouped mode
+
+ifeq (${TEST_MODE}, Grouped)
+G_TESTS = $(TESTS)
+else
+S_TESTS = $(TESTS)
+endif
+
+ifeq (${EXTRA_TESTS}, false)
+FILTER_OUT	= test_speed.adb
+endif
+
 # Standard regression tests that needs to be run in a separate executable
 
 ALONE_TESTS    = dispatch1 dispatch_method dispatch_vh upload2 \
-	upload3 server_config tlog
+	upload3 server_config tlog \
+	$(basename $(filter-out $(FILTER_OUT) generate.adb, $(S_TESTS)))
 
 OTH_TESTS      = tres
 
 ifeq (${XMLADA}, true)
-XMLADA_UNICODE = ${shell gnat list -Pxmlada -s unicode.ads}
-XMLADA_SRC     = ${subst \,/,${dir $(XMLADA_UNICODE)}}
-
 ifneq (${SOCKET}, std)
-OTH_TESTS     := $(OTH_TESTS) check_mem
+# OTH_TESTS     := $(OTH_TESTS) check_mem
 endif
 
 WSDL_TESTS     = test_wsdl test_wsdl2 test_wsdl4 test_wsdl6 \
@@ -52,6 +62,9 @@ WSDL_TESTS     = test_wsdl test_wsdl2 test_wsdl4 test_wsdl6 \
 WSDL_ATESTS    = test_wsdl3 test_wsdl5 test_wsdl7
 WSDL2AWS_TESTS = wsdl_parse_1 wsdl_parse_2 wsdl_parse_3 wsdl_parse_4
 endif
+
+PREP_WSDL_TESTS  = $(WSDL_TESTS:%=%_prep)
+PREP_WSDL_ATESTS = $(WSDL_ATESTS:%=%_prep)
 
 ifeq (${ASIS}, true)
 # SOAP/WSDL test using ada2wsdl (ASIS package required)
@@ -62,20 +75,12 @@ ASIS_TESTS   = wsdl_1 wsdl_2 wsdl_3 wsdl_4 wsdl_5 wsdl_6 wsdl_7 wsdl_8 wsdl_9
 ASIS2_TESTS  = wsdl_a wsdl_b register
 endif
 
-SPEC_TESTS   = $(ALONE_TESTS) $(OTH_TESTS)
+SPEC_TESTS      = $(ALONE_TESTS) $(OTH_TESTS)
+SRC_SPEC_TESTS	= ${addsuffix .adb, $(SPEC_TESTS)}
 
-ALL_EXEC = $(addsuffix $(EXEEXT), $(SPEC_TESTS) generate test_all)
+ALL_EXEC        = $(addsuffix $(EXEEXT), $(SPEC_TESTS) generate test_all)
 
-SRC_WSDL_TESTS     = ${addsuffix .adb, $(WSDL_TESTS)}
-SRC_WSDL_ATESTS    = ${addsuffix .adb, $(WSDL_ATESTS)}
-SRC_WSDL2AWS_TESTS = ${addsuffix .adb, $(WSDL2AWS_TESTS)}
-SRC_SPEC_TESTS	   = ${addsuffix .adb, $(SPEC_TESTS)}
-
-ifeq (${EXTRA_TESTS}, false)
-FILTER_OUT	= test_speed.adb
-endif
-
-S_TOGETHER	= $(sort $(TESTS) $(SRC_WSDL_TESTS) $(SRC_WSDL_ATESTS))
+S_TOGETHER	= $(sort $(G_TESTS))
 F_TOGETHER 	= $(filter-out $(FILTER_OUT) $(SRC_SPEC_TESTS) \
 			generate.adb, $(S_TOGETHER))
 TOGETHER 	= $(basename $(F_TOGETHER))
@@ -88,13 +93,13 @@ gen_main: gen_sources
 		-XBuild=${PRJ_BUILD} -XXMLADA=${PRJ_XMLADA}
 	./generate $(TOGETHER)
 
-gen_sources: $(sort $(WSDL_TESTS) $(WSDL_ATESTS) $(ASIS_TESTS) \
+gen_sources: $(sort $(PREP_WSDL_TESTS) $(PREP_WSDL_ATESTS) $(ASIS_TESTS) \
 	$(ASIS2_TESTS) $(WSDL2AWS_TESTS))
 
 build_drivers: gen_main
 	echo "Building drivers (takes some time)"
-	$(GNATMAKE) -q -m -Pregtests -XTest_Mode=Grouped \
-		-XBuild=${PRJ_BUILD} -XXMLADA=${PRJ_XMLADA}
+	$(GNATMAKE) -q -m -Pregtests -XTest_Mode=${TEST_MODE} \
+		-XBuild=${PRJ_BUILD} -XXMLADA=${PRJ_XMLADA} test_all
 
 empty:=
 space:= $(empty) $(empty)
@@ -170,21 +175,26 @@ init:
 	rm -f *.res
 
 $(ALONE_TESTS): force
-	echo "Running  " $@
+	echo "Compiling " $@
+	$(GNATMAKE) -q -m -Pregtests -XTest_Mode=${TEST_MODE} \
+		-XBuild=${PRJ_BUILD} -XXMLADA=${PRJ_XMLADA} $@
+	echo "Running   " $@
 ifdef GDB_REGTESTS
 	./tgdb $@ > $@.res
 else
 	./$@ > $@.res
 endif
+	$(GNATCLEAN) -q -Pregtests -XTest_Mode=${TEST_MODE} \
+		-XBuild=${PRJ_BUILD} -XXMLADA=${PRJ_XMLADA} $@
 	-diff -c -w $@.out $@.res 1>> alldifs 2>> alldifs
 
-$(WSDL_TESTS): force
-	echo Preparing $@
-	$(WSDL2AWS) -q -f -doc $@.wsdl
+$(PREP_WSDL_TESTS): force
+	echo Preparing $(@:%_prep=%)
+	$(WSDL2AWS) -q -f -doc $(@:%_prep=%).wsdl
 
-$(WSDL_ATESTS): force
-	echo Preparing $@
-	$(WSDL2AWS) -q -f -a -doc $@.wsdl
+$(PREP_WSDL_ATESTS): force
+	echo Preparing $(@:%_prep=%)
+	$(WSDL2AWS) -q -f -a -doc $(@:%_prep=%).wsdl
 
 $(WSDL2AWS_TESTS): force
 	echo "Running  " $@
@@ -206,6 +216,9 @@ $(ASIS2_TESTS): force
 	-diff -c -w $@.out $@.res 1>> alldifs 2>> alldifs
 
 tres: force
+	echo "Compiling " $@
+	$(GNATMAKE) -q -m -Pregtests -XTest_Mode=${TEST_MODE} \
+		-XBuild=${PRJ_BUILD} -XXMLADA=${PRJ_XMLADA} $@
 	echo -n "Running  " tres
 	./tres 1245 > tres-1.res
 	echo "line 3, file 1" >> file1.html
@@ -214,6 +227,8 @@ tres: force
 	echo ",  run it again"
 	./tres 1246 > tres-2.res
 	cat tres-1.res tres-2.res > tres.res
+	$(GNATCLEAN) -q -Pregtests -XTest_Mode=${TEST_MODE} \
+		-XBuild=${PRJ_BUILD} -XXMLADA=${PRJ_XMLADA} $@
 	-diff -c -w tres.out tres.res 1>> alldifs 2>> alldifs
 
 # As this check is really target dependent what we do is to run twice the same
@@ -221,6 +236,9 @@ tres: force
 # the final non freed memory.
 
 check_mem: force
+	echo "Compiling " $@
+	$(GNATMAKE) -q -m -Pregtests -XTest_Mode=${TEST_MODE} \
+		-XBuild=${PRJ_BUILD} -XXMLADA=${PRJ_XMLADA} $@
 	echo -n "Running  " check_mem
 	./check_mem 2 > check_mem.res
 	gnatmem 3 -i gmem.out ./check_mem$(EXEEXT) > check_mem.run1
@@ -229,6 +247,8 @@ check_mem: force
 	./check_mem 30 >> check_mem.res
 	gnatmem 3 -i gmem.out ./check_mem$(EXEEXT) > check_mem.run2
 	grep "   Final" check_mem.run2 > run2
+	$(GNATCLEAN) -q -Pregtests -XTest_Mode=${TEST_MODE} \
+		-XBuild=${PRJ_BUILD} -XXMLADA=${PRJ_XMLADA} $@
 	-diff -c -w run1 run2 1>> alldifs 2>> alldifs
 
 setup:

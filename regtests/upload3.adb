@@ -113,7 +113,7 @@ procedure Upload3 is
    task body Server is
       Web_Config : Config.Object;
    begin
-      Config.Set.Server_Name (Web_Config, "upload2");
+      Config.Set.Server_Name (Web_Config, "upload3");
       Config.Set.Server_Port (Web_Config, 1241);
       Config.Set.Max_Connection (Web_Config, 5);
       Config.Set.Upload_Directory (Web_Config, "/this/one/does/not/exists");
@@ -164,7 +164,7 @@ begin
 
    Server.Started;
 
-   Request ("http://localhost:1241/upload", "upload2.ali");
+   Request ("http://localhost:1241/upload", "upload3.ali");
 
    Server.Stopped;
 

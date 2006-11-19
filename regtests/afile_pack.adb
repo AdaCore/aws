@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2004                            --
---                               ACT-Europe                                 --
+--                          Copyright (C) 2004-2006                         --
+--                                  AdaCore                                 --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -48,7 +48,7 @@ package body AFile_Pack is
    use AWS;
 
    WS   : Server.HTTP;
-   FN   : constant String := "afile.o";
+   FN   : constant String := "afile.out";
    Size : constant Response.Content_Length_Type
     := Response.Content_Length_Type (Resources.File_Size (FN));
 

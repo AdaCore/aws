@@ -22,6 +22,10 @@ MAKE_OPT	= -s
 BDIR		= .build/release
 endif
 
+TEST_MODE	= Separated
+# Can be set to "Grouped" to use a single driver for most tests. This
+# speed-up the non regression.
+
 #############################################################################
 # NO NEED TO CHANGE ANYTHING PAST THIS POINT
 #############################################################################
@@ -64,12 +68,13 @@ ALL_OPTIONS	= $(MAKE_OPT) SOCKET="$(SOCKET)" XMLADA="$(XMLADA)" \
 	RM="$(RM)" CP="$(CP)" MV="$(MV)" MKDIR="$(MKDIR)" AR="$(AR)" \
 	GREP="$(GREP)" SED="$(SED)" DIFF="$(DIFF)" CHMOD="$(CHMOD)" \
 	GZIP="$(GZIP)" TAR="$(TAR)" GNATMAKE="$(GNATMAKE)" \
-	DLLTOOL="$(DLLTOOL)" DLL2DEF="$(DLL2DEF)" WINDRES="$(WINDRES)" \
-	GNATMAKE_FOR_HOST="$(GNATMAKE_FOR_HOST)" ADASOCKETS="$(ADASOCKETS)" \
-	EXTRA_TESTS="$(EXTRA_TESTS)" GCC="$(GCC)" AWK="$(AWK)" CAT="$(CAT)" \
-	GCC_FOR_HOST="$(GCC_FOR_HOST)" BDIR="$(BDIR)" INSTALL="$(INSTALL)" \
-	SHARED="$(SHARED)" SOEXT="$(SOEXT)" \
-	BUILD_DOC_SCRIPT="false" T2A="../../$(BDIR)/tools/templates2ada"
+	GNATCLEAN="$(GNATCLEAN)" DLLTOOL="$(DLLTOOL)" DLL2DEF="$(DLL2DEF)" \
+	WINDRES="$(WINDRES)" GNATMAKE_FOR_HOST="$(GNATMAKE_FOR_HOST)" \
+	ADASOCKETS="$(ADASOCKETS)" EXTRA_TESTS="$(EXTRA_TESTS)" \
+	GCC="$(GCC)" AWK="$(AWK)" CAT="$(CAT)" GCC_FOR_HOST="$(GCC_FOR_HOST)" \
+	BDIR="$(BDIR)" INSTALL="$(INSTALL)" SHARED="$(SHARED)" \
+	SOEXT="$(SOEXT)" BUILD_DOC_SCRIPT="false" \
+	T2A="../../$(BDIR)/tools/templates2ada"
 
 build_doc:
 	echo ""
@@ -258,7 +263,8 @@ GALL_OPTIONS := $(ALL_OPTIONS) \
 	PRJ_SOCKLIB="$(PRJ_SOCKLIB)" \
 	TP_XMLADA="$(TP_XMLADA)" \
 	I_INC="$(I_INC)" \
-	I_CPN="$(I_CPN)"
+	I_CPN="$(I_CPN)" \
+	TEST_MODE="$(TEST_MODE)"
 
 ${MODULES_BUILD}: force
 	${MAKE} -C ${@:%_build=%} build $(GALL_OPTIONS)

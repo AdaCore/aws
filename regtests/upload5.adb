@@ -186,7 +186,7 @@ begin
    Server.Started;
 
    Request
-     ("http://localhost:" & Utils.Image (Port) & "/upload", "upload.ali");
+     ("http://localhost:" & Utils.Image (Port) & "/upload", "upload5.ali");
    Request
      ("http://localhost:" & Utils.Image (Port) & "/upload", "upload.adb");
 
@@ -200,4 +200,5 @@ begin
 exception
    when E : others =>
       Put_Line ("Main Error " & Exceptions.Exception_Information (E));
+      Server.Stop;
 end Upload5;
