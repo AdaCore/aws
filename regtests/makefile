@@ -54,7 +54,7 @@ OTH_TESTS      = tres
 
 ifeq (${XMLADA}, true)
 ifneq (${SOCKET}, std)
-# OTH_TESTS     := $(OTH_TESTS) check_mem
+OTH_TESTS     := $(OTH_TESTS) check_mem
 endif
 
 WSDL_TESTS     = test_wsdl test_wsdl2 test_wsdl4 test_wsdl6 \
