@@ -350,8 +350,8 @@ endif
 setup_config:
 	echo 'project AWS_Config is' > $(CONFGPR)
 	echo '   type Lib_Type is ("static", "relocatable");' >> $(CONFGPR)
-	echo -n 'pragma Source_File_Name (AWS.Net.Std, Body_File_Name => ' \
-		> $(CONFADC)
+	echo 'pragma Source_File_Name' > $(CONFADC)
+	echo -n '  (AWS.Net.Std, Body_File_Name => ' >> $(CONFADC)
 ifeq ($(SHARED), true)
 	echo '   Lib_Kind : Lib_Type := "relocatable";' >> $(CONFGPR)
 else
@@ -373,16 +373,20 @@ else
 endif
 endif
 	echo '   type SOCKET_Type is ("std", "openssl", "gnutls");' \
-		>> $(CONFGPR)
+	  >> $(CONFGPR)
 	echo '   SOCKET : SOCKET_Type := "$(SOCKET)";' >> $(CONFGPR)
 	echo 'end AWS_Config;' >> $(CONFGPR)
-	echo 'pragma Source_File_Name (SSL.Thin, \
-	 Spec_File_Name => "ssl-thin__$(SSL_SUFFIX).ads");' >> $(CONFADC)
-	echo 'pragma Source_File_Name (AWS.Net.SSL, Body_File_Name => \
-	  "aws-net-ssl__$(SSL_SUFFIX).adb");' >> $(CONFADC)
-	echo 'pragma Source_File_Name (AWS.Net.SSL.Certificate, \
-	 Body_File_Name => "aws-net-ssl-certificate__$(SSL_SUFFIX).adb");' \
+	echo 'pragma Source_File_Name' >> $(CONFADC)
+	echo '  (SSL.Thin, Spec_File_Name => "ssl-thin__$(SSL_SUFFIX).ads");' \
 	  >> $(CONFADC)
+	echo 'pragma Source_File_Name' >> $(CONFADC)
+	echo -n '  (AWS.Net.SSL,' >> $(CONFADC)
+	echo ' Body_File_Name => "aws-net-ssl__$(SSL_SUFFIX).adb");' \
+	  >> $(CONFADC)
+	echo 'pragma Source_File_Name' >> $(CONFADC)
+	echo '  (AWS.Net.SSL.Certificate,' >> $(CONFADC)
+	echo -n '   Body_File_Name =>' >> $(CONFADC)
+	echo ' "aws-net-ssl-certificate__$(SSL_SUFFIX).adb");' >> $(CONFADC)
 
 setup: setup_dir $(GEXT_MODULE) $(MODULES_SETUP) setup_config
 
