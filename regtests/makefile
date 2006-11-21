@@ -116,14 +116,14 @@ else
 endif
 	-for file in $(TOGETHER); do \
 	   if [ -f $$file.$(SOCKET).out ]; then \
-	      diff -c -w $$file.$(SOCKET).out $$file.res \
+	      diff -w $$file.$(SOCKET).out $$file.res \
 		1>> alldifs 2>> alldifs; \
 	   else \
-	      diff -c -w $$file.out $$file.res 1>> alldifs 2>> alldifs; \
+	      diff -w $$file.out $$file.res 1>> alldifs 2>> alldifs; \
 	   fi; \
 	done
 	cat alldifs
-	diff -q -w alldifs alldifs.out
+	diff -w alldifs alldifs.out
 
 init:
 	cp ../demos/cert.pem .
@@ -186,7 +186,7 @@ else
 endif
 	$(GNATCLEAN) -q -Pregtests -XTest_Mode=${TEST_MODE} \
 		-XBuild=${PRJ_BUILD} -XXMLADA=${PRJ_XMLADA} $@
-	-diff -c -w $@.out $@.res 1>> alldifs 2>> alldifs
+	-diff -w $@.out $@.res 1>> alldifs 2>> alldifs
 
 $(PREP_WSDL_TESTS): force
 	echo Preparing $(@:%_prep=%)
@@ -199,7 +199,7 @@ $(PREP_WSDL_ATESTS): force
 $(WSDL2AWS_TESTS): force
 	echo "Running  " $@
 	-$(WSDL2AWS) -q -f -doc $@.wsdl > $@.res
-	-diff -c -w $@.out $@.res 1>> alldifs 2>> alldifs
+	-diff -w $@.out $@.res 1>> alldifs 2>> alldifs
 
 $(ASIS_TESTS): force
 	echo Preparing $@
@@ -213,7 +213,7 @@ $(ASIS2_TESTS): force
 	$(ADA2WSDL) -v -f $@.ads -o $@.wsdl > tmp 2>&1
 	tail -n +3 tmp > $@.res
 	rm tmp
-	-diff -c -w $@.out $@.res 1>> alldifs 2>> alldifs
+	-diff -w $@.out $@.res 1>> alldifs 2>> alldifs
 
 tres: force
 	echo "Compiling " $@
@@ -229,7 +229,7 @@ tres: force
 	cat tres-1.res tres-2.res > tres.res
 	$(GNATCLEAN) -q -Pregtests -XTest_Mode=${TEST_MODE} \
 		-XBuild=${PRJ_BUILD} -XXMLADA=${PRJ_XMLADA} $@
-	-diff -c -w tres.out tres.res 1>> alldifs 2>> alldifs
+	-diff -w tres.out tres.res 1>> alldifs 2>> alldifs
 
 # As this check is really target dependent what we do is to run twice the same
 # program, each time with a different number of HTTP requests, then we compare
@@ -249,7 +249,7 @@ check_mem: force
 	grep "   Final" check_mem.run2 > run2
 	$(GNATCLEAN) -q -Pregtests -XTest_Mode=${TEST_MODE} \
 		-XBuild=${PRJ_BUILD} -XXMLADA=${PRJ_XMLADA} $@
-	-diff -c -w run1 run2 1>> alldifs 2>> alldifs
+	-diff -w run1 run2 1>> alldifs 2>> alldifs
 
 setup:
 # Get MAIN and standard sources
