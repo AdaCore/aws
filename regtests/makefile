@@ -32,16 +32,6 @@ ADA2WSDL = ../$(BDIR)/tools/ada2wsdl-main
 WSDL2AWS = ../$(BDIR)/tools/wsdl2aws
 AWSRES   = ../$(BDIR)/tools/awsres
 
-# Diff command
-
-OS = $(shell uname)
-
-ifeq ($(OS), SunOS)
-DIFF	=	diff -w
-else
-DIFF	=	diff -w -c
-endif
-
 # Test to be run in grouped mode
 
 ifeq (${TEST_MODE}, Grouped)
