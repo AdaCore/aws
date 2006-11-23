@@ -163,11 +163,10 @@ private
    type Socket_Type is new Net.Std.Socket_Type with record
       Config : SSL.Config := Null_Config;
       SSL    : SSL_Handle := TSSL.Null_Handle;
+      IO     : TSSL.BIO_Access;
    end record;
 
-   procedure Set_Timeout
-     (Socket  : in out Socket_Type;
-      Timeout : in     Duration);
+   procedure Set_Timeout (Socket : in out Socket_Type; Timeout : in Duration);
    --  Overriden to change the status of the internal SSL data
 
    procedure Finalize (Socket : in out Socket_Type);

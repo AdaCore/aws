@@ -46,7 +46,8 @@ with AWS.Utils;
 
 package body AWS.Net.SSL is
 
-   use type Interfaces.C.int;
+   use Interfaces;
+   use type C.int;
    use type System.Address;
 
    subtype NSST is Net.Std.Socket_Type;
@@ -61,8 +62,8 @@ package body AWS.Net.SSL is
 
    protected type TS_SSL is
 
-      procedure Set_FD (Socket : in out Socket_Type);
-      --  Bind the SSL socket handle with the socket
+      procedure Set_IO (Socket : in out Socket_Type);
+      --  Bind the SSL handle with the BIO pair.
 
       procedure Initialize
         (Certificate_Filename : in String;
@@ -77,6 +78,12 @@ package body AWS.Net.SSL is
    end TS_SSL;
 
    Default_Config : constant Config := new TS_SSL;
+
+   procedure Socket_Read (Socket : in Socket_Type);
+   --  Read encripted data from socket if necessary
+
+   procedure Socket_Write (Socket : in Socket_Type);
+   --  Write encripted data to socket if availabe
 
    procedure Error_If (Error : in Boolean);
    pragma Inline (Error_If);
@@ -141,7 +148,7 @@ package body AWS.Net.SSL is
       SSL_Accept : loop
          Net.Std.Accept_Socket (Socket, NSST (New_Socket));
 
-         New_Socket.Config.Set_FD (New_Socket);
+         New_Socket.Config.Set_IO (New_Socket);
 
          TSSL.SSL_set_accept_state (New_Socket.SSL);
 
@@ -172,7 +179,7 @@ package body AWS.Net.SSL is
          Socket.Config := Default_Config;
       end if;
 
-      Socket.Config.Set_FD (Socket);
+      Socket.Config.Set_IO (Socket);
 
       TSSL.SSL_set_connect_state (Socket.SSL);
 
@@ -202,7 +209,8 @@ package body AWS.Net.SSL is
 
    procedure Do_Handshake (Socket : in out Socket_Type; Success : out Boolean)
    is
-      Res : Interfaces.C.int;
+      use TSSL;
+      Res : C.int;
    begin
       loop
          Res := TSSL.SSL_do_handshake (Socket.SSL);
@@ -212,11 +220,13 @@ package body AWS.Net.SSL is
          exit when Success;
 
          case TSSL.SSL_get_error (Socket.SSL, Res) is
-            when TSSL.SSL_ERROR_WANT_READ  => Wait_For (Input, Socket);
-            when TSSL.SSL_ERROR_WANT_WRITE => Wait_For (Output, Socket);
+            when TSSL.SSL_ERROR_WANT_READ  => Socket_Read (Socket);
+            when TSSL.SSL_ERROR_WANT_WRITE => Socket_Write (Socket);
             when others => exit;
          end case;
       end loop;
+
+      Socket_Write (Socket);
    end Do_Handshake;
 
    procedure Do_Handshake (Socket : in out Socket_Type) is
@@ -281,9 +291,8 @@ package body AWS.Net.SSL is
    ---------------
 
    function Error_Str (Code : in TSSL.Error_Code) return String is
-      use Interfaces;
       use type TSSL.Error_Code;
-      Buffer : aliased C.char_array := (0 .. 511 => Interfaces.C.nul);
+      Buffer : aliased C.char_array := (0 .. 511 => C.nul);
    begin
       if Code = 0 then
          return "Not an error";
@@ -314,6 +323,7 @@ package body AWS.Net.SSL is
    begin
       if Socket.SSL /= TSSL.Null_Pointer then
          TSSL.SSL_free (Socket.SSL);
+         TSSL.BIO_free (Socket.IO);
          Socket.SSL := TSSL.Null_Pointer;
       end if;
 
@@ -378,7 +388,7 @@ package body AWS.Net.SSL is
    -------------
 
    function Pending (Socket : in Socket_Type) return Stream_Element_Count is
-      Res : constant Interfaces.C.int := TSSL.SSL_pending (Socket.SSL);
+      Res : constant C.int := TSSL.SSL_pending (Socket.SSL);
    begin
       Error_If (Socket, Res < 0);
       return Stream_Element_Count (Res);
@@ -422,8 +432,6 @@ package body AWS.Net.SSL is
       Data   :    out Stream_Element_Array;
       Last   :    out Stream_Element_Offset)
    is
-      use Interfaces;
-
       Len : C.int;
    begin
       loop
@@ -436,8 +444,8 @@ package body AWS.Net.SSL is
               := TSSL.SSL_get_error (Socket.SSL, Len);
          begin
             case Error_Code is
-               when TSSL.SSL_ERROR_WANT_READ  => Wait_For (Input, Socket);
-               when TSSL.SSL_ERROR_WANT_WRITE => Wait_For (Output, Socket);
+               when TSSL.SSL_ERROR_WANT_READ  => Socket_Read (Socket);
+               when TSSL.SSL_ERROR_WANT_WRITE => Socket_Write (Socket);
                when TSSL.SSL_ERROR_SYSCALL =>
                   Raise_Socket_Error
                     (Socket,
@@ -483,7 +491,7 @@ package body AWS.Net.SSL is
          Target.Config := Config;
       end if;
 
-      Target.Config.Set_FD (Target);
+      Target.Config.Set_IO (Target);
    end Secure;
 
    -------------------
@@ -525,12 +533,44 @@ package body AWS.Net.SSL is
       Data   : in     Stream_Element_Array;
       Last   :    out Stream_Element_Offset)
    is
-      use Interfaces;
+      RC     : C.int;
 
-      RC : C.int;
+      procedure Socket_Write;
+      --  Non blocking write from IO to socket.
+
+      ------------------
+      -- Socket_Write --
+      ------------------
+
+      procedure Socket_Write is
+         use TSSL;
+
+         type Memory_Access is access all
+           Stream_Element_Array (1 .. Stream_Element_Offset'Last);
+
+         S_Last : Stream_Element_Offset;
+         Data   : aliased Memory_Access;
+         Len    : constant Stream_Element_Offset
+           := Stream_Element_Offset (BIO_nread0 (Socket.IO, Data'Address));
+      begin
+         if Len <= 0 then
+            return;
+         end if;
+
+         Net.Std.Send (NSST (Socket), Data (1 .. Len), S_Last);
+
+         if S_Last > 0
+           and then BIO_nread (Socket.IO, Data'Address, C.int (S_Last))
+                    /= C.int (S_Last)
+         then
+            raise Socket_Error with "Internal socket write IO error";
+         end if;
+      end Socket_Write;
+
    begin
       loop
          RC := TSSL.SSL_write (Socket.SSL, Data'Address, Data'Length);
+         Socket_Write;
 
          if RC > 0 then
             Last  := Data'First + Stream_Element_Offset (RC) - 1;
@@ -548,8 +588,7 @@ package body AWS.Net.SSL is
             begin
                case Error_Code is
                   when TSSL.SSL_ERROR_WANT_READ  =>
-                     Wait_For (Input, Socket);
-
+                     Socket_Read (Socket);
                   when TSSL.SSL_ERROR_WANT_WRITE =>
                      if Data'First = Stream_Element_Offset'First then
                         Last := Stream_Element_Offset'Last;
@@ -627,18 +666,65 @@ package body AWS.Net.SSL is
       S2 := Secure_Client (ST2);
    end Socket_Pair;
 
+   -----------------
+   -- Socket_Read --
+   -----------------
+
+   procedure Socket_Read (Socket : in Socket_Type) is
+      use TSSL;
+      Data : Stream_Element_Array
+               (1 .. Stream_Element_Offset
+                       (BIO_ctrl
+                          (Socket.IO, BIO_C_GET_READ_REQUEST,
+                           0, Null_Pointer)));
+      Last : Stream_Element_Offset;
+   begin
+      Socket_Write (Socket);
+      Net.Std.Receive (NSST (Socket), Data, Last);
+
+      if TSSL.BIO_write (Socket.IO, Data'Address, C.int (Last))
+         /= C.int (Last)
+      then
+         raise Socket_Error with "Not enought memory.";
+      end if;
+   end Socket_Read;
+
+   ------------------
+   -- Socket_Write --
+   ------------------
+
+   procedure Socket_Write (Socket : in Socket_Type) is
+      use TSSL;
+      type Memory_Access is access all
+        Stream_Element_Array (1 .. Stream_Element_Offset'Last);
+
+      Data : aliased Memory_Access;
+      Last : constant Stream_Element_Offset
+        := Stream_Element_Offset
+             (BIO_nread (Socket.IO, Data'Address, C.int'Last));
+      Plain : NSST;
+      --  ??? Looks like direct type convertion lead to wrong dispatch.
+   begin
+      if Last <= 0 then
+         return;
+      end if;
+
+      Plain := NSST (Socket);
+      Net.Send (Plain, Data (1 .. Last));
+   end Socket_Write;
+
    -------------
    -- Locking --
    -------------
 
    package body Locking is
 
-      type Task_Identifier is new Interfaces.C.unsigned_long;
-      type Lock_Index is new Interfaces.C.int;
-      type Mode_Type is mod 2 ** Interfaces.C.int'Size;
+      type Task_Identifier is new C.unsigned_long;
+      type Lock_Index is new C.int;
+      type Mode_Type is mod 2 ** C.int'Size;
 
       subtype Filename_Type is System.Address;
-      subtype Line_Number is Interfaces.C.int;
+      subtype Line_Number is C.int;
 
       package Task_Identifiers is new Ada.Task_Attributes (Task_Identifier, 0);
 
@@ -879,8 +965,7 @@ package body AWS.Net.SSL is
          ---------------------
 
          procedure Set_Certificate
-           (Cert_Filename : in String;
-            Key_Filename  : in String := "")
+           (Cert_Filename : in String; Key_Filename : in String := "")
          is
             use Interfaces.C;
 
@@ -986,7 +1071,7 @@ package body AWS.Net.SSL is
               (TSSL.SSL_CTX_ctrl
                  (Ctx  => Context,
                   Cmd  => TSSL.SSL_CTRL_SET_SESS_CACHE_SIZE,
-                  Larg => Interfaces.C.int (Value),
+                  Larg => C.int (Value),
                   Parg => TSSL.Null_Pointer) = -1);
          end Set_Sess_Cache_Size;
 
@@ -1022,22 +1107,24 @@ package body AWS.Net.SSL is
       end Initialize;
 
       ------------
-      -- Set_FD --
+      -- Set_IO --
       ------------
 
-      procedure Set_FD (Socket : in out Socket_Type) is
+      procedure Set_IO (Socket : in out Socket_Type) is
+         use TSSL;
+         use type C.long;
+         Inside_IO, Net_IO : aliased BIO_Access;
       begin
-         Socket.SSL := TSSL.SSL_new (Context);
-         Error_If (Socket, Socket.SSL = TSSL.Null_Pointer);
-
-         TSSL.SSL_set_read_ahead (S => Socket.SSL, Yes => 1);
+         Socket.SSL := SSL_new (Context);
+         Error_If (Socket, Socket.SSL = Null_Pointer);
 
          Error_If
-           (Socket,
-            TSSL.SSL_set_fd
-              (Socket.SSL,
-               Interfaces.C.int (Get_FD (Socket))) = -1);
-      end Set_FD;
+           (BIO_new_bio_pair (Inside_IO'Access, 0, Net_IO'Access, 0) = 0);
+
+         Socket.IO := Net_IO;
+
+         SSL_set_bio (Socket.SSL, Inside_IO, Inside_IO);
+      end Set_IO;
 
    end TS_SSL;
 

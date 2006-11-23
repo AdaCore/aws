@@ -36,13 +36,50 @@ package SSL.Thin is
 
    package Cstr renames Interfaces.C.Strings;
 
+   subtype Pointer is System.Address;
+   Null_Pointer : constant Pointer := System.Null_Address;
+
    type Rand_Meth_St is record
-      Seed, Bytes, Cleanup, Add, Pseudorand, Status : System.Address;
+      Seed, Bytes, Cleanup, Add, Pseudorand, Status : Pointer;
    end record;
    pragma Convention (C, Rand_Meth_St);
 
-   subtype Pointer is System.Address;
-   Null_Pointer : constant Pointer := System.Null_Address;
+   type BIO_Method_St is record
+      Kind : Integer;
+      Name : Cstr.chars_ptr;
+      Bwrite,
+      Bread,
+      Bputs,
+      Bgets,
+      Ctrl,
+      Create,
+      Destroy,
+      Callback_Ctrl : Pointer;
+   end record;
+   pragma Convention (C, BIO_Method_St);
+
+   type BIO_Method_Access is access all BIO_Method_St;
+
+   type BIO_St;
+   type BIO_Access is access all BIO_St;
+
+   type BIO_St is record
+      Method       : BIO_Method_Access;
+      Callback     : Pointer;
+      CB_Arg       : Cstr.chars_ptr; -- first argument for the callback
+      Init         : int;
+      Shutdown     : int;
+      Flags        : int;  -- extra Storage
+      Retry_Reason : int;
+      Num          : int;
+      Ptr          : Pointer;
+      Next_BIO     : BIO_Access; -- used by filter BIOs
+      Prev_BIO     : BIO_Access; -- used by filter BIOs
+      References   : int;
+      Num_Read     : unsigned_long;
+      Num_Write    : unsigned_long;
+      --  CRYPTO_EX_DATA ex_data; -- Do not need to translete it.
+   end record;
 
    subtype SSL_Method is Pointer;
    subtype SSL_CTX    is Pointer;
@@ -107,6 +144,87 @@ package SSL.Thin is
    SSL_ERROR_ZERO_RETURN      : constant := 6;
    SSL_ERROR_WANT_CONNECT     : constant := 7;
    SSL_ERROR_WANT_ACCEPT      : constant := 8;
+
+   BIO_C_SET_CONNECT                 : constant := 100;
+   BIO_C_DO_STATE_MACHINE            : constant := 101;
+   BIO_C_SET_NBIO                    : constant := 102;
+   BIO_C_SET_PROXY_PARAM             : constant := 103;
+   BIO_C_SET_FD                      : constant := 104;
+   BIO_C_GET_FD                      : constant := 105;
+   BIO_C_SET_FILE_PTR                : constant := 106;
+   BIO_C_GET_FILE_PTR                : constant := 107;
+   BIO_C_SET_FILENAME                : constant := 108;
+   BIO_C_SET_SSL                     : constant := 109;
+   BIO_C_GET_SSL                     : constant := 110;
+   BIO_C_SET_MD                      : constant := 111;
+   BIO_C_GET_MD                      : constant := 112;
+   BIO_C_GET_CIPHER_STATUS           : constant := 113;
+   BIO_C_SET_BUF_MEM                 : constant := 114;
+   BIO_C_GET_BUF_MEM_PTR             : constant := 115;
+   BIO_C_GET_BUFF_NUM_LINES          : constant := 116;
+   BIO_C_SET_BUFF_SIZE               : constant := 117;
+   BIO_C_SET_ACCEPT                  : constant := 118;
+   BIO_C_SSL_MODE                    : constant := 119;
+   BIO_C_GET_MD_CTX                  : constant := 120;
+   BIO_C_GET_PROXY_PARAM             : constant := 121;
+   BIO_C_SET_BUFF_READ_DATA          : constant := 122; -- data to read first
+   BIO_C_GET_CONNECT                 : constant := 123;
+   BIO_C_GET_ACCEPT                  : constant := 124;
+   BIO_C_SET_SSL_RENEGOTIATE_BYTES   : constant := 125;
+   BIO_C_GET_SSL_NUM_RENEGOTIATES    : constant := 126;
+   BIO_C_SET_SSL_RENEGOTIATE_TIMEOUT : constant := 127;
+   BIO_C_FILE_SEEK                   : constant := 128;
+   BIO_C_GET_CIPHER_CTX              : constant := 129;
+   BIO_C_SET_BUF_MEM_EOF_RETURN      : constant := 130;
+   BIO_C_SET_BIND_MODE               : constant := 131;
+   BIO_C_GET_BIND_MODE               : constant := 132;
+   BIO_C_FILE_TELL                   : constant := 133;
+   BIO_C_GET_SOCKS                   : constant := 134;
+   BIO_C_SET_SOCKS                   : constant := 135;
+
+   BIO_C_SET_WRITE_BUF_SIZE  : constant := 136; -- for BIO_s_bio
+   BIO_C_GET_WRITE_BUF_SIZE  : constant := 137;
+   BIO_C_MAKE_BIO_PAIR       : constant := 138;
+   BIO_C_DESTROY_BIO_PAIR    : constant := 139;
+   BIO_C_GET_WRITE_GUARANTEE : constant := 140;
+   BIO_C_GET_READ_REQUEST    : constant := 141;
+   BIO_C_SHUTDOWN_WR         : constant := 142;
+   BIO_C_NREAD0              : constant := 143;
+   BIO_C_NREAD               : constant := 144;
+   BIO_C_NWRITE0             : constant := 145;
+   BIO_C_NWRITE              : constant := 146;
+   BIO_C_RESET_READ_REQUEST  : constant := 147;
+
+   -------------------------------------------------------------------------
+   -- These are used in the following macros and are passed to BIO_ctrl() --
+   -------------------------------------------------------------------------
+
+   BIO_CTRL_RESET        : constant := 1; -- opt - rewind/zero etc
+   BIO_CTRL_EOF          : constant := 2; -- opt - are we at the eof
+   BIO_CTRL_INFO         : constant := 3; -- opt - extra tit-bits
+   BIO_CTRL_SET          : constant := 4; -- man - set the 'IO' type
+   BIO_CTRL_GET          : constant := 5; -- man - get the 'IO' type
+   BIO_CTRL_PUSH         : constant := 6; -- opt intern, used to signify change
+   BIO_CTRL_POP          : constant := 7; -- opt intern, used to signify change
+   BIO_CTRL_GET_CLOSE    : constant := 8; -- man - set the 'close' on free
+   BIO_CTRL_SET_CLOSE    : constant := 9; -- man - set the 'close' on free
+   BIO_CTRL_PENDING      : constant := 10; -- opt - is their more data buffered
+   BIO_CTRL_FLUSH        : constant := 11; -- opt - 'flush' buffered output
+   BIO_CTRL_DUP          : constant := 12; -- man - extra stuff for 'duped' BIO
+   BIO_CTRL_WPENDING     : constant := 13; -- opt numb of bytes still to write
+   BIO_CTRL_SET_CALLBACK : constant := 14; -- opt - set callback function
+   BIO_CTRL_GET_CALLBACK : constant := 15; -- opt - set callback function
+   BIO_CTRL_SET_FILENAME : constant := 30; -- BIO_s_file special
+
+   BIO_NOCLOSE : constant := 0;
+   BIO_CLOSE   : constant := 1;
+
+   BIO_FLAGS_READ       : constant := 1;
+   BIO_FLAGS_WRITE      : constant := 2;
+   BIO_FLAGS_IO_SPECIAL : constant := 4;
+   BIO_FLAGS_RWS        : constant
+     := BIO_FLAGS_READ + BIO_FLAGS_WRITE + BIO_FLAGS_IO_SPECIAL;
+   BIO_FLAGS_SHOULD_RETRY  : constant := 8;
 
    RSA_3  : constant := 3;
    RSA_F4 : constant := 16#10001#;
@@ -226,10 +344,12 @@ package SSL.Thin is
 
    function SSL_clear (SSL : in SSL_Handle) return int;
 
-   function SSL_set_fd
-     (S  : in SSL_Handle;
-      Fd : in int)
-      return int;
+   function SSL_set_fd (S : in SSL_Handle; Fd : in int) return int;
+
+   procedure SSL_set_bio (SSL : in SSL_Handle; RBIO, WBIO : BIO_Access);
+
+   function SSL_get_rbio (SSL : in SSL_Handle) return BIO_Access;
+   function SSL_get_wbio (SSL : in SSL_Handle) return BIO_Access;
 
    procedure SSL_set_read_ahead
      (S   : in SSL_Handle;
@@ -350,8 +470,69 @@ package SSL.Thin is
 
    procedure SSL_CTX_set_default_verify_paths (Ctx : in SSL_CTX);
 
+   function BIO_s_socket return BIO_Method_Access;
+   function BIO_s_mem return BIO_Method_Access;
+
+   function BIO_new (Method : in BIO_Method_St) return BIO_Access;
+   function BIO_new (Method : in BIO_Method_Access) return BIO_Access;
+
+   function BIO_int_ctrl
+     (Bp : in BIO_Access; Cmd : in int; Larg : in long; Iarg : in int)
+      return long;
+
+   procedure BIO_int_ctrl
+     (Bp : in BIO_Access; Cmd : in int; Larg : in long; Iarg : in int);
+   --  BIO_set_fd(b,fd,c) BIO_int_ctrl(b,BIO_C_SET_FD,c,fd)
+
+   function BIO_ctrl
+     (Bp : in BIO_Access; Cmd : in int; Larg : in long; Parg : Pointer)
+      return long;
+   --  BIO_pending(b) = (int)BIO_ctrl(b,BIO_CTRL_PENDING,0,NULL)
+
+   procedure BIO_ctrl
+     (Bp : in BIO_Access; Cmd : in int; Larg : in long; Parg : Pointer);
+   --  BIO_get_fd(b,c) = BIO_ctrl(b,BIO_C_GET_FD,0,(char *)c)
+   --  BIO_set_mem_eof_return(b,v)
+   --  = BIO_ctrl(b,BIO_C_SET_BUF_MEM_EOF_RETURN,v,NULL)
+
+   function BIO_read
+       (BIO : in BIO_Access; Data : in Pointer; Len : in int) return int;
+
+   function BIO_write
+       (BIO : in BIO_Access; Data : in Pointer; Len : in int) return int;
+
+   function BIO_new_bio_pair
+     (bio1 : access BIO_Access; writebuf1 : in size_t;
+      bio2 : access BIO_Access; writebuf2 : in size_t) return int;
+
+   function BIO_nread0 (BIO : BIO_Access; Buf : Pointer) return int;
+   function BIO_nread
+     (BIO : BIO_Access; Buf : Pointer; Num : in int) return int;
+   --  Buf is the address of the buffer address.
+
+   function BIO_nwrite0 (BIO : BIO_Access; Buf : Pointer) return int;
+   function BIO_nwrite
+     (BIO : BIO_Access; Buf : Pointer; Num : in int) return int;
+   --  Buf is the address of the buffer address.
+
+   function BIO_free (BIO : in BIO_Access) return int;
+   procedure BIO_free (BIO : in BIO_Access);
+
 private
 
+   pragma Import (C, BIO_s_socket, "BIO_s_socket");
+   pragma Import (C, BIO_s_mem, "BIO_s_mem");
+   pragma Import (C, BIO_new, "BIO_new");
+   pragma Import (C, BIO_read, "BIO_read");
+   pragma Import (C, BIO_write, "BIO_write");
+   pragma Import (C, BIO_int_ctrl, "BIO_int_ctrl");
+   pragma Import (C, BIO_ctrl, "BIO_ctrl");
+   pragma Import (C, BIO_new_bio_pair, "BIO_new_bio_pair");
+   pragma Import (C, BIO_free, "BIO_free");
+   pragma Import (C, BIO_nread0, "BIO_nread0");
+   pragma Import (C, BIO_nread, "BIO_nread");
+   pragma Import (C, BIO_nwrite0, "BIO_nwrite0");
+   pragma Import (C, BIO_nwrite, "BIO_nwrite");
    pragma Import (C, CRYPTO_num_locks, "CRYPTO_num_locks");
    pragma Import (C, CRYPTO_set_id_callback, "CRYPTO_set_id_callback");
    pragma Import (C, CRYPTO_set_locking_callback,
@@ -375,6 +556,9 @@ private
    pragma Import (C, RAND_status, "RAND_status");
    pragma Import (C, RAND_set_rand_method, "RAND_set_rand_method");
    pragma Import (C, SSL_set_fd, "SSL_set_fd");
+   pragma Import (C, SSL_set_bio, "SSL_set_bio");
+   pragma Import (C, SSL_get_rbio, "SSL_get_rbio");
+   pragma Import (C, SSL_get_wbio, "SSL_get_wbio");
    pragma Import (C, SSL_accept, "SSL_accept");
    pragma Import (C, ERR_Remove_State, "ERR_remove_state");
 
