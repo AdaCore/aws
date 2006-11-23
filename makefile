@@ -38,7 +38,6 @@ export ADA_PROJECT_PATH = $(PWD)/.build/projects\;${APP}
 
 AWS_PTH	= $(PWD)/$(BDIR)/lib:$(PWD)/win32:$(PWD)/lib:$(PWD)/$(BDIR)/include/lib
 AWS_PTH	:= $(PWD)/$(BDIR)/ssl/lib:$(PWD)/$(BDIR)/ssl/nlib:$(AWS_PTH)
-AWS_PTH := $(PWD)/$(BDIR)/include/ai302/lib:$(AWS_PTH)
 export PATH = $(AWS_PTH):${PTH}
 else
 export ADA_PROJECT_PATH = $(PWD)/.build/projects:${APP}
