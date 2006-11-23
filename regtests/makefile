@@ -40,15 +40,13 @@ else
 S_TESTS = $(TESTS)
 endif
 
+FILTER_OUT	= generate.adb
+
 ifeq (${EXTRA_TESTS}, false)
-FILTER_OUT	= test_speed.adb
+FILTER_OUT	+= test_speed.adb
 endif
 
 # Standard regression tests that needs to be run in a separate executable
-
-ALONE_TESTS    = dispatch1 dispatch_method dispatch_vh upload2 \
-	upload3 server_config tlog \
-	$(basename $(filter-out $(FILTER_OUT) generate.adb, $(S_TESTS)))
 
 OTH_TESTS      = tres
 
@@ -56,6 +54,12 @@ ifeq (${XMLADA}, true)
 ifneq (${SOCKET}, std)
 OTH_TESTS     := $(OTH_TESTS) check_mem
 endif
+
+FILTER_OUT	+= $(addsuffix .adb, $(OTH_TESTS))
+
+ALONE_TESTS    = dispatch1 dispatch_method dispatch_vh upload2 \
+	upload3 server_config tlog \
+	$(basename $(filter-out $(FILTER_OUT), $(S_TESTS)))
 
 WSDL_TESTS     = test_wsdl test_wsdl2 test_wsdl4 test_wsdl6 \
 	interoplab_main1 googlesearch datafeed_service anytype
@@ -81,8 +85,7 @@ SRC_SPEC_TESTS	= ${addsuffix .adb, $(SPEC_TESTS)}
 ALL_EXEC        = $(addsuffix $(EXEEXT), $(SPEC_TESTS) generate test_all)
 
 S_TOGETHER	= $(sort $(G_TESTS))
-F_TOGETHER 	= $(filter-out $(FILTER_OUT) $(SRC_SPEC_TESTS) \
-			generate.adb, $(S_TOGETHER))
+F_TOGETHER 	= $(filter-out $(FILTER_OUT) $(SRC_SPEC_TESTS), $(S_TOGETHER))
 TOGETHER 	= $(basename $(F_TOGETHER))
 
 force:
@@ -261,7 +264,7 @@ setup:
 	-$(GREP) "\[SSL\]" all_mains.lst > s_tsec.lst
 	-$(GREP) "\[SOAP+SSL\]" all_mains.lst > s_tsecsoap.lst
 	-$(GREP) "\[ASIS+SSL\]" all_mains.lst >> s_tsecsoap.lst
-ifdef ASIS
+ifeq ($(ASIS), true)
 	-$(GREP) "\[ASIS\]" all_mains.lst >> s_mains.lst
 endif
 ifeq (${XMLADA}, true)
@@ -271,22 +274,21 @@ ifneq (${SOCKET}, std)
 	-$(GREP) "\[SSL\]" all_mains.lst >> s_mains.lst
 endif
 ifeq (${XMLADA}, true)
- ifdef ASIS
+  ifeq ($(ASIS), true)
 	-$(GREP) "\[ASIS+SOAP\]" all_mains.lst >> s_mains.lst
-  ifneq (${SOCKET}, std)
+    ifneq (${SOCKET}, std)
 	-$(GREP) "\[ASIS+SOAP+SSL\]" all_mains.lst >> s_mains.lst
+    endif
   endif
- else
   ifneq (${SOCKET}, std)
 	-$(GREP) "\[SOAP+SSL\]" all_mains.lst >> s_mains.lst
   endif
- endif
 else
- ifdef ASIS
-  ifneq (${SOCKET}, std)
+  ifeq ($(ASIS), true)
+    ifneq (${SOCKET}, std)
 	-$(GREP) "\[ASIS+SSL\]" all_mains.lst >> s_mains.lst
+    endif
   endif
- endif
 endif
 	echo "TESTS=\\" > makefile.lst
 	$(AWK) 'BEGIN{FS=":"}{printf ("%s \\\n",$$1)}' s_mains.lst \
