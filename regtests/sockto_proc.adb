@@ -63,14 +63,14 @@ procedure SockTO_Proc (Security : Boolean; Port : Positive) is
    begin
       accept Start;
 
+      Net.Set_Timeout (Client, D1);
+
       Net.Connect (Client, "localhost", Port);
 
       for J in 1 .. 5 loop
          Net.Send (Client, Data (1234));
          delay D2;
       end loop;
-
-      Net.Set_Timeout (Client, D1);
 
       Get (Client, 100_000);
    exception
@@ -149,10 +149,9 @@ begin
    Client_Side.Start;
 
    Net.Set_Timeout (Server, 3.0);
+   Net.Set_Timeout (Peer, D1);
 
    Net.Accept_Socket (Server, Peer);
-
-   Net.Set_Timeout (Peer, D1);
 
    for J in 1 .. 10 loop
       Get (Peer, 1234);
