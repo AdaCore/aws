@@ -672,17 +672,21 @@ package body AWS.Net.SSL is
 
    procedure Socket_Read (Socket : in Socket_Type) is
       use TSSL;
-      Data : Stream_Element_Array
-               (1 .. Stream_Element_Offset
-                       (BIO_ctrl
-                          (Socket.IO, BIO_C_GET_READ_REQUEST,
-                           0, Null_Pointer)));
+
+      type Memory_Access is access all
+        Stream_Element_Array (1 .. Stream_Element_Offset'Last);
+
+      Data : aliased Memory_Access;
+      Len  : Stream_Element_Offset;
       Last : Stream_Element_Offset;
    begin
       Socket_Write (Socket);
-      Net.Std.Receive (NSST (Socket), Data, Last);
 
-      if TSSL.BIO_write (Socket.IO, Data'Address, C.int (Last))
+      Len := Stream_Element_Offset (BIO_nwrite0 (Socket.IO, Data'Address));
+
+      Net.Std.Receive (NSST (Socket), Data (1 .. Len), Last);
+
+      if TSSL.BIO_nwrite (Socket.IO, Data'Address, C.int (Last))
          /= C.int (Last)
       then
          raise Socket_Error with "Not enought memory.";
