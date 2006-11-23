@@ -100,6 +100,9 @@ begin
    Std.Bind (Server, 0);
    Std.Listen (Server);
 
+   Set_Timeout (S1, 2.0);
+   Set_Timeout (S2, 2.0);
+
    Connect;
 
    Test (S1, S2);
