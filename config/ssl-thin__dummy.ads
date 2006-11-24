@@ -27,14 +27,13 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-with System;
-
 package SSL.Thin is
 
-   type SSL_Handle is new System.Address;
+   type SSL_Handle is null record;
+   type BIO_Access is null record;
 
-   Null_Handle : constant SSL_Handle := SSL_Handle (System.Null_Address);
+   Null_Handle : SSL_Handle;
 
-   SSLeay : Natural := 0;
+   SSLeay : constant := 0;
 
 end SSL.Thin;
