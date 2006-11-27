@@ -236,11 +236,16 @@ package AWS.Net is
 
    function Wait
      (Socket : in Socket_Type'Class;
-      Events : in Wait_Event_Set)
-      return Event_Set;
+      Events : in Wait_Event_Set) return Event_Set;
    --  Waiting for Input/Output/Error events.
    --  Waiting time is defined by Set_Timeout.
    --  Empty event set in result mean that timeout occured.
+
+   function Check
+     (Socket : in Socket_Type'Class;
+      Events : in Wait_Event_Set) return Event_Set;
+   --  Check for Input/Output/Error events availability.
+   --  No wait for socket timeout.
 
    function Errno (Socket : in Socket_Type) return Integer is abstract;
    --  Returns and clears error state in socket

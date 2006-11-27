@@ -44,6 +44,12 @@ package body AWS.Net is
 
    function Errno return Integer renames Std.Errno;
 
+   function Poll
+     (Socket  : in Socket_Type'Class;
+      Events  : in Wait_Event_Set;
+      Timeout : in Duration) return Event_Set;
+   --  Wait for events on socket descriptor.
+
    ------------
    -- Adjust --
    ------------
@@ -52,6 +58,17 @@ package body AWS.Net is
    begin
       Socket.C.Ref_Count.Increment;
    end Adjust;
+
+   -----------
+   -- Check --
+   -----------
+
+   function Check
+     (Socket : in Socket_Type'Class;
+      Events : in Wait_Event_Set) return Event_Set is
+   begin
+      return Poll (Socket, Events, 0.0);
+   end Check;
 
    --------------
    -- Finalize --
@@ -115,6 +132,77 @@ package body AWS.Net is
    begin
       return Strings.Fixed.Index (Exception_Message (E), Timeout_Token) > 0;
    end Is_Timeout;
+
+   ----------
+   -- Poll --
+   ----------
+
+   function Poll
+     (Socket  : in Socket_Type'Class;
+      Events  : in Wait_Event_Set;
+      Timeout : in Duration) return Event_Set
+   is
+      use Interfaces;
+      use OS_Lib;
+
+      use type C.int;
+      use type Thin.Events_Type;
+
+      FD : constant Integer := Get_FD (Poll.Socket);
+
+      PFD : aliased Thin.Pollfd;
+      RC      : C.int;
+      TO      : C.int;
+      Errno   : Integer;
+
+   begin
+      if FD < 0 then
+         Raise_Socket_Error (Socket, "Socket already closed.");
+      end if;
+
+      PFD := (Fd      => Thin.FD_Type (FD),
+              Events  => 0,
+              REvents => 0);
+
+      if Timeout >= Duration (C.int'Last / 1_000) then
+         TO := C.int'Last;
+      else
+         TO := C.int (Timeout * 1_000);
+      end if;
+
+      loop
+         if Events (Input) then
+            PFD.Events := POLLIN or POLLPRI;
+         end if;
+
+         if Events (Output) then
+            PFD.Events := PFD.Events or POLLOUT;
+         end if;
+
+         RC := Thin.Poll (PFD'Address, 1, TO);
+
+         case RC is
+            when -1 =>
+               Errno := Std.Errno;
+
+               if Errno /= EINTR then
+                  Raise_Socket_Error
+                    (Socket, "Wait error code" & Integer'Image (Errno));
+               end if;
+
+            when 0  =>
+               return (others => False);
+
+            when 1  =>
+               return (Input  => (PFD.REvents and (POLLIN or POLLPRI)) /= 0,
+                       Output => (PFD.REvents and POLLOUT) /= 0,
+                       Error  => (PFD.REvents
+                                  and (POLLERR or POLLHUP or POLLNVAL)) /= 0);
+            when others =>
+               raise Program_Error;
+         end case;
+      end loop;
+   end Poll;
 
    ------------------------
    -- Raise_Socket_Error --
@@ -285,68 +373,9 @@ package body AWS.Net is
 
    function Wait
      (Socket : in Socket_Type'Class;
-      Events : in Wait_Event_Set)
-      return Event_Set
-   is
-      use Interfaces;
-      use OS_Lib;
-
-      use type C.int;
-      use type Thin.Events_Type;
-
-      FD  : constant Integer := Get_FD (Socket);
-
-      PFD : aliased Thin.Pollfd;
-      RC      : C.int;
-      Timeout : C.int;
-      Errno   : Integer;
+      Events : in Wait_Event_Set) return Event_Set is
    begin
-      if FD < 0 then
-         Raise_Socket_Error (Socket, "Socket already closed.");
-      end if;
-
-      PFD := (Fd      => Thin.FD_Type (FD),
-              Events  => 0,
-              REvents => 0);
-
-      if Socket.Timeout >= Duration (C.int'Last / 1_000) then
-         Timeout := C.int'Last;
-      else
-         Timeout := C.int (Socket.Timeout * 1_000);
-      end if;
-
-      loop
-         if Events (Input) then
-            PFD.Events := POLLIN or POLLPRI;
-         end if;
-
-         if Events (Output) then
-            PFD.Events := PFD.Events or POLLOUT;
-         end if;
-
-         RC := Thin.Poll (PFD'Address, 1, Timeout);
-
-         case RC is
-            when -1 =>
-               Errno := Std.Errno;
-
-               if Errno /= EINTR then
-                  Raise_Socket_Error
-                    (Socket, "Wait error code" & Integer'Image (Errno));
-               end if;
-
-            when 0  =>
-               return (others => False);
-
-            when 1  =>
-               return (Input  => (PFD.REvents and (POLLIN or POLLPRI)) /= 0,
-                       Output => (PFD.REvents and POLLOUT) /= 0,
-                       Error  => (PFD.REvents
-                                  and (POLLERR or POLLHUP or POLLNVAL)) /= 0);
-            when others =>
-               raise Program_Error;
-         end case;
-      end loop;
+      return Poll (Socket, Events, Socket.Timeout);
    end Wait;
 
    --------------

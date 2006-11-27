@@ -559,15 +559,30 @@ package body AWS.Net.SSL is
 
          Net.Std.Send (NSST (Socket), Data (1 .. Len), S_Last);
 
+         if S_Last /= Len then
+            Raise_Socket_Error
+              (Socket, "Socket buffer too small" & S_Last'Img & Len'Img);
+         end if;
+
          if S_Last > 0
            and then BIO_nread (Socket.IO, Data'Address, C.int (S_Last))
                     /= C.int (S_Last)
          then
-            raise Socket_Error with "Internal socket write IO error";
+            Raise_Socket_Error (Socket, "Socket write IO error");
          end if;
       end Socket_Write;
 
    begin
+      if not Check (Socket, (Input => False, Output => True)) (Output) then
+         if Data'First = Stream_Element_Offset'First then
+            Last := Stream_Element_Offset'Last;
+         else
+            Last := Data'First - 1;
+         end if;
+
+         return;
+      end if;
+
       loop
          RC := TSSL.SSL_write (Socket.SSL, Data'Address, Data'Length);
          Socket_Write;
@@ -587,16 +602,8 @@ package body AWS.Net.SSL is
                use type TSSL.Error_Code;
             begin
                case Error_Code is
-                  when TSSL.SSL_ERROR_WANT_READ  =>
+                  when TSSL.SSL_ERROR_WANT_READ =>
                      Socket_Read (Socket);
-                  when TSSL.SSL_ERROR_WANT_WRITE =>
-                     if Data'First = Stream_Element_Offset'First then
-                        Last := Stream_Element_Offset'Last;
-                     else
-                        Last := Data'First - 1;
-                     end if;
-
-                     return;
 
                   when TSSL.SSL_ERROR_SYSCALL =>
                      Raise_Socket_Error
