@@ -34,7 +34,6 @@
 --  AWS.Server.Set_Security.
 
 with Ada.Calendar;
-with Ada.Exceptions;
 with Ada.Task_Attributes;
 with Ada.Unchecked_Deallocation;
 with Interfaces.C.Strings;
@@ -196,8 +195,7 @@ package body AWS.Net.SSL is
 
                Net.Std.Shutdown (NSST (Socket));
 
-               Ada.Exceptions.Raise_Exception
-                 (Socket_Error'Identity, Error_Text);
+               raise Socket_Error with Error_Text;
             end;
          end if;
       end if;
@@ -207,7 +205,8 @@ package body AWS.Net.SSL is
    -- Do_Handshake --
    ------------------
 
-   procedure Do_Handshake (Socket : in out Socket_Type; Success : out Boolean)
+   procedure Do_Handshake
+     (Socket : in out Socket_Type; Success : out Boolean)
    is
       use TSSL;
       Res : C.int;
@@ -246,7 +245,7 @@ package body AWS.Net.SSL is
    procedure Error_If (Error : in Boolean) is
    begin
       if Error then
-         Ada.Exceptions.Raise_Exception (Socket_Error'Identity, Error_Stack);
+         raise Socket_Error with Error_Stack;
       end if;
    end Error_If;
 
@@ -280,8 +279,8 @@ package body AWS.Net.SSL is
                First := Error_Text'First + Trim_Start'Length;
             end if;
 
-            return Error_Text (First .. Error_Text'Last)
-                   & ASCII.LF & Error_Stack;
+            return Error_Text (First .. Error_Text'Last) &
+              ASCII.LF & Error_Stack;
          end;
       end if;
    end Error_Stack;
@@ -984,16 +983,15 @@ package body AWS.Net.SSL is
             --  Prefix is the type of file key or certificate that was expected
             pragma No_Return (File_Error);
 
-            -------------------
-            -- Could_Not_Use --
-            -------------------
+            ----------------
+            -- File_Error --
+            ----------------
 
             procedure File_Error (Prefix, Name : in String) is
             begin
-               Ada.Exceptions.Raise_Exception
-                 (Socket_Error'Identity,
-                  Prefix & " file """ & Name & """ error." & ASCII.LF
-                  & Error_Stack);
+               raise Socket_Error with
+                 Prefix & " file """ & Name & """ error." &
+                 ASCII.LF & Error_Stack;
             end File_Error;
 
          begin
