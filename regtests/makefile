@@ -50,16 +50,13 @@ endif
 
 OTH_TESTS      = tres
 
+ALONE_TESTS    = dispatch1 dispatch_method dispatch_vh upload2 \
+	upload3 server_config tlog
+
 ifeq (${XMLADA}, true)
 ifneq (${SOCKET}, std)
 OTH_TESTS     := $(OTH_TESTS) check_mem
 endif
-
-FILTER_OUT	+= $(addsuffix .adb, $(OTH_TESTS))
-
-ALONE_TESTS    = dispatch1 dispatch_method dispatch_vh upload2 \
-	upload3 server_config tlog \
-	$(basename $(filter-out $(FILTER_OUT), $(S_TESTS)))
 
 WSDL_TESTS     = test_wsdl test_wsdl2 test_wsdl4 test_wsdl6 \
 	interoplab_main1 googlesearch datafeed_service anytype
@@ -79,14 +76,17 @@ ASIS_TESTS   = wsdl_1 wsdl_2 wsdl_3 wsdl_4 wsdl_5 wsdl_6 wsdl_7 wsdl_8 wsdl_9
 ASIS2_TESTS  = wsdl_a wsdl_b register
 endif
 
-SPEC_TESTS      = $(ALONE_TESTS) $(OTH_TESTS)
-SRC_SPEC_TESTS	= ${addsuffix .adb, $(SPEC_TESTS)}
+FILTER_OUT	+= $(addsuffix .adb, $(OTH_TESTS) $(ALONE_TESTS))
+ALONE		= $(basename $(filter-out $(FILTER_OUT), $(S_TESTS)))
+SPEC_TESTS      = $(ALONE_TESTS) $(OTH_TESTS) $(ALONE)
 
-ALL_EXEC        = $(addsuffix $(EXEEXT), $(SPEC_TESTS) generate test_all)
+SRC_SPEC_TESTS	= ${addsuffix .adb, $(SPEC_TESTS)}
 
 S_TOGETHER	= $(sort $(G_TESTS))
 F_TOGETHER 	= $(filter-out $(FILTER_OUT) $(SRC_SPEC_TESTS), $(S_TOGETHER))
 TOGETHER 	= $(basename $(F_TOGETHER))
+
+ALL_EXEC        = $(addsuffix $(EXEEXT), $(SPEC_TESTS) generate test_all)
 
 force:
 
@@ -107,7 +107,7 @@ build_drivers: gen_main
 empty:=
 space:= $(empty) $(empty)
 
-REGEXP = $(subst $(space),"\\|",$(SRC_SPEC_TESTS))
+REGEXP = $(subst $(space),"\\|",$(FILTER_OUT))
 
 build:
 
@@ -177,7 +177,7 @@ init:
 	$(AWSRES) -q -r tresres file1.html file2.html file.tmplt
 	rm -f *.res
 
-$(ALONE_TESTS): force
+$(ALONE_TESTS) $(ALONE): force
 	echo "Compiling " $@
 	$(GNATMAKE) -q -m -Pregtests -XTest_Mode=${TEST_MODE} \
 		-XBuild=${PRJ_BUILD} -XXMLADA=${PRJ_XMLADA} $@
