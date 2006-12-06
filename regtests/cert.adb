@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2003-2004                          --
---                               ACT-Europe                                 --
+--                         Copyright (C) 2003-2006                          --
+--                                AdaCore                                   --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -71,14 +71,13 @@ procedure Cert is
 
    function CB (Request : in Status.Data) return Response.Data is
       URI  : constant String                := Status.URI (Request);
-      Sock : constant Net.SSL.Socket_Type
-        := Net.SSL.Socket_Type (Status.Socket (Request));
+      Sock : constant Net.Socket_Type'Class := Status.Socket (Request);
    begin
       if URI = "/simple" then
 
          New_Line;
          Put_Line ("Client certificate as received by the server:");
-         Display_Certificate (Sock);
+         Display_Certificate (Net.SSL.Socket_Type (Sock));
 
          return Response.Build (MIME.Text_HTML, "simple ok");
       else
