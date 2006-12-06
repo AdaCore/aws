@@ -156,11 +156,11 @@ procedure Partial is
    end Server;
 
 begin
+   Server.Wait_Start;
+
    --  Compute partial.o MD5
 
    P_MD5 := File_MD5 ("partial.o");
-
-   Server.Wait_Start;
 
    Client.Create
      (Connection => Connect,
@@ -207,6 +207,11 @@ begin
 
 exception
    when E : others =>
-      Server.Stop;
       Put_Line ("Main Error " & Exceptions.Exception_Information (E));
+
+      select
+         Server.Stop;
+      or delay 2.0;
+         Put_Line ("Server stop timeout.");
+      end select;
 end Partial;
