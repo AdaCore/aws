@@ -60,6 +60,8 @@ package body AWS.POP is
    --  Read headers from Sock, do not fail if a non conformant header is
    --  found. It is possible to get wrong headers in SPAMs.
 
+   procedure Free is new Unchecked_Deallocation (Natural, Count_Access);
+
    ------------
    -- Adjust --
    ------------
@@ -258,6 +260,7 @@ package body AWS.POP is
          AWS.Resources.Streams.Memory.Close
            (Stream_Type (Attachment.Content.all));
          Free (Attachment.Content);
+         Free (Attachment.Ref_Count);
       end if;
    end Finalize;
 
@@ -268,6 +271,7 @@ package body AWS.POP is
 
       if Message.Ref_Count.all = 0 then
          Headers.Set.Free (Message.Headers);
+         Free (Message.Ref_Count);
       end if;
 
       while A /= null loop
@@ -627,8 +631,8 @@ package body AWS.POP is
       Port         : in Positive          := Default_POP_Port)
       return Mailbox
    is
-      Timestamp  : Unbounded_String;
-      Mailbox    : POP.Mailbox;
+      Timestamp : Unbounded_String;
+      Mailbox   : POP.Mailbox;
    begin
       Mailbox.Name := To_Unbounded_String (Server_Name);
       Mailbox.Sock := Net.Std.Socket_Type (Net.Socket (False).all);

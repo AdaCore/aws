@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2005                            --
+--                         Copyright (C) 2005-2006                          --
 --                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -34,6 +34,10 @@ with SOAP.Utils;
 package body SOAP.Types.Untyped is
 
    use Ada;
+
+   -------
+   -- S --
+   -------
 
    function S
      (V    : in String;

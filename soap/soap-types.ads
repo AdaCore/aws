@@ -574,10 +574,10 @@ private
       O : Object_Access;
    end record;
 
-   procedure Adjust     (O : in out Object_Safe_Pointer);
+   procedure Adjust   (O : in out Object_Safe_Pointer);
    pragma Inline (Adjust);
 
-   procedure Finalize   (O : in out Object_Safe_Pointer);
+   procedure Finalize (O : in out Object_Safe_Pointer);
    pragma Inline (Finalize);
 
    --  Scalar

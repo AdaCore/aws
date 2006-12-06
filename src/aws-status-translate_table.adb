@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2003                            --
---                                ACT-Europe                                --
+--                         Copyright (C) 2003-2006                          --
+--                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -27,8 +27,7 @@
 ------------------------------------------------------------------------------
 
 function AWS.Status.Translate_Table
-  (Status : in Data)
-   return Templates.Translate_Table
+  (Status : in Data) return Templates.Translate_Table
 is
    use Templates;
 begin
