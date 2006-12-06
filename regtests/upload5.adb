@@ -200,5 +200,7 @@ begin
 exception
    when E : others =>
       Put_Line ("Main Error " & Exceptions.Exception_Information (E));
+
       Server.Stop;
+      Server.Stopped;
 end Upload5;
