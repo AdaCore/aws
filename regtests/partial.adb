@@ -52,6 +52,8 @@ procedure Partial is
    use Ada.Text_IO;
    use AWS;
 
+   Filename : constant String := "makefile";
+
    function CB (Request : in Status.Data) return Response.Data;
 
    function File_MD5 (Filename : in String) return MD5.Message_Digest;
@@ -85,7 +87,6 @@ procedure Partial is
       URI      : constant String := Status.URI (Request);
       Filename : constant String := URI (URI'First + 1 .. URI'Last);
    begin
-      Put_Line ("URI : " & URI);
       return Response.File (MIME.Content_Type (Filename), Filename);
    end CB;
 
@@ -158,34 +159,35 @@ procedure Partial is
 begin
    Server.Wait_Start;
 
-   --  Compute partial.o MD5
+   --  Compute MD5
 
-   P_MD5 := File_MD5 ("partial.o");
+   P_MD5 := File_MD5 (Filename);
 
    Client.Create
      (Connection => Connect,
       Host       => "http://localhost:" & Utils.Image (Port));
 
-   --  Get partial.o by chunck
+   --  Get file by chunck
 
    declare
       use type Client.Content_Bound;
+      URI        : constant String := "/" & Filename;
       Size       : constant Stream_Element_Offset :=
-                     Utils.File_Size ("partial.o");
+                     Utils.File_Size (Filename);
       R1, R2, R3 : Response.Data;
       File       : Stream_IO.File_Type;
    begin
-      Client.Get (Connect, R1, "/partial.o", (0, 1_023));
+      Client.Get (Connect, R1, URI, (0, 1_023));
       Dump_Response ("R1", R1);
 
-      Client.Get (Connect, R3, "/partial.o", (Client.Undefined, 1_024));
+      Client.Get (Connect, R3, URI, (Client.Undefined, 1_024));
       Dump_Response ("R3", R3);
 
-      Client.Get (Connect, R2, "/partial.o",
+      Client.Get (Connect, R2, URI,
                   (1_024, Client.Content_Bound (Size) - 1_024 - 1));
       Dump_Response ("R2", R2, Status_Only => True);
 
-      Stream_IO.Create (File, Stream_IO.Out_File, "partial.o.downloaded");
+      Stream_IO.Create (File, Stream_IO.Out_File, Filename & ".downloaded");
       Stream_IO.Write (File, Response.Message_Body (R1));
       Stream_IO.Write (File, Response.Message_Body (R2));
       Stream_IO.Write (File, Response.Message_Body (R3));
@@ -197,7 +199,7 @@ begin
 
    --  Compute MD5 of downloaded file, and check with original file
 
-   D_MD5 := File_MD5 ("partial.o.downloaded");
+   D_MD5 := File_MD5 (Filename & ".downloaded");
 
    if P_MD5 = D_MD5 then
       Text_IO.Put_Line ("OK partial download");
@@ -207,11 +209,6 @@ begin
 
 exception
    when E : others =>
+      Server.Stop;
       Put_Line ("Main Error " & Exceptions.Exception_Information (E));
-
-      select
-         Server.Stop;
-      or delay 2.0;
-         Put_Line ("Server stop timeout.");
-      end select;
 end Partial;
