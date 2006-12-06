@@ -733,10 +733,19 @@ package body AWS.Net.SSL is
       type Lock_Index is new C.int;
       type Mode_Type is mod 2 ** C.int'Size;
 
-      subtype Filename_Type is System.Address;
+      subtype Filename_Type is C.Strings.chars_ptr;
       subtype Line_Number is C.int;
 
+      Finalized : Boolean := False;
+      --  Need to avoid access to finalized protected locking objects.
+
       package Task_Identifiers is new Ada.Task_Attributes (Task_Identifier, 0);
+
+      type Finalizator is new Ada.Finalization.Limited_Controlled
+        with null record;
+      --  Dummy limited controlled type, need to set Finalized boolean variable
+
+      overriding procedure Finalize (Item : in out Finalizator);
 
       protected Task_Id_Generator is
          procedure Get_Task_Id (Id : out Task_Identifier);
@@ -750,9 +759,10 @@ package body AWS.Net.SSL is
 
       Locks : array (1 .. Lock_Index (TSSL.CRYPTO_num_locks)) of RW_Mutex;
 
-      procedure Lock
-        (Mode   : in     Mode_Type;
-         Locker : in out RW_Mutex);
+      F : Finalizator;
+      pragma Unreferenced (F);
+
+      procedure Lock (Mode : in Mode_Type; Locker : in out RW_Mutex);
       pragma Inline (Lock);
 
       procedure Locking_Function
@@ -830,6 +840,16 @@ package body AWS.Net.SSL is
          Lock (Mode, Locker.all);
       end Dyn_Lock;
 
+      --------------
+      -- Finalize --
+      --------------
+
+      procedure Finalize (Item : in out Finalizator) is
+         pragma Unreferenced (Item);
+      begin
+         Finalized := True;
+      end Finalize;
+
       -------------------------
       -- Get_Task_Identifier --
       -------------------------
@@ -867,10 +887,12 @@ package body AWS.Net.SSL is
       -- Lock --
       ----------
 
-      procedure Lock
-        (Mode   : in     Mode_Type;
-         Locker : in out RW_Mutex) is
+      procedure Lock (Mode : in Mode_Type; Locker : in out RW_Mutex) is
       begin
+         if Finalized then
+            return;
+         end if;
+
          case Mode is
             when TSSL.CRYPTO_LOCK   or TSSL.CRYPTO_WRITE =>
                Locker.Write;
