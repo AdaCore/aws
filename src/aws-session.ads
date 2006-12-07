@@ -122,8 +122,8 @@ package AWS.Session is
 
       function Get (SID : in Id; Key : in String) return Data;
       pragma Inline (Get);
-   --  Returns the Value for Key in the session SID or Null_Data if
-   --  key does not exist.
+      --  Returns the Value for Key in the session SID or Null_Data if
+      --  key does not exist.
 
    end Generic_Data;
 
