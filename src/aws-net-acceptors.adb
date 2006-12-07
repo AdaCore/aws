@@ -34,7 +34,6 @@ package body AWS.Net.Acceptors is
    Signal_Index     : constant := 2;
    First_Index      : constant := 3;
 
-   Shutdown_Command : constant := 0;
    Socket_Command   : constant := 1;
 
    ---------
@@ -42,14 +41,48 @@ package body AWS.Net.Acceptors is
    ---------
 
    procedure Get
-     (Acceptor : in out Acceptor_Type;
-      Socket   :    out Socket_Access)
+     (Acceptor : in out Acceptor_Type; Socket : out Socket_Access)
    is
       use type Sets.Socket_Count;
       Ready, Error : Boolean;
       Wait_Timeout : Duration;
       First        : constant Boolean := True;
       Timeout      : array (Boolean) of Duration;
+
+      procedure Shutdown;
+      pragma No_Return (Shutdown);
+
+      --------------
+      -- Shutdown --
+      --------------
+
+      procedure Shutdown is
+      begin
+         Shutdown (Acceptor.Server.all);
+         Std.Shutdown (Acceptor.R_Signal);
+
+         --  Remove R_Signal and Server sockets from socket set
+         --  Remove signal first because
+         --  Signal_Index > Server_Index
+
+         Sets.Remove_Socket (Acceptor.Set, Signal_Index);
+         Sets.Remove_Socket (Acceptor.Set, Server_Index);
+
+         Free (Acceptor.Server);
+
+         while Sets.Count (Acceptor.Set) > 0 loop
+            Sets.Remove_Socket (Acceptor.Set, 1, Socket);
+            Shutdown (Socket.all);
+
+            --  We can free other sockets, because it is not
+            --  used anywhere else when it is in socket set.
+
+            Free (Socket);
+         end loop;
+
+         raise Socket_Error;
+      end Shutdown;
+
    begin
       if Sets.Count (Acceptor.Set) = 0 then
          --  After shutdown of the server socket
@@ -95,7 +128,7 @@ package body AWS.Net.Acceptors is
                   Data : constant Socket_Data_Type
                     := Sets.Get_Data (Acceptor.Set, Acceptor.Index);
                   Diff : constant Duration
-                     := Timeout (Data.First) - (Clock - Data.Time);
+                    := Timeout (Data.First) - (Clock - Data.Time);
                begin
                   if Diff <= 0.0 then
                      Sets.Remove_Socket (Acceptor.Set, Acceptor.Index, Socket);
@@ -120,18 +153,19 @@ package body AWS.Net.Acceptors is
          Sets.Is_Read_Ready (Acceptor.Set, Server_Index, Ready, Error);
 
          if Error then
-            raise Socket_Error;
+            Raise_Socket_Error
+              (Acceptor.Server.all, "Accepting socket error.");
 
          elsif Ready then
             declare
                use Ada.Calendar;
-               New_Socket : Std.Socket_Type;
+               New_Socket : Socket_Type'Class := Acceptor.Constructor (False);
             begin
                --  We could not accept SSL socket because SSL handshake could
                --  take a long time inside Accept_Socket. We would make socket
                --  SSL later outside acceptor if necessary.
 
-               Std.Accept_Socket (Acceptor.Server, New_Socket);
+               Accept_Socket (Acceptor.Server.all, New_Socket);
 
                --  Set time earlier. First timeout would be shorter.
 
@@ -143,7 +177,11 @@ package body AWS.Net.Acceptors is
             end;
          end if;
 
-         if Sets.Is_Read_Ready (Acceptor.Set, Signal_Index) then
+         Sets.Is_Read_Ready (Acceptor.Set, Signal_Index, Ready, Error);
+
+         if Error then
+            Shutdown;
+         elsif Ready then
             declare
                use Ada.Calendar;
 
@@ -154,44 +192,24 @@ package body AWS.Net.Acceptors is
                --  Read bytes from signalling socket and take sockets from
                --  mailbox.
 
-               Std.Receive (Acceptor.R_Signal, Bytes, Last);
+               begin
+                  Std.Receive (Acceptor.R_Signal, Bytes, Last);
+               exception
+                  when Socket_Error =>
+                     Shutdown;
+               end;
 
                for J in 1 .. Last loop
-                  case Bytes (J) is
-                     when Socket_Command =>
-                        Acceptor.Box.Get (Socket);
-                        Sets.Add
-                          (Acceptor.Set,
-                           Socket,
-                           Data  => (Time => Clock, First => False),
-                           Mode  => Sets.Input);
-
-                     when Shutdown_Command =>
-                        Std.Shutdown (Acceptor.Server);
-                        Std.Shutdown (Acceptor.R_Signal);
-                        Std.Shutdown (Acceptor.W_Signal);
-
-                        --  Remove R_Signal and Server sockets from socket set
-                        --  Remove signal first because
-                        --  Signal_Index > Server_Index
-
-                        Sets.Remove_Socket (Acceptor.Set, Signal_Index);
-                        Sets.Remove_Socket (Acceptor.Set, Server_Index);
-
-                        while Sets.Count (Acceptor.Set) > 0 loop
-                           Sets.Remove_Socket (Acceptor.Set, 1, Socket);
-                           Shutdown (Socket.all);
-
-                           --  We can free other sockets, because it is not
-                           --  used anywhere else when it is in socket set.
-
-                           Free (Socket);
-                        end loop;
-
-                        raise Socket_Error;
-
-                     when others => raise Constraint_Error;
-                  end case;
+                  if Bytes (J) = Socket_Command then
+                     Acceptor.Box.Get (Socket);
+                     Sets.Add
+                       (Acceptor.Set,
+                        Socket,
+                        Data  => (Time => Clock, First => False),
+                        Mode  => Sets.Input);
+                  else
+                     raise Constraint_Error;
+                  end if;
                end loop;
             end;
          end if;
@@ -229,8 +247,9 @@ package body AWS.Net.Acceptors is
    is
       use type Sets.Socket_Count;
    begin
-      Std.Bind (Acceptor.Server, Host => Host, Port => Port);
-      Std.Listen (Acceptor.Server, Queue_Size => Queue_Size);
+      Acceptor.Server := new Socket_Type'Class'(Acceptor.Constructor (False));
+      Bind (Acceptor.Server.all, Host => Host, Port => Port);
+      Listen (Acceptor.Server.all, Queue_Size => Queue_Size);
 
       Std.Socket_Pair (Acceptor.W_Signal, Acceptor.R_Signal);
 
@@ -254,13 +273,29 @@ package body AWS.Net.Acceptors is
       end if;
    end Listen;
 
+   function Server_Socket
+     (Acceptor : in Acceptor_Type) return Socket_Type'Class is
+   begin
+      return Acceptor.Server.all;
+   end Server_Socket;
+
+   ----------------------------
+   -- Set_Socket_Constructor --
+   ----------------------------
+
+   procedure Set_Socket_Constructor
+     (Acceptor : in out Acceptor_Type; Constructor : in Socket_Constructor) is
+   begin
+      Acceptor.Constructor := Constructor;
+   end Set_Socket_Constructor;
+
    --------------
    -- Shutdown --
    --------------
 
    procedure Shutdown (Acceptor : in out Acceptor_Type) is
    begin
-      Send (Acceptor.W_Signal, (1 => Shutdown_Command));
+      Std.Shutdown (Acceptor.W_Signal);
    end Shutdown;
 
 end AWS.Net.Acceptors;

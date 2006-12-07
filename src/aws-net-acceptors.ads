@@ -57,11 +57,18 @@ package AWS.Net.Acceptors is
    --  used when the number of sockets exceed Force_Length (generally this
    --  timeout is shorter than the others).
 
-   procedure Get
-     (Acceptor : in out Acceptor_Type;
-      Socket   :    out Socket_Access);
+   procedure Set_Socket_Constructor
+     (Acceptor : in out Acceptor_Type; Constructor : in Socket_Constructor);
+
+   procedure Get (Acceptor : in out Acceptor_Type; Socket : out Socket_Access);
    --  Returns a socket from the internal socket set which has data to read.
    --  Should not be called simultaneously from different tasks.
+
+   function Server_Socket
+     (Acceptor : in Acceptor_Type) return Socket_Type'Class;
+   pragma Inline (Server_Socket);
+   --  return server accepting socket. Need only to show server socket FD in
+   --  server status page.
 
    procedure Give_Back
      (Acceptor : in out Acceptor_Type;
@@ -90,7 +97,7 @@ private
       Set                 : Sets.Socket_Set_Type;
       W_Signal            : Std.Socket_Type;
       R_Signal            : Std.Socket_Type;
-      Server              : Std.Socket_Type;
+      Server              : Socket_Access;
       Box                 : Mailboxes.Mailbox (8);
       Index               : Sets.Socket_Count;
       Last                : Sets.Socket_Count;
@@ -99,6 +106,7 @@ private
       Force_Timeout       : Duration;
       Force_First_Timeout : Duration;
       Force_Length        : Sets.Socket_Count;
+      Constructor         : Socket_Constructor := Socket'Access;
    end record;
 
 end AWS.Net.Acceptors;
