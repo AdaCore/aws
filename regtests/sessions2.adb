@@ -58,6 +58,7 @@ procedure Sessions2 is
    end T_Client;
 
    task Server is
+      entry Start;
       entry Started;
       entry Stop;
    end Server;
@@ -121,6 +122,8 @@ procedure Sessions2 is
    begin
       Get_Free_Port (Port);
 
+      accept Start;
+
       AWS.Server.Start
         (WS, "session",
          CB'Unrestricted_Access,
@@ -163,6 +166,7 @@ begin
    Config.Set.Session_Cleanup_Interval (3.0);
    Config.Set.Session_Lifetime (2.0);
 
+   Server.Start;
    Server.Started;
 
    Session.Set_Callback (Delete_SID'Unrestricted_Access);
