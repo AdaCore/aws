@@ -251,7 +251,7 @@ package body AWS.Session is
       when E : others =>
          Ada.Text_IO.Put_Line
            (Ada.Text_IO.Current_Error,
-            "Unrecoverable Error : Cleaner Task bug detected"
+            "Unrecoverable Error: Cleaner Task bug detected "
             & Exceptions.Exception_Information (E));
    end Cleaner;
 
