@@ -26,8 +26,10 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
+with Ada.Exceptions;
 with Ada.Streams;
 with Ada.Strings.Unbounded;
+with Ada.Text_IO;
 with Ada.Unchecked_Deallocation;
 
 with Ada.Containers.Vectors;
@@ -546,6 +548,12 @@ package body AWS.Services.Download is
 
          Sock_Set.Reset (Socket_Set);
       end loop Main;
+   exception
+      when E : others =>
+         Ada.Text_IO.Put_Line
+           (Ada.Text_IO.Current_Error,
+            "Download manager bug detected: "
+            & Ada.Exceptions.Exception_Information (E));
    end Download_Manager;
 
    -----------
