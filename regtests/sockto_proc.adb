@@ -33,6 +33,8 @@ with Ada.Streams;
 with Ada.Text_IO;
 with Ada.Exceptions;
 
+with Get_Free_Port;
+
 procedure SockTO_Proc (Security : Boolean; Port : Positive) is
 
    use AWS;
@@ -41,6 +43,8 @@ procedure SockTO_Proc (Security : Boolean; Port : Positive) is
 
    D1   : constant Duration := 1.0;
    D2   : constant Duration := D1 * 1.5;
+
+   Free_Port : Positive := Port;
 
    task Client_Side is
       entry Start;
@@ -65,7 +69,7 @@ procedure SockTO_Proc (Security : Boolean; Port : Positive) is
 
       Net.Set_Timeout (Client, D1);
 
-      Net.Connect (Client, "localhost", Port);
+      Net.Connect (Client, "localhost", Free_Port);
 
       for J in 1 .. 5 loop
          Net.Send (Client, Data (1234));
@@ -143,7 +147,9 @@ procedure SockTO_Proc (Security : Boolean; Port : Positive) is
    Peer   : Net.Socket_Type'Class := Net.Socket (Security);
 
 begin
-   Net.Bind (Server, Port);
+   Get_Free_Port (Free_Port);
+
+   Net.Bind (Server, Free_Port);
    Net.Listen (Server);
 
    Client_Side.Start;
