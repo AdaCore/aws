@@ -1,11 +1,11 @@
 Start main, wait for server to start...
 Server started
 
-Client Filename = upload.ali
-Server Filename = ./0.upload.ali
+Client Filename = makefile
+Server Filename = ./.makefile
 => call ok
 
 Client Filename = upload.adb
-Server Filename = ./1.upload.adb
+Server Filename = ./.upload.adb
 => call ok
 

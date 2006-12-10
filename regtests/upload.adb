@@ -28,6 +28,8 @@
 
 --  ~ MAIN [STD]
 
+with Ada.Strings.Fixed;
+with Ada.Strings.Maps.Constants;
 with Ada.Text_IO;
 with Ada.Exceptions;
 
@@ -64,14 +66,27 @@ procedure Upload is
    --------
 
    function CB (Request : in Status.Data) return Response.Data is
+      use Ada.Strings;
       URI    : constant String          := Status.URI (Request);
       P_List : constant Parameters.List := Status.Parameters (Request);
+
+      Server_FN : constant String := Parameters.Get (P_List, "filename");
+
+      First  : Positive;
+      Last   : Natural;
+
    begin
       if URI = "/upload" then
          Put_Line ("Client Filename = "
-                     & Parameters.Get (P_List, "filename", 2));
+                   & Parameters.Get (P_List, "filename", 2));
+
+         --  Remove number from uploaded filename
+
+         Fixed.Find_Token
+           (Server_FN, Maps.Constants.Decimal_Digit_Set, Inside, First, Last);
+
          Put_Line ("Server Filename = "
-                     & Parameters.Get (P_List, "filename"));
+                   & Fixed.Replace_Slice (Server_FN, First, Last, ""));
 
          return Response.Build (MIME.Text_HTML, "call ok");
 
@@ -133,7 +148,7 @@ begin
    Server.Started;
 
    Request
-     ("http://localhost:" & Utils.Image (Port) & "/upload", "upload.ali");
+     ("http://localhost:" & Utils.Image (Port) & "/upload", "makefile");
    Request
      ("http://localhost:" & Utils.Image (Port) & "/upload", "upload.adb");
 

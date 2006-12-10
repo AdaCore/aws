@@ -148,7 +148,7 @@ begin
    Server.Started;
 
    Request
-     ("http://localhost:" & Utils.Image (Port) & "/upload", "upload4.ali");
+     ("http://localhost:" & Utils.Image (Port) & "/upload", "makefile");
 
    Server.Stopped;
 

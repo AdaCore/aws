@@ -30,6 +30,8 @@
 
 --  Test the upload directory config
 
+with Ada.Strings.Fixed;
+with Ada.Strings.Maps.Constants;
 with Ada.Text_IO;
 with Ada.Exceptions;
 
@@ -83,10 +85,22 @@ procedure Upload5 is
                      & Parameters.Get (P_List, "filename", 2));
 
          declare
+            use Ada.Strings;
+
             Server_Filename : constant String
               := Parameters.Get (P_List, "filename");
+            First_N : Positive;
+            Last_N  : Natural;
          begin
-            Put_Line ("Server Filename = " & Server_Filename);
+            --  Remove number from uploaded filename
+
+            Fixed.Find_Token
+              (Server_Filename,
+               Maps.Constants.Decimal_Digit_Set, Inside, First_N, Last_N);
+
+            Put_Line ("Server Filename = "
+                      & Fixed.Replace_Slice
+                          (Server_Filename, First_N, Last_N, ""));
 
             --  Checks that the first are in the upload directory
 
@@ -186,7 +200,7 @@ begin
    Server.Started;
 
    Request
-     ("http://localhost:" & Utils.Image (Port) & "/upload", "upload5.ali");
+     ("http://localhost:" & Utils.Image (Port) & "/upload", "makefile");
    Request
      ("http://localhost:" & Utils.Image (Port) & "/upload", "upload.adb");
 
