@@ -209,4 +209,9 @@ begin
             & " *" & Integer'Image (Clients'Length));
       end if;
    end;
+
+exception
+   when E : others =>
+      Ada.Text_IO.Put_Line
+        ("Main task " & Ada.Exceptions.Exception_Information (E));
 end Accs_Proc;
