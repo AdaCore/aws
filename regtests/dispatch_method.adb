@@ -28,6 +28,7 @@
 
 --  ~ MAIN [STD]
 
+with Ada.Exceptions;
 with Ada.Text_IO;
 
 with AWS.Client;
@@ -121,4 +122,9 @@ begin
    --  Close servers.
 
    AWS.Server.Shutdown (WS);
+
+exception
+   when E : others =>
+      Text_IO.Put_Line
+        ("Main task " & Ada.Exceptions.Exception_Information (E));
 end Dispatch_Method;
