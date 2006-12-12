@@ -117,7 +117,7 @@ begin
    --  Setup (convert data from Poll to Select layout)
 
    Timeout_V.tv_sec  := C.long (Timeout) / 1000;
-   Timeout_V.tv_usec := C.long (Timeout) mod 1000;
+   Timeout_V.tv_usec := C.long (Timeout) mod 1000 * 1000;
 
    for J in Nfds_Range loop
       FD_Events := Poll_Ptr (J).Events;
