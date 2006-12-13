@@ -83,7 +83,7 @@ procedure STO_Proc (Security : Boolean; Port : Positive) is
             Buffer : constant Stream_Element_Array
               := Net.Receive
                    (Client,
-                    Stream_Element_Count'Max (4096, Sample'Last - First + 1));
+                    Stream_Element_Count'Min (4096, Sample'Last - First + 1));
 
             Next : constant Stream_Element_Offset := First + Buffer'Length;
          begin
