@@ -120,6 +120,8 @@ begin
    Timeout_V.tv_usec := C.long (Timeout) mod 1000 * 1000;
 
    for J in Nfds_Range loop
+      Poll_Ptr (J).REvents := 0;
+
       FD_Events := Poll_Ptr (J).Events;
 
       if (FD_Events and (POLLIN or POLLPRI)) /= 0 then
@@ -160,22 +162,18 @@ begin
       Rs := 0;
 
       for J in Nfds_Range loop
-         Poll_Ptr (J).REvents := 0;
-
          if FD_ISSET (C.int (Poll_Ptr (J).FD), Rfds'Address) /= 0 then
             Poll_Ptr (J).REvents := Poll_Ptr (J).REvents or POLLIN;
             Rs := Rs + 1;
          end if;
 
          if FD_ISSET (C.int (Poll_Ptr (J).FD), Wfds'Address) /= 0 then
-            Poll_Ptr (J).REvents
-              := Poll_Ptr (J).REvents or POLLOUT;
+            Poll_Ptr (J).REvents := Poll_Ptr (J).REvents or POLLOUT;
             Rs := Rs + 1;
          end if;
 
          if FD_ISSET (C.int (Poll_Ptr (J).FD), Efds'Address) /= 0 then
-            Poll_Ptr (J).REvents
-              := Poll_Ptr (J).REvents or POLLERR;
+            Poll_Ptr (J).REvents := Poll_Ptr (J).REvents or POLLERR;
             Rs := Rs + 1;
          end if;
       end loop;
