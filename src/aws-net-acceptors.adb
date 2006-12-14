@@ -41,7 +41,10 @@ package body AWS.Net.Acceptors is
    ---------
 
    procedure Get
-     (Acceptor : in out Acceptor_Type; Socket : out Socket_Access)
+     (Acceptor        : in out Acceptor_Type;
+      Socket          : out    Socket_Access;
+      On_Accept_Error : access procedure
+        (E : in Ada.Exceptions.Exception_Occurrence) := null)
    is
       use type Sets.Socket_Count;
       Ready, Error : Boolean;
@@ -58,18 +61,6 @@ package body AWS.Net.Acceptors is
 
       procedure Shutdown is
       begin
-         Shutdown (Acceptor.Server.all);
-         Std.Shutdown (Acceptor.R_Signal);
-
-         --  Remove R_Signal and Server sockets from socket set
-         --  Remove signal first because
-         --  Signal_Index > Server_Index
-
-         Sets.Remove_Socket (Acceptor.Set, Signal_Index);
-         Sets.Remove_Socket (Acceptor.Set, Server_Index);
-
-         Free (Acceptor.Server);
-
          while Sets.Count (Acceptor.Set) > 0 loop
             Sets.Remove_Socket (Acceptor.Set, 1, Socket);
             Shutdown (Socket.all);
@@ -79,6 +70,8 @@ package body AWS.Net.Acceptors is
 
             Free (Socket);
          end loop;
+
+         Free (Acceptor.W_Signal);
 
          raise Socket_Error;
       end Shutdown;
@@ -97,7 +90,7 @@ package body AWS.Net.Acceptors is
          Timeout (not First) := Acceptor.Timeout;
       end if;
 
-      Wait_Timeout := Forever;
+      Wait_Timeout := Timeout (not First);
 
       loop
          Read_Ready : loop
@@ -167,13 +160,18 @@ package body AWS.Net.Acceptors is
 
                Accept_Socket (Acceptor.Server.all, New_Socket);
 
-               --  Set time earlier. First timeout would be shorter.
-
                Sets.Add
                  (Acceptor.Set,
                   New_Socket,
                   Data => (Time => Clock, First => True),
                   Mode => Sets.Input);
+            exception
+               when E : Socket_Error =>
+                  if On_Accept_Error /= null then
+                     On_Accept_Error (E);
+                  else
+                     raise;
+                  end if;
             end;
          end if;
 
@@ -193,7 +191,7 @@ package body AWS.Net.Acceptors is
                --  mailbox.
 
                begin
-                  Std.Receive (Acceptor.R_Signal, Bytes, Last);
+                  Receive (Acceptor.R_Signal.all, Bytes, Last);
                exception
                   when Socket_Error =>
                      Shutdown;
@@ -226,7 +224,7 @@ package body AWS.Net.Acceptors is
      (Acceptor : in out Acceptor_Type;
       Socket   : in     Socket_Access) is
    begin
-      Send (Acceptor.W_Signal, (1 => Socket_Command));
+      Send (Acceptor.W_Signal.all, (1 => Socket_Command));
       Acceptor.Box.Add (Socket);
    end Give_Back;
 
@@ -246,12 +244,27 @@ package body AWS.Net.Acceptors is
       Force_Length        : in     Positive := Positive'Last)
    is
       use type Sets.Socket_Count;
+      function New_Socket return Socket_Access;
+      pragma Inline (New_Socket);
+
+      -------------------
+      -- Create_Socket --
+      -------------------
+
+      function New_Socket return Socket_Access is
+      begin
+         return new Socket_Type'Class'(Acceptor.Constructor (False));
+      end New_Socket;
+
    begin
-      Acceptor.Server := new Socket_Type'Class'(Acceptor.Constructor (False));
+      Acceptor.Server := New_Socket;
       Bind (Acceptor.Server.all, Host => Host, Port => Port);
       Listen (Acceptor.Server.all, Queue_Size => Queue_Size);
 
-      Std.Socket_Pair (Acceptor.W_Signal, Acceptor.R_Signal);
+      Acceptor.R_Signal := New_Socket;
+      Acceptor.W_Signal := New_Socket;
+      Socket_Pair (Acceptor.W_Signal.all, Acceptor.R_Signal.all);
+      Set_Timeout (Acceptor.R_Signal.all, 10.0);
 
       Sets.Reset (Acceptor.Set);
       Sets.Add (Acceptor.Set, Acceptor.Server, Sets.Input);
@@ -295,7 +308,17 @@ package body AWS.Net.Acceptors is
 
    procedure Shutdown (Acceptor : in out Acceptor_Type) is
    begin
-      Std.Shutdown (Acceptor.W_Signal);
+      if Acceptor.W_Signal /= null then
+         declare
+            W_Signal : Socket_Type'Class := Acceptor.W_Signal.all;
+         begin
+            --  Shutdown on a copy of the socket, because Free of the W_Signal
+            --  on the accepting task could be faster than return from shutdown
+            --  routine.
+
+            Shutdown (W_Signal);
+         end;
+      end if;
    end Shutdown;
 
 end AWS.Net.Acceptors;

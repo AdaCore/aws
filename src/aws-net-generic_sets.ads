@@ -201,10 +201,6 @@ package AWS.Net.Generic_Sets is
 
 private
 
-   type Poll_Set_Type;
-
-   type Poll_Set_Access is access all Poll_Set_Type;
-
    type Socket_Record is record
       Socket    : Socket_Access;
       Allocated : Boolean;
@@ -220,9 +216,8 @@ private
    type Socket_Array_Access is access all Socket_Array;
 
    type Socket_Set_Type is new Ada.Finalization.Limited_Controlled with record
-      Poll : Poll_Set_Access;
+      Poll : Set_Access;
       Set  : Socket_Array_Access;
-      Last : Socket_Count := 0;
    end record;
 
    procedure Finalize (Set : in out Socket_Set_Type);

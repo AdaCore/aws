@@ -32,6 +32,7 @@ with Ada.Strings.Unbounded;
 with Ada.Text_IO;
 
 with AWS.MIME;
+with AWS.Net.Poll_Events;
 with AWS.Translator;
 
 package body USock is
@@ -45,10 +46,16 @@ package body USock is
 
    type UString is array (Positive range <>) of Unbounded_String;
 
-   function "+"
-     (Str : in String)
-      return Unbounded_String
-      renames To_Unbounded_String;
+   type U_Set is new AWS.Net.Poll_Events.Set with null record;
+
+   overriding procedure Wait
+     (Container : in out U_Set; Timeout : in Duration; Count : out Natural);
+
+   overriding function Status
+     (Container : in U_Set; Index : in Positive) return Net.Event_Set;
+
+   function "+" (Str : in String) return Unbounded_String
+     renames To_Unbounded_String;
 
    CRLF       : constant String := ASCII.CR & ASCII.LF;
 
@@ -229,6 +236,49 @@ package body USock is
       Last := Data'Last;
    end Send;
 
+   ---------------
+   -- To_FD_Set --
+   ---------------
+
+   function To_FD_Set
+     (Socket : in U_Socket;
+      Events : in Net.Wait_Event_Set;
+      Size   : in Positive := 1) return Net.FD_Set'Class
+   is
+      Result : U_Set (Size);
+   begin
+      Add (Result, Get_FD (Socket), Events);
+      return Result;
+   end To_FD_Set;
+
+   ----------
+   -- Wait --
+   ----------
+
+   procedure Wait
+     (Container : in out U_Set; Timeout : in Duration; Count : out Natural)
+   is
+      pragma Unreferenced (Container, Timeout);
+   begin
+      Count := 1;
+   end Wait;
+
+   ------------
+   -- Status --
+   ------------
+
+   function Status
+     (Container : in U_Set; Index : in Positive) return Net.Event_Set
+   is
+      pragma Unreferenced (Container);
+   begin
+      return (Net.Input  => Done or Index /= 2,
+              --  2 is the signal socket index inside of
+              --  Net.Acceptors.Acceptor_Type.
+              Net.Output => True,
+              Net.Error  => Done);
+   end Status;
+
    -------------
    -- Receive --
    -------------
@@ -266,10 +316,7 @@ package body USock is
    -- Pending --
    -------------
 
-   function Pending
-     (Socket : in U_Socket)
-      return Stream_Element_Count
-   is
+   function Pending (Socket : in U_Socket) return Stream_Element_Count is
       pragma Unreferenced (Socket);
    begin
       if Done then
@@ -295,7 +342,8 @@ package body USock is
    function Peer_Addr (Socket : in U_Socket) return String is
       pragma Unreferenced (Socket);
    begin
-      return "me";
+      --  Have to be 127.0.0.1 to cheat Socket_Pair.
+      return "127.0.0.1";
    end Peer_Addr;
 
    ---------------
@@ -389,9 +437,9 @@ package body USock is
    -- CB --
    --------
 
-   function CB (Request : in Status.Data) return Response.Data is
+   function CB (Request : in AWS.Status.Data) return Response.Data is
    begin
-      Text_IO.Put_Line ("Callback... " & Status.URI (Request));
+      Text_IO.Put_Line ("Callback... " & AWS.Status.URI (Request));
       return Response.Build (MIME.Text_HTML, "response from U_Socket");
    end CB;
 

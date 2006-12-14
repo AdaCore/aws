@@ -29,8 +29,9 @@
 --  Waiting on a group of sockets for reading and accept new connections
 
 with Ada.Calendar;
+with Ada.Exceptions;
 
-with AWS.Net.Std;
+with AWS.Net;
 with AWS.Net.Generic_Sets;
 
 with AWS.Utils;
@@ -60,9 +61,19 @@ package AWS.Net.Acceptors is
    procedure Set_Socket_Constructor
      (Acceptor : in out Acceptor_Type; Constructor : in Socket_Constructor);
 
-   procedure Get (Acceptor : in out Acceptor_Type; Socket : out Socket_Access);
+   procedure Get
+     (Acceptor        : in out Acceptor_Type;
+      Socket          : out    Socket_Access;
+      On_Accept_Error : access procedure
+        (E : in Ada.Exceptions.Exception_Occurrence) := null);
    --  Returns a socket from the internal socket set which has data to read.
    --  Should not be called simultaneously from different tasks.
+   --  On_Accept_Error need to be able to catch Socket_Error on Accept_Socket.
+   --  Accept_Socket could fail if the server processing too many keep-alive
+   --  connections simultaneously. The server could use this callback
+   --  to decrease the number of simultaneous keep-alive connections.
+   --  If On_Accept_Error is null, the exception from Accept_Socket would be
+   --  propagated.
 
    function Server_Socket
      (Acceptor : in Acceptor_Type) return Socket_Type'Class;
@@ -95,8 +106,8 @@ private
 
    type Acceptor_Type is tagged limited record
       Set                 : Sets.Socket_Set_Type;
-      W_Signal            : Std.Socket_Type;
-      R_Signal            : Std.Socket_Type;
+      W_Signal            : Socket_Access;
+      R_Signal            : Socket_Access;
       Server              : Socket_Access;
       Box                 : Mailboxes.Mailbox (8);
       Index               : Sets.Socket_Count;

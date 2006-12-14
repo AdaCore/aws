@@ -28,16 +28,9 @@
 
 with Ada.Unchecked_Deallocation;
 
-with AWS.Net.Thin;
-with AWS.OS_Lib;
+with AWS.Net;
 
 package body AWS.Net.Generic_Sets is
-
-   type Poll_Set_Type is array (Socket_Index range <>) of Thin.Pollfd;
-   pragma Pack (Poll_Set_Type);
-
-   procedure Free is
-     new Ada.Unchecked_Deallocation (Poll_Set_Type, Poll_Set_Access);
 
    procedure Free is
      new Ada.Unchecked_Deallocation (Socket_Array, Socket_Array_Access);
@@ -47,14 +40,11 @@ package body AWS.Net.Generic_Sets is
       --  We could not use AWS.Net.Free because Socket_Set_Type did not
       --  allocate internal socket data.
 
-   procedure Check_Range (Set : in Socket_Set_Type; Index : in Socket_Index);
-   pragma Inline (Check_Range);
-   --  Raise Constraint_Error if Index not in Set range.
-
    procedure Add_Private
-     (Set    : in out Socket_Set_Type;
-      Socket : in     Socket_Access;
-      Mode   : in     Waiting_Mode);
+     (Set       : in out Socket_Set_Type;
+      Socket    : in     Socket_Access;
+      Mode      : in     Waiting_Mode;
+      Length    :    out Socket_Count);
    --  Add Socket into Set
 
    ---------
@@ -64,41 +54,49 @@ package body AWS.Net.Generic_Sets is
    procedure Add
      (Set    : in out Socket_Set_Type;
       Socket : in     Socket_Type'Class;
-      Mode   : in     Waiting_Mode) is
+      Mode   : in     Waiting_Mode)
+   is
+      Length : Socket_Index;
    begin
-      Add_Private (Set, new Socket_Type'Class'(Socket), Mode);
-      Set.Set (Set.Last).Allocated := True;
+      Add_Private (Set, new Socket_Type'Class'(Socket), Mode, Length);
+      Set.Set (Length).Allocated := True;
    end Add;
 
    procedure Add
      (Set    : in out Socket_Set_Type;
       Socket : in     Socket_Access;
-      Mode   : in     Waiting_Mode) is
+      Mode   : in     Waiting_Mode)
+   is
+      Length : Socket_Index;
    begin
-      Add_Private (Set, Socket, Mode);
-      Set.Set (Set.Last).Allocated := False;
+      Add_Private (Set, Socket, Mode, Length);
+      Set.Set (Length).Allocated := False;
    end Add;
 
    procedure Add
      (Set    : in out Socket_Set_Type;
       Socket : in     Socket_Type'Class;
       Data   : in     Data_Type;
-      Mode   : in     Waiting_Mode) is
+      Mode   : in     Waiting_Mode)
+   is
+      Length : Socket_Index;
    begin
-      Add_Private (Set, new Socket_Type'Class'(Socket), Mode);
-      Set.Set (Set.Last).Allocated := True;
-      Set.Set (Set.Last).Data      := Data;
+      Add_Private (Set, new Socket_Type'Class'(Socket), Mode, Length);
+      Set.Set (Length).Allocated := True;
+      Set.Set (Length).Data      := Data;
    end Add;
 
    procedure Add
      (Set    : in out Socket_Set_Type;
       Socket : in     Socket_Access;
       Data   : in     Data_Type;
-      Mode   : in     Waiting_Mode) is
+      Mode   : in     Waiting_Mode)
+   is
+      Length : Socket_Index;
    begin
-      Add_Private (Set, Socket, Mode);
-      Set.Set (Set.Last).Allocated := False;
-      Set.Set (Set.Last).Data      := Data;
+      Add_Private (Set, Socket, Mode, Length);
+      Set.Set (Length).Allocated := False;
+      Set.Set (Length).Data      := Data;
    end Add;
 
    -----------------
@@ -108,65 +106,44 @@ package body AWS.Net.Generic_Sets is
    procedure Add_Private
      (Set    : in out Socket_Set_Type;
       Socket : in     Socket_Access;
-      Mode   : in     Waiting_Mode) is
+      Mode   : in     Waiting_Mode;
+      Length :    out Socket_Count) is
    begin
-      if Set.Poll = null then
-         if Set.Last /= 0 then
-            raise Constraint_Error;
-         end if;
-
-         if Set.Set /= null then
-            raise Constraint_Error;
-         end if;
-
+      if Set.Set = null then
          --  Allocate only few elements in array first, because this package
          --  often would be used for wait just one socket.
 
-         Set.Poll := new Poll_Set_Type (1 .. 4);
-         Set.Set  := new Socket_Array (Set.Poll'Range);
+         Set.Poll := new FD_Set'Class'(To_FD_Set (Socket.all, Mode, 4));
+         Set.Set  := new Socket_Array (1 .. Socket_Count (Set.Poll.Size));
 
-      elsif Set.Last >= Set.Poll'Length then
+         Length := 1;
+
+      else
+         Add (Set.Poll, Get_FD (Socket.all), Mode);
+         Length := Socket_Count (Net.Length (Set.Poll.all));
+      end if;
+
+      if Length > Set.Set'Length then
          declare
-            Prev_Set  : Socket_Array_Access := Set.Set;
-            Prev_Poll : Poll_Set_Access     := Set.Poll;
-            Increment : Socket_Index;
-
+            Prev_Set : Socket_Array_Access := Set.Set;
          begin
-            if Set.Last < 256 then
-               Increment := Set.Last;
-            else
-               Increment := 256;
-            end if;
+            Set.Set  := new Socket_Array (1 .. Socket_Count (Set.Poll.Size));
 
-            Set.Poll := new Poll_Set_Type (1 .. Set.Last + Increment);
-            Set.Set  := new Socket_Array (Set.Poll'Range);
-
-            Set.Poll (Prev_Poll'Range) := Prev_Poll.all;
-            Set.Set  (Prev_Set'Range)  := Prev_Set.all;
+            Set.Set (Prev_Set'Range)  := Prev_Set.all;
 
             Free (Prev_Set);
-            Free (Prev_Poll);
          end;
       end if;
 
-      Set.Last := Set.Last + 1;
+      Set.Set  (Length).Socket := Socket;
 
-      Set.Set  (Set.Last).Socket := Socket;
-      Set.Poll (Set.Last).FD     := Thin.FD_Type (Get_FD (Socket.all));
-
-      Set_Mode (Set, Set.Last, Mode);
-   end Add_Private;
-
-   -----------------
-   -- Check_Range --
-   -----------------
-
-   procedure Check_Range (Set : in Socket_Set_Type; Index : in Socket_Index) is
-   begin
-      if Index > Set.Last then
-         raise Constraint_Error;
+      if Integer (Length) /= Net.Length (Set.Poll.all) then
+         raise Constraint_Error with
+            Socket_Count'Image (Length) & " <>"
+            & Integer'Image (Net.Length (Set.Poll.all));
       end if;
-   end Check_Range;
+
+   end Add_Private;
 
    -----------
    -- Count --
@@ -174,7 +151,11 @@ package body AWS.Net.Generic_Sets is
 
    function Count (Set : in Socket_Set_Type) return Socket_Count is
    begin
-      return Set.Last;
+      if Set.Poll = null then
+         return 0;
+      else
+         return Socket_Count (Length (Set.Poll.all));
+      end if;
    end Count;
 
    --------------
@@ -197,8 +178,6 @@ package body AWS.Net.Generic_Sets is
       Index : in Socket_Index)
       return Data_Type is
    begin
-      Check_Range (Set, Index);
-
       return Set.Set (Index).Data;
    end Get_Data;
 
@@ -211,8 +190,6 @@ package body AWS.Net.Generic_Sets is
       Index : in Socket_Index)
       return Socket_Type'Class is
    begin
-      Check_Range (Set, Index);
-
       return Set.Set (Index).Socket.all;
    end Get_Socket;
 
@@ -225,7 +202,7 @@ package body AWS.Net.Generic_Sets is
       Index : in Socket_Index)
       return Boolean is
    begin
-      return Index <= Set.Last;
+      return Index <= Count (Set);
    end In_Range;
 
    --------------
@@ -233,33 +210,14 @@ package body AWS.Net.Generic_Sets is
    --------------
 
    function Is_Error
-     (Set   : in Socket_Set_Type;
-      Index : in Socket_Index)
-      return Boolean
-   is
-      use AWS.OS_Lib;
+     (Set : in Socket_Set_Type; Index : in Socket_Index) return Boolean is
    begin
-      Check_Range (Set, Index);
-
-      return (Set.Poll (Index).REvents
-              and (POLLERR or POLLHUP or POLLNVAL)) /= 0;
+      return Status (Set.Poll.all, Positive (Index)) (Error);
    end Is_Error;
 
    -------------------
    -- Is_Read_Ready --
    -------------------
-
-   function Is_Read_Ready
-     (Set   : in Socket_Set_Type;
-      Index : in Socket_Index)
-      return Boolean
-   is
-      use AWS.OS_Lib;
-   begin
-      Check_Range (Set, Index);
-
-      return (Set.Poll (Index).REvents and (POLLIN or POLLPRI)) /= 0;
-   end Is_Read_Ready;
 
    procedure Is_Read_Ready
      (Set   : in     Socket_Set_Type;
@@ -267,13 +225,16 @@ package body AWS.Net.Generic_Sets is
       Ready :    out Boolean;
       Error :    out Boolean)
    is
-      use AWS.OS_Lib;
+      Result : constant Event_Set := Status (Set.Poll.all, Positive (Index));
    begin
-      Check_Range (Set, Index);
+      Ready := Result (Net.Input);
+      Error := Result (Net.Error);
+   end Is_Read_Ready;
 
-      Ready := (Set.Poll (Index).REvents and (POLLIN or POLLPRI)) /= 0;
-      Error := (Set.Poll (Index).REvents
-                and (POLLERR or POLLHUP or POLLNVAL)) /= 0;
+   function Is_Read_Ready
+     (Set : in Socket_Set_Type; Index : in Socket_Index) return Boolean is
+   begin
+      return Status (Set.Poll.all, Positive (Index)) (Net.Input);
    end Is_Read_Ready;
 
    --------------------
@@ -281,15 +242,9 @@ package body AWS.Net.Generic_Sets is
    --------------------
 
    function Is_Write_Ready
-     (Set   : in Socket_Set_Type;
-      Index : in Socket_Index)
-      return Boolean
-   is
-      use AWS.OS_Lib;
+     (Set : in Socket_Set_Type; Index : in Socket_Index) return Boolean is
    begin
-      Check_Range (Set, Index);
-
-      return (Set.Poll (Index).REvents and POLLOUT) /= 0;
+      return Status (Set.Poll.all, Positive (Index)) (Net.Output);
    end Is_Write_Ready;
 
    ----------
@@ -297,17 +252,9 @@ package body AWS.Net.Generic_Sets is
    ----------
 
    procedure Next
-     (Set   : in     Socket_Set_Type;
-      Index : in out Socket_Index)
-   is
-      use type Thin.Events_Type;
+     (Set : in Socket_Set_Type; Index : in out Socket_Index) is
    begin
-      loop
-         exit when Index > Set.Last
-           or else Set.Poll (Index).REvents /= 0;
-
-         Index := Index + 1;
-      end loop;
+      Next (Set.Poll.all, Positive (Index));
    end Next;
 
    -------------------
@@ -316,33 +263,39 @@ package body AWS.Net.Generic_Sets is
 
    procedure Remove_Socket
      (Set   : in out Socket_Set_Type;
-      Index : in     Socket_Index) is
+      Index : in     Socket_Index)
+   is
+      Last : constant Socket_Count := Socket_Count (Length (Set.Poll.all));
    begin
-      Check_Range (Set, Index);
-
       if Set.Set (Index).Allocated then
          Generic_Sets.Free (Set.Set (Index).Socket);
       end if;
 
-      Set.Set (Index)  := Set.Set (Set.Last);
-      Set.Poll (Index) := Set.Poll (Set.Last);
+      if Index < Last then
+         Set.Set (Index) := Set.Set (Last);
+      elsif Index > Last then
+         raise Constraint_Error;
+      end if;
 
-      Set.Last := Set.Last - 1;
+      Remove (Set.Poll.all, Positive (Index));
    end Remove_Socket;
 
    procedure Remove_Socket
      (Set    : in out Socket_Set_Type;
       Index  : in     Socket_Index;
-      Socket :    out Socket_Access) is
+      Socket :    out Socket_Access)
+   is
+      Last : constant Socket_Count := Socket_Count (Length (Set.Poll.all));
    begin
-      Check_Range (Set, Index);
-
       Socket := Set.Set (Index).Socket;
 
-      Set.Set (Index)  := Set.Set (Set.Last);
-      Set.Poll (Index) := Set.Poll (Set.Last);
+      if Index < Last then
+         Set.Set (Index) := Set.Set (Last);
+      elsif Index > Last then
+         raise Constraint_Error;
+      end if;
 
-      Set.Last := Set.Last - 1;
+      Remove (Set.Poll.all, Positive (Index));
    end Remove_Socket;
 
    -----------
@@ -350,14 +303,20 @@ package body AWS.Net.Generic_Sets is
    -----------
 
    procedure Reset (Set : in out Socket_Set_Type) is
+      Last : Socket_Count;
    begin
-      for K in 1 .. Set.Last loop
+      if Set.Poll = null then
+         return;
+      end if;
+
+      Last := Socket_Count (Length (Set.Poll.all));
+
+      for K in reverse 1 .. Last loop
          if Set.Set (K).Allocated then
             Generic_Sets.Free (Set.Set (K).Socket);
          end if;
+         Remove (Set.Poll.all, Positive (K));
       end loop;
-
-      Set.Last := 0;
    end Reset;
 
    --------------
@@ -369,8 +328,6 @@ package body AWS.Net.Generic_Sets is
       Index : in     Socket_Index;
       Data  : in     Data_Type) is
    begin
-      Check_Range (Set, Index);
-
       Set.Set (Index).Data := Data;
    end Set_Data;
 
@@ -381,21 +338,9 @@ package body AWS.Net.Generic_Sets is
    procedure Set_Mode
      (Set    : in out Socket_Set_Type;
       Index  : in     Socket_Index;
-      Mode   : in     Waiting_Mode)
-   is
-      use OS_Lib;
-      use type Thin.Events_Type;
+      Mode   : in     Waiting_Mode) is
    begin
-      if Mode (Net.Input) then
-         Set.Poll (Index).Events := POLLIN or POLLPRI;
-      else
-         Set.Poll (Index).Events := 0;
-      end if;
-
-      if Mode (Net.Output) then
-         Set.Poll (Index).Events
-           := Set.Poll (Index).Events or POLLOUT;
-      end if;
+      Set_Mode (Set.Poll.all, Integer (Index), Mode);
    end Set_Mode;
 
    ----------
@@ -407,33 +352,13 @@ package body AWS.Net.Generic_Sets is
       Timeout : in     Duration;
       Count   :    out Socket_Count)
    is
-      use type Thin.Timeout_Type;
-
-      Result       : Socket_Count'Base;
-      Poll_Timeout : Thin.Timeout_Type;
    begin
-      if Set.Last = 0 then
+      if Set.Poll = null then
          Count := 0;
          return;
       end if;
 
-      if Timeout >= Duration (Thin.Timeout_Type'Last / 1_000) then
-         Poll_Timeout := Thin.Timeout_Type'Last;
-      else
-         Poll_Timeout := Thin.Timeout_Type (Timeout * 1_000);
-      end if;
-
-      Result := Socket_Count'Base
-        (Thin.Poll
-           (FDS     => Set.Poll (Set.Poll'First)'Address,
-            Nfds    => Thin.nfds_t (Set.Last),
-            Timeout => Poll_Timeout));
-
-      if Result < 0 then
-         raise Socket_Error with "Poll error code" & Integer'Image (Errno);
-      end if;
-
-      Count := Result;
+      Wait (Set.Poll.all, Timeout, Integer (Count));
    end Wait;
 
    procedure Wait

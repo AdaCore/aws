@@ -43,64 +43,71 @@ package USock is
 
    function Socket (Security : in Boolean) return Net.Socket_Type'Class;
 
-   procedure Bind
+   overriding procedure Bind
      (Socket : in out U_Socket;
       Port   : in     Natural;
       Host   : in     String := "");
 
-   procedure Listen
+   overriding procedure Listen
      (Socket     : in U_Socket;
       Queue_Size : in Positive := 5);
 
-   procedure Accept_Socket
+   overriding procedure Accept_Socket
      (Socket     : in     Net.Socket_Type'Class;
       New_Socket : in out U_Socket);
 
-   procedure Connect
+   overriding procedure Connect
      (Socket : in out U_Socket;
       Host   : in     String;
       Port   : in     Positive;
       Wait   : in     Boolean := True);
 
-   procedure Shutdown (Socket : in U_Socket);
+   overriding procedure Shutdown (Socket : in U_Socket);
 
-   procedure Send
+   overriding procedure Send
      (Socket : in     U_Socket;
       Data   : in     Stream_Element_Array;
       Last   :    out Stream_Element_Offset);
 
-   procedure Receive
+   overriding procedure Receive
      (Socket : in     U_Socket;
       Data   :    out Stream_Element_Array;
       Last   :    out Stream_Element_Offset);
 
-   function Pending
-     (Socket : in U_Socket)
-      return Stream_Element_Count;
+   overriding function Pending
+     (Socket : in U_Socket) return Stream_Element_Count;
 
-   function Get_FD (Socket : in U_Socket) return Integer;
+   overriding function Get_FD (Socket : in U_Socket) return Integer;
 
-   function Peer_Addr (Socket : in U_Socket) return String;
+   overriding function Peer_Addr (Socket : in U_Socket) return String;
 
-   function Peer_Port (Socket : in U_Socket) return Positive;
+   overriding function Peer_Port (Socket : in U_Socket) return Positive;
 
-   function Get_Addr (Socket : in U_Socket) return String;
+   overriding function Get_Addr (Socket : in U_Socket) return String;
 
-   function Get_Port (Socket : in U_Socket) return Positive;
+   overriding function Get_Port (Socket : in U_Socket) return Positive;
 
-   procedure Set_Send_Buffer_Size
+   overriding procedure Set_Send_Buffer_Size
      (Socket : in U_Socket;
       Size   : in Natural);
 
-   procedure Set_Receive_Buffer_Size
+   overriding procedure Set_Receive_Buffer_Size
      (Socket : in U_Socket;
       Size   : in Natural);
 
-   function Get_Send_Buffer_Size (Socket : in U_Socket) return Natural;
+   overriding function Get_Send_Buffer_Size
+     (Socket : in U_Socket) return Natural;
 
-   function Get_Receive_Buffer_Size (Socket : in U_Socket) return Natural;
+   overriding function Get_Receive_Buffer_Size
+     (Socket : in U_Socket) return Natural;
 
-   function Errno (Socket : in U_Socket) return Integer;
+   overriding function Errno
+     (Socket : in U_Socket) return Integer;
+
+   overriding function To_FD_Set
+     (Socket : in U_Socket;
+      Events : in Net.Wait_Event_Set;
+      Size   : in Positive := 1) return Net.FD_Set'Class;
 
    function CB (Request : in Status.Data) return Response.Data;
 

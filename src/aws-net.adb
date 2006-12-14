@@ -30,8 +30,8 @@ with Ada.Strings.Fixed;
 with Ada.Unchecked_Deallocation;
 with Interfaces.C;
 
+with AWS.Net.Poll_Events;
 with AWS.Net.Log;
-with AWS.Net.Thin;
 with AWS.Net.Std;
 with AWS.Net.SSL;
 with AWS.OS_Lib;
@@ -44,11 +44,25 @@ package body AWS.Net is
 
    function Errno return Integer renames Std.Errno;
 
-   function Poll
-     (Socket  : in Socket_Type'Class;
-      Events  : in Wait_Event_Set;
-      Timeout : in Duration) return Event_Set;
-   --  Wait for events on socket descriptor.
+   ---------
+   -- Add --
+   ---------
+
+   procedure Add
+     (Container : in out Set_Access;
+      FD        : in FD_Type;
+      Event     : in Wait_Event_Set) is
+   begin
+      if Length (Container.all) = Container.Size then
+         if Container.Size < 256 then
+            Container := Reallocate (Container, Container.Size * 2);
+         else
+            Container := Reallocate (Container, Container.Size + 256);
+         end if;
+      end if;
+
+      Add (Container.all, FD, Event);
+   end Add;
 
    ------------
    -- Adjust --
@@ -104,6 +118,13 @@ package body AWS.Net is
       null;
    end Free;
 
+   procedure Free (Container : in out Set_Access) is
+      procedure Dispose is
+        new Ada.Unchecked_Deallocation (FD_Set'Class, Set_Access);
+   begin
+      Dispose (Container);
+   end Free;
+
    ---------------
    -- Host_Name --
    ---------------
@@ -142,66 +163,11 @@ package body AWS.Net is
       Events  : in Wait_Event_Set;
       Timeout : in Duration) return Event_Set
    is
-      use Interfaces;
-      use OS_Lib;
-
-      use type C.int;
-      use type Thin.Events_Type;
-
-      FD : constant Integer := Get_FD (Poll.Socket);
-
-      PFD : aliased Thin.Pollfd;
-      RC      : C.int;
-      TO      : C.int;
-      Errno   : Integer;
-
+      Waiter : FD_Set'Class := To_FD_Set (Socket, Events);
+      Dummy  : Natural;
    begin
-      if FD < 0 then
-         Raise_Socket_Error (Socket, "Socket already closed.");
-      end if;
-
-      PFD := (Fd      => Thin.FD_Type (FD),
-              Events  => 0,
-              REvents => 0);
-
-      if Timeout >= Duration (C.int'Last / 1_000) then
-         TO := C.int'Last;
-      else
-         TO := C.int (Timeout * 1_000);
-      end if;
-
-      loop
-         if Events (Input) then
-            PFD.Events := POLLIN or POLLPRI;
-         end if;
-
-         if Events (Output) then
-            PFD.Events := PFD.Events or POLLOUT;
-         end if;
-
-         RC := Thin.Poll (PFD'Address, 1, TO);
-
-         case RC is
-            when -1 =>
-               Errno := Std.Errno;
-
-               if Errno /= EINTR then
-                  Raise_Socket_Error
-                    (Socket, "Wait error code" & Integer'Image (Errno));
-               end if;
-
-            when 0  =>
-               return (others => False);
-
-            when 1  =>
-               return (Input  => (PFD.REvents and (POLLIN or POLLPRI)) /= 0,
-                       Output => (PFD.REvents and POLLOUT) /= 0,
-                       Error  => (PFD.REvents
-                                  and (POLLERR or POLLHUP or POLLNVAL)) /= 0);
-            when others =>
-               raise Program_Error;
-         end case;
-      end loop;
+      Wait (Waiter, Timeout, Dummy);
+      return Status (Waiter, 1);
    end Poll;
 
    ------------------------
@@ -221,8 +187,7 @@ package body AWS.Net is
 
    function Receive
      (Socket : in Socket_Type'Class;
-      Max    : in Stream_Element_Count := 4096)
-      return Stream_Element_Array
+      Max    : in Stream_Element_Count := 4096) return Stream_Element_Array
    is
       Result : Stream_Element_Array (1 .. Max);
       Last   : Stream_Element_Offset;
@@ -237,8 +202,7 @@ package body AWS.Net is
    ----------
 
    procedure Send
-     (Socket : in Socket_Type'Class;
-      Data   : in Stream_Element_Array)
+     (Socket : in Socket_Type'Class; Data : in Stream_Element_Array)
    is
       First : Stream_Element_Offset := Data'First;
       Last  : Stream_Element_Offset;
@@ -263,8 +227,7 @@ package body AWS.Net is
    -----------------------
 
    procedure Set_Blocking_Mode
-     (Socket   : in out Socket_Type;
-      Blocking : in     Boolean) is
+     (Socket : in out Socket_Type; Blocking : in Boolean) is
    begin
       if Blocking then
          Set_Timeout (Socket_Type'Class (Socket), Forever);
@@ -278,8 +241,7 @@ package body AWS.Net is
    ------------------
 
    procedure Set_No_Delay
-     (Socket : in Socket_Type;
-      Value  : in Boolean := True)
+     (Socket : in Socket_Type; Value : in Boolean := True)
    is
       use Interfaces;
       use type C.int;
@@ -302,8 +264,7 @@ package body AWS.Net is
    -----------------
 
    procedure Set_Timeout
-     (Socket  : in out Socket_Type;
-      Timeout : in     Duration) is
+     (Socket : in out Socket_Type; Timeout : in Duration) is
    begin
       Socket.Timeout := Timeout;
    end Set_Timeout;
@@ -367,6 +328,21 @@ package body AWS.Net is
       Std.Shutdown (Server);
    end Socket_Pair;
 
+   ---------------
+   -- To_FD_Set --
+   ---------------
+
+   function To_FD_Set
+     (Socket : in Socket_Type;
+      Events : in Wait_Event_Set;
+      Size   : in Positive := 1) return FD_Set'Class
+   is
+      Result : Poll_Events.Set (Size);
+   begin
+      Poll_Events.Add (Result, Get_FD (Socket_Type'Class (Socket)), Events);
+      return Result;
+   end To_FD_Set;
+
    ----------
    -- Wait --
    ----------
@@ -383,8 +359,7 @@ package body AWS.Net is
    --------------
 
    procedure Wait_For
-     (Mode   : in Wait_Event_Type;
-      Socket : in Socket_Type'Class)
+     (Mode : in Wait_Event_Type; Socket : in Socket_Type'Class)
    is
       Events : Wait_Event_Set := (others => False);
       Result : Event_Set;
