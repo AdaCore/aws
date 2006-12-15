@@ -231,6 +231,15 @@ package body AWS.Config.Set is
       O.P (Hotplug_Port).Pos_Value := Value;
    end Hotplug_Port;
 
+   ----------------------------
+   -- Keep_Alive_Force_Limit --
+   ----------------------------
+
+   procedure Keep_Alive_Force_Limit (O : in out Object; Value : in Natural) is
+   begin
+      O.P (Hotplug_Port).Nat_Value := Value;
+   end Keep_Alive_Force_Limit;
+
    ---------
    -- Key --
    ---------

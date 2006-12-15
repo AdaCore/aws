@@ -69,13 +69,19 @@ package AWS.Config.Set is
    --  declaration.
 
    procedure Free_Slots_Keep_Alive_Limit
-     (O     : in out Object;
-      Value : in     Natural);
+     (O : in out Object; Value : in Natural);
    --  The minimum number of free slots where keep-alive connections are still
    --  enabled. After this limit no more keep-alive connection will be
    --  accepted by the server. This parameter must be used for heavy-loaded
    --  servers to make sure the server will never run out of slots. This limit
    --  must be less than Max_Connection.
+
+   procedure Keep_Alive_Force_Limit (O : in out Object; Value : in Natural);
+   --  Define maximum number of keep alive sockets where server process it with
+   --  normal timeouts. If number of keep-alive sockets become more than
+   --  Keep_Alive_Force_Limit, server start to use shorter force timeouts.
+   --  If this parameter not defined in configuration or defined as 0 value
+   --  server use calculated value Max_Connection * 2.
 
    procedure Accept_Queue_Size (O : in out Object; Value : in Positive);
    --  This is the size of the queue for the incoming requests. Higher this
