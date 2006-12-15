@@ -55,6 +55,7 @@ package AWS.Default is
    Hotplug_Port                    : constant         := 8888;
    Max_Connection                  : constant         := 5;
    Free_Slots_Keep_Alive_Limit     : constant         := 1;
+   Keep_Alive_Force_Limit          : constant         := 0;
    Accept_Queue_Size               : constant         := 64;
    Upload_Directory                : constant String  := "";
    Line_Stack_Size                 : constant         := 16#150_000#;
@@ -91,12 +92,12 @@ package AWS.Default is
    --  Server's timeouts
 
    Cleaner_Wait_For_Client_Timeout : constant Duration := 80.0;
-   Cleaner_Client_Header_Timeout   : constant Duration := 20.0;
+   Cleaner_Client_Header_Timeout   : constant Duration := 7.0;
    Cleaner_Client_Data_Timeout     : constant Duration := Eight_Hours;
    Cleaner_Server_Response_Timeout : constant Duration := Eight_Hours;
 
    Force_Wait_For_Client_Timeout   : constant Duration := 2.0;
-   Force_Client_Header_Timeout     : constant Duration := 3.0;
+   Force_Client_Header_Timeout     : constant Duration := 2.0;
    Force_Client_Data_Timeout       : constant Duration := Three_Hours;
    Force_Server_Response_Timeout   : constant Duration := Three_Hours;
 

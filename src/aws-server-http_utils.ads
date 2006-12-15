@@ -54,10 +54,7 @@ package AWS.Server.HTTP_Utils is
    --  POST method is handled. This procedure fill in the C_Stat status
    --  data.
 
-   procedure Get_Message_Header
-     (HTTP_Server  : in     AWS.Server.HTTP;
-      Line_Index   : in     Positive;
-      C_Stat       : in out AWS.Status.Data);
+   procedure Get_Message_Header (C_Stat : in out AWS.Status.Data);
    --  Parse HTTP message header. This procedure fill in the C_Stat status
    --  data.
 

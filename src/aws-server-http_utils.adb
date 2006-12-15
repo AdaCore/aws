@@ -666,7 +666,7 @@ package body AWS.Server.HTTP_Utils is
                Write (Buffer);
                Index := Buffer'First;
 
-               HTTP_Server.Slots.Mark_Data_Time_Stamp (Line_Index);
+               HTTP_Server.Slots.Check_Data_Timeout (Line_Index);
             end if;
          end loop Read_File;
 
@@ -949,11 +949,7 @@ package body AWS.Server.HTTP_Utils is
    -- Get_Message_Header --
    ------------------------
 
-   procedure Get_Message_Header
-     (HTTP_Server : in     AWS.Server.HTTP;
-      Line_Index  : in     Positive;
-      C_Stat      : in out AWS.Status.Data)
-   is
+   procedure Get_Message_Header (C_Stat : in out AWS.Status.Data) is
       Sock : constant Net.Socket_Type'Class := Status.Socket (C_Stat);
    begin
       --  Get and parse request line
@@ -974,8 +970,6 @@ package body AWS.Server.HTTP_Utils is
             end if;
          end;
       end loop;
-
-      HTTP_Server.Slots.Mark_Phase (Line_Index, Client_Header);
 
       Status.Set.Read_Header (Socket => Sock, D => C_Stat);
    end Get_Message_Header;
@@ -1497,7 +1491,7 @@ package body AWS.Server.HTTP_Utils is
 
             Length := Length + Last;
 
-            HTTP_Server.Slots.Mark_Data_Time_Stamp (Line_Index);
+            HTTP_Server.Slots.Check_Data_Timeout (Line_Index);
          end loop;
       end Send_File;
 
@@ -1533,7 +1527,7 @@ package body AWS.Server.HTTP_Utils is
 
             Length := Length + Last;
 
-            HTTP_Server.Slots.Mark_Data_Time_Stamp (Line_Index);
+            HTTP_Server.Slots.Check_Data_Timeout (Line_Index);
 
             declare
                H_Last : constant String := Utils.Hex (Positive (Last));
@@ -1648,7 +1642,7 @@ package body AWS.Server.HTTP_Utils is
 
                   Sent := Sent + Last;
 
-                  HTTP_Server.Slots.Mark_Data_Time_Stamp (Line_Index);
+                  HTTP_Server.Slots.Check_Data_Timeout (Line_Index);
                end loop;
             end;
          end Send_Range;

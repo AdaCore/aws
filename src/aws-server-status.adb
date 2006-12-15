@@ -92,7 +92,7 @@ package body AWS.Server.Status is
 
    function Socket (Server : in HTTP) return Net.Socket_Type'Class is
    begin
-      return Server.Sock.all;
+      return Net.Acceptors.Server_Socket (Server.Acceptor);
    end Socket;
 
    ----------------
@@ -258,7 +258,7 @@ package body AWS.Server.Status is
             Phase     := Phase & Slot_Phase'Image (Slot_Data.Phase);
 
             Abortable := Abortable
-              & Server.Slots.Is_Abortable (Index => K, Mode => Force);
+              & Server.Slots.Is_Abortable (Index => K);
 
             Activity_Counter := Activity_Counter & Slot_Data.Activity_Counter;
 
@@ -302,7 +302,7 @@ package body AWS.Server.Status is
                      CNF.Security (Server.Properties)),
 
               Assoc ("SERVER_SOCK",
-                     Integer (Net.Get_FD (Server.Sock.all))),
+                     Integer (Net.Get_FD (Socket (Server)))),
 
               Assoc ("VERSION",
                      Version),

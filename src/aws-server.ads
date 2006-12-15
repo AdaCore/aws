@@ -36,6 +36,7 @@ with AWS.Dispatchers;
 with AWS.Exceptions;
 with AWS.Hotplug;
 with AWS.Log;
+with AWS.Net.Acceptors;
 with AWS.Net.SSL;
 with AWS.Response;
 with AWS.Status;
@@ -178,10 +179,15 @@ package AWS.Server is
    ---------------
 
    procedure Give_Back_Socket
-     (Web_Server : in out HTTP;
-      Socket     : in     Net.Socket_Type'Class);
+     (Web_Server : in out HTTP; Socket : in Net.Socket_Type'Class);
    --  Give the socket back to the server. Socket must have been taken from
    --  the server using the Response.Socket_Taken routine in a callback.
+
+   procedure Give_Back_Socket
+     (Web_Server : in out HTTP; Socket : in Net.Socket_Access);
+   --  Idem.
+   --  Use Socket_Access to avoid memory reallocation for already allocated
+   --  sockets.
 
    procedure Set_Field (Id, Value : in String);
    --  Set the extended log field value for the server the controlling the
@@ -263,7 +269,6 @@ private
       Socket_Taken          : Boolean           := False;
       Phase                 : Slot_Phase        := Closed;
       Phase_Time_Stamp      : Ada.Calendar.Time := Ada.Calendar.Clock;
-      Data_Time_Stamp       : Ada.Calendar.Time;
       Alive_Time_Stamp      : Ada.Calendar.Time;
       Slot_Activity_Counter : Natural := 0;
       Activity_Counter      : Natural := 0;
@@ -297,6 +302,9 @@ private
       --  Set Activity_Time_Stamp which is the last time where the line number
       --  Index as been used.
 
+      procedure Check_Data_Timeout (Index : in Positive);
+      --  Check timeout of send/receive message body.
+
       procedure Socket_Taken (Index : in Positive; Flag : in Boolean);
       --  Used to mark slot associated socket has "taken" by some foreign code.
       --  The server must not close this socket on releasing the slot. It is
@@ -304,19 +312,16 @@ private
       --  future it could be used for other functionality over the same
       --  socket, changing HTTP to other protocol for example.
 
-      procedure Mark_Data_Time_Stamp (Index : in Positive);
-      --  Mark timestamp for receive or send chunk of data
+      procedure Prepare_Back (Index : in Positive; Possible : out Boolean);
+      --  Test and prepare to put socket back into acceptor.
+      --  If Possible value become False, it is not possible to
+      --  back socket into acceptor because socket already in shutdown process.
 
-      function Is_Abortable
-        (Index : in Positive;
-         Mode  : in Timeout_Mode)
-         return Boolean;
-      --  Return True when slot can be aborted
+      function Is_Abortable (Index : in Positive) return Boolean;
+      --  Return True when slot can be aborted due to "forced" timeouts.
 
       procedure Abort_On_Timeout
-        (Mode   : in     Timeout_Mode;
-         Socket :    out Socket_Access;
-         Index  :    out Positive);
+        (Socket : out Socket_Access; Index : out Positive);
       --  Get the socket pointer from slot where timeout exceeded.
       --  Return null if no such sockets.
 
@@ -331,7 +336,7 @@ private
       --  with Socket. Phase set to Wait_For_Client.
       --  Returns number of Free slots in the Free_Slot out parameter, it is
       --  necessary information for Server line task, for determine is it
-      --  necessary to call Line_Cleaner in Force mode.
+      --  necessary to call Force_Clean.
 
       procedure Get_For_Shutdown
         (Index  : in     Positive;
@@ -342,9 +347,7 @@ private
       procedure Shutdown_Done (Index : in Positive);
       --  Called when Shutdown is complete, Slot phase is set to Aborted
 
-      entry Release
-        (Index    : in     Positive;
-         Shutdown :    out Boolean);
+      entry Release (Index : in Positive; Shutdown : out Boolean);
       --  Release slot number Index. Slot phase is set to Closed.
       --  Set the shutdown flag to True is called task have to
       --  shutdown and free the socket.
@@ -400,49 +403,6 @@ private
 
    type Line_Set_Access is access Line_Set;
 
-   ------------------
-   -- Line_Cleaner --
-   ------------------
-
-   task type Line_Cleaner (Server : HTTP_Access) is
-      entry Force;
-      --  Force a line to be closed
-      entry Shutdown;
-      --  Terminate the line clean task
-   end Line_Cleaner;
-
-   type Line_Cleaner_Access is access Line_Cleaner;
-   --  Run through the slots and see if some of them could be closed
-
-   ----------------------
-   -- Socket_Semaphore --
-   ----------------------
-
-   Max_Sockets : constant := 10;
-   --  Maximum number of sockets into the queue
-
-   protected type Socket_Semaphore is
-
-      entry Put_Socket (Socket : in Net.Socket_Access);
-      --  Store socket into the protected object, can enter only if there
-      --  is no socket already stored.
-
-      entry Seize_Or_Socket (Socket : out Net.Socket_Access);
-      --  Enter and seize the semaphore or retrieve a waiting socket
-
-      procedure Release;
-      --  Release the semaphore. Call Release only if the Socket output
-      --  parameter in Seize_Or_Socket was null.
-
-   private
-      Size    : Natural  := 0; -- Current size of the queue, waiting sockets
-      Current : Positive := 1; -- Index to current socket
-      Last    : Positive := 1; -- Index to last socket
-
-      Sockets : Net.Socket_Set (1 .. Max_Sockets);
-      Seized  : Boolean := False;
-   end Socket_Semaphore;
-
    ----------
    -- HTTP --
    ----------
@@ -458,16 +418,13 @@ private
       --  True when server is shutdown. This will be set to False when server
       --  will be started.
 
-      Sock               : Net.Socket_Access;
-      --  This is the server socket for incoming connection
+      Acceptor           : Net.Acceptors.Acceptor_Type;
+      --  This is the socket set where server socket and keep alive sockets
+      --  waiting for read availability.
 
-      Sock_Sem           : Socket_Semaphore;
-      --  Semaphore used to serialize the accepts call on the server socket
-      --  or accept gave back sockets.
-
-      Cleaner            : Line_Cleaner_Access;
-      --  Task in charge of cleaning slots status. It checks from time to time
-      --  if the slots is still in used and closed it if possible.
+      Accept_Sem         : Utils.Semaphore;
+      --  Semaphore used to serialize the waiting of the available socket on
+      --  Acceptor.
 
       Properties         : CNF.Object := CNF.Get_Current;
       --  All server properties controled by the configuration file
@@ -498,11 +455,6 @@ private
          := Default_Unexpected_Exception_Handler'Access;
       --  Exception handle used for unexpected errors found on the server
       --  implementation.
-
-      Socket_Constructor : Net.Socket_Constructor := AWS.Net.Socket'Access;
-      --  The routine to call to wait for an incoming socket. Changing this
-      --  permits to setup a specialize communication layer for the server
-      --  instead of relying on the AWS.Net.Std default.
 
       SSL_Config         : Net.SSL.Config;
    end record;

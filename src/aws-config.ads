@@ -101,6 +101,16 @@ package AWS.Config is
    --  servers to make sure the server will never run out of slots. This limit
    --  must be less than Max_Connection.
 
+   function Keep_Alive_Force_Limit (O : in Object) return Positive;
+   pragma Inline (Keep_Alive_Force_Limit);
+   --  Server could have keep-alive sockets more than Max_Connection.
+   --  Keep alive sockets waiting for client input in the internal server
+   --  socket set. This parameter define maximum number of keep alive sockets
+   --  where server process it with normal timeouts. If number of keep-alive
+   --  sockets become more than Keep_Alive_Force_Limit, server start to use
+   --  shorter force timeouts. If this parameter not defined in configuration,
+   --  server use calculated value Max_Connection * 2.
+
    function Accept_Queue_Size (O : in Object) return Positive;
    pragma Inline (Accept_Queue_Size);
    --  This is the size of the queue for the incoming requests. Higher this
@@ -330,6 +340,7 @@ private
       Hotplug_Port,
       Max_Connection,
       Free_Slots_Keep_Alive_Limit,
+      Keep_Alive_Force_Limit,
       Accept_Queue_Size,
       Log_File_Directory,
       Log_Filename_Prefix,
@@ -480,6 +491,9 @@ private
 
          Free_Slots_Keep_Alive_Limit =>
            (Nat, Default.Free_Slots_Keep_Alive_Limit),
+
+         Keep_Alive_Force_Limit =>
+           (Nat, Default.Keep_Alive_Force_Limit),
 
          Accept_Queue_Size =>
            (Pos, Default.Accept_Queue_Size),

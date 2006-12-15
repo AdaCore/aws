@@ -26,6 +26,7 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
+with Ada.Tags;
 with Ada.Task_Attributes;
 with Ada.Text_IO;
 with Ada.Unchecked_Deallocation;
@@ -71,10 +72,12 @@ package body AWS.Server is
    --  connections.
 
    function Accept_Socket_Serialized
-     (Server : in HTTP_Access)
-      return Net.Socket_Type'Class;
+     (Server : in HTTP_Access) return Net.Socket_Access;
    --  Do a protected accept on the HTTP socket. It is not safe to call
    --  multiple accept on the same socket on some platforms.
+
+   procedure Force_Clean (Web_Server : in out HTTP);
+   --  Close socket on slot which force timeout is expired.
 
    Server_Counter : Utils.Counter (Initial_Value => 0);
 
@@ -89,71 +92,72 @@ package body AWS.Server is
    ------------------------------
 
    function Accept_Socket_Serialized
-     (Server : in HTTP_Access)
-      return Net.Socket_Type'Class
+     (Server : in HTTP_Access) return Net.Socket_Access
    is
-      New_Socket      : Net.Socket_Type'Class
-        := Server.Socket_Constructor (Security => False);
+      use type Ada.Tags.Tag;
 
-      Released_Socket : Net.Socket_Access;
+      New_Socket : Net.Socket_Access;
 
-      Accepting       : Boolean := False;
-      --  Determine either "accept socket" mode or "give back" mode.
-      --  Init to False to not Release semaphore in case of exception
-      --  in Seize_Or_Socket call.
+      procedure Accept_Error (E : in Ada.Exceptions.Exception_Occurrence);
 
-      procedure Free is new Ada.Unchecked_Deallocation
-        (Net.Socket_Type'Class, Net.Socket_Access);
+      ------------------
+      -- Accept_Error --
+      ------------------
+
+      procedure Accept_Error (E : in Ada.Exceptions.Exception_Occurrence) is
+      begin
+         AWS.Log.Write
+           (Server.Error_Log,
+            "Accept error " & Utils.CRLF_2_Spaces
+                                (Ada.Exceptions.Exception_Information (E)));
+      end Accept_Error;
 
    begin
-      Server.Sock_Sem.Seize_Or_Socket (Released_Socket);
+      Server.Accept_Sem.Seize;
 
-      Accepting := Released_Socket = null;
+      if Server.Shutdown then
+         --  The server is being shutdown, raise an exception this will
+         --  terminate the line.
 
-      if Accepting then
-         --  No socket was given back to the server, just accept a socket from
-         --  the server socket.
-
-         if Server.Shutdown then
-            --  The server is being shutdown, raise an exception this will
-            --  terminate the line.
-
-            Server.Sock_Sem.Release;
-            raise Net.Socket_Error;
-         end if;
-
-         Net.Accept_Socket (Server.Sock.all, New_Socket);
-
-         Server.Sock_Sem.Release;
-
-         if CNF.Security (Server.Properties) then
-            return Net.SSL.Secure_Server (New_Socket, Server.SSL_Config);
-         else
-            return New_Socket;
-         end if;
-
-      else
-         --  A socket was given back to the server, return it
-
-         declare
-            Result : Net.Socket_Type'Class := Released_Socket.all;
-         begin
-            --  We do not call AWS.Net.Free as we do not want to destroy the
-            --  socket buffers.
-
-            Free (Released_Socket);
-            return Result;
-         end;
-
+         Server.Accept_Sem.Release;
+         raise Net.Socket_Error;
       end if;
 
-   exception
-      when others =>
-         if Accepting then
-            Server.Sock_Sem.Release;
-         end if;
+      begin
+         Net.Acceptors.Get (Server.Acceptor, New_Socket, Accept_Error'Access);
 
-         raise;
+         Server.Accept_Sem.Release;
+
+      exception
+         when others =>
+            Server.Accept_Sem.Release;
+            raise;
+      end;
+
+      if CNF.Security (Server.Properties)
+        and then New_Socket'Tag /= Net.SSL.Socket_Type'Tag
+      then
+         declare
+            SSL_Socket : Net.Socket_Access;
+         begin
+            SSL_Socket
+              := new Net.SSL.Socket_Type'
+                       (Net.SSL.Secure_Server
+                          (New_Socket.all, Server.SSL_Config));
+
+            Net.Free (New_Socket);
+            return SSL_Socket;
+         exception
+            when others =>
+               Net.Shutdown (New_Socket.all);
+               Net.Free (New_Socket);
+               raise;
+         end;
+
+      else
+         return New_Socket;
+      end if;
+
    end Accept_Socket_Serialized;
 
    ------------
@@ -223,6 +227,21 @@ package body AWS.Server is
    end Finalize;
 
    -----------------
+   -- Force_Clean --
+   -----------------
+
+   procedure Force_Clean (Web_Server : in out HTTP) is
+      Socket : Socket_Access;
+      Slot   : Positive;
+   begin
+      Web_Server.Slots.Abort_On_Timeout (Socket, Slot);
+      if Socket /= null then
+         Net.Shutdown (Socket.all);
+         Web_Server.Slots.Shutdown_Done (Slot);
+      end if;
+   end Force_Clean;
+
+   -----------------
    -- Get_Current --
    -----------------
 
@@ -254,10 +273,15 @@ package body AWS.Server is
    ----------------------
 
    procedure Give_Back_Socket
-     (Web_Server : in out HTTP;
-      Socket     : in     Net.Socket_Type'Class) is
+     (Web_Server : in out HTTP; Socket : in Net.Socket_Access) is
    begin
-      Web_Server.Sock_Sem.Put_Socket (new Net.Socket_Type'Class'(Socket));
+      Net.Acceptors.Give_Back (Web_Server.Acceptor, Socket);
+   end Give_Back_Socket;
+
+   procedure Give_Back_Socket
+     (Web_Server : in out HTTP; Socket : in Net.Socket_Type'Class) is
+   begin
+      Give_Back_Socket (Web_Server, new Net.Socket_Type'Class'(Socket));
    end Give_Back_Socket;
 
    ----------------
@@ -304,14 +328,13 @@ package body AWS.Server is
             Keep_Alive_Limit : constant Natural
               := CNF.Free_Slots_Keep_Alive_Limit (HTTP_Server.Properties);
 
-            Socket           : aliased Net.Socket_Type'Class
+            Socket           : Net.Socket_Access
               := Accept_Socket_Serialized (HTTP_Server);
 
             Free_Slots       : Natural;
             Need_Shutdown    : Boolean;
          begin
-            HTTP_Server.Slots.Set
-              (Socket'Unchecked_Access, Slot_Index, Free_Slots);
+            HTTP_Server.Slots.Set (Socket, Slot_Index, Free_Slots);
 
             --  If there is no more slot available and we have many
             --  of them, try to abort one of them.
@@ -319,13 +342,7 @@ package body AWS.Server is
             if Free_Slots = 0
               and then CNF.Max_Connection (HTTP_Server.Properties) > 1
             then
-               select
-                  HTTP_Server.Cleaner.Force;
-               or
-                  delay 4.0;
-                  Ada.Text_IO.Put_Line
-                    (Text_IO.Current_Error, "Server too busy.");
-               end select;
+               Force_Clean (HTTP_Server.all);
             end if;
 
             Protocol_Handler
@@ -334,7 +351,8 @@ package body AWS.Server is
             HTTP_Server.Slots.Release (Slot_Index, Need_Shutdown);
 
             if Need_Shutdown then
-               Net.Shutdown (Socket);
+               Net.Shutdown (Socket.all);
+               Net.Free (Socket);
             end if;
          end;
       end loop;
@@ -358,55 +376,6 @@ package body AWS.Server is
             end;
          end if;
    end Line;
-
-   ------------------
-   -- Line_Cleaner --
-   ------------------
-
-   task body Line_Cleaner is
-      Mode   : Timeout_Mode;
-      Socket : Socket_Access;
-      Slot   : Positive;
-      Quit   : Boolean := False;
-   begin
-      while not Quit loop
-         select
-            accept Force do
-               Mode := Force;
-            end Force;
-         or
-            accept Shutdown do
-               Quit := True;
-            end Shutdown;
-         or
-            delay 30.0;
-            Mode := Cleaner;
-         end select;
-
-         while not Quit loop
-            Server.Slots.Abort_On_Timeout (Mode, Socket, Slot);
-
-            if Socket = null then
-               exit when Mode /= Force;
-            else
-               Net.Shutdown (Socket.all);
-               Server.Slots.Shutdown_Done (Slot);
-               exit;
-            end if;
-
-            select
-               accept Force;
-            or
-               accept Shutdown do
-                  Quit := True;
-               end Shutdown;
-            or
-               delay 1.0;
-            end select;
-         end loop;
-
-      end loop;
-   end Line_Cleaner;
 
    ----------------------
    -- Protocol_Handler --
@@ -478,7 +447,8 @@ package body AWS.Server is
      (Web_Server         : in out HTTP;
       Socket_Constructor : in     Net.Socket_Constructor) is
    begin
-      Web_Server.Socket_Constructor := Socket_Constructor;
+      Net.Acceptors.Set_Socket_Constructor
+        (Web_Server.Acceptor, Socket_Constructor);
    end Set_Socket_Constructor;
 
    --------------------------------------
@@ -502,9 +472,6 @@ package body AWS.Server is
    --------------
 
    procedure Shutdown (Web_Server : in out HTTP) is
-
-      procedure Free is
-         new Ada.Unchecked_Deallocation (Line_Cleaner, Line_Cleaner_Access);
 
       procedure Free is
          new Ada.Unchecked_Deallocation (Line_Set, Line_Set_Access);
@@ -539,27 +506,11 @@ package body AWS.Server is
       --  for example), trying to close a sockets waiting on a select/poll
       --  will lock until the select/poll return or timeout. So the server
       --  termination is a bit tricky and requires some attention.
+      --  Net.Acceptors doing shutdown in the accepting task,
+      --  Net.Acceptors.Shutdown only sending command into task where the
+      --  waiting for accept is.
 
-      declare
-         Sock : Net.Socket_Type'Class := Web_Server.Socket_Constructor (False);
-      begin
-         --  First we want to have the line waiting on the Wait_For for a
-         --  connection to exit from the poll and to continue its
-         --  execution. For this we connect to the server here.
-
-         Net.Connect
-           (Sock, "127.0.0.1", CNF.Server_Port (Web_Server.Properties),
-            Wait => False);
-
-         --  At this point the line is waiting for some data. It is possible
-         --  to close the server socket, this won't lock anymore.
-
-         Net.Shutdown (Web_Server.Sock.all);
-
-         --  Close the dummy socket to the server
-
-         Net.Shutdown (Sock);
-      end;
+      Net.Acceptors.Shutdown (Web_Server.Acceptor);
 
       --  Release the slots
 
@@ -609,38 +560,13 @@ package body AWS.Server is
          end if;
       end loop;
 
-      --  Release the cleaner task
-
-      Web_Server.Cleaner.Shutdown;
-
-      --  Wait for Cleaner task to terminate to be able to release associated
-      --  memory.
-
-      Wait_Counter := 0;
-
-      while not Web_Server.Cleaner'Terminated loop
-         delay 0.5;
-
-         Wait_Counter := Wait_Counter + 1;
-
-         if Wait_Counter > 10 then
-            Text_IO.Put_Line
-              (Text_IO.Current_Error, "Can't terminate task cleaner.");
-            exit;
-         end if;
-      end loop;
-
       --  Release lines and slots memory
 
       for K in Web_Server.Lines'Range loop
          Free (Web_Server.Lines (K));
       end loop;
 
-      Net.Free (Web_Server.Sock);
-
       Free (Web_Server.Lines);
-
-      Free (Web_Server.Cleaner);
 
       Free (Web_Server.Slots);
 
@@ -680,12 +606,10 @@ package body AWS.Server is
       ----------------------
 
       procedure Abort_On_Timeout
-        (Mode   : in     Timeout_Mode;
-         Socket :    out Socket_Access;
-         Index  :    out Positive) is
+        (Socket : out Socket_Access; Index  : out Positive) is
       begin
          for S in Table'Range loop
-            if Is_Abortable (S, Mode) then
+            if Is_Abortable (S) then
                Get_For_Shutdown (S, Socket);
 
                if Socket /= null then
@@ -697,6 +621,20 @@ package body AWS.Server is
 
          Socket := null;
       end Abort_On_Timeout;
+
+      ------------------------
+      -- Check_Data_Timeout --
+      ------------------------
+
+      procedure Check_Data_Timeout (Index : in Positive) is
+         use type Ada.Calendar.Time;
+      begin
+         if Ada.Calendar.Clock - Table (Index).Phase_Time_Stamp
+           > Timeouts (Cleaner, Table (Index).Phase)
+         then
+            raise Net.Socket_Error;
+         end if;
+      end Check_Data_Timeout;
 
       ----------------
       -- Free_Slots --
@@ -788,35 +726,16 @@ package body AWS.Server is
       -- Is_Abortable --
       ------------------
 
-      function Is_Abortable
-        (Index : in Positive;
-         Mode  : in Timeout_Mode)
-         return Boolean
-      is
+      function Is_Abortable (Index : in Positive) return Boolean is
          use type Calendar.Time;
          Phase : constant Slot_Phase    := Table (Index).Phase;
          Now   : constant Calendar.Time := Calendar.Clock;
       begin
          return
-           (Phase in Abortable_Phase
+            Phase in Abortable_Phase
             and then
-            Now - Table (Index).Phase_Time_Stamp > Timeouts (Mode, Phase))
-
-           or else
-
-           (Phase in Data_Phase
-            and then
-            Now - Table (Index).Data_Time_Stamp > Data_Timeouts (Phase));
+            Now - Table (Index).Phase_Time_Stamp > Timeouts (Force, Phase);
       end Is_Abortable;
-
-      --------------------------
-      -- Mark_Data_Time_Stamp --
-      --------------------------
-
-      procedure Mark_Data_Time_Stamp (Index : in Positive) is
-      begin
-         Table (Index).Data_Time_Stamp := Ada.Calendar.Clock;
-      end Mark_Data_Time_Stamp;
 
       ----------------
       -- Mark_Phase --
@@ -824,7 +743,7 @@ package body AWS.Server is
 
       procedure Mark_Phase (Index : in Positive; Phase : in Slot_Phase) is
       begin
-         --  Check if the Aborted phase happen between after socket operation
+         --  Check if the Aborted phase happen after socket operation
          --  and before Mark_Phase call.
 
          if Table (Index).Phase in In_Shutdown .. Aborted
@@ -837,18 +756,34 @@ package body AWS.Server is
          Table (Index).Phase := Phase;
 
          if Phase in Data_Phase then
-            Mark_Data_Time_Stamp (Index);
+            Net.Set_Timeout (Table (Index).Sock.all, Data_Timeouts (Phase));
+
+         elsif Phase in Abortable_Phase then
+            Net.Set_Timeout
+              (Table (Index).Sock.all, Timeouts (Cleaner, Phase));
          end if;
       end Mark_Phase;
+
+      ------------------
+      -- Prepare_Back --
+      ------------------
+
+      procedure Prepare_Back (Index : in Positive; Possible : out Boolean) is
+      begin
+         Possible := not (Table (Index).Phase in In_Shutdown .. Aborted);
+
+         if Possible then
+            Mark_Phase (Index, Closed);
+            Table (Index).Sock := null;
+         end if;
+      end Prepare_Back;
 
       -------------
       -- Release --
       -------------
 
       entry Release
-        (Index    : in     Positive;
-         Shutdown :    out Boolean)
-        when Shutdown_Count = 0
+        (Index : in Positive; Shutdown : out Boolean) when Shutdown_Count = 0
       is
          use type Socket_Access;
       begin
@@ -867,12 +802,14 @@ package body AWS.Server is
          Shutdown := False;
 
          if Table (Index).Phase /= Closed then
-            if not Table (Index).Socket_Taken  then
+            if not Table (Index).Socket_Taken then
                if Table (Index).Phase /= Aborted then
                   --  We have to shutdown socket only if it is not in state:
                   --  In_Shutdow, Aborted or Closed.
 
                   Shutdown := True;
+               else
+                  Net.Free (Table (Index).Sock);
                end if;
 
             else
@@ -895,7 +832,6 @@ package body AWS.Server is
       begin
          pragma Assert (Count > 0);
 
-         Mark_Phase (Index, Wait_For_Client);
          Table (Index).Sock := Socket;
          Table (Index).Alive_Counter := 0;
          Table (Index).Alive_Time_Stamp := Ada.Calendar.Clock;
@@ -938,64 +874,6 @@ package body AWS.Server is
       end Socket_Taken;
 
    end Slots;
-
-   ----------------------
-   -- Socket_Semaphore --
-   ----------------------
-
-   protected body Socket_Semaphore is
-
-      ----------------
-      -- Put_Socket --
-      ----------------
-
-      entry Put_Socket (Socket : in Net.Socket_Access)
-        when Size /= Max_Sockets is
-      begin
-         Size := Size + 1;
-
-         if Last > Max_Sockets then
-            Last := Sockets'First;
-         end if;
-
-         Sockets (Last) := Socket;
-
-         Last := Last + 1;
-      end Put_Socket;
-
-      -------------
-      -- Release --
-      -------------
-
-      procedure Release is
-      begin
-         Seized := False;
-      end Release;
-
-      ---------------------
-      -- Seize_Or_Socket --
-      ---------------------
-
-      entry Seize_Or_Socket (Socket : out Net.Socket_Access)
-        when not Seized or else Size /= 0 is
-      begin
-         if not Seized then
-            Seized := True;
-
-         else
-            Size := Size - 1;
-
-            if Current > Max_Sockets then
-               Current := Sockets'First;
-            end if;
-
-            Socket := Sockets (Current);
-
-            Current := Current + 1;
-         end if;
-      end Seize_Or_Socket;
-
-   end Socket_Semaphore;
 
    ------------------
    -- Socket_Taken --
@@ -1112,19 +990,23 @@ package body AWS.Server is
               CNF.Exchange_Certificate ((Web_Server.Properties)));
       end if;
 
-      --  Create the Web Server socket
+      --  Create the Web Server socket set.
 
-      Web_Server.Sock := new Net.Socket_Type'Class'
-        (Web_Server.Socket_Constructor (Security => False));
-
-      Net.Bind
-        (Web_Server.Sock.all,
-         CNF.Server_Port (Web_Server.Properties),
-         CNF.Server_Host (Web_Server.Properties));
-
-      Net.Listen
-        (Web_Server.Sock.all,
-         Queue_Size => CNF.Accept_Queue_Size (Web_Server.Properties));
+      Net.Acceptors.Listen
+        (Acceptor            => Web_Server.Acceptor,
+         Host                => CNF.Server_Host (Web_Server.Properties),
+         Port                => CNF.Server_Port (Web_Server.Properties),
+         Queue_Size          => CNF.Accept_Queue_Size (Web_Server.Properties),
+         Timeout             =>
+           CNF.Cleaner_Wait_For_Client_Timeout (Web_Server.Properties),
+         First_Timeout       =>
+           CNF.Cleaner_Client_Header_Timeout (Web_Server.Properties),
+         Force_Timeout       =>
+           CNF.Force_Wait_For_Client_Timeout (Web_Server.Properties),
+         Force_First_Timeout =>
+           CNF.Force_Client_Header_Timeout (Web_Server.Properties),
+         Force_Length        =>
+           CNF.Keep_Alive_Force_Limit (Web_Server.Properties));
 
       Web_Server.Dispatcher := new Dispatchers.Handler'Class'(Dispatcher);
 
@@ -1169,10 +1051,6 @@ package body AWS.Server is
       Web_Server.Lines := new Line_Set'
         (1 .. Max_Connection
          => new Line (CNF.Line_Stack_Size (Web_Server.Properties)));
-
-      --  Initialize the cleaner task
-
-      Web_Server.Cleaner := new Line_Cleaner (Web_Server.Self);
 
       --  Set Shutdown to False here since it must be done before starting the
       --  lines.

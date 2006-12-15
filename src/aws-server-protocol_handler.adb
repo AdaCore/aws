@@ -56,8 +56,7 @@ is
 
    C_Stat         : aliased AWS.Status.Data; -- Connection status
 
-   Sock_Ptr       : constant Socket_Access
-     := HTTP_Server.Slots.Get (Index => Index).Sock;
+   Sock_Ptr       : Socket_Access;
 
    Socket_Taken   : Boolean := False;
    --  Set to True if a socket has been reserved for a push session.
@@ -86,10 +85,35 @@ begin
 
    For_Every_Request : loop
 
+      declare
+         Back_Possible : Boolean;
       begin
          Data_Sent := False;
 
-         HTTP_Server.Slots.Mark_Phase (Index, Wait_For_Client);
+         HTTP_Server.Slots.Mark_Phase (Index, Client_Header);
+
+         if Sock_Ptr = null then
+            --  First arrived. We do not need to wait for fast comming next
+            --  keep alive request.
+
+            Sock_Ptr := HTTP_Server.Slots.Get (Index => Index).Sock;
+         else
+            --  Wait for get header timeout and put the socket back to acceptor
+            --  to wait next client request.
+
+            if not Net.Wait
+                     (Sock_Ptr.all,
+                      (Net.Input => True, others => False))(Net.Input)
+            then
+               HTTP_Server.Slots.Prepare_Back (Index, Back_Possible);
+
+               if Back_Possible then
+                  Net.Acceptors.Give_Back (HTTP_Server.Acceptor, Sock_Ptr);
+               end if;
+
+               exit For_Every_Request;
+            end if;
+         end if;
 
          Status.Set.Reset (C_Stat);
 
@@ -100,7 +124,7 @@ begin
          Status.Set.Case_Sensitive_Parameters
            (C_Stat, Case_Sensitive_Parameters);
 
-         Get_Message_Header (HTTP_Server, Index, C_Stat);
+         Get_Message_Header (C_Stat);
 
          HTTP_Server.Slots.Increment_Slot_Activity_Counter (Index);
 
