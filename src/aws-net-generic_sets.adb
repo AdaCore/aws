@@ -41,10 +41,10 @@ package body AWS.Net.Generic_Sets is
       --  allocate internal socket data.
 
    procedure Add_Private
-     (Set       : in out Socket_Set_Type;
-      Socket    : in     Socket_Access;
-      Mode      : in     Waiting_Mode;
-      Length    :    out Socket_Count);
+     (Set    : in out Socket_Set_Type;
+      Socket : in     Socket_Access;
+      Mode   : in     Waiting_Mode;
+      Length :    out Socket_Count);
    --  Add Socket into Set
 
    ---------
@@ -135,14 +135,13 @@ package body AWS.Net.Generic_Sets is
          end;
       end if;
 
-      Set.Set  (Length).Socket := Socket;
+      Set.Set (Length).Socket := Socket;
 
       if Integer (Length) /= Net.Length (Set.Poll.all) then
          raise Constraint_Error with
             Socket_Count'Image (Length) & " <>"
             & Integer'Image (Net.Length (Set.Poll.all));
       end if;
-
    end Add_Private;
 
    -----------
@@ -175,8 +174,7 @@ package body AWS.Net.Generic_Sets is
 
    function Get_Data
      (Set   : in Socket_Set_Type;
-      Index : in Socket_Index)
-      return Data_Type is
+      Index : in Socket_Index) return Data_Type is
    begin
       return Set.Set (Index).Data;
    end Get_Data;
@@ -187,8 +185,7 @@ package body AWS.Net.Generic_Sets is
 
    function Get_Socket
      (Set   : in Socket_Set_Type;
-      Index : in Socket_Index)
-      return Socket_Type'Class is
+      Index : in Socket_Index) return Socket_Type'Class is
    begin
       return Set.Set (Index).Socket.all;
    end Get_Socket;
@@ -199,8 +196,7 @@ package body AWS.Net.Generic_Sets is
 
    function In_Range
      (Set   : in Socket_Set_Type;
-      Index : in Socket_Index)
-      return Boolean is
+      Index : in Socket_Index) return Boolean is
    begin
       return Index <= Count (Set);
    end In_Range;
@@ -350,8 +346,7 @@ package body AWS.Net.Generic_Sets is
    procedure Wait
      (Set     : in out Socket_Set_Type;
       Timeout : in     Duration;
-      Count   :    out Socket_Count)
-   is
+      Count   :    out Socket_Count) is
    begin
       if Set.Poll = null then
          Count := 0;

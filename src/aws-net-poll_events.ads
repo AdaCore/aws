@@ -1,3 +1,31 @@
+------------------------------------------------------------------------------
+--                              Ada Web Server                              --
+--                                                                          --
+--                            Copyright (C) 2006                            --
+--                                 AdaCore                                  --
+--                                                                          --
+--  This library is free software; you can redistribute it and/or modify    --
+--  it under the terms of the GNU General Public License as published by    --
+--  the Free Software Foundation; either version 2 of the License, or (at   --
+--  your option) any later version.                                         --
+--                                                                          --
+--  This library is distributed in the hope that it will be useful, but     --
+--  WITHOUT ANY WARRANTY; without even the implied warranty of              --
+--  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU       --
+--  General Public License for more details.                                --
+--                                                                          --
+--  You should have received a copy of the GNU General Public License       --
+--  along with this library; if not, write to the Free Software Foundation, --
+--  Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.          --
+--                                                                          --
+--  As a special exception, if other files instantiate generics from this   --
+--  unit, or you link this unit with other files to produce an executable,  --
+--  this  unit  does not  by itself cause  the resulting executable to be   --
+--  covered by the GNU General Public License. This exception does not      --
+--  however invalidate any other reasons why the executable file  might be  --
+--  covered by the  GNU Public License.                                     --
+------------------------------------------------------------------------------
+
 with AWS.Net.Thin;
 
 package AWS.Net.Poll_Events is
@@ -5,39 +33,27 @@ package AWS.Net.Poll_Events is
    type Set (Size : Natural) is new FD_Set with private;
 
    overriding procedure Add
-     (Container : in out Set;
-      FD        : in     FD_Type;
-      Event     : in     Wait_Event_Set);
-   --  Add the FD to the end of FD set
+     (FD_Set : in out Set;
+      FD     : in     FD_Type;
+      Event  : in     Wait_Event_Set);
 
    overriding procedure Set_Mode
-     (Container : in out Set; Index : in Positive; Mode : in Wait_Event_Set);
-   --  Sets what kind of network events would be waiting for in next Wait call
+     (FD_Set : in out Set; Index : in Positive; Mode : in Wait_Event_Set);
 
    overriding function Reallocate
-     (Container : access Set; Size : in Natural) return Set_Access;
-   --  Reallocates the set, remain data unchanged where possible
+     (FD_Set : access Set; Size : in Natural) return Set_Access;
 
-   overriding procedure Remove (Container : in out Set; Index : in Positive);
-   --  Remove socket FD from Index position.
-   --  Last socket FD would be placed in place of removed.
+   overriding procedure Remove (FD_Set : in out Set; Index : in Positive);
 
-   overriding function Length (Container : in Set) return Natural;
-   --  Returns number of socket FD elements in set
+   overriding function Length (FD_Set : in Set) return Natural;
 
    overriding procedure Wait
-     (Container : in out Set; Timeout : in Duration; Count : out Natural);
-   --  Wait for network event on the sockets FD set. Count value would be
-   --  the number of socket FDs with non empty event set.
+     (FD_Set : in out Set; Timeout : in Duration; Count : out Natural);
 
-   overriding procedure Next (Container : in Set; Index : in out Positive);
-   --  Looking for active socket FD starting from Index and return Index of the
-   --  found active socket FD. After search use functions Status to see what
-   --  kind of network events happen on this socket FD.
+   overriding procedure Next (FD_Set : in Set; Index : in out Positive);
 
    overriding function Status
-     (Container : in Set; Index : in Positive) return Event_Set;
-   --  Returns events happening on the socket FD at the specified index
+     (FD_Set : in Set; Index : in Positive) return Event_Set;
 
 private
 

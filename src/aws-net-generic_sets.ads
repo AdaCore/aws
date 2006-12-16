@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2004-2005                          --
+--                         Copyright (C) 2004-2006                          --
 --                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -36,20 +36,20 @@ package AWS.Net.Generic_Sets is
 
    subtype Waiting_Mode is Wait_Event_Set;
 
-   Input  : constant Wait_Event_Set
-     := (Net.Input => True, Net.Output => False);
+   Input  : constant Wait_Event_Set :=
+              (Net.Input => True, Net.Output => False);
    --  Would wait for data available for read from socket
 
-   Output : constant Wait_Event_Set
-     := (Net.Input => False, Net.Output => True);
+   Output : constant Wait_Event_Set :=
+              (Net.Input => False, Net.Output => True);
    --  Would wait output buffer availability for write
 
-   Both   : constant Wait_Event_Set
-     := (Net.Input => True, Net.Output => True);
+   Both   : constant Wait_Event_Set :=
+              (Net.Input => True, Net.Output => True);
    --  Would wait for both Input and Output
 
-   None   : constant Wait_Event_Set
-     := (Net.Input => False, Net.Output => False);
+   None   : constant Wait_Event_Set :=
+              (Net.Input => False, Net.Output => False);
    --  Would wait only for error state in socket.
    --  Note that all waiting modes would be waiting for error state.
 
@@ -135,38 +135,33 @@ package AWS.Net.Generic_Sets is
 
    function Is_Write_Ready
      (Set   : in Socket_Set_Type;
-      Index : in Socket_Index)
-      return Boolean;
+      Index : in Socket_Index) return Boolean;
    pragma Inline (Is_Write_Ready);
    --  Return True if data could be written to socket and socket was in Output
    --  or Both waiting mode.
 
    function Is_Error
      (Set   : in Socket_Set_Type;
-      Index : in Socket_Index)
-      return Boolean;
+      Index : in Socket_Index) return Boolean;
    pragma Inline (Is_Error);
    --  Return True if any error occured with socket while waiting
 
    function In_Range
      (Set   : in Socket_Set_Type;
-      Index : in Socket_Index)
-      return Boolean;
+      Index : in Socket_Index) return Boolean;
    pragma Inline (In_Range);
    --  Return True if Index is in socket set range
 
    function Get_Socket
      (Set   : in Socket_Set_Type;
-      Index : in Socket_Index)
-      return Socket_Type'Class;
+      Index : in Socket_Index) return Socket_Type'Class;
    pragma Inline (Get_Socket);
    --  Return socket from the Index position or raise Constraint_Error
    --  if index is more than the number of sockets in set.
 
    function Get_Data
      (Set   : in Socket_Set_Type;
-      Index : in Socket_Index)
-      return Data_Type;
+      Index : in Socket_Index) return Data_Type;
    pragma Inline (Get_Data);
 
    procedure Set_Data
@@ -208,7 +203,7 @@ private
       --  case when using the Add with Socket_Type'Class parameter).
       --  Needed to control free on delete.
 
-      Data : Data_Type;
+      Data      : Data_Type;
    end record;
 
    type Socket_Array is array (Socket_Index range <>) of Socket_Record;
@@ -220,6 +215,6 @@ private
       Set  : Socket_Array_Access;
    end record;
 
-   procedure Finalize (Set : in out Socket_Set_Type);
+   overriding procedure Finalize (Set : in out Socket_Set_Type);
 
 end AWS.Net.Generic_Sets;

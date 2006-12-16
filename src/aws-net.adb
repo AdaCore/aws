@@ -49,19 +49,19 @@ package body AWS.Net is
    ---------
 
    procedure Add
-     (Container : in out Set_Access;
-      FD        : in FD_Type;
-      Event     : in Wait_Event_Set) is
+     (FD_Set : in out Set_Access;
+      FD     : in     FD_Type;
+      Event  : in     Wait_Event_Set) is
    begin
-      if Length (Container.all) = Container.Size then
-         if Container.Size < 256 then
-            Container := Reallocate (Container, Container.Size * 2);
+      if Length (FD_Set.all) = FD_Set.Size then
+         if FD_Set.Size < 256 then
+            FD_Set := Reallocate (FD_Set, FD_Set.Size * 2);
          else
-            Container := Reallocate (Container, Container.Size + 256);
+            FD_Set := Reallocate (FD_Set, FD_Set.Size + 256);
          end if;
       end if;
 
-      Add (Container.all, FD, Event);
+      Add (FD_Set.all, FD, Event);
    end Add;
 
    ------------
@@ -118,11 +118,11 @@ package body AWS.Net is
       null;
    end Free;
 
-   procedure Free (Container : in out Set_Access) is
+   procedure Free (FD_Set : in out Set_Access) is
       procedure Dispose is
-        new Ada.Unchecked_Deallocation (FD_Set'Class, Set_Access);
+        new Ada.Unchecked_Deallocation (Net.FD_Set'Class, Set_Access);
    begin
-      Dispose (Container);
+      Dispose (FD_Set);
    end Free;
 
    ---------------

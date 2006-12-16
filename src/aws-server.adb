@@ -61,7 +61,7 @@ package body AWS.Server is
    procedure Start
      (Web_Server : in out HTTP;
       Dispatcher : in     Dispatchers.Handler'Class);
-   --  Start web server with current configuration.
+   --  Start web server with current configuration
 
    procedure Protocol_Handler
      (HTTP_Server : in out HTTP;
@@ -77,7 +77,7 @@ package body AWS.Server is
    --  multiple accept on the same socket on some platforms.
 
    procedure Force_Clean (Web_Server : in out HTTP);
-   --  Close socket on slot which force timeout is expired.
+   --  Close a socket on a slot for which a force timeout has expired
 
    Server_Counter : Utils.Counter (Initial_Value => 0);
 

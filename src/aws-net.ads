@@ -52,6 +52,9 @@ package AWS.Net is
 
    type Socket_Set is array (Positive range <>) of Socket_Access;
 
+   subtype FD_Type is Integer;
+   --  Represents an external socket file descriptor
+
    type FD_Set (Size : Natural) is abstract tagged private;
    --  Abstract type for waiting of network events on group of sockets FD
 
@@ -167,7 +170,7 @@ package AWS.Net is
    -- Others --
    ------------
 
-   function Get_FD (Socket : in Socket_Type) return Integer is abstract;
+   function Get_FD (Socket : in Socket_Type) return FD_Type is abstract;
    --  Returns the file descriptor associated with the socket
 
    function Peer_Addr (Socket : in Socket_Type) return String is abstract;
@@ -254,58 +257,62 @@ package AWS.Net is
    -- Socket FD sets --
    --------------------
 
-   subtype FD_Type is Integer;
-
    type Set_Access is access all FD_Set'Class;
 
    procedure Add
-     (Container : in out FD_Set;
-      FD        : in     FD_Type;
-      Event     : in     Wait_Event_Set) is abstract;
-   --  Add the FD to the end of FD set
+     (FD_Set : in out Set_Access;
+      FD     : in     FD_Type;
+      Event  : in     Wait_Event_Set);
+   --  Add FD to the end of FD_Set
 
-   function Reallocate
-     (Container : access FD_Set; Size : in Natural) return Set_Access
-      is abstract;
-   --  Reallocates the set, remain data unchanged where possible
-
-   procedure Add
-     (Container : in out Set_Access;
-      FD        : in     FD_Type;
-      Event     : in     Wait_Event_Set);
-   --  Add the FD to the end of FD set, reallocate the set if necessary
-
-   procedure Set_Mode
-     (Container : in out FD_Set; Index : in Positive; Mode : in Wait_Event_Set)
-      is abstract;
-   --  Sets what kind of network events would be waiting for in next Wait call
-
-   procedure Remove (Container : in out FD_Set; Index : in Positive)
-      is abstract;
-   --  Removes socket FD from Index position
-
-   function Length (Container : in FD_Set) return Natural is abstract;
-   --  Returns number of socket FD elements in set
-
-   procedure Wait
-     (Container : in out FD_Set;
-      Timeout   : in     Duration;
-      Count     :    out Natural) is abstract;
-   --  Wait for network event on the sockets FD set. Count value would be
-   --  the number of socket FDs with non empty event set.
-
-   procedure Next (Container : in FD_Set; Index : in out Positive) is abstract;
-   --  Looking for active socket FD starting from Index and return Index of the
-   --  found active socket FD. After search use functions Status to see what
-   --  kind of network events happen on this socket FD.
-
-   function Status
-     (Container : in FD_Set; Index : in Positive) return Event_Set is abstract;
-   --  Returns events happening on the socket FD at the specified index
-
-   procedure Free (Container : in out Set_Access);
+   procedure Free (FD_Set : in out Set_Access);
    pragma Inline (Free);
    --  Deallocate the socket FD set
+
+   procedure Add
+     (FD_Set : in out Net.FD_Set;
+      FD     : in     FD_Type;
+      Event  : in     Wait_Event_Set) is abstract;
+   --  Add FD to the end of FD_Set
+
+   procedure Set_Mode
+     (FD_Set : in out Net.FD_Set;
+      Index  : in     Positive;
+      Mode   : in     Wait_Event_Set) is abstract;
+   --  Sets the kind of network events to wait for
+
+   function Reallocate
+     (FD_Set : access Net.FD_Set;
+      Size   : in     Natural) return Set_Access is abstract;
+   --  Reallocates the set to the given size. Does nothing if Size is the
+   --  current FD_Set size.
+
+   procedure Remove
+     (FD_Set : in out Net.FD_Set; Index : in Positive) is abstract;
+   --  Removes socket FD from Index position.
+   --  Last socket FD in FD_Set is placed at position Index.
+
+   function Length (FD_Set : in Net.FD_Set) return Natural is abstract;
+   --  Returns number of socket FD elements in FD_Set
+
+   procedure Wait
+     (FD_Set  : in out Net.FD_Set;
+      Timeout : in     Duration;
+      Count   :    out Natural) is abstract;
+   --  Wait for network events on the sockets FD set. Count value is the
+   --  number of socket FDs with non empty event set.
+
+   procedure Next
+     (FD_Set : in Net.FD_Set; Index : in out Positive) is abstract;
+   --  Looking for an active (for which an event has been detected by routine
+   --  Wait above) socket FD starting from Index and return Index of the found
+   --  active socket FD. Use functions Status to retreive the kind of network
+   --  events for this socket.
+
+   function Status
+     (Fd_Set : in Net.FD_Set;
+      Index  : in Positive) return Event_Set is abstract;
+   --  Returns events for the socket FD at position Index
 
 private
 
@@ -371,8 +378,8 @@ private
 
    --  Controlled primitives
 
-   procedure Initialize (Socket : in out Socket_Type);
-   procedure Adjust     (Socket : in out Socket_Type);
-   procedure Finalize   (Socket : in out Socket_Type);
+   overriding procedure Initialize (Socket : in out Socket_Type);
+   overriding procedure Adjust     (Socket : in out Socket_Type);
+   overriding procedure Finalize   (Socket : in out Socket_Type);
 
 end AWS.Net;

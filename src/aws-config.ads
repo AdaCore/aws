@@ -103,13 +103,13 @@ package AWS.Config is
 
    function Keep_Alive_Force_Limit (O : in Object) return Positive;
    pragma Inline (Keep_Alive_Force_Limit);
-   --  Server could have keep-alive sockets more than Max_Connection.
-   --  Keep alive sockets waiting for client input in the internal server
-   --  socket set. This parameter define maximum number of keep alive sockets
-   --  where server process it with normal timeouts. If number of keep-alive
-   --  sockets become more than Keep_Alive_Force_Limit, server start to use
-   --  shorter force timeouts. If this parameter not defined in configuration,
-   --  server use calculated value Max_Connection * 2.
+   --  Server could have more than Max_Connection keep-alive sockets. Keep
+   --  alive sockets are waiting for client input in the internal server socket
+   --  set. This parameter defines the maximum number of keep alive sockets
+   --  processed by the server with standard timeouts. If number of keep-alive
+   --  sockets becomes more than Keep_Alive_Force_Limit the server starts to
+   --  use shorter timeouts. If this parameter is not defined in the
+   --  configuration, the server uses Max_Connection * 2 as value.
 
    function Accept_Queue_Size (O : in Object) return Positive;
    pragma Inline (Accept_Queue_Size);

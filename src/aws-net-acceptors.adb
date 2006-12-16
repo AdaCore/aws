@@ -30,11 +30,11 @@ with Ada.Streams;
 
 package body AWS.Net.Acceptors is
 
-   Server_Index     : constant := 1;
-   Signal_Index     : constant := 2;
-   First_Index      : constant := 3;
+   Server_Index   : constant := 1;
+   Signal_Index   : constant := 2;
+   First_Index    : constant := 3;
 
-   Socket_Command   : constant := 1;
+   Socket_Command : constant := 1;
 
    ---------
    -- Get --
@@ -47,10 +47,6 @@ package body AWS.Net.Acceptors is
         (E : in Ada.Exceptions.Exception_Occurrence) := null)
    is
       use type Sets.Socket_Count;
-      Ready, Error : Boolean;
-      Wait_Timeout : Duration;
-      First        : constant Boolean := True;
-      Timeout      : array (Boolean) of Duration;
 
       procedure Shutdown;
       pragma No_Return (Shutdown);
@@ -75,6 +71,12 @@ package body AWS.Net.Acceptors is
 
          raise Socket_Error;
       end Shutdown;
+
+      First        : constant Boolean := True;
+      Timeout      : array (Boolean) of Duration;
+
+      Ready, Error : Boolean;
+      Wait_Timeout : Duration;
 
    begin
       if Sets.Count (Acceptor.Set) = 0 then
@@ -179,6 +181,7 @@ package body AWS.Net.Acceptors is
 
          if Error then
             Shutdown;
+
          elsif Ready then
             declare
                use Ada.Calendar;
@@ -244,12 +247,13 @@ package body AWS.Net.Acceptors is
       Force_Length        : in     Positive := Positive'Last)
    is
       use type Sets.Socket_Count;
+
       function New_Socket return Socket_Access;
       pragma Inline (New_Socket);
 
-      -------------------
-      -- Create_Socket --
-      -------------------
+      ----------------
+      -- New_Socket --
+      ----------------
 
       function New_Socket return Socket_Access is
       begin
@@ -285,6 +289,10 @@ package body AWS.Net.Acceptors is
          Acceptor.Force_Length := Sets.Socket_Count (Force_Length + 2);
       end if;
    end Listen;
+
+   -------------------
+   -- Server_Socket --
+   -------------------
 
    function Server_Socket
      (Acceptor : in Acceptor_Type) return Socket_Type'Class is

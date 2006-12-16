@@ -68,11 +68,11 @@ package AWS.Net.Acceptors is
         (E : in Ada.Exceptions.Exception_Occurrence) := null);
    --  Returns a socket from the internal socket set which has data to read.
    --  Should not be called simultaneously from different tasks.
-   --  On_Accept_Error need to be able to catch Socket_Error on Accept_Socket.
-   --  Accept_Socket could fail if the server processing too many keep-alive
-   --  connections simultaneously. The server could use this callback
+   --  On_Accept_Error needs to be able to catch Socket_Error on Accept_Socket.
+   --  Accept_Socket could fail if the server is processing too many keep-alive
+   --  connections simultaneously. The server can use this callback
    --  to decrease the number of simultaneous keep-alive connections.
-   --  If On_Accept_Error is null, the exception from Accept_Socket would be
+   --  If On_Accept_Error is null, the exception from Accept_Socket is
    --  propagated.
 
    function Server_Socket

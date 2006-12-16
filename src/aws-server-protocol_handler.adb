@@ -97,9 +97,10 @@ begin
             --  keep alive request.
 
             Sock_Ptr := HTTP_Server.Slots.Get (Index => Index).Sock;
+
          else
-            --  Wait for get header timeout and put the socket back to acceptor
-            --  to wait next client request.
+            --  Wait to get header (or timeout) and put the socket back into
+            --  the acceptor to wait for next client request.
 
             if not Net.Wait
                      (Sock_Ptr.all,
