@@ -206,6 +206,10 @@ package AWS.Utils is
       C : Natural := Initial_Value;
    end Counter;
 
+   type Counter_Access is access Natural;
+
+   procedure Free is new Unchecked_Deallocation (Natural, Counter_Access);
+
    ----------------------------
    -- File oriented routines --
    ----------------------------
