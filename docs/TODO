@@ -188,6 +188,3 @@ implemented:
 =============== Point to fix/implement/review before next release (2.3.0)
 
 - Replace OpenSSL by GNUTLS library as this library is now stable.
-
-- Add AWS.Utils supports for ref counter and use it in
-  AWS.POP, AWS.Net for example.
