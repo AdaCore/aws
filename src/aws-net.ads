@@ -376,11 +376,10 @@ private
    overriding procedure Adjust     (Socket : in out Socket_Type);
    overriding procedure Finalize   (Socket : in out Socket_Type);
 
-   type Counter_Access is access Natural;
    type FD_Set_Access is access FD_Set'Class;
 
    type FD_Set is abstract new Finalization.Controlled with record
-      Ref_Count : Counter_Access;
+      Ref_Count : Utils.Counter_Access;
    end record;
 
    overriding procedure Initialize (FD_Set : in out Net.FD_Set);

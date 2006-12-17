@@ -2,7 +2,7 @@
 --                              Ada Web Server                              --
 --                       P O P - Post Office Protocol                       --
 --                                                                          --
---                         Copyright (C) 2003-2005                          --
+--                         Copyright (C) 2003-2006                          --
 --                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -33,6 +33,7 @@ with Ada.Strings.Unbounded;
 with AWS.Headers;
 with AWS.Net.Std;
 with AWS.Resources.Streams;
+with AWS.Utils;
 
 package AWS.POP is
 
@@ -223,8 +224,6 @@ private
       Size          : Natural;
    end record;
 
-   type Count_Access is access Natural;
-
    type Attachment_Access is access Attachment;
 
    -------------
@@ -232,7 +231,7 @@ private
    -------------
 
    type Message is new Finalization.Controlled with record
-      Ref_Count   : Count_Access;
+      Ref_Count   : AWS.Utils.Counter_Access;
       Size        : Natural;
       Headers     : AWS.Headers.List;
       Content     : Unbounded_String;
@@ -249,7 +248,7 @@ private
    ----------------
 
    type Attachment is new Finalization.Controlled with record
-      Ref_Count : Count_Access;
+      Ref_Count : AWS.Utils.Counter_Access;
       Headers   : AWS.Headers.List;
       Content   : AWS.Resources.Streams.Stream_Access;
       Filename  : Unbounded_String;

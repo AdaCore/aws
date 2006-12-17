@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2001                          --
---                                ACT-Europe                                --
+--                         Copyright (C) 2000-2006                          --
+--                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -33,9 +33,6 @@ package body AWS.Dispatchers is
    procedure Release is
       new Ada.Unchecked_Deallocation (Handler'Class, Handler_Class_Access);
 
-   procedure Free is
-      new Ada.Unchecked_Deallocation (Natural, Natural_Access);
-
    ------------
    -- Adjust --
    ------------
@@ -53,7 +50,7 @@ package body AWS.Dispatchers is
    begin
       Dispatcher.Ref_Counter.all := Dispatcher.Ref_Counter.all - 1;
       if Dispatcher.Ref_Counter.all = 0 then
-         Free (Dispatcher.Ref_Counter);
+         Utils.Free (Dispatcher.Ref_Counter);
       end if;
    end Finalize;
 
@@ -80,6 +77,7 @@ package body AWS.Dispatchers is
    -----------------
 
    function Ref_Counter (Dispatcher : in Handler) return Natural is
+      use type Utils.Counter_Access;
    begin
       if Dispatcher.Ref_Counter = null then
          return 0;

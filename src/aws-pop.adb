@@ -2,7 +2,7 @@
 --                              Ada Web Server                              --
 --                       P O P - Post Office Protocol                       --
 --                                                                          --
---                          Copyright (C) 2003-2006                         --
+--                         Copyright (C) 2003-2006                          --
 --                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -37,7 +37,6 @@ with AWS.Messages;
 with AWS.Net.Buffered;
 with AWS.Resources.Streams.Memory;
 with AWS.Translator;
-with AWS.Utils;
 
 with MD5;
 with Strings_Cutter;
@@ -59,8 +58,6 @@ package body AWS.POP is
    pragma Inline (Read_Headers);
    --  Read headers from Sock, do not fail if a non conformant header is
    --  found. It is possible to get wrong headers in SPAMs.
-
-   procedure Free is new Unchecked_Deallocation (Natural, Count_Access);
 
    ------------
    -- Adjust --
@@ -260,7 +257,7 @@ package body AWS.POP is
          AWS.Resources.Streams.Memory.Close
            (Stream_Type (Attachment.Content.all));
          Free (Attachment.Content);
-         Free (Attachment.Ref_Count);
+         Utils.Free (Attachment.Ref_Count);
       end if;
    end Finalize;
 
@@ -271,7 +268,7 @@ package body AWS.POP is
 
       if Message.Ref_Count.all = 0 then
          Headers.Set.Free (Message.Headers);
-         Free (Message.Ref_Count);
+         Utils.Free (Message.Ref_Count);
       end if;
 
       while A /= null loop

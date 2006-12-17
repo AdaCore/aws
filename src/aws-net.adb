@@ -86,13 +86,11 @@ package body AWS.Net is
    end Finalize;
 
    procedure Finalize (FD_Set : in out Net.FD_Set) is
-      procedure Free is
-        new Unchecked_Deallocation (Natural, Counter_Access);
    begin
       FD_Set.Ref_Count.all := FD_Set.Ref_Count.all - 1;
 
       if FD_Set.Ref_Count.all = 0 then
-         Free (FD_Set.Ref_Count);
+         Utils.Free (FD_Set.Ref_Count);
          Free (Net.FD_Set'Class (FD_Set));
       end if;
    end Finalize;

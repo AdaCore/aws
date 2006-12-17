@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2003                          --
---                                ACT-Europe                                --
+--                         Copyright (C) 2000-2006                          --
+--                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -34,14 +34,15 @@ with Ada.Finalization;
 
 with AWS.Response;
 with AWS.Status;
+with AWS.Utils;
 
 package AWS.Dispatchers is
 
    type Handler is abstract new Ada.Finalization.Controlled with private;
 
-   procedure Initialize (Dispatcher : in out Handler);
-   procedure Adjust     (Dispatcher : in out Handler);
-   procedure Finalize   (Dispatcher : in out Handler);
+   overriding procedure Initialize (Dispatcher : in out Handler);
+   overriding procedure Adjust     (Dispatcher : in out Handler);
+   overriding procedure Finalize   (Dispatcher : in out Handler);
    --  Initialize/Adjust/Finalize is doing the reference counting, children
    --  should just call these routines if possible. It is possible to know if
    --  no more object are referenced by calling Ref_Counter below.
@@ -64,10 +65,8 @@ package AWS.Dispatchers is
 
 private
 
-   type Natural_Access is access all Natural;
-
    type Handler is abstract new Ada.Finalization.Controlled with record
-      Ref_Counter : Natural_Access := null;
+      Ref_Counter : Utils.Counter_Access;
    end record;
 
 end AWS.Dispatchers;
