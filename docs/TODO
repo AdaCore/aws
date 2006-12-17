@@ -140,10 +140,6 @@ implemented:
 
 - Add more certificate information in AWS.Net.SSL.Certificate.
 
-- Support socket timeout options (send and receive timeout) at the OS
-  level on the server side. Right now a task is doing the job.
-  Note that socket timeout is already used on the client side.
-
 - Would be nice to support HTTPS Server response that makes the browser (IE
   can do that) to ask for a certificate. This client certificate can then be
   used to authenticate the user at the other side. This certificate based
@@ -192,3 +188,6 @@ implemented:
 =============== Point to fix/implement/review before next release (2.3.0)
 
 - Replace OpenSSL by GNUTLS library as this library is now stable.
+
+- Add AWS.Utils supports for ref counter and use it in
+  AWS.POP, AWS.Net for example.
