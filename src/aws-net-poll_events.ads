@@ -30,7 +30,7 @@ with AWS.Net.Thin;
 
 package AWS.Net.Poll_Events is
 
-   type Set (Size : Natural) is new FD_Set with private;
+   type Set (Initial_Size : Natural) is new FD_Set with private;
 
    overriding procedure Add
      (FD_Set : in out Set;
@@ -40,12 +40,14 @@ package AWS.Net.Poll_Events is
    overriding procedure Set_Mode
      (FD_Set : in out Set; Index : in Positive; Mode : in Wait_Event_Set);
 
-   overriding function Reallocate
-     (FD_Set : access Set; Size : in Natural) return Set_Access;
+   overriding procedure Reallocate
+     (FD_Set : in out Set; Size : in Natural);
 
    overriding procedure Remove (FD_Set : in out Set; Index : in Positive);
 
    overriding function Length (FD_Set : in Set) return Natural;
+
+   overriding function Size (FD_Set : in Set) return Natural;
 
    overriding procedure Wait
      (FD_Set : in out Set; Timeout : in Duration; Count : out Natural);
@@ -55,14 +57,19 @@ package AWS.Net.Poll_Events is
    overriding function Status
      (FD_Set : in Set; Index : in Positive) return Event_Set;
 
+   overriding procedure Free (FD_Set : in out Set);
+
 private
 
    type Poll_Set is array (Positive range <>) of Thin.Pollfd;
    pragma Pack (Poll_Set);
 
-   type Set (Size : Natural) is new FD_Set (Size) with record
+   type Poll_Set_Access is access Poll_Set;
+
+   type Set (Initial_Size : Natural) is new FD_Set with record
       Length : Natural := 0;
-      Fds    : Poll_Set (1 .. Size);
+      Size   : Natural := Initial_Size;
+      Fds    : Poll_Set_Access := new Poll_Set (1 .. Initial_Size);
    end record;
 
 end AWS.Net.Poll_Events;

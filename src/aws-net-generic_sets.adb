@@ -119,7 +119,7 @@ package body AWS.Net.Generic_Sets is
          Length := 1;
 
       else
-         Add (Set.Poll, Get_FD (Socket.all), Mode);
+         Add (Set.Poll.all, Get_FD (Socket.all), Mode);
          Length := Socket_Count (Net.Length (Set.Poll.all));
       end if;
 

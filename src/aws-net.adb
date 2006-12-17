@@ -27,7 +27,6 @@
 ------------------------------------------------------------------------------
 
 with Ada.Strings.Fixed;
-with Ada.Unchecked_Deallocation;
 with Interfaces.C;
 
 with AWS.Net.Poll_Events;
@@ -44,26 +43,6 @@ package body AWS.Net is
 
    function Errno return Integer renames Std.Errno;
 
-   ---------
-   -- Add --
-   ---------
-
-   procedure Add
-     (FD_Set : in out Set_Access;
-      FD     : in     FD_Type;
-      Event  : in     Wait_Event_Set) is
-   begin
-      if Length (FD_Set.all) = FD_Set.Size then
-         if FD_Set.Size < 256 then
-            FD_Set := Reallocate (FD_Set, FD_Set.Size * 2);
-         else
-            FD_Set := Reallocate (FD_Set, FD_Set.Size + 256);
-         end if;
-      end if;
-
-      Add (FD_Set.all, FD, Event);
-   end Add;
-
    ------------
    -- Adjust --
    ------------
@@ -71,6 +50,11 @@ package body AWS.Net is
    procedure Adjust (Socket : in out Socket_Type) is
    begin
       Socket.C.Ref_Count.Increment;
+   end Adjust;
+
+   procedure Adjust (FD_Set : in out Net.FD_Set) is
+   begin
+      FD_Set.Ref_Count.all := FD_Set.Ref_Count.all + 1;
    end Adjust;
 
    -----------
@@ -101,6 +85,18 @@ package body AWS.Net is
       end if;
    end Finalize;
 
+   procedure Finalize (FD_Set : in out Net.FD_Set) is
+      procedure Free is
+        new Unchecked_Deallocation (Natural, Counter_Access);
+   begin
+      FD_Set.Ref_Count.all := FD_Set.Ref_Count.all - 1;
+
+      if FD_Set.Ref_Count.all = 0 then
+         Free (FD_Set.Ref_Count);
+         Free (Net.FD_Set'Class (FD_Set));
+      end if;
+   end Finalize;
+
    ----------
    -- Free --
    ----------
@@ -118,11 +114,10 @@ package body AWS.Net is
       null;
    end Free;
 
-   procedure Free (FD_Set : in out Set_Access) is
-      procedure Dispose is
-        new Ada.Unchecked_Deallocation (Net.FD_Set'Class, Set_Access);
+   procedure Free (FD_Set : in out Net.FD_Set) is
+      pragma Unreferenced (FD_Set);
    begin
-      Dispose (FD_Set);
+      null;
    end Free;
 
    ---------------
@@ -143,6 +138,11 @@ package body AWS.Net is
       if Socket.C = null then
          Socket.C := new RW_Cache;
       end if;
+   end Initialize;
+
+   procedure Initialize (FD_Set : in out Net.FD_Set) is
+   begin
+      FD_Set.Ref_Count := new Natural'(1);
    end Initialize;
 
    ----------------

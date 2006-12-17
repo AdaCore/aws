@@ -34,6 +34,7 @@
 with Ada.Exceptions;
 with Ada.Finalization;
 with Ada.Streams;
+with Ada.Unchecked_Deallocation;
 
 with AWS.Utils;
 
@@ -55,7 +56,7 @@ package AWS.Net is
    subtype FD_Type is Integer;
    --  Represents an external socket file descriptor
 
-   type FD_Set (Size : Natural) is abstract tagged private;
+   type FD_Set is abstract tagged private;
    --  Abstract type for waiting of network events on group of sockets FD
 
    type Event_Type is (Error, Input, Output);
@@ -257,18 +258,6 @@ package AWS.Net is
    -- Socket FD sets --
    --------------------
 
-   type Set_Access is access all FD_Set'Class;
-
-   procedure Add
-     (FD_Set : in out Set_Access;
-      FD     : in     FD_Type;
-      Event  : in     Wait_Event_Set);
-   --  Add FD to the end of FD_Set
-
-   procedure Free (FD_Set : in out Set_Access);
-   pragma Inline (Free);
-   --  Deallocate the socket FD set
-
    procedure Add
      (FD_Set : in out Net.FD_Set;
       FD     : in     FD_Type;
@@ -281,9 +270,8 @@ package AWS.Net is
       Mode   : in     Wait_Event_Set) is abstract;
    --  Sets the kind of network events to wait for
 
-   function Reallocate
-     (FD_Set : access Net.FD_Set;
-      Size   : in     Natural) return Set_Access is abstract;
+   procedure Reallocate
+     (FD_Set : in out Net.FD_Set; Side : in Natural) is abstract;
    --  Reallocates the set to the given size. Does nothing if Size is the
    --  current FD_Set size.
 
@@ -294,6 +282,10 @@ package AWS.Net is
 
    function Length (FD_Set : in Net.FD_Set) return Natural is abstract;
    --  Returns number of socket FD elements in FD_Set
+
+   function Size (FD_Set : in Net.FD_Set) return Natural is abstract;
+   --  Returns the size of the FD_Set, this can be greater than Length as it
+   --  returns the allocated size (empty buckets are counted).
 
    procedure Wait
      (FD_Set  : in out Net.FD_Set;
@@ -310,13 +302,15 @@ package AWS.Net is
    --  events for this socket.
 
    function Status
-     (Fd_Set : in Net.FD_Set;
+     (FD_Set : in Net.FD_Set;
       Index  : in Positive) return Event_Set is abstract;
    --  Returns events for the socket FD at position Index
 
-private
+   procedure Free (FD_Set : in out Net.FD_Set);
+   --  Release memory associated with the FD_Set, must be overrided if
+   --  necessary. This default implementation does nothing.
 
-   type FD_Set (Size : Natural) is abstract tagged null record;
+private
 
    procedure Wait_For
      (Mode   : in Wait_Event_Type;
@@ -381,5 +375,19 @@ private
    overriding procedure Initialize (Socket : in out Socket_Type);
    overriding procedure Adjust     (Socket : in out Socket_Type);
    overriding procedure Finalize   (Socket : in out Socket_Type);
+
+   type Counter_Access is access Natural;
+   type FD_Set_Access is access FD_Set'Class;
+
+   type FD_Set is abstract new Finalization.Controlled with record
+      Ref_Count : Counter_Access;
+   end record;
+
+   overriding procedure Initialize (FD_Set : in out Net.FD_Set);
+   overriding procedure Adjust     (FD_Set : in out Net.FD_Set);
+   overriding procedure Finalize   (FD_Set : in out Net.FD_Set);
+
+   procedure Free is new
+     Unchecked_Deallocation (FD_Set'Class, FD_Set_Access);
 
 end AWS.Net;

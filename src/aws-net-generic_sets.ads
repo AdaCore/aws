@@ -211,7 +211,7 @@ private
    type Socket_Array_Access is access all Socket_Array;
 
    type Socket_Set_Type is new Ada.Finalization.Limited_Controlled with record
-      Poll : Set_Access;
+      Poll : FD_Set_Access;
       Set  : Socket_Array_Access;
    end record;
 
