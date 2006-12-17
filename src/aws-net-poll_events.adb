@@ -26,19 +26,16 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-with Ada.Unchecked_Deallocation;
-
 with AWS.OS_Lib;
 
 package body AWS.Net.Poll_Events is
 
    procedure Set_Mode (Item : out Thin.Pollfd; Mode : in Wait_Event_Set);
 
+   type Poll_Access is access all Set;
+
    procedure Check_Range (FD_Set : in Set; Index : in Positive);
    pragma Inline (Check_Range);
-
-   procedure Free is new
-     Unchecked_Deallocation (Poll_Set, Poll_Set_Access);
 
    ---------
    -- Add --
@@ -49,12 +46,8 @@ package body AWS.Net.Poll_Events is
       FD     : in     FD_Type;
       Event  : in     Wait_Event_Set) is
    begin
-      if FD_Set.Length = FD_Set.Size then
-         if FD_Set.Size < 256 then
-            Reallocate (FD_Set, FD_Set.Size * 2);
-         else
-            Reallocate (FD_Set, FD_Set.Size + 256);
-         end if;
+      if FD_Set.Size = FD_Set.Length then
+         raise Constraint_Error;
       end if;
 
       FD_Set.Length := FD_Set.Length + 1;
@@ -74,13 +67,27 @@ package body AWS.Net.Poll_Events is
    end Check_Range;
 
    ----------
-   -- Free --
+   -- Copy --
    ----------
 
-   procedure Free (FD_Set : in out Set) is
+   function Copy
+     (FD_Set : access Set; Size : in Natural) return FD_Set_Access
+   is
+      Result : Poll_Access;
    begin
-      Free (FD_Set.Fds);
-   end Free;
+      Result := new Set (Size);
+
+      if FD_Set.Size < Size then
+         Result.Length := FD_Set.Length;
+         Result.Fds (1 .. FD_Set.Size) := FD_Set.Fds;
+
+      else
+         Result.Length := Size;
+         Result.Fds    := FD_Set.Fds (1 .. Size);
+      end if;
+
+      return Result.all'Access;
+   end Copy;
 
    ------------
    -- Length --
@@ -105,36 +112,6 @@ package body AWS.Net.Poll_Events is
          Index := Index + 1;
       end loop;
    end Next;
-
-   ----------------
-   -- Reallocate --
-   ----------------
-
-   procedure Reallocate
-     (FD_Set : in out Set; Size : in Natural)
-   is
-      Result : Set (FD_Set.Initial_Size);
-      Old    : Poll_Set_Access := FD_Set.Fds;
-   begin
-      if FD_Set.Size = Size then
-         return;
-      end if;
-
-      if FD_Set.Size < Size then
-         Result.Length := FD_Set.Length;
-         Result.Fds := new Poll_Set (1 .. Size);
-         Result.Fds (1 .. FD_Set.Size) := FD_Set.Fds.all;
-         Free (Old);
-
-      else
-         Result.Length := Size;
-         Result.Fds (1 .. Size) := FD_Set.Fds (1 .. Size);
-      end if;
-
-      Result.Size := Size;
-
-      FD_Set := Result;
-   end Reallocate;
 
    ------------
    -- Remove --
@@ -180,15 +157,6 @@ package body AWS.Net.Poll_Events is
       end if;
    end Set_Mode;
 
-   ----------
-   -- Size --
-   ----------
-
-   function Size (FD_Set : in Set) return Natural is
-   begin
-      return FD_Set.Size;
-   end Size;
-
    ------------
    -- Status --
    ------------
@@ -232,7 +200,7 @@ package body AWS.Net.Poll_Events is
 
       Result := Integer
         (Thin.Poll
-           (FDS     => FD_Set.Fds.all'Address,
+           (FDS     => FD_Set.Fds'Address,
             Nfds    => Thin.nfds_t (FD_Set.Length),
             Timeout => Poll_Timeout));
 
