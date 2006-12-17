@@ -284,7 +284,7 @@ package AWS.Net is
    function Copy
      (FD_Set : access Net.FD_Set;
       Size   : in     Natural) return FD_Set_Access is abstract;
-   --  Allocates and copy the given FD_Set with different size.
+   --  Allocates and copy the given FD_Set with different size
 
    procedure Remove
      (FD_Set : in out Net.FD_Set; Index : in Positive) is abstract;
