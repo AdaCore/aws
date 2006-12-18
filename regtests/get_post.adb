@@ -36,13 +36,17 @@ with AWS.Parameters;
 with AWS.Response;
 with AWS.Server;
 with AWS.Status;
+with AWS.Utils;
+
+with Get_Free_Port;
 
 procedure Get_Post is
 
    use Ada;
    use AWS;
 
-   WS : Server.HTTP;
+   WS   : Server.HTTP;
+   Port : Positive := 8270;
 
    CRLF : constant String := ASCII.CR & ASCII.LF;
 
@@ -62,10 +66,14 @@ procedure Get_Post is
    R : Response.Data;
 
 begin
-   Server.Start (WS, "Get Post", CB'Unrestricted_Access, Port => 1270);
+   Get_Free_Port (Port);
+
+   Server.Start (WS, "Get Post", CB'Unrestricted_Access, Port => Port);
    Text_IO.Put_Line ("started"); Ada.Text_IO.Flush;
 
-   R := Client.Post ("http://localhost:1270/this_uri?P1=12&P2=azerty", M_Body);
+   R := Client.Post
+          ("http://localhost:" & Utils.Image (Port)
+           & "/this_uri?P1=12&P2=azerty", M_Body);
 
    Text_IO.Put_Line (Response.Message_Body (R));
 
