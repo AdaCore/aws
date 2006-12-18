@@ -34,7 +34,8 @@ APP := $(ADA_PROJECT_PATH)
 PTH := $(PATH)
 
 ifeq (${OS}, Windows_NT)
-export ADA_PROJECT_PATH = $(PWD)/.build/projects\;${APP}
+DPWD = $(subst /cygdrive/c/,c:/,$(PWD))
+export ADA_PROJECT_PATH = $(DPWD)/.build/projects\;${APP}
 
 AWS_PTH	= $(PWD)/$(BDIR)/lib:$(PWD)/win32:$(PWD)/lib:$(PWD)/$(BDIR)/include/lib
 AWS_PTH	:= $(PWD)/$(BDIR)/ssl/lib:$(PWD)/$(BDIR)/ssl/nlib:$(AWS_PTH)
