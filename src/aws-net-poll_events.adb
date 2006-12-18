@@ -186,6 +186,7 @@ package body AWS.Net.Poll_Events is
 
       Result       : Integer;
       Poll_Timeout : Thin.Timeout_Type;
+      Errno        : Integer;
    begin
       if FD_Set.Length = 0 then
          Count := 0;
@@ -198,15 +199,28 @@ package body AWS.Net.Poll_Events is
          Poll_Timeout := Thin.Timeout_Type (Timeout * 1_000);
       end if;
 
-      Result := Integer
-        (Thin.Poll
-           (FDS     => FD_Set.Fds'Address,
-            Nfds    => Thin.nfds_t (FD_Set.Length),
-            Timeout => Poll_Timeout));
+      loop
+         Result := Integer
+           (Thin.Poll
+              (FDS     => FD_Set.Fds'Address,
+               Nfds    => Thin.nfds_t (FD_Set.Length),
+               Timeout => Poll_Timeout));
 
-      if Result < 0 then
-         raise Socket_Error with "Poll error code" & Integer'Image (Errno);
-      end if;
+
+         if Result < 0 then
+            Errno := Net.Errno;
+
+            --  In case of EINTR error we have to continue waiting for network
+            --  events.
+
+            if Errno /= OS_Lib.EINTR then
+               raise Socket_Error with
+                 "Poll error code" & Integer'Image (Errno);
+            end if;
+         else
+            exit;
+         end if;
+      end loop;
 
       Count := Result;
    end Wait;
