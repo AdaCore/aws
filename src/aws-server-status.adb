@@ -304,6 +304,12 @@ package body AWS.Server.Status is
               Assoc ("SERVER_SOCK",
                      Integer (Net.Get_FD (Socket (Server)))),
 
+              Assoc ("ACCEPTOR_LENGTH",
+                     Net.Acceptors.Length (Server.Acceptor)),
+
+              Assoc ("CURRENT_CONNECTIONS",
+                     Current_Connections (Server)),
+
               Assoc ("VERSION",
                      Version),
 

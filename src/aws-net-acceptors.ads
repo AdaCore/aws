@@ -70,8 +70,9 @@ package AWS.Net.Acceptors is
    --  Should not be called simultaneously from different tasks.
    --  On_Accept_Error needs to be able to catch Socket_Error on Accept_Socket.
    --  Accept_Socket could fail if the server is processing too many keep-alive
-   --  connections simultaneously. The server can use this callback
-   --  to decrease the number of simultaneous keep-alive connections.
+   --  connections simultaneously. Acceptor swithed into Force timeouts in case
+   --  of Accept_Socket fail. The server could also use the On_Accept_Error
+   --  callback to decrease the number of simultaneous keep-alive connections.
    --  If On_Accept_Error is null, the exception from Accept_Socket is
    --  propagated.
 
@@ -92,6 +93,14 @@ package AWS.Net.Acceptors is
    --  Shutdown all internal sockets. Generally this is called from a
    --  different task while the Get routine is blocked waiting for a
    --  socket.
+
+   function Length (Acceptor : in Acceptor_Type) return Natural;
+   pragma Inline (Length);
+   --  Return number of sockets in the internal socket set.
+   --  Note that this number include server accepting socket
+   --  and one service signaling socket.
+   --  If the number of socket is 0, it mean that Acceptor either
+   --  not initialized or already shutdowned.
 
 private
 

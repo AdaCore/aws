@@ -108,8 +108,10 @@ package body AWS.Server is
       begin
          AWS.Log.Write
            (Server.Error_Log,
-            "Accept error " & Utils.CRLF_2_Spaces
-                                (Ada.Exceptions.Exception_Information (E)));
+            "Accept error "
+            & Utils.CRLF_2_Spaces (Ada.Exceptions.Exception_Information (E)));
+
+         Force_Clean (Server.all);
       end Accept_Error;
 
    begin

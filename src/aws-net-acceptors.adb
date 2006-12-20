@@ -74,6 +74,7 @@ package body AWS.Net.Acceptors is
 
       First        : constant Boolean := True;
       Timeout      : array (Boolean) of Duration;
+      Too_Many_FD  : Boolean := False;
 
       Ready, Error : Boolean;
       Wait_Timeout : Duration;
@@ -84,17 +85,19 @@ package body AWS.Net.Acceptors is
          raise Socket_Error;
       end if;
 
-      if Sets.Count (Acceptor.Set) > Acceptor.Force_Length then
-         Timeout (First)     := Acceptor.Force_First_Timeout;
-         Timeout (not First) := Acceptor.Force_Timeout;
-      else
-         Timeout (First)     := Acceptor.First_Timeout;
-         Timeout (not First) := Acceptor.Timeout;
-      end if;
-
-      Wait_Timeout := Timeout (not First);
-
       loop
+         if Sets.Count (Acceptor.Set) > Acceptor.Force_Length
+           or else Too_Many_FD
+         then
+            Timeout (First)     := Acceptor.Force_First_Timeout;
+            Timeout (not First) := Acceptor.Force_Timeout;
+         else
+            Timeout (First)     := Acceptor.First_Timeout;
+            Timeout (not First) := Acceptor.Timeout;
+         end if;
+
+         Wait_Timeout := Timeout (not First);
+
          Read_Ready : loop
             exit Read_Ready when Acceptor.Index > Acceptor.Last;
 
@@ -171,6 +174,14 @@ package body AWS.Net.Acceptors is
                when E : Socket_Error =>
                   if On_Accept_Error /= null then
                      On_Accept_Error (E);
+
+                     --  Most probable that Accept_Socket error is because the
+                     --  number of sockets per process exceeded.
+                     --  Set the flag Too_Many_FD to be able to use shorter
+                     --  timeouts in the next sockets expiration check.
+
+                     Too_Many_FD := True;
+
                   else
                      raise;
                   end if;
@@ -230,6 +241,15 @@ package body AWS.Net.Acceptors is
       Send (Acceptor.W_Signal.all, (1 => Socket_Command));
       Acceptor.Box.Add (Socket);
    end Give_Back;
+
+   ------------
+   -- Length --
+   ------------
+
+   function Length (Acceptor : in Acceptor_Type) return Natural is
+   begin
+      return Natural (Sets.Count (Acceptor.Set));
+   end Length;
 
    ------------
    -- Listen --
