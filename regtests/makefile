@@ -50,8 +50,7 @@ endif
 
 OTH_TESTS      = tres
 
-ALONE_TESTS    = dispatch1 dispatch_method dispatch_vh upload2 \
-	upload3 server_config tlog
+ALONE_TESTS    = upload2 upload3 server_config tlog
 
 ifeq (${XMLADA}, true)
 ifneq (${SOCKET}, std)
