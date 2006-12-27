@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2003-2004                          --
---                                ACT-Europe                                --
+--                         Copyright (C) 2003-2006                          --
+--                                AdaCore                                   --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -28,6 +28,8 @@
 
 --  ~ MAIN [STD]
 
+with Ada.Strings.Fixed;
+with Ada.Strings.Maps.Constants;
 with Ada.Text_IO;
 with Ada.Exceptions;
 
@@ -101,11 +103,22 @@ procedure Upload2 is
      (E      : in     Ada.Exceptions.Exception_Occurrence;
       Log    : in out AWS.Log.Object;
       Error  : in     AWS.Exceptions.Data;
-      Answer : in out Response.Data) is
+      Answer : in out Response.Data)
+   is
+      use Ada.Strings;
+      Error_Message : constant String := Ada.Exceptions.Exception_Message (E);
+
+      First : Positive;
+      Last  : Natural;
    begin
       Put_Line ("Ok, exception received on the server side");
       Put_Line ("  => " & Ada.Exceptions.Exception_Name (E));
-      Put_Line ("  => " & Ada.Exceptions.Exception_Message (E));
+
+      Fixed.Find_Token
+        (Error_Message, Maps.Constants.Decimal_Digit_Set, Inside, First, Last);
+
+      Put_Line
+        ("  => " & Fixed.Replace_Slice (Error_Message, First, Last, ""));
    end Problem;
 
    ------------
@@ -170,7 +183,7 @@ begin
    Server.Started;
 
    Request
-     ("http://localhost:" & Utils.Image (Port) & "/upload", "upload2.ali");
+     ("http://localhost:" & Utils.Image (Port) & "/upload", "tmem.out");
 
    Server.Stopped;
 
