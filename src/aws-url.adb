@@ -232,10 +232,28 @@ package body AWS.URL is
          Delete (URL_Path, 1, 1);
       end if;
 
-      --  Look for all /./ references
+      --  Look for all // references
+
+      K := 1;
 
       loop
-         K := Index (URL_Path, "/./");
+         K := Index (URL_Path, "//", From => K);
+
+         exit when K = 0;
+
+         if K > 1 and then Slice (URL_Path, K - 1, K - 1) = ":" then
+            K := K + 1;
+         else
+            Delete (URL_Path, K, K);
+         end if;
+      end loop;
+
+      --  Look for all /./ references
+
+      K := 1;
+
+      loop
+         K := Index (URL_Path, "/./", From => K);
 
          exit when K = 0;
 
@@ -244,8 +262,10 @@ package body AWS.URL is
 
       --  Checks for parent directory
 
+      P := 1;
+
       loop
-         K := Index (URL_Path, "/../");
+         K := Index (URL_Path, "/../", From => P);
 
          exit when K = 0;
 
@@ -384,7 +404,7 @@ package body AWS.URL is
          I2 := Strings.Fixed.Index (URL, "/");
          I3 := Strings.Fixed.Index (URL, "@");
 
-         --  Check for [user:pawwsord@]
+         --  Check for [user:password@]
 
          if I1 /= 0 and then I3 /= 0 and then I1 < I3 then
             --  We have [user:password@]
