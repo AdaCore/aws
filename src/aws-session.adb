@@ -88,14 +88,15 @@ package body AWS.Session is
 
    procedure Read
      (Stream : in out String_Stream_Type;
-      Item   : out Stream_Element_Array;
-      Last   : out Stream_Element_Offset);
+      Item   :    out Stream_Element_Array;
+      Last   :    out Stream_Element_Offset);
+
    procedure Write
      (Stream : in out String_Stream_Type;
-      Item   : in Stream_Element_Array);
+      Item   : in     Stream_Element_Array);
    --  See inherited documentation
 
-   procedure Open (Stream : in out String_Stream_Type'Class; Str : String);
+   procedure Open (Stream : in out String_Stream_Type'Class; Str : in String);
    --  Open a new string. Str is the initial value of the string, to which will
    --  be appended the result of 'Output.
 
@@ -772,6 +773,7 @@ package body AWS.Session is
       begin
          if Result = "" then
             return Null_Data;
+
          else
             Open (Str, Result);
             Data'Read (Str'Access, Value);
@@ -938,7 +940,9 @@ package body AWS.Session is
    -- Open --
    ----------
 
-   procedure Open (Stream : in out String_Stream_Type'Class; Str : String) is
+   procedure Open
+     (Stream : in out String_Stream_Type'Class;
+      Str    : in String) is
    begin
       Stream.Str        := To_Unbounded_String (Str);
       Stream.Read_Index := 1;
@@ -950,8 +954,8 @@ package body AWS.Session is
 
    procedure Read
      (Stream : in out String_Stream_Type;
-      Item   : out Stream_Element_Array;
-      Last   : out Stream_Element_Offset)
+      Item   :    out Stream_Element_Array;
+      Last   :    out Stream_Element_Offset)
    is
       Str : constant String := Slice
         (Stream.Str, Stream.Read_Index, Stream.Read_Index + Item'Length - 1);
@@ -1186,7 +1190,7 @@ package body AWS.Session is
 
    procedure Write
      (Stream : in out String_Stream_Type;
-      Item   : in Stream_Element_Array)
+      Item   : in     Stream_Element_Array)
    is
       Str : String (1 .. Integer (Item'Length));
       S   : Integer := Str'First;

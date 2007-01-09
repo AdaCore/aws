@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2004                          --
---                                ACT-Europe                                --
+--                         Copyright (C) 2000-2007                          --
+--                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -97,9 +97,9 @@ package AWS.Status.Set is
 
    procedure Authenticate
      (D                      : in out Data;
-      Authorization_Mode     : Authorization_Type;
-      Authorization_Name     : String;
-      Authorization_Password : String);
+      Authorization_Mode     : in     Authorization_Type;
+      Authorization_Name     : in     String;
+      Authorization_Password : in     String);
    --  Set the authentication parameters associated with the request. This is
    --  mostly intended for automatic testsuite, since AWS will properly
    --  set those from the headers of the request as read from the socket.

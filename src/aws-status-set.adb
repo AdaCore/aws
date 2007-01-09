@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2006                          --
+--                         Copyright (C) 2000-2007                          --
 --                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -82,9 +82,9 @@ package body AWS.Status.Set is
 
    procedure Authenticate
      (D                      : in out Data;
-      Authorization_Mode     : Authorization_Type;
-      Authorization_Name     : String;
-      Authorization_Password : String) is
+      Authorization_Mode     : in     Authorization_Type;
+      Authorization_Name     : in     String;
+      Authorization_Password : in     String) is
    begin
       D.Auth_Mode     := Authorization_Mode;
       D.Auth_Name     := To_Unbounded_String (Authorization_Name);
