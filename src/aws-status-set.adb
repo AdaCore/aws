@@ -76,6 +76,21 @@ package body AWS.Status.Set is
       D.Attachments := Attachments;
    end Attachments;
 
+   ------------------
+   -- Authenticate --
+   ------------------
+
+   procedure Authenticate
+     (D                      : in out Data;
+      Authorization_Mode     : Authorization_Type;
+      Authorization_Name     : String;
+      Authorization_Password : String) is
+   begin
+      D.Auth_Mode     := Authorization_Mode;
+      D.Auth_Name     := To_Unbounded_String (Authorization_Name);
+      D.Auth_Password := To_Unbounded_String (Authorization_Password);
+   end Authenticate;
+
    -------------------
    -- Authorization --
    -------------------

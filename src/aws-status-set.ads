@@ -95,4 +95,13 @@ package AWS.Status.Set is
       Attachments : in     AWS.Attachments.List);
    --  Adds a list of Attachments to D
 
+   procedure Authenticate
+     (D                      : in out Data;
+      Authorization_Mode     : Authorization_Type;
+      Authorization_Name     : String;
+      Authorization_Password : String);
+   --  Set the authentication parameters associated with the request. This is
+   --  mostly intended for automatic testsuite, since AWS will properly
+   --  set those from the headers of the request as read from the socket.
+
 end AWS.Status.Set;
