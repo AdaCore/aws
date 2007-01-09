@@ -696,7 +696,7 @@ package body AWS.Response is
    is
       Result : Data;
    begin
-      Set.Status_Code   (Result, Messages.S301);
+      Set.Status_Code   (Result, Messages.S302);
       Set.Location      (Result, Location);
       Set.Mode          (Result, Header);
       Set.Cache_Control (Result, Cache_Control);

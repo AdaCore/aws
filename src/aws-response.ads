@@ -180,7 +180,9 @@ package AWS.Response is
      (Location      : in String;
       Cache_Control : in Messages.Cache_Option := Messages.Unspecified)
       return Data;
-   --  This ask the server for a redirection to the specified URL
+   --  This ask the server for a redirection to the specified URL. This is
+   --  a temporary redirection, and the client browser should query the
+   --  same original URL next time.
 
    function Moved
      (Location      : in String;
@@ -189,6 +191,9 @@ package AWS.Response is
       return Data;
    --  This send back a moved message (Messages.S301) with the specified
    --  message body.
+   --  This is a permanent redirection, and the client browser is encouraged
+   --  to update links so that the next query for the URL goes directly to
+   --  the new location.
 
    ------------------------
    -- Other Constructors --
