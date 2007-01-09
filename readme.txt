@@ -61,6 +61,9 @@ Here are the main changes since AWS 2.2 :
      SOAP href properly as it expected the referenced node to have
      a specific name. Now only the node id attribute is checked.
 
+   - Support for storing complex data types in sessions, in particular
+     Ada2005 containers, through AWS.Session.Generic_Data
+
    - Plus many small fixes, enhancements, API comments, and documentation work.
 
 

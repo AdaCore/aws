@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2006                          --
+--                         Copyright (C) 2000-2007                          --
 --                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -27,10 +27,9 @@
 ------------------------------------------------------------------------------
 
 with Ada.Exceptions;
-with Ada.Streams.Stream_IO;
+with Ada.Streams.Stream_IO;        use Ada.Streams;
 with Ada.Strings.Unbounded;
 with Ada.Text_IO;
-with Ada.Unchecked_Conversion;
 with Ada.Unchecked_Deallocation;
 
 with Strings_Maps;
@@ -76,6 +75,29 @@ package body AWS.Session is
       Found    :    out Boolean);
    --  Returns Node for specified SID, if found update the timestamp for
    --  this node and set Found to True, otherwise set Found to False.
+
+   --------------------
+   --  String stream --
+   --------------------
+
+   type String_Stream_Type is new Root_Stream_Type with record
+      Str        : Unbounded_String;
+      Read_Index : Natural := 1;
+   end record;
+   --  A stream that reads and writes to a string
+
+   procedure Read
+     (Stream : in out String_Stream_Type;
+      Item   : out Stream_Element_Array;
+      Last   : out Stream_Element_Offset);
+   procedure Write
+     (Stream : in out String_Stream_Type;
+      Item   : in Stream_Element_Array);
+   --  See inherited documentation
+
+   procedure Open (Stream : in out String_Stream_Type'Class; Str : String);
+   --  Open a new string. Str is the initial value of the string, to which will
+   --  be appended the result of 'Output.
 
    -----------------
    -- Expired Set --
@@ -739,26 +761,21 @@ package body AWS.Session is
 
    package body Generic_Data is
 
-      subtype Data_Img is String (1 .. Data'Size / 8);
-      --  Data_Img is used to store a Data object as a String
-
-      function To_Data is new Unchecked_Conversion (Data_Img, Data);
-      --  Convert from Data_Img to Data
-
-      function To_Data_Img is new Unchecked_Conversion (Data, Data_Img);
-      --  Convert from Data to Data_Img
-
       ---------
       -- Get --
       ---------
 
       function Get (SID : in Id; Key : in String) return Data is
          Result : constant String := Get (SID, Key);
+         Str    : aliased String_Stream_Type;
+         Value  : Data;
       begin
          if Result = "" then
             return Null_Data;
          else
-            return To_Data (Result);
+            Open (Str, Result);
+            Data'Read (Str'Access, Value);
+            return Value;
          end if;
       end Get;
 
@@ -769,9 +786,12 @@ package body AWS.Session is
       procedure Set
         (SID   : in Id;
          Key   : in String;
-         Value : in Data) is
+         Value : in Data)
+      is
+         Str : aliased String_Stream_Type;
       begin
-         Set (SID, Key, To_Data_Img (Value));
+         Data'Write (Str'Access, Value);
+         Set (SID, Key, To_String (Str.Str));
       end Set;
 
    end Generic_Data;
@@ -913,6 +933,37 @@ package body AWS.Session is
 
       Close (File);
    end Load;
+
+   ----------
+   -- Open --
+   ----------
+
+   procedure Open (Stream : in out String_Stream_Type'Class; Str : String) is
+   begin
+      Stream.Str        := To_Unbounded_String (Str);
+      Stream.Read_Index := 1;
+   end Open;
+
+   ----------
+   -- Read --
+   ----------
+
+   procedure Read
+     (Stream : in out String_Stream_Type;
+      Item   : out Stream_Element_Array;
+      Last   : out Stream_Element_Offset)
+   is
+      Str : constant String := Slice
+        (Stream.Str, Stream.Read_Index, Stream.Read_Index + Item'Length - 1);
+      J   : Stream_Element_Offset := Item'First;
+   begin
+      for S in Str'Range loop
+         Item (J) := Stream_Element (Character'Pos (Str (S)));
+         J := J + 1;
+      end loop;
+      Last := Item'First + Str'Length - 1;
+      Stream.Read_Index := Stream.Read_Index + Item'Length;
+   end Read;
 
    ------------
    -- Remove --
@@ -1128,5 +1179,24 @@ package body AWS.Session is
          return Id (SID (SID'First + SID_Prefix'Length .. SID'Last));
       end if;
    end Value;
+
+   -----------
+   -- Write --
+   -----------
+
+   procedure Write
+     (Stream : in out String_Stream_Type;
+      Item   : in Stream_Element_Array)
+   is
+      Str : String (1 .. Integer (Item'Length));
+      S   : Integer := Str'First;
+   begin
+      for J in Item'Range loop
+         Str (S) := Character'Val (Item (J));
+         S := S + 1;
+      end loop;
+
+      Append (Stream.Str, Str);
+   end Write;
 
 end AWS.Session;
