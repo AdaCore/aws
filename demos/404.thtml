@@ -6,7 +6,11 @@
 
 <p><img src="/aws_logo.png" border=0>
 
-<p><b><font size=+2>@_PAGE_@</font></b>
+@@-- We have to use WEB_ESCAPE filter to disable html tags
+@@-- initiated from client side.
+@@-- See http://www.securityfocus.com/bid/7596
+
+<p><b><font size=+2>@_WEB_ESCAPE:PAGE_@</font></b>
 
 <p>Error 404 - AWS Page Not Found
 
