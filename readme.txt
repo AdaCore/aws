@@ -4,7 +4,7 @@
 
 Authors:
    Dmitriy Anisimkov
-   Pascal Obry                                              November 17th, 2006
+   Pascal Obry                                              January 10th, 2007
 
 
 
@@ -63,6 +63,9 @@ Here are the main changes since AWS 2.2 :
 
    - Support for storing complex data types in sessions, in particular
      Ada2005 containers, through AWS.Session.Generic_Data
+
+   - Fix URL handling security hole. With some obscure combinations
+     of .. and back slash it was possible to access files above Web root.
 
    - Plus many small fixes, enhancements, API comments, and documentation work.
 
@@ -135,9 +138,9 @@ Validation
 
 AWS 2.3 has been compiled and has passed all tests on:
 
-   Windows XP, GNAT 6.0.0
+   Windows XP, GNAT 6.0.1
 
-   GNU/Linux x86, GNAT 6.0.0
+   GNU/Linux x86, GNAT 6.0.1
 
 Others platforms / compiler version combinations have not been tested, it
 does not mean that it's not working.
