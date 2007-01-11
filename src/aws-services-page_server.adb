@@ -26,6 +26,9 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
+with Ada.Strings.Fixed;
+with Ada.Strings.Maps;
+
 with AWS.Config;
 with AWS.Messages;
 with AWS.MIME;
@@ -44,6 +47,8 @@ package body AWS.Services.Page_Server is
    --------------
 
    function Callback (Request : in AWS.Status.Data) return AWS.Response.Data is
+      use Ada.Strings;
+
       WWW_Root : String renames AWS.Config.WWW_Root (Config.Get_Current);
       URI      : constant String := AWS.Status.URI (Request);
       Filename : constant String := WWW_Root & URI (2 .. URI'Last);
@@ -87,7 +92,12 @@ package body AWS.Services.Page_Server is
          else
             return AWS.Response.Acknowledge
               (Messages.S404,
-               "<p>Page '" & URI & "' Not found.");
+               "<p>Page '"
+               --  Replace HTML control characters to the HTML inactive symbols
+               --  to avoid correct HTML pages initiated from the client side.
+               --  See http://www.securityfocus.com/bid/7596
+               & Fixed.Translate (URI, Maps.To_Mapping ("<>&", "{}@"))
+               & "' Not found.");
          end if;
       end if;
    end Callback;
