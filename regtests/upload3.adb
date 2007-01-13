@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                          Copyright (C) 2003-2006                         --
+--                          Copyright (C) 2003-2007                         --
 --                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -44,6 +44,9 @@ with AWS.Parameters;
 with AWS.Response;
 with AWS.Server;
 with AWS.Status;
+with AWS.Utils;
+
+with Get_Free_Port;
 
 procedure Upload3 is
 
@@ -59,6 +62,7 @@ procedure Upload3 is
    end Server;
 
    HTTP : AWS.Server.HTTP;
+   Port : Natural := 8821;
 
    procedure Problem
      (E      : in     Ada.Exceptions.Exception_Occurrence;
@@ -126,8 +130,10 @@ procedure Upload3 is
    task body Server is
       Web_Config : Config.Object;
    begin
+      Get_Free_Port (Port);
+
       Config.Set.Server_Name (Web_Config, "upload3");
-      Config.Set.Server_Port (Web_Config, 1241);
+      Config.Set.Server_Port (Web_Config, Port);
       Config.Set.Max_Connection (Web_Config, 5);
       Config.Set.Upload_Directory (Web_Config, "/this/one/does/not/exists");
 
@@ -177,7 +183,7 @@ begin
 
    Server.Started;
 
-   Request ("http://localhost:1241/upload", "append.out");
+   Request ("http://localhost:" & Utils.Image (Port) & "/upload", "append.out");
 
    Server.Stopped;
 
