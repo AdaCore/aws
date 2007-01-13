@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                          Copyright (C) 2003-2004                         --
---                                ACT-Europe                                --
+--                          Copyright (C) 2003-2007                         --
+--                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -66,7 +66,7 @@ procedure Redirect is
    begin
       R := Client.Get ("http://localhost:" & Utils.Image (Port) & "/first");
 
-      if Response.Status_Code (R) = Messages.S301 then
+      if Response.Status_Code (R) = Messages.S302 then
          Text_IO.Put_Line ("OK, status is good");
       else
          Text_IO.Put_Line ("NOK, wrong status "
