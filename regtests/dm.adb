@@ -179,7 +179,7 @@ procedure DM is
          declare
             Message : constant String := Response.Message_Body (R);
          begin
-            if Code = Messages.S301 then
+            if Code = Messages.S302 then
                Put_Line
                  ("Client " & Utils.Image (N) &
                   " " & Messages.Status_Code'Image (Code) & Message);
@@ -213,6 +213,8 @@ procedure DM is
                Text_IO.Put_Line
                  ("Error code " & Messages.Status_Code'Image (Code)
                     & Message);
+               exit;
+
             end if;
          end;
       end loop;
