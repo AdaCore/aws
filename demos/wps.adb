@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2001                          --
---                                ACT-Europe                                --
+--                         Copyright (C) 2000-2007                          --
+--                                AdaCore                                   --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -30,7 +30,8 @@
 
 with Ada.Text_IO;
 
-with AWS.Server;
+with AWS.Config;
+with AWS.Server.Log;
 with AWS.Services.Page_Server;
 
 procedure WPS is
@@ -39,18 +40,27 @@ procedure WPS is
 
    WS : AWS.Server.HTTP;
 
+   Config : constant AWS.Config.Object := AWS.Config.Get_Current;
+
 begin
    Text_IO.Put_Line ("AWS " & AWS.Version);
+   Text_IO.Put_Line
+     ("Server port:" & Integer'Image (AWS.Config.Server_Port (Config)));
    Text_IO.Put_Line ("Kill me when you want me to stop or press Q...");
 
-   AWS.Services.Page_Server.Directory_Browsing (True);
-   --  Comment this to disable the directory browsing facility.
+   if AWS.Config.Directory_Browser_Page (Config) /= "" then
+      AWS.Services.Page_Server.Directory_Browsing (True);
+   end if;
 
-   AWS.Server.Start
-     (WS, "Simple Page Server demo",
-      Port           => 1234,
-      Callback       => AWS.Services.Page_Server.Callback'Access,
-      Max_Connection => 5);
+   if AWS.Config.Log_Filename_Prefix (Config) /= "" then
+      AWS.Server.Log.Start (WS);
+   end if;
+
+   if AWS.Config.Error_Log_Filename_Prefix (Config) /= "" then
+      AWS.Server.Log.Start_Error (WS);
+   end if;
+
+   AWS.Server.Start (WS, AWS.Services.Page_Server.Callback'Access, Config);
 
    AWS.Server.Wait (AWS.Server.Q_Key_Pressed);
 
