@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                          Copyright (C) 2003-2007                         --
+--                         Copyright (C) 2003-2007                         --
 --                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -46,20 +46,30 @@ procedure Redirect is
    use AWS;
    use type AWS.Messages.Status_Code;
 
-   WS : Server.HTTP;
+   WS   : Server.HTTP;
    Port : Natural := 1239;
+
+   --------
+   -- CB --
+   --------
 
    function CB (Request : in Status.Data) return Response.Data is
       URI : constant String := Status.URI (Request);
    begin
       if URI = "/first" then
          return Response.URL ("/second");
+
       elsif URI = "/second" then
          return Response.Build (MIME.Text_HTML, "That's good!");
+
       else
          return Response.Build (MIME.Text_HTML, "URI not supported");
       end if;
    end CB;
+
+   -------------
+   -- Call_It --
+   -------------
 
    procedure Call_It is
       R : Response.Data;
@@ -68,9 +78,11 @@ procedure Redirect is
 
       if Response.Status_Code (R) = Messages.S302 then
          Text_IO.Put_Line ("OK, status is good");
+
       else
-         Text_IO.Put_Line ("NOK, wrong status "
-                             & Messages.Image (Response.Status_Code (R)));
+         Text_IO.Put_Line
+           ("NOK, wrong status "
+            & Messages.Image (Response.Status_Code (R)));
       end if;
 
       Text_IO.Put_Line (Response.Location (R));
