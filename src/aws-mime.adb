@@ -277,6 +277,7 @@ package body AWS.MIME is
       Set.Add_Extension ("sh",      Application_X_Sh);
       Set.Add_Extension ("shar",    Application_X_Shar);
       Set.Add_Extension ("tar",     Application_X_Tar);
+      Set.Add_Extension ("tgz",     Application_X_GZip);
       Set.Add_Extension ("tcl",     Application_X_Tcl);
       Set.Add_Extension ("tex",     Application_X_Tex);
       Set.Add_Extension ("texinfo", Application_X_Texinfo);
