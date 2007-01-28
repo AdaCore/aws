@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2006                          --
+--                         Copyright (C) 2000-2007                          --
 --                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -181,9 +181,10 @@ package body AWS.Server is
       Error  : in     Exceptions.Data;
       Answer : in out Response.Data)
    is
+      pragma Unreferenced (Log);
+
       use Ada.Exceptions;
       use type Templates.Translate_Table;
-      pragma Unreferenced (Log);
 
       Fatal_Error_Template  : constant String := "500.tmplt";
    begin
