@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2004                          --
---                               ACT-Europe                                 --
+--                         Copyright (C) 2000-2007                          --
+--                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -36,11 +36,16 @@ package AWS.Messages is
    -- HTTP tokens --
    -----------------
 
-   HTTP_Token : constant String := "HTTP/";
-   Get_Token  : constant String := "GET ";
-   Put_Token  : constant String := "PUT ";
-   Head_Token : constant String := "HEAD ";
-   Post_Token : constant String := "POST ";
+   HTTP_Token    : constant String := "HTTP/";
+   Options_Token : constant String := "OPTIONS";
+   Get_Token     : constant String := "GET";
+   Head_Token    : constant String := "HEAD";
+   Post_Token    : constant String := "POST";
+   Put_Token     : constant String := "PUT";
+   Delete_Token  : constant String := "DELETE";
+   Trace_Token   : constant String := "TRACE";
+   Connect_Token : constant String := "CONNECT";
+   --  Sorted like in RFC 2616 Method definition
 
    ------------------------
    -- HTTP header tokens --

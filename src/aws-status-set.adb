@@ -283,14 +283,45 @@ package body AWS.Status.Set is
 
    procedure Request
      (D            : in out Data;
-      Method       : in     Request_Method;
+      Method       : in     String;
       URI          : in     String;
       HTTP_Version : in     String) is
    begin
-      D.Request_Time := Ada.Calendar.Clock;
-      D.Method       := Method;
-      D.URI          := URL.Parse (URI, False, False);
-      D.HTTP_Version := To_Unbounded_String (HTTP_Version);
+      D.Request_Time  := Ada.Calendar.Clock;
+
+      --  Method is case sensitive
+
+      if Method = Messages.Options_Token then
+         D.Method := Status.OPTIONS;
+
+      elsif Method = Messages.Get_Token then
+         D.Method := Status.GET;
+
+      elsif Method = Messages.Head_Token then
+         D.Method := Status.HEAD;
+
+      elsif Method = Messages.Post_Token then
+         D.Method := Status.POST;
+
+      elsif Method = Messages.Put_Token then
+         D.Method := Status.PUT;
+
+      elsif Method = Messages.Delete_Token then
+         D.Method := Status.DELETE;
+
+      elsif Method = Messages.Trace_Token then
+         D.Method := Status.TRACE;
+
+      elsif Method = Messages.Connect_Token then
+         D.Method := Status.CONNECT;
+
+      else
+         D.Method := Status.EXTENSION_METHOD;
+      end if;
+
+      D.Method_String := To_Unbounded_String (Method);
+      D.URI           := URL.Parse (URI, False, False);
+      D.HTTP_Version  := To_Unbounded_String (HTTP_Version);
    end Request;
 
    -----------

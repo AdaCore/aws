@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2006                          --
+--                         Copyright (C) 2000-2007                          --
 --                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -421,6 +421,11 @@ package body AWS.Status is
    function Method (D : in Data) return Request_Method is
    begin
       return D.Method;
+   end Method;
+
+   function Method (D : in Data) return String is
+   begin
+      return To_String (D.Method_String);
    end Method;
 
    ------------------------

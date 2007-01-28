@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2005-2006                          --
+--                         Copyright (C) 2005-2007                          --
 --                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -1026,6 +1026,10 @@ package body AWS.Server.HTTP_Utils is
       procedure Cut_Command;
       --  Parse Command and set I1, I2 and I3
 
+      function Method return String;
+      pragma Inline (Method);
+      --  Returns the method
+
       function Resource return String;
       pragma Inline (Resource);
       --  Returns first parameter. parameters are separated by spaces.
@@ -1068,6 +1072,15 @@ package body AWS.Server.HTTP_Utils is
          return Command (I2 + 1 .. Command'Last);
       end HTTP_Version;
 
+      ------------
+      -- Method --
+      ------------
+
+      function Method return String is
+      begin
+         return Command (Command'First .. I1 - 1);
+      end Method;
+
       ----------------
       -- Parameters --
       ----------------
@@ -1109,18 +1122,7 @@ package body AWS.Server.HTTP_Utils is
       --  prohibited by reading RFC 2616. Other technologies do offer this
       --  feature so AWS do this as well.
 
-      if Messages.Match (Command, Messages.Get_Token) then
-         Status.Set.Request (C_Stat, Status.GET, Resource, HTTP_Version);
-
-      elsif Messages.Match (Command, Messages.Put_Token) then
-         Status.Set.Request (C_Stat, Status.PUT, Resource, HTTP_Version);
-
-      elsif Messages.Match (Command, Messages.Head_Token) then
-         Status.Set.Request (C_Stat, Status.HEAD, Resource, HTTP_Version);
-
-      elsif Messages.Match (Command, Messages.Post_Token) then
-         Status.Set.Request (C_Stat, Status.POST, Resource, HTTP_Version);
-      end if;
+      Status.Set.Request (C_Stat, Method, Resource, HTTP_Version);
 
       Status.Set.Add_Parameters (C_Stat, Parameters);
    end Parse_Request_Line;

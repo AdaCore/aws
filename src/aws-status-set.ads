@@ -51,7 +51,7 @@ package AWS.Status.Set is
 
    procedure Request
      (D            : in out Data;
-      Method       : in     Request_Method;
+      Method       : in     String;
       URI          : in     String;
       HTTP_Version : in     String);
    --  Set values for the request line:

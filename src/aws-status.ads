@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2006                          --
+--                         Copyright (C) 2000-2007                          --
 --                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -47,7 +47,10 @@ package AWS.Status is
 
    type Data is private;
 
-   type Request_Method is (GET, HEAD, POST, PUT);
+   type Request_Method is
+     (OPTIONS, GET, HEAD, POST, PUT, DELETE, TRACE, CONNECT, EXTENSION_METHOD);
+   --  EXTENSION_METHOD indicates that a method is an extension-method,
+   --  ie none of the eight method tokens predefined in the RFC 2616.
 
    type Authorization_Type is (None, Basic, Digest);
 
@@ -58,6 +61,12 @@ package AWS.Status is
    function Method                 (D : in Data) return Request_Method;
    pragma Inline (Method);
    --  Returns the request method
+
+   function Method                 (D : in Data) return String;
+   pragma Inline (Method);
+   --  Returns the request method as a String. Useful to get the method String
+   --  for an extension-method, ie a method that is not already predefined
+   --  in the RFC 2616.
 
    function URI                    (D : in Data) return String;
    pragma Inline (URI);
@@ -311,6 +320,7 @@ private
       --  Request
       Header            : Headers.List;
       Method            : Request_Method        := GET;
+      Method_String     : Unbounded_String;
       HTTP_Version      : Unbounded_String;
       URI               : URL.Object;
       Parameters        : AWS.Parameters.List;
