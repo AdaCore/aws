@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2004-2006                          --
+--                         Copyright (C) 2004-2007                          --
 --                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -36,6 +36,7 @@ with AWS.Net.SSL;
 with Get_Free_Port;
 
 procedure NBConn_Proc (Security : in Boolean) is
+
    use Ada.Text_IO;
    use AWS;
 
@@ -47,9 +48,13 @@ procedure NBConn_Proc (Security : in Boolean) is
      := (others => 1);
 
    task Server_Task is
-      entry Get (N : Positive);
+      entry Get (N : in Positive);
       entry Done;
    end Server_Task;
+
+   -----------------
+   -- Server_Task --
+   -----------------
 
    task body Server_Task is
       Peer : Net.Socket_Access;
@@ -84,7 +89,8 @@ procedure NBConn_Proc (Security : in Boolean) is
 
          select
            accept Done;
-         or delay 1.0;
+         or
+            delay 1.0;
          end select;
    end Server_Task;
 
@@ -142,6 +148,7 @@ exception
 
       select
         Server_Task.Done;
-      or delay 1.0;
+      or
+         delay 1.0;
       end select;
 end NBConn_Proc;
