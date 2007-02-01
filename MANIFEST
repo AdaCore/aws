@@ -586,6 +586,8 @@ src/aws-net-log-callbacks.adb
 src/aws-net-log-callbacks.ads
 src/aws-net-log.adb
 src/aws-net-log.ads
+src/aws-net-poll_events.adb
+src/aws-net-poll_events.ads
 src/aws-net-sets.ads
 src/aws-net-ssl-certificate.ads
 src/aws-net-ssl.ads
