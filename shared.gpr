@@ -75,8 +75,9 @@ project Shared is
       for VCS_Log_Check
         use "style_checker -l70";
       for VCS_File_Check
-        use "style_checker -ign tmplt -lang Ada -cp -cy -sp -gnat05 "
-         & "-lang XML -l256";
+        use "style_checker -ign tmplt -ign sed -ign txt"
+         & " -lang Ada -cp -cy -sp -gnat05"
+         & " -lang XML -l256";
    end Ide;
 
    --------------
