@@ -53,7 +53,7 @@ Copyright @copyright{} 2000, Pascal Obry
 
 Copyright @copyright{} 2001, Pascal Obry, Dmitriy Anisimkov
 
-Copyright @copyright{} 2002-2005, AdaCore
+Copyright @copyright{} 2002-2007, AdaCore
 
 @*
 
@@ -82,7 +82,7 @@ unmodified in any copy.
 
 <p>Copyright @copyright{} 2001, Pascal Obry, Dmitriy Anisimkov
 
-<p>Copyright @copyright{} 2002-2005, AdaCore
+<p>Copyright @copyright{} 2002-2007, AdaCore
 
 <p>This document may be copied, in whole or in part, in any form or by any
 means, as is or with alterations, provided that (1) alterations are clearly
@@ -566,7 +566,7 @@ path into @var{ADA_INCLUDE_PATH} or put it on the command line
 @item components
 
 @code{AWS} uses some components they are installed in
-@file{<awsroot>/include/aws/components}. Add this path into ADA_INCLUDE_PATH 
+@file{<awsroot>/include/aws/components}. Add this path into ADA_INCLUDE_PATH
 or put it on the command line @code{-I<awsroot>/include/aws/components}.
 
 @item libraries
@@ -1048,6 +1048,7 @@ compressed memory stream response.
 * Response from a on-disk once stream::
 * Response from a memory stream::
 * Response from a compressed memory stream::
+* Response from a pipe stream::
 * Split page::
 @end menu
 
@@ -1278,6 +1279,16 @@ is identical.
 
 @code{AWS} has a specific high level service to split a large response
 into a set of pages. For more information @pxref{Split pages}.
+
+@node Response from a pipe stream
+@subsection Response a from pipe stream
+
+@noindent
+The response sent to the server is read from the output of an external
+application. This kind of stream can be used to avoid writing a temporary
+file into the hard disk. For example it is possible to return an archive
+created with the @code{tar} tool without writting the intermediate tar
+achive on the disk.
 
 @c ----------------------------------------------------------------------
 
@@ -5659,6 +5670,7 @@ AWS User's API:
 * AWS.Resources.Streams.Disk.Once::
 * AWS.Resources.Streams.Memory::
 * AWS.Resources.Streams.Memory.ZLib::
+* AWS.Resources.Streams.Pipe::
 * AWS.Response::
 * AWS.Server::
 * AWS.Server.Hotplug::
@@ -5971,6 +5983,13 @@ SOAP User's API:
 @cindex AWS.Resources.Streams.Memory.ZLib
 
 @include aws-resources-streams-memory-zlib.ads.texi
+
+@page
+@node AWS.Resources.Streams.Pipe
+@appendixsec AWS.Resources.Streams.Pipe
+@cindex AWS.Resources.Streams.Pipe
+
+@include aws-resources-streams-pipe.ads.texi
 
 @page
 @node AWS.Response

@@ -1,14 +1,14 @@
 
 			    A W S - Ada Web Server
-			    2.3 release / SOAP 1.4
+			   2.4.0 release / SOAP 1.4
 
 Authors:
    Dmitriy Anisimkov
-   Pascal Obry                                              January 10th, 2007
+   Pascal Obry                                              February 2nd, 2007
 
 
 
-We are happy to announce the availability of the AWS 2.3 release. The API
+We are happy to announce the availability of the AWS 2.4.0 release. The API
 could change slightly at this stage but should be fairly stable now.
 
 AWS stand for Ada Web Server. It is a small yet powerful HTTP component to
@@ -38,34 +38,9 @@ interoperability. Some users have also reported to have used AWS/SOAP with
 Changes
 -------
 
-Here are the main changes since AWS 2.2 :
+Here are the main changes since AWS 2.3.0 :
 
-   - Support for user defined filters in the template engine.
-
-   - Support for extended log file format.
-
-   - Start using Ada 2005. The main change is the switch from the temporary
-     AI302 containers implementation to the standard Ada.Containers.
-
-   - A new too templates2ada can be used to parse a template file and
-     generated Ada packages containing the name of the tag and Ajax
-     actions. Using this tool it is easier to keep the templates files
-     and the Ada code synchronized.
-
-   - Fix bug in handling of Templates_Parser.Null_Set
-
-   - Fix problem in AWS/Ajax where the apply_style was raising an
-     exception when the node id was not present in the DOM tree.
-
-   - Fix a gSOAP interoperability problem. AWS was not handling the
-     SOAP href properly as it expected the referenced node to have
-     a specific name. Now only the node id attribute is checked.
-
-   - Support for storing complex data types in sessions, in particular
-     Ada2005 containers, through AWS.Session.Generic_Data
-
-   - Fix URL handling security hole. With some obscure combinations
-     of .. and back slash it was possible to access files above Web root.
+   - Support for Pipe streams to avoid writing data on the hard drive.
 
    - Plus many small fixes, enhancements, API comments, and documentation work.
 
@@ -79,25 +54,6 @@ to work properly. Of course we try to avoid this as much as possible
 but we really prefer to have a clean API instead of keeping awkward
 implementations.
 
-   * Slight Server Push non upward compatibility and improved performance.
-
-     Stream_Output_Type generic parameter removed.
-
-     To_Stream_Output function generic parameter renamed to To_Stream_Array and
-     is now returning Ada.Streams.Stream_Element_Array instead of a
-     Stream_Output_Type.
-
-     Close_Duplicate registration Boolean parameter replaced by
-     Duplicated_Age Duration parameter. It is the age of client connection
-     during the time it cannot be replaced by the new arrived client
-     with the same client id.
-
-   * AWS/Ajax URL where named based on the id of the DOM element on
-     which the event applied. With this scheme it was not easy to
-     support multiple event (onclick, onfocus, onchange) on the same
-     widget. For supporting this the URL are now : /<event>$<id>
-     For example "/onclick$form_enter".
-
 
 Obsolescent features
 --------------------
@@ -109,9 +65,6 @@ features will be listed in this section. Those features will be
 removed in the next version. Note that you can check usage of those
 features in your application by using the GNAT's -gnatwj option as we
 have tagged all obsolescent features with a pragma.
-
-Note that pragma Obsolescent and -gnatwj option is only supported
-since GNAT 3.16.
 
 
 Notes
@@ -136,7 +89,7 @@ See documentation for build information.
 Validation
 ----------
 
-AWS 2.3 has been compiled and has passed all tests on:
+AWS 2.4.0 has been compiled and has passed all tests on:
 
    Windows XP, GNAT 6.0.1
 

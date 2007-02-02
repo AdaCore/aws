@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2007                          --
+--                            Copyright (C) 2007                          --
 --                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -26,12 +26,50 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-package AWS is
+--  An ready-to-use implementation of the stream API where the stream content
+--  is read from a pipe.
 
-   pragma Pure;
+with Ada.Strings.Unbounded;
 
-   Version      : constant String := "2.4.0w";
+with GNAT.Expect;
+with GNAT.OS_Lib;
 
-   HTTP_Version : constant String := "HTTP/1.1";
+package AWS.Resources.Streams.Pipe is
 
-end AWS;
+   use GNAT;
+
+   type Stream_Type is new Streams.Stream_Type with private;
+
+   procedure Open
+     (Pipe    :    out Stream_Type;
+      Command : in     String;
+      Args    : in     OS_Lib.Argument_List);
+
+   overriding function End_Of_File (Resource : in Stream_Type) return Boolean;
+
+   overriding procedure Read
+     (Resource : in out Stream_Type;
+      Buffer   :    out Stream_Element_Array;
+      Last     :    out Stream_Element_Offset);
+
+   overriding procedure Close (Resource : in out Stream_Type);
+
+   overriding procedure Reset (Resource : in out Stream_Type);
+   --  Does nothing as not supported on pipe streams
+
+   overriding procedure Set_Index
+     (Resource : in out Stream_Type;
+      To       : in     Stream_Element_Offset);
+   --  Does nothing as not supported on pipe streams
+
+private
+
+   use Ada.Strings.Unbounded;
+
+   type Stream_Type is new Streams.Stream_Type with record
+      Pid    : Expect.Process_Descriptor;
+      EOF    : Boolean;
+      Buffer : Unbounded_String;
+   end record;
+
+end AWS.Resources.Streams.Pipe;

@@ -1,7 +1,6 @@
 
 .SILENT:
 
-
 BUILD_DOC_SCRIPT = true
 
 MAKEINFO	= $(shell which makeinfo 2> /dev/null)
@@ -50,6 +49,7 @@ APIFILES = ../src/aws.ads.texi \
 	../src/aws-resources-streams-disk-once.ads.texi \
 	../src/aws-resources-streams-memory.ads.texi \
 	../src/aws-resources-streams-memory-zlib.ads.texi \
+	../src/aws-resources-streams-pipe.ads.texi \
 	../src/aws-resources.ads.texi \
 	../src/aws-response.ads.texi \
 	../src/aws-server-hotplug.ads.texi \
