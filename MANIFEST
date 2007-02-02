@@ -326,6 +326,8 @@ regtests/param.adb
 regtests/param.out
 regtests/partial.adb
 regtests/partial.out
+regtests/pipe_stream.adb
+regtests/pipe_stream.out
 regtests/plain2ssl.adb
 regtests/plain2ssl.out
 regtests/print_tasks.adb
@@ -615,6 +617,8 @@ src/aws-resources-streams-memory-zlib.adb
 src/aws-resources-streams-memory-zlib.ads
 src/aws-resources-streams-memory.adb
 src/aws-resources-streams-memory.ads
+src/aws-resources-streams-pipe.adb
+src/aws-resources-streams-pipe.ads
 src/aws-resources-streams-zlib.adb
 src/aws-resources-streams-zlib.ads
 src/aws-resources-streams.adb
