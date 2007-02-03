@@ -56,10 +56,12 @@ package body AWS.Resources.Streams.Pipe is
    procedure Open
      (Pipe    :    out Stream_Type;
       Command : in     String;
-      Args    : in     OS_Lib.Argument_List) is
+      Args    : in     OS_Lib.Argument_List;
+      Timeout : in     Integer := 10_000) is
    begin
       Expect.Non_Blocking_Spawn (Pipe.Pid, Command, Args);
       Pipe.EOF := False;
+      Pipe.Timeout := Timeout;
    end Open;
 
    ----------
@@ -75,7 +77,7 @@ package body AWS.Resources.Streams.Pipe is
    begin
       while Length (Resource.Buffer) < Buffer'Length loop
          begin
-            Expect.Expect (Resource.Pid, Result, ".+", 10_000);
+            Expect.Expect (Resource.Pid, Result, ".+", Resource.Timeout);
          exception
             when Expect.Process_Died =>
                Resource.EOF := True;

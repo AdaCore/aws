@@ -43,7 +43,12 @@ package AWS.Resources.Streams.Pipe is
    procedure Open
      (Pipe    :    out Stream_Type;
       Command : in     String;
-      Args    : in     OS_Lib.Argument_List);
+      Args    : in     OS_Lib.Argument_List;
+      Timeout : in     Integer := 10_000);
+   --  Open the pipe and connect it to the given command's output. Args are
+   --  passed to the command. Timeout is given in milliseconds and corresponds
+   --  to the time waiting for output data before timeout. This timeout must be
+   --  adjusted to be compatible to the output activity of the Command process.
 
    overriding function End_Of_File (Resource : in Stream_Type) return Boolean;
 
@@ -67,9 +72,10 @@ private
    use Ada.Strings.Unbounded;
 
    type Stream_Type is new Streams.Stream_Type with record
-      Pid    : Expect.Process_Descriptor;
-      EOF    : Boolean;
-      Buffer : Unbounded_String;
+      Pid     : Expect.Process_Descriptor;
+      Timeout : Integer;
+      EOF     : Boolean;
+      Buffer  : Unbounded_String;
    end record;
 
 end AWS.Resources.Streams.Pipe;
