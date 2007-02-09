@@ -64,7 +64,7 @@ procedure TLog_Proc (Extended_Fields : in String) is
    Success  : Boolean;
 
    WS   : Server.HTTP;
-   Port : Natural := 1251;
+   Port : Natural := 8251;
 
    X_Counter : Natural := 0;
 
