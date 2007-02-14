@@ -36,7 +36,6 @@ package body AWS.Resources.Streams.Pipe is
 
    procedure Close (Resource : in out Stream_Type) is
    begin
-      delay 10.0;
       Expect.Close (Resource.Pid);
    end Close;
 
