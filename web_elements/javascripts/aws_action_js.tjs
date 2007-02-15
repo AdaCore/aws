@@ -7,7 +7,8 @@
 @@SET@@ ID = $2
 @@SET@@ ROUTINE = $3
 
-<script>
+<script type="text/javascript">
+<!--
    var rule_@_ID_@ = {
       @@IF@@ @_ROUTINE_@ = ""
 	'#@_ID_@' : function(el) {el.@_ACTION_@ = call_@_ACTION_@_@_ID_@;}
@@ -17,4 +18,5 @@
    };
 
    Behaviour.register (rule_@_ID_@);
+-->
 </script>

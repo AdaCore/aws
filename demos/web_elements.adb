@@ -178,19 +178,20 @@ procedure Web_Elements is
                      2 => Templates.Assoc ("LIST_V", List_V)))));
          end;
 
---        elsif URI'Length > 4
---          and then URI (URI'First .. URI'First + 3) = "/xml"
---        then
---           return AWS.Response.File
---             (MIME.Text_XML,
---              Filename => URI (URI'First + 1 .. URI'Last) & ".xml");
-
       elsif URI'Length > 12
         and then URI (URI'First .. URI'First + 11) = "/onclick$xml"
       then
          return AWS.Response.File
            (MIME.Text_XML,
             Filename => URI (URI'First + 9 .. URI'Last) & ".xml");
+
+      elsif URI'Length > 6
+        and then URI (URI'First .. URI'First + 6) = "/we_js/"
+      then
+         return AWS.Response.Build
+           (MIME.Content_Type (Filename),
+            Message_Body => Templates.Parse
+               (WWW_Root & "/javascripts" & URI (URI'First + 6 .. URI'Last)));
 
       elsif Utils.Is_Regular_File (WWW_Root & URI) then
          return AWS.Response.File
@@ -210,13 +211,6 @@ procedure Web_Elements is
    function CB_Icons is
      new Services.Callbacks.File ("/we_icons/", WWW_Root & "/icons/");
 
-   -----------
-   -- CB_JS --
-   -----------
-
-   function CB_JS is
-     new Services.Callbacks.File ("/we_js/", WWW_Root & "/javascripts/");
-
    Port : constant Integer := 2400;
 
    WS   : Server.HTTP;
@@ -233,8 +227,6 @@ begin
 
    Services.Dispatchers.URI.Register
      (Disp, "/we_icons/", CB_Icons'Unrestricted_Access, Prefix => True);
-   Services.Dispatchers.URI.Register
-     (Disp, "/we_js/", CB_JS'Unrestricted_Access, Prefix => True);
 
    Services.Dispatchers.URI.Register_Default_Callback
      (Disp, Dispatchers.Callback.Create (CB'Unrestricted_Access));

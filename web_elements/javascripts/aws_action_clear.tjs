@@ -7,9 +7,11 @@
 @@SET@@ C_ID = $2
 @@SET@@ C_PLACEHOLDER = $3
 
-<script>
+<script type="text/javascript">
+<!--
    function call_@_C_ACTION_@_@_C_ID_@()
       @@INCLUDE@@ aws_func_clear.tjs @_C_PLACEHOLDER_@
+-->
 </script>
 
 @@INCLUDE@@ aws_action_js.tjs @_C_ACTION_@ @_C_ID_@
