@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2003-2005                          --
+--                         Copyright (C) 2003-2007                          --
 --                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -58,33 +58,34 @@ package AWS.Resources.Streams.Memory is
    --  Append static data pointed to Buffer into the memory stream as is.
    --  The stream would not try to free the memory on close.
 
-   procedure Read
+   overriding procedure Read
      (Resource : in out Stream_Type;
       Buffer   :    out Stream_Element_Array;
       Last     :    out Stream_Element_Offset);
    --  Returns a chunck of data in Buffer, Last point to the last element
    --  returned in Buffer.
 
-   function End_Of_File (Resource : in Stream_Type) return Boolean;
+   overriding function End_Of_File (Resource : in Stream_Type) return Boolean;
    --  Returns True if the end of the memory stream has been reached
 
    procedure Clear (Resource : in out Stream_Type);
    pragma Inline (Clear);
    --  Delete all data from memory stream
 
-   procedure Reset (Resource : in out Stream_Type);
+   overriding procedure Reset (Resource : in out Stream_Type);
    --  Reset the streaming data to the first position
 
-   procedure Set_Index
+   overriding procedure Set_Index
      (Resource : in out Stream_Type;
       To       : in     Stream_Element_Offset);
    --  Set the position in the stream, next Read will start at the position
    --  whose index is To.
 
-   function Size (Resource : in Stream_Type) return Stream_Element_Offset;
+   overriding function Size
+     (Resource : in Stream_Type) return Stream_Element_Offset;
    --  Returns the number of bytes in the memory stream
 
-   procedure Close (Resource : in out Stream_Type);
+   overriding procedure Close (Resource : in out Stream_Type);
    --  Close the memory stream. Release all memory associated with the stream
 
 private

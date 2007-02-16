@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2003                            --
---                                ACT-Europe                                --
+--                          Copyright (C) 2003-2007                         --
+--                                  AdaCore                                 --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -32,7 +32,7 @@ package body AWS.Resources.Streams.Disk.Once is
    -- Close --
    -----------
 
-   procedure Close (Resource : in out Stream_Type) is
+   overriding procedure Close (Resource : in out Stream_Type) is
    begin
       Stream_IO.Delete (Resource.File);
    end Close;

@@ -34,7 +34,7 @@ package body AWS.Resources.Streams.Pipe is
    -- Close --
    -----------
 
-   procedure Close (Resource : in out Stream_Type) is
+   overriding procedure Close (Resource : in out Stream_Type) is
    begin
       Expect.Close (Resource.Pid);
    end Close;
@@ -43,7 +43,8 @@ package body AWS.Resources.Streams.Pipe is
    -- End_Of_File --
    -----------------
 
-   function End_Of_File (Resource : in Stream_Type) return Boolean is
+   overriding function End_Of_File
+     (Resource : in Stream_Type) return Boolean is
    begin
       return Resource.EOF;
    end End_Of_File;
@@ -67,7 +68,7 @@ package body AWS.Resources.Streams.Pipe is
    -- Read --
    ----------
 
-   procedure Read
+   overriding procedure Read
      (Resource : in out Stream_Type;
       Buffer   :    out Stream_Element_Array;
       Last     :    out Stream_Element_Offset)
@@ -114,30 +115,5 @@ package body AWS.Resources.Streams.Pipe is
          end if;
       end;
    end Read;
-
-   -----------
-   -- Reset --
-   -----------
-
-   procedure Reset (Resource : in out Stream_Type) is
-      pragma Unreferenced (Resource);
-   begin
-      --  Not supported
-      null;
-   end Reset;
-
-   ---------------
-   -- Set_Index --
-   ---------------
-
-   procedure Set_Index
-     (Resource : in out Stream_Type;
-      To       : in     Stream_Element_Offset)
-   is
-      pragma Unreferenced (Resource, To);
-   begin
-      --  Not supported
-      null;
-   end Set_Index;
 
 end AWS.Resources.Streams.Pipe;

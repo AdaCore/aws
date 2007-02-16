@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2006                          --
+--                         Copyright (C) 2000-2007                          --
 --                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -57,7 +57,7 @@ package body AWS.Net.Stream_IO is
    -- Read --
    ----------
 
-   procedure Read
+   overriding procedure Read
      (Stream : in out Socket_Stream_Type;
       Item   :    out Stream_Element_Array;
       Last   :    out Stream_Element_Offset) is
@@ -80,8 +80,7 @@ package body AWS.Net.Stream_IO is
    ------------
 
    function Stream
-     (Socket : in Socket_Type'Class)
-      return Socket_Stream_Access
+     (Socket : in Socket_Type'Class) return Socket_Stream_Access
    is
       Result : constant Socket_Stream_Access := new Socket_Stream_Type;
    begin
@@ -93,7 +92,7 @@ package body AWS.Net.Stream_IO is
    -- Write --
    -----------
 
-   procedure Write
+   overriding procedure Write
      (Stream : in out Socket_Stream_Type;
       Item   : in     Stream_Element_Array) is
    begin

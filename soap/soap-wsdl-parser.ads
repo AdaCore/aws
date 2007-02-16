@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2003-2005                          --
+--                         Copyright (C) 2003-2007                          --
 --                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -45,12 +45,12 @@ package SOAP.WSDL.Parser is
      (O             : in out Object;
       Name          : in     String;
       Documentation : in     String;
-      Location      : in     String);
+      Location      : in     String) is null;
    --  Called for every service in the WSDL document
 
    procedure End_Service
      (O    : in out Object;
-      Name : in     String);
+      Name : in     String) is null;
    --  Called at the end of the service
 
    procedure New_Procedure
@@ -60,7 +60,7 @@ package SOAP.WSDL.Parser is
       Namespace  : in     Name_Space.Object;
       Input      : in     Parameters.P_Set;
       Output     : in     Parameters.P_Set;
-      Fault      : in     Parameters.P_Set);
+      Fault      : in     Parameters.P_Set) is null;
    --  Called for each SOAP procedure found in the WSDL document for the
    --  current service.
 

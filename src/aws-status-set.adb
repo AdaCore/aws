@@ -412,7 +412,7 @@ package body AWS.Status.Set is
 
                procedure Value
                  (Item : in     String;
-                  Quit : in out Boolean);
+                  Quit : in out Boolean) is null;
                --  Called for every un-named value read from the header value
 
                procedure Named_Value
@@ -469,22 +469,6 @@ package body AWS.Status.Set is
                   --  If all filters done, we found our cookie !
                   Quit := True;
                end Named_Value;
-
-               -----------
-               -- Value --
-               -----------
-
-               procedure Value
-                 (Item : in     String;
-                  Quit : in out Boolean)
-               is
-                  pragma Warnings (Off, Item);
-                  pragma Warnings (Off, Quit);
-               begin
-                  --  Just ignore, nothing to do there
-                  --  We are looking only for AWS=<cookieID>
-                  null;
-               end Value;
 
                -----------
                -- Parse --

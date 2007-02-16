@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2003-2006                          --
+--                         Copyright (C) 2003-2007                          --
 --                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -370,20 +370,6 @@ package body SOAP.WSDL.Parser is
       Skip_Error := True;
    end Continue_On_Error;
 
-   -----------------
-   -- End_Service --
-   -----------------
-
-   procedure End_Service
-     (O    : in out Object;
-      Name : in     String)
-   is
-      pragma Unreferenced (O);
-      pragma Unreferenced (Name);
-   begin
-      null;
-   end End_Service;
-
    -------------
    -- Exclude --
    -------------
@@ -657,25 +643,6 @@ package body SOAP.WSDL.Parser is
 
       return False;
    end Is_Record;
-
-   -------------------
-   -- New_Procedure --
-   -------------------
-
-   procedure New_Procedure
-     (O          : in out Object;
-      Proc       : in     String;
-      SOAPAction : in     String;
-      Namespace  : in     Name_Space.Object;
-      Input      : in     Parameters.P_Set;
-      Output     : in     Parameters.P_Set;
-      Fault      : in     Parameters.P_Set)
-   is
-      pragma Unreferenced (O, Proc, SOAPAction, Namespace);
-      pragma Unreferenced (Input, Output, Fault);
-   begin
-      null;
-   end New_Procedure;
 
    -----------
    -- Parse --
@@ -1495,21 +1462,6 @@ package body SOAP.WSDL.Parser is
          return Build_Derived (-Name, -Base, N);
       end if;
    end Parse_Simple;
-
-   -------------------
-   -- Start_Service --
-   -------------------
-
-   procedure Start_Service
-     (O             : in out Object;
-      Name          : in     String;
-      Documentation : in     String;
-      Location      : in     String)
-   is
-      pragma Unreferenced (O, Name, Documentation, Location);
-   begin
-      null;
-   end Start_Service;
 
    -----------
    -- Trace --

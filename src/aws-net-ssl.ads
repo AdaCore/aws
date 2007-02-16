@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2002-2006                          --
+--                         Copyright (C) 2002-2007                          --
 --                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -44,12 +44,12 @@ package AWS.Net.SSL is
    -- Initialize --
    ----------------
 
-   procedure Accept_Socket
+   overriding procedure Accept_Socket
      (Socket     : in     Net.Socket_Type'Class;
       New_Socket : in out Socket_Type);
    --  Accept a connection on a socket
 
-   procedure Connect
+   overriding procedure Connect
      (Socket : in out Socket_Type;
       Host   : in     String;
       Port   : in     Positive;
@@ -61,31 +61,32 @@ package AWS.Net.SSL is
    --  SSL handshake. It is possible to wait for the Connection completion by
    --  calling Wait routine with Output set to True in Events parameter.
 
-   procedure Socket_Pair (S1, S2 : out Socket_Type);
+   overriding procedure Socket_Pair (S1, S2 : out Socket_Type);
    --  Create 2 sockets and connect them together.
 
-   procedure Shutdown (Socket : in Socket_Type);
+   overriding procedure Shutdown (Socket : in Socket_Type);
    --  Shutdown both side of the socket and close it
 
-   procedure Free (Socket : in out Socket_Type);
+   overriding procedure Free (Socket : in out Socket_Type);
    --  Release memory associated with the socket object
 
    --------
    -- IO --
    --------
 
-   procedure Send
+   overriding procedure Send
      (Socket : in     Socket_Type;
       Data   : in     Stream_Element_Array;
       Last   :    out Stream_Element_Offset);
 
-   procedure Receive
+   overriding procedure Receive
      (Socket : in     Socket_Type;
       Data   :    out Stream_Element_Array;
       Last   :    out Stream_Element_Offset);
    pragma Inline (Receive);
 
-   function Pending (Socket : in Socket_Type) return Stream_Element_Count;
+   overriding function Pending
+     (Socket : in Socket_Type) return Stream_Element_Count;
    --  Returns the number of bytes which are available inside socket
    --  for immediate read.
 
@@ -166,10 +167,11 @@ private
       IO     : TSSL.BIO_Access;
    end record;
 
-   procedure Set_Timeout (Socket : in out Socket_Type; Timeout : in Duration);
+   overriding procedure Set_Timeout
+     (Socket : in out Socket_Type; Timeout : in Duration);
    --  Overriden to change the status of the internal SSL data
 
-   procedure Finalize (Socket : in out Socket_Type);
+   overriding procedure Finalize (Socket : in out Socket_Type);
    --  Finalize overriden for GNUTLS implementation.
    --  for OpenSSL implementation, it have to call inherited routine.
 

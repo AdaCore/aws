@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2003-2004                       --
---                                ACT-Europe                                --
+--                          Copyright (C) 2003-2007                         --
+--                                  AdaCore                                 --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -71,17 +71,18 @@ package AWS.Resources.Streams.Memory.ZLib is
       Trim     : in     Boolean := False);
    --  Compress/decompress and Append Buffer into the memory stream
 
-   procedure Read
+   overriding procedure Read
      (Resource : in out Stream_Type;
       Buffer   :    out Stream_Element_Array;
       Last     :    out Stream_Element_Offset);
    --  Returns a chunck of data in Buffer, Last point to the last element
    --  returned in Buffer.
 
-   function Size (Resource : in Stream_Type) return Stream_Element_Offset;
+   overriding function Size
+     (Resource : in Stream_Type) return Stream_Element_Offset;
    --  Returns the number of bytes in the memory stream
 
-   procedure Close (Resource : in out Stream_Type);
+   overriding procedure Close (Resource : in out Stream_Type);
    --  Close the ZLib stream, release all memory associated with the Resource
    --  object.
 

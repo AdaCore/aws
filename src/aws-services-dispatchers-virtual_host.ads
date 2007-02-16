@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2006                          --
+--                         Copyright (C) 2000-2007                          --
 --                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -38,7 +38,7 @@ package AWS.Services.Dispatchers.Virtual_Host is
 
    type Handler is new AWS.Dispatchers.Handler with private;
 
-   function Dispatch
+   overriding function Dispatch
      (Dispatcher : in Handler;
       Request    : in Status.Data)
       return Response.Data;
@@ -78,8 +78,8 @@ private
 
    use Ada.Strings.Unbounded;
 
-   procedure Initialize (Dispatcher : in out Handler);
-   procedure Finalize   (Dispatcher : in out Handler);
+   overriding procedure Initialize (Dispatcher : in out Handler);
+   overriding procedure Finalize   (Dispatcher : in out Handler);
 
    type VH_Mode is (Host, Callback);
 

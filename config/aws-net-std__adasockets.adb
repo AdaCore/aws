@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2006                          --
+--                         Copyright (C) 2000-2007                          --
 --                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -26,11 +26,10 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-with Ada.Exceptions;
 with Ada.Unchecked_Deallocation;
 
 with AWS.Net.Log;
-with AWS.OS_Lib.Definitions;
+with AWS.OS_Lib;
 with AWS.Utils;
 
 with Interfaces.C.Strings;
@@ -44,8 +43,6 @@ with System;
 package body AWS.Net.Std is
 
    use Interfaces;
-
-   package OSD renames AWS.OS_Lib.Definitions;
 
    type Socket_Hidden is record
       FD : Sockets.Socket_FD;
@@ -65,8 +62,7 @@ package body AWS.Net.Std is
    function Get_Addr_Info
      (Host  : in String;
       Port  : in Natural;
-      Flags : in Interfaces.C.int := 0)
-      return OSD.Addr_Info_Access;
+      Flags : in Interfaces.C.int := 0) return OS_Lib.Addr_Info_Access;
    --  Returns the inet address information for the given host and port.
    --  Flags should be used from getaddrinfo C routine.
 
@@ -105,7 +101,7 @@ package body AWS.Net.Std is
    -- Bind --
    ----------
 
-   procedure Bind
+   overriding procedure Bind
      (Socket : in out Socket_Type;
       Port   : in     Natural;
       Host   : in     String := "")
@@ -114,8 +110,8 @@ package body AWS.Net.Std is
 
       Res   : C.int;
       Errno : Integer;
-      Info  : constant OSD.Addr_Info_Access
-        := Get_Addr_Info (Host, Port, OSD.AI_PASSIVE);
+      Info  : constant OS_Lib.Addr_Info_Access
+        := Get_Addr_Info (Host, Port, OS_Lib.AI_PASSIVE);
    begin
       Socket.S := new Socket_Hidden;
 
@@ -123,7 +119,7 @@ package body AWS.Net.Std is
          Sockets.Socket (Socket.S.FD);
       exception
          when E : Sockets.Socket_Error =>
-            OSD.FreeAddrInfo (Info);
+            OS_Lib.FreeAddrInfo (Info);
             Raise_Exception (E, "Bind.Create_Socket");
       end;
 
@@ -134,7 +130,7 @@ package body AWS.Net.Std is
          Info.ai_addr,
          C.int (Info.ai_addrlen));
 
-      OSD.FreeAddrInfo (Info);
+      OS_Lib.FreeAddrInfo (Info);
 
       if Res = Sockets.Thin.Failure then
          Errno := Std.Errno;
@@ -147,7 +143,7 @@ package body AWS.Net.Std is
    -- Connect --
    -------------
 
-   procedure Connect
+   overriding procedure Connect
      (Socket   : in out Socket_Type;
       Host     : in     String;
       Port     : in     Positive;
@@ -157,7 +153,7 @@ package body AWS.Net.Std is
 
       Res   : C.int;
       Errno : Integer;
-      Info  : constant OSD.Addr_Info_Access := Get_Addr_Info (Host, Port);
+      Info  : constant OS_Lib.Addr_Info_Access := Get_Addr_Info (Host, Port);
    begin
       Socket.S := new Socket_Hidden;
 
@@ -165,7 +161,7 @@ package body AWS.Net.Std is
          Sockets.Socket (Socket.S.FD);
       exception
          when E : Sockets.Socket_Error =>
-            OSD.FreeAddrInfo (Info);
+            OS_Lib.FreeAddrInfo (Info);
             Raise_Exception (E, "Connect.Create_Socket");
       end;
 
@@ -176,7 +172,7 @@ package body AWS.Net.Std is
          Info.ai_addr,
          C.int (Info.ai_addrlen));
 
-      OSD.FreeAddrInfo (Info);
+      OS_Lib.FreeAddrInfo (Info);
 
       if Res = Sockets.Thin.Failure then
          Errno := Std.Errno;
@@ -194,7 +190,7 @@ package body AWS.Net.Std is
                   if Events (Error) then
                      Errno := Std.Errno (Socket);
                   elsif not Events (Output) then
-                     Errno := OSD.ETIMEDOUT;
+                     Errno := OS_Lib.ETIMEDOUT;
                   end if;
                end;
             end if;
@@ -220,7 +216,7 @@ package body AWS.Net.Std is
       return Sockets.Thin.Errno;
    end Errno;
 
-   function Errno (Socket : in Socket_Type) return Integer is
+   overriding function Errno (Socket : in Socket_Type) return Integer is
       use Interfaces;
       use type Interfaces.C.int;
       use Sockets;
@@ -231,7 +227,7 @@ package body AWS.Net.Std is
       RC := Thin.C_Getsockopt
               (S       => Interfaces.C.int (Get_FD (Socket)),
                Level   => Constants.Sol_Socket,
-               Optname => OSD.SO_ERROR,
+               Optname => OS_Lib.SO_ERROR,
                Optval  => Res'Address,
                Optlen  => Len'Access);
 
@@ -260,21 +256,20 @@ package body AWS.Net.Std is
    function Get_Addr_Info
      (Host  : in String;
       Port  : in Natural;
-      Flags : in Interfaces.C.int := 0)
-      return OSD.Addr_Info_Access
+      Flags : in Interfaces.C.int := 0) return OS_Lib.Addr_Info_Access
    is
       use Interfaces.C;
-      use type OSD.Addr_Info_Access;
+      use type OS_Lib.Addr_Info_Access;
 
       C_Node : aliased char_array := To_C (Host);
       P_Node : Strings.chars_ptr;
       C_Serv : aliased char_array := To_C (AWS.Utils.Image (Port));
       Res    : int;
-      Result : aliased OSD.Addr_Info_Access;
-      Hints  : constant OSD.Addr_Info
+      Result : aliased OS_Lib.Addr_Info_Access;
+      Hints  : constant OS_Lib.Addr_Info
         := (ai_family    => Sockets.Constants.Af_Inet,
             ai_socktype  => Sockets.Constants.Sock_Stream,
-            ai_protocol  => OSD.IPPROTO_TCP,
+            ai_protocol  => OS_Lib.IPPROTO_TCP,
             ai_flags     => Flags,
             ai_addrlen   => 0,
             ai_canonname => Strings.Null_Ptr,
@@ -287,18 +282,18 @@ package body AWS.Net.Std is
          P_Node := Strings.To_Chars_Ptr (C_Node'Unchecked_Access);
       end if;
 
-      Res := OSD.GetAddrInfo
+      Res := OS_Lib.GetAddrInfo
                (node    => P_Node,
                 service => Strings.To_Chars_Ptr (C_Serv'Unchecked_Access),
                 hints   => Hints,
                 res     => Result'Access);
 
-      if Res = OSD.EAI_SYSTEM then
+      if Res = OS_Lib.EAI_SYSTEM then
          Raise_Exception (Errno, "Get_Addr_Info");
 
       elsif Res /= 0 then
          Ada.Exceptions.Raise_Exception
-           (Socket_Error'Identity, Strings.Value (OSD.GAI_StrError (Res)));
+           (Socket_Error'Identity, Strings.Value (OS_Lib.GAI_StrError (Res)));
       end if;
 
       return Result;
@@ -308,7 +303,7 @@ package body AWS.Net.Std is
    -- Get_FD --
    ------------
 
-   function Get_FD (Socket : in Socket_Type) return Integer is
+   overriding function Get_FD (Socket : in Socket_Type) return Integer is
    begin
       return Integer (Sockets.Get_FD (Socket.S.FD));
    end Get_FD;
@@ -317,7 +312,7 @@ package body AWS.Net.Std is
    -- Get_Port --
    --------------
 
-   function Get_Port (Socket : in Socket_Type) return Positive is
+   overriding function Get_Port (Socket : in Socket_Type) return Positive is
    begin
       return Sockets.Naming.Get_Sock_Port (Socket.S.FD);
    exception
@@ -329,7 +324,9 @@ package body AWS.Net.Std is
    -- Get_Receive_Buffer_Size --
    -----------------------------
 
-   function Get_Receive_Buffer_Size (Socket : in Socket_Type) return Natural is
+   overriding function Get_Receive_Buffer_Size
+     (Socket : in Socket_Type) return Natural
+   is
       use Sockets;
       Size : Natural;
    begin
@@ -345,7 +342,9 @@ package body AWS.Net.Std is
    -- Get_Send_Buffer --
    ---------------------
 
-   function Get_Send_Buffer_Size (Socket : in Socket_Type) return Natural is
+   overriding function Get_Send_Buffer_Size
+     (Socket : in Socket_Type) return Natural
+   is
       use Sockets;
       Size : Natural;
    begin
@@ -370,7 +369,7 @@ package body AWS.Net.Std is
    -- Listen --
    ------------
 
-   procedure Listen
+   overriding procedure Listen
      (Socket     : in Socket_Type;
       Queue_Size : in Positive := 5) is
    begin
@@ -384,7 +383,7 @@ package body AWS.Net.Std is
    -- Peer_Addr --
    ---------------
 
-   function Peer_Addr (Socket : in Socket_Type) return String is
+   overriding function Peer_Addr (Socket : in Socket_Type) return String is
    begin
       return Sockets.Naming.Image
         (Sockets.Naming.Address'
@@ -398,7 +397,7 @@ package body AWS.Net.Std is
    -- Peer_Port --
    ---------------
 
-   function Peer_Port (Socket : in Socket_Type) return Positive is
+   overriding function Peer_Port (Socket : in Socket_Type) return Positive is
    begin
       return Sockets.Naming.Get_Peer_Port (Socket.S.FD);
    exception
@@ -410,7 +409,9 @@ package body AWS.Net.Std is
    -- Pending --
    -------------
 
-   function Pending (Socket : in Socket_Type) return Stream_Element_Count is
+   overriding function Pending
+     (Socket : in Socket_Type) return Stream_Element_Count
+   is
       use type C.int;
       Arg : aliased C.int;
       Res : constant C.int := Sockets.Thin.C_Ioctl
@@ -455,7 +456,7 @@ package body AWS.Net.Std is
    -- Receive --
    -------------
 
-   procedure Receive
+   overriding procedure Receive
      (Socket : in     Socket_Type;
       Data   :    out Stream_Element_Array;
       Last   :    out Stream_Element_Offset) is
@@ -481,7 +482,7 @@ package body AWS.Net.Std is
    -- Send --
    ----------
 
-   procedure Send
+   overriding procedure Send
      (Socket : in     Socket_Type;
       Data   : in     Stream_Element_Array;
       Last   :    out Stream_Element_Offset)
@@ -536,7 +537,7 @@ package body AWS.Net.Std is
    -- Set_Non_Blocking_Mode --
    ---------------------------
 
-   procedure Set_Non_Blocking_Mode (Socket : in Socket_Type) is
+   overriding procedure Set_Non_Blocking_Mode (Socket : in Socket_Type) is
       use Sockets;
       use Interfaces.C;
       Enabled : aliased int := 1;
@@ -555,7 +556,7 @@ package body AWS.Net.Std is
    -- Set_Receive_Buffer_Size --
    -----------------------------
 
-   procedure Set_Receive_Buffer_Size
+   overriding procedure Set_Receive_Buffer_Size
      (Socket : in Socket_Type;
       Size   : in Natural)
    is
@@ -571,7 +572,7 @@ package body AWS.Net.Std is
    -- Set_Send_Buffer_Size --
    --------------------------
 
-   procedure Set_Send_Buffer_Size
+   overriding procedure Set_Send_Buffer_Size
      (Socket : in Socket_Type;
       Size   : in Natural)
    is
@@ -587,7 +588,7 @@ package body AWS.Net.Std is
    -- Shutdown --
    --------------
 
-   procedure Shutdown (Socket : in Socket_Type) is
+   overriding procedure Shutdown (Socket : in Socket_Type) is
    begin
       if Net.Log.Is_Event_Active then
          Net.Log.Event (Net.Log.Shutdown, Get_FD (Socket));

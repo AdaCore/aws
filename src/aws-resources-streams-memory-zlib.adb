@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2003                            --
---                                ACT-Europe                                --
+--                          Copyright (C) 2003-2007                         --
+--                                  AdaCore                                 --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -69,7 +69,7 @@ package body AWS.Resources.Streams.Memory.ZLib is
    -- Close --
    -----------
 
-   procedure Close (Resource : in out Stream_Type) is
+   overriding procedure Close (Resource : in out Stream_Type) is
    begin
       Close (Memory.Stream_Type (Resource));
       ZL.Close (Resource.Filter, Ignore_Error => True);
@@ -139,7 +139,7 @@ package body AWS.Resources.Streams.Memory.ZLib is
    -- Read --
    ----------
 
-   procedure Read
+   overriding procedure Read
      (Resource : in out Stream_Type;
       Buffer   :    out Stream_Element_Array;
       Last     :    out Stream_Element_Offset) is
@@ -155,7 +155,8 @@ package body AWS.Resources.Streams.Memory.ZLib is
    -- Size --
    ----------
 
-   function Size (Resource : in Stream_Type) return Stream_Element_Offset is
+   overriding function Size
+     (Resource : in Stream_Type) return Stream_Element_Offset is
    begin
       if not Resource.Flushed then
          Flush (Resource.Self.all);

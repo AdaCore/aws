@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2006                          --
+--                         Copyright (C) 2000-2007                          --
 --                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -74,7 +74,7 @@ package body AWS.Net is
    -- Adjust --
    ------------
 
-   procedure Adjust (Socket : in out Socket_Type) is
+   overriding procedure Adjust (Socket : in out Socket_Type) is
    begin
       Socket.C.Ref_Count.Increment;
    end Adjust;
@@ -94,7 +94,7 @@ package body AWS.Net is
    -- Finalize --
    --------------
 
-   procedure Finalize (Socket : in out Socket_Type) is
+   overriding procedure Finalize (Socket : in out Socket_Type) is
       procedure Free is
         new Unchecked_Deallocation (RW_Cache, RW_Cache_Access);
       Ref_Count : Natural;
@@ -118,12 +118,6 @@ package body AWS.Net is
       Free (Socket);
    end Free;
 
-   procedure Free (Socket : in out Socket_Type) is
-      pragma Unreferenced (Socket);
-   begin
-      null;
-   end Free;
-
    procedure Free (FD_Set : in out FD_Set_Access) is
       procedure Dispose is
         new Ada.Unchecked_Deallocation (Net.FD_Set'Class, FD_Set_Access);
@@ -144,7 +138,7 @@ package body AWS.Net is
    -- Initialize --
    ----------------
 
-   procedure Initialize (Socket : in out Socket_Type) is
+   overriding procedure Initialize (Socket : in out Socket_Type) is
    begin
       if Socket.C = null then
          Socket.C := new RW_Cache;

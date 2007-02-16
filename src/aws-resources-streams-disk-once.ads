@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                          Copyright (C) 2003-2004                         --
---                                ACT-Europe                                --
+--                          Copyright (C) 2003-2007                         --
+--                                  AdaCore                                 --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -34,7 +34,7 @@ package AWS.Resources.Streams.Disk.Once is
 
    type Stream_Type is new Disk.Stream_Type with null record;
 
-   procedure Close (Resource : in out Stream_Type);
+   overriding procedure Close (Resource : in out Stream_Type);
    --  Only redefine Close that will not only close the stream but also delete
    --  the file.
 

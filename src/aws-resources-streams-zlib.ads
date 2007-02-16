@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2003-2005                          --
+--                         Copyright (C) 2003-2007                          --
 --                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -81,22 +81,22 @@ package AWS.Resources.Streams.ZLib is
    --  Creates dynamically allocated Stream_Type and initialize the
    --  decompression of the user defined stream.
 
-   procedure Read
+   overriding procedure Read
      (Resource : in out Stream_Type;
       Buffer   :    out Stream_Element_Array;
       Last     :    out Stream_Element_Offset);
    --  Get the source data from the Source stream, encode it, and return
    --  encoded data in the Buffer.
 
-   procedure Close (Resource : in out Stream_Type);
+   overriding procedure Close (Resource : in out Stream_Type);
 
-   procedure Reset (Resource : in out Stream_Type);
+   overriding procedure Reset (Resource : in out Stream_Type);
 
-   procedure Set_Index
+   overriding procedure Set_Index
      (Resource : in out Stream_Type;
       To       : in     Stream_Element_Offset);
 
-   function End_Of_File (Resource : in Stream_Type) return Boolean;
+   overriding function End_Of_File (Resource : in Stream_Type) return Boolean;
    --  Returns true if there is no more data to read
 
 private

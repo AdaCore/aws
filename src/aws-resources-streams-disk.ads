@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2003-2005                          --
+--                         Copyright (C) 2003-2007                          --
 --                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -40,24 +40,25 @@ package AWS.Resources.Streams.Disk is
       Name : in     String;
       Form : in     String    := "shared=no");
 
-   function End_Of_File (Resource : in Stream_Type) return Boolean;
+   overriding function End_Of_File (Resource : in Stream_Type) return Boolean;
 
-   procedure Read
+   overriding procedure Read
      (Resource : in out Stream_Type;
       Buffer   :    out Stream_Element_Array;
       Last     :    out Stream_Element_Offset);
 
-   function Size (Resource : in Stream_Type) return Stream_Element_Offset;
+   overriding function Size
+     (Resource : in Stream_Type) return Stream_Element_Offset;
 
-   function Name (Resource : in Stream_Type) return String;
+   overriding function Name (Resource : in Stream_Type) return String;
 
-   procedure Reset (Resource : in out Stream_Type);
+   overriding procedure Reset (Resource : in out Stream_Type);
 
-   procedure Set_Index
+   overriding procedure Set_Index
      (Resource : in out Stream_Type;
       To       : in     Stream_Element_Offset);
 
-   procedure Close (Resource : in out Stream_Type);
+   overriding procedure Close (Resource : in out Stream_Type);
 
 private
 

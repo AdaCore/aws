@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2006                            --
---                                 AdaCore                                  --
+--                          Copyright (C) 2006-2007                         --
+--                                  AdaCore                                 --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -51,7 +51,7 @@ package body AWS.Net.SSL is
    -- Connect --
    -------------
 
-   procedure Connect
+   overriding procedure Connect
      (Socket   : in out Socket_Type;
       Host     : in     String;
       Port     : in     Positive;
@@ -73,7 +73,7 @@ package body AWS.Net.SSL is
    -- Finalize --
    --------------
 
-   procedure Finalize (Socket : in out Socket_Type) is
+   overriding procedure Finalize (Socket : in out Socket_Type) is
    begin
       Std.Finalize (Std.Socket_Type (Socket));
    end Finalize;
@@ -82,7 +82,7 @@ package body AWS.Net.SSL is
    -- Free --
    ----------
 
-   procedure Free (Socket : in out Socket_Type) is
+   overriding procedure Free (Socket : in out Socket_Type) is
    begin
       raise Program_Error;
    end Free;
@@ -105,7 +105,8 @@ package body AWS.Net.SSL is
    -- Pending --
    -------------
 
-   function Pending (Socket : in Socket_Type) return Stream_Element_Count is
+   overriding function Pending
+     (Socket : in Socket_Type) return Stream_Element_Count is
    begin
       raise Program_Error;
       return 0;
@@ -115,7 +116,7 @@ package body AWS.Net.SSL is
    -- Receive --
    -------------
 
-   procedure Receive
+   overriding procedure Receive
      (Socket : in     Socket_Type;
       Data   :    out Stream_Element_Array;
       Last   :    out Stream_Element_Offset) is
@@ -166,7 +167,7 @@ package body AWS.Net.SSL is
    -- Send --
    ----------
 
-   procedure Send
+   overriding procedure Send
      (Socket : in     Socket_Type;
       Data   : in     Stream_Element_Array;
       Last   :    out Stream_Element_Offset) is
@@ -189,7 +190,7 @@ package body AWS.Net.SSL is
    -- Set_Timeout --
    -----------------
 
-   procedure Set_Timeout
+   overriding procedure Set_Timeout
      (Socket  : in out Socket_Type;
       Timeout : in     Duration) is
    begin
@@ -200,7 +201,7 @@ package body AWS.Net.SSL is
    -- Shutdown --
    --------------
 
-   procedure Shutdown (Socket : in Socket_Type) is
+   overriding procedure Shutdown (Socket : in Socket_Type) is
    begin
       raise Program_Error;
    end Shutdown;
@@ -209,7 +210,7 @@ package body AWS.Net.SSL is
    -- Socket_Pair --
    -----------------
 
-   procedure Socket_Pair (S1, S2 : out Socket_Type) is
+   overriding procedure Socket_Pair (S1, S2 : out Socket_Type) is
    begin
       raise Program_Error;
    end Socket_Pair;

@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2006                            --
---                                 AdaCore                                  --
+--                          Copyright (C) 2006-2007                         --
+--                                  AdaCore                                 --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -41,7 +41,7 @@ package body AWS.Net.Poll_Events is
    -- Add --
    ---------
 
-   procedure Add
+   overriding procedure Add
      (FD_Set : in out Set;
       FD     : in     FD_Type;
       Event  : in     Wait_Event_Set) is
@@ -70,7 +70,7 @@ package body AWS.Net.Poll_Events is
    -- Copy --
    ----------
 
-   function Copy
+   overriding function Copy
      (FD_Set : access Set; Size : in Natural) return FD_Set_Access
    is
       Result : Poll_Access;
@@ -93,7 +93,7 @@ package body AWS.Net.Poll_Events is
    -- Length --
    ------------
 
-   function Length (FD_Set : in Set) return Natural is
+   overriding function Length (FD_Set : in Set) return Natural is
    begin
       return FD_Set.Length;
    end Length;
@@ -102,7 +102,7 @@ package body AWS.Net.Poll_Events is
    -- Next --
    ----------
 
-   procedure Next (FD_Set : in Set; Index : in out Positive) is
+   overriding procedure Next (FD_Set : in Set; Index : in out Positive) is
       use type Thin.Events_Type;
    begin
       loop
@@ -117,7 +117,7 @@ package body AWS.Net.Poll_Events is
    -- Remove --
    ------------
 
-   procedure Remove (FD_Set : in out Set; Index : in Positive) is
+   overriding procedure Remove (FD_Set : in out Set; Index : in Positive) is
    begin
       Check_Range (FD_Set, Index);
 
@@ -135,7 +135,7 @@ package body AWS.Net.Poll_Events is
    -- Set_Mode --
    --------------
 
-   procedure Set_Mode
+   overriding procedure Set_Mode
      (FD_Set : in out Set; Index : in Positive; Mode : in Wait_Event_Set) is
    begin
       Check_Range (FD_Set, Index);
@@ -161,7 +161,7 @@ package body AWS.Net.Poll_Events is
    -- Status --
    ------------
 
-   function Status
+   overriding function Status
      (FD_Set : in Set; Index : in Positive) return Event_Set
    is
       use AWS.OS_Lib;
@@ -179,7 +179,7 @@ package body AWS.Net.Poll_Events is
    -- Wait --
    ----------
 
-   procedure Wait
+   overriding procedure Wait
      (FD_Set : in out Set; Timeout : in Duration; Count : out Natural)
    is
       use type Thin.Timeout_Type;
@@ -205,7 +205,6 @@ package body AWS.Net.Poll_Events is
               (FDS     => FD_Set.Fds'Address,
                Nfds    => Thin.nfds_t (FD_Set.Length),
                Timeout => Poll_Timeout));
-
 
          if Result < 0 then
             Errno := Net.Errno;

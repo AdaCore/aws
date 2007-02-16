@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                          Copyright (C) 2003-2005                         --
+--                          Copyright (C) 2003-2007                         --
 --                                  AdaCore                                 --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -32,7 +32,7 @@ package body AWS.Resources.Streams.ZLib is
    -- Close --
    -----------
 
-   procedure Close (Resource : in out Stream_Type) is
+   overriding procedure Close (Resource : in out Stream_Type) is
    begin
       Close (Resource.Source);
       ZL.Close (Resource.Filter, Ignore_Error => True);
@@ -90,7 +90,8 @@ package body AWS.Resources.Streams.ZLib is
    -- End_Of_File --
    -----------------
 
-   function End_Of_File (Resource : in Stream_Type) return Boolean is
+   overriding function End_Of_File
+     (Resource : in Stream_Type) return Boolean is
    begin
       --  We could not use return End_Of_File (Resource.Source);
       --  because end of source file would be reached earlier then
@@ -140,7 +141,7 @@ package body AWS.Resources.Streams.ZLib is
    -- Read --
    ----------
 
-   procedure Read
+   overriding procedure Read
      (Resource : in out Stream_Type;
       Buffer   :    out Stream_Element_Array;
       Last     :    out Stream_Element_Offset)
@@ -178,7 +179,7 @@ package body AWS.Resources.Streams.ZLib is
    -- Reset --
    -----------
 
-   procedure Reset (Resource : in out Stream_Type) is
+   overriding procedure Reset (Resource : in out Stream_Type) is
    begin
       Reset (Resource.Source);
    end Reset;
@@ -187,7 +188,7 @@ package body AWS.Resources.Streams.ZLib is
    -- Set_Index --
    ---------------
 
-   procedure Set_Index
+   overriding procedure Set_Index
      (Resource : in out Stream_Type;
       To       : in     Stream_Element_Offset) is
    begin

@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2006                          --
+--                         Copyright (C) 2000-2007                          --
 --                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -459,7 +459,6 @@ private
       SSL_Config         : Net.SSL.Config;
    end record;
 
-   procedure Initialize (Web_Server : in out HTTP);
-   procedure Finalize   (Web_Server : in out HTTP);
+   overriding procedure Finalize (Web_Server : in out HTTP);
 
 end AWS.Server;

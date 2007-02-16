@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                          Copyright (C) 2003-2005                         --
+--                          Copyright (C) 2003-2007                         --
 --                                  AdaCore                                 --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -32,7 +32,7 @@ package body AWS.Resources.Streams.Disk is
    -- Close --
    -----------
 
-   procedure Close (Resource : in out Stream_Type) is
+   overriding procedure Close (Resource : in out Stream_Type) is
    begin
       Stream_IO.Close (Resource.File);
    end Close;
@@ -41,7 +41,8 @@ package body AWS.Resources.Streams.Disk is
    -- End_Of_File --
    -----------------
 
-   function End_Of_File (Resource : in Stream_Type) return Boolean is
+   overriding function End_Of_File
+     (Resource : in Stream_Type) return Boolean is
    begin
       return Resource.Current > Resource.Last
         and then Stream_IO.End_Of_File (Resource.File);
@@ -51,7 +52,7 @@ package body AWS.Resources.Streams.Disk is
    -- Name --
    ----------
 
-   function Name (Resource : in Stream_Type) return String is
+   overriding function Name (Resource : in Stream_Type) return String is
    begin
       return Stream_IO.Name (Resource.File);
    end Name;
@@ -76,7 +77,7 @@ package body AWS.Resources.Streams.Disk is
    -- Read --
    ----------
 
-   procedure Read
+   overriding procedure Read
      (Resource : in out Stream_Type;
       Buffer   :    out Stream_Element_Array;
       Last     :    out Stream_Element_Offset)
@@ -122,7 +123,7 @@ package body AWS.Resources.Streams.Disk is
    -- Reset --
    -----------
 
-   procedure Reset (Resource : in out Stream_Type) is
+   overriding procedure Reset (Resource : in out Stream_Type) is
    begin
       Stream_IO.Reset (Resource.File);
    end Reset;
@@ -131,7 +132,7 @@ package body AWS.Resources.Streams.Disk is
    -- Set_Index --
    ---------------
 
-   procedure Set_Index
+   overriding procedure Set_Index
      (Resource : in out Stream_Type;
       To       : in     Stream_Element_Offset)
    is
@@ -151,7 +152,8 @@ package body AWS.Resources.Streams.Disk is
    -- Size --
    ----------
 
-   function Size (Resource : in Stream_Type) return Stream_Element_Offset is
+   overriding function Size
+     (Resource : in Stream_Type) return Stream_Element_Offset is
    begin
       return Stream_Element_Offset (Stream_IO.Size (Resource.File));
    end Size;

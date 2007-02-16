@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2005                          --
+--                         Copyright (C) 2000-2007                          --
 --                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -50,10 +50,9 @@ package body AWS.Services.Dispatchers.URI is
    -- Dispatch --
    --------------
 
-   function Dispatch
+   overriding function Dispatch
      (Dispatcher : in Handler;
-      Request    : in Status.Data)
-      return Response.Data
+      Request    : in Status.Data) return Response.Data
    is
       use type Response.Data_Mode;
 
@@ -95,7 +94,7 @@ package body AWS.Services.Dispatchers.URI is
    -- Finalize --
    --------------
 
-   procedure Finalize (Dispatcher : in out Handler) is
+   overriding procedure Finalize (Dispatcher : in out Handler) is
    begin
       Finalize (AWS.Dispatchers.Handler (Dispatcher));
 
@@ -119,7 +118,7 @@ package body AWS.Services.Dispatchers.URI is
    -- Initialize --
    ----------------
 
-   procedure Initialize (Dispatcher : in out Handler) is
+   overriding procedure Initialize (Dispatcher : in out Handler) is
    begin
       Initialize (AWS.Dispatchers.Handler (Dispatcher));
    end Initialize;

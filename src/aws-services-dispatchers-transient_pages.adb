@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2003                            --
---                                ACT-Europe                                --
+--                          Copyright (C) 2003-2007                         --
+--                                  AdaCore                                 --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -41,10 +41,9 @@ package body AWS.Services.Dispatchers.Transient_Pages is
    -- Dispatch --
    --------------
 
-   function Dispatch
+   overriding function Dispatch
      (Dispatcher : in Handler;
-      Request    : in Status.Data)
-      return Response.Data
+      Request    : in Status.Data) return Response.Data
    is
       use type Messages.Status_Code;
 

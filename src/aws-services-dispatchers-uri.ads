@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2006                          --
+--                         Copyright (C) 2000-2007                          --
 --                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -40,10 +40,9 @@ package AWS.Services.Dispatchers.URI is
 
    type Handler is new AWS.Dispatchers.Handler with private;
 
-   function Dispatch
+   overriding function Dispatch
      (Dispatcher : in Handler;
-      Request    : in Status.Data)
-      return Response.Data;
+      Request    : in Status.Data) return Response.Data;
    --  Dispatch will return the value returned by the first callback matching
    --  the request. Note that if a callback returns the Response.Empty message,
    --  Dispatch will just continue to the next matching callback. In any case,
@@ -95,8 +94,8 @@ private
 
    use Ada.Strings.Unbounded;
 
-   procedure Initialize (Dispatcher : in out Handler);
-   procedure Finalize   (Dispatcher : in out Handler);
+   overriding procedure Initialize (Dispatcher : in out Handler);
+   overriding procedure Finalize   (Dispatcher : in out Handler);
 
    type Std_URI is tagged record
       Action : AWS.Dispatchers.Handler_Class_Access;

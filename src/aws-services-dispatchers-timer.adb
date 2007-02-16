@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2003-2006                          --
+--                         Copyright (C) 2003-2007                          --
 --                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -66,10 +66,9 @@ package body AWS.Services.Dispatchers.Timer is
    -- Dispatch --
    --------------
 
-   function Dispatch
+   overriding function Dispatch
      (Dispatcher : in Handler;
-      Request    : in Status.Data)
-      return Response.Data
+      Request    : in Status.Data) return Response.Data
    is
       use type Calendar.Time;
 
@@ -280,7 +279,7 @@ package body AWS.Services.Dispatchers.Timer is
    -- Finalize --
    --------------
 
-   procedure Finalize   (Dispatcher : in out Handler) is
+   overriding procedure Finalize   (Dispatcher : in out Handler) is
    begin
       Finalize (AWS.Dispatchers.Handler (Dispatcher));
 
@@ -324,7 +323,7 @@ package body AWS.Services.Dispatchers.Timer is
    -- Initialize --
    ----------------
 
-   procedure Initialize (Dispatcher : in out Handler) is
+   overriding procedure Initialize (Dispatcher : in out Handler) is
    begin
       Initialize (AWS.Dispatchers.Handler (Dispatcher));
    end Initialize;

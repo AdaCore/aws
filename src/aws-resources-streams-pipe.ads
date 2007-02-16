@@ -59,12 +59,12 @@ package AWS.Resources.Streams.Pipe is
 
    overriding procedure Close (Resource : in out Stream_Type);
 
-   overriding procedure Reset (Resource : in out Stream_Type);
+   overriding procedure Reset (Resource : in out Stream_Type) is null;
    --  Does nothing as not supported on pipe streams
 
    overriding procedure Set_Index
      (Resource : in out Stream_Type;
-      To       : in     Stream_Element_Offset);
+      To       : in     Stream_Element_Offset) is null;
    --  Does nothing as not supported on pipe streams
 
 private

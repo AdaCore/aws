@@ -287,16 +287,6 @@ package body AWS.Server is
       Give_Back_Socket (Web_Server, new Net.Socket_Type'Class'(Socket));
    end Give_Back_Socket;
 
-   ----------------
-   -- Initialize --
-   ----------------
-
-   procedure Initialize (Web_Server : in out HTTP) is
-      pragma Warnings (Off, Web_Server);
-   begin
-      null;
-   end Initialize;
-
    ----------
    -- Line --
    ----------

@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2005                            --
+--                         Copyright (C) 2005-2007                          --
 --                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -36,10 +36,9 @@ package AWS.Services.Dispatchers.Linker is
 
    type Handler is new AWS.Dispatchers.Handler with private;
 
-   function Dispatch
+   overriding function Dispatch
      (Dispatcher : in Handler;
-      Request    : in Status.Data)
-      return Response.Data;
+      Request    : in Status.Data) return Response.Data;
    --  Dispatch to the first dispatcher, if the resources is not found (status
    --  code 404 returned) there try on the second one.
 
@@ -51,8 +50,8 @@ package AWS.Services.Dispatchers.Linker is
 
 private
 
-   procedure Initialize (Dispatcher : in out Handler);
-   procedure Finalize   (Dispatcher : in out Handler);
+   overriding procedure Initialize (Dispatcher : in out Handler);
+   overriding procedure Finalize   (Dispatcher : in out Handler);
 
    type Handler is new AWS.Dispatchers.Handler with record
       First, Second : AWS.Dispatchers.Handler_Class_Access;

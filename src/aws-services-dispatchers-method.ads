@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2006                          --
+--                         Copyright (C) 2000-2007                          --
 --                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -36,10 +36,9 @@ package AWS.Services.Dispatchers.Method is
 
    type Handler is new AWS.Dispatchers.Handler with private;
 
-   function Dispatch
+   overriding function Dispatch
      (Dispatcher : in Handler;
-      Request    : in Status.Data)
-      return Response.Data;
+      Request    : in Status.Data) return Response.Data;
    --  Dispatch to the corresponding method callback, if no such callback
    --  registered it dispatches to the default callback. If there is no default
    --  callback it returns an error message (code 404).
@@ -69,8 +68,8 @@ package AWS.Services.Dispatchers.Method is
 
 private
 
-   procedure Initialize (Dispatcher : in out Handler);
-   procedure Finalize   (Dispatcher : in out Handler);
+   overriding procedure Initialize (Dispatcher : in out Handler);
+   overriding procedure Finalize   (Dispatcher : in out Handler);
 
    type Method_Table is
      array (Status.Request_Method) of AWS.Dispatchers.Handler_Class_Access;

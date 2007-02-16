@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2003-2006                          --
+--                         Copyright (C) 2003-2007                          --
 --                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -37,10 +37,9 @@ package AWS.Services.Dispatchers.Transient_Pages is
 
    type Handler is new AWS.Dispatchers.Handler with private;
 
-   function Dispatch
+   overriding function Dispatch
      (Dispatcher : in Handler;
-      Request    : in Status.Data)
-      return Response.Data;
+      Request    : in Status.Data) return Response.Data;
    --  Returns an error message (code 404) if no transient page were found
 
    procedure Register

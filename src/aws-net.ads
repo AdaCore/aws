@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2006                          --
+--                         Copyright (C) 2000-2007                          --
 --                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -362,7 +362,7 @@ private
       Timeout : Duration        := Forever;
    end record;
 
-   procedure Free (Socket : in out Socket_Type);
+   procedure Free (Socket : in out Socket_Type) is null;
    --  Release memory associated with the socket object. This default version
    --  can be overriden to properly release the memory for the derived
    --  implementation. The controlled Finalize routine is in charge of calling
