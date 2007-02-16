@@ -30,15 +30,15 @@
 --  empty. User can add chunk of data using the Append routines. The stream
 --  is then read using the Read procedure.
 
+with AWS.Containers.Memory_Streams;
 with AWS.Utils;
-with Memory_Streams;
 
 package AWS.Resources.Streams.Memory is
 
    type Stream_Type is new Streams.Stream_Type with private;
 
    subtype Stream_Element_Access is Utils.Stream_Element_Array_Access;
-   type Buffer_Access is access constant Ada.Streams.Stream_Element_Array;
+   subtype Buffer_Access is  Utils.Stream_Element_Array_Constant_Access;
 
    procedure Append
      (Resource : in out Stream_Type;
@@ -89,12 +89,7 @@ package AWS.Resources.Streams.Memory is
 
 private
 
-   package Containers is
-      new Memory_Streams (Element         => Stream_Element,
-                          Element_Index   => Stream_Element_Offset,
-                          Element_Array   => Stream_Element_Array,
-                          Element_Access  => Stream_Element_Access,
-                          Constant_Access => Buffer_Access);
+   package Containers renames AWS.Containers.Memory_Streams;
 
    type Stream_Type is new Streams.Stream_Type with record
       Data : Containers.Stream_Type;

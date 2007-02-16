@@ -99,7 +99,8 @@ package body AWS.Headers.Set is
             begin
                if Next_Line /= End_Of_Message
                     and then
-                 (Next_Line (1) = ' ' or else Next_Line (1) = ASCII.HT)
+                 (Next_Line (Next_Line'First) = ' '
+                  or else Next_Line (Next_Line'First) = ASCII.HT)
                then
                   --  Continuing value on the next line. Header fields can be
                   --  extended over multiple lines by preceding each extra

@@ -27,6 +27,7 @@
 ------------------------------------------------------------------------------
 
 with Ada.Calendar;
+with Ada.Finalization;
 with Ada.Streams;
 with Ada.Task_Identification;
 with Ada.Unchecked_Deallocation;
@@ -146,8 +147,28 @@ package AWS.Utils is
 
    type Stream_Element_Array_Access is access Streams.Stream_Element_Array;
 
+   type Stream_Element_Array_Constant_Access is
+     access constant Streams.Stream_Element_Array;
+
    procedure Free is new Unchecked_Deallocation
      (Streams.Stream_Element_Array, Stream_Element_Array_Access);
+
+
+   ----------------
+   --  Finalizer --
+   ----------------
+
+   type Finalizer (Action : access procedure) is
+     new Ada.Finalization.Limited_Controlled with null record;
+   --  C++, C#, Borland Delphi, Java, MS Basic has the block "finally" in the
+   --  exception handler. We could place some finalization code here,
+   --  not depend how  we are left this block, either on exception or normally.
+   --  Ada exception handler does not have such block in exception handler.
+   --  Proposed controlled object allow to emulate finally block in Ada.
+   --  After declare it with access to finalization procedure we do not care
+   --  about call to finalization routine.
+
+   overriding procedure Finalize (Object : in out Finalizer);
 
    -------------
    -- Mailbox --

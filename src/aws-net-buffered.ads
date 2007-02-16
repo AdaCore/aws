@@ -101,6 +101,17 @@ package AWS.Net.Buffered is
    --  read from the socket. This can be useful when switching to non buffered
    --  mode.
 
+   function Read_Until
+     (Socket    : in Socket_Type'Class;
+      Delimiter : in Stream_Element_Array;
+      Wait      : in Boolean := True) return Stream_Element_Array;
+   --  Read data on the Socket until the delimiter (including the delimiter).
+   --  If Wait is False the routine looking for the delimiter only in the
+   --  cache buffer, if delimiter not found in the cache buffer, empty array
+   --  would be returned.
+   --  If returned data without delimiter at the end, it mean that socket is
+   --  closed from peer or socket error occured and rest of data returned.
+
    -------------
    -- Control --
    -------------

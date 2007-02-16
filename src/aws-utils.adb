@@ -255,6 +255,15 @@ package body AWS.Utils is
       end if;
    end File_Time_Stamp;
 
+   --------------
+   -- Finalize --
+   --------------
+
+   procedure Finalize (Object : in out Finalizer) is
+   begin
+      Object.Action.all;
+   end Finalize;
+
    -------------------------------
    -- For_Every_Directory_Entry --
    -------------------------------

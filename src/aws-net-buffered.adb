@@ -26,8 +26,7 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-with Ada.Strings.Unbounded;
-
+with AWS.Containers.Memory_Streams;
 with AWS.Translator;
 
 package body AWS.Net.Buffered is
@@ -77,48 +76,19 @@ package body AWS.Net.Buffered is
    --------------
 
    function Get_Line (Socket : in Socket_Type'Class) return String is
-      use Ada.Strings.Unbounded;
-
-      Result : Unbounded_String;
-      --  The final result
-
-      Buffer : String (1 .. 256);
-      pragma Warnings (Off, Buffer);
-      --  Intermediate buffer
-      Index  : Positive := Buffer'First;
-      Char   : Character;
+      Line : constant String
+        := Translator.To_String
+              (Read_Until (Socket, (1 => Character'Pos (ASCII.LF))));
    begin
-      Flush (Socket);
-
-      Get_Until_LF : loop
-         Char := Get_Char (Socket);
-
-         if Char = ASCII.LF then
-            Append (Result, Buffer (1 .. Index - 1));
-            exit Get_Until_LF;
-
-         elsif Char /= ASCII.CR then
-            Buffer (Index) := Char;
-            Index := Index + 1;
-
-            if Index > Buffer'Last then
-               Append (Result, Buffer);
-               Index := Buffer'First;
-            end if;
-         end if;
-      end loop Get_Until_LF;
-
-      return To_String (Result);
-
-   exception
-      when E : Socket_Error =>
-         if (Index = Buffer'First and then Length (Result) = 0)
-           or else Is_Timeout (E)
-         then
-            raise;
+      if Line'Length > 0 and then Line (Line'Last) = ASCII.LF then
+         if Line'Length > 1 and then Line (Line'Last - 1) = ASCII.CR then
+            return Line (Line'First .. Line'Last - 2);
          else
-            return To_String (Result) & Buffer (1 .. Index - 1);
+            return Line (Line'First .. Line'Last - 1);
          end if;
+      else
+         return Line;
+      end if;
    end Get_Line;
 
    --------------
@@ -262,6 +232,87 @@ package body AWS.Net.Buffered is
       Data (Data'First .. Last) := C.Buffer (C.First .. C_Last);
       C.First := C_Last + 1;
    end Read_Buffer;
+
+   ----------------
+   -- Read_Until --
+   ----------------
+
+   function Read_Until
+     (Socket    : in Socket_Type'Class;
+      Delimiter : in Stream_Element_Array;
+      Wait      : in Boolean := True) return Stream_Element_Array
+   is
+      use Containers.Memory_Streams;
+      C : Read_Cache renames Socket.C.R_Cache;
+      C_First : Stream_Element_Offset;
+      C_Last  : Stream_Element_Offset;
+      Buffer  : Stream_Type;
+      Partial : Boolean renames Wait;
+      procedure Finalize;
+
+      procedure Finalize is
+      begin
+         Close (Buffer);
+      end Finalize;
+
+      Finalizer : Utils.Finalizer (Finalize'Access);
+      pragma Unreferenced (Finalizer);
+
+   begin
+      if Wait then
+         Flush (Socket);
+      end if;
+
+      loop
+         for J in C.First .. C.Last - Delimiter'Length + 1 loop
+            if Delimiter = C.Buffer (J .. J + Delimiter'Length - 1) then
+               C_First := C.First;
+               C.First := J + Delimiter'Length;
+
+               declare
+                  Buffered : Stream_Element_Array (1 .. Size (Buffer));
+                  Last     : Stream_Element_Offset;
+               begin
+                  Read (Buffer, Buffered, Last);
+                  return Buffered & C.Buffer (C_First .. C.First - 1);
+               end;
+            end if;
+         end loop;
+
+         if Wait then
+            Append (Buffer, C.Buffer (C.First .. C.Last));
+            C.First := 1;
+            C.Last  := 0;
+
+            begin
+               Read (Socket);
+            exception
+               when E : Socket_Error =>
+                  declare
+                     Buffered : Stream_Element_Array (1 .. Size (Buffer));
+                     Last     : Stream_Element_Offset;
+                  begin
+                     if Buffered'Length = 0 or else Is_Timeout (E)  then
+                        raise;
+                     else
+                        Read (Buffer, Buffered, Last);
+                        return Buffered;
+                     end if;
+                  end;
+            end;
+
+         elsif Partial then
+            C_First := C.First;
+            C_Last  := C.Last;
+            C.First := 1;
+            C.Last  := 0;
+            return C.Buffer (C_First .. C_Last);
+         else
+            return (1 .. 0 => 0);
+         end if;
+      end loop;
+
+   end Read_Until;
 
    --------------
    -- Shutdown --
