@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2006                          --
+--                         Copyright (C) 2000-2007                          --
 --                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -99,7 +99,7 @@ package body AWS.Headers.Set is
             begin
                if Next_Line /= End_Of_Message
                     and then
-                 (Next_Line (Next_Line'First) = ' '
+                 (GNext_Line (Next_Line'First) = ' '
                   or else Next_Line (Next_Line'First) = ASCII.HT)
                then
                   --  Continuing value on the next line. Header fields can be
