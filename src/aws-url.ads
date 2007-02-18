@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2004                          --
---                                ACT-Europe                                --
+--                         Copyright (C) 2000-2007                          --
+--                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -61,8 +61,7 @@ package AWS.URL is
    function Parse
       (URL            : in String;
        Check_Validity : in Boolean := True;
-       Normalize      : in Boolean := False)
-       return Object;
+       Normalize      : in Boolean := False) return Object;
    --  Parse an URL and return an Object representing this URL. It is then
    --  possible to extract each part of the URL with the services bellow.
    --  Raises URL_Error if Check_Validity is true and the URL reference a
@@ -95,15 +94,13 @@ package AWS.URL is
 
    function Abs_Path
      (URL    : in Object;
-      Encode : in Boolean := False)
-      return String;
+      Encode : in Boolean := False) return String;
    --  Returns the absolute path. This is the complete resource reference
    --  without the query part.
 
    function Query
      (URL    : in Object;
-      Encode : in Boolean := False)
-      return String;
+      Encode : in Boolean := False) return String;
    --  Returns the Query part of the URL or the empty string if none was
    --  specified. Note that character '?' is not part of the Query and is
    --  therefore not returned.
@@ -137,21 +134,17 @@ package AWS.URL is
 
    function Parameters
      (URL    : in Object;
-      Encode : in Boolean := False)
-      return String;
+      Encode : in Boolean := False) return String;
    --  Returns the Parameters (including the starting ? character). If Encode
    --  is True then the URL will be encoded using the Encode routine.
 
    function Pathname
      (URL    : in Object;
-      Encode : in Boolean := False)
-      return String
-      renames Abs_Path;
+      Encode : in Boolean := False) return String renames Abs_Path;
 
    function Pathname_And_Parameters
      (URL    : in Object;
-      Encode : in Boolean := False)
-      return String;
+      Encode : in Boolean := False) return String;
    --  Returns the pathname and the parameters. This is equivalent to:
    --  Pathname & Parameters.
 

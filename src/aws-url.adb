@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2006                          --
+--                         Copyright (C) 2000-2007                          --
 --                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -127,9 +127,6 @@ package body AWS.URL is
             Res (K) := Character'Val (Utils.Hex_Value (Str (I + 1 .. I + 2)));
             I := I + 2;
 
-         elsif Str (I) = '+' then
-            Res (K) := ' ';
-
          else
             Res (K) := Str (I);
          end if;
@@ -186,8 +183,7 @@ package body AWS.URL is
 
    function File
      (URL    : in Object;
-      Encode : in Boolean := False)
-      return String is
+      Encode : in Boolean := False) return String is
    begin
       if Encode then
          return AWS.URL.Encode (To_String (URL.File));
@@ -299,8 +295,7 @@ package body AWS.URL is
 
    function Parameters
      (URL    : in Object;
-      Encode : in Boolean := False)
-      return String is
+      Encode : in Boolean := False) return String is
    begin
       if Encode then
          return AWS.URL.Encode (To_String (URL.Params));
@@ -316,8 +311,7 @@ package body AWS.URL is
    function Parse
       (URL            : in String;
        Check_Validity : in Boolean := True;
-       Normalize      : in Boolean := False)
-       return Object
+       Normalize      : in Boolean := False) return Object
    is
       HTTP_Token  : constant String := "http://";
       HTTPS_Token : constant String := "https://";
@@ -573,8 +567,7 @@ package body AWS.URL is
 
    function Path
      (URL    : in Object;
-      Encode : in Boolean := False)
-      return String is
+      Encode : in Boolean := False) return String is
    begin
       if Encode then
          return AWS.URL.Encode (To_String (URL.Path));
@@ -589,8 +582,7 @@ package body AWS.URL is
 
    function Pathname_And_Parameters
      (URL    : in Object;
-      Encode : in Boolean := False)
-      return String is
+      Encode : in Boolean := False) return String is
    begin
       return Pathname (URL, Encode) & Parameters (URL, Encode);
    end Pathname_And_Parameters;
