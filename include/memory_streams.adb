@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                       Generic memory stream                              --
 --                                                                          --
---                      Copyright (C) 2003-2005                             --
+--                      Copyright (C) 2003-2007                             --
 --                         Dmitriy Anisimkov                                --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -36,7 +36,7 @@ package body Memory_Streams is
       new Ada.Unchecked_Deallocation (Element_Array, Element_Access);
 
    procedure Trim_Last_Block (Stream : in out Stream_Type);
-   --  Remove unused space from last buffer.
+   --  Remove unused space from last buffer
 
    function First (Item : in Buffer_Access) return Element_Index;
    pragma Inline (First);
@@ -145,8 +145,8 @@ package body Memory_Streams is
    ------------
 
    procedure Append
-     (Stream     : in out Stream_Type;
-      Data       : in     Constant_Access) is
+     (Stream : in out Stream_Type;
+      Data   : in     Constant_Access) is
    begin
       if Data'Length = 0 then
          return;
@@ -173,8 +173,8 @@ package body Memory_Streams is
    end Append;
 
    procedure Append
-     (Stream     : in out Stream_Type;
-      Data       : in     Element_Access) is
+     (Stream : in out Stream_Type;
+      Data   : in     Element_Access) is
    begin
       if Data'Length = 0 then
          return;
@@ -445,9 +445,9 @@ package body Memory_Streams is
       end if;
 
       declare
-         Ptr : constant Element_Access
-            := new Element_Array'(Stream.Last.Data
-                                    (1 .. Stream.Last_Length));
+         Ptr : constant Element_Access :=
+                 new Element_Array'
+                   (Stream.Last.Data (1 .. Stream.Last_Length));
       begin
          Free (Stream.Last.Data);
          Stream.Last.Data   := Ptr;

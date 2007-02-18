@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                       Generic memory stream                              --
 --                                                                          --
---                      Copyright (C) 2003-2005                             --
+--                      Copyright (C) 2003-2007                             --
 --                         Dmitriy Anisimkov                                --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -88,7 +88,7 @@ package Memory_Streams is
    --  index of the last item returned in Buffer.
 
    procedure Close (Stream : in out Stream_Type);
-   --  Close File.
+   --  Close File, release all data currently in this stream
 
    procedure Clear (Stream : in out Stream_Type) renames Close;
 
