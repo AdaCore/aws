@@ -765,51 +765,26 @@ package body AWS.Client is
 
    function Read_Until
      (Connection : in HTTP_Connection;
-      Delimiter  : in String)
-      return String
-   is
-      Result : Unbounded_String;
+      Delimiter  : in String;
+      Wait       : in Boolean := True) return String is
    begin
-      Read_Until (Connection.Self.all, Delimiter, Result);
-      return To_String (Result);
+      Net.Set_Timeout (Connection.Socket.all, Connection.Read_Timeout);
+
+      return Translator.To_String
+               (Net.Buffered.Read_Until
+                  (Connection.Socket.all,
+                   Translator.To_Stream_Element_Array (Delimiter),
+                   Wait));
    end Read_Until;
 
    procedure Read_Until
      (Connection : in out HTTP_Connection;
       Delimiter  : in     String;
-      Result     : in out Ada.Strings.Unbounded.Unbounded_String)
-   is
-      Sample_Idx : Natural := Delimiter'First;
-      Buffer     : String (1 .. 1024);
+      Result     : in out Ada.Strings.Unbounded.Unbounded_String;
+      Wait       : in     Boolean := True) is
    begin
-      Net.Set_Timeout (Connection.Socket.all, Connection.Read_Timeout);
-
-      Main : loop
-         for I in Buffer'Range loop
-            begin
-               Buffer (I) := Net.Buffered.Get_Char (Connection.Socket.all);
-            exception
-               when Net.Socket_Error =>
-                  Append (Result, Buffer (Buffer'First .. I - 1));
-                  exit Main;
-            end;
-
-            if Buffer (I) = Delimiter (Sample_Idx) then
-
-               if Sample_Idx = Delimiter'Last then
-                  Append (Result, Buffer (Buffer'First .. I));
-                  exit Main;
-               else
-                  Sample_Idx := Sample_Idx + 1;
-               end if;
-
-            else
-               Sample_Idx := Delimiter'First;
-            end if;
-         end loop;
-
-         Append (Result, Buffer);
-      end loop Main;
+      Result :=  Ada.Strings.Unbounded.To_Unbounded_String
+                   (Read_Until (Connection, Delimiter, Wait));
    end Read_Until;
 
    ---------------

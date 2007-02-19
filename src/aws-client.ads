@@ -272,17 +272,20 @@ package AWS.Client is
 
    function Read_Until
      (Connection : in HTTP_Connection;
-      Delimiter  : in String)
-      return String;
+      Delimiter  : in String;
+      Wait       : in Boolean := True) return String;
    --  Read data on the Connection until the delimiter (including the
    --  delimiter). It can be used to retrieve the next piece of data from a
-   --  push server. If returned data is empty or does not termintate with the
-   --  delimiter the server push connection is closed.
+   --  push server. If Wait is False the routine is looking for delimiter only
+   --  in the internal socket buffer and return empty string if no delimiter
+   --  found. If Wait is True and returned data is empty or does not termintate
+   --  with the delimiter the server push connection is closed.
 
    procedure Read_Until
      (Connection : in out HTTP_Connection;
       Delimiter  : in     String;
-      Result     : in out Ada.Strings.Unbounded.Unbounded_String);
+      Result     : in out Ada.Strings.Unbounded.Unbounded_String;
+      Wait       : in     Boolean := True);
    --  Idem as above but returns the result as an Unbounded_String
 
    procedure Read_Some
