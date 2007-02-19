@@ -127,6 +127,10 @@ package body AWS.URL is
             Res (K) := Character'Val (Utils.Hex_Value (Str (I + 1 .. I + 2)));
             I := I + 2;
 
+         elsif Str (I) = '+' then
+            --  A plus is used for spaces in forms value for example
+            Res (K) := ' ';
+
          else
             Res (K) := Str (I);
          end if;
