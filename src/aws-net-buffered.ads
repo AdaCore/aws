@@ -79,9 +79,12 @@ package AWS.Net.Buffered is
    --  Wait if no data available.
    --  Same semantic with Net.Receive procedure.
 
-   function Get_Line (Socket : in Socket_Type'Class) return String;
+   function Get_Line
+     (Socket : in Socket_Type'Class; Wait : in Boolean := True) return String;
    --  Returns a line read from Socket. A line is a set of character
    --  terminated by CRLF.
+   --  If Wait is False, the line is looking only in cache buffer, in this case
+   --  returned empty line mean no line terminator found in the buffer.
 
    function Get_Char (Socket : in Socket_Type'Class) return Character;
    pragma Inline (Get_Char);
