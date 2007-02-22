@@ -75,12 +75,8 @@ package body AWS.Net.Buffered is
    -- Get_Line --
    --------------
 
-   function Get_Line
-     (Socket : in Socket_Type'Class; Wait : in Boolean := True) return String
-   is
-      Line : constant String
-        := Translator.To_String
-              (Read_Until (Socket, (1 => Character'Pos (ASCII.LF)), Wait));
+   function Get_Line (Socket : in Socket_Type'Class) return String is
+      Line : constant String := Read_Until (Socket, "" & ASCII.LF, True);
    begin
       if Line'Length > 0 and then Line (Line'Last) = ASCII.LF then
          if Line'Length > 1 and then Line (Line'Last - 1) = ASCII.CR then
@@ -314,6 +310,18 @@ package body AWS.Net.Buffered is
          end if;
       end loop;
 
+   end Read_Until;
+
+   function Read_Until
+     (Socket    : in Socket_Type'Class;
+      Delimiter : in String;
+      Wait      : in Boolean := True) return String is
+   begin
+      return Translator.To_String
+               (Read_Until
+                  (Socket,
+                   Translator.To_Stream_Element_Array (Delimiter),
+                   Wait));
    end Read_Until;
 
    --------------
