@@ -117,6 +117,10 @@ package body AWS.Net.Std is
       Dummy : String (1 .. 32);
       Len   : aliased C.int := Dummy'Length;
    begin
+      if New_Socket.S /= null then
+         New_Socket := Socket_Type'(Net.Socket_Type with others => <>);
+      end if;
+
       Wait_For (Input, Socket);
 
       Sock := Thin.C_Accept
@@ -153,6 +157,10 @@ package body AWS.Net.Std is
       Errno : Integer;
 
    begin
+      if Socket.S /= null then
+         Socket := Socket_Type'(Net.Socket_Type with others => <>);
+      end if;
+
       FD := Sockets.Thin.C_Socket
               (Info.ai_family, Info.ai_socktype, Info.ai_protocol);
 
@@ -194,6 +202,10 @@ package body AWS.Net.Std is
       Errno : Integer;
 
    begin
+      if Socket.S /= null then
+         Socket := Socket_Type'(Net.Socket_Type with others => <>);
+      end if;
+
       FD := Sockets.Thin.C_Socket
               (Info.ai_family, Info.ai_socktype, Info.ai_protocol);
 

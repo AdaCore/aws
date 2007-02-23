@@ -88,6 +88,10 @@ package body AWS.Net.Std is
    is
       Sock_Addr : Sockets.Sock_Addr_Type;
    begin
+      if New_Socket.S /= null then
+         New_Socket := Socket_Type'(Net.Socket_Type with others => <>);
+      end if;
+
       New_Socket.S := new Socket_Hidden;
 
       --  Check for Accept_Socket timeout
@@ -120,6 +124,10 @@ package body AWS.Net.Std is
       Inet_Addr : Sockets.Inet_Addr_Type;
       Created   : Boolean := False;
    begin
+      if Socket.S /= null then
+         Socket := Socket_Type'(Net.Socket_Type with others => <>);
+      end if;
+
       Socket.S := new Socket_Hidden;
 
       if Host = "" then
@@ -160,6 +168,10 @@ package body AWS.Net.Std is
 
       Close_On_Exception : Boolean := False;
    begin
+      if Socket.S /= null then
+         Socket := Socket_Type'(Net.Socket_Type with others => <>);
+      end if;
+
       Socket.S := new Socket_Hidden;
 
       Sockets.Create_Socket (Socket.S.FD);

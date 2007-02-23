@@ -33,6 +33,7 @@ with AWS.Server;
 
 procedure Dummy is
    WS : AWS.Server.HTTP;
+   pragma Unreferenced (WS);
 begin
    Ada.Text_IO.Put_Line ("Dummy");
 end Dummy;

@@ -522,6 +522,66 @@ procedure Check_Mem is
       R := AWS.Client.Get ("http://localhost:" & S_Port & "/filec.txt");
    end Check_ZOpen;
 
+   ---------------------
+   -- Check_Reconnect --
+   ---------------------
+
+   procedure Check_Reconnect (Security : in Boolean) is
+      use Ada.Streams;
+      use AWS.Net;
+      N : constant := 2;
+      Server : Std.Socket_Type;
+      Peer   : Socket_Type'Class := Socket (Security);
+      Buffer : Stream_Element_Array (1 .. 64);
+      Last   : Stream_Element_Offset;
+
+      task Connector is
+         entry Start;
+      end;
+
+      task body Connector is
+         Client : Socket_Type'Class := Socket (Security);
+      begin
+         Set_Timeout (Client, 0.5);
+
+         accept Start;
+
+         for J in 1 .. N loop
+            Connect (Client, "localhost", Std.Get_Port (Server));
+            Send (Client, (1 .. 10 => 11));
+            Receive (Client, Buffer, Last);
+            Shutdown (Client);
+         end loop;
+      exception
+         when E : others =>
+            Put_Line
+              ("On connect " & Ada.Exceptions.Exception_Information (E));
+      end Connector;
+
+   begin
+      Std.Bind (Server, 0);
+      Std.Listen (Server);
+
+      Std.Set_Timeout (Server, 0.5);
+
+      Connector.Start;
+
+      for J in 1 .. N loop
+         Accept_Socket (Server, Peer);
+         Receive (Peer, Buffer, Last);
+         Send (Peer, Data => (1 .. 11 => 12));
+         begin
+            --  Wait for opposite shutdown.
+            Receive (Peer, Buffer, Last);
+            raise Program_Error;
+         exception
+            when Socket_Error =>
+               Shutdown (Peer);
+         end;
+      end loop;
+
+   end Check_Reconnect;
+
    ------------------
    -- Check_Socket --
    ------------------
@@ -559,6 +619,8 @@ begin
       Check_Transient;
       Check_Zopen;
       Check_Socket;
+      Check_Reconnect (False);
+      Check_Reconnect (True);
    end loop;
 
    delay 4.0;
