@@ -687,19 +687,10 @@ package body AWS.URL is
          User     : constant String := To_String (URL.User);
          Password : constant String := To_String (URL.Password);
       begin
-         if User = "" then
-            if Password = "" then
-               return "";
-            else
-               return ':' & Password & '@';
-            end if;
-
+         if User = "" and then Password = "" then
+            return "";
          else
-            if Password = "" then
-               return User & ":@";
-            else
-               return User & ':' & Password & '@';
-            end if;
+            return User & ':' & Password & '@';
          end if;
       end User_Password;
 
