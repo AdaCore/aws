@@ -36,6 +36,8 @@ package body AWS.Net.SSL is
 
    type TS_SSL is new System.Address;
 
+   Error_Message : constant String := "SSL not supported.";
+
    -------------------
    -- Accept_Socket --
    -------------------
@@ -44,7 +46,7 @@ package body AWS.Net.SSL is
      (Socket     : in     Net.Socket_Type'Class;
       New_Socket : in out Socket_Type) is
    begin
-      raise Program_Error;
+      raise Program_Error with Error_Message;
    end Accept_Socket;
 
    -------------
@@ -57,7 +59,7 @@ package body AWS.Net.SSL is
       Port     : in     Positive;
       Wait     : in     Boolean := True) is
    begin
-      raise Program_Error;
+      raise Program_Error with Error_Message;
    end Connect;
 
    ------------------
@@ -66,7 +68,7 @@ package body AWS.Net.SSL is
 
    procedure Do_Handshake (Socket : in out Socket_Type) is
    begin
-      raise Program_Error;
+      raise Program_Error with Error_Message;
    end Do_Handshake;
 
    --------------
@@ -84,7 +86,7 @@ package body AWS.Net.SSL is
 
    overriding procedure Free (Socket : in out Socket_Type) is
    begin
-      raise Program_Error;
+      raise Program_Error with Error_Message;
    end Free;
 
    ----------------
@@ -98,7 +100,7 @@ package body AWS.Net.SSL is
       Key_Filename         : in     String     := "";
       Exchange_Certificate : in     Boolean    := False) is
    begin
-      raise Program_Error;
+      raise Program_Error with Error_Message;
    end Initialize;
 
    -------------
@@ -108,7 +110,7 @@ package body AWS.Net.SSL is
    overriding function Pending
      (Socket : in Socket_Type) return Stream_Element_Count is
    begin
-      raise Program_Error;
+      raise Program_Error with Error_Message;
       return 0;
    end Pending;
 
@@ -121,7 +123,7 @@ package body AWS.Net.SSL is
       Data   :    out Stream_Element_Array;
       Last   :    out Stream_Element_Offset) is
    begin
-      raise Program_Error;
+      raise Program_Error with Error_Message;
    end Receive;
 
    -------------
@@ -130,7 +132,7 @@ package body AWS.Net.SSL is
 
    procedure Release (Config : in out SSL.Config) is
    begin
-      raise Program_Error;
+      raise Program_Error with Error_Message;
    end Release;
 
    -------------------
@@ -144,7 +146,7 @@ package body AWS.Net.SSL is
       pragma Unreferenced (Socket, Config);
       S : Socket_Type;
    begin
-      raise Program_Error;
+      raise Program_Error with Error_Message;
       return S;
    end Secure_Client;
 
@@ -159,7 +161,7 @@ package body AWS.Net.SSL is
       pragma Unreferenced (Socket, Config);
       S : Socket_Type;
    begin
-      raise Program_Error;
+      raise Program_Error with Error_Message;
       return S;
    end Secure_Server;
 
@@ -172,7 +174,7 @@ package body AWS.Net.SSL is
       Data   : in     Stream_Element_Array;
       Last   :    out Stream_Element_Offset) is
    begin
-      raise Program_Error;
+      raise Program_Error with Error_Message;
    end Send;
 
    ----------------
@@ -183,7 +185,7 @@ package body AWS.Net.SSL is
      (Socket : in out Socket_Type;
       Config : in     SSL.Config) is
    begin
-      raise Program_Error;
+      raise Program_Error with Error_Message;
    end Set_Config;
 
    -----------------
@@ -194,7 +196,7 @@ package body AWS.Net.SSL is
      (Socket  : in out Socket_Type;
       Timeout : in     Duration) is
    begin
-      raise Program_Error;
+      raise Program_Error with Error_Message;
    end Set_Timeout;
 
    --------------
@@ -203,7 +205,7 @@ package body AWS.Net.SSL is
 
    overriding procedure Shutdown (Socket : in Socket_Type) is
    begin
-      raise Program_Error;
+      raise Program_Error with Error_Message;
    end Shutdown;
 
    -----------------
@@ -212,7 +214,7 @@ package body AWS.Net.SSL is
 
    overriding procedure Socket_Pair (S1, S2 : out Socket_Type) is
    begin
-      raise Program_Error;
+      raise Program_Error with Error_Message;
    end Socket_Pair;
 
 end AWS.Net.SSL;
