@@ -146,6 +146,8 @@ package body AWS.Net.Poll_Events is
       use OS_Lib;
       use type Thin.Events_Type;
    begin
+      Item.REvents := 0;
+
       if Mode (Input) then
          Item.Events := POLLIN or POLLPRI;
       else
