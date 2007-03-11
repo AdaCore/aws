@@ -153,20 +153,17 @@ package AWS.Utils is
    procedure Free is new Unchecked_Deallocation
      (Streams.Stream_Element_Array, Stream_Element_Array_Access);
 
-
    ----------------
    --  Finalizer --
    ----------------
 
    type Finalizer (Action : access procedure) is
      new Ada.Finalization.Limited_Controlled with null record;
-   --  C++, C#, Borland Delphi, Java, MS Basic has the block "finally" in the
-   --  exception handler. We could place some finalization code here,
-   --  not depend how  we are left this block, either on exception or normally.
-   --  Ada exception handler does not have such block in exception handler.
-   --  Proposed controlled object allow to emulate finally block in Ada.
-   --  After declare it with access to finalization procedure we do not care
-   --  about call to finalization routine.
+   --  C++, C#, Borland Delphi, Java, MS Basic have the "finally" block in
+   --  exception handlers. Using a finally block it is possible to place some
+   --  finalization code executed without depending on how the block is left.
+   --  Ada exception handler does not have such block. A Finalizer object
+   --  declared in a block allows to emulate a finally in Ada.
 
    overriding procedure Finalize (Object : in out Finalizer);
 
@@ -264,6 +261,9 @@ package AWS.Utils is
    --  one. Is_Directory is set to True if Filename is a directory. Quit can
    --  be set to True to stop the iterator. Raises No_Such_File if
    --  Directory_Name does not exists.
+
+   function Get_Program_Directory return String;
+   --  Returns the directory full path name for the current running program
 
    ----------------------------
    -- Time oriented routines --

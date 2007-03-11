@@ -27,7 +27,9 @@
 ------------------------------------------------------------------------------
 
 with Ada.Calendar.Time_Zones;
+with Ada.Command_Line;
 with Ada.Directories;
+with Ada.Environment_Variables;
 with Ada.Integer_Text_IO;
 with Ada.Numerics.Long_Elementary_Functions;
 with Ada.Streams.Stream_IO;
@@ -37,6 +39,8 @@ with Ada.Text_IO;
 with Ada.Numerics.Discrete_Random;
 
 with System;
+
+with AWS.OS_Lib;
 
 package body AWS.Utils is
 
@@ -315,6 +319,151 @@ package body AWS.Utils is
          raise No_Such_File;
    end For_Every_Directory_Entry;
 
+   ---------------------------
+   -- Get_Program_Directory --
+   ---------------------------
+
+   function Get_Program_Directory return String is
+
+      function Locate_On_Path (Filename : in String) return String;
+      --  Returns the full pathname for filename or the empty string if not
+      --  found.
+
+      function Is_Full_Pathname (Filename : in String) return Boolean;
+      --  Returns True is Filename is a full pathname
+
+      function Get_Command_Name return String;
+      --  Returns the normalized command string
+
+      function Containing_Directory (Filename : in String) return String;
+      --  Containing directory without directory separator, this can happen
+      --  with GNAT when returning the current working directory?
+
+      --------------------------
+      -- Containing_Directory --
+      --------------------------
+
+      function Containing_Directory (Filename : in String) return String is
+         CD : constant String := Directories.Containing_Directory (Filename);
+      begin
+         if CD (CD'Last) = OS_Lib.Directory_Separator then
+            return CD (CD'First .. CD'Last - 1);
+         else
+            return CD;
+         end if;
+      end Containing_Directory;
+
+      ----------------------
+      -- Get_Command_Name --
+      ----------------------
+
+      function Get_Command_Name return String is
+         N : constant String := Command_Line.Command_Name;
+         E : constant String := OS_Lib.Executable_Extension;
+      begin
+         if N'Length > E'Length
+           and then N (N'Last - E'Length + 1 .. N'Last) = E
+         then
+            return N;
+         else
+            return N & E;
+         end if;
+      end Get_Command_Name;
+
+      ----------------------
+      -- Is_Full_Pathname --
+      ----------------------
+
+      function Is_Full_Pathname (Filename : in String) return Boolean is
+         F : String renames Filename;
+      begin
+         return F (F'First) = OS_Lib.Directory_Separator
+           or else
+             (F'Length > 2
+              and then (F (F'First) in 'a' .. 'z'
+                        or else F (F'First) in 'A' .. 'Z')
+              and then F (F'First + 1) = ':'
+              and then F (F'First + 2) = OS_Lib.Directory_Separator);
+      end Is_Full_Pathname;
+
+      --------------------
+      -- Locate_On_Path --
+      --------------------
+
+      function Locate_On_Path (Filename : in String) return String is
+         PATH        : constant String := Environment_Variables.Value ("PATH");
+         First, Last : Natural;
+         Idx         : Natural;
+      begin
+         First := PATH'First;
+
+         loop
+            Last := Strings.Fixed.Index
+              (PATH, String'(1 => OS_Lib.Path_Separator), From => First);
+
+            if Last = 0 then
+               Idx := PATH'Last;
+            else
+               Idx := Last - 1;
+            end if;
+
+            declare
+               Full_Pathname : constant String := Directories.Compose
+                 (PATH (First .. Idx) & OS_Lib.Directory_Separator, Filename);
+            begin
+               if Directories.Exists (Full_Pathname) then
+                  return Full_Pathname;
+               end if;
+            end;
+
+            First := Last + 1;
+
+            exit when Last = 0 or else First > PATH'Last;
+         end loop;
+
+         return "";
+      end Locate_On_Path;
+
+      Command_Name : constant String := Get_Command_Name;
+
+      Dir          : constant String := Containing_Directory (Command_Name);
+
+   begin
+      --  On UNIX command_name doesn't include the directory name when the
+      --  command was found on the PATH. On Windows using the standard shell,
+      --  the command is never passed using a full pathname. In such a case,
+      --  which check on the PATH ourselves to find it.
+
+      if Directories.Exists (Command_Name) then
+         --  Command is found
+         if Is_Full_Pathname (Command_Name) or else Is_Full_Pathname (Dir) then
+            --  And we have a full pathname use it
+            return Dir & OS_Lib.Directory_Separator;
+         else
+            --  A relative pathname, catenate the current directory
+            return Directories.Current_Directory
+              & OS_Lib.Directory_Separator & Dir & OS_Lib.Directory_Separator;
+         end if;
+
+      else
+         --  Command does not exists, try checkin it on the PATH
+         declare
+            Full_Pathname : constant String :=
+                              Locate_On_Path
+                                (Directories.Simple_Name (Command_Name));
+         begin
+            if Full_Pathname = "" then
+               --  Not found on the PATH, nothing we can do
+               return Dir;
+
+            else
+               return Directories.Containing_Directory (Full_Pathname)
+                 & OS_Lib.Directory_Separator;
+            end if;
+         end;
+      end if;
+   end Get_Program_Directory;
+
    ---------------
    -- GMT_Clock --
    ---------------
@@ -365,7 +514,7 @@ package body AWS.Utils is
 
       function Value (C : in Character) return Natural;
       pragma Inline (Value);
-      --  Return value for single character C.
+      --  Return value for single character C
 
       -----------
       -- Value --
@@ -547,17 +696,17 @@ package body AWS.Utils is
          if Idx = 0 then
             return Source;
          else
-            return Source (Source'First .. Idx - 1) & Replace &
-                   Replace_Quote (Source (Idx + 1 .. Source'Last));
+            return Source (Source'First .. Idx - 1) & Replace
+              & Replace_Quote (Source (Idx + 1 .. Source'Last));
          end if;
       end Replace_Quote;
 
    begin
       if Replace'Length = 1 then
-         --  When length of replace string is 1, we could replace it faster.
+         --  When length of replace string is 1, we could replace it faster
 
          if Replace (Replace'First) = '"' then
-            --  Do not need to replace.
+            --  Do not need to replace
             return '"' & Str & '"';
 
          else
@@ -683,13 +832,14 @@ package body AWS.Utils is
    -----------------------
 
    function Significant_Image (Item : Duration; N : Positive) return String is
+
       type Largest_Integer is range System.Min_Int .. System.Max_Int;
-      package LIO is new Ada.Text_IO.Integer_IO (Largest_Integer);
-      package Duration_IO is new Ada.Text_IO.Fixed_IO (Duration);
+      package LIO is new Text_IO.Integer_IO (Largest_Integer);
+      package Duration_IO is new Text_IO.Fixed_IO (Duration);
 
       function Log_10 return Long_Float;
 
-      AI   : constant Long_Float := abs Long_Float (Item);
+      AI : constant Long_Float := abs Long_Float (Item);
 
       ------------
       -- Log_10 --
@@ -700,16 +850,16 @@ package body AWS.Utils is
          if Item = 0.0 then
             return 0.0;
          else
-            return Ada.Numerics.Long_Elementary_Functions.Log (AI, 10.0);
+            return Numerics.Long_Elementary_Functions.Log (AI, 10.0);
          end if;
       end Log_10;
 
       L10  : constant Long_Float := Log_10;
       L10T : constant Long_Float := Long_Float'Truncation (L10);
       PP   : constant Integer    := Integer (L10T);
-      Aft  : constant Natural
-        := Integer'Max
-             (N - PP - Boolean'Pos (AI >= 1.0 or else L10 = L10T), 0);
+      Aft  : constant Natural :=
+               Integer'Max
+                 (N - PP - Boolean'Pos (AI >= 1.0 or else L10 = L10T), 0);
       Img  : String (1 .. Integer'Max (PP, 1) + Aft + 1 + Boolean'Pos (Aft > 0)
                           + Boolean'Pos (AI >= 10.0)
                           + Boolean'Pos (Item < 0.0));
@@ -722,6 +872,7 @@ package body AWS.Utils is
 
       if Img (1) = ' ' then
          return Img (2 .. Img'Last);
+
       elsif Img (Img'Last) = '0'
         and then (Img (1) = '1' or else Img (1 .. 2) = "-1")
       then
@@ -738,6 +889,7 @@ package body AWS.Utils is
 
             return Img (1 .. Last);
          end;
+
       else
          raise Constraint_Error with
            Duration'Image (Item) & Integer'Image (N);

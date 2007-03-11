@@ -146,6 +146,14 @@ main (int argc, char *argv[])
   //  libws2_32.a need for getaddrinfo freeaddrinfo routines in Windows
   //  XP/2003.
   P ("   pragma Linker_Options (\"-lws2_32\");\n\n");
+
+  P ("   Executable_Extension : constant String := \".exe\";\n");
+  P ("   Directory_Separator  : constant Character := '\\';\n");
+  P ("   Path_Separator       : constant Character := ';';\n\n");
+#else
+  P ("   Executable_Extension : constant String := \"\";\n");
+  P ("   Directory_Separator  : constant Character := '/';\n");
+  P ("   Path_Separator       : constant Character := ':';\n\n");
 #endif
 
   /* POLL constants */

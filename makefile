@@ -443,6 +443,7 @@ endif
 	$(CP) gps/wsdl2aws.xml $(I_PLG)
 	$(CP) demos/*.thtml $(I_TPL)
 	$(CP) demos/wm_login.html $(I_TPL)
+	$(CP) templates_parser/tools/templates.tads $(I_TPL)
 	$(CP) demos/aws_*.png $(I_IMG)
 	$(CP) include/*.ad? $(I_CPN)
 	-$(CP) $(BDIR)/include/lib/* $(I_LIB)
