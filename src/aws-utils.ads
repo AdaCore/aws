@@ -61,7 +61,8 @@ package AWS.Utils is
    --  Returns image of D without the leading blank and with only 2 decimals
    --  numbers.
 
-   function Significant_Image (Item : Duration; N : Positive) return String;
+   function Significant_Image
+     (Item : in Duration; N : in Positive) return String;
    --  Returns image of D without the leading blank and with N significant
    --  digits. If number of digits in integer part is more than N, the image
    --  would represent the whole integer part.

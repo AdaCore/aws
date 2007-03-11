@@ -831,8 +831,9 @@ package body AWS.Utils is
    -- Significant_Image --
    -----------------------
 
-   function Significant_Image (Item : Duration; N : Positive) return String is
-
+   function Significant_Image
+     (Item : in Duration; N : in Positive) return String
+   is
       type Largest_Integer is range System.Min_Int .. System.Max_Int;
       package LIO is new Text_IO.Integer_IO (Largest_Integer);
       package Duration_IO is new Text_IO.Fixed_IO (Duration);
@@ -894,7 +895,6 @@ package body AWS.Utils is
          raise Constraint_Error with
            Duration'Image (Item) & Integer'Image (N);
       end if;
-
    end Significant_Image;
 
 begin
