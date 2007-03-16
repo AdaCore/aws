@@ -242,74 +242,93 @@ package body AWS.Net.Buffered is
    is
       use Containers.Memory_Streams;
       C : Read_Cache renames Socket.C.R_Cache;
-      C_First : Stream_Element_Offset;
-      C_Last  : Stream_Element_Offset;
       Buffer  : Stream_Type;
-      Partial : Boolean renames Wait;
+      J, K : Stream_Element_Offset;
+
+      function Buffered return Stream_Element_Array;
+      pragma Inline (Buffered);
+
       procedure Finalize;
+
+      Finalizer : Utils.Finalizer (Finalize'Access);
+      pragma Unreferenced (Finalizer);
+
+      --------------
+      -- Buffered --
+      --------------
+
+      function Buffered return Stream_Element_Array is
+         Result : Stream_Element_Array (1 .. Size (Buffer));
+         Last   : Stream_Element_Offset;
+      begin
+         Read (Buffer, Result, Last);
+         return Result;
+      end Buffered;
+
+      --------------
+      -- Finalize --
+      --------------
 
       procedure Finalize is
       begin
          Close (Buffer);
       end Finalize;
 
-      Finalizer : Utils.Finalizer (Finalize'Access);
-      pragma Unreferenced (Finalizer);
-
    begin
       if Wait then
          Flush (Socket);
       end if;
 
+      J := C.First;
+      K := Delimiter'First;
+
       loop
-         for J in C.First .. C.Last - Delimiter'Length + 1 loop
-            if Delimiter = C.Buffer (J .. J + Delimiter'Length - 1) then
-               C_First := C.First;
-               C.First := J + Delimiter'Length;
+         if J > C.Last then
+            if Wait then
+               Append (Buffer, C.Buffer (C.First .. C.Last));
 
-               declare
-                  Buffered : Stream_Element_Array (1 .. Size (Buffer));
-                  Last     : Stream_Element_Offset;
+               --  We have to clear buffer because Read could cause socket
+               --  exception.
+
+               C.First := 1;
+               C.Last  := 0;
+
                begin
-                  Read (Buffer, Buffered, Last);
-                  return Buffered & C.Buffer (C_First .. C.First - 1);
-               end;
-            end if;
-         end loop;
-
-         if Wait then
-            Append (Buffer, C.Buffer (C.First .. C.Last));
-            C.First := 1;
-            C.Last  := 0;
-
-            begin
-               Read (Socket);
-            exception
-               when E : Socket_Error =>
-                  declare
-                     Buffered : Stream_Element_Array (1 .. Size (Buffer));
-                     Last     : Stream_Element_Offset;
-                  begin
-                     if Buffered'Length = 0 or else Is_Timeout (E)  then
+                  Read (Socket);
+               exception
+                  when E : Socket_Error =>
+                     if Size (Buffer) = 0 or else Is_Timeout (E)  then
                         raise;
                      else
-                        Read (Buffer, Buffered, Last);
                         return Buffered;
                      end if;
-                  end;
-            end;
+               end;
 
-         elsif Partial then
-            C_First := C.First;
-            C_Last  := C.Last;
-            C.First := 1;
-            C.Last  := 0;
-            return C.Buffer (C_First .. C_Last);
+               J := C.First;
+            else
+               return (1 .. 0 => 0);
+            end if;
+         end if;
+
+         if C.Buffer (J) = Delimiter (K) then
+            if K = Delimiter'Last then
+               K := C.First;
+               C.First := J + 1;
+
+               return Buffered & C.Buffer (K .. J);
+
+            else
+               K := K + 1;
+            end if;
+
+            J := J + 1;
+
+         elsif K = Delimiter'First then
+            J := J + 1;
          else
-            return (1 .. 0 => 0);
+            K := Delimiter'First;
          end if;
       end loop;
-
    end Read_Until;
 
    function Read_Until
