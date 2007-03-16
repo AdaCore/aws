@@ -84,6 +84,7 @@ package body Sp_Pack is
       Mode_Value : constant Server_Push.Mode
          := Server_Push.Mode'Val
               (CID rem (Server_Push.Mode'Pos (Server_Push.Mode'Last) + 1));
+      GID0       : constant String := "Dummy";
       GID1       : constant String := Boolean'Image (CID rem 2 = 0);
       GID2       : constant String := Integer'Image (CID rem 5);
 
@@ -95,12 +96,16 @@ package body Sp_Pack is
       Server_Push.Register
         (Server            => Push,
          Client_ID         => CID_Image,
-         Groups            => (+GID1, +GID2),
+         Groups            => (+GID0, +GID1),
          Init_Data         => 0.01,
          Init_Content_Type => "text/number",
          Socket            => AWS.Status.Socket (Request),
          Environment       => Picture (Mode_Value),
          Kind              => Mode_Value);
+
+      Server_Push.Subscribe (Push, Client_Id => CID_Image, Group_Id => GID2);
+      Server_Push.Unsubscribe (Push, Client_Id => CID_Image, Group_Id => GID0);
+
       return Response.Socket_Taken;
    end CB;
 
