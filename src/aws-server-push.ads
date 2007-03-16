@@ -31,6 +31,7 @@
 --  For Microsoft Internet Explorer complementary active components
 --  should be used like java applets or ActiveX controls.
 
+with Ada.Containers.Indefinite_Vectors;
 with Ada.Containers.Indefinite_Hashed_Maps;
 with Ada.Strings.Hash;
 with Ada.Streams;
@@ -132,6 +133,18 @@ package AWS.Server.Push is
    --  call the sever will still in running mode. Does nothing if there is no
    --  client registered.
 
+   procedure Subscribe
+     (Server       : in out Object;
+      Client_Id    : in     Client_Key;
+      Group_Id     : in     String);
+   --  Add one more group to client's group list
+
+   procedure Unsubscribe
+     (Server       : in out Object;
+      Client_Id    : in     Client_Key;
+      Group_Id     : in     String);
+   --  Remove group from client's group list
+
    procedure Send_To
      (Server       : in out Object;
       Client_Id    : in     Client_Key;
@@ -208,19 +221,26 @@ package AWS.Server.Push is
 
 private
 
-   type Groups_Access is access all Group_Set;
+   package Group_Vectors is
+      new Ada.Containers.Indefinite_Vectors (Positive, String);
+   --  Package instance with vector to keep each client subscribed groups.
+   --  Subscribe/Unsubscribe routines makes linear search in it.
+   --  If number of groups would be too much (more than a few decades),
+   --  We should consider to change the container to String set.
 
    type Client_Holder is record
       Socket      : Net.Socket_Access;
       Kind        : Mode;
       Created     : Ada.Calendar.Time;
       Environment : Client_Environment;
-      Groups      : Groups_Access;
+      Groups      : Group_Vectors.Vector;
    end record;
+
+   type Client_Holder_Access is access all Client_Holder;
 
    package Tables is
      new Ada.Containers.Indefinite_Hashed_Maps
-       (String, Client_Holder, Ada.Strings.Hash, "=");
+       (String, Client_Holder_Access, Ada.Strings.Hash, "=");
 
    type Map_Access is access all Tables.Map;
 
@@ -254,14 +274,14 @@ private
 
       procedure Register
         (Client_Id       : in     Client_Key;
-         Holder          : in out Client_Holder;
+         Holder          : in out Client_Holder_Access;
          Duplicated_Age  : in     Duration);
       --  See above.
       --  Holder would be released in case of registration failure.
 
       procedure Register
         (Client_Id         : in     Client_Key;
-         Holder            : in out Client_Holder;
+         Holder            : in out Client_Holder_Access;
          Init_Data         : in     Client_Output_Type;
          Init_Content_Type : in     String;
          Duplicated_Age    : in     Duration);
@@ -289,6 +309,12 @@ private
       --  See above
 
       function Is_Open return Boolean;
+      --  See above
+
+      procedure Subscribe (Client_Id : in Client_Key; Group_Id : in String);
+      --  See above
+
+      procedure Unsubscribe (Client_Id : in Client_Key; Group_Id : in String);
       --  See above
 
    private

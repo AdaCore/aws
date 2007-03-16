@@ -45,10 +45,15 @@ package body AWS.Server.Push is
      (Socket      : in Net.Socket_Type'Class;
       Environment : in Client_Environment;
       Kind        : in Mode;
-      Groups      : in Group_Set)
-      return Client_Holder;
+      Groups      : in Group_Set) return Client_Holder_Access;
 
-   procedure Free (Holder : in out Client_Holder);
+   procedure Free (Holder : in out Client_Holder_Access);
+
+   procedure Add_To_Groups
+     (Groups     : in out Group_Maps.Map;
+      Group_Name : in     String;
+      Client_Id  : in     String;
+      Holder     : in     Client_Holder_Access);
 
    New_Line : constant String := ASCII.CR & ASCII.LF;
    --  HTTP new line.
@@ -57,6 +62,29 @@ package body AWS.Server.Push is
      & GNAT.Calendar.Time_IO.Image (Ada.Calendar.Clock, "%s")
      & New_Line;
    --  This is the multi-part boundary string used by AWS push server.
+
+   -------------------
+   -- Add_To_Groups --
+   -------------------
+
+   procedure Add_To_Groups
+     (Groups     : in out Group_Maps.Map;
+      Group_Name : in     String;
+      Client_Id  : in     String;
+      Holder     : in     Client_Holder_Access)
+   is
+      Cursor : constant Group_Maps.Cursor := Groups.Find (Group_Name);
+      Map    : Map_Access;
+   begin
+      if Group_Maps.Has_Element (Cursor) then
+         Map := Group_Maps.Element (Cursor);
+      else
+         Map := new Tables.Map;
+         Groups.Insert (Group_Name, Map);
+      end if;
+
+      Map.Insert (Client_Id, Holder);
+   end Add_To_Groups;
 
    -----------
    -- Count --
@@ -71,12 +99,12 @@ package body AWS.Server.Push is
    -- Free --
    ----------
 
-   procedure Free (Holder : in out Client_Holder) is
-      procedure Free
-        is new Ada.Unchecked_Deallocation (Group_Set, Groups_Access);
+   procedure Free (Holder : in out Client_Holder_Access) is
+      procedure Deallocate is
+         new Ada.Unchecked_Deallocation (Client_Holder, Client_Holder_Access);
    begin
       Net.Free (Holder.Socket);
-      Free (Holder.Groups);
+      Deallocate (Holder);
    end Free;
 
    -------------
@@ -128,13 +156,22 @@ package body AWS.Server.Push is
 
       procedure Register
         (Client_Id       : in     Client_Key;
-         Holder          : in out Client_Holder;
+         Holder          : in out Client_Holder_Access;
          Duplicated_Age  : in     Duration)
       is
          use Ada.Calendar;
 
          Cursor  : Tables.Cursor;
          Success : Boolean;
+
+         procedure Add_To_Groups (J : Group_Vectors.Cursor);
+
+         procedure Add_To_Groups (J : Group_Vectors.Cursor) is
+         begin
+            Add_To_Groups
+              (Groups, Group_Vectors.Element (J), Client_Id, Holder);
+         end Add_To_Groups;
+
       begin
          if not Open then
             Free (Holder);
@@ -144,7 +181,7 @@ package body AWS.Server.Push is
          Container.Insert (Client_Id, Holder, Cursor, Success);
 
          if not Success then
-            if Duplicated_Age < Clock - Tables.Element (Cursor).Created  then
+            if Duplicated_Age < Clock - Tables.Element (Cursor).Created then
                Unregister (Client_Id, Close_Socket => True);
                Container.Insert (Client_Id, Holder);
             else
@@ -153,25 +190,7 @@ package body AWS.Server.Push is
             end if;
          end if;
 
-         if Holder.Groups /= null then
-            for J in Holder.Groups'Range loop
-               declare
-                  Name : constant String := To_String (Holder.Groups (J));
-
-                  C : constant Group_Maps.Cursor := Groups.Find (Name);
-                  G : Map_Access;
-               begin
-                  if Group_Maps.Has_Element (C) then
-                     G := Group_Maps.Element (C);
-                  else
-                     G := new Tables.Map;
-                     Groups.Insert (Name, G);
-                  end if;
-
-                  G.Insert (Client_Id, Holder);
-               end;
-            end loop;
-         end if;
+         Holder.Groups.Iterate (Add_To_Groups'Access);
 
          begin
             Net.Buffered.Put_Line
@@ -207,7 +226,7 @@ package body AWS.Server.Push is
 
       procedure Register
         (Client_Id         : in     Client_Key;
-         Holder            : in out Client_Holder;
+         Holder            : in out Client_Holder_Access;
          Init_Data         : in     Client_Output_Type;
          Init_Content_Type : in     String;
          Duplicated_Age    : in     Duration) is
@@ -215,7 +234,7 @@ package body AWS.Server.Push is
          Register (Client_Id, Holder, Duplicated_Age);
 
          begin
-            Send_Data (Holder, Init_Data, Init_Content_Type);
+            Send_Data (Holder.all, Init_Data, Init_Content_Type);
          exception
             when others =>
                Unregister (Client_Id, Close_Socket => False);
@@ -262,9 +281,10 @@ package body AWS.Server.Push is
 
          while Tables.Has_Element (Cursor) loop
             declare
-               Holder : constant Client_Holder := Tables.Element (Cursor);
+               Holder : constant Client_Holder_Access
+                 := Tables.Element (Cursor);
             begin
-               Send_Data (Holder, Data, Content_Type);
+               Send_Data (Holder.all, Data, Content_Type);
 
                Tables.Next (Cursor);
             exception
@@ -335,7 +355,7 @@ package body AWS.Server.Push is
          Cursor := Container.Find (Client_Id);
 
          if Tables.Has_Element (Cursor) then
-            Send_Data (Tables.Element (Cursor), Data, Content_Type);
+            Send_Data (Tables.Element (Cursor).all, Data, Content_Type);
          else
             Ada.Exceptions.Raise_Exception
               (Client_Gone'Identity, "No such client id.");
@@ -383,29 +403,72 @@ package body AWS.Server.Push is
          Shutdown_If_Empty.Open := Object.Open;
       end Shutdown_If_Empty;
 
+      ---------------
+      -- Subscribe --
+      ---------------
+
+      procedure Subscribe (Client_Id : in Client_Key; Group_Id : in String) is
+
+         Cursor : constant Tables.Cursor := Container.Find (Client_Id);
+
+         procedure Modify (Key     : in     String;
+                           Element : in out Client_Holder_Access);
+
+         procedure Modify (Key     : in     String;
+                           Element : in out Client_Holder_Access)
+         is
+            pragma Unreferenced (Key);
+         begin
+            if not Element.Groups.Contains (Group_Id) then
+               Element.Groups.Append (Group_Id);
+               Add_To_Groups (Groups, Group_Id, Client_Id, Element);
+            end if;
+         end Modify;
+
+      begin
+         if Tables.Has_Element (Cursor) then
+            Tables.Update_Element (Container, Cursor, Modify'Access);
+         else
+            Ada.Exceptions.Raise_Exception
+              (Client_Gone'Identity, "No such client id.");
+         end if;
+      end Subscribe;
+
       ----------------
       -- Unregister --
       ----------------
 
       procedure Unregister
-        (Client_Id    : in Client_Key;
-         Close_Socket : in Boolean)
+        (Client_Id : in Client_Key; Close_Socket : in Boolean)
       is
          Cursor : Tables.Cursor;
-         Value  : Client_Holder;
+         Value  : Client_Holder_Access;
+
+         procedure Delete_Group (J : Group_Vectors.Cursor);
+
+         procedure Delete_Group (J : Group_Vectors.Cursor) is
+            use type Ada.Containers.Count_Type;
+            C   : Group_Maps.Cursor := Groups.Find (Group_Vectors.Element (J));
+            Map : Map_Access := Group_Maps.Element (C);
+
+            procedure Free is
+              new Ada.Unchecked_Deallocation (Tables.Map, Map_Access);
+         begin
+            Tables.Delete (Map.all, Client_Id);
+
+            if Map.Length = 0 then
+               Groups.Delete (C);
+               Free (Map);
+            end if;
+         end Delete_Group;
+
       begin
          Cursor := Container.Find (Client_Id);
 
          if Tables.Has_Element (Cursor) then
             Value := Tables.Element (Cursor);
 
-            if Value.Groups /= null then
-               for J in Value.Groups'Range loop
-                  Tables.Delete
-                    (Groups.Element (To_String (Value.Groups (J))).all,
-                     Client_Id);
-               end loop;
-            end if;
+            Value.Groups.Iterate (Delete_Group'Access);
 
             if Close_Socket then
                Net.Buffered.Shutdown (Value.Socket.all);
@@ -433,6 +496,38 @@ package body AWS.Server.Push is
          end loop;
       end Unregister_Clients;
 
+      -----------------
+      -- Unsubscribe --
+      -----------------
+
+      procedure Unsubscribe
+        (Client_Id : in Client_Key; Group_Id : in String)
+      is
+         Cursor : constant Tables.Cursor := Container.Find (Client_Id);
+
+         procedure Modify (Key     : in     String;
+                           Element : in out Client_Holder_Access);
+
+         procedure Modify (Key     : in     String;
+                           Element : in out Client_Holder_Access)
+         is
+            pragma Unreferenced (Key);
+            Cursor : Group_Vectors.Cursor := Element.Groups.Find (Group_Id);
+         begin
+            if Group_Vectors.Has_Element (Cursor) then
+               Element.Groups.Delete (Cursor);
+               Tables.Delete (Groups.Element (Group_Id).all, Client_Id);
+            end if;
+         end Modify;
+
+      begin
+         if Tables.Has_Element (Cursor) then
+            Container.Update_Element (Cursor, Modify'Access);
+         else
+            raise Client_Gone with "No such client id.";
+         end if;
+      end Unsubscribe;
+
    end Object;
 
    --------------
@@ -450,7 +545,8 @@ package body AWS.Server.Push is
       Duplicated_Age    : in     Duration           := Duration'Last;
       Groups            : in     Group_Set          := Empty_Group)
    is
-      Holder : Client_Holder := To_Holder (Socket, Environment, Kind, Groups);
+      Holder : Client_Holder_Access
+        := To_Holder (Socket, Environment, Kind, Groups);
    begin
       Server.Register
         (Client_Id,
@@ -469,7 +565,8 @@ package body AWS.Server.Push is
       Duplicated_Age  : in     Duration           := Duration'Last;
       Groups          : in     Group_Set          := Empty_Group)
    is
-      Holder : Client_Holder := To_Holder (Socket, Environment, Kind, Groups);
+      Holder : Client_Holder_Access
+        := To_Holder (Socket, Environment, Kind, Groups);
    begin
       Server.Register (Client_Id, Holder, Duplicated_Age);
    end Register;
@@ -595,6 +692,18 @@ package body AWS.Server.Push is
    end Shutdown_If_Empty;
 
    ---------------
+   -- Subscribe --
+   ---------------
+
+   procedure Subscribe
+     (Server          : in out Object;
+      Client_Id       : in     Client_Key;
+      Group_Id        : in     String) is
+   begin
+      Server.Subscribe (Client_Id, Group_Id);
+   end Subscribe;
+
+   ---------------
    -- To_Holder --
    ---------------
 
@@ -602,20 +711,20 @@ package body AWS.Server.Push is
      (Socket      : in Net.Socket_Type'Class;
       Environment : in Client_Environment;
       Kind        : in Mode;
-      Groups      : in Group_Set)
-      return Client_Holder
+      Groups      : in Group_Set) return Client_Holder_Access
    is
-      Groups_Ptr : Groups_Access;
+      Holder_Groups : Group_Vectors.Vector
+        := Group_Vectors.To_Vector (Groups'Length);
    begin
-      if Groups /= Empty_Group then
-         Groups_Ptr := new Group_Set'(Groups);
-      end if;
+      for J in Groups'Range loop
+         Holder_Groups.Replace_Element (J, To_String (Groups (J)));
+      end loop;
 
-      return (Kind        => Kind,
-              Environment => Environment,
-              Created     => Ada.Calendar.Clock,
-              Socket      => new Socket_Type'Class'(Socket),
-              Groups      => Groups_Ptr);
+      return new Client_Holder'(Kind        => Kind,
+                                Environment => Environment,
+                                Created     => Ada.Calendar.Clock,
+                                Socket      => new Socket_Type'Class'(Socket),
+                                Groups      => Holder_Groups);
    end To_Holder;
 
    ----------------
@@ -640,5 +749,17 @@ package body AWS.Server.Push is
    begin
       Server.Unregister_Clients (Close_Sockets => Close_Sockets);
    end Unregister_Clients;
+
+   -----------------
+   -- Unsubscribe --
+   -----------------
+
+   procedure Unsubscribe
+     (Server          : in out Object;
+      Client_Id       : in     Client_Key;
+      Group_Id        : in     String) is
+   begin
+      Server.Unsubscribe (Client_Id, Group_Id);
+   end Unsubscribe;
 
 end AWS.Server.Push;
