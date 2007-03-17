@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2006                          --
+--                         Copyright (C) 2000-2007                          --
 --                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -374,6 +374,10 @@ package body AWS.Log is
       function Length_Image return String;
       pragma Inline (Length_Image);
 
+      ------------------
+      -- Length_Image --
+      ------------------
+
       function Length_Image return String is
       begin
          if Content_Length = Response.Undefined_Length then
@@ -413,9 +417,9 @@ package body AWS.Log is
    procedure Write (Log : in out Object; Data : in String) is
       Now : constant Calendar.Time := Calendar.Clock;
    begin
-      Write_Log (Log, Now,
-                 "[" & GNAT.Calendar.Time_IO.Image (Now, "%d/%b/%Y:%T") & "] "
-                   & Data);
+      Write_Log
+        (Log, Now,
+         "[" & GNAT.Calendar.Time_IO.Image (Now, "%d/%b/%Y:%T") & "] " & Data);
    end Write;
 
    --  Here is the extended log format:
@@ -428,13 +432,18 @@ package body AWS.Log is
    procedure Write (Log  : in out Object; Data : in out Fields_Table) is
       use GNAT.Calendar.Time_IO;
 
-      Length : constant Natural := Natural (SN.Length (Log.Extended_Fields));
-      Now    : Ada.Calendar.Time;
+      Length      : constant Natural :=
+                      Natural (SN.Length (Log.Extended_Fields));
+      Now         : Ada.Calendar.Time;
       First_Field : Boolean := True;
 
-      procedure Write_And_Clear (Position : SV.Cursor);
+      procedure Write_And_Clear (Position : in SV.Cursor);
 
-      procedure Write_And_Clear (Position : SV.Cursor) is
+      ---------------------
+      -- Write_And_Clear --
+      ---------------------
+
+      procedure Write_And_Clear (Position : in SV.Cursor) is
       begin
          if First_Field then
             First_Field := False;
@@ -470,11 +479,15 @@ package body AWS.Log is
             Text_IO.Put (Log.File, "#Fields:");
 
             declare
-               Order  : array (1 .. Length) of SN.Cursor;
+               Order : array (1 .. Length) of SN.Cursor;
 
-               procedure Process (Position : SN.Cursor);
+               procedure Process (Position : in SN.Cursor);
 
-               procedure Process (Position : SN.Cursor) is
+               -------------
+               -- Process --
+               -------------
+
+               procedure Process (Position : in SN.Cursor) is
                begin
                   Order (SN.Element (Position)) := Position;
                end Process;
