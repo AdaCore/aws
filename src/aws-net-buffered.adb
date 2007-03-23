@@ -287,12 +287,6 @@ package body AWS.Net.Buffered is
             if Wait then
                Append (Buffer, C.Buffer (C.First .. C.Last));
 
-               --  We have to clear buffer because Read could cause socket
-               --  exception.
-
-               C.First := 1;
-               C.Last  := 0;
-
                begin
                   Read (Socket);
                exception
@@ -300,6 +294,9 @@ package body AWS.Net.Buffered is
                      if Size (Buffer) = 0 or else Is_Timeout (E)  then
                         raise;
                      else
+                        C.First := 1;
+                        C.Last  := 0;
+
                         return Buffered;
                      end if;
                end;
