@@ -67,8 +67,6 @@ package body AWS.Net.Acceptors is
             Free (Socket);
          end loop;
 
-         Free (Acceptor.W_Signal);
-
          raise Socket_Error;
       end Shutdown;
 
@@ -337,15 +335,8 @@ package body AWS.Net.Acceptors is
    procedure Shutdown (Acceptor : in out Acceptor_Type) is
    begin
       if Acceptor.W_Signal /= null then
-         declare
-            W_Signal : Socket_Type'Class := Acceptor.W_Signal.all;
-         begin
-            --  Shutdown on a copy of the socket, because Free of the W_Signal
-            --  on the accepting task could be faster than return from shutdown
-            --  routine.
-
-            Shutdown (W_Signal);
-         end;
+         Shutdown (Acceptor.W_Signal.all);
+         Free (Acceptor.W_Signal);
       end if;
    end Shutdown;
 
