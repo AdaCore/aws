@@ -106,6 +106,11 @@ package body Sp_Pack is
       Server_Push.Subscribe (Push, Client_Id => CID_Image, Group_Id => GID2);
       Server_Push.Unsubscribe (Push, Client_Id => CID_Image, Group_Id => GID0);
 
+      --  Marker to be shure that group message receive would be after
+      --  Subscribe/Unsubscribe.
+
+      Server_Push.Send_To (Push, CID_Image, 0.02, "text/number");
+
       return Response.Socket_Taken;
    end CB;
 
@@ -194,6 +199,16 @@ package body Sp_Pack is
          Client.Get (Connect (J), Answer, "/uri?CID=" & Utils.Image (J));
 
          Output (Client.Read_Until (Connect (J), End_Of_Part));
+      end loop;
+
+      --  Receive subscribe/unsubscribe marker.
+
+      for J in Connect'Range loop
+         if Strings.Fixed.Index
+              (Client.Read_Until (Connect (J), End_Of_Part), "0.02") = 0
+         then
+            Ada.Text_IO.Put_Line ("Marker error.");
+         end if;
       end loop;
 
       --  Send some data
