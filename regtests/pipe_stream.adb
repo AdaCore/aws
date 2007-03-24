@@ -67,7 +67,7 @@ procedure Pipe_Stream is
       Strm :=  new Resources.Streams.Pipe.Stream_Type;
 
       Resources.Streams.Pipe.Open
-        (Resources.Streams.Pipe.Stream_Type (Strm.all), "pipe_stream", Args);
+        (Resources.Streams.Pipe.Stream_Type (Strm.all), "./pipe_stream", Args);
 
       return Response.Stream (MIME.Application_Octet_Stream, Strm);
    end CB;
