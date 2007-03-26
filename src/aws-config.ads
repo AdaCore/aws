@@ -293,6 +293,10 @@ package AWS.Config is
    -- Per Process options --
    -------------------------
 
+   function Session_Name return String;
+   pragma Inline (Session_Name);
+   --  Name of the cookie session
+
    function Session_Cleanup_Interval return Duration;
    pragma Inline (Session_Cleanup_Interval);
    --  Number of seconds between each run of the cleaner task to remove
@@ -369,6 +373,7 @@ private
       Check_URL_Validity,
       Case_Sensitive_Parameters,
       --  Per process options
+      Session_Name,
       Session_Cleanup_Interval,
       Session_Lifetime,
       Transient_Cleanup_Interval,
@@ -379,7 +384,7 @@ private
      range Server_Name .. Case_Sensitive_Parameters;
 
    subtype Process_Parameter_Name is Parameter_Name
-     range Session_Cleanup_Interval .. Max_Concurrent_Download;
+     range Session_Name .. Max_Concurrent_Download;
 
    type Value_Type  is (Str, Dir, Nat, Pos, Dur, Bool, Str_Vect);
 
@@ -541,7 +546,10 @@ private
    Default_Config : constant Object := (P => Default_Parameters);
 
    Process_Options : Parameter_Set (Process_Parameter_Name)
-     := (Session_Cleanup_Interval =>
+     := (Session_Name =>
+           (Str, To_Unbounded_String (Default.Session_Name)),
+
+         Session_Cleanup_Interval =>
            (Dur, Default.Session_Cleanup_Interval),
 
          Session_Lifetime =>
@@ -553,7 +561,7 @@ private
          Transient_Lifetime =>
            (Dur, Default.Transient_Lifetime),
 
-         Max_Concurrent_Download    =>
+         Max_Concurrent_Download =>
            (Pos, Default.Max_Concurrent_Download));
 
 end AWS.Config;

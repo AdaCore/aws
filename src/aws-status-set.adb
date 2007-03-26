@@ -29,6 +29,7 @@
 with Ada.Characters.Handling;
 with Ada.Strings.Fixed;
 
+with AWS.Config;
 with AWS.Headers.Set;
 with AWS.Headers.Values;
 with AWS.Messages;
@@ -430,9 +431,9 @@ package body AWS.Status.Set is
                   Value : in     String;
                   Quit  : in out Boolean) is
                begin
-                  --  Check if it is AWS Cookie
+                  --  Check if it is current process Cookie
 
-                  if Name /= "AWS" then
+                  if Name /= AWS.Config.Session_Name then
                      return;
                   end if;
 

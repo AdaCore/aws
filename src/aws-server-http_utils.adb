@@ -1272,8 +1272,9 @@ package body AWS.Server.HTTP_Utils is
 
             Net.Buffered.Put_Line
               (Sock,
-               "Set-Cookie: AWS="
-               & Session.Image (AWS.Status.Session (C_Stat)) & "; path=/");
+               "Set-Cookie: " & CNF.Session_Name & '='
+               & Session.Image (AWS.Status.Session (C_Stat))
+               & "; path=/; Version=1");
          end if;
 
          --  Date

@@ -446,6 +446,15 @@ package body AWS.Config is
       return Process_Options (Session_Lifetime).Dur_Value;
    end Session_Lifetime;
 
+   ------------------
+   -- Session_Name --
+   ------------------
+
+   function Session_Name return String is
+   begin
+      return To_String (Process_Options (Session_Name).Str_Value);
+   end Session_Name;
+
    -----------------
    -- Status_Page --
    -----------------
