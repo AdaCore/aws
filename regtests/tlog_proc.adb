@@ -178,10 +178,10 @@ procedure TLog_Proc (Extended_Fields : in String) is
             I := 0;
          elsif AWK.Field (2) = "Stop" and AWK.Field (3) = "logging." then
             I := 0;
-         elsif not Ext_Log and then AWK.Field (3) = "-" then
-            I := 4;
-         else
+         elsif Ext_Log then
             I := 5;
+         else
+            I := 4;
          end if;
 
          if I > 0 then

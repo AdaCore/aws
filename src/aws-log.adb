@@ -354,6 +354,8 @@ package body AWS.Log is
    --  Here is the log format compatible with Apache:
    --
    --  127.0.0.1 - - [25/Apr/1998:15:37:29 +0200] "GET / HTTP/1.0" 200 1363
+   --
+   --  See http://httpd.apache.org/docs/trunk/logs.html
 
    procedure Write
      (Log          : in out Object;
@@ -398,13 +400,30 @@ package body AWS.Log is
       Data         : in     String)
    is
       Now : constant Calendar.Time := Calendar.Clock;
+
+      function Authorization_Name return String;
+      pragma Inline (Authorization_Name);
+
+      ------------------------
+      -- Authorization_Name --
+      ------------------------
+
+      function Authorization_Name return String is
+         Result : constant String := Status.Authorization_Name (Connect_Stat);
+      begin
+         if Result = "" then
+            return "-";
+         else
+            return Result;
+         end if;
+      end Authorization_Name;
+
    begin
       Write_Log
         (Log, Now,
          AWS.Status.Peername (Connect_Stat)
-           & " - "
-           & Status.Authorization_Name (Connect_Stat)
-           & " - ["
+           & " - " & Authorization_Name
+           & " ["
            & GNAT.Calendar.Time_IO.Image (Now, "%d/%b/%Y:%T")
            & "] """
            & Status.Request_Method'Image (Status.Method (Connect_Stat))
