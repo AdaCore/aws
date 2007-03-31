@@ -1,18 +1,38 @@
-----------------------------------------------------------------
---  ZLib for Ada thick binding.                               --
---                                                            --
---  Copyright (C) 2002-2003 Dmitriy Anisimkov                 --
---                                                            --
---  Open source license information is in the zlib.ads file.  --
-----------------------------------------------------------------
+------------------------------------------------------------------------------
+--                              Ada Web Server                              --
+--                                                                          --
+--                         Copyright (C) 2000-2007                          --
+--                                 AdaCore                                  --
+--                                                                          --
+--  This library is free software; you can redistribute it and/or modify    --
+--  it under the terms of the GNU General Public License as published by    --
+--  the Free Software Foundation; either version 2 of the License, or (at   --
+--  your option) any later version.                                         --
+--                                                                          --
+--  This library is distributed in the hope that it will be useful, but     --
+--  WITHOUT ANY WARRANTY; without even the implied warranty of              --
+--  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU       --
+--  General Public License for more details.                                --
+--                                                                          --
+--  You should have received a copy of the GNU General Public License       --
+--  along with this library; if not, write to the Free Software Foundation, --
+--  Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.          --
+--                                                                          --
+--  As a special exception, if other files instantiate generics from this   --
+--  unit, or you link this unit with other files to produce an executable,  --
+--  this  unit  does not  by itself cause  the resulting executable to be   --
+--  covered by the GNU General Public License. This exception does not      --
+--  however invalidate any other reasons why the executable file  might be  --
+--  covered by the  GNU Public License.                                     --
+------------------------------------------------------------------------------
 
 --  ~ MAIN [STD]
 
 --  The program has a few aims.
---  1. Test ZLib.Ada95 thick binding functionality.
---  2. Show the example of use main functionality of the ZLib.Ada95 binding.
---  3. Build this program automatically compile all ZLib.Ada95 packages under
---     GNAT Ada95 compiler.
+--  1. Test ZLib Ada thick binding functionality.
+--  2. Show the example of use main functionality of the ZLib Ada binding.
+--  3. Build this program automatically compile all ZLib.* packages under
+--     GNAT compiler.
 
 with Ada.Numerics.Discrete_Random;
 with Ada.Streams.Stream_IO;
@@ -48,17 +68,17 @@ procedure Test_Zlib is
    --  Name of the input file
 
    Z_File_Name   : constant String := "testzlib.zlb";
-   --  Name of the compressed file.
+   --  Name of the compressed file
 
    Out_File_Name : constant String := "testzlib.out";
-   --  Name of the decompressed file.
+   --  Name of the decompressed file
 
    File_In   : File_Type;
    File_Out  : File_Type;
    File_Back : File_Type;
    File_Z    : ZLib.Streams.Stream_Type;
 
-   Filter : ZLib.Filter_Type;
+   Filter    : ZLib.Filter_Type;
 
    procedure Generate_File;
    --  Generate file of spetsified size with some random data.
@@ -93,9 +113,8 @@ procedure Test_Zlib is
    procedure Print_Statistic (Msg : String; Data_Size : ZLib.Count);
    --  Print the statistic with the message.
 
-   procedure Translate is new ZLib.Generic_Translate
-                                (Data_In  => Data_In,
-                                 Data_Out => Data_Out);
+   procedure Translate is
+     new ZLib.Generic_Translate (Data_In => Data_In, Data_Out => Data_Out);
    --  This procedure is moving data from File_In to File_Out
    --  with compression or decompression, depend on initialization of
    --  Filter parameter.
@@ -122,7 +141,7 @@ procedure Test_Zlib is
      (Left, Right : in out Ada.Streams.Root_Stream_Type'Class)
    is
       Left_Buffer, Right_Buffer : Stream_Element_Array (0 .. 16#FFF#);
-      Left_Last, Right_Last : Stream_Element_Offset;
+      Left_Last, Right_Last     : Stream_Element_Offset;
    begin
       loop
          Read (Left, Left_Buffer, Left_Last);
@@ -201,12 +220,12 @@ procedure Test_Zlib is
       Buffer : Stream_Element_Array := (1 .. 77 => 16#20#) & 10;
 
       Buffer_Count : constant Count := File_Size / Buffer'Length;
-      --  Number of same buffers in the packet.
+      --  Number of same buffers in the packet
 
       Density : constant Count := 30; --  from 0 to Buffer'Length - 2;
 
       procedure Fill_Buffer (J, D : in Count);
-      --  Change the part of the buffer.
+      --  Change the part of the buffer
 
       -----------------
       -- Fill_Buffer --
@@ -216,9 +235,9 @@ procedure Test_Zlib is
       begin
          for K in 0 .. D loop
             Buffer
-              (Stream_Element_Offset ((J + K) mod (Buffer'Length - 1) + 1))
-             := Random_Elements.Random (Gen);
-
+              (Buffer'First + Stream_Element_Offset
+                 ((J + K) mod (Buffer'Length - 1) + 1) - 1) :=
+              Random_Elements.Random (Gen);
          end loop;
       end Fill_Buffer;
 
@@ -240,8 +259,9 @@ procedure Test_Zlib is
       Write
         (File_In,
          Buffer
-           (1 .. Stream_Element_Offset
-                   (File_Size - Buffer'Length * Buffer_Count)));
+           (Buffer'First .. Buffer'First +
+              Stream_Element_Offset
+                (File_Size - Buffer'Length * Buffer_Count) - 1));
 
       Flush (File_In);
       Close (File_In);
@@ -279,11 +299,12 @@ begin
          Ada.Text_IO.Put_Line ("Level ="
             & ZLib.Compression_Level'Image (Level));
 
-         --  Test generic interface.
+         --  Test generic interface
+
          Open   (File_In, In_File, In_File_Name);
          Create (File_Out, Out_File, Z_File_Name);
 
-         --  Deflate using generic instantiation.
+         --  Deflate using generic instantiation
 
          ZLib.Deflate_Init
                (Filter   => Filter,
@@ -301,7 +322,7 @@ begin
          Open   (File_In, In_File, Z_File_Name);
          Create (File_Out, Out_File, Out_File_Name);
 
-         --  Inflate using generic instantiation.
+         --  Inflate using generic instantiation
 
          ZLib.Inflate_Init (Filter, Header => Header);
 
@@ -315,9 +336,9 @@ begin
 
          Compare_Files (In_File_Name, Out_File_Name);
 
-         --  Test stream interface.
+         --  Test stream interface
 
-         --  Compress to the back stream.
+         --  Compress to the back stream
 
          Open   (File_In, In_File, In_File_Name);
          Create (File_Back, Out_File, Z_File_Name);
@@ -336,7 +357,7 @@ begin
            (Source => Stream (File_In).all,
             Target => File_Z);
 
-         --  Flushing internal buffers to the back stream.
+         --  Flushing internal buffers to the back stream
 
          ZLib.Streams.Flush (File_Z, ZLib.Finish);
 
@@ -371,7 +392,7 @@ begin
          Close (File_In);
          Close (File_Back);
 
-         --  Compress by reading from compression stream.
+         --  Compress by reading from compression stream
 
          Open (File_Back, In_File, In_File_Name);
          Create (File_Out, Out_File, Z_File_Name);
@@ -398,7 +419,7 @@ begin
          Close (File_Out);
          Close (File_Back);
 
-         --  Decompress to decompression stream.
+         --  Decompress to decompression stream
 
          Open   (File_In,   In_File, Z_File_Name);
          Create (File_Back, Out_File, Out_File_Name);
