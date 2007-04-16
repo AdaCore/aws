@@ -385,17 +385,10 @@ package body AWS.Server is
 
    procedure Set
      (Web_Server : in out HTTP;
-      Dispatcher : in     Dispatchers.Handler'Class)
-   is
-      Old : Dispatchers.Handler_Class_Access := Web_Server.Dispatcher;
+      Dispatcher : in     Dispatchers.Handler'Class) is
    begin
-      Web_Server.Dispatcher_Sem.Write;
-
-      Web_Server.Dispatcher := new Dispatchers.Handler'Class'(Dispatcher);
-
-      Web_Server.Dispatcher_Sem.Release_Write;
-
-      Free (Old);
+      Free (Web_Server.New_Dispatcher);
+      Web_Server.New_Dispatcher := new Dispatchers.Handler'Class'(Dispatcher);
    end Set;
 
    ---------------

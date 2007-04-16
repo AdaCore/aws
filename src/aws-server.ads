@@ -438,6 +438,10 @@ private
       Dispatcher         : Dispatchers.Handler_Class_Access;
       --  Dispatcher for the user actions
 
+      New_Dispatcher     : Dispatchers.Handler_Class_Access;
+      --  New dispatcher set in a user's callback, if set this dispatcher will
+      --  replace the main dispatcher above.
+
       Dispatcher_Sem     : Utils.RW_Semaphore (Writers => 1);
       --  RW semaphore to be able to change dynamically the Dispatcher object
 

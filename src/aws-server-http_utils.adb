@@ -203,6 +203,7 @@ package body AWS.Server.HTTP_Utils is
             --  and get answer from client callback
 
             declare
+               use type Dispatchers.Handler_Class_Access;
                Found : Boolean;
             begin
                HTTP_Server.Slots.Mark_Phase (Line_Index, Server_Processing);
@@ -228,6 +229,14 @@ package body AWS.Server.HTTP_Utils is
                         HTTP_Server.Dispatcher_Sem.Release_Read;
                         raise;
                   end;
+
+                  if HTTP_Server.New_Dispatcher /= null then
+                     HTTP_Server.Dispatcher_Sem.Write;
+                     Dispatchers.Free (HTTP_Server.Dispatcher);
+                     HTTP_Server.Dispatcher := HTTP_Server.New_Dispatcher;
+                     HTTP_Server.New_Dispatcher := null;
+                     HTTP_Server.Dispatcher_Sem.Release_Write;
+                  end if;
 
                end if;
 
