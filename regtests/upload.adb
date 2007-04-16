@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2004                          --
---                                ACT-Europe                                --
+--                         Copyright (C) 2000-2007                          --
+--                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -28,6 +28,7 @@
 
 --  ~ MAIN [STD]
 
+with Ada.Directories;
 with Ada.Strings.Fixed;
 with Ada.Strings.Maps.Constants;
 with Ada.Text_IO;
@@ -37,6 +38,7 @@ with AWS.Server;
 with AWS.Client;
 with AWS.Status;
 with AWS.MIME;
+with AWS.OS_Lib;
 with AWS.Response;
 with AWS.Parameters;
 with AWS.Messages;
@@ -137,7 +139,9 @@ procedure Upload is
    procedure Request (URL : in String; Filename : in String) is
       R : Response.Data;
    begin
-      R := Client.Upload (URL, Filename);
+      R := Client.Upload
+        (URL, Directories.Current_Directory
+         & OS_Lib.Directory_Separator & Filename);
       Put_Line ("=> " & Response.Message_Body (R));
       New_Line;
    end Request;

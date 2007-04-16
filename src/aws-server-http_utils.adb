@@ -27,6 +27,7 @@
 ------------------------------------------------------------------------------
 
 with Ada.Characters.Handling;
+with Ada.Directories;
 with Ada.Streams;
 with Ada.Streams.Stream_IO;
 with Ada.Strings.Fixed;
@@ -84,9 +85,7 @@ package body AWS.Server.HTTP_Utils is
    is
       use type Messages.Status_Code;
 
-      Admin_URI : constant String
-        := CNF.Admin_URI (HTTP_Server.Properties);
-
+      Admin_URI : constant String := CNF.Admin_URI (HTTP_Server.Properties);
       Answer    : Response.Data;
 
       procedure Build_Answer;
@@ -245,11 +244,11 @@ package body AWS.Server.HTTP_Utils is
          use type Session.Id;
       begin
          if CNF.Session (HTTP_Server.Properties)
-           and then (not AWS.Status.Has_Session (C_Stat)
-                     or else not Session.Exist (AWS.Status.Session (C_Stat)))
+           and then (not Status.Has_Session (C_Stat)
+                     or else not Session.Exist (Status.Session (C_Stat)))
          then
             --  Generate the session ID
-            AWS.Status.Set.Session (C_Stat);
+            Status.Set.Session (C_Stat);
          end if;
       end Create_Session;
 
@@ -350,24 +349,13 @@ package body AWS.Server.HTTP_Utils is
          ---------------------
 
          function Target_Filename (Filename : in String) return String is
-            I           : constant Natural
-              := Fixed.Index (Filename, Maps.To_Set ("/\"),
-                              Going => Strings.Backward);
-            Upload_Path : constant String
-              := CNF.Upload_Directory (HTTP_Server.Properties);
+            Upload_Path : constant String :=
+                            CNF.Upload_Directory (HTTP_Server.Properties);
             UID         : Natural;
          begin
             File_Upload_UID.Get (UID);
 
-            if I = 0 then
-               return Upload_Path
-                 & Utils.Image (UID) & '.'
-                 & Filename;
-            else
-               return Upload_Path
-                 & Utils.Image (UID) & '.'
-                 & Filename (I + 1 .. Filename'Last);
-            end if;
+            return Upload_Path & Utils.Image (UID) & '.' & Filename;
          end Target_Filename;
 
       begin
@@ -394,7 +382,12 @@ package body AWS.Server.HTTP_Utils is
             use AWS.Headers;
             Data       : constant String := Net.Buffered.Get_Line (Sock);
             L_Name     : constant String := Values.Search (Data, "name");
-            L_Filename : constant String := Values.Search (Data, "filename");
+            L_Filename : constant String :=
+                           Directories.Simple_Name
+                             (Values.Search (Data, "filename"));
+            --  Get the simple name as we do not want to expose the client full
+            --  pathname to the user's callback. Microsoft Internet Explorer
+            --  sends the full pathname, Firefox only send the simple name.
          begin
             Is_File_Upload := (L_Filename /= "");
 
@@ -429,18 +422,14 @@ package body AWS.Server.HTTP_Utils is
                --  First value is the unique name on the server side
 
                Status.Set.Add_Parameter
-                 (C_Stat,
-                  To_String (Name),
-                  To_String (Server_Filename));
+                 (C_Stat, To_String (Name), To_String (Server_Filename));
                --  Status.Set.Add_Parameter does not decode values.
 
                --  Second value is the original name as found on the client
                --  side.
 
                Status.Set.Add_Parameter
-                 (C_Stat,
-                  To_String (Name),
-                  To_String (Filename));
+                 (C_Stat, To_String (Name), To_String (Filename));
                --  Status.Set.Add_Parameter does not decode values.
 
                --  Read file data, set End_Found if the end-boundary signature
@@ -460,7 +449,7 @@ package body AWS.Server.HTTP_Utils is
                AWS.Attachments.Add
                  (Attachments,
                   To_String (Server_Filename), To_String (Name));
-               AWS.Status.Set.Attachments (C_Stat, Attachments);
+               Status.Set.Attachments (C_Stat, Attachments);
 
                if not End_Found then
                   File_Upload (Start_Boundary, End_Boundary, False);
@@ -630,7 +619,7 @@ package body AWS.Server.HTTP_Utils is
                else
                   --  This is the root part of an MIME attachment, set the
                   --  memory stream with the content read.
-                  AWS.Resources.Streams.Memory.Append (Content, Buffer);
+                  Resources.Streams.Memory.Append (Content, Buffer);
                end if;
             end if;
          exception
@@ -645,7 +634,7 @@ package body AWS.Server.HTTP_Utils is
                  (File,
                   Streams.Stream_IO.Out_File, Server_Filename);
             else
-               AWS.Resources.Streams.Memory.Clear (Content);
+               Resources.Streams.Memory.Clear (Content);
             end if;
          exception
             when Text_IO.Name_Error =>
@@ -680,15 +669,15 @@ package body AWS.Server.HTTP_Utils is
                   declare
                      Data : Streams.Stream_Element_Array
                        (1 .. Streams.Stream_Element_Offset
-                          (AWS.Resources.Streams.Memory.Size (Content)));
+                          (Resources.Streams.Memory.Size (Content)));
                      Last : Streams.Stream_Element_Offset;
                   begin
-                     AWS.Resources.Streams.Memory.Read
+                     Resources.Streams.Memory.Read
                        (Resource => Content,
                         Buffer   => Data,
                         Last     => Last);
-                     AWS.Status.Set.Binary (C_Stat, Data);
-                     AWS.Resources.Streams.Memory.Close (Content);
+                     Status.Set.Binary (C_Stat, Data);
+                     Resources.Streams.Memory.Close (Content);
                   end;
 
                when Attachment =>
@@ -899,7 +888,7 @@ package body AWS.Server.HTTP_Utils is
             begin
                Net.Buffered.Read (Sock, Data);
 
-               AWS.Status.Set.Binary (C_Stat, Data);
+               Status.Set.Binary (C_Stat, Data);
                --  We record the message body as-is to be able to send it back
                --  to an hotplug module if needed.
 
@@ -938,7 +927,7 @@ package body AWS.Server.HTTP_Utils is
                  (1 .. Stream_Element_Offset (Status.Content_Length (C_Stat)));
             begin
                Net.Buffered.Read (Sock, Data);
-               AWS.Status.Set.Binary (C_Stat, Data);
+               Status.Set.Binary (C_Stat, Data);
             end;
 
          end if;
@@ -1143,9 +1132,9 @@ package body AWS.Server.HTTP_Utils is
 
       use type Response.Data_Mode;
 
-      Sock   : constant Net.Socket_Type'Class := Status.Socket (C_Stat);
-      Status : Messages.Status_Code;
-      Length : Resources.Content_Length_Type := 0;
+      Sock        : constant Net.Socket_Type'Class := Status.Socket (C_Stat);
+      Status_Code : Messages.Status_Code;
+      Length      : Resources.Content_Length_Type := 0;
 
       procedure Send_General_Header;
       --  Send the "Date:", "Server:", "Set-Cookie:" and "Connection:" header
@@ -1166,7 +1155,7 @@ package body AWS.Server.HTTP_Utils is
          use type AWS.Status.Request_Method;
 
          Method        : constant AWS.Status.Request_Method :=
-                           AWS.Status.Method (C_Stat);
+                           Status.Method (C_Stat);
          Filename      : constant String :=
                            Response.Filename (Answer);
          File_Mode     : constant Boolean :=
@@ -1180,10 +1169,10 @@ package body AWS.Server.HTTP_Utils is
             File_Time := Resources.File_Timestamp (Filename);
 
             Is_Up_To_Date
-              := Is_Valid_HTTP_Date (AWS.Status.If_Modified_Since (C_Stat))
+              := Is_Valid_HTTP_Date (Status.If_Modified_Since (C_Stat))
                     and then
                  File_Time
-                   = Messages.To_Time (AWS.Status.If_Modified_Since (C_Stat));
+                   = Messages.To_Time (Status.If_Modified_Since (C_Stat));
             --  Equal used here see [RFC 2616 - 14.25]
          end if;
 
@@ -1197,13 +1186,13 @@ package body AWS.Server.HTTP_Utils is
             return;
 
          elsif Headers.Get_Values
-           (AWS.Status.Header (C_Stat), Messages.Range_Token) /= ""
+           (Status.Header (C_Stat), Messages.Range_Token) /= ""
          then
             --  Partial range request, answer accordingly
             Net.Buffered.Put_Line (Sock, Messages.Status_Line (Messages.S206));
 
          else
-            Net.Buffered.Put_Line (Sock, Messages.Status_Line (Status));
+            Net.Buffered.Put_Line (Sock, Messages.Status_Line (Status_Code));
          end if;
 
          --  Note. We have to call Create_Resource before send header fields
@@ -1222,9 +1211,9 @@ package body AWS.Server.HTTP_Utils is
          --  message length comming from a user's stream.
 
          if Length = Resources.Undefined_Length
-           and then AWS.Status.HTTP_Version (C_Stat) = HTTP_10
+           and then Status.HTTP_Version (C_Stat) = HTTP_10
          --  We cannot use transfer-encoding chunked in HTTP_10
-           and then Method /= AWS.Status.HEAD
+           and then Method /= Status.HEAD
          --  We have to send message_body
          then
             --  In this case we need to close the connection explicitly at the
@@ -1311,7 +1300,7 @@ package body AWS.Server.HTTP_Utils is
       begin
          --  First let's output the status line
 
-         Net.Buffered.Put_Line (Sock, Messages.Status_Line (Status));
+         Net.Buffered.Put_Line (Sock, Messages.Status_Line (Status_Code));
 
          Send_General_Header;
 
@@ -1329,7 +1318,7 @@ package body AWS.Server.HTTP_Utils is
    begin
       Data_Sent := True;
 
-      Status := Response.Status_Code (Answer);
+      Status_Code := Response.Status_Code (Answer);
 
       case Response.Mode (Answer) is
 
@@ -1359,77 +1348,77 @@ package body AWS.Server.HTTP_Utils is
             use type Ada.Calendar.Time;
             use type Strings.Maps.Character_Set;
 
-            Fields : AWS.Log.Fields_Table := Get_Log_Data;
+            Fields : Log.Fields_Table := Get_Log_Data;
 
          begin
-            AWS.Log.Set_Field
+            Log.Set_Field
               (HTTP_Server.Log, Fields, "time-taken",
                Utils.Significant_Image
-                 (Ada.Calendar.Clock - AWS.Status.Request_Time (C_Stat), 3));
+                 (Ada.Calendar.Clock - Status.Request_Time (C_Stat), 3));
 
-            AWS.Log.Set_Header_Fields
-              (HTTP_Server.Log, Fields, "cs", AWS.Status.Header (C_Stat));
-            AWS.Log.Set_Header_Fields
+            Log.Set_Header_Fields
+              (HTTP_Server.Log, Fields, "cs", Status.Header (C_Stat));
+            Log.Set_Header_Fields
               (HTTP_Server.Log, Fields, "sc", Response.Header (Answer));
 
-            AWS.Log.Set_Field
+            Log.Set_Field
               (HTTP_Server.Log, Fields, "c-ip", Net.Peer_Addr (Sock));
-            AWS.Log.Set_Field
+            Log.Set_Field
               (HTTP_Server.Log, Fields, "c-port",
-               AWS.Utils.Image (Net.Peer_Port (Sock)));
+               Utils.Image (Net.Peer_Port (Sock)));
 
-            AWS.Log.Set_Field
+            Log.Set_Field
               (HTTP_Server.Log, Fields, "s-ip", Net.Get_Addr (Sock));
-            AWS.Log.Set_Field
+            Log.Set_Field
               (HTTP_Server.Log, Fields, "s-port",
-               AWS.Utils.Image (Net.Get_Port (Sock)));
+               Utils.Image (Net.Get_Port (Sock)));
 
-            AWS.Log.Set_Field
+            Log.Set_Field
               (HTTP_Server.Log, Fields, "cs-method",
-               AWS.Status.Request_Method'Image (AWS.Status.Method (C_Stat)));
-            AWS.Log.Set_Field
+               Status.Request_Method'Image (Status.Method (C_Stat)));
+            Log.Set_Field
               (HTTP_Server.Log, Fields, "cs-username",
-               AWS.Status.Authorization_Name (C_Stat));
-            AWS.Log.Set_Field
+               Status.Authorization_Name (C_Stat));
+            Log.Set_Field
               (HTTP_Server.Log, Fields, "cs-version",
-               AWS.Status.HTTP_Version (C_Stat));
+               Status.HTTP_Version (C_Stat));
 
             declare
                use AWS.URL;
 
-               Encoding : constant Strings.Maps.Character_Set
-                 := Strings.Maps.To_Set
-                     (Span => (Low  => Character'Val (128),
-                               High => Character'Last))
-                      or
-                    Strings.Maps.To_Set ("+"" ");
+               Encoding : constant Strings.Maps.Character_Set :=
+                            Strings.Maps.To_Set
+                              (Span => (Low  => Character'Val (128),
+                                        High => Character'Last))
+                            or Strings.Maps.To_Set ("+"" ");
 
-               URI : constant String
-                  := Encode (AWS.Status.URI (C_Stat), Encoding);
+               URI      : constant String :=
+                            Encode (Status.URI (C_Stat), Encoding);
 
-               Query : constant String
-                 := AWS.Parameters.URI_Format (AWS.Status.Parameters (C_Stat));
-
+               Query    : constant String :=
+                            Parameters.URI_Format
+                              (Status.Parameters (C_Stat));
             begin
-               AWS.Log.Set_Field (HTTP_Server.Log, Fields, "cs-uri-stem", URI);
-               AWS.Log.Set_Field
+               Log.Set_Field (HTTP_Server.Log, Fields, "cs-uri-stem", URI);
+               Log.Set_Field
                  (HTTP_Server.Log, Fields, "cs-uri-query", Query);
-               AWS.Log.Set_Field
+               Log.Set_Field
                  (HTTP_Server.Log, Fields, "cs-uri", URI & Query);
             end;
 
-            AWS.Log.Set_Field
-              (HTTP_Server.Log, Fields, "sc-status", Messages.Image (Status));
-            AWS.Log.Set_Field
+            Log.Set_Field
+              (HTTP_Server.Log, Fields, "sc-status",
+               Messages.Image (Status_Code));
+            Log.Set_Field
               (HTTP_Server.Log, Fields, "sc-bytes",
-               AWS.Utils.Image (Integer (Length)));
+               Utils.Image (Integer (Length)));
 
-            AWS.Log.Write (HTTP_Server.Log, Fields);
+            Log.Write (HTTP_Server.Log, Fields);
          end;
-      else
-         AWS.Log.Write (HTTP_Server.Log, C_Stat, Status, Integer (Length));
-      end if;
 
+      else
+         Log.Write (HTTP_Server.Log, C_Stat, Status_Code, Integer (Length));
+      end if;
    end Send;
 
    -------------------
@@ -1448,7 +1437,7 @@ package body AWS.Server.HTTP_Utils is
       use type Status.Request_Method;
       use type Streams.Stream_Element_Offset;
 
-      Sock : constant Net.Socket_Type'Class := Status.Socket (C_Stat);
+      Sock        : constant Net.Socket_Type'Class := Status.Socket (C_Stat);
 
       Buffer_Size : constant := 4 * 1_024;
       --  Size of the buffer used to send the file
@@ -1535,11 +1524,9 @@ package body AWS.Server.HTTP_Utils is
             declare
                H_Last : constant String := Utils.Hex (Positive (Last));
 
-               Chunk  : constant Streams.Stream_Element_Array
-               := Translator.To_Stream_Element_Array (H_Last)
-               & CRLF
-               & Buffer (1 .. Last)
-               & CRLF;
+               Chunk  : constant Streams.Stream_Element_Array :=
+                          Translator.To_Stream_Element_Array (H_Last)
+                          & CRLF & Buffer (1 .. Last) & CRLF;
                --  A chunk is composed of:
                --     the Size of the chunk in hexadecimal
                --     a line feed

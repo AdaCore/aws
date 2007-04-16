@@ -1752,13 +1752,20 @@ File to process: <INPUT NAME=filename TYPE=FILE>
 </FORM>}
 
 @noindent
-On the server side, AWS will retrieve the file and put it into the
-upload directory. AWS add a prefix to the file to ensure that the
+On the server side, @code{AWS} will retrieve the file and put it into the
+upload directory. @code{AWS} add a prefix to the file to ensure that the
 filename will be unique on the server side. The upload directory can be
 changed using the configuration options. @xref{Configuration options}.
 
 @noindent
-AWS will also setup the form parameters as usual. In the above example
+The uploaded files are removed after the user's callback. This is done
+for security reasons, if files were not removed it would be possible
+to fill the server hard disk by uploading large files to the
+server. This means that uploaded files must be specifically handled by
+the users by either copying or renaming them.
+
+@noindent
+@code{AWS} will also setup the form parameters as usual. In the above example
 there is two parameters (@xref{Form parameters}.)
 
 @table @b
@@ -1774,7 +1781,8 @@ upload directory catenated with the prefix and filename).
 
 @item Second value : Parameters.Get (P, "filename", 2)
 
-The value is the full pathname of the file on the client side.
+The value is the simple filename (no path information) of the file on
+the client side.
 @end table
 
 @item go

@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2006                          --
+--                         Copyright (C) 2000-2007                          --
 --                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -27,6 +27,7 @@
 ------------------------------------------------------------------------------
 
 with Ada.Characters.Handling;
+with Ada.Directories;
 
 with AWS.Utils;
 
@@ -187,15 +188,15 @@ package body AWS.Messages is
    function Content_Disposition
      (Format   : in String;
       Name     : in String;
-      Filename : in String)
-      return String is
+      Filename : in String) return String is
    begin
       if Filename = "" then
          return Content_Disposition_Token & HD & Format
            & "; name=""" & Name & '"';
       else
          return Content_Disposition_Token & HD & Format
-           & "; name=""" & Name & """; filename=""" & Filename & '"';
+           & "; name=""" & Name & """; filename="""
+           & Directories.Simple_Name (Filename) & '"';
       end if;
    end Content_Disposition;
 
