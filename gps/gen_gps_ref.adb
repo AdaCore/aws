@@ -273,4 +273,6 @@ begin
    Gen_Footer;
 
    Close (File);
+
+   Command_Line.Set_Exit_Status (Command_Line.Success);
 end Gen_GPS_Ref;

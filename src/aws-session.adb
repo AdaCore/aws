@@ -32,15 +32,16 @@ with Ada.Strings.Unbounded;
 with Ada.Text_IO;
 with Ada.Unchecked_Deallocation;
 
-with Strings_Maps;
-
 with AWS.Default;
 with AWS.Containers.Key_Value;
 with AWS.Utils;
 
+with Strings_Maps;
+
 package body AWS.Session is
 
    use Ada;
+   use Ada.Exceptions;
    use Ada.Strings.Unbounded;
 
    SID_Prefix             : constant String := "SID-";
@@ -50,7 +51,7 @@ package body AWS.Session is
    --  Check for obsolete section every 10 minutes
 
    Session_Lifetime       : Duration := Default.Session_Lifetime;
-   --  A session is obsolete if not used after Session_Lifetime seconds.
+   --  A session is obsolete if not used after Session_Lifetime seconds
 
    package Key_Value renames Containers.Key_Value;
    type Key_Value_Set_Access is access Key_Value.Map;
@@ -169,7 +170,7 @@ package body AWS.Session is
       --  Removes Key from the session SID
 
       --
-      --  Not safe routines. These are only to be used by iterators
+      --  Unsafe routines. These are only to be used by iterators
       --
 
       procedure Destroy;
@@ -191,7 +192,7 @@ package body AWS.Session is
 
       procedure Unsafe_Delete_Session (SID : in Id);
       --  Remove this session ID, the database should be locked before calling
-      --  this routine
+      --  this routine.
 
       procedure Unlock;
       --  Decrement Lock by 1, unlock all entries when Lock return to 0
@@ -249,10 +250,10 @@ package body AWS.Session is
                   L_SC.all (Expired_SID (K));
                exception
                   when E : others =>
-                     Ada.Text_IO.Put_Line
-                       (Ada.Text_IO.Current_Error,
+                     Text_IO.Put_Line
+                       (Text_IO.Current_Error,
                         "Delete session callback error : "
-                          & Exceptions.Exception_Information (E));
+                          & Exception_Information (E));
                end;
             end if;
 
@@ -272,10 +273,10 @@ package body AWS.Session is
 
    exception
       when E : others =>
-         Ada.Text_IO.Put_Line
-           (Ada.Text_IO.Current_Error,
+         Text_IO.Put_Line
+           (Text_IO.Current_Error,
             "Unrecoverable Error: Cleaner Task bug detected "
-            & Exceptions.Exception_Information (E));
+            & Exception_Information (E));
    end Cleaner;
 
    -----------
@@ -497,7 +498,7 @@ package body AWS.Session is
                Expired_SID (E_Index) := Id (Session_Set.Key (Cursor));
 
                exit when E_Index = Max_Expired;
-               --  No more space in the expired mailbox, quit now.
+               --  No more space in the expired mailbox, quit now
             end if;
 
             Session_Set.Next (Cursor);
@@ -1074,7 +1075,7 @@ package body AWS.Session is
          Each_Session;
       exception
          when others =>
-            --  Never leave this block without releasing the database lock.
+            --  Never leave this block without releasing the database lock
             Database.Unlock;
             raise;
       end;

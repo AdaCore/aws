@@ -62,8 +62,7 @@ package body AWS.URL is
       Encode : in Boolean := False)
       return String
    is
-      Result : constant String
-        := To_String (URL.Path & URL.File);
+      Result : constant String := To_String (URL.Path & URL.File);
    begin
       if Encode then
          return AWS.URL.Encode (Result);
@@ -220,9 +219,8 @@ package body AWS.URL is
 
    function Normalize (Path : in Unbounded_String) return Unbounded_String is
       URL_Path : Unbounded_String := Path;
-
-      K : Natural;
-      P : Natural;
+      K        : Natural;
+      P        : Natural;
    begin
       --  Checks for current directory and removes all occurences
 
@@ -357,8 +355,8 @@ package body AWS.URL is
 
          procedure Parse_Path_File (Start : in Positive) is
             PF : constant String := URL (Start .. URL'Last);
-            I3 : constant Natural
-              := Strings.Fixed.Index (PF, "/", Strings.Backward);
+            I3 : constant Natural :=
+                   Strings.Fixed.Index (PF, "/", Strings.Backward);
          begin
             if I3 = 0 then
                --  No '/' so this is certainly a single file. As a special
@@ -625,8 +623,7 @@ package body AWS.URL is
 
    function Query
      (URL    : in Object;
-      Encode : in Boolean := False)
-      return String
+      Encode : in Boolean := False) return String
    is
       P : constant String := Parameters (URL, Encode);
    begin

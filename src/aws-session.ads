@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2005                          --
+--                         Copyright (C) 2000-2007                          --
 --                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -26,7 +26,7 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  This is the API to handle session data for each client connected.
+--  This is the API to handle session data for each client connected
 
 with Ada.Calendar;
 
@@ -220,7 +220,7 @@ private
    task type Cleaner is
       entry Stop;
    end Cleaner;
-   --  Call Database.Clean every Session_Lifetime seconds.
+   --  Call Database.Clean every Session_Lifetime seconds
 
    type Cleaner_Access is access Cleaner;
 
@@ -235,7 +235,7 @@ private
       procedure Start
         (Session_Check_Interval : in Duration;
          Session_Lifetime       : in Duration);
-      --  Launch the cleaner task the first time and does nothing after.
+      --  Launch the cleaner task the first time and does nothing after
 
       procedure Stop (Need_Release : out Boolean);
       --  Stop the cleaner task when there is no more server using it. Release
