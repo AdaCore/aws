@@ -4,7 +4,7 @@
 
 Authors:
    Dmitriy Anisimkov
-   Pascal Obry                                              February 2nd, 2007
+   Pascal Obry                                              April 17th, 2007
 
 
 
@@ -40,6 +40,13 @@ Changes
 
 Here are the main changes since AWS 2.3.0 :
 
+   - Do not pass the uploaded files client's full pathname for
+     security reasons.
+
+   - Improve templates parser user's filters interface. A user defined
+     filter has now access to the lazy tags. See non upward compatible
+     changes.
+
    - Support for Pipe streams to avoid writing data on the hard drive.
 
    - Plus many small fixes, enhancements, API comments, and documentation work.
@@ -53,6 +60,36 @@ In such a case we try to give proper advice on how to change the code
 to work properly. Of course we try to avoid this as much as possible
 but we really prefer to have a clean API instead of keeping awkward
 implementations.
+
+   - User's filter callback specs have been changed from:
+
+      type Callback is access function
+        (Value        : in String;
+         Parameters   : in String;
+         Translations : in Translate_Set) return String;
+
+      type Callback_No_Param is access function
+        (Value        : in String;
+         Translations : in Translate_Set) return String;
+
+     to:
+
+      type Filter_Context is record
+         Translations : Translate_Set;
+         Lazy_Tag     : Dynamic.Lazy_Tag_Access;
+      end record;
+
+      type Callback is access function
+        (Value      : in String;
+         Parameters : in String;
+         Context    : in Filter_Context) return String;
+
+      type Callback_No_Param is access function
+        (Value   : in String;
+         Context : in Filter_Context) return String;
+
+      Change the callback to this new spec, the translate set is
+      now accessible through the Context parameter.
 
 
 Obsolescent features
