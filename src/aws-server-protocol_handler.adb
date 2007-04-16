@@ -54,20 +54,20 @@ is
    Case_Sensitive_Parameters : constant Boolean
      := CNF.Case_Sensitive_Parameters (HTTP_Server.Properties);
 
-   C_Stat         : aliased AWS.Status.Data; -- Connection status
+   C_Stat       : aliased AWS.Status.Data; -- Connection status
 
-   Sock_Ptr       : Socket_Access;
+   Sock_Ptr     : Socket_Access;
 
-   Socket_Taken   : Boolean := False;
+   Socket_Taken : Boolean := False;
    --  Set to True if a socket has been reserved for a push session.
 
-   Will_Close     : Boolean := True;
+   Will_Close   : Boolean := True;
    --  Will_Close is set to true when the connection will be closed by the
    --  server. It means that the server is about to send the latest message
    --  to the client using this socket. The value will be changed by
    --  Set_Close_Status.
 
-   Data_Sent      : Boolean := False;
+   Data_Sent    : Boolean := False;
    --  Will be set to true when some data will have been sent back to the
    --  client. At this point it is not possible to send an unexpected
    --  exception message to the client. The only option in case of problems is
