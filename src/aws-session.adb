@@ -159,14 +159,10 @@ package body AWS.Session is
       --  Value is set with the value associated with the key Key_Name in
       --  session SID.
 
-      entry Set_Value
-        (SID        : in Id;
-         Key, Value : in String);
+      entry Set_Value (SID : in Id; Key, Value : in String);
       --  Add the pair key/value into the session SID
 
-      entry Remove_Key
-        (SID : in Id;
-         Key : in String);
+      entry Remove_Key (SID : in Id;  Key : in String);
       --  Removes Key from the session SID
 
       --
@@ -200,12 +196,11 @@ package body AWS.Session is
    private
 
       Lock_Counter : Natural := 0;
-
-      Sessions : aliased Session_Set.Map;
+      Sessions     : aliased Session_Set.Map;
 
       function Generate_Id return Id;
-      --  Retruns a session ID. This ID is not certified to be uniq in the
-      --  system. It is required that the caller check for uniqness if
+      --  Returns a session ID. This ID is not certified to be unique in the
+      --  system. It is required that the caller checks for uniqueness if
       --  necessary.
 
    end Database;
