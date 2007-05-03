@@ -168,7 +168,8 @@ package body AWS.Client is
       Proxy_Pwd          : in String          := No_Data;
       Timeouts           : in Timeouts_Values := No_Timeout;
       Data_Range         : in Content_Range   := No_Range;
-      Follow_Redirection : in Boolean         := False)
+      Follow_Redirection : in Boolean         := False;
+      Certificate        : in String          := Default.Client_Certificate)
       return Response.Data
    is
       use type Messages.Status_Code;
@@ -180,8 +181,9 @@ package body AWS.Client is
       begin
          Create (Connection,
                  URL, User, Pwd, Proxy, Proxy_User, Proxy_Pwd,
-                 Persistent => False,
-                 Timeouts   => Timeouts);
+                 Persistent  => False,
+                 Certificate => Certificate,
+                 Timeouts    => Timeouts);
 
          Get (Connection, Result, Data_Range => Data_Range);
 
@@ -199,7 +201,8 @@ package body AWS.Client is
          --  We do not have the login/password for the proxy.
          return Get
            (URL, User, Pwd, Response.Location (Result),
-            Timeouts => Timeouts, Follow_Redirection => Follow_Redirection);
+            Timeouts => Timeouts, Follow_Redirection => Follow_Redirection,
+            Certificate => Certificate);
 
       elsif Follow_Redirection
           and then
@@ -211,7 +214,7 @@ package body AWS.Client is
          return Get
            (Response.Location (Result), User, Pwd,
             Proxy, Proxy_User, Proxy_Pwd, Timeouts,
-            Data_Range, Follow_Redirection);
+            Data_Range, Follow_Redirection, Certificate => Certificate);
       else
          return Result;
       end if;

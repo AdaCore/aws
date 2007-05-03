@@ -151,7 +151,7 @@ procedure Cert is
       C     : Client.HTTP_Connection;
       Cert  : Net.SSL.Certificate.Object;
    begin
-      Client.Create (C, URL);
+      Client.Create (C, URL, Certificate => "client.pem");
 
       Cert := Client.Get_Certificate (C);
 

@@ -95,7 +95,8 @@ package AWS.Client is
       Proxy_Pwd          : in String          := No_Data;
       Timeouts           : in Timeouts_Values := No_Timeout;
       Data_Range         : in Content_Range   := No_Range;
-      Follow_Redirection : in Boolean         := False)
+      Follow_Redirection : in Boolean         := False;
+      Certificate        : in String          := Default.Client_Certificate)
       return Response.Data;
    --  Retrieve the message data given a specific URL. It open a connection
    --  with the server and ask for the resource specified in the URL it then

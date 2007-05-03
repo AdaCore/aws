@@ -1130,7 +1130,9 @@ package body AWS.Net.SSL is
                   Verify_Callback'Address);
             end if;
 
-            Set_Certificate (Certificate_Filename, Key_Filename);
+            if Certificate_Filename /= "" then
+               Set_Certificate (Certificate_Filename, Key_Filename);
+            end if;
 
             Set_Quiet_Shutdown;
             Set_Sess_Cache_Size (16);

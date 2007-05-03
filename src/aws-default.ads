@@ -122,7 +122,7 @@ package AWS.Default is
    Security_Mode                   : constant String  := "SSLv23";
    Certificate                     : constant String  := "cert.pem";
    Key                             : constant String  := "";
-   Client_Certificate              : constant String  := "client.pem";
+   Client_Certificate              : constant String  := "";
    Exchange_Certificate            : constant Boolean := False;
    Check_URL_Validity              : constant Boolean := True;
 

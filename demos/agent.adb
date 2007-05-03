@@ -32,7 +32,7 @@
 --         -k                      keep-alive connection.
 --         -s                      server-push mode.
 --         -r                      follow redirection.
---         -n                      non stop for stress test.
+--         -i                      repeat over delay interval for stress test.
 --         -d                      debug mode, view HTTP headers.
 --         -c                      display server certificate.
 --         -t                      wait response timeout.
@@ -59,6 +59,7 @@ with Ada.Exceptions;
 with GNAT.Command_Line;
 
 with AWS.Client;
+with AWS.Default;
 with AWS.Resources;
 with AWS.Response;
 with AWS.Messages;
@@ -91,10 +92,12 @@ procedure Agent is
    Keep_Alive         : Boolean := False;
    Server_Push        : Boolean := False;
    Follow_Redirection : Boolean := False;
-   Wait_Key           : Boolean := True;
    Show_Cert          : Boolean := False;
+   Interval           : Duration               := Duration'Last;
    Timeouts           : Client.Timeouts_Values := Client.No_Timeout;
    Connect            : AWS.Client.HTTP_Connection;
+   Client_Cert        : Unbounded_String
+     := To_Unbounded_String (Default.Client_Certificate);
 
    procedure Parse_Command_Line;
    --  parse Agent command line.
@@ -127,7 +130,7 @@ procedure Agent is
    begin
       loop
          case GNAT.Command_Line.Getopt
-           ("f o d u: p: a: pu: pp: pa: proxy: k n s r c t:")
+           ("f o d u: p: a: pu: pp: pa: proxy: k i: s r c cc: t:")
          is
             when ASCII.NUL =>
                exit;
@@ -138,8 +141,8 @@ procedure Agent is
             when 'o' =>
                File := True;
 
-            when 'n' =>
-               Wait_Key := False;
+            when 'i' =>
+               Interval := Duration'Value (GNAT.Command_Line.Parameter);
 
             when 'd' =>
                AWS.Client.Set_Debug (On => True);
@@ -154,7 +157,12 @@ procedure Agent is
                Server_Push := True;
 
             when 'c' =>
-               Show_Cert := True;
+               if GNAT.Command_Line.Full_Switch = "cc" then
+                  Client_Cert
+                    := To_Unbounded_String (GNAT.Command_Line.Parameter);
+               else
+                  Show_Cert := True;
+               end if;
 
             when 'u' =>
                User := To_Unbounded_String (GNAT.Command_Line.Parameter);
@@ -229,6 +237,8 @@ begin
       Text_IO.Put_Line ("       -o           output result in file agent.out");
       Text_IO.Put_Line ("       -k           keep-alive connection.");
       Text_IO.Put_Line ("       -s           server-push mode.");
+      Text_IO.Put_Line ("       -i           repeat over delay interval for"
+                          & " stress test.");
       Text_IO.Put_Line ("       -n           non stop for stress test.");
       Text_IO.Put_Line ("       -r           follow redirection.");
       Text_IO.Put_Line ("       -d           debug mode, view HTTP headers.");
@@ -257,6 +267,7 @@ begin
          Proxy       => To_String (Proxy),
          Persistent  => Keep_Alive,
          Server_Push => Server_Push,
+         Certificate => To_String (Client_Cert),
          Timeouts    => Timeouts);
 
       Client.Set_WWW_Authentication
@@ -286,12 +297,14 @@ begin
               (To_String (URL), To_String (User), To_String (Pwd),
                To_String (Proxy),
                To_String (Proxy_User), To_String (Proxy_Pwd),
-               Follow_Redirection => Follow_Redirection);
+               Follow_Redirection => Follow_Redirection,
+               Certificate => To_String (Client_Cert));
          end if;
 
       else
          --  ??? PUT just send a simple piece of Data.
          --  ??? would also be nice to handle POST request
+
          Client.Put (Connection => Connect,
                      Result     => Data,
                      Data       => "Un essai");
@@ -403,22 +416,23 @@ begin
          end loop;
       end if;
 
-      if Keep_Alive then
+      if Interval < Duration'Last then
+         delay Interval;
+
+      elsif Keep_Alive then
          --  check that the keep alive connection is kept alive
-         if Wait_Key then
 
-            Text_IO.Put_Line
-              ("Type 'q' to exit, the connection will be closed.");
+         Text_IO.Put_Line
+           ("Type 'q' to exit, the connection will be closed.");
 
-            Text_IO.Put_Line ("Any other key to retreive again the same URL");
+         Text_IO.Put_Line ("Any other key to retreive again the same URL");
 
-            declare
-               Char : Character;
-            begin
-               Text_IO.Get_Immediate (Char);
-               exit when Char = 'q';
-            end;
-         end if;
+         declare
+            Char : Character;
+         begin
+            Text_IO.Get_Immediate (Char);
+            exit when Char = 'q';
+         end;
 
       else
          Client.Close (Connect);
