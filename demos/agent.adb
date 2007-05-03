@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2004                          --
---                                ACT-Europe                                --
+--                         Copyright (C) 2000-2007                          --
+--                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -298,7 +298,7 @@ begin
                To_String (Proxy),
                To_String (Proxy_User), To_String (Proxy_Pwd),
                Follow_Redirection => Follow_Redirection,
-               Certificate => To_String (Client_Cert));
+               Certificate        => To_String (Client_Cert));
          end if;
 
       else
