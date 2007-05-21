@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2004                            --
---                                ACT-Europe                                --
+--                         Copyright (C) 2004-2007                          --
+--                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -50,9 +50,10 @@ package body AWS.Services.Split_Pages.Alpha is
       --  Set index for character C entry
 
       Self    : Splitter renames Splitter (This.Self.all);
+      Key_Vec : constant Tag :=
+                  Shared.Associated_Vector (Table, To_String (Self.Key));
       Result  : Ranges_Table (1 .. 26 + 2);
       Res_Inx : Natural;
-      Key_Vec : Tag := Shared.Associated_Vector (Table, To_String (Self.Key));
       Initial : Character;
 
       ---------------

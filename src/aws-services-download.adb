@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2005-2006                          --
+--                         Copyright (C) 2005-2007                          --
 --                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -455,7 +455,7 @@ package body AWS.Services.Download is
          Info       : in out Download_Information)
       is
          pragma Unreferenced (Socket_Set, N);
-         Sock : Net.Socket_Type'Class := Info.Socket.all;
+         Sock : constant Net.Socket_Type'Class := Info.Socket.all;
       begin
          Info.Header := True;
          Data_Manager.Update (Info);
