@@ -231,10 +231,12 @@ package body AWS.Services.Dispatchers.URI is
             if To_String (Item.URI) = URI then
                Free (Item);
                URI_Table.Delete (Dispatcher.Table, K);
-               exit;
+               return;
             end if;
          end;
       end loop;
+
+      raise Constraint_Error with "URI distpatcher " & URI & " not found";
    end Unregister;
 
 end AWS.Services.Dispatchers.URI;

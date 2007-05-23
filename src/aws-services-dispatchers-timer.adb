@@ -470,10 +470,12 @@ package body AWS.Services.Dispatchers.Timer is
             if To_String (Item.Name) = Name then
                Free (Item);
                Period_Table.Delete (Dispatcher.Table, K);
-               exit;
+               return;
             end if;
          end;
       end loop;
+
+      raise Constraint_Error with "Timer distpatcher " & Name & " not found";
    end Unregister;
 
    ------------

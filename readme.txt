@@ -4,7 +4,7 @@
 
 Authors:
    Dmitriy Anisimkov
-   Pascal Obry                                              April 17th, 2007
+   Pascal Obry                                              May 23rd, 2007
 
 
 
@@ -39,6 +39,9 @@ Changes
 -------
 
 Here are the main changes since AWS 2.3.0 :
+
+   - Unregistering a non registered dispatcher now raises an exception
+     instead of returning silently.
 
    - Do not pass the uploaded files client's full pathname for
      security reasons.

@@ -132,7 +132,13 @@ package body AWS.Services.Dispatchers.Method is
      (Dispatcher : in out Handler;
       Method     : in     Status.Request_Method) is
    begin
-      Free (Dispatcher.Table (Method));
+      if Dispatcher.Table (Method) = null then
+         raise Constraint_Error
+           with "Method distpatcher "
+             & Status.Request_Method'Image (Method) & " not found";
+      else
+         Free (Dispatcher.Table (Method));
+      end if;
    end Unregister;
 
 end AWS.Services.Dispatchers.Method;
