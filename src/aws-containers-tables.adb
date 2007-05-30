@@ -295,6 +295,20 @@ package body AWS.Containers.Tables is
       end if;
    end Get_Values;
 
+   -------------------
+   -- Iterate_Names --
+   -------------------
+
+   procedure Iterate_Names
+     (Table   : in Table_Type;
+      Coupler : in String;
+      Process : access procedure (Name, Value : in String))
+   is
+      procedure For_Each is new Generic_Iterate_Names (Process.all);
+   begin
+      For_Each (Table, Coupler);
+   end Iterate_Names;
+
    ----------------
    -- Name_Count --
    ----------------

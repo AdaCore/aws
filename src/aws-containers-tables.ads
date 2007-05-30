@@ -105,6 +105,11 @@ package AWS.Containers.Tables is
    --  Iterates over all names in the table.
    --  All Values of the same name would be given Coupler separated.
 
+   procedure Iterate_Names
+     (Table   : in Table_Type;
+      Coupler : in String;
+      Process : access procedure (Name, Value : in String));
+
 private
 
    Null_Element : constant Element := (0, 0, "", "");
