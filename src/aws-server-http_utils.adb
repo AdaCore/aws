@@ -392,8 +392,7 @@ package body AWS.Server.HTTP_Utils is
             Data       : constant String := Net.Buffered.Get_Line (Sock);
             L_Name     : constant String := Values.Search (Data, "name");
             L_Filename : constant String :=
-                           Directories.Simple_Name
-                             (Values.Search (Data, "filename"));
+                             Values.Search (Data, "filename");
             --  Get the simple name as we do not want to expose the client full
             --  pathname to the user's callback. Microsoft Internet Explorer
             --  sends the full pathname, Firefox only send the simple name.
@@ -401,7 +400,13 @@ package body AWS.Server.HTTP_Utils is
             Is_File_Upload := (L_Filename /= "");
 
             Name     := To_Unbounded_String (L_Name);
-            Filename := To_Unbounded_String (L_Filename);
+
+            if Is_File_Upload then
+               Filename := To_Unbounded_String
+                  (Directories.Simple_Name (L_Filename));
+            else
+               Filename := To_Unbounded_String (L_Filename);
+            end if;
          end;
 
          --  Reach the data
