@@ -19,7 +19,7 @@
 
    <submenu>
       <title>Edit</title>
-      <menu action="WSDL2AWS" after="Generate WSDL" >
+      <menu action="WSDL2AWS" after="Pretty Print" >
          <title>Generate Web Services</title>
       </menu>
    </submenu>
