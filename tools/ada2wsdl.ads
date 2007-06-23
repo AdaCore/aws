@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2003-2004                          --
---                                ACT-Europe                                --
+--                         Copyright (C) 2003-2007                          --
+--                                 AdaCore                                  --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
 --                                                                          --
@@ -32,7 +32,7 @@ with Asis;
 
 package Ada2WSDL is
 
-   Version : constant String := "1.1";
+   Version : constant String := "1.2.0";
 
    Fatal_Error     : exception;
    --  Raised when a non-recoverable error has been found

@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2001-2006                          --
+--                         Copyright (C) 2001-2007                          --
 --                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -217,11 +217,11 @@ package SOAP.Types is
    function XML_Type  (O : in XSD_Double) return String;
 
    function D
-     (V    : in Long_Long_Float;
+     (V    : in Long_Float;
       Name : in String          := "item")
       return XSD_Double;
 
-   function V (O : in XSD_Double) return Long_Long_Float;
+   function V (O : in XSD_Double) return Long_Float;
 
    -----------
    -- Float --
@@ -235,8 +235,8 @@ package SOAP.Types is
    function XML_Image (O : in XSD_Float) return String;
    function XML_Type  (O : in XSD_Float) return String;
 
-   function F (V : in Long_Float; Name : in String := "item") return XSD_Float;
-   function V (O : in XSD_Float) return Long_Float;
+   function F (V : in Float; Name : in String := "item") return XSD_Float;
+   function V (O : in XSD_Float) return Float;
 
    -------------
    -- Integer --
@@ -496,11 +496,11 @@ package SOAP.Types is
    --  Returns O value as a Byte. Raises Data_Error if O is not a SOAP
    --  Byte.
 
-   function Get (O : in Object'Class) return Long_Float;
+   function Get (O : in Object'Class) return Float;
    --  Returns O value as a Long_Float. Raises Data_Error if O is not a SOAP
    --  Float.
 
-   function Get (O : in Object'Class) return Long_Long_Float;
+   function Get (O : in Object'Class) return Long_Float;
    --  Returns O value as a Long_Long_Float. Raises Data_Error if O is not a
    --  SOAP Double.
 
@@ -629,11 +629,11 @@ private
    end record;
 
    type XSD_Float is new Scalar with record
-      V : Long_Float;
+      V : Float;
    end record;
 
    type XSD_Double is new Scalar with record
-      V : Long_Long_Float;
+      V : Long_Float;
    end record;
 
    type XSD_String is new Scalar with record

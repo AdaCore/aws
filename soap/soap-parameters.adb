@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2006                          --
+--                         Copyright (C) 2000-2007                          --
 --                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -262,12 +262,12 @@ package body SOAP.Parameters is
       return Types.Get (Argument (P, Name));
    end Get;
 
-   function Get (P : in List; Name : in String) return Long_Float is
+   function Get (P : in List; Name : in String) return Float is
    begin
       return Types.Get (Argument (P, Name));
    end Get;
 
-   function Get (P : in List; Name : in String) return Long_Long_Float is
+   function Get (P : in List; Name : in String) return Long_Float is
    begin
       return Types.Get (Argument (P, Name));
    end Get;

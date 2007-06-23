@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2003-2006                          --
+--                         Copyright (C) 2003-2007                          --
 --                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -940,25 +940,6 @@ package body Ada2WSDL.Parser is
       function Type_Name (Elem : in Asis.Element) return String is
          use Extensions.Flat_Kinds;
 
-         procedure Check_Float (E : in Asis.Element);
-         --  Issue a warning if E has not the right digits
-
-         -----------------
-         -- Check_Float --
-         -----------------
-
-         procedure Check_Float (E : in Asis.Element) is
-            D : constant Asis.Expression := Definitions.Digits_Expression (E);
-         begin
-            if Positive'Wide_Value (Expressions.Value_Image (D)) <= 6 then
-               Text_IO.Put_Line
-                 (Text_IO.Standard_Error,
-                  Location (Elem)
-                    & ": use Long_Float instead of Float for SOAP/WSDL"
-                    & " items.");
-            end if;
-         end Check_Float;
-
          E   : Asis.Element := Elem;
          CFS : Asis.Declaration;
          CND : Asis.Declaration;
@@ -1007,11 +988,10 @@ package body Ada2WSDL.Parser is
                end if;
 
             when A_Floating_Point_Definition =>
-               Check_Float (E);
-
                if Flat_Element_Kind (CND) = A_Subtype_Declaration then
-                  --  ??? What about a subtype of Long_Long_Float
-                  return "float";
+                  E := Declarations.Type_Declaration_View (CND);
+                  return Image (Text.Element_Image (E));
+
                else
                   return Image (Text.Element_Image (Elem));
                end if;
@@ -1022,6 +1002,7 @@ package body Ada2WSDL.Parser is
                if Flat_Element_Kind (CND) = A_Subtype_Declaration then
                   --  ??? What about a subtype of Long_Long_Integer
                   return "integer";
+
                else
                   return Image (Text.Element_Image (Elem));
                end if;

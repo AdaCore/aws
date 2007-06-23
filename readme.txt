@@ -4,7 +4,7 @@
 
 Authors:
    Dmitriy Anisimkov
-   Pascal Obry                                              May 23rd, 2007
+   Pascal Obry                                              June 23rd, 2007
 
 
 
@@ -52,6 +52,10 @@ Here are the main changes since AWS 2.3.0 :
 
    - Support for Pipe streams to avoid writing data on the hard drive.
 
+   - Add support for extended HTTP protocols.
+
+   - Fix xsd:float and xsd:double support to match the W3C recommendations.
+
    - Plus many small fixes, enhancements, API comments, and documentation work.
 
 
@@ -93,6 +97,14 @@ implementations.
 
       Change the callback to this new spec, the translate set is
       now accessible through the Context parameter.
+
+   - For hand written SOAP code the float and long_float are now respectively
+     mapped to xsd:float and xsd:double. So the F constructor takes now
+     a float as parameter and the D constructor a long_float. This may
+     introduce compatibility problem. Either change the Ada or SOAP floating
+     point type to match. There is no such problem for SOAP applications
+     using ada2wsdl and wsdl2aws as those tools are now using the proper
+     mapping.
 
 
 Obsolescent features

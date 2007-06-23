@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2003                            --
---                                ACT-Europe                                --
+--                         Copyright (C) 2003-2007                          --
+--                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -54,7 +54,7 @@ procedure interopLab_Main is
       return Unbounded_String
       renames To_Unbounded_String;
 
-   package LFIO is new Text_IO.Float_IO (Long_Float);
+   package FIO is new Text_IO.Float_IO (Float);
 
    ------------
    -- Output --
@@ -63,7 +63,7 @@ procedure interopLab_Main is
    procedure Output (S : in SOAPStruct_Type) is
    begin
       Integer_Text_IO.Put (S.varInt); Text_IO.New_Line;
-      LFIO.Put (S.varFloat, Exp => 0, Aft => 2); Text_IO.New_Line;
+      FIO.Put (S.varFloat, Exp => 0, Aft => 2); Text_IO.New_Line;
       Text_IO.Put_Line (To_String (S.varString));
    end Output;
 
@@ -129,9 +129,9 @@ procedure interopLab_Main is
    procedure T_echoFloat is
    begin
       Text_IO.Put_Line ("Echo Float");
-      LFIO.Put (interopLab.Client.echoFloat (2.345), Exp => 0);
+      FIO.Put (interopLab.Client.echoFloat (2.345), Exp => 0);
       Text_IO.New_Line;
-      LFIO.Put (interopLab.Client.echoFloat (456.8765), Exp => 0);
+      FIO.Put (interopLab.Client.echoFloat (456.8765), Exp => 0);
       Text_IO.New_Line;
       Text_IO.New_Line;
    end T_echoFloat;
