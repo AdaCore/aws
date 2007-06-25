@@ -4,8 +4,7 @@
 
 Authors:
    Dmitriy Anisimkov
-   Pascal Obry                                              November 17th, 2006
-
+   Pascal Obry                                              June 23rd, 2007
 
 
 We are happy to announce the availability of the AWS 2.3 release. The API
@@ -61,6 +60,10 @@ Here are the main changes since AWS 2.2 :
      SOAP href properly as it expected the referenced node to have
      a specific name. Now only the node id attribute is checked.
 
+   - Add support for extended HTTP protocols.
+
+   - Fix xsd:float and xsd:double support to match the W3C recommendations.
+
    - Plus many small fixes, enhancements, API comments, and documentation work.
 
 
@@ -91,6 +94,21 @@ implementations.
      support multiple event (onclick, onfocus, onchange) on the same
      widget. For supporting this the URL are now : /<event>$<id>
      For example "/onclick$form_enter".
+
+      type Callback_No_Param is access function
+        (Value   : in String;
+         Context : in Filter_Context) return String;
+
+      Change the callback to this new spec, the translate set is
+      now accessible through the Context parameter.
+
+   - For hand written SOAP code the float and long_float are now respectively
+     mapped to xsd:float and xsd:double. So the F constructor takes now
+     a float as parameter and the D constructor a long_float. This may
+     introduce compatibility problem. Either change the Ada or SOAP floating
+     point type to match. There is no such problem for SOAP applications
+     using ada2wsdl and wsdl2aws as those tools are now using the proper
+     mapping.
 
 
 Obsolescent features

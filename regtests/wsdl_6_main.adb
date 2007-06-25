@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2003-2005                          --
+--                         Copyright (C) 2003-2007                          --
 --                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -70,13 +70,13 @@ procedure WSDL_6_Main is
       -- Double_IO --
       ---------------
 
-      package Double_IO is new Float_IO (Long_Long_Float);
+      package Double_IO is new Float_IO (Long_Float);
 
       --------------
       -- Float_IO --
       --------------
 
-      package Float_IO is new Text_IO.Float_IO (Long_Float);
+      package Float_IO is new Text_IO.Float_IO (Float);
 
       -------------
       -- Long_IO --
@@ -184,14 +184,14 @@ procedure WSDL_6_Main is
          Put (Strings.Fixed.Trim (V (V'First .. K), Strings.Left));
       end Put_Float;
 
-      procedure Put (V : in Long_Float) is
+      procedure Put (V : in Float) is
          Buffer : String (1 .. 30);
       begin
          Float_IO.Put (Buffer, V, Exp => 0);
          Put_Float (Buffer);
       end Put;
 
-      procedure Put (V : in Long_Long_Float) is
+      procedure Put (V : in Long_Float) is
          Buffer : String (1 .. 30);
       begin
          Double_IO.Put (Buffer, V, Exp => 0);
@@ -289,7 +289,7 @@ procedure WSDL_6_Main is
 
       for K in R_Arr'Range loop
          R_Arr (K)
-           := (K - 1, Long_Float (K - 1), Long_Long_Float (K - 1),
+           := (K - 1, Float (K - 1), Long_Float (K - 1),
                Character'Val (K + Character'Pos ('a') - 1),
                To_Unbounded_String ("This is number " & Integer'Image (K - 1)),
                K mod 2 = 0);

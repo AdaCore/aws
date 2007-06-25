@@ -5,12 +5,12 @@
 <getLastReturn soapenc:arrayType="awsns:Candle[1]" xsi:type="soapenc:Array">
    <item>
       <artificial xsi:type="xsd:boolean">0</artificial>
-      <closePrice xsi:type="xsd:double">1.74650000000000000</closePrice>
+      <closePrice xsi:type="xsd:double">1.74650000000000</closePrice>
       <flat xsi:type="xsd:boolean">0</flat>
       <id xsi:type="xsd:int">533</id>
-      <maxPrice xsi:type="xsd:double">1.74650000000000000</maxPrice>
-      <minPrice xsi:type="xsd:double">1.74590000000000000</minPrice>
-      <openPrice xsi:type="xsd:double">1.74650000000000000</openPrice>
+      <maxPrice xsi:type="xsd:double">1.74650000000000</maxPrice>
+      <minPrice xsi:type="xsd:double">1.74590000000000</minPrice>
+      <openPrice xsi:type="xsd:double">1.74650000000000</openPrice>
       <periodType xsi:type="xsd:int">0</periodType>
       <time xsi:type="xsd:long">1089143140</time>
       <timeIndex xsi:type="xsd:int">108914314</timeIndex>

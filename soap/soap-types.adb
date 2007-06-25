@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2006                          --
+--                         Copyright (C) 2000-2007                          --
 --                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -27,7 +27,7 @@
 ------------------------------------------------------------------------------
 
 with Ada.Long_Float_Text_IO;
-with Ada.Long_Long_Float_Text_IO;
+with Ada.Float_Text_IO;
 with Ada.Strings.Fixed;
 with Ada.Tags;
 with Ada.Task_Attributes;
@@ -176,7 +176,7 @@ package body SOAP.Types is
    -------
 
    function D
-     (V    : in Long_Long_Float;
+     (V    : in Long_Float;
       Name : in String          := "item")
       return XSD_Double is
    begin
@@ -206,7 +206,7 @@ package body SOAP.Types is
    -------
 
    function F
-     (V    : in Long_Float;
+     (V    : in Float;
       Name : in String := "item")
       return XSD_Float is
    begin
@@ -344,7 +344,7 @@ package body SOAP.Types is
       end if;
    end Get;
 
-   function Get (O : in Object'Class) return Long_Float is
+   function Get (O : in Object'Class) return Float is
       use type Ada.Tags.Tag;
    begin
       if O'Tag = Types.XSD_Float'Tag then
@@ -352,7 +352,7 @@ package body SOAP.Types is
 
       elsif O'Tag = Types.Untyped.Untyped'Tag then
          begin
-            return Long_Float'Value (V (XSD_String (O)));
+            return Float'Value (V (XSD_String (O)));
          exception
             when others =>
                Get_Error ("Float", O);
@@ -368,7 +368,7 @@ package body SOAP.Types is
       end if;
    end Get;
 
-   function Get (O : in Object'Class) return Long_Long_Float is
+   function Get (O : in Object'Class) return Long_Float is
       use type Ada.Tags.Tag;
    begin
       if O'Tag = Types.XSD_Double'Tag then
@@ -376,7 +376,7 @@ package body SOAP.Types is
 
       elsif O'Tag = Types.Untyped.Untyped'Tag then
          begin
-            return Long_Long_Float'Value (V (XSD_String (O)));
+            return Long_Float'Value (V (XSD_String (O)));
          exception
             when others =>
                Get_Error ("Double", O);
@@ -713,14 +713,14 @@ package body SOAP.Types is
    function Image (O : in XSD_Float) return String is
       Result : String (1 .. Long_Float'Width);
    begin
-      Long_Float_Text_IO.Put (Result, O.V, Exp => 0);
+      Float_Text_IO.Put (Result, O.V, Exp => 0);
       return Strings.Fixed.Trim (Result, Strings.Both);
    end Image;
 
    function Image (O : in XSD_Double) return String is
       Result : String (1 .. Long_Long_Float'Width);
    begin
-      Long_Long_Float_Text_IO.Put (Result, O.V, Exp => 0);
+      Long_Float_Text_IO.Put (Result, O.V, Exp => 0);
       return Strings.Fixed.Trim (Result, Strings.Both);
    end Image;
 
@@ -1103,12 +1103,12 @@ package body SOAP.Types is
       return O.V;
    end V;
 
-   function V (O : in XSD_Float) return Long_Float is
+   function V (O : in XSD_Float) return Float is
    begin
       return O.V;
    end V;
 
-   function V (O : in XSD_Double) return Long_Long_Float is
+   function V (O : in XSD_Double) return Long_Float is
    begin
       return O.V;
    end V;

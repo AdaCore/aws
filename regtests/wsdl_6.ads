@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2003                            --
---                                ACT-Europe                                --
+--                         Copyright (C) 2003-2007                          --
+--                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -39,8 +39,8 @@ package WSDL_6 is
 
    type Rec is record
       A : Integer;
-      B : Long_Float;
-      C : Long_Long_Float;
+      B : Float;
+      C : Long_Float;
       D : Character;
       E : Unbounded_String;
       F : Boolean;
@@ -76,11 +76,11 @@ package WSDL_6 is
 
    function Echo_Byte (V : in SOAP.Types.Byte) return SOAP.Types.Byte;
 
-   function Echo_Float (V : in Long_Float) return Long_Float;
+   function Echo_Float (V : in Float) return Float;
 
    function Echo_Boolean (V : in Boolean) return Boolean;
 
-   function Echo_Double (V : in Long_Long_Float) return Long_Long_Float;
+   function Echo_Double (V : in Long_Float) return Long_Float;
 
    function Echo_Unsigned_Long
      (V : in SOAP.Types.Unsigned_Long) return SOAP.Types.Unsigned_Long;

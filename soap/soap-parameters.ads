@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2005                          --
+--                         Copyright (C) 2000-2007                          --
 --                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -70,11 +70,11 @@ package SOAP.Parameters is
    --  Returns parameter named Name in P as a Byte value. Raises
    --  Types.Data_Error if this parameter does not exist or is not a Byte.
 
-   function Get (P : in List; Name : in String) return Long_Float;
+   function Get (P : in List; Name : in String) return Float;
    --  Returns parameter named Name in P as a Float value. Raises
    --  Types.Data_Error if this parameter does not exist or is not a Float.
 
-   function Get (P : in List; Name : in String) return Long_Long_Float;
+   function Get (P : in List; Name : in String) return Long_Float;
    --  Returns parameter named Name in P as a Float value. Raises
    --  Types.Data_Error if this parameter does not exist or is not a Double.
 

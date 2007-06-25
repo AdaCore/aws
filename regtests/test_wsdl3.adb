@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2003-2004                          --
---                                ACT-Europe                                --
+--                         Copyright (C) 2003-2007                          --
+--                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -52,7 +52,7 @@ procedure Test_WSDL3 is
 
    H_Server : AWS.Server.HTTP;
 
-   package LFIO is new Text_IO.Float_IO (Long_Float);
+   package FIO is new Text_IO.Float_IO (Float);
 
    function Get_Last_Trade_Price
      (Ticker_Symbol : in String;
@@ -96,7 +96,7 @@ procedure Test_WSDL3 is
       D : constant Duration := Time_Period.End_Time - Time_Period.Start_Time;
    begin
       Text_IO.Put_Line ("Symbol " & Ticker_Symbol);
-      return (+Types.Array_Of_Float_Type'(1.2, 2.3, 3.4), Long_Float (D));
+      return (+Types.Array_Of_Float_Type'(1.2, 2.3, 3.4), Float (D));
    end Get_Last_Trade_Price;
 
    ----------------------
@@ -114,12 +114,12 @@ procedure Test_WSDL3 is
       Result := Stock_Quote_Service.Client.Get_Last_Trade_Price ("ADA95", TP);
 
       Text_IO.Put ("Frequency : ");
-      LFIO.Put (Result.Frequency, Aft => 2, Exp => 0);
+      FIO.Put (Result.Frequency, Aft => 2, Exp => 0);
       Text_IO.New_Line;
 
       for K in Result.Result.Item'Range loop
          Text_IO.Put (Positive'Image (K) & " = ");
-         LFIO.Put (Result.Result.Item (K), Aft => 2, Exp => 0);
+         FIO.Put (Result.Result.Item (K), Aft => 2, Exp => 0);
          Text_IO.New_Line;
       end loop;
    end WSDL_Demo_Client;

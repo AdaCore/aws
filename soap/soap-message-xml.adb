@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2006                          --
+--                         Copyright (C) 2000-2007                          --
 --                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -707,7 +707,7 @@ package body SOAP.Message.XML is
    is
       Value : constant DOM.Core.Node := First_Child (N);
    begin
-      return Types.D (Long_Long_Float'Value (Node_Value (Value)), Name);
+      return Types.D (Long_Float'Value (Node_Value (Value)), Name);
    end Parse_Double;
 
    -----------------------
@@ -764,7 +764,7 @@ package body SOAP.Message.XML is
    is
       Value : constant DOM.Core.Node := First_Child (N);
    begin
-      return Types.F (Long_Float'Value (Node_Value (Value)), Name);
+      return Types.F (Float'Value (Node_Value (Value)), Name);
    end Parse_Float;
 
    ------------------
