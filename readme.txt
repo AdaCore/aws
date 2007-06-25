@@ -6,7 +6,7 @@ Authors:
    Dmitriy Anisimkov
    Pascal Obry                                              June 25rd, 2007
 
-x
+
 
 We are happy to announce the availability of the AWS 2.4.0 release. The API
 could change slightly at this stage but should be fairly stable now.
@@ -292,10 +292,10 @@ Contributors
 Thanks to the contributors and peoples who send feedbacks, ideas
 about AWS. In the early stage of the project this is very valuable.
 
-So thanks goes to Ted Dennison, Wiljan Derks, Sune Falck, David C. Hoos,
-Audran Le Baron, Thierry Lelegard, Nicolas Lesbats, Olivier Ramonat,
-Jean-François Rameau, Maxim Reznik, Jean-Pierre Rosen, Jerme Roussel,
-Ariane Sinibardy, Henrik Sundberg.
+So thanks goes to Georg Bauhaus, Ted Dennison, Wiljan Derks, Sune Falck,
+David C. Hoos, Audran Le Baron, Thierry Lelegard, Nicolas Lesbats,
+Olivier Ramonat,Jean-François Rameau, Maxim Reznik, Jean-Pierre Rosen,
+Jerme Roussel, Ariane Sinibardy, Henrik Sundberg.
 
 
 Thanks to all who have reported bugs and have sent us patches.

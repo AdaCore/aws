@@ -127,8 +127,6 @@ implemented:
 - Add support for transient page on-disk after a certain amount of time.
   Is that a good idea ?
 
-- Add SMTP authentication support
-
 - Add support for compressed data in the memory stream on the client side.
   User should be able to choose uncompressing data at the read stage.
   This enhancement will reduce the memory used by the data.
