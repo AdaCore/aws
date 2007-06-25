@@ -4,9 +4,9 @@
 
 Authors:
    Dmitriy Anisimkov
-   Pascal Obry                                              June 23rd, 2007
+   Pascal Obry                                              June 25rd, 2007
 
-
+x
 
 We are happy to announce the availability of the AWS 2.4.0 release. The API
 could change slightly at this stage but should be fairly stable now.
@@ -55,6 +55,8 @@ Here are the main changes since AWS 2.3.0 :
    - Add support for extended HTTP protocols.
 
    - Fix xsd:float and xsd:double support to match the W3C recommendations.
+
+   - Add support for SMTP authentication.
 
    - Plus many small fixes, enhancements, API comments, and documentation work.
 

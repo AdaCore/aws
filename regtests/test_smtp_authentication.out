@@ -1,0 +1,12 @@
+?? 'foo', 'asdf2345':
+>> OK AGZvbwBhc2RmMjM0NQ== = AGZvbwBhc2RmMjM0NQ==
+
+?? 'foo', '':
+>> OK AGZvbwA= = AGZvbwA=
+
+?? '', 'asdf2345':
+>> OK AABhc2RmMjM0NQ== = AABhc2RmMjM0NQ==
+
+?? '', '':
+>> OK AAA= = AAA=
+

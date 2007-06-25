@@ -2,7 +2,7 @@
 --                              Ada Web Server                              --
 --                   S M T P - Simple Mail Transfer Protocol                --
 --                                                                          --
---                         Copyright (C) 2000-2006                          --
+--                         Copyright (C) 2000-2007                          --
 --                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -37,31 +37,13 @@ with GNAT.Calendar.Time_IO;
 
 with AWS.Net.Buffered;
 with AWS.Translator;
+with AWS.SMTP.Authentication;
+pragma Warnings (Off, AWS.SMTP.Authentication);
+--  Work around a visibility problem
 
 package body AWS.SMTP.Client is
 
    use Ada;
-
-   --
-   --  Status codes in server replies
-   --
-
-   type Server_Reply is record
-      Code   : Reply_Code;
-      Reason : Unbounded_String;
-   end record;
-
-   function Image (Answer : in Server_Reply) return String;
-   --  Returns the string representation for Answer.
-
-   procedure Check_Answer
-     (Sock  : in     Net.Socket_Type'Class;
-      Reply :    out Server_Reply);
-   --  Read a reply from the SMTP server (listening on Sock) and fill the Reply
-   --  structure.
-
-   procedure Add (Answer : in out Server_Reply; Status : in out SMTP.Status);
-   --  Add status code and reason to the list of server's reply.
 
    procedure Open
      (Server : in     Receiver;
@@ -110,21 +92,6 @@ package body AWS.SMTP.Client is
    --  Shutdown and close the socket. Do not raise an exception if the Socket
    --  is not connected.
 
-   ---------
-   -- Add --
-   ---------
-
-   procedure Add (Answer : in out Server_Reply; Status : in out SMTP.Status) is
-   begin
-      if Status.Value /= Null_Unbounded_String then
-         Append (Status.Value, ASCII.LF);
-      end if;
-
-      Append (Status.Value, Image (Answer));
-
-      Status.Code := Answer.Code;
-   end Add;
-
    -----------------
    -- Base64_Data --
    -----------------
@@ -134,21 +101,6 @@ package body AWS.SMTP.Client is
       return (Base64_Data,
               To_Unbounded_String (Name), To_Unbounded_String (Content));
    end Base64_Data;
-
-   ------------------
-   -- Check_Answer --
-   ------------------
-
-   procedure Check_Answer
-     (Sock  : in     Net.Socket_Type'Class;
-      Reply :    out Server_Reply)
-   is
-      Buffer : constant String := Net.Buffered.Get_Line (Sock);
-   begin
-      Reply :=
-        (Reply_Code'Value (Buffer (Buffer'First .. Buffer'First + 2)),
-         To_Unbounded_String (Buffer (Buffer'First + 4 .. Buffer'Last)));
-   end Check_Answer;
 
    -----------
    -- Close --
@@ -180,30 +132,6 @@ package body AWS.SMTP.Client is
    begin
       return (File, To_Unbounded_String (Filename));
    end File;
-
-   -----------
-   -- Image --
-   -----------
-
-   function Image (Answer : in Server_Reply) return String is
-      Code_Image : constant String := Reply_Code'Image (Answer.Code);
-   begin
-      return Code_Image (Code_Image'First + 1 .. Code_Image'Last)
-        & ' '
-        & To_String (Answer.Reason);
-   end Image;
-
-   ----------------
-   -- Initialize --
-   ----------------
-
-   function Initialize
-     (Server_Name : in String;
-      Port        : in Positive := Default_SMTP_Port)
-      return Receiver is
-   begin
-      return (To_Unbounded_String (Server_Name), Port, null);
-   end Initialize;
 
    ----------
    -- Open --
@@ -429,26 +357,36 @@ package body AWS.SMTP.Client is
       Open (Server, Sock, Status);
 
       if Is_Ok (Status) then
-
-         Output_Header (Sock.all, From, Recipients'(1 => To), Subject, Status);
+         if Server.Auth /= null then
+            Server.Auth.Before_Send (Sock.all, Status);
+         end if;
 
          if Is_Ok (Status) then
-            --  Message body
-            Text_IO.Open (File, Text_IO.In_File, String (Filename));
+            Output_Header
+              (Sock.all, From, Recipients'(1 => To), Subject, Status);
 
-            while not Text_IO.End_Of_File (File) loop
-               Text_IO.Get_Line (File, Buffer, Last);
-               Put_Translated_Line (Sock.all, Buffer (1 .. Last));
-            end loop;
+            if Is_Ok (Status) then
+               --  Message body
+               Text_IO.Open (File, Text_IO.In_File, String (Filename));
 
-            Text_IO.Close (File);
+               while not Text_IO.End_Of_File (File) loop
+                  Text_IO.Get_Line (File, Buffer, Last);
+                  Put_Translated_Line (Sock.all, Buffer (1 .. Last));
+               end loop;
 
-            Terminate_Mail_Data (Sock.all);
+               Text_IO.Close (File);
 
-            Check_Answer (Sock.all, Answer);
+               Terminate_Mail_Data (Sock.all);
 
-            if Answer.Code /= Requested_Action_Ok then
-               Add (Answer, Status);
+               Check_Answer (Sock.all, Answer);
+
+               if Is_Ok (Status) and then Server.Auth /= null then
+                  Server.Auth.After_Send (Sock.all, Status);
+               end if;
+
+               if Answer.Code /= Requested_Action_Ok then
+                  Add (Answer, Status);
+               end if;
             end if;
          end if;
 
@@ -486,21 +424,29 @@ package body AWS.SMTP.Client is
       Open (Server, Sock, Status);
 
       if Is_Ok (Status) then
-
-         Output_Header (Sock.all, From, To, Subject, Status);
+         if Server.Auth /= null then
+            Server.Auth.Before_Send (Sock.all, Status);
+         end if;
 
          if Is_Ok (Status) then
-            --  Message body
-            Put_Translated_Line (Sock.all, Message);
+            Output_Header (Sock.all, From, To, Subject, Status);
 
-            Terminate_Mail_Data (Sock.all);
+            if Is_Ok (Status) then
+               --  Message body
+               Put_Translated_Line (Sock.all, Message);
 
-            Check_Answer (Sock.all, Answer);
+               Terminate_Mail_Data (Sock.all);
 
-            if Answer.Code /= Requested_Action_Ok then
-               Add (Answer, Status);
+               Check_Answer (Sock.all, Answer);
+
+               if Is_Ok (Status) and then Server.Auth /= null then
+                  Server.Auth.After_Send (Sock.all, Status);
+               end if;
+
+               if Answer.Code /= Requested_Action_Ok then
+                  Add (Answer, Status);
+               end if;
             end if;
-
          end if;
 
          Close (Sock, Status);
@@ -535,53 +481,62 @@ package body AWS.SMTP.Client is
       Open (Server, Sock, Status);
 
       if Is_Ok (Status) then
-
-         Output_Header
-           (Sock.all, From, To, Subject, Status, Complete => False);
+         if Server.Auth /= null then
+            Server.Auth.Before_Send (Sock.all, Status);
+         end if;
 
          if Is_Ok (Status) then
-            --  Send MIME header
+            Output_Header
+              (Sock.all, From, To, Subject, Status, Complete => False);
 
-            Output_MIME_Header (Sock.all, Boundary);
+            if Is_Ok (Status) then
+               --  Send MIME header
 
-            --  Message for non-MIME compliant Mail reader
+               Output_MIME_Header (Sock.all, Boundary);
 
-            Net.Buffered.Put_Line
-              (Sock.all, "This is multipart MIME message");
-            Net.Buffered.Put_Line
-              (Sock.all,
-               "If you read this, your mailer does not support MIME");
-            Net.Buffered.New_Line (Sock.all);
+               --  Message for non-MIME compliant Mail reader
 
-            --  Message body as the first MIME content
+               Net.Buffered.Put_Line
+                 (Sock.all, "This is multipart MIME message");
+               Net.Buffered.Put_Line
+                 (Sock.all,
+                  "If you read this, your mailer does not support MIME");
+               Net.Buffered.New_Line (Sock.all);
 
-            Net.Buffered.Put_Line (Sock.all, "--" & To_String (Boundary));
+               --  Message body as the first MIME content
 
-            Send_MIME_Message (Sock.all, Message);
-
-            --  Send attachments
-
-            Net.Buffered.New_Line (Sock.all);
-
-            for K in Attachments'Range loop
                Net.Buffered.Put_Line (Sock.all, "--" & To_String (Boundary));
 
-               Send_MIME_Attachment (Sock.all, Attachments (K));
-            end loop;
+               Send_MIME_Message (Sock.all, Message);
 
-            --  Send termination boundary
-            Net.Buffered.New_Line (Sock.all);
-            Net.Buffered.Put_Line
-              (Sock.all, "--" & To_String (Boundary) & "--");
+               --  Send attachments
 
-            Terminate_Mail_Data (Sock.all);
+               Net.Buffered.New_Line (Sock.all);
 
-            Check_Answer (Sock.all, Answer);
+               for K in Attachments'Range loop
+                  Net.Buffered.Put_Line
+                    (Sock.all, "--" & To_String (Boundary));
 
-            if Answer.Code /= Requested_Action_Ok then
-               Add (Answer, Status);
+                  Send_MIME_Attachment (Sock.all, Attachments (K));
+               end loop;
+
+               --  Send termination boundary
+               Net.Buffered.New_Line (Sock.all);
+               Net.Buffered.Put_Line
+                 (Sock.all, "--" & To_String (Boundary) & "--");
+
+               Terminate_Mail_Data (Sock.all);
+
+               Check_Answer (Sock.all, Answer);
+
+               if Is_Ok (Status) and then Server.Auth /= null then
+                  Server.Auth.After_Send (Sock.all, Status);
+               end if;
+
+               if Answer.Code /= Requested_Action_Ok then
+                  Add (Answer, Status);
+               end if;
             end if;
-
          end if;
 
          Close (Sock, Status);

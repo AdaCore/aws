@@ -2,8 +2,8 @@
 --                              Ada Web Server                              --
 --                   S M T P - Simple Mail Transfer Protocol                --
 --                                                                          --
---                         Copyright (C) 2000-2004                          --
---                                ACT-Europe                                --
+--                         Copyright (C) 2000-2007                          --
+--                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -35,19 +35,33 @@ with Ada.Strings.Unbounded;
 
 with AWS.Net;
 
+limited with AWS.SMTP.Authentication;
+
 package AWS.SMTP is
 
    Server_Error : exception;
-   --  Raised when an unrecoverable error is found.
+   --  Raised when an unrecoverable error is found
 
    Reply_Code_Error : exception;
-   --  Raised when a reply code error is not known.
+   --  Raised when a reply code error is not known
 
    Default_SMTP_Port : constant := 25;
 
+   --------------
+   -- Receiver --
+   --------------
+
    type Receiver is private;
    --  The receiver part (i.e. a server) of SMTP messages as defined in
-   --  RFC 821. This is the SMTP server
+   --  RFC 821. This is the SMTP server.
+
+   function Initialize
+     (Server_Name : in String;
+      Port        : in Positive := Default_SMTP_Port;
+      Credential  : access constant Authentication.Credential'Class := null)
+      return Receiver;
+   --  Create a Server composed of the Name and the Port (default SMTP port
+   --  is 25), this server will be used to send SMTP message.
 
    ----------------
    -- Reply_Code --
@@ -57,7 +71,9 @@ package AWS.SMTP is
 
    Service_Ready       : constant Reply_Code := 220;
    Service_Closing     : constant Reply_Code := 221;
+   Auth_Successful     : constant Reply_Code := 235;
    Requested_Action_Ok : constant Reply_Code := 250;
+   Provide_Watchword   : constant Reply_Code := 334;
    Start_Mail_Input    : constant Reply_Code := 354;
    Syntax_Error        : constant Reply_Code := 500;
 
@@ -90,7 +106,7 @@ package AWS.SMTP is
 
    function Status_Code (Status : in SMTP.Status) return Reply_Code;
    pragma Inline (Status_Code);
-   --  Returns the code replied by the server.
+   --  Returns the code replied by the server
 
    procedure Clear (Status : in out SMTP.Status);
    pragma Inline (Clear);
@@ -130,16 +146,33 @@ private
       Name : Unbounded_String;
       Port : Positive;
       Sock : Net.Socket_Access;
+      Auth : access constant Authentication.Credential'Class;
    end record;
 
    type Status is record
-      Value : Unbounded_String;
-      Code  : Reply_Code;
+      Code   : Reply_Code;
+      Reason : Unbounded_String;
    end record;
 
    type E_Mail_Data is record
       Name    : Unbounded_String;
       Address : Unbounded_String;
    end record;
+
+   --  Server Reply code/reason
+
+   type Server_Reply is new Status;
+
+   function Image (Answer : in Server_Reply) return String;
+   --  Returns the string representation for Answer.
+
+   procedure Add (Answer : in out Server_Reply; Status : in out SMTP.Status);
+   --  Add status code and reason to the list of server's reply.
+
+   procedure Check_Answer
+     (Sock  : in     Net.Socket_Type'Class;
+      Reply :    out Server_Reply);
+   --  Read a reply from the SMTP server (listening on Sock) and fill the Reply
+   --  structure.
 
 end AWS.SMTP;

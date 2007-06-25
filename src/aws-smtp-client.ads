@@ -2,7 +2,7 @@
 --                              Ada Web Server                              --
 --                   S M T P - Simple Mail Transfer Protocol                --
 --                                                                          --
---                         Copyright (C) 2000-2005                          --
+--                         Copyright (C) 2000-2007                          --
 --                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -37,6 +37,15 @@
 --
 --     Wanadoo : SMTP.Server := SMTP.Client.Initialize ("smtp.wanadoo.fr");
 --
+--     Optionally, request Authentication
+--
+--     Auth : aliased SMTP.Authentication.Credential :=
+--              SMTP.Authentication.Plain.Initialize ("id", "password");
+--
+--     Wanadoo : SMTP.Server :=
+--                 SMTP.Client.Initialize
+--                   ("smtp.wanadoo.fr", Credential => Auth'Access);
+--
 --  2) Send a message via this server.
 --
 --     Result : SMTP.Status;
@@ -58,10 +67,9 @@ package AWS.SMTP.Client is
 
    function Initialize
      (Server_Name : in String;
-      Port        : in Positive := Default_SMTP_Port)
-      return Receiver;
-   --  Create a Server composed of the Name and the Port (default SMTP port
-   --  is 25), this server will be used to send SMTP message.
+      Port        : in Positive := Default_SMTP_Port;
+      Credential  : access constant Authentication.Credential'Class := null)
+      return Receiver renames SMTP.Initialize;
 
    procedure Send
      (Server  : in     Receiver;
@@ -78,7 +86,7 @@ package AWS.SMTP.Client is
    --  This is an attachment object, either a File or a Base64 content.
 
    function File (Filename : in String) return Attachment;
-   --  Returns a file attachment. Filename point to a file on the file system.
+   --  Returns a file attachment. Filename point to a file on the file system
 
    function Base64_Data (Name, Content : in String) return Attachment;
    --  Returns a base64 attachment. Content is the Base64 encoded
@@ -86,7 +94,7 @@ package AWS.SMTP.Client is
    --  from in-memory data.
 
    type Attachment_Set is array (Positive range <>) of Attachment;
-   --  A set of file attachments.
+   --  A set of file attachments
 
    procedure Send
      (Server      : in     Receiver;
@@ -116,7 +124,7 @@ package AWS.SMTP.Client is
    --  Constraint_Error if Filename cannot be opened.
 
    --
-   --  Extentded interfaces to send a message to many recipients.
+   --  Extentded interfaces to send a message to many recipients
    --
 
    procedure Send

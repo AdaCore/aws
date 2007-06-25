@@ -2,8 +2,8 @@
 --                              Ada Web Server                              --
 --                   S M T P - Simple Mail Transfer Protocol                --
 --                                                                          --
---                         Copyright (C) 2000-2004                          --
---                                ACT-Europe                                --
+--                         Copyright (C) 2000-2007                          --
+--                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -29,6 +29,8 @@
 
 with Ada.Strings.Fixed;
 
+with AWS.Net.Buffered;
+
 package body AWS.SMTP is
 
    use Ada;
@@ -37,8 +39,10 @@ package body AWS.SMTP is
    C_214 : aliased constant String := "Help message";
    C_220 : aliased constant String := "AdaSC Service ready";
    C_221 : aliased constant String := "Service closing transmission channel";
+   C_235 : aliased constant String := "Authentication successful";
    C_250 : aliased constant String := "Requested mail action okay, completed";
    C_251 : aliased constant String := "User not local; will forward";
+   C_334 : aliased constant String := "Provide BASE64 watchword";
    C_354 : aliased constant String :=
      "Start mail input; end with <CRLF>.<CRLF>";
    C_421 : aliased constant String :=
@@ -72,14 +76,45 @@ package body AWS.SMTP is
       Name : Code_Name;
    end record;
 
-   Code_Table : constant array (1 .. 21) of Reply_Code_Data :=
+   Code_Table : constant array (Positive range <>) of Reply_Code_Data :=
      ((211, C_211'Access), (214, C_214'Access), (220, C_220'Access),
-      (221, C_221'Access), (250, C_250'Access), (251, C_251'Access),
-      (354, C_354'Access), (421, C_421'Access), (450, C_450'Access),
-      (451, C_451'Access), (452, C_452'Access), (500, C_500'Access),
-      (501, C_501'Access), (502, C_502'Access), (503, C_503'Access),
-      (504, C_504'Access), (550, C_550'Access), (551, C_551'Access),
-      (552, C_552'Access), (553, C_553'Access), (554, C_554'Access));
+      (221, C_221'Access), (235, C_235'Access), (334, C_334'Access),
+      (250, C_250'Access), (251, C_251'Access), (354, C_354'Access),
+      (421, C_421'Access), (450, C_450'Access), (451, C_451'Access),
+      (452, C_452'Access), (500, C_500'Access), (501, C_501'Access),
+      (502, C_502'Access), (503, C_503'Access), (504, C_504'Access),
+      (550, C_550'Access), (551, C_551'Access), (552, C_552'Access),
+      (553, C_553'Access), (554, C_554'Access));
+
+   ---------
+   -- Add --
+   ---------
+
+   procedure Add (Answer : in out Server_Reply; Status : in out SMTP.Status) is
+   begin
+      if Status.Reason /= Null_Unbounded_String then
+         Append (Status.Reason, ASCII.LF);
+      end if;
+
+      Append (Status.Reason, Image (Answer));
+
+      Status.Code := Answer.Code;
+   end Add;
+
+   ------------------
+   -- Check_Answer --
+   ------------------
+
+   procedure Check_Answer
+     (Sock  : in     Net.Socket_Type'Class;
+      Reply :    out Server_Reply)
+   is
+      Buffer : constant String := Net.Buffered.Get_Line (Sock);
+   begin
+      Reply :=
+        (Reply_Code'Value (Buffer (Buffer'First .. Buffer'First + 2)),
+         To_Unbounded_String (Buffer (Buffer'First + 4 .. Buffer'Last)));
+   end Check_Answer;
 
    -----------
    -- Clear --
@@ -87,7 +122,7 @@ package body AWS.SMTP is
 
    procedure Clear (Status : in out SMTP.Status) is
    begin
-      Status := (Null_Unbounded_String, Requested_Action_Ok);
+      Status := (Requested_Action_Ok, Null_Unbounded_String);
    end Clear;
 
    ------------
@@ -131,13 +166,35 @@ package body AWS.SMTP is
       end case;
    end Image;
 
+   function Image (Answer : in Server_Reply) return String is
+      Code_Image : constant String := Reply_Code'Image (Answer.Code);
+   begin
+      return Code_Image (Code_Image'First + 1 .. Code_Image'Last)
+        & ' '
+        & To_String (Answer.Reason);
+   end Image;
+
+   ----------------
+   -- Initialize --
+   ----------------
+
+   function Initialize
+     (Server_Name : in String;
+      Port        : in Positive := Default_SMTP_Port;
+      Credential  : access constant Authentication.Credential'Class := null)
+      return Receiver is
+   begin
+      return
+        (To_Unbounded_String (Server_Name), Port, null, Credential);
+   end Initialize;
+
    -----------
    -- Is_Ok --
    -----------
 
    function Is_Ok (Status : in SMTP.Status) return Boolean is
    begin
-      return Status.Value = Null_Unbounded_String;
+      return Status.Reason = Null_Unbounded_String;
    end Is_Ok;
 
    -------------
@@ -213,7 +270,7 @@ package body AWS.SMTP is
 
    function Status_Message (Status : in SMTP.Status) return String is
    begin
-      return To_String (Status.Value);
+      return To_String (Status.Reason);
    end Status_Message;
 
 end AWS.SMTP;
