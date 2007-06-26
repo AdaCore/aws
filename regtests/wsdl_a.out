@@ -1,13 +1,11 @@
 
    - record          R
-wsdl_a.ads:34:11: use Long_Float instead of Float for SOAP/WSDL items.
         X : Float (xsd:float)
    > procedure       P
         A : Data (n3:Data)
    - record          Data
         A : Integer (xsd:int)
         B : Integer (xsd:int)
-wsdl_a_pck.ads:33:14: use Long_Float instead of Float for SOAP/WSDL items.
         X : Float (xsd:float)
         Y : Float (xsd:float)
 

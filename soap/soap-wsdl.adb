@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2003-2006                          --
+--                         Copyright (C) 2003-2007                          --
 --                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -93,10 +93,10 @@ package body SOAP.WSDL is
       then
          Result := P_Byte;
 
-      elsif L_Type = "float" or else L_Type = "long_float" then
+      elsif L_Type = "float" then
          Result := P_Float;
 
-      elsif L_Type = "long_long_float" then
+      elsif L_Type = "long_float" or else L_Type = "long_long_float" then
          Result := P_Double;
 
       elsif L_Type = "unsigned_long"
@@ -274,8 +274,8 @@ package body SOAP.WSDL is
          when P_Integer        => return "Integer";
          when P_Short          => return "SOAP.Types.Short";
          when P_Byte           => return "SOAP.Types.Byte";
-         when P_Float          => return "Long_Float";
-         when P_Double         => return "Long_Long_Float";
+         when P_Float          => return "Float";
+         when P_Double         => return "Long_Float";
          when P_Boolean        => return "Boolean";
          when P_Time           => return "Ada.Calendar.Time";
          when P_B64            => return "String";

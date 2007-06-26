@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2003-2004                          --
---                                ACT-Europe                                --
+--                         Copyright (C) 2003-2007                          --
+--                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -60,7 +60,7 @@ procedure Interoplab_Main1 is
       return Unbounded_String
       renames To_Unbounded_String;
 
-   package LFIO is new Text_IO.Float_IO (Long_Float);
+   package FIO is new Text_IO.Float_IO (Float);
 
    ------------
    -- Output --
@@ -69,7 +69,7 @@ procedure Interoplab_Main1 is
    procedure Output (S : in SOAPStruct_Type) is
    begin
       Integer_Text_IO.Put (S.varInt); Text_IO.New_Line;
-      LFIO.Put (S.VarFloat, Exp => 0, Aft => 2); Text_IO.New_Line;
+      FIO.Put (S.VarFloat, Exp => 0, Aft => 2); Text_IO.New_Line;
       Text_IO.Put_Line (To_String (S.varString));
    end Output;
 
@@ -257,8 +257,8 @@ procedure Interoplab_Main1 is
    --------------------
 
    function T_echoFloat_CB
-      (inputFloat : in Long_Float)
-       return Long_Float is
+      (inputFloat : in Float)
+       return Float is
    begin
       return inputFloat;
    end T_echoFloat_CB;
@@ -273,9 +273,9 @@ procedure Interoplab_Main1 is
    procedure T_echoFloat is
    begin
       Text_IO.Put_Line ("Echo Float");
-      LFIO.Put (TinteropLab.Client.echoFloat (2.345), Aft => 5, Exp => 0);
+      FIO.Put (TinteropLab.Client.echoFloat (2.345), Aft => 5, Exp => 0);
       Text_IO.New_Line;
-      LFIO.Put (TinteropLab.Client.echoFloat (456.8765), Aft => 5, Exp => 0);
+      FIO.Put (TinteropLab.Client.echoFloat (456.8765), Aft => 5, Exp => 0);
       Text_IO.New_Line;
       Text_IO.New_Line;
    end T_echoFloat;
@@ -378,7 +378,7 @@ procedure Interoplab_Main1 is
 
       for K in Res'Range loop
          Text_IO.Put (Integer'Image (K) & " = ");
-         LFIO.Put (Res (K), Aft => 2, Exp => 0);
+         FIO.Put (Res (K), Aft => 2, Exp => 0);
          Text_IO.New_Line;
       end loop;
       Text_IO.New_Line;

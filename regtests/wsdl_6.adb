@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2003                            --
---                                ACT-Europe                                --
+--                         Copyright (C) 2003-2007                          --
+--                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -32,7 +32,7 @@ package body WSDL_6 is
    -- Echo_Float --
    ----------------
 
-   function Echo_Float (V : in Long_Float) return Long_Float is
+   function Echo_Float (V : in Float) return Float is
    begin
       return V;
    end Echo_Float;
@@ -50,7 +50,7 @@ package body WSDL_6 is
    -- Echo_Double --
    -----------------
 
-   function Echo_Double (V : in Long_Long_Float) return Long_Long_Float is
+   function Echo_Double (V : in Long_Float) return Long_Float is
    begin
       return V;
    end Echo_Double;
