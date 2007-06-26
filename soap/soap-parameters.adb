@@ -115,7 +115,7 @@ package body SOAP.Parameters is
    -----------------
 
    procedure Check_Array (P : in List; Name : in String) is
-      O : Types.Object'Class := Argument (P, Name);
+      O : constant Types.Object'Class := Argument (P, Name);
    begin
       if O not in Types.SOAP_Array then
          raise Types.Data_Error
@@ -129,7 +129,7 @@ package body SOAP.Parameters is
    ------------------
 
    procedure Check_Base64 (P : in List; Name : in String) is
-      O : Types.Object'Class := Argument (P, Name);
+      O : constant Types.Object'Class := Argument (P, Name);
    begin
       if O not in Types.SOAP_Base64 then
          raise Types.Data_Error
@@ -143,7 +143,7 @@ package body SOAP.Parameters is
    -------------------
 
    procedure Check_Boolean (P : in List; Name : in String) is
-      O : Types.Object'Class := Argument (P, Name);
+      O : constant Types.Object'Class := Argument (P, Name);
    begin
       if O not in Types.XSD_Boolean then
          raise Types.Data_Error
@@ -157,7 +157,7 @@ package body SOAP.Parameters is
    -----------------
 
    procedure Check_Float (P : in List; Name : in String) is
-      O : Types.Object'Class := Argument (P, Name);
+      O : constant Types.Object'Class := Argument (P, Name);
    begin
       if O not in Types.XSD_Float then
          raise Types.Data_Error
@@ -171,7 +171,7 @@ package body SOAP.Parameters is
    -------------------
 
    procedure Check_Integer (P : in List; Name : in String) is
-      O : Types.Object'Class := Argument (P, Name);
+      O : constant Types.Object'Class := Argument (P, Name);
    begin
       if O not in Types.XSD_Integer then
          raise Types.Data_Error
@@ -185,7 +185,7 @@ package body SOAP.Parameters is
    ----------------
 
    procedure Check_Null (P : in List; Name : in String) is
-      O : Types.Object'Class := Argument (P, Name);
+      O : constant Types.Object'Class := Argument (P, Name);
    begin
       if O not in Types.XSD_Null then
          raise Types.Data_Error
@@ -199,7 +199,7 @@ package body SOAP.Parameters is
    ------------------
 
    procedure Check_Record (P : in List; Name : in String) is
-      O : Types.Object'Class := Argument (P, Name);
+      O : constant Types.Object'Class := Argument (P, Name);
    begin
       if O not in Types.SOAP_Record then
          raise Types.Data_Error
@@ -213,7 +213,7 @@ package body SOAP.Parameters is
    ------------------------
 
    procedure Check_Time_Instant (P : in List; Name : in String) is
-      O : Types.Object'Class := Argument (P, Name);
+      O : constant Types.Object'Class := Argument (P, Name);
    begin
       if O not in Types.XSD_Time_Instant then
          raise Types.Data_Error

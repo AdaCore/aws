@@ -2378,7 +2378,7 @@ package body SOAP.Generator is
          if AWS.Utils.Is_Regular_File (Template_Filename) then
             --  Use template file
             declare
-               Translations : Templates.Translate_Table
+               Translations : constant Templates.Translate_Table
                  := (1 => Templates.Assoc ("SOAP_SERVICE", U_Name),
                      2 => Templates.Assoc ("SOAP_VERSION", SOAP.Version),
                      3 => Templates.Assoc ("AWS_VERSION",  AWS.Version),
