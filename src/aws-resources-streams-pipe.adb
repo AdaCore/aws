@@ -77,7 +77,7 @@ package body AWS.Resources.Streams.Pipe is
    begin
       while Length (Resource.Buffer) < Buffer'Length loop
          begin
-            Expect.Expect (Resource.Pid, Result, ".+", Resource.Timeout);
+            Expect.Expect (Resource.Pid, Result, ".+|\n+", Resource.Timeout);
          exception
             when Expect.Process_Died =>
                Resource.EOF := True;
