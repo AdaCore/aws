@@ -60,7 +60,7 @@ procedure Build is
 
    --  If a tag is added into this table make sure to update gen_doc.sed.tmplt
 
-   T : Translate_Table
+   T : constant Translate_Table
      := (Assoc ("AWS_VERSION", AWS.Version),
          Assoc ("SOAP_VERSION", SOAP.Version),
          Assoc ("MAX_CONNECT", Image (Default.Max_Connection)),
