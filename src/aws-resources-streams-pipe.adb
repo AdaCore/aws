@@ -26,6 +26,8 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
+with GNAT.Regpat;
+
 with AWS.Translator;
 
 package body AWS.Resources.Streams.Pipe is
@@ -73,11 +75,13 @@ package body AWS.Resources.Streams.Pipe is
       Buffer   :    out Stream_Element_Array;
       Last     :    out Stream_Element_Offset)
    is
+      Regexp : constant Regpat.Pattern_Matcher :=
+                 Regpat.Compile (".+", Flags => Regpat.Single_Line);
       Result : Expect.Expect_Match;
    begin
       while Length (Resource.Buffer) < Buffer'Length loop
          begin
-            Expect.Expect (Resource.Pid, Result, ".+|\n+", Resource.Timeout);
+            Expect.Expect (Resource.Pid, Result, Regexp, Resource.Timeout);
          exception
             when Expect.Process_Died =>
                Resource.EOF := True;
