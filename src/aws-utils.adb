@@ -661,6 +661,24 @@ package body AWS.Utils is
             M := Buffer (Last);
          end Get;
 
+         procedure Get (M : out Message; Success : out Boolean) is
+         begin
+            Success := Current_Size > 0;
+
+            if not Success then
+               return;
+            end if;
+
+            Current_Size := Current_Size - 1;
+            Last := Last + 1;
+
+            if Last > Max_Size then
+               Last := Buffer'First;
+            end if;
+
+            M := Buffer (Last);
+         end Get;
+
          ----------
          -- Size --
          ----------

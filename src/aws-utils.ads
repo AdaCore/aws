@@ -188,6 +188,10 @@ package AWS.Utils is
          --  Get a message from the Mailbox, only possible if there is some
          --  message in the Mailbox.
 
+         procedure Get (M : out Message; Success : out Boolean);
+         --  Get a message from the Mailbox, no wait,
+         --  Success would show is message gotten.
+
          function Size return Natural;
          --  Returns the current number of message waiting in the Mailbox
 
