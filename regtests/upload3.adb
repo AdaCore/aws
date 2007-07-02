@@ -2,7 +2,7 @@
 --                              Ada Web Server                              --
 --                                                                          --
 --                          Copyright (C) 2003-2007                         --
---                                 AdaCore                                  --
+--                                  AdaCore                                 --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -57,6 +57,7 @@ procedure Upload3 is
    function CB (Request : in Status.Data) return Response.Data;
 
    task Server is
+      entry Start;
       entry Started;
       entry Stopped;
    end Server;
@@ -140,6 +141,8 @@ procedure Upload3 is
       AWS.Server.Set_Unexpected_Exception_Handler
         (HTTP, Problem'Unrestricted_Access);
 
+      accept Start;
+
       AWS.Server.Start (HTTP, CB'Unrestricted_Access, Web_Config);
 
       Put_Line ("Server started");
@@ -181,9 +184,11 @@ procedure Upload3 is
 begin
    Put_Line ("Start main, wait for server to start...");
 
+   Server.Start;
    Server.Started;
 
-   Request ("http://localhost:" & Utils.Image (Port) & "/upload", "append.out");
+   Request
+     ("http://localhost:" & Utils.Image (Port) & "/upload", "append.out");
 
    Server.Stopped;
 
