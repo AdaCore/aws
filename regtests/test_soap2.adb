@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2004                          --
---                                ACT-Europe                                --
+--                         Copyright (C) 2000-2007                          --
+--                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -56,6 +56,7 @@ procedure Test_SOAP2 is
    function SOAP_CB (Request : in Status.Data) return Response.Data;
 
    task Server is
+      entry Start;
       entry Started;
       entry Stopped;
    end Server;
@@ -116,6 +117,8 @@ procedure Test_SOAP2 is
 
    task body Server is
    begin
+      accept Start;
+
       AWS.Server.Start
         (HTTP, "soap_demo",
          CB'Unrestricted_Access, Port => 6544, Max_Connection => 5);
@@ -179,6 +182,7 @@ procedure Test_SOAP2 is
 begin
    Put_Line ("Start main, wait for server to start...");
 
+   Server.Start;
    Server.Started;
 
    Request ("simple");

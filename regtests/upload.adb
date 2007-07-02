@@ -55,6 +55,7 @@ procedure Upload is
    function CB (Request : in Status.Data) return Response.Data;
 
    task Server is
+      entry Start;
       entry Started;
       entry Stopped;
    end Server;
@@ -107,6 +108,8 @@ procedure Upload is
    begin
       Get_Free_Port (Port);
 
+      accept Start;
+
       AWS.Server.Start
         (HTTP, "upload",
          CB'Unrestricted_Access,
@@ -149,6 +152,7 @@ procedure Upload is
 begin
    Put_Line ("Start main, wait for server to start...");
 
+   Server.Start;
    Server.Started;
 
    Request
