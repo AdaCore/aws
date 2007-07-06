@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2002-2006                          --
+--                         Copyright (C) 2002-2007                          --
 --                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -466,7 +466,8 @@ package body AWS.Response.Set is
             Messages.Content_Encoding'Image (Encoding));
 
       elsif D.Header.Get (Messages.Content_Encoding_Token) /= "" then
-         raise Constraint_Error with "Responce reencode is not supported.";
+         raise Constraint_Error
+           with "Response content encoding is not supported.";
       end if;
 
       D.Mode := Stream;
