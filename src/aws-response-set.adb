@@ -431,7 +431,9 @@ package body AWS.Response.Set is
    procedure Stream
      (D        : in out Data;
       Handle   : not null access Resources.Streams.Stream_Type'Class;
-      Encoding : in Messages.Content_Encoding := Messages.Identity) is
+      Encoding : in Messages.Content_Encoding := Messages.Identity)
+   is
+      use type Messages.Content_Encoding;
    begin
       case Encoding is
          when Messages.GZip     =>
@@ -446,10 +448,26 @@ package body AWS.Response.Set is
             D.Stream := Resources.Streams.Stream_Access (Handle);
       end case;
 
-      Update_Header
-        (D,
-         Messages.Content_Encoding_Token,
-         Messages.Content_Encoding'Image (Encoding));
+      if Encoding /= Messages.Identity then
+         --  We should not send "Content-Encoding: Identity" header line
+         --
+         --  RFC 2616
+         --  3.5 Content Codings
+         --  ...
+         --  identity
+         --  The default (identity) encoding; the use of no transformation
+         --  whatsoever. This content-coding is used only in the Accept-
+         --  Encoding header, and SHOULD NOT be used in the Content-Encoding
+         --  header.
+
+         Update_Header
+           (D,
+            Messages.Content_Encoding_Token,
+            Messages.Content_Encoding'Image (Encoding));
+
+      elsif D.Header.Get (Messages.Content_Encoding_Token) /= "" then
+         raise Constraint_Error with "Responce reencode is not supported.";
+      end if;
 
       D.Mode := Stream;
    end Stream;
