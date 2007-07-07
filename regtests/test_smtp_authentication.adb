@@ -39,13 +39,15 @@ procedure Test_SMTP_Authentication is
    use Ada;
    use AWS;
 
+   package SMTPA renames AWS.SMTP.Authentication.Plain;
+
    a  : constant String := "foo";
    p  : constant String := "asdf2345";
 
    an : constant String := "";
    pn : constant String := "";
 
-   Secret : SMTP.Authentication.Plain.Credential;
+   Secret : SMTPA.Credential;
 
    procedure Test (Authcid : String; Passwd : String; Expected : String);
    --  prints OK or FAIL depending on whether the encoded img of
@@ -59,10 +61,10 @@ procedure Test_SMTP_Authentication is
    begin
       Text_IO.Put_Line ("?? '" & Authcid & "', '" & Passwd & "':");
 
-      Secret := SMTP.Authentication.Plain.Initialize (Authcid, Passwd);
+      Secret := SMTPA.Initialize (Authcid, Passwd);
 
       declare
-         img : constant String := SMTP.Authentication.Plain.Image (Secret);
+         img : constant String := SMTPA.Image (Secret);
       begin
          if img = Expected then
             Text_IO.Put_Line (">> OK " & img & " = " & Expected);
