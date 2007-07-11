@@ -339,6 +339,20 @@ package body AWS.Net.Generic_Sets is
       Set_Mode (Set.Poll.all, Integer (Index), Mode);
    end Set_Mode;
 
+   -------------------
+   -- Update_Socket --
+   -------------------
+
+   procedure Update_Socket
+     (Set     : in out Socket_Set_Type;
+      Index   : in     Socket_Index;
+      Process : access procedure
+                         (Socket : in out Socket_Type'Class;
+                          Data   : in out Data_Type)) is
+   begin
+      Process (Set.Set (Index).Socket.all, Set.Set (Index).Data);
+   end Update_Socket;
+
    ----------
    -- Wait --
    ----------
