@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2006                          --
+--                         Copyright (C) 2000-2007                          --
 --                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -33,11 +33,15 @@
 
 with Ada.Containers.Indefinite_Vectors;
 with Ada.Containers.Indefinite_Hashed_Maps;
+with Ada.Containers.Indefinite_Doubly_Linked_Lists;
 with Ada.Strings.Hash;
 with Ada.Streams;
 with Ada.Strings.Unbounded;
 
+with AWS.Default;
 with AWS.Net;
+
+with System;
 
 generic
 
@@ -86,6 +90,8 @@ package AWS.Server.Push is
    --  uniq ID. This Id is used for registration and for sending data to
    --  specific client.
 
+   type Wait_Counter_Type is mod System.Max_Binary_Modulus;
+
    type Group_Set is array (Positive range <>) of Unbounded_String;
 
    Empty_Group : constant Group_Set := (1 .. 0 => Null_Unbounded_String);
@@ -99,13 +105,16 @@ package AWS.Server.Push is
       Init_Content_Type : in     String             := "";
       Kind              : in     Mode               := Plain;
       Duplicated_Age    : in     Duration           := Duration'Last;
-      Groups            : in     Group_Set          := Empty_Group);
+      Groups            : in     Group_Set          := Empty_Group;
+      Timeout           : in     Duration           := Default.Send_Timeout);
    --  Add client identified by Client_Id to the server subscription
    --  list and send the Init_Data (as a Data_Content_Type mime content) to
    --  him. After registering this client will be able to receive pushed data
    --  from the server in brodcasting mode.
    --  If Duplicated_Age less than age of the already registered same Client_Id
    --  then old one will be unregistered first (no exception will be raised).
+   --  The Timeout is not for socket send timeout, but for internal waiting for
+   --  write availability timeout.
 
    procedure Register
      (Server          : in out Object;
@@ -114,7 +123,8 @@ package AWS.Server.Push is
       Environment     : in     Client_Environment;
       Kind            : in     Mode               := Plain;
       Duplicated_Age  : in     Duration           := Duration'Last;
-      Groups          : in     Group_Set          := Empty_Group);
+      Groups          : in     Group_Set          := Empty_Group;
+      Timeout         : in     Duration           := Default.Send_Timeout);
    --  Same as above but without sending initial data
 
    procedure Unregister
@@ -149,26 +159,24 @@ package AWS.Server.Push is
      (Server       : in out Object;
       Client_Id    : in     Client_Key;
       Data         : in     Client_Output_Type;
-      Content_Type : in     String             := "");
+      Content_Type : in     String             := "";
+      Thin_Id      : in     String             := "");
    --  Push data to a specified client identified by Client_Id
+   --  Thin_Id is to be able to replace messages in the send client queue
+   --  with the newer one with the same Thin_Id.
 
    procedure Send
      (Server       : in out Object;
       Data         : in     Client_Output_Type;
       Group_Id     : in     String             := "";
-      Content_Type : in     String             := "");
-   --  Push data to group of clients (broadcast) subscribed to the server.
-   --  If Group_Id is empty, data transferred to each client.
-
-   procedure Send
-     (Server       : in out Object;
-      Data         : in     Client_Output_Type;
-      Client_Gone  : access procedure (Client_Id : in String);
-      Group_Id     : in     String             := "";
-      Content_Type : in     String             := "");
+      Content_Type : in     String             := "";
+      Thin_Id      : in     String             := "";
+      Client_Gone  : access procedure (Client_Id : in String) := null);
    --  Push data to group of clients (broadcast) subscribed to the server.
    --  If Group_Id is empty, data transferred to each client.
    --  Call Client_Gone for each client with broken socket.
+   --  Thin_Id is to be able to replace messages in the send client queue
+   --  with the newer one with the same Thin_Id.
 
    generic
       with procedure Client_Gone (Client_Id : in String);
@@ -176,7 +184,8 @@ package AWS.Server.Push is
      (Server       : in out Object;
       Data         : in     Client_Output_Type;
       Group_Id     : in     String             := "";
-      Content_Type : in     String             := "");
+      Content_Type : in     String             := "";
+      Thin_Id      : in     String             := "");
    --  Same like before, but generic for back compartibility.
 
    function Count (Server : in Object) return Natural;
@@ -219,6 +228,10 @@ package AWS.Server.Push is
    --  Set server to Open mode. Server will again send data to registered
    --  clients. It does nothing if server was already open.
 
+   procedure Info (Size : out Natural; Counter : out Wait_Counter_Type);
+   --  Size would return number of currently waiting sockets.
+   --  Counter would return total number of waited sockets from start.
+
 private
 
    package Group_Vectors is
@@ -228,13 +241,27 @@ private
    --  If number of groups would be too much (more than a few decades),
    --  We should consider to change the container to String set.
 
-   type Client_Holder is record
-      Socket      : Net.Socket_Access;
-      Kind        : Mode;
-      Created     : Ada.Calendar.Time;
-      Environment : Client_Environment;
-      Groups      : Group_Vectors.Vector;
+   use Ada.Streams;
+
+   type Message_Type
+     (Size : Stream_Element_Count; Thin_Size : Natural) is
+   record
+      Data : Stream_Element_Array (1 .. Size);
+      Thin : String (1 .. Thin_Size);
    end record;
+
+   package Chunk_Lists is
+     new Ada.Containers.Indefinite_Doubly_Linked_Lists (Message_Type);
+
+   package Thin_Indexes is
+     new Ada.Containers.Indefinite_Hashed_Maps
+           (Key_Type        => String,
+            Element_Type    => Chunk_Lists.Cursor,
+            Hash            => Ada.Strings.Hash,
+            Equivalent_Keys => "=",
+            "="             => Chunk_Lists."=");
+
+   type Client_Holder;
 
    type Client_Holder_Access is access all Client_Holder;
 
@@ -248,12 +275,14 @@ private
      new Ada.Containers.Indefinite_Hashed_Maps
        (String, Map_Access, Ada.Strings.Hash, "=");
 
+   subtype Group_Map is Group_Maps.Map;
+
    protected type Object is
 
       function Count return Natural;
       --  Returns the number of registered client
 
-      procedure Unregister_Clients (Close_Sockets : in Boolean);
+      procedure Unregister_Clients (Queue : out Tables.Map; Open : in Boolean);
       --  Unregister all clients, close associated sockets if Close_Socket is
       --  set to True.
 
@@ -264,49 +293,57 @@ private
       --  See above
 
       procedure Shutdown
-        (Close_Sockets : in Boolean);
-      --  See above
-
-      procedure Shutdown
-        (Final_Data         : in Client_Output_Type;
-         Final_Content_Type : in String);
+        (Final_Data         : in     Client_Output_Type;
+         Final_Content_Type : in     String;
+         Queue              :    out Tables.Map);
       --  See above
 
       procedure Register
-        (Client_Id       : in     Client_Key;
-         Holder          : in out Client_Holder_Access;
-         Duplicated_Age  : in     Duration);
-      --  See above.
-      --  Holder would be released in case of registration failure.
-
-      procedure Register
-        (Client_Id         : in     Client_Key;
-         Holder            : in out Client_Holder_Access;
-         Init_Data         : in     Client_Output_Type;
-         Init_Content_Type : in     String;
-         Duplicated_Age    : in     Duration);
+        (Client_Id      : in     Client_Key;
+         Holder         : in out Client_Holder_Access;
+         Duplicated     :    out Client_Holder_Access;
+         Duplicated_Age : in     Duration);
       --  See above.
       --  Holder would be released in case of registration failure.
 
       procedure Send_To
-        (Client_Id    : in Client_Key;
-         Data         : in Client_Output_Type;
-         Content_Type : in String);
-      --  See above
+        (Client_Id    : in     Client_Key;
+         Data         : in     Client_Output_Type;
+         Content_Type : in     String;
+         Thin_Id      : in     String;
+         Holder       :    out Client_Holder_Access);
+      --  Holder out parameter not null mean that we have to convert Data into
+      --  Stream_Element_Array, put it into socket and send the socket into
+      --  waiter.
 
       procedure Send
         (Data         : in     Client_Output_Type;
          Group_Id     : in     String;
          Content_Type : in     String;
-         Unregistered : in out Tables.Map);
-      --  Send Data to all clients registered. Unregistered will contain a
-      --  list of clients that have not responded to the request. These
-      --  clients have been removed from the list of registered client.
+         Thin_Id      : in     String;
+         Queue        :    out Tables.Map);
+      --  Send Data to all clients registered.
+      --  Queue would contain client holders available to send data or those
+      --  failed on the write waiting state.
+
+      procedure Get_Data
+        (Client_Id : in     Client_Key;
+         Data      :    out Stream_Element_Array;
+         Last      :    out Stream_Element_Offset);
+      --  Return data for the Waiter task.
+      --  Could be called only for the write busy client.
+      --  If no data to send client become not write busy.
 
       procedure Unregister
-        (Client_Id    : in Client_Key;
-         Close_Socket : in Boolean);
-      --  See above
+        (Client_Id : in Client_Key; Holder : out Client_Holder_Access);
+      --  Unregister client and return its holder.
+
+      procedure Waiter_Error
+        (Client_Id : in String;
+         Message   : in String;
+         Socket    : in Net.Socket_Access);
+      --  Waiter task would call it on socket error.
+      --  Socket is only for detect broken logic.
 
       function Is_Open return Boolean;
       --  See above
@@ -319,7 +356,7 @@ private
 
    private
       Container : Tables.Map;
-      Groups    : Group_Maps.Map;
+      Groups    : Group_Map;
       Open      : Boolean := True;
    end Object;
 
