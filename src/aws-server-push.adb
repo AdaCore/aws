@@ -1356,6 +1356,4 @@ package body AWS.Server.Push is
            ("Server push broken, " & Ada.Exceptions.Exception_Information (E));
    end Waiter;
 
-   --  А что если он до ожидателья еще не дошел, а мы его уже разрегистрируем ?
-
 end AWS.Server.Push;
