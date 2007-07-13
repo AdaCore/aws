@@ -54,7 +54,7 @@ package body AWS.Server.Push is
       Kind        : Mode;
       Created     : Ada.Calendar.Time;
       Environment : Client_Environment;
-      Groups      : Group_Vectors.Vector;
+      Groups      : Group_Sets.Set;
       Chunks      : Chunk_Lists.List;
       Thin        : Thin_Indexes.Map;
       Phase       : Phase_Type;
@@ -279,6 +279,12 @@ package body AWS.Server.Push is
       Waiter.Info (Size, Counter => Counter);
    end Info;
 
+   procedure Info
+     (Server : in out Object; Clients : out Natural; Groups : out Natural) is
+   begin
+      Server.Info (Clients, Group_Count => Groups);
+   end Info;
+
    -------------
    -- Is_Open --
    -------------
@@ -344,6 +350,55 @@ package body AWS.Server.Push is
          end if;
       end Get_Data;
 
+      ----------
+      -- Info --
+      ----------
+
+      procedure Info (Client_Count : out Natural; Group_Count : out Natural) is
+         C  : Tables.Cursor     := Container.First;
+         G  : Group_Maps.Cursor;
+         CG : Group_Sets.Cursor;
+         CA : Client_Holder_Access;
+      begin
+         while Tables.Has_Element (C) loop
+            CA := Tables.Element (C);
+
+            CG := CA.Groups.First;
+
+            while Group_Sets.Has_Element (CG) loop
+               G := Groups.Find (Group_Sets.Element (CG));
+
+               if Group_Maps.Element (G).Element (Tables.Key (C)) /= CA then
+                  raise Program_Error with "loose client in group.";
+               end if;
+
+               CG := Group_Sets.Next (CG);
+            end loop;
+
+            C := Tables.Next (C);
+         end loop;
+
+         G := Groups.First;
+
+         while Group_Maps.Has_Element (G) loop
+            C := Group_Maps.Element (G).First;
+
+            while Tables.Has_Element (C) loop
+               if not Tables.Element (C).Groups.Contains
+                        (Group_Maps.Key (G))
+               then
+                  raise Program_Error with "loose group in client.";
+               end if;
+               C := Tables.Next (C);
+            end loop;
+
+            G := Group_Maps.Next (G);
+         end loop;
+
+         Group_Count  := Integer (Groups.Length);
+         Client_Count := Integer (Container.Length);
+      end Info;
+
       -------------
       -- Is_Open --
       -------------
@@ -368,12 +423,12 @@ package body AWS.Server.Push is
          Cursor  : Tables.Cursor;
          Success : Boolean;
 
-         procedure Add_To_Groups (J : Group_Vectors.Cursor);
+         procedure Add_To_Groups (J : Group_Sets.Cursor);
 
-         procedure Add_To_Groups (J : Group_Vectors.Cursor) is
+         procedure Add_To_Groups (J : Group_Sets.Cursor) is
          begin
             Add_To_Groups
-              (Groups, Group_Vectors.Element (J), Client_Id, Holder);
+              (Groups, Group_Sets.Element (J), Client_Id, Holder);
          end Add_To_Groups;
 
       begin
@@ -575,7 +630,7 @@ package body AWS.Server.Push is
             pragma Unreferenced (Key);
          begin
             if not Element.Groups.Contains (Group_Id) then
-               Element.Groups.Append (Group_Id);
+               Element.Groups.Insert (Group_Id);
                Add_To_Groups (Groups, Group_Id, Client_Id, Element);
             end if;
          end Modify;
@@ -596,11 +651,11 @@ package body AWS.Server.Push is
       procedure Unregister (Cursor : in out Tables.Cursor) is
          Holder : constant Client_Holder_Access := Tables.Element (Cursor);
 
-         procedure Delete_Group (J : Group_Vectors.Cursor);
+         procedure Delete_Group (J : Group_Sets.Cursor);
 
-         procedure Delete_Group (J : Group_Vectors.Cursor) is
+         procedure Delete_Group (J : Group_Sets.Cursor) is
             use type Ada.Containers.Count_Type;
-            C   : Group_Maps.Cursor := Groups.Find (Group_Vectors.Element (J));
+            C   : Group_Maps.Cursor := Groups.Find (Group_Sets.Element (J));
             Map : Map_Access := Group_Maps.Element (C);
 
             procedure Free is
@@ -672,9 +727,9 @@ package body AWS.Server.Push is
            (Key : in String; Element : in out Client_Holder_Access)
          is
             pragma Unreferenced (Key);
-            Cursor : Group_Vectors.Cursor := Element.Groups.Find (Group_Id);
+            Cursor : Group_Sets.Cursor := Element.Groups.Find (Group_Id);
          begin
-            if Group_Vectors.Has_Element (Cursor) then
+            if Group_Sets.Has_Element (Cursor) then
                Element.Groups.Delete (Cursor);
                Tables.Delete (Groups.Element (Group_Id).all, Client_Id);
             end if;
@@ -1094,11 +1149,10 @@ package body AWS.Server.Push is
       Groups      : in Group_Set;
       Timeout     : in Duration) return Client_Holder_Access
    is
-      Holder_Groups : Group_Vectors.Vector
-        := Group_Vectors.To_Vector (Groups'Length);
+      Holder_Groups : Group_Sets.Set;
    begin
       for J in Groups'Range loop
-         Holder_Groups.Replace_Element (J, To_String (Groups (J)));
+         Holder_Groups.Insert (To_String (Groups (J)));
       end loop;
 
       return new Client_Holder'(Kind        => Kind,

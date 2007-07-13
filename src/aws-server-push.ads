@@ -31,7 +31,7 @@
 --  For Microsoft Internet Explorer complementary active components
 --  should be used like java applets or ActiveX controls.
 
-with Ada.Containers.Indefinite_Vectors;
+with Ada.Containers.Indefinite_Hashed_Sets;
 with Ada.Containers.Indefinite_Hashed_Maps;
 with Ada.Containers.Indefinite_Doubly_Linked_Lists;
 with Ada.Strings.Hash;
@@ -191,6 +191,11 @@ package AWS.Server.Push is
    function Count (Server : in Object) return Natural;
    --  Returns the number of registered clients in the server
 
+   procedure Info
+     (Server : in out Object; Clients : out Natural; Groups : out Natural);
+   --  Returns the number of registered clients and groups in the server.
+   --  Test internal integrity.
+
    function Is_Open (Server : in Object) return Boolean;
    --  Return True if the server is open, meaning server is still running,
    --  ready to accept client's registration and still sending data to
@@ -234,12 +239,10 @@ package AWS.Server.Push is
 
 private
 
-   package Group_Vectors is
-      new Ada.Containers.Indefinite_Vectors (Positive, String);
+   package Group_Sets is
+      new Ada.Containers.Indefinite_Hashed_Sets
+             (String, Ada.Strings.Hash, Equivalent_Elements => "=");
    --  Package instance with vector to keep each client subscribed groups.
-   --  Subscribe/Unsubscribe routines makes linear search in it.
-   --  If number of groups would be too much (more than a few decades),
-   --  We should consider to change the container to String set.
 
    use Ada.Streams;
 
@@ -353,6 +356,8 @@ private
 
       procedure Unsubscribe (Client_Id : in Client_Key; Group_Id : in String);
       --  See above
+
+      procedure Info (Client_Count : out Natural; Group_Count : out Natural);
 
    private
       Container : Tables.Map;
