@@ -292,6 +292,8 @@ package body AWS.Server is
    ----------
 
    task body Line is
+      use Ada.Exceptions;
+
       HTTP_Server : HTTP_Access;
       Slot_Index  : Positive;
    begin
@@ -361,8 +363,7 @@ package body AWS.Server is
                AWS.Log.Write
                  (HTTP_Server.Error_Log,
                   "Dead slot " & Utils.Image (Slot_Index) & ' '
-                    & Utils.CRLF_2_Spaces
-                        (Ada.Exceptions.Exception_Information (E)));
+                    & Utils.CRLF_2_Spaces (Exception_Information (E)));
 
                HTTP_Server.Exception_Handler
                  (E, HTTP_Server.Error_Log, (True, Slot_Index, S), Answer);
@@ -459,14 +460,9 @@ package body AWS.Server is
 
    procedure Shutdown (Web_Server : in out HTTP) is
 
-      procedure Free is
-         new Ada.Unchecked_Deallocation (Line_Set, Line_Set_Access);
-
-      procedure Free is
-         new Ada.Unchecked_Deallocation (Slots, Slots_Access);
-
-      procedure Free is
-         new Ada.Unchecked_Deallocation (Line, Line_Access);
+      procedure Free is new Unchecked_Deallocation (Line_Set, Line_Set_Access);
+      procedure Free is new Unchecked_Deallocation (Slots, Slots_Access);
+      procedure Free is new Unchecked_Deallocation (Line, Line_Access);
 
       All_Lines_Terminated : Boolean := False;
       Slot_State           : Slot_Phase;
@@ -592,7 +588,7 @@ package body AWS.Server is
       ----------------------
 
       procedure Abort_On_Timeout
-        (Socket : out Socket_Access; Index  : out Positive) is
+        (Socket : out Socket_Access; Index : out Positive) is
       begin
          for S in Table'Range loop
             if Is_Abortable (S) then
