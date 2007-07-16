@@ -368,6 +368,12 @@ package body AWS.Server.Push is
             while Group_Sets.Has_Element (CG) loop
                G := Groups.Find (Group_Sets.Element (CG));
 
+               if not Group_Maps.Has_Element (G) then
+                  raise Program_Error with
+                    "Not found group " & Group_Sets.Element (CG)
+                    & " for client.";
+               end if;
+
                if Group_Maps.Element (G).Element (Tables.Key (C)) /= CA then
                   raise Program_Error with "loose client in group.";
                end if;
@@ -389,6 +395,7 @@ package body AWS.Server.Push is
                then
                   raise Program_Error with "loose group in client.";
                end if;
+
                C := Tables.Next (C);
             end loop;
 
@@ -447,7 +454,6 @@ package body AWS.Server.Push is
             if Duplicated_Age < Clock - Duplicated.Created then
                Unregister (Cursor);
                Container.Insert (Client_Id, Holder);
-               return;
             else
                Free (Holder);
                raise Duplicate_Client_Id;
