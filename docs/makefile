@@ -73,6 +73,9 @@ APIFILES = ../src/aws.ads.texi \
 	../src/aws-services-split_pages-alpha.ads.texi \
 	../src/aws-services-split_pages-alpha-bounded.ads.texi \
 	../src/aws-services-transient_pages.ads.texi \
+	../src/aws-services-web_block.ads.texi \
+	../src/aws-services-web_block-context.ads.texi \
+	../src/aws-services-web_block-registry.ads.texi \
 	../src/aws-session.ads.texi \
 	../src/aws-smtp-client.ads.texi \
 	../src/aws-smtp.ads.texi \

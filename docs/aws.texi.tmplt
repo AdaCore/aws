@@ -2517,6 +2517,7 @@ Refer to the Ada spec for a complete API and usage description.
 * Split pages::
 * Download Manager::
 * Web Elements::
+* Web Block Context::
 @end menu
 
 @c ----------------------------------------------------------------------
@@ -3484,6 +3485,170 @@ way to chain multiple actions for a single event.
 @noindent
 Note that all @code{AWS/Ajax} templates have a set of comments at the start
 explaining in details the usage of each parameter.
+
+@c ----------------------------------------------------------------------
+
+@node Web Block Context
+@section Web Block Context
+@cindex Web Block Context
+
+@noindent
+The @code{AWS.Services.Web_Block} hierarchy contains an API useful for
+keeping context on Web pages. It has been designed to be able to split
+a Web application into a set of independent blocks that can be put
+together in the same Web page. The context is then useful as it is
+passed and known by each individual block. Note that this is different
+than the session as a session is global to the current Web browser
+whereas the context can be different for each individual web pages
+opened.
+
+@noindent
+Instead of parsing a whole page using @code{AWS.Templates} API the web blocks
+are registered independently using @code{AWS.Services.Web_Block.Registry}.
+The block is registered together with its templates and a callback to use
+to get user's data for this specific block with the given context.
+
+@noindent
+So using this API instead of having a set of callbacks returning an
+@code{AWS.Response.Data} and where the final rendering is to be done
+by the client code we have a set of callbacks that returns a
+@code{Translate_Set}. The client just have to fill the set with the
+data corresponding to the actual request and possibly using the
+context. The final rendering is done by the provided services in
+@code{Web_Block.Registry}.
+
+@noindent
+It is possible to use the @code{Templates_Parser's templates2ada} tool for
+generating the callbacks register calls. This ensures that all tags on the
+application Web Pages have a corresponding callback.
+
+@noindent
+Let's have a simple example, a block with a single tag (@@_LAZY_COUNTER_@@)
+that is incremented by one each time it is used.
+
+@noindent
+First create the following simple HTML fragment and place it into
+@file{templates/counter.thtml}. Note that by convention the lazy tags
+(see Templates_Parser documentation) start with the prefix @code{LAZY_}.
+
+@AWSEXP{<p>@@_LAZY_COUNTER_@@</p>}
+
+@noindent
+The @code{Web_Callbacks} package contains the application callbacks.
+
+@AWSEXP{with AWS.Status;
+@b{with} AWS.Templates;
+@b{with} AWS.Services.Web_Block.Context;
+
+@b{package} Web_Callbacks @b{is}
+
+   @b{use} AWS;
+   @b{use} AWS.Services;
+
+   @b{procedure} Counter
+     (Request      : @b{in}     Status.Data;
+      Context      : @b{access} Web_Block.Context.Object;
+      Translations : @b{in out} AWS.Templates.Translate_Set);
+
+@b{end} Web_Callbacks;}
+
+@noindent
+We need also modify the standard @file{templates.tads} as distributed
+with the @code{Templates_Parser} to add the following template code:
+
+@AWSEXP{with AWS.Services.Web_Block.Registry;
+@b{with} Web_Callbacks;
+
+@b{package body} @@_PACKAGE_@@ @b{is}
+
+   @b{package body} Lazy @b{is}
+
+      @b{procedure} Register;
+      --  Register lazy tags into the AWS's Web Block framework
+
+      --------------
+      -- Register --
+      --------------
+
+      @b{procedure} Register @b{is}
+         @b{use} AWS.Services;
+      @b{begin}
+  @@@@TABLE@@@@
+     @@@@IF@@@@ @@@code{_}UPPER:SLICE(1..5):VARIABLE_LIST_@@ = "LAZY_"
+         Web_Block.Registry.Register
+            ("@@_VARIABLE_LIST_@@",
+            "templates/@@@code{_}LOWER:REPLACE_ALL(LAZY_/):VARIABLE_LIST_ @@.thtml",
+             Web_Callbacks.@@@code{_}CAPITALIZE:REPLACE_ALL(LAZY_/):VARIABLE_LIST_@@'Access);
+     @@@@END_IF@@@@
+  @@@@END_TABLE@@@@
+      @b{end} Register;
+
+   @b{begin}
+      Lazy.Register;
+   @b{end} Lazy;
+
+@b{end} @@_PACKAGE_@@;}
+
+@noindent
+Basically this is to write a register call for every template's
+tag. The registration is done during elaboration. The templates can be
+tailored as needed, for example it is also possible to generate all
+callback's specs.
+
+@noindent
+Now let's parse the template HTML fragment and create the
+corresponding Ada spec:
+
+@AWSEXP{$ templates2ada -d templates -o code.ada -r templates.tads
+$ gnatchop code.ada}
+
+@noindent
+Look at the generated code, it properly register the @code{Counter}
+callback to be used for rendering @code{LAZY_COUNTER} using the
+@file{templates/counter.thtml}. So we have a tight coupling between
+the code and the template file. If the tag is renamed in the template
+file the application will not compile anymore. This greatly helps
+keeping the application code synchronized.
+
+@AWSEXP{@b{procedure} Register @b{is}
+   @b{use} AWS.Services;
+@b{begin}
+   Web_Block.Registry.Register
+      ("LAZY_COUNTER",
+       "templates/counter.thtml",
+       Web_Callbacks.Counter'Access);
+@b{end} Register;}
+
+@noindent
+Last part is to actually implement the @code{Counter} callback. Here
+is a possible implementation making use of the context to keep the
+counter state.
+
+@AWSEXP{@b{with} AWS.Utils;
+@b{with} Templates;
+
+@b{package body} Web_Callbacks @b{is}
+
+   @b{procedure} Counter
+     (Request      : @b{in}     Status.Data;
+      Context      : @b{access} Web_Block.Context.Object;
+      Translations : @b{in out} AWS.Templates.Translate_Set)
+   @b{is}
+      N : Natural := 0;
+   @b{begin}
+      @b{if} Context.Exist ("N") @b{then}
+         N := Natural'Value (Context.Get_Value ("N"));
+      @b{end if};
+
+      N := N + 1;
+      Context.Set_Value ("N", Utils.Image (N));
+
+      AWS.Templates.Insert
+        (Translations,
+         AWS.Templates.Assoc (Templates.Lazy.Lazy_Counter, N));
+   @b{end} Counter;
+
+@b{end} Web_Callbacks;}
 
 @c ======================================================================
 
@@ -5699,6 +5864,9 @@ AWS User's API:
 * AWS.Services.Split_Pages.Uniform.Alpha::
 * AWS.Services.Split_Pages.Uniform.Overlapping::
 * AWS.Services.Transient_Pages::
+* AWS.Services.Web_Block::
+* AWS.Services.Web_Block.Context::
+* AWS.Services.Web_Block.Registry::
 * AWS.Session::
 * AWS.SMTP::
 * AWS.SMTP.Client::
@@ -6150,6 +6318,27 @@ SOAP User's API:
 @cindex AWS.Services.Transient_Pages
 
 @include aws-services-transient_pages.ads.texi
+
+@page
+@node AWS.Services.Web_Block
+@appendixsec AWS.Services.Web_Block
+@cindex AWS.Services.Web_Block
+
+@include aws-services-web_block.ads.texi
+
+@page
+@node AWS.Services.Web_Block.Context
+@appendixsec AWS.Services.Web_Block.Context
+@cindex AWS.Services.Web_Block.Context
+
+@include aws-services-web_block-context.ads.texi
+
+@page
+@node AWS.Services.Web_Block.Registry
+@appendixsec AWS.Services.Web_Block.Registry
+@cindex AWS.Services.Web_Block.Registry
+
+@include aws-services-web_block-registry.ads.texi
 
 @page
 @node AWS.Session
