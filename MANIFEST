@@ -503,6 +503,9 @@ regtests/wait_pack.ads
 regtests/wait_proc.adb
 regtests/wait_sec.adb
 regtests/wait_sec.out
+regtests/wb_test.adb
+regtests/wb_test.out
+regtests/wb_test.tmplt
 regtests/zapp.adb
 regtests/zapp.out
 regtests/zbig.adb
@@ -684,6 +687,11 @@ src/aws-services-transient_pages-control.adb
 src/aws-services-transient_pages-control.ads
 src/aws-services-transient_pages.adb
 src/aws-services-transient_pages.ads
+src/aws-services-web_block-context.adb
+src/aws-services-web_block-context.ads
+src/aws-services-web_block-registry.adb
+src/aws-services-web_block-registry.ads
+src/aws-services-web_block.ads
 src/aws-services-web_mail.adb
 src/aws-services-web_mail.ads
 src/aws-services.ads
@@ -776,9 +784,6 @@ templates_parser/regtests/dynamic.tmplt
 templates_parser/regtests/empty.adb
 templates_parser/regtests/error.tmplt
 templates_parser/regtests/filter.adb
-templates_parser/regtests/nullset.adb
-templates_parser/regtests/nullset.out
-templates_parser/regtests/nullset.tmplt
 templates_parser/regtests/ftp.out
 templates_parser/regtests/ftp.tmplt
 templates_parser/regtests/ftp2.tmplt
@@ -802,6 +807,9 @@ templates_parser/regtests/not_initialized.adb
 templates_parser/regtests/not_initialized.out
 templates_parser/regtests/not_initialized.tmplt
 templates_parser/regtests/now.tmplt
+templates_parser/regtests/nullset.adb
+templates_parser/regtests/nullset.out
+templates_parser/regtests/nullset.tmplt
 templates_parser/regtests/print_tree.adb
 templates_parser/regtests/regtests.gpr
 templates_parser/regtests/regtst1.adb

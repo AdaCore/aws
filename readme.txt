@@ -4,7 +4,7 @@
 
 Authors:
    Dmitriy Anisimkov
-   Pascal Obry                                              June 25rd, 2007
+   Pascal Obry                                               July 16th, 2007
 
 
 
@@ -57,6 +57,9 @@ Here are the main changes since AWS 2.3.0 :
    - Fix xsd:float and xsd:double support to match the W3C recommendations.
 
    - Add support for SMTP authentication.
+
+   - Add a new high level service (AWS.Services.Web_Block) to help
+     building block based Web applications.
 
    - Plus many small fixes, enhancements, API comments, and documentation work.
 
