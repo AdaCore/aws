@@ -189,43 +189,19 @@ package body AWS.Services.Transient_Pages is
       -----------------
 
       procedure Generate_ID (URI : out ID) is
-
-         type NID is new AWS.Utils.Random_Integer;
-
-         Chars : constant String
-           := "0123456789"
-                & "abcdefghijklmnopqrstuvwxyz"
-                & "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-
-         Rand   : NID := 0;
-         Result : ID;
-
-         K_Img  : constant String := Natural'Image (K);
-         J      : Positive := K_Img'First + 1;
+         K_Img : constant String := Utils.Image (K);
       begin
          --  Fill with '$'
 
-         for I in 1 .. 6 - K_Img'Length loop
-            Result (I) := '$';
-         end loop;
+         URI (1 .. 5 - K_Img'Length) := (others => '$');
 
          --  Add the number
 
-         for I in 6 - K_Img'Length + 1 .. 5 loop
-            Result (I) := K_Img (J);
-            J := J + 1;
-         end loop;
+         URI (5 - K_Img'Length + 1 .. 5) := K_Img;
 
          --  Fill the next 20 characters with random characters
 
-         for I in 6 .. ID'Last loop
-            if Rand = 0 then
-               Rand := Random;
-            end if;
-
-            Result (I) := Chars (Integer (Rand rem Chars'Length) + 1);
-            Rand := Rand / Chars'Length;
-         end loop;
+         Utils.Random_String (URI (6 .. URI'Last));
 
          K := K + 1;
 
@@ -233,7 +209,6 @@ package body AWS.Services.Transient_Pages is
             K := 0;
          end if;
 
-         URI := Result;
       end Generate_ID;
 
       ---------------

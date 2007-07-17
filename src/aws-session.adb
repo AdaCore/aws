@@ -198,11 +198,6 @@ package body AWS.Session is
       Lock_Counter : Natural := 0;
       Sessions     : aliased Session_Set.Map;
 
-      function Generate_Id return Id;
-      --  Returns a session ID. This ID is not certified to be unique in the
-      --  system. It is required that the caller checks for uniqueness if
-      --  necessary.
-
    end Database;
 
    -------------
@@ -392,34 +387,6 @@ package body AWS.Session is
          Session_Set.Clear (Sessions);
       end Destroy;
 
-      ------------------
-      -- Generate_UID --
-      ------------------
-
-      function Generate_Id return Id is
-
-         type NID is new AWS.Utils.Random_Integer;
-
-         Chars : constant String
-           := "0123456789"
-             & "abcdefghijklmnopqrstuvwxyz"
-             & "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-         Rand   : NID := 0;
-         Result : Id;
-
-      begin
-         for I in Id'Range loop
-            if Rand = 0 then
-               Rand := Random;
-            end if;
-
-            Result (I) := Chars (Integer (Rand rem Chars'Length) + 1);
-            Rand := Rand / Chars'Length;
-         end loop;
-
-         return Result;
-      end Generate_Id;
-
       ---------------
       -- Get_Value --
       ---------------
@@ -524,7 +491,7 @@ package body AWS.Session is
 
       begin
          Generate_UID : loop
-            SID := Generate_Id;
+            Utils.Random_String (String (SID));
 
             Session_Set.Insert
               (Sessions, String (SID), New_Node, Cursor, Success);

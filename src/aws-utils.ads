@@ -54,6 +54,9 @@ package AWS.Utils is
    function Random return Random_Integer;
    --  Returns a random integer number
 
+   procedure Random_String (Item : out String);
+   --  Fill string by random printable characters
+
    function Image (N : in Natural) return String;
    --  Returns image of N without the leading blank
 

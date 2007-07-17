@@ -757,6 +757,25 @@ package body AWS.Utils is
       return Integer_Random.Random (Random_Generator);
    end Random;
 
+   -------------------
+   -- Random_String --
+   -------------------
+
+   procedure Random_String (Item : out String) is
+      Chars : constant String
+        := "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+      Rand  : Random_Integer := 0;
+   begin
+      for I in Item'Range loop
+         if Rand = 0 then
+            Rand := Random;
+         end if;
+
+         Item (I) := Chars (Integer (Rand rem Chars'Length) + 1);
+         Rand := Rand / Chars'Length;
+      end loop;
+   end Random_String;
+
    ------------------
    -- RW_Semaphore --
    ------------------
