@@ -388,7 +388,15 @@ endif
 	echo -n '   Body_File_Name =>' >> $(CONFADC)
 	echo ' "aws-net-ssl-certificate__$(SSL_SUFFIX).adb");' >> $(CONFADC)
 
-setup: setup_dir $(GEXT_MODULE) $(MODULES_SETUP) setup_config
+setup_debug:
+	$(MAKE) DEBUG=1 setup_modules
+
+setup_release:
+	$(MAKE) setup_modules
+
+setup_modules: $(MODULES_SETUP) setup_config
+
+setup: setup_dir $(GEXT_MODULE) setup_debug setup_release
 
 install_clean:
 	$(RM) -fr $(I_INC)
