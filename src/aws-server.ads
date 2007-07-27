@@ -138,6 +138,8 @@ package AWS.Server is
    --  Dynamically associate a new dispatcher object to the server. With the
    --  feature it is possible to change server behavior at runtime. The
    --  complete set of callback procedures will be changed when calling this
+   --  routine. Note that any change in a dispatcher associated with a server
+   --  using Register or Unregister must be reset into the server using this
    --  routine.
 
    procedure Set_Security

@@ -215,6 +215,14 @@ package body AWS.Server.HTTP_Utils is
                --  If no one applied, run the user callback
 
                if not Found then
+                  if HTTP_Server.New_Dispatcher /= null then
+                     HTTP_Server.Dispatcher_Sem.Write;
+                     Dispatchers.Free (HTTP_Server.Dispatcher);
+                     HTTP_Server.Dispatcher := HTTP_Server.New_Dispatcher;
+                     HTTP_Server.New_Dispatcher := null;
+                     HTTP_Server.Dispatcher_Sem.Release_Write;
+                  end if;
+
                   HTTP_Server.Dispatcher_Sem.Read;
 
                   --  Be sure to always release the read semaphore
@@ -229,15 +237,6 @@ package body AWS.Server.HTTP_Utils is
                         HTTP_Server.Dispatcher_Sem.Release_Read;
                         raise;
                   end;
-
-                  if HTTP_Server.New_Dispatcher /= null then
-                     HTTP_Server.Dispatcher_Sem.Write;
-                     Dispatchers.Free (HTTP_Server.Dispatcher);
-                     HTTP_Server.Dispatcher := HTTP_Server.New_Dispatcher;
-                     HTTP_Server.New_Dispatcher := null;
-                     HTTP_Server.Dispatcher_Sem.Release_Write;
-                  end if;
-
                end if;
 
                HTTP_Server.Slots.Mark_Phase (Line_Index, Server_Response);
