@@ -1,10 +1,10 @@
 
 			    A W S - Ada Web Server
-			   2.4.0 release / SOAP 1.4
+			   2.4.0 release / SOAP 1.5
 
 Authors:
    Dmitriy Anisimkov
-   Pascal Obry                                               July 16th, 2007
+   Pascal Obry                                               August 1st, 2007
 
 
 
@@ -60,6 +60,8 @@ Here are the main changes since AWS 2.3.0 :
 
    - Add a new high level service (AWS.Services.Web_Block) to help
      building block based Web applications.
+
+   - Add support for user defined types in ada2wsdl tool.
 
    - Plus many small fixes, enhancements, API comments, and documentation work.
 
@@ -297,7 +299,7 @@ about AWS. In the early stage of the project this is very valuable.
 
 So thanks goes to Georg Bauhaus, Ted Dennison, Wiljan Derks, Sune Falck,
 David C. Hoos, Audran Le Baron, Thierry Lelegard, Nicolas Lesbats,
-Olivier Ramonat,Jean-François Rameau, Maxim Reznik, Jean-Pierre Rosen,
+Olivier Ramonat, Jean-François Rameau, Maxim Reznik, Jean-Pierre Rosen,
 Jerme Roussel, Ariane Sinibardy, Henrik Sundberg.
 
 

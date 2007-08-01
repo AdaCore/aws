@@ -1,0 +1,31 @@
+
+   - new type        My_Int is byte (xsd:byte)
+   - new type        My_Number is byte (xsd:byte)
+   - new type        Big_Number is long (xsd:long)
+   - derived         S_Int is new Positive (xsd:int)
+   - derived         L_Int is new Long_Integer (xsd:int)
+   - new type        My_Float is float (xsd:float)
+   - new type        My_Double is double (n1:double)
+   - derived         My_Float2 is new Float (xsd:float)
+   - new type        Mod1 is unsigned_byte (xsd:unsignedByte)
+   - new type        Mod2 is unsigned_short (xsd:unsignedShort)
+   - new type        Mod3 is unsigned_int (xsd:unsignedInt)
+   - record          R
+        C1 : My_Int (n1:My_Int)
+        C2 : Positive (xsd:int)
+        C3 : Natural (xsd:int)
+        C4 : My_Number (n1:My_Number)
+        C5 : Big_Number (n1:Big_Number)
+        C6 : My_Float (n1:My_Float)
+        C7 : My_Float2 (n1:My_Float2)
+        C8 : S_Int (n1:S_Int)
+        C9 : Float (xsd:float)
+   > procedure       P
+        A : R (n1:R)
+        B : My_Int (n1:My_Int)
+        C : My_Float (n1:My_Float)
+        D : My_Number (n1:My_Number)
+        E : Big_Number (n1:Big_Number)
+        F : S_Int (n1:S_Int)
+
+WSDL document wsdl_c.wsdl is created for wsdl_c.ads.

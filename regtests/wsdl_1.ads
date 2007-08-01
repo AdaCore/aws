@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2003                            --
---                                ACT-Europe                                --
+--                         Copyright (C) 2003-2007                          --
+--                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -31,5 +31,9 @@ package WSDL_1 is
    procedure Print (X : in Integer);
 
    function Image (X : in Integer) return String;
+
+   type Small_Integer is range 1 .. 127;
+
+   procedure Print_Small (X : in Small_Integer);
 
 end WSDL_1;

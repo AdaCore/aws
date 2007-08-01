@@ -4191,10 +4191,34 @@ type which is recognized by @code{ada2wsdl} to generate the proper SOAP type.
 Mapped to @b{xsd:unsignedLong}. @code{SOAP.Types.Unsigned_Long} is a
 type which is recognized by @code{ada2wsdl} to generate the proper SOAP type.
 
+@item Derived types
+Mapped to a type schema definition.
+
+@AWSEXP {@b{type} Number @b{is new} Integer;}
+
+is defined as:
+
+@AWSEXP {<simpleType name="Number"
+        targetNamespace="http://soapaws/WSDL_C_pkg/">
+   <restriction base="xsd:int"/>
+</simpleType>}
+
+@item User's types
+Mapped to a type schema definition.
+
+@AWSEXP {@b{type} Small @b{is range} 1 .. 10;}
+
+is defined as:
+
+@AWSEXP {<simpleType name="Small"
+        targetNamespace="http://soapaws/WSDL_C_pkg/">
+   <restriction base="xsd:byte"/>
+</simpleType>}
+
 @item Enumerations
 Mapped to an enumeration schema definition. For example:
 
-@AWSEXP {type Color is (Red, Green, Blue);}
+@AWSEXP {@b{type} Color @b{is} (Red, Green, Blue);}
 
 is defined as:
 

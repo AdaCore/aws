@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2003-2007                          --
---                                 AdaCore                                  --
+--                            Copyright (C) 2007                            --
+--                                 AdaCore                                --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -26,59 +26,41 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-with Ada.Text_IO;
+package WSDL_C is
 
-with AWS.MIME;
-with SOAP.Message.Response.Error;
+   type My_Int is range 1 .. 100;
+   subtype My_Number is My_Int range 1 .. 2;
+   subtype Big_Number is Long_Long_Integer;
 
-with WSDL_1;
-with WSDL_1_Service.Server;
+   type S_Int is new Positive range 1 .. 4;
+   type L_Int is new Long_Integer  range 1 .. Long_Integer'Last;
 
-package body WSDL_1_Server is
+   type My_Float is digits 6;
+   type My_Double is digits 15;
+   type My_Float2 is new Float;
 
-   use Ada;
-   use SOAP;
+   type Mod1 is mod 10;
+   type Mod2 is mod 6543;
+   type Mod3 is mod 1_987_987_543;
 
-   function Print_CB is new WSDL_1_Service.Server.Print_CB (WSDL_1.Print);
-   function Image_CB is new WSDL_1_Service.Server.Image_CB (WSDL_1.Image);
-   function Print_Small_CB is
-      new WSDL_1_Service.Server.Print_Small_CB (WSDL_1.Print_Small);
+   type R is record
+      C1 : My_Int;
+      C2 : Positive;
+      C3 : Natural;
+      C4 : My_Number;
+      C5 : Big_Number;
+      C6 : My_Float;
+      C7 : My_Float2;
+      C8 : S_Int;
+      C9 : Float;
+   end record;
 
-   -------------
-   -- HTTP_CB --
-   -------------
+   procedure P
+     (A : in R;
+      B : in My_Int;
+      C : in My_Float;
+      D : in My_Number;
+      E : in Big_Number;
+      F : in S_int);
 
-   function HTTP_CB (Request : in Status.Data) return Response.Data is
-   begin
-      return Response.Build
-        (MIME.Text_HTML, "No HTTP request should be called.");
-   end HTTP_CB;
-
-   -------------
-   -- SOAP_CB --
-   -------------
-
-   function SOAP_CB
-     (SOAPAction : in String;
-      Payload    : in Message.Payload.Object;
-      Request    : in Status.Data)
-      return Response.Data is
-   begin
-      if SOAPAction = "Print" then
-         return Print_CB (SOAPAction, Payload, Request);
-
-      elsif SOAPAction = "Image" then
-         return Image_CB (SOAPAction, Payload, Request);
-
-      elsif SOAPAction = "Print_Small" then
-         return Print_Small_CB (SOAPAction, Payload, Request);
-
-      else
-         return Message.Response.Build
-           (Message.Response.Error.Build
-              (Message.Response.Error.Client,
-               "Wrong SOAP action " & SOAPAction));
-      end if;
-   end SOAP_CB;
-
-end WSDL_1_Server;
+end WSDL_C;

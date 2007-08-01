@@ -108,13 +108,11 @@ implemented:
         </complexContent>
     </complexType>
 
-
     <element name='ArrayOfString'>
         <complexType>
             <element name='name' type='xsd:String' maxOccurs='unbounded'/>
         </complexType>
     </element>
-
 
     <element name='ArrayOfString'>
         <complexType>
@@ -180,15 +178,6 @@ implemented:
 - Revisit the AdaSockets support. Should we continue supporting this ?
   It would certainly be easier to support only GNAT.Sockets and use the
   selector facilities instead of the AWS's poll() support.
-
-- Add support for user defined types in ada2wsdl. For example types
-  like:
-
-     type My_Int is range 1 .. 10;
-     subtype My_Number is My_Int range 1 .. 2;
-
-  are not referenced into the schema at the moment.
- 
 
 =============== Point to fix/implement/review before next release (2.3.0)
 

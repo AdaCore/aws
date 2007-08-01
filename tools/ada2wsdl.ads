@@ -4,8 +4,6 @@
 --                         Copyright (C) 2003-2007                          --
 --                                 AdaCore                                  --
 --                                                                          --
---  Authors: Dmitriy Anisimkov - Pascal Obry                                --
---                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
 --  the Free Software Foundation; either version 2 of the License, or (at   --
@@ -32,7 +30,7 @@ with Asis;
 
 package Ada2WSDL is
 
-   Version : constant String := "1.2.0";
+   Version : constant String := "1.3.0";
 
    Fatal_Error     : exception;
    --  Raised when a non-recoverable error has been found
@@ -49,6 +47,7 @@ package Ada2WSDL is
    procedure Raise_Spec_Error
      (E       : in Asis.Element;
       Message : in String);
+   pragma No_Return (Raise_Spec_Error);
    --  Raises Spec_Error exception with the given message. Add a source
    --  location information for entity E.
 

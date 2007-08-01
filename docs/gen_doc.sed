@@ -1,5 +1,5 @@
 s,@_AWS_VERSION_@,2.4.0w,g
-s,@_SOAP_VERSION_@,1.4.0,g
+s,@_SOAP_VERSION_@,1.5.0,g
 s,@_MAX_CONNECT_@,5,g
 s,@_KEEP_ALIVE_LIMIT_@,1,g
 s,@_QUEUE_SIZE_@,64,g

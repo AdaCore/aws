@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2003-2005                          --
+--                         Copyright (C) 2003-2007                          --
 --                                 AdaCore                                  --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -63,7 +63,7 @@ package body Ada2WSDL.Generator is
    end record;
 
    type Mode is (Routine, Safe_Pointer_Definition,
-                 Structure, Table, Derived, Enumeration);
+                 Structure, Table, Simple_Type, Enumeration);
 
    type Definition (Def_Mode : Mode := Routine) is record
       Name        : Unbounded_String;
@@ -78,7 +78,7 @@ package body Ada2WSDL.Generator is
          when Table =>
             Length : Natural;
 
-         when Structure | Derived | Enumeration =>
+         when Structure | Simple_Type | Enumeration =>
             null;
 
          when Safe_Pointer_Definition =>
@@ -266,11 +266,11 @@ package body Ada2WSDL.Generator is
    ----------------------
 
    procedure Register_Derived (NS, Name, Parent_Name : in String) is
-      New_P : constant Parameter_Access
-        := new Parameter'
-          (+Name, +Parent_Name, +To_XSD (NS, Parent_Name), null);
+      New_P : constant Parameter_Access :=
+                new Parameter'
+                  (+Name, +Parent_Name, +To_XSD (NS, Parent_Name), null);
 
-      D : Definition (Derived);
+      D : Definition (Simple_Type);
    begin
       --  We need to write a schema for this derived type
       Schema_Needed := True;
@@ -324,6 +324,39 @@ package body Ada2WSDL.Generator is
               & " (" & Type_Name & ", " & Access_Name & ")");
       end if;
    end Register_Safe_Pointer;
+
+   -------------------
+   -- Register_Type --
+   -------------------
+
+   procedure Register_Type (NS, Name, Root_Name : in String) is
+      New_P : constant Parameter_Access :=
+                new Parameter'
+                  (+Name, +Root_Name, +To_XSD (NS, Root_Name), null);
+
+      D : Definition (Simple_Type);
+   begin
+      --  We need to write a schema for this derived type
+      Schema_Needed := True;
+
+      D.NS         := +NS;
+      D.Name       := +Name;
+      D.Parameters := New_P;
+
+      Index := Index + 1;
+      API (Index) := D;
+
+      if not Options.Quiet then
+         Text_IO.Put
+           ("   - new type        " & Name & " is " & Root_Name);
+
+         if Options.Verbose then
+            Text_IO.Put_Line (" (" & (-New_P.XSD_Name) & ')');
+         else
+            Text_IO.New_Line;
+         end if;
+      end if;
+   end Register_Type;
 
    -----------------
    -- Return_Type --
@@ -493,7 +526,7 @@ package body Ada2WSDL.Generator is
    begin
       for I in 1 .. Index loop
          if API (I).Def_Mode = Structure
-           or else API (I).Def_Mode = Derived
+           or else API (I).Def_Mode = Simple_Type
            or else API (I).Def_Mode = Enumeration
            or else API (I).Def_Mode = Table
          then
@@ -779,7 +812,7 @@ package body Ada2WSDL.Generator is
          procedure Write_Record (E : in Definition);
          --  Write record element tags
 
-         procedure Write_Derived (E : in Definition);
+         procedure Write_Type (E : in Definition);
          --  Write a derived type (simpleType)
 
          procedure Write_Enumeration (E : in Definition);
@@ -842,21 +875,6 @@ package body Ada2WSDL.Generator is
             Put_Line ("         </simpleType>");
          end Write_Character;
 
-         -------------------
-         -- Write_Derived --
-         -------------------
-
-         procedure Write_Derived (E : in Definition) is
-            P : constant Parameter_Access := E.Parameters;
-         begin
-            New_Line;
-            Put_Line ("         <simpleType name=""" & (-E.Name) & '"');
-            Put_Line ("                 targetNamespace=""" & (-E.NS) & """>");
-            Put_Line ("            <restriction base="""
-                        & (-P.XSD_Name) & """/>");
-            Put_Line ("         </simpleType>");
-         end Write_Derived;
-
          -----------------------
          -- Write_Enumeration --
          -----------------------
@@ -901,6 +919,21 @@ package body Ada2WSDL.Generator is
             Put_Line ("         </complexType>");
          end Write_Record;
 
+         ----------------
+         -- Write_Type --
+         ----------------
+
+         procedure Write_Type (E : in Definition) is
+            P : constant Parameter_Access := E.Parameters;
+         begin
+            New_Line;
+            Put_Line ("         <simpleType name=""" & (-E.Name) & '"');
+            Put_Line ("                 targetNamespace=""" & (-E.NS) & """>");
+            Put_Line ("            <restriction base="""
+                        & (-P.XSD_Name) & """/>");
+            Put_Line ("         </simpleType>");
+         end Write_Type;
+
       begin
          if Schema_Needed or else Character_Schema then
             New_Line;
@@ -918,7 +951,7 @@ package body Ada2WSDL.Generator is
                case API (I).Def_Mode is
                   when Structure   => Write_Record (API (I));
                   when Table       => Write_Array (API (I));
-                  when Derived     => Write_Derived (API (I));
+                  when Simple_Type => Write_Type (API (I));
                   when Enumeration => Write_Enumeration (API (I));
 
                   when Safe_Pointer_Definition

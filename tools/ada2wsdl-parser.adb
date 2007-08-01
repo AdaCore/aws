@@ -55,6 +55,7 @@ with Asis.Text;
 with A4G.GNAT_Int;
 
 with SOAP.Name_Space;
+with SOAP.Types;
 
 with Ada2WSDL.Options;
 with Ada2WSDL.Generator;
@@ -267,8 +268,11 @@ package body Ada2WSDL.Parser is
          Type_Suffix :    out Unbounded_String;
          Length      :    out Positive);
 
-      function Type_Name (Elem : in Asis.Element) return String;
-      --  Returns the type name for Elem
+      function Type_Name
+        (Elem : in Asis.Element;
+         Base : in Boolean) return String;
+      --  Returns the type name for Elem. If Base is true the returned name is
+      --  the base type for the given element.
 
       procedure Analyse_Node (Node : in Link);
       --  Analyse a Node, handles procedure or function only
@@ -315,10 +319,7 @@ package body Ada2WSDL.Parser is
             when A_Package_Instantiation =>
                Analyse_Package_Instantiation (Node);
 
-            when A_Subtype_Declaration =>
-               Analyse_Type (Node.Spec);
-
-            when An_Ordinary_Type_Declaration =>
+            when A_Subtype_Declaration | An_Ordinary_Type_Declaration =>
                Analyse_Type (Node.Spec);
 
             when others =>
@@ -461,7 +462,7 @@ package body Ada2WSDL.Parser is
                      Generator.New_Formal
                        (NS       => Name_Space (E),
                         Var_Name => Image (Text.Element_Image (Names (K))),
-                        Var_Type => Type_Name (Elem));
+                        Var_Type => Type_Name (Elem, Base => False));
                   end loop;
                end;
             end loop;
@@ -474,7 +475,8 @@ package body Ada2WSDL.Parser is
                Elem : constant Asis.Element
                  := Declarations.Result_Profile (Node.Spec);
             begin
-               Generator.Return_Type (Name_Space (Elem), Type_Name (Elem));
+               Generator.Return_Type
+                 (Name_Space (Elem), Type_Name (Elem, Base => False));
             end;
          end if;
       end Analyse_Profile;
@@ -508,7 +510,6 @@ package body Ada2WSDL.Parser is
       ------------------
 
       procedure Analyse_Type (Elem : in Asis.Definition) is
-
          use Extensions.Flat_Kinds;
 
          type U_Array_Def is record
@@ -525,14 +526,17 @@ package body Ada2WSDL.Parser is
          procedure Analyse_Array_Component (Component : in Asis.Element);
          --  Analyse an array component
 
+         function Is_Standard (T : in Asis.Declaration) return Boolean;
+         --  Returns True if type T is declared in Standard
+
          -----------------------------
          -- Analyse_Array_Component --
          -----------------------------
 
          procedure Analyse_Array_Component (Component : in Asis.Element) is
-            E : Asis.Element
-              := (Definitions.Subtype_Mark
-                    (Definitions.Component_Subtype_Indication (Component)));
+            E : Asis.Element :=
+                  (Definitions.Subtype_Mark
+                     (Definitions.Component_Subtype_Indication (Component)));
          begin
             if Elements.Expression_Kind (E) = A_Selected_Component then
                E := Expressions.Selector (E);
@@ -651,7 +655,7 @@ package body Ada2WSDL.Parser is
             if Type_Name = Null_Unbounded_String then
                --  If type name not set, then compute it now
                Type_Name := To_Unbounded_String
-                 (Analyse_Structure.Type_Name (Elem));
+                 (Analyse_Structure.Type_Name (Elem, Base => False));
             end if;
 
             for K in Names'Range loop
@@ -663,18 +667,27 @@ package body Ada2WSDL.Parser is
             end loop;
          end Analyse_Field;
 
-         Name : constant String
-           := Image (Text.Element_Image (Declarations.Names (Elem)(1)));
+         -----------------
+         -- Is_Standard --
+         -----------------
 
-         E : Asis.Definition := Declarations.Type_Declaration_View (Elem);
+         function Is_Standard (T : in Asis.Declaration) return Boolean is
+         begin
+            return Characters.Handling.To_Lower
+              (Image
+                 (Compilation_Units.Unit_Full_Name
+                    (Elements.Enclosing_Compilation_Unit (T)))) = "standard";
+         end Is_Standard;
 
+         Name : constant String := Image
+           (Declarations.Defining_Name_Image (Declarations.Names (Elem) (1)));
+
+         E         : Asis.Definition :=
+                       Declarations.Type_Declaration_View (Elem);
          Type_Kind : constant Flat_Element_Kinds := Flat_Element_Kind (E);
 
       begin
          case Type_Kind is
-            --  ???
-            --  We should check for a subtype here
-
             when A_Record_Type_Definition =>
 
                if not Generator.Type_Exists (Name_Space (E), Name) then
@@ -759,9 +772,9 @@ package body Ada2WSDL.Parser is
             when A_Derived_Type_Definition =>
 
                declare
-                  TDV  : constant Asis.Element
-                    := Declarations.Type_Declaration_View
-                         (Definitions.Corresponding_Root_Type (E));
+                  TDV  : constant Asis.Element :=
+                           Declarations.Type_Declaration_View
+                             (Definitions.Corresponding_Root_Type (E));
                   PST  : Asis.Element;
                   C    : Asis.Constraint;
                   Comp : Asis.Element;
@@ -816,7 +829,7 @@ package body Ada2WSDL.Parser is
 
                if not Generator.Type_Exists (Name_Space (E), Name) then
                   Generator.Register_Derived
-                    (Name_Space (E), Name, Type_Name (E));
+                    (Name_Space (E), Name, Type_Name (E, Base => False));
                end if;
 
             when A_Subtype_Indication =>
@@ -863,6 +876,13 @@ package body Ada2WSDL.Parser is
                            Analyse_Array_Component (Comp);
                         end if;
                      end;
+
+                  else
+                     if not Generator.Type_Exists (Name_Space (E), Name) then
+                        Generator.Register_Type
+                          (Name_Space (E), Name,
+                           Type_Name (Elem, Base => True));
+                     end if;
                   end if;
                end;
 
@@ -884,6 +904,21 @@ package body Ada2WSDL.Parser is
                         end loop;
                      end;
                   end if;
+               end if;
+
+            when A_Signed_Integer_Type_Definition
+               | A_Modular_Type_Definition
+               | A_Floating_Point_Definition
+                 =>
+
+               if not Is_Standard (Elem)
+                 and then not Generator.Type_Exists (Name_Space (E), Name)
+               then
+                  --  We do not want to generate types declared in standard
+                  Generator.Register_Type
+                    (Name_Space (E),
+                     Name,
+                     Type_Name (Elem, Base => True));
                end if;
 
             when others =>
@@ -937,8 +972,78 @@ package body Ada2WSDL.Parser is
       -- Type_Name --
       ---------------
 
-      function Type_Name (Elem : in Asis.Element) return String is
+      function Type_Name
+        (Elem : in Asis.Element;
+         Base : in Boolean) return String
+      is
          use Extensions.Flat_Kinds;
+
+         function Compute_Value
+           (V : in Asis.Expression) return Long_Long_Integer;
+         function Compute_Value
+           (V : in Asis.Expression) return SOAP.Types.Unsigned_Long;
+         --  Retruns the computed value for the given expression. This is
+         --  supposed to be a simple expression for a range declaration:
+         --  range -2**5 .. 2**7 or mod 2**15;
+
+         -------------------
+         -- Compute_Value --
+         -------------------
+
+         function Compute_Value
+           (V : in Asis.Expression) return Long_Long_Integer
+         is
+            VI     : constant String := Image (Text.Element_Image (V));
+            M      : constant Natural := Strings.Fixed.Index (VI, "-");
+            E      : constant Natural := Strings.Fixed.Index (VI, "**");
+            N      : Long_Long_Integer;
+            N1, N2 : Long_Long_Integer;
+
+         begin
+            if M < E then
+               N2 := Long_Long_Integer'Value (VI (E + 2 .. VI'Last));
+
+               if M = 0 then
+                  N1 := Long_Long_Integer'Value (VI (VI'First .. E - 1));
+                  N := N1;
+               else
+                  N1 := Long_Long_Integer'Value (VI (M + 1 .. E - 1));
+                  N := -N1;
+               end if;
+
+               for K in 1 .. N2 - 1 loop
+                  N := N * N1;
+               end loop;
+
+               return N;
+
+            else
+               --  expressions not supported
+               --  ???
+               return 0;
+            end if;
+         end Compute_Value;
+
+         function Compute_Value
+           (V : in Asis.Expression) return SOAP.Types.Unsigned_Long
+         is
+            use type SOAP.Types.Unsigned_Long;
+            VI     : constant String := Image (Text.Element_Image (V));
+            E      : constant Natural := Strings.Fixed.Index (VI, "**");
+            N      : SOAP.Types.Unsigned_Long;
+            N1, N2 : SOAP.Types.Unsigned_Long;
+
+         begin
+            N1 := SOAP.Types.Unsigned_Long'Value (VI (VI'First .. E - 1));
+            N2 := SOAP.Types.Unsigned_Long'Value (VI (E + 2 .. VI'Last));
+
+            N := N1;
+            for K in 1 .. N2 - 1 loop
+               N := N * N1;
+            end loop;
+
+            return N;
+         end Compute_Value;
 
          E   : Asis.Element := Elem;
          CFS : Asis.Declaration;
@@ -949,7 +1054,13 @@ package body Ada2WSDL.Parser is
             E := Expressions.Selector (E);
          end if;
 
-         CND := Expressions.Corresponding_Name_Declaration (E);
+         if Flat_Element_Kind (E) /= An_Ordinary_Type_Declaration
+           and then Flat_Element_Kind (E) /= A_Subtype_Declaration
+         then
+            CND := Expressions.Corresponding_Name_Declaration (E);
+         else
+            CND := Elem;
+         end if;
 
          CFS := Declarations.Corresponding_First_Subtype (CND);
 
@@ -967,7 +1078,8 @@ package body Ada2WSDL.Parser is
 
             when An_Enumeration_Type_Definition =>
                --  Enumerations are mapped to Ada strings except for the
-               --  special type Character
+               --  special type Character.
+
                if Characters.Handling.To_Lower
                     (Image (Text.Element_Image (Elem))) = "character"
                then
@@ -988,20 +1100,118 @@ package body Ada2WSDL.Parser is
                end if;
 
             when A_Floating_Point_Definition =>
-               if Flat_Element_Kind (CND) = A_Subtype_Declaration then
-                  E := Declarations.Type_Declaration_View (CND);
-                  return Image (Text.Element_Image (E));
+               --  This is an integer type, check the constraint to return the
+               --  proper mapping.
+
+               if Base then
+                  declare
+                     Dig : constant Integer :=
+                             Integer'Value
+                               (Image (Expressions.Value_Image
+                                (Definitions.Digits_Expression (E))));
+                  begin
+                     if Dig <= Float'Digits then
+                        return "float";
+                     else
+                        return "double";
+                     end if;
+                  end;
 
                else
                   return Image (Text.Element_Image (Elem));
                end if;
 
-            when A_Signed_Integer_Type_Definition
-              | A_Modular_Type_Definition
-              =>
-               if Flat_Element_Kind (CND) = A_Subtype_Declaration then
-                  --  ??? What about a subtype of Long_Long_Integer
-                  return "integer";
+            when A_Modular_Type_Definition =>
+               --  This is an integer type, check the constraint to return the
+               --  proper mapping.
+
+               if Base then
+                  declare
+                     use type SOAP.Types.Unsigned_Long;
+                     Mod_Node : constant Asis.Expression :=
+                                  Definitions.Mod_Static_Expression (E);
+                     Modulus  : SOAP.Types.Unsigned_Long;
+                  begin
+                     if Flat_Element_Kind (Mod_Node) = A_Function_Call then
+                        Modulus := Compute_Value (Mod_Node);
+                     else
+                        Modulus := SOAP.Types.Unsigned_Long'Value
+                          (Image (Expressions.Value_Image (Mod_Node)));
+                     end if;
+
+                     if Modulus < SOAP.Types.Unsigned_Long
+                       (SOAP.Types.Unsigned_Byte'Modulus)
+                     then
+                        return "unsigned_byte";
+
+                     elsif Modulus < SOAP.Types.Unsigned_Long
+                       (SOAP.Types.Unsigned_Short'Modulus)
+                     then
+                        return "unsigned_short";
+
+                     elsif Modulus < SOAP.Types.Unsigned_Long
+                       (SOAP.Types.Unsigned_Int'Modulus)
+                     then
+                        return "unsigned_int";
+
+                     else
+                        return "unsigned_long";
+                     end if;
+                  end;
+
+               else
+                  return Image (Text.Element_Image (Elem));
+               end if;
+
+            when A_Signed_Integer_Type_Definition =>
+               --  This is an integer type, check the constraint to return the
+               --  proper mapping.
+
+               if Base then
+                  declare
+                     RC       : Asis.Range_Constraint;
+                     LB, UB   : Asis.Expression;
+                     Ilb, Iub : Long_Long_Integer;
+                  begin
+                     RC := Definitions.Integer_Constraint (E);
+
+                     LB := Definitions.Lower_Bound (RC);
+                     UB := Definitions.Upper_Bound (RC);
+
+                     if Flat_Element_Kind (LB) = A_Function_Call then
+                        Ilb := Compute_Value (LB);
+                     else
+                        Ilb := Long_Long_Integer'Value
+                          (Image (Expressions.Value_Image (LB)));
+                     end if;
+
+                     if Flat_Element_Kind (UB) = A_Function_Call then
+                        Iub := Compute_Value (UB);
+                     else
+                        Iub := Long_Long_Integer'Value
+                          (Image (Expressions.Value_Image (UB)));
+                     end if;
+
+                     if Ilb >= Long_Long_Integer (SOAP.Types.Byte'First)
+                       and then Iub <= Long_Long_Integer (SOAP.Types.Byte'Last)
+                     then
+                        return "byte";
+
+                     elsif Ilb >= Long_Long_Integer (SOAP.Types.Short'First)
+                       and then
+                         Iub <= Long_Long_Integer (SOAP.Types.Short'Last)
+                     then
+                        return "short";
+
+                     elsif Ilb >= Long_Long_Integer (Integer'First)
+                       and then Iub <= Long_Long_Integer (Integer'Last)
+                     then
+                        return "integer";
+
+                     else
+                        return "long";
+                     end if;
+                  end;
 
                else
                   return Image (Text.Element_Image (Elem));
@@ -1021,9 +1231,9 @@ package body Ada2WSDL.Parser is
                --  returns it, no need to analyse this further.
 
                declare
-                  T_Name : constant String
-                    := Characters.Handling.To_Lower
-                        (Image (Text.Element_Image (Elem)));
+                  T_Name : constant String :=
+                             Characters.Handling.To_Lower
+                               (Image (Text.Element_Image (Elem)));
                begin
                   --  Check for specific array name like String and Base64
 
@@ -1041,19 +1251,52 @@ package body Ada2WSDL.Parser is
                   end if;
                end;
 
-            when others =>
+            when A_Private_Type_Definition =>
                E := Declarations.Names (CFS) (1);
 
                declare
-                  E_Str : constant String := Image (Text.Element_Image (E));
+                  Name : constant String :=
+                           Characters.Handling.To_Lower
+                             (Image (Declarations.Defining_Name_Image (E)));
                begin
-                  --  ??? There is probably a better way to achieve this
-                  if E_Str = "" then
-                     return Image (Text.Element_Image (Elem));
+                  if Name = "unbounded_string" then
+                     if Base then
+                        return "string";
+                     else
+                        return "unbounded_string";
+                     end if;
+
                   else
-                     return E_Str;
+                     Raise_Spec_Error
+                       (E, Message => "unsupported private type " & Name);
                   end if;
                end;
+
+            when A_Derived_Record_Extension_Definition =>
+               --  This can be a safe pointer object
+
+               E := Declarations.Names (CFS) (1);
+
+               declare
+                  Name : constant String :=
+                           Characters.Handling.To_Lower
+                             (Image (Declarations.Defining_Name_Image (E)));
+               begin
+                  if Name = "safe_pointer" then
+                     return Image (Text.Element_Image (Elem));
+
+                  else
+                     Raise_Spec_Error
+                       (E, Message => "unsupported record extension " & Name);
+                  end if;
+               end;
+
+            when others =>
+               E := Declarations.Names (CFS) (1);
+               Raise_Spec_Error
+                 (E,
+                  Message => "unsupported element kind " &
+                               Image (Declarations.Defining_Name_Image (E)));
          end case;
       end Type_Name;
 
@@ -1173,7 +1416,6 @@ package body Ada2WSDL.Parser is
       --  Start of the processing of Create_Element_Node
 
    begin
-
       if State.Argument_Spec then
          Body_Structure.Spec      := Element;
          State.Argument_Spec      := False;
@@ -1225,7 +1467,6 @@ package body Ada2WSDL.Parser is
          --  No need to go deeper
          Control := Abandon_Children;
       end if;
-
    end Create_Element_Node;
 
    -----------------
@@ -1412,10 +1653,8 @@ package body Ada2WSDL.Parser is
    -----------------------
 
    function Register_Deferred (E : in Asis.Declaration) return String is
-
-      Name : constant String
-        := Image (Text.Element_Image (Declarations.Names (E) (1)));
-
+      Name : constant String := Image
+        (Declarations.Defining_Name_Image (Declarations.Names (E) (1)));
    begin
       Index := Index + 1;
       Deferred_Types (Index) := E;

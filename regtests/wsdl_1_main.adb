@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2003-2004                          --
---                                ACT-Europe                                --
+--                         Copyright (C) 2003-2007                          --
+--                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -59,6 +59,7 @@ begin
 
    WSDL_1_Service.Client.Print (12);
    WSDL_1_Service.Client.Print (98712);
+   WSDL_1_Service.Client.Print_Small (122);
    Text_IO.Put_Line (WSDL_1_Service.Client.Image (789));
    Text_IO.Put_Line (WSDL_1_Service.Client.Image (-1));
 

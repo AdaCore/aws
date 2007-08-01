@@ -72,7 +72,7 @@ ifeq (${ASIS}, true)
 # and 9. Socket port is then 770<digit>.
 
 ASIS_TESTS   = wsdl_1 wsdl_2 wsdl_3 wsdl_4 wsdl_5 wsdl_6 wsdl_7 wsdl_8 wsdl_9
-ASIS2_TESTS  = wsdl_a wsdl_b register
+ASIS2_TESTS  = wsdl_a wsdl_b wsdl_c register
 endif
 
 FILTER_OUT	+= $(addsuffix .adb, $(OTH_TESTS) $(ALONE_TESTS))

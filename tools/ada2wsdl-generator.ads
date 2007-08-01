@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                          Copyright (C) 2003-2004                         --
---                                ACT-Europe                                --
+--                          Copyright (C) 2003-2007                         --
+--                                  AdaCore                                 --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
 --                                                                          --
@@ -85,6 +85,9 @@ package Ada2WSDL.Generator is
 
    procedure Register_Derived (NS, Name, Parent_Name : in String);
    --  Register a derived type
+
+   procedure Register_Type (NS, Name, Root_Name : in String);
+   --  Register a user defined type
 
    function Type_Exists (NS, Name : in String) return Boolean;
    --  Returns True if Name exists in the type list
