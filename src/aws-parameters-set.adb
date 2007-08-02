@@ -75,6 +75,10 @@ package body AWS.Parameters.Set is
          S := Positive'Succ (S);
       end if;
 
+      if C > P'Last then
+         return;
+      end if;
+
       Parameter_List.Parameters := To_Unbounded_String ('?' & P (C .. P'Last));
 
       loop

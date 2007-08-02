@@ -40,6 +40,7 @@ package AWS.Parameters is
    --  Returns the list of parameters in the URI format. This can be added
    --  after the ressource to form the complete URI. The format is:
    --  "?name1=value1&name2=value2..."
+   --  If there is no parameter in the list, the empty string is returned.
 
    --  See AWS.Containers.Tables for inherited routines.
 

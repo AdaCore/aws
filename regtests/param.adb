@@ -70,6 +70,7 @@ procedure Param is
          Put_Line ("N  = " & Natural'Image (Parameters.Count (P_List)));
          Put_Line ("p1 = " & Parameters.Get (P_List, "p1"));
          Put_Line ("p2 = " & Parameters.Get (P_List, "p2"));
+         Put_Line ("Parameters = " & Parameters.URI_Format (P_List));
 
          return Response.Build (MIME.Text_HTML, "call ok");
 
@@ -89,6 +90,7 @@ procedure Param is
 
       else
          Put_Line ("Unknown URI " & URI);
+
          return Response.Build
            (MIME.Text_HTML, URI & " not found", Messages.S404);
       end if;
