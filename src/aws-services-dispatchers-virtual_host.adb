@@ -43,6 +43,52 @@ package body AWS.Services.Dispatchers.Virtual_Host is
       Node             : in     VH_Node);
    --  Register Node as into the dispatcher
 
+   -----------
+   -- Clone --
+   -----------
+
+   overriding function Clone (Dispatcher : in Handler) return Handler is
+      New_Dispatcher : Handler;
+      Cursor         : Virtual_Host_Table.Cursor;
+   begin
+      if Dispatcher.Action /= null then
+         New_Dispatcher.Action :=
+           new AWS.Dispatchers.Handler'Class'(Dispatcher.Action.Clone);
+      end if;
+
+      Cursor := VH_Table.First (Dispatcher.Table);
+
+      while Virtual_Host_Table.Has_Element (Cursor) loop
+         declare
+            Node : constant VH_Node :=
+                     Virtual_Host_Table.Containers.Element (Cursor);
+         begin
+            if Node.Mode = Callback then
+               Virtual_Host_Table.Containers.Insert
+                 (Container => New_Dispatcher.Table,
+                  Key       => Virtual_Host_Table.Containers.Key (Cursor),
+                  New_Item  =>
+                    VH_Node'
+                      (Mode   => Callback,
+                       Action => new AWS.Dispatchers.Handler'Class'
+                         (Node.Action.Clone)));
+
+            else
+               Virtual_Host_Table.Containers.Insert
+                 (Container => New_Dispatcher.Table,
+                  Key       => Virtual_Host_Table.Containers.Key (Cursor),
+                  New_Item  =>
+                    VH_Node'
+                      (Mode     => Host,
+                       Hostname => Node.Hostname));
+            end if;
+         end;
+         Virtual_Host_Table.Containers.Next (Cursor);
+      end loop;
+
+      return New_Dispatcher;
+   end Clone;
+
    --------------
    -- Dispatch --
    --------------
@@ -73,7 +119,6 @@ package body AWS.Services.Dispatchers.Virtual_Host is
 
          case Node.Mode is
             when Host     =>
-
                declare
                   P : constant Parameters.List := Status.Parameters (Request);
                begin

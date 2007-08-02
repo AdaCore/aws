@@ -37,11 +37,6 @@ package AWS.Services.Dispatchers.Transient_Pages is
 
    type Handler is new AWS.Dispatchers.Handler with private;
 
-   overriding function Dispatch
-     (Dispatcher : in Handler;
-      Request    : in Status.Data) return Response.Data;
-   --  Returns an error message (code 404) if no transient page were found
-
    procedure Register
      (Dispatcher : in out Handler;
       Action     : in     AWS.Dispatchers.Handler'Class);
@@ -53,6 +48,15 @@ package AWS.Services.Dispatchers.Transient_Pages is
    --  Idem as above but takes a callback procedure as parameter
 
 private
+
+   overriding function Dispatch
+     (Dispatcher : in Handler;
+      Request    : in Status.Data) return Response.Data;
+   --  Returns an error message (code 404) if no transient page were found
+
+   overriding function Clone
+     (Dispatcher : in Handler) return Handler;
+   --  Returns a deep copy of the dispatcher
 
    type Handler is new AWS.Dispatchers.Handler with record
       Action : AWS.Dispatchers.Handler_Class_Access;

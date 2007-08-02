@@ -41,10 +41,66 @@ package body AWS.Services.Dispatchers.URI is
       Reg_URI : GNAT.Regexp.Regexp;
    end record;
 
+   overriding function Clone (URI : in Reg_URI) return Reg_URI;
+   --  Returns a deep copy of URI
+
    function Match (URI : in Reg_URI; Value : in String) return Boolean;
 
    procedure Free is
       new Ada.Unchecked_Deallocation (Std_URI'Class, URI_Class_Access);
+
+   ----------
+   -- Copy --
+   ----------
+
+   overriding function Clone (Dispatcher : in Handler) return Handler is
+      New_Dispatcher : Handler;
+   begin
+      if Dispatcher.Action /= null then
+         New_Dispatcher.Action :=
+           new AWS.Dispatchers.Handler'Class'(Dispatcher.Action.Clone);
+      end if;
+
+      for K in 1 .. URI_Table.Length (Dispatcher.Table) loop
+         declare
+            Item : constant URI_Class_Access :=
+                     URI_Table.Element (Dispatcher.Table, Natural (K));
+         begin
+            URI_Table.Append
+              (New_Dispatcher.Table, new Std_URI'Class'(Item.Clone));
+         end;
+      end loop;
+
+      return New_Dispatcher;
+   end Clone;
+
+   -----------
+   -- Clone --
+   -----------
+
+   overriding function Clone (URI : in Std_URI) return Std_URI is
+      New_URI : Std_URI := URI;
+   begin
+      if URI.Action /= null then
+         New_URI.Action :=
+           new AWS.Dispatchers.Handler'Class'(URI.Action.Clone);
+      end if;
+      return New_URI;
+   end Clone;
+
+   -----------
+   -- Clone --
+   -----------
+
+   overriding function Clone (URI : in Reg_URI) return Reg_URI is
+      New_URI : Reg_URI := URI;
+   begin
+      if URI.Action /= null then
+         New_URI.Action  :=
+           new AWS.Dispatchers.Handler'Class'(URI.Action.Clone);
+      end if;
+      return New_URI;
+   end Clone;
 
    --------------
    -- Dispatch --
@@ -229,6 +285,7 @@ package body AWS.Services.Dispatchers.URI is
               := URI_Table.Element (Dispatcher.Table, K);
          begin
             if To_String (Item.URI) = URI then
+               Free (Item.Action);
                Free (Item);
                URI_Table.Delete (Dispatcher.Table, K);
                return;

@@ -32,6 +32,26 @@ package body AWS.Services.Dispatchers.Linker is
 
    use AWS.Dispatchers;
 
+   -----------
+   -- Clone --
+   -----------
+
+   overriding function Clone (Dispatcher : in Handler) return Handler is
+      New_Dispatcher : Handler;
+   begin
+      if Dispatcher.First /= null then
+         New_Dispatcher.First :=
+           new AWS.Dispatchers.Handler'Class'(Dispatcher.First.Clone);
+      end if;
+
+      if Dispatcher.Second /= null then
+         New_Dispatcher.Second :=
+           new AWS.Dispatchers.Handler'Class'(Dispatcher.Second.Clone);
+      end if;
+
+      return New_Dispatcher;
+   end Clone;
+
    --------------
    -- Dispatch --
    --------------

@@ -36,12 +36,6 @@ package AWS.Services.Dispatchers.Linker is
 
    type Handler is new AWS.Dispatchers.Handler with private;
 
-   overriding function Dispatch
-     (Dispatcher : in Handler;
-      Request    : in Status.Data) return Response.Data;
-   --  Dispatch to the first dispatcher, if the resources is not found (status
-   --  code 404 returned) there try on the second one.
-
    procedure Register
      (Dispatcher    : in out Handler;
       First, Second : in AWS.Dispatchers.Handler'Class);
@@ -52,6 +46,15 @@ private
 
    overriding procedure Initialize (Dispatcher : in out Handler);
    overriding procedure Finalize   (Dispatcher : in out Handler);
+
+   overriding function Dispatch
+     (Dispatcher : in Handler;
+      Request    : in Status.Data) return Response.Data;
+   --  Dispatch to the first dispatcher, if the resources is not found (status
+   --  code 404 returned) there try on the second one.
+
+   overriding function Clone (Dispatcher : in Handler) return Handler;
+   --  Returns a deep copy of the dispatcher
 
    type Handler is new AWS.Dispatchers.Handler with record
       First, Second : AWS.Dispatchers.Handler_Class_Access;

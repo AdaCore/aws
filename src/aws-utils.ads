@@ -296,4 +296,13 @@ package AWS.Utils is
    --  decompressed file. If the decompression is ok, original file is
    --  removed. Raises Name_Error if Filename does not exist.
 
+   --------------
+   -- Clonable --
+   --------------
+
+   type Clonable is interface;
+
+   function Clone (Element : in Clonable) return Clonable is abstract;
+   --  Returns a deep copy of a clonable element
+
 end AWS.Utils;

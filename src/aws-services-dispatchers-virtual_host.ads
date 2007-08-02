@@ -26,9 +26,9 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-with Ada.Strings.Unbounded;
+private with Ada.Strings.Unbounded;
 
-with Strings_Maps;
+private with Strings_Maps;
 
 with AWS.Dispatchers;
 with AWS.Response;
@@ -37,12 +37,6 @@ with AWS.Status;
 package AWS.Services.Dispatchers.Virtual_Host is
 
    type Handler is new AWS.Dispatchers.Handler with private;
-
-   overriding function Dispatch
-     (Dispatcher : in Handler;
-      Request    : in Status.Data)
-      return Response.Data;
-   --  Returns an error message (code 404) if there is no match for the request
 
    procedure Register
      (Dispatcher       : in out Handler;
@@ -80,6 +74,14 @@ private
 
    overriding procedure Initialize (Dispatcher : in out Handler);
    overriding procedure Finalize   (Dispatcher : in out Handler);
+
+   overriding function Dispatch
+     (Dispatcher : in Handler;
+      Request    : in Status.Data) return Response.Data;
+   --  Returns an error message (code 404) if there is no match for the request
+
+   overriding function Clone (Dispatcher : in Handler) return Handler;
+   --  Returns a deep copy of the dispatcher
 
    type VH_Mode is (Host, Callback);
 

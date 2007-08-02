@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2003                            --
---                                ACT-Europe                                --
+--                         Copyright (C) 2003-2007                          --
+--                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -26,7 +26,7 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  Dispatch on a Callback procedures.
+--  Dispatch on a SOAP Callback procedures
 
 package SOAP.Dispatchers.Callback is
 
@@ -37,24 +37,24 @@ package SOAP.Dispatchers.Callback is
 
    function Create
      (HTTP_Callback : in AWS.Response.Callback;
-      SOAP_Callback : in Dispatchers.SOAP_Callback)
-      return Handler;
-   --  Build a dispatcher for the specified callback.
+      SOAP_Callback : in Dispatchers.SOAP_Callback) return Handler;
+   --  Build a dispatcher for the specified callback
 
 private
+
+   overriding function Clone (Dispatch : in Handler) return Handler;
+   --  Returns a deep copy of the dispatcher
 
    function Dispatch_SOAP
      (Dispatcher : in Handler;
       SOAPAction : in String;
       Payload    : in Message.Payload.Object;
-      Request    : in AWS.Status.Data)
-      return AWS.Response.Data;
+      Request    : in AWS.Status.Data) return AWS.Response.Data;
    --  This dispatch function is called for SOAP requests
 
    function Dispatch_HTTP
      (Dispatcher : in Handler;
-      Request    : in AWS.Status.Data)
-      return AWS.Response.Data;
+      Request    : in AWS.Status.Data) return AWS.Response.Data;
    --  This dispatch function is called for standard HTTP requests
 
    type Handler is new Dispatchers.Handler with record

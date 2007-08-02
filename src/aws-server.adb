@@ -129,7 +129,6 @@ package body AWS.Server is
          Net.Acceptors.Get (Server.Acceptor, New_Socket, Accept_Error'Access);
 
          Server.Accept_Sem.Release;
-
       exception
          when others =>
             Server.Accept_Sem.Release;
@@ -142,10 +141,8 @@ package body AWS.Server is
          declare
             SSL_Socket : Net.Socket_Access;
          begin
-            SSL_Socket
-              := new Net.SSL.Socket_Type'
-                       (Net.SSL.Secure_Server
-                          (New_Socket.all, Server.SSL_Config));
+            SSL_Socket := new Net.SSL.Socket_Type'
+              (Net.SSL.Secure_Server (New_Socket.all, Server.SSL_Config));
 
             Net.Free (New_Socket);
             return SSL_Socket;
@@ -389,7 +386,8 @@ package body AWS.Server is
       Dispatcher : in     Dispatchers.Handler'Class) is
    begin
       Free (Web_Server.New_Dispatcher);
-      Web_Server.New_Dispatcher := new Dispatchers.Handler'Class'(Dispatcher);
+      Web_Server.New_Dispatcher :=
+        new Dispatchers.Handler'Class'(Dispatcher.Clone);
    end Set;
 
    ---------------
@@ -397,8 +395,8 @@ package body AWS.Server is
    ---------------
 
    procedure Set_Field (Id, Value : in String) is
-      Task_Ptr : constant Line_Attribute.Attribute_Handle
-        := Line_Attribute.Reference;
+      Task_Ptr : constant Line_Attribute.Attribute_Handle :=
+                   Line_Attribute.Reference;
    begin
       AWS.Log.Set_Field
         (Task_Ptr.Server.Log, Task_Ptr.Log_Data, Id, Value);
@@ -990,7 +988,10 @@ package body AWS.Server is
          Force_Length        =>
            CNF.Keep_Alive_Force_Limit (Web_Server.Properties));
 
-      Web_Server.Dispatcher := new Dispatchers.Handler'Class'(Dispatcher);
+      --  Clone main dispatcher
+
+      Web_Server.Dispatcher :=
+        new Dispatchers.Handler'Class'(Dispatcher.Clone);
 
       --  Initialize slots
 

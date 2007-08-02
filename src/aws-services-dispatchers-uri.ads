@@ -28,26 +28,17 @@
 
 --  Dispatch a specific request to a callback depending on the URI
 
-with Ada.Strings.Unbounded;
-
-with Ada.Containers.Vectors;
+private with Ada.Containers.Vectors;
+private with Ada.Strings.Unbounded;
 
 with AWS.Dispatchers;
 with AWS.Response;
 with AWS.Status;
+with AWS.Utils;
 
 package AWS.Services.Dispatchers.URI is
 
    type Handler is new AWS.Dispatchers.Handler with private;
-
-   overriding function Dispatch
-     (Dispatcher : in Handler;
-      Request    : in Status.Data) return Response.Data;
-   --  Dispatch will return the value returned by the first callback matching
-   --  the request. Note that if a callback returns the Response.Empty message,
-   --  Dispatch will just continue to the next matching callback. In any case,
-   --  if no handler matches it will call the default callback. If no default
-   --  callback is registered an error (code 404) HTML message is returned.
 
    procedure Register
      (Dispatcher : in out Handler;
@@ -97,11 +88,25 @@ private
    overriding procedure Initialize (Dispatcher : in out Handler);
    overriding procedure Finalize   (Dispatcher : in out Handler);
 
-   type Std_URI is tagged record
+   overriding function Dispatch
+     (Dispatcher : in Handler;
+      Request    : in Status.Data) return Response.Data;
+   --  Dispatch will return the value returned by the first callback matching
+   --  the request. Note that if a callback returns the Response.Empty message,
+   --  Dispatch will just continue to the next matching callback. In any case,
+   --  if no handler matches it will call the default callback. If no default
+   --  callback is registered an error (code 404) HTML message is returned.
+
+   overriding function Clone (Dispatcher : in Handler) return Handler;
+   --  Returns a deep copy of the dispatcher
+
+   type Std_URI is new Utils.Clonable with record
       Action : AWS.Dispatchers.Handler_Class_Access;
       URI    : Unbounded_String;
       Prefix : Boolean;
    end record;
+
+   function Clone (URI : in Std_URI) return Std_URI;
 
    function Match (URI : in Std_URI; Value : in String) return Boolean;
 

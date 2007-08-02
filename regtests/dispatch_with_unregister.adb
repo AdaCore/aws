@@ -148,6 +148,8 @@ begin
    Services.Dispatchers.URI.Unregister (H, "/disp1");
    Services.Dispatchers.URI.Unregister (H, "/disp2");
 
+   Test ("/disp1");
+
    AWS.Server.Set (WS, H);
 
    Test ("/disp1");

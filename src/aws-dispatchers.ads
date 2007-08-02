@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2006                          --
+--                         Copyright (C) 2000-2007                          --
 --                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -38,7 +38,8 @@ with AWS.Utils;
 
 package AWS.Dispatchers is
 
-   type Handler is abstract new Ada.Finalization.Controlled with private;
+   type Handler is abstract new Ada.Finalization.Controlled
+     and AWS.Utils.Clonable with private;
 
    overriding procedure Initialize (Dispatcher : in out Handler);
    overriding procedure Adjust     (Dispatcher : in out Handler);
@@ -49,8 +50,7 @@ package AWS.Dispatchers is
 
    function Dispatch
      (Dispatcher : in Handler;
-      Request    : in Status.Data)
-      return Response.Data is abstract;
+      Request    : in Status.Data) return Response.Data is abstract;
    --  Call the appropriate inherited dispatcher
 
    function Ref_Counter (Dispatcher : in Handler) return Natural;
@@ -65,7 +65,9 @@ package AWS.Dispatchers is
 
 private
 
-   type Handler is abstract new Ada.Finalization.Controlled with record
+   type Handler is abstract new Ada.Finalization.Controlled
+     and AWS.Utils.Clonable
+   with record
       Ref_Counter : Utils.Counter_Access;
    end record;
 

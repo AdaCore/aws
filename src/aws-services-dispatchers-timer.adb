@@ -38,6 +38,38 @@ package body AWS.Services.Dispatchers.Timer is
    procedure Free is new Ada.Unchecked_Deallocation (Node, Node_Access);
 
    -----------
+   -- Clone --
+   -----------
+
+   overriding function Clone (Dispatcher : in Handler) return Handler is
+      New_Dispatcher : Handler;
+   begin
+      if Dispatcher.Action /= null then
+         New_Dispatcher.Action :=
+           new AWS.Dispatchers.Handler'Class'(Dispatcher.Action.Clone);
+      end if;
+
+      for K in 1 .. Period_Table.Length (Dispatcher.Table) loop
+         declare
+            Item     : constant Node_Access :=
+                         Period_Table.Element (Dispatcher.Table, Natural (K));
+            New_Item : constant Node_Access := new Node'(Item.all);
+         begin
+            if Item.Action /= null then
+               New_Item.Action :=
+                 new AWS.Dispatchers.Handler'Class'(Item.Action.Clone);
+            end if;
+            Period_Table.Insert
+              (Container => New_Dispatcher.Table,
+               Before    => Natural (K),
+               New_Item  => New_Item);
+         end;
+      end loop;
+
+      return New_Dispatcher;
+   end Clone;
+
+   -----------
    -- Daily --
    -----------
 
@@ -279,7 +311,7 @@ package body AWS.Services.Dispatchers.Timer is
    -- Finalize --
    --------------
 
-   overriding procedure Finalize   (Dispatcher : in out Handler) is
+   overriding procedure Finalize (Dispatcher : in out Handler) is
    begin
       Finalize (AWS.Dispatchers.Handler (Dispatcher));
 

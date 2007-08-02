@@ -26,7 +26,7 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  Dispatch a specific request to a callback depending on the request method.
+--  Dispatch a specific request to a callback depending on the request method
 
 with AWS.Dispatchers;
 with AWS.Response;
@@ -35,13 +35,6 @@ with AWS.Status;
 package AWS.Services.Dispatchers.Method is
 
    type Handler is new AWS.Dispatchers.Handler with private;
-
-   overriding function Dispatch
-     (Dispatcher : in Handler;
-      Request    : in Status.Data) return Response.Data;
-   --  Dispatch to the corresponding method callback, if no such callback
-   --  registered it dispatches to the default callback. If there is no default
-   --  callback it returns an error message (code 404).
 
    procedure Register
      (Dispatcher : in out Handler;
@@ -70,6 +63,16 @@ private
 
    overriding procedure Initialize (Dispatcher : in out Handler);
    overriding procedure Finalize   (Dispatcher : in out Handler);
+
+   overriding function Dispatch
+     (Dispatcher : in Handler;
+      Request    : in Status.Data) return Response.Data;
+   --  Dispatch to the corresponding method callback, if no such callback
+   --  registered it dispatches to the default callback. If there is no default
+   --  callback it returns an error message (code 404).
+
+   overriding function Clone (Dispatcher : in Handler) return Handler;
+   --  Returns a deep copy of the dispatcher
 
    type Method_Table is
      array (Status.Request_Method) of AWS.Dispatchers.Handler_Class_Access;

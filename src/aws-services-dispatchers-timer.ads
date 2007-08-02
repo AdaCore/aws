@@ -29,8 +29,8 @@
 --  Dispatch a specific request to a callback depending on current time
 
 with Ada.Calendar.Formatting;
-with Ada.Containers.Vectors;
-with Ada.Strings.Unbounded;
+private with Ada.Containers.Vectors;
+private with Ada.Strings.Unbounded;
 
 with AWS.Dispatchers;
 with AWS.Response;
@@ -41,15 +41,6 @@ package AWS.Services.Dispatchers.Timer is
    use Ada;
 
    type Handler is new AWS.Dispatchers.Handler with private;
-
-   overriding function Dispatch
-     (Dispatcher : in Handler;
-      Request    : in Status.Data) return Response.Data;
-   --  Dispatch will call the time dispatcher that matches the current time.
-   --  Note that if a callback returns the Response.Empty message, Dispatch
-   --  will just continue to the next matching callback. In any cases, if no
-   --  handler matches it will call the default callback. If no default
-   --  callback is registered an error HTML message (code 404) is returned.
 
    type Period is private;
 
@@ -171,6 +162,18 @@ private
 
    overriding procedure Initialize (Dispatcher : in out Handler);
    overriding procedure Finalize   (Dispatcher : in out Handler);
+
+   overriding function Dispatch
+     (Dispatcher : in Handler;
+      Request    : in Status.Data) return Response.Data;
+   --  Dispatch will call the time dispatcher that matches the current time.
+   --  Note that if a callback returns the Response.Empty message, Dispatch
+   --  will just continue to the next matching callback. In any cases, if no
+   --  handler matches it will call the default callback. If no default
+   --  callback is registered an error HTML message (code 404) is returned.
+
+   overriding function Clone (Dispatcher : in Handler) return Handler;
+   --  Returns a deep copy of the dispatcher
 
    type Kind is (Once, Yearly, Monthly, Weekly, Daily, Hourly, Minutely);
 
