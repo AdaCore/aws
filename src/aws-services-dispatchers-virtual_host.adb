@@ -235,6 +235,9 @@ package body AWS.Services.Dispatchers.Virtual_Host is
      (Dispatcher : in out Handler;
       Action     : in     AWS.Dispatchers.Handler'Class) is
    begin
+      if Dispatcher.Action /= null then
+         Free (Dispatcher.Action);
+      end if;
       Dispatcher.Action := new AWS.Dispatchers.Handler'Class'(Action);
    end Register_Default_Callback;
 
