@@ -29,6 +29,8 @@
 with Ada.Strings.Maps;
 with Ada.Strings.Unbounded;
 
+with AWS.Parameters;
+
 package AWS.URL is
 
    use Ada;
@@ -148,6 +150,16 @@ package AWS.URL is
    --  Returns the pathname and the parameters. This is equivalent to:
    --  Pathname & Parameters.
 
+   function Parameter
+     (URL : in Object; Name : in String; N : in Positive := 1) return String;
+   pragma Inline (Parameter);
+   --  Returns the Nth value associated with Key into Table. Returns
+   --  the emptry string if key does not exist.
+
+   function Parameters (URL : in Object) return AWS.Parameters.List;
+   pragma Inline (Parameters);
+   --  Return the parameter list associated with the URL
+
    --
    --  URL Encoding and Decoding
    --
@@ -174,16 +186,16 @@ private
    type Path_Status is (Valid, Wrong);
 
    type Object is record
-      User     : Unbounded_String;
-      Password : Unbounded_String;
-      Host     : Unbounded_String;
-      Port     : Positive          := Default_HTTP_Port;
-      Security : Boolean           := False;
-      Path     : Unbounded_String; -- Original path
-      N_Path   : Unbounded_String; -- Normalized path
-      File     : Unbounded_String;
-      Params   : Unbounded_String;
-      Status   : Path_Status       := Wrong;
+      User       : Unbounded_String;
+      Password   : Unbounded_String;
+      Host       : Unbounded_String;
+      Port       : Positive          := Default_HTTP_Port;
+      Security   : Boolean           := False;
+      Path       : Unbounded_String; -- Original path
+      N_Path     : Unbounded_String; -- Normalized path
+      File       : Unbounded_String;
+      Status     : Path_Status       := Wrong;
+      Parameters : aliased AWS.Parameters.List;
    end record;
 
    Default_Encoding_Set : constant Strings.Maps.Character_Set

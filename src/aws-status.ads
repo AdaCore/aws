@@ -322,8 +322,7 @@ private
       Method            : Request_Method        := GET;
       Method_String     : Unbounded_String;
       HTTP_Version      : Unbounded_String;
-      URI               : URL.Object;
-      Parameters        : AWS.Parameters.List;
+      URI               : aliased URL.Object;
       Request_Time      : Ada.Calendar.Time;
       Binary_Data       : Utils.Stream_Element_Array_Access;
       Content_Length    : Natural               := 0;

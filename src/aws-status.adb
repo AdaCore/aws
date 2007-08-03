@@ -186,8 +186,7 @@ package body AWS.Status is
 
    function Check_Digest
      (D        : in Data;
-      Password : in String)
-      return Messages.Status_Code
+      Password : in String) return Messages.Status_Code
    is
       Nonce    : constant String := Authorization_Nonce (D);
       Auth_URI : constant String := To_String (D.Auth_URI);
@@ -318,8 +317,7 @@ package body AWS.Status is
 
    function Is_Supported
      (D        : in Data;
-      Encoding : in Messages.Content_Encoding)
-      return Boolean
+      Encoding : in Messages.Content_Encoding) return Boolean
    is
       function To_Lower (Item : String) return String
          renames Ada.Characters.Handling.To_Lower;
@@ -451,7 +449,7 @@ package body AWS.Status is
    function Parameter
      (D : in Data; Name : in String; N : in Positive := 1) return String is
    begin
-      return AWS.Parameters.Get (D.Parameters, Name, N);
+      return AWS.URL.Parameter (D.URI, Name, N);
    end Parameter;
 
    ----------------
@@ -460,7 +458,7 @@ package body AWS.Status is
 
    function Parameters (D : in Data) return AWS.Parameters.List is
    begin
-      return D.Parameters;
+      return AWS.URL.Parameters (D.URI);
    end Parameters;
 
    -------------
@@ -651,11 +649,10 @@ package body AWS.Status is
 
    function URI (D : in Data) return String is
    begin
-      return URL.URL (D.URI);
+      return URL.Pathname (D.URI);
    end URI;
 
-   function URI (D : in Data) return URL.Object
-   is
+   function URI (D : in Data) return URL.Object is
    begin
       return D.URI;
    end URI;

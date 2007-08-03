@@ -60,15 +60,6 @@ package body AWS.Headers.Set is
    end Debug;
 
    ----------
-   -- Free --
-   ----------
-
-   procedure Free (Headers : in out List) is
-   begin
-      Tables.Set.Free (P_List (Headers));
-   end Free;
-
-   ----------
    -- Read --
    ----------
 

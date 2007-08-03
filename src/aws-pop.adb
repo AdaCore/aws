@@ -2,7 +2,7 @@
 --                              Ada Web Server                              --
 --                       P O P - Post Office Protocol                       --
 --                                                                          --
---                         Copyright (C) 2003-2006                          --
+--                         Copyright (C) 2003-2007                          --
 --                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -27,19 +27,19 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-with AWS.Headers.Set;
 with Ada.Streams.Stream_IO;
 with Ada.Strings.Fixed;
 with Ada.Unchecked_Deallocation;
 
+with MD5;
+with Strings_Cutter;
+
+with AWS.Headers.Set;
 with AWS.Headers.Values;
 with AWS.Messages;
 with AWS.Net.Buffered;
 with AWS.Resources.Streams.Memory;
 with AWS.Translator;
-
-with MD5;
-with Strings_Cutter;
 
 package body AWS.POP is
 
@@ -253,7 +253,6 @@ package body AWS.POP is
       Attachment.Ref_Count.all := Attachment.Ref_Count.all + 1;
 
       if Attachment.Ref_Count.all = 0 then
-         Headers.Set.Free (Attachment.Headers);
          AWS.Resources.Streams.Memory.Close
            (Stream_Type (Attachment.Content.all));
          Free (Attachment.Content);
@@ -267,7 +266,6 @@ package body AWS.POP is
       Message.Ref_Count.all := Message.Ref_Count.all + 1;
 
       if Message.Ref_Count.all = 0 then
-         Headers.Set.Free (Message.Headers);
          Utils.Free (Message.Ref_Count);
       end if;
 

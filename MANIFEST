@@ -262,6 +262,8 @@ regtests/dispatch_method.out
 regtests/dispatch_vh.adb
 regtests/dispatch_vh.ini
 regtests/dispatch_vh.out
+regtests/dispatch_with_unregister.adb
+regtests/dispatch_with_unregister.out
 regtests/dm.adb
 regtests/dm.out
 regtests/dummy.adb
@@ -486,6 +488,8 @@ regtests/upload4.adb
 regtests/upload4.out
 regtests/upload5.adb
 regtests/upload5.out
+regtests/url_object.adb
+regtests/url_object.out
 regtests/user_sock.adb
 regtests/user_sock.out
 regtests/user_strm.adb
@@ -714,6 +718,8 @@ src/aws-translator.adb
 src/aws-translator.ads
 src/aws-url-raise_url_error.adb
 src/aws-url-raise_url_error.ads
+src/aws-url-set.adb
+src/aws-url-set.ads
 src/aws-url.adb
 src/aws-url.ads
 src/aws-utils.adb

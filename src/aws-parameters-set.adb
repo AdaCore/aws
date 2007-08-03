@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2005                          --
+--                         Copyright (C) 2000-2007                          --
 --                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -44,12 +44,20 @@ package body AWS.Parameters.Set is
       Name, Value    : in     String;
       Decode         : in     Boolean := True) is
    begin
+      if Parameter_List.Parameters = Null_Unbounded_String then
+         Append (Parameter_List.Parameters, "?");
+      else
+         Append (Parameter_List.Parameters, "&");
+      end if;
+      Append (Parameter_List.Parameters, Name & "=" & Value);
+
       if Decode then
          --  This is default behavior
          Tables.Set.Add
            (Tables.Table_Type (Parameter_List),
             URL.Decode (Name),
             URL.Decode (Value));
+
       else
          Tables.Set.Add (Tables.Table_Type (Parameter_List), Name, Value);
       end if;
@@ -74,12 +82,6 @@ package body AWS.Parameters.Set is
          C := Positive'Succ (C);
          S := Positive'Succ (S);
       end if;
-
-      if C > P'Last then
-         return;
-      end if;
-
-      Parameter_List.Parameters := To_Unbounded_String ('?' & P (C .. P'Last));
 
       loop
          I := Fixed.Index (P (C .. P'Last), "=");
@@ -113,15 +115,6 @@ package body AWS.Parameters.Set is
    begin
       Tables.Set.Case_Sensitive (Tables.Table_Type (Parameter_List), Mode);
    end Case_Sensitive;
-
-   ----------
-   -- Free --
-   ----------
-
-   procedure Free (Parameter_List : in out List) is
-   begin
-      Tables.Set.Free (Tables.Table_Type (Parameter_List));
-   end Free;
 
    -----------
    -- Reset --

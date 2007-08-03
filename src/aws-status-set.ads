@@ -32,10 +32,17 @@
 package AWS.Status.Set is
 
    procedure Reset (D : in out Data);
-   --  Reset the status data for a new use.
+   --  Reset the status data for a new use
+
+   procedure Connection_Data
+     (D        : in out Data;
+      Host     : in     String;
+      Port     : in     Positive;
+      Security : in     Boolean);
+   --  Set the connection data as used by the server
 
    procedure Free (D : in out Data);
-   --  Free all allocated memory.
+   --  Free all allocated memory
 
    procedure Read_Header (Socket : in Net.Socket_Type'Class; D : in out Data);
    --  Read all header data from the socket and fill the appropriate
@@ -44,7 +51,7 @@ package AWS.Status.Set is
    procedure Keep_Alive
      (D    : in out Data;
       Flag : in     Boolean);
-   --  Set the Keep-Alive flag for the current HTTP connection.
+   --  Set the Keep-Alive flag for the current HTTP connection
 
    procedure Session (D : in out Data);
    --  Generate new Session ID
@@ -74,7 +81,7 @@ package AWS.Status.Set is
 
    procedure Add_Parameters (D : in out Data; Parameters : in String);
    pragma Inline (Add_Parameters);
-   --  Parse and add parameters into the internal parameters list.
+   --  Parse and add parameters into the internal parameters list
 
    procedure Binary
      (D         : in out Data;

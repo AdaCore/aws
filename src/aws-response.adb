@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2006                          --
+--                         Copyright (C) 2000-2007                          --
 --                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -403,8 +403,6 @@ package body AWS.Response is
          end if;
 
          Free (Object.Ref_Counter);
-
-         AWS.Headers.Set.Free (Object.Header);
       end if;
    end Finalize;
 

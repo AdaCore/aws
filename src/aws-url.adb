@@ -30,6 +30,7 @@ with Ada.Characters.Handling;
 with Ada.Strings.Fixed;
 
 with AWS.Messages;
+with AWS.Parameters.Set;
 with AWS.Utils;
 with AWS.URL.Raise_URL_Error;
 
@@ -59,8 +60,7 @@ package body AWS.URL is
 
    function Abs_Path
      (URL    : in Object;
-      Encode : in Boolean := False)
-      return String
+      Encode : in Boolean := False) return String
    is
       Result : constant String := To_String (URL.Path & URL.File);
    begin
@@ -291,18 +291,41 @@ package body AWS.URL is
       end if;
    end Normalize;
 
+   ---------------
+   -- Parameter --
+   ---------------
+
+   function Parameter
+     (URL : in Object; Name : in String; N : in Positive := 1) return String is
+   begin
+      return AWS.Parameters.Get (URL.Parameters, Name, N);
+   end Parameter;
+
    ----------------
    -- Parameters --
    ----------------
 
+   function Parameters (URL : in Object) return AWS.Parameters.List is
+   begin
+      return URL.Parameters;
+   end Parameters;
+
    function Parameters
      (URL    : in Object;
-      Encode : in Boolean := False) return String is
+      Encode : in Boolean := False) return String
+   is
+      P : constant String := AWS.Parameters.URI_Format (URL.Parameters);
    begin
-      if Encode then
-         return AWS.URL.Encode (To_String (URL.Params));
+      if P'Length = 0 then
+         --  No parameter, we do not want the leading '?'
+         return "";
+
       else
-         return To_String (URL.Params);
+         if Encode then
+            return '?' & AWS.URL.Encode (P (P'First + 1 .. P'Last));
+         else
+            return '?' & P (P'First + 1 .. P'Last);
+         end if;
       end if;
    end Parameters;
 
@@ -487,8 +510,9 @@ package body AWS.URL is
 
       if P = 0 then
          P := L_URL'Last;
+
       else
-         O.Params := To_Unbounded_String (L_URL (P .. L_URL'Last));
+         AWS.Parameters.Set.Add (O.Parameters, L_URL (P .. L_URL'Last));
          P := P - 1;
       end if;
 

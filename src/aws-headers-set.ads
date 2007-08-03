@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2003                          --
---                                ACT-Europe                                --
+--                         Copyright (C) 2000-2007                          --
+--                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -54,10 +54,6 @@ package AWS.Headers.Set is
    pragma Inline (Reset);
    --  Removes all object from Headers. Headers will be reinitialized and will
    --  be ready for new use.
-
-   procedure Free (Headers : in out List);
-   pragma Inline (Free);
-   --  Release all memory used by the List container
 
    procedure Debug (Activate : in Boolean);
    --  Turn on Debug output

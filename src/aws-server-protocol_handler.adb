@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2006                          --
+--                         Copyright (C) 2000-2007                          --
 --                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -126,6 +126,12 @@ begin
            (C_Stat, Case_Sensitive_Parameters);
 
          Get_Message_Header (C_Stat);
+
+         Status.Set.Connection_Data
+           (C_Stat,
+            CNF.Server_Host (HTTP_Server.Properties),
+            CNF.Server_Port (HTTP_Server.Properties),
+            CNF.Security (HTTP_Server.Properties));
 
          HTTP_Server.Slots.Increment_Slot_Activity_Counter (Index);
 

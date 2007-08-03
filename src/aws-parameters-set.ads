@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2001                          --
---                                ACT-Europe                                --
+--                         Copyright (C) 2000-2007                          --
+--                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -52,8 +52,5 @@ package AWS.Parameters.Set is
    procedure Reset (Parameter_List : in out List);
    --  Removes all object from the Set. Set will be reinitialized and will be
    --  ready for new use.
-
-   procedure Free (Parameter_List : in out List);
-   --  Release all memory used by the list
 
 end AWS.Parameters.Set;

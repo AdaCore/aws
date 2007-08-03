@@ -4,7 +4,7 @@
 
 Authors:
    Dmitriy Anisimkov
-   Pascal Obry                                               August 1st, 2007
+   Pascal Obry                                               August 4th, 2007
 
 
 
@@ -62,6 +62,9 @@ Here are the main changes since AWS 2.3.0 :
      building block based Web applications.
 
    - Add support for user defined types in ada2wsdl tool.
+
+   - The server side URL object (Status.URI returning and URL.Object)
+     properly store the web parameters.
 
    - Plus many small fixes, enhancements, API comments, and documentation work.
 

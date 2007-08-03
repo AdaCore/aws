@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2007                          --
+--                            Copyright (C) 2007                            --
 --                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -26,32 +26,21 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-package AWS.Containers.Tables.Set is
+package AWS.URL.Set is
 
-   procedure Add
-     (Table       : in out Table_Type;
-      Name, Value : in     String);
-   --  Add a new Key/Value pair into Table
+   function Parameters (URL : access Object) return access AWS.Parameters.List;
+   pragma Inline (Parameters);
+   --  Returned the URL's parameters list object
 
-   procedure Update
-     (Table : in out Table_Type;
-      Name  : in     String;
-      Value : in     String;
-      N     : in     Positive := 1);
-   --  Update the N-th Value with the given Name into the Table.
-   --  The container could already have more than one value associated with
-   --  this name. If there is M values with this Name, then if:
-   --     N <= M      => update the value
-   --     N  = M + 1  => the pair name=value is appended to the table
-   --     N  > M + 1  => Constraint_Error raised
+   procedure Parameters (URL : in out Object; Set : in AWS.Parameters.List);
+   pragma Inline (Parameters);
+   --  Set the URL's parameters list to Set
 
-   procedure Case_Sensitive
-     (Table : in out Table_Type;
-      Mode  : in     Boolean);
-   --  If Mode is True it will use all parameters with case sensitivity
+   procedure Connection_Data
+     (URL      : in out Object;
+      Host     : in     String;
+      Port     : in     Positive;
+      Security : in     Boolean);
+   --  Update connection data, used by the server
 
-   procedure Reset (Table : in out Table_Type);
-   --  Removes all object from Table. Table will be reinitialized and will be
-   --  ready for new use.
-
-end AWS.Containers.Tables.Set;
+end AWS.URL.Set;

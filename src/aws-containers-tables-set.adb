@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2005                          --
+--                         Copyright (C) 2000-2007                          --
 --                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -25,8 +25,6 @@
 --  however invalidate any other reasons why the executable file  might be  --
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
-
---  with Ada.Unchecked_Deallocation;
 
 package body AWS.Containers.Tables.Set is
 
@@ -64,12 +62,6 @@ package body AWS.Containers.Tables.Set is
    begin
       Table.Case_Sensitive := Mode;
    end Case_Sensitive;
-
-   ----------
-   -- Free --
-   ----------
-
-   procedure Free (Table : in out Table_Type) renames Reset;
 
    -----------
    -- Reset --

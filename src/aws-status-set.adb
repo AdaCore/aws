@@ -35,6 +35,7 @@ with AWS.Headers.Values;
 with AWS.Messages;
 with AWS.Parameters.Set;
 with AWS.Translator;
+with AWS.URL.Set;
 
 package body AWS.Status.Set is
 
@@ -54,7 +55,8 @@ package body AWS.Status.Set is
 
    procedure Add_Parameter (D : in out Data; Name, Value : in String) is
    begin
-      AWS.Parameters.Set.Add (D.Parameters, Name, Value, Decode => False);
+      AWS.Parameters.Set.Add
+        (AWS.URL.Set.Parameters (D.URI'Access).all, Name, Value);
    end Add_Parameter;
 
    --------------------
@@ -63,7 +65,8 @@ package body AWS.Status.Set is
 
    procedure Add_Parameters (D : in out Data; Parameters : in String) is
    begin
-      AWS.Parameters.Set.Add (D.Parameters, Parameters => Parameters);
+      AWS.Parameters.Set.Add
+        (AWS.URL.Set.Parameters (D.URI'Access).all, Parameters);
    end Add_Parameters;
 
    -----------------
@@ -230,8 +233,22 @@ package body AWS.Status.Set is
 
    procedure Case_Sensitive_Parameters (D : in out Data; Mode : in Boolean) is
    begin
-      AWS.Parameters.Set.Case_Sensitive (D.Parameters, Mode);
+      AWS.Parameters.Set.Case_Sensitive
+        (AWS.URL.Set.Parameters (D.URI'Access).all, Mode);
    end Case_Sensitive_Parameters;
+
+   ---------------------
+   -- Connection_Data --
+   ---------------------
+
+   procedure Connection_Data
+     (D        : in out Data;
+      Host     : in     String;
+      Port     : in     Positive;
+      Security : in     Boolean) is
+   begin
+      AWS.URL.Set.Connection_Data (D.URI, Host, Port, Security);
+   end Connection_Data;
 
    ----------
    -- Free --
@@ -240,9 +257,6 @@ package body AWS.Status.Set is
    procedure Free (D : in out Data) is
    begin
       Utils.Free (D.Binary_Data);
-
-      AWS.Parameters.Set.Free (D.Parameters);
-      AWS.Headers.Set.Free (D.Header);
       AWS.Attachments.Reset (D.Attachments, Delete_Files => True);
    end Free;
 
@@ -263,7 +277,7 @@ package body AWS.Status.Set is
 
    procedure Parameters (D : in out Data; Set : in AWS.Parameters.List) is
    begin
-      D.Parameters := Set;
+      AWS.URL.Set.Parameters (D.URI, Set);
    end Parameters;
 
    -----------------
@@ -350,8 +364,8 @@ package body AWS.Status.Set is
       D.Session_Created   := False;
       D.Session_Timed_Out := False;
 
-      AWS.Parameters.Set.Reset (D.Parameters);
       AWS.Headers.Set.Reset (D.Header);
+      AWS.Parameters.Set.Reset (AWS.URL.Set.Parameters (D.URI'Access).all);
       AWS.Attachments.Reset (D.Attachments, Delete_Files => True);
    end Reset;
 
@@ -399,9 +413,8 @@ package body AWS.Status.Set is
       declare
          use AWS.Headers;
 
-         Cookies_Set : constant VString_Array
-           := Get_Values (D.Header, Messages.Cookie_Token);
-
+         Cookies_Set : constant VString_Array :=
+                         Get_Values (D.Header, Messages.Cookie_Token);
       begin
          for Idx in Cookies_Set'Range loop
 

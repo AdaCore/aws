@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2007                          --
+--                            Copyright (C) 2007                            --
 --                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -26,32 +26,43 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-package AWS.Containers.Tables.Set is
+--  with AWS.Parameters.Set;
 
-   procedure Add
-     (Table       : in out Table_Type;
-      Name, Value : in     String);
-   --  Add a new Key/Value pair into Table
+package body AWS.URL.Set is
 
-   procedure Update
-     (Table : in out Table_Type;
-      Name  : in     String;
-      Value : in     String;
-      N     : in     Positive := 1);
-   --  Update the N-th Value with the given Name into the Table.
-   --  The container could already have more than one value associated with
-   --  this name. If there is M values with this Name, then if:
-   --     N <= M      => update the value
-   --     N  = M + 1  => the pair name=value is appended to the table
-   --     N  > M + 1  => Constraint_Error raised
+   ---------------------
+   -- Connection_Data --
+   ---------------------
 
-   procedure Case_Sensitive
-     (Table : in out Table_Type;
-      Mode  : in     Boolean);
-   --  If Mode is True it will use all parameters with case sensitivity
+   procedure Connection_Data
+     (URL      : in out Object;
+      Host     : in     String;
+      Port     : in     Positive;
+      Security : in     Boolean) is
+   begin
+      if Host = "" then
+         URL.Host := To_Unbounded_String ("localhost");
+      else
+         URL.Host := To_Unbounded_String (Host);
+      end if;
 
-   procedure Reset (Table : in out Table_Type);
-   --  Removes all object from Table. Table will be reinitialized and will be
-   --  ready for new use.
+      URL.Port := Port;
+      URL.Security := Security;
+   end Connection_Data;
 
-end AWS.Containers.Tables.Set;
+   ----------------
+   -- Parameters --
+   ----------------
+
+   procedure Parameters (URL : in out Object; Set : in AWS.Parameters.List) is
+   begin
+      URL.Parameters := Set;
+   end Parameters;
+
+   function Parameters
+     (URL : access Object) return access AWS.Parameters.List is
+   begin
+      return URL.Parameters'Access;
+   end Parameters;
+
+end AWS.URL.Set;

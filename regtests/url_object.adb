@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2007                          --
+--                            Copyright (C) 2007                            --
 --                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -26,32 +26,67 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-package AWS.Containers.Tables.Set is
+--  ~ MAIN [STD]
 
-   procedure Add
-     (Table       : in out Table_Type;
-      Name, Value : in     String);
-   --  Add a new Key/Value pair into Table
+with Ada.Text_IO;
 
-   procedure Update
-     (Table : in out Table_Type;
-      Name  : in     String;
-      Value : in     String;
-      N     : in     Positive := 1);
-   --  Update the N-th Value with the given Name into the Table.
-   --  The container could already have more than one value associated with
-   --  this name. If there is M values with this Name, then if:
-   --     N <= M      => update the value
-   --     N  = M + 1  => the pair name=value is appended to the table
-   --     N  > M + 1  => Constraint_Error raised
+with AWS.Client;
+with AWS.Parameters;
+with AWS.Server;
+with AWS.Response;
+with AWS.Status;
+with AWS.MIME;
+with AWS.URL;
+with AWS.Utils;
 
-   procedure Case_Sensitive
-     (Table : in out Table_Type;
-      Mode  : in     Boolean);
-   --  If Mode is True it will use all parameters with case sensitivity
+with Get_Free_Port;
 
-   procedure Reset (Table : in out Table_Type);
-   --  Removes all object from Table. Table will be reinitialized and will be
-   --  ready for new use.
+procedure URL_Object is
 
-end AWS.Containers.Tables.Set;
+   use Ada;
+   use AWS;
+
+   WS : Server.HTTP;
+
+   function CB (Request : in Status.Data) return Response.Data is
+      U : constant URL.Object := Status.URI (Request);
+      P : constant Parameters.List := Status.Parameters (Request);
+   begin
+      Text_IO.Put_Line ("p1=" & Parameters.Get (P, "p1"));
+      Text_IO.Put_Line ("p2=" & Parameters.Get (P, "p2"));
+      Text_IO.Put_Line ("----------------------");
+      Text_IO.Put_Line ("p1=" & Status.Parameter (Request, "p1"));
+      Text_IO.Put_Line ("p2=" & Status.Parameter (Request, "p2"));
+      Text_IO.Put_Line ("----------------------");
+      Text_IO.Put_Line ("URI         = " & Status.URI (Request));
+      Text_IO.Put_Line ("URL         = " & URL.URL (U));
+      Text_IO.Put_Line ("Query       = " & URL.Query (U));
+      Text_IO.Put_Line ("Path        = " & URL.Path (U));
+      Text_IO.Put_Line ("Pathname    = " & URL.Pathname (U));
+      Text_IO.Put_Line ("File        = " & URL.File (U));
+      Text_IO.Put_Line ("Parameters  = " & URL.Parameters (U));
+      Text_IO.Put_Line ("Server_Name = " & URL.Server_Name (U));
+      Text_IO.Put_Line ("Port        = " & URL.Port (U));
+
+      return Response.Build (MIME.Text_HTML, "not used");
+   end CB;
+
+   Port : Natural := 1234;
+   R    : Response.Data;
+
+begin
+   Get_Free_Port (Port);
+
+   Server.Start (WS, "url_object", CB'Unrestricted_Access, Port => Port);
+   Text_IO.Put_Line ("started"); Ada.Text_IO.Flush;
+
+   R := Client.Get
+     ("http://localhost:" & Utils.Image (Port) & "/get_it?p1=1&p2=toto");
+
+   R := Client.Get
+     ("http://localhost:" & Utils.Image (Port)
+      & "/get_it/disk.html?p1=0956&p2=uuu");
+
+   Server.Shutdown (WS);
+   Text_IO.Put_Line ("shutdown");
+end URL_Object;
