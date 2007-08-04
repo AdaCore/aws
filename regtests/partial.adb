@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2005-2006                          --
+--                         Copyright (C) 2005-2007                          --
 --                                  AdaCore                                 --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -32,6 +32,8 @@ with Ada.Text_IO;
 with Ada.Exceptions;
 with Ada.Streams.Stream_IO;
 
+with GNAT.MD5;
+
 with AWS.Client;
 with AWS.Digest;
 with AWS.Server;
@@ -43,14 +45,13 @@ with AWS.Utils;
 
 with Get_Free_Port;
 
-with MD5;
-
 procedure Partial is
 
    use Ada;
    use Ada.Streams;
    use Ada.Text_IO;
    use AWS;
+   use GNAT;
 
    Filename : constant String := "makefile";
 

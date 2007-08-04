@@ -31,7 +31,7 @@ with Ada.Streams.Stream_IO;
 with Ada.Strings.Fixed;
 with Ada.Unchecked_Deallocation;
 
-with MD5;
+with GNAT.MD5;
 with Strings_Cutter;
 
 with AWS.Headers.Set;
@@ -686,7 +686,7 @@ package body AWS.POP is
       else
          Net.Buffered.Put_Line
            (Mailbox.Sock, "APOP " & User
-              & MD5.Digest (To_String (Timestamp) & Password));
+              & GNAT.MD5.Digest (To_String (Timestamp) & Password));
 
          declare
             Response : constant String

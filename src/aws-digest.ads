@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2005                          --
---                               ACT-Europe                                 --
+--                         Copyright (C) 2000-2007                          --
+--                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -28,11 +28,11 @@
 
 --  Some utilities for HTTP digest authentication
 
-with MD5;
+with GNAT.MD5;
 
 package AWS.Digest is
 
-   subtype Digest_String is MD5.Message_Digest;
+   subtype Digest_String is GNAT.MD5.Message_Digest;
 
    subtype Nonce is String (1 .. 45);
    --  5 bytes hex seconds, 8 bytes hex global counter, 32 bytes digest
@@ -62,8 +62,7 @@ package AWS.Digest is
    --  Returns a more complex MD5 Digest if QOP field is not empty.
 
    function Tail
-     (Nonce, NC, CNonce, QOP, Method, URI : in String)
-      return String;
+     (Nonce, NC, CNonce, QOP, Method, URI : in String) return String;
    --  Returns the precalculated tail part of the digest
    --  if QOP field is not empty
    --     Tail := ':' & Nonce & ':' & NC & ':' & CNonce & ':' & QOP & ':'

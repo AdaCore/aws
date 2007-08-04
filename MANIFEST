@@ -162,8 +162,6 @@ gps/makefile
 gps/wsdl2aws.xml
 include/include.gpr
 include/makefile
-include/md5.adb
-include/md5.ads
 include/memory_streams.adb
 include/memory_streams.ads
 include/readme.txt

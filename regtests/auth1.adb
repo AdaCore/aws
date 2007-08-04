@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2004                          --
---                               ACT-Europe                                 --
+--                         Copyright (C) 2000-2007                          --
+--                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -31,6 +31,8 @@
 with Ada.Text_IO;
 with Ada.Exceptions;
 
+with GNAT.MD5;
+
 with AWS.Client;
 with AWS.Digest;
 with AWS.Server;
@@ -42,10 +44,9 @@ with AWS.Utils;
 
 with Get_Free_Port;
 
-with MD5;
-
 procedure Auth1 is
 
+   use GNAT;
    use Ada;
    use Ada.Text_IO;
    use AWS;

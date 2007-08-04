@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2004                            --
---                                ACT-Europe                                --
+--                         Copyright (C) 2004-2007                          --
+--                                 AdaCore                                  --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
 --                                                                          --
@@ -33,7 +33,7 @@
 with Ada.Command_Line;
 with Ada.Text_IO;
 
-with MD5;
+with GNAT.MD5;
 
 procedure Hotplug_Password is
    use Ada;
@@ -43,6 +43,6 @@ begin
       Text_IO.Put_Line ("Usage: hotplug_password <module> <password>");
    else
       Text_IO.Put_Line
-        (MD5.Digest (Argument (1) & ":hotplug:" & Argument (2)));
+        (GNAT.MD5.Digest (Argument (1) & ":hotplug:" & Argument (2)));
    end if;
 end Hotplug_Password;

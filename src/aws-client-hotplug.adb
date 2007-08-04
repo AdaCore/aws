@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2004-2006                          --
+--                         Copyright (C) 2004-2007                          --
 --                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -26,7 +26,7 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-with MD5;
+with GNAT.MD5;
 
 with AWS.Communication.Client;
 with AWS.Digest;
@@ -45,8 +45,7 @@ package body AWS.Client.Hotplug is
       Password : in String;
       Server   : in String;
       Regexp   : in String;
-      URL      : in String)
-      return Response.Data
+      URL      : in String) return Response.Data
    is
       use type Messages.Status_Code;
       Srv      : AWS.URL.Object;
@@ -74,7 +73,7 @@ package body AWS.Client.Hotplug is
       begin
          Digest := AWS.Digest.Create
            (Name, "hotplug",
-            MD5.Digest (Name & ":hotplug:" & Password),
+            GNAT.MD5.Digest (Name & ":hotplug:" & Password),
             Nonce, "hotplug", Regexp);
 
          return AWS.Communication.Client.Send_Message
@@ -95,8 +94,7 @@ package body AWS.Client.Hotplug is
      (Name     : in String;
       Password : in String;
       Server   : in String;
-      Regexp   : in String)
-      return Response.Data
+      Regexp   : in String) return Response.Data
    is
       use type Messages.Status_Code;
       Srv      : AWS.URL.Object;
@@ -124,7 +122,7 @@ package body AWS.Client.Hotplug is
       begin
          Digest := AWS.Digest.Create
            (Name, "hotplug",
-            MD5.Digest (Name & ":hotplug:" & Password),
+            GNAT.MD5.Digest (Name & ":hotplug:" & Password),
             Nonce, "hotplug", Regexp);
 
          return AWS.Communication.Client.Send_Message

@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2005                          --
---                               ACT-Europe                                 --
+--                         Copyright (C) 2000-2007                          --
+--                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -37,6 +37,7 @@ package body AWS.Digest is
 
    use Ada;
    use Ada.Streams;
+   use GNAT;
 
    Private_Key : MD5.Context;
 
