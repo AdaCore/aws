@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2003-2006                          --
+--                         Copyright (C) 2003-2007                          --
 --                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -73,7 +73,7 @@ project Shared is
    package Ide is
       for VCS_Kind use "Subversion";
       for VCS_Log_Check
-        use "style_checker -l70";
+        use "style_checker -l70 -H";
       for VCS_File_Check
         use "style_checker -ign out -ign tmplt -ign sed -ign txt"
          & " -lang Ada -cp -cy -sp -gnat05"
