@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2003                            --
---                                ACT-Europe                                --
+--                         Copyright (C) 2003-2007                          --
+--                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -28,9 +28,12 @@
 
 with Ada.Text_IO;
 
+with AWS.Utils;
+
 package body WSDL_3 is
 
    use Ada;
+   use AWS;
 
    ----------------
    -- Image_Rec1 --
@@ -56,5 +59,27 @@ package body WSDL_3 is
         & ", " & Long_Float'Image (Rec.Field4)
         & ")";
    end Image_Rec2;
+
+   ----------------
+   -- Image_Rec3 --
+   ----------------
+
+   function Image_Rec3 (Rec : in Rec3) return String is
+      R : Unbounded_String;
+   begin
+      Append (R, "(");
+
+      for K in Rec.S.Item'Range loop
+         Append (R, Utils.Image (Rec.S.Item (K)));
+
+         if K < Rec.S.Item'Last then
+            Append (R, ", ");
+         end if;
+      end loop;
+
+      Append (R, ")");
+
+      return To_String (R);
+   end Image_Rec3;
 
 end WSDL_3;

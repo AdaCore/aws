@@ -161,34 +161,13 @@ package body Ada2WSDL.Generator is
 
    procedure New_Component (NS, Comp_Name, Comp_Type : in String) is
 
-      function Check_Safe_Pointer (Type_Name : in String) return String;
-
-      ------------------------
-      -- Check_Safe_Pointer --
-      ------------------------
-
-      function Check_Safe_Pointer (Type_Name : in String) return String is
-      begin
-         for I in 1 .. Index loop
-            if API (I).Def_Mode = Safe_Pointer_Definition then
-               if To_String (API (I).Name) & ".Safe_Pointer" = Type_Name then
-                  return To_String (API (I).Type_Name);
-               end if;
-            end if;
-         end loop;
-
-         return Type_Name;
-      end Check_Safe_Pointer;
-
-      L_Comp_Type : constant String := Check_Safe_Pointer (Comp_Type);
-
       New_P       : constant Parameter_Access
-        := new Parameter'(+Comp_Name, +L_Comp_Type,
-                          +To_XSD (NS, L_Comp_Type), null);
+        := new Parameter'(+Comp_Name, +Comp_Type,
+                          +To_XSD (NS, Comp_Type), null);
    begin
       if Options.Verbose then
          Text_IO.Put_Line
-           ("        " & Comp_Name & " : " & L_Comp_Type
+           ("        " & Comp_Name & " : " & Comp_Type
               & " (" & (-New_P.XSD_Name) & ')');
       end if;
 
@@ -308,9 +287,8 @@ package body Ada2WSDL.Generator is
          Raise_Exception
            (Spec_Error'Identity,
             "Package Safe_Pointers instantiation must be named "
-              & Type_Name & "_Safe_Pointer.");
+            & Type_Name & "_Safe_Pointer.");
       end if;
-
       D.Name        := +Name;
       D.Type_Name   := +Type_Name;
       D.Access_Name := +Access_Name;

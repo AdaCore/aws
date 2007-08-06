@@ -385,8 +385,8 @@ package body Ada2WSDL.Parser is
 
       procedure Analyse_Package_Instantiation (Node : in Link) is
          use Extensions.Flat_Kinds;
-         G_Unit : constant Asis.Expression
-           := Declarations.Generic_Unit_Name (Node.Spec);
+         G_Unit : constant Asis.Expression :=
+                    Declarations.Generic_Unit_Name (Node.Spec);
          --  The generic unit name (name after the reserved word is)
          G_Name : constant String := Image (Text.Element_Image (G_Unit));
       begin
@@ -394,8 +394,8 @@ package body Ada2WSDL.Parser is
             --  This is the safe pointer AWS/SOAP runtime type support
 
             declare
-               Actual : constant Asis.Association_List
-                 := Declarations.Generic_Actual_Part (Node.Spec);
+               Actual : constant Asis.Association_List :=
+                          Declarations.Generic_Actual_Part (Node.Spec);
             begin
                if Actual'Length = 2 then
                   --  There is only two formal parameters, the first one is
@@ -794,8 +794,8 @@ package body Ada2WSDL.Parser is
                      if Flat_Element_Kind (C) = An_Index_Constraint then
                         --  This derived type has constraints
                         declare
-                           R : constant Asis.Discrete_Range_List
-                             := Definitions.Discrete_Ranges (C);
+                           R : constant Asis.Discrete_Range_List :=
+                                 Definitions.Discrete_Ranges (C);
                            Type_Suffix : Unbounded_String;
                            Array_Len   : Natural;
                         begin
@@ -960,8 +960,8 @@ package body Ada2WSDL.Parser is
       ----------------
 
       function Name_Space (E : in Asis.Element) return String is
-         NS : String
-           := Image (Compilation_Units.Unit_Full_Name
+         NS : String :=
+                Image (Compilation_Units.Unit_Full_Name
                        (Elements.Enclosing_Compilation_Unit (E)));
       begin
          Strings.Fixed.Translate (NS, Strings.Maps.To_Mapping (".", "/"));
@@ -1275,15 +1275,37 @@ package body Ada2WSDL.Parser is
             when A_Derived_Record_Extension_Definition =>
                --  This can be a safe pointer object
 
-               E := Declarations.Names (CFS) (1);
-
                declare
                   Name : constant String :=
                            Characters.Handling.To_Lower
-                             (Image (Declarations.Defining_Name_Image (E)));
+                             (Image
+                                (Declarations.Defining_Name_Image
+                                   (Declarations.Names (CFS) (1))));
                begin
                   if Name = "safe_pointer" then
-                     return Image (Text.Element_Image (Elem));
+                     --  We have a Safe_Pointer definition here, let's get the
+                     --  corresponding type.
+
+                     --  Get the record definition
+
+                     E := Definitions.Record_Definition (E);
+
+                     --  Get first record element type
+
+                     E := Definitions.Subtype_Mark
+                       (Definitions.Component_Subtype_Indication
+                          (Declarations.Object_Declaration_View
+                             (Definitions.Record_Components (E) (1))));
+
+                     --  Get the corresponding type
+
+                     E := Declarations.Type_Declaration_View
+                       (Declarations.Corresponding_First_Subtype
+                          (Expressions.Corresponding_Name_Declaration (E)));
+
+                     E := Definitions.Access_To_Object_Definition (E);
+
+                     return Image (Text.Element_Image (E));
 
                   else
                      Raise_Spec_Error

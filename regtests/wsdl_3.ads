@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2003                            --
---                                ACT-Europe                                --
+--                         Copyright (C) 2003-2007                          --
+--                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -28,6 +28,8 @@
 
 with Ada.Strings.Unbounded;
 
+with SOAP.Utils;
+
 package WSDL_3 is
 
    use Ada.Strings.Unbounded;
@@ -45,8 +47,20 @@ package WSDL_3 is
       Field4 : Long_Float;
    end record;
 
+   type My_Set is array (Positive range <>) of Integer;
+   type My_Set_Access is access My_Set;
+
+   package My_Set_Safe_Pointer is
+      new SOAP.Utils.Safe_Pointers (My_Set, My_Set_Access);
+
+   type Rec3 is record
+      S : My_Set_Safe_Pointer.Safe_Pointer;
+   end record;
+
    function Image_Rec1 (Rec : in Rec1) return String;
 
    function Image_Rec2 (Rec : in Rec2) return String;
+
+   function Image_Rec3 (Rec : in Rec3) return String;
 
 end WSDL_3;

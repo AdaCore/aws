@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2003                            --
---                                ACT-Europe                                --
+--                         Copyright (C) 2003-2007                          --
+--                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -46,6 +46,9 @@ package body WSDL_3_Server is
    function Image_Rec2_CB is
       new WSDL_3_Service.Server.Image_Rec2_CB (WSDL_3.Image_Rec2);
 
+   function Image_Rec3_CB is
+      new WSDL_3_Service.Server.Image_Rec3_CB (WSDL_3.Image_Rec3);
+
    -------------
    -- HTTP_CB --
    -------------
@@ -71,6 +74,9 @@ package body WSDL_3_Server is
 
       elsif SOAPAction = "Image_Rec2" then
          return Image_Rec2_CB (SOAPAction, Payload, Request);
+
+      elsif SOAPAction = "Image_Rec3" then
+         return Image_Rec3_CB (SOAPAction, Payload, Request);
 
       else
          return Message.Response.Build
