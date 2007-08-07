@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2003-2004                          --
---                                ACT-Europe                                --
+--                         Copyright (C) 2003-2007                          --
+--                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -36,6 +36,7 @@ with AWS.Server;
 
 with SOAP.Dispatchers.Callback;
 
+with WSDL_3;
 with WSDL_3_Server;
 with WSDL_3_Service.Client;
 with WSDL_3_Service.Types;
@@ -54,6 +55,7 @@ procedure WSDL_3_Main is
 
    R1   : WSDL_3_Service.Types.Rec1_Type;
    R2   : WSDL_3_Service.Types.Rec2_Type;
+   R3   : WSDL_3_Service.Types.Rec3_Type;
 
 begin
    H := SOAP.Dispatchers.Callback.Create
@@ -65,9 +67,12 @@ begin
 
    R1 := (-4, 2, 89);
    R2 := (R1, 'c', To_Unbounded_String ("toto"), 1.45);
+   R3 := (S => WSDL_3.My_Set_Safe_Pointer.To_Safe_Pointer
+            (WSDL_3.My_Set'(1, 7, 8, 10, 0, 0, 3)));
 
    Text_IO.Put_Line ("R1 = " & WSDL_3_Service.Client.Image_Rec1 (R1));
    Text_IO.Put_Line ("R2 = " & WSDL_3_Service.Client.Image_Rec2 (R2));
+   Text_IO.Put_Line ("R3 = " & WSDL_3_Service.Client.Image_Rec3 (R3));
 
    Server.Shutdown (WS);
 end WSDL_3_Main;
