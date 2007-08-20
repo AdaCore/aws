@@ -166,7 +166,7 @@ package body WS_CB is
    begin
       loop
          delay 1.0;
-         Time_Push.Send (SP, Ada.Calendar.Clock, "text/plain");
+         Time_Push.Send (SP, Ada.Calendar.Clock, Content_Type => "text/plain");
       end loop;
    end Server_Push_Task;
 
