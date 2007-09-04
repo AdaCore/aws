@@ -151,8 +151,7 @@ package body AWS.Digest is
    function Create
      (Username, Realm, Password : in String;
       Nonce, NC, CNonce, QOP    : in String;
-      Method, URI               : in String)
-      return Digest_String is
+      Method, URI               : in String) return Digest_String is
    begin
       return MD5.Digest
         (MD5.Digest (Username & ':' & Realm & ':' & Password)
@@ -162,8 +161,7 @@ package body AWS.Digest is
    function Create
      (Username, Realm, Password : in String;
       Nonce                     : in String;
-      Method, URI               : in String)
-      return Digest_String is
+      Method, URI               : in String) return Digest_String is
    begin
       return Create
                (Username, Realm, Password, Nonce, "", "", "", Method, URI);
@@ -221,8 +219,7 @@ package body AWS.Digest is
    ----------
 
    function Tail
-     (Nonce, NC, CNonce, QOP, Method, URI : in String)
-      return String
+     (Nonce, NC, CNonce, QOP, Method, URI : in String) return String
    is
       MUD : constant Digest_String := MD5.Digest (Method & ':' & URI);
    begin

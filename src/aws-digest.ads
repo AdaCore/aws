@@ -50,15 +50,13 @@ package AWS.Digest is
    function Create
      (Username, Realm, Password : in String;
       Nonce                     : in String;
-      Method, URI               : in String)
-      return Digest_String;
+      Method, URI               : in String) return Digest_String;
    --  Returns a simple MD5 Digest
 
    function Create
      (Username, Realm, Password : in String;
       Nonce, NC, CNonce, QOP    : in String;
-      Method, URI               : in String)
-      return Digest_String;
+      Method, URI               : in String) return Digest_String;
    --  Returns a more complex MD5 Digest if QOP field is not empty.
 
    function Tail
