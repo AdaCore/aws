@@ -91,7 +91,7 @@ package body AWS.Server.Push is
       Holder            : in out Client_Holder_Access;
       Init_Data         : in     Stream_Element_Array;
       Duplicated_Age    : in     Duration);
-   --  Internal register routine.
+   --  Internal register routine
 
    function Data_Chunk
      (Holder       : in Client_Holder;
@@ -104,16 +104,19 @@ package body AWS.Server.Push is
       Last   :    out Stream_Element_Offset);
 
    New_Line : constant String := ASCII.CR & ASCII.LF;
-   --  HTTP new line.
+   --  HTTP new line
 
    Byte0 : constant Stream_Element_Array := (1 => 0);
 
-   Boundary : constant String := "--AWS.Push.Boundary_"
-     & GNAT.Calendar.Time_IO.Image (Ada.Calendar.Clock, "%s")
-     & New_Line;
-   --  This is the multi-part boundary string used by AWS push server.
+   Boundary  : constant String := "AWS.Push.Boundary_"
+     & GNAT.Calendar.Time_IO.Image (Ada.Calendar.Clock, "%s");
+   --  This is the multi-part boundary string used by AWS push server
 
-   W_Sygnal : aliased Net.Socket_Type'Class := Net.Socket (Security => False);
+   Delimiter : constant String := "--" & Boundary & New_Line;
+   --  And the corresponding delimiter
+
+   W_Signal : aliased Net.Socket_Type'Class := Net.Socket (Security => False);
+   --  ???
 
    type Object_Access is access all Object;
 
@@ -127,7 +130,7 @@ package body AWS.Server.Push is
         (Server    : in Object_Access;
          Client_Id : in String;
          Holder    : in Client_Holder_Access);
-      --  Socket should be appropriate and only for error control.
+      --  Socket should be appropriate and only for error control
 
       entry Info (Size : out Natural; Counter : out Wait_Counter_Type);
    end Waiter;
@@ -173,11 +176,15 @@ package body AWS.Server.Push is
       Data         : in Client_Output_Type;
       Content_Type : in String) return Stream_Element_Array
    is
-      Data_To_Send : constant Stream_Element_Array
-        := To_Stream_Array (Data, Holder.Environment);
+      Data_To_Send : constant Stream_Element_Array :=
+                       To_Stream_Array (Data, Holder.Environment);
+      --  Data to send, will be sent with a prefix and suffix
 
       function Prefix return String;
+      --  Message prefix
+
       function Suffix return String;
+      --  Message suffix
 
       ------------
       -- Prefix --
@@ -185,15 +192,18 @@ package body AWS.Server.Push is
 
       function Prefix return String is
       begin
-         if Holder.Kind = Multipart then
-            return Boundary & Messages.Content_Type (Content_Type)
-                     & New_Line & New_Line;
-         elsif Holder.Kind = Chunked then
-            return Utils.Hex (Data_To_Send'Size / System.Storage_Unit)
-                     & New_Line;
-         else
-            return "";
-         end if;
+         case Holder.Kind is
+            when Multipart =>
+               return Delimiter & Messages.Content_Type (Content_Type)
+                 & New_Line & New_Line;
+
+            when Chunked =>
+               return Utils.Hex (Data_To_Send'Size / System.Storage_Unit)
+                 & New_Line;
+
+            when Plain =>
+               return "";
+         end case;
       end Prefix;
 
       ------------
@@ -202,14 +212,16 @@ package body AWS.Server.Push is
 
       function Suffix return String is
       begin
-         if Holder.Kind = Multipart then
-            return New_Line & New_Line;
+         case Holder.Kind is
+            when Multipart =>
+               return New_Line & New_Line;
 
-         elsif Holder.Kind = Chunked then
-            return New_Line;
-         else
-            return "";
-         end if;
+            when Chunked =>
+               return New_Line;
+
+            when Plain =>
+               return "";
+         end case;
       end Suffix;
 
    begin
@@ -247,8 +259,8 @@ package body AWS.Server.Push is
       while Chunk_Lists.Has_Element (C) loop
          declare
             Message : constant Message_Type := Chunk_Lists.Element (C);
-            Next    : constant Stream_Element_Offset
-              := Last + Message.Data'Last;
+            Next    : constant Stream_Element_Offset :=
+                        Last + Message.Data'Last;
          begin
             exit when Next > Data'Last;
 
@@ -275,7 +287,7 @@ package body AWS.Server.Push is
 
    procedure Info (Size : out Natural; Counter : out Wait_Counter_Type) is
    begin
-      W_Sygnal.Send (Byte0);
+      W_Signal.Send (Byte0);
       Waiter.Info (Size, Counter => Counter);
    end Info;
 
@@ -430,9 +442,13 @@ package body AWS.Server.Push is
          Cursor  : Tables.Cursor;
          Success : Boolean;
 
-         procedure Add_To_Groups (J : Group_Sets.Cursor);
+         procedure Add_To_Groups (J : in Group_Sets.Cursor);
 
-         procedure Add_To_Groups (J : Group_Sets.Cursor) is
+         -------------------
+         -- Add_To_Groups --
+         -------------------
+
+         procedure Add_To_Groups (J : in Group_Sets.Cursor) is
          begin
             Add_To_Groups
               (Groups, Group_Sets.Element (J), Client_Id, Holder);
@@ -537,14 +553,15 @@ package body AWS.Server.Push is
             --  out of protected object.
 
             Holder.Phase := Going;
+
          else
             if Thin_Id /= "" then
                CT := Holder.Thin.Find (Thin_Id);
             end if;
 
             declare
-               Chunk : constant Stream_Element_Array
-                 := Data_Chunk (Holder.all, Data, Content_Type);
+               Chunk : constant Stream_Element_Array :=
+                         Data_Chunk (Holder.all, Data, Content_Type);
             begin
                if Thin_Indexes.Has_Element (CT) then
                   Holder.Chunks.Replace_Element
@@ -567,7 +584,6 @@ package body AWS.Server.Push is
             end;
 
             Holder := null;
-
          end if;
       end Send_Data;
 
@@ -599,8 +615,7 @@ package body AWS.Server.Push is
       procedure Shutdown
         (Final_Data         : in     Client_Output_Type;
          Final_Content_Type : in     String;
-         Queue              :    out Tables.Map)
-      is
+         Queue              :    out Tables.Map) is
       begin
          Send (Final_Data, "", Final_Content_Type, "", Queue);
          Open := False;
@@ -630,6 +645,10 @@ package body AWS.Server.Push is
          procedure Modify
            (Key : in String; Element : in out Client_Holder_Access);
 
+         ------------
+         -- Modify --
+         ------------
+
          procedure Modify
            (Key : in String; Element : in out Client_Holder_Access)
          is
@@ -645,8 +664,7 @@ package body AWS.Server.Push is
          if Tables.Has_Element (Cursor) then
             Tables.Update_Element (Container, Cursor, Modify'Access);
          else
-            Ada.Exceptions.Raise_Exception
-              (Client_Gone'Identity, "No such client id.");
+            raise Client_Gone with "No such client id.";
          end if;
       end Subscribe;
 
@@ -658,6 +676,10 @@ package body AWS.Server.Push is
          Holder : constant Client_Holder_Access := Tables.Element (Cursor);
 
          procedure Delete_Group (J : Group_Sets.Cursor);
+
+         ------------------
+         -- Delete_Group --
+         ------------------
 
          procedure Delete_Group (J : Group_Sets.Cursor) is
             use type Ada.Containers.Count_Type;
@@ -699,7 +721,8 @@ package body AWS.Server.Push is
       -- Unregister_Clients --
       ------------------------
 
-      procedure Unregister_Clients (Queue : out Tables.Map; Open : in Boolean)
+      procedure Unregister_Clients
+        (Queue : out Tables.Map; Open : in Boolean)
       is
          Cursor : Tables.Cursor;
       begin
@@ -728,6 +751,10 @@ package body AWS.Server.Push is
 
          procedure Modify
            (Key : in String; Element : in out Client_Holder_Access);
+
+         ------------
+         -- Modify --
+         ------------
 
          procedure Modify
            (Key : in String; Element : in out Client_Holder_Access)
@@ -764,7 +791,6 @@ package body AWS.Server.Push is
          if not Tables.Has_Element (C) then
             --  Rare situation when just after client uregister detected
             --  socket error.
-
             return;
          end if;
 
@@ -799,9 +825,8 @@ package body AWS.Server.Push is
 
       if Duplicated /= null then
          if Duplicated.Phase /= Available then
-            W_Sygnal.Send (Byte0);
-            Waiter.Remove
-              (Server'Unrestricted_Access, Client_Id, Duplicated);
+            W_Signal.Send (Byte0);
+            Waiter.Remove (Server'Unrestricted_Access, Client_Id, Duplicated);
          end if;
 
          Duplicated.Socket.Shutdown;
@@ -824,7 +849,7 @@ package body AWS.Server.Push is
             Net.Buffered.Put_Line
               (Holder.Socket.all,
                Messages.Content_Type
-                 (MIME.Multipart_X_Mixed_Replace, Boundary));
+                 (MIME.Multipart_X_Mixed_Replace, Boundary) & New_Line);
 
          else
             Net.Buffered.New_Line (Holder.Socket.all);
@@ -841,7 +866,7 @@ package body AWS.Server.Push is
             raise;
       end;
 
-      W_Sygnal.Send (Byte0);
+      W_Signal.Send (Byte0);
 
       Waiter.Add
         (Server    => Server'Unrestricted_Access,
@@ -863,8 +888,8 @@ package body AWS.Server.Push is
       Groups            : in     Group_Set          := Empty_Group;
       Timeout           : in     Duration           := Default.Send_Timeout)
    is
-      Holder : Client_Holder_Access
-        := To_Holder (Socket, Environment, Kind, Groups, Timeout);
+      Holder : Client_Holder_Access :=
+                 To_Holder (Socket, Environment, Kind, Groups, Timeout);
    begin
       Register
         (Server,
@@ -884,15 +909,10 @@ package body AWS.Server.Push is
       Groups         : in     Group_Set          := Empty_Group;
       Timeout        : in     Duration           := Default.Send_Timeout)
    is
-      Holder : Client_Holder_Access
-        := To_Holder (Socket, Environment, Kind, Groups, Timeout);
+      Holder : Client_Holder_Access :=
+                 To_Holder (Socket, Environment, Kind, Groups, Timeout);
    begin
-      Register
-        (Server,
-         Client_Id,
-         Holder,
-         (1 .. 0 => 0),
-         Duplicated_Age);
+      Register (Server, Client_Id, Holder, (1 .. 0 => 0), Duplicated_Age);
    end Register;
 
    -------------
@@ -919,7 +939,7 @@ package body AWS.Server.Push is
          Holder := Tables.Element (C);
 
          if Holder.Phase /= Available then
-            W_Sygnal.Send (Byte0);
+            W_Signal.Send (Byte0);
             Waiter.Remove (Server'Unrestricted_Access, Tables.Key (C), Holder);
          end if;
 
@@ -977,7 +997,12 @@ package body AWS.Server.Push is
 
       procedure Send (Client_Id : in String; Holder : in Client_Holder_Access);
 
-      procedure Send (Client_Id : in String; Holder : in Client_Holder_Access)
+      ----------
+      -- Send --
+      ----------
+
+      procedure Send
+        (Client_Id : in String; Holder : in Client_Holder_Access)
       is
          Removed : Client_Holder_Access;
       begin
@@ -994,7 +1019,7 @@ package body AWS.Server.Push is
 
          Holder.Socket.Send (Data_Chunk (Holder.all, Data, Content_Type));
 
-         W_Sygnal.Send (Byte0);
+         W_Signal.Send (Byte0);
 
          Waiter.Add
            (Server    => Server'Unrestricted_Access,
@@ -1036,6 +1061,10 @@ package body AWS.Server.Push is
    is
       procedure Gone (Client_Id : in String);
 
+      ----------
+      -- Gone --
+      ----------
+
       procedure Gone (Client_Id : in String) is
       begin
          Client_Gone (Client_Id);
@@ -1074,7 +1103,7 @@ package body AWS.Server.Push is
 
          Holder.Socket.Send (Data_Chunk (Holder.all, Data, Content_Type));
 
-         W_Sygnal.Send (Byte0);
+         W_Signal.Send (Byte0);
 
          Waiter.Add
            (Server    => Server'Unrestricted_Access,
@@ -1108,6 +1137,10 @@ package body AWS.Server.Push is
    is
       function Get_Final_Data
         (Holder : in Client_Holder) return Stream_Element_Array;
+
+      --------------------
+      -- Get_Final_Data --
+      --------------------
 
       function Get_Final_Data
         (Holder : in Client_Holder) return Stream_Element_Array is
@@ -1161,17 +1194,17 @@ package body AWS.Server.Push is
          Holder_Groups.Insert (To_String (Groups (J)));
       end loop;
 
-      return new Client_Holder'(Kind        => Kind,
-                                Environment => Environment,
-                                Created     => Ada.Calendar.Clock,
-                                Socket      => new Socket_Type'Class'(Socket),
-                                Groups      => Holder_Groups,
-                                Chunks      => <>,
-                                Thin        => <>,
-                                Phase       => Going,
-                                Timeout     => Ada.Real_Time.To_Time_Span
-                                                 (Timeout),
-                                Errmsg      => <>);
+      return new Client_Holder'
+        (Kind        => Kind,
+         Environment => Environment,
+         Created     => Ada.Calendar.Clock,
+         Socket      => new Socket_Type'Class'(Socket),
+         Groups      => Holder_Groups,
+         Chunks      => <>,
+         Thin        => <>,
+         Phase       => Going,
+         Timeout     => Ada.Real_Time.To_Time_Span (Timeout),
+         Errmsg      => <>);
    end To_Holder;
 
    ----------------
@@ -1192,7 +1225,7 @@ package body AWS.Server.Push is
       end if;
 
       if Holder.Phase /= Available then
-         W_Sygnal.Send (Byte0);
+         W_Signal.Send (Byte0);
          Waiter.Remove (Server'Unrestricted_Access, Client_Id, Holder);
       end if;
 
@@ -1245,15 +1278,15 @@ package body AWS.Server.Push is
       use Write_Sets;
       use Ada.Real_Time;
 
-      R_Sygnal : aliased Net.Socket_Type'Class
-        := Net.Socket (Security => False);
+      R_Signal : aliased Net.Socket_Type'Class :=
+                   Net.Socket (Security => False);
       Byte    : Stream_Element_Array (1 .. 1);
       pragma Warnings (Off, Byte);
       Counter : Wait_Counter_Type := 0;
 
    begin
-      Net.Socket_Pair (R_Sygnal, W_Sygnal);
-      Add (Write_Set, R_Sygnal'Unchecked_Access, Mode => Write_Sets.Input);
+      Net.Socket_Pair (R_Signal, W_Signal);
+      Add (Write_Set, R_Signal'Unchecked_Access, Mode => Write_Sets.Input);
 
       loop
          if Count (Write_Set) > 1 then
@@ -1282,6 +1315,7 @@ package body AWS.Server.Push is
 
                   Counter := Counter + 1;
                end Add;
+
             or
                accept Remove
                  (Server    : in Object_Access;
@@ -1306,6 +1340,10 @@ package body AWS.Server.Push is
                              (Socket : in out Socket_Type'Class;
                               Client : in out Client_In_Wait);
 
+                           -------------
+                           -- Process --
+                           -------------
+
                            procedure Process
                              (Socket : in out Socket_Type'Class;
                               Client : in out Client_In_Wait)
@@ -1315,8 +1353,8 @@ package body AWS.Server.Push is
                               if Client.SP /= Server
                                 or else Client_Id /= To_String (Client.Id)
                               then
-                                 raise Program_Error with
-                                   "Broken data in waiter.";
+                                 raise Program_Error
+                                   with "Broken data in waiter.";
                               end if;
                            end Process;
 
@@ -1325,13 +1363,14 @@ package body AWS.Server.Push is
                            Remove_Socket (Write_Set, J, Socket);
 
                            if Socket /= Holder.Socket then
-                              raise Program_Error with
-                                "Broken socket in waiter.";
+                              raise Program_Error
+                                with "Broken socket in waiter.";
                            end if;
                         end;
                      end if;
                   end loop;
                end Remove;
+
             or
                accept Info
                  (Size : out Natural; Counter : out Wait_Counter_Type)
@@ -1339,10 +1378,12 @@ package body AWS.Server.Push is
                   Size := Integer (Count (Write_Set) - 1);
                   Info.Counter := Waiter.Counter;
                end Info;
-            or terminate;
+
+            or
+               terminate;
             end select;
 
-            Byte := Net.Receive (R_Sygnal, 1);
+            Byte := Net.Receive (R_Signal, 1);
          end if;
 
          for J in reverse 2 .. Count (Write_Set) loop
@@ -1350,6 +1391,10 @@ package body AWS.Server.Push is
                procedure Process
                  (Socket : in out Socket_Type'Class;
                   Client : in out Client_In_Wait);
+
+               -------------
+               -- Process --
+               -------------
 
                procedure Process
                  (Socket : in out Socket_Type'Class;
