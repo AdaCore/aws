@@ -102,7 +102,7 @@ package body AWS.Jabber is
    pragma No_Return (Raise_Exception);
    --  Raise Server_Error exception with Message.
 
-   procedure Check_Message (Message : Message_Access);
+   procedure Check_Message (Message : in Message_Access);
    --  Check that Message is ok. If it is an error raise Server_Error with the
    --  Exception_Message and the error's tag value.
 
@@ -131,7 +131,7 @@ package body AWS.Jabber is
    -- Check_Message --
    -------------------
 
-   procedure Check_Message (Message : Message_Access) is
+   procedure Check_Message (Message : in Message_Access) is
       Error : constant String := Value (Message, "error");
    begin
       if Error /= "" then
