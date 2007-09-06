@@ -281,7 +281,7 @@ package body AWS.Containers.Tables is
             Result : VString_Array (1 .. Last);
          begin
             for I in 1 .. Last loop
-               Result (Natural (I))
+               Result (I)
                   := To_Unbounded_String
                    (Data_Table.Element
                         (Table.Data,

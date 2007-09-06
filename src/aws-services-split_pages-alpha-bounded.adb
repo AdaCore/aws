@@ -139,7 +139,7 @@ package body AWS.Services.Split_Pages.Alpha.Bounded is
 
       for I in Self.Index (A) .. Self.Index_Last (A) loop
          S_INDEXES_V := S_INDEXES_V & Integer (I - Self.Index (A) + 1);
-         S_HREFS_V   := S_HREFS_V   & URIs (Positive (I));
+         S_HREFS_V   := S_HREFS_V   & URIs (I);
       end loop;
 
       if Page = Self.Index (A) then
