@@ -90,6 +90,7 @@ demos/split.adb
 demos/split.thtml
 demos/test_jabber.adb
 demos/test_ldap.adb
+demos/test_mail.adb
 demos/text_input.adb
 demos/text_input_cb.adb
 demos/text_input_cb.ads
@@ -437,6 +438,8 @@ regtests/test_hotplug.adb
 regtests/test_hotplug.out
 regtests/test_net_log.adb
 regtests/test_net_log.out
+regtests/test_smtp_authentication.adb
+regtests/test_smtp_authentication.out
 regtests/test_speed.adb
 regtests/test_speed.out
 regtests/test_templates_if.adb
@@ -701,6 +704,9 @@ src/aws-session-control.adb
 src/aws-session-control.ads
 src/aws-session.adb
 src/aws-session.ads
+src/aws-smtp-authentication-plain.adb
+src/aws-smtp-authentication-plain.ads
+src/aws-smtp-authentication.ads
 src/aws-smtp-client.adb
 src/aws-smtp-client.ads
 src/aws-smtp.adb
