@@ -19,3 +19,8 @@ build:
 
 clean:
 	-$(RM) -f aws-translator-conversion.adb aws-os_lib-definitions.ads
+
+check:
+	$(GNAT) check -rules -from=../aws.checks \
+		-Psrc -XBuild=${PRJ_BUILD} -XXMLADA=${PRJ_XMLADA} \
+		-XSOCKLIB=${PRJ_SOCKLIB}

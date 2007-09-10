@@ -73,7 +73,7 @@ ALL_OPTIONS	= $(MAKE_OPT) SOCKET="$(SOCKET)" XMLADA="$(XMLADA)" \
 	ADASOCKETS="$(ADASOCKETS)" EXTRA_TESTS="$(EXTRA_TESTS)" \
 	GCC="$(GCC)" AWK="$(AWK)" CAT="$(CAT)" GCC_FOR_HOST="$(GCC_FOR_HOST)" \
 	BDIR="$(BDIR)" INSTALL="$(INSTALL)" SHARED="$(SHARED)" \
-	SOEXT="$(SOEXT)" BUILD_DOC_SCRIPT="false" \
+	SOEXT="$(SOEXT)" BUILD_DOC_SCRIPT="false" GNAT="$(GNAT)" \
 	T2A="../../$(BDIR)/tools/templates2ada"
 
 build_doc:
@@ -196,6 +196,8 @@ MODULES_SETUP = ${MODULES:%=%_setup}
 
 MODULES_CLEAN = ${MODULES:%=%_clean}
 
+MODULES_CHECK = ${MODULES:%=%_check}
+
 ## XML/Ada
 
 ifeq (${XMLADA}, true)
@@ -275,11 +277,16 @@ ${MODULES_SETUP}: force
 ${MODULES_CLEAN}: force
 	${MAKE} -C ${@:%_clean=%} clean $(GALL_OPTIONS)
 
+${MODULES_CHECK}: force
+	${MAKE} -C ${@:%_check=%} check $(GALL_OPTIONS)
+
 build: $(MODULES_BUILD)
 
 clean: $(MODULES_CLEAN)
 	${MAKE} -C templates_parser clean
 	-rm -fr .build
+
+check: $(MODULES_CHECK)
 
 PRJDIR = .build/projects
 

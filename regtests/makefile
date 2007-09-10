@@ -329,6 +329,8 @@ endif
 	echo "" >> regtests_lst.gpr
 	echo "end regtests_lst;" >> regtests_lst.gpr
 
+check:
+
 clean:
 	-rm -f *.o *.ali b~*.ad* *~ .*~ *.res res.ad\[sb\] res2.ad\[sb\]
 	-rm -f file.tmp file1.html file2.html file3.html file.tmplt tresres*

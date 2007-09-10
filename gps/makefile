@@ -11,6 +11,8 @@ build: prog force
 
 setup:
 
+check:
+
 prog:
 	$(GNATMAKE) -Pgps_support \
 		-XPRJ_Build=${PRJ_BUILD} -XPRJ_XMLADA=${PRJ_XMLADA}

@@ -26,6 +26,11 @@ build:
 	$(GNATMAKE) -Pssl -XSOCKET=${SOCKET} \
 		-XAWS_BUILD=${PRJ_BUILD} -XXMLADA=${PRJ_XMLADA}
 
+check:
+	$(GNAT) check -Pssl -XSOCKET=${SOCKET} \
+		-XAWS_BUILD=${PRJ_BUILD} -XXMLADA=${PRJ_XMLADA} \
+		-rules -from=../aws.checks
+
 SSLGPR	=	aws_ssl_shared.gpr
 
 setup_ssl:

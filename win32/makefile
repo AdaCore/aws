@@ -59,3 +59,5 @@ setup_dir:
 	-$(MKDIR) -p $(LDIR)
 
 setup: setup_dir $(RES) $(IMPORT_LIB)
+
+check:

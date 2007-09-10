@@ -29,5 +29,10 @@ build:
 	$(GNATMAKE) -Ptools -XBuild=${PRJ_BUILD} \
 		-XXMLADA=${PRJ_XMLADA} -XASIS=${PRJ_ASIS}
 
+check:
+	$(GNAT) check -Ptools -XBuild=${PRJ_BUILD} \
+		-XXMLADA=${PRJ_XMLADA} -XASIS=${PRJ_ASIS} \
+		-rules -from=../aws.checks
+
 clean:
 	$(RM) -fr ../$(BDIR)/tools

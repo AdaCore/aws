@@ -25,5 +25,7 @@ build: build_res $(BUILD_EXT)
 	$(GNATMAKE) -Pdemos_ssl -XSOCKET=${SOCKET} \
 		-XBuild=${PRJ_BUILD} -XXMLADA=${PRJ_XMLADA}
 
+check:
+
 clean:
 	$(RM) -fr ../$(BDIR)/demos

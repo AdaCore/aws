@@ -27,5 +27,7 @@ setup: setup_dir ../src/aws-translator-conversion.adb ../src/aws-os_lib.ads
 
 build:
 
+check:
+
 clean:
 	-$(RM) -f *.~*.*~

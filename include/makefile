@@ -16,3 +16,6 @@ setup:
 
 clean:
 	${MAKE} -C zlib clean
+
+check:
+	$(GNAT) check -files=filenames.check -rules -from=../aws.checks 
