@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                             Templates Parser                             --
 --                                                                          --
---                          Copyright (C) 2004-2005                         --
+--                          Copyright (C) 2004-2007                         --
 --                               Pascal Obry                                --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -33,8 +33,7 @@ generic
 
    type Element_Type (<>) is private;
 
-   with function "=" (Left, Right : Element_Type)
-      return Boolean is <>;
+   with function "=" (Left, Right : Element_Type) return Boolean is <>;
 
 package Strings_Maps is
 
@@ -48,8 +47,6 @@ package Strings_Maps is
    No_Element : Cursor renames Containers.No_Element;
 
    function Has_Element
-     (C : in Cursor)
-      return Boolean
-      renames Containers.Has_Element;
+     (C : in Cursor) return Boolean renames Containers.Has_Element;
 
 end Strings_Maps;

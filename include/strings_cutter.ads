@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                             Strings  Cutter                              --
 --                                                                          --
---                        Copyright (C) 1995 - 2004                         --
+--                        Copyright (C) 1995 - 2007                         --
 --                               Pascal Obry                                --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -53,8 +53,7 @@ package Strings_Cutter is
 
    function Field
      (S     : in Cut_String;
-      Index : in Index_Values)
-      return String;
+      Index : in Index_Values) return String;
    --  Returns the Nth field in S. Returns the original string if Index is
    --  set to 0.
 

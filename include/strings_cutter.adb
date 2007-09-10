@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                             Strings  Cutter                              --
 --                                                                          --
---                        Copyright (C) 1995 - 2004                         --
+--                        Copyright (C) 1995 - 2007                         --
 --                               Pascal Obry                                --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -138,8 +138,7 @@ package body Strings_Cutter is
 
    function Field
      (S     : in Cut_String;
-      Index : in Index_Values)
-      return String is
+      Index : in Index_Values) return String is
    begin
       case Index is
          when 0 =>
