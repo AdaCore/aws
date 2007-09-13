@@ -89,7 +89,7 @@ package body AWS.Services.Web_Block.Context is
 
       --  Now create the new context
 
-      for K in Positive range 1 .. Positive (Length (Data)) loop
+      for K in Positive range 1 .. Natural (Length (Data)) loop
          declare
             D : constant Context_Data := Element (Data, K);
          begin
