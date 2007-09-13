@@ -28,16 +28,17 @@
 
 --  ~ MAIN [STD]
 
-with Ada.Text_IO;
 with Ada.Exceptions;
+with Ada.Text_IO;
 
-with AWS.Server;
 with AWS.Client;
-with AWS.Status;
-with AWS.MIME;
-with AWS.Response;
-with AWS.Parameters;
+with AWS.Config.Set;
 with AWS.Messages;
+with AWS.MIME;
+with AWS.Parameters;
+with AWS.Response;
+with AWS.Server;
+with AWS.Status;
 with AWS.Utils;
 
 with Get_Free_Port;
@@ -65,6 +66,14 @@ procedure Param is
    function CB (Request : in Status.Data) return Response.Data is
       URI    : constant String          := Status.URI (Request);
       P_List : constant Parameters.List := Status.Parameters (Request);
+
+      procedure Print (Name, Value : in String);
+
+      procedure Print (Name, Value : in String) is
+      begin
+         Put_Line (Name & " = " & Value);
+      end Print;
+
    begin
       if URI = "/call" then
          Put_Line ("N  = " & Natural'Image (Parameters.Count (P_List)));
@@ -88,6 +97,14 @@ procedure Param is
 
          return Response.Build (MIME.Text_HTML, "call call ok");
 
+      elsif URI = "/dup" then
+         Put_Line ("N  = " & Natural'Image (Parameters.Count (P_List)));
+         Put_Line ("P1 = " & P_List.Get ("P1", 1));
+         Put_Line ("P2 = " & P_List.Get ("p2", 2));
+         P_List.Iterate_Names (", ", Print'Access);
+
+         return Response.Build (MIME.Text_HTML, "call call ok");
+
       else
          Put_Line ("Unknown URI " & URI);
 
@@ -101,12 +118,16 @@ procedure Param is
    ------------
 
    task body Server is
+      Config : AWS.Config.Object;
    begin
       Get_Free_Port (Port);
 
-      AWS.Server.Start
-        (HTTP, "param",
-         CB'Unrestricted_Access, Port => Port, Max_Connection => 5);
+      AWS.Config.Set.Server_Port (Config, Port);
+      AWS.Config.Set.Max_Connection (Config, 5);
+      AWS.Config.Set.Server_Name (Config, "param");
+      AWS.Config.Set.Case_Sensitive_Parameters (Config, False);
+
+      AWS.Server.Start (HTTP, CB'Unrestricted_Access, Config);
 
       Put_Line ("Server started");
       New_Line;
@@ -155,6 +176,8 @@ begin
               & "/call%20call%3fp1=a%20a%3f");
    Request ("http://localhost:" & Utils.Image (Port)
               & "/spec?p%261=1%3d1&p%3D2=2%262");
+   Request ("http://localhost:" & Utils.Image (Port)
+              & "/dup?p1=p-1.1&P1=p-1.2&P2=p-2.1&p2=p-2.2");
 
    Server.Stopped;
 
