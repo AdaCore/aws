@@ -53,6 +53,15 @@ package body AWS.Containers.Tables is
    --  Returns all Name/Value indexes for the specified name.
    --  Found is set to False if Name was not found in Table and True otherwise.
 
+   --------------------
+   -- Case_Sensitive --
+   --------------------
+
+   function Case_Sensitive (Table : in Table_Type) return Boolean is
+   begin
+      return Table.Case_Sensitive;
+   end Case_Sensitive;
+
    -----------
    -- Count --
    -----------

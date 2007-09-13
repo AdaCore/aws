@@ -335,8 +335,11 @@ package body AWS.Status.Set is
       end if;
 
       D.Method_String := To_Unbounded_String (Method);
-      D.URI           := URL.Parse (URI, False, False);
       D.HTTP_Version  := To_Unbounded_String (HTTP_Version);
+
+      --  Parse URI and keep parameters case sensitivity flag
+
+      URL.Set.Parse (D.URI, URI, False, False);
    end Request;
 
    -----------

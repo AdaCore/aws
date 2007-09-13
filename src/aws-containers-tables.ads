@@ -54,6 +54,10 @@ package AWS.Containers.Tables is
    function Name_Count (Table : in Table_Type) return Natural;
    --  Returns the number of unique key name in Table
 
+   function Case_Sensitive (Table : in Table_Type) return Boolean;
+   pragma Inline (Case_Sensitive);
+   --  Returns case sensitivity flag of the Table
+
    function Count (Table : in Table_Type; Name : in String) return Natural;
    --  Returns the number of value for Key Name in Table. It returns
    --  0 if Key does not exist.

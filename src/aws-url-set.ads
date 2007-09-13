@@ -43,4 +43,10 @@ package AWS.URL.Set is
       Security : in     Boolean);
    --  Update connection data, used by the server
 
+   procedure Parse
+     (Item           : in out Object;
+      URL            : in     String;
+      Check_Validity : in     Boolean := True;
+      Normalize      : in     Boolean := False);
+
 end AWS.URL.Set;
