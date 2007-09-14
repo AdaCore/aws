@@ -387,7 +387,8 @@ package body AWS.Server is
    begin
       Free (Web_Server.New_Dispatcher);
       Web_Server.New_Dispatcher :=
-        new Dispatchers.Handler'Class'(Dispatcher.Clone);
+        new Dispatchers.Handler'Class'
+          (Dispatchers.Handler'Class (Dispatcher.Clone));
    end Set;
 
    ---------------
@@ -991,7 +992,8 @@ package body AWS.Server is
       --  Clone main dispatcher
 
       Web_Server.Dispatcher :=
-        new Dispatchers.Handler'Class'(Dispatcher.Clone);
+        new Dispatchers.Handler'Class'
+          (Dispatchers.Handler'Class (Dispatcher.Clone));
 
       --  Initialize slots
 

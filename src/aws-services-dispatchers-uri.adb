@@ -58,7 +58,8 @@ package body AWS.Services.Dispatchers.URI is
    begin
       if Dispatcher.Action /= null then
          New_Dispatcher.Action :=
-           new AWS.Dispatchers.Handler'Class'(Dispatcher.Action.Clone);
+           new AWS.Dispatchers.Handler'Class'
+             (AWS.Dispatchers.Handler'Class (Dispatcher.Action.Clone));
       end if;
 
       for K in 1 .. URI_Table.Length (Dispatcher.Table) loop
@@ -67,7 +68,8 @@ package body AWS.Services.Dispatchers.URI is
                      URI_Table.Element (Dispatcher.Table, Natural (K));
          begin
             URI_Table.Append
-              (New_Dispatcher.Table, new Std_URI'Class'(Item.Clone));
+              (New_Dispatcher.Table,
+               new Std_URI'Class'(Std_URI'Class (Item.Clone)));
          end;
       end loop;
 
@@ -83,7 +85,8 @@ package body AWS.Services.Dispatchers.URI is
    begin
       if URI.Action /= null then
          New_URI.Action :=
-           new AWS.Dispatchers.Handler'Class'(URI.Action.Clone);
+           new AWS.Dispatchers.Handler'Class'
+             (AWS.Dispatchers.Handler'Class (URI.Action.Clone));
       end if;
       return New_URI;
    end Clone;
@@ -97,7 +100,8 @@ package body AWS.Services.Dispatchers.URI is
    begin
       if URI.Action /= null then
          New_URI.Action  :=
-           new AWS.Dispatchers.Handler'Class'(URI.Action.Clone);
+           new AWS.Dispatchers.Handler'Class'
+             (AWS.Dispatchers.Handler'Class (URI.Action.Clone));
       end if;
       return New_URI;
    end Clone;

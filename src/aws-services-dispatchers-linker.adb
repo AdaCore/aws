@@ -41,12 +41,14 @@ package body AWS.Services.Dispatchers.Linker is
    begin
       if Dispatcher.First /= null then
          New_Dispatcher.First :=
-           new AWS.Dispatchers.Handler'Class'(Dispatcher.First.Clone);
+           new AWS.Dispatchers.Handler'Class'
+             (AWS.Dispatchers.Handler'Class (Dispatcher.First.Clone));
       end if;
 
       if Dispatcher.Second /= null then
          New_Dispatcher.Second :=
-           new AWS.Dispatchers.Handler'Class'(Dispatcher.Second.Clone);
+           new AWS.Dispatchers.Handler'Class'
+             (AWS.Dispatchers.Handler'Class (Dispatcher.Second.Clone));
       end if;
 
       return New_Dispatcher;

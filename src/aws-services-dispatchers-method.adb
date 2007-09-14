@@ -42,13 +42,15 @@ package body AWS.Services.Dispatchers.Method is
    begin
       if Dispatcher.Action /= null then
          New_Dispatcher.Action :=
-           new AWS.Dispatchers.Handler'Class'(Dispatcher.Action.Clone);
+           new AWS.Dispatchers.Handler'Class'
+             (AWS.Dispatchers.Handler'Class (Dispatcher.Action.Clone));
       end if;
 
       for K in Dispatcher.Table'Range loop
          if Dispatcher.Table (K) /= null then
             New_Dispatcher.Table (K) :=
-              new AWS.Dispatchers.Handler'Class'(Dispatcher.Table (K).Clone);
+              new AWS.Dispatchers.Handler'Class'
+                (AWS.Dispatchers.Handler'Class (Dispatcher.Table (K).Clone));
          end if;
       end loop;
 

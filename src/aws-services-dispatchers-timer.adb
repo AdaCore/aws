@@ -46,7 +46,8 @@ package body AWS.Services.Dispatchers.Timer is
    begin
       if Dispatcher.Action /= null then
          New_Dispatcher.Action :=
-           new AWS.Dispatchers.Handler'Class'(Dispatcher.Action.Clone);
+           new AWS.Dispatchers.Handler'Class'
+             (AWS.Dispatchers.Handler'Class (Dispatcher.Action.Clone));
       end if;
 
       for K in 1 .. Period_Table.Length (Dispatcher.Table) loop
@@ -57,7 +58,8 @@ package body AWS.Services.Dispatchers.Timer is
          begin
             if Item.Action /= null then
                New_Item.Action :=
-                 new AWS.Dispatchers.Handler'Class'(Item.Action.Clone);
+                 new AWS.Dispatchers.Handler'Class'
+                   (AWS.Dispatchers.Handler'Class (Item.Action.Clone));
             end if;
             Period_Table.Insert
               (Container => New_Dispatcher.Table,

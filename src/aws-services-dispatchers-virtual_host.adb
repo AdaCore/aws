@@ -53,7 +53,8 @@ package body AWS.Services.Dispatchers.Virtual_Host is
    begin
       if Dispatcher.Action /= null then
          New_Dispatcher.Action :=
-           new AWS.Dispatchers.Handler'Class'(Dispatcher.Action.Clone);
+           new AWS.Dispatchers.Handler'Class'
+             (AWS.Dispatchers.Handler'Class (Dispatcher.Action.Clone));
       end if;
 
       Cursor := VH_Table.First (Dispatcher.Table);
@@ -71,7 +72,7 @@ package body AWS.Services.Dispatchers.Virtual_Host is
                     VH_Node'
                       (Mode   => Callback,
                        Action => new AWS.Dispatchers.Handler'Class'
-                         (Node.Action.Clone)));
+                         (AWS.Dispatchers.Handler'Class (Node.Action.Clone))));
 
             else
                Virtual_Host_Table.Containers.Insert

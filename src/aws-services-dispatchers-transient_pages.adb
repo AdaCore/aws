@@ -46,7 +46,8 @@ package body AWS.Services.Dispatchers.Transient_Pages is
    begin
       if Dispatcher.Action /= null then
          New_Dispatcher.Action :=
-           new AWS.Dispatchers.Handler'Class'(Dispatcher.Action.Clone);
+           new AWS.Dispatchers.Handler'Class'
+             (AWS.Dispatchers.Handler'Class (Dispatcher.Action.Clone));
       end if;
 
       return New_Dispatcher;
