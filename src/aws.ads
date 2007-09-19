@@ -32,6 +32,9 @@ package AWS is
 
    Version      : constant String := "2.4.0w";
 
-   HTTP_Version : constant String := "HTTP/1.1";
+   HTTP_10      : constant String := "HTTP/1.0";
+   HTTP_11      : constant String := "HTTP/1.1";
+
+   HTTP_Version : String renames HTTP_11;
 
 end AWS;

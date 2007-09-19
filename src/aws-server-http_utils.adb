@@ -724,13 +724,13 @@ package body AWS.Server.HTTP_Utils is
 
          if Error = Name_Error then
             --  We can't create the file, add a clear exception message
-            raise Text_IO.Name_Error
+            raise HTTP_Utils.Name_Error
               with "Cannot create file " & Server_Filename;
 
          elsif Error = Device_Error then
             --  We can't write to the file, there is probably no space left
             --  on devide.
-            raise Text_IO.Device_Error
+            raise HTTP_Utils.Device_Error
               with "No space left on device while writting " & Server_Filename;
          end if;
       end Get_File_Data;

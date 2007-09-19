@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                             Templates Parser                             --
 --                                                                          --
---                         Copyright (C) 2002-2006                          --
+--                         Copyright (C) 2002-2007                          --
 --                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -29,7 +29,6 @@
 --  This is the implementation to be used with AWS, it is using AWS.Resources
 --  to support embedded resources.
 
-with Ada.IO_Exceptions;
 with Ada.Unchecked_Deallocation;
 
 with AWS.Resources;
@@ -53,7 +52,7 @@ package body Templates_Parser.Input is
    procedure Check_Open (File : in File_Type) is
    begin
       if File = null then
-         raise Ada.IO_Exceptions.Status_Error;
+         raise Status_Error;
       end if;
    end Check_Open;
 
@@ -119,7 +118,7 @@ package body Templates_Parser.Input is
    exception
       when IO_Exceptions.Name_Error =>
          Free (File);
-         raise IO_Exceptions.Name_Error with "File '" & Name & "' not found.";
+         raise Name_Error with "File '" & Name & "' not found.";
    end Open;
 
 end Templates_Parser.Input;

@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2002-2004                          --
---                                ACT-Europe                                --
+--                         Copyright (C) 2002-2007                          --
+--                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -33,6 +33,8 @@ with AWS.Resources.Streams.Memory;
 package AWS.Resources.Embedded is
 
    use Ada;
+
+   Resource_Error : exception renames Resources.Resource_Error;
 
    subtype Buffer_Access is Streams.Memory.Buffer_Access;
 

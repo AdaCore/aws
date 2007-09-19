@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2003-2006                          --
+--                         Copyright (C) 2003-2007                          --
 --                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -40,6 +40,8 @@ with AWS.LDAP.Thin;
 package AWS.LDAP.Client is
 
    use Ada.Strings.Unbounded;
+
+   LDAP_Error : exception renames LDAP.LDAP_Error;
 
    Default_Port : constant Positive := Positive (Thin.LDAP_PORT);
 

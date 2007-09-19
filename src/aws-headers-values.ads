@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2002-2003                          --
---                                ACT-Europe                                --
+--                         Copyright (C) 2002-2007                          --
+--                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -31,6 +31,8 @@ with Ada.Strings.Unbounded;
 package AWS.Headers.Values is
 
    use Ada.Strings.Unbounded;
+
+   Format_Error : exception renames Headers.Format_Error;
 
    --  Data represent a token from an header line. There is two kinds of
    --  token, either named or un-named.

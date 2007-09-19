@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2004                            --
---                                ACT-Europe                                --
+--                         Copyright (C) 2004-2007                          --
+--                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -53,6 +53,8 @@ package AWS.Services.Split_Pages.Uniform.Alpha is
    --  HREFS_V and INDEXES_V can be used to create an index to the generated
    --  pages. S_HREFS_V and S_INDEXES_V can be used to create a secondary
    --  alphabetical index that points directly to the corresponding element.
+
+   Splitter_Error : exception renames Split_Pages.Splitter_Error;
 
    type Splitter is new Uniform.Splitter with private;
 

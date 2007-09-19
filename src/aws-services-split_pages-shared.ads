@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2004                            --
---                                ACT-Europe                                --
+--                         Copyright (C) 2004-2007                          --
+--                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -27,6 +27,8 @@
 ------------------------------------------------------------------------------
 
 private package AWS.Services.Split_Pages.Shared is
+
+   Splitter_Error : exception renames Split_Pages.Splitter_Error;
 
    function Associated_Vector
      (Table : in Templates.Translate_Set;

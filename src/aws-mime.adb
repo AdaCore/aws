@@ -416,39 +416,27 @@ package body AWS.MIME is
       ---------------
 
       function Extension (Content_Type : in String) return String is
-         Result : Unbounded_String;
-
-         Exit_Iteration : exception;
-
-         procedure Process (Position : in Key_Value.Cursor);
-         --  Iterator callback procedure
-
-         -------------
-         -- Process --
-         -------------
-
-         procedure Process (Position : in Key_Value.Cursor) is
-         begin
-            if Key_Value.Element (Position) = Content_Type then
-               Result := To_Unbounded_String (Key_Value.Key (Position));
-               raise Exit_Iteration;
-            end if;
-         end Process;
-
       begin
          if Content_Type = Default_Content_Type then
-            null; -- We don't want give unknown data the exe extension
+            null; -- We don't want to give unknown data the exe extension
+
          elsif Content_Type = Text_Plain then
             return "txt";
+
          else
-            Key_Value.Iterate (Ext_Set, Process'Access);
+            declare
+               Position : Key_Value.Cursor := Ext_Set.First;
+            begin
+               while Key_Value.Has_Element (Position) loop
+                  if Key_Value.Element (Position) = Content_Type then
+                     return Key_Value.Key (Position);
+                  end if;
+                  Key_Value.Next (Position);
+               end loop;
+            end;
          end if;
 
          return "";
-
-      exception
-         when Exit_Iteration =>
-            return To_String (Result);
       end Extension;
 
       ---------

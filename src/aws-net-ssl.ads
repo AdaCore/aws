@@ -35,6 +35,8 @@ with SSL.Thin;
 
 package AWS.Net.SSL is
 
+   Socket_Error : exception renames Net.Socket_Error;
+
    type Socket_Type is new Net.Std.Socket_Type with private;
 
    Is_Supported : constant Boolean;

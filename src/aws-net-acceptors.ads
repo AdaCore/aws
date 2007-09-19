@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2005-2006                          --
+--                         Copyright (C) 2005-2007                          --
 --                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -37,6 +37,8 @@ with AWS.Net.Generic_Sets;
 with AWS.Utils;
 
 package AWS.Net.Acceptors is
+
+   Socket_Error : exception renames Net.Socket_Error;
 
    type Acceptor_Type is limited private;
 

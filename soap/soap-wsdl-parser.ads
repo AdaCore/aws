@@ -35,6 +35,8 @@ with SOAP.WSDL.Parameters;
 
 package SOAP.WSDL.Parser is
 
+   WSDL_Error : exception renames WSDL.WSDL_Error;
+
    ------------
    -- Parser --
    ------------

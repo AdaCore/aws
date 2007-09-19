@@ -1,10 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2003-2006                          --
+--                         Copyright (C) 2003-2007                          --
 --                                 AdaCore                                  --
---                                                                          --
---  Authors: Dmitriy Anisimkov - Pascal Obry                                --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -45,14 +43,20 @@ project Tools is
       when "Installed" =>
          for Main use project'Main & ("wsdl2aws");
       when "Disabled" =>
-         null;
+         for Locally_Removed_Files use
+           Project'Locally_Removed_Files & ("wsdl2aws.adb");
    end case;
 
    case Shared.ASIS is
       when "Installed" =>
          for Main use project'Main & ("ada2wsdl-main");
       when "Disabled" =>
-         null;
+         for Locally_Removed_Files use Project'Locally_Removed_Files &
+           ("ada2wsdl.ads", "ada2wsdl.adb",
+            "ada2wsdl-generator.ads", "ada2wsdl-generator.adb",
+            "ada2wsdl-main.ads", "ada2wsdl-main.adb",
+            "ada2wsdl-options.ads", "ada2wsdl-options.adb",
+            "ada2wsdl-parser.ads", "ada2wsdl-parser.adb");
    end case;
 
    case Shared.Build is

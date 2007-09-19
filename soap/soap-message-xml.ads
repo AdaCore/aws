@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2005                          --
+--                         Copyright (C) 2000-2007                          --
 --                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -32,6 +32,8 @@ with SOAP.Message.Payload;
 with SOAP.Message.Response;
 
 package SOAP.Message.XML is
+
+   SOAP_Error : exception renames SOAP.SOAP_Error;
 
    function Load_Payload (XML : in String) return Message.Payload.Object;
    --  Build a Payload object by parsing the XML payload string

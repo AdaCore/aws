@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2004                            --
---                                ACT-Europe                                --
+--                         Copyright (C) 2004-2007                          --
+--                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -30,7 +30,6 @@ with AWS.Translator;
 
 with Unicode.CCS;
 
-with Unicode.CES;
 with Unicode.CES.Utf32;
 with Unicode.CES.Utf16;
 with Unicode.CES.Utf8;
@@ -131,7 +130,7 @@ package body AWS.Client.XML.Input_Sources is
          --  from the HTTP connection in the Eof routine or after partial
          --  character detected.
 
-         raise Unicode.CES.Invalid_Encoding;
+         raise Invalid_Encoding;
       end if;
 
       ES := Get_Encoding (From);
@@ -165,7 +164,7 @@ package body AWS.Client.XML.Input_Sources is
          begin
             ES.Read (+From.Buffer, Integer (From.First), C);
          exception
-            when Unicode.CES.Invalid_Encoding =>
+            when Invalid_Encoding =>
                if From.Last - From.First < 5 then
                   --  It can be the case where we have only a part of the
                   --  UTF8 or UTF16 character until From.Last index.
@@ -208,7 +207,7 @@ package body AWS.Client.XML.Input_Sources is
                --  No more bytes to read, so we have the start of an encoded
                --  character but not the end of it.
 
-               raise Unicode.CES.Invalid_Encoding;
+               raise Invalid_Encoding;
             end if;
 
          else

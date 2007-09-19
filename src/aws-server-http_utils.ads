@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2005                            --
+--                         Copyright (C) 2005-2007                          --
 --                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -26,13 +26,16 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
+with Ada.IO_Exceptions;
+
 with AWS.Status;
 with AWS.Resources;
 with AWS.Response;
 
 package AWS.Server.HTTP_Utils is
 
-   HTTP_10 : constant String := "HTTP/1.0";
+   Name_Error   : exception renames Ada.IO_Exceptions.Name_Error;
+   Device_Error : exception renames Ada.IO_Exceptions.Device_Error;
 
    procedure Answer_To_Client
      (HTTP_Server  : in out AWS.Server.HTTP;

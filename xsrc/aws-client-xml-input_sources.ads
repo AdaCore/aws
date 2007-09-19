@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                          Copyright (C) 2004-2005                         --
---                                 AdaCore                                  --
+--                          Copyright (C) 2004-2007                         --
+--                                  AdaCore                                 --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -28,9 +28,11 @@
 
 with Input_Sources;
 
-with Unicode;
+with Unicode.CES;
 
 package AWS.Client.XML.Input_Sources is
+
+   Invalid_Encoding : exception renames Unicode.CES.Invalid_Encoding;
 
    package Sources renames Standard.Input_Sources;
 

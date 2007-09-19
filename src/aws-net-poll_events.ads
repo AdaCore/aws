@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2006                            --
+--                         Copyright (C) 2006-2007                          --
 --                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -29,6 +29,8 @@
 with AWS.Net.Thin;
 
 package AWS.Net.Poll_Events is
+
+   Socket_Error : exception renames Net.Socket_Error;
 
    type Set (Size : Natural) is new FD_Set with private;
 

@@ -32,6 +32,8 @@
 
 package AWS.Net.Std is
 
+   Socket_Error : exception renames Net.Socket_Error;
+
    type Socket_Type is new Net.Socket_Type with private;
 
    ----------------

@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2004                            --
---                                ACT-Europe                                --
+--                         Copyright (C) 2004-2007                          --
+--                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -53,6 +53,8 @@ package AWS.Services.Split_Pages.Alpha is
    --
    --  HREFS_V and INDEXES_V can be used to create an index to the generated
    --  pages.
+
+   Splitter_Error : exception renames Split_Pages.Splitter_Error;
 
    type Splitter is new Split_Pages.Splitter with private;
 

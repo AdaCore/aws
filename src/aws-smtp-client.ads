@@ -65,6 +65,8 @@ package AWS.SMTP.Client is
 
    use Ada.Strings.Unbounded;
 
+   Server_Error : exception renames SMTP.Server_Error;
+
    function Initialize
      (Server_Name : in String;
       Port        : in Positive := Default_SMTP_Port;

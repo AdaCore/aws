@@ -1,25 +1,27 @@
 -ALL
-+RExceptions_As_Control_Flow
---  +RFunction_Style_Procedures
-+RGOTO_Statements
-+RImplicit_IN_Mode_Parameters
-+RImplicit_SMALL_For_Fixed_Point_Types
---  +RImproper_Returns
---  +RImproperly_Located_Instantiations
-+RName_Clashes
-+RNon_Qualified_Aggregates
 +RNon_Visible_Exceptions
-+ROTHERS_In_Aggregates
---  +ROTHERS_In_CASE_Statements
-+ROTHERS_In_Exception_Handlers
-+ROverly_Nested_Control_Structures
---  +RParameters_Out_Of_Order
-+RPositional_Actuals_For_Defaulted_Generic_Parameters
---  +RPositional_Actuals_For_Defaulted_Parameters
-+RPositional_Components
---  +RPredefined_Numeric_Types
 +RRaising_External_Exceptions
-+RRaising_Predefined_Exceptions
-+RUnassigned_OUT_Parameters
-+RUncommented_BEGIN_In_Package_Bodies
---  +RUnnamed_Blocks_And_Loops
++RName_Clashes
++RGOTO_Statements
+--  ******* to be activated ******************************************
+-- +RExceptions_As_Control_Flow
+-- +RImplicit_IN_Mode_Parameters
+-- +RImplicit_SMALL_For_Fixed_Point_Types
+-- +RNon_Qualified_Aggregates
+-- +ROTHERS_In_Aggregates
+-- +ROTHERS_In_Exception_Handlers
+-- +ROverly_Nested_Control_Structures
+-- +RPositional_Actuals_For_Defaulted_Generic_Parameters
+-- +RPositional_Components
+-- +RRaising_Predefined_Exceptions
+-- +RUnassigned_OUT_Parameters
+-- +RUncommented_BEGIN_In_Package_Bodies
+--  ******* To be check if it makes sense ****************************
+-- +RImproper_Returns
+-- +RImproperly_Located_Instantiations
+-- +ROTHERS_In_CASE_Statements
+-- +RParameters_Out_Of_Order
+-- +RPositional_Actuals_For_Defaulted_Parameters
+-- +RPredefined_Numeric_Types
+-- +RFunction_Style_Procedures
+-- +RUnnamed_Blocks_And_Loops

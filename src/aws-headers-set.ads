@@ -28,6 +28,8 @@
 
 package AWS.Headers.Set is
 
+   Format_Error : exception renames Headers.Format_Error;
+
    procedure Add (Headers : in out List; Name, Value : in String);
    pragma Inline (Add);
    --  Add HTTP header name/value at the end of the Headers container. Note

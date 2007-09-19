@@ -73,7 +73,7 @@ package body SOAP.Parameters is
          end if;
       end loop;
 
-      raise Types.Data_Error with "Argument named " & Name & " not found";
+      raise Data_Error with "Argument named " & Name & " not found";
    end Argument;
 
    --------------
@@ -106,7 +106,7 @@ package body SOAP.Parameters is
    procedure Check (P : in List; N : in Natural) is
    begin
       if P.N /= N then
-         raise Types.Data_Error with "(check) Too many arguments";
+         raise Data_Error with "(check) Too many arguments";
       end if;
    end Check;
 
@@ -118,7 +118,7 @@ package body SOAP.Parameters is
       O : constant Types.Object'Class := Argument (P, Name);
    begin
       if O not in Types.SOAP_Array then
-         raise Types.Data_Error
+         raise Data_Error
            with "(check) SOAP_Array expected, found object "
              & Ada.Tags.Expanded_Name (O'Tag);
       end if;
@@ -132,7 +132,7 @@ package body SOAP.Parameters is
       O : constant Types.Object'Class := Argument (P, Name);
    begin
       if O not in Types.SOAP_Base64 then
-         raise Types.Data_Error
+         raise Data_Error
            with "(check) SOAP_Base64 expected, found object "
              & Ada.Tags.Expanded_Name (O'Tag);
       end if;
@@ -146,7 +146,7 @@ package body SOAP.Parameters is
       O : constant Types.Object'Class := Argument (P, Name);
    begin
       if O not in Types.XSD_Boolean then
-         raise Types.Data_Error
+         raise Data_Error
            with "(check) XSD_Boolean expected, found object "
              & Ada.Tags.Expanded_Name (O'Tag);
       end if;
@@ -160,7 +160,7 @@ package body SOAP.Parameters is
       O : constant Types.Object'Class := Argument (P, Name);
    begin
       if O not in Types.XSD_Float then
-         raise Types.Data_Error
+         raise Data_Error
            with "(check) XSD_Float expected, found object "
              & Ada.Tags.Expanded_Name (O'Tag);
       end if;
@@ -174,7 +174,7 @@ package body SOAP.Parameters is
       O : constant Types.Object'Class := Argument (P, Name);
    begin
       if O not in Types.XSD_Integer then
-         raise Types.Data_Error
+         raise Data_Error
            with "(check) XSD_Integer expected, found object "
              & Ada.Tags.Expanded_Name (O'Tag);
       end if;
@@ -188,7 +188,7 @@ package body SOAP.Parameters is
       O : constant Types.Object'Class := Argument (P, Name);
    begin
       if O not in Types.XSD_Null then
-         raise Types.Data_Error
+         raise Data_Error
            with "(check) XSD_Null expected, found object "
              & Ada.Tags.Expanded_Name (O'Tag);
       end if;
@@ -202,7 +202,7 @@ package body SOAP.Parameters is
       O : constant Types.Object'Class := Argument (P, Name);
    begin
       if O not in Types.SOAP_Record then
-         raise Types.Data_Error
+         raise Data_Error
            with "(check) SOAP_Record expected, found object "
              & Ada.Tags.Expanded_Name (O'Tag);
       end if;
@@ -216,7 +216,7 @@ package body SOAP.Parameters is
       O : constant Types.Object'Class := Argument (P, Name);
    begin
       if O not in Types.XSD_Time_Instant then
-         raise Types.Data_Error
+         raise Data_Error
            with "(check) XSD_Time_Instant expected, found object "
              & Ada.Tags.Expanded_Name (O'Tag);
       end if;

@@ -21,6 +21,9 @@ clean:
 	-$(RM) -f aws-translator-conversion.adb aws-os_lib-definitions.ads
 
 check:
+	echo Rule \"raised exception is not declared...\"
+	echo "   Expected 3 violations in aws-server-hotplug.adb"
+	echo "   Expected 3 violations in aws-server.adb"
 	$(GNAT) check -rules -from=../aws.checks \
 		-Psrc -XBuild=${PRJ_BUILD} -XXMLADA=${PRJ_XMLADA} \
 		-XSOCKLIB=${PRJ_SOCKLIB}

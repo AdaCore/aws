@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2002-2003                          --
---                                ACT-Europe                                --
+--                         Copyright (C) 2002-2007                          --
+--                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -27,6 +27,8 @@
 ------------------------------------------------------------------------------
 
 package AWS.Resources.Files is
+
+   Resource_Error : exception renames Resources.Resource_Error;
 
    procedure Open
      (File :    out File_Type;

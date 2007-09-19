@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2003-2004                          --
---                                ACT-Europe                                --
+--                         Copyright (C) 2003-2007                          --
+--                                 AdaCore                                  --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
 --                                                                          --
@@ -29,6 +29,9 @@
 ------------------------------------------------------------------------------
 
 package Ada2WSDL.Parser is
+
+   Fatal_Error     : exception renames Ada2WSDL.Fatal_Error;
+   Parameter_Error : exception renames Ada2WSDL.Parameter_Error;
 
    procedure Initialize;
    --  Reads and checks the command line parameters and initializes the
