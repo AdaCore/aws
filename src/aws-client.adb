@@ -94,9 +94,9 @@ package body AWS.Client is
       Certificate : in     String          := Default.Client_Certificate;
       User_Agent  : in     String          := Default.User_Agent)
    is
+      Host_URL    : constant AWS.URL.Object := AWS.URL.Parse (Host);
+      Proxy_URL   : constant AWS.URL.Object := AWS.URL.Parse (Proxy);
       Connect_URL : AWS.URL.Object;
-      Host_URL    : AWS.URL.Object := AWS.URL.Parse (Host);
-      Proxy_URL   : AWS.URL.Object := AWS.URL.Parse (Proxy);
    begin
       --  If there is a proxy, the host to connect to is the proxy otherwise
       --  we connect to the Web server.
