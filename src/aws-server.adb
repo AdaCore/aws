@@ -156,7 +156,6 @@ package body AWS.Server is
       else
          return New_Socket;
       end if;
-
    end Accept_Socket_Serialized;
 
    ------------
