@@ -1,30 +1,36 @@
 @@----------------------------------------------------------------------------
-@@--                              Ada Web Server                              
-@@--                                                                          
-@@--                            Copyright (C) 2007                            
-@@--                                 AdaCore                                  
-@@--                                                                          
-@@--  This library is free software; you can redistribute it and/or modify    
-@@--  it under the terms of the GNU General Public License as published by    
-@@--  the Free Software Foundation; either version 2 of the License, or (at   
-@@--  your option) any later version.                                         
-@@--                                                                          
-@@--  This library is distributed in the hope that it will be useful, but     
-@@--  WITHOUT ANY WARRANTY; without even the implied warranty of              
-@@--  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU       
-@@--  General Public License for more details.                                
-@@--                                                                          
-@@--  You should have received a copy of the GNU General Public License       
-@@--  along with this library; if not, write to the Free Software Foundation, 
-@@--  Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.          
-@@--                                                                          
-@@--  As a special exception, if other files instantiate generics from this   
-@@--  unit, or you link this unit with other files to produce an executable,  
-@@--  this  unit  does not  by itself cause  the resulting executable to be   
-@@--  covered by the GNU General Public License. This exception does not      
-@@--  however invalidate any other reasons why the executable file  might be  
-@@--  covered by the  GNU Public License.                                     
+@@--                              Ada Web Server
+@@--
+@@--                            Copyright (C) 2007
+@@--                                 AdaCore
+@@--
+@@--  This library is free software; you can redistribute it and/or modify
+@@--  it under the terms of the GNU General Public License as published by
+@@--  the Free Software Foundation; either version 2 of the License, or (at
+@@--  your option) any later version.
+@@--
+@@--  This library is distributed in the hope that it will be useful, but
+@@--  WITHOUT ANY WARRANTY; without even the implied warranty of
+@@--  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+@@--  General Public License for more details.
+@@--
+@@--  You should have received a copy of the GNU General Public License
+@@--  along with this library; if not, write to the Free Software Foundation,
+@@--  Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+@@--
+@@--  As a special exception, if other files instantiate generics from this
+@@--  unit, or you link this unit with other files to produce an executable,
+@@--  this  unit  does not  by itself cause  the resulting executable to be
+@@--  covered by the GNU General Public License. This exception does not
+@@--  however invalidate any other reasons why the executable file  might be
+@@--  covered by the  GNU Public License.
 @@----------------------------------------------------------------------------
+
+@@SET@@ AWS_CONTEXT_PER_WINDOW = true
+@@--  If the context should be renew on a new window (or tab) creation
+
+@@SET@@ CTX_WB = "CTX_WB"
+@@--  The context parameter name
 
 @@---------------------------------------------------------------- AWS
 
@@ -43,7 +49,7 @@ AWS.Tools = new function() {
    @@-----------
 
    @@-- --------------------------------
-   @@-- onload event to update ECWF
+   @@-- onload event to update CTX_WB
 
    this.addLoadEvent = function (func)
    {
@@ -89,7 +95,7 @@ AWS.Tools = new function() {
 
    @@-- Add option_value/option_content into the given select
 
-   this.addToSelect = 
+   this.addToSelect =
       function (select_id, option_value, option_content, option_class)
    {
       // Create a new option
@@ -136,7 +142,7 @@ AWS.Context = new function() {
 
    this.get = function ()
    {
-      var context = document.getElementById('CTX_ECWF');
+      var context = document.getElementById('@_CTX_WB_@');
 
       if (context == null)
           return "";
@@ -149,6 +155,21 @@ AWS.Context = new function() {
 
    this.update = function ()
    {
+
+      @@IF@@ @_AWS_CONTEXT_PER_WINDOW_@ = true
+      @@--  Check if context has to be renew
+
+      if (!is_new_context && history.length == 1) {
+	 @@--  This is a new page in the browser
+	 @@--  Renew the context
+
+	 is_new_context = true;
+	 AWS.Ajax.XML.request
+           ("/xml_reset_context.xml?CTX_WB_COPY=true", "", AWS.Context.update);
+      }
+      @@END_IF@@
+
+
       var k = 0;
 
       @@-- anchors
@@ -157,12 +178,15 @@ AWS.Context = new function() {
 
       for (k=0; k<anchors.length; k++) {
          var href = anchors[k].getAttribute('href');
-         if (href != null)
+         if (href != null) {
             if (href.indexOf("http",0) != 0
                 && href.indexOf("mailto:",0) != 0
-                && href.indexOf("#", 0) != 0
-                && anchors[k].getAttribute('onclick') == null)
-         anchors[k].setAttribute('onclick', 'AWS.Context.add_anchor(this);');
+                && href.indexOf("#",0) != 0) {
+
+                anchors[k].setAttribute('href',
+                                        AWS.Context.href_add_anchor(href));
+            }
+         }
       }
 
       @@-- forms
@@ -176,20 +200,14 @@ AWS.Context = new function() {
                 && action.indexOf("http",0) != 0
                 && action.indexOf("#", 0) != 0
                 && forms[k].getAttribute('onsubmit') == null) {
-                   if (no_context (forms[k].elements) == true) {
-                      hi = document.createElement('input');
-                      hi.setAttribute('type', 'hidden');
-                      hi.setAttribute('name', 'CTX_ECWF');
-                      hi.setAttribute('value', AWS.Context.get());
-                      forms[k].appendChild(hi);
-                   }
-                }
+                add_context_to_form (forms[k]);
+            }
          }
       }
    }
 
    @@-- --------------------------------
-   @@-- Add Context parameter CTX_ECWF for Ajax
+   @@-- Add Context parameter CTX_WB for Ajax
 
    this.add_ajax = function (pars)
    {
@@ -198,22 +216,48 @@ AWS.Context = new function() {
       else
           pars = pars + "&";
 
-      pars = pars + 'CTX_ECWF=' + this.get();
+      pars = pars + "@_CTX_WB_@=" + this.get();
 
       return pars;
    }
 
    @@-- --------------------------------
-   @@-- Add context parameter CTX_ECWF for anchors
+   @@-- Add context parameter CTX_WB for anchors
 
    this.add_anchor = function (a)
    {
-      if (a.href.indexOf('?',0) == -1)
-          a.href = a.href + '?';
-      else
-          a.href = a.href + '&';
+      a.href = this.href_add_anchor(a.href);
+   }
 
-      a.href = a.href + 'CTX_ECWF=' + this.get();
+   this.href_add_anchor = function (href)
+   {
+      var href_last = "";       // Contains fragment
+
+      if (href.indexOf('#', 0) != -1) {
+         var splitted_href = href.split('#');
+         href = splitted_href[0];
+         href_last = splitted_href[1];
+      }
+
+      // Remove CTX_WB if exists
+
+      if (href.indexOf("@_CTX_WB_@", 0) != -1) {
+         href = href.split("@_CTX_WB_@")[0];
+         href = href.substr(0, href.length - 1); // Remove & or ?
+      }
+
+      if (href.indexOf('?',0) == -1) {
+          href = href + '?';
+      } else {
+          href = href + '&';
+      }
+
+      href = href + "@_CTX_WB_@=" + this.get();
+
+      if (href_last != "") {
+         href = href + "#" + href_last;
+      }
+      return (href);
    }
 
    @@------------
@@ -221,18 +265,38 @@ AWS.Context = new function() {
    @@------------
 
    @@-- --------------------------------
-   @@-- Returns true if there is no context into the items list
+   @@-- Append or update context into form
 
-   function no_context (items)
+   function add_context_to_form (form)
    {
       var k = 0;
+      var items = form.elements;
+
       for (k=0; k<items.length; k++) {
          if (items[k].tagName == "INPUT"
-             && items[k].getAttribute('NAME') == 'CTX_ECWF')
-            return false;
+             && items[k].getAttribute('NAME') == '@_CTX_WB_@') {
+
+            // Update context if needed
+
+            if (items[k].getAttribute('VALUE') != AWS.Context.get()) {
+               items[k].setAttribute ('VALUE', AWS.Context.get());
+            }
+            return;
+         }
       }
-      return true;
+
+      //  Insert new context field
+
+      hi = document.createElement('input');
+      hi.setAttribute('type', 'hidden');
+      hi.setAttribute('name', '@_CTX_WB_@');
+      hi.setAttribute('value', AWS.Context.get());
+      form.appendChild(hi);
    }
+
+   @@--
+
+   var is_new_context = false;
 }
 
 @@---------------------------------------------------------------- AJAX
@@ -247,7 +311,7 @@ AWS.Ajax = new function() {
 
    @@-- --------------------------------
    @@-- Update the behavior rules, needed when loading new section
-   @@-- containing JavaScript code. Also update the ECWF.
+   @@-- containing JavaScript code. Also update the CTX_WB.
 
    this.update_framework = function()
    {
@@ -374,6 +438,7 @@ AWS.Ajax.XML = new function() {
       } else {
          $(placeholder_id).innerHTML = placeholder_content;
       }
+
       AWS.Ajax.update_framework();
    }
 
@@ -484,6 +549,16 @@ AWS.Ajax.XML = new function() {
    function handler_location (node)
    {
       var url = node.getAttribute('url');
+
+      if (url.indexOf('http',0) == -1 && url.indexOf('@_CTX_WB_@') == -1) {
+         @@--  pointing inside server and no context
+         if (url.indexOf("?",0) == -1)
+            url = url + '?';
+         else
+            url = url + '&';
+
+         url = url + "@_CTX_WB_@=" + AWS.Context.get();
+      }
 
       /* Redirect to url */
       document.location.href = url;

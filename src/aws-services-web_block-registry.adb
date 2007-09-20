@@ -174,7 +174,8 @@ package body AWS.Services.Web_Block.Registry is
 
                   if Parameters.Get
                     (Status.Parameters (Lazy_Tag.Request),
-                     Context_Var_To_Copy) /= "" then
+                     Context_Var_To_Copy) /= ""
+                  then
                      --  This context must be copied
 
                      CID := Context.Copy (CID);
@@ -276,11 +277,11 @@ package body AWS.Services.Web_Block.Registry is
          begin
             --  Get translation set for this tag
 
+            Templates.Insert (T, Translations);
+
             if Element (Position).Data_CB /= null then
                Element (Position).Data_CB (LT.Request, Context'Access, T);
             end if;
-
-            Templates.Insert (T, Translations);
 
             if Element (Position).Callback_Template then
                Template_Name := To_Unbounded_String
@@ -288,6 +289,8 @@ package body AWS.Services.Web_Block.Registry is
             else
                Template_Name := Element (Position).Template;
             end if;
+
+            LT.Translations := T;
 
             Parsed_Page :=
               Page'(Content_Type => Element (Position).Content_Type,
@@ -391,13 +394,13 @@ package body AWS.Services.Web_Block.Registry is
             begin
                --  Get translation set for this tag
 
+               Templates.Insert (T, Translations);
+               Templates.Insert (T, Lazy_Tag.Translations);
+
                if Element (Position).Data_CB /= null then
                   Element (Position).Data_CB
                     (Lazy_Tag.Request, Context'Access, T);
                end if;
-
-               Templates.Insert (T, Translations);
-               Templates.Insert (T, Lazy_Tag.Translations);
 
                if Element (Position).Callback_Template then
                   Template_Name := To_Unbounded_String
