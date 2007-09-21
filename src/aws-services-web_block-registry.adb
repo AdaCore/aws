@@ -409,6 +409,8 @@ package body AWS.Services.Web_Block.Registry is
                   Template_Name := Element (Position).Template;
                end if;
 
+               Lazy_Tag.Translations := T;
+
                Templates.Insert
                  (Translations,
                   Templates.Assoc
