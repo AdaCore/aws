@@ -86,10 +86,6 @@ package AWS.Client.HTTP_Utils is
    --  Open the the Connection if it is not open. Send the common HTTP headers
    --  for all requests like the proxy, authentication, user agent, host.
 
-   function Port_Not_Default (Port : in Positive) return String;
-   --  Returns the port image (preceded by character ':') if it is not the
-   --  default port.
-
    procedure Send_Authentication_Header
      (Connection : in out HTTP_Connection;
       Token      : in     String;

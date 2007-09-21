@@ -112,9 +112,10 @@ package body AWS.Client.HTTP_Utils is
          Net.Set_Timeout (Sock.all, Connection.Write_Timeout);
 
          declare
+            use AWS.URL;
             Host_Address : constant String
-              := AWS.URL.Host (Connection.Host_URL)
-                  & Port_Not_Default (AWS.URL.Port (Connection.Host_URL));
+              := Host (Connection.Host_URL)
+                  & Port_Not_Default (Connection.Host_URL);
          begin
             Send_Header
               (Sock.all, "CONNECT " & Host_Address & ' ' & HTTP_Version);
@@ -660,7 +661,7 @@ package body AWS.Client.HTTP_Utils is
 
       Host_Address : constant String
         := AWS.URL.Host (Connection.Host_URL)
-             & Port_Not_Default (AWS.URL.Port (Connection.Host_URL));
+             & AWS.URL.Port_Not_Default (Connection.Host_URL);
 
    begin
       --  Open connection if needed
@@ -1086,23 +1087,6 @@ package body AWS.Client.HTTP_Utils is
         (Proxy,
          Response.Header (Answer, Messages.Proxy_Authenticate_Token));
    end Parse_Header;
-
-   ----------------------
-   -- Port_Not_Default --
-   ----------------------
-
-   function Port_Not_Default (Port : in Positive) return String is
-   begin
-      if Port = 80 then
-         return "";
-      else
-         declare
-            Port_Image : constant String := Positive'Image (Port);
-         begin
-            return ':' & Port_Image (2 .. Port_Image'Last);
-         end;
-      end if;
-   end Port_Not_Default;
 
    --------------------------------
    -- Send_Authentication_Header --

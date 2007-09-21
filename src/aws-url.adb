@@ -321,10 +321,25 @@ package body AWS.URL is
    end Port;
 
    function Port (URL : in Object) return String is
-      P_Image : constant String := Positive'Image (URL.Port);
    begin
-      return P_Image (2 .. P_Image'Last);
+      return AWS.Utils.Image (URL.Port);
    end Port;
+
+   ----------------------
+   -- Port_Not_Default --
+   ----------------------
+
+   function Port_Not_Default (URL : in Object) return String is
+   begin
+      if (URL.Port = Default_HTTP_Port and then URL.Protocol = HTTP)
+        or else (URL.Port = Default_HTTPS_Port and then URL.Protocol = HTTPS)
+        or else (URL.Port = Default_FTP_Port and then URL.Protocol = FTP)
+      then
+         return "";
+      else
+         return ':' & AWS.Utils.Image (URL.Port);
+      end if;
+   end Port_Not_Default;
 
    -------------------
    -- Protocol_Name --
@@ -332,11 +347,14 @@ package body AWS.URL is
 
    function Protocol_Name (URL : in Object) return String is
    begin
-      if URL.Security then
-         return "https";
-      else
-         return "http";
-      end if;
+      case URL.Protocol is
+         when HTTPS =>
+            return "https";
+         when HTTP =>
+            return "http";
+         when FTP =>
+            return "ftp";
+      end case;
    end Protocol_Name;
 
    -----------
@@ -358,7 +376,7 @@ package body AWS.URL is
 
    function Security (URL : in Object) return Boolean is
    begin
-      return URL.Security;
+      return URL.Protocol = HTTPS;
    end Security;
 
    ---------
@@ -367,36 +385,9 @@ package body AWS.URL is
 
    function URL (URL : in Object) return String is
 
-      function Port return String;
-      pragma Inline (Port);
-      --  Returns the port number if not the standard HTTP or HTTPS Port and
-      --  the empty string otherwise.
-
       function User_Password return String;
       pragma Inline (User_Password);
       --  Returns the user:password@ if present and the empty string otherwise
-
-      ----------
-      -- Port --
-      ----------
-
-      function Port return String is
-      begin
-         if URL.Security then
-            if URL.Port /= Default_HTTPS_Port then
-               return ':' & Port (URL);
-            else
-               return "";
-            end if;
-
-         else
-            if URL.Port /= Default_HTTP_Port then
-               return ':' & Port (URL);
-            else
-               return "";
-            end if;
-         end if;
-      end Port;
 
       -------------------
       -- User_Password --
@@ -419,7 +410,8 @@ package body AWS.URL is
       else
          return Protocol_Name (URL) & "://"
            & User_Password
-           & Host (URL) & Port & Pathname (URL) & Parameters (URL);
+           & Host (URL) & Port_Not_Default (URL) & Pathname (URL)
+           & Parameters (URL);
       end if;
    end URL;
 

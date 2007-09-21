@@ -57,6 +57,7 @@ package AWS.URL is
 
    URL_Error : exception;
 
+   Default_FTP_Port   : constant := 21;
    Default_HTTP_Port  : constant := 80;
    Default_HTTPS_Port : constant := 443;
 
@@ -93,6 +94,10 @@ package AWS.URL is
 
    function Port (URL : in Object) return String;
    --  Returns the port as a string
+
+   function Port_Not_Default (URL : in Object) return String;
+   --  Returns the port image (preceded by character ':') if it is not the
+   --  default port.
 
    function Abs_Path
      (URL    : in Object;
@@ -185,12 +190,14 @@ private
 
    type Path_Status is (Valid, Wrong);
 
+   type Protocol_Type is (HTTP, HTTPS, FTP);
+
    type Object is record
       User       : Unbounded_String;
       Password   : Unbounded_String;
       Host       : Unbounded_String;
       Port       : Positive          := Default_HTTP_Port;
-      Security   : Boolean           := False;
+      Protocol   : Protocol_Type     := HTTP;
       Path       : Unbounded_String; -- Original path
       N_Path     : Unbounded_String; -- Normalized path
       File       : Unbounded_String;

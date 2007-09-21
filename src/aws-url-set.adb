@@ -56,7 +56,12 @@ package body AWS.URL.Set is
       end if;
 
       URL.Port := Port;
-      URL.Security := Security;
+
+      if Security then
+         URL.Protocol := HTTPS;
+      else
+         URL.Protocol := HTTP;
+      end if;
    end Connection_Data;
 
    ---------------
@@ -151,6 +156,7 @@ package body AWS.URL.Set is
       Check_Validity : in     Boolean := True;
       Normalize      : in     Boolean := False)
    is
+      FTP_Token   : constant String := "ftp://";
       HTTP_Token  : constant String := "http://";
       HTTPS_Token : constant String := "https://";
 
@@ -313,7 +319,7 @@ package body AWS.URL.Set is
       end Parse;
 
    begin
-      Item.Security := False;
+      Item.Protocol := HTTP;
 
       --  Checks for parameters
 
@@ -336,7 +342,12 @@ package body AWS.URL.Set is
       elsif Messages.Match (L_URL, HTTPS_Token) then
          Item.Port := Default_HTTPS_Port;
          Parse (L_URL (L_URL'First + HTTPS_Token'Length .. P), True);
-         Item.Security := True;
+         Item.Protocol := HTTPS;
+
+      elsif Messages.Match (L_URL, FTP_Token) then
+         Item.Port := Default_FTP_Port;
+         Parse (L_URL (L_URL'First + FTP_Token'Length .. P), True);
+         Item.Protocol := FTP;
 
       elsif L_URL /= "" then
          --  Prefix is not recognized, this is either because there is no
@@ -345,8 +356,6 @@ package body AWS.URL.Set is
          --  will be caught on the next parsing level.
          --
          --  At least we know that it is not a Secure HTTP protocol URL.
-
-         Item.Security := False;
 
          Parse (L_URL (L_URL'First .. P), False);
       end if;
