@@ -40,6 +40,10 @@ Changes
 
 Here are the main changes since AWS 2.3.0 :
 
+   - Default INSTALL location is set to the GNAT compiler found in the PATH.
+     This means that by default there is no need to change INSTALL in
+     makefile.conf.
+
    - Defaults for SOCKET and LDAP are identical on UNIX and Windows.
      Both are disabled by default now.
 
