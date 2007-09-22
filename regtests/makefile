@@ -1,3 +1,30 @@
+############################################################################
+#                              Ada Web Server                              #
+#                                                                          #
+#                         Copyright (C) 2003-2007                          #
+#                                 AdaCore                                  #
+#                                                                          #
+#  This library is free software; you can redistribute it and/or modify    #
+#  it under the terms of the GNU General Public License as published by    #
+#  the Free Software Foundation; either version 2 of the License, or (at   #
+#  your option) any later version.                                         #
+#                                                                          #
+#  This library is distributed in the hope that it will be useful, but     #
+#  WITHOUT ANY WARRANTY; without even the implied warranty of              #
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU       #
+#  General Public License for more details.                                #
+#                                                                          #
+#  You should have received a copy of the GNU General Public License       #
+#  along with this library; if not, write to the Free Software Foundation, #
+#  Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.          #
+#                                                                          #
+#  As a special exception, if other files instantiate generics from this   #
+#  unit, or you link this unit with other files to produce an executable,  #
+#  this  unit  does not  by itself cause  the resulting executable to be   #
+#  covered by the GNU General Public License. This exception does not      #
+#  however invalidate any other reasons why the executable file  might be  #
+#  covered by the  GNU Public License.                                     #
+############################################################################
 
 .SILENT:
 
@@ -91,7 +118,7 @@ force:
 
 gen_main: gen_sources
 	echo Generating the main driver
-	$(GNATMAKE) -q -Pregtests -XTest_Mode=Generator \
+	$(GNAT) make -q -Pregtests -XTest_Mode=Generator \
 		-XBuild=${PRJ_BUILD} -XXMLADA=${PRJ_XMLADA}
 	./generate $(TOGETHER)
 
@@ -100,7 +127,7 @@ gen_sources: $(sort $(PREP_WSDL_TESTS) $(PREP_WSDL_ATESTS) $(ASIS_TESTS) \
 
 build_drivers: gen_main
 	echo "Building drivers (takes some time)"
-	$(GNATMAKE) -q -m -Pregtests -XTest_Mode=${TEST_MODE} \
+	$(GNAT) make -q -m -Pregtests -XTest_Mode=${TEST_MODE} \
 		-XBuild=${PRJ_BUILD} -XXMLADA=${PRJ_XMLADA} test_all
 
 empty:=
@@ -178,7 +205,7 @@ init:
 
 $(ALONE_TESTS) $(ALONE): force
 	echo "Compiling " $@
-	$(GNATMAKE) -q -m -Pregtests -XTest_Mode=${TEST_MODE} \
+	$(GNAT) make -q -m -Pregtests -XTest_Mode=${TEST_MODE} \
 		-XBuild=${PRJ_BUILD} -XXMLADA=${PRJ_XMLADA} $@
 	echo "Running   " $@
 ifdef GDB_REGTESTS
@@ -186,7 +213,7 @@ ifdef GDB_REGTESTS
 else
 	./$@ > $@.res
 endif
-	$(GNATCLEAN) -q -Pregtests -XTest_Mode=${TEST_MODE} \
+	$(GNAT) clean -q -Pregtests -XTest_Mode=${TEST_MODE} \
 		-XBuild=${PRJ_BUILD} -XXMLADA=${PRJ_XMLADA} $@
 	-$(DIFF) $@.out $@.res 1>> alldifs 2>> alldifs
 
@@ -219,7 +246,7 @@ $(ASIS2_TESTS): force
 
 tres: force
 	echo "Compiling " $@
-	$(GNATMAKE) -q -m -Pregtests -XTest_Mode=${TEST_MODE} \
+	$(GNAT) make -q -m -Pregtests -XTest_Mode=${TEST_MODE} \
 		-XBuild=${PRJ_BUILD} -XXMLADA=${PRJ_XMLADA} $@
 	echo -n "Running  " tres
 	./tres 1245 > tres-1.res
@@ -229,7 +256,7 @@ tres: force
 	echo ",  run it again"
 	./tres 1246 > tres-2.res
 	cat tres-1.res tres-2.res > tres.res
-	$(GNATCLEAN) -q -Pregtests -XTest_Mode=${TEST_MODE} \
+	$(GNAT) clean -q -Pregtests -XTest_Mode=${TEST_MODE} \
 		-XBuild=${PRJ_BUILD} -XXMLADA=${PRJ_XMLADA} $@
 	-$(DIFF) tres.out tres.res 1>> alldifs 2>> alldifs
 
@@ -239,7 +266,7 @@ tres: force
 
 check_mem: force
 	echo "Compiling " $@
-	$(GNATMAKE) -q -m -Pregtests -XTest_Mode=${TEST_MODE} \
+	$(GNAT) make -q -m -Pregtests -XTest_Mode=${TEST_MODE} \
 		-XBuild=${PRJ_BUILD} -XXMLADA=${PRJ_XMLADA} $@
 	echo -n "Running  " check_mem
 	./check_mem 2 > check_mem.res
@@ -249,7 +276,7 @@ check_mem: force
 	./check_mem 30 >> check_mem.res
 	gnatmem 3 -i gmem.out ./check_mem$(EXEEXT) > check_mem.run2
 	grep "   Final" check_mem.run2 > run2
-	$(GNATCLEAN) -q -Pregtests -XTest_Mode=${TEST_MODE} \
+	$(GNAT) clean -q -Pregtests -XTest_Mode=${TEST_MODE} \
 		-XBuild=${PRJ_BUILD} -XXMLADA=${PRJ_XMLADA} $@
 	-$(DIFF) run1 run2 1>> alldifs 2>> alldifs
 

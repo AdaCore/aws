@@ -1,3 +1,30 @@
+############################################################################
+#                              Ada Web Server                              #
+#                                                                          #
+#                         Copyright (C) 2003-2007                          #
+#                                 AdaCore                                  #
+#                                                                          #
+#  This library is free software; you can redistribute it and/or modify    #
+#  it under the terms of the GNU General Public License as published by    #
+#  the Free Software Foundation; either version 2 of the License, or (at   #
+#  your option) any later version.                                         #
+#                                                                          #
+#  This library is distributed in the hope that it will be useful, but     #
+#  WITHOUT ANY WARRANTY; without even the implied warranty of              #
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU       #
+#  General Public License for more details.                                #
+#                                                                          #
+#  You should have received a copy of the GNU General Public License       #
+#  along with this library; if not, write to the Free Software Foundation, #
+#  Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.          #
+#                                                                          #
+#  As a special exception, if other files instantiate generics from this   #
+#  unit, or you link this unit with other files to produce an executable,  #
+#  this  unit  does not  by itself cause  the resulting executable to be   #
+#  covered by the GNU General Public License. This exception does not      #
+#  however invalidate any other reasons why the executable file  might be  #
+#  covered by the  GNU Public License.                                     #
+############################################################################
 
 .SILENT:
 
@@ -67,9 +94,8 @@ ALL_OPTIONS	= $(MAKE_OPT) SOCKET="$(SOCKET)" XMLADA="$(XMLADA)" \
 	ASIS="$(ASIS)" EXEEXT="$(EXEEXT)" LDAP="$(LDAP)" DEBUG="$(DEBUG)" \
 	RM="$(RM)" CP="$(CP)" MV="$(MV)" MKDIR="$(MKDIR)" AR="$(AR)" \
 	GREP="$(GREP)" SED="$(SED)" DIFF="$(DIFF)" CHMOD="$(CHMOD)" \
-	GZIP="$(GZIP)" TAR="$(TAR)" GNATMAKE="$(GNATMAKE)" \
-	GNATCLEAN="$(GNATCLEAN)" DLLTOOL="$(DLLTOOL)" DLL2DEF="$(DLL2DEF)" \
-	WINDRES="$(WINDRES)" GNATMAKE_FOR_HOST="$(GNATMAKE_FOR_HOST)" \
+	GZIP="$(GZIP)" TAR="$(TAR)" DLLTOOL="$(DLLTOOL)" DLL2DEF="$(DLL2DEF)" \
+	WINDRES="$(WINDRES)" GNAT_FOR_HOST="$(GNAT_FOR_HOST)" \
 	ADASOCKETS="$(ADASOCKETS)" EXTRA_TESTS="$(EXTRA_TESTS)" \
 	GCC="$(GCC)" AWK="$(AWK)" CAT="$(CAT)" GCC_FOR_HOST="$(GCC_FOR_HOST)" \
 	BDIR="$(BDIR)" INSTALL="$(INSTALL)" SHARED="$(SHARED)" \
@@ -324,18 +350,6 @@ gsockets_dummy:
 	echo "project Sockets is" > $(PRJDIR)/sockets.gpr
 	echo "   for Source_Dirs use ();" >> $(PRJDIR)/sockets.gpr
 	echo "end Sockets;" >> $(PRJDIR)/sockets.gpr
-
-gposix:
-	echo "project POSIX is" > $(PRJDIR)/posix.gpr
-	echo "   Path := \"$(POSIX)\";" >> $(PRJDIR)/posix.gpr
-	echo "   for Source_Dirs use (Path);" >> $(PRJDIR)/posix.gpr
-	echo "   for Object_Dir use Path;" >> $(PRJDIR)/posix.gpr
-	echo "end POSIX;" >> $(PRJDIR)/posix.gpr
-
-gposix_dummy:
-	echo "project POSIX is" > $(PRJDIR)/posix.gpr
-	echo "   for Source_Dirs use ();" >> $(PRJDIR)/posix.gpr
-	echo "end POSIX;" >> $(PRJDIR)/posix.gpr
 
 setup_dir:
 	-$(MKDIR) -p $(PRJDIR)

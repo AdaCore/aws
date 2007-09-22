@@ -9,7 +9,7 @@ If you have not installed XML/Ada into the standard directory and plan to
 build AWS with SOAP support you must be sure that ADA_PROJECT_PATH point to
 the XML/Ada projects. See XML/Ada documentation.
 
-Look for ADASOCKETS, ASIS, POSIX, and INSTALL make's variables. Then building
+Look for ADASOCKETS, ASIS, XMLADA and INSTALL make's variables. Then building
 AWS is as simple as:
 
    $ make setup build install

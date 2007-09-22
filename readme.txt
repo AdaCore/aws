@@ -40,6 +40,9 @@ Changes
 
 Here are the main changes since AWS 2.3.0 :
 
+   - Defaults for SOCKET and LDAP are identical on UNIX and Windows.
+     Both are disabled by default now.
+
    - Unregistering a non registered dispatcher now raises an exception
      instead of returning silently.
 
@@ -226,14 +229,6 @@ XML/Ada (optional):
 
    Note that it should be possible to use XML/Ada 1.0 but in this case you'll
    have to create the set of project files yourself.
-
-POSIX Binding (optional) :
-
-   for Win32:
-      http://www.obry.org/contrib.html
-
-   for UNIX:
-      http://www.cs.fsu.edu/~baker/florist.html
 
 OpenSSL library (optional) :
 
