@@ -108,62 +108,11 @@ project Src is
 
    package Ide renames Shared.IDE;
 
-   TP_Common_Switches
-     := ("-gnat05", "-gnatwcfijkmruv", "-gnaty3abcefhiklmnprt", "-Wall")
-        & Shared.Global_Options;
-   --  Limited style check options (no spec, not alphabetical order)
-
    --------------
    -- Compiler --
    --------------
 
-   package Compiler is
-
-      case Shared.Build is
-         when "Debug" =>
-            for Default_Switches ("Ada")
-              use Shared.Common_Options & Shared.Debug_Options;
-
-            for Switches ("templates_parser.adb")
-              use TP_Common_Switches & Shared.Debug_Options;
-            for Switches ("templates_parser-filter.adb")
-              use TP_Common_Switches & Shared.Debug_Options;
-            for Switches ("templates_parser-expr.adb")
-              use TP_Common_Switches & Shared.Debug_Options;
-            for Switches ("templates_parser-cached_files.adb")
-              use TP_Common_Switches & Shared.Debug_Options;
-            for Switches ("templates_parser-data.adb")
-              use TP_Common_Switches & Shared.Debug_Options;
-            for Switches ("templates_parser-input.adb")
-              use TP_Common_Switches & Shared.Debug_Options;
-            for Switches ("templates_parser-query.adb")
-              use TP_Common_Switches & Shared.Debug_Options;
-            for Switches ("templates_parser-print_tree.adb")
-              use TP_Common_Switches & Shared.Debug_Options;
-
-         when "Release" =>
-            for Default_Switches ("Ada")
-              use Shared.Common_Options & Shared.Release_Options;
-
-            for Switches ("templates_parser.adb")
-              use TP_Common_Switches & Shared.Release_Options;
-            for Switches ("templates_parser-filter.adb")
-              use TP_Common_Switches & Shared.Release_Options;
-            for Switches ("templates_parser-expr.adb")
-              use TP_Common_Switches & Shared.Release_Options;
-            for Switches ("templates_parser-cached_files.adb")
-              use TP_Common_Switches & Shared.Release_Options;
-            for Switches ("templates_parser-data.adb")
-              use TP_Common_Switches & Shared.Release_Options;
-            for Switches ("templates_parser-input.adb")
-              use TP_Common_Switches & Shared.Release_Options;
-            for Switches ("templates_parser-query.adb")
-              use TP_Common_Switches & Shared.Release_Options;
-            for Switches ("templates_parser-print_tree.adb")
-              use TP_Common_Switches & Shared.Release_Options;
-      end case;
-
-   end Compiler;
+   package Compiler renames Shared.Compiler;
 
    -------------
    -- Builder --
