@@ -77,10 +77,26 @@ project Src is
          case Shared.OS is
             when "Windows_NT" =>
                for Library_Options use
-                 ("-laws_win32", "-lwsock32", "-lldap", "-lws2_32");
+                 ("-laws_win32", "-lwsock32", "-lws2_32");
             when others =>
-               for Library_Options use ("-lldap");
+               null;
          end case;
+
+         case Shared.LDAP is
+            when "Installed" =>
+               for Library_Options use Project'Library_Options & ("-lldap");
+            when "Disabled" =>
+               null;
+         end case;
+   end case;
+
+   case Shared.LDAP is
+      when "Disabled" =>
+         for Locally_Removed_Files use
+           ("aws-ldap.ads", "aws-ldap-thin.ads", "aws-ldap-thin.adb",
+            "aws-ldap-client.ads", "aws-ldap-client.adb");
+      when others =>
+           null;
    end case;
 
    for Library_Name use "aws";

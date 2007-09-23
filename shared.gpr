@@ -28,30 +28,15 @@
 
 project Shared is
 
+   for Source_Dirs use ();
+
    type Build_Type is ("Debug", "Release");
    Build : Build_Type := external ("PRJ_BUILD", "Release");
 
    type OS_Type is ("UNIX", "Windows_NT");
    OS : OS_Type := external ("OS", "UNIX");
 
-   type Socket_Type is ("std", "ssl", "openssl", "gnutls");
-   Socket : Socket_Type := external ("SOCKET", "std");
-
-   for Source_Dirs use ();
-
-   ------------
-   -- XMLAda --
-   ------------
-
-   type XMLAda_Type is ("Installed", "Disabled");
-   XMLAda : XMLAda_Type := external ("PRJ_XMLADA", "Installed");
-
-   ----------
-   -- ASIS --
-   ----------
-
-   type ASIS_Type is ("Installed", "Disabled");
-   ASIS : ASIS_Type := external ("PRJ_ASIS", "Installed");
+   type Install_Status is ("Installed", "Disabled");
 
    -------------
    -- SOCKLIB --
@@ -59,6 +44,22 @@ project Shared is
 
    type SOCKLIB_Type is ("GNAT", "AdaSockets", "IPv6");
    SOCKLIB : SOCKLIB_Type := external ("PRJ_SOCKLIB", "GNAT");
+
+   ------------
+   -- SOCKET --
+   ------------
+
+   type Socket_Type is ("std", "ssl", "openssl", "gnutls");
+   Socket : Socket_Type := external ("SOCKET", "std");
+
+   ------------------------
+   -- External Libraries --
+   ------------------------
+
+   XMLAda : Install_Status := external ("PRJ_XMLADA", "Installed");
+   ASIS   : Install_Status := external ("PRJ_ASIS", "Installed");
+   XMLAda : Install_Status := external ("PRJ_XMLADA", "Installed");
+   LDAP   : Install_Status := external ("PRJ_LDAP", "Installed");
 
    -------------------------
    -- Compression library --
@@ -71,7 +72,12 @@ project Shared is
    ---------
 
    package Ide is
-      for VCS_Kind use "Subversion";
+      case OS is
+         when "Windows_NT" =>
+            for VCS_Kind use "Subversion Cygwin";
+         when "UNIX" =>
+            for VCS_Kind use "Subversion";
+      end case;
       for VCS_Log_Check
         use "style_checker -l70 -H";
       for VCS_File_Check

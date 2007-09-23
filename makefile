@@ -238,6 +238,16 @@ ifndef TP_XMLADA
 TP_XMLADA="$(PRJ_XMLADA)"
 endif
 
+## Ldap
+
+ifeq (${LDAP}, true)
+PRJ_LDAP=Installed
+GEXT_MODULE := gldap_setup
+else
+PRJ_LDAP=Disabled
+GEXT_MODULE := gldap_dummy
+endif
+
 ## ASIS
 
 ifeq (${ASIS}, true)
@@ -289,6 +299,7 @@ GALL_OPTIONS := $(ALL_OPTIONS) \
 	PRJ_XMLADA="$(PRJ_XMLADA)" \
 	PRJ_ASIS="$(PRJ_ASIS)" \
 	PRJ_SOCKLIB="$(PRJ_SOCKLIB)" \
+	PRJ_LDAP="$(PRJ_LDAP)" \
 	TP_XMLADA="$(TP_XMLADA)" \
 	I_INC="$(I_INC)" \
 	I_CPN="$(I_CPN)" \
