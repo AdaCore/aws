@@ -97,7 +97,7 @@ package AWS.URL is
 
    function Port_Not_Default (URL : in Object) return String;
    --  Returns the port image (preceded by character ':') if it is not the
-   --  default port.
+   --  default port. Returns the empty string otherwise.
 
    function Abs_Path
      (URL    : in Object;
