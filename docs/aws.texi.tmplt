@@ -3328,6 +3328,12 @@ Remove the sortable properly from the specified lists.
 
 Redirect the browser to the specified URL.
 
+@item refresh the current page
+
+@AWSEXP{<refresh/>}
+
+Refresh the current page as if the Web Browser refresh button was pressed.
+
 @item Add a CSS style to a given node
 
 @AWSEXP{<apply_style id="node_id">

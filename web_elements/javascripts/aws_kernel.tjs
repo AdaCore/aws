@@ -408,6 +408,8 @@ AWS.Ajax.XML = new function() {
              handler_get (node);
           } else if (node.nodeName == 'location') {
              handler_location (node);
+          } else if (node.nodeName == 'refresh') {
+             window.location.reload (true);
           } else if (node.nodeName == 'create_sortable') {
              handler_create_sortable (node);
           } else if (node.nodeName == 'destroy_sortable') {
