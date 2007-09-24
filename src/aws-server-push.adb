@@ -1333,7 +1333,6 @@ package body AWS.Server.Push is
                         = Holder.Socket.Get_FD
                      then
                         declare
-                           use type Net.Socket_Access;
                            Socket : Net.Socket_Access;
 
                            procedure Process

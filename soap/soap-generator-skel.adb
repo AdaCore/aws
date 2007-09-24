@@ -87,9 +87,6 @@ package body Skel is
       -----------------------
 
       procedure Output_Parameters (N : in WSDL.Parameters.P_Set) is
-         use type WSDL.Parameters.Kind;
-         use type WSDL.Parameter_Type;
-
          R : WSDL.Parameters.P_Set;
       begin
          Text_IO.Put (Skel_Adb, "          ");

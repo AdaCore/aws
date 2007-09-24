@@ -656,7 +656,6 @@ package body AWS.Server is
       ------------------
 
       function Get_Peername (Index : in Positive) return String is
-         use type Socket_Access;
          Socket : constant Socket_Access := Table (Index).Sock;
       begin
          if Socket = null then
@@ -671,7 +670,6 @@ package body AWS.Server is
       ---------------------
 
       function Get_Socket_Info (Index : in Positive) return Socket_Data is
-         use type Socket_Access;
          Socket : constant Socket_Access := Table (Index).Sock;
       begin
          if Socket = null then
@@ -765,7 +763,6 @@ package body AWS.Server is
       entry Release
         (Index : in Positive; Shutdown : out Boolean) when Shutdown_Count = 0
       is
-         use type Socket_Access;
       begin
          pragma Assert (Count < N);
          --  No more release than it is possible

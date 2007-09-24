@@ -522,10 +522,6 @@ package body AWS.Server.HTTP_Utils is
          Headers         : in     AWS.Headers.List;
          End_Found       :    out Boolean)
       is
-         use type Streams.Stream_Element;
-         use type Streams.Stream_Element_Offset;
-         use type Streams.Stream_Element_Array;
-
          type Error_State is (No_Error, Name_Error, Device_Error);
          --  This state is to monitor the file upload process. If we receice
          --  Name_Error or Device_Error while writing data on disk we need to
@@ -1448,7 +1444,6 @@ package body AWS.Server.HTTP_Utils is
       C_Stat      : in     AWS.Status.Data)
    is
       use type Status.Request_Method;
-      use type Streams.Stream_Element_Offset;
 
       Sock        : constant Net.Socket_Type'Class := Status.Socket (C_Stat);
 
@@ -1481,9 +1476,6 @@ package body AWS.Server.HTTP_Utils is
       ---------------
 
       procedure Send_File is
-
-         use type Ada.Streams.Stream_Element_Offset;
-
          Buffer : Streams.Stream_Element_Array (1 .. Buffer_Size);
 
       begin
@@ -1505,7 +1497,6 @@ package body AWS.Server.HTTP_Utils is
       ---------------------
 
       procedure Send_File_Chunked is
-         use type Streams.Stream_Element_Array;
          --  Note that we do not use a buffered socket here. Opera on SSL
          --  sockets does not like chunk that are not sent in a whole.
 
@@ -1625,7 +1616,6 @@ package body AWS.Server.HTTP_Utils is
             Resources.Set_Index (File, First + 1);
 
             declare
-               use type Stream_Element_Offset;
                Buffer : Streams.Stream_Element_Array (1 .. Buffer_Size);
                Sent   : Stream_Element_Offset := 0;
                Size   : Stream_Element_Offset := 0;

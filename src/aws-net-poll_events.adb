@@ -144,7 +144,6 @@ package body AWS.Net.Poll_Events is
 
    procedure Set_Mode (Item : out Thin.Pollfd; Mode : in Wait_Event_Set) is
       use OS_Lib;
-      use type Thin.Events_Type;
    begin
       Item.REvents := 0;
 

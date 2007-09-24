@@ -280,8 +280,6 @@ package body AWS.Server.Status is
             Assoc ("ACTIVITY_TIME_STAMP_V",   Activity_Time_Stamp));
       end Slot_Table;
 
-      use type Templates.Translate_Table;
-
       Admin_URI : constant String := CNF.Admin_URI (Server.Properties);
 
    begin

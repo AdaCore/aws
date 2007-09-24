@@ -430,7 +430,6 @@ package body AWS.Services.Download is
         (Info : in     Download_Information;
          Done :    out Boolean)
       is
-         use type Ada.Streams.Stream_Element_Offset;
          Buffer_Size : constant := 4 * 1_024;
 
          Buffer : Streams.Stream_Element_Array (1 .. Buffer_Size);

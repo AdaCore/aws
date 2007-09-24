@@ -82,8 +82,6 @@ package body AWS.Resources.Streams.Disk is
       Buffer   :    out Stream_Element_Array;
       Last     :    out Stream_Element_Offset)
    is
-      use type Stream_Element_Offset;
-
       Buf_Len : constant Stream_Element_Offset
         := Resource.Last - Resource.Current + 1;
    begin

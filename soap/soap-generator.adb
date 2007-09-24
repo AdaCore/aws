@@ -1900,9 +1900,6 @@ package body SOAP.Generator is
       ----------------------
 
       function Is_Inside_Record (Name : in String) return Boolean is
-
-         use type WSDL.Parameters.Kind;
-
          In_Record : Boolean := False;
 
          procedure Check_Record
