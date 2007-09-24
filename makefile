@@ -242,10 +242,8 @@ endif
 
 ifeq (${LDAP}, true)
 PRJ_LDAP=Installed
-GEXT_MODULE := gldap_setup
 else
 PRJ_LDAP=Disabled
-GEXT_MODULE := gldap_dummy
 endif
 
 ## ASIS
