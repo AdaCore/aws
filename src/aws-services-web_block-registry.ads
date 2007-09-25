@@ -82,6 +82,9 @@ package AWS.Services.Web_Block.Registry is
       Translations : in Templates.Translate_Set) return Page;
    --  Parse the Web page registered under Key
 
+   function Content_Type (Key : in String) return String;
+   --  Returns the Content_Type recorded for the web object
+
    function Build
      (Key           : in String;
       Request       : in Status.Data;

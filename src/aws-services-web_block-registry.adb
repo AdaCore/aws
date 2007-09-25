@@ -114,6 +114,20 @@ package body AWS.Services.Web_Block.Registry is
       return Data;
    end Build;
 
+   ------------------
+   -- Content_Type --
+   ------------------
+
+   function Content_Type (Key : in String) return String is
+      Position : constant Web_Object_Maps.Cursor := WO_Map.Find (Key);
+   begin
+      if Position = No_Element then
+         return "";
+      else
+         return To_String (Web_Object_Maps.Element (Position).Content_Type);
+      end if;
+   end Content_Type;
+
    --------------------
    -- Get_Context_Id --
    --------------------
