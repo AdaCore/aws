@@ -41,7 +41,7 @@ SOEXT	= .so
 EXEEXT	=
 endif
 
-ifdef DEBUG
+ifeq ($(DEBUG), true)
 MAKE_OPT	=
 BDIR		= .build/debug
 else
@@ -272,7 +272,7 @@ endif
 
 ## Debug
 
-ifdef DEBUG
+ifeq ($(DEBUG), true)
 PRJ_BUILD=Debug
 else
 PRJ_BUILD=Release
@@ -418,13 +418,13 @@ endif
 	echo -n '   Body_File_Name =>' >> $(CONFADC)
 	echo ' "aws-net-ssl-certificate__$(SSL_SUFFIX).adb");' >> $(CONFADC)
 
+setup_modules: $(MODULES_SETUP) setup_config
+
 setup_debug:
-	$(MAKE) DEBUG=1 setup_modules
+	$(MAKE) DEBUG=true setup_modules
 
 setup_release:
-	$(MAKE) setup_modules
-
-setup_modules: $(MODULES_SETUP) setup_config
+	$(MAKE) DEBUG=false setup_modules
 
 setup: setup_dir $(GEXT_MODULE) setup_debug setup_release
 

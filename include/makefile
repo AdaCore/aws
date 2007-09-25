@@ -31,7 +31,7 @@
 force:
 
 build_zlib: force
-	echo "Building libz.a (Zlib library)"
+	echo Building Zlib library
 	${MAKE} -C zlib GALL_OPTIONS=$(GALL_OPTIONS)
 
 build: build_zlib
@@ -40,6 +40,7 @@ build: build_zlib
 setup:
 	-$(MKDIR) -p ../$(BDIR)/include/obj
 	-$(MKDIR) -p ../$(BDIR)/include/lib
+	${MAKE} -C zlib setup GALL_OPTIONS=$(GALL_OPTIONS)
 
 clean:
 	${MAKE} -C zlib clean

@@ -8,20 +8,21 @@
 
 CC = gcc
 
+ifeq ($(DEBUG), true)
+CFLAGS = -g
+else
 CFLAGS = -O3
-#CFLAGS=-g -DDEBUG
+endif
 
 LIBZ_static = ../../lib/libz.a
-
-
-ifeq (${OS}, Windows_NT)
-	LIBZ_shared = ../../lib/z$(SOEXT)
-else
-	LIBZ_shared = ../../lib/libz$(SOEXT)
-endif
+LIBZ_shared = ../../lib/libz$(SOEXT)
+ODIR = ../../$(BDIR)/zlib
 
 ifeq (${SHARED}, true)
 	LIB = $(LIBZ_shared)
+ifneq (${OS}, Windows_NT)
+	CFLAGS := $(CFLAGS) -fPIC
+endif
 else
 	LIB = $(LIBZ_static)
 endif
@@ -29,30 +30,38 @@ endif
 OBJS = adler32.o compress.o crc32.o gzio.o uncompr.o deflate.o trees.o \
        zutil.o inflate.o infback.o inftrees.o inffast.o
 
+BOBJS = $(addprefix $(ODIR)/, $(OBJS))
+
 all: $(LIB)
 
-$(LIBZ_static): $(OBJS)
-	$(AR) rc $@ $(OBJS)
+$(LIBZ_static): $(BOBJS)
+	$(AR) rc $@ $(BOBJS)
 
-$(LIBZ_shared): $(OBJS)
-	$(GCC) -shared -o $@ $(OBJS)
+$(LIBZ_shared): $(BOBJS)
+	$(GCC) -shared -o $@ $(BOBJS)
+
+setup:
+	$(MKDIR) $(ODIR)
 
 clean:
-	-rm -f $(LIB) *.o *~
+	-rm -f $(LIB) $(ODIR)/*.o *~
+
+$(BOBJS):
+	$(CC) $(CFLAGS) -c $(notdir $*).c -o $*.o
 
 # DO NOT DELETE THIS LINE -- make depend depends on it.
 
-adler32.o: zlib.h zconf.h zlibdefs.h
-compress.o: zlib.h zconf.h zlibdefs.h
-crc32.o: crc32.h zlib.h zconf.h zlibdefs.h
-deflate.o: deflate.h zutil.h zlib.h zconf.h zlibdefs.h
-example.o: zlib.h zconf.h zlibdefs.h
-gzio.o: zutil.h zlib.h zconf.h zlibdefs.h
-inffast.o: zutil.h zlib.h zconf.h zlibdefs.h inftrees.h inflate.h inffast.h
-inflate.o: zutil.h zlib.h zconf.h zlibdefs.h inftrees.h inflate.h inffast.h inffixed.h
-infback.o: zutil.h zlib.h zconf.h zlibdefs.h inftrees.h inflate.h inffast.h inffixed.h
-inftrees.o: zutil.h zlib.h zconf.h zlibdefs.h inftrees.h
-minigzip.o: zlib.h zconf.h zlibdefs.h
-trees.o: deflate.h zutil.h zlib.h zconf.h zlibdefs.h trees.h
-uncompr.o: zlib.h zconf.h zlibdefs.h
-zutil.o: zutil.h zlib.h zconf.h zlibdefs.h
+$(ODIR)/adler32.o: zlib.h zconf.h zlibdefs.h
+$(ODIR)/compress.o: zlib.h zconf.h zlibdefs.h
+$(ODIR)/crc32.o: crc32.h zlib.h zconf.h zlibdefs.h
+$(ODIR)/deflate.o: deflate.h zutil.h zlib.h zconf.h zlibdefs.h
+$(ODIR)/example.o: zlib.h zconf.h zlibdefs.h
+$(ODIR)/gzio.o: zutil.h zlib.h zconf.h zlibdefs.h
+$(ODIR)/inffast.o: zutil.h zlib.h zconf.h zlibdefs.h inftrees.h inflate.h inffast.h
+$(ODIR)/inflate.o: zutil.h zlib.h zconf.h zlibdefs.h inftrees.h inflate.h inffast.h inffixed.h
+$(ODIR)/infback.o: zutil.h zlib.h zconf.h zlibdefs.h inftrees.h inflate.h inffast.h inffixed.h
+$(ODIR)/inftrees.o: zutil.h zlib.h zconf.h zlibdefs.h inftrees.h
+$(ODIR)/minigzip.o: zlib.h zconf.h zlibdefs.h
+$(ODIR)/trees.o: deflate.h zutil.h zlib.h zconf.h zlibdefs.h trees.h
+$(ODIR)/uncompr.o: zlib.h zconf.h zlibdefs.h
+$(ODIR)/zutil.o: zutil.h zlib.h zconf.h zlibdefs.h
