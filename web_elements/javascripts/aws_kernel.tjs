@@ -157,7 +157,7 @@ AWS.Context = new function() {
    {
 
       @@IF@@ @_AWS_CONTEXT_PER_WINDOW_@ = true
-      @@--  Check if context has to be renew
+      @@--  Check if context has to be renewed
 
       if (!is_new_context && history.length == 1) {
 	 @@--  This is a new page in the browser
@@ -169,7 +169,6 @@ AWS.Context = new function() {
       }
       @@END_IF@@
 
-
       var k = 0;
 
       @@-- anchors
@@ -179,7 +178,11 @@ AWS.Context = new function() {
       for (k=0; k<anchors.length; k++) {
          var href = anchors[k].getAttribute('href');
          if (href != null) {
-            if (href.indexOf("http",0) != 0
+            @@--  IE insists on returning the derived absolute URL,
+            @@--  make sure that the ref is on the current page if the
+            @@--  prefix is HTTP.
+            if ((href.indexOf("http:",0) != 0
+                || href.indexOf(window.location.hostname) == 7)
                 && href.indexOf("mailto:",0) != 0
                 && href.indexOf("#",0) != 0) {
 
@@ -197,7 +200,7 @@ AWS.Context = new function() {
          var action = forms[k].getAttribute('action');
          if (action != null) {
             if (action != ""
-                && action.indexOf("http",0) != 0
+                && action.indexOf("http:",0) != 0
                 && action.indexOf("#", 0) != 0
                 && forms[k].getAttribute('onsubmit') == null) {
                 add_context_to_form (forms[k]);
@@ -428,6 +431,8 @@ AWS.Ajax.XML = new function() {
    {
       var placeholder_id = node.getAttribute("id");
       var placeholder_content;
+
+      if ($(placeholder_id) == null) return;
 
       if (node.childNodes.length > 1) {
          placeholder_content = node.childNodes[1].nodeValue;
