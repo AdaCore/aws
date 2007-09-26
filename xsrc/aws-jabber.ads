@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2002-2006                          --
+--                         Copyright (C) 2002-2007                          --
 --                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -52,7 +52,7 @@ package AWS.Jabber is
       Host     : in     String;
       User     : in     String;
       Password : in     String;
-      Port     : in     Positive      := Default_Port);
+      Port     : in     Positive := Default_Port);
    --  Connect to a Jabber server Host:Port using User/Password account. It
    --  returns the Server object which can be used with services below.
 
@@ -144,8 +144,8 @@ private
       Started : Boolean := False;
       SID     : Unbounded_String;
 
-      MB     : Message_Mailbox.Mailbox (25); -- 25 messages maximum
-      Stream : Incoming_Stream_Access;
+      MB      : Message_Mailbox.Mailbox (25); -- 25 messages maximum
+      Stream  : Incoming_Stream_Access;
    end record;
 
 end AWS.Jabber;

@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2002-2006                          --
+--                         Copyright (C) 2002-2007                          --
 --                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -26,6 +26,7 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
+with Ada.Exceptions;
 with Ada.Strings.Fixed;
 with Ada.Text_IO;
 with Ada.Unchecked_Deallocation;
@@ -59,9 +60,9 @@ package body AWS.Jabber is
 
    procedure Start_Element
      (Handler       : in out Tree_Reader;
-      Namespace_URI : in     Unicode.CES.Byte_Sequence       := "";
-      Local_Name    : in     Unicode.CES.Byte_Sequence       := "";
-      Qname         : in     Unicode.CES.Byte_Sequence       := "";
+      Namespace_URI : in     Unicode.CES.Byte_Sequence := "";
+      Local_Name    : in     Unicode.CES.Byte_Sequence := "";
+      Qname         : in     Unicode.CES.Byte_Sequence := "";
       Atts          : in     Sax.Attributes.Attributes'Class);
 
    procedure End_Element
@@ -253,7 +254,7 @@ package body AWS.Jabber is
       Host     : in     String;
       User     : in     String;
       Password : in     String;
-      Port     : in     Positive      := Default_Port)
+      Port     : in     Positive := Default_Port)
    is
       Message : Message_Access;
    begin
@@ -689,9 +690,9 @@ package body AWS.Jabber is
 
    procedure Start_Element
      (Handler       : in out Tree_Reader;
-      Namespace_URI : in     Unicode.CES.Byte_Sequence       := "";
-      Local_Name    : in     Unicode.CES.Byte_Sequence       := "";
-      Qname         : in     Unicode.CES.Byte_Sequence       := "";
+      Namespace_URI : in     Unicode.CES.Byte_Sequence := "";
+      Local_Name    : in     Unicode.CES.Byte_Sequence := "";
+      Qname         : in     Unicode.CES.Byte_Sequence := "";
       Atts          : in     Sax.Attributes.Attributes'Class)
    is
       pragma Unreferenced (Namespace_URI);
