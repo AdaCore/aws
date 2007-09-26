@@ -114,7 +114,7 @@ package body AWS.Server.HTTP_Utils is
 
       procedure Build_Answer is
          URL : constant AWS.URL.Object := AWS.Status.URI (C_Stat);
-         URI : constant String         := AWS.URL.URL (URL);
+         URI : constant String         := AWS.URL.Abs_Path (URL);
       begin
          --  Check if the status page, status page logo or status page images
          --  are requested. These are AWS internal data that should not be
