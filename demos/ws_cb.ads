@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2001                          --
---                                ACT-Europe                                --
+--                         Copyright (C) 2000-2007                          --
+--                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -26,9 +26,9 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-with AWS.Status;
 with AWS.Response;
 with AWS.Server;
+with AWS.Status;
 
 package WS_CB is
 
