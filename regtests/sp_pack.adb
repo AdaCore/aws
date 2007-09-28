@@ -272,6 +272,11 @@ package body Sp_Pack is
          Client.Close (Connect (J));
       end loop;
 
+      if Server_Push.Count (Push) > 1 then
+         --  Wait for server-push internal waiter process completion.
+         delay 0.5;
+      end if;
+
       if Server_Push.Count (Push) /= 1 then
          Put_Line ("Auto unregister error." & Server_Push.Count (Push)'Img);
       end if;

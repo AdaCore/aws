@@ -126,6 +126,8 @@ package body AWS.Server.Push is
          Client_Id : in String;
          Holder    : in Client_Holder_Access);
 
+      entry Add (Server : in Object_Access; Queue : in Tables.Map);
+
       entry Remove
         (Server    : in Object_Access;
          Client_Id : in String;
@@ -992,50 +994,9 @@ package body AWS.Server.Push is
       Thin_Id      : in     String             := "";
       Client_Gone  : access procedure (Client_Id : in String) := null)
    is
+      use type Ada.Containers.Count_Type;
       Cursor : Tables.Cursor;
       Queue  : Tables.Map;
-
-      procedure Send (Client_Id : in String; Holder : in Client_Holder_Access);
-
-      ----------
-      -- Send --
-      ----------
-
-      procedure Send
-        (Client_Id : in String; Holder : in Client_Holder_Access)
-      is
-         Removed : Client_Holder_Access;
-      begin
-         if Holder.Errmsg /= Null_Unbounded_String then
-            if Client_Gone /= null then
-               Client_Gone (Client_Id);
-            end if;
-
-            Server.Unregister (Client_Id, Removed);
-            Removed.Socket.Shutdown;
-            Free (Removed);
-            return;
-         end if;
-
-         Holder.Socket.Send (Data_Chunk (Holder.all, Data, Content_Type));
-
-         W_Signal.Send (Byte0);
-
-         Waiter.Add
-           (Server    => Server'Unrestricted_Access,
-            Client_Id => Client_Id,
-            Holder    => Holder);
-
-      exception
-         when Net.Socket_Error =>
-            if Client_Gone /= null then
-               Client_Gone (Client_Id);
-            end if;
-
-            Server.Unregister (Client_Id, Removed);
-            Removed.Socket.Shutdown;
-            Free (Removed);
-      end Send;
 
    begin
       Server.Send (Data, Group_Id, Content_Type, Thin_Id, Queue);
@@ -1043,9 +1004,56 @@ package body AWS.Server.Push is
       Cursor := Queue.First;
 
       while Tables.Has_Element (Cursor) loop
-         Send (Tables.Key (Cursor), Tables.Element (Cursor));
-         Tables.Next (Cursor);
+         declare
+            C      : Tables.Cursor := Cursor;
+            Holder : constant Client_Holder_Access := Tables.Element (C);
+
+            procedure Remove;
+
+            ------------
+            -- Remove --
+            ------------
+
+            procedure Remove is
+               Client_Id : constant String := Tables.Key (C);
+               Removed   : Client_Holder_Access;
+            begin
+               if Client_Gone /= null then
+                  Client_Gone (Client_Id);
+               end if;
+
+               Server.Unregister (Client_Id, Removed);
+               Removed.Socket.Shutdown;
+               Queue.Delete (C);
+
+               if Removed /= Holder then
+                  raise Program_Error;
+               end if;
+
+               Free (Removed);
+            end Remove;
+
+         begin
+            Cursor := Tables.Next (C);
+
+            if Holder.Errmsg = Null_Unbounded_String then
+               Holder.Socket.Send
+                 (Data_Chunk (Holder.all, Data, Content_Type));
+            else
+               Remove;
+            end if;
+
+         exception
+            when Net.Socket_Error =>
+               Remove;
+         end;
       end loop;
+
+      if Queue.Length > 0 then
+         W_Signal.Send (Byte0);
+         Waiter.Add (Server'Unrestricted_Access, Queue);
+      end if;
+
    end Send;
 
    ------------
@@ -1284,6 +1292,36 @@ package body AWS.Server.Push is
       pragma Warnings (Off, Byte);
       Counter : Wait_Counter_Type := 0;
 
+      procedure Add_Item
+        (Server    : in Object_Access;
+         Client_Id : in String;
+         Holder    : in Client_Holder_Access);
+
+      --------------
+      -- Add_Item --
+      --------------
+
+      procedure Add_Item
+        (Server    : in Object_Access;
+         Client_Id : in String;
+         Holder    : in Client_Holder_Access) is
+      begin
+         if Holder.Phase /= Going then
+            raise Program_Error with Phase_Type'Image (Holder.Phase);
+         end if;
+
+         Holder.Phase := Waiting;
+
+         Add
+           (Set    => Write_Set,
+            Socket => Holder.Socket,
+            Data   => (Server, To_Unbounded_String (Client_Id),
+                        Holder.Timeout, Clock + Holder.Timeout),
+            Mode   => Write_Sets.Output);
+
+         Counter := Counter + 1;
+      end Add_Item;
+
    begin
       Net.Socket_Pair (R_Signal, W_Signal);
       Add (Write_Set, R_Signal'Unchecked_Access, Mode => Write_Sets.Input);
@@ -1300,20 +1338,19 @@ package body AWS.Server.Push is
                   Client_Id : in String;
                   Holder    : in Client_Holder_Access)
                do
-                  if Holder.Phase /= Going then
-                     raise Program_Error with Phase_Type'Image (Holder.Phase);
-                  end if;
+                  Add_Item (Server, Client_Id, Holder);
+               end Add;
 
-                  Holder.Phase := Waiting;
-
-                  Add
-                    (Set    => Write_Set,
-                     Socket => Holder.Socket,
-                     Data   => (Server, To_Unbounded_String (Client_Id),
-                                Holder.Timeout, Clock + Holder.Timeout),
-                     Mode   => Write_Sets.Output);
-
-                  Counter := Counter + 1;
+            or
+               accept Add (Server : in Object_Access; Queue : Tables.Map) do
+                  declare
+                     C : Tables.Cursor := Queue.First;
+                  begin
+                     while Tables.Has_Element (C) loop
+                        Add_Item (Server, Tables.Key (C), Tables.Element (C));
+                        C := Tables.Next (C);
+                     end loop;
+                  end;
                end Add;
 
             or
