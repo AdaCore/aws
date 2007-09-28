@@ -235,7 +235,7 @@ GEXT_MODULE := gxmlada_dummy
 endif
 
 ifndef TP_XMLADA
-TP_XMLADA="$(PRJ_XMLADA)"
+TP_XMLADA=$(PRJ_XMLADA)
 endif
 
 ## Ldap
