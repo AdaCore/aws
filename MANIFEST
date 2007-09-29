@@ -747,6 +747,8 @@ support/g-regexp.ads
 support/g-regpat.adb
 support/g-regpat.ads
 support/gnat.ads
+templates_parser/config/tp_xmlada_dummy.gpr
+templates_parser/config/tp_xmlada_installed.gpr
 templates_parser/docs/all_sources.ada
 templates_parser/docs/demo.tmplt
 templates_parser/docs/docs.gpr
@@ -1060,6 +1062,7 @@ templates_parser/templates_parser.gpr
 templates_parser/tools/all_urls.thtml
 templates_parser/tools/templates.tads
 templates_parser/tools/templates2ada.adb
+templates_parser/tp_xmlada.gpr
 tools/awsres.adb
 tools/hotplug_password.adb
 tools/makefile

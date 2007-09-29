@@ -426,7 +426,10 @@ setup_debug:
 setup_release:
 	$(MAKE) DEBUG=false setup_modules
 
-setup: setup_dir $(GEXT_MODULE) setup_debug setup_release
+setup: setup_dir $(GEXT_MODULE) setup_debug setup_release setup_tp
+
+setup_tp:
+	$(MAKE) -C templates_parser setup $(GALL_OPTIONS)
 
 install_clean:
 	$(RM) -fr $(I_INC)
