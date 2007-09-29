@@ -59,6 +59,7 @@ check:
 		-rules -from=../aws.checks
 
 SSLGPR	=	aws_ssl_shared.gpr
+ISSLGPR	=	install_aws_ssl_shared.gpr
 
 setup_ssl:
 	echo "project AWS_SSL_Shared is" > $(SSLGPR)
@@ -75,17 +76,17 @@ endif
 	echo "end AWS_SSL_Shared;" >> $(SSLGPR)
 
 setup_ssl_install:
-	echo "project AWS_SSL_Shared is" > $(SSLGPR)
-	echo "   for Source_Files use ();" >> $(SSLGPR)
+	echo "project AWS_SSL_Shared is" > $(ISSLGPR)
+	echo "   for Source_Files use ();" >> $(ISSLGPR)
 ifeq (${OS}, Windows_NT)
-	echo '   LIB_Path := "../../../lib";' >> $(SSLGPR)
+	echo '   LIB_Path := "../../../lib";' >> $(ISSLGPR)
 else
-	echo '   LIB_Path := "'$(dir $(SSL_PATH))'";' >> $(SSLGPR)
+	echo '   LIB_Path := "'$(dir $(SSL_PATH))'";' >> $(ISSLGPR)
 endif
-	echo "end AWS_SSL_Shared;" >> $(SSLGPR)
+	echo "end AWS_SSL_Shared;" >> $(ISSLGPR)
 
 
-setup: setup_ssl
+setup: setup_ssl setup_ssl_install
 	-$(MKDIR) -p ../$(BDIR)/ssl/obj
 	-$(MKDIR) -p ../$(BDIR)/ssl/lib
 

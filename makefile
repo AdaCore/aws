@@ -524,8 +524,6 @@ ifeq (${SHARED}, true)
 else
 	$(CP) lib/libz.a $(I_LIB)
 endif
-# Regenerate the SSL project to properly point to the ssl/crypto libraries
-	$(MAKE) -C ssl SOCKET=ssl setup_ssl_install
-	$(CP) ssl/aws_ssl_shared.gpr $(I_AGP)
+	$(CP) ssl/install_aws_ssl_shared.gpr $(I_AGP)/aws_ssl_shared.gpr
 	-$(CHMOD) a-w $(I_LIB)/*
 	${MAKE} -C web_elements install $(GALL_OPTIONS)
