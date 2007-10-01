@@ -74,10 +74,15 @@ package AWS.Status.Set is
    procedure Case_Sensitive_Parameters (D : in out Data; Mode : in Boolean);
    pragma Inline (Case_Sensitive_Parameters);
 
-   procedure Add_Parameter (D : in out Data; Name, Value : in String);
+   procedure Add_Parameter
+     (D           : in out Data;
+      Name, Value : in     String;
+      Decode      : in     Boolean := True);
    pragma Inline (Add_Parameter);
    --  Add one parameter into the internal parameters list.
    --  The Name and Value should be already decoded.
+   --  If Decode is true, decodes Name and Value. This is used when handling
+   --  multipart/form-data for example.
 
    procedure Add_Parameters (D : in out Data; Parameters : in String);
    pragma Inline (Add_Parameters);

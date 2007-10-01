@@ -501,7 +501,8 @@ package body AWS.Server.HTTP_Utils is
                Status.Set.Add_Parameter
                  (C_Stat,
                   To_String (Name),
-                  To_String (Value));
+                  To_String (Value),
+                  Decode => False);
                --  Do not decode values for multipart/form-data
             end;
 

@@ -53,10 +53,13 @@ package body AWS.Status.Set is
    -- Add_Parameter --
    -------------------
 
-   procedure Add_Parameter (D : in out Data; Name, Value : in String) is
+   procedure Add_Parameter
+     (D           : in out Data;
+      Name, Value : in     String;
+      Decode      : in Boolean := True) is
    begin
       AWS.Parameters.Set.Add
-        (AWS.URL.Set.Parameters (D.URI'Access).all, Name, Value);
+        (AWS.URL.Set.Parameters (D.URI'Access).all, Name, Value, Decode);
    end Add_Parameter;
 
    --------------------

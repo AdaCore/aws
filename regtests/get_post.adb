@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2003-2004                          --
---                                ACT-Europe                                --
+--                         Copyright (C) 2003-2007                          --
+--                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -53,6 +53,18 @@ procedure Get_Post is
    M_Body : constant String
      := "BODY_P1=56&BODY_P2=inthebody" & CRLF;
 
+   M2_Body : constant String
+     := "--XXXX" & ASCII.LF
+       & "Content-Disposition: form-data; name=""BODY_P1"""
+       & ASCII.LF & ASCII.LF
+       & "+" & ASCII.LF
+       & "--XXXX" & ASCII.LF
+       & "Content-Disposition: form-data; name=""BODY_P2"""
+       & ASCII.LF & ASCII.LF
+       & "%2B" & ASCII.LF
+       & "--XXXX--"
+       & CRLF;
+
    function CB (Request : in Status.Data) return Response.Data is
       Params : constant Parameters.List := Status.Parameters (Request);
    begin
@@ -74,6 +86,13 @@ begin
    R := Client.Post
           ("http://localhost:" & Utils.Image (Port)
            & "/this_uri?P1=12&P2=azerty", M_Body);
+
+   Text_IO.Put_Line (Response.Message_Body (R));
+
+   R := Client.Post
+          ("http://localhost:" & Utils.Image (Port)
+           & "/this_uri?P1=12&P2=azerty", M2_Body,
+           Content_Type => MIME.Multipart_Form_Data & "; boundary=""XXXX""");
 
    Text_IO.Put_Line (Response.Message_Body (R));
 
