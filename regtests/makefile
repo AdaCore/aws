@@ -116,7 +116,7 @@ ALL_EXEC        = $(addsuffix $(EXEEXT), $(SPEC_TESTS) generate test_all)
 
 force:
 
-gen_main: gen_sources
+gen_main:
 	echo Generating the main driver
 	$(GNAT) make -q -Pregtests -XTest_Mode=Generator \
 		-XBuild=${PRJ_BUILD} -XXMLADA=${PRJ_XMLADA}
@@ -137,7 +137,7 @@ REGEXP = $(subst $(space),"\\|",$(FILTER_OUT))
 
 build:
 
-run: init build_drivers $(SPEC_TESTS)
+run: init gen_sources $(SPEC_TESTS) build_drivers
 ifdef GDB_REGTESTS
 	gdb --exec=test_all --command=cmd.gdb --batch
 else
@@ -153,6 +153,7 @@ endif
 	done
 	cat alldifs
 	$(DIFF) alldifs alldifs.out > /dev/null 2>&1
+	-$(RM) test_all$(EXEEXT)
 
 init:
 	cp ../demos/cert.pem .
@@ -166,7 +167,7 @@ init:
 	touch -t 200401020304 icons/test-dir?)
 	echo "" > alldifs
 	echo "### Every output after this line is a regression ###" >> alldifs
-	-rm file[abc].txt* > /dev/null 2>&1
+	-$(RM) file[abc].txt* > /dev/null 2>&1
 	echo Preparing zres
 	echo "content of filea.txt" > filea.txt
 	echo "content of fileb.txt" > fileb.txt
@@ -201,7 +202,7 @@ init:
 	echo "   nok" >> file.tmplt
 	echo "@@END_IF@@" >> file.tmplt
 	$(AWSRES) -q -r tresres file1.html file2.html file.tmplt
-	rm -f *.res
+	-$(RM) -f *.res
 
 $(ALONE_TESTS) $(ALONE): force
 	echo "Compiling " $@
@@ -209,37 +210,37 @@ $(ALONE_TESTS) $(ALONE): force
 		-XBuild=${PRJ_BUILD} -XXMLADA=${PRJ_XMLADA} $@
 	echo "Running   " $@
 ifdef GDB_REGTESTS
-	./tgdb $@ > $@.res
+	-./tgdb $@ > $@.res 2>&1
 else
-	./$@ > $@.res
+	-./$@ > $@.res 2>&1
 endif
-	$(GNAT) clean -q -Pregtests -XTest_Mode=${TEST_MODE} \
-		-XBuild=${PRJ_BUILD} -XXMLADA=${PRJ_XMLADA} $@
+	-$(RM) -f ./$@$(EXEEXT)
 	-$(DIFF) $@.out $@.res 1>> alldifs 2>> alldifs
 
 $(PREP_WSDL_TESTS): force
 	echo Preparing $(@:%_prep=%)
-	$(WSDL2AWS) -q -f -doc $(@:%_prep=%).wsdl
+	(cd generated; ../$(WSDL2AWS) -q -f -doc ../$(@:%_prep=%).wsdl)
 
 $(PREP_WSDL_ATESTS): force
 	echo Preparing $(@:%_prep=%)
-	$(WSDL2AWS) -q -f -a -doc $(@:%_prep=%).wsdl
+	(cd generated; ../$(WSDL2AWS) -q -f -a -doc ../$(@:%_prep=%).wsdl)
 
 $(WSDL2AWS_TESTS): force
 	echo "Running  " $@
-	-$(WSDL2AWS) -q -f -doc $@.wsdl > $@.res
+	-(cd generated; ../$(WSDL2AWS) -q -f -doc ../$@.wsdl > ../$@.res)
 	-$(DIFF) $@.out $@.res 1>> alldifs 2>> alldifs
 
 $(ASIS_TESTS): force
 	echo Preparing $@
-	$(ADA2WSDL) -q -f $(INCLUDES) -P../aws \
-		-a http://localhost:770`echo $@ | cut -c 6-` $@.ads -o $@.wsdl
-	$(WSDL2AWS) -q -f -cb -types $@ $@.wsdl
+	$(ADA2WSDL) -q -f -I. -P../aws \
+		-a http://localhost:770`echo $@ | cut -c 6-` $@.ads \
+		-o generated/$@.wsdl
+	(cd generated; ../$(WSDL2AWS) -q -f -cb -types $@ $@.wsdl)
 
 $(ASIS2_TESTS): force
-	rm -f $@.res
+	-$(RM) -f $@.res
 	echo "Running  " $@
-	$(ADA2WSDL) -v -f $@.ads -o $@.wsdl > tmp 2>&1
+	$(ADA2WSDL) -v -f $@.ads -o generated/$@.wsdl > tmp 2>&1
 	tail -n +3 tmp > $@.res
 	rm tmp
 	-$(DIFF) $@.out $@.res 1>> alldifs 2>> alldifs
@@ -256,8 +257,7 @@ tres: force
 	echo ",  run it again"
 	./tres 1246 > tres-2.res
 	cat tres-1.res tres-2.res > tres.res
-	$(GNAT) clean -q -Pregtests -XTest_Mode=${TEST_MODE} \
-		-XBuild=${PRJ_BUILD} -XXMLADA=${PRJ_XMLADA} $@
+	-$(RM) tres$(EXEEXT)
 	-$(DIFF) tres.out tres.res 1>> alldifs 2>> alldifs
 
 # As this check is really target dependent what we do is to run twice the same
@@ -276,11 +276,14 @@ check_mem: force
 	./check_mem 30 >> check_mem.res
 	gnatmem 3 -i gmem.out ./check_mem$(EXEEXT) > check_mem.run2
 	grep "   Final" check_mem.run2 > run2
-	$(GNAT) clean -q -Pregtests -XTest_Mode=${TEST_MODE} \
-		-XBuild=${PRJ_BUILD} -XXMLADA=${PRJ_XMLADA} $@
+	-$(RM) ./check_mem$(EXEEXT)
 	-$(DIFF) run1 run2 1>> alldifs 2>> alldifs
 
-setup:
+setup_dir:
+	-$(MKDIR) ../$(BDIR)/regtests
+	-$(MKDIR) generated
+
+setup: setup_dir
 # Get MAIN and standard sources
 	-$(GREP) "\-\-  ~ MAIN" *.adb > all_mains.lst
 	-$(GREP) "\[STD\]" all_mains.lst | $(GREP) -v $(REGEXP) > s_tstd.lst
@@ -359,18 +362,14 @@ endif
 check:
 
 clean:
-	-rm -f *.o *.ali b~*.ad* *~ .*~ *.res res.ad\[sb\] res2.ad\[sb\]
-	-rm -f file.tmp file1.html file2.html file3.html file.tmplt tresres*
-	-rm -f ?.upload.* strm-*.log cert.pem run1 run2 gmem.out $(ALL_EXEC)
-	-rm -f alldifs *.log run? check_mem.run? hello_demo* *.tmp
-	-rm -f anytype_service* r_hello_demo* example-com*
-	-rm -f t_soapinterop* urn*
-	-rm -f stockquoteservice* stock_quote_service* datafeedservice*
-	-rm -f tinteroplab* googlesearchservice*
-	-rm -f google_search_service*
-	-rm -f wsdl_?_service* wsdl4* wsdl_parse_?-* wsdl_parse_?.ads
-	-rm -fr WSDL_6 wsdl_6.class file[abc].txt* zresres*
-	-rm -f test_all.adb filez.tmplt
-	-rm -fr icons
-	-rm -f s_mains.lst all_mains.lst
-	-rm -f s_tsecsoap.lst s_tsec.lst s_tstd.lst s_tsoap.lst
+	-$(GNAT) clean -q -Pregtests -XTest_Mode=${TEST_MODE} \
+		-XBuild=${PRJ_BUILD} -XXMLADA=${PRJ_XMLADA}
+	-$(RM) -f *.log *.res alldifs file[abc].txt* test_all.adb filez.tmplt
+	-$(RM) -f *.tmp alldifs s_mains.lst all_mains.lst
+	-$(RM) -f s_tsecsoap.lst s_tsec.lst s_tstd.lst s_tsoap.lst
+	-$(RM) -f  run? check_mem.run?
+	-$(RM) -fr generated icons
+	-$(RM) -f *~ .*~ res.ad\[sb\] res2.ad\[sb\]
+	-$(RM) -f file.tmp file1.html file2.html file3.html file.tmplt tresres*
+	-$(RM) -f ?.upload.* cert.pem gmem.out
+	-$(RM) -fr WSDL_6 wsdl_6.class zresres*

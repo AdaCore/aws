@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                          Copyright (C) 2004-2006                         --
+--                          Copyright (C) 2004-2007                         --
 --                                  AdaCore                                 --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -39,8 +39,15 @@ project Regtests is
    type Build_Mode is ("Separated", "Generator", "Grouped");
    Mode : Build_Mode := external ("Test_Mode", "Separated");
 
-   for Object_Dir use ".";
-   for Source_Dirs use (".");
+   for Source_Dirs use (".", "generated");
+   for Exec_Dir use ".";
+
+   case Shared.Build is
+      when "Debug" =>
+         for Object_Dir use "../.build/debug/regtests";
+      when "Release" =>
+         for Object_Dir use "../.build/release/regtests";
+   end case;
 
    --  Common tests for Separated and Grouped section
 
