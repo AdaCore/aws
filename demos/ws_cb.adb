@@ -144,48 +144,6 @@ package body WS_CB is
       end if;
    end Get;
 
-   --------------
-   -- To_Array --
-   --------------
-
-   function To_Array
-     (Time : in Ada.Calendar.Time;
-      Env  : in Client_Env) return Ada.Streams.Stream_Element_Array
-   is
-      use GNAT.Calendar.Time_IO;
-   begin
-      return Translator.To_Stream_Element_Array
-               (Image (Time, Picture_String (To_String (Env.Picture)))
-                & ASCII.CR & ASCII.LF
-                & Duration'Image (Time - Env.Start));
-   end To_Array;
-
-   ----------------------
-   -- Server_Push_Task --
-   ----------------------
-
-   task body Server_Push_Task is
-   begin
-      loop
-         delay 1.0;
-         Time_Push.Send (SP, Ada.Calendar.Clock, Content_Type => "text/plain");
-      end loop;
-   end Server_Push_Task;
-
-   -------------------
-   -- New_Client_ID --
-   -------------------
-
-   protected body New_Client_Id is
-
-      procedure Get (New_Id : out String) is
-      begin
-         Id := Id + 1;
-         Ada.Integer_Text_IO.Put (New_Id, Id);
-      end Get;
-
-   end New_Client_Id;
-
    ---------
    -- Put --
    ---------
@@ -232,5 +190,47 @@ package body WS_CB is
    begin
       abort Server_Push_Task;
    end Stop_Push_Server;
+
+   --------------
+   -- To_Array --
+   --------------
+
+   function To_Array
+     (Time : in Ada.Calendar.Time;
+      Env  : in Client_Env) return Ada.Streams.Stream_Element_Array
+   is
+      use GNAT.Calendar.Time_IO;
+   begin
+      return Translator.To_Stream_Element_Array
+               (Image (Time, Picture_String (To_String (Env.Picture)))
+                & ASCII.CR & ASCII.LF
+                & Duration'Image (Time - Env.Start));
+   end To_Array;
+
+   ----------------------
+   -- Server_Push_Task --
+   ----------------------
+
+   task body Server_Push_Task is
+   begin
+      loop
+         delay 1.0;
+         Time_Push.Send (SP, Ada.Calendar.Clock, Content_Type => "text/plain");
+      end loop;
+   end Server_Push_Task;
+
+   -------------------
+   -- New_Client_ID --
+   -------------------
+
+   protected body New_Client_Id is
+
+      procedure Get (New_Id : out String) is
+      begin
+         Id := Id + 1;
+         Ada.Integer_Text_IO.Put (New_Id, Id);
+      end Get;
+
+   end New_Client_Id;
 
 end WS_CB;
