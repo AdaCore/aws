@@ -330,9 +330,9 @@ private
       --  failed on the write waiting state.
 
       procedure Get_Data
-        (Client_Id : in     Client_Key;
-         Data      :    out Stream_Element_Array;
-         Last      :    out Stream_Element_Offset);
+        (Holder : in     Client_Holder_Access;
+         Data   :    out Stream_Element_Array;
+         Last   :    out Stream_Element_Offset);
       --  Return data for the Waiter task.
       --  Could be called only for the write busy client.
       --  If no data to send client become not write busy.
@@ -342,11 +342,8 @@ private
       --  Unregister client and return its holder.
 
       procedure Waiter_Error
-        (Client_Id : in String;
-         Message   : in String;
-         Socket    : in Net.Socket_Access);
+        (Holder : in Client_Holder_Access; Message : in String);
       --  Waiter task would call it on socket error.
-      --  Socket is only for detect broken logic.
 
       function Is_Open return Boolean;
       --  See above

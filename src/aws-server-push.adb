@@ -121,17 +121,12 @@ package body AWS.Server.Push is
    type Object_Access is access all Object;
 
    task Waiter is
-      entry Add
-        (Server    : in Object_Access;
-         Client_Id : in String;
-         Holder    : in Client_Holder_Access);
+      entry Add (Server : in Object_Access; Holder : in Client_Holder_Access);
 
       entry Add (Server : in Object_Access; Queue : in Tables.Map);
 
       entry Remove
-        (Server    : in Object_Access;
-         Client_Id : in String;
-         Holder    : in Client_Holder_Access);
+        (Server : in Object_Access; Holder : in Client_Holder_Access);
       --  Socket should be appropriate and only for error control
 
       entry Info (Size : out Natural; Counter : out Wait_Counter_Type);
@@ -340,21 +335,10 @@ package body AWS.Server.Push is
       --------------
 
       procedure Get_Data
-        (Client_Id : in     Client_Key;
-         Data      :    out Stream_Element_Array;
-         Last      :    out Stream_Element_Offset)
-      is
-         Holder : Client_Holder_Access;
-         CT     : constant Tables.Cursor := Container.Find (Client_Id);
+        (Holder : in     Client_Holder_Access;
+         Data   :    out Stream_Element_Array;
+         Last   :    out Stream_Element_Offset) is
       begin
-         if not Tables.Has_Element (CT) then
-            --  Rare situation when just after client uregister
-            --  socket become write available.
-
-            return;
-         end if;
-
-         Holder := Tables.Element (CT);
          pragma Assert (Holder.Phase = Waiting);
 
          Get_Data (Holder.all, Data, Last);
@@ -783,27 +767,9 @@ package body AWS.Server.Push is
       ------------------
 
       procedure Waiter_Error
-        (Client_Id : in String;
-         Message   : in String;
-         Socket    : in Net.Socket_Access)
-      is
-         Holder : Client_Holder_Access;
-         C      : constant Tables.Cursor := Container.Find (Client_Id);
+        (Holder : in Client_Holder_Access; Message : in String) is
       begin
-         if not Tables.Has_Element (C) then
-            --  Rare situation when just after client uregister detected
-            --  socket error.
-            return;
-         end if;
-
-         Holder := Tables.Element (C);
-
          pragma Assert (Holder.Phase = Waiting);
-
-         if Socket /= Holder.Socket then
-            raise Program_Error with "Broken wait socket logic.";
-         end if;
-
          Holder.Errmsg := To_Unbounded_String (Message);
          Holder.Phase  := Available;
       end Waiter_Error;
@@ -828,7 +794,7 @@ package body AWS.Server.Push is
       if Duplicated /= null then
          if Duplicated.Phase /= Available then
             W_Signal.Send (Byte0);
-            Waiter.Remove (Server'Unrestricted_Access, Client_Id, Duplicated);
+            Waiter.Remove (Server'Unrestricted_Access, Duplicated);
          end if;
 
          Duplicated.Socket.Shutdown;
@@ -870,10 +836,7 @@ package body AWS.Server.Push is
 
       W_Signal.Send (Byte0);
 
-      Waiter.Add
-        (Server    => Server'Unrestricted_Access,
-         Client_Id => Client_Id,
-         Holder    => Holder);
+      Waiter.Add (Server'Unrestricted_Access, Holder);
 
       Socket_Taken (True);
    end Register;
@@ -942,7 +905,7 @@ package body AWS.Server.Push is
 
          if Holder.Phase /= Available then
             W_Signal.Send (Byte0);
-            Waiter.Remove (Server'Unrestricted_Access, Tables.Key (C), Holder);
+            Waiter.Remove (Server'Unrestricted_Access, Holder);
          end if;
 
          if Get_Final_Data /= null then
@@ -1113,10 +1076,7 @@ package body AWS.Server.Push is
 
          W_Signal.Send (Byte0);
 
-         Waiter.Add
-           (Server    => Server'Unrestricted_Access,
-            Client_Id => Client_Id,
-            Holder    => Holder);
+         Waiter.Add (Server'Unrestricted_Access, Holder);
       end if;
 
    exception
@@ -1234,7 +1194,7 @@ package body AWS.Server.Push is
 
       if Holder.Phase /= Available then
          W_Signal.Send (Byte0);
-         Waiter.Remove (Server'Unrestricted_Access, Client_Id, Holder);
+         Waiter.Remove (Server'Unrestricted_Access, Holder);
       end if;
 
       if Close_Socket then
@@ -1274,8 +1234,7 @@ package body AWS.Server.Push is
 
       type Client_In_Wait is record
          SP  : Object_Access;
-         Id  : Unbounded_String;
-         TO  : Ada.Real_Time.Time_Span;
+         CH  : Client_Holder_Access;
          Exp : Ada.Real_Time.Time;
       end record;
 
@@ -1293,18 +1252,14 @@ package body AWS.Server.Push is
       Counter : Wait_Counter_Type := 0;
 
       procedure Add_Item
-        (Server    : in Object_Access;
-         Client_Id : in String;
-         Holder    : in Client_Holder_Access);
+        (Server : in Object_Access; Holder : in Client_Holder_Access);
 
       --------------
       -- Add_Item --
       --------------
 
       procedure Add_Item
-        (Server    : in Object_Access;
-         Client_Id : in String;
-         Holder    : in Client_Holder_Access) is
+        (Server : in Object_Access; Holder : in Client_Holder_Access) is
       begin
          if Holder.Phase /= Going then
             raise Program_Error with Phase_Type'Image (Holder.Phase);
@@ -1315,8 +1270,7 @@ package body AWS.Server.Push is
          Add
            (Set    => Write_Set,
             Socket => Holder.Socket,
-            Data   => (Server, To_Unbounded_String (Client_Id),
-                        Holder.Timeout, Clock + Holder.Timeout),
+            Data   => (Server, Holder, Clock + Holder.Timeout),
             Mode   => Write_Sets.Output);
 
          Counter := Counter + 1;
@@ -1334,11 +1288,9 @@ package body AWS.Server.Push is
          if Count (Write_Set) = 1 or else Is_Read_Ready (Write_Set, 1) then
             select
                accept Add
-                 (Server    : in Object_Access;
-                  Client_Id : in String;
-                  Holder    : in Client_Holder_Access)
+                 (Server : in Object_Access; Holder : in Client_Holder_Access)
                do
-                  Add_Item (Server, Client_Id, Holder);
+                  Add_Item (Server, Holder);
                end Add;
 
             or
@@ -1347,7 +1299,7 @@ package body AWS.Server.Push is
                      C : Tables.Cursor := Queue.First;
                   begin
                      while Tables.Has_Element (C) loop
-                        Add_Item (Server, Tables.Key (C), Tables.Element (C));
+                        Add_Item (Server, Tables.Element (C));
                         C := Tables.Next (C);
                      end loop;
                   end;
@@ -1355,9 +1307,7 @@ package body AWS.Server.Push is
 
             or
                accept Remove
-                 (Server    : in Object_Access;
-                  Client_Id : in String;
-                  Holder    : in Client_Holder_Access)
+                 (Server : in Object_Access; Holder : in Client_Holder_Access)
                do
                   if Holder.Phase = Going then
                      requeue Remove;
@@ -1386,9 +1336,7 @@ package body AWS.Server.Push is
                            is
                               pragma Unreferenced (Socket);
                            begin
-                              if Client.SP /= Server
-                                or else Client_Id /= To_String (Client.Id)
-                              then
+                              if Client.SP /= Server then
                                  raise Program_Error
                                    with "Broken data in waiter.";
                               end if;
@@ -1446,18 +1394,9 @@ package body AWS.Server.Push is
                   ------------------
 
                   procedure Socket_Error (Message : in String) is
-                     Socket    : Net.Socket_Access;
-                     Client_Id : constant String := To_String (Client.Id);
                   begin
-                     --  Client_Id copied first because we would loose it in
-                     --  the next step.
-
-                     Remove_Socket (Write_Set, J, Socket);
-
-                     Client.SP.Waiter_Error
-                       (Client_Id => Client_Id,
-                        Message   => Message,
-                        Socket    => Socket);
+                     Remove_Socket (Write_Set, J);
+                     Client.SP.Waiter_Error (Client.CH, Message);
                   end Socket_Error;
 
                begin
@@ -1465,12 +1404,12 @@ package body AWS.Server.Push is
                      Socket_Error ("Errno " & Utils.Image (Socket.Errno));
 
                   elsif Is_Write_Ready (Write_Set, J) then
-                     Client.SP.Get_Data (To_String (Client.Id), Data, Last);
+                     Client.SP.Get_Data (Client.CH, Data, Last);
 
                      if Last >= Data'First then
                         begin
                            Socket.Send (Data (1 .. Last));
-                           Client.Exp := Clock + Client.TO;
+                           Client.Exp := Clock + Client.CH.Timeout;
                         exception
                            when E : Net.Socket_Error =>
                               Socket_Error
