@@ -1309,11 +1309,11 @@ package body AWS.Server.Push is
                accept Remove
                  (Server : in Object_Access; Holder : in Client_Holder_Access)
                do
-                  if Holder.Phase = Going then
-                     requeue Remove;
-                  elsif Holder.Phase /= Waiting then
-                     raise Program_Error with Phase_Type'Image (Holder.Phase);
-                  end if;
+                  case Holder.Phase is
+                     when Going     => requeue Remove;
+                     when Available => return;
+                     when Waiting   => null;
+                  end case;
 
                   for J in reverse 2 .. Count (Write_Set) loop
                      if Get_Socket (Write_Set, J).Get_FD
