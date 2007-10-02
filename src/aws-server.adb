@@ -967,7 +967,7 @@ package body AWS.Server is
               CNF.Exchange_Certificate ((Web_Server.Properties)));
       end if;
 
-      --  Create the Web Server socket set.
+      --  Create the Web Server socket set
 
       Net.Acceptors.Listen
         (Acceptor            => Web_Server.Acceptor,
