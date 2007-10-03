@@ -35,6 +35,7 @@ with AWS.Messages;
 with AWS.MIME;
 with AWS.Net.Buffered;
 with AWS.Net.Generic_Sets;
+with AWS.Net.Log;
 with AWS.Translator;
 with AWS.Utils;
 
@@ -315,9 +316,10 @@ package body AWS.Server.Push is
          Content_Type : in     String;
          Thin_Id      : in     String);
       --  Send Data to a client identified by Holder.
-      --  If Holder out value would be null it mean that socket is busy waiting
-      --  for output availability and data places into internal Holder buffer.
-      --  Otherwise we have to put data to socket and move it into Waiter.
+      --  If Holder out value is not null it mean that socket become busy
+      --  waiting for output availability and we have to move it into Waiter.
+      --  Holder out value could be not null in case of socket error on
+      --  previous socket operations in waiter.
 
       procedure Unregister (Cursor : in out Tables.Cursor);
 
@@ -528,46 +530,115 @@ package body AWS.Server.Push is
          Content_Type : in     String;
          Thin_Id      : in     String)
       is
-         CT : Thin_Indexes.Cursor;
+         Events : Net.Event_Set;
+
+         procedure To_Buffer;
+
+         procedure To_Buffer is
+            CT : Thin_Indexes.Cursor;
+            Chunk : constant Stream_Element_Array :=
+                      Data_Chunk (Holder.all, Data, Content_Type);
+         begin
+            if Thin_Id /= "" then
+               CT := Holder.Thin.Find (Thin_Id);
+            end if;
+
+            if Thin_Indexes.Has_Element (CT) then
+               Holder.Chunks.Replace_Element
+                 (Thin_Indexes.Element (CT),
+                  (Size      => Chunk'Length,
+                   Thin_Size => Thin_Id'Length,
+                   Data      => Chunk,
+                   Thin      => Thin_Id));
+            else
+               Holder.Chunks.Append
+                 ((Size      => Chunk'Length,
+                   Thin_Size => Thin_Id'Length,
+                   Data      => Chunk,
+                   Thin      => Thin_Id));
+
+               if Thin_Id /= "" then
+                  Holder.Thin.Insert (Thin_Id, Holder.Chunks.Last);
+               end if;
+            end if;
+         end To_Buffer;
+
       begin
          if not Open then
             raise Closed;
          end if;
 
          if Holder.Phase = Available then
-            --  We would return Holder not null for send data to socket
-            --  out of protected object.
-
-            Holder.Phase := Going;
-
-         else
-            if Thin_Id /= "" then
-               CT := Holder.Thin.Find (Thin_Id);
+            if Holder.Errmsg /= Null_Unbounded_String then
+               return;
             end if;
 
-            declare
-               Chunk : constant Stream_Element_Array :=
-                         Data_Chunk (Holder.all, Data, Content_Type);
-            begin
-               if Thin_Indexes.Has_Element (CT) then
-                  Holder.Chunks.Replace_Element
-                    (Thin_Indexes.Element (CT),
-                     (Size      => Chunk'Length,
-                      Thin_Size => Thin_Id'Length,
-                      Data      => Chunk,
-                      Thin      => Thin_Id));
-               else
-                  Holder.Chunks.Append
-                    ((Size      => Chunk'Length,
-                      Thin_Size => Thin_Id'Length,
-                      Data      => Chunk,
-                      Thin      => Thin_Id));
+            if not Holder.Chunks.Is_Empty then
+               raise Program_Error;
+            end if;
 
-                  if Thin_Id /= "" then
-                     Holder.Thin.Insert (Thin_Id, Holder.Chunks.Last);
+            --  Net.Check is not blocking operation.
+
+            Events :=
+              Net.Check (Holder.Socket.all, (Output => True, Input => False));
+
+            if Events (Error) then
+               Holder.Errmsg :=
+                 To_Unbounded_String
+                   ("Check server push output error "
+                    & Integer'Image (Net.Errno (Holder.Socket.all)));
+               Net.Log.Error (Holder.Socket.all, To_String (Holder.Errmsg));
+
+            elsif Events (Output) then
+               declare
+                  Chunk : constant Stream_Element_Array :=
+                            Data_Chunk (Holder.all, Data, Content_Type);
+                  Last : Stream_Element_Offset;
+               begin
+                  --  It is not blocking Net.Send operation.
+
+                  Net.Send (Holder.Socket.all, Chunk, Last);
+
+                  if Last = Chunk'Last then
+                     --  Data sent completely
+
+                     Holder := null;
+
+                  elsif Last in Chunk'Range then
+                     --  Data sent partionaly
+
+                     Holder.Chunks.Append
+                       ((Size      => Chunk'Last - Last,
+                         Thin_Size => 0,
+                         Data      => Chunk (Last + 1 .. Chunk'Last),
+                         Thin      => ""));
+
+                     Holder.Phase := Going;
+
+                  else
+                     --  Data not send. Strange, because Check routine did
+                     --  show output availability.
+
+                     To_Buffer;
+                     Holder.Phase := Going;
                   end if;
-               end if;
-            end;
+
+               exception
+                  when E : Net.Socket_Error =>
+                     Holder.Errmsg :=
+                       To_Unbounded_String
+                         (Ada.Exceptions.Exception_Message (E));
+               end;
+            else
+               To_Buffer;
+
+               --  We would return Holder not null to move it to Waiter.
+
+               Holder.Phase := Going;
+            end if;
+
+         else
+            To_Buffer;
 
             Holder := null;
          end if;
@@ -999,16 +1070,9 @@ package body AWS.Server.Push is
          begin
             Cursor := Tables.Next (C);
 
-            if Holder.Errmsg = Null_Unbounded_String then
-               Holder.Socket.Send
-                 (Data_Chunk (Holder.all, Data, Content_Type));
-            else
+            if Holder.Errmsg /= Null_Unbounded_String then
                Remove;
             end if;
-
-         exception
-            when Net.Socket_Error =>
-               Remove;
          end;
       end loop;
 
@@ -1072,20 +1136,10 @@ package body AWS.Server.Push is
             end;
          end if;
 
-         Holder.Socket.Send (Data_Chunk (Holder.all, Data, Content_Type));
-
          W_Signal.Send (Byte0);
 
          Waiter.Add (Server'Unrestricted_Access, Holder);
       end if;
-
-   exception
-      when E : Net.Socket_Error =>
-         Server.Unregister (Client_Id, Holder);
-         Holder.Socket.Shutdown;
-         Free (Holder);
-
-         raise Client_Gone with Ada.Exceptions.Exception_Message (E);
    end Send_To;
 
    --------------
@@ -1388,6 +1442,7 @@ package body AWS.Server.Push is
                   Last : Stream_Element_Offset;
 
                   procedure Socket_Error (Message : in String);
+                  procedure Socket_Error_Log (Message : in String);
 
                   ------------------
                   -- Socket_Error --
@@ -1399,9 +1454,16 @@ package body AWS.Server.Push is
                      Client.SP.Waiter_Error (Client.CH, Message);
                   end Socket_Error;
 
+                  procedure Socket_Error_Log (Message : in String) is
+                  begin
+                     Net.Log.Error (Socket, Message);
+                     Socket_Error (Message);
+                  end Socket_Error_Log;
+
                begin
                   if Is_Error (Write_Set, J) then
-                     Socket_Error ("Errno " & Utils.Image (Socket.Errno));
+                     Socket_Error_Log
+                       ("Waiter socket error " & Utils.Image (Socket.Errno));
 
                   elsif Is_Write_Ready (Write_Set, J) then
                      Client.SP.Get_Data (Client.CH, Data, Last);
@@ -1420,7 +1482,7 @@ package body AWS.Server.Push is
                      end if;
 
                   elsif Client.Exp < Clock then
-                     Socket_Error ("Wait for write availability timeout.");
+                     Socket_Error_Log ("Wait for write availability timeout.");
                   end if;
                end Process;
 
