@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2006                            --
---                                ACT-Europe                                --
+--                          Copyright (C) 2006-2007                         --
+--                                  AdaCore                                 --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -106,7 +106,7 @@ package body Sp_Pack is
       Server_Push.Subscribe (Push, Client_Id => CID_Image, Group_Id => GID2);
       Server_Push.Unsubscribe (Push, Client_Id => CID_Image, Group_Id => GID0);
 
-      --  Marker to be shure that group message receive would be after
+      --  Marker to be sure that group message receive would be after
       --  Subscribe/Unsubscribe.
 
       Server_Push.Send_To (Push, CID_Image, 0.02, "text/number");
@@ -187,7 +187,7 @@ package body Sp_Pack is
 
       Data := 1000.0;
 
-      --  Initialize all the push servers
+      --  Initialize all the push connections
 
       for J in Connect'Range loop
          Client.Create
@@ -201,7 +201,7 @@ package body Sp_Pack is
          Output (Client.Read_Until (Connect (J), End_Of_Part));
       end loop;
 
-      --  Receive subscribe/unsubscribe marker.
+      --  Receive subscribe/unsubscribe marker
 
       for J in Connect'Range loop
          if Strings.Fixed.Index
