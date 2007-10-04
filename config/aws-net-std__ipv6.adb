@@ -698,7 +698,7 @@ package body AWS.Net.Std is
       elsif Res = 0 then
          --  socket closed by peer.
 
-         Raise_Socket_Error (Socket, "Receive : Socket closed by peer.");
+         raise Socket_Error with "Receive : Socket closed by peer.";
       end if;
 
       Last := Data'First + Ada.Streams.Stream_Element_Offset (Res - 1);
