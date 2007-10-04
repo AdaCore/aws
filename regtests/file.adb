@@ -35,13 +35,17 @@ with AWS.MIME;
 with AWS.Response;
 with AWS.Server;
 with AWS.Status;
+with AWS.Utils;
+
+with Get_Free_Port;
 
 procedure File is
 
    use Ada;
    use AWS;
 
-   WS : Server.HTTP;
+   WS   : Server.HTTP;
+   Port : Positive := 8567;
 
    function CB (Request : in Status.Data) return Response.Data is
       URI : constant String := Status.URI (Request);
@@ -56,7 +60,7 @@ procedure File is
    procedure Call_It is
       R : Response.Data;
    begin
-      R := Client.Get ("http://localhost:4567/zero");
+      R := Client.Get ("http://localhost:" & Utils.Image (Port) & "/zero");
 
       if Response.Content_Length (R) = 0 then
          Text_IO.Put_Line ("OK length is 0");
@@ -69,8 +73,10 @@ procedure File is
    end Call_It;
 
 begin
+   Get_Free_Port (Port);
+
    Server.Start
-     (WS, "file", CB'Unrestricted_Access, Port => 4567, Max_Connection => 5);
+     (WS, "file", CB'Unrestricted_Access, Port => Port, Max_Connection => 5);
    Text_IO.Put_Line ("started"); Ada.Text_IO.Flush;
 
    delay 1.0;
