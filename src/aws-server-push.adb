@@ -661,7 +661,7 @@ package body AWS.Server.Push is
             Holder := Tables.Element (Cursor);
             Send_Data (Holder, Data, Content_Type, Thin_Id);
          else
-            raise Client_Gone with "No such client id.";
+            raise Client_Gone with "No such client id '" & Client_Id & ''';
          end if;
       end Send_To;
 
