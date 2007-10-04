@@ -7,11 +7,8 @@
 #include <stdarg.h>
 
 #ifdef _WIN32
-#define WIN2000SUPPORT
-/* We define WIN2000SUPPORT to ensure that executables built with this version
-   will run ok on both Win2000 and WinXP.  */
 #include <ws2tcpip.h>
-#else /* ! _WIN32 */
+#else
 #include <sys/types.h>
 #include <sys/poll.h>
 #include <sys/socket.h>
@@ -85,6 +82,7 @@ main (int argc, char *argv[])
 
 #ifdef _WIN32
   #define ETIMEDOUT   WSAETIMEDOUT
+  #define ENOTCONN    WSAENOTCONN
   #define EWOULDBLOCK WSAEWOULDBLOCK
   #define EINPROGRESS WSAEINPROGRESS
   #define SHUT_RDWR   SD_BOTH
@@ -190,6 +188,7 @@ main (int argc, char *argv[])
   P ("   SHUT_RDWR    : constant := %d;\n", SHUT_RDWR);
   P ("   ETIMEDOUT    : constant := %d;\n", ETIMEDOUT);
   P ("   EWOULDBLOCK  : constant := %d;\n", EWOULDBLOCK);
+  P ("   ENOTCONN     : constant := %d;\n", ENOTCONN);
   P ("   EINPROGRESS  : constant := %d;\n", EINPROGRESS);
   P ("   EINTR        : constant := %d;\n", EINTR);
   P ("   FIONBIO      : constant := %d;\n", FIONBIO);
@@ -270,17 +269,8 @@ main (int argc, char *argv[])
 
   P ("private\n\n");
 
-#ifdef WIN2000SUPPORT
-  P ("   function WSPIAPI_init return Integer;\n");
-  P ("   pragma Import (C, WSPIAPI_init, \"WSPIAPI_init\");\n");
-  P ("   Dummy : constant Integer := WSPIAPI_init;\n\n");
-
-  P ("   pragma Import (Stdcall, GetAddrInfo, \"WspiapiGetAddrInfo\");\n");
-  P ("   pragma Import (Stdcall, FreeAddrInfo, \"WspiapiFreeAddrInfo\");\n");
-#else
   P ("   pragma Import (%s, GetAddrInfo, \"getaddrinfo\");\n", i_conv);
   P ("   pragma Import (%s, FreeAddrInfo, \"freeaddrinfo\");\n", i_conv);
-#endif
 
   //  gai_strerror for Win32 inlined in WS2TCPIP.H and is not thread safe.
   //  We are using simple replacement in win32/gai_strerror.c

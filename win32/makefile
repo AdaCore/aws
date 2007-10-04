@@ -53,7 +53,7 @@ force:
 
 build: $(BUILD)
 
-build_win32: $(ODIR)/gai_strerror.o $(ODIR)/wspiapi.o
+build_win32: $(ODIR)/gai_strerror.o
 	$(AR) cr $(LDIR)/libaws_win32.a $+
 
 $(ODIR)/%.o: %.o

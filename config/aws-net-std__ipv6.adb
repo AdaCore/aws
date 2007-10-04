@@ -836,7 +836,13 @@ package body AWS.Net.Std is
       end if;
 
       if Thin.C_Shutdown (FD, OS_Lib.SHUT_RDWR) = Thin.Failure then
-         Log.Error (Socket, Error_Message (Std.Errno));
+         declare
+            Errno : constant Integer := Std.Errno;
+         begin
+            if Errno /= OS_Lib.ENOTCONN then
+               Log.Error (Socket, Error_Message (Errno));
+            end if;
+         end;
       end if;
 
       --  Avoid any activity under closed socket in other threads.
