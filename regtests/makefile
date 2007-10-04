@@ -77,7 +77,7 @@ endif
 
 OTH_TESTS      = tres
 
-ALONE_TESTS    = server_config tlog
+ALONE_TESTS    = server_config tlog pipe_stream
 
 ifeq (${XMLADA}, true)
 ifneq (${SOCKET}, std)
