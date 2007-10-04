@@ -235,6 +235,10 @@ package body AWS.Server.Push is
       procedure Deallocate is
          new Ada.Unchecked_Deallocation (Client_Holder, Client_Holder_Access);
    begin
+      if Holder.Phase /= Available then
+         raise Program_Error with Holder.Phase'Img;
+      end if;
+
       Net.Free (Holder.Socket);
       Deallocate (Holder);
    end Free;
@@ -464,6 +468,8 @@ package body AWS.Server.Push is
             end if;
          end if;
 
+         Holder.Phase := Going;
+
          Holder.Groups.Iterate (Add_To_Groups'Access);
       end Register;
 
@@ -629,6 +635,7 @@ package body AWS.Server.Push is
                        To_Unbounded_String
                          (Ada.Exceptions.Exception_Message (E));
                end;
+
             else
                To_Buffer;
 
@@ -1030,6 +1037,8 @@ package body AWS.Server.Push is
    is
       use type Ada.Containers.Count_Type;
       Cursor : Tables.Cursor;
+      C      : Tables.Cursor;
+      Holder : Client_Holder_Access;
       Queue  : Tables.Map;
 
    begin
@@ -1038,17 +1047,12 @@ package body AWS.Server.Push is
       Cursor := Queue.First;
 
       while Tables.Has_Element (Cursor) loop
-         declare
-            C      : Tables.Cursor := Cursor;
-            Holder : constant Client_Holder_Access := Tables.Element (C);
+         C      := Cursor;
+         Cursor := Tables.Next (Cursor);
+         Holder := Tables.Element (C);
 
-            procedure Remove;
-
-            ------------
-            -- Remove --
-            ------------
-
-            procedure Remove is
+         if Holder.Errmsg /= Null_Unbounded_String then
+            declare
                Client_Id : constant String := Tables.Key (C);
                Removed   : Client_Holder_Access;
             begin
@@ -1064,16 +1068,13 @@ package body AWS.Server.Push is
                   raise Program_Error;
                end if;
 
+               if Removed.Phase /= Available then
+                  raise Program_Error;
+               end if;
+
                Free (Removed);
-            end Remove;
-
-         begin
-            Cursor := Tables.Next (C);
-
-            if Holder.Errmsg /= Null_Unbounded_String then
-               Remove;
-            end if;
-         end;
+            end;
+         end if;
       end loop;
 
       if Queue.Length > 0 then
@@ -1131,6 +1132,11 @@ package body AWS.Server.Push is
             begin
                Server.Unregister (Client_Id, Holder);
                Holder.Socket.Shutdown;
+
+               if Holder.Phase /= Available then
+                  raise Program_Error with Holder.Phase'Img;
+               end if;
+
                Free (Holder);
                raise Client_Gone with Errmsg;
             end;
@@ -1224,7 +1230,7 @@ package body AWS.Server.Push is
          Groups      => Holder_Groups,
          Chunks      => <>,
          Thin        => <>,
-         Phase       => Going,
+         Phase       => Available,
          Timeout     => Ada.Real_Time.To_Time_Span (Timeout),
          Errmsg      => <>);
    end To_Holder;
@@ -1390,10 +1396,17 @@ package body AWS.Server.Push is
                            is
                               pragma Unreferenced (Socket);
                            begin
-                              if Client.SP /= Server then
+                              if Client.SP /= Server
+                                or else Client.CH /= Holder
+                              then
                                  raise Program_Error
                                    with "Broken data in waiter.";
                               end if;
+
+                              --  We could write to phase directly becuse
+                              --  Holder have to be out of protected object.
+
+                              Holder.Phase := Available;
                            end Process;
 
                         begin
@@ -1405,6 +1418,9 @@ package body AWS.Server.Push is
                                 with "Broken socket in waiter.";
                            end if;
                         end;
+
+                     elsif Get_Data (Write_Set, J).CH = Holder then
+                        raise Program_Error with "Broken holder.";
                      end if;
                   end loop;
                end Remove;
@@ -1450,8 +1466,8 @@ package body AWS.Server.Push is
 
                   procedure Socket_Error (Message : in String) is
                   begin
-                     Remove_Socket (Write_Set, J);
                      Client.SP.Waiter_Error (Client.CH, Message);
+                     Remove_Socket (Write_Set, J);
                   end Socket_Error;
 
                   procedure Socket_Error_Log (Message : in String) is
@@ -1461,6 +1477,10 @@ package body AWS.Server.Push is
                   end Socket_Error_Log;
 
                begin
+                  if Client.CH.Phase /= Waiting then
+                     raise Program_Error with Client.CH.Phase'Img;
+                  end if;
+
                   if Is_Error (Write_Set, J) then
                      Socket_Error_Log
                        ("Waiter socket error " & Utils.Image (Socket.Errno));
