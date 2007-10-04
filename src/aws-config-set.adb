@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2006                          --
+--                         Copyright (C) 2000-2007                          --
 --                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -346,6 +346,15 @@ package body AWS.Config.Set is
    begin
       O.P (Receive_Timeout).Dur_Value := Value;
    end Receive_Timeout;
+
+   -------------------
+   -- Reuse_Address --
+   -------------------
+
+   procedure Reuse_Address (O : in out Object; Value : in Boolean) is
+   begin
+      O.P (Reuse_Address).Bool_Value := Value;
+   end Reuse_Address;
 
    --------------
    -- Security --

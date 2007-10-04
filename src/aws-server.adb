@@ -983,7 +983,8 @@ package body AWS.Server is
          Force_First_Timeout =>
            CNF.Force_Client_Header_Timeout (Web_Server.Properties),
          Force_Length        =>
-           CNF.Keep_Alive_Force_Limit (Web_Server.Properties));
+           CNF.Keep_Alive_Force_Limit (Web_Server.Properties),
+         Reuse_Address       => CNF.Reuse_Address (Web_Server.Properties));
 
       --  Clone main dispatcher
 

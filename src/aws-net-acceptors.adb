@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2005-2006                          --
+--                         Copyright (C) 2005-2007                          --
 --                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -262,7 +262,8 @@ package body AWS.Net.Acceptors is
       First_Timeout       : in     Duration := Forever;
       Force_Timeout       : in     Duration := Forever;
       Force_First_Timeout : in     Duration := Forever;
-      Force_Length        : in     Positive := Positive'Last)
+      Force_Length        : in     Positive := Positive'Last;
+      Reuse_Address       : in     Boolean  := False)
    is
       use type Sets.Socket_Count;
 
@@ -280,6 +281,7 @@ package body AWS.Net.Acceptors is
 
    begin
       Acceptor.Server := New_Socket;
+      Set_Reuse_Addr (Acceptor.Server.all, Reuse_Address);
       Bind (Acceptor.Server.all, Host => Host, Port => Port);
       Listen (Acceptor.Server.all, Queue_Size => Queue_Size);
 

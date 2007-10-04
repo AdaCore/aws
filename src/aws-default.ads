@@ -61,6 +61,7 @@ package AWS.Default is
    Line_Stack_Size                 : constant         := 16#150_000#;
    Case_Sensitive_Parameters       : constant Boolean := True;
    Max_Concurrent_Download         : constant         := 25;
+   Reuse_Address                   : constant Boolean := False;
 
    --  Client configuration
 

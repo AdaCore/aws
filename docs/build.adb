@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2006                          --
+--                         Copyright (C) 2000-2007                          --
 --                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -76,6 +76,7 @@ procedure Build is
          Assoc ("DIRECTORY_BROWSER_PAGE", Default.Directory_Browser_Page),
          Assoc ("UPLOAD_DIR", Default.Upload_Directory),
          Assoc ("LINE_STACK_SIZE", Default.Line_Stack_Size),
+         Assoc ("REUSE_ADDRESS", Default.Reuse_Address),
          Assoc ("CHECK_URL_VALIDITY", Default.Check_URL_Validity),
          Assoc ("DEFAULT_CERTIFICATE", Default.Certificate),
          Assoc ("DEFAULT_KEY", Default.Key),

@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2006                          --
+--                         Copyright (C) 2000-2007                          --
 --                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -59,6 +59,10 @@ package AWS.Config.Set is
 
    procedure Line_Stack_Size (O : in out Object; Value : in Positive);
    --  HTTP lines stack size
+
+   procedure Reuse_Address (O : in out Object; Value : in Boolean);
+   --  Set the reuse address policy allowing a bind without a dealy to the same
+   --  address and port.
 
    ----------------
    -- Connection --

@@ -1513,6 +1513,13 @@ Note that the total number of threads used by a server is:
 Number of seconds to timeout when receiving chunk of data. The
 default is @_RECEIVE_TIMEOUT_@ seconds.
 
+@item Reuse_Address (boolean)
+@cindex Reuse_Address
+Set the socket reuse address policy. If set to True the server will be
+able to bind to a socket that has just been released without the need of
+waiting. Enabling this feature is not secure and should probably used
+only for debugging purpose. The default is @_REUSE_ADDRESS_@.
+
 @item Security_Mode (string)
 @cindex Security_Mode
 Set the security mode to use for the secure connections. The default

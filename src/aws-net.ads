@@ -221,6 +221,10 @@ package AWS.Net is
      (Socket : in Socket_Type; Value : in Boolean := True);
    --  Set/clear TCP_NODELAY option on socket
 
+   procedure Set_Reuse_Addr
+     (Socket : in out Socket_Type; Value : in Boolean := True);
+   --  Set/clear SO_REUSEADDR option on socket
+
    function Wait
      (Socket : in Socket_Type'Class;
       Events : in Wait_Event_Set) return Event_Set;
@@ -358,8 +362,9 @@ private
    type RW_Cache_Access is access RW_Cache;
 
    type Socket_Type is abstract new Finalization.Controlled with record
-      C       : RW_Cache_Access;
-      Timeout : Duration        := Forever;
+      C             : RW_Cache_Access;
+      Timeout       : Duration        := Forever;
+      Reuse_Address : Boolean      := False;
    end record;
 
    procedure Free (Socket : in out Socket_Type) is null;
@@ -380,5 +385,9 @@ private
    overriding procedure Initialize (Socket : in out Socket_Type);
    overriding procedure Adjust     (Socket : in out Socket_Type);
    overriding procedure Finalize   (Socket : in out Socket_Type);
+
+   procedure Set_Reuse_Addr_Internal
+     (Socket : in Socket_Type; Value : in Boolean := True);
+   --  Set/clear SO_REUSEADDR option on socket
 
 end AWS.Net;

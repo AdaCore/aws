@@ -51,7 +51,8 @@ package AWS.Net.Acceptors is
       First_Timeout       : in     Duration := Forever;
       Force_Timeout       : in     Duration := Forever;
       Force_First_Timeout : in     Duration := Forever;
-      Force_Length        : in     Positive := Positive'Last);
+      Force_Length        : in     Positive := Positive'Last;
+      Reuse_Address       : in     Boolean  := False);
    --  Prepare Acceptor to accept sockets and wait for incoming data from the
    --  given Host and Port. Use Queue_Size for the Listen call.
    --  Timeout is to wait for the next data from the socket, should be longer

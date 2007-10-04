@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2006                          --
+--                         Copyright (C) 2000-2007                          --
 --                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -120,6 +120,11 @@ package AWS.Config is
    function Line_Stack_Size (O : in Object) return Positive;
    pragma Inline (Line_Stack_Size);
    --  HTTP lines stack size
+
+   function Reuse_Address (O : in Object) return Boolean;
+   pragma Inline (Reuse_Address);
+   --  Returns true if bind is allowed to reuse and address (not waiting for
+   --  the delay between two bind to the same port).
 
    ----------
    -- Data --
@@ -370,6 +375,7 @@ private
       Down_Image,
       Logo_Image,
       Line_Stack_Size,
+      Reuse_Address,
       Check_URL_Validity,
       Case_Sensitive_Parameters,
       --  Per process options
@@ -537,7 +543,10 @@ private
            (Bool, Default.Check_URL_Validity),
 
          Line_Stack_Size =>
-           (Pos, Default.Line_Stack_Size));
+           (Pos, Default.Line_Stack_Size),
+
+         Reuse_Address =>
+           (Bool, Default.Reuse_Address));
 
    type Object is record
       P : Parameter_Set (Server_Parameter_Name) := Default_Parameters;

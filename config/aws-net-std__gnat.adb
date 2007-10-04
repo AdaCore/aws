@@ -141,6 +141,10 @@ package body AWS.Net.Std is
 
       Set_Non_Blocking_Mode (Socket);
 
+      if Socket.Reuse_Address then
+         Set_Reuse_Addr_Internal (Socket);
+      end if;
+
       Sockets.Bind_Socket
         (Socket.S.FD,
          (Sockets.Family_Inet, Inet_Addr, Sockets.Port_Type (Port)));

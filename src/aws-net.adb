@@ -259,6 +259,39 @@ package body AWS.Net is
       end if;
    end Set_No_Delay;
 
+   --------------------
+   -- Set_Reuse_Addr --
+   --------------------
+
+   procedure Set_Reuse_Addr
+     (Socket : in out Socket_Type; Value : in Boolean := True) is
+   begin
+      Socket.Reuse_Address := Value;
+   end Set_Reuse_Addr;
+
+   -----------------------------
+   -- Set_Reuse_Addr_Internal --
+   -----------------------------
+
+   procedure Set_Reuse_Addr_Internal
+     (Socket : in Socket_Type; Value : in Boolean := True)
+   is
+      use Interfaces;
+      use type C.int;
+      Flag : aliased Integer := Boolean'Pos (Value);
+   begin
+      if OS_Lib.Set_Sock_Opt
+           (S       => C.int (Get_FD (Socket_Type'Class (Socket))),
+            Level   => OS_Lib.SOL_SOCKET,
+            OptName => OS_Lib.SO_REUSEADDR,
+            OptVal  => Flag'Address,
+            OptLen  => Flag'Size / System.Storage_Unit) /= 0
+      then
+         Raise_Socket_Error
+           (Socket, "Set_Reuse_Addr error code" & Integer'Image (Std.Errno));
+      end if;
+   end Set_Reuse_Addr_Internal;
+
    -----------------
    -- Set_Timeout --
    -----------------

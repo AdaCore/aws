@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2006                          --
+--                         Copyright (C) 2000-2007                          --
 --                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -364,6 +364,15 @@ package body AWS.Config is
    begin
       return O.P (Receive_Timeout).Dur_Value;
    end Receive_Timeout;
+
+   -------------------
+   -- Reuse_Address --
+   -------------------
+
+   function Reuse_Address (O : in Object) return Boolean is
+   begin
+      return O.P (Reuse_Address).Bool_Value;
+   end Reuse_Address;
 
    --------------
    -- Security --
