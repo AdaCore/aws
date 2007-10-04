@@ -26,7 +26,6 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-with Ada.Exceptions;
 with Ada.Unchecked_Conversion;
 with Ada.Unchecked_Deallocation;
 
@@ -70,9 +69,15 @@ package body AWS.Net.Std is
 
    procedure Raise_Socket_Error (Error : in Integer);
    pragma No_Return (Raise_Socket_Error);
+   pragma Inline (Raise_Socket_Error);
 
    procedure Raise_Socket_Error (Error : in Integer; Socket : in Socket_Type);
    pragma No_Return (Raise_Socket_Error);
+   pragma Inline (Raise_Socket_Error);
+
+   procedure Raise_Socket_Error (Errmsg : in String);
+   pragma No_Return (Raise_Socket_Error);
+   pragma Inline (Raise_Socket_Error);
    --  Log socket error and raise exception
 
    function Image (Sin6 : in Sockaddr_In6) return String;
@@ -384,8 +389,7 @@ package body AWS.Net.Std is
          Raise_Socket_Error (Errno);
 
       elsif Res /= 0 then
-         Ada.Exceptions.Raise_Exception
-           (Socket_Error'Identity, CS.Value (OS_Lib.GAI_StrError (Res)));
+         Raise_Socket_Error (CS.Value (OS_Lib.GAI_StrError (Res)));
       end if;
 
       return Result;
@@ -652,14 +656,18 @@ package body AWS.Net.Std is
    is
       Msg : constant String := Error_Message (Error);
    begin
-      Log.Error (Socket, Message => Msg);
-      Ada.Exceptions.Raise_Exception (Socket_Error'Identity, Msg);
+      Raise_Socket_Error (Socket, Msg);
    end Raise_Socket_Error;
 
    procedure Raise_Socket_Error (Error : in Integer) is
+   begin
+      Raise_Socket_Error (Error_Message (Error));
+   end Raise_Socket_Error;
+
+   procedure Raise_Socket_Error (Errmsg : in String) is
       Null_Socket : constant Socket_Type := (Net.Socket_Type with S => null);
    begin
-      Raise_Socket_Error (Error, Null_Socket);
+      Raise_Socket_Error (Null_Socket, Errmsg);
    end Raise_Socket_Error;
 
    -------------
@@ -690,9 +698,7 @@ package body AWS.Net.Std is
       elsif Res = 0 then
          --  socket closed by peer.
 
-         Ada.Exceptions.Raise_Exception
-           (Socket_Error'Identity,
-            Message => "Receive : Socket closed by peer.");
+         Raise_Socket_Error (Socket, "Receive : Socket closed by peer.");
       end if;
 
       Last := Data'First + Ada.Streams.Stream_Element_Offset (Res - 1);
@@ -830,19 +836,18 @@ package body AWS.Net.Std is
       use Sockets;
       use type C.int;
       FD : constant C.int := Socket.S.FD;
+      EN : Integer;
    begin
       if Net.Log.Is_Event_Active then
          Net.Log.Event (Net.Log.Shutdown, Socket);
       end if;
 
       if Thin.C_Shutdown (FD, OS_Lib.SHUT_RDWR) = Thin.Failure then
-         declare
-            Errno : constant Integer := Std.Errno;
-         begin
-            if Errno /= OS_Lib.ENOTCONN then
-               Log.Error (Socket, Error_Message (Errno));
-            end if;
-         end;
+         EN := Std.Errno;
+
+         if EN /= OS_Lib.ENOTCONN then
+            Log.Error (Socket, Error_Message (EN));
+         end if;
       end if;
 
       --  Avoid any activity under closed socket in other threads.
