@@ -123,9 +123,10 @@ package body USock is
    ----------
 
    procedure Bind
-     (Socket : in out U_Socket;
-      Port   : in     Natural;
-      Host   : in     String := "")
+     (Socket        : in out U_Socket;
+      Port          : in     Natural;
+      Host          : in     String := "";
+      Reuse_Address : in     Boolean := False)
    is
       pragma Unreferenced (Socket, Port, Host);
    begin

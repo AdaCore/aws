@@ -281,8 +281,9 @@ package body AWS.Net.Acceptors is
 
    begin
       Acceptor.Server := New_Socket;
-      Set_Reuse_Addr (Acceptor.Server.all, Reuse_Address);
-      Bind (Acceptor.Server.all, Host => Host, Port => Port);
+      Bind
+        (Acceptor.Server.all, Host => Host, Port => Port,
+         Reuse_Address => Reuse_Address);
       Listen (Acceptor.Server.all, Queue_Size => Queue_Size);
 
       Acceptor.R_Signal := New_Socket;

@@ -41,9 +41,10 @@ package AWS.Net.Std is
    ----------------
 
    overriding procedure Bind
-     (Socket : in out Socket_Type;
-      Port   : in     Natural;
-      Host   : in     String := "");
+     (Socket        : in out Socket_Type;
+      Port          : in     Natural;
+      Host          : in     String  := "";
+      Reuse_Address : in     Boolean := False);
    --  Bind a socket on a given port
 
    overriding procedure Listen

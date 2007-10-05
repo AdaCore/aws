@@ -116,9 +116,10 @@ package body AWS.Net.Std is
    ----------
 
    overriding procedure Bind
-     (Socket : in out Socket_Type;
-      Port   : in     Natural;
-      Host   : in     String := "")
+     (Socket        : in out Socket_Type;
+      Port          : in     Natural;
+      Host          : in     String  := "";
+      Reuse_Address : in     Boolean := False)
    is
       use Ada.Strings.Maps;
       Inet_Addr : Sockets.Inet_Addr_Type;
@@ -141,8 +142,9 @@ package body AWS.Net.Std is
 
       Set_Non_Blocking_Mode (Socket);
 
-      if Socket.Reuse_Address then
-         Set_Reuse_Addr_Internal (Socket);
+      if Reuse_Address then
+         Sockets.Set_Socket_Option
+           (Socket.S.FD, Option => (Sockets.Reuse_Address, Enabled => True));
       end if;
 
       Sockets.Bind_Socket

@@ -85,9 +85,10 @@ package AWS.Net is
    --  Create a dynamically allocated uninitialized socket
 
    procedure Bind
-     (Socket : in out Socket_Type;
-      Port   : in     Natural;
-      Host   : in     String := "") is abstract;
+     (Socket        : in out Socket_Type;
+      Port          : in     Natural;
+      Host          : in     String  := "";
+      Reuse_Address : in     Boolean := False) is abstract;
    --  Create the server socket and bind it on the given port.
    --  Using 0 for the port will tell the OS to allocate a non-privileged
    --  free port. The port can be later retrieved using Get_Port on the
@@ -220,10 +221,6 @@ package AWS.Net is
    procedure Set_No_Delay
      (Socket : in Socket_Type; Value : in Boolean := True);
    --  Set/clear TCP_NODELAY option on socket
-
-   procedure Set_Reuse_Addr
-     (Socket : in out Socket_Type; Value : in Boolean := True);
-   --  Set/clear SO_REUSEADDR option on socket
 
    function Wait
      (Socket : in Socket_Type'Class;
@@ -362,9 +359,8 @@ private
    type RW_Cache_Access is access RW_Cache;
 
    type Socket_Type is abstract new Finalization.Controlled with record
-      C             : RW_Cache_Access;
-      Timeout       : Duration        := Forever;
-      Reuse_Address : Boolean      := False;
+      C       : RW_Cache_Access;
+      Timeout : Duration        := Forever;
    end record;
 
    procedure Free (Socket : in out Socket_Type) is null;
@@ -385,9 +381,5 @@ private
    overriding procedure Initialize (Socket : in out Socket_Type);
    overriding procedure Adjust     (Socket : in out Socket_Type);
    overriding procedure Finalize   (Socket : in out Socket_Type);
-
-   procedure Set_Reuse_Addr_Internal
-     (Socket : in Socket_Type; Value : in Boolean := True);
-   --  Set/clear SO_REUSEADDR option on socket
 
 end AWS.Net;

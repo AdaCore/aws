@@ -149,9 +149,10 @@ package body AWS.Net.Std is
    ----------
 
    overriding procedure Bind
-     (Socket : in out Socket_Type;
-      Port   : in     Natural;
-      Host   : in     String := "")
+     (Socket        : in out Socket_Type;
+      Port          : in     Natural;
+      Host          : in     String  := "";
+      Reuse_Address : in     Boolean := False)
    is
       use type C.int;
 
@@ -175,6 +176,10 @@ package body AWS.Net.Std is
       end if;
 
       Socket.S := new Socket_Hidden'(FD => FD);
+
+      if Reuse_Address  then
+         Set_Int_Sock_Opt (Socket, OS_Lib.SO_REUSEADDR, 1);
+      end if;
 
       Res := Sockets.Thin.C_Bind (FD, Info.ai_addr, C.int (Info.ai_addrlen));
 

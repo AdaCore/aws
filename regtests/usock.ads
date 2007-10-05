@@ -44,9 +44,10 @@ package USock is
    function Socket (Security : in Boolean) return Net.Socket_Type'Class;
 
    overriding procedure Bind
-     (Socket : in out U_Socket;
-      Port   : in     Natural;
-      Host   : in     String := "");
+     (Socket        : in out U_Socket;
+      Port          : in     Natural;
+      Host          : in     String := "";
+      Reuse_Address : in     Boolean := False);
 
    overriding procedure Listen
      (Socket     : in U_Socket;
