@@ -117,7 +117,7 @@ package body AWS.Server.Push is
    --  And the corresponding delimiter
 
    W_Signal : aliased Net.Socket_Type'Class := Net.Socket (Security => False);
-   --  ???
+   --  Socket to signal waiter to do to select task entries
 
    type Object_Access is access all Object;
 
@@ -294,9 +294,18 @@ package body AWS.Server.Push is
    end Info;
 
    procedure Info
-     (Server : in out Object; Clients : out Natural; Groups : out Natural) is
+     (Server  : in out Object;
+      Clients : out    Natural;
+      Groups  : out    Natural;
+      Process : access procedure
+                  (Client_Id   : in Client_Key;
+                   Address     : in String;
+                   State       : in String;
+                   Environment : in Client_Environment;
+                   Kind        : in Mode;
+                   Groups      : in Group_Set) := null) is
    begin
-      Server.Info (Clients, Group_Count => Groups);
+      Server.Info (Clients, Group_Count => Groups, Process => Process);
    end Info;
 
    -------------
@@ -358,19 +367,31 @@ package body AWS.Server.Push is
       -- Info --
       ----------
 
-      procedure Info (Client_Count : out Natural; Group_Count : out Natural) is
-         C  : Tables.Cursor     := Container.First;
-         G  : Group_Maps.Cursor;
-         CG : Group_Sets.Cursor;
-         CA : Client_Holder_Access;
-      begin
-         while Tables.Has_Element (C) loop
-            CA := Tables.Element (C);
+      procedure Info
+        (Client_Count : out Natural;
+         Group_Count  : out Natural;
+         Process      : access procedure
+                          (Client_Id   : in Client_Key;
+                           Address     : in String;
+                           State       : in String;
+                           Environment : in Client_Environment;
+                           Kind        : in Mode;
+                           Groups      : in Group_Set))
+      is
+         procedure Action (C : Tables.Cursor);
 
-            CG := CA.Groups.First;
+         procedure Action (C : Tables.Cursor) is
+            CA     : constant Client_Holder_Access := Tables.Element (C);
+            Groups : Group_Set (1 .. Integer (CA.Groups.Length));
+            CG     : Group_Sets.Cursor := CA.Groups.First;
+            G      : Group_Maps.Cursor;
+         begin
+            for J in Groups'Range loop
+               if Process /= null then
+                  Groups (J) := To_Unbounded_String (Group_Sets.Element (CG));
+               end if;
 
-            while Group_Sets.Has_Element (CG) loop
-               G := Groups.Find (Group_Sets.Element (CG));
+               G := Object.Groups.Find (Group_Sets.Element (CG));
 
                if not Group_Maps.Has_Element (G) then
                   raise Program_Error with
@@ -385,8 +406,22 @@ package body AWS.Server.Push is
                CG := Group_Sets.Next (CG);
             end loop;
 
-            C := Tables.Next (C);
-         end loop;
+            if Process /= null then
+               Process
+                 (Tables.Key (C),
+                  Peer_Addr (CA.Socket.all),
+                  Phase_Type'Image (CA.Phase),
+                  CA.Environment,
+                  CA.Kind,
+                  Groups);
+            end if;
+         end Action;
+
+         C  : Tables.Cursor := Container.First;
+         G  : Group_Maps.Cursor;
+
+      begin
+         Container.Iterate (Action'Access);
 
          G := Groups.First;
 

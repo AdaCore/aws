@@ -54,8 +54,7 @@ generic
 
    with function To_Stream_Array
      (Output : in Client_Output_Type;
-      Client : in Client_Environment)
-      return Ada.Streams.Stream_Element_Array;
+      Client : in Client_Environment) return Ada.Streams.Stream_Element_Array;
    --  Function used for convert Client_Output_Type to Stream_Output_Type.
    --  This is used by the server to prepare the data to be sent to the
    --  clients.
@@ -136,8 +135,7 @@ package AWS.Server.Push is
    --  raised if Client_Id was not registered.
 
    procedure Unregister_Clients
-     (Server        : in out Object;
-      Close_Sockets : in     Boolean := True);
+     (Server : in out Object; Close_Sockets : in Boolean := True);
    --  Remove all registered clients from the server. Closes if Close_Sockets
    --  is set to True (default) otherwise the sockets remain open. After this
    --  call the sever will still in running mode. Does nothing if there is no
@@ -192,8 +190,18 @@ package AWS.Server.Push is
    --  Returns the number of registered clients in the server
 
    procedure Info
-     (Server : in out Object; Clients : out Natural; Groups : out Natural);
+     (Server  : in out Object;
+      Clients :    out Natural;
+      Groups  :    out Natural;
+      Process : access procedure
+                  (Client_Id   : in Client_Key;
+                   Address     : in String;
+                   State       : in String;
+                   Environment : in Client_Environment;
+                   Kind        : in Mode;
+                   Groups      : in Group_Set) := null);
    --  Returns the number of registered clients and groups in the server.
+   --  Call Process routine for each client if defined.
    --  Test internal integrity.
 
    function Is_Open (Server : in Object) return Boolean;
@@ -206,8 +214,7 @@ package AWS.Server.Push is
    --  finalisation data.
 
    procedure Shutdown
-     (Server        : in out Object;
-      Close_Sockets : in     Boolean := True);
+     (Server : in out Object; Close_Sockets : in  Boolean := True);
    --  Unregisted all clients and close all associated connections (socket) if
    --  Close_Socket is True. The server will be in Closed mode. After this
    --  call any client trying to register will get the Closed exception. It is
@@ -220,9 +227,7 @@ package AWS.Server.Push is
    --  Idem as above but it send Final_Data (as a Data_Content_Type mime
    --  content) before closing connections.
 
-   procedure Shutdown_If_Empty
-     (Server : in out Object;
-      Open   :    out Boolean);
+   procedure Shutdown_If_Empty (Server : in out Object; Open : out Boolean);
    --  Server will be shutdown (close mode) if there is no more active clients
    --  (Count = 0). Returns new server status in Open (Open will be True if
    --  server is in Open mode and False otherwise). After this call any client
@@ -242,7 +247,7 @@ private
    package Group_Sets is
       new Ada.Containers.Indefinite_Hashed_Sets
              (String, Ada.Strings.Hash, Equivalent_Elements => "=");
-   --  Package instance with vector to keep each client subscribed groups.
+   --  Package instance to keep each client subscribed groups.
 
    use Ada.Streams;
 
@@ -354,7 +359,16 @@ private
       procedure Unsubscribe (Client_Id : in Client_Key; Group_Id : in String);
       --  See above
 
-      procedure Info (Client_Count : out Natural; Group_Count : out Natural);
+      procedure Info
+        (Client_Count : out Natural;
+         Group_Count  : out Natural;
+         Process      : access procedure
+                          (Client_Id   : in Client_Key;
+                           Address     : in String;
+                           State       : in String;
+                           Environment : in Client_Environment;
+                           Kind        : in Mode;
+                           Groups      : in Group_Set));
 
    private
       Container : Tables.Map;
