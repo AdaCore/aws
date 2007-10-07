@@ -494,6 +494,8 @@ endif
 	-$(STRIP) $(I_BIN)/hotplug_password${EXEEXT}
 	-$(CP) $(BDIR)/tools/templates2ada${EXEEXT} $(I_BIN)
 	-$(STRIP) $(I_BIN)/templates2ada${EXEEXT}
+	-$(CP) $(BDIR)/tools/webxref${EXEEXT} $(I_BIN)
+	-$(STRIP) $(I_BIN)/webxref${EXEEXT}
 ifeq (${ASIS},true)
 	$(CP) $(BDIR)/tools/ada2wsdl-main${EXEEXT} $(I_BIN)/ada2wsdl${EXEEXT}
 	$(STRIP) $(I_BIN)/ada2wsdl${EXEEXT}
