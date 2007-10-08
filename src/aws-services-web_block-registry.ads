@@ -99,7 +99,7 @@ package AWS.Services.Web_Block.Registry is
       Status_Code   : in Messages.Status_Code := Messages.S200;
       Cache_Control : in Messages.Cache_Option := Messages.Unspecified;
       Context_Error : in String := "") return Response.Data;
-   --  Save as above but returns a standard Web page
+   --  Same as above but returns a standard Web page
 
 private
 
