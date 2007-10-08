@@ -1537,7 +1537,11 @@ package body AWS.Server.Push is
                      end if;
 
                   elsif Client.Exp < Clock then
-                     Socket_Error_Log ("Wait for write availability timeout.");
+                     Socket_Error_Log
+                       ("Wait for write availability timeout "
+                        & Utils.Significant_Image
+                            (Ada.Real_Time.To_Duration (Client.CH.Timeout),
+                             3));
                   end if;
                end Process;
 
