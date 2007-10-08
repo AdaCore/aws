@@ -51,36 +51,43 @@ package AWS.Services.Web_Block.Registry is
    No_Page : constant Page;
 
    procedure Register
-     (Key          : in String;
-      Template     : in String;
-      Data_CB      : access procedure
+     (Key              : in String;
+      Template         : in String;
+      Data_CB          : access procedure
         (Request      : in     Status.Data;
          Context      : access Web_Block.Context.Object;
          Translations : in out Templates.Translate_Set);
-      Content_Type : in String  := MIME.Text_HTML;
-      Prefix       : in Boolean := False);
+      Content_Type     : in String  := MIME.Text_HTML;
+      Prefix           : in Boolean := False;
+      Context_Required : Boolean := False);
    --  Key is a Lazy_Tag or template page name. Template is the corresponding
    --  template file. Data_CB is the callback used to retrieve the translation
-   --  table to render the page.
+   --  table to render the page. If Context_Required is True a proper context
+   --  must be present when rendering the page otherwise Context_Error callback
+   --  (see Build below) is called.
 
    procedure Register
-     (Key          : in String;
-      Template_CB  :  not null access function
+     (Key              : in String;
+      Template_CB      :  not null access function
         (Request : in Status.Data) return String;
-      Data_CB      : access procedure
+      Data_CB          : access procedure
         (Request      : in     Status.Data;
          Context      : access Web_Block.Context.Object;
          Translations : in out Templates.Translate_Set);
-      Content_Type : in String := MIME.Text_HTML);
+      Content_Type     : in String := MIME.Text_HTML;
+      Context_Required : Boolean := False);
    --  Key is a Lazy_Tag or template page name. Template_CB is the callback
    --  used to retrieve the corresponding template file name. Data_CB is the
    --  callback used to retrieve the translation table to render the page.
 
    function Parse
-     (Key          : in String;
-      Request      : in Status.Data;
-      Translations : in Templates.Translate_Set) return Page;
-   --  Parse the Web page registered under Key
+     (Key           : in String;
+      Request       : in Status.Data;
+      Translations  : in Templates.Translate_Set;
+      Context_Error : in String := "") return Page;
+   --  Parse the Web page registered under Key. Context_Error is the key
+   --  of the registered template to use when a required context is not
+   --  present.
 
    function Content_Type (Key : in String) return String;
    --  Returns the Content_Type recorded for the web object
@@ -90,8 +97,8 @@ package AWS.Services.Web_Block.Registry is
       Request       : in Status.Data;
       Translations  : in Templates.Translate_Set;
       Status_Code   : in Messages.Status_Code := Messages.S200;
-      Cache_Control : in Messages.Cache_Option := Messages.Unspecified)
-      return Response.Data;
+      Cache_Control : in Messages.Cache_Option := Messages.Unspecified;
+      Context_Error : in String := "") return Response.Data;
    --  Save as above but returns a standard Web page
 
 private

@@ -55,7 +55,8 @@ package body AWS.Services.Web_Block.Registry is
    --  Handle lazy tags
 
    type Web_Object (Callback_Template : Boolean := False) is record
-      Content_Type : Unbounded_String;
+      Content_Type     : Unbounded_String;
+      Context_Required : Boolean;
       Data_CB      : access procedure
         (Request      : in Status.Data;
          Context      : access Web_Block.Context.Object;
@@ -80,8 +81,13 @@ package body AWS.Services.Web_Block.Registry is
 
    Prefix_URI_Vector : Prefix_URI.Vector;
 
-   function Get_Context_Id
-     (Lazy_Tag : not null access Lazy_Handler'Class) return Context.Id;
+   type Context_Data is record
+      Id     : Context.Id;
+      Is_New : Boolean;
+   end record;
+
+   function Get_Context
+     (Lazy_Tag : not null access Lazy_Handler'Class) return Context_Data;
    --  Get the proper context id for this request
 
    -----------
@@ -93,10 +99,11 @@ package body AWS.Services.Web_Block.Registry is
       Request       : in Status.Data;
       Translations  : in Templates.Translate_Set;
       Status_Code   : in Messages.Status_Code := Messages.S200;
-      Cache_Control : in Messages.Cache_Option := Messages.Unspecified)
-      return Response.Data
+      Cache_Control : in Messages.Cache_Option := Messages.Unspecified;
+      Context_Error : in String := "") return Response.Data
    is
-      P    : constant Page := Parse (Key, Request, Translations);
+      P    : constant Page :=
+               Parse (Key, Request, Translations, Context_Error);
       Data : Response.Data;
    begin
       if P = No_Page then
@@ -128,12 +135,12 @@ package body AWS.Services.Web_Block.Registry is
       end if;
    end Content_Type;
 
-   --------------------
-   -- Get_Context_Id --
-   --------------------
+   -----------------
+   -- Get_Context --
+   ------------------
 
-   function Get_Context_Id
-     (Lazy_Tag : not null access Lazy_Handler'Class) return Context.Id
+   function Get_Context
+     (Lazy_Tag : not null access Lazy_Handler'Class) return Context_Data
    is
       use type Context.Id;
 
@@ -152,7 +159,7 @@ package body AWS.Services.Web_Block.Registry is
          return C;
       end Create_New_Context;
 
-      CID : Context.Id;
+      CID : Context_Data;
 
    begin
       if Parameters.Get
@@ -166,7 +173,7 @@ package body AWS.Services.Web_Block.Registry is
             --  No context sent with the request, create a new context for
             --  this request.
 
-            CID := Create_New_Context;
+            CID := (Id => Create_New_Context, Is_New => True);
 
          else
             --  A context has been sent with this request
@@ -177,12 +184,12 @@ package body AWS.Services.Web_Block.Registry is
                            (Status.Parameters
                               (Lazy_Tag.Request), Context_Var);
             begin
-               --  First check that it is a know context (i.e. still a valid
+               --  First check that it is a known context (i.e. still a valid
                --  context recorded in the context database).
 
-               CID := Context.Value (C_Str);
+               CID := (Id => Context.Value (C_Str), Is_New => False);
 
-               if Context.Exist (CID) then
+               if Context.Exist (CID.Id) then
                   --  This context is known, record it as the current
                   --  working context.
 
@@ -192,11 +199,11 @@ package body AWS.Services.Web_Block.Registry is
                   then
                      --  This context must be copied
 
-                     CID := Context.Copy (CID);
+                     CID.Id := Context.Copy (CID.Id);
 
                      Status.Set.Add_Parameter
                        (Lazy_Tag.Request, Internal_Context_Var,
-                        Context.Image (CID));
+                        Context.Image (CID.Id));
                   else
                      Status.Set.Add_Parameter
                        (Lazy_Tag.Request, Internal_Context_Var, C_Str);
@@ -205,29 +212,32 @@ package body AWS.Services.Web_Block.Registry is
                else
                   --  Unknown or expired context, create a new one
 
-                  CID := Create_New_Context;
+                  CID := (Id => Create_New_Context, Is_New => True);
                end if;
             end;
          end if;
 
       else
          --  Context already recorded, just retrieve it
-         CID := Context.Value
-           (Parameters.Get
-              (Status.Parameters (Lazy_Tag.Request), Internal_Context_Var));
+         CID := (Id => Context.Value
+                   (Parameters.Get
+                      (Status.Parameters (Lazy_Tag.Request),
+                       Internal_Context_Var)),
+                 Is_New => False);
       end if;
 
       return CID;
-   end Get_Context_Id;
+   end Get_Context;
 
    -----------
    -- Parse --
    -----------
 
    function Parse
-     (Key          : in String;
-      Request      : in Status.Data;
-      Translations : in Templates.Translate_Set) return Page
+     (Key           : in String;
+      Request       : in Status.Data;
+      Translations  : in Templates.Translate_Set;
+      Context_Error : in String := "") return Page
    is
       LT       : aliased Lazy_Handler :=
                    Lazy_Handler'(Templates.Dynamic.Lazy_Tag
@@ -283,35 +293,43 @@ package body AWS.Services.Web_Block.Registry is
 
       if Position /= No_Element then
          declare
+            C_Data        : constant Context_Data := Get_Context (LT'Access);
             Context       : aliased Web_Block.Context.Object :=
-                              Web_Block.Context.Get
-                                (Get_Context_Id (LT'Access));
+                              Web_Block.Context.Get (C_Data.Id);
             T             : Templates.Translate_Set;
             Template_Name : Unbounded_String;
          begin
             --  Get translation set for this tag
 
-            Templates.Insert (T, Translations);
+            if C_Data.Is_New
+              and then Element (Position).Context_Required
+            then
+               --  No context but it is rrequired
+               return Parse (Context_Error, Request, Translations);
 
-            if Element (Position).Data_CB /= null then
-               Element (Position).Data_CB (LT.Request, Context'Access, T);
-            end if;
-
-            if Element (Position).Callback_Template then
-               Template_Name := To_Unbounded_String
-                 (Element (Position).Template_CB (Request));
             else
-               Template_Name := Element (Position).Template;
+               Templates.Insert (T, Translations);
+
+               if Element (Position).Data_CB /= null then
+                  Element (Position).Data_CB (LT.Request, Context'Access, T);
+               end if;
+
+               if Element (Position).Callback_Template then
+                  Template_Name := To_Unbounded_String
+                    (Element (Position).Template_CB (Request));
+               else
+                  Template_Name := Element (Position).Template;
+               end if;
+
+               LT.Translations := T;
+
+               Parsed_Page :=
+                 Page'(Content_Type => Element (Position).Content_Type,
+                       Content      => Templates.Parse
+                         (To_String (Template_Name), T,
+                          Lazy_Tag => LT'Unchecked_Access),
+                       Set          => Templates.Null_Set);
             end if;
-
-            LT.Translations := T;
-
-            Parsed_Page :=
-              Page'(Content_Type => Element (Position).Content_Type,
-                    Content      => Templates.Parse
-                      (To_String (Template_Name), T,
-                       Lazy_Tag => LT'Unchecked_Access),
-                    Set          => Templates.Null_Set);
          end;
       end if;
       return Parsed_Page;
@@ -322,23 +340,25 @@ package body AWS.Services.Web_Block.Registry is
    --------------
 
    procedure Register
-     (Key          : in String;
-      Template     : in String;
-      Data_CB      : not null access procedure
-        (Request      : in Status.Data;
+     (Key              : in String;
+      Template         : in String;
+      Data_CB          : access procedure
+        (Request      : in     Status.Data;
          Context      : access Web_Block.Context.Object;
          Translations : in out Templates.Translate_Set);
-      Content_Type : in String  := MIME.Text_HTML;
-      Prefix       : in Boolean := False)
+      Content_Type     : in String  := MIME.Text_HTML;
+      Prefix           : in Boolean := False;
+      Context_Required : Boolean := False)
    is
       WO : Web_Object;
    begin
       --  WO := (To_Unbounded_String (Template), Data_CB);
       --  ??? problem with GNAT GPL 2006.
 
-      WO.Content_Type := To_Unbounded_String (Content_Type);
-      WO.Template     := To_Unbounded_String (Template);
-      WO.Data_CB      := Data_CB;
+      WO.Content_Type     := To_Unbounded_String (Content_Type);
+      WO.Template         := To_Unbounded_String (Template);
+      WO.Data_CB          := Data_CB;
+      WO.Context_Required := Context_Required;
 
       --  Register Tag
 
@@ -354,20 +374,22 @@ package body AWS.Services.Web_Block.Registry is
    --------------
 
    procedure Register
-     (Key          : in String;
-      Template_CB  :  not null access function
+     (Key              : in String;
+      Template_CB      :  not null access function
         (Request : in Status.Data) return String;
-      Data_CB      : access procedure
-        (Request      : in Status.Data;
+      Data_CB          : access procedure
+        (Request      : in     Status.Data;
          Context      : access Web_Block.Context.Object;
          Translations : in out Templates.Translate_Set);
-      Content_Type : in String := MIME.Text_HTML)
+      Content_Type     : in String := MIME.Text_HTML;
+      Context_Required : Boolean := False)
    is
       WO : Web_Object (True);
    begin
-      WO.Content_Type := To_Unbounded_String (Content_Type);
-      WO.Template_CB  := Template_CB;
-      WO.Data_CB      := Data_CB;
+      WO.Content_Type     := To_Unbounded_String (Content_Type);
+      WO.Template_CB      := Template_CB;
+      WO.Data_CB          := Data_CB;
+      WO.Context_Required := Context_Required;
 
       --  Register Tag
 
@@ -392,7 +414,7 @@ package body AWS.Services.Web_Block.Registry is
          Templates.Insert
            (Translations,
             Templates.Assoc
-              (Context_Var,  Context.Image (Get_Context_Id (Lazy_Tag))));
+              (Context_Var,  Context.Image (Get_Context (Lazy_Tag).Id)));
       else
          --  Get Web Object
 
@@ -400,9 +422,9 @@ package body AWS.Services.Web_Block.Registry is
 
          if Position /= No_Element then
             declare
+               C_Data        : constant Context_Data := Get_Context (Lazy_Tag);
                Context       : aliased Web_Block.Context.Object :=
-                                 Web_Block.Context.Get
-                                   (Get_Context_Id (Lazy_Tag));
+                                 Web_Block.Context.Get (C_Data.Id);
                T             : Templates.Translate_Set;
                Template_Name : Unbounded_String;
             begin
