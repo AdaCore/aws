@@ -86,9 +86,8 @@ package body AWS.Services.Web_Block.Registry is
       Is_New : Boolean;
    end record;
 
-   function Get_Context
-     (Lazy_Tag : not null access Lazy_Handler'Class) return Context_Data;
-   --  Get the proper context id for this request
+   function Get_Context (Request : access Status.Data) return Context_Data;
+   --  Gets the proper context id for this request
 
    -----------
    -- Build --
@@ -140,8 +139,18 @@ package body AWS.Services.Web_Block.Registry is
    ------------------
 
    function Get_Context
-     (Lazy_Tag : not null access Lazy_Handler'Class) return Context_Data
+     (Request : access Status.Data) return Web_Block.Context.Object
    is
+      C_Data : constant Context_Data := Get_Context (Request);
+   begin
+      return Web_Block.Context.Get (C_Data.Id);
+   end Get_Context;
+
+   -----------------
+   -- Get_Context --
+   -----------------
+
+   function Get_Context (Request : access Status.Data) return Context_Data is
       use type Context.Id;
 
       function Create_New_Context return Context.Id;
@@ -155,7 +164,7 @@ package body AWS.Services.Web_Block.Registry is
          C : constant Context.Id := Context.Create;
       begin
          Status.Set.Add_Parameter
-           (Lazy_Tag.Request, Internal_Context_Var, Context.Image (C));
+           (Request.all, Internal_Context_Var, Context.Image (C));
          return C;
       end Create_New_Context;
 
@@ -163,12 +172,12 @@ package body AWS.Services.Web_Block.Registry is
 
    begin
       if Parameters.Get
-        (Status.Parameters (Lazy_Tag.Request), Internal_Context_Var) = ""
+        (Status.Parameters (Request.all), Internal_Context_Var) = ""
       then
          --  No context known
 
          if Parameters.Get
-           (Status.Parameters (Lazy_Tag.Request), Context_Var) = ""
+           (Status.Parameters (Request.all), Context_Var) = ""
          then
             --  No context sent with the request, create a new context for
             --  this request.
@@ -182,7 +191,7 @@ package body AWS.Services.Web_Block.Registry is
                C_Str : constant String :=
                          Parameters.Get
                            (Status.Parameters
-                              (Lazy_Tag.Request), Context_Var);
+                              (Request.all), Context_Var);
             begin
                --  First check that it is a known context (i.e. still a valid
                --  context recorded in the context database).
@@ -194,7 +203,7 @@ package body AWS.Services.Web_Block.Registry is
                   --  working context.
 
                   if Parameters.Get
-                    (Status.Parameters (Lazy_Tag.Request),
+                    (Status.Parameters (Request.all),
                      Context_Var_To_Copy) /= ""
                   then
                      --  This context must be copied
@@ -202,11 +211,11 @@ package body AWS.Services.Web_Block.Registry is
                      CID.Id := Context.Copy (CID.Id);
 
                      Status.Set.Add_Parameter
-                       (Lazy_Tag.Request, Internal_Context_Var,
+                       (Request.all, Internal_Context_Var,
                         Context.Image (CID.Id));
                   else
                      Status.Set.Add_Parameter
-                       (Lazy_Tag.Request, Internal_Context_Var, C_Str);
+                       (Request.all, Internal_Context_Var, C_Str);
                   end if;
 
                else
@@ -221,7 +230,7 @@ package body AWS.Services.Web_Block.Registry is
          --  Context already recorded, just retrieve it
          CID := (Id => Context.Value
                    (Parameters.Get
-                      (Status.Parameters (Lazy_Tag.Request),
+                      (Status.Parameters (Request.all),
                        Internal_Context_Var)),
                  Is_New => False);
       end if;
@@ -293,7 +302,9 @@ package body AWS.Services.Web_Block.Registry is
 
       if Position /= No_Element then
          declare
-            C_Data        : constant Context_Data := Get_Context (LT'Access);
+            LT_Request    : aliased Status.Data   := LT.Request;
+            C_Data        : constant Context_Data :=
+                              Get_Context (LT_Request'Access);
             Context       : aliased Web_Block.Context.Object :=
                               Web_Block.Context.Get (C_Data.Id);
             T             : Templates.Translate_Set;
@@ -406,7 +417,8 @@ package body AWS.Services.Web_Block.Registry is
       Var_Name     : in              String;
       Translations : in out          Templates.Translate_Set)
    is
-      Position : Web_Object_Maps.Cursor;
+      Position   : Web_Object_Maps.Cursor;
+      LT_Request : aliased Status.Data := Lazy_Tag.Request;
    begin
       --  Specific case for the contextual var
 
@@ -414,7 +426,8 @@ package body AWS.Services.Web_Block.Registry is
          Templates.Insert
            (Translations,
             Templates.Assoc
-              (Context_Var,  Context.Image (Get_Context (Lazy_Tag).Id)));
+              (Context_Var,
+               Context.Image (Get_Context (LT_Request'Access).Id)));
       else
          --  Get Web Object
 
@@ -422,7 +435,8 @@ package body AWS.Services.Web_Block.Registry is
 
          if Position /= No_Element then
             declare
-               C_Data        : constant Context_Data := Get_Context (Lazy_Tag);
+               C_Data        : constant Context_Data :=
+                                 Get_Context (LT_Request'Access);
                Context       : aliased Web_Block.Context.Object :=
                                  Web_Block.Context.Get (C_Data.Id);
                T             : Templates.Translate_Set;

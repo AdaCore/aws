@@ -101,6 +101,10 @@ package AWS.Services.Web_Block.Registry is
       Context_Error : in String := "") return Response.Data;
    --  Same as above but returns a standard Web page
 
+   function Get_Context
+     (Request : access Status.Data) return Web_Block.Context.Object;
+   --  Gets the proper context id for this request
+
 private
 
    No_Page : constant Page :=
