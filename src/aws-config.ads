@@ -111,6 +111,14 @@ package AWS.Config is
    --  use shorter timeouts. If this parameter is not defined in the
    --  configuration, the server uses Max_Connection * 2 as value.
 
+   function Keep_Alive_Close_Limit (O : in Object) return Positive;
+   pragma Inline (Keep_Alive_Close_Limit);
+   --  This parameter defines the limit of keep alive sockets in the internal
+   --  server socket set. If the number of sockets in socket set became more
+   --  than Keep_Alive_Close_Limit, most close to timeout socket would be
+   --  closed. If this parameter is not defined in the configuration,
+   --  the server uses Max_Connection * 4 as value.
+
    function Accept_Queue_Size (O : in Object) return Positive;
    pragma Inline (Accept_Queue_Size);
    --  This is the size of the queue for the incoming requests. Higher this
@@ -350,6 +358,7 @@ private
       Max_Connection,
       Free_Slots_Keep_Alive_Limit,
       Keep_Alive_Force_Limit,
+      Keep_Alive_Close_Limit,
       Accept_Queue_Size,
       Log_File_Directory,
       Log_Filename_Prefix,
@@ -505,6 +514,9 @@ private
 
          Keep_Alive_Force_Limit =>
            (Nat, Default.Keep_Alive_Force_Limit),
+
+         Keep_Alive_Close_Limit =>
+           (Nat, Default.Keep_Alive_Close_Limit),
 
          Accept_Queue_Size =>
            (Pos, Default.Accept_Queue_Size),

@@ -42,19 +42,13 @@ with AWS.Utils;
 
 separate (AWS.Server)
 
-procedure Protocol_Handler
-  (HTTP_Server : in out HTTP;
-   Index       : in     Positive;
-   Keep_Alive  : in     Boolean)
-is
+procedure Protocol_Handler (LA : in out Line_Attribute_Record) is
    use AWS.Server.HTTP_Utils;
 
    use type Resources.Content_Length_Type;
 
    Case_Sensitive_Parameters : constant Boolean
-     := CNF.Case_Sensitive_Parameters (HTTP_Server.Properties);
-
-   C_Stat       : aliased AWS.Status.Data; -- Connection status
+     := CNF.Case_Sensitive_Parameters (LA.Server.Properties);
 
    Sock_Ptr     : Socket_Access;
 
@@ -73,80 +67,104 @@ is
    --  exception message to the client. The only option in case of problems is
    --  to close the connection.
 
+   Keep_Alive_Limit : constant Natural
+     := CNF.Free_Slots_Keep_Alive_Limit (LA.Server.Properties);
+
+   Free_Slots : Natural;
+
+   Multislots : constant Boolean
+     := CNF.Max_Connection (LA.Server.Properties) > 1;
+
 begin
    --  This new connection has been initialized because some data are being
    --  sent. We are by default using HTTP/1.1 persistent connection. We will
    --  exit this loop only if the client request so or if we time-out on
    --  waiting for a request.
 
-   Line_Attribute.Set_Value
-     ((HTTP_Server.Self, Index, C_Stat'Unchecked_Access,
-       AWS.Log.Empty_Fields_Table));
+   LA.Log_Data := AWS.Log.Empty_Fields_Table;
 
    For_Every_Request : loop
 
       declare
          Back_Possible : Boolean;
+         Switch        : constant array (Boolean) of
+           access function
+                    (Socket : in Net.Socket_Type'Class;
+                     Events : in Net.Wait_Event_Set) return Net.Event_Set
+           := (True => Net.Wait'Access, False => Net.Check'Access);
       begin
          Data_Sent := False;
 
-         HTTP_Server.Slots.Mark_Phase (Index, Client_Header);
+         LA.Server.Slots.Mark_Phase (LA.Line, Client_Header);
 
          if Sock_Ptr = null then
             --  First arrived. We do not need to wait for fast comming next
             --  keep alive request.
 
-            Sock_Ptr := HTTP_Server.Slots.Get (Index => Index).Sock;
+            Sock_Ptr := LA.Server.Slots.Get (Index => LA.Line).Sock;
 
          else
-            --  Wait to get header (or timeout) and put the socket back into
-            --  the acceptor to wait for next client request.
+            --  Wait/Check to get header (or timeout) and put the socket
+            --  back into the acceptor to wait for next client request.
 
-            if not Net.Wait
+            if not Switch (LA.Server.Slots.Free_Slots > 0)
                      (Sock_Ptr.all,
                       (Net.Input => True, others => False))(Net.Input)
             then
-               HTTP_Server.Slots.Prepare_Back (Index, Back_Possible);
+               LA.Server.Slots.Prepare_Back (LA.Line, Back_Possible);
 
                if Back_Possible then
-                  Net.Acceptors.Give_Back (HTTP_Server.Acceptor, Sock_Ptr);
+                  Net.Acceptors.Give_Back (LA.Server.Acceptor, Sock_Ptr);
                end if;
 
                exit For_Every_Request;
             end if;
          end if;
 
-         Status.Set.Reset (C_Stat);
+         Status.Set.Reset (LA.Stat);
 
          --  Set status socket and peername
 
-         Status.Set.Socket (C_Stat, Sock_Ptr);
+         Status.Set.Socket (LA.Stat, Sock_Ptr);
 
          Status.Set.Case_Sensitive_Parameters
-           (C_Stat, Case_Sensitive_Parameters);
+           (LA.Stat, Case_Sensitive_Parameters);
 
-         Get_Message_Header (C_Stat);
+         Get_Message_Header (LA.Stat);
 
          Status.Set.Connection_Data
-           (C_Stat,
-            CNF.Server_Host (HTTP_Server.Properties),
-            CNF.Server_Port (HTTP_Server.Properties),
-            CNF.Security (HTTP_Server.Properties));
+           (LA.Stat,
+            CNF.Server_Host (LA.Server.Properties),
+            CNF.Server_Port (LA.Server.Properties),
+            CNF.Security (LA.Server.Properties));
 
-         HTTP_Server.Slots.Increment_Slot_Activity_Counter (Index);
+         LA.Server.Slots.Increment_Slot_Activity_Counter (LA.Line, Free_Slots);
 
-         Set_Close_Status (C_Stat, Keep_Alive, Will_Close);
+         --  If there is no more slot available and we have many
+         --  of them, try to abort one of them.
 
-         HTTP_Server.Slots.Mark_Phase (Index, Client_Data);
+         if Multislots and then Free_Slots = 0 then
+            Force_Clean (LA.Server.all);
+         end if;
 
-         Get_Message_Data (HTTP_Server, Index, C_Stat);
+         Set_Field ("s-free-slots", Utils.Image (Free_Slots));
 
-         Status.Set.Keep_Alive (C_Stat, not Will_Close);
+         Set_Close_Status
+           (LA.Stat,
+            Keep_Alive => Free_Slots >= Keep_Alive_Limit,
+            Will_Close => Will_Close);
 
-         HTTP_Server.Slots.Mark_Phase (Index, Server_Response);
+         LA.Server.Slots.Mark_Phase (LA.Line, Client_Data);
+
+         Get_Message_Data (LA.Server.all, LA.Line, LA.Stat);
+
+         Status.Set.Keep_Alive (LA.Stat, not Will_Close);
+
+         LA.Server.Slots.Mark_Phase (LA.Line, Server_Response);
 
          Answer_To_Client
-           (HTTP_Server, Index, C_Stat, Socket_Taken, Will_Close, Data_Sent);
+           (LA.Server.all, LA.Line, LA.Stat, Socket_Taken, Will_Close,
+            Data_Sent);
 
       exception
             --  We must never exit the loop with an exception. This loop is
@@ -168,17 +186,17 @@ begin
                --  Log this error
 
                AWS.Log.Write
-                 (HTTP_Server.Error_Log,
-                  C_Stat,
+                 (LA.Server.Error_Log,
+                  LA.Stat,
                   Utils.CRLF_2_Spaces
                     (Ada.Exceptions.Exception_Information (E)));
 
                --  Call exception handler
 
-               HTTP_Server.Exception_Handler
+               LA.Server.Exception_Handler
                  (E,
-                  HTTP_Server.Error_Log,
-                  AWS.Exceptions.Data'(False, Index, C_Stat),
+                  LA.Server.Error_Log,
+                  AWS.Exceptions.Data'(False, LA.Line, LA.Stat),
                   Answer);
 
                --  We have an exception while sending data back to the
@@ -190,10 +208,10 @@ begin
                exit For_Every_Request when Data_Sent;
 
                if Response.Mode (Answer) /= Response.No_Data then
-                  HTTP_Server.Slots.Mark_Phase (Index, Server_Response);
+                  LA.Server.Slots.Mark_Phase (LA.Line, Server_Response);
 
                   Send
-                    (Answer, HTTP_Server, Index, C_Stat,
+                    (Answer, LA.Server.all, LA.Line, LA.Stat,
                      Socket_Taken, Will_Close, Data_Sent);
                end if;
 
@@ -208,8 +226,8 @@ begin
                   --  It is probably due to a problem in a user's stream
                   --  implementation. Just log the problem and exit.
                   AWS.Log.Write
-                    (HTTP_Server.Error_Log,
-                     C_Stat,
+                    (LA.Server.Error_Log,
+                     LA.Stat,
                      "Exception handler bug "
                      & Utils.CRLF_2_Spaces
                        (Ada.Exceptions.Exception_Information (E)));
@@ -222,11 +240,11 @@ begin
 
       exit For_Every_Request when Will_Close
         or else Socket_Taken
-        or else HTTP_Server.Shutdown;
+        or else LA.Server.Shutdown;
 
    end loop For_Every_Request;
 
    --  Release memory for local objects
 
-   Status.Set.Free (C_Stat);
+   Status.Set.Free (LA.Stat);
 end Protocol_Handler;

@@ -46,12 +46,10 @@ package body AWS.Server is
    use Ada;
    use type Net.Socket_Access;
 
-   type Data_Access is access all Status.Data;
-
    type Line_Attribute_Record is record
       Server   : HTTP_Access;
       Line     : Positive;
-      Data     : Data_Access;
+      Stat     : Status.Data;
       Log_Data : AWS.Log.Fields_Table;
    end record;
 
@@ -63,13 +61,8 @@ package body AWS.Server is
       Dispatcher : in     Dispatchers.Handler'Class);
    --  Start web server with current configuration
 
-   procedure Protocol_Handler
-     (HTTP_Server : in out HTTP;
-      Index       : in     Positive;
-      Keep_Alive  : in     Boolean);
+   procedure Protocol_Handler (LA : in out Line_Attribute_Record);
    --  Handle the lines, this is where all the HTTP protocol is defined.
-   --  Keep_Alive is True when there is enough slots to enable Keep_Alive
-   --  connections.
 
    function Accept_Socket_Serialized
      (Server : in HTTP_Access) return Net.Socket_Access;
@@ -77,14 +70,12 @@ package body AWS.Server is
    --  multiple accept on the same socket on some platforms.
 
    procedure Force_Clean (Web_Server : in out HTTP);
-   --  Close a socket on a slot for which a force timeout has expired
+   --  Close a socket on a slot for which a force timeout has expired.
 
    Server_Counter : Utils.Counter (Initial_Value => 0);
 
    package Line_Attribute is
-     new Task_Attributes
-           (Line_Attribute_Record,
-            (null, 1, null, AWS.Log.Empty_Fields_Table));
+     new Task_Attributes (Line_Attribute_Record, (Line => 1, others => <>));
    --  A line specific attribute
 
    ------------------------------
@@ -231,7 +222,9 @@ package body AWS.Server is
 
    procedure Force_Clean (Web_Server : in out HTTP) is
       Socket : Socket_Access;
-      Slot   : Positive;
+      Slot   : Positive := Line_Attribute.Reference.Line;
+      --  Initialize the slot by the current slot number to avoid current slot
+      --  abortion.
    begin
       Web_Server.Slots.Abort_On_Timeout (Socket, Slot);
       if Socket /= null then
@@ -264,7 +257,7 @@ package body AWS.Server is
 
    function Get_Status return Status.Data is
    begin
-      return Line_Attribute.Reference.Data.all;
+      return Line_Attribute.Reference.Stat;
    end Get_Status;
 
    ----------------------
@@ -290,8 +283,8 @@ package body AWS.Server is
    task body Line is
       use Ada.Exceptions;
 
-      HTTP_Server : HTTP_Access;
-      Slot_Index  : Positive;
+      TA : constant Line_Attribute.Attribute_Handle
+        := Line_Attribute.Reference;
    begin
 
       select
@@ -299,8 +292,8 @@ package body AWS.Server is
            (Server : in HTTP;
             Index  : in Positive)
          do
-            HTTP_Server := Server.Self;
-            Slot_Index  := Index;
+            TA.Server := Server.Self;
+            TA.Line   := Index;
          end Start;
       or
          terminate;
@@ -309,37 +302,23 @@ package body AWS.Server is
       --  Real job start here, we will exit only if there is an unrecoverable
       --  problem.
 
-      while not HTTP_Server.Shutdown loop
+      while not TA.Server.Shutdown loop
 
          declare
             --  Wait for an incoming connection. Each call for the same server
             --  is serialized as some platforms do not handle properly
             --  multiple accepts on the same socket.
 
-            Keep_Alive_Limit : constant Natural
-              := CNF.Free_Slots_Keep_Alive_Limit (HTTP_Server.Properties);
-
             Socket           : Net.Socket_Access
-              := Accept_Socket_Serialized (HTTP_Server);
+              := Accept_Socket_Serialized (TA.Server);
 
-            Free_Slots       : Natural;
             Need_Shutdown    : Boolean;
          begin
-            HTTP_Server.Slots.Set (Socket, Slot_Index, Free_Slots);
+            TA.Server.Slots.Set (Socket, TA.Line);
 
-            --  If there is no more slot available and we have many
-            --  of them, try to abort one of them.
+            Protocol_Handler (TA.all);
 
-            if Free_Slots = 0
-              and then CNF.Max_Connection (HTTP_Server.Properties) > 1
-            then
-               Force_Clean (HTTP_Server.all);
-            end if;
-
-            Protocol_Handler
-              (HTTP_Server.all, Slot_Index, Free_Slots >= Keep_Alive_Limit);
-
-            HTTP_Server.Slots.Release (Slot_Index, Need_Shutdown);
+            TA.Server.Slots.Release (TA.Line, Need_Shutdown);
 
             if Need_Shutdown then
                Net.Shutdown (Socket.all);
@@ -350,19 +329,19 @@ package body AWS.Server is
 
    exception
       when E : others =>
-         if not HTTP_Server.Shutdown then
+         if not TA.Server.Shutdown then
             declare
                S      : Status.Data;
                pragma Warnings (Off, S);
                Answer : Response.Data;
             begin
                AWS.Log.Write
-                 (HTTP_Server.Error_Log,
-                  "Dead slot " & Utils.Image (Slot_Index) & ' '
+                 (TA.Server.Error_Log,
+                  "Dead slot " & Utils.Image (TA.Line) & ' '
                     & Utils.CRLF_2_Spaces (Exception_Information (E)));
 
-               HTTP_Server.Exception_Handler
-                 (E, HTTP_Server.Error_Log, (True, Slot_Index, S), Answer);
+               TA.Server.Exception_Handler
+                 (E, TA.Server.Error_Log, (True, TA.Line, S), Answer);
             end;
          end if;
    end Line;
@@ -371,10 +350,7 @@ package body AWS.Server is
    -- Protocol_Handler --
    ----------------------
 
-   procedure Protocol_Handler
-     (HTTP_Server : in out HTTP;
-      Index       : in     Positive;
-      Keep_Alive  : in     Boolean) is separate;
+   procedure Protocol_Handler (LA : in out Line_Attribute_Record) is separate;
 
    ---------
    -- Set --
@@ -586,20 +562,53 @@ package body AWS.Server is
       ----------------------
 
       procedure Abort_On_Timeout
-        (Socket : out Socket_Access; Index : out Positive) is
-      begin
-         for S in Table'Range loop
+        (Socket : out Socket_Access; Index : in out Positive)
+      is
+         use Ada.Calendar;
+         Now : constant Time := Clock;
+
+         function Test_Slot (S : in Positive) return Boolean;
+
+         ---------------
+         -- Test_Slot --
+         ---------------
+
+         function Test_Slot (S : in Positive) return Boolean is
+         begin
             if Is_Abortable (S) then
                Get_For_Shutdown (S, Socket);
 
                if Socket /= null then
                   Index := S;
-                  return;
+                  return True;
                end if;
+            end if;
+
+            return False;
+         end Test_Slot;
+
+      begin
+         Socket := null;
+
+         if Now - Last_Force < 0.5 then
+            --  Look for force timeout not faster than two times in a second
+            return;
+         end if;
+
+         Last_Force := Now;
+
+         for S in Index + 1 .. Table'Last loop
+            if Test_Slot (S) then
+               return;
             end if;
          end loop;
 
-         Socket := null;
+         for S in Table'First .. Index - 1 loop
+            if Test_Slot (S) then
+               return;
+            end if;
+         end loop;
+
       end Abort_On_Timeout;
 
       ------------------------
@@ -692,12 +701,14 @@ package body AWS.Server is
       -- Increment_Slot_Activity_Counter --
       -------------------------------------
 
-      procedure Increment_Slot_Activity_Counter (Index : in Positive) is
+      procedure Increment_Slot_Activity_Counter
+        (Index : in Positive; Free_Slots : out Natural) is
       begin
          Table (Index).Slot_Activity_Counter
            := Table (Index).Slot_Activity_Counter + 1;
          Table (Index).Alive_Counter
            := Table (Index).Alive_Counter + 1;
+         Free_Slots := Count;
       end Increment_Slot_Activity_Counter;
 
       ------------------
@@ -720,6 +731,8 @@ package body AWS.Server is
       ----------------
 
       procedure Mark_Phase (Index : in Positive; Phase : in Slot_Phase) is
+         Mode : constant array (Boolean) of Timeout_Mode
+           := (True => Force, False => Cleaner);
       begin
          --  Check if the Aborted phase happen after socket operation
          --  and before Mark_Phase call.
@@ -738,7 +751,7 @@ package body AWS.Server is
 
          elsif Phase in Abortable_Phase then
             Net.Set_Timeout
-              (Table (Index).Sock.all, Timeouts (Cleaner, Phase));
+              (Table (Index).Sock.all, Timeouts (Mode (Count = 0), Phase));
          end if;
       end Mark_Phase;
 
@@ -802,10 +815,7 @@ package body AWS.Server is
       -- Set --
       ---------
 
-      procedure Set
-        (Socket     : in     Socket_Access;
-         Index      : in     Positive;
-         Free_Slots :    out Natural) is
+      procedure Set (Socket : in Socket_Access; Index : in Positive) is
       begin
          pragma Assert (Count > 0);
 
@@ -814,7 +824,6 @@ package body AWS.Server is
          Table (Index).Alive_Time_Stamp := Ada.Calendar.Clock;
          Table (Index).Activity_Counter := Table (Index).Activity_Counter + 1;
          Count := Count - 1;
-         Free_Slots := Count;
       end Set;
 
       ------------------
@@ -984,6 +993,8 @@ package body AWS.Server is
            CNF.Force_Client_Header_Timeout (Web_Server.Properties),
          Force_Length        =>
            CNF.Keep_Alive_Force_Limit (Web_Server.Properties),
+         Close_Length        =>
+           CNF.Keep_Alive_Close_Limit (Web_Server.Properties),
          Reuse_Address       => CNF.Reuse_Address (Web_Server.Properties));
 
       --  Clone main dispatcher

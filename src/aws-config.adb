@@ -240,6 +240,19 @@ package body AWS.Config is
    end Hotplug_Port;
 
    ----------------------------
+   -- Keep_Alive_Close_Limit --
+   ----------------------------
+
+   function Keep_Alive_Close_Limit (O : in Object) return Positive is
+   begin
+      if O.P (Keep_Alive_Close_Limit).Nat_Value = 0 then
+         return Max_Connection (O) * 4;
+      else
+         return O.P (Keep_Alive_Close_Limit).Nat_Value;
+      end if;
+   end Keep_Alive_Close_Limit;
+
+   ----------------------------
    -- Keep_Alive_Force_Limit --
    ----------------------------
 

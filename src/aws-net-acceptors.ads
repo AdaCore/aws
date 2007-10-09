@@ -52,6 +52,7 @@ package AWS.Net.Acceptors is
       Force_Timeout       : in     Duration := Forever;
       Force_First_Timeout : in     Duration := Forever;
       Force_Length        : in     Positive := Positive'Last;
+      Close_Length        : in     Positive := Positive'Last;
       Reuse_Address       : in     Boolean  := False);
    --  Prepare Acceptor to accept sockets and wait for incoming data from the
    --  given Host and Port. Use Queue_Size for the Listen call.
@@ -60,6 +61,8 @@ package AWS.Net.Acceptors is
    --  time to wait for data just after a socket is accepted. Force_Timeout
    --  used when the number of sockets exceed Force_Length (generally this
    --  timeout is shorter than the others).
+   --  If number of sockets became more then Close_Length, closest to timeout
+   --  socket would be closed without timeout condition.
 
    procedure Set_Socket_Constructor
      (Acceptor : in out Acceptor_Type; Constructor : in Socket_Constructor);
@@ -86,8 +89,7 @@ package AWS.Net.Acceptors is
    --  server status page.
 
    procedure Give_Back
-     (Acceptor : in out Acceptor_Type;
-      Socket   : in     Socket_Access);
+     (Acceptor : in out Acceptor_Type; Socket : in Socket_Access);
    --  Give back socket which has been taken from Get routine above. Generally
    --  this is called from a different task while the Get routine is blocked
    --  waiting for a socket.
@@ -129,6 +131,7 @@ private
       Force_Timeout       : Duration;
       Force_First_Timeout : Duration;
       Force_Length        : Sets.Socket_Count;
+      Close_Length        : Sets.Socket_Count;
       Constructor         : Socket_Constructor := Socket'Access;
    end record;
 

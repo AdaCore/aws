@@ -73,6 +73,7 @@ package body AWS.Net.Acceptors is
       First        : constant Boolean := True;
       Timeout      : array (Boolean) of Duration;
       Too_Many_FD  : Boolean := False;
+      Oldest_Idx   : Sets.Socket_Count;
 
       Ready, Error : Boolean;
       Wait_Timeout : Duration;
@@ -95,6 +96,7 @@ package body AWS.Net.Acceptors is
          end if;
 
          Wait_Timeout := Timeout (not First);
+         Oldest_Idx   := 0;
 
          Read_Ready : loop
             exit Read_Ready when Acceptor.Index > Acceptor.Last;
@@ -134,6 +136,7 @@ package body AWS.Net.Acceptors is
                   else
                      if Diff < Wait_Timeout then
                         Wait_Timeout := Diff;
+                        Oldest_Idx   := Acceptor.Index;
                      end if;
 
                      Acceptor.Index := Acceptor.Index + 1;
@@ -141,6 +144,13 @@ package body AWS.Net.Acceptors is
                end;
             end if;
          end loop Read_Ready;
+
+         if Oldest_Idx > 0 and then Acceptor.Last > Acceptor.Close_Length then
+            Sets.Remove_Socket (Acceptor.Set, Oldest_Idx, Socket);
+            Acceptor.Last := Acceptor.Last - 1;
+            Shutdown (Socket.all);
+            Free (Socket);
+         end if;
 
          Sets.Wait (Acceptor.Set, Wait_Timeout);
 
@@ -168,6 +178,7 @@ package body AWS.Net.Acceptors is
                   New_Socket,
                   Data => (Time => Clock, First => True),
                   Mode => Sets.Input);
+
             exception
                when E : Socket_Error =>
                   if On_Accept_Error /= null then
@@ -233,8 +244,7 @@ package body AWS.Net.Acceptors is
    ---------------
 
    procedure Give_Back
-     (Acceptor : in out Acceptor_Type;
-      Socket   : in     Socket_Access) is
+     (Acceptor : in out Acceptor_Type; Socket : in Socket_Access) is
    begin
       Send (Acceptor.W_Signal.all, (1 => Socket_Command));
       Acceptor.Box.Add (Socket);
@@ -263,12 +273,30 @@ package body AWS.Net.Acceptors is
       Force_Timeout       : in     Duration := Forever;
       Force_First_Timeout : in     Duration := Forever;
       Force_Length        : in     Positive := Positive'Last;
+      Close_Length        : in     Positive := Positive'Last;
       Reuse_Address       : in     Boolean  := False)
    is
       use type Sets.Socket_Count;
 
+      function Correct_2 (Item : in Positive) return Sets.Socket_Count;
+      pragma Inline (Correct_2);
+      --  Take in account 2 auxiliary sockets, Server and R_Signal
+
       function New_Socket return Socket_Access;
       pragma Inline (New_Socket);
+
+      ---------------
+      -- Correct_2 --
+      ---------------
+
+      function Correct_2 (Item : in Positive) return Sets.Socket_Count is
+      begin
+         if Item >= Positive'Last - 2 then
+            return Sets.Socket_Count (Item);
+         else
+            return Sets.Socket_Count (Item + 2);
+         end if;
+      end Correct_2;
 
       ----------------
       -- New_Socket --
@@ -302,13 +330,8 @@ package body AWS.Net.Acceptors is
       Acceptor.First_Timeout       := First_Timeout;
       Acceptor.Force_First_Timeout := Force_First_Timeout;
 
-      --  Take in account 2 auxiliary sockets, Server and R_Signal
-
-      if Force_Length >= Positive'Last - 2 then
-         Acceptor.Force_Length := Sets.Socket_Count (Force_Length);
-      else
-         Acceptor.Force_Length := Sets.Socket_Count (Force_Length + 2);
-      end if;
+      Acceptor.Force_Length := Correct_2 (Force_Length);
+      Acceptor.Close_Length := Correct_2 (Close_Length);
    end Listen;
 
    -------------------

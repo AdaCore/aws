@@ -323,22 +323,19 @@ private
       --  Return True when slot can be aborted due to "forced" timeouts.
 
       procedure Abort_On_Timeout
-        (Socket : out Socket_Access; Index : out Positive);
+        (Socket : out Socket_Access; Index : in out Positive);
       --  Get the socket pointer from slot where timeout exceeded.
+      --  Index IN value is the current slot number, to avoid current slot
+      --  abortion.
+      --  Index OUT value is the slot number to abort.
       --  Return null if no such sockets.
 
       function Free_Slots return Natural;
       --  Returns number of free slots
 
-      procedure Set
-        (Socket     : in     Socket_Access;
-         Index      : in     Positive;
-         Free_Slots :    out Natural);
+      procedure Set (Socket : in Socket_Access; Index : in Positive);
       --  Mark slot at position Index to be used. This slot will be associated
       --  with Socket. Phase set to Wait_For_Client.
-      --  Returns number of Free slots in the Free_Slot out parameter, it is
-      --  necessary information for Server line task, for determine is it
-      --  necessary to call Force_Clean.
 
       procedure Get_For_Shutdown
         (Index  : in     Positive;
@@ -367,9 +364,14 @@ private
       function Get_Peername (Index : in Positive) return String;
       --  Returns the peername for socket at position Index
 
-      procedure Increment_Slot_Activity_Counter (Index : in Positive);
+      procedure Increment_Slot_Activity_Counter
+        (Index : in Positive; Free_Slots : out Natural);
       --  Add 1 to the slot activity. This is the total number of request
       --  handled by the slot.
+      --  Returns number of Free slots in the Free_Slot out parameter, it is
+      --  necessary information for Server line task to determine is it
+      --  necessary to call Force_Clean and to determine keep-alive
+      --  availability.
 
       procedure Set_Timeouts
         (Phase_Timeouts : in Timeouts_Array;
@@ -385,6 +387,7 @@ private
       Count : Natural := N;
 
       Shutdown_Count : Natural := 0;
+      Last_Force     : Ada.Calendar.Time := Ada.Calendar.Clock;
 
    end Slots;
 
