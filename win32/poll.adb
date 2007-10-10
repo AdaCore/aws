@@ -39,7 +39,6 @@ is
    use AWS.Net;
    use AWS.OS_Lib;
 
-   use type Thin.Events_Type;
    use type C.int;
    use type C.long;
    use type System.Address;
