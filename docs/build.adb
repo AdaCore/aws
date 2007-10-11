@@ -113,6 +113,8 @@ procedure Build is
                 Default.Up_Image),
          Assoc ("STATUS_PAGE",
                 Default.Status_Page),
+         Assoc ("SESSION", Default.Session),
+         Assoc ("SESSION_NAME", Default.Session_Name),
          Assoc ("SESSION_LIFETIME",
                 Image (Default.Session_Lifetime)),
          Assoc ("SESSION_CLEANUP_INTERVAL",

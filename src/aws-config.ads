@@ -84,6 +84,10 @@ package AWS.Config is
    pragma Inline (Case_Sensitive_Parameters);
    --  HTTP parameters are case sensitive
 
+   function Session_Name (O : in Object) return String;
+   pragma Inline (Session_Name);
+   --  Name of the cookie session
+
    ----------------
    -- Connection --
    ----------------
@@ -306,10 +310,6 @@ package AWS.Config is
    -- Per Process options --
    -------------------------
 
-   function Session_Name return String;
-   pragma Inline (Session_Name);
-   --  Name of the cookie session
-
    function Session_Cleanup_Interval return Duration;
    pragma Inline (Session_Cleanup_Interval);
    --  Number of seconds between each run of the cleaner task to remove
@@ -368,6 +368,7 @@ private
       Error_Log_Split_Mode,
       Upload_Directory,
       Session,
+      Session_Name,
       Cleaner_Wait_For_Client_Timeout,
       Cleaner_Client_Header_Timeout,
       Cleaner_Client_Data_Timeout,
@@ -388,7 +389,6 @@ private
       Check_URL_Validity,
       Case_Sensitive_Parameters,
       --  Per process options
-      Session_Name,
       Session_Cleanup_Interval,
       Session_Lifetime,
       Transient_Cleanup_Interval,
@@ -399,7 +399,7 @@ private
      range Server_Name .. Case_Sensitive_Parameters;
 
    subtype Process_Parameter_Name is Parameter_Name
-     range Session_Name .. Max_Concurrent_Download;
+     range Session_Cleanup_Interval .. Max_Concurrent_Download;
 
    type Value_Type  is (Str, Dir, Nat, Pos, Dur, Bool, Str_Vect);
 
@@ -533,6 +533,9 @@ private
          Session =>
            (Bool, Default.Session),
 
+         Session_Name =>
+           (Str, To_Unbounded_String (Default.Session_Name)),
+
          Security =>
            (Bool, Default.Security),
 
@@ -567,10 +570,7 @@ private
    Default_Config : constant Object := (P => Default_Parameters);
 
    Process_Options : Parameter_Set (Process_Parameter_Name)
-     := (Session_Name =>
-           (Str, To_Unbounded_String (Default.Session_Name)),
-
-         Session_Cleanup_Interval =>
+     := (Session_Cleanup_Interval =>
            (Dur, Default.Session_Cleanup_Interval),
 
          Session_Lifetime =>

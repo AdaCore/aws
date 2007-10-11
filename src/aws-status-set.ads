@@ -116,4 +116,7 @@ package AWS.Status.Set is
    --  mostly intended for automatic testsuite, since AWS will properly
    --  set those from the headers of the request as read from the socket.
 
+   procedure Session_Name (D : in out Data; Name : in String);
+   --  Set the expected AWS cookie session name
+
 end AWS.Status.Set;

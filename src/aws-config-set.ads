@@ -64,6 +64,9 @@ package AWS.Config.Set is
    --  Set the reuse address policy allowing a bind without a dealy to the same
    --  address and port.
 
+   procedure Session_Name (O : in out Object; Value : in String);
+   --  Name of the cookie session
+
    ----------------
    -- Connection --
    ----------------

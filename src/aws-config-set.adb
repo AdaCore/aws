@@ -437,6 +437,15 @@ package body AWS.Config.Set is
       Process_Options (Session_Lifetime).Dur_Value := Value;
    end Session_Lifetime;
 
+   ------------------
+   -- Session_Name --
+   ------------------
+
+   procedure Session_Name (O : in out Object; Value : in String) is
+   begin
+      O.P (Session_Name).Str_Value := To_Unbounded_String (Value);
+   end Session_Name;
+
    -----------------
    -- Status_Page --
    -----------------

@@ -89,8 +89,8 @@ begin
          Back_Possible : Boolean;
          Switch        : constant array (Boolean) of
            access function
-                    (Socket : in Net.Socket_Type'Class;
-                     Events : in Net.Wait_Event_Set) return Net.Event_Set
+             (Socket : in Net.Socket_Type'Class;
+              Events : in Net.Wait_Event_Set) return Net.Event_Set
            := (True => Net.Wait'Access, False => Net.Check'Access);
       begin
          Data_Sent := False;
@@ -108,8 +108,8 @@ begin
             --  back into the acceptor to wait for next client request.
 
             if not Switch (LA.Server.Slots.Free_Slots > 0)
-                     (Sock_Ptr.all,
-                      (Net.Input => True, others => False))(Net.Input)
+              (Sock_Ptr.all,
+               (Net.Input => True, others => False)) (Net.Input)
             then
                LA.Server.Slots.Prepare_Back (LA.Line, Back_Possible);
 
@@ -129,6 +129,9 @@ begin
 
          Status.Set.Case_Sensitive_Parameters
            (LA.Stat, Case_Sensitive_Parameters);
+
+         Status.Set.Session_Name
+           (LA.Stat, CNF.Session_Name (LA.Server.Properties));
 
          Get_Message_Header (LA.Stat);
 

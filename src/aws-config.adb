@@ -472,9 +472,9 @@ package body AWS.Config is
    -- Session_Name --
    ------------------
 
-   function Session_Name return String is
+   function Session_Name (O : in Object) return String is
    begin
-      return To_String (Process_Options (Session_Name).Str_Value);
+      return To_String (O.P (Session_Name).Str_Value);
    end Session_Name;
 
    -----------------

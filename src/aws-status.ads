@@ -347,6 +347,7 @@ private
       Auth_Response     : Unbounded_String; -- for Digest
 
       --  Session
+      Session_Name      : Unbounded_String;
       Session_Id        : AWS.Session.Id        := AWS.Session.No_Session;
       Session_Created   : Boolean               := False;
       Session_Timed_Out : Boolean               := False;

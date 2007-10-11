@@ -29,7 +29,6 @@
 with Ada.Characters.Handling;
 with Ada.Strings.Fixed;
 
-with AWS.Config;
 with AWS.Headers.Set;
 with AWS.Headers.Values;
 with AWS.Messages;
@@ -385,6 +384,15 @@ package body AWS.Status.Set is
       D.Session_Created := True;
    end Session;
 
+   ------------------
+   -- Session_Name --
+   ------------------
+
+   procedure Session_Name (D : in out Data; Name : in String) is
+   begin
+      D.Session_Name := To_Unbounded_String (Name);
+   end Session_Name;
+
    ------------
    -- Socket --
    ------------
@@ -402,6 +410,7 @@ package body AWS.Status.Set is
    -----------------------------
 
    procedure Update_Data_From_Header (D : in out Data) is
+      AWS_Session_Name : constant String := To_String (D.Session_Name);
    begin
       Authorization (D);
 
@@ -452,7 +461,7 @@ package body AWS.Status.Set is
                begin
                   --  Check if it is current process Cookie
 
-                  if Name /= AWS.Config.Session_Name then
+                  if Name /= AWS_Session_Name then
                      return;
                   end if;
 
