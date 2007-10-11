@@ -42,7 +42,7 @@ package body AWS.Services.Web_Block.Registry is
    Context_Var_To_Copy  : constant String := "CTX_WB_COPY";
 
    type Lazy_Handler is new Templates.Dynamic.Lazy_Tag with record
-      Request      : Status.Data;
+      Request      : aliased Status.Data;
       --  Current request made to the server
       Translations : Templates.Translate_Set;
       --  Global translations table
@@ -302,9 +302,8 @@ package body AWS.Services.Web_Block.Registry is
 
       if Position /= No_Element then
          declare
-            LT_Request    : aliased Status.Data   := LT.Request;
             C_Data        : constant Context_Data :=
-                              Get_Context (LT_Request'Access);
+                              Get_Context (LT.Request'Access);
             Context       : aliased Web_Block.Context.Object :=
                               Web_Block.Context.Get (C_Data.Id);
             T             : Templates.Translate_Set;
@@ -417,8 +416,7 @@ package body AWS.Services.Web_Block.Registry is
       Var_Name     : in              String;
       Translations : in out          Templates.Translate_Set)
    is
-      Position   : Web_Object_Maps.Cursor;
-      LT_Request : aliased Status.Data := Lazy_Tag.Request;
+      Position : Web_Object_Maps.Cursor;
    begin
       --  Specific case for the contextual var
 
@@ -427,7 +425,7 @@ package body AWS.Services.Web_Block.Registry is
            (Translations,
             Templates.Assoc
               (Context_Var,
-               Context.Image (Get_Context (LT_Request'Access).Id)));
+               Context.Image (Get_Context (Lazy_Tag.Request'Access).Id)));
       else
          --  Get Web Object
 
@@ -436,7 +434,7 @@ package body AWS.Services.Web_Block.Registry is
          if Position /= No_Element then
             declare
                C_Data        : constant Context_Data :=
-                                 Get_Context (LT_Request'Access);
+                                 Get_Context (Lazy_Tag.Request'Access);
                Context       : aliased Web_Block.Context.Object :=
                                  Web_Block.Context.Get (C_Data.Id);
                T             : Templates.Translate_Set;
