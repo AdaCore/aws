@@ -315,7 +315,7 @@ package body AWS.Services.Web_Block.Registry is
             if C_Data.Is_New
               and then Element (Position).Context_Required
             then
-               --  No context but it is rrequired
+               --  No context but it is required
                return Parse (Context_Error, Request, Translations);
 
             else
