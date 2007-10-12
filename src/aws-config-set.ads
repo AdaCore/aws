@@ -26,7 +26,7 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  This package can be used to Set any AWS parameters.
+--  This package can be used to Set any AWS parameters
 
 package AWS.Config.Set is
 
