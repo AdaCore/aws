@@ -392,8 +392,11 @@ image and an @code{HTML} page. The executable is self contained.
 
 @item runme
 
-A complete example that test many @code{AWS} features. If this test runs fine
-on your platform, @code{AWS} is certainly ok.
+An example that test many @code{AWS} features.
+
+@item multiple_sessions
+
+A demo of two embedded servers using different sessions.
 
 @item split
 

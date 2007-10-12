@@ -67,6 +67,7 @@ demos/hotplug_cb.ads
 demos/hotplug_module.ini
 demos/main.adb
 demos/makefile
+demos/multiple_sessions.adb
 demos/page1.html
 demos/page2.html
 demos/page3.html
