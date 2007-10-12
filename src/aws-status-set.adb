@@ -366,6 +366,7 @@ package body AWS.Status.Set is
       D.Auth_URI          := Null_Unbounded_String;
       D.Auth_Response     := Null_Unbounded_String;
       D.Session_Id        := AWS.Session.No_Session;
+      D.Session_Name      := Null_Unbounded_String;
       D.Session_Created   := False;
       D.Session_Timed_Out := False;
 
