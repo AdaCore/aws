@@ -27,6 +27,7 @@
 ------------------------------------------------------------------------------
 
 with AWS.Config.Utils;
+with AWS.Utils;
 
 package body AWS.Config.Set is
 
@@ -487,21 +488,9 @@ package body AWS.Config.Set is
    ----------------------
 
    procedure Upload_Directory (O : in out Object; Value : in String) is
-      Last : Character;
    begin
-      if Value'Length = 0 then
-         O.P (Upload_Directory).Dir_Value := Null_Unbounded_String;
-         return;
-      else
-         Last := Value (Value'Last);
-      end if;
-
-      if Last = '/' or else Last = '\' then
-         O.P (Upload_Directory).Dir_Value := To_Unbounded_String (Value);
-      else
-         O.P (Upload_Directory).Dir_Value
-           := To_Unbounded_String (Value & '/');
-      end if;
+      O.P (Upload_Directory).Dir_Value :=
+        To_Unbounded_String (AWS.Utils.Normalized_Directory (Value));
    end Upload_Directory;
 
    --------------
@@ -510,7 +499,8 @@ package body AWS.Config.Set is
 
    procedure WWW_Root (O : in out Object; Value : in String) is
    begin
-      O.P (WWW_Root).Dir_Value := To_Unbounded_String (Value);
+      O.P (WWW_Root).Dir_Value :=
+        To_Unbounded_String (AWS.Utils.Normalized_Directory (Value));
    end WWW_Root;
 
 end AWS.Config.Set;

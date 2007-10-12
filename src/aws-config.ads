@@ -146,8 +146,9 @@ package AWS.Config is
    pragma Inline (WWW_Root);
    --  This is the root directory name for the server. This variable is not
    --  used internally by AWS. It is supposed to be used by the callback
-   --  procedures who want to retrieve physical objects (images, Web
-   --  pages...). The default value is the current working directory.
+   --  procedures who want to retrieve physical objects (images, Web pages...).
+   --  The default value is the current working directory. The returned
+   --  directory ends with a directory separator.
 
    function Upload_Directory (O : in Object) return String;
    pragma Inline (Upload_Directory);

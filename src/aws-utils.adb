@@ -692,6 +692,22 @@ package body AWS.Utils is
 
    end Mailbox_G;
 
+   --------------------------
+   -- Normalized_Directory --
+   --------------------------
+
+   function Normalized_Directory (Directory : in String) return String is
+   begin
+      if Directory'Length = 0
+        or else Directory (Directory'Last) = '/'
+        or else Directory (Directory'Last) = '\'
+      then
+         return Directory;
+      else
+         return Directory & OS_Lib.Directory_Separator;
+      end if;
+   end Normalized_Directory;
+
    -----------
    -- Quote --
    -----------

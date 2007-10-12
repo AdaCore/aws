@@ -259,6 +259,9 @@ package AWS.Utils is
    pragma Inline (File_Time_Stamp);
    --  Get the time for last modification to a file in UTC/GMT
 
+   function Normalized_Directory (Directory : in String) return String;
+   --  Returns the directory with an ending directory separator
+
    generic
       with procedure Action
         (Filename     : in     String;

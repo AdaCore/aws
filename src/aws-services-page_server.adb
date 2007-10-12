@@ -49,7 +49,8 @@ package body AWS.Services.Page_Server is
    function Callback (Request : in AWS.Status.Data) return AWS.Response.Data is
       use Ada.Strings;
 
-      WWW_Root : String renames AWS.Config.WWW_Root (Config.Get_Current);
+      WWW_Root : String renames AWS.Config.WWW_Root
+        (Server.Config (Server.Get_Current.all));
       URI      : constant String := AWS.Status.URI (Request);
       Filename : constant String := WWW_Root & URI (2 .. URI'Last);
 
