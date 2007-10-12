@@ -352,6 +352,16 @@ package body AWS.Server is
 
    procedure Protocol_Handler (LA : in out Line_Attribute_Record) is separate;
 
+   ------------------
+   -- Session_Name --
+   ------------------
+
+   function Session_Name return String is
+   begin
+      return AWS.Config.Session_Name
+        (AWS.Server.Config (Server.Get_Current.all));
+   end Session_Name;
+
    ---------
    -- Set --
    ---------

@@ -33,6 +33,7 @@ with AWS.Headers.Set;
 with AWS.Headers.Values;
 with AWS.Messages;
 with AWS.Parameters.Set;
+with AWS.Server;
 with AWS.Translator;
 with AWS.URL.Set;
 
@@ -366,7 +367,6 @@ package body AWS.Status.Set is
       D.Auth_URI          := Null_Unbounded_String;
       D.Auth_Response     := Null_Unbounded_String;
       D.Session_Id        := AWS.Session.No_Session;
-      D.Session_Name      := Null_Unbounded_String;
       D.Session_Created   := False;
       D.Session_Timed_Out := False;
 
@@ -385,15 +385,6 @@ package body AWS.Status.Set is
       D.Session_Created := True;
    end Session;
 
-   ------------------
-   -- Session_Name --
-   ------------------
-
-   procedure Session_Name (D : in out Data; Name : in String) is
-   begin
-      D.Session_Name := To_Unbounded_String (Name);
-   end Session_Name;
-
    ------------
    -- Socket --
    ------------
@@ -411,7 +402,7 @@ package body AWS.Status.Set is
    -----------------------------
 
    procedure Update_Data_From_Header (D : in out Data) is
-      AWS_Session_Name : constant String := To_String (D.Session_Name);
+      AWS_Session_Name : constant String := Server.Session_Name;
    begin
       Authorization (D);
 

@@ -176,6 +176,9 @@ package AWS.Server is
    --  Returns the current status data. This is useful to get the full status
    --  in a templates engine callback procedure for example.
 
+   function Session_Name return String;
+   --  Returns the current session cookie name
+
    ---------------
    -- Other API --
    ---------------

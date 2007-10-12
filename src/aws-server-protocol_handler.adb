@@ -130,9 +130,6 @@ begin
          Status.Set.Case_Sensitive_Parameters
            (LA.Stat, Case_Sensitive_Parameters);
 
-         Status.Set.Session_Name
-           (LA.Stat, CNF.Session_Name (LA.Server.Properties));
-
          Get_Message_Header (LA.Stat);
 
          Status.Set.Connection_Data
