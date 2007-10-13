@@ -358,8 +358,7 @@ package body AWS.Server is
 
    function Session_Name return String is
    begin
-      return AWS.Config.Session_Name
-        (AWS.Server.Config (Server.Get_Current.all));
+      return AWS.Config.Session_Name (Server.Get_Current.Config);
    end Session_Name;
 
    ---------
