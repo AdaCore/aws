@@ -37,7 +37,7 @@ with Ada.Containers.Indefinite_Vectors;
 with Ada.Directories;
 with Ada.Strings.Fixed;
 with Ada.Strings.Hash;
-with Ada.Strings.Maps;
+with Ada.Strings.Maps.Constants;
 with Ada.Strings.Unbounded;
 with Ada.Text_IO;
 
@@ -89,6 +89,9 @@ procedure Webxref is
 
    function Eof (Iterator : in Reader) return Boolean;
    --  Returns True if end of file reached
+
+   function Is_Ignored (Name : in String) return Boolean;
+   --  Returns True if this name is to be ignored
 
    type Name_Kind is
      (Def_CSS,  -- a definition in a CSS
@@ -367,6 +370,18 @@ procedure Webxref is
         (Iterator.Content (From .. Iterator.Last), Pattern);
    end Index;
 
+   ----------------
+   -- Is_Ignored --
+   ----------------
+
+   function Is_Ignored (Name : in String) return Boolean is
+      use type Strings.Maps.Character_Set;
+   begin
+      --  Ignore if it is a number
+      return Strings.Fixed.Index
+        (Name, not Strings.Maps.Constants.Decimal_Digit_Set) = 0;
+   end Is_Ignored;
+
    ----------
    -- Next --
    ----------
@@ -485,7 +500,7 @@ procedure Webxref is
       begin
          --  First look for classes
          loop
-            S := Fixed.Index (Path, "#", S);
+            S := Fixed.Index (Path, ".", S);
             exit when S = 0;
 
             E := Fixed.Index (Path, Seps, S);
@@ -512,7 +527,7 @@ procedure Webxref is
          E := 1;
 
          loop
-            S := Fixed.Index (Path, ".", S);
+            S := Fixed.Index (Path, "#", S);
             exit when S = 0;
 
             E := Fixed.Index (Path, Seps, S);
@@ -584,6 +599,88 @@ procedure Webxref is
       procedure Process_Class
         (Iterator : in Reader; Name : in String; Column : in Positive);
 
+      procedure Check_Include (Iterator : in Reader);
+      --  Check template include. We want here to include as id reference all
+      --  parameters to the aws_*.tjs includes.
+
+      -------------------
+      -- Check_Include --
+      -------------------
+
+      procedure Check_Include (Iterator : in Reader) is
+         use type Strings.Maps.Character_Set;
+         Blank      : constant Strings.Maps.Character_Set :=
+                        Strings.Maps.To_Set (" " & ASCII.HT);
+         Identifier : constant Strings.Maps.Character_Set :=
+                        Strings.Maps.Constants.Alphanumeric_Set
+                          or Strings.Maps.To_Set ("_");
+         First, Last : Natural := 1;
+      begin
+         First := Index (Iterator, "@@INCLUDE@@");
+
+         if First /= 0 then
+            First := Strings.Fixed.Index
+              (Iterator.Content (First .. Iterator.Last), Blank);
+
+            First := Strings.Fixed.Index
+              (Iterator.Content (First .. Iterator.Last), not Blank);
+
+            Last := Strings.Fixed.Index
+              (Iterator.Content (First .. Iterator.Last), Blank);
+
+            if Last = 0 then
+               --  Last is end-of-line
+               Last := Iterator.Last;
+            else
+               Last := Last - 1;
+            end if;
+
+            --  First .. Last is filename
+
+            declare
+               I_Filename : constant String :=
+                              Iterator.Content (First .. Last);
+               Is_First   : Boolean := True;
+            begin
+               --  Check only aws_*.tjs
+               if Strings.Fixed.Index (I_Filename, "aws_") /= 0
+                 and then Directories.Extension (I_Filename) = "tjs"
+               then
+                  loop
+                     First := Last + 1;
+
+                     Strings.Fixed.Find_Token
+                       (Iterator.Content (First .. Iterator.Last),
+                        Identifier,
+                        Test  => Strings.Inside,
+                        First => First,
+                        Last  => Last);
+                     exit when Last = 0;
+
+                     if Is_First then
+                        Is_First := False;
+
+                     elsif not Is_Ignored
+                       (Iterator.Content (First .. Last))
+                     then
+                        declare
+                           Id : constant Id_Dict.Id := Id_Dict.Get
+                             (Iterator.Content (First .. Last));
+                        begin
+                           Id_Dict.Add
+                             (Id,
+                              (To_Unbounded_String (Filename),
+                               Iterator.Line,
+                               First,
+                               Ajax_Response_Kind));
+                        end;
+                     end if;
+                  end loop;
+               end if;
+            end;
+         end if;
+      end Check_Include;
+
       ----------
       -- Find --
       ----------
@@ -630,6 +727,7 @@ procedure Webxref is
          Check (''');
          Check ('"');
       end Find;
+
       -------------------
       -- Process_Class --
       -------------------
@@ -668,6 +766,8 @@ procedure Webxref is
 
          Find (Iterator, "id", Process_Id'Access);
          Find (Iterator, "class", Process_Class'Access);
+
+         Check_Include (Iterator);
 
          Clear_Content (Iterator);
          exit when Eof (Iterator);
@@ -717,7 +817,7 @@ begin
    Command_Line.Set_Exit_Status (Command_Line.Success);
 
 exception
-   when Syntax_Error =>
+   when Syntax_Error | GNAT.Command_Line.Invalid_Switch =>
       Text_IO.Put_Line ("webxref - Web Cross-References v" & Version);
       Text_IO.New_Line;
       Text_IO.Put_Line ("Usage : webxref [-huxcCiIv] file1 file2...");
