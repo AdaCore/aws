@@ -143,6 +143,20 @@ procedure Webxref is
 
    procedure Parse_Command_Line;
 
+   procedure Record_Id (Name : in String; Location : in Occurence);
+   --  Record Id name into Id_Dict
+
+   procedure Record_Class (Name : in String; Location : in Occurence);
+   --  Record Class name into Class_Dict
+
+   procedure Log_Error (Location : in Occurence; Message : in String);
+   --  Log error message
+
+   procedure Check_Prefix
+     (Name, Prefix : in String;
+      Location     : in Occurence);
+   --  Check if Name has the right prefix
+
    --  Options
 
    type Mode is (Xref, Unused, Undefined);
@@ -151,6 +165,10 @@ procedure Webxref is
    Dump_Classes : Boolean := True;
    Dump_Ids     : Boolean := True;
    Verbose      : Boolean := False;
+   Id_Prefix    : Unbounded_String;
+   Class_Prefix : Unbounded_String;
+   Id_File      : Boolean := False;
+   Has_Error    : Boolean := False;
 
    generic
    package Dict is
@@ -179,6 +197,24 @@ procedure Webxref is
       --  Dump dictionary content on the console
 
    end Dict;
+
+   ------------------
+   -- Check_Prefix --
+   ------------------
+
+   procedure Check_Prefix
+     (Name, Prefix : in String;
+      Location     : in Occurence) is
+   begin
+      if Prefix'Length >= Name'Length
+        or else
+          Name (Name'First .. Name'First + Prefix'Length - 1) /= Prefix
+      then
+         Log_Error
+           (Location, Name & " has wrong prefix, expecting "
+            & Prefix & '_' & Name);
+      end if;
+   end Check_Prefix;
 
    -------------------
    -- Clear_Content --
@@ -382,6 +418,18 @@ procedure Webxref is
         (Name, not Strings.Maps.Constants.Decimal_Digit_Set) = 0;
    end Is_Ignored;
 
+   ---------------
+   -- Log_Error --
+   ---------------
+
+   procedure Log_Error (Location : in Occurence; Message : in String) is
+   begin
+      Has_Error := True;
+      Text_IO.Put_Line
+        (To_String (Location.Filename) & ":" & Utils.Image (Location.Line)
+           & ":" & Utils.Image (Location.Column) & ": " & Message);
+   end Log_Error;
+
    ----------
    -- Next --
    ----------
@@ -417,7 +465,7 @@ procedure Webxref is
         (Stop_At_First_Non_Switch => True);
 
       loop
-         case GNAT.Command_Line.Getopt ("x u d c C i I v h") is
+         case GNAT.Command_Line.Getopt ("x u d c C i I v h pi: pc:") is
             when ASCII.NUL =>
                exit;
 
@@ -444,6 +492,23 @@ procedure Webxref is
 
             when 'v' =>
                Verbose := True;
+
+            when 'p' =>
+               if GNAT.Command_Line.Full_Switch = "pi" then
+                  if GNAT.Command_Line.Parameter = "file_based" then
+                     Id_File := True;
+                  else
+                     Id_Prefix := To_Unbounded_String
+                       (GNAT.Command_Line.Parameter);
+                  end if;
+
+               elsif GNAT.Command_Line.Full_Switch = "pc" then
+                  Class_Prefix :=
+                    To_Unbounded_String (GNAT.Command_Line.Parameter);
+
+               else
+                  raise Syntax_Error;
+               end if;
 
             when 'h' =>
                raise Syntax_Error;
@@ -733,12 +798,10 @@ procedure Webxref is
       -------------------
 
       procedure Process_Class
-        (Iterator : in Reader; Name : in String; Column : in Positive)
-      is
-         Id : constant Class_Dict.Id := Class_Dict.Get (Name);
+        (Iterator : in Reader; Name : in String; Column : in Positive) is
       begin
-         Class_Dict.Add
-           (Id,
+         Record_Class
+           (Name,
             (To_Unbounded_String (Filename), Iterator.Line, Column, Kinds));
       end Process_Class;
 
@@ -747,12 +810,10 @@ procedure Webxref is
       ----------------
 
       procedure Process_Id
-        (Iterator : in Reader; Name : in String; Column : in Positive)
-      is
-         Id : constant Id_Dict.Id := Id_Dict.Get (Name);
+        (Iterator : in Reader; Name : in String; Column : in Positive) is
       begin
-         Id_Dict.Add
-           (Id,
+         Record_Id
+           (Name,
             (To_Unbounded_String (Filename), Iterator.Line, Column, Kinds));
       end Process_Id;
 
@@ -775,6 +836,66 @@ procedure Webxref is
 
       Close (Iterator);
    end Process_ML;
+
+   ------------------
+   -- Record_Class --
+   ------------------
+
+   procedure Record_Class (Name : in String; Location : in Occurence) is
+      Id : constant Class_Dict.Id := Class_Dict.Get (Name);
+   begin
+      if Class_Prefix /= Null_Unbounded_String then
+         Check_Prefix (Name, To_String (Class_Prefix), Location);
+      end if;
+
+      Class_Dict.Add (Id, Location);
+   end Record_Class;
+
+   ---------------
+   -- Record_Id --
+   ---------------
+
+   procedure Record_Id (Name : in String; Location : in Occurence) is
+
+      function Prefix_From_File (Filename : in String) return String;
+      --  Returns the expected prefix for Ids declared in Filename
+
+      ----------------------
+      -- Prefix_From_File --
+      ----------------------
+
+      function Prefix_From_File (Filename : in String) return String is
+         Prefix   : Unbounded_String;
+         Get_Next : Boolean := True;
+      begin
+         for K in Filename'Range loop
+            if Get_Next then
+               Append (Prefix, Filename (K));
+               Get_Next := False;
+
+            elsif Filename (K) = '_' then
+               Get_Next := True;
+            end if;
+         end loop;
+
+         return To_String (Prefix);
+      end Prefix_From_File;
+
+      Id : constant Id_Dict.Id := Id_Dict.Get (Name);
+   begin
+      if Id_Prefix /= Null_Unbounded_String then
+         Check_Prefix (Name, To_String (Id_Prefix), Location);
+
+      elsif Id_File then
+         Check_Prefix
+           (Name,
+            Prefix_From_File
+              (Directories.Base_Name (To_String (Location.Filename))),
+            Location);
+      end if;
+
+      Id_Dict.Add (Id, Location);
+   end Record_Id;
 
 begin
    Parse_Command_Line;
@@ -814,7 +935,11 @@ begin
       end case;
    end if;
 
-   Command_Line.Set_Exit_Status (Command_Line.Success);
+   if Has_Error then
+      Command_Line.Set_Exit_Status (Command_Line.Failure);
+   else
+      Command_Line.Set_Exit_Status (Command_Line.Success);
+   end if;
 
 exception
    when Syntax_Error | GNAT.Command_Line.Invalid_Switch =>
@@ -838,4 +963,5 @@ exception
         ("        -c      : handle class elements");
       Text_IO.Put_Line
         ("        -C      : do not handle class elements");
+      Command_Line.Set_Exit_Status (Command_Line.Failure);
 end Webxref;
