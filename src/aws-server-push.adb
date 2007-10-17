@@ -235,10 +235,6 @@ package body AWS.Server.Push is
       procedure Deallocate is
          new Ada.Unchecked_Deallocation (Client_Holder, Client_Holder_Access);
    begin
-      if Holder.Phase /= Available then
-         raise Program_Error with Holder.Phase'Img;
-      end if;
-
       Net.Free (Holder.Socket);
       Deallocate (Holder);
    end Free;
