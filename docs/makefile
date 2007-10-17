@@ -204,7 +204,7 @@ endif
 %.html: %.texi
 ifneq (${MAKEINFO},)
 	echo Building $@
-	-${MAKEINFO} --html --no-split --css-include=aws.css --ifinfo $<
+	-${MAKEINFO} --html --force --no-split --css-include=aws.css --ifinfo $<
 else
 	@echo "---------------------------------------------------"
 	@echo "makeinfo not found, cannot build HTML documentation"
