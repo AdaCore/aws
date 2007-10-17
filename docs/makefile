@@ -204,7 +204,7 @@ endif
 %.html: %.texi
 ifneq (${MAKEINFO},)
 	echo Building $@
-	-${MAKEINFO} --html --force --no-split --css-include=aws.css --ifinfo $<
+	-${MAKEINFO} --html --no-split --css-include=aws.css --ifinfo $<
 else
 	@echo "---------------------------------------------------"
 	@echo "makeinfo not found, cannot build HTML documentation"
@@ -223,7 +223,7 @@ endif
 
 # Note that we force XMLADA=Installed, this is not a problem as it is only to
 # give the visibility to soap.ads to get the SOAP's version number.
-prog:
+prog: gen_doc.sed.tmplt
 	$(GNAT) make -Pdocs -XPRJ_Build=${PRJ_BUILD} -XPRJ_XMLADA=Installed
 
 ifeq (${BUILD_DOC_SCRIPT},false)
