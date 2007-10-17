@@ -1,10 +1,10 @@
 
-			    A W S - Ada Web Server
+                            A W S - Ada Web Server
 			   2.4.0 release / SOAP 1.5
 
 Authors:
    Dmitriy Anisimkov
-   Pascal Obry                                               August 4th, 2007
+   Pascal Obry                                              October 17th, 2007
 
 
 
@@ -38,7 +38,9 @@ interoperability. Some users have also reported to have used AWS/SOAP with
 Changes
 -------
 
-Here are the main changes since AWS 2.3.0 :
+New features are described into the file docs/features.
+
+Listed below are some minor enhancements and fixes:
 
    - Default INSTALL location is set to the GNAT compiler found in the PATH.
      This means that by default there is no need to change INSTALL in
@@ -57,18 +59,9 @@ Here are the main changes since AWS 2.3.0 :
      filter has now access to the lazy tags. See non upward compatible
      changes.
 
-   - Support for Pipe streams to avoid writing data on the hard drive.
-
    - Add support for extended HTTP protocols.
 
    - Fix xsd:float and xsd:double support to match the W3C recommendations.
-
-   - Add support for SMTP authentication.
-
-   - Add a new high level service (AWS.Services.Web_Block) to help
-     building block based Web applications.
-
-   - Add support for user defined types in ada2wsdl tool.
 
    - The server side URL object (Status.URI returning and URL.Object)
      properly store the web parameters.
@@ -306,3 +299,4 @@ Jerme Roussel, Ariane Sinibardy, Henrik Sundberg.
 
 
 Thanks to all who have reported bugs and have sent us patches.
+

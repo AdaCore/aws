@@ -1,0 +1,44 @@
+====================================================
+AWS 2.4 NEW FEATURES LIST Current as of Oct 17, 2007
+====================================================
+
+Copyright (c) 2006-2007, AdaCore
+
+This file contains a list of new features introduced in AWS.
+A full description of all AWS features can be found in the AWS
+documentation.
+
+An ISO date (YYYY-MM-DD) appears in parentheses after the
+description line. This date shows the implementation date
+of the feature.
+
+New features in AWS 2.4.0
+-------------------------
+
+NF-24-GA09-014 Session in multiple embedded server (2007-10-12)
+
+  AWS now supports sessions for multiple embedded servers into the
+  same executable. For this each server can register it's own session
+  name. This will be used for the cookie name on the client side.
+
+NF-24-G801-013 Support for user defined types in ada2wsdl (2007-08-06)
+
+  ada2wsdl now supports user defined types and not only derived types
+  from integer or float for example.
+
+NF-24-G625-011 New high level service Web_Block (2007-07-16)
+
+  This new service is providing support for easily building web
+  applications based on blocks. Blocks are fully independent and can
+  be placed in any Web pages without modifying the Ada code.
+
+NF-24-G625-010 Add support for plain SMTP authentication (2007-06-25)
+
+  It is now possible to send e-mails using a server requiring
+  authentication. Only the plain authentication is supported.
+
+NF-24-G117-010 Support pipe streams (2007-02-02)
+
+  Pipe stream is a new kind of stream which make it possible to
+  stream the output of an external command directly. This avoids
+  writing the data into a temporary file before sending it.
