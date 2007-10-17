@@ -27,7 +27,6 @@
 ------------------------------------------------------------------------------
 
 with Ada.Tags;
-with Ada.Task_Attributes;
 with Ada.Text_IO;
 with Ada.Unchecked_Deallocation;
 
@@ -45,13 +44,6 @@ package body AWS.Server is
 
    use Ada;
    use type Net.Socket_Access;
-
-   type Line_Attribute_Record is record
-      Server   : HTTP_Access;
-      Line     : Positive;
-      Stat     : Status.Data;
-      Log_Data : AWS.Log.Fields_Table;
-   end record;
 
    procedure Free is new Ada.Unchecked_Deallocation
      (Dispatchers.Handler'Class, Dispatchers.Handler_Class_Access);
@@ -73,10 +65,6 @@ package body AWS.Server is
    --  Close a socket on a slot for which a force timeout has expired.
 
    Server_Counter : Utils.Counter (Initial_Value => 0);
-
-   package Line_Attribute is
-     new Task_Attributes (Line_Attribute_Record, (Line => 1, others => <>));
-   --  A line specific attribute
 
    ------------------------------
    -- Accept_Socket_Serialized --
@@ -241,15 +229,6 @@ package body AWS.Server is
    begin
       return Line_Attribute.Reference.Server;
    end Get_Current;
-
-   ----------------
-   -- Get_Fields --
-   ----------------
-
-   function Get_Log_Data return AWS.Log.Fields_Table is
-   begin
-      return Line_Attribute.Reference.Log_Data;
-   end Get_Log_Data;
 
    ----------------
    -- Get_Status --
@@ -866,6 +845,7 @@ package body AWS.Server is
       procedure Socket_Taken (Index : in Positive; Flag : in Boolean) is
       begin
          Table (Index).Socket_Taken := Flag;
+         Table (Index).Sock         := null;
       end Socket_Taken;
 
    end Slots;

@@ -29,6 +29,7 @@
 with Ada.Calendar;
 with Ada.Exceptions;
 with Ada.Finalization;
+with Ada.Task_Attributes;
 
 with AWS.Config;
 with AWS.Default;
@@ -209,9 +210,6 @@ private
 
    procedure Socket_Taken (Flag : in Boolean);
    --  Mark socket of the cureent line of the current server taken
-
-   function Get_Log_Data return AWS.Log.Fields_Table;
-   --  Returns the extended fields table.
 
    ------------
    -- Phases --
@@ -472,5 +470,17 @@ private
    end record;
 
    overriding procedure Finalize (Web_Server : in out HTTP);
+
+   type Line_Attribute_Record is record
+      Server   : HTTP_Access;
+      Line     : Positive;
+      Stat     : Status.Data;
+      Log_Data : AWS.Log.Fields_Table;
+   end record;
+
+   package Line_Attribute is
+     new Ada.Task_Attributes
+           (Line_Attribute_Record, (Line => 1, others => <>));
+   --  A line specific attribute
 
 end AWS.Server;

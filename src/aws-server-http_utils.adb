@@ -238,8 +238,6 @@ package body AWS.Server.HTTP_Utils is
                         raise;
                   end;
                end if;
-
-               HTTP_Server.Slots.Mark_Phase (Line_Index, Server_Response);
             end;
          end if;
       end Build_Answer;
@@ -1142,11 +1140,10 @@ package body AWS.Server.HTTP_Utils is
 
       use type Response.Data_Mode;
 
-      Sock        : constant Net.Socket_Type'Class := Status.Socket (C_Stat);
       Status_Code : Messages.Status_Code;
       Length      : Resources.Content_Length_Type := 0;
 
-      procedure Send_General_Header;
+      procedure Send_General_Header (Sock : in Net.Socket_Type'Class);
       --  Send the "Date:", "Server:", "Set-Cookie:" and "Connection:" header
 
       procedure Send_Header_Only;
@@ -1164,6 +1161,8 @@ package body AWS.Server.HTTP_Utils is
          use type Calendar.Time;
          use type AWS.Status.Request_Method;
 
+         Sock          : constant Net.Socket_Type'Class :=
+                           Status.Socket (C_Stat);
          Method        : constant AWS.Status.Request_Method :=
                            Status.Method (C_Stat);
          Filename      : constant String :=
@@ -1191,8 +1190,9 @@ package body AWS.Server.HTTP_Utils is
             Net.Buffered.Put_Line
               (Sock, Messages.Status_Line (Messages.S304));
 
-            Send_General_Header;
+            Send_General_Header (Sock);
             Net.Buffered.New_Line (Sock);
+            Net.Buffered.Flush (Sock);
             return;
 
          elsif Headers.Get_Values
@@ -1231,7 +1231,7 @@ package body AWS.Server.HTTP_Utils is
             Will_Close := True;
          end if;
 
-         Send_General_Header;
+         Send_General_Header (Sock);
 
          --  Send file last-modified timestamp info in case of a file
 
@@ -1252,13 +1252,14 @@ package body AWS.Server.HTTP_Utils is
          Send_Resource
            (Method, Response.Close_Resource (Answer), File, Length,
             HTTP_Server, Line_Index, C_Stat);
+         Net.Buffered.Flush (Sock);
       end Send_Data;
 
       -------------------------
       -- Send_General_Header --
       -------------------------
 
-      procedure Send_General_Header is
+      procedure Send_General_Header (Sock : in Net.Socket_Type'Class) is
          use type Messages.Cache_Option;
       begin
          --  Session
@@ -1307,12 +1308,13 @@ package body AWS.Server.HTTP_Utils is
 
       procedure Send_Header_Only is
          use type AWS.Status.Request_Method;
+         Sock : constant Net.Socket_Type'Class := Status.Socket (C_Stat);
       begin
          --  First let's output the status line
 
          Net.Buffered.Put_Line (Sock, Messages.Status_Line (Status_Code));
 
-         Send_General_Header;
+         Send_General_Header (Sock);
 
          --  There is no content
 
@@ -1321,6 +1323,7 @@ package body AWS.Server.HTTP_Utils is
          --  End of header
 
          Net.Buffered.New_Line (Sock);
+         Net.Buffered.Flush (Sock);
       end Send_Header_Only;
 
       use type Response.Data;
@@ -1335,9 +1338,11 @@ package body AWS.Server.HTTP_Utils is
          when Response.File | Response.File_Once
             | Response.Stream | Response.Message
             =>
+            HTTP_Server.Slots.Mark_Phase (Line_Index, Server_Response);
             Send_Data;
 
          when Response.Header =>
+            HTTP_Server.Slots.Mark_Phase (Line_Index, Server_Response);
             Send_Header_Only;
 
          when Response.Socket_Taken =>
@@ -1349,48 +1354,33 @@ package body AWS.Server.HTTP_Utils is
               with "Answer not properly initialized (No_Data)";
       end case;
 
-      if not Socket_Taken then
-         Net.Buffered.Flush (Sock);
-      end if;
-
       if CNF.Log_Extended_Fields_Length (HTTP_Server.Properties) > 0 then
          declare
             use type Ada.Calendar.Time;
             use type Strings.Maps.Character_Set;
 
-            Fields : Log.Fields_Table := Get_Log_Data;
+            LA : constant Line_Attribute.Attribute_Handle :=
+              Line_Attribute.Reference;
 
          begin
             Log.Set_Field
-              (HTTP_Server.Log, Fields, "time-taken",
+              (LA.Server.Log, LA.Log_Data, "time-taken",
                Utils.Significant_Image
                  (Ada.Calendar.Clock - Status.Request_Time (C_Stat), 3));
 
             Log.Set_Header_Fields
-              (HTTP_Server.Log, Fields, "cs", Status.Header (C_Stat));
+              (LA.Server.Log, LA.Log_Data, "cs", Status.Header (C_Stat));
             Log.Set_Header_Fields
-              (HTTP_Server.Log, Fields, "sc", Response.Header (Answer));
+              (LA.Server.Log, LA.Log_Data, "sc", Response.Header (Answer));
 
             Log.Set_Field
-              (HTTP_Server.Log, Fields, "c-ip", Net.Peer_Addr (Sock));
-            Log.Set_Field
-              (HTTP_Server.Log, Fields, "c-port",
-               Utils.Image (Net.Peer_Port (Sock)));
-
-            Log.Set_Field
-              (HTTP_Server.Log, Fields, "s-ip", Net.Get_Addr (Sock));
-            Log.Set_Field
-              (HTTP_Server.Log, Fields, "s-port",
-               Utils.Image (Net.Get_Port (Sock)));
-
-            Log.Set_Field
-              (HTTP_Server.Log, Fields, "cs-method",
+              (LA.Server.Log, LA.Log_Data, "cs-method",
                Status.Request_Method'Image (Status.Method (C_Stat)));
             Log.Set_Field
-              (HTTP_Server.Log, Fields, "cs-username",
+              (LA.Server.Log, LA.Log_Data, "cs-username",
                Status.Authorization_Name (C_Stat));
             Log.Set_Field
-              (HTTP_Server.Log, Fields, "cs-version",
+              (LA.Server.Log, LA.Log_Data, "cs-version",
                Status.HTTP_Version (C_Stat));
 
             declare
@@ -1409,21 +1399,21 @@ package body AWS.Server.HTTP_Utils is
                             Parameters.URI_Format
                               (Status.Parameters (C_Stat));
             begin
-               Log.Set_Field (HTTP_Server.Log, Fields, "cs-uri-stem", URI);
+               Log.Set_Field (LA.Server.Log, LA.Log_Data, "cs-uri-stem", URI);
                Log.Set_Field
-                 (HTTP_Server.Log, Fields, "cs-uri-query", Query);
+                 (LA.Server.Log, LA.Log_Data, "cs-uri-query", Query);
                Log.Set_Field
-                 (HTTP_Server.Log, Fields, "cs-uri", URI & Query);
+                 (LA.Server.Log, LA.Log_Data, "cs-uri", URI & Query);
             end;
 
             Log.Set_Field
-              (HTTP_Server.Log, Fields, "sc-status",
+              (LA.Server.Log, LA.Log_Data, "sc-status",
                Messages.Image (Status_Code));
             Log.Set_Field
-              (HTTP_Server.Log, Fields, "sc-bytes",
+              (LA.Server.Log, LA.Log_Data, "sc-bytes",
                Utils.Image (Integer (Length)));
 
-            Log.Write (HTTP_Server.Log, Fields);
+            Log.Write (LA.Server.Log, LA.Log_Data);
          end;
 
       else

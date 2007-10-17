@@ -72,6 +72,9 @@ procedure Protocol_Handler (LA : in out Line_Attribute_Record) is
 
    Free_Slots : Natural;
 
+   Extended_Log : constant Boolean
+     := CNF.Log_Extended_Fields_Length (LA.Server.Properties) > 0;
+
    Multislots : constant Boolean
      := CNF.Max_Connection (LA.Server.Properties) > 1;
 
@@ -127,6 +130,20 @@ begin
 
          Status.Set.Socket (LA.Stat, Sock_Ptr);
 
+         if Extended_Log then
+            AWS.Log.Set_Field (LA.Server.Log, LA.Log_Data,
+               "c-ip", Net.Peer_Addr (Sock_Ptr.all));
+
+            AWS.Log.Set_Field (LA.Server.Log, LA.Log_Data,
+               "c-port", Utils.Image (Net.Peer_Port (Sock_Ptr.all)));
+
+            AWS.Log.Set_Field (LA.Server.Log, LA.Log_Data,
+               "s-ip", Net.Get_Addr (Sock_Ptr.all));
+
+            AWS.Log.Set_Field (LA.Server.Log, LA.Log_Data,
+               "s-port", Utils.Image (Net.Get_Port (Sock_Ptr.all)));
+         end if;
+
          Status.Set.Case_Sensitive_Parameters
            (LA.Stat, Case_Sensitive_Parameters);
 
@@ -147,7 +164,10 @@ begin
             Force_Clean (LA.Server.all);
          end if;
 
-         Set_Field ("s-free-slots", Utils.Image (Free_Slots));
+         if Extended_Log then
+            AWS.Log.Set_Field (LA.Server.Log, LA.Log_Data,
+               "s-free-slots", Utils.Image (Free_Slots));
+         end if;
 
          Set_Close_Status
            (LA.Stat,
