@@ -149,7 +149,7 @@ procedure Upload5 is
          CB'Unrestricted_Access,
          Port             => Port,
          Max_Connection   => 5,
-         Upload_Directory => "upload_dir");
+         Upload_Directory => "upload_dir/");
 
       Put_Line ("Server started");
       New_Line;

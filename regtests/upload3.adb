@@ -136,7 +136,7 @@ procedure Upload3 is
       Config.Set.Server_Name (Web_Config, "upload3");
       Config.Set.Server_Port (Web_Config, Port);
       Config.Set.Max_Connection (Web_Config, 5);
-      Config.Set.Upload_Directory (Web_Config, "/this/one/does/not/exists");
+      Config.Set.Upload_Directory (Web_Config, "/this/one/does/not/exists/");
 
       AWS.Server.Set_Unexpected_Exception_Handler
         (HTTP, Problem'Unrestricted_Access);
