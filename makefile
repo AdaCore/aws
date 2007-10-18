@@ -107,11 +107,6 @@ build_doc:
 	echo "=== Build doc"
 	${MAKE} -C docs build_doc $(GALL_OPTIONS)
 
-build_apiref:
-	echo ""
-	echo "=== Build API References"
-	${MAKE} -s -C docs apiref $(ALL_OPTIONS)
-
 tp_regtests:
 	echo ""
 	echo "=== Run Templates Parser regression tests"
@@ -206,7 +201,7 @@ build_http_tarball:
 
 build_tarballs: common_tarball build_http_tarball build_tarball
 
-distrib: build_apiref build_tarballs
+distrib: build_tarballs
 
 force:
 

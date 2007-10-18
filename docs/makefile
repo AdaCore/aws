@@ -29,6 +29,9 @@
 .SILENT:
 
 BUILD_DOC_SCRIPT = true
+#  When true the main documentation texinfo file will be generated from the
+#  corresponding template using a script. This avoid building AWS to build
+#  the documentation (see gen_doc.*).
 
 MAKEINFO	= $(shell which makeinfo 2> /dev/null)
 DVIPS		= $(shell which dvips 2> /dev/null)
@@ -126,8 +129,6 @@ build_doc: $(APIFILES) aws_docs sg_docs
 	${MAKE} -C ../templates_parser doc
 
 aws_docs: aws.texi aws.pdf aws.ps aws.html aws.txt aws.info
-
-force:
 
 sg_docs: style-guide.pdf style-guide.ps style-guide.html style-guide.txt \
 	style-guide.info
@@ -227,77 +228,27 @@ prog: gen_doc.sed.tmplt
 	$(GNAT) make -Pdocs -XPRJ_Build=${PRJ_BUILD} -XPRJ_XMLADA=Installed
 
 ifeq (${BUILD_DOC_SCRIPT},false)
-aws.texi: prog aws.texi.tmplt
+gen_texi: prog aws.texi.tmplt
 	echo build from ada
 	./build | tr -d '\r' > aws.texi
 else
-aws.texi: aws.texi.tmplt
+gen_texi: aws.texi.tmplt
 	echo build from script
 	sed -f ./gen_doc.sed < aws.texi.tmplt > aws.texi
 endif
 
-check_api:
-	if [ -f ../$(BDIR)/obj/soap.ali ]; then \
-		exit 0; \
-	else \
-		echo SOAP not activated, cannot generate API documentation ; \
-		exit 1; \
+check_texi:
+	if [ "`grep '[^@]@_' aws.texi`" != "" ]; then \
+	   echo Wrong .texi files, some tag variables are missing; \
+	   echo Please be sure to update gen_doc.sed and gen_doc.sed.tmplt; \
+	   exit 1; \
 	fi;
 
-# apiref can be set to gnathtml_apiref or adabrowse_apiref to select the tool
-# used to generate the API cross-reference.
-apiref: gnathtml_apiref
-
-APIREFS = src/a*.ad[sb] templates_parser/src/templates*.ad[sb] xsrc/*.ad* \
-	   	include/strings_cutter.ad[sb] include/zlib*.ad[sb] \
-		include/memory_streams.ad[sb] \
-		soap/soap*.ad[sb] templates_parser/xsrc/templates*.ad[sb]
-
-pref1	= $(BDIR)/obj
-pref2	= $(BDIR)/include
-
-# API cross-references using gnathtml
-
-gnathtml_apiref: check_api
-	(cd ..; fileset=; \
-	for file in $(APIREFS); do \
-		echo -n $$file; \
-		bfile=`basename $$file | sed -e 's/\.ad[sb]/.ali/'`; \
-		if [ -f $(pref1)/$$bfile ] || [ -f $(pref2)/$$bfile ]; then \
-			echo "    included"; \
-			fileset="$$fileset `basename $$file`"; \
-		else \
-			echo "    skipped"; \
-		fi; \
-	done; \
-	gnathtml.pl -Isrc -Iinclude -Isoap -Ixsrc -I$(pref1) -I$(pref2) \
-		-Itemplates_parser/src -Itemplates_parser/xsrc \
-		-odocs/html $$fileset; \
-	)
-	$(MV) html/index.htm html/aws_index.htm
-
-# API cross-references using AdaBrowse
-
-adabrowse_apiref: check_api
-	(cd ..; \
-	for file in $(APIREFS); \
-	do \
-		echo -n $$file; \
-		if [ -f `echo $$file | sed -e 's/\.ad[sb]/.ali/'` ]; then \
-			echo "    included"; \
-			adabrowse -o docs\\html\\ -f $$file -Isrc -Iinclude \
-			   -Itemplates_parser/src -Itemplates_parser/xsrc; \
-		else \
-			echo "    skipped"; \
-		fi; \
-	done; \
-	)
+aws.texi: gen_texi check_texi
 
 clean:
-	-$(RM) -f aws.texi aws.dvi aws.html aws.info* aws.log aws.ps aws.txt \
-          $(APIFILES) *~ *.o *.ali genout
+	-$(GNAT) clean -Pdocs -XPRJ_Build=${PRJ_BUILD} -XPRJ_XMLADA=Installed
+	-$(RM) -f aws.texi aws.dvi aws.html aws.info* aws.log aws.ps aws.txt
+	-$(RM) -f $(APIFILES) *~ genout
 	-$(RM) -f style-guide.dvi style-guide.html style-guide.info* \
 		style-guide.log style-guide.ps style-guide.txt
-
-clean_apiref:
-	-$(RM) -fr html
