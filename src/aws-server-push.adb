@@ -947,7 +947,7 @@ package body AWS.Server.Push is
 
       Waiter.Add (Server'Unrestricted_Access, Holder);
 
-      Socket_Taken (True);
+      Socket_Taken;
    end Register;
 
    procedure Register

@@ -636,13 +636,17 @@ package body AWS.Server is
       ----------------------
 
       procedure Get_For_Shutdown
-        (Index  : in     Positive;
-         Socket :    out Socket_Access) is
+        (Index : in Positive; Socket : out Socket_Access) is
       begin
          if Table (Index).Phase not in Closed .. Aborted then
-            Mark_Phase (Index, In_Shutdown);
-            Shutdown_Count := Shutdown_Count + 1;
             Socket := Table (Index).Sock;
+
+            if Socket = null then
+               Mark_Phase (Index, Aborted);
+            else
+               Mark_Phase (Index, In_Shutdown);
+               Shutdown_Count := Shutdown_Count + 1;
+            end if;
          else
             Socket := null;
          end if;
@@ -771,9 +775,9 @@ package body AWS.Server is
          pragma Assert
            ((Table (Index).Phase = Closed
                and then -- If phase is closed, then Sock must be null
-               (Table (Index).Sock = null))
+               Table (Index).Sock = null)
             or else -- or phase is not closed
-              (Table (Index).Phase /= Closed));
+              Table (Index).Phase /= Closed);
 
          Count := Count + 1;
 
@@ -842,9 +846,9 @@ package body AWS.Server is
       -- Socket_Taken --
       ------------------
 
-      procedure Socket_Taken (Index : in Positive; Flag : in Boolean) is
+      procedure Socket_Taken (Index : in Positive) is
       begin
-         Table (Index).Socket_Taken := Flag;
+         Table (Index).Socket_Taken := True;
          Table (Index).Sock         := null;
       end Socket_Taken;
 
@@ -854,11 +858,11 @@ package body AWS.Server is
    -- Socket_Taken --
    ------------------
 
-   procedure Socket_Taken (Flag : in Boolean) is
+   procedure Socket_Taken is
       TA : constant Line_Attribute.Attribute_Handle
         := Line_Attribute.Reference;
    begin
-      TA.Server.Slots.Socket_Taken (TA.Line, Flag);
+      TA.Server.Slots.Socket_Taken (TA.Line);
    end Socket_Taken;
 
    -----------

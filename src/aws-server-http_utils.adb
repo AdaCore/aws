@@ -1346,7 +1346,7 @@ package body AWS.Server.HTTP_Utils is
             Send_Header_Only;
 
          when Response.Socket_Taken =>
-            HTTP_Server.Slots.Socket_Taken (Line_Index, True);
+            HTTP_Server.Slots.Socket_Taken (Line_Index);
             Socket_Taken := True;
 
          when Response.No_Data =>

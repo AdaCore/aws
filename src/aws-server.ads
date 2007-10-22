@@ -208,7 +208,7 @@ private
       Answer : in out Response.Data);
    --  Default unexpected exception handler
 
-   procedure Socket_Taken (Flag : in Boolean);
+   procedure Socket_Taken;
    --  Mark socket of the cureent line of the current server taken
 
    ------------
@@ -308,7 +308,7 @@ private
       procedure Check_Data_Timeout (Index : in Positive);
       --  Check timeout of send/receive message body.
 
-      procedure Socket_Taken (Index : in Positive; Flag : in Boolean);
+      procedure Socket_Taken (Index : in Positive);
       --  Used to mark slot associated socket has "taken" by some foreign code.
       --  The server must not close this socket on releasing the slot. It is
       --  used when passing socket to the server push part for example. In the
@@ -339,8 +339,7 @@ private
       --  with Socket. Phase set to Wait_For_Client.
 
       procedure Get_For_Shutdown
-        (Index  : in     Positive;
-         Socket :    out Socket_Access);
+        (Index : in Positive; Socket : out Socket_Access);
       --  Get socket from the slot for shutdown, Slot phase is set to
       --  In_Shutdown.
 
