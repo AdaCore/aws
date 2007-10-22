@@ -35,6 +35,7 @@ SSL_PATH1 := $(shell ls /usr/lib/libcrypto.a 2> /dev/null)
 SSL_PATH2 := $(shell ls /lib/libcrypto.a 2> /dev/null)
 SSL_PATH3 := $(shell ls /usr/lib/libcrypto.so 2> /dev/null)
 SSL_PATH4 := $(shell ls /lib/libcrypto.so 2> /dev/null)
+SSL_PATH5 := $(shell ls /usr/lib/libcrypto.dylib 2> /dev/null)
 endif
 
 SSL_PATH = $(SSL_PATH1)
@@ -47,6 +48,9 @@ ifeq (${SSL_PATH},)
 endif
 ifeq (${SSL_PATH},)
 	SSL_PATH = $(SSL_PATH4)
+endif
+ifeq (${SSL_PATH},)
+	SSL_PATH = $(SSL_PATH5)
 endif
 
 build:
@@ -84,7 +88,6 @@ else
 	echo '   LIB_Path := "'$(dir $(SSL_PATH))'";' >> $(ISSLGPR)
 endif
 	echo "end AWS_SSL_Shared;" >> $(ISSLGPR)
-
 
 setup: setup_ssl setup_ssl_install
 	-$(MKDIR) -p ../$(BDIR)/ssl/obj
