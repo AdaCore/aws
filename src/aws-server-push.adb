@@ -1448,6 +1448,8 @@ package body AWS.Server.Push is
                               raise Program_Error
                                 with "Broken socket in waiter.";
                            end if;
+
+                           exit;
                         end;
 
                      elsif Get_Data (Write_Set, J).CH = Holder then
@@ -1473,6 +1475,8 @@ package body AWS.Server.Push is
 
          for J in reverse 2 .. Count (Write_Set) loop
             declare
+               Remove : Boolean := False;
+
                procedure Process
                  (Socket : in out Socket_Type'Class;
                   Client : in out Client_In_Wait);
@@ -1498,7 +1502,7 @@ package body AWS.Server.Push is
                   procedure Socket_Error (Message : in String) is
                   begin
                      Client.SP.Waiter_Error (Client.CH, Message);
-                     Remove_Socket (Write_Set, J);
+                     Remove := True;
                   end Socket_Error;
 
                   procedure Socket_Error_Log (Message : in String) is
@@ -1529,7 +1533,7 @@ package body AWS.Server.Push is
                                 (Ada.Exceptions.Exception_Message (E));
                         end;
                      else
-                        Remove_Socket (Write_Set, J);
+                        Remove := True;
                      end if;
 
                   elsif Client.Exp < Clock then
@@ -1543,6 +1547,10 @@ package body AWS.Server.Push is
 
             begin
                Update_Socket (Write_Set, J, Process'Access);
+
+               if Remove then
+                  Remove_Socket (Write_Set, J);
+               end if;
             end;
          end loop;
       end loop;
