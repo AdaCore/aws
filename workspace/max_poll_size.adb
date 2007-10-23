@@ -6,9 +6,11 @@ procedure Max_Poll_Size is
    Set : Sets.Socket_Set_Type;
    Port : constant Positive := 8088;
    Server, Client, Peer : Socket_Type'Class := Socket (False);
+
 begin
    Bind (Server, Port);
    Listen (Server);
+
    loop
       Connect (Client, "localhost", Port);
       Accept_Socket (Server, Peer);
