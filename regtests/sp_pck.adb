@@ -197,11 +197,36 @@ package body Sp_Pck is
 
       if Server_Push.Count (Push) > 1 then
          --  Wait for server-push internal waiter process completion.
-         delay 0.5;
+
+         delay 1.0;
       end if;
 
       if Server_Push.Count (Push) /= 1 then
-         Put_Line ("Auto unregister error." & Server_Push.Count (Push)'Img);
+         declare
+
+            procedure Process
+              (Client_Id   : in String;
+               Address     : in String;
+               State       : in String;
+               Environment : in Text_IO.Editing.Picture;
+               Kind        : in Server_Push.Mode;
+               Groups      : in Server_Push.Group_Set) is
+            begin
+               Put_Line (Client_Id & ' ' & Address & ' ' & State);
+            end;
+
+            Clients : Natural;
+            Groups  : Natural;
+            Size    : Natural;
+            Counter : Server_Push.Wait_Counter_Type;
+
+         begin
+            Server_Push.Info (Push, Clients, Groups, Process'Access);
+            Server_Push.Info (Size, Counter);
+            Put_Line
+              ("Auto unregister error " & Clients'Img & Groups'Img & Size'Img
+               & Counter'Img);
+         end;
       end if;
 
       Server_Push.Unregister_Clients (Push);
