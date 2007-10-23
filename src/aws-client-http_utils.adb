@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2005-2006                          --
+--                         Copyright (C) 2005-2007                          --
 --                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -260,10 +260,9 @@ package body AWS.Client.HTTP_Utils is
       Get_Body   : in     Boolean         := True)
    is
       procedure Disconnect;
-      --  close connection socket.
+      --  close connection socket
 
       Sock       : Net.Socket_Type'Class renames Connection.Socket.all;
-
       Keep_Alive : Boolean;
 
       ----------------
