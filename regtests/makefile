@@ -58,6 +58,7 @@ include makefile.lst
 ADA2WSDL = ../$(BDIR)/tools/ada2wsdl-main
 WSDL2AWS = ../$(BDIR)/tools/wsdl2aws
 AWSRES   = ../$(BDIR)/tools/awsres
+WEBXREF  = ../$(BDIR)/tools/webxref
 
 # Test to be run in grouped mode
 
@@ -75,7 +76,7 @@ endif
 
 # Standard regression tests that needs to be run in a separate executable
 
-OTH_TESTS      = tres
+OTH_TESTS      = tres wxrefs
 
 ALONE_TESTS    = server_config tlog pipe_stream
 
@@ -259,6 +260,20 @@ tres: force
 	cat tres-1.res tres-2.res > tres.res
 	-$(RM) tres$(EXEEXT)
 	-$(DIFF) tres.out tres.res 1>> alldifs 2>> alldifs
+
+wxrefs:
+	echo webxrefs tests
+	echo xxxxxxxxxx CROSS-REFERENCES xxxxxxxxxx > wxrefs.res
+	$(WEBXREF) wx_* >> wxrefs.res
+	echo xxxxxxxxxx UNUSED / UNREFERENCED xxxxxxxxxx >> wxrefs.res
+	$(WEBXREF) -u wx_* >> wxrefs.res
+	echo xxxxxxxxxx UNDEFINED xxxxxxxxxx >> wxrefs.res
+	$(WEBXREF) -d wx_* >> wxrefs.res
+	echo xxxxxxxxxx NAMING xxxxxxxxxx >> wxrefs.res
+	-$(WEBXREF) -I -C -pi id wx_* >> wxrefs.res
+	echo xxxxxxxxxx NAMING FILE BASED xxxxxxxxxx >> wxrefs.res
+	-$(WEBXREF) -I -C -pi file_based wx_* >> wxrefs.res
+	-$(DIFF) wxrefs.out wxrefs.res 1>> alldifs 2>> alldifs
 
 # As this check is really target dependent what we do is to run twice the same
 # program, each time with a different number of HTTP requests, then we compare

@@ -2537,6 +2537,7 @@ Refer to the Ada spec for a complete API and usage description.
 * Download Manager::
 * Web Elements::
 * Web Block Context::
+* Web Cross-References::
 @end menu
 
 @c ----------------------------------------------------------------------
@@ -3674,6 +3675,85 @@ counter state.
    @b{end} Counter;
 
 @b{end} Web_Callbacks;}
+
+@c ======================================================================
+
+@node Web Cross-References
+@section Web Cross-References
+@cindex webxref
+@cindex web cross-references
+
+@noindent
+When building an Ajax Web applications it is required to give ids to
+web elements to be able to reference them. It is also quite common to
+use CSS to give such and such item a specific style. After some time
+it is quite difficult to keep track of all those ids. Are they all
+used ? Don't we reference an id that does not exist anymore ?
+
+@noindent
+@code{webxref} has been designed to help finding such problems.
+
+@noindent
+The files kinds handled are:
+
+@table @file
+
+@item .css
+@item .tcss
+
+A CSS (or template CSS file). Ids and classes inside are recorded as
+CSS definitions.
+
+@item .xml
+@item .html
+@item .thtml
+
+A meta-language document. Ids and classes inside are recorded as
+referencing a CSS definition and meta-language definition.
+
+@item .txml
+
+An Ajax response file. Ids declared inside are recorded as referencing
+a meta-language definition.
+
+@end table
+
+@noindent
+The features are:
+
+@table @b
+
+@item cross-references
+
+By default @code{webxref} output all the references to ids and classes.
+
+@item finding unused items
+
+Output the ids/classes that are defined but not used. For example an
+id declared in a CSS but never referenced into an HTML document or an
+HTML id never referenced in an Ajax response file @file{.txml} document.
+
+@item finding undeclared items
+
+Output ids/classes that are referenced but never defined. This is for
+example an id inside an Ajax response file which is never defined into
+an HTML document.
+
+@item enforcing a naming scheme for ids and classes
+
+It can enforce a specific prefix for ids and classes. The id prefix
+can be based on the filename (using filename's first character and all
+character before an underscore). This make it less likely to find the
+same id on multiple files.
+
+@end table
+
+@noindent
+Note that all references are in a format recognized by tools like @code{GPS}
+and @code{Emacs}. It is then possible to navigate inside them easily.
+
+@noindent
+All @code{webxref} options are listed using the @code{-h} option.
 
 @c ======================================================================
 

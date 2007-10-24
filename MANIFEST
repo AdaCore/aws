@@ -514,6 +514,11 @@ regtests/wait_sec.out
 regtests/wb_test.adb
 regtests/wb_test.out
 regtests/wb_test.tmplt
+regtests/wx_block.thtml
+regtests/wx_page.html
+regtests/wx_reply.txml
+regtests/wx_style.css
+regtests/wxrefs.out
 regtests/zapp.adb
 regtests/zapp.out
 regtests/zbig.adb
@@ -1070,6 +1075,7 @@ tools/awsres.adb
 tools/hotplug_password.adb
 tools/makefile
 tools/tools.gpr
+tools/webxref.adb
 web_elements/icons/ada.gif
 web_elements/icons/adb.gif
 web_elements/icons/ads.gif

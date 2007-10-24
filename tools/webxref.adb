@@ -54,7 +54,7 @@ procedure Webxref is
 
    Syntax_Error : exception;
 
-   Version         : constant String := "0.9 (beta)";
+   Version         : constant String := "1.0";
 
    Max_Line_Length : constant := 1_024;
 
@@ -90,7 +90,7 @@ procedure Webxref is
    function Eof (Iterator : in Reader) return Boolean;
    --  Returns True if end of file reached
 
-   function Is_Ignored (Name : in String) return Boolean;
+   function Is_Id_Ignored (Name : in String) return Boolean;
    --  Returns True if this name is to be ignored
 
    type Name_Kind is
@@ -114,13 +114,11 @@ procedure Webxref is
 
    Def_Kind            : constant Kind_Set :=
                            (Def_CSS | Def_ML => True, others => False);
-   Unused_Kind         : constant Kind_Set := Def_Kind;
 
    Ref_Kind            : constant Kind_Set :=
                            (Ref_CSS | Ref_ML => True, others => False);
 
    No_Kind             : constant Kind_Set := (others => False);
-   All_Kind            : constant Kind_Set := (others => True);
 
    procedure Process_CSS (Filename : in String);
    --  Process a CSS file
@@ -141,6 +139,9 @@ procedure Webxref is
    package Occurences is
      new Containers.Indefinite_Vectors (Natural, Occurence);
 
+   package Id_Maps is new Containers.Indefinite_Hashed_Maps
+     (String, Boolean, Strings.Hash, "=");
+
    procedure Parse_Command_Line;
 
    procedure Record_Id (Name : in String; Location : in Occurence);
@@ -157,9 +158,15 @@ procedure Webxref is
       Location     : in Occurence);
    --  Check if Name has the right prefix
 
+   Lazy_Prefix  : constant String := "lazy_";
+   --  Prefix used for the lazy tags
+
    --  Options
 
    type Mode is (Xref, Unused, Undefined);
+
+   function Is_Mode (Kind : in Kind_Set; Check_Mode : in Mode) return Boolean;
+   --  Returns True if Kind conform to Check_Mode
 
    Check        : Mode := Xref;
    Dump_Classes : Boolean := True;
@@ -169,6 +176,7 @@ procedure Webxref is
    Class_Prefix : Unbounded_String;
    Id_File      : Boolean := False;
    Has_Error    : Boolean := False;
+   Killed_Id    : Id_Maps.Map;
 
    generic
    package Dict is
@@ -193,7 +201,7 @@ procedure Webxref is
       function Get (Id : in Dict.Id) return Node;
       --  Returns node for the given Id
 
-      procedure Dump (Filter : in Kind_Set);
+      procedure Dump (Filter : in Mode);
       --  Dump dictionary content on the console
 
    end Dict;
@@ -206,13 +214,22 @@ procedure Webxref is
      (Name, Prefix : in String;
       Location     : in Occurence) is
    begin
-      if Prefix'Length >= Name'Length
-        or else
-          Name (Name'First .. Name'First + Prefix'Length - 1) /= Prefix
+      if Fixed.Index (Name, Lazy_Prefix) = 0 then
+         if Prefix'Length >= Name'Length
+           or else
+             Name (Name'First .. Name'First + Prefix'Length - 1) /= Prefix
+         then
+            Log_Error
+              (Location, Name & " has wrong prefix, expecting "
+                 & Prefix & '_' & Name);
+         end if;
+
+      elsif Name
+        (Name'First .. Name'First + Lazy_Prefix'Length - 1) /= Lazy_Prefix
       then
          Log_Error
            (Location, Name & " has wrong prefix, expecting "
-            & Prefix & '_' & Name);
+              & Lazy_Prefix & '_' & Name);
       end if;
    end Check_Prefix;
 
@@ -281,7 +298,7 @@ procedure Webxref is
       -- Dump --
       ----------
 
-      procedure Dump (Filter : in Kind_Set) is
+      procedure Dump (Filter : in Mode) is
 
          procedure Dump (Position : in Id_Name.Cursor);
          --  Dump name and iterates through all occurences
@@ -295,44 +312,50 @@ procedure Webxref is
             procedure Dump (Position : in Occurences.Cursor);
             --  Dump the pointed occurence
 
+            Element : constant Node := Id_Name.Element (Position);
+
             ----------
             -- Dump --
             ----------
 
             procedure Dump (Position : in Occurences.Cursor) is
+               Def_Ref : Unbounded_String;
             begin
                declare
                   O : constant Occurence := Occurences.Element (Position);
                begin
-                  Text_IO.Put ("   ");
+                  Text_IO.Put
+                    (To_String (O.Filename) & ":"
+                       & Utils.Image (O.Line) & ":"
+                       & Utils.Image (O.Column) & ": ");
+
                   if (O.Kind and Def_Kind) /= No_Kind then
-                     Text_IO.Put ("<def> ");
+                     Append (Def_Ref, "definition");
                   end if;
 
                   if (O.Kind and Ref_Kind) /= No_Kind then
-                     Text_IO.Put ("<ref> ");
+                     if Def_Ref /= Null_Unbounded_String then
+                        Append (Def_Ref, " and ");
+                     end if;
+                     Append (Def_Ref, "reference");
                   end if;
 
-                  Text_IO.Put_Line
-                    (To_String (O.Filename) & ":"
-                     & Utils.Image (O.Line) & ":" & Utils.Image (O.Column));
+                  Text_IO.Put (To_String (Def_Ref) & " of ");
+                  Text_IO.Put_Line (To_String (Element.Name));
                end;
             end Dump;
 
-            Element : constant Node := Id_Name.Element (Position);
-
          begin
-            if (Filter and Element.Kinds) = Element.Kinds then
-               Text_IO.New_Line;
+            if Is_Mode (Element.Kinds, Filter) then
                if Verbose then
+                  Text_IO.Put (To_String (Element.Name));
                   for K in Name_Kind loop
                      if Element.Kinds (K) then
-                        Text_IO.Put (Name_Kind'Image (K) & " ");
+                        Text_IO.Put (" " & Name_Kind'Image (K));
                      end if;
                   end loop;
+                  Text_IO.New_Line;
                end if;
-
-               Text_IO.Put_Line (To_String (Element.Name));
 
                Element.Occ.Iterate (Dump'Access);
             end if;
@@ -406,17 +429,45 @@ procedure Webxref is
         (Iterator.Content (From .. Iterator.Last), Pattern);
    end Index;
 
-   ----------------
-   -- Is_Ignored --
-   ----------------
+   -------------------
+   -- Is_Id_Ignored --
+   -------------------
 
-   function Is_Ignored (Name : in String) return Boolean is
+   function Is_Id_Ignored (Name : in String) return Boolean is
       use type Strings.Maps.Character_Set;
    begin
       --  Ignore if it is a number
       return Strings.Fixed.Index
-        (Name, not Strings.Maps.Constants.Decimal_Digit_Set) = 0;
-   end Is_Ignored;
+        (Name, not Strings.Maps.Constants.Decimal_Digit_Set) = 0
+        or else Killed_Id.Contains (Name);
+   end Is_Id_Ignored;
+
+   -------------
+   -- Is_Mode --
+   -------------
+
+   function Is_Mode
+     (Kind : in Kind_Set; Check_Mode : in Mode) return Boolean is
+   begin
+      case Check_Mode is
+         when Xref =>
+            return True;
+
+         when Unused =>
+            return Kind = Kind_Set'(Def_ML => True, others => False)
+              or else Kind = Kind_Set'(Def_CSS => True, others => False)
+              or else Kind =
+                Kind_Set'(Def_ML | Def_CSS => True, others => False)
+              or else Kind =
+                Kind_Set'(Def_ML | Ref_CSS => True, others => False);
+
+         when Undefined =>
+            return Kind = Kind_Set'(Ref_ML => True, others => False)
+              or else Kind = Kind_Set'(Ref_CSS => True, others => False)
+              or else Kind =
+                Kind_Set'(Ref_ML | Ref_CSS => True, others => False);
+      end case;
+   end Is_Mode;
 
    ---------------
    -- Log_Error --
@@ -465,7 +516,7 @@ procedure Webxref is
         (Stop_At_First_Non_Switch => True);
 
       loop
-         case GNAT.Command_Line.Getopt ("x u d c C i I v h pi: pc:") is
+         case GNAT.Command_Line.Getopt ("x u d c C i I v h pi: pc: ki:") is
             when ASCII.NUL =>
                exit;
 
@@ -492,6 +543,13 @@ procedure Webxref is
 
             when 'v' =>
                Verbose := True;
+
+            when 'k' =>
+               if GNAT.Command_Line.Full_Switch = "ki" then
+                  Killed_Id.Include (GNAT.Command_Line.Parameter, True);
+               else
+                  raise Syntax_Error;
+               end if;
 
             when 'p' =>
                if GNAT.Command_Line.Full_Switch = "pi" then
@@ -725,7 +783,7 @@ procedure Webxref is
                      if Is_First then
                         Is_First := False;
 
-                     elsif not Is_Ignored
+                     elsif not Is_Id_Ignored
                        (Iterator.Content (First .. Last))
                      then
                         declare
@@ -782,7 +840,7 @@ procedure Webxref is
                     (Iterator,
                      Iterator.Content
                        (First + Attribute'Length + 2 .. Last - 1),
-                     First + Attribute'Length);
+                     First + Attribute'Length + 2);
                   First := Last + 1;
                end if;
             end loop;
@@ -812,9 +870,11 @@ procedure Webxref is
       procedure Process_Id
         (Iterator : in Reader; Name : in String; Column : in Positive) is
       begin
-         Record_Id
-           (Name,
-            (To_Unbounded_String (Filename), Iterator.Line, Column, Kinds));
+         if not Is_Id_Ignored (Name) then
+            Record_Id
+              (Name,
+               (To_Unbounded_String (Filename), Iterator.Line, Column, Kinds));
+         end if;
       end Process_Id;
 
       Iterator : Reader;
@@ -882,16 +942,20 @@ procedure Webxref is
       end Prefix_From_File;
 
       Id : constant Id_Dict.Id := Id_Dict.Get (Name);
-   begin
-      if Id_Prefix /= Null_Unbounded_String then
-         Check_Prefix (Name, To_String (Id_Prefix), Location);
 
-      elsif Id_File then
-         Check_Prefix
-           (Name,
-            Prefix_From_File
-              (Directories.Base_Name (To_String (Location.Filename))),
-            Location);
+   begin
+      --  Only check the naming convention for a definition
+      if (Location.Kind and Def_Kind) /= No_Kind then
+         if Id_Prefix /= Null_Unbounded_String then
+            Check_Prefix (Name, To_String (Id_Prefix), Location);
+
+         elsif Id_File then
+            Check_Prefix
+              (Name,
+               Prefix_From_File
+                 (Directories.Base_Name (To_String (Location.Filename))),
+               Location);
+         end if;
       end if;
 
       Id_Dict.Add (Id, Location);
@@ -917,22 +981,14 @@ begin
       Text_IO.New_Line;
       Text_IO.Put_Line ("*** Class dictionary");
 
-      case Check is
-         when Xref      => Class_Dict.Dump (All_Kind);
-         when Unused    => Class_Dict.Dump (Unused_Kind);
-         when Undefined => Class_Dict.Dump (Ref_Kind);
-      end case;
+      Class_Dict.Dump (Check);
    end if;
 
    if Dump_Ids then
       Text_IO.New_Line;
       Text_IO.Put_Line ("*** Id dictionary");
 
-      case Check is
-         when Xref      => Id_Dict.Dump (All_Kind);
-         when Unused    => Id_Dict.Dump (Unused_Kind);
-         when Undefined => Id_Dict.Dump (Ref_Kind);
-      end case;
+      Id_Dict.Dump (Check);
    end if;
 
    if Has_Error then
@@ -948,20 +1004,28 @@ exception
       Text_IO.Put_Line ("Usage : webxref [-huxcCiIv] file1 file2...");
       Text_IO.New_Line;
       Text_IO.Put_Line
-        ("        -h      : display help");
+        ("        -h         : display help");
       Text_IO.Put_Line
-        ("        -x      : ouput all cross-references (default)");
+        ("        -x         : ouput all cross-references (default)");
       Text_IO.Put_Line
-        ("        -u      : output unused entities only");
+        ("        -u         : output unused entities only");
       Text_IO.Put_Line
-        ("        -d      : output referenced but undefined entities only");
+        ("        -d         : output referenced but undefined entities only");
       Text_IO.Put_Line
-        ("        -i      : handle id elements");
+        ("        -i         : handle id elements");
       Text_IO.Put_Line
-        ("        -I      : do not handle id elements");
+        ("        -I         : do not handle id elements");
       Text_IO.Put_Line
-        ("        -c      : handle class elements");
+        ("        -c         : handle class elements");
       Text_IO.Put_Line
-        ("        -C      : do not handle class elements");
+        ("        -C         : do not handle class elements");
+      Text_IO.Put_Line
+        ("        -pi prefix : id must have the given prefix");
+      Text_IO.Put_Line
+        ("                     'file_based' to use filename based prefix");
+      Text_IO.Put_Line
+        ("        -pc prefix : class must have the given prefix");
+      Text_IO.Put_Line
+        ("        -ki name   : kill id, do not handle this specific id");
       Command_Line.Set_Exit_Status (Command_Line.Failure);
 end Webxref;
