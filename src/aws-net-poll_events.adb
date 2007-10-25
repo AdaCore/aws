@@ -214,8 +214,13 @@ package body AWS.Net.Poll_Events is
             --  events.
 
             if Errno /= OS_Lib.EINTR then
-               raise Socket_Error with
-                 "Poll error code" & Integer'Image (Errno);
+               --  Call Raise_Socket_Error with dummy created socket and
+               --  error code, to raise exception and log error message.
+
+               Raise_Socket_Error
+                 (AWS.Net.Socket (False),
+                  "Poll (Size => " & Utils.Image (FD_Set.Length)
+                  & ") error code" & Integer'Image (Errno));
             end if;
          else
             exit;

@@ -204,10 +204,12 @@ package body AWS.Log is
    --------------------
 
    procedure Register_Field (Log : in out Object; Id : in String) is
+      Position : SN.Cursor;
+      Success  : Boolean;
    begin
-      SN.Include
-        (Log.Extended_Fields,
-         Id, Natural (SN.Length (Log.Extended_Fields)) + 1);
+      SN.Insert
+        (Log.Extended_Fields, Id,
+         Natural (SN.Length (Log.Extended_Fields)) + 1, Position, Success);
    end Register_Field;
 
    ---------------
