@@ -34,8 +34,6 @@ with Ada.Strings.Maps;
 
 with GNAT.Calendar.Time_IO;
 
-with AWS.Containers.Tables;
-
 package body AWS.Log is
 
    function Log_Prefix (Prefix : in String) return String;
@@ -208,7 +206,7 @@ package body AWS.Log is
       Success  : Boolean;
    begin
       Log.Extended_Fields.Insert
-        (Id, Natural (SN.Length (Log.Extended_Fields)) + 1, Position, Success);
+        (Id, Natural (Log.Extended_Fields.Length) + 1, Position, Success);
    end Register_Field;
 
    ---------------
@@ -218,8 +216,8 @@ package body AWS.Log is
    procedure Set_Field
      (Log : in Object; Data : in out Fields_Table; Id, Value : in String)
    is
-      Ext_Len  : constant Natural := Natural (SN.Length (Log.Extended_Fields));
-      Data_Len : constant Natural := Natural (SV.Length (Data.Values));
+      Ext_Len  : constant Natural := Natural (Log.Extended_Fields.Length);
+      Data_Len : constant Natural := Natural (Data.Values.Length);
    begin
       if Ext_Len = 0 then
          return;
@@ -230,7 +228,7 @@ package body AWS.Log is
          --  with empty "-" values.
 
          for J in 1 .. Ext_Len loop
-            SV.Append (Data.Values, "-");
+            Data.Values.Append ("-");
          end loop;
 
       elsif Data_Len /= Ext_Len then
@@ -240,10 +238,10 @@ package body AWS.Log is
       end if;
 
       declare
-         CSN : constant SN.Cursor := SN.Find (Log.Extended_Fields, Id);
+         CSN : constant SN.Cursor := Log.Extended_Fields.Find (Id);
       begin
          if Value /= "" and then SN.Has_Element (CSN) then
-            SV.Replace_Element (Data.Values, SN.Element (CSN), Value);
+            Data.Values.Replace_Element (SN.Element (CSN), Value);
          end if;
       end;
    end Set_Field;
@@ -271,12 +269,8 @@ package body AWS.Log is
             AWS.Utils.Quote (Value, """"""));
       end Process;
 
-      procedure Each_Header_Field is
-        new Containers.Tables.Generic_Iterate_Names (Process);
-
    begin
-      Each_Header_Field
-        (Containers.Tables.Table_Type (Header), Coupler => ", ");
+      Header.Iterate_Names (", ", Process'Access);
    end Set_Header_Fields;
 
    -----------
@@ -452,8 +446,7 @@ package body AWS.Log is
    procedure Write (Log  : in out Object; Data : in out Fields_Table) is
       use GNAT.Calendar.Time_IO;
 
-      Length      : constant Natural :=
-                      Natural (SN.Length (Log.Extended_Fields));
+      Length      : constant Natural := Natural (Log.Extended_Fields.Length);
       Now         : Ada.Calendar.Time;
       First_Field : Boolean := True;
 
@@ -472,7 +465,7 @@ package body AWS.Log is
             Text_IO.Put (Log.File, ' ' & SV.Element (Position));
          end if;
 
-         SV.Replace_Element (Data.Values, Position, "-");
+         Data.Values.Replace_Element (Position, "-");
       end Write_And_Clear;
 
    begin
@@ -513,7 +506,7 @@ package body AWS.Log is
                end Process;
 
             begin
-               SN.Iterate (Log.Extended_Fields, Process'Access);
+               Log.Extended_Fields.Iterate (Process'Access);
 
                for J in Order'Range loop
                   Text_IO.Put (Log.File, ' ' & SN.Key (Order (J)));
@@ -526,29 +519,29 @@ package body AWS.Log is
          --  Set date and time fields if the used does not fill it
 
          declare
-            CSN : SN.Cursor := SN.Find (Log.Extended_Fields, "date");
+            CSN : SN.Cursor := Log.Extended_Fields.Find ("date");
             P   : Positive;
          begin
             if SN.Has_Element (CSN) then
                P := SN.Element (CSN);
 
-               if SV.Element (Data.Values, P) = "-" then
-                  SV.Replace_Element (Data.Values, P, Image (Now, ISO_Date));
+               if Data.Values.Element (P) = "-" then
+                  Data.Values.Replace_Element (P, Image (Now, ISO_Date));
                end if;
             end if;
 
-            CSN := SN.Find (Log.Extended_Fields, "time");
+            CSN := Log.Extended_Fields.Find ("time");
 
             if SN.Has_Element (CSN) then
                P := SN.Element (CSN);
 
-               if SV.Element (Data.Values, P) = "-" then
-                  SV.Replace_Element (Data.Values, P, Image (Now, "%T"));
+               if Data.Values.Element (P) = "-" then
+                  Data.Values.Replace_Element (P, Image (Now, "%T"));
                end if;
             end if;
          end;
 
-         SV.Iterate (Data.Values, Write_And_Clear'Access);
+         Data.Values.Iterate (Write_And_Clear'Access);
 
          Text_IO.New_Line (Log.File);
 
