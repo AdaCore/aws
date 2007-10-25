@@ -207,9 +207,8 @@ package body AWS.Log is
       Position : SN.Cursor;
       Success  : Boolean;
    begin
-      SN.Insert
-        (Log.Extended_Fields, Id,
-         Natural (SN.Length (Log.Extended_Fields)) + 1, Position, Success);
+      Log.Extended_Fields.Insert
+        (Id, Natural (SN.Length (Log.Extended_Fields)) + 1, Position, Success);
    end Register_Field;
 
    ---------------
