@@ -542,6 +542,7 @@ package body AWS.Server.HTTP_Utils is
          --  Used for root part
 
          Data    : Streams.Stream_Element_Array (1 .. 1);
+         Data2   : Streams.Stream_Element_Array (1 .. 1);
          Error   : Error_State := No_Error;
 
          ---------------
@@ -702,7 +703,7 @@ package body AWS.Server.HTTP_Utils is
          --  chars. Either the terminating "--" or CR+LF.
 
          Net.Buffered.Read (Sock, Data);
-         Net.Buffered.Read (Sock, Data);
+         Net.Buffered.Read (Sock, Data2);
 
          if Data (1) = 10 then
             --  We have CR+LF, it is a start-boundary
@@ -714,7 +715,7 @@ package body AWS.Server.HTTP_Utils is
 
             End_Found := True;
             Net.Buffered.Read (Sock, Data);
-            Net.Buffered.Read (Sock, Data);
+            Net.Buffered.Read (Sock, Data2);
          end if;
 
          if Error = Name_Error then
