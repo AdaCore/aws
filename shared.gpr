@@ -33,7 +33,7 @@ project Shared is
    type Build_Type is ("Debug", "Release");
    Build : Build_Type := external ("PRJ_BUILD", "Debug");
 
-   type OS_Type is ("UNIX", "Windows_NT");
+   type OS_Type is ("UNIX", "Windows_NT", "Darwin");
    OS : OS_Type := external ("OS", "UNIX");
 
    type Install_Status is ("Installed", "Disabled");
@@ -75,7 +75,7 @@ project Shared is
       case OS is
          when "Windows_NT" =>
             for VCS_Kind use "Subversion Cygwin";
-         when "UNIX" =>
+         when others =>
             for VCS_Kind use "Subversion";
       end case;
       for VCS_Log_Check
@@ -112,6 +112,14 @@ project Shared is
 
          when "Release" =>
             for Default_Switches ("Ada") use Common_Options & Release_Options;
+      end case;
+
+      case OS is
+         when "Darwin" =>
+            for Default_Switches ("Ada")
+              use Compiler'Default_Switches ("Ada") & ("-fno-common");
+         when others =>
+            null;
       end case;
 
    end Compiler;

@@ -37,7 +37,11 @@ ifeq (${OS}, Windows_NT)
 EXEEXT	= .exe
 SOEXT	= .dll
 else
+ifeq ($(UNAME), Darwin)
+SOEXT   = .dylib
+else
 SOEXT	= .so
+endif
 EXEEXT	=
 endif
 
