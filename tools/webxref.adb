@@ -158,9 +158,6 @@ procedure Webxref is
       Location     : in Occurence);
    --  Check if Name has the right prefix
 
-   Lazy_Prefix  : constant String := "lazy_";
-   --  Prefix used for the lazy tags
-
    --  Options
 
    type Mode is (Xref, Unused, Undefined);
@@ -214,22 +211,13 @@ procedure Webxref is
      (Name, Prefix : in String;
       Location     : in Occurence) is
    begin
-      if Fixed.Index (Name, Lazy_Prefix) = 0 then
-         if Prefix'Length >= Name'Length
-           or else
-             Name (Name'First .. Name'First + Prefix'Length - 1) /= Prefix
-         then
-            Log_Error
-              (Location, Name & " has wrong prefix, expecting "
-                 & Prefix & '_' & Name);
-         end if;
-
-      elsif Name
-        (Name'First .. Name'First + Lazy_Prefix'Length - 1) /= Lazy_Prefix
+      if Prefix'Length >= Name'Length
+        or else
+        Name (Name'First .. Name'First + Prefix'Length - 1) /= Prefix
       then
          Log_Error
            (Location, Name & " has wrong prefix, expecting "
-              & Lazy_Prefix & '_' & Name);
+              & Prefix & '_' & Name);
       end if;
    end Check_Prefix;
 
