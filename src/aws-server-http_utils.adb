@@ -704,7 +704,7 @@ package body AWS.Server.HTTP_Utils is
 
          Net.Buffered.Read (Sock, Data2);
 
-         if Data (2) = 10 then
+         if Data2 (2) = 10 then
             --  We have CR+LF, it is a start-boundary
             End_Found := False;
 
