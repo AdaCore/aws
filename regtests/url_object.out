@@ -6,14 +6,13 @@ p1=1
 p2=toto
 ----------------------
 URI         = /get_it
-URL         = http://localhost:1234/get_it?p1=1&p2=toto
+URL         = http://localhost:port/get_it?p1=1&p2=toto
 Query       = p1=1&p2=toto
 Path        = /
 Pathname    = /get_it
 File        = get_it
 Parameters  = ?p1=1&p2=toto
 Server_Name = localhost
-Port        = 1234
 p1=0956
 p2=uuu
 ----------------------
@@ -21,12 +20,11 @@ p1=0956
 p2=uuu
 ----------------------
 URI         = /get_it/disk.html
-URL         = http://localhost:1234/get_it/disk.html?p1=0956&p2=uuu
+URL         = http://localhost:port/get_it/disk.html?p1=0956&p2=uuu
 Query       = p1=0956&p2=uuu
 Path        = /get_it/
 Pathname    = /get_it/disk.html
 File        = disk.html
 Parameters  = ?p1=0956&p2=uuu
 Server_Name = localhost
-Port        = 1234
 shutdown

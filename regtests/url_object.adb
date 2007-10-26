@@ -29,6 +29,7 @@
 --  ~ MAIN [STD]
 
 with Ada.Text_IO;
+with Ada.Strings.Fixed;
 
 with AWS.Client;
 with AWS.Parameters;
@@ -48,10 +49,20 @@ procedure URL_Object is
 
    WS : Server.HTTP;
 
+   Port : Natural := 1234;
+
    function CB (Request : in Status.Data) return Response.Data is
       U : constant URL.Object := Status.URI (Request);
       P : constant Parameters.List := Status.Parameters (Request);
+
+      URL_Image  : String := URL.URL (U);
+      Port_Image : constant String  := Utils.Image (Port);
+      Port_Idx   : constant Natural :=
+        Strings.Fixed.Index (URL_Image, ':' & Port_Image & '/');
+
    begin
+      URL_Image (Port_Idx + 1 .. Port_Idx + Port_Image'Length) := "port";
+
       Text_IO.Put_Line ("p1=" & Parameters.Get (P, "p1"));
       Text_IO.Put_Line ("p2=" & Parameters.Get (P, "p2"));
       Text_IO.Put_Line ("----------------------");
@@ -59,19 +70,21 @@ procedure URL_Object is
       Text_IO.Put_Line ("p2=" & Status.Parameter (Request, "p2"));
       Text_IO.Put_Line ("----------------------");
       Text_IO.Put_Line ("URI         = " & Status.URI (Request));
-      Text_IO.Put_Line ("URL         = " & URL.URL (U));
+      Text_IO.Put_Line ("URL         = " & URL_Image);
       Text_IO.Put_Line ("Query       = " & URL.Query (U));
       Text_IO.Put_Line ("Path        = " & URL.Path (U));
       Text_IO.Put_Line ("Pathname    = " & URL.Pathname (U));
       Text_IO.Put_Line ("File        = " & URL.File (U));
       Text_IO.Put_Line ("Parameters  = " & URL.Parameters (U));
       Text_IO.Put_Line ("Server_Name = " & URL.Server_Name (U));
-      Text_IO.Put_Line ("Port        = " & URL.Port (U));
+
+      if URL.Port (U) /= Port or else URL.Port (U) /= Port_Image then
+         Text_IO.Put_Line ("URL.Port error");
+      end if;
 
       return Response.Build (MIME.Text_HTML, "not used");
    end CB;
 
-   Port : Natural := 1234;
    R    : Response.Data;
 
 begin
