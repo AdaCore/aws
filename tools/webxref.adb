@@ -158,6 +158,10 @@ procedure Webxref is
       Location     : in Occurence);
    --  Check if Name has the right prefix
 
+   Global_Prefix  : constant String := "global_";
+   --  Prefix used for global Ids. Such Ids are not checked for prefix
+   --  convention.
+
    --  Options
 
    type Mode is (Xref, Unused, Undefined);
@@ -211,13 +215,15 @@ procedure Webxref is
      (Name, Prefix : in String;
       Location     : in Occurence) is
    begin
-      if Prefix'Length >= Name'Length
-        or else
-        Name (Name'First .. Name'First + Prefix'Length - 1) /= Prefix
-      then
-         Log_Error
-           (Location, Name & " has wrong prefix, expecting "
-              & Prefix & '_' & Name);
+      if Fixed.Index (Name, Global_Prefix) /= Name'First then
+         if Prefix'Length >= Name'Length
+           or else
+             Name (Name'First .. Name'First + Prefix'Length - 1) /= Prefix
+         then
+            Log_Error
+              (Location, Name & " has wrong prefix, expecting "
+                 & Prefix & '_' & Name);
+         end if;
       end if;
    end Check_Prefix;
 
