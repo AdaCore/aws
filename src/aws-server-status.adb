@@ -73,6 +73,15 @@ package body AWS.Server.Status is
       return Server.Shutdown;
    end Is_Shutdown;
 
+   ----------
+   -- Port --
+   ----------
+
+   function Port (Server : in HTTP) return Positive is
+   begin
+      return Net.Get_Port (Net.Acceptors.Server_Socket (Server.Acceptor));
+   end Port;
+
    ----------------------
    -- Resources_Served --
    ----------------------

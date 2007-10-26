@@ -875,7 +875,7 @@ package body AWS.Server is
       Callback                  : in     Response.Callback;
       Max_Connection            : in     Positive  := Default.Max_Connection;
       Admin_URI                 : in     String    := Default.Admin_URI;
-      Port                      : in     Positive  := Default.Server_Port;
+      Port                      : in     Natural   := Default.Server_Port;
       Security                  : in     Boolean   := False;
       Session                   : in     Boolean   := False;
       Case_Sensitive_Parameters : in     Boolean   := True;

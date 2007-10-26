@@ -44,7 +44,7 @@ package AWS.Config.Set is
    procedure Server_Host (O : in out Object; Value : in String);
    --  This is the server host as set by the HTTP object declaration
 
-   procedure Server_Port (O : in out Object; Value : in Positive);
+   procedure Server_Port (O : in out Object; Value : in Natural);
    --  This is the server port as set by the HTTP object declaration
 
    procedure Hotplug_Port (O : in out Object; Value : in Positive);

@@ -436,9 +436,9 @@ package body AWS.Config is
    -- Server_Port --
    -----------------
 
-   function Server_Port (O : in Object) return Positive is
+   function Server_Port (O : in Object) return Natural is
    begin
-      return O.P (Server_Port).Pos_Value;
+      return O.P (Server_Port).Nat_Value;
    end Server_Port;
 
    -------------

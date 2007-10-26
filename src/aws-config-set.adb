@@ -406,9 +406,9 @@ package body AWS.Config.Set is
    -- Server_Port --
    -----------------
 
-   procedure Server_Port (O : in out Object; Value : in Positive) is
+   procedure Server_Port (O : in out Object; Value : in Natural) is
    begin
-      O.P (Server_Port).Pos_Value := Value;
+      O.P (Server_Port).Nat_Value := Value;
    end Server_Port;
 
    -------------

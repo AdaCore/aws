@@ -34,7 +34,7 @@ with Ada.Command_Line;
 with Ada.Text_IO;
 with Ada.Exceptions;
 
-with AWS.Server;
+with AWS.Server.Status;
 with AWS.Client;
 with AWS.Status;
 with AWS.MIME;
@@ -42,6 +42,7 @@ with AWS.Response;
 with AWS.Parameters;
 with AWS.Messages;
 with AWS.Templates;
+with AWS.Utils;
 
 with Tresres;
 
@@ -67,9 +68,6 @@ procedure Tres is
          AWS.Templates.Assoc ("TAG2", "VAL2"),
          AWS.Templates.Assoc ("TAG_V", +"v1" & "v2" & "v3"),
          AWS.Templates.Assoc ("COND", True));
-
-   Port_I : constant String   := Command_Line.Argument (1);
-   Port   : constant Positive := Positive'Value (Port_I);
 
    --------
    -- CB --
@@ -109,7 +107,7 @@ procedure Tres is
 
       AWS.Server.Start
         (HTTP, "tres",
-         CB'Unrestricted_Access, Port => Port, Max_Connection => 5);
+         CB'Unrestricted_Access, Port => 0, Max_Connection => 5);
 
       Put_Line ("Server started");
       New_Line;
@@ -148,11 +146,15 @@ begin
 
    Server.Started;
 
-   Request ("http://localhost:" & Port_I & "/file1");
-   Request ("http://localhost:" & Port_I & "/file2");
-   Request ("http://localhost:" & Port_I & "/file3");
-   Request ("http://localhost:" & Port_I & "/tmplt");
-   Request ("http://localhost:" & Port_I & "/file4");
+   declare
+      Port_I : constant String := Utils.Image (AWS.Server.Status.Port (HTTP));
+   begin
+      Request ("http://localhost:" & Port_I & "/file1");
+      Request ("http://localhost:" & Port_I & "/file2");
+      Request ("http://localhost:" & Port_I & "/file3");
+      Request ("http://localhost:" & Port_I & "/tmplt");
+      Request ("http://localhost:" & Port_I & "/file4");
+   end;
 
    Server.Stopped;
 

@@ -49,6 +49,9 @@ package AWS.Server.Status is
    function Socket (Server : in HTTP) return Net.Socket_Type'Class;
    --  Returns the server's socket
 
+   function Port (Server : in HTTP) return Positive;
+   --  Returns the server's socket port
+
    function Current_Connections (Server : in HTTP) return Natural;
    --  Returns the current number of connections
 

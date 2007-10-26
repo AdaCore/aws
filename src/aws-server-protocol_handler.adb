@@ -35,6 +35,7 @@ with AWS.Messages;
 with AWS.MIME;
 with AWS.Resources;
 with AWS.Server.HTTP_Utils;
+with AWS.Server.Status;
 with AWS.Session;
 with AWS.Status.Set;
 with AWS.Templates;
@@ -124,11 +125,11 @@ begin
             end if;
          end if;
 
-         Status.Set.Reset (LA.Stat);
+         AWS.Status.Set.Reset (LA.Stat);
 
          --  Set status socket and peername
 
-         Status.Set.Socket (LA.Stat, Sock_Ptr);
+         AWS.Status.Set.Socket (LA.Stat, Sock_Ptr);
 
          if Extended_Log then
             AWS.Log.Set_Field (LA.Server.Log, LA.Log_Data,
@@ -144,15 +145,15 @@ begin
                "s-port", Utils.Image (Net.Get_Port (Sock_Ptr.all)));
          end if;
 
-         Status.Set.Case_Sensitive_Parameters
+         AWS.Status.Set.Case_Sensitive_Parameters
            (LA.Stat, Case_Sensitive_Parameters);
 
          Get_Message_Header (LA.Stat);
 
-         Status.Set.Connection_Data
+         AWS.Status.Set.Connection_Data
            (LA.Stat,
             CNF.Server_Host (LA.Server.Properties),
-            CNF.Server_Port (LA.Server.Properties),
+            AWS.Server.Status.Port (LA.Server.all),
             CNF.Security (LA.Server.Properties));
 
          LA.Server.Slots.Increment_Slot_Activity_Counter (LA.Line, Free_Slots);
@@ -178,7 +179,7 @@ begin
 
          Get_Message_Data (LA.Server.all, LA.Line, LA.Stat);
 
-         Status.Set.Keep_Alive (LA.Stat, not Will_Close);
+         AWS.Status.Set.Keep_Alive (LA.Stat, not Will_Close);
 
          LA.Server.Slots.Mark_Phase (LA.Line, Server_Response);
 
@@ -266,5 +267,5 @@ begin
 
    --  Release memory for local objects
 
-   Status.Set.Free (LA.Stat);
+   AWS.Status.Set.Free (LA.Stat);
 end Protocol_Handler;

@@ -45,7 +45,7 @@ package AWS.Net.Acceptors is
    procedure Listen
      (Acceptor            : in out Acceptor_Type;
       Host                : in     String;
-      Port                : in     Positive;
+      Port                : in     Natural;
       Queue_Size          : in     Positive;
       Timeout             : in     Duration := Forever;
       First_Timeout       : in     Duration := Forever;

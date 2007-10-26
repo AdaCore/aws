@@ -67,7 +67,7 @@ package AWS.Config is
    --  one IP address. It is possible to have two servers at the same port
    --  on the same machine, both being binded on different IP addresses.
 
-   function Server_Port (O : in Object) return Positive;
+   function Server_Port (O : in Object) return Natural;
    pragma Inline (Server_Port);
    --  This is the server port as set by the HTTP object declaration
 
@@ -526,7 +526,7 @@ private
            (Str, Null_Unbounded_String),
 
          Server_Port =>
-           (Pos, Default.Server_Port),
+           (Nat, Default.Server_Port),
 
          Hotplug_Port =>
            (Pos, Default.Hotplug_Port),
