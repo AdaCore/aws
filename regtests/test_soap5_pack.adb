@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2004                            --
---                                ACT-Europe                                --
+--                         Copyright (C) 2004-2007                          --
+--                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -186,10 +186,10 @@ package body Test_SOAP5_Pack is
             Port           => Free_Port,
             Max_Connection => 5);
 
+         accept Started;
+
          Put_Line ("Server started");
          New_Line;
-
-         accept Started;
 
          select
             accept Stopped;
