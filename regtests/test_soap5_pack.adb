@@ -168,6 +168,7 @@ package body Test_SOAP5_Pack is
 
       task Server is
          entry Started;
+         entry Ready;
          entry Stopped;
       end Server;
 
@@ -191,6 +192,8 @@ package body Test_SOAP5_Pack is
          Put_Line ("Server started");
          New_Line;
 
+         accept Ready;
+
          select
             accept Stopped;
          or
@@ -209,6 +212,7 @@ package body Test_SOAP5_Pack is
       Put_Line ("Start main, wait for server to start...");
 
       Server.Started;
+      Server.Ready;
 
       AWS.Client.Create
         (Connection,
