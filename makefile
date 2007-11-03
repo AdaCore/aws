@@ -292,7 +292,7 @@ endif
 I_BIN	= $(INSTALL)/bin
 I_INC	= $(INSTALL)/include/aws
 I_CPN	= $(INSTALL)/include/aws/components
-I_LIB	= $(INSTALL)/lib/$(LIBRARY_TYPE)/aws
+I_LIB	= $(INSTALL)/lib/aws/$(LIBRARY_TYPE)
 I_GPR	= $(INSTALL)/lib/gnat
 I_AGP	= $(INSTALL)/lib/gnat/aws
 I_TPL	= $(INSTALL)/share/examples/aws/templates

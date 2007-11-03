@@ -35,7 +35,7 @@ project AWS_Shared is
    type Library_Kind is ("relocatable", "static");
    Library_Type : Library_Kind := external ("LIBRARY_TYPE", "relocatable");
 
-   for Library_Dir use "../..";
+   for Library_Dir use "../../aws";
 
    case Library_Type is
       when "static" =>
@@ -43,8 +43,6 @@ project AWS_Shared is
       when "relocatable" =>
          for Library_Dir use Project'Library_Dir & "/relocatable";
    end case;
-
-   for Library_Dir use Project'Library_Dir & "/aws";
 
    ------------
    -- Naming --
