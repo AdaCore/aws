@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                          Copyright (C) 2004-2005                         --
+--                          Copyright (C) 2004-2007                         --
 --                                  AdaCore                                 --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -44,14 +44,8 @@ project Win32 is
          null;
    end case;
 
-   case Shared.Build is
-      when "Debug" =>
-         for Object_Dir use "../.build/debug/win32/obj";
-         for Library_Dir use "../.build/debug/win32/lib";
-      when "Release" =>
-         for Object_Dir use "../.build/release/win32/obj";
-         for Library_Dir use "../.build/release/win32/lib";
-   end case;
+   for Object_Dir use "../" & Shared'Object_Dir & "/win32";
+   for Library_Dir use "../" & Shared'Library_Dir & "/win32";
 
    for Externally_Built use "true";
 

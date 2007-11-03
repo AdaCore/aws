@@ -53,6 +53,14 @@ MAKE_OPT	= -s
 BDIR		= .build/release
 endif
 
+ifeq ($(SHARED), true)
+BDIR		:= $(BDIR)/relocatable
+LIBRARY_TYPE	= relocatable
+else
+BDIR		:= $(BDIR)/static
+LIBRARY_TYPE	= static
+endif
+
 TEST_MODE	= Separated
 # Can be set to "Grouped" to use a single driver for most tests. This
 # speed-up the non regression.
@@ -68,9 +76,9 @@ ifeq (${OS}, Windows_NT)
 DPWD = $(subst /cygdrive/c/,c:/,$(PWD))
 export ADA_PROJECT_PATH = $(DPWD)/.build/projects\;${APP}
 
-AWS_PTH	= $(PWD)/$(BDIR)/lib:$(PWD)/win32:$(PWD)/lib:$(PWD)/$(BDIR)/include/lib
-AWS_PTH	:= $(PWD)/$(BDIR)/ssl/lib:$(PWD)/$(BDIR)/ssl/nlib:$(AWS_PTH)
-export PATH = $(AWS_PTH):${PTH}
+APTH = $(PWD)/$(BDIR)/lib/src:$(PWD)/$(BDIR)/lib/win32:$(PWD)/$(BDIR)/lib/ssl
+APTH := :$(PWD)/$(BDIR)/lib/include:$(PWD)/$(BDIR)/lib/zlib:$(APTH)
+export PATH = $(APTH):${PTH}
 else
 export ADA_PROJECT_PATH = $(PWD)/.build/projects:${APP}
 endif
@@ -104,7 +112,7 @@ ALL_OPTIONS	= $(MAKE_OPT) SOCKET="$(SOCKET)" XMLADA="$(XMLADA)" \
 	GCC="$(GCC)" AWK="$(AWK)" CAT="$(CAT)" GCC_FOR_HOST="$(GCC_FOR_HOST)" \
 	BDIR="$(BDIR)" INSTALL="$(INSTALL)" SHARED="$(SHARED)" \
 	SOEXT="$(SOEXT)" BUILD_DOC_SCRIPT="false" GNAT="$(GNAT)" \
-	T2A="../../$(BDIR)/tools/templates2ada"
+	T2A="../../$(BDIR)/tools/templates2ada" LIBRARY_TYPE="$(LIBRARY_TYPE)"
 
 build_doc:
 	echo ""
@@ -213,11 +221,13 @@ force:
 # Configuration for GNAT Projet Files
 
 EXTRA_MODULES = demos regtests
-MODULES = config include ssl win32 src tools gps ${EXTRA_MODULES}
+MODULES = config lib include ssl win32 src tools docs gps ${EXTRA_MODULES}
 
 MODULES_BUILD = ${MODULES:%=%_build}
 
 MODULES_SETUP = ${MODULES:%=%_setup}
+
+MODULES_INSTALL = ${MODULES:%=%_install}
 
 MODULES_CLEAN = ${MODULES:%=%_clean}
 
@@ -282,12 +292,13 @@ endif
 I_BIN	= $(INSTALL)/bin
 I_INC	= $(INSTALL)/include/aws
 I_CPN	= $(INSTALL)/include/aws/components
-I_LIB	= $(INSTALL)/lib/aws
+I_LIB	= $(INSTALL)/lib/$(LIBRARY_TYPE)/aws
 I_GPR	= $(INSTALL)/lib/gnat
 I_AGP	= $(INSTALL)/lib/gnat/aws
 I_TPL	= $(INSTALL)/share/examples/aws/templates
 I_IMG	= $(INSTALL)/share/examples/aws/images
 I_SBN	= $(INSTALL)/share/examples/aws/bin
+I_WEL	= $(INSTALL)/share/examples/aws/web_elements
 I_DOC	= $(INSTALL)/share/doc/aws
 I_PLG	= $(INSTALL)/share/gps/plug-ins
 
@@ -297,9 +308,20 @@ GALL_OPTIONS := $(ALL_OPTIONS) \
 	PRJ_ASIS="$(PRJ_ASIS)" \
 	PRJ_SOCKLIB="$(PRJ_SOCKLIB)" \
 	PRJ_LDAP="$(PRJ_LDAP)" \
+	PRJ_LIBRARY_KIND="$(PRJ_LIBRARY_KIND)" \
 	TP_XMLADA="$(TP_XMLADA)" \
+	I_BIN="$(I_BIN)" \
 	I_INC="$(I_INC)" \
 	I_CPN="$(I_CPN)" \
+	I_LIB="$(I_LIB)" \
+	I_GPR="$(I_GPR)" \
+	I_AGP="$(I_AGP)" \
+	I_TPL="$(I_TPL)" \
+	I_IMG="$(I_IMG)" \
+	I_SBN="$(I_SBN)" \
+	I_WEL="$(I_WEL)" \
+	I_DOC="$(I_DOC)" \
+	I_PLG="$(I_PLG)" \
 	TEST_MODE="$(TEST_MODE)"
 
 ${MODULES_BUILD}: force
@@ -307,6 +329,9 @@ ${MODULES_BUILD}: force
 
 ${MODULES_SETUP}: force
 	${MAKE} -C ${@:%_setup=%} setup $(GALL_OPTIONS)
+
+${MODULES_INSTALL}: force
+	${MAKE} -C ${@:%_install=%} install $(GALL_OPTIONS)
 
 ${MODULES_CLEAN}: force
 	${MAKE} -C ${@:%_clean=%} clean $(GALL_OPTIONS)
@@ -378,17 +403,11 @@ endif
 
 setup_config:
 	echo 'project AWS_Config is' > $(CONFGPR)
-	echo '   type Lib_Type is ("static", "relocatable");' >> $(CONFGPR)
-	echo 'pragma Source_File_Name' > $(CONFADC)
-	echo -n '  (AWS.Net.Std, Body_File_Name => ' >> $(CONFADC)
-ifeq ($(SHARED), true)
-	echo '   Lib_Kind : Lib_Type := "relocatable";' >> $(CONFGPR)
-else
-	echo '   Lib_Kind : Lib_Type := "static";' >> $(CONFGPR)
-endif
 	echo '   for Source_Dirs use ();' >> $(CONFGPR)
 	echo '   type SOCKLIB_Type is ("GNAT", "AdaSockets", "IPv6");' \
 		>> $(CONFGPR)
+	echo 'pragma Source_File_Name' > $(CONFADC)
+	echo -n '  (AWS.Net.Std, Body_File_Name => ' >> $(CONFADC)
 ifdef ADASOCKETS
 	echo '   SOCKLIB : SOCKLIB_Type := "AdaSockets";' >> $(CONFGPR)
 	echo '"aws-net-std__adasockets.adb");' >> $(CONFADC)
@@ -419,13 +438,23 @@ endif
 
 setup_modules: $(MODULES_SETUP) setup_config
 
-setup_debug:
-	$(MAKE) DEBUG=true setup_modules
+setup_debug_static:
+	$(MAKE) DEBUG=true SHARED=false setup_modules
 
-setup_release:
-	$(MAKE) DEBUG=false setup_modules
+setup_release_static:
+	$(MAKE) DEBUG=false SHARED=false setup_modules
 
-setup: setup_dir $(GEXT_MODULE) setup_debug setup_release setup_tp
+setup_debug_relocatable:
+	$(MAKE) DEBUG=true SHARED=true setup_modules
+
+setup_release_relocatable:
+	$(MAKE) DEBUG=false SHARED=true setup_modules
+
+setup_debug: setup_debug_static setup_debug_relocatable
+
+setup_release: setup_release_static setup_release_relocatable
+
+setup: setup_dir setup_debug setup_release setup_tp $(GEXT_MODULE)
 
 setup_tp:
 	$(MAKE) -C templates_parser setup $(GALL_OPTIONS)
@@ -451,80 +480,21 @@ install_dirs: install_clean
 	$(MKDIR) $(I_IMG)
 	$(MKDIR) $(I_SBN)
 	$(MKDIR) $(I_PLG)
+	$(MKDIR) $(I_WEL)
 
-install: install_dirs
-	$(CP) src/a*.ad[sb] ssl/*.ad[sb] $(I_INC)
+install: install_dirs $(MODULES_INSTALL)
 	$(CP) templates_parser/src/t*.ad[sb] $(I_INC)
-	$(CP) config/aws-net-std__* $(I_INC)
-	$(CP) config/aws-net-ssl__* $(I_INC)
-	$(CP) config/aws-net-ssl-certificate__* $(I_INC)
-	$(CP) config/ssl-thin__* $(I_INC)
-	$(CP) config/templates_parser-* $(I_INC)
 ifeq ($(XMLADA),true)
-	$(CP) soap/*.ad[sb] $(I_INC)
-	$(CP) xsrc/*.ad[sb] $(I_INC)
 	$(CP) templates_parser/xsrc/*.ad[sb] $(I_INC)
-	$(CP) $(BDIR)/tools/wsdl2aws${EXEEXT} $(I_BIN)
-	$(STRIP) $(I_BIN)/wsdl2aws${EXEEXT}
 endif
-	$(CP) $(BDIR)/lib/* $(I_LIB)
-	$(CP) $(CONFADC) $(I_LIB)
-	-$(CP) $(BDIR)/ssl/lib/* $(I_LIB)
-	-$(CP) docs/aws.html $(I_DOC)
-	-$(CP) -r docs/html $(I_DOC)
 	-$(CP) templates_parser/docs/templates_parser.html $(I_DOC)
 	-$(CP) templates_parser/docs/templates_parser.info* $(I_DOC)
-	-$(CP) docs/aws.txt $(I_DOC)
-	-$(CP) docs/*.info* $(I_DOC)
-	$(CP) gps/aws_api.xml $(I_PLG)
-	$(CP) gps/aws.py $(I_PLG)
-	$(CP) gps/aws.xml $(I_PLG)
-	$(CP) gps/ada2wsdl.xml $(I_PLG)
-	$(CP) gps/wsdl2aws.xml $(I_PLG)
-	$(CP) demos/*.thtml $(I_TPL)
-	$(CP) demos/wm_login.html $(I_TPL)
 	$(CP) templates_parser/tools/templates.tads $(I_TPL)
-	$(CP) demos/aws_*.png $(I_IMG)
-	$(CP) include/*.ad? $(I_CPN)
-	-$(CP) $(BDIR)/include/lib/* $(I_LIB)
-	-$(CP) $(BDIR)/tools/awsres${EXEEXT} $(I_BIN)
-	-$(STRIP) $(I_BIN)/awsres${EXEEXT}
-	-$(CP) $(BDIR)/tools/hotplug_password${EXEEXT} $(I_BIN)
-	-$(STRIP) $(I_BIN)/hotplug_password${EXEEXT}
-	-$(CP) $(BDIR)/tools/templates2ada${EXEEXT} $(I_BIN)
-	-$(STRIP) $(I_BIN)/templates2ada${EXEEXT}
-	-$(CP) $(BDIR)/tools/webxref${EXEEXT} $(I_BIN)
-	-$(STRIP) $(I_BIN)/webxref${EXEEXT}
-ifeq (${ASIS},true)
-	$(CP) $(BDIR)/tools/ada2wsdl-main${EXEEXT} $(I_BIN)/ada2wsdl${EXEEXT}
-	$(STRIP) $(I_BIN)/ada2wsdl${EXEEXT}
-endif
-ifeq ($(SOCKET),ssl)
-	-$(CP) $(BDIR)/demos/agent${EXEEXT} $(I_SBN)
-	-$(STRIP) $(I_SBN)/agent${EXEEXT}
-endif
-ifeq (${OS}, Windows_NT)
-	$(CP) $(BDIR)/win32/lib/* $(I_LIB)
-	$(CP) lib/lib*.a $(I_LIB)
-	$(CP) win32/*.dll $(I_LIB)
-	$(CP) win32/*.dll $(I_LIB)/..
-endif
-	$(CP) config/projects/aws_components.gpr $(I_AGP)
-	$(CP) config/projects/aws.gpr $(I_GPR)
-	$(CP) config/projects/aws_ssl.gpr $(I_GPR)
-	$(CP) config/projects/*_lib.gpr $(I_AGP)
-	$(CP) config/projects/aws_shared.gpr $(I_AGP)
-	$(CP) config/projects/aws_libz.gpr $(I_AGP)
-	$(CP) config/projects/aws_ssl_support.gpr $(I_AGP)
+	$(CP) $(CONFADC) $(I_LIB)
 	$(CP) $(CONFGPR) $(I_AGP)
 	$(CP) $(PRJDIR)/aws_xmlada.gpr $(I_AGP)
 # Copy all shared libraries into the main lib directory
 ifeq (${SHARED}, true)
-	$(CP) lib/*$(SOEXT) $(I_LIB)
-	$(CP) $(I_LIB)/*$(SOEXT) $(I_LIB)/..
-else
-	$(CP) lib/libz.a $(I_LIB)
+	$(CP) $(I_LIB)/*$(SOEXT) $(I_LIB)/../..
 endif
-	$(CP) ssl/install_aws_ssl_shared.gpr $(I_AGP)/aws_ssl_shared.gpr
 	-$(CHMOD) a-w $(I_LIB)/*
-	${MAKE} -C web_elements install $(GALL_OPTIONS)

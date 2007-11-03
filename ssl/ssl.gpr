@@ -31,7 +31,6 @@ with "../shared";
 with "crypto_lib";
 with "ssl_lib";
 with "ssl_error_lib";
-with "aws_config";
 
 project SSL is
 
@@ -39,17 +38,11 @@ project SSL is
 
    for Source_Dirs use (".", "../config");
 
-   case Shared.Build is
-      when "Debug" =>
-         for Object_Dir use "../.build/debug/ssl/obj";
-         for Library_Dir use "../.build/debug/ssl/lib";
-      when "Release" =>
-         for Object_Dir use "../.build/release/ssl/obj";
-         for Library_Dir use "../.build/release/ssl/lib";
-   end case;
+   for Object_Dir use "../" & Shared'Object_Dir & "/ssl";
+   for Library_Dir use "../" & Shared'Library_Dir & "/ssl";
 
    for Library_Name use "aws_ssl";
-   for Library_Kind use AWS_Config.Lib_Kind;
+   for Library_Kind use Shared.Library_Type;
 
    ---------
    -- Ide --

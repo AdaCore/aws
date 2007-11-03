@@ -28,5 +28,14 @@
 
 .SILENT:
 
+setup:
+
+build:
+
+install:
+ifeq (${OS}, Windows_NT)
+	$(CP) lib*.a $(I_LIB)
+endif
+
 clean:
 	-$(RM) -f *.a aws.coff

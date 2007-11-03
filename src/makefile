@@ -37,12 +37,19 @@ aws-os_lib-definitions.ads: ../config/src/check_config.c
 	$(MAKE) -C ../config setup
 
 setup:
-	-$(MKDIR) -p ../$(BDIR)/obj
-	-$(MKDIR) -p ../$(BDIR)/lib
+	-$(MKDIR) -p ../$(BDIR)/obj/src
+	-$(MKDIR) -p ../$(BDIR)/lib/src
 
 build:
-	$(GNAT) make -Psrc -XBuild=${PRJ_BUILD} -XXMLADA=${PRJ_XMLADA} \
-		-XSOCKLIB=${PRJ_SOCKLIB}
+	$(GNAT) make -Psrc
+
+install:
+	$(CP) a*.ad[sb] $(I_INC)
+	$(CP) ../$(BDIR)/lib/src/* $(I_LIB)
+ifeq ($(XMLADA),true)
+	$(CP) ../soap/*.ad[sb] $(I_INC)
+	$(CP) ../xsrc/*.ad[sb] $(I_INC)
+endif
 
 clean:
 	-$(RM) -f aws-translator-conversion.adb aws-os_lib-definitions.ads
@@ -51,6 +58,4 @@ check:
 	echo Rule \"raised exception is not declared...\"
 	echo "   Expected 3 violations in aws-server-hotplug.adb"
 	echo "   Expected 3 violations in aws-server.adb"
-	$(GNAT) check -rules -from=../aws.checks \
-		-Psrc -XBuild=${PRJ_BUILD} -XXMLADA=${PRJ_XMLADA} \
-		-XSOCKLIB=${PRJ_SOCKLIB}
+	$(GNAT) check -rules -from=../aws.checks -Psrc

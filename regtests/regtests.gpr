@@ -40,14 +40,8 @@ project Regtests is
    Mode : Build_Mode := external ("Test_Mode", "Separated");
 
    for Source_Dirs use (".", "generated");
+   for Object_Dir use "../" & Shared'Object_Dir & "/regtests";
    for Exec_Dir use ".";
-
-   case Shared.Build is
-      when "Debug" =>
-         for Object_Dir use "../.build/debug/regtests";
-      when "Release" =>
-         for Object_Dir use "../.build/release/regtests";
-   end case;
 
    --  Common tests for Separated and Grouped section
 

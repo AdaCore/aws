@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2005                            --
+--                         Copyright (C) 2005-2007                          --
 --                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -31,6 +31,24 @@ with "aws_config";
 project AWS_Shared is
 
    for Source_Dirs use ();
+
+   type Library_Kind is ("relocatable", "static");
+   Library_Type : Library_Kind := external ("LIBRARY_TYPE", "relocatable");
+
+   for Library_Dir use "../..";
+
+   case Library_Type is
+      when "static" =>
+         for Library_Dir use Project'Library_Dir & "/static";
+      when "relocatable" =>
+         for Library_Dir use Project'Library_Dir & "/relocatable";
+   end case;
+
+   for Library_Dir use Project'Library_Dir & "/aws";
+
+   ------------
+   -- Naming --
+   ------------
 
    package Naming is
 

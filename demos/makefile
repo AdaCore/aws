@@ -45,12 +45,20 @@ BUILD_EXT = build_wsdl
 endif
 
 setup:
-	-$(MKDIR) -p ../$(BDIR)/demos/obj
+	-$(MKDIR) -p ../$(BDIR)/obj/demos
+	-$(MKDIR) -p ../$(BDIR)/demos
 
 build: build_res $(BUILD_EXT)
-	$(GNAT) make -Pdemos -XBuild=${PRJ_BUILD} -XXMLADA=${PRJ_XMLADA}
-	$(GNAT) make -Pdemos_ssl -XSOCKET=${SOCKET} \
-		-XBuild=${PRJ_BUILD} -XXMLADA=${PRJ_XMLADA}
+	$(GNAT) make -Pdemos
+	$(GNAT) make -Pdemos_ssl
+
+install:
+	$(CP) *.thtml $(I_TPL)
+	$(CP) wm_login.html $(I_TPL)
+	$(CP) aws_*.png $(I_IMG)
+ifeq ($(SOCKET),ssl)
+	-$(CP) ../$(BDIR)/demos/agent${EXEEXT} $(I_SBN)
+endif
 
 check:
 

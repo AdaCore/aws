@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2004                            --
---                                ACT-Europe                                --
+--                         Copyright (C) 2004-2007                          --
+--                                 AdaCore                                  --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
 --                                                                          --
@@ -29,7 +29,6 @@
 ------------------------------------------------------------------------------
 
 with "../../shared";
-with "aws_config";
 
 project Zlib is
 
@@ -38,10 +37,10 @@ project Zlib is
    package Ide renames Shared.Ide;
 
    for Source_Dirs use (".");
-   for Object_Dir use ".";
-   for Library_Dir use "../../lib";
+   for Object_Dir use "../../" & Shared'Object_Dir & "/zlib";
+   for Library_Dir use "../../" & Shared'Library_Dir & "/zlib";
    for Library_Name use "z";
-   for Library_Kind use AWS_Config.Lib_Kind;
+   for Library_Kind use Shared.Library_Type;
    for Externally_Built use "true";
 
 end Zlib;

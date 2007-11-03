@@ -90,8 +90,13 @@ endif
 	echo "end AWS_SSL_Shared;" >> $(ISSLGPR)
 
 setup: setup_ssl setup_ssl_install
-	-$(MKDIR) -p ../$(BDIR)/ssl/obj
-	-$(MKDIR) -p ../$(BDIR)/ssl/lib
+	-$(MKDIR) -p ../$(BDIR)/obj/ssl
+	-$(MKDIR) -p ../$(BDIR)/lib/ssl
+
+install:
+	$(CP) *.ad[sb] $(I_INC)
+	-$(CP) ../$(BDIR)/lib/ssl/* $(I_LIB)
+	$(CP) install_aws_ssl_shared.gpr $(I_AGP)/aws_ssl_shared.gpr
 
 clean:
 	-$(RM) -f $(SSLGPR)

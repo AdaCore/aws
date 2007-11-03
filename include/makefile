@@ -30,20 +30,26 @@
 
 force:
 
+setup:
+	-$(MKDIR) -p ../$(BDIR)/obj/include
+	-$(MKDIR) -p ../$(BDIR)/lib/include
+	${MAKE} -C zlib setup GALL_OPTIONS=$(GALL_OPTIONS)
+
 build_zlib: force
 	echo Building Zlib library
 	${MAKE} -C zlib GALL_OPTIONS=$(GALL_OPTIONS)
 
 build: build_zlib
-	$(GNAT) make -Pinclude -XAWS_BUILD=${PRJ_BUILD} -XXMLADA=${PRJ_XMLADA}
+	$(GNAT) make -Pinclude
 
-setup:
-	-$(MKDIR) -p ../$(BDIR)/include/obj
-	-$(MKDIR) -p ../$(BDIR)/include/lib
-	${MAKE} -C zlib setup GALL_OPTIONS=$(GALL_OPTIONS)
+install:
+	$(CP) *.ad? $(I_CPN)
+	-$(CP) ../$(BDIR)/lib/include/* $(I_LIB)
+	${MAKE} -C zlib install GALL_OPTIONS=$(GALL_OPTIONS)
 
 clean:
+	-$(GNAT) clean -Pinclude -XAWS_BUILD=${PRJ_BUILD} -XXMLADA=${PRJ_XMLADA}
 	${MAKE} -C zlib clean
 
 check:
-	$(GNAT) check -files=filenames.check -rules -from=../aws.checks 
+	$(GNAT) check -files=filenames.check -rules -from=../aws.checks

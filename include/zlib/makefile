@@ -14,9 +14,10 @@ else
 CFLAGS = -O3
 endif
 
-LIBZ_static = ../../lib/libz.a
-LIBZ_shared = ../../lib/libz$(SOEXT)
-ODIR = ../../$(BDIR)/zlib
+ODIR = ../../$(BDIR)/obj/zlib
+LDIR = ../../$(BDIR)/lib/zlib
+LIBZ_static = $(LDIR)/libz.a
+LIBZ_shared = $(LDIR)/libz$(SOEXT)
 
 ifeq (${SHARED}, true)
 	LIB = $(LIBZ_shared)
@@ -42,7 +43,10 @@ $(LIBZ_shared): $(BOBJS)
 
 setup:
 	$(MKDIR) $(ODIR)
+	$(MKDIR) $(LDIR)
 
+install:
+	$(CP) $(LIB) $(I_LIB)
 clean:
 	-rm -f $(LIB) $(ODIR)/*.o *~
 
@@ -57,9 +61,12 @@ $(ODIR)/crc32.o: crc32.h zlib.h zconf.h zlibdefs.h
 $(ODIR)/deflate.o: deflate.h zutil.h zlib.h zconf.h zlibdefs.h
 $(ODIR)/example.o: zlib.h zconf.h zlibdefs.h
 $(ODIR)/gzio.o: zutil.h zlib.h zconf.h zlibdefs.h
-$(ODIR)/inffast.o: zutil.h zlib.h zconf.h zlibdefs.h inftrees.h inflate.h inffast.h
-$(ODIR)/inflate.o: zutil.h zlib.h zconf.h zlibdefs.h inftrees.h inflate.h inffast.h inffixed.h
-$(ODIR)/infback.o: zutil.h zlib.h zconf.h zlibdefs.h inftrees.h inflate.h inffast.h inffixed.h
+$(ODIR)/inffast.o: zutil.h zlib.h zconf.h zlibdefs.h inftrees.h \
+	inflate.h inffast.h
+$(ODIR)/inflate.o: zutil.h zlib.h zconf.h zlibdefs.h inftrees.h \
+	inflate.h inffast.h inffixed.h
+$(ODIR)/infback.o: zutil.h zlib.h zconf.h zlibdefs.h inftrees.h \
+	inflate.h inffast.h inffixed.h
 $(ODIR)/inftrees.o: zutil.h zlib.h zconf.h zlibdefs.h inftrees.h
 $(ODIR)/minigzip.o: zlib.h zconf.h zlibdefs.h
 $(ODIR)/trees.o: deflate.h zutil.h zlib.h zconf.h zlibdefs.h trees.h

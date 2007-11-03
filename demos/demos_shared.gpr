@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2004-2006                          --
+--                         Copyright (C) 2004-2007                          --
 --                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -56,7 +56,7 @@ project Demos_Shared is
 
    package Linker is
 
-      COFF_Res := ("../lib/aws.coff");
+      COFF_Res := ("../" & Shared'Exec_Dir & "/lib/win32/aws.coff");
 
       WIN_OPT  := COFF_Res & Shared.ZLIB;
       UNX_OPT  := Shared.ZLIB;
@@ -67,6 +67,14 @@ project Demos_Shared is
 
          when others =>
             for Default_Switches ("Ada") use UNX_OPT;
+      end case;
+
+      case Shared.Build is
+         when "Release" =>
+            for Default_Switches ("Ada") use
+	      Linker'Default_Switches ("Ada") & ("-Wl,-s");
+	 when others =>
+            null;
       end case;
 
    end Linker;

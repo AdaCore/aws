@@ -119,8 +119,7 @@ force:
 
 gen_main:
 	echo Generating the main driver
-	$(GNAT) make -q -Pregtests -XTest_Mode=Generator \
-		-XBuild=${PRJ_BUILD} -XXMLADA=${PRJ_XMLADA}
+	$(GNAT) make -q -Pregtests -XTest_Mode=Generator
 	./generate $(TOGETHER)
 
 gen_sources: $(sort $(PREP_WSDL_TESTS) $(PREP_WSDL_ATESTS) $(ASIS_TESTS) \
@@ -128,8 +127,7 @@ gen_sources: $(sort $(PREP_WSDL_TESTS) $(PREP_WSDL_ATESTS) $(ASIS_TESTS) \
 
 build_drivers: gen_main
 	echo "Building drivers (takes some time)"
-	$(GNAT) make -q -m -Pregtests -XTest_Mode=${TEST_MODE} \
-		-XBuild=${PRJ_BUILD} -XXMLADA=${PRJ_XMLADA} test_all
+	$(GNAT) make -q -m -Pregtests -XTest_Mode=${TEST_MODE} test_all
 
 empty:=
 space:= $(empty) $(empty)
@@ -207,8 +205,7 @@ init:
 
 $(ALONE_TESTS) $(ALONE): force
 	echo "Compiling " $@
-	$(GNAT) make -q -m -Pregtests -XTest_Mode=${TEST_MODE} \
-		-XBuild=${PRJ_BUILD} -XXMLADA=${PRJ_XMLADA} $@
+	$(GNAT) make -q -m -Pregtests -XTest_Mode=${TEST_MODE} $@
 	echo "Running   " $@
 ifdef GDB_REGTESTS
 	-./tgdb $@ > $@.res 2>&1
@@ -248,8 +245,7 @@ $(ASIS2_TESTS): force
 
 tres: force
 	echo "Compiling " $@
-	$(GNAT) make -q -m -Pregtests -XTest_Mode=${TEST_MODE} \
-		-XBuild=${PRJ_BUILD} -XXMLADA=${PRJ_XMLADA} $@
+	$(GNAT) make -q -m -Pregtests -XTest_Mode=${TEST_MODE} $@
 	echo -n "Running  " tres
 	./tres > tres-1.res
 	echo "line 3, file 1" >> file1.html
@@ -281,8 +277,7 @@ wxrefs:
 
 check_mem: force
 	echo "Compiling " $@
-	$(GNAT) make -q -m -Pregtests -XTest_Mode=${TEST_MODE} \
-		-XBuild=${PRJ_BUILD} -XXMLADA=${PRJ_XMLADA} $@
+	$(GNAT) make -q -m -Pregtests -XTest_Mode=${TEST_MODE} $@
 	echo -n "Running  " check_mem
 	./check_mem 2 > check_mem.res
 	gnatmem 3 -i gmem.out ./check_mem$(EXEEXT) > check_mem.run1
@@ -295,7 +290,7 @@ check_mem: force
 	-$(DIFF) run1 run2 1>> alldifs 2>> alldifs
 
 setup_dir:
-	-$(MKDIR) ../$(BDIR)/regtests
+	-$(MKDIR) ../$(BDIR)/obj/regtests
 	-$(MKDIR) generated
 
 setup: setup_dir
@@ -376,9 +371,10 @@ endif
 
 check:
 
+install:
+
 clean:
-	-$(GNAT) clean -q -Pregtests -XTest_Mode=${TEST_MODE} \
-		-XBuild=${PRJ_BUILD} -XXMLADA=${PRJ_XMLADA}
+	-$(GNAT) clean -q -Pregtests -XTest_Mode=${TEST_MODE}
 	-$(RM) -f *.log *.res alldifs file[abc].txt* test_all.adb filez.tmplt
 	-$(RM) -f *.tmp alldifs s_mains.lst all_mains.lst
 	-$(RM) -f s_tsecsoap.lst s_tsec.lst s_tstd.lst s_tsoap.lst

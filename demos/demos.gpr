@@ -89,14 +89,8 @@ project Demos is
          null;
    end case;
 
-   case Shared.Build is
-      when "Debug" =>
-         for Object_Dir use "../.build/debug/demos/obj";
-         for Exec_Dir use "../.build/debug/demos";
-      when "Release" =>
-         for Object_Dir use "../.build/release/demos/obj";
-         for Exec_Dir use "../.build/release/demos";
-   end case;
+   for Object_Dir use "../" & Shared'Object_Dir & "/demos";
+   for Exec_Dir use "../" & Shared'Exec_Dir & "/demos";
 
    ---------
    -- Ide --

@@ -50,16 +50,26 @@ ada2wsdl-options.adb: force
 	echo "end Ada2WSDL.Options;" >> ada2wsdl-options.adb
 
 setup: $(GEN)
-	$(MKDIR) -p ../$(BDIR)/tools/obj
+	$(MKDIR) -p ../$(BDIR)/obj/tools
+	$(MKDIR) -p ../$(BDIR)/tools
 
 build:
-	$(GNAT) make -Ptools -XBuild=${PRJ_BUILD} \
-		-XXMLADA=${PRJ_XMLADA} -XASIS=${PRJ_ASIS}
+	$(GNAT) make -Ptools
+
+install:
+	-$(CP) ../$(BDIR)/tools/awsres${EXEEXT} $(I_BIN)
+	-$(CP) ../$(BDIR)/tools/hotplug_password${EXEEXT} $(I_BIN)
+	-$(CP) ../$(BDIR)/tools/templates2ada${EXEEXT} $(I_BIN)
+	-$(CP) ../$(BDIR)/tools/webxref${EXEEXT} $(I_BIN)
+ifeq ($(XMLADA),true)
+	$(CP) ../$(BDIR)/tools/wsdl2aws${EXEEXT} $(I_BIN)
+endif
+ifeq (${ASIS},true)
+	$(CP) ../$(BDIR)/tools/ada2wsdl-main${EXEEXT} $(I_BIN)/ada2wsdl${EXEEXT}
+endif
 
 check:
-	$(GNAT) check -Ptools -XBuild=${PRJ_BUILD} \
-		-XXMLADA=${PRJ_XMLADA} -XASIS=${PRJ_ASIS} \
-		-rules -from=../aws.checks
+	$(GNAT) check -Ptools -rules -from=../aws.checks
 
 clean:
 	$(RM) -fr ../$(BDIR)/tools

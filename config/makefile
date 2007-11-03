@@ -36,14 +36,22 @@ endif
 
 SDIR = ../.build/setup
 
-setup_dir:
+DUMMY_OPTS = -XPRJ_BUILD=Debug -XLIBRARY_TYPE=static
+
+setup_dummy_dir:
+# Next line is needed because a current limitation on Project Files
+# where the Object_Dir and Library_Dir must exists even if not
+# actually used.
+	-$(MKDIR) -p ../.build/debug/static/obj ../.build/debug/static/lib
+
+setup_dir: setup_dummy_dir
 	-$(MKDIR) -p $(SDIR)/obj
 
 setup: setup_dir ../src/aws-translator-conversion.adb ../src/aws-os_lib.ads
 
 ../src/aws-translator-conversion.adb: makefile
 	echo Setup conversion support
-	$(GNAT_FOR_HOST) make -Psetup
+	$(GNAT_FOR_HOST) make -Psetup $(DUMMY_OPTS)
 	$(SDIR)/test_uconv
 	$(MV) aws-translator-conversion.adb ../src
 
@@ -53,6 +61,20 @@ setup: setup_dir ../src/aws-translator-conversion.adb ../src/aws-os_lib.ads
 	$(SDIR)/check_config ../src/aws-os_lib.ads
 
 build:
+
+install:
+	$(CP) aws-net-std__* $(I_INC)
+	$(CP) aws-net-ssl__* $(I_INC)
+	$(CP) aws-net-ssl-certificate__* $(I_INC)
+	$(CP) ssl-thin__* $(I_INC)
+	$(CP) templates_parser-* $(I_INC)
+	$(CP) projects/aws_components.gpr $(I_AGP)
+	$(CP) projects/aws.gpr $(I_GPR)
+	$(CP) projects/aws_ssl.gpr $(I_GPR)
+	$(CP) projects/*_lib.gpr $(I_AGP)
+	$(CP) projects/aws_shared.gpr $(I_AGP)
+	$(CP) projects/aws_libz.gpr $(I_AGP)
+	$(CP) projects/aws_ssl_support.gpr $(I_AGP)
 
 check:
 

@@ -28,7 +28,6 @@
 
 with "sockets";
 with "aws_xmlada";
-with "aws_config";
 
 with "../shared";
 with "../include/include";
@@ -61,18 +60,13 @@ project Src is
          null;
    end case;
 
-   case Shared.Build is
-      when "Debug" =>
-         for Object_Dir use "../.build/debug/obj";
-         for Library_Dir use "../.build/debug/lib";
-      when "Release" =>
-         for Object_Dir use "../.build/release/obj";
-         for Library_Dir use "../.build/release/lib";
-   end case;
+   for Object_Dir use "../" & Shared'Object_Dir & "/src";
+   for Library_Dir use "../" & Shared'Library_Dir & "/src";
 
-   case AWS_Config.Lib_Kind is
+   case Shared.Library_Type is
       when "static" =>
          null;
+
       when "relocatable" =>
          case Shared.OS is
             when "Windows_NT" =>
@@ -100,7 +94,7 @@ project Src is
    end case;
 
    for Library_Name use "aws";
-   for Library_Kind use AWS_Config.Lib_Kind;
+   for Library_Kind use Shared.Library_Type;
 
    ---------
    -- Ide --

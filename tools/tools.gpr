@@ -59,14 +59,8 @@ project Tools is
             "ada2wsdl-parser.ads", "ada2wsdl-parser.adb");
    end case;
 
-   case Shared.Build is
-      when "Debug" =>
-         for Object_Dir use "../.build/debug/tools/obj";
-         for Exec_Dir use "../.build/debug/tools";
-      when "Release" =>
-         for Object_Dir use "../.build/release/tools/obj";
-         for Exec_Dir use "../.build/release/tools";
-   end case;
+   for Object_Dir use "../" & Shared'Object_Dir & "/tools";
+   for Exec_Dir use "../" & Shared'Exec_Dir & "/tools";
 
    --------------
    -- Compiler --
@@ -97,9 +91,21 @@ project Tools is
    ------------
 
    package Linker is
-      for Switches ("awsres.adb")   use Shared.ZLib;
-      for Switches ("wsdl2aws.adb") use Shared.ZLib;
-      for Switches ("ada2wsdl-main.adb") use Shared.ZLib & ("-lasis");
+
+      case Shared.Build is
+         when "Release" =>
+            for Default_Switches ("Ada") use ("-s");
+	 when others =>
+            null;
+      end case;
+
+      for Switches ("awsres.adb") use
+         Linker'Default_Switches ("Ada") & Shared.ZLib;
+      for Switches ("wsdl2aws.adb") use
+         Linker'Default_Switches ("Ada") & Shared.ZLib;
+      for Switches ("ada2wsdl-main.adb") use
+         Linker'Default_Switches ("Ada") & Shared.ZLib & ("-lasis");
+
    end Linker;
 
 end Tools;

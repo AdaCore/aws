@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                          Copyright (C) 2003-2006                         --
+--                          Copyright (C) 2003-2007                         --
 --                                  AdaCore                                 --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -27,7 +27,6 @@
 ------------------------------------------------------------------------------
 
 with "../shared";
-with "aws_config";
 
 with "zlib/zlib";
 
@@ -37,17 +36,11 @@ project Include is
 
    for Source_Dirs use (".");
 
-   case Shared.Build is
-      when "Debug" =>
-         for Object_Dir use "../.build/debug/include/obj";
-         for Library_Dir use "../.build/debug/include/lib";
-      when "Release" =>
-         for Object_Dir use "../.build/release/include/obj";
-         for Library_Dir use "../.build/release/include/lib";
-   end case;
+   for Object_Dir use "../" & Shared'Object_Dir & "/include";
+   for Library_Dir use "../" & Shared'Library_Dir & "/include";
 
    for Library_Name use "aws_include";
-   for Library_Kind use AWS_Config.Lib_Kind;
+   for Library_Kind use Shared.Library_Type;
 
    ---------
    -- Ide --

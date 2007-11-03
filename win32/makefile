@@ -31,10 +31,13 @@
 # Build the library only if Win32 OS. On other OS these libraries must be
 # installed separately or are most of the time already installed.
 
-LIBSSL		= ../lib/libssl.a
-LIBCRYPTO	= ../lib/libcrypto.a
-LIBLDAP		= ../lib/libldap.a
-AWS_COFF	= ../lib/aws.coff
+ODIR = ../$(BDIR)/obj/win32
+LDIR = ../$(BDIR)/lib/win32
+
+LIBSSL		= $(LDIR)/libssl.a
+LIBCRYPTO	= $(LDIR)/libcrypto.a
+LIBLDAP		= $(LDIR)/libldap.a
+AWS_COFF	= $(LDIR)/aws.coff
 
 ifeq (${OS}, Windows_NT)
    RES        = $(AWS_COFF)
@@ -46,12 +49,9 @@ else
    BUILD      =
 endif
 
-ODIR = ../$(BDIR)/win32/obj
-LDIR = ../$(BDIR)/win32/lib
-
 force:
 
-build: $(BUILD)
+build: $(BUILD) $(RES) $(IMPORT_LIB)
 
 build_win32: $(ODIR)/gai_strerror.o
 	$(AR) cr $(LDIR)/libaws_win32.a $+
@@ -81,10 +81,11 @@ $(AWS_COFF): aws.rc
 clean:
 	-$(RM) -f $(LIBSSL) $(LIBCRYPTO) $(LIBLDAP) $(AWS_COFF) *~
 
-setup_dir:
+setup:
 	-$(MKDIR) -p $(ODIR)
 	-$(MKDIR) -p $(LDIR)
 
-setup: setup_dir $(RES) $(IMPORT_LIB)
+install:
+	$(CP) ../$(BDIR)/lib/win32/* $(I_LIB)
 
 check:

@@ -33,10 +33,17 @@ ALL_API = $(sort $(shell ls ../src/*.ads ../xsrc/*.ads ../soap/*.ads \
 
 force:
 
+setup:
+
 build: prog force
 	./gen_gps_ref $(ALL_API)
 
-setup:
+install:
+	$(CP) aws_api.xml $(I_PLG)
+	$(CP) aws.py $(I_PLG)
+	$(CP) aws.xml $(I_PLG)
+	$(CP) ada2wsdl.xml $(I_PLG)
+	$(CP) wsdl2aws.xml $(I_PLG)
 
 check:
 

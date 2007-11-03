@@ -135,6 +135,8 @@ sg_docs: style-guide.pdf style-guide.ps style-guide.html style-guide.txt \
 
 setup:
 
+build:
+
 ada.sed: makefile
 	echo "s/\([^@_]\)@\([^@_]\)/\1@@\2/" > ada.sed
 	echo "s/-- \(.*\)$$/-- @i{\1}/" >> ada.sed
@@ -245,6 +247,11 @@ check_texi:
 	fi;
 
 aws.texi: gen_texi check_texi
+
+install:
+	-$(CP) aws.html $(I_DOC)
+	-$(CP) aws.txt $(I_DOC)
+	-$(CP) *.info* $(I_DOC)
 
 clean:
 	-$(GNAT) clean -Pdocs -XPRJ_Build=${PRJ_BUILD} -XPRJ_XMLADA=Installed

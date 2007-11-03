@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                          Copyright (C) 2004-2006                         --
+--                          Copyright (C) 2004-2007                         --
 --                                  AdaCore                                 --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -33,16 +33,15 @@ with "aws/aws_crypto_lib";
 with "aws/aws_ssl_lib";
 with "aws/aws_ssl_error_lib";
 with "aws/aws_shared";
-with "aws/aws_config";
 with "aws/aws_libz";
 
 project AWS_SSL is
 
    for Source_Dirs use ("../../include/aws");
 
-   for Library_Dir use "../../lib/aws";
+   for Library_Dir use "lib/" & AWS_Shared'Library_Dir;
    for Library_Name use "aws";
-   for Library_Kind use AWS_Config.Lib_Kind;
+   for Library_Kind use AWS_Shared.Library_Type;
    for Externally_Built use "true";
 
    package Naming renames AWS_Shared.Naming;
