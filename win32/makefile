@@ -42,16 +42,18 @@ AWS_COFF	= $(LDIR)/aws.coff
 ifeq (${OS}, Windows_NT)
    RES        = $(AWS_COFF)
    IMPORT_LIB = $(LIBSSL) $(LIBCRYPTO) $(LIBLDAP)
-   BUILD      = build_win32
+   TBUILD      = build_win32
+   TINSTALL    = install_win32
 else
    RES        =
    IMPORT_LIB =
-   BUILD      =
+   TBUILD      =
+   TINSTALL    =
 endif
 
 force:
 
-build: $(BUILD) $(RES) $(IMPORT_LIB)
+build: $(TBUILD) $(RES) $(IMPORT_LIB)
 
 build_win32: $(ODIR)/gai_strerror.o
 	$(AR) cr $(LDIR)/libaws_win32.a $+
@@ -85,7 +87,9 @@ setup:
 	-$(MKDIR) -p $(ODIR)
 	-$(MKDIR) -p $(LDIR)
 
-install:
+install_win32:
 	$(CP) ../$(BDIR)/lib/win32/* $(I_LIB)
+
+install: $(TINSTALL)
 
 check:
