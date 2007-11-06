@@ -279,8 +279,7 @@ main (int argc, char *argv[])
   P ("     (node    : in C.Strings.chars_ptr;\n");
   P ("      service : in C.Strings.chars_ptr;\n");
   P ("      hints   : in Addr_Info;\n");
-  P ("      res     : not null access Addr_Info_Access)\n");
-  P ("      return C.int;\n\n");
+  P ("      res     : not null access Addr_Info_Access) return C.int;\n\n");
 
   P ("   procedure FreeAddrInfo (res : in Addr_Info_Access);\n\n");
 
