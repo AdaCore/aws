@@ -108,7 +108,7 @@ ALL_OPTIONS	= $(MAKE_OPT) SOCKET="$(SOCKET)" XMLADA="$(XMLADA)" \
 	GREP="$(GREP)" SED="$(SED)" DIFF="$(DIFF)" CHMOD="$(CHMOD)" \
 	GZIP="$(GZIP)" TAR="$(TAR)" DLLTOOL="$(DLLTOOL)" DLL2DEF="$(DLL2DEF)" \
 	WINDRES="$(WINDRES)" GNAT_FOR_HOST="$(GNAT_FOR_HOST)" \
-	ADASOCKETS="$(ADASOCKETS)" EXTRA_TESTS="$(EXTRA_TESTS)" \
+	EXTRA_TESTS="$(EXTRA_TESTS)" \
 	GCC="$(GCC)" AWK="$(AWK)" CAT="$(CAT)" GCC_FOR_HOST="$(GCC_FOR_HOST)" \
 	BDIR="$(BDIR)" INSTALL="$(INSTALL)" SHARED="$(SHARED)" \
 	SOEXT="$(SOEXT)" BUILD_DOC_SCRIPT="false" GNAT="$(GNAT)" \
@@ -265,18 +265,12 @@ PRJ_ASIS=Disabled
 GEXT_MODULE := $(GEXT_MODULE) gasis_dummy
 endif
 
-## AdaSockets
+## Sockets
 
-ifdef ADASOCKETS
-GEXT_MODULE := $(GEXT_MODULE) gadasockets
-PRJ_SOCKLIB=AdaSockets
-else
-GEXT_MODULE := $(GEXT_MODULE) gsockets_dummy
-ifdef IPv6
+ifeq ($(IPv6), true)
 PRJ_SOCKLIB=IPv6
 else
 PRJ_SOCKLIB=GNAT
-endif
 endif
 
 ## Debug
@@ -368,22 +362,6 @@ gxmlada_setup:
 	echo "   for Source_Dirs use ();" >> $(PRJDIR)/aws_xmlada.gpr
 	echo "end AWS_XMLADA;" >> $(PRJDIR)/aws_xmlada.gpr
 
-gadasockets:
-	echo "project Sockets is" > $(PRJDIR)/sockets.gpr
-	echo "   Path := \"$(ADASOCKETS)/lib\";" >> $(PRJDIR)/sockets.gpr
-	echo "   Src_Path := Path & \"/adasockets\";" >> $(PRJDIR)/sockets.gpr
-	echo "   for Source_Dirs use (Src_Path);" >> $(PRJDIR)/sockets.gpr
-	echo "   for Object_Dir use Src_Path;" >> $(PRJDIR)/sockets.gpr
-	echo "   for Library_Name use \"adasockets\";" >> $(PRJDIR)/sockets.gpr
-	echo "   for Library_Kind use \"static\";" >> $(PRJDIR)/sockets.gpr
-	echo "   for Library_Dir use Path;" >> $(PRJDIR)/sockets.gpr
-	echo "end Sockets;" >> $(PRJDIR)/sockets.gpr
-
-gsockets_dummy:
-	echo "project Sockets is" > $(PRJDIR)/sockets.gpr
-	echo "   for Source_Dirs use ();" >> $(PRJDIR)/sockets.gpr
-	echo "end Sockets;" >> $(PRJDIR)/sockets.gpr
-
 setup_dir:
 	-$(MKDIR) -p $(PRJDIR)
 	-$(MKDIR) -p templates_parser/obj
@@ -404,21 +382,16 @@ endif
 setup_config:
 	echo 'project AWS_Config is' > $(CONFGPR)
 	echo '   for Source_Dirs use ();' >> $(CONFGPR)
-	echo '   type SOCKLIB_Type is ("GNAT", "AdaSockets", "IPv6");' \
+	echo '   type SOCKLIB_Type is ("GNAT", "IPv6");' \
 		>> $(CONFGPR)
 	echo 'pragma Source_File_Name' > $(CONFADC)
 	echo -n '  (AWS.Net.Std, Body_File_Name => ' >> $(CONFADC)
-ifdef ADASOCKETS
-	echo '   SOCKLIB : SOCKLIB_Type := "AdaSockets";' >> $(CONFGPR)
-	echo '"aws-net-std__adasockets.adb");' >> $(CONFADC)
-else
-ifdef IPv6
+ifeq ($(IPv6), true)
 	echo '   SOCKLIB : SOCKLIB_Type := "IPv6";' >> $(CONFGPR)
 	echo '"aws-net-std__ipv6.adb");' >> $(CONFADC)
 else
 	echo '   SOCKLIB : SOCKLIB_Type := "GNAT";' >> $(CONFGPR)
 	echo '"aws-net-std__gnat.adb");' >> $(CONFADC)
-endif
 endif
 	echo '   type SOCKET_Type is ("std", "openssl", "gnutls");' \
 	  >> $(CONFGPR)

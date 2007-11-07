@@ -67,9 +67,6 @@ project AWS_Shared is
          when "GNAT" =>
             for Implementation ("AWS.Net.Std")
               use "aws-net-std__gnat.adb";
-         when "AdaSockets" =>
-            for Implementation ("AWS.Net.Std")
-              use "aws-net-std__adasockets.adb";
          when "IPv6" =>
             for Implementation ("AWS.Net.Std")
               use "aws-net-std__ipv6.adb";

@@ -42,7 +42,7 @@ project Shared is
    -- SOCKLIB --
    -------------
 
-   type SOCKLIB_Type is ("GNAT", "AdaSockets", "IPv6");
+   type SOCKLIB_Type is ("GNAT", "IPv6");
    SOCKLIB : SOCKLIB_Type := external ("PRJ_SOCKLIB", "GNAT");
 
    ------------

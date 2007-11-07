@@ -175,10 +175,6 @@ implemented:
 - Detect long running download on the server side and put download
   socket/stream pair into the socket set in the download task.
 
-- Revisit the AdaSockets support. Should we continue supporting this ?
-  It would certainly be easier to support only GNAT.Sockets and use the
-  selector facilities instead of the AWS's poll() support.
-
 =============== Point to fix/implement/review before next release (2.3.0)
 
 - Replace OpenSSL by GNUTLS library as this library is now stable.

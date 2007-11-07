@@ -4,7 +4,7 @@
 
 Authors:
    Dmitriy Anisimkov
-   Pascal Obry                                              October 17th, 2007
+   Pascal Obry                                              November 7th, 2007
 
 
 
@@ -65,6 +65,10 @@ Listed below are some minor enhancements and fixes:
 
    - The server side URL object (Status.URI returning and URL.Object)
      properly store the web parameters.
+
+   - Drop AdaSockets support. AdaSocket is now mostly based on
+     GNAT.Sockets and does not define the thin layer which was used on
+     AWS.
 
    - Plus many small fixes, enhancements, API comments, and documentation work.
 
@@ -207,15 +211,6 @@ GNU/Ada - GNAT
    You need at least GNAT 2005 GPL Edition or GNAT Pro 5.03.
 
    http://libre.act-europe.fr/GNAT/
-
-Socket binding (Optional) :
-
-   Since AWS 2.1 you need at least version 1.8.4.4 of the Socket binding. Note
-   that by default AWS uses GNAT.Sockets. To be able to use AdaSockets with
-   AWS you need to copy all the .ali (cp -p) in the directory where the
-   libadasockets.a is. This is needed for the GNAT Project support.
-
-   http://www.rfc1149.net/devel/adasockets
 
 XML/Ada (optional):
 

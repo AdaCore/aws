@@ -223,20 +223,6 @@ To build this version you need at least @code{GNAT GAP 2006 Edition},
 @code{Ada.Containers} is used. The code should be fairly portable but
 has never been tested on another compiler than @code{GNAT}.
 
-@item a socket binding (@b{optional}) ;
-@cindex socket binding
-
-@code{GNAT.Sockets} is the default socket implementation used. It is possible
-to use @code{AdaSockets} (@code{AdaSockets} was used in AWS v 1.2) and
-in this case you must install the @code{AdaSockets} package.
-
-On Windows you must use the one distributed at @*
-@url{http://www.obry.net/contrib} which is a
-Win32 port (done by Dmitriy Anisimkov) of the ENST version.
-
-On UNIX you must use the socket binding from ENST @*
-@url{http://www.rfc1149.net/devel/adasockets}.
-
 @item OpenSSL (@b{optional}) ;
 @cindex OpenSSL
 
@@ -268,24 +254,21 @@ You can download OpenLDAP from @url{http://www.openldap.org}.
 
 @noindent
 This package is the standard (non-SSL) socket implementation. It exists
-different implementation of this package:
+different implementations of this package:
 
 @table @b
 
-@item GNAT implementation
+@item IPv4
 
-Version based on @code{GNAT.Sockets}, is @code{GNAT} dependent and will
-run on whatever OS @code{GNAT} has be ported to. This is the
-@b{default implementation} used. To select this implementation just do:
+Version based on @code{GNAT.Sockets}. This is the @b{default implementation}
+used.
 
-@AWSEXP {$ make gnatsockets}
+@item IPv6
 
-@item AdaSockets implementation
+As above but supporting IPv6 protocol. To select this implementation
+just do when building (see below):
 
-Version using @code{AdaSockets} packages. This was the default implementation
-used up to @code{AWS} 1.2. To select this implementation just do:
-
-@AWSEXP {$ make adasockets}
+@AWSEXP {$ make IPv6=true}
 
 @end table
 
@@ -575,22 +558,20 @@ or put it on the command line @code{-I<awsroot>/include/aws/components}.
 @item libraries
 
 The GNAT library files (@file{.ali}) and the @code{AWS} libraries
-(@file{libaws.a}) are installed into @file{<awsroot>/lib/aws}. Add this
+(@file{libaws.a}) are installed into @file{<awsroot>/lib/aws/static}. Add this
 path into @var{ADA_OBJECTS_PATH} or put it on the command line
-@code{-aO<awsroot>/lib/aws}. Furthermore for @code{gnatlink} to find the
+@code{-aO<awsroot>/lib/aws/static}. Furthermore for @code{gnatlink} to find the
 libraries you must add the following library path option on the
-@code{gnatmake} command line @code{-largs -L<awsroot>/lib/aws -laws}.
+@code{gnatmake} command line @code{-largs -L<awsroot>/lib/aws/static -laws}.
 
 Note that to build SSL applications you need to add @code{-lssl -lcrypto} on
 gnatmake's @code{-largs} section.
 
 @item external libraries
 
-You must do the same thing for all external libraries that you will
-be using. For example you'll have to point @code{GNAT} to the
-@code{AdaSockets} libraries and pass @code{-ladasockets} on the gnatmake's
-@code{-largs} section. The same apply if you have built @code{AWS} with
-@code{SSL} support.
+You must do the same thing (setting @var{ADA_INCLUDE_PATH} and
+@var{ADA_OBJECTS_PATH}) for all external libraries that you will
+be using.
 
 @end table
 
