@@ -4,7 +4,7 @@
 
 Authors:
    Dmitriy Anisimkov
-   Pascal Obry                                              November 7th, 2007
+   Pascal Obry                                              November 8th, 2007
 
 
 
@@ -203,19 +203,16 @@ Templates_Parser sources:
 
 GNU/Ada - GNAT
 
-   You need at least GNAT 2005 GPL Edition or GNAT Pro 5.03.
+   You need at least GNAT 2007 GPL Edition or GNAT Pro 6.0.1.
 
    http://libre.act-europe.fr/GNAT/
 
 XML/Ada (optional):
 
    You need this library only if you want to use AWS SOAP feature. You need
-   at least XML/Ada 1.1.
+   at least XML/Ada version 2.2.0.
 
    http://libre.act-europe.fr/
-
-   Note that it should be possible to use XML/Ada 1.0 but in this case you'll
-   have to create the set of project files yourself.
 
 OpenSSL library (optional) :
 
