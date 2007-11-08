@@ -26,7 +26,6 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-with "sockets";
 with "aws_xmlada";
 
 with "../shared";
