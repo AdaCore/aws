@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2006                          --
+--                         Copyright (C) 2000-2007                          --
 --                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -27,11 +27,11 @@
 ------------------------------------------------------------------------------
 
 with Ada.Characters.Handling;
+with Ada.Containers.Indefinite_Hashed_Maps;
+with Ada.Strings.Hash;
 with Ada.Strings.Unbounded;
 with Ada.Text_IO;
 
-with Ada.Containers.Indefinite_Hashed_Maps;
-with Ada.Strings.Hash;
 with Strings_Cutter;
 
 with AWS.Communication;
@@ -318,8 +318,8 @@ package body AWS.Server.Hotplug is
       ---------
 
       procedure Add
-        (Client  : in     String;
-         Data    : in     Client_Data)
+        (Client : in     String;
+         Data   : in     Client_Data)
       is
          Cursor  : Client_Table.Cursor;
          Success : Boolean;
