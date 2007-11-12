@@ -39,7 +39,7 @@ project AWS_SSL is
 
    for Source_Dirs use ("../../include/aws");
 
-   for Library_Dir use "lib/" & AWS_Shared'Library_Dir;
+   for Library_Dir use "aws/" & AWS_Shared'Library_Dir;
    for Library_Name use "aws";
    for Library_Kind use AWS_Shared.Library_Type;
    for Externally_Built use "true";
