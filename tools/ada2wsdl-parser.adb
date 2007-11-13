@@ -960,12 +960,28 @@ package body Ada2WSDL.Parser is
       ----------------
 
       function Name_Space (E : in Asis.Element) return String is
-         NS : String :=
-                Image (Compilation_Units.Unit_Full_Name
-                       (Elements.Enclosing_Compilation_Unit (E)));
+         NS  : String :=
+                 Image (Compilation_Units.Unit_Full_Name
+                        (Elements.Enclosing_Compilation_Unit (E)));
       begin
          Strings.Fixed.Translate (NS, Strings.Maps.To_Mapping (".", "/"));
-         return SOAP.Name_Space.Value (SOAP.Name_Space.AWS) & NS & "_pkg/";
+
+         declare
+            Res : String (1 .. NS'Length + Strings.Fixed.Count (NS, "/") * 4);
+            I   : Natural := 0;
+         begin
+            for K in NS'Range loop
+               I := I + 1;
+               if NS (K) = '/' then
+                  Res (I .. I + 4) := "_pkg/";
+                  I := I + 4;
+               else
+                  Res (I) := NS (K);
+               end if;
+            end loop;
+
+            return SOAP.Name_Space.Value (SOAP.Name_Space.AWS) & Res & "_pkg/";
+         end;
       end Name_Space;
 
       ---------------
