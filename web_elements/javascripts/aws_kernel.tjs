@@ -354,18 +354,23 @@ AWS.Ajax = new function() {
    @@-- --------------------------------
    @@-- Serialize a tag or all fields in a form
 
-   this.serialize = function(elm) {
+   this.serialize = function(elm, name) {
       var param = "";
+
+      if ($(elm) == null) return;
 
       if ($(elm).tagName == "FORM") {
          param = Form.serialize (elm);
       } else if ($(elm).tagName == "UL") {
          param = Sortable.serialize(elm);
-      } else {
+      } else if (name == "") {
          param = elm + "=" + $F(elm);
+      } else {
+         param = name + "=" + $F(elm);
       }
       return (param);
    }
+
 }
 
 AWS.Ajax.XML = new function() {
