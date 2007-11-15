@@ -1,6 +1,8 @@
 *.ali
 *.exe
 *.o
+*.so
+*~
 .build
 demos/hello_demo-client.adb
 demos/hello_demo-client.ads
@@ -34,6 +36,7 @@ docs/aws.ps
 docs/aws.sed
 docs/aws.texi
 docs/aws.txt
+docs/build
 docs/genout
 docs/style-guide.html
 docs/style-guide.info
@@ -41,6 +44,7 @@ docs/style-guide.pdf
 docs/style-guide.ps
 docs/style-guide.txt
 gps/aws_api.xml
+gps/gen_gps_ref
 lib/*.a
 lib/*.coff
 lib/*.dll
@@ -63,6 +67,7 @@ regtests/filea.txt
 regtests/fileb.txt.gz
 regtests/filec.txt.gz
 regtests/filez.tmplt
+regtests/generate
 regtests/generated
 regtests/generated/
 regtests/hotplug_access.ini
@@ -77,6 +82,7 @@ regtests/s_tsec.lst
 regtests/s_tsecsoap.lst
 regtests/s_tsoap.lst
 regtests/s_tstd.lst
+regtests/test_all
 regtests/test_all.adb
 regtests/test_soap.netlog
 regtests/testzlib.in
