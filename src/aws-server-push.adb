@@ -131,6 +131,8 @@ package body AWS.Server.Push is
       --  Socket should be appropriate and only for error control
 
       entry Info (Size : out Natural; Counter : out Wait_Counter_Type);
+
+      entry Empty;
    end Waiter;
 
    -------------------
@@ -381,6 +383,17 @@ package body AWS.Server.Push is
             Groups : Group_Set (1 .. Integer (CA.Groups.Length));
             CG     : Group_Sets.Cursor := CA.Groups.First;
             G      : Group_Maps.Cursor;
+
+            function Get_Peer_Addr return String;
+
+            function Get_Peer_Addr return String is
+            begin
+               return Peer_Addr (CA.Socket.all);
+            exception
+               when E : Net.Socket_Error =>
+                  return Ada.Exceptions.Exception_Message (E);
+            end Get_Peer_Addr;
+
          begin
             for J in Groups'Range loop
                if Process /= null then
@@ -405,8 +418,8 @@ package body AWS.Server.Push is
             if Process /= null then
                Process
                  (Tables.Key (C),
-                  Peer_Addr (CA.Socket.all),
-                  Phase_Type'Image (CA.Phase),
+                  Get_Peer_Addr,
+                  Phase_Type'Image (CA.Phase) & ' ' & To_String (CA.Errmsg),
                   CA.Environment,
                   CA.Kind,
                   Groups);
@@ -525,6 +538,7 @@ package body AWS.Server.Push is
          Queue        :    out Tables.Map)
       is
          Cursor : Tables.Cursor;
+         Next   : Tables.Cursor;
          Holder : Client_Holder_Access;
       begin
          if Group_Id = "" then
@@ -546,14 +560,19 @@ package body AWS.Server.Push is
 
          while Tables.Has_Element (Cursor) loop
             Holder := Tables.Element (Cursor);
+            Next   := Tables.Next (Cursor);
 
             Send_Data (Holder, Data, Content_Type, Thin_Id);
 
             if Holder /= null then
                Queue.Insert (Tables.Key (Cursor), Holder);
+
+               if Holder.Errmsg /= Null_Unbounded_String then
+                  Unregister (Cursor);
+               end if;
             end if;
 
-            Tables.Next (Cursor);
+            Cursor := Next;
          end loop;
       end Send;
 
@@ -693,11 +712,17 @@ package body AWS.Server.Push is
          Thin_Id      : in     String;
          Holder       :    out Client_Holder_Access)
       is
-         Cursor : constant Tables.Cursor := Container.Find (Client_Id);
+         Cursor : Tables.Cursor := Container.Find (Client_Id);
       begin
          if Tables.Has_Element (Cursor) then
             Holder := Tables.Element (Cursor);
             Send_Data (Holder, Data, Content_Type, Thin_Id);
+
+            if Holder /= null
+              and then Holder.Errmsg /= Null_Unbounded_String
+            then
+               Unregister (Cursor);
+            end if;
          else
             raise Client_Gone with "No such client id '" & Client_Id & ''';
          end if;
@@ -1085,25 +1110,20 @@ package body AWS.Server.Push is
          if Holder.Errmsg /= Null_Unbounded_String then
             declare
                Client_Id : constant String := Tables.Key (C);
-               Removed   : Client_Holder_Access;
             begin
                if Client_Gone /= null then
                   Client_Gone (Client_Id);
                end if;
 
-               Server.Unregister (Client_Id, Removed);
-               Removed.Socket.Shutdown;
+               Holder.Socket.Shutdown;
                Queue.Delete (C);
 
-               if Removed /= Holder then
-                  raise Program_Error;
+               if Holder.Phase /= Available then
+                  raise Program_Error with
+                    Holder.Phase'Img & ' ' & To_String (Holder.Errmsg);
                end if;
 
-               if Removed.Phase /= Available then
-                  raise Program_Error;
-               end if;
-
-               Free (Removed);
+               Free (Holder);
             end;
          end if;
       end loop;
@@ -1161,11 +1181,10 @@ package body AWS.Server.Push is
             declare
                Errmsg : constant String := To_String (Holder.Errmsg);
             begin
-               Server.Unregister (Client_Id, Holder);
                Holder.Socket.Shutdown;
 
                if Holder.Phase /= Available then
-                  raise Program_Error with Holder.Phase'Img;
+                  raise Program_Error with Holder.Phase'Img & ' ' & Errmsg;
                end if;
 
                Free (Holder);
@@ -1342,6 +1361,8 @@ package body AWS.Server.Push is
       pragma Warnings (Off, Byte);
       Counter : Wait_Counter_Type := 0;
 
+      Receive_Signal : Boolean;
+
       procedure Add_Item
         (Server : in Object_Access; Holder : in Client_Holder_Access);
 
@@ -1377,6 +1398,8 @@ package body AWS.Server.Push is
          end if;
 
          if Count (Write_Set) = 1 or else Is_Read_Ready (Write_Set, 1) then
+            Receive_Signal := True;
+
             select
                accept Add
                  (Server : in Object_Access; Holder : in Client_Holder_Access)
@@ -1467,10 +1490,15 @@ package body AWS.Server.Push is
                end Info;
 
             or
+               when Count (Write_Set) <= 1 => accept Empty;
+               Receive_Signal := False;
+            or
                terminate;
             end select;
 
-            Byte := Net.Receive (R_Signal, 1);
+            if Receive_Signal then
+               Byte := Net.Receive (R_Signal, 1);
+            end if;
          end if;
 
          for J in reverse 2 .. Count (Write_Set) loop
@@ -1560,5 +1588,20 @@ package body AWS.Server.Push is
          Ada.Text_IO.Put_Line
            ("Server push broken, " & Ada.Exceptions.Exception_Information (E));
    end Waiter;
+
+   --------------------------
+   -- Wait_Send_Completion --
+   --------------------------
+
+   function Wait_Send_Completion (Timeout : in Duration) return Boolean is
+   begin
+      select
+         Waiter.Empty;
+         return True;
+      or
+         delay Timeout;
+         return False;
+      end select;
+   end Wait_Send_Completion;
 
 end AWS.Server.Push;

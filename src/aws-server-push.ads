@@ -242,6 +242,11 @@ package AWS.Server.Push is
    --  Size would return number of currently waiting sockets.
    --  Counter would return total number of waited sockets from start.
 
+   function Wait_Send_Completion (Timeout : in Duration) return Boolean;
+   --  Wait for all data sending in all server_push objects of the current
+   --  package instance.
+   --  Return True if wait successfull. False in timeout.
+
 private
 
    package Group_Sets is

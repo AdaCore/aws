@@ -193,13 +193,11 @@ package body Sp_Pck is
          Server_Push.Send (Push, Data => Data, Content_Type => "text/plain");
 
          Client.Close (Connect (J));
+
+         if not Server_Push.Wait_Send_Completion (10.0) then
+            Put_Line ("Wait send completion timeout.");
+         end if;
       end loop;
-
-      if Server_Push.Count (Push) > 1 then
-         --  Wait for server-push internal waiter process completion.
-
-         delay 1.0;
-      end if;
 
       if Server_Push.Count (Push) /= 1 then
          declare
