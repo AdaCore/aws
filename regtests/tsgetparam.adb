@@ -36,5 +36,5 @@ with TGetParam_Proc;
 
 procedure TSGetParam is
 begin
-   TGetParam_Proc ("https", 7429);
+   TGetParam_Proc ("https");
 end TSGetParam;
