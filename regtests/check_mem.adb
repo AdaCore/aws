@@ -623,8 +623,6 @@ begin
       Check_Reconnect (True);
    end loop;
 
-   delay 4.0;
-
    Server.Stopped;
 
    Command_Line.Set_Exit_Status (Command_Line.Success);
