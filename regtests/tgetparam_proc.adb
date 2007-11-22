@@ -34,18 +34,15 @@ with AWS.Messages;
 with AWS.MIME;
 with AWS.Parameters;
 with AWS.Response;
-with AWS.Server;
+with AWS.Server.Status;
 with AWS.Status;
 with AWS.Utils;
 
-procedure TGetParam_Proc (Protocol : String; Port : Positive) is
+procedure TGetParam_Proc (Protocol : String) is
 
    use Ada;
    use Ada.Text_IO;
    use AWS;
-
-   URL_Prefix : constant String
-     := Protocol & "://localhost:" & AWS.Utils.Image (Port);
 
    function CB (Request : in Status.Data) return Response.Data;
 
@@ -113,7 +110,7 @@ procedure TGetParam_Proc (Protocol : String; Port : Positive) is
       AWS.Server.Start
         (HTTP, "TGetParam",
          CB'Unrestricted_Access,
-         Port           => Port,
+         Port           => 0,
          Security       => Protocol = "https",
          Max_Connection => 5);
 
@@ -153,19 +150,25 @@ begin
    Server.Start;
    Server.Started;
 
-   Request (URL_Prefix & "/simple");
-   Request (URL_Prefix & "/simple?p1=8&p2=azerty%20qwerty");
-   Request (URL_Prefix & "/simple?p2=8&p1=azerty%20qwerty");
-   Request (URL_Prefix & "/doesnotexist?p=8");
+   declare
+      URL_Prefix : constant String :=
+        Protocol & "://localhost:"
+        & Utils.Image (AWS.Server.Status.Port (HTTP));
+   begin
+      Request (URL_Prefix & "/simple");
+      Request (URL_Prefix & "/simple?p1=8&p2=azerty%20qwerty");
+      Request (URL_Prefix & "/simple?p2=8&p1=azerty%20qwerty");
+      Request (URL_Prefix & "/doesnotexist?p=8");
 
-   Request (URL_Prefix & "/complex?p1=1&p2=2&p3=3&p4=4&p5=5&p6=6"
-            & "&p7=7&p8=8&p9=9&p10=10&p11=11&p12=12&p13=13&p14=14&p15=15"
-            & "&very_long_name_in_a_get_form=alongvalueforthistest");
+      Request (URL_Prefix & "/complex?p1=1&p2=2&p3=3&p4=4&p5=5&p6=6"
+               & "&p7=7&p8=8&p9=9&p10=10&p11=11&p12=12&p13=13&p14=14&p15=15"
+               & "&very_long_name_in_a_get_form=alongvalueforthistest");
 
-   Request (URL_Prefix & "/multiple?" &
-            "par=1&par=2&par=3&par=4&par=whatever");
+      Request (URL_Prefix & "/multiple?" &
+               "par=1&par=2&par=3&par=4&par=whatever");
 
-   Request (URL_Prefix & "/simple?p1=8&p2=azerty%20qwerty");
+      Request (URL_Prefix & "/simple?p1=8&p2=azerty%20qwerty");
+   end;
 
    Server.Stopped;
 
