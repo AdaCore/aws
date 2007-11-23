@@ -568,6 +568,12 @@ package body AWS.Server.Push is
                Queue.Insert (Tables.Key (Cursor), Holder);
 
                if Holder.Errmsg /= Null_Unbounded_String then
+                  if Group_Id /= "" then
+                     --  Cursor have to be from Containers
+
+                     Cursor := Container.Find (Tables.Key (Cursor));
+                  end if;
+
                   Unregister (Cursor);
                end if;
             end if;
@@ -794,6 +800,7 @@ package body AWS.Server.Push is
 
       procedure Unregister (Cursor : in out Tables.Cursor) is
          Holder : constant Client_Holder_Access := Tables.Element (Cursor);
+         Key    : constant String := Tables.Key (Cursor);
 
          procedure Delete_Group (J : Group_Sets.Cursor);
 
@@ -809,7 +816,7 @@ package body AWS.Server.Push is
             procedure Free is
               new Ada.Unchecked_Deallocation (Tables.Map, Map_Access);
          begin
-            Tables.Delete (Map.all, Tables.Key (Cursor));
+            Tables.Delete (Map.all, Key);
 
             if Map.Length = 0 then
                Groups.Delete (C);
@@ -818,8 +825,8 @@ package body AWS.Server.Push is
          end Delete_Group;
 
       begin
-         Holder.Groups.Iterate (Delete_Group'Access);
          Container.Delete (Cursor);
+         Holder.Groups.Iterate (Delete_Group'Access);
       end Unregister;
 
       procedure Unregister
