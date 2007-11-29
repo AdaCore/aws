@@ -412,6 +412,10 @@ endif
 	echo '  (Templates_Parser.Configuration,' >> $(CONFADC)
 	echo '   Spec_File_Name => "templates_parser-configuration__aws.ads");'\
 	  >> $(CONFADC)
+	echo 'pragma Source_File_Name' >> $(CONFADC)
+	echo '  (Templates_Parser.Input,' >> $(CONFADC)
+	echo '   Body_File_Name => "templates_parser-input__aws.adb");'\
+	  >> $(CONFADC)
 
 setup_modules: $(MODULES_SETUP) setup_config
 
