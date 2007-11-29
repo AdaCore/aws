@@ -408,6 +408,10 @@ endif
 	echo '  (AWS.Net.SSL.Certificate,' >> $(CONFADC)
 	echo -n '   Body_File_Name =>' >> $(CONFADC)
 	echo ' "aws-net-ssl-certificate__$(SSL_SUFFIX).adb");' >> $(CONFADC)
+	echo 'pragma Source_File_Name' >> $(CONFADC)
+	echo '  (Templates_Parser.Configuration,' >> $(CONFADC)
+	echo '   Spec_File_Name => "templates_parser-configuration__aws.ads");'\
+	  >> $(CONFADC)
 
 setup_modules: $(MODULES_SETUP) setup_config
 
