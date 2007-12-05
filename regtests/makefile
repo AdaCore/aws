@@ -53,7 +53,7 @@
 #      WSDL_ATESTS    : for WSDL tests using Ada name style
 #      WSDL2AWS_TESTS : test using only wsdl2aws tool
 
-include makefile.lst
+-include makefile.lst
 
 ADA2WSDL = ../$(BDIR)/tools/ada2wsdl-main
 WSDL2AWS = ../$(BDIR)/tools/wsdl2aws

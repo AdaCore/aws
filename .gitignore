@@ -74,6 +74,7 @@ regtests/hotplug_access.ini
 regtests/icons
 regtests/icons/
 regtests/makefile.downloaded
+regtests/makefile.lst
 regtests/my_file_upload
 regtests/patch
 regtests/regtests_lst.gpr
