@@ -62,9 +62,8 @@ package body Auth_CB is
         and then (Auth_Mode = AWS.Response.Any
                     or Auth_Mode = AWS.Response.Digest)
       then
-         if
-           AWS.Digest.Check_Nonce
-             (AWS.Digest.Nonce (AWS.Status.Authorization_Nonce (Request)))
+         if AWS.Digest.Check_Nonce
+              (AWS.Status.Authorization_Nonce (Request))
          then
             return AWS.Response.Build
               ("text/html",
