@@ -202,7 +202,6 @@ include/zlib/zlib.h
 include/zlib/zlibdefs.h
 include/zlib/zutil.c
 include/zlib/zutil.h
-lib/makefile
 makefile
 makefile.conf
 readme.txt

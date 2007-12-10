@@ -88,7 +88,12 @@ setup:
 	-$(MKDIR) -p $(LDIR)
 
 install_win32:
-	$(CP) ../$(BDIR)/lib/win32/* $(I_LIB)
+	-$(MKDIR) -p $(INSTALL)/lib/aws/relocatable
+	$(CP) $(LIBSSL) $(INSTALL)/lib/aws/relocatable
+	$(CP) $(LIBCRYPTO) $(INSTALL)/lib/aws/relocatable
+	$(CP) $(LIBLDAP) $(INSTALL)/lib/aws/relocatable
+	$(CP) $(LDIR)/libaws_win32.a $(I_LIB)
+	$(CP) $(AWS_COFF) $(I_LIB)
 
 install: $(TINSTALL)
 

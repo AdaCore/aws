@@ -221,7 +221,7 @@ force:
 # Configuration for GNAT Projet Files
 
 EXTRA_MODULES = demos regtests
-MODULES = config lib include ssl win32 src tools docs gps ${EXTRA_MODULES}
+MODULES = config win32 include ssl src tools docs gps ${EXTRA_MODULES}
 
 MODULES_BUILD = ${MODULES:%=%_build}
 
@@ -417,6 +417,9 @@ endif
 	echo '   Body_File_Name => "templates_parser-input__aws.adb");'\
 	  >> $(CONFADC)
 
+# Set up all modules to create all the directories. This way it is possible
+# to build AWS using GPS using any settings.
+
 setup_modules: $(MODULES_SETUP) setup_config
 
 setup_debug_static:
@@ -431,11 +434,14 @@ setup_debug_relocatable:
 setup_release_relocatable:
 	$(MAKE) DEBUG=false SHARED=true setup_modules
 
+setup_final:
+	$(MAKE) -C ssl $(GALL_OPTIONS) setup_config
+
 setup_debug: setup_debug_static setup_debug_relocatable
 
 setup_release: setup_release_static setup_release_relocatable
 
-setup: setup_dir setup_debug setup_release setup_tp $(GEXT_MODULE)
+setup: setup_dir setup_debug setup_release setup_final setup_tp $(GEXT_MODULE)
 
 setup_tp:
 	$(MAKE) -C templates_parser setup $(GALL_OPTIONS)

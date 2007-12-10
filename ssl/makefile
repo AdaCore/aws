@@ -54,13 +54,10 @@ ifeq (${SSL_PATH},)
 endif
 
 build:
-	$(GNAT) make -Pssl -XSOCKET=${SOCKET} \
-		-XAWS_BUILD=${PRJ_BUILD} -XXMLADA=${PRJ_XMLADA}
+	$(GNAT) make -Pssl
 
 check:
-	$(GNAT) check -Pssl -XSOCKET=${SOCKET} \
-		-XAWS_BUILD=${PRJ_BUILD} -XXMLADA=${PRJ_XMLADA} \
-		-rules -from=../aws.checks
+	$(GNAT) check -Pssl -rules -from=../aws.checks
 
 SSLGPR	=	aws_ssl_shared.gpr
 ISSLGPR	=	install_aws_ssl_shared.gpr
@@ -72,7 +69,7 @@ ifeq (${SOCKET}, std)
 	echo '   LIB_Path := "";' >> $(SSLGPR)
 else
 ifeq (${OS}, Windows_NT)
-	echo '   LIB_Path := "../lib";' >> $(SSLGPR)
+	echo '   LIB_Path := "../'$(BDIR)'/lib/win32";' >> $(SSLGPR)
 else
 	echo '   LIB_Path := "'$(dir $(SSL_PATH))'";' >> $(SSLGPR)
 endif
@@ -83,15 +80,17 @@ setup_ssl_install:
 	echo "project AWS_SSL_Shared is" > $(ISSLGPR)
 	echo "   for Source_Files use ();" >> $(ISSLGPR)
 ifeq (${OS}, Windows_NT)
-	echo '   LIB_Path := "../../../lib";' >> $(ISSLGPR)
+	echo '   LIB_Path := "../../../lib/aws/relocatable";' >> $(ISSLGPR)
 else
 	echo '   LIB_Path := "'$(dir $(SSL_PATH))'";' >> $(ISSLGPR)
 endif
 	echo "end AWS_SSL_Shared;" >> $(ISSLGPR)
 
-setup: setup_ssl setup_ssl_install
+setup:
 	-$(MKDIR) -p ../$(BDIR)/obj/ssl
 	-$(MKDIR) -p ../$(BDIR)/lib/ssl
+
+setup_config: setup_ssl setup_ssl_install
 
 install:
 	$(CP) *.ad[sb] $(I_INC)
