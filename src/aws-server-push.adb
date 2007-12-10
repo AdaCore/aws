@@ -72,6 +72,8 @@ package body AWS.Server.Push is
 
    procedure Free (Holder : in out Client_Holder_Access);
 
+   procedure Free is new Ada.Unchecked_Deallocation (Tables.Map, Map_Access);
+
    procedure Release
      (Server         : in out Object;
       Close_Sockets  : in     Boolean;
@@ -778,21 +780,60 @@ package body AWS.Server.Push is
          procedure Modify
            (Key : in String; Element : in out Client_Holder_Access)
          is
-            pragma Unreferenced (Key);
+            CI      : Group_Sets.Cursor;
+            Success : Boolean;
          begin
-            if not Element.Groups.Contains (Group_Id) then
-               Element.Groups.Insert (Group_Id);
-               Add_To_Groups (Groups, Group_Id, Client_Id, Element);
+            Element.Groups.Insert (Group_Id, CI, Success);
+
+            if Success then
+               Add_To_Groups (Groups, Group_Id, Key, Element);
             end if;
          end Modify;
 
       begin
          if Tables.Has_Element (Cursor) then
-            Tables.Update_Element (Container, Cursor, Modify'Access);
+            Container.Update_Element (Cursor, Modify'Access);
          else
             raise Client_Gone with "No such client id.";
          end if;
       end Subscribe;
+
+      --------------------
+      -- Subscribe_Copy --
+      --------------------
+
+      procedure Subscribe_Copy (Source : in String; Target : in String) is
+         CG : Group_Maps.Cursor;
+
+         procedure Process (C : in Tables.Cursor);
+
+         -------------
+         -- Process --
+         -------------
+
+         procedure Process (C : in Tables.Cursor) is
+            Element : constant Client_Holder_Access := Tables.Element (C);
+            CI      : Group_Sets.Cursor;
+            Success : Boolean;
+         begin
+            Element.Groups.Insert (Target, CI, Success);
+
+            if Success then
+               Add_To_Groups (Groups, Target, Tables.Key (C), Element);
+            end if;
+         end Process;
+
+      begin
+         if Source = "" then
+            Container.Iterate (Process'Access);
+         else
+            CG := Groups.Find (Source);
+
+            if Group_Maps.Has_Element (CG) then
+               Group_Maps.Element (CG).Iterate (Process'Access);
+            end if;
+         end if;
+      end Subscribe_Copy;
 
       ----------------
       -- Unregister --
@@ -812,9 +853,6 @@ package body AWS.Server.Push is
             use type Ada.Containers.Count_Type;
             C   : Group_Maps.Cursor := Groups.Find (Group_Sets.Element (J));
             Map : Map_Access := Group_Maps.Element (C);
-
-            procedure Free is
-              new Ada.Unchecked_Deallocation (Tables.Map, Map_Access);
          begin
             Tables.Delete (Map.all, Key);
 
@@ -887,11 +925,22 @@ package body AWS.Server.Push is
            (Key : in String; Element : in out Client_Holder_Access)
          is
             pragma Unreferenced (Key);
+            use type Ada.Containers.Count_Type;
             Cursor : Group_Sets.Cursor := Element.Groups.Find (Group_Id);
+            CG     : Group_Maps.Cursor;
+            Group  : Map_Access;
          begin
             if Group_Sets.Has_Element (Cursor) then
                Element.Groups.Delete (Cursor);
-               Tables.Delete (Groups.Element (Group_Id).all, Client_Id);
+
+               CG    := Groups.Find (Group_Id);
+               Group := Group_Maps.Element (CG);
+               Group.Delete (Client_Id);
+
+               if Group.Length = 0 then
+                  Groups.Delete (CG);
+                  Free (Group);
+               end if;
             end if;
          end Modify;
 
@@ -902,6 +951,50 @@ package body AWS.Server.Push is
             raise Client_Gone with "No such client id.";
          end if;
       end Unsubscribe;
+
+      ----------------------
+      -- Unsubscribe_Copy --
+      ----------------------
+
+      procedure Unsubscribe_Copy (Source : in String; Target : in String) is
+         use type Ada.Containers.Count_Type;
+
+         CG : Group_Maps.Cursor := Groups.Find (Target);
+         CF : Tables.Cursor;
+
+         Group  : Map_Access;
+         Client : Client_Holder_Access;
+      begin
+         if not Group_Maps.Has_Element (CG) then
+            return;
+         end if;
+
+         Group := Group_Maps.Element (CG);
+
+         CF := Group.First;
+
+         while Tables.Has_Element (CF) loop
+            Client := Tables.Element (CF);
+
+            if Source = "" or else Client.Groups.Contains (Source) then
+               declare
+                  CN : constant Tables.Cursor := Tables.Next (CF);
+               begin
+                  Client.Groups.Delete (Target);
+                  Group.Delete (CF);
+                  CF := CN;
+               end;
+            else
+               CF := Tables.Next (CF);
+            end if;
+         end loop;
+
+         if Group.Length = 0 then
+            Groups.Delete (CG);
+            Free (Group);
+         end if;
+
+      end Unsubscribe_Copy;
 
       ------------------
       -- Waiter_Error --
@@ -1262,6 +1355,16 @@ package body AWS.Server.Push is
       Server.Subscribe (Client_Id, Group_Id);
    end Subscribe;
 
+   --------------------
+   -- Subscribe_Copy --
+   --------------------
+
+   procedure Subscribe_Copy
+     (Server : in out Object; Source : in String; Target : in String) is
+   begin
+      Server.Subscribe_Copy (Source => Source, Target => Target);
+   end Subscribe_Copy;
+
    ---------------
    -- To_Holder --
    ---------------
@@ -1342,6 +1445,16 @@ package body AWS.Server.Push is
    begin
       Server.Unsubscribe (Client_Id, Group_Id);
    end Unsubscribe;
+
+   ----------------------
+   -- Unsubscribe_Copy --
+   ----------------------
+
+   procedure Unsubscribe_Copy
+     (Server : in out Object; Source : in String; Target : in String) is
+   begin
+      Server.Unsubscribe_Copy (Source => Source, Target => Target);
+   end Unsubscribe_Copy;
 
    ------------
    -- Waiter --

@@ -142,16 +142,22 @@ package AWS.Server.Push is
    --  client registered.
 
    procedure Subscribe
-     (Server       : in out Object;
-      Client_Id    : in     Client_Key;
-      Group_Id     : in     String);
-   --  Add one more group to client's group list
+     (Server : in out Object; Client_Id : in Client_Key; Group_Id : in String);
+   --  Subscribe client to the group
+
+   procedure Subscribe_Copy
+     (Server : in out Object; Source : in String; Target : in String);
+   --  Subscribe everybody in the group Source to the group Target.
+   --  If Source is empty then subscribe all clients to the group Target.
 
    procedure Unsubscribe
-     (Server       : in out Object;
-      Client_Id    : in     Client_Key;
-      Group_Id     : in     String);
+     (Server : in out Object; Client_Id : in Client_Key; Group_Id : in String);
    --  Remove group from client's group list
+
+   procedure Unsubscribe_Copy
+     (Server : in out Object; Source : in String; Target : in String);
+   --  Unsubscribe everybody in the group Source from the group Target.
+   --  If Source is empty then unsubscribe all clients from the group Target.
 
    procedure Send_To
      (Server       : in out Object;
@@ -361,8 +367,13 @@ private
       procedure Subscribe (Client_Id : in Client_Key; Group_Id : in String);
       --  See above
 
+      procedure Subscribe_Copy (Source : in String; Target : in String);
+      --  See above
+
       procedure Unsubscribe (Client_Id : in Client_Key; Group_Id : in String);
       --  See above
+
+      procedure Unsubscribe_Copy (Source : in String; Target : in String);
 
       procedure Info
         (Client_Count : out Natural;
