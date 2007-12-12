@@ -181,7 +181,7 @@ package AWS.URL is
    --  as %20.
 
    function Decode (Str : in String) return String;
-   --  This is the oposite of Encode above
+   --  This is the opposite of Encode above
 
 private
 
