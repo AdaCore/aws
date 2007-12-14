@@ -470,7 +470,6 @@ package body AWS.Server is
                Net.Shutdown (Socket.all);
                Web_Server.Slots.Shutdown_Done (S);
             end if;
-
          exception
             when others =>
                Web_Server.Slots.Shutdown_Done (S);

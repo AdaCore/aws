@@ -26,7 +26,7 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  This package is based on Tree_Reader from the XMLada package.
+--  This package is based on Tree_Reader from the XMLada package
 
 with Sax.Attributes;       use Sax.Attributes;
 with Unicode;              use Unicode;
