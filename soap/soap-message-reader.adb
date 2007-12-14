@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2003                          --
---                                ACT-Europe                                --
+--                         Copyright (C) 2000-2007                          --
+--                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -47,6 +47,8 @@ package body SOAP.Message.Reader is
      (Handler : in out Tree_Reader;
       Ch      : in     Unicode.CES.Byte_Sequence)
    is
+      pragma Unmodified (Handler);
+
       Tmp : Node;
       pragma Warnings (Off, Tmp);
       --  We are not using pragma Unreferenced here because of GNAT 3.15p.
@@ -105,6 +107,8 @@ package body SOAP.Message.Reader is
      (Handler : in out Tree_Reader;
       Ch      : in     Unicode.CES.Byte_Sequence)
    is
+      pragma Unmodified (Handler);
+
       Tmp : Node;
       pragma Warnings (Off, Tmp);
       --  We are not using pragma Unreferenced here becouse of GNAT 3.15p.

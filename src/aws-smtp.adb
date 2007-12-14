@@ -91,6 +91,7 @@ package body AWS.SMTP is
    ---------
 
    procedure Add (Answer : in out Server_Reply; Status : in out SMTP.Status) is
+      pragma Unmodified (Answer);
    begin
       if Status.Reason /= Null_Unbounded_String then
          Append (Status.Reason, ASCII.LF);

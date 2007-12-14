@@ -784,7 +784,9 @@ package body AWS.Client is
      (Connection : in out HTTP_Connection;
       Delimiter  : in     String;
       Result     : in out Ada.Strings.Unbounded.Unbounded_String;
-      Wait       : in     Boolean := True) is
+      Wait       : in     Boolean := True)
+   is
+      pragma Unmodified (Connection);
    begin
       Result :=  Ada.Strings.Unbounded.To_Unbounded_String
                    (Read_Until (Connection, Delimiter, Wait));

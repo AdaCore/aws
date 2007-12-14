@@ -164,6 +164,7 @@ package body AWS.Services.Web_Block.Context is
    ---------------
 
    procedure Set_Value (Context : in out Object; Name, Value : in String) is
+      pragma Unmodified (Context);
    begin
       Session.Set (Context.SID, Name, Value);
    end Set_Value;
@@ -206,7 +207,9 @@ package body AWS.Services.Web_Block.Context is
       procedure Set_Value
         (Context : in out Object;
          Name    : in String;
-         Value   : in Data) is
+         Value   : in Data)
+      is
+         pragma Unmodified (Context);
       begin
          Set (Context.SID, Name, Value);
       end Set_Value;

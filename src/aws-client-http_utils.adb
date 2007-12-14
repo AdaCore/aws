@@ -218,6 +218,8 @@ package body AWS.Client.HTTP_Utils is
       Counter    : in out Auth_Attempts_Count;
       Over       :    out Boolean)
    is
+      pragma Unmodified (Connection);
+
       type Over_Data is array (Authentication_Level) of Boolean;
 
       Is_Over    : constant Over_Data := (others => True);
@@ -1098,6 +1100,7 @@ package body AWS.Client.HTTP_Utils is
       URI        : in     String;
       Method     : in     String)
    is
+      pragma Unmodified (Connection);
       User : constant String := To_String (Data.User);
       Pwd  : constant String := To_String (Data.Pwd);
    begin

@@ -209,6 +209,8 @@ package body AWS.Server is
    -----------------
 
    procedure Force_Clean (Web_Server : in out HTTP) is
+      pragma Unmodified (Web_Server);
+
       Socket : Socket_Access;
       Slot   : Positive := Line_Attribute.Reference.Line;
       --  Initialize the slot by the current slot number to avoid current slot
