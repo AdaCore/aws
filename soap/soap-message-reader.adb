@@ -50,9 +50,7 @@ package body SOAP.Message.Reader is
       pragma Unmodified (Handler);
 
       Tmp : Node;
-      pragma Warnings (Off, Tmp);
-      --  We are not using pragma Unreferenced here because of GNAT 3.15p.
-      --  It counts left side assignment as a reference.
+      pragma Unreferenced (Tmp);
 
    begin
       declare
@@ -110,9 +108,7 @@ package body SOAP.Message.Reader is
       pragma Unmodified (Handler);
 
       Tmp : Node;
-      pragma Warnings (Off, Tmp);
-      --  We are not using pragma Unreferenced here becouse of GNAT 3.15p.
-      --  It is count left side assignment as a reference.
+      pragma Unreferenced (Tmp);
 
    begin
       --  Ignore these white spaces at the toplevel
