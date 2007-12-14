@@ -135,7 +135,7 @@ private
 
    type Server_Access is access all Server;
 
-   type Server is record
+   type Server is limited record
       Self    : Server_Access := Server'Unchecked_Access;
       Host    : Unbounded_String;
       Port    : Positive;
@@ -143,7 +143,6 @@ private
       User    : Unbounded_String;
       Started : Boolean := False;
       SID     : Unbounded_String;
-
       MB      : Message_Mailbox.Mailbox (25); -- 25 messages maximum
       Stream  : Incoming_Stream_Access;
    end record;
