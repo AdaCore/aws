@@ -88,10 +88,10 @@ setup:
 	-$(MKDIR) -p $(LDIR)
 
 install_win32:
-	-$(MKDIR) -p $(INSTALL)/lib/aws/relocatable
-	$(CP) $(LIBSSL) $(INSTALL)/lib/aws/relocatable
-	$(CP) $(LIBCRYPTO) $(INSTALL)/lib/aws/relocatable
-	$(CP) $(LIBLDAP) $(INSTALL)/lib/aws/relocatable
+	-$(MKDIR) -p $(INSTALL)/lib/aws/common
+	$(CP) $(LIBSSL) $(INSTALL)/lib/aws/common
+	$(CP) $(LIBCRYPTO) $(INSTALL)/lib/aws/common
+	$(CP) $(LIBLDAP) $(INSTALL)/lib/aws/common
 	$(CP) $(LDIR)/libaws_win32.a $(I_LIB)
 	$(CP) $(AWS_COFF) $(I_LIB)
 

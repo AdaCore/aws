@@ -80,7 +80,7 @@ setup_ssl_install:
 	echo "project AWS_SSL_Shared is" > $(ISSLGPR)
 	echo "   for Source_Files use ();" >> $(ISSLGPR)
 ifeq (${OS}, Windows_NT)
-	echo '   LIB_Path := "../../../lib/aws/relocatable";' >> $(ISSLGPR)
+	echo '   LIB_Path := "../../aws/common";' >> $(ISSLGPR)
 else
 	echo '   LIB_Path := "'$(dir $(SSL_PATH))'";' >> $(ISSLGPR)
 endif
