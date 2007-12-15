@@ -420,7 +420,7 @@ endif
 # Set up all modules to create all the directories. This way it is possible
 # to build AWS using GPS using any settings.
 
-setup_modules: $(MODULES_SETUP) setup_config
+setup_modules: $(MODULES_SETUP)
 
 setup_debug_static:
 	$(MAKE) DEBUG=true SHARED=false setup_modules
@@ -434,7 +434,7 @@ setup_debug_relocatable:
 setup_release_relocatable:
 	$(MAKE) DEBUG=false SHARED=true setup_modules
 
-setup_final:
+setup_final: setup_config
 	$(MAKE) -C ssl $(GALL_OPTIONS) setup_config
 
 setup_debug: setup_debug_static setup_debug_relocatable
