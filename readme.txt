@@ -181,10 +181,10 @@ Pointers
 --------
 
 AWS User's Mailing List:
-   http://lists.act-europe.fr/mailman/listinfo/aws
+   http://lists.adacore.com/mailman/listinfo/aws
 
 AWS Home Page (sources and printable documentations in Postscript and PDF):
-   http://libre.act-europe.fr/aws
+   http://libre.adacore.com/aws
 
 Templates_Parser sources:
    Templates_Parser module (sources and documentation) is provided with AWS
@@ -205,14 +205,14 @@ GNU/Ada - GNAT
 
    You need at least GNAT 2007 GPL Edition or GNAT Pro 6.0.1.
 
-   http://libre.act-europe.fr/GNAT/
+   http://libre.adacore.com/GNAT/
 
 XML/Ada (optional):
 
    You need this library only if you want to use AWS SOAP feature. You need
    at least XML/Ada version 2.2.0.
 
-   http://libre.act-europe.fr/
+   http://libre.adacore.com/
 
 OpenSSL library (optional) :
 
@@ -270,7 +270,7 @@ AWS User's Mailing List
 A good way to keep informed of AWS news and to share experiences with other
 AWS users is to register to the AWS dedicated mailing list. See:
 
-   http://lists.act-europe.fr/mailman/listinfo/aws
+   http://lists.adacore.com/mailman/listinfo/aws
 
 
 Contributors

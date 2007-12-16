@@ -552,7 +552,7 @@ package body SOAP_SVS_CB is
       R := SOAP.Message.Response.From (PL);
 
       RP := +SOAP.Types.R
-        (Object_Set'(+S ("http://libre.act-europe.fr/", "toolkitDocsUrl"),
+        (Object_Set'(+S ("http://libre.adacore.com/", "toolkitDocsUrl"),
                      +S ("AWS/SOAP (Ada Web Server)", "toolkitName"),
                      +S (AWS.Version & '.' & SOAP.Version, "toolkitVersion"),
                      +S ("Windows", "toolkitOperatingSystem")),
