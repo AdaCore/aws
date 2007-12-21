@@ -46,7 +46,7 @@ with System;
 generic
 
    type Client_Output_Type (<>) is private;
-   --  Data type client want to send through server push.
+   --  Data type client want to send through server push
 
    type Client_Environment is private;
    --  Data type to keep client context. This context will be passed to the
@@ -190,7 +190,7 @@ package AWS.Server.Push is
       Group_Id     : in     String             := "";
       Content_Type : in     String             := "";
       Thin_Id      : in     String             := "");
-   --  Same like before, but generic for back compartibility.
+   --  Same like before, but generic for back compartibility
 
    function Count (Server : in Object) return Natural;
    --  Returns the number of registered clients in the server
@@ -255,10 +255,9 @@ package AWS.Server.Push is
 
 private
 
-   package Group_Sets is
-      new Ada.Containers.Indefinite_Hashed_Sets
-             (String, Ada.Strings.Hash, Equivalent_Elements => "=");
-   --  Package instance to keep each client subscribed groups.
+   package Group_Sets is new Ada.Containers.Indefinite_Hashed_Sets
+     (String, Ada.Strings.Hash, Equivalent_Elements => "=");
+   --  Package instance to keep each client subscribed groups
 
    use Ada.Streams;
 
@@ -355,11 +354,11 @@ private
 
       procedure Unregister
         (Client_Id : in Client_Key; Holder : out Client_Holder_Access);
-      --  Unregister client and return its holder.
+      --  Unregister client and return its holder
 
       procedure Waiter_Error
         (Holder : in Client_Holder_Access; Message : in String);
-      --  Waiter task would call it on socket error.
+      --  Waiter task would call it on socket error
 
       function Is_Open return Boolean;
       --  See above

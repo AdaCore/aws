@@ -91,7 +91,7 @@ package AWS.Status is
 
    function Request_Time           (D : in Data) return Ada.Calendar.Time;
    pragma Inline (Request_Time);
-   --  Returns the time of the request.
+   --  Returns the time of the request
 
    ------------
    -- Header --

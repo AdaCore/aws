@@ -82,13 +82,12 @@ package AWS.Headers.Values is
    -------------------
 
    function Split (Header_Value : in String) return Set;
-   --  Returns a Set with each named and un-named values splited from Data.
+   --  Returns a Set with each named and un-named values splited from Data
 
    function Index
      (Set            : in Values.Set;
       Name           : in String;
-      Case_Sensitive : in Boolean := True)
-      return Natural;
+      Case_Sensitive : in Boolean := True) return Natural;
    --  Returns index for Name in the set or 0 if Name not found.
    --  If Case_Sensitive is false the find is case_insensitive.
 
@@ -99,22 +98,19 @@ package AWS.Headers.Values is
    function Search
      (Header_Value   : in String;
       Name           : in String;
-      Case_Sensitive : in Boolean := True)
-      return String;
+      Case_Sensitive : in Boolean := True) return String;
    --  Returns Value for Name in Header_Value or the empty string if Name not
    --  found. If Case_Sensitive is False the search is case insensitive.
 
    function Get_Unnamed_Value
      (Header_Value : in String;
-      N            : in Positive := 1)
-      return String;
-   --  Returns N-th un-named value from Header_Value.
+      N            : in Positive := 1) return String;
+   --  Returns N-th un-named value from Header_Value
 
    function Unnamed_Value_Exists
      (Header_Value   : in String;
       Value          : in String;
-      Case_Sensitive : in Boolean := True)
-      return Boolean;
+      Case_Sensitive : in Boolean := True) return Boolean;
    --  Returns True if the unnamed value specified has been found in
    --  Header_Value.
 

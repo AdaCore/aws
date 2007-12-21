@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2003                          --
---                                ACT-Europe                                --
+--                         Copyright (C) 2000-2007                          --
+--                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -46,13 +46,13 @@ package body AWS.Translator is
         (Data : in Ada.Streams.Stream_Element_Array)
          return String;
       pragma Inline (To_String);
-      --  Convert a Stream_Element_Array to a string.
+      --  Convert a Stream_Element_Array to a string
 
       function To_Stream_Element_Array
         (Data : in String)
          return Ada.Streams.Stream_Element_Array;
       pragma Inline (To_Stream_Element_Array);
-      --  Convert a String to a Stream_Element_Array.
+      --  Convert a String to a Stream_Element_Array
 
    end Conversion;
 
@@ -176,12 +176,10 @@ package body AWS.Translator is
 
       Encoded_Length : constant Integer := 4 * ((Data'Length + 2) / 3);
 
-      Result : String (1 .. Encoded_Length);
-
-      Last   : Integer := Result'First - 1;
-
-      State  : Positive range 1 .. 3 := 1;
-      E, Prev_E : Stream_Element := 0;
+      Result         : String (1 .. Encoded_Length);
+      Last           : Integer := Result'First - 1;
+      State          : Positive range 1 .. 3 := 1;
+      E, Prev_E      : Stream_Element := 0;
 
       Base64 : constant array (Stream_Element range 0 .. 63) of Character
         := ('A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M',

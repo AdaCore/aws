@@ -43,6 +43,8 @@ with GNAT.Calendar.Time_IO;
 
 package body AWS.Server.Push is
 
+   use Ada;
+   use Ada.Exceptions;
    use AWS.Net;
 
    type Phase_Type is (Available, Going, Waiting);
@@ -53,13 +55,13 @@ package body AWS.Server.Push is
    type Client_Holder is record
       Socket      : Net.Socket_Access;
       Kind        : Mode;
-      Created     : Ada.Calendar.Time;
+      Created     : Calendar.Time;
       Environment : Client_Environment;
       Groups      : Group_Sets.Set;
       Chunks      : Chunk_Lists.List;
       Thin        : Thin_Indexes.Map;
       Phase       : Phase_Type;
-      Timeout     : Ada.Real_Time.Time_Span;
+      Timeout     : Real_Time.Time_Span;
       Errmsg      : Unbounded_String; -- Filled on socket error in waiter
    end record;
 
@@ -72,7 +74,7 @@ package body AWS.Server.Push is
 
    procedure Free (Holder : in out Client_Holder_Access);
 
-   procedure Free is new Ada.Unchecked_Deallocation (Tables.Map, Map_Access);
+   procedure Free is new Unchecked_Deallocation (Tables.Map, Map_Access);
 
    procedure Release
      (Server         : in out Object;
@@ -89,11 +91,11 @@ package body AWS.Server.Push is
       Holder     : in     Client_Holder_Access);
 
    procedure Register
-     (Server            : in out Object;
-      Client_Id         : in     Client_Key;
-      Holder            : in out Client_Holder_Access;
-      Init_Data         : in     Stream_Element_Array;
-      Duplicated_Age    : in     Duration);
+     (Server         : in out Object;
+      Client_Id      : in     Client_Key;
+      Holder         : in out Client_Holder_Access;
+      Init_Data      : in     Stream_Element_Array;
+      Duplicated_Age : in     Duration);
    --  Internal register routine
 
    function Data_Chunk
@@ -112,13 +114,13 @@ package body AWS.Server.Push is
    Byte0 : constant Stream_Element_Array := (1 => 0);
 
    Boundary  : constant String := "AWS.Push.Boundary_"
-     & GNAT.Calendar.Time_IO.Image (Ada.Calendar.Clock, "%s");
+     & GNAT.Calendar.Time_IO.Image (Calendar.Clock, "%s");
    --  This is the multi-part boundary string used by AWS push server
 
    Delimiter : constant String := "--" & Boundary & New_Line;
    --  And the corresponding delimiter
 
-   W_Signal : aliased Net.Socket_Type'Class := Net.Socket (Security => False);
+   W_Signal  : aliased Net.Socket_Type'Class := Net.Socket (Security => False);
    --  Socket to signal waiter to do to select task entries
 
    type Object_Access is access all Object;
@@ -237,7 +239,7 @@ package body AWS.Server.Push is
 
    procedure Free (Holder : in out Client_Holder_Access) is
       procedure Deallocate is
-         new Ada.Unchecked_Deallocation (Client_Holder, Client_Holder_Access);
+         new Unchecked_Deallocation (Client_Holder, Client_Holder_Access);
    begin
       Net.Free (Holder.Socket);
       Deallocate (Holder);
@@ -393,7 +395,7 @@ package body AWS.Server.Push is
                return Peer_Addr (CA.Socket.all);
             exception
                when E : Net.Socket_Error =>
-                  return Ada.Exceptions.Exception_Message (E);
+                  return Exception_Message (E);
             end Get_Peer_Addr;
 
          begin
@@ -475,7 +477,7 @@ package body AWS.Server.Push is
          Duplicated     :    out Client_Holder_Access;
          Duplicated_Age : in     Duration)
       is
-         use Ada.Calendar;
+         use Calendar;
 
          Cursor  : Tables.Cursor;
          Success : Boolean;
@@ -641,7 +643,7 @@ package body AWS.Server.Push is
                raise Program_Error;
             end if;
 
-            --  Net.Check is not blocking operation.
+            --  Net.Check is not blocking operation
 
             Events :=
               Net.Check (Holder.Socket.all, (Output => True, Input => False));
@@ -659,7 +661,7 @@ package body AWS.Server.Push is
                             Data_Chunk (Holder.all, Data, Content_Type);
                   Last : Stream_Element_Offset;
                begin
-                  --  It is not blocking Net.Send operation.
+                  --  It is not blocking Net.Send operation
 
                   Net.Send (Holder.Socket.all, Chunk, Last);
 
@@ -669,7 +671,7 @@ package body AWS.Server.Push is
                      Holder := null;
 
                   elsif Last in Chunk'Range then
-                     --  Data sent partionaly
+                     --  Data sent partially
 
                      Holder.Chunks.Append
                        ((Size      => Chunk'Last - Last,
@@ -680,7 +682,7 @@ package body AWS.Server.Push is
                      Holder.Phase := Going;
 
                   else
-                     --  Data not send. Strange, because Check routine did
+                     --  Data not sent. Strange, because Check routine did
                      --  show output availability.
 
                      To_Buffer;
@@ -690,14 +692,13 @@ package body AWS.Server.Push is
                exception
                   when E : Net.Socket_Error =>
                      Holder.Errmsg :=
-                       To_Unbounded_String
-                         (Ada.Exceptions.Exception_Message (E));
+                       To_Unbounded_String (Exception_Message (E));
                end;
 
             else
                To_Buffer;
 
-               --  We would return Holder not null to move it to Waiter.
+               --  We would return Holder not null to move it to Waiter
 
                Holder.Phase := Going;
             end if;
@@ -754,7 +755,7 @@ package body AWS.Server.Push is
       -----------------------
 
       procedure Shutdown_If_Empty (Open : out Boolean) is
-         use type Ada.Containers.Count_Type;
+         use type Containers.Count_Type;
       begin
          if Container.Length = 0 then
             Object.Open := False;
@@ -850,7 +851,7 @@ package body AWS.Server.Push is
          ------------------
 
          procedure Delete_Group (J : Group_Sets.Cursor) is
-            use type Ada.Containers.Count_Type;
+            use type Containers.Count_Type;
             C   : Group_Maps.Cursor := Groups.Find (Group_Sets.Element (J));
             Map : Map_Access := Group_Maps.Element (C);
          begin
@@ -925,7 +926,7 @@ package body AWS.Server.Push is
            (Key : in String; Element : in out Client_Holder_Access)
          is
             pragma Unreferenced (Key);
-            use type Ada.Containers.Count_Type;
+            use type Containers.Count_Type;
             Cursor : Group_Sets.Cursor := Element.Groups.Find (Group_Id);
             CG     : Group_Maps.Cursor;
             Group  : Map_Access;
@@ -957,7 +958,7 @@ package body AWS.Server.Push is
       ----------------------
 
       procedure Unsubscribe_Copy (Source : in String; Target : in String) is
-         use type Ada.Containers.Count_Type;
+         use type Containers.Count_Type;
 
          CG : Group_Maps.Cursor := Groups.Find (Target);
          CF : Tables.Cursor;
@@ -1191,7 +1192,7 @@ package body AWS.Server.Push is
       Thin_Id      : in     String             := "";
       Client_Gone  : access procedure (Client_Id : in String) := null)
    is
-      use type Ada.Containers.Count_Type;
+      use type Containers.Count_Type;
       Cursor : Tables.Cursor;
       C      : Tables.Cursor;
       Holder : Client_Holder_Access;
@@ -1385,13 +1386,13 @@ package body AWS.Server.Push is
       return new Client_Holder'
         (Kind        => Kind,
          Environment => Environment,
-         Created     => Ada.Calendar.Clock,
+         Created     => Calendar.Clock,
          Socket      => new Socket_Type'Class'(Socket),
          Groups      => Holder_Groups,
          Chunks      => <>,
          Thin        => <>,
          Phase       => Available,
-         Timeout     => Ada.Real_Time.To_Time_Span (Timeout),
+         Timeout     => Real_Time.To_Time_Span (Timeout),
          Errmsg      => <>);
    end To_Holder;
 
@@ -1465,7 +1466,7 @@ package body AWS.Server.Push is
       type Client_In_Wait is record
          SP  : Object_Access;
          CH  : Client_Holder_Access;
-         Exp : Ada.Real_Time.Time;
+         Exp : Real_Time.Time;
       end record;
 
       package Write_Sets is new AWS.Net.Generic_Sets (Client_In_Wait);
@@ -1473,7 +1474,7 @@ package body AWS.Server.Push is
       Write_Set : Write_Sets.Socket_Set_Type;
 
       use Write_Sets;
-      use Ada.Real_Time;
+      use Real_Time;
 
       R_Signal : aliased Net.Socket_Type'Class :=
                    Net.Socket (Security => False);
@@ -1653,6 +1654,10 @@ package body AWS.Server.Push is
                      Remove := True;
                   end Socket_Error;
 
+                  ----------------------
+                  -- Socket_Error_Log --
+                  ----------------------
+
                   procedure Socket_Error_Log (Message : in String) is
                   begin
                      Net.Log.Error (Socket, Message);
@@ -1677,8 +1682,7 @@ package body AWS.Server.Push is
                            Client.Exp := Clock + Client.CH.Timeout;
                         exception
                            when E : Net.Socket_Error =>
-                              Socket_Error
-                                (Ada.Exceptions.Exception_Message (E));
+                              Socket_Error (Exception_Message (E));
                         end;
                      else
                         Remove := True;
@@ -1688,8 +1692,7 @@ package body AWS.Server.Push is
                      Socket_Error_Log
                        ("Wait for write availability timeout "
                         & Utils.Significant_Image
-                            (Ada.Real_Time.To_Duration (Client.CH.Timeout),
-                             3));
+                            (Real_Time.To_Duration (Client.CH.Timeout), 3));
                   end if;
                end Process;
 
@@ -1705,8 +1708,7 @@ package body AWS.Server.Push is
 
    exception
       when E : others =>
-         Ada.Text_IO.Put_Line
-           ("Server push broken, " & Ada.Exceptions.Exception_Information (E));
+         Text_IO.Put_Line ("Server push broken, " & Exception_Information (E));
    end Waiter;
 
    --------------------------

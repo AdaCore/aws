@@ -84,7 +84,7 @@ package body AWS.Digest is
         Positive range Timestamp_Range'First .. Index_Range'Last;
       --  This is AWS specific tag added before the MD5 digest
 
-      Now           : constant Time     := Clock;
+      Now           : constant Time := Clock;
       Nonce_Time    : Time;
       Year_Now      : Year_Number;
       Month_Now     : Month_Number;

@@ -180,7 +180,7 @@ package AWS.Config is
    generic
       with procedure Field_Id (Id : in String);
    procedure Log_Extended_Fields_Generic_Iterate (O : in Object);
-   --  Calls procedure Field_Id for each extended http log field identifier.
+   --  Calls procedure Field_Id for each extended http log field identifier
 
    function Log_Extended_Fields_Length (O : in Object) return Natural;
    pragma Inline (Log_Extended_Fields_Length);
@@ -189,7 +189,7 @@ package AWS.Config is
 
    function Error_Log_Filename_Prefix (O : in Object) return String;
    pragma Inline (Error_Log_Filename_Prefix);
-   --  This is the prefix to use for the log filename.
+   --  This is the prefix to use for the log filename
 
    function Error_Log_Split_Mode (O : in Object) return String;
    pragma Inline (Error_Log_Split_Mode);
@@ -271,7 +271,7 @@ package AWS.Config is
 
    function Receive_Timeout (O : in Object) return Duration;
    pragma Inline (Receive_Timeout);
-   --  Number of seconds to timeout when receiving chunck of data.
+   --  Number of seconds to timeout when receiving chunck of data
 
    --------------
    -- Security --

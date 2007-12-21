@@ -93,7 +93,7 @@ package body AWS.POP is
    -- CC --
    --------
 
-   function CC (Message : in POP.Message; N : Natural := 0) return String is
+   function CC (Message : in POP.Message; N : in Natural := 0) return String is
       CC_Values : constant String := Header (Message, "CC");
       Cut_CC    : Strings_Cutter.Cut_String;
    begin
@@ -343,8 +343,7 @@ package body AWS.POP is
    function Get
      (Mailbox : in POP.Mailbox;
       N       : in Positive;
-      Remove  : in Boolean     := False)
-      return Message
+      Remove  : in Boolean     := False) return Message
    is
 
       procedure Get
@@ -519,8 +518,7 @@ package body AWS.POP is
 
    function Get
      (Message : in POP.Message'Class;
-      Index   : in Positive)
-      return Attachment
+      Index   : in Positive) return Attachment
    is
       P : Attachment_Access := Message.Attachments;
    begin
@@ -542,8 +540,7 @@ package body AWS.POP is
 
    function Get_Header
      (Mailbox : in POP.Mailbox;
-      N       : in Positive)
-      return Message
+      N       : in Positive) return Message
    is
       Mess : Message;
    begin
@@ -598,8 +595,7 @@ package body AWS.POP is
 
    function Header
      (Message : in POP.Message;
-      Header  : in String)
-      return String is
+      Header  : in String) return String is
    begin
       return Headers.Get (Message.Headers, Header);
    end Header;
@@ -623,8 +619,7 @@ package body AWS.POP is
       User         : in String;
       Password     : in String;
       Authenticate : in Authenticate_Mode := Clear_Text;
-      Port         : in Positive          := Default_POP_Port)
-      return Mailbox
+      Port         : in Positive          := Default_POP_Port) return Mailbox
    is
       Timestamp : Unbounded_String;
       Mailbox   : POP.Mailbox;
@@ -785,7 +780,7 @@ package body AWS.POP is
    -- To --
    --------
 
-   function To (Message : in POP.Message; N : Natural := 0) return String is
+   function To (Message : in POP.Message; N : in Natural := 0) return String is
       To_Values : constant String := Header (Message, "To");
       Cut_To    : Strings_Cutter.Cut_String;
    begin

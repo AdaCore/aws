@@ -168,7 +168,7 @@ package AWS.Client is
       Timeouts     : in Timeouts_Values      := No_Timeout;
       Attachments  : in AWS.Attachments.List := AWS.Attachments.Empty_List)
       return Response.Data;
-   --  Idem as above but with binary data.
+   --  Idem as above but with binary data
 
    function SOAP_Post
      (URL         : in String;

@@ -206,7 +206,7 @@ package body AWS.MIME is
                exit Read_Extension when E_Last = 0;
 
                if Buffer (E_First) = '/' and then Buffer (E_Last) = '/' then
-                  --  Regular expression is inside slashes.
+                  --  Regular expression is inside slashes
                   Add_Regexp
                     (Buffer (E_First + 1 .. E_Last - 1),
                      Buffer (M_First .. M_Last));

@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                          Copyright (C) 2002-2006                         --
+--                          Copyright (C) 2002-2007                         --
 --                                  AdaCore                                 --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -54,8 +54,7 @@ package body AWS.Headers.Values is
 
    function Get_Unnamed_Value
      (Header_Value : in String;
-      N            : in Positive := 1)
-      return String
+      N            : in Positive := 1) return String
    is
       First       : Natural;
       Name_First  : Positive;
@@ -104,8 +103,7 @@ package body AWS.Headers.Values is
    function Index
      (Set            : in Values.Set;
       Name           : in String;
-      Case_Sensitive : in Boolean := True)
-      return Natural
+      Case_Sensitive : in Boolean := True) return Natural
    is
       Map    : Maps.Character_Mapping;
       M_Name : Unbounded_String;
@@ -144,21 +142,21 @@ package body AWS.Headers.Values is
    is
       use type Maps.Character_Set;
 
-      EDel   : constant Maps.Character_Set := Maps.To_Set (" ,;");
+      EDel  : constant Maps.Character_Set := Maps.To_Set (" ,;");
       --  Delimiter between name/value pairs in the HTTP header lines.
       --  In WWW-Authenticate, header delimiter between name="Value"
       --  pairs is a comma.
       --  In the Set-Cookie header, value delimiter between name="Value"
       --  pairs is a semi-colon.
 
-      NVDel  : constant Character := '=';
+      NVDel : constant Character := '=';
       --  Delimiter between name and Value for a named value
 
-      VDel   : constant Maps.Character_Set := EDel or Maps.To_Set (NVDel);
+      VDel  : constant Maps.Character_Set := EDel or Maps.To_Set (NVDel);
       --  Delimiter between name and value is '=' and it is a space between
       --  un-named values.
 
-      Last   : Natural;
+      Last  : Natural;
 
    begin
       Last := Fixed.Index (Data (First .. Data'Last), VDel);
@@ -300,8 +298,7 @@ package body AWS.Headers.Values is
    function Search
      (Header_Value   : in String;
       Name           : in String;
-      Case_Sensitive : in Boolean := True)
-      return String
+      Case_Sensitive : in Boolean := True) return String
    is
       First       : Natural;
       Name_First  : Positive;
@@ -392,7 +389,7 @@ package body AWS.Headers.Values is
             function "+"
               (Item : in String)
                return Unbounded_String
-              renames To_Unbounded_String;
+               renames To_Unbounded_String;
          begin
             if Name_Last = 0 then
                return Data'
@@ -436,8 +433,7 @@ package body AWS.Headers.Values is
    function Unnamed_Value_Exists
      (Header_Value   : in String;
       Value          : in String;
-      Case_Sensitive : in Boolean := True)
-      return Boolean
+      Case_Sensitive : in Boolean := True) return Boolean
    is
       First       : Natural;
       Name_First  : Positive;

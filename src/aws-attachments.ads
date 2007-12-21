@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                          Copyright (C) 2004-2005                         --
+--                          Copyright (C) 2004-2007                         --
 --                                  AdaCore                                 --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -63,14 +63,12 @@ package AWS.Attachments is
 
    function Get
      (Attachments : in List;
-      Index       : in Positive)
-      return Element;
+      Index       : in Positive) return Element;
    --  Returns specified Attachment
 
    function Get
      (Attachments : in List;
-      Content_Id  : in String)
-      return Element;
+      Content_Id  : in String) return Element;
    --  Returns the Attachment with the Content Id
 
    generic
@@ -107,7 +105,7 @@ package AWS.Attachments is
       Attachments : in List;
       Boundary    : in String);
    --  Send all Attachments, including the surrounding boundarys, in the list
-   --  to the socket
+   --  to the socket.
 
 private
 

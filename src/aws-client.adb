@@ -210,7 +210,7 @@ package body AWS.Client is
           and then
         Response.Status_Code (Result) /= Messages.S304
       then
-         --  All other redirections, 304 is not one of them.
+         --  All other redirections, 304 is not one of them
          return Get
            (Response.Location (Result), User, Pwd,
             Proxy, Proxy_User, Proxy_Pwd, Timeouts,

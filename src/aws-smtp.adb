@@ -170,8 +170,7 @@ package body AWS.SMTP is
       Code_Image : constant String := Reply_Code'Image (Answer.Code);
    begin
       return Code_Image (Code_Image'First + 1 .. Code_Image'Last)
-        & ' '
-        & To_String (Answer.Reason);
+        & ' ' & To_String (Answer.Reason);
    end Image;
 
    ----------------
@@ -184,8 +183,7 @@ package body AWS.SMTP is
       Credential  : access constant Authentication.Credential'Class := null)
       return Receiver is
    begin
-      return
-        (To_Unbounded_String (Server_Name), Port, null, Credential);
+      return (To_Unbounded_String (Server_Name), Port, null, Credential);
    end Initialize;
 
    -----------
@@ -234,7 +232,6 @@ package body AWS.SMTP is
       I2 := Index (E_Mail, ">");
 
       if I1 = 0 or else I2 = 0 or else I1 > I2 then
-
          I1 := Index (E_Mail, "(");
          I2 := Index (E_Mail, ")");
 

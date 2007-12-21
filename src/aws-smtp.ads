@@ -164,10 +164,10 @@ private
    type Server_Reply is new Status;
 
    function Image (Answer : in Server_Reply) return String;
-   --  Returns the string representation for Answer.
+   --  Returns the string representation for Answer
 
    procedure Add (Answer : in out Server_Reply; Status : in out SMTP.Status);
-   --  Add status code and reason to the list of server's reply.
+   --  Add status code and reason to the list of server's reply
 
    procedure Check_Answer
      (Sock  : in     Net.Socket_Type'Class;

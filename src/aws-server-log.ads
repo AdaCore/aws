@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                          Copyright (C) 2003-2004                         --
---                                ACT-Europe                                --
+--                          Copyright (C) 2003-2007                         --
+--                                  AdaCore                                 --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -46,8 +46,7 @@ package AWS.Server.Log is
    procedure Stop (Web_Server : in out HTTP);
    --  Stop server's logging activity. See AWS.Log
 
-   function Is_Active
-     (Web_Server : in HTTP) return Boolean;
+   function Is_Active (Web_Server : in HTTP) return Boolean;
    --  Returns True if the Web Server log has been activated
 
    procedure Flush (Web_Server : in out HTTP);

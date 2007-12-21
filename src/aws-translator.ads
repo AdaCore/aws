@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2003                          --
---                                ACT-Europe                                --
+--                         Copyright (C) 2000-2007                          --
+--                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -57,9 +57,7 @@ package AWS.Translator is
    -- QP --
    --------
 
-   function QP_Decode
-     (QP_Data : in String)
-      return String;
+   function QP_Decode (QP_Data : in String) return String;
    --  Decode QP_Data using the Quoted Printable algorithm
 
    ------------------------------------
@@ -67,8 +65,7 @@ package AWS.Translator is
    ------------------------------------
 
    function To_String
-     (Data : in Ada.Streams.Stream_Element_Array)
-      return String;
+     (Data : in Ada.Streams.Stream_Element_Array) return String;
    pragma Inline (To_String);
    --  Convert a Stream_Element_Array to a string. Note that as this routine
    --  returns a String it should not be used with large array as this could
@@ -78,12 +75,12 @@ package AWS.Translator is
      (Data : in String)
       return Ada.Streams.Stream_Element_Array;
    pragma Inline (To_Stream_Element_Array);
-   --  Convert a String to a Stream_Element_Array.
+   --  Convert a String to a Stream_Element_Array
 
    function To_Unbounded_String
      (Data : in Ada.Streams.Stream_Element_Array)
       return Ada.Strings.Unbounded.Unbounded_String;
-   --  Convert a Stream_Element_Array to an Unbounded_String.
+   --  Convert a Stream_Element_Array to an Unbounded_String
 
    --------------------------
    --  Compress/Decompress --

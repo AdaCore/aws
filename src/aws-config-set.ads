@@ -162,7 +162,7 @@ package AWS.Config.Set is
    --  x-<appfield> Any application defined field name
 
    procedure Error_Log_Filename_Prefix (O : in out Object; Value : in String);
-   --  This is the prefix to use for the log filename.
+   --  This is the prefix to use for the log filename
 
    procedure Error_Log_Split_Mode (O : in out Object; Value : in String);
    --  This is split mode for the log file. Possible values are : Each_Run,
@@ -240,10 +240,10 @@ package AWS.Config.Set is
    --  This is a timeout for urgent request when resources are missing.
 
    procedure Send_Timeout (O  : in out Object; Value : in Duration);
-   --  Number of seconds to timeout when sending chunck of data.
+   --  Number of seconds to timeout when sending chunck of data
 
    procedure Receive_Timeout (O : in out Object; Value : in Duration);
-   --  Number of seconds to timeout when receiving chunck of data.
+   --  Number of seconds to timeout when receiving chunck of data
 
    --------------
    -- Security --

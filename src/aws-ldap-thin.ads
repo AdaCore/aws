@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2002-2006                          --
+--                         Copyright (C) 2002-2007                          --
 --                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -182,6 +182,7 @@ package AWS.LDAP.Thin is
      := LDAP_NOTICE_OF_DISCONNECTION;
 
    --  LDAP Extended Operations
+
    LDAP_EXOP_START_TLS       : constant chars_ptr
      := NS ("1.3.6.1.4.1.1466.20037");
 
@@ -193,7 +194,7 @@ package AWS.LDAP.Thin is
    LDAP_TAG_EXOP_X_MODIFY_PASSWD_NEW : constant := 16#82#;
    LDAP_TAG_EXOP_X_MODIFY_PASSWD_GEN : constant := 16#80#;
 
-   --  specific LDAP instantiations of BER types we know about
+   --  Specific LDAP instantiations of BER types we know about
 
    --  Overview of LBER tag construction
    --
@@ -211,85 +212,85 @@ package AWS.LDAP.Thin is
    --                       ___________
    --                       | 5 ... 1 | TAG-NUMBER
 
-   --  general stuff
+   --  General stuff
 
    LDAP_TAG_MESSAGE        : constant := 16#30#;
-   --  constructed + 16
+   --  Constructed + 16
    LDAP_TAG_MSGID          : constant := 16#02#;
-   --  integer
+   --  Integer
    LDAP_TAG_LDAPDN         : constant := 16#04#;
-   --  octect string
+   --  Octect string
    LDAP_TAG_LDAPCRED       : constant := 16#04#;
-   --  octect string
+   --  Octect string
    LDAP_TAG_CONTROLS       : constant := 16#A0#;
-   --  context specific + constructed + 0
+   --  Context specific + constructed + 0
    LDAP_TAG_REFERRAL       : constant := 16#A3#;
-   --  context specific + constructed + 3
+   --  Context specific + constructed + 3
 
    LDAP_TAG_NEWSUPERIOR    : constant := 16#80#;
-   --  context-specific + primitive + 0
+   --  Context-specific + primitive + 0
 
    LDAP_TAG_EXOP_REQ_OID   : constant := 16#80#;
-   --  context specific + primitive
+   --  Context specific + primitive
    LDAP_TAG_EXOP_REQ_VALUE : constant := 16#81#;
-   --  context specific + primitive
+   --  Context specific + primitive
    LDAP_TAG_EXOP_RES_OID   : constant := 16#8a#;
-   --  context specific + primitive
+   --  Context specific + primitive
    LDAP_TAG_EXOP_RES_VALUE : constant := 16#8b#;
-   --  context specific + primitive
+   --  Context specific + primitive
 
    LDAP_TAG_SASL_RES_CREDS : constant := 16#87#;
-   --  context specific + primitive
+   --  Context specific + primitive
 
-   --  possible operations a client can invoke
+   --  Possible operations a client can invoke
 
    LDAP_REQ_BIND                   : constant := 16#60#;
-   --  application + constructed
+   --  Application + constructed
    LDAP_REQ_UNBIND                 : constant := 16#42#;
-   --  application + primitive
+   --  Application + primitive
    LDAP_REQ_SEARCH                 : constant := 16#63#;
-   --  application + constructed
+   --  Application + constructed
    LDAP_REQ_MODIFY                 : constant := 16#66#;
-   --  application + constructed
+   --  Application + constructed
    LDAP_REQ_ADD                    : constant := 16#68#;
-   --  application + constructed
+   --  Application + constructed
    LDAP_REQ_DELETE                 : constant := 16#4a#;
-   --  application + primitive
+   --  Application + primitive
    LDAP_REQ_MODDN                  : constant := 16#6c#;
-   --  application + constructed
+   --  Application + constructed
    LDAP_REQ_MODRDN                 : constant := LDAP_REQ_MODDN;
    LDAP_REQ_RENAME                 : constant := LDAP_REQ_MODDN;
    LDAP_REQ_COMPARE                : constant := 16#6e#;
-   --  application + constructed
+   --  Application + constructed
    LDAP_REQ_ABANDON                : constant := 16#50#;
-   --  application + primitive
+   --  Application + primitive
    LDAP_REQ_EXTENDED               : constant := 16#77#;
-   --  application + constructed
+   --  Application + constructed
 
-   --  possible result types a server can return
+   --  Possible result types a server can return
 
    LDAP_RES_BIND                   : constant := 16#61#;
-   --   application + constructed
+   --  Application + constructed
    LDAP_RES_SEARCH_ENTRY           : constant := 16#64#;
-   --  application + constructed
+   --  Application + constructed
    LDAP_RES_SEARCH_REFERENCE       : constant := 16#73#;
    --  V3: application + constructed
    LDAP_RES_SEARCH_RESULT          : constant := 16#65#;
-   --  application + constructed
+   --  Application + constructed
    LDAP_RES_MODIFY                 : constant := 16#67#;
-   --  application + constructed
+   --  Application + constructed
    LDAP_RES_ADD                    : constant := 16#69#;
-   --  application + constructed
+   --  Application + constructed
    LDAP_RES_DELETE                 : constant := 16#6b#;
-   --  application + constructed
+   --  Application + constructed
    LDAP_RES_MODDN                  : constant := 16#6d#;
-   --  application + constructed
+   --  Application + constructed
    LDAP_RES_MODRDN                 : constant := LDAP_RES_MODDN;
-   --  application + constructed
+   --  Application + constructed
    LDAP_RES_RENAME                 : constant := LDAP_RES_MODDN;
-   --  application + constructed
+   --  Application + constructed
    LDAP_RES_COMPARE                : constant := 16#6f#;
-   --  application + constructed
+   --  Application + constructed
    LDAP_RES_EXTENDED               : constant := 16#78#;
    --  V3: application + constructed
    LDAP_RES_EXTENDED_PARTIAL       : constant := 16#79#;
@@ -298,12 +299,12 @@ package AWS.LDAP.Thin is
    LDAP_RES_ANY                    : constant := -1;
    LDAP_RES_UNSOLICITED            : constant := 0;
 
-   --  sasl methods
+   --  Sasl methods
 
    LDAP_SASL_SIMPLE : constant System.Address := System.Null_Address;
    LDAP_SASL_NULL   : constant chars_ptr      := NS ("");
 
-   --  authentication methods available
+   --  Authentication methods available
 
    LDAP_AUTH_NONE   : constant := 16#00#; -- no authentication
    LDAP_AUTH_SIMPLE : constant := 16#80#; -- context specific + primitive
@@ -312,49 +313,50 @@ package AWS.LDAP.Thin is
    LDAP_AUTH_KRBV41 : constant := 16#81#; -- context specific + primitive
    LDAP_AUTH_KRBV42 : constant := 16#82#; -- context specific + primitive
 
-   --  filter types
+   --  Filter types
 
    LDAP_FILTER_AND        : constant := 16#A0#;
-   --  context specific + constructed */
+   --  Context specific + constructed */
    LDAP_FILTER_OR         : constant := 16#A1#;
-   --  context specific + constructed */
+   --  Context specific + constructed */
    LDAP_FILTER_NOT        : constant := 16#A2#;
-   --  context specific + constructed */
+   --  Context specific + constructed */
    LDAP_FILTER_EQUALITY   : constant := 16#A3#;
-   --  context specific + constructed */
+   --  Context specific + constructed */
    LDAP_FILTER_SUBSTRINGS : constant := 16#A4#;
-   --  context specific + constructed */
+   --  Context specific + constructed */
    LDAP_FILTER_GE         : constant := 16#A5#;
-   --  context specific + constructed */
+   --  Context specific + constructed */
    LDAP_FILTER_LE         : constant := 16#A6#;
-   --  context specific + constructed */
+   --  Context specific + constructed */
    LDAP_FILTER_PRESENT    : constant := 16#87#;
-   --  context specific + primitive   */
+   --  Context specific + primitive   */
    LDAP_FILTER_APPROX     : constant := 16#A8#;
-   --  context specific + constructed */
+   --  Context specific + constructed */
    LDAP_FILTER_EXT        : constant := 16#A9#;
-   --  context specific + constructed
+   --  Context specific + constructed
 
-   --  extended filter component types
+   --  Extended filter component types
 
    LDAP_FILTER_EXT_OID     : constant := 16#81#;     -- context specific
    LDAP_FILTER_EXT_TYPE    : constant := 16#82#;     -- context specific
    LDAP_FILTER_EXT_VALUE   : constant := 16#83#;     -- context specific
    LDAP_FILTER_EXT_DNATTRS : constant := 16#84#;     -- context specific
 
-   --  substring filter component types
+   --  Substring filter component types
 
    LDAP_SUBSTRING_INITIAL  : constant := 16#80#;     -- context specific
    LDAP_SUBSTRING_ANY      : constant := 16#81#;     -- context specific
    LDAP_SUBSTRING_FINAL    : constant := 16#82#;     -- context specific
 
-   --  search scopes
+   --  Search scopes
+
    LDAP_SCOPE_DEFAULT      : constant := -1;
    LDAP_SCOPE_BASE         : constant := 16#0000#;
    LDAP_SCOPE_ONELEVEL     : constant := 16#0001#;
    LDAP_SCOPE_SUBTREE      : constant := 16#0002#;
 
-   --  possible error codes we can return
+   --  Possible error codes we can return
 
    subtype Return_Code is C.int range 16#00# .. 16#61#;
 
@@ -446,21 +448,21 @@ package AWS.LDAP.Thin is
    LDAP_PARAM_ERROR               : constant := 16#59#;
    LDAP_NO_MEMORY                 : constant := 16#5a#;
 
-   --  not technically reserved for APIs
+   --  Not technically reserved for APIs
    LDAP_CONNECT_ERROR             : constant := 16#5b#;
-   --  draft-ietf-ldap-c-api-xx
+   --  Draft-ietf-ldap-c-api-xx
    LDAP_NOT_SUPPORTED             : constant := 16#5c#;
-   --  draft-ietf-ldap-c-api-xx
+   --  Draft-ietf-ldap-c-api-xx
    LDAP_CONTROL_NOT_FOUND         : constant := 16#5d#;
-   --  draft-ietf-ldap-c-api-xx
+   --  Draft-ietf-ldap-c-api-xx
    LDAP_NO_RESULTS_RETURNED       : constant := 16#5e#;
-   --  draft-ietf-ldap-c-api-xx
+   --  Draft-ietf-ldap-c-api-xx
    LDAP_MORE_RESULTS_TO_RETURN    : constant := 16#5f#;
-   --  draft-ietf-ldap-c-api-xx
+   --  Draft-ietf-ldap-c-api-xx
    LDAP_CLIENT_LOOP               : constant := 16#60#;
-   --  draft-ietf-ldap-c-api-xx
+   --  Draft-ietf-ldap-c-api-xx
    LDAP_REFERRAL_LIMIT_EXCEEDED   : constant := 16#61#;
-   --  draft-ietf-ldap-c-api-xx
+   --  Draft-ietf-ldap-c-api-xx
 
    LDAP_FILT_MAXSIZ : constant := 1024;
 
@@ -471,20 +473,20 @@ package AWS.LDAP.Thin is
 
    LDAP_NO_LIMIT           : constant := 0;
 
-   --  how many messages to retrieve results for
+   --  How many messages to retrieve results for
 
    LDAP_MSG_ONE            : constant := 16#00#;
    LDAP_MSG_ALL            : constant := 16#01#;
    LDAP_MSG_RECEIVED       : constant := 16#02#;
 
-   --  types for ldap URL handling
+   --  Types for ldap URL handling
 
    LDAP_URL_SUCCESS          : constant := 16#00#;
    --  Success
    LDAP_URL_ERR_MEM          : constant := 16#01#;
-   --  can't allocate memory space
+   --  Can't allocate memory space
    LDAP_URL_ERR_PARAM        : constant := 16#02#;
-   --  parameter is bad
+   --  Parameter is bad
 
    LDAP_URL_ERR_BADSCHEME    : constant := 16#03#;
    --  URL doesn't begin with "ldap[si]://"
@@ -493,21 +495,22 @@ package AWS.LDAP.Thin is
    LDAP_URL_ERR_BADURL       : constant := 16#05#;
    --  URL is bad
    LDAP_URL_ERR_BADHOST      : constant := 16#06#;
-   --  host port is bad
+   --  Host port is bad
    LDAP_URL_ERR_BADATTRS     : constant := 16#07#;
-   --  bad (or missing) attributes
+   --  Bad (or missing) attributes
    LDAP_URL_ERR_BADSCOPE     : constant := 16#08#;
-   --  scope string is invalid (or missing)
+   --  Scope string is invalid (or missing)
    LDAP_URL_ERR_BADFILTER    : constant := 16#09#;
-   --  bad or missing filter
+   --  Bad or missing filter
    LDAP_URL_ERR_BADEXTS      : constant := 16#0a#;
-   --  bad or missing extensions
+   --  Bad or missing extensions
 
    --  API
 
    type LDAP_Type is private;
    --  An LDAP connection, this is a pointer to the C LDAP structure. Such
    --  object is returned by LDAP_Init.
+
    Null_LDAP_Type : constant LDAP_Type;
 
    --  Refer to any LDAP API documentation for a description of the routines
@@ -628,7 +631,7 @@ package AWS.LDAP.Thin is
       Index : in C.int)
       return chars_ptr;
    pragma Inline (Item);
-   --  Returns item at positon Index in Set.
+   --  Returns item at positon Index in Set
 
    function ldap_get_values
      (ld      : in LDAP_Type;

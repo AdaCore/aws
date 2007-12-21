@@ -2,7 +2,7 @@
 --                              Ada Web Server                              --
 --                       P O P - Post Office Protocol                       --
 --                                                                          --
---                         Copyright (C) 2003-2006                          --
+--                         Copyright (C) 2003-2007                          --
 --                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -132,7 +132,7 @@ package AWS.POP is
    function From (Message : in POP.Message) return String;
    --  Returns From header value
 
-   function To (Message : in POP.Message; N : Natural := 0) return String;
+   function To (Message : in POP.Message; N : in Natural := 0) return String;
    --  Returns the To header value. If N = 0 returns all recipients separated
    --  by a coma otherwise it returns the Nth To recipient.
 
@@ -140,7 +140,7 @@ package AWS.POP is
    --  Returns the number of To recipient for Message. returns 0 if there is
    --  no To for this message.
 
-   function CC (Message : in POP.Message; N : Natural := 0) return String;
+   function CC (Message : in POP.Message; N : in Natural := 0) return String;
    --  Retruns the CC header value. If N = 0 returns all recipients separated
    --  by a coma otherwise it returns the Nth CC recipient.
 
@@ -172,8 +172,7 @@ package AWS.POP is
 
    function Get
      (Message : in POP.Message'Class;
-      Index   : in Positive)
-      return Attachment;
+      Index   : in Positive) return Attachment;
    --  Returns the Nth Attachment for Message, Raises Constraint_Error if
    --  there is not such attachment.
 

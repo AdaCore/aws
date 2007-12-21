@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2006                          --
+--                         Copyright (C) 2000-2007                          --
 --                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -76,12 +76,12 @@ package body AWS.Config.Ini is
       --  Raise error message with filename and line number
 
       function Error_Context return String;
-      --  Return the string with filename and line number.
+      --  Return the string with filename and line number
 
       procedure Set_Value (Key : in String; Value : in String);
 
       Line : Natural;
-      --  current line number parsed
+      --  Current line number parsed
 
       -------------------
       -- Error_Message --

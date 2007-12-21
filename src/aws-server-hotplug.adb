@@ -79,16 +79,12 @@ package body AWS.Server.Hotplug is
       --  Add this client to the list of trusted clients
 
       procedure Get_Nonce
-        (Client  : in     String;
-         Nonce   :    out Digest.Nonce);
+        (Client : in     String;
+         Nonce  :    out Digest.Nonce);
       --  Returns a new Nonce string
 
       function Get (Client : in String) return Client_Data;
       --  Returns data for specified client
-
-      procedure Delete (Client : in String);
-      pragma Unreferenced (Delete);
-      --  Removes this client from the handler
 
       procedure Delete_All;
       --  Removes all client from the handler
@@ -290,8 +286,7 @@ package body AWS.Server.Hotplug is
 
       elsif Name = Request_Nonce_Message and then Parameters'Length = 1 then
          return Response.Build
-           (MIME.Text_Plain,
-            Get_Nonce (To_String (Parameters (1))));
+           (MIME.Text_Plain, Get_Nonce (To_String (Parameters (1))));
 
       else
          return Response.Acknowledge (Messages.S400, "Unknown message");
@@ -318,8 +313,8 @@ package body AWS.Server.Hotplug is
       ---------
 
       procedure Add
-        (Client : in     String;
-         Data   : in     Client_Data)
+        (Client : in String;
+         Data   : in Client_Data)
       is
          Cursor  : Client_Table.Cursor;
          Success : Boolean;
@@ -330,15 +325,6 @@ package body AWS.Server.Hotplug is
             raise Authorization_Error;
          end if;
       end Add;
-
-      ------------
-      -- Delete --
-      ------------
-
-      procedure Delete (Client : in String) is
-      begin
-         Client_Table.Delete (Clients, Client);
-      end Delete;
 
       ----------------
       -- Delete_All --

@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2004-2006                          --
+--                         Copyright (C) 2004-2007                          --
 --                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -174,8 +174,7 @@ package body AWS.Attachments is
 
    function Get
      (Attachments : in List;
-      Content_Id  : in String)
-      return Element
+      Content_Id  : in String) return Element
    is
 
       function Get_CID (Content_Id : in String) return String;
@@ -238,8 +237,7 @@ package body AWS.Attachments is
 
    function Length
      (Attachments : in List;
-      Boundary    : in String)
-      return Natural
+      Boundary    : in String) return Natural
    is
       L : Natural;
    begin
