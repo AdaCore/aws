@@ -134,7 +134,6 @@ package body AWS.Resources.Streams.Disk is
      (Resource : in out Stream_Type;
       To       : in     Stream_Element_Offset)
    is
-      pragma Unmodified (Resource);
       use type Stream_IO.Count;
       Size : constant Stream_Element_Offset :=
                Stream_Element_Offset (Stream_IO.Size (Resource.File));

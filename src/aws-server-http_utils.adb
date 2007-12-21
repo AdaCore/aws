@@ -293,8 +293,6 @@ package body AWS.Server.HTTP_Utils is
       Line_Index  : in     Positive;
       C_Stat      : in out AWS.Status.Data)
    is
-      pragma Unmodified (HTTP_Server);
-
       use type Status.Request_Method;
 
       type Message_Mode is
