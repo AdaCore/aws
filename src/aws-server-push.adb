@@ -1569,7 +1569,6 @@ package body AWS.Server.Push is
                               Client : in out Client_In_Wait)
                            is
                               pragma Unreferenced (Socket);
-                              pragma Unmodified (Client);
                            begin
                               if Client.SP /= Server
                                 or else Client.CH /= Holder

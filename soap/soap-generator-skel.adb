@@ -40,7 +40,6 @@ package body Skel is
      (O    : in out Object;
       Name : in     String)
    is
-      pragma Unmodified (O);
       U_Name : constant String := To_Unit_Name (Format_Name (O, Name));
    begin
       --  Spec
@@ -67,7 +66,6 @@ package body Skel is
       Output     : in     WSDL.Parameters.P_Set;
       Fault      : in     WSDL.Parameters.P_Set)
    is
-      pragma Unmodified (O);
       pragma Unreferenced (Namespace, Fault);
 
       use Ada.Strings.Fixed;
@@ -628,7 +626,6 @@ package body Skel is
       Documentation : in     String;
       Location      : in     String)
    is
-      pragma Unmodified (O);
       pragma Unreferenced (Documentation);
 
       U_Name : constant String         := To_Unit_Name (Format_Name (O, Name));

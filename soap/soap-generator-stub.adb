@@ -39,7 +39,6 @@ package body Stub is
      (O    : in out Object;
       Name : in     String)
    is
-      pragma Unmodified (O);
       U_Name : constant String := To_Unit_Name (Format_Name (O, Name));
    begin
       --  Spec
@@ -66,8 +65,6 @@ package body Stub is
       Output     : in     WSDL.Parameters.P_Set;
       Fault      : in     WSDL.Parameters.P_Set)
    is
-      pragma Unmodified (O);
-
       use type SOAP.WSDL.Parameters.P_Set;
 
       procedure Output_Parameter
@@ -626,7 +623,6 @@ package body Stub is
       Documentation : in     String;
       Location      : in     String)
    is
-      pragma Unmodified (O);
       pragma Unreferenced (Location, Documentation);
 
       U_Name : constant String := To_Unit_Name (Format_Name (O, Name));

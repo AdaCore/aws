@@ -39,7 +39,6 @@ package body CB is
      (O    : in out Object;
       Name : in     String)
    is
-      pragma Unmodified (O);
       U_Name : constant String := To_Unit_Name (Format_Name (O, Name));
       Buffer : String (1 .. 1_024);
       Last   : Natural;
@@ -146,7 +145,6 @@ package body CB is
       Documentation : in     String;
       Location      : in     String)
    is
-      pragma Unmodified (O);
       pragma Unreferenced (Location, Documentation);
 
       U_Name : constant String := To_Unit_Name (Format_Name (O, Name));

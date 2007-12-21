@@ -47,8 +47,6 @@ package body SOAP.Message.Reader is
      (Handler : in out Tree_Reader;
       Ch      : in     Unicode.CES.Byte_Sequence)
    is
-      pragma Unmodified (Handler);
-
       Tmp : Node;
       pragma Unreferenced (Tmp);
 
@@ -105,8 +103,6 @@ package body SOAP.Message.Reader is
      (Handler : in out Tree_Reader;
       Ch      : in     Unicode.CES.Byte_Sequence)
    is
-      pragma Unmodified (Handler);
-
       Tmp : Node;
       pragma Unreferenced (Tmp);
 
