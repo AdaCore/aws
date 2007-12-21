@@ -1,15 +1,12 @@
 
                             A W S - Ada Web Server
-			   2.4.0 release / SOAP 1.5
+			   2.5.0 release / SOAP 1.5
 
 Authors:
    Dmitriy Anisimkov
-   Pascal Obry                                              November 8th, 2007
+   Pascal Obry                                             December 21th, 2007
 
 
-
-We are happy to announce the availability of the AWS 2.4.0 release. The API
-could change slightly at this stage but should be fairly stable now.
 
 AWS stand for Ada Web Server. It is a small yet powerful HTTP component to
 embed in any applications. It means that you can communicate with your
@@ -42,34 +39,6 @@ New features are described into the file docs/features.
 
 Listed below are some minor enhancements and fixes:
 
-   - Default INSTALL location is set to the GNAT compiler found in the PATH.
-     This means that by default there is no need to change INSTALL in
-     makefile.conf.
-
-   - Defaults for SOCKET and LDAP are identical on UNIX and Windows.
-     Both are disabled by default now.
-
-   - Unregistering a non registered dispatcher now raises an exception
-     instead of returning silently.
-
-   - Do not pass the uploaded files client's full pathname for
-     security reasons.
-
-   - Improve templates parser user's filters interface. A user defined
-     filter has now access to the lazy tags. See non upward compatible
-     changes.
-
-   - Add support for extended HTTP protocols.
-
-   - Fix xsd:float and xsd:double support to match the W3C recommendations.
-
-   - The server side URL object (Status.URI returning and URL.Object)
-     properly store the web parameters.
-
-   - Drop AdaSockets support. AdaSocket is now mostly based on
-     GNAT.Sockets and does not define the thin layer which was used on
-     AWS.
-
    - Plus many small fixes, enhancements, API comments, and documentation work.
 
 
@@ -81,44 +50,6 @@ In such a case we try to give proper advice on how to change the code
 to work properly. Of course we try to avoid this as much as possible
 but we really prefer to have a clean API instead of keeping awkward
 implementations.
-
-   - User's filter callback specs have been changed from:
-
-      type Callback is access function
-        (Value        : in String;
-         Parameters   : in String;
-         Translations : in Translate_Set) return String;
-
-      type Callback_No_Param is access function
-        (Value        : in String;
-         Translations : in Translate_Set) return String;
-
-     to:
-
-      type Filter_Context is record
-         Translations : Translate_Set;
-         Lazy_Tag     : Dynamic.Lazy_Tag_Access;
-      end record;
-
-      type Callback is access function
-        (Value      : in String;
-         Parameters : in String;
-         Context    : in Filter_Context) return String;
-
-      type Callback_No_Param is access function
-        (Value   : in String;
-         Context : in Filter_Context) return String;
-
-      Change the callback to this new spec, the translate set is
-      now accessible through the Context parameter.
-
-   - For hand written SOAP code the float and long_float are now respectively
-     mapped to xsd:float and xsd:double. So the F constructor takes now
-     a float as parameter and the D constructor a long_float. This may
-     introduce compatibility problem. Either change the Ada or SOAP floating
-     point type to match. There is no such problem for SOAP applications
-     using ada2wsdl and wsdl2aws as those tools are now using the proper
-     mapping.
 
 
 Obsolescent features
@@ -155,7 +86,7 @@ See documentation for build information.
 Validation
 ----------
 
-AWS 2.4.0 has been compiled and has passed all tests on:
+AWS 2.5.0 has been compiled and has passed all tests on:
 
    Windows XP, GNAT 6.0.1
 
