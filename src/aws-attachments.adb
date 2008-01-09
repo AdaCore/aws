@@ -458,7 +458,7 @@ package body AWS.Attachments is
             Part : constant Content :=
                      Alternative_Table.Element (Position);
          begin
-            Net.Buffered.Put_Line (Socket, "--" & To_String (A_Boundary));
+            Net.Buffered.Put_Line (Socket, Pref_Suf & To_String (A_Boundary));
             Net.Buffered.Put_Line
               (Socket, Messages.Content_Type (To_String (Part.Content_Type)));
             Net.Buffered.New_Line (Socket);
@@ -470,7 +470,7 @@ package body AWS.Attachments is
          if not Simple_Alternative then
             --  This is not the first element, we issue an embedded MIME
             --  content.
-            Net.Buffered.Put_Line (Socket, "--" & Boundary);
+            Net.Buffered.Put_Line (Socket, Pref_Suf & Boundary);
             Send_MIME_Header
               (Socket, Attachments,
                Alternative => True,
@@ -485,7 +485,7 @@ package body AWS.Attachments is
             --  Ends the alternative part
             Net.Buffered.New_Line (Socket);
             Net.Buffered.Put_Line
-              (Socket, "--" & To_String (A_Boundary) & "--");
+              (Socket, Pref_Suf & To_String (A_Boundary) & Pref_Suf);
          end if;
       end Send_Alternative;
 
@@ -660,9 +660,7 @@ package body AWS.Attachments is
    begin
       --  Send the attachments
 
-      for J in
-        1 .. Integer (Attachment_Table.Length (Attachments.Vector))
-      loop
+      for J in 1 .. Integer (Attachments.Vector.Length) loop
          Send_Attachment
            (Attachment_Table.Element
               (Container => Attachments.Vector,
