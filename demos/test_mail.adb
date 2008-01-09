@@ -83,9 +83,15 @@ begin
    --  Send alternative messages plus attachment
 
    AWS.Attachments.Add
-     (Alter, "this is the default plain text", MIME.Text_Plain);
+     (Alter,
+      AWS.Attachments.Value
+        ("this is the default plain text",
+         Content_Type => MIME.Text_Plain));
    AWS.Attachments.Add
-     (Alter, "<p>this is the default <i>HTML</i> text", MIME.Text_HTML);
+     (Alter,
+      AWS.Attachments.Value
+        ("<p>this is the default <i>HTML</i> text",
+         Content_Type => MIME.Text_HTML));
 
    AWS.Attachments.Add (Attac, Alter);
 

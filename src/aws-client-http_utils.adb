@@ -507,7 +507,10 @@ package body AWS.Client.HTTP_Utils is
 
                --  Send root part data
 
-               Net.Buffered.Write (Sock, Data);
+               if Data'Length /= 0 then
+                  Net.Buffered.Write (Sock, Data);
+                  Net.Buffered.New_Line (Sock);
+               end if;
 
                --  Send the attachments
 

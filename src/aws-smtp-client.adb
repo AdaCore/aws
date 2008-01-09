@@ -33,6 +33,8 @@ with Ada.Exceptions;
 
 with GNAT.Calendar.Time_IO;
 
+with AWS.Headers.Set;
+with AWS.Messages;
 with AWS.MIME;
 with AWS.Net.Buffered;
 with AWS.SMTP.Authentication;
@@ -445,13 +447,15 @@ package body AWS.SMTP.Client is
       if Message /= "" then
          AWS.Attachments.Add
            (Att_List,
-            Content      => Message,
-            Content_Type => MIME.Text_Plain);
+            AWS.Attachments.Value
+              (Data         => Message,
+               Content_Type => MIME.Text_Plain));
       end if;
 
       for K in Attachments'Range loop
          declare
             A : constant Attachment := Attachments (K);
+            H : AWS.Headers.List;
          begin
             case A.Kind is
                when File        =>
@@ -462,10 +466,17 @@ package body AWS.SMTP.Client is
                      Encode     => AWS.Attachments.Base64);
 
                when Base64_Data =>
-                  AWS.Attachments.Add_Base64
+                  AWS.Headers.Set.Add
+                    (H,
+                     Messages.Content_Transfer_Encoding_Token,
+                     "base64");
+
+                  AWS.Attachments.Add
                     (Att_List,
-                     Name    => To_String (A.Name),
-                     Content => To_String (A.Data));
+                     AWS.Attachments.Value
+                       (Name   => To_String (A.Name),
+                        Data   => To_String (A.Data)),
+                     Headers => H);
             end case;
          end;
       end loop;

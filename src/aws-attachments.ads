@@ -29,6 +29,7 @@
 with Ada.Strings.Unbounded;
 
 with AWS.Headers;
+with AWS.MIME;
 with AWS.Net;
 
 private with Ada.Containers.Vectors;
@@ -42,9 +43,27 @@ package AWS.Attachments is
 
    Empty_List : constant List;
 
+   type Content is private;
+
    type Encoding is (None, Base64);
 
-   type Attachment_Kind is (File, Content, Alternative);
+   function File
+     (Filename     : in String;
+      Encode       : in Encoding := None;
+      Content_Id   : in String := "";
+      Content_Type : in String := MIME.Text_Plain) return Content;
+   --  A filename as content, if Encode is set to Base64 the file content will
+   --  be base64 encoded.
+
+   function Value
+     (Data         : in String;
+      Name         : in String := "";
+      Encode       : in Encoding := None;
+      Content_Id   : in String := "";
+      Content_Type : in String := MIME.Text_Plain) return Content;
+   --  A string as content
+
+   type Attachment_Kind is (Data, Alternative);
    --  File        : for a file attachment
    --  Content     : for an in-memory content
    --  Alternative : for a set of alternative content
@@ -64,28 +83,20 @@ package AWS.Attachments is
       Encode      : in     Encoding := None);
    --  Adds an Attachment to the list
 
-   procedure Add_Base64
-     (Attachments : in out List;
-      Name        : in     String;
-      Content     : in     String);
-   --  Adds a base64 encoded content. Name is used as the Filename of the given
-   --  content.
-
    procedure Add
-     (Attachments  : in out List;
-      Content      : in     String;
-      Content_Type : in     String);
-   --  Adds a standard content
+     (Attachments : in out List;
+      Data        : in     Content;
+      Headers     : in     AWS.Headers.List := AWS.Headers.Empty_List);
+   --  Add content to the attachment list
 
    --  Alternatives content
 
    type Alternatives is private;
 
    procedure Add
-     (Parts        : in out Alternatives;
-      Content      : in     String;
-      Content_Type : in     String);
-   --  Add a simple alternative content
+     (Parts : in out Alternatives;
+      Data  : in     Content);
+   --  Add an alternative content
 
    procedure Add
      (Attachments : in out List;
@@ -173,25 +184,32 @@ private
 
    use Ada;
 
-   type Alternative_Part is record
+   type Content_Kind is (File, Data);
+
+   type Content (Kind : Content_Kind := File) is record
+      Length       : Natural;
+      Content_Id   : Unbounded_String;
       Content_Type : Unbounded_String;
-      Content      : Unbounded_String;
-   end record;
-
-   package Alternative_Table is
-     new Containers.Vectors (Positive, Alternative_Part);
-
-   type Element (Kind : Attachment_Kind := File) is record
-      Headers      : AWS.Headers.List;
       Filename     : Unbounded_String;
-      Total_Length : Natural;
+      Encode       : Encoding;
 
       case Kind is
          when File =>
-            Encode : Encoding;
-         when Content =>
-            Content  : Unbounded_String;
-            Encoding : Attachments.Encoding;
+            null;
+         when Data =>
+            Content : Unbounded_String;
+      end case;
+   end record;
+
+   package Alternative_Table is new Containers.Vectors (Positive, Content);
+
+   type Element (Kind : Attachment_Kind := Data) is record
+      Headers      : AWS.Headers.List;
+      Total_Length : Natural;
+
+      case Kind is
+         when Data =>
+            Data : Content;
          when Alternative =>
             Parts : Alternative_Table.Vector;
       end case;

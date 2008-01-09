@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2004                          --
---                                ACT-Europe                                --
+--                         Copyright (C) 2000-2008                          --
+--                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -36,6 +36,8 @@ package AWS.Headers is
    --  header line is inserted at the end of the list (see AWS.Headers.Set API)
    --  and can be retrieved by the following services. Header lines are
    --  numbered from 1 to N.
+
+   Empty_List : constant List;
 
    subtype VString_Array is AWS.Containers.Tables.VString_Array;
 
@@ -84,5 +86,8 @@ package AWS.Headers is
 private
 
    type List is new AWS.Containers.Tables.Table_Type with null record;
+
+   Empty_List : constant List :=
+                  (AWS.Containers.Tables.Empty_Table with null record);
 
 end AWS.Headers;

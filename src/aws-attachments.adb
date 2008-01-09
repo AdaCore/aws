@@ -36,16 +36,17 @@ with GNAT.Calendar.Time_IO;
 with AWS.Headers.Set;
 with AWS.Headers.Values;
 with AWS.Messages;
-with AWS.MIME;
 with AWS.Net.Buffered;
 with AWS.Translator;
 with AWS.Utils;
 
 package body AWS.Attachments is
 
-   function Value (V : in String) return Unbounded_String;
-   --  Returns V as an Unbounded_String if V is not the empty string
-   --  otherwise it returns Null_Unbounded_String.
+   use Ada.Streams;
+
+   function "+"
+     (V : in String)
+      return Unbounded_String renames To_Unbounded_String;
 
    UID : Utils.Counter (0);
    --  Unique Id used for generating the MIME boundaries
@@ -62,57 +63,11 @@ package body AWS.Attachments is
    is
       use type Attachment_Table.Vector;
 
-      Base_Filename : constant String := Directories.Simple_Name (Filename);
-      File_Size     : Natural;
-      Tmp           : Element;
+      Data : constant Content :=
+               File (Filename, Encode, Content_Id,
+                     MIME.Content_Type (Filename));
    begin
-      --  Get the file size first, this will raise an exception
-      --  if the file is missing.
-
-      File_Size := Natural (Utils.File_Size (Filename));
-
-      Tmp.Filename := Value (Filename);
-      Tmp.Encode := Encode;
-
-      AWS.Headers.Set.Add
-        (Headers => Tmp.Headers,
-         Name    => AWS.Messages.Content_Type_Token,
-         Value   => MIME.Content_Type (Filename)
-           & "; name=""" & Base_Filename & '"');
-
-      if Encode = Base64 then
-         AWS.Headers.Set.Add
-           (Headers => Tmp.Headers,
-            Name    => AWS.Messages.Content_Transfer_Encoding_Token,
-            Value   => "base64");
-
-      else
-         if MIME.Is_Text (MIME.Content_Type (Filename)) then
-            AWS.Headers.Set.Add
-              (Headers => Tmp.Headers,
-               Name    => AWS.Messages.Content_Transfer_Encoding_Token,
-               Value   => "8bit");
-         else
-            AWS.Headers.Set.Add
-              (Headers => Tmp.Headers,
-               Name    => AWS.Messages.Content_Transfer_Encoding_Token,
-               Value   => "binary");
-         end if;
-      end if;
-
-      AWS.Headers.Set.Add
-        (Headers => Tmp.Headers,
-         Name    => AWS.Messages.Content_Disposition_Token,
-         Value   => "attachment; filename=""" & Base_Filename & '"');
-
-      AWS.Headers.Set.Add
-        (Headers => Tmp.Headers,
-         Name    => AWS.Messages.Content_Id_Token,
-         Value   => '<' & Content_Id & '>');
-
-      Tmp.Total_Length := AWS.Headers.Length (Tmp.Headers) + File_Size;
-
-      Attachment_Table.Append (Attachments.Vector, Tmp);
+      Add (Attachments, Data);
    end Add;
 
    procedure Add
@@ -121,50 +76,92 @@ package body AWS.Attachments is
       Headers     : in     AWS.Headers.List;
       Encode      : in     Encoding := None)
    is
-      File_Size : Natural;
+      Data : constant Content :=
+               File (Filename, Encode, "", MIME.Content_Type (Filename));
    begin
-      --  Get the file size first, this will raise an exception
-      --  if the file is missing.
-
-      File_Size := Natural (Utils.File_Size (Filename));
-
-      Attachment_Table.Append
-        (Attachments.Vector,
-         (Kind         => File,
-          Filename     => Value (Filename),
-          Headers      => Headers,
-          Total_Length => AWS.Headers.Length (Headers) + File_Size,
-          Encode       => Encode));
+      Add (Attachments, Data, Headers);
    end Add;
 
    procedure Add
-     (Attachments  : in out List;
-      Content      : in     String;
-      Content_Type : in     String)
+     (Attachments : in out List;
+      Data        : in     Content;
+      Headers     : in     AWS.Headers.List := AWS.Headers.Empty_List)
    is
-      Tmp : Element (AWS.Attachments.Content);
+      A : Element :=
+            (AWS.Attachments.Data, Headers,
+             Data.Length + AWS.Headers.Length (Headers), Data);
    begin
-      AWS.Headers.Set.Add
-        (Headers => Tmp.Headers,
-         Name    => AWS.Messages.Content_Type_Token,
-         Value   => Content_Type);
+      if Data.Filename = Null_Unbounded_String then
+         if Data.Content_Type /= Null_Unbounded_String then
+            AWS.Headers.Set.Add
+              (Headers => A.Headers,
+               Name    => AWS.Messages.Content_Type_Token,
+               Value   => To_String (Data.Content_Type));
+         end if;
 
-      Tmp.Encoding := None;
-      Tmp.Content := To_Unbounded_String (Content);
-      Tmp.Total_Length := AWS.Headers.Length (Tmp.Headers) + Content'Length;
+      else
+         declare
+            Filename      : constant String := To_String (Data.Filename);
+            Base_Filename : constant String :=
+                              Directories.Simple_Name (Filename);
+         begin
+            AWS.Headers.Set.Add
+              (Headers => A.Headers,
+               Name    => AWS.Messages.Content_Disposition_Token,
+               Value   => "attachment; filename=""" & Base_Filename & '"');
 
-      Attachments.Vector.Append (Tmp);
+            if Data.Content_Type = Null_Unbounded_String then
+               AWS.Headers.Set.Add
+                 (Headers => A.Headers,
+                  Name    => AWS.Messages.Content_Type_Token,
+                  Value   => MIME.Content_Type (Base_Filename) & "; name="""
+                     &  Base_Filename & '"');
+            else
+               AWS.Headers.Set.Add
+                 (Headers => A.Headers,
+                  Name    => AWS.Messages.Content_Type_Token,
+                  Value   => To_String (Data.Content_Type) & "; name="""
+                     &  Base_Filename & '"');
+            end if;
+
+            if Data.Encode = None then
+               if MIME.Is_Text (MIME.Content_Type (Filename)) then
+                  AWS.Headers.Set.Add
+                    (Headers => A.Headers,
+                     Name    => AWS.Messages.Content_Transfer_Encoding_Token,
+                     Value   => "8bit");
+               else
+                  AWS.Headers.Set.Add
+                    (Headers => A.Headers,
+                     Name    => AWS.Messages.Content_Transfer_Encoding_Token,
+                     Value   => "binary");
+               end if;
+            end if;
+         end;
+      end if;
+
+      if Data.Encode = Base64 then
+         AWS.Headers.Set.Add
+           (Headers => A.Headers,
+            Name    => AWS.Messages.Content_Transfer_Encoding_Token,
+            Value   => "base64");
+      end if;
+
+      if Data.Content_Id /= Null_Unbounded_String then
+         AWS.Headers.Set.Add
+           (Headers => A.Headers,
+            Name    => AWS.Messages.Content_Id_Token,
+            Value   => '<' & To_String (Data.Content_Id) & '>');
+      end if;
+
+      Attachments.Vector.Append (A);
    end Add;
 
    procedure Add
-     (Parts        : in out Alternatives;
-      Content      : in     String;
-      Content_Type : in     String) is
+     (Parts : in out Alternatives;
+      Data  : in     Content) is
    begin
-      Parts.Parts.Append
-        (Alternative_Part'
-           (Content     => To_Unbounded_String (Content),
-            Content_Type => To_Unbounded_String (Content_Type)));
+      Parts.Parts.Append (Data);
    end Add;
 
    procedure Add
@@ -173,41 +170,6 @@ package body AWS.Attachments is
    begin
       Attachments.Vector.Append (Element (Parts));
    end Add;
-
-   ----------------
-   -- Add_Base64 --
-   ----------------
-
-   procedure Add_Base64
-     (Attachments : in out List;
-      Name        : in     String;
-      Content     : in     String)
-   is
-      Base_Filename : constant String := Directories.Simple_Name (Name);
-      Tmp           : Element (AWS.Attachments.Content);
-   begin
-      AWS.Headers.Set.Add
-        (Headers => Tmp.Headers,
-         Name    => AWS.Messages.Content_Type_Token,
-         Value   => MIME.Content_Type (Name) & "; name="""
-           &  Base_Filename & '"');
-
-      AWS.Headers.Set.Add
-        (Headers => Tmp.Headers,
-         Name    => AWS.Messages.Content_Transfer_Encoding_Token,
-         Value   => "base64");
-
-      AWS.Headers.Set.Add
-        (Headers => Tmp.Headers,
-         Name    => AWS.Messages.Content_Disposition_Token,
-         Value   => "attachment; filename=""" & Base_Filename & '"');
-
-      Tmp.Encoding := Base64;
-      Tmp.Content := To_Unbounded_String (Content);
-      Tmp.Total_Length := AWS.Headers.Length (Tmp.Headers) + Content'Length;
-
-      Attachments.Vector.Append (Tmp);
-   end Add_Base64;
 
    ----------------
    -- Content_Id --
@@ -237,6 +199,20 @@ package body AWS.Attachments is
       return Natural (Attachment_Table.Length (Attachments.Vector));
    end Count;
 
+   ----------
+   -- File --
+   ----------
+
+   function File
+     (Filename     : in String;
+      Encode       : in Encoding := None;
+      Content_Id   : in String := "";
+      Content_Type : in String := MIME.Text_Plain) return Content is
+   begin
+      return Content'(File, Natural (Utils.File_Size (Filename)),
+                      +Content_Id, +Content_Type, +Filename, Encode);
+   end File;
+
    --------------
    -- Filename --
    --------------
@@ -247,10 +223,10 @@ package body AWS.Attachments is
       if AWS.Headers.Exist
         (Attachment.Headers, Messages.Content_Disposition_Token)
       then
-         Result := Value
-           (AWS.Headers.Values.Search
-              (AWS.Headers.Get
-                 (Attachment.Headers, Messages.Content_Disposition_Token),
+         Result :=
+           +(AWS.Headers.Values.Search
+             (AWS.Headers.Get
+              (Attachment.Headers, Messages.Content_Disposition_Token),
                "filename"));
       end if;
 
@@ -259,8 +235,8 @@ package body AWS.Attachments is
           AWS.Headers.Exist
             (Attachment.Headers, Messages.Content_Type_Token)
       then
-         Result := Value
-           (AWS.Headers.Values.Search
+         Result :=
+           +(AWS.Headers.Values.Search
               (AWS.Headers.Get
                  (Attachment.Headers, Messages.Content_Type_Token),
                "name"));
@@ -396,7 +372,7 @@ package body AWS.Attachments is
 
    function Local_Filename (Attachment : in Element) return String is
    begin
-      return To_String (Attachment.Filename);
+      return To_String (Attachment.Data.Filename);
    end Local_Filename;
 
    -----------
@@ -449,11 +425,10 @@ package body AWS.Attachments is
       procedure Send_Attachment (Attachment : in Element);
       --  Sends one Attachment, including the start boundary
 
-      procedure Send_File (Attachment : in Element);
-      --  Send a file
-
       procedure Send_Content (Attachment : in Element);
       --  Set an in-memory content
+
+      procedure Send_Content (Data : in Content);
 
       procedure Send_Alternative (Attachment : in Element);
       --  Send an alternative part
@@ -480,7 +455,7 @@ package body AWS.Attachments is
          ----------------------
 
          procedure Send_Alternative (Position : in Alternative_Table.Cursor) is
-            Part : constant Alternative_Part :=
+            Part : constant Content :=
                      Alternative_Table.Element (Position);
          begin
             Net.Buffered.Put_Line (Socket, "--" & To_String (A_Boundary));
@@ -488,7 +463,7 @@ package body AWS.Attachments is
               (Socket, Messages.Content_Type (To_String (Part.Content_Type)));
             Net.Buffered.New_Line (Socket);
 
-            Net.Buffered.Put_Line (Socket, To_String (Part.Content));
+            Send_Content (Part);
          end Send_Alternative;
 
       begin
@@ -521,8 +496,7 @@ package body AWS.Attachments is
       procedure Send_Attachment (Attachment : in Element) is
       begin
          case Attachment.Kind is
-            when File        => Send_File (Attachment);
-            when Content     => Send_Content (Attachment);
+            when Data        => Send_Content (Attachment);
             when Alternative => Send_Alternative (Attachment);
          end case;
       end Send_Attachment;
@@ -533,144 +507,155 @@ package body AWS.Attachments is
 
       procedure Send_Content (Attachment : in Element) is
 
+      begin
+         --  Send multipart message start boundary
+
+         Net.Buffered.Put_Line (Socket, Pref_Suf & Boundary);
+
+         --  Send header
+
+         AWS.Headers.Send_Header (Socket, Attachment.Headers);
+         Net.Buffered.New_Line (Socket);
+
+         Send_Content (Attachment.Data);
+      end Send_Content;
+
+      procedure Send_Content (Data : in Content) is
+
+         procedure Send_File;
+
          procedure Send_Content;
-         --  Send standard content
-
-         procedure Send_Base64_Content;
-         --  Send a base64 content
-
-         -------------------------
-         -- Send_Base64_Content --
-         -------------------------
-
-         procedure Send_Base64_Content is
-            Chunk_Size  : constant := 60;
-            Content_Len : constant Positive := Length (Attachment.Content);
-            K           : Positive := 1;
-         begin
-            while K <= Content_Len loop
-               if K + Chunk_Size - 1 > Content_Len then
-                  Net.Buffered.Put_Line
-                    (Socket,
-                     Slice (Attachment.Content, K, Content_Len));
-                  K := Content_Len + 1;
-               else
-                  Net.Buffered.Put_Line
-                    (Socket,
-                     Slice (Attachment.Content, K, K + Chunk_Size - 1));
-                  K := K + Chunk_Size;
-               end if;
-            end loop;
-         end Send_Base64_Content;
 
          ------------------
          -- Send_Content --
          ------------------
 
          procedure Send_Content is
+
+            procedure Send;
+            --  Send standard content
+
+            procedure Send_Base64;
+            --  Send a base64 content
+
+            ----------
+            -- Send --
+            ----------
+
+            procedure Send is
+            begin
+               Net.Buffered.Put_Line (Socket, To_String (Data.Content));
+            end Send;
+
+            -----------------
+            -- Send_Base64 --
+            -----------------
+
+            procedure Send_Base64 is
+               Chunk_Size  : constant := 60;
+               Content_Len : constant Positive := Length (Data.Content);
+               K           : Positive := 1;
+            begin
+               while K <= Content_Len loop
+                  if K + Chunk_Size - 1 > Content_Len then
+                     Net.Buffered.Put_Line
+                       (Socket,
+                        Slice (Data.Content, K, Content_Len));
+                     K := Content_Len + 1;
+                  else
+                     Net.Buffered.Put_Line
+                       (Socket,
+                        Slice (Data.Content, K, K + Chunk_Size - 1));
+                     K := K + Chunk_Size;
+                  end if;
+               end loop;
+            end Send_Base64;
+
          begin
-            Net.Buffered.Put (Socket, To_String (Attachment.Content));
+            case Data.Encode is
+               when None   => Send;
+               when Base64 => Send_Base64;
+            end case;
          end Send_Content;
-
-      begin
-         --  Send multipart message start boundary
-
-         Net.Buffered.New_Line (Socket);
-         Net.Buffered.Put_Line (Socket, Pref_Suf & Boundary);
-
-         --  Send header
-
-         AWS.Headers.Send_Header (Socket, Attachment.Headers);
-         Net.Buffered.New_Line (Socket);
-
-         case Attachment.Encoding is
-            when None   => Send_Content;
-            when Base64 => Send_Base64_Content;
-         end case;
-
-         Net.Buffered.New_Line (Socket);
-      end Send_Content;
-
-      ---------------
-      -- Send_File --
-      ---------------
-
-      procedure Send_File (Attachment : in Element) is
-
-         procedure Send_File;
-         --  Send file as-is
-
-         procedure Send_File_Base64;
-         --  Send file encoded in Base64
-
-         File : Streams.Stream_IO.File_Type;
 
          ---------------
          -- Send_File --
          ---------------
 
          procedure Send_File is
-            Buffer : Streams.Stream_Element_Array (1 .. 4_096);
-            Last   : Streams.Stream_Element_Offset;
-         begin
-            --  Send file content
 
-            while not Streams.Stream_IO.End_Of_File (File) loop
-               Streams.Stream_IO.Read (File, Buffer, Last);
-               Net.Buffered.Write (Socket, Buffer (1 .. Last));
-            end loop;
-         exception
-            when Net.Socket_Error =>
-               --  Properly close the file if needed
-               if Streams.Stream_IO.Is_Open (File) then
-                  Streams.Stream_IO.Close (File);
-               end if;
-               raise;
+            procedure Send;
+            --  Send file as-is
+
+            procedure Send_Base64;
+            --  Send file encoded in Base64
+
+            File : Streams.Stream_IO.File_Type;
+
+            ----------
+            -- Send --
+            ----------
+
+            procedure Send is
+               Buffer : Streams.Stream_Element_Array (1 .. 4_096);
+               Last   : Streams.Stream_Element_Offset;
+            begin
+               --  Send file content
+
+               while not Streams.Stream_IO.End_Of_File (File) loop
+                  Streams.Stream_IO.Read (File, Buffer, Last);
+                  Net.Buffered.Write (Socket, Buffer (1 .. Last));
+               end loop;
+
+               Net.Buffered.New_Line (Socket);
+            exception
+               when Net.Socket_Error =>
+                  --  Properly close the file if needed
+                  if Streams.Stream_IO.Is_Open (File) then
+                     Streams.Stream_IO.Close (File);
+                  end if;
+                  raise;
+            end Send;
+
+            -----------------
+            -- Send_Base64 --
+            -----------------
+
+            procedure Send_Base64 is
+               Buffer_Size   : constant := 60;
+               --  Note that this size must be a multiple of 3, this is
+               --  important to have proper chunk MIME encoding.
+
+               Buffer : Streams.Stream_Element_Array (1 .. Buffer_Size);
+               Last   : Streams.Stream_Element_Offset;
+            begin
+               while not Streams.Stream_IO.End_Of_File (File) loop
+                  Streams.Stream_IO.Read (File, Buffer, Last);
+
+                  Net.Buffered.Put_Line
+                    (Socket,
+                     AWS.Translator.Base64_Encode (Buffer (1 .. Last)));
+               end loop;
+            end Send_Base64;
+
+         begin
+            Stream_IO.Open
+              (File, Streams.Stream_IO.In_File, To_String (Data.Filename));
+
+            case Data.Encode is
+               when None   => Send;
+               when Base64 => Send_Base64;
+            end case;
+
+            Stream_IO.Close (File);
          end Send_File;
 
-         ----------------------
-         -- Send_File_Base64 --
-         ----------------------
-
-         procedure Send_File_Base64 is
-            Buffer_Size   : constant := 60;
-            --  Note that this size must be a multiple of 3, this is important
-            --  to have proper chunk MIME encoding.
-
-            Buffer : Streams.Stream_Element_Array (1 .. Buffer_Size);
-            Last   : Streams.Stream_Element_Offset;
-         begin
-            while not Streams.Stream_IO.End_Of_File (File) loop
-               Streams.Stream_IO.Read (File, Buffer, Last);
-
-               Net.Buffered.Put_Line
-                 (Socket, AWS.Translator.Base64_Encode (Buffer (1 .. Last)));
-            end loop;
-
-            Net.Buffered.New_Line (Socket);
-         end Send_File_Base64;
-
       begin
-         --  Send multipart message start boundary
-
-         Net.Buffered.New_Line (Socket);
-         Net.Buffered.Put_Line (Socket, Pref_Suf & Boundary);
-
-         --  Send header
-
-         AWS.Headers.Send_Header (Socket, Attachment.Headers);
-         Net.Buffered.New_Line (Socket);
-
-         Streams.Stream_IO.Open
-           (File, Streams.Stream_IO.In_File, To_String (Attachment.Filename));
-
-         case Attachment.Encode is
-            when None   => Send_File;
-            when Base64 => Send_File_Base64;
+         case Data.Kind is
+            when File                 => Send_File;
+            when AWS.Attachments.Data => Send_Content;
          end case;
-
-         Streams.Stream_IO.Close (File);
-      end Send_File;
+      end Send_Content;
 
    begin
       --  Send the attachments
@@ -685,8 +670,6 @@ package body AWS.Attachments is
       end loop;
 
       --  Send multipart message end boundary
-
-      Net.Buffered.New_Line (Socket);
 
       Net.Buffered.Put_Line (Socket, Pref_Suf & Boundary & Pref_Suf);
    end Send;
@@ -727,16 +710,25 @@ package body AWS.Attachments is
       Net.Buffered.New_Line (Socket);
    end Send_MIME_Header;
 
-   -----------
-   -- Value --
-   -----------
+   ----------
+   -- Data --
+   ----------
 
-   function Value (V : in String) return Unbounded_String is
+   function Value
+     (Data         : in String;
+      Name         : in String := "";
+      Encode       : in Encoding := None;
+      Content_Id   : in String := "";
+      Content_Type : in String := MIME.Text_Plain) return Content is
    begin
-      if V = "" then
-         return Null_Unbounded_String;
+      if Encode = Base64 then
+         return Content'
+           (Attachments.Data, Data'Length,
+            +Content_Id, +Content_Type, +Name, Encode,
+            +Translator.Base64_Encode (Data));
       else
-         return To_Unbounded_String (V);
+         return Content'(Attachments.Data, Data'Length,
+                         +Content_Id, +Content_Type, +Name, Encode, +Data);
       end if;
    end Value;
 

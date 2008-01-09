@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2006                          --
+--                         Copyright (C) 2000-2008                          --
 --                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -37,6 +37,8 @@ package AWS.Containers.Tables is
    use Ada.Strings.Unbounded;
 
    type Table_Type is tagged private;
+
+   Empty_Table : constant Table_Type;
 
    type Element (Name_Length, Value_Length : Natural) is record
       Name  : String (1 .. Name_Length);
@@ -142,6 +144,9 @@ private
       Data           : Data_Table.Vector;
       --  Ordered array of name and value pairs
    end record;
+
+   Empty_Table : constant Table_Type :=
+                   (True, Index_Table.Empty_Map, Data_Table.Empty_Vector);
 
    function Normalize_Name
      (Name     : in String;
