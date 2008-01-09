@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2005-2007                          --
+--                         Copyright (C) 2005-2008                          --
 --                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -753,8 +753,8 @@ package body AWS.Server.HTTP_Utils is
          -------------------------
 
          function Attachment_Filename (Extension : in String) return String is
-            Upload_Path : constant String
-              := CNF.Upload_Directory (HTTP_Server.Properties);
+            Upload_Path : constant String :=
+                            CNF.Upload_Directory (HTTP_Server.Properties);
             UID         : Natural;
          begin
             File_Upload_UID.Get (UID);

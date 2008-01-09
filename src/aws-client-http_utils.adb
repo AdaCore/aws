@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2005-2007                          --
+--                         Copyright (C) 2005-2008                          --
 --                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -512,7 +512,6 @@ package body AWS.Client.HTTP_Utils is
                --  Send the attachments
 
                AWS.Attachments.Send (Sock, Attachments, Boundary);
-
             end;
 
             --  Get answer from server
