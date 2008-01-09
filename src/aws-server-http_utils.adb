@@ -458,7 +458,8 @@ package body AWS.Server.HTTP_Utils is
                --  above.
                AWS.Attachments.Add
                  (Attachments,
-                  To_String (Server_Filename), To_String (Name));
+                  Filename   => To_String (Server_Filename),
+                  Content_Id => To_String (Name));
                Status.Set.Attachments (C_Stat, Attachments);
 
                if not End_Found then
@@ -801,7 +802,9 @@ package body AWS.Server.HTTP_Utils is
             Server_Filename := To_Unbounded_String
               (Attachment_Filename
                  (AWS.MIME.Extension
-                    (AWS.Headers.Get (Headers, Messages.Content_Type_Token))));
+                    (AWS.Headers.Values.Get_Unnamed_Value
+                       (AWS.Headers.Get
+                          (Headers, Messages.Content_Type_Token)))));
 
             Get_File_Data
               (To_String (Server_Filename),

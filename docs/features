@@ -1,8 +1,8 @@
 ====================================================
-AWS 2.5 NEW FEATURES LIST Current as of Dec 21, 2007
+AWS 2.5 NEW FEATURES LIST Current as of Jan  5, 2008
 ====================================================
 
-Copyright (c) 2006-2007, AdaCore
+Copyright (c) 2006-2008, AdaCore
 
 This file contains a list of new features introduced in AWS.
 A full description of all AWS features can be found in the AWS
@@ -14,3 +14,8 @@ of the feature.
 
 New features in AWS 2.5.0
 -------------------------
+
+NF-25-H104-029 Add support for multipart/alternative MIME content
+
+  It is now possible to send e-mail with alternative content (text/plain
+  and text/html is a common example) using AWS.SMTP.Client API.

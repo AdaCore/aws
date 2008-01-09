@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                   S M T P - Simple Mail Transfer Protocol                --
 --                                                                          --
---                            Copyright (C) 2007                            --
+--                         Copyright (C) 2007-2008                          --
 --                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -20,8 +20,12 @@
 --                                                                          --
 ------------------------------------------------------------------------------
 
+--  You need to edit this demo to set the proper SMTP server and recipient
+
 with Ada.Text_IO;
 
+with AWS.Attachments;
+with AWS.MIME;
 with AWS.SMTP.Client;
 with AWS.SMTP.Authentication.Plain;
 
@@ -30,25 +34,87 @@ procedure Test_Mail is
    use Ada;
    use AWS;
 
+   --  Edit the following four constants:
+   SMTP_Server : constant String := "smtp.here.com";
+   From_Name   : constant String := "your name";
+   From_Email  : constant String := "your email";
+   Filename    : constant String := "c:\tmp\unzip.exe";
+
    Auth : aliased constant SMTP.Authentication.Plain.Credential :=
      SMTP.Authentication.Plain.Initialize ("user_id", "password");
    --  For authentication pass Auth to the server initialization below
 
-   Server : SMTP.Receiver := SMTP.Client.Initialize
-     ("host_here");
+   Server : SMTP.Receiver := SMTP.Client.Initialize (SMTP_Server);
    --  For authenticating SMTP server pass :
    --  Credential => Auth'Unchecked_Access
 
-   Stat : SMTP.Status;
+   Attachments : SMTP.Client.Attachment_Set (1 .. 2);
+   Stat        : SMTP.Status;
+
+   Attac : AWS.Attachments.List;
+   Alter : AWS.Attachments.Alternatives;
 
 begin
+   --  Send simple message
+
    SMTP.Client.Send
      (Server,
-      From    => SMTP.E_Mail ("Your Name", "Your e-mailx"),
+      From    => SMTP.E_Mail (From_Name, From_Email),
       To      => (1 => SMTP.E_Mail ("Pascal Obry", "aws@obry.net")),
       Subject => "Sending e-mail from Ada code",
       Message => "Thanks to AWS/SMTP, it's easy !",
       Status  => Stat);
+
+   Text_IO.Put_Line ("Stat : " & SMTP.Status_Message (Stat));
+
+   --  Send simple message, plus attachment
+
+   SMTP.Client.Send
+     (Server,
+      From        => SMTP.E_Mail (From_Name, From_Email),
+      To          => (1 => SMTP.E_Mail ("Pascal Obry", "aws@obry.net")),
+      Subject     => "Sending e-mail + attachment from Ada code",
+      Message     => "Thanks to AWS/SMTP, it's easy !",
+      Attachments => (1 => SMTP.Client.File (Filename)),
+      Status      => Stat);
+
+   Text_IO.Put_Line ("Stat : " & SMTP.Status_Message (Stat));
+
+   --  Send alternative messages plus attachment
+
+   AWS.Attachments.Add
+     (Alter, "this is the default plain text", MIME.Text_Plain);
+   AWS.Attachments.Add
+     (Alter, "<p>this is the default <i>HTML</i> text", MIME.Text_HTML);
+
+   AWS.Attachments.Add (Attac, Alter);
+
+   SMTP.Client.Send
+     (Server,
+      From        => SMTP.E_Mail (From_Name, From_Email),
+      To          => (1 => SMTP.E_Mail ("Pascal Obry", "aws@obry.net")),
+      Subject     => "Sending alternative parts e-mail from Ada code",
+      Attachments => Attac,
+      Status      => Stat);
+
+   Text_IO.Put_Line ("Stat : " & SMTP.Status_Message (Stat));
+
+   --  Send alternative messages plus attachment
+
+   AWS.Attachments.Add
+     (Attac,
+      Filename   => Filename,
+      Content_Id => "unzip.exe",
+      Encode     => AWS.Attachments.Base64);
+
+   SMTP.Client.Send
+     (Server,
+      From        => SMTP.E_Mail (From_Name, From_Email),
+      To          => (1 => SMTP.E_Mail ("Pascal Obry", "aws@obry.net")),
+      Subject     =>
+        "Sending alternative parts e-mail plus attachment from Ada code",
+      Attachments => Attac,
+      Status      => Stat);
 
    Text_IO.Put_Line ("Stat : " & SMTP.Status_Message (Stat));
 end Test_Mail;

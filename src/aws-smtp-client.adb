@@ -2,7 +2,7 @@
 --                              Ada Web Server                              --
 --                   S M T P - Simple Mail Transfer Protocol                --
 --                                                                          --
---                         Copyright (C) 2000-2007                          --
+--                         Copyright (C) 2000-2008                          --
 --                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -28,22 +28,18 @@
 ------------------------------------------------------------------------------
 
 with Ada.Calendar;
-with Ada.Directories;
 with Ada.Text_IO;
 with Ada.Exceptions;
-with Ada.Streams.Stream_IO;
 
 with GNAT.Calendar.Time_IO;
 
+with AWS.MIME;
 with AWS.Net.Buffered;
-with AWS.Translator;
 with AWS.SMTP.Authentication;
 pragma Warnings (Off, AWS.SMTP.Authentication);
 --  Work around a visibility problem
 
 package body AWS.SMTP.Client is
-
-   use Ada;
 
    procedure Open
      (Server : in     Receiver;
@@ -62,13 +58,8 @@ package body AWS.SMTP.Client is
       To       : in     Recipients;
       Subject  : in     String;
       Status   :    out SMTP.Status;
-      Complete : in     Boolean := True);
+      Is_MIME  : in     Boolean := False);
    --  Output SMTP headers (MAIL, RCPT, DATA, From, To, Subject, Date)
-
-   procedure Output_MIME_Header
-     (Sock     : in     Net.Socket_Type'Class;
-      Boundary :    out Unbounded_String);
-   --  Output MIME SMTP headers, return the MIME boundary
 
    procedure Put_Translated_Line
      (Sock : in Net.Socket_Type'Class;
@@ -77,16 +68,6 @@ package body AWS.SMTP.Client is
 
    procedure Terminate_Mail_Data (Sock : in out Net.Socket_Type'Class);
    --  Send string CRLF & '.' & CRLF
-
-   procedure Send_MIME_Attachment
-     (Sock : in Net.Socket_Type'Class; File : in Attachment);
-   --  Send file Filename as a MIME attachment. This procedure send the MIME
-   --  attachment headers but does not send the MIME boundary.
-
-   procedure Send_MIME_Message
-     (Sock : in Net.Socket_Type'Class; Message : in String);
-   --  Send textual message as a MIME content. This procedure send the
-   --  MIME headers but does not send the MIME boundary.
 
    procedure Shutdown (Sock : in out Net.Socket_Access);
    --  Shutdown and close the socket. Do not raise an exception if the Socket
@@ -185,7 +166,7 @@ package body AWS.SMTP.Client is
       To       : in     Recipients;
       Subject  : in     String;
       Status   :    out SMTP.Status;
-      Complete : in     Boolean := True)
+      Is_MIME  : in     Boolean := False)
    is
       function Current_Date return String;
       --  Returns current date and time for SMTP "Date:" field.
@@ -251,7 +232,10 @@ package body AWS.SMTP.Client is
 
                Net.Buffered.New_Line (Sock);
 
-               if Complete then
+               if Is_MIME then
+                  Net.Buffered.Put_Line
+                    (Sock, "MIME-Version: 1.0 (produced by AWS/SMTP)");
+               else
                   Net.Buffered.New_Line (Sock);
                end if;
 
@@ -266,25 +250,6 @@ package body AWS.SMTP.Client is
          Add (Answer, Status);
       end if;
    end Output_Header;
-
-   --------------------------
-   -- Output_MIME_Boundary --
-   --------------------------
-
-   procedure Output_MIME_Header
-     (Sock     : in     Net.Socket_Type'Class;
-      Boundary :    out Unbounded_String)
-   is
-      L_Boundary : constant String
-        := GNAT.Calendar.Time_IO.Image (Calendar.Clock, "----=_NextPart_%s");
-   begin
-      Boundary := To_Unbounded_String (L_Boundary);
-
-      Net.Buffered.Put_Line (Sock, "MIME-Version: 1.0 (produced by AWS/SMTP)");
-      Net.Buffered.Put_Line (Sock, "Content-Type: multipart/mixed;");
-      Net.Buffered.Put_Line (Sock, "    boundary =""" & L_Boundary & '"');
-      Net.Buffered.New_Line (Sock);
-   end Output_MIME_Header;
 
    -------------------------
    -- Put_Translated_Line --
@@ -325,7 +290,7 @@ package body AWS.SMTP.Client is
       From        : in     E_Mail_Data;
       To          : in     E_Mail_Data;
       Subject     : in     String;
-      Message     : in     String;
+      Message     : in     String := "";
       Attachments : in     Attachment_Set;
       Status      :    out SMTP.Status)
    is
@@ -457,7 +422,6 @@ package body AWS.SMTP.Client is
 
       when E : others =>
          Shutdown (Sock);
-
          raise Server_Error with Ada.Exceptions.Exception_Information (E);
    end Send;
 
@@ -470,13 +434,57 @@ package body AWS.SMTP.Client is
       From        : in     E_Mail_Data;
       To          : in     Recipients;
       Subject     : in     String;
-      Message     : in     String;
+      Message     : in     String := "";
       Attachments : in     Attachment_Set;
       Status      :    out SMTP.Status)
    is
-      Sock     : Net.Socket_Access;
-      Answer   : Server_Reply;
-      Boundary : Unbounded_String;
+      Att_List : AWS.Attachments.List;
+   begin
+      --  Fill attachments list
+
+      if Message /= "" then
+         AWS.Attachments.Add
+           (Att_List,
+            Content      => Message,
+            Content_Type => MIME.Text_Plain);
+      end if;
+
+      for K in Attachments'Range loop
+         declare
+            A : constant Attachment := Attachments (K);
+         begin
+            case A.Kind is
+               when File        =>
+                  AWS.Attachments.Add
+                    (Att_List,
+                     Filename   => To_String (A.Name),
+                     Content_Id => "",
+                     Encode     => AWS.Attachments.Base64);
+
+               when Base64_Data =>
+                  AWS.Attachments.Add_Base64
+                    (Att_List,
+                     Name    => To_String (A.Name),
+                     Content => To_String (A.Data));
+            end case;
+         end;
+      end loop;
+
+      Send (Server, From, To, Subject, Att_List, Status);
+   end Send;
+
+   procedure Send
+     (Server      : in     Receiver;
+      From        : in     E_Mail_Data;
+      To          : in     Recipients;
+      Subject     : in     String;
+      Attachments : in     AWS.Attachments.List;
+      Status      :    out SMTP.Status)
+   is
+      use type AWS.Attachments.Root_MIME_Kind;
+      Sock               : Net.Socket_Access;
+      Answer             : Server_Reply;
+      Boundary           : Unbounded_String;
    begin
       Open (Server, Sock, Status);
 
@@ -487,12 +495,13 @@ package body AWS.SMTP.Client is
 
          if Is_Ok (Status) then
             Output_Header
-              (Sock.all, From, To, Subject, Status, Complete => False);
+              (Sock.all, From, To, Subject, Status, Is_MIME => True);
 
             if Is_Ok (Status) then
                --  Send MIME header
 
-               Output_MIME_Header (Sock.all, Boundary);
+               AWS.Attachments.Send_MIME_Header
+                 (Sock.all, Attachments, Boundary);
 
                --  Message for non-MIME compliant Mail reader
 
@@ -500,30 +509,11 @@ package body AWS.SMTP.Client is
                  (Sock.all, "This is multipart MIME message");
                Net.Buffered.Put_Line
                  (Sock.all,
-                  "If you read this, your mailer does not support MIME");
+                  "If you read this, your mailer does not support MIME.");
                Net.Buffered.New_Line (Sock.all);
 
-               --  Message body as the first MIME content
-
-               Net.Buffered.Put_Line (Sock.all, "--" & To_String (Boundary));
-
-               Send_MIME_Message (Sock.all, Message);
-
-               --  Send attachments
-
-               Net.Buffered.New_Line (Sock.all);
-
-               for K in Attachments'Range loop
-                  Net.Buffered.Put_Line
-                    (Sock.all, "--" & To_String (Boundary));
-
-                  Send_MIME_Attachment (Sock.all, Attachments (K));
-               end loop;
-
-               --  Send termination boundary
-               Net.Buffered.New_Line (Sock.all);
-               Net.Buffered.Put_Line
-                 (Sock.all, "--" & To_String (Boundary) & "--");
+               AWS.Attachments.Send
+                 (Sock.all, Attachments, To_String (Boundary));
 
                Terminate_Mail_Data (Sock.all);
 
@@ -550,107 +540,6 @@ package body AWS.SMTP.Client is
 
          raise Server_Error with Ada.Exceptions.Exception_Information (E);
    end Send;
-
-   --------------------------
-   -- Send_MIME_Attachment --
-   --------------------------
-
-   procedure Send_MIME_Attachment
-     (Sock : in Net.Socket_Type'Class; File : in Attachment)
-   is
-      procedure Send_File;
-      --  Send File attachment
-
-      procedure Send_Base64;
-      --  Send Base64 attachment content
-
-      Filename      : constant String := To_String (File.Name);
-      Base_Filename : constant String := Directories.Simple_Name (Filename);
-
-      -----------------
-      -- Send_Base64 --
-      -----------------
-
-      procedure Send_Base64 is
-         Chunk_Size  : constant := 60;
-         Content_Len : constant Positive := Length (File.Data);
-         K           : Positive := 1;
-      begin
-         while K <= Content_Len loop
-            if K + Chunk_Size - 1 > Content_Len then
-               Net.Buffered.Put_Line (Sock, Slice (File.Data, K, Content_Len));
-               K := Content_Len + 1;
-            else
-               Net.Buffered.Put_Line
-                 (Sock, Slice (File.Data, K, K + Chunk_Size - 1));
-               K := K + Chunk_Size;
-            end if;
-         end loop;
-
-         Net.Buffered.New_Line (Sock);
-      end Send_Base64;
-
-      ---------------
-      -- Send_File --
-      ---------------
-
-      procedure Send_File is
-         use Streams;
-
-         Buffer_Size : constant := 60;
-         --  Note that this size must be a multiple of 3, this is important to
-         --  have proper chunk MIME encoding.
-
-         File   : Stream_IO.File_Type;
-         Buffer : Stream_Element_Array (1 .. Buffer_Size);
-         Last   : Stream_Element_Offset;
-      begin
-         Stream_IO.Open (File, Stream_IO.In_File, Filename);
-
-         while not Stream_IO.End_Of_File (File) loop
-            Stream_IO.Read (File, Buffer, Last);
-
-            Net.Buffered.Put_Line
-              (Sock, AWS.Translator.Base64_Encode (Buffer (1 .. Last)));
-         end loop;
-
-         Net.Buffered.New_Line (Sock);
-
-         Stream_IO.Close (File);
-      end Send_File;
-
-   begin
-      --  MIME attachment headers
-
-      Net.Buffered.Put_Line (Sock, "Content-Type: application/octet-stream;");
-      Net.Buffered.Put_Line (Sock, "    name =""" & Base_Filename & '"');
-      Net.Buffered.Put_Line (Sock, "Content-Transfer-Encoding: base64");
-      Net.Buffered.Put_Line (Sock, "Content-Disposition: attachment;");
-      Net.Buffered.Put_Line (Sock, "    filename=""" & Base_Filename & '"');
-      Net.Buffered.New_Line (Sock);
-
-      --  MIME content
-
-      case File.Kind is
-         when Client.File => Send_File;
-         when Base64_Data => Send_Base64;
-      end case;
-   end Send_MIME_Attachment;
-
-   -----------------------
-   -- Send_MIME_Message --
-   -----------------------
-
-   procedure Send_MIME_Message
-     (Sock : in Net.Socket_Type'Class; Message : in String) is
-   begin
-      --  MIME message headers
-
-      Net.Buffered.Put_Line (Sock, "Content-Type: text/plain");
-      Net.Buffered.New_Line (Sock);
-
-      Put_Translated_Line (Sock, Message);
-   end Send_MIME_Message;
 
    --------------
    -- Shutdown --

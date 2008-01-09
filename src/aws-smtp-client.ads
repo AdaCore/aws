@@ -2,7 +2,7 @@
 --                              Ada Web Server                              --
 --                   S M T P - Simple Mail Transfer Protocol                --
 --                                                                          --
---                         Copyright (C) 2000-2007                          --
+--                         Copyright (C) 2000-2008                          --
 --                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -52,7 +52,7 @@
 --
 --     SMTP.Client.Send
 --        (Server  => Wanadoo,
---         From    => SMTP.E_Mail ("Pascal Obry", "p.obry@wanadoo.fr"),
+--         From    => SMTP.E_Mail ("Pascal Obry", "pascal@obry.net"),
 --         To      => SMTP.E_Mail
 --                      ("Dmitriy Anisimkov", "anisimkov@omsknet.ru"),
 --         Subject => "Latest Ada news",
@@ -60,6 +60,8 @@
 --         Status  => Result);
 
 with Ada.Strings.Unbounded;
+
+with AWS.Attachments;
 
 package AWS.SMTP.Client is
 
@@ -85,7 +87,9 @@ package AWS.SMTP.Client is
    --  unrecoverable error (e.g. can't contact the server).
 
    type Attachment is private;
-   --  This is an attachment object, either a File or a Base64 content.
+   --  This is an attachment object, either a File or a Base64 content. It
+   --  supports only simple attachments. For full attachment support use
+   --  AWS.Attachments with the corresponding Send routine below.
 
    function File (Filename : in String) return Attachment;
    --  Returns a file attachment. Filename point to a file on the file system
@@ -103,7 +107,7 @@ package AWS.SMTP.Client is
       From        : in     E_Mail_Data;
       To          : in     E_Mail_Data;
       Subject     : in     String;
-      Message     : in     String;
+      Message     : in     String := "";
       Attachments : in     Attachment_Set;
       Status      :    out SMTP.Status);
    --  Send a message via Server. The mail is a MIME message composed of a
@@ -145,7 +149,7 @@ package AWS.SMTP.Client is
       From        : in     E_Mail_Data;
       To          : in     Recipients;
       Subject     : in     String;
-      Message     : in     String;
+      Message     : in     String := "";
       Attachments : in     Attachment_Set;
       Status      :    out SMTP.Status);
    --  Send a message via Server. The mail is a MIME message composed of a
@@ -153,7 +157,19 @@ package AWS.SMTP.Client is
    --  in case of an unrecoverable error (e.g. can't contact the server).
    --  Raises Constraint_Error is a file attachment cannot be opened.
 
+   procedure Send
+     (Server      : in     Receiver;
+      From        : in     E_Mail_Data;
+      To          : in     Recipients;
+      Subject     : in     String;
+      Attachments : in     AWS.Attachments.List;
+      Status      :    out SMTP.Status);
+   --  As above but takes an attachment list which support complex attachments
+   --  like multiplart/alternative.
+
 private
+
+   use Ada;
 
    type Attachment_Mode is (File, Base64_Data);
 
@@ -164,7 +180,7 @@ private
          when File =>
             null;
          when Base64_Data =>
-            Data : Unbounded_String;
+            Data  : Unbounded_String;
       end case;
    end record;
 

@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                          Copyright (C) 2004-2007                         --
+--                          Copyright (C) 2004-2008                         --
 --                                  AdaCore                                 --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -27,30 +27,70 @@
 ------------------------------------------------------------------------------
 
 with Ada.Strings.Unbounded;
-with Ada.Containers.Indefinite_Vectors;
 
 with AWS.Headers;
 with AWS.Net;
 
+private with Ada.Containers.Vectors;
+
 package AWS.Attachments is
+
+   use Ada.Strings.Unbounded;
 
    type Element is private;
    type List is tagged private;
 
    Empty_List : constant List;
 
+   type Encoding is (None, Base64);
+
+   type Attachment_Kind is (File, Content, Alternative);
+   --  File        : for a file attachment
+   --  Content     : for an in-memory content
+   --  Alternative : for a set of alternative content
+
    procedure Add
      (Attachments : in out List;
       Filename    : in     String;
-      Content_Id  : in     String);
+      Content_Id  : in     String;
+      Encode      : in     Encoding := None);
    --  Adds an Attachment to the list. The header of the Attachment is
    --  generated.
 
    procedure Add
      (Attachments : in out List;
       Filename    : in     String;
-      Headers     : in     AWS.Headers.List);
+      Headers     : in     AWS.Headers.List;
+      Encode      : in     Encoding := None);
    --  Adds an Attachment to the list
+
+   procedure Add_Base64
+     (Attachments : in out List;
+      Name        : in     String;
+      Content     : in     String);
+   --  Adds a base64 encoded content. Name is used as the Filename of the given
+   --  content.
+
+   procedure Add
+     (Attachments  : in out List;
+      Content      : in     String;
+      Content_Type : in     String);
+   --  Adds a standard content
+
+   --  Alternatives content
+
+   type Alternatives is private;
+
+   procedure Add
+     (Parts        : in out Alternatives;
+      Content      : in     String;
+      Content_Type : in     String);
+   --  Add a simple alternative content
+
+   procedure Add
+     (Attachments : in out List;
+      Parts       : in     Alternatives);
+   --  Add an alternative group to the current attachment list
 
    procedure Reset
      (Attachments  : in out List;
@@ -59,6 +99,7 @@ package AWS.Attachments is
    --  attached files are removed from the file system.
 
    function Count (Attachments : in List) return Natural;
+   pragma Inline (Count);
    --  Returns the number of Attachments in the data
 
    function Get
@@ -81,6 +122,7 @@ package AWS.Attachments is
    --  set to True, Quit is set to False by default.
 
    function Headers (Attachment : in Element) return AWS.Headers.List;
+   pragma Inline (Headers);
    --  Returns the list of header lines for the attachment
 
    function Content_Type (Attachment : in Element) return String;
@@ -94,11 +136,26 @@ package AWS.Attachments is
    --  Local filename is the name the receiver used when extracting the
    --  Attachment into a file.
 
+   function Filename (Attachment : in Element) return String;
+   --  Original filename on the server side. This is generally encoded on the
+   --  content-type or content-disposition header.
+
+   function Kind (Attachment : in Element) return Attachment_Kind;
+   pragma Inline (Kind);
+   --  Returns the kind of the given attachment
+
    function Length
      (Attachments : in List;
       Boundary    : in String) return Natural;
    --  Returns the complete size of all attachments including the surrounding
    --  boundaries.
+
+   procedure Send_MIME_Header
+     (Socket      : in     Net.Socket_Type'Class;
+      Attachments : in     List;
+      Boundary    :    out Unbounded_String;
+      Alternative : in     Boolean := False);
+   --  Output MIME header, returns the boundary for the content
 
    procedure Send
      (Socket      : in AWS.Net.Socket_Type'Class;
@@ -107,16 +164,42 @@ package AWS.Attachments is
    --  Send all Attachments, including the surrounding boundarys, in the list
    --  to the socket.
 
+   type Root_MIME_Kind is (Multipart_Mixed, Multipart_Alternative);
+
+   function Root_MIME (Attachments : in List) return Root_MIME_Kind;
+   --  Returns the root MIME kind for the given attachment list
+
 private
 
-   type Element is record
-      Headers      : AWS.Headers.List;
-      Filename     : Ada.Strings.Unbounded.Unbounded_String;
-      Total_Length : Natural;
+   use Ada;
+
+   type Alternative_Part is record
+      Content_Type : Unbounded_String;
+      Content      : Unbounded_String;
    end record;
 
-   package Attachment_Table is
-     new Ada.Containers.Indefinite_Vectors (Positive, Element);
+   package Alternative_Table is
+     new Containers.Vectors (Positive, Alternative_Part);
+
+   type Element (Kind : Attachment_Kind := File) is record
+      Headers      : AWS.Headers.List;
+      Filename     : Unbounded_String;
+      Total_Length : Natural;
+
+      case Kind is
+         when File =>
+            Encode : Encoding;
+         when Content =>
+            Content  : Unbounded_String;
+            Encoding : Attachments.Encoding;
+         when Alternative =>
+            Parts : Alternative_Table.Vector;
+      end case;
+   end record;
+
+   type Alternatives is new Element (Kind => Alternative);
+
+   package Attachment_Table is new Ada.Containers.Vectors (Positive, Element);
 
    type List is tagged record
       Vector : Attachment_Table.Vector;

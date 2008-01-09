@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2004                            --
---                                ACT-Europe                                --
+--                         Copyright (C) 2004-2008                          --
+--                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -57,7 +57,7 @@ procedure Attachment is
       entry Stop;
    end Server;
 
-   procedure Output (Filename : in String; Content_Type : in String);
+   procedure Output (Filename, Local_Filename, Content_Type : in String);
    --  Output content of filename. Output is base64 encoded if content type is
    --  not textual data.
 
@@ -65,16 +65,17 @@ procedure Attachment is
    -- Output --
    ------------
 
-   procedure Output (Filename : in String; Content_Type : in String) is
+   procedure Output (Filename, Local_Filename, Content_Type : in String) is
       use Ada.Streams;
       File   : Stream_IO.File_Type;
       Buffer : Stream_Element_Array (1 .. 4_048);
       Last   : Stream_Element_Offset;
    begin
-      Stream_IO.Open (File, Stream_IO.In_File, Filename);
+      Stream_IO.Open (File, Stream_IO.In_File, Local_Filename);
       Stream_IO.Read (File, Buffer, Last);
 
-      Text_IO.Put_Line ("File : " & Filename & " " & Content_Type);
+      Text_IO.Put_Line
+        ("File : " & Local_Filename & ", " & Filename & ", " & Content_Type);
 
       if MIME.Is_Text (Content_Type) then
          Text_IO.Put_Line (Translator.To_String (Buffer (1 .. Last)));
@@ -92,15 +93,16 @@ procedure Attachment is
    -----------
 
    function HW_CB (Request : in AWS.Status.Data) return AWS.Response.Data is
-      Att_List : constant AWS.Attachments.List
-        := AWS.Status.Attachments (Request);
+      Att_List : constant AWS.Attachments.List :=
+                   AWS.Status.Attachments (Request);
       Atts     : constant Integer := AWS.Attachments.Count (Att_List);
       Att      : AWS.Attachments.Element;
    begin
       for J in 1 .. Atts loop
          Att := AWS.Attachments.Get (Att_List, J);
 
-         Output (AWS.Attachments.Local_Filename (Att),
+         Output (AWS.Attachments.Filename (Att),
+                 AWS.Attachments.Local_Filename (Att),
                  AWS.Attachments.Content_Type (Att));
       end loop;
 

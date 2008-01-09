@@ -4946,7 +4946,8 @@ In the above example, the message content was given as a string but it
 is possible to specify a disk file. @code{AWS} can also send MIME messages
 either from disk files or with in memory base64 encoded binary
 data. The API provides also a way to send messages to multiple
-recipients at the same time. These features are not described here,
+recipients at the same time and to send messages with alternative
+contents (text and HTML for example). These features are not described here,
 complete documentation can be found on the spec @pxref{AWS.SMTP} and
 @pxref{AWS.SMTP.Client}.
 
