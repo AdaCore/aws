@@ -51,6 +51,24 @@ to work properly. Of course we try to avoid this as much as possible
 but we really prefer to have a clean API instead of keeping awkward
 implementations.
 
+The AWS.Client.Timeout_Values record contains a new field to control
+the connection timeout. Previous definition:
+
+   type Timeouts_Values is record
+      Send    : Duration;
+      Receive : Duration;
+   end record;
+
+New definition:
+
+   type Timeouts_Values is record
+      Connect : Duration;
+      Send    : Duration;
+      Receive : Duration;
+   end record;
+
+Just adds the proper definition for Connect in Timeouts_Values objects.
+
 
 Obsolescent features
 --------------------

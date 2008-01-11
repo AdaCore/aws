@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2004-2006                          --
+--                         Copyright (C) 2004-2008                          --
 --                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -167,7 +167,7 @@ begin
       Host        => URL,
       Server_Push => True,
       Persistent  => True,
-      Timeouts    => (12.0, 12.0));
+      Timeouts    => (1.0, 12.0, 12.0));
 
    Test_Name (Good_Name);
 

@@ -244,6 +244,8 @@ regtests/cm_include.tmplt
 regtests/cmd.gdb
 regtests/compress.adb
 regtests/compress.out
+regtests/connect_timeout.adb
+regtests/connect_timeout.out
 regtests/ctab.adb
 regtests/ctab.out
 regtests/ctable.adb
@@ -1245,6 +1247,9 @@ regtests/test_soap5_sec.out
 regtests/test_soap_hotplug.adb
 regtests/test_soap_hotplug.out
 regtests/test_soap_proc.adb
+regtests/test_soap_timeout.adb
+regtests/test_soap_timeout.out
+regtests/test_soap_timeout.wsdl
 regtests/test_wsdl.adb
 regtests/test_wsdl.out
 regtests/test_wsdl.wsdl

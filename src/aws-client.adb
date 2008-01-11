@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2007                          --
+--                         Copyright (C) 2000-2008                          --
 --                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -121,11 +121,9 @@ package body AWS.Client is
       Connection.Persistent               := Persistent;
       Connection.Streaming                := Server_Push;
       Connection.Certificate              := To_Unbounded_String (Certificate);
+      Connection.Timeouts                 := Timeouts;
 
       Connection.User_Agent := To_Unbounded_String (User_Agent);
-
-      Connection.Read_Timeout  := Timeouts.Receive;
-      Connection.Write_Timeout := Timeouts.Send;
 
       --  If we have set the proxy or standard authentication we must set the
       --  authentication mode to Basic.
@@ -256,12 +254,12 @@ package body AWS.Client is
             end if;
 
          exception
-            when Net.Socket_Error =>
+            when Net.Socket_Error | Connection_Error =>
 
                Disconnect (Connection);
 
                if Try_Count = 0
-                 or else Clock - Stamp >= Connection.Read_Timeout
+                 or else Clock - Stamp >= Connection.Timeouts.Receive
                then
                   Result := Response.Build
                     (MIME.Text_HTML, "Get Timeout", Messages.S408);
@@ -366,7 +364,7 @@ package body AWS.Client is
                Disconnect (Connection);
 
                if Try_Count = 0
-                 or else Clock - Stamp >= Connection.Read_Timeout
+                 or else Clock - Stamp >= Connection.Timeouts.Receive
                then
                   Result := Response.Build
                     (MIME.Text_HTML, "Head Timeout", Messages.S408);
@@ -594,7 +592,7 @@ package body AWS.Client is
                Disconnect (Connection);
 
                if Try_Count = 0
-                 or else Clock - Stamp >= Connection.Read_Timeout
+                 or else Clock - Stamp >= Connection.Timeouts.Receive
                then
                   Result := Response.Build
                     (MIME.Text_HTML, "Put Timeout", Messages.S408);
@@ -771,7 +769,7 @@ package body AWS.Client is
       Delimiter  : in String;
       Wait       : in Boolean := True) return String is
    begin
-      Net.Set_Timeout (Connection.Socket.all, Connection.Read_Timeout);
+      Net.Set_Timeout (Connection.Socket.all, Connection.Timeouts.Receive);
 
       return Translator.To_String
                (Net.Buffered.Read_Until
@@ -1043,12 +1041,12 @@ package body AWS.Client is
 
          exception
 
-            when Net.Socket_Error =>
+            when Net.Socket_Error | Connection_Error =>
 
                Disconnect (Connection);
 
                if Try_Count = 0
-                 or else Clock - Stamp >= Connection.Read_Timeout
+                 or else Clock - Stamp >= Connection.Timeouts.Receive
                then
                   Result := Response.Build
                     (MIME.Text_HTML, "Upload Timeout", Messages.S408);

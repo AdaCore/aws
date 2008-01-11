@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2005                          --
---                               ACT-Europe                                 --
+--                         Copyright (C) 2000-2008                          --
+--                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -205,7 +205,7 @@ begin
    Client.Create
      (Connection => Connect,
       Host       => Base_URL,
-      Timeouts   => (5.0, 5.0));
+      Timeouts   => (1.0, 5.0, 5.0));
 
    Client.Get (Connect, R, Length_Defined_URI);
    Compare_Message;

@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2004                          --
---                                ACT-Europe                                --
+--                         Copyright (C) 2000-2008                          --
+--                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -119,7 +119,7 @@ begin
 
    R := Client.Get
           ("http://localhost:" & Utils.Image (Port) & "/test",
-           Timeouts => (2.0, 2.0));
+           Timeouts => (1.0, 2.0, 2.0));
 
    Server.Stop;
 
