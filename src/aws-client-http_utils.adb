@@ -115,9 +115,9 @@ package body AWS.Client.HTTP_Utils is
 
          declare
             use AWS.URL;
-            Host_Address : constant String
-              := Host (Connection.Host_URL)
-                  & Port_Not_Default (Connection.Host_URL);
+            Host_Address : constant String :=
+                             Host (Connection.Host_URL)
+                             & Port_Not_Default (Connection.Host_URL);
          begin
             Send_Header
               (Sock.all, "CONNECT " & Host_Address & ' ' & HTTP_Version);

@@ -634,7 +634,7 @@ package body AWS.Client is
       procedure Read_Internal
         (Data : out Ada.Streams.Stream_Element_Array;
          Last : out Ada.Streams.Stream_Element_Offset);
-      --  Read the encoded data as is from HTTP connection.
+      --  Read the encoded data as is from HTTP connection
 
       -------------------
       -- Read_Internal --
