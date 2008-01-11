@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2002-2007                          --
+--                         Copyright (C) 2002-2008                          --
 --                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -50,7 +50,7 @@ package body AWS.Jabber is
    -- XML Reader --
    ----------------
 
-   --  SAX overloaded routines to parse the incoming XML stream.
+   --  SAX overloaded routines to parse the incoming XML stream
 
    type Tree_Reader is new Sax.Readers.Reader with record
       R     : Message_Access;
@@ -84,11 +84,11 @@ package body AWS.Jabber is
    ----------------------
 
    procedure Release (Message : in out Message_Access);
-   --  Release all memory associated with the response object.
+   --  Release all memory associated with the response object
 
    function Jabber_ID (ID : in String) return String;
    pragma Inline (Jabber_ID);
-   --  Returns the Jabber ID for ID. It removes the resource if present.
+   --  Returns the Jabber ID for ID. It removes the resource if present
 
    function To_Presence_Status (Show : in String) return Presence_Status;
    --  Returns the Presence_Status from a show message read on a
@@ -101,7 +101,7 @@ package body AWS.Jabber is
 
    procedure Raise_Exception (Message : in String);
    pragma No_Return (Raise_Exception);
-   --  Raise Server_Error exception with Message.
+   --  Raise Server_Error exception with Message
 
    procedure Check_Message (Message : in Message_Access);
    --  Check that Message is ok. If it is an error raise Server_Error with the
@@ -113,7 +113,7 @@ package body AWS.Jabber is
 
    function User_JID (Server : in Jabber.Server) return String;
    pragma Inline (User_JID);
-   --  Returns the JID of the connected user.
+   --  Returns the JID of the connected user
 
    package Key_Value renames Containers.Key_Value;
 
