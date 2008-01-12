@@ -91,7 +91,7 @@ begin
    begin
       Start_Time;
       Resp := Client.Get
-        ("http://www.adacore.com:9264",
+        ("http://www.google.com:9264",
          Timeouts => (5.0, 2.0, 4.0));
       Stop_Time;
       Check_Duration (5.0, "GET");
@@ -104,7 +104,7 @@ begin
    begin
       Start_Time;
       Resp := Client.Post
-        ("http://www.adacore.com:9264", "toto", "text/plain",
+        ("http://www.google.com:9264", "toto", "text/plain",
          Timeouts => (2.0, 2.0, 2.0));
       Stop_Time;
       Check_Duration (2.0, "POST");
