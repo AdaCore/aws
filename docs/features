@@ -1,8 +1,8 @@
 ====================================================
-AWS 2.4 NEW FEATURES LIST Current as of Oct 17, 2007
+AWS 2.4 NEW FEATURES LIST Current as of Jan 11, 2007
 ====================================================
 
-Copyright (c) 2006-2007, AdaCore
+Copyright (c) 2006-2008, AdaCore
 
 This file contains a list of new features introduced in AWS.
 A full description of all AWS features can be found in the AWS
@@ -20,6 +20,12 @@ NF-24-GA09-014 Session in multiple embedded server (2007-10-12)
   AWS now supports sessions for multiple embedded servers into the
   same executable. For this each server can register it's own session
   name. This will be used for the cookie name on the client side.
+
+NF-24-G221-027 Add support for controlling connection timeout (2008-12-11)
+
+  The AWS client API had support for controlling send/receive timeout,
+  it is now also possible to control the timeout of the initial
+  socket connection.
 
 NF-24-G801-013 Support for user defined types in ada2wsdl (2007-08-06)
 

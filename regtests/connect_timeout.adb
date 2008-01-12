@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2003-2008                          --
+--                            Copyright (C) 2008                            --
 --                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -26,90 +26,91 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  Test for user defined stream raising an exception
+--  ~ MAIN [STD]
 
-with Ada.Text_IO;
 with Ada.Exceptions;
-with Ada.Streams;
+with Ada.Text_IO;
+with Ada.Calendar;
 
-with AWS.Server;
 with AWS.Client;
-with AWS.Status;
-with AWS.MIME;
+with AWS.Net;
 with AWS.Response;
-with AWS.Messages;
 
-with AWS.Resources.Streams;
-
-with Error_Strm;
-
-procedure Strm2 is
+procedure Connect_Timeout is
 
    use Ada;
-   use Ada.Text_IO;
+   use Ada.Exceptions;
    use AWS;
 
-   function CB (Request : in Status.Data) return Response.Data;
+   procedure Start_Time;
+   --  Record starting time
 
-   task Server is
-      entry Wait_Start;
-      entry Stop;
-   end Server;
+   procedure Stop_Time;
+   --  Record ending time
 
-   HTTP    : AWS.Server.HTTP;
-   Connect : Client.HTTP_Connection;
-   R       : Response.Data;
+   procedure Check_Duration (D : in Duration; Message : in String);
+   --  Check that duration is about D seconds
 
-   --------
-   -- CB --
-   --------
+   Resp        : Response.Data;
+   Start, Stop : Calendar.Time;
 
-   function CB (Request : in Status.Data) return Response.Data is
-      File : AWS.Resources.Streams.Stream_Access := new Error_Strm.File_Tagged;
+   --------------------
+   -- Check_Duration --
+   --------------------
+
+   procedure Check_Duration (D : in Duration; Message : in String) is
+      use type Calendar.Time;
+      Elaps : constant Duration := Stop - Start - D;
    begin
-      if Status.URI (Request) = "/toto" then
-         return AWS.Response.Stream ("text/plain", File);
+      if abs (Elaps) < 0.2 then
+         Text_IO.Put_Line ("OK:" & Message);
       else
-         return AWS.Response.Build
-           ("text/plain", "Unknown resource", Messages.S404);
+         Text_IO.Put_Line ("NOK:" & Message & ", " & Duration'Image (Elaps));
       end if;
-   end CB;
+   end Check_Duration;
 
-   ------------
-   -- Server --
-   ------------
+   ----------------
+   -- Start_Time --
+   ----------------
 
-   task body Server is
+   procedure Start_Time is
    begin
-      AWS.Server.Start
-        (HTTP, "Testing user defined stream.",
-         CB'Unrestricted_Access, Port => 1250, Max_Connection => 3);
+      Start := Calendar.Clock;
+   end Start_Time;
 
-      accept Wait_Start;
-      accept Stop;
-   exception
-      when E : others =>
-         Put_Line ("Server Error " & Exceptions.Exception_Information (E));
-   end Server;
+   ---------------
+   -- Stop_Time --
+   ---------------
+
+   procedure Stop_Time is
+   begin
+      Stop := Calendar.Clock;
+   end Stop_Time;
 
 begin
-   Server.Wait_Start;
+   begin
+      Start_Time;
+      Resp := Client.Get
+        ("http://www.adacore.com:9264",
+         Timeouts => (5.0, 2.0, 4.0));
+      Stop_Time;
+      Check_Duration (5.0, "GET");
+      Text_IO.Put_Line (Response.Message_Body (Resp));
+   exception
+      when E : others =>
+         Text_IO.Put_Line (Exception_Message (E));
+   end;
 
-   Client.Create
-     (Connection => Connect,
-      Host       => "http://localhost:1250",
-      Timeouts   => (1.0, 5.0, 5.0));
-
-   Client.Get (Connect, R, "/toto");
-
-   Client.Close (Connect);
-
-   Text_IO.Put_Line ("> " & Response.Message_Body (R));
-
-   Server.Stop;
-
-exception
-   when E : others =>
-      Put_Line ("Main Error " & Exceptions.Exception_Information (E));
-      Server.Stop;
-end Strm2;
+   begin
+      Start_Time;
+      Resp := Client.Post
+        ("http://www.adacore.com:9264", "toto", "text/plain",
+         Timeouts => (2.0, 2.0, 2.0));
+      Stop_Time;
+      Check_Duration (2.0, "POST");
+      Text_IO.Put_Line (Response.Message_Body (Resp));
+   exception
+      when E : others =>
+         Text_IO.Put_Line (Exception_Message (E));
+   end;
+end Connect_Timeout;

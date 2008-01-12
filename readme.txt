@@ -4,7 +4,7 @@
 
 Authors:
    Dmitriy Anisimkov
-   Pascal Obry                                              November 8th, 2007
+   Pascal Obry                                             Jannuary 11th, 2007
 
 
 
@@ -119,6 +119,25 @@ implementations.
      point type to match. There is no such problem for SOAP applications
      using ada2wsdl and wsdl2aws as those tools are now using the proper
      mapping.
+
+
+   - The AWS.Client.Timeout_Values record contains a new field to control
+     the connection timeout. Previous definition:
+
+      type Timeouts_Values is record
+         Send    : Duration;
+         Receive : Duration;
+      end record;
+
+      New definition:
+
+      type Timeouts_Values is record
+         Connect : Duration;
+         Send    : Duration;
+         Receive : Duration;
+      end record;
+
+     Just adds the proper definition for Connect in Timeouts_Values objects.
 
 
 Obsolescent features

@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2003-2007                          --
+--                         Copyright (C) 2003-2008                          --
 --                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -340,6 +340,7 @@ package body Stub is
 
       L_Proc : constant String := Format_Name (O, Proc);
 
+      use type AWS.Client.Timeouts_Values;
       use type WSDL.Parameters.Kind;
       use type WSDL.Parameter_Type;
       use type Name_Space.Object;
@@ -413,11 +414,16 @@ package body Stub is
       Text_IO.Put_Line
         (Stub_Adb,
          "           := SOAP.Client.Call");
-      Text_IO.Put
+
+      Text_IO.Put_Line
         (Stub_Adb,
-         "                (Endpoint, Payload, """ & SOAPAction & """");
+         "                (Endpoint, Payload, """ & SOAPAction & """,");
 
       --  Check if we need to generate proxy authentication
+
+      Text_IO.Put
+        (Stub_Adb,
+         "                 Timeouts   => Timeouts");
 
       if O.Proxy = SOAP.Client.Not_Specified then
          Text_IO.Put_Line (Stub_Adb, ");");

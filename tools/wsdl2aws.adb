@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                          Copyright (C) 2003-2004                         --
---                                ACT-Europe                                --
+--                          Copyright (C) 2003-2008                         --
+--                                  AdaCore                                 --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
 --                                                                          --
@@ -37,6 +37,7 @@ with Ada.Text_IO;
 with GNAT.Command_Line;
 with GNAT.Directory_Operations;
 with GNAT.OS_Lib;
+with GNAT.String_Split;
 
 with AWS.Client;
 with AWS.Response;
@@ -171,7 +172,7 @@ procedure WSDL2AWS is
       loop
          case Command_Line.Getopt
            ("d q a e: f v s o: proxy: pu: pp: doc wsdl cvs nostub noskel "
-            & "x: cb types: spec: main:")
+            & "x: cb types: spec: main: timeouts:")
          is
             when ASCII.NUL => exit;
 
@@ -274,6 +275,33 @@ procedure WSDL2AWS is
                if Command_Line.Full_Switch = "types" then
                   SOAP.Generator.Types_From (Gen, GNAT.Command_Line.Parameter);
                   Types := True;
+
+               elsif Command_Line.Full_Switch = "timeouts" then
+                  declare
+                     use String_Split;
+                     Timeouts : constant String := GNAT.Command_Line.Parameter;
+                     Slices   : String_Split.Slice_Set;
+                  begin
+                     String_Split.Create (Slices, Timeouts, ",");
+
+                     case String_Split.Slice_Count (Slices) is
+                        when 1 =>
+                           SOAP.Generator.Set_Timeouts
+                             (Gen,
+                              (Connect => Duration'Value (Slice (Slices, 1)),
+                               Send    => Duration'Value (Slice (Slices, 1)),
+                               Receive => Duration'Value (Slice (Slices, 1))));
+                        when 3 =>
+                           SOAP.Generator.Set_Timeouts
+                             (Gen,
+                              (Connect => Duration'Value (Slice (Slices, 1)),
+                               Send    => Duration'Value (Slice (Slices, 2)),
+                               Receive => Duration'Value (Slice (Slices, 3))));
+                        when others =>
+                           raise Syntax_Error
+                             with "wrong number of arguments for timeouts";
+                     end case;
+                  end;
 
                else
                   raise Syntax_Error;
@@ -383,6 +411,7 @@ exception
       Put_Line ("   -proxy addr  Name or IP of the proxy");
       Put_Line ("   -pu name     The proxy user name");
       Put_Line ("   -pp pwd      The proxy password");
+      Put_Line ("   -timeouts    The connect/read/write timeouts");
       New_Line;
       Ada.Command_Line.Set_Exit_Status (Ada.Command_Line.Failure);
 

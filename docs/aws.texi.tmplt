@@ -4761,6 +4761,11 @@ User name for the proxy if proxy authentication required.
 
 @item -pp password
 User password for the proxy if proxy authentication required.
+
+@item -timeouts [timeouts | connect_timeout,send_timeout,receive_timeout ]
+Set the timeouts for the SOAP connection. The timeouts is either a
+single value used for the connect, send and receive timeouts or three
+values separated by a colon to set each timeout independently.
 @end table
 
 @node wsdl2aws behind the scene

@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                          Copyright (C) 2004-2007                         --
+--                          Copyright (C) 2004-2008                         --
 --                                  AdaCore                                 --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -153,7 +153,7 @@ package body Sp_Pck is
          Client.Create
            (Connection  => Connect (J),
             Host        => URL,
-            Timeouts    => (15.0, 15.0),
+            Timeouts    => (5.0, 15.0, 15.0),
             Server_Push => True);
 
          Client.Get (Connect (J), Answer, "/uri?mode="

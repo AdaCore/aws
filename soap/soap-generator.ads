@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                          Copyright (C) 2003-2007                         --
+--                          Copyright (C) 2003-2008                         --
 --                                  AdaCore                                 --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -28,13 +28,17 @@
 
 with Ada.Strings.Unbounded;
 
+with AWS.Client;
+
 with SOAP.Name_Space;
 with SOAP.WSDL.Parser;
 with SOAP.WSDL.Parameters;
 
 package SOAP.Generator is
 
-   Version : constant String := "2.1.0";
+   use AWS;
+
+   Version : constant String := "2.2.0";
 
    Generator_Error : exception;
 
@@ -129,6 +133,11 @@ package SOAP.Generator is
    --  Set proxy user and password, needed if behind a firewall with
    --  authentication.
 
+   procedure Set_Timeouts
+     (O        : in out Object;
+      Timeouts : in Client.Timeouts_Values);
+   --  Set the SOAP call timeouts
+
    procedure Debug (O : in out Object);
    --  Activate the debug code generator
 
@@ -157,6 +166,7 @@ private
       P_Pwd      : Unbounded_String;
       Options    : Unbounded_String;
       Endpoint   : Unbounded_String;
+      Timeouts   : Client.Timeouts_Values := Client.No_Timeout;
    end record;
 
 end SOAP.Generator;

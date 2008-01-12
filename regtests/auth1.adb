@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2007                          --
+--                         Copyright (C) 2000-2008                          --
 --                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -158,7 +158,7 @@ begin
    Client.Create
      (Connection => Connect,
       Host       => "http://localhost:" & Utils.Image (Port),
-      Timeouts   => (5.0, 5.0));
+      Timeouts   => (5.0, 5.0, 5.0));
 
    --  Test for basic authentication.
 

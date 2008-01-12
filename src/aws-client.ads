@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2007                          --
+--                         Copyright (C) 2000-2008                          --
 --                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -55,6 +55,7 @@ package AWS.Client is
    --  time fails.
 
    type Timeouts_Values is record
+      Connect : Duration;
       Send    : Duration;
       Receive : Duration;
    end record;
@@ -387,7 +388,8 @@ private
    use Ada.Strings.Unbounded;
    use Ada.Streams;
 
-   No_Timeout : constant Timeouts_Values := (AWS.Net.Forever, AWS.Net.Forever);
+   No_Timeout : constant Timeouts_Values :=
+                  (Net.Forever, Net.Forever, Net.Forever);
    No_Data    : constant String := "";
 
    Undefined_Length : Response.Content_Length_Type
@@ -442,8 +444,7 @@ private
       Cookie        : Unbounded_String;
       Socket        : AWS.Net.Socket_Access;
       Retry         : Natural;
-      Read_Timeout  : Duration;
-      Write_Timeout : Duration;
+      Timeouts      : Timeouts_Values;
       Data_Range    : Content_Range;
       Certificate   : Unbounded_String;
       User_Agent    : Unbounded_String;

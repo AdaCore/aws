@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2006                          --
+--                         Copyright (C) 2000-2008                          --
 --                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -26,10 +26,12 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-with SOAP.Message.XML;
-
+with AWS.Messages;
 with AWS.Response;
 with AWS.URL;
+
+with SOAP.Message.XML;
+with SOAP.Message.Response.Error;
 
 package body SOAP.Client is
 
@@ -108,11 +110,22 @@ package body SOAP.Client is
       P          : in Message.Payload.Object)
       return Message.Response.Object'Class
    is
+      use type AWS.Messages.Status_Code;
       Response : AWS.Response.Data;
    begin
       AWS.Client.SOAP_Post
         (Connection, Response, SOAPAction, SOAP.Message.XML.Image (P), True);
-      return Message.XML.Load_Response (Connection);
+
+      if AWS.Response.Status_Code (Response) in AWS.Messages.Success then
+         return Message.XML.Load_Response (Connection);
+
+      else
+         return Message.Response.Error.Build
+           (Faultcode   => Message.Response.Error.Faultcode
+              (AWS.Messages.Status_Code'Image
+                 (AWS.Response.Status_Code (Response))),
+            Faultstring => AWS.Response.Message_Body (Response));
+      end if;
    end Call;
 
 end SOAP.Client;

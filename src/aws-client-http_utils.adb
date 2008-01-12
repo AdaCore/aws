@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2005-2007                          --
+--                         Copyright (C) 2005-2008                          --
 --                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -91,6 +91,8 @@ package body AWS.Client.HTTP_Utils is
             Connection.SSL_Config);
       end if;
 
+      Net.Set_Timeout (Sock.all, Connection.Timeouts.Connect);
+
       Net.Connect
         (Sock.all,
          AWS.URL.Host (Connect_URL), AWS.URL.Port (Connect_URL));
@@ -109,7 +111,7 @@ package body AWS.Client.HTTP_Utils is
          --  <other headers>
          --  <empty line>
 
-         Net.Set_Timeout (Sock.all, Connection.Write_Timeout);
+         Net.Set_Timeout (Sock.all, Connection.Timeouts.Send);
 
          declare
             use AWS.URL;
@@ -142,7 +144,7 @@ package body AWS.Client.HTTP_Utils is
 
          --  Wait for reply from the proxy, and check status
 
-         Net.Set_Timeout (Sock.all, Connection.Read_Timeout);
+         Net.Set_Timeout (Sock.all, Connection.Timeouts.Receive);
 
          declare
             use type Messages.Status_Code;
@@ -277,7 +279,7 @@ package body AWS.Client.HTTP_Utils is
       end Disconnect;
 
    begin
-      Net.Set_Timeout (Sock, Connection.Read_Timeout);
+      Net.Set_Timeout (Sock, Connection.Timeouts.Receive);
 
       --  Clear the data in the response
 
@@ -527,7 +529,7 @@ package body AWS.Client.HTTP_Utils is
             end if;
 
          exception
-            when Net.Socket_Error =>
+            when Net.Socket_Error | Connection_Error =>
 
                Disconnect (Connection);
 
@@ -579,7 +581,7 @@ package body AWS.Client.HTTP_Utils is
             end if;
 
          exception
-            when Net.Socket_Error =>
+            when Net.Socket_Error | Connection_Error =>
 
                Disconnect (Connection);
 
@@ -670,7 +672,7 @@ package body AWS.Client.HTTP_Utils is
          Sock := Connection.Socket;
       end if;
 
-      Net.Set_Timeout (Sock.all, Connection.Write_Timeout);
+      Net.Set_Timeout (Sock.all, Connection.Timeouts.Send);
 
       --  Header command
 

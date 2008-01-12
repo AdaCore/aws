@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2003-2006                          --
+--                         Copyright (C) 2003-2008                          --
 --                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -633,8 +633,15 @@ package body SOAP.Generator is
 
          Text_IO.Put (File, "Endpoint");
          Text_IO.Put (File, (Max_Len - 8) * ' ');
+         Text_IO.Put_Line
+           (File, " : in String := " & To_String (O.Unit) & ".URL;");
+
+         Put_Indent;
+         Text_IO.Put (File, "Timeouts");
+         Text_IO.Put (File, (Max_Len - 8) * ' ');
          Text_IO.Put
-           (File, " : in String := " & To_String (O.Unit) & ".URL");
+           (File, " : in AWS.Client.Timeouts_Values := "
+            & To_String (O.Unit) & ".Timeouts");
       end if;
 
       if Input /= null or else Mode in Stub_Header then
@@ -2300,6 +2307,17 @@ package body SOAP.Generator is
       O.P_Pwd  := To_Unbounded_String (Password);
    end Set_Proxy;
 
+   ------------------
+   -- Set_Timeouts --
+   ------------------
+
+   procedure Set_Timeouts
+     (O        : in out Object;
+      Timeouts : in Client.Timeouts_Values) is
+   begin
+      O.Timeouts := Timeouts;
+   end Set_Timeouts;
+
    ----------
    -- Skel --
    ----------
@@ -2325,6 +2343,8 @@ package body SOAP.Generator is
       Documentation : in     String;
       Location      : in     String)
    is
+      use type Client.Timeouts_Values;
+
       U_Name : constant String := To_Unit_Name (Format_Name (O, Name));
 
       procedure Create (File : in out Text_IO.File_Type; Filename : in String);
@@ -2358,7 +2378,6 @@ package body SOAP.Generator is
 
       procedure Generate_Main (Filename : in String) is
          use Text_IO;
-         use AWS;
 
          L_Filename        : constant String
            := Characters.Handling.To_Lower (Filename);
@@ -2476,18 +2495,39 @@ package body SOAP.Generator is
          Text_IO.New_Line (Root);
       end if;
 
-      Text_IO.Put_Line (Root, "package " & U_Name & " is");
+      Text_IO.Put_Line (Root, "with AWS.Client;");
+      Text_IO.New_Line (Root);
 
+      Text_IO.Put_Line (Root, "package " & U_Name & " is");
       Text_IO.New_Line (Root);
 
       if O.Endpoint = Null_Unbounded_String then
          Text_IO.Put_Line
            (Root,
-            "   URL : constant String := """ & Location & """;");
+            "   URL      : constant String := """ & Location & """;");
       else
          Text_IO.Put_Line
            (Root,
-            "   URL : constant String := """ & To_String (O.Endpoint) & """;");
+            "   URL      : constant String := """
+            & To_String (O.Endpoint) & """;");
+      end if;
+
+      Text_IO.Put_Line
+        (Root,
+         "   Timeouts : constant AWS.Client.Timeouts_Values :=");
+
+      if O.Timeouts = Client.No_Timeout then
+         Text_IO.Put_Line
+           (Root, "                AWS.Client.No_Timeout;");
+
+      else
+         Text_IO.Put_Line
+           (Root,
+            "     (Connect => "
+            & AWS.Utils.Significant_Image (O.Timeouts.Connect, 3)
+            & ", Send => " & AWS.Utils.Significant_Image (O.Timeouts.Send, 3)
+            & ", Receive => " & AWS.Utils.Significant_Image
+              (O.Timeouts.Receive, 3) & ");");
       end if;
 
       if O.WSDL_File /= Null_Unbounded_String then

@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2003-2008                          --
+--                            Copyright (C) 2008                            --
 --                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -26,90 +26,78 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  Test for user defined stream raising an exception
+--  ~ MAIN [SOAP]
 
-with Ada.Text_IO;
+with Ada.Calendar;
 with Ada.Exceptions;
-with Ada.Streams;
+with Ada.Text_IO;
 
-with AWS.Server;
-with AWS.Client;
-with AWS.Status;
-with AWS.MIME;
-with AWS.Response;
-with AWS.Messages;
+with R_Hello_Timeout_Demo.Client;
+with R_Hello_Timeout_Demo.Server;
 
-with AWS.Resources.Streams;
-
-with Error_Strm;
-
-procedure Strm2 is
+procedure Test_SOAP_Timeout is
 
    use Ada;
-   use Ada.Text_IO;
-   use AWS;
+   use Ada.Exceptions;
 
-   function CB (Request : in Status.Data) return Response.Data;
+   procedure Start_Time;
+   --  Record starting time
 
-   task Server is
-      entry Wait_Start;
-      entry Stop;
-   end Server;
+   procedure Stop_Time;
+   --  Record ending time
 
-   HTTP    : AWS.Server.HTTP;
-   Connect : Client.HTTP_Connection;
-   R       : Response.Data;
+   procedure Check_Duration (D : in Duration; Message : in String);
+   --  Check that duration is about D seconds
 
-   --------
-   -- CB --
-   --------
+   Start, Stop : Calendar.Time;
 
-   function CB (Request : in Status.Data) return Response.Data is
-      File : AWS.Resources.Streams.Stream_Access := new Error_Strm.File_Tagged;
+   --------------------
+   -- Check_Duration --
+   --------------------
+
+   procedure Check_Duration (D : in Duration; Message : in String) is
+      use type Calendar.Time;
+      Elaps : constant Duration := Stop - Start - D;
    begin
-      if Status.URI (Request) = "/toto" then
-         return AWS.Response.Stream ("text/plain", File);
+      if abs (Elaps) < 0.2 then
+         Text_IO.Put_Line ("OK:" & Message);
       else
-         return AWS.Response.Build
-           ("text/plain", "Unknown resource", Messages.S404);
+         Text_IO.Put_Line ("NOK:" & Message & ", " & Duration'Image (Elaps));
       end if;
-   end CB;
+   end Check_Duration;
 
-   ------------
-   -- Server --
-   ------------
+   ----------------
+   -- Start_Time --
+   ----------------
 
-   task body Server is
+   procedure Start_Time is
    begin
-      AWS.Server.Start
-        (HTTP, "Testing user defined stream.",
-         CB'Unrestricted_Access, Port => 1250, Max_Connection => 3);
+      Start := Calendar.Clock;
+   end Start_Time;
 
-      accept Wait_Start;
-      accept Stop;
-   exception
-      when E : others =>
-         Put_Line ("Server Error " & Exceptions.Exception_Information (E));
-   end Server;
+   ---------------
+   -- Stop_Time --
+   ---------------
+
+   procedure Stop_Time is
+   begin
+      Stop := Calendar.Clock;
+   end Stop_Time;
 
 begin
-   Server.Wait_Start;
-
-   Client.Create
-     (Connection => Connect,
-      Host       => "http://localhost:1250",
-      Timeouts   => (1.0, 5.0, 5.0));
-
-   Client.Get (Connect, R, "/toto");
-
-   Client.Close (Connect);
-
-   Text_IO.Put_Line ("> " & Response.Message_Body (R));
-
-   Server.Stop;
-
+   Start_Time;
+   declare
+      R : constant String := R_Hello_Timeout_Demo.Client.sayHello
+        ("pascal",
+         Endpoint => "http://www.adacore.com:9856",
+         Timeouts => (4.0, 2.0, 1.0));
+   begin
+      Text_IO.Put_Line ("Result: '" & R & ''');
+   end;
 exception
    when E : others =>
-      Put_Line ("Main Error " & Exceptions.Exception_Information (E));
-      Server.Stop;
-end Strm2;
+      Stop_Time;
+      Check_Duration (4.0, "SOAP");
+      Text_IO.Put_Line ("Exception: " & Exception_Name (E));
+      Text_IO.Put_Line ("Exception: " & Exception_Message (E));
+end Test_SOAP_Timeout;

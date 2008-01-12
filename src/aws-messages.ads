@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2007                          --
+--                         Copyright (C) 2000-2008                          --
 --                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -141,6 +141,12 @@ package AWS.Messages is
       --  5xx : Server Error - The server failed to fulfill an apparently
       --  valid request
       );
+
+   subtype Informational is Status_Code range S100 .. S101;
+   subtype Success       is Status_Code range S200 .. S206;
+   subtype Redirection   is Status_Code range S300 .. S307;
+   subtype Client_Error  is Status_Code range S400 .. S417;
+   subtype Server_Error  is Status_Code range S500 .. S505;
 
    function Image (S : in Status_Code) return String;
    --  Returns Status_Code image. This value does not contain the leading S.

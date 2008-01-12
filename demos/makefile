@@ -32,7 +32,7 @@ build_res:
 
 build_wsdl:
 	echo Generate stub/skel from WSDL documents
-	$(WSDL2AWS) -q -f -doc hello.wsdl
+	$(WSDL2AWS) -q -f -doc -timeouts 1,2,2 hello.wsdl
 	$(WSDL2AWS) -q -f -doc -noskel interoplab_main.wsdl
 
 force:
