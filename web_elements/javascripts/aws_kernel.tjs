@@ -1,7 +1,7 @@
 @@----------------------------------------------------------------------------
 @@--                              Ada Web Server
 @@--
-@@--                            Copyright (C) 2007
+@@--                         Copyright (C) 2007-2008
 @@--                                 AdaCore
 @@--
 @@--  This library is free software; you can redistribute it and/or modify
@@ -462,6 +462,8 @@ AWS.Ajax.XML = new function() {
       if ($(placeholder_id).tagName == "TEXTAREA" ||
          $(placeholder_id).tagName == "INPUT") {
          $(placeholder_id).value = "";
+      } else if ( $(placeholder_id).tagName == "IFRAME") {
+         window.frames[placeholder_id].document.body.innerHTML="";
       } else {
          $(placeholder_id).innerHTML = "";
       }
