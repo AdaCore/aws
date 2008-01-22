@@ -40,7 +40,11 @@ else
 ifeq ($(UNAME), Darwin)
 SOEXT   = .dylib
 else
+ifeq ($(UNAME), HP-UX)
+SOEXT	= .sl
+else
 SOEXT	= .so
+endif
 endif
 EXEEXT	=
 endif
