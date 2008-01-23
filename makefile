@@ -400,6 +400,12 @@ endif
 	echo '   type SOCKET_Type is ("std", "openssl", "gnutls");' \
 	  >> $(CONFGPR)
 	echo '   SOCKET : SOCKET_Type := "$(SOCKET)";' >> $(CONFGPR)
+	echo >> $(CONFGPR)
+ifeq ($(SHARED), true)
+	echo '   Default_Library_Type := "relocatable";' >> $(CONFGPR)
+else
+	echo '   Default_Library_Type := "static";' >> $(CONFGPR)
+endif
 	echo 'end AWS_Config;' >> $(CONFGPR)
 	echo 'pragma Source_File_Name' >> $(CONFADC)
 	echo '  (SSL.Thin, Spec_File_Name => "ssl-thin__$(SSL_SUFFIX).ads");' \
