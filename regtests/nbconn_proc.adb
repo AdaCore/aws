@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2004-2007                          --
+--                         Copyright (C) 2004-2008                          --
 --                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -26,18 +26,23 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  Common code for test non blocking connection.
+--  Common code for test non blocking connection
 
 with Ada.Exceptions;
 with Ada.Streams;
 with Ada.Text_IO;
+
+with GNAT.OS_Lib;
+
 with AWS.Net.Buffered;
 with AWS.Net.SSL;
 with Get_Free_Port;
 
 procedure NBConn_Proc (Security : in Boolean) is
 
+   use Ada.Exceptions;
    use Ada.Text_IO;
+   use GNAT.OS_Lib;
    use AWS;
 
    Queue_Size : constant := 5;
@@ -129,7 +134,16 @@ begin
             Net.SSL.Do_Handshake (Net.SSL.Socket_Type (Clients (J).all));
          end if;
 
-         Net.Send (Clients (J).all, Sample);
+         begin
+            Net.Send (Clients (J).all, Sample);
+         exception
+            when E : others =>
+               Put_Line ("Error sending data " & Exception_Message (E));
+               --  If we get there, there is something really wrong and
+               --  the server will wait on Accept_Socket. So we do an
+               --  hard exit.
+               OS_Exit (1);
+         end;
       end;
    end loop;
 
@@ -144,7 +158,7 @@ begin
 
 exception
    when E : others =>
-      Put_Line ("Main task " & Ada.Exceptions.Exception_Information (E));
+      Put_Line ("Main task " & Exception_Information (E));
 
       select
         Server_Task.Done;
