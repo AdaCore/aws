@@ -386,8 +386,8 @@ endif
 setup_config:
 	echo 'project AWS_Config is' > $(CONFGPR)
 	echo '   for Source_Dirs use ();' >> $(CONFGPR)
-	echo '   type SOCKLIB_Type is ("GNAT", "IPv6");' \
-		>> $(CONFGPR)
+	echo >> $(CONFGPR)
+	echo '   type SOCKLIB_Type is ("GNAT", "IPv6");' >> $(CONFGPR)
 	echo 'pragma Source_File_Name' > $(CONFADC)
 	echo -n '  (AWS.Net.Std, Body_File_Name => ' >> $(CONFADC)
 ifeq ($(IPv6), true)
@@ -397,6 +397,7 @@ else
 	echo '   SOCKLIB : SOCKLIB_Type := "GNAT";' >> $(CONFGPR)
 	echo '"aws-net-std__gnat.adb");' >> $(CONFADC)
 endif
+	echo >> $(CONFGPR)
 	echo '   type SOCKET_Type is ("std", "openssl", "gnutls");' \
 	  >> $(CONFGPR)
 	echo '   SOCKET : SOCKET_Type := "$(SOCKET)";' >> $(CONFGPR)
