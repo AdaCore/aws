@@ -26,6 +26,7 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
+with Ada.Characters.Handling;
 with Ada.Strings.Fixed;
 
 with AWS.Resources.Streams.ZLib;
@@ -269,11 +270,17 @@ package body AWS.Response.Set is
               (RSM.ZLib.Stream_Type (D.Stream.all), Header => Header);
 
             --  Set the Content-Encoding header value for server's response
+            --
+            --  Looks like IE in the Windows Mobile 5.0 do not understand
+            --  content coding in the upper case. Bug found in the
+            --  User-Agent:
+            --  Mozilla/4.0 (compatible; MSIE 4.01; Windows CE; PPC; 240x320)
 
             Update_Header
               (D,
                Messages.Content_Encoding_Token,
-               Messages.Content_Encoding'Image (Encoding));
+               Ada.Characters.Handling.To_Lower
+                 (Messages.Content_Encoding'Image (Encoding)));
 
          else
             RSM.ZLib.Inflate_Initialize
@@ -463,7 +470,8 @@ package body AWS.Response.Set is
          Update_Header
            (D,
             Messages.Content_Encoding_Token,
-            Messages.Content_Encoding'Image (Encoding));
+            Ada.Characters.Handling.To_Lower
+              (Messages.Content_Encoding'Image (Encoding)));
 
       elsif D.Header.Get (Messages.Content_Encoding_Token) /= "" then
          raise Constraint_Error
