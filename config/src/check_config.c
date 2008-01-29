@@ -121,6 +121,7 @@ main (int argc, char *argv[])
   const char *i_conv      = "Stdcall";
   const int s_fd_type     = sizeof (int) * 8;
   const int s_events_type = sizeof (short) * 8;
+  const int s_socklen_t   = sizeof (size_t) * 8;
   const int v_POLLIN      = 1;
   const int v_POLLPRI     = 2;
   const int v_POLLOUT     = 4;
@@ -132,6 +133,7 @@ main (int argc, char *argv[])
   const struct pollfd v_pollfd;
   const int s_fd_type     = sizeof (v_pollfd.fd) * 8;
   const int s_events_type = sizeof (v_pollfd.events) * 8;
+  const int s_socklen_t   = sizeof (socklen_t) * 8;
   const int v_POLLIN      = POLLIN;
   const int v_POLLPRI     = POLLPRI;
   const int v_POLLOUT     = POLLOUT;
@@ -237,6 +239,11 @@ main (int argc, char *argv[])
   P ("   type Events_Type is mod 2 ** %d;\n", s_events_type);
   P ("   for Events_Type'Size use %d;\n\n", s_events_type);
 
+  /* socklen_t */
+
+  P ("   type socklen_t is mod 2 ** %d;\n", s_socklen_t);
+  P ("   for socklen_t'Size use %d;\n\n", s_socklen_t);
+
   /* Addr_Info */
 
   if (ai_flags_offset > 0
@@ -257,16 +264,12 @@ main (int argc, char *argv[])
   P ("      ai_family    : C.int;\n");
   P ("      ai_socktype  : C.int;\n");
   P ("      ai_protocol  : C.int;\n");
-  P ("      ai_addrlen   : C.size_t;\n");
+  P ("      ai_addrlen   : socklen_t;\n");
 
   if (ai_canonname_offset < ai_addr_offset) {
-    //  Linux fields order
-
     P ("      ai_canonname : C.Strings.chars_ptr;\n");
     P ("      ai_addr      : System.Address;\n");
   } else {
-    //  Win32, FreeBSD, Solaris fields order
-
     P ("      ai_addr      : System.Address;\n");
     P ("      ai_canonname : C.Strings.chars_ptr;\n");
   }
