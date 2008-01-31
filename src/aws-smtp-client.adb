@@ -52,7 +52,7 @@ package body AWS.SMTP.Client is
    procedure Close
      (Sock   : in out Net.Socket_Access;
       Status : in out SMTP.Status);
-   --  Close session with the SMTP server.
+   --  Close session with the SMTP server
 
    procedure Output_Header
      (Sock     : in     Net.Socket_Type'Class;
@@ -171,7 +171,7 @@ package body AWS.SMTP.Client is
       Is_MIME  : in     Boolean := False)
    is
       function Current_Date return String;
-      --  Returns current date and time for SMTP "Date:" field.
+      --  Returns current date and time for SMTP "Date:" field
 
       ------------------
       -- Current_Date --
@@ -242,7 +242,7 @@ package body AWS.SMTP.Client is
                end if;
 
             else
-               --  Not possible to send mail header data.
+               --  Not possible to send mail header data
                Add (Answer, Status);
             end if;
          end if;
