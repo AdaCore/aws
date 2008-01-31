@@ -39,6 +39,8 @@ New features are described into the file docs/features.
 
 Listed below are some minor enhancements and fixes:
 
+   - SMTP date header now properly includes the UTC offset.
+
    - Plus many small fixes, enhancements, API comments, and documentation work.
 
 
