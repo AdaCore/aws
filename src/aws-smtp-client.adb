@@ -40,6 +40,7 @@ with AWS.Net.Buffered;
 with AWS.SMTP.Authentication;
 pragma Warnings (Off, AWS.SMTP.Authentication);
 --  Work around a visibility problem
+with AWS.Utils;
 
 package body AWS.SMTP.Client is
 
@@ -178,10 +179,17 @@ package body AWS.SMTP.Client is
       ------------------
 
       function Current_Date return String is
+         TZ : constant String := Utils.Time_Zone;
       begin
-         --  Format is: Mon, 1 Jan 2002 12:00:00
-         return GNAT.Calendar.Time_IO.Image
-           (Calendar.Clock, "%a, %-d %b %Y %T");
+         --  Format is: Mon, 1 Jan 2002 12:00:00 (+/-)HHMM
+
+         if TZ = "" then
+            return GNAT.Calendar.Time_IO.Image
+              (Calendar.Clock, "%a, %-d %b %Y %T");
+         else
+            return GNAT.Calendar.Time_IO.Image
+              (Calendar.Clock, "%a, %-d %b %Y %T ") & TZ;
+         end if;
       end Current_Date;
 
       Answer : Server_Reply;

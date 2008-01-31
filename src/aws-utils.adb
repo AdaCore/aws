@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2007                          --
+--                         Copyright (C) 2000-2008                          --
 --                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -949,6 +949,52 @@ package body AWS.Utils is
            Duration'Image (Item) & Integer'Image (N);
       end if;
    end Significant_Image;
+
+   ---------------
+   -- Time_Zone --
+   ---------------
+
+   function Time_Zone return String is
+
+      subtype String2 is String (1 .. 2);
+
+      function Image2 (N : in Natural) return String2;
+      --  Returns N's image padded with a leading 0 if needed
+      --
+      ------------
+      -- Image2 --
+      ------------
+
+      function Image2 (N : in Natural) return String2 is
+         Ni : constant String := Image (N);
+      begin
+         if Ni'Length = 2 then
+            return Ni;
+         else
+            return '0' & Ni;
+         end if;
+      end Image2;
+
+      use type Calendar.Time_Zones.Time_Offset;
+      TZ   : constant Calendar.Time_Zones.Time_Offset :=
+               Calendar.Time_Zones.UTC_Time_Offset;
+      ATZ  : constant Calendar.Time_Zones.Time_Offset := abs TZ;
+      H, M : Natural;
+   begin
+      if TZ = 0 then
+         return "";
+
+      else
+         H := Natural (ATZ) / 60;
+         M := Natural (ATZ) rem 60;
+
+         if TZ >= 0 then
+            return "+" & Image2 (H) & Image2 (M);
+         else
+            return "-" & Image2 (H) & Image2 (M);
+         end if;
+      end if;
+   end Time_Zone;
 
 begin
    Integer_Random.Reset (Random_Generator);

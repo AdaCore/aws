@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2007                          --
+--                         Copyright (C) 2000-2008                          --
 --                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -282,6 +282,11 @@ package AWS.Utils is
 
    function GMT_Clock return Calendar.Time;
    --  Returns current UTC/GMT time
+
+   function Time_Zone return String;
+   --  Returns the current offset between the GMT time and the local time-zone.
+   --  The format used is (+|-)HHMM as described into RFC 822. If offset is
+   --  zero it returns the empty string.
 
    -----------------------
    -- File compresssion --
