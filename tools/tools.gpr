@@ -37,7 +37,8 @@ project Tools is
 
    for Source_Dirs use (".", "../templates_parser/tools");
 
-   for Main use ("awsres", "hotplug_password", "templates2ada", "webxref");
+   for Main use ("awsres", "hotplug_password", "templates2ada", "webxref",
+                 "templatespp");
 
    case Shared.XMLAda is
       when "Installed" =>

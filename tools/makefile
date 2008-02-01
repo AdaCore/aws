@@ -60,6 +60,7 @@ install:
 	-$(CP) ../$(BDIR)/tools/awsres${EXEEXT} $(I_BIN)
 	-$(CP) ../$(BDIR)/tools/hotplug_password${EXEEXT} $(I_BIN)
 	-$(CP) ../$(BDIR)/tools/templates2ada${EXEEXT} $(I_BIN)
+	-$(CP) ../$(BDIR)/tools/templatespp${EXEEXT} $(I_BIN)
 	-$(CP) ../$(BDIR)/tools/webxref${EXEEXT} $(I_BIN)
 ifeq ($(XMLADA),true)
 	$(CP) ../$(BDIR)/tools/wsdl2aws${EXEEXT} $(I_BIN)

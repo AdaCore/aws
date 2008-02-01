@@ -1070,6 +1070,7 @@ templates_parser/templates_parser.gpr
 templates_parser/tools/all_urls.thtml
 templates_parser/tools/templates.tads
 templates_parser/tools/templates2ada.adb
+templates_parser/tools/templatespp.adb
 templates_parser/tp_xmlada.gpr
 tools/awsres.adb
 tools/hotplug_password.adb
