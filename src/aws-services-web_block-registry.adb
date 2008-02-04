@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2007                            --
+--                         Copyright (C) 2007-2008                          --
 --                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -228,11 +228,36 @@ package body AWS.Services.Web_Block.Registry is
 
       else
          --  Context already recorded, just retrieve it
-         CID := (Id => Context.Value
-                   (Parameters.Get
-                      (Status.Parameters (Request.all),
-                       Internal_Context_Var)),
-                 Is_New => False);
+
+         if Parameters.Get (Status.Parameters (Request.all), Context_Var)
+           = Parameters.Get
+               (Status.Parameters (Request.all), Internal_Context_Var)
+         then
+            --  Internal context object and context stored into the session are
+            --  identical, this is an old known context object.
+
+            CID := (Id     => Context.Value
+                    (Parameters.Get
+                       (Status.Parameters
+                          (Request.all), Internal_Context_Var)),
+                    Is_New => False);
+         else
+            --  In this case the context variable in the Web page has not been
+            --  yet evaluated. This means that no page have been rendered with
+            --  this context. In this case it means that we really have a new
+            --  context. This case arise when an end-user get the context
+            --  directly in a callback using Get_Context public routine. The
+            --  Internal_Context_Var is set to the new context value but
+            --  Context_Var still has some old context found into the page. The
+            --  only point where Context_Var is set is into Value callback
+            --  below.
+
+            CID := (Id     => Context.Value
+                    (Parameters.Get
+                       (Status.Parameters
+                          (Request.all), Internal_Context_Var)),
+                    Is_New => True);
+         end if;
       end if;
 
       return CID;
