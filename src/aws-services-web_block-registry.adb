@@ -57,7 +57,7 @@ package body AWS.Services.Web_Block.Registry is
    type Web_Object (Callback_Template : Boolean := False) is record
       Content_Type     : Unbounded_String;
       Context_Required : Boolean;
-      Data_CB      : access procedure
+      Data_CB          : access procedure
         (Request      : in Status.Data;
          Context      : access Web_Block.Context.Object;
          Translations : in out Templates.Translate_Set);
@@ -190,8 +190,7 @@ package body AWS.Services.Web_Block.Registry is
             declare
                C_Str : constant String :=
                          Parameters.Get
-                           (Status.Parameters
-                              (Request.all), Context_Var);
+                           (Status.Parameters (Request.all), Context_Var);
             begin
                --  First check that it is a known context (i.e. still a valid
                --  context recorded in the context database).
@@ -286,8 +285,7 @@ package body AWS.Services.Web_Block.Registry is
       -- Get_Matching_Key --
       ----------------------
 
-      function Get_Matching_Key (Search_Key : in String) return String
-      is
+      function Get_Matching_Key (Search_Key : in String) return String is
          use Prefix_URI;
          Cursor : Prefix_URI.Cursor := Prefix_URI.First (Prefix_URI_Vector);
       begin
