@@ -90,9 +90,6 @@ Notes
 You can have a look at docs/TODO file to see what are the topics that we will
 probably implement in future releases.
 
-NOTE: Since we have switched to the .PNG file format we have found that
-Netscape Navigator is not able to display the PNG transparent layer properly!
-
 The OpenSSL libraries (optional) distributed are for Windows only. On UNIX
 you'll have to build the libraries from sources, it is quite easy to do
 so. This has been tested on GNU/Linux without trouble.
@@ -101,6 +98,10 @@ The LDAP binding will use the LDAP dynamic library on Windows. On UNIX you
 need to build and install OpenLDAP.
 
 See documentation for build information.
+
+To edit a project using AWS you need at least GPS 4.3.0 because of a
+restriction in previous version on variable reference for external default
+value.
 
 
 Validation
