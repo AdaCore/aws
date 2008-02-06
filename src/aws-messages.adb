@@ -221,7 +221,8 @@ package body AWS.Messages is
          return Content_Type_Token & HD & Format;
 
       else
-         return Content_Type_Token & HD & Format & "; boundary=" & Boundary;
+         return Content_Type_Token & HD & Format
+           & "; boundary=""" & Boundary & '"';
       end if;
    end Content_Type;
 
