@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2007                          --
+--                         Copyright (C) 2000-2008                          --
 --                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -134,7 +134,7 @@ package body AWS.Messages is
          "Jul", "Aug", "Sep", "Oct", "Nov", "Dec");
 
    HD : constant String := ": ";
-   --  Header delimiter with space for well formatting.
+   --  Header delimiter with space for well formatting
 
    ---------------------
    -- Accept_Language --
@@ -215,8 +215,7 @@ package body AWS.Messages is
 
    function Content_Type
      (Format   : in String;
-      Boundary : in String := "")
-      return String is
+      Boundary : in String := "") return String is
    begin
       if Boundary = "" then
          return Content_Type_Token & HD & Format;
@@ -351,14 +350,14 @@ package body AWS.Messages is
    function To_HTTP_Date (Time : in Calendar.Time) return String is
 
       function Truncation (S : in Calendar.Day_Duration) return Natural;
-      --  returns the integral value of S.
+      --  returns the integral value of S
 
       function Image (V : in Natural) return String;
       --  returns V image without the leading space and with leading zero if
       --  only one digit
 
       function Weekday (Date : in Calendar.Time) return String;
-      --  returns the weekday as a 3 letters string for the Date.
+      --  returns the weekday as a 3 letters string for the Date
 
       -----------
       -- Image --
@@ -447,7 +446,7 @@ package body AWS.Messages is
       function Month_Number
         (Month_Name : in String)
          return Calendar.Month_Number;
-      --  returns the month number given a 3 letter month name.
+      --  returns the month number given a 3 letter month name
 
       F : constant Positive := HTTP_Date'First;
 
