@@ -117,26 +117,11 @@ procedure WSDL2AWS is
          WSDL : constant String := AWS.Response.Message_Body (Response);
          Last : Natural;
       begin
-         --  Look for end of WSDL document, and cut it after the closing
-         --  definition tag. This is to work-around a problem with some
-         --  servers returning a script tag at the end of the file.
-         --
-         --  This is of course a bug in those servers but we don't want to
-         --  crash here.
+         Text_IO.Create (File, Text_IO.Out_File, To_String (Filename));
 
-         Last := Strings.Fixed.Index (WSDL, "</definitions>");
+         Text_IO.Put_Line (File, WSDL (WSDL'First .. Last + 13));
 
-         if Last = 0 then
-            Exceptions.Raise_Exception
-              (Constraint_Error'Identity,
-               "This does not look like a WSDL document");
-         else
-            Text_IO.Create (File, Text_IO.Out_File, To_String (Filename));
-
-            Text_IO.Put_Line (File, WSDL (WSDL'First .. Last + 13));
-
-            Text_IO.Close (File);
-         end if;
+         Text_IO.Close (File);
       end;
 
       --  Returns the filename
