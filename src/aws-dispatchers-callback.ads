@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2007                          --
+--                         Copyright (C) 2000-2008                          --
 --                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -39,9 +39,7 @@ package AWS.Dispatchers.Callback is
    --  function). It will be used to build dispatchers services and for the
    --  main server callback.
 
-   function Create
-     (Callback : in Response.Callback)
-      return Handler;
+   function Create (Callback : in Response.Callback) return Handler;
    pragma Inline (Create);
    --  Build a dispatcher for the specified callback
 

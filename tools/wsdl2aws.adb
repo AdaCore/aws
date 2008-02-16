@@ -86,8 +86,9 @@ procedure WSDL2AWS is
       use Ada;
 
       L_URL    : constant String := To_String (URL);
-      Filename : Unbounded_String
-        := To_Unbounded_String (Directory_Operations.File_Name (L_URL));
+      Filename : Unbounded_String :=
+                   To_Unbounded_String
+                     (Directory_Operations.File_Name (L_URL));
       Response : AWS.Response.Data;
       File     : Text_IO.File_Type;
    begin

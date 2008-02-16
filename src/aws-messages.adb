@@ -445,8 +445,7 @@ package body AWS.Messages is
    function To_Time (HTTP_Date : in String) return Calendar.Time is
 
       function Month_Number
-        (Month_Name : in String)
-         return Calendar.Month_Number;
+        (Month_Name : in String) return Calendar.Month_Number;
       --  returns the month number given a 3 letter month name
 
       F : constant Positive := HTTP_Date'First;
@@ -456,8 +455,7 @@ package body AWS.Messages is
       ------------------
 
       function Month_Number
-        (Month_Name : in String)
-         return Calendar.Month_Number is
+        (Month_Name : in String) return Calendar.Month_Number is
       begin
          for I in Calendar.Month_Number loop
             if Month_Name = Messages.Month_Name (I) then

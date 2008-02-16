@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2007                          --
+--                         Copyright (C) 2000-2008                          --
 --                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -41,8 +41,7 @@ package body AWS.Dispatchers.Callback is
    -- Create --
    ------------
 
-   function Create
-     (Callback : in Response.Callback) return Handler is
+   function Create (Callback : in Response.Callback) return Handler is
    begin
       return (AWS.Dispatchers.Handler with Callback => Callback);
    end Create;
