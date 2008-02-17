@@ -30,7 +30,6 @@
 
 with Ada.Command_Line;
 with Ada.Exceptions;
-with Ada.Strings.Fixed;
 with Ada.Strings.Unbounded;
 with Ada.Text_IO;
 
@@ -113,16 +112,11 @@ procedure WSDL2AWS is
          Proxy_User => To_String (Pu),
          Proxy_Pwd  => To_String (Pp));
 
-      declare
-         WSDL : constant String := AWS.Response.Message_Body (Response);
-         Last : Natural;
-      begin
-         Text_IO.Create (File, Text_IO.Out_File, To_String (Filename));
+      --  Write WSDL
 
-         Text_IO.Put_Line (File, WSDL (WSDL'First .. Last + 13));
-
-         Text_IO.Close (File);
-      end;
+      Text_IO.Create (File, Text_IO.Out_File, To_String (Filename));
+      Text_IO.Put_Line (File, AWS.Response.Message_Body (Response));
+      Text_IO.Close (File);
 
       --  Returns the filename
 
