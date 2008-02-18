@@ -503,7 +503,8 @@ package body AWS.Jabber is
 
          if Start > XML'Last or else Stop > XML'Last then
             --  We have reached the end of the string
-            Start := XML'Last;
+            --  Nothing more to read
+            Start := XML'Last + 1;
             return;
          end if;
 
