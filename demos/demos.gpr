@@ -45,7 +45,7 @@ project Demos is
    Mains_XMLAda := ("soap_client.adb", "soap_server.adb", "soap_svs.adb",
                     "soap_cvs.adb", "wsdl_demo_client.adb",
                     "wsdl_demo_server.adb", "interoplab_main.adb",
-                    "soap_server_disp.adb", "test_jabber.adb");
+                    "soap_server_disp.adb", "jabber_demo.adb");
 
    for Source_Files use
      Mains & ("dispatch_cb.adb", "auth_cb.adb", "text_input_cb.adb",

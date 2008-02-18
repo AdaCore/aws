@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2002                            --
+--                         Copyright (C) 2002-2008                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -33,7 +33,7 @@ with GNAT.Command_Line;
 
 with AWS.Jabber;
 
-procedure Test_Jabber is
+procedure Jabber_Demo is
 
    use Ada;
    use Ada.Strings.Unbounded;
@@ -110,11 +110,21 @@ begin
    end if;
 
    AWS.Jabber.Connect
-     (Server, To_String (Host), To_String (Login), To_String (Pwd));
+     (Server, To_String (Host), To_String (Login),
+      To_String (Pwd), Auth_Type => AWS.Jabber.PLAIN);
 
    for K in 1 .. 2 loop
-      AWS.Jabber.Check_Presence
-        (Server, To_String (User) & '@' & To_String (Host), Status);
+      Check_Presence : declare
+         At_Pos : constant Natural := Index (Source => User, Pattern => "@");
+      begin
+         if 0 < At_Pos and then At_Pos < Length (User) then
+            AWS.Jabber.Check_Presence
+              (Server, To_String (User), Status);
+         else
+            AWS.Jabber.Check_Presence
+              (Server, To_String (User) & "@" & To_String (Host), Status);
+         end if;
+      end Check_Presence;
 
       Text_IO.Put_Line
         ("Status : " & AWS.Jabber.Presence_Status'Image (Status));
@@ -125,4 +135,4 @@ begin
 exception
    when others =>
       Display_Usage;
-end Test_Jabber;
+end Jabber_Demo;
