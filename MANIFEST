@@ -1229,6 +1229,7 @@ regtests/soap_hotplug_pack_service-types.ads
 regtests/soap_hotplug_pack_service.ads
 regtests/tc_soap_names.adb
 regtests/tc_soap_names.ads
+regtests/test_jabber.adb
 regtests/test_sec_soap.adb
 regtests/test_sec_soap.out
 regtests/test_soap.adb
