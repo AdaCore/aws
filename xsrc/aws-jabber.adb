@@ -150,7 +150,7 @@ package body AWS.Jabber is
       Status :    out Presence_Status)
    is
       Message : Message_Access;
-      Try     : Natural := 3;  -- Number of time to wait for server's response
+      Success : Boolean := True;
    begin
       --  Send a presence inquiry message
 
@@ -167,15 +167,14 @@ package body AWS.Jabber is
       Check_Presence_Response : loop
          --  Wait for an incoming response
 
-         while Server.MB.Size = 0 loop
-            delay 0.5;
-            Try := Try - 1;
-
-            exit Check_Presence_Response when Try = 0;
-         end loop;
-
-         Server.Self.MB.Get (Message);
-         Check_Message (Message);
+         select
+            Server.Self.MB.Get (Message);
+            Check_Message (Message);
+         or
+            delay 1.5;
+            Success := False;
+            exit Check_Presence_Response;
+         end select;
 
          exit Check_Presence_Response
            when Jabber_ID (Value (Message, "presence.from")) = JID;
@@ -183,7 +182,7 @@ package body AWS.Jabber is
          Release (Message);
       end loop Check_Presence_Response;
 
-      if Try = 0 then
+      if not Success then
          --  No message have arrived, JID is certainly offline
          Status := Offline;
 
@@ -291,7 +290,13 @@ package body AWS.Jabber is
 
       Net.Buffered.Flush (Server.Sock.all);
 
-      Server.MB.Get (Message);
+      select
+         Server.MB.Get (Message);
+      or
+         delay 1.5;
+         raise Server_Error;
+      end select;
+
       Check_Message (Message);
 
       --  Get Session ID from the stream element, record it. This will be used
@@ -315,7 +320,13 @@ package body AWS.Jabber is
 
       --  Check which kind of authentication is supported
 
-      Server.MB.Get (Message);
+      select
+         Server.MB.Get (Message);
+      or
+         delay 1.5;
+         raise Server_Error;
+      end select;
+
       Check_Message (Message);
 
       if Key_Value.Contains (Message.all, "digest") then
@@ -356,9 +367,14 @@ package body AWS.Jabber is
 
       --  Check that authentication is successful
 
-      Server.MB.Get (Message);
+      select
+         Server.MB.Get (Message);
+      or
+         delay 1.5;
+         raise Server_Error;
+      end select;
+
       Check_Message (Message);
-      Release (Message);
 
       --  Send our presence, as this is an application and not a real user we
       --  send an initial dnd (Do Not Disturb) status.
@@ -372,7 +388,15 @@ package body AWS.Jabber is
 
       Net.Buffered.Flush (Server.Sock.all);
 
-      Server.MB.Get (Message);
+      Release (Message);
+
+      select
+         Server.MB.Get (Message);
+      or
+         delay 1.5;
+         raise Server_Error;
+      end select;
+
       Check_Message (Message);
       Release (Message);
 
@@ -381,7 +405,7 @@ package body AWS.Jabber is
          --  We must close the server properly before leaving this routine if
          --  an exception is raised.
          Close (Server);
-         raise;
+         raise Server_Error;
    end Connect;
 
    ------------
@@ -679,7 +703,13 @@ package body AWS.Jabber is
 
       Net.Buffered.Flush (Server.Sock.all);
 
-      Server.Self.MB.Get (Message);
+      select
+         Server.Self.MB.Get (Message);
+      or
+         delay 1.5;
+         raise Server_Error;
+      end select;
+
       Check_Message (Message);
       Release (Message);
    end Send_Message;
