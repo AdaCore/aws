@@ -249,11 +249,12 @@ package body AWS.Jabber is
    -------------
 
    procedure Connect
-     (Server   : in out Jabber.Server;
-      Host     : in     String;
-      User     : in     String;
-      Password : in     String;
-      Port     : in     Positive := Default_Port)
+     (Server    : in out Jabber.Server;
+      Host      : in     String;
+      User      : in     String;
+      Password  : in     String;
+      Port      : in     Positive := Default_Port;
+      Auth_Type : in     Authentication_Type := More_Secure)
    is
       Message : Message_Access;
    begin
@@ -329,7 +330,9 @@ package body AWS.Jabber is
 
       Check_Message (Message);
 
-      if Key_Value.Contains (Message.all, "digest") then
+      if (Auth_Type = More_Secure or else Auth_Type = Digest)
+        and then Key_Value.Contains (Message.all, "digest")
+      then
          --  Digest authentication supported, this is the prefered method if
          --  supported to avoid sending the password in plain ASCII over the
          --  Internet.
@@ -346,7 +349,9 @@ package body AWS.Jabber is
               & "</query>"
               & "</iq>");
 
-      elsif Key_Value.Contains (Message.all, "password") then
+      elsif (Auth_Type = More_Secure or else Auth_Type = PLAIN)
+        and then Key_Value.Contains (Message.all, "password")
+      then
          --  Plain authentication supported, use this one if digest is not
          --  supported by the server.
 

@@ -47,12 +47,15 @@ package AWS.Jabber is
    --  message is attached to the exception, this correspond to the <error>
    --  XML protocol tag if present.
 
+   type Authentication_Type is (More_Secure, Digest, PLAIN);
+
    procedure Connect
-     (Server   : in out Jabber.Server;
-      Host     : in     String;
-      User     : in     String;
-      Password : in     String;
-      Port     : in     Positive := Default_Port);
+     (Server    : in out Jabber.Server;
+      Host      : in     String;
+      User      : in     String;
+      Password  : in     String;
+      Port      : in     Positive := Default_Port;
+      Auth_Type : in     Authentication_Type := More_Secure);
    --  Connect to a Jabber server Host:Port using User/Password account. It
    --  returns the Server object which can be used with services below.
 
