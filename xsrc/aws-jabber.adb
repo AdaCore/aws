@@ -187,7 +187,14 @@ package body AWS.Jabber is
          Status := Offline;
 
       else
-         Status := To_Presence_Status (Value (Message, "show"));
+
+         if Value (Message, "presence.type") = "error" then
+            --  This is an error message. The JID may be erroneous.
+            --  Return an offline status
+            Status := Offline;
+         else
+            Status := To_Presence_Status (Value (Message, "show"));
+         end if;
 
          Release (Message);
       end if;
