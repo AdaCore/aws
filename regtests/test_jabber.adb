@@ -56,7 +56,7 @@ procedure Test_Jabber is
    Counter   : Natural := 0;
    State     : Natural := 0;
 
-   Server : Jabber.Server;
+   Server    : Jabber.Server;
 
    task type Server_Task;
 
@@ -68,8 +68,9 @@ procedure Test_Jabber is
 
    task body Server_Task is
       use AWS.Containers;
-      Acceptor  : Acceptors.Acceptor_Type;
-      Sock : Socket_Access;
+
+      Acceptor : Acceptors.Acceptor_Type;
+      Sock     : Socket_Access;
 
       procedure Buffered_Put_Line
         (Socket : in Socket_Type'Class; Item : in String);
@@ -259,7 +260,8 @@ procedure Test_Jabber is
             Jabber.Connect (Server, "127.0.0.1", "user", "passwd", Free_Port);
 
             if Counter >= 4 then
-               Jabber.Send_Message (Server, "test@test.com", "subject", "content");
+               Jabber.Send_Message
+                 (Server, "test@test.com", "subject", "content");
             end if;
          exception
             when Jabber.Server_Error =>
@@ -267,6 +269,7 @@ procedure Test_Jabber is
                return;
          end Test_Client_Timeouts;
       end if;
+
       Text_IO.Put_Line ("ERROR !");
    end Run;
 
@@ -275,5 +278,4 @@ begin
       Counter := K;
       Run;
    end loop;
-
 end Test_Jabber;
