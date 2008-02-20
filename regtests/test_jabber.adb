@@ -90,131 +90,132 @@ procedure Test_Jabber is
       end Buffered_Put_Line;
 
    begin
-      loop
-         Acceptors.Listen (Acceptor, "", Free_Port, 11);
-         Acceptors.Get (Acceptor, Sock);
+      Acceptors.Listen (Acceptor, "", Free_Port, 11);
 
-         Set_Timeout (Sock.all, 4.0);
+      accept Started;
 
-         delay 0.5;
+      Acceptors.Get (Acceptor, Sock);
 
-         declare
-            Got_Message : constant String := Buffered.Get_Line (Sock.all);
-         begin
-            if Verbose then
-               Text_IO.New_Line;
-               Text_IO.Put_Line ("Client :: [" & Got_Message & "]");
-            end if;
-         end;
+      Set_Timeout (Sock.all, 4.0);
 
-         Buffered_Put_Line
-           (Sock.all,
-            "<?xml version='1.0'?>"
-              & "<stream:stream"
-              & " from='example.com'"
-              & " id='3EE948B0'"
-              & " xmlns='jabber:client'"
-              & " xmlns:stream='http://etherx.jabber.org/streams'"
-              & " version='1.0'>");
+      delay 0.5;
 
-         Buffered.Flush (Sock.all);
-
-         if Counter = 1 then
-            State := 1;
-            exit;
+      declare
+         Got_Message : constant String := Buffered.Get_Line (Sock.all);
+      begin
+         if Verbose then
+            Text_IO.New_Line;
+            Text_IO.Put_Line ("Client :: [" & Got_Message & "]");
          end if;
+      end;
 
-         delay 0.5;
+      Buffered_Put_Line
+        (Sock.all,
+         "<?xml version='1.0'?>"
+         & "<stream:stream"
+         & " from='example.com'"
+         & " id='3EE948B0'"
+         & " xmlns='jabber:client'"
+         & " xmlns:stream='http://etherx.jabber.org/streams'"
+         & " version='1.0'>");
 
-         declare
-            Got_Message : constant String := Buffered.Get_Line (Sock.all);
-         begin
-            if Verbose then
-               Text_IO.New_Line;
-               Text_IO.Put_Line ("Client :: [" & Got_Message & "]");
-            end if;
-         end;
+      Buffered.Flush (Sock.all);
 
-         Buffered_Put_Line
-           (Sock.all,
-            "<iq type='result' id='ja_auth'>"
-              & " <query xmlns='jabber:iq:auth'>"
-              & " <username/>"
-              & " <password/>"
-              & " <resource/>"
-              & " </query>"
-              & " </iq>");
+      if Counter = 1 then
+         State := 1;
+         goto Shutdown_Task;
+      end if;
 
-         Buffered.Flush (Sock.all);
+      delay 0.5;
 
-         if Counter = 2 then
-            State := 2;
-            exit;
+      declare
+         Got_Message : constant String := Buffered.Get_Line (Sock.all);
+      begin
+         if Verbose then
+            Text_IO.New_Line;
+            Text_IO.Put_Line ("Client :: [" & Got_Message & "]");
          end if;
+      end;
 
-         delay 0.5;
+      Buffered_Put_Line
+        (Sock.all,
+         "<iq type='result' id='ja_auth'>"
+         & " <query xmlns='jabber:iq:auth'>"
+         & " <username/>"
+         & " <password/>"
+         & " <resource/>"
+         & " </query>"
+         & " </iq>");
 
-         declare
-            Got_Message : constant String := Buffered.Get_Line (Sock.all);
-         begin
-            if Verbose then
-               Text_IO.New_Line;
-               Text_IO.Put_Line ("Client :: [" & Got_Message & "]");
-            end if;
-         end;
+      Buffered.Flush (Sock.all);
 
-         Buffered_Put_Line
-           (Sock.all,
-            "<iq type='result' id='ja_sauth'/>");
-         Buffered.Flush (Sock.all);
+      if Counter = 2 then
+         State := 2;
+         goto Shutdown_Task;
+      end if;
 
-         if Counter = 3 then
-            State := 3;
-            exit;
+      delay 0.5;
+
+      declare
+         Got_Message : constant String := Buffered.Get_Line (Sock.all);
+      begin
+         if Verbose then
+            Text_IO.New_Line;
+            Text_IO.Put_Line ("Client :: [" & Got_Message & "]");
          end if;
+      end;
 
-         delay 0.5;
+      Buffered_Put_Line
+        (Sock.all,
+         "<iq type='result' id='ja_sauth'/>");
+      Buffered.Flush (Sock.all);
 
-         declare
-            Got_Message : constant String := Buffered.Get_Line (Sock.all);
-         begin
-            if Verbose then
-               Text_IO.New_Line;
-               Text_IO.Put_Line ("Client :: [" & Got_Message & "]");
-            end if;
-         end;
+      if Counter = 3 then
+         State := 3;
+         goto Shutdown_Task;
+      end if;
 
-         if Counter = 4 then
-            State := 4;
-            exit;
+      delay 0.5;
+
+      declare
+         Got_Message : constant String := Buffered.Get_Line (Sock.all);
+      begin
+         if Verbose then
+            Text_IO.New_Line;
+            Text_IO.Put_Line ("Client :: [" & Got_Message & "]");
          end if;
+      end;
 
-         Buffered_Put_Line
-           (Sock.all,
-            "<presence from='user@192.168.1.4/Resource'>"
-              & "<priority>1</priority></presence>");
-         Buffered.Flush (Sock.all);
+      if Counter = 4 then
+         State := 4;
+         goto Shutdown_Task;
+      end if;
 
-         delay 0.5;
+      Buffered_Put_Line
+        (Sock.all,
+         "<presence from='user@192.168.1.4/Resource'>"
+         & "<priority>1</priority></presence>");
+      Buffered.Flush (Sock.all);
 
-         if Counter = 5 then
-            State := 5;
-            exit;
+      delay 0.5;
+
+      if Counter = 5 then
+         State := 5;
+         goto Shutdown_Task;
+      end if;
+
+      declare
+         Got_Message : constant String := Buffered.Get_Line (Sock.all);
+      begin
+         if Verbose then
+            Text_IO.New_Line;
+            Text_IO.Put_Line ("Message is [" & Got_Message & "]");
          end if;
+      end;
 
-         declare
-            Got_Message : constant String := Buffered.Get_Line (Sock.all);
-         begin
-            if Verbose then
-               Text_IO.New_Line;
-               Text_IO.Put_Line ("Message is [" & Got_Message & "]");
-            end if;
-         end;
+      State := 6;
 
-         State := 6;
-
-         exit;
-      end loop;
+      <<Shutdown_Task>>
 
       delay 3.0; --  Wait for jabber client timeout
 
