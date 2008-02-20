@@ -64,8 +64,7 @@ package AWS.Attachments is
    --  A string as content
 
    type Attachment_Kind is (Data, Alternative);
-   --  File        : for a file attachment
-   --  Content     : for an in-memory content
+   --  Data        : for a standard MIME attachment
    --  Alternative : for a set of alternative content
 
    procedure Add
