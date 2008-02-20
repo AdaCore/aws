@@ -1,0 +1,48 @@
+
+List of RFC documents found in this repository
+----------------------------------------------
+
+RFC-821        SIMPLE MAIL TRANSFER PROTOCOL
+
+RFC-822        STANDARD FOR THE FORMAT OF ARPA INTERNET TEXT MESSAGES
+
+RFC-1521       MIME (Multipurpose Internet Mail Extensions) Part One:
+                   Mechanisms for Specifying and Describing
+                    the Format of Internet Message Bodies
+
+RFC-1738       Uniform Resource Locators (URL)
+
+RFC-1867       Form-based File Upload in HTML
+
+RFC-1939       Post Office Protocol - Version 3
+
+RFC-1945       Hypertext Transfer Protocol -- HTTP/1.0
+
+RFC-2045       Multipurpose Internet Mail Extensions
+                        (MIME) Part One:
+                  Format of Internet Message Bodies
+
+RFC-2049       Multipurpose Internet Mail Extensions
+                        (MIME) Part Five:
+                  Conformance Criteria and Examples
+
+RFC-2109       HTTP State Management Mechanism
+
+RFC-2183       Communicating Presentation Information in
+                         Internet Messages:
+                  The Content-Disposition Header Field
+
+RFC-2195       IMAP/POP AUTHorize Extension for Simple Challenge/Response
+
+RFC-2554       SMTP Service Extension
+                 for Authentication
+
+RFC-2595       Using TLS with IMAP, POP3 and ACAP
+
+RFC-2616       Hypertext Transfer Protocol -- HTTP/1.1
+
+RFC-2617       HTTP Authentication: Basic and Digest Access Authentication
+
+RFC-2817       Upgrading to TLS Within HTTP/1.1
+
+RFC-2818       HTTP Over TLS
