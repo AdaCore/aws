@@ -58,7 +58,9 @@ procedure Test_Jabber is
 
    Server    : Jabber.Server;
 
-   task type Server_Task;
+   task type Server_Task is
+      entry Started;
+   end Server_Task;
 
    procedure Run;
 
@@ -254,9 +256,8 @@ procedure Test_Jabber is
          Test_Client_Timeouts : declare
             Jabber_Server : Server_Task;
          begin
-
-             --  Wait for the server to start
-            delay 0.5;
+            Jabber_Server.Started;
+            --  Wait for the server to start
 
             Jabber.Connect (Server, "127.0.0.1", "user", "passwd", Free_Port);
 
