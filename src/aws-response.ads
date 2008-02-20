@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2005                          --
+--                         Copyright (C) 2000-2008                          --
 --                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -48,11 +48,11 @@ package AWS.Response is
    use Ada;
 
    type Data is private;
-   --  Note that this type use a reference counter which is not thread safe.
+   --  Note that this type use a reference counter which is not thread safe
 
    type Callback is access function (Request : in Status.Data) return Data;
    --  This is the Web Server Callback procedure. A client must declare and
-   --  pass such procedure to the HTTP record.
+   --  pass such procedure to the HTTP server.
 
    type Data_Mode is
      (Header,         -- Send only the HTTP header
@@ -374,7 +374,7 @@ private
 
    type Release_Controller is record
       Counter      : Natural := 1;
-      --  Data object's Reference counter.
+      --  Data object's Reference counter
 
       Stream_Taken : Boolean := False;
       --  Set to True after Create_Resource routine call to not free stream
