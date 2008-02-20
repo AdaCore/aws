@@ -22,6 +22,10 @@ RFC-2045       Multipurpose Internet Mail Extensions
                         (MIME) Part One:
                   Format of Internet Message Bodies
 
+RFC-2046       Multipurpose Internet Mail Extensions
+                        (MIME) Part Two:
+                          Media Types
+
 RFC-2049       Multipurpose Internet Mail Extensions
                         (MIME) Part Five:
                   Conformance Criteria and Examples
@@ -33,6 +37,8 @@ RFC-2183       Communicating Presentation Information in
                   The Content-Disposition Header Field
 
 RFC-2195       IMAP/POP AUTHorize Extension for Simple Challenge/Response
+
+RFC-2387       The MIME Multipart/Related Content-type
 
 RFC-2554       SMTP Service Extension
                  for Authentication
