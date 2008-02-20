@@ -252,6 +252,10 @@ procedure Test_Jabber is
          Test_Client_Timeouts : declare
             Jabber_Server : Server_Task;
          begin
+
+             --  Wait for the server to start
+            delay 0.5;
+
             Jabber.Connect (Server, "127.0.0.1", "user", "passwd", Free_Port);
 
             if Counter >= 4 then
