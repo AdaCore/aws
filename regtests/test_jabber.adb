@@ -100,8 +100,6 @@ procedure Test_Jabber is
 
       Set_Timeout (Sock.all, 4.0);
 
-      delay 0.5;
-
       declare
          Got_Message : constant String := Buffered.Get_Line (Sock.all);
       begin
@@ -127,8 +125,6 @@ procedure Test_Jabber is
          State := 1;
          goto Shutdown_Task;
       end if;
-
-      delay 0.5;
 
       declare
          Got_Message : constant String := Buffered.Get_Line (Sock.all);
@@ -156,8 +152,6 @@ procedure Test_Jabber is
          goto Shutdown_Task;
       end if;
 
-      delay 0.5;
-
       declare
          Got_Message : constant String := Buffered.Get_Line (Sock.all);
       begin
@@ -176,8 +170,6 @@ procedure Test_Jabber is
          State := 3;
          goto Shutdown_Task;
       end if;
-
-      delay 0.5;
 
       declare
          Got_Message : constant String := Buffered.Get_Line (Sock.all);
@@ -199,8 +191,6 @@ procedure Test_Jabber is
          & "<priority>1</priority></presence>");
       Buffered.Flush (Sock.all);
 
-      delay 0.5;
-
       if Counter = 5 then
          State := 5;
          goto Shutdown_Task;
@@ -219,7 +209,7 @@ procedure Test_Jabber is
 
       <<Shutdown_Task>>
 
-      delay 3.0; --  Wait for jabber client timeout
+      delay 2.0; --  Wait for jabber client timeout
 
       Acceptors.Give_Back (Acceptor, Sock);
       Acceptors.Shutdown (Acceptor);
