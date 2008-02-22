@@ -337,7 +337,7 @@ ${MODULES_CLEAN}: force
 ${MODULES_CHECK}: force
 	${MAKE} -C ${@:%_check=%} check $(GALL_OPTIONS)
 
-build: $(MODULES_BUILD)
+build: $(MODULES_BUILD) runtest_script
 
 clean: $(MODULES_CLEAN)
 	${MAKE} -C templates_parser clean
@@ -496,3 +496,23 @@ ifeq (${SHARED}, true)
 	$(CP) $(I_LIB)/*$(SOEXT) $(I_LIB)/../..
 endif
 	-$(CHMOD) a-w $(I_LIB)/*
+
+# Generate a script to build and run a single test using the build options
+# set for latest AWS build. This is mostly intended for developers. Usage:
+#
+# $ cd regtests
+# $ ./run-test.sh simple
+#
+runtest_script:
+	echo 'export PATH=../$(BDIR)/lib/include:$$PATH' \
+		> regtests/run-test.sh
+	echo 'export PATH=../$(BDIR)/lib/src:$$PATH' \
+		>> regtests/run-test.sh
+	echo 'export PATH=../$(BDIR)/lib/ssl:$$PATH' \
+		>> regtests/run-test.sh
+	echo 'export PATH=../$(BDIR)/lib/zlib:$$PATH' \
+		>> regtests/run-test.sh
+	echo 'gnat make -m -Pregtests -XPRJ_XMLADA=$(PRJ_XMLADA) \
+		-XPRJ_ASIS=$(PRJ_ASIS) -XPRJ_BUILD=$(PRJ_BUILD) \
+		-XLIBRARY_TYPE=$(LIBRARY_TYPE) $$1' >> regtests/run-test.sh
+	echo './$$1' >> regtests/run-test.sh
