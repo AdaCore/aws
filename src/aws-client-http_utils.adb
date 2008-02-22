@@ -72,7 +72,7 @@ package body AWS.Client.HTTP_Utils is
 
    begin
       pragma Assert (not Connection.Opened);
-      --  This should never be called with an open connection.
+      --  This should never be called with an open connection
 
       --  Keep-alive reconnection will be with old socket. We cannot reuse it,
       --  and have to free it.
@@ -566,7 +566,6 @@ package body AWS.Client.HTTP_Utils is
    begin
       Retry : loop
          begin
-
             --  Post Data with headers
 
             Send_Common_Post (Connection, Data, URI, SOAPAction, Content_Type);
