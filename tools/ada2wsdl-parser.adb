@@ -26,6 +26,7 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
+with Ada.Directories;
 with Ada.Text_IO;
 with Ada.Exceptions;
 with Ada.Characters.Handling;
@@ -103,7 +104,6 @@ package body Ada2WSDL.Parser is
 
    My_Context : Asis.Context;
 
-   Tree_File  : Text_IO.File_Type;
    Spec_File  : Text_IO.File_Type;
 
    -----------------------
@@ -1356,19 +1356,12 @@ package body Ada2WSDL.Parser is
    begin
       --  Deleting the tree file itself
 
-      Text_IO.Open (Tree_File, Text_IO.In_File, Tree_Name.all);
+      Directories.Delete_File (Tree_Name.all);
 
-      Text_IO.Delete (Tree_File);
+      --  And the corresponding ALI file
 
-      --  Deleting the ALI file which was created along with the tree file
-      --  We use the modified Tree_Name for this, because we do not need
-      --  Tree_Name any more
-
-      Tree_Name (Tree_Name'Last - 2 .. Tree_Name'Last) := "ali";
-
-      Text_IO.Open (Tree_File, Text_IO.In_File, Tree_Name.all);
-      Text_IO.Delete (Tree_File);
-
+      Directories.Delete_File
+        (Tree_Name (Tree_Name'First .. Tree_Name'Last - 3) & "ali");
    exception
       when others =>
          null;
