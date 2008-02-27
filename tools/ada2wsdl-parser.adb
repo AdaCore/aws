@@ -1571,12 +1571,22 @@ package body Ada2WSDL.Parser is
          GCC          => GNATMAKE,
          Use_GNATMAKE => True);
 
-      Tree_Name := new String'(Get_Tree_Name);
-
       if not Success then
          Text_IO.Put_Line
            (Text_IO.Standard_Error,
             "ada2wsdl: cannot create the tree file for " & File_Name.all);
+         raise Parameter_Error;
+      end if;
+
+      Tree_Name := new String'(Get_Tree_Name);
+
+      if not Directories.Exists (Tree_Name.all) then
+         Text_IO.Put_Line
+           (Text_IO.Standard_Error,
+            "ada2wsdl: after compilation, cannot find tree file "
+            & Tree_Name.all);
+         Text_IO.Put_Line
+           (Text_IO.Standard_Error, "ada2wsdl: consider using -t option");
          raise Parameter_Error;
       end if;
 
