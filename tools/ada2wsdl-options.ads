@@ -58,6 +58,10 @@ package Ada2WSDL.Options is
    WS_Name        : Unbounded_String;
    --  Name of the Web Service, default value is the name of the Ada package
 
+   Tree_File_Path : Unbounded_String;
+   --  Path to the generated tree file, this is needed when, for example, using
+   --  a project file whose object directory is not the current directory.
+
    Enum_To_String : Boolean := False;
    --  If True all enumeration types will be mapped to strings
 

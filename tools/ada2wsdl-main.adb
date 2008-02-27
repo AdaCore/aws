@@ -58,7 +58,7 @@ procedure Ada2WSDL.Main is
    procedure Parse_Command_Line is
    begin
       loop
-         case GNAT.Command_Line.Getopt ("f q v a: o: s: I: P: noenum") is
+         case GNAT.Command_Line.Getopt ("f q v a: o: s: t: I: P: noenum") is
 
             when ASCII.NUL =>
                exit;
@@ -67,8 +67,14 @@ procedure Ada2WSDL.Main is
                Options.Overwrite_WSDL := True;
 
             when 'o' =>
-               Options.WSDL_File_Name
-                 := To_Unbounded_String (GNAT.Command_Line.Parameter);
+               Options.WSDL_File_Name :=
+                 To_Unbounded_String (GNAT.Command_Line.Parameter);
+
+            when 't' =>
+               Options.Tree_File_Path :=
+                 To_Unbounded_String
+                   (AWS.Utils.Normalized_Directory
+                        (GNAT.Command_Line.Parameter));
 
             when 'a' =>
                Options.SOAP_Address :=
@@ -174,6 +180,7 @@ procedure Ada2WSDL.Main is
       Put_Line
         ("  -P proj  A project file to use for building the spec");
       Put_Line ("  -o file  WSDL file, <filename>.wsdl by default");
+      Put_Line ("  -t path  Path to tree file directory");
       Put_Line ("  -a url   Web Service server address (URL)");
       Put_Line ("  -s name  Web Service name (default package name)");
       Put_Line ("  -noenum  Map Ada enumeration to xsd:string");

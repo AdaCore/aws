@@ -1539,7 +1539,8 @@ package body Ada2WSDL.Parser is
             Last := Dot_Index - 1;
          end if;
 
-         return F_Name (F_Name'First .. Last) & ".adt";
+         return To_String (Options.Tree_File_Path)
+           & F_Name (F_Name'First .. Last) & ".adt";
       end Get_Tree_Name;
 
       ------------------
