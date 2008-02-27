@@ -177,7 +177,7 @@ package body AWS.Net.Std is
 
       Socket.S := new Socket_Hidden'(FD => FD);
 
-      if Reuse_Address  then
+      if Reuse_Address then
          Set_Int_Sock_Opt (Socket, OS_Lib.SO_REUSEADDR, 1);
       end if;
 

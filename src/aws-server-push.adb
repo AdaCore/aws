@@ -794,8 +794,6 @@ package body AWS.Server.Push is
       begin
          if Tables.Has_Element (Cursor) then
             Container.Update_Element (Cursor, Modify'Access);
-         else
-            raise Client_Gone with "No such client id.";
          end if;
       end Subscribe;
 
@@ -948,8 +946,6 @@ package body AWS.Server.Push is
       begin
          if Tables.Has_Element (Cursor) then
             Container.Update_Element (Cursor, Modify'Access);
-         else
-            raise Client_Gone with "No such client id.";
          end if;
       end Unsubscribe;
 
