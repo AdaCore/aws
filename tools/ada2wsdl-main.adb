@@ -1,10 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2003-2006                          --
+--                         Copyright (C) 2003-2008                          --
 --                                 AdaCore                                  --
---                                                                          --
---  Authors: Dmitriy Anisimkov - Pascal Obry                                --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -73,12 +71,12 @@ procedure Ada2WSDL.Main is
                  := To_Unbounded_String (GNAT.Command_Line.Parameter);
 
             when 'a' =>
-               Options.SOAP_Address
-                 := To_Unbounded_String (GNAT.Command_Line.Parameter);
+               Options.SOAP_Address :=
+                 To_Unbounded_String (GNAT.Command_Line.Parameter);
 
             when 's' =>
-               Options.WS_Name
-                 := To_Unbounded_String (GNAT.Command_Line.Parameter);
+               Options.WS_Name :=
+                 To_Unbounded_String (GNAT.Command_Line.Parameter);
 
             when 'q' =>
                Options.Quiet := True;
@@ -108,8 +106,8 @@ procedure Ada2WSDL.Main is
          end case;
       end loop;
 
-      Options.File_Name
-        := To_Unbounded_String (GNAT.Command_Line.Get_Argument);
+      Options.File_Name :=
+        To_Unbounded_String (GNAT.Command_Line.Get_Argument);
 
       if Options.WSDL_File_Name = Null_Unbounded_String then
          Options.WSDL_File_Name := Options.File_Name;

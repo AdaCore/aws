@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2003-2007                          --
+--                         Copyright (C) 2003-2008                          --
 --                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -83,19 +83,19 @@ package body Ada2WSDL.Parser is
    -- File and Directory names --
    ------------------------------
 
-   Tree_Name : String_Access;
+   Tree_Name    : String_Access;
    --  We need it in more, then one routine, so we define it here
 
    Max_Argument : constant := 1_024;
 
-   Arg_List  : OS_Lib.Argument_List (1 .. Max_Argument);
+   Arg_List     : OS_Lib.Argument_List (1 .. Max_Argument);
    --  -I options from the Ada2WSDL command line transformed into the
    --  form appropriate for calling gcc to create the tree file.
 
-   Arg_Index : Natural := 0;
+   Arg_Index    : Natural := 0;
 
-   GNATMAKE : constant String_Access :=
-                OS_Lib.Locate_Exec_On_Path ("gnatmake");
+   GNATMAKE     : constant String_Access :=
+                    OS_Lib.Locate_Exec_On_Path ("gnatmake");
 
    ----------------------
    -- Status variables --
@@ -1538,7 +1538,7 @@ package body Ada2WSDL.Parser is
          Last      : Natural;
 
       begin
-         Dot_Index   := Strings.Fixed.Index (F_Name, ".", Strings.Backward);
+         Dot_Index := Strings.Fixed.Index (F_Name, ".", Strings.Backward);
 
          if Dot_Index = 0 then
             Last := F_Name'Last;
