@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                          Copyright (C) 2006-2007                         --
---                                  AdaCore                                 --
+--                         Copyright (C) 2006-2008                          --
+--                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -203,7 +203,7 @@ package body AWS.Net.Poll_Events is
       loop
          Result := Integer
            (Thin.Poll
-              (FDS     => FD_Set.Fds'Address,
+              (Fds     => FD_Set.Fds'Address,
                Nfds    => Thin.nfds_t (FD_Set.Length),
                Timeout => Poll_Timeout));
 
