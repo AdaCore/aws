@@ -512,6 +512,8 @@ runtest_script:
 		>> regtests/run-test.sh
 	echo 'export PATH=../$(BDIR)/lib/zlib:$$PATH' \
 		>> regtests/run-test.sh
+	echo 'export ADA_PROJECT_PATH=../.build/projects' \
+		>> regtests/run-test.sh
 	echo 'gnat make -m -Pregtests -XPRJ_XMLADA=$(PRJ_XMLADA) \
 		-XPRJ_ASIS=$(PRJ_ASIS) -XPRJ_BUILD=$(PRJ_BUILD) \
 		-XLIBRARY_TYPE=$(LIBRARY_TYPE) $$1' >> regtests/run-test.sh
