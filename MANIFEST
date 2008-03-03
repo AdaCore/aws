@@ -368,6 +368,10 @@ regtests/smem_sec.adb
 regtests/smem_sec.out
 regtests/smtp.adb
 regtests/smtp.out
+regtests/smtp_2.adb
+regtests/smtp_2.out
+regtests/smtp_pck.adb
+regtests/smtp_pck.ads
 regtests/sock1.adb
 regtests/sock1.out
 regtests/sock2.adb
@@ -717,6 +721,12 @@ src/aws-smtp-authentication-plain.ads
 src/aws-smtp-authentication.ads
 src/aws-smtp-client.adb
 src/aws-smtp-client.ads
+src/aws-smtp-messages-set.adb
+src/aws-smtp-messages-set.ads
+src/aws-smtp-messages.adb
+src/aws-smtp-messages.ads
+src/aws-smtp-server.adb
+src/aws-smtp-server.ads
 src/aws-smtp.adb
 src/aws-smtp.ads
 src/aws-status-set.adb
