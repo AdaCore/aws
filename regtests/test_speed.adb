@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2004                            --
---                                ACT-Europe                                --
+--                         Copyright (C) 2004-2008                          --
+--                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -26,7 +26,7 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  ~ MAIN [SOAP]
+--  ~ MAIN [XMLADA]
 
 with Ada.Text_IO;
 with Ada.Calendar;
@@ -68,7 +68,7 @@ procedure Test_Speed is
    Soap_TapeSwap  : constant String := "Tapeswap";
 
    Max_Time       : Duration;
-   --  Time allowed to complete the test. This is set below.
+   --  Time allowed to complete the test. This is set below
 
    --------------------------
    -- Check_Computer_Speed --
@@ -185,7 +185,7 @@ begin
    Elapsed := Finish - Start;
 
    if Elapsed < 1.0 then
-      --  Computers are certainly faster now, update the check here.
+      --  Computers are certainly faster now, update the check here
       Put_Line ("Really quick now, should update the regtest!");
 
    elsif  Elapsed < Max_Time then

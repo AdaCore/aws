@@ -34,13 +34,13 @@
 #      Add a tag line in mytest.adb
 #      --  ~ MAIN [<options>]
 #      <options> can be:
-#         [STD]           : test requires no external support
-#         [SSL]           : test requires SSL
-#         [ASIS]          : test requires ASIS
-#         [SOAP]          : test requires SOAP
-#         [ASIS+SOAP+SSL] : test requires ASIS, SOAP and SSL
-#                           it is possible to specify only 2 options, the
-#                           ordering is important though.
+#         [STD]             : test requires no external support
+#         [SSL]             : test requires SSL
+#         [ASIS]            : test requires ASIS
+#         [XMLADA]          : test requires SOAP
+#         [XMLADA+ASIS+SSL] : test requires ASIS, SOAP and SSL
+#                             it is possible to specify only 2 options, the
+#                             ordering is important though.
 #
 #   2) Create the expected output mytest.out
 #
@@ -299,29 +299,29 @@ setup: setup_dir
 	-$(GREP) "\-\-  ~ MAIN" *.adb > all_mains.lst
 	-$(GREP) "\[STD\]" all_mains.lst | $(GREP) -v $(REGEXP) > s_tstd.lst
 	-$(CP) s_tstd.lst s_mains.lst
-	-$(GREP) "\[SOAP\]" all_mains.lst > s_tsoap.lst
-	-$(GREP) "\[ASIS+SOAP\]" all_mains.lst >> s_tsoap.lst
+	-$(GREP) "\[XMLADA\]" all_mains.lst > s_txmlada.lst
+	-$(GREP) "\[XMLADA+ASIS\]" all_mains.lst >> s_txmlada.lst
 	-$(GREP) "\[SSL\]" all_mains.lst > s_tsec.lst
-	-$(GREP) "\[SOAP+SSL\]" all_mains.lst > s_tsecsoap.lst
-	-$(GREP) "\[ASIS+SSL\]" all_mains.lst >> s_tsecsoap.lst
+	-$(GREP) "\[XMLADA+SSL\]" all_mains.lst > s_tsecxmlada.lst
+	-$(GREP) "\[ASIS+SSL\]" all_mains.lst >> s_tsecxmlada.lst
 ifeq ($(ASIS), true)
 	-$(GREP) "\[ASIS\]" all_mains.lst >> s_mains.lst
 endif
 ifeq (${XMLADA}, true)
-	-$(GREP) "\[SOAP\]" all_mains.lst >> s_mains.lst
+	-$(GREP) "\[XMLADA\]" all_mains.lst >> s_mains.lst
 endif
 ifneq (${SOCKET}, std)
 	-$(GREP) "\[SSL\]" all_mains.lst >> s_mains.lst
 endif
 ifeq (${XMLADA}, true)
   ifeq ($(ASIS), true)
-	-$(GREP) "\[ASIS+SOAP\]" all_mains.lst >> s_mains.lst
+	-$(GREP) "\[XMLADA+ASIS\]" all_mains.lst >> s_mains.lst
     ifneq (${SOCKET}, std)
-	-$(GREP) "\[ASIS+SOAP+SSL\]" all_mains.lst >> s_mains.lst
+	-$(GREP) "\[XMLADA+ASIS+SSL\]" all_mains.lst >> s_mains.lst
     endif
   endif
   ifneq (${SOCKET}, std)
-	-$(GREP) "\[SOAP+SSL\]" all_mains.lst >> s_mains.lst
+	-$(GREP) "\[XMLADA+SSL\]" all_mains.lst >> s_mains.lst
   endif
 else
   ifeq ($(ASIS), true)
@@ -351,21 +351,21 @@ endif
 		n==1{printf (",\n\"%s\"",$$1)} \
 		n==0{printf ("\"%s\"",$$1);n=1}' s_tsec.lst >> regtests_lst.gpr
 	echo "   );" >> regtests_lst.gpr
-# T_SEC_SOAP
+# T_SEC_XMLADA
 	echo "" >> regtests_lst.gpr
-	echo "   T_SEC_SOAP := (" >> regtests_lst.gpr
+	echo "   T_SEC_XMLADA := (" >> regtests_lst.gpr
 	$(AWK) 'BEGIN{FS=":";n=0} \
 		n==1{printf (",\n\"%s\"",$$1)} \
 		n==0{printf ("\"%s\"",$$1);n=1}' \
-			s_tsecsoap.lst >> regtests_lst.gpr
+			s_tsecxmlada.lst >> regtests_lst.gpr
 	echo "   );" >> regtests_lst.gpr
-# T_SOAP
+# T_XMLADA
 	echo "" >> regtests_lst.gpr
-	echo "   T_SOAP := (" >> regtests_lst.gpr
+	echo "   T_XMLADA := (" >> regtests_lst.gpr
 	$(AWK) 'BEGIN{FS=":";n=0} \
 		n==1{printf (",\n\"%s\"",$$1)} \
 		n==0{printf ("\"%s\"",$$1);n=1}' \
-			s_tsoap.lst >> regtests_lst.gpr
+			s_txmlada.lst >> regtests_lst.gpr
 	echo "   );" >> regtests_lst.gpr
 	echo "" >> regtests_lst.gpr
 	echo "end regtests_lst;" >> regtests_lst.gpr
@@ -378,7 +378,7 @@ clean:
 	-$(GNAT) clean -q -Pregtests -XTest_Mode=${TEST_MODE}
 	-$(RM) -f *.log *.res alldifs file[abc].txt* test_all.adb filez.tmplt
 	-$(RM) -f *.tmp alldifs s_mains.lst all_mains.lst
-	-$(RM) -f s_tsecsoap.lst s_tsec.lst s_tstd.lst s_tsoap.lst
+	-$(RM) -f s_tsecxmlada.lst s_tsec.lst s_tstd.lst s_txmlada.lst
 	-$(RM) -f  run? check_mem.run?
 	-$(RM) -fr generated icons
 	-$(RM) -f *~ .*~ res.ad\[sb\] res2.ad\[sb\]

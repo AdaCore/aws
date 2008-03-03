@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2003-2006                          --
+--                         Copyright (C) 2003-2008                          --
 --                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -26,7 +26,7 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  ~ MAIN [SOAP+SSL]
+--  ~ MAIN [XMLADA+SSL]
 
 with Ada.Command_Line;
 with Ada.Exceptions;
@@ -408,7 +408,7 @@ procedure Check_Mem is
       procedure Test
         (Stream : in out Stream_Type'Class;
          Data   : in     Streams.Stream_Element_Array);
-      --  Append dynamically allocated data, test content and close the stream.
+      --  Append dynamically allocated data, test content and close the stream
 
       ----------
       -- Test --
@@ -571,7 +571,7 @@ procedure Check_Mem is
          Receive (Peer, Buffer, Last);
          Send (Peer, Data => (1 .. 11 => 12));
          begin
-            --  Wait for opposite shutdown.
+            --  Wait for opposite shutdown
             Receive (Peer, Buffer, Last);
             raise Program_Error;
          exception

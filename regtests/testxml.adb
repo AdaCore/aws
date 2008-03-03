@@ -1,7 +1,7 @@
 
 --  Test from Wiljan Derks. It tests if AWS/SOAP does handle null string.
 
---  ~ MAIN [SOAP]
+--  ~ MAIN [XMLADA]
 
 with Ada.Text_IO;
 with SOAP.Message.Payload;

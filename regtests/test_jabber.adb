@@ -26,7 +26,7 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  ~ MAIN [STD]
+--  ~ MAIN [XMLADA]
 
 with Ada.Command_Line;
 with Ada.Exceptions;

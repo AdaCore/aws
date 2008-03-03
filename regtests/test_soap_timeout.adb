@@ -26,7 +26,7 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  ~ MAIN [SOAP]
+--  ~ MAIN [XMLADA]
 
 with Ada.Calendar;
 with Ada.Exceptions;

@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                          Copyright (C) 2004-2007                         --
+--                          Copyright (C) 2004-2008                         --
 --                                  AdaCore                                 --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -49,9 +49,9 @@ project Regtests is
      ("dispatch1.adb", "dispatch_method.adb", "dispatch_vh.adb", "tres.adb",
       "upload2.adb", "upload3.adb", "server_config.adb", "tlog.adb");
 
-   --  Common tests using SOAP support
+   --  Common tests using XMLADA support
 
-   Common_SOAP := ("check_mem.adb", "test_speed.adb");
+   Common_XMLADA := ("check_mem.adb", "test_speed.adb");
 
    case Mode is
       when "Generator" =>
@@ -63,11 +63,11 @@ project Regtests is
 
          case Shared.XMLAda is
             when "Installed" =>
-               for Main use project'Main & Common_SOAP & Regtests_Lst.T_SOAP;
+               for Main use project'Main & Common_XMLADA & Regtests_Lst.T_XMLADA;
 
                case Shared.SOCKET is
                   when "ssl" | "openssl" | "gnutls" =>
-                     for Main use project'Main & Regtests_Lst.T_SEC_SOAP;
+                     for Main use project'Main & Regtests_Lst.T_SEC_XMLADA;
                   when "std" =>
                      for Main use project'Main;
                end case;
@@ -86,7 +86,7 @@ project Regtests is
 
          case Shared.XMLAda is
             when "Installed" =>
-               for Main use project'Main & Common_SOAP;
+               for Main use project'Main & Common_XMLADA;
             when "Disabled" =>
                for Main use project'Main;
          end case;

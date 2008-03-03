@@ -80,8 +80,8 @@ regtests/patch
 regtests/regtests_lst.gpr
 regtests/s_mains.lst
 regtests/s_tsec.lst
-regtests/s_tsecsoap.lst
-regtests/s_tsoap.lst
+regtests/s_tsecxmlada.lst
+regtests/s_txmlada.lst
 regtests/s_tstd.lst
 regtests/test_all
 regtests/test_all.adb

@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2002-2004                          --
---                                ACT-Europe                                --
+--                         Copyright (C) 2002-2008                          --
+--                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -26,7 +26,7 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  ~ MAIN [SOAP+SSL]
+--  ~ MAIN [XMLADA+SSL]
 
 --  This must be the exact same test than test_soap. The only difference is
 --  that it uses HTTPS protocol. We test that output is the same as the non
