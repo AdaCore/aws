@@ -38,6 +38,8 @@ with AWS.SMTP.Server;
 
 with SMTP_Pck;
 
+with Get_Free_Port;
+
 procedure SMTP_2 is
 
    use Ada;
@@ -48,13 +50,18 @@ procedure SMTP_2 is
    From_Email : constant String := "my.name@righthere.fr";
    Filename   : constant String := "./icons/ada.gif";
 
-   Host   : SMTP.Receiver := SMTP.Initialize ("localhost");
+   Port   : Positive := 9025;
+   Host   : SMTP.Receiver;
    Server : SMTP.Server.Handle;
    Status : SMTP.Status;
    Attac  : Attachments.List;
    Alter  : Attachments.Alternatives;
 
 begin
+   Get_Free_Port (Port);
+
+   Host := SMTP.Initialize ("localhost", Port);
+
    SMTP.Server.Start (Server, Host, SMTP_Pck.Dump_Mail'Access);
 
    --  Send simple message
