@@ -73,18 +73,19 @@ TEST_MODE	= Separated
 # NO NEED TO CHANGE ANYTHING PAST THIS POINT
 #############################################################################
 
+CWD := $(shell pwd)
 APP := $(ADA_PROJECT_PATH)
 PTH := $(PATH)
 
 ifeq (${OS}, Windows_NT)
-DPWD = $(subst /cygdrive/c/,c:/,$(PWD))
+DPWD = $(subst /cygdrive/c/,c:/,$(CWD))
 export ADA_PROJECT_PATH = $(DPWD)/.build/projects\;${APP}
 
-APTH = $(PWD)/$(BDIR)/lib/src:$(PWD)/$(BDIR)/lib/win32:$(PWD)/$(BDIR)/lib/ssl
-APTH := :$(PWD)/$(BDIR)/lib/include:$(PWD)/$(BDIR)/lib/zlib:$(APTH)
+APTH = $(CWD)/$(BDIR)/lib/src:$(CWD)/$(BDIR)/lib/win32:$(CWD)/$(BDIR)/lib/ssl
+APTH := :$(CWD)/$(BDIR)/lib/include:$(CWD)/$(BDIR)/lib/zlib:$(APTH)
 export PATH = $(APTH):${PTH}
 else
-export ADA_PROJECT_PATH = $(PWD)/.build/projects:${APP}
+export ADA_PROJECT_PATH = $(CWD)/.build/projects:${APP}
 endif
 
 all:
