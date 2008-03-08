@@ -212,7 +212,6 @@ package body AWS.SMTP.Server is
       --  Mail_Handler task.
 
       Net.Shutdown (Server.Host.Sock.all);
-      Net.Free (Server.Host.Sock);
 
       --  Now wait for the task to terminate
 
@@ -226,6 +225,8 @@ package body AWS.SMTP.Server is
       if not Server.Server_Handler'Terminated then
          abort Server.Server_Handler;
       end if;
+
+      Net.Free (Server.Host.Sock);
    end Shutdown;
 
    -----------
