@@ -53,7 +53,6 @@ package body AWS.SMTP.Server is
    ------------------
    -- Mail_Handler --
    ------------------
-   use type Net.Socket_Access;
 
    task body Mail_Handler is
       Message : Messages.Data;
