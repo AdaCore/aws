@@ -71,13 +71,15 @@ package body AWS.SMTP.Server is
       end loop;
 
    exception
-      when Net.Socket_Error =>
-         null;
-
       when E : others =>
-         Text_IO.Put_Line ("SMTP Server Fatal error");
-         Text_IO.Put_Line (Exceptions.Exception_Information (E));
-         raise;
+         if not Server.Shutdown then
+            --  When server is shutdown we do not want to report errors. In
+            --  some cases the socket layer won't end silently as the server
+            --  socket is shutdown. See Shutdown routine below.
+            Text_IO.Put_Line ("SMTP Server Fatal error");
+            Text_IO.Put_Line (Exceptions.Exception_Information (E));
+            raise;
+         end if;
    end Mail_Handler;
 
    -----------------
@@ -210,6 +212,8 @@ package body AWS.SMTP.Server is
    begin
       --  Shutdown the socket, this should raise socket error on the
       --  Mail_Handler task.
+
+      Server.Shutdown := True;
 
       Net.Shutdown (Server.Host.Sock.all);
 

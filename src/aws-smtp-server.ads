@@ -54,6 +54,7 @@ private
       Server_Handler : Mail_Handler (Handle'Access);
       Host           : Receiver;
       Action         : Callback;
+      Shutdown       : Boolean; -- True if shutdown is in progress
    end record;
 
 end AWS.SMTP.Server;
