@@ -76,7 +76,7 @@ package body AWS.Parameters.Set is
       S : Positive := P'First;
       E : Natural;
    begin
-      --  Skip leading question mark if present.
+      --  Skip leading question mark if present
 
       if P /= "" and then P (C) = '?' then
          C := Positive'Succ (C);

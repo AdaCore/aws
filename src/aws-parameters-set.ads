@@ -36,7 +36,7 @@ package AWS.Parameters.Set is
    --  If Decode is true, decodes Name and Value. This is used when handling
    --  multipart/form-data for example.
    --  A new value is always added, so if there is already a parameter with
-   --  that name, Get will still return the old value
+   --  that name, Get will still return the old value.
 
    procedure Add (Parameter_List : in out List; Parameters : in String);
    --  Set parameters for the current request. This is used for a POST method
@@ -50,12 +50,12 @@ package AWS.Parameters.Set is
      (Parameter_List : in out List;
       Name, Value    : in     String;
       Decode         : in     Boolean := True);
-   --  Same as Add, but replace an existing parameter if there is one.
+   --  Same as Add, but replace an existing parameter if there is one
 
    procedure Case_Sensitive
      (Parameter_List : in out List;
       Mode           : in     Boolean);
-   --  If Mode is True it will use all parameters with case sensitivity.
+   --  If Mode is True it will use all parameters with case sensitivity
 
    procedure Reset (Parameter_List : in out List);
    --  Removes all object from the Set. Set will be reinitialized and will be

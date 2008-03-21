@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2004                          --
---                               ACT-Europe                                 --
+--                         Copyright (C) 2000-2008                          --
+--                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -68,6 +68,10 @@ procedure Param is
       P_List : constant Parameters.List := Status.Parameters (Request);
 
       procedure Print (Name, Value : in String);
+
+      -----------
+      -- Print --
+      -----------
 
       procedure Print (Name, Value : in String) is
       begin
