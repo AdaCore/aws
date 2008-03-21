@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2007                          --
+--                         Copyright (C) 2000-2008                          --
 --                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -62,6 +62,18 @@ package body AWS.Containers.Tables.Set is
    begin
       Table.Case_Sensitive := Mode;
    end Case_Sensitive;
+
+   -------------
+   -- Replace --
+   -------------
+
+   procedure Replace
+     (Table       : in out Table_Type;
+      Name, Value : in     String) is
+   begin
+      Update_Internal (Table, Name, Value, 1);
+   end Replace;
+
 
    -----------
    -- Reset --

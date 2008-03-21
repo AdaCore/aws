@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2007                          --
+--                         Copyright (C) 2000-2008                          --
 --                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -35,6 +35,8 @@ package AWS.Parameters.Set is
    --  Add a new Key/Value pair into the parameter set.
    --  If Decode is true, decodes Name and Value. This is used when handling
    --  multipart/form-data for example.
+   --  A new value is always added, so if there is already a parameter with
+   --  that name, Get will still return the old value
 
    procedure Add (Parameter_List : in out List; Parameters : in String);
    --  Set parameters for the current request. This is used for a POST method
@@ -43,6 +45,12 @@ package AWS.Parameters.Set is
    --  "name1=value1&name2=value2...". The paramaters are added to the list.
    --  The parameters can start with a '?' (standard Web character separator)
    --  which is just ignored.
+
+   procedure Replace
+     (Parameter_List : in out List;
+      Name, Value    : in     String;
+      Decode         : in     Boolean := True);
+   --  Same as Add, but replace an existing parameter if there is one.
 
    procedure Case_Sensitive
      (Parameter_List : in out List;

@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2007                          --
+--                         Copyright (C) 2000-2008                          --
 --                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -115,6 +115,35 @@ package body AWS.Parameters.Set is
    begin
       Tables.Set.Case_Sensitive (Tables.Table_Type (Parameter_List), Mode);
    end Case_Sensitive;
+
+   -------------
+   -- Replace --
+   -------------
+
+   procedure Replace
+     (Parameter_List : in out List;
+      Name, Value    : in     String;
+      Decode         : in     Boolean := True) is
+   begin
+      --  ??? Should remove existing occurrence of Name
+      if Parameter_List.Parameters = Null_Unbounded_String then
+         Append (Parameter_List.Parameters, "?");
+      else
+         Append (Parameter_List.Parameters, "&");
+      end if;
+      Append (Parameter_List.Parameters, Name & "=" & Value);
+
+      if Decode then
+         --  This is default behavior
+         Tables.Set.Replace
+           (Tables.Table_Type (Parameter_List),
+            URL.Decode (Name),
+            URL.Decode (Value));
+
+      else
+         Tables.Set.Replace (Tables.Table_Type (Parameter_List), Name, Value);
+      end if;
+   end Replace;
 
    -----------
    -- Reset --
