@@ -123,15 +123,39 @@ package body AWS.Parameters.Set is
    procedure Replace
      (Parameter_List : in out List;
       Name, Value    : in     String;
-      Decode         : in     Boolean := True) is
+      Decode         : in     Boolean := True)
+   is
+      First : constant Natural :=
+                Index (Parameter_List.Parameters, Name & "=");
+      Last  : Natural;
    begin
-      --  ??? Should remove existing occurrence of Name
-      if Parameter_List.Parameters = Null_Unbounded_String then
-         Append (Parameter_List.Parameters, "?");
+      if First = 0 then
+         --  This Name is not already present, add it
+         if Parameter_List.Parameters = Null_Unbounded_String then
+            Append (Parameter_List.Parameters, "?");
+         else
+            Append (Parameter_List.Parameters, "&");
+         end if;
+
+         Append (Parameter_List.Parameters, Name & "=" & Value);
+
       else
-         Append (Parameter_List.Parameters, "&");
+         --  Replace the existing value
+         Last := Index (Parameter_List.Parameters, "&", From => First);
+
+         if Last = 0 then
+            --  This is the last argument
+            Last := Length (Parameter_List.Parameters);
+         else
+            Last := Last - 1;
+         end if;
+
+         Replace_Slice
+           (Parameter_List.Parameters,
+            Low  => First + Name'Length + 1,
+            High => Last,
+            By   => Value);
       end if;
-      Append (Parameter_List.Parameters, Name & "=" & Value);
 
       if Decode then
          --  This is default behavior

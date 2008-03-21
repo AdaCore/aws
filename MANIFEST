@@ -328,6 +328,8 @@ regtests/page_server.adb
 regtests/page_server.out
 regtests/param.adb
 regtests/param.out
+regtests/param2.adb
+regtests/param2.out
 regtests/partial.adb
 regtests/partial.out
 regtests/pipe_stream.adb
