@@ -118,7 +118,6 @@ package body AWS.Net.Std is
       use Sockets;
       use type C.int;
 
-      Sock : C.int;
       Dummy : String (1 .. 32);
       Len   : aliased C.int := Dummy'Length;
    begin
@@ -126,16 +125,16 @@ package body AWS.Net.Std is
          New_Socket := Socket_Type'(Net.Socket_Type with others => <>);
       end if;
 
+      New_Socket.S := new Socket_Hidden;
+
       Wait_For (Input, Socket);
 
-      Sock := Thin.C_Accept
-                (C.int (Get_FD (Socket)), Dummy'Address, Len'Access);
+      New_Socket.S.FD :=
+        Thin.C_Accept (C.int (Get_FD (Socket)), Dummy'Address, Len'Access);
 
-      if Sock = Thin.Failure then
+      if New_Socket.S.FD = Thin.Failure then
          Raise_Socket_Error (Std.Errno, Socket_Type (Socket));
       end if;
-
-      New_Socket.S := new Socket_Hidden'(FD => Sock);
 
       if Net.Log.Is_Event_Active then
          Net.Log.Event (Net.Log.Accept_Socket, New_Socket);
