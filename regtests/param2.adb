@@ -43,12 +43,12 @@ procedure Param2 is
 begin
    Parameters.Set.Add (List, "name1", "value_xxxx");
    Parameters.Set.Add (List, "name2", "value_2");
-   Parameters.Set.Replace (List, "name1", "value_1");
+   Parameters.Set.Update (List, "name1", "value_1");
 
    Text_IO.Put_Line ("1> " & Parameters.URI_Format (List));
 
    Parameters.Set.Add (List, "name3", "value");
-   Parameters.Set.Replace (List, "name3", "value_3");
+   Parameters.Set.Update (List, "name3", "value_3");
 
    Text_IO.Put_Line ("2> " & Parameters.URI_Format (List));
 exception

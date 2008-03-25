@@ -46,7 +46,7 @@ package AWS.Parameters.Set is
    --  The parameters can start with a '?' (standard Web character separator)
    --  which is just ignored.
 
-   procedure Replace
+   procedure Update
      (Parameter_List : in out List;
       Name, Value    : in     String;
       Decode         : in     Boolean := True);

@@ -63,18 +63,6 @@ package body AWS.Containers.Tables.Set is
       Table.Case_Sensitive := Mode;
    end Case_Sensitive;
 
-   -------------
-   -- Replace --
-   -------------
-
-   procedure Replace
-     (Table       : in out Table_Type;
-      Name, Value : in     String) is
-   begin
-      Update_Internal (Table, Name, Value, 1);
-   end Replace;
-
-
    -----------
    -- Reset --
    -----------

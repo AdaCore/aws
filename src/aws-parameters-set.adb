@@ -116,11 +116,21 @@ package body AWS.Parameters.Set is
       Tables.Set.Case_Sensitive (Tables.Table_Type (Parameter_List), Mode);
    end Case_Sensitive;
 
-   -------------
-   -- Replace --
-   -------------
+   -----------
+   -- Reset --
+   -----------
 
-   procedure Replace
+   procedure Reset (Parameter_List : in out List) is
+   begin
+      Tables.Set.Reset (Tables.Table_Type (Parameter_List));
+      Parameter_List.Parameters := Null_Unbounded_String;
+   end Reset;
+
+   ------------
+   -- Update --
+   ------------
+
+   procedure Update
      (Parameter_List : in out List;
       Name, Value    : in     String;
       Decode         : in     Boolean := True)
@@ -159,24 +169,14 @@ package body AWS.Parameters.Set is
 
       if Decode then
          --  This is default behavior
-         Tables.Set.Replace
+         Tables.Set.Update
            (Tables.Table_Type (Parameter_List),
             URL.Decode (Name),
             URL.Decode (Value));
 
       else
-         Tables.Set.Replace (Tables.Table_Type (Parameter_List), Name, Value);
+         Tables.Set.Update (Tables.Table_Type (Parameter_List), Name, Value);
       end if;
-   end Replace;
-
-   -----------
-   -- Reset --
-   -----------
-
-   procedure Reset (Parameter_List : in out List) is
-   begin
-      Tables.Set.Reset (Tables.Table_Type (Parameter_List));
-      Parameter_List.Parameters := Null_Unbounded_String;
-   end Reset;
+   end Update;
 
 end AWS.Parameters.Set;

@@ -34,12 +34,6 @@ package AWS.Containers.Tables.Set is
    --  Add a new Key/Value pair into Table. A new value is always added,
    --  even if there is already an entry with the same name.
 
-   procedure Replace
-     (Table       : in out Table_Type;
-      Name, Value : in     String);
-   --  Add a new Key/Value pair into Table. If there is already an entry
-   --  with that name, it is replaced.
-
    procedure Update
      (Table : in out Table_Type;
       Name  : in     String;
