@@ -4,7 +4,7 @@
 
 Authors:
    Dmitriy Anisimkov
-   Pascal Obry                                             December 21th, 2007
+   Pascal Obry                                             March 26th, 2008
 
 
 
@@ -40,6 +40,9 @@ New features are described into the file docs/features.
 Listed below are some minor enhancements and fixes:
 
    - SMTP date header now properly includes the UTC offset.
+
+   - Instantiations of SOAP.Utils.Safe_Pointers can now use the named
+     notation for specifying the actual parameters.
 
    - Plus many small fixes, enhancements, API comments, and documentation work.
 

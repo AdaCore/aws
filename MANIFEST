@@ -1344,6 +1344,8 @@ regtests/wsdl_b.adb
 regtests/wsdl_b.ads
 regtests/wsdl_b.out
 regtests/wsdl_b_pck.ads
+regtests/wsdl_d.ads
+regtests/wsdl_d.out
 regtests/wsdl_parse_1.out
 regtests/wsdl_parse_1.wsdl
 regtests/wsdl_parse_2.out

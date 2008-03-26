@@ -101,7 +101,7 @@ ifeq (${ASIS}, true)
 # and 9. Socket port is then 770<digit>.
 
 ASIS_TESTS   = wsdl_1 wsdl_2 wsdl_3 wsdl_4 wsdl_5 wsdl_6 wsdl_7 wsdl_8 wsdl_9
-ASIS2_TESTS  = wsdl_a wsdl_b wsdl_c register
+ASIS2_TESTS  = wsdl_a wsdl_b wsdl_c register wsdl_d
 endif
 
 FILTER_OUT	+= $(addsuffix .adb, $(OTH_TESTS) $(ALONE_TESTS))
@@ -239,7 +239,7 @@ $(ASIS_TESTS): force
 $(ASIS2_TESTS): force
 	-$(RM) -f $@.res
 	echo "Running  " $@
-	$(ADA2WSDL) -v -f $@.ads -o generated/$@.wsdl > tmp 2>&1
+	$(ADA2WSDL) -v -f -I. -P../aws $@.ads -o generated/$@.wsdl > tmp 2>&1
 	tail -n +3 tmp > $@.res
 	rm tmp
 	-$(DIFF) $@.out $@.res 1>> alldifs 2>> alldifs

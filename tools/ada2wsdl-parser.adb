@@ -394,12 +394,16 @@ package body Ada2WSDL.Parser is
             --  This is the safe pointer AWS/SOAP runtime type support
 
             declare
-               Actual : constant Asis.Association_List :=
+               Actual : Asis.Association_List :=
                           Declarations.Generic_Actual_Part (Node.Spec);
             begin
                if Actual'Length = 2 then
                   --  There is only two formal parameters, the first one is
                   --  the type, the second the access type to the first one.
+
+                  for K in Actual'Range loop
+                     Actual (K) := Expressions.Actual_Parameter (Actual (K));
+                  end loop;
 
                   Generator.Register_Safe_Pointer
                     (Name        => Node.Spec_Name.all,
