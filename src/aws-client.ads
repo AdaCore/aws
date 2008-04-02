@@ -223,7 +223,7 @@ package AWS.Client is
    --  below. The connection will be tried Retry times if it fails. If
    --  persistent is True the connection will remain open otherwise it will be
    --  closed after each request. User/Pwd are the server authentication info,
-   --  Proxy is the name of the proxy server to use, Proxy_USer/Proxy_Pwd are
+   --  Proxy is the name of the proxy server to use, Proxy_User/Proxy_Pwd are
    --  the proxy authentication data. Only Basic authentication is supported
    --  from this routine, for Digest authentication see below. Timeouts are
    --  the send/receive timeouts for each request. If Server_Push is True the
