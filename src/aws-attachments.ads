@@ -131,6 +131,11 @@ package AWS.Attachments is
    --  Calls action for every Attachment in Message. Stop iterator if Quit is
    --  set to True, Quit is set to False by default.
 
+   procedure Iterate
+     (Attachments : in List;
+      Process     : access procedure (Attachment : in Element));
+   --  Calls Process for every Attachment in Message
+
    function Headers (Attachment : in Element) return AWS.Headers.List;
    pragma Inline (Headers);
    --  Returns the list of header lines for the attachment

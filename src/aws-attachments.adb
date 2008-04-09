@@ -333,6 +333,27 @@ package body AWS.Attachments is
       return Attachment.Headers;
    end Headers;
 
+   -------------
+   -- Iterate --
+   -------------
+
+   procedure Iterate
+     (Attachments : in List;
+      Process     : access procedure (Attachment : in Element))
+   is
+      --  Use callbacks to avoid Elements copy on iteration
+
+      procedure Action (Position : in Attachment_Table.Cursor);
+
+      procedure Action (Position : in Attachment_Table.Cursor) is
+      begin
+         Attachment_Table.Query_Element (Position, Process);
+      end Action;
+
+   begin
+      Attachments.Vector.Iterate (Action'Access);
+   end Iterate;
+
    ----------
    -- Kind --
    ----------
