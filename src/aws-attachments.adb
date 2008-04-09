@@ -345,6 +345,10 @@ package body AWS.Attachments is
 
       procedure Action (Position : in Attachment_Table.Cursor);
 
+      ------------
+      -- Action --
+      ------------
+
       procedure Action (Position : in Attachment_Table.Cursor) is
       begin
          Attachment_Table.Query_Element (Position, Process);
