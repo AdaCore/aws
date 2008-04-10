@@ -965,17 +965,19 @@ package body AWS.Client.HTTP_Utils is
          --  It must match Messages.HTTP_Token.
 
          if Messages.Match (Line, Messages.HTTP_Token) then
-            Status := Messages.Status_Code'Value
-                 ('S' & Line (Messages.HTTP_Token'Length + 5
-                                .. Messages.HTTP_Token'Length + 7));
+            Status :=
+              Messages.Status_Code'Value
+                ('S' & Line (Messages.HTTP_Token'Length + Line'First + 4
+                              .. Messages.HTTP_Token'Length + Line'First + 6));
             Response.Set.Status_Code (Answer, Status);
 
             --  By default HTTP/1.0 connection is not keep-alive but
             --  HTTP/1.1 is keep-alive.
 
             Keep_Alive
-              := Line (Messages.HTTP_Token'Length + 1
-                         .. Messages.HTTP_Token'Length + 3) >= "1.1";
+              := Line (Messages.HTTP_Token'Length + Line'First
+                         .. Messages.HTTP_Token'Length + Line'First + 2)
+                 >= "1.1";
          else
             --  or else it is wrong answer from server
             raise Protocol_Error with Line;
