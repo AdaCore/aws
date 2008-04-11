@@ -496,7 +496,7 @@ package body AWS.Net.Std is
          begin
             for J in Sin6.Addr'Range loop
                if Sin6.Addr (J) = 0 and Zero then
-                  --  Any number of starting zeroes showing by ::.
+                  --  Any number of starting zeroes showing by ::
 
                   if Index = Result'First then
                      Result (Result'First .. Result'First + 1) := "::";
@@ -505,7 +505,7 @@ package body AWS.Net.Std is
 
                else
                   if Zero and then J = 6 and then Sin6.Addr (J) = 16#FFFF# then
-                     --  ::ffff: - IPv4 mapped address on IPv6 protocol.
+                     --  ::ffff: - IPv4 mapped address on IPv6 protocol
 
                      declare
                         W7 : constant U8_2 := Split (Sin6.Addr (7));
@@ -531,7 +531,7 @@ package body AWS.Net.Std is
                end if;
             end loop;
 
-            --  Ignore trailing ':' in case of none zero line.
+            --  Ignore trailing ':' in case of none zero line
 
             return Result (Result'First .. Index - 1 - Boolean'Pos (not Zero));
          end;
@@ -672,7 +672,7 @@ package body AWS.Net.Std is
          Raise_Socket_Error (Errno, Socket);
 
       elsif Res = 0 then
-         --  socket closed by peer.
+         --  socket closed by peer
 
          raise Socket_Error with "Receive : Socket closed by peer.";
       end if;
@@ -832,7 +832,7 @@ package body AWS.Net.Std is
       Socket.S.FD := No_Socket;
 
       if Thin.C_Close (FD) = Thin.Failure then
-         --  Back true FD for logging.
+         --  Back true FD for logging
 
          Socket.S.FD := FD;
          Log.Error (Socket, Error_Message (Std.Errno));
