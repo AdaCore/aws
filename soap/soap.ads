@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2007                          --
+--                         Copyright (C) 2000-2008                          --
 --                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -38,7 +38,7 @@ package SOAP is
    Version : constant String := "1.5.0";
    --  Version number for this implementation
 
-   No_SOAPAction : constant String := (1 => ASCII.Nul);
+   No_SOAPAction : constant String := (1 => ASCII.NUL);
    --  Value used to specify that there was no SOAPAction specified
 
 end SOAP;
