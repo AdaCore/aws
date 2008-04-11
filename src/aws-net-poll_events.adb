@@ -194,8 +194,17 @@ package body AWS.Net.Poll_Events is
          return;
       end if;
 
-      if Timeout >= Duration (Thin.Timeout_Type'Last / 1_000) then
-         Poll_Timeout := Thin.Timeout_Type'Last;
+      if Timeout >= Duration (Thin.Timeout_Type'Last - 8) / 1_000 then
+         --  Minus 8 is to workaround Linux kernel 2.6.24 bug with close to
+         --  Integer'Last poll timeout values.
+         --  syscall (SYS_poll, &ufds, 1, 2147483644); // is waiting
+         --  syscall (SYS_poll, &ufds, 1, 2147483645); // is not waiting
+         --  Timeout values close to maximum could be not safe because of
+         --  possible time conversion boundary errors in the kernel.
+         --  Use unlimited timeout instead of maximum 24 days timeout for
+         --  safety reasons.
+
+         Poll_Timeout := -1;
       else
          Poll_Timeout := Thin.Timeout_Type (Timeout * 1_000);
       end if;
