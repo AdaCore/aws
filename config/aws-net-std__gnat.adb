@@ -29,6 +29,8 @@
 with Ada.Strings.Maps;
 with Ada.Unchecked_Deallocation;
 
+with Interfaces.C;
+
 with AWS.Net.Log;
 with AWS.OS_Lib;
 
@@ -49,6 +51,13 @@ with System;
 package body AWS.Net.Std is
 
    use GNAT;
+   use type Interfaces.C.int;
+
+   Failure : constant Interfaces.C.int := -1;
+   --  Declared here as it used to be in GNAT.Sockets.Thin and has been moved
+   --  into GNAT.Sockets.Thin.Common as part of a code refactoring. This was
+   --  done on 2008/04/09, when this compiler becomes old enough the
+   --  Thin.Common definition should be used and this declaration removed.
 
    type Socket_Hidden is record
       FD : Sockets.Socket_Type := Sockets.No_Socket;
@@ -260,7 +269,6 @@ package body AWS.Net.Std is
 
    overriding function Errno (Socket : in Socket_Type) return Integer is
       use Interfaces;
-      use type Interfaces.C.int;
       use Sockets;
       RC  : C.int;
       Res : aliased C.int := 0;
@@ -273,7 +281,7 @@ package body AWS.Net.Std is
                Optval  => Res'Address,
                Optlen  => Len'Access);
 
-      if RC = Thin.Failure then
+      if RC = Failure then
          Raise_Socket_Error (Errno, Socket);
       end if;
 
@@ -440,14 +448,13 @@ package body AWS.Net.Std is
      (Socket : in Socket_Type) return Stream_Element_Count
    is
       use Interfaces;
-      use type C.int;
       Arg : aliased C.int;
       Res : constant C.int := Sockets.Thin.C_Ioctl
                                 (C.int (Get_FD (Socket)),
                                  Sockets.Constants.FIONREAD,
                                  Arg'Unchecked_Access);
    begin
-      if Res = Sockets.Thin.Failure then
+      if Res = Failure then
          Raise_Socket_Error (Errno, Socket);
       end if;
 
@@ -523,7 +530,6 @@ package body AWS.Net.Std is
       Last   :    out Stream_Element_Offset)
    is
       use Interfaces;
-      use type C.int;
 
       Errno : Integer;
       RC    : C.int;
@@ -534,7 +540,7 @@ package body AWS.Net.Std is
                Data'Length,
                OS_Lib.MSG_NOSIGNAL);
 
-      if RC = Sockets.Thin.Failure then
+      if RC = Failure then
          Errno := Std.Errno;
 
          if Errno = Sockets.Constants.EWOULDBLOCK then
