@@ -284,11 +284,10 @@ package body AWS.Net.Std is
    -------------------
 
    function Error_Message (Error : in Integer) return String is
-      Msg : String := Integer'Image (Error) & "] ";
+      use Interfaces;
    begin
-      Msg (Msg'First) := '[';
-
-      return Msg & C.Strings.Value (Sockets.Thin.Socket_Error_Message (Error));
+      return '[' & Utils.Image (Error) & "] "
+        & C.Strings.Value (Sockets.Thin.Socket_Error_Message (Error));
    end Error_Message;
 
    ----------
