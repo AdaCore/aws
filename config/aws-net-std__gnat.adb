@@ -36,9 +36,9 @@ with AWS.OS_Lib;
 
 pragma Warnings (Off);
 
---  Ignore warning about portability of the GNAT.Sockets.Thin
---  because we are using only Socket_Errno and it is exists at all main
---  platforms Unix, Windows and VMS.
+--  Ignore warning about portability of the GNAT.Sockets.Thin because we are
+--  using only Socket_Errno which exists on all mains platforms Unix, Windows
+--  and VMS.
 
 with GNAT.Sockets.Thin;
 with GNAT.Sockets.Constants;
