@@ -296,7 +296,7 @@ package body AWS.Net.Std is
       use Interfaces;
    begin
       return '[' & Utils.Image (Error) & "] "
-        & C.Strings.Value ((Sockets.Thin.Socket_Error_Message (Error)));
+        & C.Strings.Value (Sockets.Thin.Socket_Error_Message (Error));
    end Error_Message;
 
    ----------

@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2004-2007                          --
+--                         Copyright (C) 2004-2008                          --
 --                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -284,39 +284,11 @@ package body AWS.Net.Std is
    -------------------
 
    function Error_Message (Error : in Integer) return String is
-
-      pragma Warnings (Off);
-      --  Kill warnings as one of the following procedure won't be used
-
-      function To_String (Str : in String)              return String;
-      pragma Inline (To_String);
-      function To_String (Str : in C.Strings.chars_ptr) return String;
-      pragma Inline (To_String);
-      --  The GNAT.Sockets.Thin.Socket_Error_Message has a different
-      --  spec in GNAT 5.02 and 5.03. Those routines are there to be
-      --  able to accommodate both compilers.
-
-      ---------------
-      -- To_String --
-      ---------------
-
-      function To_String (Str : in String) return String is
-      begin
-         return Str;
-      end To_String;
-
-      function To_String (Str : in C.Strings.chars_ptr) return String is
-      begin
-         return C.Strings.Value (Str);
-      end To_String;
-
-      pragma Warnings (On);
-
       Msg : String := Integer'Image (Error) & "] ";
    begin
       Msg (Msg'First) := '[';
 
-      return Msg & To_String (Sockets.Thin.Socket_Error_Message (Error));
+      return Msg & C.Strings.Value (Sockets.Thin.Socket_Error_Message (Error));
    end Error_Message;
 
    ----------
