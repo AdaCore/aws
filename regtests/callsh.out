@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions name="Callsh"
+   targetNamespace="http://soapaws/Callsh_def/"
+   xmlns:tns="http://soapaws/Callsh_def/"
+   xmlns="http://schemas.xmlsoap.org/wsdl/"
+   xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+   xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/"
+   xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
+   xmlns:xsi="http://www.w3.org/1999/XMLSchema-instance"
+   xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+   xmlns:n1="http://soapaws/Standard_pkg/">
+
+   <message name="Call_Me_Request">
+      <part name="P1" type="xsd:string"/>
+      <part name="P2" type="xsd:string"/>
+   </message>
+
+
+   <portType name="Callsh_PortType">
+
+      <operation name="Call_Me">
+         <input message="tns:Call_Me_Request"/>
+      </operation>
+   </portType>
+
+   <binding name="Callsh_Binding" type="tns:Callsh_PortType">
+      <soap:binding style="rpc"
+         transport="http://schemas.xmlsoap.org/soap/http"/>
+
+      <operation name="Call_Me">
+         <soap:operation soapAction="Call_Me"/>
+         <input>
+            <soap:body
+               encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"
+               namespace="http://soapaws/Callsh_def/"
+               use="encoded"/>
+         </input>
+         <output>
+            <soap:body
+               encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"
+               namespace="http://soapaws/Callsh_def/"
+               use="encoded"/>
+         </output>
+      </operation>
+   </binding>
+
+   <service name="Callsh_Service">
+      <port name="Callsh_Port" binding="tns:Callsh_Binding">
+         <soap:address location="http://.../"/>
+      </port>
+   </service>
+</definitions>

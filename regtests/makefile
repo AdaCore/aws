@@ -46,7 +46,8 @@
 #
 #   3) If the test needs to be executed in it's own executable add it to:
 #      ASIS_TESTS     : test using ada2wsdl tool to create test case
-#      ASIS2_TESTS    : test using ada2wsdl tool only
+#      ASIS2_TESTS    : test using ada2wsdl tool only, checking output
+#      ASIS3_TESTS    : test using ada2wsdl tool only, checking generated WSDL
 #      ALONE_TESTS    : if a standard test but needs to be run separately
 #      OTH_TESTS      : if a test that has a specific target in makefile
 #      WSDL_TESTS     : for WSDL tests
@@ -102,6 +103,7 @@ ifeq (${ASIS}, true)
 
 ASIS_TESTS   = wsdl_1 wsdl_2 wsdl_3 wsdl_4 wsdl_5 wsdl_6 wsdl_7 wsdl_8 wsdl_9
 ASIS2_TESTS  = wsdl_a wsdl_b wsdl_c register wsdl_d
+ASIS3_TESTS  = callsh
 endif
 
 FILTER_OUT	+= $(addsuffix .adb, $(OTH_TESTS) $(ALONE_TESTS))
@@ -124,7 +126,7 @@ gen_main:
 	./generate $(TOGETHER)
 
 gen_sources: $(sort $(PREP_WSDL_TESTS) $(PREP_WSDL_ATESTS) $(ASIS_TESTS) \
-	$(ASIS2_TESTS) $(WSDL2AWS_TESTS))
+	$(ASIS2_TESTS) $(ASIS3_TESTS) $(WSDL2AWS_TESTS))
 
 build_drivers: gen_main
 	echo "Building drivers (takes some time)"
@@ -243,6 +245,12 @@ $(ASIS2_TESTS): force
 	tail -n +3 tmp > $@.res
 	rm tmp
 	-$(DIFF) $@.out $@.res 1>> alldifs 2>> alldifs
+
+$(ASIS3_TESTS): force
+	-$(RM) -f $@.res
+	echo "Running  " $@
+	$(ADA2WSDL) -q -d -f -I. -P../aws $@.ads -o generated/$@.wsdl
+	-$(DIFF) $@.out generated/$@.wsdl 1>> alldifs 2>> alldifs
 
 tres: force
 	echo "Compiling " $@

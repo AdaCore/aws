@@ -55,6 +55,7 @@ with Asis.Text;
 
 with A4G.GNAT_Int;
 
+with AWS.Utils;
 with SOAP.Name_Space;
 with SOAP.Types;
 
@@ -1663,9 +1664,12 @@ package body Ada2WSDL.Parser is
    -----------
 
    function Image (Str : in Wide_String) return String is
+      use AWS;
    begin
       return Strings.Fixed.Trim
-        (Characters.Conversions.To_String (Str), Strings.Both);
+        (Characters.Conversions.To_String (Str),
+         Left  => Utils.Spaces,
+         Right => Utils.Spaces);
    end Image;
 
    ----------------
