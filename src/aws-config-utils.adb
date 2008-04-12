@@ -85,7 +85,7 @@ package body AWS.Config.Utils is
       Error_Context : in     String)
    is
       procedure Set_Parameter (Param : in out Values);
-      --  Set parameter depending on the type (Param.Kind).
+      --  Set parameter depending on the type (Param.Kind)
 
       procedure Error (Message : in String);
       --  Raises Constraint_Error with associated message and Error_Context

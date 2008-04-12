@@ -162,7 +162,7 @@ package body AWS.Headers.Values is
       Name_Last := 0;
 
       if Last = 0 then
-         --  This is the last single value.
+         --  This is the last single value
 
          Value_First := First;
          Value_Last  := Data'Last;
@@ -403,7 +403,7 @@ package body AWS.Headers.Values is
 
       begin
          if First = 0 then
-            --  This is the end of recursion.
+            --  This is the end of recursion
             return Null_Set;
          end if;
 

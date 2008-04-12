@@ -37,11 +37,11 @@ package Ada2WSDL.Options is
 
    Verbose        : Boolean := False;
    --  If this flag is set ON, Ada2WSDL generates the message about itself,
-   --  including ASIS/GNAT version with which it is built
+   --  including ASIS/GNAT version with which it is built.
 
    Quiet          : Boolean := False;
-   --  If this flag is set ON, Ada2WSDL does not generate a confirmation
-   --  in case when the sample body has successfully been created
+   --  If this flag is set ON, Ada2WSDL does not output information about the
+   --  generated SOAP routines.
 
    Overwrite_WSDL : Boolean := False;
    --  Should an existing WSDL be overwritten
