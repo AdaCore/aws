@@ -65,6 +65,10 @@ package Ada2WSDL.Options is
    Enum_To_String : Boolean := False;
    --  If True all enumeration types will be mapped to strings
 
+   Debug          : Boolean := False;
+   --  Do not generate date/time tag into the WSDL document for being able to
+   --  compare them. This is an internal option only.
+
    procedure Set_Default;
    --  Set default path options for the Asis compile step
 

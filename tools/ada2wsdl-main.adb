@@ -58,7 +58,7 @@ procedure Ada2WSDL.Main is
    procedure Parse_Command_Line is
    begin
       loop
-         case GNAT.Command_Line.Getopt ("f q v a: o: s: t: I: P: noenum") is
+         case GNAT.Command_Line.Getopt ("f q v a: o: s: t: I: P: noenum d") is
 
             when ASCII.NUL =>
                exit;
@@ -105,6 +105,9 @@ procedure Ada2WSDL.Main is
 
             when 'P' =>
                Parser.Add_Option ("-P" & GNAT.Command_Line.Parameter);
+
+            when 'd' =>
+               Options.Debug := True;
 
             when others =>
                Usage;
