@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                           Copyright (C) 2006                             --
+--                         Copyright (C) 2006-2008                          --
 --                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -27,7 +27,8 @@
 ------------------------------------------------------------------------------
 
 with Ada.Strings.Fixed;
-with Ada.Strings.Maps;
+
+with AWS.Utils;
 
 package body AWS.Config.Utils is
 
@@ -39,8 +40,6 @@ package body AWS.Config.Utils is
       use Ada.Strings;
       First  : Positive := Line'First;
       Last   : Natural;
-      Spaces : constant Maps.Character_Set
-        := Maps.To_Set (" " & ASCII.HT & ASCII.CR & ASCII.LF);
 
       procedure Append (Item : in String);
 
@@ -50,7 +49,8 @@ package body AWS.Config.Utils is
 
       procedure Append (Item : in String) is
       begin
-         SV.Append (Vector, Fixed.Trim (Item, Spaces, Spaces));
+         SV.Append
+           (Vector, Fixed.Trim (Item, AWS.Utils.Spaces, AWS.Utils.Spaces));
       end Append;
 
    begin

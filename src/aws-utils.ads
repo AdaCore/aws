@@ -29,6 +29,7 @@
 with Ada.Calendar;
 with Ada.Finalization;
 with Ada.Streams;
+with Ada.Strings.Maps;
 with Ada.Task_Identification;
 with Ada.Unchecked_Deallocation;
 
@@ -46,6 +47,10 @@ package AWS.Utils is
    type Null_Record is null record;
    --  Can be used to instantiate generic packages in place of generic
    --  parameters that are not needed.
+
+   Spaces : constant Strings.Maps.Character_Set
+     := Strings.Maps.To_Set (' ' & ASCII.HT & ASCII.LF & ASCII.CR);
+   --  Set of spaces to ignore during parsing
 
    -------------------------------
    --  General helper functions --

@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                          Copyright (C) 2002-2007                         --
+--                          Copyright (C) 2002-2008                         --
 --                                  AdaCore                                 --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -29,13 +29,11 @@
 with Ada.Strings.Fixed;
 with Ada.Strings.Maps.Constants;
 
+with AWS.Utils;
+
 package body AWS.Headers.Values is
 
    use Ada.Strings;
-
-   Spaces : constant Maps.Character_Set
-     := Maps.To_Set (' ' & ASCII.HT & ASCII.LF & ASCII.CR);
-   --  Set of spaces to ignore during parsing
 
    procedure Next_Value
       (Data        : in     String;
@@ -67,7 +65,7 @@ package body AWS.Headers.Values is
    begin
       First := Fixed.Index
         (Source => Header_Value,
-         Set    => Spaces,
+         Set    => Utils.Spaces,
          Test   => Outside);
 
       if First = 0 then
@@ -236,7 +234,7 @@ package body AWS.Headers.Values is
 
          First := Fixed.Index
             (Source => Data (First .. Data'Last),
-             Set    => Spaces,
+             Set    => Utils.Spaces,
              Test   => Outside);
       end if;
    end Next_Value;
@@ -259,7 +257,7 @@ package body AWS.Headers.Values is
 
       First := Fixed.Index
         (Source => Header_Value,
-         Set    => Spaces,
+         Set    => Utils.Spaces,
          Test   => Outside);
 
       if First = 0 then
@@ -314,7 +312,7 @@ package body AWS.Headers.Values is
    begin
       First := Fixed.Index
         (Source => Header_Value,
-         Set    => Spaces,
+         Set    => Utils.Spaces,
          Test   => Outside);
 
       if First = 0 then
@@ -420,7 +418,7 @@ package body AWS.Headers.Values is
    begin
       First := Fixed.Index
         (Source => Header_Value,
-         Set    => Spaces,
+         Set    => Utils.Spaces,
          Test   => Outside);
 
       return To_Set;
@@ -447,7 +445,7 @@ package body AWS.Headers.Values is
    begin
       First := Fixed.Index
         (Source => Header_Value,
-         Set    => Spaces,
+         Set    => Utils.Spaces,
          Test   => Outside);
 
       if First = 0 then
