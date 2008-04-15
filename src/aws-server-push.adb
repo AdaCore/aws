@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2007                          --
+--                         Copyright (C) 2000-2008                          --
 --                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -59,6 +59,7 @@ package body AWS.Server.Push is
       Environment : Client_Environment;
       Groups      : Group_Sets.Set;
       Chunks      : Chunk_Lists.List;
+      Chunk_Sent  : Natural;
       Thin        : Thin_Indexes.Map;
       Phase       : Phase_Type;
       Timeout     : Real_Time.Time_Span;
@@ -81,7 +82,7 @@ package body AWS.Server.Push is
       Close_Sockets  : in     Boolean;
       Left_Open      : in     Boolean;
       Get_Final_Data : access function
-                                (Holder : in Client_Holder)
+                                (Holder : access Client_Holder)
                                  return Stream_Element_Array := null);
 
    procedure Add_To_Groups
@@ -99,9 +100,9 @@ package body AWS.Server.Push is
    --  Internal register routine
 
    function Data_Chunk
-     (Holder       : in Client_Holder;
-      Data         : in Client_Output_Type;
-      Content_Type : in String) return Stream_Element_Array;
+     (Holder       : access Client_Holder;
+      Data         : in     Client_Output_Type;
+      Content_Type : in     String) return Stream_Element_Array;
 
    procedure Get_Data
      (Holder : in out Client_Holder;
@@ -176,9 +177,9 @@ package body AWS.Server.Push is
    ----------------
 
    function Data_Chunk
-     (Holder       : in Client_Holder;
-      Data         : in Client_Output_Type;
-      Content_Type : in String) return Stream_Element_Array
+     (Holder       : access Client_Holder;
+      Data         : in     Client_Output_Type;
+      Content_Type : in     String) return Stream_Element_Array
    is
       Data_To_Send : constant Stream_Element_Array :=
                        To_Stream_Array (Data, Holder.Environment);
@@ -198,8 +199,15 @@ package body AWS.Server.Push is
       begin
          case Holder.Kind is
             when Multipart =>
-               return Delimiter & Messages.Content_Type (Content_Type)
-                 & New_Line & New_Line;
+               Holder.Chunk_Sent := Holder.Chunk_Sent + 1;
+
+               if Holder.Chunk_Sent = 1 then
+                  return Delimiter & Messages.Content_Type (Content_Type)
+                    & New_Line & New_Line;
+               else
+                  return Messages.Content_Type (Content_Type)
+                    & New_Line & New_Line;
+               end if;
 
             when Chunked =>
                return Utils.Hex (Data_To_Send'Size / System.Storage_Unit)
@@ -218,7 +226,7 @@ package body AWS.Server.Push is
       begin
          case Holder.Kind is
             when Multipart =>
-               return New_Line & New_Line;
+               return New_Line & New_Line & Delimiter;
 
             when Chunked =>
                return New_Line;
@@ -603,7 +611,7 @@ package body AWS.Server.Push is
          procedure To_Buffer is
             CT : Thin_Indexes.Cursor;
             Chunk : constant Stream_Element_Array :=
-                      Data_Chunk (Holder.all, Data, Content_Type);
+                      Data_Chunk (Holder, Data, Content_Type);
          begin
             if Thin_Id /= "" then
                CT := Holder.Thin.Find (Thin_Id);
@@ -658,7 +666,7 @@ package body AWS.Server.Push is
             elsif Events (Output) then
                declare
                   Chunk : constant Stream_Element_Array :=
-                            Data_Chunk (Holder.all, Data, Content_Type);
+                            Data_Chunk (Holder, Data, Content_Type);
                   Last : Stream_Element_Offset;
                begin
                   --  It is not blocking Net.Send operation
@@ -1045,10 +1053,11 @@ package body AWS.Server.Push is
                Messages.Transfer_Encoding ("chunked") & New_Line);
 
          elsif Holder.Kind = Multipart then
-            Net.Buffered.Put_Line
+            Net.Buffered.Put
               (Holder.Socket.all,
                Messages.Content_Type
-                 (MIME.Multipart_X_Mixed_Replace, Boundary) & New_Line);
+                 (MIME.Multipart_X_Mixed_Replace, Boundary)
+               & New_Line & New_Line);
 
          else
             Net.Buffered.New_Line (Holder.Socket.all);
@@ -1091,7 +1100,7 @@ package body AWS.Server.Push is
         (Server,
          Client_Id,
          Holder,
-         Data_Chunk (Holder.all, Init_Data, Init_Content_Type),
+         Data_Chunk (Holder, Init_Data, Init_Content_Type),
          Duplicated_Age);
    end Register;
 
@@ -1120,7 +1129,7 @@ package body AWS.Server.Push is
       Close_Sockets  : in     Boolean;
       Left_Open      : in     Boolean;
       Get_Final_Data : access function
-                                (Holder : in Client_Holder)
+                                (Holder : access Client_Holder)
                                  return Stream_Element_Array := null)
    is
       Queue  : Tables.Map;
@@ -1150,7 +1159,7 @@ package body AWS.Server.Push is
                   Holder.Socket.Send (Data (1 .. Last));
                end loop;
 
-               Holder.Socket.Send (Get_Final_Data (Holder.all));
+               Holder.Socket.Send (Get_Final_Data (Holder));
             exception
                when Net.Socket_Error =>
                   null;
@@ -1311,14 +1320,14 @@ package body AWS.Server.Push is
       Final_Content_Type : in     String             := "")
    is
       function Get_Final_Data
-        (Holder : in Client_Holder) return Stream_Element_Array;
+        (Holder : access Client_Holder) return Stream_Element_Array;
 
       --------------------
       -- Get_Final_Data --
       --------------------
 
       function Get_Final_Data
-        (Holder : in Client_Holder) return Stream_Element_Array is
+        (Holder : access Client_Holder) return Stream_Element_Array is
       begin
          return Data_Chunk (Holder, Final_Data, Final_Content_Type);
       end Get_Final_Data;
@@ -1386,6 +1395,7 @@ package body AWS.Server.Push is
          Socket      => new Socket_Type'Class'(Socket),
          Groups      => Holder_Groups,
          Chunks      => <>,
+         Chunk_Sent  => 0,
          Thin        => <>,
          Phase       => Available,
          Timeout     => Real_Time.To_Time_Span (Timeout),
