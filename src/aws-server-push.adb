@@ -390,6 +390,10 @@ package body AWS.Server.Push is
       is
          procedure Action (C : Tables.Cursor);
 
+         ------------
+         -- Action --
+         ------------
+
          procedure Action (C : Tables.Cursor) is
             CA     : constant Client_Holder_Access := Tables.Element (C);
             Groups : Group_Set (1 .. Integer (CA.Groups.Length));
@@ -397,6 +401,10 @@ package body AWS.Server.Push is
             G      : Group_Maps.Cursor;
 
             function Get_Peer_Addr return String;
+
+            -------------------
+            -- Get_Peer_Addr --
+            -------------------
 
             function Get_Peer_Addr return String is
             begin
@@ -450,8 +458,8 @@ package body AWS.Server.Push is
             C := Group_Maps.Element (G).First;
 
             while Tables.Has_Element (C) loop
-               if not Tables.Element (C).Groups.Contains
-                        (Group_Maps.Key (G))
+               if not
+                 Tables.Element (C).Groups.Contains (Group_Maps.Key (G))
                then
                   raise Program_Error with "loose group in client.";
                end if;
@@ -487,9 +495,6 @@ package body AWS.Server.Push is
       is
          use Calendar;
 
-         Cursor  : Tables.Cursor;
-         Success : Boolean;
-
          procedure Add_To_Groups (J : in Group_Sets.Cursor);
 
          -------------------
@@ -498,9 +503,11 @@ package body AWS.Server.Push is
 
          procedure Add_To_Groups (J : in Group_Sets.Cursor) is
          begin
-            Add_To_Groups
-              (Groups, Group_Sets.Element (J), Client_Id, Holder);
+            Add_To_Groups (Groups, Group_Sets.Element (J), Client_Id, Holder);
          end Add_To_Groups;
+
+         Cursor  : Tables.Cursor;
+         Success : Boolean;
 
       begin
          if not Open then
@@ -512,6 +519,7 @@ package body AWS.Server.Push is
 
          if Success then
             Duplicated := null;
+
          else
             Duplicated := Tables.Element (Cursor);
 
@@ -555,6 +563,7 @@ package body AWS.Server.Push is
       begin
          if Group_Id = "" then
             Cursor := Container.First;
+
          else
             declare
                use Group_Maps;
@@ -608,10 +617,14 @@ package body AWS.Server.Push is
 
          procedure To_Buffer;
 
+         ---------------
+         -- To_Buffer --
+         ---------------
+
          procedure To_Buffer is
-            CT : Thin_Indexes.Cursor;
             Chunk : constant Stream_Element_Array :=
                       Data_Chunk (Holder, Data, Content_Type);
+            CT    : Thin_Indexes.Cursor;
          begin
             if Thin_Id /= "" then
                CT := Holder.Thin.Find (Thin_Id);
@@ -667,7 +680,7 @@ package body AWS.Server.Push is
                declare
                   Chunk : constant Stream_Element_Array :=
                             Data_Chunk (Holder, Data, Content_Type);
-                  Last : Stream_Element_Offset;
+                  Last  : Stream_Element_Offset;
                begin
                   --  It is not blocking Net.Send operation
 
@@ -919,7 +932,6 @@ package body AWS.Server.Push is
       procedure Unsubscribe
         (Client_Id : in Client_Key; Group_Id : in String)
       is
-         Cursor : constant Tables.Cursor := Container.Find (Client_Id);
 
          procedure Modify
            (Key : in String; Element : in out Client_Holder_Access);
@@ -951,6 +963,8 @@ package body AWS.Server.Push is
             end if;
          end Modify;
 
+         Cursor : constant Tables.Cursor := Container.Find (Client_Id);
+
       begin
          if Tables.Has_Element (Cursor) then
             Container.Update_Element (Cursor, Modify'Access);
@@ -964,9 +978,8 @@ package body AWS.Server.Push is
       procedure Unsubscribe_Copy (Source : in String; Target : in String) is
          use type Containers.Count_Type;
 
-         CG : Group_Maps.Cursor := Groups.Find (Target);
-         CF : Tables.Cursor;
-
+         CG     : Group_Maps.Cursor := Groups.Find (Target);
+         CF     : Tables.Cursor;
          Group  : Map_Access;
          Client : Client_Holder_Access;
       begin

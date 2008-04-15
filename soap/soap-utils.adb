@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2006                          --
+--                         Copyright (C) 2000-2008                          --
 --                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -44,8 +44,7 @@ package body SOAP.Utils is
 
    function Any
      (V    : in Types.XSD_Any_Type;
-      Name : in String  := "item")
-      return Types.XSD_Any_Type is
+      Name : in String  := "item") return Types.XSD_Any_Type is
    begin
       return SOAP.Types.Any (Types.Object'Class (V), Name);
    end Any;
@@ -56,8 +55,7 @@ package body SOAP.Utils is
 
    function C
      (V      : in Character;
-      Name   : in String  := "item")
-      return Types.SOAP_Enumeration is
+      Name   : in String  := "item") return Types.SOAP_Enumeration is
    begin
       return SOAP.Types.E (String'(1 => V), "Character", Name);
    end C;
@@ -279,8 +277,7 @@ package body SOAP.Utils is
    ------------------
 
    function SOAP_Wrapper
-     (Request : in AWS.Status.Data)
-      return AWS.Response.Data
+     (Request : in AWS.Status.Data) return AWS.Response.Data
    is
       SOAPAction : constant String := AWS.Status.SOAPAction (Request);
    begin
@@ -435,8 +432,7 @@ package body SOAP.Utils is
 
    function US
      (V      : in Unbounded_String;
-      Name   : in String  := "item")
-      return Types.XSD_String is
+      Name   : in String  := "item") return Types.XSD_String is
    begin
       return Types.S (To_String (V), Name);
    end US;

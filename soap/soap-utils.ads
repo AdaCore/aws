@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2005                          --
+--                         Copyright (C) 2000-2008                          --
 --                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -82,11 +82,9 @@ package SOAP.Utils is
       with function SOAP_CB
         (SOAPAction : in String;
          Payload    : in Message.Payload.Object;
-         Request    : in AWS.Status.Data)
-         return AWS.Response.Data;
+         Request    : in AWS.Status.Data) return AWS.Response.Data;
    function SOAP_Wrapper
-     (Request : in AWS.Status.Data)
-      return AWS.Response.Data;
+     (Request : in AWS.Status.Data) return AWS.Response.Data;
    --  From a standard HTTP callback calls the SOAP callback passed as generic
    --  formal procedure. Raises Constraint_Error if Request is not a SOAP
    --  request.
@@ -149,20 +147,17 @@ package SOAP.Utils is
 
    function Any
      (V    : in Types.XSD_Any_Type;
-      Name : in String  := "item")
-      return Types.XSD_Any_Type;
+      Name : in String  := "item") return Types.XSD_Any_Type;
    --  Return V with the given name
 
    function US
      (V    : in Unbounded_String;
-      Name : in String  := "item")
-      return Types.XSD_String;
+      Name : in String  := "item") return Types.XSD_String;
    --  Returns the SOAP string for the given Unbounded_String value and name
 
    function C
      (V    : in Character;
-      Name : in String  := "item")
-      return Types.SOAP_Enumeration;
+      Name : in String  := "item") return Types.SOAP_Enumeration;
    --  Returns the SOAP string for the given Character value and name
 
    --  Smart pointers support used for array access in SOAP record. The memory
