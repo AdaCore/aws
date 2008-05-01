@@ -369,7 +369,8 @@ gxmlada_setup:
 
 setup_dir:
 	-$(MKDIR) -p $(PRJDIR)
-	-$(MKDIR) -p templates_parser/obj
+	-$(MKDIR) -p templates_parser/$(BDIR)/obj
+	-$(MKDIR) -p templates_parser/$(BDIR)/rbin
 
 CONFGPR	= $(PRJDIR)/aws_config.gpr
 CONFADC	= $(BDIR)/gnat.adc
