@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                             Templates Parser                             --
 --                                                                          --
---                         Copyright (C) 2002-2007                          --
+--                         Copyright (C) 2002-2008                          --
 --                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -41,7 +41,7 @@ package body Templates_Parser.Input is
 
    procedure Check_Open (File : in File_Type);
    pragma Inline (Check_Open);
-   --  Check if File is opened (File variable is not null).
+   --  Check if File is opened (File variable is not null)
 
    procedure Free is new Ada.Unchecked_Deallocation (File_Record, File_Type);
 
