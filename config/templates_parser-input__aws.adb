@@ -35,8 +35,6 @@ with AWS.Resources;
 
 package body Templates_Parser.Input is
 
-   use Ada;
-
    type File_Record is new AWS.Resources.File_Type;
 
    procedure Check_Open (File : in File_Type);
