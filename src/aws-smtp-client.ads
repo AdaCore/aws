@@ -54,7 +54,7 @@
 --        (Server  => Wanadoo,
 --         From    => SMTP.E_Mail ("Pascal Obry", "pascal@obry.net"),
 --         To      => SMTP.E_Mail
---                      ("Dmitriy Anisimkov", "anisimkov@omsknet.ru"),
+--                      ("Dmitriy Anisimkov", "anisimkov@ada-ru.org"),
 --         Subject => "Latest Ada news",
 --         Message => "now Ada can send SMTP mail!",
 --         Status  => Result);
