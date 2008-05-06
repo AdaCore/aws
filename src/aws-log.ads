@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2006                          --
+--                         Copyright (C) 2000-2008                          --
 --                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -146,7 +146,7 @@ package AWS.Log is
    --  activated.
 
    function Mode (Log : in Object) return Split_Mode;
-   --  Returns the split mode. None will be returned if log is not activated.
+   --  Returns the split mode. None will be returned if log is not activated
 
 private
 

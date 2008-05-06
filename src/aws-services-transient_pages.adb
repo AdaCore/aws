@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2003-2006                          --
+--                         Copyright (C) 2003-2008                          --
 --                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -134,10 +134,10 @@ package body AWS.Services.Transient_Pages is
 
    exception
       when E : others =>
-         Ada.Text_IO.Put_Line
-           (Ada.Text_IO.Current_Error,
+         Text_IO.Put_Line
+           (Text_IO.Current_Error,
             "Transient_Pages cleaner error: "
-            & Ada.Exceptions.Exception_Information (E));
+            & Exceptions.Exception_Information (E));
    end Cleaner;
 
    --------------

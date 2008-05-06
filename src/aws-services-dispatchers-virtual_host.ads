@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2007                          --
+--                         Copyright (C) 2000-2008                          --
 --                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -49,18 +49,18 @@ package AWS.Services.Dispatchers.Virtual_Host is
      (Dispatcher       : in out Handler;
       Virtual_Hostname : in     String;
       Action           : in     AWS.Dispatchers.Handler'Class);
-   --  Register Virtual_Hostname to use the specified callback.
+   --  Register Virtual_Hostname to use the specified callback
 
    procedure Register
      (Dispatcher       : in out Handler;
       Virtual_Hostname : in     String;
       Action           : in     Response.Callback);
-   --  Idem as above but take a callback procedure as parameter.
+   --  Idem as above but take a callback procedure as parameter
 
    procedure Unregister
      (Dispatcher       : in out Handler;
       Virtual_Hostname : in     String);
-   --  Removes Virtual_Hostname from the list of virtual hostnames to handle.
+   --  Removes Virtual_Hostname from the list of virtual hostnames to handle
 
    procedure Register_Default_Callback
      (Dispatcher : in out Handler;
