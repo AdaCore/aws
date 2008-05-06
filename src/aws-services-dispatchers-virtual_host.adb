@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2007                          --
+--                         Copyright (C) 2000-2008                          --
 --                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -57,17 +57,16 @@ package body AWS.Services.Dispatchers.Virtual_Host is
              (AWS.Dispatchers.Handler'Class (Dispatcher.Action.Clone));
       end if;
 
-      Cursor := VH_Table.First (Dispatcher.Table);
+      Cursor := Dispatcher.Table.First;
 
       while Virtual_Host_Table.Has_Element (Cursor) loop
          declare
             Node : constant VH_Node :=
-                     Virtual_Host_Table.Containers.Element (Cursor);
+                     Virtual_Host_Table.Element (Cursor);
          begin
             if Node.Mode = Callback then
-               Virtual_Host_Table.Containers.Insert
-                 (Container => New_Dispatcher.Table,
-                  Key       => Virtual_Host_Table.Containers.Key (Cursor),
+               New_Dispatcher.Table.Insert
+                 (Key       => Virtual_Host_Table.Key (Cursor),
                   New_Item  =>
                     VH_Node'
                       (Mode   => Callback,
@@ -75,16 +74,15 @@ package body AWS.Services.Dispatchers.Virtual_Host is
                          (AWS.Dispatchers.Handler'Class (Node.Action.Clone))));
 
             else
-               Virtual_Host_Table.Containers.Insert
-                 (Container => New_Dispatcher.Table,
-                  Key       => Virtual_Host_Table.Containers.Key (Cursor),
+               New_Dispatcher.Table.Insert
+                 (Key       => Virtual_Host_Table.Key (Cursor),
                   New_Item  =>
                     VH_Node'
                       (Mode     => Host,
                        Hostname => Node.Hostname));
             end if;
          end;
-         Virtual_Host_Table.Containers.Next (Cursor);
+         Virtual_Host_Table.Next (Cursor);
       end loop;
 
       return New_Dispatcher;
@@ -112,11 +110,10 @@ package body AWS.Services.Dispatchers.Virtual_Host is
          K := K - 1;
       end if;
 
-      Cursor := VH_Table.Find
-        (Dispatcher.Table, Hostname (Hostname'First .. K));
+      Cursor := Dispatcher.Table.Find (Hostname (Hostname'First .. K));
 
       if Virtual_Host_Table.Has_Element (Cursor) then
-         Node := VH_Table.Element (Cursor);
+         Node := Virtual_Host_Table.Element (Cursor);
 
          case Node.Mode is
             when Host     =>
@@ -157,21 +154,21 @@ package body AWS.Services.Dispatchers.Virtual_Host is
       Finalize (AWS.Dispatchers.Handler (Dispatcher));
 
       if Ref_Counter (Dispatcher) = 0 then
-         Cursor := VH_Table.First (Dispatcher.Table);
+         Cursor := Dispatcher.Table.First;
 
          while Virtual_Host_Table.Has_Element (Cursor) loop
             declare
                Node : VH_Node
-                 := Virtual_Host_Table.Containers.Element (Cursor);
+                 := Virtual_Host_Table.Element (Cursor);
             begin
                if Node.Mode = Callback then
                   Free (Node.Action);
                end if;
             end;
-            Virtual_Host_Table.Containers.Next (Cursor);
+            Virtual_Host_Table.Next (Cursor);
          end loop;
 
-         VH_Table.Clear (Dispatcher.Table);
+         Dispatcher.Table.Clear;
          Free (Dispatcher.Action);
       end if;
    end Finalize;
@@ -194,7 +191,7 @@ package body AWS.Services.Dispatchers.Virtual_Host is
       Virtual_Hostname : in     String;
       Node             : in     VH_Node) is
    begin
-      VH_Table.Include (Dispatcher.Table, Virtual_Hostname, Node);
+      Dispatcher.Table.Include (Virtual_Hostname, Node);
    end Register;
 
    procedure Register
@@ -250,7 +247,7 @@ package body AWS.Services.Dispatchers.Virtual_Host is
      (Dispatcher       : in out Handler;
       Virtual_Hostname : in     String) is
    begin
-      VH_Table.Delete (Dispatcher.Table, Virtual_Hostname);
+      Dispatcher.Table.Delete (Virtual_Hostname);
    end Unregister;
 
 end AWS.Services.Dispatchers.Virtual_Host;

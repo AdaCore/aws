@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                          Copyright (C) 2002-2005                         --
+--                          Copyright (C) 2002-2008                         --
 --                                  AdaCore                                 --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -26,9 +26,10 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-with AWS.Resources.Streams.ZLib;
+with Ada.Containers.Indefinite_Hashed_Maps;
+with Ada.Strings.Hash;
 
-with Strings_Maps;
+with AWS.Resources.Streams.ZLib;
 
 with ZLib;
 
@@ -39,10 +40,10 @@ package body AWS.Resources.Embedded is
       File_Time   : Calendar.Time;
    end record;
 
-   package Res_Files_Container is new Strings_Maps (Node, "=");
-   package Res_Files renames Res_Files_Container.Containers;
+   package Res_Files is new Ada.Containers.Indefinite_Hashed_Maps
+     (String, Node, Ada.Strings.Hash, "=", "=");
 
-   Files_Table : Res_Files_Container.Map;
+   Files_Table : Res_Files.Map;
 
    procedure Append
      (Stream : in Streams.Stream_Access;

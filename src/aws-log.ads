@@ -46,7 +46,8 @@ with AWS.Response;
 with AWS.Messages;
 with AWS.Utils;
 
-with Strings_Maps;
+private with Ada.Containers.Indefinite_Hashed_Maps;
+private with Ada.Strings.Hash;
 
 package AWS.Log is
 
@@ -153,8 +154,8 @@ private
    use Ada;
    use Ada.Strings.Unbounded;
 
-   package Strings_Positive is new Strings_Maps (Positive);
-   package SN renames Strings_Positive.Containers;
+   package Strings_Positive is new Ada.Containers.Indefinite_Hashed_Maps
+     (String, Positive, Ada.Strings.Hash, "=", "=");
 
    package SV renames AWS.Containers.String_Vectors;
 
@@ -168,7 +169,7 @@ private
 
    type Object is new Ada.Finalization.Limited_Controlled with record
       File            : Text_IO.File_Type;
-      Extended_Fields : SN.Map;
+      Extended_Fields : Strings_Positive.Map;
       Header_Written  : Boolean;
       File_Directory  : Unbounded_String;
       Filename_Prefix : Unbounded_String;

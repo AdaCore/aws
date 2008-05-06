@@ -26,13 +26,13 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-private with Ada.Strings.Unbounded;
-
-private with Strings_Maps;
-
 with AWS.Dispatchers;
 with AWS.Response;
 with AWS.Status;
+
+private with Ada.Containers.Indefinite_Hashed_Maps;
+private with Ada.Strings.Hash;
+private with Ada.Strings.Unbounded;
 
 package AWS.Services.Dispatchers.Virtual_Host is
 
@@ -94,8 +94,8 @@ private
       end case;
    end record;
 
-   package Virtual_Host_Table is new Strings_Maps (VH_Node, "=");
-   package VH_Table renames Virtual_Host_Table.Containers;
+   package Virtual_Host_Table is new Ada.Containers.Indefinite_Hashed_Maps
+       (String, VH_Node, Ada.Strings.Hash, "=", "=");
 
    type Handler is new AWS.Dispatchers.Handler with record
       Action : AWS.Dispatchers.Handler_Class_Access;

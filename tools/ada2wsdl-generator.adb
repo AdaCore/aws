@@ -27,7 +27,9 @@
 ------------------------------------------------------------------------------
 
 with Ada.Calendar;
+with Ada.Containers.Indefinite_Hashed_Maps;
 with Ada.Exceptions;
+with Ada.Strings.Hash;
 with Ada.Strings.Unbounded;
 with Ada.Text_IO;
 
@@ -37,8 +39,6 @@ with AWS.Utils;
 with SOAP.Name_Space;
 with SOAP.Types;
 with SOAP.WSDL;
-
-with Strings_Maps;
 
 with Ada2WSDL.Options;
 
@@ -97,8 +97,8 @@ package body Ada2WSDL.Generator is
    Character_Schema : Boolean := False;
    --  Set to Trus if a WSDL Character schema must be generated
 
-   package NS_Maps is new Strings_Maps (Positive);
-   use NS_Maps;
+   package NS_Maps is new Ada.Containers.Indefinite_Hashed_Maps
+     (String, Positive, Ada.Strings.Hash, "=", "=");
 
    Name_Spaces : NS_Maps.Map;
    NS_Num      : Natural := 0;
@@ -144,12 +144,12 @@ package body Ada2WSDL.Generator is
    ---------------
 
    procedure Insert_NS (Value : in String) is
-      P       : Cursor;
+      P       : NS_Maps.Cursor;
       Success : Boolean;
    begin
-      if not NS_Maps.Containers.Contains (Name_Spaces, Value) then
+      if not Name_Spaces.Contains (Value) then
          NS_Num := NS_Num + 1;
-         NS_Maps.Containers.Insert (Name_Spaces, Value, NS_Num, P, Success);
+         Name_Spaces.Insert (Value, NS_Num, P, Success);
       end if;
    end Insert_NS;
 
@@ -233,8 +233,7 @@ package body Ada2WSDL.Generator is
       if Value = "" then
          return "tns";
       else
-         return 'n' &
-           Utils.Image (NS_Maps.Containers.Element (Name_Spaces, Value));
+         return 'n' & Utils.Image (Name_Spaces.Element (Value));
       end if;
    end NS_Prefix;
 
@@ -628,7 +627,7 @@ package body Ada2WSDL.Generator is
 
       procedure Write_Header is
          use AWS;
-         P : Cursor;
+         P : NS_Maps.Cursor;
          N : Positive;
       begin
          Put_Line ("<?xml version=""1.0"" encoding=""UTF-8""?>");
@@ -644,15 +643,15 @@ package body Ada2WSDL.Generator is
 
          --  Write all name spaces
 
-         P := NS_Maps.Containers.First (Name_Spaces);
+         P := Name_Spaces.First;
 
-         while Has_Element (P) loop
-            N := NS_Maps.Containers.Element (P);
+         while NS_Maps.Has_Element (P) loop
+            N := NS_Maps.Element (P);
 
             New_Line;
             Put ("   xmlns:n" & Utils.Image (N)
-                 & "=""" & NS_Maps.Containers.Key (P) & '"');
-            P := NS_Maps.Containers.Next (P);
+                 & "=""" & NS_Maps.Key (P) & '"');
+            P := NS_Maps.Next (P);
          end loop;
 
          --  Close definition

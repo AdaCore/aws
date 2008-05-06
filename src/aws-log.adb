@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2007                          --
+--                         Copyright (C) 2000-2008                          --
 --                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -202,7 +202,7 @@ package body AWS.Log is
    --------------------
 
    procedure Register_Field (Log : in out Object; Id : in String) is
-      Position : SN.Cursor;
+      Position : Strings_Positive.Cursor;
       Success  : Boolean;
    begin
       Log.Extended_Fields.Insert
@@ -238,10 +238,12 @@ package body AWS.Log is
       end if;
 
       declare
-         CSN : constant SN.Cursor := Log.Extended_Fields.Find (Id);
+         CSN : constant Strings_Positive.Cursor :=
+                 Log.Extended_Fields.Find (Id);
       begin
-         if Value /= "" and then SN.Has_Element (CSN) then
-            Data.Values.Replace_Element (SN.Element (CSN), Value);
+         if Value /= "" and then Strings_Positive.Has_Element (CSN) then
+            Data.Values.Replace_Element
+              (Strings_Positive.Element (CSN), Value);
          end if;
       end;
    end Set_Field;
@@ -492,24 +494,25 @@ package body AWS.Log is
             Text_IO.Put (Log.File, "#Fields:");
 
             declare
-               Order : array (1 .. Length) of SN.Cursor;
+               Order : array (1 .. Length) of Strings_Positive.Cursor;
 
-               procedure Process (Position : in SN.Cursor);
+               procedure Process (Position : in Strings_Positive.Cursor);
 
                -------------
                -- Process --
                -------------
 
-               procedure Process (Position : in SN.Cursor) is
+               procedure Process (Position : in Strings_Positive.Cursor) is
                begin
-                  Order (SN.Element (Position)) := Position;
+                  Order (Strings_Positive.Element (Position)) := Position;
                end Process;
 
             begin
                Log.Extended_Fields.Iterate (Process'Access);
 
                for J in Order'Range loop
-                  Text_IO.Put (Log.File, ' ' & SN.Key (Order (J)));
+                  Text_IO.Put
+                    (Log.File, ' ' & Strings_Positive.Key (Order (J)));
                end loop;
 
                Text_IO.New_Line (Log.File);
@@ -519,11 +522,11 @@ package body AWS.Log is
          --  Set date and time fields if the used does not fill it
 
          declare
-            CSN : SN.Cursor := Log.Extended_Fields.Find ("date");
+            CSN : Strings_Positive.Cursor := Log.Extended_Fields.Find ("date");
             P   : Positive;
          begin
-            if SN.Has_Element (CSN) then
-               P := SN.Element (CSN);
+            if Strings_Positive.Has_Element (CSN) then
+               P := Strings_Positive.Element (CSN);
 
                if Data.Values.Element (P) = "-" then
                   Data.Values.Replace_Element (P, Image (Now, ISO_Date));
@@ -532,8 +535,8 @@ package body AWS.Log is
 
             CSN := Log.Extended_Fields.Find ("time");
 
-            if SN.Has_Element (CSN) then
-               P := SN.Element (CSN);
+            if Strings_Positive.Has_Element (CSN) then
+               P := Strings_Positive.Element (CSN);
 
                if Data.Values.Element (P) = "-" then
                   Data.Values.Replace_Element (P, Image (Now, "%T"));
