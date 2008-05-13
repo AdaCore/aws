@@ -50,13 +50,18 @@ package AWS.Services.Web_Block.Registry is
 
    No_Page : constant Page;
 
+   type Data_Callback is access procedure
+     (Request      : in     Status.Data;
+      Context      : access Web_Block.Context.Object;
+      Translations : in out Templates.Translate_Set);
+
+   type Template_Callback is access function
+     (Request : in Status.Data) return String;
+
    procedure Register
      (Key              : in String;
       Template         : in String;
-      Data_CB          : access procedure
-        (Request      : in     Status.Data;
-         Context      : access Web_Block.Context.Object;
-         Translations : in out Templates.Translate_Set);
+      Data_CB          : in Data_Callback;
       Content_Type     : in String  := MIME.Text_HTML;
       Prefix           : in Boolean := False;
       Context_Required : in Boolean := False);
@@ -68,12 +73,8 @@ package AWS.Services.Web_Block.Registry is
 
    procedure Register
      (Key              : in String;
-      Template_CB      :  not null access function
-        (Request : in Status.Data) return String;
-      Data_CB          : access procedure
-        (Request      : in     Status.Data;
-         Context      : access Web_Block.Context.Object;
-         Translations : in out Templates.Translate_Set);
+      Template_CB      : in Template_Callback;
+      Data_CB          : in Data_Callback;
       Content_Type     : in String := MIME.Text_HTML;
       Context_Required : in Boolean := False);
    --  Key is a Lazy_Tag or template page name. Template_CB is the callback

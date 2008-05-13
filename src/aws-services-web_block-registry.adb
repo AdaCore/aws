@@ -57,17 +57,13 @@ package body AWS.Services.Web_Block.Registry is
    type Web_Object (Callback_Template : Boolean := False) is record
       Content_Type     : Unbounded_String;
       Context_Required : Boolean;
-      Data_CB          : access procedure
-        (Request      : in Status.Data;
-         Context      : access Web_Block.Context.Object;
-         Translations : in out Templates.Translate_Set);
+      Data_CB          : Data_Callback;
 
       case Callback_Template is
          when False =>
             Template    : Unbounded_String;
          when True =>
-            Template_CB : access function
-              (Request : in Status.Data) return String;
+            Template_CB : Template_Callback;
       end case;
    end record;
 
@@ -375,10 +371,7 @@ package body AWS.Services.Web_Block.Registry is
    procedure Register
      (Key              : in String;
       Template         : in String;
-      Data_CB          : access procedure
-        (Request      : in     Status.Data;
-         Context      : access Web_Block.Context.Object;
-         Translations : in out Templates.Translate_Set);
+      Data_CB          : in Data_Callback;
       Content_Type     : in String  := MIME.Text_HTML;
       Prefix           : in Boolean := False;
       Context_Required : in Boolean := False)
@@ -408,12 +401,8 @@ package body AWS.Services.Web_Block.Registry is
 
    procedure Register
      (Key              : in String;
-      Template_CB      :  not null access function
-        (Request : in Status.Data) return String;
-      Data_CB          : access procedure
-        (Request      : in     Status.Data;
-         Context      : access Web_Block.Context.Object;
-         Translations : in out Templates.Translate_Set);
+      Template_CB      : in Template_Callback;
+      Data_CB          : in Data_Callback;
       Content_Type     : in String := MIME.Text_HTML;
       Context_Required : in Boolean := False)
    is

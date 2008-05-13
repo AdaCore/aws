@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2007                            --
+--                         Copyright (C) 2007-2008                          --
 --                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -178,7 +178,8 @@ procedure WB_Test is
    end Request;
 
 begin
-   Web_Block.Registry.Register ("WHATEVER", "wb_test.tmplt", Data_CB'Access);
+   Web_Block.Registry.Register
+     ("WHATEVER", "wb_test.tmplt", Data_CB'Unrestricted_Access);
 
    for K in Clients'Range loop
       Clients (K).Start (K);
