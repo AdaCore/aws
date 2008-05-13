@@ -381,7 +381,7 @@ package body AWS.Services.Web_Block.Registry is
          Translations : in out Templates.Translate_Set);
       Content_Type     : in String  := MIME.Text_HTML;
       Prefix           : in Boolean := False;
-      Context_Required : Boolean := False)
+      Context_Required : in Boolean := False)
    is
       WO : Web_Object;
    begin
@@ -415,7 +415,7 @@ package body AWS.Services.Web_Block.Registry is
          Context      : access Web_Block.Context.Object;
          Translations : in out Templates.Translate_Set);
       Content_Type     : in String := MIME.Text_HTML;
-      Context_Required : Boolean := False)
+      Context_Required : in Boolean := False)
    is
       WO : Web_Object (True);
    begin

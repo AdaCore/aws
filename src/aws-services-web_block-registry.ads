@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2007                            --
+--                         Copyright (C) 2007-2008                          --
 --                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -59,7 +59,7 @@ package AWS.Services.Web_Block.Registry is
          Translations : in out Templates.Translate_Set);
       Content_Type     : in String  := MIME.Text_HTML;
       Prefix           : in Boolean := False;
-      Context_Required : Boolean := False);
+      Context_Required : in Boolean := False);
    --  Key is a Lazy_Tag or template page name. Template is the corresponding
    --  template file. Data_CB is the callback used to retrieve the translation
    --  table to render the page. If Context_Required is True a proper context
@@ -75,7 +75,7 @@ package AWS.Services.Web_Block.Registry is
          Context      : access Web_Block.Context.Object;
          Translations : in out Templates.Translate_Set);
       Content_Type     : in String := MIME.Text_HTML;
-      Context_Required : Boolean := False);
+      Context_Required : in Boolean := False);
    --  Key is a Lazy_Tag or template page name. Template_CB is the callback
    --  used to retrieve the corresponding template file name. Data_CB is the
    --  callback used to retrieve the translation table to render the page.
