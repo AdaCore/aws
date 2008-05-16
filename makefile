@@ -124,17 +124,25 @@ build_doc:
 	echo "=== Build doc"
 	${MAKE} -C docs build_doc $(GALL_OPTIONS)
 
-tp_regtests:
+tp_regtests: run_tp_regtests run_tp_regtests_result
+
+run_tp_regtests:
+#  Do not report Templates Parser regression here
+#  as we want to continue for passing the AWS tests.
+#  The check is done later using run_tp_regtests_result.
 	echo ""
 	echo "=== Run Templates Parser regression tests"
-	${MAKE} -C templates_parser/regtests test $(GALL_OPTIONS)
+	-${MAKE} -C templates_parser/regtests test $(GALL_OPTIONS)
+
+run_tp_regtests_result:
+	${MAKE} -C templates_parser/regtests test_result $(GALL_OPTIONS)
 
 aws_regtests:
 	echo ""
 	echo "=== Run regression tests"
 	${MAKE} -C regtests run $(GALL_OPTIONS) GDB_REGTESTS="$(GDB_REGTESTS)"
 
-run_regtests: tp_regtests aws_regtests
+run_regtests: run_tp_regtests aws_regtests run_tp_regtests_result
 
 common_tarball:
 	$(CHMOD) a+rx win32/*.dll
