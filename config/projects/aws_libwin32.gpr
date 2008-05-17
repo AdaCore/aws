@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                          Copyright (C) 2004-2007                         --
---                                  AdaCore                                 --
+--                            Copyright (C) 2008                            --
+--                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -26,25 +26,20 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-with "aws/aws_xmlada";
-with "aws/aws_components";
-with "aws/aws_ssl_support";
-with "aws/aws_crypto_lib";
-with "aws/aws_ssl_lib";
-with "aws/aws_ssl_error_lib";
-with "aws/aws_shared";
-with "aws/aws_libz";
-with "aws/aws_libwin32";
+with "aws_config";
 
-project AWS_SSL is
+project AWS_Libwin32 is
 
-   for Source_Dirs use ("../../include/aws");
+   for Source_Files use ();
 
-   for Library_Dir use "aws/" & AWS_Shared'Library_Dir;
-   for Library_Name use "aws";
-   for Library_Kind use AWS_Shared.Library_Type;
-   for Externally_Built use "true";
+   case AWS_Config.OS is
+      when "Windows_NT" =>
+         for Library_Dir use "../../aws/common";
+         for Library_Name use "aws_win32";
+         for Library_Kind use "static";
+         for Externally_Built use "true";
+      when others =>
+         null;
+   end case;
 
-   package Naming renames AWS_Shared.Naming;
-
-end AWS_SSL;
+end AWS_Libwin32;

@@ -396,6 +396,13 @@ endif
 	echo >> $(CONFGPR)
 	echo '   Default_Library_Type := "'$(DEFAULT_LIBRARY_TYPE)'";' \
 		>> $(CONFGPR)
+	echo >> $(CONFGPR)
+	echo '   type OS_Type is ("Windows_NT", "UNIX");' >> $(CONFGPR)
+ifeq ($(OS), Windows_NT)
+	echo '   OS : OS_Type := "Windows_NT";' >> $(CONFGPR)
+else
+	echo '   OS : OS_Type := "UNIX";' >> $(CONFGPR)
+endif
 	echo 'end AWS_Config;' >> $(CONFGPR)
 	echo 'pragma Source_File_Name' >> $(CONFADC)
 	echo '  (SSL.Thin, Spec_File_Name => "ssl-thin__$(SSL_SUFFIX).ads");' \
@@ -482,6 +489,7 @@ endif
 	$(CP) $(CONFADC) $(I_LIB)/static
 	$(CP) $(CONFGPR) $(I_AGP)
 	$(CP) $(PRJDIR)/aws_xmlada.gpr $(I_AGP)
+	$(CP) config/projects/aws_libwin32.gpr $(I_AGP)
 # Copy all shared libraries into the main lib directory
 ifeq (${ENABLE_SHARED}, true)
 	$(CP) $(I_LIB)/relocatable/*$(SOEXT) $(I_LIB)/../

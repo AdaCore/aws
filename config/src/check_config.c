@@ -166,9 +166,6 @@ main (int argc, char *argv[])
   P ("   use Interfaces;\n\n");
 
 #ifdef _WIN32
-  //  libaws_win32.a need for emulate some unix routines not available in
-  //  Win32.
-  P ("   pragma Linker_Options (\"-laws_win32\");\n");
   //  libws2_32.a need for getaddrinfo freeaddrinfo routines in Windows
   //  XP/2003.
   P ("   pragma Linker_Options (\"-lws2_32\");\n\n");

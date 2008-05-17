@@ -32,6 +32,7 @@ with "aws/aws_ssl_support";
 with "aws/aws_shared";
 with "aws/aws_config";
 with "aws/aws_libz";
+with "aws/aws_libwin32";
 
 project AWS is
 
