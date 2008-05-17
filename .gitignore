@@ -79,6 +79,7 @@ regtests/makefile.lst
 regtests/my_file_upload
 regtests/patch
 regtests/regtests_lst.gpr
+regtests/run-test.sh
 regtests/s_mains.lst
 regtests/s_tsec.lst
 regtests/s_tsecxmlada.lst
