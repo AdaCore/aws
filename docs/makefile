@@ -1,7 +1,7 @@
 ############################################################################
 #                              Ada Web Server                              #
 #                                                                          #
-#                         Copyright (C) 2003-2007                          #
+#                         Copyright (C) 2003-2008                          #
 #                                 AdaCore                                  #
 #                                                                          #
 #  This library is free software; you can redistribute it and/or modify    #
@@ -126,7 +126,7 @@ APIFILES = ../src/aws.ads.texi \
 build_doc: $(APIFILES) aws_docs sg_docs
 	echo ""
 	echo AWS Documentation built with success.
-	${MAKE} -C ../templates_parser doc LIBRARY_TYPE="$(LIBRARY_TYPE)"
+	${MAKE} -C ../templates_parser doc
 
 aws_docs: aws.texi aws.pdf aws.ps aws.html aws.txt aws.info
 
@@ -227,7 +227,8 @@ endif
 # Note that we force XMLADA=Installed, this is not a problem as it is only to
 # give the visibility to soap.ads to get the SOAP's version number.
 prog: gen_doc.sed.tmplt
-	$(GNAT) make -Pdocs -XPRJ_Build=${PRJ_BUILD} -XPRJ_XMLADA=Installed
+	$(GNAT) make -Pdocs -XLIBRARY_TYPE=static \
+		-XPRJ_Build=${PRJ_BUILD} -XPRJ_XMLADA=Installed
 
 ifeq (${BUILD_DOC_SCRIPT},false)
 gen_texi: prog aws.texi.tmplt
@@ -254,7 +255,8 @@ install:
 	-$(CP) *.info* $(I_DOC)
 
 clean:
-	-$(GNAT) clean -Pdocs -XPRJ_Build=${PRJ_BUILD} -XPRJ_XMLADA=Installed
+	-$(GNAT) clean -XLIBRARY_TYPE=static -Pdocs \
+		-XPRJ_Build=${PRJ_BUILD} -XPRJ_XMLADA=Installed
 	-$(RM) -f aws.texi aws.dvi aws.html aws.info* aws.log aws.ps aws.txt
 	-$(RM) -f $(APIFILES) *~ genout
 	-$(RM) -f style-guide.dvi style-guide.html style-guide.info* \

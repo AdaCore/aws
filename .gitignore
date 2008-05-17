@@ -49,6 +49,7 @@ lib/*.a
 lib/*.coff
 lib/*.dll
 lib/.gpssnprj
+makefile.setup
 regtests/*.log
 regtests/*.res
 regtests/all_mains.lst
@@ -81,8 +82,8 @@ regtests/regtests_lst.gpr
 regtests/s_mains.lst
 regtests/s_tsec.lst
 regtests/s_tsecxmlada.lst
-regtests/s_txmlada.lst
 regtests/s_tstd.lst
+regtests/s_txmlada.lst
 regtests/test_all
 regtests/test_all.adb
 regtests/test_soap.netlog

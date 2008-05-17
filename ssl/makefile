@@ -54,7 +54,10 @@ ifeq (${SSL_PATH},)
 endif
 
 build:
-	$(GNAT) make -Pssl
+	$(GNAT) make -XLIBRARY_TYPE=static -Pssl
+ifeq (${ENABLE_SHARED}, true)
+	$(GNAT) make -XLIBRARY_TYPE=relocatable -Pssl
+endif
 
 check:
 	$(GNAT) check -Pssl -rules -from=../aws.checks
@@ -87,14 +90,21 @@ endif
 	echo "end AWS_SSL_Shared;" >> $(ISSLGPR)
 
 setup:
-	-$(MKDIR) -p ../$(BDIR)/obj/ssl
-	-$(MKDIR) -p ../$(BDIR)/lib/ssl
+	-$(MKDIR) -p ../$(BDIR)/static/obj/ssl
+	-$(MKDIR) -p ../$(BDIR)/static/lib/ssl
+ifeq (${ENABLE_SHARED}, true)
+	-$(MKDIR) -p ../$(BDIR)/relocatable/obj/ssl
+	-$(MKDIR) -p ../$(BDIR)/relocatable/lib/ssl
+endif
 
 setup_config: setup_ssl setup_ssl_install
 
 install:
 	$(CP) *.ad[sb] $(I_INC)
-	-$(CP) ../$(BDIR)/lib/ssl/* $(I_LIB)
+	$(CP) ../$(BDIR)/static/lib/ssl/* $(I_LIB)/static
+ifeq (${ENABLE_SHARED}, true)
+	$(CP) ../$(BDIR)/relocatable/lib/ssl/* $(I_LIB)/relocatable
+endif
 	$(CP) install_aws_ssl_shared.gpr $(I_AGP)/aws_ssl_shared.gpr
 
 clean:

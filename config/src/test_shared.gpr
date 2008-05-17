@@ -1,10 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                          Copyright (C) 2004-2008                         --
---                                  AdaCore                                 --
---                                                                          --
---  Authors: Dmitriy Anisimkov - Pascal Obry                                --
+--                            Copyright (C) 2008                            --
+--                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -28,25 +26,10 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-with "../shared";
-
-project Win32 is
-
-  for Languages use ("C");
-
-  for Source_Files use ();
-
-   case Shared.OS is
-      when "Windows_NT" =>
-         for Library_Name use "aws_win32";
-         for Library_Kind use "static";
-      when others =>
-         null;
-   end case;
-
-   for Object_Dir use "../.build/common/obj/win32";
-   for Library_Dir use "../.build/common/lib/win32";
-
-   for Externally_Built use "true";
-
-end Win32;
+project Test_Shared is
+   for Source_Dirs use (".");
+   for Object_Dir use "../../.build/setup/obj";
+   for Library_Dir use "../../.build/setup/lib";
+   for Library_Name use "lib";
+   for Library_Kind use "relocatable";
+end Test_Shared;

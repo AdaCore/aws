@@ -1,7 +1,7 @@
 ############################################################################
 #                              Ada Web Server                              #
 #                                                                          #
-#                         Copyright (C) 2003-2007                          #
+#                         Copyright (C) 2003-2008                          #
 #                                 AdaCore                                  #
 #                                                                          #
 #  This library is free software; you can redistribute it and/or modify    #
@@ -31,8 +31,12 @@
 force:
 
 setup:
-	-$(MKDIR) -p ../$(BDIR)/obj/include
-	-$(MKDIR) -p ../$(BDIR)/lib/include
+	-$(MKDIR) -p ../$(BDIR)/static/obj/include
+	-$(MKDIR) -p ../$(BDIR)/static/lib/include
+ifeq (${ENABLE_SHARED}, true)
+	-$(MKDIR) -p ../$(BDIR)/relocatable/obj/include
+	-$(MKDIR) -p ../$(BDIR)/relocatable//lib/include
+endif
 	${MAKE} -C zlib setup GALL_OPTIONS=$(GALL_OPTIONS)
 
 build_zlib: force
@@ -40,15 +44,26 @@ build_zlib: force
 	${MAKE} -C zlib GALL_OPTIONS=$(GALL_OPTIONS)
 
 build: build_zlib
-	$(GNAT) make -Pinclude
+	$(GNAT) make -XLIBRARY_TYPE=static -Pinclude
+ifeq (${ENABLE_SHARED}, true)
+	$(GNAT) make -XLIBRARY_TYPE=relocatable -Pinclude
+endif
 
 install:
 	$(CP) *.ad? $(I_CPN)
-	-$(CP) ../$(BDIR)/lib/include/* $(I_LIB)
+	-$(CP) ../$(BDIR)/static/lib/include/* $(I_LIB)/static
+ifeq (${ENABLE_SHARED}, true)
+	-$(CP) ../$(BDIR)/relocatable/lib/include/* $(I_LIB)/relocatable
+endif
 	${MAKE} -C zlib install GALL_OPTIONS=$(GALL_OPTIONS)
 
 clean:
-	-$(GNAT) clean -Pinclude -XAWS_BUILD=${PRJ_BUILD} -XXMLADA=${PRJ_XMLADA}
+	-$(GNAT) clean -Pinclude -XLIBRARY_TYPE=static \
+		-XAWS_BUILD=${PRJ_BUILD} -XXMLADA=${PRJ_XMLADA}
+ifeq (${ENABLE_SHARED}, true)
+	-$(GNAT) clean -Pinclude -XLIBRARY_TYPE=relocatable \
+		-XAWS_BUILD=${PRJ_BUILD} -XXMLADA=${PRJ_XMLADA}
+endif
 	${MAKE} -C zlib clean
 
 check:

@@ -57,7 +57,7 @@ project Shared is
    --------------------------
 
    type Library_Kind is ("relocatable", "static");
-   Library_Type : Library_Kind := external ("LIBRARY_TYPE", "relocatable");
+   Library_Type : Library_Kind := external ("LIBRARY_TYPE", "static");
 
    -----------------------
    -- Build directories --

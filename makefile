@@ -33,6 +33,10 @@
 
 include makefile.conf
 
+-include makefile.setup
+
+LIBRARY_TYPE = static
+
 ifeq (${OS}, Windows_NT)
 EXEEXT	= .exe
 SOEXT	= .dll
@@ -55,14 +59,6 @@ BDIR		= .build/debug
 else
 MAKE_OPT	= -s
 BDIR		= .build/release
-endif
-
-ifeq ($(SHARED), true)
-BDIR		:= $(BDIR)/relocatable
-LIBRARY_TYPE	= relocatable
-else
-BDIR		:= $(BDIR)/static
-LIBRARY_TYPE	= static
 endif
 
 TEST_MODE	= Separated
@@ -88,22 +84,7 @@ else
 export ADA_PROJECT_PATH = $(CWD)/.build/projects:${APP}
 endif
 
-all:
-	echo ""
-	echo "Targets :"
-	echo ""
-	echo "  Build :"
-	echo ""
-	echo "    setup:        setup build, must be done before build"
-	echo "    build:        build AWS library, tools and demos"
-	echo "    build_doc:    build documentation (needs texinfo support)"
-	echo ""
-	echo "  Support :"
-	echo ""
-	echo "    clean:        to clean directories"
-	echo "    distrib:      to build a tarball distribution"
-	echo "    install:      install AWS library"
-	echo "    run_regtests: run non regression tests"
+all: build
 
 EXTRA_TESTS = true
 
@@ -115,7 +96,7 @@ ALL_OPTIONS	= $(MAKE_OPT) SOCKET="$(SOCKET)" XMLADA="$(XMLADA)" \
 	WINDRES="$(WINDRES)" GNAT_FOR_HOST="$(GNAT_FOR_HOST)" \
 	EXTRA_TESTS="$(EXTRA_TESTS)" \
 	GCC="$(GCC)" AWK="$(AWK)" CAT="$(CAT)" GCC_FOR_HOST="$(GCC_FOR_HOST)" \
-	BDIR="$(BDIR)" INSTALL="$(INSTALL)" SHARED="$(SHARED)" \
+	BDIR="$(BDIR)" INSTALL="$(INSTALL)" ENABLE_SHARED="$(ENABLE_SHARED)" \
 	SOEXT="$(SOEXT)" BUILD_DOC_SCRIPT="false" GNAT="$(GNAT)" \
 	T2A="../../$(BDIR)/tools/templates2ada" LIBRARY_TYPE="$(LIBRARY_TYPE)"
 
@@ -299,7 +280,7 @@ endif
 I_BIN	= $(INSTALL)/bin
 I_INC	= $(INSTALL)/include/aws
 I_CPN	= $(INSTALL)/include/aws/components
-I_LIB	= $(INSTALL)/lib/aws/$(LIBRARY_TYPE)
+I_LIB	= $(INSTALL)/lib/aws/
 I_GPR	= $(INSTALL)/lib/gnat
 I_AGP	= $(INSTALL)/lib/gnat/aws
 I_TPL	= $(INSTALL)/share/examples/aws/templates
@@ -376,8 +357,10 @@ gxmlada_setup:
 
 setup_dir:
 	-$(MKDIR) -p $(PRJDIR)
-	-$(MKDIR) -p templates_parser/$(BDIR)/obj
-	-$(MKDIR) -p templates_parser/$(BDIR)/rbin
+	-$(MKDIR) -p templates_parser/$(BDIR)/static/obj
+	-$(MKDIR) -p templates_parser/$(BDIR)/static/rbin
+	-$(MKDIR) -p templates_parser/$(BDIR)/relocatable/obj
+	-$(MKDIR) -p templates_parser/$(BDIR)/relocatable/rbin
 
 CONFGPR	= $(PRJDIR)/aws_config.gpr
 CONFADC	= $(BDIR)/gnat.adc
@@ -411,11 +394,8 @@ endif
 	  >> $(CONFGPR)
 	echo '   SOCKET : SOCKET_Type := "$(SOCKET)";' >> $(CONFGPR)
 	echo >> $(CONFGPR)
-ifeq ($(SHARED), true)
-	echo '   Default_Library_Type := "relocatable";' >> $(CONFGPR)
-else
-	echo '   Default_Library_Type := "static";' >> $(CONFGPR)
-endif
+	echo '   Default_Library_Type := "'$(DEFAULT_LIBRARY_TYPE)'";' \
+		>> $(CONFGPR)
 	echo 'end AWS_Config;' >> $(CONFGPR)
 	echo 'pragma Source_File_Name' >> $(CONFADC)
 	echo '  (SSL.Thin, Spec_File_Name => "ssl-thin__$(SSL_SUFFIX).ads");' \
@@ -442,26 +422,25 @@ endif
 
 setup_modules: $(MODULES_SETUP)
 
-setup_debug_static:
-	$(MAKE) DEBUG=true SHARED=false setup_modules
+setup_debug:
+	$(MAKE) DEBUG=true setup_modules
 
-setup_release_static:
-	$(MAKE) DEBUG=false SHARED=false setup_modules
-
-setup_debug_relocatable:
-	$(MAKE) DEBUG=true SHARED=true setup_modules
-
-setup_release_relocatable:
-	$(MAKE) DEBUG=false SHARED=true setup_modules
+setup_release:
+	$(MAKE) DEBUG=false setup_modules
 
 setup_final: setup_config
 	$(MAKE) -C ssl $(GALL_OPTIONS) setup_config
 
-setup_debug: setup_debug_static setup_debug_relocatable
-
-setup_release: setup_release_static setup_release_relocatable
-
 setup: setup_dir setup_debug setup_release setup_final setup_tp $(GEXT_MODULE)
+	echo "INSTALL=$(INSTALL)" > makefile.setup
+	echo "DEFAULT_LIBRARY_TYPE=$(DEFAULT_LIBRARY_TYPE)" >> makefile.setup
+	echo "ENABLE_SHARED=$(ENABLE_SHARED)" >> makefile.setup
+	echo "XMLADA=$(XMLADA)" >> makefile.setup
+	echo "ASIS=$(ASIS)" >> makefile.setup
+	echo "IPv6=$(IPv6)" >> makefile.setup
+	echo "SOCKET=$(SOCKET)" >> makefile.setup
+	echo "LDAP=$(LDAP)" >> makefile.setup
+	echo "DEBUG=$(DEBUG)" >> makefile.setup
 
 setup_tp:
 	$(MAKE) -C templates_parser setup $(GALL_OPTIONS)
@@ -479,7 +458,10 @@ install_dirs: install_clean
 	$(MKDIR) $(I_BIN)
 	$(MKDIR) $(I_INC)
 	$(MKDIR) $(I_CPN)
-	$(MKDIR) $(I_LIB)
+	$(MKDIR) $(I_LIB)/static
+ifeq (${ENABLE_SHARED}, true)
+	$(MKDIR) $(I_LIB)/relocatable
+endif
 	$(MKDIR) $(I_DOC)
 	$(MKDIR) $(I_GPR)
 	$(MKDIR) $(I_AGP)
@@ -497,14 +479,16 @@ endif
 	-$(CP) templates_parser/docs/templates_parser.html $(I_DOC)
 	-$(CP) templates_parser/docs/templates_parser.info* $(I_DOC)
 	$(CP) templates_parser/tools/templates.tads $(I_TPL)
-	$(CP) $(CONFADC) $(I_LIB)
+	$(CP) $(CONFADC) $(I_LIB)/static
 	$(CP) $(CONFGPR) $(I_AGP)
 	$(CP) $(PRJDIR)/aws_xmlada.gpr $(I_AGP)
 # Copy all shared libraries into the main lib directory
-ifeq (${SHARED}, true)
-	$(CP) $(I_LIB)/*$(SOEXT) $(I_LIB)/../..
+ifeq (${ENABLE_SHARED}, true)
+	$(CP) $(I_LIB)/relocatable/*$(SOEXT) $(I_LIB)/../
+	$(CP) $(CONFADC) $(I_LIB)/relocatable
+	-$(CHMOD) a-w $(I_LIB)/relocatable/*
 endif
-	-$(CHMOD) a-w $(I_LIB)/*
+	-$(CHMOD) a-w $(I_LIB)/static/*
 
 # Generate a script to build and run a single test using the build options
 # set for latest AWS build. This is mostly intended for developers. Usage:

@@ -56,10 +56,10 @@
 
 -include makefile.lst
 
-ADA2WSDL = ../$(BDIR)/tools/ada2wsdl-main
-WSDL2AWS = ../$(BDIR)/tools/wsdl2aws
-AWSRES   = ../$(BDIR)/tools/awsres
-WEBXREF  = ../$(BDIR)/tools/webxref
+ADA2WSDL = ../$(BDIR)/$(LIBRARY_TYPE)/tools/ada2wsdl-main
+WSDL2AWS = ../$(BDIR)/$(LIBRARY_TYPE)/tools/wsdl2aws
+AWSRES   = ../$(BDIR)/$(LIBRARY_TYPE)/tools/awsres
+WEBXREF  = ../$(BDIR)/$(LIBRARY_TYPE)/tools/webxref
 
 # Test to be run in grouped mode
 
@@ -233,7 +233,8 @@ $(WSDL2AWS_TESTS): force
 
 $(ASIS_TESTS): force
 	echo Preparing $@
-	$(ADA2WSDL) -q -f -I. -P../aws \
+	$(ADA2WSDL) -q -f -I. -t ../$(BDIR)/$(LIBRARY_TYPE)/obj/regtests\
+		-P../aws \
 		-a http://localhost:770`echo $@ | cut -c 6-` $@.ads \
 		-o generated/$@.wsdl
 	(cd generated; ../$(WSDL2AWS) -q -f -cb -types $@ $@.wsdl)
@@ -241,7 +242,8 @@ $(ASIS_TESTS): force
 $(ASIS2_TESTS): force
 	-$(RM) -f $@.res
 	echo "Running  " $@
-	$(ADA2WSDL) -v -f -I. -P../aws $@.ads -o generated/$@.wsdl > tmp 2>&1
+	$(ADA2WSDL) -v -f -I. -t ../$(BDIR)/$(LIBRARY_TYPE)/obj/regtests\
+		-P../aws $@.ads -o generated/$@.wsdl > tmp 2>&1
 	tail -n +3 tmp > $@.res
 	rm tmp
 	-$(DIFF) $@.out $@.res 1>> alldifs 2>> alldifs
@@ -249,7 +251,8 @@ $(ASIS2_TESTS): force
 $(ASIS3_TESTS): force
 	-$(RM) -f $@.res
 	echo "Running  " $@
-	$(ADA2WSDL) -q -d -f -I. -P../aws $@.ads -o generated/$@.wsdl
+	$(ADA2WSDL) -q -d -f -I. -t ../$(BDIR)/$(LIBRARY_TYPE)/obj/regtests\
+		-P../aws $@.ads -o generated/$@.wsdl
 	-$(DIFF) $@.out generated/$@.wsdl 1>> alldifs 2>> alldifs
 
 tres: force
@@ -299,7 +302,7 @@ check_mem: force
 	-$(DIFF) run1 run2 1>> alldifs 2>> alldifs
 
 setup_dir:
-	-$(MKDIR) ../$(BDIR)/obj/regtests
+	-$(MKDIR) ../$(BDIR)/$(LIBRARY_TYPE)/obj/regtests
 	-$(MKDIR) generated
 
 setup: setup_dir

@@ -46,6 +46,7 @@ setup_dummy_dir:
 
 setup_dir: setup_dummy_dir
 	-$(MKDIR) -p $(SDIR)/obj
+	-$(MKDIR) -p $(SDIR)/lib
 
 setup: setup_dir ../src/aws-translator-conversion.adb ../src/aws-os_lib.ads
 

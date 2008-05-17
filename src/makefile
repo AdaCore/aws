@@ -1,7 +1,7 @@
 ############################################################################
 #                              Ada Web Server                              #
 #                                                                          #
-#                         Copyright (C) 2003-2007                          #
+#                         Copyright (C) 2003-2008                          #
 #                                 AdaCore                                  #
 #                                                                          #
 #  This library is free software; you can redistribute it and/or modify    #
@@ -37,15 +37,25 @@ aws-os_lib-definitions.ads: ../config/src/check_config.c
 	$(MAKE) -C ../config setup
 
 setup:
-	-$(MKDIR) -p ../$(BDIR)/obj/src
-	-$(MKDIR) -p ../$(BDIR)/lib/src
+	-$(MKDIR) -p ../$(BDIR)/static/obj/src
+	-$(MKDIR) -p ../$(BDIR)/static/lib/src
+ifeq (${ENABLE_SHARED}, true)
+	-$(MKDIR) -p ../$(BDIR)/relocatable/obj/src
+	-$(MKDIR) -p ../$(BDIR)/relocatable/lib/src
+endif
 
 build:
-	$(GNAT) make -Psrc
+	$(GNAT) make -XLIBRARY_TYPE=static -Psrc
+ifeq (${ENABLE_SHARED}, true)
+	$(GNAT) make -XLIBRARY_TYPE=relocatable -Psrc
+endif
 
 install:
 	$(CP) a*.ad[sb] $(I_INC)
-	$(CP) ../$(BDIR)/lib/src/* $(I_LIB)
+	$(CP) ../$(BDIR)/static/lib/src/* $(I_LIB)/static
+ifeq (${ENABLE_SHARED}, true)
+	$(CP) ../$(BDIR)/relocatable/lib/src/* $(I_LIB)/relocatable
+endif
 ifeq ($(XMLADA),true)
 	$(CP) ../soap/*.ad[sb] $(I_INC)
 	$(CP) ../xsrc/*.ad[sb] $(I_INC)

@@ -37,30 +37,30 @@ build_wsdl:
 
 force:
 
-AWSRES   = ../$(BDIR)/tools/awsres
-WSDL2AWS = ../$(BDIR)/tools/wsdl2aws
+AWSRES   = ../$(BDIR)/static/tools/awsres
+WSDL2AWS = ../$(BDIR)/static/tools/wsdl2aws
 
 ifeq (${PRJ_XMLADA}, Installed)
 BUILD_EXT = build_wsdl
 endif
 
 setup:
-	-$(MKDIR) -p ../$(BDIR)/obj/demos
-	-$(MKDIR) -p ../$(BDIR)/demos
+	-$(MKDIR) -p ../$(BDIR)/static/obj/demos
+	-$(MKDIR) -p ../$(BDIR)/static/demos
 
 build: build_res $(BUILD_EXT)
-	$(GNAT) make -Pdemos
-	$(GNAT) make -Pdemos_ssl
+	$(GNAT) make -XLIBRARY_TYPE=static -Pdemos
+	$(GNAT) make -XLIBRARY_TYPE=static -Pdemos_ssl
 
 install:
 	$(CP) *.thtml $(I_TPL)
 	$(CP) wm_login.html $(I_TPL)
 	$(CP) aws_*.png $(I_IMG)
 ifeq ($(SOCKET),ssl)
-	-$(CP) ../$(BDIR)/demos/agent${EXEEXT} $(I_SBN)
+	-$(CP) ../$(BDIR)/static/demos/agent${EXEEXT} $(I_SBN)
 endif
 
 check:
 
 clean:
-	$(RM) -fr ../$(BDIR)/demos
+	$(RM) -fr ../$(BDIR)/static/demos

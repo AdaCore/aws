@@ -31,8 +31,8 @@
 # Build the library only if Win32 OS. On other OS these libraries must be
 # installed separately or are most of the time already installed.
 
-ODIR = ../$(BDIR)/obj/win32
-LDIR = ../$(BDIR)/lib/win32
+ODIR = ../$(BDIR)/../common/obj/win32
+LDIR = ../$(BDIR)/../common/lib/win32
 
 LIBSSL		= $(LDIR)/libssl.a
 LIBCRYPTO	= $(LDIR)/libcrypto.a
@@ -92,7 +92,7 @@ install_win32:
 	$(CP) $(LIBSSL) $(INSTALL)/lib/aws/common
 	$(CP) $(LIBCRYPTO) $(INSTALL)/lib/aws/common
 	$(CP) $(LIBLDAP) $(INSTALL)/lib/aws/common
-	$(CP) $(LDIR)/libaws_win32.a $(I_LIB)
+	$(CP) $(LDIR)/libaws_win32.a $(INSTALL)/lib/aws/common
 	$(CP) $(AWS_COFF) $(I_LIB)
 
 install: $(TINSTALL)

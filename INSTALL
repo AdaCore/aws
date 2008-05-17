@@ -9,7 +9,9 @@ If you have not installed XML/Ada into the standard directory and plan to
 build AWS with SOAP support you must be sure that ADA_PROJECT_PATH point to
 the XML/Ada projects. See XML/Ada documentation.
 
-Look for SOCKET, ASIS, XMLADA, LDAP and INSTALL make's variables.
+Look for SOCKET, ASIS, XMLADA, LDAP, INSTALL, ENABLE_SHARED and
+DEFAULT_LIBRARY_TYPE make's variables.
+
 Then building AWS is as simple as:
 
    $ make setup build install
@@ -21,7 +23,7 @@ This release requires an Ada compiler supporting some Ada 2005 features as it
 is using the Ada.Containers libraries. It is possible to build this release
 starting with the following compilers:
 
-	GNAT Pro 6.0.2
+	GNAT Pro 6.1.1
 
 	GNAT GPL 2007 Edition
 
