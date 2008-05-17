@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2003-2007                          --
+--                         Copyright (C) 2003-2008                          --
 --                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -91,12 +91,6 @@ project Shared is
    XMLAda : Install_Status := external ("PRJ_XMLADA", "Installed");
    LDAP   : Install_Status := external ("PRJ_LDAP", "Installed");
 
-   -------------------------
-   -- Compression library --
-   -------------------------
-
-   ZLib := ("-L../lib", "-lz");
-
    ---------
    -- Ide --
    ---------
@@ -164,13 +158,5 @@ project Shared is
    package Builder is
       for Default_Switches ("Ada") use ("-m");
    end Builder;
-
-   ------------
-   -- Linker --
-   ------------
-
-   package Linker is
-      for Default_Switches ("Ada") use ZLib;
-   end Linker;
 
 end Shared;

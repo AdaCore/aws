@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                          Copyright (C) 2004-2005                         --
+--                          Copyright (C) 2004-2008                         --
 --                                 AdaCore                                  --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -55,11 +55,5 @@ project GPS_Support is
    -------------
 
    package Builder renames Shared.Builder;
-
-   ------------
-   -- Linker --
-   ------------
-
-   package Linker renames Shared.Linker;
 
 end GPS_Support;
