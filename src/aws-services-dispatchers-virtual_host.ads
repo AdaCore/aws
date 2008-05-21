@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2007                          --
+--                         Copyright (C) 2000-2008                          --
 --                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -26,13 +26,13 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-private with Ada.Strings.Unbounded;
-
-private with Strings_Maps;
-
 with AWS.Dispatchers;
 with AWS.Response;
 with AWS.Status;
+
+private with Ada.Containers.Indefinite_Hashed_Maps;
+private with Ada.Strings.Hash;
+private with Ada.Strings.Unbounded;
 
 package AWS.Services.Dispatchers.Virtual_Host is
 
@@ -49,18 +49,18 @@ package AWS.Services.Dispatchers.Virtual_Host is
      (Dispatcher       : in out Handler;
       Virtual_Hostname : in     String;
       Action           : in     AWS.Dispatchers.Handler'Class);
-   --  Register Virtual_Hostname to use the specified callback.
+   --  Register Virtual_Hostname to use the specified callback
 
    procedure Register
      (Dispatcher       : in out Handler;
       Virtual_Hostname : in     String;
       Action           : in     Response.Callback);
-   --  Idem as above but take a callback procedure as parameter.
+   --  Idem as above but take a callback procedure as parameter
 
    procedure Unregister
      (Dispatcher       : in out Handler;
       Virtual_Hostname : in     String);
-   --  Removes Virtual_Hostname from the list of virtual hostnames to handle.
+   --  Removes Virtual_Hostname from the list of virtual hostnames to handle
 
    procedure Register_Default_Callback
      (Dispatcher : in out Handler;
@@ -94,8 +94,8 @@ private
       end case;
    end record;
 
-   package Virtual_Host_Table is new Strings_Maps (VH_Node, "=");
-   package VH_Table renames Virtual_Host_Table.Containers;
+   package Virtual_Host_Table is new Ada.Containers.Indefinite_Hashed_Maps
+       (String, VH_Node, Ada.Strings.Hash, "=", "=");
 
    type Handler is new AWS.Dispatchers.Handler with record
       Action : AWS.Dispatchers.Handler_Class_Access;

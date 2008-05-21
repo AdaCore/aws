@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2003-2006                          --
+--                         Copyright (C) 2003-2008                          --
 --                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -27,10 +27,10 @@
 ------------------------------------------------------------------------------
 
 with Ada.Calendar;
+with Ada.Containers.Indefinite_Hashed_Maps;
 with Ada.Exceptions;
+with Ada.Strings.Hash;
 with Ada.Text_IO;
-
-with Strings_Maps;
 
 with AWS.Utils;
 
@@ -43,8 +43,8 @@ package body AWS.Services.Transient_Pages is
       Delete_Time : Calendar.Time;
    end record;
 
-   package Table_Container is new Strings_Maps (Item, "=");
-   package Table renames Table_Container.Containers;
+   package Table is new Ada.Containers.Indefinite_Hashed_Maps
+     (String, Item, Ada.Strings.Hash, "=", "=");
 
    subtype ID is String (1 .. 25);
    --  Random ID generated as transient page identity, the five first
@@ -134,10 +134,10 @@ package body AWS.Services.Transient_Pages is
 
    exception
       when E : others =>
-         Ada.Text_IO.Put_Line
-           (Ada.Text_IO.Current_Error,
+         Text_IO.Put_Line
+           (Text_IO.Current_Error,
             "Transient_Pages cleaner error: "
-            & Ada.Exceptions.Exception_Information (E));
+            & Exceptions.Exception_Information (E));
    end Cleaner;
 
    --------------
@@ -156,7 +156,7 @@ package body AWS.Services.Transient_Pages is
          Now    : constant Calendar.Time := Calendar.Clock;
          Cursor : Table.Cursor;
       begin
-         Cursor := Table.First (Resources);
+         Cursor := Resources.First;
 
          while Table.Has_Element (Cursor) loop
             declare
@@ -167,7 +167,7 @@ package body AWS.Services.Transient_Pages is
                      Current : Table.Cursor := Cursor;
                   begin
                      Table.Next (Cursor);
-                     Table.Delete (Resources, Current);
+                     Resources.Delete (Current);
 
                      declare
                         Resource : AWS.Resources.File_Type;
@@ -222,7 +222,7 @@ package body AWS.Services.Transient_Pages is
       is
          Cursor : Table.Cursor;
       begin
-         Cursor := Table.Find (Resources, URI);
+         Cursor := Resources.Find (URI);
 
          if Table.Has_Element (Cursor) then
             Found  := True;
@@ -243,7 +243,7 @@ package body AWS.Services.Transient_Pages is
          Cursor  : Table.Cursor;
          Success : Boolean;
       begin
-         Table.Insert (Resources, URI, Resource, Cursor, Success);
+         Resources.Insert (URI, Resource, Cursor, Success);
       end Register;
 
    end Database;
@@ -260,7 +260,7 @@ package body AWS.Services.Transient_Pages is
 
       if Found then
          --  Reset the stream pointer to the stream's first byte
-         AWS.Resources.Streams.Reset (Result.Stream.all);
+         Resources.Streams.Reset (Result.Stream.all);
          return Result.Stream;
       else
          return null;

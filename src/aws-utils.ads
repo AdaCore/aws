@@ -33,6 +33,7 @@ with Ada.Strings.Maps;
 with Ada.Task_Identification;
 with Ada.Unchecked_Deallocation;
 
+with Templates_Parser.Utils;
 with ZLib;
 
 package AWS.Utils is
@@ -278,7 +279,8 @@ package AWS.Utils is
    --  be set to True to stop the iterator. Raises No_Such_File if
    --  Directory_Name does not exists.
 
-   function Get_Program_Directory return String;
+   function Get_Program_Directory
+     return String renames Templates_Parser.Utils.Get_Program_Directory;
    --  Returns the directory full path name for the current running program
 
    ----------------------------

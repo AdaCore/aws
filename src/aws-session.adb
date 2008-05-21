@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2007                          --
+--                         Copyright (C) 2000-2008                          --
 --                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -26,8 +26,10 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
+with Ada.Containers.Indefinite_Hashed_Maps;
 with Ada.Exceptions;
 with Ada.Streams.Stream_IO;        use Ada.Streams;
+with Ada.Strings.Hash;
 with Ada.Strings.Unbounded;
 with Ada.Text_IO;
 with Ada.Unchecked_Deallocation;
@@ -35,8 +37,6 @@ with Ada.Unchecked_Deallocation;
 with AWS.Default;
 with AWS.Containers.Key_Value;
 with AWS.Utils;
-
-with Strings_Maps;
 
 package body AWS.Session is
 
@@ -66,8 +66,8 @@ package body AWS.Session is
       Root       : Key_Value_Set_Access;
    end record;
 
-   package Session_Set_Container is new Strings_Maps (Session_Node, "=");
-   package Session_Set renames Session_Set_Container.Containers;
+   package Session_Set is new Ada.Containers.Indefinite_Hashed_Maps
+     (String, Session_Node, Ada.Strings.Hash, "=", "=");
 
    procedure Get_Node
      (Sessions : in out Session_Set.Map;
