@@ -127,8 +127,8 @@ project Src is
       for Implementation ("Templates_Parser.Input")
         use "templates_parser-input__aws.adb";
 
-      for Implementation ("Templates_Parser.Tasking")
-        use "templates_parser-tasking__standard_tasking.adb";
+      for Implementation ("Templates_Parser_Tasking")
+        use "templates_parser_tasking__standard_tasking.adb";
 
       --  SOCKLIB
 
