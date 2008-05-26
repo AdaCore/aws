@@ -1,7 +1,7 @@
 ############################################################################
 #                              Ada Web Server                              #
 #                                                                          #
-#                         Copyright (C) 2003-2007                          #
+#                         Copyright (C) 2003-2008                          #
 #                                 AdaCore                                  #
 #                                                                          #
 #  This library is free software; you can redistribute it and/or modify    #
@@ -88,11 +88,11 @@ setup:
 	-$(MKDIR) -p $(LDIR)
 
 install_win32:
-	-$(MKDIR) -p $(INSTALL)/lib/aws/common
-	$(CP) $(LIBSSL) $(INSTALL)/lib/aws/common
-	$(CP) $(LIBCRYPTO) $(INSTALL)/lib/aws/common
-	$(CP) $(LIBLDAP) $(INSTALL)/lib/aws/common
-	$(CP) $(LDIR)/libaws_win32.a $(INSTALL)/lib/aws/common
+	-$(MKDIR) -p $(prefix)/lib/aws/common
+	$(CP) $(LIBSSL) $(prefix)/lib/aws/common
+	$(CP) $(LIBCRYPTO) $(prefix)/lib/aws/common
+	$(CP) $(LIBLDAP) $(prefix)/lib/aws/common
+	$(CP) $(LDIR)/libaws_win32.a $(prefix)/lib/aws/common
 	$(CP) $(AWS_COFF) $(I_LIB)
 
 install: $(TINSTALL)

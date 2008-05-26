@@ -96,7 +96,7 @@ ALL_OPTIONS	= $(MAKE_OPT) SOCKET="$(SOCKET)" XMLADA="$(XMLADA)" \
 	WINDRES="$(WINDRES)" GNAT_FOR_HOST="$(GNAT_FOR_HOST)" \
 	EXTRA_TESTS="$(EXTRA_TESTS)" \
 	GCC="$(GCC)" AWK="$(AWK)" CAT="$(CAT)" GCC_FOR_HOST="$(GCC_FOR_HOST)" \
-	BDIR="$(BDIR)" INSTALL="$(INSTALL)" ENABLE_SHARED="$(ENABLE_SHARED)" \
+	BDIR="$(BDIR)" prefix="$(prefix)" ENABLE_SHARED="$(ENABLE_SHARED)" \
 	SOEXT="$(SOEXT)" BUILD_DOC_SCRIPT="false" GNAT="$(GNAT)" \
 	T2A="../../$(BDIR)/tools/templates2ada" LIBRARY_TYPE="$(LIBRARY_TYPE)"
 
@@ -277,18 +277,18 @@ endif
 
 # Install directories
 
-I_BIN	= $(INSTALL)/bin
-I_INC	= $(INSTALL)/include/aws
-I_CPN	= $(INSTALL)/include/aws/components
-I_LIB	= $(INSTALL)/lib/aws/
-I_GPR	= $(INSTALL)/lib/gnat
-I_AGP	= $(INSTALL)/lib/gnat/aws
-I_TPL	= $(INSTALL)/share/examples/aws/templates
-I_IMG	= $(INSTALL)/share/examples/aws/images
-I_SBN	= $(INSTALL)/share/examples/aws/bin
-I_WEL	= $(INSTALL)/share/examples/aws/web_elements
-I_DOC	= $(INSTALL)/share/doc/aws
-I_PLG	= $(INSTALL)/share/gps/plug-ins
+I_BIN	= $(prefix)/bin
+I_INC	= $(prefix)/include/aws
+I_CPN	= $(prefix)/include/aws/components
+I_LIB	= $(prefix)/lib/aws/
+I_GPR	= $(prefix)/lib/gnat
+I_AGP	= $(prefix)/lib/gnat/aws
+I_TPL	= $(prefix)/share/examples/aws/templates
+I_IMG	= $(prefix)/share/examples/aws/images
+I_SBN	= $(prefix)/share/examples/aws/bin
+I_WEL	= $(prefix)/share/examples/aws/web_elements
+I_DOC	= $(prefix)/share/doc/aws
+I_PLG	= $(prefix)/share/gps/plug-ins
 
 GALL_OPTIONS := $(ALL_OPTIONS) \
 	PRJ_BUILD="$(PRJ_BUILD)" \
@@ -439,7 +439,7 @@ setup_final: setup_config
 	$(MAKE) -C ssl $(GALL_OPTIONS) setup_config
 
 setup: setup_dir setup_debug setup_release setup_final setup_tp $(GEXT_MODULE)
-	echo "INSTALL=$(INSTALL)" > makefile.setup
+	echo "prefix=$(prefix)" > makefile.setup
 	echo "DEFAULT_LIBRARY_TYPE=$(DEFAULT_LIBRARY_TYPE)" >> makefile.setup
 	echo "ENABLE_SHARED=$(ENABLE_SHARED)" >> makefile.setup
 	echo "XMLADA=$(XMLADA)" >> makefile.setup
@@ -456,7 +456,7 @@ install_clean:
 	$(RM) -fr $(I_INC)
 	$(RM) -fr $(I_LIB)
 	$(RM) -fr $(I_AGP)
-	$(RM) -fr $(INSTALL)/share/examples/aws
+	$(RM) -fr $(prefix)/share/examples/aws
 	$(RM) -fr $(I_DOC)
 	$(RM) -f $(I_GPR)/aws.gpr
 	$(RM) -f $(I_GPR)/aws_ssl.gpr

@@ -470,27 +470,27 @@ the include path for the libraries @code{OpenSSL}, @code{Socket} and
 
 @noindent
 When the build is done you must install @code{AWS} at a specific
-location. The target directory is defined with the @var{INSTALL}
-@file{makefile.conf} variable. The default value is your home directory. To
-install:
+location. The target directory is defined with the @var{prefix}
+@file{makefile.conf} variable. The default value is set to the
+compiler root directory. To install:
 
 @AWSEXP {$ make install}
 
 @noindent
 To install @code{AWS} into another directory you can either edit
-@file{makefile.conf} and set @var{INSTALL} to the directory you like
-to install @code{AWS} or just force the make @code{INSTALL} variable:
+@file{makefile.conf} and set @var{prefix} to the directory you like
+to install @code{AWS} or just force the make @var{prefix} variable:
 
-@AWSEXP {$ make INSTALL=/opt install}
+@AWSEXP {$ make prefix=/opt install}
 
 @noindent
 Alternatively, with @code{GNAT} 5.03 and above it is possible to
 install @code{AWS} into the GNAT Standard Library location. In this
 case @code{AWS} is ready-to-use as there is no need to set
-@var{ADA_PROJECT_PATH}, just set INSTALL to point to @code{GNAT} root
+@var{ADA_PROJECT_PATH}, just set @var{prefix} to point to @code{GNAT} root
 directory:
 
-@AWSEXP {$ make INSTALL=/opt/gnatpro/5.03a install}
+@AWSEXP {$ make prefix=/opt/gnatpro/6.1.1 install}
 
 @noindent
 Now you are ready to use @code{AWS} !
