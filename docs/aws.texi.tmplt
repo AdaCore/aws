@@ -218,10 +218,11 @@ build @code{AWS} you need:
 @cindex GNAT
 @cindex GNU/Ada
 
-To build this version you need at least @code{GNAT GAP 2006 Edition},
-@code{GNAT GPL 2006 Edition} or @code{GNAT Pro 5.04a1} as the Ada 2005
-@code{Ada.Containers} is used. The code should be fairly portable but
-has never been tested on another compiler than @code{GNAT}.
+To build this version you need at least @code{GNAT GPL 2007 Edition}
+or @code{GNAT Pro 6.0} as some Ada 2005 fearures
+(@code{Ada.Containers}, interfaces, overriding keyword) are used. The
+code should be fairly portable but has never been tested on another
+compiler than @code{GNAT}.
 
 @item OpenSSL (@b{optional}) ;
 @cindex OpenSSL
