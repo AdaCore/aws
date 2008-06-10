@@ -49,12 +49,17 @@ package body AWS.Net.Acceptors is
       use type Sets.Socket_Count;
 
       procedure Process_Sockets;
+      --  ???
 
       procedure Shutdown;
       pragma No_Return (Shutdown);
 
       Too_Many_FD  : Boolean := False;
       Ready, Error : Boolean;
+
+      ---------------------
+      -- Process_Sockets --
+      ---------------------
 
       procedure Process_Sockets is
       begin
