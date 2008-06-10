@@ -666,8 +666,20 @@ package body AWS.Server.Push is
 
             --  Net.Check is not blocking operation
 
-            Events :=
-              Net.Check (Holder.Socket.all, (Output => True, Input => False));
+            begin
+               Events :=
+                 Net.Check
+                   (Holder.Socket.all, (Output => True, Input => False));
+            exception
+               when Socket_Error =>
+                  --  !!! Most possible it is ENOBUFS or ENOMEM error
+                  --  because of too many open sockets. We should see the exact
+                  --  error in the socket error log file.
+                  --  We could do nothing with it here, we just behave like
+                  --  socket is not available for write.
+
+                  Events := (others => False);
+            end;
 
             if Events (Error) then
                Holder.Errmsg :=
@@ -1534,7 +1546,43 @@ package body AWS.Server.Push is
 
       loop
          if Count (Write_Set) > 1 then
-            Wait (Write_Set, Timeout => Duration'Last);
+            begin
+               Wait (Write_Set, Timeout => Duration'Last);
+            exception
+               when E : Socket_Error =>
+                  --  !!! Most possible it is ENOBUFS or ENOMEM error
+                  --  because of too many open sockets. We should see the exact
+                  --  error in the socket error log file.
+                  --  We should close sockets in waiter because server has a
+                  --  lack of socket resources and clients in other peer of
+                  --  those socket is slow receiving the socket data.
+
+                  declare
+                     Message : constant String := Exception_Message (E);
+
+                     procedure Process
+                       (Socket : in out Socket_Type'Class;
+                        Client : in out Client_In_Wait);
+
+                     -------------
+                     -- Process --
+                     -------------
+
+                     procedure Process
+                       (Socket : in out Socket_Type'Class;
+                        Client : in out Client_In_Wait) is
+                     begin
+                        Client.SP.Waiter_Error (Client.CH, Message);
+                        Net.Log.Error (Socket, Message);
+                     end Process;
+
+                  begin
+                     for J in reverse 2 .. Count (Write_Set) loop
+                        Update_Socket (Write_Set, J, Process'Access);
+                        Remove_Socket (Write_Set, J);
+                     end loop;
+                  end;
+            end;
          end if;
 
          if Count (Write_Set) = 1 or else Is_Read_Ready (Write_Set, 1) then

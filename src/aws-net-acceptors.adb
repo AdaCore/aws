@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2005-2007                          --
+--                         Copyright (C) 2005-2008                          --
 --                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -41,15 +41,106 @@ package body AWS.Net.Acceptors is
    ---------
 
    procedure Get
-     (Acceptor        : in out Acceptor_Type;
-      Socket          : out    Socket_Access;
-      On_Accept_Error : access procedure
+     (Acceptor : in out Acceptor_Type;
+      Socket   : out    Socket_Access;
+      On_Error : access procedure
         (E : in Ada.Exceptions.Exception_Occurrence) := null)
    is
       use type Sets.Socket_Count;
 
+      procedure Process_Sockets;
+
       procedure Shutdown;
       pragma No_Return (Shutdown);
+
+      Too_Many_FD  : Boolean := False;
+      Ready, Error : Boolean;
+
+      procedure Process_Sockets is
+      begin
+         Acceptor.Last := Sets.Count (Acceptor.Set);
+
+         Sets.Is_Read_Ready (Acceptor.Set, Server_Index, Ready, Error);
+
+         if Error then
+            Raise_Socket_Error
+              (Acceptor.Server.all, "Accepting socket error.");
+
+         elsif Ready then
+            declare
+               use Ada.Calendar;
+               New_Socket : Socket_Type'Class := Acceptor.Constructor (False);
+            begin
+               --  We could not accept SSL socket because SSL handshake could
+               --  take a long time inside Accept_Socket. We would make socket
+               --  SSL later outside acceptor if necessary.
+
+               Accept_Socket (Acceptor.Server.all, New_Socket);
+
+               Sets.Add
+                 (Acceptor.Set,
+                  New_Socket,
+                  Data => (Time => Clock, First => True),
+                  Mode => Sets.Input);
+
+            exception
+               when E : Socket_Error =>
+                  if On_Error /= null then
+                     On_Error (E);
+
+                     --  Most probable that Accept_Socket error is because the
+                     --  number of sockets per process exceeded.
+                     --  Set the flag Too_Many_FD to be able to use shorter
+                     --  timeouts in the next sockets expiration check.
+
+                     Too_Many_FD := True;
+
+                  else
+                     raise;
+                  end if;
+            end;
+         end if;
+
+         Sets.Is_Read_Ready (Acceptor.Set, Signal_Index, Ready, Error);
+
+         if Error then
+            Shutdown;
+
+         elsif Ready then
+            declare
+               use Ada.Calendar;
+
+               Socket : Socket_Access;
+               Bytes  : Ada.Streams.Stream_Element_Array (1 .. 16);
+               Last   : Ada.Streams.Stream_Element_Offset;
+            begin
+               --  Read bytes from signalling socket and take sockets from
+               --  mailbox.
+
+               begin
+                  Receive (Acceptor.R_Signal.all, Bytes, Last);
+               exception
+                  when Socket_Error =>
+                     Shutdown;
+               end;
+
+               for J in 1 .. Last loop
+                  if Bytes (J) = Socket_Command then
+                     Acceptor.Box.Get (Socket);
+                     Sets.Add
+                       (Acceptor.Set,
+                        Socket,
+                        Data  => (Time => Clock, First => False),
+                        Mode  => Sets.Input);
+                  else
+                     raise Constraint_Error;
+                  end if;
+               end loop;
+            end;
+         end if;
+
+         Acceptor.Index := First_Index;
+      end Process_Sockets;
 
       --------------
       -- Shutdown --
@@ -72,10 +163,8 @@ package body AWS.Net.Acceptors is
 
       First        : constant Boolean := True;
       Timeout      : array (Boolean) of Duration;
-      Too_Many_FD  : Boolean := False;
       Oldest_Idx   : Sets.Socket_Count;
 
-      Ready, Error : Boolean;
       Wait_Timeout : Duration;
 
    begin
@@ -152,90 +241,32 @@ package body AWS.Net.Acceptors is
             Free (Socket);
          end if;
 
-         Sets.Wait (Acceptor.Set, Wait_Timeout);
+         begin
+            Sets.Wait (Acceptor.Set, Wait_Timeout);
+            Error := False;
+         exception
+            when E : Socket_Error =>
+               Error := True;
 
-         Acceptor.Last := Sets.Count (Acceptor.Set);
+               if On_Error /= null then
+                  On_Error (E);
 
-         Sets.Is_Read_Ready (Acceptor.Set, Server_Index, Ready, Error);
+                  --  Most probable that Wait error is because the
+                  --  number of sockets per process exceeded.
+                  --  Set the flag Too_Many_FD to be able to use shorter
+                  --  timeouts in the next sockets expiration check.
 
-         if Error then
-            Raise_Socket_Error
-              (Acceptor.Server.all, "Accepting socket error.");
+                  Too_Many_FD := True;
 
-         elsif Ready then
-            declare
-               use Ada.Calendar;
-               New_Socket : Socket_Type'Class := Acceptor.Constructor (False);
-            begin
-               --  We could not accept SSL socket because SSL handshake could
-               --  take a long time inside Accept_Socket. We would make socket
-               --  SSL later outside acceptor if necessary.
+               else
+                  raise;
+               end if;
+         end;
 
-               Accept_Socket (Acceptor.Server.all, New_Socket);
-
-               Sets.Add
-                 (Acceptor.Set,
-                  New_Socket,
-                  Data => (Time => Clock, First => True),
-                  Mode => Sets.Input);
-
-            exception
-               when E : Socket_Error =>
-                  if On_Accept_Error /= null then
-                     On_Accept_Error (E);
-
-                     --  Most probable that Accept_Socket error is because the
-                     --  number of sockets per process exceeded.
-                     --  Set the flag Too_Many_FD to be able to use shorter
-                     --  timeouts in the next sockets expiration check.
-
-                     Too_Many_FD := True;
-
-                  else
-                     raise;
-                  end if;
-            end;
+         if not Error then
+            Process_Sockets;
          end if;
 
-         Sets.Is_Read_Ready (Acceptor.Set, Signal_Index, Ready, Error);
-
-         if Error then
-            Shutdown;
-
-         elsif Ready then
-            declare
-               use Ada.Calendar;
-
-               Socket : Socket_Access;
-               Bytes  : Ada.Streams.Stream_Element_Array (1 .. 16);
-               Last   : Ada.Streams.Stream_Element_Offset;
-            begin
-               --  Read bytes from signalling socket and take sockets from
-               --  mailbox.
-
-               begin
-                  Receive (Acceptor.R_Signal.all, Bytes, Last);
-               exception
-                  when Socket_Error =>
-                     Shutdown;
-               end;
-
-               for J in 1 .. Last loop
-                  if Bytes (J) = Socket_Command then
-                     Acceptor.Box.Get (Socket);
-                     Sets.Add
-                       (Acceptor.Set,
-                        Socket,
-                        Data  => (Time => Clock, First => False),
-                        Mode  => Sets.Input);
-                  else
-                     raise Constraint_Error;
-                  end if;
-               end loop;
-            end;
-         end if;
-
-         Acceptor.Index := First_Index;
       end loop;
    end Get;
 

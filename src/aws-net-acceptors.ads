@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2005-2007                          --
+--                         Copyright (C) 2005-2008                          --
 --                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -68,19 +68,19 @@ package AWS.Net.Acceptors is
      (Acceptor : in out Acceptor_Type; Constructor : in Socket_Constructor);
 
    procedure Get
-     (Acceptor        : in out Acceptor_Type;
-      Socket          : out    Socket_Access;
-      On_Accept_Error : access procedure
+     (Acceptor : in out Acceptor_Type;
+      Socket   : out    Socket_Access;
+      On_Error : access procedure
         (E : in Ada.Exceptions.Exception_Occurrence) := null);
    --  Returns a socket from the internal socket set which has data to read.
    --  Should not be called simultaneously from different tasks.
-   --  On_Accept_Error needs to be able to catch Socket_Error on Accept_Socket.
-   --  Accept_Socket could fail if the server is processing too many keep-alive
-   --  connections simultaneously. Acceptor swithed into Force timeouts in case
-   --  of Accept_Socket fail. The server could also use the On_Accept_Error
+   --  On_Error needs to be able to catch Socket_Error on Accept_Socket or
+   --  on the Wait on the sockets. Accept_Socket and Wait on sockets could fail
+   --  if the server is processing too many keep-alive connections
+   --  simultaneously. Acceptor switched into Force timeouts in case of
+   --  Accept_Socket or Wait fail. The server could also use the On_Error
    --  callback to decrease the number of simultaneous keep-alive connections.
-   --  If On_Accept_Error is null, the exception from Accept_Socket is
-   --  propagated.
+   --  If On_Error is null, the exception on error is propagated.
 
    function Server_Socket
      (Acceptor : in Acceptor_Type) return Socket_Type'Class;

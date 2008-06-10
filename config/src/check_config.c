@@ -107,12 +107,14 @@ main (int argc, char *argv[])
 #endif
 
 #ifdef _WIN32
+  #define SHUT_RDWR   SD_BOTH
   #define ETIMEDOUT   WSAETIMEDOUT
   #define ENOTCONN    WSAENOTCONN
   #define EWOULDBLOCK WSAEWOULDBLOCK
   #define EINPROGRESS WSAEINPROGRESS
-  #define SHUT_RDWR   SD_BOTH
   #define EINTR       WSAEINTR
+  #define ENOBUFS     WSAENOBUFS
+  #define ENOMEM      WSAENOBUFS
   #define EAI_SYSTEM  EAI_AGAIN
   //  EAI_SYSTEM getaddrinfo error code does not supported by Win32, but need
   //  for correct error handling, we could use any Win32 socket error code
@@ -217,6 +219,8 @@ main (int argc, char *argv[])
   P ("   ENOTCONN     : constant := %d;\n", ENOTCONN);
   P ("   EINPROGRESS  : constant := %d;\n", EINPROGRESS);
   P ("   EINTR        : constant := %d;\n", EINTR);
+  P ("   ENOBUFS      : constant := %d;\n", ENOBUFS);
+  P ("   ENOMEM       : constant := %d;\n", ENOMEM);
   P ("   FIONBIO      : constant := %d;\n", FIONBIO);
   P ("   FIONREAD     : constant := %d;\n", FIONREAD);
   P ("   MSG_NOSIGNAL : constant := %d;\n\n", v_MSG_NOSIGNAL);
