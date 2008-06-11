@@ -48,8 +48,9 @@ package body AWS.Net.Acceptors is
    is
       use type Sets.Socket_Count;
 
-      procedure Process_Sockets;
-      --  ???
+      procedure Add_Sockets;
+      --  Add sockets to the acceptor either from Accept_Socket or from
+      --  Give_Back.
 
       procedure Shutdown;
       pragma No_Return (Shutdown);
@@ -57,12 +58,15 @@ package body AWS.Net.Acceptors is
       Too_Many_FD  : Boolean := False;
       Ready, Error : Boolean;
 
-      ---------------------
-      -- Process_Sockets --
-      ---------------------
+      -----------------
+      -- Add_Sockets --
+      -----------------
 
-      procedure Process_Sockets is
+      procedure Add_Sockets is
       begin
+         --  Save Acceptor.Last to do not try to get status of new arrived
+         --  sockets until it wouldn't in the Wait call.
+
          Acceptor.Last := Sets.Count (Acceptor.Set);
 
          Sets.Is_Read_Ready (Acceptor.Set, Server_Index, Ready, Error);
@@ -145,7 +149,7 @@ package body AWS.Net.Acceptors is
          end if;
 
          Acceptor.Index := First_Index;
-      end Process_Sockets;
+      end Add_Sockets;
 
       --------------
       -- Shutdown --
@@ -269,9 +273,8 @@ package body AWS.Net.Acceptors is
          end;
 
          if not Error then
-            Process_Sockets;
+            Add_Sockets;
          end if;
-
       end loop;
    end Get;
 
