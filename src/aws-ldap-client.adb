@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2003-2006                          --
+--                         Copyright (C) 2003-2008                          --
 --                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -27,16 +27,17 @@
 ------------------------------------------------------------------------------
 
 with Ada.Strings.Fixed;
+
 with Interfaces.C.Strings;
 
 with AWS.Utils;
 
 package body AWS.LDAP.Client is
 
-   package IC renames Interfaces.C;
-
    use Ada;
    use Interfaces.C.Strings;
+
+   package IC renames Interfaces.C;
 
    use type IC.int;
 
@@ -162,8 +163,7 @@ package body AWS.LDAP.Client is
    ---------
 
    function Cat
-     (S1, S2, S3, S4, S5, S6, S7, S8, S9, S10 : in String := "")
-      return String
+     (S1, S2, S3, S4, S5, S6, S7, S8, S9, S10 : in String := "") return String
    is
       v : constant Character := ',';
    begin
@@ -232,8 +232,7 @@ package body AWS.LDAP.Client is
 
    function Count_Entries
      (Dir   : in Directory;
-      Chain : in LDAP_Message)
-      return Natural is
+      Chain : in LDAP_Message) return Natural is
    begin
       Check_Handle (Dir);
       return Natural (Thin.ldap_count_entries (Dir, Chain));
@@ -268,8 +267,7 @@ package body AWS.LDAP.Client is
 
    function Explode_DN
      (DN       : in String;
-      No_Types : in Boolean := True)
-      return String_Set
+      No_Types : in Boolean := True) return String_Set
    is
       C_DN : chars_ptr := New_String (DN);
       Res  : Thin.Attribute_Set_Access;
@@ -301,8 +299,7 @@ package body AWS.LDAP.Client is
    function First_Attribute
      (Dir  : in  Directory;
       Node : in LDAP_Message;
-      BER  : not null access BER_Element)
-      return String
+      BER  : not null access BER_Element) return String
    is
       Result : chars_ptr;
    begin
@@ -324,8 +321,7 @@ package body AWS.LDAP.Client is
 
    function First_Entry
      (Dir   : in Directory;
-      Chain : in LDAP_Message)
-      return LDAP_Message is
+      Chain : in LDAP_Message) return LDAP_Message is
    begin
       Check_Handle (Dir);
       return Thin.ldap_first_entry (Dir, Chain);
@@ -345,8 +341,9 @@ package body AWS.LDAP.Client is
       Check_Handle (Dir);
 
       declare
-         Attrs : constant String
-           := LDAP.Client.First_Attribute (Dir, Node, BER'Unchecked_Access);
+         Attrs : constant String :=
+                   LDAP.Client.First_Attribute
+                     (Dir, Node, BER'Unchecked_Access);
       begin
          Quit := False;
          Action (Attrs, Quit);
@@ -354,8 +351,8 @@ package body AWS.LDAP.Client is
          if not Quit then
             loop
                declare
-                  Attrs : constant String
-                    := LDAP.Client.Next_Attribute (Dir, Node, BER);
+                  Attrs : constant String :=
+                            LDAP.Client.Next_Attribute (Dir, Node, BER);
                begin
                   exit when Attrs = "";
 
@@ -399,9 +396,7 @@ package body AWS.LDAP.Client is
 
    procedure Free (Chain : in LDAP_Message) is
       Res : IC.int;
-      pragma Warnings (Off, Res);
-      --  We are not using pragma Unreferenced here because of GNAT 3.15p.
-      --  It counts left side assignment as a reference.
+      pragma Unreferenced (Res);
    begin
       Res := Thin.ldap_msgfree (Chain);
    end Free;
@@ -417,8 +412,7 @@ package body AWS.LDAP.Client is
 
    function Get_DN
      (Dir  : in Directory;
-      Node : in LDAP_Message)
-      return String
+      Node : in LDAP_Message) return String
    is
       Result : chars_ptr;
    begin
@@ -433,8 +427,7 @@ package body AWS.LDAP.Client is
    ---------------
 
    function Get_Error
-     (E : in Ada.Exceptions.Exception_Occurrence)
-      return Thin.Return_Code
+     (E : in Ada.Exceptions.Exception_Occurrence) return Thin.Return_Code
    is
       Message     : constant String := Exceptions.Exception_Message (E);
       First, Last : Natural;
@@ -471,8 +464,7 @@ package body AWS.LDAP.Client is
    function Get_Values
      (Dir    : in Directory;
       Node   : in LDAP_Message;
-      Target : in String)
-      return String_Set
+      Target : in String) return String_Set
    is
       C_Target : chars_ptr := New_String (Target);
       Attribs  : Thin.Attribute_Set_Access;
@@ -514,8 +506,7 @@ package body AWS.LDAP.Client is
 
    function Init
      (Host : in String;
-      Port : in Positive := Default_Port)
-      return Directory
+      Port : in Positive := Default_Port) return Directory
    is
       use type Thin.LDAP_Type;
 
@@ -563,8 +554,7 @@ package body AWS.LDAP.Client is
    function Next_Attribute
      (Dir  : in Directory;
       Node : in LDAP_Message;
-      BER  : in BER_Element)
-      return String
+      BER  : in BER_Element) return String
    is
       Result : chars_ptr;
    begin
@@ -591,8 +581,7 @@ package body AWS.LDAP.Client is
 
    function Next_Entry
      (Dir     : in Directory;
-      Entries : in LDAP_Message)
-      return LDAP_Message is
+      Entries : in LDAP_Message) return LDAP_Message is
    begin
       Check_Handle (Dir);
       return Thin.ldap_next_entry (Dir, Entries);
@@ -638,8 +627,7 @@ package body AWS.LDAP.Client is
       Filter     : in String;
       Scope      : in Scope_Type    := LDAP_Scope_Default;
       Attrs      : in Attribute_Set := Null_Set;
-      Attrs_Only : in Boolean       := False)
-      return LDAP_Message
+      Attrs_Only : in Boolean       := False) return LDAP_Message
    is
       Res      : IC.int;
       C_Base   : chars_ptr := New_String (Base);
@@ -740,9 +728,7 @@ package body AWS.LDAP.Client is
 
    procedure Unbind (Dir : in out Directory) is
       Res : IC.int;
-      pragma Warnings (Off, Res);
-      --  We are not using pragma Unreferenced here because of GNAT 3.15p.
-      --  It counts left side assignment as a reference.
+      pragma Unreferenced (Res);
    begin
       if Is_Open (Dir) then
          Res := Thin.ldap_unbind_s (Dir);

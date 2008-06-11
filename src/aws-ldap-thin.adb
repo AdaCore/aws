@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2002-2006                          --
+--                         Copyright (C) 2002-2008                          --
 --                                 Adacore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -34,8 +34,7 @@ package body AWS.LDAP.Thin is
 
    function Item
      (Set   : in Attribute_Set_Access;
-      Index : in C.int)
-      return chars_ptr
+      Index : in C.int) return chars_ptr
    is
       use type C.size_t;
    begin

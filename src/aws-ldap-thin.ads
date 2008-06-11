@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2002-2007                          --
+--                         Copyright (C) 2002-2008                          --
 --                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -29,7 +29,7 @@
 --  Thin binding to the LDAP API (derived from ldap.h). Only API to read from
 --  the server have been imported.
 
---  This has been tested with OpenLDAP and wldap32.dll on Windows paltforms.
+--  This has been tested with OpenLDAP and wldap32.dll on Windows paltforms
 
 with System;
 with Interfaces.C.Strings;
@@ -60,9 +60,11 @@ package AWS.LDAP.Thin is
    --  vendor version number
    --       2.0.0  -> 20000
    --       2.3.16 -> 20316
+
    LDAP_VENDOR_VERSION : constant := 20023;
 
    --  OpenLDAP API Features
+
    LDAP_API_FEATURE_X_OPENLDAP : constant := LDAP_VENDOR_VERSION;
 
    LDAP_API_FEATURE_THREAD_SAFE : constant := 1;
@@ -521,34 +523,30 @@ package AWS.LDAP.Thin is
 
    function ldap_init
      (host : in chars_ptr;
-      port : in C.int)
-      return LDAP_Type;
+      port : in C.int) return LDAP_Type;
 
    function ldap_simple_bind
      (ld     : in LDAP_Type;
       who    : in chars_ptr;
-      passwd : in chars_ptr)
-      return C.int;
+      passwd : in chars_ptr) return C.int;
 
    function ldap_simple_bind_s
      (ld     : in LDAP_Type;
       who    : in chars_ptr;
-      passwd : in chars_ptr)
-      return C.int;
+      passwd : in chars_ptr) return C.int;
 
    function ldap_bind_s
      (ld         : in LDAP_Type;
       who        : in chars_ptr;
       passwd     : in chars_ptr;
-      authmethod : in C.int)
-      return C.int;
+      authmethod : in C.int) return C.int;
 
    function ldap_unbind_s (ld : in LDAP_Type) return C.int;
 
    --  Search
 
    type LDAPMessage is private;
-   --  LDAP message, this structure can contain the search result for example.
+   --  LDAP message, this structure can contain the search result for example
 
    Null_LDAPMessage : constant LDAPMessage;
 
@@ -561,8 +559,7 @@ package AWS.LDAP.Thin is
       filter    : in chars_ptr;
       attrs     : in C.Strings.chars_ptr_array;
       attrsonly : in C.int;
-      res       : not null access LDAPMessage)
-      return C.int;
+      res       : not null access LDAPMessage) return C.int;
 
    function ldap_search_s
      (ld        : in LDAP_Type;
@@ -576,47 +573,35 @@ package AWS.LDAP.Thin is
 
    function ldap_count_entries
      (ld    : in LDAP_Type;
-      chain : in LDAPMessage)
-      return C.int;
+      chain : in LDAPMessage) return C.int;
 
    function ldap_first_entry
      (ld    : in LDAP_Type;
-      chain : in LDAPMessage)
-      return LDAPMessage;
+      chain : in LDAPMessage) return LDAPMessage;
 
    function ldap_next_entry
      (ld      : in LDAP_Type;
-      entries : in LDAPMessage)
-      return LDAPMessage;
+      entries : in LDAPMessage) return LDAPMessage;
 
    function ldap_get_dn
      (ld      : in LDAP_Type;
-      entries : in LDAPMessage)
-      return chars_ptr;
+      entries : in LDAPMessage) return chars_ptr;
 
    function ldap_first_attribute
      (ld      : in LDAP_Type;
       entries : in LDAPMessage;
-      ber     : not null access BerElement)
-      return chars_ptr;
+      ber     : not null access BerElement) return chars_ptr;
 
    function ldap_next_attribute
      (ld       : in LDAP_Type;
       entries  : in LDAPMessage;
-      ber      : in BerElement)
-      return chars_ptr;
+      ber      : in BerElement) return chars_ptr;
 
-   function ldap_msgfree
-     (lm : in LDAPMessage)
-      return C.int;
+   function ldap_msgfree (lm : in LDAPMessage) return C.int;
 
-   function ldap_msgid
-     (lm : in LDAPMessage)
-      return C.int;
+   function ldap_msgid (lm : in LDAPMessage) return C.int;
 
-   function ldap_msgtype
-     (lm : in LDAPMessage)
-      return C.int;
+   function ldap_msgtype (lm : in LDAPMessage) return C.int;
 
    subtype Attribute_Set is C.Strings.chars_ptr_array (C.size_t);
    type Attribute_Set_Access is access all Attribute_Set;
@@ -628,37 +613,28 @@ package AWS.LDAP.Thin is
 
    function Item
      (Set   : in Attribute_Set_Access;
-      Index : in C.int)
-      return chars_ptr;
+      Index : in C.int) return chars_ptr;
    pragma Inline (Item);
    --  Returns item at positon Index in Set
 
    function ldap_get_values
      (ld      : in LDAP_Type;
       entries : in LDAPMessage;
-      target  : in chars_ptr)
-      return Attribute_Set_Access;
+      target  : in chars_ptr) return Attribute_Set_Access;
 
    function ldap_count_values (V : in Attribute_Set_Access) return C.int;
 
    procedure ldap_value_free (V : in Attribute_Set_Access);
 
-   function ldap_err2string
-     (err : in C.int)
-      return chars_ptr;
+   function ldap_err2string (err : in C.int) return chars_ptr;
 
-   function ldap_dn2ufn
-     (dn : in chars_ptr)
-      return chars_ptr;
+   function ldap_dn2ufn (dn : in chars_ptr) return chars_ptr;
 
    function ldap_explode_dn
      (dn      : in chars_ptr;
-      notypes : in C.int)
-      return Attribute_Set_Access;
+      notypes : in C.int) return Attribute_Set_Access;
 
-   procedure ber_free
-     (BER  : in BerElement;
-      fbuf : in C.int);
+   procedure ber_free (BER : in BerElement; fbuf : in C.int);
 
 private
 

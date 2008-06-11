@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2002                            --
---                               ACT-Europe                                 --
+--                         Copyright (C) 2002-2008                          --
+--                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -25,8 +25,6 @@
 --  however invalidate any other reasons why the executable file  might be  --
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
-
---  $Id$:
 
 with Ada.Strings.Unbounded;
 with Ada.Text_IO;

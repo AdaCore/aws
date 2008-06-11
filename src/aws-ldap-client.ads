@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2003-2007                          --
+--                         Copyright (C) 2003-2008                          --
 --                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -73,8 +73,7 @@ package AWS.LDAP.Client is
    Null_Set : constant String_Set;
 
    function Get_Error
-     (E : in Ada.Exceptions.Exception_Occurrence)
-      return Thin.Return_Code;
+     (E : in Ada.Exceptions.Exception_Occurrence) return Thin.Return_Code;
    --  Returns the error code in the LDAP_Error exception occurence E. Returns
    --  Think.LDAP_SUCCESS if no error code has been found.
 
@@ -154,8 +153,7 @@ package AWS.LDAP.Client is
    --  added after the attribute name.
 
    function Cat
-     (S1, S2, S3, S4, S5, S6, S7, S8, S9, S10 : in String := "")
-      return String;
+     (S1, S2, S3, S4, S5, S6, S7, S8, S9, S10 : in String := "") return String;
    --  Returns a string object containing only none empty values. Values for
    --  S1 through S10 must be set in the order of the parameters. All values
    --  are catenated and separated with a coma. This is an helper routine to
@@ -167,8 +165,7 @@ package AWS.LDAP.Client is
 
    function Init
      (Host : in String;
-      Port : in Positive := Default_Port)
-      return Directory;
+      Port : in Positive := Default_Port) return Directory;
    --  Must be called first, to initialize the LDAP communication with the
    --  server. Returns Null_Directory in case of error.
 
@@ -196,8 +193,7 @@ package AWS.LDAP.Client is
       Filter     : in String;
       Scope      : in Scope_Type    := LDAP_Scope_Default;
       Attrs      : in Attribute_Set := Null_Set;
-      Attrs_Only : in Boolean       := False)
-      return LDAP_Message;
+      Attrs_Only : in Boolean       := False) return LDAP_Message;
    --  Do a search on the LDAP server. Base is the name of the database.
    --  Filter can be used to retrieve a specific set of entries. Attrs specify
    --  the set of attributes to retrieve. If Attrs_Only is set to True only
@@ -209,24 +205,21 @@ package AWS.LDAP.Client is
 
    function First_Entry
      (Dir   : in Directory;
-      Chain : in LDAP_Message)
-      return LDAP_Message;
-   --  Returns the first entry (or Node) for the search result (Chain).
+      Chain : in LDAP_Message) return LDAP_Message;
+   --  Returns the first entry (or Node) for the search result (Chain)
 
    function Next_Entry
      (Dir     : in Directory;
-      Entries : in LDAP_Message)
-      return LDAP_Message;
-   --  Returns next entry (or Node) for Entries.
+      Entries : in LDAP_Message) return LDAP_Message;
+   --  Returns next entry (or Node) for Entries
 
    function Count_Entries
      (Dir   : in Directory;
-      Chain : in LDAP_Message)
-      return Natural;
-   --  Returns the number of entries in the search result (Chain).
+      Chain : in LDAP_Message) return Natural;
+   --  Returns the number of entries in the search result (Chain)
 
    procedure Free (Chain : in LDAP_Message);
-   --  Release memory associated with the search result Chain.
+   --  Release memory associated with the search result Chain
 
    generic
       with procedure Action
@@ -240,8 +233,7 @@ package AWS.LDAP.Client is
    function First_Attribute
      (Dir  : in Directory;
       Node : in LDAP_Message;
-      BER  : not null access BER_Element)
-      return String;
+      BER  : not null access BER_Element) return String;
    --  Returns the first attribute for the entry. It initialize an iteraror
    --  (the BER structure). The BER structure must be released after used by
    --  using the Free routine below.
@@ -249,8 +241,7 @@ package AWS.LDAP.Client is
    function Next_Attribute
      (Dir  : in Directory;
       Node : in LDAP_Message;
-      BER  : in BER_Element)
-      return String;
+      BER  : in BER_Element) return String;
    --  Returns next attribute for iterator BER. First_Attribute must have been
    --  called to initialize this iterator.
 
@@ -275,9 +266,8 @@ package AWS.LDAP.Client is
 
    function Get_DN
      (Dir  : in Directory;
-      Node : in LDAP_Message)
-      return String;
-   --  Returns the distinguished name for the given entry Node.
+      Node : in LDAP_Message) return String;
+   --  Returns the distinguished name for the given entry Node
 
    function DN2UFN (DN : in String) return String;
    --  Returns a distinguished name converted to a user-friendly format
