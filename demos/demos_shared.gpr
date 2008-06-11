@@ -74,6 +74,8 @@ project Demos_Shared is
             null;
       end case;
 
+      for Switches ("test_ldap.adb") use ("-lldap");
+
    end Linker;
 
 end Demos_Shared;
