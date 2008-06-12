@@ -331,7 +331,8 @@ build: $(MODULES_BUILD) runtest_script
 
 clean: $(MODULES_CLEAN)
 	${MAKE} -C templates_parser clean
-	-rm -fr .build
+	-${RM} -fr .build
+	-${RM} -f makefile.setup
 
 check: $(MODULES_CHECK)
 
