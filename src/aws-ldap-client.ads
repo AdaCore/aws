@@ -34,6 +34,7 @@
 
 with Ada.Exceptions;
 with Ada.Strings.Unbounded;
+with Ada.Containers.Vectors;
 
 with AWS.LDAP.Thin;
 
@@ -199,6 +200,42 @@ package AWS.LDAP.Client is
    --  the set of attributes to retrieve. If Attrs_Only is set to True only
    --  the types are returned. Raises LDAP_Error in case of problem.
 
+   -----------------------
+   -- Add/Modify/Delete --
+   -----------------------
+
+   type Mod_Type is (LDAP_Mod_Add, LDAP_Mod_Replace, LDAP_Mod_BValues);
+   --  Modification types: Add, Replace and BER flag
+
+   type Mod_Element is record
+      Mod_Op     : Mod_Type;
+      Mod_Type   : Unbounded_String;
+      Mod_Values : Attribute_Set (1 .. Thin.Max_Mod_Values);
+   end record;
+   --  Holds modification elements. 'Abstraction' of the LDAPMod_Element type
+   --  used in the thin-binding. Mod_Values is static to make it less complex.
+
+   package LDAP_Mods is new Ada.Containers.Vectors (Positive, Mod_Element);
+   --  Vector-based Storage for all modification elements. Will be
+   --  mapped to C LDAPMod **.
+
+   procedure Add
+     (Dir  : in Directory;
+      DN   : in String;
+      Mods : in LDAP_Mods.Vector);
+   --  Add an entry specified by 'DN' to the LDAP server. The Mods-Vector
+   --  contains the attributes for the entry.
+
+   procedure Modify
+     (Dir  : in Directory;
+      DN   : in String;
+      Mods : in LDAP_Mods.Vector);
+   --  Modify an attribute of entry specified by 'DN'. The Mods-Vector
+   --  contains the attributes to add/replace/delete for the entry.
+
+   procedure Delete (Dir : in Directory; DN : in String);
+   --  Delete an entry specified by 'DN' from the LDAP server
+
    ---------------
    -- Iterators --
    ---------------
@@ -275,19 +312,28 @@ package AWS.LDAP.Client is
    function Get_Values
      (Dir    : in Directory;
       Node   : in LDAP_Message;
-      Target : in String)
-      return String_Set;
+      Target : in String) return String_Set;
    --  Returns the list of values of a given attribute (Target) found in entry
    --  Node.
 
    function Explode_DN
      (DN       : in String;
-      No_Types : in Boolean := True)
-      return String_Set;
+      No_Types : in Boolean := True) return String_Set;
    --  Breaks up an entry name into its component parts. If No_Types is set to
    --  True the types information ("cn=") won't be included.
 
 private
+
+   function Last (Modvals : in Attribute_Set) return Natural;
+   --  Return last Mod_Value index
+
+   function To_C (Mods : in LDAP_Mods.Vector) return Thin.LDAPMods;
+   --  Create C-Style LDAPMod ** structure used to store all
+   --  modification operations to perform on a LDAP-entry.
+
+   procedure Free (C_Mods : in Thin.LDAPMods_Access);
+   --  Releases memory associated with the LDAPMod C-style structure which
+   --  has been allocated for LDAP add/modify and delete operations.
 
    Null_Set : constant String_Set (1 .. 0)
      := (1 .. 0 => Null_Unbounded_String);

@@ -466,7 +466,12 @@ package AWS.LDAP.Thin is
    LDAP_REFERRAL_LIMIT_EXCEEDED   : constant := 16#61#;
    --  Draft-ietf-ldap-c-api-xx
 
-   LDAP_FILT_MAXSIZ : constant := 1024;
+   --  for modifications
+   LDAP_MOD_ADD                   : constant := 16#0000#;
+   LDAP_MOD_REPLACE               : constant := 16#0002#;
+   LDAP_MOD_BVALUES               : constant := 16#0080#;
+
+   LDAP_FILT_MAXSIZ        : constant := 1024;
 
    LDAP_DEREF_NEVER        : constant := 16#00#;
    LDAP_DEREF_SEARCHING    : constant := 16#01#;
@@ -568,8 +573,61 @@ package AWS.LDAP.Thin is
       filter    : in chars_ptr;
       attrs     : in chars_ptr; -- To be able to pass a null ptr
       attrsonly : in C.int;
-      res       : not null access LDAPMessage)
-      return C.int;
+      res       : not null access LDAPMessage) return C.int;
+
+   --  Add / Modify / Delete
+
+   Max_Mod_Values : constant Natural := 64;
+   --  Maximum amount of LDAPMod values supported
+
+   subtype Mod_Value_Array is C.Strings.chars_ptr_array
+     (C.size_t range 1 .. C.size_t (Max_Mod_Values));
+   --  Storage array for modification values
+
+   type LDAPMod_Element is record
+      Mod_Op     : C.int;
+      Mod_Type   : chars_ptr;
+      Mod_Values : access Mod_Value_Array;
+   end record;
+   type LDAPMod_Element_Access is access all LDAPMod_Element;
+   --  LDAPMod element
+
+   type LDAPMods is array (C.size_t range <>)
+     of aliased LDAPMod_Element_Access;
+   type LDAPMods_Access is access all LDAPMod_Element_Access;
+   pragma Convention (C, LDAPMods_Access);
+   --  LDAPMods, array of modifications. This is the Ada representation
+   --  of "LDAPMod **" on the C side. LDAPMods_Access points to the first
+   --  element in the array (since we cannot pass fat-pointers to the
+   --  C-API function).
+
+   --  Add
+
+   function ldap_add_s
+     (ld    : in LDAP_Type;
+      dn    : in chars_ptr;
+      attrs : in LDAPMods_Access) return C.int;
+
+   --  Modify
+
+   function ldap_modify_s
+     (ld   : in LDAP_Type;
+      dn   : in chars_ptr;
+      mods : in LDAPMods_Access) return C.int;
+
+   --  Delete
+
+   function ldap_delete_s
+     (ld : in LDAP_Type;
+      dn : in chars_ptr) return C.int;
+
+   --  Free LDAPMod **
+
+   procedure ldap_mods_free
+     (mods     : in LDAPMods_Access;
+      freemods : in C.int := 0);
+
+   --  Helpers
 
    function ldap_count_entries
      (ld    : in LDAP_Type;
@@ -658,6 +716,10 @@ private
    pragma Import (C, ldap_bind_s);
    pragma Import (C, ldap_unbind_s);
    pragma Import (C, ldap_search_s);
+   pragma Import (C, ldap_add_s);
+   pragma Import (C, ldap_modify_s);
+   pragma Import (C, ldap_delete_s);
+   pragma Import (C, ldap_mods_free);
    pragma Import (C, ldap_count_entries);
    pragma Import (C, ldap_first_entry);
    pragma Import (C, ldap_next_entry);

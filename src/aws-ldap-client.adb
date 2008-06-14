@@ -48,6 +48,12 @@ package body AWS.LDAP.Client is
          LDAP_Scope_Subtree   => Thin.LDAP_SCOPE_SUBTREE);
    --  Map Scope_Type with the corresponding C values
 
+   C_Mod_Type : constant array (Mod_Type) of IC.int
+     := (LDAP_Mod_Add     => Thin.LDAP_MOD_ADD,
+         LDAP_Mod_Replace => Thin.LDAP_MOD_REPLACE,
+         LDAP_Mod_BValues => Thin.LDAP_MOD_BVALUES);
+   --  Map Mod_Type with the corresponsing C values
+
    C_Bool : constant array (Boolean) of IC.int := (False => 0, True => 1);
    --  Map Boolean with the corrsponding C values
 
@@ -63,6 +69,43 @@ package body AWS.LDAP.Client is
    procedure Check_Handle (Dir : in Directory);
    pragma Inline (Check_Handle);
    --  Raises LDAP_Error if Dir is Null_Directory
+
+   ---------
+   -- Add --
+   ---------
+
+   procedure Add
+     (Dir  : in Directory;
+      DN   : in String;
+      Mods : in LDAP_Mods.Vector)
+   is
+      Res    : IC.int;
+      C_DN   : chars_ptr := New_String (DN);
+      C_Mods : Thin.LDAPMods := To_C (Mods => Mods);
+   begin
+      Check_Handle (Dir);
+
+      --  Perform add operation
+
+      Res := LDAP.Thin.ldap_add_s
+        (ld    => Dir,
+         dn    => C_DN,
+         attrs => C_Mods (C_Mods'First)'Unchecked_Access);
+
+      if Res /= AWS.LDAP.Thin.LDAP_SUCCESS then
+         Raise_Error (Res, "Add failed");
+      end if;
+
+      --  Free allocated memory
+
+      Free (C_DN);
+      Free (C_Mods (C_Mods'First)'Unchecked_Access);
+   exception
+      when others =>
+         Free (C_DN);
+         Free (C_Mods (C_Mods'First)'Unchecked_Access);
+         raise;
+   end Add;
 
    ------------
    -- Attrib --
@@ -248,6 +291,33 @@ package body AWS.LDAP.Client is
    end dc;
 
    ------------
+   -- Delete --
+   ------------
+
+   procedure Delete (Dir : in Directory; DN : in String)  is
+      Res  : IC.int;
+      C_DN : chars_ptr := New_String (DN);
+   begin
+      Check_Handle (Dir);
+
+      --  Perform delete operation
+
+      Res := Thin.ldap_delete_s (ld => Dir, dn => C_DN);
+
+      if Res /= Thin.LDAP_SUCCESS then
+         Raise_Error (Res, "Delete failed");
+      end if;
+
+      --  Free memory
+
+      Free (C_DN);
+   exception
+      when others =>
+         Free (C_DN);
+         raise;
+   end Delete;
+
+   ------------
    -- DN2UFN --
    ------------
 
@@ -406,6 +476,15 @@ package body AWS.LDAP.Client is
       Thin.ber_free (BER, 0);
    end Free;
 
+   procedure Free (C_Mods : in Thin.LDAPMods_Access) is
+   begin
+      Thin.ldap_mods_free (mods => C_Mods, freemods => 0);
+      --  Note: Don't try to free C_Mods here (freemods => 1), it will not
+      --  work because C_Mods is an unconstrained array (fat pointer).
+      --  There's no need to free the LDAPMods array itself anyway, because the
+      --  To_C function does not allocate it in heap memory.
+   end Free;
+
    ------------
    -- Get_DN --
    ------------
@@ -539,6 +618,20 @@ package body AWS.LDAP.Client is
    end l;
 
    ----------
+   -- Last --
+   ----------
+
+   function Last (Modvals : in Attribute_Set) return Natural is
+      Counter : Natural := Modvals'First;
+   begin
+      loop
+         exit when Length (Modvals (Counter)) = 0;
+         Counter := Counter + 1;
+      end loop;
+      return Counter;
+   end Last;
+
+   ----------
    -- mail --
    ----------
 
@@ -546,6 +639,43 @@ package body AWS.LDAP.Client is
    begin
       return Attrib ("mail", Val);
    end mail;
+
+   ------------
+   -- Modify --
+   ------------
+
+   procedure Modify
+     (Dir  : in Directory;
+      DN   : in String;
+      Mods : in LDAP_Mods.Vector)
+   is
+      Res    : IC.int;
+      C_DN   : chars_ptr := New_String (DN);
+      C_Mods : Thin.LDAPMods := To_C (Mods => Mods);
+   begin
+      Check_Handle (Dir);
+
+      --  Perform modify operation
+
+      Res := LDAP.Thin.ldap_modify_s
+        (ld   => Dir,
+         dn   => C_DN,
+         mods => C_Mods (C_Mods'First)'Unchecked_Access);
+
+      if Res /= AWS.LDAP.Thin.LDAP_SUCCESS then
+         Raise_Error (Res, "Modify failed");
+      end if;
+
+      --  Free allocated memory
+
+      Free (C_DN);
+      Free (C_Mods (C_Mods'First)'Unchecked_Access);
+   exception
+      when others =>
+         Free (C_DN);
+         Free (C_Mods (C_Mods'First)'Unchecked_Access);
+         raise;
+   end Modify;
 
    --------------------
    -- Next_Attribute --
@@ -712,6 +842,52 @@ package body AWS.LDAP.Client is
    begin
       return Attrib ("telephoneNumber", Val);
    end telephoneNumber;
+
+   ----------
+   -- To_C --
+   ----------
+
+   function To_C (Mods : in LDAP_Mods.Vector) return Thin.LDAPMods is
+      use LDAP_Mods;
+      Item     : Mod_Element;
+      Position : Cursor := Mods.First;
+      CMods    : Thin.LDAPMods
+        (IC.size_t (1) .. IC.size_t (Mods.Last_Index + 1));
+   begin
+      while Has_Element (Position) loop
+         Item := Element (Position);
+
+         declare
+            Last_Modvalue : constant Natural := Last (Item.Mod_Values);
+         begin
+            --  Allocate LDAPMod_Elements
+
+            CMods (IC.size_t (To_Index (Position))) :=
+              new Thin.LDAPMod_Element'
+                (Mod_Op     => C_Mod_Type (Item.Mod_Op),
+                 Mod_Type   => New_String (To_String (Item.Mod_Type)),
+                 Mod_Values => new Thin.Mod_Value_Array);
+
+            --  Fill in Mod_Values for this Element
+
+            for K in Item.Mod_Values'First .. Last_Modvalue - 1 loop
+               CMods (IC.size_t (To_Index (Position))).Mod_Values
+                 (IC.size_t (K)) := New_String
+                   (To_String (Item.Mod_Values (K)));
+            end loop;
+
+            --  Terminate Mod_Values with Null_Ptr
+
+            CMods (IC.size_t (To_Index (Position))).Mod_Values
+              (IC.size_t (Last_Modvalue)) := Null_Ptr;
+
+            --  Move to next CMod
+
+            Next (Position);
+         end;
+      end loop;
+      return CMods;
+   end To_C;
 
    ---------
    -- uid --
