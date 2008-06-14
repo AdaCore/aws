@@ -57,6 +57,14 @@ package body AWS.LDAP.Client is
    C_Bool : constant array (Boolean) of IC.int := (False => 0, True => 1);
    --  Map Boolean with the corrsponding C values
 
+   function To_C (Mods : in LDAP_Mods.Vector) return Thin.LDAPMods;
+   --  Create C-Style LDAPMod ** structure used to store all
+   --  modification operations to perform on a LDAP-entry.
+
+   procedure Free (C_Mods : in Thin.LDAPMods_Access);
+   --  Releases memory associated with the LDAPMod C-style structure which
+   --  has been allocated for LDAP add/modify and delete operations.
+
    procedure Raise_Error (Code : in Thin.Return_Code; Message : in String);
    pragma No_Return (Raise_Error);
    --  Raises LDAP_Error, set exception message to Message, add error message
@@ -618,20 +626,6 @@ package body AWS.LDAP.Client is
    end l;
 
    ----------
-   -- Last --
-   ----------
-
-   function Last (Modvals : in Attribute_Set) return Natural is
-      Counter : Natural := Modvals'First;
-   begin
-      loop
-         exit when Length (Modvals (Counter)) = 0;
-         Counter := Counter + 1;
-      end loop;
-      return Counter;
-   end Last;
-
-   ----------
    -- mail --
    ----------
 
@@ -849,16 +843,13 @@ package body AWS.LDAP.Client is
 
    function To_C (Mods : in LDAP_Mods.Vector) return Thin.LDAPMods is
       use LDAP_Mods;
-      Item     : Mod_Element;
       Position : Cursor := Mods.First;
       CMods    : Thin.LDAPMods
         (IC.size_t (1) .. IC.size_t (Mods.Last_Index + 1));
    begin
       while Has_Element (Position) loop
-         Item := Element (Position);
-
          declare
-            Last_Modvalue : constant Natural := Last (Item.Mod_Values);
+            Item : constant Mod_Element := Element (Position);
          begin
             --  Allocate LDAPMod_Elements
 
@@ -870,7 +861,7 @@ package body AWS.LDAP.Client is
 
             --  Fill in Mod_Values for this Element
 
-            for K in Item.Mod_Values'First .. Last_Modvalue - 1 loop
+            for K in Item.Mod_Values'Range loop
                CMods (IC.size_t (To_Index (Position))).Mod_Values
                  (IC.size_t (K)) := New_String
                    (To_String (Item.Mod_Values (K)));
@@ -879,7 +870,7 @@ package body AWS.LDAP.Client is
             --  Terminate Mod_Values with Null_Ptr
 
             CMods (IC.size_t (To_Index (Position))).Mod_Values
-              (IC.size_t (Last_Modvalue)) := Null_Ptr;
+              (IC.size_t (Item.Mod_Values'Last + 1)) := Null_Ptr;
 
             --  Move to next CMod
 

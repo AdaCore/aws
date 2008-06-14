@@ -584,10 +584,12 @@ package AWS.LDAP.Thin is
      (C.size_t range 1 .. C.size_t (Max_Mod_Values));
    --  Storage array for modification values
 
+   type Mod_Value_Array_Access is access Mod_Value_Array;
+
    type LDAPMod_Element is record
       Mod_Op     : C.int;
       Mod_Type   : chars_ptr;
-      Mod_Values : access Mod_Value_Array;
+      Mod_Values : Mod_Value_Array_Access;
    end record;
    type LDAPMod_Element_Access is access all LDAPMod_Element;
    --  LDAPMod element

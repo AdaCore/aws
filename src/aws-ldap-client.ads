@@ -32,9 +32,9 @@
 --
 --  This API has been tested on Windows and Linux (OpenLDAP).
 
+with Ada.Containers.Indefinite_Vectors;
 with Ada.Exceptions;
 with Ada.Strings.Unbounded;
-with Ada.Containers.Vectors;
 
 with AWS.LDAP.Thin;
 
@@ -207,15 +207,16 @@ package AWS.LDAP.Client is
    type Mod_Type is (LDAP_Mod_Add, LDAP_Mod_Replace, LDAP_Mod_BValues);
    --  Modification types: Add, Replace and BER flag
 
-   type Mod_Element is record
+   type Mod_Element (Values_Size : Natural) is record
       Mod_Op     : Mod_Type;
       Mod_Type   : Unbounded_String;
-      Mod_Values : Attribute_Set (1 .. Thin.Max_Mod_Values);
+      Mod_Values : Attribute_Set (1 .. Values_Size);
    end record;
    --  Holds modification elements. 'Abstraction' of the LDAPMod_Element type
    --  used in the thin-binding. Mod_Values is static to make it less complex.
 
-   package LDAP_Mods is new Ada.Containers.Vectors (Positive, Mod_Element);
+   package LDAP_Mods is
+     new Ada.Containers.Indefinite_Vectors (Positive, Mod_Element);
    --  Vector-based Storage for all modification elements. Will be
    --  mapped to C LDAPMod **.
 
@@ -324,18 +325,7 @@ package AWS.LDAP.Client is
 
 private
 
-   function Last (Modvals : in Attribute_Set) return Natural;
-   --  Return last Mod_Value index
-
-   function To_C (Mods : in LDAP_Mods.Vector) return Thin.LDAPMods;
-   --  Create C-Style LDAPMod ** structure used to store all
-   --  modification operations to perform on a LDAP-entry.
-
-   procedure Free (C_Mods : in Thin.LDAPMods_Access);
-   --  Releases memory associated with the LDAPMod C-style structure which
-   --  has been allocated for LDAP add/modify and delete operations.
-
-   Null_Set : constant String_Set (1 .. 0)
-     := (1 .. 0 => Null_Unbounded_String);
+   Null_Set : constant String_Set (1 .. 0) :=
+                (1 .. 0 => Null_Unbounded_String);
 
 end AWS.LDAP.Client;
