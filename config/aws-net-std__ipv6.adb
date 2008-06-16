@@ -26,7 +26,6 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-with Ada.Unchecked_Conversion;
 with Ada.Unchecked_Deallocation;
 
 with AWS.Net.Log;
@@ -50,6 +49,12 @@ package body AWS.Net.Std is
    use Interfaces;
 
    No_Socket : constant Interfaces.C.int := Interfaces.C."-" (1);
+
+   Failure : constant C.int := C.int (-1);
+   --  Declared here as it used to be in GNAT.Sockets.Thin and has been moved
+   --  into GNAT.Sockets.Thin.Common as part of a code refactoring. This was
+   --  done on 2008/04/09, when this compiler becomes old enough the
+   --  Thin.Common definition should be used and this declaration removed.
 
    type Socket_Hidden is record
       FD : Interfaces.C.int := No_Socket;
@@ -132,7 +137,7 @@ package body AWS.Net.Std is
       New_Socket.S.FD :=
         Thin.C_Accept (C.int (Get_FD (Socket)), Dummy'Address, Len'Access);
 
-      if New_Socket.S.FD = Thin.Failure then
+      if New_Socket.S.FD = Failure then
          Raise_Socket_Error (Std.Errno, Socket_Type (Socket));
       end if;
 
@@ -169,7 +174,7 @@ package body AWS.Net.Std is
       FD := Sockets.Thin.C_Socket
               (Info.ai_family, Info.ai_socktype, Info.ai_protocol);
 
-      if FD = Sockets.Thin.Failure then
+      if FD = Failure then
          OS_Lib.FreeAddrInfo (Info);
          Raise_Socket_Error (Std.Errno);
       end if;
@@ -184,7 +189,7 @@ package body AWS.Net.Std is
 
       OS_Lib.FreeAddrInfo (Info);
 
-      if Res = Sockets.Thin.Failure then
+      if Res = Failure then
          Errno := Std.Errno;
          Res   := Sockets.Thin.C_Close (FD);
          Raise_Socket_Error (Errno, Socket);
@@ -218,7 +223,7 @@ package body AWS.Net.Std is
       FD := Sockets.Thin.C_Socket
               (Info.ai_family, Info.ai_socktype, Info.ai_protocol);
 
-      if FD = Sockets.Thin.Failure then
+      if FD = Failure then
          OS_Lib.FreeAddrInfo (Info);
          Raise_Socket_Error (Std.Errno);
       end if;
@@ -232,7 +237,7 @@ package body AWS.Net.Std is
 
       OS_Lib.FreeAddrInfo (Info);
 
-      if Res = Sockets.Thin.Failure then
+      if Res = Failure then
          Errno := Std.Errno;
 
          if Errno = OS_Lib.EWOULDBLOCK
@@ -305,14 +310,15 @@ package body AWS.Net.Std is
    --------------
 
    overriding function Get_Addr (Socket : in Socket_Type) return String is
-      use GNAT.Sockets.Thin;
       use type Interfaces.C.int;
 
       Name : aliased Sockaddr_In6;
       Len  : aliased Interfaces.C.int := Name'Size / 8;
 
    begin
-      if C_Getsockname (Socket.S.FD, Name'Address, Len'Access) = Failure then
+      if Sockets.Thin.C_Getsockname (Socket.S.FD, Name'Address, Len'Access)
+         = Failure
+      then
          Raise_Socket_Error (Errno, Socket);
       end if;
 
@@ -403,7 +409,7 @@ package body AWS.Net.Std is
               Optval  => Res'Address,
               Optlen  => Len'Access);
    begin
-      if RC = Thin.Failure then
+      if RC = Failure then
          Raise_Socket_Error (Errno, Socket);
       end if;
 
@@ -415,14 +421,15 @@ package body AWS.Net.Std is
    --------------
 
    overriding function Get_Port (Socket : in Socket_Type) return Positive is
-      use GNAT.Sockets.Thin;
       use type Interfaces.C.int;
 
       Name : aliased Sockaddr_In6;
       Len  : aliased Interfaces.C.int := Name'Size / 8;
 
    begin
-      if C_Getsockname (Socket.S.FD, Name'Address, Len'Access) = Failure then
+      if Sockets.Thin.C_Getsockname (Socket.S.FD, Name'Address, Len'Access)
+         = Failure
+      then
          Raise_Socket_Error (Errno, Socket);
       end if;
 
@@ -467,21 +474,32 @@ package body AWS.Net.Std is
       use Sockets;
       use type C.short;
 
-      Sin  : aliased Thin.Sockaddr_In;
-      pragma Import (C, Sin);
-      for Sin'Address use Sin6'Address;
+      function IPv4_Image (Addr : in System.Address) return String;
 
-      type U8_2 is array (1 .. 2) of Unsigned_8;
-      pragma Convention (C, U8_2);
+      ----------------
+      -- IPv4_Image --
+      ----------------
 
-      function Split is new Ada.Unchecked_Conversion (Unsigned_16, U8_2);
+      function IPv4_Image (Addr : in System.Address) return String is
+         type In_Addr is record
+            B1, B2, B3, B4 : C.unsigned_char;
+         end record;
+
+         IP_Addr : In_Addr;
+         for IP_Addr'Address use Addr;
+      begin
+         return Utils.Image (Integer (IP_Addr.B1))
+                  & '.' & Utils.Image (Integer (IP_Addr.B2))
+                  & '.' & Utils.Image (Integer (IP_Addr.B3))
+                  & '.' & Utils.Image (Integer (IP_Addr.B4));
+      end IPv4_Image;
 
    begin
       if Sin6.Family = OS_Lib.PF_INET then
-         return Utils.Image (Integer (Sin.Sin_Addr.S_B1))
-            & '.' & Utils.Image (Integer (Sin.Sin_Addr.S_B2))
-            & '.' & Utils.Image (Integer (Sin.Sin_Addr.S_B3))
-            & '.' & Utils.Image (Integer (Sin.Sin_Addr.S_B4));
+         --  IP address in the IPv4 address record is in the FlowInfo IPv6
+         --  address offset.
+
+         return IPv4_Image (Sin6.FlowInfo'Address);
 
       elsif Sin6.Family = OS_Lib.PF_INET6
         or else Sin6.Family = OS_Lib.PF_INET6 * 256 + OS_Lib.PF_INET6
@@ -505,15 +523,7 @@ package body AWS.Net.Std is
                   if Zero and then J = 6 and then Sin6.Addr (J) = 16#FFFF# then
                      --  ::ffff: - IPv4 mapped address on IPv6 protocol
 
-                     declare
-                        W7 : constant U8_2 := Split (Sin6.Addr (7));
-                        W8 : constant U8_2 := Split (Sin6.Addr (8));
-                     begin
-                        return Utils.Image (Integer (W7 (1)))
-                                & '.' & Utils.Image (Integer (W7 (2)))
-                                & '.' & Utils.Image (Integer (W8 (1)))
-                                & '.' & Utils.Image (Integer (W8 (2)));
-                     end;
+                     return IPv4_Image (Sin6.Addr (7)'Address);
                   end if;
 
                   Zero := False;
@@ -551,9 +561,7 @@ package body AWS.Net.Std is
       use Sockets;
       use type C.int;
    begin
-      if Thin.C_Listen (Socket.S.FD, C.int (Queue_Size))
-         = Thin.Failure
-      then
+      if Thin.C_Listen (Socket.S.FD, C.int (Queue_Size)) = Failure then
          Raise_Socket_Error (Errno, Socket);
       end if;
    end Listen;
@@ -571,7 +579,7 @@ package body AWS.Net.Std is
 
    begin
       if Thin.C_Getpeername
-           (Socket.S.FD, Sin6'Address, Len'Access) = Thin.Failure
+           (Socket.S.FD, Sin6'Address, Len'Access) = Failure
       then
          Raise_Socket_Error (Std.Errno, Socket);
       end if;
@@ -585,14 +593,15 @@ package body AWS.Net.Std is
    ---------------
 
    overriding function Peer_Port (Socket : in Socket_Type) return Positive is
-      use GNAT.Sockets.Thin;
       use type Interfaces.C.int;
 
       Name : aliased Sockaddr_In6;
       Len  : aliased Interfaces.C.int := Name'Size / 8;
 
    begin
-      if C_Getpeername (Socket.S.FD, Name'Address, Len'Access) = Failure then
+      if Sockets.Thin.C_Getpeername (Socket.S.FD, Name'Address, Len'Access)
+         = Failure
+      then
          Raise_Socket_Error (Errno, Socket);
       end if;
 
@@ -614,7 +623,7 @@ package body AWS.Net.Std is
                                  OS_Lib.FIONREAD,
                                  Arg'Unchecked_Access);
    begin
-      if Res = Sockets.Thin.Failure then
+      if Res = Failure then
          Raise_Socket_Error (Errno, Socket);
       end if;
 
@@ -666,7 +675,7 @@ package body AWS.Net.Std is
          Data'Length,
          0);
 
-      if Res = Thin.Failure then
+      if Res = Failure then
          Raise_Socket_Error (Errno, Socket);
 
       elsif Res = 0 then
@@ -706,7 +715,7 @@ package body AWS.Net.Std is
                Data'Length,
                OS_Lib.MSG_NOSIGNAL);
 
-      if RC = Sockets.Thin.Failure then
+      if RC = Failure then
          Errno := Std.Errno;
 
          if Errno = OS_Lib.EWOULDBLOCK then
@@ -759,7 +768,7 @@ package body AWS.Net.Std is
               Value'Size / System.Storage_Unit);
 
    begin
-      if Res = Thin.Failure then
+      if Res = Failure then
          Raise_Socket_Error (Errno, Socket);
       end if;
    end Set_Int_Sock_Opt;
@@ -816,7 +825,7 @@ package body AWS.Net.Std is
          Net.Log.Event (Net.Log.Shutdown, Socket);
       end if;
 
-      if Thin.C_Shutdown (FD, OS_Lib.SHUT_RDWR) = Thin.Failure then
+      if Thin.C_Shutdown (FD, OS_Lib.SHUT_RDWR) = Failure then
          EN := Std.Errno;
 
          if EN /= OS_Lib.ENOTCONN then
@@ -829,7 +838,7 @@ package body AWS.Net.Std is
 
       Socket.S.FD := No_Socket;
 
-      if Thin.C_Close (FD) = Thin.Failure then
+      if Thin.C_Close (FD) = Failure then
          --  Back true FD for logging
 
          Socket.S.FD := FD;
