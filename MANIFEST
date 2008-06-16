@@ -1059,9 +1059,9 @@ templates_parser/src/templates_parser-input__standalone.adb
 templates_parser/src/templates_parser-print_tree.adb
 templates_parser/src/templates_parser-query.adb
 templates_parser/src/templates_parser-query.ads
-templates_parser/src/templates_parser-tasking.ads
-templates_parser/src/templates_parser-tasking__no_tasking.adb
-templates_parser/src/templates_parser-tasking__standard_tasking.adb
+templates_parser/src/templates_parser_tasking.ads
+templates_parser/src/templates_parser_tasking__no_tasking.adb
+templates_parser/src/templates_parser_tasking__standard_tasking.adb
 templates_parser/src/templates_parser-utils.adb
 templates_parser/src/templates_parser-utils.ads
 templates_parser/src/templates_parser.adb
