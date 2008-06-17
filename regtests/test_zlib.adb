@@ -286,8 +286,11 @@ procedure Test_Zlib is
       Text_IO.New_Line;
    end Print_Statistic;
 
+   Z_Version : constant String := Zlib.Version;
+
 begin
-   Ada.Text_IO.Put_Line ("ZLib " & ZLib.Version);
+   Text_IO.Put_Line
+     ("ZLib " & Z_Version (Z_Version'First .. Z_Version'First + 2));
 
    loop
       Generate_File;
