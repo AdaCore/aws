@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                      ZLib for Ada thick binding.                         --
 --                                                                          --
---              Copyright (C) 2002-2004 Dmitriy Anisimkov                   --
+--              Copyright (C) 2002-2008 Dmitriy Anisimkov                   --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -106,13 +106,13 @@ package ZLib is
    --  Full_Flush too often can seriously degrade the compression.
 
    Finish        : constant Flush_Mode;
-   --  Just for tell the compressor that input data is complete.
+   --  Just for tell the compressor that input data is complete
 
    ------------------------------------
    -- Compression strategy constants --
    ------------------------------------
 
-   --  RLE stategy could be used only in version 1.2.0 and later.
+   --  RLE stategy could be used only in version 1.2.0 and later
 
    Filtered         : constant Strategy_Type;
    Huffman_Only     : constant Strategy_Type;
@@ -127,7 +127,7 @@ package ZLib is
 
    function Version return String;
    pragma Inline (Version);
-   --  Return string representation of the ZLib version.
+   --  Return string representation of the ZLib version
 
    procedure Deflate_Init
      (Filter       : in out Filter_Type;
@@ -162,7 +162,7 @@ package ZLib is
 
    function Is_Open (Filter : in Filter_Type) return Boolean;
    pragma Inline (Is_Open);
-   --  Is the filter opened for compression or decompression.
+   --  Is the filter opened for compression or decompression
 
    procedure Close
      (Filter       : in out Filter_Type;
@@ -226,7 +226,7 @@ package ZLib is
 
    function Stream_End (Filter : in Filter_Type) return Boolean;
    pragma Inline (Stream_End);
-   --  Return the true when the stream is complete.
+   --  Return the true when the stream is complete
 
    procedure Flush
      (Filter    : in out Filter_Type;
@@ -234,7 +234,7 @@ package ZLib is
       Out_Last  :    out Ada.Streams.Stream_Element_Offset;
       Flush     : in     Flush_Mode);
    pragma Inline (Flush);
-   --  Flushing the data from the compressor.
+   --  Flushing the data from the compressor
 
    generic
       with procedure Write
@@ -244,7 +244,7 @@ package ZLib is
 
       Buffer_Size : in Ada.Streams.Stream_Element_Offset
          := Default_Buffer_Size;
-      --  Buffer size for Write user routine.
+      --  Buffer size for Write user routine
 
    procedure Write
      (Filter  : in out Filter_Type;
@@ -270,7 +270,7 @@ package ZLib is
       --  before usage.
 
       Allow_Read_Some : in Boolean := False;
-      --  Is it allowed to return Last < Item'Last before end of data.
+      --  Is it allowed to return Last < Item'Last before end of data
 
    procedure Read
      (Filter : in out Filter_Type;
@@ -320,7 +320,7 @@ private
       Header      : Header_Type;
       CRC         : Unsigned_32;
       Offset      : Stream_Element_Offset;
-      --  Offset for gzip header/footer output.
+      --  Offset for gzip header/footer output
    end record;
 
 end ZLib;

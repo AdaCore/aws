@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2007                          --
+--                         Copyright (C) 2000-2008                          --
 --                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -42,6 +42,7 @@ with ZLib.Streams;
 
 procedure Test_Zlib is
 
+   use Ada;
    use Ada.Streams;
    use Stream_IO;
 
@@ -90,7 +91,7 @@ procedure Test_Zlib is
    --  It is for compare data before and after compression/decompression.
 
    procedure Compare_Files (Left, Right : String);
-   --  Compare files. Based on the Compare_Streams.
+   --  Compare files. Based on the Compare_Streams
 
    procedure Copy_Streams
      (Source, Target : in out Root_Stream_Type'Class;
@@ -111,7 +112,7 @@ procedure Test_Zlib is
    --  writing data to the File_Out.
 
    procedure Print_Statistic (Msg : String; Data_Size : ZLib.Count);
-   --  Print the statistic with the message.
+   --  Print the statistic with the message
 
    procedure Translate is
      new ZLib.Generic_Translate (Data_In => Data_In, Data_Out => Data_Out);
@@ -138,7 +139,7 @@ procedure Test_Zlib is
    ---------------------
 
    procedure Compare_Streams
-     (Left, Right : in out Ada.Streams.Root_Stream_Type'Class)
+     (Left, Right : in out Streams.Root_Stream_Type'Class)
    is
       Left_Buffer, Right_Buffer : Stream_Element_Array (0 .. 16#FFF#);
       Left_Last, Right_Last     : Stream_Element_Offset;
@@ -148,7 +149,7 @@ procedure Test_Zlib is
          Read (Right, Right_Buffer, Right_Last);
 
          if Left_Last /= Right_Last then
-            Ada.Text_IO.Put_Line ("Compare error :"
+            Text_IO.Put_Line ("Compare error :"
               & Stream_Element_Offset'Image (Left_Last)
               & " /= "
               & Stream_Element_Offset'Image (Right_Last));
@@ -158,7 +159,7 @@ procedure Test_Zlib is
          elsif Left_Buffer (0 .. Left_Last)
                /= Right_Buffer (0 .. Right_Last)
          then
-            Ada.Text_IO.Put_Line ("ERROR: IN and OUT files is not equal.");
+            Text_IO.Put_Line ("ERROR: IN and OUT files is not equal.");
             raise Constraint_Error;
 
          end if;
@@ -172,7 +173,7 @@ procedure Test_Zlib is
    ------------------
 
    procedure Copy_Streams
-     (Source, Target : in out Ada.Streams.Root_Stream_Type'Class;
+     (Source, Target : in out Streams.Root_Stream_Type'Class;
       Buffer_Size    : in     Stream_Element_Offset := 1024)
    is
       Buffer : Stream_Element_Array (1 .. Buffer_Size);
@@ -214,7 +215,7 @@ procedure Test_Zlib is
       subtype Visible_Symbols is Stream_Element range 16#20# .. 16#7E#;
 
       package Random_Elements is
-         new Ada.Numerics.Discrete_Random (Visible_Symbols);
+         new Numerics.Discrete_Random (Visible_Symbols);
 
       Gen    : Random_Elements.Generator;
       Buffer : Stream_Element_Array := (1 .. 77 => 16#20#) & 10;
@@ -254,7 +255,7 @@ procedure Test_Zlib is
          Fill_Buffer (J, Density);
       end loop;
 
-      --  fill remain size.
+      --  Fill remain size
 
       Write
         (File_In,
@@ -272,20 +273,17 @@ procedure Test_Zlib is
    ---------------------
 
    procedure Print_Statistic (Msg : String; Data_Size : ZLib.Count) is
-      use Ada.Text_IO;
-
-      package Count_IO is new Integer_IO (ZLib.Count);
-
+      package Count_IO is new Text_IO.Integer_IO (ZLib.Count);
    begin
-      Put (Msg);
+      Text_IO.Put (Msg);
 
-      Set_Col (20);
-      Ada.Text_IO.Put ("size =");
+      Text_IO.Set_Col (20);
+      Text_IO.Put ("size =");
 
       Count_IO.Put
         (Data_Size,
          Width => Stream_IO.Count'Image (File_Size)'Length);
-      Ada.Text_IO.New_Line;
+      Text_IO.New_Line;
    end Print_Statistic;
 
 begin
@@ -296,7 +294,7 @@ begin
 
       for Level in ZLib.Compression_Level'Range loop
 
-         Ada.Text_IO.Put_Line ("Level ="
+         Text_IO.Put_Line ("Level ="
             & ZLib.Compression_Level'Image (Level));
 
          --  Test generic interface
@@ -446,7 +444,7 @@ begin
          Compare_Files (In_File_Name, Out_File_Name);
       end loop;
 
-      Ada.Text_IO.Put_Line (Count'Image (File_Size) & " Ok.");
+      Text_IO.Put_Line (Count'Image (File_Size) & " Ok.");
 
       exit when not Continuous;
 
