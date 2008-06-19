@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2007                          --
+--                         Copyright (C) 2000-2008                          --
 --                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -252,6 +252,10 @@ package AWS.Server.Push is
    --  Wait for all data sending in all server_push objects of the current
    --  package instance.
    --  Return True if wait successfull. False in timeout.
+
+   procedure Set_Internal_Error_Handler
+     (Handler : access procedure (Message : in String));
+   --  Set the handler of the internal fatal errors
 
 private
 

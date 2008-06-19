@@ -109,6 +109,12 @@ package body AWS.Server.Push is
       Data   :    out Stream_Element_Array;
       Last   :    out Stream_Element_Offset);
 
+   procedure Waiter_Add
+     (Server : in out Object; Holder : in Client_Holder_Access);
+
+   procedure Waiter_Remove
+     (Server : in out Object; Holder : in Client_Holder_Access);
+
    New_Line : constant String := ASCII.CR & ASCII.LF;
    --  HTTP new line
 
@@ -123,6 +129,11 @@ package body AWS.Server.Push is
 
    W_Signal  : aliased Net.Socket_Type'Class := Net.Socket (Security => False);
    --  Socket to signal waiter to do to select task entries
+
+   Waiter_Timeout : constant Duration := 8.0;
+
+   Internal_Error_Handler : access procedure (Message : in String) :=
+     Text_IO.Put_Line'Access;
 
    type Object_Access is access all Object;
 
@@ -300,7 +311,12 @@ package body AWS.Server.Push is
    procedure Info (Size : out Natural; Counter : out Wait_Counter_Type) is
    begin
       W_Signal.Send (Byte0);
-      Waiter.Info (Size, Counter => Counter);
+      select
+         Waiter.Info (Size, Counter => Counter);
+      or
+         delay Waiter_Timeout;
+         raise Program_Error with "Get waiter info timeout";
+      end select;
    end Info;
 
    procedure Info
@@ -1057,8 +1073,7 @@ package body AWS.Server.Push is
 
       if Duplicated /= null then
          if Duplicated.Phase /= Available then
-            W_Signal.Send (Byte0);
-            Waiter.Remove (Server'Unrestricted_Access, Duplicated);
+            Waiter_Remove (Server, Duplicated);
          end if;
 
          Duplicated.Socket.Shutdown;
@@ -1099,9 +1114,7 @@ package body AWS.Server.Push is
             raise;
       end;
 
-      W_Signal.Send (Byte0);
-
-      Waiter.Add (Server'Unrestricted_Access, Holder);
+      Waiter_Add (Server, Holder);
 
       Socket_Taken;
    end Register;
@@ -1169,8 +1182,7 @@ package body AWS.Server.Push is
          Holder := Tables.Element (C);
 
          if Holder.Phase /= Available then
-            W_Signal.Send (Byte0);
-            Waiter.Remove (Server'Unrestricted_Access, Holder);
+            Waiter_Remove (Server, Holder);
          end if;
 
          if Get_Final_Data /= null then
@@ -1261,9 +1273,14 @@ package body AWS.Server.Push is
 
       if Queue.Length > 0 then
          W_Signal.Send (Byte0);
-         Waiter.Add (Server'Unrestricted_Access, Queue);
-      end if;
 
+         select
+            Waiter.Add (Server'Unrestricted_Access, Queue);
+         or
+            delay Waiter_Timeout;
+            raise Program_Error with "Add queue to waiter timeout.";
+         end select;
+      end if;
    end Send;
 
    ------------
@@ -1323,11 +1340,15 @@ package body AWS.Server.Push is
             end;
          end if;
 
-         W_Signal.Send (Byte0);
-
-         Waiter.Add (Server'Unrestricted_Access, Holder);
+         Waiter_Add (Server, Holder);
       end if;
    end Send_To;
+
+   procedure Set_Internal_Error_Handler
+     (Handler : access procedure (Message : in String)) is
+   begin
+      Internal_Error_Handler := Handler;
+   end Set_Internal_Error_Handler;
 
    --------------
    -- Shutdown --
@@ -1445,8 +1466,7 @@ package body AWS.Server.Push is
       end if;
 
       if Holder.Phase /= Available then
-         W_Signal.Send (Byte0);
-         Waiter.Remove (Server'Unrestricted_Access, Holder);
+         Waiter_Remove (Server, Holder);
       end if;
 
       if Close_Socket then
@@ -1775,7 +1795,8 @@ package body AWS.Server.Push is
 
    exception
       when E : others =>
-         Text_IO.Put_Line ("Server push broken, " & Exception_Information (E));
+         Internal_Error_Handler
+           ("Server push broken, " & Exception_Information (E));
    end Waiter;
 
    --------------------------
@@ -1792,5 +1813,39 @@ package body AWS.Server.Push is
          return False;
       end select;
    end Wait_Send_Completion;
+
+   ----------------
+   -- Waiter_Add --
+   ----------------
+
+   procedure Waiter_Add
+     (Server : in out Object; Holder : in Client_Holder_Access) is
+   begin
+      W_Signal.Send (Byte0);
+
+      select
+         Waiter.Add (Server'Unrestricted_Access, Holder);
+      or
+         delay Waiter_Timeout;
+         raise Program_Error with "Add socket to waiter timeout.";
+      end select;
+   end Waiter_Add;
+
+   -------------------
+   -- Waiter_Remove --
+   -------------------
+
+   procedure Waiter_Remove
+     (Server : in out Object; Holder : in Client_Holder_Access) is
+   begin
+      W_Signal.Send (Byte0);
+
+      select
+         Waiter.Remove (Server'Unrestricted_Access, Holder);
+      or
+         delay Waiter_Timeout;
+         raise Program_Error with "Remove socket from waiter timeout.";
+      end select;
+   end Waiter_Remove;
 
 end AWS.Server.Push;
