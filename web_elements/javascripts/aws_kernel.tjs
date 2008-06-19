@@ -159,7 +159,8 @@ AWS.Context = new function() {
       @@IF@@ @_AWS_CONTEXT_PER_WINDOW_@ = true
       @@--  Check if context has to be renewed
 
-      if (!is_new_context && history.length == 1) {
+      if (!is_new_context
+          && (!document.referrer || history.length == history_first)) {
 	 @@--  This is a new page in the browser
 	 @@--  Renew the context
 
@@ -299,7 +300,16 @@ AWS.Context = new function() {
 
    @@--
 
+   is_msie = navigator.appName.indexOf("Microsoft") >= 0;
+
    var is_new_context = false;
+   var history_first;
+
+   if (is_msie) {
+      history_first = 0;
+   } else {
+      history_first = 1;
+   }
 }
 
 @@---------------------------------------------------------------- AJAX
@@ -363,7 +373,7 @@ AWS.Ajax = new function() {
          param = Form.serialize (elm);
       } else if ($(elm).tagName == "UL") {
          param = Sortable.serialize(elm);
-      } else if (name == "") {
+      } else if (name == "" || name == null) {
          param = elm + "=" + $F(elm);
       } else {
          param = name + "=" + $F(elm);
