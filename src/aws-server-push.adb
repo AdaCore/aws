@@ -1344,6 +1344,10 @@ package body AWS.Server.Push is
       end if;
    end Send_To;
 
+   --------------------------------
+   -- Set_Internal_Error_Handler --
+   --------------------------------
+
    procedure Set_Internal_Error_Handler
      (Handler : access procedure (Message : in String)) is
    begin
