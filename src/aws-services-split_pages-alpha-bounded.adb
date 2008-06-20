@@ -34,8 +34,7 @@ package body AWS.Services.Split_Pages.Alpha.Bounded is
 
    function Get_Page_Ranges
      (This  : in Splitter;
-      Table : in Templates.Translate_Set)
-      return Ranges_Table
+      Table : in Templates.Translate_Set) return Ranges_Table
    is
       function Nb_Pages (The_Range : in Page_Range) return Natural;
       --  Returns the number of pages in the range
@@ -114,8 +113,7 @@ package body AWS.Services.Split_Pages.Alpha.Bounded is
      (This   : in Splitter;
       Page   : in Positive;
       URIs   : in URI_Table;
-      Ranges : in Ranges_Table)
-      return Templates.Translate_Set
+      Ranges : in Ranges_Table) return Templates.Translate_Set
    is
       use Templates;
 

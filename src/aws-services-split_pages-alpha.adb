@@ -41,8 +41,7 @@ package body AWS.Services.Split_Pages.Alpha is
 
    function Get_Page_Ranges
      (This  : in Splitter;
-      Table : in Templates.Translate_Set)
-      return Ranges_Table
+      Table : in Templates.Translate_Set) return Ranges_Table
    is
       use Templates;
 
@@ -113,7 +112,8 @@ package body AWS.Services.Split_Pages.Alpha is
          declare
             use Ada.Characters.Handling;
             use Ada.Strings.Fixed;
-            Name : constant String := Trim (Item (Key_Vec, I), Strings.Left);
+            Name        : constant String :=
+                            Trim (Item (Key_Vec, I), Strings.Left);
             New_Initial : Character;
          begin
             if Name = "" then

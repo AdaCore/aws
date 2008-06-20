@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2003-2007                          --
+--                         Copyright (C) 2003-2008                          --
 --                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -81,8 +81,7 @@ package body AWS.Services.Dispatchers.Timer is
       From_Second : in Second_Number;
       To_Hour     : in Hour_Number;
       To_Minute   : in Minute_Number;
-      To_Second   : in Second_Number)
-      return Period
+      To_Second   : in Second_Number) return Period
    is
       P : Period;
    begin
@@ -340,8 +339,7 @@ package body AWS.Services.Dispatchers.Timer is
      (From_Minute : in Minute_Number;
       From_Second : in Second_Number;
       To_Minute   : in Minute_Number;
-      To_Second   : in Second_Number)
-      return Period
+      To_Second   : in Second_Number) return Period
    is
       P : Period;
    begin
@@ -368,8 +366,7 @@ package body AWS.Services.Dispatchers.Timer is
 
    function Minutely
      (From_Second : in Second_Number;
-      To_Second   : in Second_Number)
-      return Period
+      To_Second   : in Second_Number) return Period
    is
       P : Period;
    begin
@@ -391,8 +388,7 @@ package body AWS.Services.Dispatchers.Timer is
       To_Day      : in Day_Number;
       To_Hour     : in Hour_Number;
       To_Minute   : in Minute_Number;
-      To_Second   : in Second_Number)
-      return Period
+      To_Second   : in Second_Number) return Period
    is
       P : Period;
    begin
@@ -424,8 +420,7 @@ package body AWS.Services.Dispatchers.Timer is
       To_Day      : in Day_Number;
       To_Hour     : in Hour_Number;
       To_Minute   : in Minute_Number;
-      To_Second   : in Second_Number)
-      return Period
+      To_Second   : in Second_Number) return Period
    is
       P : Period;
    begin
@@ -455,10 +450,10 @@ package body AWS.Services.Dispatchers.Timer is
       Period     : in     Timer.Period;
       Action     : in     AWS.Dispatchers.Handler'Class)
    is
-      Value : constant Node_Access
-        := new Node'(To_Unbounded_String (Name),
-                     Period,
-                     new AWS.Dispatchers.Handler'Class'(Action));
+      Value : constant Node_Access :=
+                new Node'(To_Unbounded_String (Name),
+                          Period,
+                          new AWS.Dispatchers.Handler'Class'(Action));
    begin
       Period_Table.Append (Dispatcher.Table, Value);
    end Register;
@@ -498,8 +493,7 @@ package body AWS.Services.Dispatchers.Timer is
    begin
       for K in 1 .. Natural (Period_Table.Length (Dispatcher.Table)) loop
          declare
-            Item : Node_Access
-              := Period_Table.Element (Dispatcher.Table, K);
+            Item : Node_Access := Period_Table.Element (Dispatcher.Table, K);
          begin
             if To_String (Item.Name) = Name then
                Free (Item);
@@ -524,8 +518,7 @@ package body AWS.Services.Dispatchers.Timer is
       To_Day      : in Day_Name;
       To_Hour     : in Hour_Number;
       To_Minute   : in Minute_Number;
-      To_Second   : in Second_Number)
-      return Period
+      To_Second   : in Second_Number) return Period
    is
       P : Period;
    begin
@@ -555,8 +548,7 @@ package body AWS.Services.Dispatchers.Timer is
       To_Day      : in Day_Number;
       To_Hour     : in Hour_Number;
       To_Minute   : in Minute_Number;
-      To_Second   : in Second_Number)
-      return Period
+      To_Second   : in Second_Number) return Period
    is
       P : Period;
    begin

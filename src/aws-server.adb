@@ -54,7 +54,7 @@ package body AWS.Server is
    --  Start web server with current configuration
 
    procedure Protocol_Handler (LA : in out Line_Attribute_Record);
-   --  Handle the lines, this is where all the HTTP protocol is defined.
+   --  Handle the lines, this is where all the HTTP protocol is defined
 
    function Accept_Socket_Serialized
      (Server : in HTTP_Access) return Net.Socket_Access;
@@ -62,7 +62,7 @@ package body AWS.Server is
    --  multiple accept on the same socket on some platforms.
 
    procedure Force_Clean (Web_Server : in out HTTP);
-   --  Close a socket on a slot for which a force timeout has expired.
+   --  Close a socket on a slot for which a force timeout has expired
 
    Server_Counter : Utils.Counter (Initial_Value => 0);
 
@@ -527,7 +527,7 @@ package body AWS.Server is
          Net.SSL.Release (Web_Server.SSL_Config);
       end if;
 
-      --  Close logs, this ensure that all data will be written to the file.
+      --  Close logs, this ensure that all data will be written to the file
 
       Log.Stop (Web_Server);
 

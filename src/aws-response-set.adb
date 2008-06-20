@@ -43,7 +43,7 @@ package body AWS.Response.Set is
 
    procedure Check_Memory_Stream (D : in out Data);
    pragma Inline (Check_Memory_Stream);
-   --  Test if the memory stream allocated and create it if necessary.
+   --  Test if the memory stream allocated and create it if necessary
 
    procedure Clear_Memory_Stream (D : in out Data);
    pragma Inline (Clear_Memory_Stream);
