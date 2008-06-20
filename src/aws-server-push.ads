@@ -288,15 +288,13 @@ private
 
    type Client_Holder_Access is access all Client_Holder;
 
-   package Tables is
-     new Ada.Containers.Indefinite_Hashed_Maps
-       (String, Client_Holder_Access, Ada.Strings.Hash, "=");
+   package Tables is new Ada.Containers.Indefinite_Hashed_Maps
+     (String, Client_Holder_Access, Ada.Strings.Hash, "=");
 
    type Map_Access is access all Tables.Map;
 
-   package Group_Maps is
-     new Ada.Containers.Indefinite_Hashed_Maps
-       (String, Map_Access, Ada.Strings.Hash, "=");
+   package Group_Maps is new Ada.Containers.Indefinite_Hashed_Maps
+     (String, Map_Access, Ada.Strings.Hash, "=");
 
    subtype Group_Map is Group_Maps.Map;
 
