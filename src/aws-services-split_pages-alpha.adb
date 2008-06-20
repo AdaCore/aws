@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2004-2007                          --
+--                         Copyright (C) 2004-2008                          --
 --                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -53,7 +53,7 @@ package body AWS.Services.Split_Pages.Alpha is
       Key_Vec : constant Tag :=
                   Shared.Associated_Vector (Table, To_String (Self.Key));
       Result  : Ranges_Table (1 .. 26 + 2);
-      Res_Inx : Natural;
+      Res_Inx : Natural := Natural'Last;
       Initial : Character;
 
       ---------------
@@ -165,7 +165,7 @@ package body AWS.Services.Split_Pages.Alpha is
       Self     : Splitter renames Splitter (This.Self.all);
       Previous : Natural;
       Next     : Natural;
-      Page_Inx : Alpha_Index;
+      Page_Inx : Alpha_Index := Alpha_Index'Last;
 
       ---------------
       -- Add_Entry --

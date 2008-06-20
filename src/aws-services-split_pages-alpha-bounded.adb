@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2004                            --
---                                ACT-Europe                                --
+--                         Copyright (C) 2004-2008                          --
+--                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -124,8 +124,8 @@ package body AWS.Services.Split_Pages.Alpha.Bounded is
         Get_Translations (Alpha.Splitter (This), Page, URIs, Ranges);
       S_INDEXES_V : Tag;
       S_HREFS_V   : Tag;
-      A           : Alpha_Index;
-      Sub_Page    : Positive;
+      A           : Alpha_Index := Alpha_Index'Last;
+      Sub_Page    : Positive := Positive'Last;
    begin
       --  Find page index
 

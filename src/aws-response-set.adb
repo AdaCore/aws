@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2002-2007                          --
+--                         Copyright (C) 2002-2008                          --
 --                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -242,7 +242,7 @@ package body AWS.Response.Set is
       Direction : in     Encoding_Direction := Encode)
    is
       use type Resources.Streams.Stream_Access;
-      Header : RSM.ZLib.Header_Type;
+      Header : RSM.ZLib.Header_Type := ZLib.None;
    begin
       if D.Stream /= null then
          --  The stream is already active, there is nothing to do, we can't

@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2007                          --
+--                         Copyright (C) 2000-2008                          --
 --                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -427,8 +427,8 @@ package body AWS.Server is
       procedure Free is new Unchecked_Deallocation (Line, Line_Access);
 
       All_Lines_Terminated : Boolean := False;
-      Slot_State           : Slot_Phase;
-      Slot_Index           : Positive;
+      Slot_State           : Slot_Phase := Closed;
+      Slot_Index           : Positive := Positive'Last;
       Wait_Counter         : Natural := 0;
 
    begin

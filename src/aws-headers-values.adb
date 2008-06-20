@@ -160,6 +160,7 @@ package body AWS.Headers.Values is
       Last := Fixed.Index (Data (First .. Data'Last), VDel);
 
       Name_Last := 0;
+      Name_First := Positive'Last;
 
       if Last = 0 then
          --  This is the last single value
