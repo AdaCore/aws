@@ -253,8 +253,9 @@ package AWS.Server.Push is
    --  package instance.
    --  Return True if wait successfull. False in timeout.
 
-   procedure Set_Internal_Error_Handler
-     (Handler : access procedure (Message : in String));
+   type Error_Handler is access procedure (Message : in String);
+
+   procedure Set_Internal_Error_Handler (Handler : in Error_Handler);
    --  Set the handler of the internal fatal errors
 
 private

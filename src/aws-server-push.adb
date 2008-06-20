@@ -132,8 +132,7 @@ package body AWS.Server.Push is
 
    Waiter_Timeout : constant Duration := 8.0;
 
-   Internal_Error_Handler : access procedure (Message : in String) :=
-     Text_IO.Put_Line'Access;
+   Internal_Error_Handler : Error_Handler := Text_IO.Put_Line'Access;
 
    type Object_Access is access all Object;
 
@@ -1348,8 +1347,7 @@ package body AWS.Server.Push is
    -- Set_Internal_Error_Handler --
    --------------------------------
 
-   procedure Set_Internal_Error_Handler
-     (Handler : access procedure (Message : in String)) is
+   procedure Set_Internal_Error_Handler (Handler : in Error_Handler) is
    begin
       Internal_Error_Handler := Handler;
    end Set_Internal_Error_Handler;
