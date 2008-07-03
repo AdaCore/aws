@@ -54,7 +54,7 @@ package body SOAP.Generator is
    --  Returns a version string Ada comment line
 
    procedure Put_File_Header (O : in Object; File : in Text_IO.File_Type);
-   --  Add a standard file header into file.
+   --  Add a standard file header into file
 
    procedure Put_Types_Header_Spec
      (O : in Object; File : in Text_IO.File_Type; Unit_Name : in String);
@@ -1549,10 +1549,15 @@ package body SOAP.Generator is
          Text_IO.Put_Line (Rec_Adb, "     (O : in SOAP.Types.Object'Class)");
          Text_IO.Put_Line (Rec_Adb, "      return " & F_Name);
          Text_IO.Put_Line (Rec_Adb, "   is");
+
+         --  Declare the SOAP record object
+
          Text_IO.Put_Line
            (Rec_Adb,
             "      R : constant SOAP.Types.SOAP_Record "
               & ":= SOAP.Types.SOAP_Record (O);");
+
+         --  Declare all record's fields
 
          N := R;
 
@@ -1622,6 +1627,8 @@ package body SOAP.Generator is
 
          Text_IO.Put_Line (Rec_Adb, "   begin");
          Text_IO.Put      (Rec_Adb, "      return (");
+
+         --  Aggregate to build the record object
 
          N := R;
 
@@ -2203,6 +2210,7 @@ package body SOAP.Generator is
         (File, "   pragma Warnings (Off, SOAP.Name_Space);");
       Text_IO.New_Line (File);
       Text_IO.Put_Line (File, "   use SOAP.Types;");
+      Text_IO.New_Line (File);
    end Put_Types_Header_Body;
 
    ---------------------------
