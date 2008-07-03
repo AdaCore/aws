@@ -104,6 +104,7 @@ ifeq (${ASIS}, true)
 ASIS_TESTS   = wsdl_1 wsdl_2 wsdl_3 wsdl_4 wsdl_5 wsdl_6 wsdl_7 wsdl_8 wsdl_9
 ASIS2_TESTS  = wsdl_a wsdl_b wsdl_c register wsdl_d
 ASIS3_TESTS  = callsh
+OTH_TESTS    := $(OTH_TESTS) soapcheck
 endif
 
 FILTER_OUT	+= $(addsuffix .adb, $(OTH_TESTS) $(ALONE_TESTS))
@@ -268,6 +269,17 @@ tres: force
 	cat tres-1.res tres-2.res > tres.res
 	-$(RM) tres$(EXEEXT)
 	-$(DIFF) tres.out tres.res 1>> alldifs 2>> alldifs
+
+soapcheck: force
+	echo "Generating SOAP for " $@
+	$(ADA2WSDL) -q -f -I. -t ../$(BDIR)/$(LIBRARY_TYPE)/obj/regtests\
+		-P ../aws pck.ads -o generated/pck.wsdl
+	(cd generated; ../$(WSDL2AWS) -q -f -cb -spec pck pck.wsdl)
+	echo "Compiling " $@
+	$(GNAT) make -q -m -Pregtests -XTest_Mode=${TEST_MODE} soapcheck
+	echo "Running  " $@
+	./soapcheck > soapcheck.res
+	-$(DIFF) soapcheck.out soapcheck.res 1>> alldifs 2>> alldifs
 
 wxrefs:
 	echo webxrefs tests

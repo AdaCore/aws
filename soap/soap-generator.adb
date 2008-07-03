@@ -1562,65 +1562,12 @@ package body SOAP.Generator is
          N := R;
 
          while N /= null loop
-            case N.Mode is
-               when WSDL.Parameters.K_Simple =>
-                  declare
-                     I_Type : constant String := WSDL.Set_Type (N.P_Type);
-                  begin
-                     Text_IO.Put_Line
-                       (Rec_Adb,
-                        "      " & Format_Name (O, To_String (N.Name))
-                          & " : constant " & I_Type);
-                     Text_IO.Put_Line
-                       (Rec_Adb,
-                        "         := " & I_Type & " (SOAP.Types.V (R, """
-                          & To_String (N.Name) & """));");
-                  end;
-
-               when WSDL.Parameters.K_Derived =>
-                  declare
-                     I_Type : constant String := WSDL.Set_Type (N.Parent_Type);
-                  begin
-                     Text_IO.Put_Line
-                       (Rec_Adb,
-                        "      " & Format_Name (O, To_String (N.Name))
-                          & " : constant " & I_Type);
-                     Text_IO.Put_Line
-                       (Rec_Adb,
-                        "         := " & I_Type & " (SOAP.Types.V (R, """
-                          & To_String (N.Name) & """));");
-                  end;
-
-               when WSDL.Parameters.K_Enumeration =>
-                  Text_IO.Put_Line
-                    (Rec_Adb,
-                     "      " & Format_Name (O, To_String (N.Name))
-                       & " : constant SOAP.Types.SOAP_Enumeration");
-                  Text_IO.Put_Line
-                    (Rec_Adb,
-                     "         := SOAP.Types.SOAP_Enumeration (SOAP.Types.V "
-                       & "(R, """ & To_String (N.Name) & """));");
-
-               when WSDL.Parameters.K_Array =>
-                  Text_IO.Put_Line
-                    (Rec_Adb,
-                     "      " & Format_Name (O, To_String (N.Name))
-                       & " : constant SOAP.Types.SOAP_Array");
-                  Text_IO.Put_Line
-                    (Rec_Adb,
-                     "         := SOAP.Types.SOAP_Array (SOAP.Types.V (R, """
-                       & To_String (N.Name) & """));");
-
-               when WSDL.Parameters.K_Record =>
-                  Text_IO.Put_Line
-                    (Rec_Adb,
-                     "      " & Format_Name (O, To_String (N.Name))
-                       & " : constant SOAP.Types.SOAP_Record");
-                  Text_IO.Put_Line
-                    (Rec_Adb,
-                     "         := SOAP.Types.SOAP_Record (SOAP.Types.V (R, """
-                       & To_String (N.Name) & """));");
-            end case;
+            Text_IO.Put_Line
+              (Rec_Adb,
+               "      " & Format_Name (O, To_String (N.Name))
+               & " : constant SOAP.Types.Object'Class"
+               & " := SOAP.Types.V (R, """
+               & To_String (N.Name) & """);");
 
             N := N.Next;
          end loop;
@@ -1646,36 +1593,48 @@ package body SOAP.Generator is
 
             case N.Mode is
                when WSDL.Parameters.K_Simple =>
-                  Text_IO.Put
-                    (Rec_Adb, WSDL.V_Routine (N.P_Type, WSDL.Component)
-                       & " (" & Format_Name (O, To_String (N.Name)) & ')');
+                  declare
+                     I_Type : constant String := WSDL.Set_Type (N.P_Type);
+                  begin
+                     Text_IO.Put
+                       (Rec_Adb,
+                        WSDL.V_Routine (N.P_Type, WSDL.Component)
+                        & " (" & I_Type & " ("
+                        & Format_Name (O, To_String (N.Name)) & "))");
+                  end;
 
                when WSDL.Parameters.K_Derived =>
-                  Text_IO.Put
-                    (Rec_Adb,
-                     To_String (N.D_Name) & "_Type ("
-                       & WSDL.V_Routine (N.Parent_Type, WSDL.Component)
-                       & " (" & Format_Name (O, To_String (N.Name)) & "))");
+                  declare
+                     I_Type : constant String := WSDL.Set_Type (N.Parent_Type);
+                  begin
+                     Text_IO.Put
+                       (Rec_Adb,
+                        To_String (N.D_Name) & "_Type ("
+                        & WSDL.V_Routine (N.Parent_Type, WSDL.Component)
+                        & " (" & I_Type & " ("
+                        & Format_Name (O, To_String (N.Name)) & ")))");
+                  end;
 
                when WSDL.Parameters.K_Enumeration =>
                   Text_IO.Put
                     (Rec_Adb,
                      To_String (N.E_Name) & "_Type'Value ("
-                       & "SOAP.Types.V ("
-                       & Format_Name (O, To_String (N.Name)) & "))");
+                       & "SOAP.Types.V (SOAP.Types.SOAP_Enumeration ("
+                       & Format_Name (O, To_String (N.Name)) & ")))");
 
                when WSDL.Parameters.K_Array =>
                   Text_IO.Put
                     (Rec_Adb, "+To_" & Format_Name (O, To_String (N.T_Name))
-                       & "_Type (SOAP.Types.V ("
-                       & Format_Name (O, To_String (N.Name)) & "))");
+                       & "_Type (SOAP.Types.V (SOAP.Types.SOAP_Array ("
+                       & Format_Name (O, To_String (N.Name)) & ")))");
 
                when WSDL.Parameters.K_Record =>
                   Text_IO.Put (Rec_Adb, Get_Routine (N));
 
                   Text_IO.Put
                     (Rec_Adb,
-                     " (" & Format_Name (O, To_String (N.Name)) & ")");
+                     " (SOAP.Types.SOAP_Record ("
+                     & Format_Name (O, To_String (N.Name)) & "))");
             end case;
 
             if N.Next = null then
@@ -1686,6 +1645,85 @@ package body SOAP.Generator is
 
             N := N.Next;
          end loop;
+
+         --  Generate exception handler
+
+         N := R;
+
+         if N /= null then
+            declare
+               procedure Emit_Check (F_Name, I_Type : in String);
+               --  Emit a check for F_Name'Tag = I_Type'Tag
+
+               ----------------
+               -- Emit_Check --
+               ----------------
+
+               procedure Emit_Check (F_Name, I_Type : in String) is
+               begin
+                  Text_IO.Put_Line
+                    (Rec_Adb,
+                     "         if " & F_Name & "'Tag /= "
+                     & I_Type & "'Tag then");
+                  Text_IO.Put_Line
+                    (Rec_Adb, "            raise SOAP.SOAP_Error");
+                  Text_IO.Put_Line
+                    (Rec_Adb, "               with SOAP.Types.Name (R)");
+                  Text_IO.Put_Line
+                    (Rec_Adb, "                  & ""." &
+                     F_Name & " expected "
+                     & I_Type & ", """);
+                  Text_IO.Put_Line
+                    (Rec_Adb, "                  & ""found "" & External_Tag ("
+                     & F_Name & "'Tag);");
+                  Text_IO.Put_Line
+                    (Rec_Adb, "         end if;");
+               end Emit_Check;
+
+            begin
+               Text_IO.Put_Line (Rec_Adb, "   exception");
+               Text_IO.Put_Line (Rec_Adb, "      when Constraint_Error =>");
+
+               while N /= null loop
+                  case N.Mode is
+                     when WSDL.Parameters.K_Simple =>
+                        Emit_Check
+                          (Format_Name (O, To_String (N.Name)),
+                           WSDL.Set_Type (N.P_Type));
+
+                     when WSDL.Parameters.K_Derived =>
+                        Emit_Check
+                          (Format_Name (O, To_String (N.Name)),
+                           WSDL.Set_Type (N.Parent_Type));
+
+                     when WSDL.Parameters.K_Enumeration =>
+                        Emit_Check
+                          (Format_Name (O, To_String (N.Name)),
+                           "SOAP.Types.SOAP_Enumeration");
+
+                     when WSDL.Parameters.K_Array =>
+                        Emit_Check
+                          (Format_Name (O, To_String (N.Name)),
+                           "SOAP.Types.SOAP_Array");
+
+                     when WSDL.Parameters.K_Record =>
+                        Emit_Check
+                          (Format_Name (O, To_String (N.Name)),
+                           "SOAP.Types.SOAP_Record");
+                  end case;
+
+                  N := N.Next;
+               end loop;
+            end;
+
+            Text_IO.Put_Line
+              (Rec_Adb,
+               "         raise SOAP.SOAP_Error");
+            Text_IO.Put_Line
+              (Rec_Adb,
+               "            with ""Record "" & SOAP.Types.Name (R) &"
+               & " "" not well formed."";");
+         end if;
 
          Text_IO.Put_Line (Rec_Adb, "   end To_" & F_Name & ';');
 
@@ -2200,6 +2238,9 @@ package body SOAP.Generator is
    is
       pragma Unreferenced (O);
    begin
+      With_Unit (File, "Ada.Tags", Elab => Off);
+      Text_IO.New_Line (File);
+
       With_Unit (File, "SOAP.Name_Space", Elab => Children);
       Text_IO.New_Line (File);
 
@@ -2209,6 +2250,7 @@ package body SOAP.Generator is
       Text_IO.Put_Line
         (File, "   pragma Warnings (Off, SOAP.Name_Space);");
       Text_IO.New_Line (File);
+      Text_IO.Put_Line (File, "   use Ada.Tags;");
       Text_IO.Put_Line (File, "   use SOAP.Types;");
       Text_IO.New_Line (File);
    end Put_Types_Header_Body;

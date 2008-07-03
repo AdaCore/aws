@@ -1,6 +1,6 @@
-====================================================
-AWS 2.5 NEW FEATURES LIST Current as of Jan 21, 2008
-====================================================
+=====================================================
+AWS 2.5 NEW FEATURES LIST Current as of Jul 3rd, 2008
+=====================================================
 
 Copyright (c) 2006-2008, AdaCore
 
@@ -12,10 +12,10 @@ An ISO date (YYYY-MM-DD) appears in parentheses after the
 description line. This date shows the implementation date
 of the feature.
 
-New features in AWS 2.5.0
+New features in AWS 2.6.0
 -------------------------
 
-NF-25-H104-029 Add support for multipart/alternative MIME content (2008-01-09)
+NF-25-H624-001 Improve error message for non conformant SOAP messages (2008-07-03)
 
-  It is now possible to send e-mail with alternative content (text/plain
-  and text/html is a common example) using AWS.SMTP.Client API.
+  On the server side generated code (skeleton) we now check that the
+  SOAP objects have the proper type to issue better error messages.

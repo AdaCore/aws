@@ -331,6 +331,8 @@ regtests/param2.adb
 regtests/param2.out
 regtests/partial.adb
 regtests/partial.out
+regtests/pck.adb
+regtests/pck.ads
 regtests/pipe_stream.adb
 regtests/pipe_stream.out
 regtests/plain2ssl.adb
@@ -373,6 +375,8 @@ regtests/smtp_2.adb
 regtests/smtp_2.out
 regtests/smtp_pck.adb
 regtests/smtp_pck.ads
+regtests/soapcheck.adb
+regtests/soapcheck.out
 regtests/sock1.adb
 regtests/sock1.out
 regtests/sock2.adb
@@ -1070,13 +1074,13 @@ templates_parser/src/templates_parser-input__standalone.adb
 templates_parser/src/templates_parser-print_tree.adb
 templates_parser/src/templates_parser-query.adb
 templates_parser/src/templates_parser-query.ads
-templates_parser/src/templates_parser_tasking.ads
-templates_parser/src/templates_parser_tasking__no_tasking.adb
-templates_parser/src/templates_parser_tasking__standard_tasking.adb
 templates_parser/src/templates_parser-utils.adb
 templates_parser/src/templates_parser-utils.ads
 templates_parser/src/templates_parser.adb
 templates_parser/src/templates_parser.ads
+templates_parser/src/templates_parser_tasking.ads
+templates_parser/src/templates_parser_tasking__no_tasking.adb
+templates_parser/src/templates_parser_tasking__standard_tasking.adb
 templates_parser/templates_parser.gpr
 templates_parser/tools/all_urls.thtml
 templates_parser/tools/templates.tads
