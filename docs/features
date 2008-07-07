@@ -1,6 +1,6 @@
-=====================================================
-AWS 2.5 NEW FEATURES LIST Current as of Jul 3rd, 2008
-=====================================================
+====================================================
+AWS 2.6 NEW FEATURES LIST Current as of Jul 03, 2008
+====================================================
 
 Copyright (c) 2006-2008, AdaCore
 
@@ -15,7 +15,7 @@ of the feature.
 New features in AWS 2.6.0
 -------------------------
 
-NF-25-H624-001 Improve error message for non conformant SOAP messages (2008-07-03)
+NF-26-H624-001 Improve error message for SOAP messages (2008-07-03)
 
   On the server side generated code (skeleton) we now check that the
   SOAP objects have the proper type to issue better error messages.
