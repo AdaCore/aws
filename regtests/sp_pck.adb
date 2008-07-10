@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                          Copyright (C) 2004-2008                         --
---                                  AdaCore                                 --
+--                    Copyright (C) 2004-2008, AdaCore                      --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -28,6 +27,7 @@
 
 --  Server push regression test
 
+with Ada.Calendar.Formatting;
 with Ada.Streams;
 with Ada.Strings.Fixed;
 with Ada.Text_IO.Editing;
@@ -211,18 +211,23 @@ package body Sp_Pck is
                Groups      : in Server_Push.Group_Set) is
             begin
                Put_Line (Client_Id & ' ' & Address & ' ' & State);
-            end;
+            end Process;
 
-            Clients : Natural;
-            Groups  : Natural;
-            Size    : Natural;
-            Counter : Server_Push.Wait_Counter_Type;
+            Clients     : Natural;
+            Groups      : Natural;
+            Size        : Natural;
+            Max_Size    : Natural;
+            Max_Size_DT : Ada.Calendar.Time;
+            Counter     : Server_Push.Wait_Counter_Type;
 
          begin
             Server_Push.Info (Push, Clients, Groups, Process'Access);
-            Server_Push.Info (Size, Counter);
+            Server_Push.Info
+              (Size, Max_Size => Max_Size, Max_Size_DT => Max_Size_DT,
+               Counter => Counter);
             Put_Line
               ("Auto unregister error " & Clients'Img & Groups'Img & Size'Img
+               & Max_Size'Img & Ada.Calendar.Formatting.Image (Max_Size_DT)
                & Counter'Img);
          end;
       end if;

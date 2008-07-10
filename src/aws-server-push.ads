@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2008                          --
---                                 AdaCore                                  --
+--                     Copyright (C) 2000-2008, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -244,7 +243,11 @@ package AWS.Server.Push is
    --  Set server to Open mode. Server will again send data to registered
    --  clients. It does nothing if server was already open.
 
-   procedure Info (Size : out Natural; Counter : out Wait_Counter_Type);
+   procedure Info
+     (Size        : out Natural;
+      Max_Size    : out Natural;
+      Max_Size_DT : out Ada.Calendar.Time;
+      Counter     : out Wait_Counter_Type);
    --  Size would return number of currently waiting sockets.
    --  Counter would return total number of waited sockets from start.
 

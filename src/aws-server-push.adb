@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2008                          --
---                                 AdaCore                                  --
+--                     Copyright (C) 2000-2008, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -145,7 +144,11 @@ package body AWS.Server.Push is
         (Server : in Object_Access; Holder : in Client_Holder_Access);
       --  Socket should be appropriate and only for error control
 
-      entry Info (Size : out Natural; Counter : out Wait_Counter_Type);
+      entry Info
+        (Size        : out Natural;
+         Max_Size    : out Natural;
+         Max_Size_DT : out Ada.Calendar.Time;
+         Counter     : out Wait_Counter_Type);
 
       entry Empty;
    end Waiter;
@@ -307,11 +310,20 @@ package body AWS.Server.Push is
    -- Info --
    ----------
 
-   procedure Info (Size : out Natural; Counter : out Wait_Counter_Type) is
+   procedure Info
+     (Size        : out Natural;
+      Max_Size    : out Natural;
+      Max_Size_DT : out Ada.Calendar.Time;
+      Counter     : out Wait_Counter_Type) is
    begin
       W_Signal.Send (Byte0);
+
       select
-         Waiter.Info (Size, Counter => Counter);
+         Waiter.Info
+           (Size        => Size,
+            Max_Size    => Max_Size,
+            Max_Size_DT => Max_Size_DT,
+            Counter     => Counter);
       or
          delay Waiter_Timeout;
          raise Program_Error with "Get waiter info timeout";
@@ -1531,11 +1543,14 @@ package body AWS.Server.Push is
 
       R_Signal : aliased Net.Socket_Type'Class :=
                    Net.Socket (Security => False);
-      Byte    : Stream_Element_Array (1 .. 1);
-      pragma Warnings (Off, Byte);
-      Counter : Wait_Counter_Type := 0;
+      Bytes    : Stream_Element_Array (1 .. 32);
+      B_Last   : Stream_Element_Offset;
 
-      Receive_Signal : Boolean;
+      Counter     : Wait_Counter_Type := 0;
+      Max_Size    : Positive := 1;
+      Max_Size_DT : Ada.Calendar.Time := Ada.Calendar.Clock;
+
+      Post_Read : Boolean;
 
       procedure Add_Item
         (Server : in Object_Access; Holder : in Client_Holder_Access);
@@ -1567,7 +1582,14 @@ package body AWS.Server.Push is
       Add (Write_Set, R_Signal'Unchecked_Access, Mode => Write_Sets.Input);
 
       loop
-         if Count (Write_Set) > 1 then
+         Post_Read := Count (Write_Set) = 1;
+
+         if Post_Read then
+            B_Last := 1;
+
+         else
+            B_Last := 0;
+
             begin
                Wait (Write_Set, Timeout => Duration'Last);
             exception
@@ -1605,11 +1627,13 @@ package body AWS.Server.Push is
                      end loop;
                   end;
             end;
+
+            if Is_Read_Ready (Write_Set, 1) then
+               Net.Receive (R_Signal, Bytes, B_Last);
+            end if;
          end if;
 
-         if Count (Write_Set) = 1 or else Is_Read_Ready (Write_Set, 1) then
-            Receive_Signal := True;
-
+         while B_Last > 0 loop
             select
                accept Add
                  (Server : in Object_Access; Holder : in Client_Holder_Access)
@@ -1693,22 +1717,35 @@ package body AWS.Server.Push is
 
             or
                accept Info
-                 (Size : out Natural; Counter : out Wait_Counter_Type)
+                 (Size        : out Natural;
+                  Max_Size    : out Natural;
+                  Max_Size_DT : out Ada.Calendar.Time;
+                  Counter     : out Wait_Counter_Type)
                do
-                  Size := Integer (Count (Write_Set) - 1);
-                  Info.Counter := Waiter.Counter;
+                  Size             := Integer (Count (Write_Set) - 1);
+                  Info.Max_Size    := Waiter.Max_Size - 1;
+                  Info.Max_Size_DT := Waiter.Max_Size_DT;
+                  Info.Counter     := Waiter.Counter;
                end Info;
 
             or
                when Count (Write_Set) <= 1 => accept Empty;
-               Receive_Signal := False;
+               Post_Read := False;
             or
                terminate;
             end select;
 
-            if Receive_Signal then
-               Byte := Net.Receive (R_Signal, 1);
+            if Post_Read then
+               Net.Receive (R_Signal, Bytes, B_Last);
+               Post_Read := False;
             end if;
+
+            B_Last := B_Last - 1;
+         end loop;
+
+         if Integer (Count (Write_Set)) > Max_Size then
+            Max_Size    := Integer (Count (Write_Set));
+            Max_Size_DT := Ada.Calendar.Clock;
          end if;
 
          for J in reverse 2 .. Count (Write_Set) loop
