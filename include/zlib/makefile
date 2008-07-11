@@ -55,7 +55,10 @@ ifeq (${ENABLE_SHARED}, true)
 endif
 
 install:
-	$(CP) $(LIB) $(I_LIB)/relocatable
+	$(CP) $(LIBZ_static) $(I_LIB)/static
+ifeq (${ENABLE_SHARED}, true)
+	$(CP) $(LIBZ_shared) $(I_LIB)/relocatable
+endif
 
 clean:
 	-rm -f $(LIB) $(ODIR)/*.o *~
