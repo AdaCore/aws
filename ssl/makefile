@@ -72,7 +72,7 @@ ifeq (${SOCKET}, std)
 	echo '   LIB_Path := "";' >> $(SSLGPR)
 else
 ifeq (${OS}, Windows_NT)
-	echo '   LIB_Path := "../.build/common/lib/win32";' >> $(SSLGPR)
+	echo '   LIB_Path := "../$(BDIR)/../common/lib/win32";' >> $(SSLGPR)
 else
 	echo '   LIB_Path := "'$(dir $(SSL_PATH))'";' >> $(SSLGPR)
 endif
