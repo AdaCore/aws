@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2005-2008                          --
---                                 AdaCore                                  --
+--                   Copyright (C) 2005-2008, AdaCore                       --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -285,8 +284,16 @@ package body AWS.Net.Acceptors is
    procedure Give_Back
      (Acceptor : in out Acceptor_Type; Socket : in Socket_Access) is
    begin
-      Send (Acceptor.W_Signal.all, (1 => Socket_Command));
-      Acceptor.Box.Add (Socket);
+      Acceptor.W_Signal.Send ((1 => Socket_Command));
+
+      select
+         Acceptor.Box.Add (Socket);
+      or delay 8.0;
+         raise Program_Error with
+            "Accepting task could be died or too busy [command byte back"
+            & Stream_Element'Image (Acceptor.R_Signal.all.Receive (1) (1))
+            & ']';
+      end select;
    end Give_Back;
 
    ------------
