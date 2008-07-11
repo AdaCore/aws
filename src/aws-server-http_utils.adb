@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2005-2008                          --
---                                 AdaCore                                  --
+--                     Copyright (C) 2005-2008, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -822,124 +821,118 @@ package body AWS.Server.HTTP_Utils is
       end Store_Attachments;
 
    begin
-      --  Is there something to read ?
+      --  Get necessary data from header for reading HTTP body
 
-      if Status.Content_Length (C_Stat) /= 0 then
-         --  Get necessary data from header for reading HTTP body
+      declare
+
+         procedure Named_Value
+           (Name, Value : in String; Quit : in out Boolean);
+         --  Looking for the Boundary value in the  Content-Type header line
+
+         procedure Value (Item : in String; Quit : in out Boolean);
+         --  Reading the first unnamed value into the Status_Content_Type
+         --  variable from the Content-Type header line.
+
+         -----------------
+         -- Named_Value --
+         -----------------
+
+         procedure Named_Value
+           (Name, Value : in String; Quit : in out Boolean)
+         is
+            pragma Unreferenced (Quit);
+            L_Name : constant String :=
+                        Ada.Characters.Handling.To_Lower (Name);
+         begin
+            if L_Name = "boundary" then
+               Status_Multipart_Boundary := To_Unbounded_String (Value);
+            elsif L_Name = "start" then
+               Status_Root_Part_CID := To_Unbounded_String (Value);
+            end if;
+         end Named_Value;
+
+         -----------
+         -- Value --
+         -----------
+
+         procedure Value (Item : in String; Quit : in out Boolean) is
+         begin
+            if Status_Content_Type /= Null_Unbounded_String then
+               --  Only first unnamed value is the Content_Type
+
+               Quit := True;
+
+            elsif Item'Length > 0 then
+               Status_Content_Type := To_Unbounded_String (Item);
+            end if;
+         end Value;
+
+         procedure Parse is new Headers.Values.Parse (Value, Named_Value);
+
+      begin
+         --  Clear Content-Type status as this could have already been set
+         --  in previous request.
+
+         Status_Content_Type := Null_Unbounded_String;
+
+         Parse (Status.Content_Type (C_Stat));
+      end;
+
+      if Status.Method (C_Stat) = Status.POST
+        and then Status_Content_Type = MIME.Application_Form_Data
+      then
+         --  Read data from the stream and convert it to a string as
+         --  these are a POST form parameters.
+         --  The body has the format: name1=value1&name2=value2...
 
          declare
-
-            procedure Named_Value
-              (Name, Value : in String;
-               Quit        : in out Boolean);
-            --  Looking for the Boundary value in the  Content-Type header line
-
-            procedure Value (Item : in String; Quit : in out Boolean);
-            --  Reading the first unnamed value into the Status_Content_Type
-            --  variable from the Content-Type header line.
-
-            -----------------
-            -- Named_Value --
-            -----------------
-
-            procedure Named_Value
-              (Name, Value : in String;
-               Quit        : in out Boolean)
-            is
-               pragma Unreferenced (Quit);
-               L_Name : constant String :=
-                          Ada.Characters.Handling.To_Lower (Name);
-            begin
-               if L_Name = "boundary" then
-                  Status_Multipart_Boundary := To_Unbounded_String (Value);
-               elsif L_Name = "start" then
-                  Status_Root_Part_CID := To_Unbounded_String (Value);
-               end if;
-            end Named_Value;
-
-            -----------
-            -- Value --
-            -----------
-
-            procedure Value (Item : in String; Quit : in out Boolean) is
-            begin
-               if Status_Content_Type /= Null_Unbounded_String then
-                  --  Only first unnamed value is the Content_Type
-
-                  Quit := True;
-
-               elsif Item'Length > 0 then
-                  Status_Content_Type := To_Unbounded_String (Item);
-               end if;
-            end Value;
-
-            procedure Parse is new Headers.Values.Parse (Value, Named_Value);
-
+            Data : Stream_Element_Array
+              (1 .. Stream_Element_Offset (Status.Content_Length (C_Stat)));
          begin
-            --  Clear Content-Type status as this could have already been set
-            --  in previous request.
+            Net.Buffered.Read (Sock, Data);
 
-            Status_Content_Type := Null_Unbounded_String;
+            Status.Set.Binary (C_Stat, Data);
+            --  We record the message body as-is to be able to send it back
+            --  to an hotplug module if needed.
 
-            Parse (Status.Content_Type (C_Stat));
+            --  We then decode it and add the parameters read in the
+            --  message body.
+
+            Status.Set.Add_Parameters (C_Stat, Translator.To_String (Data));
          end;
 
-         if Status.Method (C_Stat) = Status.POST
-           and then Status_Content_Type = MIME.Application_Form_Data
-         then
-            --  Read data from the stream and convert it to a string as
-            --  these are a POST form parameters.
-            --  The body has the format: name1=value1&name2=value2...
+      elsif Status.Method (C_Stat) = Status.POST
+        and then Status_Content_Type = MIME.Multipart_Form_Data
+      then
+         --  This is a file upload
 
-            declare
-               Data : Stream_Element_Array
-                 (1 .. Stream_Element_Offset (Status.Content_Length (C_Stat)));
-            begin
-               Net.Buffered.Read (Sock, Data);
+         File_Upload ("--" & To_String (Status_Multipart_Boundary),
+                        "--" & To_String (Status_Multipart_Boundary) & "--",
+                        True);
 
-               Status.Set.Binary (C_Stat, Data);
-               --  We record the message body as-is to be able to send it back
-               --  to an hotplug module if needed.
+      elsif Status.Method (C_Stat) = Status.POST
+        and then Status_Content_Type = MIME.Multipart_Related
+      then
+         --  Attachments are to be written to separate files
 
-               --  We then decode it and add the parameters read in the
-               --  message body.
+         Store_Attachments
+           ("--" & To_String (Status_Multipart_Boundary),
+            "--" & To_String (Status_Multipart_Boundary) & "--",
+            True,
+            To_String (Status_Root_Part_CID));
 
-               Status.Set.Add_Parameters (C_Stat, Translator.To_String (Data));
-            end;
+      else
+         --  Let's suppose for now that all others content type data are
+         --  binary data.
 
-         elsif Status.Method (C_Stat) = Status.POST
-           and then Status_Content_Type = MIME.Multipart_Form_Data
-         then
-            --  This is a file upload
+         declare
+            Data : Stream_Element_Array
+              (1 .. Stream_Element_Offset (Status.Content_Length (C_Stat)));
+         begin
+            Net.Buffered.Read (Sock, Data);
+            Status.Set.Binary (C_Stat, Data);
+         end;
 
-            File_Upload ("--" & To_String (Status_Multipart_Boundary),
-                         "--" & To_String (Status_Multipart_Boundary) & "--",
-                         True);
-
-         elsif Status.Method (C_Stat) = Status.POST
-           and then Status_Content_Type = MIME.Multipart_Related
-         then
-            --  Attachments are to be written to separate files
-
-            Store_Attachments
-              ("--" & To_String (Status_Multipart_Boundary),
-               "--" & To_String (Status_Multipart_Boundary) & "--",
-               True,
-               To_String (Status_Root_Part_CID));
-
-         else
-            --  Let's suppose for now that all others content type data are
-            --  binary data.
-
-            declare
-               Data : Stream_Element_Array
-                 (1 .. Stream_Element_Offset (Status.Content_Length (C_Stat)));
-            begin
-               Net.Buffered.Read (Sock, Data);
-               Status.Set.Binary (C_Stat, Data);
-            end;
-
-         end if;
       end if;
    end Get_Message_Data;
 

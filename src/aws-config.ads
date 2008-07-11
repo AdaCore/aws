@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2007                          --
---                                 AdaCore                                  --
+--                     Copyright (C) 2000-2008, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -154,6 +153,9 @@ package AWS.Config is
    pragma Inline (Upload_Directory);
    --  This point to the directory where uploaded files will be stored. The
    --  directory returned will end with a directory separator.
+
+   function Upload_Size_Limit (O : in Object) return Positive;
+   pragma Inline (Upload_Size_Limit);
 
    function Directory_Browser_Page (O : in Object) return String;
    pragma Inline (Directory_Browser_Page);
@@ -368,6 +370,7 @@ private
       Error_Log_Filename_Prefix,
       Error_Log_Split_Mode,
       Upload_Directory,
+      Upload_Size_Limit,
       Session,
       Session_Name,
       Cleaner_Wait_For_Client_Timeout,
@@ -506,6 +509,9 @@ private
 
          Upload_Directory =>
            (Dir, To_Unbounded_String (Default.Upload_Directory)),
+
+         Upload_Size_Limit =>
+           (Pos, Default.Upload_Size_Limit),
 
          Max_Connection =>
            (Pos, Default.Max_Connection),

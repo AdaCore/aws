@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2007                          --
---                                 AdaCore                                  --
+--                     Copyright (C) 2000-2008, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -521,6 +520,15 @@ package body AWS.Config is
    begin
       return To_String (O.P (Upload_Directory).Dir_Value);
    end Upload_Directory;
+
+   -----------------------
+   -- Upload_Size_Limit --
+   -----------------------
+
+   function Upload_Size_Limit (O : in Object) return Positive is
+   begin
+      return O.P (Upload_Size_Limit).Pos_Value;
+   end Upload_Size_Limit;
 
    --------------
    -- WWW_Root --

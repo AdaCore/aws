@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2007                          --
---                                 AdaCore                                  --
+--                     Copyright (C) 2000-2008, AdaCore                      --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -34,6 +33,7 @@ with AWS.Log;
 with AWS.Messages;
 with AWS.MIME;
 with AWS.Resources;
+with AWS.Response.Set;
 with AWS.Server.HTTP_Utils;
 with AWS.Server.Status;
 with AWS.Session;
@@ -88,8 +88,10 @@ begin
    LA.Log_Data := AWS.Log.Empty_Fields_Table;
 
    For_Every_Request : loop
-
       declare
+         use type Response.Data_Mode;
+
+         Error_Answer  : Response.Data;
          Back_Possible : Boolean;
          Switch        : constant array (Boolean) of
            access function
@@ -97,6 +99,8 @@ begin
               Events : in Net.Wait_Event_Set) return Net.Event_Set
            := (True => Net.Wait'Access, False => Net.Check'Access);
       begin
+         Response.Set.Mode (Error_Answer, Response.No_Data);
+
          Data_Sent := False;
 
          LA.Server.Slots.Mark_Phase (LA.Line, Client_Header);
@@ -177,15 +181,36 @@ begin
 
          LA.Server.Slots.Mark_Phase (LA.Line, Client_Data);
 
-         Get_Message_Data (LA.Server.all, LA.Line, LA.Stat);
+         --  Is there something to read ?
+
+         if AWS.Status.Content_Length (LA.Stat) /= 0 then
+            if AWS.Status.Content_Length (LA.Stat)
+               <= CNF.Upload_Size_Limit (LA.Server.Properties)
+            then
+               Get_Message_Data (LA.Server.all, LA.Line, LA.Stat);
+            else
+               Will_Close := True;
+
+               Error_Answer := Response.Build
+                 (Status_Code  => Messages.S413,
+                  Content_Type => "text/plain",
+                  Message_Body => "Too big entity body.");
+            end if;
+         end if;
 
          AWS.Status.Set.Keep_Alive (LA.Stat, not Will_Close);
 
          LA.Server.Slots.Mark_Phase (LA.Line, Server_Response);
 
-         Answer_To_Client
-           (LA.Server.all, LA.Line, LA.Stat, Socket_Taken, Will_Close,
-            Data_Sent);
+         if Response.Mode (Error_Answer) = Response.No_Data then
+            Answer_To_Client
+              (LA.Server.all, LA.Line, LA.Stat, Socket_Taken, Will_Close,
+               Data_Sent);
+         else
+            Send
+              (Error_Answer, LA.Server.all, LA.Line, LA.Stat, Socket_Taken,
+               Will_Close, Data_Sent);
+         end if;
 
       exception
             --  We must never exit the loop with an exception. This loop is
@@ -199,10 +224,6 @@ begin
             exit For_Every_Request;
 
          when E : others =>
-            declare
-               use type Response.Data_Mode;
-
-               Answer : Response.Data;
             begin
                --  Log this error
 
@@ -218,7 +239,7 @@ begin
                  (E,
                   LA.Server.Error_Log,
                   AWS.Exceptions.Data'(False, LA.Line, LA.Stat),
-                  Answer);
+                  Error_Answer);
 
                --  We have an exception while sending data back to the
                --  client. This is most probably an exception coming
@@ -228,11 +249,11 @@ begin
 
                exit For_Every_Request when Data_Sent;
 
-               if Response.Mode (Answer) /= Response.No_Data then
+               if Response.Mode (Error_Answer) /= Response.No_Data then
                   LA.Server.Slots.Mark_Phase (LA.Line, Server_Response);
 
                   Send
-                    (Answer, LA.Server.all, LA.Line, LA.Stat,
+                    (Error_Answer, LA.Server.all, LA.Line, LA.Stat,
                      Socket_Taken, Will_Close, Data_Sent);
                end if;
 
