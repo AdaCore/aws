@@ -54,7 +54,7 @@ procedure Protocol_Handler (LA : in out Line_Attribute_Record) is
    Sock_Ptr     : Socket_Access;
 
    Socket_Taken : Boolean := False;
-   --  Set to True if a socket has been reserved for a push session.
+   --  Set to True if a socket has been reserved for a push session
 
    Will_Close   : Boolean := True;
    --  Will_Close is set to true when the connection will be closed by the
