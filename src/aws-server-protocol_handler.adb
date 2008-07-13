@@ -194,7 +194,7 @@ begin
                Error_Answer := Response.Build
                  (Status_Code  => Messages.S413,
                   Content_Type => "text/plain",
-                  Message_Body => "Too big entity body.");
+                  Message_Body => "Message body over size limit.");
             end if;
          end if;
 
