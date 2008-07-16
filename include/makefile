@@ -37,11 +37,11 @@ ifeq (${ENABLE_SHARED}, true)
 	-$(MKDIR) -p ../$(BDIR)/relocatable/obj/include
 	-$(MKDIR) -p ../$(BDIR)/relocatable//lib/include
 endif
-	${MAKE} -C zlib setup GALL_OPTIONS=$(GALL_OPTIONS)
+	${MAKE} -C zlib setup $(GALL_OPTIONS)
 
 build_zlib: force
 	echo Building Zlib library
-	${MAKE} -C zlib GALL_OPTIONS=$(GALL_OPTIONS)
+	${MAKE} -C zlib $(GALL_OPTIONS)
 
 build: build_zlib
 	$(GNAT) make -XLIBRARY_TYPE=static -Pinclude
@@ -55,7 +55,7 @@ install:
 ifeq (${ENABLE_SHARED}, true)
 	-$(CP) ../$(BDIR)/relocatable/lib/include/* $(I_LIB)/relocatable
 endif
-	${MAKE} -C zlib install GALL_OPTIONS=$(GALL_OPTIONS)
+	${MAKE} -C zlib install $(GALL_OPTIONS)
 
 clean:
 	-$(GNAT) clean -Pinclude -XLIBRARY_TYPE=static \
