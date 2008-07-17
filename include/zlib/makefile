@@ -23,13 +23,13 @@ LDIR_R = ../../$(BDIR)/relocatable/lib/zlib
 LIBZ_static = $(LDIR_S)/libz.a
 LIBZ_shared = $(LDIR_R)/libz$(SOEXT)
 
+LIB = $(LIBZ_static)
+
 ifeq (${ENABLE_SHARED}, true)
-	LIB = $(LIBZ_shared)
+LIB := $(LIB) $(LIBZ_shared)
 ifneq (${OS}, Windows_NT)
-	CFLAGS := $(CFLAGS) -fPIC
+CFLAGS := $(CFLAGS) -fPIC
 endif
-else
-	LIB = $(LIBZ_static)
 endif
 
 OBJS = adler32.o compress.o crc32.o gzio.o uncompr.o deflate.o trees.o \
