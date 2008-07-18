@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2008                          --
---                                 AdaCore                                  --
+--                     Copyright (C) 2000-2008, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -318,6 +317,6 @@ package AWS.Utils is
    type Clonable is interface;
 
    function Clone (Element : in Clonable) return Clonable is abstract;
-   --  Returns a deep copy of a clonable element
+   --  Returns a deep copy of Element
 
 end AWS.Utils;
