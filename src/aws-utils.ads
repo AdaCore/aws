@@ -317,6 +317,10 @@ package AWS.Utils is
    type Clonable is interface;
 
    function Clone (Element : in Clonable) return Clonable is abstract;
-   --  Returns a deep copy of Element
+   --  Returns a deep copy of Element. The returned object must be
+   --  equivalent to Element but fully independent. If Element contains no
+   --  access type then Clone can be empty otherwise a new pointer must be
+   --  created to point to a copy of the pointed data (and recursively,
+   --  as a deep-copy is expected).
 
 end AWS.Utils;
