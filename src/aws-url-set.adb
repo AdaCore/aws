@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2007                            --
---                                 AdaCore                                  --
+--                     Copyright (C) 2007-2008, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -143,7 +142,7 @@ package body AWS.URL.Set is
    function Parameters
      (URL : access Object) return access AWS.Parameters.List is
    begin
-      return URL.Parameters'Access;
+      return URL.Parameters'Unchecked_Access;
    end Parameters;
 
    -----------
