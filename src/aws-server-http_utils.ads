@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2005-2007                          --
---                                 AdaCore                                  --
+--                    Copyright (C) 2005-2008, AdaCore                      --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -57,8 +56,8 @@ package AWS.Server.HTTP_Utils is
    --  POST method is handled. This procedure fill in the C_Stat status
    --  data.
 
-   procedure Get_Message_Header (C_Stat : in out AWS.Status.Data);
-   --  Parse HTTP message header. This procedure fill in the C_Stat status
+   procedure Get_Request_Line (C_Stat : in out AWS.Status.Data);
+   --  Parse HTTP request line. This procedure fills in the C_Stat status
    --  data.
 
    function Is_Valid_HTTP_Date (HTTP_Date : in String) return Boolean;
