@@ -519,5 +519,6 @@ runtest_script:
 		>> regtests/run-test.sh
 	echo 'gnat make -m -Pregtests -XPRJ_XMLADA=$(PRJ_XMLADA) \
 		-XPRJ_ASIS=$(PRJ_ASIS) -XPRJ_BUILD=$(PRJ_BUILD) \
-		-XLIBRARY_TYPE=$(LIBRARY_TYPE) $$1' >> regtests/run-test.sh
+		-XLIBRARY_TYPE=$(LIBRARY_TYPE) -XSOCKET=$(SOCKET) $$1' \
+		>> regtests/run-test.sh
 	echo './$$1' >> regtests/run-test.sh
