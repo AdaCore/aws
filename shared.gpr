@@ -109,7 +109,7 @@ project Shared is
    -- Compiler --
    --------------
 
-   Global_Options := ("");
+   Global_Options := ("-fstack-check");
    --  Options used for all Ada units in both Debug and Release modes
 
    Common_Options :=

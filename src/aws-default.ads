@@ -61,6 +61,7 @@ package AWS.Default is
    Upload_Size_Limit               : constant         := Natural'Last;
    Line_Stack_Size                 : constant         := 16#150_000#;
    Case_Sensitive_Parameters       : constant Boolean := True;
+   Input_Line_Size_Limit           : constant         := 16#4000#;
    Max_Concurrent_Download         : constant         := 25;
    Reuse_Address                   : constant Boolean := False;
 

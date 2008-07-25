@@ -397,6 +397,7 @@ private
       Session_Lifetime,
       Transient_Cleanup_Interval,
       Transient_Lifetime,
+      Input_Line_Size_Limit,
       Max_Concurrent_Download);
 
    subtype Server_Parameter_Name is Parameter_Name
@@ -588,6 +589,9 @@ private
 
          Transient_Lifetime =>
            (Dur, Default.Transient_Lifetime),
+
+         Input_Line_Size_Limit =>
+           (Pos, Default.Input_Line_Size_Limit),
 
          Max_Concurrent_Download =>
            (Pos, Default.Max_Concurrent_Download));

@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2006-2008                          --
---                                 AdaCore                                  --
+--                     Copyright (C) 2006-2008, AdaCore                      --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -28,6 +27,7 @@
 
 with Ada.Strings.Fixed;
 
+with AWS.Net.Buffered;
 with AWS.Utils;
 
 package body AWS.Config.Utils is
@@ -150,6 +150,10 @@ package body AWS.Config.Utils is
             when Pos =>
                Expected_Type := +"positive";
                Param.Pos_Value := Positive'Value (Value);
+
+               if Name = Input_Line_Size_Limit then
+                  Net.Buffered.Set_Input_Limit (Param.Pos_Value);
+               end if;
 
             when Nat =>
                Expected_Type := +"natural";

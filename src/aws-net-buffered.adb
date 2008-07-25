@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                          Copyright (C) 2002-2007                         --
---                                ACT-Europe                                --
+--                     Copyright (C) 2002-2008, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -27,12 +26,16 @@
 ------------------------------------------------------------------------------
 
 with AWS.Containers.Memory_Streams;
+with AWS.Default;
 with AWS.Translator;
 
 package body AWS.Net.Buffered is
 
    CRLF : constant Stream_Element_Array
      := Translator.To_Stream_Element_Array (ASCII.CR & ASCII.LF);
+
+   Input_Limit : Stream_Element_Offset := AWS.Default.Input_Line_Size_Limit;
+   pragma Atomic (Input_Limit);
 
    procedure Read (Socket : in Socket_Type'Class);
    --  Refill the read-cache, the cache must be empty before the call
@@ -287,6 +290,11 @@ package body AWS.Net.Buffered is
             if Wait then
                Append (Buffer, C.Buffer (C.First .. C.Last));
 
+               if Size (Buffer) > Input_Limit then
+                  raise Data_Overflow with
+                    "Size" & Stream_Element_Offset'Image (Size (Buffer));
+               end if;
+
                begin
                   Read (Socket);
                exception
@@ -339,6 +347,15 @@ package body AWS.Net.Buffered is
                    Translator.To_Stream_Element_Array (Delimiter),
                    Wait));
    end Read_Until;
+
+   ---------------------
+   -- Set_Input_Limit --
+   ---------------------
+
+   procedure Set_Input_Limit (Limit : in Positive) is
+   begin
+      Input_Limit := Stream_Element_Offset (Limit);
+   end Set_Input_Limit;
 
    --------------
    -- Shutdown --

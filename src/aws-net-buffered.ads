@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                          Copyright (C) 2002-2007                         --
---                                 AdaCore                                  --
+--                     Copyright (C) 2002-2008, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -57,6 +56,17 @@ package AWS.Net.Buffered is
    -----------
    -- Input --
    -----------
+
+   Data_Overflow : exception;
+   --  Raised from Get_Line and Read_Until routines when size of receiving data
+   --  exceeds the limit defined by Set_Input_Limit. It avoid unlimited dynamic
+   --  memory allocation inside of Get_Line and Read_Until when client trying
+   --  to attack the server by the very long lines in request. Moreover it
+   --  avoid stack overflow on very long data returned from Get_Line and
+   --  Read_Until.
+
+   procedure Set_Input_Limit (Limit : in Positive);
+   --  Set the input size limit for Get_Line and Read_Until routines.
 
    procedure Read
      (Socket : in     Socket_Type'Class;

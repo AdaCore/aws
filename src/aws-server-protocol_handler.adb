@@ -32,6 +32,7 @@ with AWS.Config;
 with AWS.Log;
 with AWS.Messages;
 with AWS.MIME;
+with AWS.Net.Buffered;
 with AWS.Resources;
 with AWS.Response.Set;
 with AWS.Server.HTTP_Utils;
@@ -93,6 +94,7 @@ begin
 
          Error_Answer  : Response.Data;
          Back_Possible : Boolean;
+         First_Line    : Boolean := True;
          Switch        : constant array (Boolean) of
            access function
              (Socket : in Net.Socket_Type'Class;
@@ -152,7 +154,11 @@ begin
          AWS.Status.Set.Case_Sensitive_Parameters
            (LA.Stat, Case_Sensitive_Parameters);
 
-         Get_Message_Header (LA.Stat);
+         Get_Request_Line (LA.Stat);
+
+         First_Line := False;
+
+         AWS.Status.Set.Read_Header (Socket => Sock_Ptr.all, D => LA.Stat);
 
          AWS.Status.Set.Connection_Data
            (LA.Stat,
@@ -222,6 +228,33 @@ begin
          when Net.Socket_Error =>
             --  Exit from keep-alive loop in case of socket error
             exit For_Every_Request;
+
+         when E : Net.Buffered.Data_Overflow =>
+            AWS.Log.Write
+              (LA.Server.Error_Log,
+               LA.Stat,
+               Utils.CRLF_2_Spaces
+                 (Ada.Exceptions.Exception_Information (E)));
+
+            Will_Close := True;
+
+            if First_Line then
+               Error_Answer := Response.Build
+                 (Status_Code  => Messages.S414,
+                  Content_Type => "text/plain",
+                  Message_Body => Ada.Exceptions.Exception_Message (E));
+            else
+               Error_Answer := Response.Build
+                 (Status_Code  => Messages.S400,
+                  Content_Type => "text/plain",
+                  Message_Body => Ada.Exceptions.Exception_Message (E));
+            end if;
+
+            LA.Server.Slots.Mark_Phase (LA.Line, Server_Response);
+
+            Send
+              (Error_Answer, LA.Server.all, LA.Line, LA.Stat,
+               Socket_Taken, Will_Close, Data_Sent);
 
          when E : others =>
             begin

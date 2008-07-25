@@ -936,11 +936,11 @@ package body AWS.Server.HTTP_Utils is
       end if;
    end Get_Message_Data;
 
-   ------------------------
-   -- Get_Message_Header --
-   ------------------------
+   ----------------------
+   -- Get_Request_Line --
+   ----------------------
 
-   procedure Get_Message_Header (C_Stat : in out AWS.Status.Data) is
+   procedure Get_Request_Line (C_Stat : in out AWS.Status.Data) is
       Sock : constant Net.Socket_Type'Class := Status.Socket (C_Stat);
    begin
       --  Get and parse request line
@@ -961,9 +961,7 @@ package body AWS.Server.HTTP_Utils is
             end if;
          end;
       end loop;
-
-      Status.Set.Read_Header (Socket => Sock, D => C_Stat);
-   end Get_Message_Header;
+   end Get_Request_Line;
 
    ------------------------
    -- Is_Valid_HTTP_Date --
