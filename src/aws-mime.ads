@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2005                          --
---                                 AdaCore                                  --
+--                     Copyright (C) 2000-2008, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -76,6 +75,7 @@ package AWS.MIME is
    Application_Msword          : constant String := "application/msword";
    Application_Powerpoint      : constant String := "application/powerpoint";
    Application_Rtf             : constant String := "application/rtf";
+   Application_XML             : constant String := "application/xml";
    Application_X_Compress      : constant String := "application/x-compress";
    Application_X_GTar          : constant String := "application/x-gtar";
    Application_X_GZip          : constant String := "application/x-gzip";
