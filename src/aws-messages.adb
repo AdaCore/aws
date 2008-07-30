@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2008                          --
---                                 AdaCore                                  --
+--                     Copyright (C) 2000-2008, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -40,6 +39,9 @@ package body AWS.Messages is
    S100_Message : aliased constant String := "Continue";
    S101_Message : aliased constant String := "Switching Protocols";
 
+   S102_Message : aliased constant String := "Processing";
+   --  Introduced in the WebDAV HTTP extension, refer to RFC2518
+
    S200_Message : aliased constant String := "OK";
    S201_Message : aliased constant String := "Create";
    S202_Message : aliased constant String := "Accepted";
@@ -47,6 +49,9 @@ package body AWS.Messages is
    S204_Message : aliased constant String := "No Content";
    S205_Message : aliased constant String := "Reset Content";
    S206_Message : aliased constant String := "Partial Content";
+
+   S207_Message : aliased constant String := "Multi-Status";
+   --  Introduced in the WebDAV HTTP extension, refer to RFC4918
 
    S300_Message : aliased constant String := "Multiple Choices";
    S301_Message : aliased constant String := "Moved Permanently";
@@ -75,12 +80,20 @@ package body AWS.Messages is
    S416_Message : aliased constant String := "Requestd range not satisfiable";
    S417_Message : aliased constant String := "Expectation Failed";
 
+   S422_Message : aliased constant String := "Unprocessable Entity";
+   S423_Message : aliased constant String := "Locked";
+   S424_Message : aliased constant String := "Failed Dependency";
+   --  Introduced in the WebDAV HTTP extension, refer to RFC4918
+
    S500_Message : aliased constant String := "Internal Server Error";
    S501_Message : aliased constant String := "Not Implemented";
    S502_Message : aliased constant String := "Bad Gateway";
    S503_Message : aliased constant String := "Service Unavailable";
    S504_Message : aliased constant String := "Gateway Time-out";
    S505_Message : aliased constant String := "HTTP Version not supported";
+
+   S507_Message : aliased constant String := "Insufficient Storage";
+   --  Introduced in the WebDAV HTTP extension, refer to RFC4918
 
    type Status_Data is record
       Code          : Status_Code_Image;
@@ -90,6 +103,7 @@ package body AWS.Messages is
    Status_Messages : constant array (Status_Code) of Status_Data
      := (S100 => ("100", S100_Message'Access),
          S101 => ("101", S101_Message'Access),
+         S102 => ("102", S102_Message'Access),
          S200 => ("200", S200_Message'Access),
          S201 => ("201", S201_Message'Access),
          S202 => ("202", S202_Message'Access),
@@ -97,6 +111,7 @@ package body AWS.Messages is
          S204 => ("204", S204_Message'Access),
          S205 => ("205", S205_Message'Access),
          S206 => ("206", S206_Message'Access),
+         S207 => ("207", S207_Message'Access),
          S300 => ("300", S300_Message'Access),
          S301 => ("301", S301_Message'Access),
          S302 => ("302", S302_Message'Access),
@@ -122,12 +137,16 @@ package body AWS.Messages is
          S415 => ("415", S415_Message'Access),
          S416 => ("416", S416_Message'Access),
          S417 => ("417", S417_Message'Access),
+         S422 => ("422", S422_Message'Access),
+         S423 => ("422", S423_Message'Access),
+         S424 => ("422", S424_Message'Access),
          S500 => ("500", S500_Message'Access),
          S501 => ("501", S501_Message'Access),
          S502 => ("502", S502_Message'Access),
          S503 => ("503", S503_Message'Access),
          S504 => ("504", S504_Message'Access),
-         S505 => ("505", S505_Message'Access));
+         S505 => ("505", S505_Message'Access),
+         S507 => ("507", S507_Message'Access));
 
    Month_Name : constant array (Calendar.Month_Number) of String (1 .. 3)
      := ("Jan", "Feb", "Mar", "Apr", "May", "Jun",
