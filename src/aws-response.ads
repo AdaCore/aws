@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2008                          --
---                                 AdaCore                                  --
+--                    Copyright (C) 2000-2008, AdaCore                      --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -364,7 +363,7 @@ private
      & "This server could not verify that you" & CRLF
      & "are authorized to access the document you" & CRLF
      & "requested.  Either you supplied the wrong" & CRLF
-     & "credentials (e.g., bad password), or your" & CRLF
+     & "credentials (e.g. bad password), or your" & CRLF
      & "browser doesn't understand how to supply" & CRLF
      & "the credentials required.<P>" & CRLF
      & "</BODY></HTML>" & CRLF;
