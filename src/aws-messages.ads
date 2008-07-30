@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2008                          --
---                                 AdaCore                                  --
+--                     Copyright (C) 2000-2008, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -149,7 +148,7 @@ package AWS.Messages is
    subtype Server_Error  is Status_Code range S500 .. S505;
 
    function Image (S : in Status_Code) return String;
-   --  Returns Status_Code image. This value does not contain the leading S.
+   --  Returns Status_Code image. This value does not contain the leading S
 
    function Reason_Phrase (S : in Status_Code) return String;
    --  Returns the reason phrase for the status code S, see [RFC 2616 - 6.1.1]
@@ -253,7 +252,7 @@ package AWS.Messages is
 
    function WWW_Authenticate (Realm : in String) return String;
    pragma Inline (WWW_Authenticate);
-   --  Basic authentication request.
+   --  Basic authentication request
 
    function WWW_Authenticate
      (Realm : in String;
@@ -261,7 +260,7 @@ package AWS.Messages is
       Stale : in Boolean)
       return String;
    pragma Inline (WWW_Authenticate);
-   --  Digest authentication request.
+   --  Digest authentication request
 
    -----------------------
    --  helper functions --
