@@ -1,6 +1,7 @@
 *.ali
 *.exe
 *.o
+*.pyc
 *.so
 *~
 .build
@@ -52,12 +53,14 @@ lib/.gpssnprj
 makefile.setup
 regtests/*.log
 regtests/*.res
+regtests/.outputs
 regtests/all_mains.lst
 regtests/alldifs
 regtests/anytype.netlog
 regtests/cert.pem
 regtests/check_mem
 regtests/check_mem.run*
+regtests/config.py
 regtests/dm_file.data
 regtests/file.tmplt
 regtests/file1.html
@@ -91,6 +94,7 @@ regtests/s_txmlada.lst
 regtests/test_all
 regtests/test_all.adb
 regtests/test_soap.netlog
+regtests/testsuite.duration*
 regtests/testzlib.in
 regtests/testzlib.out
 regtests/testzlib.zlb
