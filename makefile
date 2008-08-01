@@ -450,6 +450,8 @@ setup: setup_dir setup_debug setup_release setup_final setup_tp $(GEXT_MODULE)
 	echo "SOCKET=$(SOCKET)" >> makefile.setup
 	echo "LDAP=$(LDAP)" >> makefile.setup
 	echo "DEBUG=$(DEBUG)" >> makefile.setup
+	(cd regtests; ./gen_system_tags.py ../makefile.setup 2>/dev/null) || \
+		(echo "Can not generate system tags. The test are disabled")
 
 setup_tp:
 	$(MAKE) -C templates_parser setup $(GALL_OPTIONS)
@@ -522,3 +524,7 @@ runtest_script:
 		-XLIBRARY_TYPE=$(LIBRARY_TYPE) -XSOCKET=$(SOCKET) $$1' \
 		>> regtests/run-test.sh
 	echo './$$1' >> regtests/run-test.sh
+
+check-aws:
+	test -f regtests/testsuite.tags || (echo 'Did you run make setup ?'; exit 1)
+	(cd regtests; ./testsuite.py)
