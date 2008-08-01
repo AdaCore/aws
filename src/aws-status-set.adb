@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2007                          --
---                                 AdaCore                                  --
+--                     Copyright (C) 2000-2008, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -144,8 +143,9 @@ package body AWS.Status.Set is
          end;
 
          --  Check if the attributes is for the Digest authenticatio schema.
-         --  AWS does not support othe authentication schemas with attributes
+         --  AWS does not support other authentication schemas with attributes
          --  now.
+
          if D.Auth_Mode /= Digest then
             Quit := True;
          end if;

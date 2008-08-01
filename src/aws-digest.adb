@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2007                          --
---                                 AdaCore                                  --
+--                     Copyright (C) 2000-2008, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -201,8 +200,6 @@ package body AWS.Digest is
       MD5.Update (Ctx, To_Byte_Array (Day_Now));
       MD5.Update (Ctx, To_Byte_Array (Seconds_Int));
       MD5.Update (Ctx, Index_Str);
-
-      --  Place the digest string representation into the result variable
 
       Result := MD5.Digest (Ctx);
 

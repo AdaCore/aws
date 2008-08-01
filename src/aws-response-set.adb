@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2002-2008                          --
---                                 AdaCore                                  --
+--                     Copyright (C) 2002-2008, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -101,7 +100,7 @@ package body AWS.Response.Set is
       --  and
       --  WWW-Authenticate: Digest
 
-      if Mode = Digest or Mode = Any then
+      if Mode = Digest or else Mode = Any then
          Headers.Set.Update
            (D.Header,
             Name  => Messages.WWW_Authenticate_Token,
@@ -113,7 +112,7 @@ package body AWS.Response.Set is
          N := N + 1;
       end if;
 
-      if Mode = Basic or Mode = Any then
+      if Mode = Basic or else Mode = Any then
          Headers.Set.Update
            (D.Header,
             Name  => Messages.WWW_Authenticate_Token,
