@@ -77,7 +77,7 @@ def diff(left=None, right=None):
     if right is None:
         right = "test.res"
     # Print the result of diff test.out "p.out"
-    p = Run(["diff", left, right])
+    p = Run(["diff", "-w", left, right])
     if p.status:
         # Exit with error
         logging.error(p.out)
