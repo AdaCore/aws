@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2004-2008                          --
---                                 AdaCore                                  --
+--                     Copyright (C) 2004-2008, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -40,12 +39,12 @@ project Demos_Shared is
 
       case Shared.Build is
          when "Debug" =>
-            for Default_Switches ("Ada")
-              use ("-g", "-gnat05", "-gnaty3abcefhiklmnoprt");
+            for Default_Switches ("Ada") use Shared.Global_Options
+              & ("-g", "-gnat05", "-gnaty3abcefhiklmnoprt");
 
          when "Release" =>
-            for Default_Switches ("Ada")
-              use ("-O2", "-gnat05", "-gnatws", "-gnatn");
+            for Default_Switches ("Ada") use Shared.Global_Options
+              & ("-O2", "-gnat05", "-gnatws", "-gnatn");
       end case;
 
    end Compiler;
