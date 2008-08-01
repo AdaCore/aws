@@ -1,15 +1,15 @@
 #!/usr/bin/env python
 """
-./gen_system_tags.py /path/to/aws/Makefile.setup
+./gen_system_tags.py /path/to/aws/makefile.setup
 
-Parse AWS Makefile.setup to generate the system tags required by AWS
+Parse AWS makefile.setup to generate the system tags required by AWS
 testsuite driver
 """
 
 import os
 import sys
 
-# Importing gnatpython modules
+#  Importing gnatpython modules
 CURDIR = os.getcwd()
 PYTHON_SUPPORT = os.path.join(CURDIR, "python_support")
 sys.path.append(PYTHON_SUPPORT)
@@ -43,7 +43,7 @@ def main():
     try:
         generate_tags(_main.args[0])
     except IndexError:
-        _main.error("where is Makefile.setup ?")
+        _main.error("where is makefile.setup ?")
 
 if __name__ == "__main__":
     main()
