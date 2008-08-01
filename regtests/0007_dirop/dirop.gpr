@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2003-2004                          --
+--                            Copyright (C) 2008                            --
 --                                ACT-Europe                                --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -26,31 +26,10 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  ~ MAIN [STD]
+with "aws";
 
-with Ada.Strings.Fixed;
-with Ada.Text_IO;
+project Dirop is
 
-with AWS.Services.Directory;
-with AWS.Status.Set;
-
-procedure Dirop is
-
-   use Ada;
-   use AWS;
-
-   Stat : Status.Data;
-
-begin
-   Status.Set.Reset (Stat);
-
-   declare
-      Result : constant String
-        := Services.Directory.Browse
-             (Directory_Name    => "icons",
-              Template_Filename => "dirop.tmplt",
-              Request           => Stat);
-   begin
-      Text_IO.Put_Line (Result);
-   end;
+  for Source_Dirs use (".");
+  for Main use ("dirop.adb");
 end Dirop;
