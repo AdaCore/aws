@@ -19,9 +19,26 @@ config.set()
 # Now gnatpython modules should be visible.
 from gnatpython.ex import Run
 
+def build(prj):
+    """Build a project"""
+    if config.with_gprbuild:
+        gprbuild(prj)
+    else:
+        gnatmake(prj)
+
+def gnatmake(prj):
+    """Compile a project with gnatmake"""
+    cmd = ["gnatmake", "-p", "-f", "-P" + prj]
+    p = Run(cmd)
+    if p.status:
+        # Exit with error
+        logging.error(p.out)
+        sys.exit(p.status)
+    else:
+        logging.debug(p.out)
+
 def gprbuild(prj):
     """Compile a project with gprbuild"""
-    os.environ["LIBRARY_TYPE"] = "static"
     cmd = ["gprbuild", "-p", "-f", "-P" + prj]
     if config.use_profiler:
         cmd = cmd + ["-cargs", "-pg", "-O2", "-largs", "-pg"]
@@ -70,7 +87,7 @@ def diff(left=None, right=None):
 
 def build_diff(prj):
     """Compile and run a project and check the output"""
-    gprbuild(prj)
+    build(prj)
     run(prj)
     diff()
 

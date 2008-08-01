@@ -64,6 +64,7 @@ use_profiler = %(use_profiler)s
 profiles_dir = "%(profiles_dir)s"
 
 use_gdb = %(use_gdb)s
+with_gprbuild = %(with_gprbuild)s
 
 def set():
     # Set python path
@@ -98,6 +99,7 @@ def set():
             self.with_gprof = options.with_gprof
 
         self.delay = options.delay
+        self.with_gprbuild = options.with_gprbuild
 
         if options.verbose:
             self.logging_level = "DEBUG"
@@ -129,6 +131,7 @@ def set():
                     'logging_level': self.logging_level,
                     'use_profiler': self.with_gprof,
                     'use_gdb': self.with_gdb,
+                    'with_gprbuild': self.with_gprbuild,
                     'profiles_dir': os.path.join(CURDIR,
                                                  OUTPUTS_DIR, 'profiles'),})
         conf.close()
@@ -346,6 +349,13 @@ def main():
                     default=False, help="Generate profiling reports")
     main.add_option("--with-gdb", dest="with_gdb", action="store_true",
                     default=False, help="Run with gdb")
+    main.add_option("--with-gnatmake", dest="with_gprbuild",
+                    action="store_false", default=False,
+                    help="Compile with gnatmake")
+    main.add_option("--with-gprbuild", dest="with_gprbuild",
+                    action="store_true", default=False,
+                    help="Compile with gprbuild (default is gnatmake)")
+
     main.parse_args()
 
     config = Config(main.options)
