@@ -90,5 +90,3 @@ def build_diff(prj):
     build(prj)
     run(prj)
     diff()
-
-
