@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2003-2008                          --
---                                 AdaCore                                  --
+--                     Copyright (C) 2003-2008, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -109,7 +108,7 @@ project Shared is
    -- Compiler --
    --------------
 
-   Global_Options := ("");
+   Global_Options := ();
    --  Options used for all Ada units in both Debug and Release modes
 
    Common_Options :=
