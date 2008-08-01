@@ -160,14 +160,6 @@ endif
 
 init:
 	cp ../demos/cert.pem .
-	-cp -pr ../web_elements/icons . 2> /dev/null
-	-mkdir icons/test-dir1 2> /dev/null
-	-mkdir icons/test-dir2 2> /dev/null
-	-mkdir icons/test-dir3 2> /dev/null
-	(TZ=UTC; export TZ; \
-	touch -t 200102030405 icons/*.gif; \
-	touch -t 200411121314 icons/*.png; \
-	touch -t 200401020304 icons/test-dir?)
 	echo "" > alldifs
 	echo "### Every output after this line is a regression ###" >> alldifs
 	-$(RM) file[abc].txt* > /dev/null 2>&1
