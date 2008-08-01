@@ -43,7 +43,7 @@ sys.path.append(PYTHON_SUPPORT)
 DURATION_REPORT_NAME = "testsuite.duration"
 TESTSUITE_RES = "testsuite.res"
 OUTPUTS_DIR = ".outputs"
-BUILDS_DIR = ".builds"
+BUILDS_DIR = ".build"
 
 import logging
 import time
