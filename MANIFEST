@@ -21,7 +21,6 @@ config/projects/aws_components.gpr
 config/projects/aws_crypto_lib.gpr
 config/projects/aws_libz.gpr
 config/projects/aws_shared.gpr
-config/projects/aws_ssl.gpr
 config/projects/aws_ssl_error_lib.gpr
 config/projects/aws_ssl_lib.gpr
 config/projects/aws_ssl_support.gpr

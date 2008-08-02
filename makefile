@@ -1,8 +1,7 @@
 ############################################################################
 #                              Ada Web Server                              #
 #                                                                          #
-#                         Copyright (C) 2003-2008                          #
-#                                 AdaCore                                  #
+#                     Copyright (C) 2003-2008, AdaCore                     #
 #                                                                          #
 #  This library is free software; you can redistribute it and/or modify    #
 #  it under the terms of the GNU General Public License as published by    #
@@ -463,7 +462,6 @@ install_clean:
 	$(RM) -fr $(prefix)/share/examples/aws
 	$(RM) -fr $(I_DOC)
 	$(RM) -f $(I_GPR)/aws.gpr
-	$(RM) -f $(I_GPR)/aws_ssl.gpr
 
 install_dirs: install_clean
 	$(MKDIR) $(I_BIN)

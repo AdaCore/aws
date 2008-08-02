@@ -603,17 +603,6 @@ Project file, nothing else to set.
 @b{end} Simple;}
 
 @noindent
-If your application must support SSL, you have to link against the
-@file{-lcrypto} and @file{-lssl} libraries. Add a package
-@code{Linker} in your project file, something like:
-
-@AWSEXP {@b{package} Linker @b{is}
-
-   @b{for} Default_Switches ("Ada") @b{use} ("-lcrypto", "-lssl");
-
-@b{end} Linker;}
-
-@noindent
 See the @i{GNAT User's Guide} for more information about GNAT Project Files.
 
 @c ----------------------------------------------------------------------

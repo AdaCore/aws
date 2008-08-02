@@ -1,10 +1,10 @@
 
                             A W S - Ada Web Server
-			   2.5.0 release / SOAP 1.5
+			   2.6.0 release / SOAP 1.5
 
 Authors:
    Dmitriy Anisimkov
-   Pascal Obry                                             March 26th, 2008
+   Pascal Obry                                             August 2nd, 2008
 
 
 
@@ -56,23 +56,10 @@ to work properly. Of course we try to avoid this as much as possible
 but we really prefer to have a clean API instead of keeping awkward
 implementations.
 
-The AWS.Client.Timeout_Values record contains a new field to control
-the connection timeout. Previous definition:
-
-   type Timeouts_Values is record
-      Send    : Duration;
-      Receive : Duration;
-   end record;
-
-New definition:
-
-   type Timeouts_Values is record
-      Connect : Duration;
-      Send    : Duration;
-      Receive : Duration;
-   end record;
-
-Just adds the proper definition for Connect in Timeouts_Values objects.
+  The project file aws_ssl.gpr has been removed. It was not working
+  anymore as the SSL configuration is done a configuration time. The
+  main aws.gpr project file will now support SSL if AWS is built 
+  with SSL activated.
 
 
 Obsolescent features

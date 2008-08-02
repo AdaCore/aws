@@ -1,8 +1,7 @@
 ############################################################################
 #                              Ada Web Server                              #
 #                                                                          #
-#                         Copyright (C) 2003-2007                          #
-#                                 AdaCore                                  #
+#                     Copyright (C) 2003-2008, AdaCore                     #
 #                                                                          #
 #  This library is free software; you can redistribute it and/or modify    #
 #  it under the terms of the GNU General Public License as published by    #
@@ -71,7 +70,6 @@ install:
 	$(CP) templates_parser-* $(I_INC)
 	$(CP) projects/aws_components.gpr $(I_AGP)
 	$(CP) projects/aws.gpr $(I_GPR)
-	$(CP) projects/aws_ssl.gpr $(I_GPR)
 	$(CP) projects/*_lib.gpr $(I_AGP)
 	$(CP) projects/aws_shared.gpr $(I_AGP)
 	$(CP) projects/aws_libz.gpr $(I_AGP)
