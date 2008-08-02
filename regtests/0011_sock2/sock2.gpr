@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2006                          --
---                                 AdaCore                                  --
+--                        Copyright (C) 2008, AdaCore                       --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -26,13 +25,9 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  ~ MAIN [SSL]
+with "aws";
 
---  Test for big data send/receive.
-
-with Sock2_Proc;
-
-procedure Sock2_Sec is
-begin
-   Sock2_Proc (True, 4400);
-end Sock2_Sec;
+project Sock2 is
+   for Source_Dirs use (".", "../common");
+   for Main use ("sock2.adb");
+end Sock2;
