@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2008                            --
---                                ACT-Europe                                --
+--                        Copyright (C) 2008, AdaCore                       --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -29,7 +28,6 @@
 with "aws";
 
 project CTab is
-
-  for Source_Dirs use (".");
-  for Main use ("ctab.adb");
+   for Source_Dirs use (".");
+   for Main use ("ctab.adb");
 end CTab;
