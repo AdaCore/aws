@@ -95,6 +95,7 @@ regtests/test_all
 regtests/test_all.adb
 regtests/test_soap.netlog
 regtests/testsuite.duration*
+regtests/testsuite.tags
 regtests/testzlib.in
 regtests/testzlib.out
 regtests/testzlib.zlb
