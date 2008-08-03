@@ -23,10 +23,16 @@ def generate_tags(filename):
     for line in _makefile:
         # key=value
         key, value = tuple(line.rstrip().split('='))
-        if value == "true":
-            tags.append(key)
+        if key == "SOCKET":
+            if value == "std":
+                tags.append("!ssl")
+            else:
+                tags.append("ssl")
         else:
-            tags.append("!" + key)
+            if value == "true":
+                tags.append(key)
+            else:
+                tags.append("!" + key)
     _makefile.close()
 
     arch = Arch()
