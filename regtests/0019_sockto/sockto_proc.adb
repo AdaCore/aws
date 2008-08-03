@@ -25,7 +25,7 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  Regression test of the socket timeout.
+--  Regression test of the socket timeout
 
 with AWS.Net;
 with Ada.Streams;
@@ -55,7 +55,7 @@ procedure SockTO_Proc (Security : Boolean; Port : Positive) is
    procedure Get
      (Socket : in Net.Socket_Type'Class;
       Length : in Stream_Element_Count);
-   --  Read all data length.
+   --  Read all data length
 
    -----------------
    -- Client_Side --
