@@ -294,6 +294,7 @@ regtests/0012_sock2_sec/cert.pem
 regtests/0012_sock2_sec/sock2_proc.adb
 regtests/0012_sock2_sec/sock2_sec.adb
 regtests/0012_sock2_sec/sock2_sec.gpr
+regtests/0012_sock2_sec/test.opt
 regtests/0012_sock2_sec/test.out
 regtests/0012_sock2_sec/test.py
 regtests/0013_sock3/sock3.adb
