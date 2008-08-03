@@ -1,8 +1,7 @@
 ############################################################################
 #                              Ada Web Server                              #
 #                                                                          #
-#                         Copyright (C) 2003-2007                          #
-#                                 AdaCore                                  #
+#                     Copyright (C) 2003-2008, AdaCore                     #
 #                                                                          #
 #  This library is free software; you can redistribute it and/or modify    #
 #  it under the terms of the GNU General Public License as published by    #
@@ -384,6 +383,9 @@ endif
 	echo "   );" >> regtests_lst.gpr
 	echo "" >> regtests_lst.gpr
 	echo "end regtests_lst;" >> regtests_lst.gpr
+#
+	./gen_system_tags.py ../makefile.setup 2>/dev/null || \
+		(echo "Can not generate system tags. The test are disabled")
 
 check:
 

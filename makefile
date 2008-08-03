@@ -439,7 +439,7 @@ setup_release:
 setup_final: setup_config
 	$(MAKE) -C ssl $(GALL_OPTIONS) setup_config
 
-setup: setup_dir setup_debug setup_release setup_final setup_tp $(GEXT_MODULE)
+gen_setup:
 	echo "prefix=$(prefix)" > makefile.setup
 	echo "DEFAULT_LIBRARY_TYPE=$(DEFAULT_LIBRARY_TYPE)" >> makefile.setup
 	echo "ENABLE_SHARED=$(ENABLE_SHARED)" >> makefile.setup
@@ -449,8 +449,8 @@ setup: setup_dir setup_debug setup_release setup_final setup_tp $(GEXT_MODULE)
 	echo "SOCKET=$(SOCKET)" >> makefile.setup
 	echo "LDAP=$(LDAP)" >> makefile.setup
 	echo "DEBUG=$(DEBUG)" >> makefile.setup
-	(cd regtests; ./gen_system_tags.py ../makefile.setup 2>/dev/null) || \
-		(echo "Can not generate system tags. The test are disabled")
+
+setup: setup_dir setup_debug setup_release setup_final setup_tp $(GEXT_MODULE) gen_setup
 
 setup_tp:
 	$(MAKE) -C templates_parser setup $(GALL_OPTIONS)
