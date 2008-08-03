@@ -319,6 +319,10 @@ regtests/0016_sockext_sec/sockext_sec.adb
 regtests/0016_sockext_sec/test.opt
 regtests/0016_sockext_sec/test.out
 regtests/0016_sockext_sec/test.py
+regtests/0017_sockover/sockover.adb
+regtests/0017_sockover/sockover_proc.adb
+regtests/0017_sockover/test.out
+regtests/0017_sockover/test.py
 regtests/accs.adb
 regtests/accs.out
 regtests/accs_proc.adb
@@ -482,8 +486,6 @@ regtests/smtp_pck.adb
 regtests/smtp_pck.ads
 regtests/soapcheck.adb
 regtests/soapcheck.out
-regtests/sockover.adb
-regtests/sockover.out
 regtests/sockover_proc.adb
 regtests/sockover_sec.adb
 regtests/sockover_sec.out
