@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2004                          --
---                               ACT-Europe                                 --
+--                        Copyright (C) 2008, AdaCore                       --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -26,13 +25,9 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  ~ MAIN [SSL]
+with "aws";
 
---  Regression test of the secure socket timeout.
-
-with SockTO_Proc;
-
-procedure SSockTO is
-begin
-   SockTO_Proc (True, 4402);
-end SSockTO;
+project SSockTo is
+   for Source_Dirs use (".", "../common");
+   for Main use ("ssockto.adb");
+end SSockTo;

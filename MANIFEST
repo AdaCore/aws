@@ -333,6 +333,12 @@ regtests/0019_sockto/sockto.adb
 regtests/0019_sockto/sockto_proc.adb
 regtests/0019_sockto/test.out
 regtests/0019_sockto/test.py
+regtests/0020_ssockto/cert.pem
+regtests/0020_ssockto/sockto_proc.adb
+regtests/0020_ssockto/ssockto.adb
+regtests/0020_ssockto/test.opt
+regtests/0020_ssockto/test.out
+regtests/0020_ssockto/test.py
 regtests/accs.adb
 regtests/accs.out
 regtests/accs_proc.adb
@@ -522,8 +528,6 @@ regtests/ssback.out
 regtests/sslcfg.adb
 regtests/sslcfg.gnutls.out
 regtests/sslcfg.out
-regtests/ssockto.adb
-regtests/ssockto.out
 regtests/ssp.adb
 regtests/ssp.out
 regtests/ssto.adb
