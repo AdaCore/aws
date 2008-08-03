@@ -313,6 +313,12 @@ regtests/0015_sockext/sockext.adb
 regtests/0015_sockext/sockext_proc.adb
 regtests/0015_sockext/test.out
 regtests/0015_sockext/test.py
+regtests/0016_sockext_sec/cert.pem
+regtests/0016_sockext_sec/sockext_proc.adb
+regtests/0016_sockext_sec/sockext_sec.adb
+regtests/0016_sockext_sec/test.opt
+regtests/0016_sockext_sec/test.out
+regtests/0016_sockext_sec/test.py
 regtests/accs.adb
 regtests/accs.out
 regtests/accs_proc.adb
@@ -476,8 +482,6 @@ regtests/smtp_pck.adb
 regtests/smtp_pck.ads
 regtests/soapcheck.adb
 regtests/soapcheck.out
-regtests/sockext_sec.adb
-regtests/sockext_sec.out
 regtests/sockover.adb
 regtests/sockover.out
 regtests/sockover_proc.adb
