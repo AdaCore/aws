@@ -418,9 +418,15 @@ regtests/0034_append/append_pack.adb
 regtests/0034_append/append_pack.ads
 regtests/0034_append/test.out
 regtests/0034_append/test.py
+regtests/0035_append_sec/append_pack.adb
+regtests/0035_append_sec/append_pack.ads
+regtests/0035_append_sec/append_sec.adb
+regtests/0035_append_sec/append_sec.gpr
+regtests/0035_append_sec/cert.pem
+regtests/0035_append_sec/test.opt
+regtests/0035_append_sec/test.out
+regtests/0035_append_sec/test.py
 regtests/alldifs.out
-regtests/append_sec.adb
-regtests/append_sec.out
 regtests/attachment.adb
 regtests/attachment.out
 regtests/attachment1.txt
