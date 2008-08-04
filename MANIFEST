@@ -529,6 +529,11 @@ regtests/0054_file2/file2.adb
 regtests/0054_file2/file2.gpr
 regtests/0054_file2/test.out
 regtests/0054_file2/test.py
+regtests/0055_file/file.adb
+regtests/0055_file/file.gpr
+regtests/0055_file/test.out
+regtests/0055_file/test.py
+regtests/0055_file/zerolength.html
 regtests/alldifs.out
 regtests/aws.ini
 regtests/aws.mime
@@ -539,8 +544,6 @@ regtests/cmd.gdb
 regtests/common/get_free_port.adb
 regtests/error_strm.adb
 regtests/error_strm.ads
-regtests/file.adb
-regtests/file.out
 regtests/ftp.thtml
 regtests/gen_system_tags.py
 regtests/generate.adb
@@ -744,7 +747,6 @@ regtests/zapp.adb
 regtests/zapp.out
 regtests/zbig.adb
 regtests/zbig.out
-regtests/zerolength.html
 regtests/zfile.adb
 regtests/zfile.out
 regtests/zopen.adb
