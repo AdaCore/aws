@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                          Copyright (C) 2004-2008                         --
---                                  AdaCore                                 --
+--                     Copyright (C) 2004-2008, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -47,7 +46,7 @@ project Regtests is
 
    Common :=
      ("dispatch1.adb", "dispatch_method.adb", "dispatch_vh.adb", "tres.adb",
-      "upload2.adb", "upload3.adb", "server_config.adb", "tlog.adb");
+      "upload2.adb", "upload3.adb", "tlog.adb");
 
    --  Common tests using XMLADA support
 

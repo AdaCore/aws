@@ -78,7 +78,7 @@ endif
 
 OTH_TESTS      = tres wxrefs
 
-ALONE_TESTS    = server_config tlog pipe_stream
+ALONE_TESTS    = tlog pipe_stream
 
 ifeq (${XMLADA}, true)
 ifneq (${SOCKET}, std)

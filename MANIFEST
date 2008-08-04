@@ -361,6 +361,12 @@ regtests/0024_tcom/tcom.adb
 regtests/0024_tcom/tcom.gpr
 regtests/0024_tcom/test.out
 regtests/0024_tcom/test.py
+regtests/0025_server_config/aws.ini
+regtests/0025_server_config/server_config.adb
+regtests/0025_server_config/server_config.gpr
+regtests/0025_server_config/server_config.ini
+regtests/0025_server_config/test.out
+regtests/0025_server_config/test.py
 regtests/accs.adb
 regtests/accs.out
 regtests/accs_proc.adb
@@ -486,9 +492,6 @@ regtests/sback.adb
 regtests/sback.out
 regtests/sdig.adb
 regtests/sdig.out
-regtests/server_config.adb
-regtests/server_config.ini
-regtests/server_config.out
 regtests/server_info.adb
 regtests/server_info.out
 regtests/sessions.adb
