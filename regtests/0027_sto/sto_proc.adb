@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2004                            --
---                                ACT-Europe                                --
+--                     Copyright (C) 2004-2008, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -26,7 +25,7 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  Test for secure socket timeouts
+--  Test for socket timeouts
 
 with Ada.Text_IO;
 with Ada.Exceptions;
@@ -34,7 +33,7 @@ with Ada.Streams;
 
 with AWS.Net;
 
-procedure STO_Proc (Security : Boolean; Port : Positive) is
+procedure STO_Proc (Security : in Boolean; Port : in Positive) is
 
    use AWS;
    use Ada;
@@ -59,7 +58,7 @@ procedure STO_Proc (Security : Boolean; Port : Positive) is
    begin
       accept Start;
 
-      --  delay for accept timeout.
+      --  delay for accept timeout
 
       delay 1.5;
 

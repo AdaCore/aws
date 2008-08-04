@@ -371,6 +371,11 @@ regtests/0026_server_info/server_info.adb
 regtests/0026_server_info/server_info.gpr
 regtests/0026_server_info/test.out
 regtests/0026_server_info/test.py
+regtests/0027_sto/sto.adb
+regtests/0027_sto/sto.gpr
+regtests/0027_sto/sto_proc.adb
+regtests/0027_sto/test.out
+regtests/0027_sto/test.py
 regtests/accs.adb
 regtests/accs.out
 regtests/accs_proc.adb
@@ -553,9 +558,6 @@ regtests/ssp.adb
 regtests/ssp.out
 regtests/ssto.adb
 regtests/ssto.out
-regtests/sto.adb
-regtests/sto.out
-regtests/sto_proc.adb
 regtests/stream_response.adb
 regtests/stream_response.out
 regtests/strm.adb
