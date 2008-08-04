@@ -383,6 +383,10 @@ regtests/0028_ssto/sto_proc.adb
 regtests/0028_ssto/test.opt
 regtests/0028_ssto/test.out
 regtests/0028_ssto/test.py
+regtests/0029_simple/simple.adb
+regtests/0029_simple/simple.gpr
+regtests/0029_simple/test.out
+regtests/0029_simple/test.py
 regtests/accs.adb
 regtests/accs.out
 regtests/accs_proc.adb
@@ -520,8 +524,6 @@ regtests/sessions5.adb
 regtests/sessions5.out
 regtests/shutdown.adb
 regtests/shutdown.out
-regtests/simple.adb
-regtests/simple.out
 regtests/smem.adb
 regtests/smem.out
 regtests/smem_proc.adb
