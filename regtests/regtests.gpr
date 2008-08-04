@@ -50,7 +50,7 @@ project Regtests is
 
    --  Common tests using XMLADA support
 
-   Common_XMLADA := ("check_mem.adb", "test_speed.adb");
+   Common_XMLADA := ("test_speed.adb");
 
    case Mode is
       when "Generator" =>
@@ -118,7 +118,6 @@ project Regtests is
 
    package Linker is
       for Default_Switches ("Ada") use ("-g", "-L../lib");
-      for Switches ("check_mem.adb") use ("-L../lib", "-lgmem");
    end Linker;
 
    ---------

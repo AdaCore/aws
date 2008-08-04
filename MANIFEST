@@ -463,6 +463,14 @@ regtests/0042_change_dispatch/change_dispatch.adb
 regtests/0042_change_dispatch/change_dispatch.gpr
 regtests/0042_change_dispatch/test.out
 regtests/0042_change_dispatch/test.py
+regtests/0043_check_mem/cert.pem
+regtests/0043_check_mem/check_mem.adb
+regtests/0043_check_mem/check_mem.gpr
+regtests/0043_check_mem/check_mem.ini
+regtests/0043_check_mem/check_mem.tmplt
+regtests/0043_check_mem/split1.tmplt
+regtests/0043_check_mem/test.opt
+regtests/0043_check_mem/test.py
 regtests/alldifs.out
 regtests/aws.ini
 regtests/aws.mime
@@ -1358,9 +1366,6 @@ include/sha-process_data.ads
 include/sha-strings.adb
 include/sha-strings.ads
 include/sha.ads
-regtests/check_mem.adb
-regtests/check_mem.ini
-regtests/check_mem.tmplt
 regtests/datafeed_service.adb
 regtests/datafeed_service.out
 regtests/datafeed_service.wsdl
@@ -1570,8 +1575,6 @@ soap/soap-wsdl.ads
 soap/soap-xml.adb
 soap/soap-xml.ads
 soap/soap.ads
-templates_parser/regtests/check_mem.adb
-templates_parser/regtests/check_mem.tmplt
 templates_parser/regtests/translations_demo.adb
 templates_parser/regtests/translations_demo.out
 templates_parser/xsrc/templates_parser-xml.adb

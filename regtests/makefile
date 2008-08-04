@@ -82,7 +82,7 @@ ALONE_TESTS    = tlog pipe_stream
 
 ifeq (${XMLADA}, true)
 ifneq (${SOCKET}, std)
-OTH_TESTS     := $(OTH_TESTS) check_mem
+OTH_TESTS     := $(OTH_TESTS)
 endif
 
 WSDL_TESTS     = test_wsdl test_wsdl2 test_wsdl4 test_wsdl6 \
@@ -286,24 +286,6 @@ wxrefs:
 	-$(WEBXREF) -I -C -pi file_based wx_* >> wxrefs.res
 	-$(DIFF) wxrefs.out wxrefs.res 1>> alldifs 2>> alldifs
 
-# As this check is really target dependent what we do is to run twice the same
-# program, each time with a different number of HTTP requests, then we compare
-# the final non freed memory.
-
-check_mem: force
-	echo "Compiling " $@
-	$(GNAT) make -q -m -Pregtests -XTest_Mode=${TEST_MODE} $@
-	echo -n "Running  " check_mem
-	./check_mem 2 > check_mem.res
-	gnatmem 3 -i gmem.out ./check_mem$(EXEEXT) > check_mem.run1
-	grep "   Final" check_mem.run1 > run1
-	echo ",  run it again"
-	./check_mem 30 >> check_mem.res
-	gnatmem 3 -i gmem.out ./check_mem$(EXEEXT) > check_mem.run2
-	grep "   Final" check_mem.run2 > run2
-	-$(RM) ./check_mem$(EXEEXT)
-	-$(DIFF) run1 run2 1>> alldifs 2>> alldifs
-
 setup_dir:
 	-$(MKDIR) ../$(BDIR)/$(LIBRARY_TYPE)/obj/regtests
 	-$(MKDIR) generated
@@ -396,7 +378,7 @@ clean:
 	-$(RM) -f *.log *.res alldifs file[abc].txt* test_all.adb filez.tmplt
 	-$(RM) -f *.tmp alldifs s_mains.lst all_mains.lst
 	-$(RM) -f s_tsecxmlada.lst s_tsec.lst s_tstd.lst s_txmlada.lst
-	-$(RM) -f  run? check_mem.run?
+	-$(RM) -f run?
 	-$(RM) -fr generated icons
 	-$(RM) -f *~ .*~ res.ad\[sb\] res2.ad\[sb\]
 	-$(RM) -f file.tmp file1.html file2.html file3.html file.tmplt tresres*
