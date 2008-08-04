@@ -376,6 +376,13 @@ regtests/0027_sto/sto.gpr
 regtests/0027_sto/sto_proc.adb
 regtests/0027_sto/test.out
 regtests/0027_sto/test.py
+regtests/0028_ssto/cert.pem
+regtests/0028_ssto/ssto.adb
+regtests/0028_ssto/ssto.gpr
+regtests/0028_ssto/sto_proc.adb
+regtests/0028_ssto/test.opt
+regtests/0028_ssto/test.out
+regtests/0028_ssto/test.py
 regtests/accs.adb
 regtests/accs.out
 regtests/accs_proc.adb
@@ -556,8 +563,6 @@ regtests/sslcfg.gnutls.out
 regtests/sslcfg.out
 regtests/ssp.adb
 regtests/ssp.out
-regtests/ssto.adb
-regtests/ssto.out
 regtests/stream_response.adb
 regtests/stream_response.out
 regtests/strm.adb
