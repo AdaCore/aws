@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2003-2004                          --
---                                ACT-Europe                                --
+--                     Copyright (C) 2003-2008, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -26,8 +25,6 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  ~ MAIN [STD]
-
 with Ada.Text_IO;
 with AWS.Resources;
 with AWS.Utils;
@@ -47,7 +44,7 @@ begin
    Test ("filea.txt");
    Test ("fileb.txt.gz");
    Test ("fileb.txt");
-   Test ("../demos/adains.png");
+   Test ("adains.png");
    Test ("file1.txt");
    Test ("file2.txt.gz");
    Test ("file2.txt");
