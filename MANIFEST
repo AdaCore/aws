@@ -481,6 +481,12 @@ regtests/0045_datafeed_service/datafeed_service.wsdl
 regtests/0045_datafeed_service/test.opt
 regtests/0045_datafeed_service/test.out
 regtests/0045_datafeed_service/test.py
+regtests/0046_disp_soap/disp_soap.adb
+regtests/0046_disp_soap/disp_soap.gpr
+regtests/0046_disp_soap/disp_soap_proc.adb
+regtests/0046_disp_soap/test.opt
+regtests/0046_disp_soap/test.out
+regtests/0046_disp_soap/test.py
 regtests/alldifs.out
 regtests/aws.ini
 regtests/aws.mime
@@ -1374,9 +1380,6 @@ include/sha-process_data.ads
 include/sha-strings.adb
 include/sha-strings.ads
 include/sha.ads
-regtests/disp_soap.adb
-regtests/disp_soap.out
-regtests/disp_soap_proc.adb
 regtests/disp_soap_sec.adb
 regtests/disp_soap_sec.out
 regtests/framework.ads
