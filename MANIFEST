@@ -392,8 +392,12 @@ regtests/0030_accs/accs.gpr
 regtests/0030_accs/accs_proc.adb
 regtests/0030_accs/test.out
 regtests/0030_accs/test.py
-regtests/accs_sec.adb
-regtests/accs_sec.out
+regtests/0031_accs_sec/accs_proc.adb
+regtests/0031_accs_sec/accs_sec.adb
+regtests/0031_accs_sec/accs_sec.gpr
+regtests/0031_accs_sec/cert.pem
+regtests/0031_accs_sec/test.out
+regtests/0031_accs_sec/test.py
 regtests/afile.adb
 regtests/afile.out
 regtests/afile_pack.adb
