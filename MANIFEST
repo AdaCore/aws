@@ -387,9 +387,11 @@ regtests/0029_simple/simple.adb
 regtests/0029_simple/simple.gpr
 regtests/0029_simple/test.out
 regtests/0029_simple/test.py
-regtests/accs.adb
-regtests/accs.out
-regtests/accs_proc.adb
+regtests/0030_accs/accs.adb
+regtests/0030_accs/accs.gpr
+regtests/0030_accs/accs_proc.adb
+regtests/0030_accs/test.out
+regtests/0030_accs/test.py
 regtests/accs_sec.adb
 regtests/accs_sec.out
 regtests/afile.adb
