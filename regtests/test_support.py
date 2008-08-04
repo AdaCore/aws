@@ -50,15 +50,15 @@ def gprbuild(prj):
     else:
         logging.debug(p.out)
 
-def run(bin, output_file=None):
+def run(bin, options=[], output_file=None):
     """Run a test"""
     if output_file is None:
         output_file = "test.res"
     if config.use_gdb:
-        p = Run(["gdb", "--exec=" + bin, "--eval-command=run", "--batch"],
-                output=output_file)
+        p = Run(["gdb", "--exec=" + bin, "--eval-command=run", "--batch",
+                 "--args"] + options, output=output_file)
     else:
-        p = Run(["./" + bin], output=output_file)
+        p = Run(["./" + bin] + options, output=output_file)
     if p.status:
         # Exit with error
         logging.error(open(output_file).read())
@@ -67,7 +67,7 @@ def run(bin, output_file=None):
         logging.debug(open(output_file).read())
 
     if config.use_profiler:
-        Run(["gprof", bin],
+        Run(["gprof", bin] + options,
             output=os.path.join(config.profiles_dir,
                                 "%s_%s_gprof.out" % (TEST_NAME, bin)))
 
