@@ -433,6 +433,13 @@ regtests/0036_attachment/attachment2.txt
 regtests/0036_attachment/aws_logo.png
 regtests/0036_attachment/test.out
 regtests/0036_attachment/test.py
+regtests/0037_anytype/anytype.adb
+regtests/0037_anytype/anytype.gpr
+regtests/0037_anytype/anytype.java
+regtests/0037_anytype/anytype.wsdl
+regtests/0037_anytype/test.opt
+regtests/0037_anytype/test.out
+regtests/0037_anytype/test.py
 regtests/alldifs.out
 regtests/auth1.adb
 regtests/auth1.out
@@ -1337,10 +1344,6 @@ include/sha-process_data.ads
 include/sha-strings.adb
 include/sha-strings.ads
 include/sha.ads
-regtests/anytype.adb
-regtests/anytype.java
-regtests/anytype.out
-regtests/anytype.wsdl
 regtests/check_mem.adb
 regtests/check_mem.ini
 regtests/check_mem.tmplt
