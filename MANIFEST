@@ -459,6 +459,10 @@ regtests/0041_cert/client.pem
 regtests/0041_cert/test.opt
 regtests/0041_cert/test.out
 regtests/0041_cert/test.py
+regtests/0042_change_dispatch/change_dispatch.adb
+regtests/0042_change_dispatch/change_dispatch.gpr
+regtests/0042_change_dispatch/test.out
+regtests/0042_change_dispatch/test.py
 regtests/alldifs.out
 regtests/aws.ini
 regtests/aws.mime
