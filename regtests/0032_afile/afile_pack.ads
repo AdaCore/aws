@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2004                            --
---                               ACT-Europe                                 --
+--                     Copyright (C) 2004-2008, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -26,14 +25,10 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  ~ MAIN [STD]
-
 --  Test file as attachment
 
-with AFile_Pack;
-with Get_Free_Port;
+package AFile_Pack is
 
-procedure AFile is
-begin
-   AFile_Pack.Run ("http");
-end AFile;
+   procedure Run (Protocol : String);
+
+end AFile_Pack;

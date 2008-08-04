@@ -398,10 +398,12 @@ regtests/0031_accs_sec/accs_sec.gpr
 regtests/0031_accs_sec/cert.pem
 regtests/0031_accs_sec/test.out
 regtests/0031_accs_sec/test.py
-regtests/afile.adb
-regtests/afile.out
-regtests/afile_pack.adb
-regtests/afile_pack.ads
+regtests/0032_afile/afile.adb
+regtests/0032_afile/afile.gpr
+regtests/0032_afile/afile_pack.adb
+regtests/0032_afile/afile_pack.ads
+regtests/0032_afile/test.out
+regtests/0032_afile/test.py
 regtests/afile_sec.adb
 regtests/afile_sec.out
 regtests/alldifs.out
