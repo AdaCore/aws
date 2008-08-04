@@ -160,20 +160,6 @@ init:
 	cp ../demos/cert.pem .
 	echo "" > alldifs
 	echo "### Every output after this line is a regression ###" >> alldifs
-	-$(RM) file[abc].txt* > /dev/null 2>&1
-	echo Preparing zres
-	echo "content of filea.txt" > filea.txt
-	echo "content of fileb.txt" > fileb.txt
-	echo "content of filec.txt" > filec.txt
-	-$(GZIP) -2 fileb.txt > /dev/null 2>&1
-	-$(GZIP) -9 filec.txt > /dev/null 2>&1
-	echo "line 1, file 1" > file1.txt
-	echo "line 2, file 1" >> file1.txt
-	echo "line 1, file 2" > file2.txt
-	echo "line 2, file 2" >> file2.txt
-	echo "line 3, file 2" >> file2.txt
-	echo "Number @_ONE_@ following by @_TWO_@." > filez.tmplt
-	$(AWSRES) -q -r zresres file1.txt -z file2.txt filez.tmplt
 	echo Preparing tres
 	echo "line 1, file 1" > file1.html
 	echo "line 2, file 1" >> file1.html
@@ -382,4 +368,4 @@ clean:
 	-$(RM) -f *~ .*~ res.ad\[sb\] res2.ad\[sb\]
 	-$(RM) -f file.tmp file1.html file2.html file3.html file.tmplt tresres*
 	-$(RM) -f ?.upload.* cert.pem gmem.out
-	-$(RM) -fr WSDL_6 wsdl_6.class zresres*
+	-$(RM) -fr WSDL_6 wsdl_6.class

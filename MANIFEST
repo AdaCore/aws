@@ -525,6 +525,10 @@ regtests/0053_eres/eres.adb
 regtests/0053_eres/eres.gpr
 regtests/0053_eres/test.out
 regtests/0053_eres/test.py
+regtests/0054_file2/file2.adb
+regtests/0054_file2/file2.gpr
+regtests/0054_file2/test.out
+regtests/0054_file2/test.py
 regtests/alldifs.out
 regtests/aws.ini
 regtests/aws.mime
@@ -537,8 +541,6 @@ regtests/error_strm.adb
 regtests/error_strm.ads
 regtests/file.adb
 regtests/file.out
-regtests/file2.adb
-regtests/file2.out
 regtests/ftp.thtml
 regtests/gen_system_tags.py
 regtests/generate.adb
