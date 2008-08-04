@@ -357,6 +357,10 @@ regtests/0023_param2/param2.adb
 regtests/0023_param2/param2.gpr
 regtests/0023_param2/test.out
 regtests/0023_param2/test.py
+regtests/0024_tcom/tcom.adb
+regtests/0024_tcom/tcom.gpr
+regtests/0024_tcom/test.out
+regtests/0024_tcom/test.py
 regtests/accs.adb
 regtests/accs.out
 regtests/accs_proc.adb
@@ -555,8 +559,6 @@ regtests/strm2.adb
 regtests/strm2.out
 regtests/tclientto.adb
 regtests/tclientto.out
-regtests/tcom.adb
-regtests/tcom.out
 regtests/test_hotplug.adb
 regtests/test_hotplug.out
 regtests/test_net_log.adb
