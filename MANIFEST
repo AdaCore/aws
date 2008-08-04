@@ -538,6 +538,12 @@ regtests/0056_get_post/get_post.adb
 regtests/0056_get_post/get_post.gpr
 regtests/0056_get_post/test.out
 regtests/0056_get_post/test.py
+regtests/0057_googlesearch/googlesearch.adb
+regtests/0057_googlesearch/googlesearch.gpr
+regtests/0057_googlesearch/googlesearch.wsdl
+regtests/0057_googlesearch/test.opt
+regtests/0057_googlesearch/test.out
+regtests/0057_googlesearch/test.py
 regtests/alldifs.out
 regtests/aws.ini
 regtests/aws.mime
@@ -1408,9 +1414,6 @@ include/sha-strings.adb
 include/sha-strings.ads
 include/sha.ads
 regtests/framework.ads
-regtests/googlesearch.adb
-regtests/googlesearch.out
-regtests/googlesearch.wsdl
 regtests/interoplab_main1.adb
 regtests/interoplab_main1.out
 regtests/interoplab_main1.wsdl

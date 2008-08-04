@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2003-2008                          --
---                                 AdaCore                                  --
+--                     Copyright (C) 2003-2008, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -28,8 +27,6 @@
 
 --  Dummy body to check that the client and server code generated from WSDL
 --  compile without problem.
-
---  ~ MAIN [XMLADA]
 
 with Ada.Text_IO;
 with GoogleSearchService.Client;
