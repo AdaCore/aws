@@ -471,6 +471,10 @@ regtests/0043_check_mem/check_mem.tmplt
 regtests/0043_check_mem/split1.tmplt
 regtests/0043_check_mem/test.opt
 regtests/0043_check_mem/test.py
+regtests/0044_connect_timeout/connect_timeout.adb
+regtests/0044_connect_timeout/connect_timeout.gpr
+regtests/0044_connect_timeout/test.out
+regtests/0044_connect_timeout/test.py
 regtests/alldifs.out
 regtests/aws.ini
 regtests/aws.mime
@@ -481,8 +485,6 @@ regtests/back_pack.ads
 regtests/cm_include.tmplt
 regtests/cmd.gdb
 regtests/common/get_free_port.adb
-regtests/connect_timeout.adb
-regtests/connect_timeout.out
 regtests/dispatch1.adb
 regtests/dispatch1.ini
 regtests/dispatch1.out
