@@ -339,6 +339,10 @@ regtests/0020_ssockto/ssockto.adb
 regtests/0020_ssockto/test.opt
 regtests/0020_ssockto/test.out
 regtests/0020_ssockto/test.py
+regtests/0021_dummy/dummy.adb
+regtests/0021_dummy/dummy.gpr
+regtests/0021_dummy/test.out
+regtests/0021_dummy/test.py
 regtests/accs.adb
 regtests/accs.out
 regtests/accs_proc.adb
@@ -394,8 +398,6 @@ regtests/dispatch_with_unregister.adb
 regtests/dispatch_with_unregister.out
 regtests/dm.adb
 regtests/dm.out
-regtests/dummy.adb
-regtests/dummy.out
 regtests/eres.adb
 regtests/eres.out
 regtests/error_strm.adb
