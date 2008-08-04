@@ -487,6 +487,13 @@ regtests/0046_disp_soap/disp_soap_proc.adb
 regtests/0046_disp_soap/test.opt
 regtests/0046_disp_soap/test.out
 regtests/0046_disp_soap/test.py
+regtests/0047_disp_soap_sec/cert.pem
+regtests/0047_disp_soap_sec/disp_soap_proc.adb
+regtests/0047_disp_soap_sec/disp_soap_sec.adb
+regtests/0047_disp_soap_sec/disp_soap_sec.gpr
+regtests/0047_disp_soap_sec/test.opt
+regtests/0047_disp_soap_sec/test.out
+regtests/0047_disp_soap_sec/test.py
 regtests/alldifs.out
 regtests/aws.ini
 regtests/aws.mime
@@ -1380,8 +1387,6 @@ include/sha-process_data.ads
 include/sha-strings.adb
 include/sha-strings.ads
 include/sha.ads
-regtests/disp_soap_sec.adb
-regtests/disp_soap_sec.out
 regtests/framework.ads
 regtests/googlesearch.adb
 regtests/googlesearch.out
