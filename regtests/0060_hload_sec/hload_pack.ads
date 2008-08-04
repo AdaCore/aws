@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2004                            --
---                                ACT-Europe                                --
+--                     Copyright (C) 2004-2008, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -26,13 +25,13 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  Test for heavy loading SSL server.
+--  Test for heavy loading
 
---  ~ MAIN [SSL]
+package HLoad_Pack is
 
-with HLoad_Pack;
+   procedure Run
+     (Protocol : in String;
+      Port     : in Positive;
+      Timed    : in Boolean := False);
 
-procedure HLoad_Sec is
-begin
-   HLoad_Pack.Run ("https", 4321);
-end HLoad_Sec;
+end HLoad_Pack;
