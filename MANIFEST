@@ -444,9 +444,11 @@ regtests/0038_compress/compress.adb
 regtests/0038_compress/compress.gpr
 regtests/0038_compress/test.out
 regtests/0038_compress/test.py
+regtests/0039_auth1/auth1.adb
+regtests/0039_auth1/auth1.gpr
+regtests/0039_auth1/test.out
+regtests/0039_auth1/test.py
 regtests/alldifs.out
-regtests/auth1.adb
-regtests/auth1.out
 regtests/auth2.adb
 regtests/auth2.out
 regtests/aws.ini

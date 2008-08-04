@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2008                          --
---                                 AdaCore                                  --
+--                     Copyright (C) 2000-2008, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -25,8 +24,6 @@
 --  however invalidate any other reasons why the executable file  might be  --
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
-
---  ~ MAIN [STD]
 
 with Ada.Text_IO;
 with Ada.Exceptions;
@@ -160,7 +157,7 @@ begin
       Host       => "http://localhost:" & Utils.Image (Port),
       Timeouts   => (5.0, 5.0, 5.0));
 
-   --  Test for basic authentication.
+   --  Test for basic authentication
 
    Client.Set_WWW_Authentication
      (Connect, Auth_Username, "Wrong_Password", Client.Basic);
@@ -175,7 +172,7 @@ begin
    Put_Line ("-> " & Messages.Image (Response.Status_Code (R)));
    Put_Line ("-> " & Response.Message_Body (R));
 
-   --  Test for digest authentication.
+   --  Test for digest authentication
 
    Client.Set_WWW_Authentication
      (Connect, Auth_Username, "Wrong_Password", Client.Digest);
@@ -190,7 +187,7 @@ begin
    Put_Line ("-> " & Messages.Image (Response.Status_Code (R)));
    Put_Line ("-> " & Response.Message_Body (R));
 
-   --  Test for strongest authentication.
+   --  Test for strongest authentication
 
    Client.Set_WWW_Authentication
      (Connect, Auth_Username, "Wrong_Password", Client.Any);
