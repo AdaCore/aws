@@ -581,6 +581,10 @@ regtests/0064_zopen/test.out
 regtests/0064_zopen/test.py
 regtests/0064_zopen/zopen.adb
 regtests/0064_zopen/zopen.gpr
+regtests/0065_page_server/page_server.adb
+regtests/0065_page_server/page_server.gpr
+regtests/0065_page_server/test.out
+regtests/0065_page_server/test.py
 regtests/alldifs.out
 regtests/aws.ini
 regtests/aws.mime
@@ -625,8 +629,6 @@ regtests/nbconn_sec.adb
 regtests/nbconn_sec.out
 regtests/no_param.adb
 regtests/no_param.out
-regtests/page_server.adb
-regtests/page_server.out
 regtests/partial.adb
 regtests/partial.out
 regtests/pck.adb
