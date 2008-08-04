@@ -573,6 +573,10 @@ regtests/0062_smtp_2/smtp_pck.adb
 regtests/0062_smtp_2/smtp_pck.ads
 regtests/0062_smtp_2/test.out
 regtests/0062_smtp_2/test.py
+regtests/0063_zres/test.out
+regtests/0063_zres/test.py
+regtests/0063_zres/zres.adb
+regtests/0063_zres/zres.gpr
 regtests/alldifs.out
 regtests/aws.ini
 regtests/aws.mime
@@ -774,8 +778,6 @@ regtests/zfile.adb
 regtests/zfile.out
 regtests/zopen.adb
 regtests/zopen.out
-regtests/zres.adb
-regtests/zres.out
 regtests/zstrm.adb
 regtests/zstrm.out
 regtests/zstrm2.adb
