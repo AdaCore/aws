@@ -534,6 +534,10 @@ regtests/0055_file/file.gpr
 regtests/0055_file/test.out
 regtests/0055_file/test.py
 regtests/0055_file/zerolength.html
+regtests/0056_get_post/get_post.adb
+regtests/0056_get_post/get_post.gpr
+regtests/0056_get_post/test.out
+regtests/0056_get_post/test.py
 regtests/alldifs.out
 regtests/aws.ini
 regtests/aws.mime
@@ -548,8 +552,6 @@ regtests/ftp.thtml
 regtests/gen_system_tags.py
 regtests/generate.adb
 regtests/get_free_port.adb
-regtests/get_post.adb
-regtests/get_post.out
 regtests/head.adb
 regtests/head.out
 regtests/hload.adb
