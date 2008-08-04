@@ -452,6 +452,13 @@ regtests/0040_auth2/auth2.adb
 regtests/0040_auth2/auth2.gpr
 regtests/0040_auth2/test.out
 regtests/0040_auth2/test.py
+regtests/0041_cert/cert.adb
+regtests/0041_cert/cert.gpr
+regtests/0041_cert/cert.pem
+regtests/0041_cert/client.pem
+regtests/0041_cert/test.opt
+regtests/0041_cert/test.out
+regtests/0041_cert/test.py
 regtests/alldifs.out
 regtests/aws.ini
 regtests/aws.mime
@@ -459,9 +466,6 @@ regtests/aws_download_manager_start.thtml
 regtests/aws_download_manager_waiting.thtml
 regtests/back_pack.adb
 regtests/back_pack.ads
-regtests/cert.adb
-regtests/cert.out
-regtests/client.pem
 regtests/cm_include.tmplt
 regtests/cmd.gdb
 regtests/common/get_free_port.adb

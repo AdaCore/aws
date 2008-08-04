@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2003-2007                          --
---                                 AdaCore                                  --
+--                     Copyright (C) 2003-2008, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -29,8 +28,6 @@
 --  This must be the exact same test than tgetparam. The only difference is
 --  that it uses HTTPS protocol. We test that output is the same as the non
 --  secure version.
-
---  ~ MAIN [SSL]
 
 with Ada.Text_IO;
 with Ada.Exceptions;
