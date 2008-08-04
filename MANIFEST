@@ -544,6 +544,10 @@ regtests/0057_googlesearch/googlesearch.wsdl
 regtests/0057_googlesearch/test.opt
 regtests/0057_googlesearch/test.out
 regtests/0057_googlesearch/test.py
+regtests/0058_head/head.adb
+regtests/0058_head/head.gpr
+regtests/0058_head/test.out
+regtests/0058_head/test.py
 regtests/alldifs.out
 regtests/aws.ini
 regtests/aws.mime
@@ -558,8 +562,6 @@ regtests/ftp.thtml
 regtests/gen_system_tags.py
 regtests/generate.adb
 regtests/get_free_port.adb
-regtests/head.adb
-regtests/head.out
 regtests/hload.adb
 regtests/hload.out
 regtests/hload_pack.adb
