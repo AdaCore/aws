@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2004-2008                          --
---                                 AdaCore                                  --
+--                     Copyright (C) 2004-2008, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -25,8 +24,6 @@
 --  however invalidate any other reasons why the executable file  might be  --
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
-
---  ~ MAIN [STD]
 
 with Ada.Streams.Stream_IO;
 with Ada.Text_IO;
@@ -143,7 +140,7 @@ begin
 
    AWS.Attachments.Add
      (Attachments => Att,
-      Filename    => "../demos/aws_logo.png",
+      Filename    => "aws_logo.png",
       Content_Id  => "My-Png-Attachment");
 
    Server.Started;
