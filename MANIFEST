@@ -353,6 +353,10 @@ regtests/0022_param/param.adb
 regtests/0022_param/param.gpr
 regtests/0022_param/test.out
 regtests/0022_param/test.py
+regtests/0023_param2/param2.adb
+regtests/0023_param2/param2.gpr
+regtests/0023_param2/test.out
+regtests/0023_param2/test.py
 regtests/accs.adb
 regtests/accs.out
 regtests/accs_proc.adb
@@ -462,8 +466,6 @@ regtests/no_param.adb
 regtests/no_param.out
 regtests/page_server.adb
 regtests/page_server.out
-regtests/param2.adb
-regtests/param2.out
 regtests/partial.adb
 regtests/partial.out
 regtests/pck.adb
