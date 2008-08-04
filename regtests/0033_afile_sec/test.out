@@ -1,10 +1,10 @@
 started
-first   = inline; filename="afile.out"
-second  = attachment; filename="afile.out"
+first   = inline; filename="test.out"
+second  = attachment; filename="test.out"
 third   = inline; filename="you_got_this.o"
 fourth  = attachment; filename="you_got_this.o"
-fifth   = inline; filename="afile.out"
-sixth   = attachment; filename="afile.out"
+fifth   = inline; filename="test.out"
+sixth   = attachment; filename="test.out"
 seventh = inline; filename="a_stream.o"
 eighth  = attachment; filename="a_stream.o"
 nineth  = 

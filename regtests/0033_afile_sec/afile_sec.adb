@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2004                            --
---                               ACT-Europe                                 --
+--                     Copyright (C) 2004-2008, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -27,8 +26,6 @@
 ------------------------------------------------------------------------------
 
 --  Test file as attachment
-
---  ~ MAIN [SSL]
 
 with AFile_Pack;
 

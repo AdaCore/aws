@@ -404,8 +404,14 @@ regtests/0032_afile/afile_pack.adb
 regtests/0032_afile/afile_pack.ads
 regtests/0032_afile/test.out
 regtests/0032_afile/test.py
-regtests/afile_sec.adb
-regtests/afile_sec.out
+regtests/0033_afile_sec/afile_pack.adb
+regtests/0033_afile_sec/afile_pack.ads
+regtests/0033_afile_sec/afile_sec.adb
+regtests/0033_afile_sec/afile_sec.gpr
+regtests/0033_afile_sec/cert.pem
+regtests/0033_afile_sec/test.opt
+regtests/0033_afile_sec/test.out
+regtests/0033_afile_sec/test.py
 regtests/alldifs.out
 regtests/append.adb
 regtests/append.out
