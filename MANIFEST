@@ -494,6 +494,11 @@ regtests/0047_disp_soap_sec/disp_soap_sec.gpr
 regtests/0047_disp_soap_sec/test.opt
 regtests/0047_disp_soap_sec/test.out
 regtests/0047_disp_soap_sec/test.py
+regtests/0048_dispatch1/dispatch1.adb
+regtests/0048_dispatch1/dispatch1.gpr
+regtests/0048_dispatch1/dispatch1.ini
+regtests/0048_dispatch1/test.out
+regtests/0048_dispatch1/test.py
 regtests/alldifs.out
 regtests/aws.ini
 regtests/aws.mime
@@ -504,9 +509,6 @@ regtests/back_pack.ads
 regtests/cm_include.tmplt
 regtests/cmd.gdb
 regtests/common/get_free_port.adb
-regtests/dispatch1.adb
-regtests/dispatch1.ini
-regtests/dispatch1.out
 regtests/dispatch_method.adb
 regtests/dispatch_method.ini
 regtests/dispatch_method.out
