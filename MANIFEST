@@ -562,6 +562,10 @@ regtests/0060_hload_sec/hload_sec.gpr
 regtests/0060_hload_sec/test.opt
 regtests/0060_hload_sec/test.out
 regtests/0060_hload_sec/test.py
+regtests/0061_smtp/smtp.adb
+regtests/0061_smtp/smtp.gpr
+regtests/0061_smtp/test.out
+regtests/0061_smtp/test.py
 regtests/alldifs.out
 regtests/aws.ini
 regtests/aws.mime
@@ -641,8 +645,6 @@ regtests/smem.out
 regtests/smem_proc.adb
 regtests/smem_sec.adb
 regtests/smem_sec.out
-regtests/smtp.adb
-regtests/smtp.out
 regtests/smtp_2.adb
 regtests/smtp_2.out
 regtests/smtp_pck.adb

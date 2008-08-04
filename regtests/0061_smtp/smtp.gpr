@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2004                            --
---                                ACT-Europe                                --
+--                        Copyright (C) 2008, AdaCore                       --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -26,24 +25,9 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  ~ MAIN [STD]
+with "aws";
 
-with Ada.Text_IO;
-with AWS.SMTP;
-
-procedure SMTP is
-
-   use Ada;
-   use AWS;
-
-   procedure Display (E : in AWS.SMTP.E_Mail_Data) is
-   begin
-      Text_IO.Put_Line ("Name    " & AWS.SMTP.Image (E, AWS.SMTP.Name));
-      Text_IO.Put_Line ("Address " & AWS.SMTP.Image (E, AWS.SMTP.Address));
-      Text_IO.Put_Line ("        " & AWS.SMTP.Image (E, AWS.SMTP.Full));
-   end Display;
-
-begin
-   Display (AWS.SMTP.Parse ("Pascal Obry <p.obry@domain.com>"));
-   Display (AWS.SMTP.Parse ("p.obry@domain.com (Pascal Obry)"));
+project SMTP is
+   for Source_Dirs use (".");
+   for Main use ("smtp.adb");
 end SMTP;
