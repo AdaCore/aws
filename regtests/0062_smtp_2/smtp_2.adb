@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2008                            --
---                                 AdaCore                                  --
+--                       Copyright (C) 2008, AdaCore                        --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -26,8 +25,6 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  ~ MAIN [STD]
-
 with Ada.Exceptions;
 with Ada.Text_IO;
 
@@ -48,7 +45,7 @@ procedure SMTP_2 is
 
    From_Name  : constant String := "My Name";
    From_Email : constant String := "my.name@righthere.fr";
-   Filename   : constant String := "./icons/ada.gif";
+   Filename   : constant String := "ada.gif";
 
    Port   : Positive := 9025;
    Host   : SMTP.Receiver;
