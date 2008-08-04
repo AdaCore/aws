@@ -3,7 +3,7 @@ Server started
 
 Ok, exception received on the server side
   => ADA.IO_EXCEPTIONS.NAME_ERROR
-  => Cannot create file /this/one/does/not/exists/.append.out
+  => Cannot create file /this/one/does/not/exists/.test.out
 => Sorry the server is temporarily unavailable.
 
 Server stopped
