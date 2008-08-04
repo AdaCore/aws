@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2004                            --
---                                ACT-Europe                                --
+--                        Copyright (C) 2008, AdaCore                       --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -26,13 +25,9 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  ~ MAIN [STD]
+with "aws";
 
---  Test for heavy loading.
-
-with HLoad_Pack;
-
-procedure HLoad is
-begin
-   HLoad_Pack.Run ("http", 1234);
+project HLoad is
+   for Source_Dirs use (".", "../common");
+   for Main use ("hload.adb");
 end HLoad;

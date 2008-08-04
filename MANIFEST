@@ -548,6 +548,12 @@ regtests/0058_head/head.adb
 regtests/0058_head/head.gpr
 regtests/0058_head/test.out
 regtests/0058_head/test.py
+regtests/0059_hload/hload.adb
+regtests/0059_hload/hload.gpr
+regtests/0059_hload/hload_pack.adb
+regtests/0059_hload/hload_pack.ads
+regtests/0059_hload/test.out
+regtests/0059_hload/test.py
 regtests/alldifs.out
 regtests/aws.ini
 regtests/aws.mime
@@ -562,10 +568,6 @@ regtests/ftp.thtml
 regtests/gen_system_tags.py
 regtests/generate.adb
 regtests/get_free_port.adb
-regtests/hload.adb
-regtests/hload.out
-regtests/hload_pack.adb
-regtests/hload_pack.ads
 regtests/hload_sec.adb
 regtests/hload_sec.out
 regtests/hostip.adb
