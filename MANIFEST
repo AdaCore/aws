@@ -475,6 +475,12 @@ regtests/0044_connect_timeout/connect_timeout.adb
 regtests/0044_connect_timeout/connect_timeout.gpr
 regtests/0044_connect_timeout/test.out
 regtests/0044_connect_timeout/test.py
+regtests/0045_datafeed_service/datafeed_service.adb
+regtests/0045_datafeed_service/datafeed_service.gpr
+regtests/0045_datafeed_service/datafeed_service.wsdl
+regtests/0045_datafeed_service/test.opt
+regtests/0045_datafeed_service/test.out
+regtests/0045_datafeed_service/test.py
 regtests/alldifs.out
 regtests/aws.ini
 regtests/aws.mime
@@ -1368,9 +1374,6 @@ include/sha-process_data.ads
 include/sha-strings.adb
 include/sha-strings.ads
 include/sha.ads
-regtests/datafeed_service.adb
-regtests/datafeed_service.out
-regtests/datafeed_service.wsdl
 regtests/disp_soap.adb
 regtests/disp_soap.out
 regtests/disp_soap_proc.adb
