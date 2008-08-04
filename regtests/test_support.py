@@ -51,7 +51,7 @@ def gprbuild(prj):
         logging.debug(p.out)
 
 def run(bin, output_file=None):
-    """Execute a binary"""
+    """Run a test"""
     if output_file is None:
         output_file = "test.res"
     if config.use_gdb:
@@ -70,6 +70,18 @@ def run(bin, output_file=None):
         Run(["gprof", bin],
             output=os.path.join(config.profiles_dir,
                                 "%s_%s_gprof.out" % (TEST_NAME, bin)))
+
+def exec_cmd(bin, options=[], output_file=None):
+    """Execute a binary"""
+    if output_file is None:
+        output_file = bin + ".res"
+    p = Run([bin] + options, output=output_file)
+    if p.status:
+        # Exit with error
+        logging.error(open(output_file).read())
+        sys.exit(p.status)
+    else:
+        logging.debug(open(output_file).read())
 
 def diff(left=None, right=None):
     if left is None:
