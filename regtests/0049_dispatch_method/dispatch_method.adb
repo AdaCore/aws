@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                          Copyright (C) 2003-2004                         --
---                                ACT-Europe                                --
+--                     Copyright (C) 2003-2008, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -25,8 +24,6 @@
 --  however invalidate any other reasons why the executable file  might be  --
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
-
---  ~ MAIN [STD]
 
 with Ada.Exceptions;
 with Ada.Text_IO;
@@ -119,7 +116,7 @@ begin
       Text_IO.Put_Line ("> " & Integer'Image (Response.Content_Length (R)));
    end;
 
-   --  Close servers.
+   --  Close servers
 
    AWS.Server.Shutdown (WS);
 

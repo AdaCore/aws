@@ -499,6 +499,11 @@ regtests/0048_dispatch1/dispatch1.gpr
 regtests/0048_dispatch1/dispatch1.ini
 regtests/0048_dispatch1/test.out
 regtests/0048_dispatch1/test.py
+regtests/0049_dispatch_method/dispatch_method.adb
+regtests/0049_dispatch_method/dispatch_method.gpr
+regtests/0049_dispatch_method/dispatch_method.ini
+regtests/0049_dispatch_method/test.out
+regtests/0049_dispatch_method/test.py
 regtests/alldifs.out
 regtests/aws.ini
 regtests/aws.mime
@@ -509,9 +514,6 @@ regtests/back_pack.ads
 regtests/cm_include.tmplt
 regtests/cmd.gdb
 regtests/common/get_free_port.adb
-regtests/dispatch_method.adb
-regtests/dispatch_method.ini
-regtests/dispatch_method.out
 regtests/dispatch_vh.adb
 regtests/dispatch_vh.ini
 regtests/dispatch_vh.out
