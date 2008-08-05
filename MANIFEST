@@ -740,6 +740,11 @@ regtests/0096_soap1/soap1.gpr
 regtests/0096_soap1/test.opt
 regtests/0096_soap1/test.out
 regtests/0096_soap1/test.py
+regtests/0097_soap2/soap2.adb
+regtests/0097_soap2/soap2.gpr
+regtests/0097_soap2/test.opt
+regtests/0097_soap2/test.out
+regtests/0097_soap2/test.py
 regtests/alldifs.out
 regtests/aws.ini
 regtests/aws.mime
@@ -1525,8 +1530,6 @@ include/sha.ads
 regtests/framework.ads
 regtests/register.ads
 regtests/register.out
-regtests/soap2.adb
-regtests/soap2.out
 regtests/soap3.adb
 regtests/soap3.out
 regtests/soap4.adb
