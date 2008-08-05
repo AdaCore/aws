@@ -632,6 +632,11 @@ regtests/0074_multiple/multiple.adb
 regtests/0074_multiple/multiple.gpr
 regtests/0074_multiple/test.out
 regtests/0074_multiple/test.py
+regtests/0075_nbconn/nbconn.adb
+regtests/0075_nbconn/nbconn.gpr
+regtests/0075_nbconn/nbconn_proc.adb
+regtests/0075_nbconn/test.out
+regtests/0075_nbconn/test.py
 regtests/alldifs.out
 regtests/aws.ini
 regtests/aws.mime
@@ -650,9 +655,6 @@ regtests/hotplug_pack.adb
 regtests/hotplug_pack.ads
 regtests/makefile
 regtests/makefile.lst
-regtests/nbconn.adb
-regtests/nbconn.out
-regtests/nbconn_proc.adb
 regtests/nbconn_sec.adb
 regtests/nbconn_sec.out
 regtests/no_param.adb

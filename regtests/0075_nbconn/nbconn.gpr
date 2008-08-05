@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2004                            --
---                               ACT-Europe                                 --
+--                        Copyright (C) 2008, AdaCore                       --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -26,13 +25,9 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  Test for non blocking connection
+with "aws";
 
---  ~ MAIN [STD]
-
-with NBConn_Proc;
-
-procedure NBConn is
-begin
-   NBConn_Proc (False);
-end NBConn;
+project NbConn is
+   for Source_Dirs use (".", "../common");
+   for Main use ("nbconn.adb");
+end NbConn;
