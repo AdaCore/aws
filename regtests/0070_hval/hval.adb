@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2004                          --
---                               ACT-Europe                                 --
+--                     Copyright (C) 2000-2008, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -25,8 +24,6 @@
 --  however invalidate any other reasons why the executable file  might be  --
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
-
---  ~ MAIN [STD]
 
 with Ada.Exceptions; use Ada.Exceptions;
 with Ada.Text_IO;    use Ada.Text_IO;
@@ -90,7 +87,7 @@ procedure HVal is
 
       Put_Line ("----------");
 
-      --  call the instantiated routine.
+      --  call the instantiated routine
       Test_Parse (Data);
 
       New_Line;
@@ -110,13 +107,13 @@ begin
    Put_Line (Search (Test_7, "name_2"));
    Put_Line (Search (Test_7, "name_3"));
    Put_Line (Search (Test_7, "NAME_4", False));
-   Put_Line (Search (Test_7, "NAME_4")); -- should be empty line.
-   Put_Line (Search ("", "nothing")); -- test for empty input string.
+   Put_Line (Search (Test_7, "NAME_4")); -- should be empty line
+   Put_Line (Search ("", "nothing")); -- test for empty input string
    Put_Line (Get_Unnamed_Value (Test_7, 1));
    Put_Line (Get_Unnamed_Value (Test_7, 2));
    Put_Line (Get_Unnamed_Value (Test_7, 3));
    Put_Line (Get_Unnamed_Value (Test_7, 4)); -- should be empty line
-   Put_Line (Get_Unnamed_Value ("", 2)); -- test for empty input string.
+   Put_Line (Get_Unnamed_Value ("", 2)); -- test for empty input string
    Put_Line (Boolean'Image (Unnamed_Value_Exists (Test_7, "Token_1")));
    Put_Line (Boolean'Image (Unnamed_Value_Exists (Test_7, "Token_2")));
    Put_Line (Boolean'Image (Unnamed_Value_Exists (Test_7, "Token_5")));
@@ -136,7 +133,7 @@ begin
    Put_Line (Boolean'Image (Unnamed_Value_Exists
                        ("", "nothing")));
 
-   --  Test for parse accept tokents.
+   --  Test for parse accept tokents
    --  Got from RFC 2616
 
    Test ("");
