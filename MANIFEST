@@ -648,6 +648,10 @@ regtests/0077_no_param/no_param.adb
 regtests/0077_no_param/no_param.gpr
 regtests/0077_no_param/test.out
 regtests/0077_no_param/test.py
+regtests/0078_partial/partial.adb
+regtests/0078_partial/partial.gpr
+regtests/0078_partial/test.out
+regtests/0078_partial/test.py
 regtests/alldifs.out
 regtests/aws.ini
 regtests/aws.mime
@@ -666,8 +670,6 @@ regtests/hotplug_pack.adb
 regtests/hotplug_pack.ads
 regtests/makefile
 regtests/makefile.lst
-regtests/partial.adb
-regtests/partial.out
 regtests/pck.adb
 regtests/pck.ads
 regtests/pipe_stream.adb
