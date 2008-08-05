@@ -726,6 +726,11 @@ regtests/0093_smem_sec/smem_sec.gpr
 regtests/0093_smem_sec/test.opt
 regtests/0093_smem_sec/test.out
 regtests/0093_smem_sec/test.py
+regtests/0094_tres/test.out1
+regtests/0094_tres/test.out2
+regtests/0094_tres/test.py
+regtests/0094_tres/tres.adb
+regtests/0094_tres/tres.gpr
 regtests/alldifs.out
 regtests/aws.ini
 regtests/aws.mime
@@ -809,8 +814,6 @@ regtests/tmime.adb
 regtests/tmime.out
 regtests/tpc.adb
 regtests/tpc.out
-regtests/tres.adb
-regtests/tres.out
 regtests/tres2.adb
 regtests/tres2.out
 regtests/tsgetparam.adb

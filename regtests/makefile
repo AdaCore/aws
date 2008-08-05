@@ -76,7 +76,7 @@ endif
 
 # Standard regression tests that needs to be run in a separate executable
 
-OTH_TESTS      = tres wxrefs
+OTH_TESTS      = wxrefs
 
 ALONE_TESTS    = tlog
 
@@ -160,27 +160,6 @@ init:
 	cp ../demos/cert.pem .
 	echo "" > alldifs
 	echo "### Every output after this line is a regression ###" >> alldifs
-	echo Preparing tres
-	echo "line 1, file 1" > file1.html
-	echo "line 2, file 1" >> file1.html
-	echo "line 1, file 2" > file2.html
-	echo "line 2, file 2" >> file2.html
-	echo "line 3, file 2" >> file2.html
-	echo "line 1, file 3" > file3.html
-	echo "line 2, file 3" >> file3.html
-	echo "line 1 : @_TAG1_@" > file.tmplt
-	echo "line 2 : @_TAG2_@" >> file.tmplt
-	echo "@@TABLE@@" >> file.tmplt
-	echo "line 3.1 : @_TAG_V_@" >> file.tmplt
-	echo "@@SECTION@@" >> file.tmplt
-	echo "line 3.2 : @_TAG_V_@" >> file.tmplt
-	echo "@@END_TABLE@@" >> file.tmplt
-	echo "@@IF@@ @_COND_@" >> file.tmplt
-	echo "   ok" >> file.tmplt
-	echo "@@ELSE@@" >> file.tmplt
-	echo "   nok" >> file.tmplt
-	echo "@@END_IF@@" >> file.tmplt
-	$(AWSRES) -q -r tresres file1.html file2.html file.tmplt
 	-$(RM) -f *.res
 
 $(ALONE_TESTS) $(ALONE): force
@@ -231,20 +210,6 @@ $(ASIS3_TESTS): force
 	$(ADA2WSDL) -q -d -f -I. -t ../$(BDIR)/$(LIBRARY_TYPE)/obj/regtests\
 		-P../aws $@.ads -o generated/$@.wsdl
 	-$(DIFF) $@.out generated/$@.wsdl 1>> alldifs 2>> alldifs
-
-tres: force
-	echo "Compiling " $@
-	$(GNAT) make -q -m -Pregtests -XTest_Mode=${TEST_MODE} $@
-	echo -n "Running  " tres
-	./tres > tres-1.res
-	echo "line 3, file 1" >> file1.html
-	echo "line 4, file 2" >> file2.html
-	echo "line 3, file 3" >> file3.html
-	echo ",  run it again"
-	./tres > tres-2.res
-	cat tres-1.res tres-2.res > tres.res
-	-$(RM) tres$(EXEEXT)
-	-$(DIFF) tres.out tres.res 1>> alldifs 2>> alldifs
 
 soapcheck: force
 	echo "Generating SOAP for " $@
@@ -366,6 +331,6 @@ clean:
 	-$(RM) -f run?
 	-$(RM) -fr generated icons
 	-$(RM) -f *~ .*~ res.ad\[sb\] res2.ad\[sb\]
-	-$(RM) -f file.tmp file1.html file2.html file3.html file.tmplt tresres*
+	-$(RM) -f file.tmp file1.html file2.html file3.html file.tmplt
 	-$(RM) -f ?.upload.* cert.pem gmem.out
 	-$(RM) -fr WSDL_6 wsdl_6.class

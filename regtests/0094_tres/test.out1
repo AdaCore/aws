@@ -1,0 +1,27 @@
+Start main, wait for server to start...
+Server started
+
+=> line 1, file 1
+line 2, file 1
+
+
+=> line 1, file 2
+line 2, file 2
+line 3, file 2
+
+
+=> line 1, file 3
+line 2, file 3
+
+
+=> line 1 : VAL1
+line 2 : VAL2
+line 3.1 : v1
+line 3.2 : v2
+line 3.1 : v3
+   ok
+
+
+Unknown URI /file4
+=> /file4 not found
+
