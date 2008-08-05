@@ -796,6 +796,13 @@ regtests/0106_spair/spair.gpr
 regtests/0106_spair/spair_proc.adb
 regtests/0106_spair/test.out
 regtests/0106_spair/test.py
+regtests/0107_spair_sec/cert.pem
+regtests/0107_spair_sec/spair_proc.adb
+regtests/0107_spair_sec/spair_sec.adb
+regtests/0107_spair_sec/spair_sec.gpr
+regtests/0107_spair_sec/test.opt
+regtests/0107_spair_sec/test.out
+regtests/0107_spair_sec/test.py
 regtests/alldifs.out
 regtests/aws.ini
 regtests/aws.mime
@@ -817,8 +824,6 @@ regtests/regtests.gpr
 regtests/sockover_proc.adb
 regtests/sp_pack.adb
 regtests/sp_pack.ads
-regtests/spair_sec.adb
-regtests/spair_sec.out
 regtests/spg.adb
 regtests/spg.out
 regtests/spg_sec.adb
