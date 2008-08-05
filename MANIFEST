@@ -589,6 +589,10 @@ regtests/0066_upload3/test.out
 regtests/0066_upload3/test.py
 regtests/0066_upload3/upload3.adb
 regtests/0066_upload3/upload3.gpr
+regtests/0067_hostip/hostip.adb
+regtests/0067_hostip/hostip.gpr
+regtests/0067_hostip/test.out
+regtests/0067_hostip/test.py
 regtests/alldifs.out
 regtests/aws.ini
 regtests/aws.mime
@@ -603,8 +607,6 @@ regtests/ftp.thtml
 regtests/gen_system_tags.py
 regtests/generate.adb
 regtests/get_free_port.adb
-regtests/hostip.adb
-regtests/hostip.out
 regtests/hotplug_pack.adb
 regtests/hotplug_pack.ads
 regtests/huge_response.adb
