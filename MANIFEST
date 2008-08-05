@@ -777,6 +777,12 @@ regtests/0103_soapcheck/soapcheck.gpr
 regtests/0103_soapcheck/test.opt
 regtests/0103_soapcheck/test.out
 regtests/0103_soapcheck/test.py
+regtests/0104_sp/sp.adb
+regtests/0104_sp/sp.gpr
+regtests/0104_sp/sp_pck.adb
+regtests/0104_sp/sp_pck.ads
+regtests/0104_sp/test.out
+regtests/0104_sp/test.py
 regtests/alldifs.out
 regtests/aws.ini
 regtests/aws.mime
@@ -796,12 +802,8 @@ regtests/makefile.lst
 regtests/print_tasks.adb
 regtests/regtests.gpr
 regtests/sockover_proc.adb
-regtests/sp.adb
-regtests/sp.out
 regtests/sp_pack.adb
 regtests/sp_pack.ads
-regtests/sp_pck.adb
-regtests/sp_pck.ads
 regtests/spair.adb
 regtests/spair.out
 regtests/spair_proc.adb

@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2004                          --
---                                ACT-Europe                                --
+--                        Copyright (C) 2008, AdaCore                       --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -26,16 +25,9 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  ~ MAIN [STD]
+with "aws";
 
---  Server push regression test.
-
-with Get_Free_Port;
-with Sp_Pck;
-
-procedure Sp is
-   Port : Natural := 1249;
-begin
-   Get_Free_Port (Port);
-   Sp_Pck.Run ("http", Port);
-end Sp;
+project SP is
+   for Source_Dirs use (".", "../common");
+   for Main use ("sp.adb");
+end SP;

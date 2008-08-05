@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2004                            --
---                               ACT-Europe                                 --
+--                     Copyright (C) 2000-2008, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -26,10 +25,14 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  Server push regression test.
+--  Server push regression test
 
-package Sp_Pck is
+with Get_Free_Port;
+with Sp_Pck;
 
-   procedure Run (Protocol : in String; Port : in Positive);
-
-end Sp_Pck;
+procedure Sp is
+   Port : Natural := 1249;
+begin
+   Get_Free_Port (Port);
+   Sp_Pck.Run ("http", Port);
+end Sp;
