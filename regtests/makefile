@@ -86,7 +86,7 @@ OTH_TESTS     := $(OTH_TESTS)
 endif
 
 WSDL_TESTS     = test_wsdl test_wsdl2 test_wsdl4 test_wsdl6 \
-	interoplab_main1 test_soap_timeout
+	test_soap_timeout
 WSDL_ATESTS    = test_wsdl3 test_wsdl5 test_wsdl7
 WSDL2AWS_TESTS = wsdl_parse_1 wsdl_parse_2 wsdl_parse_3 wsdl_parse_4
 endif
