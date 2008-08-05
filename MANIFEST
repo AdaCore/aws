@@ -624,6 +624,10 @@ regtests/0072_line_status/line_status_pck.adb
 regtests/0072_line_status/line_status_pck.ads
 regtests/0072_line_status/test.out
 regtests/0072_line_status/test.py
+regtests/0073_moved/moved.adb
+regtests/0073_moved/moved.gpr
+regtests/0073_moved/test.out
+regtests/0073_moved/test.py
 regtests/alldifs.out
 regtests/aws.ini
 regtests/aws.mime
@@ -642,8 +646,6 @@ regtests/hotplug_pack.adb
 regtests/hotplug_pack.ads
 regtests/makefile
 regtests/makefile.lst
-regtests/moved.adb
-regtests/moved.out
 regtests/multiple.adb
 regtests/multiple.out
 regtests/nbconn.adb
