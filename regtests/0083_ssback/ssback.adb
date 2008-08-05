@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2004                            --
---                                ACT-Europe                                --
+--                     Copyright (C) 2003-2008, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -26,8 +25,13 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-package Back_Pack is
+with Back_Pack;
 
-   procedure Run (Protocol : in String; Port : in Positive);
+with Get_Free_Port;
 
-end Back_Pack;
+procedure SSBack is
+   Port : Natural := 4469;
+begin
+   Get_Free_Port (Port);
+   Back_Pack.Run ("https", Port);
+end SSBack;

@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2004-2006                          --
---                                 AdaCore                                  --
+--                     Copyright (C) 2004-2008, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -294,7 +293,7 @@ package body Back_Pack is
       Net.Free (Store_Socket);
 
    exception
-      when E: others =>
+      when E : others =>
          Text_IO.Put_Line
            (Text_IO.Standard_Error,
             "Run error " & Ada.Exceptions.Exception_Information (E));
