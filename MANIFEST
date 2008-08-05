@@ -680,6 +680,10 @@ regtests/0083_ssback/ssback.gpr
 regtests/0083_ssback/test.opt
 regtests/0083_ssback/test.out
 regtests/0083_ssback/test.py
+regtests/0084_sdig/sdig.adb
+regtests/0084_sdig/sdig.gpr
+regtests/0084_sdig/test.out
+regtests/0084_sdig/test.py
 regtests/alldifs.out
 regtests/aws.ini
 regtests/aws.mime
@@ -700,8 +704,6 @@ regtests/pck.adb
 regtests/pck.ads
 regtests/print_tasks.adb
 regtests/regtests.gpr
-regtests/sdig.adb
-regtests/sdig.out
 regtests/sessions.adb
 regtests/sessions.out
 regtests/sessions2.adb
