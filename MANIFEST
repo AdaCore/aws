@@ -656,6 +656,12 @@ regtests/0079_pipe_stream/pipe_stream.adb
 regtests/0079_pipe_stream/pipe_stream.gpr
 regtests/0079_pipe_stream/test.out
 regtests/0079_pipe_stream/test.py
+regtests/0080_plain2ssl/cert.pem
+regtests/0080_plain2ssl/plain2ssl.adb
+regtests/0080_plain2ssl/plain2ssl.gpr
+regtests/0080_plain2ssl/test.opt
+regtests/0080_plain2ssl/test.out
+regtests/0080_plain2ssl/test.py
 regtests/alldifs.out
 regtests/aws.ini
 regtests/aws.mime
@@ -676,8 +682,6 @@ regtests/makefile
 regtests/makefile.lst
 regtests/pck.adb
 regtests/pck.ads
-regtests/plain2ssl.adb
-regtests/plain2ssl.out
 regtests/print_tasks.adb
 regtests/redirect.adb
 regtests/redirect.out
