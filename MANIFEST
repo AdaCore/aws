@@ -714,6 +714,11 @@ regtests/0091_shutdown/srv.adb
 regtests/0091_shutdown/srv.ads
 regtests/0091_shutdown/test.out
 regtests/0091_shutdown/test.py
+regtests/0092_smem/smem.adb
+regtests/0092_smem/smem.gpr
+regtests/0092_smem/smem_proc.adb
+regtests/0092_smem/test.out
+regtests/0092_smem/test.py
 regtests/alldifs.out
 regtests/aws.ini
 regtests/aws.mime
@@ -734,9 +739,6 @@ regtests/pck.adb
 regtests/pck.ads
 regtests/print_tasks.adb
 regtests/regtests.gpr
-regtests/smem.adb
-regtests/smem.out
-regtests/smem_proc.adb
 regtests/smem_sec.adb
 regtests/smem_sec.out
 regtests/soapcheck.adb
