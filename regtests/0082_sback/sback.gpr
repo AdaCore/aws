@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                          Copyright (C) 2003-2004                         --
---                                ACT-Europe                                --
+--                        Copyright (C) 2008, AdaCore                       --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -26,15 +25,9 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  ~ MAIN [STD]
+with "aws";
 
-with Back_Pack;
-
-with Get_Free_Port;
-
-procedure SBack is
-   Port : Natural := 4570;
-begin
-   Get_Free_Port (Port);
-   Back_Pack.Run ("http", Port);
+project SBack is
+   for Source_Dirs use (".", "../common");
+   for Main use ("sback.adb");
 end SBack;

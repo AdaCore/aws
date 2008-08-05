@@ -666,6 +666,12 @@ regtests/0081_redirect/redirect.adb
 regtests/0081_redirect/redirect.gpr
 regtests/0081_redirect/test.out
 regtests/0081_redirect/test.py
+regtests/0082_sback/back_pack.adb
+regtests/0082_sback/back_pack.ads
+regtests/0082_sback/sback.adb
+regtests/0082_sback/sback.gpr
+regtests/0082_sback/test.out
+regtests/0082_sback/test.py
 regtests/alldifs.out
 regtests/aws.ini
 regtests/aws.mime
@@ -688,8 +694,6 @@ regtests/pck.adb
 regtests/pck.ads
 regtests/print_tasks.adb
 regtests/regtests.gpr
-regtests/sback.adb
-regtests/sback.out
 regtests/sdig.adb
 regtests/sdig.out
 regtests/sessions.adb
