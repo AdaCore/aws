@@ -696,6 +696,10 @@ regtests/0087_sessions3/sessions3.adb
 regtests/0087_sessions3/sessions3.gpr
 regtests/0087_sessions3/test.out
 regtests/0087_sessions3/test.py
+regtests/0088_sessions4/sessions4.adb
+regtests/0088_sessions4/sessions4.gpr
+regtests/0088_sessions4/test.out
+regtests/0088_sessions4/test.py
 regtests/alldifs.out
 regtests/aws.ini
 regtests/aws.mime
@@ -716,8 +720,6 @@ regtests/pck.adb
 regtests/pck.ads
 regtests/print_tasks.adb
 regtests/regtests.gpr
-regtests/sessions4.adb
-regtests/sessions4.out
 regtests/sessions5.adb
 regtests/sessions5.out
 regtests/shutdown.adb
