@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2008                            --
---                                 AdaCore                                  --
+--                       Copyright (C) 2008, AdaCore                        --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -25,8 +24,6 @@
 --  however invalidate any other reasons why the executable file  might be  --
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
-
---  ~ MAIN [ASIS]
 
 with Ada.Text_IO;
 with Ada.Exceptions;
@@ -95,7 +92,7 @@ procedure Soapcheck is
       Result := SOAP.Types.R
         ((+SOAP.Types.S (Integer'Image (R.V), "V"),
           +SOAP.Types.S (Integer'Image (Integer (R.S)), "S"),
-          + SOAP.Types.E (Pck_Service.Types.Image (R.C), "Color", "C")),
+          +SOAP.Types.E (Pck_Service.Types.Image (R.C), "Color", "C")),
          Name, "Rec");
       SOAP.Types.Set_Name_Space
         (Result,

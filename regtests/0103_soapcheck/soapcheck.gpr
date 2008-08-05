@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2008                            --
---                                 AdaCore                                  --
+--                        Copyright (C) 2008, AdaCore                       --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -26,38 +25,13 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-with SOAP.Utils;
+with "aws";
 
-package Pck is
+project SOAPCheck is
+   for Source_Dirs use (".");
+   for Main use ("soapcheck.adb");
 
-   type Small is new Integer range 1 .. 8;
-
-   type Color is (Red, Green, Blue);
-
-   type Rec is record
-      V : Natural;
-      S : Small;
-      C : Color;
-   end record;
-
-   procedure Call (R : in Rec);
-
-   procedure Print (X : in Integer; Name : in String);
-
-   type Tab is array (1 .. 10) of Boolean;
-   type Tab_Access is access Tab;
-   package Tab_Safe_Pointer is
-      new SOAP.Utils.Safe_Pointers (Tab, Tab_Access);
-
-   type R_Rec is record
-      V : Natural;
-      S : Small;
-      C : Color;
-      F : Long_Float;
-      G : Rec;
-      A : Tab_Safe_Pointer.Safe_Pointer;
-   end record;
-
-   procedure Big (R : in R_Rec);
-
-end Pck;
+   package Compiler is
+      for Default_Switches ("Ada") use ("-gnat05");
+   end Compiler;
+end SOAPCheck;
