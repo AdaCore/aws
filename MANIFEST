@@ -617,6 +617,13 @@ regtests/0071_interoplab_main1/interoplab_main1.wsdl
 regtests/0071_interoplab_main1/test.opt
 regtests/0071_interoplab_main1/test.out
 regtests/0071_interoplab_main1/test.py
+regtests/0072_line_status/line_status.adb
+regtests/0072_line_status/line_status.gpr
+regtests/0072_line_status/line_status.tmplt
+regtests/0072_line_status/line_status_pck.adb
+regtests/0072_line_status/line_status_pck.ads
+regtests/0072_line_status/test.out
+regtests/0072_line_status/test.py
 regtests/alldifs.out
 regtests/aws.ini
 regtests/aws.mime
@@ -633,11 +640,6 @@ regtests/generate.adb
 regtests/get_free_port.adb
 regtests/hotplug_pack.adb
 regtests/hotplug_pack.ads
-regtests/line_status.adb
-regtests/line_status.out
-regtests/line_status.tmplt
-regtests/line_status_pck.adb
-regtests/line_status_pck.ads
 regtests/makefile
 regtests/makefile.lst
 regtests/moved.adb

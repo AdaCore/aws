@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2004                            --
---                                ACT-Europe                                --
+--                     Copyright (C) 2004-2008, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -26,8 +25,14 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-package Line_Status_Pck is
+--  Test Status.Data context from callback
 
-   procedure Run (Port : in Natural);
+with Get_Free_Port;
+with Line_Status_Pck;
 
-end Line_Status_Pck;
+procedure Line_Status is
+   Port : Natural := 8764;
+begin
+   Get_Free_Port (Port);
+   Line_Status_Pck.Run (Port);
+end Line_Status;
