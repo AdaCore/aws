@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2004-2008                          --
---                                 AdaCore                                  --
+--                        Copyright (C) 2008, AdaCore                       --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -26,32 +25,9 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  ~ MAIN [XMLADA]
+with "aws";
 
-with Ada.Text_IO;
-
-with SOAP.Message.Response;
-with SOAP.Message.XML;
-
-procedure SOAP7 is
-
-   use Ada;
-
-   Mess : constant String :=
-     "<?xml version=""1.0"" encoding=""UTF-8"" standalone=""no"" ?>"
-     & "<soap:Envelope "
-     & "xmlns:soap=""http://schemas.xmlsoap.org/soap/envelope/"""
-     & " xmlns:xsi=""http://www.w3.org/1999/XMLSchema-instance"">"
-     & "<soap:Body>"
-     & "<m:MultiplyResponse xmlns:m=""http://tempuri.org/message/"">"
-     & "<Result xsi:null=""1""/>"
-     & "</m:MultiplyResponse>"
-     & "</soap:Body>"
-     & "</soap:Envelope>";
-
-   Resp : constant SOAP.Message.Response.Object'Class
-     := SOAP.Message.XML.Load_Response (Mess);
-
-begin
-   Text_IO.Put_Line (SOAP.Message.XML.Image (Resp));
+project SOAP7 is
+   for Source_Dirs use (".");
+   for Main use ("soap7.adb");
 end SOAP7;
