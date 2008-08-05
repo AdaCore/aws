@@ -783,6 +783,14 @@ regtests/0104_sp/sp_pck.adb
 regtests/0104_sp/sp_pck.ads
 regtests/0104_sp/test.out
 regtests/0104_sp/test.py
+regtests/0105_ssp/cert.pem
+regtests/0105_ssp/sp_pck.adb
+regtests/0105_ssp/sp_pck.ads
+regtests/0105_ssp/ssp.adb
+regtests/0105_ssp/ssp.gpr
+regtests/0105_ssp/test.opt
+regtests/0105_ssp/test.out
+regtests/0105_ssp/test.py
 regtests/alldifs.out
 regtests/aws.ini
 regtests/aws.mime
@@ -819,8 +827,6 @@ regtests/split1.tmplt
 regtests/sslcfg.adb
 regtests/sslcfg.gnutls.out
 regtests/sslcfg.out
-regtests/ssp.adb
-regtests/ssp.out
 regtests/stream_response.adb
 regtests/stream_response.out
 regtests/strm.adb
