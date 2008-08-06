@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2004-2008                          --
---                                 AdaCore                                  --
+--                     Copyright (C) 2004-2008, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -26,11 +25,10 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  ~ MAIN [XMLADA+SSL]
+--  Test file as attachment
 
-with Test_SOAP5_Pack;
+package Test_SOAP5_Pack is
 
-procedure Test_SOAP5_Sec is
-begin
-   Test_SOAP5_Pack.Run ("https", 4465);
-end Test_SOAP5_Sec;
+   procedure Run (Protocol : in String; Port : in Positive);
+
+end Test_SOAP5_Pack;

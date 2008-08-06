@@ -908,6 +908,14 @@ regtests/0126_test_soap5/test_soap5.adb
 regtests/0126_test_soap5/test_soap5.gpr
 regtests/0126_test_soap5/test_soap5_pack.adb
 regtests/0126_test_soap5/test_soap5_pack.ads
+regtests/0127_test_soap5_sec/cert.pem
+regtests/0127_test_soap5_sec/test.opt
+regtests/0127_test_soap5_sec/test.out
+regtests/0127_test_soap5_sec/test.py
+regtests/0127_test_soap5_sec/test_soap5_pack.adb
+regtests/0127_test_soap5_sec/test_soap5_pack.ads
+regtests/0127_test_soap5_sec/test_soap5_sec.adb
+regtests/0127_test_soap5_sec/test_soap5_sec.gpr
 regtests/alldifs.out
 regtests/aws.ini
 regtests/aws.mime
@@ -1660,8 +1668,6 @@ regtests/soap_hotplug_pack_service-types.ads
 regtests/soap_hotplug_pack_service.ads
 regtests/tc_soap_names.adb
 regtests/tc_soap_names.ads
-regtests/test_soap5_sec.adb
-regtests/test_soap5_sec.out
 regtests/test_soap_hotplug.adb
 regtests/test_soap_hotplug.out
 regtests/test_soap_timeout.adb
