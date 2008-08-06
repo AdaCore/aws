@@ -1013,6 +1013,10 @@ regtests/0142_tsgetparam/test.py
 regtests/0142_tsgetparam/tgetparam_proc.adb
 regtests/0142_tsgetparam/tsgetparam.adb
 regtests/0142_tsgetparam/tsgetparam.gpr
+regtests/0143_timer/test.out
+regtests/0143_timer/test.py
+regtests/0143_timer/timer.adb
+regtests/0143_timer/timer.gpr
 regtests/alldifs.out
 regtests/aws.ini
 regtests/aws.mime
@@ -1031,8 +1035,6 @@ regtests/sslcfg.gnutls.out
 regtests/test_support.py
 regtests/testsuite.py
 regtests/tgdb
-regtests/timer.adb
-regtests/timer.out
 regtests/tlog.adb
 regtests/tlog.out
 regtests/tlog_proc.adb
