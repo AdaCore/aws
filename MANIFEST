@@ -817,6 +817,11 @@ regtests/0109_spg_sec/spg_sec.gpr
 regtests/0109_spg_sec/test.opt
 regtests/0109_spg_sec/test.out
 regtests/0109_spg_sec/test.py
+regtests/0110_split1/split1.adb
+regtests/0110_split1/split1.gpr
+regtests/0110_split1/split1.tmplt
+regtests/0110_split1/test.out
+regtests/0110_split1/test.py
 regtests/alldifs.out
 regtests/aws.ini
 regtests/aws.mime
@@ -836,9 +841,6 @@ regtests/makefile.lst
 regtests/print_tasks.adb
 regtests/regtests.gpr
 regtests/sockover_proc.adb
-regtests/split1.adb
-regtests/split1.out
-regtests/split1.tmplt
 regtests/sslcfg.adb
 regtests/sslcfg.gnutls.out
 regtests/sslcfg.out
