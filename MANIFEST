@@ -1039,6 +1039,10 @@ regtests/0148_unexph/test.out
 regtests/0148_unexph/test.py
 regtests/0148_unexph/unexph.adb
 regtests/0148_unexph/unexph.gpr
+regtests/0149_unexph2/test.out
+regtests/0149_unexph2/test.py
+regtests/0149_unexph2/unexph2.adb
+regtests/0149_unexph2/unexph2.gpr
 regtests/alldifs.out
 regtests/aws.ini
 regtests/cm_include.tmplt
@@ -1056,8 +1060,6 @@ regtests/sslcfg.gnutls.out
 regtests/test_support.py
 regtests/testsuite.py
 regtests/tgdb
-regtests/unexph2.adb
-regtests/unexph2.out
 regtests/upload.adb
 regtests/upload.out
 regtests/upload2.adb

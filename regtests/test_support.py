@@ -28,7 +28,7 @@ def build(prj):
 
 def gnatmake(prj):
     """Compile a project with gnatmake"""
-    cmd = ["gnatmake", "-p", "-f", "-gnat05", "-P" + prj]
+    cmd = ["gnatmake", "-p", "-f", "-gnat05", "-P" + prj, "-bargs", "-E"]
     p = Run(cmd)
     if p.status:
         # Exit with error
@@ -39,7 +39,8 @@ def gnatmake(prj):
 
 def gprbuild(prj):
     """Compile a project with gprbuild"""
-    cmd = ["gprbuild", "-p", "-f", "-cargs", "-gnat05", "-P" + prj]
+    cmd = ["gprbuild", "-p", "-f", "-cargs", "-gnat05", "-P" + prj,
+           "-bargs", "-E"]
     if config.use_profiler:
         cmd = cmd + ["-cargs", "-pg", "-O2", "-largs", "-pg"]
     p = Run(cmd)
