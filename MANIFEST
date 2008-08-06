@@ -838,6 +838,12 @@ regtests/0113_strm/test.out
 regtests/0113_strm/test.py
 regtests/0113_strm/user_strm.adb
 regtests/0113_strm/user_strm.ads
+regtests/0114_zstrm/test.out
+regtests/0114_zstrm/test.py
+regtests/0114_zstrm/user_strm.adb
+regtests/0114_zstrm/user_strm.ads
+regtests/0114_zstrm/zstrm.adb
+regtests/0114_zstrm/zstrm.gpr
 regtests/alldifs.out
 regtests/aws.ini
 regtests/aws.mime
@@ -936,8 +942,6 @@ regtests/zbig.adb
 regtests/zbig.out
 regtests/zfile.adb
 regtests/zfile.out
-regtests/zstrm.adb
-regtests/zstrm.out
 regtests/zstrm2.adb
 regtests/zstrm2.out
 regtests/zstrm3.out
