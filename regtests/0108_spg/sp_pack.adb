@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                          Copyright (C) 2006-2008                         --
---                                  AdaCore                                 --
+--                     Copyright (C) 2006-2008, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -273,7 +272,7 @@ package body Sp_Pack is
       end loop;
 
       if Server_Push.Count (Push) > 1 then
-         --  Wait for server-push internal waiter process completion.
+         --  Wait for server-push internal waiter process completion
          delay 0.5;
       end if;
 
