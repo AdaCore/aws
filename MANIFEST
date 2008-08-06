@@ -896,6 +896,11 @@ regtests/0124_test_soap3/test.out
 regtests/0124_test_soap3/test.py
 regtests/0124_test_soap3/test_soap3.adb
 regtests/0124_test_soap3/test_soap3.gpr
+regtests/0125_test_soap4/test.opt
+regtests/0125_test_soap4/test.out
+regtests/0125_test_soap4/test.py
+regtests/0125_test_soap4/test_soap4.adb
+regtests/0125_test_soap4/test_soap4.gpr
 regtests/alldifs.out
 regtests/aws.ini
 regtests/aws.mime
@@ -1648,8 +1653,6 @@ regtests/soap_hotplug_pack_service-types.ads
 regtests/soap_hotplug_pack_service.ads
 regtests/tc_soap_names.adb
 regtests/tc_soap_names.ads
-regtests/test_soap4.adb
-regtests/test_soap4.out
 regtests/test_soap5.adb
 regtests/test_soap5.out
 regtests/test_soap5_pack.adb
