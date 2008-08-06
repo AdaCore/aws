@@ -986,6 +986,12 @@ regtests/0137_test_wsdl6/test.py
 regtests/0137_test_wsdl6/test_wsdl6.adb
 regtests/0137_test_wsdl6/test_wsdl6.gpr
 regtests/0137_test_wsdl6/test_wsdl6.wsdl
+regtests/0138_test_wsdl7/test.opt
+regtests/0138_test_wsdl7/test.out
+regtests/0138_test_wsdl7/test.py
+regtests/0138_test_wsdl7/test_wsdl7.adb
+regtests/0138_test_wsdl7/test_wsdl7.gpr
+regtests/0138_test_wsdl7/test_wsdl7.wsdl
 regtests/alldifs.out
 regtests/aws.ini
 regtests/aws.mime
@@ -1718,9 +1724,6 @@ regtests/register.ads
 regtests/register.out
 regtests/tc_soap_names.adb
 regtests/tc_soap_names.ads
-regtests/test_wsdl7.adb
-regtests/test_wsdl7.out
-regtests/test_wsdl7.wsdl
 regtests/testxml.adb
 regtests/testxml.out
 regtests/workorder.adb
