@@ -1022,6 +1022,10 @@ regtests/0144_tlog/test.py
 regtests/0144_tlog/tlog.adb
 regtests/0144_tlog/tlog.gpr
 regtests/0144_tlog/tlog_proc.adb
+regtests/0145_tmem/test.out
+regtests/0145_tmem/test.py
+regtests/0145_tmem/tmem.adb
+regtests/0145_tmem/tmem.gpr
 regtests/alldifs.out
 regtests/aws.ini
 regtests/aws.mime
@@ -1040,8 +1044,6 @@ regtests/sslcfg.gnutls.out
 regtests/test_support.py
 regtests/testsuite.py
 regtests/tgdb
-regtests/tmem.adb
-regtests/tmem.out
 regtests/tmime.adb
 regtests/tmime.out
 regtests/tpc.adb

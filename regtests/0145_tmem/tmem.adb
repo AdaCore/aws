@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2004                            --
---                                ACT-Europe                                --
+--                     Copyright (C) 2004-2008, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -25,8 +24,6 @@
 --  however invalidate any other reasons why the executable file  might be  --
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
-
---  ~ MAIN [STD]
 
 with Ada.Text_IO;
 with Ada.Calendar;
@@ -139,7 +136,7 @@ begin
 
    Clear (Stream);
 
-   --  Test speed.
+   --  Test speed
 
    Stamp := Clock;
 
@@ -164,7 +161,7 @@ begin
    --  Not for regression test.
    --  Put_Line ("Unbounded string method " & Duration'Image (Clock - Stamp));
 
-   --  Compare result.
+   --  Compare result
 
    Put_Line ("Size " & Integer'Image (Size (Stream)));
 
