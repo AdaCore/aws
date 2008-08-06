@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2004                            --
---                                ACT-Europe                                --
+--                        Copyright (C) 2008, AdaCore                       --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -26,38 +25,9 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  ~ MAIN [STD]
+with "aws";
 
-with Ada.Streams;
-with Ada.Text_IO;
-
-with AWS.Services.Transient_Pages.Control;
-with AWS.Resources.Streams.Memory;
-
-procedure TPC is
-   use AWS.Services.Transient_Pages;
-   use AWS.Resources;
-
-   Stream : Streams.Stream_Access;
-
-   Buffer : Ada.Streams.Stream_Element_Array := (1 .. 200 => 31);
-begin
-   for J in 1 .. 1000 loop
-      Stream := new AWS.Resources.Streams.Memory.Stream_Type;
-
-      for K in 1 .. 10 loop
-         Streams.Memory.Append
-           (Streams.Memory.Stream_Type (Stream.all), Buffer);
-      end loop;
-
-      Register (Get_URI, Stream, 0.1);
-   end loop;
-
-   Control.Register (0.1);
-
-   delay 0.5;
-
-   Control.Shutdown;
-
-   Ada.Text_IO.Put_Line ("Done.");
+project TPC is
+   for Source_Dirs use (".");
+   for Main use ("tpc.adb");
 end TPC;
