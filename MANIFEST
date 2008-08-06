@@ -1026,9 +1026,13 @@ regtests/0145_tmem/test.out
 regtests/0145_tmem/test.py
 regtests/0145_tmem/tmem.adb
 regtests/0145_tmem/tmem.gpr
+regtests/0146_tmime/aws.mime
+regtests/0146_tmime/test.out
+regtests/0146_tmime/test.py
+regtests/0146_tmime/tmime.adb
+regtests/0146_tmime/tmime.gpr
 regtests/alldifs.out
 regtests/aws.ini
-regtests/aws.mime
 regtests/cm_include.tmplt
 regtests/cmd.gdb
 regtests/common/get_free_port.adb
@@ -1044,8 +1048,6 @@ regtests/sslcfg.gnutls.out
 regtests/test_support.py
 regtests/testsuite.py
 regtests/tgdb
-regtests/tmime.adb
-regtests/tmime.out
 regtests/tpc.adb
 regtests/tpc.out
 regtests/unexph.adb

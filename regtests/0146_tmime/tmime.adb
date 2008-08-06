@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2003-2005                          --
---                                ACT-Europe                                --
+--                     Copyright (C) 2003-2008, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -25,8 +24,6 @@
 --  however invalidate any other reasons why the executable file  might be  --
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
-
---  ~ MAIN [STD]
 
 with Ada.Text_IO;
 
@@ -71,7 +68,7 @@ begin
    Test ("features-316");
    Test ("features-317");
 
-   --  Test for user defined in aws.mime types.
+   --  Test for user defined in aws.mime types
 
    Test ("aaa.jnlp");
    Test ("aaa.jnl");
@@ -89,5 +86,4 @@ begin
    Text_IO.Put_Line (Boolean'Image (MIME.Is_Image (MIME.Image_Png)));
    Text_IO.Put_Line
      (Boolean'Image (MIME.Is_Application (MIME.Application_Msword)));
-
 end Tmime;
