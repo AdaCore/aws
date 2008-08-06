@@ -828,6 +828,10 @@ regtests/0111_sslcfg/sslcfg.gpr
 regtests/0111_sslcfg/test.opt
 regtests/0111_sslcfg/test.out
 regtests/0111_sslcfg/test.py
+regtests/0112_stream_response/stream_response.adb
+regtests/0112_stream_response/stream_response.gpr
+regtests/0112_stream_response/test.out
+regtests/0112_stream_response/test.py
 regtests/alldifs.out
 regtests/aws.ini
 regtests/aws.mime
@@ -848,8 +852,6 @@ regtests/print_tasks.adb
 regtests/regtests.gpr
 regtests/sockover_proc.adb
 regtests/sslcfg.gnutls.out
-regtests/stream_response.adb
-regtests/stream_response.out
 regtests/strm.adb
 regtests/strm.out
 regtests/strm2.adb
