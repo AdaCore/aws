@@ -74,7 +74,7 @@ FILTER_OUT	= generate.adb
 
 OTH_TESTS      = wxrefs
 
-ALONE_TESTS    = tlog
+ALONE_TESTS    =
 
 ifeq (${XMLADA}, true)
 
