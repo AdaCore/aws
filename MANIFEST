@@ -992,6 +992,10 @@ regtests/0138_test_wsdl7/test.py
 regtests/0138_test_wsdl7/test_wsdl7.adb
 regtests/0138_test_wsdl7/test_wsdl7.gpr
 regtests/0138_test_wsdl7/test_wsdl7.wsdl
+regtests/0139_test_zlib/test.out
+regtests/0139_test_zlib/test.py
+regtests/0139_test_zlib/test_zlib.adb
+regtests/0139_test_zlib/test_zlib.gpr
 regtests/alldifs.out
 regtests/aws.ini
 regtests/aws.mime
@@ -1008,8 +1012,6 @@ regtests/regtests.gpr
 regtests/sockover_proc.adb
 regtests/sslcfg.gnutls.out
 regtests/test_support.py
-regtests/test_zlib.adb
-regtests/test_zlib.out
 regtests/testsuite.py
 regtests/tgdb
 regtests/tgetparam.adb
