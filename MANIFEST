@@ -1006,6 +1006,13 @@ regtests/0141_tgetparam/test.py
 regtests/0141_tgetparam/tgetparam.adb
 regtests/0141_tgetparam/tgetparam.gpr
 regtests/0141_tgetparam/tgetparam_proc.adb
+regtests/0142_tsgetparam/cert.pem
+regtests/0142_tsgetparam/test.opt
+regtests/0142_tsgetparam/test.out
+regtests/0142_tsgetparam/test.py
+regtests/0142_tsgetparam/tgetparam_proc.adb
+regtests/0142_tsgetparam/tsgetparam.adb
+regtests/0142_tsgetparam/tsgetparam.gpr
 regtests/alldifs.out
 regtests/aws.ini
 regtests/aws.mime
@@ -1035,8 +1042,6 @@ regtests/tmime.adb
 regtests/tmime.out
 regtests/tpc.adb
 regtests/tpc.out
-regtests/tsgetparam.adb
-regtests/tsgetparam.out
 regtests/unexph.adb
 regtests/unexph.out
 regtests/unexph2.adb

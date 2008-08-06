@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2002-2004                          --
---                                ACT-Europe                                --
+--                        Copyright (C) 2008, AdaCore                       --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -26,15 +25,9 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  ~ MAIN [SSL]
+with "aws";
 
---  This must be the exact same test than tgetparam. The only difference is
---  that it uses HTTPS protocol. We test that output is the same as the non
---  secure version.
-
-with TGetParam_Proc;
-
-procedure TSGetParam is
-begin
-   TGetParam_Proc ("https");
+project TSGetParam is
+   for Source_Dirs use (".");
+   for Main use ("tsgetparam.adb");
 end TSGetParam;
