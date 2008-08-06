@@ -27,7 +27,7 @@
 
 .SILENT:
 
-# To add a new test:
+#  To add a new test:
 #
 #   1) Create the appropriate Ada program (let's call it mytest.adb)
 #      Add a tag line in mytest.adb
@@ -60,7 +60,7 @@ WSDL2AWS = ../$(BDIR)/$(LIBRARY_TYPE)/tools/wsdl2aws
 AWSRES   = ../$(BDIR)/$(LIBRARY_TYPE)/tools/awsres
 WEBXREF  = ../$(BDIR)/$(LIBRARY_TYPE)/tools/webxref
 
-# Test to be run in grouped mode
+#  Test to be run in grouped mode
 
 ifeq (${TEST_MODE}, Grouped)
 G_TESTS = $(TESTS)
@@ -70,7 +70,7 @@ endif
 
 FILTER_OUT	= generate.adb
 
-# Standard regression tests that needs to be run in a separate executable
+#  Standard regression tests that needs to be run in a separate executable
 
 OTH_TESTS      = wxrefs
 
@@ -87,9 +87,9 @@ PREP_WSDL_TESTS  = $(WSDL_TESTS:%=%_prep)
 PREP_WSDL_ATESTS = $(WSDL_ATESTS:%=%_prep)
 
 ifeq (${ASIS}, true)
-# SOAP/WSDL test using ada2wsdl (ASIS package required)
-# Names must start with wsdl_ and be followed by a single digit between 0
-# and 9. Socket port is then 770<digit>.
+#  SOAP/WSDL test using ada2wsdl (ASIS package required)
+#  Names must start with wsdl_ and be followed by a single digit between 0
+#  and 9. Socket port is then 770<digit>.
 
 ASIS_TESTS   = wsdl_1 wsdl_2 wsdl_3 wsdl_4 wsdl_5 wsdl_6 wsdl_7 wsdl_8 wsdl_9
 ASIS2_TESTS  = wsdl_a wsdl_b wsdl_c register wsdl_d
@@ -221,7 +221,7 @@ setup_dir:
 	-$(MKDIR) generated
 
 setup: setup_dir
-# Get MAIN and standard sources
+#  Get MAIN and standard sources
 	-$(GREP) "\-\-  ~ MAIN" *.adb > all_mains.lst
 	-$(GREP) "\[STD\]" all_mains.lst | $(GREP) -v $(REGEXP) > s_tstd.lst
 	-$(CP) s_tstd.lst s_mains.lst
@@ -259,25 +259,25 @@ endif
 	echo "TESTS=\\" > makefile.lst
 	$(AWK) 'BEGIN{FS=":"}{printf ("%s \\\n",$$1)}' s_mains.lst \
 		>> makefile.lst
-# Now write .gpr
+#  Now write .gpr
 	echo "project regtests_lst is" > regtests_lst.gpr
 	echo "" >> regtests_lst.gpr
 	echo "   for Source_Dirs use ();" >> regtests_lst.gpr
-# T_STD
+#  T_STD
 	echo "" >> regtests_lst.gpr
 	echo "   T_STD := (" >> regtests_lst.gpr
 	$(AWK) 'BEGIN{FS=":";n=0} \
 		n==1{printf (",\n\"%s\"",$$1)} \
 		n==0{printf ("\"%s\"",$$1);n=1}' s_tstd.lst >> regtests_lst.gpr
 	echo "   );" >> regtests_lst.gpr
-# T_SEC
+#  T_SEC
 	echo "" >> regtests_lst.gpr
 	echo "   T_SEC := (" >> regtests_lst.gpr
 	$(AWK) 'BEGIN{FS=":";n=0} \
 		n==1{printf (",\n\"%s\"",$$1)} \
 		n==0{printf ("\"%s\"",$$1);n=1}' s_tsec.lst >> regtests_lst.gpr
 	echo "   );" >> regtests_lst.gpr
-# T_SEC_XMLADA
+#  T_SEC_XMLADA
 	echo "" >> regtests_lst.gpr
 	echo "   T_SEC_XMLADA := (" >> regtests_lst.gpr
 	$(AWK) 'BEGIN{FS=":";n=0} \
@@ -285,7 +285,7 @@ endif
 		n==0{printf ("\"%s\"",$$1);n=1}' \
 			s_tsecxmlada.lst >> regtests_lst.gpr
 	echo "   );" >> regtests_lst.gpr
-# T_XMLADA
+#  T_XMLADA
 	echo "" >> regtests_lst.gpr
 	echo "   T_XMLADA := (" >> regtests_lst.gpr
 	$(AWK) 'BEGIN{FS=":";n=0} \

@@ -6,17 +6,17 @@ import logging
 import os
 import sys
 
-# Change directory
+#  Change directory
 TEST = sys.modules['__main__']
 TESTDIR = os.path.dirname(TEST.__file__)
 TEST_NAME = os.path.basename(TESTDIR)
 os.chdir(TESTDIR)
 
-# Load generated configuration
+#  Load generated configuration
 import config
 config.set()
 
-# Now gnatpython modules should be visible.
+#  Now gnatpython modules should be visible.
 from gnatpython.ex import Run
 
 def build(prj):
@@ -31,7 +31,7 @@ def gnatmake(prj):
     cmd = ["gnatmake", "-p", "-f", "-gnat05", "-P" + prj, "-bargs", "-E"]
     p = Run(cmd)
     if p.status:
-        # Exit with error
+        #  Exit with error
         logging.error(p.out)
         sys.exit(p.status)
     else:
@@ -45,7 +45,7 @@ def gprbuild(prj):
         cmd = cmd + ["-cargs", "-pg", "-O2", "-largs", "-pg"]
     p = Run(cmd)
     if p.status:
-        # Exit with error
+        #  Exit with error
         logging.error(p.out)
         sys.exit(p.status)
     else:
@@ -61,7 +61,7 @@ def run(bin, options=[], output_file=None):
     else:
         p = Run(["./" + bin] + options, output=output_file)
     if p.status:
-        # Exit with error
+        #  Exit with error
         logging.error(open(output_file).read())
         sys.exit(p.status)
     else:
@@ -78,7 +78,7 @@ def exec_cmd(bin, options=[], output_file=None):
         output_file = bin + ".res"
     p = Run([bin] + options, output=output_file)
     if p.status:
-        # Exit with error
+        #  Exit with error
         logging.error(open(output_file).read())
         sys.exit(p.status)
     else:
@@ -89,10 +89,10 @@ def diff(left=None, right=None):
         left = "test.out"
     if right is None:
         right = "test.res"
-    # Print the result of diff test.out "p.out"
+    #  Print the result of diff test.out "p.out"
     p = Run(["diff", "-w", left, right])
     if p.status:
-        # Exit with error
+        #  Exit with error
         logging.error(p.out)
         sys.exit(p.status)
     else:
