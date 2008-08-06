@@ -879,6 +879,13 @@ regtests/0121_test_soap/test.py
 regtests/0121_test_soap/test_soap.adb
 regtests/0121_test_soap/test_soap.gpr
 regtests/0121_test_soap/test_soap_proc.adb
+regtests/0122_test_sec_soap/cert.pem
+regtests/0122_test_sec_soap/test.opt
+regtests/0122_test_sec_soap/test.out
+regtests/0122_test_sec_soap/test.py
+regtests/0122_test_sec_soap/test_sec_soap.adb
+regtests/0122_test_sec_soap/test_sec_soap.gpr
+regtests/0122_test_sec_soap/test_soap_proc.adb
 regtests/alldifs.out
 regtests/aws.ini
 regtests/aws.mime
@@ -1631,8 +1638,6 @@ regtests/soap_hotplug_pack_service-types.ads
 regtests/soap_hotplug_pack_service.ads
 regtests/tc_soap_names.adb
 regtests/tc_soap_names.ads
-regtests/test_sec_soap.adb
-regtests/test_sec_soap.out
 regtests/test_soap2.adb
 regtests/test_soap2.out
 regtests/test_soap3.adb
