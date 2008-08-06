@@ -1,10 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2004                            --
---                                ACT-Europe                                --
---                                                                          --
---  Authors: Dmitriy Anisimkov - Pascal Obry                                --
+--                     Copyright (C) 2004-2008, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -28,10 +25,24 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-package SOAP_Hotplug_Pack is
+package body SOAP_Hotplug_Pack is
 
-   function Job1 (X, Y : in Integer) return Integer;
+   ----------
+   -- Job1 --
+   ----------
 
-   function Job2 (X, Y : in Integer) return Integer;
+   function Job1 (X, Y : in Integer) return Integer is
+   begin
+      return X + Y;
+   end Job1;
+
+   ----------
+   -- Job2 --
+   ----------
+
+   function Job2 (X, Y : in Integer) return Integer is
+   begin
+      return X * Y;
+   end Job2;
 
 end SOAP_Hotplug_Pack;

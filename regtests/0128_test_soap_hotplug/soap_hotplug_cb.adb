@@ -1,10 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2004                            --
---                                ACT-Europe                                --
---                                                                          --
---  Authors: Dmitriy Anisimkov - Pascal Obry                                --
+--                     Copyright (C) 2004-2008, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -28,24 +25,57 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-package body SOAP_Hotplug_Pack is
+with AWS.MIME;
+with SOAP.Utils;
 
-   ----------
-   -- Job1 --
-   ----------
+with SOAP_Hotplug_Pack_Service.CB;
+with SOAP_Hotplug_Pack_Service.Server;
 
-   function Job1 (X, Y : in Integer) return Integer is
-   begin
-      return X + Y;
-   end Job1;
+package body SOAP_Hotplug_CB is
 
-   ----------
-   -- Job2 --
-   ----------
+   function Hotplug_Job (X, Y : in Integer) return Integer;
 
-   function Job2 (X, Y : in Integer) return Integer is
+   function Hotplug_Job (X, Y : in Integer) return Integer is
    begin
       return X * Y;
-   end Job2;
+   end Hotplug_Job;
 
-end SOAP_Hotplug_Pack;
+   function SOAP_Wrapper is
+     new SOAP.Utils.SOAP_Wrapper (SOAP_Hotplug_Pack_Service.CB.SOAP_CB);
+
+   function SOAP_Hotplug_Wrapper is
+     new SOAP.Utils.SOAP_Wrapper (SOAP_Hotplug_Pack_Service.CB.SOAP_Hotplug_CB);
+
+   -------------
+   -- Hotplug --
+   -------------
+
+   function Hotplug (Request : in Status.Data) return Response.Data is
+      SOAPAction : constant String := Status.SOAPAction (Request);
+   begin
+      if SOAPAction = "Job1"
+        or else SOAPAction = "Job2"
+      then
+         return SOAP_Hotplug_Wrapper (Request);
+      else
+         return Response.Build (MIME.Text_HTML, "<p>Not a valid SOAP request");
+      end if;
+   end Hotplug;
+
+   ----------
+   -- Main --
+   ----------
+
+   function Main (Request : in Status.Data) return Response.Data is
+      SOAPAction : constant String := Status.SOAPAction (Request);
+   begin
+      if SOAPAction = "Job1"
+        or else SOAPAction = "Job2"
+      then
+         return SOAP_Wrapper (Request);
+      else
+         return Response.Build (MIME.Text_HTML, "<p>Not a valid SOAP request");
+      end if;
+   end Main;
+
+end SOAP_hotplug_CB;
