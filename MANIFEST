@@ -859,6 +859,10 @@ regtests/0117_test_jabber/test.out
 regtests/0117_test_jabber/test.py
 regtests/0117_test_jabber/test_jabber.adb
 regtests/0117_test_jabber/test_jabber.gpr
+regtests/0118_test_net_log/test.out
+regtests/0118_test_net_log/test.py
+regtests/0118_test_net_log/test_net_log.adb
+regtests/0118_test_net_log/test_net_log.gpr
 regtests/alldifs.out
 regtests/aws.ini
 regtests/aws.mime
@@ -879,8 +883,6 @@ regtests/sockover_proc.adb
 regtests/sslcfg.gnutls.out
 regtests/strm2.adb
 regtests/strm2.out
-regtests/test_net_log.adb
-regtests/test_net_log.out
 regtests/test_smtp_authentication.adb
 regtests/test_smtp_authentication.out
 regtests/test_speed.adb
