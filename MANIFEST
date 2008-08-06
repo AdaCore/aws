@@ -1047,6 +1047,10 @@ regtests/0150_upload/test.out
 regtests/0150_upload/test.py
 regtests/0150_upload/upload.adb
 regtests/0150_upload/upload.gpr
+regtests/0151_upload2/test.out
+regtests/0151_upload2/test.py
+regtests/0151_upload2/upload2.adb
+regtests/0151_upload2/upload2.gpr
 regtests/alldifs.out
 regtests/aws.ini
 regtests/cm_include.tmplt
@@ -1064,8 +1068,6 @@ regtests/sslcfg.gnutls.out
 regtests/test_support.py
 regtests/testsuite.py
 regtests/tgdb
-regtests/upload2.adb
-regtests/upload2.out
 regtests/upload4.adb
 regtests/upload4.out
 regtests/upload5.adb

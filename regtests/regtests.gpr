@@ -44,7 +44,7 @@ project Regtests is
 
    --  Common tests for Separated and Grouped section
 
-   Common := ("upload2.adb");
+   Common := ();
 
    --  Common tests using XMLADA support
 
