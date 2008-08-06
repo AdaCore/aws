@@ -1,8 +1,8 @@
 Start main, wait for server to start...
 Server started
 
-Client Filename = makefile
-Server Filename = ./.makefile
+Client Filename = test.out
+Server Filename = ./.test.out
 => call ok
 
 Client Filename = upload.adb

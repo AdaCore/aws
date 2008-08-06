@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2007                          --
---                                 AdaCore                                  --
+--                     Copyright (C) 2000-2008, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -25,8 +24,6 @@
 --  however invalidate any other reasons why the executable file  might be  --
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
-
---  ~ MAIN [STD]
 
 with Ada.Directories;
 with Ada.Strings.Fixed;
@@ -156,7 +153,7 @@ begin
    Server.Started;
 
    Request
-     ("http://localhost:" & Utils.Image (Port) & "/upload", "makefile");
+     ("http://localhost:" & Utils.Image (Port) & "/upload", "test.out");
    Request
      ("http://localhost:" & Utils.Image (Port) & "/upload", "upload.adb");
 
