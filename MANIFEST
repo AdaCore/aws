@@ -832,6 +832,12 @@ regtests/0112_stream_response/stream_response.adb
 regtests/0112_stream_response/stream_response.gpr
 regtests/0112_stream_response/test.out
 regtests/0112_stream_response/test.py
+regtests/0113_strm/strm.adb
+regtests/0113_strm/strm.gpr
+regtests/0113_strm/test.out
+regtests/0113_strm/test.py
+regtests/0113_strm/user_strm.adb
+regtests/0113_strm/user_strm.ads
 regtests/alldifs.out
 regtests/aws.ini
 regtests/aws.mime
@@ -852,8 +858,6 @@ regtests/print_tasks.adb
 regtests/regtests.gpr
 regtests/sockover_proc.adb
 regtests/sslcfg.gnutls.out
-regtests/strm.adb
-regtests/strm.out
 regtests/strm2.adb
 regtests/strm2.out
 regtests/tclientto.adb
@@ -905,8 +909,6 @@ regtests/url_object.adb
 regtests/url_object.out
 regtests/user_sock.adb
 regtests/user_sock.out
-regtests/user_strm.adb
-regtests/user_strm.ads
 regtests/usock.adb
 regtests/usock.ads
 regtests/wait.adb

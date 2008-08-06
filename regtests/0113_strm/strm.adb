@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2008                          --
---                                 AdaCore                                  --
+--                     Copyright (C) 2000-2008, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -26,9 +25,7 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  ~ MAIN [STD]
-
---  Test for user defined stream.
+--  Test for user defined stream
 
 with Ada.Text_IO;
 with Ada.Exceptions;
@@ -200,7 +197,7 @@ begin
 
    Server.Wait_Start;
 
-   --  Keep-alive test.
+   --  Keep-alive test
 
    Client.Create
      (Connection => Connect,
@@ -219,7 +216,7 @@ begin
    Client.Get (Connect, R, GZip_URI);
    Compare_Message;
 
-   --  Test for header answer with undefined responce length.
+   --  Test for header answer with undefined responce length
 
    Client.Head (Connect, R, Length_Undefined_URI);
    Put_Line
@@ -229,7 +226,7 @@ begin
 
    Client.Close (Connect);
 
-   --  Non keep-alive test.
+   --  Non keep-alive test
 
    R := Client.Get (Base_URL & Length_Defined_URI);
    Compare_Message;
