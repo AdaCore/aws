@@ -48,7 +48,7 @@ project Regtests is
 
    --  Common tests using XMLADA support
 
-   Common_XMLADA := ("test_speed.adb");
+   Common_XMLADA := ();
 
    case Mode is
       when "Generator" =>

@@ -70,10 +70,6 @@ endif
 
 FILTER_OUT	= generate.adb
 
-ifeq (${EXTRA_TESTS}, false)
-FILTER_OUT	+= test_speed.adb
-endif
-
 # Standard regression tests that needs to be run in a separate executable
 
 OTH_TESTS      = wxrefs

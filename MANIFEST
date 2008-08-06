@@ -940,6 +940,11 @@ regtests/0129_test_soap_timeout/test.py
 regtests/0129_test_soap_timeout/test_soap_timeout.adb
 regtests/0129_test_soap_timeout/test_soap_timeout.gpr
 regtests/0129_test_soap_timeout/test_soap_timeout.wsdl
+regtests/0130_test_speed/test.opt
+regtests/0130_test_speed/test.out
+regtests/0130_test_speed/test.py
+regtests/0130_test_speed/test_speed.adb
+regtests/0130_test_speed/test_speed.gpr
 regtests/alldifs.out
 regtests/aws.ini
 regtests/aws.mime
@@ -956,8 +961,6 @@ regtests/print_tasks.adb
 regtests/regtests.gpr
 regtests/sockover_proc.adb
 regtests/sslcfg.gnutls.out
-regtests/test_speed.adb
-regtests/test_speed.out
 regtests/test_support.py
 regtests/test_templates_if.adb
 regtests/test_templates_if.out
