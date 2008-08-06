@@ -934,6 +934,12 @@ regtests/0128_test_soap_hotplug/test.out
 regtests/0128_test_soap_hotplug/test.py
 regtests/0128_test_soap_hotplug/test_soap_hotplug.adb
 regtests/0128_test_soap_hotplug/test_soap_hotplug.gpr
+regtests/0129_test_soap_timeout/test.opt
+regtests/0129_test_soap_timeout/test.out
+regtests/0129_test_soap_timeout/test.py
+regtests/0129_test_soap_timeout/test_soap_timeout.adb
+regtests/0129_test_soap_timeout/test_soap_timeout.gpr
+regtests/0129_test_soap_timeout/test_soap_timeout.wsdl
 regtests/alldifs.out
 regtests/aws.ini
 regtests/aws.mime
@@ -1673,9 +1679,6 @@ regtests/register.ads
 regtests/register.out
 regtests/tc_soap_names.adb
 regtests/tc_soap_names.ads
-regtests/test_soap_timeout.adb
-regtests/test_soap_timeout.out
-regtests/test_soap_timeout.wsdl
 regtests/test_wsdl.adb
 regtests/test_wsdl.out
 regtests/test_wsdl.wsdl

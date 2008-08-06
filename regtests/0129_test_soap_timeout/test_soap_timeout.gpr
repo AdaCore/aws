@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2008                            --
---                                 AdaCore                                  --
+--                        Copyright (C) 2008, AdaCore                       --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -26,78 +25,9 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  ~ MAIN [XMLADA]
+with "aws";
 
-with Ada.Calendar;
-with Ada.Exceptions;
-with Ada.Text_IO;
-
-with R_Hello_Timeout_Demo.Client;
-with R_Hello_Timeout_Demo.Server;
-
-procedure Test_SOAP_Timeout is
-
-   use Ada;
-   use Ada.Exceptions;
-
-   procedure Start_Time;
-   --  Record starting time
-
-   procedure Stop_Time;
-   --  Record ending time
-
-   procedure Check_Duration (D : in Duration; Message : in String);
-   --  Check that duration is about D seconds
-
-   Start, Stop : Calendar.Time;
-
-   --------------------
-   -- Check_Duration --
-   --------------------
-
-   procedure Check_Duration (D : in Duration; Message : in String) is
-      use type Calendar.Time;
-      Elaps : constant Duration := Stop - Start - D;
-   begin
-      if abs (Elaps) < 0.2 then
-         Text_IO.Put_Line ("OK:" & Message);
-      else
-         Text_IO.Put_Line ("NOK:" & Message & ", " & Duration'Image (Elaps));
-      end if;
-   end Check_Duration;
-
-   ----------------
-   -- Start_Time --
-   ----------------
-
-   procedure Start_Time is
-   begin
-      Start := Calendar.Clock;
-   end Start_Time;
-
-   ---------------
-   -- Stop_Time --
-   ---------------
-
-   procedure Stop_Time is
-   begin
-      Stop := Calendar.Clock;
-   end Stop_Time;
-
-begin
-   Start_Time;
-   declare
-      R : constant String := R_Hello_Timeout_Demo.Client.sayHello
-        ("pascal",
-         Endpoint => "http://www.google.com:9856",
-         Timeouts => (4.0, 2.0, 1.0));
-   begin
-      Text_IO.Put_Line ("Result: '" & R & ''');
-   end;
-exception
-   when E : others =>
-      Stop_Time;
-      Check_Duration (4.0, "SOAP");
-      Text_IO.Put_Line ("Exception: " & Exception_Name (E));
-      Text_IO.Put_Line ("Exception: " & Exception_Message (E));
+project Test_SOAP_Timeout is
+   for Source_Dirs use (".");
+   for Main use ("test_soap_timeout.adb");
 end Test_SOAP_Timeout;
