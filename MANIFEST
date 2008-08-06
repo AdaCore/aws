@@ -863,6 +863,10 @@ regtests/0118_test_net_log/test.out
 regtests/0118_test_net_log/test.py
 regtests/0118_test_net_log/test_net_log.adb
 regtests/0118_test_net_log/test_net_log.gpr
+regtests/0119_test_smtp_authentication/test.out
+regtests/0119_test_smtp_authentication/test.py
+regtests/0119_test_smtp_authentication/test_smtp_authentication.adb
+regtests/0119_test_smtp_authentication/test_smtp_authentication.gpr
 regtests/alldifs.out
 regtests/aws.ini
 regtests/aws.mime
@@ -883,8 +887,6 @@ regtests/sockover_proc.adb
 regtests/sslcfg.gnutls.out
 regtests/strm2.adb
 regtests/strm2.out
-regtests/test_smtp_authentication.adb
-regtests/test_smtp_authentication.out
 regtests/test_speed.adb
 regtests/test_speed.out
 regtests/test_support.py
