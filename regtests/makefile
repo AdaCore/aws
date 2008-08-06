@@ -78,7 +78,7 @@ ALONE_TESTS    = tlog
 
 ifeq (${XMLADA}, true)
 
-WSDL_TESTS     = test_wsdl6
+WSDL_TESTS     =
 WSDL_ATESTS    = test_wsdl7
 WSDL2AWS_TESTS = wsdl_parse_1 wsdl_parse_2 wsdl_parse_3 wsdl_parse_4
 endif
