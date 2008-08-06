@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2004-2006                          --
---                                 AdaCore                                  --
+--                     Copyright (C) 2004-2008, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -25,8 +24,6 @@
 --  however invalidate any other reasons why the executable file  might be  --
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
-
---  ~ MAIN [STD]
 
 --  Test the upload directory config
 
@@ -200,9 +197,9 @@ begin
    Server.Started;
 
    Request
-     ("http://localhost:" & Utils.Image (Port) & "/upload", "makefile");
+     ("http://localhost:" & Utils.Image (Port) & "/upload", "test.out");
    Request
-     ("http://localhost:" & Utils.Image (Port) & "/upload", "upload.adb");
+     ("http://localhost:" & Utils.Image (Port) & "/upload", "upload5.adb");
 
    Server.Stop;
    Server.Stopped;
