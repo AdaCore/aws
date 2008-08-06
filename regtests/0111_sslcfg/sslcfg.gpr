@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2004                            --
---                                ACT-Europe                                --
+--                        Copyright (C) 2008, AdaCore                       --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -26,41 +25,9 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  ~ MAIN [SSL]
+with "aws";
 
---  Test for certificate or keyfile absence and wrong format.
-
-with Ada.Exceptions;
-with Ada.Text_IO;
-with AWS.Net.SSL;
-
-procedure SSLCfg is
-
-   procedure Test (Cert : String; Key : String := "");
-
-   ----------
-   -- Test --
-   ----------
-
-   procedure Test (Cert : String; Key : String := "") is
-      use AWS.Net.SSL;
-      Conf : Config;
-   begin
-      Initialize
-        (Config               => Conf,
-         Certificate_Filename => Cert,
-         Key_Filename         => Key);
-      Ada.Text_IO.Put_Line ("Success.");
-   exception
-      when E : others =>
-         Ada.Text_IO.Put_Line (Ada.Exceptions.Exception_Message (E));
-   end Test;
-
-begin
-   Test ("absent-file");
-   Test ("cert.pem", "absent-file");
-   Test ("sslcfg.adb");
-   Test ("cert.pem", "sslcfg.adb");
-   Test ("cert.pem");
-   Test ("cert.pem", "cert.pem");
+project SSLCfg is
+   for Source_Dirs use (".");
+   for Main use ("sslcfg.adb");
 end SSLCfg;
