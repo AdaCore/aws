@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2003                            --
---                                ACT-Europe                                --
+--                     Copyright (C) 2003-2008, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -28,39 +27,88 @@
 
 --  Test for user defined stream raising an exception
 
+with Ada.Text_IO;
+with Ada.Exceptions;
 with Ada.Streams;
+
+with AWS.Server;
+with AWS.Client;
+with AWS.Status;
+with AWS.MIME;
+with AWS.Response;
+with AWS.Messages;
 
 with AWS.Resources.Streams;
 
-package Error_Strm is
+with Error_Strm;
 
-   use AWS.Resources;
-   use Ada.Streams;
+procedure Strm2 is
 
-   type File_Tagged is new Streams.Stream_Type with private;
+   use Ada;
+   use Ada.Text_IO;
+   use AWS;
 
-   function End_Of_File
-     (Resource : in File_Tagged)
-      return Boolean;
+   function CB (Request : in Status.Data) return Response.Data;
 
-   procedure Read
-     (Resource : in out File_Tagged;
-      Buffer   :    out Stream_Element_Array;
-      Last     :    out Stream_Element_Offset);
+   task Server is
+      entry Wait_Start;
+      entry Stop;
+   end Server;
 
-   procedure Close (File : in out File_Tagged);
+   HTTP    : AWS.Server.HTTP;
+   Connect : Client.HTTP_Connection;
+   R       : Response.Data;
 
-   procedure Reset (File : in out File_Tagged);
+   --------
+   -- CB --
+   --------
 
-   procedure Create
-     (Resource : in out AWS.Resources.Streams.Stream_Type'Class;
-      Size     : in     Stream_Element_Offset);
+   function CB (Request : in Status.Data) return Response.Data is
+      File : AWS.Resources.Streams.Stream_Access := new Error_Strm.File_Tagged;
+   begin
+      if Status.URI (Request) = "/toto" then
+         return AWS.Response.Stream ("text/plain", File);
+      else
+         return AWS.Response.Build
+           ("text/plain", "Unknown resource", Messages.S404);
+      end if;
+   end CB;
 
-private
+   ------------
+   -- Server --
+   ------------
 
-   type File_Tagged is new Streams.Stream_Type with record
-      Offset : Stream_Element_Offset;
-      Size   : Stream_Element_Offset;
-   end record;
+   task body Server is
+   begin
+      AWS.Server.Start
+        (HTTP, "Testing user defined stream.",
+         CB'Unrestricted_Access, Port => 1250, Max_Connection => 3);
 
-end Error_Strm;
+      accept Wait_Start;
+      accept Stop;
+   exception
+      when E : others =>
+         Put_Line ("Server Error " & Exceptions.Exception_Information (E));
+   end Server;
+
+begin
+   Server.Wait_Start;
+
+   Client.Create
+     (Connection => Connect,
+      Host       => "http://localhost:1250",
+      Timeouts   => (1.0, 5.0, 5.0));
+
+   Client.Get (Connect, R, "/toto");
+
+   Client.Close (Connect);
+
+   Text_IO.Put_Line ("> " & Response.Message_Body (R));
+
+   Server.Stop;
+
+exception
+   when E : others =>
+      Put_Line ("Main Error " & Exceptions.Exception_Information (E));
+      Server.Stop;
+end Strm2;

@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2003                            --
---                                ACT-Europe                                --
+--                     Copyright (C) 2003-2008, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -26,59 +25,45 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-package body Error_Strm is
+--  Test for user defined stream raising an exception
 
-   -----------
-   -- Close --
-   -----------
+with Ada.Streams;
 
-   procedure Close (File : in out File_Tagged) is
-   begin
-      null;
-   end Close;
+with AWS.Resources.Streams;
 
-   ------------
-   -- Create --
-   ------------
+package Error_Strm is
 
-   procedure Create
-     (Resource : in out AWS.Resources.Streams.Stream_Type'Class;
-      Size     : in     Stream_Element_Offset) is
-   begin
-      File_Tagged (Resource).Size   := Size;
-      File_Tagged (Resource).Offset := 0;
-   end Create;
+   use AWS.Resources;
+   use Ada.Streams;
 
-   -----------------
-   -- End_Of_File --
-   -----------------
+   type File_Tagged is new Streams.Stream_Type with private;
 
    function End_Of_File
      (Resource : in File_Tagged)
-      return Boolean is
-   begin
-      return Resource.Offset >= Resource.Size;
-   end End_Of_File;
-
-   ----------
-   -- Read --
-   ----------
+      return Boolean;
 
    procedure Read
      (Resource : in out File_Tagged;
       Buffer   :    out Stream_Element_Array;
-      Last     :    out Stream_Element_Offset) is
-   begin
-      raise Constraint_Error;
-   end Read;
+      Last     :    out Stream_Element_Offset);
 
-   -----------
-   -- Reset --
-   -----------
+   procedure Close (File : in out File_Tagged);
 
-   procedure Reset (File : in out File_Tagged) is
-   begin
-      null;
-   end Reset;
+   procedure Reset (File : in out File_Tagged);
+
+   procedure Set_Index
+     (File     : in out File_Tagged;
+      Position : in     Stream_Element_Offset);
+
+   procedure Create
+     (Resource : in out AWS.Resources.Streams.Stream_Type'Class;
+      Size     : in     Stream_Element_Offset);
+
+private
+
+   type File_Tagged is new Streams.Stream_Type with record
+      Offset : Stream_Element_Offset;
+      Size   : Stream_Element_Offset;
+   end record;
 
 end Error_Strm;
