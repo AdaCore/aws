@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2002-2008                          --
---                                 AdaCore                                  --
+--                     Copyright (C) 2002-2008, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -26,8 +25,7 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  Thin binding to the LDAP API (derived from ldap.h). Only API to read from
---  the server have been imported.
+--  Thin binding to the LDAP API (derived from ldap.h)
 
 --  This has been tested with OpenLDAP and wldap32.dll on Windows paltforms
 

@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2003-2008                          --
---                                 AdaCore                                  --
+--                     Copyright (C) 2003-2008, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -26,9 +25,8 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  Provides an API to read information from an LDAP server. This API does not
---  cover modifing, adding or deleting information into the server. It is a
---  thick binding, see AWS.LDAP.Thin for a thin binding.
+--  Provides an API to add, read, modify and delete information from a LDAP
+--  server. It is a thick binding, see AWS.LDAP.Thin for a thin binding.
 --
 --  This API has been tested on Windows and Linux (OpenLDAP).
 
