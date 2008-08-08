@@ -253,7 +253,7 @@ endif
 
 ifeq (${ASIS}, true)
 PRJ_ASIS=Installed
-GEXT_MODULE := $(GEXT_MODULE) gasis_clean
+GEXT_MODULE := $(GEXT_MODULE) gasis_setup
 else
 PRJ_ASIS=Disabled
 GEXT_MODULE := $(GEXT_MODULE) gasis_dummy
@@ -338,12 +338,15 @@ check: $(MODULES_CHECK)
 PRJDIR = .build/projects
 
 gasis_dummy:
-	echo "project ASIS is" > $(PRJDIR)/asis.gpr;
-	echo "   for Source_Dirs use ();" >> $(PRJDIR)/asis.gpr;
-	echo "end ASIS;" >> $(PRJDIR)/asis.gpr;
+	echo "project AWS_ASIS is" > $(PRJDIR)/aws_asis.gpr;
+	echo "   for Source_Dirs use ();" >> $(PRJDIR)/aws_asis.gpr;
+	echo "end AWS_ASIS;" >> $(PRJDIR)/aws_asis.gpr;
 
-gasis_clean:
-	-$(RM) -f $(PRJDIR)/asis.gpr
+gasis_setup:
+	echo 'with "asis";' > $(PRJDIR)/aws_asis.gpr
+	echo "project AWS_ASIS is" >> $(PRJDIR)/aws_asis.gpr
+	echo "   for Source_Dirs use ();" >> $(PRJDIR)/aws_asis.gpr
+	echo "end AWS_ASIS;" >> $(PRJDIR)/aws_asis.gpr
 
 gxmlada_dummy:
 	echo "project AWS_XMLADA is" > $(PRJDIR)/aws_xmlada.gpr

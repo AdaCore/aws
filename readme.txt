@@ -39,6 +39,11 @@ New features are described into the file docs/features.
 
 Listed below are some minor enhancements and fixes:
 
+   - Add support for auto-configuration of the XML/Ada and ASIS support.
+     By default if the project files are found the corresponding support
+     (SOAP if XML/Ada present and the ada2wsdl tool if ASIS is present)
+     are activated.
+
    - AWS now supports parallel build, see CJOBS in makefile.conf.
 
    - SMTP date header now properly includes the UTC offset.
