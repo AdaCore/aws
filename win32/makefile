@@ -1,8 +1,7 @@
 ############################################################################
 #                              Ada Web Server                              #
 #                                                                          #
-#                         Copyright (C) 2003-2008                          #
-#                                 AdaCore                                  #
+#                     Copyright (C) 2003-2008, AdaCore                     #
 #                                                                          #
 #  This library is free software; you can redistribute it and/or modify    #
 #  it under the terms of the GNU General Public License as published by    #
@@ -42,8 +41,8 @@ AWS_COFF	= $(LDIR)/aws.coff
 ifeq (${OS}, Windows_NT)
    RES        = $(AWS_COFF)
    IMPORT_LIB = $(LIBSSL) $(LIBCRYPTO) $(LIBLDAP)
-   TBUILD      = build_win32
-   TINSTALL    = install_win32
+   TBUILD     = $(LDIR)/libaws_win32.a
+   TINSTALL   = install_win32
 else
    RES        =
    IMPORT_LIB =
@@ -55,7 +54,8 @@ force:
 
 build: $(TBUILD) $(RES) $(IMPORT_LIB)
 
-build_win32: $(ODIR)/gai_strerror.o
+$(LDIR)/libaws_win32.a: gai_strerror.c
+	echo Building libaws_win32.a
 	$(AR) cr $(LDIR)/libaws_win32.a $+
 
 $(ODIR)/%.o: %.o
