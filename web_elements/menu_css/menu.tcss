@@ -43,7 +43,7 @@
 @@--
 @@--          <ul>
 @@--            <li><h2>Menu2</h2>
-@@--            .... 
+@@--            ....
 @@--
 @@--      Note that for submenus, the <a> element should have a specific class
 @@--      for proper rendering.
@@ -69,11 +69,11 @@
                         text-indent:3px;
                         margin:0;
                         padding:1px 0px; }
-.@_$1_@ a           { background:@_BG_COLOR_@; 
+.@_$1_@ a           { background:@_BG_COLOR_@;
 		      text-decoration:none; width:100%; }
 .@_$1_@ a,
 .@_$1_@ a:visited   { color:@_TEXT_COLOR_@; }
-.@_$1_@ a:hover     { color:@_SELECTED_TEXT_COLOR_@; 
+.@_$1_@ a:hover     { color:@_SELECTED_TEXT_COLOR_@;
                       background:@_SELECTED_BG_COLOR_@; }
 .@_$1_@ a:active    { color:@_SELECTED_BG_COLOR_@; background:@_BG_COLOR_@; }
 .@_$1_@ ul          { margin:0; padding:0;
@@ -97,6 +97,6 @@
                        margin:0;
                        width:100%; }
 .@_$1_@ li          { background: @_BG_COLOR_@; }
-.@_$1_@ .@_$2_@     { background: url('/we_icons/arrow.png') 
+.@_$1_@ .@_$2_@     { background: url('/we_icons/arrow.png')
                       no-repeat bottom right;}
 </style>

@@ -1,7 +1,4 @@
 
-In this directory are all AWS files that depends on the XMLAda parser.
+In this directory are all AWS files that depends on XML/Ada.
 
-These files are compiled as part of the build for all ../src/ packages.
-
-Note that AWS.Jabber API was part of the ../src directory, for old ChangeLog
-entries look into ../src/ChangeLog.
+These files are compiled as part of the build of project ../src/src.gpr.

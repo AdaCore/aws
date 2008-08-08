@@ -5,8 +5,6 @@ compiler than GNAT. GNAT users should not use these files.
 Most packages have been edited to remove dependances to the GNAT
 runtime. Features not used by AWS have been removed. See notes below.
 
-
-
 GNAT
 	Unmodifed.
 

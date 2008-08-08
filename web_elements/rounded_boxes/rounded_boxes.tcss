@@ -70,7 +70,7 @@
              background: @_BOX_COLOR_@ url('/we_icons/rcorner.gif') right top no-repeat;
              color: @_TEXT_HEADER_COLOR_@;
              margin: 1em 0 0 0;
-             padding: 2px; 
+             padding: 2px;
              font-size: 1em; }
 .@_$1_@ h3 { color: @_TEXT_TITLE_COLOR_@;
              font-weight: 600;
