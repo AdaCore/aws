@@ -54,9 +54,11 @@ force:
 
 build: $(TBUILD) $(RES) $(IMPORT_LIB)
 
-$(LDIR)/libaws_win32.a: gai_strerror.c
+$(LDIR)/libaws_win32.a: gai_strerror.o
 	echo Building libaws_win32.a
 	$(AR) cr $(LDIR)/libaws_win32.a $+
+
+gai_strerror.o: gai_strerror.c
 
 $(ODIR)/%.o: %.o
 	$(CP) $< $(ODIR)/$<
