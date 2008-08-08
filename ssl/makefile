@@ -61,8 +61,8 @@ endif
 check:
 	$(GNAT) check -Pssl -rules -from=../aws.checks
 
-SSLGPR	=	aws_ssl_shared.gpr
-ISSLGPR	=	install_aws_ssl_shared.gpr
+SSLGPR	=	../$(BDIR)/../projects/aws_ssl_shared.gpr
+ISSLGPR	=	../$(BDIR)/../projects/install_aws_ssl_shared.gpr
 
 setup_ssl:
 	echo "project AWS_SSL_Shared is" > $(SSLGPR)
@@ -104,7 +104,7 @@ install:
 ifeq (${ENABLE_SHARED}, true)
 	$(CP) ../$(BDIR)/relocatable/lib/ssl/* $(I_LIB)/relocatable
 endif
-	$(CP) install_aws_ssl_shared.gpr $(I_AGP)/aws_ssl_shared.gpr
+	$(CP) $(ISSLGPR) $(I_AGP)/aws_ssl_shared.gpr
 
 clean:
 	$(GNAT) clean -XLIBRARY_TYPE=static -Pssl
