@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2003-2007                          --
---                                 AdaCore                                  --
+--                     Copyright (C) 2003-2008, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -48,11 +47,18 @@ project Demos is
                     "soap_server_disp.adb", "jabber_demo.adb");
 
    for Source_Files use
-     Mains & ("dispatch_cb.adb", "auth_cb.adb", "text_input_cb.adb",
-              "vh_demo_cb.adb", "ws_cb.adb", "zdemo_cb.adb", "rdemo.adb",
-              "hotplug_cb.adb", "hello_world_cb.adb", "res_demo_cb.adb",
-              "rdemo-adains_png.ads", "rdemo-page3_html.ads", "demos.gpr",
-              "web_elements_containers.ads", "web_elements_containers.adb");
+     Mains & ("dispatch_cb.ads", "dispatch_cb.adb",
+              "auth_cb.ads","auth_cb.adb",
+              "text_input_cb.ads", "text_input_cb.adb",
+              "vh_demo_cb.ads", "vh_demo_cb.adb",
+              "ws_cb.ads", "ws_cb.adb",
+              "zdemo_cb.ads", "zdemo_cb.adb",
+              "rdemo.ads", "rdemo.adb",
+              "hotplug_cb.ads", "hotplug_cb.adb",
+              "hello_world_cb.ads", "hello_world_cb.adb",
+	      "res_demo_cb.ads", "res_demo_cb.adb",
+              "web_elements_containers.ads", "web_elements_containers.adb",
+              "rdemo-adains_png.ads", "rdemo-page3_html.ads", "demos.gpr");
 
    for Main use Mains;
 
@@ -62,11 +68,16 @@ project Demos is
          for Source_Files use
            project'Source_Files
              & Mains_XMLADA
-             & ("hello_demo.ads", "hello_demo-client.adb",
-                "hello_demo-server.adb", "hello_demo-types.ads",
-                "wsdl_demo_server_cb.adb", "interoplab.ads",
-                "interoplab-client.adb", "interoplab-types.ads",
-                "soap_server_cb.adb", "soap_server_disp_cb.adb",
+             & ("hello_demo.ads",
+	        "hello_demo-client.ads", "hello_demo-client.adb",
+                "hello_demo-server.ads", "hello_demo-server.adb",
+		"hello_demo-types.ads",
+                "wsdl_demo_server_cb.ads", "wsdl_demo_server_cb.adb",
+		"interoplab.ads",
+                "interoplab-client.ads", "interoplab-client.adb",
+		"interoplab-types.ads",
+                "soap_server_cb.ads", "soap_server_cb.adb",
+		"soap_server_disp_cb.ads", "soap_server_disp_cb.adb",
                 "soap_svs_cb.ads", "soap_svs_cb.adb",
                 "soapinterop-org-xsd-arrayoffloat_type_pkg.ads",
                 "soapinterop-org-xsd-arrayofint_type_pkg.ads",

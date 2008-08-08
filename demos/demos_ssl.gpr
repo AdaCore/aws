@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2003-2007                          --
---                                 AdaCore                                  --
+--                     Copyright (C) 2003-2008, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -38,7 +37,8 @@ project Demos_SSL is
 
    Mains := ("runme.adb", "agent.adb");
 
-   for Source_Files use Mains & ("runme_cb.adb", "demos_ssl.gpr");
+   for Source_Files use Mains &
+      ("runme_cb.ads", "runme_cb.adb", "demos_ssl.gpr");
 
    case Shared.Socket is
       when "ssl" | "openssl" | "gnutls" => for Main use Mains;
