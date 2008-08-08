@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2003-2007                          --
---                                 AdaCore                                  --
+--                     Copyright (C) 2003-2008, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -37,8 +36,8 @@ project Tools is
 
    for Source_Dirs use (".", "../templates_parser/tools");
 
-   for Main use ("awsres", "hotplug_password", "templates2ada", "webxref",
-                 "templatespp");
+   for Main use ("awsres.adb", "hotplug_password.adb", "templates2ada.adb",
+                 "webxref.adb", "templatespp.adb");
 
    case Shared.XMLAda is
       when "Installed" =>
