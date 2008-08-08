@@ -224,8 +224,8 @@ else
 	@echo "---------------------------------------------------"
 endif
 
-# Note that we force XMLADA=Installed, this is not a problem as it is only to
-# give the visibility to soap.ads to get the SOAP's version number.
+#  Note that we force XMLADA=Installed, this is not a problem as it is only
+#  to give the visibility to soap.ads to get the SOAP's version number.
 prog: gen_doc.sed.tmplt
 	$(GNAT) make -Pdocs -XLIBRARY_TYPE=static \
 		-XPRJ_Build=${PRJ_BUILD} -XPRJ_XMLADA=Installed

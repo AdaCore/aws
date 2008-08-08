@@ -27,8 +27,8 @@
 
 .SILENT:
 
-# Build the library only if Win32 OS. On other OS these libraries must be
-# installed separately or are most of the time already installed.
+#  Build the library only if Win32 OS. On other OS these libraries must be
+#  installed separately or are most of the time already installed.
 
 ODIR = ../$(BDIR)/../common/obj/win32
 LDIR = ../$(BDIR)/../common/lib/win32
@@ -46,8 +46,8 @@ ifeq (${OS}, Windows_NT)
 else
    RES        =
    IMPORT_LIB =
-   TBUILD      =
-   TINSTALL    =
+   TBUILD     =
+   TINSTALL   =
 endif
 
 force:

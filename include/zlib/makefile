@@ -84,7 +84,7 @@ ifeq (${ENABLE_SHARED}, true)
 endif
 
 clean:
-	-rm -f $(LIB) $(ODIR)/*.o *~
+	-$(RM) -f $(LIB) $(ODIR)/*.o *~
 
 $(BOBJS_S):
 	$(CC) $(CFLAGS) -c $(notdir $*).c -o $*.o
@@ -92,7 +92,7 @@ $(BOBJS_S):
 $(BOBJS_R):
 	$(CC) $(CFLAGS) -c $(notdir $*).c -o $*.o
 
-# DO NOT DELETE THIS LINE -- make depend depends on it.
+#  DO NOT DELETE THIS LINE -- make depend depends on it.
 
 $(ODIR_S)/adler32.o: zlib.h zconf.h zlibdefs.h
 $(ODIR_S)/compress.o: zlib.h zconf.h zlibdefs.h
