@@ -1,8 +1,7 @@
 ############################################################################
 #                              Ada Web Server                              #
 #                                                                          #
-#                         Copyright (C) 2003-2008                          #
-#                                 AdaCore                                  #
+#                     Copyright (C) 2003-2008, AdaCore                     #
 #                                                                          #
 #  This library is free software; you can redistribute it and/or modify    #
 #  it under the terms of the GNU General Public License as published by    #
@@ -40,7 +39,6 @@ endif
 	${MAKE} -C zlib setup $(GALL_OPTIONS)
 
 build_zlib: force
-	echo Building Zlib library
 	${MAKE} -C zlib $(GALL_OPTIONS)
 
 build: build_zlib
