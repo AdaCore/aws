@@ -1,8 +1,7 @@
 
-#  $Id$
 #
 #  AWS Python support for GPS integration
-# 
+#
 
 import os, string, GPS
 

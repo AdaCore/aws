@@ -86,8 +86,6 @@
 @@--   The last call makes sure the current page after a refresh of the page
 @@--   remains the same that it was before. This requires cookies, but so does
 @@--   AWS to support sessions.
-@@--
-@@--  $Id$
 
 @@SET@@ ACTIVE_PAGE_COLOR       = $5  | white
 @@SET@@ PAGE_COLOR              = $6  | #ccc

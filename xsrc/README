@@ -1,6 +1,4 @@
 
-# $Id$
-
 In this directory are all AWS files that depends on the XMLAda parser.
 
 These files are compiled as part of the build for all ../src/ packages.

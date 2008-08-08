@@ -1,6 +1,4 @@
 
-$Id$
-
 Files under this directory are provided to help building AWS with another
 compiler than GNAT. GNAT users should not use these files.
 

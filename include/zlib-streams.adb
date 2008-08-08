@@ -6,8 +6,6 @@
 --  Open source license information is in the zlib.ads file.  --
 ----------------------------------------------------------------
 
---  $Id$
-
 with Ada.Unchecked_Deallocation;
 
 package body ZLib.Streams is

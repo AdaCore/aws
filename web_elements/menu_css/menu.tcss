@@ -50,8 +50,6 @@
 @@--
 @@--  These menus will degrade properly on browsers that do not implement style
 @@--  sheets, and will simply show a list instead
-@@--
-@@--  $Id$
 
 @@SET@@ MAIN_BG_COLOR       = $3 | #aaa
 @@SET@@ BG_COLOR            = $4 | #ccc

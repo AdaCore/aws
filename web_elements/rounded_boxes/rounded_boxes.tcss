@@ -52,8 +52,6 @@
 @@--  On browsers that support for fixed position, this frame will not scroll
 @@--  along with the rest of the document. This doesn't work on Internet
 @@--  explorer 6.0.
-@@--
-@@--  $Id$
 
 @@SET@@ BOX_COLOR         = $3 | #369
 @@SET@@ BG_COLOR          = $4 | #EEE

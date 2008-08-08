@@ -6,8 +6,6 @@
 --  Open source license information is in the zlib.ads file.  --
 ----------------------------------------------------------------
 
---  $Id$
-
 package ZLib.Streams is
 
    type Stream_Mode is (In_Stream, Out_Stream, Duplex);
