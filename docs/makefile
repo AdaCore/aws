@@ -1,8 +1,7 @@
 ############################################################################
 #                              Ada Web Server                              #
 #                                                                          #
-#                         Copyright (C) 2003-2008                          #
-#                                 AdaCore                                  #
+#                     Copyright (C) 2003-2008, AdaCore                     #
 #                                                                          #
 #  This library is free software; you can redistribute it and/or modify    #
 #  it under the terms of the GNU General Public License as published by    #
@@ -255,8 +254,7 @@ install:
 	-$(CP) *.info* $(I_DOC)
 
 clean:
-	-$(GNAT) clean -XLIBRARY_TYPE=static -Pdocs \
-		-XPRJ_Build=${PRJ_BUILD} -XPRJ_XMLADA=Installed
+	-$(GNAT) clean -XLIBRARY_TYPE=static -Pdocs
 	-$(RM) -f aws.texi aws.dvi aws.html aws.info* aws.log aws.ps aws.txt
 	-$(RM) -f $(APIFILES) *~ genout
 	-$(RM) -f style-guide.dvi style-guide.html style-guide.info* \

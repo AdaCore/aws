@@ -1,8 +1,7 @@
 ############################################################################
 #                              Ada Web Server                              #
 #                                                                          #
-#                         Copyright (C) 2003-2007                          #
-#                                 AdaCore                                  #
+#                     Copyright (C) 2003-2008, AdaCore                     #
 #                                                                          #
 #  This library is free software; you can redistribute it and/or modify    #
 #  it under the terms of the GNU General Public License as published by    #
@@ -63,4 +62,5 @@ endif
 check:
 
 clean:
-	$(RM) -fr ../$(BDIR)/static/demos
+	$(GNAT) clean -XLIBRARY_TYPE=static -Pdemos
+	$(GNAT) clean -XLIBRARY_TYPE=static -Pdemos_ssl

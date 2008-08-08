@@ -1,8 +1,7 @@
 ############################################################################
 #                              Ada Web Server                              #
 #                                                                          #
-#                         Copyright (C) 2003-2008                          #
-#                                 AdaCore                                  #
+#                     Copyright (C) 2003-2008, AdaCore                     #
 #                                                                          #
 #  This library is free software; you can redistribute it and/or modify    #
 #  it under the terms of the GNU General Public License as published by    #
@@ -62,6 +61,10 @@ ifeq ($(XMLADA),true)
 endif
 
 clean:
+	$(GNAT) clean -XLIBRARY_TYPE=static -Psrc
+ifeq (${ENABLE_SHARED}, true)
+	$(GNAT) clean -XLIBRARY_TYPE=relocatable -Psrc
+endif
 	-$(RM) -f aws-translator-conversion.adb aws-os_lib-definitions.ads
 
 check:

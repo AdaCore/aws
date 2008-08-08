@@ -1,8 +1,7 @@
 ############################################################################
 #                              Ada Web Server                              #
 #                                                                          #
-#                         Copyright (C) 2003-2007                          #
-#                                 AdaCore                                  #
+#                     Copyright (C) 2003-2008, AdaCore                     #
 #                                                                          #
 #  This library is free software; you can redistribute it and/or modify    #
 #  it under the terms of the GNU General Public License as published by    #
@@ -108,4 +107,7 @@ endif
 	$(CP) install_aws_ssl_shared.gpr $(I_AGP)/aws_ssl_shared.gpr
 
 clean:
-	-$(RM) -f $(SSLGPR)
+	$(GNAT) clean -XLIBRARY_TYPE=static -Pssl
+ifeq (${ENABLE_SHARED}, true)
+	$(GNAT) clean -XLIBRARY_TYPE=relocatable -Pssl
+endif
