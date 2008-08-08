@@ -99,9 +99,6 @@ project Tools is
             null;
       end case;
 
-      for Switches ("ada2wsdl-main.adb") use
-         Linker'Default_Switches ("Ada") & ("-lasis");
-
    end Linker;
 
 end Tools;
