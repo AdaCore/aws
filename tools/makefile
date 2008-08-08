@@ -53,7 +53,7 @@ setup: $(GEN)
 	$(MKDIR) -p ../$(BDIR)/static/tools
 
 build:
-	$(GNAT) make -XLIBRARY_TYPE=static -Ptools
+	$(GNAT) make -j$(CJOBS) -XLIBRARY_TYPE=static -Ptools
 
 install:
 	-$(CP) ../$(BDIR)/static/tools/awsres${EXEEXT} $(I_BIN)

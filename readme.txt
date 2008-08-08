@@ -4,7 +4,7 @@
 
 Authors:
    Dmitriy Anisimkov
-   Pascal Obry                                             August 2nd, 2008
+   Pascal Obry                                             August 8th, 2008
 
 
 
@@ -38,6 +38,8 @@ Changes
 New features are described into the file docs/features.
 
 Listed below are some minor enhancements and fixes:
+
+   - AWS now supports parallel build, see CJOBS in makefile.conf.
 
    - SMTP date header now properly includes the UTC offset.
 

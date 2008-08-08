@@ -48,8 +48,8 @@ setup:
 	-$(MKDIR) -p ../$(BDIR)/static/demos
 
 build: build_res $(BUILD_EXT)
-	$(GNAT) make -XLIBRARY_TYPE=static -Pdemos
-	$(GNAT) make -XLIBRARY_TYPE=static -Pdemos_ssl
+	$(GNAT) make -j$(CJOBS) -XLIBRARY_TYPE=static -Pdemos
+	$(GNAT) make -j$(CJOBS) -XLIBRARY_TYPE=static -Pdemos_ssl
 
 install:
 	$(CP) *.thtml $(I_TPL)

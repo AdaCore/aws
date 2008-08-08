@@ -53,9 +53,9 @@ ifeq (${SSL_PATH},)
 endif
 
 build:
-	$(GNAT) make -XLIBRARY_TYPE=static -Pssl
+	$(GNAT) make -j$(CJOBS) -XLIBRARY_TYPE=static -Pssl
 ifeq (${ENABLE_SHARED}, true)
-	$(GNAT) make -XLIBRARY_TYPE=relocatable -Pssl
+	$(GNAT) make -j$(CJOBS) -XLIBRARY_TYPE=relocatable -Pssl
 endif
 
 check:

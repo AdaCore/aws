@@ -44,9 +44,9 @@ ifeq (${ENABLE_SHARED}, true)
 endif
 
 build:
-	$(GNAT) make -XLIBRARY_TYPE=static -Psrc
+	$(GNAT) make -j$(CJOBS) -XLIBRARY_TYPE=static -Psrc
 ifeq (${ENABLE_SHARED}, true)
-	$(GNAT) make -XLIBRARY_TYPE=relocatable -Psrc
+	$(GNAT) make -j$(CJOBS) -XLIBRARY_TYPE=relocatable -Psrc
 endif
 
 install:

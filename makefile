@@ -98,7 +98,7 @@ ALL_OPTIONS	= $(MAKE_OPT) SOCKET="$(SOCKET)" XMLADA="$(XMLADA)" \
 	BDIR="$(BDIR)" prefix="$(prefix)" ENABLE_SHARED="$(ENABLE_SHARED)" \
 	SOEXT="$(SOEXT)" BUILD_DOC_SCRIPT="false" GNAT="$(GNAT)" \
 	T2A="../../$(BDIR)/${LIBRARY_TYPE}/tools/templates2ada" \
-	LIBRARY_TYPE="$(LIBRARY_TYPE)"
+	LIBRARY_TYPE="$(LIBRARY_TYPE)" CJOBS="$(CJOBS)"
 
 build_doc:
 	echo ""
@@ -449,6 +449,7 @@ gen_setup:
 	echo "SOCKET=$(SOCKET)" >> makefile.setup
 	echo "LDAP=$(LDAP)" >> makefile.setup
 	echo "DEBUG=$(DEBUG)" >> makefile.setup
+	echo "CJOBS=$(CJOBS)" >> makefile.setup
 
 setup: setup_dir setup_debug setup_release setup_final setup_tp $(GEXT_MODULE) gen_setup
 

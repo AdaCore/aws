@@ -42,9 +42,9 @@ build_zlib: force
 	${MAKE} -C zlib $(GALL_OPTIONS)
 
 build: build_zlib
-	$(GNAT) make -XLIBRARY_TYPE=static -Pinclude
+	$(GNAT) make -j$(CJOBS) -XLIBRARY_TYPE=static -Pinclude
 ifeq (${ENABLE_SHARED}, true)
-	$(GNAT) make -XLIBRARY_TYPE=relocatable -Pinclude
+	$(GNAT) make -j$(CJOBS) -XLIBRARY_TYPE=relocatable -Pinclude
 endif
 
 install:
