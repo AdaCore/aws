@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2008                          --
---                                 AdaCore                                  --
+--                     Copyright (C) 2000-2008, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -396,13 +395,11 @@ package body AWS.Utils is
          end case;
       end Value;
 
-      R   : Natural := 0;
-      Exp : Natural := 1;
+      R : Natural := 0;
 
    begin
-      for K in reverse Hex'Range loop
-         R := R + Exp * Value (Hex (K));
-         Exp := Exp * 16;
+      for K in Hex'Range loop
+         R := R * 16 + Value (Hex (K));
       end loop;
 
       return R;
