@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2007                          --
---                                 AdaCore                                  --
+--                     Copyright (C) 2000-2008, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -165,12 +164,21 @@ package body AWS.Status is
    -----------------
 
    function Binary_Data (D : in Data) return Stream_Element_Array is
-      use type Utils.Stream_Element_Array_Access;
    begin
       if D.Binary_Data = null then
          return (1 .. 0 => 0); -- Empty array
       else
-         return D.Binary_Data.all;
+         declare
+            use Containers.Memory_Streams;
+            use type Stream_Element_Offset;
+            Result : Stream_Element_Array (1 .. Size (D.Binary_Data.all));
+            Last   : Stream_Element_Offset;
+         begin
+            Reset (D.Binary_Data.all);
+            Read (D.Binary_Data.all, Result, Last);
+
+            return Result;
+         end;
       end if;
    end Binary_Data;
 
@@ -255,6 +263,15 @@ package body AWS.Status is
    begin
       return Headers.Get (D.Header, Messages.Content_Type_Token);
    end Content_Type;
+
+   -----------------
+   -- End_Of_Body --
+   -----------------
+
+   function End_Of_Body (D : in Data) return Boolean is
+   begin
+      return Containers.Memory_Streams.End_Of_File (D.Binary_Data.all);
+   end End_Of_Body;
 
    -----------------
    -- Has_Session --
@@ -468,7 +485,7 @@ package body AWS.Status is
    function Payload (D : in Data) return String is
    begin
       if D.SOAP_Action then
-         return Translator.To_String (D.Binary_Data.all);
+         return Translator.To_String (Binary_Data (D));
       else
          return "";
       end if;
@@ -559,6 +576,18 @@ package body AWS.Status is
       return Best_Encoding;
    end Preferred_Coding;
 
+   ---------------
+   -- Read_Body --
+   ---------------
+
+   procedure Read_Body
+     (D      : in out Data;
+      Buffer :    out Stream_Element_Array;
+      Last   :    out Stream_Element_Offset) is
+   begin
+      Containers.Memory_Streams.Read (D.Binary_Data.all, Buffer, Last);
+   end Read_Body;
+
    -------------
    -- Referer --
    -------------
@@ -576,6 +605,15 @@ package body AWS.Status is
    begin
       return D.Request_Time;
    end Request_Time;
+
+   ----------------------
+   -- Reset_Body_Index --
+   ----------------------
+
+   procedure Reset_Body_Index (D : in out Data) is
+   begin
+      Containers.Memory_Streams.Reset (D.Binary_Data.all);
+   end Reset_Body_Index;
 
    -------------
    -- Session --

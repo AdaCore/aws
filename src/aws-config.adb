@@ -238,6 +238,15 @@ package body AWS.Config is
       return O.P (Hotplug_Port).Pos_Value;
    end Hotplug_Port;
 
+   ---------------------------
+   -- Input_Line_Size_Limit --
+   ---------------------------
+
+   function Input_Line_Size_Limit return Positive is
+   begin
+      return Process_Options (Input_Line_Size_Limit).Pos_Value;
+   end Input_Line_Size_Limit;
+
    ----------------------------
    -- Keep_Alive_Close_Limit --
    ----------------------------

@@ -44,7 +44,6 @@ with AWS.Messages;
 with AWS.MIME;
 with AWS.Net;
 with AWS.Net.Buffered;
-with AWS.Resources.Streams.Memory;
 with AWS.Parameters;
 with AWS.Session;
 with AWS.Server.Get_Status;
@@ -529,16 +528,14 @@ package body AWS.Server.HTTP_Utils is
          function Check_EOF return Boolean;
          --  Returns True if we have reach the end of file data
 
-         procedure Write (Buffer : in Streams.Stream_Element_Array);
+         procedure Write
+           (Buffer : in Streams.Stream_Element_Array; Trim : in Boolean);
          pragma Inline (Write);
          --  Write buffer to the file, handle the Device_Error exception
 
          File    : Streams.Stream_IO.File_Type;
          Buffer  : Streams.Stream_Element_Array (1 .. 4 * 1_024);
          Index   : Streams.Stream_Element_Offset := Buffer'First;
-
-         Content : AWS.Resources.Streams.Memory.Stream_Type;
-         --  Used for root part
 
          Data    : Streams.Stream_Element_Array (1 .. 1);
          Data2   : Streams.Stream_Element_Array (1 .. 2);
@@ -577,7 +574,7 @@ package body AWS.Server.HTTP_Utils is
                then
                   Write (Get_File_Data.Buffer
                            (Get_File_Data.Buffer'First
-                              .. Get_File_Data.Index - 1));
+                              .. Get_File_Data.Index - 1), False);
                   Get_File_Data.Index := Get_File_Data.Buffer'First;
                end if;
 
@@ -619,15 +616,16 @@ package body AWS.Server.HTTP_Utils is
          -- Write --
          -----------
 
-         procedure Write (Buffer : in Streams.Stream_Element_Array) is
+         procedure Write
+           (Buffer : in Streams.Stream_Element_Array; Trim : in Boolean) is
          begin
             if Error = No_Error then
                if Mode in Attachment .. File_Upload then
                   Streams.Stream_IO.Write (File, Buffer);
                else
-                  --  This is the root part of an MIME attachment, set the
-                  --  memory stream with the content read.
-                  Resources.Streams.Memory.Append (Content, Buffer);
+                  --  This is the root part of an MIME attachment, append the
+                  --  data to the status record.
+                  Status.Set.Append_Body (C_Stat, Buffer, Trim);
                end if;
             end if;
          exception
@@ -639,10 +637,7 @@ package body AWS.Server.HTTP_Utils is
          begin
             if Mode in Attachment .. File_Upload then
                Streams.Stream_IO.Create
-                 (File,
-                  Streams.Stream_IO.Out_File, Server_Filename);
-            else
-               Resources.Streams.Memory.Clear (Content);
+                 (File, Streams.Stream_IO.Out_File, Server_Filename);
             end if;
          exception
             when Text_IO.Name_Error =>
@@ -660,7 +655,7 @@ package body AWS.Server.HTTP_Utils is
             Index := Index + 1;
 
             if Index > Buffer'Last then
-               Write (Buffer);
+               Write (Buffer, False);
                Index := Buffer'First;
 
                HTTP_Server.Slots.Check_Data_Timeout (Line_Index);
@@ -668,26 +663,13 @@ package body AWS.Server.HTTP_Utils is
          end loop Read_File;
 
          if Index /= Buffer'First then
-            Write (Buffer (Buffer'First .. Index - 1));
+            Write (Buffer (Buffer'First .. Index - 1), True);
          end if;
 
          if Error = No_Error then
             case Mode is
                when Root_Attachment =>
-                  declare
-                     Data : Streams.Stream_Element_Array
-                       (1 .. Streams.Stream_Element_Offset
-                          (Resources.Streams.Memory.Size (Content)));
-                     Last : Streams.Stream_Element_Offset;
-                  begin
-                     Resources.Streams.Memory.Read
-                       (Resource => Content,
-                        Buffer   => Data,
-                        Last     => Last);
-                     Status.Set.Binary (C_Stat, Data);
-                     Resources.Streams.Memory.Close (Content);
-                  end;
-
+                  null;
                when Attachment =>
                   Streams.Stream_IO.Close (File);
                   AWS.Attachments.Add
@@ -884,22 +866,20 @@ package body AWS.Server.HTTP_Utils is
          --  Read data from the stream and convert it to a string as
          --  these are a POST form parameters.
          --  The body has the format: name1=value1&name2=value2...
+         --  Check the body line length first.
 
-         declare
-            Data : Stream_Element_Array
-              (1 .. Stream_Element_Offset (Status.Content_Length (C_Stat)));
-         begin
-            Net.Buffered.Read (Sock, Data);
+         if Status.Content_Length (C_Stat) > CNF.Input_Line_Size_Limit then
+            --  Raise the same exception like when protocol line too big,
+            --  because we are going to treat POST body as line of HTTP
+            --  parameters.
 
-            Status.Set.Binary (C_Stat, Data);
-            --  We record the message body as-is to be able to send it back
-            --  to an hotplug module if needed.
+            raise Net.Buffered.Data_Overflow;
+         end if;
 
-            --  We then decode it and add the parameters read in the
-            --  message body.
+         Status.Set.Read_Body (Sock, C_Stat);
 
-            Status.Set.Add_Parameters (C_Stat, Translator.To_String (Data));
-         end;
+         Status.Set.Add_Parameters
+           (C_Stat, Translator.To_String (Status.Binary_Data (C_Stat)));
 
       elsif Status.Method (C_Stat) = Status.POST
         and then Status_Content_Type = MIME.Multipart_Form_Data
@@ -925,14 +905,7 @@ package body AWS.Server.HTTP_Utils is
          --  Let's suppose for now that all others content type data are
          --  binary data.
 
-         declare
-            Data : Stream_Element_Array
-              (1 .. Stream_Element_Offset (Status.Content_Length (C_Stat)));
-         begin
-            Net.Buffered.Read (Sock, Data);
-            Status.Set.Binary (C_Stat, Data);
-         end;
-
+         Status.Set.Read_Body (Sock, C_Stat);
       end if;
    end Get_Message_Data;
 

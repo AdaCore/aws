@@ -27,10 +27,12 @@
 
 with Ada.Characters.Handling;
 with Ada.Strings.Fixed;
+with Ada.Unchecked_Deallocation;
 
 with AWS.Headers.Set;
 with AWS.Headers.Values;
 with AWS.Messages;
+with AWS.Net.Buffered;
 with AWS.Parameters.Set;
 with AWS.Server;
 with AWS.Translator;
@@ -72,12 +74,27 @@ package body AWS.Status.Set is
    end Add_Parameters;
 
    -----------------
+   -- Append_Body --
+   -----------------
+
+   procedure Append_Body
+     (D      : in out Data;
+      Buffer : in     Stream_Element_Array;
+      Trim   : in     Boolean := False) is
+   begin
+      if D.Binary_Data = null then
+         D.Binary_Data := new Containers.Memory_Streams.Stream_Type;
+      end if;
+
+      Containers.Memory_Streams.Append (D.Binary_Data.all, Buffer, Trim);
+   end Append_Body;
+
+   -----------------
    -- Attachments --
    -----------------
 
    procedure Attachments
-     (D           : in out Data;
-      Attachments : in     AWS.Attachments.List) is
+     (D : in out Data; Attachments : in AWS.Attachments.List) is
    begin
       D.Attachments := Attachments;
    end Attachments;
@@ -227,7 +244,11 @@ package body AWS.Status.Set is
      (D         : in out Data;
       Parameter : in     Stream_Element_Array) is
    begin
-      D.Binary_Data := new Stream_Element_Array'(Parameter);
+      if D.Binary_Data = null then
+         D.Binary_Data := new Containers.Memory_Streams.Stream_Type;
+      end if;
+
+      Containers.Memory_Streams.Append (D.Binary_Data.all, Parameter);
    end Binary;
 
    -------------------------------
@@ -258,8 +279,14 @@ package body AWS.Status.Set is
    ----------
 
    procedure Free (D : in out Data) is
+      procedure Free is new Ada.Unchecked_Deallocation
+        (Containers.Memory_Streams.Stream_Type, Memory_Stream_Access);
    begin
-      Utils.Free (D.Binary_Data);
+      if D.Binary_Data /= null then
+         Containers.Memory_Streams.Close (D.Binary_Data.all);
+         Free (D.Binary_Data);
+      end if;
+
       AWS.Attachments.Reset (D.Attachments, Delete_Files => True);
    end Free;
 
@@ -267,9 +294,7 @@ package body AWS.Status.Set is
    -- Keep_Alive --
    ----------------
 
-   procedure Keep_Alive
-     (D    : in out Data;
-      Flag : in     Boolean) is
+   procedure Keep_Alive (D : in out Data; Flag : in Boolean) is
    begin
       D.Keep_Alive := Flag;
    end Keep_Alive;
@@ -282,6 +307,32 @@ package body AWS.Status.Set is
    begin
       AWS.URL.Set.Parameters (D.URI, Set);
    end Parameters;
+
+   ---------------
+   -- Read_Body --
+   ---------------
+
+   procedure Read_Body (Socket : in Net.Socket_Type'Class; D : in out Data) is
+      use Ada.Streams;
+      use Containers.Memory_Streams;
+
+      Buffer : Stream_Element_Array (1 .. 4096);
+      Rest   : Stream_Element_Offset :=
+        Stream_Element_Offset (D.Content_Length);
+   begin
+      if D.Binary_Data = null then
+         D.Binary_Data := new Stream_Type;
+      end if;
+
+      while Rest > Buffer'Length loop
+         Rest := Rest - Buffer'Length;
+         Net.Buffered.Read (Socket, Buffer);
+         Append (D.Binary_Data.all, Buffer);
+      end loop;
+
+      Net.Buffered.Read (Socket, Buffer (1 .. Rest));
+      Append (D.Binary_Data.all, Buffer (1 .. Rest), Trim => True);
+   end Read_Body;
 
    -----------------
    -- Read_Header --
@@ -351,7 +402,7 @@ package body AWS.Status.Set is
 
    procedure Reset (D : in out Data) is
    begin
-      Utils.Free (D.Binary_Data);
+      Free (D);
 
       D.Method            := GET;
       D.HTTP_Version      := Null_Unbounded_String;
@@ -372,7 +423,6 @@ package body AWS.Status.Set is
 
       AWS.Headers.Set.Reset (D.Header);
       AWS.Parameters.Set.Reset (AWS.URL.Set.Parameters (D.URI'Access).all);
-      AWS.Attachments.Reset (D.Attachments, Delete_Files => True);
    end Reset;
 
    -------------

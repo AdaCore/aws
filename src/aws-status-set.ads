@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2007                          --
---                                 AdaCore                                  --
+--                     Copyright (C) 2000-2008, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -48,9 +47,17 @@ package AWS.Status.Set is
    --  Read all header data from the socket and fill the appropriate
    --  data's fields.
 
-   procedure Keep_Alive
-     (D    : in out Data;
-      Flag : in     Boolean);
+   procedure Read_Body (Socket : in Net.Socket_Type'Class; D : in out Data);
+   --  Read message body from the socket and fill the appropriate data's field
+
+   procedure Append_Body
+     (D      : in out Data;
+      Buffer : in     Stream_Element_Array;
+      Trim   : in     Boolean := False);
+   --  Append data to the message body. Trim parameter is for memory
+   --  optimization, on last data chunk, we should set Trim to True.
+
+   procedure Keep_Alive (D : in out Data; Flag : in Boolean);
    --  Set the Keep-Alive flag for the current HTTP connection
 
    procedure Session (D : in out Data);
@@ -88,23 +95,18 @@ package AWS.Status.Set is
    pragma Inline (Add_Parameters);
    --  Parse and add parameters into the internal parameters list
 
-   procedure Binary
-     (D         : in out Data;
-      Parameter : in     Stream_Element_Array);
+   procedure Binary (D : in out Data; Parameter : in Stream_Element_Array);
    --  This procedure is used to store any binary data sent with the
    --  request. For example this will be used by the PUT method if a binary
    --  file is sent to the server.
 
-   procedure Socket
-     (D    : in out Data;
-      Sock : in     Net.Socket_Access);
+   procedure Socket (D : in out Data; Sock : in Net.Socket_Access);
    --  Set the Socket for the status. User callback can then retrieve the
    --  Socket for whatever it want. For example for passing it to the 'push'
    --  server.
 
    procedure Attachments
-     (D           : in out Data;
-      Attachments : in     AWS.Attachments.List);
+     (D : in out Data; Attachments : in AWS.Attachments.List);
    --  Adds a list of Attachments to D
 
    procedure Authenticate

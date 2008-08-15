@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2007                          --
---                                 AdaCore                                  --
+--                     Copyright (C) 2000-2008, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -35,13 +34,13 @@ with Ada.Streams;
 with Ada.Strings.Unbounded;
 
 with AWS.Attachments;
+with AWS.Containers.Memory_Streams;
 with AWS.Headers;
 with AWS.Messages;
 with AWS.Net;
 with AWS.Parameters;
 with AWS.Session;
 with AWS.URL;
-with AWS.Utils;
 
 package AWS.Status is
 
@@ -140,8 +139,7 @@ package AWS.Status is
 
    function Is_Supported
      (D        : in Data;
-      Encoding : in Messages.Content_Encoding)
-      return Boolean;
+      Encoding : in Messages.Content_Encoding) return Boolean;
    --  Returns True if the content encoding scheme is sported by the client
 
    function Preferred_Coding (D : in Data) return Messages.Content_Encoding;
@@ -178,11 +176,27 @@ package AWS.Status is
    --  data in a multipart message.
 
    subtype Stream_Element_Array is Ada.Streams.Stream_Element_Array;
+   subtype Stream_Element_Offset is Ada.Streams.Stream_Element_Offset;
 
    function Binary_Data (D : in Data) return Stream_Element_Array;
    pragma Inline (Binary_Data);
    --  Returns the binary data message content.
    --  Note that only the root part of a multipart/related message is returned.
+
+   procedure Reset_Body_Index (D : in out Data);
+   --  Reset message body read position to the start
+
+   procedure Read_Body
+     (D      : in out Data;
+      Buffer :    out Stream_Element_Array;
+      Last   :    out Stream_Element_Offset);
+   --  Read a chunk of data from message body and put them into Buffer.
+   --  Last is the index of the last item returned in Buffer.
+   pragma Inline (Read_Body);
+
+   function End_Of_Body (D : in Data) return Boolean;
+   --  Returns true if there is no more data to read from the
+   pragma Inline (End_Of_Body);
 
    -----------------
    -- Attachments --
@@ -237,9 +251,7 @@ package AWS.Status is
    -----------
 
    function Check_Digest
-     (D        : in Data;
-      Password : in String)
-      return Messages.Status_Code;
+     (D : in Data; Password : in String) return Messages.Status_Code;
    --  This function is used by the digest authentication to check if the
    --  client password and authentication parameters are correct.
    --  The password is not transferred between the client and the server,
@@ -312,6 +324,8 @@ private
 
    use Ada.Strings.Unbounded;
 
+   type Memory_Stream_Access is access Containers.Memory_Streams.Stream_Type;
+
    type Data is record
       --  Connection info
       Socket            : Net.Socket_Access;
@@ -324,7 +338,7 @@ private
       HTTP_Version      : Unbounded_String;
       URI               : aliased URL.Object;
       Request_Time      : Ada.Calendar.Time;
-      Binary_Data       : Utils.Stream_Element_Array_Access;
+      Binary_Data       : Memory_Stream_Access;
       Content_Length    : Natural               := 0;
       Keep_Alive        : Boolean;
       File_Up_To_Date   : Boolean               := False;

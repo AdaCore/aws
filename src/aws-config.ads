@@ -338,6 +338,10 @@ package AWS.Config is
    --  Number of maximum concurrent download supported by the download manager
    --  service.
 
+   function Input_Line_Size_Limit return Positive;
+   pragma Inline (Input_Line_Size_Limit);
+   --  Limit of the HTTP protocol text lines length
+
 private
 
    package SV renames AWS.Containers.String_Vectors;
