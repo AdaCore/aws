@@ -187,7 +187,7 @@ package AWS.Status is
    --  Reset message body read position to the start
 
    procedure Read_Body
-     (D      : in out Data;
+     (D      : in     Data;
       Buffer :    out Stream_Element_Array;
       Last   :    out Stream_Element_Offset);
    --  Read a chunk of data from message body and put them into Buffer.

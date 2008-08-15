@@ -581,7 +581,7 @@ package body AWS.Status is
    ---------------
 
    procedure Read_Body
-     (D      : in out Data;
+     (D      : in     Data;
       Buffer :    out Stream_Element_Array;
       Last   :    out Stream_Element_Offset) is
    begin
