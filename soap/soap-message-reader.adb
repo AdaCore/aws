@@ -147,7 +147,7 @@ package body SOAP.Message.Reader is
                             Namespace_URI => Namespace_URI,
                             Qualified_Name => Qname));
 
-      --  Insert the attributes in the right order.
+      --  Insert the attributes in the right order
       for J in 0 .. Get_Length (Atts) - 1 loop
          Set_Attribute_NS
            (Handler.Current_Node,

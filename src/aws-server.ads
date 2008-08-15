@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2007                          --
---                                 AdaCore                                  --
+--                     Copyright (C) 2000-2008, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -306,7 +305,7 @@ private
       --  Index as been used.
 
       procedure Check_Data_Timeout (Index : in Positive);
-      --  Check timeout of send/receive message body.
+      --  Check timeout of send/receive message body
 
       procedure Socket_Taken (Index : in Positive);
       --  Used to mark slot associated socket has "taken" by some foreign code.
@@ -321,7 +320,7 @@ private
       --  back socket into acceptor because socket already in shutdown process.
 
       function Is_Abortable (Index : in Positive) return Boolean;
-      --  Return True when slot can be aborted due to "forced" timeouts.
+      --  Return True when slot can be aborted due to "forced" timeouts
 
       procedure Abort_On_Timeout
         (Socket : out Socket_Access; Index : in out Positive);
@@ -477,9 +476,8 @@ private
       Log_Data : AWS.Log.Fields_Table;
    end record;
 
-   package Line_Attribute is
-     new Ada.Task_Attributes
-           (Line_Attribute_Record, (Line => 1, others => <>));
+   package Line_Attribute is new Ada.Task_Attributes
+     (Line_Attribute_Record, (Line => 1, others => <>));
    --  A line specific attribute
 
 end AWS.Server;

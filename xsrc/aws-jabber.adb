@@ -609,7 +609,7 @@ package body AWS.Jabber is
 
       exception
          when others =>
-            --  Let's release the message here.
+            --  Let's release the message here
             Release (Reader.R);
       end Parse_Message;
 

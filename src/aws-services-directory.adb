@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2006                          --
---                                 AdaCore                                  --
+--                     Copyright (C) 2000-2008, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -231,7 +230,7 @@ package body AWS.Services.Directory is
 
    function "=" (Left, Right : in File_Record) return Boolean is
    begin
-      --  can't be equal as all File_Record ID are uniq.
+      --  Can't be equal as all File_Record ID are uniq
       pragma Assert (Left.UID /= Right.UID);
       return False;
    end "=";
@@ -257,10 +256,10 @@ package body AWS.Services.Directory is
       --  one.
 
       procedure Each_Entry (Cursor : in File_Tree.Cursor);
-      --  Iterator callback procedure.
+      --  Iterator callback procedure
 
       function End_Slash (Name : in String) return String;
-      --  Return Name terminated with a directory separator.
+      --  Return Name terminated with a directory separator
 
       procedure Read_Directory (Directory_Name : in String);
       --  Read Dir_Name entries and insert them into the Order_Tree table
@@ -271,10 +270,10 @@ package body AWS.Services.Directory is
       Is_Dir : Vector_Tag;
 
       Direct_Ordr : Unbounded_String;
-      --  Direct ordering rules.
+      --  Direct ordering rules
 
       Back_Ordr   : Unbounded_String;
-      --  Reverse ordering rules. This rules is the opposite of the above one.
+      --  Reverse ordering rules. This rules is the opposite of the above one
 
       Order_Set   : Unbounded_String;
       --  This variable is set with the order rules from the Web page ORDER
@@ -298,7 +297,7 @@ package body AWS.Services.Directory is
 
       Param_List   : constant AWS.Parameters.List
         := AWS.Status.Parameters (Request);
-      --  Web parameter's list.
+      --  Web parameter's list
 
       Mode         : constant String
         := AWS.Parameters.Get (Param_List, "MODE");
@@ -313,7 +312,7 @@ package body AWS.Services.Directory is
         := (Name  => To_Unbounded_String (Mode_Param & "&ORDER=DN"),
             SName => To_Unbounded_String (Mode_Param & "&ORDER=DA"),
             Time  => To_Unbounded_String (Mode_Param & "&ORDER=DT"));
-      --  Defaults rules to order the directories by Name or by Time.
+      --  Defaults rules to order the directories by Name or by Time
 
       UID_Sq       : Natural := 0;
 
@@ -449,7 +448,7 @@ package body AWS.Services.Directory is
               := AWS.Parameters.Get (Param_List, "ORDER");
          begin
             if P_Order = "" then
-               --  no ordering define, use the default one.
+               --  no ordering define, use the default one
                return Default_Order;
 
             elsif P_Order'Length > Max_Order_Length then
@@ -477,13 +476,13 @@ package body AWS.Services.Directory is
          end loop;
       end;
 
-      --  Check if the directory ordering rules needs to be reverted.
+      --  Check if the directory ordering rules needs to be reverted
 
       if Length (Order_Set) >= 2
         and then To_Order_Mode (Element (Order_Set, 1)) = Dir
         and then To_Order_Mode (Element (Order_Set, 2)) in Dir_Order_Range
       then
-         --  The current rule is a directory ordering, just invert it.
+         --  The current rule is a directory ordering, just invert it
          Dir_Ordr (To_Order_Mode (Element (Order_Set, 2)))
            := To_Unbounded_String
            (Mode_Param
@@ -492,13 +491,13 @@ package body AWS.Services.Directory is
             & Invert (Element (Order_Set, 2)));
       end if;
 
-      --  Build the Ordr table for each kind of ordering.
+      --  Build the Ordr table for each kind of ordering
 
       for K in Ordr'Range loop
          if Length (Order_Set) >= 1
            and then K = To_Order_Mode (Element (Order_Set, 1))
          then
-            --  This is the current rule, reverse it.
+            --  This is the current rule, reverse it
             Ordr (K) := Mode_Param & "&ORDER=" & Back_Ordr;
 
          else

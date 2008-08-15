@@ -40,12 +40,10 @@ package SOAP.Types.Untyped is
 
    function S
      (V    : in String;
-      Name : in String := "item")
-      return Untyped;
+      Name : in String := "item") return Untyped;
 
    function S
      (V    : in Unbounded_String;
-      Name : in String  := "item")
-      return Untyped;
+      Name : in String  := "item") return Untyped;
 
 end SOAP.Types.Untyped;

@@ -271,7 +271,7 @@ package body AWS.Response is
 
             D.Ref_Counter.Stream_Taken := True;
          when others =>
-            --  Should not be called for others response modes.
+            --  Should not be called for others response modes
             raise Constraint_Error;
       end case;
    end Create_Resource;

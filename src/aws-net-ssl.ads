@@ -64,7 +64,7 @@ package AWS.Net.SSL is
    --  calling Wait routine with Output set to True in Events parameter.
 
    overriding procedure Socket_Pair (S1, S2 : out Socket_Type);
-   --  Create 2 sockets and connect them together.
+   --  Create 2 sockets and connect them together
 
    overriding procedure Shutdown (Socket : in Socket_Type);
    --  Shutdown both side of the socket and close it

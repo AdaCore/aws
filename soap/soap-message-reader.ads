@@ -37,7 +37,7 @@ with DOM.Core;       use DOM.Core;
 private package SOAP.Message.Reader is
 
    type Tree_Reader is new Sax.Readers.Reader with private;
-   --  Tree_Reader create a DOM tree using the SAX parser.
+   --  Tree_Reader create a DOM tree using the SAX parser
 
    function Get_Tree (Read : in Tree_Reader) return Document;
 

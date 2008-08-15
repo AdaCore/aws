@@ -38,8 +38,7 @@ package body AWS.Services.Split_Pages.Uniform is
 
    function Get_Page_Ranges
      (This  : in Splitter;
-      Table : in Templates.Translate_Set)
-      return Ranges_Table
+      Table : in Templates.Translate_Set) return Ranges_Table
    is
       use Templates;
       use Templates.Query;
@@ -105,8 +104,7 @@ package body AWS.Services.Split_Pages.Uniform is
      (This   : in Splitter;
       Page   : in Positive;
       URIs   : in URI_Table;
-      Ranges : in Ranges_Table)
-      return Templates.Translate_Set
+      Ranges : in Ranges_Table) return Templates.Translate_Set
    is
       pragma Unreferenced (Ranges);
       use Templates_Parser;

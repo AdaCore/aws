@@ -36,8 +36,7 @@ package body SOAP.Dispatchers is
 
    function Dispatch
      (Dispatcher : in Handler;
-      Request    : in AWS.Status.Data)
-      return AWS.Response.Data is
+      Request    : in AWS.Status.Data) return AWS.Response.Data is
    begin
       if AWS.Status.Is_SOAP (Request) then
          return Dispatch_SOAP

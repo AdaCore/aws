@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2007                          --
---                                 AdaCore                                  --
+--                     Copyright (C) 2000-2008, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -47,7 +46,7 @@ package body AWS.Services.Dispatchers.URI is
    function Match (URI : in Reg_URI; Value : in String) return Boolean;
 
    procedure Free is
-      new Ada.Unchecked_Deallocation (Std_URI'Class, URI_Class_Access);
+     new Ada.Unchecked_Deallocation (Std_URI'Class, URI_Class_Access);
 
    ----------
    -- Copy --

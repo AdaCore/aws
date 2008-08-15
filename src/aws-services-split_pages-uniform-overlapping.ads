@@ -41,8 +41,7 @@ package AWS.Services.Split_Pages.Uniform.Overlapping is
 
    function Get_Page_Ranges
      (This  : in Splitter;
-      Table : in Templates.Translate_Set)
-      return Ranges_Table;
+      Table : in Templates.Translate_Set) return Ranges_Table;
 
 private
 

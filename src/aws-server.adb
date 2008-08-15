@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2008                          --
---                                 AdaCore                                  --
+--                     Copyright (C) 2000-2008, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -288,10 +287,9 @@ package body AWS.Server is
             --  is serialized as some platforms do not handle properly
             --  multiple accepts on the same socket.
 
-            Socket           : Net.Socket_Access
-              := Accept_Socket_Serialized (TA.Server);
-
-            Need_Shutdown    : Boolean;
+            Socket        : Net.Socket_Access :=
+                              Accept_Socket_Serialized (TA.Server);
+            Need_Shutdown : Boolean;
          begin
             TA.Server.Slots.Set (Socket, TA.Line);
 

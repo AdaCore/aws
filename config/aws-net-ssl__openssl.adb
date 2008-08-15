@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2007                          --
---                                 AdaCore                                  --
+--                     Copyright (C) 2000-2008, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -62,7 +61,7 @@ package body AWS.Net.SSL is
    protected type TS_SSL is
 
       procedure Set_IO (Socket : in out Socket_Type);
-      --  Bind the SSL handle with the BIO pair.
+      --  Bind the SSL handle with the BIO pair
 
       procedure Initialize
         (Certificate_Filename : in String;
@@ -183,7 +182,7 @@ package body AWS.Net.SSL is
       TSSL.SSL_set_connect_state (Socket.SSL);
 
       if Wait then
-         --  Do handshake only in case of wait connection completion.
+         --  Do handshake only in case of wait connection completion
 
          Do_Handshake (Socket, Success);
 
@@ -535,7 +534,7 @@ package body AWS.Net.SSL is
       RC     : C.int;
 
       procedure Socket_Write;
-      --  Non blocking write from IO to socket.
+      --  Non blocking write from IO to socket
 
       ------------------
       -- Socket_Write --
@@ -713,7 +712,7 @@ package body AWS.Net.SSL is
         := Stream_Element_Offset
              (BIO_nread (Socket.IO, Data'Address, C.int'Last));
       Plain : NSST;
-      --  ??? Looks like direct type convertion lead to wrong dispatch.
+      --  ??? Looks like direct type convertion lead to wrong dispatch
    begin
       if Last <= 0 then
          return;
@@ -737,7 +736,7 @@ package body AWS.Net.SSL is
       subtype Line_Number is C.int;
 
       Finalized : Boolean := False;
-      --  Need to avoid access to finalized protected locking objects.
+      --  Need to avoid access to finalized protected locking objects
 
       package Task_Identifiers is new Ada.Task_Attributes (Task_Identifier, 0);
 

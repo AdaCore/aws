@@ -56,10 +56,10 @@ package body SOAP.Types is
 
    function Spaces (N : in Natural) return String;
    pragma Inline (Spaces);
-   --  Returns N * 3 spaces.
+   --  Returns N * 3 spaces
 
    package XML_Indent is new Ada.Task_Attributes (Natural, 0);
-   --  Thread safe Indentation counter.
+   --  Thread safe Indentation counter
 
    procedure Get_Error (Expected : in String; O : in Object'Class);
    pragma No_Return (Get_Error);
@@ -1300,7 +1300,7 @@ package body SOAP.Types is
       Indent : constant Natural := XML_Indent.Value;
 
       function Array_Type return String;
-      --  Returns the right SOAP array type.
+      --  Returns the right SOAP array type
 
       ----------------
       -- Array_Type --
@@ -1320,7 +1320,7 @@ package body SOAP.Types is
          --  Empty array
 
          if O.O'Length = 0 then
-            --  This is a zero length array, type is undefined.
+            --  This is a zero length array, type is undefined
             return XML_Undefined;
          end if;
 
@@ -1364,7 +1364,7 @@ package body SOAP.Types is
 
          for K in O.O'First + 1 .. O.O'Last loop
 
-            --  Not same type if type different or is a composite type.
+            --  Not same type if type different or is a composite type
 
             if T /= O.O (K).O'Tag
               or else O.O (K).O.all in SOAP.Types.Composite'Class

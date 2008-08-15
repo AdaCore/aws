@@ -119,7 +119,8 @@ package body AWS.Services.Split_Pages.Alpha.Bounded is
 
       Self        : Splitter renames Splitter (This.Self.all);
       Result      : Templates.Translate_Set :=
-        Get_Translations (Alpha.Splitter (This), Page, URIs, Ranges);
+                      Get_Translations
+                        (Alpha.Splitter (This), Page, URIs, Ranges);
       S_INDEXES_V : Tag;
       S_HREFS_V   : Tag;
       A           : Alpha_Index := Alpha_Index'Last;

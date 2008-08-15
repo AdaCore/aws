@@ -153,8 +153,7 @@ package body AWS.Services.Split_Pages.Alpha is
      (This   : in Splitter;
       Page   : in Positive;
       URIs   : in URI_Table;
-      Ranges : in Ranges_Table)
-      return Templates.Translate_Set
+      Ranges : in Ranges_Table) return Templates.Translate_Set
    is
       use Templates;
       pragma Unreferenced (Ranges);

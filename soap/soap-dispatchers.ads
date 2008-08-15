@@ -26,7 +26,7 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  Dispatcher for SOAP requests.
+--  Dispatcher for SOAP requests
 
 with AWS.Dispatchers;
 with AWS.Response;
@@ -65,8 +65,7 @@ private
 
    function Dispatch
      (Dispatcher : in Handler;
-      Request    : in AWS.Status.Data)
-      return AWS.Response.Data;
+      Request    : in AWS.Status.Data) return AWS.Response.Data;
 
    type Handler is abstract new AWS.Dispatchers.Handler with null record;
 

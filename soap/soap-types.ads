@@ -78,26 +78,26 @@ package SOAP.Types is
    --  element order.
 
    function Image (O : in Object) return String;
-   --  Returns O value image.
+   --  Returns O value image
 
    function XML_Image (O : in Object) return String;
    --  Returns O value encoded for use by the Payload object or Response
    --  object.
 
    function XML_Type (O : in Object) return String;
-   --  Returns the XML type for the object.
+   --  Returns the XML type for the object
 
    function Name (O : in Object'Class) return String;
-   --  Returns name for object O.
+   --  Returns name for object O
 
    function "+" (O : in Object'Class) return Object_Safe_Pointer;
-   --  Allocate an object into the heap and return a safe pointer to it.
+   --  Allocate an object into the heap and return a safe pointer to it
 
    function "-" (O : in Object_Safe_Pointer) return Object'Class;
-   --  Returns the object associated with the safe pointer.
+   --  Returns the object associated with the safe pointer
 
    type Scalar is abstract new Object with private;
-   --  Scalar types are using a by-copy semantic.
+   --  Scalar types are using a by-copy semantic
 
    type Composite is abstract new Object with private;
    --  Composite types are using a by-reference semantic for efficiency
