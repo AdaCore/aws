@@ -54,7 +54,7 @@ package body AWS.Services.Directory is
 
    function "<" (Left, Right : in File_Record) return Boolean;
 
-   function "=" (Left, Right : in File_Record) return Boolean;
+   overriding function "=" (Left, Right : in File_Record) return Boolean;
    pragma Inline ("=");
 
    package File_Tree is
@@ -228,7 +228,7 @@ package body AWS.Services.Directory is
    -- "=" --
    ---------
 
-   function "=" (Left, Right : in File_Record) return Boolean is
+   overriding function "=" (Left, Right : in File_Record) return Boolean is
    begin
       --  Can't be equal as all File_Record ID are uniq
       pragma Assert (Left.UID /= Right.UID);

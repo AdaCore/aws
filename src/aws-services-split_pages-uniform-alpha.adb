@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                          Copyright (C) 2004-2007                         --
---                                  AdaCore                                 --
+--                     Copyright (C) 2004-2008, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -40,7 +39,7 @@ package body AWS.Services.Split_Pages.Uniform.Alpha is
    -- Get_Page_Ranges --
    ---------------------
 
-   function Get_Page_Ranges
+   overriding function Get_Page_Ranges
      (This  : in Splitter;
       Table : in Templates.Translate_Set) return Ranges_Table
    is
@@ -127,7 +126,7 @@ package body AWS.Services.Split_Pages.Uniform.Alpha is
    -- Get_Translations --
    ----------------------
 
-   function Get_Translations
+   overriding function Get_Translations
      (This   : in Splitter;
       Page   : in Positive;
       URIs   : in URI_Table;

@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2002-2007                          --
---                                 AdaCore                                  --
+--                     Copyright (C) 2002-2008, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -71,9 +70,6 @@ package AWS.Net.Std is
 
    overriding procedure Shutdown (Socket : in Socket_Type);
    --  Shutdown both side of the socket and close it
-
-   procedure Free (Socket : in out Socket_Type);
-   --  Release memory associated with the socket object
 
    --------
    -- IO --
@@ -154,5 +150,8 @@ private
    type Socket_Type is new Net.Socket_Type with record
       S : Socket_Hidden_Access;
    end record;
+
+   overriding procedure Free (Socket : in out Socket_Type);
+   --  Release memory associated with the socket object
 
 end AWS.Net.Std;

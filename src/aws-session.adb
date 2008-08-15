@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2008                          --
---                                 AdaCore                                  --
+--                     Copyright (C) 2000-2008, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -87,12 +86,12 @@ package body AWS.Session is
    end record;
    --  A stream that reads and writes to a string
 
-   procedure Read
+   overriding procedure Read
      (Stream : in out String_Stream_Type;
       Item   :    out Stream_Element_Array;
       Last   :    out Stream_Element_Offset);
 
-   procedure Write
+   overriding procedure Write
      (Stream : in out String_Stream_Type;
       Item   : in     Stream_Element_Array);
    --  See inherited documentation
@@ -915,7 +914,7 @@ package body AWS.Session is
    -- Read --
    ----------
 
-   procedure Read
+   overriding procedure Read
      (Stream : in out String_Stream_Type;
       Item   :    out Stream_Element_Array;
       Last   :    out Stream_Element_Offset)
@@ -1151,7 +1150,7 @@ package body AWS.Session is
    -- Write --
    -----------
 
-   procedure Write
+   overriding procedure Write
      (Stream : in out String_Stream_Type;
       Item   : in     Stream_Element_Array)
    is

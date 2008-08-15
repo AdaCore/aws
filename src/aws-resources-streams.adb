@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                          Copyright (C) 2002-2003                         --
---                                ACT-Europe                                --
+--                     Copyright (C) 2002-2008, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -53,7 +52,9 @@ package body AWS.Resources.Streams is
    -- Size --
    ----------
 
-   function Size (Resource : in Stream_Type) return Stream_Element_Offset is
+   overriding function Size
+     (Resource : in Stream_Type) return Stream_Element_Offset
+   is
       pragma Unreferenced (Resource);
    begin
       return Undefined_Length;

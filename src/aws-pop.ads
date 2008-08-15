@@ -2,8 +2,7 @@
 --                              Ada Web Server                              --
 --                       P O P - Post Office Protocol                       --
 --                                                                          --
---                         Copyright (C) 2003-2007                          --
---                                 AdaCore                                  --
+--                     Copyright (C) 2003-2008, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -238,9 +237,9 @@ private
       Last        : Attachment_Access;
    end record;
 
-   procedure Initialize (Message : in out POP.Message);
-   procedure Adjust     (Message : in out POP.Message);
-   procedure Finalize   (Message : in out POP.Message);
+   overriding procedure Initialize (Message : in out POP.Message);
+   overriding procedure Adjust     (Message : in out POP.Message);
+   overriding procedure Finalize   (Message : in out POP.Message);
 
    ----------------
    -- Attachment --
@@ -254,8 +253,8 @@ private
       Next      : Attachment_Access;
    end record;
 
-   procedure Initialize (Attachment : in out POP.Attachment);
-   procedure Adjust     (Attachment : in out POP.Attachment);
-   procedure Finalize   (Attachment : in out POP.Attachment);
+   overriding procedure Initialize (Attachment : in out POP.Attachment);
+   overriding procedure Adjust     (Attachment : in out POP.Attachment);
+   overriding procedure Finalize   (Attachment : in out POP.Attachment);
 
 end AWS.POP;

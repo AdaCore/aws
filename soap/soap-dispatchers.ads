@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2003                            --
---                                ACT-Europe                                --
+--                     Copyright (C) 2003-2008, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -63,7 +62,7 @@ package SOAP.Dispatchers is
 
 private
 
-   function Dispatch
+   overriding function Dispatch
      (Dispatcher : in Handler;
       Request    : in AWS.Status.Data) return AWS.Response.Data;
 

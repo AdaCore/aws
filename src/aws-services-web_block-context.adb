@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2007                            --
---                                 AdaCore                                  --
+--                     Copyright (C) 2007-2008, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -104,7 +103,7 @@ package body AWS.Services.Web_Block.Context is
    -- Create --
    ------------
 
-   function Create return Id is
+   overriding function Create return Id is
    begin
       return Id (Session.Create);
    end Create;
@@ -113,7 +112,7 @@ package body AWS.Services.Web_Block.Context is
    -- Exist --
    -----------
 
-   function Exist (CID : in Id) return Boolean is
+   overriding function Exist (CID : in Id) return Boolean is
    begin
       return Session.Exist (Session.Id (CID));
    end Exist;
@@ -145,7 +144,7 @@ package body AWS.Services.Web_Block.Context is
    -- Image --
    -----------
 
-   function Image (CID : in Id) return String is
+   overriding function Image (CID : in Id) return String is
    begin
       return Session.Image (Session.Id (CID));
    end Image;
@@ -172,7 +171,7 @@ package body AWS.Services.Web_Block.Context is
    -- Value --
    -----------
 
-   function Value (CID : in String) return Id is
+   overriding function Value (CID : in String) return Id is
    begin
       return Id (Session.Value (CID));
    exception

@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2005-2006                          --
---                                 AdaCore                                  --
+--                     Copyright (C) 2005-2008, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -34,7 +33,7 @@ package Templates_Parser.Configuration is
 
    subtype Time_Stamp is Ada.Calendar.Time;
 
-   function "="
+   overriding function "="
      (T1, T2 : in Time_Stamp)
       return Boolean
       renames Ada.Calendar."=";

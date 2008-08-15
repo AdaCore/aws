@@ -198,7 +198,7 @@ package body AWS.Server is
    -- Finalize --
    --------------
 
-   procedure Finalize (Web_Server : in out HTTP) is
+   overriding procedure Finalize (Web_Server : in out HTTP) is
    begin
       Shutdown (Web_Server);
    end Finalize;

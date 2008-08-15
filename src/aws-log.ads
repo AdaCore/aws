@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2008                          --
---                                 AdaCore                                  --
+--                     Copyright (C) 2000-2008, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -179,6 +178,6 @@ private
       Auto_Flush      : Boolean;
    end record;
 
-   procedure Finalize (Log : in out Object);
+   overriding procedure Finalize (Log : in out Object);
 
 end AWS.Log;

@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2008                          --
---                                 AdaCore                                  --
+--                     Copyright (C) 2000-2008, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -176,9 +175,9 @@ package SOAP.Utils is
          Ref  : Ref_Counter;
       end record;
 
-      procedure Initialize (SP : in out Safe_Pointer);
-      procedure Adjust     (SP : in out Safe_Pointer);
-      procedure Finalize   (SP : in out Safe_Pointer);
+      overriding procedure Initialize (SP : in out Safe_Pointer);
+      overriding procedure Adjust     (SP : in out Safe_Pointer);
+      overriding procedure Finalize   (SP : in out Safe_Pointer);
 
       function To_Safe_Pointer (Item : in T) return Safe_Pointer;
       --  Returns a Safe_Pointer for object Item

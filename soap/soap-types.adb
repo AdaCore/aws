@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2007                          --
---                                 AdaCore                                  --
+--                     Copyright (C) 2000-2008, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -107,14 +106,14 @@ package body SOAP.Types is
    -- Adjust --
    ------------
 
-   procedure Adjust (O : in out Object_Safe_Pointer) is
+   overriding procedure Adjust (O : in out Object_Safe_Pointer) is
    begin
       if O.O /= null then
          O.O := new Object'Class'(O.O.all);
       end if;
    end Adjust;
 
-   procedure Adjust (O : in out Composite) is
+   overriding procedure Adjust (O : in out Composite) is
    begin
       O.Ref_Counter.all := O.Ref_Counter.all + 1;
    end Adjust;
@@ -219,7 +218,7 @@ package body SOAP.Types is
    -- Finalize --
    --------------
 
-   procedure Finalize (O : in out Object_Safe_Pointer) is
+   overriding procedure Finalize (O : in out Object_Safe_Pointer) is
       procedure Free is
         new Ada.Unchecked_Deallocation (Object'Class, Object_Access);
    begin
@@ -228,7 +227,7 @@ package body SOAP.Types is
       end if;
    end Finalize;
 
-   procedure Finalize (O : in out Composite) is
+   overriding procedure Finalize (O : in out Composite) is
    begin
       O.Ref_Counter.all := O.Ref_Counter.all - 1;
 
@@ -665,12 +664,12 @@ package body SOAP.Types is
       return "";
    end Image;
 
-   function Image (O : in XSD_Any_Type) return String is
+   overriding function Image (O : in XSD_Any_Type) return String is
    begin
       return Image (O.O.O.all);
    end Image;
 
-   function Image (O : in XSD_Long) return String is
+   overriding function Image (O : in XSD_Long) return String is
       V : constant String := Long'Image (O.V);
    begin
       if O.V >= 0 then
@@ -680,7 +679,7 @@ package body SOAP.Types is
       end if;
    end Image;
 
-   function Image (O : in XSD_Integer) return String is
+   overriding function Image (O : in XSD_Integer) return String is
       V : constant String := Integer'Image (O.V);
    begin
       if O.V >= 0 then
@@ -690,7 +689,7 @@ package body SOAP.Types is
       end if;
    end Image;
 
-   function Image (O : in XSD_Short) return String is
+   overriding function Image (O : in XSD_Short) return String is
       V : constant String := Short'Image (O.V);
    begin
       if O.V >= 0 then
@@ -700,7 +699,7 @@ package body SOAP.Types is
       end if;
    end Image;
 
-   function Image (O : in XSD_Byte) return String is
+   overriding function Image (O : in XSD_Byte) return String is
       V : constant String := Byte'Image (O.V);
    begin
       if O.V >= 0 then
@@ -710,26 +709,26 @@ package body SOAP.Types is
       end if;
    end Image;
 
-   function Image (O : in XSD_Float) return String is
+   overriding function Image (O : in XSD_Float) return String is
       Result : String (1 .. Long_Float'Width);
    begin
       Float_Text_IO.Put (Result, O.V, Exp => 0);
       return Strings.Fixed.Trim (Result, Strings.Both);
    end Image;
 
-   function Image (O : in XSD_Double) return String is
+   overriding function Image (O : in XSD_Double) return String is
       Result : String (1 .. Long_Long_Float'Width);
    begin
       Long_Float_Text_IO.Put (Result, O.V, Exp => 0);
       return Strings.Fixed.Trim (Result, Strings.Both);
    end Image;
 
-   function Image (O : in XSD_String) return String is
+   overriding function Image (O : in XSD_String) return String is
    begin
       return To_String (O.V);
    end Image;
 
-   function Image (O : in XSD_Boolean) return String is
+   overriding function Image (O : in XSD_Boolean) return String is
    begin
       if O.V then
          return "1";
@@ -738,7 +737,7 @@ package body SOAP.Types is
       end if;
    end Image;
 
-   function Image (O : in XSD_Time_Instant) return String is
+   overriding function Image (O : in XSD_Time_Instant) return String is
 
       function Image (Timezone : in TZ) return String;
       --  Returns Image for the TZ
@@ -783,36 +782,36 @@ package body SOAP.Types is
         & Image (O.Timezone);
    end Image;
 
-   function Image (O : in XSD_Unsigned_Long) return String is
+   overriding function Image (O : in XSD_Unsigned_Long) return String is
       V : constant String := Unsigned_Long'Image (O.V);
    begin
       return V (V'First + 1 .. V'Last);
    end Image;
 
-   function Image (O : in XSD_Unsigned_Int) return String is
+   overriding function Image (O : in XSD_Unsigned_Int) return String is
       V : constant String := Unsigned_Int'Image (O.V);
    begin
       return V (V'First + 1 .. V'Last);
    end Image;
 
-   function Image (O : in XSD_Unsigned_Short) return String is
+   overriding function Image (O : in XSD_Unsigned_Short) return String is
       V : constant String := Unsigned_Short'Image (O.V);
    begin
       return V (V'First + 1 .. V'Last);
    end Image;
 
-   function Image (O : in XSD_Unsigned_Byte) return String is
+   overriding function Image (O : in XSD_Unsigned_Byte) return String is
       V : constant String := Unsigned_Byte'Image (O.V);
    begin
       return V (V'First + 1 .. V'Last);
    end Image;
 
-   function Image (O : in SOAP_Base64) return String is
+   overriding function Image (O : in SOAP_Base64) return String is
    begin
       return To_String (O.V);
    end Image;
 
-   function Image (O : in SOAP_Array) return String is
+   overriding function Image (O : in SOAP_Array) return String is
       Result : Unbounded_String;
    begin
       Append (Result, '(');
@@ -832,7 +831,7 @@ package body SOAP.Types is
       return To_String (Result);
    end Image;
 
-   function Image (O : in SOAP_Record) return String is
+   overriding function Image (O : in SOAP_Record) return String is
       Result : Unbounded_String;
    begin
       Append (Result, '(');
@@ -852,7 +851,7 @@ package body SOAP.Types is
       return To_String (Result);
    end Image;
 
-   function Image (O : in SOAP_Enumeration) return String is
+   overriding function Image (O : in SOAP_Enumeration) return String is
    begin
       return To_String (O.V);
    end Image;
@@ -861,7 +860,7 @@ package body SOAP.Types is
    -- Initialize --
    ----------------
 
-   procedure Initialize (O : in out Composite) is
+   overriding procedure Initialize (O : in out Composite) is
    begin
       O.Ref_Counter := new Natural'(1);
    end Initialize;
@@ -1163,7 +1162,7 @@ package body SOAP.Types is
       return To_String (O.V);
    end V;
 
-   function V (O : in SOAP_Array) return Object_Set is
+   overriding function V (O : in SOAP_Array) return Object_Set is
    begin
       return O.O.all;
    end V;
@@ -1185,7 +1184,7 @@ package body SOAP.Types is
         with "(V) Struct object " & Name & " not found";
    end V;
 
-   function V (O : in SOAP_Record) return Object_Set is
+   overriding function V (O : in SOAP_Record) return Object_Set is
    begin
       return O.O.all;
    end V;
@@ -1211,91 +1210,91 @@ package body SOAP.Types is
       end if;
    end XML_Image;
 
-   function XML_Image (O : in XSD_Any_Type) return String is
+   overriding function XML_Image (O : in XSD_Any_Type) return String is
    begin
       return XML_Image (Object (O.O.O.all));
    end XML_Image;
 
-   function XML_Image (O : in XSD_Long) return String is
+   overriding function XML_Image (O : in XSD_Long) return String is
    begin
       return XML_Image (Object (O));
    end XML_Image;
 
-   function XML_Image (O : in XSD_Integer) return String is
+   overriding function XML_Image (O : in XSD_Integer) return String is
    begin
       return XML_Image (Object (O));
    end XML_Image;
 
-   function XML_Image (O : in XSD_Short) return String is
+   overriding function XML_Image (O : in XSD_Short) return String is
    begin
       return XML_Image (Object (O));
    end XML_Image;
 
-   function XML_Image (O : in XSD_Byte) return String is
+   overriding function XML_Image (O : in XSD_Byte) return String is
    begin
       return XML_Image (Object (O));
    end XML_Image;
 
-   function XML_Image (O : in XSD_Float) return String is
+   overriding function XML_Image (O : in XSD_Float) return String is
    begin
       return XML_Image (Object (O));
    end XML_Image;
 
-   function XML_Image (O : in XSD_Double) return String is
+   overriding function XML_Image (O : in XSD_Double) return String is
    begin
       return XML_Image (Object (O));
    end XML_Image;
 
-   function XML_Image (O : in XSD_String) return String is
+   overriding function XML_Image (O : in XSD_String) return String is
    begin
       return XML_Image (Object (O));
    end XML_Image;
 
-   function XML_Image (O : in XSD_Boolean) return String is
+   overriding function XML_Image (O : in XSD_Boolean) return String is
    begin
       return XML_Image (Object (O));
    end XML_Image;
 
-   function XML_Image (O : in XSD_Time_Instant) return String is
+   overriding function XML_Image (O : in XSD_Time_Instant) return String is
    begin
       return XML_Image (Object (O));
    end XML_Image;
 
-   function XML_Image (O : in XSD_Unsigned_Long) return String is
+   overriding function XML_Image (O : in XSD_Unsigned_Long) return String is
    begin
       return XML_Image (Object (O));
    end XML_Image;
 
-   function XML_Image (O : in XSD_Unsigned_Int) return String is
+   overriding function XML_Image (O : in XSD_Unsigned_Int) return String is
    begin
       return XML_Image (Object (O));
    end XML_Image;
 
-   function XML_Image (O : in XSD_Unsigned_Short) return String is
+   overriding function XML_Image (O : in XSD_Unsigned_Short) return String is
    begin
       return XML_Image (Object (O));
    end XML_Image;
 
-   function XML_Image (O : in XSD_Unsigned_Byte) return String is
+   overriding function XML_Image (O : in XSD_Unsigned_Byte) return String is
    begin
       return XML_Image (Object (O));
    end XML_Image;
 
-   function XML_Image (O : in XSD_Null) return String is
+   overriding function XML_Image (O : in XSD_Null) return String is
       Indent : constant Natural := XML_Indent.Value;
       OC     : constant Object'Class := Object'Class (O);
    begin
       return Spaces (Indent) & "<" & Name (OC) & " xsi_null=""1""/>";
    end XML_Image;
 
-   function XML_Image (O : in SOAP_Base64) return String is
+   overriding function XML_Image (O : in SOAP_Base64) return String is
    begin
       return XML_Image (Object (O));
    end XML_Image;
 
    New_Line : constant String := ASCII.CR & ASCII.LF;
 
-   function XML_Image (O : in SOAP_Array) return String is
+   overriding function XML_Image (O : in SOAP_Array) return String is
 
       Indent : constant Natural := XML_Indent.Value;
 
@@ -1414,7 +1413,7 @@ package body SOAP.Types is
       return To_String (Result);
    end XML_Image;
 
-   function XML_Image (O : in SOAP_Record) return String is
+   overriding function XML_Image (O : in SOAP_Record) return String is
       Indent : constant Natural := XML_Indent.Value;
       Result : Unbounded_String;
    begin
@@ -1448,7 +1447,7 @@ package body SOAP.Types is
       return To_String (Result);
    end XML_Image;
 
-   function XML_Image (O : in SOAP_Enumeration) return String is
+   overriding function XML_Image (O : in SOAP_Enumeration) return String is
    begin
       return Spaces (XML_Indent.Value) & "<" & Name (O)
         & " type=""" & To_String (O.Type_Name) & """>"
@@ -1466,114 +1465,114 @@ package body SOAP.Types is
       return "";
    end XML_Type;
 
-   function XML_Type (O : in XSD_Any_Type) return String is
+   overriding function XML_Type (O : in XSD_Any_Type) return String is
       pragma Warnings (Off, O);
    begin
       return XML_Type (O.O.O.all);
    end XML_Type;
 
-   function XML_Type (O : in XSD_Long) return String is
+   overriding function XML_Type (O : in XSD_Long) return String is
       pragma Warnings (Off, O);
    begin
       return XML_Long;
    end XML_Type;
 
-   function XML_Type (O : in XSD_Integer) return String is
+   overriding function XML_Type (O : in XSD_Integer) return String is
       pragma Warnings (Off, O);
    begin
       return XML_Int;
    end XML_Type;
 
-   function XML_Type (O : in XSD_Short) return String is
+   overriding function XML_Type (O : in XSD_Short) return String is
       pragma Warnings (Off, O);
    begin
       return XML_Short;
    end XML_Type;
 
-   function XML_Type (O : in XSD_Byte) return String is
+   overriding function XML_Type (O : in XSD_Byte) return String is
       pragma Warnings (Off, O);
    begin
       return XML_Byte;
    end XML_Type;
 
-   function XML_Type (O : in XSD_Float) return String is
+   overriding function XML_Type (O : in XSD_Float) return String is
       pragma Warnings (Off, O);
    begin
       return XML_Float;
    end XML_Type;
 
-   function XML_Type (O : in XSD_Double) return String is
+   overriding function XML_Type (O : in XSD_Double) return String is
       pragma Warnings (Off, O);
    begin
       return XML_Double;
    end XML_Type;
 
-   function XML_Type (O : in XSD_String) return String is
+   overriding function XML_Type (O : in XSD_String) return String is
       pragma Warnings (Off, O);
    begin
       return XML_String;
    end XML_Type;
 
-   function XML_Type (O : in XSD_Boolean) return String is
+   overriding function XML_Type (O : in XSD_Boolean) return String is
       pragma Warnings (Off, O);
    begin
       return XML_Boolean;
    end XML_Type;
 
-   function XML_Type  (O : in XSD_Time_Instant) return String is
+   overriding function XML_Type (O : in XSD_Time_Instant) return String is
       pragma Warnings (Off, O);
    begin
       return XML_Time_Instant;
    end XML_Type;
 
-   function XML_Type (O : in XSD_Unsigned_Long) return String is
+   overriding function XML_Type (O : in XSD_Unsigned_Long) return String is
       pragma Warnings (Off, O);
    begin
       return XML_Unsigned_Long;
    end XML_Type;
 
-   function XML_Type (O : in XSD_Unsigned_Int) return String is
+   overriding function XML_Type (O : in XSD_Unsigned_Int) return String is
       pragma Warnings (Off, O);
    begin
       return XML_Unsigned_Int;
    end XML_Type;
 
-   function XML_Type (O : in XSD_Unsigned_Short) return String is
+   overriding function XML_Type (O : in XSD_Unsigned_Short) return String is
       pragma Warnings (Off, O);
    begin
       return XML_Unsigned_Short;
    end XML_Type;
 
-   function XML_Type (O : in XSD_Unsigned_Byte) return String is
+   overriding function XML_Type (O : in XSD_Unsigned_Byte) return String is
       pragma Warnings (Off, O);
    begin
       return XML_Unsigned_Byte;
    end XML_Type;
 
-   function XML_Type (O : in XSD_Null) return String is
+   overriding function XML_Type (O : in XSD_Null) return String is
       pragma Warnings (Off, O);
    begin
       return XML_Null;
    end XML_Type;
 
-   function XML_Type (O : in SOAP_Base64) return String is
+   overriding function XML_Type (O : in SOAP_Base64) return String is
       pragma Warnings (Off, O);
    begin
       return XML_Base64;
    end XML_Type;
 
-   function XML_Type (O : in SOAP_Array) return String is
+   overriding function XML_Type (O : in SOAP_Array) return String is
       pragma Warnings (Off, O);
    begin
       return XML_Array;
    end XML_Type;
 
-   function XML_Type  (O : in SOAP_Record) return String is
+   overriding function XML_Type (O : in SOAP_Record) return String is
    begin
       return To_String (O.Type_Name);
    end XML_Type;
 
-   function XML_Type (O : in SOAP_Enumeration) return String is
+   overriding function XML_Type (O : in SOAP_Enumeration) return String is
    begin
       return To_String (O.Type_Name);
    end XML_Type;

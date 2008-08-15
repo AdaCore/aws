@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2007                          --
---                                 AdaCore                                  --
+--                     Copyright (C) 2000-2008, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -37,7 +36,7 @@ package body AWS.Dispatchers is
    -- Adjust --
    ------------
 
-   procedure Adjust (Dispatcher : in out Handler) is
+   overriding procedure Adjust (Dispatcher : in out Handler) is
    begin
       Dispatcher.Ref_Counter.all := Dispatcher.Ref_Counter.all + 1;
    end Adjust;
@@ -46,7 +45,7 @@ package body AWS.Dispatchers is
    -- Finalize --
    --------------
 
-   procedure Finalize (Dispatcher : in out Handler) is
+   overriding procedure Finalize (Dispatcher : in out Handler) is
    begin
       Dispatcher.Ref_Counter.all := Dispatcher.Ref_Counter.all - 1;
       if Dispatcher.Ref_Counter.all = 0 then
@@ -67,7 +66,7 @@ package body AWS.Dispatchers is
    -- Initialize --
    ----------------
 
-   procedure Initialize (Dispatcher : in out Handler) is
+   overriding procedure Initialize (Dispatcher : in out Handler) is
    begin
       Dispatcher.Ref_Counter := new Natural'(1);
    end Initialize;

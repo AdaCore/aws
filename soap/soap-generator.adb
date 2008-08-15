@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2003-2008                          --
---                                 AdaCore                                  --
+--                     Copyright (C) 2003-2008, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -250,7 +249,7 @@ package body SOAP.Generator is
    -- End_Service --
    -----------------
 
-   procedure End_Service
+   overriding procedure End_Service
      (O    : in out Object;
       Name : in     String)
    is
@@ -418,7 +417,7 @@ package body SOAP.Generator is
    -- New_Procedure --
    -------------------
 
-   procedure New_Procedure
+   overriding procedure New_Procedure
      (O          : in out Object;
       Proc       : in     String;
       SOAPAction : in     String;
@@ -2387,7 +2386,7 @@ package body SOAP.Generator is
    -- Start_Service --
    -------------------
 
-   procedure Start_Service
+   overriding procedure Start_Service
      (O             : in out Object;
       Name          : in     String;
       Documentation : in     String;

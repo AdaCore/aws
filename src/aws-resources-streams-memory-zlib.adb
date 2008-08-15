@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                          Copyright (C) 2003-2007                         --
---                                  AdaCore                                 --
+--                     Copyright (C) 2003-2008, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -38,7 +37,7 @@ package body AWS.Resources.Streams.Memory.ZLib is
    -- Append --
    ------------
 
-   procedure Append
+   overriding procedure Append
      (Resource : in out Stream_Type;
       Buffer   : in     Stream_Element_Array;
       Trim     : in     Boolean := False)

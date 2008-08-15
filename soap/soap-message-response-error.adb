@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2004                          --
---                                ACT-Europe                                --
+--                     Copyright (C) 2000-2008, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -102,7 +101,7 @@ package body SOAP.Message.Response.Error is
    -- From --
    ----------
 
-   function From (P : in Message.Payload.Object) return Object is
+   overriding function From (P : in Message.Payload.Object) return Object is
       pragma Unreferenced (P);
       N : Object;
    begin
@@ -113,7 +112,7 @@ package body SOAP.Message.Response.Error is
    -- Is_Error --
    --------------
 
-   function Is_Error (E : in Object) return Boolean is
+   overriding function Is_Error (E : in Object) return Boolean is
       pragma Unreferenced (E);
    begin
       return True;
@@ -150,7 +149,7 @@ package body SOAP.Message.Response.Error is
    -- XML_Image --
    ---------------
 
-   function XML_Image (E : in Object) return Unbounded_String is
+   overriding function XML_Image (E : in Object) return Unbounded_String is
       NL           : constant String := ASCII.CR & ASCII.LF;
       Message_Body : Unbounded_String;
 

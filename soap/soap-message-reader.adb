@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2007                          --
---                                 AdaCore                                  --
+--                     Copyright (C) 2000-2008, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -43,7 +42,7 @@ package body SOAP.Message.Reader is
    -- Characters --
    ----------------
 
-   procedure Characters
+   overriding procedure Characters
      (Handler : in out Tree_Reader;
       Ch      : in     Unicode.CES.Byte_Sequence)
    is
@@ -73,7 +72,7 @@ package body SOAP.Message.Reader is
    -- End_Element --
    -----------------
 
-   procedure End_Element
+   overriding procedure End_Element
      (Handler       : in out Tree_Reader;
       Namespace_URI : in     Unicode.CES.Byte_Sequence := "";
       Local_Name    : in     Unicode.CES.Byte_Sequence := "";
@@ -99,7 +98,7 @@ package body SOAP.Message.Reader is
    -- Ignorable_Whitespace --
    --------------------------
 
-   procedure Ignorable_Whitespace
+   overriding procedure Ignorable_Whitespace
      (Handler : in out Tree_Reader;
       Ch      : in     Unicode.CES.Byte_Sequence)
    is
@@ -121,7 +120,7 @@ package body SOAP.Message.Reader is
    -- Start_Document --
    --------------------
 
-   procedure Start_Document (Handler : in out Tree_Reader) is
+   overriding procedure Start_Document (Handler : in out Tree_Reader) is
       Implementation : DOM_Implementation;
    begin
       Handler.Tree := Create_Document (Implementation);
@@ -132,7 +131,7 @@ package body SOAP.Message.Reader is
    -- Start_Element --
    -------------------
 
-   procedure Start_Element
+   overriding procedure Start_Element
      (Handler       : in out Tree_Reader;
       Namespace_URI : in     Unicode.CES.Byte_Sequence       := "";
       Local_Name    : in     Unicode.CES.Byte_Sequence       := "";

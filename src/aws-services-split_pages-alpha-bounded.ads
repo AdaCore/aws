@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2004                            --
---                                ACT-Europe                                --
+--                     Copyright (C) 2004-2008, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -51,11 +50,11 @@ package AWS.Services.Split_Pages.Alpha.Bounded is
 
    type Splitter (Max_Per_Page : Positive) is new Alpha.Splitter with private;
 
-   function Get_Page_Ranges
+   overriding function Get_Page_Ranges
      (This  : in Splitter;
       Table : in Templates.Translate_Set) return Ranges_Table;
 
-   function Get_Translations
+   overriding function Get_Translations
      (This   : in Splitter;
       Page   : in Positive;
       URIs   : in URI_Table;

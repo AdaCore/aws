@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2003                          --
---                                ACT-Europe                                --
+--                     Copyright (C) 2000-2008, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -35,10 +34,10 @@ package SOAP.Message.Response.Error is
 
    type Faultcode is new String;
 
-   function From (P : in Message.Payload.Object) return Object;
+   overriding function From (P : in Message.Payload.Object) return Object;
    --  Build an Error response from a Payload object
 
-   function XML_Image (E : in Object) return Unbounded_String;
+   overriding function XML_Image (E : in Object) return Unbounded_String;
    --  Returns the Fault env and associated data (faultcode, faultstring...)
 
    function Build
@@ -47,7 +46,7 @@ package SOAP.Message.Response.Error is
       return Object;
    --  Returns an Error object built using Faultcode and Faultstring
 
-   function Is_Error (E : in Object) return Boolean;
+   overriding function Is_Error (E : in Object) return Boolean;
    --  Always returns True. This overrides  Response.Object's method
 
    -----------------

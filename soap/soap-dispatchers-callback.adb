@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2003-2007                          --
---                                 AdaCore                                  --
+--                     Copyright (C) 2003-2008, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -53,7 +52,7 @@ package body SOAP.Dispatchers.Callback is
    -- Dispatch_HTTP --
    -------------------
 
-   function Dispatch_HTTP
+   overriding function Dispatch_HTTP
      (Dispatcher : in Handler;
       Request    : in AWS.Status.Data) return AWS.Response.Data is
    begin
@@ -64,7 +63,7 @@ package body SOAP.Dispatchers.Callback is
    -- Dispatch_SOAP --
    -------------------
 
-   function Dispatch_SOAP
+   overriding function Dispatch_SOAP
      (Dispatcher : in Handler;
       SOAPAction : in String;
       Payload    : in Message.Payload.Object;

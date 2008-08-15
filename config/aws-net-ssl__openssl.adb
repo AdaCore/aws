@@ -132,7 +132,7 @@ package body AWS.Net.SSL is
    -- Accept_Socket --
    -------------------
 
-   procedure Accept_Socket
+   overriding procedure Accept_Socket
      (Socket     : in     Net.Socket_Type'Class;
       New_Socket : in out Socket_Type)
    is
@@ -162,7 +162,7 @@ package body AWS.Net.SSL is
    -- Connect --
    -------------
 
-   procedure Connect
+   overriding procedure Connect
      (Socket   : in out Socket_Type;
       Host     : in     String;
       Port     : in     Positive;
@@ -308,7 +308,7 @@ package body AWS.Net.SSL is
    -- Finalize --
    --------------
 
-   procedure Finalize (Socket : in out Socket_Type) is
+   overriding procedure Finalize (Socket : in out Socket_Type) is
    begin
       Std.Finalize (Std.Socket_Type (Socket));
    end Finalize;
@@ -325,7 +325,7 @@ package body AWS.Net.SSL is
          Socket.SSL := TSSL.Null_Pointer;
       end if;
 
-      Net.Std.Free (NSST (Socket));
+      NSST (Socket).Free;
    end Free;
 
    -----------------
@@ -385,7 +385,9 @@ package body AWS.Net.SSL is
    -- Pending --
    -------------
 
-   function Pending (Socket : in Socket_Type) return Stream_Element_Count is
+   overriding function Pending
+     (Socket : in Socket_Type) return Stream_Element_Count
+   is
       Res : constant C.int := TSSL.SSL_pending (Socket.SSL);
    begin
       Error_If (Socket, Res < 0);
@@ -425,7 +427,7 @@ package body AWS.Net.SSL is
    -- Receive --
    -------------
 
-   procedure Receive
+   overriding procedure Receive
      (Socket : in     Socket_Type;
       Data   :    out Stream_Element_Array;
       Last   :    out Stream_Element_Offset)
@@ -526,7 +528,7 @@ package body AWS.Net.SSL is
    -- Send --
    ----------
 
-   procedure Send
+   overriding procedure Send
      (Socket : in     Socket_Type;
       Data   : in     Stream_Element_Array;
       Last   :    out Stream_Element_Offset)
@@ -641,7 +643,7 @@ package body AWS.Net.SSL is
    -- Set_Timeout --
    -----------------
 
-   procedure Set_Timeout
+   overriding procedure Set_Timeout
      (Socket  : in out Socket_Type;
       Timeout : in     Duration) is
    begin
@@ -652,7 +654,7 @@ package body AWS.Net.SSL is
    -- Shutdown --
    --------------
 
-   procedure Shutdown (Socket : in Socket_Type) is
+   overriding procedure Shutdown (Socket : in Socket_Type) is
    begin
       TSSL.SSL_set_shutdown
         (Socket.SSL, TSSL.SSL_SENT_SHUTDOWN + TSSL.SSL_RECEIVED_SHUTDOWN);
@@ -663,7 +665,7 @@ package body AWS.Net.SSL is
    -- Socket_Pair --
    -----------------
 
-   procedure Socket_Pair (S1, S2 : out Socket_Type) is
+   overriding procedure Socket_Pair (S1, S2 : out Socket_Type) is
       ST1, ST2 : Std.Socket_Type;
    begin
       Std.Socket_Pair (ST1, ST2);
@@ -843,7 +845,7 @@ package body AWS.Net.SSL is
       -- Finalize --
       --------------
 
-      procedure Finalize (Item : in out Finalizator) is
+      overriding procedure Finalize (Item : in out Finalizator) is
          pragma Unreferenced (Item);
       begin
          Finalized := True;

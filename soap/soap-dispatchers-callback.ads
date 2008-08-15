@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2003-2007                          --
---                                 AdaCore                                  --
+--                     Copyright (C) 2003-2008, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -45,14 +44,14 @@ private
    overriding function Clone (Dispatch : in Handler) return Handler;
    --  Returns a deep copy of the dispatcher
 
-   function Dispatch_SOAP
+   overriding function Dispatch_SOAP
      (Dispatcher : in Handler;
       SOAPAction : in String;
       Payload    : in Message.Payload.Object;
       Request    : in AWS.Status.Data) return AWS.Response.Data;
    --  This dispatch function is called for SOAP requests
 
-   function Dispatch_HTTP
+   overriding function Dispatch_HTTP
      (Dispatcher : in Handler;
       Request    : in AWS.Status.Data) return AWS.Response.Data;
    --  This dispatch function is called for standard HTTP requests

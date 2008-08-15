@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                          Copyright (C) 2003-2008                         --
---                                  AdaCore                                 --
+--                     Copyright (C) 2003-2008, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -44,19 +43,19 @@ package SOAP.Generator is
 
    type Object is new SOAP.WSDL.Parser.Object with private;
 
-   procedure Start_Service
+   overriding procedure Start_Service
      (O             : in out Object;
       Name          : in     String;
       Documentation : in     String;
       Location      : in     String);
    --  Called for every service in the WSDL document
 
-   procedure End_Service
+   overriding procedure End_Service
      (O    : in out Object;
       Name : in     String);
    --  Called at the end of the service
 
-   procedure New_Procedure
+   overriding procedure New_Procedure
      (O          : in out Object;
       Proc       : in     String;
       SOAPAction : in     String;

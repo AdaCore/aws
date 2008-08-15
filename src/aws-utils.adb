@@ -260,7 +260,7 @@ package body AWS.Utils is
    -- Finalize --
    --------------
 
-   procedure Finalize (Object : in out Finalizer) is
+   overriding procedure Finalize (Object : in out Finalizer) is
    begin
       Object.Action.all;
    end Finalize;

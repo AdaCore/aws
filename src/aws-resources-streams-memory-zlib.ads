@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                          Copyright (C) 2003-2007                         --
---                                  AdaCore                                 --
+--                     Copyright (C) 2003-2008, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -65,7 +64,7 @@ package AWS.Resources.Streams.Memory.ZLib is
    pragma Inline (Inflate_Initialize);
    --  Initialize the decompression
 
-   procedure Append
+   overriding procedure Append
      (Resource : in out Stream_Type;
       Buffer   : in     Stream_Element_Array;
       Trim     : in     Boolean := False);

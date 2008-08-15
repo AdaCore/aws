@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2004-2007                          --
---                                 AdaCore                                  --
+--                     Copyright (C) 2004-2008, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -98,7 +97,7 @@ package body AWS.Client.XML.Input_Sources is
    -- Eof --
    ---------
 
-   function Eof (From : in HTTP_Input) return Boolean is
+   overriding function Eof (From : in HTTP_Input) return Boolean is
    begin
       if From.First <= From.Last then
          return False;
@@ -117,7 +116,7 @@ package body AWS.Client.XML.Input_Sources is
    -- Next_Char --
    ---------------
 
-   procedure Next_Char
+   overriding procedure Next_Char
      (From : in out HTTP_Input;
       C    :    out Unicode.Unicode_Char)
    is

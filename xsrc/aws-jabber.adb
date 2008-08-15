@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2002-2008                          --
---                                 AdaCore                                  --
+--                     Copyright (C) 2002-2008, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -58,24 +57,24 @@ package body AWS.Jabber is
       Value : Unbounded_String;
    end record;
 
-   procedure Start_Element
+   overriding procedure Start_Element
      (Handler       : in out Tree_Reader;
       Namespace_URI : in     Unicode.CES.Byte_Sequence := "";
       Local_Name    : in     Unicode.CES.Byte_Sequence := "";
       Qname         : in     Unicode.CES.Byte_Sequence := "";
       Atts          : in     Sax.Attributes.Attributes'Class);
 
-   procedure End_Element
+   overriding procedure End_Element
      (Handler       : in out Tree_Reader;
       Namespace_URI : in     Unicode.CES.Byte_Sequence := "";
       Local_Name    : in     Unicode.CES.Byte_Sequence := "";
       Qname         : in     Unicode.CES.Byte_Sequence := "");
 
-   procedure Characters
+   overriding procedure Characters
      (Handler : in out Tree_Reader;
       Ch      : in     Unicode.CES.Byte_Sequence);
 
-   procedure Ignorable_Whitespace
+   overriding procedure Ignorable_Whitespace
      (Handler : in out Tree_Reader;
       Ch      : in     Unicode.CES.Byte_Sequence);
 
@@ -121,7 +120,7 @@ package body AWS.Jabber is
    -- Characters --
    ----------------
 
-   procedure Characters
+   overriding procedure Characters
      (Handler : in out Tree_Reader;
       Ch      : in     Unicode.CES.Byte_Sequence) is
    begin
@@ -434,7 +433,7 @@ package body AWS.Jabber is
    -- End_Element --
    -----------------
 
-   procedure End_Element
+   overriding procedure End_Element
      (Handler       : in out Tree_Reader;
       Namespace_URI : in     Unicode.CES.Byte_Sequence := "";
       Local_Name    : in     Unicode.CES.Byte_Sequence := "";
@@ -647,7 +646,7 @@ package body AWS.Jabber is
    -- Ignorable_Whitespace --
    --------------------------
 
-   procedure Ignorable_Whitespace
+   overriding procedure Ignorable_Whitespace
      (Handler : in out Tree_Reader;
       Ch      : in     Unicode.CES.Byte_Sequence) is
    begin
@@ -731,7 +730,7 @@ package body AWS.Jabber is
    -- Start_Element --
    -------------------
 
-   procedure Start_Element
+   overriding procedure Start_Element
      (Handler       : in out Tree_Reader;
       Namespace_URI : in     Unicode.CES.Byte_Sequence := "";
       Local_Name    : in     Unicode.CES.Byte_Sequence := "";

@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2008                          --
---                                 AdaCore                                  --
+--                     Copyright (C) 2000-2008, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -232,7 +231,7 @@ package body SOAP.Utils is
       -- Adjust --
       ------------
 
-      procedure Adjust (SP : in out Safe_Pointer) is
+      overriding procedure Adjust (SP : in out Safe_Pointer) is
       begin
          SP.Ref.all := SP.Ref.all + 1;
       end Adjust;
@@ -241,7 +240,7 @@ package body SOAP.Utils is
       -- Finalize --
       --------------
 
-      procedure Finalize (SP : in out Safe_Pointer) is
+      overriding procedure Finalize (SP : in out Safe_Pointer) is
       begin
          SP.Ref.all := SP.Ref.all - 1;
 
@@ -255,7 +254,7 @@ package body SOAP.Utils is
       -- Initialize --
       ----------------
 
-      procedure Initialize (SP : in out Safe_Pointer) is
+      overriding procedure Initialize (SP : in out Safe_Pointer) is
       begin
          SP.Ref := new Natural'(1);
       end Initialize;

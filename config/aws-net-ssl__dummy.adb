@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                          Copyright (C) 2006-2007                         --
---                                  AdaCore                                 --
+--                     Copyright (C) 2006-2008, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -42,7 +41,7 @@ package body AWS.Net.SSL is
    -- Accept_Socket --
    -------------------
 
-   procedure Accept_Socket
+   overriding procedure Accept_Socket
      (Socket     : in     Net.Socket_Type'Class;
       New_Socket : in out Socket_Type) is
    begin
@@ -84,7 +83,7 @@ package body AWS.Net.SSL is
    -- Free --
    ----------
 
-   overriding procedure Free (Socket : in out Socket_Type) is
+   procedure Free (Socket : in out Socket_Type) is
    begin
       raise Program_Error with Error_Message;
    end Free;

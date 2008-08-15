@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2007                          --
---                                 AdaCore                                  --
+--                     Copyright (C) 2000-2008, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -70,7 +69,7 @@ package body AWS.Response is
    -- Adjust --
    ------------
 
-   procedure Adjust (Object : in out Data) is
+   overriding procedure Adjust (Object : in out Data) is
    begin
       Object.Ref_Counter.Counter := Object.Ref_Counter.Counter + 1;
    end Adjust;
@@ -381,7 +380,7 @@ package body AWS.Response is
    -- Finalize --
    --------------
 
-   procedure Finalize (Object : in out Data) is
+   overriding procedure Finalize (Object : in out Data) is
 
       use Resources.Streams;
 
@@ -436,7 +435,7 @@ package body AWS.Response is
    -- Initialize --
    ----------------
 
-   procedure Initialize (Object : in out Data) is
+   overriding procedure Initialize (Object : in out Data) is
    begin
       Object.Ref_Counter := new Release_Controller;
       AWS.Headers.Set.Reset (Object.Header);

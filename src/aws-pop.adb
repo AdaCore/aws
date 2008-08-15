@@ -2,8 +2,7 @@
 --                              Ada Web Server                              --
 --                       P O P - Post Office Protocol                       --
 --                                                                          --
---                         Copyright (C) 2003-2007                          --
---                                 AdaCore                                  --
+--                     Copyright (C) 2003-2008, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -63,12 +62,12 @@ package body AWS.POP is
    -- Adjust --
    ------------
 
-   procedure Adjust (Attachment : in out POP.Attachment) is
+   overriding procedure Adjust (Attachment : in out POP.Attachment) is
    begin
       Attachment.Ref_Count.all := Attachment.Ref_Count.all + 1;
    end Adjust;
 
-   procedure Adjust (Message : in out POP.Message) is
+   overriding procedure Adjust (Message : in out POP.Message) is
    begin
       Message.Ref_Count.all := Message.Ref_Count.all + 1;
    end Adjust;
@@ -245,7 +244,7 @@ package body AWS.POP is
    -- Finalize --
    --------------
 
-   procedure Finalize (Attachment : in out POP.Attachment) is
+   overriding procedure Finalize (Attachment : in out POP.Attachment) is
       procedure Free is new Unchecked_Deallocation
         (AWS.Resources.Streams.Stream_Type'Class,
          AWS.Resources.Streams.Stream_Access);
@@ -260,7 +259,7 @@ package body AWS.POP is
       end if;
    end Finalize;
 
-   procedure Finalize (Message : in out POP.Message) is
+   overriding procedure Finalize (Message : in out POP.Message) is
       A : Attachment_Access := Message.Attachments;
    begin
       Message.Ref_Count.all := Message.Ref_Count.all + 1;
@@ -604,12 +603,12 @@ package body AWS.POP is
    -- Initialize --
    ----------------
 
-   procedure Initialize (Message : in out POP.Message) is
+   overriding procedure Initialize (Message : in out POP.Message) is
    begin
       Message.Ref_Count := new Natural'(0);
    end Initialize;
 
-   procedure Initialize (Attachment : in out POP.Attachment) is
+   overriding procedure Initialize (Attachment : in out POP.Attachment) is
    begin
       Attachment.Ref_Count := new Natural'(0);
    end Initialize;

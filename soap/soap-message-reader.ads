@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2005                          --
---                                 AdaCore                                  --
+--                     Copyright (C) 2000-2008, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -49,27 +48,27 @@ private
       Internal_Encoding : Unicode.CES.Encoding_Scheme;
    end record;
 
-   procedure Start_Document
+   overriding procedure Start_Document
      (Handler : in out Tree_Reader);
 
-   procedure Start_Element
+   overriding procedure Start_Element
      (Handler       : in out Tree_Reader;
       Namespace_URI : in     Unicode.CES.Byte_Sequence       := "";
       Local_Name    : in     Unicode.CES.Byte_Sequence       := "";
       Qname         : in     Unicode.CES.Byte_Sequence       := "";
       Atts          : in     Sax.Attributes.Attributes'Class);
 
-   procedure End_Element
+   overriding procedure End_Element
      (Handler       : in out Tree_Reader;
       Namespace_URI : in     Unicode.CES.Byte_Sequence := "";
       Local_Name    : in     Unicode.CES.Byte_Sequence := "";
       Qname         : in     Unicode.CES.Byte_Sequence := "");
 
-   procedure Characters
+   overriding procedure Characters
      (Handler : in out Tree_Reader;
       Ch      : in     Unicode.CES.Byte_Sequence);
 
-   procedure Ignorable_Whitespace
+   overriding procedure Ignorable_Whitespace
      (Handler : in out Tree_Reader;
       Ch      : in     Unicode.CES.Byte_Sequence);
 
