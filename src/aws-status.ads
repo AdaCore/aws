@@ -190,13 +190,13 @@ package AWS.Status is
      (D      : in     Data;
       Buffer :    out Stream_Element_Array;
       Last   :    out Stream_Element_Offset);
+   pragma Inline (Read_Body);
    --  Read a chunk of data from message body and put them into Buffer.
    --  Last is the index of the last item returned in Buffer.
-   pragma Inline (Read_Body);
 
    function End_Of_Body (D : in Data) return Boolean;
-   --  Returns true if there is no more data to read from the
    pragma Inline (End_Of_Body);
+   --  Returns true if there is no more data to read from the
 
    -----------------
    -- Attachments --

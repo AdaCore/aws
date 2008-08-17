@@ -318,7 +318,7 @@ package body AWS.Status.Set is
 
       Buffer : Stream_Element_Array (1 .. 4096);
       Rest   : Stream_Element_Offset :=
-        Stream_Element_Offset (D.Content_Length);
+                 Stream_Element_Offset (D.Content_Length);
    begin
       if D.Binary_Data = null then
          D.Binary_Data := new Stream_Type;
@@ -356,7 +356,7 @@ package body AWS.Status.Set is
       URI          : in     String;
       HTTP_Version : in     String) is
    begin
-      D.Request_Time  := Ada.Calendar.Clock;
+      D.Request_Time := Ada.Calendar.Clock;
 
       --  Method is case sensitive
 
