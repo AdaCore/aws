@@ -202,7 +202,8 @@ package body AWS.Net.SSL is
    -- Shutdown --
    --------------
 
-   overriding procedure Shutdown (Socket : in Socket_Type) is
+   overriding procedure Shutdown
+     (Socket : in Socket_Type; How : in Shutmode_Type := Shut_Read_Write) is
    begin
       raise Program_Error with Error_Message;
    end Shutdown;
