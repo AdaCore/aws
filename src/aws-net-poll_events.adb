@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2006-2008                          --
---                                 AdaCore                                  --
+--                     Copyright (C) 2006-2008, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -48,6 +47,11 @@ package body AWS.Net.Poll_Events is
    begin
       if FD_Set.Size = FD_Set.Length then
          raise Constraint_Error;
+      end if;
+
+      if FD < 0 then
+         raise Socket_Error with
+           "Wrong socket descriptor " & FD_Type'Image (FD);
       end if;
 
       FD_Set.Length := FD_Set.Length + 1;
