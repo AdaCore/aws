@@ -196,7 +196,7 @@ package AWS.Status is
 
    function End_Of_Body (D : in Data) return Boolean;
    pragma Inline (End_Of_Body);
-   --  Returns true if there is no more data to read from the
+   --  Returns true if there is no more data to read from the message body
 
    -----------------
    -- Attachments --
