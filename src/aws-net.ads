@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2007                          --
---                                 AdaCore                                  --
+--                     Copyright (C) 2000-2008, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -71,6 +70,8 @@ package AWS.Net is
    --  Type for set events to wait, note that Error event would be waited
    --  anyway.
 
+   type Shutmode_Type is (Shut_Read, Shut_Write, Shut_Read_Write);
+
    Forever : constant Duration;
    --  The longest delay possible on the implementation
 
@@ -123,9 +124,12 @@ package AWS.Net is
    procedure Socket_Pair (S1, S2 : out Socket_Type);
    --  Create 2 sockets and connect them together
 
-   procedure Shutdown (Socket : in Socket_Type) is abstract;
-   --  Shutdown both side of the socket and close it. Does not raise
-   --  Socket_Error if the socket is not connected.
+   procedure Shutdown
+     (Socket : in Socket_Type;
+      How    : in Shutmode_Type := Shut_Read_Write) is abstract;
+   --  Shutdown the read, write or both side of the socket.
+   --  If Side is Both, close it. Does not raise Socket_Error if the socket is
+   --  not connected or already shutdown.
 
    procedure Free (Socket : in out Socket_Access);
    --  Release memory associated with the socket

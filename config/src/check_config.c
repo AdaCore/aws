@@ -1,9 +1,8 @@
 /***************************************************************************/
 /*                             Ada Web Server                              */
-/*                                                                         */
-/*                        Copyright (C) 2000-2008                          */
-/*                                AdaCore                                  */
-/*                                                                         */
+/*
+--                     Copyright (C) 2000-2008, AdaCore                    --
+                                                                           */
 /* This library is free software; you can redistribute it and/or modify    */
 /* it under the terms of the GNU General Public License as published by    */
 /* the Free Software Foundation; either version 2 of the License, or (at   */
@@ -214,6 +213,8 @@ main (int argc, char *argv[])
   P ("   SOCK_STREAM  : constant := %d;\n", SOCK_STREAM);
   P ("   SOL_SOCKET   : constant := %d;\n", SOL_SOCKET);
   P ("   SHUT_RDWR    : constant := %d;\n", SHUT_RDWR);
+  P ("   SHUT_RD      : constant := %d;\n", SHUT_RD);
+  P ("   SHUT_WR      : constant := %d;\n", SHUT_WR);
   P ("   ETIMEDOUT    : constant := %d;\n", ETIMEDOUT);
   P ("   EWOULDBLOCK  : constant := %d;\n", EWOULDBLOCK);
   P ("   ENOTCONN     : constant := %d;\n", ENOTCONN);

@@ -654,11 +654,17 @@ package body AWS.Net.SSL is
    -- Shutdown --
    --------------
 
-   overriding procedure Shutdown (Socket : in Socket_Type) is
+   overriding procedure Shutdown
+     (Socket : in Socket_Type; How : in Shutmode_Type := Shut_Read_Write)
+   is
+      To_C : constant array (Shutmode_Type) of C.int :=
+               (Shut_Read_Write => TSSL.SSL_SENT_SHUTDOWN
+                                   + TSSL.SSL_RECEIVED_SHUTDOWN,
+                Shut_Read       => TSSL.SSL_RECEIVED_SHUTDOWN,
+                Shut_Write      => TSSL.SSL_SENT_SHUTDOWN);
    begin
-      TSSL.SSL_set_shutdown
-        (Socket.SSL, TSSL.SSL_SENT_SHUTDOWN + TSSL.SSL_RECEIVED_SHUTDOWN);
-      Net.Std.Shutdown (NSST (Socket));
+      TSSL.SSL_set_shutdown (Socket.SSL, To_C (How));
+      Net.Std.Shutdown (NSST (Socket), How);
    end Shutdown;
 
    -----------------

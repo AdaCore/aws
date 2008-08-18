@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2004-2008                          --
---                                 AdaCore                                  --
+--                     Copyright (C) 2004-2008, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -815,17 +814,23 @@ package body AWS.Net.Std is
    -- Shutdown --
    --------------
 
-   overriding procedure Shutdown (Socket : in Socket_Type) is
+   overriding procedure Shutdown
+     (Socket : in Socket_Type; How : in Shutmode_Type := Shut_Read_Write)
+   is
       use Sockets;
       use type C.int;
       FD : constant C.int := Socket.S.FD;
       EN : Integer;
+      To_OS : constant array (Shutmode_Type) of C.int :=
+                (Shut_Read_Write => OS_Lib.SHUT_RDWR,
+                 Shut_Read       => OS_Lib.SHUT_RD,
+                 Shut_Write      => OS_Lib.SHUT_WR);
    begin
       if Net.Log.Is_Event_Active then
          Net.Log.Event (Net.Log.Shutdown, Socket);
       end if;
 
-      if Thin.C_Shutdown (FD, OS_Lib.SHUT_RDWR) = Failure then
+      if Thin.C_Shutdown (FD, To_OS (How)) = Failure then
          EN := Std.Errno;
 
          if EN /= OS_Lib.ENOTCONN then
@@ -835,6 +840,10 @@ package body AWS.Net.Std is
 
       --  Avoid any activity under closed socket in other threads.
       --  Reduce risk to send/receive data on other new created sockets.
+
+      if How /= Shut_Read_Write then
+         return;
+      end if;
 
       Socket.S.FD := No_Socket;
 

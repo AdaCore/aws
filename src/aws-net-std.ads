@@ -68,8 +68,11 @@ package AWS.Net.Std is
    --  for the Connection completion by calling Wait routine with Output set to
    --  True in Events parameter.
 
-   overriding procedure Shutdown (Socket : in Socket_Type);
-   --  Shutdown both side of the socket and close it
+   overriding procedure Shutdown
+     (Socket : in Socket_Type; How : in Shutmode_Type := Shut_Read_Write);
+   --  Shutdown the read, write or both side of the socket.
+   --  If Side is Both, close it. Does not raise Socket_Error if the socket is
+   --  not connected or already shutdown.
 
    --------
    -- IO --

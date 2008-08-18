@@ -625,7 +625,13 @@ package body AWS.Net.Std is
    -- Shutdown --
    --------------
 
-   overriding procedure Shutdown (Socket : in Socket_Type) is
+   overriding procedure Shutdown
+     (Socket : in Socket_Type; How : in Shutmode_Type := Shut_Read_Write)
+   is
+      To_GNAT : constant array (Shutmode_Type) of Sockets.Shutmode_Type :=
+                  (Shut_Read_Write => Sockets.Shut_Read_Write,
+                   Shut_Read       => Sockets.Shut_Read,
+                   Shut_Write      => Sockets.Shut_Write);
    begin
       if Socket.S /= null then
          if Net.Log.Is_Event_Active then
@@ -636,7 +642,7 @@ package body AWS.Net.Std is
             --  We catch socket exceptions here as we do not want this call to
             --  fail. A shutdown will fail on non connected sockets.
 
-            Sockets.Shutdown_Socket (Socket.S.FD);
+            Sockets.Shutdown_Socket (Socket.S.FD, To_GNAT (How));
          exception
             when E : Sockets.Socket_Error =>
                Log.Error
@@ -644,6 +650,10 @@ package body AWS.Net.Std is
                   Message => "Shutdown : "
                              & Ada.Exceptions.Exception_Message (E));
          end;
+
+         if How /= Shut_Read_Write then
+            return;
+         end if;
 
          declare
             FD : constant Sockets.Socket_Type := Socket.S.FD;
