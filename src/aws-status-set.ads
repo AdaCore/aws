@@ -54,9 +54,9 @@ package AWS.Status.Set is
      (D      : in out Data;
       Buffer : in     Stream_Element_Array;
       Trim   : in     Boolean := False);
-   --  Append data to the message body. Trim parameter should be set to True
-   --  when the last chunk of data appended to the body, it disables remaining
-   --  free spaces at the end of allocated memory.
+   --  Append data to the message body. If Trim is set to True the unused
+   --  memory space in body's buffer is released. Ideally Trim should be
+   --  set to True only when appending the last chunk of data.
 
    procedure Keep_Alive (D : in out Data; Flag : in Boolean);
    --  Set the Keep-Alive flag for the current HTTP connection
