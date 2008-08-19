@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2004                            --
---                                ACT-Europe                                --
+--                     Copyright (C) 2003-2008, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -26,33 +25,13 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-with Ada.Text_IO;
-with SOAP.Types;
+with AWS.Response;
+with AWS.Status;
 
-package body WSDL_7 is
+package WSDL_7_Server is
 
-   use Ada;
-   use SOAP.Types;
+   use AWS;
 
-   Keep : SOAP.Types.SOAP_Base64;
+   function HTTP_CB (Request : in Status.Data) return Response.Data;
 
-   ----------
-   -- Proc --
-   ----------
-
-   procedure Proc (P : in SOAP.Utils.SOAP_Base64) is
-   begin
-      Keep := Types.B64 (P, "P");
-   end Proc;
-
-   ----------
-   -- Func --
-   ----------
-
-   function Func (P : in Integer) return Utils.SOAP_Base64 is
-   begin
-      Text_IO.Put_Line (Integer'Image (P));
-      return V (Keep);
-   end Func;
-
-end WSDL_7;
+end WSDL_7_Server;
