@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2003                            --
---                                ACT-Europe                                --
+--                     Copyright (C) 2003-2008, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -26,19 +25,13 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-package WSDL_5 is
+with AWS.Response;
+with AWS.Status;
 
-   type Color is (Red, Green, Blue);
+package WSDL_5_Server is
 
-   type Rec is record
-      Item1 : character;
-      Item2 : Color;
-   end record;
+   use AWS;
 
-   procedure Register
-     (Name    : in String;
-      Surface : in Color);
+   function HTTP_CB (Request : in Status.Data) return Response.Data;
 
-   function One_Color return Color;
-
-end WSDL_5;
+end WSDL_5_Server;

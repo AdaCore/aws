@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2003                            --
---                                ACT-Europe                                --
+--                     Copyright (C) 2003-2008, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -26,28 +25,47 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-package body WSDL_5 is
+with Ada.Strings.Unbounded;
+with Ada.Text_IO;
 
-   C : Color;
+with AWS.Config.Set;
+with AWS.Server;
 
-   --------------
-   -- Register --
-   --------------
+with SOAP.Dispatchers.Callback;
 
-   procedure Register
-     (Name    : in String;
-      Surface : in Color) is
-   begin
-      C := Surface;
-   end Register;
+with WSDL_5;
+with WSDL_5_Server;
+with WSDL_5_Service.Client;
+with WSDL_5_Service.Types;
+with WSDL_5_Service.Cb;
 
-   ---------------
-   -- One_Color --
-   ---------------
+procedure WSDL_5_Main is
 
-   function One_Color return Color is
-   begin
-      return C;
-   end One_Color;
+   use Ada;
+   use Ada.Strings.Unbounded;
+   use AWS;
 
-end WSDL_5;
+   WS   : Server.HTTP;
+
+   H    : WSDL_5_Service.Cb.Handler;
+
+   Conf : Config.Object := Config.Get_Current;
+
+   Res  : WSDL_5.Color;
+
+begin
+   H := SOAP.Dispatchers.Callback.Create
+     (WSDL_5_Server.HTTP_CB'Access, WSDL_5_Service.Cb.SOAP_CB'Access);
+
+   Config.Set.Server_Port (Conf, 7705);
+
+   Server.Start (WS, H, Conf);
+
+   WSDL_5_Service.Client.Register ("pascal", WSDL_5.Red);
+
+   Res := WSDL_5_Service.Client.One_Color;
+
+   Text_IO.Put_Line ("Color = " & WSDL_5.Color'Image (Res));
+
+   Server.Shutdown (WS);
+end WSDL_5_Main;

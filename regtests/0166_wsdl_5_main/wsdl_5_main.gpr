@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2003                            --
---                                ACT-Europe                                --
+--                        Copyright (C) 2008, AdaCore                       --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -26,14 +25,9 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-with AWS.MIME;
+with "aws";
 
-package body WSDL_5_Server is
-
-   function HTTP_CB (Request : in Status.Data) return Response.Data is
-   begin
-      return Response.Build
-        (MIME.Text_HTML, "No HTTP request should be called.");
-   end HTTP_CB;
-
-end WSDL_5_Server;
+project WSDL_5_Main is
+   for Source_Dirs use (".");
+   for Main use ("wsdl_5_main.adb");
+end WSDL_5_Main;

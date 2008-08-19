@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2003-2008                          --
---                                 AdaCore                                  --
+--                     Copyright (C) 2003-2008, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -26,49 +25,14 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  ~ MAIN [XMLADA+ASIS]
+with AWS.MIME;
 
-with Ada.Strings.Unbounded;
-with Ada.Text_IO;
+package body WSDL_5_Server is
 
-with AWS.Config.Set;
-with AWS.Server;
+   function HTTP_CB (Request : in Status.Data) return Response.Data is
+   begin
+      return Response.Build
+        (MIME.Text_HTML, "No HTTP request should be called.");
+   end HTTP_CB;
 
-with SOAP.Dispatchers.Callback;
-
-with WSDL_5;
-with WSDL_5_Server;
-with WSDL_5_Service.Client;
-with WSDL_5_Service.Types;
-with WSDL_5_Service.Cb;
-
-procedure WSDL_5_Main is
-
-   use Ada;
-   use Ada.Strings.Unbounded;
-   use AWS;
-
-   WS   : Server.HTTP;
-
-   H    : WSDL_5_Service.Cb.Handler;
-
-   Conf : Config.Object := Config.Get_Current;
-
-   Res  : WSDL_5.Color;
-
-begin
-   H := SOAP.Dispatchers.Callback.Create
-     (WSDL_5_Server.HTTP_CB'Access, WSDL_5_Service.Cb.SOAP_CB'Access);
-
-   Config.Set.Server_Port (Conf, 7705);
-
-   Server.Start (WS, H, Conf);
-
-   WSDL_5_Service.Client.Register ("pascal", WSDL_5.Red);
-
-   Res := WSDL_5_Service.Client.One_Color;
-
-   Text_IO.Put_Line ("Color = " & WSDL_5.Color'Image (Res));
-
-   Server.Shutdown (WS);
-end WSDL_5_Main;
+end WSDL_5_Server;
