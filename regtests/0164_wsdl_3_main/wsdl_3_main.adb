@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2003-2007                          --
---                                 AdaCore                                  --
+--                     Copyright (C) 2003-2008, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -26,60 +25,51 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
+with Ada.Strings.Unbounded;
 with Ada.Text_IO;
 
-with AWS.Utils;
+with AWS.Config.Set;
+with AWS.Server;
 
-package body WSDL_3 is
+with SOAP.Dispatchers.Callback;
+
+with WSDL_3;
+with WSDL_3_Server;
+with WSDL_3_Service.Client;
+with WSDL_3_Service.Types;
+
+procedure WSDL_3_Main is
 
    use Ada;
+   use Ada.Strings.Unbounded;
    use AWS;
 
-   ----------------
-   -- Image_Rec1 --
-   ----------------
+   WS   : Server.HTTP;
 
-   function Image_Rec1 (Rec : in Rec1) return String is
-   begin
-      return "(" & Integer'Image (Rec.Item1)
-        & ", " & Natural'Image (Rec.Item2)
-        & ", " & Positive'Image (Rec.Item3)
-        & ")";
-   end Image_Rec1;
+   H    : WSDL_3_Server.Handler;
 
-   ----------------
-   -- Image_Rec2 --
-   ----------------
+   Conf : Config.Object := Config.Get_Current;
 
-   function Image_Rec2 (Rec : in Rec2) return String is
-   begin
-      return "(" & Image_Rec1 (Rec.Field1)
-        & ", " & Rec.Field2
-        & ", " & To_String (Rec.Field3)
-        & ", " & Long_Float'Image (Rec.Field4)
-        & ")";
-   end Image_Rec2;
+   R1   : WSDL_3_Service.Types.Rec1_Type;
+   R2   : WSDL_3_Service.Types.Rec2_Type;
+   R3   : WSDL_3_Service.Types.Rec3_Type;
 
-   ----------------
-   -- Image_Rec3 --
-   ----------------
+begin
+   H := SOAP.Dispatchers.Callback.Create
+     (WSDL_3_Server.HTTP_CB'Access, WSDL_3_Server.SOAP_CB'Access);
 
-   function Image_Rec3 (Rec : in Rec3) return String is
-      R : Unbounded_String;
-   begin
-      Append (R, "(");
+   Config.Set.Server_Port (Conf, 7703);
 
-      for K in Rec.S.Item'Range loop
-         Append (R, Utils.Image (Rec.S.Item (K)));
+   Server.Start (WS, H, Conf);
 
-         if K < Rec.S.Item'Last then
-            Append (R, ", ");
-         end if;
-      end loop;
+   R1 := (-4, 2, 89);
+   R2 := (R1, 'c', To_Unbounded_String ("toto"), 1.45);
+   R3 := (S => WSDL_3.My_Set_Safe_Pointer.To_Safe_Pointer
+            (WSDL_3.My_Set'(1, 7, 8, 10, 0, 0, 3)));
 
-      Append (R, ")");
+   Text_IO.Put_Line ("R1 = " & WSDL_3_Service.Client.Image_Rec1 (R1));
+   Text_IO.Put_Line ("R2 = " & WSDL_3_Service.Client.Image_Rec2 (R2));
+   Text_IO.Put_Line ("R3 = " & WSDL_3_Service.Client.Image_Rec3 (R3));
 
-      return To_String (R);
-   end Image_Rec3;
-
-end WSDL_3;
+   Server.Shutdown (WS);
+end WSDL_3_Main;

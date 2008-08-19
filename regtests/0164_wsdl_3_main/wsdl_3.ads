@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2003-2008                          --
---                                 AdaCore                                  --
+--                     Copyright (C) 2003-2008, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -26,53 +25,41 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  ~ MAIN [XMLADA+ASIS]
-
 with Ada.Strings.Unbounded;
-with Ada.Text_IO;
 
-with AWS.Config.Set;
-with AWS.Server;
+with SOAP.Utils;
 
-with SOAP.Dispatchers.Callback;
+package WSDL_3 is
 
-with WSDL_3;
-with WSDL_3_Server;
-with WSDL_3_Service.Client;
-with WSDL_3_Service.Types;
-
-procedure WSDL_3_Main is
-
-   use Ada;
    use Ada.Strings.Unbounded;
-   use AWS;
 
-   WS   : Server.HTTP;
+   type Rec1 is record
+      Item1 : Integer;
+      Item2 : Natural;
+      Item3 : Positive;
+   end record;
 
-   H    : WSDL_3_Server.Handler;
+   type Rec2 is record
+      Field1 : Rec1;
+      Field2 : Character;
+      Field3 : Unbounded_String;
+      Field4 : Long_Float;
+   end record;
 
-   Conf : Config.Object := Config.Get_Current;
+   type My_Set is array (Positive range <>) of Integer;
+   type My_Set_Access is access My_Set;
 
-   R1   : WSDL_3_Service.Types.Rec1_Type;
-   R2   : WSDL_3_Service.Types.Rec2_Type;
-   R3   : WSDL_3_Service.Types.Rec3_Type;
+   package My_Set_Safe_Pointer is
+      new SOAP.Utils.Safe_Pointers (My_Set, My_Set_Access);
 
-begin
-   H := SOAP.Dispatchers.Callback.Create
-     (WSDL_3_Server.HTTP_CB'Access, WSDL_3_Server.SOAP_CB'Access);
+   type Rec3 is record
+      S : My_Set_Safe_Pointer.Safe_Pointer;
+   end record;
 
-   Config.Set.Server_Port (Conf, 7703);
+   function Image_Rec1 (Rec : in Rec1) return String;
 
-   Server.Start (WS, H, Conf);
+   function Image_Rec2 (Rec : in Rec2) return String;
 
-   R1 := (-4, 2, 89);
-   R2 := (R1, 'c', To_Unbounded_String ("toto"), 1.45);
-   R3 := (S => WSDL_3.My_Set_Safe_Pointer.To_Safe_Pointer
-            (WSDL_3.My_Set'(1, 7, 8, 10, 0, 0, 3)));
+   function Image_Rec3 (Rec : in Rec3) return String;
 
-   Text_IO.Put_Line ("R1 = " & WSDL_3_Service.Client.Image_Rec1 (R1));
-   Text_IO.Put_Line ("R2 = " & WSDL_3_Service.Client.Image_Rec2 (R2));
-   Text_IO.Put_Line ("R3 = " & WSDL_3_Service.Client.Image_Rec3 (R3));
-
-   Server.Shutdown (WS);
-end WSDL_3_Main;
+end WSDL_3;

@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2003-2007                          --
---                                 AdaCore                                  --
+--                     Copyright (C) 2003-2008, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -28,62 +27,58 @@
 
 with Ada.Text_IO;
 
-with AWS.MIME;
-with SOAP.Message.Response.Error;
+with AWS.Utils;
 
-with WSDL_3;
-with WSDL_3_Service.Server;
-with WSDL_3_Service.Types;
-
-package body WSDL_3_Server is
+package body WSDL_3 is
 
    use Ada;
-   use SOAP;
+   use AWS;
 
-   function Image_Rec1_CB is
-      new WSDL_3_Service.Server.Image_Rec1_CB (WSDL_3.Image_Rec1);
+   ----------------
+   -- Image_Rec1 --
+   ----------------
 
-   function Image_Rec2_CB is
-      new WSDL_3_Service.Server.Image_Rec2_CB (WSDL_3.Image_Rec2);
-
-   function Image_Rec3_CB is
-      new WSDL_3_Service.Server.Image_Rec3_CB (WSDL_3.Image_Rec3);
-
-   -------------
-   -- HTTP_CB --
-   -------------
-
-   function HTTP_CB (Request : in Status.Data) return Response.Data is
+   function Image_Rec1 (Rec : in Rec1) return String is
    begin
-      return Response.Build
-        (MIME.Text_HTML, "No HTTP request should be called.");
-   end HTTP_CB;
+      return "(" & Integer'Image (Rec.Item1)
+        & ", " & Natural'Image (Rec.Item2)
+        & ", " & Positive'Image (Rec.Item3)
+        & ")";
+   end Image_Rec1;
 
-   -------------
-   -- SOAP_CB --
-   -------------
+   ----------------
+   -- Image_Rec2 --
+   ----------------
 
-   function SOAP_CB
-     (SOAPAction : in String;
-      Payload    : in Message.Payload.Object;
-      Request    : in Status.Data)
-      return Response.Data is
+   function Image_Rec2 (Rec : in Rec2) return String is
    begin
-      if SOAPAction = "Image_Rec1" then
-         return Image_Rec1_CB (SOAPAction, Payload, Request);
+      return "(" & Image_Rec1 (Rec.Field1)
+        & ", " & Rec.Field2
+        & ", " & To_String (Rec.Field3)
+        & ", " & Long_Float'Image (Rec.Field4)
+        & ")";
+   end Image_Rec2;
 
-      elsif SOAPAction = "Image_Rec2" then
-         return Image_Rec2_CB (SOAPAction, Payload, Request);
+   ----------------
+   -- Image_Rec3 --
+   ----------------
 
-      elsif SOAPAction = "Image_Rec3" then
-         return Image_Rec3_CB (SOAPAction, Payload, Request);
+   function Image_Rec3 (Rec : in Rec3) return String is
+      R : Unbounded_String;
+   begin
+      Append (R, "(");
 
-      else
-         return Message.Response.Build
-           (Message.Response.Error.Build
-              (Message.Response.Error.Client,
-               "Wrong SOAP action " & SOAPAction));
-      end if;
-   end SOAP_CB;
+      for K in Rec.S.Item'Range loop
+         Append (R, Utils.Image (Rec.S.Item (K)));
 
-end WSDL_3_Server;
+         if K < Rec.S.Item'Last then
+            Append (R, ", ");
+         end if;
+      end loop;
+
+      Append (R, ")");
+
+      return To_String (R);
+   end Image_Rec3;
+
+end WSDL_3;
