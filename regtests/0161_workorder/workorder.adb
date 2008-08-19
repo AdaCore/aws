@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2008                            --
---                                 AdaCore                                  --
+--                       Copyright (C) 2008, AdaCore                        --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -26,15 +25,15 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  ~ MAIN [XMLADA]
-
 with Ada.Text_IO;      use Ada.Text_IO;
 with Ada.Calendar;     use Ada.Calendar;
+
 with SOAP.Types;       use SOAP.Types;
 with SOAP.Parameters;  use SOAP.Parameters;
 with SOAP.Message;
 with SOAP.Message.Payload;
 with SOAP.Message.XML;
+
 with Tc_Soap_Names;    use Tc_Soap_Names;
 
 procedure Workorder is
