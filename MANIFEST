@@ -1245,6 +1245,10 @@ regtests/0181_register/register.gpr
 regtests/0181_register/test.opt
 regtests/0181_register/test.out
 regtests/0181_register/test.py
+regtests/0182_wsdl_parse_1/test.opt
+regtests/0182_wsdl_parse_1/test.out
+regtests/0182_wsdl_parse_1/test.py
+regtests/0182_wsdl_parse_1/wsdl_parse_1.wsdl
 regtests/alldifs.out
 regtests/aws.ini
 regtests/cm_include.tmplt
@@ -1913,8 +1917,6 @@ include/sha-process_data.ads
 include/sha-strings.adb
 include/sha-strings.ads
 include/sha.ads
-regtests/wsdl_parse_1.out
-regtests/wsdl_parse_1.wsdl
 regtests/wsdl_parse_2.out
 regtests/wsdl_parse_2.wsdl
 regtests/wsdl_parse_3.out

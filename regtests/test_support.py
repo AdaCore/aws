@@ -86,12 +86,12 @@ def run(bin, options=[], output_file=None):
             output=os.path.join(config.profiles_dir,
                                 "%s_%s_gprof.out" % (TEST_NAME, bin)))
 
-def exec_cmd(bin, options=[], output_file=None):
+def exec_cmd(bin, options=[], output_file=None, ignore_error=False):
     """Execute a binary"""
     if output_file is None:
         output_file = bin + ".res"
     p = Run([bin] + options, output=output_file)
-    if p.status:
+    if p.status and not ignore_error:
         #  Exit with error
         logging.error(open(output_file).read())
         sys.exit(p.status)
