@@ -78,7 +78,7 @@ ifeq (${XMLADA}, true)
 
 WSDL_TESTS     =
 WSDL_ATESTS    =
-WSDL2AWS_TESTS = wsdl_parse_3 wsdl_parse_4
+WSDL2AWS_TESTS = wsdl_parse_4
 endif
 
 PREP_WSDL_TESTS  = $(WSDL_TESTS:%=%_prep)
