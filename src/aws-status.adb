@@ -164,23 +164,27 @@ package body AWS.Status is
    -----------------
 
    function Binary_Data (D : in Data) return Stream_Element_Array is
+      Result : Stream_Element_Array (1 .. Binary_Size (D));
+      Last   : Stream_Element_Offset;
+   begin
+      Reset_Body_Index (D);
+      Read_Body (D, Result, Last);
+
+      return Result;
+   end Binary_Data;
+
+   -----------------
+   -- Binary_Size --
+   -----------------
+
+   function Binary_Size (D : in Data) return Stream_Element_Offset is
    begin
       if D.Binary_Data = null then
-         return (1 .. 0 => 0); -- Empty array
+         return 0;
       else
-         declare
-            use Containers.Memory_Streams;
-            use type Stream_Element_Offset;
-            Result : Stream_Element_Array (1 .. Size (D.Binary_Data.all));
-            Last   : Stream_Element_Offset;
-         begin
-            Reset (D.Binary_Data.all);
-            Read (D.Binary_Data.all, Result, Last);
-
-            return Result;
-         end;
+         return Containers.Memory_Streams.Size (D.Binary_Data.all);
       end if;
-   end Binary_Data;
+   end Binary_Size;
 
    ------------------
    -- Check_Digest --
@@ -583,9 +587,15 @@ package body AWS.Status is
    procedure Read_Body
      (D      : in     Data;
       Buffer :    out Stream_Element_Array;
-      Last   :    out Stream_Element_Offset) is
+      Last   :    out Stream_Element_Offset)
+   is
+      use type Stream_Element_Offset;
    begin
-      Containers.Memory_Streams.Read (D.Binary_Data.all, Buffer, Last);
+      if D.Binary_Data = null then
+         Last := Buffer'First - 1;
+      else
+         Containers.Memory_Streams.Read (D.Binary_Data.all, Buffer, Last);
+      end if;
    end Read_Body;
 
    -------------
@@ -610,9 +620,11 @@ package body AWS.Status is
    -- Reset_Body_Index --
    ----------------------
 
-   procedure Reset_Body_Index (D : in out Data) is
+   procedure Reset_Body_Index (D : in Data) is
    begin
-      Containers.Memory_Streams.Reset (D.Binary_Data.all);
+      if D.Binary_Data /= null then
+         Containers.Memory_Streams.Reset (D.Binary_Data.all);
+      end if;
    end Reset_Body_Index;
 
    -------------

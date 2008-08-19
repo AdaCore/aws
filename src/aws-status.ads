@@ -183,7 +183,12 @@ package AWS.Status is
    --  Returns the binary data message content.
    --  Note that only the root part of a multipart/related message is returned.
 
-   procedure Reset_Body_Index (D : in out Data);
+   function Binary_Size (D : in Data) return Stream_Element_Offset;
+   pragma Inline (Binary_Size);
+   --  Returns size of the binary data message content
+
+   procedure Reset_Body_Index (D : in Data);
+   pragma Inline (Reset_Body_Index);
    --  Reset message body read position to the start
 
    procedure Read_Body
