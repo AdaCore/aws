@@ -127,89 +127,27 @@ aws_regtests:
 
 run_regtests: run_tp_regtests aws_regtests run_tp_regtests_result
 
-common_tarball:
-	$(CHMOD) a+rx win32/*.dll
-	(VERSION=`grep " Version" src/aws.ads | cut -d\" -f2`; \
-	AWS=aws-$${VERSION}; \
-	$(MKDIR) $${AWS}; \
-	$(MKDIR) $${AWS}/src; \
-	$(MKDIR) $${AWS}/demos; \
-	$(MKDIR) $${AWS}/regtests; \
-	$(MKDIR) $${AWS}/gps; \
-	$(MKDIR) $${AWS}/docs; \
-	$(MKDIR) $${AWS}/docs/html; \
-	$(MKDIR) $${AWS}/icons; \
-	$(MKDIR) $${AWS}/include; \
-	$(MKDIR) $${AWS}/include/zlib; \
-	$(MKDIR) $${AWS}/lib; \
-	$(MKDIR) $${AWS}/ssl; \
-	$(MKDIR) $${AWS}/win32; \
-	$(MKDIR) $${AWS}/tools; \
-	$(MKDIR) $${AWS}/config; \
-	$(MKDIR) $${AWS}/config/src; \
-	$(MKDIR) $${AWS}/config/projects; \
-	$(MKDIR) $${AWS}/support; \
-	$(MKDIR) $${AWS}/templates_parser; \
-	$(MKDIR) $${AWS}/templates_parser/docs; \
-	$(MKDIR) $${AWS}/templates_parser/src; \
-	$(MKDIR) $${AWS}/templates_parser/tools; \
-	$(MKDIR) $${AWS}/templates_parser/xsrc; \
-	$(MKDIR) $${AWS}/templates_parser/regtests; \
-	$(MKDIR) $${AWS}/templates_parser/regtests/dir; \
-	$(MKDIR) $${AWS}/templates_parser/regtests/dir/subdir; \
-	$(MKDIR) $${AWS}/web_elements; \
-	$(MKDIR) $${AWS}/web_elements/icons; \
-	$(MKDIR) $${AWS}/web_elements/javascripts; \
-	$(MKDIR) $${AWS}/web_elements/menu_css; \
-	$(MKDIR) $${AWS}/web_elements/notebook; \
-	$(MKDIR) $${AWS}/web_elements/rounded_boxes; \
-	\
-	for file in \
-           `$(AWK) '$$1!="--" && $$1!="" {print $$0} \
-		    $$2=="FULL" {exit}' MANIFEST`; \
-        do \
-		$(CP) $$file $${AWS}/$$file; \
-	done;\
-	\
-	$(CP) -r docs/html/* $${AWS}/docs/html)
-
-build_tarball:
+distrib:
 	(VERSION=`grep " Version" src/aws.ads | cut -d\" -f2`; \
 	AWS=aws-$${VERSION}; \
 	$(RM) -f $${AWS}.tar.gz; \
-	$(MKDIR) $${AWS}/xsrc; \
-	$(MKDIR) $${AWS}/soap; \
+	$(MKDIR) $${AWS}; \
 	\
-	for file in \
-           `$(AWK) 'BEGIN{p=0} \
-		    p==1 && $$1!="--" && $$1!="" {print $$0} \
-		    $$2=="FULL"{p=1}' MANIFEST`; \
-        do \
-		$(CP) $$file $${AWS}/$$file; \
-	done;\
+	while read file; \
+	do \
+		for file in $$file; do \
+			dir=$$(dirname $$file); \
+			if [ ! -d $${AWS}/$$dir ]; then \
+				$(MKDIR) $${AWS}/$$dir; \
+			fi; \
+			$(CP) $$file $${AWS}/$$file; \
+		done; \
+	done < ./MANIFEST; \
 	\
+	$(CP) -fr docs/html/* $${AWS}/docs/html; \
 	$(TAR) cf $${AWS}.tar $${AWS};\
 	$(GZIP) -9 $${AWS}.tar;\
 	$(RM) -fr $${AWS})
-
-build_http_tarball:
-	(VERSION=`grep " Version" src/aws.ads | cut -d\" -f2`; \
-	AWS=aws-http-$${VERSION}; \
-	$(MV) aws-$${VERSION} $${AWS}; \
-	$(RM) -f $${AWS}.tar.gz; \
-	$(SED) 's/$$(LIBSSL) $$(LIBCRYPTO)//' \
-	   win32/makefile > $${AWS}/win32/makefile;\
-	$(SED) 's/sha.ads sha-process_data.adb sha-strings.adb//' \
-	   include/makefile > $${AWS}/include/makefile;\
-	$(TAR) cf $${AWS}.tar $${AWS};\
-	$(GZIP) -9 $${AWS}.tar;\
-	$(CP) win32/makefile $${AWS}/win32/makefile;\
-	$(CP) include/makefile $${AWS}/include/makefile;\
-	$(MV) $${AWS} aws-$${VERSION})
-
-build_tarballs: common_tarball build_http_tarball build_tarball
-
-distrib: build_tarballs
 
 force:
 
