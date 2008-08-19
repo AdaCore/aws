@@ -39,6 +39,9 @@ New features are described into the file docs/features.
 
 Listed below are some minor enhancements and fixes:
 
+   - The test-suite has been completely redesigned. It is now easier to
+     run and to extend.
+
    - Add support for auto-configuration of the XML/Ada and ASIS support.
      By default if the project files are found the corresponding support
      (SOAP if XML/Ada present and the ada2wsdl tool if ASIS is present)

@@ -122,7 +122,8 @@ run_tp_regtests_result:
 aws_regtests:
 	echo ""
 	echo "=== Run regression tests"
-	${MAKE} -C regtests run $(GALL_OPTIONS) GDB_REGTESTS="$(GDB_REGTESTS)"
+	echo ""
+	$(MAKE) -C regtests aws_regtests
 
 run_regtests: run_tp_regtests aws_regtests run_tp_regtests_result
 
@@ -327,7 +328,7 @@ ${MODULES_CLEAN}: force
 ${MODULES_CHECK}: force
 	${MAKE} -C ${@:%_check=%} check $(GALL_OPTIONS)
 
-build: $(MODULES_BUILD) runtest_script
+build: $(MODULES_BUILD)
 
 clean: $(MODULES_CLEAN)
 	${MAKE} -C templates_parser clean AWS=AWS
@@ -455,7 +456,8 @@ gen_setup:
 	echo "DEBUG=$(DEBUG)" >> makefile.setup
 	echo "CJOBS=$(CJOBS)" >> makefile.setup
 
-setup: setup_dir setup_debug setup_release setup_final setup_tp $(GEXT_MODULE) gen_setup
+setup: gen_setup setup_dir setup_debug setup_release \
+	setup_final setup_tp $(GEXT_MODULE)
 
 setup_tp:
 	$(MAKE) -C templates_parser setup $(GALL_OPTIONS)
@@ -504,30 +506,3 @@ ifeq (${ENABLE_SHARED}, true)
 	-$(CHMOD) a-w $(I_LIB)/relocatable/*
 endif
 	-$(CHMOD) a-w $(I_LIB)/static/*
-
-# Generate a script to build and run a single test using the build options
-# set for latest AWS build. This is mostly intended for developers. Usage:
-#
-# $ cd regtests
-# $ ./run-test.sh simple
-#
-runtest_script:
-	echo 'export PATH=../$(BDIR)/lib/include:$$PATH' \
-		> regtests/run-test.sh
-	echo 'export PATH=../$(BDIR)/lib/src:$$PATH' \
-		>> regtests/run-test.sh
-	echo 'export PATH=../$(BDIR)/lib/ssl:$$PATH' \
-		>> regtests/run-test.sh
-	echo 'export PATH=../$(BDIR)/lib/zlib:$$PATH' \
-		>> regtests/run-test.sh
-	echo 'export ADA_PROJECT_PATH=../.build/projects' \
-		>> regtests/run-test.sh
-	echo 'gnat make -m -Pregtests -XPRJ_XMLADA=$(PRJ_XMLADA) \
-		-XPRJ_ASIS=$(PRJ_ASIS) -XPRJ_BUILD=$(PRJ_BUILD) \
-		-XLIBRARY_TYPE=$(LIBRARY_TYPE) -XSOCKET=$(SOCKET) $$1' \
-		>> regtests/run-test.sh
-	echo './$$1' >> regtests/run-test.sh
-
-check-aws:
-	test -f regtests/testsuite.tags || (echo 'Did you run make setup ?'; exit 1)
-	(cd regtests; ./testsuite.py)
