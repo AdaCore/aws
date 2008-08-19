@@ -68,7 +68,7 @@ FILTER_OUT	= generate.adb
 
 #  Standard regression tests that needs to be run in a separate executable
 
-OTH_TESTS      = wxrefs
+OTH_TESTS      =
 
 ALONE_TESTS    =
 
@@ -156,20 +156,6 @@ $(PREP_WSDL_TESTS): force
 $(PREP_WSDL_ATESTS): force
 	echo Preparing $(@:%_prep=%)
 	(cd generated; ../$(WSDL2AWS) -q -f -a -doc ../$(@:%_prep=%).wsdl)
-
-wxrefs:
-	echo webxrefs tests
-	echo xxxxxxxxxx CROSS-REFERENCES xxxxxxxxxx > wxrefs.res
-	$(WEBXREF) wx_* >> wxrefs.res
-	echo xxxxxxxxxx UNUSED / UNREFERENCED xxxxxxxxxx >> wxrefs.res
-	$(WEBXREF) -u wx_* >> wxrefs.res
-	echo xxxxxxxxxx UNDEFINED xxxxxxxxxx >> wxrefs.res
-	$(WEBXREF) -d wx_* >> wxrefs.res
-	echo xxxxxxxxxx NAMING xxxxxxxxxx >> wxrefs.res
-	-$(WEBXREF) -I -C -pi id wx_* >> wxrefs.res
-	echo xxxxxxxxxx NAMING FILE BASED xxxxxxxxxx >> wxrefs.res
-	-$(WEBXREF) -I -C -pi file_based wx_* >> wxrefs.res
-	-$(DIFF) wxrefs.out wxrefs.res 1>> alldifs 2>> alldifs
 
 setup_dir:
 	-$(MKDIR) ../$(BDIR)/$(LIBRARY_TYPE)/obj/regtests
