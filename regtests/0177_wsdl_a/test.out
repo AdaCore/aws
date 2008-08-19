@@ -9,4 +9,4 @@
         X : Float (xsd:float)
         Y : Float (xsd:float)
 
-WSDL document generated/wsdl_a.wsdl is created for wsdl_a.ads.
+WSDL document wsdl_a.wsdl is created for wsdl_a.ads.

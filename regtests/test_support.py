@@ -7,17 +7,31 @@ import os
 import sys
 
 #  Change directory
+
 TEST = sys.modules['__main__']
 TESTDIR = os.path.dirname(TEST.__file__)
 TEST_NAME = os.path.basename(TESTDIR)
 os.chdir(TESTDIR)
 
 #  Load generated configuration
+
 import config
 config.set()
 
-#  Now gnatpython modules should be visible.
+#  Now gnatpython modules should be visible
+
 from gnatpython.ex import Run
+
+def tail(infile, outfile, n):
+    """Write outfile which contains infile with the top n lines removed"""
+    ci=open(infile).readlines()
+    fo=open(outfile, "w")
+    k=0
+    for line in ci:
+        k = k + 1
+        if k >= n:
+            fo.write(line)
+    fo.close()
 
 def build(prj):
     """Build a project"""

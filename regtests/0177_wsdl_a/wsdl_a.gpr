@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2003                            --
---                                ACT-Europe                                --
+--                        Copyright (C) 2008, AdaCore                       --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -26,11 +25,8 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-package WSDL_A_Pck is
+with "aws";
 
-   type Data is record
-      A, B : Integer;
-      X, Y : Float;
-   end record;
-
-end WSDL_A_Pck;
+project WSDL_A is
+   for Source_Dirs use (".");
+end WSDL_A;
