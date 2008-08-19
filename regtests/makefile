@@ -44,7 +44,6 @@
 #   2) Create the expected output mytest.out
 #
 #   3) If the test needs to be executed in it's own executable add it to:
-#      ASIS3_TESTS    : test using ada2wsdl tool only, checking generated WSDL
 #      ALONE_TESTS    : if a standard test but needs to be run separately
 #      OTH_TESTS      : if a test that has a specific target in makefile
 #      WSDL_TESTS     : for WSDL tests
@@ -82,14 +81,6 @@ endif
 PREP_WSDL_TESTS  = $(WSDL_TESTS:%=%_prep)
 PREP_WSDL_ATESTS = $(WSDL_ATESTS:%=%_prep)
 
-ifeq (${ASIS}, true)
-#  SOAP/WSDL test using ada2wsdl (ASIS package required)
-#  Names must start with wsdl_ and be followed by a single digit between 0
-#  and 9. Socket port is then 770<digit>.
-
-ASIS3_TESTS  = callsh
-endif
-
 FILTER_OUT	+= $(addsuffix .adb, $(OTH_TESTS) $(ALONE_TESTS))
 ALONE		= $(basename $(filter-out $(FILTER_OUT), $(S_TESTS)))
 SPEC_TESTS      = $(ALONE_TESTS) $(OTH_TESTS) $(ALONE)
@@ -109,8 +100,7 @@ gen_main:
 	$(GNAT) make -q -Pregtests -XTest_Mode=Generator
 	./generate $(TOGETHER)
 
-gen_sources: $(sort $(PREP_WSDL_TESTS) $(PREP_WSDL_ATESTS) \
-	$(ASIS3_TESTS))
+gen_sources: $(sort $(PREP_WSDL_TESTS) $(PREP_WSDL_ATESTS))
 
 build_drivers: gen_main
 	echo "Building drivers (takes some time)"
@@ -166,13 +156,6 @@ $(PREP_WSDL_TESTS): force
 $(PREP_WSDL_ATESTS): force
 	echo Preparing $(@:%_prep=%)
 	(cd generated; ../$(WSDL2AWS) -q -f -a -doc ../$(@:%_prep=%).wsdl)
-
-$(ASIS3_TESTS): force
-	-$(RM) -f $@.res
-	echo "Running  " $@
-	$(ADA2WSDL) -q -d -f -I. -t ../$(BDIR)/$(LIBRARY_TYPE)/obj/regtests\
-		-P../aws $@.ads -o generated/$@.wsdl
-	-$(DIFF) $@.out generated/$@.wsdl 1>> alldifs 2>> alldifs
 
 wxrefs:
 	echo webxrefs tests

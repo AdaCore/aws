@@ -1261,6 +1261,11 @@ regtests/0185_wsdl_parse_4/test.opt
 regtests/0185_wsdl_parse_4/test.out
 regtests/0185_wsdl_parse_4/test.py
 regtests/0185_wsdl_parse_4/wsdl_parse_4.wsdl
+regtests/0186_callsh/callsh.ads
+regtests/0186_callsh/callsh.gpr
+regtests/0186_callsh/test.opt
+regtests/0186_callsh/test.out
+regtests/0186_callsh/test.py
 regtests/alldifs.out
 regtests/aws.ini
 regtests/cm_include.tmplt
