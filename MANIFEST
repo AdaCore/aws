@@ -1097,6 +1097,11 @@ regtests/0159_wait2_sec/wait2_sec.adb
 regtests/0159_wait2_sec/wait2_sec.gpr
 regtests/0159_wait2_sec/wait_pack.adb
 regtests/0159_wait2_sec/wait_pack.ads
+regtests/0160_wb_test/test.out
+regtests/0160_wb_test/test.py
+regtests/0160_wb_test/wb_test.adb
+regtests/0160_wb_test/wb_test.gpr
+regtests/0160_wb_test/wb_test.tmplt
 regtests/alldifs.out
 regtests/aws.ini
 regtests/cm_include.tmplt
@@ -1114,9 +1119,6 @@ regtests/sslcfg.gnutls.out
 regtests/test_support.py
 regtests/testsuite.py
 regtests/tgdb
-regtests/wb_test.adb
-regtests/wb_test.out
-regtests/wb_test.tmplt
 regtests/wx_block.thtml
 regtests/wx_page.html
 regtests/wx_reply.txml
