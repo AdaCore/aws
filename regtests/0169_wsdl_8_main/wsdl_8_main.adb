@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2004                            --
---                                ACT-Europe                                --
+--                     Copyright (C) 2004-2008, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -28,19 +27,45 @@
 
 with Ada.Strings.Unbounded;
 
-package WSDL_8 is
+with AWS.Config.Set;
+with AWS.Server;
 
+with SOAP.Dispatchers.Callback;
+with SOAP.Types;
+
+with WSDL_8;
+with WSDL_8_Service.CB;
+with WSDL_8_Service.Client;
+
+procedure WSDL_8_Main is
+
+   use Ada;
    use Ada.Strings.Unbounded;
+   use AWS;
+   use SOAP.Types;
 
-   type File_Data is record
-      Filename : Unbounded_String;
-      Content  : Unbounded_String;
-   end record;
+   WS   : Server.HTTP;
 
-   type Set_Of_Files is array (Positive range <>) of File_Data;
+   H    : WSDL_8_Service.CB.Handler;
 
-   procedure Proc
-     (Name  : in String;
-      Files : in Set_Of_Files);
+   Conf : Config.Object := Config.Get_Current;
 
-end WSDL_8;
+   F    : WSDL_8.Set_Of_Files (1 .. 2);
+
+begin
+   H := SOAP.Dispatchers.Callback.Create
+     (null, WSDL_8_Service.CB.SOAP_CB'Access);
+
+   Config.Set.Server_Port (Conf, 7708);
+
+   Server.Start (WS, H, Conf);
+
+   F := (1 => (To_Unbounded_String ("first_file"),
+               To_Unbounded_String ("this is the content of file 1")),
+         2 => (To_Unbounded_String ("second_file"),
+               To_Unbounded_String ("this is the content of file 2")));
+
+   WSDL_8_Service.Client.Proc ("File_Test", F);
+
+   Server.Shutdown (WS);
+end WSDL_8_Main;

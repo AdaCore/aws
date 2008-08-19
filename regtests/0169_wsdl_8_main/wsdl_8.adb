@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2004-2008                          --
---                                 AdaCore                                  --
+--                     Copyright (C) 2004-2008, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -26,49 +25,27 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  ~ MAIN [XMLADA+ASIS]
+with Ada.Text_IO;
 
-with Ada.Strings.Unbounded;
+package body WSDL_8 is
 
-with AWS.Config.Set;
-with AWS.Server;
+   use Ada.Text_IO;
 
-with SOAP.Dispatchers.Callback;
-with SOAP.Types;
+   ----------
+   -- Proc --
+   ----------
 
-with WSDL_8;
-with WSDL_8_Service.CB;
-with WSDL_8_Service.Client;
+   procedure Proc
+     (Name  : in String;
+      Files : in Set_Of_Files) is
+   begin
+      Put_Line ("Name : " & Name);
 
-procedure WSDL_8_Main is
+      for K in Files'Range loop
+         Put_Line ("K = " & Integer'Image (K));
+         Put_Line ("   filename = " & To_String (Files (K).Filename));
+         Put_Line ("   content  = " & To_String (Files (K).Content));
+      end loop;
+   end Proc;
 
-   use Ada;
-   use Ada.Strings.Unbounded;
-   use AWS;
-   use SOAP.Types;
-
-   WS   : Server.HTTP;
-
-   H    : WSDL_8_Service.CB.Handler;
-
-   Conf : Config.Object := Config.Get_Current;
-
-   F    : WSDL_8.Set_Of_Files (1 .. 2);
-
-begin
-   H := SOAP.Dispatchers.Callback.Create
-     (null, WSDL_8_Service.CB.SOAP_CB'Access);
-
-   Config.Set.Server_Port (Conf, 7708);
-
-   Server.Start (WS, H, Conf);
-
-   F := (1 => (To_Unbounded_String ("first_file"),
-               To_Unbounded_String ("this is the content of file 1")),
-         2 => (To_Unbounded_String ("second_file"),
-               To_Unbounded_String ("this is the content of file 2")));
-
-   WSDL_8_Service.Client.Proc ("File_Test", F);
-
-   Server.Shutdown (WS);
-end WSDL_8_Main;
+end WSDL_8;

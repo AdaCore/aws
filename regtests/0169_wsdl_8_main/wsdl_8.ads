@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2004                            --
---                                ACT-Europe                                --
+--                     Copyright (C) 2004-2008, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -26,27 +25,21 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-with Ada.Text_IO;
+with Ada.Strings.Unbounded;
 
-package body WSDL_8 is
+package WSDL_8 is
 
-   use Ada.Text_IO;
+   use Ada.Strings.Unbounded;
 
-   ----------
-   -- Proc --
-   ----------
+   type File_Data is record
+      Filename : Unbounded_String;
+      Content  : Unbounded_String;
+   end record;
+
+   type Set_Of_Files is array (Positive range <>) of File_Data;
 
    procedure Proc
      (Name  : in String;
-      Files : in Set_Of_Files) is
-   begin
-      Put_Line ("Name : " & Name);
-
-      for K in Files'Range loop
-         Put_Line ("K = " & Integer'Image (K));
-         Put_Line ("   filename = " & To_String (Files (K).Filename));
-         Put_Line ("   content  = " & To_String (Files (K).Content));
-      end loop;
-   end Proc;
+      Files : in Set_Of_Files);
 
 end WSDL_8;
