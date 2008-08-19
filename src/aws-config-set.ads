@@ -112,7 +112,7 @@ package AWS.Config.Set is
    --  Set the maximum size accepted for uploaded files
 
    procedure Directory_Browser_Page (O : in out Object; Value : in String);
-   --  Filename for the directory browser template page.
+   --  Filename for the directory browser template page
 
    ---------
    -- Log --
@@ -123,7 +123,7 @@ package AWS.Config.Set is
    --  directory returned will end with a directory separator.
 
    procedure Log_Filename_Prefix (O : in out Object; Value : in String);
-   --  This is the prefix to use for the log filename.
+   --  This is the prefix to use for the log filename
 
    procedure Log_Split_Mode (O : in out Object; Value : in String);
    --  This is split mode for the log file. Possible values are : Each_Run,
