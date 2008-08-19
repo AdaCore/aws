@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2007                          --
---                                 AdaCore                                  --
+--                     Copyright (C) 2000-2008, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -108,6 +107,9 @@ package AWS.Config.Set is
    procedure Upload_Directory (O : in out Object; Value : in String);
    --  This point to the directory where uploaded files will be stored. The
    --  directory returned will end with a directory separator.
+
+   procedure Upload_Size_Limit (O : in out Object; Value : in Positive);
+   --  Set the maximum size accepted for uploaded files
 
    procedure Directory_Browser_Page (O : in out Object; Value : in String);
    --  Filename for the directory browser template page.
