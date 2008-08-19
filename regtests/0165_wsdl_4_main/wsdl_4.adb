@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2003                            --
---                                ACT-Europe                                --
+--                     Copyright (C) 2003-2008, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -26,70 +25,56 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-with Ada.Text_IO;
+with Ada.Strings.Unbounded;
 
-with AWS.MIME;
-with SOAP.Message.Response.Error;
+package body WSDL_4 is
 
-with WSDL_4;
-with WSDL_4_Service.Server;
-with WSDL_4_Service.Types;
+   L_Integer : My_Int;
+   L_Float   : My_Float;
 
-package body WSDL_4_Server is
+   ---------
+   -- Try --
+   ---------
 
-   use Ada;
-   use SOAP;
-
-   function Try_CB is
-      new WSDL_4_Service.Server.Try_CB (WSDL_4.Try);
-
-   function Try2_CB is
-      new WSDL_4_Service.Server.Try2_CB (WSDL_4.Try2);
-
-   function Try3_CB is
-      new WSDL_4_Service.Server.Try3_CB (WSDL_4.Try3);
-
-   function Try4_CB is
-      new WSDL_4_Service.Server.Try4_CB (WSDL_4.Try4);
-
-   -------------
-   -- HTTP_CB --
-   -------------
-
-   function HTTP_CB (Request : in Status.Data) return Response.Data is
+   procedure Try
+     (Param1 : in My_Int;
+      Param2 : in My_Float;
+      Param3 : in S_My_Int;
+      Param4 : in S_My_Float;
+      Param5 : in Rec) is
    begin
-      return Response.Build
-        (MIME.Text_HTML, "No HTTP request should be called.");
-   end HTTP_CB;
+      L_Integer := Param1;
+      L_Float   := Param2;
+   end Try;
 
-   -------------
-   -- SOAP_CB --
-   -------------
+   ----------
+   -- Try2 --
+   ----------
 
-   function SOAP_CB
-     (SOAPAction : in String;
-      Payload    : in Message.Payload.Object;
-      Request    : in Status.Data)
-      return Response.Data is
+   function Try2 (Param1 : Integer; Param2 : String) return Rec is
+      R : constant Rec
+        := (L_Integer, L_Float, Param1, 23.67,
+            To_Unbounded_String (Param2), '@');
    begin
-      if SOAPAction = "Try" then
-         return Try_CB (SOAPAction, Payload, Request);
+      return R;
+   end Try2;
 
-      elsif SOAPAction = "Try2" then
-         return Try2_CB (SOAPAction, Payload, Request);
+   ----------
+   -- Try3 --
+   ----------
 
-      elsif SOAPAction = "Try3" then
-         return Try3_CB (SOAPAction, Payload, Request);
+   function Try3 (Param1 : My_Float; Param2 : S_My_Int) return S_My_Float is
+   begin
+      return Long_Float (Param1) + Long_Float (Param2);
+   end Try3;
 
-      elsif SOAPAction = "Try4" then
-         return Try4_CB (SOAPAction, Payload, Request);
+   ----------
+   -- Try4 --
+   ----------
 
-      else
-         return Message.Response.Build
-           (Message.Response.Error.Build
-              (Message.Response.Error.Client,
-               "Wrong SOAP action " & SOAPAction));
-      end if;
-   end SOAP_CB;
+   function Try4 return My_Int is
+   begin
+      return 432;
+   end Try4;
 
-end WSDL_4_Server;
+end WSDL_4;

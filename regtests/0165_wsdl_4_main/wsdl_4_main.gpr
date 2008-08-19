@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2003                            --
---                                ACT-Europe                                --
+--                        Copyright (C) 2008, AdaCore                       --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -26,56 +25,9 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-with Ada.Strings.Unbounded;
+with "aws";
 
-package body WSDL_4 is
-
-   L_Integer : My_Int;
-   L_Float   : My_Float;
-
-   ---------
-   -- Try --
-   ---------
-
-   procedure Try
-     (Param1 : in My_Int;
-      Param2 : in My_Float;
-      Param3 : in S_My_Int;
-      Param4 : in S_My_Float;
-      Param5 : in Rec) is
-   begin
-      L_Integer := Param1;
-      L_Float   := Param2;
-   end Try;
-
-   ----------
-   -- Try2 --
-   ----------
-
-   function Try2 (Param1 : Integer; Param2 : String) return Rec is
-      R : constant Rec
-        := (L_Integer, L_Float, Param1, 23.67,
-            To_Unbounded_String (Param2), '@');
-   begin
-      return R;
-   end Try2;
-
-   ----------
-   -- Try3 --
-   ----------
-
-   function Try3 (Param1 : My_Float; Param2 : S_My_Int) return S_My_Float is
-   begin
-      return Long_Float (Param1) + Long_Float (Param2);
-   end Try3;
-
-   ----------
-   -- Try4 --
-   ----------
-
-   function Try4 return My_Int is
-   begin
-      return 432;
-   end Try4;
-
-end WSDL_4;
+project WSDL_4_Main is
+   for Source_Dirs use (".");
+   for Main use ("wsdl_4_main.adb");
+end WSDL_4_Main;
