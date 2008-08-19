@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2007                          --
---                                 AdaCore                                  --
+--                     Copyright (C) 2000-2008, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -32,9 +31,11 @@ with Ada.Strings.Fixed;
 with Ada.Strings.Maps;
 with Ada.Strings.Unbounded;
 
+with Ada.Containers.Indefinite_Hashed_Maps;
+with Ada.Strings.Hash_Case_Insensitive;
+
 with GNAT.Regexp;
 
-with AWS.Containers.Key_Value;
 with AWS.Resources.Files;
 with AWS.Utils;
 
@@ -62,7 +63,10 @@ package body AWS.MIME is
       Next : Node_Access;
    end record;
 
-   package Key_Value renames Containers.Key_Value;
+   function Equivalent_Keys (Left, Right : in String) return Boolean;
+
+   package Key_Value is new Ada.Containers.Indefinite_Hashed_Maps
+     (String, String, Ada.Strings.Hash_Case_Insensitive, Equivalent_Keys, "=");
 
    --  Protected Set to access tables handling MIME types
 
@@ -136,6 +140,15 @@ package body AWS.MIME is
    begin
       return Set.Get (Filename, Default => Default);
    end Content_Type;
+
+   ---------------------
+   -- Equivalent_Keys --
+   ---------------------
+
+   function Equivalent_Keys (Left, Right : in String) return Boolean is
+   begin
+      return To_Lower (Left) = To_Lower (Right);
+   end Equivalent_Keys;
 
    ---------------
    -- Extension --

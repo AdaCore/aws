@@ -4,6 +4,7 @@ aws.exe                  => application/octet-stream
 aws.html                 => text/html
 aws.htm                  => text/html
 aws.jpg                  => image/jpeg
+aws.JPG                  => image/jpeg
 aws.jpeg                 => image/jpeg
 aws.gif                  => image/gif
 aws.mpe                  => video/mpeg

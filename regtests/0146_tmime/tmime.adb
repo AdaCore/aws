@@ -48,6 +48,7 @@ begin
    Test ("aws.html");
    Test ("aws.htm");
    Test ("aws.jpg");
+   Test ("aws.JPG");
    Test ("aws.jpeg");
    Test ("aws.gif");
    Test ("aws.mpe");
