@@ -24,4 +24,4 @@
         A : Integer (xsd:int)
         B : Integer (xsd:int)
 
-WSDL document generated/wsdl_b.wsdl is created for wsdl_b.ads.
+WSDL document wsdl_b.wsdl is created for wsdl_b.ads.
