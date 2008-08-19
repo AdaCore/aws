@@ -1229,6 +1229,11 @@ regtests/0178_wsdl_b/wsdl_b.adb
 regtests/0178_wsdl_b/wsdl_b.ads
 regtests/0178_wsdl_b/wsdl_b.gpr
 regtests/0178_wsdl_b/wsdl_b_pck.ads
+regtests/0179_wsdl_c/test.opt
+regtests/0179_wsdl_c/test.out
+regtests/0179_wsdl_c/test.py
+regtests/0179_wsdl_c/wsdl_c.ads
+regtests/0179_wsdl_c/wsdl_c.gpr
 regtests/alldifs.out
 regtests/aws.ini
 regtests/cm_include.tmplt
@@ -1900,8 +1905,6 @@ include/sha.ads
 regtests/framework.ads
 regtests/register.ads
 regtests/register.out
-regtests/wsdl_c.ads
-regtests/wsdl_c.out
 regtests/wsdl_d.ads
 regtests/wsdl_d.out
 regtests/wsdl_parse_1.out

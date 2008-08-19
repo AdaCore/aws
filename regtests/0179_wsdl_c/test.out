@@ -28,4 +28,4 @@
         E : Big_Number (n1:Big_Number)
         F : S_Int (n1:S_Int)
 
-WSDL document generated/wsdl_c.wsdl is created for wsdl_c.ads.
+WSDL document wsdl_c.wsdl is created for wsdl_c.ads.
