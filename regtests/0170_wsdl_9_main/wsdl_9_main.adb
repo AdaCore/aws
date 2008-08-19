@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2006-2008                          --
---                                 AdaCore                                  --
+--                     Copyright (C) 2006-2008, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -25,8 +24,6 @@
 --  however invalidate any other reasons why the executable file  might be  --
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
-
---  ~ MAIN [XMLADA+ASIS]
 
 with Ada.Text_IO;
 
@@ -55,10 +52,7 @@ procedure WSDL_9_Main is
    URL  : constant String := WSDL_9_Service.URL;
    CRLF : constant String := ASCII.CR & ASCII.LF;
 
-   function CB
-      (Request : in Status.Data)
-       return Response.Data
-   is
+   function CB (Request : in Status.Data) return Response.Data is
       R : Response.Data;
    begin
       return R;

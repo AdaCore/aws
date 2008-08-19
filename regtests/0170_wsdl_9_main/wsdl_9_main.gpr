@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2006                            --
---                                 AdaCore                                  --
+--                        Copyright (C) 2008, AdaCore                       --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -26,20 +25,9 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-package body WSDL_9 is
+with "aws";
 
-   --------------
-   -- Send_SMS --
-   --------------
-
-   function Send_SMS
-     (User     : in String;
-      Password : in String;
-      Mobile   : in String;
-      Content  : in String)
-      return String is
-   begin
-      return "OK : " & User & " - " & Password;
-   end Send_SMS;
-
-end WSDL_9;
+project WSDL_9_Main is
+   for Source_Dirs use (".");
+   for Main use ("wsdl_9_main.adb");
+end WSDL_9_Main;

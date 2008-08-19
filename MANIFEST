@@ -1180,6 +1180,13 @@ regtests/0169_wsdl_8_main/wsdl_8.adb
 regtests/0169_wsdl_8_main/wsdl_8.ads
 regtests/0169_wsdl_8_main/wsdl_8_main.adb
 regtests/0169_wsdl_8_main/wsdl_8_main.gpr
+regtests/0170_wsdl_9_main/test.opt
+regtests/0170_wsdl_9_main/test.out
+regtests/0170_wsdl_9_main/test.py
+regtests/0170_wsdl_9_main/wsdl_9.adb
+regtests/0170_wsdl_9_main/wsdl_9.ads
+regtests/0170_wsdl_9_main/wsdl_9_main.adb
+regtests/0170_wsdl_9_main/wsdl_9_main.gpr
 regtests/alldifs.out
 regtests/aws.ini
 regtests/cm_include.tmplt
@@ -1859,10 +1866,6 @@ include/sha.ads
 regtests/framework.ads
 regtests/register.ads
 regtests/register.out
-regtests/wsdl_9.adb
-regtests/wsdl_9.ads
-regtests/wsdl_9_main.adb
-regtests/wsdl_9_main.out
 regtests/wsdl_a.ads
 regtests/wsdl_a.out
 regtests/wsdl_a_pck.ads

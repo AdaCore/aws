@@ -44,7 +44,6 @@
 #   2) Create the expected output mytest.out
 #
 #   3) If the test needs to be executed in it's own executable add it to:
-#      ASIS_TESTS     : test using ada2wsdl tool to create test case
 #      ASIS2_TESTS    : test using ada2wsdl tool only, checking output
 #      ASIS3_TESTS    : test using ada2wsdl tool only, checking generated WSDL
 #      ALONE_TESTS    : if a standard test but needs to be run separately
@@ -91,7 +90,6 @@ ifeq (${ASIS}, true)
 #  Names must start with wsdl_ and be followed by a single digit between 0
 #  and 9. Socket port is then 770<digit>.
 
-ASIS_TESTS   = wsdl_9
 ASIS2_TESTS  = wsdl_a wsdl_b wsdl_c register wsdl_d
 ASIS3_TESTS  = callsh
 endif
@@ -115,7 +113,7 @@ gen_main:
 	$(GNAT) make -q -Pregtests -XTest_Mode=Generator
 	./generate $(TOGETHER)
 
-gen_sources: $(sort $(PREP_WSDL_TESTS) $(PREP_WSDL_ATESTS) $(ASIS_TESTS) \
+gen_sources: $(sort $(PREP_WSDL_TESTS) $(PREP_WSDL_ATESTS) \
 	$(ASIS2_TESTS) $(ASIS3_TESTS) $(WSDL2AWS_TESTS))
 
 build_drivers: gen_main
@@ -177,14 +175,6 @@ $(WSDL2AWS_TESTS): force
 	echo "Running  " $@
 	-(cd generated; ../$(WSDL2AWS) -q -f -doc ../$@.wsdl > ../$@.res)
 	-$(DIFF) $@.out $@.res 1>> alldifs 2>> alldifs
-
-$(ASIS_TESTS): force
-	echo Preparing $@
-	$(ADA2WSDL) -q -f -I. -t ../$(BDIR)/$(LIBRARY_TYPE)/obj/regtests\
-		-P../aws \
-		-a http://localhost:770`echo $@ | cut -c 6-` $@.ads \
-		-o generated/$@.wsdl
-	(cd generated; ../$(WSDL2AWS) -q -f -cb -types $@ $@.wsdl)
 
 $(ASIS2_TESTS): force
 	-$(RM) -f $@.res
