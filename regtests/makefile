@@ -90,7 +90,7 @@ ifeq (${ASIS}, true)
 #  Names must start with wsdl_ and be followed by a single digit between 0
 #  and 9. Socket port is then 770<digit>.
 
-ASIS2_TESTS  = register wsdl_d
+ASIS2_TESTS  = register
 ASIS3_TESTS  = callsh
 endif
 

@@ -6,4 +6,4 @@
    - array (<>)      Name_Set2 of Integer (xsd:int)
    - safe pointer  Name_Set2_Safe_Pointer (Name_Set2, Name_Set2_Access)
 
-WSDL document generated/wsdl_d.wsdl is created for wsdl_d.ads.
+WSDL document wsdl_d.wsdl is created for wsdl_d.ads.
