@@ -1,5 +1,5 @@
 ====================================================
-AWS 2.6 NEW FEATURES LIST Current as of Jul 03, 2008
+AWS 2.6 NEW FEATURES LIST Current as of Aug 19, 2008
 ====================================================
 
 Copyright (c) 2006-2008, AdaCore
@@ -14,6 +14,11 @@ of the feature.
 
 New features in AWS 2.6.0
 -------------------------
+
+NF-26-H818-002 Add shutdown mode parameter (2008-08-18)
+
+  Shutdown routine in AWS.Net is now able to shutdown the read, write or both
+  side of the socket.
 
 NF-26-H624-001 Improve error message for SOAP messages (2008-07-03)
 
