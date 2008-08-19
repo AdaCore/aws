@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2004-2008                          --
---                                 AdaCore                                  --
+--                        Copyright (C) 2008, AdaCore                       --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -26,14 +25,9 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  ~ MAIN [XMLADA]
+with "aws";
 
-with XMLT_Proc;
-with Get_Free_Port;
-
-procedure XMLT is
-   Port : Natural := 8789;
-begin
-   Get_Free_Port (Port);
-   XMLT_Proc (Port, False);
+project XMLT is
+   for Source_Dirs use (".", "../common");
+   for Main use ("xmlt.adb");
 end XMLT;

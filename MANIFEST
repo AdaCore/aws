@@ -1187,6 +1187,12 @@ regtests/0170_wsdl_9_main/wsdl_9.adb
 regtests/0170_wsdl_9_main/wsdl_9.ads
 regtests/0170_wsdl_9_main/wsdl_9_main.adb
 regtests/0170_wsdl_9_main/wsdl_9_main.gpr
+regtests/0171_xmlt/test.opt
+regtests/0171_xmlt/test.out
+regtests/0171_xmlt/test.py
+regtests/0171_xmlt/xmlt.adb
+regtests/0171_xmlt/xmlt.gpr
+regtests/0171_xmlt/xmlt_proc.adb
 regtests/alldifs.out
 regtests/aws.ini
 regtests/cm_include.tmplt
@@ -1885,9 +1891,6 @@ regtests/wsdl_parse_3.out
 regtests/wsdl_parse_3.wsdl
 regtests/wsdl_parse_4.out
 regtests/wsdl_parse_4.wsdl
-regtests/xmlt.adb
-regtests/xmlt.out
-regtests/xmlt_proc.adb
 regtests/xmlt_sec.adb
 regtests/xmlt_sec.out
 soap/soap-client.adb

@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2004-2008                          --
---                                 AdaCore                                  --
+--                     Copyright (C) 2004-2008, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -92,7 +91,7 @@ procedure XMLT_Proc (Port : in Positive; Security : in Boolean) is
       if URI = Good_Name then
          Response.Set.Append_Body (Answer, "</xmlt>");
       else
-         --  Forse encoding error.
+         --  Force encoding error
 
          Response.Set.Append_Body (Answer, "ü");
       end if;
