@@ -1212,6 +1212,10 @@ regtests/0175_zfile/test.out
 regtests/0175_zfile/test.py
 regtests/0175_zfile/zfile.adb
 regtests/0175_zfile/zfile.gpr
+regtests/0176_zstrm2/test.out
+regtests/0176_zstrm2/test.py
+regtests/0176_zstrm2/zstrm2.adb
+regtests/0176_zstrm2/zstrm2.gpr
 regtests/alldifs.out
 regtests/aws.ini
 regtests/cm_include.tmplt
@@ -1234,8 +1238,6 @@ regtests/wx_page.html
 regtests/wx_reply.txml
 regtests/wx_style.css
 regtests/wxrefs.out
-regtests/zstrm2.adb
-regtests/zstrm2.out
 regtests/zstrm3.out
 shared.gpr
 src/aws-attachments.adb

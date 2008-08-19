@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2003-2004                          --
---                                ACT-Europe                                --
+--                        Copyright (C) 2008, AdaCore                       --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -26,35 +25,9 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  ~ MAIN [STD]
+with "aws";
 
-with Ada.Streams;
-with Ada.Text_IO;
-
-with AWS.Messages;
-with AWS.Response.Set;
-with AWS.Translator;
-
-procedure Zstrm2 is
-
-   use Ada;
-   use AWS;
-
-   Message : constant String := "a message";
-
-   procedure Run (Encoding : in Messages.Content_Encoding) is
-      Answer : Response.Data;
-   begin
-      Response.Set.Data_Encoding (Answer, Encoding);
-
-      Response.Set.Message_Body
-        (Answer, Translator.To_Stream_Element_Array (Message));
-   end Run;
-
-begin
-   Run (Messages.Identity);
-   Run (Messages.Deflate);
-   Run (Messages.Gzip);
-
-   Ada.Text_IO.Put_Line ("Done.");
-end Zstrm2;
+project ZStrm2 is
+   for Source_Dirs use (".");
+   for Main use ("zstrm2.adb");
+end ZStrm2;
