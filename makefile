@@ -78,6 +78,7 @@ export ADA_PROJECT_PATH = $(DPWD)/.build/projects\;${APP}
 
 APTH = $(CWD)/$(BDIR)/lib/src:$(CWD)/$(BDIR)/lib/win32:$(CWD)/$(BDIR)/lib/ssl
 APTH := :$(CWD)/$(BDIR)/lib/include:$(CWD)/$(BDIR)/lib/zlib:$(APTH)
+APTH := :$(CWD)/win32:$(APTH)
 export PATH = $(APTH):${PTH}
 else
 export ADA_PROJECT_PATH = $(CWD)/.build/projects:${APP}
