@@ -128,7 +128,7 @@ package AWS.Net is
      (Socket : in Socket_Type;
       How    : in Shutmode_Type := Shut_Read_Write) is abstract;
    --  Shutdown the read, write or both side of the socket.
-   --  If Side is Both, close it. Does not raise Socket_Error if the socket is
+   --  If How is Both, close it. Does not raise Socket_Error if the socket is
    --  not connected or already shutdown.
 
    procedure Free (Socket : in out Socket_Access);
