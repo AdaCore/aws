@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2003-2008                          --
---                                 AdaCore                                  --
+--                     Copyright (C) 2003-2008, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -26,55 +25,56 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  ~ MAIN [XMLADA+ASIS]
-
 with Ada.Text_IO;
 
-with AWS.Config.Set;
-with AWS.Server;
+with AWS.MIME;
+with SOAP.Message.Response.Error;
 
-with SOAP.Dispatchers.Callback;
-
-with WSDL_2_Server;
-with WSDL_2_Service.Client;
+with WSDL_2;
+with WSDL_2_Service.Server;
 with WSDL_2_Service.Types;
 
-procedure WSDL_2_Main is
+package body WSDL_2_Server is
 
    use Ada;
-   use AWS;
+   use SOAP;
 
-   WS   : Server.HTTP;
+   function Add_CB is new WSDL_2_Service.Server.Add_CB (WSDL_2.Add);
 
-   H    : WSDL_2_Server.Handler;
+   function Sum_CB is new WSDL_2_Service.Server.Sum_CB (WSDL_2.Sum);
 
-   Conf : Config.Object := Config.Get_Current;
+   -------------
+   -- HTTP_CB --
+   -------------
 
-   A, B, R : WSDL_2_Service.Types.Complex_Type;
+   function HTTP_CB (Request : in Status.Data) return Response.Data is
+   begin
+      return Response.Build
+        (MIME.Text_HTML, "No HTTP request should be called.");
+   end HTTP_CB;
 
-begin
-   H := SOAP.Dispatchers.Callback.Create
-     (WSDL_2_Server.HTTP_CB'Access, WSDL_2_Server.SOAP_CB'Access);
+   -------------
+   -- SOAP_CB --
+   -------------
 
-   Config.Set.Server_Port (Conf, 7702);
+   function SOAP_CB
+     (SOAPAction : in String;
+      Payload    : in Message.Payload.Object;
+      Request    : in Status.Data)
+      return Response.Data is
+   begin
+      if SOAPAction = "Add" then
+         return Add_CB (SOAPAction, Payload, Request);
 
-   Server.Start (WS, H, Conf);
+      elsif SOAPAction = "Sum" then
+         return Sum_CB (SOAPAction, Payload, Request);
 
-   A := (12.0, 78.0);
-   B := (7.0, -1.0);
+      else
+         return Message.Response.Build
+           (Message.Response.Error.Build
+              (Message.Response.Error.Client,
+               "Wrong SOAP action " & SOAPAction));
+      end if;
+   end SOAP_CB;
 
-   R := WSDL_2_Service.Client.Add (A, B);
-
-   Text_IO.Put_Line ("X = " & Long_Float'Image (R.X));
-   Text_IO.Put_Line ("Y = " & Long_Float'Image (R.Y));
-
-   Text_IO.Put_Line
-     ("S1 = "
-        & Integer'Image (WSDL_2_Service.Client.Sum ((12, 2, 3, 5, 1))));
-
-   Text_IO.Put_Line
-     ("S2 = "
-        & Integer'Image (WSDL_2_Service.Client.Sum ((2, 3, 5, -3, -2, -6))));
-
-   Server.Shutdown (WS);
-end WSDL_2_Main;
+end WSDL_2_Server;

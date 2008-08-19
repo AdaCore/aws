@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2003                            --
---                                ACT-Europe                                --
+--                     Copyright (C) 2003-2008, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -26,18 +25,53 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-package WSDL_2 is
+with Ada.Text_IO;
 
-   type Complex is record
-      X, Y : Long_Float;
-   end record;
+with AWS.Config.Set;
+with AWS.Server;
 
-   type Table is array (Positive range <>) of Integer;
+with SOAP.Dispatchers.Callback;
 
-   function Add (A, B : in Complex) return Complex;
-   --  Add 2 complex numbers
+with WSDL_2_Server;
+with WSDL_2_Service.Client;
+with WSDL_2_Service.Types;
 
-   function Sum (T : in Table) return Integer;
-   --  Sum all items in T
+procedure WSDL_2_Main is
 
-end WSDL_2;
+   use Ada;
+   use AWS;
+
+   WS   : Server.HTTP;
+
+   H    : WSDL_2_Server.Handler;
+
+   Conf : Config.Object := Config.Get_Current;
+
+   A, B, R : WSDL_2_Service.Types.Complex_Type;
+
+begin
+   H := SOAP.Dispatchers.Callback.Create
+     (WSDL_2_Server.HTTP_CB'Access, WSDL_2_Server.SOAP_CB'Access);
+
+   Config.Set.Server_Port (Conf, 7702);
+
+   Server.Start (WS, H, Conf);
+
+   A := (12.0, 78.0);
+   B := (7.0, -1.0);
+
+   R := WSDL_2_Service.Client.Add (A, B);
+
+   Text_IO.Put_Line ("X = " & Long_Float'Image (R.X));
+   Text_IO.Put_Line ("Y = " & Long_Float'Image (R.Y));
+
+   Text_IO.Put_Line
+     ("S1 = "
+        & Integer'Image (WSDL_2_Service.Client.Sum ((12, 2, 3, 5, 1))));
+
+   Text_IO.Put_Line
+     ("S2 = "
+        & Integer'Image (WSDL_2_Service.Client.Sum ((2, 3, 5, -3, -2, -6))));
+
+   Server.Shutdown (WS);
+end WSDL_2_Main;

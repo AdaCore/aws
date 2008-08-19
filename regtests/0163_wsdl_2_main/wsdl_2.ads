@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2003                            --
---                                ACT-Europe                                --
+--                     Copyright (C) 2003-2008, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -26,26 +25,18 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-with AWS.Response;
-with AWS.Server;
-with AWS.Status;
+package WSDL_2 is
 
-with SOAP.Dispatchers.Callback;
-with SOAP.Message.Payload;
+   type Complex is record
+      X, Y : Long_Float;
+   end record;
 
-package WSDL_2_Server is
+   type Table is array (Positive range <>) of Integer;
 
-   use AWS;
-   use SOAP;
+   function Add (A, B : in Complex) return Complex;
+   --  Add 2 complex numbers
 
-   subtype Handler is SOAP.Dispatchers.Callback.Handler;
+   function Sum (T : in Table) return Integer;
+   --  Sum all items in T
 
-   function HTTP_CB (Request : in Status.Data) return Response.Data;
-
-   function SOAP_CB
-     (SOAPAction : in String;
-      Payload    : in Message.Payload.Object;
-      Request    : in AWS.Status.Data)
-      return Response.Data;
-
-end WSDL_2_Server;
+end WSDL_2;
