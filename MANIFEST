@@ -1193,6 +1193,13 @@ regtests/0171_xmlt/test.py
 regtests/0171_xmlt/xmlt.adb
 regtests/0171_xmlt/xmlt.gpr
 regtests/0171_xmlt/xmlt_proc.adb
+regtests/0172_xmlt_sec/cert.pem
+regtests/0172_xmlt_sec/test.opt
+regtests/0172_xmlt_sec/test.out
+regtests/0172_xmlt_sec/test.py
+regtests/0172_xmlt_sec/xmlt_proc.adb
+regtests/0172_xmlt_sec/xmlt_sec.adb
+regtests/0172_xmlt_sec/xmlt_sec.gpr
 regtests/alldifs.out
 regtests/aws.ini
 regtests/cm_include.tmplt
@@ -1891,8 +1898,6 @@ regtests/wsdl_parse_3.out
 regtests/wsdl_parse_3.wsdl
 regtests/wsdl_parse_4.out
 regtests/wsdl_parse_4.wsdl
-regtests/xmlt_sec.adb
-regtests/xmlt_sec.out
 soap/soap-client.adb
 soap/soap-client.ads
 soap/soap-dispatchers-callback.adb
