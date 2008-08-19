@@ -1076,6 +1076,13 @@ regtests/0156_wait/test.py
 regtests/0156_wait/wait.adb
 regtests/0156_wait/wait.gpr
 regtests/0156_wait/wait_proc.adb
+regtests/0157_wait_sec/cert.pem
+regtests/0157_wait_sec/test.opt
+regtests/0157_wait_sec/test.out
+regtests/0157_wait_sec/test.py
+regtests/0157_wait_sec/wait_proc.adb
+regtests/0157_wait_sec/wait_sec.adb
+regtests/0157_wait_sec/wait_sec.gpr
 regtests/alldifs.out
 regtests/aws.ini
 regtests/cm_include.tmplt
@@ -1099,8 +1106,6 @@ regtests/wait2_sec.adb
 regtests/wait2_sec.out
 regtests/wait_pack.adb
 regtests/wait_pack.ads
-regtests/wait_sec.adb
-regtests/wait_sec.out
 regtests/wb_test.adb
 regtests/wb_test.out
 regtests/wb_test.tmplt

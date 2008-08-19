@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2004                            --
---                                ACT-Europe                                --
+--                        Copyright (C) 2008, AdaCore                       --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -26,11 +25,9 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  ~ MAIN [SSL]
+with "aws";
 
-with Wait_Proc;
-
-procedure Wait_Sec is
-begin
-   Wait_Proc (True, 4445);
+project Wait_Sec is
+   for Source_Dirs use (".", "../common");
+   for Main use ("wait_sec.adb");
 end Wait_Sec;
