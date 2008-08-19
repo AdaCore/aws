@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2003                            --
---                                ACT-Europe                                --
+--                     Copyright (C) 2003-2008, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -26,26 +25,40 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-with AWS.Response;
+with Ada.Text_IO;
+
+with AWS.Config.Set;
 with AWS.Server;
-with AWS.Status;
 
 with SOAP.Dispatchers.Callback;
-with SOAP.Message.Payload;
 
-package WSDL_1_Server is
+with WSDL_1_Server;
+with WSDL_1_Service.Client;
 
+procedure WSDL_1_Main is
+
+   use Ada;
    use AWS;
-   use SOAP;
 
-   subtype Handler is SOAP.Dispatchers.Callback.Handler;
+   WS   : Server.HTTP;
 
-   function HTTP_CB (Request : in Status.Data) return Response.Data;
+   H    : WSDL_1_Server.Handler;
 
-   function SOAP_CB
-     (SOAPAction : in String;
-      Payload    : in Message.Payload.Object;
-      Request    : in AWS.Status.Data)
-      return Response.Data;
+   Conf : Config.Object := Config.Get_Current;
 
-end WSDL_1_Server;
+begin
+   H := SOAP.Dispatchers.Callback.Create
+     (WSDL_1_Server.HTTP_CB'Access, WSDL_1_Server.SOAP_CB'Access);
+
+   Config.Set.Server_Port (Conf, 7701);
+
+   Server.Start (WS, H, Conf);
+
+   WSDL_1_Service.Client.Print (12);
+   WSDL_1_Service.Client.Print (98712);
+   WSDL_1_Service.Client.Print_Small (122);
+   Text_IO.Put_Line (WSDL_1_Service.Client.Image (789));
+   Text_IO.Put_Line (WSDL_1_Service.Client.Image (-1));
+
+   Server.Shutdown (WS);
+end WSDL_1_Main;

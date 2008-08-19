@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2003-2007                          --
---                                 AdaCore                                  --
+--                     Copyright (C) 2003-2008, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -26,59 +25,26 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-with Ada.Text_IO;
+with AWS.Response;
+with AWS.Server;
+with AWS.Status;
 
-with AWS.MIME;
-with SOAP.Message.Response.Error;
+with SOAP.Dispatchers.Callback;
+with SOAP.Message.Payload;
 
-with WSDL_1;
-with WSDL_1_Service.Server;
+package WSDL_1_Server is
 
-package body WSDL_1_Server is
-
-   use Ada;
+   use AWS;
    use SOAP;
 
-   function Print_CB is new WSDL_1_Service.Server.Print_CB (WSDL_1.Print);
-   function Image_CB is new WSDL_1_Service.Server.Image_CB (WSDL_1.Image);
-   function Print_Small_CB is
-      new WSDL_1_Service.Server.Print_Small_CB (WSDL_1.Print_Small);
+   subtype Handler is SOAP.Dispatchers.Callback.Handler;
 
-   -------------
-   -- HTTP_CB --
-   -------------
-
-   function HTTP_CB (Request : in Status.Data) return Response.Data is
-   begin
-      return Response.Build
-        (MIME.Text_HTML, "No HTTP request should be called.");
-   end HTTP_CB;
-
-   -------------
-   -- SOAP_CB --
-   -------------
+   function HTTP_CB (Request : in Status.Data) return Response.Data;
 
    function SOAP_CB
      (SOAPAction : in String;
       Payload    : in Message.Payload.Object;
-      Request    : in Status.Data)
-      return Response.Data is
-   begin
-      if SOAPAction = "Print" then
-         return Print_CB (SOAPAction, Payload, Request);
-
-      elsif SOAPAction = "Image" then
-         return Image_CB (SOAPAction, Payload, Request);
-
-      elsif SOAPAction = "Print_Small" then
-         return Print_Small_CB (SOAPAction, Payload, Request);
-
-      else
-         return Message.Response.Build
-           (Message.Response.Error.Build
-              (Message.Response.Error.Client,
-               "Wrong SOAP action " & SOAPAction));
-      end if;
-   end SOAP_CB;
+      Request    : in AWS.Status.Data)
+      return Response.Data;
 
 end WSDL_1_Server;

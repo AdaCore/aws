@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2003-2008                          --
---                                 AdaCore                                  --
+--                     Copyright (C) 2003-2008, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -26,42 +25,59 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  ~ MAIN [XMLADA+ASIS]
-
 with Ada.Text_IO;
 
-with AWS.Config.Set;
-with AWS.Server;
+with AWS.MIME;
+with SOAP.Message.Response.Error;
 
-with SOAP.Dispatchers.Callback;
+with WSDL_1;
+with WSDL_1_Service.Server;
 
-with WSDL_1_Server;
-with WSDL_1_Service.Client;
-
-procedure WSDL_1_Main is
+package body WSDL_1_Server is
 
    use Ada;
-   use AWS;
+   use SOAP;
 
-   WS   : Server.HTTP;
+   function Print_CB is new WSDL_1_Service.Server.Print_CB (WSDL_1.Print);
+   function Image_CB is new WSDL_1_Service.Server.Image_CB (WSDL_1.Image);
+   function Print_Small_CB is
+      new WSDL_1_Service.Server.Print_Small_CB (WSDL_1.Print_Small);
 
-   H    : WSDL_1_Server.Handler;
+   -------------
+   -- HTTP_CB --
+   -------------
 
-   Conf : Config.Object := Config.Get_Current;
+   function HTTP_CB (Request : in Status.Data) return Response.Data is
+   begin
+      return Response.Build
+        (MIME.Text_HTML, "No HTTP request should be called.");
+   end HTTP_CB;
 
-begin
-   H := SOAP.Dispatchers.Callback.Create
-     (WSDL_1_Server.HTTP_CB'Access, WSDL_1_Server.SOAP_CB'Access);
+   -------------
+   -- SOAP_CB --
+   -------------
 
-   Config.Set.Server_Port (Conf, 7701);
+   function SOAP_CB
+     (SOAPAction : in String;
+      Payload    : in Message.Payload.Object;
+      Request    : in Status.Data)
+      return Response.Data is
+   begin
+      if SOAPAction = "Print" then
+         return Print_CB (SOAPAction, Payload, Request);
 
-   Server.Start (WS, H, Conf);
+      elsif SOAPAction = "Image" then
+         return Image_CB (SOAPAction, Payload, Request);
 
-   WSDL_1_Service.Client.Print (12);
-   WSDL_1_Service.Client.Print (98712);
-   WSDL_1_Service.Client.Print_Small (122);
-   Text_IO.Put_Line (WSDL_1_Service.Client.Image (789));
-   Text_IO.Put_Line (WSDL_1_Service.Client.Image (-1));
+      elsif SOAPAction = "Print_Small" then
+         return Print_Small_CB (SOAPAction, Payload, Request);
 
-   Server.Shutdown (WS);
-end WSDL_1_Main;
+      else
+         return Message.Response.Build
+           (Message.Response.Error.Build
+              (Message.Response.Error.Client,
+               "Wrong SOAP action " & SOAPAction));
+      end if;
+   end SOAP_CB;
+
+end WSDL_1_Server;
