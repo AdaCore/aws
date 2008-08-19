@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2006                            --
---                                 AdaCore                                  --
+--                     Copyright (C) 2006-2008, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -63,7 +62,9 @@ package USock is
       Port   : in     Positive;
       Wait   : in     Boolean := True);
 
-   overriding procedure Shutdown (Socket : in U_Socket);
+   overriding procedure Shutdown
+     (Socket : in U_Socket;
+      How    : in Net.Shutmode_Type := Net.Shut_Read_Write);
 
    overriding procedure Send
      (Socket : in     U_Socket;

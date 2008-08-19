@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2006                            --
---                                 AdaCore                                  --
+--                        Copyright (C) 2008, AdaCore                       --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -26,36 +25,9 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  ~ MAIN [STD]
+with "aws";
 
-with Ada.Text_IO;
-
-with AWS.Client;
-with AWS.MIME;
-with AWS.Server;
-with AWS.Utils;
-
-with USock;
-with Get_Free_Port;
-
-procedure User_Sock is
-
-   use Ada;
-   use AWS;
-
-   WS : Server.HTTP;
-
-   Port : Natural := 1234;
-
-begin
-   Get_Free_Port (Port);
-
-   Server.Set_Socket_Constructor (WS, USock.Socket'Access);
-
-   Server.Start
-     (WS, "User Socket", USock.CB'Access, Port => Port);
-   Text_IO.Put_Line ("started"); Ada.Text_IO.Flush;
-
-   Server.Shutdown (WS);
-   Text_IO.Put_Line ("shutdown");
+project User_Sock is
+   for Source_Dirs use (".", "../common");
+   for Main use ("user_sock.adb");
 end User_Sock;

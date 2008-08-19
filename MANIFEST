@@ -1065,6 +1065,12 @@ regtests/0154_url_object/test.out
 regtests/0154_url_object/test.py
 regtests/0154_url_object/url_object.adb
 regtests/0154_url_object/url_object.gpr
+regtests/0155_user_sock/test.out
+regtests/0155_user_sock/test.py
+regtests/0155_user_sock/user_sock.adb
+regtests/0155_user_sock/user_sock.gpr
+regtests/0155_user_sock/usock.adb
+regtests/0155_user_sock/usock.ads
 regtests/alldifs.out
 regtests/aws.ini
 regtests/cm_include.tmplt
@@ -1082,10 +1088,6 @@ regtests/sslcfg.gnutls.out
 regtests/test_support.py
 regtests/testsuite.py
 regtests/tgdb
-regtests/user_sock.adb
-regtests/user_sock.out
-regtests/usock.adb
-regtests/usock.ads
 regtests/wait.adb
 regtests/wait.out
 regtests/wait2.adb

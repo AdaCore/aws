@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2006                            --
---                                 AdaCore                                  --
+--                     Copyright (C) 2006-2008, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -122,7 +121,7 @@ package body USock is
    -- Bind --
    ----------
 
-   procedure Bind
+   overriding procedure Bind
      (Socket        : in out U_Socket;
       Port          : in     Natural;
       Host          : in     String := "";
@@ -137,7 +136,7 @@ package body USock is
    -- Listen --
    ------------
 
-   procedure Listen
+   overriding procedure Listen
      (Socket     : in U_Socket;
       Queue_Size : in Positive := 5)
    is
@@ -150,7 +149,7 @@ package body USock is
    -- Accept_Socket --
    -------------------
 
-   procedure Accept_Socket
+   overriding procedure Accept_Socket
      (Socket     : in     Net.Socket_Type'Class;
       New_Socket : in out U_Socket)
    is
@@ -174,7 +173,7 @@ package body USock is
    -- Connect --
    -------------
 
-   procedure Connect
+   overriding procedure Connect
      (Socket : in out U_Socket;
       Host   : in     String;
       Port   : in     Positive;
@@ -189,7 +188,10 @@ package body USock is
    -- Shutdown --
    --------------
 
-   procedure Shutdown (Socket : in U_Socket) is
+   overriding procedure Shutdown
+     (Socket : in U_Socket;
+      How    : in Net.Shutmode_Type := Net.Shut_Read_Write)
+   is
       pragma Unreferenced (Socket);
    begin
       Text_IO.Put_Line ("Shutdown on U_Socket");
@@ -200,7 +202,7 @@ package body USock is
    -- Send --
    ----------
 
-   procedure Send
+   overriding procedure Send
      (Socket : in     U_Socket;
       Data   : in     Stream_Element_Array;
       Last   :    out Stream_Element_Offset)
@@ -284,7 +286,7 @@ package body USock is
    -- Receive --
    -------------
 
-   procedure Receive
+   overriding procedure Receive
      (Socket : in     U_Socket;
       Data   :    out Stream_Element_Array;
       Last   :    out Stream_Element_Offset)
@@ -317,7 +319,9 @@ package body USock is
    -- Pending --
    -------------
 
-   function Pending (Socket : in U_Socket) return Stream_Element_Count is
+   overriding function Pending
+     (Socket : in U_Socket) return Stream_Element_Count
+   is
       pragma Unreferenced (Socket);
    begin
       if Done then
@@ -331,7 +335,7 @@ package body USock is
    -- Get_FD --
    ------------
 
-   function Get_FD (Socket : in U_Socket) return Integer is
+   overriding function Get_FD (Socket : in U_Socket) return Integer is
    begin
       return 1;
    end Get_FD;
@@ -340,10 +344,10 @@ package body USock is
    -- Peer_Addr --
    ---------------
 
-   function Peer_Addr (Socket : in U_Socket) return String is
+   overriding function Peer_Addr (Socket : in U_Socket) return String is
       pragma Unreferenced (Socket);
    begin
-      --  Have to be 127.0.0.1 to cheat Socket_Pair.
+      --  Have to be 127.0.0.1 to cheat Socket_Pair
       return "127.0.0.1";
    end Peer_Addr;
 
@@ -351,7 +355,7 @@ package body USock is
    -- Peer_Port --
    ---------------
 
-   function Peer_Port (Socket : in U_Socket) return Positive is
+   overriding function Peer_Port (Socket : in U_Socket) return Positive is
       pragma Unreferenced (Socket);
    begin
       return 1;
@@ -361,7 +365,7 @@ package body USock is
    -- Get_Addr --
    --------------
 
-   function Get_Addr (Socket : in U_Socket) return String is
+   overriding function Get_Addr (Socket : in U_Socket) return String is
    begin
       return "here";
    end Get_Addr;
@@ -370,7 +374,7 @@ package body USock is
    -- Get_Port --
    --------------
 
-   function Get_Port (Socket : in U_Socket) return Positive is
+   overriding function Get_Port (Socket : in U_Socket) return Positive is
       pragma Unreferenced (Socket);
    begin
       return 1;
@@ -380,7 +384,7 @@ package body USock is
    -- Set_Send_Buffer_Size --
    --------------------------
 
-   procedure Set_Send_Buffer_Size
+   overriding procedure Set_Send_Buffer_Size
      (Socket : in U_Socket;
       Size   : in Natural)
    is
@@ -393,7 +397,7 @@ package body USock is
    -- Set_Receive_Buffer_Size --
    -----------------------------
 
-   procedure Set_Receive_Buffer_Size
+   overriding procedure Set_Receive_Buffer_Size
      (Socket : in U_Socket;
       Size   : in Natural)
    is
@@ -406,7 +410,9 @@ package body USock is
    -- Get_Send_Buffer_Size --
    --------------------------
 
-   function Get_Send_Buffer_Size (Socket : in U_Socket) return Natural is
+   overriding function Get_Send_Buffer_Size
+     (Socket : in U_Socket) return Natural
+   is
       pragma Unreferenced (Socket);
    begin
       raise Constraint_Error;
@@ -417,7 +423,9 @@ package body USock is
    -- Get_Receive_Buffer_Size --
    -----------------------------
 
-   function Get_Receive_Buffer_Size (Socket : in U_Socket) return Natural is
+   overriding function Get_Receive_Buffer_Size
+     (Socket : in U_Socket) return Natural
+   is
       pragma Unreferenced (Socket);
    begin
       raise Constraint_Error;
@@ -428,7 +436,7 @@ package body USock is
    -- Errno --
    -----------
 
-   function Errno (Socket : in U_Socket) return Integer is
+   overriding function Errno (Socket : in U_Socket) return Integer is
       pragma Unreferenced (Socket);
    begin
       return 0;
