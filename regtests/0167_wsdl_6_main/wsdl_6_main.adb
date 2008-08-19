@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2003-2008                          --
---                                 AdaCore                                  --
+--                     Copyright (C) 2003-2008, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -26,8 +25,6 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  ~ MAIN [XMLADA+ASIS]
-
 with Ada.Characters.Handling;
 with Ada.Command_Line;
 with Ada.Integer_Text_IO;
@@ -44,7 +41,7 @@ with SOAP.Dispatchers.Callback;
 with SOAP.Types;
 
 with WSDL_6;
-with WSDL_5_Server;
+with WSDL_6_Server;
 with WSDL_6_Service.CB;
 with WSDL_6_Service.Client;
 with WSDL_6_Service.Server;
@@ -325,7 +322,7 @@ begin
    Config.Set.Server_Port (Conf, WSDL_6_Service.Server.Port);
 
    Disp := SOAP.Dispatchers.Callback.Create
-     (Wsdl_5_Server.HTTP_CB'Access, WSDL_6_Service.CB.SOAP_CB'Access);
+     (Wsdl_6_Server.HTTP_CB'Access, WSDL_6_Service.CB.SOAP_CB'Access);
 
    AWS.Server.Start (WS, Disp, Conf);
 
