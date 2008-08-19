@@ -49,7 +49,6 @@
 #      OTH_TESTS      : if a test that has a specific target in makefile
 #      WSDL_TESTS     : for WSDL tests
 #      WSDL_ATESTS    : for WSDL tests using Ada name style
-#      WSDL2AWS_TESTS : test using only wsdl2aws tool
 
 -include makefile.lst
 
@@ -78,7 +77,6 @@ ifeq (${XMLADA}, true)
 
 WSDL_TESTS     =
 WSDL_ATESTS    =
-WSDL2AWS_TESTS = wsdl_parse_4
 endif
 
 PREP_WSDL_TESTS  = $(WSDL_TESTS:%=%_prep)
@@ -112,7 +110,7 @@ gen_main:
 	./generate $(TOGETHER)
 
 gen_sources: $(sort $(PREP_WSDL_TESTS) $(PREP_WSDL_ATESTS) \
-	$(ASIS3_TESTS) $(WSDL2AWS_TESTS))
+	$(ASIS3_TESTS))
 
 build_drivers: gen_main
 	echo "Building drivers (takes some time)"
@@ -168,11 +166,6 @@ $(PREP_WSDL_TESTS): force
 $(PREP_WSDL_ATESTS): force
 	echo Preparing $(@:%_prep=%)
 	(cd generated; ../$(WSDL2AWS) -q -f -a -doc ../$(@:%_prep=%).wsdl)
-
-$(WSDL2AWS_TESTS): force
-	echo "Running  " $@
-	-(cd generated; ../$(WSDL2AWS) -q -f -doc ../$@.wsdl > ../$@.res)
-	-$(DIFF) $@.out $@.res 1>> alldifs 2>> alldifs
 
 $(ASIS3_TESTS): force
 	-$(RM) -f $@.res

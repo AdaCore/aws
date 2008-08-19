@@ -1257,6 +1257,10 @@ regtests/0184_wsdl_parse_3/test.opt
 regtests/0184_wsdl_parse_3/test.out
 regtests/0184_wsdl_parse_3/test.py
 regtests/0184_wsdl_parse_3/wsdl_parse_3.wsdl
+regtests/0185_wsdl_parse_4/test.opt
+regtests/0185_wsdl_parse_4/test.out
+regtests/0185_wsdl_parse_4/test.py
+regtests/0185_wsdl_parse_4/wsdl_parse_4.wsdl
 regtests/alldifs.out
 regtests/aws.ini
 regtests/cm_include.tmplt
@@ -1925,8 +1929,6 @@ include/sha-process_data.ads
 include/sha-strings.adb
 include/sha-strings.ads
 include/sha.ads
-regtests/wsdl_parse_4.out
-regtests/wsdl_parse_4.wsdl
 soap/soap-client.adb
 soap/soap-client.ads
 soap/soap-dispatchers-callback.adb
