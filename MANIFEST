@@ -1200,6 +1200,10 @@ regtests/0172_xmlt_sec/test.py
 regtests/0172_xmlt_sec/xmlt_proc.adb
 regtests/0172_xmlt_sec/xmlt_sec.adb
 regtests/0172_xmlt_sec/xmlt_sec.gpr
+regtests/0173_zapp/test.out
+regtests/0173_zapp/test.py
+regtests/0173_zapp/zapp.adb
+regtests/0173_zapp/zapp.gpr
 regtests/alldifs.out
 regtests/aws.ini
 regtests/cm_include.tmplt
@@ -1222,8 +1226,6 @@ regtests/wx_page.html
 regtests/wx_reply.txml
 regtests/wx_style.css
 regtests/wxrefs.out
-regtests/zapp.adb
-regtests/zapp.out
 regtests/zbig.adb
 regtests/zbig.out
 regtests/zfile.adb
