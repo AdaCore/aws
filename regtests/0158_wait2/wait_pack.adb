@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2004-2006                          --
---                                 AdaCore                                  --
+--                     Copyright (C) 2004-2008, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -90,7 +89,7 @@ package body Wait_Pack is
 
          Sets.Wait (Set, 2.0);
 
-         --  All sockets should be ready for output.
+         --  All sockets should be ready for output
 
          while Sets.Count (Set) > 0 and then Sets.Is_Write_Ready (Set, 1) loop
             declare
