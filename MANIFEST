@@ -1089,6 +1089,14 @@ regtests/0158_wait2/wait2.adb
 regtests/0158_wait2/wait2.gpr
 regtests/0158_wait2/wait_pack.adb
 regtests/0158_wait2/wait_pack.ads
+regtests/0159_wait2_sec/cert.pem
+regtests/0159_wait2_sec/test.opt
+regtests/0159_wait2_sec/test.out
+regtests/0159_wait2_sec/test.py
+regtests/0159_wait2_sec/wait2_sec.adb
+regtests/0159_wait2_sec/wait2_sec.gpr
+regtests/0159_wait2_sec/wait_pack.adb
+regtests/0159_wait2_sec/wait_pack.ads
 regtests/alldifs.out
 regtests/aws.ini
 regtests/cm_include.tmplt
@@ -1106,8 +1114,6 @@ regtests/sslcfg.gnutls.out
 regtests/test_support.py
 regtests/testsuite.py
 regtests/tgdb
-regtests/wait2_sec.adb
-regtests/wait2_sec.out
 regtests/wb_test.adb
 regtests/wb_test.out
 regtests/wb_test.tmplt
