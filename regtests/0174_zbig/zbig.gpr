@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2003-2004                          --
---                                ACT-Europe                                --
+--                        Copyright (C) 2008, AdaCore                       --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -26,41 +25,9 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  ~ MAIN [STD]
+with "aws";
 
-with Ada.Streams;
-with Ada.Text_IO;
-
-with AWS.Resources.Streams.Memory.ZLib;
-with AWS.Utils;
-
-procedure ZBig is
-
-   use AWS.Resources.Streams.Memory.ZLib;
-   use Ada.Streams;
-
-   Stream : Stream_Type;
-
-   Buffer : AWS.Utils.Stream_Element_Array_Access
-     := new Ada.Streams.Stream_Element_Array (1 .. 20_000_000);
-
-begin
-   for J in Buffer'Range loop
-      Buffer (J) := Stream_Element (J rem 256);
-   end loop;
-
-   Deflate_Initialize (Stream, Level => 1);
-   Append (Stream, Buffer.all);
-   Ada.Text_IO.Put_Line (Stream_Element_Offset'Image (Size (Stream)));
-
-   Close (Stream);
-
-   Deflate_Initialize (Stream);
-   Append (Stream, Buffer.all);
-
-   AWS.Utils.Free (Buffer);
-
-   Ada.Text_IO.Put_Line (Stream_Element_Offset'Image (Size (Stream)));
-
-   Close (Stream);
+project ZBig is
+   for Source_Dirs use (".");
+   for Main use ("zbig.adb");
 end ZBig;
