@@ -22,4 +22,4 @@
         R_Name : unbounded_string (xsd:string)
         Count : Integer (xsd:int)
 
-WSDL document generated/register.wsdl is created for register.ads.
+WSDL document register.wsdl is created for register.ads.

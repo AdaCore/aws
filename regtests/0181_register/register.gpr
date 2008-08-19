@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2004                            --
---                                ACT-Europe                                --
+--                        Copyright (C) 2008, AdaCore                       --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -26,23 +25,8 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-with Framework;
+with "aws";
 
-package Register is
-
-   use Framework;
-
-   procedure Add
-     (Server_Address : in String;
-      Server_Name    : in String;
-      Description    : in String;
-      Help           : in String;
-      Demo           : in String;
-      Options        : in Options_Table;
-      Type_In        : in Files_Table;
-      Type_Out       : in Files_Table;
-      Rank           : in Ranks_Table);
-
-   procedure Unregister (Server_Name : in String);
-
+project Register is
+   for Source_Dirs use (".");
 end Register;
