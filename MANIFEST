@@ -470,6 +470,7 @@ regtests/0043_check_mem/check_mem.adb
 regtests/0043_check_mem/check_mem.gpr
 regtests/0043_check_mem/check_mem.ini
 regtests/0043_check_mem/check_mem.tmplt
+regtests/0043_check_mem/cm_include.tmplt
 regtests/0043_check_mem/split1.tmplt
 regtests/0043_check_mem/test.opt
 regtests/0043_check_mem/test.py
@@ -1276,7 +1277,6 @@ regtests/0187_wxrefs/wxrefs.out2
 regtests/0187_wxrefs/wxrefs.out3
 regtests/0187_wxrefs/wxrefs.out4
 regtests/0187_wxrefs/wxrefs.out5
-regtests/cm_include.tmplt
 regtests/common/get_free_port.adb
 regtests/gen_system_tags.py
 regtests/makefile
