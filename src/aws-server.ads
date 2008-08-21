@@ -73,6 +73,12 @@ package AWS.Server is
    --  changes done to the Dispatcher object will not be part of the Web
    --  server dispatcher.
 
+   procedure Get_Message_Body;
+   --  If size of message body is bigger than Upload_Size_Limit configuration
+   --  parameter, server do not receive message body before calling user's
+   --  callback routine. If user decide to get the message body he should call
+   --  this routine.
+
    procedure Start
      (Web_Server                : in out HTTP;
       Name                      : in     String;
@@ -355,6 +361,9 @@ private
       function Get (Index : in Positive) return Slot;
       --  Returns Slot data
 
+      function Phase (Index : in Positive) return Slot_Phase;
+      --  Returns Slot phase
+
       function Get_Socket_Info (Index : in Positive) return Socket_Data;
       --  Returns information about socket (FD and Peername) associated with
       --  slot Index. If the socket is not opened returns
@@ -470,10 +479,11 @@ private
    overriding procedure Finalize (Web_Server : in out HTTP);
 
    type Line_Attribute_Record is record
-      Server   : HTTP_Access;
-      Line     : Positive;
-      Stat     : Status.Data;
-      Log_Data : AWS.Log.Fields_Table;
+      Server     : HTTP_Access;
+      Line       : Positive;
+      Stat       : Status.Data;
+      Expect_100 : Boolean;
+      Log_Data   : AWS.Log.Fields_Table;
    end record;
 
    package Line_Attribute is new Ada.Task_Attributes
