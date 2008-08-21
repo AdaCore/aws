@@ -78,8 +78,7 @@ package body AWS.Server.HTTP_Utils is
       Line_Index   : in     Positive;
       C_Stat       : in out AWS.Status.Data;
       Socket_Taken : in out Boolean;
-      Will_Close   : in out Boolean;
-      Data_Sent    : in out Boolean)
+      Will_Close   : in out Boolean)
    is
       use type Messages.Status_Code;
 
@@ -204,8 +203,6 @@ package body AWS.Server.HTTP_Utils is
                use type Dispatchers.Handler_Class_Access;
                Found : Boolean;
             begin
-               HTTP_Server.Slots.Mark_Phase (Line_Index, Server_Processing);
-
                --  Check the hotplug filters
 
                Hotplug.Apply (HTTP_Server.Filters, C_Stat, Found, Answer);
@@ -259,9 +256,25 @@ package body AWS.Server.HTTP_Utils is
    begin
       Build_Answer;
 
-      Send (Answer,
-            HTTP_Server, Line_Index, C_Stat,
-            Socket_Taken, Will_Close, Data_Sent);
+      if HTTP_Server.Slots.Phase (Line_Index) = Client_Data then
+         --  User callback did not read clients message body. If client do not
+         --  support 100 (Continue) response, we have to close
+         --  socket to discard pending client data.
+
+         if not Will_Close then
+            Will_Close := Status.Expect (C_Stat) /= Messages.S100_Continue;
+         end if;
+
+         if Response.Status_Code (Answer) < Messages.S300 then
+            Log.Write
+              (HTTP_Server.Error_Log,
+               C_Stat,
+               "User does not upload server data but return status "
+               & Messages.Image (Response.Status_Code (Answer)));
+         end if;
+      end if;
+
+      Send (Answer, HTTP_Server, Line_Index, C_Stat, Socket_Taken, Will_Close);
    end Answer_To_Client;
 
    ---------------------
@@ -289,7 +302,8 @@ package body AWS.Server.HTTP_Utils is
    procedure Get_Message_Data
      (HTTP_Server : in out AWS.Server.HTTP;
       Line_Index  : in     Positive;
-      C_Stat      : in out AWS.Status.Data)
+      C_Stat      : in out AWS.Status.Data;
+      Expect_100  : in     Boolean)
    is
       use type Status.Request_Method;
 
@@ -362,7 +376,7 @@ package body AWS.Server.HTTP_Utils is
             return Upload_Path & Utils.Image (UID) & '.' & Filename;
          end Target_Filename;
 
-      begin
+      begin -- File_Upload
          --  Reach the boundary
 
          if Parse_Boundary then
@@ -585,7 +599,7 @@ package body AWS.Server.HTTP_Utils is
                Get_File_Data.Index := Get_File_Data.Index + Index - 1;
             end Write_Data;
 
-         begin
+         begin -- Check_EOF
             Buffer (Index) := 13;
             Index := Index + 1;
 
@@ -748,7 +762,7 @@ package body AWS.Server.HTTP_Utils is
             end if;
          end Attachment_Filename;
 
-      begin
+      begin -- Store_Attachments
          --  Reach the boundary
 
          if Parse_Boundary then
@@ -802,7 +816,13 @@ package body AWS.Server.HTTP_Utils is
          end if;
       end Store_Attachments;
 
-   begin
+   begin -- Get_Message_Data
+      if Expect_100 then
+         Net.Buffered.Put_Line (Sock, Messages.Status_Line (Messages.S100));
+         Net.Buffered.New_Line (Sock);
+         Net.Buffered.Flush (Sock);
+      end if;
+
       --  Get necessary data from header for reading HTTP body
 
       declare
@@ -907,6 +927,10 @@ package body AWS.Server.HTTP_Utils is
 
          Status.Set.Read_Body (Sock, C_Stat);
       end if;
+
+      Status.Reset_Body_Index (C_Stat);
+
+      HTTP_Server.Slots.Mark_Phase (Line_Index, Server_Processing);
    end Get_Message_Data;
 
    ----------------------
@@ -1102,8 +1126,7 @@ package body AWS.Server.HTTP_Utils is
       Line_Index   : in     Positive;
       C_Stat       : in     AWS.Status.Data;
       Socket_Taken : in out Boolean;
-      Will_Close   : in out Boolean;
-      Data_Sent    : in out Boolean)
+      Will_Close   : in out Boolean)
    is
 
       use type Response.Data_Mode;
@@ -1297,20 +1320,17 @@ package body AWS.Server.HTTP_Utils is
       use type Response.Data;
 
    begin
-      Data_Sent := True;
-
       Status_Code := Response.Status_Code (Answer);
+
+      HTTP_Server.Slots.Mark_Phase (Line_Index, Server_Response);
 
       case Response.Mode (Answer) is
 
          when Response.File | Response.File_Once
-            | Response.Stream | Response.Message
-            =>
-            HTTP_Server.Slots.Mark_Phase (Line_Index, Server_Response);
+            | Response.Stream | Response.Message =>
             Send_Data;
 
          when Response.Header =>
-            HTTP_Server.Slots.Mark_Phase (Line_Index, Server_Response);
             Send_Header_Only;
 
          when Response.Socket_Taken =>

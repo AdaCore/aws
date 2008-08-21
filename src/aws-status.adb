@@ -277,6 +277,15 @@ package body AWS.Status is
       return Containers.Memory_Streams.End_Of_File (D.Binary_Data.all);
    end End_Of_Body;
 
+   ------------
+   -- Expect --
+   ------------
+
+   function Expect (D : in Data) return String is
+   begin
+      return Headers.Get (D.Header, Messages.Expect_Token);
+   end Expect;
+
    -----------------
    -- Has_Session --
    -----------------
@@ -322,6 +331,15 @@ package body AWS.Status is
    begin
       return Headers.Get (D.Header, Messages.If_Modified_Since_Token);
    end If_Modified_Since;
+
+   ----------------------
+   -- Is_Body_Uploaded --
+   ----------------------
+
+   function Is_Body_Uploaded (D : in Data) return Boolean is
+   begin
+      return D.Uploaded;
+   end Is_Body_Uploaded;
 
    -------------
    -- Is_SOAP --

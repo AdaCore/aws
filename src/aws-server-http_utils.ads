@@ -41,8 +41,7 @@ package AWS.Server.HTTP_Utils is
       Line_Index   : in     Positive;
       C_Stat       : in out AWS.Status.Data;
       Socket_Taken : in out Boolean;
-      Will_Close   : in out Boolean;
-      Data_Sent    : in out Boolean);
+      Will_Close   : in out Boolean);
    --  This procedure use the C_Stat status data to build the correct answer
    --  to the client. If Force_Answer is not Empty it will be sent back to the
    --  client's browser, otherwise the answer will be retrieved from user's
@@ -51,10 +50,10 @@ package AWS.Server.HTTP_Utils is
    procedure Get_Message_Data
      (HTTP_Server  : in out AWS.Server.HTTP;
       Line_Index   : in     Positive;
-      C_Stat       : in out AWS.Status.Data);
-   --  If the client sent us some data read them. Right now only the
-   --  POST method is handled. This procedure fill in the C_Stat status
-   --  data.
+      C_Stat       : in out AWS.Status.Data;
+      Expect_100   : in     Boolean);
+   --  If the client sent us some data read them.
+   --  This procedure fill in the C_Stat status data.
 
    procedure Get_Request_Line (C_Stat : in out AWS.Status.Data);
    --  Parse HTTP request line. This procedure fills in the C_Stat status
@@ -76,8 +75,7 @@ package AWS.Server.HTTP_Utils is
       Line_Index   : in     Positive;
       C_Stat       : in     AWS.Status.Data;
       Socket_Taken : in out Boolean;
-      Will_Close   : in out Boolean;
-      Data_Sent    : in out Boolean);
+      Will_Close   : in out Boolean);
    --  Send Answer to the client's browser
 
    procedure Send_Resource

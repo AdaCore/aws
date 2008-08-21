@@ -117,6 +117,10 @@ package AWS.Status is
    pragma Inline (Content_Type);
    --  Get value for "Content-Type:" header
 
+   function Expect                 (D : in Data) return String;
+   pragma Inline (Expect);
+   --  Get value for "Expect:" header
+
    function Host                   (D : in Data) return String;
    pragma Inline (Host);
    --  Get value for "Host:" header
@@ -168,6 +172,13 @@ package AWS.Status is
    ----------
    -- Data --
    ----------
+
+   function Is_Body_Uploaded       (D : in Data) return Boolean;
+   pragma Inline (Is_Body_Uploaded);
+   --  Returns True if the message body has been uploaded and False if not.
+   --  The reason beeing that the body size if above Upload_Size_Limit.
+   --  User can upload the file using AWS.Server.Get_Message_Body, the size
+   --  beeing returned by Content_Length.
 
    function Multipart_Boundary     (D : in Data) return String;
    pragma Inline (Multipart_Boundary);
@@ -344,6 +355,7 @@ private
       URI               : aliased URL.Object;
       Request_Time      : Ada.Calendar.Time;
       Binary_Data       : Memory_Stream_Access;
+      Uploaded          : Boolean               := False;
       Content_Length    : Natural               := 0;
       Keep_Alive        : Boolean;
       File_Up_To_Date   : Boolean               := False;

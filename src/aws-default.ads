@@ -58,7 +58,7 @@ package AWS.Default is
    Keep_Alive_Close_Limit          : constant         := 0;
    Accept_Queue_Size               : constant         := 64;
    Upload_Directory                : constant String  := "";
-   Upload_Size_Limit               : constant         := Natural'Last;
+   Upload_Size_Limit               : constant         := 16#500_000#;
    Line_Stack_Size                 : constant         := 16#150_000#;
    Case_Sensitive_Parameters       : constant Boolean := True;
    Input_Line_Size_Limit           : constant         := 16#4000#;

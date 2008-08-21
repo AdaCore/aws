@@ -63,12 +63,6 @@ procedure Protocol_Handler (LA : in out Line_Attribute_Record) is
    --  to the client using this socket. The value will be changed by
    --  Set_Close_Status.
 
-   Data_Sent    : Boolean := False;
-   --  Will be set to true when some data will have been sent back to the
-   --  client. At this point it is not possible to send an unexpected
-   --  exception message to the client. The only option in case of problems is
-   --  to close the connection.
-
    Keep_Alive_Limit : constant Natural
      := CNF.Free_Slots_Keep_Alive_Limit (LA.Server.Properties);
 
@@ -92,6 +86,8 @@ begin
       declare
          use type Response.Data_Mode;
 
+         Expectation_Failed : exception;
+
          Error_Answer  : Response.Data;
          Back_Possible : Boolean;
          First_Line    : Boolean := True;
@@ -102,8 +98,6 @@ begin
            := (True => Net.Wait'Access, False => Net.Check'Access);
       begin
          Response.Set.Mode (Error_Answer, Response.No_Data);
-
-         Data_Sent := False;
 
          LA.Server.Slots.Mark_Phase (LA.Line, Client_Header);
 
@@ -185,38 +179,43 @@ begin
             Keep_Alive => Free_Slots >= Keep_Alive_Limit,
             Will_Close => Will_Close);
 
-         LA.Server.Slots.Mark_Phase (LA.Line, Client_Data);
-
          --  Is there something to read ?
 
-         if AWS.Status.Content_Length (LA.Stat) /= 0 then
+         if AWS.Status.Content_Length (LA.Stat) = 0 then
+            LA.Server.Slots.Mark_Phase (LA.Line, Server_Processing);
+
+         else
+            declare
+               Expect : constant String := AWS.Status.Expect (LA.Stat);
+            begin
+               LA.Expect_100 := Expect = Messages.S100_Continue;
+
+               if not LA.Expect_100 and then Expect /= "" then
+                  Will_Close := True;
+
+                  Error_Answer := Response.Build
+                    (Status_Code  => Messages.S417,
+                     Content_Type => "text/plain",
+                     Message_Body => "Unknown Expect header value " & Expect);
+
+                  raise Expectation_Failed;
+               end if;
+            end;
+
+            LA.Server.Slots.Mark_Phase (LA.Line, Client_Data);
+
             if AWS.Status.Content_Length (LA.Stat)
                <= CNF.Upload_Size_Limit (LA.Server.Properties)
             then
-               Get_Message_Data (LA.Server.all, LA.Line, LA.Stat);
-            else
-               Will_Close := True;
-
-               Error_Answer := Response.Build
-                 (Status_Code  => Messages.S413,
-                  Content_Type => "text/plain",
-                  Message_Body => "Message body over size limit.");
+               Get_Message_Data
+                 (LA.Server.all, LA.Line, LA.Stat, LA.Expect_100);
             end if;
          end if;
 
          AWS.Status.Set.Keep_Alive (LA.Stat, not Will_Close);
 
-         LA.Server.Slots.Mark_Phase (LA.Line, Server_Response);
-
-         if Response.Mode (Error_Answer) = Response.No_Data then
-            Answer_To_Client
-              (LA.Server.all, LA.Line, LA.Stat, Socket_Taken, Will_Close,
-               Data_Sent);
-         else
-            Send
-              (Error_Answer, LA.Server.all, LA.Line, LA.Stat, Socket_Taken,
-               Will_Close, Data_Sent);
-         end if;
+         Answer_To_Client
+           (LA.Server.all, LA.Line, LA.Stat, Socket_Taken, Will_Close);
 
       exception
             --  We must never exit the loop with an exception. This loop is
@@ -228,6 +227,11 @@ begin
          when Net.Socket_Error =>
             --  Exit from keep-alive loop in case of socket error
             exit For_Every_Request;
+
+         when Expectation_Failed =>
+            Send
+              (Error_Answer, LA.Server.all, LA.Line, LA.Stat, Socket_Taken,
+               Will_Close);
 
          when E : Net.Buffered.Data_Overflow =>
             AWS.Log.Write
@@ -253,10 +257,12 @@ begin
             LA.Server.Slots.Mark_Phase (LA.Line, Server_Response);
 
             Send
-              (Error_Answer, LA.Server.all, LA.Line, LA.Stat,
-               Socket_Taken, Will_Close, Data_Sent);
+              (Error_Answer, LA.Server.all, LA.Line, LA.Stat, Socket_Taken,
+               Will_Close);
 
          when E : others =>
+            declare
+               Phase : constant Slot_Phase := LA.Server.Slots.Phase (LA.Line);
             begin
                --  Log this error
 
@@ -280,14 +286,18 @@ begin
                --  close the connection, we can't recover in a middle of
                --  a response.
 
-               exit For_Every_Request when Data_Sent;
+               exit For_Every_Request when Phase = Server_Response;
+
+               if Phase = Client_Data then
+                  Will_Close := True;
+               end if;
 
                if Response.Mode (Error_Answer) /= Response.No_Data then
                   LA.Server.Slots.Mark_Phase (LA.Line, Server_Response);
 
                   Send
                     (Error_Answer, LA.Server.all, LA.Line, LA.Stat,
-                     Socket_Taken, Will_Close, Data_Sent);
+                     Socket_Taken, Will_Close);
                end if;
 
             exception

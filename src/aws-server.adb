@@ -34,6 +34,7 @@ with AWS.Dispatchers.Callback;
 with AWS.Messages;
 with AWS.MIME;
 with AWS.Server.Log;
+with AWS.Server.HTTP_Utils;
 with AWS.Services.Transient_Pages.Control;
 with AWS.Session.Control;
 with AWS.Status.Translate_Table;
@@ -228,6 +229,22 @@ package body AWS.Server is
    begin
       return Line_Attribute.Reference.Server;
    end Get_Current;
+
+   ----------------------
+   -- Get_Message_Body --
+   ----------------------
+
+   procedure Get_Message_Body is
+      TA : constant Line_Attribute.Attribute_Handle
+        := Line_Attribute.Reference;
+   begin
+      if not Status.Is_Body_Uploaded (TA.Stat)
+        and then Status.Content_Length (TA.Stat) > 0
+      then
+         HTTP_Utils.Get_Message_Data
+           (TA.Server.all, TA.Line, TA.Stat, TA.Expect_100);
+      end if;
+   end Get_Message_Body;
 
    ----------------
    -- Get_Status --
@@ -743,6 +760,15 @@ package body AWS.Server is
               (Table (Index).Sock.all, Timeouts (Mode (Count = 0), Phase));
          end if;
       end Mark_Phase;
+
+      -----------
+      -- Phase --
+      -----------
+
+      function Phase (Index : in Positive) return Slot_Phase is
+      begin
+         return Table (Index).Phase;
+      end Phase;
 
       ------------------
       -- Prepare_Back --

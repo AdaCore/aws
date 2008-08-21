@@ -97,6 +97,7 @@ package body AWS.Status.Set is
      (D : in out Data; Attachments : in AWS.Attachments.List) is
    begin
       D.Attachments := Attachments;
+      D.Uploaded    := True;
    end Attachments;
 
    ------------------
@@ -131,10 +132,7 @@ package body AWS.Status.Set is
       -- Named_Value --
       -----------------
 
-      procedure Named_Value
-        (Name, Value : in String;
-         Quit        : in out Boolean)
-      is
+      procedure Named_Value (Name, Value : in String; Quit : in out Boolean) is
 
          type Digest_Attribute
             is (Username, Realm, Nonce, NC, CNonce,
@@ -145,9 +143,7 @@ package body AWS.Status.Set is
 
          Attribute : Digest_Attribute;
 
-         function "+"
-           (Item : in String)
-            return Unbounded_String
+         function "+" (Item : in String) return Unbounded_String
            renames To_Unbounded_String;
 
       begin
@@ -332,6 +328,8 @@ package body AWS.Status.Set is
 
       Net.Buffered.Read (Socket, Buffer (1 .. Rest));
       Append (D.Binary_Data.all, Buffer (1 .. Rest), Trim => True);
+
+      D.Uploaded := True;
    end Read_Body;
 
    -----------------
@@ -420,6 +418,7 @@ package body AWS.Status.Set is
       D.Session_Id        := AWS.Session.No_Session;
       D.Session_Created   := False;
       D.Session_Timed_Out := False;
+      D.Uploaded          := False;
 
       AWS.Headers.Set.Reset (D.Header);
       AWS.Parameters.Set.Reset (AWS.URL.Set.Parameters (D.URI'Access).all);

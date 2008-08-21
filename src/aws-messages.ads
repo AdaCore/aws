@@ -115,6 +115,9 @@ package AWS.Messages is
    Content_Transfer_Encoding_Token : constant String
      := "Content-Transfer-Encoding";
 
+   S100_Continue : constant String := "100-continue";
+   --  Supported expect header value
+
    -----------------
    -- Status Code --
    -----------------

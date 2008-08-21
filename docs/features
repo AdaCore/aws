@@ -1,5 +1,5 @@
 ====================================================
-AWS 2.6 NEW FEATURES LIST Current as of Aug 19, 2008
+AWS 2.6 NEW FEATURES LIST Current as of Aug 21, 2008
 ====================================================
 
 Copyright (c) 2006-2008, AdaCore
@@ -14,6 +14,13 @@ of the feature.
 
 New features in AWS 2.6.0
 -------------------------
+
+NF-26-H821-011 Add upload control (2008-08-21)
+
+  Upload_Size_Limit can be used to control the uploads to the server.
+  If the received data is larger than this limit, AWS won't upload by default.
+  It is still possible to upload the data using AWS.Server.Get_Message_Body
+  on user's callback if necessary.
 
 NF-26-H818-002 Add shutdown mode parameter (2008-08-18)
 

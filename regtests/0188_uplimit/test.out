@@ -1,0 +1,10 @@
+Start main, wait for server to start...
+Server started
+
+=> HTTP/1.1 200 OK /noup ok server uploaded: TRUE 10000 10000 0123456789
+=> HTTP/1.1 200 OK /noup ok server uploaded: TRUE 11000 11000 abcdefghij
+=> HTTP/1.1 413 Request Entity Too Large  12000 bytes of message body ignored.
+=> HTTP/1.1 200 OK / ok server uploaded: TRUE 10000 10000 9876543210
+=> HTTP/1.1 200 OK / ok server uploaded: TRUE 11000 11000 qwertyuiop
+=> HTTP/1.1 200 OK / ok server uploaded: FALSE 12000 12000 QWERTYUIOP
+Server stopped
