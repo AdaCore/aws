@@ -233,8 +233,7 @@ package body AWS.Messages is
    ------------------
 
    function Content_Type
-     (Format   : in String;
-      Boundary : in String := "") return String is
+     (Format : in String; Boundary : in String := "") return String is
    begin
       if Boundary = "" then
          return Content_Type_Token & HD & Format;

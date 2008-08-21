@@ -205,9 +205,7 @@ package AWS.Messages is
    pragma Inline (Cookie);
 
    function Content_Type
-     (Format   : in String;
-      Boundary : in String := "")
-      return String;
+     (Format : in String; Boundary : in String := "") return String;
    pragma Inline (Content_Type);
 
    function Cache_Control (Option : in Cache_Option) return String;
@@ -216,8 +214,7 @@ package AWS.Messages is
    function Content_Disposition
      (Format   : in String;
       Name     : in String;
-      Filename : in String)
-      return String;
+      Filename : in String) return String;
    pragma Inline (Content_Disposition);
    --  Note that this is not part of HTTP/1.1 standard, it is there because
    --  there is a lot of implementation around using it. This header is used
@@ -257,8 +254,7 @@ package AWS.Messages is
    function WWW_Authenticate
      (Realm : in String;
       Nonce : in String;
-      Stale : in Boolean)
-      return String;
+      Stale : in Boolean) return String;
    pragma Inline (WWW_Authenticate);
    --  Digest authentication request
 
