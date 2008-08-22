@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2006                          --
---                                 AdaCore                                  --
+--                     Copyright (C) 2000-2008, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -75,10 +74,7 @@ package body AWS.Containers.Tables is
    -- Count --
    -----------
 
-   function Count
-     (Table : in Table_Type;
-      Name  : in String) return Natural
-   is
+   function Count (Table : in Table_Type; Name : in String) return Natural is
       Value : Name_Index_Table;
       Found : Boolean;
    begin
@@ -95,9 +91,7 @@ package body AWS.Containers.Tables is
    -- Exist --
    -----------
 
-   function Exist
-     (Table : in Table_Type;
-      Name  : in String) return Boolean is
+   function Exist (Table : in Table_Type; Name : in String) return Boolean is
    begin
       return Index_Table.Contains
         (Table.Index, Normalize_Name (Name, not Table.Case_Sensitive));
@@ -175,9 +169,7 @@ package body AWS.Containers.Tables is
       end if;
    end Get;
 
-   function Get
-     (Table : in Table_Type;
-      N     : in Positive) return Element is
+   function Get (Table : in Table_Type; N : in Positive) return Element is
    begin
       if N <= Natural (Data_Table.Length (Table.Data)) then
          return Data_Table.Element (Table.Data, N);
@@ -214,8 +206,7 @@ package body AWS.Containers.Tables is
    --------------
 
    function Get_Name
-     (Table : in Table_Type;
-      N     : in Positive := 1) return String is
+     (Table : in Table_Type; N : in Positive := 1) return String is
    begin
       if N <= Natural (Data_Table.Length (Table.Data)) then
          return Data_Table.Element (Table.Data, N).Name;
@@ -229,8 +220,7 @@ package body AWS.Containers.Tables is
    ---------------
 
    function Get_Names
-     (Table : in Table_Type;
-      Sort  : in Boolean := False) return VString_Array
+     (Table : in Table_Type; Sort : in Boolean := False) return VString_Array
    is
       procedure Sort_Names is
         new Ada.Containers.Generic_Array_Sort
@@ -260,8 +250,7 @@ package body AWS.Containers.Tables is
    ---------------
 
    function Get_Value
-     (Table : in Table_Type;
-      N     : in Positive := 1) return String is
+     (Table : in Table_Type; N : in Positive := 1) return String is
    begin
       if N <= Natural (Data_Table.Length (Table.Data)) then
          return Data_Table.Element (Table.Data, N).Value;
@@ -275,8 +264,7 @@ package body AWS.Containers.Tables is
    ----------------
 
    function Get_Values
-     (Table : in Table_Type;
-      Name  : in String) return VString_Array
+     (Table : in Table_Type; Name : in String) return VString_Array
    is
       Value : Name_Index_Table;
       Found : Boolean;
@@ -332,8 +320,7 @@ package body AWS.Containers.Tables is
    --------------------
 
    function Normalize_Name
-     (Name     : in String;
-      To_Upper : in Boolean) return String is
+     (Name : in String; To_Upper : in Boolean) return String is
    begin
       if To_Upper then
          return Ada.Characters.Handling.To_Upper (Name);

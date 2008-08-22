@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2008                          --
---                                 AdaCore                                  --
+--                     Copyright (C) 2000-2008, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -75,33 +74,27 @@ package AWS.Containers.Tables is
    --  the emptry string if key does not exist.
 
    function Get_Name
-     (Table : in Table_Type;
-      N     : in Positive := 1) return String;
+     (Table : in Table_Type; N : in Positive := 1) return String;
    --  Returns the Nth Name in Table or the empty string if there is
    --  no parameter with this number.
 
    function Get_Value
-     (Table : in Table_Type;
-      N     : in Positive := 1) return String;
+     (Table : in Table_Type; N : in Positive := 1) return String;
    --  Returns the Nth Value in Table or the empty string if there is
    --  no parameter with this number.
 
-   function Get
-     (Table : in Table_Type;
-      N     : in Positive) return Element;
+   function Get (Table : in Table_Type; N : in Positive) return Element;
    --  Returns N'th name/value pair. Returns Null_Element if there is no
    --  such item in the table.
 
    function Get_Names
-     (Table : in Table_Type;
-      Sort  : in Boolean := False) return VString_Array;
+     (Table : in Table_Type; Sort : in Boolean := False) return VString_Array;
    --  Returns array of unique key names. If Sort is True, the returned names
    --  array is sorted in alphabetical order. This is of course slightly
    --  slower than returning unsorted results.
 
    function Get_Values
-     (Table : in Table_Type;
-      Name  : in String) return VString_Array;
+     (Table : in Table_Type; Name : in String) return VString_Array;
    --  Returns all values for the specified parameter key name
 
    generic
@@ -149,8 +142,7 @@ private
                    (True, Index_Table.Empty_Map, Data_Table.Empty_Vector);
 
    function Normalize_Name
-     (Name     : in String;
-      To_Upper : in Boolean) return String;
+     (Name : in String; To_Upper : in Boolean) return String;
    --  Returns Name in upper case if To_Upper is set to True and it returns
    --  Name unchanged otherwise.
 
