@@ -68,7 +68,7 @@ implementations.
 
   The project file aws_ssl.gpr has been removed. It was not working
   anymore as the SSL configuration is done a configuration time. The
-  main aws.gpr project file will now support SSL if AWS is built 
+  main aws.gpr project file will now support SSL if AWS is built
   with SSL activated.
 
 
