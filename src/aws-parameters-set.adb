@@ -131,6 +131,10 @@ package body AWS.Parameters.Set is
       --  at the end of parameters line. In case of twice 'not Found' cases we
       --  raise Too_Long_Parameter.
    begin
+      if Buffer'Length = 0 then
+         return;
+      end if;
+
       Reset (Parameters);
 
       loop
@@ -149,8 +153,12 @@ package body AWS.Parameters.Set is
          end loop Find_Last_Amp;
 
          if not Found then
-            if WNF then
-               raise Too_Long_Parameter;
+            if WNF and then First <= Last then
+               raise Too_Long_Parameter with
+                 "Too long one of HTTP parameters: "
+                 & Slice
+                     (Parameter_List.Parameters,
+                      1, Integer'Min (Length (Parameter_List.Parameters), 64));
             end if;
 
             WNF := True;
