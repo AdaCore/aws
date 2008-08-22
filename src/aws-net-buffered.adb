@@ -74,6 +74,15 @@ package body AWS.Net.Buffered is
       return Char;
    end Get_Char;
 
+   ---------------------
+   -- Get_Input_Limit --
+   ---------------------
+
+   function Get_Input_Limit return Stream_Element_Offset is
+   begin
+      return Input_Limit;
+   end Get_Input_Limit;
+
    --------------
    -- Get_Line --
    --------------
@@ -191,8 +200,7 @@ package body AWS.Net.Buffered is
 
    function Read
      (Socket : in Socket_Type'Class;
-      Max    : in Stream_Element_Count := 4096)
-      return Stream_Element_Array
+      Max    : in Stream_Element_Count := 4096) return Stream_Element_Array
    is
       Buffer : Stream_Element_Array (1 .. Max);
       Last   : Stream_Element_Offset;
@@ -203,8 +211,7 @@ package body AWS.Net.Buffered is
    end Read;
 
    procedure Read
-     (Socket : in     Socket_Type'Class;
-      Data   :    out Stream_Element_Array)
+     (Socket : in Socket_Type'Class; Data : out Stream_Element_Array)
    is
       Last  : Stream_Element_Offset;
       First : Stream_Element_Offset := Data'First;

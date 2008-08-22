@@ -46,8 +46,7 @@ package AWS.Net.Buffered is
    --  Write CRLF into Socket's buffer. Send the buffer to the socket if full.
 
    procedure Write
-     (Socket : in Socket_Type'Class;
-      Item   : in Stream_Element_Array);
+     (Socket : in Socket_Type'Class; Item : in Stream_Element_Array);
    --  Write Item into Socket's buffer. Send the buffer to the socket if full.
 
    procedure Flush (Socket : in Socket_Type'Class);
@@ -66,18 +65,21 @@ package AWS.Net.Buffered is
    --  Read_Until.
 
    procedure Set_Input_Limit (Limit : in Positive);
-   --  Set the input size limit for Get_Line and Read_Until routines.
+   pragma Inline (Set_Input_Limit);
+   --  Set the input size limit for Get_Line and Read_Until routines
+
+   function Get_Input_Limit return Stream_Element_Offset;
+   pragma Inline (Get_Input_Limit);
+   --  Get the input size limit for Get_Line and Read_Until routines
 
    procedure Read
-     (Socket : in     Socket_Type'Class;
-      Data   :    out Stream_Element_Array);
+     (Socket : in Socket_Type'Class; Data : out Stream_Element_Array);
    pragma Inline (Read);
    --  Returns Data array read from the socket
 
    function Read
      (Socket : in Socket_Type'Class;
-      Max    : in Stream_Element_Count := 4096)
-      return Ada.Streams.Stream_Element_Array;
+      Max    : in Stream_Element_Count := 4096) return Stream_Element_Array;
    pragma Inline (Read);
    --  Returns an array of bytes read from the socket
 
