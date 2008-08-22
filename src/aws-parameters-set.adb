@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2008                          --
---                                 AdaCore                                  --
+--                     Copyright (C) 2000-2008, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -26,10 +25,13 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
+with Ada.Streams;
 with Ada.Strings.Fixed;
 
-with AWS.URL;
 with AWS.Containers.Tables.Set;
+with AWS.Config;
+with AWS.Translator;
+with AWS.URL;
 
 package body AWS.Parameters.Set is
 
@@ -102,6 +104,62 @@ package body AWS.Parameters.Set is
             Add (Parameter_List, P (C .. I - 1), P (S .. E - 1));
             C := E + 1;
          end if;
+      end loop;
+   end Add;
+
+   procedure Add
+     (Parameter_List : in out List;
+      Parameters     : in out AWS.Containers.Memory_Streams.Stream_Type)
+   is
+      use Ada.Streams;
+      use AWS.Containers.Memory_Streams;
+      use AWS.Translator;
+
+      Buffer : Stream_Element_Array
+                 (1 .. Stream_Element_Offset'Min
+                         (Stream_Element_Offset
+                            (AWS.Config.Input_Line_Size_Limit),
+                          Size (Parameters)));
+      First : Stream_Element_Offset := Buffer'First;
+      Last  : Stream_Element_Offset;
+      Amp   : constant Stream_Element := Character'Pos ('&');
+      Found : Boolean;
+      WNF   : Boolean := False;
+      --  Was not found. This flag need to detect more than once 'not found'
+      --  cases. If length of parameter name and value no more than
+      --  AWS.Config.Input_Line_Size_Limit, 'not Found' case could happen only
+      --  at the end of parameters line. In case of twice 'not Found' cases we
+      --  raise Too_Long_Parameter.
+   begin
+      Reset (Parameters);
+
+      loop
+         Read (Parameters, Buffer (First .. Buffer'Last), Last);
+
+         Found := False;
+
+         Find_Last_Amp : for J in reverse First .. Last loop
+            if Buffer (J) = Amp then
+               Found := True;
+               Add (Parameter_List, To_String (Buffer (1 .. J - 1)));
+               Buffer (1 .. Last - J) := Buffer (J + 1 .. Last);
+               First := Last - J + 1;
+               exit Find_Last_Amp;
+            end if;
+         end loop Find_Last_Amp;
+
+         if not Found then
+            if WNF then
+               raise Too_Long_Parameter;
+            end if;
+
+            WNF := True;
+
+            Add (Parameter_List, To_String (Buffer (1 .. Last)));
+            First := 1;
+         end if;
+
+         exit when Last < Buffer'Last;
       end loop;
    end Add;
 

@@ -304,6 +304,16 @@ package body AWS.Status.Set is
       AWS.URL.Set.Parameters (D.URI, Set);
    end Parameters;
 
+   --------------------------
+   -- Parameters_From_Body --
+   --------------------------
+
+   procedure Parameters_From_Body (D : in out Data) is
+   begin
+      AWS.Parameters.Set.Add
+        (AWS.URL.Set.Parameters (D.URI'Access).all, D.Binary_Data.all);
+   end Parameters_From_Body;
+
    ---------------
    -- Read_Body --
    ---------------

@@ -886,20 +886,10 @@ package body AWS.Server.HTTP_Utils is
          --  Read data from the stream and convert it to a string as
          --  these are a POST form parameters.
          --  The body has the format: name1=value1&name2=value2...
-         --  Check the body line length first.
-
-         if Status.Content_Length (C_Stat) > CNF.Input_Line_Size_Limit then
-            --  Raise the same exception like when protocol line too big,
-            --  because we are going to treat POST body as line of HTTP
-            --  parameters.
-
-            raise Net.Buffered.Data_Overflow;
-         end if;
 
          Status.Set.Read_Body (Sock, C_Stat);
 
-         Status.Set.Add_Parameters
-           (C_Stat, Translator.To_String (Status.Binary_Data (C_Stat)));
+         Status.Set.Parameters_From_Body (C_Stat);
 
       elsif Status.Method (C_Stat) = Status.POST
         and then Status_Content_Type = MIME.Multipart_Form_Data

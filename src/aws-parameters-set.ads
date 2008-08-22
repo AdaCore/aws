@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2008                          --
---                                 AdaCore                                  --
+--                     Copyright (C) 2000-2008, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -26,6 +25,8 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
+with AWS.Containers.Memory_Streams;
+
 package AWS.Parameters.Set is
 
    procedure Add
@@ -46,19 +47,27 @@ package AWS.Parameters.Set is
    --  The parameters can start with a '?' (standard Web character separator)
    --  which is just ignored.
 
+   procedure Add
+     (Parameter_List : in out List;
+      Parameters     : in out AWS.Containers.Memory_Streams.Stream_Type);
+   --  The same as above, but use different parameters source. Used to reduce
+   --  stack usage on big POST requests.
+
    procedure Update
      (Parameter_List : in out List;
       Name, Value    : in     String;
       Decode         : in     Boolean := True);
    --  Same as Add, but replace an existing parameter if there is one
 
-   procedure Case_Sensitive
-     (Parameter_List : in out List;
-      Mode           : in     Boolean);
+   procedure Case_Sensitive (Parameter_List : in out List; Mode : in Boolean);
    --  If Mode is True it will use all parameters with case sensitivity
 
    procedure Reset (Parameter_List : in out List);
    --  Removes all object from the Set. Set will be reinitialized and will be
    --  ready for new use.
+
+   Too_Long_Parameter : exception;
+   --  Raises if Add routine reading parameters from Memory_Stream detects
+   --  too long parameter.
 
 end AWS.Parameters.Set;

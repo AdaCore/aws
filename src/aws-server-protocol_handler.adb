@@ -33,6 +33,7 @@ with AWS.Log;
 with AWS.Messages;
 with AWS.MIME;
 with AWS.Net.Buffered;
+with AWS.Parameters.Set;
 with AWS.Resources;
 with AWS.Response.Set;
 with AWS.Server.HTTP_Utils;
@@ -233,7 +234,8 @@ begin
               (Error_Answer, LA.Server.all, LA.Line, LA.Stat, Socket_Taken,
                Will_Close);
 
-         when E : Net.Buffered.Data_Overflow =>
+         when E : Net.Buffered.Data_Overflow
+              | Parameters.Set.Too_Long_Parameter =>
             AWS.Log.Write
               (LA.Server.Error_Log,
                LA.Stat,
