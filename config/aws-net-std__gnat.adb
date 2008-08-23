@@ -684,4 +684,6 @@ package body AWS.Net.Std is
       end if;
    end Shutdown;
 
+begin
+   Sockets.Initialize;
 end AWS.Net.Std;
