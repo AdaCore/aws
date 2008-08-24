@@ -493,11 +493,13 @@ procedure Check_Mem is
       use Templates;
 
       T1 : Translate_Table
-        := (Assoc ("ONE", "one"), Assoc ("TWO", "2"), Assoc ("THREE", "3"));
+        := (1 => Assoc ("ONE", "one"),
+            2 => Assoc ("TWO", "2"),
+            3 => Assoc ("THREE", "3"));
 
       T2 : Translate_Table
-        := (Assoc ("V1", Vector_Tag'(+"t11" & "t12" & "t13")),
-            Assoc ("V2", Vector_Tag'(+"t21" & "t22" & "t23")));
+        := (1 => Assoc ("V1", Vector_Tag'(+"t11" & "t12" & "t13")),
+            2 => Assoc ("V2", Vector_Tag'(+"t21" & "t22" & "t23")));
 
       R : Response.Data;
    begin
