@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2004                            --
---                                ACT-Europe                                --
+--                     Copyright (C) 2004-2008, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -37,9 +36,9 @@ package body SOAP.Name_Space is
       Prefix      : in String := Default_Prefix) return Object is
    begin
       return
-        (To_Unbounded_String (Prefix),
-         To_Unbounded_String (Name),
-         To_Unbounded_String (Value));
+        (Prefix => To_Unbounded_String (Prefix),
+         Name   => To_Unbounded_String (Name),
+         Value  => To_Unbounded_String (Value));
    end Create;
 
    -----------
