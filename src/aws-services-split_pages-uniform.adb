@@ -108,6 +108,7 @@ package body AWS.Services.Split_Pages.Uniform is
       pragma Unreferenced (Ranges);
       use Templates_Parser;
       Self : Splitter renames Splitter (This.Self.all);
+      Set  : Templates.Translate_Set;
    begin
       if Size (Self.HREFS_V) = 0 then
          --  Not yet built
@@ -118,14 +119,15 @@ package body AWS.Services.Split_Pages.Uniform is
          end loop;
       end if;
 
-      return To_Set
-        ((Assoc ("PREVIOUS",   Shared.Safe_URI (URIs, Page - 1)),
-          Assoc ("NEXT",       Shared.Safe_URI (URIs, Page + 1)),
-          Assoc ("FIRST",      URIs (URIs'First)),
-          Assoc ("LAST",       URIs (URIs'Last)),
-          Assoc ("PAGE_INDEX", Page),
-          Assoc ("HREFS_V",    Self.HREFS_V),
-          Assoc ("INDEXES_V",  Self.INDEXES_V)));
+      Insert (Set, Assoc ("PREVIOUS",   Shared.Safe_URI (URIs, Page - 1)));
+      Insert (Set, Assoc ("NEXT",       Shared.Safe_URI (URIs, Page + 1)));
+      Insert (Set, Assoc ("FIRST",      URIs (URIs'First)));
+      Insert (Set, Assoc ("LAST",       URIs (URIs'Last)));
+      Insert (Set, Assoc ("PAGE_INDEX", Page));
+      Insert (Set, Assoc ("HREFS_V",    Self.HREFS_V));
+      Insert (Set, Assoc ("INDEXES_V",  Self.INDEXES_V));
+
+      return Set;
    end Get_Translations;
 
 end AWS.Services.Split_Pages.Uniform;
