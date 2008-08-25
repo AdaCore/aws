@@ -35,7 +35,7 @@ with AWS.Messages;
 with AWS.MIME;
 with AWS.Response;
 with AWS.Resources.Streams.Disk;
-with AWS.Server;
+with AWS.Server.Status;
 with AWS.Status;
 with AWS.Utils;
 
@@ -180,7 +180,7 @@ package body AFile_Pack is
          Port           => 0,
          Max_Connection => 5);
 
-      Port := Server.Status.Get_Port (WS);
+      Port := Server.Status.Port (WS);
 
       Text_IO.Put_Line ("started"); Ada.Text_IO.Flush;
 
