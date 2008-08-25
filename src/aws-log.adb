@@ -287,7 +287,10 @@ package body AWS.Log is
    is
       Now      : constant Calendar.Time := Calendar.Clock;
       Filename : Unbounded_String;
-      use GNAT;
+      Prefix   : constant String :=
+        Utils.Normalized_Directory (File_Directory)
+        & Log_Prefix (Filename_Prefix)
+        & GNAT.Calendar.Time_IO.Image (Now, "%Y-%m-%d");
    begin
       Log.Filename_Prefix := To_Unbounded_String (Filename_Prefix);
       Log.File_Directory  := To_Unbounded_String (File_Directory);
@@ -295,10 +298,7 @@ package body AWS.Log is
       Log.Auto_Flush      := Auto_Flush;
       Log.Header_Written  := False;
 
-      Filename := To_Unbounded_String
-        (File_Directory
-         & Log_Prefix (Filename_Prefix)
-         & GNAT.Calendar.Time_IO.Image (Now, "%Y-%m-%d.log"));
+      Filename := To_Unbounded_String (Prefix & ".log");
 
       case Split is
          when None =>
@@ -311,10 +311,7 @@ package body AWS.Log is
                exit when not Directories.Exists (To_String (Filename));
 
                Filename := To_Unbounded_String
-                 (File_Directory
-                  & Log_Prefix (Filename_Prefix)
-                  & GNAT.Calendar.Time_IO.Image (Now, "%Y-%m-%d-")
-                  & Utils.Image (K) & ".log");
+                 (Prefix & "-" & Utils.Image (K) & ".log");
             end loop;
 
          when Daily =>

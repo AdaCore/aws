@@ -241,9 +241,10 @@ package body AWS.Services.Directory is
 
    function Browse
      (Directory_Name : in String;
-      Request        : in AWS.Status.Data)
-      return Translate_Table
+      Request        : in AWS.Status.Data) return Translate_Set
    is
+      Set : Translate_Set;
+
       Max_Order_Length : constant := 8;
 
       Default_Order : constant String := "DN";
@@ -257,9 +258,6 @@ package body AWS.Services.Directory is
 
       procedure Each_Entry (Cursor : in File_Tree.Cursor);
       --  Iterator callback procedure
-
-      function End_Slash (Name : in String) return String;
-      --  Return Name terminated with a directory separator
 
       procedure Read_Directory (Directory_Name : in String);
       --  Read Dir_Name entries and insert them into the Order_Tree table
@@ -342,21 +340,6 @@ package body AWS.Services.Directory is
          Is_Dir := Is_Dir & Item.Directory;
       end Each_Entry;
 
-      ---------------
-      -- End_Slash --
-      ---------------
-
-      function End_Slash (Name : in String) return String is
-      begin
-         if Name /= ""
-           and then Name (Name'Last) = '/'
-         then
-            return Name;
-         else
-            return Name & '/';
-         end if;
-      end End_Slash;
-
       ------------
       -- Invert --
       ------------
@@ -370,7 +353,7 @@ package body AWS.Services.Directory is
          end if;
       end Invert;
 
-      Dir_Str : constant String := End_Slash (Directory_Name);
+      Dir_Str : constant String := Utils.Normalized_Directory (Directory_Name);
 
       --------------------
       -- Read_Directory --
@@ -519,25 +502,28 @@ package body AWS.Services.Directory is
 
       Clear (Order_Tree);
 
-      return (Assoc ("URI",           End_Slash (AWS.Status.URI (Request))),
-              Assoc ("VERSION",       AWS.Version),
-              Assoc ("IS_DIR_V",      Is_Dir),
-              Assoc ("NAME_V",        Names),
-              Assoc ("SIZE_V",        Sizes),
-              Assoc ("TIME_V",        Times),
-              Assoc ("DIR_ORDR",      Ordr (Dir)),
-              Assoc ("MIME_ORDR",     Ordr (MIME)),
-              Assoc ("EXT_ORDR",      Ordr (Ext)),
-              Assoc ("SEXT_ORDR",     Ordr (SExt)),
-              Assoc ("NAME_ORDR",     Ordr (Name)),
-              Assoc ("SNME_ORDR",     Ordr (SName)),
-              Assoc ("SIZE_ORDR",     Ordr (Size)),
-              Assoc ("TIME_ORDR",     Ordr (Time)),
-              Assoc ("ORIG_ORDR",     Ordr (Orig)),
-              Assoc ("MODE",          Mode),
-              Assoc ("DIR_NAME_ORDR", Dir_Ordr (Name)),
-              Assoc ("DIR_SNME_ORDR", Dir_Ordr (SName)),
-              Assoc ("DIR_TIME_ORDR", Dir_Ordr (Time)));
+      Insert (Set, Assoc ("URI",           Utils.Normalized_Directory
+                                             (AWS.Status.URI (Request))));
+      Insert (Set, Assoc ("VERSION",       AWS.Version));
+      Insert (Set, Assoc ("IS_DIR_V",      Is_Dir));
+      Insert (Set, Assoc ("NAME_V",        Names));
+      Insert (Set, Assoc ("SIZE_V",        Sizes));
+      Insert (Set, Assoc ("TIME_V",        Times));
+      Insert (Set, Assoc ("DIR_ORDR",      Ordr (Dir)));
+      Insert (Set, Assoc ("MIME_ORDR",     Ordr (MIME)));
+      Insert (Set, Assoc ("EXT_ORDR",      Ordr (Ext)));
+      Insert (Set, Assoc ("SEXT_ORDR",     Ordr (SExt)));
+      Insert (Set, Assoc ("NAME_ORDR",     Ordr (Name)));
+      Insert (Set, Assoc ("SNME_ORDR",     Ordr (SName)));
+      Insert (Set, Assoc ("SIZE_ORDR",     Ordr (Size)));
+      Insert (Set, Assoc ("TIME_ORDR",     Ordr (Time)));
+      Insert (Set, Assoc ("ORIG_ORDR",     Ordr (Orig)));
+      Insert (Set, Assoc ("MODE",          Mode));
+      Insert (Set, Assoc ("DIR_NAME_ORDR", Dir_Ordr (Name)));
+      Insert (Set, Assoc ("DIR_SNME_ORDR", Dir_Ordr (SName)));
+      Insert (Set, Assoc ("DIR_TIME_ORDR", Dir_Ordr (Time)));
+
+      return Set;
    end Browse;
 
    ------------
@@ -548,13 +534,14 @@ package body AWS.Services.Directory is
      (Directory_Name    : in String;
       Template_Filename : in String;
       Request           : in AWS.Status.Data;
-      Translations      : in Translate_Table := No_Translation)
-      return String is
+      Translations      : in Translate_Set := Null_Set) return String
+   is
+      Set : Translate_Set := Browse (Directory_Name, Request);
    begin
+      Insert (Set, Translations);
+
       return Parse
-        (Filename     => Template_Filename,
-         Translations => Translations & Browse (Directory_Name, Request),
-         Cached       => True);
+        (Filename => Template_Filename, Translations => Set, Cached => True);
    end Browse;
 
    -------------

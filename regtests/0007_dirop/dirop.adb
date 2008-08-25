@@ -39,7 +39,7 @@ procedure Dirop is
    Stat : Status.Data;
 
 begin
-   Status.Set.Reset (Stat);
+   Status.Set.Request (Stat, "GET", "/", "HTTP/1.1");
 
    declare
       Result : constant String
