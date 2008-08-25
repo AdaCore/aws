@@ -39,8 +39,6 @@ with AWS.Server;
 with AWS.Status;
 with AWS.Utils;
 
-with Get_Free_Port;
-
 package body AFile_Pack is
 
    use Ada;
@@ -143,7 +141,7 @@ package body AFile_Pack is
 
    procedure Run (Protocol : String) is
 
-      Port : Positive := 4000;
+      Port : Positive;
 
       -------------
       -- Call_It --
@@ -174,15 +172,16 @@ package body AFile_Pack is
       end Call_It;
 
    begin
-      Get_Free_Port (Port);
-
       Server.Start
         (WS,
          "afile " & Protocol,
          CB'Access,
          Security       => Protocol = "https",
-         Port           => Port,
+         Port           => 0,
          Max_Connection => 5);
+
+      Port := Server.Status.Get_Port (WS);
+
       Text_IO.Put_Line ("started"); Ada.Text_IO.Flush;
 
       delay 0.25;
