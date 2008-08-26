@@ -685,5 +685,10 @@ package body AWS.Net.Std is
    end Shutdown;
 
 begin
+   pragma Warnings (Off);
+   --  The call to Sockets.Initialize has been obsoleted. We keep this call
+   --  for compatibility with older compilers.
+   --  ??? This call should be removed when GNAT version 6.2 and GPL 2009
+   --  will  be out.
    Sockets.Initialize;
 end AWS.Net.Std;
