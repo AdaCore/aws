@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2004-2008                          --
---                                 AdaCore                                  --
+--                     Copyright (C) 2004-2008, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -210,7 +209,10 @@ package body AWS.Attachments is
       Content_Type : in String := MIME.Text_Plain) return Content is
    begin
       return Content'(File, Natural (Utils.File_Size (Filename)),
-                      +Content_Id, +Content_Type, +Filename, Encode);
+                      Content_Id   => +Content_Id,
+                      Content_Type => +Content_Type,
+                      Filename     => +Filename,
+                      Encode       => Encode);
    end File;
 
    --------------
@@ -742,17 +744,22 @@ package body AWS.Attachments is
       Name         : in String := "";
       Encode       : in Encoding := None;
       Content_Id   : in String := "";
-      Content_Type : in String := MIME.Text_Plain) return Content is
+      Content_Type : in String := MIME.Text_Plain) return Content
+   is
+      CD : Unbounded_String;
    begin
       if Encode = Base64 then
-         return Content'
-           (Attachments.Data, Data'Length,
-            +Content_Id, +Content_Type, +Name, Encode,
-            +Translator.Base64_Encode (Data));
+         CD := +Translator.Base64_Encode (Data);
       else
-         return Content'(Attachments.Data, Data'Length,
-                         +Content_Id, +Content_Type, +Name, Encode, +Data);
+         CD := +Data;
       end if;
+
+      return Content'(Attachments.Data, Data'Length,
+                      Content_Id   => +Content_Id,
+                      Content_Type => +Content_Type,
+                      Filename     => +Name,
+                      Encode       => Encode,
+                      Content      => CD);
    end Value;
 
 end AWS.Attachments;
