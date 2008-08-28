@@ -121,7 +121,7 @@ private
    subtype Name_Index_Table is Name_Indexes.Vector;
 
    package Data_Table is
-     new Ada.Containers.Indefinite_Vectors (Positive, Element);
+     new Ada.Containers.Indefinite_Vectors (Key_Positive, Element);
 
    package Index_Table is
      new Ada.Containers.Indefinite_Hashed_Maps

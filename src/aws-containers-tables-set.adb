@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2008                          --
---                                 AdaCore                                  --
+--                     Copyright (C) 2000-2008, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -132,7 +131,7 @@ package body AWS.Containers.Tables.Set is
             --  Replace item
 
             Data_Table.Replace_Element
-              (Table.Data, Positive (Name_Indexes.Element (Item, N)), NV);
+              (Table.Data, Name_Indexes.Element (Item, N), NV);
 
          else
             --  This item does not exist

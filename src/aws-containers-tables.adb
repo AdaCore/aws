@@ -108,7 +108,7 @@ package body AWS.Containers.Tables is
 
       CN  : Index_Table.Cursor;
       NI  : Name_Indexes.Vector;
-      Idx : Positive;
+      Idx : Key_Positive;
 
    begin
       CN := Index_Table.First (Table.Index);
@@ -116,7 +116,7 @@ package body AWS.Containers.Tables is
       while Index_Table.Has_Element (CN) loop
          NI := Index_Table.Element (CN);
 
-         Idx := Positive (Name_Indexes.Element (NI, 1));
+         Idx := Name_Indexes.Element (NI, 1);
 
          if Name_Indexes.Length (NI) = 1 then
             Process
@@ -127,7 +127,7 @@ package body AWS.Containers.Tables is
                Value : Unbounded_String;
             begin
                for J in 1 .. Positive (Name_Indexes.Length (NI)) loop
-                  Idx := Positive (Name_Indexes.Element (NI, J));
+                  Idx := Name_Indexes.Element (NI, J);
 
                   Append (Value, Data_Table.Element (Table.Data, Idx).Value);
 
@@ -162,8 +162,7 @@ package body AWS.Containers.Tables is
 
       if Found and then N <= Natural (Name_Indexes.Length (Value)) then
          return Data_Table.Element
-           (Table.Data,
-            Natural ((Name_Indexes.Element (Value, N)))).Value;
+           (Table.Data, Name_Indexes.Element (Value, N)).Value;
       else
          return "";
       end if;
@@ -172,7 +171,7 @@ package body AWS.Containers.Tables is
    function Get (Table : in Table_Type; N : in Positive) return Element is
    begin
       if N <= Natural (Data_Table.Length (Table.Data)) then
-         return Data_Table.Element (Table.Data, N);
+         return Data_Table.Element (Table.Data, Key_Positive (N));
       else
          return Null_Element;
       end if;
@@ -209,7 +208,7 @@ package body AWS.Containers.Tables is
      (Table : in Table_Type; N : in Positive := 1) return String is
    begin
       if N <= Natural (Data_Table.Length (Table.Data)) then
-         return Data_Table.Element (Table.Data, N).Name;
+         return Data_Table.Element (Table.Data, Key_Positive (N)).Name;
       else
          return "";
       end if;
@@ -253,7 +252,7 @@ package body AWS.Containers.Tables is
      (Table : in Table_Type; N : in Positive := 1) return String is
    begin
       if N <= Natural (Data_Table.Length (Table.Data)) then
-         return Data_Table.Element (Table.Data, N).Value;
+         return Data_Table.Element (Table.Data, Key_Positive (N)).Value;
       else
          return "";
       end if;
@@ -281,8 +280,7 @@ package body AWS.Containers.Tables is
                Result (I)
                   := To_Unbounded_String
                    (Data_Table.Element
-                        (Table.Data,
-                         Natural ((Name_Indexes.Element (Value, I)))).Value);
+                        (Table.Data, Name_Indexes.Element (Value, I)).Value);
             end loop;
             return Result;
          end;
