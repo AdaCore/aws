@@ -55,7 +55,7 @@ def gprbuild(prj):
     """Compile a project with gprbuild"""
     cmd = ["gprbuild", "-p", "-f", "-cargs", "-gnat05", "-P" + prj,
            "-bargs", "-E"]
-    if config.use_profiler:
+    if config.with_gprof:
         cmd = cmd + ["-cargs", "-pg", "-O2", "-largs", "-pg"]
     p = Run(cmd)
     if p.status:
@@ -69,7 +69,7 @@ def run(bin, options=[], output_file=None):
     """Run a test"""
     if output_file is None:
         output_file = "test.res"
-    if config.use_gdb:
+    if config.with_gdb:
         p = Run(["gdb", "--exec=" + bin, "--eval-command=run", "--batch",
                  "--args"] + options, output=output_file)
     else:
@@ -81,7 +81,7 @@ def run(bin, options=[], output_file=None):
     else:
         logging.debug(open(output_file).read())
 
-    if config.use_profiler:
+    if config.with_gprof:
         Run(["gprof", bin] + options,
             output=os.path.join(config.profiles_dir,
                                 "%s_%s_gprof.out" % (TEST_NAME, bin)))

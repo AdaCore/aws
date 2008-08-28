@@ -60,10 +60,10 @@ import os
 import sys
 import test_support
 
-use_profiler = %(use_profiler)s
+with_gprof = %(with_gprof)s
 profiles_dir = "%(profiles_dir)s"
 
-use_gdb = %(use_gdb)s
+with_gdb = %(with_gdb)s
 with_gprbuild = %(with_gprbuild)s
 
 def set():
@@ -122,18 +122,14 @@ def set():
             self.tests = [os.path.join(t, "test.py")
                           for t in options.tests.split()]
 
+        self.python_support = PYTHON_SUPPORT
+        self.log_dir = os.path.join(CURDIR, OUTPUTS_DIR)
+        self.profiles_dir = os.path.join(self.log_dir, 'profiles')
+
     def generate_config(self):
         """Generate config.py module that will be read by runtest.py"""
         conf = open("config.py", 'w')
-        conf.write(self.CONFIG_TEMPLATE %
-                   {'python_support': PYTHON_SUPPORT,
-                    'log_dir': os.path.join(CURDIR, OUTPUTS_DIR),
-                    'logging_level': self.logging_level,
-                    'use_profiler': self.with_gprof,
-                    'use_gdb': self.with_gdb,
-                    'with_gprbuild': self.with_gprbuild,
-                    'profiles_dir': os.path.join(CURDIR,
-                                                 OUTPUTS_DIR, 'profiles'),})
+        conf.write(self.CONFIG_TEMPLATE % self.__dict__)
         conf.close()
 
 class Job(object):
