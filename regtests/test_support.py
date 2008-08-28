@@ -70,8 +70,8 @@ def run(bin, options=[], output_file=None):
     if output_file is None:
         output_file = "test.res"
     if config.with_gdb:
-        p = Run(["gdb", "--exec=" + bin, "--eval-command=run", "--batch",
-                 "--args"] + options, output=output_file)
+        p = Run(["gdb", "--eval-command=run", "--batch-silent",
+                 "--args", bin] + options, output=output_file)
     else:
         p = Run(["./" + bin] + options, output=output_file)
     if p.status:
