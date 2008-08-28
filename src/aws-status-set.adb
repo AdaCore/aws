@@ -97,7 +97,6 @@ package body AWS.Status.Set is
      (D : in out Data; Attachments : in AWS.Attachments.List) is
    begin
       D.Attachments := Attachments;
-      D.Uploaded    := True;
    end Attachments;
 
    ------------------
@@ -338,8 +337,6 @@ package body AWS.Status.Set is
 
       Net.Buffered.Read (Socket, Buffer (1 .. Rest));
       Append (D.Binary_Data.all, Buffer (1 .. Rest), Trim => True);
-
-      D.Uploaded := True;
    end Read_Body;
 
    -----------------
@@ -566,5 +563,14 @@ package body AWS.Status.Set is
          end loop;
       end;
    end Update_Data_From_Header;
+
+   --------------
+   -- Uploaded --
+   --------------
+
+   procedure Uploaded (D : in out Data) is
+   begin
+      D.Uploaded := True;
+   end Uploaded;
 
 end AWS.Status.Set;

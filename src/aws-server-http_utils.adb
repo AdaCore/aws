@@ -921,6 +921,7 @@ package body AWS.Server.HTTP_Utils is
       Status.Reset_Body_Index (C_Stat);
 
       HTTP_Server.Slots.Mark_Phase (Line_Index, Server_Processing);
+      Status.Set.Uploaded (C_Stat);
    end Get_Message_Data;
 
    ----------------------
