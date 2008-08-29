@@ -67,13 +67,18 @@ def gprbuild(prj):
 
 def run(bin, options=[], output_file=None):
     """Run a test"""
+    if "TIMEOUT" in os.environ:
+        timeout = int(os.environ["TIMEOUT"])
+    else:
+        timeout = None
     if output_file is None:
         output_file = "test.res"
+
     if config.with_gdb:
         p = Run(["gdb", "--eval-command=run", "--batch-silent",
-                 "--args", bin] + options, output=output_file)
+                 "--args", bin] + options, output=output_file, timeout=timeout)
     else:
-        p = Run(["./" + bin] + options, output=output_file)
+        p = Run(["./" + bin] + options, output=output_file, timeout=timeout)
     if p.status:
         #  Exit with error
         logging.error(open(output_file).read())

@@ -245,7 +245,8 @@ class Runner(object):
             while len(self.jobs) < self.config.jobs and self.config.tests:
                 # Pop a new job from the tests list and run it
                 dead = False
-                opt = None
+                env  = None
+                opt  = None
                 test = self.config.tests.pop()
                 test_dir = os.path.dirname(test)
                 test_opt = os.path.join(test_dir, "test.opt")
@@ -260,7 +261,9 @@ class Runner(object):
                 if not dead:
                     linktree(test_dir, os.path.join(BUILDS_DIR, test_dir))
                     test = os.path.join(BUILDS_DIR, test_dir, "test.py")
-                    process = Run(["python", test], bg=True,
+                    if opt is not None:
+                        env = set_environment(opt.get_value("limit"))
+                    process = Run(["python", test], bg=True, env=env,
                                   output=None, error=None)
                     job = Job(test_dir, process, opt)
                     self.jobs.append(job)
@@ -317,6 +320,17 @@ def linktree(src, dst, symlinks=0):
         except (IOError, os.error), why:
             print "Can't link %s to %s: %s" % (srcname, dstname, str(why))
 
+def set_environment(timeout):
+    """Set the environment for running the test.
+
+    Returns None if no special environment is needed.
+    """
+    env = None
+    if timeout:
+        env = os.environ.copy()
+        env["TIMEOUT"] = timeout
+    return env
+
 def main():
     """Main: parse command line and run the testsuite"""
 
@@ -328,6 +342,9 @@ def main():
     if os.path.exists(BUILDS_DIR):
         shutil.rmtree(BUILDS_DIR)
     os.mkdir(BUILDS_DIR)
+
+    # Add rlimit to PATH
+    os.environ["PATH"] = os.environ["PATH"] + os.pathsep + os.getcwd()
 
     logging.basicConfig(level=logging.DEBUG,
                         filename='%s/testsuite.log' % OUTPUTS_DIR, mode='w')
