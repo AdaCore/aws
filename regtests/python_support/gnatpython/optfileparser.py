@@ -44,6 +44,9 @@ class OptFileParse(object):
             self.system_tags = []
             for tag in system_tags:
                 self.system_tags.append (tag.lower ())
+        # Append 'all' to system tags
+        if not 'all' in system_tags:
+            self.system_tags.append ('all')
         self.is_dead = False
         self.__note = None
         self.__enable_note = False
