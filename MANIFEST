@@ -1300,6 +1300,8 @@ regtests/makefile
 regtests/regtests.gpr
 regtests/test_support.py
 regtests/testsuite.py
+regtests/support/rlimit.c
+regtests/support/rlimit-NT.c
 shared.gpr
 soap/soap-client.adb
 soap/soap-client.ads
