@@ -1313,15 +1313,15 @@ package body AWS.Server.HTTP_Utils is
    begin
       Status_Code := Response.Status_Code (Answer);
 
-      HTTP_Server.Slots.Mark_Phase (Line_Index, Server_Response);
-
       case Response.Mode (Answer) is
 
-         when Response.File | Response.File_Once
-            | Response.Stream | Response.Message =>
+         when Response.File | Response.File_Once | Response.Stream
+              | Response.Message =>
+            HTTP_Server.Slots.Mark_Phase (Line_Index, Server_Response);
             Send_Data;
 
          when Response.Header =>
+            HTTP_Server.Slots.Mark_Phase (Line_Index, Server_Response);
             Send_Header_Only;
 
          when Response.Socket_Taken =>
