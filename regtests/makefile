@@ -50,7 +50,7 @@ testsuite.tags: ../makefile.setup gen_system_tags.py
 setup: testsuite.tags rlimit$(EXEEXT)
 
 rlimit$(EXEEXT): $(RLIMIT_SRC)
-	$(CC) -o rlimit$(EXEEXT) $(RLIMIT_SRC)
+	$(GCC) -o rlimit$(EXEEXT) $(RLIMIT_SRC)
 
 aws_regtests:
 	test -f testsuite.tags || (echo 'Did you run make setup ?'; exit 1)
