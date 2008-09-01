@@ -70,7 +70,7 @@ def run(bin, options=[], output_file=None):
     if "TIMEOUT" in os.environ:
         timeout = int(os.environ["TIMEOUT"])
     else:
-        timeout = None
+        timeout = 300
     if output_file is None:
         output_file = "test.res"
 
