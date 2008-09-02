@@ -109,22 +109,22 @@ procedure Tclientto is
       R : Response.Data;
    begin
       R := Client.Get ("http://localhost:1235/3sec",
-                       Timeouts => (1.0, 1.0, 1.0));
+                       Timeouts => (1.0, others => 1.0));
       Put_Line ("=> " & Response.Message_Body (R));
       New_Line;
 
       R := Client.Get ("http://localhost:1235/3sec",
-                       Timeouts => (1.0, 10.0, 10.0));
+                       Timeouts => (1.0, others => 10.0));
       Put_Line ("=> " & Response.Message_Body (R));
       New_Line;
 
       R := Client.Get ("http://localhost:1235/10sec",
-                       Timeouts => (1.0, 1.0, 20.0));
+                       Timeouts => (1.0, 1.0, others => 20.0));
       Put_Line ("=> " & Response.Message_Body (R));
       New_Line;
 
       R := Client.Get ("http://localhost:1235/10sec",
-                       Timeouts => (1.0, 10.0, 7.0));
+                       Timeouts => (1.0, 10.0, 7.0, others => <>));
       Put_Line ("=> " & Response.Message_Body (R));
       New_Line;
    end Request;
@@ -140,7 +140,7 @@ procedure Tclientto is
       Client.Create
         (Connection => Connect,
          Host       => "http://localhost:1235",
-         Timeouts   => (1.0, Net.Forever, 5.0));
+         Timeouts   => (1.0, Net.Forever, 5.0, others => <>));
 
       Client.Get (Connect, R, "/3sec");
       Put_Line ("-> " & Response.Message_Body (R));

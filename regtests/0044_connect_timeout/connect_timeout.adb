@@ -89,7 +89,7 @@ begin
       Start_Time;
       Resp := Client.Get
         ("http://www.google.com:9264",
-         Timeouts => (5.0, 2.0, 4.0));
+         Timeouts => (5.0, 2.0, 4.0, others => <>));
       Stop_Time;
       Check_Duration (5.0, "GET");
       Text_IO.Put_Line (Response.Message_Body (Resp));
@@ -102,7 +102,7 @@ begin
       Start_Time;
       Resp := Client.Post
         ("http://www.google.com:9264", "toto", "text/plain",
-         Timeouts => (2.0, 2.0, 2.0));
+         Timeouts => (2.0, 2.0, 2.0, others => <>));
       Stop_Time;
       Check_Duration (2.0, "POST");
       Text_IO.Put_Line (Response.Message_Body (Resp));

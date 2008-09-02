@@ -166,7 +166,7 @@ begin
       Host        => URL,
       Server_Push => True,
       Persistent  => True,
-      Timeouts    => (1.0, 12.0, 12.0));
+      Timeouts    => (1.0, others => 12.0));
 
    Test_Name (Good_Name);
 

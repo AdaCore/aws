@@ -196,7 +196,7 @@ package body HLoad_Pack is
          AWS.Client.Create
            (Connect,
             Protocol & "://localhost:" & Utils.Image (Free_Port),
-            Timeouts => (5.0, 15.0, 15.0));
+            Timeouts => (5.0, others => 15.0));
 
          for K in 1 .. Client_Count loop
             begin

@@ -99,7 +99,7 @@ begin
    Client.Create
      (Connection => Connect,
       Host       => "http://localhost:" & Utils.Image (Port),
-      Timeouts   => (5.0, 5.0, 5.0));
+      Timeouts   => (others => 5.0));
 
    Client.Get (Connect, R, "/do_you_have_it");
 

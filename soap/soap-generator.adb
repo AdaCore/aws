@@ -33,7 +33,6 @@ with Ada.Text_IO;
 
 with GNAT.Calendar.Time_IO;
 
-with AWS;
 with AWS.Templates;
 with AWS.Utils;
 with SOAP.Utils;
@@ -2405,6 +2404,8 @@ package body SOAP.Generator is
       --  a template use it to generate the main otherwise just generate a
       --  standard main procedure.
 
+      function Timeout_Image (Timeout : in Duration) return String;
+
       ------------
       -- Create --
       ------------
@@ -2498,6 +2499,19 @@ package body SOAP.Generator is
          Text_IO.Close (File);
       end Generate_Main;
 
+      -------------------
+      -- Timeout_Image --
+      -------------------
+
+      function Timeout_Image (Timeout : in Duration) return String is
+      begin
+         if Timeout = Duration'Last then
+            return "Duration'Last";
+         else
+            return AWS.Utils.Significant_Image (Timeout, 3);
+         end if;
+      end Timeout_Image;
+
       LL_Name : constant String
         := Characters.Handling.To_Lower (Format_Name (O, Name));
 
@@ -2572,11 +2586,10 @@ package body SOAP.Generator is
       else
          Text_IO.Put_Line
            (Root,
-            "     (Connect => "
-            & AWS.Utils.Significant_Image (O.Timeouts.Connect, 3)
-            & ", Send => " & AWS.Utils.Significant_Image (O.Timeouts.Send, 3)
-            & ", Receive => " & AWS.Utils.Significant_Image
-              (O.Timeouts.Receive, 3) & ");");
+            "     (Connect => " & Timeout_Image (O.Timeouts.Connect)
+            & ", Send => " & Timeout_Image (O.Timeouts.Send)
+            & ", Receive => " & Timeout_Image (O.Timeouts.Receive)
+            & ", Response => " & Timeout_Image (O.Timeouts.Response) & ");");
       end if;
 
       if O.WSDL_File /= Null_Unbounded_String then

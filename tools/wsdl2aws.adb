@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                          Copyright (C) 2003-2008                         --
---                                  AdaCore                                 --
+--                     Copyright (C) 2003-2008, AdaCore                     --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
 --                                                                          --
@@ -270,13 +269,23 @@ procedure WSDL2AWS is
                              (Gen,
                               (Connect => Duration'Value (Slice (Slices, 1)),
                                Send    => Duration'Value (Slice (Slices, 1)),
-                               Receive => Duration'Value (Slice (Slices, 1))));
+                               Receive => Duration'Value (Slice (Slices, 1)),
+                               others  => <>));
                         when 3 =>
                            SOAP.Generator.Set_Timeouts
                              (Gen,
                               (Connect => Duration'Value (Slice (Slices, 1)),
                                Send    => Duration'Value (Slice (Slices, 2)),
-                               Receive => Duration'Value (Slice (Slices, 3))));
+                               Receive => Duration'Value (Slice (Slices, 3)),
+                               others  => <>));
+                        when 4 =>
+                           SOAP.Generator.Set_Timeouts
+                             (Gen,
+                              (Connect  => Duration'Value (Slice (Slices, 1)),
+                               Send     => Duration'Value (Slice (Slices, 2)),
+                               Receive  => Duration'Value (Slice (Slices, 3)),
+                               Response => Duration'Value
+                                             (Slice (Slices, 4))));
                         when others =>
                            raise Syntax_Error
                              with "wrong number of arguments for timeouts";

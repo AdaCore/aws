@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2005-2008                          --
---                                 AdaCore                                  --
+--                     Copyright (C) 2005-2008, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -261,11 +260,14 @@ package body AWS.Client.HTTP_Utils is
       Result     :    out Response.Data;
       Get_Body   : in     Boolean         := True)
    is
+      use Ada.Calendar;
+
       procedure Disconnect;
       --  close connection socket
 
       Sock       : Net.Socket_Type'Class renames Connection.Socket.all;
       Keep_Alive : Boolean;
+      Expire     : constant Time := Clock + Connection.Timeouts.Response;
 
       ----------------
       -- Disconnect --
@@ -326,13 +328,20 @@ package body AWS.Client.HTTP_Utils is
 
       loop
          declare
-            Buffer : Stream_Element_Array (1 .. 8096);
+            Buffer : Stream_Element_Array (1 .. 8192);
             Last   : Stream_Element_Offset;
          begin
             Read_Some (Connection, Buffer, Last);
             exit when Last < Buffer'First;
             Response.Set.Append_Body (Result, Buffer (Buffer'First .. Last));
          end;
+
+         if Clock > Expire then
+            Response.Set.Append_Body
+              (Result, "..." & ASCII.LF & " Response Timeout");
+            Response.Set.Status_Code (Result, Messages.S408);
+            exit;
+         end if;
       end loop;
 
       Connection.Transfer := None;

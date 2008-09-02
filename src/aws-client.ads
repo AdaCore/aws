@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2008                          --
---                                 AdaCore                                  --
+--                     Copyright (C) 2000-2008, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -55,9 +54,10 @@ package AWS.Client is
    --  time fails.
 
    type Timeouts_Values is record
-      Connect : Duration;
-      Send    : Duration;
-      Receive : Duration;
+      Connect  : Duration := Net.Forever;
+      Send     : Duration := Net.Forever;
+      Receive  : Duration := Net.Forever;
+      Response : Duration := Net.Forever;
    end record;
    --  Defined the number of seconds for the send and receive timeout
 
@@ -388,8 +388,7 @@ private
    use Ada.Strings.Unbounded;
    use Ada.Streams;
 
-   No_Timeout : constant Timeouts_Values :=
-                  (Net.Forever, Net.Forever, Net.Forever);
+   No_Timeout : constant Timeouts_Values := (others => Net.Forever);
    No_Data    : constant String := "";
 
    Undefined_Length : Response.Content_Length_Type

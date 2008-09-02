@@ -87,7 +87,7 @@ begin
       R : constant String := R_Hello_Timeout_Demo.Client.sayHello
         ("pascal",
          Endpoint => "http://www.google.com:9856",
-         Timeouts => (4.0, 2.0, 1.0));
+         Timeouts => (4.0, 2.0, 1.0, others => <>));
    begin
       Text_IO.Put_Line ("Result: '" & R & ''');
    end;

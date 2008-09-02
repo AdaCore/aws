@@ -202,7 +202,7 @@ begin
    Client.Create
      (Connection => Connect,
       Host       => Base_URL,
-      Timeouts   => (1.0, 5.0, 5.0));
+      Timeouts   => (1.0, others => 5.0));
 
    Client.Get (Connect, R, Length_Defined_URI);
    Compare_Message;
