@@ -278,6 +278,7 @@ package body AWS.MIME is
       Set.Add_Extension ("ai",      Application_Postscript);
       Set.Add_Extension ("pdf",     Application_Pdf);
       Set.Add_Extension ("zip",     Application_Zip);
+      Set.Add_Extension ("iso",     Application_Octet_Stream);
       Set.Add_Extension ("exe",     Application_Octet_Stream);
       Set.Add_Extension ("hqx",     Application_Mac_Binhex40);
       Set.Add_Extension ("doc",     Application_Msword);
