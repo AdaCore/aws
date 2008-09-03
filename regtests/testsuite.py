@@ -61,6 +61,7 @@ import sys
 import test_support
 
 PROFILES_DIR  = "%(profiles_dir)s"
+DIFFS_DIR     = "%(diffs_dir)s"
 WITH_GPROF    = %(with_gprof)s
 WITH_GDB      = %(with_gdb)s
 WITH_GPRBUILD = %(with_gprbuild)s
@@ -122,8 +123,9 @@ def set_config():
                           for t in options.tests.split()]
 
         self.python_support = PYTHON_SUPPORT
-        self.log_dir = os.path.join(CURDIR, OUTPUTS_DIR)
-        self.profiles_dir = os.path.join(self.log_dir, 'profiles')
+        self.log_dir        = os.path.join(CURDIR, OUTPUTS_DIR)
+        self.profiles_dir   = os.path.join(self.log_dir, 'profiles')
+        self.diffs_dir      = os.path.join(self.log_dir, "diffs")
 
     def generate_config(self):
         """Generate config.py module that will be read by runtest.py"""
@@ -278,6 +280,15 @@ class Runner(object):
             time.sleep(self.config.delay)
             self.check_jobs()
 
+        # Generate global diff
+        global_diff = open('testsuite.diff', 'w')
+        all_diffs   = glob(os.path.join(CURDIR, OUTPUTS_DIR, "diffs")
+                           + '/*.diff')
+        for diff_filename in all_diffs:
+            test_name = os.path.basename(diff_filename)
+            global_diff.write(open(diff_filename).read())
+        global_diff.close()
+
 class ConsoleColorFormatter(logging.Formatter):
     """Output colorfull text"""
     def format(self, record):
@@ -339,6 +350,7 @@ def main():
         shutil.rmtree(OUTPUTS_DIR)
     os.mkdir(OUTPUTS_DIR)
     os.mkdir(os.path.join(OUTPUTS_DIR, 'profiles'))
+    os.mkdir(os.path.join(OUTPUTS_DIR, 'diffs'))
 
     if os.path.exists(BUILDS_DIR):
         shutil.rmtree(BUILDS_DIR)

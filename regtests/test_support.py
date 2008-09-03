@@ -16,8 +16,8 @@ os.chdir(TESTDIR)
 #  Load generated configuration
 
 from config import (
-    set_config, PROFILES_DIR, WITH_GPROF,
-    WITH_GDB, WITH_GPRBUILD
+    set_config, PROFILES_DIR, DIFFS_DIR,
+    WITH_GPROF, WITH_GDB, WITH_GPRBUILD
 )
 set_config()
 
@@ -116,9 +116,49 @@ def diff(left=None, right=None):
     if p.status:
         #  Exit with error
         logging.error(p.out)
+        save_test_diff(left,right)
         sys.exit(p.status)
     else:
         logging.debug(p.out)
+
+def save_test_diff(left, right):
+    # Save diff file
+    diff_filename = os.path.join(DIFFS_DIR, TEST_NAME + ".diff")
+    diff_file     = open(diff_filename, 'w')
+
+    diff_file.write("================ Bug %s\n" % TEST_NAME)
+
+    if not os.path.exists(left):
+        # No expected output. Write the first 100 line of the outputs
+        lineno = 0
+        right_file = open(right, 'r')
+        diff_file.write('---------------- unexpected output\n')
+        for line in right_file:
+            if lineno >= 100:
+                diff_file.write("[TRUNCATED]\n")
+                break
+            lineno = lineno + 1
+            diff_file.write(line)
+        right_file.close()
+    else:
+        # Output with diff
+        # Limit the actual output to 2000 lines
+        if os.path.exists(right):
+            diff_file.write('---------------- actual output\n')
+            right_file = open(right, 'r')
+            lineno = 0
+            for line in right_file:
+                if lineno >= 2000:
+                    break
+                lineno = lineno + 1
+                diff_file.write(line)
+            right_file.close()
+
+        diff_file.write('---------------- expected output\n')
+        left_file = open(left, 'r')
+        diff_file.write(left_file.read())
+        left_file.close()
+    diff_file.close()
 
 def build_diff(prj):
     """Compile and run a project and check the output"""
