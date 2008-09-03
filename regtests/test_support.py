@@ -15,8 +15,11 @@ os.chdir(TESTDIR)
 
 #  Load generated configuration
 
-import config
-config.set()
+from config import (
+    set_config, PROFILES_DIR, WITH_GPROF,
+    WITH_GDB, WITH_GPRBUILD
+)
+set_config()
 
 #  Now gnatpython modules should be visible
 
@@ -35,7 +38,7 @@ def tail(infile, outfile, n):
 
 def build(prj):
     """Build a project"""
-    if config.with_gprbuild:
+    if WITH_GPRBUILD:
         gprbuild(prj)
     else:
         gnatmake(prj)
@@ -55,7 +58,7 @@ def gprbuild(prj):
     """Compile a project with gprbuild"""
     cmd = ["gprbuild", "-p", "-f", "-cargs", "-gnat05", "-P" + prj,
            "-bargs", "-E"]
-    if config.with_gprof:
+    if WITH_GPROF:
         cmd = cmd + ["-cargs", "-pg", "-O2", "-largs", "-pg"]
     p = Run(cmd)
     if p.status:
@@ -74,7 +77,7 @@ def run(bin, options=[], output_file=None):
     if output_file is None:
         output_file = "test.res"
 
-    if config.with_gdb:
+    if WITH_GDB:
         p = Run(["gdb", "--eval-command=run", "--batch-silent",
                  "--args", bin] + options, output=output_file, timeout=timeout)
     else:
@@ -86,9 +89,9 @@ def run(bin, options=[], output_file=None):
     else:
         logging.debug(open(output_file).read())
 
-    if config.with_gprof:
+    if WITH_GPROF:
         Run(["gprof", bin] + options,
-            output=os.path.join(config.profiles_dir,
+            output=os.path.join(PROFILES_DIR,
                                 "%s_%s_gprof.out" % (TEST_NAME, bin)))
 
 def exec_cmd(bin, options=[], output_file=None, ignore_error=False):

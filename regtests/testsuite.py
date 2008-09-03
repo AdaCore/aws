@@ -60,13 +60,12 @@ import os
 import sys
 import test_support
 
-with_gprof = %(with_gprof)s
-profiles_dir = "%(profiles_dir)s"
+PROFILES_DIR  = "%(profiles_dir)s"
+WITH_GPROF    = %(with_gprof)s
+WITH_GDB      = %(with_gdb)s
+WITH_GPRBUILD = %(with_gprbuild)s
 
-with_gdb = %(with_gdb)s
-with_gprbuild = %(with_gprbuild)s
-
-def set():
+def set_config():
     # Set python path
     sys.path.append("%(python_support)s")
 
