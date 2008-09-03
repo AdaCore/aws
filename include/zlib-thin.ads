@@ -1,7 +1,7 @@
 ----------------------------------------------------------------
 --  ZLib for Ada thick binding.                               --
 --                                                            --
---  Copyright (C) 2002-2003 Dmitriy Anisimkov                 --
+--  Copyright (C) 2002-2008 Dmitriy Anisimkov                 --
 --                                                            --
 --  Open source license information is in the zlib.ads file.  --
 ----------------------------------------------------------------
@@ -111,194 +111,176 @@ private package ZLib.Thin is
    type Z_Streamp is access all Z_Stream;     --  zlib.h:89
 
    type alloc_func is access function
-     (Opaque : Voidp;
-      Items  : UInt;
-      Size   : UInt)
-      return Voidp; --  zlib.h:63
+     (Opaque : in Voidp;
+      Items  : in UInt;
+      Size   : in UInt) return Voidp; --  zlib.h:63
 
-   type free_func is access procedure (opaque : Voidp; address : Voidp);
+   type free_func is access procedure (opaque : in Voidp; address : in Voidp);
 
    function zlibVersion return Chars_Ptr;
 
-   function Deflate (strm : Z_Streamp; flush : Int) return Int;
+   function Deflate (strm : in Z_Streamp; flush : in Int) return Int;
 
-   function DeflateEnd (strm : Z_Streamp) return Int;
+   function DeflateEnd (strm : in Z_Streamp) return Int;
 
-   function Inflate (strm : Z_Streamp; flush : Int) return Int;
+   function Inflate (strm : in Z_Streamp; flush : in Int) return Int;
 
-   function InflateEnd (strm : Z_Streamp) return Int;
+   function InflateEnd (strm : in Z_Streamp) return Int;
 
    function deflateSetDictionary
-     (strm       : Z_Streamp;
-      dictionary : Byte_Access;
-      dictLength : UInt)
-      return       Int;
+     (strm       : in Z_Streamp;
+      dictionary : in Byte_Access;
+      dictLength : in UInt) return Int;
 
-   function deflateCopy (dest : Z_Streamp; source : Z_Streamp) return Int;
+   function deflateCopy
+     (dest : in Z_Streamp; source : in Z_Streamp) return Int;
    --  zlib.h:478
 
-   function deflateReset (strm : Z_Streamp) return Int; -- zlib.h:495
+   function deflateReset (strm : in Z_Streamp) return Int; -- zlib.h:495
 
    function deflateParams
-     (strm     : Z_Streamp;
-      level    : Int;
-      strategy : Int)
-      return     Int;       -- zlib.h:506
+     (strm     : in Z_Streamp;
+      level    : in Int;
+      strategy : in Int) return Int;       -- zlib.h:506
 
    function inflateSetDictionary
-     (strm       : Z_Streamp;
-      dictionary : Byte_Access;
-      dictLength : UInt)
-      return       Int; --  zlib.h:548
+     (strm       : in Z_Streamp;
+      dictionary : in Byte_Access;
+      dictLength : in UInt) return Int; --  zlib.h:548
 
-   function inflateSync (strm : Z_Streamp) return Int;  --  zlib.h:565
+   function inflateSync (strm : in Z_Streamp) return Int;  --  zlib.h:565
 
-   function inflateReset (strm : Z_Streamp) return Int; --  zlib.h:580
+   function inflateReset (strm : in Z_Streamp) return Int; --  zlib.h:580
 
    function compress
-     (dest      : Byte_Access;
-      destLen   : ULong_Access;
-      source    : Byte_Access;
-      sourceLen : ULong)
-      return      Int;           -- zlib.h:601
+     (dest      : in Byte_Access;
+      destLen   : in ULong_Access;
+      source    : in Byte_Access;
+      sourceLen : in ULong) return Int;           -- zlib.h:601
 
    function compress2
-     (dest      : Byte_Access;
-      destLen   : ULong_Access;
-      source    : Byte_Access;
-      sourceLen : ULong;
-      level     : Int)
-      return      Int;          -- zlib.h:615
+     (dest      : in Byte_Access;
+      destLen   : in ULong_Access;
+      source    : in Byte_Access;
+      sourceLen : in ULong;
+      level     : in Int) return Int;          -- zlib.h:615
 
    function uncompress
-     (dest      : Byte_Access;
-      destLen   : ULong_Access;
-      source    : Byte_Access;
-      sourceLen : ULong)
-      return      Int;
+     (dest      : in Byte_Access;
+      destLen   : in ULong_Access;
+      source    : in Byte_Access;
+      sourceLen : in ULong) return Int;
 
-   function gzopen (path : Chars_Ptr; mode : Chars_Ptr) return gzFile;
+   function gzopen (path : in Chars_Ptr; mode : in Chars_Ptr) return gzFile;
 
-   function gzdopen (fd : Int; mode : Chars_Ptr) return gzFile;
+   function gzdopen (fd : in Int; mode : in Chars_Ptr) return gzFile;
 
    function gzsetparams
-     (file     : gzFile;
-      level    : Int;
-      strategy : Int)
-      return     Int;
+     (file     : in gzFile;
+      level    : in Int;
+      strategy : in Int) return Int;
 
    function gzread
-     (file : gzFile;
-      buf  : Voidp;
-      len  : UInt)
-      return Int;
+     (file : in gzFile;
+      buf  : in Voidp;
+      len  : in UInt) return Int;
 
    function gzwrite
      (file : in gzFile;
       buf  : in Voidp;
-      len  : in UInt)
-      return Int;
+      len  : in UInt) return Int;
 
    function gzprintf (file : in gzFile; format : in Chars_Ptr) return Int;
 
    function gzputs (file : in gzFile; s : in Chars_Ptr) return Int;
 
    function gzgets
-     (file : gzFile;
-      buf  : Chars_Ptr;
-      len  : Int)
-      return Chars_Ptr;
+     (file : in gzFile;
+      buf  : in Chars_Ptr;
+      len  : in Int) return Chars_Ptr;
 
-   function gzputc (file : gzFile; char : Int) return Int;
+   function gzputc (file : in gzFile; char : in Int) return Int;
 
-   function gzgetc (file : gzFile) return Int;
+   function gzgetc (file : in gzFile) return Int;
 
-   function gzflush (file : gzFile; flush : Int) return Int;
+   function gzflush (file : in gzFile; flush : in Int) return Int;
 
    function gzseek
-     (file   : gzFile;
-      offset : Int;
-      whence : Int)
-      return   Int;
+     (file   : in gzFile;
+      offset : in Int;
+      whence : in Int) return Int;
 
-   function gzrewind (file : gzFile) return Int;
+   function gzrewind (file : in gzFile) return Int;
 
-   function gztell (file : gzFile) return Int;
+   function gztell (file : in gzFile) return Int;
 
-   function gzeof (file : gzFile) return Int;
+   function gzeof (file : in gzFile) return Int;
 
-   function gzclose (file : gzFile) return Int;
+   function gzclose (file : in gzFile) return Int;
 
-   function gzerror (file : gzFile; errnum : Int_Access) return Chars_Ptr;
+   function gzerror
+     (file : in gzFile; errnum : in Int_Access) return Chars_Ptr;
 
    function adler32
-     (adler : ULong;
-      buf   : Byte_Access;
-      len   : UInt)
-      return  ULong;
+     (adler : in ULong;
+      buf   : in Byte_Access;
+      len   : in UInt) return ULong;
 
    function crc32
-     (crc  : ULong;
-      buf  : Byte_Access;
-      len  : UInt)
-      return ULong;
+     (crc  : in ULong;
+      buf  : in Byte_Access;
+      len  : in UInt) return ULong;
 
    function deflateInit
-     (strm        : Z_Streamp;
-      level       : Int;
-      version     : Chars_Ptr;
-      stream_size : Int)
-      return        Int;
+     (strm        : in Z_Streamp;
+      level       : in Int;
+      version     : in Chars_Ptr;
+      stream_size : in Int) return Int;
 
    function deflateInit2
-     (strm        : Z_Streamp;
-      level       : Int;
-      method      : Int;
-      windowBits  : Int;
-      memLevel    : Int;
-      strategy    : Int;
-      version     : Chars_Ptr;
-      stream_size : Int)
-      return        Int;
+     (strm        : in Z_Streamp;
+      level       : in Int;
+      method      : in Int;
+      windowBits  : in Int;
+      memLevel    : in Int;
+      strategy    : in Int;
+      version     : in Chars_Ptr;
+      stream_size : in Int) return Int;
 
    function Deflate_Init
-     (strm       : Z_Streamp;
-      level      : Int;
-      method     : Int;
-      windowBits : Int;
-      memLevel   : Int;
-      strategy   : Int)
-      return       Int;
+     (strm       : in Z_Streamp;
+      level      : in Int;
+      method     : in Int;
+      windowBits : in Int;
+      memLevel   : in Int;
+      strategy   : in Int) return Int;
    pragma Inline (Deflate_Init);
 
    function inflateInit
-     (strm        : Z_Streamp;
-      version     : Chars_Ptr;
-      stream_size : Int)
-      return        Int;
+     (strm        : in Z_Streamp;
+      version     : in Chars_Ptr;
+      stream_size : in Int) return Int;
 
    function inflateInit2
      (strm        : in Z_Streamp;
       windowBits  : in Int;
       version     : in Chars_Ptr;
-      stream_size : in Int)
-      return      Int;
+      stream_size : in Int) return Int;
 
    function inflateBackInit
      (strm        : in Z_Streamp;
       windowBits  : in Int;
       window      : in Byte_Access;
       version     : in Chars_Ptr;
-      stream_size : in Int)
-      return      Int;
-   --  Size of window have to be 2**windowBits.
+      stream_size : in Int) return Int;
+   --  Size of window have to be 2**windowBits
 
-   function Inflate_Init (strm : Z_Streamp; windowBits : Int) return Int;
+   function Inflate_Init (strm : in Z_Streamp; windowBits : in Int) return Int;
    pragma Inline (Inflate_Init);
 
-   function zError (err : Int) return Chars_Ptr;
+   function zError (err : in Int) return Chars_Ptr;
 
-   function inflateSyncPoint (z : Z_Streamp) return Int;
+   function inflateSyncPoint (z : in Z_Streamp) return Int;
 
    function get_crc_table return ULong_Access;
 
@@ -344,15 +326,13 @@ private package ZLib.Thin is
 
    function inflateCopy
      (dest   : in Z_Streamp;
-      Source : in Z_Streamp)
-      return Int;
+      Source : in Z_Streamp) return Int;
 
    function compressBound (Source_Len : in ULong) return ULong;
 
    function deflateBound
      (Strm       : in Z_Streamp;
-      Source_Len : in ULong)
-      return     ULong;
+      Source_Len : in ULong) return ULong;
 
    function gzungetc (C : in Int; File : in gzFile) return Int;
 
