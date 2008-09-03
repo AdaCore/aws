@@ -296,7 +296,7 @@ class ConsoleColorFormatter(logging.Formatter):
                                  or ('NOCOLOR' in os.environ)
                                  or (os.environ.get('TERM', 'dumb')
                                      in ['dumb', 'emacs'])
-                                 or (not sys.stdout.isatty()))
+                                 or (not sys.stderr.isatty()))
 
         output = logging.Formatter.format(self, record)
         if self.usecolor:
