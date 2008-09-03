@@ -42,8 +42,8 @@ sys.path.append(PYTHON_SUPPORT)
 
 DURATION_REPORT_NAME = "testsuite.duration"
 TESTSUITE_RES = "testsuite.res"
-OUTPUTS_DIR = ".outputs"
-BUILDS_DIR = ".build"
+OUTPUTS_DIR   = ".outputs"
+BUILDS_DIR    = ".build"
 
 import logging
 import time
@@ -181,9 +181,8 @@ class Runner(object):
     def __init__(self, config):
         """Fill the test lists"""
         self.__duration_report_rotate()
-
-        self.jobs        = []
-        self.config      = config
+        self.jobs   = []
+        self.config = config
         self.config.generate_config()
 
         logging.debug("Running the testsuite with the following tags: %s" %
@@ -198,13 +197,12 @@ class Runner(object):
             pythonpath = os.environ["PYTHONPATH"]
         else:
             pythonpath = ""
-        os.environ["PYTHONPATH"] = os.getcwd() + os.pathsep + \
-            pythonpath
+        os.environ["PYTHONPATH"] = CURDIR + os.pathsep + pythonpath
 
     def __duration_report_rotate(self):
         """Rotate all duration time reports"""
         for k in sorted(range(10), reverse=True):
-            report_file = DURATION_REPORT_NAME + "_%d" % k
+            report_file      = DURATION_REPORT_NAME + "_%d" % k
             next_report_file = DURATION_REPORT_NAME + "_%d" % (k + 1)
             if os.path.exists(report_file):
                 os.rename(report_file, next_report_file)
@@ -224,11 +222,12 @@ class Runner(object):
         """
         self.fres.write('%s:%s:%s\n' % (name, status, comment))
 
-        result = "%-60s %-9s %s" % (name, status, comment)
         if duration is not None:
             self.ftimeit.write("%s\t%f\n" % (name, duration))
         else:
             self.ftimeit.write("%s\tNaN\n" % name)
+
+        result = "%-60s %-9s %s" % (name, status, comment)
 
         test_desc_filename = os.path.join(name, "test.desc")
         if os.path.exists(test_desc_filename):
@@ -239,7 +238,6 @@ class Runner(object):
 
     def start(self):
         """Start the testsuite"""
-
         linktree("common", os.path.join(BUILDS_DIR, "common"))
 
         while self.config.tests:
@@ -357,7 +355,7 @@ def main():
     os.mkdir(BUILDS_DIR)
 
     # Add rlimit to PATH
-    os.environ["PATH"] = os.environ["PATH"] + os.pathsep + os.getcwd()
+    os.environ["PATH"] = os.environ["PATH"] + os.pathsep + CURDIR
 
     logging.basicConfig(level=logging.DEBUG,
                         filename='%s/testsuite.log' % OUTPUTS_DIR, mode='w')
@@ -381,7 +379,6 @@ def main():
     main.add_option("--with-gprbuild", dest="with_gprbuild",
                     action="store_true", default=False,
                     help="Compile with gprbuild (default is gnatmake)")
-
     main.parse_args()
 
     config = Config(main.options)
