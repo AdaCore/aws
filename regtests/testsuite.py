@@ -217,11 +217,13 @@ class Runner(object):
                 del self.jobs[index]
 
     def report(self, name, status, comment=None, duration=None):
-        """Print a test result"""
-        result = "%-60s %s" % (name, status)
-        if comment:
-            result = "%-70s %s" % (result, comment)
-        self.fres.write(result + "\n")
+        """Add a test result in testsuite.res file.
+
+        This will also log the result for interactive use of the testsuite.
+        """
+        self.fres.write('%s:%s:%s\n' % (name, status, comment))
+
+        result = "%-60s %-9s %s" % (name, status, comment)
         if duration is not None:
             self.ftimeit.write("%s\t%f\n" % (name, duration))
         else:
