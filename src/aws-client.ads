@@ -59,7 +59,8 @@ package AWS.Client is
       Receive  : Duration := Net.Forever;
       Response : Duration := Net.Forever;
    end record;
-   --  Defined the number of seconds for the send and receive timeout
+   --  Defined the duration for the connect, send, receive and complete
+   --  response receive timeouts.
 
    No_Timeout : constant Timeouts_Values;
    --  No timeout, allow infinite time to send or retrieve data

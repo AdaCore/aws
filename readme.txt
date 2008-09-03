@@ -66,6 +66,9 @@ to work properly. Of course we try to avoid this as much as possible
 but we really prefer to have a clean API instead of keeping awkward
 implementations.
 
+  Timeouts_Values record in AWS.Client interface has a new field Response
+  defines timeout for the complete response receiving.
+
   The project file aws_ssl.gpr has been removed. It was not working
   anymore as the SSL configuration is done a configuration time. The
   main aws.gpr project file will now support SSL if AWS is built
