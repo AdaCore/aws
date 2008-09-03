@@ -25,6 +25,7 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
+with Ada.Exceptions;
 with Ada.Streams;
 with Ada.Strings.Unbounded;
 
@@ -456,5 +457,14 @@ private
       Decode_First  : Stream_Element_Offset;
       Decode_Last   : Stream_Element_Offset;
    end record;
+
+   procedure Debug_Message (Prefix, Message : in String);
+   pragma Inline (Debug_Message);
+   --  Output Message prefixed with Prefix if Debug_On is True and does
+   --  nothing otherwise.
+
+   procedure Debug_Exception (E : in Ada.Exceptions.Exception_Occurrence);
+   pragma Inline (Debug_Exception);
+   --  Output E exception if Debug_On is True and does nothing otherwise
 
 end AWS.Client;

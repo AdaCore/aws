@@ -28,7 +28,6 @@
 with Ada.Calendar;
 with Ada.Characters.Handling;
 with Ada.Exceptions;
-with Ada.Text_IO;
 with Ada.Strings.Unbounded;
 with Ada.Strings.Fixed;
 
@@ -49,11 +48,6 @@ package body AWS.Client.HTTP_Utils is
 
    use Ada;
    use AWS.Client;
-
-   procedure Debug_Message (Prefix, Message : in String);
-   pragma Inline (Debug_Message);
-   --  Output Message prefixed with Prefix if Debug_On is True and does
-   --  nothing otherwise.
 
    function Image (Data_Range : in Content_Range) return String;
    --  Returns the partial content range parameter to be passed to the Range
@@ -198,17 +192,6 @@ package body AWS.Client.HTTP_Utils is
            with "can't connect to " & AWS.URL.URL (Connect_URL)
              & " -> " & Exceptions.Exception_Information (E);
    end Connect;
-
-   -------------------
-   -- Debug_Message --
-   -------------------
-
-   procedure Debug_Message (Prefix, Message : in String) is
-   begin
-      if Debug_On then
-         Text_IO.Put_Line (Prefix & Message);
-      end if;
-   end Debug_Message;
 
    --------------------------------------
    -- Decrement_Authentication_Attempt --
@@ -540,7 +523,8 @@ package body AWS.Client.HTTP_Utils is
             end if;
 
          exception
-            when Net.Socket_Error | Connection_Error =>
+            when E : Net.Socket_Error | Connection_Error =>
+               Debug_Exception (E);
 
                Disconnect (Connection);
 
@@ -591,7 +575,8 @@ package body AWS.Client.HTTP_Utils is
             end if;
 
          exception
-            when Net.Socket_Error | Connection_Error =>
+            when E : Net.Socket_Error | Connection_Error =>
+               Debug_Exception (E);
 
                Disconnect (Connection);
 

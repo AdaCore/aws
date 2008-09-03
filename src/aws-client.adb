@@ -28,6 +28,7 @@
 with Ada.Calendar;
 with Ada.Strings.Fixed;
 with Ada.Streams.Stream_IO;
+with Ada.Text_IO;
 
 with GNAT.Calendar.Time_IO;
 
@@ -152,6 +153,26 @@ package body AWS.Client is
       end if;
    end Create;
 
+   ---------------------
+   -- Debug_Exception --
+   ---------------------
+
+   procedure Debug_Exception (E : in Ada.Exceptions.Exception_Occurrence) is
+   begin
+      Debug_Message ("! ", Ada.Exceptions.Exception_Message (E));
+   end Debug_Exception;
+
+   -------------------
+   -- Debug_Message --
+   -------------------
+
+   procedure Debug_Message (Prefix, Message : in String) is
+   begin
+      if Debug_On then
+         Text_IO.Put_Line (Prefix & Message);
+      end if;
+   end Debug_Message;
+
    ---------
    -- Get --
    ---------
@@ -253,7 +274,8 @@ package body AWS.Client is
             end if;
 
          exception
-            when Net.Socket_Error | Connection_Error =>
+            when E : Net.Socket_Error | Connection_Error =>
+               Debug_Exception (E);
 
                Disconnect (Connection);
 
@@ -358,7 +380,8 @@ package body AWS.Client is
             end if;
 
          exception
-            when Net.Socket_Error =>
+            when E : Net.Socket_Error =>
+               Debug_Exception (E);
 
                Disconnect (Connection);
 
@@ -586,7 +609,8 @@ package body AWS.Client is
             end if;
 
          exception
-            when Net.Socket_Error =>
+            when E : Net.Socket_Error =>
+               Debug_Exception (E);
 
                Disconnect (Connection);
 
@@ -688,7 +712,8 @@ package body AWS.Client is
                begin
                   Net.Buffered.Read (Sock, Data, Last);
                exception
-                  when Net.Socket_Error =>
+                  when E : Net.Socket_Error =>
+                     Debug_Exception (E);
                      Connection.Transfer := End_Response;
                      Last := Data'First - 1;
                end;
@@ -1040,7 +1065,8 @@ package body AWS.Client is
 
          exception
 
-            when Net.Socket_Error | Connection_Error =>
+            when E : Net.Socket_Error | Connection_Error =>
+               Debug_Exception (E);
 
                Disconnect (Connection);
 
