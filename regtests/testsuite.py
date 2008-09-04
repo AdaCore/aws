@@ -327,7 +327,6 @@ class Runner(object):
         all_diffs   = glob(os.path.join(CURDIR, OUTPUTS_DIR, "diffs")
                            + '/*.diff')
         for diff_filename in all_diffs:
-            test_name = os.path.basename(diff_filename)
             global_diff.write(open(diff_filename).read())
         global_diff.close()
 
