@@ -69,8 +69,10 @@ def gprbuild(prj):
     else:
         logging.debug(p.out)
 
-def run(bin, options=[], output_file=None):
+def run(bin, options=None, output_file=None):
     """Run a test"""
+    if options is None:
+        options = []
     if "TIMEOUT" in os.environ:
         timeout = int(os.environ["TIMEOUT"])
     else:
@@ -95,8 +97,10 @@ def run(bin, options=[], output_file=None):
             output=os.path.join(PROFILES_DIR,
                                 "%s_%s_gprof.out" % (TEST_NAME, bin)))
 
-def exec_cmd(bin, options=[], output_file=None, ignore_error=False):
+def exec_cmd(bin, options=None, output_file=None, ignore_error=False):
     """Execute a binary"""
+    if options is None:
+        options = []
     if output_file is None:
         output_file = bin + ".res"
     p = Run([bin] + options, output=output_file)
