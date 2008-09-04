@@ -146,7 +146,13 @@ def set_config():
         conf.close()
 
 class Job(object):
-    """Monitor a running test"""
+    """Monitor a running test
+
+    ATTRIBUTES
+      name     : name of the test directory
+      comment  : an optional comment
+      duration : the duration of the test (or None if the job is still running)
+    """
     def __init__(self, name, process, opt, start_time=None):
         """Create a new monitor
 
@@ -166,6 +172,7 @@ class Job(object):
         self.name       = name
         self.process    = process
         self.opt        = opt
+        self.duration   = None
 
         #  Get XFAIL value
         if self.opt is None:
