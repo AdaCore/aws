@@ -45,6 +45,10 @@ TESTSUITE_RES = "testsuite.res"
 OUTPUTS_DIR   = ".outputs"
 BUILDS_DIR    = ".build"
 
+BUILD_FAILURE   = 1
+DIFF_FAILURE    = 2
+UNKNOWN_FAILURE = 3
+
 import logging
 import time
 from gnatpython.main import Main
@@ -60,11 +64,14 @@ import os
 import sys
 import test_support
 
-PROFILES_DIR  = "%(profiles_dir)s"
-DIFFS_DIR     = "%(diffs_dir)s"
-WITH_GPROF    = %(with_gprof)s
-WITH_GDB      = %(with_gdb)s
-WITH_GPRBUILD = %(with_gprbuild)s
+PROFILES_DIR    = "%(profiles_dir)s"
+DIFFS_DIR       = "%(diffs_dir)s"
+WITH_GPROF      = %(with_gprof)s
+WITH_GDB        = %(with_gdb)s
+WITH_GPRBUILD   = %(with_gprbuild)s
+BUILD_FAILURE   = %(build_failure)d
+DIFF_FAILURE    = %(diff_failure)d
+UNKNOWN_FAILURE = %(unknown_failure)d
 
 def set_config():
     # Set python path
@@ -127,6 +134,10 @@ def set_config():
         self.profiles_dir   = os.path.join(self.log_dir, 'profiles')
         self.diffs_dir      = os.path.join(self.log_dir, "diffs")
 
+        self.build_failure   = BUILD_FAILURE
+        self.diff_failure    = DIFF_FAILURE
+        self.unknown_failure = UNKNOWN_FAILURE
+
     def generate_config(self):
         """Generate config.py module that will be read by runtest.py"""
         conf = open("config.py", 'w')
@@ -167,7 +178,10 @@ class Job(object):
             if self.xfail:
                 return "XFAIL"
             else:
-                return "NOK"
+                if self.process.status == DIFF_FAILURE:
+                    return "DIFF"
+                else:
+                    return "FAILED"
 
 class Runner(object):
     """Run the testsuite
@@ -300,7 +314,7 @@ class ConsoleColorFormatter(logging.Formatter):
 
         output = logging.Formatter.format(self, record)
         if self.usecolor:
-            if "NOK" in output:
+            if "FAILED" in output or "DIFF" in output:
                 output = '\033[01;31m' + output + '\033[0m'
             elif "UOK" in output:
                 output = '\033[01;33m' + output + '\033[0m'

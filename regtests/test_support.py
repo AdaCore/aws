@@ -17,7 +17,8 @@ os.chdir(TESTDIR)
 
 from config import (
     set_config, PROFILES_DIR, DIFFS_DIR,
-    WITH_GPROF, WITH_GDB, WITH_GPRBUILD
+    WITH_GPROF, WITH_GDB, WITH_GPRBUILD,
+    BUILD_FAILURE, DIFF_FAILURE, UNKNOWN_FAILURE
 )
 set_config()
 
@@ -50,7 +51,7 @@ def gnatmake(prj):
     if p.status:
         #  Exit with error
         logging.error(p.out)
-        sys.exit(p.status)
+        sys.exit(BUILD_FAILURE)
     else:
         logging.debug(p.out)
 
@@ -64,7 +65,7 @@ def gprbuild(prj):
     if p.status:
         #  Exit with error
         logging.error(p.out)
-        sys.exit(p.status)
+        sys.exit(BUILD_FAILURE)
     else:
         logging.debug(p.out)
 
@@ -85,7 +86,7 @@ def run(bin, options=[], output_file=None):
     if p.status:
         #  Exit with error
         logging.error(open(output_file).read())
-        sys.exit(p.status)
+        sys.exit(UNKNOWN_FAILURE)
     else:
         logging.debug(open(output_file).read())
 
@@ -102,7 +103,7 @@ def exec_cmd(bin, options=[], output_file=None, ignore_error=False):
     if p.status and not ignore_error:
         #  Exit with error
         logging.error(open(output_file).read())
-        sys.exit(p.status)
+        sys.exit(UNKNOWN_FAILURE)
     else:
         logging.debug(open(output_file).read())
 
@@ -117,7 +118,7 @@ def diff(left=None, right=None):
         #  Exit with error
         logging.error(p.out)
         save_test_diff(left,right)
-        sys.exit(p.status)
+        sys.exit(DIFF_FAILURE)
     else:
         logging.debug(p.out)
 
