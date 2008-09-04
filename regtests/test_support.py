@@ -26,16 +26,17 @@ set_config()
 
 from gnatpython.ex import Run
 
-def tail(infile, outfile, n):
+def tail(infile_name, outfile_name, nb_line):
     """Write outfile which contains infile with the top n lines removed"""
-    ci = open(infile)
-    fo = open(outfile, "w")
-    k = 0
-    for line in ci:
-        k = k + 1
-        if k >= n:
-            fo.write(line)
-    fo.close()
+    infile  = open(infile_name, 'r')
+    outfile = open(outfile_name, "w")
+    pos = 0
+    for line in infile:
+        pos = pos + 1
+        if pos >= nb_line:
+            outfile.write(line)
+    outfile.close()
+    infile.close()
 
 def build(prj):
     """Build a project"""
@@ -47,13 +48,13 @@ def build(prj):
 def gnatmake(prj):
     """Compile a project with gnatmake"""
     cmd = ["gnatmake", "-p", "-f", "-gnat05", "-P" + prj, "-bargs", "-E"]
-    p = Run(cmd)
-    if p.status:
+    process = Run(cmd)
+    if process.status:
         #  Exit with error
-        logging.error(p.out)
+        logging.error(process.out)
         sys.exit(BUILD_FAILURE)
     else:
-        logging.debug(p.out)
+        logging.debug(process.out)
 
 def gprbuild(prj):
     """Compile a project with gprbuild"""
@@ -61,13 +62,13 @@ def gprbuild(prj):
            "-bargs", "-E"]
     if WITH_GPROF:
         cmd = cmd + ["-cargs", "-pg", "-O2", "-largs", "-pg"]
-    p = Run(cmd)
-    if p.status:
+    process = Run(cmd)
+    if process.status:
         #  Exit with error
-        logging.error(p.out)
+        logging.error(process.out)
         sys.exit(BUILD_FAILURE)
     else:
-        logging.debug(p.out)
+        logging.debug(process.out)
 
 def run(bin, options=None, output_file=None):
     """Run a test"""
@@ -81,11 +82,12 @@ def run(bin, options=None, output_file=None):
         output_file = "test.res"
 
     if WITH_GDB:
-        p = Run(["gdb", "--eval-command=run", "--batch-silent",
+        process = Run(["gdb", "--eval-command=run", "--batch-silent",
                  "--args", bin] + options, output=output_file, timeout=timeout)
     else:
-        p = Run(["./" + bin] + options, output=output_file, timeout=timeout)
-    if p.status:
+        process = Run(["./" + bin] + options,
+                      output=output_file, timeout=timeout)
+    if process.status:
         #  Exit with error
         logging.error(open(output_file).read())
         sys.exit(UNKNOWN_FAILURE)
@@ -103,8 +105,8 @@ def exec_cmd(bin, options=None, output_file=None, ignore_error=False):
         options = []
     if output_file is None:
         output_file = bin + ".res"
-    p = Run([bin] + options, output=output_file)
-    if p.status and not ignore_error:
+    process = Run([bin] + options, output=output_file)
+    if process.status and not ignore_error:
         #  Exit with error
         logging.error(open(output_file).read())
         sys.exit(UNKNOWN_FAILURE)
@@ -120,15 +122,15 @@ def diff(left=None, right=None):
         left = "test.out"
     if right is None:
         right = "test.res"
-    #  Print the result of diff test.out "p.out"
-    p = Run(["diff", "-w", left, right])
-    if p.status:
+    #  Print the result of diff test.out "process.out"
+    process = Run(["diff", "-w", left, right])
+    if process.status:
         #  Exit with error
-        logging.error(p.out)
-        save_test_diff(left,right)
+        logging.error(process.out)
+        save_test_diff(left, right)
         sys.exit(DIFF_FAILURE)
     else:
-        logging.debug(p.out)
+        logging.debug(process.out)
 
 def save_test_diff(left, right):
     """Save the expected content and output content
