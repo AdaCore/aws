@@ -30,15 +30,21 @@
 
 This module is the main driver for AWS testsuite
 """
-from glob import glob
+import logging
 import os
 import shutil
 import sys
+import time
+from glob import glob
 
 # Importing gnatpython modules
 CURDIR = os.getcwd()
 PYTHON_SUPPORT = os.path.join(CURDIR, "python_support")
 sys.path.append(PYTHON_SUPPORT)
+
+from gnatpython.ex import Run
+from gnatpython.main import Main
+from gnatpython.optfileparser import OptFileParse
 
 DURATION_REPORT_NAME = "testsuite.duration"
 TESTSUITE_RES = "testsuite.res"
@@ -49,11 +55,6 @@ BUILD_FAILURE   = 1
 DIFF_FAILURE    = 2
 UNKNOWN_FAILURE = 3
 
-import logging
-import time
-from gnatpython.main import Main
-from gnatpython.ex import Run
-from gnatpython.optfileparser import OptFileParse
 
 class Config(object):
     """Configure the testsuite"""
