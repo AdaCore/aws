@@ -28,9 +28,9 @@ from gnatpython.ex import Run
 
 def tail(infile, outfile, n):
     """Write outfile which contains infile with the top n lines removed"""
-    ci=open(infile).readlines()
-    fo=open(outfile, "w")
-    k=0
+    ci = open(infile)
+    fo = open(outfile, "w")
+    k = 0
     for line in ci:
         k = k + 1
         if k >= n:
