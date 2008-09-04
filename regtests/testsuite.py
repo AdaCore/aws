@@ -146,7 +146,19 @@ def set_config():
         conf.close()
 
 class Job(object):
+    """Monitor a running test"""
     def __init__(self, name, process, opt, start_time=None):
+        """Create a new monitor
+
+        PARAMETERS
+          name       : name of the test directory
+          process    : the running process
+          opt        : content of test.opt file
+          start_time : set to current date if not specified
+
+        RETURN VALUE
+          a Job object
+        """
         if start_time is None:
             self.start_time = time.time()
         else:
@@ -162,6 +174,11 @@ class Job(object):
             self.xfail = self.opt.get_value("XFAIL")
 
     def is_running(self):
+        """Check if the job is still running
+
+        RETURN VALUE
+          True if the job is running (else False)
+        """
         if self.process.poll() is not None:
             self.duration = time.time() - self.start_time
             if self.process.out is not None:
@@ -170,6 +187,11 @@ class Job(object):
         return True
 
     def status(self):
+        """Compute job final status
+
+        RETURN VALUE
+         a string (can be UOK, OK, XFAIL, DIFF or FAILED)
+        """
         if self.process.status == 0:
             if self.xfail:
                 return "UOK"
