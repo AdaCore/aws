@@ -52,7 +52,6 @@ demos/com_1.adb
 demos/com_2.adb
 demos/demos.gpr
 demos/demos_shared.gpr
-demos/demos_ssl.gpr
 demos/dispatch.adb
 demos/dispatch_cb.adb
 demos/dispatch_cb.ads

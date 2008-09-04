@@ -49,7 +49,6 @@ setup:
 
 build: build_res $(BUILD_EXT)
 	$(GNAT) make -j$(CJOBS) -XLIBRARY_TYPE=static -Pdemos
-	$(GNAT) make -j$(CJOBS) -XLIBRARY_TYPE=static -Pdemos_ssl
 
 install:
 	$(CP) *.thtml $(I_TPL)
@@ -63,4 +62,3 @@ check:
 
 clean:
 	$(GNAT) clean -XLIBRARY_TYPE=static -Pdemos
-	$(GNAT) clean -XLIBRARY_TYPE=static -Pdemos_ssl

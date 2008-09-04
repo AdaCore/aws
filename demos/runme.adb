@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2005                          --
---                                 AdaCore                                  --
+--                     Copyright (C) 2000-2008, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -56,6 +55,7 @@
 with Ada.Text_IO;
 
 with AWS.Log;
+with AWS.Net.SSL;
 with AWS.Server.Log;
 
 with Runme_CB;
@@ -71,12 +71,16 @@ begin
    Text_IO.Put_Line ("AWS " & AWS.Version);
    Text_IO.Put_Line ("Enter 'q' key to exit...");
 
-   AWS.Server.Start
-     (WSS, "Runme Secure",
-      Max_Connection   => 3,
-      Port             => 4433,
-      Security         => True,
-      Callback         => Runme_CB.Service_Sec'Access);
+   if AWS.Net.SSL.Is_Supported then
+      AWS.Server.Start
+        (WSS, "Runme Secure",
+         Max_Connection   => 3,
+         Port             => 4433,
+         Security         => True,
+         Callback         => Runme_CB.Service_Sec'Access);
+
+      AWS.Server.Log.Start (WSS, Filename_Prefix => "runme-secure");
+   end if;
 
    AWS.Server.Start
      (WS, "Runme",
@@ -88,7 +92,6 @@ begin
       Upload_Directory => ".");
 
    AWS.Server.Log.Start (WS, Split_Mode => AWS.Log.Daily);
-   AWS.Server.Log.Start (WSS, Filename_Prefix => "runme-secure");
 
    --  Wait for 'q' key pressed...
 
@@ -97,5 +100,8 @@ begin
    --  Close servers.
 
    AWS.Server.Shutdown (WS);
-   AWS.Server.Shutdown (WSS);
+
+   if AWS.Net.SSL.Is_Supported then
+      AWS.Server.Shutdown (WSS);
+   end if;
 end Runme;
