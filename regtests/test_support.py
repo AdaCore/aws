@@ -112,6 +112,10 @@ def exec_cmd(bin, options=None, output_file=None, ignore_error=False):
         logging.debug(open(output_file).read())
 
 def diff(left=None, right=None):
+    """Compare files line by line
+
+    Exit with DIFF_FAILURE if files differ and save the diff output
+    """
     if left is None:
         left = "test.out"
     if right is None:
@@ -127,6 +131,10 @@ def diff(left=None, right=None):
         logging.debug(p.out)
 
 def save_test_diff(left, right):
+    """Save the expected content and output content
+
+    Generate a .diff file that will be used for the global diff
+    """
     # Save diff file
     diff_filename = os.path.join(DIFFS_DIR, TEST_NAME + ".diff")
     diff_file     = open(diff_filename, 'w')
