@@ -47,7 +47,10 @@ def build(prj):
 
 def gnatmake(prj):
     """Compile a project with gnatmake"""
-    cmd = ["gnatmake", "-p", "-f", "-gnat05", "-P" + prj, "-bargs", "-E"]
+    cmd = ["gnatmake"]
+    if WITH_GPROF:
+        cmd = cmd + ["-pg"]
+    cmd = cmd + ["-p", "-f", "-gnat05", "-P" + prj, "-bargs", "-E"]
     process = Run(cmd)
     if process.status:
         #  Exit with error
