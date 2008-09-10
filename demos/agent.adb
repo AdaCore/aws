@@ -99,7 +99,7 @@ procedure Agent is
      := To_Unbounded_String (Default.Client_Certificate);
 
    procedure Parse_Command_Line;
-   --  parse Agent command line.
+   --  parse Agent command line
 
    function Get_Auth_Mode (Mode : String) return Client.Authentication_Mode;
    --  Return the authentication value from the string representation.
