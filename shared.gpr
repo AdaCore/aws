@@ -94,8 +94,11 @@ project Shared is
    -- Ide --
    ---------
 
+   type VCS_Type is ("Subversion", "Git");
+   VCS_Kind : VCS_Type := external ("PRJ_VCS", "Subversion");
+
    package Ide is
-      for VCS_Kind use "Subversion";
+      for VCS_Kind use VCS_Kind;
       for VCS_Log_Check
         use "style_checker -l70 -H";
       for VCS_File_Check
