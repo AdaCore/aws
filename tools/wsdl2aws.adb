@@ -407,7 +407,7 @@ exception
       Put_Line ("   -proxy addr  Name or IP of the proxy");
       Put_Line ("   -pu name     The proxy user name");
       Put_Line ("   -pp pwd      The proxy password");
-      Put_Line ("   -timeouts    The connect/read/write timeouts");
+      Put_Line ("   -timeouts    The connect/read/write/response timeouts");
       New_Line;
       Ada.Command_Line.Set_Exit_Status (Ada.Command_Line.Failure);
 
