@@ -97,7 +97,8 @@ begin
    Client.Create
      (Connection => Connect,
       Host       => "http://localhost:1250",
-      Timeouts   => (1.0, 5.0, 5.0, others => <>));
+      Timeouts   => Client.Timeouts
+        (Connect => 1.0, Send => 5.0, Receive => 5.0));
 
    Client.Get (Connect, R, "/toto");
 

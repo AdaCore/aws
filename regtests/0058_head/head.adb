@@ -72,7 +72,8 @@ begin
    Client.Create
      (Connection => Connect,
       Host       => "http://localhost:" & Utils.Image (Port),
-      Timeouts   => (5.0, 5.0, 5.0, others => <>));
+      Timeouts   => Client.Timeouts
+        (Connect => 5.0, Send => 5.0, Receive => 5.0));
 
    Client.Get (Connect, R_Get,  '/' & My_Name);
    Client.Head (Connect, R_Head, '/' & My_Name);

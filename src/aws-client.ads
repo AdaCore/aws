@@ -54,17 +54,43 @@ package AWS.Client is
    --  Number of time a data is requested from the Server if the first
    --  time fails.
 
-   type Timeouts_Values is record
-      Connect  : Duration := Net.Forever;
-      Send     : Duration := Net.Forever;
-      Receive  : Duration := Net.Forever;
-      Response : Duration := Net.Forever;
-   end record;
+   --------------
+   -- Timeouts --
+   --------------
+
+   type Timeouts_Values is private;
    --  Defined the duration for the connect, send, receive and complete
    --  response receive timeouts.
 
    No_Timeout : constant Timeouts_Values;
    --  No timeout, allow infinite time to send or retrieve data
+
+   function Timeouts
+     (Connect  : in Duration := Net.Forever;
+      Send     : in Duration := Net.Forever;
+      Receive  : in Duration := Net.Forever;
+      Response : in Duration := Net.Forever) return Timeouts_Values;
+   --  Constructor for the timeouts values
+
+   function Connect_Timeout (T : in Timeouts_Values) return Duration;
+   pragma Inline (Connect_Timeout);
+   --  Returns the corresponding timeout value
+
+   function Send_Timeout (T : in Timeouts_Values) return Duration;
+   pragma Inline (Send_Timeout);
+   --  Returns the corresponding timeout value
+
+   function Receive_Timeout (T : in Timeouts_Values) return Duration;
+   pragma Inline (Receive_Timeout);
+   --  Returns the corresponding timeout value
+
+   function Response_Timeout (T : in Timeouts_Values) return Duration;
+   pragma Inline (Response_Timeout);
+   --  Returns the corresponding timeout value
+
+   --------------
+   -- Messages --
+   --------------
 
    type Content_Bound is new Integer range -1 .. Integer'Last;
 
@@ -84,10 +110,6 @@ package AWS.Client is
    type Authentication_Type is private;
 
    type Auth_Attempts_Count is private;
-
-   --------------
-   -- Messages --
-   --------------
 
    function Get
      (URL                : in String;
@@ -389,6 +411,13 @@ private
 
    use Ada.Strings.Unbounded;
    use Ada.Streams;
+
+   type Timeouts_Values is record
+      Connect  : Duration := Net.Forever;
+      Send     : Duration := Net.Forever;
+      Receive  : Duration := Net.Forever;
+      Response : Duration := Net.Forever;
+   end record;
 
    No_Timeout : constant Timeouts_Values := (others => Net.Forever);
    No_Data    : constant String := "";

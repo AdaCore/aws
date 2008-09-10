@@ -64,6 +64,15 @@ package body AWS.Client is
       Utils.Free (Connection.Decode_Buffer);
    end Close;
 
+   ---------------------
+   -- Connect_Timeout --
+   ---------------------
+
+   function Connect_Timeout (T : in Timeouts_Values) return Duration is
+   begin
+      return T.Connect;
+   end Connect_Timeout;
+
    -----------------
    -- Copy_Cookie --
    -----------------
@@ -812,6 +821,33 @@ package body AWS.Client is
                    (Read_Until (Connection, Delimiter, Wait));
    end Read_Until;
 
+   ---------------------
+   -- Receive_Timeout --
+   ---------------------
+
+   function Receive_Timeout (T : in Timeouts_Values) return Duration is
+   begin
+      return T.Receive;
+   end Receive_Timeout;
+
+   ----------------------
+   -- Response_Timeout --
+   ----------------------
+
+   function Response_Timeout (T : in Timeouts_Values) return Duration is
+   begin
+      return T.Response;
+   end Response_Timeout;
+
+   ------------------
+   -- Send_Timeout --
+   ------------------
+
+   function Send_Timeout (T : in Timeouts_Values) return Duration is
+   begin
+      return T.Send;
+   end Send_Timeout;
+
    ---------------
    -- Set_Debug --
    ---------------
@@ -928,6 +964,22 @@ package body AWS.Client is
 
       Connection.Self.Streaming := Save_Streaming;
    end SOAP_Post;
+
+   --------------
+   -- Timeouts --
+   --------------
+
+   function Timeouts
+     (Connect  : in Duration := Net.Forever;
+      Send     : in Duration := Net.Forever;
+      Receive  : in Duration := Net.Forever;
+      Response : in Duration := Net.Forever) return Timeouts_Values is
+   begin
+      return (Connect  => Connect,
+              Send     => Send,
+              Receive  => Receive,
+              Response => Response);
+   end Timeouts;
 
    ------------
    -- Upload --

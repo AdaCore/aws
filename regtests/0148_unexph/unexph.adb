@@ -116,7 +116,8 @@ begin
 
    R := Client.Get
           ("http://localhost:" & Utils.Image (Port) & "/test",
-           Timeouts => (1.0, 2.0, 2.0, others => <>));
+           Timeouts => Client.Timeouts
+             (Connect => 1.0, Send => 2.0, Receive => 2.0));
 
    Server.Stop;
 

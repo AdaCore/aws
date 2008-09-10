@@ -2585,11 +2585,19 @@ package body SOAP.Generator is
 
       else
          Text_IO.Put_Line
-           (Root,
-            "     (Connect => " & Timeout_Image (O.Timeouts.Connect)
-            & ", Send => " & Timeout_Image (O.Timeouts.Send)
-            & ", Receive => " & Timeout_Image (O.Timeouts.Receive)
-            & ", Response => " & Timeout_Image (O.Timeouts.Response) & ");");
+           (Root, "                AWS.Client.Timeouts");
+         Text_IO.Put_Line
+           (Root, "                  (Connect  => "
+            & Timeout_Image (Client.Connect_Timeout (O.Timeouts)) & ',');
+         Text_IO.Put_Line
+           (Root, "                   Send     => "
+            & Timeout_Image (Client.Send_Timeout (O.Timeouts)) & ',');
+         Text_IO.Put_Line
+           (Root, "                   Receive  => "
+            & Timeout_Image (Client.Receive_Timeout (O.Timeouts)) & ',');
+         Text_IO.Put_Line
+           (Root, "                   Response => "
+            & Timeout_Image (Client.Response_Timeout (O.Timeouts)) & ");");
       end if;
 
       if O.WSDL_File /= Null_Unbounded_String then

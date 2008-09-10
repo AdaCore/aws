@@ -47,6 +47,7 @@ procedure WSDL2AWS is
    use Ada.Exceptions;
    use Ada.Strings.Unbounded;
    use GNAT;
+   use AWS;
    use type SOAP.WSDL.Parser.Verbose_Level;
 
    Syntax_Error : exception;
@@ -267,25 +268,31 @@ procedure WSDL2AWS is
                         when 1 =>
                            SOAP.Generator.Set_Timeouts
                              (Gen,
-                              (Connect => Duration'Value (Slice (Slices, 1)),
-                               Send    => Duration'Value (Slice (Slices, 1)),
-                               Receive => Duration'Value (Slice (Slices, 1)),
-                               others  => <>));
+                              Client.Timeouts
+                                (Connect => Duration'Value (Slice (Slices, 1)),
+                                 Send    => Duration'Value (Slice (Slices, 1)),
+                                 Receive => Duration'Value
+                                   (Slice (Slices, 1))));
                         when 3 =>
                            SOAP.Generator.Set_Timeouts
                              (Gen,
-                              (Connect => Duration'Value (Slice (Slices, 1)),
-                               Send    => Duration'Value (Slice (Slices, 2)),
-                               Receive => Duration'Value (Slice (Slices, 3)),
-                               others  => <>));
+                              Client.Timeouts
+                                (Connect => Duration'Value (Slice (Slices, 1)),
+                                 Send    => Duration'Value (Slice (Slices, 2)),
+                                 Receive => Duration'Value
+                                   (Slice (Slices, 3))));
                         when 4 =>
                            SOAP.Generator.Set_Timeouts
                              (Gen,
-                              (Connect  => Duration'Value (Slice (Slices, 1)),
-                               Send     => Duration'Value (Slice (Slices, 2)),
-                               Receive  => Duration'Value (Slice (Slices, 3)),
-                               Response => Duration'Value
-                                             (Slice (Slices, 4))));
+                              Client.Timeouts
+                                (Connect  => Duration'Value
+                                   (Slice (Slices, 1)),
+                                 Send     => Duration'Value
+                                   (Slice (Slices, 2)),
+                                 Receive  => Duration'Value
+                                   (Slice (Slices, 3)),
+                                 Response => Duration'Value
+                                   (Slice (Slices, 4))));
                         when others =>
                            raise Syntax_Error
                              with "wrong number of arguments for timeouts";

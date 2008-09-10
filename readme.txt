@@ -4,7 +4,7 @@
 
 Authors:
    Dmitriy Anisimkov
-   Pascal Obry                                             August 8th, 2008
+   Pascal Obry                                           September 10th, 2008
 
 
 
@@ -66,8 +66,9 @@ to work properly. Of course we try to avoid this as much as possible
 but we really prefer to have a clean API instead of keeping awkward
 implementations.
 
-  Timeouts_Values record in AWS.Client interface has a new field named
-  Response which defines timeout for the receiving a complete response.
+  Timeouts_Values record is now a private type. Use the AWS.Client.Timeouts
+  constructor to create the corresponding record. This abstraction will
+  avoid future incompatibilities.
 
   The project file aws_ssl.gpr has been removed. It was not working
   anymore as the SSL configuration is done a configuration time. The

@@ -166,7 +166,8 @@ begin
       Host        => URL,
       Server_Push => True,
       Persistent  => True,
-      Timeouts    => (1.0, others => 12.0));
+      Timeouts    => Client.Timeouts
+        (Connect => 1.0, Send => 12.0, Receive => 12.0, Response => 12.0));
 
    Test_Name (Good_Name);
 

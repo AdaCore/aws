@@ -155,7 +155,8 @@ begin
    Client.Create
      (Connection => Connect,
       Host       => "http://localhost:" & Utils.Image (Port),
-      Timeouts   => (others => 5.0));
+      Timeouts   => Client.Timeouts
+        (Connect => 5.0, Send => 5.0, Receive => 5.0));
 
    --  Test for basic authentication
 

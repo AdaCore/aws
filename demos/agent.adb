@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2007                          --
---                                 AdaCore                                  --
+--                     Copyright (C) 2000-2008, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -172,8 +171,8 @@ procedure Agent is
                   Get_Auth_Mode (GNAT.Command_Line.Parameter);
 
             when 't' =>
-               Timeouts.Receive
-                 := Duration'Value (GNAT.Command_Line.Parameter);
+               Timeouts := Client.Timeouts
+                 (Receive => Duration'Value (GNAT.Command_Line.Parameter));
 
             when 'p' =>
                if GNAT.Command_Line.Full_Switch = "p" then

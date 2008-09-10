@@ -29,6 +29,8 @@ with Ada.Calendar;
 with Ada.Exceptions;
 with Ada.Text_IO;
 
+with AWS.Client;
+
 with R_Hello_Timeout_Demo.Client;
 with R_Hello_Timeout_Demo.Server;
 
@@ -36,6 +38,7 @@ procedure Test_SOAP_Timeout is
 
    use Ada;
    use Ada.Exceptions;
+   use AWS;
 
    procedure Start_Time;
    --  Record starting time
@@ -87,7 +90,8 @@ begin
       R : constant String := R_Hello_Timeout_Demo.Client.sayHello
         ("pascal",
          Endpoint => "http://www.google.com:9856",
-         Timeouts => (4.0, 2.0, 1.0, others => <>));
+         Timeouts => Client.Timeouts
+           (Connect => 4.0, Send => 2.0, Receive => 1.0));
    begin
       Text_IO.Put_Line ("Result: '" & R & ''');
    end;

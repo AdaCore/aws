@@ -192,7 +192,9 @@ package body Sp_Pack is
          Client.Create
            (Connection  => Connect (J),
             Host        => URL,
-            Timeouts    => (5.0, others => 15.0),
+            Timeouts    => Client.Timeouts
+              (Connect => 5.0,
+               Send => 15.0, Receive => 15.0, Response => 15.0),
             Server_Push => True);
 
          Client.Get (Connect (J), Answer, "/uri?CID=" & Utils.Image (J));
