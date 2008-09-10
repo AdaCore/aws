@@ -59,7 +59,7 @@ procedure Test_SOAP_Timeout is
       use type Calendar.Time;
       Elaps : constant Duration := Stop - Start - D;
    begin
-      if abs (Elaps) < 0.2 then
+      if abs (Elaps) < 0.4 then
          Text_IO.Put_Line ("OK:" & Message);
       else
          Text_IO.Put_Line ("NOK:" & Message & ", " & Duration'Image (Elaps));
