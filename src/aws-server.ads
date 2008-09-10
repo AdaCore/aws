@@ -204,6 +204,9 @@ package AWS.Server is
    --  Set the extended log field value for the server the controlling the
    --  current task.
 
+   procedure Skip_Log_Record;
+   --  Disable logging only for the current processing request
+
 private
 
    procedure Default_Unexpected_Exception_Handler
@@ -483,6 +486,7 @@ private
       Line       : Positive;
       Stat       : Status.Data;
       Expect_100 : Boolean;
+      Skip_Log   : Boolean := False;
       Log_Data   : AWS.Log.Fields_Table;
    end record;
 

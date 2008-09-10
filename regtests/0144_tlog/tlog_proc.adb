@@ -58,6 +58,7 @@ procedure TLog_Proc (Extended_Fields : in String) is
    use AWS;
 
    Filename : constant String := "file.tmp";
+   Skip_Log : constant String := "/skip-log-record";
    Today    : constant String
      := GNAT.Calendar.Time_IO.Image (Ada.Calendar.Clock, "%Y-%m-%d");
    Success  : Boolean;
@@ -223,9 +224,15 @@ procedure TLog_Proc (Extended_Fields : in String) is
    function CB (Request : in Status.Data) return Response.Data is
       URI : constant String := Status.URI (Request);
    begin
+      if URI = Skip_Log then
+         Server.Skip_Log_Record;
+
+         return Response.Build (MIME.Text_Plain, "not-logging");
+      end if;
+
       X_Counter := X_Counter + 1;
 
-      AWS.Server.Set_Field ("x-counter", AWS.Utils.Image (X_Counter));
+      Server.Set_Field ("x-counter", Utils.Image (X_Counter));
 
       if URI = "/one" then
          return Response.Build (MIME.Text_HTML, "one");
@@ -234,8 +241,7 @@ procedure TLog_Proc (Extended_Fields : in String) is
          return Response.File (MIME.Text_Plain, Filename);
 
       elsif URI = "/error" then
-         raise Constraint_Error;
-         return Response.File (MIME.Text_Plain, "tlog.adb");
+         raise Constraint_Error with "CB at " & Utils.Image (X_Counter);
 
       else
          return Response.Build
@@ -274,6 +280,7 @@ begin
    R := Client.Get ("http://localhost:" & Utils.Image (Port) & "/file");
    R := Client.Get ("http://localhost:" & Utils.Image (Port) & "/one");
    R := Client.Get ("http://localhost:" & Utils.Image (Port) & "/file");
+   R := Client.Get ("http://localhost:" & Utils.Image (Port) & Skip_Log);
    R := Client.Get ("http://localhost:" & Utils.Image (Port) & "/error");
    R := Client.Get ("http://localhost:" & Utils.Image (Port) & "/azerty");
    R := Client.Get ("http://localhost:" & Utils.Image (Port) & "/error");
@@ -292,6 +299,7 @@ begin
 
    Client.Get (Connect, R, "/azerty");
    Client.Get (Connect, R, "/one");
+   Client.Get (Connect, R, Skip_Log);
    Client.Get (Connect, R, "/file");
    Client.Get (Connect, R, "/error");
    Client.Get (Connect, R, "/one");

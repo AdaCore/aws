@@ -1,5 +1,5 @@
 ====================================================
-AWS 2.6 NEW FEATURES LIST Current as of Aug 21, 2008
+AWS 2.6 NEW FEATURES LIST Current as of Sep 10, 2008
 ====================================================
 
 Copyright (c) 2006-2008, AdaCore
@@ -14,6 +14,11 @@ of the feature.
 
 New features in AWS 2.6.0
 -------------------------
+
+NF-26-H909-005 Ability to skip current request log record (2008-09-10)
+
+  AWS.Server.Skip_Log_Record allow to disable log record for the currently
+  processing request.
 
 NF-26-H821-011 Add upload control (2008-08-21)
 

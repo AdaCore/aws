@@ -553,6 +553,15 @@ package body AWS.Server is
       Server_Counter.Decrement;
    end Shutdown;
 
+   ---------------------
+   -- Skip_Log_Record --
+   ---------------------
+
+   procedure Skip_Log_Record is
+   begin
+      Line_Attribute.Reference.Skip_Log := True;
+   end Skip_Log_Record;
+
    -----------
    -- Slots --
    -----------

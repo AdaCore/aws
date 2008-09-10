@@ -1119,6 +1119,8 @@ package body AWS.Server.HTTP_Utils is
       Socket_Taken : in out Boolean;
       Will_Close   : in out Boolean)
    is
+      LA : constant Line_Attribute.Attribute_Handle :=
+        Line_Attribute.Reference;
 
       use type Response.Data_Mode;
 
@@ -1333,14 +1335,13 @@ package body AWS.Server.HTTP_Utils is
               with "Answer not properly initialized (No_Data)";
       end case;
 
-      if CNF.Log_Extended_Fields_Length (HTTP_Server.Properties) > 0 then
+      if LA.Skip_Log then
+         LA.Skip_Log := False;
+
+      elsif CNF.Log_Extended_Fields_Length (HTTP_Server.Properties) > 0 then
          declare
             use type Ada.Calendar.Time;
             use type Strings.Maps.Character_Set;
-
-            LA : constant Line_Attribute.Attribute_Handle :=
-              Line_Attribute.Reference;
-
          begin
             Log.Set_Field
               (LA.Server.Log, LA.Log_Data, "time-taken",
