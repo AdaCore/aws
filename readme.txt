@@ -4,7 +4,7 @@
 
 Authors:
    Dmitriy Anisimkov
-   Pascal Obry                                           September 10th, 2008
+   Pascal Obry                                           September 13th, 2008
 
 
 
@@ -111,14 +111,8 @@ value.
 Validation
 ----------
 
-AWS 2.5.0 has been compiled and has passed all tests on:
-
-   Windows XP, GNAT 6.0.1
-
-   GNU/Linux x86, GNAT 6.0.1
-
-Others platforms / compiler version combinations have not been tested, it
-does not mean that it's not working.
+AWS 2.6.0 test suite is passed every night on multiple plateforms (Windows,
+GNU/Linux - i686 and x86_64 - , Solaris and HP-UX).
 
 Previous version of AWS have been built on FreeBSD 4.1 and MacOSX.
 
@@ -147,7 +141,7 @@ Templates_Parser sources:
    distribution.
 
    Templates_Parser is a very useful add-on for AWS. You should have a look at
-   it if you plan to develop a Web application. Templates_Parser permits to
+   it if you plan to develop a Web applications. Templates_Parser permits to
    completely separate the HTML design from the Ada code.
 
    Some other Templates engine are WebMacro, FreeMarker, PHP, ASP, JSP and
@@ -159,7 +153,7 @@ Templates_Parser sources:
 
 GNU/Ada - GNAT
 
-   You need at least GNAT 2007 GPL Edition or GNAT Pro 6.0.1.
+   You need at least GNAT 2008 GPL Edition or GNAT Pro 6.0.1.
 
    http://libre.adacore.com/GNAT/
 
@@ -208,10 +202,9 @@ AWS is distributed under a dual licencing. The AWS/GPL to be used with GNAT
 GPL Edition and AWS/GMGPL.
 
 AWS/GMGPL (GNAT Modified GPL) ensures that commercial applications can
-be built using AWS. Note that AWS comes with a set of
-components. Those components are using a license compatible with the
-AWS's one. For information about component's individual licenses see
-include/readme.txt.
+be built using AWS. Note that AWS comes with a set of components. Those
+components are using a license compatible with the AWS's one. For
+information about component's individual licenses see include/readme.txt.
 
 
 Reporting bugs
