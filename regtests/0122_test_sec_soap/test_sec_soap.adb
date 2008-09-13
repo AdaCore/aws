@@ -29,9 +29,9 @@
 --  that it uses HTTPS protocol. We test that output is the same as the non
 --  secure version.
 
-with Test_SOAP_Proc;
+with S_Test_SOAP_Proc;
 
 procedure Test_Sec_SOAP is
 begin
-   Test_SOAP_Proc ("https", 8001);
+   S_Test_SOAP_Proc ("https", 8001);
 end Test_Sec_SOAP;

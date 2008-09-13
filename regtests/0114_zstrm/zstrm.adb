@@ -33,7 +33,7 @@ with Ada.Streams;
 
 with AWS.Resources.Streams.ZLib;
 
-with User_Strm;
+with Z_User_Strm;
 
 procedure ZStrm is
 
@@ -43,11 +43,11 @@ procedure ZStrm is
 
    File_Size : constant := 12_345_678;
 
-   Stream : AWS.Resources.Streams.Stream_Access := new User_Strm.File_Tagged;
+   Stream : AWS.Resources.Streams.Stream_Access := new Z_User_Strm.File_Tagged;
    Encode : AWS.Resources.Streams.Stream_Access;
    Decode : AWS.Resources.Streams.Stream_Access;
 
-   Sample : AWS.Resources.Streams.Stream_Access := new User_Strm.File_Tagged;
+   Sample : AWS.Resources.Streams.Stream_Access := new Z_User_Strm.File_Tagged;
 
    Buffer : Stream_Element_Array (1 .. 1000);
    Last   : Stream_Element_Offset;
@@ -56,7 +56,7 @@ procedure ZStrm is
    S_Last   : Stream_Element_Offset;
 
 begin
-   User_Strm.Create
+   Z_User_Strm.Create
      (Resource       => Stream.all,
       Undefined_Size => True,
       Size           => File_Size);
@@ -71,7 +71,7 @@ begin
    Resources.Streams.ZLib.Inflate_Initialize
      (Resources.Streams.ZLib.Stream_Type (Decode.all), Encode);
 
-   User_Strm.Create
+   Z_User_Strm.Create
      (Resource       => Sample.all,
       Undefined_Size => False,
       Size           => File_Size);

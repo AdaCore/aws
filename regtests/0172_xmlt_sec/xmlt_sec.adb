@@ -25,7 +25,7 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-with XMLT_Proc;
+with S_XMLT_Proc;
 
 with Get_Free_Port;
 
@@ -33,5 +33,5 @@ procedure XMLT_Sec is
    Port : Natural := 4489;
 begin
    Get_Free_Port (Port);
-   XMLT_Proc (Port, True);
+   S_XMLT_Proc (Port, True);
 end XMLT_Sec;

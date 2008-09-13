@@ -25,11 +25,13 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  Test file as attachment
+--  Test for heavy loading
 
-with S_AFile_Pack;
+package S_HLoad_Pack is
 
-procedure AFile_Sec is
-begin
-   S_AFile_Pack.Run ("https");
-end AFile_Sec;
+   procedure Run
+     (Protocol : in String;
+      Port     : in Positive;
+      Timed    : in Boolean := False);
+
+end S_HLoad_Pack;

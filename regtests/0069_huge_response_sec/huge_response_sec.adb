@@ -25,12 +25,12 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-with Huge_Response_Pack;
+with S_Huge_Response_Pack;
 with Get_Free_Port;
 
 procedure Huge_Response_Sec is
    Port : Natural := 4457;
 begin
    Get_Free_Port (Port);
-   Huge_Response_Pack.Run (Port, True);
+   S_Huge_Response_Pack.Run (Port, True);
 end Huge_Response_Sec;

@@ -28,11 +28,11 @@
 --  Server push regression test
 
 with Get_Free_Port;
-with Sp_Pck;
+with S_Sp_Pck;
 
 procedure SSp is
    Port  : Positive := 4412;
 begin
    Get_Free_Port (Port);
-   Sp_Pck.Run ("https", Port);
+   S_Sp_Pck.Run ("https", Port);
 end SSp;

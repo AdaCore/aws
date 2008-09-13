@@ -27,9 +27,9 @@
 
 --  Regression test of the secure socket timeout
 
-with SockTO_Proc;
+with S_SockTO_Proc;
 
 procedure SSockTO is
 begin
-   SockTO_Proc (True, 4402);
+   S_SockTO_Proc (True, 4402);
 end SSockTO;

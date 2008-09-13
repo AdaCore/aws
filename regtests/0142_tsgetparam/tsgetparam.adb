@@ -29,9 +29,9 @@
 --  that it uses HTTPS protocol. We test that output is the same as the non
 --  secure version.
 
-with TGetParam_Proc;
+with S_TGetParam_Proc;
 
 procedure TSGetParam is
 begin
-   TGetParam_Proc ("https");
+   S_TGetParam_Proc ("https");
 end TSGetParam;

@@ -27,9 +27,9 @@
 
 --  Test for big data pending in secure socket
 
-with Sock3_Proc;
+with S_Sock3_Proc;
 
 procedure Sock3_Sec is
 begin
-   Sock3_Proc (True, 4403);
+   S_Sock3_Proc (True, 4403);
 end Sock3_Sec;

@@ -30,5 +30,6 @@ project Regtests is
    for Languages use ("Ada", "Python", "Project file");
 
    for Source_Dirs use ("./**");
+   for Excluded_Source_Dirs use (".build/**");
 
 end Regtests;

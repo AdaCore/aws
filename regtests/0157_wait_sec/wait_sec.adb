@@ -25,9 +25,9 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-with Wait_Proc;
+with S_Wait_Proc;
 
 procedure Wait_Sec is
 begin
-   Wait_Proc (True, 4445);
+   S_Wait_Proc (True, 4445);
 end Wait_Sec;

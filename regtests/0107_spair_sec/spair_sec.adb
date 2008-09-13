@@ -25,9 +25,9 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-with SPair_Proc;
+with S_SPair_Proc;
 
 procedure SPair_Sec is
 begin
-   SPair_Proc (True);
+   S_SPair_Proc (True);
 end SPair_Sec;

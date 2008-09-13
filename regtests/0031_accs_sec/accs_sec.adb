@@ -25,9 +25,9 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-with Accs_Proc;
+with S_Accs_Proc;
 
 procedure Accs_Sec is
 begin
-   Accs_Proc (True);
+   S_Accs_Proc (True);
 end Accs_Sec;

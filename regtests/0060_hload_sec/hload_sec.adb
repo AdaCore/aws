@@ -27,9 +27,9 @@
 
 --  Test for heavy loading SSL server
 
-with HLoad_Pack;
+with S_HLoad_Pack;
 
 procedure HLoad_Sec is
 begin
-   HLoad_Pack.Run ("https", 4321);
+   S_HLoad_Pack.Run ("https", 4321);
 end HLoad_Sec;

@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2008, AdaCore                     --
+--                     Copyright (C) 2004-2008, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -25,8 +25,10 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-package Huge_Response_Pack is
+--  Test file as attachment
 
-   procedure Run (Port : Positive; Security : Boolean);
+package S_AFile_Pack is
 
-end Huge_Response_Pack;
+   procedure Run (Protocol : String);
+
+end S_AFile_Pack;

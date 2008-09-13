@@ -25,11 +25,10 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  Test file as attachment
+--  Server push regression test
 
-with S_AFile_Pack;
+package S_Sp_Pck is
 
-procedure AFile_Sec is
-begin
-   S_AFile_Pack.Run ("https");
-end AFile_Sec;
+   procedure Run (Protocol : in String; Port : in Positive);
+
+end S_Sp_Pck;

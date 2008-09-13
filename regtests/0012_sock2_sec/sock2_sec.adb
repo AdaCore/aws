@@ -27,9 +27,9 @@
 
 --  Test for big data send/receive
 
-with Sock2_Proc;
+with S_Sock2_Proc;
 
 procedure Sock2_Sec is
 begin
-   Sock2_Proc (True, 4400);
+   S_Sock2_Proc (True, 4400);
 end Sock2_Sec;

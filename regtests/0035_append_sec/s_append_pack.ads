@@ -25,11 +25,8 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  Test file as attachment
+package S_Append_Pack is
 
-with S_AFile_Pack;
+   procedure Run (Protocol : in String);
 
-procedure AFile_Sec is
-begin
-   S_AFile_Pack.Run ("https");
-end AFile_Sec;
+end S_Append_Pack;

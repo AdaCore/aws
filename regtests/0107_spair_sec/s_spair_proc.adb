@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2004-2008, AdaCore                     --
+--                     Copyright (C) 2005-2008, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -25,8 +25,60 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-package Append_Pack is
+--  Common code for plain and SSL testing Socket_Pair routine
 
-   procedure Run (Protocol : in String);
+with Ada.Streams;
+with Ada.Text_IO;
+with AWS.Net;
 
-end Append_Pack;
+procedure S_SPair_Proc (Security : in Boolean) is
+   use Ada.Streams;
+   use Ada.Text_IO;
+
+   S1, S2 : AWS.Net.Socket_Type'Class := AWS.Net.Socket (Security);
+   Sample : Stream_Element_Array (1 .. 128);
+   Buffer : Stream_Element_Array (1 .. 130);
+   Last   : Stream_Element_Offset;
+
+   procedure Test (S1, S2 : in out AWS.Net.Socket_Type'Class);
+
+   procedure Test (S1, S2 : in out AWS.Net.Socket_Type'Class) is
+   begin
+      if Security then
+         --  SSL socket need handshake during send/receive.
+         --  we need different tasks to do this.
+
+         declare
+            task Send;
+            task body Send is
+            begin
+               AWS.Net.Send (S2, Sample);
+            end Send;
+         begin
+            AWS.Net.Receive (S1, Buffer, Last);
+         end;
+
+      else
+         AWS.Net.Send (S2, Sample);
+         AWS.Net.Receive (S1, Buffer, Last);
+      end if;
+
+      if Sample = Buffer (1 .. Last) then
+         Put_Line ("OK");
+      else
+         Put_Line ("Error");
+      end if;
+   end Test;
+
+begin
+   for J in Sample'Range loop
+      Sample (J) := Stream_Element (J);
+   end loop;
+
+   AWS.Net.Socket_Pair (S1, S2);
+
+   Test (S1, S2);
+   Test (S2, S1);
+   AWS.Net.Shutdown (S1);
+   AWS.Net.Shutdown (S2);
+end S_SPair_Proc;

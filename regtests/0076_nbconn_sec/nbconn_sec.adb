@@ -27,9 +27,9 @@
 
 --  Test for SSL non blocking connection
 
-with NBConn_Proc;
+with S_NBConn_Proc;
 
 procedure NBConn_Sec is
 begin
-   NBConn_Proc (True);
+   S_NBConn_Proc (True);
 end NBConn_Sec;

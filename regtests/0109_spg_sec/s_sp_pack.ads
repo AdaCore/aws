@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2004-2008, AdaCore                     --
+--                     Copyright (C) 2006-2008, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -25,89 +25,10 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-with Ada.Strings.Unbounded;
-with Ada.Text_IO;
+--  Server push regression test
 
-with AWS.Client;
-with AWS.MIME;
-with AWS.Response.Set;
-with AWS.Server;
-with AWS.Status;
-with AWS.Utils;
+package S_Sp_Pack is
 
-with Get_Free_Port;
+   procedure Run (Protocol : in String; Port : in Positive);
 
-package body Append_Pack is
-
-   use Ada;
-   use AWS;
-
-   WS : Server.HTTP;
-
-   function CB (Request : in Status.Data) return Response.Data;
-
-   --------
-   -- CB --
-   --------
-
-   function CB (Request : in Status.Data) return Response.Data is
-      Answer : Response.Data;
-
-      procedure Append (Item : String);
-
-      ------------
-      -- Append --
-      ------------
-
-      procedure Append (Item : String) is
-      begin
-         if Item'Length > 0 then
-            Response.Set.Append_Body (Answer, Item & ASCII.LF);
-
-            Append (Item (Item'First .. Item'Last - 1));
-
-            declare
-               Inverse : String (Item'Range);
-            begin
-               for J in Item'Range loop
-                  Inverse (Item'Last - J + 1) := Item (J);
-               end loop;
-
-               Response.Set.Append_Body (Answer, Inverse & ASCII.LF);
-            end;
-         end if;
-      end Append;
-
-   begin
-      Append
-        ("1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
-         & "!""#$%&'()*+,-./:;<=>?@[\]^_`{|}~");
-
-      return Answer;
-   end CB;
-
-   procedure Run (Protocol : in String) is
-      Port : Positive := 1200;
-      R    : Response.Data;
-   begin
-      Get_Free_Port (Port);
-
-      Server.Start
-        (WS, "append message " & Protocol,
-         CB'Access,
-         Security       => Protocol = "https",
-         Port           => Port,
-         Max_Connection => 5);
-
-      Ada.Text_IO.Put_Line ("started");
-
-      R := Client.Get (Protocol & "://localhost:" & AWS.Utils.Image (Port));
-
-      Ada.Text_IO.Put (Response.Message_Body (R));
-
-      Server.Shutdown (WS);
-
-      Ada.Text_IO.Put_Line ("shutdown");
-   end Run;
-
-end Append_Pack;
+end S_Sp_Pack;

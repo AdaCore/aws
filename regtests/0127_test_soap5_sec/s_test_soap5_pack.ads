@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2008, AdaCore                     --
+--                     Copyright (C) 2004-2008, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -25,68 +25,10 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-with Ada.Strings.Unbounded;
-with Ada.Text_IO;
+--  Test file as attachment
 
-with AWS.Client;
-with AWS.MIME;
-with AWS.Response.Set;
-with AWS.Server;
-with AWS.Status;
-with AWS.Utils;
+package S_Test_SOAP5_Pack is
 
-package body Huge_Response_Pack is
+   procedure Run (Protocol : in String; Port : in Positive);
 
-   use Ada;
-   use Ada.Strings.Unbounded;
-   use AWS;
-
-   WS : Server.HTTP;
-
-   Len_Message : constant := 20_000_000;
-   Sample      : constant String  := "0123456789";
-   Message     : Unbounded_String := (Len_Message / Sample'Length) * Sample;
-
-   --------
-   -- CB --
-   --------
-
-   function CB (Request : in Status.Data) return Response.Data is
-   begin
-      return Response.Build (MIME.Text_HTML, Message);
-   end CB;
-
-   R : Response.Data;
-
-   ---------
-   -- Run --
-   ---------
-
-   procedure Run (Port : Positive; Security : Boolean) is
-   begin
-      Server.Start
-        (WS, "huge_message",
-         CB'Access,
-         Port           => Port,
-         Security       => Security,
-         Max_Connection => 1);
-
-      Ada.Text_IO.Put_Line ("started"); Ada.Text_IO.Flush;
-
-      if Security then
-         R := Client.Get ("https://localhost:" & AWS.Utils.Image (Port));
-      else
-         R := Client.Get ("http://localhost:" & AWS.Utils.Image (Port));
-      end if;
-
-      if Message = Unbounded_String'(Response.Message_Body (R)) then
-         Text_IO.Put_Line ("Ok");
-      else
-         Text_IO.Put_Line ("Nok: " & To_String (Response.Message_Body (R)));
-      end if;
-
-      Server.Shutdown (WS);
-      Ada.Text_IO.Put_Line ("shutdown");
-   end Run;
-
-end Huge_Response_Pack;
+end S_Test_SOAP5_Pack;

@@ -25,9 +25,9 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-with Test_SOAP5_Pack;
+with S_Test_SOAP5_Pack;
 
 procedure Test_SOAP5_Sec is
 begin
-   Test_SOAP5_Pack.Run ("https", 4465);
+   S_Test_SOAP5_Pack.Run ("https", 4465);
 end Test_SOAP5_Sec;

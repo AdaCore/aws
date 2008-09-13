@@ -27,7 +27,7 @@
 
 --  Test for secure socket timeouts
 
-with STO_Proc;
+with S_STO_Proc;
 
 with Get_Free_Port;
 
@@ -35,5 +35,5 @@ procedure SSTO is
    Port : Natural := 4401;
 begin
    Get_Free_Port (Port);
-   STO_Proc (True, Port);
+   S_STO_Proc (True, Port);
 end SSTO;

@@ -25,9 +25,9 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-with Append_Pack;
+with S_Append_Pack;
 
 procedure Append_Sec is
 begin
-   Append_Pack.Run ("https");
+   S_Append_Pack.Run ("https");
 end Append_Sec;

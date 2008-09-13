@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2004-2008, AdaCore                     --
+--                     Copyright (C) 2000-2008, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -25,11 +25,49 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  Test file as attachment
+--  Test for user defined streams
 
-with S_AFile_Pack;
+with Ada.Streams;
 
-procedure AFile_Sec is
-begin
-   S_AFile_Pack.Run ("https");
-end AFile_Sec;
+with AWS.Resources.Streams;
+
+package Z_User_Strm is
+
+   use AWS.Resources;
+   use Ada.Streams;
+
+   type File_Tagged is new Streams.Stream_Type with private;
+
+   function End_Of_File
+     (Resource : in File_Tagged)
+      return Boolean;
+
+   procedure Read
+     (Resource : in out File_Tagged;
+      Buffer   :    out Stream_Element_Array;
+      Last     :    out Stream_Element_Offset);
+
+   function Size (File : in File_Tagged) return Stream_Element_Offset;
+
+   procedure Close (File : in out File_Tagged);
+
+   procedure Reset (File : in out File_Tagged);
+
+   procedure Set_Index
+     (File     : in out File_Tagged;
+      Position : in     Stream_Element_Offset);
+
+   procedure Create
+     (Resource       : in out AWS.Resources.Streams.Stream_Type'Class;
+      Size           : in     Stream_Element_Offset;
+      Undefined_Size : in     Boolean);
+
+private
+
+   type File_Tagged is new Streams.Stream_Type with record
+      Offset         : Stream_Element_Offset;
+      Size           : Stream_Element_Offset;
+      Undefined_Size : Boolean;
+   end record;
+
+end Z_User_Strm;

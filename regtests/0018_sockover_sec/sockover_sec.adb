@@ -27,9 +27,9 @@
 
 --  Regression test for output buffer overflow
 
-with SockOver_Proc;
+with S_SockOver_Proc;
 
 procedure SockOver_Sec is
 begin
-   SockOver_Proc (True);
+   S_SockOver_Proc (True);
 end SockOver_Sec;

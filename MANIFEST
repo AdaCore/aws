@@ -309,7 +309,7 @@ regtests/0011_sock2/sock2_proc.adb
 regtests/0011_sock2/test.out
 regtests/0011_sock2/test.py
 regtests/0012_sock2_sec/cert.pem
-regtests/0012_sock2_sec/sock2_proc.adb
+regtests/0012_sock2_sec/s_sock2_proc.adb
 regtests/0012_sock2_sec/sock2_sec.adb
 regtests/0012_sock2_sec/sock2_sec.gpr
 regtests/0012_sock2_sec/test.opt
@@ -321,7 +321,7 @@ regtests/0013_sock3/sock3_proc.adb
 regtests/0013_sock3/test.out
 regtests/0013_sock3/test.py
 regtests/0014_sock3_sec/cert.pem
-regtests/0014_sock3_sec/sock3_proc.adb
+regtests/0014_sock3_sec/s_sock3_proc.adb
 regtests/0014_sock3_sec/sock3_sec.adb
 regtests/0014_sock3_sec/sock3_sec.gpr
 regtests/0014_sock3_sec/test.opt
@@ -333,7 +333,7 @@ regtests/0015_sockext/sockext_proc.adb
 regtests/0015_sockext/test.out
 regtests/0015_sockext/test.py
 regtests/0016_sockext_sec/cert.pem
-regtests/0016_sockext_sec/sockext_proc.adb
+regtests/0016_sockext_sec/s_sockext_proc.adb
 regtests/0016_sockext_sec/sockext_sec.adb
 regtests/0016_sockext_sec/sockext_sec.gpr
 regtests/0016_sockext_sec/test.opt
@@ -345,7 +345,7 @@ regtests/0017_sockover/sockover_proc.adb
 regtests/0017_sockover/test.out
 regtests/0017_sockover/test.py
 regtests/0018_sockover_sec/cert.pem
-regtests/0018_sockover_sec/sockover_proc.adb
+regtests/0018_sockover_sec/s_sockover_proc.adb
 regtests/0018_sockover_sec/sockover_sec.adb
 regtests/0018_sockover_sec/sockover_sec.gpr
 regtests/0018_sockover_sec/test.opt
@@ -357,7 +357,7 @@ regtests/0019_sockto/sockto_proc.adb
 regtests/0019_sockto/test.out
 regtests/0019_sockto/test.py
 regtests/0020_ssockto/cert.pem
-regtests/0020_ssockto/sockto_proc.adb
+regtests/0020_ssockto/s_sockto_proc.adb
 regtests/0020_ssockto/ssockto.adb
 regtests/0020_ssockto/ssockto.gpr
 regtests/0020_ssockto/test.opt
@@ -397,7 +397,7 @@ regtests/0027_sto/test.py
 regtests/0028_ssto/cert.pem
 regtests/0028_ssto/ssto.adb
 regtests/0028_ssto/ssto.gpr
-regtests/0028_ssto/sto_proc.adb
+regtests/0028_ssto/s_sto_proc.adb
 regtests/0028_ssto/test.opt
 regtests/0028_ssto/test.out
 regtests/0028_ssto/test.py
@@ -410,7 +410,7 @@ regtests/0030_accs/accs.gpr
 regtests/0030_accs/accs_proc.adb
 regtests/0030_accs/test.out
 regtests/0030_accs/test.py
-regtests/0031_accs_sec/accs_proc.adb
+regtests/0031_accs_sec/s_accs_proc.adb
 regtests/0031_accs_sec/accs_sec.adb
 regtests/0031_accs_sec/accs_sec.gpr
 regtests/0031_accs_sec/cert.pem
@@ -422,8 +422,8 @@ regtests/0032_afile/afile_pack.adb
 regtests/0032_afile/afile_pack.ads
 regtests/0032_afile/test.out
 regtests/0032_afile/test.py
-regtests/0033_afile_sec/afile_pack.adb
-regtests/0033_afile_sec/afile_pack.ads
+regtests/0033_afile_sec/s_afile_pack.adb
+regtests/0033_afile_sec/s_afile_pack.ads
 regtests/0033_afile_sec/afile_sec.adb
 regtests/0033_afile_sec/afile_sec.gpr
 regtests/0033_afile_sec/cert.pem
@@ -436,8 +436,8 @@ regtests/0034_append/append_pack.adb
 regtests/0034_append/append_pack.ads
 regtests/0034_append/test.out
 regtests/0034_append/test.py
-regtests/0035_append_sec/append_pack.adb
-regtests/0035_append_sec/append_pack.ads
+regtests/0035_append_sec/s_append_pack.adb
+regtests/0035_append_sec/s_append_pack.ads
 regtests/0035_append_sec/append_sec.adb
 regtests/0035_append_sec/append_sec.gpr
 regtests/0035_append_sec/cert.pem
@@ -507,7 +507,7 @@ regtests/0046_disp_soap/test.opt
 regtests/0046_disp_soap/test.out
 regtests/0046_disp_soap/test.py
 regtests/0047_disp_soap_sec/cert.pem
-regtests/0047_disp_soap_sec/disp_soap_proc.adb
+regtests/0047_disp_soap_sec/s_disp_soap_proc.adb
 regtests/0047_disp_soap_sec/disp_soap_sec.adb
 regtests/0047_disp_soap_sec/disp_soap_sec.gpr
 regtests/0047_disp_soap_sec/test.opt
@@ -574,8 +574,8 @@ regtests/0059_hload/hload_pack.ads
 regtests/0059_hload/test.out
 regtests/0059_hload/test.py
 regtests/0060_hload_sec/cert.pem
-regtests/0060_hload_sec/hload_pack.adb
-regtests/0060_hload_sec/hload_pack.ads
+regtests/0060_hload_sec/s_hload_pack.adb
+regtests/0060_hload_sec/s_hload_pack.ads
 regtests/0060_hload_sec/hload_sec.adb
 regtests/0060_hload_sec/hload_sec.gpr
 regtests/0060_hload_sec/test.opt
@@ -619,8 +619,8 @@ regtests/0068_huge_response/huge_response_pack.ads
 regtests/0068_huge_response/test.out
 regtests/0068_huge_response/test.py
 regtests/0069_huge_response_sec/cert.pem
-regtests/0069_huge_response_sec/huge_response_pack.adb
-regtests/0069_huge_response_sec/huge_response_pack.ads
+regtests/0069_huge_response_sec/s_huge_response_pack.adb
+regtests/0069_huge_response_sec/s_huge_response_pack.ads
 regtests/0069_huge_response_sec/huge_response_sec.adb
 regtests/0069_huge_response_sec/huge_response_sec.gpr
 regtests/0069_huge_response_sec/test.opt
@@ -657,7 +657,7 @@ regtests/0075_nbconn/nbconn_proc.adb
 regtests/0075_nbconn/test.out
 regtests/0075_nbconn/test.py
 regtests/0076_nbconn_sec/cert.pem
-regtests/0076_nbconn_sec/nbconn_proc.adb
+regtests/0076_nbconn_sec/s_nbconn_proc.adb
 regtests/0076_nbconn_sec/nbconn_sec.adb
 regtests/0076_nbconn_sec/nbconn_sec.gpr
 regtests/0076_nbconn_sec/test.opt
@@ -691,8 +691,8 @@ regtests/0082_sback/sback.adb
 regtests/0082_sback/sback.gpr
 regtests/0082_sback/test.out
 regtests/0082_sback/test.py
-regtests/0083_ssback/back_pack.adb
-regtests/0083_ssback/back_pack.ads
+regtests/0083_ssback/s_back_pack.adb
+regtests/0083_ssback/s_back_pack.ads
 regtests/0083_ssback/cert.pem
 regtests/0083_ssback/ssback.adb
 regtests/0083_ssback/ssback.gpr
@@ -803,8 +803,8 @@ regtests/0104_sp/sp_pck.ads
 regtests/0104_sp/test.out
 regtests/0104_sp/test.py
 regtests/0105_ssp/cert.pem
-regtests/0105_ssp/sp_pck.adb
-regtests/0105_ssp/sp_pck.ads
+regtests/0105_ssp/s_sp_pck.adb
+regtests/0105_ssp/s_sp_pck.ads
 regtests/0105_ssp/ssp.adb
 regtests/0105_ssp/ssp.gpr
 regtests/0105_ssp/test.opt
@@ -829,8 +829,8 @@ regtests/0108_spg/spg.gpr
 regtests/0108_spg/test.out
 regtests/0108_spg/test.py
 regtests/0109_spg_sec/cert.pem
-regtests/0109_spg_sec/sp_pack.adb
-regtests/0109_spg_sec/sp_pack.ads
+regtests/0109_spg_sec/s_sp_pack.adb
+regtests/0109_spg_sec/s_sp_pack.ads
 regtests/0109_spg_sec/spg_sec.adb
 regtests/0109_spg_sec/spg_sec.gpr
 regtests/0109_spg_sec/test.opt
@@ -859,8 +859,8 @@ regtests/0113_strm/user_strm.adb
 regtests/0113_strm/user_strm.ads
 regtests/0114_zstrm/test.out
 regtests/0114_zstrm/test.py
-regtests/0114_zstrm/user_strm.adb
-regtests/0114_zstrm/user_strm.ads
+regtests/0114_zstrm/z_user_strm.adb
+regtests/0114_zstrm/z_user_strm.ads
 regtests/0114_zstrm/zstrm.adb
 regtests/0114_zstrm/zstrm.gpr
 regtests/0115_tclientto/tclientto.adb
@@ -904,7 +904,7 @@ regtests/0122_test_sec_soap/test.out
 regtests/0122_test_sec_soap/test.py
 regtests/0122_test_sec_soap/test_sec_soap.adb
 regtests/0122_test_sec_soap/test_sec_soap.gpr
-regtests/0122_test_sec_soap/test_soap_proc.adb
+regtests/0122_test_sec_soap/s_test_soap_proc.adb
 regtests/0123_test_soap2/test.opt
 regtests/0123_test_soap2/test.out
 regtests/0123_test_soap2/test.py
@@ -931,8 +931,8 @@ regtests/0127_test_soap5_sec/cert.pem
 regtests/0127_test_soap5_sec/test.opt
 regtests/0127_test_soap5_sec/test.out
 regtests/0127_test_soap5_sec/test.py
-regtests/0127_test_soap5_sec/test_soap5_pack.adb
-regtests/0127_test_soap5_sec/test_soap5_pack.ads
+regtests/0127_test_soap5_sec/s_test_soap5_pack.adb
+regtests/0127_test_soap5_sec/s_test_soap5_pack.ads
 regtests/0127_test_soap5_sec/test_soap5_sec.adb
 regtests/0127_test_soap5_sec/test_soap5_sec.gpr
 regtests/0128_test_soap_hotplug/soap_hotplug_cb.adb
@@ -1029,7 +1029,7 @@ regtests/0142_tsgetparam/cert.pem
 regtests/0142_tsgetparam/test.opt
 regtests/0142_tsgetparam/test.out
 regtests/0142_tsgetparam/test.py
-regtests/0142_tsgetparam/tgetparam_proc.adb
+regtests/0142_tsgetparam/s_tgetparam_proc.adb
 regtests/0142_tsgetparam/tsgetparam.adb
 regtests/0142_tsgetparam/tsgetparam.gpr
 regtests/0143_timer/test.out
@@ -1097,7 +1097,7 @@ regtests/0157_wait_sec/cert.pem
 regtests/0157_wait_sec/test.opt
 regtests/0157_wait_sec/test.out
 regtests/0157_wait_sec/test.py
-regtests/0157_wait_sec/wait_proc.adb
+regtests/0157_wait_sec/s_wait_proc.adb
 regtests/0157_wait_sec/wait_sec.adb
 regtests/0157_wait_sec/wait_sec.gpr
 regtests/0158_wait2/test.out
@@ -1112,8 +1112,8 @@ regtests/0159_wait2_sec/test.out
 regtests/0159_wait2_sec/test.py
 regtests/0159_wait2_sec/wait2_sec.adb
 regtests/0159_wait2_sec/wait2_sec.gpr
-regtests/0159_wait2_sec/wait_pack.adb
-regtests/0159_wait2_sec/wait_pack.ads
+regtests/0159_wait2_sec/s_wait_pack.adb
+regtests/0159_wait2_sec/s_wait_pack.ads
 regtests/0160_wb_test/test.out
 regtests/0160_wb_test/test.py
 regtests/0160_wb_test/wb_test.adb
@@ -1214,7 +1214,7 @@ regtests/0172_xmlt_sec/cert.pem
 regtests/0172_xmlt_sec/test.opt
 regtests/0172_xmlt_sec/test.out
 regtests/0172_xmlt_sec/test.py
-regtests/0172_xmlt_sec/xmlt_proc.adb
+regtests/0172_xmlt_sec/s_xmlt_proc.adb
 regtests/0172_xmlt_sec/xmlt_sec.adb
 regtests/0172_xmlt_sec/xmlt_sec.gpr
 regtests/0173_zapp/test.out

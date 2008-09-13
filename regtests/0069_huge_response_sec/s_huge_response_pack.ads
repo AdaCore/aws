@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2004-2008, AdaCore                     --
+--                     Copyright (C) 2003-2008, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -25,11 +25,8 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  Test file as attachment
+package S_Huge_Response_Pack is
 
-with S_AFile_Pack;
+   procedure Run (Port : in Positive; Security : in Boolean);
 
-procedure AFile_Sec is
-begin
-   S_AFile_Pack.Run ("https");
-end AFile_Sec;
+end S_Huge_Response_Pack;

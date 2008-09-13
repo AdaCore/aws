@@ -28,11 +28,11 @@
 --  Server push regression test
 
 with Get_Free_Port;
-with Sp_Pack;
+with S_Sp_Pack;
 
 procedure Spg_Sec is
    Port : Natural := 4409;
 begin
    Get_Free_Port (Port);
-   Sp_Pack.Run ("https", Port);
+   S_Sp_Pack.Run ("https", Port);
 end Spg_Sec;
