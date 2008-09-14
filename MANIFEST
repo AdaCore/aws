@@ -173,6 +173,7 @@ gps/gen_gps_ref.adb
 gps/gps_support.gpr
 gps/makefile
 gps/wsdl2aws.xml
+include/filenames.check
 include/include.gpr
 include/makefile
 include/memory_streams.adb
