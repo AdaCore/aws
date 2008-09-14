@@ -219,11 +219,13 @@ procedure Check_Mem is
          end;
 
       elsif URI = "/stream" then
-         Strm :=  new Resources.Streams.Disk.Stream_Type;
+         Strm := new Resources.Streams.Disk.Stream_Type;
+
          Resources.Streams.Disk.Open
            (Resources.Streams.Disk.Stream_Type (Strm.all), "check_mem.adb");
-         return Response.Stream (MIME.Application_Octet_Stream, Strm);
 
+         return Response.Stream
+                  (MIME.Text_Plain, Strm, Encoding => Messages.GZip);
       else
          Check ("Unknown URI " & URI);
          return Response.Build
