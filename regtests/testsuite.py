@@ -127,8 +127,17 @@ def set_config():
             # Get all test.py
             self.tests = sorted(glob('*/test.py'), reverse=True)
         else:
-            self.tests = [os.path.join(t, "test.py")
-                          for t in options.tests.split()]
+            # tests parameter can be a file containing a list of tests
+            if os.path.isfile(options.tests):
+                list_file = open(options.tests, 'r')
+                self.tests = []
+                for line in list_file:
+                    test_name = line.rstrip().split(':')[0]
+                    self.tests.append(os.path.join(test_name, 'test.py'))
+            else:
+                # or a space separated string
+                self.tests = [os.path.join(t, "test.py")
+                              for t in options.tests.split()]
 
         self.python_support = PYTHON_SUPPORT
         self.log_dir        = os.path.join(CURDIR, OUTPUTS_DIR)
@@ -403,7 +412,9 @@ def main():
     logging.basicConfig(level=logging.DEBUG,
                         filename='%s/testsuite.log' % OUTPUTS_DIR, mode='w')
     main = Main(formatter=ConsoleColorFormatter('%(message)s'))
-    main.add_option("--tests", dest="tests", help="list of tests to run")
+    main.add_option("--tests", dest="tests",
+                    help="list of tests to run, a space separated string or " \
+                        "a filename.")
     main.add_option("--view-diffs", dest="view_diffs", action="store_true",
                     default=False, help="show diffs on stdout")
     main.add_option("--jobs", dest="jobs", type="int", default=5,
