@@ -139,6 +139,9 @@ def set_config():
                 self.tests = [os.path.join(t, "test.py")
                               for t in options.tests.split()]
 
+        if options.with_Z999:
+            self.tests.insert(0, os.path.join("Z999_xfail", "always_fail.py"))
+
         self.python_support = PYTHON_SUPPORT
         self.log_dir        = os.path.join(CURDIR, OUTPUTS_DIR)
         self.profiles_dir   = os.path.join(self.log_dir, 'profiles')
@@ -314,7 +317,7 @@ class Runner(object):
 
                 if not dead:
                     linktree(test_dir, os.path.join(BUILDS_DIR, test_dir))
-                    test = os.path.join(BUILDS_DIR, test_dir, "test.py")
+                    test = os.path.join(BUILDS_DIR, test)
                     if opt is not None:
                         env = set_environment(opt.get_value("limit"))
                     process = Run(["python", test], bg=True, env=env,
@@ -415,6 +418,9 @@ def main():
     main.add_option("--tests", dest="tests",
                     help="list of tests to run, a space separated string or " \
                         "a filename.")
+    main.add_option("--with-Z999", dest="with_Z999",
+                    action="store_true", default=False,
+                    help="Add a test that always fail")
     main.add_option("--view-diffs", dest="view_diffs", action="store_true",
                     default=False, help="show diffs on stdout")
     main.add_option("--jobs", dest="jobs", type="int", default=5,
