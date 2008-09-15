@@ -160,6 +160,11 @@ def save_test_diff(left, right):
         right_file.close()
     else:
         # Output with diff
+        diff_file.write('---------------- expected output\n')
+        left_file = open(left, 'r')
+        diff_file.write(left_file.read())
+        left_file.close()
+
         # Limit the actual output to 2000 lines
         if os.path.exists(right):
             diff_file.write('---------------- actual output\n')
@@ -172,10 +177,6 @@ def save_test_diff(left, right):
                 diff_file.write(line)
             right_file.close()
 
-        diff_file.write('---------------- expected output\n')
-        left_file = open(left, 'r')
-        diff_file.write(left_file.read())
-        left_file.close()
     diff_file.close()
 
 def build_diff(prj):
