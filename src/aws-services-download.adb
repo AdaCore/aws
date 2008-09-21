@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2005-2007                          --
---                                 AdaCore                                  --
+--                     Copyright (C) 2005-2008, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -157,7 +156,7 @@ package body AWS.Services.Download is
 
    DM_Handler : Dispatchers.URI.Handler;
 
-   function CB (Request : Status.Data) return Response.Data;
+   function CB (Request : in Status.Data) return Response.Data;
    --  Download manager callback handler
 
    -----------
@@ -195,7 +194,7 @@ package body AWS.Services.Download is
    -- CB --
    --------
 
-   function CB (Request : Status.Data) return Response.Data is
+   function CB (Request : in Status.Data) return Response.Data is
       P_List : constant Parameters.List := Status.Parameters (Request);
       URI    : constant String := Parameters.Get (P_List, "RES_URI");
       Info   : Download_Information;

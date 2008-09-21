@@ -1,7 +1,7 @@
 ----------------------------------------------------------------
 --  ZLib for Ada thick binding.                               --
 --                                                            --
---  Copyright (C) 2002-2003 Dmitriy Anisimkov                 --
+--  Copyright (C) 2002-2008, Dmitriy Anisimkov                --
 --                                                            --
 --  Open source license information is in the zlib.ads file.  --
 ----------------------------------------------------------------
@@ -35,13 +35,12 @@ package body ZLib.Thin is
    ------------------
 
    function Deflate_Init
-     (strm       : Z_Streamp;
-      level      : Int;
-      method     : Int;
-      windowBits : Int;
-      memLevel   : Int;
-      strategy   : Int)
-      return       Int is
+     (strm       : in Z_Streamp;
+      level      : in Int;
+      method     : in Int;
+      windowBits : in Int;
+      memLevel   : in Int;
+      strategy   : in Int) return Int is
    begin
       return deflateInit2
                (strm,
@@ -58,7 +57,8 @@ package body ZLib.Thin is
    -- Inflate_Init --
    ------------------
 
-   function Inflate_Init (strm : Z_Streamp; windowBits : Int) return Int is
+   function Inflate_Init
+     (strm : in Z_Streamp; windowBits : in Int) return Int is
    begin
       return inflateInit2 (strm, windowBits, ZLIB_VERSION, Z_Stream_Size);
    end Inflate_Init;

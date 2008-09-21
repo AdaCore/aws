@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2007                          --
---                                 AdaCore                                  --
+--                     Copyright (C) 2000-2008, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -160,7 +159,7 @@ package body AWS.Translator is
    -- Base64_Encode --
    -------------------
 
-   function Base64_Encode (Data : Stream_Element_Array) return String is
+   function Base64_Encode (Data : in Stream_Element_Array) return String is
 
       function Shift_Left
         (Value  : in Stream_Element;

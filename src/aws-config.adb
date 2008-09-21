@@ -55,7 +55,7 @@ package body AWS.Config is
    -- Admin_URI --
    ---------------
 
-   function Admin_URI (O : Object) return String is
+   function Admin_URI (O : in Object) return String is
    begin
       return To_String (O.P (Admin_URI).Str_Value);
    end Admin_URI;
@@ -64,7 +64,7 @@ package body AWS.Config is
    -- Case_Sensitive_Parameters --
    -------------------------------
 
-   function Case_Sensitive_Parameters (O : Object) return Boolean is
+   function Case_Sensitive_Parameters (O : in Object) return Boolean is
    begin
       return O.P (Case_Sensitive_Parameters).Bool_Value;
    end Case_Sensitive_Parameters;

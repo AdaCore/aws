@@ -218,13 +218,13 @@ package AWS.Utils is
 
    protected type Counter (Initial_Value : Natural) is
 
-      procedure Increment (Amount : Natural := 1);
+      procedure Increment (Amount : in Natural := 1);
       --  Adds one to the counter
 
-      procedure Decrement (Amount : Natural := 1);
+      procedure Decrement (Amount : in Natural := 1);
       --  Removes one to the counter
 
-      procedure Decrement (Amount : Natural := 1; Value : out Natural);
+      procedure Decrement (Amount : in Natural := 1; Value : out Natural);
       --  Removes one to the counter and return the current value
 
       function Value return Natural;

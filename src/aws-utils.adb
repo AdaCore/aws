@@ -45,7 +45,7 @@ package body AWS.Utils is
 
    package Integer_Random is new Numerics.Discrete_Random (Random_Integer);
 
-   function Local_To_GMT (DT : Calendar.Time) return Calendar.Time;
+   function Local_To_GMT (DT : in Calendar.Time) return Calendar.Time;
    pragma Inline (Local_To_GMT);
 
    procedure Compress_Decompress
@@ -155,12 +155,12 @@ package body AWS.Utils is
       -- Decrement --
       ---------------
 
-      procedure Decrement (Amount : Natural := 1) is
+      procedure Decrement (Amount : in Natural := 1) is
       begin
          C := C - Amount;
       end Decrement;
 
-      procedure Decrement (Amount : Natural := 1; Value : out Natural) is
+      procedure Decrement (Amount : in Natural := 1; Value : out Natural) is
       begin
          C := C - Amount;
          Value := C;
@@ -170,7 +170,7 @@ package body AWS.Utils is
       -- Increment --
       ---------------
 
-      procedure Increment (Amount : Natural := 1) is
+      procedure Increment (Amount : in Natural := 1) is
       begin
          C := C + Amount;
       end Increment;

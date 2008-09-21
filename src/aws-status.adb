@@ -358,7 +358,7 @@ package body AWS.Status is
      (D        : in Data;
       Encoding : in Messages.Content_Encoding) return Boolean
    is
-      function To_Lower (Item : String) return String
+      function To_Lower (Item : in String) return String
          renames Ada.Characters.Handling.To_Lower;
 
       Encoding_Image : constant String

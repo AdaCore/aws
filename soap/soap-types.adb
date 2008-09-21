@@ -757,7 +757,7 @@ package body SOAP.Types is
          -- I2D --
          ---------
 
-         function I2D (N : Natural) return Str2 is
+         function I2D (N : in Natural) return Str2 is
             V : constant String := Natural'Image (N);
          begin
             if N > 9 then

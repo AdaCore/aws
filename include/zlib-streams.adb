@@ -1,7 +1,7 @@
 ----------------------------------------------------------------
 --  ZLib for Ada thick binding.                               --
 --                                                            --
---  Copyright (C) 2002-2003 Dmitriy Anisimkov                 --
+--  Copyright (C) 2002-2008, Dmitriy Anisimkov                --
 --                                                            --
 --  Open source license information is in the zlib.ads file.  --
 ----------------------------------------------------------------
@@ -19,7 +19,7 @@ package body ZLib.Streams is
          (Stream_Element_Array, Buffer_Access);
    begin
       if Stream.Mode = Out_Stream or Stream.Mode = Duplex then
-         --  We should flush the data written by the writer.
+         --  We should flush the data written by the writer
 
          Flush (Stream, Finish);
 
@@ -116,7 +116,7 @@ package body ZLib.Streams is
    -- Is_Open --
    -------------
 
-   function Is_Open (Stream : Stream_Type) return Boolean is
+   function Is_Open (Stream : in Stream_Type) return Boolean is
    begin
       return Is_Open (Stream.Reader) or else Is_Open (Stream.Writer);
    end Is_Open;

@@ -1,7 +1,7 @@
 ----------------------------------------------------------------
 --  ZLib for Ada thick binding.                               --
 --                                                            --
---  Copyright (C) 2002-2003 Dmitriy Anisimkov                 --
+--  Copyright (C) 2002-2008, Dmitriy Anisimkov                --
 --                                                            --
 --  Open source license information is in the zlib.ads file.  --
 ----------------------------------------------------------------
@@ -34,19 +34,19 @@ package ZLib.Streams is
 
    function Read_Total_In (Stream : in Stream_Type) return Count;
    pragma Inline (Read_Total_In);
-   --  Return total number of bytes read from back stream so far.
+   --  Return total number of bytes read from back stream so far
 
    function Read_Total_Out (Stream : in Stream_Type) return Count;
    pragma Inline (Read_Total_Out);
-   --  Return total number of bytes read so far.
+   --  Return total number of bytes read so far
 
    function Write_Total_In (Stream : in Stream_Type) return Count;
    pragma Inline (Write_Total_In);
-   --  Return total number of bytes written so far.
+   --  Return total number of bytes written so far
 
    function Write_Total_Out (Stream : in Stream_Type) return Count;
    pragma Inline (Write_Total_Out);
-   --  Return total number of bytes written to the back stream.
+   --  Return total number of bytes written to the back stream
 
    procedure Create
      (Stream            :    out Stream_Type;
@@ -75,7 +75,7 @@ package ZLib.Streams is
    --  !!! When the Need_Header is False ZLib-Ada is using undocumented
    --  ZLib 1.1.4 functionality to do not create/wait for ZLib headers.
 
-   function Is_Open (Stream : Stream_Type) return Boolean;
+   function Is_Open (Stream : in Stream_Type) return Boolean;
 
    procedure Close (Stream : in out Stream_Type);
 

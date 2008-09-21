@@ -2,8 +2,7 @@
 --                            Secure Sockets Layer                          --
 --                         Binding to OpenSSL library                       --
 --                                                                          --
---                         Copyright (C) 2000-2006                          --
---                                 AdaCore                                  --
+--                     Copyright (C) 2000-2008, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -78,7 +77,7 @@ package SSL.Thin is
       References   : int;
       Num_Read     : unsigned_long;
       Num_Write    : unsigned_long;
-      --  CRYPTO_EX_DATA ex_data; -- Do not need to translete it.
+      --  CRYPTO_EX_DATA ex_data; -- Do not need to translete it
    end record;
 
    subtype SSL_Method is Pointer;
@@ -265,13 +264,15 @@ package SSL.Thin is
 
    function  CRYPTO_num_locks return Natural;
 
-   procedure CRYPTO_set_id_callback (Id_Function : Pointer);
-   procedure CRYPTO_set_locking_callback (Locking_Function : Pointer);
+   procedure CRYPTO_set_id_callback (Id_Function : in Pointer);
+   procedure CRYPTO_set_locking_callback (Locking_Function : in Pointer);
    function  CRYPTO_get_locking_callback return Pointer;
 
-   procedure CRYPTO_set_dynlock_create_callback  (Create_Function : Pointer);
-   procedure CRYPTO_set_dynlock_lock_callback    (Lock_Function : Pointer);
-   procedure CRYPTO_set_dynlock_destroy_callback (Destroy_Function : Pointer);
+   procedure CRYPTO_set_dynlock_create_callback
+     (Create_Function : in Pointer);
+   procedure CRYPTO_set_dynlock_lock_callback    (Lock_Function : in Pointer);
+   procedure CRYPTO_set_dynlock_destroy_callback
+     (Destroy_Function : in Pointer);
 
    function CRYPTO_get_dynlock_create_callback  return Pointer;
    function CRYPTO_get_dynlock_lock_callback    return Pointer;
@@ -346,7 +347,7 @@ package SSL.Thin is
 
    function SSL_set_fd (S : in SSL_Handle; Fd : in int) return int;
 
-   procedure SSL_set_bio (SSL : in SSL_Handle; RBIO, WBIO : BIO_Access);
+   procedure SSL_set_bio (SSL : in SSL_Handle; RBIO, WBIO : in BIO_Access);
 
    function SSL_get_rbio (SSL : in SSL_Handle) return BIO_Access;
    function SSL_get_wbio (SSL : in SSL_Handle) return BIO_Access;
@@ -485,12 +486,12 @@ package SSL.Thin is
    --  BIO_set_fd(b,fd,c) BIO_int_ctrl(b,BIO_C_SET_FD,c,fd)
 
    function BIO_ctrl
-     (Bp : in BIO_Access; Cmd : in int; Larg : in long; Parg : Pointer)
+     (Bp : in BIO_Access; Cmd : in int; Larg : in long; Parg : in Pointer)
       return long;
    --  BIO_pending(b) = (int)BIO_ctrl(b,BIO_CTRL_PENDING,0,NULL)
 
    procedure BIO_ctrl
-     (Bp : in BIO_Access; Cmd : in int; Larg : in long; Parg : Pointer);
+     (Bp : in BIO_Access; Cmd : in int; Larg : in long; Parg : in Pointer);
    --  BIO_get_fd(b,c) = BIO_ctrl(b,BIO_C_GET_FD,0,(char *)c)
    --  BIO_set_mem_eof_return(b,v)
    --  = BIO_ctrl(b,BIO_C_SET_BUF_MEM_EOF_RETURN,v,NULL)
@@ -505,15 +506,15 @@ package SSL.Thin is
      (bio1 : access BIO_Access; writebuf1 : in size_t;
       bio2 : access BIO_Access; writebuf2 : in size_t) return int;
 
-   function BIO_nread0 (BIO : BIO_Access; Buf : Pointer) return int;
+   function BIO_nread0 (BIO : in BIO_Access; Buf : in Pointer) return int;
    function BIO_nread
-     (BIO : BIO_Access; Buf : Pointer; Num : in int) return int;
-   --  Buf is the address of the buffer address.
+     (BIO : in BIO_Access; Buf : in Pointer; Num : in int) return int;
+   --  Buf is the address of the buffer address
 
-   function BIO_nwrite0 (BIO : BIO_Access; Buf : Pointer) return int;
+   function BIO_nwrite0 (BIO : in BIO_Access; Buf : in Pointer) return int;
    function BIO_nwrite
-     (BIO : BIO_Access; Buf : Pointer; Num : in int) return int;
-   --  Buf is the address of the buffer address.
+     (BIO : in BIO_Access; Buf : in Pointer; Num : in int) return int;
+   --  Buf is the address of the buffer address
 
    function BIO_free (BIO : in BIO_Access) return int;
    procedure BIO_free (BIO : in BIO_Access);

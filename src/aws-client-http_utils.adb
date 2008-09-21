@@ -1009,13 +1009,13 @@ package body AWS.Client.HTTP_Utils is
            := Ada.Characters.Handling.To_Lower
                 (Header (Answer, Messages.Content_Encoding_Token));
 
-         procedure Decode_Init (Header : ZLib.Header_Type);
+         procedure Decode_Init (Header : in ZLib.Header_Type);
 
          -----------------
          -- Decode_Init --
          -----------------
 
-         procedure Decode_Init (Header : ZLib.Header_Type) is
+         procedure Decode_Init (Header : in ZLib.Header_Type) is
             use type Utils.Stream_Element_Array_Access;
          begin
             ZLib.Inflate_Init (Connection.Decode_Filter, Header => Header);

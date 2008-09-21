@@ -106,10 +106,10 @@ package body SOAP.Generator is
    --  Children - a pragma for each child unit
 
    procedure With_Unit
-     (File       : Text_IO.File_Type;
-      Name       : String;
-      Elab       : Elab_Pragma := Single;
-      Use_Clause : Boolean := False);
+     (File       : in Text_IO.File_Type;
+      Name       : in String;
+      Elab       : in Elab_Pragma := Single;
+      Use_Clause : in Boolean := False);
    --  Output a with clause for unit Name, also output a use clause if
    --  Use_Clause is set. A pragma Elaborate_All is issued for this unit if
    --  Elab is set.
@@ -2722,10 +2722,10 @@ package body SOAP.Generator is
    ---------------
 
    procedure With_Unit
-     (File       : Text_IO.File_Type;
-      Name       : String;
-      Elab       : Elab_Pragma := Single;
-      Use_Clause : Boolean := False) is
+     (File       : in Text_IO.File_Type;
+      Name       : in String;
+      Elab       : in Elab_Pragma := Single;
+      Use_Clause : in Boolean := False) is
    begin
       Text_IO.Put_Line (File, "with " & Name & ';');
 

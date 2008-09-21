@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2002-2006                          --
---                                 AdaCore                                  --
+--                     Copyright (C) 2002-2008, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -125,13 +124,13 @@ package body AWS.Resources.Files is
 
       Stream : AWS.Resources.Streams.Stream_Access;
 
-      procedure Open_File (Name : String; Last : Boolean);
+      procedure Open_File (Name : in String; Last : in Boolean);
 
       ---------------
       -- Open_File --
       ---------------
 
-      procedure Open_File (Name : String; Last : Boolean) is
+      procedure Open_File (Name : in String; Last : in Boolean) is
          procedure Free is
            new Ada.Unchecked_Deallocation
              (Streams.Stream_Type'Class, Streams.Stream_Access);

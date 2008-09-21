@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2004-2006                          --
---                                ACT-Europe                                --
+--                     Copyright (C) 2004-2008, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -45,7 +44,7 @@ package body AWS.Net.Log is
 
    procedure Error (Socket : in Socket_Type'Class; Message : in String) is
    begin
-      --  Draft check for State.Error before enter critical section.
+      --  Draft check for State.Error before enter critical section
 
       if State.Error = null then
          return;
@@ -53,7 +52,7 @@ package body AWS.Net.Log is
 
       State.Semaphore.Seize;
 
-      --  Explicit check for State.Error inside of critical section.
+      --  Explicit check for State.Error inside of critical section
 
       if State.Error /= null then
          begin
@@ -124,8 +123,8 @@ package body AWS.Net.Log is
 
    procedure Start
      (Write : in Write_Callback;
-      Event : Event_Callback := null;
-      Error : Error_Callback := null) is
+      Event : in Event_Callback := null;
+      Error : in Error_Callback := null) is
    begin
       State.Semaphore.Seize;
       State.Write := Write;

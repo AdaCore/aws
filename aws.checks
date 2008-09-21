@@ -3,9 +3,9 @@
 +RRaising_External_Exceptions
 +RName_Clashes
 +RGOTO_Statements
++RImplicit_IN_Mode_Parameters
 --  ******* to be activated ******************************************
 -- +RExceptions_As_Control_Flow
--- +RImplicit_IN_Mode_Parameters
 -- +RImplicit_SMALL_For_Fixed_Point_Types
 -- +RNon_Qualified_Aggregates
 -- +ROTHERS_In_Aggregates

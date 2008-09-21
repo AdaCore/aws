@@ -415,13 +415,13 @@ package body AWS.Server.Push is
                            Kind        : in Mode;
                            Groups      : in Group_Set))
       is
-         procedure Action (C : Tables.Cursor);
+         procedure Action (C : in Tables.Cursor);
 
          ------------
          -- Action --
          ------------
 
-         procedure Action (C : Tables.Cursor) is
+         procedure Action (C : in Tables.Cursor) is
             CA     : constant Client_Holder_Access := Tables.Element (C);
             Groups : Group_Set (1 .. Integer (CA.Groups.Length));
             CG     : Group_Sets.Cursor := CA.Groups.First;
@@ -902,13 +902,13 @@ package body AWS.Server.Push is
          Holder : constant Client_Holder_Access := Tables.Element (Cursor);
          Key    : constant String := Tables.Key (Cursor);
 
-         procedure Delete_Group (J : Group_Sets.Cursor);
+         procedure Delete_Group (J : in Group_Sets.Cursor);
 
          ------------------
          -- Delete_Group --
          ------------------
 
-         procedure Delete_Group (J : Group_Sets.Cursor) is
+         procedure Delete_Group (J : in Group_Sets.Cursor) is
             use type Containers.Count_Type;
             C   : Group_Maps.Cursor := Groups.Find (Group_Sets.Element (J));
             Map : Map_Access := Group_Maps.Element (C);
@@ -1642,7 +1642,7 @@ package body AWS.Server.Push is
                end Add;
 
             or
-               accept Add (Server : in Object_Access; Queue : Tables.Map) do
+               accept Add (Server : in Object_Access; Queue : in Tables.Map) do
                   declare
                      C : Tables.Cursor := Queue.First;
                   begin

@@ -73,7 +73,7 @@ package body AWS.Net.Std is
    --  Raise and log exception Socket_Error with E's message and a reference to
    --  the routine name.
 
-   procedure Raise_Socket_Error (Error : in Integer; Socket : Socket_Type);
+   procedure Raise_Socket_Error (Error : in Integer; Socket : in Socket_Type);
    pragma No_Return (Raise_Socket_Error);
 
    function Error_Message (Error : in Integer) return String;
@@ -222,13 +222,13 @@ package body AWS.Net.Std is
             Events : constant Event_Set
               := Net.Wait (Socket, (Output => True, Input => False));
 
-            procedure Raise_Error (Errno : Integer);
+            procedure Raise_Error (Errno : in Integer);
 
             -----------------
             -- Raise_Error --
             -----------------
 
-            procedure Raise_Error (Errno : Integer) is
+            procedure Raise_Error (Errno : in Integer) is
                Msg : constant String := Error_Message (Errno);
             begin
                Log.Error (Socket, Msg);

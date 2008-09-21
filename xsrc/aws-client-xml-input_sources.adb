@@ -35,7 +35,7 @@ with Unicode.CES.Utf8;
 
 package body AWS.Client.XML.Input_Sources is
 
-   function "+" (Item : Stream_Element_Array) return String
+   function "+" (Item : in Stream_Element_Array) return String
      renames AWS.Translator.To_String;
 
    ------------

@@ -309,7 +309,7 @@ private
 
    protected type Slots (N : Positive) is
 
-      procedure Mark_Phase (Index : in Positive; Phase : Slot_Phase);
+      procedure Mark_Phase (Index : in Positive; Phase : in Slot_Phase);
       --  Set Activity_Time_Stamp which is the last time where the line number
       --  Index as been used.
 
