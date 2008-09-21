@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2006                            --
---                                 AdaCore                                  --
+--                     Copyright (C) 2006-2008, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -115,7 +114,7 @@ package body AWS.Net.SSL.Certificate is
    -- Issuer --
    ------------
 
-   function Issuer  (Certificate : in Object) return String is
+   function Issuer (Certificate : in Object) return String is
    begin
       return To_String (Certificate.Issuer);
    end Issuer;
