@@ -839,6 +839,15 @@ package body AWS.Client is
       return T.Response;
    end Response_Timeout;
 
+   -------------------
+   -- Same_Timeouts --
+   -------------------
+
+   function Same_Timeouts (Value : in Duration) return Timeouts_Values is
+   begin
+      return (others => Value);
+   end Same_Timeouts;
+
    ------------------
    -- Send_Timeout --
    ------------------

@@ -72,6 +72,9 @@ package AWS.Client is
       Response : in Duration := Net.Forever) return Timeouts_Values;
    --  Constructor for the timeouts values
 
+   function Same_Timeouts (Value : in Duration) return Timeouts_Values;
+   --  Constructor for the same timeouts values
+
    function Connect_Timeout (T : in Timeouts_Values) return Duration;
    pragma Inline (Connect_Timeout);
    --  Returns the corresponding timeout value
