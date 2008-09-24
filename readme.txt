@@ -75,6 +75,11 @@ implementations.
   main aws.gpr project file will now support SSL if AWS is built
   with SSL activated.
 
+  Function AWS.Hotplug.Get_Status returns a Translate_Set now instead of
+  a Translate_Table. Using a Translate_Set is safer and the recommended way
+  to access the translations. This change is needed as callers are now using
+  a Translate_Set. Note that for the same reasons Server.Status.Translations
+  routine returning a Translate_Table has been marked as obsolescent.
 
 Obsolescent features
 --------------------

@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2004                          --
---                               ACT-Europe                                 --
+--                     Copyright (C) 2000-2008, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -27,7 +26,7 @@
 ------------------------------------------------------------------------------
 
 function AWS.Hotplug.Get_Status
-  (Filters : in Filter_Set) return Templates_Parser.Translate_Table
+  (Filters : in Filter_Set) return Templates_Parser.Translate_Set
 is
 
    use Templates_Parser;
@@ -38,6 +37,8 @@ is
    --  Avoid : may be referenced before it has a value
    pragma Warnings (Off, Regexp);
    pragma Warnings (Off, URL);
+
+   Result : Translate_Set;
 
 begin
    for K in 1 .. Filter_Table.Length (Filters.Set) loop
@@ -50,6 +51,8 @@ begin
       end;
    end loop;
 
-   return Translate_Table'(Assoc ("HP_REGEXP_V", Regexp),
-                           Assoc ("HP_URL_V",    URL));
+   Insert (Result, Assoc ("HP_REGEXP_V", Regexp));
+   Insert (Result, Assoc ("HP_URL_V",    URL));
+
+   return Result;
 end AWS.Hotplug.Get_Status;

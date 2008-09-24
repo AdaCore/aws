@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2003-2006                          --
---                                 AdaCore                                  --
+--                     Copyright (C) 2003-2008, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -34,10 +33,14 @@ with AWS.Templates;
 
 package AWS.Server.Status is
 
-   function Translations (Server : in HTTP) return Templates.Translate_Table;
+   function Translations (Server : in HTTP) return Templates.Translate_Set;
    --  Returns a translate table to be used with a template file. This table
    --  contains all internal server's data. This table is used by the server
    --  internal status page for example.
+
+   function Translations (Server : in HTTP) return Templates.Translate_Table;
+   pragma Obsolescent ("Use Translate_Set return value instead");
+   --  The same as above but obsolete and keept for backward compartibility
 
    function Start_Time (Server : in HTTP) return Ada.Calendar.Time;
    --  Returns the server's start time

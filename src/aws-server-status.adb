@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2003-2006                          --
---                                 AdaCore                                  --
+--                     Copyright (C) 2003-2008, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -117,21 +116,21 @@ package body AWS.Server.Status is
    -- Translations --
    ------------------
 
-   function Translations (Server : in HTTP) return Templates.Translate_Table is
+   function Translations (Server : in HTTP) return Templates.Translate_Set is
 
       use AWS.Templates;
 
-      function Slot_Table return Translate_Table;
+      function Slot_Table return Translate_Set;
       --  returns the information for each slot
 
-      function Session_Table return Translate_Table;
+      function Session_Table return Translate_Set;
       --  returns session information
 
       -------------------
       -- Session_Table --
       -------------------
 
-      function Session_Table return Translate_Table is
+      function Session_Table return Translate_Set is
 
          Sessions           : Vector_Tag;
          Sessions_TS        : Vector_Tag;
@@ -163,8 +162,7 @@ package body AWS.Server.Status is
             Key, Value : in     String;
             Quit       : in out Boolean)
          is
-            pragma Warnings (Off, N);
-            pragma Warnings (Off, Quit);
+            pragma Unreferenced (N, Quit);
          begin
             Keys   := Keys & Key;
             Values := Values & Value;
@@ -187,8 +185,7 @@ package body AWS.Server.Status is
             Time_Stamp : in     Calendar.Time;
             Quit       : in out Boolean)
          is
-            pragma Warnings (Off, N);
-            pragma Warnings (Off, Quit);
+            pragma Unreferenced (N, Quit);
             use type Calendar.Time;
          begin
             Sessions    := Sessions & Session.Image (SID);
@@ -216,22 +213,25 @@ package body AWS.Server.Status is
          procedure Build_Session_List is
             new Session.For_Every_Session (For_Each_Session);
 
+         Result : Translate_Set;
+
       begin
          Build_Session_List;
 
-         return Translate_Table'
-           (Assoc ("SESSIONS_V",           Sessions),
-            Assoc ("SESSIONS_TS_V",        Sessions_TS),
-            Assoc ("SESSIONS_TERMINATE_V", Sessions_Terminate),
-            Assoc ("KEYS_M",               M_Keys),
-            Assoc ("VALUES_M",             M_Values));
+         Insert (Result, Assoc ("SESSIONS_V",           Sessions));
+         Insert (Result, Assoc ("SESSIONS_TS_V",        Sessions_TS));
+         Insert (Result, Assoc ("SESSIONS_TERMINATE_V", Sessions_Terminate));
+         Insert (Result, Assoc ("KEYS_M",               M_Keys));
+         Insert (Result, Assoc ("VALUES_M",             M_Values));
+
+         return Result;
       end Session_Table;
 
       ----------------
       -- Slot_Table --
       ----------------
 
-      function Slot_Table return Translate_Table is
+      function Slot_Table return Translate_Set is
 
          Sock                  : Vector_Tag;
          Phase                 : Vector_Tag;
@@ -251,6 +251,7 @@ package body AWS.Server.Status is
          pragma Warnings (Off, Peer_Name);
 
          Slot_Data             : Slot;
+         Result                : Translate_Set;
 
       begin
          for K in 1 .. CNF.Max_Connection (Server.Properties) loop
@@ -279,125 +280,156 @@ package body AWS.Server.Status is
                                            "%a %D %T");
          end loop;
 
-         return Translate_Table'
-           (Assoc ("SOCK_V",                  Sock),
-            Assoc ("PEER_NAME_V",             Peer_Name),
-            Assoc ("PHASE_V",                 Phase),
-            Assoc ("ABORTABLE_V",             Abortable),
-            Assoc ("SLOT_ACTIVITY_COUNTER_V", Slot_Activity_Counter),
-            Assoc ("ACTIVITY_COUNTER_V",      Activity_Counter),
-            Assoc ("ACTIVITY_TIME_STAMP_V",   Activity_Time_Stamp));
+         Insert (Result, Assoc ("SOCK_V",             Sock));
+         Insert (Result, Assoc ("PEER_NAME_V",        Peer_Name));
+         Insert (Result, Assoc ("PHASE_V",            Phase));
+         Insert (Result, Assoc ("ABORTABLE_V",        Abortable));
+         Insert (Result, Assoc ("ACTIVITY_COUNTER_V", Activity_Counter));
+         Insert
+           (Result, Assoc ("ACTIVITY_TIME_STAMP_V",   Activity_Time_Stamp));
+         Insert
+           (Result, Assoc ("SLOT_ACTIVITY_COUNTER_V", Slot_Activity_Counter));
+
+         return Result;
       end Slot_Table;
 
       Admin_URI : constant String := CNF.Admin_URI (Server.Properties);
+      Result    : Translate_Set;
 
    begin
-      return (Assoc ("SERVER_NAME",
-                     CNF.Server_Name (Server.Properties)),
+      Insert (Result,
+              Assoc ("SERVER_NAME", CNF.Server_Name (Server.Properties)));
 
-              Assoc ("START_TIME",
+      Insert (Result, Assoc ("START_TIME",
                      GNAT.Calendar.Time_IO.Image
-                       (Server.Start_Time, "%A %-d %B %Y, %T")),
+                       (Server.Start_Time, "%A %-d %B %Y, %T")));
 
-              Assoc ("MAX_CONNECTION",
-                     CNF.Max_Connection (Server.Properties)),
+      Insert (Result, Assoc ("MAX_CONNECTION",
+                     CNF.Max_Connection (Server.Properties)));
 
-              Assoc ("SERVER_PORT",
-                     CNF.Server_Port (Server.Properties)),
+      Insert (Result, Assoc ("SERVER_PORT",
+                     CNF.Server_Port (Server.Properties)));
 
-              Assoc ("SECURITY",
-                     CNF.Security (Server.Properties)),
+      Insert (Result, Assoc ("SECURITY",
+                     CNF.Security (Server.Properties)));
 
-              Assoc ("SERVER_SOCK",
-                     Integer (Net.Get_FD (Socket (Server)))),
+      Insert (Result, Assoc ("SERVER_SOCK",
+                     Integer (Net.Get_FD (Socket (Server)))));
 
-              Assoc ("ACCEPTOR_LENGTH",
-                     Net.Acceptors.Length (Server.Acceptor)),
+      Insert (Result, Assoc ("ACCEPTOR_LENGTH",
+                     Net.Acceptors.Length (Server.Acceptor)));
 
-              Assoc ("CURRENT_CONNECTIONS",
-                     Current_Connections (Server)),
+      Insert (Result, Assoc ("CURRENT_CONNECTIONS",
+                     Current_Connections (Server)));
 
-              Assoc ("VERSION",
-                     Version),
+      Insert (Result, Assoc ("VERSION", Version));
 
-              Assoc ("SESSION",
-                     CNF.Session (Server.Properties)),
+      Insert (Result, Assoc ("SESSION", CNF.Session (Server.Properties)));
 
-              Assoc ("SESSION_LIFETIME",
-                     Utils.Image (Session.Get_Lifetime)),
+      Insert
+        (Result,
+         Assoc ("SESSION_LIFETIME", Utils.Image (Session.Get_Lifetime)));
 
-              Assoc ("SESSION_CLEANUP_INTERVAL",
-                     Utils.Image (CNF.Session_Cleanup_Interval)),
+      Insert (Result, Assoc ("SESSION_CLEANUP_INTERVAL",
+                     Utils.Image (CNF.Session_Cleanup_Interval)));
 
-              Assoc ("CLEANER_WAIT_FOR_CLIENT_TIMEOUT",
+      Insert (Result, Assoc ("CLEANER_WAIT_FOR_CLIENT_TIMEOUT",
                      Utils.Image
                        (CNF.Cleaner_Wait_For_Client_Timeout
-                          (Server.Properties))),
+                          (Server.Properties))));
 
-              Assoc ("CLEANER_CLIENT_HEADER_TIMEOUT",
+      Insert (Result, Assoc ("CLEANER_CLIENT_HEADER_TIMEOUT",
                      Utils.Image
                        (CNF.Cleaner_Client_Header_Timeout
-                          (Server.Properties))),
+                          (Server.Properties))));
 
-              Assoc ("CLEANER_CLIENT_DATA_TIMEOUT",
+      Insert (Result, Assoc ("CLEANER_CLIENT_DATA_TIMEOUT",
                      Utils.Image
-                       (CNF.Cleaner_Client_Data_Timeout (Server.Properties))),
+                       (CNF.Cleaner_Client_Data_Timeout (Server.Properties))));
 
-              Assoc ("CLEANER_SERVER_RESPONSE_TIMEOUT",
+      Insert (Result, Assoc ("CLEANER_SERVER_RESPONSE_TIMEOUT",
                      Utils.Image
                        (CNF.Cleaner_Server_Response_Timeout
-                          (Server.Properties))),
+                          (Server.Properties))));
 
-              Assoc ("FORCE_WAIT_FOR_CLIENT_TIMEOUT",
+      Insert (Result, Assoc ("FORCE_WAIT_FOR_CLIENT_TIMEOUT",
                      Utils.Image
                        (CNF.Force_Wait_For_Client_Timeout
-                          (Server.Properties))),
+                          (Server.Properties))));
 
-              Assoc ("FORCE_CLIENT_HEADER_TIMEOUT",
+      Insert (Result, Assoc ("FORCE_CLIENT_HEADER_TIMEOUT",
                      Utils.Image
-                       (CNF.Force_Client_Header_Timeout (Server.Properties))),
+                       (CNF.Force_Client_Header_Timeout (Server.Properties))));
 
-              Assoc ("FORCE_CLIENT_DATA_TIMEOUT",
+      Insert (Result, Assoc ("FORCE_CLIENT_DATA_TIMEOUT",
                      Utils.Image
-                       (CNF.Force_Client_Data_Timeout (Server.Properties))),
+                       (CNF.Force_Client_Data_Timeout (Server.Properties))));
 
-              Assoc ("FORCE_SERVER_RESPONSE_TIMEOUT",
+      Insert (Result, Assoc ("FORCE_SERVER_RESPONSE_TIMEOUT",
                      Utils.Image
                        (CNF.Force_Server_Response_Timeout
-                          (Server.Properties))),
+                          (Server.Properties))));
 
-              Assoc ("SEND_TIMEOUT",
-                     Utils.Image (CNF.Send_Timeout (Server.Properties))),
+      Insert (Result, Assoc ("SEND_TIMEOUT",
+                     Utils.Image (CNF.Send_Timeout (Server.Properties))));
 
-              Assoc ("RECEIVE_TIMEOUT",
-                     Utils.Image (CNF.Receive_Timeout (Server.Properties))),
+      Insert (Result, Assoc ("RECEIVE_TIMEOUT",
+                     Utils.Image (CNF.Receive_Timeout (Server.Properties))));
 
-              Assoc ("ACCEPT_QUEUE_SIZE",
-                     Utils.Image (CNF.Accept_Queue_Size (Server.Properties))),
+      Insert (Result, Assoc ("ACCEPT_QUEUE_SIZE",
+                     Utils.Image (CNF.Accept_Queue_Size (Server.Properties))));
 
-              Assoc ("STATUS_PAGE",
-                     CNF.Status_Page (Server.Properties)),
+      Insert
+        (Result, Assoc ("STATUS_PAGE", CNF.Status_Page (Server.Properties)));
 
-              Assoc ("LOGO",
-                     Admin_URI & "-logo"),
+      Insert (Result, Assoc ("LOGO", Admin_URI & "-logo"));
 
-              Assoc ("LOG",
-                     Log.Is_Active (Server.Log)),
+      Insert (Result, Assoc ("LOG", Log.Is_Active (Server.Log)));
 
-              Assoc ("LOG_FILE",
-                     Log.Filename (Server.Log)),
+      Insert (Result, Assoc ("LOG_FILE", Log.Filename (Server.Log)));
 
-              Assoc ("LOG_MODE",
-                     Log.Split_Mode'Image (Log.Mode (Server.Log))),
+      Insert
+        (Result,
+         Assoc ("LOG_MODE", Log.Split_Mode'Image (Log.Mode (Server.Log))));
 
-              Assoc ("ADMIN",
-                     Admin_URI),
+      Insert (Result, Assoc ("ADMIN", Admin_URI));
 
-              Assoc ("UPLOAD_DIRECTORY",
-                     CNF.Upload_Directory (Server.Properties)))
-        & Slot_Table
-        & Session_Table
-        & Hotplug.Get_Status (Server.Filters);
+      Insert
+        (Result,
+         Assoc ("UPLOAD_DIRECTORY", CNF.Upload_Directory (Server.Properties)));
+
+      Insert (Result, Slot_Table);
+      Insert (Result, Session_Table);
+      Insert (Result, Hotplug.Get_Status (Server.Filters));
+
+      return Result;
+   end Translations;
+
+   function Translations (Server : in HTTP) return Templates.Translate_Table is
+      use Templates;
+
+      Set    : constant Translate_Set := Translations (Server);
+      Result : Translate_Table (1 .. Size (Set));
+      Index  : Positive := Result'First;
+
+      procedure Action (Item : in Association; Quit : in out Boolean);
+
+      ------------
+      -- Action --
+      ------------
+
+      procedure Action (Item : in Association; Quit : in out Boolean) is
+         pragma Unreferenced (Quit);
+      begin
+         Result (Index) := Item;
+         Index := Index + 1;
+      end Action;
+
+      procedure For_Each is new For_Every_Association (Action);
+
+   begin
+      For_Each (Set);
+      return Result;
    end Translations;
 
 end AWS.Server.Status;
