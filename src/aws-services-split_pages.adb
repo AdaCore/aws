@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2003                            --
---                                ACT-Europe                                --
+--                     Copyright (C) 2003-2008, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -45,14 +44,12 @@ package body AWS.Services.Split_Pages is
       Translations : in Templates.Translate_Set;
       Table        : in Templates.Translate_Set;
       Split_Rule   : in Splitter'Class;
-      Cached       : in Boolean := True)
-      return Response.Data
+      Cached       : in Boolean := True) return Response.Data
    is
       use Templates, Templates.Query;
 
       procedure Process_Association
-        (A    : in     Templates.Association;
-         Quit : in out Boolean);
+        (A : in Templates.Association; Quit : in out Boolean);
       --  Add A's range into the set if A is a composite object
 
       Ranges     : constant Ranges_Table
@@ -67,8 +64,7 @@ package body AWS.Services.Split_Pages is
       -------------------------
 
       procedure Process_Association
-        (A    : in     Templates.Association;
-         Quit : in out Boolean)
+        (A : in Templates.Association; Quit : in out Boolean)
       is
          pragma Unreferenced (Quit);
       begin

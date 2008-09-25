@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2007                          --
---                                 AdaCore                                  --
+--                     Copyright (C) 2000-2008, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -48,6 +47,7 @@ package body AWS.Services.Page_Server is
 
    function Callback (Request : in AWS.Status.Data) return AWS.Response.Data is
       use Ada.Strings;
+      use type Templates.Translate_Set;
 
       WWW_Root : String renames AWS.Config.WWW_Root
         (Server.Config (Server.Get_Current.all));
@@ -75,20 +75,16 @@ package body AWS.Services.Page_Server is
 
       else
          if Resources.Is_Regular_File (WWW_Root & "404.thtml") then
+            --  Here we return the 404.thtml page if found. Note that on
+            --  Microsoft IE this page will be displayed only if the total
+            --  page size is bigger than 512 bytes or if it includes at
+            --  leat one image.
 
-            declare
-               Table : constant AWS.Templates.Translate_Table
-                 := (1 => Templates.Assoc ("PAGE", URI));
-            begin
-               --  Here we return the 404.thtml page if found. Note that on
-               --  Microsoft IE this page will be displayed only if the total
-               --  page size is bigger than 512 bytes or if it includes at
-               --  leat one image.
-
-               return AWS.Response.Acknowledge
-                 (Messages.S404,
-                  Templates.Parse (WWW_Root & "404.thtml", Table));
-            end;
+            return AWS.Response.Acknowledge
+                     (Messages.S404,
+                      Templates.Parse
+                        (WWW_Root & "404.thtml",
+                         +Templates.Assoc ("PAGE", URI)));
 
          else
             return AWS.Response.Acknowledge

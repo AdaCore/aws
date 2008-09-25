@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2003-2006                          --
---                                 AdaCore                                  --
+--                     Copyright (C) 2003-2008, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -158,6 +157,7 @@ package body AWS.Services.Web_Mail is
 
          declare
             use type Resources.Streams.Stream_Access;
+            use type Templates.Translate_Set;
 
             Stream : constant AWS.Resources.Streams.Stream_Access
               := Services.Transient_Pages.Get (URI);
@@ -172,20 +172,16 @@ package body AWS.Services.Web_Mail is
                --  This is not a known resource
 
                if Utils.Is_Regular_File (WWW_Root & "404.thtml") then
+                  --  Here we return the 404.thtml page if found. Note that
+                  --  on Microsoft IE this page will be displayed only if
+                  --  the total page size is bigger than 512 bytes or if it
+                  --  includes at leat one image.
 
-                  declare
-                     Table : constant AWS.Templates.Translate_Table
-                       := (1 => Templates.Assoc ("PAGE", URI));
-                  begin
-                     --  Here we return the 404.thtml page if found. Note that
-                     --  on Microsoft IE this page will be displayed only if
-                     --  the total page size is bigger than 512 bytes or if it
-                     --  includes at leat one image.
-
-                     return Response.Acknowledge
-                       (Messages.S404,
-                        Templates.Parse (WWW_Root & "404.thtml", Table));
-                  end;
+                  return Response.Acknowledge
+                    (Messages.S404,
+                     Templates.Parse
+                       (WWW_Root & "404.thtml",
+                        +Templates.Assoc ("PAGE", URI)));
 
                else
                   return Response.Acknowledge
@@ -293,8 +289,6 @@ package body AWS.Services.Web_Mail is
    -------------
 
    function Message (Request : in AWS.Status.Data) return AWS.Response.Data is
-      use type Templates.Translate_Table;
-
       WWW_Root   : String renames Config.WWW_Root (Config.Get_Current);
       WM_Session : constant Session.Id := Status.Session (Request);
       P_List     : constant Parameters.List := Status.Parameters (Request);
@@ -306,14 +300,14 @@ package body AWS.Services.Web_Mail is
       Mailbox : POP.Mailbox;
       Mess    : POP.Message;
 
-      function Get_Content return Templates.Translate_Table;
+      function Get_Content return Templates.Translate_Set;
       --  Returns content and attachments
 
       -----------------
       -- Get_Content --
       -----------------
 
-      function Get_Content return Templates.Translate_Table is
+      function Get_Content return Templates.Translate_Set is
 
          Content  : Unbounded_String;
          Att_Name : Templates.Vector_Tag;
@@ -375,6 +369,8 @@ package body AWS.Services.Web_Mail is
          procedure Add_Every_Attachment is
             new POP.For_Every_Attachment (Add_Attachment);
 
+         T : Templates.Translate_Set;
+
       begin
          --  Add the message content
 
@@ -384,13 +380,17 @@ package body AWS.Services.Web_Mail is
 
          Add_Every_Attachment (Mess);
 
-         --  Returns the corresponding translate table
+         --  Returns the corresponding translate set
 
-         return Templates.Translate_Table'
-           (Templates.Assoc ("WM_CONTENT", Content),
-            Templates.Assoc ("WM_ATT_NAME_V", Att_Name),
-            Templates.Assoc ("WM_ATT_REF_V", Att_Ref));
+         Templates.Insert (T, Templates.Assoc ("WM_CONTENT", Content));
+         Templates.Insert (T, Templates.Assoc ("WM_ATT_NAME_V", Att_Name));
+         Templates.Insert (T, Templates.Assoc ("WM_ATT_REF_V", Att_Ref));
+
+         return T;
       end Get_Content;
+
+      use Templates;
+      T : Translate_Set;
 
    begin
       Load_Context (WM_Session, Context);
@@ -404,23 +404,22 @@ package body AWS.Services.Web_Mail is
 
       POP.Close (Mailbox);
 
+      Insert (T, Assoc ("AWS_VERSION", AWS.Version));
+      Insert (T, Assoc ("WM_USER_NAME", Context.User_Name));
+      Insert (T, Assoc ("WM_POP_SERVER", Context.POP_Server));
+      Insert (T, Assoc ("WM_MESS_COUNT", POP.Message_Count (Mailbox)));
+      Insert (T, Assoc ("WM_MESSAGE", No_Message));
+      Insert (T, Assoc ("WM_SUBJECT", POP.Subject (Mess)));
+      Insert (T, Assoc ("WM_DATE", POP.Date (Mess)));
+      Insert (T, Assoc ("WM_FROM", POP.From (Mess)));
+      Insert (T, Assoc ("WM_CC", POP.CC (Mess)));
+      Insert (T, Get_Content);
+
       return Response.Build
         (MIME.Text_HTML,
          Unbounded_String'
            (Templates.Parse
-              (WWW_Root & "/wm_message.thtml",
-               Templates.Translate_Table'
-                 (Templates.Assoc ("AWS_VERSION", AWS.Version),
-                  Templates.Assoc ("WM_USER_NAME", Context.User_Name),
-                  Templates.Assoc ("WM_POP_SERVER", Context.POP_Server),
-                  Templates.Assoc
-                    ("WM_MESS_COUNT", POP.Message_Count (Mailbox)),
-                  Templates.Assoc ("WM_MESSAGE", No_Message),
-                  Templates.Assoc ("WM_SUBJECT", POP.Subject (Mess)),
-                  Templates.Assoc ("WM_DATE", POP.Date (Mess)),
-                  Templates.Assoc ("WM_FROM", POP.From (Mess)),
-                  Templates.Assoc ("WM_CC", POP.CC (Mess)))
-               & Get_Content)));
+              (WWW_Root & "/wm_message.thtml", T)));
    end Message;
 
    -----------
@@ -429,11 +428,8 @@ package body AWS.Services.Web_Mail is
 
    function Reply
      (Request : in AWS.Status.Data;
-      To_All  : in Boolean)
-      return AWS.Response.Data
+      To_All  : in Boolean) return AWS.Response.Data
    is
-      use type Templates.Translate_Table;
-
       WWW_Root   : String renames Config.WWW_Root (Config.Get_Current);
       WM_Session : constant Session.Id := Status.Session (Request);
       P_List     : constant Parameters.List := Status.Parameters (Request);
@@ -445,14 +441,14 @@ package body AWS.Services.Web_Mail is
       Mailbox : POP.Mailbox;
       Mess    : POP.Message;
 
-      function Get_Content return Templates.Translate_Table;
+      function Get_Content return Templates.Association;
       --  Returns content, all lines being prefixed
 
       -----------------
       -- Get_Content --
       -----------------
 
-      function Get_Content return Templates.Translate_Table is
+      function Get_Content return Templates.Association is
          Prefix  : constant String := "> ";
          Content : Unbounded_String;
          K       : Positive := Prefix'Length + 1;
@@ -474,9 +470,11 @@ package body AWS.Services.Web_Mail is
             K := K + 1;
          end loop;
 
-         return Templates.Translate_Table'
-           (1 => Templates.Assoc ("WM_CONTENT", Content));
+         return Templates.Assoc ("WM_CONTENT", Content);
       end Get_Content;
+
+      use Templates;
+      T : Translate_Set;
 
    begin
       Load_Context (WM_Session, Context);
@@ -489,25 +487,23 @@ package body AWS.Services.Web_Mail is
 
       POP.Close (Mailbox);
 
+      Insert (T, Assoc ("AWS_VERSION", AWS.Version));
+      Insert (T, Assoc ("WM_USER_NAME", -Context.User_Name));
+      Insert (T, Assoc ("WM_SMTP_SERVER", -Context.SMTP_Server));
+      Insert (T, Assoc ("WM_POP_SERVER", -Context.POP_Server));
+      Insert (T, Assoc ("WM_MESS_COUNT", POP.Message_Count (Mailbox)));
+      Insert (T, Assoc ("WM_MESSAGE", No_Message));
+      Insert (T, Assoc ("WM_SUBJECT", POP.Subject (Mess)));
+      Insert (T, Assoc ("WM_DATE", POP.Date (Mess)));
+      Insert (T, Assoc ("WM_FROM", POP.From (Mess)));
+      Insert (T, Assoc ("WM_CC", POP.CC (Mess)));
+      Insert (T, Assoc ("WM_TO_ALL", To_All));
+      Insert (T, Get_Content);
+
       return Response.Build
         (MIME.Text_HTML,
          Unbounded_String'
-           (Templates.Parse
-              (WWW_Root & "/wm_reply.thtml",
-               Templates.Translate_Table'
-                 (Templates.Assoc ("AWS_VERSION", AWS.Version),
-                  Templates.Assoc ("WM_USER_NAME", -Context.User_Name),
-                  Templates.Assoc ("WM_SMTP_SERVER", -Context.SMTP_Server),
-                  Templates.Assoc ("WM_POP_SERVER", -Context.POP_Server),
-                  Templates.Assoc
-                    ("WM_MESS_COUNT", POP.Message_Count (Mailbox)),
-                  Templates.Assoc ("WM_MESSAGE", No_Message),
-                  Templates.Assoc ("WM_SUBJECT", POP.Subject (Mess)),
-                  Templates.Assoc ("WM_DATE", POP.Date (Mess)),
-                  Templates.Assoc ("WM_FROM", POP.From (Mess)),
-                  Templates.Assoc ("WM_CC", POP.CC (Mess)),
-                  Templates.Assoc ("WM_TO_ALL", To_All))
-               & Get_Content)));
+           (Templates.Parse (WWW_Root & "/wm_reply.thtml", T)));
    end Reply;
 
    ----------
@@ -547,6 +543,9 @@ package body AWS.Services.Web_Mail is
 
       WM_SMTP : SMTP.Receiver;
       Result  : SMTP.Status;
+
+      use type Templates.Translate_Set;
+
    begin
       Load_Context (WM_Session, Context);
 
@@ -569,9 +568,8 @@ package body AWS.Services.Web_Mail is
             String'
               (Templates.Parse
                  (WWW_Root & "/wm_error.thtml",
-                  Templates.Translate_Table'
-                    (1 => Templates.Assoc
-                       ("ERROR_MESSAGE", SMTP.Status_Message (Result))))));
+                  +Templates.Assoc
+                     ("ERROR_MESSAGE", SMTP.Status_Message (Result)))));
       end if;
 
    exception
@@ -581,9 +579,8 @@ package body AWS.Services.Web_Mail is
             String'
               (Templates.Parse
                  (WWW_Root & "/wm_error.thtml",
-                  Templates.Translate_Table'
-                    (1 => Templates.Assoc
-                       ("ERROR_MESSAGE", "Can't parse e-mail")))));
+                  +Templates.Assoc
+                     ("ERROR_MESSAGE", "Can't parse e-mail"))));
    end Send;
 
    -------------
@@ -635,6 +632,10 @@ package body AWS.Services.Web_Mail is
       Context : Context_Data;
       Mailbox : POP.Mailbox;
 
+      use Templates;
+
+      T : Translate_Set;
+
    begin
       Load_Context (WM_Session, Context);
 
@@ -646,23 +647,21 @@ package body AWS.Services.Web_Mail is
 
       POP.Close (Mailbox);
 
+      Insert (T, Assoc ("AWS_VERSION", AWS.Version));
+      Insert (T, Assoc ("WM_MESS_COUNT", POP.Message_Count (Mailbox)));
+      Insert (T, Assoc ("WM_MAILBOX_SIZE", POP.Size (Mailbox)));
+      Insert (T, Assoc ("WM_MESSAGE_V", Index_V));
+      Insert (T, Assoc ("WM_SIZE_V", Size_V));
+      Insert (T, Assoc ("WM_FROM_V", From_V));
+      Insert (T, Assoc ("WM_DATE_V", Date_V));
+      Insert (T, Assoc ("WM_SUBJECT_V", Subject_V));
+      Insert (T, Assoc ("WM_USER_NAME", Context.User_Name));
+      Insert (T, Assoc ("WM_POP_SERVER", Context.POP_Server));
+
       return Response.Build
         (MIME.Text_HTML,
          Unbounded_String'
-           (Templates.Parse
-              (WWW_Root & "/wm_summary.thtml",
-               Templates.Translate_Table'
-                 (Templates.Assoc ("AWS_VERSION", AWS.Version),
-                  Templates.Assoc
-                    ("WM_MESS_COUNT", POP.Message_Count (Mailbox)),
-                  Templates.Assoc ("WM_MAILBOX_SIZE", POP.Size (Mailbox)),
-                  Templates.Assoc ("WM_MESSAGE_V", Index_V),
-                  Templates.Assoc ("WM_SIZE_V", Size_V),
-                  Templates.Assoc ("WM_FROM_V", From_V),
-                  Templates.Assoc ("WM_DATE_V", Date_V),
-                  Templates.Assoc ("WM_SUBJECT_V", Subject_V),
-                  Templates.Assoc ("WM_USER_NAME", Context.User_Name),
-                  Templates.Assoc ("WM_POP_SERVER", Context.POP_Server)))));
+           (Templates.Parse (WWW_Root & "/wm_summary.thtml", T)));
    end Summary;
 
 end AWS.Services.Web_Mail;
