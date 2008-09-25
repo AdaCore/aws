@@ -1537,6 +1537,8 @@ src/aws-smtp.adb
 src/aws-smtp.ads
 src/aws-status-set.adb
 src/aws-status-set.ads
+src/aws-status-translate_set.adb
+src/aws-status-translate_set.ads
 src/aws-status-translate_table.adb
 src/aws-status-translate_table.ads
 src/aws-status.adb

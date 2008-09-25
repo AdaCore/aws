@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2008, AdaCore                     --
+--                     Copyright (C) 2008, AdaCore                          --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -25,11 +25,20 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-with AWS.Templates;
+function AWS.Status.Translate_Set
+  (Status : in Data) return Templates.Translate_Set
+is
+   use Templates;
+   Tr : Templates.Translate_Set;
+begin
+   Insert (Tr, Assoc ("PEERNAME",     To_String (Status.Peername)));
+   Insert (Tr, Assoc ("METHOD",       Request_Method'Image (Status.Method)));
+   Insert (Tr, Assoc ("URI",          URL.URL (Status.URI)));
+   Insert (Tr, Assoc ("HTTP_VERSION", To_String (Status.HTTP_Version)));
+   Insert (Tr, Assoc ("AUTH_MODE",
+                     Authorization_Type'Image (Status.Auth_Mode)));
+   Insert (Tr, Assoc ("SOAP_ACTION",  Status.SOAP_Action));
+   Insert (Tr, Assoc ("PAYLOAD",      AWS.Status.Payload (Status)));
 
-function AWS.Status.Translate_Table
-  (Status : in Data) return Templates.Translate_Table;
-pragma Obsolescent ("Use AWS.Status.Translate_Set instead");
---  Returns a translate table with some status data. Here are a list of the
---  tags: PEERNAME, METHOD, URI, HTTP_VERSION, AUTH_MODE, SOAP_ACTION, PAYLOAD.
---  They correspond to the Status fields.
+   return Tr;
+end AWS.Status.Translate_Set;

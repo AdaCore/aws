@@ -37,7 +37,7 @@ with AWS.Server.Log;
 with AWS.Server.HTTP_Utils;
 with AWS.Services.Transient_Pages.Control;
 with AWS.Session.Control;
-with AWS.Status.Translate_Table;
+with AWS.Status.Translate_Set;
 with AWS.Templates;
 
 package body AWS.Server is
@@ -159,7 +159,7 @@ package body AWS.Server is
       pragma Unreferenced (Log);
 
       use Ada.Exceptions;
-      use type Templates.Translate_Table;
+      use type Templates.Translate_Set;
 
       Fatal_Error_Template  : constant String := "500.tmplt";
    begin
@@ -178,7 +178,7 @@ package body AWS.Server is
               (MIME.Text_HTML,
                String'(Templates.Parse
                          (Fatal_Error_Template,
-                          Status.Translate_Table (Error.Request)
+                          Status.Translate_Set (Error.Request)
                             & Templates.Assoc
                                 ("EXCEPTION", Exception_Information (E)))),
                Messages.S500);
