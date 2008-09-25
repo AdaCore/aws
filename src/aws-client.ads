@@ -73,7 +73,8 @@ package AWS.Client is
    --  Constructor for the timeouts values
 
    function Timeouts (Each : in Duration) return Timeouts_Values;
-   --  Constructor for the same timeouts values
+   --  Constructor for the timeouts values, sets all timeouts values (see
+   --  Contructor above) to Each.
 
    function Connect_Timeout (T : in Timeouts_Values) return Duration;
    pragma Inline (Connect_Timeout);
