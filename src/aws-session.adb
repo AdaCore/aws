@@ -136,10 +136,13 @@ package body AWS.Session is
       --  Removes session SID from the Tree
 
       function Session_Exist (SID : in Id) return Boolean;
-      --  Return True if session SID exist in the database
+      --  Returns True if session SID exist in the database
 
       function Session_Has_Expired (SID : in Id) return Boolean;
-      --  Return True if session SID has exceeded its lifetime
+      --  Returns True if session SID has exceeded its lifetime
+
+      function Length return Natural;
+      --  Returns number of sessions in database
 
       procedure Touch_Session (SID : in Id);
       --  Updates the session Time_Stamp to current time. Does nothing if SID
@@ -294,6 +297,15 @@ package body AWS.Session is
 
    protected body Cleaner_Control is
 
+      ------------------
+      -- Server_Count --
+      ------------------
+
+      function Server_Count return Natural is
+      begin
+         return S_Count;
+      end Server_Count;
+
       -----------
       -- Start --
       -----------
@@ -302,9 +314,9 @@ package body AWS.Session is
         (Session_Check_Interval : in Duration;
          Session_Lifetime       : in Duration) is
       begin
-         Server_Count := Server_Count + 1;
+         S_Count := S_Count + 1;
 
-         if Server_Count = 1 then
+         if S_Count = 1 then
             Session.Session_Check_Interval := Start.Session_Check_Interval;
             Session.Session_Lifetime       := Start.Session_Lifetime;
             Cleaner_Task := new Cleaner;
@@ -317,9 +329,9 @@ package body AWS.Session is
 
       procedure Stop (Need_Release : out Boolean)  is
       begin
-         Server_Count := Server_Count - 1;
+         S_Count := S_Count - 1;
 
-         if Server_Count = 0 then
+         if S_Count = 0 then
             Need_Release := True;
          else
             Need_Release := False;
@@ -431,6 +443,15 @@ package body AWS.Session is
             Result := Key_Value.Contains (Node.Root.all, Key);
          end if;
       end Key_Exist;
+
+      ------------
+      -- Length --
+      ------------
+
+      function Length return Natural is
+      begin
+         return Natural (Sessions.Length);
+      end Length;
 
       --------------------
       -- Lock_And_Clean --
@@ -860,6 +881,15 @@ package body AWS.Session is
       return SID_Prefix & String (SID);
    end Image;
 
+   ------------
+   -- Length --
+   ------------
+
+   function Length return Natural is
+   begin
+      return Database.Length;
+   end Length;
+
    ----------
    -- Load --
    ----------
@@ -903,8 +933,7 @@ package body AWS.Session is
    ----------
 
    procedure Open
-     (Stream : in out String_Stream_Type'Class;
-      Str    : in String) is
+     (Stream : in out String_Stream_Type'Class; Str : in String) is
    begin
       Stream.Str        := To_Unbounded_String (Str);
       Stream.Read_Index := 1;
@@ -935,9 +964,7 @@ package body AWS.Session is
    -- Remove --
    ------------
 
-   procedure Remove
-     (SID : in Id;
-      Key : in String) is
+   procedure Remove (SID : in Id; Key : in String) is
    begin
       Database.Remove_Key (SID, Key);
    end Remove;
@@ -1045,23 +1072,25 @@ package body AWS.Session is
       Close (File);
    end Save;
 
+   ------------------
+   -- Server_Count --
+   ------------------
+
+   function Server_Count return Natural is
+   begin
+      return Cleaner_Control.Server_Count;
+   end Server_Count;
+
    ---------
    -- Set --
    ---------
 
-   procedure Set
-     (SID   : in Id;
-      Key   : in String;
-      Value : in String) is
+   procedure Set (SID : in Id; Key : in String; Value : in String) is
    begin
       Database.Set_Value (SID, Key, Value);
    end Set;
 
-   procedure Set
-     (SID   : in Id;
-      Key   : in String;
-      Value : in Integer)
-   is
+   procedure Set (SID : in Id; Key : in String; Value : in Integer) is
       V : constant String := Integer'Image (Value);
    begin
       if V (1) = ' ' then
@@ -1071,11 +1100,7 @@ package body AWS.Session is
       end if;
    end Set;
 
-   procedure Set
-     (SID   : in Id;
-      Key   : in String;
-      Value : in Float)
-   is
+   procedure Set (SID : in Id; Key : in String; Value : in Float) is
       V : constant String := Float'Image (Value);
    begin
       if V (1) = ' ' then
@@ -1085,11 +1110,7 @@ package body AWS.Session is
       end if;
    end Set;
 
-   procedure Set
-     (SID   : in Id;
-      Key   : in String;
-      Value : in Boolean)
-   is
+   procedure Set (SID : in Id; Key : in String; Value : in Boolean) is
       V : String (1 .. 1);
    begin
       if Value then

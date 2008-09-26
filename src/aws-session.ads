@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2007                          --
---                                 AdaCore                                  --
+--                     Copyright (C) 2000-2008, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -65,28 +64,16 @@ package AWS.Session is
    --  Update to current time the timestamp associated with SID. Does nothing
    --  if SID does not exists.
 
-   procedure Set
-     (SID   : in Id;
-      Key   : in String;
-      Value : in String);
+   procedure Set (SID : in Id; Key : in String; Value : in String);
    --  Set key/pair value for the SID
 
-   procedure Set
-     (SID   : in Id;
-      Key   : in String;
-      Value : in Integer);
+   procedure Set (SID : in Id; Key : in String; Value : in Integer);
    --  Set key/pair value for the SID
 
-   procedure Set
-     (SID   : in Id;
-      Key   : in String;
-      Value : in Float);
+   procedure Set (SID : in Id; Key : in String; Value : in Float);
    --  Set key/pair value for the SID
 
-   procedure Set
-     (SID   : in Id;
-      Key   : in String;
-      Value : in Boolean);
+   procedure Set (SID : in Id; Key : in String; Value : in Boolean);
    --  Set key/pair value for the SID
 
    function Get (SID : in Id; Key : in String) return String;
@@ -114,10 +101,7 @@ package AWS.Session is
       Null_Data : Data;
    package Generic_Data is
 
-      procedure Set
-        (SID   : in Id;
-         Key   : in String;
-         Value : in Data);
+      procedure Set (SID : in Id; Key : in String; Value : in Data);
       --  Set key/pair value for the SID
 
       function Get (SID : in Id; Key : in String) return Data;
@@ -127,16 +111,17 @@ package AWS.Session is
 
    end Generic_Data;
 
-   procedure Remove
-     (SID : in Id;
-      Key : in String);
+   procedure Remove (SID : in Id; Key : in String);
    --  Removes Key from the specified session
 
-   function Exist
-     (SID : in Id;
-      Key : in String)
-      return Boolean;
+   function Exist (SID : in Id; Key : in String) return Boolean;
    --  Returns True if Key exist in session SID
+
+   function Server_Count return Natural;
+   --  Returns number of servers with sessions support
+
+   function Length return Natural;
+   --  Returns number of sessions
 
    procedure Clear;
    --  Removes all sessions data
@@ -241,8 +226,11 @@ private
       --  Stop the cleaner task when there is no more server using it. Release
       --  is set to True if the Cleaner_Task can be released.
 
+      function Server_Count return Natural;
+      --  Returns number of servers with sessions support
+
    private
-      Server_Count : Natural := 0;
+      S_Count : Natural := 0;
    end Cleaner_Control;
 
 end AWS.Session;
