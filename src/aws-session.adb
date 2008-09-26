@@ -254,11 +254,19 @@ package body AWS.Session is
             Database.Unsafe_Delete_Session (Expired_SID (K));
          end loop;
 
+         if E_Index = Max_Expired and then Session_Check_Interval > 1.0 then
+            --  Too many expired session, we should run next expiration check
+            --  faster
+
+            Next_Run := Next_Run + 1.0;
+         else
+            Next_Run := Next_Run + Session_Check_Interval;
+         end if;
+
          E_Index := 0;
 
          Database.Unlock;
 
-         Next_Run := Next_Run + Session_Check_Interval;
       end loop Clean_Dead_Sessions;
 
       Database.Destroy;
