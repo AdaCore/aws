@@ -209,7 +209,7 @@ class Job(object):
         """Compute job final status
 
         RETURN VALUE
-         a string (can be UOK, OK, XFAIL, DIFF or FAILED)
+         a string (can be UOK, OK, XFAIL, DIFF or PROBLEM)
         """
         if self.process.status == 0:
             if self.xfail:
@@ -223,7 +223,7 @@ class Job(object):
                 if self.process.status == DIFF_FAILURE:
                     return "DIFF"
                 else:
-                    return "FAILED"
+                    return "PROBLEM"
 
 class Runner(object):
     """Run the testsuite
@@ -355,7 +355,7 @@ class ConsoleColorFormatter(logging.Formatter):
 
         output = logging.Formatter.format(self, record)
         if self.usecolor:
-            if "FAILED" in output or "DIFF" in output:
+            if "PROBLEM" in output or "DIFF" in output:
                 output = '\033[01;31m' + output + '\033[0m'
             elif "UOK" in output:
                 output = '\033[01;33m' + output + '\033[0m'
