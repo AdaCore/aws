@@ -36,6 +36,7 @@ with Ada.Calendar;
 with Ada.Task_Attributes;
 with Ada.Unchecked_Deallocation;
 with Interfaces.C.Strings;
+with System.Memory;
 with System.Storage_Elements;
 
 with AWS.Config;
@@ -854,9 +855,10 @@ package body AWS.Net.SSL is
       end Finalize;
 
       overriding procedure Finalize (Object : in out Task_Data) is
-         pragma Unreferenced (Object);
       begin
-         TSSL.ERR_remove_state;
+         if Object.TID /= 0 then
+            TSSL.ERR_remove_state (C.int (Object.TID));
+         end if;
       end Finalize;
 
       -------------------------
@@ -1203,6 +1205,14 @@ package body AWS.Net.SSL is
    end Version;
 
 begin
+   if TSSL.CRYPTO_set_mem_functions
+        (M => System.Memory.Alloc'Address,
+         R => System.Memory.Realloc'Address,
+         F => System.Memory.Free'Address) = 0
+   then
+      raise Program_Error with "Could not set memory functions.";
+   end if;
+
    TSSL.SSL_load_error_strings;
    TSSL.SSL_library_init;
    Locking.Initialize;
