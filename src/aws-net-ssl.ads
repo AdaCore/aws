@@ -169,7 +169,7 @@ private
       IO     : TSSL.BIO_Access;
    end record;
 
-   procedure Free (Socket : in out Socket_Type);
+   overriding procedure Free (Socket : in out Socket_Type);
    --  Release memory associated with the socket object
 
    overriding procedure Set_Timeout

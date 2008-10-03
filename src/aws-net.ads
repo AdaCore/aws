@@ -318,13 +318,19 @@ package AWS.Net is
       Index  : in Positive) return Event_Set is abstract;
    --  Returns events for the socket FD at position Index
 
+   procedure Free (Socket : in out Socket_Type) is null;
+   --  Release memory associated with the socket object. This default version
+   --  can be overriden to properly release the memory for the derived
+   --  implementation. The controlled Finalize routine is in charge of calling
+   --  Free. We could not have it in the private part because we could not make
+   --  AWS.Net.SSL.Free overriding this way.
+
 private
 
    type FD_Set (Size : Natural) is abstract tagged null record;
 
    procedure Wait_For
-     (Mode   : in Wait_Event_Type;
-      Socket : in Socket_Type'Class);
+     (Mode : in Wait_Event_Type; Socket : in Socket_Type'Class);
    --  Wait for a socket to be ready for input or output operation.
    --  Raises Socket_Error if an error or timeout occurs.
 
@@ -366,12 +372,6 @@ private
       C       : RW_Cache_Access;
       Timeout : Duration        := Forever;
    end record;
-
-   procedure Free (Socket : in out Socket_Type) is null;
-   --  Release memory associated with the socket object. This default version
-   --  can be overriden to properly release the memory for the derived
-   --  implementation. The controlled Finalize routine is in charge of calling
-   --  Release.
 
    function Errno return Integer;
    --  Return error code for the last socket operation
