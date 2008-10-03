@@ -42,8 +42,7 @@ package body AWS.Net.SSL is
    -------------------
 
    overriding procedure Accept_Socket
-     (Socket     : in     Net.Socket_Type'Class;
-      New_Socket : in out Socket_Type) is
+     (Socket : in Net.Socket_Type'Class; New_Socket : in out Socket_Type) is
    begin
       raise Program_Error with Error_Message;
    end Accept_Socket;
@@ -181,8 +180,7 @@ package body AWS.Net.SSL is
    ----------------
 
    procedure Set_Config
-     (Socket : in out Socket_Type;
-      Config : in     SSL.Config) is
+     (Socket : in out Socket_Type; Config : in SSL.Config) is
    begin
       raise Program_Error with Error_Message;
    end Set_Config;
@@ -192,8 +190,7 @@ package body AWS.Net.SSL is
    -----------------
 
    overriding procedure Set_Timeout
-     (Socket  : in out Socket_Type;
-      Timeout : in     Duration) is
+     (Socket : in out Socket_Type; Timeout : in Duration) is
    begin
       raise Program_Error with Error_Message;
    end Set_Timeout;
@@ -216,5 +213,15 @@ package body AWS.Net.SSL is
    begin
       raise Program_Error with Error_Message;
    end Socket_Pair;
+
+   -------------
+   -- Version --
+   -------------
+
+   function Version (Build_Info : in Boolean := False) return String is
+      pragma Unreferenced (Build_Info);
+   begin
+      return Error_Message;
+   end Version;
 
 end AWS.Net.SSL;

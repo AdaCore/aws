@@ -277,12 +277,25 @@ package SSL.Thin is
    function CRYPTO_get_dynlock_lock_callback    return Pointer;
    function CRYPTO_get_dynlock_destroy_callback return Pointer;
 
-   -----------------------------------------------------------
-   -- End of multithread data access setup locking routines --
-   -----------------------------------------------------------
+   ------------------------------------------
+   -- OpenSSL version information routines --
+   ------------------------------------------
+
+   SSLEAY_VERSION  : constant := 0;
+   SSLEAY_CFLAGS   : constant := 2;
+   SSLEAY_BUILT_ON : constant := 3;
+   SSLEAY_PLATFORM : constant := 4;
+   SSLEAY_DIR      : constant := 5;
 
    function SSLeay return long;
    --  Returns OpenSSL numeric release version identifier
+
+   function SSLeay_version_info (T : in int) return Cstr.chars_ptr;
+   --  Returns version information line
+
+   -------------------------------
+   -- Context control routines  --
+   -------------------------------
 
    function SSLv3_method         return SSL_Method;
    function SSLv3_server_method  return SSL_Method;
@@ -297,11 +310,6 @@ package SSL.Thin is
    function TLSv1_server_method  return SSL_Method;
    function TLSv1_client_method  return SSL_Method;
 
-   function CRYPTO_set_mem_functions
-     (M : in System.Address;
-      R : in System.Address;
-      F : in System.Address) return int;
-
    function SSL_CTX_new (Meth : in SSL_Method) return SSL_CTX;
 
    procedure SSL_CTX_free (P1 : in SSL_CTX);
@@ -314,6 +322,15 @@ package SSL.Thin is
       Larg : in int;
       Parg : in Pointer) return int;
 
+   -------------------------------------
+   -- Library initialization routines --
+   -------------------------------------
+
+   function CRYPTO_set_mem_functions
+     (M : in System.Address;
+      R : in System.Address;
+      F : in System.Address) return int;
+
    procedure SSL_library_init;
 
    procedure SSL_load_error_strings;
@@ -321,6 +338,10 @@ package SSL.Thin is
    procedure ERR_load_crypto_strings;
 
    procedure ERR_load_ssl_strings;
+
+   --------------------------------
+   -- Error information routines --
+   --------------------------------
 
    function ERR_get_error return Error_Code;
 
@@ -331,6 +352,10 @@ package SSL.Thin is
      (Code : in Error_Code; Buffer : in Cstr.chars_ptr; Len : in size_t);
 
    procedure ERR_Remove_State (pid : in int := 0);
+
+   -----------------------------------------
+   -- Connection handler control routines --
+   -----------------------------------------
 
    function SSL_new (Ctx : in SSL_CTX) return SSL_Handle;
 
@@ -374,6 +399,14 @@ package SSL.Thin is
 
    function SSL_get_error (SSL : in SSL_Handle; ret : in int) return int;
 
+   function SSL_shutdown (SSL : in SSL_Handle) return int;
+
+   procedure SSL_set_shutdown (SSL : in SSL_Handle; Mode : in int);
+
+   ----------------------
+   --  Crypto routines --
+   ----------------------
+
    type Generate_Key_Callback is access
      procedure (I1, I2 : in Integer; Param : in Pointer);
    pragma Convention (C, Generate_Key_Callback);
@@ -386,10 +419,6 @@ package SSL.Thin is
 
    function SSL_use_RSAPrivateKey
      (SSL : in SSL_Handle; Private_Key : in RSA) return int;
-
-   function SSL_shutdown (SSL : in SSL_Handle) return int;
-
-   procedure SSL_set_shutdown (SSL : in SSL_Handle; Mode : in int);
 
    function SSL_CTX_use_PrivateKey_file
      (Ctx : in SSL_CTX; File : in char_array; C_Type : in int) return int;
@@ -432,6 +461,10 @@ package SSL.Thin is
    function X509_get_issuer_name (X509 : in Thin.X509) return X509_Name;
 
    procedure SSL_CTX_set_default_verify_paths (Ctx : in SSL_CTX);
+
+   -------------------
+   --  BIO routines --
+   -------------------
 
    function BIO_s_socket return BIO_Method_Access;
    function BIO_s_mem return BIO_Method_Access;
@@ -519,6 +552,7 @@ private
    pragma Import (C, CRYPTO_get_dynlock_destroy_callback,
                     "CRYPTO_get_dynlock_destroy_callback");
    pragma Import (C, SSLeay, "SSLeay");
+   pragma Import (C, SSLeay_version_info, "SSLeay_version");
    pragma Import (C, RAND_seed, "RAND_seed");
    pragma Import (C, RAND_status, "RAND_status");
    pragma Import (C, RAND_set_rand_method, "RAND_set_rand_method");

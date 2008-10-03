@@ -109,9 +109,7 @@ package body AWS.Net.SSL is
    --  secondary initialization is ignored.
 
    function Verify_Callback
-     (preverify_ok : in Integer;
-      ctx          : in System.Address)
-      return Integer;
+     (preverify_ok : in Integer; ctx : in System.Address) return Integer;
    --  Dummy verify procedure that always return ok. This is needed to be able
    --  to retreive the client's certificate.
 
@@ -133,8 +131,7 @@ package body AWS.Net.SSL is
    -------------------
 
    overriding procedure Accept_Socket
-     (Socket     : in     Net.Socket_Type'Class;
-      New_Socket : in out Socket_Type)
+     (Socket : in Net.Socket_Type'Class; New_Socket : in out Socket_Type)
    is
       Success : Boolean;
    begin
@@ -633,8 +630,7 @@ package body AWS.Net.SSL is
    ----------------
 
    procedure Set_Config
-     (Socket : in out Socket_Type;
-      Config : in     SSL.Config) is
+     (Socket : in out Socket_Type; Config : in SSL.Config) is
    begin
       Socket.Config := Config;
    end Set_Config;
@@ -644,8 +640,7 @@ package body AWS.Net.SSL is
    -----------------
 
    overriding procedure Set_Timeout
-     (Socket  : in out Socket_Type;
-      Timeout : in     Duration) is
+     (Socket  : in out Socket_Type; Timeout : in Duration) is
    begin
       Set_Timeout (Net.Socket_Type (Socket), Timeout);
    end Set_Timeout;
@@ -1171,6 +1166,26 @@ package body AWS.Net.SSL is
    begin
       return 1;
    end Verify_Callback;
+
+   -------------
+   -- Version --
+   -------------
+
+   function Version (Build_Info : in Boolean := False) return String is
+      use TSSL;
+      Result : constant String :=
+        C.Strings.Value (SSLeay_version_info (SSLEAY_VERSION));
+   begin
+      if Build_Info then
+         return Result & ASCII.LF
+           & C.Strings.Value (SSLeay_version_info (SSLEAY_CFLAGS)) & ASCII.LF
+           & C.Strings.Value (SSLeay_version_info (SSLEAY_BUILT_ON)) & ASCII.LF
+           & C.Strings.Value (SSLeay_version_info (SSLEAY_PLATFORM)) & ASCII.LF
+           & C.Strings.Value (SSLeay_version_info (SSLEAY_DIR));
+      else
+         return Result;
+      end if;
+   end Version;
 
 begin
    TSSL.SSL_load_error_strings;

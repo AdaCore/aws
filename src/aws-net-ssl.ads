@@ -46,8 +46,7 @@ package AWS.Net.SSL is
    ----------------
 
    overriding procedure Accept_Socket
-     (Socket     : in     Net.Socket_Type'Class;
-      New_Socket : in out Socket_Type);
+     (Socket : in Net.Socket_Type'Class; New_Socket : in out Socket_Type);
    --  Accept a connection on a socket
 
    overriding procedure Connect
@@ -123,8 +122,7 @@ package AWS.Net.SSL is
    --  Release memory associated with the Config object
 
    procedure Set_Config
-     (Socket : in out Socket_Type;
-      Config : in     SSL.Config);
+     (Socket : in out Socket_Type; Config : in SSL.Config);
    --  Set the SSL configuration object for the secure socket
 
    function Secure_Client
@@ -147,6 +145,9 @@ package AWS.Net.SSL is
    --  Wait for a SSL/TLS handshake to take place. You need to call this
    --  routine if you have converted a standard socket to secure one and need
    --  to get the peer certificate.
+
+   function Version (Build_Info : in Boolean := False) return String;
+   --  Returns version information
 
 private
 
