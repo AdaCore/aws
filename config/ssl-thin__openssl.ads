@@ -351,7 +351,7 @@ package SSL.Thin is
    procedure ERR_error_string_n
      (Code : in Error_Code; Buffer : in Cstr.chars_ptr; Len : in size_t);
 
-   procedure ERR_Remove_State (pid : in int := 0);
+   procedure ERR_remove_state (pid : in int := 0);
 
    -----------------------------------------
    -- Connection handler control routines --
@@ -561,7 +561,7 @@ private
    pragma Import (C, SSL_get_rbio, "SSL_get_rbio");
    pragma Import (C, SSL_get_wbio, "SSL_get_wbio");
    pragma Import (C, SSL_accept, "SSL_accept");
-   pragma Import (C, ERR_Remove_State, "ERR_remove_state");
+   pragma Import (C, ERR_remove_state, "ERR_remove_state");
 
    pragma Import (C, SSL_set_connect_state, "SSL_set_connect_state");
    pragma Import (C, SSL_set_accept_state, "SSL_set_accept_state");

@@ -734,13 +734,20 @@ package body AWS.Net.SSL is
       type Lock_Index is new C.int;
       type Mode_Type is mod 2 ** C.int'Size;
 
+      type Task_Data is new Ada.Finalization.Controlled with record
+         TID : Task_Identifier;
+      end record;
+
+      overriding procedure Finalize (Object : in out Task_Data);
+
       subtype Filename_Type is C.Strings.chars_ptr;
       subtype Line_Number is C.int;
 
       Finalized : Boolean := False;
       --  Need to avoid access to finalized protected locking objects
 
-      package Task_Identifiers is new Ada.Task_Attributes (Task_Identifier, 0);
+      package Task_Identifiers is new Ada.Task_Attributes
+        (Task_Data, (Ada.Finalization.Controlled with TID => 0));
 
       procedure Finalize;
 
@@ -846,6 +853,12 @@ package body AWS.Net.SSL is
          Finalized := True;
       end Finalize;
 
+      overriding procedure Finalize (Object : in out Task_Data) is
+         pragma Unreferenced (Object);
+      begin
+         TSSL.ERR_remove_state;
+      end Finalize;
+
       -------------------------
       -- Get_Task_Identifier --
       -------------------------
@@ -854,11 +867,11 @@ package body AWS.Net.SSL is
          TA : constant Task_Identifiers.Attribute_Handle
            := Task_Identifiers.Reference;
       begin
-         if TA.all = 0 then
-            Task_Id_Generator.Get_Task_Id (TA.all);
+         if TA.TID = 0 then
+            Task_Id_Generator.Get_Task_Id (TA.TID);
          end if;
 
-         return TA.all;
+         return TA.TID;
       end Get_Task_Identifier;
 
       ----------------
