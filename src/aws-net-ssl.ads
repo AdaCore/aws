@@ -109,7 +109,8 @@ package AWS.Net.SSL is
       Certificate_Filename : in     String;
       Security_Mode        : in     Method     := SSLv23;
       Key_Filename         : in     String     := "";
-      Exchange_Certificate : in     Boolean    := False);
+      Exchange_Certificate : in     Boolean    := False;
+      Session_Cache_Size   : in     Positive   := 16#4000#);
    --  Initialize the SSL layer into Config. Certificate_Filename must point
    --  to a valid certificate. Security mode can be used to change the
    --  security method used by AWS. Key_Filename must be specified if the key

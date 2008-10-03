@@ -68,7 +68,8 @@ package body AWS.Net.SSL is
         (Certificate_Filename : in String;
          Security_Mode        : in Method;
          Key_Filename         : in String;
-         Exchange_Certificate : in Boolean);
+         Exchange_Certificate : in Boolean;
+         Session_Cache_Size   : in Positive);
 
       procedure Finalize;
 
@@ -353,7 +354,8 @@ package body AWS.Net.SSL is
       Certificate_Filename : in     String;
       Security_Mode        : in     Method     := SSLv23;
       Key_Filename         : in     String     := "";
-      Exchange_Certificate : in     Boolean    := False) is
+      Exchange_Certificate : in     Boolean    := False;
+      Session_Cache_Size   : in     Positive   := 16#4000#) is
    begin
       if Config = null then
          Config := new TS_SSL;
@@ -361,7 +363,7 @@ package body AWS.Net.SSL is
 
       Config.Initialize
         (Certificate_Filename, Security_Mode, Key_Filename,
-         Exchange_Certificate);
+         Exchange_Certificate, Session_Cache_Size);
    end Initialize;
 
    -------------------------------
@@ -376,7 +378,8 @@ package body AWS.Net.SSL is
         (Certificate_Filename => CNF.Certificate (Default),
          Security_Mode        => Method'Value (CNF.Security_Mode (Default)),
          Key_Filename         => CNF.Key (Default),
-         Exchange_Certificate => CNF.Exchange_Certificate (Default));
+         Exchange_Certificate => CNF.Exchange_Certificate (Default),
+         Session_Cache_Size   => 16#4000#);
    end Initialize_Default_Config;
 
    -------------
@@ -976,18 +979,16 @@ package body AWS.Net.SSL is
         (Certificate_Filename : in String;
          Security_Mode        : in Method;
          Key_Filename         : in String;
-         Exchange_Certificate : in Boolean)
+         Exchange_Certificate : in Boolean;
+         Session_Cache_Size   : in Positive)
       is
          type Meth_Func is access function return TSSL.SSL_Method;
          pragma Convention (C, Meth_Func);
 
          procedure Set_Quiet_Shutdown (Value : in Boolean := True);
 
-         procedure Set_Sess_Cache_Size (Value : in Natural);
-
          procedure Set_Certificate
-           (Cert_Filename : in String;
-            Key_Filename  : in String := "");
+           (Cert_Filename : in String; Key_Filename : in String);
 
          Methods : constant array (Method) of Meth_Func
            := (SSLv2          => TSSL.SSLv2_method'Access,
@@ -1008,7 +1009,7 @@ package body AWS.Net.SSL is
          ---------------------
 
          procedure Set_Certificate
-           (Cert_Filename : in String; Key_Filename : in String := "")
+           (Cert_Filename : in String; Key_Filename : in String)
          is
             use Interfaces.C;
 
@@ -1103,20 +1104,6 @@ package body AWS.Net.SSL is
                Mode => Boolean'Pos (Value));
          end Set_Quiet_Shutdown;
 
-         -------------------------
-         -- Set_Sess_Cache_Size --
-         -------------------------
-
-         procedure Set_Sess_Cache_Size (Value : in Natural) is
-         begin
-            Error_If
-              (TSSL.SSL_CTX_ctrl
-                 (Ctx  => Context,
-                  Cmd  => TSSL.SSL_CTRL_SET_SESS_CACHE_SIZE,
-                  Larg => C.int (Value),
-                  Parg => TSSL.Null_Pointer) = -1);
-         end Set_Sess_Cache_Size;
-
       begin
          if Context = TSSL.Null_Pointer then
             --  Initialize context
@@ -1146,7 +1133,13 @@ package body AWS.Net.SSL is
             end if;
 
             Set_Quiet_Shutdown;
-            Set_Sess_Cache_Size (16);
+
+            Error_If
+              (TSSL.SSL_CTX_ctrl
+                 (Ctx  => Context,
+                  Cmd  => TSSL.SSL_CTRL_SET_SESS_CACHE_SIZE,
+                  Larg => C.int (Session_Cache_Size),
+                  Parg => TSSL.Null_Pointer) = -1);
          end if;
       end Initialize;
 

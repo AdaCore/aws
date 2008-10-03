@@ -96,7 +96,8 @@ package body AWS.Net.SSL is
       Certificate_Filename : in     String;
       Security_Mode        : in     Method     := SSLv23;
       Key_Filename         : in     String     := "";
-      Exchange_Certificate : in     Boolean    := False) is
+      Exchange_Certificate : in     Boolean    := False;
+      Session_Cache_Size   : in     Positive   := 16#4000#) is
    begin
       raise Program_Error with Error_Message;
    end Initialize;
