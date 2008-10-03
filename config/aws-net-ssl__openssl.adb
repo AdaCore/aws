@@ -719,15 +719,12 @@ package body AWS.Net.SSL is
       Last : constant Stream_Element_Offset
         := Stream_Element_Offset
              (BIO_nread (Socket.IO, Data'Address, C.int'Last));
-      Plain : NSST;
-      --  ??? Looks like direct type convertion lead to wrong dispatch
    begin
       if Last <= 0 then
          return;
       end if;
 
-      Plain := NSST (Socket);
-      Net.Send (Plain, Data (1 .. Last));
+      NSST (Socket).Send (Data (1 .. Last));
    end Socket_Write;
 
    -------------
@@ -748,11 +745,7 @@ package body AWS.Net.SSL is
 
       package Task_Identifiers is new Ada.Task_Attributes (Task_Identifier, 0);
 
-      type Finalizator is new Ada.Finalization.Limited_Controlled
-        with null record;
-      --  Dummy limited controlled type, need to set Finalized boolean variable
-
-      overriding procedure Finalize (Item : in out Finalizator);
+      procedure Finalize;
 
       protected Task_Id_Generator is
          procedure Get_Task_Id (Id : out Task_Identifier);
@@ -766,7 +759,7 @@ package body AWS.Net.SSL is
 
       Locks : array (1 .. Lock_Index (TSSL.CRYPTO_num_locks)) of RW_Mutex;
 
-      F : Finalizator;
+      F : Utils.Finalizer (Finalize'Access);
       pragma Unreferenced (F);
 
       procedure Lock (Mode : in Mode_Type; Locker : in out RW_Mutex);
@@ -851,8 +844,7 @@ package body AWS.Net.SSL is
       -- Finalize --
       --------------
 
-      overriding procedure Finalize (Item : in out Finalizator) is
-         pragma Unreferenced (Item);
+      procedure Finalize is
       begin
          Finalized := True;
       end Finalize;
@@ -1173,9 +1165,7 @@ package body AWS.Net.SSL is
    ---------------------
 
    function Verify_Callback
-     (preverify_ok : in Integer;
-      ctx          : in System.Address)
-      return Integer
+     (preverify_ok : in Integer; ctx : in System.Address) return Integer
    is
       pragma Unreferenced (preverify_ok, ctx);
    begin
