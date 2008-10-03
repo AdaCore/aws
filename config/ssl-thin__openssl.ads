@@ -268,9 +268,8 @@ package SSL.Thin is
    procedure CRYPTO_set_locking_callback (Locking_Function : in Pointer);
    function  CRYPTO_get_locking_callback return Pointer;
 
-   procedure CRYPTO_set_dynlock_create_callback
-     (Create_Function : in Pointer);
-   procedure CRYPTO_set_dynlock_lock_callback    (Lock_Function : in Pointer);
+   procedure CRYPTO_set_dynlock_create_callback (Create_Function : in Pointer);
+   procedure CRYPTO_set_dynlock_lock_callback (Lock_Function : in Pointer);
    procedure CRYPTO_set_dynlock_destroy_callback
      (Destroy_Function : in Pointer);
 
@@ -301,8 +300,7 @@ package SSL.Thin is
    function CRYPTO_set_mem_functions
      (M : in System.Address;
       R : in System.Address;
-      F : in System.Address)
-      return int;
+      F : in System.Address) return int;
 
    function SSL_CTX_new (Meth : in SSL_Method) return SSL_CTX;
 
@@ -314,8 +312,7 @@ package SSL.Thin is
      (Ctx  : in SSL_CTX;
       Cmd  : in int;
       Larg : in int;
-      Parg : in Pointer)
-      return int;
+      Parg : in Pointer) return int;
 
    procedure SSL_library_init;
 
@@ -328,14 +325,10 @@ package SSL.Thin is
    function ERR_get_error return Error_Code;
 
    function ERR_error_string
-     (Code   : in Error_Code;
-      Buffer : in Cstr.chars_ptr)
-      return Cstr.chars_ptr;
+     (Code : in Error_Code; Buffer : in Cstr.chars_ptr) return Cstr.chars_ptr;
 
    procedure ERR_error_string_n
-     (Code   : in Error_Code;
-      Buffer : in Cstr.chars_ptr;
-      Len    : in size_t);
+     (Code : in Error_Code; Buffer : in Cstr.chars_ptr; Len : in size_t);
 
    procedure ERR_Remove_State (pid : in int := 0);
 
@@ -352,9 +345,7 @@ package SSL.Thin is
    function SSL_get_rbio (SSL : in SSL_Handle) return BIO_Access;
    function SSL_get_wbio (SSL : in SSL_Handle) return BIO_Access;
 
-   procedure SSL_set_read_ahead
-     (S   : in SSL_Handle;
-      Yes : in int);
+   procedure SSL_set_read_ahead (S : in SSL_Handle; Yes : in int);
 
    function SSL_connect (SSL : in SSL_Handle) return int;
 
@@ -371,22 +362,13 @@ package SSL.Thin is
    function SSL_want (S : in SSL_Handle) return int;
 
    function SSL_read
-     (SSL : in SSL_Handle;
-      Buf : in Pointer;
-      Num : in int)
-      return int;
+     (SSL : in SSL_Handle; Buf : in Pointer; Num : in int) return int;
 
    function SSL_peek
-     (SSL : in SSL_Handle;
-      Buf : in Pointer;
-      Num : in int)
-      return int;
+     (SSL : in SSL_Handle; Buf : in Pointer; Num : in int) return int;
 
    function SSL_write
-     (SSL : in SSL_Handle;
-      Buf : in Pointer;
-      Num : in int)
-      return int;
+     (SSL : in SSL_Handle; Buf : in Pointer; Num : in int) return int;
 
    function SSL_pending (S : in SSL_Handle) return int;
 
@@ -400,53 +382,34 @@ package SSL.Thin is
      (Bits     : in int;
       E        : in unsigned;
       Callback : in Generate_Key_Callback;
-      Cb_Arg   : in Pointer)
-      return RSA;
+      Cb_Arg   : in Pointer) return RSA;
 
    function SSL_use_RSAPrivateKey
-     (SSL         : in SSL_Handle;
-      Private_Key : in RSA)
-      return int;
+     (SSL : in SSL_Handle; Private_Key : in RSA) return int;
 
    function SSL_shutdown (SSL : in SSL_Handle) return int;
 
    procedure SSL_set_shutdown (SSL : in SSL_Handle; Mode : in int);
 
    function SSL_CTX_use_PrivateKey_file
-     (Ctx    : in SSL_CTX;
-      File   : in char_array;
-      C_Type : in int)
-      return int;
+     (Ctx : in SSL_CTX; File : in char_array; C_Type : in int) return int;
 
    function SSL_use_PrivateKey_file
-     (SSL    : in SSL_Handle;
-      File   : in char_array;
-      C_Type : in int)
-      return int;
+     (SSL : in SSL_Handle; File : in char_array; C_Type : in int) return int;
 
    function SSL_CTX_use_certificate_file
-     (Ctx    : in SSL_CTX;
-      File   : in char_array;
-      C_Type : in int)
-      return int;
+     (Ctx : in SSL_CTX; File : in char_array; C_Type : in int) return int;
 
    function SSL_CTX_use_certificate_chain_file
-     (Ctx    : in SSL_CTX;
-      File   : in char_array)
-      return int;
+     (Ctx : in SSL_CTX; File : in char_array) return int;
 
    function SSL_use_certificate_file
-     (SSL    : in SSL_Handle;
-      File   : in char_array;
-      C_Type : in int)
-      return int;
+     (SSL : in SSL_Handle; File : in char_array; C_Type : in int) return int;
 
    function SSL_CTX_check_private_key (Ctx : in SSL_CTX) return int;
 
    procedure SSL_CTX_set_verify
-     (Ctx      : in SSL_CTX;
-      Mode     : in int;
-      Callback : in Pointer);
+     (Ctx : in SSL_CTX; Mode : in int; Callback : in Pointer);
 
    procedure RAND_seed (Buf : in Pointer; Num : in Integer);
 
@@ -463,8 +426,7 @@ package SSL.Thin is
    function X509_NAME_oneline
      (Name : in X509_Name;
       Buf  : in Pointer;
-      Size : in int)
-      return Cstr.chars_ptr;
+      Size : in int) return Cstr.chars_ptr;
 
    function X509_get_subject_name (X509 : in Thin.X509) return X509_Name;
    function X509_get_issuer_name (X509 : in Thin.X509) return X509_Name;
@@ -478,16 +440,20 @@ package SSL.Thin is
    function BIO_new (Method : in BIO_Method_Access) return BIO_Access;
 
    function BIO_int_ctrl
-     (Bp : in BIO_Access; Cmd : in int; Larg : in long; Iarg : in int)
-      return long;
+     (Bp   : in BIO_Access;
+      Cmd  : in int;
+      Larg : in long;
+      Iarg : in int) return long;
 
    procedure BIO_int_ctrl
      (Bp : in BIO_Access; Cmd : in int; Larg : in long; Iarg : in int);
    --  BIO_set_fd(b,fd,c) BIO_int_ctrl(b,BIO_C_SET_FD,c,fd)
 
    function BIO_ctrl
-     (Bp : in BIO_Access; Cmd : in int; Larg : in long; Parg : in Pointer)
-      return long;
+     (Bp   : in BIO_Access;
+      Cmd  : in int;
+      Larg : in long;
+      Parg : in Pointer) return long;
    --  BIO_pending(b) = (int)BIO_ctrl(b,BIO_CTRL_PENDING,0,NULL)
 
    procedure BIO_ctrl
@@ -497,10 +463,10 @@ package SSL.Thin is
    --  = BIO_ctrl(b,BIO_C_SET_BUF_MEM_EOF_RETURN,v,NULL)
 
    function BIO_read
-       (BIO : in BIO_Access; Data : in Pointer; Len : in int) return int;
+     (BIO : in BIO_Access; Data : in Pointer; Len : in int) return int;
 
    function BIO_write
-       (BIO : in BIO_Access; Data : in Pointer; Len : in int) return int;
+     (BIO : in BIO_Access; Data : in Pointer; Len : in int) return int;
 
    function BIO_new_bio_pair
      (bio1 : access BIO_Access; writebuf1 : in size_t;
@@ -635,6 +601,6 @@ private
    pragma Import (C, X509_NAME_oneline, "X509_NAME_oneline");
    pragma Import (C, SSL_CTX_set_verify, "SSL_CTX_set_verify");
    pragma Import (C, SSL_CTX_set_default_verify_paths,
-                  "SSL_CTX_set_default_verify_paths");
+                    "SSL_CTX_set_default_verify_paths");
 
 end SSL.Thin;
