@@ -714,12 +714,14 @@ package body AWS.Net.SSL is
       Last : constant Stream_Element_Offset
         := Stream_Element_Offset
              (BIO_nread (Socket.IO, Data'Address, C.int'Last));
+      Plain : constant NSST := NSST (Socket);
+      --  ??? Looks like direct type convertion lead to wrong dispatch
    begin
       if Last <= 0 then
          return;
       end if;
 
-      NSST (Socket).Send (Data (1 .. Last));
+      Plain.Send (Data (1 .. Last));
    end Socket_Write;
 
    -------------
