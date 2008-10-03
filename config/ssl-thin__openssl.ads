@@ -518,6 +518,29 @@ package SSL.Thin is
    function BIO_free (BIO : in BIO_Access) return int;
    procedure BIO_free (BIO : in BIO_Access);
 
+   SSL_SESS_CACHE_OFF                : constant := 0;
+   SSL_SESS_CACHE_CLIENT             : constant := 1;
+   SSL_SESS_CACHE_SERVER             : constant := 2;
+   SSL_SESS_CACHE_BOTH               : constant :=
+     SSL_SESS_CACHE_CLIENT + SSL_SESS_CACHE_SERVER;
+   SSL_SESS_CACHE_NO_AUTO_CLEAR      : constant := 16#0080#;
+   SSL_SESS_CACHE_NO_INTERNAL_LOOKUP : constant := 16#0100#;
+   SSL_SESS_CACHE_NO_INTERNAL_STORE  : constant := 16#0200#;
+   SSL_SESS_CACHE_NO_INTERNAL        : constant :=
+     SSL_SESS_CACHE_NO_INTERNAL_LOOKUP + SSL_SESS_CACHE_NO_INTERNAL_STORE;
+
+   function SSL_CTX_set_session_cache_mode
+     (Ctx : in SSL_CTX; Mode : in long) return long;
+
+   type SSL_Session is new Pointer;
+
+   function SSL_set_session
+     (SSL : in SSL_Handle; session : in SSL_Session) return int;
+
+   function SSL_get_session (SSL : in SSL_Handle) return SSL_Session;
+   function SSL_get0_session (SSL : in SSL_Handle) return SSL_Session;
+   function SSL_get1_session (SSL : in SSL_Handle) return SSL_Session;
+
 private
 
    pragma Import (C, BIO_s_socket, "BIO_s_socket");
@@ -583,6 +606,8 @@ private
    pragma Import (C, SSL_connect, "SSL_connect");
    pragma Import (C, SSL_CTX_set_quiet_shutdown, "SSL_CTX_set_quiet_shutdown");
    pragma Import (C, SSL_CTX_ctrl, "SSL_CTX_ctrl");
+   pragma Import (C, SSL_CTX_set_session_cache_mode,
+                    "SSL_CTX_set_session_cache_mode");
    pragma Import (C, SSL_pending, "SSL_pending");
    pragma Import (C, SSL_set_shutdown, "SSL_set_shutdown");
    pragma Import (C, SSL_shutdown, "SSL_shutdown");
@@ -636,5 +661,8 @@ private
    pragma Import (C, SSL_CTX_set_verify, "SSL_CTX_set_verify");
    pragma Import (C, SSL_CTX_set_default_verify_paths,
                     "SSL_CTX_set_default_verify_paths");
-
+   pragma Import (C, SSL_set_session, "SSL_set_session");
+   pragma Import (C, SSL_get_session, "SSL_get_session");
+   pragma Import (C, SSL_get0_session, "SSL_get0_session");
+   pragma Import (C, SSL_get1_session, "SSL_get1_session");
 end SSL.Thin;
