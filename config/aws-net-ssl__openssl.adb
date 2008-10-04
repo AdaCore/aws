@@ -75,6 +75,10 @@ package body AWS.Net.SSL is
 
       procedure Finalize;
 
+      procedure Clear_Session_Cache;
+
+      procedure Set_Session_Cache_Size (Size : in Natural);
+
    private
       Context : TSSL.SSL_CTX := TSSL.Null_CTX;
    end TS_SSL;
@@ -158,6 +162,19 @@ package body AWS.Net.SSL is
          Shutdown (New_Socket);
       end loop SSL_Accept;
    end Accept_Socket;
+
+   -------------------------
+   -- Clear_Session_Cache --
+   -------------------------
+
+   procedure Clear_Session_Cache (Config : in SSL.Config := Null_Config) is
+   begin
+      if Config = Null_Config then
+         Default_Config.Clear_Session_Cache;
+      else
+         Config.Clear_Session_Cache;
+      end if;
+   end Clear_Session_Cache;
 
    -------------
    -- Connect --
@@ -413,7 +430,7 @@ package body AWS.Net.SSL is
             --  Initialize private key
 
             Private_Key := TSSL.RSA_generate_key
-              (Bits     => 512,
+              (Bits     => 1024,
                E        => TSSL.RSA_F4,
                Callback => null,
                Cb_Arg   => TSSL.Null_Pointer);
@@ -640,6 +657,21 @@ package body AWS.Net.SSL is
    begin
       Socket.Config := Config;
    end Set_Config;
+
+   ----------------------------
+   -- Set_Session_Cache_Size --
+   ----------------------------
+
+   procedure Set_Session_Cache_Size
+     (Size : in Natural; Config : in SSL.Config := Null_Config) is
+   begin
+      if Config = Null_Config then
+         Initialize_Default_Config;
+         Default_Config.Set_Session_Cache_Size (Size);
+      else
+         Config.Set_Session_Cache_Size (Size);
+      end if;
+   end Set_Session_Cache_Size;
 
    -----------------
    -- Set_Timeout --
@@ -976,6 +1008,15 @@ package body AWS.Net.SSL is
 
    protected body TS_SSL is
 
+      -------------------------
+      -- Clear_Session_Cache --
+      -------------------------
+
+      procedure Clear_Session_Cache is
+      begin
+         TSSL.SSL_CTX_flush_sessions (Context, C.long'Last);
+      end Clear_Session_Cache;
+
       --------------
       -- Finalize --
       --------------
@@ -1148,13 +1189,7 @@ package body AWS.Net.SSL is
             end if;
 
             Set_Quiet_Shutdown;
-
-            Error_If
-              (TSSL.SSL_CTX_ctrl
-                 (Ctx  => Context,
-                  Cmd  => TSSL.SSL_CTRL_SET_SESS_CACHE_SIZE,
-                  Larg => C.int (Session_Cache_Size),
-                  Parg => TSSL.Null_Pointer) = -1);
+            TS_SSL.Set_Session_Cache_Size (Session_Cache_Size);
          end if;
       end Initialize;
 
@@ -1177,6 +1212,20 @@ package body AWS.Net.SSL is
 
          SSL_set_bio (Socket.SSL, Inside_IO, Inside_IO);
       end Set_IO;
+
+      ----------------------------
+      -- Set_Session_Cache_Size --
+      ----------------------------
+
+      procedure Set_Session_Cache_Size (Size : in Natural) is
+      begin
+         Error_If
+           (TSSL.SSL_CTX_ctrl
+              (Ctx  => Context,
+               Cmd  => TSSL.SSL_CTRL_SET_SESS_CACHE_SIZE,
+               Larg => C.int (Size),
+               Parg => TSSL.Null_Pointer) = -1);
+      end Set_Session_Cache_Size;
 
    end TS_SSL;
 

@@ -607,6 +607,11 @@ begin
 
    Server.Started;
 
+   --  Limit session cache to avoid different cache container allocation
+   --  in different execution.
+
+   AWS.Net.SSL.Set_Session_Cache_Size (2);
+
    --  This is the main loop. Be sure to run everything inside this
    --  loop. Check_Mem is checked between 2 runs with a different number of
    --  iterations.
@@ -625,6 +630,10 @@ begin
    end loop;
 
    Server.Stopped;
+
+   --  Clear session cache to normalize rest allocated memory
+
+   AWS.Net.SSL.Clear_Session_Cache;
 
    Command_Line.Set_Exit_Status (Command_Line.Success);
 exception

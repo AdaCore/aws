@@ -150,6 +150,15 @@ package AWS.Net.SSL is
    function Version (Build_Info : in Boolean := False) return String;
    --  Returns version information
 
+   procedure Clear_Session_Cache (Config : in SSL.Config := Null_Config);
+   --  Remove all sessions from SSL session cache from the SSL context.
+   --  Null_Config mean default context.
+
+   procedure Set_Session_Cache_Size
+     (Size : in Natural; Config : in SSL.Config := Null_Config);
+   --  Set session cache size in the SSL context.
+   --  Null_Config mean default context.
+
 private
 
    package TSSL renames Standard.SSL.Thin;

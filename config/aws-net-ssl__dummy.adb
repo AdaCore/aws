@@ -47,6 +47,15 @@ package body AWS.Net.SSL is
       raise Program_Error with Error_Message;
    end Accept_Socket;
 
+   -------------------------
+   -- Clear_Session_Cache --
+   -------------------------
+
+   procedure Clear_Session_Cache (Config : in SSL.Config := Null_Config) is
+   begin
+      null;
+   end Clear_Session_Cache;
+
    -------------
    -- Connect --
    -------------
@@ -185,6 +194,16 @@ package body AWS.Net.SSL is
    begin
       raise Program_Error with Error_Message;
    end Set_Config;
+
+   ----------------------------
+   -- Set_Session_Cache_Size --
+   ----------------------------
+
+   procedure Set_Session_Cache_Size
+     (Size : in Natural; Config : in SSL.Config := Null_Config) is
+   begin
+      null;
+   end Set_Session_Cache_Size;
 
    -----------------
    -- Set_Timeout --
