@@ -532,6 +532,8 @@ package SSL.Thin is
    function SSL_CTX_set_session_cache_mode
      (Ctx : in SSL_CTX; Mode : in long) return long;
 
+   procedure SSL_CTX_flush_sessions (Ctx : in SSL_CTX; Tm : in long);
+
    type SSL_Session is new Pointer;
 
    function SSL_set_session
@@ -665,4 +667,5 @@ private
    pragma Import (C, SSL_get_session, "SSL_get_session");
    pragma Import (C, SSL_get0_session, "SSL_get0_session");
    pragma Import (C, SSL_get1_session, "SSL_get1_session");
+   pragma Import (C, SSL_CTX_flush_sessions, "SSL_CTX_flush_sessions");
 end SSL.Thin;
