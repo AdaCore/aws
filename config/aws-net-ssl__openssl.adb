@@ -121,13 +121,6 @@ package body AWS.Net.SSL is
    --  Dummy verify procedure that always return ok. This is needed to be able
    --  to retreive the client's certificate.
 
-   protected Private_Key_Holder is
-      procedure Get (Key : out TSSL.RSA);
-   private
-      Private_Key : TSSL.RSA := TSSL.Null_Pointer;
-   end Private_Key_Holder;
-   --  The private key to use by all SSL servers
-
    procedure Secure
      (Source : in     Net.Socket_Type'Class;
       Target :    out Socket_Type;
@@ -413,35 +406,6 @@ package body AWS.Net.SSL is
       Error_If (Socket, Res < 0);
       return Stream_Element_Count (Res);
    end Pending;
-
-   ------------------------
-   -- Private_Key_Holder --
-   ------------------------
-
-   protected body Private_Key_Holder is
-
-      ---------
-      -- Get --
-      ---------
-
-      procedure Get (Key : out TSSL.RSA) is
-      begin
-         if Private_Key = TSSL.Null_Pointer then
-            --  Initialize private key
-
-            Private_Key := TSSL.RSA_generate_key
-              (Bits     => 1024,
-               E        => TSSL.RSA_F4,
-               Callback => null,
-               Cb_Arg   => TSSL.Null_Pointer);
-
-            Error_If (Private_Key = TSSL.Null_Pointer);
-         end if;
-
-         Key := Private_Key;
-      end Get;
-
-   end Private_Key_Holder;
 
    -------------
    -- Receive --
@@ -1127,26 +1091,6 @@ package body AWS.Net.SSL is
 
             Error_If
               (TSSL.SSL_CTX_check_private_key (Ctx => Context) /= 1);
-
-            if TSSL.SSL_CTX_ctrl
-              (Ctx  => Context,
-               Cmd  => TSSL.SSL_CTRL_NEED_TMP_RSA,
-               Larg => 0,
-               Parg => TSSL.Null_Pointer) /= 0
-            then
-               declare
-                  Private_Key : TSSL.RSA;
-               begin
-                  Private_Key_Holder.Get (Private_Key);
-
-                  Error_If
-                    (TSSL.SSL_CTX_ctrl
-                       (Ctx  => Context,
-                        Cmd  => TSSL.SSL_CTRL_SET_TMP_RSA,
-                        Larg => 0,
-                        Parg => Private_Key) = -1);
-               end;
-            end if;
          end Set_Certificate;
 
          ------------------------
@@ -1262,6 +1206,9 @@ package body AWS.Net.SSL is
    end Version;
 
 begin
+   --  Set the RTL memory allocation routines is necessary only to be able
+   --  gnatmem control memory leak allocated inside of OpenSSL library.
+
    if TSSL.CRYPTO_set_mem_functions
         (M => System.Memory.Alloc'Address,
          R => System.Memory.Realloc'Address,
