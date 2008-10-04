@@ -34,6 +34,8 @@
 
 with Ada.Calendar;
 with Ada.Task_Attributes;
+with Ada.Task_Identification;
+with Ada.Task_Termination;
 with Ada.Unchecked_Deallocation;
 with Interfaces.C.Strings;
 with System.Memory;
@@ -738,11 +740,9 @@ package body AWS.Net.SSL is
       type Lock_Index is new C.int;
       type Mode_Type is mod 2 ** C.int'Size;
 
-      type Task_Data is new Ada.Finalization.Controlled with record
+      type Task_Data is record
          TID : Task_Identifier;
       end record;
-
-      overriding procedure Finalize (Object : in out Task_Data);
 
       subtype Filename_Type is C.Strings.chars_ptr;
       subtype Line_Number is C.int;
@@ -751,12 +751,16 @@ package body AWS.Net.SSL is
       --  Need to avoid access to finalized protected locking objects
 
       package Task_Identifiers is new Ada.Task_Attributes
-        (Task_Data, (Ada.Finalization.Controlled with TID => 0));
+        (Task_Data, (TID => 0));
 
       procedure Finalize;
 
       protected Task_Id_Generator is
          procedure Get_Task_Id (Id : out Task_Identifier);
+         procedure Finalize_Task
+           (Cause : in Ada.Task_Termination.Cause_Of_Termination;
+            T     : in Ada.Task_Identification.Task_Id;
+            X     : in Ada.Exceptions.Exception_Occurrence);
       private
          Id_Counter : Task_Identifier := 0;
       end Task_Id_Generator;
@@ -857,13 +861,6 @@ package body AWS.Net.SSL is
          Finalized := True;
       end Finalize;
 
-      overriding procedure Finalize (Object : in out Task_Data) is
-      begin
-         if Object.TID /= 0 then
-            TSSL.ERR_remove_state (C.int (Object.TID));
-         end if;
-      end Finalize;
-
       -------------------------
       -- Get_Task_Identifier --
       -------------------------
@@ -874,6 +871,10 @@ package body AWS.Net.SSL is
       begin
          if TA.TID = 0 then
             Task_Id_Generator.Get_Task_Id (TA.TID);
+
+            Ada.Task_Termination.Set_Specific_Handler
+              (Ada.Task_Identification.Current_Task,
+               Task_Id_Generator.Finalize_Task'Access);
          end if;
 
          return TA.TID;
@@ -940,6 +941,20 @@ package body AWS.Net.SSL is
       -----------------------
 
       protected body Task_Id_Generator is
+
+         -------------------
+         -- Finalize_Task --
+         -------------------
+
+         procedure Finalize_Task
+           (Cause : in Ada.Task_Termination.Cause_Of_Termination;
+            T     : in Ada.Task_Identification.Task_Id;
+            X     : in Ada.Exceptions.Exception_Occurrence)
+         is
+            pragma Unreferenced (Cause, X);
+         begin
+            TSSL.ERR_remove_state (C.int (Task_Identifiers.Reference (T).TID));
+         end Finalize_Task;
 
          -----------------
          -- Get_Task_Id --
