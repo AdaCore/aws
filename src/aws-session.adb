@@ -25,9 +25,9 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-with Ada.Containers.Indefinite_Hashed_Maps;
+with Ada.Containers.Hashed_Maps;
 with Ada.Exceptions;
-with Ada.Streams.Stream_IO;        use Ada.Streams;
+with Ada.Streams.Stream_IO;
 with Ada.Strings.Hash;
 with Ada.Strings.Unbounded;
 with Ada.Text_IO;
@@ -40,16 +40,16 @@ with AWS.Utils;
 package body AWS.Session is
 
    use Ada;
+   use Ada.Streams;
    use Ada.Exceptions;
    use Ada.Strings.Unbounded;
 
-   SID_Prefix             : constant String := "SID-";
+   SID_Prefix     : constant String := "SID-";
 
-   Session_Check_Interval : Duration
-     := Default.Session_Cleanup_Interval;
-   --  Check for obsolete section every 10 minutes
+   Check_Interval : Duration := Default.Session_Cleanup_Interval;
+   --  Check for obsolete section interval
 
-   Session_Lifetime       : Duration := Default.Session_Lifetime;
+   Lifetime       : Duration := Default.Session_Lifetime;
    --  A session is obsolete if not used after Session_Lifetime seconds
 
    package Key_Value renames Containers.Key_Value;
@@ -65,8 +65,10 @@ package body AWS.Session is
       Root       : Key_Value_Set_Access;
    end record;
 
-   package Session_Set is new Ada.Containers.Indefinite_Hashed_Maps
-     (String, Session_Node, Ada.Strings.Hash, "=", "=");
+   function To_Hash (SID : in Id) return Ada.Containers.Hash_Type;
+
+   package Session_Set is new Ada.Containers.Hashed_Maps
+     (Id, Session_Node, To_Hash, "=");
 
    procedure Get_Node
      (Sessions : in out Session_Set.Map;
@@ -92,8 +94,7 @@ package body AWS.Session is
       Last   :    out Stream_Element_Offset);
 
    overriding procedure Write
-     (Stream : in out String_Stream_Type;
-      Item   : in     Stream_Element_Array);
+     (Stream : in out String_Stream_Type; Item : in Stream_Element_Array);
    --  See inherited documentation
 
    procedure Open (Stream : in out String_Stream_Type'Class; Str : in String);
@@ -148,16 +149,11 @@ package body AWS.Session is
       --  Updates the session Time_Stamp to current time. Does nothing if SID
       --  does not exist.
 
-      procedure Key_Exist
-        (SID    : in     Id;
-         Key    : in     String;
-         Result :    out Boolean);
+      procedure Key_Exist (SID : in Id; Key : in String; Result : out Boolean);
       --  Result is set to True if Key_Name exist in session SID
 
       procedure Get_Value
-        (SID   : in     Id;
-         Key   : in     String;
-         Value :    out Unbounded_String);
+        (SID : in Id; Key : in String; Value : out Unbounded_String);
       --  Value is set with the value associated with the key Key_Name in
       --  session SID.
 
@@ -198,7 +194,7 @@ package body AWS.Session is
    private
 
       Lock_Counter : Natural := 0;
-      Sessions     : aliased Session_Set.Map;
+      Sessions     : Session_Set.Map;
 
    end Database;
 
@@ -209,7 +205,7 @@ package body AWS.Session is
    task body Cleaner is
       use type Calendar.Time;
 
-      Next_Run : Calendar.Time := Calendar.Clock + Session_Check_Interval;
+      Next_Run : Calendar.Time := Calendar.Clock + Check_Interval;
 
       L_SC     : Callback;
       pragma Atomic (L_SC);
@@ -254,13 +250,13 @@ package body AWS.Session is
             Database.Unsafe_Delete_Session (Expired_SID (K));
          end loop;
 
-         if E_Index = Max_Expired and then Session_Check_Interval > 1.0 then
+         if E_Index = Max_Expired and then Check_Interval > 1.0 then
             --  Too many expired session, we should run next expiration check
             --  faster
 
             Next_Run := Next_Run + 1.0;
          else
-            Next_Run := Next_Run + Session_Check_Interval;
+            Next_Run := Next_Run + Check_Interval;
          end if;
 
          E_Index := 0;
@@ -318,15 +314,13 @@ package body AWS.Session is
       -- Start --
       -----------
 
-      procedure Start
-        (Session_Check_Interval : in Duration;
-         Session_Lifetime       : in Duration) is
+      procedure Start (Check_Interval : in Duration; Lifetime : in Duration) is
       begin
          S_Count := S_Count + 1;
 
          if S_Count = 1 then
-            Session.Session_Check_Interval := Start.Session_Check_Interval;
-            Session.Session_Lifetime       := Start.Session_Lifetime;
+            Session.Check_Interval := Start.Check_Interval;
+            Session.Lifetime       := Start.Lifetime;
             Cleaner_Task := new Cleaner;
          end if;
       end Start;
@@ -366,8 +360,7 @@ package body AWS.Session is
          New_Node := (Time_Stamp => Calendar.Clock,
                       Root       => new Key_Value.Map);
 
-         Session_Set.Insert
-           (Sessions, String (SID), New_Node, Cursor, Success);
+         Sessions.Insert (SID, New_Node, Cursor, Success);
 
          if not Success then
             Free (New_Node.Root);
@@ -411,9 +404,7 @@ package body AWS.Session is
       ---------------
 
       procedure Get_Value
-        (SID   : in     Id;
-         Key   : in     String;
-         Value :    out Unbounded_String)
+        (SID : in Id; Key : in String; Value : out Unbounded_String)
       is
          Node   : Session_Node;
          Found  : Boolean;
@@ -439,9 +430,7 @@ package body AWS.Session is
       ---------------
 
       procedure Key_Exist
-        (SID    : in     Id;
-         Key    : in     String;
-         Result :    out Boolean)
+        (SID : in Id; Key : in String; Result : out Boolean)
       is
          Node   : Session_Node;
       begin
@@ -483,7 +472,7 @@ package body AWS.Session is
          while Session_Set.Has_Element (Cursor) loop
             Node := Session_Set.Element (Cursor);
 
-            if Node.Time_Stamp + Session_Lifetime < Now then
+            if Node.Time_Stamp + Lifetime < Now then
                E_Index := E_Index + 1;
                Expired_SID (E_Index) := Id (Session_Set.Key (Cursor));
 
@@ -521,8 +510,7 @@ package body AWS.Session is
          Generate_UID : loop
             Utils.Random_String (String (SID));
 
-            Session_Set.Insert
-              (Sessions, String (SID), New_Node, Cursor, Success);
+            Sessions.Insert (SID, New_Node, Cursor, Success);
 
             exit Generate_UID when Success;
          end loop Generate_UID;
@@ -532,10 +520,7 @@ package body AWS.Session is
       -- Remove --
       ------------
 
-      entry Remove_Key
-        (SID : in Id;
-         Key : in String) when Lock_Counter = 0
-      is
+      entry Remove_Key (SID : in Id; Key : in String) when Lock_Counter = 0 is
          Node   : Session_Node;
          Found  : Boolean;
       begin
@@ -552,7 +537,7 @@ package body AWS.Session is
 
       function Session_Exist (SID : in Id) return Boolean is
       begin
-         return Session_Set.Contains (Sessions, String (SID));
+         return Sessions.Contains (SID);
       end Session_Exist;
 
       -------------------------
@@ -562,16 +547,16 @@ package body AWS.Session is
       function Session_Has_Expired (SID : in Id) return Boolean is
          use type Calendar.Time;
          Now    : constant Calendar.Time := Calendar.Clock;
-         Cursor : constant Session_Set.Cursor :=
-                    Session_Set.Find (Sessions, String (SID));
+         Cursor : constant Session_Set.Cursor := Sessions.Find (SID);
          Node   : Session_Node;
       begin
          --  Do not use Get_Node, since that would update the timestamp
 
          if Session_Set.Has_Element (Cursor) then
             Node := Session_Set.Element (Cursor);
-            return Node.Time_Stamp + Session_Lifetime < Now;
+            return Node.Time_Stamp + Lifetime < Now;
          end if;
+
          return False;
       end Session_Has_Expired;
 
@@ -580,8 +565,7 @@ package body AWS.Session is
       ---------------
 
       entry Set_Value
-        (SID        : in Id;
-         Key, Value : in String) when Lock_Counter = 0
+        (SID : in Id; Key, Value : in String) when Lock_Counter = 0
       is
          Node   : Session_Node;
          Found  : Boolean;
@@ -618,8 +602,7 @@ package body AWS.Session is
       ---------------------------
 
       procedure Unsafe_Delete_Session (SID : in Id) is
-         Cursor : Session_Set.Cursor
-           := Session_Set.Find (Sessions, String (SID));
+         Cursor : Session_Set.Cursor := Sessions.Find (SID);
          Node   : Session_Node := Session_Set.Element (Cursor);
       begin
          Free (Node.Root);
@@ -646,11 +629,7 @@ package body AWS.Session is
       return Database.Session_Exist (SID);
    end Exist;
 
-   function Exist
-     (SID : in Id;
-      Key : in String)
-      return Boolean
-   is
+   function Exist (SID : in Id; Key : in String) return Boolean is
       Result : Boolean;
    begin
       Database.Key_Exist (SID, Key, Result);
@@ -776,11 +755,7 @@ package body AWS.Session is
       -- Set --
       ---------
 
-      procedure Set
-        (SID   : in Id;
-         Key   : in String;
-         Value : in Data)
-      is
+      procedure Set (SID : in Id; Key : in String; Value : in Data) is
          Str : aliased String_Stream_Type;
       begin
          Data'Write (Str'Access, Value);
@@ -829,7 +804,7 @@ package body AWS.Session is
 
    function Get_Lifetime return Duration is
    begin
-      return Session_Lifetime;
+      return Lifetime;
    end Get_Lifetime;
 
    --------------
@@ -842,21 +817,15 @@ package body AWS.Session is
       Node     :    out Session_Node;
       Found    :    out Boolean)
    is
-      Cursor : constant Session_Set.Cursor
-        := Session_Set.Find (Sessions, String (SID));
+      Cursor : constant Session_Set.Cursor := Sessions.Find (SID);
 
-      procedure Process
-        (Key  : in String;
-         Item : in out Session_Node);
+      procedure Process (Key : in Id; Item : in out Session_Node);
 
       -------------
       -- Process --
       -------------
 
-      procedure Process
-        (Key  : in String;
-         Item : in out Session_Node)
-      is
+      procedure Process (Key : in Id; Item : in out Session_Node) is
          pragma Unreferenced (Key);
       begin
          Item.Time_Stamp := Calendar.Clock;
@@ -1145,8 +1114,17 @@ package body AWS.Session is
 
    procedure Set_Lifetime (Seconds : in Duration) is
    begin
-      Session_Lifetime := Seconds;
+      Lifetime := Seconds;
    end Set_Lifetime;
+
+   -------------
+   -- To_Hash --
+   -------------
+
+   function To_Hash (SID : in Id) return Ada.Containers.Hash_Type is
+   begin
+      return Ada.Strings.Hash (String (SID));
+   end To_Hash;
 
    -----------
    -- Touch --
