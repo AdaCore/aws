@@ -170,12 +170,10 @@ package body AWS.Session is
       procedure Destroy;
       --  Release all memory associated with the database
 
-      procedure Lock_And_Clean;
-      --  Increment Lock by 1, all entries modifying data are locked. Routines
-      --  reading values from the database can still be called (Key_Exist,
-      --  Get_Value, Session_Exist). Checks for expired data and put them into
-      --  the global Expired_SID set. The data will be removed later by the
-      --  cleaner task. This is used only in the cleaner task.
+      procedure Prepare_Expired_SID;
+      --  Checks for expired data and put them into the global Expired_SID set.
+      --  The data will be removed later by the cleaner task.
+      --  This is used only in the cleaner task.
 
       procedure Lock_And_Get_Sessions (Sessions : out Session_Set.Map);
       --  Increment Lock by 1, all entries modifying data are locked. Routines
@@ -183,10 +181,6 @@ package body AWS.Session is
       --  Get_Value, Session_Exist). Returns the Sessions tree, not that the
       --  database should be locked before calling this routine. It is not safe
       --  to use the returned value on an unlocked database.
-
-      procedure Unsafe_Delete_Session (SID : in Id);
-      --  Remove this session ID, the database should be locked before calling
-      --  this routine.
 
       procedure Unlock;
       --  Decrement Lock by 1, unlock all entries when Lock return to 0
@@ -224,7 +218,7 @@ package body AWS.Session is
             delay until Next_Run;
          end select;
 
-         Database.Lock_And_Clean;
+         Database.Prepare_Expired_SID;
 
          L_SC := Session_Callback;
          --  Use Session_Callback copy as we don't want the value to change
@@ -249,7 +243,7 @@ package body AWS.Session is
 
             --  Now we can delete the session data
 
-            Database.Unsafe_Delete_Session (Expired_SID (K));
+            Database.Delete_Session (Expired_SID (K));
          end loop;
 
          if E_Index = Max_Expired and then Check_Interval > 1.0 then
@@ -260,10 +254,6 @@ package body AWS.Session is
          else
             Next_Run := Next_Run + Check_Interval;
          end if;
-
-         E_Index := 0;
-
-         Database.Unlock;
 
       end loop Clean_Dead_Sessions;
 
@@ -374,8 +364,14 @@ package body AWS.Session is
       --------------------
 
       entry Delete_Session (SID : in Id) when Lock_Counter = 0 is
+         Cursor : Session_Set.Cursor := Sessions.Find (SID);
+         Node   : Session_Node;
       begin
-         Unsafe_Delete_Session (SID);
+         if Session_Set.Has_Element (Cursor) then
+            Node := Session_Set.Element (Cursor);
+            Free (Node.Root);
+            Sessions.Delete (Cursor);
+         end if;
       end Delete_Session;
 
       -------------
@@ -452,40 +448,6 @@ package body AWS.Session is
          return Natural (Sessions.Length);
       end Length;
 
-      --------------------
-      -- Lock_And_Clean --
-      --------------------
-
-      procedure Lock_And_Clean is
-
-         use type Calendar.Time;
-
-         Now : constant Calendar.Time := Calendar.Clock;
-
-         Cursor : Session_Set.Cursor;
-         Node   : Session_Node;
-
-      begin
-         Lock_Counter := Lock_Counter + 1;
-         E_Index := 0;
-
-         Cursor := Session_Set.First (Sessions);
-
-         while Session_Set.Has_Element (Cursor) loop
-            Node := Session_Set.Element (Cursor);
-
-            if Node.Time_Stamp + Lifetime < Now then
-               E_Index := E_Index + 1;
-               Expired_SID (E_Index) := Id (Session_Set.Key (Cursor));
-
-               exit when E_Index = Max_Expired;
-               --  No more space in the expired mailbox, quit now
-            end if;
-
-            Session_Set.Next (Cursor);
-         end loop;
-      end Lock_And_Clean;
-
       ---------------------------
       -- Lock_And_Get_Sessions --
       ---------------------------
@@ -517,6 +479,39 @@ package body AWS.Session is
             exit Generate_UID when Success;
          end loop Generate_UID;
       end New_Session;
+
+      -------------------------
+      -- Prepare_Expired_SID --
+      -------------------------
+
+      procedure Prepare_Expired_SID is
+
+         use type Calendar.Time;
+
+         Now : constant Calendar.Time := Calendar.Clock;
+
+         Cursor : Session_Set.Cursor;
+         Node   : Session_Node;
+
+      begin
+         E_Index := 0;
+
+         Cursor := Session_Set.First (Sessions);
+
+         while Session_Set.Has_Element (Cursor) loop
+            Node := Session_Set.Element (Cursor);
+
+            if Node.Time_Stamp + Lifetime < Now then
+               E_Index := E_Index + 1;
+               Expired_SID (E_Index) := Id (Session_Set.Key (Cursor));
+
+               exit when E_Index = Max_Expired;
+               --  No more space in the expired mailbox, quit now
+            end if;
+
+            Session_Set.Next (Cursor);
+         end loop;
+      end Prepare_Expired_SID;
 
       ------------
       -- Remove --
@@ -598,18 +593,6 @@ package body AWS.Session is
       begin
          Lock_Counter := Lock_Counter - 1;
       end Unlock;
-
-      ---------------------------
-      -- Unsafe_Delete_Session --
-      ---------------------------
-
-      procedure Unsafe_Delete_Session (SID : in Id) is
-         Cursor : Session_Set.Cursor := Sessions.Find (SID);
-         Node   : Session_Node := Session_Set.Element (Cursor);
-      begin
-         Free (Node.Root);
-         Session_Set.Delete (Sessions, Cursor);
-      end Unsafe_Delete_Session;
 
    end Database;
 
