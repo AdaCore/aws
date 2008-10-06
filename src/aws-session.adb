@@ -193,6 +193,7 @@ package body AWS.Session is
 
       Lock_Counter : Natural := 0;
       Sessions     : Session_Set.Map;
+      Remove_Mark  : Id := No_Session;
 
    end Database;
 
@@ -518,21 +519,42 @@ package body AWS.Session is
       begin
          E_Index := 0;
 
-         Cursor := Session_Set.First (Sessions);
+         if Remove_Mark = No_Session then
+            Cursor := Sessions.First;
+         else
+            --  Try to continue iteration over container
+
+            Cursor := Sessions.Find (Remove_Mark);
+
+            Remove_Mark := No_Session;
+
+            if not Session_Set.Has_Element (Cursor) then
+               Cursor := Sessions.First;
+            end if;
+         end if;
 
          while Session_Set.Has_Element (Cursor) loop
             Node := Session_Set.Element (Cursor);
 
             if Node.Time_Stamp + Lifetime < Now then
                E_Index := E_Index + 1;
-               Expired_SID (E_Index) := Id (Session_Set.Key (Cursor));
+               Expired_SID (E_Index) := Session_Set.Key (Cursor);
 
-               exit when E_Index = Max_Expired;
-               --  No more space in the expired mailbox, quit now
+               if E_Index = Max_Expired then
+                  --  No more space in the expired mailbox, quit now
+                  Session_Set.Next (Cursor);
+
+                  if Session_Set.Has_Element (Cursor) then
+                     Remove_Mark := Session_Set.Key (Cursor);
+                  end if;
+
+                  exit;
+               end if;
             end if;
 
             Session_Set.Next (Cursor);
          end loop;
+
       end Prepare_Expired_SID;
 
       ------------
@@ -661,7 +683,7 @@ package body AWS.Session is
       while Session_Set.Has_Element (Cursor) loop
          Action
            (Order,
-            Id (Session_Set.Key (Cursor)),
+            Session_Set.Key (Cursor),
             Session_Set.Element (Cursor).Time_Stamp,
             Quit);
          exit when Quit;
