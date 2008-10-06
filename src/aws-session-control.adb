@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2003                          --
---                                ACT-Europe                                --
+--                     Copyright (C) 2000-2008, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -29,6 +28,19 @@
 with Ada.Unchecked_Deallocation;
 
 package body AWS.Session.Control is
+
+   -----------
+   -- Force --
+   -----------
+
+   procedure Force_Cleaner (Timeout : in Duration := 0.0) is
+   begin
+      select
+         Cleaner_Task.Force;
+      or delay Timeout;
+         --  It mean that cleaner already working
+      end select;
+   end Force_Cleaner;
 
    --------------
    -- Shutdown --
@@ -65,8 +77,7 @@ package body AWS.Session.Control is
    -----------
 
    procedure Start
-     (Session_Check_Interval : in Duration;
-      Session_Lifetime       : in Duration) is
+     (Session_Check_Interval : in Duration; Session_Lifetime : in Duration) is
    begin
       Cleaner_Control.Start (Session_Check_Interval, Session_Lifetime);
    end Start;

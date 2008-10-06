@@ -204,6 +204,7 @@ private
 
    task type Cleaner is
       entry Stop;
+      entry Force;
    end Cleaner;
    --  Call Database.Clean every Session_Lifetime seconds
 
@@ -217,9 +218,7 @@ private
 
    protected Cleaner_Control is
 
-      procedure Start
-        (Session_Check_Interval : in Duration;
-         Session_Lifetime       : in Duration);
+      procedure Start (Check_Interval : in Duration; Lifetime : in Duration);
       --  Launch the cleaner task the first time and does nothing after
 
       procedure Stop (Need_Release : out Boolean);

@@ -219,6 +219,8 @@ package body AWS.Session is
             accept Stop;
             exit Clean_Dead_Sessions;
          or
+            accept Force;
+         or
             delay until Next_Run;
          end select;
 
@@ -978,13 +980,11 @@ package body AWS.Session is
          pragma Unreferenced (Time_Stamp);
          pragma Unreferenced (Quit);
 
-         Node     : Session_Node;
-         Found    : Boolean;
+         Node  : Session_Node;
+         Found : Boolean;
 
          procedure Process
-           (N          : in     Positive;
-            Key, Value : in     String;
-            Quit       : in out Boolean);
+           (N : in Positive; Key, Value : in String; Quit : in out Boolean);
          --  Callback for each key/value pair for a specific session
 
          -------------
@@ -992,9 +992,7 @@ package body AWS.Session is
          -------------
 
          procedure Process
-           (N          : in     Positive;
-            Key, Value : in     String;
-            Quit       : in out Boolean)
+           (N : in Positive; Key, Value : in String; Quit : in out Boolean)
          is
             pragma Unreferenced (N);
             pragma Unreferenced (Quit);
@@ -1007,8 +1005,7 @@ package body AWS.Session is
          -- Each_Key_Value --
          --------------------
 
-         procedure Each_Key_Value is
-           new For_Every_Session_Data (Process);
+         procedure Each_Key_Value is new For_Every_Session_Data (Process);
 
          Key_Value_Size : Natural;
 
@@ -1158,8 +1155,7 @@ package body AWS.Session is
    -----------
 
    overriding procedure Write
-     (Stream : in out String_Stream_Type;
-      Item   : in     Stream_Element_Array)
+     (Stream : in out String_Stream_Type; Item : in Stream_Element_Array)
    is
       Str : String (1 .. Integer (Item'Length));
       S   : Integer := Str'First;
