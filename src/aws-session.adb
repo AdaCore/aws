@@ -175,12 +175,16 @@ package body AWS.Session is
       --  The data will be removed later by the cleaner task.
       --  This is used only in the cleaner task.
 
-      procedure Lock_And_Get_Sessions (Sessions : out Session_Set.Map);
+      procedure Lock_And_Get_Sessions (First : out Session_Set.Cursor);
       --  Increment Lock by 1, all entries modifying data are locked. Routines
       --  reading values from the database can still be called (Key_Exist,
-      --  Get_Value, Session_Exist). Returns the Sessions tree, not that the
-      --  database should be locked before calling this routine. It is not safe
-      --  to use the returned value on an unlocked database.
+      --  Get_Value, Session_Exist). Returns the Sessions tree first position.
+
+      procedure Lock_And_Get_Session
+        (SID : in Id; Node : out Session_Node; Found : out Boolean);
+      --  Increment Lock by 1, all entries modifying data are locked. Routines
+      --  reading values from the database can still be called (Key_Exist,
+      --  Get_Value, Session_Exist). Returns the Session node.
 
       procedure Unlock;
       --  Decrement Lock by 1, unlock all entries when Lock return to 0
@@ -448,14 +452,32 @@ package body AWS.Session is
          return Natural (Sessions.Length);
       end Length;
 
+      --------------------------
+      -- Lock_And_Get_Session --
+      --------------------------
+
+      procedure Lock_And_Get_Session
+        (SID : in Id; Node : out Session_Node; Found : out Boolean)
+      is
+         C : constant Session_Set.Cursor := Sessions.Find (SID);
+      begin
+         Lock_Counter := Lock_Counter + 1;
+
+         Found := Session_Set.Has_Element (C);
+
+         if Found then
+            Node := Session_Set.Element (C);
+         end if;
+      end Lock_And_Get_Session;
+
       ---------------------------
       -- Lock_And_Get_Sessions --
       ---------------------------
 
-      procedure Lock_And_Get_Sessions (Sessions : out Session_Set.Map) is
+      procedure Lock_And_Get_Sessions (First : out Session_Set.Cursor) is
       begin
          Lock_Counter := Lock_Counter + 1;
-         Sessions := Database.Sessions;
+         First := Database.Sessions.First;
       end Lock_And_Get_Sessions;
 
       -----------------
@@ -629,15 +651,12 @@ package body AWS.Session is
 
       use type Session_Set.Cursor;
 
-      Sessions : Session_Set.Map;
       Cursor   : Session_Set.Cursor;
       Order    : Positive := 1;
       Quit     : Boolean  := False;
 
    begin
-      Database.Lock_And_Get_Sessions (Sessions);
-
-      Cursor := Session_Set.First (Sessions);
+      Database.Lock_And_Get_Sessions (Cursor);
 
       while Session_Set.Has_Element (Cursor) loop
          Action
@@ -667,7 +686,6 @@ package body AWS.Session is
       procedure For_Every_Data (Node : in Session_Node);
       --  Iterate through all Key/Value pairs
 
-      Sessions : Session_Set.Map;
       Node     : Session_Node;
       Order    : Positive := 1;
       Quit     : Boolean  := False;
@@ -696,9 +714,7 @@ package body AWS.Session is
       end For_Every_Data;
 
    begin
-      Database.Lock_And_Get_Sessions (Sessions);
-
-      Get_Node (Sessions, SID, Node, Found);
+      Database.Lock_And_Get_Session (SID, Node, Found);
 
       if Found then
          For_Every_Data (Node);
@@ -940,84 +956,54 @@ package body AWS.Session is
 
       File       : File_Type;
       Stream_Ptr : Stream_Access;
-      Sessions   : Session_Set.Map;
+      Position   : Session_Set.Cursor;
 
-      procedure Process
-        (N          : in     Positive;
-         SID        : in     Id;
-         Time_Stamp : in     Ada.Calendar.Time;
-         Quit       : in out Boolean);
-      --  Callback for each session node in the table
+      procedure Process_Session;
 
       -------------
       -- Process --
       -------------
 
-      procedure Process
-        (N          : in     Positive;
-         SID        : in     Id;
-         Time_Stamp : in     Ada.Calendar.Time;
-         Quit       : in out Boolean)
-      is
-         pragma Unreferenced (N);
-         pragma Unreferenced (Time_Stamp);
-         pragma Unreferenced (Quit);
+      procedure Process_Session  is
+         Node : constant Session_Node := Session_Set.Element (Position);
 
-         Node  : Session_Node;
-         Found : Boolean;
-
-         procedure Process
-           (N : in Positive; Key, Value : in String; Quit : in out Boolean);
+         procedure Process (C : in Key_Value.Cursor);
          --  Callback for each key/value pair for a specific session
 
          -------------
          -- Process --
          -------------
 
-         procedure Process
-           (N : in Positive; Key, Value : in String; Quit : in out Boolean)
-         is
-            pragma Unreferenced (N);
-            pragma Unreferenced (Quit);
+         procedure Process (C : in Key_Value.Cursor) is
          begin
-            String'Output (Stream_Ptr, Key);
-            String'Output (Stream_Ptr, Value);
+            String'Output (Stream_Ptr, Key_Value.Key (C));
+            String'Output (Stream_Ptr, Key_Value.Element (C));
          end Process;
 
-         --------------------
-         -- Each_Key_Value --
-         --------------------
-
-         procedure Each_Key_Value is new For_Every_Session_Data (Process);
-
-         Key_Value_Size : Natural;
+         Key_Value_Size : constant Natural :=
+           Natural (Key_Value.Length (Node.Root.all));
 
       begin
-         Get_Node (Sessions, SID, Node, Found);
-
-         Key_Value_Size := Natural (Key_Value.Length (Node.Root.all));
-
          if Key_Value_Size > 0 then
-            Id'Output (Stream_Ptr, SID);
+            Id'Output (Stream_Ptr, Session_Set.Key (Position));
             Natural'Output (Stream_Ptr, Key_Value_Size);
-            Each_Key_Value (SID);
+            Node.Root.Iterate (Process'Access);
          end if;
-      end Process;
-
-      ------------------
-      -- Each_Session --
-      ------------------
-
-      procedure Each_Session is new For_Every_Session (Process);
+      end Process_Session;
 
    begin
       Create (File, Name => File_Name);
 
-      Database.Lock_And_Get_Sessions (Sessions);
+      Database.Lock_And_Get_Sessions (First => Position);
 
       begin
          Stream_Ptr := Stream (File);
-         Each_Session;
+
+         while Session_Set.Has_Element (Position) loop
+            Process_Session;
+            Session_Set.Next (Position);
+         end loop;
+
       exception
          when others =>
             --  Never leave this block without releasing the database lock
