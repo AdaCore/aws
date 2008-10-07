@@ -47,6 +47,7 @@ with AWS.Utils;
 
 package body AWS.Net.SSL is
 
+   use Ada;
    use Interfaces;
    use type C.int;
    use type System.Address;
@@ -174,10 +175,10 @@ package body AWS.Net.SSL is
    -------------
 
    overriding procedure Connect
-     (Socket   : in out Socket_Type;
-      Host     : in     String;
-      Port     : in     Positive;
-      Wait     : in     Boolean := True)
+     (Socket : in out Socket_Type;
+      Host   : in     String;
+      Port   : in     Positive;
+      Wait   : in     Boolean := True)
    is
       Success : Boolean;
    begin
@@ -305,6 +306,7 @@ package body AWS.Net.SSL is
    begin
       if Code = 0 then
          return "Not an error";
+
       else
          TSSL.ERR_error_string_n
            (Code,
@@ -347,12 +349,12 @@ package body AWS.Net.SSL is
       use Ada.Calendar;
       use System.Storage_Elements;
 
-      Buf : String
-        := Duration'Image
-             (Clock - Time_Of (Year  => Year_Number'First,
-                               Month => Month_Number'First,
-                               Day   => Day_Number'First))
-           & Integer_Address'Image (To_Integer (Init_Random'Address));
+      Buf : String :=
+              Duration'Image
+                (Clock - Time_Of (Year  => Year_Number'First,
+                                  Month => Month_Number'First,
+                                  Day   => Day_Number'First))
+              & Integer_Address'Image (To_Integer (Init_Random'Address));
    begin
       TSSL.RAND_seed (Buf'Address, Buf'Length);
    end Init_Random;
@@ -424,8 +426,8 @@ package body AWS.Net.SSL is
          exit when Len > 0;
 
          declare
-            Error_Code : constant C.int
-              := TSSL.SSL_get_error (Socket.SSL, Len);
+            Error_Code : constant C.int :=
+                           TSSL.SSL_Get_Error (Socket.SSL, Len);
          begin
             case Error_Code is
                when TSSL.SSL_ERROR_WANT_READ  => Socket_Read (Socket);
@@ -449,7 +451,7 @@ package body AWS.Net.SSL is
    -------------
 
    procedure Release (Config : in out SSL.Config) is
-      procedure Free is new Ada.Unchecked_Deallocation (TS_SSL, SSL.Config);
+      procedure Free is new Unchecked_Deallocation (TS_SSL, SSL.Config);
    begin
       if Config /= null then
          Config.Finalize;
@@ -534,8 +536,9 @@ package body AWS.Net.SSL is
 
          S_Last : Stream_Element_Offset;
          Data   : aliased Memory_Access;
-         Len    : constant Stream_Element_Offset
-           := Stream_Element_Offset (BIO_nread0 (Socket.IO, Data'Address));
+         Len    : constant Stream_Element_Offset :=
+                    Stream_Element_Offset
+                      (BIO_Nread0 (Socket.IO, Data'Address));
       begin
          if Len <= 0 then
             return;
@@ -578,8 +581,8 @@ package body AWS.Net.SSL is
 
          else
             declare
-               Error_Code : constant C.int
-                 := TSSL.SSL_get_error (Socket.SSL, RC);
+               Error_Code : constant C.int :=
+                              TSSL.SSL_Get_Error (Socket.SSL, RC);
 
                Err_Code : TSSL.Error_Code;
 
@@ -642,7 +645,7 @@ package body AWS.Net.SSL is
    -----------------
 
    overriding procedure Set_Timeout
-     (Socket  : in out Socket_Type; Timeout : in Duration) is
+     (Socket : in out Socket_Type; Timeout : in Duration) is
    begin
       Set_Timeout (Net.Socket_Type (Socket), Timeout);
    end Set_Timeout;
@@ -713,9 +716,9 @@ package body AWS.Net.SSL is
         Stream_Element_Array (1 .. Stream_Element_Offset'Last);
 
       Data : aliased Memory_Access;
-      Last : constant Stream_Element_Offset
-        := Stream_Element_Offset
-             (BIO_nread (Socket.IO, Data'Address, C.int'Last));
+      Last : constant Stream_Element_Offset :=
+               Stream_Element_Offset
+                 (BIO_Nread (Socket.IO, Data'Address, C.int'Last));
       Plain : constant NSST := NSST (Socket);
       --  ??? Looks like direct type convertion lead to wrong dispatch
    begin
@@ -746,7 +749,7 @@ package body AWS.Net.SSL is
       Finalized : Boolean := False;
       --  Need to avoid access to finalized protected locking objects
 
-      package Task_Identifiers is new Ada.Task_Attributes
+      package Task_Identifiers is new Task_Attributes
         (Task_Data, (TID => 0));
 
       procedure Finalize;
@@ -754,9 +757,9 @@ package body AWS.Net.SSL is
       protected Task_Id_Generator is
          procedure Get_Task_Id (Id : out Task_Identifier);
          procedure Finalize_Task
-           (Cause : in Ada.Task_Termination.Cause_Of_Termination;
-            T     : in Ada.Task_Identification.Task_Id;
-            X     : in Ada.Exceptions.Exception_Occurrence);
+           (Cause : in Task_Termination.Cause_Of_Termination;
+            T     : in Task_Identification.Task_Id;
+            X     : in Exceptions.Exception_Occurrence);
       private
          Id_Counter : Task_Identifier := 0;
       end Task_Id_Generator;
@@ -806,8 +809,7 @@ package body AWS.Net.SSL is
       ----------------
 
       function Dyn_Create
-        (File : in Filename_Type; Line : in Line_Number)
-         return RW_Mutex_Access
+        (File : in Filename_Type; Line : in Line_Number) return RW_Mutex_Access
       is
          pragma Unreferenced (File, Line);
       begin
@@ -828,7 +830,7 @@ package body AWS.Net.SSL is
          Temp : RW_Mutex_Access := Locker;
 
          procedure Free is
-            new Ada.Unchecked_Deallocation (RW_Mutex, RW_Mutex_Access);
+            new Unchecked_Deallocation (RW_Mutex, RW_Mutex_Access);
       begin
          Free (Temp);
       end Dyn_Destroy;
@@ -862,14 +864,14 @@ package body AWS.Net.SSL is
       -------------------------
 
       function Get_Task_Identifier return Task_Identifier is
-         TA : constant Task_Identifiers.Attribute_Handle
-           := Task_Identifiers.Reference;
+         TA : constant Task_Identifiers.Attribute_Handle :=
+                Task_Identifiers.Reference;
       begin
          if TA.TID = 0 then
             Task_Id_Generator.Get_Task_Id (TA.TID);
 
-            Ada.Task_Termination.Set_Specific_Handler
-              (Ada.Task_Identification.Current_Task,
+            Task_Termination.Set_Specific_Handler
+              (Task_Identification.Current_Task,
                Task_Id_Generator.Finalize_Task'Access);
          end if;
 
@@ -943,9 +945,9 @@ package body AWS.Net.SSL is
          -------------------
 
          procedure Finalize_Task
-           (Cause : in Ada.Task_Termination.Cause_Of_Termination;
-            T     : in Ada.Task_Identification.Task_Id;
-            X     : in Ada.Exceptions.Exception_Occurrence)
+           (Cause : in Task_Termination.Cause_Of_Termination;
+            T     : in Task_Identification.Task_Id;
+            X     : in Exceptions.Exception_Occurrence)
          is
             pragma Unreferenced (Cause, X);
          begin
@@ -1010,19 +1012,19 @@ package body AWS.Net.SSL is
          procedure Set_Certificate
            (Cert_Filename : in String; Key_Filename : in String);
 
-         Methods : constant array (Method) of Meth_Func
-           := (SSLv2          => TSSL.SSLv2_method'Access,
-               SSLv2_Server   => TSSL.SSLv2_server_method'Access,
-               SSLv2_Client   => TSSL.SSLv2_client_method'Access,
-               SSLv23         => TSSL.SSLv23_method'Access,
-               SSLv23_Server  => TSSL.SSLv23_server_method'Access,
-               SSLv23_Client  => TSSL.SSLv23_client_method'Access,
-               TLSv1          => TSSL.TLSv1_method'Access,
-               TLSv1_Server   => TSSL.TLSv1_server_method'Access,
-               TLSv1_Client   => TSSL.TLSv1_client_method'Access,
-               SSLv3          => TSSL.SSLv3_method'Access,
-               SSLv3_Server   => TSSL.SSLv3_server_method'Access,
-               SSLv3_Client   => TSSL.SSLv3_client_method'Access);
+         Methods : constant array (Method) of Meth_Func :=
+                     (SSLv2          => TSSL.SSLv2_Method'Access,
+                      SSLv2_Server   => TSSL.SSLv2_Server_Method'Access,
+                      SSLv2_Client   => TSSL.SSLv2_Client_Method'Access,
+                      SSLv23         => TSSL.SSLv23_Method'Access,
+                      SSLv23_Server  => TSSL.SSLv23_Server_Method'Access,
+                      SSLv23_Client  => TSSL.SSLv23_Client_Method'Access,
+                      TLSv1          => TSSL.TLSv1_Method'Access,
+                      TLSv1_Server   => TSSL.TLSv1_Server_Method'Access,
+                      TLSv1_Client   => TSSL.TLSv1_Client_Method'Access,
+                      SSLv3          => TSSL.SSLv3_Method'Access,
+                      SSLv3_Server   => TSSL.SSLv3_Server_Method'Access,
+                      SSLv3_Client   => TSSL.SSLv3_Client_Method'Access);
 
          ---------------------
          -- Set_Certificate --
@@ -1192,7 +1194,7 @@ package body AWS.Net.SSL is
    function Version (Build_Info : in Boolean := False) return String is
       use TSSL;
       Result : constant String :=
-        C.Strings.Value (SSLeay_version_info (SSLEAY_VERSION));
+                 C.Strings.Value (SSLeay_Version_Info (SSLEAY_VERSION));
    begin
       if Build_Info then
          return Result & ASCII.LF
