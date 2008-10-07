@@ -31,7 +31,7 @@ with Ada.Text_IO;
 
 with AWS.Session.Control;
 
-procedure Sessions is
+procedure Sessions6 is
 
    use AWS.Session;
 
@@ -106,4 +106,4 @@ exception
    when E : others =>
       Ada.Text_IO.Put_Line (Ada.Exceptions.Exception_Information (E));
       Control.Shutdown;
-end Sessions;
+end Sessions6;

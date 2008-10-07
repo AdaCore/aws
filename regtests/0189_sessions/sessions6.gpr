@@ -27,7 +27,7 @@
 
 with "aws";
 
-project Sessions is
+project Sessions6 is
    for Source_Dirs use (".", "../common");
-   for Main use ("sessions.adb");
-end Sessions;
+   for Main use ("sessions6.adb");
+end Sessions6;
