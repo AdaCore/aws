@@ -25,6 +25,7 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
+with Ada.Real_Time;
 with Ada.Exceptions;
 with Ada.Streams;
 with Ada.Strings.Unbounded;
@@ -416,14 +417,17 @@ private
    use Ada.Strings.Unbounded;
    use Ada.Streams;
 
+   Forever : constant Ada.Real_Time.Time_Span := Ada.Real_Time.Time_Span_Last;
+
    type Timeouts_Values is record
-      Connect  : Duration := Net.Forever;
-      Send     : Duration := Net.Forever;
-      Receive  : Duration := Net.Forever;
-      Response : Duration := Net.Forever;
+      Connect  : Duration                := Net.Forever;
+      Send     : Duration                := Net.Forever;
+      Receive  : Duration                := Net.Forever;
+      Response : Ada.Real_Time.Time_Span := Forever;
    end record;
 
-   No_Timeout : constant Timeouts_Values := (others => Net.Forever);
+   No_Timeout : constant Timeouts_Values :=
+     (Response => Forever, others => Net.Forever);
    No_Data    : constant String := "";
 
    Undefined_Length : Response.Content_Length_Type

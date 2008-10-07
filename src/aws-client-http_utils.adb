@@ -25,13 +25,10 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-with Ada.Calendar;
 with Ada.Characters.Handling;
 with Ada.Exceptions;
 with Ada.Strings.Unbounded;
 with Ada.Strings.Fixed;
-
-with GNAT.Calendar.Time_IO;
 
 with AWS.Digest;
 with AWS.Headers.Set;
@@ -52,6 +49,29 @@ package body AWS.Client.HTTP_Utils is
    function Image (Data_Range : in Content_Range) return String;
    --  Returns the partial content range parameter to be passed to the Range
    --  header.
+
+   function "+"
+     (Left  : in Real_Time.Time;
+      Right : in Real_Time.Time_Span) return Real_Time.Time;
+   --  Returns Real_Time.Time_Last if Right is Real_Time.Time_Span_Last,
+   --  otherwise returns Left + Right.
+
+   ---------
+   -- "+" --
+   ---------
+
+   function "+"
+     (Left  : in Real_Time.Time;
+      Right : in Real_Time.Time_Span) return Real_Time.Time
+   is
+      use Real_Time;
+   begin
+      if Right = Time_Span_Last then
+         return Time_Last;
+      else
+         return Real_Time."+" (Left, Right);
+      end if;
+   end "+";
 
    -------------
    -- Connect --
@@ -243,7 +263,7 @@ package body AWS.Client.HTTP_Utils is
       Result     :    out Response.Data;
       Get_Body   : in     Boolean         := True)
    is
-      use Ada.Calendar;
+      use Ada.Real_Time;
 
       procedure Disconnect;
       --  close connection socket
@@ -403,10 +423,9 @@ package body AWS.Client.HTTP_Utils is
       Content_Type : in     String;
       Attachments  : in     AWS.Attachments.List)
    is
-      Pref_Suf  : constant String        := "--";
-      Now       : constant Calendar.Time := Calendar.Clock;
-      Boundary  : constant String
-        := "AWS_Attachment-" & GNAT.Calendar.Time_IO.Image (Now, "%s");
+      Pref_Suf  : constant String := "--";
+      Boundary  : constant String :=
+        "AWS_Attachment-" & Utils.Random_String (8);
 
       Root_Content_Id  : constant String := "<rootpart>";
       Root_Part_Header : AWS.Headers.List;

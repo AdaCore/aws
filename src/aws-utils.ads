@@ -62,6 +62,10 @@ package AWS.Utils is
    procedure Random_String (Item : out String);
    --  Fill string by random printable characters
 
+   function Random_String (Length : in Natural) return String;
+   pragma Inline (Random_String);
+   --  Returns random string
+
    function Image (N : in Natural) return String;
    --  Returns image of N without the leading blank
 

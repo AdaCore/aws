@@ -25,12 +25,9 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-with Ada.Calendar;
 with Ada.Strings.Fixed;
 with Ada.Streams.Stream_IO;
 with Ada.Text_IO;
-
-with GNAT.Calendar.Time_IO;
 
 with AWS.Client.HTTP_Utils;
 with AWS.Headers.Set;
@@ -257,7 +254,7 @@ package body AWS.Client is
       URI        : in     String          := No_Data;
       Data_Range : in     Content_Range   := No_Range)
    is
-      use Ada.Calendar;
+      use Ada.Real_Time;
       Stamp         : constant Time := Clock;
 
       Try_Count     : Natural := Connection.Retry;
@@ -289,7 +286,7 @@ package body AWS.Client is
                Disconnect (Connection);
 
                if Try_Count = 0
-                 or else Clock - Stamp >= Connection.Timeouts.Receive
+                 or else Clock - Stamp >= Connection.Timeouts.Response
                then
                   Result := Response.Build
                     (MIME.Text_HTML, "Get Timeout", Messages.S408);
@@ -367,7 +364,7 @@ package body AWS.Client is
       Result     :    out Response.Data;
       URI        : in     String := No_Data)
    is
-      use Ada.Calendar;
+      use Ada.Real_Time;
       Stamp         : constant Time := Clock;
       Try_Count     : Natural := Connection.Retry;
       Auth_Attempts : Auth_Attempts_Count := (others => 2);
@@ -395,7 +392,7 @@ package body AWS.Client is
                Disconnect (Connection);
 
                if Try_Count = 0
-                 or else Clock - Stamp >= Connection.Timeouts.Receive
+                 or else Clock - Stamp >= Connection.Timeouts.Response
                then
                   Result := Response.Build
                     (MIME.Text_HTML, "Head Timeout", Messages.S408);
@@ -578,7 +575,7 @@ package body AWS.Client is
       Data       : in     String;
       URI        : in     String          := No_Data)
    is
-      use Ada.Calendar;
+      use Ada.Real_Time;
       Stamp         : constant Time := Clock;
       Keep_Alive    : Boolean;
       Try_Count     : Natural := Connection.Retry;
@@ -624,7 +621,7 @@ package body AWS.Client is
                Disconnect (Connection);
 
                if Try_Count = 0
-                 or else Clock - Stamp >= Connection.Timeouts.Receive
+                 or else Clock - Stamp >= Connection.Timeouts.Response
                then
                   Result := Response.Build
                     (MIME.Text_HTML, "Put Timeout", Messages.S408);
@@ -836,7 +833,7 @@ package body AWS.Client is
 
    function Response_Timeout (T : in Timeouts_Values) return Duration is
    begin
-      return T.Response;
+      return Ada.Real_Time.To_Duration (T.Response);
    end Response_Timeout;
 
    ------------------
@@ -978,12 +975,12 @@ package body AWS.Client is
       return (Connect  => Connect,
               Send     => Send,
               Receive  => Receive,
-              Response => Response);
+              Response => Ada.Real_Time.To_Time_Span (Response));
    end Timeouts;
 
    function Timeouts (Each : in Duration) return Timeouts_Values is
    begin
-      return (others => Each);
+      return (Response => Ada.Real_Time.To_Time_Span (Each), others => Each);
    end Timeouts;
 
    ------------
@@ -996,12 +993,11 @@ package body AWS.Client is
       Filename   : in     String;
       URI        : in     String := No_Data)
    is
-      use Ada.Calendar;
-      Stamp     : constant Time := Clock;
-      Pref_Suf  : constant String        := "--";
-      Now       : constant Calendar.Time := Calendar.Clock;
-      Boundary  : constant String
-        := "AWS_File_Upload-" & GNAT.Calendar.Time_IO.Image (Now, "%s");
+      use Ada.Real_Time;
+      Stamp    : constant Time   := Clock;
+      Pref_Suf : constant String := "--";
+      Boundary : constant String :=
+        "AWS_File_Upload-" & Utils.Random_String (8);
 
       CT        : constant String
         := Messages.Content_Type (MIME.Content_Type (Filename));
@@ -1128,7 +1124,7 @@ package body AWS.Client is
                Disconnect (Connection);
 
                if Try_Count = 0
-                 or else Clock - Stamp >= Connection.Timeouts.Receive
+                 or else Clock - Stamp >= Connection.Timeouts.Response
                then
                   Result := Response.Build
                     (MIME.Text_HTML, "Upload Timeout", Messages.S408);

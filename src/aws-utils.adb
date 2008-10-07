@@ -642,6 +642,13 @@ package body AWS.Utils is
       end loop;
    end Random_String;
 
+   function Random_String (Length : in Natural) return String is
+      Result : String (1 .. Length);
+   begin
+      Random_String (Result);
+      return Result;
+   end Random_String;
+
    ------------------
    -- RW_Semaphore --
    ------------------
