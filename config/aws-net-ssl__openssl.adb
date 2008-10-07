@@ -47,7 +47,6 @@ with AWS.Utils;
 
 package body AWS.Net.SSL is
 
-   use Ada;
    use Interfaces;
    use type C.int;
    use type System.Address;
@@ -427,7 +426,7 @@ package body AWS.Net.SSL is
 
          declare
             Error_Code : constant C.int :=
-                           TSSL.SSL_Get_Error (Socket.SSL, Len);
+                           TSSL.SSL_get_error (Socket.SSL, Len);
          begin
             case Error_Code is
                when TSSL.SSL_ERROR_WANT_READ  => Socket_Read (Socket);
@@ -538,7 +537,7 @@ package body AWS.Net.SSL is
          Data   : aliased Memory_Access;
          Len    : constant Stream_Element_Offset :=
                     Stream_Element_Offset
-                      (BIO_Nread0 (Socket.IO, Data'Address));
+                      (BIO_nread0 (Socket.IO, Data'Address));
       begin
          if Len <= 0 then
             return;
@@ -582,9 +581,9 @@ package body AWS.Net.SSL is
          else
             declare
                Error_Code : constant C.int :=
-                              TSSL.SSL_Get_Error (Socket.SSL, RC);
+                              TSSL.SSL_get_error (Socket.SSL, RC);
 
-               Err_Code : TSSL.Error_Code;
+               Err_Code   : TSSL.Error_Code;
 
                use type TSSL.Error_Code;
             begin
@@ -718,7 +717,7 @@ package body AWS.Net.SSL is
       Data : aliased Memory_Access;
       Last : constant Stream_Element_Offset :=
                Stream_Element_Offset
-                 (BIO_Nread (Socket.IO, Data'Address, C.int'Last));
+                 (BIO_nread (Socket.IO, Data'Address, C.int'Last));
       Plain : constant NSST := NSST (Socket);
       --  ??? Looks like direct type convertion lead to wrong dispatch
    begin
@@ -1013,18 +1012,18 @@ package body AWS.Net.SSL is
            (Cert_Filename : in String; Key_Filename : in String);
 
          Methods : constant array (Method) of Meth_Func :=
-                     (SSLv2          => TSSL.SSLv2_Method'Access,
-                      SSLv2_Server   => TSSL.SSLv2_Server_Method'Access,
-                      SSLv2_Client   => TSSL.SSLv2_Client_Method'Access,
-                      SSLv23         => TSSL.SSLv23_Method'Access,
-                      SSLv23_Server  => TSSL.SSLv23_Server_Method'Access,
-                      SSLv23_Client  => TSSL.SSLv23_Client_Method'Access,
-                      TLSv1          => TSSL.TLSv1_Method'Access,
-                      TLSv1_Server   => TSSL.TLSv1_Server_Method'Access,
-                      TLSv1_Client   => TSSL.TLSv1_Client_Method'Access,
-                      SSLv3          => TSSL.SSLv3_Method'Access,
-                      SSLv3_Server   => TSSL.SSLv3_Server_Method'Access,
-                      SSLv3_Client   => TSSL.SSLv3_Client_Method'Access);
+                     (SSLv2          => TSSL.SSLv2_method'Access,
+                      SSLv2_Server   => TSSL.SSLv2_server_method'Access,
+                      SSLv2_Client   => TSSL.SSLv2_client_method'Access,
+                      SSLv23         => TSSL.SSLv23_method'Access,
+                      SSLv23_Server  => TSSL.SSLv23_server_method'Access,
+                      SSLv23_Client  => TSSL.SSLv23_client_method'Access,
+                      TLSv1          => TSSL.TLSv1_method'Access,
+                      TLSv1_Server   => TSSL.TLSv1_server_method'Access,
+                      TLSv1_Client   => TSSL.TLSv1_client_method'Access,
+                      SSLv3          => TSSL.SSLv3_method'Access,
+                      SSLv3_Server   => TSSL.SSLv3_server_method'Access,
+                      SSLv3_Client   => TSSL.SSLv3_client_method'Access);
 
          ---------------------
          -- Set_Certificate --
@@ -1194,7 +1193,7 @@ package body AWS.Net.SSL is
    function Version (Build_Info : in Boolean := False) return String is
       use TSSL;
       Result : constant String :=
-                 C.Strings.Value (SSLeay_Version_Info (SSLEAY_VERSION));
+                 C.Strings.Value (SSLeay_version_info (SSLEAY_VERSION));
    begin
       if Build_Info then
          return Result & ASCII.LF
