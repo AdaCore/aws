@@ -76,7 +76,7 @@ package body AWS.Net.Acceptors is
 
          elsif Ready then
             declare
-               use Ada.Calendar;
+               use Ada.Real_Time;
                New_Socket : Socket_Type'Class := Acceptor.Constructor (False);
             begin
                --  We could not accept SSL socket because SSL handshake could
@@ -116,7 +116,7 @@ package body AWS.Net.Acceptors is
 
          elsif Ready then
             declare
-               use Ada.Calendar;
+               use Ada.Real_Time;
 
                Socket : Socket_Access;
                Bytes  : Ada.Streams.Stream_Element_Array (1 .. 16);
@@ -170,10 +170,10 @@ package body AWS.Net.Acceptors is
       end Shutdown;
 
       First        : constant Boolean := True;
-      Timeout      : array (Boolean) of Duration;
+      Timeout      : array (Boolean) of Real_Time.Time_Span;
       Oldest_Idx   : Sets.Socket_Count;
 
-      Wait_Timeout : Duration;
+      Wait_Timeout : Real_Time.Time_Span;
 
    begin
       if Sets.Count (Acceptor.Set) = 0 then
@@ -219,13 +219,13 @@ package body AWS.Net.Acceptors is
                --  Check for timeout
 
                declare
-                  use Ada.Calendar;
+                  use Ada.Real_Time;
                   Data : constant Socket_Data_Type
                     := Sets.Get_Data (Acceptor.Set, Acceptor.Index);
-                  Diff : constant Duration
+                  Diff : constant Time_Span
                     := Timeout (Data.First) - (Clock - Data.Time);
                begin
-                  if Diff <= 0.0 then
+                  if Diff <= Time_Span_Zero then
                      Sets.Remove_Socket (Acceptor.Set, Acceptor.Index, Socket);
                      Acceptor.Last := Acceptor.Last - 1;
                      Shutdown (Socket.all);
@@ -250,7 +250,7 @@ package body AWS.Net.Acceptors is
          end if;
 
          begin
-            Sets.Wait (Acceptor.Set, Wait_Timeout);
+            Sets.Wait (Acceptor.Set, Real_Time.To_Duration (Wait_Timeout));
             Error := False;
          exception
             when E : Socket_Error =>
@@ -353,6 +353,8 @@ package body AWS.Net.Acceptors is
          return new Socket_Type'Class'(Acceptor.Constructor (False));
       end New_Socket;
 
+      use Real_Time;
+
    begin
       Acceptor.Server := New_Socket;
       Bind
@@ -371,10 +373,10 @@ package body AWS.Net.Acceptors is
 
       Acceptor.Index               := First_Index;
       Acceptor.Last                := Sets.Count (Acceptor.Set);
-      Acceptor.Timeout             := Timeout;
-      Acceptor.Force_Timeout       := Force_Timeout;
-      Acceptor.First_Timeout       := First_Timeout;
-      Acceptor.Force_First_Timeout := Force_First_Timeout;
+      Acceptor.Timeout             := To_Time_Span (Timeout);
+      Acceptor.Force_Timeout       := To_Time_Span (Force_Timeout);
+      Acceptor.First_Timeout       := To_Time_Span (First_Timeout);
+      Acceptor.Force_First_Timeout := To_Time_Span (Force_First_Timeout);
 
       Acceptor.Force_Length := Correct_2 (Force_Length);
       Acceptor.Close_Length := Correct_2 (Close_Length);
