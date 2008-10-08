@@ -30,6 +30,7 @@
 --  Content_Length and the Session ID for example.
 
 with Ada.Calendar;
+with Ada.Real_Time;
 with Ada.Streams;
 with Ada.Strings.Unbounded;
 
@@ -91,6 +92,9 @@ package AWS.Status is
    function Request_Time           (D : in Data) return Ada.Calendar.Time;
    pragma Inline (Request_Time);
    --  Returns the time of the request
+
+   function Request_Time           (D : in Data) return Ada.Real_Time.Time;
+   pragma Inline (Request_Time);
 
    ------------
    -- Header --
@@ -353,7 +357,8 @@ private
       Method_String     : Unbounded_String;
       HTTP_Version      : Unbounded_String;
       URI               : aliased URL.Object;
-      Request_Time      : Ada.Calendar.Time;
+      Calendar_Time     : Ada.Calendar.Time;
+      Monotonic_Time    : Ada.Real_Time.Time;
       Binary_Data       : Memory_Stream_Access;
       Uploaded          : Boolean               := False;
       Content_Length    : Natural               := 0;

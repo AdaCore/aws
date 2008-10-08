@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2003-2008                          --
---                                 AdaCore                                  --
+--                     Copyright (C) 2003-2008, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -26,7 +25,7 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-with Ada.Calendar;
+with Ada.Real_Time;
 with Ada.Containers.Indefinite_Hashed_Maps;
 with Ada.Exceptions;
 with Ada.Strings.Hash;
@@ -40,7 +39,7 @@ package body AWS.Services.Transient_Pages is
 
    type Item is record
       Stream      : AWS.Resources.Streams.Stream_Access;
-      Delete_Time : Calendar.Time;
+      Delete_Time : Real_Time.Time;
    end record;
 
    package Table is new Ada.Containers.Indefinite_Hashed_Maps
@@ -51,7 +50,7 @@ package body AWS.Services.Transient_Pages is
    --  characters are a number with a set of '$' character as prefix the 20
    --  next characters are completely random.
 
-   Clean_Interval : Duration;
+   Clean_Interval : Real_Time.Time_Span;
    --  Interval between each run of the cleaner task
 
    --  Concurrent access for the transient pages
@@ -96,7 +95,7 @@ package body AWS.Services.Transient_Pages is
       begin
          Need_Start     := Server_Count = 0 and then Cleaner_Task = null;
          Server_Count   := Server_Count + 1;
-         Clean_Interval := Transient_Check_Interval;
+         Clean_Interval := Real_Time.To_Time_Span (Transient_Check_Interval);
       end Register;
 
       ----------
@@ -116,8 +115,8 @@ package body AWS.Services.Transient_Pages is
    -------------
 
    task body Cleaner is
-      use type Calendar.Time;
-      Next : Calendar.Time := Calendar.Clock + Clean_Interval;
+      use type Real_Time.Time;
+      Next : Real_Time.Time := Real_Time.Clock + Clean_Interval;
    begin
       Clean : loop
          select
@@ -151,9 +150,9 @@ package body AWS.Services.Transient_Pages is
       -----------
 
       procedure Clean is
-         use type Calendar.Time;
+         use type Real_Time.Time;
 
-         Now    : constant Calendar.Time := Calendar.Clock;
+         Now    : constant Real_Time.Time := Real_Time.Clock;
          Cursor : Table.Cursor;
       begin
          Cursor := Resources.First;
@@ -287,9 +286,9 @@ package body AWS.Services.Transient_Pages is
       Resource : in AWS.Resources.Streams.Stream_Access;
       Lifetime : in Duration := Default.Transient_Lifetime)
    is
-      use type Calendar.Time;
+      use Real_Time;
    begin
-      Database.Register (URI, (Resource, Calendar.Clock + Lifetime));
+      Database.Register (URI, (Resource, Clock + To_Time_Span (Lifetime)));
    end Register;
 
 end AWS.Services.Transient_Pages;

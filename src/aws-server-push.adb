@@ -52,7 +52,7 @@ package body AWS.Server.Push is
    type Client_Holder is record
       Socket      : Net.Socket_Access;
       Kind        : Mode;
-      Created     : Calendar.Time;
+      Created     : Real_Time.Time;
       Environment : Client_Environment;
       Groups      : Group_Sets.Set;
       Chunks      : Chunk_Lists.List;
@@ -518,7 +518,7 @@ package body AWS.Server.Push is
          Duplicated     :    out Client_Holder_Access;
          Duplicated_Age : in     Duration)
       is
-         use Calendar;
+         use Real_Time;
 
          procedure Add_To_Groups (J : in Group_Sets.Cursor);
 
@@ -548,7 +548,7 @@ package body AWS.Server.Push is
          else
             Duplicated := Tables.Element (Cursor);
 
-            if Duplicated_Age < Clock - Duplicated.Created then
+            if To_Time_Span (Duplicated_Age) < Clock - Duplicated.Created then
                Unregister (Cursor);
                Container.Insert (Client_Id, Holder);
             else
@@ -1449,7 +1449,7 @@ package body AWS.Server.Push is
       return new Client_Holder'
         (Kind        => Kind,
          Environment => Environment,
-         Created     => Calendar.Clock,
+         Created     => Real_Time.Clock,
          Socket      => new Socket_Type'Class'(Socket),
          Groups      => Holder_Groups,
          Chunks      => <>,

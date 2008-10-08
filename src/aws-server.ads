@@ -28,6 +28,7 @@
 with Ada.Calendar;
 with Ada.Exceptions;
 with Ada.Finalization;
+with Ada.Real_Time;
 with Ada.Task_Attributes;
 
 with AWS.Config;
@@ -276,10 +277,10 @@ private
    ----------
 
    type Slot is record
-      Sock                  : Socket_Access     := null;
-      Socket_Taken          : Boolean           := False;
-      Phase                 : Slot_Phase        := Closed;
-      Phase_Time_Stamp      : Ada.Calendar.Time := Ada.Calendar.Clock;
+      Sock                  : Socket_Access      := null;
+      Socket_Taken          : Boolean            := False;
+      Phase                 : Slot_Phase         := Closed;
+      Phase_Time_Stamp      : Ada.Real_Time.Time := Ada.Real_Time.Clock;
       Alive_Time_Stamp      : Ada.Calendar.Time;
       Slot_Activity_Counter : Natural := 0;
       Activity_Counter      : Natural := 0;

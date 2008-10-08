@@ -253,6 +253,12 @@ package body AWS.Server.Status is
          Slot_Data             : Slot;
          Result                : Translate_Set;
 
+         Now_Monolit  : constant Real_Time.Time := Real_Time.Clock;
+         Now_Calendar : constant Calendar.Time  := Calendar.Clock;
+
+         use type Real_Time.Time;
+         use type Calendar.Time;
+
       begin
          for K in 1 .. CNF.Max_Connection (Server.Properties) loop
             Slot_Data := Server.Slots.Get (Index => K);
@@ -276,8 +282,10 @@ package body AWS.Server.Status is
               & Slot_Data.Slot_Activity_Counter;
 
             Activity_Time_Stamp := Activity_Time_Stamp &
-              GNAT.Calendar.Time_IO.Image (Slot_Data.Phase_Time_Stamp,
-                                           "%a %D %T");
+              GNAT.Calendar.Time_IO.Image
+                (Now_Calendar - Real_Time.To_Duration
+                                  (Now_Monolit - Slot_Data.Phase_Time_Stamp),
+                 "%a %D %T");
          end loop;
 
          Insert (Result, Assoc ("SOCK_V",             Sock));

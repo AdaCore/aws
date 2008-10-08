@@ -631,7 +631,12 @@ package body AWS.Status is
 
    function Request_Time (D : in Data) return Ada.Calendar.Time is
    begin
-      return D.Request_Time;
+      return D.Calendar_Time;
+   end Request_Time;
+
+   function Request_Time (D : in Data) return Ada.Real_Time.Time is
+   begin
+      return D.Monotonic_Time;
    end Request_Time;
 
    ----------------------

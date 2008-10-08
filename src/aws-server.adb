@@ -627,10 +627,10 @@ package body AWS.Server is
       ------------------------
 
       procedure Check_Data_Timeout (Index : in Positive) is
-         use type Ada.Calendar.Time;
+         use Ada.Real_Time;
       begin
-         if Ada.Calendar.Clock - Table (Index).Phase_Time_Stamp
-           > Timeouts (Cleaner, Table (Index).Phase)
+         if Clock - Table (Index).Phase_Time_Stamp
+           > To_Time_Span (Timeouts (Cleaner, Table (Index).Phase))
          then
             raise Net.Socket_Error;
          end if;
@@ -731,14 +731,12 @@ package body AWS.Server is
       ------------------
 
       function Is_Abortable (Index : in Positive) return Boolean is
-         use type Calendar.Time;
-         Phase : constant Slot_Phase    := Table (Index).Phase;
-         Now   : constant Calendar.Time := Calendar.Clock;
+         use Real_Time;
+         Phase : constant Slot_Phase := Table (Index).Phase;
       begin
-         return
-            Phase in Abortable_Phase
-            and then
-            Now - Table (Index).Phase_Time_Stamp > Timeouts (Force, Phase);
+         return Phase in Abortable_Phase
+           and then Clock - Table (Index).Phase_Time_Stamp
+                    > To_Time_Span (Timeouts (Force, Phase));
       end Is_Abortable;
 
       ----------------
@@ -758,7 +756,7 @@ package body AWS.Server is
             raise Net.Socket_Error;
          end if;
 
-         Table (Index).Phase_Time_Stamp := Ada.Calendar.Clock;
+         Table (Index).Phase_Time_Stamp := Real_Time.Clock;
          Table (Index).Phase := Phase;
 
          if Phase in Data_Phase then

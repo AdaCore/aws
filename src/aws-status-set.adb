@@ -361,7 +361,8 @@ package body AWS.Status.Set is
       URI          : in     String;
       HTTP_Version : in     String) is
    begin
-      D.Request_Time := Ada.Calendar.Clock;
+      D.Calendar_Time  := Ada.Calendar.Clock;
+      D.Monotonic_Time := Ada.Real_Time.Clock;
 
       --  Method is case sensitive
 
