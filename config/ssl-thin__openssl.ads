@@ -540,7 +540,6 @@ package SSL.Thin is
      (SSL : in SSL_Handle; session : in SSL_Session) return int;
 
    function SSL_get_session (SSL : in SSL_Handle) return SSL_Session;
-   function SSL_get0_session (SSL : in SSL_Handle) return SSL_Session;
    function SSL_get1_session (SSL : in SSL_Handle) return SSL_Session;
 
 private
@@ -665,7 +664,6 @@ private
                     "SSL_CTX_set_default_verify_paths");
    pragma Import (C, SSL_set_session, "SSL_set_session");
    pragma Import (C, SSL_get_session, "SSL_get_session");
-   pragma Import (C, SSL_get0_session, "SSL_get0_session");
    pragma Import (C, SSL_get1_session, "SSL_get1_session");
    pragma Import (C, SSL_CTX_flush_sessions, "SSL_CTX_flush_sessions");
 end SSL.Thin;
