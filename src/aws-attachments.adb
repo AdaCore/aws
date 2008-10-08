@@ -707,7 +707,7 @@ package body AWS.Attachments is
       Alternative : in     Boolean := False)
    is
       L_Boundary : constant String :=
-        "----=_NextPart_" & Utils.Random_String (8) & "."
+        "----=_NextPart_" & Utils.Random_String (10) & "."
         & Utils.Image (UID.Value);
    begin
       UID.Increment;
