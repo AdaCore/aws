@@ -38,8 +38,6 @@ with AWS.Net.Log;
 with AWS.Translator;
 with AWS.Utils;
 
-with GNAT.Calendar.Time_IO;
-
 package body AWS.Server.Push is
 
    use Ada;
@@ -120,7 +118,7 @@ package body AWS.Server.Push is
    Byte0 : constant Stream_Element_Array := (1 => 0);
 
    Boundary  : constant String := "AWS.Push.Boundary_"
-     & GNAT.Calendar.Time_IO.Image (Calendar.Clock, "%s");
+     & Utils.Random_String (8);
    --  This is the multi-part boundary string used by AWS push server
 
    Delimiter : constant String := "--" & Boundary & New_Line;
