@@ -25,12 +25,9 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-with Ada.Calendar;
 with Ada.Directories;
 with Ada.Streams.Stream_IO;
 with Ada.IO_Exceptions;
-
-with GNAT.Calendar.Time_IO;
 
 with AWS.Headers.Set;
 with AWS.Headers.Values;
@@ -709,12 +706,9 @@ package body AWS.Attachments is
       Boundary    :    out Unbounded_String;
       Alternative : in     Boolean := False)
    is
-      use type GNAT.Calendar.Time_IO.Picture_String;
       L_Boundary : constant String :=
-                     GNAT.Calendar.Time_IO.Image
-                       (Calendar.Clock, "----=_NextPart_%s."
-                        & GNAT.Calendar.Time_IO.Picture_String
-                          (Utils.Image (UID.Value)));
+        "----=_NextPart_" & Utils.Random_String (8) & "."
+        & Utils.Image (UID.Value);
    begin
       UID.Increment;
 
