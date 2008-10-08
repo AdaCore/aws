@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2005-2008                          --
---                                 AdaCore                                  --
+--                     Copyright (C) 2005-2008, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -28,7 +27,7 @@
 
 --  Waiting on a group of sockets for reading and accept new connections
 
-with Ada.Calendar;
+with Ada.Real_Time;
 with Ada.Exceptions;
 
 with AWS.Net;
@@ -112,7 +111,7 @@ private
    package Mailboxes is new Utils.Mailbox_G (Socket_Access);
 
    type Socket_Data_Type is record
-      Time  : Ada.Calendar.Time;
+      Time  : Ada.Real_Time.Time;
       First : Boolean;
    end record;
 
@@ -126,10 +125,10 @@ private
       Box                 : Mailboxes.Mailbox (8);
       Index               : Sets.Socket_Count;
       Last                : Sets.Socket_Count;
-      Timeout             : Duration;
-      First_Timeout       : Duration;
-      Force_Timeout       : Duration;
-      Force_First_Timeout : Duration;
+      Timeout             : Ada.Real_Time.Time_Span;
+      First_Timeout       : Ada.Real_Time.Time_Span;
+      Force_Timeout       : Ada.Real_Time.Time_Span;
+      Force_First_Timeout : Ada.Real_Time.Time_Span;
       Force_Length        : Sets.Socket_Count;
       Close_Length        : Sets.Socket_Count;
       Constructor         : Socket_Constructor := Socket'Access;
