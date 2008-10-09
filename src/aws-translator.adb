@@ -42,14 +42,12 @@ package body AWS.Translator is
    package Conversion is
 
       function To_String
-        (Data : in Ada.Streams.Stream_Element_Array)
-         return String;
+        (Data : in Ada.Streams.Stream_Element_Array) return String;
       pragma Inline (To_String);
       --  Convert a Stream_Element_Array to a string
 
       function To_Stream_Element_Array
-        (Data : in String)
-         return Ada.Streams.Stream_Element_Array;
+        (Data : in String) return Ada.Streams.Stream_Element_Array;
       pragma Inline (To_Stream_Element_Array);
       --  Convert a String to a Stream_Element_Array
 
@@ -59,10 +57,7 @@ package body AWS.Translator is
    -- Base64_Decode --
    -------------------
 
-   function Base64_Decode
-     (B64_Data : in String)
-      return Stream_Element_Array
-   is
+   function Base64_Decode (B64_Data : in String) return Stream_Element_Array is
       use Interfaces;
 
       function Base64 (C : in Character) return Interfaces.Unsigned_32;
@@ -91,14 +86,12 @@ package body AWS.Translator is
 
       function Shift_Left
         (Value  : in Interfaces.Unsigned_32;
-         Amount : in Natural)
-         return Interfaces.Unsigned_32;
+         Amount : in Natural) return Interfaces.Unsigned_32;
       pragma Import (Intrinsic, Shift_Left);
 
       function Shift_Right
         (Value  : in Interfaces.Unsigned_32;
-         Amount : in Natural)
-         return Interfaces.Unsigned_32;
+         Amount : in Natural) return Interfaces.Unsigned_32;
       pragma Import (Intrinsic, Shift_Right);
 
       Result : Stream_Element_Array
@@ -162,15 +155,11 @@ package body AWS.Translator is
    function Base64_Encode (Data : in Stream_Element_Array) return String is
 
       function Shift_Left
-        (Value  : in Stream_Element;
-         Amount : in Natural)
-         return Stream_Element;
+        (Value : in Stream_Element; Amount : in Natural) return Stream_Element;
       pragma Import (Intrinsic, Shift_Left);
 
       function Shift_Right
-        (Value  : in Stream_Element;
-         Amount : in Natural)
-         return Stream_Element;
+        (Value : in Stream_Element; Amount : in Natural) return Stream_Element;
       pragma Import (Intrinsic, Shift_Right);
 
       Encoded_Length : constant Integer := 4 * ((Data'Length + 2) / 3);
@@ -379,8 +368,7 @@ package body AWS.Translator is
    -----------------------------
 
    function To_Stream_Element_Array
-     (Data : in String)
-      return Stream_Element_Array
+     (Data : in String) return Stream_Element_Array
       renames Conversion.To_Stream_Element_Array;
 
    ---------------
@@ -388,8 +376,7 @@ package body AWS.Translator is
    ---------------
 
    function To_String
-     (Data : in Stream_Element_Array)
-      return String
+     (Data : in Stream_Element_Array) return String
       renames Conversion.To_String;
 
    -------------------------

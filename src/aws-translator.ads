@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2007                          --
---                                 AdaCore                                  --
+--                     Copyright (C) 2000-2008, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -41,16 +40,14 @@ package AWS.Translator is
    ------------
 
    function Base64_Encode
-     (Data : in Ada.Streams.Stream_Element_Array)
-      return String;
+     (Data : in Ada.Streams.Stream_Element_Array) return String;
    --  Encode Data using the base64 algorithm
 
    function Base64_Encode (Data : in String) return String;
    --  Same as above but takes a string as input
 
    function Base64_Decode
-     (B64_Data : in String)
-      return Ada.Streams.Stream_Element_Array;
+     (B64_Data : in String) return Ada.Streams.Stream_Element_Array;
    --  Decode B64_Data using the base64 algorithm
 
    --------
@@ -72,8 +69,7 @@ package AWS.Translator is
    --  break the stack size limit. Use the routine below for large array.
 
    function To_Stream_Element_Array
-     (Data : in String)
-      return Ada.Streams.Stream_Element_Array;
+     (Data : in String) return Ada.Streams.Stream_Element_Array;
    pragma Inline (To_Stream_Element_Array);
    --  Convert a String to a Stream_Element_Array
 
