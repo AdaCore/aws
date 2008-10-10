@@ -153,8 +153,7 @@ package AWS.Client is
       Proxy      : in String          := No_Data;
       Proxy_User : in String          := No_Data;
       Proxy_Pwd  : in String          := No_Data;
-      Timeouts   : in Timeouts_Values := No_Timeout)
-      return Response.Data;
+      Timeouts   : in Timeouts_Values := No_Timeout) return Response.Data;
    --  Idem as above but we do not get the message body.
    --  Head will retry one time if it fails.
 
@@ -166,8 +165,7 @@ package AWS.Client is
       Proxy      : in String          := No_Data;
       Proxy_User : in String          := No_Data;
       Proxy_Pwd  : in String          := No_Data;
-      Timeouts   : in Timeouts_Values := No_Timeout)
-      return Response.Data;
+      Timeouts   : in Timeouts_Values := No_Timeout) return Response.Data;
    --  Send to the server URL a PUT request with Data
    --  Put will retry one time if it fails.
 
@@ -223,8 +221,7 @@ package AWS.Client is
       Proxy      : in String          := No_Data;
       Proxy_User : in String          := No_Data;
       Proxy_Pwd  : in String          := No_Data;
-      Timeouts   : in Timeouts_Values := No_Timeout)
-      return Response.Data;
+      Timeouts   : in Timeouts_Values := No_Timeout) return Response.Data;
    --  This is a file upload request. Filename file's content will be send to
    --  the server at address URL.
 
@@ -262,8 +259,7 @@ package AWS.Client is
    --  the client interface to present itself to the server.
 
    function Get_Certificate
-     (Connection : in HTTP_Connection)
-      return AWS.Net.SSL.Certificate.Object;
+     (Connection : in HTTP_Connection) return AWS.Net.SSL.Certificate.Object;
    --  Return the certificate used for the secure connection. If this is not a
    --  secure connection, returns Net.SSL.Certificate.Undefined.
 
@@ -300,6 +296,15 @@ package AWS.Client is
    --  Copy a session Id from connection Source to connection Destination.
    --  Allow both connections to share the same user environment. Note that
    --  user's environment are thread-safe.
+
+   function Get_Cookie (Connection : in HTTP_Connection) return String;
+   pragma Inline (Get_Cookie);
+   --  Get the connection cookie
+
+   procedure Set_Cookie
+     (Connection : in out HTTP_Connection; Cookie : in String);
+   pragma Inline (Set_Cookie);
+   --  Set the connection cookie
 
    function Read_Until
      (Connection : in HTTP_Connection;

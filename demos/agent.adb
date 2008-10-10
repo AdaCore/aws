@@ -34,6 +34,8 @@
 --         -i                      repeat over delay interval for stress test.
 --         -d                      debug mode, view HTTP headers.
 --         -c                      display server certificate.
+--         -sc                     Set cookie.
+--         -cc                     client certificate
 --         -t                      wait response timeout.
 --         -proxy <proxy_url>
 --         -u <user_name>
@@ -95,6 +97,7 @@ procedure Agent is
    Interval           : Duration               := Duration'Last;
    Timeouts           : Client.Timeouts_Values := Client.No_Timeout;
    Connect            : AWS.Client.HTTP_Connection;
+   Cookie             : Unbounded_String;
    Client_Cert        : Unbounded_String
      := To_Unbounded_String (Default.Client_Certificate);
 
@@ -129,7 +132,7 @@ procedure Agent is
    begin
       loop
          case GNAT.Command_Line.Getopt
-           ("f o d u: p: a: pu: pp: pa: proxy: k i: s r c cc: t:")
+           ("f o d u: p: a: pu: pp: pa: proxy: k i: s sc: r c cc: t:")
          is
             when ASCII.NUL =>
                exit;
@@ -153,7 +156,11 @@ procedure Agent is
                Follow_Redirection := True;
 
             when 's' =>
-               Server_Push := True;
+               if GNAT.Command_Line.Full_Switch = "sc" then
+                  Cookie := To_Unbounded_String (GNAT.Command_Line.Parameter);
+               else
+                  Server_Push := True;
+               end if;
 
             when 'c' =>
                if GNAT.Command_Line.Full_Switch = "cc" then
@@ -238,10 +245,11 @@ begin
       Text_IO.Put_Line ("       -s           server-push mode.");
       Text_IO.Put_Line ("       -i           repeat over delay interval for"
                           & " stress test.");
-      Text_IO.Put_Line ("       -n           non stop for stress test.");
       Text_IO.Put_Line ("       -r           follow redirection.");
       Text_IO.Put_Line ("       -d           debug mode, view HTTP headers.");
       Text_IO.Put_Line ("       -c           display server certificate.");
+      Text_IO.Put_Line ("       -cc          Client certificate.");
+      Text_IO.Put_Line ("       -sc          Set cookie.");
       Text_IO.Put_Line ("       -t           wait response timeout.");
       Text_IO.Put_Line ("       -proxy <proxy_url>");
       Text_IO.Put_Line ("       -u <user_name>");
@@ -268,6 +276,8 @@ begin
          Server_Push => Server_Push,
          Certificate => To_String (Client_Cert),
          Timeouts    => Timeouts);
+
+      Client.Set_Cookie (Connect, To_String (Cookie));
 
       Client.Set_WWW_Authentication
         (Connection => Connect,
@@ -318,6 +328,14 @@ begin
       if Response.Status_Code (Data) = Messages.S301 then
          Text_IO.Put_Line ("New location : " & Response.Location (Data));
       end if;
+
+      declare
+         Cookie : constant String := Client.Get_Cookie (Connect);
+      begin
+         if Cookie /= "" then
+            Text_IO.Put_Line ("Cookie: " & Cookie);
+         end if;
+      end;
 
       if MIME.Is_Text (Response.Content_Type (Data)) then
 

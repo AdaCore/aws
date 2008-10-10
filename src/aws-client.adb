@@ -322,6 +322,15 @@ package body AWS.Client is
       end if;
    end Get_Certificate;
 
+   ----------------
+   -- Get_Cookie --
+   ----------------
+
+   function Get_Cookie (Connection : in HTTP_Connection) return String is
+   begin
+      return To_String (Connection.Cookie);
+   end Get_Cookie;
+
    ----------
    -- Head --
    ----------
@@ -333,8 +342,7 @@ package body AWS.Client is
       Proxy      : in String          := No_Data;
       Proxy_User : in String          := No_Data;
       Proxy_Pwd  : in String          := No_Data;
-      Timeouts   : in Timeouts_Values := No_Timeout)
-      return Response.Data
+      Timeouts   : in Timeouts_Values := No_Timeout) return Response.Data
    is
       Connection : HTTP_Connection;
       Result     : Response.Data;
@@ -544,8 +552,7 @@ package body AWS.Client is
       Proxy      : in String          := No_Data;
       Proxy_User : in String          := No_Data;
       Proxy_Pwd  : in String          := No_Data;
-      Timeouts   : in Timeouts_Values := No_Timeout)
-      return Response.Data
+      Timeouts   : in Timeouts_Values := No_Timeout) return Response.Data
    is
       Connection : HTTP_Connection;
       Result     : Response.Data;
@@ -844,6 +851,16 @@ package body AWS.Client is
    begin
       return T.Send;
    end Send_Timeout;
+
+   ----------------
+   -- Set_Cookie --
+   ----------------
+
+   procedure Set_Cookie
+     (Connection : in out HTTP_Connection; Cookie : in String) is
+   begin
+      Connection.Cookie := To_Unbounded_String (Cookie);
+   end Set_Cookie;
 
    ---------------
    -- Set_Debug --
@@ -1144,8 +1161,7 @@ package body AWS.Client is
       Proxy      : in String          := No_Data;
       Proxy_User : in String          := No_Data;
       Proxy_Pwd  : in String          := No_Data;
-      Timeouts   : in Timeouts_Values := No_Timeout)
-      return Response.Data
+      Timeouts   : in Timeouts_Values := No_Timeout) return Response.Data
    is
       Connection : HTTP_Connection;
       Result     : Response.Data;
