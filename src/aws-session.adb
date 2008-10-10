@@ -27,6 +27,7 @@
 
 with Ada.Containers.Hashed_Maps;
 with Ada.Exceptions;
+with Ada.Real_Time;
 with Ada.Streams.Stream_IO;
 with Ada.Strings.Hash;
 with Ada.Strings.Unbounded;
@@ -49,7 +50,8 @@ package body AWS.Session is
    Check_Interval : Duration := Default.Session_Cleanup_Interval;
    --  Check for obsolete section interval
 
-   Lifetime       : Duration := Default.Session_Lifetime;
+   Lifetime       : Real_Time.Time_Span :=
+     Real_Time.To_Time_Span (Default.Session_Lifetime);
    --  A session is obsolete if not used after Session_Lifetime seconds
 
    package Key_Value renames Containers.Key_Value;
@@ -61,7 +63,7 @@ package body AWS.Session is
    --  table of session ID
 
    type Session_Node is record
-      Time_Stamp : Calendar.Time;
+      Time_Stamp : Real_Time.Time;
       Root       : Key_Value_Set_Access;
    end record;
 
@@ -317,7 +319,7 @@ package body AWS.Session is
 
          if S_Count = 1 then
             Session.Check_Interval := Start.Check_Interval;
-            Session.Lifetime       := Start.Lifetime;
+            Session.Lifetime       := Real_Time.To_Time_Span (Start.Lifetime);
             Cleaner_Task := new Cleaner;
          end if;
       end Start;
@@ -354,7 +356,7 @@ package body AWS.Session is
          Cursor   : Session_Set.Cursor;
          Success  : Boolean;
       begin
-         New_Node := (Time_Stamp => Calendar.Clock,
+         New_Node := (Time_Stamp => Real_Time.Clock,
                       Root       => new Key_Value.Map);
 
          Sessions.Insert (SID, New_Node, Cursor, Success);
@@ -487,7 +489,7 @@ package body AWS.Session is
 
       entry New_Session (SID : out Id) when Lock_Counter = 0 is
          New_Node : constant Session_Node
-           := (Time_Stamp => Calendar.Clock,
+           := (Time_Stamp => Real_Time.Clock,
                Root       => new Key_Value.Map);
 
          Cursor   : Session_Set.Cursor;
@@ -509,9 +511,9 @@ package body AWS.Session is
 
       procedure Prepare_Expired_SID is
 
-         use type Calendar.Time;
+         use type Real_Time.Time;
 
-         Now : constant Calendar.Time := Calendar.Clock;
+         Now : constant Real_Time.Time := Real_Time.Clock;
 
          Cursor : Session_Set.Cursor;
          Node   : Session_Node;
@@ -586,16 +588,14 @@ package body AWS.Session is
       -------------------------
 
       function Session_Has_Expired (SID : in Id) return Boolean is
-         use type Calendar.Time;
-         Now    : constant Calendar.Time := Calendar.Clock;
+         use type Real_Time.Time;
          Cursor : constant Session_Set.Cursor := Sessions.Find (SID);
-         Node   : Session_Node;
       begin
          --  Do not use Get_Node, since that would update the timestamp
 
          if Session_Set.Has_Element (Cursor) then
-            Node := Session_Set.Element (Cursor);
-            return Node.Time_Stamp + Lifetime < Now;
+            return Session_Set.Element (Cursor).Time_Stamp + Lifetime
+                   < Real_Time.Clock;
          end if;
 
          return False;
@@ -672,10 +672,15 @@ package body AWS.Session is
    procedure For_Every_Session is
 
       use type Session_Set.Cursor;
+      use type Real_Time.Time;
+      use type Calendar.Time;
 
       Cursor   : Session_Set.Cursor;
       Order    : Positive := 1;
       Quit     : Boolean  := False;
+
+      Now_Monoton  : constant Real_Time.Time := Real_Time.Clock;
+      Now_Calendar : constant Calendar.Time  := Calendar.Clock;
 
    begin
       Database.Lock_And_Get_Sessions (Cursor);
@@ -684,7 +689,9 @@ package body AWS.Session is
          Action
            (Order,
             Session_Set.Key (Cursor),
-            Session_Set.Element (Cursor).Time_Stamp,
+            Now_Calendar
+            - Real_Time.To_Duration
+                (Now_Monoton - Session_Set.Element (Cursor).Time_Stamp),
             Quit);
          exit when Quit;
 
@@ -827,7 +834,7 @@ package body AWS.Session is
 
    function Get_Lifetime return Duration is
    begin
-      return Lifetime;
+      return Real_Time.To_Duration (Lifetime);
    end Get_Lifetime;
 
    --------------
@@ -851,7 +858,7 @@ package body AWS.Session is
       procedure Process (Key : in Id; Item : in out Session_Node) is
          pragma Unreferenced (Key);
       begin
-         Item.Time_Stamp := Calendar.Clock;
+         Item.Time_Stamp := Real_Time.Clock;
          Node := Item;
       end Process;
 
@@ -1102,7 +1109,7 @@ package body AWS.Session is
 
    procedure Set_Lifetime (Seconds : in Duration) is
    begin
-      Lifetime := Seconds;
+      Lifetime := Real_Time.To_Time_Span (Seconds);
    end Set_Lifetime;
 
    -------------
