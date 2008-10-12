@@ -103,19 +103,10 @@ package body AWS.Session is
    --  Open a new string. Str is the initial value of the string, to which will
    --  be appended the result of 'Output.
 
-   -----------------
-   -- Expired Set --
-   -----------------
-
-   --  This is used by the task cleaner, all SID to delete will be placed here
-   --  temporarily. Note that these global value are thread safe. The data are
-   --  initialized by Database.Clean. The set is used just after and the
-   --  clean-up is done.
-
    Max_Expired : constant := 50;
 
-   Expired_SID : array (1 .. Max_Expired) of Id;
-   E_Index     : Natural := 0;
+   type Expired_SID_Array is array (1 .. Max_Expired) of Id;
+   --  Used by the task cleaner to get expired session from database
 
    ----------------------
    -- Session Callback --
@@ -172,8 +163,9 @@ package body AWS.Session is
       procedure Destroy;
       --  Release all memory associated with the database
 
-      procedure Prepare_Expired_SID;
-      --  Checks for expired data and put them into the global Expired_SID set.
+      procedure Prepare_Expired_SID
+        (Expired_SID : out Expired_SID_Array; Last : out Natural);
+      --  Checks for expired data and put them into the Expired_SID set.
       --  The data will be removed later by the cleaner task.
       --  This is used only in the cleaner task.
 
@@ -214,6 +206,9 @@ package body AWS.Session is
       --  that there is no race condition and that the code below will not
       --  crash if SC pointer is changed.
 
+      Expired_SID : Expired_SID_Array;
+      E_Index     : Natural;
+
    begin
       Clean_Dead_Sessions : loop
          select
@@ -225,7 +220,7 @@ package body AWS.Session is
             delay until Next_Run;
          end select;
 
-         Database.Prepare_Expired_SID;
+         Database.Prepare_Expired_SID (Expired_SID, E_Index);
 
          L_SC := Session_Callback;
          --  Use Session_Callback copy as we don't want the value to change
@@ -509,7 +504,9 @@ package body AWS.Session is
       -- Prepare_Expired_SID --
       -------------------------
 
-      procedure Prepare_Expired_SID is
+      procedure Prepare_Expired_SID
+        (Expired_SID : out Expired_SID_Array; Last : out Natural)
+      is
 
          use type Real_Time.Time;
 
@@ -519,7 +516,7 @@ package body AWS.Session is
          Node   : Session_Node;
 
       begin
-         E_Index := 0;
+         Last := 0;
 
          if Remove_Mark = No_Session then
             Cursor := Sessions.First;
@@ -539,10 +536,10 @@ package body AWS.Session is
             Node := Session_Set.Element (Cursor);
 
             if Node.Time_Stamp + Lifetime < Now then
-               E_Index := E_Index + 1;
-               Expired_SID (E_Index) := Session_Set.Key (Cursor);
+               Last := Last + 1;
+               Expired_SID (Last) := Session_Set.Key (Cursor);
 
-               if E_Index = Max_Expired then
+               if Last = Expired_SID'Last then
                   --  No more space in the expired mailbox, quit now
                   Session_Set.Next (Cursor);
 
