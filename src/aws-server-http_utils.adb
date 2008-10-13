@@ -234,6 +234,8 @@ package body AWS.Server.HTTP_Utils is
                   end;
                end if;
             end;
+
+            AWS.Status.Set.Delete_Idle_Session (C_Stat);
          end if;
       end Build_Answer;
 

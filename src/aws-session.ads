@@ -48,6 +48,12 @@ package AWS.Session is
    --  AWS.Response.Set.Clear_Session when you send a response to the customer
    --  after deleting the session, so that the cookie is not sent again.
 
+   function Delete_If_Empty (SID : in Id) return Boolean;
+   --  Delete session only if there is no key/value pairs.
+   --  Returns True if session deleted.
+   --  Need to delete not used just created session to avoid too many empty
+   --  session creation.
+
    function Image (SID : in Id) return String;
    pragma Inline (Image);
    --  Return ID image
@@ -65,16 +71,16 @@ package AWS.Session is
    --  if SID does not exists.
 
    procedure Set (SID : in Id; Key : in String; Value : in String);
-   --  Set key/pair value for the SID
+   --  Set key/value pair for the SID
 
    procedure Set (SID : in Id; Key : in String; Value : in Integer);
-   --  Set key/pair value for the SID
+   --  Set key/value pair for the SID
 
    procedure Set (SID : in Id; Key : in String; Value : in Float);
-   --  Set key/pair value for the SID
+   --  Set key/value pair for the SID
 
    procedure Set (SID : in Id; Key : in String; Value : in Boolean);
-   --  Set key/pair value for the SID
+   --  Set key/value pair for the SID
 
    function Get (SID : in Id; Key : in String) return String;
    pragma Inline (Get);
@@ -102,7 +108,7 @@ package AWS.Session is
    package Generic_Data is
 
       procedure Set (SID : in Id; Key : in String; Value : in Data);
-      --  Set key/pair value for the SID
+      --  Set key/value pair for the SID
 
       function Get (SID : in Id; Key : in String) return Data;
       pragma Inline (Get);
@@ -122,6 +128,9 @@ package AWS.Session is
 
    function Length return Natural;
    --  Returns number of sessions
+
+   function Length (SID : in Id) return Natural;
+   --  Returns number of key/value pairs in session SID
 
    procedure Clear;
    --  Removes all sessions data

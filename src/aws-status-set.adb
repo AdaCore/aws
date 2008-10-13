@@ -269,6 +269,19 @@ package body AWS.Status.Set is
       AWS.URL.Set.Connection_Data (D.URI, Host, Port, Security);
    end Connection_Data;
 
+   -------------------------
+   -- Delete_Idle_Session --
+   -------------------------
+
+   procedure Delete_Idle_Session (D : in out Data) is
+   begin
+      if D.Session_Created
+        and then AWS.Session.Delete_If_Empty (D.Session_Id)
+      then
+         D.Session_Created := False;
+      end if;
+   end Delete_Idle_Session;
+
    ----------
    -- Free --
    ----------

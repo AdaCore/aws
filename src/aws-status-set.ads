@@ -64,6 +64,11 @@ package AWS.Status.Set is
    procedure Session (D : in out Data);
    --  Generate new Session ID
 
+   procedure Delete_Idle_Session (D : in out Data);
+   --  If session just created and user callback has not used it to store data,
+   --  this routine delete it. Need to avoid too many idle sessions created
+   --  by the clients ignoring Set-Cookie header field.
+
    procedure Request
      (D            : in out Data;
       Method       : in     String;

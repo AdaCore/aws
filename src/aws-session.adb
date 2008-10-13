@@ -127,7 +127,10 @@ package body AWS.Session is
       --  Add a new session SID into the database
 
       entry Delete_Session (SID : in Id);
-      --  Removes session SID from the Tree
+      --  Removes session SID from the database
+
+      entry Delete_If_Empty (SID : in Id; Removed : out Boolean);
+      --  Removes session SID only if there is no key/value pairs
 
       function Session_Exist (SID : in Id) return Boolean;
       --  Returns True if session SID exist in the database
@@ -137,6 +140,9 @@ package body AWS.Session is
 
       function Length return Natural;
       --  Returns number of sessions in database
+
+      function Length (SID : in Id) return Natural;
+      --  Returns number of key/value pairs in session SID
 
       procedure Touch_Session (SID : in Id);
       --  Updates the session Time_Stamp to current time. Does nothing if SID
@@ -361,6 +367,32 @@ package body AWS.Session is
          end if;
       end Add_Session;
 
+      ---------------------
+      -- Delete_If_Empty --
+      ---------------------
+
+      entry Delete_If_Empty
+        (SID : in Id; Removed : out Boolean) when Lock_Counter = 0
+      is
+         use type Ada.Containers.Count_Type;
+         Cursor : Session_Set.Cursor := Sessions.Find (SID);
+         Node   : Session_Node;
+      begin
+         if Session_Set.Has_Element (Cursor) then
+            Node := Session_Set.Element (Cursor);
+
+            Removed := Node.Root.Length = 0;
+
+            if Removed then
+               Free (Node.Root);
+               Sessions.Delete (Cursor);
+            end if;
+
+         else
+            Removed := False;
+         end if;
+      end Delete_If_Empty;
+
       --------------------
       -- Delete_Session --
       --------------------
@@ -432,7 +464,7 @@ package body AWS.Session is
       procedure Key_Exist
         (SID : in Id; Key : in String; Result : out Boolean)
       is
-         Node   : Session_Node;
+         Node : Session_Node;
       begin
          Get_Node (Sessions, SID, Node, Result);
 
@@ -448,6 +480,16 @@ package body AWS.Session is
       function Length return Natural is
       begin
          return Natural (Sessions.Length);
+      end Length;
+
+      function Length (SID : in Id) return Natural is
+         C : constant Session_Set.Cursor := Sessions.Find (SID);
+      begin
+         if Session_Set.Has_Element (C) then
+            return Natural (Session_Set.Element (C).Root.Length);
+         else
+            return 0;
+         end if;
       end Length;
 
       --------------------------
@@ -645,6 +687,17 @@ package body AWS.Session is
    begin
       Database.Delete_Session (SID);
    end Delete;
+
+   ---------------------
+   -- Delete_If_Empty --
+   ---------------------
+
+   function Delete_If_Empty (SID : in Id) return Boolean is
+      Removed : Boolean;
+   begin
+      Database.Delete_If_Empty (SID, Removed);
+      return Removed;
+   end Delete_If_Empty;
 
    -----------
    -- Exist --
@@ -892,6 +945,11 @@ package body AWS.Session is
    function Length return Natural is
    begin
       return Database.Length;
+   end Length;
+
+   function Length (SID : in Id) return Natural is
+   begin
+      return Database.Length (SID);
    end Length;
 
    ----------
