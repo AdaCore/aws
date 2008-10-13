@@ -45,6 +45,7 @@ with AWS.MIME;
 with AWS.Net;
 with AWS.Net.Buffered;
 with AWS.Parameters;
+with AWS.Response.Set;
 with AWS.Session;
 with AWS.Server.Get_Status;
 with AWS.Status.Set;
@@ -1256,30 +1257,32 @@ package body AWS.Server.HTTP_Utils is
             --  This is an HTTP connection with session but there is no session
             --  ID set yet. So, send cookie to client browser.
 
-            Net.Buffered.Put_Line
-              (Sock,
-               "Set-Cookie: " & CNF.Session_Name (HTTP_Server.Properties) & '='
-               & Session.Image (AWS.Status.Session (C_Stat))
-               & "; path=/; Version=1");
+            Response.Set.Update_Header
+              (D     => Answer,
+               Name  => Messages.Set_Cookie_Token,
+               Value => CNF.Session_Name (HTTP_Server.Properties) & '='
+                        & Session.Image (AWS.Status.Session (C_Stat))
+                        & "; path=/; Version=1");
          end if;
 
          --  Date
 
          Net.Buffered.Put_Line
-           (Sock,
-            "Date: " & Messages.To_HTTP_Date (Utils.GMT_Clock));
+           (Sock, "Date: " & Messages.To_HTTP_Date (Utils.GMT_Clock));
 
          --  Server
 
          Net.Buffered.Put_Line
-           (Sock,
-            "Server: AWS (Ada Web Server) v" & Version);
+           (Sock, "Server: AWS (Ada Web Server) v" & Version);
 
          if Will_Close then
             --  We have decided to close connection after answering the client
-            Net.Buffered.Put_Line (Sock, Messages.Connection ("close"));
+            Response.Set.Update_Header
+              (Answer, Messages.Connection_Token, Value => "close");
+
          else
-            Net.Buffered.Put_Line (Sock, Messages.Connection ("keep-alive"));
+            Response.Set.Update_Header
+              (Answer, Messages.Connection_Token, Value => "keep-alive");
          end if;
 
          --  Send Content-Type, Cache-Control, Location, WWW-Authenticate
