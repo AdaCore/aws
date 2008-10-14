@@ -25,11 +25,12 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-with Ada.Calendar;
+with Ada.Real_Time;
 with Ada.Streams;
 with Ada.Strings.Maps.Constants;
 with Ada.Unchecked_Conversion;
 
+with AWS.Translator;
 with AWS.Utils;
 
 package body AWS.Digest is
@@ -40,32 +41,43 @@ package body AWS.Digest is
 
    Private_Key : MD5.Context;
 
-   type Word is mod 2 ** 31;
+   type Modular24_Bits is mod 2 ** 24;
+   for Modular24_Bits'Size use 24;
 
-   Nonce_Idx   : Word := 0;
+   Nonce_Idx : Modular24_Bits := Modular24_Bits'Mod (Utils.Random);
    pragma Atomic (Nonce_Idx);
 
-   subtype Timestamp_String is String (1 .. 5);
-   --  The timestamp string
+   subtype Timestamp_String is String (1 .. 4);
+   --  The timestamp string is a 24 bits Base64 encoded value
 
-   subtype Nonce_String is String (1 .. 8);
-   --  The Nonce string is a 32 bits hex value
+   subtype Index_String is String (1 .. 4);
+   --  The Nonce string is a 24 bits Base64 encoded value
 
-   Nonce_Expiration : constant Duration := 300.0;
+   Nonce_Expiration : constant := 300;
    --  Expiration expressed in seconds
 
-   subtype Byte_Array_Of_Integer is Stream_Element_Array
-     (1 .. Integer'Size / Stream_Element_Array'Component_Size);
+   subtype Byte_Array_Of_Modular24 is Stream_Element_Array
+     (1 .. Modular24_Bits'Size / Stream_Element_Array'Component_Size);
+
+   subtype Byte_Array_Of_Seconds is Stream_Element_Array
+     (1 .. Real_Time.Seconds_Count'Size / Stream_Element_Array'Component_Size);
 
    function To_Byte_Array is
-      new Ada.Unchecked_Conversion (Integer, Byte_Array_Of_Integer);
+      new Ada.Unchecked_Conversion
+            (Real_Time.Seconds_Count, Byte_Array_Of_Seconds);
+
+   function To_Byte_Array is
+      new Ada.Unchecked_Conversion (Modular24_Bits, Byte_Array_Of_Modular24);
+
+   function To_Modular24 is
+      new Ada.Unchecked_Conversion (Byte_Array_Of_Modular24, Modular24_Bits);
 
    -----------------
    -- Check_Nonce --
    -----------------
 
    function Check_Nonce (Value : in String) return Boolean is
-      use Calendar;
+      use Real_Time;
 
       subtype Timestamp_Range is
         Positive range Value'First
@@ -73,69 +85,63 @@ package body AWS.Digest is
 
       subtype Index_Range is
         Positive range Timestamp_Range'Last + 1
-          .. Timestamp_Range'Last + Nonce_String'Length;
+          .. Timestamp_Range'Last + Index_String'Length;
 
       subtype Digest_Range is
         Positive range Index_Range'Last + 1
           .. Index_Range'Last + MD5.Message_Digest'Length;
 
-      subtype Tag_Range is
-        Positive range Timestamp_Range'First .. Index_Range'Last;
-      --  This is AWS specific tag added before the MD5 digest
-
-      Now           : constant Time := Clock;
-      Nonce_Time    : Time;
-      Year_Now      : Year_Number;
-      Month_Now     : Month_Number;
-      Day_Now       : Day_Number;
-      Seconds_Now   : Day_Duration;
-
-      Index_Nonce   : Nonce_String;
-      Seconds_Nonce : Natural;
+      Time_Dif      : Modular24_Bits;
+      Seconds_Now   : Seconds_Count;
+      TS            : Time_Span;
+      Index_Nonce   : Index_String;
+      Seconds_Array : Byte_Array_Of_Modular24;
+      Seconds_Nonce : Modular24_Bits;
       Ctx           : MD5.Context;
       Sample        : Digest_String;
+
    begin
       if Value'Length /= Nonce'Length then
          return False;
       end if;
 
-      --  Check that we have only hex digits in the timestamp and index
+      --  Check that we have only base64 digits in the timestamp and index
+      --  and hex in the digest.
 
       declare
          use Ada.Strings.Maps;
+         Base64_Set : constant Character_Set :=
+           To_Set (Character_Range'(Low => 'a', High => 'z'))
+           or To_Set (Character_Range'(Low => 'A', High => 'Z'))
+           or To_Set (Character_Range'(Low => '0', High => '9'))
+           or To_Set ("+/");
       begin
          if not Is_Subset
-           (To_Set (Value (Tag_Range)), Constants.Hexadecimal_Digit_Set)
+                  (To_Set (Value (Timestamp_Range'First .. Index_Range'Last)),
+                   Base64_Set)
+           or else not
+             Is_Subset
+               (To_Set (Value (Digest_Range)), Constants.Hexadecimal_Digit_Set)
          then
             return False;
          end if;
       end;
 
-      Split (Now, Year_Now, Month_Now, Day_Now, Seconds_Now);
+      Split (Clock, Seconds_Now, TS);
 
-      Seconds_Nonce := Utils.Hex_Value (Value (Timestamp_Range));
-      Index_Nonce   := Value (Index_Range);
+      Seconds_Array := Translator.Base64_Decode (Value (Timestamp_Range));
+      Seconds_Nonce := To_Modular24 (Seconds_Array);
+      Index_Nonce := Value (Index_Range);
 
-      Nonce_Time := Time_Of
-        (Year_Now, Month_Now, Day_Now, Day_Duration (Seconds_Nonce));
+      Time_Dif := Modular24_Bits'Mod (Seconds_Now) - Seconds_Nonce;
 
-      if Nonce_Time > Now then
-         --  Could be next day
-         Nonce_Time := Nonce_Time - Day_Duration'Last;
-         Split (Nonce_Time, Year_Now, Month_Now, Day_Now, Seconds_Now);
-      end if;
-
-      if Now - Nonce_Time > Nonce_Expiration then
+      if Time_Dif > Nonce_Expiration then
          return False;
       end if;
 
       Ctx := Private_Key;
 
-      MD5.Update (Ctx,
-                  To_Byte_Array (Year_Now)
-                    & To_Byte_Array (Month_Now)
-                    & To_Byte_Array (Day_Now)
-                    & To_Byte_Array (Seconds_Nonce));
+      MD5.Update (Ctx, To_Byte_Array (Seconds_Now - Seconds_Count (Time_Dif)));
       MD5.Update (Ctx, Index_Nonce);
 
       Sample := MD5.Digest (Ctx);
@@ -171,44 +177,32 @@ package body AWS.Digest is
    ------------------
 
    function Create_Nonce return Nonce is
-      use Calendar;
-
-      Year_Now      : Year_Number;
-      Month_Now     : Month_Number;
-      Day_Now       : Day_Number;
-      Seconds_Now   : Day_Duration;
-
-      Seconds_Int   : Natural;
+      use Real_Time;
+      Seconds_Now   : Seconds_Count;
+      TS            : Time_Span;
       Timestamp_Str : Timestamp_String;
-      Index_Str     : Nonce_String;
+      Index_Str     : Index_String;
       Ctx           : MD5.Context;
-      Result        : Digest_String;
    begin
-      Split (Clock, Year_Now, Month_Now, Day_Now, Seconds_Now);
+      Split (Clock, Seconds_Now, TS);
 
       Ctx := Private_Key;
 
-      Seconds_Int := Natural (Float'Floor (Float (Seconds_Now)));
-      Nonce_Idx   := Nonce_Idx + 1;
-      Index_Str
-        := Utils.Hex (Integer (Nonce_Idx), Width => Nonce_String'Length);
-      Timestamp_Str
-        := Utils.Hex (Seconds_Int, Width => Timestamp_String'Length);
+      Nonce_Idx := Nonce_Idx + 1;
+      Index_Str := Translator.Base64_Encode (To_Byte_Array (Nonce_Idx));
+      Timestamp_Str :=
+        Translator.Base64_Encode
+          (To_Byte_Array (Modular24_Bits'Mod (Seconds_Now)));
 
-      MD5.Update (Ctx, To_Byte_Array (Year_Now));
-      MD5.Update (Ctx, To_Byte_Array (Month_Now));
-      MD5.Update (Ctx, To_Byte_Array (Day_Now));
-      MD5.Update (Ctx, To_Byte_Array (Seconds_Int));
+      MD5.Update (Ctx, To_Byte_Array (Seconds_Now));
       MD5.Update (Ctx, Index_Str);
-
-      Result := MD5.Digest (Ctx);
 
       --  The Nonce result is composed of three parts:
       --  Five Hex Digits : timestamp to check Nonce expiration
       --  Uniq index      : to avoid generating the same Nonce twice
       --  MD5 digest      : the Nonce main MD5 data
 
-      return Nonce (Timestamp_Str & Index_Str & Result);
+      return Nonce (Timestamp_Str & Index_Str & MD5.Digest (Ctx));
    end Create_Nonce;
 
    ----------
@@ -228,5 +222,5 @@ package body AWS.Digest is
    end Tail;
 
 begin
-   MD5.Update (Private_Key, Utils.Random_Integer'Image (Utils.Random));
+   MD5.Update (Private_Key, Utils.Random_String (32));
 end AWS.Digest;

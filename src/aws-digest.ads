@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2007                          --
---                                 AdaCore                                  --
+--                     Copyright (C) 2000-2008, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -34,9 +33,9 @@ package AWS.Digest is
 
    subtype Digest_String is GNAT.MD5.Message_Digest;
 
-   subtype Nonce is String (1 .. 45);
-   --  5 bytes hex seconds, 8 bytes hex global counter, 32 bytes digest
-   --  of the creation date, seconds and global index.
+   subtype Nonce is String (1 .. 40);
+   --  4 bytes base64 seconds, 4 bytes base64 global counter, 32 bytes digest
+   --  of the private key, creation time and global counter.
 
    function Create_Nonce return Nonce;
    --  Create a Nonce value for the digest authentication
