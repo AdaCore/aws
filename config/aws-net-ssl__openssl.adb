@@ -329,7 +329,7 @@ package body AWS.Net.SSL is
    -- Free --
    ----------
 
-   procedure Free (Socket : in out Socket_Type) is
+   overriding procedure Free (Socket : in out Socket_Type) is
    begin
       if Socket.SSL /= TSSL.Null_Pointer then
          TSSL.SSL_free (Socket.SSL);
