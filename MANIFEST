@@ -1294,6 +1294,10 @@ regtests/0187_wxrefs/wxrefs.out2
 regtests/0187_wxrefs/wxrefs.out3
 regtests/0187_wxrefs/wxrefs.out4
 regtests/0187_wxrefs/wxrefs.out5
+regtests/0190_soap_no_namespace/driver.adb
+regtests/0190_soap_no_namespace/driver.gpr
+regtests/0190_soap_no_namespace/test.out
+regtests/0190_soap_no_namespace/test.py
 regtests/common/get_free_port.adb
 regtests/gen_system_tags.py
 regtests/makefile

@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2005                          --
---                                 AdaCore                                  --
+--                     Copyright (C) 2000-2008, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -27,7 +26,6 @@
 ------------------------------------------------------------------------------
 
 with SOAP.Types;
-with SOAP.Utils;
 
 package body SOAP.Message is
 
@@ -102,6 +100,8 @@ package body SOAP.Message is
 
       New_Line       : constant String                 := ASCII.CR & ASCII.LF;
       NS             : constant SOAP.Name_Space.Object := Name_Space (M);
+      NS_Name        : constant String                 :=
+                         SOAP.Name_Space.Name (NS);
       Message_Header : Unbounded_String;
       Message_Body   : Unbounded_String;
 
@@ -138,14 +138,23 @@ package body SOAP.Message is
    begin
       --  Procedure
 
-      Append
-        (Message_Header,
-         "<" & SOAP.Name_Space.Name (NS) & ":" & Wrapper_Name (M));
+      Append (Message_Header, '<');
+
+      if NS_Name /= "" then
+         Append (Message_Header, NS_Name & ':');
+      end if;
+
+      Append (Message_Header, Wrapper_Name (M));
+
+      Append (Message_Body, " xmlns");
+
+      if NS_Name /= "" then
+         Append (Message_Body, ":" & NS_Name);
+      end if;
 
       Append
         (Message_Body,
-         " xmlns:" & SOAP.Name_Space.Name (NS)
-         & "=""" & SOAP.Name_Space.Value (NS) & """>" & New_Line);
+         "=""" & SOAP.Name_Space.Value (NS) & """>" & New_Line);
 
       --  Procedure's parameters
 
@@ -163,10 +172,14 @@ package body SOAP.Message is
 
       --  Close payload objects
 
-      Append
-        (Message_Body,
-         Utils.Tag (SOAP.Name_Space.Name (NS) & ':' & Wrapper_Name (M), False)
-         & New_Line);
+      Append (Message_Body, "</");
+
+      if NS_Name /= "" then
+         Append (Message_Body, NS_Name & ':');
+      end if;
+
+      Append (Message_Body, Wrapper_Name (M));
+      Append (Message_Body, ">" & New_Line);
 
       return Message_Header & Message_Body;
    end XML_Image;

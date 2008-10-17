@@ -4,7 +4,7 @@
 
 Authors:
    Dmitriy Anisimkov
-   Pascal Obry                                           September 13th, 2008
+   Pascal Obry                                           October 16th, 2008
 
 
 
@@ -38,6 +38,9 @@ Changes
 New features are described into the file docs/features.
 
 Listed below are some minor enhancements and fixes:
+
+   - If an empty name space was specificed the generated SOAP was not
+     correct.
 
    - The test-suite has been completely redesigned. It is now easier to
      run and to extend.

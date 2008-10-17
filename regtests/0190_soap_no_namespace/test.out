@@ -1,0 +1,4 @@
+<whatever xmlns="x">
+<item xsi:type="xsd:string">simple_string</item>
+</whatever>
+
