@@ -42,6 +42,8 @@ Listed below are some minor enhancements and fixes:
    - If an empty name space was specificed the generated SOAP was not
      correct.
 
+   - Timeouts are now based on monotonic times (Ada.Real_Time).
+
    - The test-suite has been completely redesigned. It is now easier to
      run and to extend.
 
@@ -56,6 +58,8 @@ Listed below are some minor enhancements and fixes:
 
    - Instantiations of SOAP.Utils.Safe_Pointers can now use the named
      notation for specifying the actual parameters.
+
+   - Update Ajax framework (prototype) to 1.6.0.2.
 
    - Plus many small fixes, enhancements, API comments, and documentation work.
 
