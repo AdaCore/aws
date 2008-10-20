@@ -54,7 +54,7 @@ procedure Sessions6 is
    is
       pragma Unreferenced (N, Key, Value, Quit);
    begin
-      delay Duration'Delta;
+      null;
    end For_Each_Key_Value;
 
    --------------------
@@ -83,7 +83,7 @@ procedure Sessions6 is
    SID : Id;
 
 begin
-   Control.Start (0.5, Session_Lifetime => 0.5);
+   Control.Start (0.1, Session_Lifetime => 0.5);
 
    for J in 1 .. 1000 loop
       SID := Create;

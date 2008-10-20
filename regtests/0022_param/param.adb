@@ -51,6 +51,7 @@ procedure Param is
    task Server is
       entry Started;
       entry Stopped;
+      entry Run;
    end Server;
 
    HTTP : AWS.Server.HTTP;
@@ -130,10 +131,12 @@ procedure Param is
 
       AWS.Server.Start (HTTP, CB'Unrestricted_Access, Config);
 
+      accept Started;
+
       Put_Line ("Server started");
       New_Line;
 
-      accept Started;
+      accept Run;
 
       select
          accept Stopped;
@@ -164,6 +167,7 @@ begin
    Put_Line ("Start main, wait for server to start...");
 
    Server.Started;
+   Server.Run;
 
    Request ("http://localhost:" & Utils.Image (Port)
               & "/call");
