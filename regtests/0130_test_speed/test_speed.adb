@@ -181,7 +181,7 @@ begin
 
    Elapsed := Finish - Start;
 
-   if Elapsed < 1.0 then
+   if Elapsed < 0.5 then
       --  Computers are certainly faster now, update the check here
       Put_Line ("Really quick now, should update the regtest!");
 

@@ -45,6 +45,7 @@ procedure STO_Proc (Security : in Boolean; Port : in Positive) is
    Peer, Client : Net.Socket_Type'Class := Net.Socket (Security);
 
    task Client_Side is
+      entry Done;
       entry Start;
       entry Stop;
    end Client_Side;
@@ -102,6 +103,8 @@ procedure STO_Proc (Security : in Boolean; Port : in Positive) is
 
       Net.Shutdown (Client);
 
+      accept Done;
+
       Text_IO.Put_Line ("client task done.");
 
       accept Stop;
@@ -149,6 +152,8 @@ begin
          Ada.Text_IO.Put_Line ("send");
          Ada.Text_IO.Put_Line (Exceptions.Exception_Message (E));
    end;
+
+   Client_Side.Done;
 
    Client_Side.Stop;
 
