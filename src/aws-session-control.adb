@@ -37,8 +37,9 @@ package body AWS.Session.Control is
    begin
       select
          Cleaner_Task.Force;
-      or delay Timeout;
-         --  It mean that cleaner already working
+      or
+         delay Timeout;
+         --  It means that cleaner task is already running
       end select;
    end Force_Cleaner;
 

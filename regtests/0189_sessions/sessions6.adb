@@ -33,6 +33,7 @@ with AWS.Session.Control;
 
 procedure Sessions6 is
 
+   use Ada;
    use AWS.Session;
 
    procedure For_Each_Key_Value
@@ -43,7 +44,7 @@ procedure Sessions6 is
       SID        : in     Id;
       Time_Stamp : in     Ada.Calendar.Time;
       Quit       : in out Boolean);
-   --  add session SID to the list
+   --  Add session SID to the list
 
    ------------------------
    -- For_Each_Key_Value --
@@ -87,7 +88,6 @@ begin
 
    for J in 1 .. 1000 loop
       SID := Create;
-
       for K in 1 .. 100 loop
          Set (SID, "K" & Integer'Image (K), Integer'Image (J));
       end loop;
@@ -100,10 +100,10 @@ begin
 
    Control.Shutdown;
 
-   Ada.Text_IO.Put_Line ("OK");
+   Text_IO.Put_Line ("OK");
 
 exception
    when E : others =>
-      Ada.Text_IO.Put_Line (Ada.Exceptions.Exception_Information (E));
+      Text_IO.Put_Line (Ada.Exceptions.Exception_Information (E));
       Control.Shutdown;
 end Sessions6;

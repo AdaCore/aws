@@ -256,13 +256,11 @@ package body AWS.Session is
 
          if E_Index = Max_Expired and then Check_Interval > 1.0 then
             --  Too many expired session, we should run next expiration check
-            --  faster
-
+            --  faster.
             Next_Run := Next_Run + 1.0;
          else
             Next_Run := Next_Run + Check_Interval;
          end if;
-
       end loop Clean_Dead_Sessions;
 
       Database.Destroy;
