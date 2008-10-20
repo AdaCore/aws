@@ -415,6 +415,7 @@ regtests/0031_accs_sec/accs_sec.adb
 regtests/0031_accs_sec/accs_sec.gpr
 regtests/0031_accs_sec/cert.pem
 regtests/0031_accs_sec/s_accs_proc.adb
+regtests/0031_accs_sec/test.opt
 regtests/0031_accs_sec/test.out
 regtests/0031_accs_sec/test.py
 regtests/0032_afile/afile.adb
