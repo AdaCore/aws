@@ -802,6 +802,7 @@ regtests/0104_sp/sp.adb
 regtests/0104_sp/sp.gpr
 regtests/0104_sp/sp_pck.adb
 regtests/0104_sp/sp_pck.ads
+regtests/0104_sp/test.opt
 regtests/0104_sp/test.out
 regtests/0104_sp/test.py
 regtests/0105_ssp/cert.pem
@@ -828,6 +829,7 @@ regtests/0108_spg/sp_pack.adb
 regtests/0108_spg/sp_pack.ads
 regtests/0108_spg/spg.adb
 regtests/0108_spg/spg.gpr
+regtests/0108_spg/test.opt
 regtests/0108_spg/test.out
 regtests/0108_spg/test.py
 regtests/0109_spg_sec/cert.pem
