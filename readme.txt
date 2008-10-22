@@ -1,10 +1,10 @@
 
                             A W S - Ada Web Server
-			   2.6.0 release / SOAP 1.5
+			   2.7.0 release / SOAP 1.5
 
 Authors:
    Dmitriy Anisimkov
-   Pascal Obry                                           October 16th, 2008
+   Pascal Obry                                           October 22th, 2008
 
 
 
@@ -38,28 +38,6 @@ Changes
 New features are described into the file docs/features.
 
 Listed below are some minor enhancements and fixes:
-
-   - If an empty name space was specificed the generated SOAP was not
-     correct.
-
-   - Timeouts are now based on monotonic times (Ada.Real_Time).
-
-   - The test-suite has been completely redesigned. It is now easier to
-     run and to extend.
-
-   - Add support for auto-configuration of the XML/Ada and ASIS support.
-     By default if the project files are found the corresponding support
-     (SOAP if XML/Ada present and the ada2wsdl tool if ASIS is present)
-     are activated.
-
-   - AWS now supports parallel build, see CJOBS in makefile.conf.
-
-   - SMTP date header now properly includes the UTC offset.
-
-   - Instantiations of SOAP.Utils.Safe_Pointers can now use the named
-     notation for specifying the actual parameters.
-
-   - Update Ajax framework (prototype) to 1.6.0.2.
 
    - Plus many small fixes, enhancements, API comments, and documentation work.
 
@@ -123,7 +101,7 @@ value.
 Validation
 ----------
 
-AWS 2.6.0 test suite is passed every night on multiple plateforms (Windows,
+AWS 2.7.0 test suite is passed every night on multiple plateforms (Windows,
 GNU/Linux - i686 and x86_64 - , Solaris and HP-UX).
 
 Previous version of AWS have been built on FreeBSD 4.1 and MacOSX.
