@@ -34,7 +34,7 @@ with Ada.Exceptions;
 
 with Get_Free_Port;
 
-procedure SockTO_Proc (Security : Boolean; Port : Positive) is
+procedure SockTO_Proc (Security : in Boolean; Port : in Positive) is
 
    use AWS;
    use Ada;
@@ -47,6 +47,7 @@ procedure SockTO_Proc (Security : Boolean; Port : Positive) is
 
    task Client_Side is
       entry Start;
+      entry Stop;
    end Client_Side;
 
    function Data (Length : Stream_Element_Count) return Stream_Element_Array;
@@ -76,10 +77,13 @@ procedure SockTO_Proc (Security : Boolean; Port : Positive) is
       end loop;
 
       Get (Client, 100_000);
+
+      accept Stop;
    exception
       when E : others =>
          Text_IO.Put_Line
            ("Client side " & ASCII.LF & Exceptions.Exception_Information (E));
+         accept Stop;
    end Client_Side;
 
    ----------
@@ -166,8 +170,11 @@ begin
       Net.Send (Peer, Data (100_000));
    end loop;
 
+   Client_Side.Stop;
+
 exception
    when E : others =>
+      Client_Side.Stop;
       Text_IO.Put_Line
         ("Server side " & Exceptions.Exception_Message (E));
       Net.Shutdown (Server);
