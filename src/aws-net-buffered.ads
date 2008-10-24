@@ -43,11 +43,11 @@ package AWS.Net.Buffered is
 
    procedure New_Line (Socket : in Socket_Type'Class);
    pragma Inline (New_Line);
-   --  Write CRLF into Socket's buffer. Send the buffer to the socket if full.
+   --  Write CRLF into Socket's buffer. Send the buffer to the socket if full
 
    procedure Write
      (Socket : in Socket_Type'Class; Item : in Stream_Element_Array);
-   --  Write Item into Socket's buffer. Send the buffer to the socket if full.
+   --  Write Item into Socket's buffer. Send the buffer to the socket if full
 
    procedure Flush (Socket : in Socket_Type'Class);
    --  Send the buffer to the socket
@@ -120,15 +120,15 @@ package AWS.Net.Buffered is
    --  Read data on the Socket until the delimiter (including the delimiter).
    --  If Wait is False the routine looking for the delimiter only in the
    --  cache buffer, if delimiter not found in the cache buffer, empty array
-   --  would be returned.
-   --  If returned data without delimiter at the end, it mean that socket is
-   --  closed from peer or socket error occured and rest of data returned.
+   --  is be returned.
+   --  If returned data is without delimiter at the end, it means that socket
+   --  is closed from peer or socket error occured and rest of data returned.
 
    function Read_Until
      (Socket    : in Socket_Type'Class;
       Delimiter : in String;
       Wait      : in Boolean := True) return String;
-   --  The same functionality for String type.
+   --  Same as above but returning a standard string
 
    -------------
    -- Control --

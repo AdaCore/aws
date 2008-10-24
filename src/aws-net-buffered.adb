@@ -31,8 +31,8 @@ with AWS.Translator;
 
 package body AWS.Net.Buffered is
 
-   CRLF : constant Stream_Element_Array
-     := Translator.To_Stream_Element_Array (ASCII.CR & ASCII.LF);
+   CRLF : constant Stream_Element_Array :=
+            Translator.To_Stream_Element_Array (ASCII.CR & ASCII.LF);
 
    Input_Limit : Stream_Element_Offset := AWS.Default.Input_Line_Size_Limit;
    pragma Atomic (Input_Limit);
@@ -96,6 +96,7 @@ package body AWS.Net.Buffered is
          else
             return Line (Line'First .. Line'Last - 1);
          end if;
+
       else
          return Line;
       end if;
@@ -233,8 +234,8 @@ package body AWS.Net.Buffered is
       Last   :    out Stream_Element_Offset)
    is
       C      : Read_Cache renames Socket.C.R_Cache;
-      C_Last : constant Stream_Element_Offset
-        := Stream_Element_Offset'Min (C.Last, C.First + Data'Length - 1);
+      C_Last : constant Stream_Element_Offset :=
+                 Stream_Element_Offset'Min (C.Last, C.First + Data'Length - 1);
    begin
       Last := Data'First + C_Last - C.First;
       Data (Data'First .. Last) := C.Buffer (C.First .. C_Last);
@@ -251,9 +252,6 @@ package body AWS.Net.Buffered is
       Wait      : in Boolean := True) return Stream_Element_Array
    is
       use Containers.Memory_Streams;
-      C : Read_Cache renames Socket.C.R_Cache;
-      Buffer  : Stream_Type;
-      J, K : Stream_Element_Offset;
 
       function Buffered return Stream_Element_Array;
       pragma Inline (Buffered);
@@ -262,6 +260,8 @@ package body AWS.Net.Buffered is
 
       Finalizer : Utils.Finalizer (Finalize'Access);
       pragma Unreferenced (Finalizer);
+
+      Buffer : Stream_Type;
 
       --------------
       -- Buffered --
@@ -283,6 +283,9 @@ package body AWS.Net.Buffered is
       begin
          Close (Buffer);
       end Finalize;
+
+      C    : Read_Cache renames Socket.C.R_Cache;
+      J, K : Stream_Element_Offset;
 
    begin
       if Wait then
@@ -349,10 +352,8 @@ package body AWS.Net.Buffered is
       Wait      : in Boolean := True) return String is
    begin
       return Translator.To_String
-               (Read_Until
-                  (Socket,
-                   Translator.To_Stream_Element_Array (Delimiter),
-                   Wait));
+        (Read_Until
+           (Socket, Translator.To_Stream_Element_Array (Delimiter), Wait));
    end Read_Until;
 
    ---------------------

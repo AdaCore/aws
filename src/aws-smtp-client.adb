@@ -502,9 +502,9 @@ package body AWS.SMTP.Client is
       Status      :    out SMTP.Status)
    is
       use type AWS.Attachments.Root_MIME_Kind;
-      Sock               : Net.Socket_Access;
-      Answer             : Server_Reply;
-      Boundary           : Unbounded_String;
+      Sock     : Net.Socket_Access;
+      Answer   : Server_Reply;
+      Boundary : Unbounded_String;
    begin
       Open (Server, Sock, Status);
 

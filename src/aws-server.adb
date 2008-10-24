@@ -235,8 +235,8 @@ package body AWS.Server is
    ----------------------
 
    procedure Get_Message_Body is
-      TA : constant Line_Attribute.Attribute_Handle
-        := Line_Attribute.Reference;
+      TA : constant Line_Attribute.Attribute_Handle :=
+             Line_Attribute.Reference;
    begin
       if not Status.Is_Body_Uploaded (TA.Stat)
         and then Status.Content_Length (TA.Stat) > 0

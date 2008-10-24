@@ -60,9 +60,8 @@ package body AWS.Attachments is
    is
       use type Attachment_Table.Vector;
 
-      Data : constant Content :=
-               File (Filename, Encode, Content_Id,
-                     MIME.Content_Type (Filename));
+      Data : constant Content := File
+        (Filename, Encode, Content_Id, MIME.Content_Type (Filename));
    begin
       if Name = "" then
          Add (Attachments, Filename, Data);
@@ -78,8 +77,8 @@ package body AWS.Attachments is
       Name        : in     String := "";
       Encode      : in     Encoding := None)
    is
-      Data : constant Content :=
-               File (Filename, Encode, "", MIME.Content_Type (Filename));
+      Data : constant Content := File
+        (Filename, Encode, "", MIME.Content_Type (Filename));
    begin
       if Name = "" then
          Add (Attachments, Filename, Data, Headers);

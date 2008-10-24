@@ -115,6 +115,7 @@ package body AWS.Parameters.Set is
       use AWS.Containers.Memory_Streams;
       use AWS.Translator;
 
+      Amp   : constant Stream_Element := Character'Pos ('&');
       Buffer : Stream_Element_Array
                  (1 .. Stream_Element_Offset'Min
                          (Stream_Element_Offset
@@ -122,7 +123,6 @@ package body AWS.Parameters.Set is
                           Size (Parameters)));
       First : Stream_Element_Offset := Buffer'First;
       Last  : Stream_Element_Offset;
-      Amp   : constant Stream_Element := Character'Pos ('&');
       Found : Boolean;
       WNF   : Boolean := False;
       --  Was not found. This flag need to detect more than once 'not found'

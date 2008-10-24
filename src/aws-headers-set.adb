@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2007                          --
---                                 AdaCore                                  --
+--                     Copyright (C) 2000-2008, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -34,12 +33,13 @@ with AWS.Net.Buffered;
 
 package body AWS.Headers.Set is
 
+   use Ada;
    use AWS.Containers;
 
    subtype P_List is Tables.Table_Type;
 
    Debug_Flag : Boolean := False;
-   --  Set to True to output debug information to the standard output.
+   --  Set to True to output debug information to the standard output
 
    ---------
    -- Add --
@@ -83,8 +83,8 @@ package body AWS.Headers.Set is
             declare
                use Ada.Strings;
 
-               Next_Line       : constant String
-                 := Net.Buffered.Get_Line (Socket);
+               Next_Line       : constant String :=
+                                   Net.Buffered.Get_Line (Socket);
                Delimiter_Index : Natural;
 
             begin
@@ -100,7 +100,7 @@ package body AWS.Headers.Set is
 
                else
                   if Debug_Flag then
-                     Ada.Text_IO.Put_Line ('>' & Line);
+                     Text_IO.Put_Line ('>' & Line);
                   end if;
 
                   --  Put name and value to the container separately

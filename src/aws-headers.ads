@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2008                          --
---                                 AdaCore                                  --
+--                     Copyright (C) 2000-2008, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -47,14 +46,10 @@ package AWS.Headers is
    --  Raised when header line format is wrong
 
    procedure Send_Header
-     (Socket  : in Net.Socket_Type'Class;
-      Headers : in List);
+     (Socket : in Net.Socket_Type'Class; Headers : in List);
    --  Send all header lines in Headers list to the socket
 
-   function Get_Line
-     (Headers : in List;
-      N       : in Positive)
-      return String;
+   function Get_Line (Headers : in List; N : in Positive) return String;
    --  Returns the Nth header line in Headers container. The returned value is
    --  formatted as a correct header line:
    --
@@ -69,10 +64,7 @@ package AWS.Headers is
    --
    --  For a file upload content type header style.
 
-   function Get_Values
-     (Headers : in List;
-      Name    : in String)
-      return String;
+   function Get_Values (Headers : in List; Name : in String) return String;
    --  Returns all values for the specified header field Name in a
    --  comma-separated string. This format is conformant to [RFC 2616 - 4.2]
    --  (see last paragraph).
@@ -81,7 +73,7 @@ package AWS.Headers is
    --  Returns the length (in bytes) of the header, including the ending
    --  empty line.
 
-   --  See AWS.Containers.Tables for inherited routines.
+   --  See AWS.Containers.Tables for inherited routines
 
 private
 

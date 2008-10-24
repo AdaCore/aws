@@ -470,14 +470,14 @@ package body AWS.Server.HTTP_Utils is
 
                   Status.Set.Add_Parameter
                     (C_Stat, To_String (Name), To_String (Server_Filename));
-                  --  Status.Set.Add_Parameter does not decode values.
+                  --  Status.Set.Add_Parameter does not decode values
 
                   --  Second value is the original name as found on the client
                   --  side.
 
                   Status.Set.Add_Parameter
                     (C_Stat, To_String (Name), To_String (Filename));
-                  --  Status.Set.Add_Parameter does not decode values.
+                  --  Status.Set.Add_Parameter does not decode values
 
                   --  Read file data, set End_Found if the end-boundary
                   --  signature has been read.
@@ -713,6 +713,7 @@ package body AWS.Server.HTTP_Utils is
             case Mode is
                when Root_Attachment =>
                   null;
+
                when Attachment =>
                   Streams.Stream_IO.Close (File);
                   AWS.Attachments.Add
@@ -949,9 +950,10 @@ package body AWS.Server.HTTP_Utils is
       then
          --  This is a file upload
 
-         File_Upload ("--" & To_String (Status_Multipart_Boundary),
-                        "--" & To_String (Status_Multipart_Boundary) & "--",
-                        True);
+         File_Upload
+           ("--" & To_String (Status_Multipart_Boundary),
+            "--" & To_String (Status_Multipart_Boundary) & "--",
+            True);
 
       elsif Status.Method (C_Stat) = Status.POST
         and then Status_Content_Type = MIME.Multipart_Related
@@ -1062,14 +1064,14 @@ package body AWS.Server.HTTP_Utils is
 
       function Resource return String;
       pragma Inline (Resource);
-      --  Returns first parameter. parameters are separated by spaces.
+      --  Returns first parameter. parameters are separated by spaces
 
       function Parameters return String;
-      --  Returns parameters if some where specified in the URI.
+      --  Returns parameters if some where specified in the URI
 
       function HTTP_Version return String;
       pragma Inline (HTTP_Version);
-      --  Returns second parameter. parameters are separated by spaces.
+      --  Returns second parameter. parameters are separated by spaces
 
       -----------------
       -- Cut_Command --
@@ -1564,7 +1566,7 @@ package body AWS.Server.HTTP_Utils is
                --     a line feed
 
             begin
-               --  Check if the last data portion.
+               --  Check if the last data portion
 
                if Last < Buffer'Last then
                   --  No more data, add the terminating chunk

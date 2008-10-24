@@ -425,7 +425,7 @@ package body AWS.Client.HTTP_Utils is
    is
       Pref_Suf  : constant String := "--";
       Boundary  : constant String :=
-        "AWS_Attachment-" & Utils.Random_String (8);
+                    "AWS_Attachment-" & Utils.Random_String (8);
 
       Root_Content_Id  : constant String := "<rootpart>";
       Root_Part_Header : AWS.Headers.List;
@@ -681,9 +681,9 @@ package body AWS.Client.HTTP_Utils is
          end if;
       end Persistence;
 
-      Host_Address : constant String
-        := AWS.URL.Host (Connection.Host_URL)
-             & AWS.URL.Port_Not_Default (Connection.Host_URL);
+      Host_Address : constant String :=
+                       AWS.URL.Host (Connection.Host_URL)
+                       & AWS.URL.Port_Not_Default (Connection.Host_URL);
 
    begin
       --  Open connection if needed

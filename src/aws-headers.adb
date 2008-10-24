@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2004                          --
---                                ACT-Europe                                --
+--                     Copyright (C) 2000-2008, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -33,16 +32,13 @@ with AWS.Net.Buffered;
 package body AWS.Headers is
 
    use Ada;
+   use Ada.Strings.Unbounded;
 
    --------------
    -- Get_Line --
    --------------
 
-   function Get_Line
-     (Headers : in List;
-      N       : in Positive)
-      return String
-   is
+   function Get_Line (Headers : in List; N : in Positive) return String is
       Pair : constant Element := Get (Headers, N);
    begin
       if Pair.Name = "" then
@@ -56,11 +52,7 @@ package body AWS.Headers is
    -- Get_Values --
    ----------------
 
-   function Get_Values
-     (Headers : in List;
-      Name    : in String)
-      return String
-   is
+   function Get_Values (Headers : in List; Name : in String) return String is
       Values : constant VString_Array := Get_Values (Headers, Name);
 
       function Get_Values (Start_From : in Positive) return String;
@@ -72,8 +64,7 @@ package body AWS.Headers is
       ----------------
 
       function Get_Values (Start_From : in Positive) return String is
-         Value : constant String
-            := Strings.Unbounded.To_String (Values (Start_From));
+         Value : constant String := To_String (Values (Start_From));
       begin
          if Start_From = Values'Last then
             return Value;
@@ -112,8 +103,7 @@ package body AWS.Headers is
    -----------------
 
    procedure Send_Header
-     (Socket  : in Net.Socket_Type'Class;
-      Headers : in List) is
+     (Socket : in Net.Socket_Type'Class; Headers : in List) is
    begin
       for J in 1 .. Count (Headers) loop
          Net.Buffered.Put_Line (Socket, Get_Line (Headers, J));
