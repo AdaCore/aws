@@ -437,9 +437,11 @@ endif
 	$(CP) $(CONFGPR) $(I_AGP)
 	$(CP) $(PRJDIR)/aws_xmlada.gpr $(I_AGP)
 	$(CP) config/projects/aws_libwin32.gpr $(I_AGP)
-# Copy all shared libraries into the main lib directory
+# Copy all shared libraries into the main bin directory
 ifeq (${ENABLE_SHARED}, true)
-	$(CP) $(I_LIB)/relocatable/*$(SOEXT) $(I_LIB)/../
+ifeq ($(OS), Windows_NT)
+	$(CP) $(I_LIB)/relocatable/*$(SOEXT) $(I_BIN)
+endif
 	$(CP) $(CONFADC) $(I_LIB)/relocatable
 	-$(CHMOD) a-w $(I_LIB)/relocatable/*
 endif
