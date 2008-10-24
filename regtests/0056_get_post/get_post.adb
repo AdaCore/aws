@@ -28,11 +28,13 @@
 with Ada.Text_IO;
 
 with AWS.Client;
+with AWS.Messages;
 with AWS.MIME;
 with AWS.Parameters;
 with AWS.Response;
 with AWS.Server;
 with AWS.Status;
+with AWS.Translator;
 with AWS.Utils;
 
 with Get_Free_Port;
@@ -47,20 +49,36 @@ procedure Get_Post is
 
    CRLF : constant String := ASCII.CR & ASCII.LF;
 
-   M_Body : constant String
-     := "BODY_P1=56&BODY_P2=inthebody" & CRLF;
+   M_Body : constant String :=
+              "BODY_P1=56&BODY_P2=inthebody" & CRLF;
 
-   M2_Body : constant String
-     := "--XXXX" & ASCII.LF
-       & "Content-Disposition: form-data; name=""BODY_P1"""
-       & ASCII.LF & ASCII.LF
-       & "+" & ASCII.LF
-       & "--XXXX" & ASCII.LF
-       & "Content-Disposition: form-data; name=""BODY_P2"""
-       & ASCII.LF & ASCII.LF
-       & "%2B" & ASCII.LF
-       & "--XXXX--"
-       & CRLF;
+   M2_Body : constant String :=
+               "--XXXX" & ASCII.LF
+               & "Content-Disposition: form-data; name=""BODY_P1"""
+               & ASCII.LF & ASCII.LF
+               & "+" & ASCII.LF
+               & "--XXXX" & ASCII.LF
+               & "Content-Disposition: form-data; name=""BODY_P2"""
+               & ASCII.LF & ASCII.LF
+               & "%2B" & ASCII.LF
+               & "--XXXX--"
+               & CRLF;
+
+   M3_Body : constant String :=
+               "--XXXX" & CRLF
+               & "Content-Disposition: form-data; name=""BODY_P1"""
+               & CRLF & CRLF
+               & "+" & CRLF
+               & "--XXXX" & CRLF
+               & "Content-Disposition: form-data; name=""BODY_P2"""
+               & CRLF & CRLF
+               & "%2B" & CRLF
+               & "--XXXX--"
+               & CRLF;
+
+   --------
+   -- CB --
+   --------
 
    function CB (Request : in Status.Data) return Response.Data is
       Params : constant Parameters.List := Status.Parameters (Request);
@@ -88,7 +106,14 @@ begin
 
    R := Client.Post
           ("http://localhost:" & Utils.Image (Port)
-           & "/this_uri?P1=12&P2=azerty", M2_Body,
+           & "/this_uri?P1=12&P2=qwerty", M2_Body,
+           Content_Type => MIME.Multipart_Form_Data & "; boundary=""XXXX""");
+
+   Text_IO.Put_Line (Response.Message_Body (R));
+
+   R := Client.Post
+          ("http://localhost:" & Utils.Image (Port)
+           & "/this_uri?P1=29&P2=poiuyt", M3_Body,
            Content_Type => MIME.Multipart_Form_Data & "; boundary=""XXXX""");
 
    Text_IO.Put_Line (Response.Message_Body (R));

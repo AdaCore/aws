@@ -483,13 +483,20 @@ package body AWS.Client.HTTP_Utils is
             begin
                --  Send message Content-Type (multipart/related)
 
-               Send_Header
-                 (Sock,
-                  Messages.Content_Type
-                    (MIME.Multipart_Related
-                     & "; type=" & Content_Type
-                     & "; start=""" & Root_Content_Id & '"',
-                     Boundary));
+               if Content_Type = "" then
+                  Send_Header
+                    (Sock,
+                     Messages.Content_Type
+                       (MIME.Multipart_Related
+                        & "; type=" & Content_Type
+                        & "; start=""" & Root_Content_Id & '"',
+                        Boundary));
+               else
+                  Send_Header
+                    (Sock,
+                     Messages.Content_Type
+                       (MIME.Multipart_Form_Data, Boundary));
+               end if;
 
                if SOAPAction /= No_Data then
                   --  SOAP header

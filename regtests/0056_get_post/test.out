@@ -6,7 +6,12 @@ BODY_P2 >inthebody
 
 ok
 P1      >12
-P2      >azerty
+P2      >qwerty
+BODY_P1 >+
+BODY_P2 >%2B
+ok
+P1      >29
+P2      >poiuyt
 BODY_P1 >+
 BODY_P2 >%2B
 ok

@@ -330,26 +330,63 @@ package body AWS.Status.Set is
    -- Read_Body --
    ---------------
 
-   procedure Read_Body (Socket : in Net.Socket_Type'Class; D : in out Data) is
-      use Ada.Streams;
+   procedure Read_Body
+     (Socket   : in     Net.Socket_Type'Class;
+      D        : in out Data;
+      Boundary : in     String := "")
+   is
       use Containers.Memory_Streams;
+      use type Stream_Element_Offset;
 
-      Buffer : Stream_Element_Array (1 .. 4096);
-      Rest   : Stream_Element_Offset :=
-                 Stream_Element_Offset (D.Content_Length);
+      procedure Read_Whole_Body;
+      --  Read the whole body (Content_Length octets)
+
+      ---------------------
+      -- Read_Whole_Body --
+      ---------------------
+
+      procedure Read_Whole_Body is
+         use Ada.Streams;
+         Buffer : Stream_Element_Array (1 .. 4096);
+         Rest   : Stream_Element_Offset :=
+                    Stream_Element_Offset (D.Content_Length);
+      begin
+         while Rest > Buffer'Length loop
+            Rest := Rest - Buffer'Length;
+            Net.Buffered.Read (Socket, Buffer);
+            Append (D.Binary_Data.all, Buffer);
+         end loop;
+
+         Net.Buffered.Read (Socket, Buffer (1 .. Rest));
+         Append (D.Binary_Data.all, Buffer (1 .. Rest), Trim => True);
+      end Read_Whole_Body;
+
    begin
       if D.Binary_Data = null then
          D.Binary_Data := new Stream_Type;
       end if;
 
-      while Rest > Buffer'Length loop
-         Rest := Rest - Buffer'Length;
-         Net.Buffered.Read (Socket, Buffer);
-         Append (D.Binary_Data.all, Buffer);
-      end loop;
+      if Boundary = "" then
+         Read_Whole_Body;
 
-      Net.Buffered.Read (Socket, Buffer (1 .. Rest));
-      Append (D.Binary_Data.all, Buffer (1 .. Rest), Trim => True);
+      else
+         declare
+            Content : constant Stream_Element_Array :=
+                        Net.Buffered.Read_Until
+                          (Socket,
+                           Translator.To_Stream_Element_Array (Boundary));
+         begin
+            if Content'Length > Boundary'Length + 2 then
+               Append
+                 (D.Binary_Data.all,
+                  Content (Content'First
+                    .. Content'Last - Boundary'Length - 2),
+                  Trim => True);
+               --  Boundary'Length - 2 to remove the boundary and also the CRLF
+               --  (before the boundary) which is not part of the body.
+            end if;
+         end;
+      end if;
    end Read_Body;
 
    -----------------

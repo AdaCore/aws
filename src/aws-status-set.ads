@@ -47,7 +47,10 @@ package AWS.Status.Set is
    --  Read all header data from the socket and fill the appropriate
    --  data's fields.
 
-   procedure Read_Body (Socket : in Net.Socket_Type'Class; D : in out Data);
+   procedure Read_Body
+     (Socket   : in     Net.Socket_Type'Class;
+      D        : in out Data;
+      Boundary : in     String := "");
    --  Read message body from the socket and fill the appropriate data's field
 
    procedure Append_Body

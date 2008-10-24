@@ -317,6 +317,7 @@ package body AWS.Server.HTTP_Utils is
 
       procedure Get_File_Data
         (Server_Filename : in     String;
+         Filename        : in     String;
          Start_Boundary  : in     String;
          Mode            : in     Message_Mode;
          Headers         : in     AWS.Headers.List;
@@ -397,130 +398,154 @@ package body AWS.Server.HTTP_Utils is
             end loop;
          end if;
 
-         --  Read file upload parameters
+         --  Read header
 
-         declare
-            use AWS.Headers;
-            Data       : constant String := Net.Buffered.Get_Line (Sock);
-            L_Name     : constant String := Values.Search (Data, "name");
-            L_Filename : constant String := Values.Search (Data, "filename");
-            --  Get the simple name as we do not want to expose the client full
-            --  pathname to the user's callback. Microsoft Internet Explorer
-            --  sends the full pathname, Firefox only send the simple name.
-         begin
-            Is_File_Upload := (L_Filename /= "");
+         AWS.Headers.Set.Read (Sock, Headers);
 
-            Name := To_Unbounded_String (L_Name);
+         if AWS.Headers.Get_Values
+           (Headers, Messages.Content_Type_Token) = MIME.Application_Form_Data
+         then
+            --  This chunk is the form parameter
+            Status.Set.Read_Body
+              (Sock, C_Stat, Boundary => Start_Boundary);
+
+            --  Skip CRLF after boundary
+
+            declare
+               Data : constant String := Net.Buffered.Get_Line (Sock);
+               pragma Unreferenced (Data);
+            begin
+               null;
+            end;
+
+            Status.Set.Parameters_From_Body (C_Stat);
+
+            File_Upload (Start_Boundary, End_Boundary, False);
+
+         else
+            --  Read file upload parameters
+
+            declare
+               Data       : constant String :=
+                              AWS.Headers.Get_Values
+                                (Headers, Messages.Content_Disposition_Token);
+               L_Name     : constant String :=
+                              AWS.Headers.Values.Search (Data, "name");
+               L_Filename : constant String :=
+                              AWS.Headers.Values.Search (Data, "filename");
+               --  Get the simple name as we do not want to expose the client
+               --  full pathname to the user's callback. Microsoft Internet
+               --  Explorer sends the full pathname, Firefox only send the
+               --  simple name.
+            begin
+               Is_File_Upload := (L_Filename /= "");
+
+               Name := To_Unbounded_String (L_Name);
+
+               if Is_File_Upload then
+                  Filename := To_Unbounded_String
+                    (Directories.Simple_Name (L_Filename));
+               end if;
+            end;
+
+            --  Read file/field data
 
             if Is_File_Upload then
-               Filename := To_Unbounded_String
-                  (Directories.Simple_Name (L_Filename));
+               --  This part of the multipart message contains file data
+
+               if CNF.Upload_Directory (HTTP_Server.Properties) = "" then
+                  raise Constraint_Error
+                    with "File upload not supported by server "
+                      & CNF.Server_Name (HTTP_Server.Properties);
+               end if;
+
+               --  Set Server_Filename, the name of the file in the local file
+               --  sytstem.
+
+               Server_Filename := To_Unbounded_String
+                 (Target_Filename (To_String (Filename)));
+
+               if To_String (Filename) /= "" then
+                  --  First value is the unique name on the server side
+
+                  Status.Set.Add_Parameter
+                    (C_Stat, To_String (Name), To_String (Server_Filename));
+                  --  Status.Set.Add_Parameter does not decode values.
+
+                  --  Second value is the original name as found on the client
+                  --  side.
+
+                  Status.Set.Add_Parameter
+                    (C_Stat, To_String (Name), To_String (Filename));
+                  --  Status.Set.Add_Parameter does not decode values.
+
+                  --  Read file data, set End_Found if the end-boundary
+                  --  signature has been read.
+
+                  Get_File_Data
+                    (To_String (Server_Filename),
+                     To_String (Filename),
+                     Start_Boundary,
+                     File_Upload,
+                     Headers,
+                     End_Found);
+
+                  --  Create an attachment entry, this will ensure that the
+                  --  physical file will be removed. It will also be possible
+                  --  to work with the attachment instead of the parameters set
+                  --  above.
+                  AWS.Attachments.Add
+                    (Attachments,
+                     Filename   => To_String (Server_Filename),
+                     Name       => To_String (Filename),
+                     Content_Id => To_String (Name));
+                  Status.Set.Attachments (C_Stat, Attachments);
+
+                  if not End_Found then
+                     File_Upload (Start_Boundary, End_Boundary, False);
+                  end if;
+
+               else
+                  --  There is no file for this multipart, user did not enter
+                  --  something in the field.
+
+                  File_Upload (Start_Boundary, End_Boundary, True);
+               end if;
+
             else
-               Filename := To_Unbounded_String (L_Filename);
-            end if;
-         end;
+               --  This part of the multipart message contains field values
 
-         --  Reach the data
+               declare
+                  Value : Unbounded_String;
+               begin
+                  loop
+                     declare
+                        L : constant String := Net.Buffered.Get_Line (Sock);
+                     begin
+                        End_Found := (L = End_Boundary);
 
-         loop
-            exit when Net.Buffered.Get_Line (Sock) = "";
-         end loop;
+                        exit when End_Found or else L = Start_Boundary;
 
-         --  Read file/field data
+                        --  Append this line to the value
 
-         if Is_File_Upload then
-            --  This part of the multipart message contains file data
+                        if Value /= Null_Unbounded_String then
+                           Append (Value, ASCII.CR & ASCII.LF);
+                        end if;
+                        Append (Value, L);
+                     end;
+                  end loop;
 
-            if CNF.Upload_Directory (HTTP_Server.Properties) = "" then
-               raise Constraint_Error
-                 with "File upload not supported by server "
-                   & CNF.Server_Name (HTTP_Server.Properties);
-            end if;
-
-            --  Set Server_Filename, the name of the file in the local file
-            --  sytstem.
-
-            Server_Filename := To_Unbounded_String
-              (Target_Filename (To_String (Filename)));
-
-            if To_String (Filename) /= "" then
-               --  First value is the unique name on the server side
-
-               Status.Set.Add_Parameter
-                 (C_Stat, To_String (Name), To_String (Server_Filename));
-               --  Status.Set.Add_Parameter does not decode values.
-
-               --  Second value is the original name as found on the client
-               --  side.
-
-               Status.Set.Add_Parameter
-                 (C_Stat, To_String (Name), To_String (Filename));
-               --  Status.Set.Add_Parameter does not decode values.
-
-               --  Read file data, set End_Found if the end-boundary signature
-               --  has been read.
-
-               Get_File_Data
-                 (To_String (Server_Filename),
-                  Start_Boundary,
-                  File_Upload,
-                  Headers,
-                  End_Found);
-
-               --  Create an attachment entry, this will ensure that the
-               --  physical file will be removed. It will also be possible
-               --  to work with the attachment instead of the parameters set
-               --  above.
-               AWS.Attachments.Add
-                 (Attachments,
-                  Filename   => To_String (Server_Filename),
-                  Content_Id => To_String (Name));
-               Status.Set.Attachments (C_Stat, Attachments);
+                  Status.Set.Add_Parameter
+                    (C_Stat,
+                     To_String (Name),
+                     To_String (Value),
+                     Decode => False);
+                  --  Do not decode values for multipart/form-data
+               end;
 
                if not End_Found then
                   File_Upload (Start_Boundary, End_Boundary, False);
                end if;
-
-            else
-               --  There is no file for this multipart, user did not enter
-               --  something in the field.
-
-               File_Upload (Start_Boundary, End_Boundary, True);
-            end if;
-
-         else
-            --  This part of the multipart message contains field values
-
-            declare
-               Value : Unbounded_String;
-            begin
-               loop
-                  declare
-                     L : constant String := Net.Buffered.Get_Line (Sock);
-                  begin
-                     End_Found := (L = End_Boundary);
-
-                     exit when End_Found or else L = Start_Boundary;
-
-                     --  Append this line to the value
-
-                     if Value /= Null_Unbounded_String then
-                        Append (Value, ASCII.CR & ASCII.LF);
-                     end if;
-                     Append (Value, L);
-                  end;
-               end loop;
-
-               Status.Set.Add_Parameter
-                 (C_Stat,
-                  To_String (Name),
-                  To_String (Value),
-                  Decode => False);
-               --  Do not decode values for multipart/form-data
-            end;
-
-            if not End_Found then
-               File_Upload (Start_Boundary, End_Boundary, False);
             end if;
          end if;
       end File_Upload;
@@ -531,6 +556,7 @@ package body AWS.Server.HTTP_Utils is
 
       procedure Get_File_Data
         (Server_Filename : in     String;
+         Filename        : in     String;
          Start_Boundary  : in     String;
          Mode            : in     Message_Mode;
          Headers         : in     AWS.Headers.List;
@@ -690,7 +716,7 @@ package body AWS.Server.HTTP_Utils is
                when Attachment =>
                   Streams.Stream_IO.Close (File);
                   AWS.Attachments.Add
-                    (Attachments, Server_Filename, Headers);
+                    (Attachments, Server_Filename, Headers, Filename);
 
                when File_Upload =>
                   Streams.Stream_IO.Close (File);
@@ -787,35 +813,59 @@ package body AWS.Server.HTTP_Utils is
 
          AWS.Headers.Set.Read (Sock, Headers);
 
-         Content_Id := To_Unbounded_String
-           (AWS.Headers.Get (Headers, Messages.Content_Id_Token));
+         if AWS.Headers.Get_Values
+           (Headers, Messages.Content_Type_Token) = MIME.Application_Form_Data
+         then
+            --  This chunk is the form parameter
+            Status.Set.Read_Body
+              (Sock, C_Stat,
+               Boundary => "--" & To_String (Status_Multipart_Boundary));
 
-         --  Read file/field data
+            --  Skip CRLF after boundary
 
-         if Content_Id = Status_Root_Part_CID then
-            Get_File_Data
-              ("", Start_Boundary, Root_Attachment, Headers, End_Found);
+            declare
+               Data : constant String := Net.Buffered.Get_Line (Sock);
+               pragma Unreferenced (Data);
+            begin
+               null;
+            end;
 
-         else
-            Server_Filename := To_Unbounded_String
-              (Attachment_Filename
-                 (AWS.MIME.Extension
-                    (AWS.Headers.Values.Get_Unnamed_Value
-                       (AWS.Headers.Get
-                          (Headers, Messages.Content_Type_Token)))));
+            Status.Set.Parameters_From_Body (C_Stat);
 
-            Get_File_Data
-              (To_String (Server_Filename),
-               Start_Boundary, Attachment, Headers, End_Found);
-         end if;
-
-         --  More attachments ?
-
-         if End_Found then
-            AWS.Status.Set.Attachments (C_Stat, Attachments);
-         else
             Store_Attachments
               (Start_Boundary, End_Boundary, False, Root_Part_CID);
+
+         else
+            Content_Id := To_Unbounded_String
+              (AWS.Headers.Get (Headers, Messages.Content_Id_Token));
+
+            --  Read file/field data
+
+            if Content_Id = Status_Root_Part_CID then
+               Get_File_Data
+                 ("", "", Start_Boundary, Root_Attachment, Headers, End_Found);
+
+            else
+               Server_Filename := To_Unbounded_String
+                 (Attachment_Filename
+                    (AWS.MIME.Extension
+                       (AWS.Headers.Values.Get_Unnamed_Value
+                          (AWS.Headers.Get
+                             (Headers, Messages.Content_Type_Token)))));
+
+               Get_File_Data
+                 (To_String (Server_Filename), To_String (Server_Filename),
+                  Start_Boundary, Attachment, Headers, End_Found);
+            end if;
+
+            --  More attachments ?
+
+            if End_Found then
+               AWS.Status.Set.Attachments (C_Stat, Attachments);
+            else
+               Store_Attachments
+                 (Start_Boundary, End_Boundary, False, Root_Part_CID);
+            end if;
          end if;
       end Store_Attachments;
 

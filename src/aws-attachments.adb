@@ -55,6 +55,7 @@ package body AWS.Attachments is
      (Attachments : in out List;
       Filename    : in     String;
       Content_Id  : in     String;
+      Name        : in     String := "";
       Encode      : in     Encoding := None)
    is
       use type Attachment_Table.Vector;
@@ -63,23 +64,33 @@ package body AWS.Attachments is
                File (Filename, Encode, Content_Id,
                      MIME.Content_Type (Filename));
    begin
-      Add (Attachments, Data);
+      if Name = "" then
+         Add (Attachments, Filename, Data);
+      else
+         Add (Attachments, Name, Data);
+      end if;
    end Add;
 
    procedure Add
      (Attachments : in out List;
       Filename    : in     String;
       Headers     : in     AWS.Headers.List;
+      Name        : in     String := "";
       Encode      : in     Encoding := None)
    is
       Data : constant Content :=
                File (Filename, Encode, "", MIME.Content_Type (Filename));
    begin
-      Add (Attachments, Data, Headers);
+      if Name = "" then
+         Add (Attachments, Filename, Data, Headers);
+      else
+         Add (Attachments, Name, Data, Headers);
+      end if;
    end Add;
 
    procedure Add
      (Attachments : in out List;
+      Name        : in     String;
       Data        : in     Content;
       Headers     : in     AWS.Headers.List := AWS.Headers.Empty_List)
    is
@@ -96,44 +107,38 @@ package body AWS.Attachments is
          end if;
 
       else
-         declare
-            Filename      : constant String := To_String (Data.Filename);
-            Base_Filename : constant String :=
-                              Directories.Simple_Name (Filename);
-         begin
+         AWS.Headers.Set.Add
+           (Headers => A.Headers,
+            Name    => AWS.Messages.Content_Disposition_Token,
+            Value   => "attachment; filename=""" & Name & '"');
+
+         if Data.Content_Type = Null_Unbounded_String then
             AWS.Headers.Set.Add
               (Headers => A.Headers,
-               Name    => AWS.Messages.Content_Disposition_Token,
-               Value   => "attachment; filename=""" & Base_Filename & '"');
+               Name    => AWS.Messages.Content_Type_Token,
+               Value   => MIME.Content_Type (Name) & "; name="""
+               &  Name & '"');
+         else
+            AWS.Headers.Set.Add
+              (Headers => A.Headers,
+               Name    => AWS.Messages.Content_Type_Token,
+               Value   => To_String (Data.Content_Type) & "; name="""
+               &  Name & '"');
+         end if;
 
-            if Data.Content_Type = Null_Unbounded_String then
+         if Data.Encode = None then
+            if MIME.Is_Text (MIME.Content_Type (Name)) then
                AWS.Headers.Set.Add
                  (Headers => A.Headers,
-                  Name    => AWS.Messages.Content_Type_Token,
-                  Value   => MIME.Content_Type (Base_Filename) & "; name="""
-                     &  Base_Filename & '"');
+                  Name    => AWS.Messages.Content_Transfer_Encoding_Token,
+                  Value   => "8bit");
             else
                AWS.Headers.Set.Add
                  (Headers => A.Headers,
-                  Name    => AWS.Messages.Content_Type_Token,
-                  Value   => To_String (Data.Content_Type) & "; name="""
-                     &  Base_Filename & '"');
+                  Name    => AWS.Messages.Content_Transfer_Encoding_Token,
+                  Value   => "binary");
             end if;
-
-            if Data.Encode = None then
-               if MIME.Is_Text (MIME.Content_Type (Filename)) then
-                  AWS.Headers.Set.Add
-                    (Headers => A.Headers,
-                     Name    => AWS.Messages.Content_Transfer_Encoding_Token,
-                     Value   => "8bit");
-               else
-                  AWS.Headers.Set.Add
-                    (Headers => A.Headers,
-                     Name    => AWS.Messages.Content_Transfer_Encoding_Token,
-                     Value   => "binary");
-               end if;
-            end if;
-         end;
+         end if;
       end if;
 
       if Data.Encode = Base64 then

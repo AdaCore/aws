@@ -2,8 +2,7 @@
 --                              Ada Web Server                              --
 --                   S M T P - Simple Mail Transfer Protocol                --
 --                                                                          --
---                         Copyright (C) 2000-2008                          --
---                                 AdaCore                                  --
+--                     Copyright (C) 2000-2008, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -455,6 +454,7 @@ package body AWS.SMTP.Client is
       if Message /= "" then
          AWS.Attachments.Add
            (Att_List,
+            "",
             AWS.Attachments.Value
               (Data         => Message,
                Content_Type => MIME.Text_Plain));
@@ -481,6 +481,7 @@ package body AWS.SMTP.Client is
 
                   AWS.Attachments.Add
                     (Att_List,
+                     To_String (A.Name),
                      AWS.Attachments.Value
                        (Name   => To_String (A.Name),
                         Data   => To_String (A.Data)),

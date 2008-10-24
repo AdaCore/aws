@@ -1309,6 +1309,12 @@ regtests/0190_soap_no_namespace/driver.adb
 regtests/0190_soap_no_namespace/driver.gpr
 regtests/0190_soap_no_namespace/test.out
 regtests/0190_soap_no_namespace/test.py
+regtests/0191_post_attachments/file1.dat
+regtests/0191_post_attachments/file2.dat
+regtests/0191_post_attachments/post_attachments.adb
+regtests/0191_post_attachments/post_attachments.gpr
+regtests/0191_post_attachments/test.out
+regtests/0191_post_attachments/test.py
 regtests/common/get_free_port.adb
 regtests/gen_system_tags.py
 regtests/makefile

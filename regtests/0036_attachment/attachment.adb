@@ -26,6 +26,8 @@
 ------------------------------------------------------------------------------
 
 with Ada.Streams.Stream_IO;
+with Ada.Strings.Fixed;
+with Ada.Strings.Maps;
 with Ada.Text_IO;
 
 with AWS.Attachments;
@@ -42,6 +44,8 @@ with Get_Free_Port;
 procedure Attachment is
 
    use Ada;
+   use Ada.Streams;
+   use Ada.Strings;
    use AWS;
 
    Att      : AWS.Attachments.List;
@@ -68,11 +72,13 @@ procedure Attachment is
       Buffer : Stream_Element_Array (1 .. 4_048);
       Last   : Stream_Element_Offset;
    begin
+      Text_IO.Put_Line
+        ("File : "
+         & Fixed.Translate (Local_Filename, Maps.To_Mapping ("\", "/"))
+         & ", " & Filename & ", " & Content_Type);
+
       Stream_IO.Open (File, Stream_IO.In_File, Local_Filename);
       Stream_IO.Read (File, Buffer, Last);
-
-      Text_IO.Put_Line
-        ("File : " & Local_Filename & ", " & Filename & ", " & Content_Type);
 
       if MIME.Is_Text (Content_Type) then
          Text_IO.Put_Line (Translator.To_String (Buffer (1 .. Last)));
@@ -104,7 +110,7 @@ procedure Attachment is
       end loop;
 
       return AWS.Response.Build
-        ("text/html", "<p> Got" & Integer'Image (Atts) & " attachments");
+        (MIME.Text_Plain, "Got" & Integer'Image (Atts) & " attachments");
    end HW_CB;
 
    ------------
@@ -118,7 +124,9 @@ procedure Attachment is
 
       AWS.Server.Start
         (WS, "Attachment Server",
-         Callback => HW_CB'Unrestricted_Access, Port => Port);
+         Callback         => HW_CB'Unrestricted_Access,
+         Port             => Port,
+         Upload_Directory => ".");
 
       accept Started;
 
@@ -149,6 +157,8 @@ begin
      (URL         => "http://localhost:" & Utils.Image (Port) & "/any_URI",
       Data        => "Dummy message",
       Attachments => Att);
+
+   Text_IO.Put_Line ("Response=" & AWS.Response.Message_Body (Response));
 
    Server.Stop;
 end Attachment;
