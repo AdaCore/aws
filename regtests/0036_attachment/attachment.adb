@@ -33,6 +33,7 @@ with Ada.Text_IO;
 with AWS.Attachments;
 with AWS.Client;
 with AWS.MIME;
+with AWS.Net.Log;
 with AWS.Response;
 with AWS.Server;
 with AWS.Status;
@@ -61,6 +62,26 @@ procedure Attachment is
    procedure Output (Filename, Local_Filename, Content_Type : in String);
    --  Output content of filename. Output is base64 encoded if content type is
    --  not textual data.
+
+   ----------
+   -- Dump --
+   ----------
+
+   procedure Dump
+     (Direction : in Net.Log.Data_Direction;
+      Socket    : in Net.Socket_Type'Class;
+      Data      : in Stream_Element_Array;
+      Last      : in Stream_Element_Offset)
+   is
+      use type Net.Log.Data_Direction;
+   begin
+      if Direction = Net.Log.Sent then
+         Text_IO.Put_Line
+           ("********** " & Net.Log.Data_Direction'Image (Direction));
+         Text_IO.Put_Line (Translator.To_String (Data (Data'First .. Last)));
+         Text_IO.New_Line;
+      end if;
+   end Dump;
 
    ------------
    -- Output --
@@ -152,6 +173,8 @@ begin
       Content_Id  => "My-Png-Attachment");
 
    Server.Started;
+
+   --  AWS.Net.Log.Start (Dump'Unrestricted_Access);
 
    Response := Aws.Client.Post
      (URL         => "http://localhost:" & Utils.Image (Port) & "/any_URI",

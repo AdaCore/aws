@@ -25,11 +25,13 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
+with Ada.Streams;
 with Ada.Text_IO;
 
 with AWS.Client;
 with AWS.Messages;
 with AWS.MIME;
+with AWS.Net.Log;
 with AWS.Parameters;
 with AWS.Response;
 with AWS.Server;
@@ -42,6 +44,7 @@ with Get_Free_Port;
 procedure Get_Post is
 
    use Ada;
+   use Ada.Streams;
    use AWS;
 
    WS   : Server.HTTP;
@@ -90,6 +93,26 @@ procedure Get_Post is
       return Response.Build (MIME.Text_HTML, "ok");
    end CB;
 
+   ----------
+   -- Dump --
+   ----------
+
+   procedure Dump
+     (Direction : in Net.Log.Data_Direction;
+      Socket    : in Net.Socket_Type'Class;
+      Data      : in Stream_Element_Array;
+      Last      : in Stream_Element_Offset)
+   is
+      use type Net.Log.Data_Direction;
+   begin
+      if Direction = Net.Log.Sent then
+         Text_IO.Put_Line
+           ("********** " & Net.Log.Data_Direction'Image (Direction));
+         Text_IO.Put_Line (Translator.To_String (Data (Data'First .. Last)));
+         Text_IO.New_Line;
+      end if;
+   end Dump;
+
    R : Response.Data;
 
 begin
@@ -97,6 +120,8 @@ begin
 
    Server.Start (WS, "Get Post", CB'Unrestricted_Access, Port => Port);
    Text_IO.Put_Line ("started"); Ada.Text_IO.Flush;
+
+   --  AWS.Net.Log.Start (Dump'Unrestricted_Access);
 
    R := Client.Post
           ("http://localhost:" & Utils.Image (Port)
