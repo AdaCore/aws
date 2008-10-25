@@ -9,6 +9,8 @@ import logging
 import gnatpython.logging_util
 import time
 
+LOG_SIZE = 1024
+
 class Run:
     """
     ATTRIBUTES
@@ -168,7 +170,7 @@ class Run:
                 if self.stdin == PIPE:
                     self.out = self.comm[0]
                 else:
-                    tmp_out = self.internal.stdout.read (128)
+                    tmp_out = self.internal.stdout.read (LOG_SIZE)
                     logging.log (gnatpython.logging_util.RAW, tmp_out)
                     self.out += tmp_out
             else:
@@ -178,7 +180,7 @@ class Run:
                 if self.stdin == PIPE:
                     self.err = self.comm[0]
                 else:
-                    tmp_err = self.internal.stderr.read (128)
+                    tmp_err = self.internal.stderr.read (LOG_SIZE)
                     logging.log (gnatpython.logging_util.RAW, tmp_err)
                     self.err += tmp_err
             else:
