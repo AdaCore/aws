@@ -25,8 +25,10 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-with Ada.Text_IO;
 with Ada.Streams;
+with Ada.Strings.Fixed;
+with Ada.Strings.Maps;
+with Ada.Text_IO;
 
 with AWS.Attachments;
 with AWS.Client;
@@ -68,7 +70,11 @@ procedure Post_Attachments is
       procedure Output_A_Name (E : in Attachments.Element) is
       begin
          Text_IO.Put_Line ("Filename       " & Attachments.Filename (E));
-         Text_IO.Put_Line ("Local Filename " & Attachments.Local_Filename (E));
+         Text_IO.Put_Line
+           ("Local Filename " &
+              Strings.Fixed.Translate
+              (Attachments.Local_Filename (E),
+               Strings.Maps.To_Mapping ("\", "/")));
       end Output_A_Name;
 
    begin
