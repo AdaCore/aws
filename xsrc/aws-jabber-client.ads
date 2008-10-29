@@ -45,10 +45,13 @@ package AWS.Jabber.Client is
 
    type Authentication_Type is (More_Secure, Digest, PLAIN);
 
-   type Jabber_ID is new Unbounded_String;
+   type Jabber_ID is new String;
 
-   function To_Jabber_ID (Username, Server : in String) return Jabber_ID;
-   --  Returns a Jabber ID (username@server)
+   function To_Jabber_ID
+     (Username : in String;
+      Server   : in String;
+      Resource : in String := "") return Jabber_ID;
+   --  Returns a Jabber ID (username@server/resource)
 
    --  Jabber Hook
    type Message_Type is (Chat, Message);
@@ -84,8 +87,9 @@ package AWS.Jabber.Client is
 
    procedure Set_Login_Information
      (Account   : in out Client.Account;
-      User      : in     String;
-      Password  : in     String);
+      User     : in     String;
+      Password : in     String;
+      Resource : in     String := "");
 
    procedure Set_Authentication_Type (Account   : in out Client.Account;
                                       Auth_Type : in      Authentication_Type);
@@ -137,16 +141,21 @@ private
    type Connection_State is
      (Initialize_Connection, Start_Authentication, Connected);
 
+   type User_Data is limited record
+      Name     : Unbounded_String;
+      Password : Unbounded_String;
+      Resource : Unbounded_String;
+      JID      : Unbounded_String;
+   end record;
+
    type Account is limited record
       Self             : Account_Access :=
                            Account'Unchecked_Access;
+      User             : User_Data;
       Host             : Unbounded_String;
       Port             : Client.Port := Default_Port;
       Stream           : Incoming_Stream_Access;
       Sock             : Net.Socket_Access;
-      User             : Unbounded_String;
-      Password         : Unbounded_String;
-      Connection_State : Client.Connection_State;
       Is_Running       : Boolean := False;
       SID              : Unbounded_String;
       Auth_Type        : Authentication_Type := More_Secure;
