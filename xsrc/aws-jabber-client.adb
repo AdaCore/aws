@@ -834,7 +834,6 @@ package body AWS.Jabber.Client is
          Source      : String_Input;
          Reader      : XMPP_Parser.Tree_Reader;
       begin
-         Ada.Text_IO.Put_Line (XML_Message);
          Reader.R := new XMPP_Parser.XMPP_Message;
 
          --  Parse the XML message
