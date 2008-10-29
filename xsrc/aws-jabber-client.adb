@@ -454,6 +454,11 @@ package body AWS.Jabber.Client is
                      Insert
                        (Handler.R.all, To_String (Handler.Key),
                         To_String (Handler.Value), Cursor, Found);
+                  else
+                     --  Set the key value to old_value:new_value
+                     Replace (Handler.R.all, To_String (Handler.Key),
+                              Element (Handler.R.all, To_String (Handler.Key))
+                              & ':' & To_String (Handler.Value));
                   end if;
                end if;
 
