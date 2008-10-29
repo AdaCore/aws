@@ -33,16 +33,15 @@ with Ada.Strings.Hash;
 with Ada.Text_IO;
 with Ada.Unchecked_Deallocation;
 
-with AWS.Translator;
-with AWS.Net.Buffered;
-with AWS.Utils;
-
 with Input_Sources.Strings;
 with Sax.Attributes;
 with Sax.Readers;
 with Unicode.CES.Basic_8bit;
 
 with AWS.Jabber.Digest_Md5;
+with AWS.Net.Buffered;
+with AWS.Translator;
+with AWS.Utils;
 
 package body AWS.Jabber.Client is
 
@@ -95,8 +94,9 @@ package body AWS.Jabber.Client is
       Account.Sock := Net.Socket (Security => False);
 
       Connection : begin
-         Net.Connect (Account.Sock.all,
-                      To_String (Account.Host), Positive (Account.Port));
+         Net.Connect
+           (Account.Sock.all,
+            To_String (Account.Host), Positive (Account.Port));
       exception
          when Net.Socket_Error =>
             raise Server_Error with "Can't connect to "
@@ -151,8 +151,8 @@ package body AWS.Jabber.Client is
    -----------------
 
    procedure IO_Presence
-     (From    : in Jabber_ID;
-      Status  : in String) is
+     (From   : in Jabber_ID;
+      Status : in String) is
    begin
       Text_IO.Put_Line (String (From) & " is " & Status);
    end IO_Presence;
@@ -172,14 +172,18 @@ package body AWS.Jabber.Client is
       function Send_Type return String;
       --  Returns the message type
 
+      ---------------
+      -- Send_Type --
+      ---------------
+
       function Send_Type return String is
          T : constant String := Client.Message_Type'Image (Message_Type);
       begin
          return Characters.Handling.To_Lower (T (T'First + 2 .. T'Last));
       end Send_Type;
+
    begin
       if Account.Is_Running then
-
          --  Send Message
 
          XMPP_Send (Account,
@@ -222,7 +226,7 @@ package body AWS.Jabber.Client is
    ---------------------------
 
    procedure Set_Login_Information
-     (Account   : in out Client.Account;
+     (Account  : in out Client.Account;
       User     : in     String;
       Password : in     String;
       Resource : in     String := "") is
@@ -236,8 +240,9 @@ package body AWS.Jabber.Client is
    -- Set_Port --
    --------------
 
-   procedure Set_Port (Account : in out Client.Account;
-                       Port    : in     Client.Port) is
+   procedure Set_Port
+     (Account : in out Client.Account;
+      Port    : in Client.Port) is
    begin
       Account.Port := Port;
    end Set_Port;
@@ -246,8 +251,9 @@ package body AWS.Jabber.Client is
    -- Set_Presence_Hook --
    -----------------------
 
-   procedure Set_Presence_Hook (Account : in out Client.Account;
-                                Hook    : in     Presence_Hook) is
+   procedure Set_Presence_Hook
+     (Account : in out Client.Account;
+      Hook    : in     Presence_Hook) is
    begin
       Account.Hooks.Presence := Hook;
    end Set_Presence_Hook;
@@ -262,8 +268,7 @@ package body AWS.Jabber.Client is
       Resource : in String := "") return Jabber_ID is
    begin
       if Resource /= "" then
-         return Jabber_ID
-           (Username & '@' & Server & '/' & Resource);
+         return Jabber_ID (Username & '@' & Server & '/' & Resource);
       else
          return Jabber_ID (Username & '@' & Server);
       end if;
@@ -282,8 +287,8 @@ package body AWS.Jabber.Client is
         (First_Challenge, Second_Challenge, Challenge_Result,
          Bind_Requirement, Get_Resource, Get_Ack_Session);
 
-      Connection_Current_Step  : Connection_Step := Initialize_Connection;
-      Authentication_Current_Step  : Authentication_Step := First_Challenge;
+      Connection_Current_Step     : Connection_Step := Initialize_Connection;
+      Authentication_Current_Step : Authentication_Step := First_Challenge;
 
       procedure Get_Message (XML : in String; Start, Stop : in out Positive);
       --  Returns Start and Stop where XML (Start .. Stop) is the next XML
@@ -527,14 +532,14 @@ package body AWS.Jabber.Client is
             -------------
 
             procedure Process
-              (Account  : in out Client.Account;
-               Message  : in     XMPP_Message_Access)
+              (Account : in out Client.Account;
+               Message : in     XMPP_Message_Access)
             is
                procedure Digest_MD5_Authenticate;
 
                function Value
                  (M   : in XMPP_Message_Access;
-                  Key : in String)  return String;
+                  Key : in String) return String;
                --  Returns the value for Key in the message M
                --  or The empty string if the key is not found.
 
@@ -544,7 +549,12 @@ package body AWS.Jabber.Client is
                procedure Get_Message_Hook;
                --  Run the message hook
 
+               -----------------------------
+               -- Digest_MD5_Authenticate --
+               -----------------------------
+
                procedure Digest_MD5_Authenticate is
+
                   procedure Next_Step;
                   --  Move Digest_MD5_Current_Step to next step
 
@@ -675,6 +685,10 @@ package body AWS.Jabber.Client is
                   end if;
                end Digest_MD5_Authenticate;
 
+               ----------------------
+               -- Get_Message_Hook --
+               ----------------------
+
                procedure Get_Message_Hook is
                   Type_Value : constant String :=
                                  Value (Message, "message.type");
@@ -706,6 +720,7 @@ package body AWS.Jabber.Client is
                -----------------------
 
                procedure Get_Presence_Hook is
+
                   function Get_Status return String;
                   --  Returns the presence status
 
@@ -719,6 +734,7 @@ package body AWS.Jabber.Client is
                   begin
                      if Presence_Type = "error" then
                         return Presence_Type;
+
                      else
                         if Message.Contains ("presence.show") then
                            return Value (Message, "presence.show");
@@ -864,6 +880,7 @@ package body AWS.Jabber.Client is
 
          Source      : String_Input;
          Reader      : XMPP_Parser.Tree_Reader;
+
       begin
          Reader.R := new XMPP_Parser.XMPP_Message;
 
@@ -891,11 +908,11 @@ package body AWS.Jabber.Client is
 
    begin
       loop
-
          declare
-            XML_Response : constant String
-              := Translator.To_String (Net.Buffered.Read (Account.Sock.all));
-            Start, Stop : Positive := XML_Response'First;
+            XML_Response : constant String :=
+                             Translator.To_String
+                               (Net.Buffered.Read (Account.Sock.all));
+            Start, Stop  : Positive := XML_Response'First;
          begin
             loop
                Get_Message (XML_Response, Start, Stop);

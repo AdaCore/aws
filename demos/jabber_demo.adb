@@ -60,7 +60,8 @@ procedure Jabber_Demo is
 
    procedure Chat
      (Account : in AWS.Jabber.Client.Account;
-      Command : in String) is
+      Command : in String)
+   is
       Sent : Boolean := False;
    begin
       Parse_Command : for K in Command'Range loop
@@ -126,7 +127,6 @@ procedure Jabber_Demo is
          Display_Usage;
    end Parse_Command_Line;
 
---   Status : AWS.Jabber.Presence_Status;
 begin
    Parse_Command_Line;
 
@@ -142,27 +142,29 @@ begin
       Account : AWS.Jabber.Client.Account;
    begin
       Set_Host (Account, To_String (Host));
-      Set_Login_Information (Account,
-                             To_String (Login),
-                             To_String (Pwd));
+      Set_Login_Information (Account, To_String (Login), To_String (Pwd));
       Connect (Account);
 
       Text_IO.Put_Line ("Type /help for help");
       Main_Loop : loop
          Process_Line : declare
-            Line         : constant String := Text_IO.Get_Line;
+            Line : constant String := Text_IO.Get_Line;
          begin
-            if Line (Line'First ..
-                       Line'First + Chat_Command'Length - 1)
-                = Chat_Command then
-               Chat (Account,
-                     Line (Line'First + Chat_Command'Length + 1 .. Line'Last));
+            if Line (Line'First .. Line'First + Chat_Command'Length - 1)
+              = Chat_Command
+            then
+               Chat
+                 (Account,
+                  Line (Line'First + Chat_Command'Length + 1 .. Line'Last));
+
             elsif Line = "/help" then
                Text_IO.Put_Line ("Type /msg user@server A chat message");
                Text_IO.Put_Line ("     to send a message to user@server");
                Text_IO.Put_Line ("Type /quit to quit");
+
             elsif Line = "/quit" then
                exit Main_Loop;
+
             else
                Text_IO.Put_Line ("Error can't parse line");
             end if;

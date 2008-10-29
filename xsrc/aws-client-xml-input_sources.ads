@@ -26,7 +26,6 @@
 ------------------------------------------------------------------------------
 
 with Input_Sources;
-
 with Unicode.CES;
 
 package AWS.Client.XML.Input_Sources is

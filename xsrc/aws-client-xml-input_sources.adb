@@ -25,13 +25,12 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-with AWS.Translator;
-
 with Unicode.CCS;
-
 with Unicode.CES.Utf32;
 with Unicode.CES.Utf16;
 with Unicode.CES.Utf8;
+
+with AWS.Translator;
 
 package body AWS.Client.XML.Input_Sources is
 

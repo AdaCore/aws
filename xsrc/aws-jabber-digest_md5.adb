@@ -87,9 +87,10 @@ package body AWS.Jabber.Digest_Md5 is
          end loop;
       end Parse_Key_Value;
 
-      Message : constant String := AWS.Translator.To_String
-        (AWS.Translator.Base64_Decode (Encoded_Challenge));
-      Index : Natural := Message'First;
+      Message : constant String :=
+                  Translator.To_String
+                    (Translator.Base64_Decode (Encoded_Challenge));
+      Index   : Natural := Message'First;
 
    begin
       --  Get a key=value message separated with ','
@@ -139,9 +140,7 @@ package body AWS.Jabber.Digest_Md5 is
          Ch    : Character;
 
       begin
-
          for I in Digest'Range loop
-
             Ch := S (2 * Integer (I - 1) + 1);
             case Ch is
                when '0' .. '9' => Val
@@ -167,13 +166,12 @@ package body AWS.Jabber.Digest_Md5 is
             end case;
 
             Digest (I) := Byte (Val);
-
          end loop;
 
          return Digest;
       end Digest_From_Text;
 
-      URP : constant String := Username & ':' & Realm & ':' & Password;
+      URP        : constant String := Username & ':' & Realm & ':' & Password;
       URP_Digest : constant Digest_String := GNAT.MD5.Digest (URP);
    begin
       return To_String (Digest_From_Text (URP_Digest));
@@ -184,14 +182,15 @@ package body AWS.Jabber.Digest_Md5 is
    ---------------------
 
    function Reply_Challenge
-     (Username, Realm, Password, Host, Nonce : in String) return String is
+     (Username, Realm, Password, Host, Nonce : in String) return String
+   is
       --  Return a base64 encoded form of
       --  username="Username",realm="Realm",nonce="Nonce",
       --  cnone="A_Client_Generated_Nonce",nc=0000001,qop=auth,
       --  digest-uri="xmpp/Hostname",response=A_Computed_challenge_response,
       --  charset=utf-8
 
-      --  Note that authzid is not used.
+      --  Note that authzid is not used
 
       CNonce : constant String := AWS.Digest.Create_Nonce;
 
@@ -214,8 +213,8 @@ package body AWS.Jabber.Digest_Md5 is
    --------------
 
    function Response
-     (Username, Realm, Password, Host, Nonce, Cnonce : in String)
-      return String is
+     (Username, Realm, Password, Host, Nonce, Cnonce : in String) return String
+   is
       --  The value of the response directive is computed as follows:
       --   * Create a 16 octet md5 hash of a string
       --     of the form "username:realm:password".
@@ -228,6 +227,7 @@ package body AWS.Jabber.Digest_Md5 is
       --   * Compute the 32 hex digit MD5 hash of A2. Call the result HA2.
       --   * Then compute the 32 hex digit MD5 hash
       --     of "HA1:nonce:nc:cnonce:qop:HA2"
+
       URP : constant String :=
               Digest_Md5.Make_URP_Hash
                 (Username, Realm, Password);

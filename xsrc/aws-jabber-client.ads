@@ -26,6 +26,7 @@
 ------------------------------------------------------------------------------
 
 with Ada.Strings.Unbounded;
+
 private with AWS.Net;
 
 package AWS.Jabber.Client is
@@ -43,11 +44,11 @@ package AWS.Jabber.Client is
    type Port is new Positive;
    Default_Port : Port := 5222;
 
-   type Authentication_Mechanism
-     is (More_Secure_Mechanism, Digest_Md5_Mechanism, Plain_Mechanism);
+   type Authentication_Mechanism is
+     (More_Secure_Mechanism, Digest_Md5_Mechanism, Plain_Mechanism);
    --  Select PLAIN or DIGEST_MD5
    --  if More_Secure_Mechanism choose DIGEST_MD5 but fallback to PLAIN if
-   --  DIGEST_MD5 is not supported
+   --  DIGEST_MD5 is not supported.
 
    type Jabber_ID is new String;
 
@@ -59,8 +60,7 @@ package AWS.Jabber.Client is
 
    --  Jabber Hook
 
-   type Message_Type is
-     (M_Chat, M_Normal, M_Group_Chat, M_Headline, M_Error);
+   type Message_Type is (M_Chat, M_Normal, M_Group_Chat, M_Headline, M_Error);
 
    type Message_Hook is not null access procedure
      (From         : in Jabber_ID;
@@ -69,8 +69,8 @@ package AWS.Jabber.Client is
       Content      : in String);
 
    type Presence_Hook is not null access procedure
-     (From    : in Jabber_ID;
-      Status  : in String);
+     (From   : in Jabber_ID;
+      Status : in String);
 
    procedure IO_Presence
      (From    : in Jabber_ID;
@@ -82,17 +82,20 @@ package AWS.Jabber.Client is
       Subject      : in String;
       Content      : in String);
 
-   procedure Set_Presence_Hook (Account : in out Client.Account;
-                                Hook    : in     Presence_Hook);
+   procedure Set_Presence_Hook
+     (Account : in out Client.Account;
+      Hook    : in     Presence_Hook);
 
-   procedure Set_Host (Account : in out Client.Account;
-                       Host    : in     String);
+   procedure Set_Host
+     (Account : in out Client.Account;
+      Host    : in     String);
 
-   procedure Set_Port (Account : in out Client.Account;
-                       Port    : in     Client.Port);
+   procedure Set_Port
+     (Account : in out Client.Account;
+      Port    : in     Client.Port);
 
    procedure Set_Login_Information
-     (Account   : in out Client.Account;
+     (Account  : in out Client.Account;
       User     : in     String;
       Password : in     String;
       Resource : in     String := "");
@@ -160,16 +163,16 @@ private
    end record;
 
    type Account is limited record
-      Self             : Account_Access :=
-                           Account'Unchecked_Access;
-      User             : User_Data;
-      Host             : Unbounded_String;
-      Port             : Client.Port := Default_Port;
-      Stream           : Incoming_Stream_Access;
-      Sock             : Net.Socket_Access;
-      Is_Running       : Boolean := False;
-      SID              : Unbounded_String;
-      Auth_Type        : Authentication_Mechanism := More_Secure_Mechanism;
-      Hooks            : Jabber_Hooks;
+      Self       : Account_Access := Account'Unchecked_Access;
+      User       : User_Data;
+      Host       : Unbounded_String;
+      Port       : Client.Port := Default_Port;
+      Stream     : Incoming_Stream_Access;
+      Sock       : Net.Socket_Access;
+      Is_Running : Boolean := False;
+      SID        : Unbounded_String;
+      Auth_Type  : Authentication_Mechanism := More_Secure_Mechanism;
+      Hooks      : Jabber_Hooks;
    end record;
+
 end AWS.Jabber.Client;

@@ -31,10 +31,9 @@ package AWS.Jabber.Digest_Md5 is
 
    use Ada.Strings.Unbounded;
 
---  DIGEST-MD5 authentication mechanism for python SASL implementation.
---
---  Normative reference:
---    - `RFC 2831 <http://www.ietf.org/rfc/rfc2831.txt>`__
+   --  DIGEST-MD5 authentication mechanism for python SASL implementation.
+   --
+   --  Normative reference: RFC 2831 <http://www.ietf.org/rfc/rfc2831.txt>
 
    type Challenge is record
       Nonce : Unbounded_String;
@@ -43,7 +42,7 @@ package AWS.Jabber.Digest_Md5 is
 
    function Decode_Challenge
      (Encoded_Challenge : in String) return Challenge;
-   --  Decode the Base64 encoded message and returns the challenge.
+   --  Decode the Base64 encoded message and returns the challenge
 
    function Reply_Challenge
      (Username, Realm, Password, Host, Nonce : in String) return String;
