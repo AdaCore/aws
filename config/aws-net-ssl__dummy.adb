@@ -91,7 +91,7 @@ package body AWS.Net.SSL is
    -- Free --
    ----------
 
-   procedure Free (Socket : in out Socket_Type) is
+   overriding procedure Free (Socket : in out Socket_Type) is
    begin
       raise Program_Error with Error_Message;
    end Free;
