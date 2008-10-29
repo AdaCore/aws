@@ -29,6 +29,7 @@ with Ada.Unchecked_Conversion;
 
 with GNAT.MD5;
 
+with AWS.Digest;
 with AWS.Translator;
 
 package body AWS.Jabber.Digest_Md5 is
@@ -190,10 +191,9 @@ package body AWS.Jabber.Digest_Md5 is
       --  digest-uri="xmpp/Hostname",response=A_Computed_challenge_response,
       --  charset=utf-8
 
-      --  ??? Note that authzid is not used.
+      --  Note that authzid is not used.
 
-      CNonce  : constant String := "0092811472856696084237038";
-      --  ??? CNonce should be generated
+      CNonce : constant String := AWS.Digest.Create_Nonce;
 
       Clear_Response : constant String :=
         "realm=" & '"' & Realm & '"' & ','
