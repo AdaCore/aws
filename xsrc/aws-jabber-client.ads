@@ -107,11 +107,15 @@ package AWS.Jabber.Client is
    procedure Close (Account : in out Client.Account);
    --  Close the connection
 
-   procedure Send (Account : in Client.Account;
-                   JID     : in Jabber_ID;
-                   Content : in String;
-                   Subject : in String := "");
-   --  Send a message to JID via the specified server.
+   procedure Send
+     (Account      : in Client.Account;
+      JID          : in Jabber_ID;
+      Content      : in String;
+      Subject      : in String := "";
+      Message_Type : in Client.Message_Type := M_Normal);
+   --  Send a message to user JID (Jabber ID) via the specified Server. The
+   --  message is composed of Subject and a body (Content).
+
 private
    --  Jabber Client and Server open a stream and both communicate with each
    --  others via this channel. All messages exchanged are XML encoded. Both

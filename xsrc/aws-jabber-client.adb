@@ -25,6 +25,7 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
+with Ada.Characters.Handling;
 with Ada.Containers.Indefinite_Hashed_Maps;
 with Ada.Exceptions;
 with Ada.Strings.Fixed;
@@ -160,13 +161,38 @@ package body AWS.Jabber.Client is
    -- Send --
    ----------
 
-   procedure Send (Account : in Client.Account;
-                   JID     : in Jabber_ID;
-                   Content : in String;
-                   Subject : in String := "")
+   procedure Send
+     (Account      : in Client.Account;
+      JID          : in Jabber_ID;
+      Content      : in String;
+      Subject      : in String := "";
+      Message_Type : in Client.Message_Type := M_Normal)
    is
+
+      function Send_Type return String;
+      --  Returns the message type
+
+      function Send_Type return String is
+         T : constant String := Client.Message_Type'Image (Message_Type);
+      begin
+         return Characters.Handling.To_Lower (T (T'First + 2 .. T'Last));
+      end Send_Type;
    begin
-      null;
+      if Account.Is_Running then
+
+         --  Send Message
+
+         XMPP_Send (Account,
+                    "<message xmlns='jabber:client' type='" & Send_Type & "'"
+                    & " id='id_msg' to='" & String (JID) & "'>"
+                    & " <thread xmlns='jabber:client'>ja_msg</thread>"
+                    & " <subject xmlns='jabber:client'>" & Subject
+                    & "</subject>"
+                    & " <body xmlns='jabber:client'>" & Content & "</body>"
+                    & "</message>");
+      else
+         raise Server_Error with "Not connected to server";
+      end if;
    end Send;
 
    -----------------------------
@@ -865,6 +891,7 @@ package body AWS.Jabber.Client is
 
    begin
       loop
+
          declare
             XML_Response : constant String
               := Translator.To_String (Net.Buffered.Read (Account.Sock.all));
