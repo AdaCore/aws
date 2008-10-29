@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2002-2008                          --
---                                ACT-Europe                                --
+--                   Copyright (C) 2002-2008, AdaCore                       --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -31,12 +30,13 @@ with Ada.Text_IO;
 
 with GNAT.Command_Line;
 
-with AWS.Jabber;
+with AWS.Jabber.Client;
 
 procedure Jabber_Demo is
 
    use Ada;
    use Ada.Strings.Unbounded;
+   use AWS.Jabber.Client;
 
    procedure Parse_Command_Line;
    --  Parse the command line argument and set the variable below
@@ -47,7 +47,6 @@ procedure Jabber_Demo is
    Host   : Unbounded_String;
    Login  : Unbounded_String;
    Pwd    : Unbounded_String;
-   User   : Unbounded_String;
 
    -------------------
    -- Display_Usage --
@@ -57,12 +56,11 @@ procedure Jabber_Demo is
       use Text_IO;
    begin
       New_Line;
-      Put_Line ("Usage : test_jabber -h host -l login -p pwd jid");
+      Put_Line ("Usage : test_jabber -h host -l login -p pwd");
       New_Line;
       Put_Line ("  -h Host      Jabber host server");
       Put_Line ("  -l login     Login for the Jabber server account");
       Put_Line ("  -p password  Password for the Jabber server account");
-      Put_Line ("  jid          The Jabber ID for which to check presence");
       New_Line;
    end Display_Usage;
 
@@ -92,47 +90,45 @@ procedure Jabber_Demo is
          end case;
       end loop;
 
-      User := To_Unbounded_String (GNAT.Command_Line.Get_Argument);
+   exception
+      when others =>
+         Display_Usage;
    end Parse_Command_Line;
 
-   Server : AWS.Jabber.Server;
-   Status : AWS.Jabber.Presence_Status;
+--   Status : AWS.Jabber.Presence_Status;
 begin
    Parse_Command_Line;
 
    if Host = Null_Unbounded_String
      or else Login = Null_Unbounded_String
      or else Pwd = Null_Unbounded_String
-     or else User = Null_Unbounded_String
    then
       Display_Usage;
       return;
    end if;
 
-   AWS.Jabber.Connect
-     (Server, To_String (Host), To_String (Login),
-      To_String (Pwd), Auth_Type => AWS.Jabber.PLAIN);
+   Jabber_Session : declare
+      Account : AWS.Jabber.Client.Account;
 
-   for K in 1 .. 2 loop
-      Check_Presence : declare
-         At_Pos : constant Natural := Index (Source => User, Pattern => "@");
-      begin
-         if 0 < At_Pos and then At_Pos < Length (User) then
-            AWS.Jabber.Check_Presence
-              (Server, To_String (User), Status);
-         else
-            AWS.Jabber.Check_Presence
-              (Server, To_String (User) & "@" & To_String (Host), Status);
-         end if;
-      end Check_Presence;
+   begin
+      Set_Host (Account, To_String (Host));
+      Set_Login_Information (Account,
+                             To_String (Login),
+                             To_String (Pwd));
+      Connect (Account);
 
-      Text_IO.Put_Line
-        ("Status : " & AWS.Jabber.Presence_Status'Image (Status));
-   end loop;
+      Text_IO.Put_Line ("Type /help for help");
+      loop
+         Process_Line : declare
+            Line : constant String := Text_IO.Get_Line;
+         begin
+            exit when Line = "/quit";
+         end Process_Line;
+      end loop;
 
-   AWS.Jabber.Close (Server);
+      Text_IO.Put_Line ("Closing");
 
-exception
-   when others =>
-      Display_Usage;
+      Close (Account);
+   end Jabber_Session;
+
 end Jabber_Demo;
