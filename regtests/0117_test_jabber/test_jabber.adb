@@ -29,10 +29,11 @@ with Ada.Command_Line;
 with Ada.Exceptions;
 with Ada.Tags;
 with Ada.Text_IO;
+with Ada.Strings.Fixed;
 with Ada.Unchecked_Deallocation;
 
 with AWS.Containers;
-with AWS.Jabber;
+with AWS.Jabber.Client;
 with AWS.Net.Acceptors;
 with AWS.Net.SSL;
 with AWS.Net.Buffered;
@@ -46,20 +47,14 @@ procedure Test_Jabber is
    use AWS;
    use AWS.Net;
    use Ada.Exceptions;
+   use AWS.Jabber.Client;
 
    Verbose   : constant Boolean := False;
-   Free_Port : Positive := 8421;
-
-   Counter   : Natural := 0;
-   State     : Natural := 0;
-
-   Server    : Jabber.Server;
+   Free_Port : Positive := 8422;
 
    task type Server_Task is
       entry Started;
    end Server_Task;
-
-   procedure Run;
 
    -----------------
    -- Server_Task --
@@ -83,6 +78,7 @@ procedure Test_Jabber is
         (Socket : in Socket_Type'Class; Item : in String) is
       begin
          if Verbose then
+            Text_IO.New_Line;
             Text_IO.Put_Line ("Server :: " & Item);
          end if;
          Buffered.Put_Line (Socket, Item);
@@ -90,38 +86,12 @@ procedure Test_Jabber is
 
    begin
       Acceptors.Listen (Acceptor, "", Free_Port, 11);
-
       accept Started;
-
       Acceptors.Get (Acceptor, Sock);
 
       Set_Timeout (Sock.all, 4.0);
 
-      declare
-         Got_Message : constant String := Buffered.Get_Line (Sock.all);
-      begin
-         if Verbose then
-            Text_IO.New_Line;
-            Text_IO.Put_Line ("Client :: [" & Got_Message & "]");
-         end if;
-      end;
-
-      Buffered_Put_Line
-        (Sock.all,
-         "<?xml version='1.0'?>"
-         & "<stream:stream"
-         & " from='example.com'"
-         & " id='3EE948B0'"
-         & " xmlns='jabber:client'"
-         & " xmlns:stream='http://etherx.jabber.org/streams'"
-         & " version='1.0'>");
-
-      Buffered.Flush (Sock.all);
-
-      if Counter = 1 then
-         State := 1;
-         goto Shutdown_Task;
-      end if;
+      --  Client initialize the connection
 
       declare
          Got_Message : constant String := Buffered.Get_Line (Sock.all);
@@ -132,81 +102,93 @@ procedure Test_Jabber is
          end if;
       end;
 
-      Buffered_Put_Line
-        (Sock.all,
-         "<iq type='result' id='ja_auth'>"
-         & " <query xmlns='jabber:iq:auth'>"
-         & " <username/>"
-         & " <password/>"
-         & " <resource/>"
-         & " </query>"
-         & " </iq>");
-
-      Buffered.Flush (Sock.all);
-
-      if Counter = 2 then
-         State := 2;
-         goto Shutdown_Task;
-      end if;
-
-      declare
-         Got_Message : constant String := Buffered.Get_Line (Sock.all);
-      begin
-         if Verbose then
-            Text_IO.New_Line;
-            Text_IO.Put_Line ("Client :: [" & Got_Message & "]");
-         end if;
-      end;
+      --  Return new stream.id
 
       Buffered_Put_Line
         (Sock.all,
-         "<iq type='result' id='ja_sauth'/>");
+         "<?xml version='1.0'?><stream:stream xmlns='jabber:client' "
+           & "xmlns:stream='http://etherx.jabber.org/streams' id='3EE948B0' "
+           & "from='127.0.0.1' version='1.0' xml:lang='en'>");
+
       Buffered.Flush (Sock.all);
 
-      if Counter = 3 then
-         State := 3;
-         goto Shutdown_Task;
-      end if;
-
-      declare
-         Got_Message : constant String := Buffered.Get_Line (Sock.all);
-      begin
-         if Verbose then
-            Text_IO.New_Line;
-            Text_IO.Put_Line ("Client :: [" & Got_Message & "]");
-         end if;
-      end;
-
-      if Counter = 4 then
-         State := 4;
-         goto Shutdown_Task;
-      end if;
+      --  Advertize mechanisms
 
       Buffered_Put_Line
         (Sock.all,
-         "<presence from='user@192.168.1.4/Resource'>"
-         & "<priority>1</priority></presence>");
+         "<stream:features><starttls xmlns='urn:ietf:params:xml:ns:xmpp-tls'/>"
+           & "<mechanisms xmlns='urn:ietf:params:xml:ns:xmpp-sasl'>"
+           & "<mechanism>DIGEST-MD5</mechanism><mechanism>PLAIN</mechanism>"
+           & "</mechanisms>"
+           & "<register xmlns='http://jabber.org/features/iq-register'/>"
+           & "</stream:features>");
+
       Buffered.Flush (Sock.all);
 
-      if Counter = 5 then
-         State := 5;
-         goto Shutdown_Task;
-      end if;
+      loop
+         declare
+            Got_Message : constant String := Buffered.Get_Line (Sock.all);
+         begin
+            if Verbose then
+               Text_IO.New_Line;
+               Text_IO.Put_Line ("############# Client :: ["
+                                   & Got_Message & "]");
+            end if;
 
-      declare
-         Got_Message : constant String := Buffered.Get_Line (Sock.all);
-      begin
-         if Verbose then
-            Text_IO.New_Line;
-            Text_IO.Put_Line ("Message is [" & Got_Message & "]");
-         end if;
-      end;
+            if Strings.Fixed.Index (Got_Message, "PLAIN") /= 0 then
+               --  Client authentication (in PLAIN mode)
+               --  Return success
 
-      State := 6;
+               Buffered_Put_Line
+                 (Sock.all,
+                  "<success xmlns='urn:ietf:params:xml:ns:xmpp-sasl'/>");
+               Buffered.Flush (Sock.all);
+            elsif Strings.Fixed.Index (Got_Message, "<stream:stream") /= 0 then
+               --  Client create new stream
+               --  Return supported features
 
-      <<Shutdown_Task>>
+               Buffered_Put_Line
+                 (Sock.all,
+                  "<?xml version='1.0'?><stream:stream xmlns='jabber:client' "
+                    & "xmlns:stream='http://etherx.jabber.org/streams' "
+                    & "id='3EE948B0' from='127.0.0.1'"
+                    & " version='1.0' xml:lang='en'>"
+                    & "<stream:features>"
+                    & "<bind xmlns='urn:ietf:params:xml:ns:xmpp-bind'/>"
+                    & "<session xmlns='urn:ietf:params:xml:ns:xmpp-session'/>"
+                    & "</stream:features>");
+               Buffered.Flush (Sock.all);
 
-      delay 2.0; --  Wait for jabber client timeout
+            elsif Strings.Fixed.Index (Got_Message,
+                                       "<iq type='set' id='bind") /= 0
+            then
+               --  Client's bind request
+               --  Return bind result
+
+               Buffered_Put_Line
+                 (Sock.all,
+                  "<iq id='bind_1' type='result'>"
+                    & "<bind xmlns='urn:ietf:params:xml:ns:xmpp-bind'>"
+                    & "<jid>user@192.168.1.4/Resource</jid></bind></iq>");
+               Buffered.Flush (Sock.all);
+
+            elsif Strings.Fixed.Index (Got_Message,
+                                       "<iq type='set' id='sess") /= 0
+            then
+               --  Set session
+               Buffered_Put_Line
+                 (Sock.all,
+                  "<iq type='result' id='sess_1'>"
+                    & "<session "
+                    & "xmlns='urn:ietf:params:xml:ns:xmpp-session'/></iq>");
+               Buffered.Flush (Sock.all);
+
+            elsif Strings.Fixed.Index (Got_Message, "<presence") /= 0 then
+               Ada.Text_IO.Put_Line ("Success");
+               exit;
+            end if;
+         end;
+      end loop;
 
       Acceptors.Give_Back (Acceptor, Sock);
       Acceptors.Shutdown (Acceptor);
@@ -214,57 +196,32 @@ procedure Test_Jabber is
       Free (Sock);
 
    exception
-      when Socket_Error =>
+      when E : Socket_Error =>
+         Text_IO.Put_Line (Ada.Exceptions.Exception_Information (E));
          Shutdown (Sock.all);
          Free (Sock);
       when E : others =>
          Text_IO.Put_Line (Ada.Exceptions.Exception_Information (E));
    end Server_Task;
 
-   ---------
-   -- Run --
-   ---------
-
-   procedure Run is
-   begin
-      Get_Free_Port (Free_Port);
-
-      if Counter = 0 then
-         Test_Connection_Timeout : begin
-            --  Try Jabber.Connect to test connection timeout
-            Jabber.Connect (Server, "127.0.0.1", "user", "passwd", Free_Port);
-         exception
-            when Jabber.Server_Error =>
-               Text_IO.Put_Line (Natural'Image (State));
-               return;
-         end Test_Connection_Timeout;
-
-      elsif Counter >= 1 then
-         Test_Client_Timeouts : declare
-            Jabber_Server : Server_Task;
-         begin
-            Jabber_Server.Started;
-            --  Wait for the server to start
-
-            Jabber.Connect (Server, "127.0.0.1", "user", "passwd", Free_Port);
-
-            if Counter >= 4 then
-               Jabber.Send_Message
-                 (Server, "test@test.com", "subject", "content");
-            end if;
-         exception
-            when Jabber.Server_Error =>
-               Ada.Text_IO.Put_Line (Natural'Image (State));
-               return;
-         end Test_Client_Timeouts;
-      end if;
-
-      Text_IO.Put_Line ("ERROR !");
-   end Run;
-
 begin
-   for K in 1 .. 6 loop
-      Counter := K;
-      Run;
-   end loop;
+   Get_Free_Port (Free_Port);
+   Run : declare
+      Jabber_Server : Server_Task;
+   begin
+      Jabber_Server.Started;
+      --  Wait for the server to start
+
+      declare
+         Account : Jabber.Client.Account;
+      begin
+
+         Set_Host (Account, "127.0.0.1");
+         Set_Login_Information (Account, "user", "passwd");
+         Set_Authentication_Type (Account, Plain_Mechanism);
+         Set_Port (Account, Port (Free_Port));
+
+         Connect (Account);
+      end;
+   end Run;
 end Test_Jabber;
