@@ -138,11 +138,11 @@ package body AWS.Jabber.Client is
       Content      : in String) is
    begin
       Text_IO.Put_Line ("From :" & String (From));
-      if Message_Type = Message then
+      if Message_Type = M_Normal then
          Text_IO.Put_Line ("Subject: " & Subject);
-      else
-         Text_IO.Put_Line ("Content: " & Content);
       end if;
+
+      Text_IO.Put_Line ("Body: " & Content);
    end IO_Message;
 
    -----------------
@@ -515,6 +515,9 @@ package body AWS.Jabber.Client is
                procedure Get_Presence_Hook;
                --  Get the presence status and run the presence hook
 
+               procedure Get_Message_Hook;
+               --  Run the message hook
+
                procedure Digest_MD5_Authenticate is
                   procedure Next_Step;
                   --  Move Digest_MD5_Current_Step to next step
@@ -646,6 +649,32 @@ package body AWS.Jabber.Client is
                   end if;
                end Digest_MD5_Authenticate;
 
+               procedure Get_Message_Hook is
+                  Type_Value : constant String :=
+                                 Value (Message, "message.type");
+                  Get_Type   : Message_Type := M_Normal;
+
+               begin
+                  if Type_Value = "chat" then
+                     Get_Type := M_Chat;
+                  elsif Type_Value = "normal" then
+                     Get_Type := M_Normal;
+                  elsif Type_Value = "groupchat" then
+                     Get_Type := M_Group_Chat;
+                  elsif Type_Value = "headline" then
+                     Get_Type := M_Headline;
+                  elsif Type_Value = "error" then
+                     Get_Type := M_Error;
+                  end if;
+
+                  Account.Hooks.Message
+                    (From         => Jabber_ID
+                       (Value (Message, "message.from")),
+                     Message_Type => Get_Type,
+                     Subject      => Value (Message, "subject"),
+                     Content      => Value (Message, "body"));
+               end Get_Message_Hook;
+
                -----------------------
                -- Get_Presence_Hook --
                -----------------------
@@ -671,8 +700,8 @@ package body AWS.Jabber.Client is
 
                begin
                   Account.Hooks.Presence
-                     (From    => Jabber_ID (Value (Message, "presence.from")),
-                      Status  => Get_Status);
+                    (From    => Jabber_ID (Value (Message, "presence.from")),
+                     Status  => Get_Status);
                end Get_Presence_Hook;
 
                -----------
@@ -746,10 +775,12 @@ package body AWS.Jabber.Client is
                elsif Connection_Current_Step = Authentication then
                   Digest_MD5_Authenticate;
 
-               elsif Connection_Current_Step = Connected
-                 and then Message.Contains ("presence.from")
-               then
-                  Get_Presence_Hook;
+               elsif Connection_Current_Step = Connected then
+                  if Message.Contains ("presence.from") then
+                     Get_Presence_Hook;
+                  elsif Message.Contains ("message.from") then
+                     Get_Message_Hook;
+                  end if;
                end if;
             end Process;
 
