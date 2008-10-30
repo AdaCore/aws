@@ -175,7 +175,7 @@ package body AWS.Jabber.Client is
 
    procedure Set_Authentication_Type
      (Account   : in out Client.Account;
-      Auth_Type : in     Authentication_Type) is
+      Auth_Type : in     Authentication_Mechanism) is
    begin
       Account.Auth_Type := Auth_Type;
    end Set_Authentication_Type;
@@ -252,16 +252,12 @@ package body AWS.Jabber.Client is
       type Connection_Step is
         (Initialize_Connection, Get_Mechanism, Authentication, Connected);
 
-      --  type Supported_Mechansim is (Plain_Mechanism, Digest_Md5_Mechanism);
-      --  ??? Only Digest_Md5 is supported
-
-      type Digest_MD5_Step is
+      type Authentication_Step is
         (First_Challenge, Second_Challenge, Challenge_Result,
          Bind_Requirement, Get_Resource, Get_Ack_Session);
 
       Connection_Current_Step  : Connection_Step := Initialize_Connection;
-      Digest_MD5_Current_Step  : Digest_MD5_Step := First_Challenge;
-      --  Authentication_Mechanism : Supported_Mechansim;
+      Authentication_Current_Step  : Authentication_Step := First_Challenge;
 
       procedure Get_Message (XML : in String; Start, Stop : in out Positive);
       --  Returns Start and Stop where XML (Start .. Stop) is the next XML
@@ -529,14 +525,12 @@ package body AWS.Jabber.Client is
 
                   procedure Next_Step is
                   begin
-                     Digest_MD5_Current_Step :=
-                       Digest_MD5_Step'Succ (Digest_MD5_Current_Step);
+                     Authentication_Current_Step :=
+                       Authentication_Step'Succ (Authentication_Current_Step);
                   end Next_Step;
 
                begin
-                  Ada.Text_IO.Put_Line (Digest_MD5_Step'Image
-                                          (Digest_MD5_Current_Step));
-                  if Digest_MD5_Current_Step = First_Challenge and then
+                  if Authentication_Current_Step = First_Challenge and then
                     Contains (Message.all, "challenge")
                   then
                      Reply_Challenge : declare
@@ -559,7 +553,7 @@ package body AWS.Jabber.Client is
 
                      Next_Step;
 
-                  elsif Digest_MD5_Current_Step = Second_Challenge
+                  elsif Authentication_Current_Step = Second_Challenge
                     and then Contains (Message.all, "challenge")
                   then
                      --  If the authentication succeed, the server will send a
@@ -573,7 +567,7 @@ package body AWS.Jabber.Client is
                         & "xmlns='urn:ietf:params:xml:ns:xmpp-sasl'/>");
                      Next_Step;
 
-                  elsif Digest_MD5_Current_Step = Challenge_Result
+                  elsif Authentication_Current_Step = Challenge_Result
                     and then Contains (Message.all, "success")
                   then
                      --  At this point, the server inform the client
@@ -591,7 +585,7 @@ package body AWS.Jabber.Client is
                         & "version='1.0'>");
                      Next_Step;
 
-                  elsif Digest_MD5_Current_Step = Bind_Requirement
+                  elsif Authentication_Current_Step = Bind_Requirement
                     and then Contains (Message.all, "bind")
                   then
                      --  Server tells client that resource binding is required
@@ -616,7 +610,7 @@ package body AWS.Jabber.Client is
 
                      Next_Step;
 
-                  elsif Digest_MD5_Current_Step = Get_Resource
+                  elsif Authentication_Current_Step = Get_Resource
                     and then Contains (Message.all, "jid")
                   then
 
@@ -634,7 +628,7 @@ package body AWS.Jabber.Client is
                         & "</iq>");
                      Next_Step;
 
-                  elsif Digest_MD5_Current_Step = Get_Ack_Session
+                  elsif Authentication_Current_Step = Get_Ack_Session
                     and then Contains (Message.all, "session")
                   then
                      --  Send our presence, as this is an application and not a
@@ -716,19 +710,34 @@ package body AWS.Jabber.Client is
                      Supported_Mechanism : constant String :=
                                              Value (Message, "mechanism");
                   begin
-                     if Strings.Fixed.Index
-                       (Supported_Mechanism, "DIGEST-MD5") = 0 then
-                        --  The only supported authentication mechanism is not
-                        --  advertise by server.
-                        raise Server_Error
-                          with "DIGEST-MD5 is not supported by server";
-                     end if;
-
-                     --  Force DIGEST-MD5
-                     --  Authentication_Mechanism := Digest_Md5_Mechanism;
-                     XMPP_Send (Account,
+                     if (Account.Auth_Type = More_Secure_Mechanism
+                         or else Account.Auth_Type = Digest_Md5_Mechanism)
+                       and then Strings.Fixed.Index
+                         (Supported_Mechanism, "DIGEST-MD5") /= 0
+                     then
+                        XMPP_Send
+                          (Account,
                            "<auth xmlns='urn:ietf:params:xml:ns:xmpp-sasl' "
                            & "mechanism='DIGEST-MD5'/>");
+                     elsif (Account.Auth_Type = More_Secure_Mechanism
+                            or else Account.Auth_Type = Plain_Mechanism)
+                       and then Strings.Fixed.Index
+                         (Supported_Mechanism, "PLAIN") /= 0
+                     then
+                        XMPP_Send
+                          (Account,
+                           "<auth xmlns='urn:ietf:params:xml:ns:xmpp-sasl' "
+                           & "mechanism='PLAIN'>" &
+                           AWS.Translator.Base64_Encode
+                             (ASCII.NUL & To_String (Account.User.Name)
+                              & ASCII.NUL & To_String (Account.User.Password))
+                           & "</auth>");
+                        --  Go directly to challenge result step
+                        Authentication_Current_Step := Challenge_Result;
+                     else
+                        raise Server_Error
+                          with "Mechanism is not supported by server";
+                     end if;
                   end Check_Mecanism;
 
                   Connection_Current_Step :=

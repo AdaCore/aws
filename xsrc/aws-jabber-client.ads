@@ -43,7 +43,11 @@ package AWS.Jabber.Client is
    type Port is new Positive;
    Default_Port : Port := 5222;
 
-   type Authentication_Type is (More_Secure, Digest, PLAIN);
+   type Authentication_Mechanism
+     is (More_Secure_Mechanism, Digest_Md5_Mechanism, Plain_Mechanism);
+   --  Select PLAIN or DIGEST_MD5
+   --  if More_Secure_Mechanism choose DIGEST_MD5 but fallback to PLAIN if
+   --  DIGEST_MD5 is not supported
 
    type Jabber_ID is new String;
 
@@ -91,8 +95,9 @@ package AWS.Jabber.Client is
       Password : in     String;
       Resource : in     String := "");
 
-   procedure Set_Authentication_Type (Account   : in out Client.Account;
-                                      Auth_Type : in      Authentication_Type);
+   procedure Set_Authentication_Type
+     (Account   : in out Client.Account;
+      Auth_Type : in      Authentication_Mechanism);
 
    procedure Connect (Account : in out Client.Account);
    --  Connect to the jabber server
@@ -158,7 +163,7 @@ private
       Sock             : Net.Socket_Access;
       Is_Running       : Boolean := False;
       SID              : Unbounded_String;
-      Auth_Type        : Authentication_Type := More_Secure;
+      Auth_Type        : Authentication_Mechanism := More_Secure_Mechanism;
       Hooks            : Jabber_Hooks;
    end record;
 end AWS.Jabber.Client;
