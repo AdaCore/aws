@@ -581,7 +581,9 @@ package body AWS.Jabber is
             end if;
          end Message_Suffix;
 
-         XML_Message : aliased String := XML & Message_Suffix;
+         XML_Message : aliased String := "<stream:stream xmlns='jabber:client'"
+           & " xmlns:stream='http://etherx.jabber.org/streams'>"
+           & XML & Message_Suffix & "</stream:stream>";
 
          Source      : String_Input;
          Reader      : Tree_Reader;
@@ -605,11 +607,6 @@ package body AWS.Jabber is
          --  Add message into the Mailbox
 
          Server.MB.Add (Reader.R);
-
-      exception
-         when others =>
-            --  Let's release the message here
-            Release (Reader.R);
       end Parse_Message;
 
    begin
