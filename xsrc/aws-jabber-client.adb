@@ -694,7 +694,12 @@ package body AWS.Jabber.Client is
                      if Presence_Type = "error" then
                         return Presence_Type;
                      else
-                        return Value (Message, "presence.show");
+                        if Message.Contains ("presence.show") then
+                           return Value (Message, "presence.show");
+                        else
+                           --  Default is online
+                           return "Online";
+                        end if;
                      end if;
                   end Get_Status;
 
