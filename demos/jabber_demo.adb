@@ -38,6 +38,12 @@ procedure Jabber_Demo is
    use Ada.Strings.Unbounded;
    use AWS.Jabber.Client;
 
+   Chat_Command : constant String := "/msg";
+
+   procedure Chat
+     (Account : in AWS.Jabber.Client.Account; Command : in String);
+   --  Parse and execute the chat command
+
    procedure Parse_Command_Line;
    --  Parse the command line argument and set the variable below
 
@@ -47,6 +53,31 @@ procedure Jabber_Demo is
    Host   : Unbounded_String;
    Login  : Unbounded_String;
    Pwd    : Unbounded_String;
+
+   ----------
+   -- Chat --
+   ----------
+
+   procedure Chat
+     (Account : in AWS.Jabber.Client.Account;
+      Command : in String) is
+      Sent : Boolean := False;
+   begin
+      Parse_Command : for K in Command'Range loop
+         if Command (K) = ' ' then
+            Send (Account => Account,
+                  JID     => Jabber_ID (Command (Command'First .. K - 1)),
+                  Content => Command (K + 1 .. Command'Last));
+            Sent := True;
+            exit Parse_Command;
+         end if;
+      end loop Parse_Command;
+
+      if not Sent then
+         --  Invalid line !
+         Text_IO.Put_Line ("Can't parse line");
+      end if;
+   end Chat;
 
    -------------------
    -- Display_Usage --
@@ -109,7 +140,6 @@ begin
 
    Jabber_Session : declare
       Account : AWS.Jabber.Client.Account;
-
    begin
       Set_Host (Account, To_String (Host));
       Set_Login_Information (Account,
@@ -118,13 +148,26 @@ begin
       Connect (Account);
 
       Text_IO.Put_Line ("Type /help for help");
-      loop
+      Main_Loop : loop
          Process_Line : declare
-            Line : constant String := Text_IO.Get_Line;
+            Line         : constant String := Text_IO.Get_Line;
          begin
-            exit when Line = "/quit";
+            if Line (Line'First ..
+                       Line'First + Chat_Command'Length - 1)
+                = Chat_Command then
+               Chat (Account,
+                     Line (Line'First + Chat_Command'Length + 1 .. Line'Last));
+            elsif Line = "/help" then
+               Text_IO.Put_Line ("Type /msg user@server A chat message");
+               Text_IO.Put_Line ("     to send a message to user@server");
+               Text_IO.Put_Line ("Type /quit to quit");
+            elsif Line = "/quit" then
+               exit Main_Loop;
+            else
+               Text_IO.Put_Line ("Error can't parse line");
+            end if;
          end Process_Line;
-      end loop;
+      end loop Main_Loop;
 
       Text_IO.Put_Line ("Closing");
 
