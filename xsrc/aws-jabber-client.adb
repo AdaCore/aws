@@ -596,12 +596,24 @@ package body AWS.Jabber.Client is
                   then
                      --  Server tells client that resource binding is required
 
-                     --  Request a new resource
-                     XMPP_Send
-                       (Account,
-                        "<iq type='set' id='bind_1'>"
-                        & "<bind xmlns='urn:ietf:params:xml:ns:xmpp-bind'/>"
-                        & "</iq>");
+                     --  Request a resource or ask for the desired resource
+
+                     if Account.User.Resource /= "" then
+                        XMPP_Send
+                          (Account,
+                           "<iq type='set' id='bind_2'>"
+                           & "<bind xmlns='urn:ietf:params:xml:ns:xmpp-bind'>"
+                           & "<resource>"
+                           & To_String (Account.User.Resource)
+                           & "</resource></bind></iq>");
+                     else
+                        XMPP_Send
+                          (Account,
+                           "<iq type='set' id='bind_1'>"
+                           & "<bind xmlns='urn:ietf:params:xml:ns:xmpp-bind'/>"
+                           & "</iq>");
+                     end if;
+
                      Next_Step;
 
                   elsif Digest_MD5_Current_Step = Get_Resource
