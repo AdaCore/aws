@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2002-2007                          --
---                                 AdaCore                                  --
+--                    Copyright (C) 2002-2008, AdaCore                      --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -39,8 +38,7 @@ package AWS.Jabber is
    --  Connect below and is used with all services.
 
    Default_Port : constant := 5222;
-   --  Standard Jabber Server default port is 5222. The SSL based connection
-   --  port is 5223 but this is not supported by this API.
+   --  Standard Jabber Server default port is 5222
 
    Server_Error : exception;
    --  Raised by any routine below when an server or protocol error occurs. A
@@ -60,7 +58,7 @@ package AWS.Jabber is
    --  returns the Server object which can be used with services below.
 
    procedure Close (Server : in out Jabber.Server);
-   --  Close the connection with the Jabber server.
+   --  Close the connection with the Jabber server
 
    procedure Send_Message
      (Server  : in Jabber.Server;
@@ -77,7 +75,7 @@ package AWS.Jabber is
      (Server : in     Jabber.Server;
       JID    : in     String;
       Status :    out Presence_Status);
-   --  Returns the presence status for JID.
+   --  Returns the presence status for JID
 
 private
    --  Jabber Client and Server open a stream and both communicate with each
