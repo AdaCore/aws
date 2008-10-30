@@ -58,7 +58,9 @@ package AWS.Jabber.Client is
    --  Returns a Jabber ID (username@server/resource)
 
    --  Jabber Hook
-   type Message_Type is (Chat, Message);
+
+   type Message_Type is
+     (M_Chat, M_Normal, M_Group_Chat, M_Headline, M_Error);
 
    type Message_Hook is not null access procedure
      (From         : in Jabber_ID;
