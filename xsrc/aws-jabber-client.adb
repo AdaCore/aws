@@ -39,9 +39,9 @@ with AWS.Utils;
 with Input_Sources.Strings;
 with Sax.Attributes;
 with Sax.Readers;
-with SHA.Process_Data;
-with SHA.Strings;
 with Unicode.CES.Basic_8bit;
+
+with AWS.Jabber.Digest_Md5;
 
 package body AWS.Jabber.Client is
 
@@ -118,7 +118,7 @@ package body AWS.Jabber.Client is
          "<?xml version='1.0' encoding='UTF-8' ?>"
          & "<stream:stream to=" & Utils.Quote (To_String (Account.Host))
          & " xmlns='jabber:client'"
-         & " xmlns:stream='http://etherx.jabber.org/streams'>");
+         & " xmlns:stream='http://etherx.jabber.org/streams' version='1.0'>");
 
    exception
       when E : others =>
@@ -241,6 +241,20 @@ package body AWS.Jabber.Client is
    ---------------------
 
    task body Incoming_Stream is
+
+      type Connection_Step is
+        (Initialize_Connection, Get_Mechanism, Authentication, Connected);
+
+      --  type Supported_Mechansim is (Plain_Mechanism, Digest_Md5_Mechanism);
+      --  ??? Only Digest_Md5 is supported
+
+      type Digest_MD5_Step is
+        (First_Challenge, Second_Challenge, Challenge_Result,
+         Bind_Requirement, Get_Resource, Get_Ack_Session);
+
+      Connection_Current_Step  : Connection_Step := Initialize_Connection;
+      Digest_MD5_Current_Step  : Digest_MD5_Step := First_Challenge;
+      --  Authentication_Mechanism : Supported_Mechansim;
 
       procedure Get_Message (XML : in String; Start, Stop : in out Positive);
       --  Returns Start and Stop where XML (Start .. Stop) is the next XML
@@ -409,6 +423,8 @@ package body AWS.Jabber.Client is
          begin
             if XML (XML'First .. XML'First + 13) = "<stream:stream" then
                return "</stream:stream>";
+            elsif XML (XML'First .. XML'First + 15) = "<stream:features" then
+               return "</stream:features>";
             else
                return "";
             end if;
@@ -464,9 +480,6 @@ package body AWS.Jabber.Client is
 
                Handler.Key   := Null_Unbounded_String;
                Handler.Value := Null_Unbounded_String;
-            exception
-               when others =>
-                  null;
             end End_Element;
 
             --------------------------
@@ -488,9 +501,7 @@ package body AWS.Jabber.Client is
               (Account  : in out Client.Account;
                Message  : in     XMPP_Message_Access)
             is
-               function Digest (Password : in String) return String;
-               --  Returns password's digest for the Jabber authentication.
-               --  This is the Base64 encoded SHA password's signature.
+               procedure Digest_MD5_Authenticate;
 
                function Value
                  (M   : in XMPP_Message_Access;
@@ -501,16 +512,122 @@ package body AWS.Jabber.Client is
                procedure Get_Presence_Hook;
                --  Get the presence status and run the presence hook
 
-               ------------
-               -- Digest --
-               ------------
+               procedure Digest_MD5_Authenticate is
+                  procedure Next_Step;
+                  --  Move Digest_MD5_Current_Step to next step
 
-               function Digest (Password : in String) return String is
+                  ---------------
+                  -- Next_Step --
+                  ---------------
+
+                  procedure Next_Step is
+                  begin
+                     Digest_MD5_Current_Step :=
+                       Digest_MD5_Step'Succ (Digest_MD5_Current_Step);
+                  end Next_Step;
+
                begin
-                  return String
-                    (SHA.Strings.Hex_From_SHA
-                       (SHA.Process_Data.Digest_A_String (Password)));
-               end Digest;
+                  Ada.Text_IO.Put_Line (Digest_MD5_Step'Image
+                                          (Digest_MD5_Current_Step));
+                  if Digest_MD5_Current_Step = First_Challenge and then
+                    Contains (Message.all, "challenge")
+                  then
+                     Reply_Challenge : declare
+                        Challenge  : constant Digest_Md5.Challenge :=
+                                       Digest_Md5.Decode_Challenge
+                                         (Value (Message, "challenge"));
+                     begin
+                        XMPP_Send
+                          (Account,
+                           "<response "
+                           & "xmlns='urn:ietf:params:xml:ns:xmpp-sasl'>"
+                           & Digest_Md5.Reply_Challenge
+                             (Username => To_String (Account.User),
+                              Realm    => To_String (Challenge.Realm),
+                              Password => To_String (Account.Password),
+                              Host     => To_String (Account.Host),
+                              Nonce    => To_String (Challenge.Nonce))
+                           & "</response>");
+                     end Reply_Challenge;
+
+                     Next_Step;
+
+                  elsif Digest_MD5_Current_Step = Second_Challenge
+                    and then Contains (Message.all, "challenge")
+                  then
+                     --  If the authentication succeed, the server will send a
+                     --  final challenge that contain a single directive
+                     --  "rspauth" base64 encoded. This directive is ignored.
+                     --  Simply return an empty response
+
+                     XMPP_Send
+                       (Account,
+                        "<response "
+                        & "xmlns='urn:ietf:params:xml:ns:xmpp-sasl'/>");
+                     Next_Step;
+
+                  elsif Digest_MD5_Current_Step = Challenge_Result
+                    and then Contains (Message.all, "success")
+                  then
+                     --  At this point, the server inform the client
+                     --  of successful authentication, with:
+                     --  <success xmlns='urn:ietf:params:xml:ns:xmpp-sasl'/>
+
+                     --  Start a new stream
+
+                     XMPP_Send
+                       (Account,
+                        "<stream:stream "
+                        &  "xmlns:stream='http://etherx.jabber.org/streams' "
+                        & "xmlns='jabber:client' "
+                        & "to='" & To_String (Account.Host) & "' "
+                        & "version='1.0'>");
+                     Next_Step;
+
+                  elsif Digest_MD5_Current_Step = Bind_Requirement
+                    and then Contains (Message.all, "bind")
+                  then
+                     --  Server tells client that resource binding is required
+
+                     --  Request a new resource
+                     XMPP_Send
+                       (Account,
+                        "<iq type='set' id='bind_1'>"
+                        & "<bind xmlns='urn:ietf:params:xml:ns:xmpp-bind'/>"
+                        & "</iq>");
+                     Next_Step;
+
+                  elsif Digest_MD5_Current_Step = Get_Resource
+                    and then Contains (Message.all, "jid")
+                  then
+                     --  Server sent the generated (or requested) resource
+                     --  The client must now request an IM session
+
+                     XMPP_Send
+                       (Account,
+                        "<iq type='set' id='sess_1'>"
+                        & "<session "
+                        & "xmlns='urn:ietf:params:xml:ns:xmpp-session'/>"
+                        & "</iq>");
+                     Next_Step;
+
+                  elsif Digest_MD5_Current_Step = Get_Ack_Session
+                    and then Contains (Message.all, "session")
+                  then
+                     --  Send our presence, as this is an application and not a
+                     --  real user we send an initial dnd (Do Not Disturb)
+                     --  status.
+
+                     XMPP_Send (Account,
+                           "<presence from='" & To_String (Account.User)
+                           & "@" & To_String (Account.Host) & "' id='ja_pres'>"
+                           & "<show>dnd</show>"
+                           & "<status>AWS Project</status>"
+                           & "</presence>");
+                     Connection_Current_Step := Connected;
+
+                  end if;
+               end Digest_MD5_Authenticate;
 
                -----------------------
                -- Get_Presence_Hook --
@@ -562,87 +679,43 @@ package body AWS.Jabber.Client is
                end Value;
 
             begin
-               if Account.Connection_State = Initialize_Connection then
+               if Connection_Current_Step = Initialize_Connection then
+
                   --  Get Session Id from the stream element
                   Account.SID := To_Unbounded_String
                     (Value (Message, "stream.id"));
+                  Connection_Current_Step :=
+                    Connection_Step'Succ (Connection_Current_Step);
 
-                  --  Authentication phase using jabber:iq:auth method
-                  XMPP_Send
-                    (Account,
-                     "<iq xmlns='jabber:client' type='get' id='ja_auth'>"
-                     & " <query xmlns='jabber:iq:auth'>"
-                     & "    <username>"
-                     & To_String (Account.User)
-                     & "</username>"
-                     & "</query>"
-                     & "</iq>");
-                  Account.Connection_State := Start_Authentication;
-               elsif Account.Connection_State = Start_Authentication
-                 and then (Message.Contains ("digest") or else
-                             Message.Contains ("password"))
+               elsif Connection_Current_Step = Get_Mechanism
+                 and then Message.Contains ("mechanism")
                then
-                  --  Check which kind of authentication is supported
-                  if (Account.Auth_Type = More_Secure
-                      or else Account.Auth_Type = Digest)
-                    and then Message.Contains (Key => "digest")
-                  then
-                     --  Digest authentication supported, this is the
-                     --  prefered method if supported to avoid sending the
-                     --  password in plain ASCII over the Internet.
+                  Check_Mecanism : declare
+                     Supported_Mechanism : constant String :=
+                                             Value (Message, "mechanism");
+                  begin
+                     if Strings.Fixed.Index
+                       (Supported_Mechanism, "DIGEST-MD5") = 0 then
+                        --  The only supported authentication mechanism is not
+                        --  advertise by server.
+                        raise Server_Error
+                          with "DIGEST-MD5 is not supported by server";
+                     end if;
 
-                     XMPP_Send
-                       (Account,
-                        "<iq xmlns='jabber:client' "
-                        & "type='set' id='ja_shaauth'>"
-                        & " <query xmlns='jabber:iq:auth'>"
-                        & "    <username>"
-                        & To_String (Account.User)
-                        & "</username>"
-                        & "    <digest>"
-                        & Digest (To_String (Account.SID))
-                        & To_String (Account.Password)
-                        & "</digest>"
-                        & "    <resource>AWS_Jabber</resource>"
-                        & "</query>"
-                        & "</iq>");
+                     --  Force DIGEST-MD5
+                     --  Authentication_Mechanism := Digest_Md5_Mechanism;
+                     XMPP_Send (Account,
+                           "<auth xmlns='urn:ietf:params:xml:ns:xmpp-sasl' "
+                           & "mechanism='DIGEST-MD5'/>");
+                  end Check_Mecanism;
 
-                  elsif (Account.Auth_Type = More_Secure
-                         or else Account.Auth_Type = PLAIN)
-                    and then Contains (Message.all, "password")
-                  then
-                     --  Plain authentication supported, use this one if
-                     --  digest is not supported by the server.
+                  Connection_Current_Step :=
+                    Connection_Step'Succ (Connection_Current_Step);
 
-                     XMPP_Send
-                       (Account,
-                        "<iq xmlns='jabber:client' type='set' id='ja_sauth'>"
-                        & " <query xmlns='jabber:iq:auth'>"
-                        & "    <username>"
-                        & To_String (Account.User)
-                        & "</username>"
-                        & "    <password>"
-                        & To_String (Account.Password)
-                        & "</password>"
-                        & "    <resource>Exodus</resource>"
-                        & "</query>"
-                        & "</iq>");
+               elsif Connection_Current_Step = Authentication then
+                  Digest_MD5_Authenticate;
 
-                     --  Send our presence, as this is an application and
-                     --  not a real user we send an initial dnd (Do Not
-                     --  Disturb) status.
-                     XMPP_Send
-                       (Account,
-                        "<presence from='"
-                        & To_String (Account.User) & '@'
-                        & To_String (Account.Host)
-                        & "' id='ja_pres'>"
-                        & "<show>dnd</show>"
-                        & "<status>AWS Project</status>"
-                        & "</presence>");
-                     Account.Connection_State := Connected;
-                  end if;
-               elsif Account.Connection_State = Connected
+               elsif Connection_Current_Step = Connected
                  and then Message.Contains ("presence.from")
                then
                   Get_Presence_Hook;
@@ -693,7 +766,7 @@ package body AWS.Jabber.Client is
          end XMPP_Parser;
 
          XML_Message : aliased String := "<stream:stream xmlns='jabber:client'"
-           & " xmlns:stream='http://etherx.jabber.org/streams'>"
+           & " xmlns:stream='http://etherx.jabber.org/streams' version='1.0'>"
            & XML & Message_Suffix & "</stream:stream>";
 
          Source      : String_Input;
