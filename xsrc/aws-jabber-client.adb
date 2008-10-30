@@ -63,9 +63,7 @@ package body AWS.Jabber.Client is
 
          XMPP_Send (Account,
                     "<presence type='unavailable' from='"
-                    & To_String (Account.User)
-                    & '@'
-                    & To_String (Account.Host) & "'/>");
+                    & To_String (Account.User.JID) & "'/>");
 
          --  Send closing stream element
 
@@ -139,7 +137,7 @@ package body AWS.Jabber.Client is
       Subject      : in String;
       Content      : in String) is
    begin
-      Text_IO.Put_Line ("From :" & To_String (From));
+      Text_IO.Put_Line ("From :" & String (From));
       if Message_Type = Message then
          Text_IO.Put_Line ("Subject: " & Subject);
       else
@@ -155,7 +153,7 @@ package body AWS.Jabber.Client is
      (From    : in Jabber_ID;
       Status  : in String) is
    begin
-      Text_IO.Put_Line (To_String (From) & " is " & Status);
+      Text_IO.Put_Line (String (From) & " is " & Status);
    end IO_Presence;
 
    ----------
@@ -199,11 +197,13 @@ package body AWS.Jabber.Client is
 
    procedure Set_Login_Information
      (Account   : in out Client.Account;
-      User      : in     String;
-      Password  : in     String) is
+      User     : in     String;
+      Password : in     String;
+      Resource : in     String := "") is
    begin
-      Account.User := To_Unbounded_String (User);
-      Account.Password := To_Unbounded_String (Password);
+      Account.User.Name     := To_Unbounded_String (User);
+      Account.User.Password := To_Unbounded_String (Password);
+      Account.User.Resource := To_Unbounded_String (Resource);
    end Set_Login_Information;
 
    --------------
@@ -230,10 +230,17 @@ package body AWS.Jabber.Client is
    -- To_Jabber_ID --
    ------------------
 
-   function To_Jabber_ID (Username, Server : in String) return Jabber_ID is
-      JID : constant String := Username & "@" & Server;
+   function To_Jabber_ID
+     (Username : in String;
+      Server   : in String;
+      Resource : in String := "") return Jabber_ID is
    begin
-      return Jabber_ID (Strings.Unbounded.To_Unbounded_String (JID));
+      if Resource /= "" then
+         return Jabber_ID
+           (Username & '@' & Server & '/' & Resource);
+      else
+         return Jabber_ID (Username & '@' & Server);
+      end if;
    end To_Jabber_ID;
 
    ---------------------
@@ -542,9 +549,9 @@ package body AWS.Jabber.Client is
                            "<response "
                            & "xmlns='urn:ietf:params:xml:ns:xmpp-sasl'>"
                            & Digest_Md5.Reply_Challenge
-                             (Username => To_String (Account.User),
+                             (Username => To_String (Account.User.Name),
                               Realm    => To_String (Challenge.Realm),
-                              Password => To_String (Account.Password),
+                              Password => To_String (Account.User.Password),
                               Host     => To_String (Account.Host),
                               Nonce    => To_String (Challenge.Nonce))
                            & "</response>");
@@ -600,6 +607,10 @@ package body AWS.Jabber.Client is
                   elsif Digest_MD5_Current_Step = Get_Resource
                     and then Contains (Message.all, "jid")
                   then
+
+                     Account.User.JID := To_Unbounded_String
+                       (Value (Message, "jid"));
+
                      --  Server sent the generated (or requested) resource
                      --  The client must now request an IM session
 
@@ -619,8 +630,8 @@ package body AWS.Jabber.Client is
                      --  status.
 
                      XMPP_Send (Account,
-                           "<presence from='" & To_String (Account.User)
-                           & "@" & To_String (Account.Host) & "' id='ja_pres'>"
+                           "<presence from='" & To_String (Account.User.JID)
+                           & "' id='ja_pres'>"
                            & "<show>dnd</show>"
                            & "<status>AWS Project</status>"
                            & "</presence>");
@@ -654,8 +665,7 @@ package body AWS.Jabber.Client is
 
                begin
                   Account.Hooks.Presence
-                     (From    => To_Unbounded_String
-                        (Value (Message, "presence.from")),
+                     (From    => Jabber_ID (Value (Message, "presence.from")),
                       Status  => Get_Status);
                end Get_Presence_Hook;
 
