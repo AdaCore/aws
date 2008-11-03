@@ -1,6 +1,7 @@
 """Extensions to the standard python logging system
 """
-from logging import *
+from logging import (addLevelName, StreamHandler, FileHandler,
+                     Filter, Formatter, getLogger)
 import sys, types
 
 
