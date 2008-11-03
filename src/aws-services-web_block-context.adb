@@ -38,6 +38,13 @@ package body AWS.Services.Web_Block.Context is
    ----------
 
    function Copy (CID : in Id) return Id is
+      New_CID : constant Id := Create;
+   begin
+      Copy (CID, New_CID);
+      return New_CID;
+   end Copy;
+
+   procedure Copy (CID : in Id; New_CID : in Id) is
 
       --   Note that we first copy the context into a vector and set the new
       --   context from it. This is because it is not possible to call
@@ -50,7 +57,6 @@ package body AWS.Services.Web_Block.Context is
       package CD_Vector is new Containers.Vectors (Positive, Context_Data);
       use CD_Vector;
 
-      New_CID : constant Id := Create;
       O       : Object := Get (New_CID);
       Data    : Vector;
 
@@ -95,8 +101,6 @@ package body AWS.Services.Web_Block.Context is
             Set_Value (O, To_String (D.Key), To_String (D.Value));
          end;
       end loop;
-
-      return New_CID;
    end Copy;
 
    ------------

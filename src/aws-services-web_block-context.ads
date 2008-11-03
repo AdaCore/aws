@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2007                            --
---                                 AdaCore                                  --
+--                     Copyright (C) 2007-2008, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -43,6 +42,9 @@ package AWS.Services.Web_Block.Context is
 
    function Create return Id;
    --  Create a new context and returns the corresponding Id
+
+   procedure Copy (CID : in Id; New_CID : in Id);
+   --  Copy a context
 
    function Copy (CID : in Id) return Id;
    --  Returns a new context which is a copy of CID

@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2007-2008                          --
---                                 AdaCore                                  --
+--                     Copyright (C) 2007-2008, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -37,9 +36,11 @@ package body AWS.Services.Web_Block.Registry is
 
    use Ada;
 
-   Internal_Context_Var : constant String := "=&= CTX_WB =&=";
-   Context_Var          : constant String := "CTX_WB";
-   Context_Var_To_Copy  : constant String := "CTX_WB_COPY";
+   Internal_Context_Var     : constant String := "=&= CTX_WB =&=";
+   Internal_Context_Var_Old : constant String := "=&= CTX_OLD_WB =&=";
+   Context_Var              : constant String := "CTX_WB";
+   Context_Var_Old          : constant String := "CTX_OLD_WB";
+   Context_Var_To_Copy      : constant String := "CTX_WB_COPY";
 
    type Lazy_Handler is new Templates.Dynamic.Lazy_Tag with record
       Request      : aliased Status.Data;
@@ -79,6 +80,7 @@ package body AWS.Services.Web_Block.Registry is
 
    type Context_Data is record
       Id     : Context.Id;
+      Old_Id : Context.Id;
       Is_New : Boolean;
    end record;
 
@@ -178,20 +180,30 @@ package body AWS.Services.Web_Block.Registry is
             --  No context sent with the request, create a new context for
             --  this request.
 
-            CID := (Id => Create_New_Context, Is_New => True);
-
+            CID.Id     := Create_New_Context;
+            CID.Is_New := True;
+            CID.Old_Id := Context.Copy (CID.Id);
+            Status.Set.Add_Parameter
+              (Request.all, Internal_Context_Var_Old,
+               Context.Image (CID.Old_Id));
          else
             --  A context has been sent with this request
 
             declare
-               C_Str : constant String :=
-                         Parameters.Get
-                           (Status.Parameters (Request.all), Context_Var);
+               C_Str     : constant String :=
+                             Parameters.Get (Status.Parameters (Request.all),
+                                             Context_Var);
+               Old_C_Str : constant String :=
+                             Parameters.Get (Status.Parameters (Request.all),
+                                             Context_Var_Old);
+
             begin
                --  First check that it is a known context (i.e. still a valid
                --  context recorded in the context database).
 
-               CID := (Id => Context.Value (C_Str), Is_New => False);
+               CID.Id     := Context.Value (C_Str);
+               CID.Old_Id := Context.Value (Old_C_Str);
+               CID.Is_New := False;
 
                if Context.Exist (CID.Id) then
                   --  This context is known, record it as the current
@@ -203,20 +215,48 @@ package body AWS.Services.Web_Block.Registry is
                   then
                      --  This context must be copied
 
-                     CID.Id := Context.Copy (CID.Id);
+                     Copy_Context : declare
+                        New_Id : Context.Id;
+                        --  Create a new context
+                     begin
+                        New_Id := Context.Copy (CID.Id);
+
+                        --  Discard last modification to CID.Id
+                        --  We want to revert the previous action in old
+                        --  context as the context can be referenced in another
+                        --  page which has no knowlegde of this new status.
+                        Context.Copy (CID.Old_Id, CID.Id);
+
+                        --  Return the new context and create a new old context
+                        CID.Id     := New_Id;
+                        CID.Old_Id := Context.Copy (New_Id);
+
+                        Status.Set.Add_Parameter
+                          (Request.all, Internal_Context_Var,
+                           Context.Image (CID.Id));
+                        Status.Set.Add_Parameter
+                          (Request.all, Internal_Context_Var_Old,
+                           Context.Image (CID.Old_Id));
+                     end Copy_Context;
+
+                  else
+                     --  Returns the current working context
+                     --  Creates a copy in old_context
+
+                     Context.Copy (CID.Id, CID.Old_Id);
 
                      Status.Set.Add_Parameter
-                       (Request.all, Internal_Context_Var,
-                        Context.Image (CID.Id));
-                  else
-                     Status.Set.Add_Parameter
                        (Request.all, Internal_Context_Var, C_Str);
+                     Status.Set.Add_Parameter
+                       (Request.all, Internal_Context_Var_Old, Old_C_Str);
                   end if;
 
                else
                   --  Unknown or expired context, create a new one
 
-                  CID := (Id => Create_New_Context, Is_New => True);
+                  CID.Id     := Create_New_Context;
+                  CID.Old_Id := Context.Copy (CID.Id);
+                  CID.Is_New := True;
                end if;
             end;
          end if;
@@ -235,6 +275,10 @@ package body AWS.Services.Web_Block.Registry is
                     (Parameters.Get
                        (Status.Parameters
                           (Request.all), Internal_Context_Var)),
+                    Old_Id => Context.Value
+                      (Parameters.Get
+                         (Status.Parameters
+                            (Request.all), Internal_Context_Var_Old)),
                     Is_New => False);
          else
             --  In this case the context variable in the Web page has not been
@@ -251,6 +295,10 @@ package body AWS.Services.Web_Block.Registry is
                     (Parameters.Get
                        (Status.Parameters
                           (Request.all), Internal_Context_Var)),
+                    Old_Id => Context.Value
+                      (Parameters.Get
+                         (Status.Parameters
+                            (Request.all), Internal_Context_Var_Old)),
                     Is_New => True);
          end if;
       end if;
@@ -438,6 +486,12 @@ package body AWS.Services.Web_Block.Registry is
             Templates.Assoc
               (Context_Var,
                Context.Image (Get_Context (Lazy_Tag.Request'Access).Id)));
+
+         Templates.Insert
+           (Translations,
+            Templates.Assoc
+              (Context_Var_Old,
+               Context.Image (Get_Context (Lazy_Tag.Request'Access).Old_Id)));
       else
          --  Get Web Object
 
