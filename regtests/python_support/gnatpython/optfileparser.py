@@ -6,6 +6,7 @@ test.opt files as documented in AdaCore procedures.
 
 import re
 import logging
+import os.path
 
 OPTLINE_REGEXPS = re.compile("^([^\s]+)(\s+([a-zA-Z0-9_-]+)(\s+(.*))?)?$")
 # Regexp that matches valid lines in test.opt files
@@ -47,6 +48,7 @@ class OptFileParse(object):
         # Append 'all' to system tags
         if not 'all' in system_tags:
             self.system_tags.append ('all')
+
         self.is_dead = False
         self.__note = None
         self.__enable_note = False
@@ -67,8 +69,6 @@ class OptFileParse(object):
           by default the query will return '' if there is no entry for the
           selected command.
         """
-        if default_value is None:
-            default_value = ''
 
         cmd = cmd.lower()
 
@@ -82,6 +82,28 @@ class OptFileParse(object):
             return self.__matches[cmd][ARG]
         else:
             return default_value
+
+    def get_values (self, default_values):
+        """Query on the parsing result
+
+        PARAMETERS
+          default_value: a dictionnary for which keys are the commands on
+                         which we do the query and the associated value
+                         the default values.
+
+        RETURN VALUE
+          a dictionnary containing the resulting value for each command
+
+        REMARKS
+          Doing get_values ({'CMD' : 'test.cmd', 'OUT' : 'test.out'}) is
+          equivalent to do get_value ('CMD', 'test.cmd') and then
+          get_value ('OUT', 'test.out')
+        """
+
+        result = {}
+        for key in default_values:
+            result[key] = self.get_value (key, default_values[key])
+        return result
 
     def get_note (self):
         """Get the note
@@ -184,24 +206,25 @@ class OptFileParse(object):
         return True
 
     def __parse_file(self, filename):
-        optfile = open(filename, "r")
-        for line in optfile:
-            self.__process_opt_line(line)
+        if os.path.isfile (filename):
+            optfile = open(filename, "r")
+            for line in optfile:
+                self.__process_opt_line(line)
 
-        if self.__matches.has_key ('required'):
-            self.__matches['dead'] = self.__matches['required']
-            self.is_dead = True
-        elif self.__note is not None:
-            self.is_dead = False
-        elif self.__is_dead_cmd ('dead'):
-            self.is_dead = True
-        else:
-            self.is_dead = False
+            if self.__matches.has_key ('required'):
+                self.__matches['dead'] = self.__matches['required']
+                self.is_dead = True
+            elif self.__note is not None:
+                self.is_dead = False
+            elif self.__is_dead_cmd ('dead'):
+                self.is_dead = True
+            else:
+                self.is_dead = False
 
-        if (self.__note is not None and self.__note[OVERIDABLE]) \
-          or not self.__enable_note:
-            self.__note = None
-        optfile.close ()
+            if (self.__note is not None and self.__note[OVERIDABLE]) \
+                or not self.__enable_note:
+                self.__note = None
+            optfile.close ()
 
     def __str__ (self):
         result = ''

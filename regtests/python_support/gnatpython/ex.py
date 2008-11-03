@@ -22,8 +22,13 @@ class Run:
         """Spawn a process
 
         PARAMETERS
-          cmds:    command line arguments (list) or a list of command
-                   line arguments
+          cmds:    two possibilities:
+                   (1) a command line: a tool name and its arguments, passed
+                   in a list. e.g. ['ls', '-a', '.']
+                   (2) a list of command lines (as defined in (1)): the
+                   different commands will be piped. This means that
+                   [['ps', '-a'], ['grep', 'vxsim']] will be equivalent to
+                   the system command line 'ps -a | grep vxsim'.
           cwd :    directory in which the process should be executed (string
                    or None). If None then current directory is used
           output:  can be PIPE, a filename string, a fd on an already opened
@@ -118,12 +123,14 @@ class Run:
         if isinstance (self.output, str):
             if self.output[0] == '+':
                 self.stdout = open (self.output[1:], 'a+')
+                self.stdout.seek (0, 2)
             else:
                 self.stdout = open (self.output, 'w+')
 
         if isinstance (self.error, str):
             if self.error[0] == '+':
                 self.stderr = open (self.error[1:], 'a+')
+                self.stderr.seek (0, 2)
             else:
                 self.stderr = open (self.error, 'w+')
 
@@ -162,13 +169,19 @@ class Run:
         #self.internal.wait ()
 
         self.status = None
-        while self.status == None:
+        done = False
+        while not done:
+            if self.status is not None:
+                done = True
 
             if self.output == PIPE:
                 if self.stdin == PIPE:
                     self.out = self.comm[0]
                 else:
-                    tmp_out = self.internal.stdout.read (128)
+                    if done:
+                        tmp_out = self.internal.stdout.read ()
+                    else:
+                        tmp_out = self.internal.stdout.read (128)
                     logging.log (gnatpython.logging_util.RAW, tmp_out)
                     self.out += tmp_out
             else:
@@ -178,13 +191,17 @@ class Run:
                 if self.stdin == PIPE:
                     self.err = self.comm[0]
                 else:
-                    tmp_err = self.internal.stderr.read (128)
+                    if done:
+                        tmp_err = self.internal.stderr.read ()
+                    else:
+                        tmp_err = self.internal.stderr.read (128)
                     logging.log (gnatpython.logging_util.RAW, tmp_err)
                     self.err += tmp_err
             else:
                 self.err = ""
 
-            self.status = self.internal.poll ()
+            if self.status is None:
+                self.status = self.internal.poll ()
 
         self.__close_files ()
         return self.status
