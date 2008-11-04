@@ -42,6 +42,8 @@ with ZLib;
 
 package AWS.Client is
 
+   use Ada.Streams;
+
    Connection_Error : exception;
    --  Raised if the connection with the server cannot be established
 
@@ -120,6 +122,9 @@ package AWS.Client is
    subtype Header_List is Headers.List;
    Empty_Header_List : constant Header_List := Headers.Empty_List;
 
+   subtype Attachment_List is Attachments.List;
+   Empty_Attachment_List : constant Attachment_List := Attachments.Empty_List;
+
    function Get
      (URL                : in String;
       User               : in String          := No_Data;
@@ -181,31 +186,31 @@ package AWS.Client is
    function Post
      (URL          : in String;
       Data         : in String;
-      Content_Type : in String               := No_Data;
-      User         : in String               := No_Data;
-      Pwd          : in String               := No_Data;
-      Proxy        : in String               := No_Data;
-      Proxy_User   : in String               := No_Data;
-      Proxy_Pwd    : in String               := No_Data;
-      Timeouts     : in Timeouts_Values      := No_Timeout;
-      Attachments  : in AWS.Attachments.List := AWS.Attachments.Empty_List;
-      Headers      : in Header_List          := Empty_Header_List)
+      Content_Type : in String          := No_Data;
+      User         : in String          := No_Data;
+      Pwd          : in String          := No_Data;
+      Proxy        : in String          := No_Data;
+      Proxy_User   : in String          := No_Data;
+      Proxy_Pwd    : in String          := No_Data;
+      Timeouts     : in Timeouts_Values := No_Timeout;
+      Attachments  : in Attachment_List := Empty_Attachment_List;
+      Headers      : in Header_List     := Empty_Header_List)
       return Response.Data;
    --  Send to the server URL a POST request with Data
    --  Post will retry one time if it fails.
 
    function Post
      (URL          : in String;
-      Data         : in Ada.Streams.Stream_Element_Array;
-      Content_Type : in String               := No_Data;
-      User         : in String               := No_Data;
-      Pwd          : in String               := No_Data;
-      Proxy        : in String               := No_Data;
-      Proxy_User   : in String               := No_Data;
-      Proxy_Pwd    : in String               := No_Data;
-      Timeouts     : in Timeouts_Values      := No_Timeout;
-      Attachments  : in AWS.Attachments.List := AWS.Attachments.Empty_List;
-      Headers      : in Header_List          := Empty_Header_List)
+      Data         : in Stream_Element_Array;
+      Content_Type : in String          := No_Data;
+      User         : in String          := No_Data;
+      Pwd          : in String          := No_Data;
+      Proxy        : in String          := No_Data;
+      Proxy_User   : in String          := No_Data;
+      Proxy_Pwd    : in String          := No_Data;
+      Timeouts     : in Timeouts_Values := No_Timeout;
+      Attachments  : in Attachment_List := Empty_Attachment_List;
+      Headers      : in Header_List     := Empty_Header_List)
       return Response.Data;
    --  Idem as above but with binary data
 
@@ -213,14 +218,14 @@ package AWS.Client is
      (URL         : in String;
       Data        : in String;
       SOAPAction  : in String;
-      User        : in String               := No_Data;
-      Pwd         : in String               := No_Data;
-      Proxy       : in String               := No_Data;
-      Proxy_User  : in String               := No_Data;
-      Proxy_Pwd   : in String               := No_Data;
-      Timeouts    : in Timeouts_Values      := No_Timeout;
-      Attachments : in AWS.Attachments.List := AWS.Attachments.Empty_List;
-      Headers     : in Header_List          := Empty_Header_List)
+      User        : in String          := No_Data;
+      Pwd         : in String          := No_Data;
+      Proxy       : in String          := No_Data;
+      Proxy_User  : in String          := No_Data;
+      Proxy_Pwd   : in String          := No_Data;
+      Timeouts    : in Timeouts_Values := No_Timeout;
+      Attachments : in Attachment_List := Empty_Attachment_List;
+      Headers     : in Header_List     := Empty_Header_List)
       return Response.Data;
    --  Send to the server URL a POST request with Data
    --  Post will retry one time if it fails.
@@ -384,20 +389,20 @@ package AWS.Client is
      (Connection   : in out HTTP_Connection;
       Result       :    out Response.Data;
       Data         : in     String;
-      Content_Type : in     String               := No_Data;
-      URI          : in     String               := No_Data;
-      Attachments  : in     AWS.Attachments.List := AWS.Attachments.Empty_List;
-      Headers      : in     Header_List          := Empty_Header_List);
+      Content_Type : in     String          := No_Data;
+      URI          : in     String          := No_Data;
+      Attachments  : in     Attachment_List := Empty_Attachment_List;
+      Headers      : in     Header_List     := Empty_Header_List);
    --  Same as Post above but using a Connection
 
    procedure Post
      (Connection   : in out HTTP_Connection;
       Result       :    out Response.Data;
-      Data         : in     Ada.Streams.Stream_Element_Array;
-      Content_Type : in     String               := No_Data;
-      URI          : in     String               := No_Data;
-      Attachments  : in     AWS.Attachments.List := AWS.Attachments.Empty_List;
-      Headers      : in     Header_List          := Empty_Header_List);
+      Data         : in     Stream_Element_Array;
+      Content_Type : in     String          := No_Data;
+      URI          : in     String          := No_Data;
+      Attachments  : in     Attachment_List := Empty_Attachment_List;
+      Headers      : in     Header_List     := Empty_Header_List);
    --  Same as Post above but using a Connection
 
    procedure Upload
@@ -413,9 +418,9 @@ package AWS.Client is
       Result      :    out Response.Data;
       SOAPAction  : in     String;
       Data        : in     String;
-      Streaming   : in     Boolean              := False;
-      Attachments : in     AWS.Attachments.List := AWS.Attachments.Empty_List;
-      Headers     : in     Header_List          := Empty_Header_List);
+      Streaming   : in     Boolean         := False;
+      Attachments : in     Attachment_List := Empty_Attachment_List;
+      Headers     : in     Header_List     := Empty_Header_List);
    --  Same as SOAP_Post above but using a Connection
    --  Streaming is to be able to parse response XML on the fly,
    --  without intermediate buffer.
@@ -439,7 +444,6 @@ package AWS.Client is
 private
 
    use Ada.Strings.Unbounded;
-   use Ada.Streams;
 
    Forever : constant Ada.Real_Time.Time_Span := Ada.Real_Time.Time_Span_Last;
 

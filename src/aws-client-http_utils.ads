@@ -25,16 +25,12 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-with Ada.Streams;
-
-with AWS.Attachments;
 with AWS.Client;
 with AWS.Response;
 
 package AWS.Client.HTTP_Utils is
 
    use AWS.Client;
-   use Ada.Streams;
    use Ada.Strings.Unbounded;
 
    Connection_Error : exception renames Client.Connection_Error;
@@ -97,18 +93,18 @@ package AWS.Client.HTTP_Utils is
    procedure Internal_Post
      (Connection   : in out HTTP_Connection;
       Result       :    out Response.Data;
-      Data         : in     Ada.Streams.Stream_Element_Array;
+      Data         : in     Stream_Element_Array;
       URI          : in     String;
       SOAPAction   : in     String;
       Content_Type : in     String;
-      Attachments  : in     AWS.Attachments.List;
+      Attachments  : in     Attachment_List;
       Headers      : in     Header_List           := Empty_Header_List);
    --  Common base routine for Post and SOAP_Post routines
 
    procedure Internal_Post_Without_Attachment
      (Connection   : in out HTTP_Connection;
       Result       :    out Response.Data;
-      Data         : in     Ada.Streams.Stream_Element_Array;
+      Data         : in     Stream_Element_Array;
       URI          : in     String;
       SOAPAction   : in     String;
       Content_Type : in     String;
@@ -118,17 +114,17 @@ package AWS.Client.HTTP_Utils is
    procedure Internal_Post_With_Attachment
      (Connection   : in out HTTP_Connection;
       Result       :    out Response.Data;
-      Data         : in     Ada.Streams.Stream_Element_Array;
+      Data         : in     Stream_Element_Array;
       URI          : in     String;
       SOAPAction   : in     String;
       Content_Type : in     String;
-      Attachments  : in     AWS.Attachments.List;
+      Attachments  : in     Attachment_List;
       Headers      : in     Header_List           := Empty_Header_List);
    --  Only used by Internal_Post
 
    procedure Send_Common_Post
      (Connection   : in out HTTP_Connection;
-      Data         : in     Ada.Streams.Stream_Element_Array;
+      Data         : in     Stream_Element_Array;
       URI          : in     String;
       SOAPAction   : in     String;
       Content_Type : in     String;

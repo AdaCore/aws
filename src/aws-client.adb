@@ -425,15 +425,15 @@ package body AWS.Client is
    function Post
      (URL          : in String;
       Data         : in String;
-      Content_Type : in String               := No_Data;
-      User         : in String               := No_Data;
-      Pwd          : in String               := No_Data;
-      Proxy        : in String               := No_Data;
-      Proxy_User   : in String               := No_Data;
-      Proxy_Pwd    : in String               := No_Data;
-      Timeouts     : in Timeouts_Values      := No_Timeout;
-      Attachments  : in AWS.Attachments.List := AWS.Attachments.Empty_List;
-      Headers      : in Header_List          := Empty_Header_List)
+      Content_Type : in String          := No_Data;
+      User         : in String          := No_Data;
+      Pwd          : in String          := No_Data;
+      Proxy        : in String          := No_Data;
+      Proxy_User   : in String          := No_Data;
+      Proxy_Pwd    : in String          := No_Data;
+      Timeouts     : in Timeouts_Values := No_Timeout;
+      Attachments  : in Attachment_List := Empty_Attachment_List;
+      Headers      : in Header_List     := Empty_Header_List)
       return Response.Data
    is
       Connection : HTTP_Connection;
@@ -458,16 +458,16 @@ package body AWS.Client is
 
    function Post
      (URL          : in String;
-      Data         : in Streams.Stream_Element_Array;
-      Content_Type : in String               := No_Data;
-      User         : in String               := No_Data;
-      Pwd          : in String               := No_Data;
-      Proxy        : in String               := No_Data;
-      Proxy_User   : in String               := No_Data;
-      Proxy_Pwd    : in String               := No_Data;
-      Timeouts     : in Timeouts_Values      := No_Timeout;
-      Attachments  : in AWS.Attachments.List := AWS.Attachments.Empty_List;
-      Headers      : in Header_List          := Empty_Header_List)
+      Data         : in Stream_Element_Array;
+      Content_Type : in String          := No_Data;
+      User         : in String          := No_Data;
+      Pwd          : in String          := No_Data;
+      Proxy        : in String          := No_Data;
+      Proxy_User   : in String          := No_Data;
+      Proxy_Pwd    : in String          := No_Data;
+      Timeouts     : in Timeouts_Values := No_Timeout;
+      Attachments  : in Attachment_List := Empty_Attachment_List;
+      Headers      : in Header_List     := Empty_Header_List)
       return Response.Data
    is
       Connection : HTTP_Connection;
@@ -493,11 +493,11 @@ package body AWS.Client is
    procedure Post
      (Connection   : in out HTTP_Connection;
       Result       :    out Response.Data;
-      Data         : in     Streams.Stream_Element_Array;
-      Content_Type : in     String               := No_Data;
-      URI          : in     String               := No_Data;
-      Attachments  : in     AWS.Attachments.List := AWS.Attachments.Empty_List;
-      Headers      : in     Header_List          := Empty_Header_List)
+      Data         : in     Stream_Element_Array;
+      Content_Type : in     String          := No_Data;
+      URI          : in     String          := No_Data;
+      Attachments  : in     Attachment_List := Empty_Attachment_List;
+      Headers      : in     Header_List     := Empty_Header_List)
    is
    begin
       if Content_Type = No_Data then
@@ -527,10 +527,10 @@ package body AWS.Client is
      (Connection   : in out HTTP_Connection;
       Result       :    out Response.Data;
       Data         : in     String;
-      Content_Type : in     String               := No_Data;
-      URI          : in     String               := No_Data;
-      Attachments  : in     AWS.Attachments.List := AWS.Attachments.Empty_List;
-      Headers      : in     Header_List          := Empty_Header_List)
+      Content_Type : in     String          := No_Data;
+      URI          : in     String          := No_Data;
+      Attachments  : in     Attachment_List := Empty_Attachment_List;
+      Headers      : in     Header_List     := Empty_Header_List)
    is
    begin
       if Content_Type = No_Data then
@@ -665,8 +665,8 @@ package body AWS.Client is
 
    procedure Read
      (Connection : in out HTTP_Connection;
-      Data       :    out Ada.Streams.Stream_Element_Array;
-      Last       :    out Ada.Streams.Stream_Element_Offset)
+      Data       :    out Stream_Element_Array;
+      Last       :    out Stream_Element_Offset)
    is
       First : Stream_Element_Offset := Data'First;
    begin
@@ -683,12 +683,12 @@ package body AWS.Client is
 
    procedure Read_Some
      (Connection : in out HTTP_Connection;
-      Data       :    out Ada.Streams.Stream_Element_Array;
-      Last       :    out Ada.Streams.Stream_Element_Offset)
+      Data       :    out Stream_Element_Array;
+      Last       :    out Stream_Element_Offset)
    is
       procedure Read_Internal
-        (Data : out Ada.Streams.Stream_Element_Array;
-         Last : out Ada.Streams.Stream_Element_Offset);
+        (Data : out Stream_Element_Array;
+         Last : out Stream_Element_Offset);
       --  Read the encoded data as is from HTTP connection
 
       -------------------
@@ -696,8 +696,8 @@ package body AWS.Client is
       -------------------
 
       procedure Read_Internal
-        (Data : out Ada.Streams.Stream_Element_Array;
-         Last : out Ada.Streams.Stream_Element_Offset)
+        (Data : out Stream_Element_Array;
+         Last : out Stream_Element_Offset)
       is
          Sock  : Net.Socket_Type'Class renames Connection.Socket.all;
 
@@ -944,14 +944,14 @@ package body AWS.Client is
      (URL         : in String;
       Data        : in String;
       SOAPAction  : in String;
-      User        : in String               := No_Data;
-      Pwd         : in String               := No_Data;
-      Proxy       : in String               := No_Data;
-      Proxy_User  : in String               := No_Data;
-      Proxy_Pwd   : in String               := No_Data;
-      Timeouts    : in Timeouts_Values      := No_Timeout;
-      Attachments : in AWS.Attachments.List := AWS.Attachments.Empty_List;
-      Headers     : in Header_List          := Empty_Header_List)
+      User        : in String          := No_Data;
+      Pwd         : in String          := No_Data;
+      Proxy       : in String          := No_Data;
+      Proxy_User  : in String          := No_Data;
+      Proxy_Pwd   : in String          := No_Data;
+      Timeouts    : in Timeouts_Values := No_Timeout;
+      Attachments : in Attachment_List := Empty_Attachment_List;
+      Headers     : in Header_List     := Empty_Header_List)
       return Response.Data
    is
       Connection : HTTP_Connection;
@@ -981,9 +981,9 @@ package body AWS.Client is
       Result      :    out Response.Data;
       SOAPAction  : in     String;
       Data        : in     String;
-      Streaming   : in     Boolean              := False;
-      Attachments : in     AWS.Attachments.List := AWS.Attachments.Empty_List;
-      Headers     : in     Header_List          := Empty_Header_List)
+      Streaming   : in     Boolean         := False;
+      Attachments : in     Attachment_List := Empty_Attachment_List;
+      Headers     : in     Header_List     := Empty_Header_List)
    is
       Save_Streaming : constant Boolean := Connection.Streaming;
    begin
@@ -1077,9 +1077,9 @@ package body AWS.Client is
 
       procedure Send_File is
          Sock   : Net.Socket_Type'Class renames Connection.Socket.all;
-         Buffer : Streams.Stream_Element_Array (1 .. 4_096);
-         Last   : Streams.Stream_Element_Offset;
-         File   : Streams.Stream_IO.File_Type;
+         Buffer : Stream_Element_Array (1 .. 4_096);
+         Last   : Stream_Element_Offset;
+         File   : Stream_IO.File_Type;
       begin
          --  Send multipart message start boundary
 
@@ -1097,14 +1097,14 @@ package body AWS.Client is
 
          --  Send file content
 
-         Streams.Stream_IO.Open (File, Streams.Stream_IO.In_File, Filename);
+         Stream_IO.Open (File, Stream_IO.In_File, Filename);
 
-         while not Streams.Stream_IO.End_Of_File (File) loop
-            Streams.Stream_IO.Read (File, Buffer, Last);
+         while not Stream_IO.End_Of_File (File) loop
+            Stream_IO.Read (File, Buffer, Last);
             Net.Buffered.Write (Sock, Buffer (1 .. Last));
          end loop;
 
-         Streams.Stream_IO.Close (File);
+         Stream_IO.Close (File);
 
          Net.Buffered.New_Line (Sock);
 
@@ -1115,8 +1115,8 @@ package body AWS.Client is
       exception
          when Net.Socket_Error =>
             --  Properly close the file if needed
-            if Streams.Stream_IO.Is_Open (File) then
-               Streams.Stream_IO.Close (File);
+            if Stream_IO.Is_Open (File) then
+               Stream_IO.Close (File);
             end if;
             raise;
       end Send_File;

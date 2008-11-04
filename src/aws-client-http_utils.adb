@@ -381,11 +381,11 @@ package body AWS.Client.HTTP_Utils is
    procedure Internal_Post
      (Connection   : in out HTTP_Connection;
       Result       :    out Response.Data;
-      Data         : in     Ada.Streams.Stream_Element_Array;
+      Data         : in     Stream_Element_Array;
       URI          : in     String;
       SOAPAction   : in     String;
       Content_Type : in     String;
-      Attachments  : in     AWS.Attachments.List;
+      Attachments  : in     Attachment_List;
       Headers      : in     Header_List          := Empty_Header_List)
    is
       use type AWS.Attachments.List;
@@ -420,11 +420,11 @@ package body AWS.Client.HTTP_Utils is
    procedure Internal_Post_With_Attachment
      (Connection   : in out HTTP_Connection;
       Result       :    out Response.Data;
-      Data         : in     Ada.Streams.Stream_Element_Array;
+      Data         : in     Stream_Element_Array;
       URI          : in     String;
       SOAPAction   : in     String;
       Content_Type : in     String;
-      Attachments  : in     AWS.Attachments.List;
+      Attachments  : in     Attachment_List;
       Headers      : in     Header_List          := Empty_Header_List)
    is
       Pref_Suf  : constant String := "--";
@@ -576,7 +576,7 @@ package body AWS.Client.HTTP_Utils is
    procedure Internal_Post_Without_Attachment
      (Connection   : in out HTTP_Connection;
       Result       :    out Response.Data;
-      Data         : in     Ada.Streams.Stream_Element_Array;
+      Data         : in     Stream_Element_Array;
       URI          : in     String;
       SOAPAction   : in     String;
       Content_Type : in     String;
@@ -1045,9 +1045,10 @@ package body AWS.Client.HTTP_Utils is
       declare
          use AWS.Response;
 
-         Content_Encoding : constant String
-           := Ada.Characters.Handling.To_Lower
-                (Header (Answer, Messages.Content_Encoding_Token));
+         Content_Encoding : constant String :=
+                              Characters.Handling.To_Lower
+                                (Header
+                                   (Answer, Messages.Content_Encoding_Token));
 
          procedure Decode_Init (Header : in ZLib.Header_Type);
 
@@ -1106,8 +1107,8 @@ package body AWS.Client.HTTP_Utils is
       --  server.
 
       declare
-         Set_Cookie : constant String
-           := Response.Header (Answer, Messages.Set_Cookie_Token);
+         Set_Cookie : constant String :=
+                        Response.Header (Answer, Messages.Set_Cookie_Token);
       begin
          --  Set the new cookie, only if the server sent Set-Cookie
          --  header line.
@@ -1259,7 +1260,7 @@ package body AWS.Client.HTTP_Utils is
 
    procedure Send_Common_Post
      (Connection   : in out HTTP_Connection;
-      Data         : in     Streams.Stream_Element_Array;
+      Data         : in     Stream_Element_Array;
       URI          : in     String;
       SOAPAction   : in     String;
       Content_Type : in     String;
