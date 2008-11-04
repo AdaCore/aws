@@ -385,7 +385,8 @@ package body AWS.Client.HTTP_Utils is
       URI          : in     String;
       SOAPAction   : in     String;
       Content_Type : in     String;
-      Attachments  : in     AWS.Attachments.List)
+      Attachments  : in     AWS.Attachments.List;
+      Headers      : in     Header_List          := Empty_Header_List)
    is
       use type AWS.Attachments.List;
    begin
@@ -396,7 +397,8 @@ package body AWS.Client.HTTP_Utils is
             Data         => Data,
             URI          => URI,
             SOAPAction   => SOAPAction,
-            Content_Type => Content_Type);
+            Content_Type => Content_Type,
+            Headers      => Headers);
 
       else
          Internal_Post_With_Attachment
@@ -406,7 +408,8 @@ package body AWS.Client.HTTP_Utils is
             URI          => URI,
             SOAPAction   => SOAPAction,
             Content_Type => Content_Type,
-            Attachments  => Attachments);
+            Attachments  => Attachments,
+            Headers      => Headers);
       end if;
    end Internal_Post;
 
@@ -421,7 +424,8 @@ package body AWS.Client.HTTP_Utils is
       URI          : in     String;
       SOAPAction   : in     String;
       Content_Type : in     String;
-      Attachments  : in     AWS.Attachments.List)
+      Attachments  : in     AWS.Attachments.List;
+      Headers      : in     Header_List          := Empty_Header_List)
    is
       Pref_Suf  : constant String := "--";
       Boundary  : constant String :=
@@ -476,7 +480,7 @@ package body AWS.Client.HTTP_Utils is
 
       Retry : loop
          begin
-            Open_Send_Common_Header (Connection, "POST", URI);
+            Open_Send_Common_Header (Connection, "POST", URI, Headers);
 
             declare
                Sock : Net.Socket_Type'Class renames Connection.Socket.all;
@@ -575,7 +579,8 @@ package body AWS.Client.HTTP_Utils is
       Data         : in     Ada.Streams.Stream_Element_Array;
       URI          : in     String;
       SOAPAction   : in     String;
-      Content_Type : in     String)
+      Content_Type : in     String;
+      Headers      : in     Header_List := Empty_Header_List)
    is
       Try_Count : Natural := Connection.Retry;
 
@@ -587,7 +592,8 @@ package body AWS.Client.HTTP_Utils is
          begin
             --  Post Data with headers
 
-            Send_Common_Post (Connection, Data, URI, SOAPAction, Content_Type);
+            Send_Common_Post
+              (Connection, Data, URI, SOAPAction, Content_Type, Headers);
 
             --  Get answer from server
 
@@ -624,7 +630,8 @@ package body AWS.Client.HTTP_Utils is
    procedure Open_Send_Common_Header
      (Connection : in out HTTP_Connection;
       Method     : in     String;
-      URI        : in     String)
+      URI        : in     String;
+      Headers    : in     Header_List := Empty_Header_List)
    is
       Sock    : Net.Socket_Access := Connection.Socket;
       No_Data : Unbounded_String renames Null_Unbounded_String;
@@ -750,37 +757,44 @@ package body AWS.Client.HTTP_Utils is
             Method);
       end if;
 
+      --  Send specific headers
+
+      AWS.Headers.Send_Header (Sock.all, Headers);
+
       --  Cookie
 
       if Connection.Cookie /= No_Data then
          Send_Header
-           (Sock.all, Messages.Cookie (To_String (Connection.Cookie)));
+           (Sock.all, Messages.Cookie_Token,
+            Messages.Cookie'Access, To_String (Connection.Cookie), Headers);
       end if;
 
       Send_Header
-        (Sock.all,
-         Messages.Host (Host_Address));
+        (Sock.all, Messages.Host_Token,
+         Messages.Host'Access, Host_Address, Headers);
 
       Send_Header
-        (Sock.all,
-         Messages.Accept_Type ("text/html, */*"));
+        (Sock.all, Messages.Accept_Token,
+         Messages.Accept_Type'Access, "text/html, */*", Headers);
 
       Send_Header
-        (Sock.all,
-         Messages.Accept_Encoding_Token & ": deflate, gzip");
+        (Sock.all, Messages.Accept_Encoding_Token,
+         Messages.Accept_Encoding'Access, "deflate, gzip", Headers);
 
       Send_Header
-        (Sock.all,
-         Messages.Accept_Language ("fr, ru, us"));
+        (Sock.all, Messages.Accept_Language_Token,
+         Messages.Accept_Language'Access, "fr, ru, us", Headers);
 
       Send_Header
-        (Sock.all,
-         Messages.User_Agent (To_String (Connection.User_Agent)));
+        (Sock.all, Messages.User_Agent_Token,
+         Messages.User_Agent'Access,
+         To_String (Connection.User_Agent), Headers);
 
       if Connection.Data_Range /= No_Range then
          Send_Header
-           (Sock.all,
-            Messages.Range_Token & ": " & Image (Connection.Data_Range));
+           (Sock.all, Messages.Range_Token,
+            Messages.Data_Range'Access,
+            Image (Connection.Data_Range), Headers);
       end if;
 
       --  User Authentication
@@ -1248,10 +1262,10 @@ package body AWS.Client.HTTP_Utils is
       Data         : in     Streams.Stream_Element_Array;
       URI          : in     String;
       SOAPAction   : in     String;
-      Content_Type : in     String)
-   is
+      Content_Type : in     String;
+      Headers      : in     Header_List := Empty_Header_List) is
    begin
-      Open_Send_Common_Header (Connection, "POST", URI);
+      Open_Send_Common_Header (Connection, "POST", URI, Headers);
 
       declare
          Sock : Net.Socket_Type'Class renames Connection.Socket.all;
@@ -1294,6 +1308,18 @@ package body AWS.Client.HTTP_Utils is
    begin
       Net.Buffered.Put_Line (Sock, Data);
       Debug_Message ("> ", Data);
+   end Send_Header;
+
+   procedure Send_Header
+     (Sock        : in AWS.Net.Socket_Type'Class;
+      Header      : in String;
+      Constructor : access function (Value : in String) return String;
+      Value       : in String;
+      Headers     : in Header_List) is
+   begin
+      if not Headers.Exist (Header) then
+         Send_Header (Sock, Constructor (Value));
+      end if;
    end Send_Header;
 
    ------------------------

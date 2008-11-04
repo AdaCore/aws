@@ -1,0 +1,55 @@
+>>>>> /1
+User-Agent: AWS (Ada Web Server) vx.x.xw
+Accept-Language: fr, ru, us
+Accept-Encoding: deflate, gzip
+Accept: text/html, */*
+Host: localhost:xxxx
+Range: NOT FOUND
+If-Modified-Since: NOT FOUND
+
+>>>>> /2
+User-Agent: AWS (Ada Web Server) vx.x.xw
+Accept-Language: fr, ru, us
+Accept-Encoding: deflate, gzip
+Accept: text/html, */*
+Host: localhost:xxxx
+Range: NOT FOUND
+If-Modified-Since: NOT FOUND
+
+>>>>> /3
+User-Agent: AWS (Ada Web Server) vx.x.xw
+Accept-Language: fr, ru, us
+Accept-Encoding: deflate, gzip
+Accept: text/html, */*
+Host: localhost:xxxx
+Range: NOT FOUND
+If-Modified-Since: NOT FOUND
+
+>>>>> /4
+User-Agent: AWS (Ada Web Server) vx.x.xw
+Accept-Language: fr
+Accept-Encoding: deflate, gzip
+Accept: text/html, */*
+Host: localhost:xxxx
+Range: NOT FOUND
+If-Modified-Since: yesterday :)
+
+>>>>> /5
+User-Agent: Very_Secret
+Accept-Language: fr
+Accept-Encoding: deflate, gzip
+Accept: text/html, */*
+Host: localhost:xxxx
+Range: NOT FOUND
+If-Modified-Since: yesterday :)
+
+>>>>> /6
+User-Agent: Or_Not
+Accept-Language: fr
+Accept-Encoding: deflate, gzip
+Accept: text/html, */*
+Host: me
+Range: NOT FOUND
+If-Modified-Since: yesterday :)
+
+shutdown

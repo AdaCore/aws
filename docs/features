@@ -1,5 +1,5 @@
 ====================================================
-AWS 2.7 NEW FEATURES LIST Current as of Oct 22, 2008
+AWS 2.7 NEW FEATURES LIST Current as of Nov 04, 2008
 ====================================================
 
 Copyright (c) 2006-2008, AdaCore
@@ -14,3 +14,9 @@ of the feature.
 
 New features in AWS 2.7.0
 -------------------------
+
+NF-27-HA07-020 Add support for HTTP headers on client API (2008-11-04)
+
+  The GET/PUT/POST/HEAD AWS.Client services are now passed an header
+  list parameter. This makes it possible to send some specific headers
+  to the server.

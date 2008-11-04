@@ -193,7 +193,8 @@ package body AWS.Client is
       Timeouts           : in Timeouts_Values := No_Timeout;
       Data_Range         : in Content_Range   := No_Range;
       Follow_Redirection : in Boolean         := False;
-      Certificate        : in String          := Default.Client_Certificate)
+      Certificate        : in String          := Default.Client_Certificate;
+      Headers            : in Header_List     := Empty_Header_List)
       return Response.Data
    is
       use type Messages.Status_Code;
@@ -209,7 +210,8 @@ package body AWS.Client is
                  Certificate => Certificate,
                  Timeouts    => Timeouts);
 
-         Get (Connection, Result, Data_Range => Data_Range);
+         Get (Connection, Result,
+              Data_Range => Data_Range, Headers => Headers);
 
          Close (Connection);
       exception
@@ -252,7 +254,8 @@ package body AWS.Client is
      (Connection : in out HTTP_Connection;
       Result     :    out Response.Data;
       URI        : in     String          := No_Data;
-      Data_Range : in     Content_Range   := No_Range)
+      Data_Range : in     Content_Range   := No_Range;
+      Headers    : in     Header_List     := Empty_Header_List)
    is
       use Ada.Real_Time;
       Stamp         : constant Time := Clock;
@@ -266,7 +269,7 @@ package body AWS.Client is
 
       Retry : loop
          begin
-            Open_Send_Common_Header (Connection, "GET", URI);
+            Open_Send_Common_Header (Connection, "GET", URI, Headers);
 
             Net.Buffered.New_Line (Connection.Socket.all);
 
@@ -342,7 +345,9 @@ package body AWS.Client is
       Proxy      : in String          := No_Data;
       Proxy_User : in String          := No_Data;
       Proxy_Pwd  : in String          := No_Data;
-      Timeouts   : in Timeouts_Values := No_Timeout) return Response.Data
+      Timeouts   : in Timeouts_Values := No_Timeout;
+      Headers    : in Header_List     := Empty_Header_List)
+      return Response.Data
    is
       Connection : HTTP_Connection;
       Result     : Response.Data;
@@ -352,7 +357,7 @@ package body AWS.Client is
               Persistent => False,
               Timeouts   => Timeouts);
 
-      Head (Connection, Result);
+      Head (Connection, Result, Headers => Headers);
       Close (Connection);
 
       return Result;
@@ -370,7 +375,8 @@ package body AWS.Client is
    procedure Head
      (Connection : in out HTTP_Connection;
       Result     :    out Response.Data;
-      URI        : in     String := No_Data)
+      URI        : in     String      := No_Data;
+      Headers    : in     Header_List := Empty_Header_List)
    is
       use Ada.Real_Time;
       Stamp         : constant Time := Clock;
@@ -380,7 +386,7 @@ package body AWS.Client is
    begin
       Retry : loop
          begin
-            Open_Send_Common_Header (Connection, "HEAD", URI);
+            Open_Send_Common_Header (Connection, "HEAD", URI, Headers);
 
             Net.Buffered.New_Line (Connection.Socket.all);
 
@@ -426,7 +432,8 @@ package body AWS.Client is
       Proxy_User   : in String               := No_Data;
       Proxy_Pwd    : in String               := No_Data;
       Timeouts     : in Timeouts_Values      := No_Timeout;
-      Attachments  : in AWS.Attachments.List := AWS.Attachments.Empty_List)
+      Attachments  : in AWS.Attachments.List := AWS.Attachments.Empty_List;
+      Headers      : in Header_List          := Empty_Header_List)
       return Response.Data
    is
       Connection : HTTP_Connection;
@@ -437,8 +444,9 @@ package body AWS.Client is
               Persistent => False,
               Timeouts   => Timeouts);
 
-      Post (Connection, Result, Data,
-            Content_Type, Attachments => Attachments);
+      Post (Connection, Result, Data, Content_Type,
+            Attachments => Attachments,
+            Headers     => Headers);
 
       Close (Connection);
       return Result;
@@ -458,7 +466,8 @@ package body AWS.Client is
       Proxy_User   : in String               := No_Data;
       Proxy_Pwd    : in String               := No_Data;
       Timeouts     : in Timeouts_Values      := No_Timeout;
-      Attachments  : in AWS.Attachments.List := AWS.Attachments.Empty_List)
+      Attachments  : in AWS.Attachments.List := AWS.Attachments.Empty_List;
+      Headers      : in Header_List          := Empty_Header_List)
       return Response.Data
    is
       Connection : HTTP_Connection;
@@ -469,8 +478,9 @@ package body AWS.Client is
               Persistent => False,
               Timeouts   => Timeouts);
 
-      Post (Connection, Result, Data,
-            Content_Type, Attachments => Attachments);
+      Post (Connection, Result, Data, Content_Type,
+            Attachments => Attachments,
+            Headers     => Headers);
 
       Close (Connection);
       return Result;
@@ -486,7 +496,8 @@ package body AWS.Client is
       Data         : in     Streams.Stream_Element_Array;
       Content_Type : in     String               := No_Data;
       URI          : in     String               := No_Data;
-      Attachments  : in     AWS.Attachments.List := AWS.Attachments.Empty_List)
+      Attachments  : in     AWS.Attachments.List := AWS.Attachments.Empty_List;
+      Headers      : in     Header_List          := Empty_Header_List)
    is
    begin
       if Content_Type = No_Data then
@@ -497,7 +508,8 @@ package body AWS.Client is
             URI,
             SOAPAction   => No_Data,
             Content_Type => MIME.Application_Octet_Stream,
-            Attachments  => Attachments);
+            Attachments  => Attachments,
+            Headers      => Headers);
       else
          Internal_Post
            (Connection,
@@ -506,7 +518,8 @@ package body AWS.Client is
             URI,
             SOAPAction   => No_Data,
             Content_Type => Content_Type,
-            Attachments  => Attachments);
+            Attachments  => Attachments,
+            Headers      => Headers);
       end if;
    end Post;
 
@@ -516,7 +529,8 @@ package body AWS.Client is
       Data         : in     String;
       Content_Type : in     String               := No_Data;
       URI          : in     String               := No_Data;
-      Attachments  : in     AWS.Attachments.List := AWS.Attachments.Empty_List)
+      Attachments  : in     AWS.Attachments.List := AWS.Attachments.Empty_List;
+      Headers      : in     Header_List          := Empty_Header_List)
    is
    begin
       if Content_Type = No_Data then
@@ -527,7 +541,8 @@ package body AWS.Client is
             URI,
             SOAPAction   => No_Data,
             Content_Type => MIME.Application_Form_Data,
-            Attachments  => Attachments);
+            Attachments  => Attachments,
+            Headers      => Headers);
       else
          Internal_Post
            (Connection,
@@ -536,7 +551,8 @@ package body AWS.Client is
             URI,
             SOAPAction   => No_Data,
             Content_Type => Content_Type,
-            Attachments  => Attachments);
+            Attachments  => Attachments,
+            Headers      => Headers);
       end if;
    end Post;
 
@@ -552,7 +568,9 @@ package body AWS.Client is
       Proxy      : in String          := No_Data;
       Proxy_User : in String          := No_Data;
       Proxy_Pwd  : in String          := No_Data;
-      Timeouts   : in Timeouts_Values := No_Timeout) return Response.Data
+      Timeouts   : in Timeouts_Values := No_Timeout;
+      Headers    : in Header_List     := Empty_Header_List)
+      return Response.Data
    is
       Connection : HTTP_Connection;
       Result     : Response.Data;
@@ -562,7 +580,7 @@ package body AWS.Client is
               Persistent => False,
               Timeouts   => Timeouts);
 
-      Put (Connection, Result, Data);
+      Put (Connection, Result, Data, Headers => Headers);
       Close (Connection);
       return Result;
 
@@ -580,7 +598,8 @@ package body AWS.Client is
      (Connection : in out HTTP_Connection;
       Result     :    out Response.Data;
       Data       : in     String;
-      URI        : in     String          := No_Data)
+      URI        : in     String      := No_Data;
+      Headers    : in     Header_List := Empty_Header_List)
    is
       use Ada.Real_Time;
       Stamp         : constant Time := Clock;
@@ -592,7 +611,7 @@ package body AWS.Client is
       Retry : loop
 
          begin
-            Open_Send_Common_Header (Connection, "PUT", URI);
+            Open_Send_Common_Header (Connection, "PUT", URI, Headers);
 
             --  Send message Content_Length
 
@@ -931,7 +950,8 @@ package body AWS.Client is
       Proxy_User  : in String               := No_Data;
       Proxy_Pwd   : in String               := No_Data;
       Timeouts    : in Timeouts_Values      := No_Timeout;
-      Attachments : in AWS.Attachments.List := AWS.Attachments.Empty_List)
+      Attachments : in AWS.Attachments.List := AWS.Attachments.Empty_List;
+      Headers     : in Header_List          := Empty_Header_List)
       return Response.Data
    is
       Connection : HTTP_Connection;
@@ -944,7 +964,8 @@ package body AWS.Client is
 
       SOAP_Post (Connection, Result, SOAPAction,
                  Data        => Data,
-                 Attachments => Attachments);
+                 Attachments => Attachments,
+                 Headers     => Headers);
 
       Close (Connection);
       return Result;
@@ -961,7 +982,8 @@ package body AWS.Client is
       SOAPAction  : in     String;
       Data        : in     String;
       Streaming   : in     Boolean              := False;
-      Attachments : in     AWS.Attachments.List := AWS.Attachments.Empty_List)
+      Attachments : in     AWS.Attachments.List := AWS.Attachments.Empty_List;
+      Headers     : in     Header_List          := Empty_Header_List)
    is
       Save_Streaming : constant Boolean := Connection.Streaming;
    begin
@@ -974,7 +996,8 @@ package body AWS.Client is
          URI          => No_Data,
          SOAPAction   => SOAPAction,
          Content_Type => MIME.Text_XML,
-         Attachments  => Attachments);
+         Attachments  => Attachments,
+         Headers      => Headers);
 
       Connection.Self.Streaming := Save_Streaming;
    end SOAP_Post;
@@ -1008,7 +1031,8 @@ package body AWS.Client is
      (Connection : in out HTTP_Connection;
       Result     :    out Response.Data;
       Filename   : in     String;
-      URI        : in     String := No_Data)
+      URI        : in     String      := No_Data;
+      Headers    : in     Header_List := Empty_Header_List)
    is
       use Ada.Real_Time;
       Stamp    : constant Time   := Clock;
@@ -1100,7 +1124,7 @@ package body AWS.Client is
    begin
       Retry : loop
          begin
-            Open_Send_Common_Header (Connection, "POST", URI);
+            Open_Send_Common_Header (Connection, "POST", URI, Headers);
 
             declare
                Sock : Net.Socket_Type'Class renames Connection.Socket.all;
@@ -1161,7 +1185,9 @@ package body AWS.Client is
       Proxy      : in String          := No_Data;
       Proxy_User : in String          := No_Data;
       Proxy_Pwd  : in String          := No_Data;
-      Timeouts   : in Timeouts_Values := No_Timeout) return Response.Data
+      Timeouts   : in Timeouts_Values := No_Timeout;
+      Headers    : in Header_List     := Empty_Header_List)
+      return Response.Data
    is
       Connection : HTTP_Connection;
       Result     : Response.Data;
@@ -1171,7 +1197,7 @@ package body AWS.Client is
               Persistent => False,
               Timeouts   => Timeouts);
 
-      Upload (Connection, Result, Filename);
+      Upload (Connection, Result, Filename, Headers => Headers);
 
       Close (Connection);
       return Result;

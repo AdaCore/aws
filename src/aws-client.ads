@@ -32,6 +32,7 @@ with Ada.Strings.Unbounded;
 
 with AWS.Attachments;
 with AWS.Default;
+with AWS.Headers;
 with AWS.Net.SSL.Certificate;
 with AWS.Response;
 with AWS.URL;
@@ -116,6 +117,9 @@ package AWS.Client is
 
    type Auth_Attempts_Count is private;
 
+   subtype Header_List is Headers.List;
+   Empty_Header_List : constant Header_List := Headers.Empty_List;
+
    function Get
      (URL                : in String;
       User               : in String          := No_Data;
@@ -126,7 +130,8 @@ package AWS.Client is
       Timeouts           : in Timeouts_Values := No_Timeout;
       Data_Range         : in Content_Range   := No_Range;
       Follow_Redirection : in Boolean         := False;
-      Certificate        : in String          := Default.Client_Certificate)
+      Certificate        : in String          := Default.Client_Certificate;
+      Headers            : in Header_List     := Empty_Header_List)
       return Response.Data;
    --  Retrieve the message data given a specific URL. It open a connection
    --  with the server and ask for the resource specified in the URL it then
@@ -153,7 +158,9 @@ package AWS.Client is
       Proxy      : in String          := No_Data;
       Proxy_User : in String          := No_Data;
       Proxy_Pwd  : in String          := No_Data;
-      Timeouts   : in Timeouts_Values := No_Timeout) return Response.Data;
+      Timeouts   : in Timeouts_Values := No_Timeout;
+      Headers    : in Header_List     := Empty_Header_List)
+      return Response.Data;
    --  Idem as above but we do not get the message body.
    --  Head will retry one time if it fails.
 
@@ -165,7 +172,9 @@ package AWS.Client is
       Proxy      : in String          := No_Data;
       Proxy_User : in String          := No_Data;
       Proxy_Pwd  : in String          := No_Data;
-      Timeouts   : in Timeouts_Values := No_Timeout) return Response.Data;
+      Timeouts   : in Timeouts_Values := No_Timeout;
+      Headers    : in Header_List     := Empty_Header_List)
+      return Response.Data;
    --  Send to the server URL a PUT request with Data
    --  Put will retry one time if it fails.
 
@@ -179,7 +188,8 @@ package AWS.Client is
       Proxy_User   : in String               := No_Data;
       Proxy_Pwd    : in String               := No_Data;
       Timeouts     : in Timeouts_Values      := No_Timeout;
-      Attachments  : in AWS.Attachments.List := AWS.Attachments.Empty_List)
+      Attachments  : in AWS.Attachments.List := AWS.Attachments.Empty_List;
+      Headers      : in Header_List          := Empty_Header_List)
       return Response.Data;
    --  Send to the server URL a POST request with Data
    --  Post will retry one time if it fails.
@@ -194,7 +204,8 @@ package AWS.Client is
       Proxy_User   : in String               := No_Data;
       Proxy_Pwd    : in String               := No_Data;
       Timeouts     : in Timeouts_Values      := No_Timeout;
-      Attachments  : in AWS.Attachments.List := AWS.Attachments.Empty_List)
+      Attachments  : in AWS.Attachments.List := AWS.Attachments.Empty_List;
+      Headers      : in Header_List          := Empty_Header_List)
       return Response.Data;
    --  Idem as above but with binary data
 
@@ -208,7 +219,8 @@ package AWS.Client is
       Proxy_User  : in String               := No_Data;
       Proxy_Pwd   : in String               := No_Data;
       Timeouts    : in Timeouts_Values      := No_Timeout;
-      Attachments : in AWS.Attachments.List := AWS.Attachments.Empty_List)
+      Attachments : in AWS.Attachments.List := AWS.Attachments.Empty_List;
+      Headers     : in Header_List          := Empty_Header_List)
       return Response.Data;
    --  Send to the server URL a POST request with Data
    --  Post will retry one time if it fails.
@@ -221,7 +233,9 @@ package AWS.Client is
       Proxy      : in String          := No_Data;
       Proxy_User : in String          := No_Data;
       Proxy_Pwd  : in String          := No_Data;
-      Timeouts   : in Timeouts_Values := No_Timeout) return Response.Data;
+      Timeouts   : in Timeouts_Values := No_Timeout;
+      Headers    : in Header_List     := Empty_Header_List)
+      return Response.Data;
    --  This is a file upload request. Filename file's content will be send to
    --  the server at address URL.
 
@@ -347,20 +361,23 @@ package AWS.Client is
      (Connection : in out HTTP_Connection;
       Result     :    out Response.Data;
       URI        : in     String          := No_Data;
-      Data_Range : in     Content_Range   := No_Range);
+      Data_Range : in     Content_Range   := No_Range;
+      Headers    : in     Header_List     := Empty_Header_List);
    --  Same as Get above but using a Connection
 
    procedure Head
      (Connection : in out HTTP_Connection;
       Result     :    out Response.Data;
-      URI        : in     String          := No_Data);
+      URI        : in     String          := No_Data;
+      Headers    : in     Header_List     := Empty_Header_List);
    --  Same as Head above but using a Connection
 
    procedure Put
      (Connection : in out HTTP_Connection;
       Result     :    out Response.Data;
       Data       : in     String;
-      URI        : in     String          := No_Data);
+      URI        : in     String      := No_Data;
+      Headers    : in     Header_List := Empty_Header_List);
    --  Same as Put above but using a Connection
 
    procedure Post
@@ -369,8 +386,8 @@ package AWS.Client is
       Data         : in     String;
       Content_Type : in     String               := No_Data;
       URI          : in     String               := No_Data;
-      Attachments  : in     AWS.Attachments.List
-        := AWS.Attachments.Empty_List);
+      Attachments  : in     AWS.Attachments.List := AWS.Attachments.Empty_List;
+      Headers      : in     Header_List          := Empty_Header_List);
    --  Same as Post above but using a Connection
 
    procedure Post
@@ -379,15 +396,16 @@ package AWS.Client is
       Data         : in     Ada.Streams.Stream_Element_Array;
       Content_Type : in     String               := No_Data;
       URI          : in     String               := No_Data;
-      Attachments  : in     AWS.Attachments.List
-        := AWS.Attachments.Empty_List);
+      Attachments  : in     AWS.Attachments.List := AWS.Attachments.Empty_List;
+      Headers      : in     Header_List          := Empty_Header_List);
    --  Same as Post above but using a Connection
 
    procedure Upload
      (Connection : in out HTTP_Connection;
       Result     :    out Response.Data;
       Filename   : in     String;
-      URI        : in     String          := No_Data);
+      URI        : in     String          := No_Data;
+      Headers    : in     Header_List     := Empty_Header_List);
    --  Same as Upload above but using a Connection
 
    procedure SOAP_Post
@@ -396,7 +414,8 @@ package AWS.Client is
       SOAPAction  : in     String;
       Data        : in     String;
       Streaming   : in     Boolean              := False;
-      Attachments : in     AWS.Attachments.List := AWS.Attachments.Empty_List);
+      Attachments : in     AWS.Attachments.List := AWS.Attachments.Empty_List;
+      Headers     : in     Header_List          := Empty_Header_List);
    --  Same as SOAP_Post above but using a Connection
    --  Streaming is to be able to parse response XML on the fly,
    --  without intermediate buffer.

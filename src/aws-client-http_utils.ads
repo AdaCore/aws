@@ -81,7 +81,8 @@ package AWS.Client.HTTP_Utils is
    procedure Open_Send_Common_Header
      (Connection : in out HTTP_Connection;
       Method     : in     String;
-      URI        : in     String);
+      URI        : in     String;
+      Headers    : in     Header_List := Empty_Header_List);
    --  Open the the Connection if it is not open. Send the common HTTP headers
    --  for all requests like the proxy, authentication, user agent, host.
 
@@ -100,7 +101,8 @@ package AWS.Client.HTTP_Utils is
       URI          : in     String;
       SOAPAction   : in     String;
       Content_Type : in     String;
-      Attachments  : in     AWS.Attachments.List);
+      Attachments  : in     AWS.Attachments.List;
+      Headers      : in     Header_List           := Empty_Header_List);
    --  Common base routine for Post and SOAP_Post routines
 
    procedure Internal_Post_Without_Attachment
@@ -109,7 +111,8 @@ package AWS.Client.HTTP_Utils is
       Data         : in     Ada.Streams.Stream_Element_Array;
       URI          : in     String;
       SOAPAction   : in     String;
-      Content_Type : in     String);
+      Content_Type : in     String;
+      Headers      : in     Header_List := Empty_Header_List);
    --  Only used by Internal_Post
 
    procedure Internal_Post_With_Attachment
@@ -119,7 +122,8 @@ package AWS.Client.HTTP_Utils is
       URI          : in     String;
       SOAPAction   : in     String;
       Content_Type : in     String;
-      Attachments  : in     AWS.Attachments.List);
+      Attachments  : in     AWS.Attachments.List;
+      Headers      : in     Header_List           := Empty_Header_List);
    --  Only used by Internal_Post
 
    procedure Send_Common_Post
@@ -127,7 +131,8 @@ package AWS.Client.HTTP_Utils is
       Data         : in     Ada.Streams.Stream_Element_Array;
       URI          : in     String;
       SOAPAction   : in     String;
-      Content_Type : in     String);
+      Content_Type : in     String;
+      Headers      : in     Header_List := Empty_Header_List);
    --  Send to the server only a POST request with Data
    --  and common headers, using a Connection.
 
@@ -135,7 +140,18 @@ package AWS.Client.HTTP_Utils is
      (Sock : in AWS.Net.Socket_Type'Class;
       Data : in String);
    pragma Inline (Send_Header);
-   --  Send header Data to socket and call Debug_Message.
+   --  Send header Data to socket and call Debug_Message
+
+   procedure Send_Header
+     (Sock        : in AWS.Net.Socket_Type'Class;
+      Header      : in String;
+      Constructor : access function (Value : in String) return String;
+      Value       : in String;
+      Headers     : in Header_List);
+   pragma Inline (Send_Header);
+   --  Send header to socket if this header is not present in Headers. The
+   --  actual header data is given by the constructor. Call Debug_Message if
+   --  header is sent.
 
    procedure Set_HTTP_Connection
      (HTTP_Client : in out HTTP_Connection;
