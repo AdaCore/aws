@@ -156,6 +156,15 @@ package body AWS.Messages is
    --  Header delimiter with space for well formatting
 
    ---------------------
+   -- Accept_Encoding --
+   ---------------------
+
+   function Accept_Encoding (Encoding : in String) return String is
+   begin
+      return Accept_Encoding_Token & HD & Encoding;
+   end Accept_Encoding;
+
+   ---------------------
    -- Accept_Language --
    ---------------------
 
@@ -252,6 +261,15 @@ package body AWS.Messages is
    begin
       return Cookie_Token & HD & Value;
    end Cookie;
+
+   ----------------
+   -- Data_Range --
+   ----------------
+
+   function Data_Range (Value : in String) return String is
+   begin
+      return Range_Token & HD & Value;
+   end Data_Range;
 
    --------------------
    -- Does_Not_Match --

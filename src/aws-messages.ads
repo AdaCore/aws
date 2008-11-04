@@ -189,6 +189,9 @@ package AWS.Messages is
    -- HTTP message constructors --
    -------------------------------
 
+   function Accept_Encoding (Encoding : in String) return String;
+   pragma Inline (Accept_Encoding);
+
    function Accept_Type (Mode : in String) return String;
    pragma Inline (Accept_Type);
 
@@ -237,6 +240,9 @@ package AWS.Messages is
 
    function Proxy_Connection (Mode : in String) return String;
    pragma Inline (Proxy_Connection);
+
+   function Data_Range (Value : in String) return String;
+   pragma Inline (Data_Range);
 
    function SOAPAction (URI : in String) return String;
    pragma Inline (SOAPAction);
