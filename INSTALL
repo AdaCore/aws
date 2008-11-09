@@ -3,7 +3,9 @@ Building a release
 ------------------
 
 To build AWS you need to change some settings in the top level
-makefile.conf file.
+makefile.conf file. The static AWS libraries are always built, the shared
+libraries are build by default if the plate-form support them (this is
+automatically detected).
 
 If you have not installed XML/Ada into the standard directory and plan to
 build AWS with SOAP support you must be sure that ADA_PROJECT_PATH point to
@@ -23,9 +25,9 @@ This release requires an Ada compiler supporting some Ada 2005 features as it
 is using the Ada.Containers libraries. It is possible to build this release
 starting with the following compilers:
 
-	GNAT Pro 6.1.1
+	GNAT Pro 6.1.2
 
-	GNAT GPL 2007 Edition
+	GNAT GPL 2008 Edition
 
 Building from Subversion
 ------------------------
