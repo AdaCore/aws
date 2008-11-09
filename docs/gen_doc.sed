@@ -1,4 +1,4 @@
-s,@_AWS_VERSION_@,2.6.0w,g
+s,@_AWS_VERSION_@,2.7.0w,g
 s,@_SOAP_VERSION_@,1.5.0,g
 s,@_MAX_CONNECT_@,5,g
 s,@_KEEP_ALIVE_LIMIT_@,1,g
