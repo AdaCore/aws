@@ -321,9 +321,9 @@ compiler. So, if you use @code{GNAT} you can build @code{AWS} just with:
 
 @noindent
 If you want to build only the @code{AWS} libraries and tools and do not want
-to build the demos you can set @code{EXTRA_MODULES} to "" as in:
+to build the demos you can set @code{DEMOS} to "false" as in:
 
-@AWSEXP {$ make EXTRA_MODULES="" build}
+@AWSEXP {$ make DEMOS=false setup}
 
 @c ----------------------------------------------------------------------
 

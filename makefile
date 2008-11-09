@@ -154,8 +154,11 @@ force:
 #############################################################################
 # Configuration for GNAT Projet Files
 
-EXTRA_MODULES = demos regtests
-MODULES = config win32 include ssl src tools docs gps ${EXTRA_MODULES}
+ifeq (${DEMOS}, true)
+EXTRA_MODULES = demos
+endif
+
+MODULES = config win32 include ssl src tools docs gps regtests ${EXTRA_MODULES}
 
 MODULES_BUILD = ${MODULES:%=%_build}
 
@@ -393,6 +396,7 @@ gen_setup:
 	echo "LDAP=$(LDAP)" >> makefile.setup
 	echo "DEBUG=$(DEBUG)" >> makefile.setup
 	echo "CJOBS=$(CJOBS)" >> makefile.setup
+	echo "DEMOS=$(DEMOS)" >> makefile.setup
 
 setup: gen_setup setup_dir setup_debug setup_release \
 	setup_final setup_tp $(GEXT_MODULE)
