@@ -4,7 +4,7 @@
 
 Authors:
    Dmitriy Anisimkov
-   Pascal Obry                                           October 22th, 2008
+   Pascal Obry                                           November 10th, 2008
 
 
 
@@ -38,6 +38,9 @@ Changes
 New features are described into the file docs/features.
 
 Listed below are some minor enhancements and fixes:
+
+   - Attachments' headers are properly parsed and stored with the attachment
+     object on the server side.
 
    - Plus many small fixes, enhancements, API comments, and documentation work.
 

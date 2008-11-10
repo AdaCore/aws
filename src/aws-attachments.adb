@@ -55,6 +55,7 @@ package body AWS.Attachments is
      (Attachments : in out List;
       Filename    : in     String;
       Content_Id  : in     String;
+      Headers     : in     AWS.Headers.List := AWS.Headers.Empty_List;
       Name        : in     String := "";
       Encode      : in     Encoding := None)
    is
@@ -64,9 +65,9 @@ package body AWS.Attachments is
         (Filename, Encode, Content_Id, MIME.Content_Type (Filename));
    begin
       if Name = "" then
-         Add (Attachments, Filename, Data);
+         Add (Attachments, Filename, Data, Headers);
       else
-         Add (Attachments, Name, Data);
+         Add (Attachments, Name, Data, Headers);
       end if;
    end Add;
 

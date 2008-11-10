@@ -70,10 +70,10 @@ package AWS.Attachments is
      (Attachments : in out List;
       Filename    : in     String;
       Content_Id  : in     String;
+      Headers     : in     AWS.Headers.List := AWS.Headers.Empty_List;
       Name        : in     String := "";
       Encode      : in     Encoding := None);
-   --  Adds an Attachment to the list. The header of the Attachment is
-   --  generated.
+   --  Adds an Attachment to the list
 
    procedure Add
      (Attachments : in out List;

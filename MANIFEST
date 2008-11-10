@@ -1319,6 +1319,10 @@ regtests/0192_client_headers/client_headers.adb
 regtests/0192_client_headers/client_headers.gpr
 regtests/0192_client_headers/test.out
 regtests/0192_client_headers/test.py
+regtests/0193_attachment_headers/attachment_headers.adb
+regtests/0193_attachment_headers/attachment_headers.gpr
+regtests/0193_attachment_headers/test.out
+regtests/0193_attachment_headers/test.py
 regtests/common/get_free_port.adb
 regtests/gen_system_tags.py
 regtests/makefile

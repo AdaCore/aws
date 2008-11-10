@@ -498,7 +498,8 @@ package body AWS.Server.HTTP_Utils is
                     (Attachments,
                      Filename   => To_String (Server_Filename),
                      Name       => To_String (Filename),
-                     Content_Id => To_String (Name));
+                     Content_Id => To_String (Name),
+                     Headers    => Headers);
                   Status.Set.Attachments (C_Stat, Attachments);
 
                   if not End_Found then
