@@ -28,6 +28,6 @@
 with "aws";
 
 project TClientTO is
-   for Source_Dirs use (".");
+   for Source_Dirs use (".", "../common");
    for Main use ("tclientto.adb");
 end TClientTO;

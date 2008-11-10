@@ -36,6 +36,9 @@ with AWS.MIME;
 with AWS.Response;
 with AWS.Parameters;
 with AWS.Messages;
+with AWS.Utils;
+
+with Get_Free_Port;
 
 procedure Tclientto is
 
@@ -44,6 +47,8 @@ procedure Tclientto is
    use AWS;
 
    function CB (Request : in Status.Data) return Response.Data;
+
+   Port : Positive := 1235;
 
    task Server is
       entry Start;
@@ -84,9 +89,11 @@ procedure Tclientto is
    begin
       accept Start;
 
+      Get_Free_Port (Port);
+
       AWS.Server.Start
         (HTTP, "Test Client Timeouts",
-         CB'Unrestricted_Access, Port => 1235, Max_Connection => 5);
+         CB'Unrestricted_Access, Port => Port, Max_Connection => 5);
 
       Put_Line ("Server started");
       New_Line;
@@ -108,25 +115,25 @@ procedure Tclientto is
    procedure Request is
       R : Response.Data;
    begin
-      R := Client.Get ("http://localhost:1235/3sec",
+      R := Client.Get ("http://localhost:" & Utils.Image (Port) & "/3sec",
                        Timeouts => Client.Timeouts
                          (Connect => 1.0, Send  => 1.0, Receive => 1.0));
       Put_Line ("=> " & Response.Message_Body (R));
       New_Line;
 
-      R := Client.Get ("http://localhost:1235/3sec",
+      R := Client.Get ("http://localhost:" & Utils.Image (Port) & "/3sec",
                        Timeouts => Client.Timeouts
                          (Connect => 1.0, Send  => 10.0, Receive => 10.0));
       Put_Line ("=> " & Response.Message_Body (R));
       New_Line;
 
-      R := Client.Get ("http://localhost:1235/10sec",
+      R := Client.Get ("http://localhost:" & Utils.Image (Port) & "/10sec",
                        Timeouts => Client.Timeouts
                          (Connect => 1.0, Send  => 1.0, Receive => 20.0));
       Put_Line ("=> " & Response.Message_Body (R));
       New_Line;
 
-      R := Client.Get ("http://localhost:1235/10sec",
+      R := Client.Get ("http://localhost:" & Utils.Image (Port) & "/10sec",
                        Timeouts => Client.Timeouts
                          (Connect => 1.0, Send  => 10.0, Receive => 7.0));
       Put_Line ("=> " & Response.Message_Body (R));
@@ -143,7 +150,7 @@ procedure Tclientto is
    begin
       Client.Create
         (Connection => Connect,
-         Host       => "http://localhost:1235",
+         Host       => "http://localhost:" & Utils.Image (Port),
          Timeouts   => Client.Timeouts (Connect => 1.0, Receive => 5.0));
 
       Client.Get (Connect, R, "/3sec");
