@@ -27,8 +27,8 @@
 
 .SILENT:
 
-# NOTE: You should not have to change this makefile. Configuration options can
-# be changed in makefile.conf
+#  NOTE: You should not have to change this makefile. Configuration options
+#  can be changed in makefile.conf
 
 include makefile.conf
 
@@ -61,11 +61,11 @@ BDIR		= .build/release
 endif
 
 TEST_MODE	= Separated
-# Can be set to "Grouped" to use a single driver for most tests. This
-# speed-up the non regression.
+#  Can be set to "Grouped" to use a single driver for most tests. This
+#  speed-up the non regression.
 
 #############################################################################
-# NO NEED TO CHANGE ANYTHING PAST THIS POINT
+#  NO NEED TO CHANGE ANYTHING PAST THIS POINT
 #############################################################################
 
 CWD := $(shell pwd)
@@ -149,7 +149,7 @@ distrib:
 force:
 
 #############################################################################
-# Configuration for GNAT Projet Files
+#  Configuration for GNAT Projet Files
 
 ifeq (${DEMOS}, true)
 EXTRA_MODULES = demos
@@ -167,7 +167,7 @@ MODULES_CLEAN = ${MODULES:%=%_clean}
 
 MODULES_CHECK = ${MODULES:%=%_check}
 
-## XML/Ada
+#  XML/Ada
 
 ifeq (${XMLADA}, true)
 PRJ_XMLADA=Installed
@@ -181,7 +181,7 @@ ifndef TP_XMLADA
 TP_XMLADA=$(PRJ_XMLADA)
 endif
 
-## Ldap
+#  Ldap
 
 ifeq (${LDAP}, true)
 PRJ_LDAP=Installed
@@ -189,7 +189,7 @@ else
 PRJ_LDAP=Disabled
 endif
 
-## ASIS
+#  ASIS
 
 ifeq (${ASIS}, true)
 PRJ_ASIS=Installed
@@ -199,7 +199,7 @@ PRJ_ASIS=Disabled
 GEXT_MODULE := $(GEXT_MODULE) gasis_dummy
 endif
 
-## Sockets
+#  Sockets
 
 ifeq ($(IPv6), true)
 PRJ_SOCKLIB=IPv6
@@ -207,7 +207,7 @@ else
 PRJ_SOCKLIB=GNAT
 endif
 
-## Debug
+#  Debug
 
 ifeq ($(DEBUG), true)
 PRJ_BUILD=Debug
@@ -215,7 +215,7 @@ else
 PRJ_BUILD=Release
 endif
 
-# Install directories
+#  Install directories
 
 I_BIN	= $(prefix)/bin
 I_INC	= $(prefix)/include/aws
@@ -368,8 +368,8 @@ endif
 	echo '   Body_File_Name => "templates_parser-input__aws.adb");'\
 	  >> $(CONFADC)
 
-# Set up all modules to create all the directories. This way it is possible
-# to build AWS using GPS using any settings.
+#  Set up all modules to create all the directories. This way it is possible
+#  to build AWS using GPS using any settings.
 
 setup_modules: $(MODULES_SETUP)
 
@@ -438,7 +438,7 @@ endif
 	$(CP) $(CONFGPR) $(I_AGP)
 	$(CP) $(PRJDIR)/aws_xmlada.gpr $(I_AGP)
 	$(CP) config/projects/aws_libwin32.gpr $(I_AGP)
-# Copy all shared libraries into the main bin directory
+#  Copy all shared libraries into the main bin directory
 ifeq (${ENABLE_SHARED}, true)
 ifeq ($(OS), Windows_NT)
 	$(CP) $(I_LIB)/relocatable/*$(SOEXT) $(I_BIN)
