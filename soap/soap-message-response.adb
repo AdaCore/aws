@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2001                          --
---                                ACT-Europe                                --
+--                     Copyright (C) 2000-2008, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -39,7 +38,7 @@ package body SOAP.Message.Response is
    function Build (R : in Object'Class) return AWS.Response.Data is
    begin
       return AWS.Response.Build
-        (AWS.MIME.Text_XML, String'(SOAP.Message.XML.Image (R)));
+         (AWS.MIME.Text_XML, UString_Message => SOAP.Message.XML.Image (R));
    end Build;
 
    ----------
