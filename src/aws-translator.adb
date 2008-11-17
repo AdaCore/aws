@@ -34,7 +34,7 @@ package body AWS.Translator is
 
    procedure Compress_Decompress
      (Stream : in out AWS.Resources.Streams.Memory.ZLib.Stream_Type'Class;
-      Data   : in     Ada.Streams.Stream_Element_Array;
+      Data   : in     Stream_Element_Array;
       Result :    out Utils.Stream_Element_Array_Access);
    --  Compress or decompress (depending on the Stream initialization)
    --  Data. Set result with the compressed or decompressed string. This is
@@ -66,15 +66,12 @@ package body AWS.Translator is
 
    package Conversion is
 
-      function To_String
-        (Data : in Ada.Streams.Stream_Element_Array)
-         return String;
+      function To_String (Data : in Stream_Element_Array) return String;
       pragma Inline (To_String);
       --  Convert a Stream_Element_Array to a string
 
       function To_Stream_Element_Array
-        (Data : in String)
-         return Ada.Streams.Stream_Element_Array;
+        (Data : in String) return Stream_Element_Array;
       pragma Inline (To_Stream_Element_Array);
       --  Convert a String to a Stream_Element_Array
 
@@ -308,8 +305,8 @@ package body AWS.Translator is
    end Base64_Encode;
 
    function Base64_Encode (Data : in String) return String is
-      Stream_Data : constant Stream_Element_Array
-        := To_Stream_Element_Array (Data);
+      Stream_Data : constant Stream_Element_Array :=
+                      To_Stream_Element_Array (Data);
    begin
       return Base64_Encode (Stream_Data);
    end Base64_Encode;
@@ -319,7 +316,7 @@ package body AWS.Translator is
    --------------
 
    function Compress
-     (Data   : in Ada.Streams.Stream_Element_Array;
+     (Data   : in Stream_Element_Array;
       Level  : in Compression_Level                := Default_Compression;
       Header : in ZL.Header_Type                   := ZL.Default_Header)
       return Utils.Stream_Element_Array_Access
@@ -339,7 +336,7 @@ package body AWS.Translator is
 
    procedure Compress_Decompress
      (Stream : in out AWS.Resources.Streams.Memory.ZLib.Stream_Type'Class;
-      Data   : in     Ada.Streams.Stream_Element_Array;
+      Data   : in     Stream_Element_Array;
       Result :    out Utils.Stream_Element_Array_Access)
    is
       use ZL;
@@ -395,7 +392,7 @@ package body AWS.Translator is
    ----------------
 
    function Decompress
-     (Data   : in Ada.Streams.Stream_Element_Array;
+     (Data   : in Stream_Element_Array;
       Header : in ZL.Header_Type                   := ZL.Default_Header)
       return Utils.Stream_Element_Array_Access
    is
@@ -504,11 +501,8 @@ package body AWS.Translator is
    -------------------------
 
    function To_Unbounded_String
-     (Data : in Ada.Streams.Stream_Element_Array)
-      return Ada.Strings.Unbounded.Unbounded_String
+     (Data : in Stream_Element_Array) return Unbounded_String
    is
-      use Ada.Strings.Unbounded;
-
       Chunk_Size : constant := 1_024;
       Result     : Unbounded_String;
       K          : Stream_Element_Offset := Data'First;
