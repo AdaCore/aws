@@ -418,7 +418,7 @@ package body AWS.Attachments is
                Directories.Delete_File
                  (Name => Local_Filename (Element'(Get (Attachments, J))));
             exception
-               when IO_Exceptions.Name_Error =>
+               when IO_Exceptions.Name_Error | IO_Exceptions.Use_Error =>
                   null;
             end;
          end loop;
