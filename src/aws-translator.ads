@@ -33,11 +33,17 @@ with AWS.Utils;
 
 package AWS.Translator is
 
+   use Ada.Strings.Unbounded;
+
    package ZL renames AWS.Resources.Streams.Memory.ZLib;
 
    ------------
    -- Base64 --
    ------------
+
+   procedure Base64_Encode
+     (Data     : in     Unbounded_String;
+      B64_Data :    out Unbounded_String);
 
    function Base64_Encode
      (Data : in Ada.Streams.Stream_Element_Array) return String;
@@ -45,6 +51,10 @@ package AWS.Translator is
 
    function Base64_Encode (Data : in String) return String;
    --  Same as above but takes a string as input
+
+   procedure Base64_Decode
+     (B64_Data : in     Unbounded_String;
+      Data     :    out Unbounded_String);
 
    function Base64_Decode
      (B64_Data : in String) return Ada.Streams.Stream_Element_Array;
