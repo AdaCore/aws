@@ -56,10 +56,11 @@ package body SOAP.Message.Reader is
          --  Ch's value this could raise an exception. For example if
          --  Ch is Utf32 encoded and contains characters outside the
          --  Basic_8bit encoding.
-         Str : constant String := Utils.From_Utf8 (Ch);
+         S : constant String_Access := Utils.From_Utf8 (Ch);
       begin
          Tmp := Append_Child
-           (Handler.Current_Node, Create_Text_Node (Handler.Tree, Str));
+           (Handler.Current_Node,
+            Create_Text_Node (Handler.Tree, DOM_String_Access (S)));
       end;
    exception
       when Unicode.CES.Invalid_Encoding =>
