@@ -157,4 +157,6 @@ package body SOAP.Message.Reader is
       end loop;
    end Start_Element;
 
+begin
+   DOM.Core.Set_Node_List_Growth_Factor (1.0);
 end SOAP.Message.Reader;
