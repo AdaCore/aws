@@ -434,6 +434,7 @@ local uLong crc32_combine_(crc1, crc2, len2)
 }
 
 /* ========================================================================= */
+#if _FILE_OFFSET_BITS != 64
 uLong ZEXPORT crc32_combine(crc1, crc2, len2)
     uLong crc1;
     uLong crc2;
@@ -441,6 +442,7 @@ uLong ZEXPORT crc32_combine(crc1, crc2, len2)
 {
     return crc32_combine_(crc1, crc2, len2);
 }
+#endif /* else crc32_combine is defined to crc32_combine64 in zlib.h */
 
 #ifdef _LARGEFILE64_SOURCE
 uLong ZEXPORT crc32_combine64(crc1, crc2, len2)
