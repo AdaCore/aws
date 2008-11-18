@@ -210,6 +210,14 @@ package body AWS.Translator is
       for C in 1 .. Length (B64_Data) loop
          Add (S, Element (B64_Data, C));
       end loop;
+
+      --  Remove the padding
+      if S.Pad /= 0 then
+         Delete
+           (Data,
+            From    => Length (Data) - Positive (S.Pad) + 1,
+            Through => Length (Data));
+      end if;
    end Base64_Decode;
 
    function Base64_Decode (B64_Data : in String) return Stream_Element_Array is
@@ -235,11 +243,16 @@ package body AWS.Translator is
    begin
       S.Cb := Add_Char'Access;
 
-      for C in 1 .. B64_Data'Length loop
+      for C in B64_Data'Range loop
          Add (S, B64_Data (C));
       end loop;
 
-      return Result (1 .. Last);
+      return Result (1 .. Last - Stream_Element_Offset (S.Pad));
+   end Base64_Decode;
+
+   function Base64_Decode (B64_Data : in String) return String is
+   begin
+      return To_String (Base64_Decode (B64_Data));
    end Base64_Decode;
 
    -------------------

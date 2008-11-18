@@ -60,6 +60,8 @@ package AWS.Translator is
      (B64_Data : in String) return Ada.Streams.Stream_Element_Array;
    --  Decode B64_Data using the base64 algorithm
 
+   function Base64_Decode (B64_Data : in String) return String;
+
    --------
    -- QP --
    --------
