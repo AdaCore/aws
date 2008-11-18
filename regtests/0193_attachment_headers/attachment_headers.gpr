@@ -27,7 +27,7 @@
 
 with "aws";
 
-project Client_Headers is
+project Attachment_Headers is
    for Source_Dirs use (".", "../common");
    for Main use ("attachment_headers.adb");
-end Client_Headers;
+end Attachment_Headers;
