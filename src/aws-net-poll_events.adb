@@ -135,6 +135,19 @@ package body AWS.Net.Poll_Events is
       FD_Set.Length := FD_Set.Length - 1;
    end Remove;
 
+   -------------
+   -- Replace --
+   -------------
+
+   overriding procedure Replace
+     (FD_Set : in out Set;
+      Index  : in     Positive;
+      FD     : in     FD_Type) is
+   begin
+      Check_Range (FD_Set, Index);
+      FD_Set.Fds (Index).FD := OS_Lib.FD_Type (FD);
+   end Replace;
+
    --------------
    -- Set_Mode --
    --------------

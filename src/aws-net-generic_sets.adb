@@ -350,6 +350,10 @@ package body AWS.Net.Generic_Sets is
                           Data   : in out Data_Type)) is
    begin
       Process (Set.Set (Index).Socket.all, Set.Set (Index).Data);
+
+      --  Socket could be reconnected, we should replace it
+
+      Set.Poll.Replace (Integer (Index), Set.Set (Index).Socket.Get_FD);
    end Update_Socket;
 
    ----------

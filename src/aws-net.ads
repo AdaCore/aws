@@ -280,6 +280,12 @@ package AWS.Net is
       Event  : in     Wait_Event_Set) is abstract;
    --  Add FD to the end of FD_Set
 
+   procedure Replace
+     (FD_Set : in out Net.FD_Set;
+      Index  : in     Positive;
+      FD     : in     FD_Type) is abstract;
+   --  Replaces the socket FD in FD_Set
+
    procedure Set_Mode
      (FD_Set : in out Net.FD_Set;
       Index  : in     Positive;
