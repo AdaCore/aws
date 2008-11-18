@@ -128,6 +128,82 @@ package body SOAP.Utils is
       return Result;
    end From_Utf8;
 
+   function From_Utf8 (Str : in String) return String_Access is
+
+      Result : String_Access := new String (1 .. 2000);
+      Last   : Integer := 0;
+
+      procedure Append (Ch : in Character);
+      pragma Inline (Append);
+      --  Append Ch into Result, adjust Result size if needed
+
+      procedure Adjust_Result;
+      pragma Inline (Adjust_Result);
+      --  Adjust final Result to the right size
+
+      ------------
+      -- Append --
+      ------------
+
+      procedure Append (Ch : in Character) is
+         Old : String_Access;
+      begin
+         if Last >= Result'Last then
+            Old := Result;
+            Result := new String (1 .. Old'Last * 2);
+            Result (1 .. Result'Last) := Old.all;
+            Free (Old);
+         end if;
+         Last := Last + 1;
+         Result (Last) := Ch;
+      end Append;
+
+      -------------------
+      -- Adjust_Result --
+      -------------------
+
+      procedure Adjust_Result is
+         Old : String_Access;
+      begin
+         if Last /= Result'Last then
+            Old := Result;
+            Result := new String (1 .. Last);
+            Result.all := Old (1 .. Last);
+            Free (Old);
+         end if;
+      end Adjust_Result;
+
+      Idx      : Integer := Str'First;
+      Buf      : String (1 .. 6);
+      Buf_Last : Integer := 0;
+      Ch32     : Unicode.Unicode_Char;
+      W        : Integer;
+   begin
+      loop
+         while Idx <= Str'Last and then Buf_Last < Buf'Last loop
+            Buf (Buf_Last + 1) := Str (Idx);
+            Idx := Idx + 1;
+            Buf_Last := Buf_Last + 1;
+         end loop;
+
+         exit when Buf_Last = 0;
+
+         W := 1;
+         Unicode.CES.Utf8.Read (Buf, W, Ch32);
+         W := W - 1;
+
+         for I in 1 .. Buf_Last - W loop
+            Buf (I) := Buf (I + W);
+         end loop;
+
+         Buf_Last := Buf_Last - W;
+         Append (Character'Val (Ch32));
+      end loop;
+
+      Adjust_Result;
+      return Result;
+   end From_Utf8;
+
    ---------
    -- Get --
    ---------
