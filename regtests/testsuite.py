@@ -43,6 +43,7 @@ PYTHON_SUPPORT = os.path.join(CURDIR, "python_support")
 sys.path.append(PYTHON_SUPPORT)
 
 from gnatpython.ex import Run
+from gnatpython.fileutils import ln
 from gnatpython.main import Main
 from gnatpython.optfileparser import OptFileParse
 
@@ -381,7 +382,7 @@ def linktree(src, dst, symlinks=0):
             elif os.path.isdir(srcname):
                 linktree(srcname, dstname, symlinks)
             else:
-                os.link(srcname, dstname)
+                ln(srcname, dstname)
         except (IOError, os.error), why:
             print "Can't link %s to %s: %s" % (srcname, dstname, str(why))
 
