@@ -321,7 +321,7 @@ AWS.Context = new function() {
 
       //  Insert new context field
 
-      if (found_context) {
+      if (!found_context) {
          hi = document.createElement('input');
          hi.setAttribute('type', 'hidden');
          hi.setAttribute('name', '@_CTX_WB_@');
@@ -329,7 +329,7 @@ AWS.Context = new function() {
          form.appendChild(hi);
       }
 
-      if (found_old_context) {
+      if (!found_old_context) {
          hi = document.createElement('input');
          hi.setAttribute('type', 'hidden');
          hi.setAttribute('name', '@_CTX_OLD_WB_@');
