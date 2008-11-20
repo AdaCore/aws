@@ -41,7 +41,7 @@ class Arch:
       is_host (true if this is not a cross context)
     """
 
-    def __init__ (self, platform_name = None, version = None, is_host = False):
+    def __init__ (self, platform_name=None, version=None, is_host=False):
         """Arch constructor
 
         PARAMETERS
@@ -88,7 +88,8 @@ class Arch:
         self.__fill_info ()
 
         # Find triplet
-        self.triplet = config.build_targets [self.platform]['name'] % self.__get_dict ()
+        self.triplet = config.build_targets [self.platform]['name'] % \
+            self.__get_dict ()
 
     def __get_dict (self):
         """Export os and cpu variables as os_{var} and cpu_{var}
@@ -116,6 +117,7 @@ class Arch:
             "OS\n" \
             "   name:          %(os_name)s\n" \
             "   version:       %(os_version)s\n" \
+            "   exeext:        %(os_exeext)s\n" \
             "   is_bareboard:  %(os_is_bareboard)s\n" \
             "CPU\n" \
             "   name:   %(cpu_name)s\n" \
@@ -145,6 +147,7 @@ class Arch:
         self.cpu.endian = config.cpu_info[self.cpu.name]['endian']
 
         self.os.is_bareboard = config.os_info[self.os.name]['is_bareboard']
+        self.os.exeext       = config.os_info[self.os.name]['exeext']
 
         # If version is not given by the user guess it or set it to the
         # default (cross case)
@@ -273,4 +276,4 @@ class Arch:
 
 
 if __name__ == "__main__":
-    Arch()
+    print Arch()

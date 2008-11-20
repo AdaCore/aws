@@ -67,13 +67,16 @@ Here are some invocation examples:
 
 """
 
-from os.path import *
 from optparse import OptionParser, TitledHelpFormatter
+
+import os
 import sys
 import logging
 import gnatpython.logging_util
 
-class MainError (Exception): pass
+class MainError (Exception):
+    """MainError exception"""
+    pass
 
 class MainHelpFormatter(TitledHelpFormatter):
     """Format help with underlined section headers.
@@ -114,7 +117,7 @@ class Main:
         """
         main = sys.modules['__main__']
 
-        (self.name, ext) = splitext (basename (main.__file__))
+        self.name = os.path.splitext (os.path.basename (main.__file__))[0]
 
         docstring = main.__doc__
         if docstring is None:
@@ -176,18 +179,18 @@ class Main:
         else:
             level = logging.INFO
 
-        (handler, rawhandler) = gnatpython.logging_util.add_handlers \
-            (level, format = '%(name)-12s: %(levelname)-8s %(message)s')
+        handler = gnatpython.logging_util.add_handlers \
+            (level, format = '%(name)-12s: %(levelname)-8s %(message)s')[0]
 
         if self.formatter is not None:
             handler.setFormatter(self.formatter)
 
     def error (self, msg):
-     """Print a usage message incorporating 'msg' to stderr and exit.
+        """Print a usage message incorporating 'msg' to stderr and exit.
 
-     PARAMETERS
-       msg: Error message to display
-     """
-     self.__option_parser.error(msg)
+        PARAMETERS
+        msg: Error message to display
+        """
+        self.__option_parser.error(msg)
 
 

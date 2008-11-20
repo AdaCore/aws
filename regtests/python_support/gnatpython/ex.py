@@ -4,10 +4,14 @@ This package provides a single class called run which ease spawn of processes
 in blocking or non blocking mode and redirection of its stdout, stderr and
 stdin"""
 
-from subprocess import *
-import logging
 import gnatpython.logging_util
-import time
+
+from subprocess import Popen, STDOUT, PIPE
+
+import logging
+import os
+
+BUF_SIZE=128
 
 class Run:
     """
@@ -15,7 +19,7 @@ class Run:
       status : exit status (meaningfull only after the end of the process)
       out    : process standard output  (if instanciated with output = PIPE)
       err    : same as out but for standard error
-      pid    : PID (-1 if the process cannot be spawned)
+      pid    : PID
     """
     def __init__ (self, cmds, cwd=None, output=PIPE,
                   error=STDOUT, input=None, bg=False, timeout=None, env=None):
@@ -37,10 +41,13 @@ class Run:
           error:   same as output and also STDOUT (use output setting)
           input:   same as output
           bg:      if True then run in background
-          timeout: limit execution time
+          timeout: limit execution time (in seconds).
 
         RETURN VALUE
           Return an object of type run.
+
+        EXCEPTIONS
+          Raise OSError when trying to execute a non-existent file.
 
         REMARKS
           If you specify a filename for output or stderr then file content is
@@ -58,6 +65,10 @@ class Run:
         self.out    = ''
         self.err    = ''
         self.status = None
+        self.comm   = None
+
+        if env is None:
+            env = os.environ
 
         # First resolve output, error and input
         self.__open_files ()
@@ -70,12 +81,12 @@ class Run:
             if not isinstance(cmds[0], list):
                 logging.debug ('Run: ' + '%s' % (rlimit_args + cmds))
                 self.internal = Popen (rlimit_args + cmds,
-                                       stdin = self.stdin,
-                                       stdout = self.stdout,
-                                       stderr = self.stderr,
-                                       cwd = cwd,
+                                       stdin=self.stdin,
+                                       stdout=self.stdout,
+                                       stderr=self.stderr,
+                                       cwd=cwd,
                                        env=env,
-                                       universal_newlines = True)
+                                       universal_newlines=True)
 
             else:
                 cmds[0] = rlimit_args + cmds[0]
@@ -98,18 +109,15 @@ class Run:
                         txt_mode = False
 
                     runs.append (Popen(cmd,
-                                       stdin = stdin,
-                                       stdout = stdout,
-                                       stderr = self.stderr,
-                                       cwd = cwd,
-                                       env = env,
+                                       stdin=stdin,
+                                       stdout=stdout,
+                                       stderr=self.stderr,
+                                       cwd=cwd,
+                                       env=env,
                                        universal_newlines=txt_mode))
                 self.internal = runs[-1]
 
-        except OSError:
-            self.__error ()
-            return
-        except:
+        except Exception:
             self.__error ()
             raise
 
@@ -166,10 +174,9 @@ class Run:
         if self.status == 127:
             return self.status
 
-        #self.internal.wait ()
-
         self.status = None
         done = False
+
         while not done:
             if self.status is not None:
                 done = True
@@ -181,7 +188,7 @@ class Run:
                     if done:
                         tmp_out = self.internal.stdout.read ()
                     else:
-                        tmp_out = self.internal.stdout.read (128)
+                        tmp_out = self.internal.stdout.read (BUF_SIZE)
                     logging.log (gnatpython.logging_util.RAW, tmp_out)
                     self.out += tmp_out
             else:
@@ -194,7 +201,7 @@ class Run:
                     if done:
                         tmp_err = self.internal.stderr.read ()
                     else:
-                        tmp_err = self.internal.stderr.read (128)
+                        tmp_err = self.internal.stderr.read (BUF_SIZE)
                     logging.log (gnatpython.logging_util.RAW, tmp_err)
                     self.err += tmp_err
             else:

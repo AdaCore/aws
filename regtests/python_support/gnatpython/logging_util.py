@@ -1,9 +1,10 @@
 """Extensions to the standard python logging system
 """
 from logging import (addLevelName, StreamHandler, FileHandler,
-                     Filter, Formatter, getLogger)
-import sys, types
+                     Filter, Formatter, getLogger, DEBUG, codecs)
 
+import os
+import types
 
 # Define a new log level for which level number is lower then DEBUG
 RAW = 5
@@ -26,6 +27,7 @@ class RawFilter (Filter):
         REMARKS
           None
         """
+        Filter.__init__(self)
         if include_raw:
             self.include_raw = 1
         else:
@@ -64,7 +66,7 @@ class RawStreamHandler(StreamHandler):
         try:
             self.stream.flush()
         except ValueError:
-            pass
+            return
 
     def emit(self, record):
         """Emit a record.
@@ -106,7 +108,7 @@ class RawFileHandler(RawStreamHandler):
             stream = open(filename, mode)
         else:
             stream = codecs.open(filename, mode, encoding)
-        StreamHandler.__init__(self, stream)
+        RawStreamHandler.__init__(self, stream)
         #keep the absolute path, otherwise derived classes which use this
         #may come a cropper when the current directory changes
         self.baseFilename = os.path.abspath(filename)
@@ -119,12 +121,12 @@ class RawFileHandler(RawStreamHandler):
         self.stream.close()
         StreamHandler.close(self)
 
-def add_handlers (level, format = None, filename = None):
+def add_handlers (level, format=None, filename=None):
     """Add handlers with support for 'RAW' logging"""
 
     # Case in which we add handler to the console
 
-    handler = None
+    handler     = None
     raw_handler = None
 
     if filename is None:
