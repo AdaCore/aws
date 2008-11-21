@@ -1,5 +1,5 @@
 ====================================================
-AWS 2.4 NEW FEATURES LIST Current as of Jan 11, 2007
+AWS 2.4 NEW FEATURES LIST Current as of Nov 21, 2008
 ====================================================
 
 Copyright (c) 2006-2008, AdaCore
@@ -21,7 +21,7 @@ NF-24-GA09-014 Session in multiple embedded server (2007-10-12)
   same executable. For this each server can register it's own session
   name. This will be used for the cookie name on the client side.
 
-NF-24-G221-027 Add support for controlling connection timeout (2008-12-11)
+NF-24-G221-027 Add support for controlling connection timeout (2008-01-11)
 
   The AWS client API had support for controlling send/receive timeout,
   it is now also possible to control the timeout of the initial
