@@ -61,7 +61,6 @@ BDIR		= .build/release
 endif
 
 TEST_MODE	= Separated
-PYTHON          = python
 #  Can be set to "Grouped" to use a single driver for most tests. This
 #  speed-up the non regression.
 
@@ -97,7 +96,7 @@ ALL_OPTIONS	= $(MAKE_OPT) SOCKET="$(SOCKET)" XMLADA="$(XMLADA)" \
 	BDIR="$(BDIR)" prefix="$(prefix)" ENABLE_SHARED="$(ENABLE_SHARED)" \
 	SOEXT="$(SOEXT)" BUILD_DOC_SCRIPT="false" GNAT="$(GNAT)" \
 	T2A="../../$(BDIR)/${LIBRARY_TYPE}/tools/templates2ada" \
-	LIBRARY_TYPE="$(LIBRARY_TYPE)" CJOBS="$(CJOBS)"
+	LIBRARY_TYPE="$(LIBRARY_TYPE)" CJOBS="$(CJOBS)" PYTHON="$(PYTHON)"
 
 build_doc:
 	echo ""
@@ -250,7 +249,6 @@ GALL_OPTIONS := $(ALL_OPTIONS) \
 	I_WEL="$(I_WEL)" \
 	I_DOC="$(I_DOC)" \
 	I_PLG="$(I_PLG)" \
-	PYTHON="$(PYTHON)" \
 	TEST_MODE="$(TEST_MODE)"
 
 ${MODULES_BUILD}: force
