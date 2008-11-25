@@ -61,6 +61,7 @@ BDIR		= .build/release
 endif
 
 TEST_MODE	= Separated
+PYTHON          = python
 #  Can be set to "Grouped" to use a single driver for most tests. This
 #  speed-up the non regression.
 
@@ -249,6 +250,7 @@ GALL_OPTIONS := $(ALL_OPTIONS) \
 	I_WEL="$(I_WEL)" \
 	I_DOC="$(I_DOC)" \
 	I_PLG="$(I_PLG)" \
+	PYTHON="$(PYTHON)" \
 	TEST_MODE="$(TEST_MODE)"
 
 ${MODULES_BUILD}: force

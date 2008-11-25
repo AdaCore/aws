@@ -44,7 +44,7 @@ endif
 build:
 
 testsuite.tags: ../makefile.setup gen_system_tags.py
-	./gen_system_tags.py ../makefile.setup 2>/dev/null || \
+	$(PYTHON) gen_system_tags.py ../makefile.setup 2>/dev/null || \
 		(echo "Can not generate system tags. The test are disabled")
 
 setup: testsuite.tags rlimit$(EXEEXT)
@@ -54,7 +54,7 @@ rlimit$(EXEEXT): $(RLIMIT_SRC)
 
 aws_regtests:
 	test -f testsuite.tags || (echo 'Did you run make setup ?'; exit 1)
-	./testsuite.py
+	$(PYTHON) testsuite.py
 
 install:
 
