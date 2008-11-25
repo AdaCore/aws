@@ -321,7 +321,7 @@ class Runner(object):
                     test = os.path.join(BUILDS_DIR, test)
                     if opt is not None:
                         env = set_environment(opt.get_value("limit"))
-                    process = Run(["python", test], bg=True, env=env,
+                    process = Run([sys.executable, test], bg=True, env=env,
                                   output=None, error=None)
                     job = Job(test_dir, process, opt)
                     self.jobs.append(job)
