@@ -32,6 +32,7 @@
 
 with Ada.Calendar;
 with Ada.Command_Line;
+with Ada.Directories;
 with Ada.Integer_Text_IO;
 with Ada.Streams;
 with Ada.Strings.Fixed;
@@ -96,8 +97,8 @@ procedure AwsRes is
       --  Maximum number of data in a single line
 
       Unit_Name : constant String := Package_Name (Filename);
-      Pck_Name  : constant String
-        := To_String (Root_Pck) & '-' & Unit_Name & ".ads";
+      Pck_Name  : constant String := To_String (Root_Pck) & '-'
+        & Directories.Simple_Name (Unit_Name) & ".ads";
 
       Buffer    : Stream_Element_Array (1 .. 1_024 * 200);
       --  We need a buffer large enough to contain as much data as
@@ -226,9 +227,11 @@ procedure AwsRes is
       Text_IO.Put_Line (RT_File, "         Register");
 
       if Compress then
-         Text_IO.Put_Line (RT_File, "            (""" & Filename & ".gz"",");
+         Text_IO.Put_Line (RT_File, "            ("""
+                           & Directories.Simple_Name (Filename) & ".gz"",");
       else
-         Text_IO.Put_Line (RT_File, "            (""" & Filename & """,");
+         Text_IO.Put_Line (RT_File, "            ("""
+                           & Directories.Simple_Name (Filename) & """,");
       end if;
 
       Text_IO.Put_Line
@@ -271,7 +274,8 @@ procedure AwsRes is
       Map  : constant Strings.Maps.Character_Mapping
         := Strings.Maps.To_Mapping (From, To);
    begin
-      return Strings.Fixed.Translate (Filename, Map);
+      return Strings.Fixed.Translate
+        (Directories.Simple_Name (Filename), Map);
    end Package_Name;
 
    ------------------------
