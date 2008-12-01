@@ -141,6 +141,21 @@ package body SOAP.Utils is
       pragma Inline (Adjust_Result);
       --  Adjust final Result to the right size
 
+      -------------------
+      -- Adjust_Result --
+      -------------------
+
+      procedure Adjust_Result is
+         Old : String_Access;
+      begin
+         if Last /= Result'Last then
+            Old := Result;
+            Result := new String (1 .. Last);
+            Result.all := Old (1 .. Last);
+            Free (Old);
+         end if;
+      end Adjust_Result;
+
       ------------
       -- Append --
       ------------
@@ -157,21 +172,6 @@ package body SOAP.Utils is
          Last := Last + 1;
          Result (Last) := Ch;
       end Append;
-
-      -------------------
-      -- Adjust_Result --
-      -------------------
-
-      procedure Adjust_Result is
-         Old : String_Access;
-      begin
-         if Last /= Result'Last then
-            Old := Result;
-            Result := new String (1 .. Last);
-            Result.all := Old (1 .. Last);
-            Free (Old);
-         end if;
-      end Adjust_Result;
 
       Idx      : Integer := Str'First;
       Buf      : String (1 .. 6);
