@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2002-2006                          --
---                                 AdaCore                                  --
+--                     Copyright (C) 2002-2008, AdaCore                     --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
 --                                                                          --
@@ -308,6 +307,10 @@ procedure AwsRes is
                raise Syntax_Error;
          end case;
       end loop;
+
+   exception
+      when GNAT.Command_Line.Invalid_Switch =>
+         raise Syntax_Error;
    end Parse_Command_Line;
 
    Buffer : String (1 .. 100);
