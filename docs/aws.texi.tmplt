@@ -848,7 +848,7 @@ that will answer ``Hello World'' if we ask for the internal resource
    @b{function} HW_CB (Request : @b{in} AWS.Status.Data)
      @b{return} AWS.Response.Data
    @b{is}
-      URI : @b{constant} String := Status.URI (Request);
+      URI : @b{constant} String := AWS.Status.URI (Request);
    @b{begin}
       @b{if} URI = "/hello" @b{then}
          @b{return} AWS.Response.Build ("text/html", "<p>Hello world !");
