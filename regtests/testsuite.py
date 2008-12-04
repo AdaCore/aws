@@ -34,7 +34,7 @@ import logging
 import os
 import shutil
 import sys
-import time
+
 from glob import glob
 
 # Importing gnatpython modules
@@ -43,24 +43,27 @@ PYTHON_SUPPORT = os.path.join(CURDIR, "python_support")
 sys.path.append(PYTHON_SUPPORT)
 
 from gnatpython.ex import Run
-from gnatpython.fileutils import ln
+from gnatpython.fileutils import ln, cp
 from gnatpython.main import Main
+from gnatpython.mainloop import MainLoop
 from gnatpython.optfileparser import OptFileParse
+from gnatpython.report import Report, GenerateRep
 
 DURATION_REPORT_NAME = "testsuite.duration"
-TESTSUITE_RES = "testsuite.res"
-OUTPUTS_DIR   = ".outputs"
-BUILDS_DIR    = ".build"
+TESTSUITE_RES     = "testsuite.res"
+TESTSUITE_REP     = "testsuite.rep"
+OLD_TESTSUITE_RES = "testsuite.res_last"
+
+OUTPUTS_DIR   = os.path.join(CURDIR, ".outputs")
+BUILDS_DIR    = os.path.join(CURDIR, ".build")
+DIFFS_DIR     = os.path.join(OUTPUTS_DIR, 'diffs')
+PROFILES_DIR  = os.path.join(OUTPUTS_DIR, 'profiles')
 
 BUILD_FAILURE   = 1
 DIFF_FAILURE    = 2
 UNKNOWN_FAILURE = 3
 
-
-class Config(object):
-    """Configure the testsuite"""
-    CONFIG_TEMPLATE = """
-
+CONFIG_TEMPLATE = """
 import logging
 import os
 import sys
@@ -92,139 +95,7 @@ def set_config():
     console.setFormatter(formatter)
     console.setLevel(logging.%(logging_level)s)
     logging.getLogger('').addHandler(console)
-
 """
-
-
-    def __init__(self, options):
-        self.with_gdb = options.with_gdb
-        if self.with_gdb:
-            #  Serialize runs
-            self.jobs = 1
-            #  Disable gprof
-            self.with_gprof = False
-        else:
-            self.jobs = options.jobs
-            self.with_gprof = options.with_gprof
-
-        self.delay = options.delay
-        self.with_gprbuild = options.with_gprbuild
-
-        if options.verbose:
-            self.logging_level = "DEBUG"
-        elif options.view_diffs:
-            self.logging_level = "ERROR"
-        else:
-            self.logging_level = "CRITICAL"
-
-        if options.tags is None:
-            tags_file = open('testsuite.tags', 'r')
-            self.tags = tags_file.read().strip()
-            tags_file.close()
-        else:
-            self.tags = options.tags
-
-        if options.tests is None:
-            # Get all test.py
-            self.tests = sorted(glob('*/test.py'), reverse=True)
-        else:
-            # tests parameter can be a file containing a list of tests
-            if os.path.isfile(options.tests):
-                list_file = open(options.tests, 'r')
-                self.tests = []
-                for line in list_file:
-                    test_name = line.rstrip().split(':')[0]
-                    self.tests.append(os.path.join(test_name, 'test.py'))
-            else:
-                # or a space separated string
-                self.tests = [os.path.join(t, "test.py")
-                              for t in options.tests.split()]
-
-        if options.with_Z999:
-            self.tests.insert(0, os.path.join("Z999_xfail", "always_fail.py"))
-
-        self.python_support = PYTHON_SUPPORT
-        self.log_dir        = os.path.join(CURDIR, OUTPUTS_DIR)
-        self.profiles_dir   = os.path.join(self.log_dir, 'profiles')
-        self.diffs_dir      = os.path.join(self.log_dir, "diffs")
-
-        self.build_failure   = BUILD_FAILURE
-        self.diff_failure    = DIFF_FAILURE
-        self.unknown_failure = UNKNOWN_FAILURE
-
-    def generate_config(self):
-        """Generate config.py module that will be read by runtest.py"""
-        conf = open("config.py", 'w')
-        conf.write(self.CONFIG_TEMPLATE % self.__dict__)
-        conf.close()
-
-class Job(object):
-    """Monitor a running test
-
-    ATTRIBUTES
-      name     : name of the test directory
-      comment  : an optional comment
-      duration : the duration of the test (or None if the job is still running)
-    """
-    def __init__(self, name, process, opt, start_time=None):
-        """Create a new monitor
-
-        PARAMETERS
-          name       : name of the test directory
-          process    : the running process
-          opt        : content of test.opt file
-          start_time : set to current date if not specified
-
-        RETURN VALUE
-          a Job object
-        """
-        if start_time is None:
-            self.start_time = time.time()
-        else:
-            self.start_time = start_time
-        self.name       = name
-        self.process    = process
-        self.opt        = opt
-        self.duration   = None
-
-        #  Get XFAIL value
-        if self.opt is None:
-            self.xfail = ""
-        else:
-            self.xfail = self.opt.get_value("XFAIL")
-
-    def is_running(self):
-        """Check if the job is still running
-
-        RETURN VALUE
-          True if the job is running (else False)
-        """
-        if self.process.poll() is not None:
-            self.duration = time.time() - self.start_time
-            if self.process.out is not None:
-                logging.debug(self.process.out)
-            return False
-        return True
-
-    def status(self):
-        """Compute job final status
-
-        RETURN VALUE
-         a string (can be UOK, OK, XFAIL, DIFF or PROBLEM)
-        """
-        if self.process.status == 0:
-            if self.xfail:
-                return "UOK"
-            else:
-                return "OK"
-        else:
-            if self.xfail:
-                return "XFAIL"
-            else:
-                if self.process.status == DIFF_FAILURE:
-                    return "DIFF"
-                else:
-                    return "PROBLEM"
 
 class Runner(object):
     """Run the testsuite
@@ -235,19 +106,30 @@ class Runner(object):
     """
 
 
-    def __init__(self, config):
+    def __init__(self, options):
         """Fill the test lists"""
-        self.__duration_report_rotate()
-        self.jobs   = []
-        self.config = config
-        self.config.generate_config()
+
+        self.config = options
+        if self.config.with_gdb:
+            # Serialize runs and disable gprof
+            self.config.jobs = 1
+            self.config.with_gprof = False
+
+        self.config.logging_level = self._logging_level()
+
+        if self.config.tags is None:
+            # Read tags from testsuite.tags
+            # The file testsuite.tags should have been generated by
+            # AWS 'make setup'
+            tags_file = open('testsuite.tags')
+            self.config.tags = tags_file.read().strip()
+            tags_file.close()
 
         logging.debug("Running the testsuite with the following tags: %s" %
                       self.config.tags)
 
         # Open report file
-        self.fres    = open(TESTSUITE_RES, 'w')
-        self.ftimeit = open(DURATION_REPORT_NAME + "_0", 'w')
+        self.report = Report(TESTSUITE_RES)
 
         # Set python path
         if "PYTHONPATH" in os.environ:
@@ -256,33 +138,59 @@ class Runner(object):
             pythonpath = ""
         os.environ["PYTHONPATH"] = CURDIR + os.pathsep + pythonpath
 
-    def __duration_report_rotate(self):
-        """Rotate all duration time reports"""
-        for k in sorted(range(10), reverse=True):
-            report_file      = DURATION_REPORT_NAME + "_%d" % k
-            next_report_file = DURATION_REPORT_NAME + "_%d" % (k + 1)
-            if os.path.exists(report_file):
-                os.rename(report_file, next_report_file)
+        # generate config.py that will be read by runtest.py
+        config_py = open('config.py', 'w')
+        config_py_dict = self.config.__dict__
+        config_py_dict['python_support']  = PYTHON_SUPPORT
+        config_py_dict['profiles_dir']    = PROFILES_DIR
+        config_py_dict['diffs_dir']       = DIFFS_DIR
+        config_py_dict['build_failure']   = BUILD_FAILURE
+        config_py_dict['unknown_failure'] = UNKNOWN_FAILURE
+        config_py_dict['diff_failure']    = DIFF_FAILURE
+        config_py_dict['log_dir']         = OUTPUTS_DIR
 
-    def check_jobs(self):
-        """Check if a job has terminated"""
-        for index, job in enumerate(self.jobs):
-            if not job.is_running():
-                self.report(job.name, job.status(),
-                            comment=job.xfail, duration=job.duration)
-                del self.jobs[index]
+        config_py.write(CONFIG_TEMPLATE % config_py_dict)
+        config_py.close()
 
-    def report(self, name, status, comment=None, duration=None):
+    def _logging_level(self):
+        """Returns the requested logging level"""
+        if self.config.verbose:
+            return "DEBUG"
+        elif self.config.view_diffs:
+            return "ERROR"
+        else:
+            return "CRITICAL"
+
+    def _get_testnames(self):
+        """Returns the list of tests to run"""
+        tests_list = []
+        if self.config.tests is None:
+            # Get all test.py
+            tests_list = sorted(glob('*/test.py'))
+        else:
+            # tests parameter can be a file containing a list of tests
+            if os.path.isfile(self.config.tests):
+                list_file = open(self.config.tests)
+                tests_list = []
+                for line in list_file:
+                    test_name = line.rstrip().split(':')[0]
+                    tests_list.append(os.path.join(test_name, 'test.py'))
+                list_file.close()
+            else:
+                # or a space separated string
+                tests_list = [os.path.join(t, "test.py")
+                        for t in self.config.tests.split()]
+
+        if self.config.with_Z999:
+            tests_list.insert(0, os.path.join("Z999_xfail", "always_fail.py"))
+        return tests_list
+
+    def report_result(self, name, status, comment="", diff_content=""):
         """Add a test result in testsuite.res file.
 
         This will also log the result for interactive use of the testsuite.
         """
-        self.fres.write('%s:%s:%s\n' % (name, status, comment))
-
-        if duration is not None:
-            self.ftimeit.write("%s\t%f\n" % (name, duration))
-        else:
-            self.ftimeit.write("%s\tNaN\n" % name)
+        self.report.add(name, status, comment=comment, diff=diff_content)
 
         result = "%-60s %-9s %s" % (name, status, comment)
 
@@ -297,63 +205,56 @@ class Runner(object):
         """Start the testsuite"""
         linktree("common", os.path.join(BUILDS_DIR, "common"))
 
-        while self.config.tests:
-            # JOBS queued
+        # Generate the testcases list
+        # Report all DEAD tests
+        testcases = []
+        for test_py in self._get_testnames():
+            testcase = TestCase(test_py)
+            testcase.parseopt(self.config.tags)
+            if testcase.is_dead():
+                self.report_result(testcase.testdir,
+                            "DEAD", testcase.getopt('dead'))
+            else:
+                testcases.append(testcase)
 
-            while len(self.jobs) < self.config.jobs and self.config.tests:
-                # Pop a new job from the tests list and run it
-                dead = False
-                env  = None
-                opt  = None
-                test = self.config.tests.pop()
-                test_dir = os.path.dirname(test)
-                test_opt = os.path.join(test_dir, "test.opt")
+        # Run the main loop
+        collect_result = gen_collect_result(self.report_result)
+        MainLoop(testcases, build_cmd, collect_result, self.config.jobs)
+        self.report.write()
 
-                logging.debug("Running " + test_dir)
-                if os.path.exists(test_opt):
-                    opt = OptFileParse(self.config.tags, test_opt)
-                    dead = opt.is_dead
-                    if dead:
-                        self.report(test_dir, "DEAD", opt.get_value('dead'))
+        old_results = None
+        if self.config.old_res and os.path.exists(self.config.old_res):
+            old_results = self.config.old_res
+        elif os.path.exists(OLD_TESTSUITE_RES):
+            old_results = OLD_TESTSUITE_RES
 
-                if not dead:
-                    linktree(test_dir, os.path.join(BUILDS_DIR, test_dir))
-                    test = os.path.join(BUILDS_DIR, test)
-                    if opt is not None:
-                        env = set_environment(opt.get_value("limit"))
-                    process = Run([sys.executable, test], bg=True, env=env,
-                                  output=None, error=None)
-                    job = Job(test_dir, process, opt)
-                    self.jobs.append(job)
+        testsuite_rep = GenerateRep(TESTSUITE_RES, old_results)
+        report_file = open(TESTSUITE_REP, 'w')
+        report_file.write(testsuite_rep.get_subject())
+        report_file.write(testsuite_rep.get_report())
+        report_file.close()
 
-            # and continue loop
-            time.sleep(self.config.delay)
-            self.check_jobs()
-
-        # No more test to run, wait for running jobs to terminate
-        while self.jobs:
-            time.sleep(self.config.delay)
-            self.check_jobs()
-
-        # Generate global diff
-        global_diff = open('testsuite.diff', 'w')
-        all_diffs   = glob(os.path.join(CURDIR, OUTPUTS_DIR, "diffs")
-                           + '/*.diff')
-        for diff_filename in all_diffs:
-            global_diff.write(open(diff_filename).read())
-        global_diff.close()
+        # Save result in OLD_TESTSUITE_RES for next run
+        cp(TESTSUITE_RES, OLD_TESTSUITE_RES)
 
 class ConsoleColorFormatter(logging.Formatter):
     """Output colorfull text"""
+    def __init__(self, fmt=None, datefmt=None):
+        """Initialize the formatter with specified format strings.
+
+        Use a colored output if possible.
+        """
+        logging.Formatter.__init__(self, fmt, datefmt)
+
+        # Should we use color output
+        self.usecolor = not ((sys.platform=='win32')
+                             or ('NOCOLOR' in os.environ)
+                             or (os.environ.get('TERM', 'dumb')
+                                 in ['dumb', 'emacs'])
+                             or (not sys.stderr.isatty()))
+
     def format(self, record):
         """If TERM supports colors, colorize output"""
-        if not hasattr(self, "usecolor"):
-            self.usecolor = not ((sys.platform=='win32')
-                                 or ('NOCOLOR' in os.environ)
-                                 or (os.environ.get('TERM', 'dumb')
-                                     in ['dumb', 'emacs'])
-                                 or (not sys.stderr.isatty()))
-
         output = logging.Formatter.format(self, record)
         if self.usecolor:
             if "PROBLEM" in output or "DIFF" in output:
@@ -386,18 +287,89 @@ def linktree(src, dst, symlinks=0):
         except (IOError, os.error), why:
             print "Can't link %s to %s: %s" % (srcname, dstname, str(why))
 
-def set_environment(timeout):
-    """Set the environment for running the test.
-
-    Returns None if no special environment is needed.
-    """
-    env = None
-    if timeout:
+def build_cmd(test):
+    """Run a single test"""
+    logging.debug("Running " + test.testdir)
+    linktree(test.testdir, os.path.join(BUILDS_DIR, test.testdir))
+    timeout = test.getopt('limit')
+    if timeout is not None:
         env = os.environ.copy()
-        env["TIMEOUT"] = timeout
-    return env
+        env['TIMEOUT'] = timeout
+    else:
+        env = None
 
-def main():
+    return Run([sys.executable,
+                os.path.join(BUILDS_DIR, test.filename)],
+               bg=True, output=None, error=None, env=env)
+
+def gen_collect_result(report_func):
+    """Returns the collect_result function"""
+    def collect_result(test, process):
+        """Collect a test result"""
+        xfail = test.getopt('xfail', '')
+        diff_content = ""
+        # Compute job status
+        # The status can be UOK, OK, XFAIL, DIFF or PROBLEM
+        if process.status == 0:
+            if xfail:
+                status = 'UOK'
+            else:
+                status = 'OK'
+        else:
+            if xfail:
+                status = 'XFAIL'
+            else:
+                if process.status == DIFF_FAILURE:
+                    status = 'DIFF'
+                    diff_file = open(os.path.join(DIFFS_DIR,
+                                                  test.testdir + '.diff'))
+                    diff_content = diff_file.read()
+                    diff_file.close()
+                else:
+                    status = 'PROBLEM'
+
+        report_func(test.testdir, status, xfail, diff_content)
+    return collect_result
+
+class TestCase(object):
+    """Creates a TestCase object.
+
+    Contains the result of the test.opt parsing
+    """
+    def __init__(self, filename):
+        """Create a new TestCase for the given filename"""
+        self.testdir  = os.path.dirname(filename)
+        self.filename = filename
+        self.opt = None
+
+    def __lt__(self, right):
+        """Use filename alphabetical order"""
+        return self.filename < right.filename
+
+    def parseopt(self, tags):
+        """Parse the test.opt with the given tags"""
+        test_opt = os.path.join(self.testdir, 'test.opt')
+        if os.path.exists(test_opt):
+            self.opt = OptFileParse(tags, test_opt)
+
+    def getopt(self, key, default=None):
+        """Get the value extracted from test.opt that correspond to key
+
+        If key is not found. Returns default.
+        """
+        if self.opt is None:
+            return default
+        else:
+            self.opt.get_value(key)
+
+    def is_dead(self):
+        """Returns True if the test is DEAD"""
+        if self.opt is None:
+            return False
+        else:
+            return self.opt.is_dead
+
+def run_testsuite():
     """Main: parse command line and run the testsuite"""
 
     if os.path.exists(OUTPUTS_DIR):
@@ -440,11 +412,13 @@ def main():
     main.add_option("--with-gprbuild", dest="with_gprbuild",
                     action="store_true", default=False,
                     help="Compile with gprbuild (default is gnatmake)")
+    main.add_option("--old-res", dest="old_res", type="string",
+                    help="Old testsuite.res file")
     main.parse_args()
 
-    config = Config(main.options)
-    run = Runner(config)
+    run = Runner(main.options)
     run.start()
 
 if __name__ == "__main__":
-    main()
+    # Run the testsuite
+    run_testsuite()
