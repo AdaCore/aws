@@ -361,7 +361,7 @@ class TestCase(object):
         if self.opt is None:
             return default
         else:
-            self.opt.get_value(key)
+            return self.opt.get_value(key, default_value=default)
 
     def is_dead(self):
         """Returns True if the test is DEAD"""
