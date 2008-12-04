@@ -231,7 +231,8 @@ class Runner(object):
         testsuite_rep = GenerateRep(TESTSUITE_RES, old_results)
         report_file = open(TESTSUITE_REP, 'w')
         report_file.write(testsuite_rep.get_subject())
-        report_file.write(testsuite_rep.get_report())
+        report_file.write(testsuite_rep.get_report
+                          (additional_header='Tags: ' + self.config.tags))
         report_file.close()
 
         # Save result in OLD_TESTSUITE_RES for next run
