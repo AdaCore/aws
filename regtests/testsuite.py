@@ -69,8 +69,8 @@ import os
 import sys
 import test_support
 
-PROFILES_DIR    = "%(profiles_dir)s"
-DIFFS_DIR       = "%(diffs_dir)s"
+PROFILES_DIR    = r"%(profiles_dir)s"
+DIFFS_DIR       = r"%(diffs_dir)s"
 WITH_GPROF      = %(with_gprof)s
 WITH_GDB        = %(with_gdb)s
 WITH_GPRBUILD   = %(with_gprbuild)s
@@ -80,13 +80,13 @@ UNKNOWN_FAILURE = %(unknown_failure)d
 
 def set_config():
     # Set python path
-    sys.path.append("%(python_support)s")
+    sys.path.append(r"%(python_support)s")
 
     log_filename = os.path.basename(test_support.TESTDIR) + '.log'
 
     logging.basicConfig(level=logging.DEBUG,
                         datefmt='%%H:%%M:%%S',
-                        filename=os.path.join('%(log_dir)s',
+                        filename=os.path.join(r'%(log_dir)s',
                                               log_filename),
                         mode="w")
 
