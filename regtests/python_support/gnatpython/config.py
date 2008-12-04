@@ -8,10 +8,10 @@ cpu_info = {
 }
 
 os_info = {
-    'linux'     : { 'is_bareboard' : False, 'version' : 'unknown' },
-    'solaris'   : { 'is_bareboard' : False, 'version' : '2.8'     },
-    'windows'   : { 'is_bareboard' : False, 'version' : 'XP'      },
-    'none'      : { 'is_bareboard' : True,  'version' : 'unknown' }
+    'linux'     : { 'is_bareboard' : False, 'version' : 'unknown' , 'exeext': '' },
+    'solaris'   : { 'is_bareboard' : False, 'version' : '2.8'     , 'exeext': '' },
+    'windows'   : { 'is_bareboard' : False, 'version' : 'XP'      , 'exeext': '.exe' },
+    'none'      : { 'is_bareboard' : True,  'version' : 'unknown' , 'exeext': ''}
 }
 
 platform_info = {

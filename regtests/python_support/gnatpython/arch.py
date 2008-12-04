@@ -38,6 +38,7 @@ class Arch:
       platform (AdaCore platform product name. Ex: x86-linux)
       triplet (GCC TARGET)
       machine (machine name)
+      domain  (domain name)
       is_host (true if this is not a cross context)
     """
 
@@ -78,7 +79,12 @@ class Arch:
 
         if self.is_host:
             # This is host so we can find the machine name using uname fields
-            self.machine = uname [1].lower ().split ('.')[0]
+            tmp = uname [1].lower ().split ('.', 1)
+            self.machine = tmp[0]
+            if len (tmp) > 1:
+                self.domain = tmp[1]
+            else:
+                self.domain = ""
 
         if self.platform is None:
             # In this case we try to guess the host platform

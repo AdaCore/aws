@@ -112,6 +112,7 @@ def ln (source, target):
     except Exception, E:
         logging.error (E)
         raise FileUtilsError ('ln', 'can not link %s to %s' % (source, target))
+
 def df(path):
     """Disk space available on the filesystem containing the given path
 
@@ -259,6 +260,7 @@ def mv (source, target):
             logging.error (E)
             raise FileUtilsError ('mv', 'error occured while moving %s' % f)
 
+
 def rm (path, recursive=False):
     """Remove files
 
@@ -320,3 +322,4 @@ def rsync (source, target, files=None, protected_files=None, delete = True):
     rsync_args.append (target)
     p = Run (rsync_args)
     return p.status
+
