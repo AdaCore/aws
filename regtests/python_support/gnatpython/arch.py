@@ -8,21 +8,24 @@ import re
 import os.path
 from gnatpython import config
 
+UNKNOWN = 'unknown'
+
 # __CPU and __OS are internal classes used only to create namespaces
 # and have the possibility to declare attributes such as cpu.name in
 # Arch class
 class _Arch__CPU:
     """CPU attributes"""
     def __init__ (self):
-        self.name = 'unknown'
-        self.bits = 'unknwon'
-        self.endian = 'unknwon'
+        self.name = UNKNOWN
+        self.bits = UNKNOWN
+        self.endian = UNKNOWN
 
 class _Arch__OS:
     """OS attributes"""
     def __init__ (self):
-        self.name = 'unknown'
-        self.version = None
+        self.name         = UNKNOWN
+        self.version      = None
+        self.exeext       = ''
         self.is_bareboard = False
 
 class Arch:
@@ -65,10 +68,10 @@ class Arch:
         self.os  = __OS ()
 
         # Initialize attributes values
-        self.platform = platform_name
+        self.platform   = platform_name
         self.os.version = version
-        self.machine = None
-        self.is_hie = False
+        self.machine    = None
+        self.is_hie     = False
 
         if self.platform is None:
             self.is_host = True
@@ -177,32 +180,56 @@ class Arch:
           None
         """
 
+        def re_contains(left, right):
+            """Returns right in left (regexp aware)"""
+            if re.match (left + '$', right) or \
+                    re.match ('^' + left, right):
+                return True
+            else:
+                return False
+
+        def re_endswith(left, right):
+            """Returns right.endswith(left) (regexp aware)"""
+            return re.match(left + '$', right)
+
+        def guess(os_name, p_uname):
+            """Guess based on os_name"""
+            for p_name in config.host_guess:
+                p_config = config.host_guess[p_name]
+                if p_config['os'] is not None:
+                    if re_contains(p_config['os'], os_name):
+                        if p_config['cpu'] is None or \
+                                re_endswith(p_config['cpu'], p_uname[4]) or \
+                                re_endswith(p_config['cpu'], p_uname[5]):
+                            # The p_name config matched
+
+                            if p_name in config.host_aliases:
+                                return config.host_aliases[p_name]
+                            else:
+                                return p_name
+            # wrong guess
+            return None
+
         # First look for matching machine name
-        for p in config.host_guess:
-            if config.host_guess[p]['machine'] is not None:
-                if re.match (config.host_guess[p]['machine'] + '$',
-                             self.machine):
-                    return p
+        for p_name in config.host_guess:
+            if config.host_guess[p_name]['machine'] is not None:
+                if re_endswith(config.host_guess[p_name]['machine'] + '$',
+                               self.machine):
+                    return p_name
 
-        u = platform.uname ()
-        for p in config.host_guess:
-            if config.host_guess[p]['os'] is not None:
-                if re.match (config.host_guess[p]['os'] + '$', u[0]) or \
-                        re.match ('^' + config.host_guess[p]['os'], u[0]):
-                    if config.host_guess[p]['cpu'] is None:
-                        if p in config.host_aliases:
-                            return config.host_aliases[p]
-                        else:
-                            return p
-                    elif re.match (config.host_guess[p]['cpu'] + '$',
-                                   u[4]) or \
-                      re.match (config.host_guess[p]['cpu'] + '$', u[5]):
-                        if p in config.host_aliases:
-                            return config.host_aliases[p]
-                        else:
-                            return p
+        # Else we need to guess
+        uname = platform.uname ()
 
-        return 'unknown'
+        p_name = guess(uname[0], uname)
+        if p_name is not None:
+            return p_name
+
+        p_name = guess(uname[2], uname)
+        if p_name is not None:
+            return p_name
+
+        # Not found !
+        return UNKNOWN
 
     def __guess_os_version (self):
         """
@@ -218,38 +245,39 @@ class Arch:
           None
         """
 
-        u = platform.uname ()
+        uname = platform.uname ()
         if self.os.name == 'linux':
             if os.path.isfile ('/etc/redhat-release'):
                 # RedHat distributions
                 return 'redhat'
             elif os.path.isfile ('/etc/SuSE-release'):
                 # Suse distributions
-                f = open ('/etc/SuSE-release', 'r')
-                for line in f:
-                    m = re.search ('VERSION = ([0-9\.]+)', line)
-                    if m != None:
-                        f.close ()
-                        return 'suse' + m.group (1)
-                f.close ()
+                release = open ('/etc/SuSE-release', 'r')
+                for line in release:
+                    version = re.search ('VERSION = ([0-9\.]+)', line)
+                    if version is not None:
+                        release.close ()
+                        return 'suse' + version.group (1)
+                release.close ()
                 return 'suse'
             elif os.path.isfile ('/etc/lsb-release'):
                 # /etc/lsb-release is present on the previous distrib
                 # but is not usefull. On ubuntu it contains the
                 # distrib number
-                f = open ('/etc/lsb-release', 'r')
-                distrib_name = ''
+                release = open ('/etc/lsb-release', 'r')
+                distrib_name    = ''
                 distrib_version = ''
-                for line in f:
-                    m = re.search ('DISTRIB_ID=(.+)', line.rstrip ())
-                    if m is not None:
-                        distrib_name = m.group (1).lower ()
+                for line in release:
+                    distrib_id = re.search ('DISTRIB_ID=(.+)', line.rstrip ())
+                    if distrib_id is not None:
+                        distrib_name = distrib_id.group (1).lower ()
                     else:
-                        m = re.search ('DISTRIB_RELEASE=(.*)', line.rstrip ())
-                        if m != None:
-                            distrib_version = m.group (1)
+                        distrib_release = re.search ('DISTRIB_RELEASE=(.*)',
+                                                     line.rstrip ())
+                        if distrib_release is not None:
+                            distrib_version = distrib_release.group (1)
 
-                f.close ()
+                release.close ()
                 if not distrib_name:
                     return None
                 else:
@@ -258,28 +286,27 @@ class Arch:
             else:
                 return None
         elif self.os.name == 'aix':
-            return u[3] + '.' + u[2]
+            return uname[3] + '.' + uname[2]
         elif self.os.name == 'darwin':
             return ''
         elif self.os.name == 'freebsd':
             return ''
         elif self.os.name == 'hp-ux':
-            version = u[2]
+            version = uname[2]
             if version[0:2] == 'B.':
                 version = version[2:]
             return version
         elif self.os.name == 'irix':
-            return u[2]
+            return uname[2]
         elif self.os.name == 'lynxos':
             return ''
         elif self.os.name == 'tru64':
             return None
         elif self.os.name == 'solaris':
-            return '2' + u[2][1:]
+            return '2' + uname[2][1:]
         elif self.os.name == 'windows':
             return ''
         return None
-
 
 if __name__ == "__main__":
     print Arch()

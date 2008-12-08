@@ -220,7 +220,9 @@ class GenerateRep(object):
                 self.metrics['invalid_list'].append(test)
 
             # Report new dead test
-            elif result['status'] in DEAD_STATUS:
+            elif result['status'] in DEAD_STATUS and \
+                    test in self.results['old'] and \
+                    not self.results['old'][test]['status'] in DEAD_STATUS:
                 self.metrics['new_dead_list'].append(test)
 
         self.metrics['counts'].update({

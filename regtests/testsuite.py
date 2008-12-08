@@ -305,7 +305,7 @@ def build_cmd(test):
 
 def gen_collect_result(report_func):
     """Returns the collect_result function"""
-    def collect_result(test, process):
+    def collect_result(test, process, job_info):
         """Collect a test result"""
         xfail = test.getopt('xfail', '')
         diff_content = ""
