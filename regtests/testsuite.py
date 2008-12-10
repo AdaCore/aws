@@ -219,7 +219,7 @@ class Runner(object):
 
         # Run the main loop
         collect_result = gen_collect_result(self.report_result)
-        MainLoop(testcases, build_cmd, collect_result, self.config.jobs)
+        MainLoop(testcases, run_testcase, collect_result, self.config.jobs)
         self.report.write()
 
         old_results = None
@@ -288,7 +288,7 @@ def linktree(src, dst, symlinks=0):
         except (IOError, os.error), why:
             print "Can't link %s to %s: %s" % (srcname, dstname, str(why))
 
-def build_cmd(test):
+def run_testcase(test, job_info):
     """Run a single test"""
     logging.debug("Running " + test.testdir)
     linktree(test.testdir, os.path.join(BUILDS_DIR, test.testdir))

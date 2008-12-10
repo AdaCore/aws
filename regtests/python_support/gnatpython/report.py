@@ -164,7 +164,10 @@ class GenerateRep(object):
         gnatls = Run(['gnatls', '-v'])
         gnatls_regexp = re.search('^GNATLS.*\(([0-9]*-[0-9]*)\)',
                                   gnatls.out, re.MULTILINE)
-        self.gnat_version_and_date = gnatls_regexp.groups()[0]
+        if gnatls_regexp is not None:
+            self.gnat_version_and_date = gnatls_regexp.groups()[0]
+        else:
+            self.gnat_version_and_date = ''
 
         gcc = Run(['gcc', '-dumpversion'])
         self.gcc_version = gcc.out

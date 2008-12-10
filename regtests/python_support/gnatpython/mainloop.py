@@ -14,13 +14,13 @@ This case is used to adress dependency between tests (occurs for
 example with the ACATS).
 
 When a worker is asked to run a test, the command is executed by
-calling build_cmd (testid). Once a test is finished the function
+calling run_testcase (testid). Once a test is finished the function
 collect_result will be called with test id, and process (a
 gnatpython.ex.Run object) and the job_info as parameters. Both
-build_cmd and collect_result are user defined functions.
+run_testcase and collect_result are user defined functions.
 
 Note also that from the user point view there is no parallelism to handle.
-The two user defined function build_cmd and collect_result are called
+The two user defined function run_testcase and collect_result are called
 sequentially.
 """
 
@@ -35,13 +35,13 @@ class NeedRequeue (Exception):
     pass
 
 class Worker (object):
-    """Run build_cmd and collect_result"""
-    def __init__ (self, items, build_cmd, collect_result, slot):
+    """Run run_testcase and collect_result"""
+    def __init__ (self, items, run_testcase, collect_result, slot):
         """Worker constructor
 
         PARAMETERS
           items: item or list of items to be run by the worker
-          build_cmd: command builder function (see MainLoop doc)
+          run_testcase: command builder function (see MainLoop doc)
           collect_result: result processing function (see MailLoop doc)
 
         RETURN VALUE
@@ -50,7 +50,7 @@ class Worker (object):
         REMARKS
           None
         """
-        self.build_cmd      = build_cmd
+        self.run_testcase   = run_testcase
         self.collect_result = collect_result
         self.slot           = slot
 
@@ -84,7 +84,9 @@ class Worker (object):
         else:
             self.current_job = self.jobs.pop()
 
-            self.current_process = self.build_cmd (self.current_job)
+            job_info = (self.slot, self.nb_retry)
+            self.current_process = self.run_testcase (self.current_job,
+                                                      job_info)
             return True
 
     def poll (self):
@@ -138,7 +140,7 @@ class MainLoop (object):
     """Run a list of jobs"""
     def __init__ (self,
                   item_list,
-                  build_cmd,
+                  run_testcase,
                   collect_result,
                   parallelism=1,
                   abort_file=None,
@@ -148,15 +150,24 @@ class MainLoop (object):
         PARAMETERS
           item_list: a list of jobs
 
-          build_cmd: a function that takes a job identifier as argument
-                     and return the spawned process (ex.Run object). Note that
-                     if you want to take advantage of the parallelism the
-                     spawned process should be launched in background (ie with
-                     bg=True when using ex.Run)
+          run_testcase: a function that takes a job for argument
+                        and return the spawned process (ex.Run object). Its
+                        prototype should be func (name, job_info).
+                        name: job identifier
+                        job_info: related information, passed in a tuple:
+                        (slot_number, job_retry)
+                          slot_number: identifier of the Worker that is used
+                          to run this testcase.
+                          job_retry: number of times that the testcase have
+                          been run already.
+
+                        Note that if you want to take advantage of the
+                        parallelism the spawned process should be launched
+                        in background (ie with bg=True when using ex.Run)
 
           collect_result: a function called when a job is
                           finished. The prototype should be func
-                          (name, process, job_info) if collect_result
+                          (name, process, job_info). If collect_result
                           raise NeedRequeue then the test will be
                           requeued.
                           job_info is a tuple: (slot_number, job_nb_retry)
@@ -198,7 +209,7 @@ class MainLoop (object):
                         logger.debug ('Active worker on slot %d' % slot)
                         next_job = iterator.next ()
                         self.workers[slot] = Worker (next_job,
-                                                     build_cmd,
+                                                     run_testcase,
                                                      collect_result,
                                                      slot)
                         active_workers += 1
