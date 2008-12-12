@@ -1694,6 +1694,7 @@ templates_parser/regtests/regtst4.adb
 templates_parser/regtests/regtst4.out
 templates_parser/regtests/regtst4.tmplt
 templates_parser/regtests/simple.tmplt
+templates_parser/regtests/single_line.incl
 templates_parser/regtests/speed.adb
 templates_parser/regtests/speed.tmplt
 templates_parser/regtests/t2a.out
@@ -1881,6 +1882,12 @@ templates_parser/regtests/testme73.out
 templates_parser/regtests/testme73.tmplt
 templates_parser/regtests/testme74.out
 templates_parser/regtests/testme74.tmplt
+templates_parser/regtests/testme75.out
+templates_parser/regtests/testme75.tmplt
+templates_parser/regtests/testme76.out
+templates_parser/regtests/testme76.tmplt
+templates_parser/regtests/testme77.out
+templates_parser/regtests/testme77.tmplt
 templates_parser/regtests/testme7_pt.out
 templates_parser/regtests/testme8.out
 templates_parser/regtests/testme8.tmplt
