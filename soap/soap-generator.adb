@@ -1989,6 +1989,8 @@ package body SOAP.Generator is
          is
             P : WSDL.Parameters.P_Set := P_Set;
          begin
+            Mode := False;
+
             while P /= null loop
                if P.Mode = WSDL.Parameters.K_Array
                  and then To_String (P.T_Name) = Name
