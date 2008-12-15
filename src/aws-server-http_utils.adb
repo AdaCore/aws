@@ -92,20 +92,9 @@ package body AWS.Server.HTTP_Utils is
       procedure Create_Session;
       --  Create a session if needed
 
-      procedure Answer_File (File_Name : in String);
-      --  Assign File to Answer response data
-
-      -----------------
-      -- Answer_File --
-      -----------------
-
-      procedure Answer_File (File_Name : in String) is
-      begin
-         Answer := Response.File
-           (Content_Type => MIME.Content_Type (File_Name),
-            Filename     => File_Name);
-      end Answer_File;
-
+      function Status_Page (URI : in String) return Response.Data;
+      --  Handle status page
+      --
       ------------------
       -- Build_Answer --
       ------------------
@@ -126,58 +115,7 @@ package body AWS.Server.HTTP_Utils is
              and then
                URI (URI'First .. URI'First + Admin_URI'Length - 1) = Admin_URI
          then
-
-            if URI = Admin_URI then
-
-               --  Status page
-               begin
-                  Answer := Response.Build
-                    (Content_Type => MIME.Text_HTML,
-                     Message_Body => Get_Status (HTTP_Server));
-               exception
-                  when Templates.Template_Error =>
-                     Answer := Response.Build
-                       (Content_Type => MIME.Text_HTML,
-                        Message_Body =>
-                        "Status template error. Please check "
-                        & "that '" & CNF.Status_Page (HTTP_Server.Properties)
-                        & "' file is valid.");
-               end;
-
-            elsif URI = Admin_URI & "-logo" then
-               --  Status page logo
-               Answer_File (CNF.Logo_Image (HTTP_Server.Properties));
-
-            elsif URI = Admin_URI & "-uparr" then
-               --  Status page hotplug up-arrow
-               Answer_File (CNF.Up_Image (HTTP_Server.Properties));
-
-            elsif URI = Admin_URI & "-downarr" then
-               --  Status page hotplug down-arrow
-               Answer_File (CNF.Down_Image (HTTP_Server.Properties));
-
-            elsif URI = Admin_URI & "-HPup" then
-               --  Status page hotplug up message
-               Hotplug.Move_Up
-                 (HTTP_Server.Filters,
-                  Positive'Value (Status.Parameter (C_Stat, "N")));
-               Answer := Response.URL (Admin_URI);
-
-            elsif URI = Admin_URI & "-HPdown" then
-               --  Status page hotplug down message
-               Hotplug.Move_Down
-                 (HTTP_Server.Filters,
-                  Positive'Value (Status.Parameter (C_Stat, "N")));
-               Answer := Response.URL (Admin_URI);
-
-            else
-               Answer := Response.Build
-                 (Content_Type => MIME.Text_HTML,
-                  Message_Body =>
-                    "Invalid use of reserved status URI prefix: " & Admin_URI);
-            end if;
-
-            --  End of Internal status page handling
+            Answer := Status_Page (URI);
 
             --  Check if the URL is trying to reference resource above Web root
             --  directory.
@@ -255,6 +193,82 @@ package body AWS.Server.HTTP_Utils is
             Status.Set.Session (C_Stat);
          end if;
       end Create_Session;
+
+      -----------------
+      -- Status_Page --
+      -----------------
+
+      function Status_Page (URI : in String) return Response.Data is
+
+         Answer : Response.Data;
+
+         procedure Answer_File (File_Name : in String);
+         --  Assign File to Answer response data
+
+         -----------------
+         -- Answer_File --
+         -----------------
+
+         procedure Answer_File (File_Name : in String) is
+         begin
+            Answer := Response.File
+              (Content_Type => MIME.Content_Type (File_Name),
+               Filename     => File_Name);
+         end Answer_File;
+
+      begin
+         if URI = Admin_URI then
+
+            --  Status page
+            begin
+               Answer := Response.Build
+                 (Content_Type => MIME.Text_HTML,
+                  Message_Body => Get_Status (HTTP_Server));
+            exception
+               when Templates.Template_Error =>
+                  Answer := Response.Build
+                    (Content_Type => MIME.Text_HTML,
+                     Message_Body =>
+                     "Status template error. Please check "
+                     & "that '" & CNF.Status_Page (HTTP_Server.Properties)
+                     & "' file is valid.");
+            end;
+
+         elsif URI = Admin_URI & "-logo" then
+            --  Status page logo
+            Answer_File (CNF.Logo_Image (HTTP_Server.Properties));
+
+         elsif URI = Admin_URI & "-uparr" then
+            --  Status page hotplug up-arrow
+            Answer_File (CNF.Up_Image (HTTP_Server.Properties));
+
+         elsif URI = Admin_URI & "-downarr" then
+            --  Status page hotplug down-arrow
+            Answer_File (CNF.Down_Image (HTTP_Server.Properties));
+
+         elsif URI = Admin_URI & "-HPup" then
+            --  Status page hotplug up message
+            Hotplug.Move_Up
+              (HTTP_Server.Filters,
+               Positive'Value (Status.Parameter (C_Stat, "N")));
+            Answer := Response.URL (Admin_URI);
+
+         elsif URI = Admin_URI & "-HPdown" then
+            --  Status page hotplug down message
+            Hotplug.Move_Down
+              (HTTP_Server.Filters,
+               Positive'Value (Status.Parameter (C_Stat, "N")));
+            Answer := Response.URL (Admin_URI);
+
+         else
+            Answer := Response.Build
+              (Content_Type => MIME.Text_HTML,
+               Message_Body =>
+                 "Invalid use of reserved status URI prefix: " & Admin_URI);
+         end if;
+
+         return Answer;
+      end Status_Page;
 
    begin
       Build_Answer;
