@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2007                          --
---                                 AdaCore                                  --
+--                     Copyright (C) 2000-2008, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -42,8 +41,8 @@ package body AWS.Config.Ini is
    -- Program_Ini_File --
    ----------------------
 
-   function Program_Ini_File return String is
-      Exec_Name : constant String := Ada.Command_Line.Command_Name;
+   function Program_Ini_File (Full_Path : in Boolean) return String is
+      Exec_Name : constant String := Command_Line.Command_Name;
       Last      : Natural;
       First     : Natural;
    begin
@@ -52,15 +51,24 @@ package body AWS.Config.Ini is
 
       if First = 0 then
          First := Exec_Name'First;
+      else
+         First := First + 1;
       end if;
 
       Last := Strings.Fixed.Index
         (Exec_Name (First .. Exec_Name'Last), ".", Strings.Backward);
 
       if Last = 0 then
-         return Exec_Name & ".ini";
+         Last := Exec_Name'Last;
       else
-         return Exec_Name (Exec_Name'First .. Last) & "ini";
+         Last := Last - 1;
+      end if;
+
+      if Full_Path then
+         return AWS.Utils.Get_Program_Directory
+           & Exec_Name (First .. Last) & ".ini";
+      else
+         return Exec_Name (First .. Last) & ".ini";
       end if;
    end Program_Ini_File;
 

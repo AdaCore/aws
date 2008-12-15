@@ -4,7 +4,7 @@
 
 Authors:
    Dmitriy Anisimkov
-   Pascal Obry                                           November 10th, 2008
+   Pascal Obry                                           December 15th, 2008
 
 
 
@@ -41,6 +41,10 @@ Listed below are some minor enhancements and fixes:
 
    - Attachments' headers are properly parsed and stored with the attachment
      object on the server side.
+
+   - <program_name>.ini file is properly looked into the application
+     directory on all platforms. It is also now looked into the current
+     working directory.
 
    - Plus many small fixes, enhancements, API comments, and documentation work.
 
