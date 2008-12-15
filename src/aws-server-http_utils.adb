@@ -34,6 +34,8 @@ with Ada.Strings.Maps;
 with Ada.Strings.Unbounded;
 with Ada.Text_IO;
 
+with GNAT.MD5;
+
 with AWS.Attachments;
 with AWS.Dispatchers;
 with AWS.Headers.Set;
@@ -200,7 +202,11 @@ package body AWS.Server.HTTP_Utils is
 
       function Status_Page (URI : in String) return Response.Data is
 
-         Answer : Response.Data;
+         Answer   : Response.Data;
+         Username : constant String :=
+                      AWS.Status.Authorization_Name (C_Stat);
+         Password : constant String :=
+                      AWS.Status.Authorization_Password (C_Stat);
 
          procedure Answer_File (File_Name : in String);
          --  Assign File to Answer response data
@@ -217,7 +223,15 @@ package body AWS.Server.HTTP_Utils is
          end Answer_File;
 
       begin
-         if URI = Admin_URI then
+         --  First check for authentification
+
+         if Password = ""
+           or else CNF.Admin_Password (HTTP_Server.Properties) /=
+             GNAT.MD5.Digest (Username & ":aws:" & Password)
+         then
+            Answer := Response.Authenticate ("AWS Admin Page", Response.Basic);
+
+         elsif URI = Admin_URI then
 
             --  Status page
             begin

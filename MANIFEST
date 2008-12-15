@@ -76,6 +76,7 @@ demos/res_demo.adb
 demos/res_demo_cb.adb
 demos/res_demo_cb.ads
 demos/runme.adb
+demos/runme.ini
 demos/runme_cb.adb
 demos/runme_cb.ads
 demos/runme_control.adb

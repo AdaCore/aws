@@ -1,5 +1,5 @@
 ====================================================
-AWS 2.7 NEW FEATURES LIST Current as of Nov 18, 2008
+AWS 2.7 NEW FEATURES LIST Current as of Dec 15, 2008
 ====================================================
 
 Copyright (c) 2006-2008, AdaCore
@@ -31,3 +31,7 @@ NF-27-HA07-020 Add support for HTTP headers on client API (2008-11-04)
   The GET/PUT/POST/HEAD AWS.Client services are now passed an header
   list parameter. This makes it possible to send some specific headers
   to the server.
+
+NF-27-HA07-003 Administrative page is now protected by a password (2008-12-15)
+
+  Enhance the security of the administrative page by requiring a password.
