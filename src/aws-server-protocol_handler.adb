@@ -171,7 +171,8 @@ begin
          end if;
 
          if Extended_Log then
-            AWS.Log.Set_Field (LA.Server.Log, LA.Log_Data,
+            AWS.Log.Set_Field
+              (LA.Server.Log, LA.Log_Data,
                "s-free-slots", Utils.Image (Free_Slots));
          end if;
 
