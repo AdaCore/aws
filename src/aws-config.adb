@@ -51,6 +51,15 @@ package body AWS.Config is
       return O.P (Accept_Queue_Size).Pos_Value;
    end Accept_Queue_Size;
 
+   --------------------
+   -- Admin_Password --
+   --------------------
+
+   function Admin_Password (O : in Object) return String is
+   begin
+      return To_String (O.P (Admin_Password).Str_Value);
+   end Admin_Password;
+
    ---------------
    -- Admin_URI --
    ---------------

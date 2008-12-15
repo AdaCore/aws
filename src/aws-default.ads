@@ -50,6 +50,7 @@ package AWS.Default is
    Server_Name                     : constant String  := "AWS Module";
    WWW_Root                        : constant String  := "./";
    Admin_URI                       : constant String  := "";
+   Admin_Password                  : constant String  := "";
    Server_Port                     : constant         := 8080;
    Hotplug_Port                    : constant         := 8888;
    Max_Connection                  : constant         := 5;

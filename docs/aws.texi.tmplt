@@ -1314,6 +1314,14 @@ This is the size of the queue for the incoming requests. Higher this
 value will be and less "@i{connection refused}" will be reported to the
 client. The default value is @_QUEUE_SIZE_@.
 
+@item Admin_Password (string)
+@cindex Admin_Password
+This is the password used to call the administrative page. The
+password can be generated with @file{aws_password} (the module name
+must be @var{admin})
+
+@AWSEXP {$ aws_password admin <password>}
+
 @item Admin_URI (string)
 @cindex Admin_URI
 This is the URI to call the administrative page. This can be used when

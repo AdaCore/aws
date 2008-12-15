@@ -202,6 +202,10 @@ package AWS.Config is
    -- Status --
    ------------
 
+   function Admin_Password (O : in Object) return String;
+   pragma Inline (Admin_Password);
+   --  The admin password
+
    function Admin_URI (O : in Object) return String;
    pragma Inline (Admin_URI);
    --  This is the name of the admin server page as set by AWS.Server.Start.
@@ -354,6 +358,7 @@ private
      (Server_Name,
       WWW_Root,
       Admin_URI,
+      Admin_Password,
       Server_Host,
       Server_Port,
       Security,
@@ -484,6 +489,9 @@ private
 
          Logo_Image =>
            (Str, To_Unbounded_String (Default.Logo_Image)),
+
+         Admin_Password =>
+           (Str, To_Unbounded_String (Default.Admin_Password)),
 
          Admin_URI =>
            (Str, To_Unbounded_String (Default.Admin_URI)),
