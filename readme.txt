@@ -73,6 +73,9 @@ implementations.
   a Translate_Set. Note that for the same reasons Server.Status.Translations
   routine returning a Translate_Table has been marked as obsolescent.
 
+  hotplug_password tool has been renamed to aws_password. The password
+  must be regenerated.
+
 Obsolescent features
 --------------------
 

@@ -1,10 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2004-2007                          --
---                                 AdaCore                                  --
---                                                                          --
---  Authors: Dmitriy Anisimkov - Pascal Obry                                --
+--                    Copyright (C) 2004-2008, AdaCore                      --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -35,14 +32,14 @@ with Ada.Text_IO;
 
 with GNAT.MD5;
 
-procedure Hotplug_Password is
+procedure AWS_Password is
    use Ada;
    use Ada.Command_Line;
 begin
    if Argument_Count /= 2 then
-      Text_IO.Put_Line ("Usage: hotplug_password <module> <password>");
+      Text_IO.Put_Line ("Usage: aws_password <module> <password>");
    else
       Text_IO.Put_Line
-        (GNAT.MD5.Digest (Argument (1) & ":hotplug:" & Argument (2)));
+        (GNAT.MD5.Digest (Argument (1) & ":aws:" & Argument (2)));
    end if;
-end Hotplug_Password;
+end AWS_Password;

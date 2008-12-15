@@ -36,7 +36,7 @@ project Tools is
 
    for Source_Dirs use (".", "../templates_parser/tools");
 
-   for Main use ("awsres.adb", "hotplug_password.adb", "templates2ada.adb",
+   for Main use ("awsres.adb", "aws_password.adb", "templates2ada.adb",
                  "webxref.adb", "templatespp.adb");
 
    case Shared.XMLAda is

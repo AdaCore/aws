@@ -1941,8 +1941,8 @@ tools/ada2wsdl-parser.adb
 tools/ada2wsdl-parser.ads
 tools/ada2wsdl.adb
 tools/ada2wsdl.ads
+tools/aws_password.adb
 tools/awsres.adb
-tools/hotplug_password.adb
 tools/makefile
 tools/tools.gpr
 tools/webxref.adb

@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2004-2007                          --
---                                 AdaCore                                  --
+--                     Copyright (C) 2004-2008, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -73,7 +72,7 @@ package body AWS.Client.Hotplug is
       begin
          Digest := AWS.Digest.Create
            (Name, "hotplug",
-            GNAT.MD5.Digest (Name & ":hotplug:" & Password),
+            GNAT.MD5.Digest (Name & ":aws:" & Password),
             Nonce, "hotplug", Regexp);
 
          return AWS.Communication.Client.Send_Message
@@ -122,7 +121,7 @@ package body AWS.Client.Hotplug is
       begin
          Digest := AWS.Digest.Create
            (Name, "hotplug",
-            GNAT.MD5.Digest (Name & ":hotplug:" & Password),
+            GNAT.MD5.Digest (Name & ":aws:" & Password),
             Nonce, "hotplug", Regexp);
 
          return AWS.Communication.Client.Send_Message

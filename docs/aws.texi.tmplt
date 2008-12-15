@@ -1935,10 +1935,10 @@ The port to use for the redirection on @code{server}.
 @noindent
 You must create a password for each hotplug modules. The generated
 password depends on the hotplug module name. A tool named
-@code{hotplug_password} is provided with @code{AWS} to generate such
+@code{aws_password} is provided with @code{AWS} to generate such
 password. Usage is simple:
 
-@AWSEXP {$ hotplug_password <hotplug_module_name> <password>}
+@AWSEXP {$ aws_password <hotplug_module_name> <password>}
 
 @noindent
 Then, after starting the main server you must activate the Hotplug feature:
