@@ -533,11 +533,12 @@ package body AWS.Net.Std is
       Errno : Integer;
       RC    : C.int;
    begin
-      RC := Sockets.Thin.C_Send
+      RC := Sockets.Thin.C_Sendto
               (C.int (Get_FD (Socket)),
                Data'Address,
                Data'Length,
-               OS_Lib.MSG_NOSIGNAL);
+               OS_Lib.MSG_NOSIGNAL,
+               null, 0);
 
       if RC = Failure then
          Errno := Std.Errno;
