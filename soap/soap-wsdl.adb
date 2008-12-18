@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2003-2007                          --
---                                 AdaCore                                  --
+--                     Copyright (C) 2003-2008, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -59,6 +58,7 @@ package body SOAP.WSDL is
       L_Type : constant String := Characters.Handling.To_Lower (Ada_Type);
 
    begin
+      Result := P_Any_Type;
       Standard := True;
 
       if L_Type = "string"
@@ -310,6 +310,7 @@ package body SOAP.WSDL is
    is
       L_Type : constant String := Characters.Handling.To_Lower (XSD_Type);
    begin
+      Result := P_Any_Type;
       Standard := True;
 
       if L_Type = "string" then

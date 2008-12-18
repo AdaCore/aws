@@ -123,6 +123,8 @@ package body AWS.Client.XML.Input_Sources is
       CS  : Unicode.CCS.Character_Set;
       Pos : Stream_Element_Offset;
    begin
+      C := 0;
+
       if From.First > From.Last then
          --  Unexpected end of stream detected. Data should have been taken
          --  from the HTTP connection in the Eof routine or after partial

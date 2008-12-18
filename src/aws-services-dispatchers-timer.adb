@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2003-2008                          --
---                                 AdaCore                                  --
+--                     Copyright (C) 2003-2008, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -81,18 +80,17 @@ package body AWS.Services.Dispatchers.Timer is
       From_Second : in Second_Number;
       To_Hour     : in Hour_Number;
       To_Minute   : in Minute_Number;
-      To_Second   : in Second_Number) return Period
-   is
-      P : Period;
+      To_Second   : in Second_Number) return Period is
    begin
-      P.Mode        := Daily;
-      P.From.Hour   := From_Hour;
-      P.From.Minute := From_Minute;
-      P.From.Second := From_Second;
-      P.To.Hour     := To_Hour;
-      P.To.Minute   := To_Minute;
-      P.To.Second   := To_Second;
-      return P;
+      return Period'(Mode => Daily,
+                     From => (Hour   => From_Hour,
+                              Minute => From_Minute,
+                              Second => From_Second,
+                              others => <>),
+                     To   => (Hour   => To_Hour,
+                              Minute => To_Minute,
+                              Second => To_Second,
+                              others => <>));
    end Daily;
 
    --------------
@@ -339,16 +337,15 @@ package body AWS.Services.Dispatchers.Timer is
      (From_Minute : in Minute_Number;
       From_Second : in Second_Number;
       To_Minute   : in Minute_Number;
-      To_Second   : in Second_Number) return Period
-   is
-      P : Period;
+      To_Second   : in Second_Number) return Period is
    begin
-      P.Mode        := Hourly;
-      P.From.Minute := From_Minute;
-      P.From.Second := From_Second;
-      P.To.Minute   := To_Minute;
-      P.To.Second   := To_Second;
-      return P;
+      return Period'(Mode => Hourly,
+                     From => (Minute => From_Minute,
+                              Second => From_Second,
+                              others => <>),
+                     To   => (Minute => To_Minute,
+                              Second => To_Second,
+                              others => <>));
    end Hourly;
 
    ----------------
@@ -366,14 +363,13 @@ package body AWS.Services.Dispatchers.Timer is
 
    function Minutely
      (From_Second : in Second_Number;
-      To_Second   : in Second_Number) return Period
-   is
-      P : Period;
+      To_Second   : in Second_Number) return Period is
    begin
-      P.Mode        := Minutely;
-      P.From.Second := From_Second;
-      P.To.Second   := To_Second;
-      return P;
+      return Period'(Mode => Minutely,
+                     From => (Second => From_Second,
+                              others => <>),
+                     To   => (Second => To_Second,
+                              others => <>));
    end Minutely;
 
    -------------
@@ -388,20 +384,19 @@ package body AWS.Services.Dispatchers.Timer is
       To_Day      : in Day_Number;
       To_Hour     : in Hour_Number;
       To_Minute   : in Minute_Number;
-      To_Second   : in Second_Number) return Period
-   is
-      P : Period;
+      To_Second   : in Second_Number) return Period is
    begin
-      P.Mode        := Monthly;
-      P.From.Day    := From_Day;
-      P.From.Hour   := From_Hour;
-      P.From.Minute := From_Minute;
-      P.From.Second := From_Second;
-      P.To.Day      := To_Day;
-      P.To.Hour     := To_Hour;
-      P.To.Minute   := To_Minute;
-      P.To.Second   := To_Second;
-      return P;
+      return Period'(Mode => Monthly,
+                     From => (Day    => From_Day,
+                              Hour   => From_Hour,
+                              Minute => From_Minute,
+                              Second => From_Second,
+                              others => <>),
+                     To   => (Day    => To_Day,
+                              Hour   => To_Hour,
+                              Minute => To_Minute,
+                              Second => To_Second,
+                              others => <>));
    end Monthly;
 
    ----------
@@ -420,24 +415,23 @@ package body AWS.Services.Dispatchers.Timer is
       To_Day      : in Day_Number;
       To_Hour     : in Hour_Number;
       To_Minute   : in Minute_Number;
-      To_Second   : in Second_Number) return Period
-   is
-      P : Period;
+      To_Second   : in Second_Number) return Period is
    begin
-      P.Mode        := Once;
-      P.From.Year   := From_Year;
-      P.From.Month  := From_Month;
-      P.From.Day    := From_Day;
-      P.From.Hour   := From_Hour;
-      P.From.Minute := From_Minute;
-      P.From.Second := From_Second;
-      P.To.Year     := To_Year;
-      P.To.Month    := To_Month;
-      P.To.Day      := To_Day;
-      P.To.Hour     := To_Hour;
-      P.To.Minute   := To_Minute;
-      P.To.Second   := To_Second;
-      return P;
+      return Period'(Mode => Once,
+                     From => (Year   => From_Year,
+                              Month  => From_Month,
+                              Day    => From_Day,
+                              Hour   => From_Hour,
+                              Minute => From_Minute,
+                              Second => From_Second,
+                              others => <>),
+                     To   => (Year   => To_Year,
+                              Month  => To_Month,
+                              Day    => To_Day,
+                              Hour   => To_Hour,
+                              Minute => To_Minute,
+                              Second => To_Second,
+                              others => <>));
    end Once;
 
    --------------
