@@ -139,7 +139,7 @@ begin
    begin
       Text_IO.Create (F, Text_IO.Out_File, "hotplug_access.ini");
       Text_IO.Put_Line
-        (F, "hp_test:5c7d7628067d4336484330968b6a7d01:localhost:"
+        (F, "hp_test:f8de61f1f97df3613fbe29b031eb52c6:localhost:"
          & Utils.Image (Hotplug_Port));
       Text_IO.Close (F);
    end;
