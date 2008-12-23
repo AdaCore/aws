@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                          Copyright (C) 2002-2008                         --
---                                  AdaCore                                 --
+--                     Copyright (C) 2002-2008, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -106,10 +105,7 @@ package body AWS.Resources.Embedded is
    -- File_Size --
    ---------------
 
-   function File_Size
-     (Name : in String)
-      return Ada.Streams.Stream_Element_Offset
-   is
+   function File_Size (Name : in String) return Utils.File_Size_Type is
       Cursor : Res_Files.Cursor;
    begin
       Cursor := Res_Files.Find (Files_Table, Name);

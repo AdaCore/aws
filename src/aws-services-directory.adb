@@ -45,7 +45,7 @@ package body AWS.Services.Directory is
 
    type File_Record is record
       Name      : Unbounded_String;
-      Size      : Integer;
+      Size      : Utils.File_Size_Type;
       Directory : Boolean;
       Time      : Calendar.Time;
       UID       : Natural;
@@ -101,6 +101,7 @@ package body AWS.Services.Directory is
 
    function "<" (Left, Right : in File_Record) return Boolean is
       use type Ada.Calendar.Time;
+      use type Utils.File_Size_Type;
       use AWS.MIME;
 
       Order_Item : Order_Mode;
@@ -330,7 +331,7 @@ package body AWS.Services.Directory is
             Names := Names & (Item.Name & '/');
 
          else
-            Sizes := Sizes & Integer'Image (Item.Size);
+            Sizes := Sizes & Utils.File_Size_Type'Image (Item.Size);
             Names := Names & Item.Name;
          end if;
 
@@ -390,10 +391,9 @@ package body AWS.Services.Directory is
             File_Entry.Directory := Is_Directory;
 
             if Is_Directory then
-               File_Entry.Size := -1;
+               File_Entry.Size := 0;
             else
-               File_Entry.Size
-                 := Integer (Utils.File_Size (Full_Pathname));
+               File_Entry.Size := Utils.File_Size (Full_Pathname);
             end if;
 
             File_Entry.Name      := To_Unbounded_String (Filename);

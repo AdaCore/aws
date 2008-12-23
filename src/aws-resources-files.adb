@@ -31,7 +31,6 @@ with Ada.Unchecked_Deallocation;
 
 with AWS.Resources.Streams.Disk;
 with AWS.Resources.Streams.ZLib;
-with AWS.Utils;
 
 with ZLib;
 
@@ -65,8 +64,7 @@ package body AWS.Resources.Files is
    -- File_Size --
    ---------------
 
-   function File_Size
-     (Name : in String) return Stream_Element_Offset is
+   function File_Size (Name : in String) return Utils.File_Size_Type is
    begin
       if Utils.Is_Regular_File (Name) then
          return Utils.File_Size (Name);

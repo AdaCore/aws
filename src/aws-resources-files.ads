@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2002-2007                          --
---                                 AdaCore                                  --
+--                     Copyright (C) 2002-2008, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -25,6 +24,8 @@
 --  however invalidate any other reasons why the executable file  might be  --
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
+
+with AWS.Utils;
 
 package AWS.Resources.Files is
 
@@ -49,9 +50,7 @@ package AWS.Resources.Files is
 
    function Is_Regular_File (Name : in String) return Boolean;
 
-   function File_Size
-     (Name : in String)
-      return Ada.Streams.Stream_Element_Offset;
+   function File_Size (Name : in String) return Utils.File_Size_Type;
 
    function File_Timestamp (Name : in String) return Ada.Calendar.Time;
 

@@ -26,7 +26,6 @@
 ------------------------------------------------------------------------------
 
 with Ada.Calendar.Time_Zones;
-with Ada.Directories;
 with Ada.Integer_Text_IO;
 with Ada.Numerics.Discrete_Random;
 with Ada.Numerics.Long_Elementary_Functions;
@@ -232,10 +231,10 @@ package body AWS.Utils is
    -- File_Size --
    ---------------
 
-   function File_Size (Filename : in String) return Stream_Element_Offset is
+   function File_Size (Filename : in String) return File_Size_Type is
    begin
       if Is_Regular_File (Filename) then
-         return Stream_Element_Offset (Directories.Size (Filename));
+         return Directories.Size (Filename);
       else
          raise No_Such_File with "File " & Filename & " not found.";
       end if;

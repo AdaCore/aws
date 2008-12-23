@@ -170,8 +170,7 @@ begin
    declare
       use type Client.Content_Bound;
       URI        : constant String := "/" & Filename;
-      Size       : constant Stream_Element_Offset :=
-                     Utils.File_Size (Filename);
+      Size       : constant Utils.File_Size_Type := Utils.File_Size (Filename);
       R1, R2, R3 : Response.Data;
       File       : Stream_IO.File_Type;
    begin

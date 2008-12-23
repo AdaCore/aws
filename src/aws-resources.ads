@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2002-2005                          --
---                                 AdaCore                                  --
+--                     Copyright (C) 2002-2008, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -29,6 +28,7 @@
 with Ada.Calendar;
 with Ada.Streams;
 with Ada.Unchecked_Deallocation;
+with AWS.Utils;
 
 package AWS.Resources is
 
@@ -123,7 +123,7 @@ package AWS.Resources is
    --  Returns True if Filename is a regular file and is readable. Checks
    --  first for in memory file then for disk file.
 
-   function File_Size (Name : in String) return Stream_Element_Offset;
+   function File_Size (Name : in String) return Utils.File_Size_Type;
    --  Returns Filename's size in bytes. Checks first for in memory file
    --  then for disk file.
 
