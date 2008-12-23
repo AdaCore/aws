@@ -26,6 +26,7 @@
 ------------------------------------------------------------------------------
 
 with Ada.Calendar;
+with Ada.Directories;
 with Ada.Finalization;
 with Ada.Streams;
 with Ada.Strings.Maps;
@@ -47,6 +48,8 @@ package AWS.Utils is
    type Null_Record is null record;
    --  Can be used to instantiate generic packages in place of generic
    --  parameters that are not needed.
+
+   subtype File_Size_Type is Directories.File_Size;
 
    Spaces : constant Strings.Maps.Character_Set
      := Strings.Maps.To_Set (' ' & ASCII.HT & ASCII.LF & ASCII.CR);
@@ -260,7 +263,7 @@ package AWS.Utils is
    pragma Inline (Is_Directory);
    --  Returns True if Filename is a directory
 
-   function File_Size (Filename : in String) return Stream_Element_Offset;
+   function File_Size (Filename : in String) return File_Size_Type;
    pragma Inline (File_Size);
    --  Returns Filename's size in bytes
 
