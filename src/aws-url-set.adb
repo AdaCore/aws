@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2007-2008, AdaCore                     --
+--                     Copyright (C) 2007-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -368,11 +368,9 @@ package body AWS.URL.Set is
       declare
          Path_Len : constant Natural := Length (Item.N_Path);
       begin
-         if (Path_Len >= 4
-               and then Slice (Item.N_Path, 1, 4) = "/../")
+         if (Path_Len >= 4 and then Slice (Item.N_Path, 1, 4) = "/../")
            or else
-           (Path_Len = 3
-              and then Slice (Item.N_Path, 1, 3) = "/..")
+           (Path_Len = 3 and then Slice (Item.N_Path, 1, 3) = "/..")
          then
             Item.Status := Wrong;
          else
