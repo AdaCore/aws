@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2004                          --
---                                ACT-Europe                                --
+--                      Copyright (C) 2000-2009, AdaCore                    --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -44,8 +43,8 @@ package AWS.Server.Hotplug is
    --  <module_name>:<md5_password>:<host>:<port>
    --
    --  module_name  : The name of the module that will register
-   --  md5_password : The corresponding password, use hotplug_password
-   --                  tool to generate such password
+   --  md5_password : The corresponding password, use aws_password
+   --                 tool to generate such password
    --  host         : The host name where requests will be redirected
    --  port         : and the corresponding port
 

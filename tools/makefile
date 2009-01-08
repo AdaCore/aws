@@ -1,7 +1,7 @@
 ############################################################################
 #                              Ada Web Server                              #
 #                                                                          #
-#                     Copyright (C) 2003-2008, AdaCore                     #
+#                     Copyright (C) 2003-2009, AdaCore                     #
 #                                                                          #
 #  This library is free software; you can redistribute it and/or modify    #
 #  it under the terms of the GNU General Public License as published by    #
@@ -57,7 +57,7 @@ build:
 
 install:
 	-$(CP) ../$(BDIR)/static/tools/awsres${EXEEXT} $(I_BIN)
-	-$(CP) ../$(BDIR)/static/tools/hotplug_password${EXEEXT} $(I_BIN)
+	-$(CP) ../$(BDIR)/static/tools/aws_password${EXEEXT} $(I_BIN)
 	-$(CP) ../$(BDIR)/static/tools/templates2ada${EXEEXT} $(I_BIN)
 	-$(CP) ../$(BDIR)/static/tools/templatespp${EXEEXT} $(I_BIN)
 	-$(CP) ../$(BDIR)/static/tools/webxref${EXEEXT} $(I_BIN)
