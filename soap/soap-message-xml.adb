@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2007                          --
---                                 AdaCore                                  --
+--                     Copyright (C) 2000-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -917,9 +916,14 @@ package body SOAP.Message.XML is
 
                return Parse_Enumeration (Name, Ref);
 
-            elsif First_Child (Ref) /= null
-              and then First_Child (Ref).Node_Type = DOM.Core.Text_Node
-            then
+            elsif First_Child (Ref) = null then
+               --  We have an emtpy node, return an empty string in this case
+               --  otherwise we will create an empty record in the else section
+               --  below.
+
+               return Types.Untyped.S ("", Name);
+
+            elsif First_Child (Ref).Node_Type = DOM.Core.Text_Node then
                --  No xsi:type and no type information. Children are some kind
                --  of text data, so this is a data node with no type
                --  information. Note that this code is to workaround an

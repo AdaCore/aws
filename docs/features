@@ -1,8 +1,8 @@
 ====================================================
-AWS 2.7 NEW FEATURES LIST Current as of Dec 15, 2008
+AWS 2.7 NEW FEATURES LIST Current as of Jan 28, 2009
 ====================================================
 
-Copyright (c) 2006-2008, AdaCore
+Copyright (c) 2006-2009, AdaCore
 
 This file contains a list of new features introduced in AWS.
 A full description of all AWS features can be found in the AWS
@@ -14,6 +14,11 @@ of the feature.
 
 New features in AWS 2.7.0
 -------------------------
+
+NF-27-I122-001 Simplify empty SOAP responses (2009-01-28)
+
+  When no type information is present, empty SOAP responses are now
+  returned as a null string instead of a null record.
 
 NF-27-HB18-007 Improve speed for parsing large SOAP messages (2008-11-18)
 
