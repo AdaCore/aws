@@ -120,7 +120,7 @@ aws_regtests:
 	echo ""
 	echo "=== Run regression tests"
 	echo ""
-	$(MAKE) -C regtests aws_regtests
+	$(MAKE) -C regtests aws_regtests $(ALL_OPTIONS)
 
 run_regtests: run_tp_regtests aws_regtests run_tp_regtests_result
 
