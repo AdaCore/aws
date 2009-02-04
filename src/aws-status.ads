@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2008, AdaCore                     --
+--                     Copyright (C) 2000-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -180,7 +180,7 @@ package AWS.Status is
    function Is_Body_Uploaded       (D : in Data) return Boolean;
    pragma Inline (Is_Body_Uploaded);
    --  Returns True if the message body has been uploaded and False if not.
-   --  The reason beeing that the body size if above Upload_Size_Limit.
+   --  The reason beeing that the body size is above Upload_Size_Limit.
    --  User can upload the file using AWS.Server.Get_Message_Body, the size
    --  beeing returned by Content_Length.
 
