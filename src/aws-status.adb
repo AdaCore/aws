@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2008, AdaCore                     --
+--                     Copyright (C) 2000-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -146,7 +146,7 @@ package body AWS.Status is
          NC     => Authorization_NC (D),
          CNonce => Authorization_CNonce (D),
          QOP    => Authorization_QOP (D),
-         Method => Request_Method'Image (D.Method),
+         Method => Method (D),
          URI    => Authorization_URI (D));
    end Authorization_Tail;
 
@@ -227,7 +227,7 @@ package body AWS.Status is
                NC       => Authorization_NC (D),
                CNonce   => Authorization_CNonce (D),
                QOP      => Authorization_QOP (D),
-               Method   => Request_Method'Image (D.Method),
+               Method   => Method (D),
                URI      => Auth_URI)
       then
          --  Unauthorized

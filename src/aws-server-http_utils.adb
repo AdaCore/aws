@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2005-2008, AdaCore                     --
+--                     Copyright (C) 2005-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -1441,7 +1441,7 @@ package body AWS.Server.HTTP_Utils is
 
             Log.Set_Field
               (LA.Server.Log, LA.Log_Data, "cs-method",
-               Status.Request_Method'Image (Status.Method (C_Stat)));
+               Status.Method (C_Stat));
             Log.Set_Field
               (LA.Server.Log, LA.Log_Data, "cs-username",
                Status.Authorization_Name (C_Stat));

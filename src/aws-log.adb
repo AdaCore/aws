@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2008, AdaCore                     --
+--                     Copyright (C) 2000-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -419,7 +419,7 @@ package body AWS.Log is
            & " ["
            & GNAT.Calendar.Time_IO.Image (Now, "%d/%b/%Y:%T")
            & "] """
-           & Status.Request_Method'Image (Status.Method (Connect_Stat))
+           & Status.Method (Connect_Stat)
            & ' '
            & Status.URI (Connect_Stat) & " "
            & Status.HTTP_Version (Connect_Stat) & """ "

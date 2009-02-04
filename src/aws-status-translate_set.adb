@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2008, AdaCore                          --
+--                     Copyright (C) 2008-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -32,7 +32,7 @@ is
    Tr : Templates.Translate_Set;
 begin
    Insert (Tr, Assoc ("PEERNAME",     To_String (Status.Peername)));
-   Insert (Tr, Assoc ("METHOD",       Request_Method'Image (Status.Method)));
+   Insert (Tr, Assoc ("METHOD",       Method (Status)));
    Insert (Tr, Assoc ("URI",          URL.URL (Status.URI)));
    Insert (Tr, Assoc ("HTTP_VERSION", To_String (Status.HTTP_Version)));
    Insert (Tr, Assoc ("AUTH_MODE",
