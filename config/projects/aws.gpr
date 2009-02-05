@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                          Copyright (C) 2004-2007                         --
+--                     Copyright (C) 2004-2009, AdaCore                     --
 --                                  AdaCore                                 --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -34,7 +34,6 @@ with "aws/aws_ssl_error_lib";
 with "aws/aws_crypto_lib";
 with "aws/aws_shared";
 with "aws/aws_config";
-with "aws/aws_libz";
 with "aws/aws_libwin32";
 
 project AWS is
