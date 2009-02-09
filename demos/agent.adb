@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2008, AdaCore                     --
+--                     Copyright (C) 2000-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -109,6 +109,8 @@ procedure Agent is
    --  raises the human readable exception on error.
 
    procedure Show_Certificate (Cert : in Net.SSL.Certificate.Object);
+
+   procedure Usage;
 
    -------------------
    -- Get_Auth_Mode --
@@ -233,11 +235,13 @@ procedure Agent is
       end if;
    end Show_Certificate;
 
-   Data       : Response.Data;
-   URL_Object : AWS.URL.Object;
+   -----------
+   -- Usage --
+   -----------
 
-begin
-   if Ada.Command_Line.Argument_Count = 0 then
+   procedure Usage is
+      use Ada.Text_IO;
+   begin
       Text_IO.Put_Line ("Usage: agent [options] [GET/PUT] <URL>");
       Text_IO.Put_Line ("       -f           force display of message body.");
       Text_IO.Put_Line ("       -o           output result in file agent.out");
@@ -260,6 +264,14 @@ begin
       Text_IO.Put_Line ("       -pp <proxy_password>");
       Text_IO.Put_Line ("       -pa <proxy_authentication_mode"
                           & " (Any, Basic or Digest)>");
+   end Usage;
+
+   Data       : Response.Data;
+   URL_Object : AWS.URL.Object;
+
+begin
+   if Ada.Command_Line.Argument_Count = 0 then
+      Usage;
       return;
    end if;
 
@@ -459,6 +471,10 @@ begin
    end loop;
 
 exception
+   when GNAT.Command_Line.Invalid_Switch =>
+      Usage;
+      Ada.Command_Line.Set_Exit_Status (Ada.Command_Line.Failure);
+
    when SE : Syntax_Error =>
       Text_IO.Put_Line ("Syntax error: " & Exceptions.Exception_Message (SE));
 
