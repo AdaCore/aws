@@ -134,10 +134,14 @@ procedure Agent is
    begin
       loop
          case GNAT.Command_Line.Getopt
-           ("f o d u: p: a: pu: pp: pa: proxy: k i: s sc: r c cc: t:")
+           ("f o d h u: p: a: pu: pp: pa: proxy: k i: s sc: r c cc: t:")
          is
             when ASCII.NUL =>
                exit;
+
+            when 'h' =>
+               Usage;
+               return False;
 
             when 'f' =>
                Force := True;
@@ -220,7 +224,8 @@ procedure Agent is
            (GNAT.Command_Line.Get_Argument);
       exception
          when Constraint_Error =>
-            Text_IO.Put_Line ("Method should be GET or PUT.");
+            Text_IO.Put_Line ("Method should be GET or PUT. See '" &
+                             Ada.Command_Line.Command_Name & " -h'.");
             Ada.Command_Line.Set_Exit_Status (Ada.Command_Line.Failure);
             return False;
       end Get_Method;
