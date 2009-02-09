@@ -101,8 +101,8 @@ procedure Agent is
    Client_Cert        : Unbounded_String
      := To_Unbounded_String (Default.Client_Certificate);
 
-   procedure Parse_Command_Line;
-   --  parse Agent command line
+   function Parse_Command_Line return Boolean;
+   --  Parse Agent command line. Returns False on error.
 
    function Get_Auth_Mode (Mode : String) return Client.Authentication_Mode;
    --  Return the authentication value from the string representation.
@@ -130,7 +130,7 @@ procedure Agent is
    -- Parse_Command_Line --
    ------------------------
 
-   procedure Parse_Command_Line is
+   function Parse_Command_Line return Boolean is
    begin
       loop
          case GNAT.Command_Line.Getopt
@@ -215,8 +215,18 @@ procedure Agent is
             "Follow redirection and keep-alive mode can't be used together.");
       end if;
 
-      Method := Status.Request_Method'Value (GNAT.Command_Line.Get_Argument);
+      Get_Method : begin
+         Method := Status.Request_Method'Value
+           (GNAT.Command_Line.Get_Argument);
+      exception
+         when Constraint_Error =>
+            Text_IO.Put_Line ("Method should be GET or PUT.");
+            Ada.Command_Line.Set_Exit_Status (Ada.Command_Line.Failure);
+            return False;
+      end Get_Method;
+
       URL    := To_Unbounded_String (GNAT.Command_Line.Get_Argument);
+      return True;
    end Parse_Command_Line;
 
    ----------------------
@@ -273,9 +283,9 @@ begin
    if Ada.Command_Line.Argument_Count = 0 then
       Usage;
       return;
+   elsif not Parse_Command_Line then
+      return;
    end if;
-
-   Parse_Command_Line;
 
    URL_Object := AWS.URL.Parse (To_String (URL));
 
