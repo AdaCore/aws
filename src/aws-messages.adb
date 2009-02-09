@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2008, AdaCore                     --
+--                     Copyright (C) 2000-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -43,7 +43,7 @@ package body AWS.Messages is
    --  Introduced in the WebDAV HTTP extension, refer to RFC2518
 
    S200_Message : aliased constant String := "OK";
-   S201_Message : aliased constant String := "Create";
+   S201_Message : aliased constant String := "Created";
    S202_Message : aliased constant String := "Accepted";
    S203_Message : aliased constant String := "Non-Authoritative Information";
    S204_Message : aliased constant String := "No Content";
