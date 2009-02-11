@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2008, AdaCore                     --
+--                     Copyright (C) 2000-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -538,7 +538,7 @@ package body AWS.Net.Std is
                Data'Address,
                Data'Length,
                OS_Lib.MSG_NOSIGNAL,
-               To    => null,
+               To    => System.Null_Address,
                Tolen => 0);
 
       if RC = Failure then
