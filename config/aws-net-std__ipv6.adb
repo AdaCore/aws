@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2004-2008, AdaCore                     --
+--                     Copyright (C) 2004-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -708,11 +708,12 @@ package body AWS.Net.Std is
       Errno : Integer;
       RC    : C.int;
    begin
-      RC := Sockets.Thin.C_Send
+      RC := Sockets.Thin.C_Sendto
               (Socket.S.FD,
                Data'Address,
                Data'Length,
-               OS_Lib.MSG_NOSIGNAL);
+               OS_Lib.MSG_NOSIGNAL,
+               System.Null_Address, 0);
 
       if RC = Failure then
          Errno := Std.Errno;
