@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2006-2008, AdaCore                     --
+--                     Copyright (C) 2006-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -82,10 +82,12 @@ package body AWS.Net.Poll_Events is
       Result := new Set (Size);
 
       if FD_Set.Size < Size then
+         --  New size is bigger
          Result.Length := FD_Set.Length;
          Result.Fds (1 .. FD_Set.Size) := FD_Set.Fds;
 
       else
+         --  New size is smaller
          Result.Length := Size;
          Result.Fds    := FD_Set.Fds (1 .. Size);
       end if;
