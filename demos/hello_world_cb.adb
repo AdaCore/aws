@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2003                            --
---                                ACT-Europe                                --
+--                     Copyright (C) 2003-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -32,10 +31,7 @@ package body Hello_World_CB is
    -- HW_CB --
    -----------
 
-   function HW_CB
-     (Request : in AWS.Status.Data)
-      return AWS.Response.Data
-   is
+   function HW_CB (Request : in AWS.Status.Data) return AWS.Response.Data is
       pragma Unreferenced (Request);
    begin
       return AWS.Response.Build ("text/html", "<p>Hello world !");
