@@ -104,7 +104,7 @@ procedure Agent is
    function Parse_Command_Line return Boolean;
    --  Parse Agent command line. Returns False on error.
 
-   function Get_Auth_Mode (Mode : String) return Client.Authentication_Mode;
+   function Get_Auth_Mode (Mode : in String) return Client.Authentication_Mode;
    --  Return the authentication value from the string representation.
    --  raises the human readable exception on error.
 
@@ -116,7 +116,8 @@ procedure Agent is
    -- Get_Auth_Mode --
    -------------------
 
-   function Get_Auth_Mode (Mode : String) return Client.Authentication_Mode is
+   function Get_Auth_Mode
+     (Mode : in String) return Client.Authentication_Mode is
    begin
       return Client.Authentication_Mode'Value (Mode);
    exception
