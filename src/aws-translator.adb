@@ -324,8 +324,8 @@ package body AWS.Translator is
 
    function Compress
      (Data   : in Stream_Element_Array;
-      Level  : in Compression_Level                := Default_Compression;
-      Header : in ZL.Header_Type                   := ZL.Default_Header)
+      Level  : in Compression_Level            := Default_Compression;
+      Header : in ZL.Header_Type               := ZL.Default_Header)
       return Utils.Stream_Element_Array_Access
    is
       Stream : ZL.Stream_Type;

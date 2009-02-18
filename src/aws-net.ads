@@ -256,7 +256,7 @@ package AWS.Net is
      (Socket : in Socket_Type;
       Events : in Wait_Event_Set;
       Size   : in Positive := 1) return FD_Set'Class;
-   --  Create appropriate socket FD set and put Socket fd there.
+   --  Create appropriate socket FD set and put Socket fd there
 
    --------------------
    -- Socket FD sets --
