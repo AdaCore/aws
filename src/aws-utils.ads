@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2008, AdaCore                     --
+--                     Copyright (C) 2000-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -173,7 +173,7 @@ package AWS.Utils is
    --  Finalizer --
    ----------------
 
-   type Finalizer (Action : access procedure) is
+   type Finalizer (Action : not null access procedure) is
      new Ada.Finalization.Limited_Controlled with null record;
    --  C++, C#, Borland Delphi, Java, MS Basic have the "finally" block in
    --  exception handlers. Using a finally block it is possible to place some

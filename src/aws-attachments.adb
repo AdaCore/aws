@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2004-2008, AdaCore                     --
+--                     Copyright (C) 2004-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -343,7 +343,7 @@ package body AWS.Attachments is
 
    procedure Iterate
      (Attachments : in List;
-      Process     : access procedure (Attachment : in Element))
+      Process     : not null access procedure (Attachment : in Element))
    is
       --  Use callbacks to avoid Elements copy on iteration
 

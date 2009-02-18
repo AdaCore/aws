@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2008, AdaCore                     --
+--                     Copyright (C) 2000-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -293,8 +293,8 @@ package AWS.Net is
    --  Sets the kind of network events to wait for
 
    function Copy
-     (FD_Set : access Net.FD_Set;
-      Size   : in     Natural) return FD_Set_Access is abstract;
+     (FD_Set : not null access Net.FD_Set;
+      Size   : in Natural) return FD_Set_Access is abstract;
    --  Allocates and copy the given FD_Set with different size
 
    procedure Remove

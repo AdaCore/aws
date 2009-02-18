@@ -2,8 +2,7 @@
 --                              Ada Web Server                              --
 --                 S M T P - Simple Mail Transfer Protocol                  --
 --                                                                          --
---                            Copyright (C) 2008                            --
---                                 AdaCore                                  --
+--                     Copyright (C) 2008-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -46,7 +45,7 @@ package AWS.SMTP.Server is
 
 private
 
-   task type Mail_Handler (Server : access Handle) is
+   task type Mail_Handler (Server : not null access Handle) is
       entry Start;
    end Mail_Handler;
 

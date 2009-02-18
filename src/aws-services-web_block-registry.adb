@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2007-2008, AdaCore                     --
+--                     Copyright (C) 2007-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -84,7 +84,8 @@ package body AWS.Services.Web_Block.Registry is
       Is_New : Boolean;
    end record;
 
-   function Get_Context (Request : access Status.Data) return Context_Data;
+   function Get_Context
+     (Request : not null access Status.Data) return Context_Data;
    --  Gets the proper context id for this request
 
    -----------
@@ -137,7 +138,7 @@ package body AWS.Services.Web_Block.Registry is
    ------------------
 
    function Get_Context
-     (Request : access Status.Data) return Web_Block.Context.Object
+     (Request : not null access Status.Data) return Web_Block.Context.Object
    is
       C_Data : constant Context_Data := Get_Context (Request);
    begin
@@ -148,7 +149,9 @@ package body AWS.Services.Web_Block.Registry is
    -- Get_Context --
    -----------------
 
-   function Get_Context (Request : access Status.Data) return Context_Data is
+   function Get_Context
+     (Request : not null access Status.Data) return Context_Data
+   is
       use type Context.Id;
 
       function Create_New_Context return Context.Id;

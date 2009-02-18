@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2008, AdaCore                     --
+--                     Copyright (C) 2000-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -79,8 +79,8 @@ package body AWS.Server.Push is
       Close_Sockets  : in     Boolean;
       Left_Open      : in     Boolean;
       Get_Final_Data : access function
-                                (Holder : access Client_Holder)
-                                 return Stream_Element_Array := null);
+                         (Holder : not null access Client_Holder)
+                          return Stream_Element_Array := null);
 
    procedure Add_To_Groups
      (Groups     : in out Group_Map;
@@ -97,9 +97,9 @@ package body AWS.Server.Push is
    --  Internal register routine
 
    function Data_Chunk
-     (Holder       : access Client_Holder;
-      Data         : in     Client_Output_Type;
-      Content_Type : in     String) return Stream_Element_Array;
+     (Holder       : not null access Client_Holder;
+      Data         : in Client_Output_Type;
+      Content_Type : in String) return Stream_Element_Array;
 
    procedure Get_Data
      (Holder : in out Client_Holder;
@@ -188,9 +188,9 @@ package body AWS.Server.Push is
    ----------------
 
    function Data_Chunk
-     (Holder       : access Client_Holder;
-      Data         : in     Client_Output_Type;
-      Content_Type : in     String) return Stream_Element_Array
+     (Holder       : not null access Client_Holder;
+      Data         : in Client_Output_Type;
+      Content_Type : in String) return Stream_Element_Array
    is
       Data_To_Send : constant Stream_Element_Array :=
                        To_Stream_Array (Data, Holder.Environment);
@@ -1176,8 +1176,8 @@ package body AWS.Server.Push is
       Close_Sockets  : in     Boolean;
       Left_Open      : in     Boolean;
       Get_Final_Data : access function
-                                (Holder : access Client_Holder)
-                                 return Stream_Element_Array := null)
+                         (Holder : not null access Client_Holder)
+                          return Stream_Element_Array := null)
    is
       Queue  : Tables.Map;
       C      : Tables.Cursor;
@@ -1378,14 +1378,14 @@ package body AWS.Server.Push is
       Final_Content_Type : in     String             := "")
    is
       function Get_Final_Data
-        (Holder : access Client_Holder) return Stream_Element_Array;
+        (Holder : not null access Client_Holder) return Stream_Element_Array;
 
       --------------------
       -- Get_Final_Data --
       --------------------
 
       function Get_Final_Data
-        (Holder : access Client_Holder) return Stream_Element_Array is
+        (Holder : not null access Client_Holder) return Stream_Element_Array is
       begin
          return Data_Chunk (Holder, Final_Data, Final_Content_Type);
       end Get_Final_Data;

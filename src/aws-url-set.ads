@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2007-2008, AdaCore                     --
+--                     Copyright (C) 2007-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -27,7 +27,8 @@
 
 package AWS.URL.Set is
 
-   function Parameters (URL : access Object) return access AWS.Parameters.List;
+   function Parameters
+     (URL : not null access Object) return access AWS.Parameters.List;
    pragma Inline (Parameters);
    --  Returned the URL's parameters list object This is intended to pass
    --  the internal parameters list component to routines in

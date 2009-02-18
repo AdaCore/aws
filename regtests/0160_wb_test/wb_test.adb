@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2007-2008, AdaCore                     --
+--                     Copyright (C) 2007-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -47,8 +47,8 @@ procedure WB_Test is
    use AWS.Services;
 
    procedure Data_CB
-     (Request      : in     Status.Data;
-      Context      : access Web_Block.Context.Object;
+     (Request      : in Status.Data;
+      Context      : not null access Web_Block.Context.Object;
       Translations : in out Templates.Translate_Set);
 
    Max_Clients : constant := 30;
@@ -90,8 +90,8 @@ procedure WB_Test is
    -------------
 
    procedure Data_CB
-     (Request      : in     Status.Data;
-      Context      : access Web_Block.Context.Object;
+     (Request      : in Status.Data;
+      Context      : not null access Web_Block.Context.Object;
       Translations : in out Templates.Translate_Set)
    is
       N : Integer := 0;

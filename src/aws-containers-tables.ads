@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2008, AdaCore                     --
+--                     Copyright (C) 2000-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -107,7 +107,7 @@ package AWS.Containers.Tables is
    procedure Iterate_Names
      (Table   : in Table_Type;
       Coupler : in String;
-      Process : access procedure (Name, Value : in String));
+      Process : not null access procedure (Name, Value : in String));
 
 private
 

@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2008, AdaCore                     --
+--                     Copyright (C) 2000-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -41,14 +41,14 @@ package body AWS.Translator is
    --  used to implement the Compress and Decompress routines.
 
    type Decoding_State is record
-      Cb    : access procedure (Ch : in Character);
+      Cb    : not null access procedure (Ch : in Character);
       Pad   : Unsigned_32 := 0;
       Group : Unsigned_32 := 0;
       J     : Integer := 18;
    end record;
 
    type Encoding_State is record
-      Cb            : access procedure (Ch : in Character);
+      Cb            : not null access procedure (Ch : in Character);
       Last          : Integer := 0;
       Current_State : Positive range 1 .. 3 := 1;
       Prev_E        : Unsigned_8 := 0; -- position of the character
@@ -201,11 +201,10 @@ package body AWS.Translator is
          Append (Data, Ch);
       end Add_Char;
 
-      S : Decoding_State;
+      S : Decoding_State := (Cb => Add_Char'Access, others => <>);
 
    begin
       Data := Null_Unbounded_String;
-      S.Cb := Add_Char'Access;
 
       for C in 1 .. Length (B64_Data) loop
          Add (S, Element (B64_Data, C));
@@ -228,7 +227,7 @@ package body AWS.Translator is
       Result : Stream_Element_Array
         (Stream_Element_Offset range 1 .. B64_Data'Length);
       Last   : Stream_Element_Offset := 0;
-      S      : Decoding_State;
+      S      : Decoding_State := (Cb => Add_Char'Access, others => <>);
 
       --------------
       -- Add_Char --
@@ -241,8 +240,6 @@ package body AWS.Translator is
       end Add_Char;
 
    begin
-      S.Cb := Add_Char'Access;
-
       for C in B64_Data'Range loop
          Add (S, B64_Data (C));
       end loop;
@@ -276,11 +273,10 @@ package body AWS.Translator is
          Append (B64_Data, Ch);
       end Add_Char;
 
-      S : Encoding_State;
+      S : Encoding_State := (Cb => Add_Char'Access, others => <>);
 
    begin
       B64_Data := Null_Unbounded_String;
-      S.Cb := Add_Char'Access;
 
       for C in 1 .. Length (Data) loop
          Add (S, Element (Data, C));
@@ -295,7 +291,7 @@ package body AWS.Translator is
       --  Add single char into result string
 
       Result : Unbounded_String;
-      S      : Encoding_State;
+      S      : Encoding_State := (Cb => Add_Char'Access, others => <>);
 
       --------------
       -- Add_Char --
@@ -307,8 +303,6 @@ package body AWS.Translator is
       end Add_Char;
 
    begin
-      S.Cb := Add_Char'Access;
-
       for I in Data'Range loop
          Add (S, Character'Val (Data (I)));
       end loop;

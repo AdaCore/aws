@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2007                            --
---                                 AdaCore                                  --
+--                     Copyright (C) 2007-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -704,10 +703,10 @@ procedure Webxref is
       procedure Find
         (Iterator  : in Reader;
          Attribute : in String;
-         Process   : access
-           procedure (Iterator : in Reader;
-                      Name     : in String;
-                      Column   : in Positive));
+         Process   : not null access procedure
+                       (Iterator : in Reader;
+                        Name     : in String;
+                        Column   : in Positive));
       --  Call process for value of the given attribute name
 
       procedure Process_Id
@@ -805,10 +804,10 @@ procedure Webxref is
       procedure Find
         (Iterator  : in Reader;
          Attribute : in String;
-         Process   : access
-           procedure (Iterator : in Reader;
-                      Name     : in String;
-                      Column   : in Positive))
+         Process   : not null access procedure
+                       (Iterator : in Reader;
+                        Name     : in String;
+                        Column   : in Positive))
       is
          procedure Check (C : in Character);
 

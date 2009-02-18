@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2004-2006                          --
---                                 AdaCore                                  --
+--                     Copyright (C) 2004-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -188,9 +187,9 @@ package AWS.Net.Generic_Sets is
    procedure Update_Socket
      (Set     : in out Socket_Set_Type;
       Index   : in     Socket_Index;
-      Process : access procedure
-                         (Socket : in out Socket_Type'Class;
-                          Data   : in out Data_Type));
+      Process : not null access procedure
+                  (Socket : in out Socket_Type'Class;
+                   Data   : in out Data_Type));
 
    procedure Next (Set : in Socket_Set_Type; Index : in out Socket_Index);
    --  Looking for active socket starting from Index and return Index of the

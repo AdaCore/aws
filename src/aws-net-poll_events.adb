@@ -75,7 +75,7 @@ package body AWS.Net.Poll_Events is
    ----------
 
    overriding function Copy
-     (FD_Set : access Set; Size : in Natural) return FD_Set_Access
+     (FD_Set : not null access Set; Size : in Natural) return FD_Set_Access
    is
       Result : Poll_Access;
    begin

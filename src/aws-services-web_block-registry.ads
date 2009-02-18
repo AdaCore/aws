@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2007-2008, AdaCore                     --
+--                     Copyright (C) 2007-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -50,8 +50,8 @@ package AWS.Services.Web_Block.Registry is
    No_Page : constant Page;
 
    type Data_Callback is access procedure
-     (Request      : in     Status.Data;
-      Context      : access Web_Block.Context.Object;
+     (Request      : in Status.Data;
+      Context      : not null access Web_Block.Context.Object;
       Translations : in out Templates.Translate_Set);
 
    type Template_Callback is access function
@@ -102,7 +102,7 @@ package AWS.Services.Web_Block.Registry is
    --  Same as above but returns a standard Web page
 
    function Get_Context
-     (Request : access Status.Data) return Web_Block.Context.Object;
+     (Request : not null access Status.Data) return Web_Block.Context.Object;
    --  Gets the proper context id for this request
 
 private

@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2006-2008, AdaCore                     --
+--                     Copyright (C) 2006-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -47,7 +47,7 @@ package AWS.Net.Poll_Events is
      (FD_Set : in out Set; Index : in Positive; Mode : in Wait_Event_Set);
 
    overriding function Copy
-     (FD_Set : access Set; Size : in Natural) return FD_Set_Access;
+     (FD_Set : not null access Set; Size : in Natural) return FD_Set_Access;
 
    overriding procedure Remove (FD_Set : in out Set; Index : in Positive);
 

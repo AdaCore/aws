@@ -140,7 +140,7 @@ package body AWS.URL.Set is
    end Parameters;
 
    function Parameters
-     (URL : access Object) return access AWS.Parameters.List is
+     (URL : not null access Object) return access AWS.Parameters.List is
    begin
       return URL.Parameters'Unchecked_Access;
    end Parameters;

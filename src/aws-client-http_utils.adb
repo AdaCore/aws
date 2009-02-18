@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2005-2008, AdaCore                     --
+--                     Copyright (C) 2005-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -1314,7 +1314,7 @@ package body AWS.Client.HTTP_Utils is
    procedure Send_Header
      (Sock        : in AWS.Net.Socket_Type'Class;
       Header      : in String;
-      Constructor : access function (Value : in String) return String;
+      Constructor : not null access function (Value : in String) return String;
       Value       : in String;
       Headers     : in Header_List) is
    begin
