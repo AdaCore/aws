@@ -41,27 +41,33 @@ package body AWS.Translator is
    --  used to implement the Compress and Decompress routines.
 
    type Decoding_State is record
-      Cb    : not null access procedure (Ch : in Character);
       Pad   : Unsigned_32 := 0;
       Group : Unsigned_32 := 0;
       J     : Integer := 18;
    end record;
 
    type Encoding_State is record
-      Cb            : not null access procedure (Ch : in Character);
       Last          : Integer := 0;
       Current_State : Positive range 1 .. 3 := 1;
       Prev_E        : Unsigned_8 := 0; -- position of the character
       Count         : Integer := 0;
    end record;
 
-   procedure Add (State : in out Encoding_State; Ch : in Character);
+   procedure Add
+     (Add   : not null access procedure (Ch : in Character);
+      State : in out Encoding_State;
+      Ch    : in Character);
    --  This method contains the algorithm for encoding the characters
 
-   procedure Add (State : in out Decoding_State; Ch : in Character);
+   procedure Add
+     (Add   : not null access procedure (Ch : in Character);
+      State : in out Decoding_State;
+      Ch    : in Character);
    --  This method contains the algorithm for decoding the characters
 
-   procedure Flush (State : in out Encoding_State);
+   procedure Flush
+     (Add   : not null access procedure (Ch : in Character);
+      State : in out Encoding_State);
    --  This method is implemented for flushing to add the last bits
 
    package Conversion is
@@ -119,7 +125,11 @@ package body AWS.Translator is
    -- Add --
    ---------
 
-   procedure Add (State : in out Encoding_State; Ch : in Character) is
+   procedure Add
+     (Add   : not null access procedure (Ch : in Character);
+      State : in out Encoding_State;
+      Ch    : in Character)
+   is
       E : Unsigned_8 := 0;
    begin
       State.Count := State.Count + 1;
@@ -129,26 +139,29 @@ package body AWS.Translator is
 
       case State.Current_State is
          when 1 =>
-            State.Cb (Base64 (Shift_Right (E, 2) and 16#3F#));
+            Add (Base64 (Shift_Right (E, 2) and 16#3F#));
             State.Current_State := 2;
 
          when 2 =>
-            State.Cb (Base64 ((Shift_Left (State.Prev_E, 4) and 16#30#)
+            Add (Base64 ((Shift_Left (State.Prev_E, 4) and 16#30#)
               or (Shift_Right (E, 4) and 16#F#)));
             State.Current_State := 3;
 
          when 3 =>
-            State.Cb (Base64 ((Shift_Left (State.Prev_E, 2) and 16#3C#)
+            Add (Base64 ((Shift_Left (State.Prev_E, 2) and 16#3C#)
               or (Shift_Right (E, 6) and 16#3#)));
             State.Last := State.Last + 1;
-            State.Cb (Base64 (E and 16#3F#));
+            Add (Base64 (E and 16#3F#));
             State.Current_State := 1;
       end case;
 
       State.Prev_E := E;
    end Add;
 
-   procedure Add (State : in out Decoding_State; Ch : in Character) is
+   procedure Add
+     (Add   : not null access procedure (Ch : in Character);
+      State : in out Decoding_State;
+      Ch    : in Character) is
    begin
       if Ch = ASCII.LF or else Ch = ASCII.CR then
          null;
@@ -166,11 +179,11 @@ package body AWS.Translator is
          State.J := State.J - 6;
 
          if State.J < 0 then
-            State.Cb (Character'Val (Unsigned_8
+            Add (Character'Val (Unsigned_8
               (Shift_Right (State.Group and 16#FF0000#, 16))));
-            State.Cb (Character'Val (Unsigned_8
+            Add (Character'Val (Unsigned_8
               (Shift_Right (State.Group and 16#00FF00#, 8))));
-            State.Cb (Character'Val (Unsigned_8
+            Add (Character'Val (Unsigned_8
               (State.Group and 16#0000FF#)));
 
             State.Group := 0;
@@ -201,13 +214,13 @@ package body AWS.Translator is
          Append (Data, Ch);
       end Add_Char;
 
-      S : Decoding_State := (Cb => Add_Char'Access, others => <>);
+      S : Decoding_State;
 
    begin
       Data := Null_Unbounded_String;
 
       for C in 1 .. Length (B64_Data) loop
-         Add (S, Element (B64_Data, C));
+         Add (Add_Char'Access, S, Element (B64_Data, C));
       end loop;
 
       --  Remove the padding
@@ -227,7 +240,7 @@ package body AWS.Translator is
       Result : Stream_Element_Array
         (Stream_Element_Offset range 1 .. B64_Data'Length);
       Last   : Stream_Element_Offset := 0;
-      S      : Decoding_State := (Cb => Add_Char'Access, others => <>);
+      S      : Decoding_State;
 
       --------------
       -- Add_Char --
@@ -241,7 +254,7 @@ package body AWS.Translator is
 
    begin
       for C in B64_Data'Range loop
-         Add (S, B64_Data (C));
+         Add (Add_Char'Access, S, B64_Data (C));
       end loop;
 
       return Result (1 .. Last - Stream_Element_Offset (S.Pad));
@@ -273,16 +286,16 @@ package body AWS.Translator is
          Append (B64_Data, Ch);
       end Add_Char;
 
-      S : Encoding_State := (Cb => Add_Char'Access, others => <>);
+      S : Encoding_State;
 
    begin
       B64_Data := Null_Unbounded_String;
 
       for C in 1 .. Length (Data) loop
-         Add (S, Element (Data, C));
+         Add (Add_Char'Access, S, Element (Data, C));
       end loop;
 
-      Flush (S);
+      Flush (Add_Char'Access, S);
    end Base64_Encode;
 
    function Base64_Encode (Data : in Stream_Element_Array) return String is
@@ -291,7 +304,7 @@ package body AWS.Translator is
       --  Add single char into result string
 
       Result : Unbounded_String;
-      S      : Encoding_State := (Cb => Add_Char'Access, others => <>);
+      S      : Encoding_State;
 
       --------------
       -- Add_Char --
@@ -304,10 +317,10 @@ package body AWS.Translator is
 
    begin
       for I in Data'Range loop
-         Add (S, Character'Val (Data (I)));
+         Add (Add_Char'Access, S, Character'Val (Data (I)));
       end loop;
 
-      Flush (S);
+      Flush (Add_Char'Access, S);
       return To_String (Result);
    end Base64_Encode;
 
@@ -416,7 +429,10 @@ package body AWS.Translator is
    -- Flush --
    -----------
 
-   procedure Flush (State : in out Encoding_State) is
+   procedure Flush
+     (Add   : not null access procedure (Ch : in Character);
+      State : in out Encoding_State)
+   is
       Encoded_Length : Integer;
    begin
       case State.Current_State is
@@ -425,11 +441,11 @@ package body AWS.Translator is
 
          when 2 =>
             State.Last := State.Last + 1;
-            State.Cb (Base64 (Shift_Left (State.Prev_E, 4) and 16#30#));
+            Add (Base64 (Shift_Left (State.Prev_E, 4) and 16#30#));
 
          when 3 =>
             State.Last := State.Last + 1;
-            State.Cb (Base64 (Shift_Left (State.Prev_E, 2) and 16#3C#));
+            Add (Base64 (Shift_Left (State.Prev_E, 2) and 16#3C#));
       end case;
 
       --  Add Additional '=' character for the missing bits
@@ -439,7 +455,7 @@ package body AWS.Translator is
       Encoded_Length := 4 * ((State.Count + 2) / 3);
 
       for I in State.Last .. Encoded_Length loop
-         State.Cb ('=');
+         Add ('=');
       end loop;
    end Flush;
 
