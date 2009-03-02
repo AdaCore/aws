@@ -763,6 +763,8 @@ package body Ada2WSDL.Generator is
             Put_Line ("      </wsdl:operation>");
          end Write_Operation;
 
+         Found : Boolean := False;
+
       begin
          New_Line;
          Put_Line ("   <wsdl:portType name=""" & WS_Name & "_PortType"">");
@@ -771,7 +773,11 @@ package body Ada2WSDL.Generator is
 
          for I in 1 .. Index loop
             if API (I).Def_Mode = Routine then
-               New_Line;
+               if Found then
+                  New_Line;
+               else
+                  Found := True;
+               end if;
                Write_Operation (API (I));
             end if;
          end loop;
