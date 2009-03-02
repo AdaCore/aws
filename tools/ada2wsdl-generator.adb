@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2003-2008                          --
---                                 AdaCore                                  --
+--                     Copyright (C) 2003-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -524,8 +523,9 @@ package body Ada2WSDL.Generator is
 
       WS_Name : constant String := -Options.WS_Name;
 
-      NS      : constant String
-        := SOAP.Name_Space.Value (SOAP.Name_Space.AWS) & WS_Name & "_def/";
+      NS      : constant String :=
+                  SOAP.Name_Space.Value
+                    (SOAP.Name_Space.AWS) & WS_Name & "_def/";
 
       procedure Write_Header;
       --  Write WSDL header

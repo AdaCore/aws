@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2004                            --
---                                ACT-Europe                                --
+--                     Copyright (C) 2004-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -74,12 +73,14 @@ private
       Value  : Unbounded_String;
    end record;
 
-   No_Name_Space : constant Object
-     := (Null_Unbounded_String, Null_Unbounded_String, Null_Unbounded_String);
+   No_Name_Space : constant Object :=
+                     (Null_Unbounded_String,
+                      Null_Unbounded_String,
+                      Null_Unbounded_String);
 
-   AWS : constant Object
-     := (To_Unbounded_String (Default_Prefix),
-         To_Unbounded_String ("awsns"),
-         To_Unbounded_String ("http://soapaws/"));
+   AWS : constant Object :=
+           (To_Unbounded_String (Default_Prefix),
+            To_Unbounded_String ("awsns"),
+            To_Unbounded_String ("http://soapaws/"));
 
 end SOAP.Name_Space;
