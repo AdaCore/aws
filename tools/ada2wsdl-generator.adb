@@ -635,7 +635,6 @@ package body Ada2WSDL.Generator is
          Put_Line ("<wsdl:definitions name=""" & WS_Name  & """");
          Put_Line ("   targetNamespace=""" & NS & '"');
          Put_Line ("   xmlns:tns=""" & NS & '"');
-         Put_Line ("   xmlns=""" & WSDL.NS_WSDL & '"');
          Put_Line ("   xmlns:soap=""" & WSDL.NS_SOAP & '"');
          Put_Line ("   xmlns:soapenc=""" & WSDL.NS_SOAPENC & '"');
          Put_Line ("   xmlns:wsdl=""" & WSDL.NS_WSDL & '"');
