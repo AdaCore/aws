@@ -617,7 +617,7 @@ package body AWS.Net.Std is
    is
       use type C.int;
       Arg : aliased C.int;
-      Res : constant C.int := Sockets.Thin.C_Ioctl
+      Res : constant C.int := Sockets.Thin.Socket_Ioctl
                                 (Socket.S.FD,
                                  OS_Lib.FIONREAD,
                                  Arg'Unchecked_Access);
@@ -781,8 +781,8 @@ package body AWS.Net.Std is
       use Interfaces.C;
       Enabled : aliased int := 1;
    begin
-      if Thin.C_Ioctl (Socket.S.FD, OS_Lib.FIONBIO, Enabled'Unchecked_Access)
-         /= 0
+      if Thin.Socket_Ioctl
+           (Socket.S.FD, OS_Lib.FIONBIO, Enabled'Unchecked_Access) /= 0
       then
          Raise_Socket_Error (Errno, Socket);
       end if;
