@@ -580,22 +580,23 @@ package body Ada2WSDL.Generator is
             Name : constant String := -R.Name;
 
          begin
-            Put_Line ("      <operation name=""" & Name & """>");
+            Put_Line ("      <wsdl:operation name=""" & Name & """>");
             Put_Line ("         <soap:operation soapAction="""
                         & Name & """/>");
-            Put_Line ("         <input>");
+            Put_Line ("         <wsdl:input>");
             Write_SOAP_Body;
-            Put_Line ("         </input>");
-            Put_Line ("         <output>");
+            Put_Line ("         </wsdl:input>");
+            Put_Line ("         <wsdl:output>");
             Write_SOAP_Body;
-            Put_Line ("         </output>");
-            Put_Line ("      </operation>");
+            Put_Line ("         </wsdl:output>");
+            Put_Line ("      </wsdl:operation>");
          end Write_Operation;
 
       begin
          New_Line;
-         Put_Line ("   <binding name=""" & WS_Name & "_Binding"" type=""tns:"
-                     & WS_Name & "_PortType"">");
+         Put_Line ("   <wsdl:binding name="""
+                   & WS_Name & "_Binding"" type=""tns:"
+                   & WS_Name & "_PortType"">");
          Put_Line ("      <soap:binding style=""rpc""");
          Put_Line ("         transport="""
                      & "http://schemas.xmlsoap.org/soap/http""/>");
@@ -609,7 +610,7 @@ package body Ada2WSDL.Generator is
             end if;
          end loop;
 
-         Put_Line ("   </binding>");
+         Put_Line ("   </wsdl:binding>");
       end Write_Binding;
 
       ------------------
@@ -618,7 +619,7 @@ package body Ada2WSDL.Generator is
 
       procedure Write_Footer is
       begin
-         Put_Line ("</definitions>");
+         Put_Line ("</wsdl:definitions>");
       end Write_Footer;
 
       ------------------
@@ -631,7 +632,7 @@ package body Ada2WSDL.Generator is
          N : Positive;
       begin
          Put_Line ("<?xml version=""1.0"" encoding=""UTF-8""?>");
-         Put_Line ("<definitions name=""" & WS_Name  & """");
+         Put_Line ("<wsdl:definitions name=""" & WS_Name  & """");
          Put_Line ("   targetNamespace=""" & NS & '"');
          Put_Line ("   xmlns:tns=""" & NS & '"');
          Put_Line ("   xmlns=""" & WSDL.NS_WSDL & '"');
@@ -693,7 +694,7 @@ package body Ada2WSDL.Generator is
             begin
                while A /= null loop
                   Put_Line
-                    ("      <part name=""" & (-A.Name)
+                    ("      <wsdl:part name=""" & (-A.Name)
                      & """ type=""" & (-A.XSD_Name) & """/>");
                   A := A.Next;
                end loop;
@@ -705,17 +706,17 @@ package body Ada2WSDL.Generator is
             New_Line;
 
             if R.Parameters /= null then
-               Put_Line ("   <message name=""" & Name & "_Request"">");
+               Put_Line ("   <wsdl:message name=""" & Name & "_Request"">");
                Write_Part (R.Parameters);
-               Put_Line ("   </message>");
+               Put_Line ("   </wsdl:message>");
             end if;
 
             New_Line;
 
             if R.Return_Type /= null then
-               Put_Line ("   <message name=""" & Name & "_Response"">");
+               Put_Line ("   <wsdl:message name=""" & Name & "_Response"">");
                Write_Part (R.Return_Type);
-               Put_Line ("   </message>");
+               Put_Line ("   </wsdl:message>");
             end if;
          end Write_Message;
 
@@ -744,26 +745,28 @@ package body Ada2WSDL.Generator is
             Name : constant String := -R.Name;
 
          begin
-            Put_Line ("      <operation name=""" & Name & """>");
+            Put_Line ("      <wsdl:operation name=""" & Name & """>");
 
             if R.Parameters /= null then
                --  Notification operation
                Put_Line
-                 ("         <input message=""tns:" & Name & "_Request""/>");
+                 ("         <wsdl:input message=""tns:"
+                  & Name & "_Request""/>");
             end if;
 
             if R.Return_Type /= null then
                --  Request-response operation
                Put_Line
-                 ("         <output message=""tns:" & Name & "_Response""/>");
+                 ("         <wsdl:output message=""tns:"
+                  & Name & "_Response""/>");
             end if;
 
-            Put_Line ("      </operation>");
+            Put_Line ("      </wsdl:operation>");
          end Write_Operation;
 
       begin
          New_Line;
-         Put_Line ("   <portType name=""" & WS_Name & "_PortType"">");
+         Put_Line ("   <wsdl:portType name=""" & WS_Name & "_PortType"">");
 
          --  Output all operations info
 
@@ -774,7 +777,7 @@ package body Ada2WSDL.Generator is
             end if;
          end loop;
 
-         Put_Line ("   </portType>");
+         Put_Line ("   </wsdl:portType>");
       end Write_Port_Type;
 
       ------------------
@@ -823,16 +826,18 @@ package body Ada2WSDL.Generator is
 
          begin
             New_Line;
-            Put_Line ("         <complexType name=""" & (-E.Name) & '"');
+            Put_Line ("         <xsd:complexType name=""" & (-E.Name) & '"');
             Put_Line ("                 targetNamespace=""" & (-E.NS) & """>");
-            Put_Line ("            <complexContent>");
-            Put_Line ("               <restriction base=""soapenc:Array"">");
-            Put_Line ("                  <attribute ref=""soapenc:arrayType"""
+            Put_Line ("            <xsd:complexContent>");
+            Put_Line ("               <xsd:restriction "
+                      & "base=""soapenc:Array"">");
+            Put_Line ("                  <xsd:attribute "
+                      & "ref=""soapenc:arrayType"""
                         & " wsdl:arrayType=""" & (-E.Parameters.XSD_Name)
                         & Array_Constraint & """/>");
-            Put_Line ("               </restriction>");
-            Put_Line ("            </complexContent>");
-            Put_Line ("         </complexType>");
+            Put_Line ("               </xsd:restriction>");
+            Put_Line ("            </xsd:complexContent>");
+            Put_Line ("         </xsd:complexType>");
          end Write_Array;
 
          ---------------------
@@ -842,14 +847,14 @@ package body Ada2WSDL.Generator is
          procedure Write_Character is
          begin
             New_Line;
-            Put_Line ("         <simpleType name=""Character""");
+            Put_Line ("         <xsd:simpleType name=""Character""");
             Put_Line ("                 targetNamespace="""
                       & Name_Space.Value (Name_Space.AWS)
                       & "Standard_pkg/" & """>");
-            Put_Line ("            <restriction base=""xsd:string"">");
-            Put_Line ("               <length value=""1""/>");
-            Put_Line ("            </restriction>");
-            Put_Line ("         </simpleType>");
+            Put_Line ("            <xsd:restriction base=""xsd:string"">");
+            Put_Line ("               <xsd:length value=""1""/>");
+            Put_Line ("            </xsd:restriction>");
+            Put_Line ("         </xsd:simpleType>");
          end Write_Character;
 
          -----------------------
@@ -860,18 +865,18 @@ package body Ada2WSDL.Generator is
             P : Parameter_Access := E.Parameters;
          begin
             New_Line;
-            Put_Line ("         <simpleType name=""" & (-E.Name) & '"');
+            Put_Line ("         <xsd:simpleType name=""" & (-E.Name) & '"');
             Put_Line ("                 targetNamespace=""" & (-E.NS) & """>");
-            Put_Line ("            <restriction base=""xsd:string"">");
+            Put_Line ("            <xsd:restriction base=""xsd:string"">");
 
             while P /= null loop
-               Put_Line ("               <enumeration value="""
+               Put_Line ("               <xsd:enumeration value="""
                            & (-P.Name) & """/>");
                P := P.Next;
             end loop;
 
-            Put_Line ("            </restriction>");
-            Put_Line ("         </simpleType>");
+            Put_Line ("            </xsd:restriction>");
+            Put_Line ("         </xsd:simpleType>");
          end Write_Enumeration;
 
          ------------------
@@ -882,18 +887,18 @@ package body Ada2WSDL.Generator is
             P : Parameter_Access := E.Parameters;
          begin
             New_Line;
-            Put_Line ("         <complexType name=""" & (-E.Name) & '"');
+            Put_Line ("         <xsd:complexType name=""" & (-E.Name) & '"');
             Put_Line ("                 targetNamespace=""" & (-E.NS) & """>");
-            Put_Line ("            <all>");
+            Put_Line ("            <xsd:all>");
 
             while P /= null loop
-               Put_Line ("               <element name=""" & (-P.Name)
+               Put_Line ("               <xsd:element name=""" & (-P.Name)
                            & """ type=""" & (-P.XSD_Name) & """/>");
                P := P.Next;
             end loop;
 
-            Put_Line ("            </all>");
-            Put_Line ("         </complexType>");
+            Put_Line ("            </xsd:all>");
+            Put_Line ("         </xsd:complexType>");
          end Write_Record;
 
          ----------------
@@ -904,19 +909,20 @@ package body Ada2WSDL.Generator is
             P : constant Parameter_Access := E.Parameters;
          begin
             New_Line;
-            Put_Line ("         <simpleType name=""" & (-E.Name) & '"');
+            Put_Line ("         <xsd:simpleType name=""" & (-E.Name) & '"');
             Put_Line ("                 targetNamespace=""" & (-E.NS) & """>");
-            Put_Line ("            <restriction base="""
+            Put_Line ("            <xsd:restriction base="""
                         & (-P.XSD_Name) & """/>");
-            Put_Line ("         </simpleType>");
+            Put_Line ("         </xsd:simpleType>");
          end Write_Type;
 
       begin
          if Schema_Needed or else Character_Schema then
             New_Line;
-            Put_Line ("   <types>");
+            Put_Line ("   <wsdl:types>");
             Put_Line
-              ("      <schema xmlns=""http://www.w3.org/2000/10/XMLSchema"">");
+              ("      <xsd:schema"
+               & " xmlns:xsd=""http://www.w3.org/2001/XMLSchema"">");
 
             if Character_Schema then
                Write_Character;
@@ -937,8 +943,8 @@ package body Ada2WSDL.Generator is
                end case;
             end loop;
 
-            Put_Line ("      </schema>");
-            Put_Line ("   </types>");
+            Put_Line ("      </xsd:schema>");
+            Put_Line ("   </wsdl:types>");
          end if;
       end Write_Schema;
 
@@ -949,13 +955,13 @@ package body Ada2WSDL.Generator is
       procedure Write_Service is
       begin
          New_Line;
-         Put_Line ("   <service name=""" & WS_Name & "_Service"">");
-         Put_Line ("      <port name=""" & WS_Name & "_Port"" binding=""tns:"
-                     & WS_Name & "_Binding"">");
+         Put_Line ("   <wsdl:service name=""" & WS_Name & "_Service"">");
+         Put_Line ("      <wsdl:port name=""" & WS_Name
+                   & "_Port"" binding=""tns:" & WS_Name & "_Binding"">");
          Put_Line ("         <soap:address location="""
                      & To_String (Options.SOAP_Address) & """/>");
-         Put_Line ("      </port>");
-         Put_Line ("   </service>");
+         Put_Line ("      </wsdl:port>");
+         Put_Line ("   </wsdl:service>");
       end Write_Service;
 
       File : Text_IO.File_Type;
