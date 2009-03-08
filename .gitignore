@@ -5,6 +5,7 @@
 *.so
 *~
 .build
+.gpsrcs
 demos/hello_demo-client.adb
 demos/hello_demo-client.ads
 demos/hello_demo-server.adb
@@ -63,4 +64,7 @@ src/aws-translator-conversion.adb
 ssl/aws_ssl_shared.gpr
 ssl/install_aws_ssl_shared.gpr
 templates_parser
+testsuite.rep
+testsuite.res_last
 tools/ada2wsdl-options.adb
+workspace/*
