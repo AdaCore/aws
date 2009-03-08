@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<definitions name="Callsh"
+<wsdl:definitions name="Callsh"
    targetNamespace="http://soapaws/Callsh_def/"
    xmlns:tns="http://soapaws/Callsh_def/"
-   xmlns="http://schemas.xmlsoap.org/wsdl/"
    xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
    xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/"
    xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
@@ -10,43 +9,42 @@
    xmlns:xsd="http://www.w3.org/2001/XMLSchema"
    xmlns:n1="http://soapaws/Standard_pkg/">
 
-   <message name="Call_Me_Request">
-      <part name="P1" type="xsd:string"/>
-      <part name="P2" type="xsd:string"/>
-   </message>
+   <wsdl:message name="Call_Me_Request">
+      <wsdl:part name="P1" type="xsd:string"/>
+      <wsdl:part name="P2" type="xsd:string"/>
+   </wsdl:message>
 
 
-   <portType name="Callsh_PortType">
+   <wsdl:portType name="Callsh_PortType">
+      <wsdl:operation name="Call_Me">
+         <wsdl:input message="tns:Call_Me_Request"/>
+      </wsdl:operation>
+   </wsdl:portType>
 
-      <operation name="Call_Me">
-         <input message="tns:Call_Me_Request"/>
-      </operation>
-   </portType>
-
-   <binding name="Callsh_Binding" type="tns:Callsh_PortType">
+   <wsdl:binding name="Callsh_Binding" type="tns:Callsh_PortType">
       <soap:binding style="rpc"
          transport="http://schemas.xmlsoap.org/soap/http"/>
 
-      <operation name="Call_Me">
+      <wsdl:operation name="Call_Me">
          <soap:operation soapAction="Call_Me"/>
-         <input>
+         <wsdl:input>
             <soap:body
                encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"
                namespace="http://soapaws/Callsh_def/"
                use="encoded"/>
-         </input>
-         <output>
+         </wsdl:input>
+         <wsdl:output>
             <soap:body
                encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"
                namespace="http://soapaws/Callsh_def/"
                use="encoded"/>
-         </output>
-      </operation>
-   </binding>
+         </wsdl:output>
+      </wsdl:operation>
+   </wsdl:binding>
 
-   <service name="Callsh_Service">
-      <port name="Callsh_Port" binding="tns:Callsh_Binding">
+   <wsdl:service name="Callsh_Service">
+      <wsdl:port name="Callsh_Port" binding="tns:Callsh_Binding">
          <soap:address location="http://.../"/>
-      </port>
-   </service>
-</definitions>
+      </wsdl:port>
+   </wsdl:service>
+</wsdl:definitions>
