@@ -81,15 +81,7 @@ procedure Pauth is
 
       Put_Line ("Valid_Nonce : " & Boolean'Image (Valid_Nonce));
 
-      if AWS.Status.Authorization_Response (Request)
-        = MD5.Digest
-            (MD5.Digest
-               (Username
-                  & ':' & AWS.Status.Authorization_Realm (Request)
-                  & ':' & Auth_Password)
-               & AWS.Status.Authorization_Tail (Request))
-        and then Valid_Nonce
-      then
+      if Status.Check_Digest (Request, Auth_Password) then
          return AWS.Response.Build
            ("text/plain", "Digest authorization OK!");
 
