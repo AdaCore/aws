@@ -1,0 +1,35 @@
+diff --git config/aws-net-std__gnat.adb config/aws-net-std__gnat.adb
+index ca0d2ed..c9c524b 100644
+--- config/aws-net-std__gnat.adb
++++ config/aws-net-std__gnat.adb
+@@ -448,7 +448,7 @@ package body AWS.Net.Std is
+    is
+       use Interfaces;
+       Arg : aliased C.int;
+-      Res : constant C.int := Sockets.Thin.Socket_Ioctl
++      Res : constant C.int := Sockets.Thin.C_Ioctl
+                                 (C.int (Get_FD (Socket)),
+                                  Sockets.Constants.FIONREAD,
+                                  Arg'Unchecked_Access);
+@@ -538,7 +538,7 @@ package body AWS.Net.Std is
+                Data'Address,
+                Data'Length,
+                OS_Lib.MSG_NOSIGNAL,
+-               To    => System.Null_Address,
++               To    => null,
+                Tolen => 0);
+ 
+       if RC = Failure then
+diff --git shared.gpr shared.gpr
+index 6d62289..111e3a8 100644
+--- shared.gpr
++++ shared.gpr
+@@ -120,7 +120,7 @@ project Shared is
+    --  Common options used for the Debug and Release modes
+ 
+    Debug_Options :=
+-     ("-g", "-gnata", "-gnatVa", "-gnatQ", "-gnato", "-gnatwe", "-gnatyO");
++     ("-g", "-gnata", "-gnatVa", "-gnatQ", "-gnato");
+ 
+    Release_Options :=
+      ("-O2", "-gnatn");

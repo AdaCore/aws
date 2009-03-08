@@ -27,7 +27,7 @@ starting with the following compilers:
 
 	GNAT Pro 6.1.2
 
-	GNAT GPL 2008 Edition
+	GNAT GPL 2008 Edition (needs support/gnat-gpl-2008-edition.dif)
 
 Building from Subversion
 ------------------------
