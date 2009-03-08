@@ -294,8 +294,8 @@ package body AWS.Client.HTTP_Utils is
       Parse_Header (Connection, Result, Keep_Alive);
 
       declare
-         TE     : constant String
-           := Response.Header (Result, Messages.Transfer_Encoding_Token);
+         TE     : constant String  :=
+                    Response.Header (Result, Messages.Transfer_Encoding_Token);
          CT_Len : constant Integer := Response.Content_Length (Result);
       begin
          if TE = "chunked" then
@@ -317,6 +317,7 @@ package body AWS.Client.HTTP_Utils is
 
          elsif CT_Len = Response.Undefined_Length then
             Connection.Transfer := Until_Close;
+
          else
             Connection.Transfer := Content_Length;
             Connection.Length   := CT_Len;
@@ -1207,8 +1208,8 @@ package body AWS.Client.HTTP_Utils is
                --------------
 
                function QOP_Data return String is
-                  CNonce : constant AWS.Digest.Nonce
-                    := AWS.Digest.Create_Nonce;
+                  CNonce : constant AWS.Digest.Nonce :=
+                             AWS.Digest.Create_Nonce;
                begin
                   if QOP = No_Data then
                      Response := AWS.Digest.Create
