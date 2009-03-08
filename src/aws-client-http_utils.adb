@@ -264,6 +264,7 @@ package body AWS.Client.HTTP_Utils is
       Get_Body   : in     Boolean         := True)
    is
       use Ada.Real_Time;
+      use type Messages.Status_Code;
 
       procedure Disconnect;
       --  close connection socket
@@ -322,32 +323,39 @@ package body AWS.Client.HTTP_Utils is
          end if;
       end;
 
-      if not Get_Body then
-         Disconnect;
-         return;
+      --  If we get an Unauthorized response we want to get the body. This is
+      --  needed as in Digest mode the body will gets read by the next request
+      --  and will raise a protocol error.
+
+      if Get_Body
+        or else
+          (Response.Status_Code (Result) = Messages.S401
+           and then Connection.Streaming
+           and then Connection.Auth (WWW).Init_Mode = Digest)
+      then
+         --  Read the message body
+
+         loop
+            declare
+               Buffer : Stream_Element_Array (1 .. 8192);
+               Last   : Stream_Element_Offset;
+            begin
+               Read_Some (Connection, Buffer, Last);
+               exit when Last < Buffer'First;
+               Response.Set.Append_Body
+                 (Result, Buffer (Buffer'First .. Last));
+            end;
+
+            if Clock > Expire then
+               Response.Set.Append_Body
+                 (Result, "..." & ASCII.LF & " Response Timeout");
+               Response.Set.Status_Code (Result, Messages.S408);
+               exit;
+            end if;
+         end loop;
+
+         Connection.Transfer := None;
       end if;
-
-      --  Read the message body
-
-      loop
-         declare
-            Buffer : Stream_Element_Array (1 .. 8192);
-            Last   : Stream_Element_Offset;
-         begin
-            Read_Some (Connection, Buffer, Last);
-            exit when Last < Buffer'First;
-            Response.Set.Append_Body (Result, Buffer (Buffer'First .. Last));
-         end;
-
-         if Clock > Expire then
-            Response.Set.Append_Body
-              (Result, "..." & ASCII.LF & " Response Timeout");
-            Response.Set.Status_Code (Result, Messages.S408);
-            exit;
-         end if;
-      end loop;
-
-      Connection.Transfer := None;
 
       Disconnect;
    end Get_Response;

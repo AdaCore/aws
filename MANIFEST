@@ -1328,6 +1328,10 @@ regtests/0194_base64/test.out
 regtests/0194_base64/test.py
 regtests/0194_base64/test_base64.adb
 regtests/0194_base64/test_base64.gpr
+regtests/0195_pauth/pauth.adb
+regtests/0195_pauth/pauth.gpr
+regtests/0195_pauth/test.out
+regtests/0195_pauth/test.py
 regtests/common/get_free_port.adb
 regtests/gen_system_tags.py
 regtests/makefile

@@ -1,0 +1,7 @@
+CB: URI        /
+CB: SOAPAction action
+Valid_Nonce : FALSE
+CB: URI        /
+CB: SOAPAction action
+Valid_Nonce : TRUE
+-> 200

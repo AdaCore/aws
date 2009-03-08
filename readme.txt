@@ -4,7 +4,7 @@
 
 Authors:
    Dmitriy Anisimkov
-   Pascal Obry                                           December 15th, 2008
+   Pascal Obry                                           March 08th, 2009
 
 
 
@@ -45,6 +45,8 @@ Listed below are some minor enhancements and fixes:
    - <program_name>.ini file is properly looked into the application
      directory on all platforms. It is also now looked into the current
      working directory.
+
+   - SOAP with Digest authentication has been fixed.
 
    - Plus many small fixes, enhancements, API comments, and documentation work.
 
