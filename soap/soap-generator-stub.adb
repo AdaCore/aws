@@ -43,6 +43,39 @@ package body Stub is
       --  Spec
 
       Text_IO.New_Line (Stub_Ads);
+      Text_IO.Put_Line (Stub_Ads, "private");
+      Text_IO.New_Line (Stub_Ads);
+      Text_IO.Put_Line
+        (Stub_Ads, "   Connection : constant AWS.Client.HTTP_Connection :=");
+      Text_IO.Put_Line
+        (Stub_Ads, "                  AWS.Client.Create");
+      Text_IO.Put_Line
+        (Stub_Ads, "                    (URL,");
+      Text_IO.Put
+        (Stub_Ads, "                     Timeouts   => Timeouts");
+
+      --  Check if we need to generate proxy authentication
+
+      if O.Proxy = SOAP.Client.Not_Specified then
+         Text_IO.Put_Line (Stub_Ads, ");");
+
+      else
+         Text_IO.Put_Line (Stub_Ads, ",");
+         Text_IO.Put_Line
+           (Stub_Ads,
+            "                     Proxy      => """
+              & To_String (O.Proxy) & """,");
+         Text_IO.Put_Line
+           (Stub_Ads,
+            "                     Proxy_User => """
+              & To_String (O.P_User) & """,");
+         Text_IO.Put_Line
+           (Stub_Ads,
+            "                     Proxy_Pwd  => """
+              & To_String (O.P_Pwd) & """);");
+      end if;
+
+      Text_IO.New_Line (Stub_Ads);
       Text_IO.Put_Line (Stub_Ads, "end " & U_Name & ".Client;");
 
       --  Body
@@ -702,6 +735,10 @@ package body Stub is
       Text_IO.Put_Line (Stub_Ads, "package " & U_Name & ".Client is");
       Text_IO.New_Line (Stub_Ads);
       Text_IO.Put_Line (Stub_Ads, "   use " & U_Name & ".Types;");
+
+      Text_IO.New_Line (Stub_Ads);
+      Text_IO.Put_Line
+        (Stub_Ads, "   Connection : constant AWS.Client.HTTP_Connection;");
 
       --  Body
 
