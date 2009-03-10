@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2008                          --
---                                 AdaCore                                  --
+--                     Copyright (C) 2000-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -51,35 +50,7 @@ package body SOAP.Client is
       Timeouts   : in AWS.Client.Timeouts_Values := AWS.Client.No_Timeout)
       return Message.Response.Object'Class
    is
-
-      function SOAP_Action return String;
-      --  Returns the proper SOAPAction string for this call
-
       Connection : AWS.Client.HTTP_Connection;
-
-      -----------------
-      -- SOAP_Action --
-      -----------------
-
-      function SOAP_Action return String is
-      begin
-         if SOAPAction = No_SOAPAction then
-            declare
-               URL_Object : constant AWS.URL.Object := AWS.URL.Parse (URL);
-            begin
-               return AWS.URL.URL (URL_Object) & '#'
-                      & SOAP.Message.Payload.Procedure_Name (P);
-            end;
-
-         elsif SOAPAction = "" then
-            --  Empty SOAP Action
-            return """""";
-
-         else
-            return SOAPAction;
-         end if;
-      end SOAP_Action;
-
    begin
       AWS.Client.Create
         (Connection,
@@ -89,7 +60,7 @@ package body SOAP.Client is
 
       declare
          Result : constant Message.Response.Object'Class
-           := Call (Connection, SOAP_Action, P);
+           := Call (Connection, SOAPAction, P);
       begin
          AWS.Client.Close (Connection);
          return Result;
@@ -111,10 +82,38 @@ package body SOAP.Client is
       return Message.Response.Object'Class
    is
       use type AWS.Messages.Status_Code;
+
+      function SOAP_Action return String;
+      --  Returns the proper SOAPAction string for this call
+
+      -----------------
+      -- SOAP_Action --
+      -----------------
+
+      function SOAP_Action return String is
+      begin
+         if SOAPAction = No_SOAPAction then
+            declare
+               URL        : constant String := AWS.Client.Host (Connection);
+               URL_Object : constant AWS.URL.Object := AWS.URL.Parse (URL);
+            begin
+               return AWS.URL.URL (URL_Object) & '#'
+                      & SOAP.Message.Payload.Procedure_Name (P);
+            end;
+
+         elsif SOAPAction = "" then
+            --  Empty SOAP Action
+            return """""";
+
+         else
+            return SOAPAction;
+         end if;
+      end SOAP_Action;
+
       Response : AWS.Response.Data;
    begin
       AWS.Client.SOAP_Post
-        (Connection, Response, SOAPAction, SOAP.Message.XML.Image (P), True);
+        (Connection, Response, SOAP_Action, SOAP.Message.XML.Image (P), True);
 
       if AWS.Response.Status_Code (Response) in AWS.Messages.Success then
          return Message.XML.Load_Response (Connection);
