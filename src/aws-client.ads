@@ -297,6 +297,9 @@ package AWS.Client is
    --  Return the certificate used for the secure connection. If this is not a
    --  secure connection, returns Net.SSL.Certificate.Undefined.
 
+   function Host (Connection : in HTTP_Connection) return String;
+   --  Returns the host as recorded into the connection
+
    procedure Set_WWW_Authentication
      (Connection : in out HTTP_Connection;
       User       : in     String;

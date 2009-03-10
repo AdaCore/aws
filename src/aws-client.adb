@@ -444,6 +444,15 @@ package body AWS.Client is
    end Head;
 
    ----------
+   -- Host --
+   ----------
+
+   function Host (Connection : in HTTP_Connection) return String is
+   begin
+      return To_String (Connection.Host);
+   end Host;
+
+   ----------
    -- Post --
    ----------
 
