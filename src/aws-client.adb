@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2008, AdaCore                     --
+--                     Copyright (C) 2000-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -84,6 +84,31 @@ package body AWS.Client is
    ------------
    -- Create --
    ------------
+
+   function Create
+     (Host        : in     String;
+      User        : in     String          := No_Data;
+      Pwd         : in     String          := No_Data;
+      Proxy       : in     String          := No_Data;
+      Proxy_User  : in     String          := No_Data;
+      Proxy_Pwd   : in     String          := No_Data;
+      Retry       : in     Natural         := Retry_Default;
+      Persistent  : in     Boolean         := True;
+      Timeouts    : in     Timeouts_Values := No_Timeout;
+      Server_Push : in     Boolean         := False;
+      Certificate : in     String          := Default.Client_Certificate;
+      User_Agent  : in     String          := Default.User_Agent)
+      return HTTP_Connection is
+   begin
+      return  Connection : HTTP_Connection do
+         Create (Connection, Host,
+                 User, Pwd,
+                 Proxy, Proxy_User, Proxy_Pwd,
+                 Retry, Persistent, Timeouts,
+                 Server_Push,
+                 Certificate, User_Agent);
+      end return;
+   end Create;
 
    procedure Create
      (Connection  : in out HTTP_Connection;
