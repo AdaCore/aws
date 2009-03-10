@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2008, AdaCore                     --
+--                     Copyright (C) 2003-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -37,7 +37,7 @@ package SOAP.Generator is
 
    use AWS;
 
-   Version : constant String := "2.2.0";
+   Version : constant String := "2.3.0";
 
    Generator_Error : exception;
 

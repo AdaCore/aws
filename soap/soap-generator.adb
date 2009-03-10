@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2008, AdaCore                     --
+--                     Copyright (C) 2003-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -69,9 +69,13 @@ package body SOAP.Generator is
       Output : in WSDL.Parameters.P_Set);
    --  This must be called to create the data types for composite objects
 
-   type Header_Mode is (Stub_Spec, Stub_Body, Skel_Spec, Skel_Body);
+   type Header_Mode is
+     (Stub_Spec, Stub_Body,     -- URL based stub spec/body
+      C_Stub_Spec, C_Stub_Body, -- Connection based stub spec/body
+      Skel_Spec, Skel_Body);    -- skeleton spec/body
 
-   subtype Stub_Header is Header_Mode range Stub_Spec .. Stub_Body;
+   subtype Stub_Header is Header_Mode range Stub_Spec .. C_Stub_Body;
+   subtype Con_Stub_Header is Header_Mode range C_Stub_Spec .. C_Stub_Body;
 
    procedure Put_Header
      (File   : in Text_IO.File_Type;
@@ -81,7 +85,8 @@ package body SOAP.Generator is
       Output : in WSDL.Parameters.P_Set;
       Mode   : in Header_Mode);
    --  Output procedure header into File. The terminating ';' or 'is' is
-   --  outputed depending on Spec value.
+   --  outputed depending on Spec value. If Mode is in Con_Stub_Header the
+   --  connection based spec is generated, otherwise it is the endpoint based.
 
    function Result_Type
      (O      : in Object;
@@ -538,6 +543,91 @@ package body SOAP.Generator is
       procedure Put_Indent (Last : in Character := ' ');
       --  Ouput proper indentation spaces
 
+      procedure Input_Parameters;
+      --  Output input parameters
+
+      procedure Output_Parameters_And_End;
+      --  Output output parameters for function
+
+      Max_Len : Positive := 8;
+      N       : WSDL.Parameters.P_Set;
+
+      ----------------------
+      -- Input_Parameters --
+      ----------------------
+
+      procedure Input_Parameters is
+      begin
+         if Input /= null then
+            --  Input parameters
+
+            N := Input;
+
+            while N /= null loop
+               declare
+                  Name : constant String
+                    := Format_Name (O, To_String (N.Name));
+               begin
+                  Text_IO.Put (File, Name);
+                  Text_IO.Put (File, (Max_Len - Name'Length) * ' ');
+               end;
+
+               Text_IO.Put (File, " : in ");
+
+               case N.Mode is
+                  when WSDL.Parameters.K_Simple =>
+                     Text_IO.Put (File, WSDL.To_Ada (N.P_Type));
+
+                  when WSDL.Parameters.K_Derived =>
+                     Text_IO.Put (File, To_String (N.D_Name) & "_Type");
+
+                  when WSDL.Parameters.K_Enumeration =>
+                     Text_IO.Put (File, To_String (N.E_Name) & "_Type");
+
+                  when WSDL.Parameters.K_Record | WSDL.Parameters.K_Array =>
+                     Text_IO.Put
+                       (File, Format_Name (O, To_String (N.T_Name) & "_Type"));
+               end case;
+
+               if N.Next /= null then
+                  Text_IO.Put_Line (File, ";");
+                  Put_Indent;
+               end if;
+
+               N := N.Next;
+            end loop;
+         end if;
+      end Input_Parameters;
+
+      -------------------------------
+      -- Output_Parameters_And_End --
+      -------------------------------
+
+      procedure Output_Parameters_And_End is
+      begin
+         if Output /= null then
+            Text_IO.New_Line (File);
+            Put_Indent;
+            Text_IO.Put (File, "return ");
+
+            Text_IO.Put (File, Result_Type (O, Proc, Output));
+         end if;
+
+         --  End header depending on the mode
+
+         case Mode is
+            when Stub_Spec | Skel_Spec | C_Stub_Spec =>
+               Text_IO.Put_Line (File, ";");
+
+            when Stub_Body | C_Stub_Body =>
+               Text_IO.New_Line (Stub_Adb);
+               Text_IO.Put_Line (Stub_Adb, "   is");
+
+            when Skel_Body =>
+               null;
+         end case;
+      end Output_Parameters_And_End;
+
       ----------------
       -- Put_Indent --
       ----------------
@@ -551,11 +641,15 @@ package body SOAP.Generator is
       end Put_Indent;
 
       L_Proc  : constant String := Format_Name (O, Proc);
-      Max_Len : Positive := 8;
 
-      N       : WSDL.Parameters.P_Set;
    begin
       --  Compute maximum name length
+
+      if Mode in Con_Stub_Header then
+         --  Size of connection parameter
+         Max_Len := 10;
+      end if;
+
       N := Input;
 
       while N /= null loop
@@ -564,115 +658,80 @@ package body SOAP.Generator is
          N := N.Next;
       end loop;
 
-      --  Ouput header
+      if Mode in Con_Stub_Header then
+         --  Ouput header for connection based spec
 
-      if Output = null then
-         Text_IO.Put (File, "procedure " & L_Proc);
+         if Output = null then
+            Text_IO.Put (File, "   procedure " & L_Proc);
 
-         if Mode in Stub_Header or else Input /= null then
-            Text_IO.New_Line (File);
+            if Mode in Stub_Header or else Input /= null then
+               Text_IO.New_Line (File);
+            end if;
+
+         else
+            Text_IO.Put_Line (File, "   function " & L_Proc);
+         end if;
+
+         if Mode in Stub_Header then
+            Put_Indent ('(');
+            Text_IO.Put (File, "Connection : AWS.Client.HTTP_Connection");
+         end if;
+
+         if Input /= null then
+            Text_IO.Put_Line (File, ";");
+            Put_Indent;
+            Input_Parameters;
+         end if;
+
+         if Input /= null or else Mode in Stub_Header then
+            Text_IO.Put (File, ")");
          end if;
 
       else
-         Text_IO.Put_Line (File, "function " & L_Proc);
-      end if;
+         --  Ouput header for endpoint based spec
 
-      --  Input parameters
+         if Output = null then
+            Text_IO.Put (File, "procedure " & L_Proc);
 
-      if Input /= null or else Mode in Stub_Header then
-         Put_Indent ('(');
-      end if;
+            if Mode in Stub_Header or else Input /= null then
+               Text_IO.New_Line (File);
+            end if;
 
-      if Input /= null then
-         --  Output parameters
+         else
+            Text_IO.Put_Line (File, "function " & L_Proc);
+         end if;
 
-         N := Input;
+         if Input /= null or else Mode in Stub_Header then
+            Put_Indent ('(');
+         end if;
 
-         while N /= null loop
-            declare
-               Name : constant String
-                 := Format_Name (O, To_String (N.Name));
-            begin
-               Text_IO.Put (File, Name);
-               Text_IO.Put (File, (Max_Len - Name'Length) * ' ');
-            end;
+         Input_Parameters;
 
-            Text_IO.Put (File, " : in ");
-
-            case N.Mode is
-               when WSDL.Parameters.K_Simple =>
-                  Text_IO.Put (File, WSDL.To_Ada (N.P_Type));
-
-               when WSDL.Parameters.K_Derived =>
-                  Text_IO.Put (File, To_String (N.D_Name) & "_Type");
-
-               when WSDL.Parameters.K_Enumeration =>
-                  Text_IO.Put (File, To_String (N.E_Name) & "_Type");
-
-               when WSDL.Parameters.K_Record | WSDL.Parameters.K_Array =>
-                  Text_IO.Put
-                    (File, Format_Name (O, To_String (N.T_Name) & "_Type"));
-            end case;
-
-            if N.Next /= null then
+         if Mode in Stub_Header then
+            if Input /= null then
                Text_IO.Put_Line (File, ";");
                Put_Indent;
             end if;
 
-            N := N.Next;
-         end loop;
-      end if;
+            Text_IO.Put (File, "Endpoint");
+            Text_IO.Put (File, (Max_Len - 8) * ' ');
+            Text_IO.Put_Line
+              (File, " : in String := " & To_String (O.Unit) & ".URL;");
 
-      if Mode in Stub_Header then
-         if Input /= null then
-            Text_IO.Put_Line (File, ";");
             Put_Indent;
+            Text_IO.Put (File, "Timeouts");
+            Text_IO.Put (File, (Max_Len - 8) * ' ');
+            Text_IO.Put
+              (File, " : in AWS.Client.Timeouts_Values := "
+               & To_String (O.Unit) & ".Timeouts");
          end if;
 
-         Text_IO.Put (File, "Endpoint");
-         Text_IO.Put (File, (Max_Len - 8) * ' ');
-         Text_IO.Put_Line
-           (File, " : in String := " & To_String (O.Unit) & ".URL;");
-
-         Put_Indent;
-         Text_IO.Put (File, "Timeouts");
-         Text_IO.Put (File, (Max_Len - 8) * ' ');
-         Text_IO.Put
-           (File, " : in AWS.Client.Timeouts_Values := "
-            & To_String (O.Unit) & ".Timeouts");
-      end if;
-
-      if Input /= null or else Mode in Stub_Header then
-         Text_IO.Put (File, ")");
-      end if;
-
-      --  Output parameters
-
-      if Output /= null then
-
-         if Input /= null then
-            Text_IO.New_Line (File);
+         if Input /= null or else Mode in Stub_Header then
+            Text_IO.Put (File, ")");
          end if;
-
-         Put_Indent;
-         Text_IO.Put (File, "return ");
-
-         Text_IO.Put (File, Result_Type (O, Proc, Output));
       end if;
 
-      --  End header depending on the mode
-
-      case Mode is
-         when Stub_Spec | Skel_Spec =>
-            Text_IO.Put_Line (File, ";");
-
-         when Stub_Body =>
-            Text_IO.New_Line (Stub_Adb);
-            Text_IO.Put_Line (Stub_Adb, "   is");
-
-         when Skel_Body =>
-            null;
-      end case;
+      Output_Parameters_And_End;
    end Put_Header;
 
    ---------------

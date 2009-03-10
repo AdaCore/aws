@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2003-2008                          --
---                                 AdaCore                                  --
+--                     Copyright (C) 2003-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -352,6 +351,7 @@ package body Stub is
 
       Text_IO.Put (Stub_Ads, "   ");
       Put_Header (Stub_Ads, O, Proc, Input, Output, Mode => Stub_Spec);
+      Put_Header (Stub_Ads, O, Proc, Input, Output, Mode => C_Stub_Spec);
 
       Text_IO.Put_Line
         (Stub_Ads, "   --  Raises SOAP.SOAP_Error if the procedure fails");
@@ -362,8 +362,7 @@ package body Stub is
       Header_Box (O, Stub_Adb, Format_Name (O, Proc));
       Text_IO.New_Line (Stub_Adb);
 
-      Text_IO.Put (Stub_Adb, "   ");
-      Put_Header (Stub_Adb, O, Proc, Input, Output, Mode => Stub_Body);
+      Put_Header (Stub_Adb, O, Proc, Input, Output, Mode => C_Stub_Body);
 
       Text_IO.Put_Line
         (Stub_Adb, "      P_Set   : SOAP.Parameters.List;");
@@ -417,32 +416,7 @@ package body Stub is
 
       Text_IO.Put_Line
         (Stub_Adb,
-         "                (Endpoint, Payload, """ & SOAPAction & """,");
-
-      --  Check if we need to generate proxy authentication
-
-      Text_IO.Put
-        (Stub_Adb,
-         "                 Timeouts   => Timeouts");
-
-      if O.Proxy = SOAP.Client.Not_Specified then
-         Text_IO.Put_Line (Stub_Adb, ");");
-
-      else
-         Text_IO.Put_Line (Stub_Adb, ",");
-         Text_IO.Put_Line
-           (Stub_Adb,
-            "                 Proxy      => """
-              & To_String (O.Proxy) & """,");
-         Text_IO.Put_Line
-           (Stub_Adb,
-            "                 Proxy_User => """
-              & To_String (O.P_User) & """,");
-         Text_IO.Put_Line
-           (Stub_Adb,
-            "                 Proxy_Pwd  => """
-              & To_String (O.P_Pwd) & """);");
-      end if;
+         "                (Connection, """ & SOAPAction & """, Payload);");
 
       Text_IO.Put_Line
         (Stub_Adb,
@@ -616,6 +590,88 @@ package body Stub is
       Text_IO.Put_Line (Stub_Adb, "         end if;");
       Text_IO.Put_Line (Stub_Adb, "      end;");
 
+      Text_IO.Put_Line (Stub_Adb, "   end " & L_Proc & ';');
+
+      --  Body stub based
+
+      Text_IO.New_Line (Stub_Adb);
+
+      Text_IO.Put (Stub_Adb, "   ");
+      Put_Header (Stub_Adb, O, Proc, Input, Output, Mode => Stub_Body);
+
+      Text_IO.Put_Line
+        (Stub_Adb, "      Connection : AWS.Client.HTTP_Connection;");
+      Text_IO.Put_Line
+        (Stub_Adb, "   begin");
+      Text_IO.Put_Line
+        (Stub_Adb, "      AWS.Client.Create");
+      Text_IO.Put_Line
+        (Stub_Adb, "        (Connection, Endpoint,");
+      Text_IO.Put
+        (Stub_Adb, "         Timeouts   => Timeouts");
+
+      --  Check if we need to generate proxy authentication
+
+      if O.Proxy = SOAP.Client.Not_Specified then
+         Text_IO.Put_Line (Stub_Adb, ");");
+
+      else
+         Text_IO.Put_Line (Stub_Adb, ",");
+         Text_IO.Put_Line
+           (Stub_Adb,
+            "                 Proxy      => """
+              & To_String (O.Proxy) & """,");
+         Text_IO.Put_Line
+           (Stub_Adb,
+            "                 Proxy_User => """
+              & To_String (O.P_User) & """,");
+         Text_IO.Put_Line
+           (Stub_Adb,
+            "                 Proxy_Pwd  => """
+              & To_String (O.P_Pwd) & """);");
+      end if;
+
+      if Output /= null then
+         Text_IO.Put_Line (Stub_Adb, "      declare");
+         Text_IO.Put_Line
+           (Stub_Adb, "         Result : constant "
+            & Result_Type (O, Proc, Output) & " :=");
+         Text_IO.Put (Stub_Adb, "              ");
+      end if;
+
+      Text_IO.Put (Stub_Adb, "      " & L_Proc & " (Connection");
+
+      declare
+         N  : WSDL.Parameters.P_Set := Input;
+      begin
+         while N /= null loop
+            declare
+               Name : constant String := Format_Name (O, To_String (N.Name));
+            begin
+               Text_IO.Put (Stub_Adb, ", " & Name);
+            end;
+            N := N.Next;
+         end loop;
+      end;
+
+      Text_IO.Put_Line (Stub_Adb, ");");
+
+      if Output /= null then
+         Text_IO.Put_Line (Stub_Adb, "      begin");
+         Text_IO.Put (Stub_Adb, "   ");
+      end if;
+
+      Text_IO.Put_Line (Stub_Adb, "      AWS.Client.Close (Connection);");
+
+      if Output /= null then
+         Text_IO.Put_Line (Stub_Adb, "         return Result;");
+         Text_IO.Put_Line (Stub_Adb, "      end;");
+      end if;
+
+      Text_IO.Put_Line (Stub_Adb, "   exception");
+      Text_IO.Put_Line (Stub_Adb, "      when others =>");
+      Text_IO.Put_Line (Stub_Adb, "         AWS.Client.Close (Connection);");
+      Text_IO.Put_Line (Stub_Adb, "         raise;");
       Text_IO.Put_Line (Stub_Adb, "   end " & L_Proc & ';');
    end New_Procedure;
 
