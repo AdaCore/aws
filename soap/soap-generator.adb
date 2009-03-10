@@ -91,8 +91,7 @@ package body SOAP.Generator is
    function Result_Type
      (O      : in Object;
       Proc   : in String;
-      Output : in WSDL.Parameters.P_Set)
-      return String;
+      Output : in WSDL.Parameters.P_Set) return String;
    --  Returns the result type given the output parameters
 
    procedure Header_Box
@@ -640,7 +639,7 @@ package body SOAP.Generator is
          Text_IO.Put (File, "     " & Last);
       end Put_Indent;
 
-      L_Proc  : constant String := Format_Name (O, Proc);
+      L_Proc : constant String := Format_Name (O, Proc);
 
    begin
       --  Compute maximum name length
@@ -1253,8 +1252,7 @@ package body SOAP.Generator is
             return To_String (Result);
          end Image;
 
-         N : WSDL.Parameters.E_Node_Access := P.E_Def;
-
+         N       : WSDL.Parameters.E_Node_Access := P.E_Def;
          Prefix  : Unbounded_String;
          Enu_Ads : Text_IO.File_Type;
          Enu_Adb : Text_IO.File_Type;
@@ -2388,8 +2386,7 @@ package body SOAP.Generator is
    function Result_Type
      (O      : in Object;
       Proc   : in String;
-      Output : in WSDL.Parameters.P_Set)
-      return String
+      Output : in WSDL.Parameters.P_Set) return String
    is
       use type WSDL.Parameters.Kind;
 
@@ -2490,9 +2487,8 @@ package body SOAP.Generator is
       procedure Generate_Main (Filename : in String) is
          use Text_IO;
 
-         L_Filename        : constant String
-           := Characters.Handling.To_Lower (Filename);
-
+         L_Filename        : constant String :=
+                               Characters.Handling.To_Lower (Filename);
          Template_Filename : constant String := L_Filename & ".amt";
 
          File : Text_IO.File_Type;
@@ -2505,15 +2501,17 @@ package body SOAP.Generator is
          if AWS.Utils.Is_Regular_File (Template_Filename) then
             --  Use template file
             declare
-               Translations : constant Templates.Translate_Table
-                 := (1 => Templates.Assoc ("SOAP_SERVICE", U_Name),
-                     2 => Templates.Assoc ("SOAP_VERSION", SOAP.Version),
-                     3 => Templates.Assoc ("AWS_VERSION",  AWS.Version),
-                     4 => Templates.Assoc ("UNIT_NAME",
-                                           To_Unit_Name (Filename)));
+               Translations : constant Templates.Translate_Table :=
+                                (1 => Templates.Assoc
+                                   ("SOAP_SERVICE", U_Name),
+                                 2 => Templates.Assoc
+                                   ("SOAP_VERSION", SOAP.Version),
+                                 3 => Templates.Assoc
+                                   ("AWS_VERSION",  AWS.Version),
+                                 4 => Templates.Assoc
+                                   ("UNIT_NAME", To_Unit_Name (Filename)));
             begin
-               Put (File,
-                    Templates.Parse (Template_Filename, Translations));
+               Put (File, Templates.Parse (Template_Filename, Translations));
             end;
 
          else
@@ -2573,8 +2571,8 @@ package body SOAP.Generator is
          end if;
       end Timeout_Image;
 
-      LL_Name : constant String
-        := Characters.Handling.To_Lower (Format_Name (O, Name));
+      LL_Name : constant String :=
+                  Characters.Handling.To_Lower (Format_Name (O, Name));
 
    begin
       O.Location := To_Unbounded_String (Location);
