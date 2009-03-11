@@ -1,7 +1,7 @@
 /***************************************************************************/
 /*                             Ada Web Server                              */
 /*
---                     Copyright (C) 2000-2008, AdaCore                    --
+--                     Copyright (C) 2000-2009, AdaCore                    --
                                                                            */
 /* This library is free software; you can redistribute it and/or modify    */
 /* it under the terms of the GNU General Public License as published by    */
@@ -308,18 +308,38 @@ main (int argc, char *argv[])
   P ("      OptVal  : in System.Address;\n");
   P ("      OptLen  : in C.int) return C.int;\n\n");
 
+  P ("   function C_Ioctl\n");
+  P ("     (S   : in C.int;\n");
+  P ("      Req : in C.int;\n");
+  P ("      Arg : access C.int) return C.int;\n\n");
+
+  P ("   function C_Close (Fd : in C.int) return C.int;\n\n");
+
+  P ("   procedure WSA_Startup\n");
+  P ("     (Version : in C.int; Data : in System.Address)");
+#ifdef _WIN32
+  P (";\n");
+  P ("   pragma Import (Stdcall, WSA_Startup, \"WSAStartup\");\n\n");
+#else
+  P (" is null;\n\n");
+#endif
+
   P ("private\n\n");
 
   P ("   pragma Import (%s, GetAddrInfo, \"getaddrinfo\");\n", i_conv);
   P ("   pragma Import (%s, FreeAddrInfo, \"freeaddrinfo\");\n", i_conv);
 
+#ifdef _WIN32
   //  gai_strerror for Win32 inlined in WS2TCPIP.H and is not thread safe.
   //  We are using simple replacement in win32/gai_strerror.c
 
-#ifdef _WIN32
-  P ("   pragma Import (C, GAI_StrError, \"AWS_gai_strerror\");\n\n");
+  P ("   pragma Import (C, GAI_StrError, \"AWS_gai_strerror\");\n");
+  P ("   pragma Import (Stdcall, C_Ioctl, \"ioctlsocket\");\n");
+  P ("   pragma Import (Stdcall, C_Close, \"closesocket\");\n");
 #else
-  P ("   pragma Import (C, GAI_StrError, \"gai_strerror\");\n\n");
+  P ("   pragma Import (C, GAI_StrError, \"gai_strerror\");\n");
+  P ("   pragma Import (C, C_Ioctl, \"ioctl\");\n");
+  P ("   pragma Import (C, C_Close, \"close\");\n");
 #endif
 
   P ("   pragma Import (%s, Set_Sock_Opt, \"setsockopt\");\n\n", i_conv);

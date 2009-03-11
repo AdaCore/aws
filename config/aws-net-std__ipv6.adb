@@ -47,13 +47,8 @@ package body AWS.Net.Std is
    use GNAT;
    use Interfaces;
 
-   No_Socket : constant Interfaces.C.int := Interfaces.C."-" (1);
-
-   Failure : constant C.int := C.int (-1);
-   --  Declared here as it used to be in GNAT.Sockets.Thin and has been moved
-   --  into GNAT.Sockets.Thin.Common as part of a code refactoring. This was
-   --  done on 2008/04/09, when this compiler becomes old enough the
-   --  Thin.Common definition should be used and this declaration removed.
+   No_Socket : constant C.int := C.int (-1);
+   Failure   : constant C.int := C.int (-1);
 
    type Socket_Hidden is record
       FD : Interfaces.C.int := No_Socket;
@@ -111,6 +106,32 @@ package body AWS.Net.Std is
    function Swap_Little_Endian
      (S : in Interfaces.Unsigned_16) return Interfaces.Unsigned_16;
 
+   function C_Socket
+     (Domain   : in C.int;
+      Typ      : in C.int;
+      Protocol : in C.int) return C.int;
+   pragma Import (Stdcall, C_Socket, "socket");
+
+   function C_Getsockname
+     (S       : C.int;
+      Name    : System.Address;
+      Namelen : not null access C.int) return C.int;
+   pragma Import (Stdcall, C_Getsockname, "getsockname");
+
+   function C_Getsockopt
+     (S       : in C.int;
+      Level   : in C.int;
+      OptName : in C.int;
+      OptVal  : in System.Address;
+      OptLen  : not null access C.int) return C.int;
+   pragma Import (Stdcall, C_Getsockopt, "getsockopt");
+
+   function C_Getpeername
+     (S       : C.int;
+      Name    : System.Address;
+      Namelen : not null access C.int) return C.int;
+   pragma Import (Stdcall, C_Getpeername, "getpeername");
+
    -------------------
    -- Accept_Socket --
    -------------------
@@ -119,11 +140,17 @@ package body AWS.Net.Std is
      (Socket     : in     Net.Socket_Type'Class;
       New_Socket : in out Socket_Type)
    is
-      use Sockets;
       use type C.int;
+
+      function C_Accept
+        (S       : in Integer;
+         Addr    : in System.Address;
+         Addrlen : not null access C.int) return C.int;
+      pragma Import (Stdcall, C_Accept, "accept");
 
       Dummy : String (1 .. 32);
       Len   : aliased C.int := Dummy'Length;
+
    begin
       if New_Socket.S /= null then
          New_Socket := Socket_Type'(Net.Socket_Type with others => <>);
@@ -133,8 +160,7 @@ package body AWS.Net.Std is
 
       Wait_For (Input, Socket);
 
-      New_Socket.S.FD :=
-        Thin.C_Accept (C.int (Get_FD (Socket)), Dummy'Address, Len'Access);
+      New_Socket.S.FD := C_Accept (Get_FD (Socket), Dummy'Address, Len'Access);
 
       if New_Socket.S.FD = Failure then
          Raise_Socket_Error (Std.Errno, Socket_Type (Socket));
@@ -165,13 +191,18 @@ package body AWS.Net.Std is
       Res   : C.int;
       Errno : Integer;
 
+      function C_Bind
+        (S       : in C.int;
+         Name    : in System.Address;
+         Namelen : in C.int) return C.int;
+      pragma Import (Stdcall, C_Bind, "bind");
+
    begin
       if Socket.S /= null then
          Socket := Socket_Type'(Net.Socket_Type with others => <>);
       end if;
 
-      FD := Sockets.Thin.C_Socket
-              (Info.ai_family, Info.ai_socktype, Info.ai_protocol);
+      FD := C_Socket (Info.ai_family, Info.ai_socktype, Info.ai_protocol);
 
       if FD = Failure then
          OS_Lib.FreeAddrInfo (Info);
@@ -184,13 +215,13 @@ package body AWS.Net.Std is
          Set_Int_Sock_Opt (Socket, OS_Lib.SO_REUSEADDR, 1);
       end if;
 
-      Res := Sockets.Thin.C_Bind (FD, Info.ai_addr, C.int (Info.ai_addrlen));
+      Res := C_Bind (FD, Info.ai_addr, C.int (Info.ai_addrlen));
 
       OS_Lib.FreeAddrInfo (Info);
 
       if Res = Failure then
          Errno := Std.Errno;
-         Res   := Sockets.Thin.C_Close (FD);
+         Res   := OS_Lib.C_Close (FD);
          Raise_Socket_Error (Errno, Socket);
       end if;
 
@@ -214,13 +245,18 @@ package body AWS.Net.Std is
       Res   : C.int;
       Errno : Integer;
 
+      function C_Connect
+        (S       : in C.int;
+         Name    : in System.Address;
+         Namelen : in C.int) return C.int;
+      pragma Import (Stdcall, C_Connect, "connect");
+
    begin
       if Socket.S /= null then
          Socket := Socket_Type'(Net.Socket_Type with others => <>);
       end if;
 
-      FD := Sockets.Thin.C_Socket
-              (Info.ai_family, Info.ai_socktype, Info.ai_protocol);
+      FD := C_Socket (Info.ai_family, Info.ai_socktype, Info.ai_protocol);
 
       if FD = Failure then
          OS_Lib.FreeAddrInfo (Info);
@@ -231,8 +267,7 @@ package body AWS.Net.Std is
 
       Set_Non_Blocking_Mode (Socket);
 
-      Res := Sockets.Thin.C_Connect
-               (FD, Info.ai_addr, C.int (Info.ai_addrlen));
+      Res := C_Connect (FD, Info.ai_addr, C.int (Info.ai_addrlen));
 
       OS_Lib.FreeAddrInfo (Info);
 
@@ -259,7 +294,7 @@ package body AWS.Net.Std is
          end if;
 
          if Errno /= 0 then
-            Res := Sockets.Thin.C_Close (FD);
+            Res := OS_Lib.C_Close (FD);
             Raise_Socket_Error (Errno, Socket);
          end if;
       end if;
@@ -315,9 +350,7 @@ package body AWS.Net.Std is
       Len  : aliased Interfaces.C.int := Name'Size / 8;
 
    begin
-      if Sockets.Thin.C_Getsockname (Socket.S.FD, Name'Address, Len'Access)
-         = Failure
-      then
+      if C_Getsockname (Socket.S.FD, Name'Address, Len'Access) = Failure then
          Raise_Socket_Error (Errno, Socket);
       end if;
 
@@ -394,19 +427,18 @@ package body AWS.Net.Std is
    function Get_Int_Sock_Opt
      (Socket : in Socket_Type; Name : in Interfaces.C.int) return Integer
    is
-      use Sockets;
       use type C.int;
 
       Res : aliased C.int := 0;
       Len : aliased C.int := Res'Size / System.Storage_Unit;
 
-      RC  : constant C.int
-        := Thin.C_Getsockopt
-             (S       => Socket.S.FD,
-              Level   => OS_Lib.SOL_SOCKET,
-              Optname => Name,
-              Optval  => Res'Address,
-              Optlen  => Len'Access);
+      RC  : constant C.int :=
+        C_Getsockopt
+          (S       => Socket.S.FD,
+           Level   => OS_Lib.SOL_SOCKET,
+           OptName => Name,
+           OptVal  => Res'Address,
+           OptLen  => Len'Access);
    begin
       if RC = Failure then
          Raise_Socket_Error (Errno, Socket);
@@ -426,9 +458,7 @@ package body AWS.Net.Std is
       Len  : aliased Interfaces.C.int := Name'Size / 8;
 
    begin
-      if Sockets.Thin.C_Getsockname (Socket.S.FD, Name'Address, Len'Access)
-         = Failure
-      then
+      if C_Getsockname (Socket.S.FD, Name'Address, Len'Access) = Failure then
          Raise_Socket_Error (Errno, Socket);
       end if;
 
@@ -470,7 +500,6 @@ package body AWS.Net.Std is
    -----------
 
    function Image (Sin6 : in Sockaddr_In6) return String  is
-      use Sockets;
       use type C.short;
 
       function IPv4_Image (Addr : in System.Address) return String;
@@ -554,13 +583,15 @@ package body AWS.Net.Std is
    ------------
 
    overriding procedure Listen
-     (Socket     : in Socket_Type;
-      Queue_Size : in Positive := 5)
+     (Socket : in Socket_Type; Queue_Size : in Positive := 5)
    is
-      use Sockets;
       use type C.int;
+
+      function C_Listen (S : in C.int; Backlog : in C.int) return C.int;
+      pragma Import (Stdcall, C_Listen, "listen");
+
    begin
-      if Thin.C_Listen (Socket.S.FD, C.int (Queue_Size)) = Failure then
+      if C_Listen (Socket.S.FD, C.int (Queue_Size)) = Failure then
          Raise_Socket_Error (Errno, Socket);
       end if;
    end Listen;
@@ -570,16 +601,13 @@ package body AWS.Net.Std is
    ---------------
 
    overriding function Peer_Addr (Socket : in Socket_Type) return String is
-      use Sockets;
       use type C.int;
 
       Sin6 : aliased Sockaddr_In6;
       Len  : aliased C.int := Sin6'Size / 8;
 
    begin
-      if Thin.C_Getpeername
-           (Socket.S.FD, Sin6'Address, Len'Access) = Failure
-      then
+      if C_Getpeername (Socket.S.FD, Sin6'Address, Len'Access) = Failure then
          Raise_Socket_Error (Std.Errno, Socket);
       end if;
 
@@ -598,9 +626,7 @@ package body AWS.Net.Std is
       Len  : aliased Interfaces.C.int := Name'Size / 8;
 
    begin
-      if Sockets.Thin.C_Getpeername (Socket.S.FD, Name'Address, Len'Access)
-         = Failure
-      then
+      if C_Getpeername (Socket.S.FD, Name'Address, Len'Access) = Failure then
          Raise_Socket_Error (Errno, Socket);
       end if;
 
@@ -617,7 +643,7 @@ package body AWS.Net.Std is
    is
       use type C.int;
       Arg : aliased C.int;
-      Res : constant C.int := Sockets.Thin.Socket_Ioctl
+      Res : constant C.int := OS_Lib.C_Ioctl
                                 (Socket.S.FD,
                                  OS_Lib.FIONREAD,
                                  Arg'Unchecked_Access);
@@ -661,14 +687,21 @@ package body AWS.Net.Std is
       Data   :    out Stream_Element_Array;
       Last   :    out Stream_Element_Offset)
    is
-      use Sockets;
       use type C.int;
 
       Res : C.int;
+
+      function C_Recv
+        (S     : in C.int;
+         Msg   : in System.Address;
+         Len   : in C.int;
+         Flags : in C.int) return C.int;
+      pragma Import (Stdcall, C_Recv, "recv");
+
    begin
       Wait_For (Input, Socket);
 
-      Res := Thin.C_Recv
+      Res := C_Recv
         (Socket.S.FD,
          Data (Data'First)'Address,
          Data'Length,
@@ -707,13 +740,22 @@ package body AWS.Net.Std is
 
       Errno : Integer;
       RC    : C.int;
+
+      function C_Sendto
+        (S     : in C.int;
+         Msg   : in System.Address;
+         Len   : in C.int;
+         Flags : in C.int;
+         To    : access Sockaddr_In6;
+         Tolen : in C.int) return C.int;
+      pragma Import (StdCall, C_Sendto, "sendto");
+
    begin
-      RC := Sockets.Thin.C_Sendto
+      RC := C_Sendto
               (Socket.S.FD,
                Data'Address,
                Data'Length,
-               OS_Lib.MSG_NOSIGNAL,
-               System.Null_Address, 0);
+               OS_Lib.MSG_NOSIGNAL, null, 0);
 
       if RC = Failure then
          Errno := Std.Errno;
@@ -756,11 +798,10 @@ package body AWS.Net.Std is
    procedure Set_Int_Sock_Opt
      (Socket : in Socket_Type; Name : in Interfaces.C.int; Value : Integer)
    is
-      use Sockets;
       use type C.int;
 
       Res : constant C.int
-        := Thin.C_Setsockopt
+        := OS_Lib.Set_Sock_Opt
              (Socket.S.FD,
               OS_Lib.SOL_SOCKET,
               Name,
@@ -778,13 +819,10 @@ package body AWS.Net.Std is
    ---------------------------
 
    procedure Set_Non_Blocking_Mode (Socket : in Socket_Type) is
-      use Sockets;
-      use Interfaces.C;
-      Enabled : aliased int := 1;
+      use type C.int;
+      Enabled : aliased C.int := 1;
    begin
-      if Thin.Socket_Ioctl
-           (Socket.S.FD, OS_Lib.FIONBIO, Enabled'Unchecked_Access) /= 0
-      then
+      if OS_Lib.C_Ioctl (Socket.S.FD, OS_Lib.FIONBIO, Enabled'Access) /= 0 then
          Raise_Socket_Error (Errno, Socket);
       end if;
    end Set_Non_Blocking_Mode;
@@ -794,8 +832,7 @@ package body AWS.Net.Std is
    -----------------------------
 
    overriding procedure Set_Receive_Buffer_Size
-     (Socket : in Socket_Type;
-      Size   : in Natural) is
+     (Socket : in Socket_Type; Size : in Natural) is
    begin
       Set_Int_Sock_Opt (Socket, OS_Lib.SO_RCVBUF, Size);
    end Set_Receive_Buffer_Size;
@@ -805,8 +842,7 @@ package body AWS.Net.Std is
    --------------------------
 
    overriding procedure Set_Send_Buffer_Size
-     (Socket : in Socket_Type;
-      Size   : in Natural) is
+     (Socket : in Socket_Type; Size : in Natural) is
    begin
       Set_Int_Sock_Opt (Socket, OS_Lib.SO_SNDBUF, Size);
    end Set_Send_Buffer_Size;
@@ -818,7 +854,6 @@ package body AWS.Net.Std is
    overriding procedure Shutdown
      (Socket : in Socket_Type; How : in Shutmode_Type := Shut_Read_Write)
    is
-      use Sockets;
       use type C.int;
       FD : constant C.int := Socket.S.FD;
       EN : Integer;
@@ -826,12 +861,16 @@ package body AWS.Net.Std is
                 (Shut_Read_Write => OS_Lib.SHUT_RDWR,
                  Shut_Read       => OS_Lib.SHUT_RD,
                  Shut_Write      => OS_Lib.SHUT_WR);
+
+      function C_Shutdown (S : in C.int; How : in C.int) return C.int;
+      pragma Import (Stdcall, C_Shutdown, "shutdown");
+
    begin
       if Net.Log.Is_Event_Active then
          Net.Log.Event (Net.Log.Shutdown, Socket);
       end if;
 
-      if Thin.C_Shutdown (FD, To_OS (How)) = Failure then
+      if C_Shutdown (FD, To_OS (How)) = Failure then
          EN := Std.Errno;
 
          if EN /= OS_Lib.ENOTCONN then
@@ -848,7 +887,7 @@ package body AWS.Net.Std is
 
       Socket.S.FD := No_Socket;
 
-      if Thin.C_Close (FD) = Failure then
+      if OS_Lib.C_Close (FD) = Failure then
          --  Back true FD for logging
 
          Socket.S.FD := FD;
@@ -861,9 +900,7 @@ package body AWS.Net.Std is
    -- Swap_Little_Endian --
    ------------------------
 
-   function Swap_Little_Endian
-     (S : in Interfaces.Unsigned_16) return Interfaces.Unsigned_16
-   is
+   function Swap_Little_Endian (S : in Unsigned_16) return Unsigned_16 is
       use System;
       Big_Endian : constant Boolean := Default_Bit_Order = High_Order_First;
    begin
@@ -874,11 +911,8 @@ package body AWS.Net.Std is
       end if;
    end Swap_Little_Endian;
 
+   WSA_Data_Dummy : array (1 .. 512) of C.int;
+
 begin
-   pragma Warnings (Off);
-   --  The call to Sockets.Initialize has been obsoleted. We keep this call
-   --  for compatibility with older compilers.
-   --  ??? This call should be removed when GNAT version 6.2 and GPL 2009
-   --  will  be out.
-   Sockets.Initialize;
+   OS_Lib.WSA_Startup (16#0202#, WSA_Data_Dummy'Address);
 end AWS.Net.Std;
