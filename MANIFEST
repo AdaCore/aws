@@ -1336,6 +1336,7 @@ regtests/0196_wsdl_client_connection/api.adb
 regtests/0196_wsdl_client_connection/api.ads
 regtests/0196_wsdl_client_connection/api_main.adb
 regtests/0196_wsdl_client_connection/api_main.gpr
+regtests/0196_wsdl_client_connection/srv_main.amt
 regtests/0196_wsdl_client_connection/test.opt
 regtests/0196_wsdl_client_connection/test.out
 regtests/0196_wsdl_client_connection/test.py
