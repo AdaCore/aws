@@ -74,6 +74,13 @@ package AWS.Client.HTTP_Utils is
    --  Receives response from server for GET and POST and HEAD commands.
    --  If Get_Body is set then the message body will be read.
 
+   procedure Read_Body
+     (Connection : in out HTTP_Connection;
+      Result     :    out Response.Data;
+      Store      : in Boolean);
+   --  Read message body and store it into Result if Store is True otherwise
+   --  the content is discarded.
+
    procedure Open_Send_Common_Header
      (Connection : in out HTTP_Connection;
       Method     : in     String;

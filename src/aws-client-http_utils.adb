@@ -263,7 +263,6 @@ package body AWS.Client.HTTP_Utils is
       Result     :    out Response.Data;
       Get_Body   : in     Boolean         := True)
    is
-      use Ada.Real_Time;
       use type Messages.Status_Code;
 
       procedure Disconnect;
@@ -271,7 +270,6 @@ package body AWS.Client.HTTP_Utils is
 
       Sock       : Net.Socket_Type'Class renames Connection.Socket.all;
       Keep_Alive : Boolean;
-      Expire     : constant Time := Clock + Connection.Timeouts.Response;
 
       ----------------
       -- Disconnect --
@@ -328,33 +326,8 @@ package body AWS.Client.HTTP_Utils is
       --  needed as in Digest mode the body will gets read by the next request
       --  and will raise a protocol error.
 
-      if Get_Body
-        or else
-          (Response.Status_Code (Result) = Messages.S401
-           and then Connection.Streaming
-           and then Connection.Auth (WWW).Init_Mode = Digest)
-      then
-         --  Read the message body
-
-         loop
-            declare
-               Buffer : Stream_Element_Array (1 .. 8192);
-               Last   : Stream_Element_Offset;
-            begin
-               Read_Some (Connection, Buffer, Last);
-               exit when Last < Buffer'First;
-               Response.Set.Append_Body
-                 (Result, Buffer (Buffer'First .. Last));
-            end;
-
-            if Clock > Expire then
-               Response.Set.Append_Body
-                 (Result, "..." & ASCII.LF & " Response Timeout");
-               Response.Set.Status_Code (Result, Messages.S408);
-               exit;
-            end if;
-         end loop;
-
+      if Get_Body then
+         Read_Body (Connection, Result, Store => True);
          Connection.Transfer := None;
       end if;
 
@@ -552,13 +525,17 @@ package body AWS.Client.HTTP_Utils is
 
             --  Get answer from server
 
-            Get_Response (Connection, Result, not Connection.Streaming);
+            Get_Response
+              (Connection, Result, Get_Body => not Connection.Streaming);
 
             Decrement_Authentication_Attempt
               (Connection, Auth_Attempts, Auth_Is_Over);
 
             if Auth_Is_Over then
                return;
+
+            elsif Connection.Streaming then
+               Read_Body (Connection, Result, Store => False);
             end if;
 
          exception
@@ -606,13 +583,17 @@ package body AWS.Client.HTTP_Utils is
 
             --  Get answer from server
 
-            Get_Response (Connection, Result, not Connection.Streaming);
+            Get_Response
+              (Connection, Result, Get_Body => not Connection.Streaming);
 
             Decrement_Authentication_Attempt
               (Connection, Auth_Attempts, Auth_Is_Over);
 
             if Auth_Is_Over then
                return;
+
+            elsif Connection.Streaming then
+               Read_Body (Connection, Result, Store => False);
             end if;
 
          exception
@@ -1135,6 +1116,43 @@ package body AWS.Client.HTTP_Utils is
         (Proxy,
          Response.Header (Answer, Messages.Proxy_Authenticate_Token));
    end Parse_Header;
+
+   ---------------
+   -- Read_Body --
+   ---------------
+
+   procedure Read_Body
+     (Connection : in out HTTP_Connection;
+      Result     :    out Response.Data;
+      Store      : in Boolean)
+   is
+      use Ada.Real_Time;
+      Expire : constant Time := Clock + Connection.Timeouts.Response;
+   begin
+      loop
+         declare
+            Buffer : Stream_Element_Array (1 .. 8192);
+            Last   : Stream_Element_Offset;
+         begin
+            Read_Some (Connection, Buffer, Last);
+            exit when Last < Buffer'First;
+
+            if Store then
+               Response.Set.Append_Body
+                 (Result, Buffer (Buffer'First .. Last));
+            end if;
+         end;
+
+         if Clock > Expire then
+            if Store then
+               Response.Set.Append_Body
+                 (Result, "..." & ASCII.LF & " Response Timeout");
+            end if;
+            Response.Set.Status_Code (Result, Messages.S408);
+            exit;
+         end if;
+      end loop;
+   end Read_Body;
 
    --------------------------------
    -- Send_Authentication_Header --

@@ -298,13 +298,17 @@ package body AWS.Client is
 
             Net.Buffered.New_Line (Connection.Socket.all);
 
-            Get_Response (Connection, Result, not Connection.Streaming);
+            Get_Response
+              (Connection, Result, Get_Body => not Connection.Streaming);
 
             Decrement_Authentication_Attempt
               (Connection, Auth_Attempts, Auth_Is_Over);
 
             if Auth_Is_Over then
                return;
+
+            elsif Connection.Streaming then
+               Read_Body (Connection, Result, Store => False);
             end if;
 
          exception
@@ -422,6 +426,9 @@ package body AWS.Client is
 
             if Auth_Is_Over then
                return;
+
+            elsif Connection.Streaming then
+               Read_Body (Connection, Result, Store => False);
             end if;
 
          exception
@@ -1182,13 +1189,17 @@ package body AWS.Client is
 
             --  Get answer from server
 
-            Get_Response (Connection, Result, not Connection.Streaming);
+            Get_Response
+              (Connection, Result, Get_Body => not Connection.Streaming);
 
             Decrement_Authentication_Attempt
               (Connection, Auth_Attempts, Auth_Is_Over);
 
             if Auth_Is_Over then
                return;
+
+            elsif Connection.Streaming then
+               Read_Body (Connection, Result, Store => False);
             end if;
 
          exception
