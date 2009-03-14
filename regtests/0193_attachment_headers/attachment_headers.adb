@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                       Copyright (C) 2008, AdaCore                        --
+--                      Copyright (C) 2008-2009, AdaCore                    --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -100,7 +100,8 @@ procedure Attachment_Headers is
                           AWS.Attachments.Headers (Attachment);
          Header_Names : constant Containers.Tables.VString_Array :=
                           Containers.Tables.Get_Names
-                            (Containers.Tables.Table_Type (Headers));
+                            (Containers.Tables.Table_Type (Headers),
+                             Sort => True);
       begin
          Text_IO.Put_Line ("Attachment headers:");
          for Index in Header_Names'Range loop
@@ -116,7 +117,8 @@ procedure Attachment_Headers is
       Headers      : constant AWS.Headers.List := Status.Header (Request);
       Header_Names : constant Containers.Tables.VString_Array :=
                        Containers.Tables.Get_Names
-                         (Containers.Tables.Table_Type (Headers));
+                         (Containers.Tables.Table_Type (Headers),
+                          Sort => True);
 
    begin
       Text_IO.Put_Line ("Post headers:");
