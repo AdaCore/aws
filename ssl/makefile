@@ -1,7 +1,7 @@
 ############################################################################
 #                              Ada Web Server                              #
 #                                                                          #
-#                     Copyright (C) 2003-2008, AdaCore                     #
+#                     Copyright (C) 2003-2009, AdaCore                     #
 #                                                                          #
 #  This library is free software; you can redistribute it and/or modify    #
 #  it under the terms of the GNU General Public License as published by    #
@@ -27,8 +27,6 @@
 
 .SILENT:
 
-force:
-
 ifneq (${OS}, Windows_NT)
 SSL_PATH1 := $(shell ls /usr/lib/libcrypto.a 2> /dev/null)
 SSL_PATH2 := $(shell ls /lib/libcrypto.a 2> /dev/null)
@@ -50,12 +48,6 @@ ifeq (${SSL_PATH},)
 endif
 ifeq (${SSL_PATH},)
 	SSL_PATH = $(SSL_PATH5)
-endif
-
-build:
-	$(GNAT) make -j$(CJOBS) -XLIBRARY_TYPE=static -Pssl
-ifeq (${ENABLE_SHARED}, true)
-	$(GNAT) make -j$(CJOBS) -XLIBRARY_TYPE=relocatable -Pssl
 endif
 
 check:
@@ -89,12 +81,6 @@ endif
 	echo "end AWS_SSL_Shared;" >> $(ISSLGPR)
 
 setup:
-	-$(MKDIR) -p ../$(BDIR)/static/obj/ssl
-	-$(MKDIR) -p ../$(BDIR)/static/lib/ssl
-ifeq (${ENABLE_SHARED}, true)
-	-$(MKDIR) -p ../$(BDIR)/relocatable/obj/ssl
-	-$(MKDIR) -p ../$(BDIR)/relocatable/lib/ssl
-endif
 
 setup_config: setup_ssl setup_ssl_install
 
@@ -105,9 +91,3 @@ ifeq (${ENABLE_SHARED}, true)
 	$(CP) ../$(BDIR)/relocatable/lib/ssl/* $(I_LIB)/relocatable
 endif
 	$(CP) $(ISSLGPR) $(I_AGP)/aws_ssl_shared.gpr
-
-clean:
-	$(GNAT) clean -XLIBRARY_TYPE=static -Pssl
-ifeq (${ENABLE_SHARED}, true)
-	$(GNAT) clean -XLIBRARY_TYPE=relocatable -Pssl
-endif

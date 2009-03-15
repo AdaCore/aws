@@ -1,7 +1,7 @@
 ############################################################################
 #                              Ada Web Server                              #
 #                                                                          #
-#                     Copyright (C) 2003-2008, AdaCore                     #
+#                     Copyright (C) 2003-2009, AdaCore                     #
 #                                                                          #
 #  This library is free software; you can redistribute it and/or modify    #
 #  it under the terms of the GNU General Public License as published by    #
@@ -157,13 +157,9 @@ endif
 
 MODULES = config win32 include ssl src tools docs gps regtests ${EXTRA_MODULES}
 
-MODULES_BUILD = ${MODULES:%=%_build}
-
 MODULES_SETUP = ${MODULES:%=%_setup}
 
 MODULES_INSTALL = ${MODULES:%=%_install}
-
-MODULES_CLEAN = ${MODULES:%=%_clean}
 
 MODULES_CHECK = ${MODULES:%=%_check}
 
@@ -251,24 +247,46 @@ GALL_OPTIONS := $(ALL_OPTIONS) \
 	I_PLG="$(I_PLG)" \
 	TEST_MODE="$(TEST_MODE)"
 
-${MODULES_BUILD}: force
-	${MAKE} -C ${@:%_build=%} build $(GALL_OPTIONS)
-
 ${MODULES_SETUP}: force
 	${MAKE} -C ${@:%_setup=%} setup $(GALL_OPTIONS)
 
 ${MODULES_INSTALL}: force
 	${MAKE} -C ${@:%_install=%} install $(GALL_OPTIONS)
 
-${MODULES_CLEAN}: force
-	${MAKE} -C ${@:%_clean=%} clean $(GALL_OPTIONS)
-
 ${MODULES_CHECK}: force
 	${MAKE} -C ${@:%_check=%} check $(GALL_OPTIONS)
 
-build: $(MODULES_BUILD)
+GPROPTS = -XPRJ_BUILD=$(PRJ_BUILD) -XPRJ_SOCKLIB=$(PRJ_SOCKLIB) \
+		-XPRJ_ASIS=$(PRJ_ASIS) -XPRJ_LDAP=$(PRJ_LDAP) \
+		-XPRJ_XMLADA=$(PRJ_XMLADA)
 
-clean: $(MODULES_CLEAN)
+build:
+	$(GPRBUILD) -p -j$(CJOBS) $(GPROPTS) \
+		-XLIBRARY_TYPE=static tools/tools.gpr
+ifeq (${ENABLE_SHARED}, true)
+	$(GPRBUILD) -p -j$(CJOBS) $(GPROPTS) \
+		-XLIBRARY_TYPE=relocatable src/src.gpr
+endif
+ifeq (${DEMOS}, true)
+	$(GPRBUILD) -p -j$(CJOBS) $(GPROPTS) \
+		-XLIBRARY_TYPE=static demos/demos.gpr
+	${MAKE} -C demos $(GALL_OPTIONS) after-build
+endif
+	$(GPRBUILD) -p -j$(CJOBS) $(GPROPTS) \
+		-XLIBRARY_TYPE=static gps/gps_support.gpr
+	${MAKE} -C gps $(GALL_OPTIONS) after-build
+
+clean:
+	$(GPRCLEAN) $(GPROPTS) -XLIBRARY_TYPE=static tools/tools.gpr
+ifeq (${ENABLE_SHARED}, true)
+	$(GPRCLEAN) $(GPROPTS) -XLIBRARY_TYPE=relocatable src/src.gpr
+endif
+ifeq (${DEMOS}, true)
+	$(GPRCLEAN) $(GPROPTS) -XLIBRARY_TYPE=static demos/demos.gpr
+endif
+	$(GPRCLEAN) $(GPROPTS) -XLIBRARY_TYPE=static gps/gps_support.gpr
+	${MAKE} -C regtests clean
+	${MAKE} -C docs clean
 	${MAKE} -C templates_parser clean AWS=AWS
 	-${RM} -fr .build
 	-${RM} -f makefile.setup
@@ -301,10 +319,6 @@ gxmlada_setup:
 
 setup_dir:
 	-$(MKDIR) -p $(PRJDIR)
-	-$(MKDIR) -p templates_parser/$(BDIR)/static/obj
-	-$(MKDIR) -p templates_parser/$(BDIR)/static/rbin
-	-$(MKDIR) -p templates_parser/$(BDIR)/relocatable/obj
-	-$(MKDIR) -p templates_parser/$(BDIR)/relocatable/rbin
 
 CONFGPR	= $(PRJDIR)/aws_config.gpr
 CONFADC	= $(BDIR)/gnat.adc
@@ -373,12 +387,6 @@ endif
 
 setup_modules: $(MODULES_SETUP)
 
-setup_debug:
-	$(MAKE) DEBUG=true setup_modules
-
-setup_release:
-	$(MAKE) DEBUG=false setup_modules
-
 setup_final: setup_config
 	$(MAKE) -C ssl $(GALL_OPTIONS) setup_config
 
@@ -395,8 +403,7 @@ gen_setup:
 	echo "CJOBS=$(CJOBS)" >> makefile.setup
 	echo "DEMOS=$(DEMOS)" >> makefile.setup
 
-setup: gen_setup setup_dir setup_debug setup_release \
-	setup_final setup_tp $(GEXT_MODULE)
+setup: gen_setup setup_dir setup_modules setup_final setup_tp $(GEXT_MODULE)
 
 setup_tp:
 	$(MAKE) -C templates_parser setup $(GALL_OPTIONS)
@@ -410,21 +417,21 @@ install_clean:
 	$(RM) -f $(I_GPR)/aws.gpr
 
 install_dirs: install_clean
-	$(MKDIR) $(I_BIN)
-	$(MKDIR) $(I_INC)
-	$(MKDIR) $(I_CPN)
-	$(MKDIR) $(I_LIB)/static
+	$(MKDIR) -p $(I_BIN)
+	$(MKDIR) -p $(I_INC)
+	$(MKDIR) -p $(I_CPN)
+	$(MKDIR) -p $(I_LIB)/static
 ifeq (${ENABLE_SHARED}, true)
-	$(MKDIR) $(I_LIB)/relocatable
+	$(MKDIR) -p $(I_LIB)/relocatable
 endif
-	$(MKDIR) $(I_DOC)
-	$(MKDIR) $(I_GPR)
-	$(MKDIR) $(I_AGP)
-	$(MKDIR) $(I_TPL)
-	$(MKDIR) $(I_IMG)
-	$(MKDIR) $(I_SBN)
-	$(MKDIR) $(I_PLG)
-	$(MKDIR) $(I_WEL)
+	$(MKDIR) -p $(I_DOC)
+	$(MKDIR) -p $(I_GPR)
+	$(MKDIR) -p $(I_AGP)
+	$(MKDIR) -p $(I_TPL)
+	$(MKDIR) -p $(I_IMG)
+	$(MKDIR) -p $(I_SBN)
+	$(MKDIR) -p $(I_PLG)
+	$(MKDIR) -p $(I_WEL)
 
 install: install_dirs $(MODULES_INSTALL)
 	$(CP) templates_parser/src/t*.ad[sb] $(I_INC)
@@ -437,7 +444,6 @@ endif
 	$(CP) $(CONFADC) $(I_LIB)/static
 	$(CP) $(CONFGPR) $(I_AGP)
 	$(CP) $(PRJDIR)/aws_xmlada.gpr $(I_AGP)
-	$(CP) config/projects/aws_libwin32.gpr $(I_AGP)
 #  Copy all shared libraries into the main bin directory
 ifeq (${ENABLE_SHARED}, true)
 ifeq ($(OS), Windows_NT)

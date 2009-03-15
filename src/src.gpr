@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2003-2007                          --
---                                 AdaCore                                  --
+--                      Copyright (C) 2003-2009, AdaCore                    --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -31,14 +30,14 @@ with "aws_xmlada";
 with "../shared";
 with "../include/include";
 with "../ssl/ssl";
-with "../win32/win32";
 
 project Src is
 
-   for Languages use ("Ada", "Project file", "makefile");
+   for Languages use ("Ada", "C", "Project file", "makefile");
 
-   for Source_Dirs
-     use (".", "../templates_parser/src", "../config");
+   for Source_Dirs use
+     (".", "../templates_parser/src", "../config",
+      "../" & Shared.Root_Dir & "/setup/src");
 
    --  XMLAda Installed, add xsrc and soap directories
 
@@ -69,15 +68,21 @@ project Src is
       when "relocatable" =>
          case Shared.OS is
             when "Windows_NT" =>
-               for Library_Options use
-                 ("-laws_win32", "-lwsock32", "-lws2_32");
+               for Library_Options use ("-lwsock32", "-lws2_32");
             when others =>
                null;
          end case;
 
          case Shared.LDAP is
             when "Installed" =>
-               for Library_Options use Project'Library_Options & ("-lldap");
+	       case Shared.OS is
+                  when "Windows_NT" =>
+                     for Library_Options use
+                       Project'Library_Options & ("-lwldap32");
+                  when others =>
+                     for Library_Options use
+                       Project'Library_Options & ("-lldap");
+               end case;
             when "Disabled" =>
                null;
          end case;

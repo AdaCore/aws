@@ -1,7 +1,7 @@
 ############################################################################
 #                              Ada Web Server                              #
 #                                                                          #
-#                     Copyright (C) 2003-2008, AdaCore                     #
+#                     Copyright (C) 2003-2009, AdaCore                     #
 #                                                                          #
 #  This library is free software; you can redistribute it and/or modify    #
 #  it under the terms of the GNU General Public License as published by    #
@@ -25,6 +25,9 @@
 #  covered by the  GNU Public License.                                     #
 ############################################################################
 
+AWSRES   = ../$(BDIR)/static/tools/awsres
+WSDL2AWS = ../$(BDIR)/static/tools/wsdl2aws
+
 build_res:
 	echo Generate resources for res_demo
 	$(AWSRES) -q -r rdemo adains.png page3.html
@@ -34,21 +37,13 @@ build_wsdl:
 	$(WSDL2AWS) -q -f -doc -timeouts 1,2,2 hello.wsdl
 	$(WSDL2AWS) -q -f -doc -noskel interoplab_main.wsdl
 
-force:
-
-AWSRES   = ../$(BDIR)/static/tools/awsres
-WSDL2AWS = ../$(BDIR)/static/tools/wsdl2aws
-
 ifeq (${PRJ_XMLADA}, Installed)
 BUILD_EXT = build_wsdl
 endif
 
 setup:
-	-$(MKDIR) -p ../$(BDIR)/static/obj/demos
-	-$(MKDIR) -p ../$(BDIR)/static/demos
 
-build: build_res $(BUILD_EXT)
-	$(GNAT) make -j$(CJOBS) -XLIBRARY_TYPE=static -Pdemos
+after-build: build_res $(BUILD_EXT)
 
 install:
 	$(CP) *.thtml $(I_TPL)
@@ -59,6 +54,3 @@ ifeq ($(SOCKET),ssl)
 endif
 
 check:
-
-clean:
-	$(GNAT) clean -XLIBRARY_TYPE=static -Pdemos

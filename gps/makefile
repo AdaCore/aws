@@ -1,8 +1,7 @@
 ############################################################################
 #                              Ada Web Server                              #
 #                                                                          #
-#                         Copyright (C) 2003-2007                          #
-#                                 AdaCore                                  #
+#                     Copyright (C) 2003-2009, AdaCore                     #
 #                                                                          #
 #  This library is free software; you can redistribute it and/or modify    #
 #  it under the terms of the GNU General Public License as published by    #
@@ -31,12 +30,7 @@
 ALL_API = $(sort $(shell ls ../src/*.ads ../xsrc/*.ads ../soap/*.ads \
 	../templates_parser/src/*.ads ../templates_parser/xsrc/*.ads))
 
-force:
-
 setup:
-
-build: prog force
-	./gen_gps_ref $(ALL_API)
 
 install:
 	$(CP) aws_api.xml $(I_PLG)
@@ -47,9 +41,8 @@ install:
 
 check:
 
-prog:
-	$(GNAT) make -Pgps_support \
-		-XPRJ_Build=${PRJ_BUILD} -XPRJ_XMLADA=${PRJ_XMLADA}
+after-build:
+	../$(BDIR)/../common/bin/gen_gps_ref $(ALL_API)
 
 clean:
-	-$(RM) -f *~ *.o *.ali aws_api.xml
+	-$(RM) -f *~ aws_api.xml

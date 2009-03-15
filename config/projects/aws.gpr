@@ -34,7 +34,6 @@ with "aws/aws_ssl_error_lib";
 with "aws/aws_crypto_lib";
 with "aws/aws_shared";
 with "aws/aws_config";
-with "aws/aws_libwin32";
 
 project AWS is
 

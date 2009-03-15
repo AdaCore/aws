@@ -1,7 +1,7 @@
 ############################################################################
 #                              Ada Web Server                              #
 #                                                                          #
-#                     Copyright (C) 2003-2008, AdaCore                     #
+#                     Copyright (C) 2003-2009, AdaCore                     #
 #                                                                          #
 #  This library is free software; you can redistribute it and/or modify    #
 #  it under the terms of the GNU General Public License as published by    #
@@ -30,38 +30,21 @@
 #  Build the library only if Win32 OS. On other OS these libraries must be
 #  installed separately or are most of the time already installed.
 
-ODIR = ../$(BDIR)/../common/obj/win32
 LDIR = ../$(BDIR)/../common/lib/win32
 
 LIBSSL		= $(LDIR)/libssl.a
 LIBCRYPTO	= $(LDIR)/libcrypto.a
-LIBLDAP		= $(LDIR)/libldap.a
 AWS_COFF	= $(LDIR)/aws.coff
 
 ifeq (${OS}, Windows_NT)
    RES        = $(AWS_COFF)
-   IMPORT_LIB = $(LIBSSL) $(LIBCRYPTO) $(LIBLDAP)
-   TBUILD     = $(LDIR)/libaws_win32.a
+   IMPORT_LIB = $(LIBSSL) $(LIBCRYPTO)
    TINSTALL   = install_win32
 else
    RES        =
    IMPORT_LIB =
-   TBUILD     =
    TINSTALL   =
 endif
-
-force:
-
-build: $(TBUILD) $(RES) $(IMPORT_LIB)
-
-$(LDIR)/libaws_win32.a: gai_strerror.o
-	echo Building libaws_win32.a
-	$(AR) cr $(LDIR)/libaws_win32.a $+
-
-gai_strerror.o: gai_strerror.c
-
-$(ODIR)/%.o: %.o
-	$(CP) $< $(ODIR)/$<
 
 $(LIBSSL): libssl32.dll ssl.def
 	echo Building libssl.a
@@ -73,28 +56,19 @@ $(LIBCRYPTO): libeay32.dll crypto.def
 	$(DLLTOOL) --def crypto.def --dllname libeay32.dll \
 		--output-lib $(LIBCRYPTO)
 
-$(LIBLDAP): wldap32.def
-	echo Building libldap.a
-	$(DLLTOOL) --def wldap32.def --dllname wldap32.dll \
-		--output-lib $(LIBLDAP)
-
 $(AWS_COFF): aws.rc
 	echo Building aws.coff
 	$(WINDRES) -i aws.rc -o $(AWS_COFF)
 
-clean:
-	-$(RM) -f $(LIBSSL) $(LIBCRYPTO) $(LIBLDAP) $(AWS_COFF) *~
-
-setup:
-	-$(MKDIR) -p $(ODIR)
+setup_dir:
 	-$(MKDIR) -p $(LDIR)
+
+setup: setup_dir $(RES) $(IMPORT_LIB)
 
 install_win32:
 	-$(MKDIR) -p $(prefix)/lib/aws/common
 	$(CP) $(LIBSSL) $(prefix)/lib/aws/common
 	$(CP) $(LIBCRYPTO) $(prefix)/lib/aws/common
-	$(CP) $(LIBLDAP) $(prefix)/lib/aws/common
-	$(CP) $(LDIR)/libaws_win32.a $(prefix)/lib/aws/common
 	$(CP) $(AWS_COFF) $(I_LIB)
 
 install: $(TINSTALL)

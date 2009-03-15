@@ -62,7 +62,9 @@ project Shared is
    -- Build directories --
    -----------------------
 
-   for Exec_Dir use ".build";
+   Root_Dir := ".build";
+
+   for Exec_Dir use Root_Dir;
 
    case Build is
       when "Debug" =>
@@ -130,9 +132,11 @@ project Shared is
       case Build is
          when "Debug" =>
             for Default_Switches ("Ada") use Common_Options & Debug_Options;
+            for Default_Switches ("C") use ("-g");
 
          when "Release" =>
             for Default_Switches ("Ada") use Common_Options & Release_Options;
+            for Default_Switches ("C") use ("-O2");
       end case;
 
       case OS is

@@ -1,10 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2004-2007                          --
---                                 AdaCore                                  --
---                                                                          --
---  Authors: Dmitriy Anisimkov - Pascal Obry                                --
+--                      Copyright (C) 2004-2009, AdaCore                    --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -34,13 +31,13 @@ project Zlib is
 
    for Languages use ("C");
 
-   package Ide renames Shared.Ide;
-
    for Source_Dirs use (".");
    for Object_Dir use "../../" & Shared'Object_Dir & "/zlib";
    for Library_Dir use "../../" & Shared'Library_Dir & "/zlib";
    for Library_Name use "z";
    for Library_Kind use Shared.Library_Type;
-   for Externally_Built use "true";
+
+   package Compiler renames Shared.Compiler;
+   package Ide renames Shared.Ide;
 
 end Zlib;

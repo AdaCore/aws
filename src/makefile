@@ -1,7 +1,7 @@
 ############################################################################
 #                              Ada Web Server                              #
 #                                                                          #
-#                     Copyright (C) 2003-2008, AdaCore                     #
+#                     Copyright (C) 2003-2009, AdaCore                     #
 #                                                                          #
 #  This library is free software; you can redistribute it and/or modify    #
 #  it under the terms of the GNU General Public License as published by    #
@@ -27,27 +27,7 @@
 
 .SILENT:
 
-force:
-
-aws-translator-conversion.adb:
-	${MAKE} -C ../config setup
-
-aws-os_lib-definitions.ads: ../config/src/check_config.c
-	$(MAKE) -C ../config setup
-
 setup:
-	-$(MKDIR) -p ../$(BDIR)/static/obj/src
-	-$(MKDIR) -p ../$(BDIR)/static/lib/src
-ifeq (${ENABLE_SHARED}, true)
-	-$(MKDIR) -p ../$(BDIR)/relocatable/obj/src
-	-$(MKDIR) -p ../$(BDIR)/relocatable/lib/src
-endif
-
-build:
-	$(GNAT) make -j$(CJOBS) -XLIBRARY_TYPE=static -Psrc
-ifeq (${ENABLE_SHARED}, true)
-	$(GNAT) make -j$(CJOBS) -XLIBRARY_TYPE=relocatable -Psrc
-endif
 
 install:
 	$(CP) a*.ad[sb] $(I_INC)
@@ -59,13 +39,6 @@ ifeq ($(XMLADA),true)
 	$(CP) ../soap/*.ad[sb] $(I_INC)
 	$(CP) ../xsrc/*.ad[sb] $(I_INC)
 endif
-
-clean:
-	$(GNAT) clean -XLIBRARY_TYPE=static -Psrc
-ifeq (${ENABLE_SHARED}, true)
-	$(GNAT) clean -XLIBRARY_TYPE=relocatable -Psrc
-endif
-	-$(RM) -f aws-translator-conversion.adb aws-os_lib-definitions.ads
 
 check:
 	echo Rule \"raised exception is not declared...\"

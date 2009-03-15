@@ -27,33 +27,33 @@
 
 .SILENT:
 
+SDIR = ../$(BDIR)/../setup
+
 ifdef ASIS
-GEN   = ada2wsdl-options.adb
+GEN   = $(SDIR)/tsrc/ada2wsdl-options.adb
 endif
 
 force:
 
-ada2wsdl-options.adb: force
-	echo "--  This file is generated automatically" > ada2wsdl-options.adb
-	echo "--  DO NOT EDIT, see tools/makefile" >> ada2wsdl-options.adb
-	echo "with Ada2WSDL.Parser;" >> ada2wsdl-options.adb
-	echo "package body Ada2WSDL.Options is" >> ada2wsdl-options.adb
-	echo "   procedure Set_Default is" >> ada2wsdl-options.adb
-	echo "   begin" >> ada2wsdl-options.adb
-	echo "      pragma Style_Checks (Off);" >> ada2wsdl-options.adb
+$(GEN): force
+	echo "--  This file is generated automatically" > $(GEN)
+	echo "--  DO NOT EDIT, see tools/makefile" >> $(GEN)
+	echo "with Ada2WSDL.Parser;" >> $(GEN)
+	echo "package body Ada2WSDL.Options is" >> $(GEN)
+	echo "   procedure Set_Default is" >> $(GEN)
+	echo "   begin" >> $(GEN)
+	echo "      pragma Style_Checks (Off);" >> $(GEN)
 	echo "      Parser.Add_Option (\"-I"$(I_CPN)"\");" \
-		>> ada2wsdl-options.adb
+		>> $(GEN)
 	echo "      Parser.Add_Option (\"-I"$(I_INC)"\");" \
-		>> ada2wsdl-options.adb
-	echo "   end Set_Default;" >> ada2wsdl-options.adb
-	echo "end Ada2WSDL.Options;" >> ada2wsdl-options.adb
+		>> $(GEN)
+	echo "   end Set_Default;" >> $(GEN)
+	echo "end Ada2WSDL.Options;" >> $(GEN)
 
-setup: $(GEN)
-	$(MKDIR) -p ../$(BDIR)/static/obj/tools
-	$(MKDIR) -p ../$(BDIR)/static/tools
+setup_dir:
+	-$(MKDIR) -p $(SDIR)/tsrc
 
-build:
-	$(GNAT) make -j$(CJOBS) -XLIBRARY_TYPE=static -Ptools
+setup: setup_dir $(GEN)
 
 install:
 	-$(CP) ../$(BDIR)/static/tools/awsres${EXEEXT} $(I_BIN)
@@ -71,7 +71,3 @@ endif
 
 check:
 	$(GNAT) check -Ptools -rules -from=../aws.checks
-
-clean:
-	$(GNAT) clean -XLIBRARY_TYPE=static -Ptools
-	$(RM) -f ada2wsdl-options.adb

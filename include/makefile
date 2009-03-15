@@ -1,7 +1,7 @@
 ############################################################################
 #                              Ada Web Server                              #
 #                                                                          #
-#                     Copyright (C) 2003-2008, AdaCore                     #
+#                     Copyright (C) 2003-2009, AdaCore                     #
 #                                                                          #
 #  This library is free software; you can redistribute it and/or modify    #
 #  it under the terms of the GNU General Public License as published by    #
@@ -27,25 +27,7 @@
 
 .SILENT:
 
-force:
-
 setup:
-	-$(MKDIR) -p ../$(BDIR)/static/obj/include
-	-$(MKDIR) -p ../$(BDIR)/static/lib/include
-ifeq (${ENABLE_SHARED}, true)
-	-$(MKDIR) -p ../$(BDIR)/relocatable/obj/include
-	-$(MKDIR) -p ../$(BDIR)/relocatable//lib/include
-endif
-	${MAKE} -C zlib setup $(GALL_OPTIONS)
-
-build_zlib: force
-	${MAKE} -C zlib $(GALL_OPTIONS)
-
-build: build_zlib
-	$(GNAT) make -j$(CJOBS) -XLIBRARY_TYPE=static -Pinclude
-ifeq (${ENABLE_SHARED}, true)
-	$(GNAT) make -j$(CJOBS) -XLIBRARY_TYPE=relocatable -Pinclude
-endif
 
 install:
 	$(CP) *.ad? $(I_CPN)
@@ -54,15 +36,6 @@ ifeq (${ENABLE_SHARED}, true)
 	-$(CP) ../$(BDIR)/relocatable/lib/include/* $(I_LIB)/relocatable
 endif
 	${MAKE} -C zlib install $(GALL_OPTIONS)
-
-clean:
-	-$(GNAT) clean -Pinclude -XLIBRARY_TYPE=static \
-		-XAWS_BUILD=${PRJ_BUILD} -XXMLADA=${PRJ_XMLADA}
-ifeq (${ENABLE_SHARED}, true)
-	-$(GNAT) clean -Pinclude -XLIBRARY_TYPE=relocatable \
-		-XAWS_BUILD=${PRJ_BUILD} -XXMLADA=${PRJ_XMLADA}
-endif
-	${MAKE} -C zlib clean
 
 check:
 	$(GNAT) check -files=filenames.check -rules -from=../aws.checks

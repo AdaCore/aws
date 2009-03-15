@@ -2034,8 +2034,6 @@ win32/poll.adb
 win32/poll.ads
 win32/readme.txt
 win32/ssl.def
-win32/win32.gpr
-win32/wldap32.def
 xsrc/README
 xsrc/aws-client-xml-input_sources.adb
 xsrc/aws-client-xml-input_sources.ads

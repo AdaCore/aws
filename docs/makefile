@@ -1,7 +1,7 @@
 ############################################################################
 #                              Ada Web Server                              #
 #                                                                          #
-#                     Copyright (C) 2003-2008, AdaCore                     #
+#                     Copyright (C) 2003-2009, AdaCore                     #
 #                                                                          #
 #  This library is free software; you can redistribute it and/or modify    #
 #  it under the terms of the GNU General Public License as published by    #
@@ -226,13 +226,13 @@ endif
 #  Note that we force XMLADA=Installed, this is not a problem as it is only
 #  to give the visibility to soap.ads to get the SOAP's version number.
 prog: gen_doc.sed.tmplt
-	$(GNAT) make -Pdocs -XLIBRARY_TYPE=static \
+	$(GNAT) make -p -Pdocs -XLIBRARY_TYPE=static \
 		-XPRJ_Build=${PRJ_BUILD} -XPRJ_XMLADA=Installed
 
 ifeq (${BUILD_DOC_SCRIPT},false)
 gen_texi: prog aws.texi.tmplt
 	echo build from ada
-	./build | tr -d '\r' > aws.texi
+	../$(BDIR)/../common/bin/build | tr -d '\r' > aws.texi
 else
 gen_texi: aws.texi.tmplt
 	echo build from script

@@ -34,7 +34,9 @@ project Tools is
 
    for Languages use ("Ada", "Project file", "makefile");
 
-   for Source_Dirs use (".", "../templates_parser/tools");
+   for Source_Dirs use
+     (".", "../templates_parser/tools",
+      "../" & Shared.Root_Dir & "/setup/tsrc");
 
    for Main use ("awsres.adb", "aws_password.adb", "templates2ada.adb",
                  "webxref.adb", "templatespp.adb");
