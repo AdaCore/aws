@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2002-2008, AdaCore                     --
+--                     Copyright (C) 2002-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -621,12 +621,6 @@ package AWS.LDAP.Thin is
      (ld : in LDAP_Type;
       dn : in chars_ptr) return C.int;
 
-   --  Free LDAPMod **
-
-   procedure ldap_mods_free
-     (mods     : in LDAPMods_Access;
-      freemods : in C.int := 0);
-
    --  Helpers
 
    function ldap_count_entries
@@ -719,7 +713,6 @@ private
    pragma Import (C, ldap_add_s);
    pragma Import (C, ldap_modify_s);
    pragma Import (C, ldap_delete_s);
-   pragma Import (C, ldap_mods_free);
    pragma Import (C, ldap_count_entries);
    pragma Import (C, ldap_first_entry);
    pragma Import (C, ldap_next_entry);

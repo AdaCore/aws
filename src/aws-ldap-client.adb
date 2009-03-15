@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2003-2008                          --
---                                 AdaCore                                  --
+--                      Copyright (C) 2003-2009, AdaCore                    --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -27,6 +26,7 @@
 ------------------------------------------------------------------------------
 
 with Ada.Strings.Fixed;
+with Ada.Unchecked_Deallocation;
 
 with Interfaces.C.Strings;
 
@@ -61,7 +61,7 @@ package body AWS.LDAP.Client is
    --  Create C-Style LDAPMod ** structure used to store all
    --  modification operations to perform on a LDAP-entry.
 
-   procedure Free (C_Mods : in Thin.LDAPMods_Access);
+   procedure Free (Mods : in out Thin.LDAPMods);
    --  Releases memory associated with the LDAPMod C-style structure which
    --  has been allocated for LDAP add/modify and delete operations.
 
@@ -107,11 +107,11 @@ package body AWS.LDAP.Client is
       --  Free allocated memory
 
       Free (C_DN);
-      Free (C_Mods (C_Mods'First)'Unchecked_Access);
+      Free (C_Mods);
    exception
       when others =>
          Free (C_DN);
-         Free (C_Mods (C_Mods'First)'Unchecked_Access);
+         Free (C_Mods);
          raise;
    end Add;
 
@@ -484,13 +484,13 @@ package body AWS.LDAP.Client is
       Thin.ber_free (BER, 0);
    end Free;
 
-   procedure Free (C_Mods : in Thin.LDAPMods_Access) is
+   procedure Free (Mods : in out Thin.LDAPMods) is
+      procedure Unchecked_Free is new Ada.Unchecked_Deallocation
+        (Thin.LDAPMod_Element, Thin.LDAPMod_Element_Access);
    begin
-      Thin.ldap_mods_free (mods => C_Mods, freemods => 0);
-      --  Note: Don't try to free C_Mods here (freemods => 1), it will not
-      --  work because C_Mods is an unconstrained array (fat pointer).
-      --  There's no need to free the LDAPMods array itself anyway, because the
-      --  To_C function does not allocate it in heap memory.
+      for K in Mods'Range loop
+         Unchecked_Free (Mods (K));
+      end loop;
    end Free;
 
    ------------
@@ -663,11 +663,11 @@ package body AWS.LDAP.Client is
       --  Free allocated memory
 
       Free (C_DN);
-      Free (C_Mods (C_Mods'First)'Unchecked_Access);
+      Free (C_Mods);
    exception
       when others =>
          Free (C_DN);
-         Free (C_Mods (C_Mods'First)'Unchecked_Access);
+         Free (C_Mods);
          raise;
    end Modify;
 
