@@ -216,7 +216,7 @@ endif
 I_BIN	= $(prefix)/bin
 I_INC	= $(prefix)/include/aws
 I_CPN	= $(prefix)/include/aws/components
-I_LIB	= $(prefix)/lib/aws/
+I_LIB	= $(prefix)/lib/aws
 I_GPR	= $(prefix)/lib/gnat
 I_AGP	= $(prefix)/lib/gnat/aws
 I_TPL	= $(prefix)/share/examples/aws/templates

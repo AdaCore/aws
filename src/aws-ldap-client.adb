@@ -775,8 +775,8 @@ package body AWS.LDAP.Client is
               (IC.size_t (Attrs'First) .. IC.size_t (Attrs'Last + 1));
          begin
             for K in Attrs'Range loop
-               Attributes (IC.size_t (K))
-                 := New_String (To_String (Attrs (K)));
+               Attributes (IC.size_t (K)) :=
+                 New_String (To_String (Attrs (K)));
             end loop;
             Attributes (Attributes'Last) := Null_Ptr;
 

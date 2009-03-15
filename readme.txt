@@ -80,6 +80,7 @@ implementations.
   hotplug_password tool has been renamed to aws_password. The password
   must be regenerated.
 
+
 Obsolescent features
 --------------------
 

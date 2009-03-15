@@ -698,11 +698,11 @@ private
    --  returned by routines above. We just pass this pointer around and we
    --  must make sure that we free the structure.
 
-   Null_LDAP_Type   : constant LDAP_Type
-     := LDAP_Type (System.Null_Address);
+   Null_LDAP_Type   : constant LDAP_Type :=
+                        LDAP_Type (System.Null_Address);
 
-   Null_LDAPMessage : constant LDAPMessage
-     := LDAPMessage (System.Null_Address);
+   Null_LDAPMessage : constant LDAPMessage :=
+                        LDAPMessage (System.Null_Address);
 
    pragma Import (C, ldap_init);
    pragma Import (C, ldap_simple_bind);
