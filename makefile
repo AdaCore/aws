@@ -268,9 +268,9 @@ ifeq (${ENABLE_SHARED}, true)
 		-XLIBRARY_TYPE=relocatable src/src.gpr
 endif
 ifeq (${DEMOS}, true)
+	${MAKE} -C demos $(GALL_OPTIONS) after-build
 	$(GPRBUILD) -p -j$(CJOBS) $(GPROPTS) \
 		-XLIBRARY_TYPE=static demos/demos.gpr
-	${MAKE} -C demos $(GALL_OPTIONS) after-build
 endif
 	$(GPRBUILD) -p -j$(CJOBS) $(GPROPTS) \
 		-XLIBRARY_TYPE=static gps/gps_support.gpr
