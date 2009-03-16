@@ -277,17 +277,17 @@ endif
 	${MAKE} -C gps $(GALL_OPTIONS) after-build
 
 clean:
-	$(GPRCLEAN) $(GPROPTS) -XLIBRARY_TYPE=static tools/tools.gpr
+	-$(GPRCLEAN) $(GPROPTS) -XLIBRARY_TYPE=static tools/tools.gpr
 ifeq (${ENABLE_SHARED}, true)
-	$(GPRCLEAN) $(GPROPTS) -XLIBRARY_TYPE=relocatable src/src.gpr
+	-$(GPRCLEAN) $(GPROPTS) -XLIBRARY_TYPE=relocatable src/src.gpr
 endif
 ifeq (${DEMOS}, true)
-	$(GPRCLEAN) $(GPROPTS) -XLIBRARY_TYPE=static demos/demos.gpr
+	-$(GPRCLEAN) $(GPROPTS) -XLIBRARY_TYPE=static demos/demos.gpr
 endif
-	$(GPRCLEAN) $(GPROPTS) -XLIBRARY_TYPE=static gps/gps_support.gpr
-	${MAKE} -C regtests clean
-	${MAKE} -C docs clean
-	${MAKE} -C templates_parser clean AWS=AWS
+	-$(GPRCLEAN) $(GPROPTS) -XLIBRARY_TYPE=static gps/gps_support.gpr
+	-${MAKE} -C regtests $(GALL_OPTIONS) clean
+	-${MAKE} -C docs $(GALL_OPTIONS) clean
+	-${MAKE} -C templates_parser clean AWS=AWS
 	-${RM} -fr .build
 	-${RM} -f makefile.setup
 
