@@ -33,6 +33,7 @@ with "demos_shared";
 project Demos is
 
    for Languages use ("Ada", "Project file");
+   for Source_Dirs use (".", "../.build/common/demos");
 
    Mains := ("hello_world.adb", "com_1.adb", "com_2.adb", "main.adb",
              "hotplug.adb", "dispatch.adb", "wps.adb", "ws.adb",

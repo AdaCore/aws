@@ -25,23 +25,29 @@
 #  covered by the  GNU Public License.                                     #
 ############################################################################
 
-AWSRES   = ../$(BDIR)/static/tools/awsres
-WSDL2AWS = ../$(BDIR)/static/tools/wsdl2aws
+AWSRES   = ../../../$(BDIR)/static/tools/awsres
+WSDL2AWS = ../../../$(BDIR)/static/tools/wsdl2aws
+
+SRCDIR	= ../$(BDIR)/../common/demos
 
 build_res:
 	echo Generate resources for res_demo
-	$(AWSRES) -q -r rdemo adains.png page3.html
+	(cd $(SRCDIR) && \
+	 $(AWSRES) -q -r rdemo ../../../demos/adains.png \
+		../../../demos/page3.html)
 
 build_wsdl:
 	echo Generate stub/skel from WSDL documents
-	$(WSDL2AWS) -q -f -doc -timeouts 1,2,2 hello.wsdl
-	$(WSDL2AWS) -q -f -doc -noskel interoplab_main.wsdl
+	(cd $(SRCDIR) && \
+	$(WSDL2AWS) -q -f -doc -timeouts 1,2,2 ../../../demos/hello.wsdl && \
+	$(WSDL2AWS) -q -f -doc -noskel ../../../demos/interoplab_main.wsdl)
 
 ifeq (${PRJ_XMLADA}, Installed)
 BUILD_EXT = build_wsdl
 endif
 
 setup:
+	$(MKDIR) $(SRCDIR)
 
 after-build: build_res $(BUILD_EXT)
 
