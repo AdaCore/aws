@@ -49,6 +49,8 @@ $(SDIR)/src/aws-os_lib.ads: makefile src/check_config.c
 	$(SDIR)/check_config $(SDIR)/src/aws-os_lib.ads
 
 install:
+	$(CP) $(SDIR)/src/aws-translator-conversion.adb $(I_INC)
+	$(CP) $(SDIR)/src/aws-os_lib.ads $(I_INC)
 	$(CP) aws-net-std__* $(I_INC)
 	$(CP) aws-net-ssl__* $(I_INC)
 	$(CP) aws-net-ssl-certificate__* $(I_INC)
