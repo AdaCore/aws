@@ -80,6 +80,9 @@ implementations.
   hotplug_password tool has been renamed to aws_password. The password
   must be regenerated.
 
+  In the Templates Parser, user's filters Execute method is using "not null"
+  constraint. An update of the redefined Execute routine is required.
+
 
 Obsolescent features
 --------------------
