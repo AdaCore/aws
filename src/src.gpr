@@ -75,7 +75,7 @@ project Src is
 
          case Shared.LDAP is
             when "Installed" =>
-	       case Shared.OS is
+               case Shared.OS is
                   when "Windows_NT" =>
                      for Library_Options use
                        Project'Library_Options & ("-lwldap32");

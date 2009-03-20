@@ -66,10 +66,14 @@ setup_dir:
 setup: setup_dir $(RES) $(IMPORT_LIB)
 
 install_win32:
-	-$(MKDIR) -p $(prefix)/lib/aws/common
-	$(CP) $(LIBSSL) $(prefix)/lib/aws/common
-	$(CP) $(LIBCRYPTO) $(prefix)/lib/aws/common
+	-$(MKDIR) -p $(I_LIB)/ssl
+	$(CP) $(LIBSSL) $(I_LIB)/ssl
+	$(CP) $(LIBCRYPTO) $(I_LIB)/ssl
 	$(CP) $(AWS_COFF) $(I_LIB)
+ifeq (${ENABLE_SHARED}, true)
+	$(CP) *.dll $(I_LIB)/ssl
+	$(CP) *.dll $(I_BIN)
+endif
 
 install: $(TINSTALL)
 
