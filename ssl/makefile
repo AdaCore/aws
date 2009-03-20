@@ -61,6 +61,12 @@ setup_ssl:
 	echo "   for Source_Files use ();" >> $(SSLGPR)
 ifeq (${SOCKET}, std)
 	echo '   LIB_Path := "";' >> $(SSLGPR)
+	echo '   S_SSL_Lib := "";' >> $(SSLGPR)
+	echo '   R_SSL_Lib := "";' >> $(SSLGPR)
+	echo '   S_CRY_Lib := "";' >> $(SSLGPR)
+	echo '   R_CRY_Lib := "";' >> $(SSLGPR)
+	echo '   S_TLS_Lib := "";' >> $(SSLGPR)
+	echo '   R_TLS_Lib := "";' >> $(SSLGPR)
 else
 ifeq (${OS}, Windows_NT)
 	echo '   LIB_Path := "../$(BDIR)/../common/lib/win32";' >> $(SSLGPR)
