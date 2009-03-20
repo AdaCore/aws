@@ -32,8 +32,8 @@
 
 LDIR = ../$(BDIR)/../common/lib/win32
 
-LIBSSL		= $(LDIR)/libssl.a
-LIBCRYPTO	= $(LDIR)/libcrypto.a
+LIBSSL		= $(LDIR)/libssl.dll.a
+LIBCRYPTO	= $(LDIR)/libcrypto.dll.a
 AWS_COFF	= $(LDIR)/aws.coff
 
 ifeq (${OS}, Windows_NT)
@@ -47,12 +47,12 @@ else
 endif
 
 $(LIBSSL): libssl32.dll ssl.def
-	echo Building libssl.a
+	echo Building import libray libssl.dll.a
 	$(DLLTOOL) --def ssl.def --dllname libssl32.dll \
 	        --output-lib $(LIBSSL)
 
 $(LIBCRYPTO): libeay32.dll crypto.def
-	echo Building libcrypto.a
+	echo Building import library libcrypto.dll.a
 	$(DLLTOOL) --def crypto.def --dllname libeay32.dll \
 		--output-lib $(LIBCRYPTO)
 
