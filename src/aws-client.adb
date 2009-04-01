@@ -1079,13 +1079,14 @@ package body AWS.Client is
       Stamp    : constant Time   := Clock;
       Pref_Suf : constant String := "--";
       Boundary : constant String :=
-        "AWS_File_Upload-" & Utils.Random_String (8);
+                   "AWS_File_Upload-" & Utils.Random_String (8);
 
-      CT        : constant String
-        := Messages.Content_Type (MIME.Content_Type (Filename));
+      CT        : constant String :=
+                    Messages.Content_Type (MIME.Content_Type (Filename));
 
-      CD        : constant String
-        := Messages.Content_Disposition ("form-data", "filename", Filename);
+      CD        : constant String :=
+                    Messages.Content_Disposition
+                      ("form-data", "filename", Filename);
 
       Try_Count     : Natural := Connection.Retry;
       Auth_Attempts : Auth_Attempts_Count := (others => 2);

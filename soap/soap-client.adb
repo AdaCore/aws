@@ -59,8 +59,8 @@ package body SOAP.Client is
          Timeouts   => Timeouts);
 
       declare
-         Result : constant Message.Response.Object'Class
-           := Call (Connection, SOAPAction, P);
+         Result : constant Message.Response.Object'Class :=
+                    Call (Connection, SOAPAction, P);
       begin
          AWS.Client.Close (Connection);
          return Result;
