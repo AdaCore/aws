@@ -640,6 +640,8 @@ package body Stub is
         (Stub_Adb, "      AWS.Client.Create");
       Text_IO.Put_Line
         (Stub_Adb, "        (Connection, Endpoint,");
+      Text_IO.Put_Line
+        (Stub_Adb, "         Persistent => False,");
       Text_IO.Put
         (Stub_Adb, "         Timeouts   => Timeouts");
 
