@@ -25,7 +25,7 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-with "aws_xmlada";
+with "../.build/projects/aws_xmlada";
 
 with "../shared";
 with "../include/include";

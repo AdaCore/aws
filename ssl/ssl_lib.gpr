@@ -27,8 +27,8 @@
 
 --  Project for libssl.a external library
 
-with "aws_config";
-with "aws_ssl_shared";
+with "../.build/projects/aws_config";
+with "../.build/projects/aws_ssl_shared";
 with "../shared";
 
 project SSL_Lib is

@@ -68,22 +68,6 @@ TEST_MODE	= Separated
 #  NO NEED TO CHANGE ANYTHING PAST THIS POINT
 #############################################################################
 
-CWD := $(shell pwd)
-APP := $(ADA_PROJECT_PATH)
-PTH := $(PATH)
-
-ifeq (${OS}, Windows_NT)
-DPWD = $(subst /cygdrive/c/,c:/,$(CWD))
-export ADA_PROJECT_PATH = $(DPWD)/.build/projects\;${APP}
-
-APTH = $(CWD)/$(BDIR)/lib/src:$(CWD)/$(BDIR)/lib/win32:$(CWD)/$(BDIR)/lib/ssl
-APTH := :$(CWD)/$(BDIR)/lib/include:$(CWD)/$(BDIR)/lib/zlib:$(APTH)
-APTH := :$(CWD)/win32:$(APTH)
-export PATH = $(APTH):${PTH}
-else
-export ADA_PROJECT_PATH = $(CWD)/.build/projects:${APP}
-endif
-
 all: build
 
 ALL_OPTIONS	= $(MAKE_OPT) SOCKET="$(SOCKET)" XMLADA="$(XMLADA)" \

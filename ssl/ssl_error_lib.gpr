@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2006                            --
---                                 AdaCore                                  --
+--                     Copyright (C) 2006-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -28,8 +27,8 @@
 
 --  Project for libgpg-error.a external library
 
-with "aws_config";
-with "aws_ssl_shared";
+with "../.build/projects/aws_config";
+with "../.build/projects/aws_ssl_shared";
 
 project SSL_Error_Lib is
 
