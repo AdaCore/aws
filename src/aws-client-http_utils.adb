@@ -409,6 +409,8 @@ package body AWS.Client.HTTP_Utils is
       Attachments  : in     Attachment_List;
       Headers      : in     Header_List          := Empty_Header_List)
    is
+      use Real_Time;
+      Stamp     : constant Time := Clock;
       Pref_Suf  : constant String := "--";
       Boundary  : constant String :=
                     "AWS_Attachment-" & Utils.Random_String (8);
@@ -544,7 +546,9 @@ package body AWS.Client.HTTP_Utils is
 
                Disconnect (Connection);
 
-               if Try_Count = 0 then
+               if Try_Count = 0
+                 or else Clock - Stamp >= Connection.Timeouts.Response
+               then
                   Result := Response.Build
                     (MIME.Text_HTML, "Upload Timeout", Messages.S408);
                   exit Retry;
@@ -568,7 +572,9 @@ package body AWS.Client.HTTP_Utils is
       Content_Type : in     String;
       Headers      : in     Header_List := Empty_Header_List)
    is
-      Try_Count : Natural := Connection.Retry;
+      use Real_Time;
+      Stamp         : constant Time := Clock;
+      Try_Count     : Natural := Connection.Retry;
 
       Auth_Attempts : Auth_Attempts_Count := (others => 2);
       Auth_Is_Over  : Boolean;
@@ -602,7 +608,9 @@ package body AWS.Client.HTTP_Utils is
 
                Disconnect (Connection);
 
-               if Try_Count = 0 then
+               if Try_Count = 0
+                 or else Clock - Stamp >= Connection.Timeouts.Response
+               then
                   Result := Response.Build
                     (MIME.Text_HTML, "Post Timeout", Messages.S408);
                   exit Retry;
