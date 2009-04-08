@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2008, AdaCore                     --
+--                     Copyright (C) 2000-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -56,34 +56,34 @@ package AWS.Config is
    -- Server --
    ------------
 
-   function Server_Name (O : in Object) return String;
+   function Server_Name (O : Object) return String;
    pragma Inline (Server_Name);
    --  This is the name of the server as set by AWS.Server.Start
 
-   function Server_Host (O : in Object) return String;
+   function Server_Host (O : Object) return String;
    pragma Inline (Server_Host);
    --  This is the server host. Can be used if the computer has a more than
    --  one IP address. It is possible to have two servers at the same port
    --  on the same machine, both being binded on different IP addresses.
 
-   function Server_Port (O : in Object) return Natural;
+   function Server_Port (O : Object) return Natural;
    pragma Inline (Server_Port);
    --  This is the server port as set by the HTTP object declaration
 
-   function Hotplug_Port (O : in Object) return Positive;
+   function Hotplug_Port (O : Object) return Positive;
    pragma Inline (Hotplug_Port);
    --  This is the hotplug communication port needed to register and
    --  un-register an hotplug module.
 
-   function Session (O : in Object) return Boolean;
+   function Session (O : Object) return Boolean;
    pragma Inline (Session);
    --  Returns True if the server session is activated
 
-   function Case_Sensitive_Parameters (O : in Object) return Boolean;
+   function Case_Sensitive_Parameters (O : Object) return Boolean;
    pragma Inline (Case_Sensitive_Parameters);
    --  HTTP parameters are case sensitive
 
-   function Session_Name (O : in Object) return String;
+   function Session_Name (O : Object) return String;
    pragma Inline (Session_Name);
    --  Name of the cookie session
 
@@ -91,12 +91,12 @@ package AWS.Config is
    -- Connection --
    ----------------
 
-   function Max_Connection (O : in Object) return Positive;
+   function Max_Connection (O : Object) return Positive;
    pragma Inline (Max_Connection);
    --  This is the max simultaneous connections as set by the HTTP object
    --  declaration.
 
-   function Free_Slots_Keep_Alive_Limit (O : in Object) return Natural;
+   function Free_Slots_Keep_Alive_Limit (O : Object) return Natural;
    pragma Inline (Free_Slots_Keep_Alive_Limit);
    --  The minimum number of free slots where keep-alive connections are still
    --  enabled. After this limit no more keep-alive connection will be
@@ -104,7 +104,7 @@ package AWS.Config is
    --  servers to make sure the server will never run out of slots. This limit
    --  must be less than Max_Connection.
 
-   function Keep_Alive_Force_Limit (O : in Object) return Positive;
+   function Keep_Alive_Force_Limit (O : Object) return Positive;
    pragma Inline (Keep_Alive_Force_Limit);
    --  Server could have more than Max_Connection keep-alive sockets. Keep
    --  alive sockets are waiting for client input in the internal server socket
@@ -114,7 +114,7 @@ package AWS.Config is
    --  use shorter timeouts. If this parameter is not defined in the
    --  configuration, the server uses Max_Connection * 2 as value.
 
-   function Keep_Alive_Close_Limit (O : in Object) return Positive;
+   function Keep_Alive_Close_Limit (O : Object) return Positive;
    pragma Inline (Keep_Alive_Close_Limit);
    --  This parameter defines the limit of keep alive sockets in the internal
    --  server socket set. If the number of sockets in socket set became more
@@ -122,17 +122,17 @@ package AWS.Config is
    --  closed. If this parameter is not defined in the configuration,
    --  the server uses Max_Connection * 4 as value.
 
-   function Accept_Queue_Size (O : in Object) return Positive;
+   function Accept_Queue_Size (O : Object) return Positive;
    pragma Inline (Accept_Queue_Size);
    --  This is the size of the queue for the incoming requests. Higher this
    --  value will be and less "connection refused" will be reported to the
    --  client.
 
-   function Line_Stack_Size (O : in Object) return Positive;
+   function Line_Stack_Size (O : Object) return Positive;
    pragma Inline (Line_Stack_Size);
    --  HTTP lines stack size
 
-   function Reuse_Address (O : in Object) return Boolean;
+   function Reuse_Address (O : Object) return Boolean;
    pragma Inline (Reuse_Address);
    --  Returns true if bind is allowed to reuse and address (not waiting for
    --  the delay between two bind to the same port).
@@ -141,7 +141,7 @@ package AWS.Config is
    -- Data --
    ----------
 
-   function WWW_Root (O : in Object) return String;
+   function WWW_Root (O : Object) return String;
    pragma Inline (WWW_Root);
    --  This is the root directory name for the server. This variable is not
    --  used internally by AWS. It is supposed to be used by the callback
@@ -149,15 +149,15 @@ package AWS.Config is
    --  The default value is the current working directory. The returned
    --  directory ends with a directory separator.
 
-   function Upload_Directory (O : in Object) return String;
+   function Upload_Directory (O : Object) return String;
    pragma Inline (Upload_Directory);
    --  This point to the directory where uploaded files will be stored. The
    --  directory returned will end with a directory separator.
 
-   function Upload_Size_Limit (O : in Object) return Positive;
+   function Upload_Size_Limit (O : Object) return Positive;
    pragma Inline (Upload_Size_Limit);
 
-   function Directory_Browser_Page (O : in Object) return String;
+   function Directory_Browser_Page (O : Object) return String;
    pragma Inline (Directory_Browser_Page);
    --  Filename for the directory browser template page
 
@@ -165,35 +165,35 @@ package AWS.Config is
    -- Log --
    ---------
 
-   function Log_File_Directory (O : in Object) return String;
+   function Log_File_Directory (O : Object) return String;
    pragma Inline (Log_File_Directory);
    --  This point to the directory where log files will be written. The
    --  directory returned will end with a directory separator.
 
-   function Log_Filename_Prefix (O : in Object) return String;
+   function Log_Filename_Prefix (O : Object) return String;
    pragma Inline (Log_Filename_Prefix);
    --  This is the prefix to use for the log filename
 
-   function Log_Split_Mode (O : in Object) return String;
+   function Log_Split_Mode (O : Object) return String;
    pragma Inline (Log_Split_Mode);
    --  This is split mode for the log file. Possible values are : Each_Run,
    --  Daily, Monthly and None. Any other values will raise an exception.
 
    generic
-      with procedure Field_Id (Id : in String);
-   procedure Log_Extended_Fields_Generic_Iterate (O : in Object);
+      with procedure Field_Id (Id : String);
+   procedure Log_Extended_Fields_Generic_Iterate (O : Object);
    --  Calls procedure Field_Id for each extended http log field identifier
 
-   function Log_Extended_Fields_Length (O : in Object) return Natural;
+   function Log_Extended_Fields_Length (O : Object) return Natural;
    pragma Inline (Log_Extended_Fields_Length);
    --  Returns the number of extended http log fileds identifiers.
    --  If returned value is zero then http log is not extended.
 
-   function Error_Log_Filename_Prefix (O : in Object) return String;
+   function Error_Log_Filename_Prefix (O : Object) return String;
    pragma Inline (Error_Log_Filename_Prefix);
    --  This is the prefix to use for the log filename
 
-   function Error_Log_Split_Mode (O : in Object) return String;
+   function Error_Log_Split_Mode (O : Object) return String;
    pragma Inline (Error_Log_Split_Mode);
    --  This is split mode for the log file. Possible values are : Each_Run,
    --  Daily, Monthly and None. Any other values will raise an exception.
@@ -202,28 +202,28 @@ package AWS.Config is
    -- Status --
    ------------
 
-   function Admin_Password (O : in Object) return String;
+   function Admin_Password (O : Object) return String;
    pragma Inline (Admin_Password);
    --  The admin password
 
-   function Admin_URI (O : in Object) return String;
+   function Admin_URI (O : Object) return String;
    pragma Inline (Admin_URI);
    --  This is the name of the admin server page as set by AWS.Server.Start.
    --  It is also known as the status page.
 
-   function Status_Page (O : in Object) return String;
+   function Status_Page (O : Object) return String;
    pragma Inline (Status_Page);
    --  Filename for the status template page
 
-   function Up_Image (O : in Object) return String;
+   function Up_Image (O : Object) return String;
    pragma Inline (Up_Image);
    --  Filename for the up arrow image used in the status page
 
-   function Down_Image (O : in Object) return String;
+   function Down_Image (O : Object) return String;
    pragma Inline (Down_Image);
    --  Filename for the down arrow image used in the status page
 
-   function Logo_Image (O : in Object) return String;
+   function Logo_Image (O : Object) return String;
    pragma Inline (Logo_Image);
    --  Filename for the AWS logo image used in the status page
 
@@ -231,51 +231,51 @@ package AWS.Config is
    -- Timeouts --
    --------------
 
-   function Cleaner_Wait_For_Client_Timeout (O : in Object) return Duration;
+   function Cleaner_Wait_For_Client_Timeout (O : Object) return Duration;
    pragma Inline (Cleaner_Wait_For_Client_Timeout);
    --  Number of seconds to timout on waiting for a client request.
    --  This is a timeout for regular cleaning task.
 
-   function Cleaner_Client_Header_Timeout (O : in Object) return Duration;
+   function Cleaner_Client_Header_Timeout (O : Object) return Duration;
    pragma Inline (Cleaner_Client_Header_Timeout);
    --  Number of seconds to timout on waiting for client header.
    --  This is a timeout for regular cleaning task.
 
-   function Cleaner_Client_Data_Timeout (O : in Object) return Duration;
+   function Cleaner_Client_Data_Timeout (O : Object) return Duration;
    pragma Inline (Cleaner_Client_Data_Timeout);
    --  Number of seconds to timout on waiting for client message body.
    --  This is a timeout for regular cleaning task.
 
-   function Cleaner_Server_Response_Timeout (O : in Object) return Duration;
+   function Cleaner_Server_Response_Timeout (O : Object) return Duration;
    pragma Inline (Cleaner_Server_Response_Timeout);
    --  Number of seconds to timout on waiting for client to accept answer.
    --  This is a timeout for regular cleaning task.
 
-   function Force_Wait_For_Client_Timeout (O : in Object) return Duration;
+   function Force_Wait_For_Client_Timeout (O : Object) return Duration;
    pragma Inline (Force_Wait_For_Client_Timeout);
    --  Number of seconds to timout on waiting for a client request.
    --  This is a timeout for urgent request when resources are missing.
 
-   function Force_Client_Header_Timeout (O : in Object) return Duration;
+   function Force_Client_Header_Timeout (O : Object) return Duration;
    pragma Inline (Force_Client_Header_Timeout);
    --  Number of seconds to timout on waiting for client header.
    --  This is a timeout for urgent request when resources are missing.
 
-   function Force_Client_Data_Timeout (O : in Object) return Duration;
+   function Force_Client_Data_Timeout (O : Object) return Duration;
    pragma Inline (Force_Client_Data_Timeout);
    --  Number of seconds to timout on waiting for client message body.
    --  This is a timeout for urgent request when resources are missing.
 
-   function Force_Server_Response_Timeout (O : in Object) return Duration;
+   function Force_Server_Response_Timeout (O : Object) return Duration;
    pragma Inline (Force_Server_Response_Timeout);
    --  Number of seconds to timout on waiting for client to accept answer.
    --  This is a timeout for urgent request when resources are missing.
 
-   function Send_Timeout (O : in Object) return Duration;
+   function Send_Timeout (O : Object) return Duration;
    pragma Inline (Send_Timeout);
    --  Number of seconds to timeout when sending chunck of data
 
-   function Receive_Timeout (O : in Object) return Duration;
+   function Receive_Timeout (O : Object) return Duration;
    pragma Inline (Receive_Timeout);
    --  Number of seconds to timeout when receiving chunck of data
 
@@ -283,31 +283,31 @@ package AWS.Config is
    -- Security --
    --------------
 
-   function Check_URL_Validity (O : in Object) return Boolean;
+   function Check_URL_Validity (O : Object) return Boolean;
    pragma Inline (Check_URL_Validity);
    --  Server have to check URI for validity. For example it checks that an
    --  URL does not reference a resource above the Web root.
 
-   function Security (O : in Object) return Boolean;
+   function Security (O : Object) return Boolean;
    pragma Inline (Security);
    --  Is the server working through th SSL
 
-   function Certificate (O : in Object) return String;
+   function Certificate (O : Object) return String;
    pragma Inline (Certificate);
    --  Returns the certificate to be used with the secure server. Returns the
    --  empty string if the server is not a secure one.
 
-   function Key (O : in Object) return String;
+   function Key (O : Object) return String;
    pragma Inline (Key);
    --  Returns the key to be used with the secure server. Returns the
    --  empty string if the server is not a secure one.
 
-   function Security_Mode (O : in Object) return String;
+   function Security_Mode (O : Object) return String;
    pragma Inline (Security_Mode);
    --  Returns the security mode to be used with the secure server. Returns the
    --  empty string if the server is not a secure one.
 
-   function Exchange_Certificate (O : in Object) return Boolean;
+   function Exchange_Certificate (O : Object) return Boolean;
    pragma Inline (Exchange_Certificate);
    --  Returns True if the client is requested to send its certificate to the
    --  server. Note that this option must not be used if the client is a Web

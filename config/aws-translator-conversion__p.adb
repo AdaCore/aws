@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2001                          --
---                                ACT-Europe                                --
+--                     Copyright (C) 2000-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -26,7 +25,7 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  Portable conversion between String and Stream_Element_Array.
+--  Portable conversion between String and Stream_Element_Array
 
 separate (AWS.Translator)
 
@@ -37,8 +36,7 @@ package body Conversion is
    -----------------------------
 
    function To_Stream_Element_Array
-     (Data : in String)
-      return Stream_Element_Array
+     (Data : String) return Stream_Element_Array
    is
       Result : Stream_Element_Array
         (Stream_Element_Offset (Data'First)
@@ -54,10 +52,7 @@ package body Conversion is
    -- To_String --
    ---------------
 
-   function To_String
-     (Data : in Stream_Element_Array)
-      return String
-   is
+   function To_String (Data : Stream_Element_Array) return String is
       Result : String (Integer (Data'First) .. Integer (Data'Last));
    begin
       for K in Data'Range loop

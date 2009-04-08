@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2008, AdaCore                     --
+--                     Copyright (C) 2000-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -67,17 +67,17 @@ package body AWS.Net.SSL is
       --  Bind the SSL handle with the BIO pair
 
       procedure Initialize
-        (Certificate_Filename : in String;
-         Security_Mode        : in Method;
-         Key_Filename         : in String;
-         Exchange_Certificate : in Boolean;
-         Session_Cache_Size   : in Positive);
+        (Certificate_Filename : String;
+         Security_Mode        : Method;
+         Key_Filename         : String;
+         Exchange_Certificate : Boolean;
+         Session_Cache_Size   : Positive);
 
       procedure Finalize;
 
       procedure Clear_Session_Cache;
 
-      procedure Set_Session_Cache_Size (Size : in Natural);
+      procedure Set_Session_Cache_Size (Size : Natural);
 
    private
       Context : TSSL.SSL_CTX := TSSL.Null_CTX;
@@ -85,17 +85,17 @@ package body AWS.Net.SSL is
 
    Default_Config : constant Config := new TS_SSL;
 
-   procedure Socket_Read (Socket : in Socket_Type);
+   procedure Socket_Read (Socket : Socket_Type);
    --  Read encripted data from socket if necessary
 
-   procedure Socket_Write (Socket : in Socket_Type);
+   procedure Socket_Write (Socket : Socket_Type);
    --  Write encripted data to socket if availabe
 
-   procedure Error_If (Error : in Boolean);
+   procedure Error_If (Error : Boolean);
    pragma Inline (Error_If);
    --  Raises Socket_Error if Error is true. Attach the SSL error message
 
-   procedure Error_If (Socket : in Socket_Type; Error : in Boolean);
+   procedure Error_If (Socket : Socket_Type; Error : Boolean);
    pragma Inline (Error_If);
    --  Raises and log Socket_Error if Error is true.
    --  Attach the SSL error message.
@@ -106,7 +106,7 @@ package body AWS.Net.SSL is
    function Error_Stack return String;
    --  Returns error stack of the last SSL error in multiple lines
 
-   function Error_Str (Code : in TSSL.Error_Code) return String;
+   function Error_Str (Code : TSSL.Error_Code) return String;
    --  Returns the SSL error message for error Code
 
    procedure Init_Random;
@@ -117,14 +117,14 @@ package body AWS.Net.SSL is
    --  secondary initialization is ignored.
 
    function Verify_Callback
-     (preverify_ok : in Integer; ctx : in System.Address) return Integer;
+     (preverify_ok : Integer; ctx : System.Address) return Integer;
    --  Dummy verify procedure that always return ok. This is needed to be able
    --  to retreive the client's certificate.
 
    procedure Secure
-     (Source : in     Net.Socket_Type'Class;
-      Target :    out Socket_Type;
-      Config : in     SSL.Config);
+     (Source : Net.Socket_Type'Class;
+      Target : out Socket_Type;
+      Config : SSL.Config);
    --  Common code for Secure_Server and Secure_Client routines
 
    -------------------
@@ -132,7 +132,7 @@ package body AWS.Net.SSL is
    -------------------
 
    overriding procedure Accept_Socket
-     (Socket : in Net.Socket_Type'Class; New_Socket : in out Socket_Type)
+     (Socket : Net.Socket_Type'Class; New_Socket : in out Socket_Type)
    is
       Success : Boolean;
    begin
@@ -160,7 +160,7 @@ package body AWS.Net.SSL is
    -- Clear_Session_Cache --
    -------------------------
 
-   procedure Clear_Session_Cache (Config : in SSL.Config := Null_Config) is
+   procedure Clear_Session_Cache (Config : SSL.Config := Null_Config) is
    begin
       if Config = Null_Config then
          Default_Config.Clear_Session_Cache;
@@ -175,9 +175,9 @@ package body AWS.Net.SSL is
 
    overriding procedure Connect
      (Socket : in out Socket_Type;
-      Host   : in     String;
-      Port   : in     Positive;
-      Wait   : in     Boolean := True)
+      Host   : String;
+      Port   : Positive;
+      Wait   : Boolean := True)
    is
       Success : Boolean;
    begin
@@ -252,14 +252,14 @@ package body AWS.Net.SSL is
    -- Error_If --
    --------------
 
-   procedure Error_If (Error : in Boolean) is
+   procedure Error_If (Error : Boolean) is
    begin
       if Error then
          raise Socket_Error with Error_Stack;
       end if;
    end Error_If;
 
-   procedure Error_If (Socket : in Socket_Type; Error : in Boolean) is
+   procedure Error_If (Socket : Socket_Type; Error : Boolean) is
    begin
       if Error then
          Raise_Socket_Error (Socket, Error_Stack);
@@ -299,7 +299,7 @@ package body AWS.Net.SSL is
    -- Error_Str --
    ---------------
 
-   function Error_Str (Code : in TSSL.Error_Code) return String is
+   function Error_Str (Code : TSSL.Error_Code) return String is
       use type TSSL.Error_Code;
       Buffer : aliased C.char_array := (0 .. 511 => C.nul);
    begin
@@ -364,11 +364,11 @@ package body AWS.Net.SSL is
 
    procedure Initialize
      (Config               : in out SSL.Config;
-      Certificate_Filename : in     String;
-      Security_Mode        : in     Method     := SSLv23;
-      Key_Filename         : in     String     := "";
-      Exchange_Certificate : in     Boolean    := False;
-      Session_Cache_Size   : in     Positive   := 16#4000#) is
+      Certificate_Filename : String;
+      Security_Mode        : Method     := SSLv23;
+      Key_Filename         : String     := "";
+      Exchange_Certificate : Boolean    := False;
+      Session_Cache_Size   : Positive   := 16#4000#) is
    begin
       if Config = null then
          Config := new TS_SSL;
@@ -400,7 +400,7 @@ package body AWS.Net.SSL is
    -------------
 
    overriding function Pending
-     (Socket : in Socket_Type) return Stream_Element_Count
+     (Socket : Socket_Type) return Stream_Element_Count
    is
       Res : constant C.int := TSSL.SSL_pending (Socket.SSL);
    begin
@@ -413,9 +413,9 @@ package body AWS.Net.SSL is
    -------------
 
    overriding procedure Receive
-     (Socket : in     Socket_Type;
-      Data   :    out Stream_Element_Array;
-      Last   :    out Stream_Element_Offset)
+     (Socket : Socket_Type;
+      Data   : out Stream_Element_Array;
+      Last   : out Stream_Element_Offset)
    is
       Len : C.int;
    begin
@@ -463,9 +463,9 @@ package body AWS.Net.SSL is
    ------------
 
    procedure Secure
-     (Source : in     Net.Socket_Type'Class;
-      Target :    out Socket_Type;
-      Config : in     SSL.Config) is
+     (Source : Net.Socket_Type'Class;
+      Target : out Socket_Type;
+      Config : SSL.Config) is
    begin
       Std.Socket_Type (Target) := Std.Socket_Type (Source);
 
@@ -484,8 +484,8 @@ package body AWS.Net.SSL is
    -------------------
 
    function Secure_Client
-     (Socket : in Net.Socket_Type'Class;
-      Config : in SSL.Config := Null_Config) return Socket_Type
+     (Socket : Net.Socket_Type'Class;
+      Config : SSL.Config := Null_Config) return Socket_Type
    is
       Result : Socket_Type;
    begin
@@ -499,8 +499,8 @@ package body AWS.Net.SSL is
    -------------------
 
    function Secure_Server
-     (Socket : in Net.Socket_Type'Class;
-      Config : in SSL.Config := Null_Config) return Socket_Type
+     (Socket : Net.Socket_Type'Class;
+      Config : SSL.Config := Null_Config) return Socket_Type
    is
       Result : Socket_Type;
    begin
@@ -514,9 +514,9 @@ package body AWS.Net.SSL is
    ----------
 
    overriding procedure Send
-     (Socket : in     Socket_Type;
-      Data   : in     Stream_Element_Array;
-      Last   :    out Stream_Element_Offset)
+     (Socket : Socket_Type;
+      Data   : Stream_Element_Array;
+      Last   : out Stream_Element_Offset)
    is
       RC     : C.int;
 
@@ -619,7 +619,7 @@ package body AWS.Net.SSL is
    ----------------
 
    procedure Set_Config
-     (Socket : in out Socket_Type; Config : in SSL.Config) is
+     (Socket : in out Socket_Type; Config : SSL.Config) is
    begin
       Socket.Config := Config;
    end Set_Config;
@@ -629,7 +629,7 @@ package body AWS.Net.SSL is
    ----------------------------
 
    procedure Set_Session_Cache_Size
-     (Size : in Natural; Config : in SSL.Config := Null_Config) is
+     (Size : Natural; Config : SSL.Config := Null_Config) is
    begin
       if Config = Null_Config then
          Initialize_Default_Config;
@@ -644,7 +644,7 @@ package body AWS.Net.SSL is
    -----------------
 
    overriding procedure Set_Timeout
-     (Socket : in out Socket_Type; Timeout : in Duration) is
+     (Socket : in out Socket_Type; Timeout : Duration) is
    begin
       Set_Timeout (Net.Socket_Type (Socket), Timeout);
    end Set_Timeout;
@@ -654,7 +654,7 @@ package body AWS.Net.SSL is
    --------------
 
    overriding procedure Shutdown
-     (Socket : in Socket_Type; How : in Shutmode_Type := Shut_Read_Write)
+     (Socket : Socket_Type; How : Shutmode_Type := Shut_Read_Write)
    is
       To_C : constant array (Shutmode_Type) of C.int :=
                (Shut_Read_Write => TSSL.SSL_SENT_SHUTDOWN
@@ -682,7 +682,7 @@ package body AWS.Net.SSL is
    -- Socket_Read --
    -----------------
 
-   procedure Socket_Read (Socket : in Socket_Type) is
+   procedure Socket_Read (Socket : Socket_Type) is
       use TSSL;
 
       type Memory_Access is access all
@@ -709,7 +709,7 @@ package body AWS.Net.SSL is
    -- Socket_Write --
    ------------------
 
-   procedure Socket_Write (Socket : in Socket_Type) is
+   procedure Socket_Write (Socket : Socket_Type) is
       use TSSL;
       type Memory_Access is access all
         Stream_Element_Array (1 .. Stream_Element_Offset'Last);
@@ -756,9 +756,9 @@ package body AWS.Net.SSL is
       protected Task_Id_Generator is
          procedure Get_Task_Id (Id : out Task_Identifier);
          procedure Finalize_Task
-           (Cause : in Task_Termination.Cause_Of_Termination;
-            T     : in Task_Identification.Task_Id;
-            X     : in Exceptions.Exception_Occurrence);
+           (Cause : Task_Termination.Cause_Of_Termination;
+            T     : Task_Identification.Task_Id;
+            X     : Exceptions.Exception_Occurrence);
       private
          Id_Counter : Task_Identifier := 0;
       end Task_Id_Generator;
@@ -772,32 +772,32 @@ package body AWS.Net.SSL is
       F : Utils.Finalizer (Finalize'Access);
       pragma Unreferenced (F);
 
-      procedure Lock (Mode : in Mode_Type; Locker : in out RW_Mutex);
+      procedure Lock (Mode : Mode_Type; Locker : in out RW_Mutex);
       pragma Inline (Lock);
 
       procedure Locking_Function
-        (Mode : in Mode_Type;
-         N    : in Lock_Index;
-         File : in Filename_Type;
-         Line : in Line_Number);
+        (Mode : Mode_Type;
+         N    : Lock_Index;
+         File : Filename_Type;
+         Line : Line_Number);
       pragma Convention (C, Locking_Function);
 
       function Dyn_Create
-        (File : in Filename_Type; Line : in Line_Number)
+        (File : Filename_Type; Line : Line_Number)
          return RW_Mutex_Access;
       pragma Convention (C, Dyn_Create);
 
       procedure Dyn_Lock
-        (Mode   : in Mode_Type;
-         Locker : in RW_Mutex_Access;
-         File   : in Filename_Type;
-         Line   : in Line_Number);
+        (Mode   : Mode_Type;
+         Locker : RW_Mutex_Access;
+         File   : Filename_Type;
+         Line   : Line_Number);
       pragma Convention (C, Dyn_Lock);
 
       procedure Dyn_Destroy
-        (Locker : in RW_Mutex_Access;
-         File   : in Filename_Type;
-         Line   : in Line_Number);
+        (Locker : RW_Mutex_Access;
+         File   : Filename_Type;
+         Line   : Line_Number);
       pragma Convention (C, Dyn_Destroy);
 
       function Get_Task_Identifier return Task_Identifier;
@@ -808,7 +808,7 @@ package body AWS.Net.SSL is
       ----------------
 
       function Dyn_Create
-        (File : in Filename_Type; Line : in Line_Number) return RW_Mutex_Access
+        (File : Filename_Type; Line : Line_Number) return RW_Mutex_Access
       is
          pragma Unreferenced (File, Line);
       begin
@@ -820,9 +820,9 @@ package body AWS.Net.SSL is
       -----------------
 
       procedure Dyn_Destroy
-        (Locker : in RW_Mutex_Access;
-         File   : in Filename_Type;
-         Line   : in Line_Number)
+        (Locker : RW_Mutex_Access;
+         File   : Filename_Type;
+         Line   : Line_Number)
       is
          pragma Unreferenced (File, Line);
 
@@ -839,10 +839,10 @@ package body AWS.Net.SSL is
       --------------
 
       procedure Dyn_Lock
-        (Mode   : in Mode_Type;
-         Locker : in RW_Mutex_Access;
-         File   : in Filename_Type;
-         Line   : in Line_Number)
+        (Mode   : Mode_Type;
+         Locker : RW_Mutex_Access;
+         File   : Filename_Type;
+         Line   : Line_Number)
       is
          pragma Unreferenced (File, Line);
       begin
@@ -899,7 +899,7 @@ package body AWS.Net.SSL is
       -- Lock --
       ----------
 
-      procedure Lock (Mode : in Mode_Type; Locker : in out RW_Mutex) is
+      procedure Lock (Mode : Mode_Type; Locker : in out RW_Mutex) is
       begin
          if Finalized then
             return;
@@ -923,10 +923,10 @@ package body AWS.Net.SSL is
       ----------------------
 
       procedure Locking_Function
-        (Mode : in Mode_Type;
-         N    : in Lock_Index;
-         File : in Filename_Type;
-         Line : in Line_Number)
+        (Mode : Mode_Type;
+         N    : Lock_Index;
+         File : Filename_Type;
+         Line : Line_Number)
       is
          pragma Unreferenced (File, Line);
       begin
@@ -944,9 +944,9 @@ package body AWS.Net.SSL is
          -------------------
 
          procedure Finalize_Task
-           (Cause : in Task_Termination.Cause_Of_Termination;
-            T     : in Task_Identification.Task_Id;
-            X     : in Exceptions.Exception_Occurrence)
+           (Cause : Task_Termination.Cause_Of_Termination;
+            T     : Task_Identification.Task_Id;
+            X     : Exceptions.Exception_Occurrence)
          is
             pragma Unreferenced (Cause, X);
          begin
@@ -997,19 +997,19 @@ package body AWS.Net.SSL is
       ----------------
 
       procedure Initialize
-        (Certificate_Filename : in String;
-         Security_Mode        : in Method;
-         Key_Filename         : in String;
-         Exchange_Certificate : in Boolean;
-         Session_Cache_Size   : in Positive)
+        (Certificate_Filename : String;
+         Security_Mode        : Method;
+         Key_Filename         : String;
+         Exchange_Certificate : Boolean;
+         Session_Cache_Size   : Positive)
       is
          type Meth_Func is access function return TSSL.SSL_Method;
          pragma Convention (C, Meth_Func);
 
-         procedure Set_Quiet_Shutdown (Value : in Boolean := True);
+         procedure Set_Quiet_Shutdown (Value : Boolean := True);
 
          procedure Set_Certificate
-           (Cert_Filename : in String; Key_Filename : in String);
+           (Cert_Filename : String; Key_Filename : String);
 
          Methods : constant array (Method) of Meth_Func :=
                      (SSLv2          => TSSL.SSLv2_method'Access,
@@ -1030,11 +1030,11 @@ package body AWS.Net.SSL is
          ---------------------
 
          procedure Set_Certificate
-           (Cert_Filename : in String; Key_Filename : in String)
+           (Cert_Filename : String; Key_Filename : String)
          is
             use Interfaces.C;
 
-            procedure File_Error (Prefix, Name : in String);
+            procedure File_Error (Prefix, Name : String);
             --  Prefix is the type of file key or certificate that was expected
             pragma No_Return (File_Error);
 
@@ -1042,7 +1042,7 @@ package body AWS.Net.SSL is
             -- File_Error --
             ----------------
 
-            procedure File_Error (Prefix, Name : in String) is
+            procedure File_Error (Prefix, Name : String) is
             begin
                raise Socket_Error with
                  Prefix & " file """ & Name & """ error." &
@@ -1098,7 +1098,7 @@ package body AWS.Net.SSL is
          -- Set_Quiet_Shutdown --
          ------------------------
 
-         procedure Set_Quiet_Shutdown (Value : in Boolean := True) is
+         procedure Set_Quiet_Shutdown (Value : Boolean := True) is
          begin
             TSSL.SSL_CTX_set_quiet_shutdown
               (Ctx  => Context,
@@ -1162,7 +1162,7 @@ package body AWS.Net.SSL is
       -- Set_Session_Cache_Size --
       ----------------------------
 
-      procedure Set_Session_Cache_Size (Size : in Natural) is
+      procedure Set_Session_Cache_Size (Size : Natural) is
       begin
          Error_If
            (TSSL.SSL_CTX_ctrl
@@ -1179,7 +1179,7 @@ package body AWS.Net.SSL is
    ---------------------
 
    function Verify_Callback
-     (preverify_ok : in Integer; ctx : in System.Address) return Integer
+     (preverify_ok : Integer; ctx : System.Address) return Integer
    is
       pragma Unreferenced (preverify_ok, ctx);
    begin
@@ -1190,7 +1190,7 @@ package body AWS.Net.SSL is
    -- Version --
    -------------
 
-   function Version (Build_Info : in Boolean := False) return String is
+   function Version (Build_Info : Boolean := False) return String is
       use TSSL;
       Result : constant String :=
                  C.Strings.Value (SSLeay_version_info (SSLEAY_VERSION));

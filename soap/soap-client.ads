@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2004                          --
---                                ACT-Europe                                --
+--                     Copyright (C) 2000-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -35,15 +34,15 @@ package SOAP.Client is
    Not_Specified : String renames AWS.Client.No_Data;
 
    function Call
-     (URL        : in String;
-      P          : in Message.Payload.Object;
-      SOAPAction : in String                     := No_SOAPAction;
-      User       : in String                     := Not_Specified;
-      Pwd        : in String                     := Not_Specified;
-      Proxy      : in String                     := Not_Specified;
-      Proxy_User : in String                     := Not_Specified;
-      Proxy_Pwd  : in String                     := Not_Specified;
-      Timeouts   : in AWS.Client.Timeouts_Values := AWS.Client.No_Timeout)
+     (URL        : String;
+      P          : Message.Payload.Object;
+      SOAPAction : String                     := No_SOAPAction;
+      User       : String                     := Not_Specified;
+      Pwd        : String                     := Not_Specified;
+      Proxy      : String                     := Not_Specified;
+      Proxy_User : String                     := Not_Specified;
+      Proxy_Pwd  : String                     := Not_Specified;
+      Timeouts   : AWS.Client.Timeouts_Values := AWS.Client.No_Timeout)
       return Message.Response.Object'Class;
    --  Send a SOAP HTTP request to URL address. The P is the Payload and
    --  SOAPAction is the required HTTP field. If it is not specified then the
@@ -52,9 +51,9 @@ package SOAP.Client is
    --  from the Payload object.
 
    function Call
-     (Connection : in AWS.Client.HTTP_Connection;
-      SOAPAction : in String;
-      P          : in Message.Payload.Object)
+     (Connection : AWS.Client.HTTP_Connection;
+      SOAPAction : String;
+      P          : Message.Payload.Object)
       return Message.Response.Object'Class;
    --  Idem as above, but use an already opened connection
 

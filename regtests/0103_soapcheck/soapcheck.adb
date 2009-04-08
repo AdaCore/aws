@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                       Copyright (C) 2008, AdaCore                        --
+--                     Copyright (C) 2008-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -75,7 +75,7 @@ procedure Soapcheck is
       return "http://localhost:" & Utils.Image (Port);
    end URL;
 
-   function CB (Request : in Status.Data) return Response.Data
+   function CB (Request : Status.Data) return Response.Data
    is
       R : Response.Data;
    begin
@@ -83,8 +83,8 @@ procedure Soapcheck is
    end CB;
 
    function To_SOAP_Object
-     (R    : in Pck_Service.Types.Rec_Type;
-      Name : in String := "item")
+     (R    : Pck_Service.Types.Rec_Type;
+      Name : String := "item")
       return SOAP.Types.SOAP_Record
    is
       Result : SOAP.Types.SOAP_Record;
@@ -107,9 +107,9 @@ procedure Soapcheck is
    ----------
 
    procedure Call
-     (R        : in Pck_Service.Types.Rec_Type;
-      Endpoint : in String := URL;
-      Timeouts : in AWS.Client.Timeouts_Values := Pck_Service.Timeouts)
+     (R        : Pck_Service.Types.Rec_Type;
+      Endpoint : String := URL;
+      Timeouts : AWS.Client.Timeouts_Values := Pck_Service.Timeouts)
    is
       P_Set   : SOAP.Parameters.List;
       Payload : SOAP.Message.Payload.Object;
@@ -140,10 +140,10 @@ procedure Soapcheck is
    -----------
 
    procedure Print
-     (X        : in Integer;
-      Name     : in String;
-      Endpoint : in String := URL;
-      Timeouts : in AWS.Client.Timeouts_Values := Pck_Service.Timeouts)
+     (X        : Integer;
+      Name     : String;
+      Endpoint : String := URL;
+      Timeouts : AWS.Client.Timeouts_Values := Pck_Service.Timeouts)
    is
       P_Set   : SOAP.Parameters.List;
       Payload : SOAP.Message.Payload.Object;

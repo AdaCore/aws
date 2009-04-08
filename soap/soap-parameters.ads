@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2007                          --
---                                 AdaCore                                  --
+--                     Copyright (C) 2000-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -43,89 +42,89 @@ package SOAP.Parameters is
 
    type List is private;
 
-   function Argument_Count (P : in List) return Natural;
+   function Argument_Count (P : List) return Natural;
    --  Returns the number of parameters in P
 
-   function Argument (P : in List; Name : in String) return Types.Object'Class;
+   function Argument (P : List; Name : String) return Types.Object'Class;
    --  Returns parameters named Name in P. Raises Types.Data_Error if not
    --  found.
 
-   function Argument (P : in List; N : in Positive) return Types.Object'Class;
+   function Argument (P : List; N : Positive) return Types.Object'Class;
    --  Returns Nth parameters in P. Raises Types.Data_Error if not found
 
-   function Exist (P : in List; Name : in String) return Boolean;
+   function Exist (P : List; Name : String) return Boolean;
    --  Returns True if parameter named Name exist in P and False otherwise
 
-   function Get (P : in List; Name : in String) return Types.Long;
+   function Get (P : List; Name : String) return Types.Long;
    --  Returns parameter named Name in P as a Long value. Raises
    --  Types.Data_Error if this parameter does not exist or is not a Long.
 
-   function Get (P : in List; Name : in String) return Integer;
+   function Get (P : List; Name : String) return Integer;
    --  Returns parameter named Name in P as an Integer value. Raises
    --  Types.Data_Error if this parameter does not exist or is not an Integer.
 
-   function Get (P : in List; Name : in String) return Types.Short;
+   function Get (P : List; Name : String) return Types.Short;
    --  Returns parameter named Name in P as a Short value. Raises
    --  Types.Data_Error if this parameter does not exist or is not an Short.
 
-   function Get (P : in List; Name : in String) return Types.Byte;
+   function Get (P : List; Name : String) return Types.Byte;
    --  Returns parameter named Name in P as a Byte value. Raises
    --  Types.Data_Error if this parameter does not exist or is not a Byte.
 
-   function Get (P : in List; Name : in String) return Float;
+   function Get (P : List; Name : String) return Float;
    --  Returns parameter named Name in P as a Float value. Raises
    --  Types.Data_Error if this parameter does not exist or is not a Float.
 
-   function Get (P : in List; Name : in String) return Long_Float;
+   function Get (P : List; Name : String) return Long_Float;
    --  Returns parameter named Name in P as a Float value. Raises
    --  Types.Data_Error if this parameter does not exist or is not a Double.
 
-   function Get (P : in List; Name : in String) return String;
+   function Get (P : List; Name : String) return String;
    --  Returns parameter named Name in P as a String value. Raises
    --  Types.Data_Error if this parameter does not exist or is not a String.
 
-   function Get (P : in List; Name : in String) return Unbounded_String;
+   function Get (P : List; Name : String) return Unbounded_String;
    --  Idem as above, but return an Unbounded_String
 
-   function Get (P : in List; Name : in String) return Boolean;
+   function Get (P : List; Name : String) return Boolean;
    --  Returns parameter named Name in P as a Boolean value. Raises
    --  Types.Data_Error if this parameter does not exist or is not a Boolean.
 
-   function Get (P : in List; Name : in String) return Ada.Calendar.Time;
+   function Get (P : List; Name : String) return Ada.Calendar.Time;
    --  Returns parameter named Name in P as a Time value. Raises
    --  Types.Data_Error if this parameter does not exist or is not a time.
 
-   function Get (P : in List; Name : in String) return Types.Unsigned_Long;
+   function Get (P : List; Name : String) return Types.Unsigned_Long;
    --  Returns parameter named Name in P as a Unsigned_Long value. Raises
    --  Types.Data_Error if this parameter does not exist or is not an
    --  Unsigned_Long.
 
-   function Get (P : in List; Name : in String) return Types.Unsigned_Int;
+   function Get (P : List; Name : String) return Types.Unsigned_Int;
    --  Returns parameter named Name in P as a Unsigned_Int value. Raises
    --  Types.Data_Error if this parameter does not exist or is not an
    --  Unsigned_Int.
 
-   function Get (P : in List; Name : in String) return Types.Unsigned_Short;
+   function Get (P : List; Name : String) return Types.Unsigned_Short;
    --  Returns parameter named Name in P as a Unsigned_Short value. Raises
    --  Types.Data_Error if this parameter does not exist or is not an
    --  Unsigned_Short.
 
-   function Get (P : in List; Name : in String) return Types.Unsigned_Byte;
+   function Get (P : List; Name : String) return Types.Unsigned_Byte;
    --  Returns parameter named Name in P as a Unsigned_Byte value. Raises
    --  Types.Data_Error if this parameter does not exist or is not an
    --  Unsigned_Byte.
 
-   function Get (P : in List; Name : in String) return Types.SOAP_Base64;
+   function Get (P : List; Name : String) return Types.SOAP_Base64;
    --  Returns parameter named Name in P as a SOAP Base64 value. Raises
    --  Types.Data_Error if this parameter does not exist or is not a SOAP
    --  Base64.
 
-   function Get (P : in List; Name : in String) return Types.SOAP_Record;
+   function Get (P : List; Name : String) return Types.SOAP_Record;
    --  Returns parameter named Name in P as a SOAP Struct value. Raises
    --  Types.Data_Error if this parameter does not exist or is not a SOAP
    --  Struct.
 
-   function Get (P : in List; Name : in String) return Types.SOAP_Array;
+   function Get (P : List; Name : String) return Types.SOAP_Array;
    --  Returns parameter named Name in P as a SOAP Array value. Raises
    --  Types.Data_Error if this parameter does not exist or is not a SOAP
    --  Array.
@@ -134,38 +133,38 @@ package SOAP.Parameters is
    -- Constructors --
    ------------------
 
-   function "&" (P : in List; O : in Types.Object'Class) return List;
-   function "+" (O : in Types.Object'Class) return List;
+   function "&" (P : List; O : Types.Object'Class) return List;
+   function "+" (O : Types.Object'Class) return List;
 
    ----------------
    -- Validation --
    ----------------
 
-   procedure Check (P : in List; N : in Natural);
+   procedure Check (P : List; N : Natural);
    --  Checks that there is exactly N parameters or raise Types.Data_Error
 
-   procedure Check_Integer (P : in List; Name : in String);
+   procedure Check_Integer (P : List; Name : String);
    --  Checks that parameter named Name exist and is an Integer value
 
-   procedure Check_Float (P : in List; Name : in String);
+   procedure Check_Float (P : List; Name : String);
    --  Checks that parameter named Name exist and is a Float value
 
-   procedure Check_Boolean (P : in List; Name : in String);
+   procedure Check_Boolean (P : List; Name : String);
    --  Checks that parameter named Name exist and is a Boolean value
 
-   procedure Check_Time_Instant (P : in List; Name : in String);
+   procedure Check_Time_Instant (P : List; Name : String);
    --  Checks that parameter named Name exist and is a Time_Instant value
 
-   procedure Check_Base64 (P : in List; Name : in String);
+   procedure Check_Base64 (P : List; Name : String);
    --  Checks that parameter named Name exist and is a Base64 value
 
-   procedure Check_Null (P : in List; Name : in String);
+   procedure Check_Null (P : List; Name : String);
    --  Checks that parameter named Name exist and is a Null value
 
-   procedure Check_Record (P : in List; Name : in String);
+   procedure Check_Record (P : List; Name : String);
    --  Checks that parameter named Name exist and is a Record value
 
-   procedure Check_Array (P : in List; Name : in String);
+   procedure Check_Array (P : List; Name : String);
    --  Checks that parameter named Name exist and is an Array value
 
 private

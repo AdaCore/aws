@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2008, AdaCore                     --
+--                     Copyright (C) 2000-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -110,16 +110,16 @@ package AWS.Services.Directory is
    use Templates_Parser;
 
    function Browse
-     (Directory_Name : in String;
-      Request        : in AWS.Status.Data) return Translate_Set;
+     (Directory_Name : String;
+      Request        : AWS.Status.Data) return Translate_Set;
    --  Returns a translation table containing information parsed from
    --  Directory_Name. This is supposed to be used with a directory template.
 
    function Browse
-     (Directory_Name    : in String;
-      Template_Filename : in String;
-      Request           : in AWS.Status.Data;
-      Translations      : in Translate_Set := Null_Set) return String;
+     (Directory_Name    : String;
+      Template_Filename : String;
+      Request           : AWS.Status.Data;
+      Translations      : Translate_Set := Null_Set) return String;
    --  Parses directory Directory_Name and use Templates_Parser to fill in the
    --  template Template_Filename. It is possible to specified some specifics
    --  tags in Translations.

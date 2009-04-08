@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2005-2008, AdaCore                     --
+--                     Copyright (C) 2005-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -37,7 +37,7 @@ with AWS.Utils;
 
 with Get_Free_Port;
 
-procedure S_Accs_Proc (Security : in Boolean) is
+procedure S_Accs_Proc (Security : Boolean) is
 
    use type Ada.Tags.Tag;
    use AWS.Net;

@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                          Copyright (C) 2002-2006                         --
---                                  AdaCore                                 --
+--                     Copyright (C) 2002-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -40,8 +39,8 @@ package AWS.Response.Set is
 
    procedure Add_Header
      (D     : in out Data;
-      Name  : in     String;
-      Value : in     String);
+      Name  : String;
+      Value : String);
    pragma Inline (Add_Header);
    --  Add header name/value to the header container.
    --  Should be used inside of server's callback when the user want
@@ -49,48 +48,48 @@ package AWS.Response.Set is
 
    procedure Update_Header
      (D     : in out Data;
-      Name  : in     String;
-      Value : in     String;
-      N     : in     Positive := 1);
+      Name  : String;
+      Value : String;
+      N     : Positive := 1);
    pragma Inline (Update_Header);
    --  Update N-th header name/value in the header container.
    --  Should be used inside of server's callback when the user want
    --  to add/modify its own header lines to the response.
 
-   procedure Read_Header (Socket : in Net.Socket_Type'Class; D : in out Data);
+   procedure Read_Header (Socket : Net.Socket_Type'Class; D : in out Data);
    --  Read all header data from the socket and fill appropriate
    --  data's fields.
 
    procedure Status_Code
      (D     : in out Data;
-      Value : in     Messages.Status_Code);
+      Value : Messages.Status_Code);
    pragma Inline (Status_Code);
    --  Set the status code
 
    procedure Content_Type
      (D     : in out Data;
-      Value : in     String);
+      Value : String);
    pragma Inline (Content_Type);
    --  Set the MIME type for the message body
 
    procedure Cache_Control
      (D     : in out Data;
-      Value : in     Messages.Cache_Option);
+      Value : Messages.Cache_Option);
    pragma Inline (Cache_Control);
    --  Set the Cache_Control mode for the message
 
    procedure Location
      (D     : in out Data;
-      Value : in     String);
+      Value : String);
    pragma Inline (Location);
    --  Set the location for the new page in the case of a moved
    --  message. Should be used with redirection 3xx status codes.
 
    procedure Authentication
      (D     : in out Data;
-      Realm : in     String;
-      Mode  : in     Authentication_Mode := Basic;
-      Stale : in     Boolean             := False);
+      Realm : String;
+      Mode  : Authentication_Mode := Basic;
+      Stale : Boolean             := False);
    pragma Inline (Authentication);
    --  Set the authentication mode requested by server. Set the status code to
    --  the 401.
@@ -105,18 +104,18 @@ package AWS.Response.Set is
    ----------
 
    procedure Clear (D : in out Data);
-   --  Clear all internal data.
+   --  Clear all internal data
 
    procedure Mode
      (D     : in out Data;
-      Value : in     Data_Mode);
+      Value : Data_Mode);
    pragma Inline (Mode);
    --  Set the data mode:
    --  Header, Message, File, Stream, Socket_Taken or No_Data.
 
    procedure Filename
      (D     : in out Data;
-      Value : in     String);
+      Value : String);
    pragma Inline (Filename);
    --  Set the filename which should be sent back.
    --  It also set the Mode field to File.
@@ -124,21 +123,21 @@ package AWS.Response.Set is
    procedure Stream
      (D        : in out Data;
       Handle   : not null access Resources.Streams.Stream_Type'Class;
-      Encoding : in Messages.Content_Encoding := Messages.Identity);
+      Encoding : Messages.Content_Encoding := Messages.Identity);
    pragma Inline (Stream);
    --  Set the user defined data stream
 
    procedure Close_Resource
      (D     : in out Data;
-      State : in     Boolean);
+      State : Boolean);
    --  Set the server close state, if State if False the resource will not be
    --  closed. This is needed to build transient resources as the closing must
    --  be controlled by the transient task cleaner and not the server.
 
    procedure Data_Encoding
      (D         : in out Data;
-      Encoding  : in     Messages.Content_Encoding;
-      Direction : in     Encoding_Direction := Encode);
+      Encoding  : Messages.Content_Encoding;
+      Direction : Encoding_Direction := Encode);
    --  Set data encoding, the encoding will be used for the Message_Body and
    --  Append_Body routines below.
    --  Direction Encode is for server side, Direction Decode is for client
@@ -148,36 +147,36 @@ package AWS.Response.Set is
 
    procedure Message_Body
      (D     : in out Data;
-      Value : in     Streams.Stream_Element_Array);
+      Value : Streams.Stream_Element_Array);
    pragma Inline (Message_Body);
    --  Set message body as a binary content. Set the Mode field to Message
 
    procedure Message_Body
      (D     : in out Data;
-      Value : in     Strings.Unbounded.Unbounded_String);
+      Value : Strings.Unbounded.Unbounded_String);
    pragma Inline (Message_Body);
    --  Set the message body content as a unbounded_string. Set the Mode field
    --  to Message.
 
    procedure Message_Body
      (D     : in out Data;
-      Value : in     String);
+      Value : String);
    pragma Inline (Message_Body);
    --  Set the message body content as a string. Set the Mode field to Message
 
    procedure Append_Body
      (D    : in out Data;
-      Item : in     Streams.Stream_Element_Array);
+      Item : Streams.Stream_Element_Array);
    --  Add Item to the message
 
-   procedure Append_Body (D : in out Data; Item : in String);
+   procedure Append_Body (D : in out Data; Item : String);
    --  Add Item to the message
 
    ---------------
    -- Other API --
    ---------------
 
-   function Is_Valid (D : in Data) return Boolean;
+   function Is_Valid (D : Data) return Boolean;
    --  Checking validity of the HTTP response
 
 end AWS.Response.Set;

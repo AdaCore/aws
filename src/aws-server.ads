@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2008, AdaCore                     --
+--                     Copyright (C) 2000-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -57,16 +57,16 @@ package AWS.Server is
 
    procedure Start
      (Web_Server : in out HTTP;
-      Callback   : in     Response.Callback;
-      Config     : in     AWS.Config.Object);
+      Callback   : Response.Callback;
+      Config     : AWS.Config.Object);
    --  Start server using a full configuration object. With this routine it is
    --  possible to control all features of the server. A simplified version of
    --  Start is also provided below with the most common options.
 
    procedure Start
      (Web_Server : in out HTTP;
-      Dispatcher : in     Dispatchers.Handler'Class;
-      Config     : in     AWS.Config.Object);
+      Dispatcher : Dispatchers.Handler'Class;
+      Config     : AWS.Config.Object);
    --  Idem, but using the dispatcher tagged type instead of callback. See
    --  AWS.Services.Dispatchers and AWS.Dispatchers hierarchies for built-in
    --  services and interface to build your own dispatcher models.
@@ -82,16 +82,16 @@ package AWS.Server is
 
    procedure Start
      (Web_Server                : in out HTTP;
-      Name                      : in     String;
-      Callback                  : in     Response.Callback;
-      Max_Connection            : in     Positive  := Default.Max_Connection;
-      Admin_URI                 : in     String    := Default.Admin_URI;
-      Port                      : in     Natural   := Default.Server_Port;
-      Security                  : in     Boolean   := False;
-      Session                   : in     Boolean   := False;
-      Case_Sensitive_Parameters : in     Boolean   := True;
-      Upload_Directory          : in     String    := Default.Upload_Directory;
-      Line_Stack_Size           : in     Positive  := Default.Line_Stack_Size);
+      Name                      : String;
+      Callback                  : Response.Callback;
+      Max_Connection            : Positive  := Default.Max_Connection;
+      Admin_URI                 : String    := Default.Admin_URI;
+      Port                      : Natural   := Default.Server_Port;
+      Security                  : Boolean   := False;
+      Session                   : Boolean   := False;
+      Case_Sensitive_Parameters : Boolean   := True;
+      Upload_Directory          : String    := Default.Upload_Directory;
+      Line_Stack_Size           : Positive  := Default.Line_Stack_Size);
    --  Start the Web server. Max_Connection is the number of simultaneous
    --  connections the server's will handle (the number of slots in AWS).
    --  Name is just a string used to identify the server. This is used
@@ -117,7 +117,7 @@ package AWS.Server is
 
    type Termination is (No_Server, Q_Key_Pressed, Forever);
 
-   procedure Wait (Mode : in Termination := No_Server);
+   procedure Wait (Mode : Termination := No_Server);
    --  The purpose of this procedure is to control the main procedure
    --  termination. This procedure will return only when no server are running
    --  (No_Server mode) or the 'q' key has been pressed. If mode is set to
@@ -127,12 +127,12 @@ package AWS.Server is
    -- Server configuration --
    --------------------------
 
-   function Config (Web_Server : in HTTP) return AWS.Config.Object;
+   function Config (Web_Server : HTTP) return AWS.Config.Object;
    --  Returns configuration object for Web_Server
 
    procedure Set_Unexpected_Exception_Handler
      (Web_Server : in out HTTP;
-      Handler    : in     Exceptions.Unexpected_Exception_Handler);
+      Handler    : Exceptions.Unexpected_Exception_Handler);
    --  Set the unexpected exception handler. It is called whenever an
    --  unrecoverable error has been detected. The default handler just display
    --  (on standard output) an error message with the location of the
@@ -141,7 +141,7 @@ package AWS.Server is
 
    procedure Set
      (Web_Server : in out HTTP;
-      Dispatcher : in     Dispatchers.Handler'Class);
+      Dispatcher : Dispatchers.Handler'Class);
    --  Dynamically associate a new dispatcher object to the server. With the
    --  feature it is possible to change server behavior at runtime. The
    --  complete set of callback procedures will be changed when calling this
@@ -151,9 +151,9 @@ package AWS.Server is
 
    procedure Set_Security
      (Web_Server           : in out HTTP;
-      Certificate_Filename : in     String;
-      Security_Mode        : in     Net.SSL.Method := Net.SSL.SSLv23_Server;
-      Key_Filename         : in     String         := "");
+      Certificate_Filename : String;
+      Security_Mode        : Net.SSL.Method := Net.SSL.SSLv23_Server;
+      Key_Filename         : String         := "");
    --  Set security option for AWS. Certificate_Filename is the name of a file
    --  containing a certificate. Key_Filename is the name of the file
    --  containing the key, if the empty string the key will be taken from the
@@ -163,7 +163,7 @@ package AWS.Server is
 
    procedure Set_Socket_Constructor
      (Web_Server         : in out HTTP;
-      Socket_Constructor : in     Net.Socket_Constructor);
+      Socket_Constructor : Net.Socket_Constructor);
    --  Set the socket constructor routine to use when creating new sockets on
    --  the server. By calling this routine it is possible to replace the
    --  default AWS communication layer used. The default constructor is
@@ -191,17 +191,17 @@ package AWS.Server is
    ---------------
 
    procedure Give_Back_Socket
-     (Web_Server : in out HTTP; Socket : in Net.Socket_Type'Class);
+     (Web_Server : in out HTTP; Socket : Net.Socket_Type'Class);
    --  Give the socket back to the server. Socket must have been taken from
    --  the server using the Response.Socket_Taken routine in a callback.
 
    procedure Give_Back_Socket
-     (Web_Server : in out HTTP; Socket : in Net.Socket_Access);
+     (Web_Server : in out HTTP; Socket : Net.Socket_Access);
    --  Idem.
    --  Use Socket_Access to avoid memory reallocation for already allocated
    --  sockets.
 
-   procedure Set_Field (Id, Value : in String);
+   procedure Set_Field (Id, Value : String);
    --  Set the extended log field value for the server the controlling the
    --  current task.
 
@@ -211,9 +211,9 @@ package AWS.Server is
 private
 
    procedure Default_Unexpected_Exception_Handler
-     (E      : in     Ada.Exceptions.Exception_Occurrence;
+     (E      : Ada.Exceptions.Exception_Occurrence;
       Log    : in out AWS.Log.Object;
-      Error  : in     Exceptions.Data;
+      Error  : Exceptions.Data;
       Answer : in out Response.Data);
    --  Default unexpected exception handler
 
@@ -310,26 +310,26 @@ private
 
    protected type Slots (N : Positive) is
 
-      procedure Mark_Phase (Index : in Positive; Phase : in Slot_Phase);
+      procedure Mark_Phase (Index : Positive; Phase : Slot_Phase);
       --  Set Activity_Time_Stamp which is the last time where the line number
       --  Index as been used.
 
-      procedure Check_Data_Timeout (Index : in Positive);
+      procedure Check_Data_Timeout (Index : Positive);
       --  Check timeout of send/receive message body
 
-      procedure Socket_Taken (Index : in Positive);
+      procedure Socket_Taken (Index : Positive);
       --  Used to mark slot associated socket has "taken" by some foreign code.
       --  The server must not close this socket on releasing the slot. It is
       --  used when passing socket to the server push part for example. In the
       --  future it could be used for other functionality over the same
       --  socket, changing HTTP to other protocol for example.
 
-      procedure Prepare_Back (Index : in Positive; Possible : out Boolean);
+      procedure Prepare_Back (Index : Positive; Possible : out Boolean);
       --  Test and prepare to put socket back into acceptor.
       --  If Possible value become False, it is not possible to
       --  back socket into acceptor because socket already in shutdown process.
 
-      function Is_Abortable (Index : in Positive) return Boolean;
+      function Is_Abortable (Index : Positive) return Boolean;
       --  Return True when slot can be aborted due to "forced" timeouts
 
       procedure Abort_On_Timeout
@@ -343,41 +343,41 @@ private
       function Free_Slots return Natural;
       --  Returns number of free slots
 
-      procedure Set (Socket : in Socket_Access; Index : in Positive);
+      procedure Set (Socket : Socket_Access; Index : Positive);
       --  Mark slot at position Index to be used. This slot will be associated
       --  with Socket. Phase set to Wait_For_Client.
 
       procedure Get_For_Shutdown
-        (Index : in Positive; Socket : out Socket_Access);
+        (Index : Positive; Socket : out Socket_Access);
       --  Get socket from the slot for shutdown, Slot phase is set to
       --  In_Shutdown.
 
-      procedure Shutdown_Done (Index : in Positive);
+      procedure Shutdown_Done (Index : Positive);
       --  Called when Shutdown is complete, Slot phase is set to Aborted
 
-      entry Release (Index : in Positive; Shutdown : out Boolean);
+      entry Release (Index : Positive; Shutdown : out Boolean);
       --  Release slot number Index. Slot phase is set to Closed.
       --  Set the shutdown flag to True is called task have to
       --  shutdown and free the socket.
       --  Note that calling task is only the Line task,
       --  so the socket need to be shutdown is in the stack on the Line task.
 
-      function Get (Index : in Positive) return Slot;
+      function Get (Index : Positive) return Slot;
       --  Returns Slot data
 
-      function Phase (Index : in Positive) return Slot_Phase;
+      function Phase (Index : Positive) return Slot_Phase;
       --  Returns Slot phase
 
-      function Get_Socket_Info (Index : in Positive) return Socket_Data;
+      function Get_Socket_Info (Index : Positive) return Socket_Data;
       --  Returns information about socket (FD and Peername) associated with
       --  slot Index. If the socket is not opened returns
       --  (FD => 0, Peername => "-")
 
-      function Get_Peername (Index : in Positive) return String;
+      function Get_Peername (Index : Positive) return String;
       --  Returns the peername for socket at position Index
 
       procedure Increment_Slot_Activity_Counter
-        (Index : in Positive; Free_Slots : out Natural);
+        (Index : Positive; Free_Slots : out Natural);
       --  Add 1 to the slot activity. This is the total number of request
       --  handled by the slot.
       --  Returns number of Free slots in the Free_Slot out parameter, it is
@@ -386,8 +386,8 @@ private
       --  availability.
 
       procedure Set_Timeouts
-        (Phase_Timeouts : in Timeouts_Array;
-         Data_Timeouts  : in Data_Timeouts_Array);
+        (Phase_Timeouts : Timeouts_Array;
+         Data_Timeouts  : Data_Timeouts_Array);
       --  Setup timeouts for slots before starting
 
    private
@@ -411,7 +411,7 @@ private
 
    task type Line (Stack_Size : Integer) is
       pragma Storage_Size (Stack_Size);
-      entry Start (Server : in HTTP; Index : in Positive);
+      entry Start (Server : HTTP; Index : Positive);
    end Line;
 
    type Line_Access is access Line;

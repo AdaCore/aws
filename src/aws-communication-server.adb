@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                             Ada Web Server                               --
 --                                                                          --
---                         Copyright (C) 2000-2003                          --
---                                ACT-Europe                                --
+--                    Copyright (C) 2000-2009, AdaCore                      --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -43,7 +42,7 @@ package body AWS.Communication.Server is
    --  The context kept for each server
 
    type Internal_Callback is
-     access function (Request : in Status.Data) return Response.Data;
+     access function (Request : Status.Data) return Response.Data;
    --  This is the internal callback access type. It is not possible to use
    --  Receive'Access for as the callback address as the Response.Callback is
    --  outside generic package. We then use Unchecked_Conversion to convert
@@ -55,14 +54,14 @@ package body AWS.Communication.Server is
    --  Conversion function from the internal callback representation to the
    --  standard and user visible callback type.
 
-   function Receive (Request : in Status.Data) return Response.Data;
-   --  Handle communication server message.
+   function Receive (Request : Status.Data) return Response.Data;
+   --  Handle communication server message
 
    -------------
    -- Receive --
    -------------
 
-   function Receive (Request : in Status.Data) return Response.Data is
+   function Receive (Request : Status.Data) return Response.Data is
       URI   : constant String              := Status.URI (Request);
       P_Set : constant AWS.Parameters.List := Status.Parameters (Request);
 
@@ -122,7 +121,7 @@ package body AWS.Communication.Server is
    -- Start --
    -----------
 
-   procedure Start (Port : in Positive; Context : in T_Access) is
+   procedure Start (Port : Positive; Context : T_Access) is
       CB : constant Internal_Callback := Receive'Access;
    begin
       Server.Context := Context;

@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2004-2008, AdaCore                     --
+--                     Copyright (C) 2004-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -65,14 +65,14 @@ procedure Sessions4 is
 
    package Context_Session is new Session.Generic_Data (Context, Null_Context);
 
-   function Image (C : in Context) return String;
+   function Image (C : Context) return String;
    --  Returns Image for a context object
 
    --------
    -- CB --
    --------
 
-   function CB (Request : in Status.Data) return Response.Data is
+   function CB (Request : Status.Data) return Response.Data is
       SID : constant Session.ID := Status.Session (Request);
       Ctx : Context := (0, "aaaaaaaaaa", False, 'z');
    begin
@@ -105,7 +105,7 @@ procedure Sessions4 is
    -- Image --
    -----------
 
-   function Image (C : in Context) return String is
+   function Image (C : Context) return String is
    begin
       return Natural'Image (C.N) & ", "
         & C.S & ", "

@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2004-2008, AdaCore                     --
+--                     Copyright (C) 2004-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -36,8 +36,8 @@ package body WSDL_8 is
    ----------
 
    procedure Proc
-     (Name  : in String;
-      Files : in Set_Of_Files) is
+     (Name  : String;
+      Files : Set_Of_Files) is
    begin
       Put_Line ("Name : " & Name);
 

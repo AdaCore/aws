@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2008                          --
---                                 AdaCore                                  --
+--                     Copyright (C) 2000-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -39,17 +38,17 @@ package AWS.Dispatchers.Callback is
    --  function). It will be used to build dispatchers services and for the
    --  main server callback.
 
-   function Create (Callback : in Response.Callback) return Handler;
+   function Create (Callback : Response.Callback) return Handler;
    pragma Inline (Create);
    --  Build a dispatcher for the specified callback
 
 private
 
    overriding function Dispatch
-     (Dispatcher : in Handler;
-      Request    : in Status.Data) return Response.Data;
+     (Dispatcher : Handler;
+      Request    : Status.Data) return Response.Data;
 
-   overriding function Clone (Dispatcher : in Handler) return Handler;
+   overriding function Clone (Dispatcher : Handler) return Handler;
    --  Returns a deep copy of the dispatcher
 
    type Handler is new AWS.Dispatchers.Handler with record

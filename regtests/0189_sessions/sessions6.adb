@@ -37,12 +37,12 @@ procedure Sessions6 is
    use AWS.Session;
 
    procedure For_Each_Key_Value
-     (N : in Positive; Key, Value : in String; Quit : in out Boolean);
+     (N : Positive; Key, Value : String; Quit : in out Boolean);
 
    procedure For_Each_Session
-     (N          : in     Positive;
-      SID        : in     Id;
-      Time_Stamp : in     Ada.Calendar.Time;
+     (N          : Positive;
+      SID        : Id;
+      Time_Stamp : Ada.Calendar.Time;
       Quit       : in out Boolean);
    --  Add session SID to the list
 
@@ -51,7 +51,7 @@ procedure Sessions6 is
    ------------------------
 
    procedure For_Each_Key_Value
-     (N : in Positive; Key, Value : in String; Quit : in out Boolean)
+     (N : Positive; Key, Value : String; Quit : in out Boolean)
    is
       pragma Unreferenced (N, Key, Value, Quit);
    begin
@@ -69,9 +69,9 @@ procedure Sessions6 is
    ----------------------
 
    procedure For_Each_Session
-     (N          : in     Positive;
-      SID        : in     Id;
-      Time_Stamp : in     Ada.Calendar.Time;
+     (N          : Positive;
+      SID        : Id;
+      Time_Stamp : Ada.Calendar.Time;
       Quit       : in out Boolean)
    is
       pragma Unreferenced (N, Time_Stamp, Quit);

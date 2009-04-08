@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2008, AdaCore                     --
+--                     Copyright (C) 2000-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -35,7 +35,7 @@ procedure HVal is
    use AWS.Headers.Values;
    use Ada.Strings.Unbounded;
 
-   procedure Test (Data : in String);
+   procedure Test (Data : String);
 
    Test_1 : constant String := " Token_1 name_1=value_1,";
    Test_2 : constant String := Test_1 & "name_2=""value_2"";" & ASCII.LF;
@@ -49,22 +49,22 @@ procedure HVal is
    -- Test --
    ----------
 
-   procedure Test (Data : in String) is
+   procedure Test (Data : String) is
 
       S  : constant Set := Split (Data);
 
       Dummy : Boolean := False;
 
-      procedure Named_Value (Name, Value : in String; Quit : in out Boolean);
+      procedure Named_Value (Name, Value : String; Quit : in out Boolean);
 
-      procedure Value (Item : in String; Quit : in out Boolean);
+      procedure Value (Item : String; Quit : in out Boolean);
 
-      procedure Named_Value (Name, Value : in String; Quit : in out Boolean) is
+      procedure Named_Value (Name, Value : String; Quit : in out Boolean) is
       begin
          Put_Line (Name & "=""" & Value & '"');
       end Named_Value;
 
-      procedure Value (Item : in String; Quit : in out Boolean) is
+      procedure Value (Item : String; Quit : in out Boolean) is
       begin
          Put_Line (Item);
       end Value;

@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2008, AdaCore                     --
+--                     Copyright (C) 2003-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -48,37 +48,37 @@ package AWS.Resources.Streams.Memory.ZLib is
 
    procedure Deflate_Initialize
      (Resource     : in out Stream_Type;
-      Level        : in     Compression_Level  := ZL.Default_Compression;
-      Strategy     : in     Strategy_Type      := ZL.Default_Strategy;
-      Method       : in     Compression_Method := ZL.Deflated;
-      Window_Bits  : in     Window_Bits_Type   := ZL.Default_Window_Bits;
-      Memory_Level : in     Memory_Level_Type  := ZL.Default_Memory_Level;
-      Header       : in     Header_Type        := ZL.Default);
+      Level        : Compression_Level  := ZL.Default_Compression;
+      Strategy     : Strategy_Type      := ZL.Default_Strategy;
+      Method       : Compression_Method := ZL.Deflated;
+      Window_Bits  : Window_Bits_Type   := ZL.Default_Window_Bits;
+      Memory_Level : Memory_Level_Type  := ZL.Default_Memory_Level;
+      Header       : Header_Type        := ZL.Default);
    pragma Inline (Deflate_Initialize);
    --  Initialize the compression
 
    procedure Inflate_Initialize
      (Resource    : in out Stream_Type;
-      Window_Bits : in     Window_Bits_Type := ZL.Default_Window_Bits;
-      Header      : in     Header_Type      := ZL.Default);
+      Window_Bits : Window_Bits_Type := ZL.Default_Window_Bits;
+      Header      : Header_Type      := ZL.Default);
    pragma Inline (Inflate_Initialize);
    --  Initialize the decompression
 
    overriding procedure Append
      (Resource : in out Stream_Type;
-      Buffer   : in     Stream_Element_Array;
-      Trim     : in     Boolean := False);
+      Buffer   : Stream_Element_Array;
+      Trim     : Boolean := False);
    --  Compress/decompress and Append Buffer into the memory stream
 
    overriding procedure Read
      (Resource : in out Stream_Type;
-      Buffer   :    out Stream_Element_Array;
-      Last     :    out Stream_Element_Offset);
+      Buffer   : out Stream_Element_Array;
+      Last     : out Stream_Element_Offset);
    --  Returns a chunck of data in Buffer, Last point to the last element
    --  returned in Buffer.
 
    overriding function Size
-     (Resource : in Stream_Type) return Stream_Element_Offset;
+     (Resource : Stream_Type) return Stream_Element_Offset;
    --  Returns the number of bytes in the memory stream
 
    overriding procedure Close (Resource : in out Stream_Type);

@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2004-2006                          --
---                                 AdaCore                                  --
+--                     Copyright (C) 2004-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -31,9 +30,9 @@ with System.Address_To_Access_Conversions;
 with AWS.Net.Thin;
 
 function Poll
-  (Fds     : in System.Address;
-   Nfds    : in AWS.OS_Lib.nfds_t;
-   Timeout : in C.int)
+  (Fds     : System.Address;
+   Nfds    : AWS.OS_Lib.nfds_t;
+   Timeout : C.int)
    return C.int
 is
    use AWS.Net;
@@ -68,18 +67,18 @@ is
    end record;
    pragma Convention (C, FD_Set_Type);
 
-   procedure FD_SET (FD : in C.int; Set : in out FD_Set_Type);
+   procedure FD_SET (FD : C.int; Set : in out FD_Set_Type);
    pragma Inline (FD_SET);
 
-   function FD_ISSET (FD : in C.int; Set : in System.Address) return C.int;
+   function FD_ISSET (FD : C.int; Set : System.Address) return C.int;
    pragma Import (Stdcall, FD_ISSET, "__WSAFDIsSet");
 
    function C_Select
-     (Nfds      : in C.int;
-      readfds   : in System.Address;
-      writefds  : in System.Address;
-      exceptfds : in System.Address;
-      timeout   : in System.Address)
+     (Nfds      : C.int;
+      readfds   : System.Address;
+      writefds  : System.Address;
+      exceptfds : System.Address;
+      timeout   : System.Address)
       return C.int;
    pragma Import (Stdcall, C_Select, "select");
 
@@ -102,7 +101,7 @@ is
    -- FD_SET --
    ------------
 
-   procedure FD_SET (FD : in C.int; Set : in out FD_Set_Type) is
+   procedure FD_SET (FD : C.int; Set : in out FD_Set_Type) is
    begin
       Set.Count := Set.Count + 1;
       Set.Set (nfds_t (Set.Count)) := FD;

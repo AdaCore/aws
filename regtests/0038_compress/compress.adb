@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2008, AdaCore                     --
+--                     Copyright (C) 2003-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -40,7 +40,7 @@ procedure Compress is
 
    Comp_Level : Translator.Compression_Level := 0;
 
-   procedure Test (Str : in String) is
+   procedure Test (Str : String) is
       Data   : constant Streams.Stream_Element_Array
         := Translator.To_Stream_Element_Array (Str);
       Comp   : Utils.Stream_Element_Array_Access;

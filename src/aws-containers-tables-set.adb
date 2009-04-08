@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2008, AdaCore                     --
+--                     Copyright (C) 2000-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -29,9 +29,9 @@ package body AWS.Containers.Tables.Set is
 
    procedure Update_Internal
      (Table : in out Table_Type;
-      Name  : in     String;
-      Value : in     String;
-      N     : in     Natural);
+      Name  : String;
+      Value : String;
+      N     : Natural);
    --  Update the N-th Value with the given Name into the Table.
    --  The container could already have more than one value associated with
    --  this name. If there is M values with this Name, then if:
@@ -46,7 +46,7 @@ package body AWS.Containers.Tables.Set is
 
    procedure Add
      (Table       : in out Table_Type;
-      Name, Value : in     String) is
+      Name, Value : String) is
    begin
       Update_Internal (Table, Name, Value, 0);
    end Add;
@@ -57,7 +57,7 @@ package body AWS.Containers.Tables.Set is
 
    procedure Case_Sensitive
      (Table : in out Table_Type;
-      Mode  : in     Boolean) is
+      Mode  : Boolean) is
    begin
       Table.Case_Sensitive := Mode;
    end Case_Sensitive;
@@ -78,9 +78,9 @@ package body AWS.Containers.Tables.Set is
 
    procedure Update
      (Table : in out Table_Type;
-      Name  : in     String;
-      Value : in     String;
-      N     : in     Positive := 1) is
+      Name  : String;
+      Value : String;
+      N     : Positive := 1) is
    begin
       Update_Internal (Table, Name, Value, N);
    end Update;
@@ -91,9 +91,9 @@ package body AWS.Containers.Tables.Set is
 
    procedure Update_Internal
      (Table : in out Table_Type;
-      Name  : in     String;
-      Value : in     String;
-      N     : in     Natural)
+      Name  : String;
+      Value : String;
+      N     : Natural)
    is
       L_Key : constant String
         :=  Normalize_Name (Name, not Table.Case_Sensitive);
@@ -101,7 +101,7 @@ package body AWS.Containers.Tables.Set is
       Cursor : Index_Table.Cursor := Index_Table.Find (Table.Index, L_Key);
 
       procedure Process
-        (Key  : in     String;
+        (Key  : String;
          Item : in out Name_Index_Table);
 
       -------------
@@ -109,7 +109,7 @@ package body AWS.Containers.Tables.Set is
       -------------
 
       procedure Process
-        (Key  : in     String;
+        (Key  : String;
          Item : in out Name_Index_Table)
       is
          pragma Unreferenced (Key);

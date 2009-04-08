@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2003-2007                          --
---                                 AdaCore                                  --
+--                     Copyright (C) 2003-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -45,31 +44,31 @@ package SOAP.WSDL.Parser is
 
    procedure Start_Service
      (O             : in out Object;
-      Name          : in     String;
-      Documentation : in     String;
-      Location      : in     String) is null;
+      Name          : String;
+      Documentation : String;
+      Location      : String) is null;
    --  Called for every service in the WSDL document
 
    procedure End_Service
      (O    : in out Object;
-      Name : in     String) is null;
+      Name : String) is null;
    --  Called at the end of the service
 
    procedure New_Procedure
      (O          : in out Object;
-      Proc       : in     String;
-      SOAPAction : in     String;
-      Namespace  : in     Name_Space.Object;
-      Input      : in     Parameters.P_Set;
-      Output     : in     Parameters.P_Set;
-      Fault      : in     Parameters.P_Set) is null;
+      Proc       : String;
+      SOAPAction : String;
+      Namespace  : Name_Space.Object;
+      Input      : Parameters.P_Set;
+      Output     : Parameters.P_Set;
+      Fault      : Parameters.P_Set) is null;
    --  Called for each SOAP procedure found in the WSDL document for the
    --  current service.
 
    procedure Parse
      (O        : in out Object'Class;
-      Document : in     WSDL.Object);
-   --  Parse document, call routines above.
+      Document : WSDL.Object);
+   --  Parse document, call routines above
 
    -------------------
    -- Configuration --
@@ -77,7 +76,7 @@ package SOAP.WSDL.Parser is
 
    type Verbose_Level is new Natural range 0 .. 2;
 
-   procedure Verbose (Level : in Verbose_Level := 1);
+   procedure Verbose (Level : Verbose_Level := 1);
    --  Activate verbose mode
 
    procedure Accept_Document (O : in out Object'Class);
@@ -90,7 +89,7 @@ package SOAP.WSDL.Parser is
    --  generate stub/skeleton for the part of the WSDL document using
    --  supported types for example.
 
-   procedure Exclude (O : in out Object; Operation : in String);
+   procedure Exclude (O : in out Object; Operation : String);
    --  Register operation to be excluded from the code generation
 
 private

@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2008, AdaCore                     --
+--                     Copyright (C) 2000-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -52,9 +52,9 @@ package body AWS.Services.Directory is
       Order_Set : Unbounded_String;
    end record;
 
-   function "<" (Left, Right : in File_Record) return Boolean;
+   function "<" (Left, Right : File_Record) return Boolean;
 
-   overriding function "=" (Left, Right : in File_Record) return Boolean;
+   overriding function "=" (Left, Right : File_Record) return Boolean;
    pragma Inline ("=");
 
    package File_Tree is
@@ -83,15 +83,15 @@ package body AWS.Services.Directory is
 
    subtype Order_Char is Character;
 
-   function To_Order_Mode (C : in Order_Char) return Order_Mode;
+   function To_Order_Mode (C : Order_Char) return Order_Mode;
    --  Returns the Order_Mode value for the Order_Char. See Order_Set
    --  comments for the data equivalence table.
 
-   function To_Order_Char (O : in Order_Mode) return Order_Char;
+   function To_Order_Char (O : Order_Mode) return Order_Char;
    --  Returns the Order_Char for the Order_Mode. This routine is the
    --  above reverse function.
 
-   function Get_Ext (File_Name : in String) return String;
+   function Get_Ext (File_Name : String) return String;
    --  Returns file extension for File_Name and the empty string if there
    --  is not extension.
 
@@ -99,7 +99,7 @@ package body AWS.Services.Directory is
    -- "<" --
    ---------
 
-   function "<" (Left, Right : in File_Record) return Boolean is
+   function "<" (Left, Right : File_Record) return Boolean is
       use type Ada.Calendar.Time;
       use type Utils.File_Size_Type;
       use AWS.MIME;
@@ -229,7 +229,7 @@ package body AWS.Services.Directory is
    -- "=" --
    ---------
 
-   overriding function "=" (Left, Right : in File_Record) return Boolean is
+   overriding function "=" (Left, Right : File_Record) return Boolean is
    begin
       --  Can't be equal as all File_Record ID are uniq
       pragma Assert (Left.UID /= Right.UID);
@@ -241,8 +241,8 @@ package body AWS.Services.Directory is
    ------------
 
    function Browse
-     (Directory_Name : in String;
-      Request        : in AWS.Status.Data) return Translate_Set
+     (Directory_Name : String;
+      Request        : AWS.Status.Data) return Translate_Set
    is
       Set : Translate_Set;
 
@@ -252,15 +252,15 @@ package body AWS.Services.Directory is
 
       --  File Tree
 
-      function Invert (C : in Order_Char) return Order_Char;
+      function Invert (C : Order_Char) return Order_Char;
       --  Return the reverse order for C. It means that the upper case letter
       --  is change to a lower case and a lower case letter to an upper case
       --  one.
 
-      procedure Each_Entry (Cursor : in File_Tree.Cursor);
+      procedure Each_Entry (Cursor : File_Tree.Cursor);
       --  Iterator callback procedure
 
-      procedure Read_Directory (Directory_Name : in String);
+      procedure Read_Directory (Directory_Name : String);
       --  Read Dir_Name entries and insert them into the Order_Tree table
 
       Names  : Vector_Tag;
@@ -323,7 +323,7 @@ package body AWS.Services.Directory is
       -- Each_Entry --
       ----------------
 
-      procedure Each_Entry (Cursor : in File_Tree.Cursor) is
+      procedure Each_Entry (Cursor : File_Tree.Cursor) is
          Item : constant File_Record := File_Tree.Element (Cursor);
       begin
          if Item.Directory then
@@ -345,7 +345,7 @@ package body AWS.Services.Directory is
       -- Invert --
       ------------
 
-      function Invert (C : in Character) return Character is
+      function Invert (C : Character) return Character is
       begin
          if Characters.Handling.Is_Upper (C) then
             return Characters.Handling.To_Lower (C);
@@ -360,11 +360,11 @@ package body AWS.Services.Directory is
       -- Read_Directory --
       --------------------
 
-      procedure Read_Directory (Directory_Name : in String) is
+      procedure Read_Directory (Directory_Name : String) is
 
          procedure Insert
-           (Filename     : in     String;
-            Is_Directory : in     Boolean;
+           (Filename     : String;
+            Is_Directory : Boolean;
             Quit         : in out Boolean);
 
          ------------------------------
@@ -379,8 +379,8 @@ package body AWS.Services.Directory is
          ------------
 
          procedure Insert
-           (Filename     : in     String;
-            Is_Directory : in     Boolean;
+           (Filename     : String;
+            Is_Directory : Boolean;
             Quit         : in out Boolean)
          is
             Full_Pathname : constant String := Dir_Str & Filename;
@@ -531,10 +531,10 @@ package body AWS.Services.Directory is
    ------------
 
    function Browse
-     (Directory_Name    : in String;
-      Template_Filename : in String;
-      Request           : in AWS.Status.Data;
-      Translations      : in Translate_Set := Null_Set) return String
+     (Directory_Name    : String;
+      Template_Filename : String;
+      Request           : AWS.Status.Data;
+      Translations      : Translate_Set := Null_Set) return String
    is
       Set : Translate_Set := Browse (Directory_Name, Request);
    begin
@@ -548,7 +548,7 @@ package body AWS.Services.Directory is
    -- Get_Ext --
    -------------
 
-   function Get_Ext (File_Name : in String) return String is
+   function Get_Ext (File_Name : String) return String is
       use Ada.Strings;
 
       Pos : constant Natural
@@ -566,7 +566,7 @@ package body AWS.Services.Directory is
    -- To_Order_Char --
    -------------------
 
-   function To_Order_Char (O : in Order_Mode) return Order_Char is
+   function To_Order_Char (O : Order_Mode) return Order_Char is
    begin
       return Order_Mode'Image (O) (1);
    end To_Order_Char;
@@ -575,7 +575,7 @@ package body AWS.Services.Directory is
    -- To_Order_Mode --
    -------------------
 
-   function To_Order_Mode (C : in Order_Char) return Order_Mode is
+   function To_Order_Mode (C : Order_Char) return Order_Mode is
    begin
       return Order_Mode'Value (String'(1 => C));
    end To_Order_Mode;

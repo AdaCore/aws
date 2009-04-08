@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2008, AdaCore                     --
+--                     Copyright (C) 2003-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -33,7 +33,7 @@ with zresres;
 
 procedure ERes is
 
-   procedure Test (Name : in String) is
+   procedure Test (Name : String) is
       use AWS.Resources;
    begin
       Ada.Text_IO.Put_Line (File_Instance'Image (Exist (Name)));

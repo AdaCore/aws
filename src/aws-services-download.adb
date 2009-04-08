@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2005-2008, AdaCore                     --
+--                     Copyright (C) 2005-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -99,13 +99,13 @@ package body AWS.Services.Download is
 
    protected Data_Manager is
 
-      procedure Insert (Download : in Download_Information);
+      procedure Insert (Download : Download_Information);
       --  Add a new download data information
 
-      procedure Update (Download : in Download_Information);
+      procedure Update (Download : Download_Information);
       --  Update the download information (Download.URI is the unique key)
 
-      procedure Remove (Download : in Download_Information);
+      procedure Remove (Download : Download_Information);
       --  Remove the download information, this is either because the download
       --  is terminated or an error occurs during the download (interrupted by
       --  the user).
@@ -116,7 +116,7 @@ package body AWS.Services.Download is
       procedure Create_Set (Socket_Set : in out Sock_Set.Socket_Set_Type);
       --  Returns in Socket_Set the socket to look at for output availability
 
-      function Get (URI : in String) return Download_Information;
+      function Get (URI : String) return Download_Information;
       --  Returns the Download_Information for the given URI or No_Information
       --  if this URI is not part of the download data. Note that this routine
       --  also set the Index and Position fields according to the position in
@@ -141,7 +141,7 @@ package body AWS.Services.Download is
 
       Downloads : Vector;
 
-      function Index (Download : in Download_Information) return Positive;
+      function Index (Download : Download_Information) return Positive;
       --  Returns the updated index for Download, 0 if not found
 
       UID       : Natural := 0;
@@ -156,7 +156,7 @@ package body AWS.Services.Download is
 
    DM_Handler : Dispatchers.URI.Handler;
 
-   function CB (Request : in Status.Data) return Response.Data;
+   function CB (Request : Status.Data) return Response.Data;
    --  Download manager callback handler
 
    -----------
@@ -164,8 +164,8 @@ package body AWS.Services.Download is
    -----------
 
    function Build
-     (Request  : in Status.Data;
-      Name     : in String;
+     (Request  : Status.Data;
+      Name     : String;
       Resource : not null access Resources.Streams.Stream_Type'Class)
       return Response.Data
    is
@@ -194,7 +194,7 @@ package body AWS.Services.Download is
    -- CB --
    --------
 
-   function CB (Request : in Status.Data) return Response.Data is
+   function CB (Request : Status.Data) return Response.Data is
       P_List : constant Parameters.List := Status.Parameters (Request);
       URI    : constant String := Parameters.Get (P_List, "RES_URI");
       Info   : Download_Information;
@@ -276,7 +276,7 @@ package body AWS.Services.Download is
       -- Get --
       ---------
 
-      function Get (URI : in String) return Download_Information is
+      function Get (URI : String) return Download_Information is
          Info  : Download_Information;
          Index : Natural := 0;
       begin
@@ -321,7 +321,7 @@ package body AWS.Services.Download is
       -- Index --
       -----------
 
-      function Index (Download : in Download_Information) return Positive is
+      function Index (Download : Download_Information) return Positive is
       begin
          --  Use Download.Index for fast lookup, this was the original position
          --  for this item. The new position is either at the same index or in
@@ -340,7 +340,7 @@ package body AWS.Services.Download is
       -- Insert --
       ------------
 
-      procedure Insert (Download : in Download_Information) is
+      procedure Insert (Download : Download_Information) is
       begin
          Append (Downloads, Download);
          Count := Count + 1;
@@ -368,7 +368,7 @@ package body AWS.Services.Download is
       -- Remove --
       ------------
 
-      procedure Remove (Download : in Download_Information) is
+      procedure Remove (Download : Download_Information) is
       begin
          Delete (Downloads, Index (Download));
          Count := Count - 1;
@@ -396,7 +396,7 @@ package body AWS.Services.Download is
       -- Update --
       ------------
 
-      procedure Update (Download : in Download_Information) is
+      procedure Update (Download : Download_Information) is
       begin
          Replace_Element (Downloads, Index (Download), Download);
       end Update;
@@ -411,13 +411,13 @@ package body AWS.Services.Download is
 
       procedure Send_Header
         (Socket_Set : in out Sock_Set.Socket_Set_Type;
-         N          : in     Sock_Set.Socket_Count;
+         N          : Sock_Set.Socket_Count;
          Info       : in out Download_Information);
       --  Send HTTP headers
 
       procedure Send_Data
-        (Info : in     Download_Information;
-         Done :    out Boolean);
+        (Info : Download_Information;
+         Done : out Boolean);
       --  Send some data for Info. Done is set to true if the download is
       --  completed.
 
@@ -426,8 +426,8 @@ package body AWS.Services.Download is
       ---------------
 
       procedure Send_Data
-        (Info : in     Download_Information;
-         Done :    out Boolean)
+        (Info : Download_Information;
+         Done : out Boolean)
       is
          Buffer_Size : constant := 4 * 1_024;
 
@@ -449,7 +449,7 @@ package body AWS.Services.Download is
 
       procedure Send_Header
         (Socket_Set : in out Sock_Set.Socket_Set_Type;
-         N          : in     Sock_Set.Socket_Count;
+         N          : Sock_Set.Socket_Count;
          Info       : in out Download_Information)
       is
          pragma Unreferenced (Socket_Set, N);
@@ -559,9 +559,9 @@ package body AWS.Services.Download is
    -----------
 
    procedure Start
-     (Server_Dispatcher       : in     AWS.Dispatchers.Handler'Class;
-      Main_Dispatcher         :    out Services.Dispatchers.Linker.Handler;
-      Max_Concurrent_Download : in     Positive :=
+     (Server_Dispatcher       : AWS.Dispatchers.Handler'Class;
+      Main_Dispatcher         : out Services.Dispatchers.Linker.Handler;
+      Max_Concurrent_Download : Positive :=
         Config.Max_Concurrent_Download) is
    begin
       Download.Max_Concurrent_Download := Max_Concurrent_Download;

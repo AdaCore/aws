@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2008, AdaCore                     --
+--                     Copyright (C) 2000-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -50,14 +50,14 @@ package body AWS.Server is
 
    procedure Start
      (Web_Server : in out HTTP;
-      Dispatcher : in     Dispatchers.Handler'Class);
+      Dispatcher : Dispatchers.Handler'Class);
    --  Start web server with current configuration
 
    procedure Protocol_Handler (LA : in out Line_Attribute_Record);
    --  Handle the lines, this is where all the HTTP protocol is defined
 
    function Accept_Socket_Serialized
-     (Server : in HTTP_Access) return Net.Socket_Access;
+     (Server : HTTP_Access) return Net.Socket_Access;
    --  Do a protected accept on the HTTP socket. It is not safe to call
    --  multiple accept on the same socket on some platforms.
 
@@ -71,19 +71,19 @@ package body AWS.Server is
    ------------------------------
 
    function Accept_Socket_Serialized
-     (Server : in HTTP_Access) return Net.Socket_Access
+     (Server : HTTP_Access) return Net.Socket_Access
    is
       use type Ada.Tags.Tag;
 
       New_Socket : Net.Socket_Access;
 
-      procedure Accept_Error (E : in Ada.Exceptions.Exception_Occurrence);
+      procedure Accept_Error (E : Ada.Exceptions.Exception_Occurrence);
 
       ------------------
       -- Accept_Error --
       ------------------
 
-      procedure Accept_Error (E : in Ada.Exceptions.Exception_Occurrence) is
+      procedure Accept_Error (E : Ada.Exceptions.Exception_Occurrence) is
       begin
          AWS.Log.Write
            (Server.Error_Log,
@@ -141,7 +141,7 @@ package body AWS.Server is
    -- Config --
    ------------
 
-   function Config (Web_Server : in HTTP) return AWS.Config.Object is
+   function Config (Web_Server : HTTP) return AWS.Config.Object is
    begin
       return Web_Server.Properties;
    end Config;
@@ -151,9 +151,9 @@ package body AWS.Server is
    ------------------------------------------
 
    procedure Default_Unexpected_Exception_Handler
-     (E      : in     Ada.Exceptions.Exception_Occurrence;
+     (E      : Ada.Exceptions.Exception_Occurrence;
       Log    : in out AWS.Log.Object;
-      Error  : in     Exceptions.Data;
+      Error  : Exceptions.Data;
       Answer : in out Response.Data)
    is
       pragma Unreferenced (Log);
@@ -260,13 +260,13 @@ package body AWS.Server is
    ----------------------
 
    procedure Give_Back_Socket
-     (Web_Server : in out HTTP; Socket : in Net.Socket_Access) is
+     (Web_Server : in out HTTP; Socket : Net.Socket_Access) is
    begin
       Net.Acceptors.Give_Back (Web_Server.Acceptor, Socket);
    end Give_Back_Socket;
 
    procedure Give_Back_Socket
-     (Web_Server : in out HTTP; Socket : in Net.Socket_Type'Class) is
+     (Web_Server : in out HTTP; Socket : Net.Socket_Type'Class) is
    begin
       Give_Back_Socket (Web_Server, new Net.Socket_Type'Class'(Socket));
    end Give_Back_Socket;
@@ -284,8 +284,8 @@ package body AWS.Server is
 
       select
          accept Start
-           (Server : in HTTP;
-            Index  : in Positive)
+           (Server : HTTP;
+            Index  : Positive)
          do
             TA.Server := Server.Self;
             TA.Line   := Index;
@@ -361,7 +361,7 @@ package body AWS.Server is
 
    procedure Set
      (Web_Server : in out HTTP;
-      Dispatcher : in     Dispatchers.Handler'Class) is
+      Dispatcher : Dispatchers.Handler'Class) is
    begin
       Free (Web_Server.New_Dispatcher);
       Web_Server.New_Dispatcher :=
@@ -373,7 +373,7 @@ package body AWS.Server is
    -- Set_Field --
    ---------------
 
-   procedure Set_Field (Id, Value : in String) is
+   procedure Set_Field (Id, Value : String) is
       Task_Ptr : constant Line_Attribute.Attribute_Handle :=
                    Line_Attribute.Reference;
    begin
@@ -387,9 +387,9 @@ package body AWS.Server is
 
    procedure Set_Security
      (Web_Server           : in out HTTP;
-      Certificate_Filename : in     String;
-      Security_Mode        : in     Net.SSL.Method := Net.SSL.SSLv23_Server;
-      Key_Filename         : in     String         := "") is
+      Certificate_Filename : String;
+      Security_Mode        : Net.SSL.Method := Net.SSL.SSLv23_Server;
+      Key_Filename         : String         := "") is
    begin
       AWS.Config.Set.Certificate (Web_Server.Properties, Certificate_Filename);
 
@@ -409,7 +409,7 @@ package body AWS.Server is
 
    procedure Set_Socket_Constructor
      (Web_Server         : in out HTTP;
-      Socket_Constructor : in     Net.Socket_Constructor) is
+      Socket_Constructor : Net.Socket_Constructor) is
    begin
       Net.Acceptors.Set_Socket_Constructor
         (Web_Server.Acceptor, Socket_Constructor);
@@ -421,7 +421,7 @@ package body AWS.Server is
 
    procedure Set_Unexpected_Exception_Handler
      (Web_Server : in out HTTP;
-      Handler    : in     Exceptions.Unexpected_Exception_Handler) is
+      Handler    : Exceptions.Unexpected_Exception_Handler) is
    begin
       if Web_Server.Shutdown then
          Web_Server.Exception_Handler := Handler;
@@ -578,13 +578,13 @@ package body AWS.Server is
          use Ada.Calendar;
          Now : constant Time := Clock;
 
-         function Test_Slot (S : in Positive) return Boolean;
+         function Test_Slot (S : Positive) return Boolean;
 
          ---------------
          -- Test_Slot --
          ---------------
 
-         function Test_Slot (S : in Positive) return Boolean is
+         function Test_Slot (S : Positive) return Boolean is
          begin
             if Is_Abortable (S) then
                Get_For_Shutdown (S, Socket);
@@ -626,7 +626,7 @@ package body AWS.Server is
       -- Check_Data_Timeout --
       ------------------------
 
-      procedure Check_Data_Timeout (Index : in Positive) is
+      procedure Check_Data_Timeout (Index : Positive) is
          use Ada.Real_Time;
       begin
          if Clock - Table (Index).Phase_Time_Stamp
@@ -649,7 +649,7 @@ package body AWS.Server is
       -- Get --
       ---------
 
-      function Get (Index : in Positive) return Slot is
+      function Get (Index : Positive) return Slot is
       begin
          return Table (Index);
       end Get;
@@ -659,7 +659,7 @@ package body AWS.Server is
       ----------------------
 
       procedure Get_For_Shutdown
-        (Index : in Positive; Socket : out Socket_Access) is
+        (Index : Positive; Socket : out Socket_Access) is
       begin
          if Table (Index).Phase not in Closed .. Aborted then
             Socket := Table (Index).Sock;
@@ -679,7 +679,7 @@ package body AWS.Server is
       -- Get_Peername --
       ------------------
 
-      function Get_Peername (Index : in Positive) return String is
+      function Get_Peername (Index : Positive) return String is
          Socket : constant Socket_Access := Table (Index).Sock;
       begin
          if Socket = null then
@@ -693,7 +693,7 @@ package body AWS.Server is
       -- Get_Socket_Info --
       ---------------------
 
-      function Get_Socket_Info (Index : in Positive) return Socket_Data is
+      function Get_Socket_Info (Index : Positive) return Socket_Data is
          Socket : constant Socket_Access := Table (Index).Sock;
       begin
          if Socket = null then
@@ -717,7 +717,7 @@ package body AWS.Server is
       -------------------------------------
 
       procedure Increment_Slot_Activity_Counter
-        (Index : in Positive; Free_Slots : out Natural) is
+        (Index : Positive; Free_Slots : out Natural) is
       begin
          Table (Index).Slot_Activity_Counter
            := Table (Index).Slot_Activity_Counter + 1;
@@ -730,7 +730,7 @@ package body AWS.Server is
       -- Is_Abortable --
       ------------------
 
-      function Is_Abortable (Index : in Positive) return Boolean is
+      function Is_Abortable (Index : Positive) return Boolean is
          use Real_Time;
          Phase : constant Slot_Phase := Table (Index).Phase;
       begin
@@ -743,7 +743,7 @@ package body AWS.Server is
       -- Mark_Phase --
       ----------------
 
-      procedure Mark_Phase (Index : in Positive; Phase : in Slot_Phase) is
+      procedure Mark_Phase (Index : Positive; Phase : Slot_Phase) is
          Mode : constant array (Boolean) of Timeout_Mode
            := (True => Force, False => Cleaner);
       begin
@@ -772,7 +772,7 @@ package body AWS.Server is
       -- Phase --
       -----------
 
-      function Phase (Index : in Positive) return Slot_Phase is
+      function Phase (Index : Positive) return Slot_Phase is
       begin
          return Table (Index).Phase;
       end Phase;
@@ -781,7 +781,7 @@ package body AWS.Server is
       -- Prepare_Back --
       ------------------
 
-      procedure Prepare_Back (Index : in Positive; Possible : out Boolean) is
+      procedure Prepare_Back (Index : Positive; Possible : out Boolean) is
       begin
          Possible := not (Table (Index).Phase in In_Shutdown .. Aborted);
 
@@ -796,7 +796,7 @@ package body AWS.Server is
       -------------
 
       entry Release
-        (Index : in Positive; Shutdown : out Boolean) when Shutdown_Count = 0
+        (Index : Positive; Shutdown : out Boolean) when Shutdown_Count = 0
       is
       begin
          pragma Assert (Count < N);
@@ -837,7 +837,7 @@ package body AWS.Server is
       -- Set --
       ---------
 
-      procedure Set (Socket : in Socket_Access; Index : in Positive) is
+      procedure Set (Socket : Socket_Access; Index : Positive) is
       begin
          pragma Assert (Count > 0);
 
@@ -853,8 +853,8 @@ package body AWS.Server is
       ------------------
 
       procedure Set_Timeouts
-        (Phase_Timeouts : in Timeouts_Array;
-         Data_Timeouts  : in Data_Timeouts_Array) is
+        (Phase_Timeouts : Timeouts_Array;
+         Data_Timeouts  : Data_Timeouts_Array) is
       begin
          Timeouts := Phase_Timeouts;
          Slots.Data_Timeouts := Set_Timeouts.Data_Timeouts;
@@ -864,7 +864,7 @@ package body AWS.Server is
       -- Shutdown_Done --
       -------------------
 
-      procedure Shutdown_Done (Index : in Positive) is
+      procedure Shutdown_Done (Index : Positive) is
       begin
          if Table (Index).Phase = In_Shutdown then
             Mark_Phase (Index, Aborted);
@@ -876,7 +876,7 @@ package body AWS.Server is
       -- Socket_Taken --
       ------------------
 
-      procedure Socket_Taken (Index : in Positive) is
+      procedure Socket_Taken (Index : Positive) is
       begin
          Table (Index).Socket_Taken := True;
          Table (Index).Sock         := null;
@@ -901,16 +901,16 @@ package body AWS.Server is
 
    procedure Start
      (Web_Server                : in out HTTP;
-      Name                      : in     String;
-      Callback                  : in     Response.Callback;
-      Max_Connection            : in     Positive  := Default.Max_Connection;
-      Admin_URI                 : in     String    := Default.Admin_URI;
-      Port                      : in     Natural   := Default.Server_Port;
-      Security                  : in     Boolean   := False;
-      Session                   : in     Boolean   := False;
-      Case_Sensitive_Parameters : in     Boolean   := True;
-      Upload_Directory          : in     String    := Default.Upload_Directory;
-      Line_Stack_Size           : in     Positive  := Default.Line_Stack_Size)
+      Name                      : String;
+      Callback                  : Response.Callback;
+      Max_Connection            : Positive  := Default.Max_Connection;
+      Admin_URI                 : String    := Default.Admin_URI;
+      Port                      : Natural   := Default.Server_Port;
+      Security                  : Boolean   := False;
+      Session                   : Boolean   := False;
+      Case_Sensitive_Parameters : Boolean   := True;
+      Upload_Directory          : String    := Default.Upload_Directory;
+      Line_Stack_Size           : Positive  := Default.Line_Stack_Size)
    is
    begin
       CNF.Set.Server_Name      (Web_Server.Properties, Name);
@@ -934,8 +934,8 @@ package body AWS.Server is
 
    procedure Start
      (Web_Server : in out HTTP;
-      Callback   : in     Response.Callback;
-      Config     : in     AWS.Config.Object) is
+      Callback   : Response.Callback;
+      Config     : AWS.Config.Object) is
    begin
       Web_Server.Properties := Config;
       Start (Web_Server, Dispatchers.Callback.Create (Callback));
@@ -947,8 +947,8 @@ package body AWS.Server is
 
    procedure Start
      (Web_Server : in out HTTP;
-      Dispatcher : in     Dispatchers.Handler'Class;
-      Config     : in     AWS.Config.Object) is
+      Dispatcher : Dispatchers.Handler'Class;
+      Config     : AWS.Config.Object) is
    begin
       Web_Server.Properties := Config;
       Start (Web_Server, Dispatcher);
@@ -960,7 +960,7 @@ package body AWS.Server is
 
    procedure Start
      (Web_Server : in out HTTP;
-      Dispatcher : in     Dispatchers.Handler'Class)
+      Dispatcher : Dispatchers.Handler'Class)
    is
       use type Net.SSL.Config;
 
@@ -1099,7 +1099,7 @@ package body AWS.Server is
    -- Wait --
    ----------
 
-   procedure Wait (Mode : in Termination := No_Server) is
+   procedure Wait (Mode : Termination := No_Server) is
    begin
       case Mode is
          when No_Server =>

@@ -47,18 +47,18 @@ procedure WB_Test is
    use AWS.Services;
 
    procedure Data_CB
-     (Request      : in Status.Data;
+     (Request      : Status.Data;
       Context      : not null access Web_Block.Context.Object;
       Translations : in out Templates.Translate_Set);
 
    Max_Clients : constant := 30;
 
-   procedure Request (N : in Positive);
+   procedure Request (N : Positive);
 
    Results : array (1 .. Max_Clients) of Positive;
 
    task type Client is
-      entry Start (V : in Positive);
+      entry Start (V : Positive);
       entry Stop;
    end Client;
 
@@ -71,7 +71,7 @@ procedure WB_Test is
    task body Client is
       N : Positive;
    begin
-      accept Start (V : in Positive) do
+      accept Start (V : Positive) do
          N := V;
       end Start;
 
@@ -90,7 +90,7 @@ procedure WB_Test is
    -------------
 
    procedure Data_CB
-     (Request      : in Status.Data;
+     (Request      : Status.Data;
       Context      : not null access Web_Block.Context.Object;
       Translations : in out Templates.Translate_Set)
    is
@@ -115,20 +115,20 @@ procedure WB_Test is
    -- Request --
    -------------
 
-   procedure Request (N : in Positive) is
+   procedure Request (N : Positive) is
       R : Web_Block.Registry.Page;
       S : Status.Data;
       T : Templates.Translate_Set;
       pragma Warnings (Off, S);
 
-      function Get_Value (Str, Key : in String) return String;
+      function Get_Value (Str, Key : String) return String;
       --  Get the current context
 
       ---------------
       -- Get_Value --
       ---------------
 
-      function Get_Value (Str, Key : in String) return String is
+      function Get_Value (Str, Key : String) return String is
          Start, Stop : Natural;
       begin
          Start := Fixed.Index (Str, Key & "=");

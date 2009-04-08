@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2008, AdaCore                     --
+--                     Copyright (C) 2000-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -42,8 +42,8 @@ package body Z_User_Strm is
 
    procedure Create
      (Resource       : in out AWS.Resources.Streams.Stream_Type'Class;
-      Size           : in     Stream_Element_Offset;
-      Undefined_Size : in     Boolean) is
+      Size           : Stream_Element_Offset;
+      Undefined_Size : Boolean) is
    begin
       File_Tagged (Resource).Undefined_Size := Undefined_Size;
       File_Tagged (Resource).Size           := Size;
@@ -55,7 +55,7 @@ package body Z_User_Strm is
    -----------------
 
    function End_Of_File
-     (Resource : in File_Tagged) return Boolean is
+     (Resource : File_Tagged) return Boolean is
    begin
       return Resource.Offset >= Resource.Size;
    end End_Of_File;
@@ -66,8 +66,8 @@ package body Z_User_Strm is
 
    procedure Read
      (Resource : in out File_Tagged;
-      Buffer   :    out Stream_Element_Array;
-      Last     :    out Stream_Element_Offset)
+      Buffer   : out Stream_Element_Array;
+      Last     : out Stream_Element_Offset)
    is
       Symbol_First  : constant Character := '!';
       Symbol_Last   : constant Character := '~';
@@ -120,7 +120,7 @@ package body Z_User_Strm is
 
    procedure Set_Index
      (File     : in out File_Tagged;
-      Position : in     Stream_Element_Offset) is
+      Position : Stream_Element_Offset) is
    begin
       null;
    end Set_Index;
@@ -129,7 +129,7 @@ package body Z_User_Strm is
    -- Size --
    ----------
 
-   function Size (File : in File_Tagged) return Stream_Element_Offset is
+   function Size (File : File_Tagged) return Stream_Element_Offset is
    begin
       if File.Undefined_Size then
          return AWS.Resources.Undefined_Length;

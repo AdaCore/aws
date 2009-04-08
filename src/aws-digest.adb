@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2008, AdaCore                     --
+--                     Copyright (C) 2000-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -76,7 +76,7 @@ package body AWS.Digest is
    -- Check_Nonce --
    -----------------
 
-   function Check_Nonce (Value : in String) return Boolean is
+   function Check_Nonce (Value : String) return Boolean is
       use Real_Time;
 
       subtype Timestamp_Range is
@@ -154,9 +154,9 @@ package body AWS.Digest is
    ------------
 
    function Create
-     (Username, Realm, Password : in String;
-      Nonce, NC, CNonce, QOP    : in String;
-      Method, URI               : in String) return Digest_String is
+     (Username, Realm, Password : String;
+      Nonce, NC, CNonce, QOP    : String;
+      Method, URI               : String) return Digest_String is
    begin
       return MD5.Digest
         (MD5.Digest (Username & ':' & Realm & ':' & Password)
@@ -164,9 +164,9 @@ package body AWS.Digest is
    end Create;
 
    function Create
-     (Username, Realm, Password : in String;
-      Nonce                     : in String;
-      Method, URI               : in String) return Digest_String is
+     (Username, Realm, Password : String;
+      Nonce                     : String;
+      Method, URI               : String) return Digest_String is
    begin
       return Create
                (Username, Realm, Password, Nonce, "", "", "", Method, URI);
@@ -210,7 +210,7 @@ package body AWS.Digest is
    ----------
 
    function Tail
-     (Nonce, NC, CNonce, QOP, Method, URI : in String) return String
+     (Nonce, NC, CNonce, QOP, Method, URI : String) return String
    is
       MUD : constant Digest_String := MD5.Digest (Method & ':' & URI);
    begin

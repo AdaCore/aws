@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2008, AdaCore                     --
+--                     Copyright (C) 2003-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -49,7 +49,7 @@ procedure Dispatch_Method is
    Free_Port : Positive;
 
    function CB1
-     (Request : in AWS.Status.Data)
+     (Request : AWS.Status.Data)
       return AWS.Response.Data
    is
       pragma Unreferenced (Request);
@@ -58,7 +58,7 @@ procedure Dispatch_Method is
    end CB1;
 
    function CB2
-     (Request : in AWS.Status.Data)
+     (Request : AWS.Status.Data)
       return AWS.Response.Data
    is
       pragma Unreferenced (Request);
@@ -68,7 +68,7 @@ procedure Dispatch_Method is
    end CB2;
 
    function CB3
-     (Request : in AWS.Status.Data)
+     (Request : AWS.Status.Data)
       return AWS.Response.Data
    is
       pragma Unreferenced (Request);

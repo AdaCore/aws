@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                          Copyright (C) 2003-2008                         --
---                                  AdaCore                                 --
+--                     Copyright (C) 2003-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -32,16 +31,16 @@ package Ada2WSDL.Generator is
    -- Routine --
    -------------
 
-   procedure Start_Routine (Name, Comment : in String);
+   procedure Start_Routine (Name, Comment : String);
    --  Must be called when a new routine named Name has been parsed in the
    --  Ada spec file. Comment is displayed before the procedure name.
 
-   procedure New_Formal (NS, Var_Name, Var_Type : in String);
+   procedure New_Formal (NS, Var_Name, Var_Type : String);
    --  Must be called for each formal parameter parsed. This new formal
    --  parameter will be added into the current routine definition created by
    --  Start_Routine.
 
-   procedure Return_Type (NS, Name : in String);
+   procedure Return_Type (NS, Name : String);
    --  Must be called when a returned type (for a function) has been
    --  parsed. It is fine to not call this routine, for example if current
    --  routine is a procedure there is no need to call it.
@@ -50,10 +49,10 @@ package Ada2WSDL.Generator is
    -- Record --
    ------------
 
-   procedure Start_Record (NS, Name : in String);
+   procedure Start_Record (NS, Name : String);
    --  Must be called when a new record named Name as been parsed
 
-   procedure New_Component (NS, Comp_Name, Comp_Type : in String);
+   procedure New_Component (NS, Comp_Name, Comp_Type : String);
    --  Must be called when a new component has been parsed. This component
    --  will be added into the current record definition created by
    --  Start_Record.
@@ -63,38 +62,38 @@ package Ada2WSDL.Generator is
    -----------
 
    procedure Start_Array
-     (NS, Name, Component_Type : in String;
-      Length                   : in Natural := 0);
+     (NS, Name, Component_Type : String;
+      Length                   : Natural := 0);
    --  Must be called when an array definition has been parsed
 
    -----------------
    -- Enumeration --
    -----------------
 
-   procedure Start_Enumeration (NS, Name : in String);
+   procedure Start_Enumeration (NS, Name : String);
    --  Must be called when a new enumeration type named Name as been parsed
 
-   procedure New_Literal (Name : in String);
+   procedure New_Literal (Name : String);
    --  Must be called for each enumeration value parsed
 
    -----------
    -- Types --
    -----------
 
-   procedure Register_Derived (NS, Name, Parent_Name : in String);
+   procedure Register_Derived (NS, Name, Parent_Name : String);
    --  Register a derived type
 
-   procedure Register_Type (NS, Name, Root_Name : in String);
+   procedure Register_Type (NS, Name, Root_Name : String);
    --  Register a user defined type
 
-   function Type_Exists (NS, Name : in String) return Boolean;
+   function Type_Exists (NS, Name : String) return Boolean;
    --  Returns True if Name exists in the type list
 
    ------------------
    -- Safe Pointer --
    ------------------
 
-   procedure Register_Safe_Pointer (Name, Type_Name, Access_Name : in String);
+   procedure Register_Safe_Pointer (Name, Type_Name, Access_Name : String);
    --  Add a new AWS/SOAP runtime safe pointer definition. Name is the name of
    --  the package instance, Type_Name and Access_Name the name of the type
    --  and access to the type respectively.
@@ -103,7 +102,7 @@ package Ada2WSDL.Generator is
    -- Output --
    ------------
 
-   procedure Write (Filename : in String);
+   procedure Write (Filename : String);
    --  Write out the WSDL document into Filename
 
 end Ada2WSDL.Generator;

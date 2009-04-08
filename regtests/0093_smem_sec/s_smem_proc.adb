@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2005-2008, AdaCore                     --
+--                     Copyright (C) 2005-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -32,7 +32,7 @@ with Ada.Streams;
 with Ada.Text_IO;
 with AWS.Net.Std;
 
-procedure S_SMem_Proc (Security : in Boolean) is
+procedure S_SMem_Proc (Security : Boolean) is
    use AWS.Net;
    use Ada.Streams;
    use Ada.Text_IO;

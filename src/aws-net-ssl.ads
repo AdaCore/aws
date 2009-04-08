@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2002-2008, AdaCore                     --
+--                     Copyright (C) 2002-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -46,14 +46,14 @@ package AWS.Net.SSL is
    ----------------
 
    overriding procedure Accept_Socket
-     (Socket : in Net.Socket_Type'Class; New_Socket : in out Socket_Type);
+     (Socket : Net.Socket_Type'Class; New_Socket : in out Socket_Type);
    --  Accept a connection on a socket
 
    overriding procedure Connect
      (Socket : in out Socket_Type;
-      Host   : in     String;
-      Port   : in     Positive;
-      Wait   : in     Boolean := True);
+      Host   : String;
+      Port   : Positive;
+      Wait   : Boolean := True);
    --  Connect a socket on a given host/port. If Wait is True Connect will wait
    --  for the connection to be established for timeout seconds, specified by
    --  Set_Timeout routine. If Wait is False Connect will return immediately,
@@ -65,7 +65,7 @@ package AWS.Net.SSL is
    --  Create 2 sockets and connect them together
 
    overriding procedure Shutdown
-     (Socket : in Socket_Type; How : in Shutmode_Type := Shut_Read_Write);
+     (Socket : Socket_Type; How : Shutmode_Type := Shut_Read_Write);
    --  Shutdown the read, write or both side of the socket.
    --  If How is Both, close it. Does not raise Socket_Error if the socket is
    --  not connected or already shutdown.
@@ -75,18 +75,18 @@ package AWS.Net.SSL is
    --------
 
    overriding procedure Send
-     (Socket : in     Socket_Type;
-      Data   : in     Stream_Element_Array;
-      Last   :    out Stream_Element_Offset);
+     (Socket : Socket_Type;
+      Data   : Stream_Element_Array;
+      Last   : out Stream_Element_Offset);
 
    overriding procedure Receive
-     (Socket : in     Socket_Type;
-      Data   :    out Stream_Element_Array;
-      Last   :    out Stream_Element_Offset);
+     (Socket : Socket_Type;
+      Data   : out Stream_Element_Array;
+      Last   : out Stream_Element_Offset);
    pragma Inline (Receive);
 
    overriding function Pending
-     (Socket : in Socket_Type) return Stream_Element_Count;
+     (Socket : Socket_Type) return Stream_Element_Count;
    --  Returns the number of bytes which are available inside socket
    --  for immediate read.
 
@@ -106,11 +106,11 @@ package AWS.Net.SSL is
 
    procedure Initialize
      (Config               : in out SSL.Config;
-      Certificate_Filename : in     String;
-      Security_Mode        : in     Method     := SSLv23;
-      Key_Filename         : in     String     := "";
-      Exchange_Certificate : in     Boolean    := False;
-      Session_Cache_Size   : in     Positive   := 16#4000#);
+      Certificate_Filename : String;
+      Security_Mode        : Method     := SSLv23;
+      Key_Filename         : String     := "";
+      Exchange_Certificate : Boolean    := False;
+      Session_Cache_Size   : Positive   := 16#4000#);
    --  Initialize the SSL layer into Config. Certificate_Filename must point
    --  to a valid certificate. Security mode can be used to change the
    --  security method used by AWS. Key_Filename must be specified if the key
@@ -123,20 +123,20 @@ package AWS.Net.SSL is
    --  Release memory associated with the Config object
 
    procedure Set_Config
-     (Socket : in out Socket_Type; Config : in SSL.Config);
+     (Socket : in out Socket_Type; Config : SSL.Config);
    --  Set the SSL configuration object for the secure socket
 
    function Secure_Client
-     (Socket : in Net.Socket_Type'Class;
-      Config : in SSL.Config := Null_Config) return Socket_Type;
+     (Socket : Net.Socket_Type'Class;
+      Config : SSL.Config := Null_Config) return Socket_Type;
    --  Make client side SSL connection from plain socket.
    --  SSL handshake does not performed. SSL handshake would be made
    --  automatically on first Read/Write, or explicitly by the Do_Handshake
    --  call. Do not free or close source socket after this call.
 
    function Secure_Server
-     (Socket : in Net.Socket_Type'Class;
-      Config : in SSL.Config := Null_Config) return Socket_Type;
+     (Socket : Net.Socket_Type'Class;
+      Config : SSL.Config := Null_Config) return Socket_Type;
    --  Make server side SSL connection from plain socket.
    --  SSL handshake does not performed. SSL handshake would be made
    --  automatically on first Read/Write, or explicitly by the Do_Handshake
@@ -147,15 +147,15 @@ package AWS.Net.SSL is
    --  routine if you have converted a standard socket to secure one and need
    --  to get the peer certificate.
 
-   function Version (Build_Info : in Boolean := False) return String;
+   function Version (Build_Info : Boolean := False) return String;
    --  Returns version information
 
-   procedure Clear_Session_Cache (Config : in SSL.Config := Null_Config);
+   procedure Clear_Session_Cache (Config : SSL.Config := Null_Config);
    --  Remove all sessions from SSL session cache from the SSL context.
    --  Null_Config mean default context.
 
    procedure Set_Session_Cache_Size
-     (Size : in Natural; Config : in SSL.Config := Null_Config);
+     (Size : Natural; Config : SSL.Config := Null_Config);
    --  Set session cache size in the SSL context.
    --  Null_Config mean default context.
 
@@ -183,7 +183,7 @@ private
    --  Release memory associated with the socket object
 
    overriding procedure Set_Timeout
-     (Socket : in out Socket_Type; Timeout : in Duration);
+     (Socket : in out Socket_Type; Timeout : Duration);
    --  Overriden to change the status of the internal SSL data
 
    overriding procedure Finalize (Socket : in out Socket_Type);

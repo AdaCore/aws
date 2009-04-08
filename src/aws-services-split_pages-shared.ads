@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2004-2007                          --
---                                 AdaCore                                  --
+--                     Copyright (C) 2004-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -31,13 +30,13 @@ private package AWS.Services.Split_Pages.Shared is
    Splitter_Error : exception renames Split_Pages.Splitter_Error;
 
    function Associated_Vector
-     (Table : in Templates.Translate_Set;
-      Key   : in String)
+     (Table : Templates.Translate_Set;
+      Key   : String)
       return Templates.Tag;
    --  Returns the composite tag associated with the given key in Table or
    --  raise Splitter_Error if this key does not exist.
 
-   function Safe_URI (URIs : in URI_Table; I : in Natural) return String;
+   function Safe_URI (URIs : URI_Table; I : Natural) return String;
    --  Returns URIs (I) or the empty string if I not a valid index
 
 end AWS.Services.Split_Pages.Shared;

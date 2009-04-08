@@ -41,7 +41,7 @@ package body SOAP.Generator is
 
    use Ada;
 
-   function Format_Name (O : in Object; Name : in String) return String;
+   function Format_Name (O : Object; Name : String) return String;
    --  Returns Name formated with the Ada style if O.Ada_Style is true and
    --  Name unchanged otherwise.
 
@@ -51,22 +51,22 @@ package body SOAP.Generator is
    function Version_String return String;
    --  Returns a version string Ada comment line
 
-   procedure Put_File_Header (O : in Object; File : in Text_IO.File_Type);
+   procedure Put_File_Header (O : Object; File : Text_IO.File_Type);
    --  Add a standard file header into file
 
    procedure Put_Types_Header_Spec
-     (O : in Object; File : in Text_IO.File_Type; Unit_Name : in String);
+     (O : Object; File : Text_IO.File_Type; Unit_Name : String);
    --  Put standard header for types body packages
 
    procedure Put_Types_Header_Body
-     (O : in Object; File : in Text_IO.File_Type; Unit_Name : in String);
+     (O : Object; File : Text_IO.File_Type; Unit_Name : String);
    --  Put standard header for types spec packages
 
    procedure Put_Types
-     (O      : in Object;
-      Proc   : in String;
-      Input  : in WSDL.Parameters.P_Set;
-      Output : in WSDL.Parameters.P_Set);
+     (O      : Object;
+      Proc   : String;
+      Input  : WSDL.Parameters.P_Set;
+      Output : WSDL.Parameters.P_Set);
    --  This must be called to create the data types for composite objects
 
    type Header_Mode is
@@ -78,29 +78,29 @@ package body SOAP.Generator is
    subtype Con_Stub_Header is Header_Mode range C_Stub_Spec .. C_Stub_Body;
 
    procedure Put_Header
-     (File   : in Text_IO.File_Type;
-      O      : in Object;
-      Proc   : in String;
-      Input  : in WSDL.Parameters.P_Set;
-      Output : in WSDL.Parameters.P_Set;
-      Mode   : in Header_Mode);
+     (File   : Text_IO.File_Type;
+      O      : Object;
+      Proc   : String;
+      Input  : WSDL.Parameters.P_Set;
+      Output : WSDL.Parameters.P_Set;
+      Mode   : Header_Mode);
    --  Output procedure header into File. The terminating ';' or 'is' is
    --  outputed depending on Spec value. If Mode is in Con_Stub_Header the
    --  connection based spec is generated, otherwise it is the endpoint based.
 
    function Result_Type
-     (O      : in Object;
-      Proc   : in String;
-      Output : in WSDL.Parameters.P_Set) return String;
+     (O      : Object;
+      Proc   : String;
+      Output : WSDL.Parameters.P_Set) return String;
    --  Returns the result type given the output parameters
 
    procedure Header_Box
-     (O    : in Object;
-      File : in Text_IO.File_Type;
-      Name : in String);
+     (O    : Object;
+      File : Text_IO.File_Type;
+      Name : String);
    --  Generate header box
 
-   function To_Unit_Name (Filename : in String) return String;
+   function To_Unit_Name (Filename : String) return String;
    --  Returns the unit name given a filename following the GNAT
    --  naming scheme.
 
@@ -110,10 +110,10 @@ package body SOAP.Generator is
    --  Children - a pragma for each child unit
 
    procedure With_Unit
-     (File       : in Text_IO.File_Type;
-      Name       : in String;
-      Elab       : in Elab_Pragma := Single;
-      Use_Clause : in Boolean := False);
+     (File       : Text_IO.File_Type;
+      Name       : String;
+      Elab       : Elab_Pragma := Single;
+      Use_Clause : Boolean := False);
    --  Output a with clause for unit Name, also output a use clause if
    --  Use_Clause is set. A pragma Elaborate_All is issued for this unit if
    --  Elab is set.
@@ -134,22 +134,22 @@ package body SOAP.Generator is
 
       procedure Start_Service
         (O             : in out Object;
-         Name          : in     String;
-         Documentation : in     String;
-         Location      : in     String);
+         Name          : String;
+         Documentation : String;
+         Location      : String);
 
       procedure End_Service
         (O    : in out Object;
-         Name : in     String);
+         Name : String);
 
       procedure New_Procedure
         (O          : in out Object;
-         Proc       : in     String;
-         SOAPAction : in     String;
-         Namespace  : in     Name_Space.Object;
-         Input      : in     WSDL.Parameters.P_Set;
-         Output     : in     WSDL.Parameters.P_Set;
-         Fault      : in     WSDL.Parameters.P_Set);
+         Proc       : String;
+         SOAPAction : String;
+         Namespace  : Name_Space.Object;
+         Input      : WSDL.Parameters.P_Set;
+         Output     : WSDL.Parameters.P_Set;
+         Fault      : WSDL.Parameters.P_Set);
 
    end Stub;
 
@@ -159,22 +159,22 @@ package body SOAP.Generator is
 
       procedure Start_Service
         (O             : in out Object;
-         Name          : in     String;
-         Documentation : in     String;
-         Location      : in     String);
+         Name          : String;
+         Documentation : String;
+         Location      : String);
 
       procedure End_Service
         (O    : in out Object;
-         Name : in     String);
+         Name : String);
 
       procedure New_Procedure
         (O          : in out Object;
-         Proc       : in     String;
-         SOAPAction : in     String;
-         Namespace  : in     Name_Space.Object;
-         Input      : in     WSDL.Parameters.P_Set;
-         Output     : in     WSDL.Parameters.P_Set;
-         Fault      : in     WSDL.Parameters.P_Set);
+         Proc       : String;
+         SOAPAction : String;
+         Namespace  : Name_Space.Object;
+         Input      : WSDL.Parameters.P_Set;
+         Output     : WSDL.Parameters.P_Set;
+         Fault      : WSDL.Parameters.P_Set);
 
    end Skel;
 
@@ -184,22 +184,22 @@ package body SOAP.Generator is
 
       procedure Start_Service
         (O             : in out Object;
-         Name          : in     String;
-         Documentation : in     String;
-         Location      : in     String);
+         Name          : String;
+         Documentation : String;
+         Location      : String);
 
       procedure End_Service
         (O    : in out Object;
-         Name : in     String);
+         Name : String);
 
       procedure New_Procedure
         (O          : in out Object;
-         Proc       : in     String;
-         SOAPAction : in     String;
-         Namespace  : in     Name_Space.Object;
-         Input      : in     WSDL.Parameters.P_Set;
-         Output     : in     WSDL.Parameters.P_Set;
-         Fault      : in     WSDL.Parameters.P_Set);
+         Proc       : String;
+         SOAPAction : String;
+         Namespace  : Name_Space.Object;
+         Input      : WSDL.Parameters.P_Set;
+         Output     : WSDL.Parameters.P_Set;
+         Fault      : WSDL.Parameters.P_Set);
 
    end CB;
 
@@ -207,10 +207,10 @@ package body SOAP.Generator is
 
    package Name_Set is
 
-      procedure Add (Name : in String);
+      procedure Add (Name : String);
       --  Add new name into the set
 
-      function Exists (Name : in String) return Boolean;
+      function Exists (Name : String) return Boolean;
       --  Returns true if Name is in the set
 
    end Name_Set;
@@ -254,7 +254,7 @@ package body SOAP.Generator is
 
    overriding procedure End_Service
      (O    : in out Object;
-      Name : in     String)
+      Name : String)
    is
       U_Name : constant String := To_Unit_Name (Format_Name (O, Name));
       Buffer : String (1 .. 512);
@@ -314,7 +314,7 @@ package body SOAP.Generator is
    -- Endpoint --
    --------------
 
-   procedure Endpoint (O : in out Object; URL : in String) is
+   procedure Endpoint (O : in out Object; URL : String) is
    begin
       O.Endpoint := To_Unbounded_String (URL);
    end Endpoint;
@@ -323,16 +323,16 @@ package body SOAP.Generator is
    -- Format_Name --
    -----------------
 
-   function Format_Name (O : in Object; Name : in String) return String is
+   function Format_Name (O : Object; Name : String) return String is
 
-      function Ada_Format (Name : in String) return String;
+      function Ada_Format (Name : String) return String;
       --  Returns Name with the Ada style
 
       ----------------
       -- Ada_Format --
       ----------------
 
-      function Ada_Format (Name : in String) return String is
+      function Ada_Format (Name : String) return String is
          Result : Unbounded_String;
       begin
          --  No need to reformat this name
@@ -387,9 +387,9 @@ package body SOAP.Generator is
    ----------------
 
    procedure Header_Box
-     (O    : in Object;
-      File : in Text_IO.File_Type;
-      Name : in String)
+     (O    : Object;
+      File : Text_IO.File_Type;
+      Name : String)
    is
       pragma Unreferenced (O);
    begin
@@ -405,7 +405,7 @@ package body SOAP.Generator is
    -- Main --
    ----------
 
-   procedure Main (O : in out Object; Name : in String) is
+   procedure Main (O : in out Object; Name : String) is
    begin
       O.Main := To_Unbounded_String (Name);
    end Main;
@@ -422,12 +422,12 @@ package body SOAP.Generator is
 
    overriding procedure New_Procedure
      (O          : in out Object;
-      Proc       : in     String;
-      SOAPAction : in     String;
-      Namespace  : in     Name_Space.Object;
-      Input      : in     WSDL.Parameters.P_Set;
-      Output     : in     WSDL.Parameters.P_Set;
-      Fault      : in     WSDL.Parameters.P_Set) is
+      Proc       : String;
+      SOAPAction : String;
+      Namespace  : Name_Space.Object;
+      Input      : WSDL.Parameters.P_Set;
+      Output     : WSDL.Parameters.P_Set;
+      Fault      : WSDL.Parameters.P_Set) is
    begin
       if not O.Quiet then
          Text_IO.Put_Line ("   > " & Proc);
@@ -473,7 +473,7 @@ package body SOAP.Generator is
    -- Options --
    -------------
 
-   procedure Options (O : in out Object; Options : in String) is
+   procedure Options (O : in out Object; Options : String) is
    begin
       O.Options := To_Unbounded_String (Options);
    end Options;
@@ -491,7 +491,7 @@ package body SOAP.Generator is
    -- Procs_Spec --
    ----------------
 
-   function Procs_Spec (O : in Object) return String is
+   function Procs_Spec (O : Object) return String is
    begin
       if O.Spec /= Null_Unbounded_String then
          return To_String (O.Spec);
@@ -506,7 +506,7 @@ package body SOAP.Generator is
    -- Put_File_Header --
    ---------------------
 
-   procedure Put_File_Header (O : in Object; File : in Text_IO.File_Type) is
+   procedure Put_File_Header (O : Object; File : Text_IO.File_Type) is
    begin
       Text_IO.New_Line (File);
       Text_IO.Put_Line (File, "--  wsdl2aws SOAP Generator v" & Version);
@@ -528,18 +528,18 @@ package body SOAP.Generator is
    ----------------
 
    procedure Put_Header
-     (File   : in Text_IO.File_Type;
-      O      : in Object;
-      Proc   : in String;
-      Input  : in WSDL.Parameters.P_Set;
-      Output : in WSDL.Parameters.P_Set;
-      Mode   : in Header_Mode)
+     (File   : Text_IO.File_Type;
+      O      : Object;
+      Proc   : String;
+      Input  : WSDL.Parameters.P_Set;
+      Output : WSDL.Parameters.P_Set;
+      Mode   : Header_Mode)
    is
       use Ada.Strings.Fixed;
       use type SOAP.WSDL.Parameters.P_Set;
       use type SOAP.WSDL.Parameters.Kind;
 
-      procedure Put_Indent (Last : in Character := ' ');
+      procedure Put_Indent (Last : Character := ' ');
       --  Ouput proper indentation spaces
 
       procedure Input_Parameters;
@@ -571,7 +571,7 @@ package body SOAP.Generator is
                   Text_IO.Put (File, (Max_Len - Name'Length) * ' ');
                end;
 
-               Text_IO.Put (File, " : in ");
+               Text_IO.Put (File, " : ");
 
                case N.Mode is
                   when WSDL.Parameters.K_Simple =>
@@ -631,7 +631,7 @@ package body SOAP.Generator is
       -- Put_Indent --
       ----------------
 
-      procedure Put_Indent (Last : in Character := ' ') is
+      procedure Put_Indent (Last : Character := ' ') is
       begin
          if Mode = Skel_Spec then
             Text_IO.Put (File, "   ");
@@ -715,13 +715,13 @@ package body SOAP.Generator is
             Text_IO.Put (File, "Endpoint");
             Text_IO.Put (File, (Max_Len - 8) * ' ');
             Text_IO.Put_Line
-              (File, " : in String := " & To_String (O.Unit) & ".URL;");
+              (File, " : String := " & To_String (O.Unit) & ".URL;");
 
             Put_Indent;
             Text_IO.Put (File, "Timeouts");
             Text_IO.Put (File, (Max_Len - 8) * ' ');
             Text_IO.Put
-              (File, " : in AWS.Client.Timeouts_Values := "
+              (File, " : AWS.Client.Timeouts_Values := "
                & To_String (O.Unit) & ".Timeouts");
          end if;
 
@@ -738,80 +738,80 @@ package body SOAP.Generator is
    ---------------
 
    procedure Put_Types
-     (O      : in Object;
-      Proc   : in String;
-      Input  : in WSDL.Parameters.P_Set;
-      Output : in WSDL.Parameters.P_Set)
+     (O      : Object;
+      Proc   : String;
+      Input  : WSDL.Parameters.P_Set;
+      Output : WSDL.Parameters.P_Set)
    is
       use Characters.Handling;
       use type WSDL.Parameters.Kind;
       use type WSDL.Parameters.P_Set;
 
       procedure Generate_Record
-        (Name   : in String;
-         P      : in WSDL.Parameters.P_Set;
-         Output : in Boolean               := False);
+        (Name   : String;
+         P      : WSDL.Parameters.P_Set;
+         Output : Boolean               := False);
       --  Output record definitions (type and routine conversion)
 
-      function Type_Name (N : in WSDL.Parameters.P_Set) return String;
+      function Type_Name (N : WSDL.Parameters.P_Set) return String;
       --  Returns the name of the type for parameter on node N
 
       procedure Generate_Array
-        (Name  : in String;
-         P     : in WSDL.Parameters.P_Set;
-         Regen : in Boolean);
+        (Name  : String;
+         P     : WSDL.Parameters.P_Set;
+         Regen : Boolean);
       --  Generate array definitions (type and routine conversion)
 
       procedure Generate_Derived
-        (Name : in String;
-         P    : in WSDL.Parameters.P_Set);
+        (Name : String;
+         P    : WSDL.Parameters.P_Set);
       --  Generate derived type definition
 
       procedure Generate_Enumeration
-        (Name : in String;
-         P    : in WSDL.Parameters.P_Set);
+        (Name : String;
+         P    : WSDL.Parameters.P_Set);
       --  Generate enumeration type definition
 
       function Generate_Namespace
-        (NS     : in Name_Space.Object;
-         Create : in Boolean) return String;
+        (NS     : Name_Space.Object;
+         Create : Boolean) return String;
       --  Generate the namespace package from NS
 
       procedure Generate_References
-        (File : in Text_IO.File_Type;
-         P    : in WSDL.Parameters.P_Set);
+        (File : Text_IO.File_Type;
+         P    : WSDL.Parameters.P_Set);
       --  Generates with/use clauses for all referenced types
 
       procedure Initialize_Types_Package
-        (P            : in     WSDL.Parameters.P_Set;
-         Name         : in     String;
-         Output       : in     Boolean;
-         Prefix       :    out Unbounded_String;
-         F_Ads, F_Adb :    out Text_IO.File_Type;
-         Regen        : in     Boolean := False);
+        (P            : WSDL.Parameters.P_Set;
+         Name         : String;
+         Output       : Boolean;
+         Prefix       : out Unbounded_String;
+         F_Ads, F_Adb : out Text_IO.File_Type;
+         Regen        : Boolean := False);
       --  Creates the full namespaces if needed and return it in Prefix.
       --  Creates also the package hierarchy. Returns a spec and body file
       --  descriptor.
 
       procedure Finalize_Types_Package
-        (Prefix       : in     Unbounded_String;
+        (Prefix       : Unbounded_String;
          F_Ads, F_Adb : in out Text_IO.File_Type;
-         No_Body      : in     Boolean := False);
+         No_Body      : Boolean := False);
       --  Generate code to terminate the package and close files
 
-      procedure Output_Types (P : in WSDL.Parameters.P_Set);
+      procedure Output_Types (P : WSDL.Parameters.P_Set);
       --  Output types conversion routines
 
-      function Get_Routine (P : in WSDL.Parameters.P_Set) return String;
+      function Get_Routine (P : WSDL.Parameters.P_Set) return String;
       --  Returns the Get routine for the given type
 
-      function Set_Routine (P : in WSDL.Parameters.P_Set) return String;
+      function Set_Routine (P : WSDL.Parameters.P_Set) return String;
       --  Returns the constructor routine for the given type
 
-      function Set_Type (Name : in String) return String;
+      function Set_Type (Name : String) return String;
       --  Returns the SOAP type for Name
 
-      function Is_Inside_Record (Name : in String) return Boolean;
+      function Is_Inside_Record (Name : String) return Boolean;
       --  Returns True if Name is defined inside a record in the Input
       --  or Output parameter list.
 
@@ -820,9 +820,9 @@ package body SOAP.Generator is
       ----------------------------
 
       procedure Finalize_Types_Package
-        (Prefix       : in     Unbounded_String;
+        (Prefix       : Unbounded_String;
          F_Ads, F_Adb : in out Text_IO.File_Type;
-         No_Body      : in     Boolean := False) is
+         No_Body      : Boolean := False) is
       begin
          Text_IO.New_Line (F_Ads);
          Text_IO.Put_Line
@@ -844,18 +844,18 @@ package body SOAP.Generator is
       --------------------
 
       procedure Generate_Array
-        (Name  : in String;
-         P     : in WSDL.Parameters.P_Set;
-         Regen : in Boolean)
+        (Name  : String;
+         P     : WSDL.Parameters.P_Set;
+         Regen : Boolean)
       is
-         function To_Ada_Type (Name : in String) return String;
+         function To_Ada_Type (Name : String) return String;
          --  Returns the Ada corresponding type
 
          -----------------
          -- To_Ada_Type --
          -----------------
 
-         function To_Ada_Type (Name : in String) return String is
+         function To_Ada_Type (Name : String) return String is
          begin
             if WSDL.Is_Standard (Name) then
                return WSDL.To_Ada
@@ -957,7 +957,7 @@ package body SOAP.Generator is
                Text_IO.Put_Line
                  (Arr_Ads, "   function ""+""");
                Text_IO.Put_Line
-                 (Arr_Ads, "     (O : in " & F_Name & ')');
+                 (Arr_Ads, "     (O : " & F_Name & ')');
                Text_IO.Put_Line
                  (Arr_Ads, "      return " & F_Name & "_Safe_Access");
                Text_IO.Put_Line
@@ -971,7 +971,7 @@ package body SOAP.Generator is
                   Text_IO.Put_Line
                     (Tmp_Ads, "   function ""+""");
                   Text_IO.Put_Line
-                    (Tmp_Ads, "     (O : in "
+                    (Tmp_Ads, "     (O : "
                      & To_Unit_Name (To_String (Prefix)) & '.' & F_Name & ')');
                   Text_IO.Put_Line
                     (Tmp_Ads, "      return "
@@ -1036,7 +1036,7 @@ package body SOAP.Generator is
                   Text_IO.Put_Line
                     (Tmp_Ads, "   function ""+""");
                   Text_IO.Put_Line
-                    (Tmp_Ads, "     (O : in " & F_Name & ')');
+                    (Tmp_Ads, "     (O : " & F_Name & ')');
                   Text_IO.Put_Line
                     (Tmp_Ads, "      return " & F_Name & "_Safe_Access");
                   Text_IO.Put_Line
@@ -1062,7 +1062,7 @@ package body SOAP.Generator is
                Text_IO.Put_Line
                  (Arr_Ads, "   function ""+""");
                Text_IO.Put_Line
-                 (Arr_Ads, "     (O : in " & F_Name & ')');
+                 (Arr_Ads, "     (O : " & F_Name & ')');
                Text_IO.Put_Line
                  (Arr_Ads, "      return " & F_Name & "_Safe_Access");
                Text_IO.Put_Line
@@ -1090,7 +1090,7 @@ package body SOAP.Generator is
             Text_IO.Put_Line
               (Tmp_Ads, "   function To_" & F_Name);
             Text_IO.Put_Line
-              (Tmp_Ads, "     (From : in SOAP.Types.Object_Set)");
+              (Tmp_Ads, "     (From : SOAP.Types.Object_Set)");
             Text_IO.Put_Line (Tmp_Ads, "      return " & F_Name);
             Text_IO.Put_Line
               (Tmp_Ads, "      renames "
@@ -1125,7 +1125,7 @@ package body SOAP.Generator is
             Text_IO.Put_Line
               (Tmp_Ads, "   function To_Object_Set");
             Text_IO.Put_Line
-              (Tmp_Ads, "     (From : in " & F_Name & ')');
+              (Tmp_Ads, "     (From : " & F_Name & ')');
             Text_IO.Put_Line (Tmp_Ads, "      return SOAP.Types.Object_Set");
             Text_IO.Put_Line
               (Tmp_Ads, "      renames "
@@ -1153,8 +1153,8 @@ package body SOAP.Generator is
       ----------------------
 
       procedure Generate_Derived
-        (Name : in String;
-         P    : in WSDL.Parameters.P_Set)
+        (Name : String;
+         P    : WSDL.Parameters.P_Set)
       is
          F_Name : constant String := Format_Name (O, Name);
          T_Name : constant String := WSDL.To_Ada (P.Parent_Type);
@@ -1193,21 +1193,21 @@ package body SOAP.Generator is
       --------------------------
 
       procedure Generate_Enumeration
-        (Name : in String;
-         P    : in WSDL.Parameters.P_Set)
+        (Name : String;
+         P    : WSDL.Parameters.P_Set)
       is
          use type WSDL.Parameters.E_Node_Access;
 
          F_Name : constant String := Format_Name (O, Name);
 
-         function Image (E : in WSDL.Parameters.E_Node_Access) return String;
+         function Image (E : WSDL.Parameters.E_Node_Access) return String;
          --  Returns the enumeration definition
 
          -----------
          -- Image --
          -----------
 
-         function Image (E : in WSDL.Parameters.E_Node_Access) return String is
+         function Image (E : WSDL.Parameters.E_Node_Access) return String is
             Col    : constant Natural := 13 + F_Name'Length;
             Sep    : constant String := ASCII.LF & "     ";
             Result : Unbounded_String;
@@ -1284,11 +1284,11 @@ package body SOAP.Generator is
          Text_IO.New_Line (Enu_Ads);
          Text_IO.Put_Line
            (Enu_Ads,
-            "   function Image (E : in " & F_Name & ") return String;");
+            "   function Image (E : " & F_Name & ") return String;");
 
          Text_IO.New_Line (Tmp_Ads);
          Text_IO.Put_Line
-           (Tmp_Ads, "   function Image (E : in " & F_Name & ")");
+           (Tmp_Ads, "   function Image (E : " & F_Name & ")");
          Text_IO.Put_Line
            (Tmp_Ads, "      return String ");
          Text_IO.Put_Line
@@ -1298,7 +1298,7 @@ package body SOAP.Generator is
          Text_IO.New_Line (Enu_Adb);
          Text_IO.Put_Line
            (Enu_Adb,
-            "   function Image (E : in " & F_Name & ") return String is");
+            "   function Image (E : " & F_Name & ") return String is");
          Text_IO.Put_Line (Enu_Adb, "   begin");
          Text_IO.Put_Line (Enu_Adb, "      case E is");
 
@@ -1327,22 +1327,22 @@ package body SOAP.Generator is
       ------------------------
 
       function Generate_Namespace
-        (NS     : in Name_Space.Object;
-         Create : in Boolean) return String
+        (NS     : Name_Space.Object;
+         Create : Boolean) return String
       is
          use type Name_Space.Object;
 
-         function Gen_Dir (Prefix, Name : in String) return String;
+         function Gen_Dir (Prefix, Name : String) return String;
          --  ???
 
-         function Gen_Package (Prefix, Name : in String) return String;
+         function Gen_Package (Prefix, Name : String) return String;
          --  ???
 
          -------------
          -- Gen_Dir --
          -------------
 
-         function Gen_Dir (Prefix, Name : in String) return String is
+         function Gen_Dir (Prefix, Name : String) return String is
             F : constant Natural := Name'First;
             L : Natural;
          begin
@@ -1362,19 +1362,19 @@ package body SOAP.Generator is
          -- Gen_Package --
          -----------------
 
-         function Gen_Package (Prefix, Name : in String) return String is
+         function Gen_Package (Prefix, Name : String) return String is
 
             function Get_Prefix return String;
             --  Retruns Prefix & '-' if prefix is not empty
 
-            function Get_Name (Name : in String) return String;
+            function Get_Name (Name : String) return String;
             --  Returns n is a valid identifier, prefix with 'n' is number
 
             --------------
             -- Get_Name --
             --------------
 
-            function Get_Name (Name : in String) return String is
+            function Get_Name (Name : String) return String is
                N : constant String := Format_Name (O, Name);
             begin
                if Strings.Fixed.Count
@@ -1461,9 +1461,9 @@ package body SOAP.Generator is
       ---------------------
 
       procedure Generate_Record
-        (Name   : in String;
-         P      : in WSDL.Parameters.P_Set;
-         Output : in Boolean               := False)
+        (Name   : String;
+         P      : WSDL.Parameters.P_Set;
+         Output : Boolean               := False)
       is
          use type SOAP.Name_Space.Object;
 
@@ -1567,12 +1567,12 @@ package body SOAP.Generator is
 
          Text_IO.New_Line (Rec_Ads);
          Text_IO.Put_Line (Rec_Ads, "   function To_" & F_Name);
-         Text_IO.Put_Line (Rec_Ads, "     (O : in SOAP.Types.Object'Class)");
+         Text_IO.Put_Line (Rec_Ads, "     (O : SOAP.Types.Object'Class)");
          Text_IO.Put_Line (Rec_Ads, "      return " & F_Name & ';');
 
          Text_IO.New_Line (Tmp_Ads);
          Text_IO.Put_Line (Tmp_Ads, "   function To_" & F_Name);
-         Text_IO.Put_Line (Tmp_Ads, "     (O : in SOAP.Types.Object'Class)");
+         Text_IO.Put_Line (Tmp_Ads, "     (O : SOAP.Types.Object'Class)");
          Text_IO.Put_Line (Tmp_Ads, "      return " & F_Name);
          Text_IO.Put_Line
            (Tmp_Ads, "      renames "
@@ -1580,14 +1580,14 @@ package body SOAP.Generator is
 
          Text_IO.New_Line (Rec_Ads);
          Text_IO.Put_Line (Rec_Ads, "   function To_SOAP_Object");
-         Text_IO.Put_Line (Rec_Ads, "     (R    : in " & F_Name & ';');
-         Text_IO.Put_Line (Rec_Ads, "      Name : in String := ""item"")");
+         Text_IO.Put_Line (Rec_Ads, "     (R    : " & F_Name & ';');
+         Text_IO.Put_Line (Rec_Ads, "      Name : String := ""item"")");
          Text_IO.Put_Line (Rec_Ads, "      return SOAP.Types.SOAP_Record;");
 
          Text_IO.New_Line (Tmp_Ads);
          Text_IO.Put_Line (Tmp_Ads, "   function To_SOAP_Object");
-         Text_IO.Put_Line (Tmp_Ads, "     (R    : in " & F_Name & ';');
-         Text_IO.Put_Line (Tmp_Ads, "      Name : in String := ""item"")");
+         Text_IO.Put_Line (Tmp_Ads, "     (R    : " & F_Name & ';');
+         Text_IO.Put_Line (Tmp_Ads, "      Name : String := ""item"")");
          Text_IO.Put_Line (Tmp_Ads, "      return SOAP.Types.SOAP_Record");
          Text_IO.Put_Line
            (Tmp_Ads, "      renames "
@@ -1601,7 +1601,7 @@ package body SOAP.Generator is
 
          Text_IO.New_Line (Rec_Adb);
          Text_IO.Put_Line (Rec_Adb, "   function To_" & F_Name);
-         Text_IO.Put_Line (Rec_Adb, "     (O : in SOAP.Types.Object'Class)");
+         Text_IO.Put_Line (Rec_Adb, "     (O : SOAP.Types.Object'Class)");
          Text_IO.Put_Line (Rec_Adb, "      return " & F_Name);
          Text_IO.Put_Line (Rec_Adb, "   is");
 
@@ -1707,14 +1707,14 @@ package body SOAP.Generator is
 
          if N /= null then
             declare
-               procedure Emit_Check (F_Name, I_Type : in String);
+               procedure Emit_Check (F_Name, I_Type : String);
                --  Emit a check for F_Name'Tag = I_Type'Tag
 
                ----------------
                -- Emit_Check --
                ----------------
 
-               procedure Emit_Check (F_Name, I_Type : in String) is
+               procedure Emit_Check (F_Name, I_Type : String) is
                begin
                   Text_IO.Put_Line
                     (Rec_Adb,
@@ -1787,8 +1787,8 @@ package body SOAP.Generator is
          Text_IO.New_Line (Rec_Adb);
          Text_IO.Put_Line (Rec_Adb, "   function To_SOAP_Object");
 
-         Text_IO.Put_Line (Rec_Adb, "     (R    : in " & F_Name & ';');
-         Text_IO.Put_Line (Rec_Adb, "      Name : in String := ""item"")");
+         Text_IO.Put_Line (Rec_Adb, "     (R    : " & F_Name & ';');
+         Text_IO.Put_Line (Rec_Adb, "      Name : String := ""item"")");
          Text_IO.Put_Line (Rec_Adb, "      return SOAP.Types.SOAP_Record");
          Text_IO.Put_Line (Rec_Adb, "   is");
          Text_IO.Put_Line (Rec_Adb, "      Result : SOAP.Types.SOAP_Record;");
@@ -1893,8 +1893,8 @@ package body SOAP.Generator is
       -------------------------
 
       procedure Generate_References
-        (File : in Text_IO.File_Type;
-         P    : in WSDL.Parameters.P_Set)
+        (File : Text_IO.File_Type;
+         P    : WSDL.Parameters.P_Set)
       is
          use type Name_Space.Object;
          N : WSDL.Parameters.P_Set := P;
@@ -1923,7 +1923,7 @@ package body SOAP.Generator is
       -- Get_Routine --
       -----------------
 
-      function Get_Routine (P : in WSDL.Parameters.P_Set) return String is
+      function Get_Routine (P : WSDL.Parameters.P_Set) return String is
       begin
          case P.Mode is
             when WSDL.Parameters.K_Simple =>
@@ -1957,12 +1957,12 @@ package body SOAP.Generator is
       ------------------------------
 
       procedure Initialize_Types_Package
-        (P            : in     WSDL.Parameters.P_Set;
-         Name         : in     String;
-         Output       : in     Boolean;
-         Prefix       :    out Unbounded_String;
-         F_Ads, F_Adb :    out Text_IO.File_Type;
-         Regen        : in     Boolean := False)
+        (P            : WSDL.Parameters.P_Set;
+         Name         : String;
+         Output       : Boolean;
+         Prefix       : out Unbounded_String;
+         F_Ads, F_Adb : out Text_IO.File_Type;
+         Regen        : Boolean := False)
       is
          use WSDL.Parameters;
          F_Name : constant String := Name & "_Pkg";
@@ -2006,16 +2006,16 @@ package body SOAP.Generator is
       -- Is_Inside_Record --
       ----------------------
 
-      function Is_Inside_Record (Name : in String) return Boolean is
+      function Is_Inside_Record (Name : String) return Boolean is
          In_Record : Boolean := False;
 
          procedure Check_Record
-           (P_Set : in     WSDL.Parameters.P_Set;
-            Mode  :    out Boolean);
+           (P_Set : WSDL.Parameters.P_Set;
+            Mode  : out Boolean);
          --  Checks all record fields for Name
 
          procedure Check_Parameters
-           (P_Set : in WSDL.Parameters.P_Set);
+           (P_Set : WSDL.Parameters.P_Set);
          --  Checks P_Set for Name declared inside a record
 
          ----------------------
@@ -2023,7 +2023,7 @@ package body SOAP.Generator is
          ----------------------
 
          procedure Check_Parameters
-           (P_Set : in WSDL.Parameters.P_Set)
+           (P_Set : WSDL.Parameters.P_Set)
          is
             P : WSDL.Parameters.P_Set := P_Set;
          begin
@@ -2041,8 +2041,8 @@ package body SOAP.Generator is
          ------------------
 
          procedure Check_Record
-           (P_Set : in     WSDL.Parameters.P_Set;
-            Mode  :    out Boolean)
+           (P_Set : WSDL.Parameters.P_Set;
+            Mode  : out Boolean)
          is
             P : WSDL.Parameters.P_Set := P_Set;
          begin
@@ -2074,7 +2074,7 @@ package body SOAP.Generator is
       -- Output_Types --
       ------------------
 
-      procedure Output_Types (P : in WSDL.Parameters.P_Set) is
+      procedure Output_Types (P : WSDL.Parameters.P_Set) is
          N : WSDL.Parameters.P_Set := P;
       begin
          while N /= null loop
@@ -2157,7 +2157,7 @@ package body SOAP.Generator is
       -- Set_Routine --
       -----------------
 
-      function Set_Routine (P : in WSDL.Parameters.P_Set) return String is
+      function Set_Routine (P : WSDL.Parameters.P_Set) return String is
       begin
          case P.Mode is
             when WSDL.Parameters.K_Simple =>
@@ -2192,7 +2192,7 @@ package body SOAP.Generator is
       -- Set_Type --
       --------------
 
-      function Set_Type (Name : in String) return String is
+      function Set_Type (Name : String) return String is
       begin
          if WSDL.Is_Standard (Name) then
             return WSDL.Set_Type (WSDL.To_Type (Name));
@@ -2205,7 +2205,7 @@ package body SOAP.Generator is
       -- Type_Name --
       ---------------
 
-      function Type_Name (N : in WSDL.Parameters.P_Set) return String is
+      function Type_Name (N : WSDL.Parameters.P_Set) return String is
          use type WSDL.Parameter_Type;
       begin
          case N.Mode is
@@ -2291,7 +2291,7 @@ package body SOAP.Generator is
    ---------------------------
 
    procedure Put_Types_Header_Body
-     (O : in Object; File : in Text_IO.File_Type; Unit_Name : in String)
+     (O : Object; File : Text_IO.File_Type; Unit_Name : String)
    is
       pragma Unreferenced (O);
    begin
@@ -2317,7 +2317,7 @@ package body SOAP.Generator is
    ---------------------------
 
    procedure Put_Types_Header_Spec
-     (O : in Object; File : in Text_IO.File_Type; Unit_Name : in String) is
+     (O : Object; File : Text_IO.File_Type; Unit_Name : String) is
    begin
       With_Unit (File, "Ada.Calendar", Elab => Off);
       With_Unit (File, "Ada.Strings.Unbounded", Elab => Off);
@@ -2365,7 +2365,7 @@ package body SOAP.Generator is
       Text_IO.Put_Line (File, "   use Ada.Strings.Unbounded;");
       Text_IO.New_Line (File);
       Text_IO.Put_Line (File, "   function ""+""");
-      Text_IO.Put_Line (File, "     (Str : in String)");
+      Text_IO.Put_Line (File, "     (Str : String)");
       Text_IO.Put_Line (File, "      return Unbounded_String");
       Text_IO.Put_Line (File, "      renames To_Unbounded_String;");
    end Put_Types_Header_Spec;
@@ -2384,9 +2384,9 @@ package body SOAP.Generator is
    -----------------
 
    function Result_Type
-     (O      : in Object;
-      Proc   : in String;
-      Output : in WSDL.Parameters.P_Set) return String
+     (O      : Object;
+      Proc   : String;
+      Output : WSDL.Parameters.P_Set) return String
    is
       use type WSDL.Parameters.Kind;
 
@@ -2406,7 +2406,7 @@ package body SOAP.Generator is
    ---------------
 
    procedure Set_Proxy
-     (O : in out Object; Proxy, User, Password : in String) is
+     (O : in out Object; Proxy, User, Password : String) is
    begin
       O.Proxy  := To_Unbounded_String (Proxy);
       O.P_User := To_Unbounded_String (User);
@@ -2419,7 +2419,7 @@ package body SOAP.Generator is
 
    procedure Set_Timeouts
      (O        : in out Object;
-      Timeouts : in Client.Timeouts_Values) is
+      Timeouts : Client.Timeouts_Values) is
    begin
       O.Timeouts := Timeouts;
    end Set_Timeouts;
@@ -2434,7 +2434,7 @@ package body SOAP.Generator is
    -- Specs_From --
    ----------------
 
-   procedure Specs_From (O : in out Object; Spec : in String) is
+   procedure Specs_From (O : in out Object; Spec : String) is
    begin
       O.Spec := To_Unbounded_String (Spec);
    end Specs_From;
@@ -2445,24 +2445,24 @@ package body SOAP.Generator is
 
    overriding procedure Start_Service
      (O             : in out Object;
-      Name          : in     String;
-      Documentation : in     String;
-      Location      : in     String)
+      Name          : String;
+      Documentation : String;
+      Location      : String)
    is
       use type Client.Timeouts_Values;
 
       U_Name : constant String := To_Unit_Name (Format_Name (O, Name));
 
-      procedure Create (File : in out Text_IO.File_Type; Filename : in String);
+      procedure Create (File : in out Text_IO.File_Type; Filename : String);
       --  Create Filename, raise execption Generator_Error if the file already
       --  exists and overwrite mode not activated.
 
-      procedure Generate_Main (Filename : in String);
+      procedure Generate_Main (Filename : String);
       --  Generate the main server's procedure. Either the file exists and is
       --  a template use it to generate the main otherwise just generate a
       --  standard main procedure.
 
-      function Timeout_Image (Timeout : in Duration) return String;
+      function Timeout_Image (Timeout : Duration) return String;
 
       ------------
       -- Create --
@@ -2470,7 +2470,7 @@ package body SOAP.Generator is
 
       procedure Create
         (File     : in out Text_IO.File_Type;
-         Filename : in     String) is
+         Filename : String) is
       begin
          if AWS.Utils.Is_Regular_File (Filename) and then not O.Force then
             raise Generator_Error
@@ -2484,7 +2484,7 @@ package body SOAP.Generator is
       -- Generate_Main --
       -------------------
 
-      procedure Generate_Main (Filename : in String) is
+      procedure Generate_Main (Filename : String) is
          use Text_IO;
 
          L_Filename        : constant String :=
@@ -2530,7 +2530,7 @@ package body SOAP.Generator is
             Put_Line (File, "   use AWS;");
             New_Line (File);
             Put_Line (File, "   function CB ");
-            Put_Line (File, "      (Request : in Status.Data)");
+            Put_Line (File, "      (Request : Status.Data)");
             Put_Line (File, "       return Response.Data");
             Put_Line (File, "   is");
             Put_Line (File, "      R : Response.Data;");
@@ -2562,7 +2562,7 @@ package body SOAP.Generator is
       -- Timeout_Image --
       -------------------
 
-      function Timeout_Image (Timeout : in Duration) return String is
+      function Timeout_Image (Timeout : Duration) return String is
       begin
          if Timeout = Duration'Last then
             return "Duration'Last";
@@ -2736,7 +2736,7 @@ package body SOAP.Generator is
    -- To_Unit_Name --
    ------------------
 
-   function To_Unit_Name (Filename : in String) return String is
+   function To_Unit_Name (Filename : String) return String is
    begin
       return Strings.Fixed.Translate
         (Filename, Strings.Maps.To_Mapping ("-", "."));
@@ -2746,7 +2746,7 @@ package body SOAP.Generator is
    -- Types_From --
    ----------------
 
-   procedure Types_From (O : in out Object; Spec : in String) is
+   procedure Types_From (O : in out Object; Spec : String) is
    begin
       O.Types_Spec := To_Unbounded_String (To_Unit_Name (Spec));
    end Types_From;
@@ -2755,7 +2755,7 @@ package body SOAP.Generator is
    -- Types_Spec --
    ----------------
 
-   function Types_Spec (O : in Object) return String is
+   function Types_Spec (O : Object) return String is
    begin
       if O.Types_Spec /= Null_Unbounded_String then
          return To_String (O.Types_Spec);
@@ -2781,10 +2781,10 @@ package body SOAP.Generator is
    ---------------
 
    procedure With_Unit
-     (File       : in Text_IO.File_Type;
-      Name       : in String;
-      Elab       : in Elab_Pragma := Single;
-      Use_Clause : in Boolean := False) is
+     (File       : Text_IO.File_Type;
+      Name       : String;
+      Elab       : Elab_Pragma := Single;
+      Use_Clause : Boolean := False) is
    begin
       Text_IO.Put_Line (File, "with " & Name & ';');
 
@@ -2821,7 +2821,7 @@ package body SOAP.Generator is
    -- WSDL_File --
    ---------------
 
-   procedure WSDL_File (O : in out Object; Filename : in String) is
+   procedure WSDL_File (O : in out Object; Filename : String) is
    begin
       O.WSDL_File := To_Unbounded_String (Filename);
    end WSDL_File;

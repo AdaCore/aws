@@ -2,7 +2,7 @@
 --                              Ada Web Server                              --
 --                       P O P - Post Office Protocol                       --
 --                                                                          --
---                     Copyright (C) 2003-2008, AdaCore                     --
+--                     Copyright (C) 2003-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -52,25 +52,25 @@ package AWS.POP is
    type Authenticate_Mode is (Clear_Text, APOP);
 
    function Initialize
-     (Server_Name  : in String;
-      User         : in String;
-      Password     : in String;
-      Authenticate : in Authenticate_Mode := Clear_Text;
-      Port         : in Positive          := Default_POP_Port)
+     (Server_Name  : String;
+      User         : String;
+      Password     : String;
+      Authenticate : Authenticate_Mode := Clear_Text;
+      Port         : Positive          := Default_POP_Port)
       return Mailbox;
    --  Connect on the given Port to Server_Name and open User's Mailbox. This
    --  mailbox object will be used to retrieve messages.
 
-   procedure Close (Mailbox : in POP.Mailbox);
+   procedure Close (Mailbox : POP.Mailbox);
    --  Close mailbox
 
-   function User_Name (Mailbox : in POP.Mailbox) return String;
+   function User_Name (Mailbox : POP.Mailbox) return String;
    --  Returns User's name for this mailbox
 
-   function Message_Count (Mailbox : in POP.Mailbox) return Natural;
+   function Message_Count (Mailbox : POP.Mailbox) return Natural;
    --  Returns the number of messages in the user's mailbox
 
-   function Size (Mailbox : in POP.Mailbox) return Natural;
+   function Size (Mailbox : POP.Mailbox) return Natural;
    --  Returns the total size in bytes of the user's mailbox
 
    -------------
@@ -80,82 +80,82 @@ package AWS.POP is
    type Message is tagged private;
 
    function Get
-     (Mailbox : in POP.Mailbox;
-      N       : in Positive;
-      Remove  : in Boolean     := False)
+     (Mailbox : POP.Mailbox;
+      N       : Positive;
+      Remove  : Boolean     := False)
       return Message;
    --  Retrieve Nth message from the mailbox, let the message on the mailbox
    --  if Remove is False.
 
    procedure Delete
-     (Mailbox : in POP.Mailbox;
-      N       : in Positive);
+     (Mailbox : POP.Mailbox;
+      N       : Positive);
    --  Detele message number N from the mailbox
 
    function Get_Header
-     (Mailbox : in POP.Mailbox;
-      N       : in Positive)
+     (Mailbox : POP.Mailbox;
+      N       : Positive)
       return Message;
    --  Retrieve headers for the Nth message from the mailbox, let the message
    --  on the mailbox. This is useful to build a quick summary of the mailbox.
 
    generic
       with procedure Action
-        (Message : in     POP.Message;
-         Index   : in     Positive;
+        (Message : POP.Message;
+         Index   : Positive;
          Quit    : in out Boolean);
    procedure For_Every_Message
-     (Mailbox : in POP.Mailbox;
-      Remove  : in Boolean := False);
+     (Mailbox : POP.Mailbox;
+      Remove  : Boolean := False);
    --  Calls Action for each message read on the mailbox, delete the message
    --  from the mailbox if Remove is True. Set Quit to True to stop the
    --  iterator. Index is the mailbox's message index.
 
    generic
       with procedure Action
-        (Message : in     POP.Message;
-         Index   : in     Positive;
+        (Message : POP.Message;
+         Index   : Positive;
          Quit    : in out Boolean);
-   procedure For_Every_Message_Header (Mailbox : in POP.Mailbox);
+   procedure For_Every_Message_Header (Mailbox : POP.Mailbox);
    --  Calls Action for each message read on the mailbox. Only the headers are
    --  read from the mailbox. Set Quit to True to stop the iterator. Index is
    --  the mailbox's message index.
 
-   function Size (Message : in POP.Message) return Natural;
+   function Size (Message : POP.Message) return Natural;
    --  Returns the message size in bytes
 
-   function Content (Message : in POP.Message) return Unbounded_String;
+   function Content (Message : POP.Message) return Unbounded_String;
    --  Returns message's content as an Unbounded_String. Each line are
    --  separated by CR+LF characters.
 
-   function From (Message : in POP.Message) return String;
+   function From (Message : POP.Message) return String;
    --  Returns From header value
 
-   function To (Message : in POP.Message; N : in Natural := 0) return String;
+   function To (Message : POP.Message; N : Natural := 0) return String;
    --  Returns the To header value. If N = 0 returns all recipients separated
    --  by a coma otherwise it returns the Nth To recipient.
 
-   function To_Count (Message : in POP.Message) return Natural;
+   function To_Count (Message : POP.Message) return Natural;
    --  Returns the number of To recipient for Message. returns 0 if there is
    --  no To for this message.
 
-   function CC (Message : in POP.Message; N : in Natural := 0) return String;
+   function CC (Message : POP.Message; N : Natural := 0) return String;
    --  Retruns the CC header value. If N = 0 returns all recipients separated
    --  by a coma otherwise it returns the Nth CC recipient.
 
-   function CC_Count (Message : in POP.Message) return Natural;
+   function CC_Count (Message : POP.Message) return Natural;
    --  Returns the number of CC recipient for Message. Returns 0 if there is
    --  no CC for this message.
 
-   function Subject (Message : in POP.Message) return String;
+   function Subject (Message : POP.Message) return String;
    --  Returns Subject header value
 
-   function Date (Message : in POP.Message) return String;
+   function Date (Message : POP.Message) return String;
    --  Returns Date header value
 
    function Header
-     (Message : in POP.Message;
-      Header  : in String)
+     (Message : POP.Message;
+      Header  : String)
       return String;
    --  Returns header value for header named Header, returns the empty string
    --  if such header does not exist.
@@ -166,43 +166,43 @@ package AWS.POP is
 
    type Attachment is private;
 
-   function Attachment_Count (Message : in POP.Message) return Natural;
+   function Attachment_Count (Message : POP.Message) return Natural;
    --  Returns the number of Attachments into Message
 
    function Get
-     (Message : in POP.Message'Class;
-      Index   : in Positive) return Attachment;
+     (Message : POP.Message'Class;
+      Index   : Positive) return Attachment;
    --  Returns the Nth Attachment for Message, Raises Constraint_Error if
    --  there is not such attachment.
 
    generic
       with procedure Action
-        (Attachment : in     POP.Attachment;
-         Index      : in     Positive;
+        (Attachment : POP.Attachment;
+         Index      : Positive;
          Quit       : in out Boolean);
-   procedure For_Every_Attachment (Message : in POP.Message);
+   procedure For_Every_Attachment (Message : POP.Message);
    --  Calls action for every Attachment in Message. Stop iterator if Quit is
    --  set to True, Quit is set to False by default.
 
    function Content
-     (Attachment : in POP.Attachment)
+     (Attachment : POP.Attachment)
       return AWS.Resources.Streams.Stream_Access;
    --  Returns Attachment's content as a memory stream. Note that the stream
    --  has already been decoded. Most attachments are MIME Base64 encoded.
 
-   function Content (Attachment : in POP.Attachment) return Unbounded_String;
+   function Content (Attachment : POP.Attachment) return Unbounded_String;
    --  Returns Attachment's content as an Unbounded_String. This routine must
    --  only be used for non file attachments. Raises Constraint_Error if
    --  called for a file attachment.
 
-   function Filename (Attachment : in POP.Attachment) return String;
+   function Filename (Attachment : POP.Attachment) return String;
    --  Returns the Attachment filename or the empty string if it is not a file
    --  but an embedded message.
 
-   function Is_File (Attachment : in POP.Attachment) return Boolean;
+   function Is_File (Attachment : POP.Attachment) return Boolean;
    --  Returns True if Attachment is a file
 
-   procedure Write (Attachment : in POP.Attachment; Directory : in String);
+   procedure Write (Attachment : POP.Attachment; Directory : String);
    --  Writes Attachment's file content into Directory. This must only be used
    --  for a file attachment.
 

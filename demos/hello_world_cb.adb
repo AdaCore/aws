@@ -31,7 +31,7 @@ package body Hello_World_CB is
    -- HW_CB --
    -----------
 
-   function HW_CB (Request : in AWS.Status.Data) return AWS.Response.Data is
+   function HW_CB (Request : AWS.Status.Data) return AWS.Response.Data is
       pragma Unreferenced (Request);
    begin
       return AWS.Response.Build ("text/html", "<p>Hello world !");

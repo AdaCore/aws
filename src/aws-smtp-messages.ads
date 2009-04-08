@@ -2,8 +2,7 @@
 --                              Ada Web Server                              --
 --                 S M T P - Simple Mail Transfer Protocol                  --
 --                                                                          --
---                            Copyright (C) 2008                            --
---                                 AdaCore                                  --
+--                     Copyright (C) 2008-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -50,10 +49,10 @@ package AWS.SMTP.Messages is
 
    type Data is private;
 
-   function Message_Body (Message : in Data) return String;
+   function Message_Body (Message : Data) return String;
    --  Returns the message body
 
-   function Headers (Message : in Data) return Headers.List;
+   function Headers (Message : Data) return Headers.List;
    --  Returns the SMTP headers
 
 private

@@ -36,9 +36,9 @@ package body SOAP_Hotplug_Pack_Service.CB is
    -------------
 
    function SOAP_CB
-     (SOAPAction : in String;
-      Payload    : in Message.Payload.Object;
-      Request    : in AWS.Status.Data)
+     (SOAPAction : String;
+      Payload    : Message.Payload.Object;
+      Request    : AWS.Status.Data)
       return Response.Data is
    begin
       if SOAPAction = "Job1" then
@@ -67,9 +67,9 @@ package body SOAP_Hotplug_Pack_Service.CB is
    ---------------------
 
    function SOAP_Hotplug_CB
-     (SOAPAction : in String;
-      Payload    : in Message.Payload.Object;
-      Request    : in AWS.Status.Data)
+     (SOAPAction : String;
+      Payload    : Message.Payload.Object;
+      Request    : AWS.Status.Data)
       return Response.Data
    is
       P : Message.Payload.Object := Payload;

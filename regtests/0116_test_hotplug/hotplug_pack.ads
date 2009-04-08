@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2004-2008, AdaCore                     --
+--                     Copyright (C) 2004-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -37,8 +37,8 @@ package Hotplug_Pack is
 
    Password : constant String := "pwd";
 
-   function Hotplug (Request : in Status.Data) return Response.Data;
+   function Hotplug (Request : Status.Data) return Response.Data;
 
-   function Main (Request : in Status.Data) return Response.Data;
+   function Main (Request : Status.Data) return Response.Data;
 
 end Hotplug_Pack;

@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2008                          --
---                                 AdaCore                                  --
+--                     Copyright (C) 2000-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -32,7 +31,7 @@ package body AWS.Dispatchers.Callback is
    -- Clone --
    -----------
 
-   overriding function Clone (Dispatcher : in Handler) return Handler is
+   overriding function Clone (Dispatcher : Handler) return Handler is
    begin
       return (AWS.Dispatchers.Handler with Callback => Dispatcher.Callback);
    end Clone;
@@ -41,7 +40,7 @@ package body AWS.Dispatchers.Callback is
    -- Create --
    ------------
 
-   function Create (Callback : in Response.Callback) return Handler is
+   function Create (Callback : Response.Callback) return Handler is
    begin
       return (AWS.Dispatchers.Handler with Callback => Callback);
    end Create;
@@ -51,8 +50,8 @@ package body AWS.Dispatchers.Callback is
    --------------
 
    overriding function Dispatch
-     (Dispatcher : in Handler;
-      Request    : in Status.Data) return Response.Data is
+     (Dispatcher : Handler;
+      Request    : Status.Data) return Response.Data is
    begin
       return Dispatcher.Callback (Request);
    end Dispatch;

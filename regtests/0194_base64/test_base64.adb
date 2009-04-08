@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                       Copyright (C) 2008, AdaCore                        --
+--                     Copyright (C) 2008-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -42,7 +42,7 @@ procedure Test_base64 is
    S3 : constant String := "0123456789" & ASCII.LF;
    S4 : constant String := "letmein" & ASCII.LF;
 
-   procedure Check (Name, Str : in String) is
+   procedure Check (Name, Str : String) is
       B64 : constant String := Translator.Base64_Encode (Str);
       Std : constant String := Translator.Base64_Decode (B64);
    begin
@@ -54,7 +54,7 @@ procedure Test_base64 is
       end if;
    end Check;
 
-   procedure Check (Name : in String; Str : in Unbounded_String) is
+   procedure Check (Name : String; Str : Unbounded_String) is
       B64 : Unbounded_String;
       Std : Unbounded_String;
    begin

@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2003                            --
---                                ACT-Europe                                --
+--                     Copyright (C) 2003-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -40,7 +39,7 @@ package body SOAP_Server_Disp_CB is
    -- CB --
    --------
 
-   function CB (Request : in AWS.Status.Data) return AWS.Response.Data is
+   function CB (Request : AWS.Status.Data) return AWS.Response.Data is
       pragma Unreferenced (Request);
    begin
       return AWS.Response.Build
@@ -53,9 +52,9 @@ package body SOAP_Server_Disp_CB is
    -------------
 
    function SOAP_CB
-     (SOAPAction : in String;
-      Payload    : in SOAP.Message.Payload.Object;
-      Request    : in AWS.Status.Data)
+     (SOAPAction : String;
+      Payload    : SOAP.Message.Payload.Object;
+      Request    : AWS.Status.Data)
       return AWS.Response.Data
    is
       pragma Unreferenced (Request);
@@ -109,7 +108,7 @@ package body SOAP_Server_Disp_CB is
 
    exception
       when SOAP.Types.Data_Error =>
-         --  Here we have a problem with some parameters, return a SOAP error.
+         --  Here we have a problem with some parameters, return a SOAP error
          Text_IO.New_Line;
 
          return SOAP.Message.Response.Build

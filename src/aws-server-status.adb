@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2008, AdaCore                     --
+--                     Copyright (C) 2003-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -40,7 +40,7 @@ package body AWS.Server.Status is
    -- Current_Connections --
    -------------------------
 
-   function Current_Connections (Server : in HTTP) return Natural is
+   function Current_Connections (Server : HTTP) return Natural is
    begin
       return Server.Slots.N - Server.Slots.Free_Slots;
    end Current_Connections;
@@ -49,7 +49,7 @@ package body AWS.Server.Status is
    -- Is_Security_Activated --
    ---------------------------
 
-   function Is_Security_Activated (Server : in HTTP) return Boolean is
+   function Is_Security_Activated (Server : HTTP) return Boolean is
    begin
       return AWS.Config.Security (Server.Properties);
    end Is_Security_Activated;
@@ -58,7 +58,7 @@ package body AWS.Server.Status is
    -- Is_Session_Activated --
    --------------------------
 
-   function Is_Session_Activated (Server : in HTTP) return Boolean is
+   function Is_Session_Activated (Server : HTTP) return Boolean is
    begin
       return AWS.Config.Session (Server.Properties);
    end Is_Session_Activated;
@@ -67,7 +67,7 @@ package body AWS.Server.Status is
    -- Is_Shutdown --
    -----------------
 
-   function Is_Shutdown (Server : in HTTP) return Boolean is
+   function Is_Shutdown (Server : HTTP) return Boolean is
    begin
       return Server.Shutdown;
    end Is_Shutdown;
@@ -76,7 +76,7 @@ package body AWS.Server.Status is
    -- Port --
    ----------
 
-   function Port (Server : in HTTP) return Positive is
+   function Port (Server : HTTP) return Positive is
    begin
       return Net.Get_Port (Net.Acceptors.Server_Socket (Server.Acceptor));
    end Port;
@@ -85,7 +85,7 @@ package body AWS.Server.Status is
    -- Resources_Served --
    ----------------------
 
-   function Resources_Served (Server : in HTTP) return Natural is
+   function Resources_Served (Server : HTTP) return Natural is
       N : Natural := 0;
    begin
       for K in 1 .. Server.Slots.N loop
@@ -98,7 +98,7 @@ package body AWS.Server.Status is
    -- Socket --
    ------------
 
-   function Socket (Server : in HTTP) return Net.Socket_Type'Class is
+   function Socket (Server : HTTP) return Net.Socket_Type'Class is
    begin
       return Net.Acceptors.Server_Socket (Server.Acceptor);
    end Socket;
@@ -107,7 +107,7 @@ package body AWS.Server.Status is
    -- Start_Time --
    ----------------
 
-   function Start_Time (Server : in HTTP) return Ada.Calendar.Time is
+   function Start_Time (Server : HTTP) return Ada.Calendar.Time is
    begin
       return Server.Start_Time;
    end Start_Time;
@@ -116,7 +116,7 @@ package body AWS.Server.Status is
    -- Translations --
    ------------------
 
-   function Translations (Server : in HTTP) return Templates.Translate_Set is
+   function Translations (Server : HTTP) return Templates.Translate_Set is
 
       use AWS.Templates;
 
@@ -141,15 +141,15 @@ package body AWS.Server.Status is
          M_Values           : Matrix_Tag;
 
          procedure For_Each_Key_Value
-           (N          : in     Positive;
-            Key, Value : in     String;
+           (N          : Positive;
+            Key, Value : String;
             Quit       : in out Boolean);
          --  add key/value pair to the list
 
          procedure For_Each_Session
-           (N          : in     Positive;
-            SID        : in     Session.Id;
-            Time_Stamp : in     Calendar.Time;
+           (N          : Positive;
+            SID        : Session.Id;
+            Time_Stamp : Calendar.Time;
             Quit       : in out Boolean);
          --  add session SID to the list
 
@@ -158,8 +158,8 @@ package body AWS.Server.Status is
          ------------------------
 
          procedure For_Each_Key_Value
-           (N          : in     Positive;
-            Key, Value : in     String;
+           (N          : Positive;
+            Key, Value : String;
             Quit       : in out Boolean)
          is
             pragma Unreferenced (N, Quit);
@@ -180,9 +180,9 @@ package body AWS.Server.Status is
          ----------------------
 
          procedure For_Each_Session
-           (N          : in     Positive;
-            SID        : in     Session.Id;
-            Time_Stamp : in     Calendar.Time;
+           (N          : Positive;
+            SID        : Session.Id;
+            Time_Stamp : Calendar.Time;
             Quit       : in out Boolean)
          is
             pragma Unreferenced (N, Quit);
@@ -413,20 +413,20 @@ package body AWS.Server.Status is
       return Result;
    end Translations;
 
-   function Translations (Server : in HTTP) return Templates.Translate_Table is
+   function Translations (Server : HTTP) return Templates.Translate_Table is
       use Templates;
 
       Set    : constant Translate_Set := Translations (Server);
       Result : Translate_Table (1 .. Size (Set));
       Index  : Positive := Result'First;
 
-      procedure Action (Item : in Association; Quit : in out Boolean);
+      procedure Action (Item : Association; Quit : in out Boolean);
 
       ------------
       -- Action --
       ------------
 
-      procedure Action (Item : in Association; Quit : in out Boolean) is
+      procedure Action (Item : Association; Quit : in out Boolean) is
          pragma Unreferenced (Quit);
       begin
          Result (Index) := Item;

@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2004-2008, AdaCore                     --
+--                     Copyright (C) 2004-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -53,7 +53,7 @@ package body S_AFile_Pack is
    -- CB --
    --------
 
-   function CB (Request : in Status.Data) return Response.Data is
+   function CB (Request : Status.Data) return Response.Data is
       Strm : Resources.Streams.Stream_Access;
       URI  : constant String := Status.URI (Request);
    begin
@@ -147,7 +147,7 @@ package body S_AFile_Pack is
       -- Call_It --
       -------------
 
-      procedure Call_It (Res : in String) is
+      procedure Call_It (Res : String) is
          R : Response.Data;
       begin
          R := Client.Get

@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2004-2008, AdaCore                     --
+--                     Copyright (C) 2004-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -33,7 +33,7 @@ procedure SMTP is
    use Ada;
    use AWS;
 
-   procedure Display (E : in AWS.SMTP.E_Mail_Data) is
+   procedure Display (E : AWS.SMTP.E_Mail_Data) is
    begin
       Text_IO.Put_Line ("Name    " & AWS.SMTP.Image (E, AWS.SMTP.Name));
       Text_IO.Put_Line ("Address " & AWS.SMTP.Image (E, AWS.SMTP.Address));

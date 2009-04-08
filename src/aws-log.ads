@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2008, AdaCore                     --
+--                     Copyright (C) 2000-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -69,10 +69,10 @@ package AWS.Log is
 
    procedure Start
      (Log             : in out Object;
-      Split           : in     Split_Mode := None;
-      File_Directory  : in     String     := Not_Specified;
-      Filename_Prefix : in     String     := Not_Specified;
-      Auto_Flush      : in     Boolean    := False);
+      Split           : Split_Mode := None;
+      File_Directory  : String     := Not_Specified;
+      Filename_Prefix : String     := Not_Specified;
+      Auto_Flush      : Boolean    := False);
    --  Activate server's activity logging. Split indicate the way the log file
    --  should be created. Log_File_Prefix is the log filename prefix. If it is
    --  not specified the default prefix is the program name.
@@ -80,20 +80,20 @@ package AWS.Log is
    --  (not buffered). Auto_Flush should be set to True only for logs with few
    --  entries per second as the flush has a performance penalty.
 
-   procedure Register_Field (Log : in out Object; Id : in String);
+   procedure Register_Field (Log : in out Object; Id : String);
    --  Register field to be written into extended log format
 
    procedure Set_Field
-     (Log : in Object; Data : in out Fields_Table; Id, Value : in String);
+     (Log : Object; Data : in out Fields_Table; Id, Value : String);
    --  Set field value into the extended log record. Data could be used only
    --  in one task and with one log file. Different tasks could write own Data
    --  using the Write routine with Fields_Table parameter type.
 
    procedure Set_Header_Fields
-     (Log    : in     Object;
+     (Log    : Object;
       Data   : in out Fields_Table;
-      Prefix : in     String;
-      Header : in     AWS.Headers.List);
+      Prefix : String;
+      Header : AWS.Headers.List);
    --  Set header fields into extended log record.
    --  Name of the header fields would be <Prefix>(<Header_Name>).
    --  Prefix should be "cs" - Client to Server or "sc" - Server to Client.
@@ -105,15 +105,15 @@ package AWS.Log is
 
    procedure Write
      (Log          : in out Object;
-      Connect_Stat : in     Status.Data;
-      Answer       : in     Response.Data);
+      Connect_Stat : Status.Data;
+      Answer       : Response.Data);
    --  Write log info if activated (i.e. Start routine above has been called)
 
    procedure Write
      (Log            : in out Object;
-      Connect_Stat   : in     Status.Data;
-      Status_Code    : in     Messages.Status_Code;
-      Content_Length : in     Response.Content_Length_Type);
+      Connect_Stat   : Status.Data;
+      Status_Code    : Messages.Status_Code;
+      Content_Length : Response.Content_Length_Type);
    --  Write log info if activated (i.e. Start routine above has been called).
    --  This version separated the Content_Length from Status.Data, this is
    --  required for example in the case of a user defined stream content. See
@@ -121,12 +121,12 @@ package AWS.Log is
 
    procedure Write
      (Log          : in out Object;
-      Connect_Stat : in     Status.Data;
-      Data         : in     String);
+      Connect_Stat : Status.Data;
+      Data         : String);
    --  Write user's log info if activated.  (i.e. Start routine above has been
    --  called).
 
-   procedure Write (Log : in out Object; Data : in String);
+   procedure Write (Log : in out Object; Data : String);
    --  Write Data into the log file. This Data is unstructured, only a time
    --  tag prefix is prepended to Data. This routine is designed to be used
    --  for user's info in error log file.
@@ -138,14 +138,14 @@ package AWS.Log is
    procedure Stop (Log : in out Object);
    --  Stop logging activity
 
-   function Is_Active (Log : in Object) return Boolean;
+   function Is_Active (Log : Object) return Boolean;
    --  Returns True if Log is activated
 
-   function Filename (Log : in Object) return String;
+   function Filename (Log : Object) return String;
    --  Returns current log filename or the empty string if the log is not
    --  activated.
 
-   function Mode (Log : in Object) return Split_Mode;
+   function Mode (Log : Object) return Split_Mode;
    --  Returns the split mode. None will be returned if log is not activated
 
 private

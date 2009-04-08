@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2005                          --
---                                 AdaCore                                  --
+--                     Copyright (C) 2000-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -47,27 +46,27 @@ package AWS.Hotplug is
 
    type Filter_Set is private;
 
-   procedure Set_Mode (Filters : in out Filter_Set; Mode : in Register_Mode);
+   procedure Set_Mode (Filters : in out Filter_Set; Mode : Register_Mode);
    --  Set registering mode for this Filter_Set
 
    procedure Register
      (Filters : in out Filter_Set;
-      Regexp  : in     String;
-      URL     : in     String);
+      Regexp  : String;
+      URL     : String);
    --  Add a Filter in the Filter_Set, the URL will be called if the URI match
    --  the regexp. If Regexp already exist it just replace the current entry.
 
    procedure Unregister
      (Filters : in out Filter_Set;
-      Regexp  : in     String);
+      Regexp  : String);
    --  Removes a Filter from the Filter_Set. The filter name is defined by the
    --  regular expression. Does nothing if regexp is not found.
 
    procedure Apply
-     (Filters : in     Filter_Set;
-      Status  : in     AWS.Status.Data;
-      Found   :    out Boolean;
-      Data    :    out Response.Data);
+     (Filters : Filter_Set;
+      Status  : AWS.Status.Data;
+      Found   : out Boolean;
+      Data    : out Response.Data);
    --  Run through the filters and apply the first one for which the regular
    --  expression match the URI. Set Found to True if one filter has been
    --  called and in that case Data contain the answer, otherwise Found is set
@@ -75,13 +74,13 @@ package AWS.Hotplug is
 
    procedure Move_Up
      (Filters : in out Filter_Set;
-      N       : in     Positive);
+      N       : Positive);
    --  Move filter number N up one position, it gives filter number N an
    --  higher priority.
 
    procedure Move_Down
      (Filters : in out Filter_Set;
-      N       : in     Positive);
+      N       : Positive);
    --  Move filter number N down one position, it gives filter number N a
    --  lower priority.
 
@@ -95,7 +94,7 @@ private
       URL        : Unbounded_String;   -- The redirection URL
    end record;
 
-   function Equal_Data (Left, Right : in Filter_Data) return Boolean;
+   function Equal_Data (Left, Right : Filter_Data) return Boolean;
    --  Returns True if Left.Regexp and Right.Regexp are equals
 
    package Filter_Table is

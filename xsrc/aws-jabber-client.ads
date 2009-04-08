@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                       Copyright (C) 2008, AdaCore                        --
+--                     Copyright (C) 2008-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -53,9 +53,9 @@ package AWS.Jabber.Client is
    type Jabber_ID is new String;
 
    function To_Jabber_ID
-     (Username : in String;
-      Server   : in String;
-      Resource : in String := "") return Jabber_ID;
+     (Username : String;
+      Server   : String;
+      Resource : String := "") return Jabber_ID;
    --  Returns a Jabber ID (username@server/resource)
 
    --  Jabber Hook
@@ -63,46 +63,46 @@ package AWS.Jabber.Client is
    type Message_Type is (M_Chat, M_Normal, M_Group_Chat, M_Headline, M_Error);
 
    type Message_Hook is not null access procedure
-     (From         : in Jabber_ID;
-      Message_Type : in Client.Message_Type;
-      Subject      : in String;
-      Content      : in String);
+     (From         : Jabber_ID;
+      Message_Type : Client.Message_Type;
+      Subject      : String;
+      Content      : String);
 
    type Presence_Hook is not null access procedure
-     (From   : in Jabber_ID;
-      Status : in String);
+     (From   : Jabber_ID;
+      Status : String);
 
    procedure IO_Presence
-     (From    : in Jabber_ID;
-      Status  : in String);
+     (From    : Jabber_ID;
+      Status  : String);
 
    procedure IO_Message
-     (From         : in Jabber_ID;
-      Message_Type : in Client.Message_Type;
-      Subject      : in String;
-      Content      : in String);
+     (From         : Jabber_ID;
+      Message_Type : Client.Message_Type;
+      Subject      : String;
+      Content      : String);
 
    procedure Set_Presence_Hook
      (Account : in out Client.Account;
-      Hook    : in     Presence_Hook);
+      Hook    : Presence_Hook);
 
    procedure Set_Host
      (Account : in out Client.Account;
-      Host    : in     String);
+      Host    : String);
 
    procedure Set_Port
      (Account : in out Client.Account;
-      Port    : in     Client.Port);
+      Port    : Client.Port);
 
    procedure Set_Login_Information
      (Account  : in out Client.Account;
-      User     : in     String;
-      Password : in     String;
-      Resource : in     String := "");
+      User     : String;
+      Password : String;
+      Resource : String := "");
 
    procedure Set_Authentication_Type
      (Account   : in out Client.Account;
-      Auth_Type : in      Authentication_Mechanism);
+      Auth_Type : Authentication_Mechanism);
 
    procedure Connect (Account : in out Client.Account);
    --  Connect to the jabber server
@@ -111,11 +111,11 @@ package AWS.Jabber.Client is
    --  Close the connection
 
    procedure Send
-     (Account      : in Client.Account;
-      JID          : in Jabber_ID;
-      Content      : in String;
-      Subject      : in String := "";
-      Message_Type : in Client.Message_Type := M_Normal);
+     (Account      : Client.Account;
+      JID          : Jabber_ID;
+      Content      : String;
+      Subject      : String := "";
+      Message_Type : Client.Message_Type := M_Normal);
    --  Send a message to user JID (Jabber ID) via the specified Server. The
    --  message is composed of Subject and a body (Content).
 

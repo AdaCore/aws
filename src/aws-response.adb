@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2008, AdaCore                     --
+--                     Copyright (C) 2000-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -46,9 +46,9 @@ package body AWS.Response is
    -----------------
 
    function Acknowledge
-     (Status_Code  : in Messages.Status_Code;
-      Message_Body : in String := "";
-      Content_Type : in String := MIME.Text_HTML)
+     (Status_Code  : Messages.Status_Code;
+      Message_Body : String := "";
+      Content_Type : String := MIME.Text_HTML)
       return Data
    is
       Result : Data;
@@ -79,10 +79,10 @@ package body AWS.Response is
    ------------------
 
    function Authenticate
-     (Realm   : in String;
-      Mode    : in Authentication_Mode := Basic;
-      Stale   : in Boolean             := False;
-      Message : in String              := Default_Authenticate_Message)
+     (Realm   : String;
+      Mode    : Authentication_Mode := Basic;
+      Stale   : Boolean             := False;
+      Message : String              := Default_Authenticate_Message)
       return Data
    is
       Result : Data;
@@ -97,7 +97,7 @@ package body AWS.Response is
    -- Authentication --
    --------------------
 
-   function Authentication (D : in Data) return Authentication_Mode is
+   function Authentication (D : Data) return Authentication_Mode is
       use AWS.Headers;
       Auth_Values : constant VString_Array
         := Get_Values (D.Header, Messages.WWW_Authenticate_Token);
@@ -114,7 +114,7 @@ package body AWS.Response is
    -- Authentication_Stale --
    --------------------------
 
-   function Authentication_Stale (D : in Data) return Boolean is
+   function Authentication_Stale (D : Data) return Boolean is
       use AWS.Headers;
       Auth_Values : constant VString_Array
         := Get_Values (D.Header, Messages.WWW_Authenticate_Token);
@@ -137,11 +137,11 @@ package body AWS.Response is
    -----------
 
    function Build
-     (Content_Type  : in String;
-      Message_Body  : in String;
-      Status_Code   : in Messages.Status_Code      := Messages.S200;
-      Cache_Control : in Messages.Cache_Option     := Messages.Unspecified;
-      Encoding      : in Messages.Content_Encoding := Messages.Identity)
+     (Content_Type  : String;
+      Message_Body  : String;
+      Status_Code   : Messages.Status_Code      := Messages.S200;
+      Cache_Control : Messages.Cache_Option     := Messages.Unspecified;
+      Encoding      : Messages.Content_Encoding := Messages.Identity)
       return Data
    is
       Result : Data;
@@ -155,11 +155,11 @@ package body AWS.Response is
    end Build;
 
    function Build
-     (Content_Type    : in String;
-      UString_Message : in Strings.Unbounded.Unbounded_String;
-      Status_Code     : in Messages.Status_Code      := Messages.S200;
-      Cache_Control   : in Messages.Cache_Option     := Messages.Unspecified;
-      Encoding        : in Messages.Content_Encoding := Messages.Identity)
+     (Content_Type    : String;
+      UString_Message : Strings.Unbounded.Unbounded_String;
+      Status_Code     : Messages.Status_Code      := Messages.S200;
+      Cache_Control   : Messages.Cache_Option     := Messages.Unspecified;
+      Encoding        : Messages.Content_Encoding := Messages.Identity)
       return Data
    is
       Result : Data;
@@ -173,11 +173,11 @@ package body AWS.Response is
    end Build;
 
    function Build
-     (Content_Type  : in String;
-      Message_Body  : in Streams.Stream_Element_Array;
-      Status_Code   : in Messages.Status_Code      := Messages.S200;
-      Cache_Control : in Messages.Cache_Option     := Messages.Unspecified;
-      Encoding      : in Messages.Content_Encoding := Messages.Identity)
+     (Content_Type  : String;
+      Message_Body  : Streams.Stream_Element_Array;
+      Status_Code   : Messages.Status_Code      := Messages.S200;
+      Cache_Control : Messages.Cache_Option     := Messages.Unspecified;
+      Encoding      : Messages.Content_Encoding := Messages.Identity)
       return Data
    is
       Result : Data;
@@ -194,7 +194,7 @@ package body AWS.Response is
    -- Cache_Control --
    -------------------
 
-   function Cache_Control (D : in Data) return Messages.Cache_Option is
+   function Cache_Control (D : Data) return Messages.Cache_Option is
    begin
       return Messages.Cache_Option
         (Headers.Get (D.Header, Messages.Cache_Control_Token));
@@ -204,7 +204,7 @@ package body AWS.Response is
    -- Close_Resource --
    --------------------
 
-   function Close_Resource (D : in Data) return Boolean is
+   function Close_Resource (D : Data) return Boolean is
    begin
       return D.Close_Stream;
    end Close_Resource;
@@ -213,7 +213,7 @@ package body AWS.Response is
    -- Content_Length --
    --------------------
 
-   function Content_Length (D : in Data) return Content_Length_Type is
+   function Content_Length (D : Data) return Content_Length_Type is
       CL_Image : constant String
         := Headers.Get (D.Header, Messages.Content_Length_Token);
    begin
@@ -228,7 +228,7 @@ package body AWS.Response is
    -- Content_Type --
    ------------------
 
-   function Content_Type (D : in Data) return String is
+   function Content_Type (D : Data) return String is
    begin
       return Headers.Get (D.Header, Messages.Content_Type_Token);
    end Content_Type;
@@ -239,8 +239,8 @@ package body AWS.Response is
 
    procedure Create_Resource
      (D    : in out Data;
-      File :    out AWS.Resources.File_Type;
-      GZip : in     Boolean)
+      File : out AWS.Resources.File_Type;
+      GZip : Boolean)
    is
       use AWS.Resources;
 
@@ -291,14 +291,14 @@ package body AWS.Response is
    ----------
 
    function File
-     (Content_Type  : in String;
-      Filename      : in String;
-      Status_Code   : in Messages.Status_Code      := Messages.S200;
-      Cache_Control : in Messages.Cache_Option     := Messages.Unspecified;
-      Encoding      : in Messages.Content_Encoding := Messages.Identity;
-      Once          : in Boolean                   := False;
-      Disposition   : in Disposition_Mode          := None;
-      User_Filename : in String                    := "")
+     (Content_Type  : String;
+      Filename      : String;
+      Status_Code   : Messages.Status_Code      := Messages.S200;
+      Cache_Control : Messages.Cache_Option     := Messages.Unspecified;
+      Encoding      : Messages.Content_Encoding := Messages.Identity;
+      Once          : Boolean                   := False;
+      Disposition   : Disposition_Mode          := None;
+      User_Filename : String                    := "")
       return Data
    is
       function CD_Filename return String;
@@ -371,7 +371,7 @@ package body AWS.Response is
    -- Filename --
    --------------
 
-   function Filename (D : in Data) return String is
+   function Filename (D : Data) return String is
    begin
       return To_String (D.Filename);
    end Filename;
@@ -409,23 +409,23 @@ package body AWS.Response is
    -- Header --
    ------------
 
-   function Header (D : in Data) return AWS.Headers.List is
+   function Header (D : Data) return AWS.Headers.List is
    begin
       return D.Header;
    end Header;
 
    function Header
-     (D    : in Data;
-      Name : in String;
-      N    : in Positive)
+     (D    : Data;
+      Name : String;
+      N    : Positive)
       return String is
    begin
       return Headers.Get (D.Header, Name, N);
    end Header;
 
    function Header
-     (D    : in Data;
-      Name : in String)
+     (D    : Data;
+      Name : String)
       return String is
    begin
       return Headers.Get_Values (D.Header, Name);
@@ -445,7 +445,7 @@ package body AWS.Response is
    -- Location --
    --------------
 
-   function Location (D : in Data) return String is
+   function Location (D : Data) return String is
    begin
       return Headers.Get (D.Header, Messages.Location_Token);
    end Location;
@@ -454,12 +454,12 @@ package body AWS.Response is
    -- Message_Body --
    ------------------
 
-   function Message_Body (D : in Data) return String is
+   function Message_Body (D : Data) return String is
    begin
       return Translator.To_String (Message_Body (D));
    end Message_Body;
 
-   function Message_Body (D : in Data) return Unbounded_String is
+   function Message_Body (D : Data) return Unbounded_String is
       use type Resources.Streams.Stream_Access;
 
       Result : Unbounded_String;
@@ -483,7 +483,7 @@ package body AWS.Response is
       return Result;
    end Message_Body;
 
-   function Message_Body (D : in Data) return Streams.Stream_Element_Array is
+   function Message_Body (D : Data) return Streams.Stream_Element_Array is
       use type Resources.Streams.Stream_Access;
 
       No_Data : constant Streams.Stream_Element_Array := (1 .. 0 => 0);
@@ -518,8 +518,8 @@ package body AWS.Response is
    end Message_Body;
 
    procedure Message_Body
-     (D    : in     Data;
-      File :    out AWS.Resources.File_Type) is
+     (D    : Data;
+      File : out AWS.Resources.File_Type) is
    begin
       Resources.Streams.Create (File, D.Stream);
 
@@ -530,7 +530,7 @@ package body AWS.Response is
    -- Mode --
    ----------
 
-   function Mode (D : in Data) return Data_Mode is
+   function Mode (D : Data) return Data_Mode is
    begin
       return D.Mode;
    end Mode;
@@ -540,9 +540,9 @@ package body AWS.Response is
    -----------
 
    function Moved
-     (Location      : in String;
-      Message       : in String                := Default_Moved_Message;
-      Cache_Control : in Messages.Cache_Option := Messages.Unspecified)
+     (Location      : String;
+      Message       : String                := Default_Moved_Message;
+      Cache_Control : Messages.Cache_Option := Messages.Unspecified)
       return Data
    is
       use Ada.Strings;
@@ -581,7 +581,7 @@ package body AWS.Response is
    -- Realm --
    -----------
 
-   function Realm (D : in Data) return String is
+   function Realm (D : Data) return String is
       use Headers;
    begin
       return Values.Search
@@ -594,7 +594,7 @@ package body AWS.Response is
    -- Send_Header --
    -----------------
 
-   procedure Send_Header (Socket : in Net.Socket_Type'Class; D : in Data) is
+   procedure Send_Header (Socket : Net.Socket_Type'Class; D : Data) is
    begin
       Headers.Send_Header (Socket, D.Header);
    end Send_Header;
@@ -614,7 +614,7 @@ package body AWS.Response is
    -- Status_Code --
    -----------------
 
-   function Status_Code (D : in Data) return Messages.Status_Code is
+   function Status_Code (D : Data) return Messages.Status_Code is
    begin
       return D.Status_Code;
    end Status_Code;
@@ -624,14 +624,14 @@ package body AWS.Response is
    ------------
 
    function Stream
-     (Content_Type  : in String;
+     (Content_Type  : String;
       Handle        : not null access Resources.Streams.Stream_Type'Class;
-      Status_Code   : in Messages.Status_Code      := Messages.S200;
-      Cache_Control : in Messages.Cache_Option     := Messages.No_Cache;
-      Encoding      : in Messages.Content_Encoding := Messages.Identity;
-      Server_Close  : in Boolean                   := True;
-      Disposition   : in Disposition_Mode          := None;
-      User_Filename : in String                    := "")
+      Status_Code   : Messages.Status_Code      := Messages.S200;
+      Cache_Control : Messages.Cache_Option     := Messages.No_Cache;
+      Encoding      : Messages.Content_Encoding := Messages.Identity;
+      Server_Close  : Boolean                   := True;
+      Disposition   : Disposition_Mode          := None;
+      User_Filename : String                    := "")
       return Data
    is
       function CD_Filename return String;
@@ -687,8 +687,8 @@ package body AWS.Response is
    ---------
 
    function URL
-     (Location      : in String;
-      Cache_Control : in Messages.Cache_Option := Messages.Unspecified)
+     (Location      : String;
+      Cache_Control : Messages.Cache_Option := Messages.Unspecified)
       return Data
    is
       Result : Data;

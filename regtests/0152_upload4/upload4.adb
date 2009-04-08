@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2004-2008, AdaCore                     --
+--                     Copyright (C) 2004-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -47,12 +47,12 @@ procedure Upload4 is
    use Ada.Text_IO;
    use AWS;
 
-   function CB (Request : in Status.Data) return Response.Data;
+   function CB (Request : Status.Data) return Response.Data;
 
    procedure Error
-     (E           : in     Ada.Exceptions.Exception_Occurrence;
+     (E           : Ada.Exceptions.Exception_Occurrence;
       Log         : in out AWS.Log.Object;
-      Error       : in     AWS.Exceptions.Data;
+      Error       : AWS.Exceptions.Data;
       Answer      : in out Response.Data);
 
    task Server is
@@ -68,9 +68,9 @@ procedure Upload4 is
    -----------
 
    procedure Error
-     (E           : in     Ada.Exceptions.Exception_Occurrence;
+     (E           : Ada.Exceptions.Exception_Occurrence;
       Log         : in out AWS.Log.Object;
-      Error       : in     AWS.Exceptions.Data;
+      Error       : AWS.Exceptions.Data;
       Answer      : in out Response.Data) is
    begin
       Put_Line (Ada.Exceptions.Exception_Message (E));
@@ -80,7 +80,7 @@ procedure Upload4 is
    -- CB --
    --------
 
-   function CB (Request : in Status.Data) return Response.Data is
+   function CB (Request : Status.Data) return Response.Data is
       URI    : constant String          := Status.URI (Request);
       P_List : constant Parameters.List := Status.Parameters (Request);
    begin
@@ -133,7 +133,7 @@ procedure Upload4 is
    -- Request --
    -------------
 
-   procedure Request (URL : in String; Filename : in String) is
+   procedure Request (URL : String; Filename : String) is
       R : Response.Data;
    begin
       R := Client.Upload (URL, Filename);

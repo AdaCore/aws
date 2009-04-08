@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                        Copyright (C) 2008, AdaCore                       --
+--                     Copyright (C) 2008-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -31,7 +31,7 @@ package SMTP_Pck is
 
    use AWS;
 
-   procedure Dump_Mail (Message : in SMTP.Messages.Data);
+   procedure Dump_Mail (Message : SMTP.Messages.Data);
 
    protected Callback is
       entry Signal;

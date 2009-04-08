@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2008, AdaCore                     --
+--                     Copyright (C) 2000-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -50,7 +50,7 @@ procedure Tres is
    use AWS;
    use type AWS.Templates.Vector_Tag;
 
-   function CB (Request : in Status.Data) return Response.Data;
+   function CB (Request : Status.Data) return Response.Data;
 
    task Server is
       entry Start;
@@ -70,7 +70,7 @@ procedure Tres is
    -- CB --
    --------
 
-   function CB (Request : in Status.Data) return Response.Data is
+   function CB (Request : Status.Data) return Response.Data is
       URI    : constant String := Status.URI (Request);
    begin
       if URI = "/file1" then
@@ -128,7 +128,7 @@ procedure Tres is
    -- Request --
    -------------
 
-   procedure Request (URL : in String) is
+   procedure Request (URL : String) is
       R : Response.Data;
    begin
       R := Client.Get (URL);

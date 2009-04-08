@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2002-2008, AdaCore                     --
+--                     Copyright (C) 2002-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -36,36 +36,36 @@ package AWS.Resources.Embedded is
    subtype Buffer_Access is Streams.Memory.Buffer_Access;
 
    procedure Open
-     (File :    out File_Type;
-      Name : in     String;
-      Form : in     String    := "";
+     (File : out File_Type;
+      Name : String;
+      Form : String    := "";
       GZip : in out Boolean);
    --  Open resource from registered data
 
    procedure Create
-     (File   :    out File_Type;
-      Buffer : in     Buffer_Access);
+     (File   : out File_Type;
+      Buffer : Buffer_Access);
    --  Create the resource directly from memory data
 
-   function Exist (Name : in String) return File_Instance;
+   function Exist (Name : String) return File_Instance;
    --  Return GZip if only file Name & ".gz" exists.
    --  Return Plain if only file Name exists.
    --  Return Both if both file Name and Name & ".gz" exists.
    --  Return None if files neither Name nor Name & ".gz" exist.
 
-   function Is_Regular_File (Name : in String) return Boolean;
+   function Is_Regular_File (Name : String) return Boolean;
    pragma Inline (Is_Regular_File);
    --  Returns True if file named Name has been registered (i.e. it is an
    --  in-memory file).
 
-   function File_Size (Name : in String) return Utils.File_Size_Type;
+   function File_Size (Name : String) return Utils.File_Size_Type;
 
-   function File_Timestamp (Name : in String) return Ada.Calendar.Time;
+   function File_Timestamp (Name : String) return Ada.Calendar.Time;
 
    procedure Register
-     (Name      : in String;
-      Content   : in Buffer_Access;
-      File_Time : in Calendar.Time);
+     (Name      : String;
+      Content   : Buffer_Access;
+      File_Time : Calendar.Time);
    --  Register a new file named Name into the embedded resources. The file
    --  content is pointed to by Content, the File_Time must be the last
    --  modification time stamp for the file. If Name ends with ".gz" the

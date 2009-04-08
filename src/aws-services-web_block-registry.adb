@@ -51,7 +51,7 @@ package body AWS.Services.Web_Block.Registry is
 
    overriding procedure Value
      (Lazy_Tag     : not null access Lazy_Handler;
-      Var_Name     : in              String;
+      Var_Name     : String;
       Translations : in out          Templates.Translate_Set);
    --  Handle lazy tags
 
@@ -93,12 +93,12 @@ package body AWS.Services.Web_Block.Registry is
    -----------
 
    function Build
-     (Key           : in String;
-      Request       : in Status.Data;
-      Translations  : in Templates.Translate_Set;
-      Status_Code   : in Messages.Status_Code := Messages.S200;
-      Cache_Control : in Messages.Cache_Option := Messages.Unspecified;
-      Context_Error : in String := "") return Response.Data
+     (Key           : String;
+      Request       : Status.Data;
+      Translations  : Templates.Translate_Set;
+      Status_Code   : Messages.Status_Code := Messages.S200;
+      Cache_Control : Messages.Cache_Option := Messages.Unspecified;
+      Context_Error : String := "") return Response.Data
    is
       P    : constant Page :=
                Parse (Key, Request, Translations, Context_Error);
@@ -123,7 +123,7 @@ package body AWS.Services.Web_Block.Registry is
    -- Content_Type --
    ------------------
 
-   function Content_Type (Key : in String) return String is
+   function Content_Type (Key : String) return String is
       Position : constant Web_Object_Maps.Cursor := WO_Map.Find (Key);
    begin
       if Position = No_Element then
@@ -314,10 +314,10 @@ package body AWS.Services.Web_Block.Registry is
    -----------
 
    function Parse
-     (Key           : in String;
-      Request       : in Status.Data;
-      Translations  : in Templates.Translate_Set;
-      Context_Error : in String := "") return Page
+     (Key           : String;
+      Request       : Status.Data;
+      Translations  : Templates.Translate_Set;
+      Context_Error : String := "") return Page
    is
       LT       : aliased Lazy_Handler :=
                    Lazy_Handler'(Templates.Dynamic.Lazy_Tag
@@ -325,14 +325,14 @@ package body AWS.Services.Web_Block.Registry is
                                       Translations => Translations);
       Position : Web_Object_Maps.Cursor;
 
-      function Get_Matching_Key (Search_Key : in String) return String;
+      function Get_Matching_Key (Search_Key : String) return String;
       --  Get the Prefix Key matching Search_Key in Prefix_URI_Vector
 
       ----------------------
       -- Get_Matching_Key --
       ----------------------
 
-      function Get_Matching_Key (Search_Key : in String) return String is
+      function Get_Matching_Key (Search_Key : String) return String is
          use Prefix_URI;
          Cursor : Prefix_URI.Cursor := Prefix_URI.First (Prefix_URI_Vector);
       begin
@@ -420,12 +420,12 @@ package body AWS.Services.Web_Block.Registry is
    --------------
 
    procedure Register
-     (Key              : in String;
-      Template         : in String;
-      Data_CB          : in Data_Callback;
-      Content_Type     : in String  := MIME.Text_HTML;
-      Prefix           : in Boolean := False;
-      Context_Required : in Boolean := False)
+     (Key              : String;
+      Template         : String;
+      Data_CB          : Data_Callback;
+      Content_Type     : String  := MIME.Text_HTML;
+      Prefix           : Boolean := False;
+      Context_Required : Boolean := False)
    is
       WO : Web_Object;
    begin
@@ -451,11 +451,11 @@ package body AWS.Services.Web_Block.Registry is
    --------------
 
    procedure Register
-     (Key              : in String;
-      Template_CB      : in Template_Callback;
-      Data_CB          : in Data_Callback;
-      Content_Type     : in String := MIME.Text_HTML;
-      Context_Required : in Boolean := False)
+     (Key              : String;
+      Template_CB      : Template_Callback;
+      Data_CB          : Data_Callback;
+      Content_Type     : String := MIME.Text_HTML;
+      Context_Required : Boolean := False)
    is
       WO : Web_Object (True);
    begin
@@ -476,7 +476,7 @@ package body AWS.Services.Web_Block.Registry is
 
    overriding procedure Value
      (Lazy_Tag     : not null access Lazy_Handler;
-      Var_Name     : in              String;
+      Var_Name     : String;
       Translations : in out          Templates.Translate_Set)
    is
       Position : Web_Object_Maps.Cursor;

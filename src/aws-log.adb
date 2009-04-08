@@ -35,18 +35,18 @@ with GNAT.Calendar.Time_IO;
 
 package body AWS.Log is
 
-   function Log_Prefix (Prefix : in String) return String;
+   function Log_Prefix (Prefix : String) return String;
    --  Returns the prefix to be added before the log filename. The returned
    --  value is the executable name without directory and filetype if Prefix
    --  is No_Prefix otherwise Prefix is returned.
 
-   procedure Check_Split (Log : in out Object; Now : in Ada.Calendar.Time);
+   procedure Check_Split (Log : in out Object; Now : Ada.Calendar.Time);
    --  Split log file if necessary
 
    procedure Write_Log
      (Log  : in out Object;
-      Now  : in     Calendar.Time;
-      Data : in     String);
+      Now  : Calendar.Time;
+      Data : String);
    --  Write data into the log file, change log file depending on the log file
    --  split mode and Now.
 
@@ -54,7 +54,7 @@ package body AWS.Log is
    -- Check_Split --
    -----------------
 
-   procedure Check_Split (Log : in out Object; Now : in Ada.Calendar.Time) is
+   procedure Check_Split (Log : in out Object; Now : Ada.Calendar.Time) is
    begin
       if (Log.Split = Daily
           and then Log.Current_Tag /= Calendar.Day (Now))
@@ -78,7 +78,7 @@ package body AWS.Log is
    -- Filename --
    --------------
 
-   function Filename (Log : in Object) return String is
+   function Filename (Log : Object) return String is
    begin
       if Text_IO.Is_Open (Log.File) then
          return Text_IO.Name (Log.File);
@@ -125,7 +125,7 @@ package body AWS.Log is
    -- Is_Active --
    ---------------
 
-   function Is_Active (Log : in Object) return Boolean is
+   function Is_Active (Log : Object) return Boolean is
    begin
       return Text_IO.Is_Open (Log.File);
    end Is_Active;
@@ -134,7 +134,7 @@ package body AWS.Log is
    -- Log_Prefix --
    ----------------
 
-   function Log_Prefix (Prefix : in String) return String is
+   function Log_Prefix (Prefix : String) return String is
 
       function Prog_Name return String;
       --  Return current program name
@@ -191,7 +191,7 @@ package body AWS.Log is
    -- Mode --
    ----------
 
-   function Mode (Log : in Object) return Split_Mode is
+   function Mode (Log : Object) return Split_Mode is
    begin
       return Log.Split;
    end Mode;
@@ -200,7 +200,7 @@ package body AWS.Log is
    -- Register_Field --
    --------------------
 
-   procedure Register_Field (Log : in out Object; Id : in String) is
+   procedure Register_Field (Log : in out Object; Id : String) is
       Position : Strings_Positive.Cursor;
       Success  : Boolean;
    begin
@@ -213,7 +213,7 @@ package body AWS.Log is
    ---------------
 
    procedure Set_Field
-     (Log : in Object; Data : in out Fields_Table; Id, Value : in String)
+     (Log : Object; Data : in out Fields_Table; Id, Value : String)
    is
       Ext_Len  : constant Natural := Natural (Log.Extended_Fields.Length);
       Data_Len : constant Natural := Natural (Data.Values.Length);
@@ -252,18 +252,18 @@ package body AWS.Log is
    -----------------------
 
    procedure Set_Header_Fields
-     (Log    : in     Object;
+     (Log    : Object;
       Data   : in out Fields_Table;
-      Prefix : in     String;
-      Header : in     AWS.Headers.List)
+      Prefix : String;
+      Header : AWS.Headers.List)
    is
-      procedure Process (Name, Value : in String);
+      procedure Process (Name, Value : String);
 
       -------------
       -- Process --
       -------------
 
-      procedure Process (Name, Value : in String) is
+      procedure Process (Name, Value : String) is
       begin
          Set_Field
            (Log, Data, Prefix & '(' & Name & ')',
@@ -280,10 +280,10 @@ package body AWS.Log is
 
    procedure Start
      (Log             : in out Object;
-      Split           : in     Split_Mode := None;
-      File_Directory  : in     String     := Not_Specified;
-      Filename_Prefix : in     String     := Not_Specified;
-      Auto_Flush      : in     Boolean    := False)
+      Split           : Split_Mode := None;
+      File_Directory  : String     := Not_Specified;
+      Filename_Prefix : String     := Not_Specified;
+      Auto_Flush      : Boolean    := False)
    is
       Now      : constant Calendar.Time := Calendar.Clock;
       Filename : Unbounded_String;
@@ -352,8 +352,8 @@ package body AWS.Log is
 
    procedure Write
      (Log          : in out Object;
-      Connect_Stat : in     Status.Data;
-      Answer       : in     Response.Data) is
+      Connect_Stat : Status.Data;
+      Answer       : Response.Data) is
    begin
       Write (Log, Connect_Stat,
              Response.Status_Code (Answer),
@@ -362,9 +362,9 @@ package body AWS.Log is
 
    procedure Write
      (Log            : in out Object;
-      Connect_Stat   : in     Status.Data;
-      Status_Code    : in     Messages.Status_Code;
-      Content_Length : in     Response.Content_Length_Type)
+      Connect_Stat   : Status.Data;
+      Status_Code    : Messages.Status_Code;
+      Content_Length : Response.Content_Length_Type)
    is
       function Length_Image return String;
       pragma Inline (Length_Image);
@@ -389,8 +389,8 @@ package body AWS.Log is
 
    procedure Write
      (Log          : in out Object;
-      Connect_Stat : in     Status.Data;
-      Data         : in     String)
+      Connect_Stat : Status.Data;
+      Data         : String)
    is
       Now : constant Calendar.Time := Calendar.Clock;
 
@@ -426,7 +426,7 @@ package body AWS.Log is
            & Data);
    end Write;
 
-   procedure Write (Log : in out Object; Data : in String) is
+   procedure Write (Log : in out Object; Data : String) is
       Now : constant Calendar.Time := Calendar.Clock;
    begin
       Write_Log
@@ -448,13 +448,13 @@ package body AWS.Log is
       Now         : Ada.Calendar.Time;
       First_Field : Boolean := True;
 
-      procedure Write_And_Clear (Position : in SV.Cursor);
+      procedure Write_And_Clear (Position : SV.Cursor);
 
       ---------------------
       -- Write_And_Clear --
       ---------------------
 
-      procedure Write_And_Clear (Position : in SV.Cursor) is
+      procedure Write_And_Clear (Position : SV.Cursor) is
       begin
          if First_Field then
             First_Field := False;
@@ -492,13 +492,13 @@ package body AWS.Log is
             declare
                Order : array (1 .. Length) of Strings_Positive.Cursor;
 
-               procedure Process (Position : in Strings_Positive.Cursor);
+               procedure Process (Position : Strings_Positive.Cursor);
 
                -------------
                -- Process --
                -------------
 
-               procedure Process (Position : in Strings_Positive.Cursor) is
+               procedure Process (Position : Strings_Positive.Cursor) is
                begin
                   Order (Strings_Positive.Element (Position)) := Position;
                end Process;
@@ -563,8 +563,8 @@ package body AWS.Log is
 
    procedure Write_Log
      (Log  : in out Object;
-      Now  : in     Calendar.Time;
-      Data : in     String) is
+      Now  : Calendar.Time;
+      Data : String) is
    begin
       Log.Semaphore.Seize;
 

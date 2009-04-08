@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2004                            --
---                                ACT-Europe                                --
+--                     Copyright (C) 2004-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -35,7 +34,7 @@ package body AWS.Services.Callbacks is
    -- File --
    ----------
 
-   function File (Request : in Status.Data) return Response.Data is
+   function File (Request : Status.Data) return Response.Data is
       URI      : constant String := Status.URI (Request);
       Filename : constant String := URI (URI'First + 1 .. URI'Last);
       K        : Natural := Directory'Last;

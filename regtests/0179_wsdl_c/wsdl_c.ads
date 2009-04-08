@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2007-2008, AdaCore                     --
+--                     Copyright (C) 2007-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -55,11 +55,11 @@ package WSDL_C is
    end record;
 
    procedure P
-     (A : in R;
-      B : in My_Int;
-      C : in My_Float;
-      D : in My_Number;
-      E : in Big_Number;
-      F : in S_int);
+     (A : R;
+      B : My_Int;
+      C : My_Float;
+      D : My_Number;
+      E : Big_Number;
+      F : S_int);
 
 end WSDL_C;

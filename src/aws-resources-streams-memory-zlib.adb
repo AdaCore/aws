@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2008, AdaCore                     --
+--                     Copyright (C) 2003-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -39,21 +39,21 @@ package body AWS.Resources.Streams.Memory.ZLib is
 
    overriding procedure Append
      (Resource : in out Stream_Type;
-      Buffer   : in     Stream_Element_Array;
-      Trim     : in     Boolean := False)
+      Buffer   : Stream_Element_Array;
+      Trim     : Boolean := False)
    is
       pragma Unreferenced (Trim);
       --  Ignore the Trim parameter, because stream would be trimmed anyway
       --  in the Flush routine.
 
-      procedure Append (Item : in Stream_Element_Array);
+      procedure Append (Item : Stream_Element_Array);
       pragma Inline (Append);
 
       ------------
       -- Append --
       ------------
 
-      procedure Append (Item : in Stream_Element_Array) is
+      procedure Append (Item : Stream_Element_Array) is
       begin
          Append (Memory.Stream_Type (Resource), Item);
       end Append;
@@ -80,12 +80,12 @@ package body AWS.Resources.Streams.Memory.ZLib is
 
    procedure Deflate_Initialize
      (Resource     : in out Stream_Type;
-      Level        : in     Compression_Level  := ZL.Default_Compression;
-      Strategy     : in     Strategy_Type      := ZL.Default_Strategy;
-      Method       : in     Compression_Method := ZL.Deflated;
-      Window_Bits  : in     Window_Bits_Type   := ZL.Default_Window_Bits;
-      Memory_Level : in     Memory_Level_Type  := ZL.Default_Memory_Level;
-      Header       : in     Header_Type        := ZL.Default) is
+      Level        : Compression_Level  := ZL.Default_Compression;
+      Strategy     : Strategy_Type      := ZL.Default_Strategy;
+      Method       : Compression_Method := ZL.Deflated;
+      Window_Bits  : Window_Bits_Type   := ZL.Default_Window_Bits;
+      Memory_Level : Memory_Level_Type  := ZL.Default_Memory_Level;
+      Header       : Header_Type        := ZL.Default) is
    begin
       Resource.Flushed := False;
 
@@ -126,8 +126,8 @@ package body AWS.Resources.Streams.Memory.ZLib is
 
    procedure Inflate_Initialize
      (Resource    : in out Stream_Type;
-      Window_Bits : in     Window_Bits_Type := ZL.Default_Window_Bits;
-      Header      : in     Header_Type      := ZL.Default) is
+      Window_Bits : Window_Bits_Type := ZL.Default_Window_Bits;
+      Header      : Header_Type      := ZL.Default) is
    begin
       Resource.Flushed := False;
 
@@ -140,8 +140,8 @@ package body AWS.Resources.Streams.Memory.ZLib is
 
    overriding procedure Read
      (Resource : in out Stream_Type;
-      Buffer   :    out Stream_Element_Array;
-      Last     :    out Stream_Element_Offset) is
+      Buffer   : out Stream_Element_Array;
+      Last     : out Stream_Element_Offset) is
    begin
       if not Resource.Flushed then
          Flush (Resource);
@@ -155,7 +155,7 @@ package body AWS.Resources.Streams.Memory.ZLib is
    ----------
 
    overriding function Size
-     (Resource : in Stream_Type) return Stream_Element_Offset is
+     (Resource : Stream_Type) return Stream_Element_Offset is
    begin
       if not Resource.Flushed then
          Flush (Resource.Self.all);

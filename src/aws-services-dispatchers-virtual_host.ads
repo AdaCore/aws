@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2008                          --
---                                 AdaCore                                  --
+--                     Copyright (C) 2000-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -40,31 +39,31 @@ package AWS.Services.Dispatchers.Virtual_Host is
 
    procedure Register
      (Dispatcher       : in out Handler;
-      Virtual_Hostname : in     String;
-      Hostname         : in     String);
+      Virtual_Hostname : String;
+      Hostname         : String);
    --  Register Virtual_Hostname to be a redirection to the specified
    --  hostname.
 
    procedure Register
      (Dispatcher       : in out Handler;
-      Virtual_Hostname : in     String;
-      Action           : in     AWS.Dispatchers.Handler'Class);
+      Virtual_Hostname : String;
+      Action           : AWS.Dispatchers.Handler'Class);
    --  Register Virtual_Hostname to use the specified callback
 
    procedure Register
      (Dispatcher       : in out Handler;
-      Virtual_Hostname : in     String;
-      Action           : in     Response.Callback);
+      Virtual_Hostname : String;
+      Action           : Response.Callback);
    --  Idem as above but take a callback procedure as parameter
 
    procedure Unregister
      (Dispatcher       : in out Handler;
-      Virtual_Hostname : in     String);
+      Virtual_Hostname : String);
    --  Removes Virtual_Hostname from the list of virtual hostnames to handle
 
    procedure Register_Default_Callback
      (Dispatcher : in out Handler;
-      Action     : in     AWS.Dispatchers.Handler'Class);
+      Action     : AWS.Dispatchers.Handler'Class);
    --  Register the default callback. This will be used if no Virtual_Hostname
    --  match the request.
 
@@ -76,11 +75,11 @@ private
    overriding procedure Finalize   (Dispatcher : in out Handler);
 
    overriding function Dispatch
-     (Dispatcher : in Handler;
-      Request    : in Status.Data) return Response.Data;
+     (Dispatcher : Handler;
+      Request    : Status.Data) return Response.Data;
    --  Returns an error message (code 404) if there is no match for the request
 
-   overriding function Clone (Dispatcher : in Handler) return Handler;
+   overriding function Clone (Dispatcher : Handler) return Handler;
    --  Returns a deep copy of the dispatcher
 
    type VH_Mode is (Host, Callback);

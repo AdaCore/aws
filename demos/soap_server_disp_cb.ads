@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2003                            --
---                                ACT-Europe                                --
+--                     Copyright (C) 2003-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -33,13 +32,13 @@ with SOAP.Message.Payload;
 
 package SOAP_Server_Disp_CB is
 
-   function CB (Request : in AWS.Status.Data) return AWS.Response.Data;
+   function CB (Request : AWS.Status.Data) return AWS.Response.Data;
 
    function SOAP_CB
-     (SOAPAction : in String;
-      Payload    : in SOAP.Message.Payload.Object;
-      Request    : in AWS.Status.Data)
+     (SOAPAction : String;
+      Payload    : SOAP.Message.Payload.Object;
+      Request    : AWS.Status.Data)
       return AWS.Response.Data;
-   --  Main SOAP Callback.
+   --  Main SOAP Callback
 
 end SOAP_Server_Disp_CB;

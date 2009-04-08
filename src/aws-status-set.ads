@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2008, AdaCore                     --
+--                     Copyright (C) 2000-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -35,33 +35,33 @@ package AWS.Status.Set is
 
    procedure Connection_Data
      (D        : in out Data;
-      Host     : in     String;
-      Port     : in     Positive;
-      Security : in     Boolean);
+      Host     : String;
+      Port     : Positive;
+      Security : Boolean);
    --  Set the connection data as used by the server
 
    procedure Free (D : in out Data);
    --  Free all allocated memory
 
-   procedure Read_Header (Socket : in Net.Socket_Type'Class; D : in out Data);
+   procedure Read_Header (Socket : Net.Socket_Type'Class; D : in out Data);
    --  Read all header data from the socket and fill the appropriate
    --  data's fields.
 
    procedure Read_Body
-     (Socket   : in     Net.Socket_Type'Class;
+     (Socket   : Net.Socket_Type'Class;
       D        : in out Data;
-      Boundary : in     String := "");
+      Boundary : String := "");
    --  Read message body from the socket and fill the appropriate data's field
 
    procedure Append_Body
      (D      : in out Data;
-      Buffer : in     Stream_Element_Array;
-      Trim   : in     Boolean := False);
+      Buffer : Stream_Element_Array;
+      Trim   : Boolean := False);
    --  Append data to the message body. If Trim is set to True the unused
    --  memory space in body's buffer is released. Ideally Trim should be
    --  set to True only when appending the last chunk of data.
 
-   procedure Keep_Alive (D : in out Data; Flag : in Boolean);
+   procedure Keep_Alive (D : in out Data; Flag : Boolean);
    --  Set the Keep-Alive flag for the current HTTP connection
 
    procedure Session (D : in out Data);
@@ -74,9 +74,9 @@ package AWS.Status.Set is
 
    procedure Request
      (D            : in out Data;
-      Method       : in     String;
-      URI          : in     String;
-      HTTP_Version : in     String);
+      Method       : String;
+      URI          : String;
+      HTTP_Version : String);
    --  Set values for the request line:
    --
    --  GET URI[?parametrers] [HTTP/1.0 or HTTP/1.1]
@@ -84,7 +84,7 @@ package AWS.Status.Set is
    --
    --  Save the calendar time of the request.
 
-   procedure Parameters (D : in out Data; Set : in AWS.Parameters.List);
+   procedure Parameters (D : in out Data; Set : AWS.Parameters.List);
    --  Associate the parameters in Set to the status data
 
    procedure Parameters_From_Body (D : in out Data);
@@ -93,42 +93,42 @@ package AWS.Status.Set is
    --  This routine allow to move big message body into HTTP parameters set
    --  with low stack usage.
 
-   procedure Case_Sensitive_Parameters (D : in out Data; Mode : in Boolean);
+   procedure Case_Sensitive_Parameters (D : in out Data; Mode : Boolean);
    pragma Inline (Case_Sensitive_Parameters);
 
    procedure Add_Parameter
      (D           : in out Data;
-      Name, Value : in     String;
-      Decode      : in     Boolean := True);
+      Name, Value : String;
+      Decode      : Boolean := True);
    pragma Inline (Add_Parameter);
    --  Add one parameter into the internal parameters list.
    --  The Name and Value should be already decoded.
    --  If Decode is true, decodes Name and Value. This is used when handling
    --  multipart/form-data for example.
 
-   procedure Add_Parameters (D : in out Data; Parameters : in String);
+   procedure Add_Parameters (D : in out Data; Parameters : String);
    pragma Inline (Add_Parameters);
    --  Parse and add parameters into the internal parameters list
 
-   procedure Binary (D : in out Data; Parameter : in Stream_Element_Array);
+   procedure Binary (D : in out Data; Parameter : Stream_Element_Array);
    --  This procedure is used to store any binary data sent with the
    --  request. For example this will be used by the PUT method if a binary
    --  file is sent to the server.
 
-   procedure Socket (D : in out Data; Sock : in Net.Socket_Access);
+   procedure Socket (D : in out Data; Sock : Net.Socket_Access);
    --  Set the Socket for the status. User callback can then retrieve the
    --  Socket for whatever it want. For example for passing it to the 'push'
    --  server.
 
    procedure Attachments
-     (D : in out Data; Attachments : in AWS.Attachments.List);
+     (D : in out Data; Attachments : AWS.Attachments.List);
    --  Adds a list of Attachments to D
 
    procedure Authenticate
      (D                      : in out Data;
-      Authorization_Mode     : in     Authorization_Type;
-      Authorization_Name     : in     String;
-      Authorization_Password : in     String);
+      Authorization_Mode     : Authorization_Type;
+      Authorization_Name     : String;
+      Authorization_Password : String);
    --  Set the authentication parameters associated with the request. This is
    --  mostly intended for automatic testsuite, since AWS will properly
    --  set those from the headers of the request as read from the socket.

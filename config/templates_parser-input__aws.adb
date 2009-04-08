@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                             Templates Parser                             --
 --                                                                          --
---                         Copyright (C) 2002-2008                          --
---                                 AdaCore                                  --
+--                      Copyright (C) 2002-2009, AdaCore                    --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -37,7 +36,7 @@ package body Templates_Parser.Input is
 
    type File_Record is new AWS.Resources.File_Type;
 
-   procedure Check_Open (File : in File_Type);
+   procedure Check_Open (File : File_Type);
    pragma Inline (Check_Open);
    --  Check if File is opened (File variable is not null)
 
@@ -47,7 +46,7 @@ package body Templates_Parser.Input is
    -- Check_Open --
    ----------------
 
-   procedure Check_Open (File : in File_Type) is
+   procedure Check_Open (File : File_Type) is
    begin
       if File = null then
          raise Status_Error;
@@ -69,7 +68,7 @@ package body Templates_Parser.Input is
    -- End_Of_File --
    -----------------
 
-   function End_Of_File (File : in File_Type) return Boolean is
+   function End_Of_File (File : File_Type) return Boolean is
    begin
       Check_Open (File);
       return End_Of_File (File.all);
@@ -80,9 +79,9 @@ package body Templates_Parser.Input is
    --------------
 
    procedure Get_Line
-     (File   : in     File_Type;
-      Buffer :    out String;
-      Last   :    out Natural) is
+     (File   : File_Type;
+      Buffer : out String;
+      Last   : out Natural) is
    begin
       Check_Open (File);
       Get_Line (File.all, Buffer, Last);
@@ -92,7 +91,7 @@ package body Templates_Parser.Input is
    -- LF_Terminated --
    -------------------
 
-   function LF_Terminated (File : in File_Type) return Boolean is
+   function LF_Terminated (File : File_Type) return Boolean is
    begin
       Check_Open (File);
       return LF_Terminated (File.all);
@@ -104,8 +103,8 @@ package body Templates_Parser.Input is
 
    procedure Open
      (File : in out File_Type;
-      Name : in     String;
-      Form : in     String    := "") is
+      Name : String;
+      Form : String    := "") is
    begin
       if File /= null then
          Close (File);

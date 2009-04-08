@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                          Copyright (C) 2003-2007                         --
---                                  AdaCore                                 --
+--                     Copyright (C) 2003-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -37,7 +36,7 @@ package body CB is
 
    procedure End_Service
      (O    : in out Object;
-      Name : in     String)
+      Name : String)
    is
       U_Name : constant String := To_Unit_Name (Format_Name (O, Name));
       Buffer : String (1 .. 1_024);
@@ -99,12 +98,12 @@ package body CB is
 
    procedure New_Procedure
      (O          : in out Object;
-      Proc       : in     String;
-      SOAPAction : in     String;
-      Namespace  : in     Name_Space.Object;
-      Input      : in     WSDL.Parameters.P_Set;
-      Output     : in     WSDL.Parameters.P_Set;
-      Fault      : in     WSDL.Parameters.P_Set)
+      Proc       : String;
+      SOAPAction : String;
+      Namespace  : Name_Space.Object;
+      Input      : WSDL.Parameters.P_Set;
+      Output     : WSDL.Parameters.P_Set;
+      Fault      : WSDL.Parameters.P_Set)
    is
       pragma Unreferenced
         (SOAPAction, Namespace, Input, Output, Fault);
@@ -141,9 +140,9 @@ package body CB is
 
    procedure Start_Service
      (O             : in out Object;
-      Name          : in     String;
-      Documentation : in     String;
-      Location      : in     String)
+      Name          : String;
+      Documentation : String;
+      Location      : String)
    is
       pragma Unreferenced (Location, Documentation);
 
@@ -172,10 +171,10 @@ package body CB is
 
       Text_IO.New_Line (CB_Ads);
       Text_IO.Put_Line (CB_Ads, "   function SOAP_CB");
-      Text_IO.Put_Line (CB_Ads, "     (SOAPAction : in String;");
+      Text_IO.Put_Line (CB_Ads, "     (SOAPAction : String;");
       Text_IO.Put_Line (CB_Ads,
-                        "      Payload    : in Message.Payload.Object;");
-      Text_IO.Put_Line (CB_Ads, "      Request    : in AWS.Status.Data)");
+                        "      Payload    : Message.Payload.Object;");
+      Text_IO.Put_Line (CB_Ads, "      Request    : AWS.Status.Data)");
       Text_IO.Put_Line (CB_Ads, "      return Response.Data;");
 
       --  Body
@@ -214,10 +213,10 @@ package body CB is
       Text_IO.Put_Line (Tmp_Adb, "   -------------");
       Text_IO.New_Line (Tmp_Adb);
       Text_IO.Put_Line (Tmp_Adb, "   function SOAP_CB");
-      Text_IO.Put_Line (Tmp_Adb, "     (SOAPAction : in String;");
+      Text_IO.Put_Line (Tmp_Adb, "     (SOAPAction : String;");
       Text_IO.Put_Line (Tmp_Adb,
-                        "      Payload    : in Message.Payload.Object;");
-      Text_IO.Put_Line (Tmp_Adb, "      Request    : in AWS.Status.Data)");
+                        "      Payload    : Message.Payload.Object;");
+      Text_IO.Put_Line (Tmp_Adb, "      Request    : AWS.Status.Data)");
       Text_IO.Put_Line (Tmp_Adb, "      return Response.Data is");
       Text_IO.Put_Line (Tmp_Adb, "   begin");
    end Start_Service;

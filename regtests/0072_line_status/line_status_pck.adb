@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2004-2008, AdaCore                     --
+--                     Copyright (C) 2004-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -47,10 +47,10 @@ package body Line_Status_Pck is
 
    procedure Value
      (Context      : not null access Parse_Context;
-      Variable     : in String;
+      Variable     : String;
       Translations : in out Templates.Translate_Set);
 
-   function CB (Request : in Status.Data) return Response.Data;
+   function CB (Request : Status.Data) return Response.Data;
 
    procedure Check (Connection : in out Client.HTTP_Connection);
 
@@ -65,7 +65,7 @@ package body Line_Status_Pck is
 
    procedure Value
      (Context      : not null access Parse_Context;
-      Variable     : in String;
+      Variable     : String;
       Translations : in out Templates.Translate_Set)
    is
       Request : constant Status.Data := Server.Get_Status;
@@ -92,7 +92,7 @@ package body Line_Status_Pck is
    -- CB --
    --------
 
-   function CB (Request : in Status.Data) return Response.Data is
+   function CB (Request : Status.Data) return Response.Data is
       SID : constant Session.Id  := Status.Session (Request);
    begin
       return Response.Build
@@ -116,7 +116,7 @@ package body Line_Status_Pck is
    -- Run --
    ---------
 
-   procedure Run (Port : in Natural) is
+   procedure Run (Port : Natural) is
       R : Response.Data;
    begin
       Line_Status_Pck.Port := Port;

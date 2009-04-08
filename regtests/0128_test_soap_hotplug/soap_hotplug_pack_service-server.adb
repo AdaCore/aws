@@ -29,9 +29,9 @@ package body SOAP_Hotplug_Pack_Service.Server is
    -------------
 
    function Job1_CB
-     (SOAPAction : in String;
-      Payload    : in SOAP.Message.Payload.Object;
-      Request    : in AWS.Status.Data)
+     (SOAPAction : String;
+      Payload    : SOAP.Message.Payload.Object;
+      Request    : AWS.Status.Data)
       return AWS.Response.Data
    is
       Proc_Name : constant String
@@ -97,9 +97,9 @@ package body SOAP_Hotplug_Pack_Service.Server is
    -------------
 
    function Job2_CB
-     (SOAPAction : in String;
-      Payload    : in SOAP.Message.Payload.Object;
-      Request    : in AWS.Status.Data)
+     (SOAPAction : String;
+      Payload    : SOAP.Message.Payload.Object;
+      Request    : AWS.Status.Data)
       return AWS.Response.Data
    is
       Proc_Name : constant String

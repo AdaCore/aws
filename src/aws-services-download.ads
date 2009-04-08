@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2005-2006                          --
---                                 AdaCore                                  --
+--                     Copyright (C) 2005-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -40,9 +39,9 @@ with AWS.Status;
 package AWS.Services.Download is
 
    procedure Start
-     (Server_Dispatcher       : in     AWS.Dispatchers.Handler'Class;
-      Main_Dispatcher         :    out Services.Dispatchers.Linker.Handler;
-      Max_Concurrent_Download : in     Positive :=
+     (Server_Dispatcher       : AWS.Dispatchers.Handler'Class;
+      Main_Dispatcher         : out Services.Dispatchers.Linker.Handler;
+      Max_Concurrent_Download : Positive :=
         Config.Max_Concurrent_Download);
    --  Start the download manager server. Server_Dispatcher is the dispatcher
    --  for the Web server. Main_Dispatcher is the dispatcher that must be used
@@ -57,8 +56,8 @@ package AWS.Services.Download is
    --  Stop the download server, all current download are interrupted
 
    function Build
-     (Request  : in Status.Data;
-      Name     : in String;
+     (Request  : Status.Data;
+      Name     : String;
       Resource : not null access Resources.Streams.Stream_Type'Class)
       return Response.Data;
    --  Queue a download request. If there is room on the download manager the

@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2008, AdaCore                     --
+--                     Copyright (C) 2003-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -35,8 +35,8 @@ package WSDL_5 is
    end record;
 
    procedure Register
-     (Name    : in String;
-      Surface : in Color);
+     (Name    : String;
+      Surface : Color);
 
    function One_Color return Color;
 

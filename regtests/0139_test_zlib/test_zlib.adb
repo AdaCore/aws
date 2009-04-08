@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2008, AdaCore                     --
+--                     Copyright (C) 2000-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -92,7 +92,7 @@ procedure Test_Zlib is
 
    procedure Copy_Streams
      (Source, Target : in out Root_Stream_Type'Class;
-      Buffer_Size    : in     Stream_Element_Offset := 1024);
+      Buffer_Size    : Stream_Element_Offset := 1024);
    --  Copying data from one stream to another. It is for test stream
    --  interface of the library.
 
@@ -103,7 +103,7 @@ procedure Test_Zlib is
    --  ZLib.Generic_Translate.
    --  reading data from the File_In.
 
-   procedure Data_Out (Item : in Stream_Element_Array);
+   procedure Data_Out (Item : Stream_Element_Array);
    --  this procedure is for generic instantiation of
    --  ZLib.Generic_Translate.
    --  writing data to the File_Out.
@@ -171,7 +171,7 @@ procedure Test_Zlib is
 
    procedure Copy_Streams
      (Source, Target : in out Streams.Root_Stream_Type'Class;
-      Buffer_Size    : in     Stream_Element_Offset := 1024)
+      Buffer_Size    : Stream_Element_Offset := 1024)
    is
       Buffer : Stream_Element_Array (1 .. Buffer_Size);
       Last   : Stream_Element_Offset;
@@ -199,7 +199,7 @@ procedure Test_Zlib is
    -- Data_Out --
    --------------
 
-   procedure Data_Out (Item : in Stream_Element_Array) is
+   procedure Data_Out (Item : Stream_Element_Array) is
    begin
       Write (File_Out, Item);
    end Data_Out;
@@ -222,14 +222,14 @@ procedure Test_Zlib is
 
       Density : constant Count := 30; --  from 0 to Buffer'Length - 2;
 
-      procedure Fill_Buffer (J, D : in Count);
+      procedure Fill_Buffer (J, D : Count);
       --  Change the part of the buffer
 
       -----------------
       -- Fill_Buffer --
       -----------------
 
-      procedure Fill_Buffer (J, D : in Count) is
+      procedure Fill_Buffer (J, D : Count) is
       begin
          for K in 0 .. D loop
             Buffer

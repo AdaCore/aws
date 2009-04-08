@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2008, AdaCore                     --
+--                     Copyright (C) 2000-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -33,7 +33,7 @@ package body SOAP.Message is
    -- Name_Space --
    ----------------
 
-   function Name_Space (M : in Object'Class) return SOAP.Name_Space.Object is
+   function Name_Space (M : Object'Class) return SOAP.Name_Space.Object is
    begin
       return M.Name_Space;
    end Name_Space;
@@ -42,7 +42,7 @@ package body SOAP.Message is
    -- Parameters --
    ----------------
 
-   function Parameters (M : in Object'Class) return SOAP.Parameters.List is
+   function Parameters (M : Object'Class) return SOAP.Parameters.List is
    begin
       return M.P;
    end Parameters;
@@ -53,7 +53,7 @@ package body SOAP.Message is
 
    procedure Set_Name_Space
      (M  : in out Object'Class;
-      NS : in     SOAP.Name_Space.Object) is
+      NS : SOAP.Name_Space.Object) is
    begin
       M.Name_Space := NS;
    end Set_Name_Space;
@@ -64,7 +64,7 @@ package body SOAP.Message is
 
    procedure Set_Parameters
      (M     : in out Object'Class;
-      P_Set : in     SOAP.Parameters.List) is
+      P_Set : SOAP.Parameters.List) is
    begin
       M.P := P_Set;
    end Set_Parameters;
@@ -75,7 +75,7 @@ package body SOAP.Message is
 
    procedure Set_Wrapper_Name
      (M    : in out Object'Class;
-      Name : in     String) is
+      Name : String) is
    begin
       M.Wrapper_Name := To_Unbounded_String (Name);
    end Set_Wrapper_Name;
@@ -84,7 +84,7 @@ package body SOAP.Message is
    -- Wrapper_Name --
    ------------------
 
-   function Wrapper_Name (M : in Object'class) return String is
+   function Wrapper_Name (M : Object'class) return String is
    begin
       return To_String (M.Wrapper_Name);
    end Wrapper_Name;
@@ -93,9 +93,9 @@ package body SOAP.Message is
    -- XML_Image --
    ---------------
 
-   function XML_Image (M : in Object) return Unbounded_String is
+   function XML_Image (M : Object) return Unbounded_String is
 
-      procedure Add_Namespaces (O : in Types.Object'Class);
+      procedure Add_Namespaces (O : Types.Object'Class);
       --  Add name space reference into Message_Header
 
       New_Line       : constant String                 := ASCII.CR & ASCII.LF;
@@ -109,7 +109,7 @@ package body SOAP.Message is
       -- Add_Namespaces --
       --------------------
 
-      procedure Add_Namespaces (O : in Types.Object'Class) is
+      procedure Add_Namespaces (O : Types.Object'Class) is
          use SOAP.Name_Space;
          use SOAP.Types;
          NS : constant SOAP.Name_Space.Object := Types.Name_Space (O);

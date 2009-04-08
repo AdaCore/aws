@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2004-2008, AdaCore                     --
+--                     Copyright (C) 2004-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -37,7 +37,7 @@ with AWS.Net.Buffered;
 with AWS.Net.SSL;
 with Get_Free_Port;
 
-procedure S_NBConn_Proc (Security : in Boolean) is
+procedure S_NBConn_Proc (Security : Boolean) is
 
    use Ada.Exceptions;
    use Ada.Text_IO;
@@ -52,7 +52,7 @@ procedure S_NBConn_Proc (Security : in Boolean) is
      := (others => 1);
 
    task Server_Task is
-      entry Get (N : in Positive);
+      entry Get (N : Positive);
       entry Done;
    end Server_Task;
 
@@ -64,7 +64,7 @@ procedure S_NBConn_Proc (Security : in Boolean) is
       Peer : Net.Socket_Access;
    begin
       for J in Clients'Range loop
-         accept Get (N : in Positive) do
+         accept Get (N : Positive) do
             Peer := Net.Socket (Security);
          end Get;
 

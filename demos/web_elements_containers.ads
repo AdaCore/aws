@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2004-2005                          --
---                                 AdaCore                                  --
+--                     Copyright (C) 2004-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -30,13 +29,13 @@ with AWS.Templates;
 
 package Web_Elements_Containers is
 
-   procedure Add_Group (Name : in String);
+   procedure Add_Group (Name : String);
    --  Add a new group
 
    function Get_Groups return AWS.Templates.Vector_Tag;
    --  Returns the list of groups as a vector tag
 
-   procedure Add_User (Name : in String);
+   procedure Add_User (Name : String);
    --  Add a new user
 
    function Get_Users return AWS.Templates.Vector_Tag;

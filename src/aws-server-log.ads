@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                          Copyright (C) 2003-2007                         --
---                                  AdaCore                                 --
+--                     Copyright (C) 2003-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -34,19 +33,19 @@ package AWS.Server.Log is
 
    procedure Start
      (Web_Server      : in out HTTP;
-      Split_Mode      : in     AWS.Log.Split_Mode := AWS.Log.None;
-      Filename_Prefix : in     String             := "";
-      Auto_Flush      : in     Boolean            := False);
+      Split_Mode      : AWS.Log.Split_Mode := AWS.Log.None;
+      Filename_Prefix : String             := "";
+      Auto_Flush      : Boolean            := False);
    --  Activate server's logging activity. See AWS.Log. If Auto_Flush is True
    --  the file will be flushed after all written data.
 
-   function Name (Web_Server : in HTTP) return String;
+   function Name (Web_Server : HTTP) return String;
    --  Return the name of the Log or an empty string if one is not active
 
    procedure Stop (Web_Server : in out HTTP);
    --  Stop server's logging activity. See AWS.Log
 
-   function Is_Active (Web_Server : in HTTP) return Boolean;
+   function Is_Active (Web_Server : HTTP) return Boolean;
    --  Returns True if the Web Server log has been activated
 
    procedure Flush (Web_Server : in out HTTP);
@@ -60,17 +59,17 @@ package AWS.Server.Log is
 
    procedure Start_Error
      (Web_Server      : in out HTTP;
-      Split_Mode      : in     AWS.Log.Split_Mode := AWS.Log.None;
-      Filename_Prefix : in     String             := "");
+      Split_Mode      : AWS.Log.Split_Mode := AWS.Log.None;
+      Filename_Prefix : String             := "");
    --  Activate server's logging activity. See AWS.Log
 
-   function Error_Name (Web_Server : in HTTP) return String;
+   function Error_Name (Web_Server : HTTP) return String;
    --  Return the name of the Error Log or an empty string if one is not active
 
    procedure Stop_Error (Web_Server : in out HTTP);
    --  Stop server's logging activity. See AWS.Log
 
-   function Is_Error_Active (Web_Server : in HTTP) return Boolean;
+   function Is_Error_Active (Web_Server : HTTP) return Boolean;
    --  Returns True if the Web Server error log has been activated
 
 end AWS.Server.Log;

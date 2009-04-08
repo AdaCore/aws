@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2008, AdaCore                     --
+--                     Copyright (C) 2000-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -45,7 +45,7 @@ package body AWS.Services.Page_Server is
    -- Callback --
    --------------
 
-   function Callback (Request : in AWS.Status.Data) return AWS.Response.Data is
+   function Callback (Request : AWS.Status.Data) return AWS.Response.Data is
       use Ada.Strings;
       use type Templates.Translate_Set;
 
@@ -103,7 +103,7 @@ package body AWS.Services.Page_Server is
    -- Directory_Browsing --
    ------------------------
 
-   procedure Directory_Browsing (Activated : in Boolean) is
+   procedure Directory_Browsing (Activated : Boolean) is
    begin
       Browse_Directory := Activated;
    end Directory_Browsing;

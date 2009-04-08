@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2008, AdaCore                     --
+--                     Copyright (C) 2003-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -39,13 +39,13 @@ package Error_Strm is
    type File_Tagged is new Streams.Stream_Type with private;
 
    function End_Of_File
-     (Resource : in File_Tagged)
+     (Resource : File_Tagged)
       return Boolean;
 
    procedure Read
      (Resource : in out File_Tagged;
-      Buffer   :    out Stream_Element_Array;
-      Last     :    out Stream_Element_Offset);
+      Buffer   : out Stream_Element_Array;
+      Last     : out Stream_Element_Offset);
 
    procedure Close (File : in out File_Tagged);
 
@@ -53,11 +53,11 @@ package Error_Strm is
 
    procedure Set_Index
      (File     : in out File_Tagged;
-      Position : in     Stream_Element_Offset);
+      Position : Stream_Element_Offset);
 
    procedure Create
      (Resource : in out AWS.Resources.Streams.Stream_Type'Class;
-      Size     : in     Stream_Element_Offset);
+      Size     : Stream_Element_Offset);
 
 private
 

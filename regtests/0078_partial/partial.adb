@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2005-2008, AdaCore                     --
+--                     Copyright (C) 2005-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -52,15 +52,15 @@ procedure Partial is
 
    Filename : constant String := "partial.adb";
 
-   function CB (Request : in Status.Data) return Response.Data;
+   function CB (Request : Status.Data) return Response.Data;
 
-   function File_MD5 (Filename : in String) return MD5.Message_Digest;
+   function File_MD5 (Filename : String) return MD5.Message_Digest;
    --  Compute the MD5 signature for Filename
 
    procedure Dump_Response
-     (Id          : in String;
-      R           : in Response.Data;
-      Status_Only : in Boolean := False);
+     (Id          : String;
+      R           : Response.Data;
+      Status_Only : Boolean := False);
    --  Dump information about the response
 
    task Server is
@@ -81,7 +81,7 @@ procedure Partial is
    -- CB --
    --------
 
-   function CB (Request : in Status.Data) return Response.Data is
+   function CB (Request : Status.Data) return Response.Data is
       URI      : constant String := Status.URI (Request);
       Filename : constant String := URI (URI'First + 1 .. URI'Last);
    begin
@@ -93,9 +93,9 @@ procedure Partial is
    -------------------
 
    procedure Dump_Response
-     (Id          : in String;
-      R           : in Response.Data;
-      Status_Only : in Boolean := False) is
+     (Id          : String;
+      R           : Response.Data;
+      Status_Only : Boolean := False) is
    begin
       Text_IO.Put
         (Id & " code="
@@ -115,7 +115,7 @@ procedure Partial is
    -- File_MD5 --
    --------------
 
-   function File_MD5 (Filename : in String) return MD5.Message_Digest is
+   function File_MD5 (Filename : String) return MD5.Message_Digest is
       File   : Stream_IO.File_Type;
       Buffer : Stream_Element_Array (1 .. 4 * 1_024);
       Last   : Stream_Element_Offset;

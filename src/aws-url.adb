@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2007                          --
---                                 AdaCore                                  --
+--                     Copyright (C) 2000-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -38,7 +37,7 @@ package body AWS.URL is
 
    Not_Escaped : constant Escape_Code := "  ";
 
-   function Code (C : in Character) return Escape_Code;
+   function Code (C : Character) return Escape_Code;
    pragma Inline (Code);
    --  Returns hexadecimal code for character C
 
@@ -53,8 +52,8 @@ package body AWS.URL is
    --------------
 
    function Abs_Path
-     (URL    : in Object;
-      Encode : in Boolean := False) return String
+     (URL    : Object;
+      Encode : Boolean := False) return String
    is
       Result : constant String := To_String (URL.Path & URL.File);
    begin
@@ -86,7 +85,7 @@ package body AWS.URL is
    -- Code --
    ----------
 
-   function Code (C : in Character) return Escape_Code is
+   function Code (C : Character) return Escape_Code is
    begin
       return Utils.Hex (Character'Pos (C));
    end Code;
@@ -100,7 +99,7 @@ package body AWS.URL is
    -- Decode --
    ------------
 
-   function Decode (Str : in String) return String is
+   function Decode (Str : String) return String is
       Res : String (1 .. Str'Length);
       K   : Natural := 0;
       I   : Positive := Str'First;
@@ -140,8 +139,8 @@ package body AWS.URL is
    ------------
 
    function Encode
-     (Str          : in String;
-      Encoding_Set : in Strings.Maps.Character_Set := Default_Encoding_Set)
+     (Str          : String;
+      Encoding_Set : Strings.Maps.Character_Set := Default_Encoding_Set)
       return String
    is
       C_128 : constant Character := Character'Val (128);
@@ -179,8 +178,8 @@ package body AWS.URL is
    ----------
 
    function File
-     (URL    : in Object;
-      Encode : in Boolean := False) return String is
+     (URL    : Object;
+      Encode : Boolean := False) return String is
    begin
       if Encode then
          return AWS.URL.Encode (To_String (URL.File));
@@ -193,7 +192,7 @@ package body AWS.URL is
    -- Host --
    ----------
 
-   function Host (URL : in Object) return String is
+   function Host (URL : Object) return String is
    begin
       return To_String (URL.Host);
    end Host;
@@ -202,7 +201,7 @@ package body AWS.URL is
    -- Is_Valid --
    --------------
 
-   function Is_Valid (URL : in Object) return Boolean is
+   function Is_Valid (URL : Object) return Boolean is
    begin
       return URL.Status = Valid;
    end Is_Valid;
@@ -227,7 +226,7 @@ package body AWS.URL is
    ---------------
 
    function Parameter
-     (URL : in Object; Name : in String; N : in Positive := 1) return String is
+     (URL : Object; Name : String; N : Positive := 1) return String is
    begin
       return AWS.Parameters.Get (URL.Parameters, Name, N);
    end Parameter;
@@ -236,14 +235,14 @@ package body AWS.URL is
    -- Parameters --
    ----------------
 
-   function Parameters (URL : in Object) return AWS.Parameters.List is
+   function Parameters (URL : Object) return AWS.Parameters.List is
    begin
       return URL.Parameters;
    end Parameters;
 
    function Parameters
-     (URL    : in Object;
-      Encode : in Boolean := False) return String
+     (URL    : Object;
+      Encode : Boolean := False) return String
    is
       P : constant String := AWS.Parameters.URI_Format (URL.Parameters);
    begin
@@ -265,9 +264,9 @@ package body AWS.URL is
    -----------
 
    function Parse
-      (URL            : in String;
-       Check_Validity : in Boolean := True;
-       Normalize      : in Boolean := False) return Object
+      (URL            : String;
+       Check_Validity : Boolean := True;
+       Normalize      : Boolean := False) return Object
    is
       O : Object;
    begin
@@ -280,7 +279,7 @@ package body AWS.URL is
    -- Password --
    --------------
 
-   function Password (URL : in Object) return String is
+   function Password (URL : Object) return String is
    begin
       return To_String (URL.Password);
    end Password;
@@ -290,8 +289,8 @@ package body AWS.URL is
    ----------
 
    function Path
-     (URL    : in Object;
-      Encode : in Boolean := False) return String is
+     (URL    : Object;
+      Encode : Boolean := False) return String is
    begin
       if Encode then
          return AWS.URL.Encode (To_String (URL.Path));
@@ -305,8 +304,8 @@ package body AWS.URL is
    -----------------------------
 
    function Pathname_And_Parameters
-     (URL    : in Object;
-      Encode : in Boolean := False) return String is
+     (URL    : Object;
+      Encode : Boolean := False) return String is
    begin
       return Pathname (URL, Encode) & Parameters (URL, Encode);
    end Pathname_And_Parameters;
@@ -315,12 +314,12 @@ package body AWS.URL is
    -- Port --
    ----------
 
-   function Port (URL : in Object) return Positive is
+   function Port (URL : Object) return Positive is
    begin
       return URL.Port;
    end Port;
 
-   function Port (URL : in Object) return String is
+   function Port (URL : Object) return String is
    begin
       return AWS.Utils.Image (URL.Port);
    end Port;
@@ -329,7 +328,7 @@ package body AWS.URL is
    -- Port_Not_Default --
    ----------------------
 
-   function Port_Not_Default (URL : in Object) return String is
+   function Port_Not_Default (URL : Object) return String is
    begin
       if (URL.Port = Default_HTTP_Port and then URL.Protocol = HTTP)
         or else (URL.Port = Default_HTTPS_Port and then URL.Protocol = HTTPS)
@@ -345,7 +344,7 @@ package body AWS.URL is
    -- Protocol_Name --
    -------------------
 
-   function Protocol_Name (URL : in Object) return String is
+   function Protocol_Name (URL : Object) return String is
    begin
       case URL.Protocol is
          when HTTPS =>
@@ -362,8 +361,8 @@ package body AWS.URL is
    -----------
 
    function Query
-     (URL    : in Object;
-      Encode : in Boolean := False) return String
+     (URL    : Object;
+      Encode : Boolean := False) return String
    is
       P : constant String := Parameters (URL, Encode);
    begin
@@ -374,7 +373,7 @@ package body AWS.URL is
    -- Security --
    --------------
 
-   function Security (URL : in Object) return Boolean is
+   function Security (URL : Object) return Boolean is
    begin
       return URL.Protocol = HTTPS;
    end Security;
@@ -383,7 +382,7 @@ package body AWS.URL is
    -- URL --
    ---------
 
-   function URL (URL : in Object) return String is
+   function URL (URL : Object) return String is
 
       function User_Password return String;
       pragma Inline (User_Password);
@@ -419,7 +418,7 @@ package body AWS.URL is
    -- User --
    ----------
 
-   function User (URL : in Object) return String is
+   function User (URL : Object) return String is
    begin
       return To_String (URL.User);
    end User;

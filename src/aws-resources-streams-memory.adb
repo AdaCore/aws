@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2003-2007                          --
---                                 AdaCore                                  --
+--                     Copyright (C) 2003-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -34,22 +33,22 @@ package body AWS.Resources.Streams.Memory is
 
    procedure Append
      (Resource : in out Stream_Type;
-      Buffer   : in     Stream_Element_Array;
-      Trim     : in     Boolean := False) is
+      Buffer   : Stream_Element_Array;
+      Trim     : Boolean := False) is
    begin
       Containers.Append (Resource.Data, Buffer, Trim);
    end Append;
 
    procedure Append
      (Resource : in out Stream_Type;
-      Buffer   : in     Stream_Element_Access) is
+      Buffer   : Stream_Element_Access) is
    begin
       Containers.Append (Resource.Data, Buffer);
    end Append;
 
    procedure Append
      (Resource : in out Stream_Type;
-      Buffer   : in     Buffer_Access) is
+      Buffer   : Buffer_Access) is
    begin
       Containers.Append (Resource.Data, Buffer);
    end Append;
@@ -77,7 +76,7 @@ package body AWS.Resources.Streams.Memory is
    -----------------
 
    overriding function End_Of_File
-     (Resource : in Stream_Type) return Boolean is
+     (Resource : Stream_Type) return Boolean is
    begin
       return Containers.End_Of_File (Resource.Data);
    end End_Of_File;
@@ -88,8 +87,8 @@ package body AWS.Resources.Streams.Memory is
 
    overriding procedure Read
      (Resource : in out Stream_Type;
-      Buffer   :    out Stream_Element_Array;
-      Last     :    out Stream_Element_Offset) is
+      Buffer   : out Stream_Element_Array;
+      Last     : out Stream_Element_Offset) is
    begin
       Containers.Read (Resource.Data, Buffer, Last);
    end Read;
@@ -109,7 +108,7 @@ package body AWS.Resources.Streams.Memory is
 
    overriding procedure Set_Index
      (Resource : in out Stream_Type;
-      To       : in     Stream_Element_Offset) is
+      To       : Stream_Element_Offset) is
    begin
       Containers.Set_Index (Resource.Data, To);
    end Set_Index;
@@ -119,7 +118,7 @@ package body AWS.Resources.Streams.Memory is
    ----------
 
    overriding function Size
-     (Resource : in Stream_Type) return Stream_Element_Offset is
+     (Resource : Stream_Type) return Stream_Element_Offset is
    begin
       return Containers.Size (Resource.Data);
    end Size;

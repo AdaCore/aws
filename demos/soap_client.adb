@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2001                          --
---                                ACT-Europe                                --
+--                     Copyright (C) 2000-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -26,7 +25,7 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  A simple SOAP client.
+--  A simple SOAP client
 
 with Ada.Text_IO;
 
@@ -44,8 +43,8 @@ procedure SOAP_Client is
    use SOAP.Types;
    use type SOAP.Parameters.List;
 
-   procedure Error (E : in Message.Response.Error.Object);
-   --  Display SOAP Error.
+   procedure Error (E : Message.Response.Error.Object);
+   --  Display SOAP Error
 
    ---------
    -- Bad --
@@ -76,7 +75,7 @@ procedure SOAP_Client is
    -- Error --
    -----------
 
-   procedure Error (E : in Message.Response.Error.Object) is
+   procedure Error (E : Message.Response.Error.Object) is
       P : constant Parameters.List := SOAP.Message.Parameters (E);
    begin
       Text_IO.Put_Line ("Faultcode   : "

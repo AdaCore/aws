@@ -2,8 +2,7 @@
 --                              Ada Web Server                              --
 --                   S M T P - Simple Mail Transfer Protocol                --
 --                                                                          --
---                           Copyright (C) 2007                             --
---                                 AdaCore                                  --
+--                     Copyright (C) 2007-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -34,14 +33,14 @@ package AWS.SMTP.Authentication.Plain is
    type Credential is new Authentication.Credential with private;
    --  ESMTP's AUTH PLAIN method
 
-   function Initialize (Auth_Cid, Password : in String) return Credential;
+   function Initialize (Auth_Cid, Password : String) return Credential;
    --  Create credentials using the authentication identity Authcid and the
    --  clear-text password Passwd.  Note that each of Authcid and Passwd must
    --  be UTF-8 encoded strings suitable for use in this authentication
    --  mathod, as is. They must not include Character'Val(0). A SASLprep
    --  profile string should work, I think.
 
-   overriding function Image (Info : in Credential) return String;
+   overriding function Image (Info : Credential) return String;
    --  Response to be sent to the server
 
 private
@@ -57,8 +56,8 @@ private
    end record;
 
    overriding procedure Before_Send
-     (Credential : in     Plain.Credential;
+     (Credential : Plain.Credential;
       Sock       : in out Net.Socket_Type'Class;
-      Status     :    out SMTP.Status);
+      Status     : out SMTP.Status);
 
 end AWS.SMTP.Authentication.Plain;

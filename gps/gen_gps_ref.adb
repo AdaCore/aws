@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                          Copyright (C) 2004-2005                         --
---                                 AdaCore                                  --
+--                     Copyright (C) 2004-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -51,15 +50,15 @@ procedure Gen_GPS_Ref is
    API : array (1 .. 1_024) of Item;
    A   : Natural := 0;
 
-   function "-" (Str : in Unbounded_String) return String
+   function "-" (Str : Unbounded_String) return String
      renames To_String;
 
-   function "+" (Str : in String) return Unbounded_String
+   function "+" (Str : String) return Unbounded_String
      renames To_Unbounded_String;
 
    procedure Gen_Header;
 
-   procedure Get_Ref (File : in String);
+   procedure Get_Ref (File : String);
 
    procedure Gen_Refs;
 
@@ -94,7 +93,7 @@ procedure Gen_GPS_Ref is
 
    procedure Gen_Refs is
 
-      function Get_Menu (A : in Positive) return String;
+      function Get_Menu (A : Positive) return String;
       --  Returns the menu entry for API (K), this routine double the
       --  underscores and handle the root menu. A root menu is generated for
       --  every package having a child.
@@ -103,7 +102,7 @@ procedure Gen_GPS_Ref is
       -- Get_Menu --
       --------------
 
-      function Get_Menu (A : in Positive) return String is
+      function Get_Menu (A : Positive) return String is
          Str : constant String := -API (A).API_Name;
          R   : String (1 .. Str'Length * 2);
          K   : Natural := 0;
@@ -192,7 +191,7 @@ procedure Gen_GPS_Ref is
    -- Get_Ref --
    -------------
 
-   procedure Get_Ref (File : in String) is
+   procedure Get_Ref (File : String) is
 
       Filename : constant String := File_Name (File);
 

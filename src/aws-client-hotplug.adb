@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2004-2008, AdaCore                     --
+--                     Copyright (C) 2004-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -40,11 +40,11 @@ package body AWS.Client.Hotplug is
    --------------
 
    function Register
-     (Name     : in String;
-      Password : in String;
-      Server   : in String;
-      Regexp   : in String;
-      URL      : in String) return Response.Data
+     (Name     : String;
+      Password : String;
+      Server   : String;
+      Regexp   : String;
+      URL      : String) return Response.Data
    is
       use type Messages.Status_Code;
       Srv      : AWS.URL.Object;
@@ -90,10 +90,10 @@ package body AWS.Client.Hotplug is
    ----------------
 
    function Unregister
-     (Name     : in String;
-      Password : in String;
-      Server   : in String;
-      Regexp   : in String) return Response.Data
+     (Name     : String;
+      Password : String;
+      Server   : String;
+      Regexp   : String) return Response.Data
    is
       use type Messages.Status_Code;
       Srv      : AWS.URL.Object;

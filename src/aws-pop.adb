@@ -2,7 +2,7 @@
 --                              Ada Web Server                              --
 --                       P O P - Post Office Protocol                       --
 --                                                                          --
---                     Copyright (C) 2003-2008, AdaCore                     --
+--                     Copyright (C) 2003-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -48,12 +48,12 @@ package body AWS.POP is
 
    CRLF : constant String := ASCII.CR & ASCII.LF;
 
-   procedure Check_Response (Response : in String);
+   procedure Check_Response (Response : String);
    --  Checks server's response, raise POP_Error with server's message
 
    procedure Read_Headers
-     (Sock    : in     AWS.Net.Socket_Type'Class;
-      Headers :    out AWS.Headers.List);
+     (Sock    : AWS.Net.Socket_Type'Class;
+      Headers : out AWS.Headers.List);
    pragma Inline (Read_Headers);
    --  Read headers from Sock, do not fail if a non conformant header is
    --  found. It is possible to get wrong headers in SPAMs.
@@ -76,7 +76,7 @@ package body AWS.POP is
    -- Attachment_Count --
    ----------------------
 
-   function Attachment_Count (Message : in POP.Message) return Natural is
+   function Attachment_Count (Message : POP.Message) return Natural is
       Count : Natural := 0;
       Ptr   : Attachment_Access := Message.Attachments;
    begin
@@ -92,7 +92,7 @@ package body AWS.POP is
    -- CC --
    --------
 
-   function CC (Message : in POP.Message; N : in Natural := 0) return String is
+   function CC (Message : POP.Message; N : Natural := 0) return String is
       CC_Values : constant String := Header (Message, "CC");
       Cut_CC    : Strings_Cutter.Cut_String;
    begin
@@ -115,7 +115,7 @@ package body AWS.POP is
    -- CC_Count --
    --------------
 
-   function CC_Count (Message : in POP.Message) return Natural is
+   function CC_Count (Message : POP.Message) return Natural is
       CC_Values : constant String  := Header (Message, "CC");
    begin
       if CC_Values = "" then
@@ -129,7 +129,7 @@ package body AWS.POP is
    -- Check_Response --
    --------------------
 
-   procedure Check_Response (Response : in String) is
+   procedure Check_Response (Response : String) is
    begin
       if Response'Length > 3
         and then Response (Response'First .. Response'First + 3) = "-ERR"
@@ -142,7 +142,7 @@ package body AWS.POP is
    -- Close --
    -----------
 
-   procedure Close (Mailbox : in POP.Mailbox) is
+   procedure Close (Mailbox : POP.Mailbox) is
    begin
       --  Send command
 
@@ -167,19 +167,19 @@ package body AWS.POP is
    -- Content --
    -------------
 
-   function Content (Message : in POP.Message) return Unbounded_String is
+   function Content (Message : POP.Message) return Unbounded_String is
    begin
       return Message.Content;
    end Content;
 
    function Content
-     (Attachment : in POP.Attachment)
+     (Attachment : POP.Attachment)
       return AWS.Resources.Streams.Stream_Access is
    begin
       return Attachment.Content;
    end Content;
 
-   function Content (Attachment : in POP.Attachment) return Unbounded_String is
+   function Content (Attachment : POP.Attachment) return Unbounded_String is
       use AWS.Resources.Streams;
 
       Stream : Stream_Type renames Stream_Type (Attachment.Content.all);
@@ -208,7 +208,7 @@ package body AWS.POP is
    -- Date --
    ----------
 
-   function Date (Message : in POP.Message) return String is
+   function Date (Message : POP.Message) return String is
    begin
       return Header (Message, "Date");
    end Date;
@@ -218,8 +218,8 @@ package body AWS.POP is
    ------------
 
    procedure Delete
-     (Mailbox : in POP.Mailbox;
-      N       : in Positive) is
+     (Mailbox : POP.Mailbox;
+      N       : Positive) is
    begin
       Net.Buffered.Put_Line (Mailbox.Sock, "DELE " & Utils.Image (N));
 
@@ -235,7 +235,7 @@ package body AWS.POP is
    -- Filename --
    --------------
 
-   function Filename (Attachment : in POP.Attachment) return String is
+   function Filename (Attachment : POP.Attachment) return String is
    begin
       return To_String (Attachment.Filename);
    end Filename;
@@ -278,7 +278,7 @@ package body AWS.POP is
    -- For_Every_Attachment --
    --------------------------
 
-   procedure For_Every_Attachment (Message : in POP.Message) is
+   procedure For_Every_Attachment (Message : POP.Message) is
       P     : Attachment_Access := Message.Attachments;
       Index : Positive := 1;
       Quit  : Boolean := False;
@@ -296,8 +296,8 @@ package body AWS.POP is
    -----------------------
 
    procedure For_Every_Message
-     (Mailbox : in POP.Mailbox;
-      Remove  : in Boolean     := False)
+     (Mailbox : POP.Mailbox;
+      Remove  : Boolean     := False)
    is
       Mess : Message;
       Quit : Boolean := False;
@@ -314,7 +314,7 @@ package body AWS.POP is
    -- For_Every_Message_Header --
    ------------------------------
 
-   procedure For_Every_Message_Header (Mailbox : in POP.Mailbox) is
+   procedure For_Every_Message_Header (Mailbox : POP.Mailbox) is
       Mess : Message;
       Quit : Boolean := False;
    begin
@@ -330,7 +330,7 @@ package body AWS.POP is
    -- From --
    ----------
 
-   function From (Message : in POP.Message) return String is
+   function From (Message : POP.Message) return String is
    begin
       return Header (Message, "From");
    end From;
@@ -340,26 +340,26 @@ package body AWS.POP is
    ---------
 
    function Get
-     (Mailbox : in POP.Mailbox;
-      N       : in Positive;
-      Remove  : in Boolean     := False) return Message
+     (Mailbox : POP.Mailbox;
+      N       : Positive;
+      Remove  : Boolean     := False) return Message
    is
 
       procedure Get
-        (Mailbox    : in     POP.Mailbox;
-         Boundary   : in     String;
-         Attachment :    out POP.Attachment;
-         Last       :    out Boolean);
+        (Mailbox    : POP.Mailbox;
+         Boundary   : String;
+         Attachment : out POP.Attachment;
+         Last       : out Boolean);
 
       ---------
       -- Get --
       ---------
 
       procedure Get
-        (Mailbox    : in     POP.Mailbox;
-         Boundary   : in     String;
-         Attachment :    out POP.Attachment;
-         Last       :    out Boolean)
+        (Mailbox    : POP.Mailbox;
+         Boundary   : String;
+         Attachment : out POP.Attachment;
+         Last       : out Boolean)
       is
          End_Boundary : constant String := Boundary & "--";
          Base64       : Boolean := False;
@@ -516,8 +516,8 @@ package body AWS.POP is
    end Get;
 
    function Get
-     (Message : in POP.Message'Class;
-      Index   : in Positive) return Attachment
+     (Message : POP.Message'Class;
+      Index   : Positive) return Attachment
    is
       P : Attachment_Access := Message.Attachments;
    begin
@@ -538,8 +538,8 @@ package body AWS.POP is
    ----------------
 
    function Get_Header
-     (Mailbox : in POP.Mailbox;
-      N       : in Positive) return Message
+     (Mailbox : POP.Mailbox;
+      N       : Positive) return Message
    is
       Mess : Message;
    begin
@@ -593,8 +593,8 @@ package body AWS.POP is
    ------------
 
    function Header
-     (Message : in POP.Message;
-      Header  : in String) return String is
+     (Message : POP.Message;
+      Header  : String) return String is
    begin
       return Headers.Get (Message.Headers, Header);
    end Header;
@@ -614,11 +614,11 @@ package body AWS.POP is
    end Initialize;
 
    function Initialize
-     (Server_Name  : in String;
-      User         : in String;
-      Password     : in String;
-      Authenticate : in Authenticate_Mode := Clear_Text;
-      Port         : in Positive          := Default_POP_Port) return Mailbox
+     (Server_Name  : String;
+      User         : String;
+      Password     : String;
+      Authenticate : Authenticate_Mode := Clear_Text;
+      Port         : Positive          := Default_POP_Port) return Mailbox
    is
       Timestamp : Unbounded_String;
       Mailbox   : POP.Mailbox;
@@ -724,7 +724,7 @@ package body AWS.POP is
    -- Is_File --
    -------------
 
-   function Is_File (Attachment : in POP.Attachment) return Boolean is
+   function Is_File (Attachment : POP.Attachment) return Boolean is
    begin
       return Attachment.Filename /= Null_Unbounded_String;
    end Is_File;
@@ -733,7 +733,7 @@ package body AWS.POP is
    -- Message_Count --
    -------------------
 
-   function Message_Count (Mailbox : in POP.Mailbox) return Natural is
+   function Message_Count (Mailbox : POP.Mailbox) return Natural is
    begin
       return Mailbox.Message_Count;
    end Message_Count;
@@ -743,8 +743,8 @@ package body AWS.POP is
    ------------------
 
    procedure Read_Headers
-     (Sock    : in     AWS.Net.Socket_Type'Class;
-      Headers :    out AWS.Headers.List) is
+     (Sock    : AWS.Net.Socket_Type'Class;
+      Headers : out AWS.Headers.List) is
    begin
       AWS.Headers.Set.Read (Sock, Headers);
    exception
@@ -756,12 +756,12 @@ package body AWS.POP is
    -- Size --
    ----------
 
-   function Size (Mailbox : in POP.Mailbox) return Natural is
+   function Size (Mailbox : POP.Mailbox) return Natural is
    begin
       return Mailbox.Size;
    end Size;
 
-   function Size (Message : in POP.Message) return Natural is
+   function Size (Message : POP.Message) return Natural is
    begin
       return Message.Size;
    end Size;
@@ -770,7 +770,7 @@ package body AWS.POP is
    -- Subject --
    -------------
 
-   function Subject (Message : in POP.Message) return String is
+   function Subject (Message : POP.Message) return String is
    begin
       return Header (Message, "Subject");
    end Subject;
@@ -779,7 +779,7 @@ package body AWS.POP is
    -- To --
    --------
 
-   function To (Message : in POP.Message; N : in Natural := 0) return String is
+   function To (Message : POP.Message; N : Natural := 0) return String is
       To_Values : constant String := Header (Message, "To");
       Cut_To    : Strings_Cutter.Cut_String;
    begin
@@ -802,7 +802,7 @@ package body AWS.POP is
    -- To_Count --
    --------------
 
-   function To_Count (Message : in POP.Message) return Natural is
+   function To_Count (Message : POP.Message) return Natural is
       To_Values : constant String  := Header (Message, "To");
    begin
       if To_Values = "" then
@@ -816,7 +816,7 @@ package body AWS.POP is
    -- User_Name --
    ---------------
 
-   function User_Name (Mailbox : in POP.Mailbox) return String is
+   function User_Name (Mailbox : POP.Mailbox) return String is
    begin
       return To_String (Mailbox.User_Name);
    end User_Name;
@@ -825,7 +825,7 @@ package body AWS.POP is
    -- Write --
    -----------
 
-   procedure Write (Attachment : in POP.Attachment; Directory : in String) is
+   procedure Write (Attachment : POP.Attachment; Directory : String) is
       use Streams;
       use AWS.Resources.Streams;
 

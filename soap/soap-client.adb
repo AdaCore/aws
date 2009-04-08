@@ -39,15 +39,15 @@ package body SOAP.Client is
    ----------
 
    function Call
-     (URL        : in String;
-      P          : in Message.Payload.Object;
-      SOAPAction : in String                     := No_SOAPAction;
-      User       : in String                     := Not_Specified;
-      Pwd        : in String                     := Not_Specified;
-      Proxy      : in String                     := Not_Specified;
-      Proxy_User : in String                     := Not_Specified;
-      Proxy_Pwd  : in String                     := Not_Specified;
-      Timeouts   : in AWS.Client.Timeouts_Values := AWS.Client.No_Timeout)
+     (URL        : String;
+      P          : Message.Payload.Object;
+      SOAPAction : String                     := No_SOAPAction;
+      User       : String                     := Not_Specified;
+      Pwd        : String                     := Not_Specified;
+      Proxy      : String                     := Not_Specified;
+      Proxy_User : String                     := Not_Specified;
+      Proxy_Pwd  : String                     := Not_Specified;
+      Timeouts   : AWS.Client.Timeouts_Values := AWS.Client.No_Timeout)
       return Message.Response.Object'Class
    is
       Connection : AWS.Client.HTTP_Connection;
@@ -76,9 +76,9 @@ package body SOAP.Client is
    ----------
 
    function Call
-     (Connection : in AWS.Client.HTTP_Connection;
-      SOAPAction : in String;
-      P          : in Message.Payload.Object)
+     (Connection : AWS.Client.HTTP_Connection;
+      SOAPAction : String;
+      P          : Message.Payload.Object)
       return Message.Response.Object'Class
    is
       use type AWS.Messages.Status_Code;

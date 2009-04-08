@@ -2,8 +2,7 @@
 --                              Ada Web Server                              --
 --                 S M T P - Simple Mail Transfer Protocol                  --
 --                                                                          --
---                            Copyright (C) 2008                            --
---                                 AdaCore                                  --
+--                     Copyright (C) 2008-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -33,7 +32,7 @@ package body AWS.SMTP.Messages is
    -- Headers --
    -------------
 
-   function Headers (Message : in Data) return AWS.Headers.List is
+   function Headers (Message : Data) return AWS.Headers.List is
    begin
       return Message.Headers;
    end Headers;
@@ -42,7 +41,7 @@ package body AWS.SMTP.Messages is
    -- Message_Body --
    ------------------
 
-   function Message_Body (Message : in Data) return String is
+   function Message_Body (Message : Data) return String is
    begin
       return To_String (Message.Message_Body);
    end Message_Body;

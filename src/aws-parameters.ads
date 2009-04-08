@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2002                          --
---                                ACT-Europe                                --
+--                     Copyright (C) 2000-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -36,13 +35,13 @@ package AWS.Parameters is
 
    subtype VString_Array is AWS.Containers.Tables.VString_Array;
 
-   function URI_Format (Parameter_List : in List) return String;
+   function URI_Format (Parameter_List : List) return String;
    --  Returns the list of parameters in the URI format. This can be added
    --  after the resource to form the complete URI. The format is:
    --  "?name1=value1&name2=value2..."
    --  If there is no parameter in the list, the empty string is returned.
 
-   --  See AWS.Containers.Tables for inherited routines.
+   --  See AWS.Containers.Tables for inherited routines
 
 private
    use Ada.Strings.Unbounded;

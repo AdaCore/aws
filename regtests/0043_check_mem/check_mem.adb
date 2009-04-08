@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2008, AdaCore                     --
+--                     Copyright (C) 2003-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -66,13 +66,13 @@ procedure Check_Mem is
 
    use AWS;
 
-   function CB (Request : in Status.Data) return Response.Data;
+   function CB (Request : Status.Data) return Response.Data;
 
-   procedure Check (Str : in String);
+   procedure Check (Str : String);
 
    procedure Client;
 
-   function SOAP_CB (Request : in Status.Data) return Response.Data;
+   function SOAP_CB (Request : Status.Data) return Response.Data;
 
    procedure Check_Zlib;
 
@@ -111,7 +111,7 @@ procedure Check_Mem is
    -- Check --
    -----------
 
-   procedure Check (Str : in String) is
+   procedure Check (Str : String) is
    begin
       Put_Line (Str);
    end Check;
@@ -120,7 +120,7 @@ procedure Check_Mem is
    -- CB --
    --------
 
-   function CB (Request : in Status.Data) return Response.Data is
+   function CB (Request : Status.Data) return Response.Data is
       SOAP_Action : constant String          := Status.SOAPAction (Request);
       URI         : constant String          := Status.URI (Request);
       P_List      : constant Parameters.List := Status.Parameters (Request);
@@ -268,7 +268,7 @@ procedure Check_Mem is
    -- SOAP_CB --
    -------------
 
-   function SOAP_CB (Request : in Status.Data) return Response.Data is
+   function SOAP_CB (Request : Status.Data) return Response.Data is
       use SOAP.Types;
       use SOAP.Parameters;
 
@@ -309,22 +309,22 @@ procedure Check_Mem is
 
    procedure Client is
 
-      procedure Request (URL : in String);
+      procedure Request (URL : String);
 
-      procedure Request (Proc : in String; X, Y : in Integer);
+      procedure Request (Proc : String; X, Y : Integer);
 
       -------------
       -- Request --
       -------------
 
-      procedure Request (URL : in String) is
+      procedure Request (URL : String) is
          R : Response.Data;
       begin
          R := AWS.Client.Get ("http://localhost:" & S_Port & URL);
          Check (Response.Message_Body (R));
       end Request;
 
-      procedure Request (Proc : in String; X, Y : in Integer) is
+      procedure Request (Proc : String; X, Y : Integer) is
          use SOAP.Types;
          use type SOAP.Parameters.List;
 
@@ -380,7 +380,7 @@ procedure Check_Mem is
    -- Check_Dynamic_Message --
    ---------------------------
 
-   procedure Check_Dynamic_Message (Encoding : in Messages.Content_Encoding) is
+   procedure Check_Dynamic_Message (Encoding : Messages.Content_Encoding) is
       Answer : Response.Data;
    begin
       Response.Set.Data_Encoding (Answer, Encoding);
@@ -406,7 +406,7 @@ procedure Check_Mem is
 
       procedure Test
         (Stream : in out Stream_Type'Class;
-         Data   : in     Streams.Stream_Element_Array);
+         Data   : Streams.Stream_Element_Array);
       --  Append dynamically allocated data, test content and close the stream
 
       ----------
@@ -415,7 +415,7 @@ procedure Check_Mem is
 
       procedure Test
         (Stream : in out Stream_Type'Class;
-         Data   : in     Streams.Stream_Element_Array)
+         Data   : Streams.Stream_Element_Array)
       is
          Test   : Streams.Stream_Element_Array (Sample'Range);
          Last   : Streams.Stream_Element_Offset;
@@ -449,13 +449,13 @@ procedure Check_Mem is
 
       use type Streams.Stream_Element_Array;
 
-      procedure Test (Str : in String);
+      procedure Test (Str : String);
 
       ----------
       -- Test --
       ----------
 
-      procedure Test (Str : in String) is
+      procedure Test (Str : String) is
          Data   : constant Streams.Stream_Element_Array
            := Translator.To_Stream_Element_Array (Str);
          Comp   : Utils.Stream_Element_Array_Access;
@@ -527,7 +527,7 @@ procedure Check_Mem is
    -- Check_Reconnect --
    ---------------------
 
-   procedure Check_Reconnect (Security : in Boolean) is
+   procedure Check_Reconnect (Security : Boolean) is
       use Ada.Streams;
       use AWS.Net;
       N : constant := 2;

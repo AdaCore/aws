@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                    Copyright (C) 2000-2008, AdaCore                      --
+--                    Copyright (C) 2000-2009, AdaCore                      --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -34,7 +34,7 @@ with Ada.Exceptions;
 
 with Get_Free_Port;
 
-procedure S_SockTO_Proc (Security : in Boolean; Port : in Positive) is
+procedure S_SockTO_Proc (Security : Boolean; Port : Positive) is
 
    use AWS;
    use Ada;
@@ -54,8 +54,8 @@ procedure S_SockTO_Proc (Security : in Boolean; Port : in Positive) is
    pragma Inline (Data);
 
    procedure Get
-     (Socket : in Net.Socket_Type'Class;
-      Length : in Stream_Element_Count);
+     (Socket : Net.Socket_Type'Class;
+      Length : Stream_Element_Count);
    --  Read all data length
 
    -----------------
@@ -110,8 +110,8 @@ procedure S_SockTO_Proc (Security : in Boolean; Port : in Positive) is
    ---------
 
    procedure Get
-     (Socket : in Net.Socket_Type'Class;
-      Length : in Stream_Element_Count)
+     (Socket : Net.Socket_Type'Class;
+      Length : Stream_Element_Count)
    is
       Sample : constant Stream_Element_Array := Data (Length);
       Rest   : Stream_Element_Count  := Length;

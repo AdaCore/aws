@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2004-2008, AdaCore                     --
+--                     Copyright (C) 2004-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -36,13 +36,13 @@ package body AWS.Services.Split_Pages.Uniform is
    ---------------------
 
    overriding function Get_Page_Ranges
-     (This  : in Splitter;
-      Table : in Templates.Translate_Set) return Ranges_Table
+     (This  : Splitter;
+      Table : Templates.Translate_Set) return Ranges_Table
    is
       use Templates;
       use Templates.Query;
 
-      procedure Max_Size (A : in Association; Quit : in out Boolean);
+      procedure Max_Size (A : Association; Quit : in out Boolean);
       --  Set Max with the maximum size between Max and the size of the vector
 
       Self : Splitter renames Splitter (This.Self.all);
@@ -52,7 +52,7 @@ package body AWS.Services.Split_Pages.Uniform is
       -- Max_Size --
       --------------
 
-      procedure Max_Size (A : in Association; Quit : in out Boolean) is
+      procedure Max_Size (A : Association; Quit : in out Boolean) is
          pragma Unreferenced (Quit);
       begin
          Max := Natural'Max (Max, Size (Composite (A)));
@@ -100,10 +100,10 @@ package body AWS.Services.Split_Pages.Uniform is
    ----------------------
 
    overriding function Get_Translations
-     (This   : in Splitter;
-      Page   : in Positive;
-      URIs   : in URI_Table;
-      Ranges : in Ranges_Table) return Templates.Translate_Set
+     (This   : Splitter;
+      Page   : Positive;
+      URIs   : URI_Table;
+      Ranges : Ranges_Table) return Templates.Translate_Set
    is
       pragma Unreferenced (Ranges);
       use Templates_Parser;

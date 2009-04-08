@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2004-2008, AdaCore                     --
+--                     Copyright (C) 2004-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -44,13 +44,13 @@ package body S_Append_Pack is
 
    WS : Server.HTTP;
 
-   function CB (Request : in Status.Data) return Response.Data;
+   function CB (Request : Status.Data) return Response.Data;
 
    --------
    -- CB --
    --------
 
-   function CB (Request : in Status.Data) return Response.Data is
+   function CB (Request : Status.Data) return Response.Data is
       Answer : Response.Data;
 
       procedure Append (Item : String);
@@ -86,7 +86,7 @@ package body S_Append_Pack is
       return Answer;
    end CB;
 
-   procedure Run (Protocol : in String) is
+   procedure Run (Protocol : String) is
       Port : Positive := 1200;
       R    : Response.Data;
    begin

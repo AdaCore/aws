@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2007                          --
---                                 AdaCore                                  --
+--                     Copyright (C) 2000-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -36,6 +35,6 @@ package WS_CB is
 
    procedure Stop_Push_Server;
 
-   function Service (Request : in AWS.Status.Data) return AWS.Response.Data;
+   function Service (Request : AWS.Status.Data) return AWS.Response.Data;
 
 end WS_CB;

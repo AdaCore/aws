@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2008, AdaCore                     --
+--                     Copyright (C) 2003-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -40,18 +40,18 @@ package body SOAP.WSDL is
    use Ada;
 
    procedure To_Type
-     (XSD_Type : in     String;
-      Result   :    out Parameter_Type;
-      Standard :    out Boolean);
+     (XSD_Type : String;
+      Result   : out Parameter_Type;
+      Standard : out Boolean);
 
    --------------
    -- From_Ada --
    --------------
 
    procedure From_Ada
-     (Ada_Type : in     String;
-      Result   :    out WSDL.Parameter_Type;
-      Standard :    out Boolean)
+     (Ada_Type : String;
+      Result   : out WSDL.Parameter_Type;
+      Standard : out Boolean)
    is
       use SOAP.WSDL;
 
@@ -135,8 +135,8 @@ package body SOAP.WSDL is
    -----------------
 
    function Get_Routine
-     (P       : in Parameter_Type;
-      Context : in Context_Type := Parameter)
+     (P       : Parameter_Type;
+      Context : Context_Type := Parameter)
       return String is
    begin
       case P is
@@ -162,7 +162,7 @@ package body SOAP.WSDL is
    -- Is_Standard --
    -----------------
 
-   function Is_Standard (XSD_Type : in String) return Boolean is
+   function Is_Standard (XSD_Type : String) return Boolean is
       P        : Parameter_Type;
       Standard : Boolean;
    begin
@@ -175,7 +175,7 @@ package body SOAP.WSDL is
    -- Load --
    ----------
 
-   function Load (Filename : in String) return Object is
+   function Load (Filename : String) return Object is
       use Input_Sources.File;
       use DOM.Readers;
 
@@ -200,8 +200,8 @@ package body SOAP.WSDL is
    -----------------
 
    function Set_Routine
-     (P       : in Parameter_Type;
-      Context : in Context_Type := Parameter)
+     (P       : Parameter_Type;
+      Context : Context_Type := Parameter)
       return String is
    begin
       case P is
@@ -238,7 +238,7 @@ package body SOAP.WSDL is
    -- Set_Type --
    --------------
 
-   function Set_Type (P : in Parameter_Type) return String is
+   function Set_Type (P : Parameter_Type) return String is
    begin
       case P is
          when P_Long           => return "SOAP.Types.XSD_Long";
@@ -265,8 +265,8 @@ package body SOAP.WSDL is
    ------------
 
    function To_Ada
-     (P       : in Parameter_Type;
-      Context : in Context_Type := Parameter)
+     (P       : Parameter_Type;
+      Context : Context_Type := Parameter)
       return String is
    begin
       case P is
@@ -304,9 +304,9 @@ package body SOAP.WSDL is
    -------------
 
    procedure To_Type
-     (XSD_Type : in     String;
-      Result   :    out Parameter_Type;
-      Standard :    out Boolean)
+     (XSD_Type : String;
+      Result   : out Parameter_Type;
+      Standard : out Boolean)
    is
       L_Type : constant String := Characters.Handling.To_Lower (XSD_Type);
    begin
@@ -366,7 +366,7 @@ package body SOAP.WSDL is
       end if;
    end To_Type;
 
-   function To_Type (XSD_Type : in String) return Parameter_Type is
+   function To_Type (XSD_Type : String) return Parameter_Type is
       Result   : Parameter_Type;
       Standard : Boolean;
    begin
@@ -384,7 +384,7 @@ package body SOAP.WSDL is
    -- To_XSD --
    ------------
 
-   function To_XSD (P : in WSDL.Parameter_Type) return String is
+   function To_XSD (P : WSDL.Parameter_Type) return String is
       use SOAP.WSDL;
       use SOAP.Types;
    begin
@@ -413,8 +413,8 @@ package body SOAP.WSDL is
    ---------------
 
    function V_Routine
-     (P       : in Parameter_Type;
-      Context : in Context_Type := Parameter)
+     (P       : Parameter_Type;
+      Context : Context_Type := Parameter)
       return String is
    begin
       case P is

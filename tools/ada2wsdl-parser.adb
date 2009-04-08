@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2003-2008                          --
---                                 AdaCore                                  --
+--                     Copyright (C) 2003-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -167,7 +166,7 @@ package body Ada2WSDL.Parser is
    end record;
 
    procedure Create_Element_Node
-     (Element : in     Asis.Element;
+     (Element : Asis.Element;
       Control : in out Traverse_Control;
       State   : in out Body_State);
    --  When visiting an Element representing something for which a body
@@ -176,7 +175,7 @@ package body Ada2WSDL.Parser is
    --  if it is.
 
    procedure Go_Up
-     (Element : in     Asis.Element;
+     (Element : Asis.Element;
       Control : in out Traverse_Control;
       State   : in out Body_State);
    --  When leaving a [generic] package declaration or a protected [type]
@@ -193,12 +192,12 @@ package body Ada2WSDL.Parser is
    -- Local Routines --
    --------------------
 
-   function Name (Elem : in Asis.Element) return String;
+   function Name (Elem : Asis.Element) return String;
    --  Returns a defining name string image for a declaration which
    --  defines exactly one name. This should definitely be made an extension
    --  query
 
-   function Image (Str : in Wide_String) return String;
+   function Image (Str : Wide_String) return String;
    --  Returns the trimed string representation of Str
 
    procedure Analyse_Structure;
@@ -224,7 +223,7 @@ package body Ada2WSDL.Parser is
    Index          : Natural := 0;
    --  Current Index in the Deferred_Types array
 
-   function Register_Deferred (E : in Asis.Declaration) return String;
+   function Register_Deferred (E : Asis.Declaration) return String;
    --  Register a deferred type to be generated after first
    --  pass. Returns the name of the type.
 
@@ -232,7 +231,7 @@ package body Ada2WSDL.Parser is
    -- Add_Option --
    ----------------
 
-   procedure Add_Option (Option : in String) is
+   procedure Add_Option (Option : String) is
    begin
       Arg_Index := Arg_Index + 1;
       Arg_List (Arg_Index) := new String'(Option);
@@ -244,44 +243,44 @@ package body Ada2WSDL.Parser is
 
    procedure Analyse_Structure is
 
-      procedure Analyse_Package (Node : in Link);
+      procedure Analyse_Package (Node : Link);
       --  Analyse a package declaration, the package name is used as
       --  the Web Service name.
 
-      procedure Analyse_Package_Instantiation (Node : in Link);
+      procedure Analyse_Package_Instantiation (Node : Link);
       --  Checks if this instantiation is to create a safe pointer, in this
       --  case records the type and access type for later used.
 
-      procedure Analyse_Routine (Node : in Link);
+      procedure Analyse_Routine (Node : Link);
       --  Node is a procedure or function, analyse its spec profile
 
-      procedure Analyse_Type (Elem : in Asis.Element);
+      procedure Analyse_Type (Elem : Asis.Element);
       --  Node is a subtype or type, analyse its definition
 
-      procedure Analyse_Profile (Node : in Link);
+      procedure Analyse_Profile (Node : Link);
       --  Generates an entry_body_formal_part, parameter or parameter
       --  and result profile for the body of a program unit
       --  represented by Node. Upon exit, sets Change_Line is set True
       --  if the following "is" for the body should be generated on a new line
 
       procedure Array_Type_Suffix
-        (E           : in     Asis.Element;
-         Type_Suffix :    out Unbounded_String;
-         Length      :    out Positive);
+        (E           : Asis.Element;
+         Type_Suffix : out Unbounded_String;
+         Length      : out Positive);
 
       function Type_Name
-        (Elem : in Asis.Element;
-         Base : in Boolean) return String;
+        (Elem : Asis.Element;
+         Base : Boolean) return String;
       --  Returns the type name for Elem. If Base is true the returned name is
       --  the base type for the given element.
 
-      procedure Analyse_Node (Node : in Link);
+      procedure Analyse_Node (Node : Link);
       --  Analyse a Node, handles procedure or function only
 
-      procedure Analyse_Node_List (List : in Link);
+      procedure Analyse_Node_List (List : Link);
       --  Call Analyse_Node for each element in List
 
-      function Name_Space (E : in Asis.Element) return String;
+      function Name_Space (E : Asis.Element) return String;
       --  Returns the name space for element E. Name space is defined as
       --  follow: http://soapaws/<unit_name>_pkg/
 
@@ -289,7 +288,7 @@ package body Ada2WSDL.Parser is
       -- Analyse_Node --
       ------------------
 
-      procedure Analyse_Node (Node : in Link) is
+      procedure Analyse_Node (Node : Link) is
          use Extensions.Flat_Kinds;
 
          Arg_Kind : constant Flat_Element_Kinds
@@ -342,7 +341,7 @@ package body Ada2WSDL.Parser is
       -- Analyse_Node_List --
       -----------------------
 
-      procedure Analyse_Node_List (List : in Link) is
+      procedure Analyse_Node_List (List : Link) is
          Next_Node  : Link;
          List_Start : Link := List;
       begin
@@ -369,7 +368,7 @@ package body Ada2WSDL.Parser is
       -- Analyse_Package --
       ---------------------
 
-      procedure Analyse_Package (Node : in Link) is
+      procedure Analyse_Package (Node : Link) is
       begin
          if Options.WS_Name = Null_Unbounded_String then
             Options.WS_Name
@@ -384,7 +383,7 @@ package body Ada2WSDL.Parser is
       -- Analyse_Package_Instantiation --
       -----------------------------------
 
-      procedure Analyse_Package_Instantiation (Node : in Link) is
+      procedure Analyse_Package_Instantiation (Node : Link) is
          use Extensions.Flat_Kinds;
          G_Unit : constant Asis.Expression :=
                     Declarations.Generic_Unit_Name (Node.Spec);
@@ -419,7 +418,7 @@ package body Ada2WSDL.Parser is
       -- Analyse_Profile --
       ----------------------
 
-      procedure Analyse_Profile (Node : in Link) is
+      procedure Analyse_Profile (Node : Link) is
 
          use Extensions.Flat_Kinds;
 
@@ -490,7 +489,7 @@ package body Ada2WSDL.Parser is
       -- Analyse_Routine --
       ---------------------
 
-      procedure Analyse_Routine (Node : in Link) is
+      procedure Analyse_Routine (Node : Link) is
          use Extensions.Flat_Kinds;
 
          Arg_Kind : constant Flat_Element_Kinds
@@ -514,7 +513,7 @@ package body Ada2WSDL.Parser is
       -- Analyse_Type --
       ------------------
 
-      procedure Analyse_Type (Elem : in Asis.Definition) is
+      procedure Analyse_Type (Elem : Asis.Definition) is
          use Extensions.Flat_Kinds;
 
          type U_Array_Def is record
@@ -525,20 +524,20 @@ package body Ada2WSDL.Parser is
          Deferred_U_Arrays : array (1 .. 100) of U_Array_Def;
          U_Array_Index : Natural := 0;
 
-         procedure Analyse_Field (Component : in Asis.Element);
+         procedure Analyse_Field (Component : Asis.Element);
          --  Analyse a field from the record
 
-         procedure Analyse_Array_Component (Component : in Asis.Element);
+         procedure Analyse_Array_Component (Component : Asis.Element);
          --  Analyse an array component
 
-         function Is_Standard (T : in Asis.Declaration) return Boolean;
+         function Is_Standard (T : Asis.Declaration) return Boolean;
          --  Returns True if type T is declared in Standard
 
          -----------------------------
          -- Analyse_Array_Component --
          -----------------------------
 
-         procedure Analyse_Array_Component (Component : in Asis.Element) is
+         procedure Analyse_Array_Component (Component : Asis.Element) is
             E : Asis.Element :=
                   (Definitions.Subtype_Mark
                      (Definitions.Component_Subtype_Indication (Component)));
@@ -557,7 +556,7 @@ package body Ada2WSDL.Parser is
          -- Analyse_Field --
          -------------------
 
-         procedure Analyse_Field (Component : in Asis.Element) is
+         procedure Analyse_Field (Component : Asis.Element) is
 
             ODV   : constant Asis.Element
               := Declarations.Object_Declaration_View (Component);
@@ -676,7 +675,7 @@ package body Ada2WSDL.Parser is
          -- Is_Standard --
          -----------------
 
-         function Is_Standard (T : in Asis.Declaration) return Boolean is
+         function Is_Standard (T : Asis.Declaration) return Boolean is
          begin
             return Characters.Handling.To_Lower
               (Image
@@ -937,9 +936,9 @@ package body Ada2WSDL.Parser is
       -----------------------
 
       procedure Array_Type_Suffix
-        (E           : in     Asis.Element;
-         Type_Suffix :    out Unbounded_String;
-         Length      :    out Positive)
+        (E           : Asis.Element;
+         Type_Suffix : out Unbounded_String;
+         Length      : out Positive)
       is
          use Extensions.Flat_Kinds;
 
@@ -964,7 +963,7 @@ package body Ada2WSDL.Parser is
       -- Name_Space --
       ----------------
 
-      function Name_Space (E : in Asis.Element) return String is
+      function Name_Space (E : Asis.Element) return String is
          NS  : String :=
                  Image (Compilation_Units.Unit_Full_Name
                         (Elements.Enclosing_Compilation_Unit (E)));
@@ -994,15 +993,15 @@ package body Ada2WSDL.Parser is
       ---------------
 
       function Type_Name
-        (Elem : in Asis.Element;
-         Base : in Boolean) return String
+        (Elem : Asis.Element;
+         Base : Boolean) return String
       is
          use Extensions.Flat_Kinds;
 
          function Compute_Value
-           (V : in Asis.Expression) return Long_Long_Integer;
+           (V : Asis.Expression) return Long_Long_Integer;
          function Compute_Value
-           (V : in Asis.Expression) return SOAP.Types.Unsigned_Long;
+           (V : Asis.Expression) return SOAP.Types.Unsigned_Long;
          --  Retruns the computed value for the given expression. This is
          --  supposed to be a simple expression for a range declaration:
          --  range -2**5 .. 2**7 or mod 2**15;
@@ -1012,7 +1011,7 @@ package body Ada2WSDL.Parser is
          -------------------
 
          function Compute_Value
-           (V : in Asis.Expression) return Long_Long_Integer
+           (V : Asis.Expression) return Long_Long_Integer
          is
             VI     : constant String := Image (Text.Element_Image (V));
             M      : constant Natural := Strings.Fixed.Index (VI, "-");
@@ -1046,7 +1045,7 @@ package body Ada2WSDL.Parser is
          end Compute_Value;
 
          function Compute_Value
-           (V : in Asis.Expression) return SOAP.Types.Unsigned_Long
+           (V : Asis.Expression) return SOAP.Types.Unsigned_Long
          is
             use type SOAP.Types.Unsigned_Long;
             VI     : constant String := Image (Text.Element_Image (V));
@@ -1377,7 +1376,7 @@ package body Ada2WSDL.Parser is
    -------------------------
 
    procedure Create_Element_Node
-     (Element : in     Asis.Element;
+     (Element : Asis.Element;
       Control : in out Traverse_Control;
       State   : in out Body_State)
    is
@@ -1389,7 +1388,7 @@ package body Ada2WSDL.Parser is
 
       procedure Insert_In_List
         (State    : in out Body_State;
-         El       : in     Asis.Element;
+         El       : Asis.Element;
          New_Node :     out Link);
       --  Inserts an argument Element in the current list, keeping the
       --  alphabetic ordering. Creates a new sublist if needed.
@@ -1401,8 +1400,8 @@ package body Ada2WSDL.Parser is
 
       procedure Insert_In_List
         (State    : in out Body_State;
-         El       : in     Asis.Element;
-         New_Node :    out Link) is
+         El       : Asis.Element;
+         New_Node : out Link) is
       begin
          New_Node      := new Element_Node;
          New_Node.Spec := El;
@@ -1624,7 +1623,7 @@ package body Ada2WSDL.Parser is
    -----------
 
    procedure Go_Up
-     (Element : in     Asis.Element;
+     (Element : Asis.Element;
       Control : in out Traverse_Control;
       State   : in out Body_State)
    is
@@ -1663,7 +1662,7 @@ package body Ada2WSDL.Parser is
    -- Image --
    -----------
 
-   function Image (Str : in Wide_String) return String is
+   function Image (Str : Wide_String) return String is
       use AWS;
    begin
       return Strings.Fixed.Trim
@@ -1691,7 +1690,7 @@ package body Ada2WSDL.Parser is
    -- Name --
    ----------
 
-   function Name (Elem : in Asis.Element) return String is
+   function Name (Elem : Asis.Element) return String is
       Def_Name : constant Asis.Element := Declarations.Names (Elem) (1);
    begin
       return Characters.Conversions.To_String
@@ -1702,7 +1701,7 @@ package body Ada2WSDL.Parser is
    -- Register_Deferred --
    -----------------------
 
-   function Register_Deferred (E : in Asis.Declaration) return String is
+   function Register_Deferred (E : Asis.Declaration) return String is
       Name : constant String := Image
         (Declarations.Defining_Name_Image (Declarations.Names (E) (1)));
    begin

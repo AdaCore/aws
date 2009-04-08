@@ -41,7 +41,7 @@ package body AWS.Attachments is
    use Ada.Streams;
 
    function "+"
-     (V : in String)
+     (V : String)
       return Unbounded_String renames To_Unbounded_String;
 
    UID : Utils.Counter (0);
@@ -53,11 +53,11 @@ package body AWS.Attachments is
 
    procedure Add
      (Attachments : in out List;
-      Filename    : in     String;
-      Content_Id  : in     String;
-      Headers     : in     AWS.Headers.List := AWS.Headers.Empty_List;
-      Name        : in     String := "";
-      Encode      : in     Encoding := None)
+      Filename    : String;
+      Content_Id  : String;
+      Headers     : AWS.Headers.List := AWS.Headers.Empty_List;
+      Name        : String := "";
+      Encode      : Encoding := None)
    is
       use type Attachment_Table.Vector;
 
@@ -73,10 +73,10 @@ package body AWS.Attachments is
 
    procedure Add
      (Attachments : in out List;
-      Filename    : in     String;
-      Headers     : in     AWS.Headers.List;
-      Name        : in     String := "";
-      Encode      : in     Encoding := None)
+      Filename    : String;
+      Headers     : AWS.Headers.List;
+      Name        : String := "";
+      Encode      : Encoding := None)
    is
       Data : constant Content := File
         (Filename, Encode, "", MIME.Content_Type (Filename));
@@ -90,9 +90,9 @@ package body AWS.Attachments is
 
    procedure Add
      (Attachments : in out List;
-      Name        : in     String;
-      Data        : in     Content;
-      Headers     : in     AWS.Headers.List := AWS.Headers.Empty_List)
+      Name        : String;
+      Data        : Content;
+      Headers     : AWS.Headers.List := AWS.Headers.Empty_List)
    is
       A : Element :=
             (AWS.Attachments.Data, Headers,
@@ -160,14 +160,14 @@ package body AWS.Attachments is
 
    procedure Add
      (Parts : in out Alternatives;
-      Data  : in     Content) is
+      Data  : Content) is
    begin
       Parts.Parts.Append (Data);
    end Add;
 
    procedure Add
      (Attachments : in out List;
-      Parts       : in     Alternatives) is
+      Parts       : Alternatives) is
    begin
       Attachments.Vector.Append (Element (Parts));
    end Add;
@@ -176,7 +176,7 @@ package body AWS.Attachments is
    -- Content_Id --
    ----------------
 
-   function Content_Id (Attachment : in Element) return String is
+   function Content_Id (Attachment : Element) return String is
    begin
       return AWS.Headers.Get (Attachment.Headers, Messages.Content_Id_Token);
    end Content_Id;
@@ -185,7 +185,7 @@ package body AWS.Attachments is
    -- Content_Type --
    ------------------
 
-   function Content_Type (Attachment : in Element) return String is
+   function Content_Type (Attachment : Element) return String is
    begin
       return AWS.Headers.Values.Get_Unnamed_Value
         (AWS.Headers.Get (Attachment.Headers, Messages.Content_Type_Token));
@@ -195,7 +195,7 @@ package body AWS.Attachments is
    -- Count --
    -----------
 
-   function Count (Attachments : in List) return Natural is
+   function Count (Attachments : List) return Natural is
    begin
       return Natural (Attachment_Table.Length (Attachments.Vector));
    end Count;
@@ -205,10 +205,10 @@ package body AWS.Attachments is
    ----------
 
    function File
-     (Filename     : in String;
-      Encode       : in Encoding := None;
-      Content_Id   : in String := "";
-      Content_Type : in String := MIME.Text_Plain) return Content is
+     (Filename     : String;
+      Encode       : Encoding := None;
+      Content_Id   : String := "";
+      Content_Type : String := MIME.Text_Plain) return Content is
    begin
       return Content'(File, Natural (Utils.File_Size (Filename)),
                       Content_Id   => +Content_Id,
@@ -221,7 +221,7 @@ package body AWS.Attachments is
    -- Filename --
    --------------
 
-   function Filename (Attachment : in Element) return String is
+   function Filename (Attachment : Element) return String is
       Result : Unbounded_String;
    begin
       if AWS.Headers.Exist
@@ -253,7 +253,7 @@ package body AWS.Attachments is
    -- For_Every_Attachment --
    --------------------------
 
-   procedure For_Every_Attachment (Attachments : in List) is
+   procedure For_Every_Attachment (Attachments : List) is
       Quit : Boolean := False;
    begin
       for J in 1 .. Count (Attachments) loop
@@ -267,8 +267,8 @@ package body AWS.Attachments is
    ---------
 
    function Get
-     (Attachments : in List;
-      Index       : in Positive) return Element is
+     (Attachments : List;
+      Index       : Positive) return Element is
    begin
       return Attachment_Table.Element
         (Container => Attachments.Vector, Index => Index);
@@ -279,11 +279,11 @@ package body AWS.Attachments is
    ---------
 
    function Get
-     (Attachments : in List;
-      Content_Id  : in String) return Element
+     (Attachments : List;
+      Content_Id  : String) return Element
    is
 
-      function Get_CID (Content_Id : in String) return String;
+      function Get_CID (Content_Id : String) return String;
       --  Returns Content_Id stripped from possibly surrounding
       --  '<' '>' and prefixing "cid:".
 
@@ -291,7 +291,7 @@ package body AWS.Attachments is
       -- Get_CID --
       -------------
 
-      function Get_CID (Content_Id : in String) return String is
+      function Get_CID (Content_Id : String) return String is
       begin
          if Content_Id (Content_Id'First) = '<'
            and then Content_Id (Content_Id'Last) = '>'
@@ -332,7 +332,7 @@ package body AWS.Attachments is
    -- Headers --
    -------------
 
-   function Headers (Attachment : in Element) return AWS.Headers.List is
+   function Headers (Attachment : Element) return AWS.Headers.List is
    begin
       return Attachment.Headers;
    end Headers;
@@ -342,18 +342,18 @@ package body AWS.Attachments is
    -------------
 
    procedure Iterate
-     (Attachments : in List;
-      Process     : not null access procedure (Attachment : in Element))
+     (Attachments : List;
+      Process     : not null access procedure (Attachment : Element))
    is
       --  Use callbacks to avoid Elements copy on iteration
 
-      procedure Action (Position : in Attachment_Table.Cursor);
+      procedure Action (Position : Attachment_Table.Cursor);
 
       ------------
       -- Action --
       ------------
 
-      procedure Action (Position : in Attachment_Table.Cursor) is
+      procedure Action (Position : Attachment_Table.Cursor) is
       begin
          Attachment_Table.Query_Element (Position, Process);
       end Action;
@@ -366,7 +366,7 @@ package body AWS.Attachments is
    -- Kind --
    ----------
 
-   function Kind (Attachment : in Element) return Attachment_Kind is
+   function Kind (Attachment : Element) return Attachment_Kind is
    begin
       return Attachment.Kind;
    end Kind;
@@ -376,8 +376,8 @@ package body AWS.Attachments is
    ------------
 
    function Length
-     (Attachments : in List;
-      Boundary    : in String) return Natural
+     (Attachments : List;
+      Boundary    : String) return Natural
    is
       L : Natural;
    begin
@@ -399,7 +399,7 @@ package body AWS.Attachments is
    -- Local_Filename --
    --------------------
 
-   function Local_Filename (Attachment : in Element) return String is
+   function Local_Filename (Attachment : Element) return String is
    begin
       return To_String (Attachment.Data.Filename);
    end Local_Filename;
@@ -410,7 +410,7 @@ package body AWS.Attachments is
 
    procedure Reset
      (Attachments  : in out List;
-      Delete_Files : in     Boolean) is
+      Delete_Files : Boolean) is
    begin
       if Delete_Files then
          for J in 1 .. Count (Attachments) loop
@@ -430,7 +430,7 @@ package body AWS.Attachments is
    -- Root_MIME --
    ---------------
 
-   function Root_MIME (Attachments : in List) return Root_MIME_Kind is
+   function Root_MIME (Attachments : List) return Root_MIME_Kind is
    begin
       if Count (Attachments) = 1
         and then Kind (Element'(Get (Attachments, 1))) = Alternative
@@ -446,20 +446,20 @@ package body AWS.Attachments is
    ----------
 
    procedure Send
-     (Socket      : in AWS.Net.Socket_Type'Class;
-      Attachments : in List;
-      Boundary    : in String)
+     (Socket      : AWS.Net.Socket_Type'Class;
+      Attachments : List;
+      Boundary    : String)
    is
 
-      procedure Send_Attachment (Attachment : in Element);
+      procedure Send_Attachment (Attachment : Element);
       --  Sends one Attachment, including the start boundary
 
-      procedure Send_Content (Attachment : in Element);
+      procedure Send_Content (Attachment : Element);
       --  Set an in-memory content
 
-      procedure Send_Content (Data : in Content);
+      procedure Send_Content (Data : Content);
 
-      procedure Send_Alternative (Attachment : in Element);
+      procedure Send_Alternative (Attachment : Element);
       --  Send an alternative part
 
       Pref_Suf : constant String := "--";
@@ -472,9 +472,9 @@ package body AWS.Attachments is
       -- Send_Alternative --
       ----------------------
 
-      procedure Send_Alternative (Attachment : in Element) is
+      procedure Send_Alternative (Attachment : Element) is
 
-         procedure Send_Alternative (Position : in Alternative_Table.Cursor);
+         procedure Send_Alternative (Position : Alternative_Table.Cursor);
          --  Output the pointed part
 
          A_Boundary : Unbounded_String;
@@ -483,7 +483,7 @@ package body AWS.Attachments is
          -- Send_Alternative --
          ----------------------
 
-         procedure Send_Alternative (Position : in Alternative_Table.Cursor) is
+         procedure Send_Alternative (Position : Alternative_Table.Cursor) is
             Part : constant Content :=
                      Alternative_Table.Element (Position);
          begin
@@ -522,7 +522,7 @@ package body AWS.Attachments is
       -- Send_Attachment --
       ---------------------
 
-      procedure Send_Attachment (Attachment : in Element) is
+      procedure Send_Attachment (Attachment : Element) is
       begin
          case Attachment.Kind is
             when Data        => Send_Content (Attachment);
@@ -534,7 +534,7 @@ package body AWS.Attachments is
       -- Send_Content --
       ------------------
 
-      procedure Send_Content (Attachment : in Element) is
+      procedure Send_Content (Attachment : Element) is
 
       begin
          --  Send multipart message start boundary
@@ -549,7 +549,7 @@ package body AWS.Attachments is
          Send_Content (Attachment.Data);
       end Send_Content;
 
-      procedure Send_Content (Data : in Content) is
+      procedure Send_Content (Data : Content) is
 
          procedure Send_File;
 
@@ -706,10 +706,10 @@ package body AWS.Attachments is
    ----------------------
 
    procedure Send_MIME_Header
-     (Socket      : in     Net.Socket_Type'Class;
-      Attachments : in     List;
-      Boundary    :    out Unbounded_String;
-      Alternative : in     Boolean := False)
+     (Socket      : Net.Socket_Type'Class;
+      Attachments : List;
+      Boundary    : out Unbounded_String;
+      Alternative : Boolean := False)
    is
       L_Boundary : constant String :=
         "----=_NextPart_" & Utils.Random_String (10) & "."
@@ -739,11 +739,11 @@ package body AWS.Attachments is
    ----------
 
    function Value
-     (Data         : in String;
-      Name         : in String := "";
-      Encode       : in Encoding := None;
-      Content_Id   : in String := "";
-      Content_Type : in String := MIME.Text_Plain) return Content
+     (Data         : String;
+      Name         : String := "";
+      Encode       : Encoding := None;
+      Content_Id   : String := "";
+      Content_Type : String := MIME.Text_Plain) return Content
    is
       CD : Unbounded_String;
    begin

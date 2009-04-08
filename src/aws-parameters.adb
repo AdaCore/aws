@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2002                          --
---                                ACT-Europe                                --
+--                     Copyright (C) 2000-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -32,7 +31,7 @@ package body AWS.Parameters is
    -- URI_Format --
    ----------------
 
-   function URI_Format (Parameter_List : in List) return String is
+   function URI_Format (Parameter_List : List) return String is
    begin
       return To_String (Parameter_List.Parameters);
    end URI_Format;

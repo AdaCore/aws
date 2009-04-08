@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2006-2008, AdaCore                     --
+--                     Copyright (C) 2006-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -48,12 +48,12 @@ package body USock is
    type U_Set is new AWS.Net.Poll_Events.Set with null record;
 
    overriding procedure Wait
-     (Container : in out U_Set; Timeout : in Duration; Count : out Natural);
+     (Container : in out U_Set; Timeout : Duration; Count : out Natural);
 
    overriding function Status
-     (Container : in U_Set; Index : in Positive) return Net.Event_Set;
+     (Container : U_Set; Index : Positive) return Net.Event_Set;
 
-   function "+" (Str : in String) return Unbounded_String
+   function "+" (Str : String) return Unbounded_String
      renames To_Unbounded_String;
 
    CRLF       : constant String := ASCII.CR & ASCII.LF;
@@ -111,7 +111,7 @@ package body USock is
    -- Socket --
    ------------
 
-   function Socket (Security : in Boolean) return Net.Socket_Type'Class is
+   function Socket (Security : Boolean) return Net.Socket_Type'Class is
       S : U_Socket;
    begin
       return S;
@@ -123,9 +123,9 @@ package body USock is
 
    overriding procedure Bind
      (Socket        : in out U_Socket;
-      Port          : in     Natural;
-      Host          : in     String := "";
-      Reuse_Address : in     Boolean := False)
+      Port          : Natural;
+      Host          : String := "";
+      Reuse_Address : Boolean := False)
    is
       pragma Unreferenced (Socket, Port, Host);
    begin
@@ -137,8 +137,8 @@ package body USock is
    ------------
 
    overriding procedure Listen
-     (Socket     : in U_Socket;
-      Queue_Size : in Positive := 5)
+     (Socket     : U_Socket;
+      Queue_Size : Positive := 5)
    is
       pragma Unreferenced (Socket, Queue_Size);
    begin
@@ -150,7 +150,7 @@ package body USock is
    -------------------
 
    overriding procedure Accept_Socket
-     (Socket     : in     Net.Socket_Type'Class;
+     (Socket     : Net.Socket_Type'Class;
       New_Socket : in out U_Socket)
    is
       pragma Unreferenced (Socket, New_Socket);
@@ -175,9 +175,9 @@ package body USock is
 
    overriding procedure Connect
      (Socket : in out U_Socket;
-      Host   : in     String;
-      Port   : in     Positive;
-      Wait   : in     Boolean := True)
+      Host   : String;
+      Port   : Positive;
+      Wait   : Boolean := True)
    is
       pragma Unreferenced (Socket, Host, Port, Wait);
    begin
@@ -189,8 +189,8 @@ package body USock is
    --------------
 
    overriding procedure Shutdown
-     (Socket : in U_Socket;
-      How    : in Net.Shutmode_Type := Net.Shut_Read_Write)
+     (Socket : U_Socket;
+      How    : Net.Shutmode_Type := Net.Shut_Read_Write)
    is
       pragma Unreferenced (Socket);
    begin
@@ -203,9 +203,9 @@ package body USock is
    ----------
 
    overriding procedure Send
-     (Socket : in     U_Socket;
-      Data   : in     Stream_Element_Array;
-      Last   :    out Stream_Element_Offset)
+     (Socket : U_Socket;
+      Data   : Stream_Element_Array;
+      Last   : out Stream_Element_Offset)
    is
       pragma Unreferenced (Socket);
    begin
@@ -244,9 +244,9 @@ package body USock is
    ---------------
 
    function To_FD_Set
-     (Socket : in U_Socket;
-      Events : in Net.Wait_Event_Set;
-      Size   : in Positive := 1) return Net.FD_Set'Class
+     (Socket : U_Socket;
+      Events : Net.Wait_Event_Set;
+      Size   : Positive := 1) return Net.FD_Set'Class
    is
       Result : U_Set (Size);
    begin
@@ -259,7 +259,7 @@ package body USock is
    ----------
 
    procedure Wait
-     (Container : in out U_Set; Timeout : in Duration; Count : out Natural)
+     (Container : in out U_Set; Timeout : Duration; Count : out Natural)
    is
       pragma Unreferenced (Container, Timeout);
    begin
@@ -271,7 +271,7 @@ package body USock is
    ------------
 
    function Status
-     (Container : in U_Set; Index : in Positive) return Net.Event_Set
+     (Container : U_Set; Index : Positive) return Net.Event_Set
    is
       pragma Unreferenced (Container);
    begin
@@ -287,9 +287,9 @@ package body USock is
    -------------
 
    overriding procedure Receive
-     (Socket : in     U_Socket;
-      Data   :    out Stream_Element_Array;
-      Last   :    out Stream_Element_Offset)
+     (Socket : U_Socket;
+      Data   : out Stream_Element_Array;
+      Last   : out Stream_Element_Offset)
    is
       pragma Unreferenced (Socket);
    begin
@@ -320,7 +320,7 @@ package body USock is
    -------------
 
    overriding function Pending
-     (Socket : in U_Socket) return Stream_Element_Count
+     (Socket : U_Socket) return Stream_Element_Count
    is
       pragma Unreferenced (Socket);
    begin
@@ -335,7 +335,7 @@ package body USock is
    -- Get_FD --
    ------------
 
-   overriding function Get_FD (Socket : in U_Socket) return Integer is
+   overriding function Get_FD (Socket : U_Socket) return Integer is
    begin
       return 1;
    end Get_FD;
@@ -344,7 +344,7 @@ package body USock is
    -- Peer_Addr --
    ---------------
 
-   overriding function Peer_Addr (Socket : in U_Socket) return String is
+   overriding function Peer_Addr (Socket : U_Socket) return String is
       pragma Unreferenced (Socket);
    begin
       --  Have to be 127.0.0.1 to cheat Socket_Pair
@@ -355,7 +355,7 @@ package body USock is
    -- Peer_Port --
    ---------------
 
-   overriding function Peer_Port (Socket : in U_Socket) return Positive is
+   overriding function Peer_Port (Socket : U_Socket) return Positive is
       pragma Unreferenced (Socket);
    begin
       return 1;
@@ -365,7 +365,7 @@ package body USock is
    -- Get_Addr --
    --------------
 
-   overriding function Get_Addr (Socket : in U_Socket) return String is
+   overriding function Get_Addr (Socket : U_Socket) return String is
    begin
       return "here";
    end Get_Addr;
@@ -374,7 +374,7 @@ package body USock is
    -- Get_Port --
    --------------
 
-   overriding function Get_Port (Socket : in U_Socket) return Positive is
+   overriding function Get_Port (Socket : U_Socket) return Positive is
       pragma Unreferenced (Socket);
    begin
       return 1;
@@ -385,8 +385,8 @@ package body USock is
    --------------------------
 
    overriding procedure Set_Send_Buffer_Size
-     (Socket : in U_Socket;
-      Size   : in Natural)
+     (Socket : U_Socket;
+      Size   : Natural)
    is
       pragma Unreferenced (Socket, Size);
    begin
@@ -398,8 +398,8 @@ package body USock is
    -----------------------------
 
    overriding procedure Set_Receive_Buffer_Size
-     (Socket : in U_Socket;
-      Size   : in Natural)
+     (Socket : U_Socket;
+      Size   : Natural)
    is
       pragma Unreferenced (Socket, Size);
    begin
@@ -411,7 +411,7 @@ package body USock is
    --------------------------
 
    overriding function Get_Send_Buffer_Size
-     (Socket : in U_Socket) return Natural
+     (Socket : U_Socket) return Natural
    is
       pragma Unreferenced (Socket);
    begin
@@ -424,7 +424,7 @@ package body USock is
    -----------------------------
 
    overriding function Get_Receive_Buffer_Size
-     (Socket : in U_Socket) return Natural
+     (Socket : U_Socket) return Natural
    is
       pragma Unreferenced (Socket);
    begin
@@ -436,7 +436,7 @@ package body USock is
    -- Errno --
    -----------
 
-   overriding function Errno (Socket : in U_Socket) return Integer is
+   overriding function Errno (Socket : U_Socket) return Integer is
       pragma Unreferenced (Socket);
    begin
       return 0;
@@ -446,7 +446,7 @@ package body USock is
    -- CB --
    --------
 
-   function CB (Request : in AWS.Status.Data) return Response.Data is
+   function CB (Request : AWS.Status.Data) return Response.Data is
    begin
       Text_IO.Put_Line ("Callback... " & AWS.Status.URI (Request));
       return Response.Build (MIME.Text_HTML, "response from U_Socket");

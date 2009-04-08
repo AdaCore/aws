@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2003-2004                          --
---                                ACT-Europe                                --
+--                     Copyright (C) 2003-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -83,7 +82,7 @@ with AWS.Response;
 
 package AWS.Services.Web_Mail is
 
-   function Callback (Request : in AWS.Status.Data) return AWS.Response.Data;
+   function Callback (Request : AWS.Status.Data) return AWS.Response.Data;
    --  This is the AWS callback for the simple static Web Mail server
 
 end AWS.Services.Web_Mail;

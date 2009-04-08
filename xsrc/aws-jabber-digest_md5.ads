@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                       Copyright (C) 2008, AdaCore                        --
+--                     Copyright (C) 2008-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -41,10 +41,10 @@ package AWS.Jabber.Digest_Md5 is
    end record;
 
    function Decode_Challenge
-     (Encoded_Challenge : in String) return Challenge;
+     (Encoded_Challenge : String) return Challenge;
    --  Decode the Base64 encoded message and returns the challenge
 
    function Reply_Challenge
-     (Username, Realm, Password, Host, Nonce : in String) return String;
+     (Username, Realm, Password, Host, Nonce : String) return String;
 
 end AWS.Jabber.Digest_Md5;

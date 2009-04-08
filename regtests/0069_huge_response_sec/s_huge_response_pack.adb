@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2008, AdaCore                     --
+--                     Copyright (C) 2003-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -51,7 +51,7 @@ package body S_Huge_Response_Pack is
    -- CB --
    --------
 
-   function CB (Request : in Status.Data) return Response.Data is
+   function CB (Request : Status.Data) return Response.Data is
    begin
       return Response.Build (MIME.Text_HTML, Message);
    end CB;
@@ -62,7 +62,7 @@ package body S_Huge_Response_Pack is
    -- Run --
    ---------
 
-   procedure Run (Port : in Positive; Security : in Boolean) is
+   procedure Run (Port : Positive; Security : Boolean) is
    begin
       Server.Start
         (WS, "huge_message",

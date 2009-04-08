@@ -66,23 +66,23 @@ package body AWS.Net.Std is
       new Ada.Unchecked_Deallocation (Socket_Hidden, Socket_Hidden_Access);
 
    procedure Raise_Exception
-     (E       : in Exceptions.Exception_Occurrence;
-      Routine : in String;
-      Socket  : in Socket_Type);
+     (E       : Exceptions.Exception_Occurrence;
+      Routine : String;
+      Socket  : Socket_Type);
    pragma No_Return (Raise_Exception);
    --  Raise and log exception Socket_Error with E's message and a reference to
    --  the routine name.
 
-   procedure Raise_Socket_Error (Error : in Integer; Socket : in Socket_Type);
+   procedure Raise_Socket_Error (Error : Integer; Socket : Socket_Type);
    pragma No_Return (Raise_Socket_Error);
 
-   function Error_Message (Error : in Integer) return String;
+   function Error_Message (Error : Integer) return String;
 
-   function Get_Inet_Addr (Host : in String) return Sockets.Inet_Addr_Type;
+   function Get_Inet_Addr (Host : String) return Sockets.Inet_Addr_Type;
    pragma Inline (Get_Inet_Addr);
    --  Returns the inet address for the given host
 
-   procedure Set_Non_Blocking_Mode (Socket : in Socket_Type);
+   procedure Set_Non_Blocking_Mode (Socket : Socket_Type);
    --  Set the socket to the non-blocking mode.
    --  AWS is not using blocking sockets internally.
 
@@ -91,7 +91,7 @@ package body AWS.Net.Std is
    -------------------
 
    overriding procedure Accept_Socket
-     (Socket     : in     Net.Socket_Type'Class;
+     (Socket     : Net.Socket_Type'Class;
       New_Socket : in out Socket_Type)
    is
       Sock_Addr : Sockets.Sock_Addr_Type;
@@ -125,9 +125,9 @@ package body AWS.Net.Std is
 
    overriding procedure Bind
      (Socket        : in out Socket_Type;
-      Port          : in     Natural;
-      Host          : in     String  := "";
-      Reuse_Address : in     Boolean := False)
+      Port          : Natural;
+      Host          : String  := "";
+      Reuse_Address : Boolean := False)
    is
       use Ada.Strings.Maps;
       Inet_Addr : Sockets.Inet_Addr_Type;
@@ -174,9 +174,9 @@ package body AWS.Net.Std is
 
    overriding procedure Connect
      (Socket : in out Socket_Type;
-      Host   : in     String;
-      Port   : in     Positive;
-      Wait   : in     Boolean := True)
+      Host   : String;
+      Port   : Positive;
+      Wait   : Boolean := True)
    is
       Sock_Addr : Sockets.Sock_Addr_Type;
 
@@ -222,13 +222,13 @@ package body AWS.Net.Std is
             Events : constant Event_Set
               := Net.Wait (Socket, (Output => True, Input => False));
 
-            procedure Raise_Error (Errno : in Integer);
+            procedure Raise_Error (Errno : Integer);
 
             -----------------
             -- Raise_Error --
             -----------------
 
-            procedure Raise_Error (Errno : in Integer) is
+            procedure Raise_Error (Errno : Integer) is
                Msg : constant String := Error_Message (Errno);
             begin
                Log.Error (Socket, Msg);
@@ -266,7 +266,7 @@ package body AWS.Net.Std is
       return GNAT.Sockets.Thin.Socket_Errno;
    end Errno;
 
-   overriding function Errno (Socket : in Socket_Type) return Integer is
+   overriding function Errno (Socket : Socket_Type) return Integer is
       use Interfaces;
       use Sockets;
       RC  : C.int;
@@ -291,7 +291,7 @@ package body AWS.Net.Std is
    -- Error_Message --
    -------------------
 
-   function Error_Message (Error : in Integer) return String is
+   function Error_Message (Error : Integer) return String is
       use Interfaces;
    begin
       return '[' & Utils.Image (Error) & "] "
@@ -311,7 +311,7 @@ package body AWS.Net.Std is
    -- Get_Addr --
    --------------
 
-   overriding function Get_Addr (Socket : in Socket_Type) return String is
+   overriding function Get_Addr (Socket : Socket_Type) return String is
       use Sockets;
    begin
       return Image (Get_Socket_Name (Socket.S.FD).Addr);
@@ -324,7 +324,7 @@ package body AWS.Net.Std is
    -- Get_FD --
    ------------
 
-   overriding function Get_FD (Socket : in Socket_Type) return Integer is
+   overriding function Get_FD (Socket : Socket_Type) return Integer is
    begin
       if Socket.S = null then
          return Sockets.To_C (Sockets.No_Socket);
@@ -337,7 +337,7 @@ package body AWS.Net.Std is
    -- Get_Inet_Addr --
    -------------------
 
-   function Get_Inet_Addr (Host : in String) return Sockets.Inet_Addr_Type is
+   function Get_Inet_Addr (Host : String) return Sockets.Inet_Addr_Type is
       use Strings.Maps;
       IP : constant Character_Set := To_Set ("0123456789.");
    begin
@@ -353,7 +353,7 @@ package body AWS.Net.Std is
    -- Get_Port --
    --------------
 
-   overriding function Get_Port (Socket : in Socket_Type) return Positive is
+   overriding function Get_Port (Socket : Socket_Type) return Positive is
    begin
       return Positive (Sockets.Get_Socket_Name (Socket.S.FD).Port);
    exception
@@ -366,7 +366,7 @@ package body AWS.Net.Std is
    -----------------------------
 
    overriding function Get_Receive_Buffer_Size
-     (Socket : in Socket_Type) return Natural
+     (Socket : Socket_Type) return Natural
    is
       use Sockets;
    begin
@@ -381,7 +381,7 @@ package body AWS.Net.Std is
    --------------------------
 
    overriding function Get_Send_Buffer_Size
-     (Socket : in Socket_Type) return Natural
+     (Socket : Socket_Type) return Natural
    is
       use Sockets;
    begin
@@ -405,8 +405,8 @@ package body AWS.Net.Std is
    ------------
 
    overriding procedure Listen
-     (Socket     : in Socket_Type;
-      Queue_Size : in Positive := 5) is
+     (Socket     : Socket_Type;
+      Queue_Size : Positive := 5) is
    begin
       Sockets.Listen_Socket (Socket.S.FD, Queue_Size);
    exception
@@ -418,7 +418,7 @@ package body AWS.Net.Std is
    -- Peer_Addr --
    ---------------
 
-   overriding function Peer_Addr (Socket : in Socket_Type) return String is
+   overriding function Peer_Addr (Socket : Socket_Type) return String is
       use Sockets;
    begin
       return Image (Get_Peer_Name (Socket.S.FD).Addr);
@@ -431,7 +431,7 @@ package body AWS.Net.Std is
    -- Peer_Port --
    ---------------
 
-   overriding function Peer_Port (Socket : in Socket_Type) return Positive is
+   overriding function Peer_Port (Socket : Socket_Type) return Positive is
    begin
       return Positive (Sockets.Get_Peer_Name (Socket.S.FD).Port);
    exception
@@ -444,7 +444,7 @@ package body AWS.Net.Std is
    -------------
 
    overriding function Pending
-     (Socket : in Socket_Type) return Stream_Element_Count
+     (Socket : Socket_Type) return Stream_Element_Count
    is
       use Interfaces;
       Arg : aliased C.int;
@@ -465,9 +465,9 @@ package body AWS.Net.Std is
    ---------------------
 
    procedure Raise_Exception
-     (E       : in Exceptions.Exception_Occurrence;
-      Routine : in String;
-      Socket  : in Socket_Type)
+     (E       : Exceptions.Exception_Occurrence;
+      Routine : String;
+      Socket  : Socket_Type)
    is
       Msg : constant String := Routine & " : " & Exception_Message (E);
    begin
@@ -480,7 +480,7 @@ package body AWS.Net.Std is
    ------------------------
 
    procedure Raise_Socket_Error
-     (Error : in Integer; Socket : in Socket_Type)
+     (Error : Integer; Socket : Socket_Type)
    is
       Msg : constant String := Error_Message (Error);
    begin
@@ -493,9 +493,9 @@ package body AWS.Net.Std is
    -------------
 
    overriding procedure Receive
-     (Socket : in     Socket_Type;
-      Data   :    out Stream_Element_Array;
-      Last   :    out Stream_Element_Offset) is
+     (Socket : Socket_Type;
+      Data   : out Stream_Element_Array;
+      Last   : out Stream_Element_Offset) is
    begin
       Wait_For (Input, Socket);
 
@@ -524,9 +524,9 @@ package body AWS.Net.Std is
    ----------
 
    overriding procedure Send
-     (Socket : in     Socket_Type;
-      Data   : in     Stream_Element_Array;
-      Last   :    out Stream_Element_Offset)
+     (Socket : Socket_Type;
+      Data   : Stream_Element_Array;
+      Last   : out Stream_Element_Offset)
    is
       use Interfaces;
 
@@ -579,7 +579,7 @@ package body AWS.Net.Std is
    -- Set_Non_Blocking_Mode --
    ---------------------------
 
-   procedure Set_Non_Blocking_Mode (Socket : in Socket_Type) is
+   procedure Set_Non_Blocking_Mode (Socket : Socket_Type) is
       use Sockets;
       Mode : Request_Type (Non_Blocking_IO);
    begin
@@ -596,8 +596,8 @@ package body AWS.Net.Std is
    -----------------------------
 
    overriding procedure Set_Receive_Buffer_Size
-     (Socket : in Socket_Type;
-      Size   : in Natural)
+     (Socket : Socket_Type;
+      Size   : Natural)
    is
       use Sockets;
    begin
@@ -612,8 +612,8 @@ package body AWS.Net.Std is
    --------------------------
 
    overriding procedure Set_Send_Buffer_Size
-     (Socket : in Socket_Type;
-      Size   : in Natural)
+     (Socket : Socket_Type;
+      Size   : Natural)
    is
       use Sockets;
    begin
@@ -628,7 +628,7 @@ package body AWS.Net.Std is
    --------------
 
    overriding procedure Shutdown
-     (Socket : in Socket_Type; How : in Shutmode_Type := Shut_Read_Write)
+     (Socket : Socket_Type; How : Shutmode_Type := Shut_Read_Write)
    is
       To_GNAT : constant array (Shutmode_Type) of Sockets.Shutmode_Type :=
                   (Shut_Read_Write => Sockets.Shut_Read_Write,

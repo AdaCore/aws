@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2003                            --
---                                ACT-Europe                                --
+--                     Copyright (C) 2003-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -35,7 +34,7 @@ package Text_Input_CB is
    Text_Log : AWS.Log.Object;
 
    function Text_CB
-     (Request : in AWS.Status.Data)
+     (Request : AWS.Status.Data)
       return AWS.Response.Data;
 
 end Text_Input_CB;

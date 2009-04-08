@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2008, AdaCore                     --
+--                     Copyright (C) 2003-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -31,7 +31,7 @@ package body SOAP.Dispatchers.Callback is
    -- Clone --
    -----------
 
-   overriding function Clone (Dispatch : in Handler) return Handler is
+   overriding function Clone (Dispatch : Handler) return Handler is
    begin
       return (Dispatchers.Handler
               with Dispatch.HTTP_Callback, Dispatch.SOAP_Callback);
@@ -42,8 +42,8 @@ package body SOAP.Dispatchers.Callback is
    ------------
 
    function Create
-     (HTTP_Callback : in AWS.Response.Callback;
-      SOAP_Callback : in Dispatchers.SOAP_Callback) return Handler is
+     (HTTP_Callback : AWS.Response.Callback;
+      SOAP_Callback : Dispatchers.SOAP_Callback) return Handler is
    begin
       return (Dispatchers.Handler with HTTP_Callback, SOAP_Callback);
    end Create;
@@ -53,8 +53,8 @@ package body SOAP.Dispatchers.Callback is
    -------------------
 
    overriding function Dispatch_HTTP
-     (Dispatcher : in Handler;
-      Request    : in AWS.Status.Data) return AWS.Response.Data is
+     (Dispatcher : Handler;
+      Request    : AWS.Status.Data) return AWS.Response.Data is
    begin
       return Dispatcher.HTTP_Callback (Request);
    end Dispatch_HTTP;
@@ -64,10 +64,10 @@ package body SOAP.Dispatchers.Callback is
    -------------------
 
    overriding function Dispatch_SOAP
-     (Dispatcher : in Handler;
-      SOAPAction : in String;
-      Payload    : in Message.Payload.Object;
-      Request    : in AWS.Status.Data) return AWS.Response.Data is
+     (Dispatcher : Handler;
+      SOAPAction : String;
+      Payload    : Message.Payload.Object;
+      Request    : AWS.Status.Data) return AWS.Response.Data is
    begin
       return Dispatcher.SOAP_Callback (SOAPAction, Payload, Request);
    end Dispatch_SOAP;

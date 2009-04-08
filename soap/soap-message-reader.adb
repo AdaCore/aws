@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2008, AdaCore                     --
+--                     Copyright (C) 2000-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -44,7 +44,7 @@ package body SOAP.Message.Reader is
 
    overriding procedure Characters
      (Handler : in out Tree_Reader;
-      Ch      : in     Unicode.CES.Byte_Sequence)
+      Ch      : Unicode.CES.Byte_Sequence)
    is
       Tmp : Node;
       pragma Unreferenced (Tmp);
@@ -75,9 +75,9 @@ package body SOAP.Message.Reader is
 
    overriding procedure End_Element
      (Handler       : in out Tree_Reader;
-      Namespace_URI : in     Unicode.CES.Byte_Sequence := "";
-      Local_Name    : in     Unicode.CES.Byte_Sequence := "";
-      Qname         : in     Unicode.CES.Byte_Sequence := "")
+      Namespace_URI : Unicode.CES.Byte_Sequence := "";
+      Local_Name    : Unicode.CES.Byte_Sequence := "";
+      Qname         : Unicode.CES.Byte_Sequence := "")
    is
       pragma Unreferenced (Namespace_URI);
       pragma Unreferenced (Local_Name);
@@ -90,7 +90,7 @@ package body SOAP.Message.Reader is
    -- Get_Tree --
    --------------
 
-   function Get_Tree (Read : in Tree_Reader) return Document is
+   function Get_Tree (Read : Tree_Reader) return Document is
    begin
       return Read.Tree;
    end Get_Tree;
@@ -101,7 +101,7 @@ package body SOAP.Message.Reader is
 
    overriding procedure Ignorable_Whitespace
      (Handler : in out Tree_Reader;
-      Ch      : in     Unicode.CES.Byte_Sequence)
+      Ch      : Unicode.CES.Byte_Sequence)
    is
       Tmp : Node;
       pragma Unreferenced (Tmp);
@@ -134,10 +134,10 @@ package body SOAP.Message.Reader is
 
    overriding procedure Start_Element
      (Handler       : in out Tree_Reader;
-      Namespace_URI : in     Unicode.CES.Byte_Sequence       := "";
-      Local_Name    : in     Unicode.CES.Byte_Sequence       := "";
-      Qname         : in     Unicode.CES.Byte_Sequence       := "";
-      Atts          : in     Sax.Attributes.Attributes'Class)
+      Namespace_URI : Unicode.CES.Byte_Sequence       := "";
+      Local_Name    : Unicode.CES.Byte_Sequence       := "";
+      Qname         : Unicode.CES.Byte_Sequence       := "";
+      Atts          : Sax.Attributes.Attributes'Class)
    is
       pragma Unreferenced (Local_Name);
    begin

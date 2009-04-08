@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                       Copyright (C) 2008, AdaCore                        --
+--                     Copyright (C) 2008-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -32,19 +32,19 @@ package body Pck is
 
    use Ada;
 
-   procedure Call (R : in Rec) is
+   procedure Call (R : Rec) is
    begin
       Integer_Text_IO.Put (R.V);
       Text_IO.New_Line;
    end Call;
 
-   procedure Print (X : in Integer; Name : in String) is
+   procedure Print (X : Integer; Name : String) is
    begin
       Integer_Text_IO.Put (X);
       Text_IO.Put_Line (Name);
    end Print;
 
-   procedure Big (R : in R_Rec) is
+   procedure Big (R : R_Rec) is
    begin
       null;
    end Big;

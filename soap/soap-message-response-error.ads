@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2008, AdaCore                     --
+--                     Copyright (C) 2000-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -34,35 +34,35 @@ package SOAP.Message.Response.Error is
 
    type Faultcode is new String;
 
-   overriding function From (P : in Message.Payload.Object) return Object;
+   overriding function From (P : Message.Payload.Object) return Object;
    --  Build an Error response from a Payload object
 
-   overriding function XML_Image (E : in Object) return Unbounded_String;
+   overriding function XML_Image (E : Object) return Unbounded_String;
    --  Returns the Fault env and associated data (faultcode, faultstring...)
 
    function Build
-     (Faultcode   : in Error.Faultcode;
-      Faultstring : in String)
+     (Faultcode   : Error.Faultcode;
+      Faultstring : String)
       return Object;
    --  Returns an Error object built using Faultcode and Faultstring
 
-   overriding function Is_Error (E : in Object) return Boolean;
+   overriding function Is_Error (E : Object) return Boolean;
    --  Always returns True. This overrides  Response.Object's method
 
    -----------------
    -- Fault Codes --
    -----------------
 
-   function Version_Mismatch (Subname : in String := "") return Faultcode;
+   function Version_Mismatch (Subname : String := "") return Faultcode;
    --  Returns the Version_Mismatch faultcode
 
-   function Must_Understand (Subname : in String := "") return Faultcode;
+   function Must_Understand (Subname : String := "") return Faultcode;
    --  Returns the Must_Understand faultcode
 
-   function Client (Subname : in String := "") return Faultcode;
+   function Client (Subname : String := "") return Faultcode;
    --  Returns the Client faultcode
 
-   function Server (Subname : in String := "") return Faultcode;
+   function Server (Subname : String := "") return Faultcode;
    --  Returns the Server faultcode
 
 private

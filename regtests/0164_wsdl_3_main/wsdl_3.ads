@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2008, AdaCore                     --
+--                     Copyright (C) 2003-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -56,10 +56,10 @@ package WSDL_3 is
       S : My_Set_Safe_Pointer.Safe_Pointer;
    end record;
 
-   function Image_Rec1 (Rec : in Rec1) return String;
+   function Image_Rec1 (Rec : Rec1) return String;
 
-   function Image_Rec2 (Rec : in Rec2) return String;
+   function Image_Rec2 (Rec : Rec2) return String;
 
-   function Image_Rec3 (Rec : in Rec3) return String;
+   function Image_Rec3 (Rec : Rec3) return String;
 
 end WSDL_3;

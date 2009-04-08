@@ -50,17 +50,17 @@ procedure Attachment_Headers is
    use Ada.Strings.Unbounded;
    use AWS;
 
-   function "-" (S : in Unbounded_String) return String renames To_String;
+   function "-" (S : Unbounded_String) return String renames To_String;
 
    ----------
    -- Dump --
    ----------
 
    procedure Dump
-     (Direction : in Net.Log.Data_Direction;
-      Socket    : in Net.Socket_Type'Class;
-      Data      : in Stream_Element_Array;
-      Last      : in Stream_Element_Offset)
+     (Direction : Net.Log.Data_Direction;
+      Socket    : Net.Socket_Type'Class;
+      Data      : Stream_Element_Array;
+      Last      : Stream_Element_Offset)
    is
       use type Net.Log.Data_Direction;
    begin
@@ -77,11 +77,11 @@ procedure Attachment_Headers is
    -- Upload --
    ------------
 
-   function Upload (Request : in Status.Data) return Response.Data is
+   function Upload (Request : Status.Data) return Response.Data is
 
       procedure Process_Attachment
-        (Attachment : in AWS.Attachments.Element;
-         Index      : in Positive;
+        (Attachment : AWS.Attachments.Element;
+         Index      : Positive;
          Quit       : in out Boolean);
       --  Process each attachment
 
@@ -90,8 +90,8 @@ procedure Attachment_Headers is
       ------------------------
 
       procedure Process_Attachment
-        (Attachment : in AWS.Attachments.Element;
-         Index      : in Positive;
+        (Attachment : AWS.Attachments.Element;
+         Index      : Positive;
          Quit       : in out Boolean)
       is
          Filename     : constant String :=

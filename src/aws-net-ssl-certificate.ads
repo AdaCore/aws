@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2003                            --
---                                ACT-Europe                                --
+--                     Copyright (C) 2003-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -36,13 +35,13 @@ package AWS.Net.SSL.Certificate is
 
    Undefined : constant Object;
 
-   function Get (Socket : in Socket_Type) return Object;
+   function Get (Socket : Socket_Type) return Object;
    --  Returns the certificate used by the SSL
 
-   function Subject (Certificate : in Object) return String;
+   function Subject (Certificate : Object) return String;
    --  Returns the certificate's subject
 
-   function Issuer  (Certificate : in Object) return String;
+   function Issuer  (Certificate : Object) return String;
    --  Returns the certificate's issuer
 
 private

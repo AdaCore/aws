@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                       Copyright (C) 2008, AdaCore                        --
+--                     Copyright (C) 2008-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -39,9 +39,9 @@ package Pck is
       C : Color;
    end record;
 
-   procedure Call (R : in Rec);
+   procedure Call (R : Rec);
 
-   procedure Print (X : in Integer; Name : in String);
+   procedure Print (X : Integer; Name : String);
 
    type Tab is array (1 .. 10) of Boolean;
    type Tab_Access is access Tab;
@@ -57,6 +57,6 @@ package Pck is
       A : Tab_Safe_Pointer.Safe_Pointer;
    end record;
 
-   procedure Big (R : in R_Rec);
+   procedure Big (R : R_Rec);
 
 end Pck;

@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2008, AdaCore                     --
+--                     Copyright (C) 2003-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -38,33 +38,33 @@ package SOAP.Dispatchers is
    --  This dispatcher will send SOAP and HTTP requests to different routines
 
    type SOAP_Callback is
-     access function (SOAPAction : in String;
-                      Payload    : in Message.Payload.Object;
-                      Request    : in AWS.Status.Data)
+     access function (SOAPAction : String;
+                      Payload    : Message.Payload.Object;
+                      Request    : AWS.Status.Data)
                       return AWS.Response.Data;
    --  This is the SOAP Server callback type. SOAPAction is the HTTP header
    --  SOAPAction value, Payload is the parsed XML payload, request is the
    --  HTTP request status.
 
    function Dispatch_SOAP
-     (Dispatcher : in Handler;
-      SOAPAction : in String;
-      Payload    : in Message.Payload.Object;
-      Request    : in AWS.Status.Data)
+     (Dispatcher : Handler;
+      SOAPAction : String;
+      Payload    : Message.Payload.Object;
+      Request    : AWS.Status.Data)
       return AWS.Response.Data is abstract;
    --  This dispatch function is called for SOAP requests
 
    function Dispatch_HTTP
-     (Dispatcher : in Handler;
-      Request    : in AWS.Status.Data)
+     (Dispatcher : Handler;
+      Request    : AWS.Status.Data)
       return AWS.Response.Data is abstract;
    --  This dispatch function is called for standard HTTP requests
 
 private
 
    overriding function Dispatch
-     (Dispatcher : in Handler;
-      Request    : in AWS.Status.Data) return AWS.Response.Data;
+     (Dispatcher : Handler;
+      Request    : AWS.Status.Data) return AWS.Response.Data;
 
    type Handler is abstract new AWS.Dispatchers.Handler with null record;
 

@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2005                          --
---                                 AdaCore                                --
+--                     Copyright (C) 2000-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -37,32 +36,32 @@ package SOAP.Message is
 
    type Object is tagged private;
 
-   function XML_Image (M : in Object) return Unbounded_String;
+   function XML_Image (M : Object) return Unbounded_String;
    --  Returns the XML image for the wrapper and parameters. This is designed
    --  to be used by Payload and Response object.
 
-   function Name_Space   (M : in Object'Class) return SOAP.Name_Space.Object;
+   function Name_Space   (M : Object'Class) return SOAP.Name_Space.Object;
    --  Returns message Namespace
 
-   function Wrapper_Name (M : in Object'class) return String;
+   function Wrapper_Name (M : Object'class) return String;
    --  Returns wrapper name
 
-   function Parameters   (M : in Object'class) return SOAP.Parameters.List;
+   function Parameters   (M : Object'class) return SOAP.Parameters.List;
    --  Returns the parameter
 
    procedure Set_Name_Space
      (M  : in out Object'Class;
-      NS : in     SOAP.Name_Space.Object);
+      NS : SOAP.Name_Space.Object);
    --  Set message's Namespace
 
    procedure Set_Wrapper_Name
      (M     : in out Object'Class;
-      Name  : in     String);
+      Name  : String);
    --  Set message's wrapper name
 
    procedure Set_Parameters
      (M     : in out Object'Class;
-      P_Set : in     SOAP.Parameters.List);
+      P_Set : SOAP.Parameters.List);
    --  Set message's parameters
 
 private

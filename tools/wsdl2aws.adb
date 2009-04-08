@@ -1,9 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2008, AdaCore                     --
---                                                                          --
---  Authors: Dmitriy Anisimkov - Pascal Obry                                --
+--                     Copyright (C) 2003-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -55,7 +53,7 @@ procedure WSDL2AWS is
    procedure Parse_Command_Line;
    --  Parse command line arguments
 
-   function Get_Document (URL : in Unbounded_String) return Unbounded_String;
+   function Get_Document (URL : Unbounded_String) return Unbounded_String;
    --  Get WSDL document pointed to by URL, returns the name of the local
    --  filename.
 
@@ -81,7 +79,7 @@ procedure WSDL2AWS is
    -- Get_Document --
    ------------------
 
-   function Get_Document (URL : in Unbounded_String) return Unbounded_String is
+   function Get_Document (URL : Unbounded_String) return Unbounded_String is
       use Ada;
 
       L_URL    : constant String := To_String (URL);

@@ -65,41 +65,41 @@ package AWS.Utils is
    procedure Random_String (Item : out String);
    --  Fill string by random printable characters
 
-   function Random_String (Length : in Natural) return String;
+   function Random_String (Length : Natural) return String;
    pragma Inline (Random_String);
    --  Returns random string
 
-   function Image (N : in Natural) return String;
+   function Image (N : Natural) return String;
    --  Returns image of N without the leading blank
 
-   function Image (D : in Duration) return String;
+   function Image (D : Duration) return String;
    --  Returns image of D without the leading blank and with only 2 decimals
    --  numbers.
 
    function Significant_Image
-     (Item : in Duration; N : in Positive) return String;
+     (Item : Duration; N : Positive) return String;
    --  Returns image of D without the leading blank and with N significant
    --  digits. If number of digits in integer part is more than N, the image
    --  would represent the whole integer part.
 
-   function Hex (V : in Natural; Width : in Natural := 0) return String;
+   function Hex (V : Natural; Width : Natural := 0) return String;
    --  Returns the hexadecimal string representation of the decimal
    --  number V. if Width /= 0, the result will have exactly Width characters
    --  eventually padded with leading 0 or trimmed on the right.
 
-   function Hex_Value (Hex : in String) return Natural;
+   function Hex_Value (Hex : String) return Natural;
    --  Returns the value for the hexadecimal number Hex. Raises
    --  Constraint_Error is Hex is not an hexadecimal number.
 
-   function Is_Number (S : in String) return Boolean;
+   function Is_Number (S : String) return Boolean;
    --  Returns True is S contains only decimal digits and is not empty
 
-   function Quote (Str : in String; Replace : in String := """") return String;
+   function Quote (Str : String; Replace : String := """") return String;
    --  Returns Str with character '"' added at the start and the end
    --  Replace parameter is for replace the '"' inside of string.
    --  It is not replaced by default.
 
-   function CRLF_2_Spaces (Str : in String) return String;
+   function CRLF_2_Spaces (Str : String) return String;
    --  Returns an str in a single line. All CR and LF are converted to spaces,
    --  trailing spaces are removed.
 
@@ -195,7 +195,7 @@ package AWS.Utils is
 
       protected type Mailbox (Max_Size : Positive) is
 
-         entry Add (M : in Message);
+         entry Add (M : Message);
          --  Add a new message into the Mailbox, only possible if there is
          --  some free room on the Mailbox.
 
@@ -225,13 +225,13 @@ package AWS.Utils is
 
    protected type Counter (Initial_Value : Natural) is
 
-      procedure Increment (Amount : in Natural := 1);
+      procedure Increment (Amount : Natural := 1);
       --  Adds one to the counter
 
-      procedure Decrement (Amount : in Natural := 1);
+      procedure Decrement (Amount : Natural := 1);
       --  Removes one to the counter
 
-      procedure Decrement (Amount : in Natural := 1; Value : out Natural);
+      procedure Decrement (Amount : Natural := 1; Value : out Natural);
       --  Removes one to the counter and return the current value
 
       function Value return Natural;
@@ -255,31 +255,31 @@ package AWS.Utils is
    No_Such_File : exception;
    --  Raised be the routines below when a file is not found
 
-   function Is_Regular_File (Filename : in String) return Boolean;
+   function Is_Regular_File (Filename : String) return Boolean;
    pragma Inline (Is_Regular_File);
    --  Returns True if Filename is a regular file and is readable
 
-   function Is_Directory (Filename : in String) return Boolean;
+   function Is_Directory (Filename : String) return Boolean;
    pragma Inline (Is_Directory);
    --  Returns True if Filename is a directory
 
-   function File_Size (Filename : in String) return File_Size_Type;
+   function File_Size (Filename : String) return File_Size_Type;
    pragma Inline (File_Size);
    --  Returns Filename's size in bytes
 
-   function File_Time_Stamp (Filename : in String) return Ada.Calendar.Time;
+   function File_Time_Stamp (Filename : String) return Ada.Calendar.Time;
    pragma Inline (File_Time_Stamp);
    --  Get the time for last modification to a file in UTC/GMT
 
-   function Normalized_Directory (Directory : in String) return String;
+   function Normalized_Directory (Directory : String) return String;
    --  Returns the directory with an ending directory separator
 
    generic
       with procedure Action
-        (Filename     : in     String;
-         Is_Directory : in     Boolean;
+        (Filename     : String;
+         Is_Directory : Boolean;
          Quit         : in out Boolean);
-   procedure For_Every_Directory_Entry (Directory_Name : in String);
+   procedure For_Every_Directory_Entry (Directory_Name : String);
    --  Reads all entries in Directory_Name and calls Action for each
    --  one. Is_Directory is set to True if Filename is a directory. Quit can
    --  be set to True to stop the iterator. Raises No_Such_File if
@@ -306,13 +306,13 @@ package AWS.Utils is
    -----------------------
 
    procedure Compress
-     (Filename : in String;
-      Level    : in ZLib.Compression_Level := ZLib.Default_Compression);
+     (Filename : String;
+      Level    : ZLib.Compression_Level := ZLib.Default_Compression);
    --  Compress Filename, the compressed file is named filename & ".gz".
    --  If the compression is ok, original file is removed. Raises
    --  Name_Error if Filename does not exist.
 
-   procedure Decompress (Filename : in String);
+   procedure Decompress (Filename : String);
    --  Decompress Filename, the ".gz" extenssion is removed from the
    --  decompressed file. If the decompression is ok, original file is
    --  removed. Raises Name_Error if Filename does not exist.
@@ -323,7 +323,7 @@ package AWS.Utils is
 
    type Clonable is interface;
 
-   function Clone (Element : in Clonable) return Clonable is abstract;
+   function Clone (Element : Clonable) return Clonable is abstract;
    --  Returns a deep copy of Element. The returned object must be
    --  equivalent to Element but fully independent. If Element contains no
    --  access type then Clone can be empty otherwise a new pointer must be

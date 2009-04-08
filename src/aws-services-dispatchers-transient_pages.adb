@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                          Copyright (C) 2003-2007                         --
---                                  AdaCore                                 --
+--                     Copyright (C) 2003-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -41,7 +40,7 @@ package body AWS.Services.Dispatchers.Transient_Pages is
    -- Clone --
    -----------
 
-   overriding function Clone (Dispatcher : in Handler) return Handler is
+   overriding function Clone (Dispatcher : Handler) return Handler is
       New_Dispatcher : Handler;
    begin
       if Dispatcher.Action /= null then
@@ -58,8 +57,8 @@ package body AWS.Services.Dispatchers.Transient_Pages is
    --------------
 
    overriding function Dispatch
-     (Dispatcher : in Handler;
-      Request    : in Status.Data) return Response.Data
+     (Dispatcher : Handler;
+      Request    : Status.Data) return Response.Data
    is
       use type Messages.Status_Code;
 
@@ -98,7 +97,7 @@ package body AWS.Services.Dispatchers.Transient_Pages is
 
    procedure Register
      (Dispatcher : in out Handler;
-      Action     : in     AWS.Dispatchers.Handler'Class) is
+      Action     : AWS.Dispatchers.Handler'Class) is
    begin
       if Dispatcher.Action /= null then
          Free (Dispatcher.Action);
@@ -109,7 +108,7 @@ package body AWS.Services.Dispatchers.Transient_Pages is
 
    procedure Register
      (Dispatcher : in out Handler;
-      Action     : in     Response.Callback) is
+      Action     : Response.Callback) is
    begin
       Register (Dispatcher, AWS.Dispatchers.Callback.Create (Action));
    end Register;

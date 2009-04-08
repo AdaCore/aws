@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2004-2008, AdaCore                     --
+--                     Copyright (C) 2004-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -39,16 +39,16 @@ package AWS.Client.XML.Input_Sources is
    --  A special implementation of a reader, that reads from an HTTP stream
 
    procedure Create
-     (Connection : in     HTTP_Connection;
-      Input      :    out HTTP_Input);
+     (Connection : HTTP_Connection;
+      Input      : out HTTP_Input);
    --  Returns the HTTP_Input stream from a client connection
 
    overriding procedure Next_Char
      (From : in out HTTP_Input;
-      C    :    out Unicode.Unicode_Char);
+      C    : out Unicode.Unicode_Char);
    --  Returns the next character in the file
 
-   overriding function Eof (From : in HTTP_Input) return Boolean;
+   overriding function Eof (From : HTTP_Input) return Boolean;
    --  True if From is past the last character in the file
 
 private

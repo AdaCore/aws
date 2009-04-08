@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2007                          --
---                                 AdaCore                                  --
+--                     Copyright (C) 2000-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -48,10 +47,10 @@ package body AWS.Server.Hotplug is
    Authorization_Error : exception;
 
    function Message
-     (Server     : in String;
-      Name       : in String;
-      Web_Server : in HTTP_Access;
-      Parameters : in Communication.Parameter_Set
+     (Server     : String;
+      Name       : String;
+      Web_Server : HTTP_Access;
+      Parameters : Communication.Parameter_Set
         := Communication.Null_Parameter_Set)
       return Response.Data;
    --  Handle incoming message to register/unregister a module
@@ -74,16 +73,16 @@ package body AWS.Server.Hotplug is
    protected Client_Handler is
 
       procedure Add
-        (Client : in String;
-         Data   : in Client_Data);
+        (Client : String;
+         Data   : Client_Data);
       --  Add this client to the list of trusted clients
 
       procedure Get_Nonce
-        (Client : in     String;
-         Nonce  :    out Digest.Nonce);
+        (Client : String;
+         Nonce  : out Digest.Nonce);
       --  Returns a new Nonce string
 
-      function Get (Client : in String) return Client_Data;
+      function Get (Client : String) return Client_Data;
       --  Returns data for specified client
 
       procedure Delete_All;
@@ -98,16 +97,16 @@ package body AWS.Server.Hotplug is
    ----------------------
 
    procedure Activate
-     (Web_Server         : in HTTP_Access;
-      Port               : in Positive;
-      Authorization_File : in String;
-      Register_Mode      : in AWS.Hotplug.Register_Mode := AWS.Hotplug.Add)
+     (Web_Server         : HTTP_Access;
+      Port               : Positive;
+      Authorization_File : String;
+      Register_Mode      : AWS.Hotplug.Register_Mode := AWS.Hotplug.Add)
    is
       use Ada;
       use Ada.Characters.Handling;
 
       function "+"
-        (Str : in String)
+        (Str : String)
          return Unbounded_String renames To_Unbounded_String;
 
       File   : Text_IO.File_Type;
@@ -159,22 +158,22 @@ package body AWS.Server.Hotplug is
    -------------
 
    function Message
-     (Server     : in String;
-      Name       : in String;
-      Web_Server : in HTTP_Access;
-      Parameters : in Communication.Parameter_Set
+     (Server     : String;
+      Name       : String;
+      Web_Server : HTTP_Access;
+      Parameters : Communication.Parameter_Set
         := Communication.Null_Parameter_Set)
       return Response.Data
    is
       pragma Unreferenced (Server);
       use Ada.Characters.Handling;
 
-      function Get_Nonce (Client_Name : in String) return String;
+      function Get_Nonce (Client_Name : String) return String;
       --  Returns a Nonce string
 
       function Check_Auth
-        (Client_Name, Digest, Regexp : in String;
-         URL                         : in String := "") return Boolean;
+        (Client_Name, Digest, Regexp : String;
+         URL                         : String := "") return Boolean;
       --  Returns True if the Digest string is ok. If URL is specified, checks
       --  also that this redirection is authorized.
 
@@ -183,8 +182,8 @@ package body AWS.Server.Hotplug is
       ----------------
 
       function Check_Auth
-        (Client_Name, Digest, Regexp : in String;
-         URL                         : in String := "") return Boolean
+        (Client_Name, Digest, Regexp : String;
+         URL                         : String := "") return Boolean
       is
          procedure Log_Error;
          --  Log an error message into the server error log file
@@ -238,7 +237,7 @@ package body AWS.Server.Hotplug is
       -- Get_Nonce --
       ---------------
 
-      function Get_Nonce (Client_Name : in String) return String is
+      function Get_Nonce (Client_Name : String) return String is
          Nonce : Digest.Nonce;
       begin
          Client_Handler.Get_Nonce (Client_Name, Nonce);
@@ -313,8 +312,8 @@ package body AWS.Server.Hotplug is
       ---------
 
       procedure Add
-        (Client : in String;
-         Data   : in Client_Data)
+        (Client : String;
+         Data   : Client_Data)
       is
          Cursor  : Client_Table.Cursor;
          Success : Boolean;
@@ -339,7 +338,7 @@ package body AWS.Server.Hotplug is
       -- Get --
       ---------
 
-      function Get (Client : in String) return Client_Data is
+      function Get (Client : String) return Client_Data is
          Cursor : Client_Table.Cursor;
       begin
          Cursor := Client_Table.Find (Clients, Client);
@@ -356,8 +355,8 @@ package body AWS.Server.Hotplug is
       ---------------
 
       procedure Get_Nonce
-        (Client : in     String;
-         Nonce  :    out Digest.Nonce)
+        (Client : String;
+         Nonce  : out Digest.Nonce)
       is
          Cursor : Client_Table.Cursor;
       begin

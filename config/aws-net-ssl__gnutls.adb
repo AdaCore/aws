@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2006                            --
---                                  AdaCore                                 --
+--                     Copyright (C) 2006-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -61,24 +60,24 @@ package body AWS.Net.SSL is
    subtype Stream_Array is
      Stream_Element_Array (1 .. Stream_Element_Offset'Last);
 
-   procedure Check_Error_Code (Code : in C.int);
-   procedure Check_Error_Code (Code : in C.int; Socket : in Socket_Type'Class);
+   procedure Check_Error_Code (Code : C.int);
+   procedure Check_Error_Code (Code : C.int; Socket : Socket_Type'Class);
 
    procedure Check_Config (Socket : in out Socket_Type);
    pragma Inline (Check_Config);
 
-   procedure Save_Exception (E : in Ada.Exceptions.Exception_Occurrence);
+   procedure Save_Exception (E : Ada.Exceptions.Exception_Occurrence);
 
    function Push
-     (Socket : in Std.Socket_Type;
-      Data   : in Stream_Array;
-      Length : in Stream_Element_Count) return Stream_Element_Offset;
+     (Socket : Std.Socket_Type;
+      Data   : Stream_Array;
+      Length : Stream_Element_Count) return Stream_Element_Offset;
    pragma Convention (C, Push);
 
    function Pull
-     (Socket : in     Std.Socket_Type;
+     (Socket : Std.Socket_Type;
       Data   : access Stream_Array;
-      Length : in     Stream_Element_Count) return Stream_Element_Offset;
+      Length : Stream_Element_Count) return Stream_Element_Offset;
    pragma Convention (C, Pull);
 
    package Locking is
@@ -108,10 +107,10 @@ package body AWS.Net.SSL is
 
    procedure Initialize
      (Config               : in out TS_SSL;
-      Certificate_Filename : in     String;
-      Security_Mode        : in     Method  := SSLv23;
-      Key_Filename         : in     String  := "";
-      Exchange_Certificate : in     Boolean := False);
+      Certificate_Filename : String;
+      Security_Mode        : Method  := SSLv23;
+      Key_Filename         : String  := "";
+      Exchange_Certificate : Boolean := False);
 
    procedure Session_Client (Socket : in out Socket_Type);
    procedure Session_Server (Socket : in out Socket_Type);
@@ -136,16 +135,16 @@ package body AWS.Net.SSL is
    --  secondary initialization is ignored.
 
    procedure Secure
-     (Source : in     Net.Socket_Type'Class;
-      Target :    out Socket_Type;
-      Config : in     SSL.Config);
+     (Source : Net.Socket_Type'Class;
+      Target : out Socket_Type;
+      Config : SSL.Config);
 
    -------------------
    -- Accept_Socket --
    -------------------
 
    procedure Accept_Socket
-     (Socket     : in     Net.Socket_Type'Class;
+     (Socket     : Net.Socket_Type'Class;
       New_Socket : in out Socket_Type) is
    begin
       Net.Std.Accept_Socket (Socket, NSST (New_Socket));
@@ -170,7 +169,7 @@ package body AWS.Net.SSL is
    ----------------------
 
    procedure Check_Error_Code
-     (Code : in C.int; Socket : in Socket_Type'Class) is
+     (Code : C.int; Socket : Socket_Type'Class) is
    begin
       if Code = TSSL.GNUTLS_E_PULL_ERROR
         or else Code = TSSL.GNUTLS_E_PUSH_ERROR
@@ -188,7 +187,7 @@ package body AWS.Net.SSL is
       end if;
    end Check_Error_Code;
 
-   procedure Check_Error_Code (Code : in C.int) is
+   procedure Check_Error_Code (Code : C.int) is
       Dummy : Socket_Type;
    begin
       Check_Error_Code (Code, Dummy);
@@ -200,9 +199,9 @@ package body AWS.Net.SSL is
 
    procedure Connect
      (Socket : in out Socket_Type;
-      Host   : in     String;
-      Port   : in     Positive;
-      Wait   : in     Boolean := True) is
+      Host   : String;
+      Port   : Positive;
+      Wait   : Boolean := True) is
    begin
       Net.Std.Connect (NSST (Socket), Host, Port, Wait);
 
@@ -335,10 +334,10 @@ package body AWS.Net.SSL is
 
    procedure Initialize
      (Config               : in out SSL.Config;
-      Certificate_Filename : in     String;
-      Security_Mode        : in     Method     := SSLv23;
-      Key_Filename         : in     String     := "";
-      Exchange_Certificate : in     Boolean    := False) is
+      Certificate_Filename : String;
+      Security_Mode        : Method     := SSLv23;
+      Key_Filename         : String     := "";
+      Exchange_Certificate : Boolean    := False) is
    begin
       if Config = null then
          Config := new TS_SSL;
@@ -354,10 +353,10 @@ package body AWS.Net.SSL is
 
    procedure Initialize
      (Config               : in out TS_SSL;
-      Certificate_Filename : in     String;
-      Security_Mode        : in     Method     := SSLv23;
-      Key_Filename         : in     String     := "";
-      Exchange_Certificate : in     Boolean    := False)
+      Certificate_Filename : String;
+      Security_Mode        : Method     := SSLv23;
+      Key_Filename         : String     := "";
+      Exchange_Certificate : Boolean    := False)
    is
       use type TSSL.gnutls_anon_client_credentials_t;
       use type TSSL.gnutls_anon_server_credentials_t;
@@ -376,7 +375,7 @@ package body AWS.Net.SSL is
         (CC : in out TSSL.gnutls_certificate_credentials_t)
       is
 
-         procedure Check_File (Prefix, Filename : in String);
+         procedure Check_File (Prefix, Filename : String);
          --  Check that Filename is present, raise an exception adding
          --  Prefix in front of the message.
 
@@ -384,7 +383,7 @@ package body AWS.Net.SSL is
          -- Check_File --
          ----------------
 
-         procedure Check_File (Prefix, Filename : in String) is
+         procedure Check_File (Prefix, Filename : String) is
          begin
             if not OS_Lib.Is_Regular_File (Filename) then
                Raise_Exception
@@ -658,7 +657,7 @@ package body AWS.Net.SSL is
    -- Pending --
    -------------
 
-   function Pending (Socket : in Socket_Type) return Stream_Element_Count is
+   function Pending (Socket : Socket_Type) return Stream_Element_Count is
    begin
       return Stream_Element_Count
                (TSSL.gnutls_record_check_pending (Socket.SSL));
@@ -669,9 +668,9 @@ package body AWS.Net.SSL is
    ----------
 
    function Pull
-     (Socket : in     Std.Socket_Type;
+     (Socket : Std.Socket_Type;
       Data   : access Stream_Array;
-      Length : in     Stream_Element_Count) return Stream_Element_Offset
+      Length : Stream_Element_Count) return Stream_Element_Offset
    is
       Last : Stream_Element_Offset;
    begin
@@ -688,9 +687,9 @@ package body AWS.Net.SSL is
    ----------
 
    function Push
-     (Socket : in Std.Socket_Type;
-      Data   : in Stream_Array;
-      Length : in Stream_Element_Count) return Stream_Element_Offset
+     (Socket : Std.Socket_Type;
+      Data   : Stream_Array;
+      Length : Stream_Element_Count) return Stream_Element_Offset
    is
       Last : Stream_Element_Count;
    begin
@@ -707,9 +706,9 @@ package body AWS.Net.SSL is
    -------------
 
    procedure Receive
-     (Socket : in     Socket_Type;
-      Data   :    out Stream_Element_Array;
-      Last   :    out Stream_Element_Offset)
+     (Socket : Socket_Type;
+      Data   : out Stream_Element_Array;
+      Last   : out Stream_Element_Offset)
    is
       use type TSSL.ssize_t;
       Code : constant TSSL.ssize_t
@@ -739,7 +738,7 @@ package body AWS.Net.SSL is
    -- Save_Exception --
    --------------------
 
-   procedure Save_Exception (E : in Ada.Exceptions.Exception_Occurrence) is
+   procedure Save_Exception (E : Ada.Exceptions.Exception_Occurrence) is
       TA : constant Skip_Exceptions.Attribute_Handle
         := Skip_Exceptions.Reference;
    begin
@@ -755,9 +754,9 @@ package body AWS.Net.SSL is
    ------------
 
    procedure Secure
-     (Source : in     Net.Socket_Type'Class;
-      Target :    out Socket_Type;
-      Config : in     SSL.Config) is
+     (Source : Net.Socket_Type'Class;
+      Target : out Socket_Type;
+      Config : SSL.Config) is
    begin
       Std.Socket_Type (Target) := Std.Socket_Type (Source);
       Target.Config := Config;
@@ -769,8 +768,8 @@ package body AWS.Net.SSL is
    -------------------
 
    function Secure_Client
-     (Socket : in Net.Socket_Type'Class;
-      Config : in SSL.Config := Null_Config)
+     (Socket : Net.Socket_Type'Class;
+      Config : SSL.Config := Null_Config)
       return Socket_Type
    is
       Result : Socket_Type;
@@ -786,8 +785,8 @@ package body AWS.Net.SSL is
    -------------------
 
    function Secure_Server
-     (Socket : in Net.Socket_Type'Class;
-      Config : in SSL.Config := Null_Config)
+     (Socket : Net.Socket_Type'Class;
+      Config : SSL.Config := Null_Config)
       return Socket_Type
    is
       Result : Socket_Type;
@@ -803,9 +802,9 @@ package body AWS.Net.SSL is
    ----------
 
    procedure Send
-     (Socket : in     Socket_Type;
-      Data   : in     Stream_Element_Array;
-      Last   :    out Stream_Element_Offset)
+     (Socket : Socket_Type;
+      Data   : Stream_Element_Array;
+      Last   : out Stream_Element_Offset)
    is
       use type TSSL.ssize_t;
       Code : constant TSSL.ssize_t
@@ -937,7 +936,7 @@ package body AWS.Net.SSL is
 
    procedure Set_Config
      (Socket : in out Socket_Type;
-      Config : in     SSL.Config) is
+      Config : SSL.Config) is
    begin
       Socket.Config := Config;
    end Set_Config;
@@ -948,7 +947,7 @@ package body AWS.Net.SSL is
 
    procedure Set_Timeout
      (Socket  : in out Socket_Type;
-      Timeout : in     Duration)
+      Timeout : Duration)
    is
       use type SSL_Handle;
       Sock : Socket_Access;
@@ -971,7 +970,7 @@ package body AWS.Net.SSL is
    -- Shutdown --
    --------------
 
-   procedure Shutdown (Socket : in Socket_Type) is
+   procedure Shutdown (Socket : Socket_Type) is
       use System;
       Code : C.int;
    begin

@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2004-2008, AdaCore                     --
+--                     Copyright (C) 2004-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -53,7 +53,7 @@ package body HLoad_Pack is
    Max_Line     : constant := 16;
    Client_Count : constant := 300;
 
-   function CB (Request : in Status.Data) return Response.Data;
+   function CB (Request : Status.Data) return Response.Data;
 
    subtype Count is Long_Integer;
 
@@ -78,7 +78,7 @@ package body HLoad_Pack is
    -- CB --
    --------
 
-   function CB (Request : in Status.Data) return Response.Data is
+   function CB (Request : Status.Data) return Response.Data is
       P : constant AWS.Parameters.List := AWS.Status.Parameters (Request);
    begin
       Interval_Timer.Stamp;
@@ -166,12 +166,12 @@ package body HLoad_Pack is
    ---------
 
    procedure Run
-     (Protocol : in String;
-      Port     : in Positive;
-      Timed    : in Boolean := False) is
+     (Protocol : String;
+      Port     : Positive;
+      Timed    : Boolean := False) is
 
       task type Client is
-         entry Start (Name : in String);
+         entry Start (Name : String);
          entry Stop;
       end Client;
 
@@ -189,7 +189,7 @@ package body HLoad_Pack is
          Name : Unbounded_String;
          Connect : AWS.Client.HTTP_Connection;
       begin
-         accept Start (Name : in String) do
+         accept Start (Name : String) do
             Client.Name := To_Unbounded_String (Name);
          end Start;
 

@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2004                            --
---                                ACT-Europe                                --
+--                     Copyright (C) 2004-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -31,28 +30,28 @@
 package AWS.Net.Log.Callbacks is
 
    procedure Initialize
-     (Filename : in String;
-      Callback : in Write_Callback);
+     (Filename : String;
+      Callback : Write_Callback);
    --  Initialize the logging, must be called before using the callbacks below
 
    procedure Finalize;
    --  Stop logging, close log file
 
    procedure Text
-     (Direction : in Data_Direction;
-      Socket    : in Socket_Type'Class;
-      Data      : in Stream_Element_Array;
-      Last      : in Stream_Element_Offset);
+     (Direction : Data_Direction;
+      Socket    : Socket_Type'Class;
+      Data      : Stream_Element_Array;
+      Last      : Stream_Element_Offset);
    --  A text output, each chunk is output with an header and footer:
    --     Data sent/received to/from socket <FD> (<size>/<buffer size>)
    --     <data>
    --     Total data sent: <nnn> received: <nnn>
 
    procedure Binary
-     (Direction : in Data_Direction;
-      Socket    : in Socket_Type'Class;
-      Data      : in Stream_Element_Array;
-      Last      : in Stream_Element_Offset);
+     (Direction : Data_Direction;
+      Socket    : Socket_Type'Class;
+      Data      : Stream_Element_Array;
+      Last      : Stream_Element_Offset);
    --  A binary output, each chunk is output with an header and footer. The
    --  data itself is written using a format close to the Emacs hexl-mode:
    --     Data sent/received to/from socket <FD> (<size>/<buffer size>)

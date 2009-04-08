@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2004-2008, AdaCore                     --
+--                     Copyright (C) 2004-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -32,8 +32,8 @@ package body SOAP.Name_Space is
    ------------
 
    function Create
-     (Name, Value : in String;
-      Prefix      : in String := Default_Prefix) return Object is
+     (Name, Value : String;
+      Prefix      : String := Default_Prefix) return Object is
    begin
       return
         (Prefix => To_Unbounded_String (Prefix),
@@ -45,7 +45,7 @@ package body SOAP.Name_Space is
    -- Image --
    -----------
 
-   function Image (O : in Object) return String is
+   function Image (O : Object) return String is
    begin
       return Prefix (O) & ':' & Name (O) & "=""" & Value (O) & '"';
    end Image;
@@ -54,7 +54,7 @@ package body SOAP.Name_Space is
    -- Is_Defined --
    ----------------
 
-   function Is_Defined (O : in Object) return Boolean is
+   function Is_Defined (O : Object) return Boolean is
    begin
       return O.Name /= Null_Unbounded_String;
    end Is_Defined;
@@ -63,7 +63,7 @@ package body SOAP.Name_Space is
    -- Name --
    ----------
 
-   function Name (O : in Object) return String is
+   function Name (O : Object) return String is
    begin
       return To_String (O.Name);
    end Name;
@@ -72,7 +72,7 @@ package body SOAP.Name_Space is
    -- Prefix --
    ------------
 
-   function Prefix (O : in Object) return String is
+   function Prefix (O : Object) return String is
    begin
       return To_String (O.Prefix);
    end Prefix;
@@ -83,8 +83,8 @@ package body SOAP.Name_Space is
 
    procedure Set
      (O           : in out Object;
-      Name, Value : in     String;
-      Prefix      : in     String := Default_Prefix) is
+      Name, Value : String;
+      Prefix      : String := Default_Prefix) is
    begin
       O := Create (Name, Value, Prefix);
    end Set;
@@ -93,7 +93,7 @@ package body SOAP.Name_Space is
    -- Value --
    -----------
 
-   function Value (O : in Object) return String is
+   function Value (O : Object) return String is
    begin
       return To_String (O.Value);
    end Value;

@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2008, AdaCore                     --
+--                     Copyright (C) 2000-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -41,42 +41,42 @@ package AWS.Services.Dispatchers.URI is
 
    procedure Register
      (Dispatcher : in out Handler;
-      URI        : in     String;
-      Action     : in     AWS.Dispatchers.Handler'Class;
-      Prefix     : in     Boolean := False);
+      URI        : String;
+      Action     : AWS.Dispatchers.Handler'Class;
+      Prefix     : Boolean := False);
    --  Register URI to use the specified dispatcher. URI is the full string
    --  that must match the ressource requested (with the leading /). If Prefix
    --  is True, only the URI prefix is checked.
 
    procedure Register
      (Dispatcher : in out Handler;
-      URI        : in     String;
-      Action     : in     Response.Callback;
-      Prefix     : in     Boolean := False);
+      URI        : String;
+      Action     : Response.Callback;
+      Prefix     : Boolean := False);
    --  Idem as above but take a callback procedure as parameter
 
    procedure Register_Regexp
      (Dispatcher : in out Handler;
-      URI        : in     String;
-      Action     : in     AWS.Dispatchers.Handler'Class);
+      URI        : String;
+      Action     : AWS.Dispatchers.Handler'Class);
    --  Register URI to use the specified dispatcher. URI is a regular
    --  expression that must match the ressource requested (with the leading /).
 
    procedure Register_Regexp
      (Dispatcher : in out Handler;
-      URI        : in     String;
-      Action     : in     Response.Callback);
+      URI        : String;
+      Action     : Response.Callback);
    --  Idem as above but take a callback procedure as parameter
 
    procedure Unregister
      (Dispatcher : in out Handler;
-      URI        : in     String);
+      URI        : String);
    --  Removes URI from the list. URI is either a name or a regexp and must
    --  have exactaly the value used with Register.
 
    procedure Register_Default_Callback
      (Dispatcher : in out Handler;
-      Action     : in     AWS.Dispatchers.Handler'Class);
+      Action     : AWS.Dispatchers.Handler'Class);
    --  Register the default callback. This will be used if no URI match
    --  the request.
 
@@ -88,15 +88,15 @@ private
    overriding procedure Finalize   (Dispatcher : in out Handler);
 
    overriding function Dispatch
-     (Dispatcher : in Handler;
-      Request    : in Status.Data) return Response.Data;
+     (Dispatcher : Handler;
+      Request    : Status.Data) return Response.Data;
    --  Dispatch will return the value returned by the first callback matching
    --  the request. Note that if a callback returns the Response.Empty message,
    --  Dispatch will just continue to the next matching callback. In any case,
    --  if no handler matches it will call the default callback. If no default
    --  callback is registered an error (code 404) HTML message is returned.
 
-   overriding function Clone (Dispatcher : in Handler) return Handler;
+   overriding function Clone (Dispatcher : Handler) return Handler;
    --  Returns a deep copy of the dispatcher
 
    type Std_URI is new Utils.Clonable with record
@@ -105,9 +105,9 @@ private
       Prefix : Boolean;
    end record;
 
-   overriding function Clone (URI : in Std_URI) return Std_URI;
+   overriding function Clone (URI : Std_URI) return Std_URI;
 
-   function Match (URI : in Std_URI; Value : in String) return Boolean;
+   function Match (URI : Std_URI; Value : String) return Boolean;
 
    type URI_Class_Access is access all Std_URI'Class;
 

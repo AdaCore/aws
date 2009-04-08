@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2003-2004                          --
---                                ACT-Europe                                --
+--                     Copyright (C) 2003-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -37,7 +36,7 @@ package body Auth_CB is
    -- Get --
    ---------
 
-   function Get (Request : in AWS.Status.Data) return AWS.Response.Data is
+   function Get (Request : AWS.Status.Data) return AWS.Response.Data is
       use type AWS.Response.Authentication_Mode;
       use type AWS.Status.Authorization_Type;
 
@@ -46,7 +45,7 @@ package body Auth_CB is
         := AWS.Status.Authorization_Mode (Request);
    begin
 
-      if Client_Mode = AWS.Status.Basic -- It is Basic authentication.
+      if Client_Mode = AWS.Status.Basic -- It is Basic authentication
         and then Username = Auth_Username
         and then AWS.Status.Authorization_Password (Request) = Auth_Password
         and then (Auth_Mode = AWS.Response.Any
@@ -56,7 +55,7 @@ package body Auth_CB is
            ("text/html",
             "<p>Basic authorization OK!");
 
-      elsif Client_Mode = AWS.Status.Digest -- It is Digest authentication.
+      elsif Client_Mode = AWS.Status.Digest -- It is Digest authentication
         and then Username = Auth_Username
         and then AWS.Status.Check_Digest (Request, Auth_Password)
         and then (Auth_Mode = AWS.Response.Any

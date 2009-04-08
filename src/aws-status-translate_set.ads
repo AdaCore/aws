@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2008, AdaCore                          --
+--                     Copyright (C) 2008-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -28,7 +28,7 @@
 with AWS.Templates;
 
 function AWS.Status.Translate_Set
-  (Status : in Data) return Templates.Translate_Set;
+  (Status : Data) return Templates.Translate_Set;
 --  Returns a translate set with some status data. Here are a list of the
 --  tags: PEERNAME, METHOD, URI, HTTP_VERSION, AUTH_MODE, SOAP_ACTION, PAYLOAD.
 --  They correspond to the Status fields.

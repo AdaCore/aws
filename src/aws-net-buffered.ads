@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2002-2008, AdaCore                     --
+--                     Copyright (C) 2002-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -34,22 +34,22 @@ package AWS.Net.Buffered is
    -- Output --
    ------------
 
-   procedure Put (Socket : in Socket_Type'Class; Item : in String);
+   procedure Put (Socket : Socket_Type'Class; Item : String);
    --  Write Item into Socket's buffer. Send the buffer to the socket if full
 
-   procedure Put_Line (Socket : in Socket_Type'Class; Item : in String);
+   procedure Put_Line (Socket : Socket_Type'Class; Item : String);
    --  Write Item & CRLF into Socket's buffer. Send the buffer to the socket
    --  if full.
 
-   procedure New_Line (Socket : in Socket_Type'Class);
+   procedure New_Line (Socket : Socket_Type'Class);
    pragma Inline (New_Line);
    --  Write CRLF into Socket's buffer. Send the buffer to the socket if full
 
    procedure Write
-     (Socket : in Socket_Type'Class; Item : in Stream_Element_Array);
+     (Socket : Socket_Type'Class; Item : Stream_Element_Array);
    --  Write Item into Socket's buffer. Send the buffer to the socket if full
 
-   procedure Flush (Socket : in Socket_Type'Class);
+   procedure Flush (Socket : Socket_Type'Class);
    --  Send the buffer to the socket
 
    -----------
@@ -64,7 +64,7 @@ package AWS.Net.Buffered is
    --  avoid stack overflow on very long data returned from Get_Line and
    --  Read_Until.
 
-   procedure Set_Input_Limit (Limit : in Positive);
+   procedure Set_Input_Limit (Limit : Positive);
    pragma Inline (Set_Input_Limit);
    --  Set the input size limit for Get_Line and Read_Until routines
 
@@ -73,50 +73,50 @@ package AWS.Net.Buffered is
    --  Get the input size limit for Get_Line and Read_Until routines
 
    procedure Read
-     (Socket : in Socket_Type'Class; Data : out Stream_Element_Array);
+     (Socket : Socket_Type'Class; Data : out Stream_Element_Array);
    pragma Inline (Read);
    --  Returns Data array read from the socket
 
    function Read
-     (Socket : in Socket_Type'Class;
-      Max    : in Stream_Element_Count := 4096) return Stream_Element_Array;
+     (Socket : Socket_Type'Class;
+      Max    : Stream_Element_Count := 4096) return Stream_Element_Array;
    pragma Inline (Read);
    --  Returns an array of bytes read from the socket
 
    procedure Read
-     (Socket : in     Socket_Type'Class;
-      Data   :    out Stream_Element_Array;
-      Last   :    out Stream_Element_Offset);
+     (Socket : Socket_Type'Class;
+      Data   : out Stream_Element_Array;
+      Last   : out Stream_Element_Offset);
    --  Read any available data from buffered socket.
    --  Wait if no data available.
    --  Same semantic with Net.Receive procedure.
 
-   function Get_Line (Socket : in Socket_Type'Class) return String;
+   function Get_Line (Socket : Socket_Type'Class) return String;
    --  Returns a line read from Socket. A line is a set of character
    --  terminated by CRLF.
 
-   function Get_Char (Socket : in Socket_Type'Class) return Character;
+   function Get_Char (Socket : Socket_Type'Class) return Character;
    pragma Inline (Get_Char);
    --  Returns a single character read from socket
 
-   function Peek_Char (Socket : in Socket_Type'Class) return Character;
+   function Peek_Char (Socket : Socket_Type'Class) return Character;
    pragma Inline (Peek_Char);
    --  Returns next character that will be read from Socket. It does not
    --  actually consume the character, this character will be returned by
    --  the next read operation on the socket.
 
    procedure Read_Buffer
-     (Socket : in     Socket_Type'Class;
-      Data   :    out Stream_Element_Array;
-      Last   :    out Stream_Element_Offset);
+     (Socket : Socket_Type'Class;
+      Data   : out Stream_Element_Array;
+      Last   : out Stream_Element_Offset);
    --  Returns data read from the internal socket's read buffer. No data are
    --  read from the socket. This can be useful when switching to non buffered
    --  mode.
 
    function Read_Until
-     (Socket    : in Socket_Type'Class;
-      Delimiter : in Stream_Element_Array;
-      Wait      : in Boolean := True) return Stream_Element_Array;
+     (Socket    : Socket_Type'Class;
+      Delimiter : Stream_Element_Array;
+      Wait      : Boolean := True) return Stream_Element_Array;
    --  Read data on the Socket until the delimiter (including the delimiter).
    --  If Wait is False the routine looking for the delimiter only in the
    --  cache buffer, if delimiter not found in the cache buffer, empty array
@@ -125,16 +125,16 @@ package AWS.Net.Buffered is
    --  is closed from peer or socket error occured and rest of data returned.
 
    function Read_Until
-     (Socket    : in Socket_Type'Class;
-      Delimiter : in String;
-      Wait      : in Boolean := True) return String;
+     (Socket    : Socket_Type'Class;
+      Delimiter : String;
+      Wait      : Boolean := True) return String;
    --  Same as above but returning a standard string
 
    -------------
    -- Control --
    -------------
 
-   procedure Shutdown (Socket : in Socket_Type'Class);
+   procedure Shutdown (Socket : Socket_Type'Class);
    --  Shutdown and close the socket. Release all memory and resources
    --  associated with it.
 

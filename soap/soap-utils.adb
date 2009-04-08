@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2008, AdaCore                     --
+--                     Copyright (C) 2000-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -42,8 +42,8 @@ package body SOAP.Utils is
    ---------
 
    function Any
-     (V    : in Types.XSD_Any_Type;
-      Name : in String  := "item") return Types.XSD_Any_Type is
+     (V    : Types.XSD_Any_Type;
+      Name : String  := "item") return Types.XSD_Any_Type is
    begin
       return SOAP.Types.Any (Types.Object'Class (V), Name);
    end Any;
@@ -53,8 +53,8 @@ package body SOAP.Utils is
    -------
 
    function C
-     (V      : in Character;
-      Name   : in String  := "item") return Types.SOAP_Enumeration is
+     (V      : Character;
+      Name   : String  := "item") return Types.SOAP_Enumeration is
    begin
       return SOAP.Types.E (String'(1 => V), "Character", Name);
    end C;
@@ -63,7 +63,7 @@ package body SOAP.Utils is
    -- Encode --
    ------------
 
-   function Encode (Str : in String) return String is
+   function Encode (Str : String) return String is
       Result : Unbounded_String;
    begin
       for K in Str'Range loop
@@ -88,13 +88,13 @@ package body SOAP.Utils is
    -- From_Utf8 --
    ---------------
 
-   function From_Utf8 (Str : in String) return String is
+   function From_Utf8 (Str : String) return String is
    begin
       return Unicode.CES.Basic_8bit.From_Utf32
         (Unicode.CES.Utf8.To_Utf32 (Str));
    end From_Utf8;
 
-   function From_Utf8 (Str : in Unbounded_String) return Unbounded_String is
+   function From_Utf8 (Str : Unbounded_String) return Unbounded_String is
       Idx      : Integer := 1;
       Buf      : String (1 .. 6);
       Buf_Last : Integer := 0;
@@ -128,12 +128,12 @@ package body SOAP.Utils is
       return Result;
    end From_Utf8;
 
-   function From_Utf8 (Str : in String) return String_Access is
+   function From_Utf8 (Str : String) return String_Access is
 
       Result : String_Access := new String (1 .. 2000);
       Last   : Integer := 0;
 
-      procedure Append (Ch : in Character);
+      procedure Append (Ch : Character);
       pragma Inline (Append);
       --  Append Ch into Result, adjust Result size if needed
 
@@ -160,7 +160,7 @@ package body SOAP.Utils is
       -- Append --
       ------------
 
-      procedure Append (Ch : in Character) is
+      procedure Append (Ch : Character) is
          Old : String_Access;
       begin
          if Last >= Result'Last then
@@ -208,18 +208,18 @@ package body SOAP.Utils is
    -- Get --
    ---------
 
-   function Get (Item : in Types.Object'Class) return Unbounded_String is
+   function Get (Item : Types.Object'Class) return Unbounded_String is
    begin
       return To_Unbounded_String (String'(Types.Get (Item)));
    end Get;
 
-   function Get (Item : in Types.Object'Class) return Character is
+   function Get (Item : Types.Object'Class) return Character is
       Str : constant String := String'(Types.Get (Item));
    begin
       return Str (1);
    end Get;
 
-   function Get (Item : in Types.Object'Class) return String is
+   function Get (Item : Types.Object'Class) return String is
       Enum : constant Types.SOAP_Enumeration
         := Types.SOAP_Enumeration (Item);
    begin
@@ -230,7 +230,7 @@ package body SOAP.Utils is
    -- Is_Ada_Reserved_Word --
    --------------------------
 
-   function Is_Ada_Reserved_Word (Name : in String) return Boolean is
+   function Is_Ada_Reserved_Word (Name : String) return Boolean is
    begin
       if Name = "abort"  or else Name = "else" or else Name = "new"
         or else Name = "return" or else Name = "abs" or else Name = "elsif"
@@ -269,7 +269,7 @@ package body SOAP.Utils is
    -- No_NS --
    -----------
 
-   function No_NS (Name : in String) return String is
+   function No_NS (Name : String) return String is
       K : constant Natural := Ada.Strings.Fixed.Index (Name, ":");
    begin
       if K = 0 then
@@ -283,7 +283,7 @@ package body SOAP.Utils is
    -- NS --
    --------
 
-   function NS (Name : in String) return String is
+   function NS (Name : String) return String is
       K : constant Natural := Ada.Strings.Fixed.Index (Name, ":");
    begin
       if K = 0 then
@@ -339,7 +339,7 @@ package body SOAP.Utils is
       -- To_Safe_Pointer --
       ----------------------
 
-      function To_Safe_Pointer (Item : in T) return Safe_Pointer is
+      function To_Safe_Pointer (Item : T) return Safe_Pointer is
       begin
          return (Ada.Finalization.Controlled with
                    new T'(Item), new Natural'(1));
@@ -352,7 +352,7 @@ package body SOAP.Utils is
    ------------------
 
    function SOAP_Wrapper
-     (Request : in AWS.Status.Data) return AWS.Response.Data
+     (Request : AWS.Status.Data) return AWS.Response.Data
    is
       SOAPAction : constant String := AWS.Status.SOAPAction (Request);
    begin
@@ -373,7 +373,7 @@ package body SOAP.Utils is
    -- Tag --
    ---------
 
-   function Tag (Name : in String; Start : in Boolean) return String is
+   function Tag (Name : String; Start : Boolean) return String is
    begin
       if Start then
          return '<' & Name & '>';
@@ -387,7 +387,7 @@ package body SOAP.Utils is
    ------------------
 
    function Time_Instant
-     (TI, Name : in String) return Types.XSD_Time_Instant
+     (TI, Name : String) return Types.XSD_Time_Instant
    is
       use Ada.Calendar;
       subtype Year_Range is Positive range TI'First .. TI'First + 3;
@@ -421,7 +421,7 @@ package body SOAP.Utils is
    -- To_Object_Set --
    -------------------
 
-   function To_Object_Set (From : in T_Array) return Types.Object_Set is
+   function To_Object_Set (From : T_Array) return Types.Object_Set is
       use SOAP.Types;
       Result : Types.Object_Set (From'Range);
    begin
@@ -436,7 +436,7 @@ package body SOAP.Utils is
    -- To_Object_Set_C --
    ---------------------
 
-   function To_Object_Set_C (From : in T_Array) return Types.Object_Set is
+   function To_Object_Set_C (From : T_Array) return Types.Object_Set is
       use SOAP.Types;
       Result : Types.Object_Set (1 .. Integer (From'Last));
    begin
@@ -451,7 +451,7 @@ package body SOAP.Utils is
    -- To_T_Array --
    ----------------
 
-   function To_T_Array (From : in Types.Object_Set) return T_Array is
+   function To_T_Array (From : Types.Object_Set) return T_Array is
       use SOAP.Types;
       Result : T_Array (From'Range);
    begin
@@ -466,7 +466,7 @@ package body SOAP.Utils is
    -- To_T_Array_C --
    ------------------
 
-   function To_T_Array_C (From : in Types.Object_Set) return T_Array is
+   function To_T_Array_C (From : Types.Object_Set) return T_Array is
       use SOAP.Types;
       Result : T_Array;
    begin
@@ -481,13 +481,13 @@ package body SOAP.Utils is
    -- To_Utf8 --
    -------------
 
-   function To_Utf8 (Str : in String) return String is
+   function To_Utf8 (Str : String) return String is
    begin
       return Unicode.CES.Utf8.From_Utf32
         (Unicode.CES.Basic_8bit.To_Utf32 (Str));
    end To_Utf8;
 
-   function To_Utf8 (Str : in Unbounded_String) return Unbounded_String is
+   function To_Utf8 (Str : Unbounded_String) return Unbounded_String is
       Chars : String (1 .. 6);
       Idx : Integer;
       Result : Unbounded_String;
@@ -506,8 +506,8 @@ package body SOAP.Utils is
    --------
 
    function US
-     (V      : in Unbounded_String;
-      Name   : in String  := "item") return Types.XSD_String is
+     (V      : Unbounded_String;
+      Name   : String  := "item") return Types.XSD_String is
    begin
       return Types.S (To_String (V), Name);
    end US;
@@ -516,12 +516,12 @@ package body SOAP.Utils is
    -- V --
    -------
 
-   function V (O : in Types.XSD_String) return Unbounded_String is
+   function V (O : Types.XSD_String) return Unbounded_String is
    begin
       return To_Unbounded_String (Types.V (O));
    end V;
 
-   function V (O : in Types.SOAP_Enumeration) return Character is
+   function V (O : Types.SOAP_Enumeration) return Character is
    begin
       return Types.V (O) (1);
    end V;
@@ -530,7 +530,7 @@ package body SOAP.Utils is
    -- With_NS --
    -------------
 
-   function With_NS (NS, Name : in String) return String is
+   function With_NS (NS, Name : String) return String is
       use Ada;
       K : Natural;
    begin

@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2003                            --
---                                ACT-Europe                                --
+--                     Copyright (C) 2003-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -31,14 +30,14 @@ with Interfaces.C.Strings;
 
 package body AWS.Net.SSL.Certificate is
 
-   function NAME_oneline (Name : in TSSL.X509_Name) return String;
+   function NAME_oneline (Name : TSSL.X509_Name) return String;
    --  Return the value for Name
 
    ---------
    -- Get --
    ---------
 
-   function Get (Socket : in Socket_Type) return Object is
+   function Get (Socket : Socket_Type) return Object is
       use type System.Address;
 
       X509 : constant TSSL.X509 := TSSL.SSL_get_peer_certificate (Socket.SSL);
@@ -65,7 +64,7 @@ package body AWS.Net.SSL.Certificate is
    -- Issuer --
    ------------
 
-   function Issuer  (Certificate : in Object) return String is
+   function Issuer  (Certificate : Object) return String is
    begin
       return To_String (Certificate.Issuer);
    end Issuer;
@@ -74,7 +73,7 @@ package body AWS.Net.SSL.Certificate is
    -- NAME_oneline --
    ------------------
 
-   function NAME_oneline (Name : in TSSL.X509_Name) return String is
+   function NAME_oneline (Name : TSSL.X509_Name) return String is
    begin
       return Interfaces.C.Strings.Value
         (TSSL.X509_NAME_oneline (Name, TSSL.Null_Pointer, 0));
@@ -84,7 +83,7 @@ package body AWS.Net.SSL.Certificate is
    -- Subject --
    -------------
 
-   function Subject (Certificate : in Object) return String is
+   function Subject (Certificate : Object) return String is
    begin
       return To_String (Certificate.Subject);
    end Subject;

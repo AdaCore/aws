@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2003-2008                          --
---                                 AdaCore                                  --
+--                     Copyright (C) 2003-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -43,7 +42,7 @@ package Ada2WSDL.Parser is
    --  If Is_Initialized, generates the sample body. This procedure is an
    --  ASIS application
 
-   procedure Add_Option (Option : in String);
+   procedure Add_Option (Option : String);
    --  Add an option to the parser, this will be passed to ASIS module to
    --  create the tree.
 

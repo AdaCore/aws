@@ -41,21 +41,21 @@ package AWS.Client.HTTP_Utils is
    procedure Decrement_Authentication_Attempt
      (Connection : in out HTTP_Connection;
       Counter    : in out Auth_Attempts_Count;
-      Over       :    out Boolean);
+      Over       : out Boolean);
    --  Counts the authentication attempts. Over is set to True when
    --  authentication attempts are over.
 
    procedure Set_Authentication
-     (Auth :    out Authentication_Type;
-      User : in     String;
-      Pwd  : in     String;
-      Mode : in     Authentication_Mode);
+     (Auth : out Authentication_Type;
+      User : String;
+      Pwd  : String;
+      Mode : Authentication_Mode);
    --  Internal procedure to set authentication parameters
 
    procedure Parse_Header
      (Connection : in out HTTP_Connection;
-      Answer     :    out Response.Data;
-      Keep_Alive :    out Boolean);
+      Answer     : out Response.Data;
+      Keep_Alive : out Boolean);
    --  Read server answer and set corresponding variable with the value
    --  read. Most of the fields are ignored right now.
 
@@ -69,88 +69,88 @@ package AWS.Client.HTTP_Utils is
 
    procedure Get_Response
      (Connection : in out HTTP_Connection;
-      Result     :    out Response.Data;
-      Get_Body   : in     Boolean         := True);
+      Result     : out Response.Data;
+      Get_Body   : Boolean         := True);
    --  Receives response from server for GET and POST and HEAD commands.
    --  If Get_Body is set then the message body will be read.
 
    procedure Read_Body
      (Connection : in out HTTP_Connection;
-      Result     :    out Response.Data;
-      Store      : in Boolean);
+      Result     : out Response.Data;
+      Store      : Boolean);
    --  Read message body and store it into Result if Store is True otherwise
    --  the content is discarded.
 
    procedure Open_Send_Common_Header
      (Connection : in out HTTP_Connection;
-      Method     : in     String;
-      URI        : in     String;
-      Headers    : in     Header_List := Empty_Header_List);
+      Method     : String;
+      URI        : String;
+      Headers    : Header_List := Empty_Header_List);
    --  Open the the Connection if it is not open. Send the common HTTP headers
    --  for all requests like the proxy, authentication, user agent, host.
 
    procedure Send_Authentication_Header
      (Connection : in out HTTP_Connection;
-      Token      : in     String;
+      Token      : String;
       Data       : in out Authentication_Type;
-      URI        : in     String;
-      Method     : in     String);
+      URI        : String;
+      Method     : String);
    --  Send the authentication header for proxy or for server
 
    procedure Internal_Post
      (Connection   : in out HTTP_Connection;
-      Result       :    out Response.Data;
-      Data         : in     Stream_Element_Array;
-      URI          : in     String;
-      SOAPAction   : in     String;
-      Content_Type : in     String;
-      Attachments  : in     Attachment_List;
-      Headers      : in     Header_List           := Empty_Header_List);
+      Result       : out Response.Data;
+      Data         : Stream_Element_Array;
+      URI          : String;
+      SOAPAction   : String;
+      Content_Type : String;
+      Attachments  : Attachment_List;
+      Headers      : Header_List           := Empty_Header_List);
    --  Common base routine for Post and SOAP_Post routines
 
    procedure Internal_Post_Without_Attachment
      (Connection   : in out HTTP_Connection;
-      Result       :    out Response.Data;
-      Data         : in     Stream_Element_Array;
-      URI          : in     String;
-      SOAPAction   : in     String;
-      Content_Type : in     String;
-      Headers      : in     Header_List := Empty_Header_List);
+      Result       : out Response.Data;
+      Data         : Stream_Element_Array;
+      URI          : String;
+      SOAPAction   : String;
+      Content_Type : String;
+      Headers      : Header_List := Empty_Header_List);
    --  Only used by Internal_Post
 
    procedure Internal_Post_With_Attachment
      (Connection   : in out HTTP_Connection;
-      Result       :    out Response.Data;
-      Data         : in     Stream_Element_Array;
-      URI          : in     String;
-      SOAPAction   : in     String;
-      Content_Type : in     String;
-      Attachments  : in     Attachment_List;
-      Headers      : in     Header_List           := Empty_Header_List);
+      Result       : out Response.Data;
+      Data         : Stream_Element_Array;
+      URI          : String;
+      SOAPAction   : String;
+      Content_Type : String;
+      Attachments  : Attachment_List;
+      Headers      : Header_List           := Empty_Header_List);
    --  Only used by Internal_Post
 
    procedure Send_Common_Post
      (Connection   : in out HTTP_Connection;
-      Data         : in     Stream_Element_Array;
-      URI          : in     String;
-      SOAPAction   : in     String;
-      Content_Type : in     String;
-      Headers      : in     Header_List := Empty_Header_List);
+      Data         : Stream_Element_Array;
+      URI          : String;
+      SOAPAction   : String;
+      Content_Type : String;
+      Headers      : Header_List := Empty_Header_List);
    --  Send to the server only a POST request with Data
    --  and common headers, using a Connection.
 
    procedure Send_Header
-     (Sock : in AWS.Net.Socket_Type'Class;
-      Data : in String);
+     (Sock : AWS.Net.Socket_Type'Class;
+      Data : String);
    pragma Inline (Send_Header);
    --  Send header Data to socket and call Debug_Message
 
    procedure Send_Header
-     (Sock        : in AWS.Net.Socket_Type'Class;
-      Header      : in String;
-      Constructor : not null access function (Value : in String) return String;
-      Value       : in String;
-      Headers     : in Header_List);
+     (Sock        : AWS.Net.Socket_Type'Class;
+      Header      : String;
+      Constructor : not null access function (Value : String) return String;
+      Value       : String;
+      Headers     : Header_List);
    pragma Inline (Send_Header);
    --  Send header to socket if this header is not present in Headers. The
    --  actual header data is given by the constructor. Call Debug_Message if
@@ -158,10 +158,10 @@ package AWS.Client.HTTP_Utils is
 
    procedure Set_HTTP_Connection
      (HTTP_Client : in out HTTP_Connection;
-      Sock_Ptr    : in     AWS.Net.Socket_Access);
+      Sock_Ptr    : AWS.Net.Socket_Access);
    --  Initialize HTTP_Client by positioning the socket used as Sock_Ptr
 
-   function Value (V : in String) return Unbounded_String;
+   function Value (V : String) return Unbounded_String;
    --  Returns V as an Unbounded_String if V is not the empty string
    --  otherwise it returns Null_Unbounded_String.
 

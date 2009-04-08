@@ -2,8 +2,7 @@
 --                              Ada Web Server                              --
 --                   S M T P - Simple Mail Transfer Protocol                --
 --                                                                          --
---                           Copyright (C) 2007                             --
---                                 AdaCore                                  --
+--                     Copyright (C) 2007-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -36,18 +35,18 @@ package AWS.SMTP.Authentication is
    --  Information needed by some authentication protocol
 
    procedure Before_Send
-     (Credential : in     Authentication.Credential;
+     (Credential : Authentication.Credential;
       Sock       : in out Net.Socket_Type'Class;
-      Status     :    out SMTP.Status) is null;
+      Status     : out SMTP.Status) is null;
    --  Null default implementation
 
    procedure After_Send
-     (Credential : in     Authentication.Credential;
+     (Credential : Authentication.Credential;
       Sock       : in out Net.Socket_Type'Class;
-      Status     :    out SMTP.Status) is null;
+      Status     : out SMTP.Status) is null;
    --  Null default implementation
 
-   function Image (Info : in Credential) return String is abstract;
+   function Image (Info : Credential) return String is abstract;
    --  Response to be sent to the server
 
 private

@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2002-2008, AdaCore                     --
+--                     Copyright (C) 2002-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -43,7 +43,7 @@ package body AWS.Resources.Files is
    -- Exist --
    -----------
 
-   function Exist (Name : in String) return File_Instance is
+   function Exist (Name : String) return File_Instance is
    begin
       if not Is_GZip (Name)
         and then Utils.Is_Regular_File (Name & GZip_Ext)
@@ -64,7 +64,7 @@ package body AWS.Resources.Files is
    -- File_Size --
    ---------------
 
-   function File_Size (Name : in String) return Utils.File_Size_Type is
+   function File_Size (Name : String) return Utils.File_Size_Type is
    begin
       if Utils.Is_Regular_File (Name) then
          return Utils.File_Size (Name);
@@ -82,7 +82,7 @@ package body AWS.Resources.Files is
    -- File_Timestamp --
    --------------------
 
-   function File_Timestamp (Name : in String) return Ada.Calendar.Time is
+   function File_Timestamp (Name : String) return Ada.Calendar.Time is
    begin
       if Utils.Is_Regular_File (Name) then
          return Directories.Modification_Time (Name);
@@ -100,7 +100,7 @@ package body AWS.Resources.Files is
    -- Is_Regular_File --
    ---------------------
 
-   function Is_Regular_File (Name : in String) return Boolean is
+   function Is_Regular_File (Name : String) return Boolean is
    begin
       return Utils.Is_Regular_File (Name)
         or else
@@ -113,22 +113,22 @@ package body AWS.Resources.Files is
    ----------
 
    procedure Open
-     (File :    out File_Type;
-      Name : in     String;
-      Form : in     String    := "";
+     (File : out File_Type;
+      Name : String;
+      Form : String    := "";
       GZip : in out Boolean)
    is
       use type AWS.Resources.Streams.Stream_Access;
 
       Stream : AWS.Resources.Streams.Stream_Access;
 
-      procedure Open_File (Name : in String; Last : in Boolean);
+      procedure Open_File (Name : String; Last : Boolean);
 
       ---------------
       -- Open_File --
       ---------------
 
-      procedure Open_File (Name : in String; Last : in Boolean) is
+      procedure Open_File (Name : String; Last : Boolean) is
          procedure Free is
            new Ada.Unchecked_Deallocation
              (Streams.Stream_Type'Class, Streams.Stream_Access);
@@ -178,9 +178,9 @@ package body AWS.Resources.Files is
    end Open;
 
    procedure Open
-     (File :    out File_Type;
-      Name : in     String;
-      Form : in     String    := "")
+     (File : out File_Type;
+      Name : String;
+      Form : String    := "")
    is
       GZip : Boolean := False;
    begin

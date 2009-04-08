@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2002-2008                          --
---                                 Adacore                                  --
+--                     Copyright (C) 2002-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -33,8 +32,8 @@ package body AWS.LDAP.Thin is
    ----------
 
    function Item
-     (Set   : in Attribute_Set_Access;
-      Index : in C.int) return chars_ptr
+     (Set   : Attribute_Set_Access;
+      Index : C.int) return chars_ptr
    is
       use type C.size_t;
    begin
@@ -45,7 +44,7 @@ package body AWS.LDAP.Thin is
    -- LDAP_API_ERROR --
    --------------------
 
-   function LDAP_API_ERROR (n : in Return_Code) return Boolean is
+   function LDAP_API_ERROR (n : Return_Code) return Boolean is
    begin
       return n in API_ERROR;
    end LDAP_API_ERROR;
@@ -54,7 +53,7 @@ package body AWS.LDAP.Thin is
    -- LDAP_API_RESULT --
    ---------------------
 
-   function LDAP_API_RESULT (n : in Return_Code) return Boolean is
+   function LDAP_API_RESULT (n : Return_Code) return Boolean is
       use type C.int;
    begin
       return n = 0 or else LDAP_API_ERROR (n);
@@ -64,7 +63,7 @@ package body AWS.LDAP.Thin is
    -- LDAP_ATTR_ERROR --
    ---------------------
 
-   function LDAP_ATTR_ERROR (n : in Return_Code) return Boolean is
+   function LDAP_ATTR_ERROR (n : Return_Code) return Boolean is
    begin
       return n in ATTR_ERROR;
    end LDAP_ATTR_ERROR;
@@ -73,7 +72,7 @@ package body AWS.LDAP.Thin is
    -- LDAP_NAME_ERROR --
    ---------------------
 
-   function LDAP_NAME_ERROR (n : in Return_Code) return Boolean is
+   function LDAP_NAME_ERROR (n : Return_Code) return Boolean is
    begin
       return n in NAME_ERROR;
    end LDAP_NAME_ERROR;
@@ -82,7 +81,7 @@ package body AWS.LDAP.Thin is
    -- LDAP_SECURITY_ERROR --
    -------------------------
 
-   function LDAP_SECURITY_ERROR (n : in Return_Code) return Boolean is
+   function LDAP_SECURITY_ERROR (n : Return_Code) return Boolean is
    begin
       return n in SECURITY_ERROR;
    end LDAP_SECURITY_ERROR;
@@ -91,7 +90,7 @@ package body AWS.LDAP.Thin is
    -- LDAP_SERVICE_ERROR --
    ------------------------
 
-   function LDAP_SERVICE_ERROR (n : in Return_Code) return Boolean is
+   function LDAP_SERVICE_ERROR (n : Return_Code) return Boolean is
    begin
       return n in SERVICE_ERROR;
    end LDAP_SERVICE_ERROR;
@@ -100,7 +99,7 @@ package body AWS.LDAP.Thin is
    -- LDAP_UPDATE_ERROR --
    -----------------------
 
-   function LDAP_UPDATE_ERROR (n : in Return_Code) return Boolean is
+   function LDAP_UPDATE_ERROR (n : Return_Code) return Boolean is
    begin
       return n in UPDATE_ERROR;
    end LDAP_UPDATE_ERROR;

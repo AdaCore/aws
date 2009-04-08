@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                       Copyright (C) 2008, AdaCore                        --
+--                     Copyright (C) 2008-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -51,7 +51,7 @@ procedure Uplimit is
    use Ada.Text_IO;
    use AWS;
 
-   function CB (Request : in Status.Data) return Response.Data;
+   function CB (Request : Status.Data) return Response.Data;
 
    task Server is
       entry Start;
@@ -62,9 +62,9 @@ procedure Uplimit is
    HTTP : AWS.Server.HTTP;
 
    procedure Problem
-     (E      : in     Ada.Exceptions.Exception_Occurrence;
+     (E      : Ada.Exceptions.Exception_Occurrence;
       Log    : in out AWS.Log.Object;
-      Error  : in     AWS.Exceptions.Data;
+      Error  : AWS.Exceptions.Data;
       Answer : in out Response.Data);
    --  Web exception handler
 
@@ -72,7 +72,7 @@ procedure Uplimit is
    -- CB --
    --------
 
-   function CB (Request : in Status.Data) return Response.Data is
+   function CB (Request : Status.Data) return Response.Data is
       URI    : constant String := Status.URI (Request);
       Buffer : Stream_Element_Array (1 .. 10);
       Prev   : Stream_Element_Array (1 .. 10) := (others => 0);
@@ -126,9 +126,9 @@ procedure Uplimit is
    -------------
 
    procedure Problem
-     (E      : in     Ada.Exceptions.Exception_Occurrence;
+     (E      : Ada.Exceptions.Exception_Occurrence;
       Log    : in out AWS.Log.Object;
-      Error  : in     AWS.Exceptions.Data;
+      Error  : AWS.Exceptions.Data;
       Answer : in out Response.Data) is
    begin
       Put_Line ("!ERROR " & Ada.Exceptions.Exception_Information (E));

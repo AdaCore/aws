@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2006                          --
---                                 AdaCore                                  --
+--                     Copyright (C) 2000-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -41,7 +40,7 @@ package AWS.Communication is
 
    Null_Parameter_Set : constant Parameter_Set;
 
-   function Parameters (P1, P2, P3, P4, P5 : in String := "")
+   function Parameters (P1, P2, P3, P4, P5 : String := "")
      return Parameter_Set;
    --  Constructor function to help create a Parameter_Set. This function will
    --  return a Parameter_Set array containing any parameter with a non emptry

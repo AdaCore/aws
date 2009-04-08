@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2007                          --
---                                 AdaCore                                  --
+--                     Copyright (C) 2000-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -36,7 +35,7 @@ package body AWS.Net.Stream_IO is
    -- Flush --
    -----------
 
-   procedure Flush (Stream : in Socket_Stream_Access) is
+   procedure Flush (Stream : Socket_Stream_Access) is
    begin
       Buffered.Flush (Stream.Socket.all);
    end Flush;
@@ -59,8 +58,8 @@ package body AWS.Net.Stream_IO is
 
    overriding procedure Read
      (Stream : in out Socket_Stream_Type;
-      Item   :    out Stream_Element_Array;
-      Last   :    out Stream_Element_Offset) is
+      Item   : out Stream_Element_Array;
+      Last   : out Stream_Element_Offset) is
    begin
       Buffered.Read (Stream.Socket.all, Item);
       Last := Item'Last;
@@ -70,7 +69,7 @@ package body AWS.Net.Stream_IO is
    -- Shudtown --
    --------------
 
-   procedure Shutdown (Stream : in Socket_Stream_Access) is
+   procedure Shutdown (Stream : Socket_Stream_Access) is
    begin
       Buffered.Shutdown (Stream.Socket.all);
    end Shutdown;
@@ -80,7 +79,7 @@ package body AWS.Net.Stream_IO is
    ------------
 
    function Stream
-     (Socket : in Socket_Type'Class) return Socket_Stream_Access
+     (Socket : Socket_Type'Class) return Socket_Stream_Access
    is
       Result : constant Socket_Stream_Access := new Socket_Stream_Type;
    begin
@@ -94,7 +93,7 @@ package body AWS.Net.Stream_IO is
 
    overriding procedure Write
      (Stream : in out Socket_Stream_Type;
-      Item   : in     Stream_Element_Array) is
+      Item   : Stream_Element_Array) is
    begin
       Buffered.Write (Stream.Socket.all, Item);
    end Write;

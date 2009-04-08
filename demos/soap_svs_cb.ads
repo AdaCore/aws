@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2003                            --
---                                ACT-Europe                                --
+--                     Copyright (C) 2003-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -32,8 +31,8 @@ with AWS.Status;
 package SOAP_SVS_CB is
 
    Quiet : Boolean := True;
-   --  Set to False with -t option (trace mode).
+   --  Set to False with -t option (trace mode)
 
-   function CB (Request : in AWS.Status.Data) return AWS.Response.Data;
+   function CB (Request : AWS.Status.Data) return AWS.Response.Data;
 
 end SOAP_SVS_CB;

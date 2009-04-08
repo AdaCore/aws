@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2003                            --
---                                ACT-Europe                                --
+--                     Copyright (C) 2003-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -32,8 +31,7 @@ with AWS.Status;
 package Res_Demo_CB is
 
    function RD_CB
-     (Request : in AWS.Status.Data)
+     (Request : AWS.Status.Data)
       return AWS.Response.Data;
 
 end Res_Demo_CB;
-

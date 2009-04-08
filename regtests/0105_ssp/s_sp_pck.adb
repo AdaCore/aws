@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2004-2008, AdaCore                     --
+--                     Copyright (C) 2004-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -52,8 +52,8 @@ package body S_Sp_Pck is
    End_Of_Part : constant String := '.' & CRLF;
 
    function To_Array
-     (Data : in Push_Data_Type;
-      Env  : in Text_IO.Editing.Picture)
+     (Data : Push_Data_Type;
+      Env  : Text_IO.Editing.Picture)
       return Ada.Streams.Stream_Element_Array;
 
    package Server_Push is new AWS.Server.Push
@@ -61,7 +61,7 @@ package body S_Sp_Pck is
       Client_Environment => Text_IO.Editing.Picture,
       To_Stream_Array    => To_Array);
 
-   function CB (Request : in Status.Data) return Response.Data;
+   function CB (Request : Status.Data) return Response.Data;
 
    Push : Server_Push.Object;
 
@@ -69,7 +69,7 @@ package body S_Sp_Pck is
    -- CB --
    --------
 
-   function CB (Request : in Status.Data) return Response.Data is
+   function CB (Request : Status.Data) return Response.Data is
       use AWS.Parameters;
       P_List     : constant List := AWS.Status.Parameters (Request);
       Mode_Image : String := Get (P_List, "mode");
@@ -93,7 +93,7 @@ package body S_Sp_Pck is
    -- Run --
    ---------
 
-   procedure Run (Protocol : in String; Port : in Positive) is
+   procedure Run (Protocol : String; Port : Positive) is
       Connect : array (Server_Push.Mode'Range) of Client.HTTP_Connection;
       Answer  : AWS.Response.Data;
       Data    : Push_Data_Type;
@@ -112,7 +112,7 @@ package body S_Sp_Pck is
       -- Output --
       ------------
 
-      procedure Output (Data : in String) is
+      procedure Output (Data : String) is
          Ignore_Sample : constant String := "--AWS.Push.Boundary_";
          use Ada.Strings;
          First : Positive := Data'First;
@@ -204,12 +204,12 @@ package body S_Sp_Pck is
          declare
 
             procedure Process
-              (Client_Id   : in String;
-               Address     : in String;
-               State       : in String;
-               Environment : in Text_IO.Editing.Picture;
-               Kind        : in Server_Push.Mode;
-               Groups      : in Server_Push.Group_Set) is
+              (Client_Id   : String;
+               Address     : String;
+               State       : String;
+               Environment : Text_IO.Editing.Picture;
+               Kind        : Server_Push.Mode;
+               Groups      : Server_Push.Group_Set) is
             begin
                Put_Line (Client_Id & ' ' & Address & ' ' & State);
             end Process;
@@ -241,8 +241,8 @@ package body S_Sp_Pck is
    --------------
 
    function To_Array
-     (Data : in Push_Data_Type;
-      Env  : in Text_IO.Editing.Picture)
+     (Data : Push_Data_Type;
+      Env  : Text_IO.Editing.Picture)
       return Ada.Streams.Stream_Element_Array
    is
       package Format is new Text_IO.Editing.Decimal_Output (Push_Data_Type);

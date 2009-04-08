@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2001                          --
---                                ACT-Europe                                --
+--                     Copyright (C) 2000-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -38,7 +37,7 @@ package body Hotplug_CB is
    -- Hotplug --
    -------------
 
-   function Hotplug (Request : in AWS.Status.Data)
+   function Hotplug (Request : AWS.Status.Data)
      return AWS.Response.Data
    is
       URI : constant String := AWS.Status.URI (Request);
@@ -66,7 +65,7 @@ package body Hotplug_CB is
    -- Main --
    ----------
 
-   function Main (Request : in AWS.Status.Data)
+   function Main (Request : AWS.Status.Data)
      return AWS.Response.Data
    is
       URI : constant String := AWS.Status.URI (Request);

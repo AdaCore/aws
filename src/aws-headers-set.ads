@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2007                          --
---                                 AdaCore                                  --
+--                     Copyright (C) 2000-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -30,7 +29,7 @@ package AWS.Headers.Set is
 
    Format_Error : exception renames Headers.Format_Error;
 
-   procedure Add (Headers : in out List; Name, Value : in String);
+   procedure Add (Headers : in out List; Name, Value : String);
    pragma Inline (Add);
    --  Add HTTP header name/value at the end of the Headers container. Note
    --  that there is no check about validity of this header. This service is
@@ -38,9 +37,9 @@ package AWS.Headers.Set is
 
    procedure Update
      (Headers : in out List;
-      Name    : in     String;
-      Value   : in     String;
-      N       : in     Positive := 1);
+      Name    : String;
+      Value   : String;
+      N       : Positive := 1);
    pragma Inline (Update);
    --  Update the N-th HTTP header Value with the given Name.
    --  The header could already have more than one value associated with
@@ -49,7 +48,7 @@ package AWS.Headers.Set is
    --     N  = M + 1  => the pair name=value is appended to the table
    --     N  > M + 1  => Constraint_Error raised
 
-   procedure Read (Socket : in Net.Socket_Type'Class; Headers : in out List);
+   procedure Read (Socket : Net.Socket_Type'Class; Headers : in out List);
    --  Read and parse HTTP header from the socket
 
    procedure Reset (Headers : in out List);
@@ -57,7 +56,7 @@ package AWS.Headers.Set is
    --  Removes all object from Headers. Headers will be reinitialized and will
    --  be ready for new use.
 
-   procedure Debug (Activate : in Boolean);
+   procedure Debug (Activate : Boolean);
    --  Turn on Debug output
 
 end AWS.Headers.Set;

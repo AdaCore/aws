@@ -60,138 +60,138 @@ package AWS.Net.Generic_Sets is
 
    procedure Add
      (Set    : in out Socket_Set_Type;
-      Socket : in     Socket_Type'Class;
-      Mode   : in     Waiting_Mode);
+      Socket : Socket_Type'Class;
+      Mode   : Waiting_Mode);
    pragma Inline (Add);
    --  Add socket to the set. Socket can be retreived from the set using
    --  Get_Socket.
 
    procedure Add
      (Set    : in out Socket_Set_Type;
-      Socket : in     Socket_Access;
-      Mode   : in     Waiting_Mode);
+      Socket : Socket_Access;
+      Mode   : Waiting_Mode);
    pragma Inline (Add);
    --  Add socket to the set
 
    procedure Add
      (Set    : in out Socket_Set_Type;
-      Socket : in     Socket_Type'Class;
-      Data   : in     Data_Type;
-      Mode   : in     Waiting_Mode);
+      Socket : Socket_Type'Class;
+      Data   : Data_Type;
+      Mode   : Waiting_Mode);
    pragma Inline (Add);
    --  Add socket and associated data to the set
 
    procedure Add
      (Set    : in out Socket_Set_Type;
-      Socket : in     Socket_Access;
-      Data   : in     Data_Type;
-      Mode   : in     Waiting_Mode);
+      Socket : Socket_Access;
+      Data   : Data_Type;
+      Mode   : Waiting_Mode);
    pragma Inline (Add);
    --  Add socket and associated data to the set
 
    procedure Set_Mode
      (Set    : in out Socket_Set_Type;
-      Index  : in     Socket_Index;
-      Mode   : in     Waiting_Mode);
+      Index  : Socket_Index;
+      Mode   : Waiting_Mode);
    --  Change waiting mode for the socket in the set
 
-   function Count (Set : in Socket_Set_Type) return Socket_Count;
+   function Count (Set : Socket_Set_Type) return Socket_Count;
    pragma Inline (Count);
    --  Returns the number of sockets in the Set
 
    procedure Wait
      (Set     : in out Socket_Set_Type;
-      Timeout : in     Duration);
+      Timeout : Duration);
    pragma Inline (Wait);
    --  Wait for a socket in the set to be ready for input or output operation.
    --  Raises Socket_Error if an error occurs.
 
    procedure Wait
      (Set     : in out Socket_Set_Type;
-      Timeout : in     Duration;
-      Count   :    out Socket_Count);
+      Timeout : Duration;
+      Count   : out Socket_Count);
    --  Wait for a socket in the set to be ready for input or output operation.
    --  Raises Socket_Error if an error occurs. Count is set with the number of
    --  activated sockets.
 
    function Is_Read_Ready
-     (Set   : in Socket_Set_Type;
-      Index : in Socket_Index)
+     (Set   : Socket_Set_Type;
+      Index : Socket_Index)
       return Boolean;
    pragma Inline (Is_Read_Ready);
    --  Return True if data could be read from socket and socket was in Input
    --  or Both waiting mode.
 
    procedure Is_Read_Ready
-     (Set   : in     Socket_Set_Type;
-      Index : in     Socket_Index;
-      Ready :    out Boolean;
-      Error :    out Boolean);
+     (Set   : Socket_Set_Type;
+      Index : Socket_Index;
+      Ready : out Boolean;
+      Error : out Boolean);
    pragma Inline (Is_Read_Ready);
    --  Return True in Ready out parameter if data could be read from socket and
    --  socket was in Input or Both waiting mode. Return True in Error out
    --  parameter if socket is in error state.
 
    function Is_Write_Ready
-     (Set   : in Socket_Set_Type;
-      Index : in Socket_Index) return Boolean;
+     (Set   : Socket_Set_Type;
+      Index : Socket_Index) return Boolean;
    pragma Inline (Is_Write_Ready);
    --  Return True if data could be written to socket and socket was in Output
    --  or Both waiting mode.
 
    function Is_Error
-     (Set   : in Socket_Set_Type;
-      Index : in Socket_Index) return Boolean;
+     (Set   : Socket_Set_Type;
+      Index : Socket_Index) return Boolean;
    pragma Inline (Is_Error);
    --  Return True if any error occured with socket while waiting
 
    function In_Range
-     (Set   : in Socket_Set_Type;
-      Index : in Socket_Index) return Boolean;
+     (Set   : Socket_Set_Type;
+      Index : Socket_Index) return Boolean;
    pragma Inline (In_Range);
    --  Return True if Index is in socket set range
 
    function Get_Socket
-     (Set   : in Socket_Set_Type;
-      Index : in Socket_Index) return Socket_Type'Class;
+     (Set   : Socket_Set_Type;
+      Index : Socket_Index) return Socket_Type'Class;
    pragma Inline (Get_Socket);
    --  Return socket from the Index position or raise Constraint_Error
    --  if index is more than the number of sockets in set.
 
    function Get_Data
-     (Set   : in Socket_Set_Type;
-      Index : in Socket_Index) return Data_Type;
+     (Set   : Socket_Set_Type;
+      Index : Socket_Index) return Data_Type;
    pragma Inline (Get_Data);
 
    procedure Set_Data
      (Set   : in out Socket_Set_Type;
-      Index : in     Socket_Index;
-      Data  : in     Data_Type);
+      Index : Socket_Index;
+      Data  : Data_Type);
    pragma Inline (Set_Data);
 
    procedure Remove_Socket
      (Set   : in out Socket_Set_Type;
-      Index : in     Socket_Index);
+      Index : Socket_Index);
    --  Delete socket from Index position from the Set. If the Index is not
    --  last position in the set, last socket would be placed instead of
    --  deleted one.
 
    procedure Remove_Socket
      (Set    : in out Socket_Set_Type;
-      Index  : in     Socket_Index;
-      Socket :    out Socket_Access);
+      Index  : Socket_Index;
+      Socket : out Socket_Access);
    --  Delete socket from Index position from the Set and return delete socket
    --  access. If the Index is not last position in the set, last socket would
    --  be placed instead of deleted one.
 
    procedure Update_Socket
      (Set     : in out Socket_Set_Type;
-      Index   : in     Socket_Index;
+      Index   : Socket_Index;
       Process : not null access procedure
                   (Socket : in out Socket_Type'Class;
                    Data   : in out Data_Type));
 
-   procedure Next (Set : in Socket_Set_Type; Index : in out Socket_Index);
+   procedure Next (Set : Socket_Set_Type; Index : in out Socket_Index);
    --  Looking for active socket starting from Index and return Index of the
    --  found active socket. After search use functions In_Range,
    --  Is_Write_Ready, Is_Read_Ready and Is_Error to be shure that active

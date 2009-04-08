@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2004-2006                          --
---                                 AdaCore                                  --
+--                     Copyright (C) 2004-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -36,25 +35,25 @@ with AWS.Utils;
 package body AWS.Net.Log.Callbacks is
 
    procedure Put
-     (File        : in Text_IO.File_Type;
-      Code        : in Natural;
-      Binary_Mode : in Boolean);
+     (File        : Text_IO.File_Type;
+      Code        : Natural;
+      Binary_Mode : Boolean);
    pragma Inline (Put);
    --  Output character C, if not printable output a single dot
 
-   procedure Put_Hex (File : in Text_IO.File_Type; Code : in Natural);
+   procedure Put_Hex (File : Text_IO.File_Type; Code : Natural);
    pragma Inline (Put_Hex);
    --  Output hex code for character C
 
    procedure Put_Header
-     (File      : in Text_IO.File_Type;
-      Direction : in Data_Direction;
-      Socket    : in Socket_Type'Class;
-      Data      : in Stream_Element_Array;
-      Last      : in Stream_Element_Offset);
+     (File      : Text_IO.File_Type;
+      Direction : Data_Direction;
+      Socket    : Socket_Type'Class;
+      Data      : Stream_Element_Array;
+      Last      : Stream_Element_Offset);
    --  Output log header into File
 
-   procedure Put_Footer (File : in Text_IO.File_Type);
+   procedure Put_Footer (File : Text_IO.File_Type);
    --  Output log footer into File
 
    type Counters is array (Data_Direction) of Natural;
@@ -71,17 +70,17 @@ package body AWS.Net.Log.Callbacks is
    ------------
 
    procedure Binary
-     (Direction : in Data_Direction;
-      Socket    : in Socket_Type'Class;
-      Data      : in Stream_Element_Array;
-      Last      : in Stream_Element_Offset)
+     (Direction : Data_Direction;
+      Socket    : Socket_Type'Class;
+      Data      : Stream_Element_Array;
+      Last      : Stream_Element_Offset)
    is
       Max_Line : constant := 15;
       F        : Text_IO.File_Type renames Current_State.Log_File;
 
       procedure Put_Chars
-        (Spaces      : in Natural;
-         First, Last : in Stream_Element_Offset);
+        (Spaces      : Natural;
+         First, Last : Stream_Element_Offset);
       --  Output Spaces spaces then the characters from Frist to Last
 
       ---------------
@@ -89,8 +88,8 @@ package body AWS.Net.Log.Callbacks is
       ---------------
 
       procedure Put_Chars
-        (Spaces      : in Natural;
-         First, Last : in Streams.Stream_Element_Offset)
+        (Spaces      : Natural;
+         First, Last : Streams.Stream_Element_Offset)
       is
          use Ada.Strings.Fixed;
       begin
@@ -156,8 +155,8 @@ package body AWS.Net.Log.Callbacks is
    ----------------
 
    procedure Initialize
-     (Filename : in String;
-      Callback : in Write_Callback) is
+     (Filename : String;
+      Callback : Write_Callback) is
    begin
       Text_IO.Create (Current_State.Log_File, Text_IO.Out_File, Filename);
       Start (Callback);
@@ -168,9 +167,9 @@ package body AWS.Net.Log.Callbacks is
    ---------
 
    procedure Put
-     (File        : in Text_IO.File_Type;
-      Code        : in Natural;
-      Binary_Mode : in Boolean)
+     (File        : Text_IO.File_Type;
+      Code        : Natural;
+      Binary_Mode : Boolean)
    is
       C : constant Character := Character'Val (Code);
    begin
@@ -187,7 +186,7 @@ package body AWS.Net.Log.Callbacks is
    -- Put_Footer --
    ----------------
 
-   procedure Put_Footer (File : in Text_IO.File_Type) is
+   procedure Put_Footer (File : Text_IO.File_Type) is
    begin
       Text_IO.Put_Line
         (File, "     Total data sent: " & Utils.Image (Current_State.N (Sent))
@@ -200,11 +199,11 @@ package body AWS.Net.Log.Callbacks is
    ----------------
 
    procedure Put_Header
-     (File      : in Text_IO.File_Type;
-      Direction : in Data_Direction;
-      Socket    : in Socket_Type'Class;
-      Data      : in Stream_Element_Array;
-      Last      : in Stream_Element_Offset) is
+     (File      : Text_IO.File_Type;
+      Direction : Data_Direction;
+      Socket    : Socket_Type'Class;
+      Data      : Stream_Element_Array;
+      Last      : Stream_Element_Offset) is
    begin
       Text_IO.Put (File, "Data ");
 
@@ -223,7 +222,7 @@ package body AWS.Net.Log.Callbacks is
    -- Put_Hex --
    -------------
 
-   procedure Put_Hex (File : in Text_IO.File_Type; Code : in Natural) is
+   procedure Put_Hex (File : Text_IO.File_Type; Code : Natural) is
    begin
       Text_IO.Put (File, Utils.Hex (Code, Width => 2));
    end Put_Hex;
@@ -233,10 +232,10 @@ package body AWS.Net.Log.Callbacks is
    ----------
 
    procedure Text
-     (Direction : in Data_Direction;
-      Socket    : in Socket_Type'Class;
-      Data      : in Stream_Element_Array;
-      Last      : in Stream_Element_Offset)
+     (Direction : Data_Direction;
+      Socket    : Socket_Type'Class;
+      Data      : Stream_Element_Array;
+      Last      : Stream_Element_Offset)
    is
       Max_Line : constant := 70;
       LF       : constant Stream_Element

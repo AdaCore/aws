@@ -2,8 +2,7 @@
 --                            Secure Sockets Layer                          --
 --                         Binding to GNUTLS library                        --
 --                                                                          --
---                          Copyright (C) 2005-2006                         --
---                                  AdaCore                                 --
+--                      Copyright (C) 2005-2009, AdaCore                    --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -413,11 +412,11 @@ package SSL.Thin is
    type gnutls_params_function is new System.Address;
 
    type gnutls_certificate_client_retrieve_function is access function
-     (Session         : in     gnutls_session_t;
+     (Session         : gnutls_session_t;
       Req_CA_DN       : access gnutls_datum_t;
-      nreqs           : in     C.int;
+      nreqs           : C.int;
       pk_algos        : access gnutls_pk_algorithm_t;
-      pk_algos_length : in     C.int;
+      pk_algos_length : C.int;
       st              : access gnutls_retr_st) return C.int;
    pragma Convention (C, gnutls_certificate_client_retrieve_function);
 
@@ -494,7 +493,7 @@ package SSL.Thin is
    pragma Convention (C, gnutls_realloc_function);
 
    type gnutls_log_func is access procedure
-     (level : in C.int; text : in CS.chars_ptr);
+     (level : C.int; text : CS.chars_ptr);
    pragma Convention (C, gnutls_log_func);
 
    gnutls_malloc                   : constant gnutls_alloc_function;
@@ -516,7 +515,7 @@ package SSL.Thin is
 
    function gnutls_init
      (session : access gnutls_session_t;
-      con_end : in     gnutls_connection_end_t) return C.int;
+      con_end : gnutls_connection_end_t) return C.int;
 
    procedure gnutls_deinit (session : gnutls_session_t);
 
@@ -833,21 +832,21 @@ package SSL.Thin is
    function gnutls_x509_crt_init
      (cert : access gnutls_x509_crt_t) return C.int;
 
-   procedure gnutls_x509_crt_deinit (cert : in gnutls_x509_crt_t);
+   procedure gnutls_x509_crt_deinit (cert : gnutls_x509_crt_t);
 
    function gnutls_x509_crt_import
-     (cert   : in gnutls_x509_crt_t;
-      data   : in gnutls_datum_t;
-      format : in gnutls_x509_crt_fmt_t) return C.int;
+     (cert   : gnutls_x509_crt_t;
+      data   : gnutls_datum_t;
+      format : gnutls_x509_crt_fmt_t) return C.int;
 
    function gnutls_x509_crt_get_dn
-     (cert       : in     gnutls_x509_crt_t;
-      buf        : in     CS.chars_ptr;
+     (cert       : gnutls_x509_crt_t;
+      buf        : CS.chars_ptr;
       sizeof_buf : access C.size_t) return C.int;
 
    function gnutls_x509_crt_get_issuer_dn
-     (cert       : in     gnutls_x509_crt_t;
-      buf        : in     CS.chars_ptr;
+     (cert       : gnutls_x509_crt_t;
+      buf        : CS.chars_ptr;
       sizeof_buf : access C.size_t) return C.int;
 
    function gnutls_global_init return C.int;
@@ -944,33 +943,33 @@ package SSL.Thin is
       format       : gnutls_x509_crt_fmt_t) return C.int;
 
    function gnutls_transport_get_ptr
-     (session : in gnutls_session_t) return gnutls_transport_ptr_t;
+     (session : gnutls_session_t) return gnutls_transport_ptr_t;
 
    procedure gnutls_transport_get_ptr2
-     (session  : in gnutls_session_t;
-      recv_ptr : in gnutls_transport_ptr_t;
-      send_ptr : in gnutls_transport_ptr_t);
+     (session  : gnutls_session_t;
+      recv_ptr : gnutls_transport_ptr_t;
+      send_ptr : gnutls_transport_ptr_t);
 
    procedure gnutls_transport_set_lowat
-     (session : in gnutls_session_t; num : in C.int);
+     (session : gnutls_session_t; num : C.int);
 
    procedure gnutls_transport_set_ptr
-     (session : in gnutls_session_t; ptr : in gnutls_transport_ptr_t);
+     (session : gnutls_session_t; ptr : gnutls_transport_ptr_t);
 
    procedure gnutls_transport_set_push_function
-     (session : in gnutls_session_t; push_func : in System.Address);
+     (session : gnutls_session_t; push_func : System.Address);
 
    procedure gnutls_transport_set_pull_function
-     (session : in gnutls_session_t; pull_func : in System.Address);
+     (session : gnutls_session_t; pull_func : System.Address);
 
    procedure gnutls_session_set_ptr
-     (session : in gnutls_session_t; ptr : in System.Address);
+     (session : gnutls_session_t; ptr : System.Address);
 
    function gnutls_session_get_ptr
-     (session : in gnutls_session_t) return System.Address;
+     (session : gnutls_session_t) return System.Address;
 
    procedure gnutls_openpgp_send_key
-     (session : in gnutls_session_t; status : in gnutls_openpgp_key_status_t);
+     (session : gnutls_session_t; status : gnutls_openpgp_key_status_t);
 
    function gnutls_fingerprint
      (algo        : gnutls_digest_algorithm_t;
@@ -1164,8 +1163,8 @@ package SSL.Thin is
    subtype gcry_error_t is gpg_error_t;
 
    function gcry_control
-     (CMD        : in C.int;
-      Thread_CBS : in gcry_thread_cbs) return gcry_error_t;
+     (CMD        : C.int;
+      Thread_CBS : gcry_thread_cbs) return gcry_error_t;
    pragma Import (C, gcry_control, "gcry_control");
 
    ---------------------------------------------------------------------
@@ -1173,7 +1172,7 @@ package SSL.Thin is
    -- OpenSSL thin binding.                                           --
    ---------------------------------------------------------------------
 
-   function SSLeay (Dummy : in C.int := 0) return C.int;
+   function SSLeay (Dummy : C.int := 0) return C.int;
    pragma Import (C, SSLeay, "gnutls_check_version");
 
    subtype SSL_Handle is gnutls_session_t;

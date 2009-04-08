@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2004-2008, AdaCore                     --
+--                     Copyright (C) 2004-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -54,11 +54,11 @@ procedure AnyType is
    H_Server : AWS.Server.HTTP;
 
    function Call
-     (Param1 : in Types.Set_Of_int_Type;
-      Param2 : in Types.Set_Of_x_Type)
+     (Param1 : Types.Set_Of_int_Type;
+      Param2 : Types.Set_Of_x_Type)
       return Types.Call_Result;
 
-   function Trim (Str : in String) return String;
+   function Trim (Str : String) return String;
    --  Remove trailing 0, use to have output comparable to the Java one
 
    -------------
@@ -93,7 +93,7 @@ procedure AnyType is
    -- CB --
    --------
 
-   function CB (Request : in Status.Data) return Response.Data is
+   function CB (Request : Status.Data) return Response.Data is
       SOAPAction : constant String := Status.SOAPAction (Request);
    begin
       if SOAPAction = "Call" then
@@ -108,8 +108,8 @@ procedure AnyType is
    ----------
 
    function Call
-     (Param1 : in Types.Set_Of_int_Type;
-      Param2 : in Types.Set_Of_x_Type)
+     (Param1 : Types.Set_Of_int_Type;
+      Param2 : Types.Set_Of_x_Type)
       return Types.Call_Result
    is
       R : Types.Call_Result := Param2;
@@ -129,7 +129,7 @@ procedure AnyType is
    -- Trim --
    ----------
 
-   function Trim (Str : in String) return String is
+   function Trim (Str : String) return String is
       K : Natural := Str'Last;
    begin
       while Str (K) = '0' loop

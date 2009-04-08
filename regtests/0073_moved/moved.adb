@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2008, AdaCore                     --
+--                     Copyright (C) 2000-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -44,7 +44,7 @@ procedure Moved is
    use Ada.Text_IO;
    use AWS;
 
-   function CB (Request : in Status.Data) return Response.Data;
+   function CB (Request : Status.Data) return Response.Data;
 
    task Server is
       entry Wait_Start;
@@ -62,7 +62,7 @@ procedure Moved is
    -- CB --
    --------
 
-   function CB (Request : in Status.Data) return Response.Data is
+   function CB (Request : Status.Data) return Response.Data is
    begin
       if Status.URI (Request) = Valid_URI then
          return Response.Build (MIME.Text_HTML, "You are right.");

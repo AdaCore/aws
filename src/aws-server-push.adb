@@ -64,11 +64,11 @@ package body AWS.Server.Push is
    end record;
 
    function To_Holder
-     (Socket      : in Net.Socket_Type'Class;
-      Environment : in Client_Environment;
-      Kind        : in Mode;
-      Groups      : in Group_Set;
-      Timeout     : in Duration) return Client_Holder_Access;
+     (Socket      : Net.Socket_Type'Class;
+      Environment : Client_Environment;
+      Kind        : Mode;
+      Groups      : Group_Set;
+      Timeout     : Duration) return Client_Holder_Access;
 
    procedure Free (Holder : in out Client_Holder_Access);
 
@@ -76,41 +76,41 @@ package body AWS.Server.Push is
 
    procedure Release
      (Server         : in out Object;
-      Close_Sockets  : in     Boolean;
-      Left_Open      : in     Boolean;
+      Close_Sockets  : Boolean;
+      Left_Open      : Boolean;
       Get_Final_Data : access function
                          (Holder : not null access Client_Holder)
                           return Stream_Element_Array := null);
 
    procedure Add_To_Groups
      (Groups     : in out Group_Map;
-      Group_Name : in     String;
-      Client_Id  : in     String;
-      Holder     : in     Client_Holder_Access);
+      Group_Name : String;
+      Client_Id  : String;
+      Holder     : Client_Holder_Access);
 
    procedure Register
      (Server         : in out Object;
-      Client_Id      : in     Client_Key;
+      Client_Id      : Client_Key;
       Holder         : in out Client_Holder_Access;
-      Init_Data      : in     Stream_Element_Array;
-      Duplicated_Age : in     Duration);
+      Init_Data      : Stream_Element_Array;
+      Duplicated_Age : Duration);
    --  Internal register routine
 
    function Data_Chunk
      (Holder       : not null access Client_Holder;
-      Data         : in Client_Output_Type;
-      Content_Type : in String) return Stream_Element_Array;
+      Data         : Client_Output_Type;
+      Content_Type : String) return Stream_Element_Array;
 
    procedure Get_Data
      (Holder : in out Client_Holder;
-      Data   :    out Stream_Element_Array;
-      Last   :    out Stream_Element_Offset);
+      Data   : out Stream_Element_Array;
+      Last   : out Stream_Element_Offset);
 
    procedure Waiter_Add
-     (Server : in out Object; Holder : in Client_Holder_Access);
+     (Server : in out Object; Holder : Client_Holder_Access);
 
    procedure Waiter_Remove
-     (Server : in out Object; Holder : in Client_Holder_Access);
+     (Server : in out Object; Holder : Client_Holder_Access);
 
    New_Line : constant String := ASCII.CR & ASCII.LF;
    --  HTTP new line
@@ -134,12 +134,12 @@ package body AWS.Server.Push is
    type Object_Access is access all Object;
 
    task Waiter is
-      entry Add (Server : in Object_Access; Holder : in Client_Holder_Access);
+      entry Add (Server : Object_Access; Holder : Client_Holder_Access);
 
-      entry Add (Server : in Object_Access; Queue : in Tables.Map);
+      entry Add (Server : Object_Access; Queue : Tables.Map);
 
       entry Remove
-        (Server : in Object_Access; Holder : in Client_Holder_Access);
+        (Server : Object_Access; Holder : Client_Holder_Access);
       --  Socket should be appropriate and only for error control
 
       entry Info
@@ -157,9 +157,9 @@ package body AWS.Server.Push is
 
    procedure Add_To_Groups
      (Groups     : in out Group_Map;
-      Group_Name : in     String;
-      Client_Id  : in     String;
-      Holder     : in     Client_Holder_Access)
+      Group_Name : String;
+      Client_Id  : String;
+      Holder     : Client_Holder_Access)
    is
       Cursor : constant Group_Maps.Cursor := Groups.Find (Group_Name);
       Map    : Map_Access;
@@ -178,7 +178,7 @@ package body AWS.Server.Push is
    -- Count --
    -----------
 
-   function Count (Server : in Object) return Natural is
+   function Count (Server : Object) return Natural is
    begin
       return Server.Count;
    end Count;
@@ -189,8 +189,8 @@ package body AWS.Server.Push is
 
    function Data_Chunk
      (Holder       : not null access Client_Holder;
-      Data         : in Client_Output_Type;
-      Content_Type : in String) return Stream_Element_Array
+      Data         : Client_Output_Type;
+      Content_Type : String) return Stream_Element_Array
    is
       Data_To_Send : constant Stream_Element_Array :=
                        To_Stream_Array (Data, Holder.Environment);
@@ -270,8 +270,8 @@ package body AWS.Server.Push is
 
    procedure Get_Data
      (Holder : in out Client_Holder;
-      Data   :    out Stream_Element_Array;
-      Last   :    out Stream_Element_Offset)
+      Data   : out Stream_Element_Array;
+      Last   : out Stream_Element_Offset)
    is
       C : Chunk_Lists.Cursor := Holder.Chunks.First;
    begin
@@ -333,12 +333,12 @@ package body AWS.Server.Push is
       Clients : out    Natural;
       Groups  : out    Natural;
       Process : access procedure
-                  (Client_Id   : in Client_Key;
-                   Address     : in String;
-                   State       : in String;
-                   Environment : in Client_Environment;
-                   Kind        : in Mode;
-                   Groups      : in Group_Set) := null) is
+                  (Client_Id   : Client_Key;
+                   Address     : String;
+                   State       : String;
+                   Environment : Client_Environment;
+                   Kind        : Mode;
+                   Groups      : Group_Set) := null) is
    begin
       Server.Info (Clients, Group_Count => Groups, Process => Process);
    end Info;
@@ -347,7 +347,7 @@ package body AWS.Server.Push is
    -- Is_Open --
    -------------
 
-   function Is_Open (Server : in Object) return Boolean is
+   function Is_Open (Server : Object) return Boolean is
    begin
       return Server.Is_Open;
    end Is_Open;
@@ -360,9 +360,9 @@ package body AWS.Server.Push is
 
       procedure Send_Data
         (Holder       : in out Client_Holder_Access;
-         Data         : in     Client_Output_Type;
-         Content_Type : in     String;
-         Thin_Id      : in     String);
+         Data         : Client_Output_Type;
+         Content_Type : String;
+         Thin_Id      : String);
       --  Send Data to a client identified by Holder.
       --  If Holder out value is not null it mean that socket become busy
       --  waiting for output availability and we have to move it into Waiter.
@@ -385,9 +385,9 @@ package body AWS.Server.Push is
       --------------
 
       procedure Get_Data
-        (Holder : in     Client_Holder_Access;
-         Data   :    out Stream_Element_Array;
-         Last   :    out Stream_Element_Offset) is
+        (Holder : Client_Holder_Access;
+         Data   : out Stream_Element_Array;
+         Last   : out Stream_Element_Offset) is
       begin
          pragma Assert (Holder.Phase = Waiting);
 
@@ -406,20 +406,20 @@ package body AWS.Server.Push is
         (Client_Count : out Natural;
          Group_Count  : out Natural;
          Process      : access procedure
-                          (Client_Id   : in Client_Key;
-                           Address     : in String;
-                           State       : in String;
-                           Environment : in Client_Environment;
-                           Kind        : in Mode;
-                           Groups      : in Group_Set))
+                          (Client_Id   : Client_Key;
+                           Address     : String;
+                           State       : String;
+                           Environment : Client_Environment;
+                           Kind        : Mode;
+                           Groups      : Group_Set))
       is
-         procedure Action (C : in Tables.Cursor);
+         procedure Action (C : Tables.Cursor);
 
          ------------
          -- Action --
          ------------
 
-         procedure Action (C : in Tables.Cursor) is
+         procedure Action (C : Tables.Cursor) is
             CA     : constant Client_Holder_Access := Tables.Element (C);
             Groups : Group_Set (1 .. Integer (CA.Groups.Length));
             CG     : Group_Sets.Cursor := CA.Groups.First;
@@ -513,20 +513,20 @@ package body AWS.Server.Push is
       --------------
 
       procedure Register
-        (Client_Id      : in     Client_Key;
+        (Client_Id      : Client_Key;
          Holder         : in out Client_Holder_Access;
-         Duplicated     :    out Client_Holder_Access;
-         Duplicated_Age : in     Duration)
+         Duplicated     : out Client_Holder_Access;
+         Duplicated_Age : Duration)
       is
          use Real_Time;
 
-         procedure Add_To_Groups (J : in Group_Sets.Cursor);
+         procedure Add_To_Groups (J : Group_Sets.Cursor);
 
          -------------------
          -- Add_To_Groups --
          -------------------
 
-         procedure Add_To_Groups (J : in Group_Sets.Cursor) is
+         procedure Add_To_Groups (J : Group_Sets.Cursor) is
          begin
             Add_To_Groups (Groups, Group_Sets.Element (J), Client_Id, Holder);
          end Add_To_Groups;
@@ -576,11 +576,11 @@ package body AWS.Server.Push is
       ----------
 
       procedure Send
-        (Data         : in     Client_Output_Type;
-         Group_Id     : in     String;
-         Content_Type : in     String;
-         Thin_Id      : in     String;
-         Queue        :    out Tables.Map)
+        (Data         : Client_Output_Type;
+         Group_Id     : String;
+         Content_Type : String;
+         Thin_Id      : String;
+         Queue        : out Tables.Map)
       is
          Cursor : Tables.Cursor;
          Next   : Tables.Cursor;
@@ -634,9 +634,9 @@ package body AWS.Server.Push is
 
       procedure Send_Data
         (Holder       : in out Client_Holder_Access;
-         Data         : in     Client_Output_Type;
-         Content_Type : in     String;
-         Thin_Id      : in     String)
+         Data         : Client_Output_Type;
+         Content_Type : String;
+         Thin_Id      : String)
       is
          Events : Net.Event_Set;
 
@@ -773,11 +773,11 @@ package body AWS.Server.Push is
       -------------
 
       procedure Send_To
-        (Client_Id    : in     Client_Key;
-         Data         : in     Client_Output_Type;
-         Content_Type : in     String;
-         Thin_Id      : in     String;
-         Holder       :    out Client_Holder_Access)
+        (Client_Id    : Client_Key;
+         Data         : Client_Output_Type;
+         Content_Type : String;
+         Thin_Id      : String;
+         Holder       : out Client_Holder_Access)
       is
          Cursor : Tables.Cursor := Container.Find (Client_Id);
       begin
@@ -800,9 +800,9 @@ package body AWS.Server.Push is
       --------------
 
       procedure Shutdown
-        (Final_Data         : in     Client_Output_Type;
-         Final_Content_Type : in     String;
-         Queue              :    out Tables.Map) is
+        (Final_Data         : Client_Output_Type;
+         Final_Content_Type : String;
+         Queue              : out Tables.Map) is
       begin
          Send (Final_Data, "", Final_Content_Type, "", Queue);
          Open := False;
@@ -825,19 +825,19 @@ package body AWS.Server.Push is
       -- Subscribe --
       ---------------
 
-      procedure Subscribe (Client_Id : in Client_Key; Group_Id : in String) is
+      procedure Subscribe (Client_Id : Client_Key; Group_Id : String) is
 
          Cursor : constant Tables.Cursor := Container.Find (Client_Id);
 
          procedure Modify
-           (Key : in String; Element : in out Client_Holder_Access);
+           (Key : String; Element : in out Client_Holder_Access);
 
          ------------
          -- Modify --
          ------------
 
          procedure Modify
-           (Key : in String; Element : in out Client_Holder_Access)
+           (Key : String; Element : in out Client_Holder_Access)
          is
             CI      : Group_Sets.Cursor;
             Success : Boolean;
@@ -859,16 +859,16 @@ package body AWS.Server.Push is
       -- Subscribe_Copy --
       --------------------
 
-      procedure Subscribe_Copy (Source : in String; Target : in String) is
+      procedure Subscribe_Copy (Source : String; Target : String) is
          CG : Group_Maps.Cursor;
 
-         procedure Process (C : in Tables.Cursor);
+         procedure Process (C : Tables.Cursor);
 
          -------------
          -- Process --
          -------------
 
-         procedure Process (C : in Tables.Cursor) is
+         procedure Process (C : Tables.Cursor) is
             Element : constant Client_Holder_Access := Tables.Element (C);
             CI      : Group_Sets.Cursor;
             Success : Boolean;
@@ -900,13 +900,13 @@ package body AWS.Server.Push is
          Holder : constant Client_Holder_Access := Tables.Element (Cursor);
          Key    : constant String := Tables.Key (Cursor);
 
-         procedure Delete_Group (J : in Group_Sets.Cursor);
+         procedure Delete_Group (J : Group_Sets.Cursor);
 
          ------------------
          -- Delete_Group --
          ------------------
 
-         procedure Delete_Group (J : in Group_Sets.Cursor) is
+         procedure Delete_Group (J : Group_Sets.Cursor) is
             use type Containers.Count_Type;
             C   : Group_Maps.Cursor := Groups.Find (Group_Sets.Element (J));
             Map : Map_Access := Group_Maps.Element (C);
@@ -925,7 +925,7 @@ package body AWS.Server.Push is
       end Unregister;
 
       procedure Unregister
-        (Client_Id : in Client_Key; Holder : out Client_Holder_Access)
+        (Client_Id : Client_Key; Holder : out Client_Holder_Access)
       is
          Cursor : Tables.Cursor;
       begin
@@ -944,7 +944,7 @@ package body AWS.Server.Push is
       ------------------------
 
       procedure Unregister_Clients
-        (Queue : out Tables.Map; Open : in Boolean)
+        (Queue : out Tables.Map; Open : Boolean)
       is
          Cursor : Tables.Cursor;
       begin
@@ -967,18 +967,18 @@ package body AWS.Server.Push is
       -----------------
 
       procedure Unsubscribe
-        (Client_Id : in Client_Key; Group_Id : in String)
+        (Client_Id : Client_Key; Group_Id : String)
       is
 
          procedure Modify
-           (Key : in String; Element : in out Client_Holder_Access);
+           (Key : String; Element : in out Client_Holder_Access);
 
          ------------
          -- Modify --
          ------------
 
          procedure Modify
-           (Key : in String; Element : in out Client_Holder_Access)
+           (Key : String; Element : in out Client_Holder_Access)
          is
             pragma Unreferenced (Key);
             use type Containers.Count_Type;
@@ -1012,7 +1012,7 @@ package body AWS.Server.Push is
       -- Unsubscribe_Copy --
       ----------------------
 
-      procedure Unsubscribe_Copy (Source : in String; Target : in String) is
+      procedure Unsubscribe_Copy (Source : String; Target : String) is
          use type Containers.Count_Type;
 
          CG     : Group_Maps.Cursor := Groups.Find (Target);
@@ -1056,7 +1056,7 @@ package body AWS.Server.Push is
       ------------------
 
       procedure Waiter_Error
-        (Holder : in Client_Holder_Access; Message : in String) is
+        (Holder : Client_Holder_Access; Message : String) is
       begin
          pragma Assert (Holder.Phase = Waiting);
          Holder.Errmsg := To_Unbounded_String (Message);
@@ -1071,10 +1071,10 @@ package body AWS.Server.Push is
 
    procedure Register
      (Server         : in out Object;
-      Client_Id      : in     Client_Key;
+      Client_Id      : Client_Key;
       Holder         : in out Client_Holder_Access;
-      Init_Data      : in     Stream_Element_Array;
-      Duplicated_Age : in     Duration)
+      Init_Data      : Stream_Element_Array;
+      Duplicated_Age : Duration)
    is
       Duplicated : Client_Holder_Access;
    begin
@@ -1130,15 +1130,15 @@ package body AWS.Server.Push is
 
    procedure Register
      (Server            : in out Object;
-      Client_Id         : in     Client_Key;
-      Socket            : in     Net.Socket_Type'Class;
-      Environment       : in     Client_Environment;
-      Init_Data         : in     Client_Output_Type;
-      Init_Content_Type : in     String             := "";
-      Kind              : in     Mode               := Plain;
-      Duplicated_Age    : in     Duration           := Duration'Last;
-      Groups            : in     Group_Set          := Empty_Group;
-      Timeout           : in     Duration           := Default.Send_Timeout)
+      Client_Id         : Client_Key;
+      Socket            : Net.Socket_Type'Class;
+      Environment       : Client_Environment;
+      Init_Data         : Client_Output_Type;
+      Init_Content_Type : String             := "";
+      Kind              : Mode               := Plain;
+      Duplicated_Age    : Duration           := Duration'Last;
+      Groups            : Group_Set          := Empty_Group;
+      Timeout           : Duration           := Default.Send_Timeout)
    is
       Holder : Client_Holder_Access :=
                  To_Holder (Socket, Environment, Kind, Groups, Timeout);
@@ -1153,13 +1153,13 @@ package body AWS.Server.Push is
 
    procedure Register
      (Server         : in out Object;
-      Client_Id      : in     Client_Key;
-      Socket         : in     Net.Socket_Type'Class;
-      Environment    : in     Client_Environment;
-      Kind           : in     Mode               := Plain;
-      Duplicated_Age : in     Duration           := Duration'Last;
-      Groups         : in     Group_Set          := Empty_Group;
-      Timeout        : in     Duration           := Default.Send_Timeout)
+      Client_Id      : Client_Key;
+      Socket         : Net.Socket_Type'Class;
+      Environment    : Client_Environment;
+      Kind           : Mode               := Plain;
+      Duplicated_Age : Duration           := Duration'Last;
+      Groups         : Group_Set          := Empty_Group;
+      Timeout        : Duration           := Default.Send_Timeout)
    is
       Holder : Client_Holder_Access :=
                  To_Holder (Socket, Environment, Kind, Groups, Timeout);
@@ -1173,8 +1173,8 @@ package body AWS.Server.Push is
 
    procedure Release
      (Server         : in out Object;
-      Close_Sockets  : in     Boolean;
-      Left_Open      : in     Boolean;
+      Close_Sockets  : Boolean;
+      Left_Open      : Boolean;
       Get_Final_Data : access function
                          (Holder : not null access Client_Holder)
                           return Stream_Element_Array := null)
@@ -1237,11 +1237,11 @@ package body AWS.Server.Push is
 
    procedure Send
      (Server       : in out Object;
-      Data         : in     Client_Output_Type;
-      Group_Id     : in     String             := "";
-      Content_Type : in     String             := "";
-      Thin_Id      : in     String             := "";
-      Client_Gone  : access procedure (Client_Id : in String) := null)
+      Data         : Client_Output_Type;
+      Group_Id     : String             := "";
+      Content_Type : String             := "";
+      Thin_Id      : String             := "";
+      Client_Gone  : access procedure (Client_Id : String) := null)
    is
       use type Containers.Count_Type;
       Cursor : Tables.Cursor;
@@ -1298,18 +1298,18 @@ package body AWS.Server.Push is
 
    procedure Send_G
      (Server       : in out Object;
-      Data         : in     Client_Output_Type;
-      Group_Id     : in     String             := "";
-      Content_Type : in     String             := "";
-      Thin_Id      : in     String             := "")
+      Data         : Client_Output_Type;
+      Group_Id     : String             := "";
+      Content_Type : String             := "";
+      Thin_Id      : String             := "")
    is
-      procedure Gone (Client_Id : in String);
+      procedure Gone (Client_Id : String);
 
       ----------
       -- Gone --
       ----------
 
-      procedure Gone (Client_Id : in String) is
+      procedure Gone (Client_Id : String) is
       begin
          Client_Gone (Client_Id);
       end Gone;
@@ -1324,10 +1324,10 @@ package body AWS.Server.Push is
 
    procedure Send_To
      (Server       : in out Object;
-      Client_Id    : in     Client_Key;
-      Data         : in     Client_Output_Type;
-      Content_Type : in     String             := "";
-      Thin_Id      : in     String             := "")
+      Client_Id    : Client_Key;
+      Data         : Client_Output_Type;
+      Content_Type : String             := "";
+      Thin_Id      : String             := "")
    is
       Holder : Client_Holder_Access;
    begin
@@ -1357,7 +1357,7 @@ package body AWS.Server.Push is
    -- Set_Internal_Error_Handler --
    --------------------------------
 
-   procedure Set_Internal_Error_Handler (Handler : in Error_Handler) is
+   procedure Set_Internal_Error_Handler (Handler : Error_Handler) is
    begin
       Internal_Error_Handler := Handler;
    end Set_Internal_Error_Handler;
@@ -1367,15 +1367,15 @@ package body AWS.Server.Push is
    --------------
 
    procedure Shutdown
-     (Server : in out Object; Close_Sockets : in Boolean := True) is
+     (Server : in out Object; Close_Sockets : Boolean := True) is
    begin
       Release (Server, Close_Sockets, Left_Open => False);
    end Shutdown;
 
    procedure Shutdown
      (Server             : in out Object;
-      Final_Data         : in     Client_Output_Type;
-      Final_Content_Type : in     String             := "")
+      Final_Data         : Client_Output_Type;
+      Final_Content_Type : String             := "")
    is
       function Get_Final_Data
         (Holder : not null access Client_Holder) return Stream_Element_Array;
@@ -1413,8 +1413,8 @@ package body AWS.Server.Push is
 
    procedure Subscribe
      (Server    : in out Object;
-      Client_Id : in     Client_Key;
-      Group_Id  : in     String) is
+      Client_Id : Client_Key;
+      Group_Id  : String) is
    begin
       Server.Subscribe (Client_Id, Group_Id);
    end Subscribe;
@@ -1424,7 +1424,7 @@ package body AWS.Server.Push is
    --------------------
 
    procedure Subscribe_Copy
-     (Server : in out Object; Source : in String; Target : in String) is
+     (Server : in out Object; Source : String; Target : String) is
    begin
       Server.Subscribe_Copy (Source => Source, Target => Target);
    end Subscribe_Copy;
@@ -1434,11 +1434,11 @@ package body AWS.Server.Push is
    ---------------
 
    function To_Holder
-     (Socket      : in Net.Socket_Type'Class;
-      Environment : in Client_Environment;
-      Kind        : in Mode;
-      Groups      : in Group_Set;
-      Timeout     : in Duration) return Client_Holder_Access
+     (Socket      : Net.Socket_Type'Class;
+      Environment : Client_Environment;
+      Kind        : Mode;
+      Groups      : Group_Set;
+      Timeout     : Duration) return Client_Holder_Access
    is
       Holder_Groups : Group_Sets.Set;
    begin
@@ -1466,8 +1466,8 @@ package body AWS.Server.Push is
 
    procedure Unregister
      (Server       : in out Object;
-      Client_Id    : in     Client_Key;
-      Close_Socket : in     Boolean    := True)
+      Client_Id    : Client_Key;
+      Close_Socket : Boolean    := True)
    is
       Holder : Client_Holder_Access;
    begin
@@ -1493,7 +1493,7 @@ package body AWS.Server.Push is
    ------------------------
 
    procedure Unregister_Clients
-     (Server : in out Object; Close_Sockets : in Boolean := True) is
+     (Server : in out Object; Close_Sockets : Boolean := True) is
    begin
       Release (Server, Close_Sockets, Left_Open => True);
    end Unregister_Clients;
@@ -1504,8 +1504,8 @@ package body AWS.Server.Push is
 
    procedure Unsubscribe
      (Server    : in out Object;
-      Client_Id : in     Client_Key;
-      Group_Id  : in     String) is
+      Client_Id : Client_Key;
+      Group_Id  : String) is
    begin
       Server.Unsubscribe (Client_Id, Group_Id);
    end Unsubscribe;
@@ -1515,7 +1515,7 @@ package body AWS.Server.Push is
    ----------------------
 
    procedure Unsubscribe_Copy
-     (Server : in out Object; Source : in String; Target : in String) is
+     (Server : in out Object; Source : String; Target : String) is
    begin
       Server.Unsubscribe_Copy (Source => Source, Target => Target);
    end Unsubscribe_Copy;
@@ -1551,14 +1551,14 @@ package body AWS.Server.Push is
       Post_Read : Boolean;
 
       procedure Add_Item
-        (Server : in Object_Access; Holder : in Client_Holder_Access);
+        (Server : Object_Access; Holder : Client_Holder_Access);
 
       --------------
       -- Add_Item --
       --------------
 
       procedure Add_Item
-        (Server : in Object_Access; Holder : in Client_Holder_Access) is
+        (Server : Object_Access; Holder : Client_Holder_Access) is
       begin
          if Holder.Phase /= Going then
             raise Program_Error with Phase_Type'Image (Holder.Phase);
@@ -1634,13 +1634,13 @@ package body AWS.Server.Push is
          while B_Last > 0 loop
             select
                accept Add
-                 (Server : in Object_Access; Holder : in Client_Holder_Access)
+                 (Server : Object_Access; Holder : Client_Holder_Access)
                do
                   Add_Item (Server, Holder);
                end Add;
 
             or
-               accept Add (Server : in Object_Access; Queue : in Tables.Map) do
+               accept Add (Server : Object_Access; Queue : Tables.Map) do
                   declare
                      C : Tables.Cursor := Queue.First;
                   begin
@@ -1653,7 +1653,7 @@ package body AWS.Server.Push is
 
             or
                accept Remove
-                 (Server : in Object_Access; Holder : in Client_Holder_Access)
+                 (Server : Object_Access; Holder : Client_Holder_Access)
                do
                   case Holder.Phase is
                      when Going     => requeue Remove;
@@ -1765,14 +1765,14 @@ package body AWS.Server.Push is
                   Data : Stream_Element_Array (1 .. 8192);
                   Last : Stream_Element_Offset;
 
-                  procedure Socket_Error (Message : in String);
-                  procedure Socket_Error_Log (Message : in String);
+                  procedure Socket_Error (Message : String);
+                  procedure Socket_Error_Log (Message : String);
 
                   ------------------
                   -- Socket_Error --
                   ------------------
 
-                  procedure Socket_Error (Message : in String) is
+                  procedure Socket_Error (Message : String) is
                   begin
                      Client.SP.Waiter_Error (Client.CH, Message);
                      Remove := True;
@@ -1782,7 +1782,7 @@ package body AWS.Server.Push is
                   -- Socket_Error_Log --
                   ----------------------
 
-                  procedure Socket_Error_Log (Message : in String) is
+                  procedure Socket_Error_Log (Message : String) is
                   begin
                      Net.Log.Error (Socket, Message);
                      Socket_Error (Message);
@@ -1840,7 +1840,7 @@ package body AWS.Server.Push is
    -- Wait_Send_Completion --
    --------------------------
 
-   function Wait_Send_Completion (Timeout : in Duration) return Boolean is
+   function Wait_Send_Completion (Timeout : Duration) return Boolean is
    begin
       select
          Waiter.Empty;
@@ -1856,7 +1856,7 @@ package body AWS.Server.Push is
    ----------------
 
    procedure Waiter_Add
-     (Server : in out Object; Holder : in Client_Holder_Access) is
+     (Server : in out Object; Holder : Client_Holder_Access) is
    begin
       W_Signal.Send (Byte0);
 
@@ -1873,7 +1873,7 @@ package body AWS.Server.Push is
    -------------------
 
    procedure Waiter_Remove
-     (Server : in out Object; Holder : in Client_Holder_Access) is
+     (Server : in out Object; Holder : Client_Holder_Access) is
    begin
       W_Signal.Send (Byte0);
 

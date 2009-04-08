@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2008, AdaCore                     --
+--                     Copyright (C) 2003-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -58,32 +58,32 @@ package AWS.Services.Split_Pages is
    --                using: @_"+"(OFFSET):TABLE_LINE_@
 
    function Get_Page_Ranges
-     (This  : in Splitter;
-      Table : in Templates.Translate_Set) return Ranges_Table is abstract;
+     (This  : Splitter;
+      Table : Templates.Translate_Set) return Ranges_Table is abstract;
    --  Get_Page_Ranges is called to define the range (in lines) of each split
    --  page. Note that the ranges may overlap and need not cover the full
    --  table.
 
    function Get_Translations
-     (This   : in Splitter;
-      Page   : in Positive;
-      URIs   : in URI_Table;
-      Ranges : in Ranges_Table) return Templates.Translate_Set is abstract;
+     (This   : Splitter;
+      Page   : Positive;
+      URIs   : URI_Table;
+      Ranges : Ranges_Table) return Templates.Translate_Set is abstract;
    --  Get_Translations builds the translation table for use with the splitter
 
    function Parse
-     (Template     : in String;
-      Translations : in Templates.Translate_Set;
-      Table        : in Templates.Translate_Set;
-      Split_Rule   : in Splitter'Class;
-      Cached       : in Boolean := True) return Response.Data;
+     (Template     : String;
+      Translations : Templates.Translate_Set;
+      Table        : Templates.Translate_Set;
+      Split_Rule   : Splitter'Class;
+      Cached       : Boolean := True) return Response.Data;
 
    function Parse
-     (Template     : in String;
-      Translations : in Templates.Translate_Table;
-      Table        : in Templates.Translate_Table;
-      Split_Rule   : in Splitter'Class;
-      Cached       : in Boolean := True) return Response.Data;
+     (Template     : String;
+      Translations : Templates.Translate_Table;
+      Table        : Templates.Translate_Table;
+      Split_Rule   : Splitter'Class;
+      Cached       : Boolean := True) return Response.Data;
    --  Parse the Template file and split the result in multiple pages.
    --  Translations is a standard Translate_Set used for all pages. Table
    --  is the Translate_Set containing data for the table to split in
@@ -95,12 +95,12 @@ package AWS.Services.Split_Pages is
    --  file.
 
    function Parse
-     (Template     : in String;
-      Translations : in Templates.Translate_Table;
-      Table        : in Templates.Translate_Table;
-      Max_Per_Page : in Positive := 25;
-      Max_In_Index : in Positive := 20;
-      Cached       : in Boolean  := True) return Response.Data;
+     (Template     : String;
+      Translations : Templates.Translate_Table;
+      Table        : Templates.Translate_Table;
+      Max_Per_Page : Positive := 25;
+      Max_In_Index : Positive := 20;
+      Cached       : Boolean  := True) return Response.Data;
    --  Compatibility function with previous version of AWS.
    --  Uses the Uniform_Splitter
    --  Note that the Max_In_Index parameter is ignored.

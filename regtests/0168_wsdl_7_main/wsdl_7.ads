@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2004-2008, AdaCore                     --
+--                     Copyright (C) 2004-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -31,8 +31,8 @@ package WSDL_7 is
 
    use SOAP;
 
-   procedure Proc (P : in SOAP.Utils.SOAP_Base64);
+   procedure Proc (P : SOAP.Utils.SOAP_Base64);
 
-   function Func (P : in Integer) return Utils.SOAP_Base64;
+   function Func (P : Integer) return Utils.SOAP_Base64;
 
 end WSDL_7;

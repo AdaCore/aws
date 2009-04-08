@@ -34,7 +34,7 @@ with AWS.Utils;
 
 package body AWS.URL.Set is
 
-   function Normalize (Path : in Unbounded_String) return Unbounded_String;
+   function Normalize (Path : Unbounded_String) return Unbounded_String;
    --  Returns Path with all possible occurences of parent and current
    --  directories removed. Does not raise exception.
 
@@ -44,9 +44,9 @@ package body AWS.URL.Set is
 
    procedure Connection_Data
      (URL      : in out Object;
-      Host     : in     String;
-      Port     : in     Positive;
-      Security : in     Boolean) is
+      Host     : String;
+      Port     : Positive;
+      Security : Boolean) is
    begin
       if Host = "" then
          URL.Host := To_Unbounded_String ("localhost");
@@ -67,7 +67,7 @@ package body AWS.URL.Set is
    -- Normalize --
    ---------------
 
-   function Normalize (Path : in Unbounded_String) return Unbounded_String is
+   function Normalize (Path : Unbounded_String) return Unbounded_String is
       URL_Path : Unbounded_String := Path;
       K        : Natural;
       P        : Natural;
@@ -134,7 +134,7 @@ package body AWS.URL.Set is
    -- Parameters --
    ----------------
 
-   procedure Parameters (URL : in out Object; Set : in AWS.Parameters.List) is
+   procedure Parameters (URL : in out Object; Set : AWS.Parameters.List) is
    begin
       URL.Parameters := Set;
    end Parameters;
@@ -151,9 +151,9 @@ package body AWS.URL.Set is
 
    procedure Parse
      (Item           : in out Object;
-      URL            : in     String;
-      Check_Validity : in     Boolean := True;
-      Normalize      : in     Boolean := False)
+      URL            : String;
+      Check_Validity : Boolean := True;
+      Normalize      : Boolean := False)
    is
       FTP_Token   : constant String := "ftp://";
       HTTP_Token  : constant String := "http://";
@@ -164,7 +164,7 @@ package body AWS.URL.Set is
 
       P : Natural;
 
-      procedure Parse (URL : in String; Protocol_Specified : in Boolean);
+      procedure Parse (URL : String; Protocol_Specified : Boolean);
       --  Parse URL, the URL must not contain the HTTP_Token prefix.
       --  Protocol_Specified is set to True when the protocol (http:// or
       --  https:// prefix) was specified. This is used to raise ambiguity
@@ -174,14 +174,14 @@ package body AWS.URL.Set is
       -- Parse --
       -----------
 
-      procedure Parse (URL : in String;  Protocol_Specified : in Boolean) is
+      procedure Parse (URL : String;  Protocol_Specified : Boolean) is
 
          function "+"
-           (S : in String)
+           (S : String)
             return Unbounded_String
             renames To_Unbounded_String;
 
-         procedure Parse_Path_File (Start : in Positive);
+         procedure Parse_Path_File (Start : Positive);
          --  Parse Path and File URL information starting at position Start in
          --  URL.
 
@@ -192,7 +192,7 @@ package body AWS.URL.Set is
          -- Parse_Path_File --
          ---------------------
 
-         procedure Parse_Path_File (Start : in Positive) is
+         procedure Parse_Path_File (Start : Positive) is
             PF : constant String := URL (Start .. URL'Last);
             I3 : constant Natural :=
                    Strings.Fixed.Index (PF, "/", Strings.Backward);

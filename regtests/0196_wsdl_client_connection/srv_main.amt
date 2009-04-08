@@ -79,7 +79,7 @@ package body API_@_UNIT_NAME_@ is
    --------
 
    function CB
-      (Request : in Status.Data)
+      (Request : Status.Data)
        return Response.Data
    is
       R : Response.Data;

@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2008, AdaCore                     --
+--                     Copyright (C) 2000-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -44,13 +44,13 @@ package body AWS.Utils is
 
    package Integer_Random is new Numerics.Discrete_Random (Random_Integer);
 
-   function Local_To_GMT (DT : in Calendar.Time) return Calendar.Time;
+   function Local_To_GMT (DT : Calendar.Time) return Calendar.Time;
    pragma Inline (Local_To_GMT);
 
    procedure Compress_Decompress
      (Filter       : in out ZLib.Filter_Type;
-      Filename_In  : in     String;
-      Filename_Out : in     String);
+      Filename_In  : String;
+      Filename_Out : String);
    --  Compress or decompress (depending on the filter initialization)
    --  from Filename_In to Filename_Out.
 
@@ -61,8 +61,8 @@ package body AWS.Utils is
    --------------
 
    procedure Compress
-     (Filename : in String;
-      Level    : in ZLib.Compression_Level := ZLib.Default_Compression)
+     (Filename : String;
+      Level    : ZLib.Compression_Level := ZLib.Default_Compression)
    is
       Filter : ZLib.Filter_Type;
 
@@ -84,8 +84,8 @@ package body AWS.Utils is
 
    procedure Compress_Decompress
      (Filter       : in out ZLib.Filter_Type;
-      Filename_In  : in     String;
-      Filename_Out : in     String)
+      Filename_In  : String;
+      Filename_Out : String)
    is
       procedure Data_In
         (Item : out Stream_Element_Array;
@@ -93,7 +93,7 @@ package body AWS.Utils is
       --  Retrieve a chunk of data from the file
 
       procedure Data_Out
-        (Item : in Stream_Element_Array);
+        (Item : Stream_Element_Array);
       --  Write a chunk of data into the compressed file
 
       procedure Translate is new ZLib.Generic_Translate (Data_In, Data_Out);
@@ -115,7 +115,7 @@ package body AWS.Utils is
       -- Data_Out --
       --------------
 
-      procedure Data_Out (Item : in Stream_Element_Array) is
+      procedure Data_Out (Item : Stream_Element_Array) is
       begin
          Stream_IO.Write (File_Out, Item);
       end Data_Out;
@@ -154,12 +154,12 @@ package body AWS.Utils is
       -- Decrement --
       ---------------
 
-      procedure Decrement (Amount : in Natural := 1) is
+      procedure Decrement (Amount : Natural := 1) is
       begin
          C := C - Amount;
       end Decrement;
 
-      procedure Decrement (Amount : in Natural := 1; Value : out Natural) is
+      procedure Decrement (Amount : Natural := 1; Value : out Natural) is
       begin
          C := C - Amount;
          Value := C;
@@ -169,7 +169,7 @@ package body AWS.Utils is
       -- Increment --
       ---------------
 
-      procedure Increment (Amount : in Natural := 1) is
+      procedure Increment (Amount : Natural := 1) is
       begin
          C := C + Amount;
       end Increment;
@@ -198,7 +198,7 @@ package body AWS.Utils is
    -- CRLF_2_Spaces --
    -------------------
 
-   function CRLF_2_Spaces (Str : in String) return String is
+   function CRLF_2_Spaces (Str : String) return String is
    begin
       return Strings.Fixed.Trim
         (Strings.Fixed.Translate
@@ -211,7 +211,7 @@ package body AWS.Utils is
    -- Decompress --
    ----------------
 
-   procedure Decompress (Filename : in String) is
+   procedure Decompress (Filename : String) is
       Filter : ZLib.Filter_Type;
 
    begin
@@ -231,7 +231,7 @@ package body AWS.Utils is
    -- File_Size --
    ---------------
 
-   function File_Size (Filename : in String) return File_Size_Type is
+   function File_Size (Filename : String) return File_Size_Type is
    begin
       if Is_Regular_File (Filename) then
          return Directories.Size (Filename);
@@ -244,7 +244,7 @@ package body AWS.Utils is
    -- File_Time_Stamp --
    ---------------------
 
-   function File_Time_Stamp (Filename : in String) return Ada.Calendar.Time is
+   function File_Time_Stamp (Filename : String) return Ada.Calendar.Time is
    begin
       if Is_Regular_File (Filename)
         or else Is_Directory (Filename)
@@ -268,7 +268,7 @@ package body AWS.Utils is
    -- For_Every_Directory_Entry --
    -------------------------------
 
-   procedure For_Every_Directory_Entry (Directory_Name : in String) is
+   procedure For_Every_Directory_Entry (Directory_Name : String) is
       Iter : Directories.Search_Type;
       Item : Directories.Directory_Entry_Type;
 
@@ -328,7 +328,7 @@ package body AWS.Utils is
    -- Hex --
    ---------
 
-   function Hex (V : in Natural; Width : in Natural := 0) return String is
+   function Hex (V : Natural; Width : Natural := 0) return String is
       use Strings;
 
       Hex_V : String (1 .. Integer'Size / 4 + 4);
@@ -361,9 +361,9 @@ package body AWS.Utils is
    -- Hex_Value --
    ---------------
 
-   function Hex_Value (Hex : in String) return Natural is
+   function Hex_Value (Hex : String) return Natural is
 
-      function Value (C : in Character) return Natural;
+      function Value (C : Character) return Natural;
       pragma Inline (Value);
       --  Return value for single character C
 
@@ -371,7 +371,7 @@ package body AWS.Utils is
       -- Value --
       -----------
 
-      function Value (C : in Character) return Natural is
+      function Value (C : Character) return Natural is
       begin
          case C is
             when '0'       => return 0;
@@ -408,7 +408,7 @@ package body AWS.Utils is
    -- Image --
    -----------
 
-   function Image (N : in Natural) return String is
+   function Image (N : Natural) return String is
       N_Img : constant String := Natural'Image (N);
    begin
       return N_Img (N_Img'First + 1 .. N_Img'Last);
@@ -418,7 +418,7 @@ package body AWS.Utils is
    -- Image --
    -----------
 
-   function Image (D : in Duration) return String is
+   function Image (D : Duration) return String is
       D_Img : constant String  := Duration'Image (D);
       K     : constant Natural := Strings.Fixed.Index (D_Img, ".");
    begin
@@ -433,7 +433,7 @@ package body AWS.Utils is
    -- Is_Directory --
    ------------------
 
-   function Is_Directory (Filename : in String) return Boolean is
+   function Is_Directory (Filename : String) return Boolean is
    begin
       return Directories.Exists (Filename)
         and then Directories.Kind (Filename) = Directories.Directory;
@@ -443,7 +443,7 @@ package body AWS.Utils is
    -- Is_Number --
    ---------------
 
-   function Is_Number (S : in String) return Boolean is
+   function Is_Number (S : String) return Boolean is
       use Strings.Maps;
    begin
       return S'Length > 0
@@ -454,7 +454,7 @@ package body AWS.Utils is
    -- Is_Regular_File --
    ---------------------
 
-   function Is_Regular_File (Filename : in String) return Boolean is
+   function Is_Regular_File (Filename : String) return Boolean is
    begin
       return Directories.Exists (Filename)
         and then Directories.Kind (Filename) = Directories.Ordinary_File;
@@ -464,7 +464,7 @@ package body AWS.Utils is
    -- Local_To_GMT --
    ------------------
 
-   function Local_To_GMT (DT : in Calendar.Time) return Calendar.Time is
+   function Local_To_GMT (DT : Calendar.Time) return Calendar.Time is
       use Ada.Calendar;
    begin
       return DT - Duration (Time_Zones.UTC_Time_Offset (DT)) * 60;
@@ -482,7 +482,7 @@ package body AWS.Utils is
          -- Add --
          ---------
 
-         entry Add (M : in Message) when Current_Size < Max_Size is
+         entry Add (M : Message) when Current_Size < Max_Size is
          begin
             Current_Size := Current_Size + 1;
             Current := Current + 1;
@@ -545,7 +545,7 @@ package body AWS.Utils is
    -- Normalized_Directory --
    --------------------------
 
-   function Normalized_Directory (Directory : in String) return String is
+   function Normalized_Directory (Directory : String) return String is
    begin
       if Directory'Length = 0
         or else Directory (Directory'Last) = '/'
@@ -562,15 +562,15 @@ package body AWS.Utils is
    -----------
 
    function Quote
-     (Str : in String; Replace : in String := """") return String
+     (Str : String; Replace : String := """") return String
    is
-      function Replace_Quote (Source : in String) return String;
+      function Replace_Quote (Source : String) return String;
 
       -------------------
       -- Replace_Quote --
       -------------------
 
-      function Replace_Quote (Source : in String) return String is
+      function Replace_Quote (Source : String) return String is
          use Ada.Strings.Fixed;
          Idx : Natural;
       begin
@@ -641,7 +641,7 @@ package body AWS.Utils is
       end loop;
    end Random_String;
 
-   function Random_String (Length : in Natural) return String is
+   function Random_String (Length : Natural) return String is
       Result : String (1 .. Length);
    begin
       Random_String (Result);
@@ -741,7 +741,7 @@ package body AWS.Utils is
    -----------------------
 
    function Significant_Image
-     (Item : in Duration; N : in Positive) return String
+     (Item : Duration; N : Positive) return String
    is
       type Largest_Integer is range System.Min_Int .. System.Max_Int;
       package LIO is new Text_IO.Integer_IO (Largest_Integer);
@@ -814,14 +814,14 @@ package body AWS.Utils is
 
       subtype String2 is String (1 .. 2);
 
-      function Image2 (N : in Natural) return String2;
+      function Image2 (N : Natural) return String2;
       --  Returns N's image padded with a leading 0 if needed
       --
       ------------
       -- Image2 --
       ------------
 
-      function Image2 (N : in Natural) return String2 is
+      function Image2 (N : Natural) return String2 is
          Ni : constant String := Image (N);
       begin
          if Ni'Length = 2 then

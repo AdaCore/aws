@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2008, AdaCore                     --
+--                     Copyright (C) 2000-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -31,13 +31,13 @@
 
 package AWS.Config.Ini is
 
-   function Program_Ini_File (Full_Path : in Boolean) return String;
+   function Program_Ini_File (Full_Path : Boolean) return String;
    --  Returns initialization filename for current server (using the
    --  executable name and adding .ini).
 
    procedure Read
      (Config   : in out Object;
-      Filename : in     String);
+      Filename : String);
    --  Read Filename and update the configuration object with the
    --  options read from it. Raises Ada.Text_IO.Name_Error if Filename does
    --  not exist. Raises Constraint_Error in case of wrong any parameter name

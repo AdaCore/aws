@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2008, AdaCore                     --
+--                     Copyright (C) 2000-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -52,8 +52,8 @@ generic
    --  conversion routine below.
 
    with function To_Stream_Array
-     (Output : in Client_Output_Type;
-      Client : in Client_Environment) return Ada.Streams.Stream_Element_Array;
+     (Output : Client_Output_Type;
+      Client : Client_Environment) return Ada.Streams.Stream_Element_Array;
    --  Function used for convert Client_Output_Type to Stream_Output_Type.
    --  This is used by the server to prepare the data to be sent to the
    --  clients.
@@ -96,15 +96,15 @@ package AWS.Server.Push is
 
    procedure Register
      (Server            : in out Object;
-      Client_Id         : in     Client_Key;
-      Socket            : in     Net.Socket_Type'Class;
-      Environment       : in     Client_Environment;
-      Init_Data         : in     Client_Output_Type;
-      Init_Content_Type : in     String             := "";
-      Kind              : in     Mode               := Plain;
-      Duplicated_Age    : in     Duration           := Duration'Last;
-      Groups            : in     Group_Set          := Empty_Group;
-      Timeout           : in     Duration           := Default.Send_Timeout);
+      Client_Id         : Client_Key;
+      Socket            : Net.Socket_Type'Class;
+      Environment       : Client_Environment;
+      Init_Data         : Client_Output_Type;
+      Init_Content_Type : String             := "";
+      Kind              : Mode               := Plain;
+      Duplicated_Age    : Duration           := Duration'Last;
+      Groups            : Group_Set          := Empty_Group;
+      Timeout           : Duration           := Default.Send_Timeout);
    --  Add client identified by Client_Id to the server subscription
    --  list and send the Init_Data (as a Data_Content_Type mime content) to
    --  him. After registering this client will be able to receive pushed data
@@ -116,65 +116,65 @@ package AWS.Server.Push is
 
    procedure Register
      (Server          : in out Object;
-      Client_Id       : in     Client_Key;
-      Socket          : in     Net.Socket_Type'Class;
-      Environment     : in     Client_Environment;
-      Kind            : in     Mode               := Plain;
-      Duplicated_Age  : in     Duration           := Duration'Last;
-      Groups          : in     Group_Set          := Empty_Group;
-      Timeout         : in     Duration           := Default.Send_Timeout);
+      Client_Id       : Client_Key;
+      Socket          : Net.Socket_Type'Class;
+      Environment     : Client_Environment;
+      Kind            : Mode               := Plain;
+      Duplicated_Age  : Duration           := Duration'Last;
+      Groups          : Group_Set          := Empty_Group;
+      Timeout         : Duration           := Default.Send_Timeout);
    --  Same as above but without sending initial data
 
    procedure Unregister
      (Server       : in out Object;
-      Client_Id    : in     Client_Key;
-      Close_Socket : in     Boolean    := True);
+      Client_Id    : Client_Key;
+      Close_Socket : Boolean    := True);
    --  Removes client Client_Id from server subscription list. The associated
    --  client's socket will be closed if Close_Socket is True. No exception is
    --  raised if Client_Id was not registered.
 
    procedure Unregister_Clients
-     (Server : in out Object; Close_Sockets : in Boolean := True);
+     (Server : in out Object; Close_Sockets : Boolean := True);
    --  Remove all registered clients from the server. Closes if Close_Sockets
    --  is set to True (default) otherwise the sockets remain open. After this
    --  call the sever will still in running mode. Does nothing if there is no
    --  client registered.
 
    procedure Subscribe
-     (Server : in out Object; Client_Id : in Client_Key; Group_Id : in String);
+     (Server : in out Object; Client_Id : Client_Key; Group_Id : String);
    --  Subscribe client to the group
 
    procedure Subscribe_Copy
-     (Server : in out Object; Source : in String; Target : in String);
+     (Server : in out Object; Source : String; Target : String);
    --  Subscribe everybody in the group Source to the group Target.
    --  If Source is empty then subscribe all clients to the group Target.
 
    procedure Unsubscribe
-     (Server : in out Object; Client_Id : in Client_Key; Group_Id : in String);
+     (Server : in out Object; Client_Id : Client_Key; Group_Id : String);
    --  Remove group from client's group list
 
    procedure Unsubscribe_Copy
-     (Server : in out Object; Source : in String; Target : in String);
+     (Server : in out Object; Source : String; Target : String);
    --  Unsubscribe everybody in the group Source from the group Target.
    --  If Source is empty then unsubscribe all clients from the group Target.
 
    procedure Send_To
      (Server       : in out Object;
-      Client_Id    : in     Client_Key;
-      Data         : in     Client_Output_Type;
-      Content_Type : in     String             := "";
-      Thin_Id      : in     String             := "");
+      Client_Id    : Client_Key;
+      Data         : Client_Output_Type;
+      Content_Type : String             := "";
+      Thin_Id      : String             := "");
    --  Push data to a specified client identified by Client_Id
    --  Thin_Id is to be able to replace messages in the send client queue
    --  with the newer one with the same Thin_Id.
 
    procedure Send
      (Server       : in out Object;
-      Data         : in     Client_Output_Type;
-      Group_Id     : in     String             := "";
-      Content_Type : in     String             := "";
-      Thin_Id      : in     String             := "";
-      Client_Gone  : access procedure (Client_Id : in String) := null);
+      Data         : Client_Output_Type;
+      Group_Id     : String             := "";
+      Content_Type : String             := "";
+      Thin_Id      : String             := "";
+      Client_Gone  : access procedure (Client_Id : String) := null);
    --  Push data to group of clients (broadcast) subscribed to the server.
    --  If Group_Id is empty, data transferred to each client.
    --  Call Client_Gone for each client with broken socket.
@@ -182,34 +182,34 @@ package AWS.Server.Push is
    --  with the newer one with the same Thin_Id.
 
    generic
-      with procedure Client_Gone (Client_Id : in String);
+      with procedure Client_Gone (Client_Id : String);
    procedure Send_G
      (Server       : in out Object;
-      Data         : in     Client_Output_Type;
-      Group_Id     : in     String             := "";
-      Content_Type : in     String             := "";
-      Thin_Id      : in     String             := "");
+      Data         : Client_Output_Type;
+      Group_Id     : String             := "";
+      Content_Type : String             := "";
+      Thin_Id      : String             := "");
    --  Same like before, but generic for back compartibility
 
-   function Count (Server : in Object) return Natural;
+   function Count (Server : Object) return Natural;
    --  Returns the number of registered clients in the server
 
    procedure Info
      (Server  : in out Object;
-      Clients :    out Natural;
-      Groups  :    out Natural;
+      Clients : out Natural;
+      Groups  : out Natural;
       Process : access procedure
-                  (Client_Id   : in Client_Key;
-                   Address     : in String;
-                   State       : in String;
-                   Environment : in Client_Environment;
-                   Kind        : in Mode;
-                   Groups      : in Group_Set) := null);
+                  (Client_Id   : Client_Key;
+                   Address     : String;
+                   State       : String;
+                   Environment : Client_Environment;
+                   Kind        : Mode;
+                   Groups      : Group_Set) := null);
    --  Returns the number of registered clients and groups in the server.
    --  Call Process routine for each client if defined.
    --  Test internal integrity.
 
-   function Is_Open (Server : in Object) return Boolean;
+   function Is_Open (Server : Object) return Boolean;
    --  Return True if the server is open, meaning server is still running,
    --  ready to accept client's registration and still sending data to
    --  clients.
@@ -219,7 +219,7 @@ package AWS.Server.Push is
    --  finalisation data.
 
    procedure Shutdown
-     (Server : in out Object; Close_Sockets : in  Boolean := True);
+     (Server : in out Object; Close_Sockets : Boolean := True);
    --  Unregisted all clients and close all associated connections (socket) if
    --  Close_Socket is True. The server will be in Closed mode. After this
    --  call any client trying to register will get the Closed exception. It is
@@ -227,8 +227,8 @@ package AWS.Server.Push is
 
    procedure Shutdown
      (Server             : in out Object;
-      Final_Data         : in     Client_Output_Type;
-      Final_Content_Type : in     String             := "");
+      Final_Data         : Client_Output_Type;
+      Final_Content_Type : String             := "");
    --  Idem as above but it send Final_Data (as a Data_Content_Type mime
    --  content) before closing connections.
 
@@ -251,14 +251,14 @@ package AWS.Server.Push is
    --  Size would return number of currently waiting sockets.
    --  Counter would return total number of waited sockets from start.
 
-   function Wait_Send_Completion (Timeout : in Duration) return Boolean;
+   function Wait_Send_Completion (Timeout : Duration) return Boolean;
    --  Wait for all data sending in all server_push objects of the current
    --  package instance.
    --  Return True if wait successfull. False in timeout.
 
-   type Error_Handler is access procedure (Message : in String);
+   type Error_Handler is access procedure (Message : String);
 
-   procedure Set_Internal_Error_Handler (Handler : in Error_Handler);
+   procedure Set_Internal_Error_Handler (Handler : Error_Handler);
    --  Set the handler of the internal fatal errors
 
 private
@@ -306,7 +306,7 @@ private
       function Count return Natural;
       --  Returns the number of registered client
 
-      procedure Unregister_Clients (Queue : out Tables.Map; Open : in Boolean);
+      procedure Unregister_Clients (Queue : out Tables.Map; Open : Boolean);
       --  Unregister all clients, close associated sockets if Close_Socket is
       --  set to True.
 
@@ -317,79 +317,79 @@ private
       --  See above
 
       procedure Shutdown
-        (Final_Data         : in     Client_Output_Type;
-         Final_Content_Type : in     String;
-         Queue              :    out Tables.Map);
+        (Final_Data         : Client_Output_Type;
+         Final_Content_Type : String;
+         Queue              : out Tables.Map);
       --  See above
 
       procedure Register
-        (Client_Id      : in     Client_Key;
+        (Client_Id      : Client_Key;
          Holder         : in out Client_Holder_Access;
-         Duplicated     :    out Client_Holder_Access;
-         Duplicated_Age : in     Duration);
+         Duplicated     : out Client_Holder_Access;
+         Duplicated_Age : Duration);
       --  See above.
       --  Holder would be released in case of registration failure.
 
       procedure Send_To
-        (Client_Id    : in     Client_Key;
-         Data         : in     Client_Output_Type;
-         Content_Type : in     String;
-         Thin_Id      : in     String;
-         Holder       :    out Client_Holder_Access);
+        (Client_Id    : Client_Key;
+         Data         : Client_Output_Type;
+         Content_Type : String;
+         Thin_Id      : String;
+         Holder       : out Client_Holder_Access);
       --  Holder out parameter not null mean that we have to convert Data into
       --  Stream_Element_Array, put it into socket and send the socket into
       --  waiter.
 
       procedure Send
-        (Data         : in     Client_Output_Type;
-         Group_Id     : in     String;
-         Content_Type : in     String;
-         Thin_Id      : in     String;
-         Queue        :    out Tables.Map);
+        (Data         : Client_Output_Type;
+         Group_Id     : String;
+         Content_Type : String;
+         Thin_Id      : String;
+         Queue        : out Tables.Map);
       --  Send Data to all clients registered.
       --  Queue would contain client holders available to send data or those
       --  failed on the write waiting state.
 
       procedure Get_Data
-        (Holder : in     Client_Holder_Access;
-         Data   :    out Stream_Element_Array;
-         Last   :    out Stream_Element_Offset);
+        (Holder : Client_Holder_Access;
+         Data   : out Stream_Element_Array;
+         Last   : out Stream_Element_Offset);
       --  Return data for the Waiter task.
       --  Could be called only for the write busy client.
       --  If no data to send client become not write busy.
 
       procedure Unregister
-        (Client_Id : in Client_Key; Holder : out Client_Holder_Access);
+        (Client_Id : Client_Key; Holder : out Client_Holder_Access);
       --  Unregister client and return its holder
 
       procedure Waiter_Error
-        (Holder : in Client_Holder_Access; Message : in String);
+        (Holder : Client_Holder_Access; Message : String);
       --  Waiter task would call it on socket error
 
       function Is_Open return Boolean;
       --  See above
 
-      procedure Subscribe (Client_Id : in Client_Key; Group_Id : in String);
+      procedure Subscribe (Client_Id : Client_Key; Group_Id : String);
       --  See above
 
-      procedure Subscribe_Copy (Source : in String; Target : in String);
+      procedure Subscribe_Copy (Source : String; Target : String);
       --  See above
 
-      procedure Unsubscribe (Client_Id : in Client_Key; Group_Id : in String);
+      procedure Unsubscribe (Client_Id : Client_Key; Group_Id : String);
       --  See above
 
-      procedure Unsubscribe_Copy (Source : in String; Target : in String);
+      procedure Unsubscribe_Copy (Source : String; Target : String);
 
       procedure Info
         (Client_Count : out Natural;
          Group_Count  : out Natural;
          Process      : access procedure
-                          (Client_Id   : in Client_Key;
-                           Address     : in String;
-                           State       : in String;
-                           Environment : in Client_Environment;
-                           Kind        : in Mode;
-                           Groups      : in Group_Set));
+                          (Client_Id   : Client_Key;
+                           Address     : String;
+                           State       : String;
+                           Environment : Client_Environment;
+                           Kind        : Mode;
+                           Groups      : Group_Set));
 
    private
       Container : Tables.Map;

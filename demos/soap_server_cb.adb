@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2003                            --
---                                ACT-Europe                                --
+--                     Copyright (C) 2003-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -38,13 +37,13 @@ package body SOAP_Server_CB is
 
    use Ada;
 
-   function SOAP_CB (Request : in AWS.Status.Data) return AWS.Response.Data;
+   function SOAP_CB (Request : AWS.Status.Data) return AWS.Response.Data;
 
    --------
    -- CB --
    --------
 
-   function CB (Request : in AWS.Status.Data) return AWS.Response.Data is
+   function CB (Request : AWS.Status.Data) return AWS.Response.Data is
       SOAPAction : constant String := AWS.Status.SOAPAction (Request);
    begin
       if SOAPAction = "/soapdemo" then
@@ -61,7 +60,7 @@ package body SOAP_Server_CB is
    -- SOAP_CB --
    -------------
 
-   function SOAP_CB (Request : in AWS.Status.Data) return AWS.Response.Data is
+   function SOAP_CB (Request : AWS.Status.Data) return AWS.Response.Data is
       use SOAP.Types;
       use SOAP.Parameters;
 
@@ -114,7 +113,7 @@ package body SOAP_Server_CB is
 
    exception
       when SOAP.Types.Data_Error =>
-         --  Here we have a problem with some parameters, return a SOAP error.
+         --  Here we have a problem with some parameters, return a SOAP error
          Text_IO.New_Line;
 
          return SOAP.Message.Response.Build

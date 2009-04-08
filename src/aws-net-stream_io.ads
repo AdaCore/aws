@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2007                          --
---                                 AdaCore                                  --
+--                     Copyright (C) 2000-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -33,29 +32,29 @@ package AWS.Net.Stream_IO is
    type Socket_Stream_Access is access Socket_Stream_Type;
 
    function Stream
-     (Socket : in Socket_Type'Class) return Socket_Stream_Access;
+     (Socket : Socket_Type'Class) return Socket_Stream_Access;
    --  Build a Stream Socket type
 
-   procedure Shutdown (Stream : in Socket_Stream_Access);
+   procedure Shutdown (Stream : Socket_Stream_Access);
    --  Terminate the Stream and Flush the stream if needed
 
    procedure Free (Stream : in out Socket_Stream_Access);
    --  Release memory associated with the Stream
 
-   procedure Flush (Stream : in Socket_Stream_Access);
+   procedure Flush (Stream : Socket_Stream_Access);
    pragma Inline (Flush);
    --  Send all remaining data in the stream to the peer
 
    overriding procedure Read
      (Stream : in out Socket_Stream_Type;
-      Item   :    out Stream_Element_Array;
-      Last   :    out Stream_Element_Offset);
+      Item   : out Stream_Element_Array;
+      Last   : out Stream_Element_Offset);
    --  Read a piece of data from the Stream. Returns the data into Item, Last
    --  point to the last Steam_Element read.
 
    overriding procedure Write
      (Stream : in out Socket_Stream_Type;
-      Item   : in     Stream_Element_Array);
+      Item   : Stream_Element_Array);
    --  Write Item to the stream
 
 private

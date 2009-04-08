@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2008                          --
---                                 AdaCore                                  --
+--                     Copyright (C) 2000-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -39,15 +38,15 @@ package body AWS.Services.Dispatchers.Virtual_Host is
 
    procedure Register
      (Dispatcher       : in out Handler;
-      Virtual_Hostname : in     String;
-      Node             : in     VH_Node);
+      Virtual_Hostname : String;
+      Node             : VH_Node);
    --  Register Node as into the dispatcher
 
    -----------
    -- Clone --
    -----------
 
-   overriding function Clone (Dispatcher : in Handler) return Handler is
+   overriding function Clone (Dispatcher : Handler) return Handler is
       New_Dispatcher : Handler;
       Cursor         : Virtual_Host_Table.Cursor;
    begin
@@ -93,8 +92,8 @@ package body AWS.Services.Dispatchers.Virtual_Host is
    --------------
 
    overriding function Dispatch
-     (Dispatcher : in Handler;
-      Request    : in AWS.Status.Data) return AWS.Response.Data
+     (Dispatcher : Handler;
+      Request    : AWS.Status.Data) return AWS.Response.Data
    is
       Hostname : constant String := Status.Host (Request);
       Location : Unbounded_String;
@@ -188,16 +187,16 @@ package body AWS.Services.Dispatchers.Virtual_Host is
 
    procedure Register
      (Dispatcher       : in out Handler;
-      Virtual_Hostname : in     String;
-      Node             : in     VH_Node) is
+      Virtual_Hostname : String;
+      Node             : VH_Node) is
    begin
       Dispatcher.Table.Include (Virtual_Hostname, Node);
    end Register;
 
    procedure Register
      (Dispatcher       : in out Handler;
-      Virtual_Hostname : in     String;
-      Hostname         : in     String)
+      Virtual_Hostname : String;
+      Hostname         : String)
    is
       Node : constant VH_Node := (Host, To_Unbounded_String (Hostname));
    begin
@@ -206,8 +205,8 @@ package body AWS.Services.Dispatchers.Virtual_Host is
 
    procedure Register
      (Dispatcher       : in out Handler;
-      Virtual_Hostname : in     String;
-      Action           : in     AWS.Dispatchers.Handler'Class)
+      Virtual_Hostname : String;
+      Action           : AWS.Dispatchers.Handler'Class)
    is
       Node : constant VH_Node
         := (Virtual_Host.Callback, new AWS.Dispatchers.Handler'Class'(Action));
@@ -217,8 +216,8 @@ package body AWS.Services.Dispatchers.Virtual_Host is
 
    procedure Register
      (Dispatcher       : in out Handler;
-      Virtual_Hostname : in     String;
-      Action           : in     Response.Callback) is
+      Virtual_Hostname : String;
+      Action           : Response.Callback) is
    begin
       Register
         (Dispatcher,
@@ -231,7 +230,7 @@ package body AWS.Services.Dispatchers.Virtual_Host is
 
    procedure Register_Default_Callback
      (Dispatcher : in out Handler;
-      Action     : in     AWS.Dispatchers.Handler'Class) is
+      Action     : AWS.Dispatchers.Handler'Class) is
    begin
       if Dispatcher.Action /= null then
          Free (Dispatcher.Action);
@@ -245,7 +244,7 @@ package body AWS.Services.Dispatchers.Virtual_Host is
 
    procedure Unregister
      (Dispatcher       : in out Handler;
-      Virtual_Hostname : in     String) is
+      Virtual_Hostname : String) is
    begin
       Dispatcher.Table.Delete (Virtual_Hostname);
    end Unregister;

@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2008, AdaCore                     --
+--                     Copyright (C) 2003-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -50,7 +50,7 @@ procedure Sessions2 is
    Port : Natural := 1256;
 
    task type T_Client is
-      entry Start (N : in Positive);
+      entry Start (N : Positive);
       entry Stopped;
    end T_Client;
 
@@ -66,7 +66,7 @@ procedure Sessions2 is
    -- CB --
    --------
 
-   function CB (Request : in Status.Data) return Response.Data is
+   function CB (Request : Status.Data) return Response.Data is
       SID : constant Session.ID      := Status.Session (Request);
       Key : constant String := "key";
       N   : Natural := 0;
@@ -91,7 +91,7 @@ procedure Sessions2 is
       C : Client.HTTP_Connection;
       N : Positive;
    begin
-      accept Start (N : in Positive) do
+      accept Start (N : Positive) do
          T_Client.N := N;
       end Start;
 
@@ -141,11 +141,11 @@ procedure Sessions2 is
    -- Delete_SID --
    ----------------
 
-   procedure Delete_SID (SID : in Session.ID) is
+   procedure Delete_SID (SID : Session.ID) is
 
       procedure Display_Session_Data
-        (N          : in     Positive;
-         Key, Value : in     String;
+        (N          : Positive;
+         Key, Value : String;
          Quit       : in out Boolean) is
       begin
          Text_IO.Put_Line ("   " & Key & " = " & Value);

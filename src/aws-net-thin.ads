@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2004-2006                          --
---                                 AdaCore                                  --
+--                     Copyright (C) 2004-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -53,10 +52,9 @@ package AWS.Net.Thin is
    pragma Convention (C, Pollfd);
 
    function Poll
-     (Fds     : in System.Address;
-      Nfds    : in nfds_t;
-      Timeout : in Timeout_Type)
-      return C.int;
+     (Fds     : System.Address;
+      Nfds    : nfds_t;
+      Timeout : Timeout_Type) return C.int;
    pragma Import (C, Poll, "poll");
 
 end AWS.Net.Thin;

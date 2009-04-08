@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2008, AdaCore                     --
+--                     Copyright (C) 2003-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -47,11 +47,11 @@ package WSDL_4 is
    end record;
 
    procedure Try
-     (Param1 : in My_Int;
-      Param2 : in My_Float;
-      Param3 : in S_My_Int;
-      Param4 : in S_My_Float;
-      Param5 : in Rec);
+     (Param1 : My_Int;
+      Param2 : My_Float;
+      Param3 : S_My_Int;
+      Param4 : S_My_Float;
+      Param5 : Rec);
 
    function Try2 (Param1 : Integer; Param2 : String) return Rec;
 

@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                        Copyright (C) 2008, AdaCore                       --
+--                     Copyright (C) 2008-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -65,16 +65,16 @@ package body SMTP_Pck is
    -- Dump_Mail --
    ---------------
 
-   procedure Dump_Mail (Message : in SMTP.Messages.Data) is
+   procedure Dump_Mail (Message : SMTP.Messages.Data) is
 
-      function Set_Boundary (Content : in String) return String;
+      function Set_Boundary (Content : String) return String;
       --  Change the boundary number to be stable
 
       ------------------
       -- Set_Boundary --
       ------------------
 
-      function Set_Boundary (Content : in String) return String is
+      function Set_Boundary (Content : String) return String is
          Pattern   : constant String := "----=_NextPart_";
          L_Content : String := Content;
          K         : Natural := L_Content'First;

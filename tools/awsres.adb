@@ -1,9 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2002-2008, AdaCore                     --
---                                                                          --
---  Authors: Dmitriy Anisimkov - Pascal Obry                                --
+--                     Copyright (C) 2002-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -72,10 +70,10 @@ procedure AwsRes is
    Compress : Boolean := False;
    --  By default resources are not compressed
 
-   procedure Create (Filename : in String);
+   procedure Create (Filename : String);
    --  Create resource package for Filename
 
-   function Package_Name (Filename : in String) return String;
+   function Package_Name (Filename : String) return String;
    --  Returns package name for Filename
 
    procedure Parse_Command_Line;
@@ -88,7 +86,7 @@ procedure AwsRes is
    -- Create --
    ------------
 
-   procedure Create (Filename : in String) is
+   procedure Create (Filename : String) is
       use Streams;
 
       package RS renames AWS.Resources.Streams;
@@ -267,7 +265,7 @@ procedure AwsRes is
    -- Package_Name --
    ------------------
 
-   function Package_Name (Filename : in String) return String is
+   function Package_Name (Filename : String) return String is
       From : constant String := ".";
       To   : constant String := "_";
 

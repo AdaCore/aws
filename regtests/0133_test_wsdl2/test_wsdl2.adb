@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2008, AdaCore                     --
+--                     Copyright (C) 2003-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -52,8 +52,8 @@ procedure Test_WSDL2 is
    package FIO is new Text_IO.Float_IO (Float);
 
    function GetLastTradePrice
-     (tickerSymbol : in String;
-      timePeriod   : in Types.TimePeriod_Type)
+     (tickerSymbol : String;
+      timePeriod   : Types.TimePeriod_Type)
       return Types.GetLastTradePrice_Result;
 
    -------------
@@ -69,7 +69,7 @@ procedure Test_WSDL2 is
    -- CB --
    --------
 
-   function CB (Request : in Status.Data) return Response.Data is
+   function CB (Request : Status.Data) return Response.Data is
       SOAPAction : constant String := Status.SOAPAction (Request);
    begin
       if SOAPAction = "http://localhost/GetTradePrices" then
@@ -84,8 +84,8 @@ procedure Test_WSDL2 is
    -----------------------
 
    function GetLastTradePrice
-     (tickerSymbol : in String;
-      timePeriod   : in Types.TimePeriod_Type)
+     (tickerSymbol : String;
+      timePeriod   : Types.TimePeriod_Type)
       return Types.GetLastTradePrice_Result
    is
       use type Calendar.Time;

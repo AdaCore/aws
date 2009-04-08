@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2006-2008, AdaCore                     --
+--                     Copyright (C) 2006-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -34,14 +34,14 @@ package body AWS.Net.SSL.Certificate is
 
    use Interfaces;
 
-   procedure Check_Error_Code (Code : in C.int; Socket : in Socket_Type'Class);
+   procedure Check_Error_Code (Code : C.int; Socket : Socket_Type'Class);
 
    ----------------------
    -- Check_Error_Code --
    ----------------------
 
    procedure Check_Error_Code
-     (Code : in C.int; Socket : in Socket_Type'Class)
+     (Code : C.int; Socket : Socket_Type'Class)
    is
       use type C.int;
    begin
@@ -60,7 +60,7 @@ package body AWS.Net.SSL.Certificate is
    -- Get --
    ---------
 
-   function Get (Socket : in Socket_Type) return Object is
+   function Get (Socket : Socket_Type) return Object is
       use type C.unsigned;
       use type System.Address;
       use type TSSL.a_gnutls_datum_t;
@@ -114,7 +114,7 @@ package body AWS.Net.SSL.Certificate is
    -- Issuer --
    ------------
 
-   function Issuer (Certificate : in Object) return String is
+   function Issuer (Certificate : Object) return String is
    begin
       return To_String (Certificate.Issuer);
    end Issuer;
@@ -123,7 +123,7 @@ package body AWS.Net.SSL.Certificate is
    -- Subject --
    -------------
 
-   function Subject (Certificate : in Object) return String is
+   function Subject (Certificate : Object) return String is
    begin
       return To_String (Certificate.Subject);
    end Subject;

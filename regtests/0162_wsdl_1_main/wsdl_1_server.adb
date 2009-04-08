@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2008, AdaCore                     --
+--                     Copyright (C) 2003-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -47,7 +47,7 @@ package body WSDL_1_Server is
    -- HTTP_CB --
    -------------
 
-   function HTTP_CB (Request : in Status.Data) return Response.Data is
+   function HTTP_CB (Request : Status.Data) return Response.Data is
    begin
       return Response.Build
         (MIME.Text_HTML, "No HTTP request should be called.");
@@ -58,9 +58,9 @@ package body WSDL_1_Server is
    -------------
 
    function SOAP_CB
-     (SOAPAction : in String;
-      Payload    : in Message.Payload.Object;
-      Request    : in Status.Data)
+     (SOAPAction : String;
+      Payload    : Message.Payload.Object;
+      Request    : Status.Data)
       return Response.Data is
    begin
       if SOAPAction = "Print" then

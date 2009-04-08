@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2001                          --
---                                ACT-Europe                                --
+--                     Copyright (C) 2000-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -40,7 +39,7 @@ package body Runme_Info is
    Executable : constant OS_Lib.String_Access
      := OS_Lib.Locate_Exec_On_Path (Client_Name);
 
-   function Get_File_Path (Pathname : in String) return String;
+   function Get_File_Path (Pathname : String) return String;
    --  Given a filename (absolute or relative) it will return the
    --  absolute pathname to this file. A trailing directory separator is
    --  returned.
@@ -49,7 +48,7 @@ package body Runme_Info is
    -- Get_File_Path --
    -------------------
 
-   function Get_File_Path (Pathname : in String) return String is
+   function Get_File_Path (Pathname : String) return String is
       File : Text_IO.File_Type;
    begin
       Text_IO.Open (File, Text_IO.In_File, Pathname);

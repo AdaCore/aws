@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2004-2008, AdaCore                     --
+--                     Copyright (C) 2004-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -56,19 +56,19 @@ procedure Test_Net_Log is
    --------------
 
    procedure HTTP_Log
-     (Direction : in Net.Log.Data_Direction;
-      Socket    : in Net.Socket_Type'Class;
-      Data      : in Streams.Stream_Element_Array;
-      Last      : in Streams.Stream_Element_Offset)
+     (Direction : Net.Log.Data_Direction;
+      Socket    : Net.Socket_Type'Class;
+      Data      : Streams.Stream_Element_Array;
+      Last      : Streams.Stream_Element_Offset)
    is
-      procedure Write (F : in File_Type);
+      procedure Write (F : File_Type);
       --  Write info into file F
 
       -----------
       -- Write --
       -----------
 
-      procedure Write (F : in File_Type) is
+      procedure Write (F : File_Type) is
          Buffer : String (1 .. 1024);
          K      : Natural := 0;
          Output : Boolean := False;
@@ -135,7 +135,7 @@ procedure Test_Net_Log is
    -----------
 
    function HW_CB
-     (Request : in Status.Data)
+     (Request : Status.Data)
       return AWS.Response.Data
    is
       URI : constant String := AWS.Status.URI (Request);
@@ -152,7 +152,7 @@ procedure Test_Net_Log is
    -- Output --
    ------------
 
-   procedure Output (F : in File_Type) is
+   procedure Output (F : File_Type) is
       Buffer : String (1 .. 1024);
       Last   : Natural;
    begin

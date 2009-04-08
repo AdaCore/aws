@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2008, AdaCore                     --
+--                     Copyright (C) 2003-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -67,7 +67,7 @@ procedure Timer is
    -- DCB --
    ---------
 
-   function DCB (Request : in Status.Data) return Response.Data is
+   function DCB (Request : Status.Data) return Response.Data is
    begin
       return Response.Build (MIME.Text_HTML, "This is the default dispatcher");
    end DCB;
@@ -76,7 +76,7 @@ procedure Timer is
    -- CB1 --
    ---------
 
-   function CB1 (Request : in Status.Data) return Response.Data is
+   function CB1 (Request : Status.Data) return Response.Data is
    begin
       return Response.Build (MIME.Text_HTML, "This is CB1 dispatcher");
    end CB1;

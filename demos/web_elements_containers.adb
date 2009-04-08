@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                          Copyright (C) 2004-2005                         --
---                                  AdaCore                                 --
+--                     Copyright (C) 2004-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -44,7 +43,7 @@ package body Web_Elements_Containers is
    -- Add_Group --
    ---------------
 
-   procedure Add_Group (Name : in String) is
+   procedure Add_Group (Name : String) is
    begin
       String_Vectors.Append (Groups, Name);
    end Add_Group;
@@ -53,7 +52,7 @@ package body Web_Elements_Containers is
    -- Add_User --
    --------------
 
-   procedure Add_User (Name : in String) is
+   procedure Add_User (Name : String) is
    begin
       String_Vectors.Append (Users, Name);
    end Add_User;

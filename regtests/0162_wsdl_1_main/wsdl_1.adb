@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2007-2008, AdaCore                     --
+--                     Copyright (C) 2007-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -35,7 +35,7 @@ package body WSDL_1 is
    -- Print --
    -----------
 
-   procedure Print (X : in Integer) is
+   procedure Print (X : Integer) is
    begin
       Text_IO.Put_Line (Integer'Image (X));
    end Print;
@@ -44,7 +44,7 @@ package body WSDL_1 is
    -- Print_Small --
    -----------------
 
-   procedure Print_Small (X : in Small_Integer) is
+   procedure Print_Small (X : Small_Integer) is
    begin
       Text_IO.Put_Line (Small_Integer'Image (X));
    end Print_Small;
@@ -53,7 +53,7 @@ package body WSDL_1 is
    -- Image --
    -----------
 
-   function Image (X : in Integer) return String is
+   function Image (X : Integer) return String is
    begin
       return Integer'Image (X);
    end Image;

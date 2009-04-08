@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2008, AdaCore                     --
+--                     Copyright (C) 2003-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -31,7 +31,7 @@ package body WSDL_6 is
    -- Echo_Float --
    ----------------
 
-   function Echo_Float (V : in Float) return Float is
+   function Echo_Float (V : Float) return Float is
    begin
       return V;
    end Echo_Float;
@@ -40,7 +40,7 @@ package body WSDL_6 is
    -- Echo_Complex_Rec --
    ----------------------
 
-   function Echo_Complex_Rec (C_Rec : in Complex_Rec) return Complex_Rec is
+   function Echo_Complex_Rec (C_Rec : Complex_Rec) return Complex_Rec is
    begin
       return C_Rec;
    end Echo_Complex_Rec;
@@ -49,7 +49,7 @@ package body WSDL_6 is
    -- Echo_Double --
    -----------------
 
-   function Echo_Double (V : in Long_Float) return Long_Float is
+   function Echo_Double (V : Long_Float) return Long_Float is
    begin
       return V;
    end Echo_Double;
@@ -58,7 +58,7 @@ package body WSDL_6 is
    -- Echo_Boolean --
    ------------------
 
-   function Echo_Boolean (V : in Boolean) return Boolean is
+   function Echo_Boolean (V : Boolean) return Boolean is
    begin
       return V;
    end Echo_Boolean;
@@ -67,7 +67,7 @@ package body WSDL_6 is
    -- Echo_Rec --
    --------------
 
-   function Echo_Rec (V : in Rec) return Rec is
+   function Echo_Rec (V : Rec) return Rec is
    begin
       return V;
    end Echo_Rec;
@@ -76,7 +76,7 @@ package body WSDL_6 is
    -- Echo_Int --
    --------------
 
-   function Echo_Int (V : in Integer) return Integer is
+   function Echo_Int (V : Integer) return Integer is
    begin
       return V;
    end Echo_Int;
@@ -85,7 +85,7 @@ package body WSDL_6 is
    -- Echo_Short --
    ----------------
 
-   function Echo_Short (V : in SOAP.Types.Short) return SOAP.Types.Short is
+   function Echo_Short (V : SOAP.Types.Short) return SOAP.Types.Short is
    begin
       return V;
    end Echo_Short;
@@ -94,7 +94,7 @@ package body WSDL_6 is
    -- Echo_Long --
    ---------------
 
-   function Echo_Long (V : in SOAP.Types.Long) return SOAP.Types.Long is
+   function Echo_Long (V : SOAP.Types.Long) return SOAP.Types.Long is
    begin
       return V;
    end Echo_Long;
@@ -103,7 +103,7 @@ package body WSDL_6 is
    -- Echo_Byte --
    ---------------
 
-   function Echo_Byte (V : in SOAP.Types.Byte) return SOAP.Types.Byte is
+   function Echo_Byte (V : SOAP.Types.Byte) return SOAP.Types.Byte is
    begin
       return V;
    end Echo_Byte;
@@ -113,7 +113,7 @@ package body WSDL_6 is
    ------------------------
 
    function Echo_Unsigned_Long
-     (V : in SOAP.Types.Unsigned_Long) return SOAP.Types.Unsigned_Long is
+     (V : SOAP.Types.Unsigned_Long) return SOAP.Types.Unsigned_Long is
    begin
       return V;
    end Echo_Unsigned_Long;
@@ -123,7 +123,7 @@ package body WSDL_6 is
    -----------------------
 
    function Echo_Unsigned_Int
-     (V : in SOAP.Types.Unsigned_Int) return SOAP.Types.Unsigned_Int is
+     (V : SOAP.Types.Unsigned_Int) return SOAP.Types.Unsigned_Int is
    begin
       return V;
    end Echo_Unsigned_Int;
@@ -133,7 +133,7 @@ package body WSDL_6 is
    -------------------------
 
    function Echo_Unsigned_Short
-     (V : in SOAP.Types.Unsigned_Short) return SOAP.Types.Unsigned_Short is
+     (V : SOAP.Types.Unsigned_Short) return SOAP.Types.Unsigned_Short is
    begin
       return V;
    end Echo_Unsigned_Short;
@@ -143,7 +143,7 @@ package body WSDL_6 is
    ------------------------
 
    function Echo_Unsigned_Byte
-     (V : in SOAP.Types.Unsigned_Byte) return SOAP.Types.Unsigned_Byte is
+     (V : SOAP.Types.Unsigned_Byte) return SOAP.Types.Unsigned_Byte is
    begin
       return V;
    end Echo_Unsigned_Byte;
@@ -152,7 +152,7 @@ package body WSDL_6 is
    -- Echo_New_Rec --
    ------------------
 
-   function Echo_New_Rec (V : in New_Rec) return New_Rec is
+   function Echo_New_Rec (V : New_Rec) return New_Rec is
    begin
       return V;
    end Echo_New_Rec;
@@ -161,7 +161,7 @@ package body WSDL_6 is
    -- Echo_Set --
    --------------
 
-   function Echo_Set (Set : in Set_Of_Int) return Set_Of_Int is
+   function Echo_Set (Set : Set_Of_Int) return Set_Of_Int is
    begin
       return Set;
    end Echo_Set;
@@ -170,7 +170,7 @@ package body WSDL_6 is
    -- Echo_Set_Rec --
    ------------------
 
-   function Echo_Set_Rec (Set : in Set_Of_Rec) return Set_Of_Rec is
+   function Echo_Set_Rec (Set : Set_Of_Rec) return Set_Of_Rec is
    begin
       return Set;
    end Echo_Set_Rec;
@@ -179,7 +179,7 @@ package body WSDL_6 is
    -- Next --
    ----------
 
-   function Next (Col : in Color) return Color is
+   function Next (Col : Color) return Color is
    begin
       if Col = Color'Last then
          return Color'First;
@@ -192,7 +192,7 @@ package body WSDL_6 is
    -- Plus --
    ----------
 
-   function Plus (Value : in Natural) return Natural is
+   function Plus (Value : Natural) return Natural is
    begin
       return Value + 1;
    end Plus;

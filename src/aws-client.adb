@@ -65,7 +65,7 @@ package body AWS.Client is
    -- Connect_Timeout --
    ---------------------
 
-   function Connect_Timeout (T : in Timeouts_Values) return Duration is
+   function Connect_Timeout (T : Timeouts_Values) return Duration is
    begin
       return T.Connect;
    end Connect_Timeout;
@@ -75,7 +75,7 @@ package body AWS.Client is
    -----------------
 
    procedure Copy_Cookie
-     (Source      : in     HTTP_Connection;
+     (Source      : HTTP_Connection;
       Destination : in out HTTP_Connection) is
    begin
       Destination.Cookie := Source.Cookie;
@@ -86,18 +86,18 @@ package body AWS.Client is
    ------------
 
    function Create
-     (Host        : in     String;
-      User        : in     String          := No_Data;
-      Pwd         : in     String          := No_Data;
-      Proxy       : in     String          := No_Data;
-      Proxy_User  : in     String          := No_Data;
-      Proxy_Pwd   : in     String          := No_Data;
-      Retry       : in     Natural         := Retry_Default;
-      Persistent  : in     Boolean         := True;
-      Timeouts    : in     Timeouts_Values := No_Timeout;
-      Server_Push : in     Boolean         := False;
-      Certificate : in     String          := Default.Client_Certificate;
-      User_Agent  : in     String          := Default.User_Agent)
+     (Host        : String;
+      User        : String          := No_Data;
+      Pwd         : String          := No_Data;
+      Proxy       : String          := No_Data;
+      Proxy_User  : String          := No_Data;
+      Proxy_Pwd   : String          := No_Data;
+      Retry       : Natural         := Retry_Default;
+      Persistent  : Boolean         := True;
+      Timeouts    : Timeouts_Values := No_Timeout;
+      Server_Push : Boolean         := False;
+      Certificate : String          := Default.Client_Certificate;
+      User_Agent  : String          := Default.User_Agent)
       return HTTP_Connection is
    begin
       return  Connection : HTTP_Connection do
@@ -112,18 +112,18 @@ package body AWS.Client is
 
    procedure Create
      (Connection  : in out HTTP_Connection;
-      Host        : in     String;
-      User        : in     String          := No_Data;
-      Pwd         : in     String          := No_Data;
-      Proxy       : in     String          := No_Data;
-      Proxy_User  : in     String          := No_Data;
-      Proxy_Pwd   : in     String          := No_Data;
-      Retry       : in     Natural         := Retry_Default;
-      Persistent  : in     Boolean         := True;
-      Timeouts    : in     Timeouts_Values := No_Timeout;
-      Server_Push : in     Boolean         := False;
-      Certificate : in     String          := Default.Client_Certificate;
-      User_Agent  : in     String          := Default.User_Agent)
+      Host        : String;
+      User        : String          := No_Data;
+      Pwd         : String          := No_Data;
+      Proxy       : String          := No_Data;
+      Proxy_User  : String          := No_Data;
+      Proxy_Pwd   : String          := No_Data;
+      Retry       : Natural         := Retry_Default;
+      Persistent  : Boolean         := True;
+      Timeouts    : Timeouts_Values := No_Timeout;
+      Server_Push : Boolean         := False;
+      Certificate : String          := Default.Client_Certificate;
+      User_Agent  : String          := Default.User_Agent)
    is
       Host_URL    : constant AWS.URL.Object := AWS.URL.Parse (Host);
       Proxy_URL   : constant AWS.URL.Object := AWS.URL.Parse (Proxy);
@@ -188,7 +188,7 @@ package body AWS.Client is
    -- Debug_Exception --
    ---------------------
 
-   procedure Debug_Exception (E : in Ada.Exceptions.Exception_Occurrence) is
+   procedure Debug_Exception (E : Ada.Exceptions.Exception_Occurrence) is
    begin
       Debug_Message ("! ", Ada.Exceptions.Exception_Message (E));
    end Debug_Exception;
@@ -197,7 +197,7 @@ package body AWS.Client is
    -- Debug_Message --
    -------------------
 
-   procedure Debug_Message (Prefix, Message : in String) is
+   procedure Debug_Message (Prefix, Message : String) is
    begin
       if Debug_On then
          Text_IO.Put_Line (Prefix & Message);
@@ -209,17 +209,17 @@ package body AWS.Client is
    ---------
 
    function Get
-     (URL                : in String;
-      User               : in String          := No_Data;
-      Pwd                : in String          := No_Data;
-      Proxy              : in String          := No_Data;
-      Proxy_User         : in String          := No_Data;
-      Proxy_Pwd          : in String          := No_Data;
-      Timeouts           : in Timeouts_Values := No_Timeout;
-      Data_Range         : in Content_Range   := No_Range;
-      Follow_Redirection : in Boolean         := False;
-      Certificate        : in String          := Default.Client_Certificate;
-      Headers            : in Header_List     := Empty_Header_List)
+     (URL                : String;
+      User               : String          := No_Data;
+      Pwd                : String          := No_Data;
+      Proxy              : String          := No_Data;
+      Proxy_User         : String          := No_Data;
+      Proxy_Pwd          : String          := No_Data;
+      Timeouts           : Timeouts_Values := No_Timeout;
+      Data_Range         : Content_Range   := No_Range;
+      Follow_Redirection : Boolean         := False;
+      Certificate        : String          := Default.Client_Certificate;
+      Headers            : Header_List     := Empty_Header_List)
       return Response.Data
    is
       use type Messages.Status_Code;
@@ -277,10 +277,10 @@ package body AWS.Client is
 
    procedure Get
      (Connection : in out HTTP_Connection;
-      Result     :    out Response.Data;
-      URI        : in     String          := No_Data;
-      Data_Range : in     Content_Range   := No_Range;
-      Headers    : in     Header_List     := Empty_Header_List)
+      Result     : out Response.Data;
+      URI        : String          := No_Data;
+      Data_Range : Content_Range   := No_Range;
+      Headers    : Header_List     := Empty_Header_List)
    is
       use Ada.Real_Time;
       Stamp         : constant Time := Clock;
@@ -336,7 +336,7 @@ package body AWS.Client is
    ---------------------
 
    function Get_Certificate
-     (Connection : in HTTP_Connection)
+     (Connection : HTTP_Connection)
       return Net.SSL.Certificate.Object
    is
       use type Net.Socket_Access;
@@ -358,7 +358,7 @@ package body AWS.Client is
    -- Get_Cookie --
    ----------------
 
-   function Get_Cookie (Connection : in HTTP_Connection) return String is
+   function Get_Cookie (Connection : HTTP_Connection) return String is
    begin
       return To_String (Connection.Cookie);
    end Get_Cookie;
@@ -368,14 +368,14 @@ package body AWS.Client is
    ----------
 
    function Head
-     (URL        : in String;
-      User       : in String          := No_Data;
-      Pwd        : in String          := No_Data;
-      Proxy      : in String          := No_Data;
-      Proxy_User : in String          := No_Data;
-      Proxy_Pwd  : in String          := No_Data;
-      Timeouts   : in Timeouts_Values := No_Timeout;
-      Headers    : in Header_List     := Empty_Header_List)
+     (URL        : String;
+      User       : String          := No_Data;
+      Pwd        : String          := No_Data;
+      Proxy      : String          := No_Data;
+      Proxy_User : String          := No_Data;
+      Proxy_Pwd  : String          := No_Data;
+      Timeouts   : Timeouts_Values := No_Timeout;
+      Headers    : Header_List     := Empty_Header_List)
       return Response.Data
    is
       Connection : HTTP_Connection;
@@ -403,9 +403,9 @@ package body AWS.Client is
 
    procedure Head
      (Connection : in out HTTP_Connection;
-      Result     :    out Response.Data;
-      URI        : in     String      := No_Data;
-      Headers    : in     Header_List := Empty_Header_List)
+      Result     : out Response.Data;
+      URI        : String      := No_Data;
+      Headers    : Header_List := Empty_Header_List)
    is
       use Ada.Real_Time;
       Stamp         : constant Time := Clock;
@@ -454,7 +454,7 @@ package body AWS.Client is
    -- Host --
    ----------
 
-   function Host (Connection : in HTTP_Connection) return String is
+   function Host (Connection : HTTP_Connection) return String is
    begin
       return To_String (Connection.Host);
    end Host;
@@ -464,17 +464,17 @@ package body AWS.Client is
    ----------
 
    function Post
-     (URL          : in String;
-      Data         : in String;
-      Content_Type : in String          := No_Data;
-      User         : in String          := No_Data;
-      Pwd          : in String          := No_Data;
-      Proxy        : in String          := No_Data;
-      Proxy_User   : in String          := No_Data;
-      Proxy_Pwd    : in String          := No_Data;
-      Timeouts     : in Timeouts_Values := No_Timeout;
-      Attachments  : in Attachment_List := Empty_Attachment_List;
-      Headers      : in Header_List     := Empty_Header_List)
+     (URL          : String;
+      Data         : String;
+      Content_Type : String          := No_Data;
+      User         : String          := No_Data;
+      Pwd          : String          := No_Data;
+      Proxy        : String          := No_Data;
+      Proxy_User   : String          := No_Data;
+      Proxy_Pwd    : String          := No_Data;
+      Timeouts     : Timeouts_Values := No_Timeout;
+      Attachments  : Attachment_List := Empty_Attachment_List;
+      Headers      : Header_List     := Empty_Header_List)
       return Response.Data
    is
       Connection : HTTP_Connection;
@@ -498,17 +498,17 @@ package body AWS.Client is
    end Post;
 
    function Post
-     (URL          : in String;
-      Data         : in Stream_Element_Array;
-      Content_Type : in String          := No_Data;
-      User         : in String          := No_Data;
-      Pwd          : in String          := No_Data;
-      Proxy        : in String          := No_Data;
-      Proxy_User   : in String          := No_Data;
-      Proxy_Pwd    : in String          := No_Data;
-      Timeouts     : in Timeouts_Values := No_Timeout;
-      Attachments  : in Attachment_List := Empty_Attachment_List;
-      Headers      : in Header_List     := Empty_Header_List)
+     (URL          : String;
+      Data         : Stream_Element_Array;
+      Content_Type : String          := No_Data;
+      User         : String          := No_Data;
+      Pwd          : String          := No_Data;
+      Proxy        : String          := No_Data;
+      Proxy_User   : String          := No_Data;
+      Proxy_Pwd    : String          := No_Data;
+      Timeouts     : Timeouts_Values := No_Timeout;
+      Attachments  : Attachment_List := Empty_Attachment_List;
+      Headers      : Header_List     := Empty_Header_List)
       return Response.Data
    is
       Connection : HTTP_Connection;
@@ -533,12 +533,12 @@ package body AWS.Client is
 
    procedure Post
      (Connection   : in out HTTP_Connection;
-      Result       :    out Response.Data;
-      Data         : in     Stream_Element_Array;
-      Content_Type : in     String          := No_Data;
-      URI          : in     String          := No_Data;
-      Attachments  : in     Attachment_List := Empty_Attachment_List;
-      Headers      : in     Header_List     := Empty_Header_List)
+      Result       : out Response.Data;
+      Data         : Stream_Element_Array;
+      Content_Type : String          := No_Data;
+      URI          : String          := No_Data;
+      Attachments  : Attachment_List := Empty_Attachment_List;
+      Headers      : Header_List     := Empty_Header_List)
    is
    begin
       if Content_Type = No_Data then
@@ -566,12 +566,12 @@ package body AWS.Client is
 
    procedure Post
      (Connection   : in out HTTP_Connection;
-      Result       :    out Response.Data;
-      Data         : in     String;
-      Content_Type : in     String          := No_Data;
-      URI          : in     String          := No_Data;
-      Attachments  : in     Attachment_List := Empty_Attachment_List;
-      Headers      : in     Header_List     := Empty_Header_List)
+      Result       : out Response.Data;
+      Data         : String;
+      Content_Type : String          := No_Data;
+      URI          : String          := No_Data;
+      Attachments  : Attachment_List := Empty_Attachment_List;
+      Headers      : Header_List     := Empty_Header_List)
    is
    begin
       if Content_Type = No_Data then
@@ -602,15 +602,15 @@ package body AWS.Client is
    ---------
 
    function Put
-     (URL        : in String;
-      Data       : in String;
-      User       : in String          := No_Data;
-      Pwd        : in String          := No_Data;
-      Proxy      : in String          := No_Data;
-      Proxy_User : in String          := No_Data;
-      Proxy_Pwd  : in String          := No_Data;
-      Timeouts   : in Timeouts_Values := No_Timeout;
-      Headers    : in Header_List     := Empty_Header_List)
+     (URL        : String;
+      Data       : String;
+      User       : String          := No_Data;
+      Pwd        : String          := No_Data;
+      Proxy      : String          := No_Data;
+      Proxy_User : String          := No_Data;
+      Proxy_Pwd  : String          := No_Data;
+      Timeouts   : Timeouts_Values := No_Timeout;
+      Headers    : Header_List     := Empty_Header_List)
       return Response.Data
    is
       Connection : HTTP_Connection;
@@ -637,10 +637,10 @@ package body AWS.Client is
 
    procedure Put
      (Connection : in out HTTP_Connection;
-      Result     :    out Response.Data;
-      Data       : in     String;
-      URI        : in     String      := No_Data;
-      Headers    : in     Header_List := Empty_Header_List)
+      Result     : out Response.Data;
+      Data       : String;
+      URI        : String      := No_Data;
+      Headers    : Header_List := Empty_Header_List)
    is
       use Ada.Real_Time;
       Stamp         : constant Time := Clock;
@@ -706,8 +706,8 @@ package body AWS.Client is
 
    procedure Read
      (Connection : in out HTTP_Connection;
-      Data       :    out Stream_Element_Array;
-      Last       :    out Stream_Element_Offset)
+      Data       : out Stream_Element_Array;
+      Last       : out Stream_Element_Offset)
    is
       First : Stream_Element_Offset := Data'First;
    begin
@@ -724,8 +724,8 @@ package body AWS.Client is
 
    procedure Read_Some
      (Connection : in out HTTP_Connection;
-      Data       :    out Stream_Element_Array;
-      Last       :    out Stream_Element_Offset)
+      Data       : out Stream_Element_Array;
+      Last       : out Stream_Element_Offset)
    is
       procedure Read_Internal
         (Data : out Stream_Element_Array;
@@ -862,9 +862,9 @@ package body AWS.Client is
    ----------------
 
    function Read_Until
-     (Connection : in HTTP_Connection;
-      Delimiter  : in String;
-      Wait       : in Boolean := True) return String is
+     (Connection : HTTP_Connection;
+      Delimiter  : String;
+      Wait       : Boolean := True) return String is
    begin
       Net.Set_Timeout (Connection.Socket.all, Connection.Timeouts.Receive);
 
@@ -877,9 +877,9 @@ package body AWS.Client is
 
    procedure Read_Until
      (Connection : in out HTTP_Connection;
-      Delimiter  : in     String;
+      Delimiter  : String;
       Result     : in out Ada.Strings.Unbounded.Unbounded_String;
-      Wait       : in     Boolean := True) is
+      Wait       : Boolean := True) is
    begin
       Result :=  Ada.Strings.Unbounded.To_Unbounded_String
                    (Read_Until (Connection, Delimiter, Wait));
@@ -889,7 +889,7 @@ package body AWS.Client is
    -- Receive_Timeout --
    ---------------------
 
-   function Receive_Timeout (T : in Timeouts_Values) return Duration is
+   function Receive_Timeout (T : Timeouts_Values) return Duration is
    begin
       return T.Receive;
    end Receive_Timeout;
@@ -898,7 +898,7 @@ package body AWS.Client is
    -- Response_Timeout --
    ----------------------
 
-   function Response_Timeout (T : in Timeouts_Values) return Duration is
+   function Response_Timeout (T : Timeouts_Values) return Duration is
    begin
       return Ada.Real_Time.To_Duration (T.Response);
    end Response_Timeout;
@@ -907,7 +907,7 @@ package body AWS.Client is
    -- Send_Timeout --
    ------------------
 
-   function Send_Timeout (T : in Timeouts_Values) return Duration is
+   function Send_Timeout (T : Timeouts_Values) return Duration is
    begin
       return T.Send;
    end Send_Timeout;
@@ -917,7 +917,7 @@ package body AWS.Client is
    ----------------
 
    procedure Set_Cookie
-     (Connection : in out HTTP_Connection; Cookie : in String) is
+     (Connection : in out HTTP_Connection; Cookie : String) is
    begin
       Connection.Cookie := To_Unbounded_String (Cookie);
    end Set_Cookie;
@@ -926,7 +926,7 @@ package body AWS.Client is
    -- Set_Debug --
    ---------------
 
-   procedure Set_Debug (On : in Boolean) is
+   procedure Set_Debug (On : Boolean) is
    begin
       Debug_On := On;
       AWS.Headers.Set.Debug (On);
@@ -938,9 +938,9 @@ package body AWS.Client is
 
    procedure Set_Proxy_Authentication
      (Connection : in out HTTP_Connection;
-      User       : in     String;
-      Pwd        : in     String;
-      Mode       : in     Authentication_Mode) is
+      User       : String;
+      Pwd        : String;
+      Mode       : Authentication_Mode) is
    begin
       Set_Authentication
         (Auth => Connection.Auth (Proxy),
@@ -955,7 +955,7 @@ package body AWS.Client is
 
    procedure Set_Streaming_Output
      (Connection : in out HTTP_Connection;
-      Value      : in     Boolean) is
+      Value      : Boolean) is
    begin
       Connection.Streaming := Value;
    end Set_Streaming_Output;
@@ -966,9 +966,9 @@ package body AWS.Client is
 
    procedure Set_WWW_Authentication
      (Connection : in out HTTP_Connection;
-      User       : in     String;
-      Pwd        : in     String;
-      Mode       : in     Authentication_Mode) is
+      User       : String;
+      Pwd        : String;
+      Mode       : Authentication_Mode) is
    begin
       Set_Authentication
         (Auth => Connection.Auth (WWW),
@@ -982,17 +982,17 @@ package body AWS.Client is
    ---------------
 
    function SOAP_Post
-     (URL         : in String;
-      Data        : in String;
-      SOAPAction  : in String;
-      User        : in String          := No_Data;
-      Pwd         : in String          := No_Data;
-      Proxy       : in String          := No_Data;
-      Proxy_User  : in String          := No_Data;
-      Proxy_Pwd   : in String          := No_Data;
-      Timeouts    : in Timeouts_Values := No_Timeout;
-      Attachments : in Attachment_List := Empty_Attachment_List;
-      Headers     : in Header_List     := Empty_Header_List)
+     (URL         : String;
+      Data        : String;
+      SOAPAction  : String;
+      User        : String          := No_Data;
+      Pwd         : String          := No_Data;
+      Proxy       : String          := No_Data;
+      Proxy_User  : String          := No_Data;
+      Proxy_Pwd   : String          := No_Data;
+      Timeouts    : Timeouts_Values := No_Timeout;
+      Attachments : Attachment_List := Empty_Attachment_List;
+      Headers     : Header_List     := Empty_Header_List)
       return Response.Data
    is
       Connection : HTTP_Connection;
@@ -1018,13 +1018,13 @@ package body AWS.Client is
    end SOAP_Post;
 
    procedure SOAP_Post
-     (Connection  : in     HTTP_Connection;
-      Result      :    out Response.Data;
-      SOAPAction  : in     String;
-      Data        : in     String;
-      Streaming   : in     Boolean         := False;
-      Attachments : in     Attachment_List := Empty_Attachment_List;
-      Headers     : in     Header_List     := Empty_Header_List)
+     (Connection  : HTTP_Connection;
+      Result      : out Response.Data;
+      SOAPAction  : String;
+      Data        : String;
+      Streaming   : Boolean         := False;
+      Attachments : Attachment_List := Empty_Attachment_List;
+      Headers     : Header_List     := Empty_Header_List)
    is
       Save_Streaming : constant Boolean := Connection.Streaming;
    begin
@@ -1048,10 +1048,10 @@ package body AWS.Client is
    --------------
 
    function Timeouts
-     (Connect  : in Duration := Net.Forever;
-      Send     : in Duration := Net.Forever;
-      Receive  : in Duration := Net.Forever;
-      Response : in Duration := Net.Forever) return Timeouts_Values is
+     (Connect  : Duration := Net.Forever;
+      Send     : Duration := Net.Forever;
+      Receive  : Duration := Net.Forever;
+      Response : Duration := Net.Forever) return Timeouts_Values is
    begin
       return (Connect  => Connect,
               Send     => Send,
@@ -1059,7 +1059,7 @@ package body AWS.Client is
               Response => Ada.Real_Time.To_Time_Span (Response));
    end Timeouts;
 
-   function Timeouts (Each : in Duration) return Timeouts_Values is
+   function Timeouts (Each : Duration) return Timeouts_Values is
    begin
       return (Response => Ada.Real_Time.To_Time_Span (Each), others => Each);
    end Timeouts;
@@ -1070,10 +1070,10 @@ package body AWS.Client is
 
    procedure Upload
      (Connection : in out HTTP_Connection;
-      Result     :    out Response.Data;
-      Filename   : in     String;
-      URI        : in     String      := No_Data;
-      Headers    : in     Header_List := Empty_Header_List)
+      Result     : out Response.Data;
+      Filename   : String;
+      URI        : String      := No_Data;
+      Headers    : Header_List := Empty_Header_List)
    is
       use Ada.Real_Time;
       Stamp    : constant Time   := Clock;
@@ -1224,15 +1224,15 @@ package body AWS.Client is
    end Upload;
 
    function Upload
-     (URL        : in String;
-      Filename   : in String;
-      User       : in String          := No_Data;
-      Pwd        : in String          := No_Data;
-      Proxy      : in String          := No_Data;
-      Proxy_User : in String          := No_Data;
-      Proxy_Pwd  : in String          := No_Data;
-      Timeouts   : in Timeouts_Values := No_Timeout;
-      Headers    : in Header_List     := Empty_Header_List)
+     (URL        : String;
+      Filename   : String;
+      User       : String          := No_Data;
+      Pwd        : String          := No_Data;
+      Proxy      : String          := No_Data;
+      Proxy_User : String          := No_Data;
+      Proxy_Pwd  : String          := No_Data;
+      Timeouts   : Timeouts_Values := No_Timeout;
+      Headers    : Header_List     := Empty_Header_List)
       return Response.Data
    is
       Connection : HTTP_Connection;

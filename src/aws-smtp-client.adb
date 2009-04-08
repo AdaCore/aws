@@ -2,7 +2,7 @@
 --                              Ada Web Server                              --
 --                   S M T P - Simple Mail Transfer Protocol                --
 --                                                                          --
---                     Copyright (C) 2000-2008, AdaCore                     --
+--                     Copyright (C) 2000-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -44,9 +44,9 @@ with AWS.Utils;
 package body AWS.SMTP.Client is
 
    procedure Open
-     (Server : in     Receiver;
-      Sock   :    out Net.Socket_Access;
-      Status :    out SMTP.Status);
+     (Server : Receiver;
+      Sock   : out Net.Socket_Access;
+      Status : out SMTP.Status);
    --  Open session with a SMTP server
 
    procedure Close
@@ -55,17 +55,17 @@ package body AWS.SMTP.Client is
    --  Close session with the SMTP server
 
    procedure Output_Header
-     (Sock     : in     Net.Socket_Type'Class;
-      From     : in     E_Mail_Data;
-      To       : in     Recipients;
-      Subject  : in     String;
-      Status   :    out SMTP.Status;
-      Is_MIME  : in     Boolean := False);
+     (Sock     : Net.Socket_Type'Class;
+      From     : E_Mail_Data;
+      To       : Recipients;
+      Subject  : String;
+      Status   : out SMTP.Status;
+      Is_MIME  : Boolean := False);
    --  Output SMTP headers (MAIL, RCPT, DATA, From, To, Subject, Date)
 
    procedure Put_Translated_Line
-     (Sock : in Net.Socket_Type'Class;
-      Text : in String);
+     (Sock : Net.Socket_Type'Class;
+      Text : String);
    --  Translate a leading dot to two dots
 
    procedure Terminate_Mail_Data (Sock : in out Net.Socket_Type'Class);
@@ -79,7 +79,7 @@ package body AWS.SMTP.Client is
    -- Base64_Data --
    -----------------
 
-   function Base64_Data (Name, Content : in String) return Attachment is
+   function Base64_Data (Name, Content : String) return Attachment is
    begin
       return (Base64_Data,
               To_Unbounded_String (Name), To_Unbounded_String (Content));
@@ -111,7 +111,7 @@ package body AWS.SMTP.Client is
    -- File --
    ----------
 
-   function File (Filename : in String) return Attachment is
+   function File (Filename : String) return Attachment is
    begin
       return (File, To_Unbounded_String (Filename));
    end File;
@@ -121,9 +121,9 @@ package body AWS.SMTP.Client is
    ----------
 
    procedure Open
-     (Server : in     Receiver;
-      Sock   :    out Net.Socket_Access;
-      Status :    out SMTP.Status)
+     (Server : Receiver;
+      Sock   : out Net.Socket_Access;
+      Status : out SMTP.Status)
    is
       Answer : Server_Reply;
    begin
@@ -163,12 +163,12 @@ package body AWS.SMTP.Client is
    -------------------
 
    procedure Output_Header
-     (Sock     : in     Net.Socket_Type'Class;
-      From     : in     E_Mail_Data;
-      To       : in     Recipients;
-      Subject  : in     String;
-      Status   :    out SMTP.Status;
-      Is_MIME  : in     Boolean := False)
+     (Sock     : Net.Socket_Type'Class;
+      From     : E_Mail_Data;
+      To       : Recipients;
+      Subject  : String;
+      Status   : out SMTP.Status;
+      Is_MIME  : Boolean := False)
    is
       function Current_Date return String;
       --  Returns current date and time for SMTP "Date:" field
@@ -265,8 +265,8 @@ package body AWS.SMTP.Client is
    -------------------------
 
    procedure Put_Translated_Line
-     (Sock : in Net.Socket_Type'Class;
-      Text : in String) is
+     (Sock : Net.Socket_Type'Class;
+      Text : String) is
    begin
       if Text'Length > 0 and then Text (Text'First) = '.' then
          Net.Buffered.Put (Sock, ".");
@@ -280,12 +280,12 @@ package body AWS.SMTP.Client is
    ----------
 
    procedure Send
-     (Server  : in     Receiver;
-      From    : in     E_Mail_Data;
-      To      : in     E_Mail_Data;
-      Subject : in     String;
-      Message : in     String;
-      Status  :    out SMTP.Status) is
+     (Server  : Receiver;
+      From    : E_Mail_Data;
+      To      : E_Mail_Data;
+      Subject : String;
+      Message : String;
+      Status  : out SMTP.Status) is
    begin
       Send (Server, From, Recipients'(1 => To), Subject, Message, Status);
    end Send;
@@ -295,13 +295,13 @@ package body AWS.SMTP.Client is
    ----------
 
    procedure Send
-     (Server      : in     Receiver;
-      From        : in     E_Mail_Data;
-      To          : in     E_Mail_Data;
-      Subject     : in     String;
-      Message     : in     String := "";
-      Attachments : in     Attachment_Set;
-      Status      :    out SMTP.Status)
+     (Server      : Receiver;
+      From        : E_Mail_Data;
+      To          : E_Mail_Data;
+      Subject     : String;
+      Message     : String := "";
+      Attachments : Attachment_Set;
+      Status      : out SMTP.Status)
    is
    begin
       Send (Server, From, Recipients'(1 => To),
@@ -313,12 +313,12 @@ package body AWS.SMTP.Client is
    ----------
 
    procedure Send
-     (Server   : in     Receiver;
-      From     : in     E_Mail_Data;
-      To       : in     E_Mail_Data;
-      Subject  : in     String;
-      Filename : in     Message_File;
-      Status   :    out SMTP.Status)
+     (Server   : Receiver;
+      From     : E_Mail_Data;
+      To       : E_Mail_Data;
+      Subject  : String;
+      Filename : Message_File;
+      Status   : out SMTP.Status)
    is
       Buffer : String (1 .. 2_048);
       Last   : Natural;
@@ -385,12 +385,12 @@ package body AWS.SMTP.Client is
    ----------
 
    procedure Send
-     (Server  : in     Receiver;
-      From    : in     E_Mail_Data;
-      To      : in     Recipients;
-      Subject : in     String;
-      Message : in     String;
-      Status  :    out SMTP.Status)
+     (Server  : Receiver;
+      From    : E_Mail_Data;
+      To      : Recipients;
+      Subject : String;
+      Message : String;
+      Status  : out SMTP.Status)
    is
       Sock   : Net.Socket_Access;
       Answer : Server_Reply;
@@ -439,13 +439,13 @@ package body AWS.SMTP.Client is
    ----------
 
    procedure Send
-     (Server      : in     Receiver;
-      From        : in     E_Mail_Data;
-      To          : in     Recipients;
-      Subject     : in     String;
-      Message     : in     String := "";
-      Attachments : in     Attachment_Set;
-      Status      :    out SMTP.Status)
+     (Server      : Receiver;
+      From        : E_Mail_Data;
+      To          : Recipients;
+      Subject     : String;
+      Message     : String := "";
+      Attachments : Attachment_Set;
+      Status      : out SMTP.Status)
    is
       Att_List : AWS.Attachments.List;
    begin
@@ -494,12 +494,12 @@ package body AWS.SMTP.Client is
    end Send;
 
    procedure Send
-     (Server      : in     Receiver;
-      From        : in     E_Mail_Data;
-      To          : in     Recipients;
-      Subject     : in     String;
-      Attachments : in     AWS.Attachments.List;
-      Status      :    out SMTP.Status)
+     (Server      : Receiver;
+      From        : E_Mail_Data;
+      To          : Recipients;
+      Subject     : String;
+      Attachments : AWS.Attachments.List;
+      Status      : out SMTP.Status)
    is
       use type AWS.Attachments.Root_MIME_Kind;
       Sock     : Net.Socket_Access;

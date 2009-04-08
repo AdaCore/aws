@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2008, AdaCore                     --
+--                     Copyright (C) 2003-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -53,18 +53,18 @@ procedure Disp_SOAP_Proc (Protocol : String; Port : Natural) is
    use Ada.Text_IO;
    use AWS;
 
-   function CB (Request : in Status.Data) return Response.Data;
+   function CB (Request : Status.Data) return Response.Data;
 
    function SOAP_CB
-     (SOAPAction : in String;
-      Payload    : in SOAP.Message.Payload.Object;
-      Request    : in AWS.Status.Data)
+     (SOAPAction : String;
+      Payload    : SOAP.Message.Payload.Object;
+      Request    : AWS.Status.Data)
       return AWS.Response.Data;
 
    procedure Request
-     (Proc       : in String;
-      X, Y       : in Integer;
-      SOAPAction : in String := "soap_demo");
+     (Proc       : String;
+      X, Y       : Integer;
+      SOAPAction : String := "soap_demo");
 
    HTTP : AWS.Server.HTTP;
 
@@ -78,7 +78,7 @@ procedure Disp_SOAP_Proc (Protocol : String; Port : Natural) is
    -- CB --
    --------
 
-   function CB (Request : in Status.Data) return Response.Data is
+   function CB (Request : Status.Data) return Response.Data is
    begin
       Put_Line ("This is not SOAP request.");
 
@@ -91,9 +91,9 @@ procedure Disp_SOAP_Proc (Protocol : String; Port : Natural) is
    -------------
 
    procedure Request
-     (Proc       : in String;
-      X, Y       : in Integer;
-      SOAPAction : in String := "soap_demo")
+     (Proc       : String;
+      X, Y       : Integer;
+      SOAPAction : String := "soap_demo")
    is
       use SOAP.Types;
       use type SOAP.Parameters.List;
@@ -131,9 +131,9 @@ procedure Disp_SOAP_Proc (Protocol : String; Port : Natural) is
    -------------
 
    function SOAP_CB
-     (SOAPAction : in String;
-      Payload    : in SOAP.Message.Payload.Object;
-      Request    : in AWS.Status.Data)
+     (SOAPAction : String;
+      Payload    : SOAP.Message.Payload.Object;
+      Request    : AWS.Status.Data)
       return AWS.Response.Data
    is
       use SOAP.Types;

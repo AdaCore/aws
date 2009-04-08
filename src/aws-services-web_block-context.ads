@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2007-2008, AdaCore                     --
+--                     Copyright (C) 2007-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -34,31 +34,31 @@ package AWS.Services.Web_Block.Context is
 
    type Id is private;
 
-   function Image (CID : in Id) return String;
+   function Image (CID : Id) return String;
    --  Returns CID string representation
 
-   function Value (CID : in String) return Id;
+   function Value (CID : String) return Id;
    --  Returns Id given it's string representation
 
    function Create return Id;
    --  Create a new context and returns the corresponding Id
 
-   procedure Copy (CID : in Id; New_CID : in Id);
+   procedure Copy (CID : Id; New_CID : Id);
    --  Copy a context
 
-   function Copy (CID : in Id) return Id;
+   function Copy (CID : Id) return Id;
    --  Returns a new context which is a copy of CID
 
-   function Exist (CID : in Id) return Boolean;
+   function Exist (CID : Id) return Boolean;
    --  Returns Trus if CID context exists into the database
 
-   function Get (CID : in Id) return Object;
+   function Get (CID : Id) return Object;
    --  Returns the context object corresponding to CID
 
-   procedure Set_Value (Context : in out Object; Name, Value : in String);
+   procedure Set_Value (Context : in out Object; Name, Value : String);
    --  Add a new name/value pair
 
-   function Get_Value (Context : in Object; Name : in String) return String;
+   function Get_Value (Context : Object; Name : String) return String;
    --  Get the value for the key Name
 
    generic
@@ -68,21 +68,21 @@ package AWS.Services.Web_Block.Context is
 
       procedure Set_Value
         (Context : in out Object;
-         Name    : in String;
-         Value   : in Data);
+         Name    : String;
+         Value   : Data);
       --  Set key/pair value for the SID
 
-      function Get_Value (Context : in Object; Name : in String) return Data;
+      function Get_Value (Context : Object; Name : String) return Data;
       pragma Inline (Get_Value);
       --  Returns the Value for Key in the session SID or Null_Data if
       --  key does not exist.
 
    end Generic_Data;
 
-   function Exist (Context : in Object; Name : in String) return Boolean;
+   function Exist (Context : Object; Name : String) return Boolean;
    --  Returns true if the key Name exist in this context
 
-   procedure Remove (Context : in Object; Name : in String);
+   procedure Remove (Context : Object; Name : String);
    --  Remove the context for key Name
 
 private

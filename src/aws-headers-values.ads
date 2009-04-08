@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2002-2007                          --
---                                 AdaCore                                  --
+--                     Copyright (C) 2002-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -61,17 +60,17 @@ package AWS.Headers.Values is
    generic
 
       with procedure Value
-        (Item : in     String;
+        (Item : String;
          Quit : in out Boolean);
       --  Called for every un-named value read from the header value
 
       with procedure Named_Value
-        (Name  : in     String;
-         Value : in     String;
+        (Name  : String;
+         Value : String;
          Quit  : in out Boolean);
       --  Called for every named value read from the header value
 
-   procedure Parse (Header_Value : in String);
+   procedure Parse (Header_Value : String);
    --  Look for un-named values and named ones (Name="Value" pairs) in the
    --  header line, and call appropriate routines when found. Quit is set to
    --  False before calling Value or Named_Value, the parsing can be stopped
@@ -81,13 +80,13 @@ package AWS.Headers.Values is
    -- Split / Index --
    -------------------
 
-   function Split (Header_Value : in String) return Set;
+   function Split (Header_Value : String) return Set;
    --  Returns a Set with each named and un-named values splited from Data
 
    function Index
-     (Set            : in Values.Set;
-      Name           : in String;
-      Case_Sensitive : in Boolean := True) return Natural;
+     (Set            : Values.Set;
+      Name           : String;
+      Case_Sensitive : Boolean := True) return Natural;
    --  Returns index for Name in the set or 0 if Name not found.
    --  If Case_Sensitive is false the find is case_insensitive.
 
@@ -96,21 +95,21 @@ package AWS.Headers.Values is
    ---------------------------
 
    function Search
-     (Header_Value   : in String;
-      Name           : in String;
-      Case_Sensitive : in Boolean := True) return String;
+     (Header_Value   : String;
+      Name           : String;
+      Case_Sensitive : Boolean := True) return String;
    --  Returns Value for Name in Header_Value or the empty string if Name not
    --  found. If Case_Sensitive is False the search is case insensitive.
 
    function Get_Unnamed_Value
-     (Header_Value : in String;
-      N            : in Positive := 1) return String;
+     (Header_Value : String;
+      N            : Positive := 1) return String;
    --  Returns N-th un-named value from Header_Value
 
    function Unnamed_Value_Exists
-     (Header_Value   : in String;
-      Value          : in String;
-      Case_Sensitive : in Boolean := True) return Boolean;
+     (Header_Value   : String;
+      Value          : String;
+      Case_Sensitive : Boolean := True) return Boolean;
    --  Returns True if the unnamed value specified has been found in
    --  Header_Value.
 

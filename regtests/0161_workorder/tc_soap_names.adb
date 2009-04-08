@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                       Copyright (C) 2008, AdaCore                        --
+--                     Copyright (C) 2008-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -34,9 +34,8 @@ package body Tc_Soap_Names is
    CrLf : constant String := (1 => Ascii.Cr, 2 => Ascii.Lf);
 
    function Soap_Image
-     (Obj    : in SOAP.Types.Object'Class;
-      Indent : in Integer                 := 0)
-     return String
+     (Obj    : SOAP.Types.Object'Class;
+      Indent : Integer := 0) return String
    is
       Result : Unbounded_String;
       Ind : String := Indent * ' ';

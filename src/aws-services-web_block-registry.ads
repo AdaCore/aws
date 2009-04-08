@@ -50,20 +50,20 @@ package AWS.Services.Web_Block.Registry is
    No_Page : constant Page;
 
    type Data_Callback is access procedure
-     (Request      : in Status.Data;
+     (Request      : Status.Data;
       Context      : not null access Web_Block.Context.Object;
       Translations : in out Templates.Translate_Set);
 
    type Template_Callback is access function
-     (Request : in Status.Data) return String;
+     (Request : Status.Data) return String;
 
    procedure Register
-     (Key              : in String;
-      Template         : in String;
-      Data_CB          : in Data_Callback;
-      Content_Type     : in String  := MIME.Text_HTML;
-      Prefix           : in Boolean := False;
-      Context_Required : in Boolean := False);
+     (Key              : String;
+      Template         : String;
+      Data_CB          : Data_Callback;
+      Content_Type     : String  := MIME.Text_HTML;
+      Prefix           : Boolean := False;
+      Context_Required : Boolean := False);
    --  Key is a Lazy_Tag or template page name. Template is the corresponding
    --  template file. Data_CB is the callback used to retrieve the translation
    --  table to render the page. If Context_Required is True a proper context
@@ -71,34 +71,34 @@ package AWS.Services.Web_Block.Registry is
    --  (see Build below) is called.
 
    procedure Register
-     (Key              : in String;
-      Template_CB      : in Template_Callback;
-      Data_CB          : in Data_Callback;
-      Content_Type     : in String := MIME.Text_HTML;
-      Context_Required : in Boolean := False);
+     (Key              : String;
+      Template_CB      : Template_Callback;
+      Data_CB          : Data_Callback;
+      Content_Type     : String := MIME.Text_HTML;
+      Context_Required : Boolean := False);
    --  Key is a Lazy_Tag or template page name. Template_CB is the callback
    --  used to retrieve the corresponding template file name. Data_CB is the
    --  callback used to retrieve the translation table to render the page.
 
    function Parse
-     (Key           : in String;
-      Request       : in Status.Data;
-      Translations  : in Templates.Translate_Set;
-      Context_Error : in String := "") return Page;
+     (Key           : String;
+      Request       : Status.Data;
+      Translations  : Templates.Translate_Set;
+      Context_Error : String := "") return Page;
    --  Parse the Web page registered under Key. Context_Error is the key
    --  of the registered template to use when a required context is not
    --  present.
 
-   function Content_Type (Key : in String) return String;
+   function Content_Type (Key : String) return String;
    --  Returns the Content_Type recorded for the web object
 
    function Build
-     (Key           : in String;
-      Request       : in Status.Data;
-      Translations  : in Templates.Translate_Set;
-      Status_Code   : in Messages.Status_Code := Messages.S200;
-      Cache_Control : in Messages.Cache_Option := Messages.Unspecified;
-      Context_Error : in String := "") return Response.Data;
+     (Key           : String;
+      Request       : Status.Data;
+      Translations  : Templates.Translate_Set;
+      Status_Code   : Messages.Status_Code := Messages.S200;
+      Cache_Control : Messages.Cache_Option := Messages.Unspecified;
+      Context_Error : String := "") return Response.Data;
    --  Same as above but returns a standard Web page
 
    function Get_Context

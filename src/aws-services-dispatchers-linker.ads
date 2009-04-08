@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2005-2007                          --
---                                 AdaCore                                  --
+--                     Copyright (C) 2005-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -38,7 +37,7 @@ package AWS.Services.Dispatchers.Linker is
 
    procedure Register
      (Dispatcher    : in out Handler;
-      First, Second : in AWS.Dispatchers.Handler'Class);
+      First, Second : AWS.Dispatchers.Handler'Class);
    --  Set the dispatcher first and second handler. The First handler will be
    --  looked for before the second.
 
@@ -48,12 +47,12 @@ private
    overriding procedure Finalize   (Dispatcher : in out Handler);
 
    overriding function Dispatch
-     (Dispatcher : in Handler;
-      Request    : in Status.Data) return Response.Data;
+     (Dispatcher : Handler;
+      Request    : Status.Data) return Response.Data;
    --  Dispatch to the first dispatcher, if the resources is not found (status
    --  code 404 returned) there try on the second one.
 
-   overriding function Clone (Dispatcher : in Handler) return Handler;
+   overriding function Clone (Dispatcher : Handler) return Handler;
    --  Returns a deep copy of the dispatcher
 
    type Handler is new AWS.Dispatchers.Handler with record

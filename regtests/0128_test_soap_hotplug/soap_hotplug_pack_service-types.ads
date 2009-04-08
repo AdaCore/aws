@@ -30,7 +30,7 @@ package SOAP_Hotplug_Pack_Service.Types is
    use Ada.Strings.Unbounded;
 
     function "+"
-      (Str : in String)
+      (Str : String)
        return Unbounded_String
        renames To_Unbounded_String;
 

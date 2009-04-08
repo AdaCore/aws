@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2008, AdaCore                     --
+--                     Copyright (C) 2003-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -63,44 +63,44 @@ package WSDL_6 is
       SI : Set_Of_Int_Safe_Pointer.Safe_Pointer;
    end record;
 
-   function Plus (Value : in Natural) return Natural;
+   function Plus (Value : Natural) return Natural;
 
-   function Next (Col : in Color) return Color;
+   function Next (Col : Color) return Color;
 
-   function Echo_Int (V : in Integer) return Integer;
+   function Echo_Int (V : Integer) return Integer;
 
-   function Echo_Short (V : in SOAP.Types.Short) return SOAP.Types.Short;
+   function Echo_Short (V : SOAP.Types.Short) return SOAP.Types.Short;
 
-   function Echo_Long (V : in SOAP.Types.Long) return SOAP.Types.Long;
+   function Echo_Long (V : SOAP.Types.Long) return SOAP.Types.Long;
 
-   function Echo_Byte (V : in SOAP.Types.Byte) return SOAP.Types.Byte;
+   function Echo_Byte (V : SOAP.Types.Byte) return SOAP.Types.Byte;
 
-   function Echo_Float (V : in Float) return Float;
+   function Echo_Float (V : Float) return Float;
 
-   function Echo_Boolean (V : in Boolean) return Boolean;
+   function Echo_Boolean (V : Boolean) return Boolean;
 
-   function Echo_Double (V : in Long_Float) return Long_Float;
+   function Echo_Double (V : Long_Float) return Long_Float;
 
    function Echo_Unsigned_Long
-     (V : in SOAP.Types.Unsigned_Long) return SOAP.Types.Unsigned_Long;
+     (V : SOAP.Types.Unsigned_Long) return SOAP.Types.Unsigned_Long;
 
    function Echo_Unsigned_Int
-     (V : in SOAP.Types.Unsigned_Int) return SOAP.Types.Unsigned_Int;
+     (V : SOAP.Types.Unsigned_Int) return SOAP.Types.Unsigned_Int;
 
    function Echo_Unsigned_Short
-     (V : in SOAP.Types.Unsigned_Short) return SOAP.Types.Unsigned_Short;
+     (V : SOAP.Types.Unsigned_Short) return SOAP.Types.Unsigned_Short;
 
    function Echo_Unsigned_Byte
-     (V : in SOAP.Types.Unsigned_Byte) return SOAP.Types.Unsigned_Byte;
+     (V : SOAP.Types.Unsigned_Byte) return SOAP.Types.Unsigned_Byte;
 
-   function Echo_Rec (V : in Rec) return Rec;
+   function Echo_Rec (V : Rec) return Rec;
 
-   function Echo_New_Rec (V : in New_Rec) return New_Rec;
+   function Echo_New_Rec (V : New_Rec) return New_Rec;
 
-   function Echo_Set (Set : in Set_Of_Int) return Set_Of_Int;
+   function Echo_Set (Set : Set_Of_Int) return Set_Of_Int;
 
-   function Echo_Set_Rec (Set : in Set_Of_Rec) return Set_Of_Rec;
+   function Echo_Set_Rec (Set : Set_Of_Rec) return Set_Of_Rec;
 
-   function Echo_Complex_Rec (C_Rec : in Complex_Rec) return Complex_Rec;
+   function Echo_Complex_Rec (C_Rec : Complex_Rec) return Complex_Rec;
 
 end WSDL_6;

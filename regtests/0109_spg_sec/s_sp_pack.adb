@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2006-2008, AdaCore                     --
+--                     Copyright (C) 2006-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -53,8 +53,8 @@ package body S_Sp_Pack is
    End_Of_Part : constant String := '.' & CRLF;
 
    function To_Array
-     (Data : in Push_Data_Type;
-      Env  : in Text_IO.Editing.Picture)
+     (Data : Push_Data_Type;
+      Env  : Text_IO.Editing.Picture)
       return Ada.Streams.Stream_Element_Array;
 
    package Server_Push is new AWS.Server.Push
@@ -62,7 +62,7 @@ package body S_Sp_Pack is
       Client_Environment => Text_IO.Editing.Picture,
       To_Stream_Array    => To_Array);
 
-   function CB (Request : in Status.Data) return Response.Data;
+   function CB (Request : Status.Data) return Response.Data;
 
    Push : Server_Push.Object;
 
@@ -70,10 +70,10 @@ package body S_Sp_Pack is
    -- CB --
    --------
 
-   function CB (Request : in Status.Data) return Response.Data is
+   function CB (Request : Status.Data) return Response.Data is
       use AWS.Parameters;
 
-      function "+" (Item : in String)
+      function "+" (Item : String)
          return Ada.Strings.Unbounded.Unbounded_String
         renames Ada.Strings.Unbounded.To_Unbounded_String;
 
@@ -118,8 +118,8 @@ package body S_Sp_Pack is
    --------------
 
    function To_Array
-     (Data : in Push_Data_Type;
-      Env  : in Text_IO.Editing.Picture)
+     (Data : Push_Data_Type;
+      Env  : Text_IO.Editing.Picture)
       return Ada.Streams.Stream_Element_Array
    is
       package Format is new Text_IO.Editing.Decimal_Output (Push_Data_Type);
@@ -132,7 +132,7 @@ package body S_Sp_Pack is
    -- Run --
    ---------
 
-   procedure Run (Protocol : in String; Port : in Positive) is
+   procedure Run (Protocol : String; Port : Positive) is
       Connect : array (1 .. 30) of Client.HTTP_Connection;
       Answer  : AWS.Response.Data;
       Data    : Push_Data_Type;
@@ -151,7 +151,7 @@ package body S_Sp_Pack is
       -- Output --
       ------------
 
-      procedure Output (Data : in String) is
+      procedure Output (Data : String) is
          Ignore_Sample : constant String := "--AWS.Push.Boundary_";
          use Ada.Strings;
          First : Positive := Data'First;

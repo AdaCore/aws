@@ -19,16 +19,16 @@ package SOAP_Hotplug_Pack_Service.Client is
    use SOAP_Hotplug_Pack_Service.Types;
 
    function Job1
-     (X        : in Integer;
-      Y        : in Integer;
-      Endpoint : in String := SOAP_Hotplug_Pack_Service.URL)
+     (X        : Integer;
+      Y        : Integer;
+      Endpoint : String := SOAP_Hotplug_Pack_Service.URL)
       return Integer;
    --  Raises SOAP.SOAP_Error if the procedure fails
 
    function Job2
-     (X        : in Integer;
-      Y        : in Integer;
-      Endpoint : in String := SOAP_Hotplug_Pack_Service.URL)
+     (X        : Integer;
+      Y        : Integer;
+      Endpoint : String := SOAP_Hotplug_Pack_Service.URL)
       return Integer;
    --  Raises SOAP.SOAP_Error if the procedure fails
 

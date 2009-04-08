@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2008, AdaCore                     --
+--                     Copyright (C) 2000-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -58,15 +58,15 @@ procedure Tcom is
    Free_Port : Positive := 1254;
 
    function Callback
-     (Server     : in String;
-      Name       : in String;
-      Context    : in Context_Access;
-      Parameters : in Communication.Parameter_Set
+     (Server     : String;
+      Name       : String;
+      Context    : Context_Access;
+      Parameters : Communication.Parameter_Set
         := Communication.Null_Parameter_Set)
       return Response.Data;
 
    function "+"
-     (Str : in String)
+     (Str : String)
       return Unbounded_String
       renames To_Unbounded_String;
 
@@ -75,10 +75,10 @@ procedure Tcom is
    --------------
 
    function Callback
-     (Server     : in String;
-      Name       : in String;
-      Context    : in Context_Access;
-      Parameters : in Communication.Parameter_Set
+     (Server     : String;
+      Name       : String;
+      Context    : Context_Access;
+      Parameters : Communication.Parameter_Set
         := Communication.Null_Parameter_Set)
       return Response.Data
    is

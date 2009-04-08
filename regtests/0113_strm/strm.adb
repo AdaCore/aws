@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2008, AdaCore                     --
+--                     Copyright (C) 2000-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -51,12 +51,12 @@ procedure Strm is
    use Ada.Text_IO;
    use AWS;
 
-   function CB (Request : in Status.Data) return Response.Data;
+   function CB (Request : Status.Data) return Response.Data;
 
    procedure UEH
-     (E      : in     Ada.Exceptions.Exception_Occurrence;
+     (E      : Ada.Exceptions.Exception_Occurrence;
       Log    : in out AWS.Log.Object;
-      Error  : in     AWS.Exceptions.Data;
+      Error  : AWS.Exceptions.Data;
       Answer : in out Response.Data);
 
    procedure Compare_Message;
@@ -89,7 +89,7 @@ procedure Strm is
    -- CB --
    --------
 
-   function CB (Request : in Status.Data) return Response.Data is
+   function CB (Request : Status.Data) return Response.Data is
       File : AWS.Resources.Streams.Stream_Access
         := new User_Strm.File_Tagged;
    begin
@@ -178,9 +178,9 @@ procedure Strm is
    end Compare_Message;
 
    procedure UEH
-     (E      : in     Ada.Exceptions.Exception_Occurrence;
+     (E      : Ada.Exceptions.Exception_Occurrence;
       Log    : in out AWS.Log.Object;
-      Error  : in     AWS.Exceptions.Data;
+      Error  : AWS.Exceptions.Data;
       Answer : in out Response.Data)
    is
       pragma Unreferenced (Log, Error, Answer);

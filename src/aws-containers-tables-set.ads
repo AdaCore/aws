@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2008                          --
---                                 AdaCore                                  --
+--                     Copyright (C) 2000-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -30,15 +29,15 @@ package AWS.Containers.Tables.Set is
 
    procedure Add
      (Table       : in out Table_Type;
-      Name, Value : in     String);
+      Name, Value : String);
    --  Add a new Key/Value pair into Table. A new value is always added,
    --  even if there is already an entry with the same name.
 
    procedure Update
      (Table : in out Table_Type;
-      Name  : in     String;
-      Value : in     String;
-      N     : in     Positive := 1);
+      Name  : String;
+      Value : String;
+      N     : Positive := 1);
    --  Update the N-th Value with the given Name into the Table.
    --  The container could already have more than one value associated with
    --  this name. If there is M values with this Name, then if:
@@ -48,7 +47,7 @@ package AWS.Containers.Tables.Set is
 
    procedure Case_Sensitive
      (Table : in out Table_Type;
-      Mode  : in     Boolean);
+      Mode  : Boolean);
    --  If Mode is True it will use all parameters with case sensitivity
 
    procedure Reset (Table : in out Table_Type);

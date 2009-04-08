@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2008, AdaCore                     --
+--                     Copyright (C) 2003-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -33,10 +33,10 @@ package WSDL_2 is
 
    type Table is array (Positive range <>) of Integer;
 
-   function Add (A, B : in Complex) return Complex;
+   function Add (A, B : Complex) return Complex;
    --  Add 2 complex numbers
 
-   function Sum (T : in Table) return Integer;
+   function Sum (T : Table) return Integer;
    --  Sum all items in T
 
 end WSDL_2;

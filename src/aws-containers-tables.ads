@@ -49,65 +49,65 @@ package AWS.Containers.Tables is
 
    type VString_Array is array (Positive range <>) of Unbounded_String;
 
-   function Count (Table : in Table_Type) return Natural;
+   function Count (Table : Table_Type) return Natural;
    --  Returns the number of item in Table
 
-   function Name_Count (Table : in Table_Type) return Natural;
+   function Name_Count (Table : Table_Type) return Natural;
    --  Returns the number of unique key name in Table
 
-   function Case_Sensitive (Table : in Table_Type) return Boolean;
+   function Case_Sensitive (Table : Table_Type) return Boolean;
    pragma Inline (Case_Sensitive);
    --  Returns case sensitivity flag of the Table
 
-   function Count (Table : in Table_Type; Name : in String) return Natural;
+   function Count (Table : Table_Type; Name : String) return Natural;
    --  Returns the number of value for Key Name in Table. It returns
    --  0 if Key does not exist.
 
-   function Exist (Table : in Table_Type; Name : in String) return Boolean;
+   function Exist (Table : Table_Type; Name : String) return Boolean;
    --  Returns True if Key exist in Table
 
    function Get
-     (Table : in Table_Type;
-      Name  : in String;
-      N     : in Positive := 1) return String;
+     (Table : Table_Type;
+      Name  : String;
+      N     : Positive := 1) return String;
    --  Returns the Nth value associated with Key into Table. Returns
    --  the emptry string if key does not exist.
 
    function Get_Name
-     (Table : in Table_Type; N : in Positive := 1) return String;
+     (Table : Table_Type; N : Positive := 1) return String;
    --  Returns the Nth Name in Table or the empty string if there is
    --  no parameter with this number.
 
    function Get_Value
-     (Table : in Table_Type; N : in Positive := 1) return String;
+     (Table : Table_Type; N : Positive := 1) return String;
    --  Returns the Nth Value in Table or the empty string if there is
    --  no parameter with this number.
 
-   function Get (Table : in Table_Type; N : in Positive) return Element;
+   function Get (Table : Table_Type; N : Positive) return Element;
    --  Returns N'th name/value pair. Returns Null_Element if there is no
    --  such item in the table.
 
    function Get_Names
-     (Table : in Table_Type; Sort : in Boolean := False) return VString_Array;
+     (Table : Table_Type; Sort : Boolean := False) return VString_Array;
    --  Returns array of unique key names. If Sort is True, the returned names
    --  array is sorted in alphabetical order. This is of course slightly
    --  slower than returning unsorted results.
 
    function Get_Values
-     (Table : in Table_Type; Name : in String) return VString_Array;
+     (Table : Table_Type; Name : String) return VString_Array;
    --  Returns all values for the specified parameter key name
 
    generic
-      with procedure Process (Name, Value : in String);
+      with procedure Process (Name, Value : String);
    procedure Generic_Iterate_Names
-     (Table : in Table_Type; Coupler : in String);
+     (Table : Table_Type; Coupler : String);
    --  Iterates over all names in the table.
    --  All Values of the same name would be given Coupler separated.
 
    procedure Iterate_Names
-     (Table   : in Table_Type;
-      Coupler : in String;
-      Process : not null access procedure (Name, Value : in String));
+     (Table   : Table_Type;
+      Coupler : String;
+      Process : not null access procedure (Name, Value : String));
 
 private
 
@@ -126,7 +126,7 @@ private
    package Index_Table is
      new Ada.Containers.Indefinite_Hashed_Maps
        (String, Name_Index_Table, Ada.Strings.Hash, "=", Name_Indexes."=");
-   --  Index of the Element_Array.
+   --  Index of the Element_Array
 
    subtype Index_Table_Type is Index_Table.Map;
 
@@ -142,7 +142,7 @@ private
                    (True, Index_Table.Empty_Map, Data_Table.Empty_Vector);
 
    function Normalize_Name
-     (Name : in String; To_Upper : in Boolean) return String;
+     (Name : String; To_Upper : Boolean) return String;
    --  Returns Name in upper case if To_Upper is set to True and it returns
    --  Name unchanged otherwise.
 

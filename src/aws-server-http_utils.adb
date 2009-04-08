@@ -78,7 +78,7 @@ package body AWS.Server.HTTP_Utils is
 
    procedure Answer_To_Client
      (HTTP_Server  : in out AWS.Server.HTTP;
-      Line_Index   : in     Positive;
+      Line_Index   : Positive;
       C_Stat       : in out AWS.Status.Data;
       Socket_Taken : in out Boolean;
       Will_Close   : in out Boolean)
@@ -94,7 +94,7 @@ package body AWS.Server.HTTP_Utils is
       procedure Create_Session;
       --  Create a session if needed
 
-      function Status_Page (URI : in String) return Response.Data;
+      function Status_Page (URI : String) return Response.Data;
       --  Handle status page
       --
       ------------------
@@ -200,7 +200,7 @@ package body AWS.Server.HTTP_Utils is
       -- Status_Page --
       -----------------
 
-      function Status_Page (URI : in String) return Response.Data is
+      function Status_Page (URI : String) return Response.Data is
 
          Answer   : Response.Data;
          Username : constant String :=
@@ -208,14 +208,14 @@ package body AWS.Server.HTTP_Utils is
          Password : constant String :=
                       AWS.Status.Authorization_Password (C_Stat);
 
-         procedure Answer_File (File_Name : in String);
+         procedure Answer_File (File_Name : String);
          --  Assign File to Answer response data
 
          -----------------
          -- Answer_File --
          -----------------
 
-         procedure Answer_File (File_Name : in String) is
+         procedure Answer_File (File_Name : String) is
          begin
             Answer := Response.File
               (Content_Type => MIME.Content_Type (File_Name),
@@ -332,9 +332,9 @@ package body AWS.Server.HTTP_Utils is
 
    procedure Get_Message_Data
      (HTTP_Server : in out AWS.Server.HTTP;
-      Line_Index  : in     Positive;
+      Line_Index  : Positive;
       C_Stat      : in out AWS.Status.Data;
-      Expect_100  : in     Boolean)
+      Expect_100  : Boolean)
    is
       use type Status.Request_Method;
 
@@ -344,25 +344,25 @@ package body AWS.Server.HTTP_Utils is
          File_Upload);      -- Read a file upload
 
       procedure Get_File_Data
-        (Server_Filename : in     String;
-         Filename        : in     String;
-         Start_Boundary  : in     String;
-         Mode            : in     Message_Mode;
-         Headers         : in     AWS.Headers.List;
-         End_Found       :    out Boolean);
+        (Server_Filename : String;
+         Filename        : String;
+         Start_Boundary  : String;
+         Mode            : Message_Mode;
+         Headers         : AWS.Headers.List;
+         End_Found       : out Boolean);
       --  Read file data from the stream, set End_Found if the end-boundary
       --  signature has been read. Server_Filename is the filename to be used
       --  for on-disk content (Attachment and File_Upload mode).
 
       procedure File_Upload
-        (Start_Boundary, End_Boundary : in String;
-         Parse_Boundary               : in Boolean);
+        (Start_Boundary, End_Boundary : String;
+         Parse_Boundary               : Boolean);
       --  Handle file upload data coming from the client browser
 
       procedure Store_Attachments
-        (Start_Boundary, End_Boundary : in String;
-         Parse_Boundary               : in Boolean;
-         Root_Part_CID                : in String);
+        (Start_Boundary, End_Boundary : String;
+         Parse_Boundary               : Boolean;
+         Root_Part_CID                : String);
       --  Store attachments coming from the client browser
 
       Status_Multipart_Boundary : Unbounded_String;
@@ -378,8 +378,8 @@ package body AWS.Server.HTTP_Utils is
       -----------------
 
       procedure File_Upload
-        (Start_Boundary, End_Boundary : in String;
-         Parse_Boundary               : in Boolean)
+        (Start_Boundary, End_Boundary : String;
+         Parse_Boundary               : Boolean)
       is
          Name            : Unbounded_String;
          Filename        : Unbounded_String;
@@ -390,7 +390,7 @@ package body AWS.Server.HTTP_Utils is
          End_Found       : Boolean := False;
          --  Set to true when the end-boundary has been found
 
-         function Target_Filename (Filename : in String) return String;
+         function Target_Filename (Filename : String) return String;
          --  Returns the full path name for the file as stored on the
          --  server side.
 
@@ -398,7 +398,7 @@ package body AWS.Server.HTTP_Utils is
          -- Target_Filename --
          ---------------------
 
-         function Target_Filename (Filename : in String) return String is
+         function Target_Filename (Filename : String) return String is
             Upload_Path : constant String :=
                             CNF.Upload_Directory (HTTP_Server.Properties);
             UID         : Natural;
@@ -584,12 +584,12 @@ package body AWS.Server.HTTP_Utils is
       -------------------
 
       procedure Get_File_Data
-        (Server_Filename : in     String;
-         Filename        : in     String;
-         Start_Boundary  : in     String;
-         Mode            : in     Message_Mode;
-         Headers         : in     AWS.Headers.List;
-         End_Found       :    out Boolean)
+        (Server_Filename : String;
+         Filename        : String;
+         Start_Boundary  : String;
+         Mode            : Message_Mode;
+         Headers         : AWS.Headers.List;
+         End_Found       : out Boolean)
       is
          type Error_State is (No_Error, Name_Error, Device_Error);
          --  This state is to monitor the file upload process. If we receice
@@ -601,7 +601,7 @@ package body AWS.Server.HTTP_Utils is
          --  Returns True if we have reach the end of file data
 
          procedure Write
-           (Buffer : in Streams.Stream_Element_Array; Trim : in Boolean);
+           (Buffer : Streams.Stream_Element_Array; Trim : Boolean);
          pragma Inline (Write);
          --  Write buffer to the file, handle the Device_Error exception
 
@@ -689,7 +689,7 @@ package body AWS.Server.HTTP_Utils is
          -----------
 
          procedure Write
-           (Buffer : in Streams.Stream_Element_Array; Trim : in Boolean) is
+           (Buffer : Streams.Stream_Element_Array; Trim : Boolean) is
          begin
             if Error = No_Error then
                if Mode in Attachment .. File_Upload then
@@ -788,9 +788,9 @@ package body AWS.Server.HTTP_Utils is
       -----------------------
 
       procedure Store_Attachments
-        (Start_Boundary, End_Boundary : in String;
-         Parse_Boundary               : in Boolean;
-         Root_Part_CID                : in String)
+        (Start_Boundary, End_Boundary : String;
+         Parse_Boundary               : Boolean;
+         Root_Part_CID                : String)
       is
          Server_Filename : Unbounded_String;
          Content_Id      : Unbounded_String;
@@ -799,7 +799,7 @@ package body AWS.Server.HTTP_Utils is
          End_Found       : Boolean := False;
          --  Set to true when the end-boundary has been found
 
-         function Attachment_Filename (Extension : in String) return String;
+         function Attachment_Filename (Extension : String) return String;
          --  Returns the full path name for the file as stored on the
          --  server side.
 
@@ -807,7 +807,7 @@ package body AWS.Server.HTTP_Utils is
          -- Attachment_Filename --
          -------------------------
 
-         function Attachment_Filename (Extension : in String) return String is
+         function Attachment_Filename (Extension : String) return String is
             Upload_Path : constant String :=
                             CNF.Upload_Directory (HTTP_Server.Properties);
             UID         : Natural;
@@ -911,10 +911,10 @@ package body AWS.Server.HTTP_Utils is
       declare
 
          procedure Named_Value
-           (Name, Value : in String; Quit : in out Boolean);
+           (Name, Value : String; Quit : in out Boolean);
          --  Looking for the Boundary value in the  Content-Type header line
 
-         procedure Value (Item : in String; Quit : in out Boolean);
+         procedure Value (Item : String; Quit : in out Boolean);
          --  Reading the first unnamed value into the Status_Content_Type
          --  variable from the Content-Type header line.
 
@@ -923,7 +923,7 @@ package body AWS.Server.HTTP_Utils is
          -----------------
 
          procedure Named_Value
-           (Name, Value : in String; Quit : in out Boolean)
+           (Name, Value : String; Quit : in out Boolean)
          is
             pragma Unreferenced (Quit);
             L_Name : constant String :=
@@ -940,7 +940,7 @@ package body AWS.Server.HTTP_Utils is
          -- Value --
          -----------
 
-         procedure Value (Item : in String; Quit : in out Boolean) is
+         procedure Value (Item : String; Quit : in out Boolean) is
          begin
             if Status_Content_Type /= Null_Unbounded_String then
                --  Only first unnamed value is the Content_Type
@@ -1039,7 +1039,7 @@ package body AWS.Server.HTTP_Utils is
    -- Is_Valid_HTTP_Date --
    ------------------------
 
-   function Is_Valid_HTTP_Date (HTTP_Date : in String) return Boolean is
+   function Is_Valid_HTTP_Date (HTTP_Date : String) return Boolean is
       Mask   : constant String  := "Aaa, 99 Aaa 9999 99:99:99 GMT";
       Offset : constant Integer := HTTP_Date'First - 1;
       --  Make sure the function works for inputs with 'First <> 1
@@ -1073,7 +1073,7 @@ package body AWS.Server.HTTP_Utils is
    ------------------------
 
    procedure Parse_Request_Line
-     (Command : in     String;
+     (Command : String;
       C_Stat  : in out AWS.Status.Data)
    is
 
@@ -1198,8 +1198,8 @@ package body AWS.Server.HTTP_Utils is
    procedure Send
      (Answer       : in out Response.Data;
       HTTP_Server  : in out AWS.Server.HTTP;
-      Line_Index   : in     Positive;
-      C_Stat       : in     AWS.Status.Data;
+      Line_Index   : Positive;
+      C_Stat       : AWS.Status.Data;
       Socket_Taken : in out Boolean;
       Will_Close   : in out Boolean)
    is
@@ -1211,7 +1211,7 @@ package body AWS.Server.HTTP_Utils is
       Status_Code : Messages.Status_Code;
       Length      : Resources.Content_Length_Type := 0;
 
-      procedure Send_General_Header (Sock : in Net.Socket_Type'Class);
+      procedure Send_General_Header (Sock : Net.Socket_Type'Class);
       --  Send the "Date:", "Server:", "Set-Cookie:" and "Connection:" header
 
       procedure Send_Header_Only;
@@ -1327,7 +1327,7 @@ package body AWS.Server.HTTP_Utils is
       -- Send_General_Header --
       -------------------------
 
-      procedure Send_General_Header (Sock : in Net.Socket_Type'Class) is
+      procedure Send_General_Header (Sock : Net.Socket_Type'Class) is
          use type Messages.Cache_Option;
       begin
          --  Session
@@ -1492,13 +1492,13 @@ package body AWS.Server.HTTP_Utils is
    -------------------
 
    procedure Send_Resource
-     (Method      : in     Status.Request_Method;
-      Close       : in     Boolean;
+     (Method      : Status.Request_Method;
+      Close       : Boolean;
       File        : in out Resources.File_Type;
       Length      : in out Resources.Content_Length_Type;
-      HTTP_Server : in     AWS.Server.HTTP;
-      Line_Index  : in     Positive;
-      C_Stat      : in     AWS.Status.Data)
+      HTTP_Server : AWS.Server.HTTP;
+      Line_Index  : Positive;
+      C_Stat      : AWS.Status.Data)
    is
       use type Status.Request_Method;
 
@@ -1621,14 +1621,14 @@ package body AWS.Server.HTTP_Utils is
          Equal       : constant Natural := Fixed.Index (Ranges, "=");
          First, Last : Positive;
 
-         procedure Send_Range (R : in String);
+         procedure Send_Range (R : String);
          --  Send a single range as defined by R
 
          ----------------
          -- Send_Range --
          ----------------
 
-         procedure Send_Range (R : in String) is
+         procedure Send_Range (R : String) is
             I_Minus  : constant Positive := Fixed.Index (R, "-");
             First    : Stream_Element_Offset;
             Last     : Stream_Element_Offset;
@@ -1805,8 +1805,8 @@ package body AWS.Server.HTTP_Utils is
    ----------------------
 
    procedure Set_Close_Status
-     (C_Stat     : in     AWS.Status.Data;
-      Keep_Alive : in     Boolean;
+     (C_Stat     : AWS.Status.Data;
+      Keep_Alive : Boolean;
       Will_Close : in out Boolean)
    is
       Connection : constant String := Status.Connection (C_Stat);

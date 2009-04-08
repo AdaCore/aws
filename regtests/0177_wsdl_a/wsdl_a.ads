@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2008, AdaCore                     --
+--                     Copyright (C) 2003-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -33,6 +33,6 @@ package WSDL_A is
       X : Float;
    end record;
 
-   procedure P (A : in WSDL_A_Pck.Data);
+   procedure P (A : WSDL_A_Pck.Data);
 
 end WSDL_A;

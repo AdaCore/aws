@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2008, AdaCore                     --
+--                     Copyright (C) 2003-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -125,52 +125,52 @@ procedure WSDL_6_Main is
       -- Put --
       ---------
 
-      procedure Put (V : in Integer) is
+      procedure Put (V : Integer) is
       begin
          Integer_Text_IO.Put (V, Width => 0);
       end Put;
 
-      procedure Put (V : in SOAP.Types.Long) is
+      procedure Put (V : SOAP.Types.Long) is
       begin
          Long_IO.Put (V, Width => 0);
       end Put;
 
-      procedure Put (V : in SOAP.Types.Short) is
+      procedure Put (V : SOAP.Types.Short) is
       begin
          Short_IO.Put (V, Width => 0);
       end Put;
 
-      procedure Put (V : in SOAP.Types.Byte) is
+      procedure Put (V : SOAP.Types.Byte) is
       begin
          Byte_IO.Put (V, Width => 0);
       end Put;
 
-      procedure Put (V : in SOAP.Types.Unsigned_Long) is
+      procedure Put (V : SOAP.Types.Unsigned_Long) is
       begin
          Unsigned_Long_IO.Put (V, Width => 0);
       end Put;
 
-      procedure Put (V : in SOAP.Types.Unsigned_Int) is
+      procedure Put (V : SOAP.Types.Unsigned_Int) is
       begin
          Unsigned_Int_IO.Put (V, Width => 0);
       end Put;
 
-      procedure Put (V : in SOAP.Types.Unsigned_Short) is
+      procedure Put (V : SOAP.Types.Unsigned_Short) is
       begin
          Unsigned_Short_IO.Put (V, Width => 0);
       end Put;
 
-      procedure Put (V : in SOAP.Types.Unsigned_Byte) is
+      procedure Put (V : SOAP.Types.Unsigned_Byte) is
       begin
          Unsigned_Byte_IO.Put (V, Width => 0);
       end Put;
 
-      procedure Put (V : in Boolean) is
+      procedure Put (V : Boolean) is
       begin
          Put (Characters.Handling.To_Lower (Boolean'Image (V)));
       end Put;
 
-      procedure Put_Float (V : in String) is
+      procedure Put_Float (V : String) is
          K : Natural;
       begin
          K := Strings.Fixed.Index (V, ".");
@@ -181,21 +181,21 @@ procedure WSDL_6_Main is
          Put (Strings.Fixed.Trim (V (V'First .. K), Strings.Left));
       end Put_Float;
 
-      procedure Put (V : in Float) is
+      procedure Put (V : Float) is
          Buffer : String (1 .. 30);
       begin
          Float_IO.Put (Buffer, V, Exp => 0);
          Put_Float (Buffer);
       end Put;
 
-      procedure Put (V : in Long_Float) is
+      procedure Put (V : Long_Float) is
          Buffer : String (1 .. 30);
       begin
          Double_IO.Put (Buffer, V, Exp => 0);
          Put_Float (Buffer);
       end Put;
 
-      procedure Put (V : in WSDL_6.Color) is
+      procedure Put (V : WSDL_6.Color) is
       begin
          case V is
             when WSDL_6.Red   => Put ("Red");
@@ -209,7 +209,7 @@ procedure WSDL_6_Main is
       -- Put_Rec --
       -------------
 
-      procedure Put_Rec (Rec : in WSDL_6.Rec) is
+      procedure Put_Rec (Rec : WSDL_6.Rec) is
       begin
          Put_Line ("-----");
          Put (Rec.A); New_Line;

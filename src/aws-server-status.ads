@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2008, AdaCore                     --
+--                     Copyright (C) 2003-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -33,38 +33,38 @@ with AWS.Templates;
 
 package AWS.Server.Status is
 
-   function Translations (Server : in HTTP) return Templates.Translate_Set;
+   function Translations (Server : HTTP) return Templates.Translate_Set;
    --  Returns a translate table to be used with a template file. This table
    --  contains all internal server's data. This table is used by the server
    --  internal status page for example.
 
-   function Translations (Server : in HTTP) return Templates.Translate_Table;
+   function Translations (Server : HTTP) return Templates.Translate_Table;
    pragma Obsolescent ("Use Translate_Set return value instead");
    --  The same as above but obsolete and keept for backward compartibility
 
-   function Start_Time (Server : in HTTP) return Ada.Calendar.Time;
+   function Start_Time (Server : HTTP) return Ada.Calendar.Time;
    --  Returns the server's start time
 
-   function Resources_Served (Server : in HTTP) return Natural;
+   function Resources_Served (Server : HTTP) return Natural;
    --  Returns the total number of resources (static file, templates,
    --  in-memory string) served by the server.
 
-   function Socket (Server : in HTTP) return Net.Socket_Type'Class;
+   function Socket (Server : HTTP) return Net.Socket_Type'Class;
    --  Returns the server's socket
 
-   function Port (Server : in HTTP) return Positive;
+   function Port (Server : HTTP) return Positive;
    --  Returns the server's socket port
 
-   function Current_Connections (Server : in HTTP) return Natural;
+   function Current_Connections (Server : HTTP) return Natural;
    --  Returns the current number of connections
 
-   function Is_Session_Activated (Server : in HTTP) return Boolean;
+   function Is_Session_Activated (Server : HTTP) return Boolean;
    --  Returns True if the session feature has been activated
 
-   function Is_Security_Activated (Server : in HTTP) return Boolean;
+   function Is_Security_Activated (Server : HTTP) return Boolean;
    --  Returns True if the HTTPS protocol is used
 
-   function Is_Shutdown (Server : in HTTP) return Boolean;
+   function Is_Shutdown (Server : HTTP) return Boolean;
    --  Returns True if server has been stopped (the server could still be in
    --  the shutdown phase).
 

@@ -34,21 +34,21 @@ package AWS.URL.Set is
    --  the internal parameters list component to routines in
    --  AWS.Parameters.Set.
 
-   procedure Parameters (URL : in out Object; Set : in AWS.Parameters.List);
+   procedure Parameters (URL : in out Object; Set : AWS.Parameters.List);
    pragma Inline (Parameters);
    --  Set the URL's parameters list to Set
 
    procedure Connection_Data
      (URL      : in out Object;
-      Host     : in     String;
-      Port     : in     Positive;
-      Security : in     Boolean);
+      Host     : String;
+      Port     : Positive;
+      Security : Boolean);
    --  Update connection data, used by the server
 
    procedure Parse
      (Item           : in out Object;
-      URL            : in     String;
-      Check_Validity : in     Boolean := True;
-      Normalize      : in     Boolean := False);
+      URL            : String;
+      Check_Validity : Boolean := True;
+      Normalize      : Boolean := False);
 
 end AWS.URL.Set;

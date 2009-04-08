@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                          Copyright (C) 2002-2008                         --
---                                  AdaCore                                 --
+--                     Copyright (C) 2002-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -36,12 +35,12 @@ package body AWS.Headers.Values is
    use Ada.Strings;
 
    procedure Next_Value
-      (Data        : in     String;
+      (Data        : String;
        First       : in out Natural;
-       Name_First  :    out Positive;
-       Name_Last   :    out Natural;
-       Value_First :    out Positive;
-       Value_Last  :    out Natural);
+       Name_First  : out Positive;
+       Name_Last   : out Natural;
+       Value_First : out Positive;
+       Value_Last  : out Natural);
    --  Returns the next named or un-named value from Data. It start the search
    --  from First index. Returns First = 0 if it has reached the end of
    --  Data. Returns Name_Last = 0 if an un-named value has been found.
@@ -51,8 +50,8 @@ package body AWS.Headers.Values is
    -----------------------
 
    function Get_Unnamed_Value
-     (Header_Value : in String;
-      N            : in Positive := 1) return String
+     (Header_Value : String;
+      N            : Positive := 1) return String
    is
       First       : Natural;
       Name_First  : Positive;
@@ -99,9 +98,9 @@ package body AWS.Headers.Values is
    ------------
 
    function Index
-     (Set            : in Values.Set;
-      Name           : in String;
-      Case_Sensitive : in Boolean := True) return Natural
+     (Set            : Values.Set;
+      Name           : String;
+      Case_Sensitive : Boolean := True) return Natural
    is
       Map    : Maps.Character_Mapping;
       M_Name : Unbounded_String;
@@ -131,12 +130,12 @@ package body AWS.Headers.Values is
    ----------------
 
    procedure Next_Value
-     (Data        : in     String;
+     (Data        : String;
       First       : in out Natural;
-      Name_First  :    out Positive;
-      Name_Last   :    out Natural;
-      Value_First :    out Positive;
-      Value_Last  :    out Natural)
+      Name_First  : out Positive;
+      Name_Last   : out Natural;
+      Value_First : out Positive;
+      Value_Last  : out Natural)
    is
       use type Maps.Character_Set;
 
@@ -244,7 +243,7 @@ package body AWS.Headers.Values is
    -- Parse --
    -----------
 
-   procedure Parse (Header_Value : in String) is
+   procedure Parse (Header_Value : String) is
 
       First       : Natural;
       Name_First  : Positive;
@@ -295,9 +294,9 @@ package body AWS.Headers.Values is
    ------------
 
    function Search
-     (Header_Value   : in String;
-      Name           : in String;
-      Case_Sensitive : in Boolean := True) return String
+     (Header_Value   : String;
+      Name           : String;
+      Case_Sensitive : Boolean := True) return String
    is
       First       : Natural;
       Name_First  : Positive;
@@ -354,7 +353,7 @@ package body AWS.Headers.Values is
    -- Split --
    -----------
 
-   function Split (Header_Value : in String) return Set is
+   function Split (Header_Value : String) return Set is
 
       First    : Natural;
       Null_Set : Set (1 .. 0);
@@ -386,7 +385,7 @@ package body AWS.Headers.Values is
 
          function Element return Data is
             function "+"
-              (Item : in String)
+              (Item : String)
                return Unbounded_String
                renames To_Unbounded_String;
          begin
@@ -430,9 +429,9 @@ package body AWS.Headers.Values is
    --------------------------
 
    function Unnamed_Value_Exists
-     (Header_Value   : in String;
-      Value          : in String;
-      Case_Sensitive : in Boolean := True) return Boolean
+     (Header_Value   : String;
+      Value          : String;
+      Case_Sensitive : Boolean := True) return Boolean
    is
       First       : Natural;
       Name_First  : Positive;

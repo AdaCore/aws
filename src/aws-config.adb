@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2008, AdaCore                     --
+--                     Copyright (C) 2000-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -38,7 +38,7 @@ package body AWS.Config is
    Ini_Loaded : Boolean := False;
    --  Set to True when initialization (.ini) files have been loaded
 
-   procedure Read_If_Present (Filename : in String);
+   procedure Read_If_Present (Filename : String);
    --  Read and parse Filename, does not raise an exception if the file does
    --  not exists.
 
@@ -46,7 +46,7 @@ package body AWS.Config is
    -- Accept_Queue_Size --
    -----------------------
 
-   function Accept_Queue_Size (O : in Object) return Positive is
+   function Accept_Queue_Size (O : Object) return Positive is
    begin
       return O.P (Accept_Queue_Size).Pos_Value;
    end Accept_Queue_Size;
@@ -55,7 +55,7 @@ package body AWS.Config is
    -- Admin_Password --
    --------------------
 
-   function Admin_Password (O : in Object) return String is
+   function Admin_Password (O : Object) return String is
    begin
       return To_String (O.P (Admin_Password).Str_Value);
    end Admin_Password;
@@ -64,7 +64,7 @@ package body AWS.Config is
    -- Admin_URI --
    ---------------
 
-   function Admin_URI (O : in Object) return String is
+   function Admin_URI (O : Object) return String is
    begin
       return To_String (O.P (Admin_URI).Str_Value);
    end Admin_URI;
@@ -73,7 +73,7 @@ package body AWS.Config is
    -- Case_Sensitive_Parameters --
    -------------------------------
 
-   function Case_Sensitive_Parameters (O : in Object) return Boolean is
+   function Case_Sensitive_Parameters (O : Object) return Boolean is
    begin
       return O.P (Case_Sensitive_Parameters).Bool_Value;
    end Case_Sensitive_Parameters;
@@ -82,7 +82,7 @@ package body AWS.Config is
    -- Certificate --
    -----------------
 
-   function Certificate (O : in Object) return String is
+   function Certificate (O : Object) return String is
    begin
       return To_String (O.P (Certificate).Str_Value);
    end Certificate;
@@ -91,7 +91,7 @@ package body AWS.Config is
    -- Check_URL_Validity --
    ------------------------
 
-   function Check_URL_Validity (O : in Object) return Boolean is
+   function Check_URL_Validity (O : Object) return Boolean is
    begin
       return O.P (Check_URL_Validity).Bool_Value;
    end Check_URL_Validity;
@@ -100,7 +100,7 @@ package body AWS.Config is
    -- Cleaner_Client_Data_Timeout --
    ---------------------------------
 
-   function Cleaner_Client_Data_Timeout (O : in Object) return Duration is
+   function Cleaner_Client_Data_Timeout (O : Object) return Duration is
    begin
       return O.P (Cleaner_Client_Data_Timeout).Dur_Value;
    end Cleaner_Client_Data_Timeout;
@@ -109,7 +109,7 @@ package body AWS.Config is
    -- Cleaner_Client_Header_Timeout --
    -----------------------------------
 
-   function Cleaner_Client_Header_Timeout (O : in Object) return Duration is
+   function Cleaner_Client_Header_Timeout (O : Object) return Duration is
    begin
       return O.P (Cleaner_Client_Header_Timeout).Dur_Value;
    end Cleaner_Client_Header_Timeout;
@@ -118,7 +118,7 @@ package body AWS.Config is
    -- Cleaner_Server_Response_Timeout --
    -------------------------------------
 
-   function Cleaner_Server_Response_Timeout (O : in Object) return Duration is
+   function Cleaner_Server_Response_Timeout (O : Object) return Duration is
    begin
       return O.P (Cleaner_Server_Response_Timeout).Dur_Value;
    end Cleaner_Server_Response_Timeout;
@@ -127,7 +127,7 @@ package body AWS.Config is
    -- Cleaner_Wait_For_Client_Timeout --
    -------------------------------------
 
-   function Cleaner_Wait_For_Client_Timeout (O : in Object) return Duration is
+   function Cleaner_Wait_For_Client_Timeout (O : Object) return Duration is
    begin
       return O.P (Cleaner_Wait_For_Client_Timeout).Dur_Value;
    end Cleaner_Wait_For_Client_Timeout;
@@ -136,7 +136,7 @@ package body AWS.Config is
    -- Directory_Browser_Page --
    ----------------------------
 
-   function Directory_Browser_Page (O : in Object) return String is
+   function Directory_Browser_Page (O : Object) return String is
    begin
       return To_String (O.P (Directory_Browser_Page).Str_Value);
    end Directory_Browser_Page;
@@ -145,7 +145,7 @@ package body AWS.Config is
    -- Down_Image --
    ----------------
 
-   function Down_Image (O : in Object) return String is
+   function Down_Image (O : Object) return String is
    begin
       return To_String (O.P (Down_Image).Str_Value);
    end Down_Image;
@@ -154,7 +154,7 @@ package body AWS.Config is
    -- Error_Log_Filename_Prefix --
    -------------------------------
 
-   function Error_Log_Filename_Prefix (O : in Object) return String is
+   function Error_Log_Filename_Prefix (O : Object) return String is
    begin
       return To_String (O.P (Error_Log_Filename_Prefix).Str_Value);
    end Error_Log_Filename_Prefix;
@@ -163,7 +163,7 @@ package body AWS.Config is
    -- Error_Log_Split_Mode --
    --------------------------
 
-   function Error_Log_Split_Mode (O : in Object) return String is
+   function Error_Log_Split_Mode (O : Object) return String is
    begin
       return To_String (O.P (Error_Log_Split_Mode).Str_Value);
    end Error_Log_Split_Mode;
@@ -172,7 +172,7 @@ package body AWS.Config is
    -- Exchange_Certificate --
    --------------------------
 
-   function Exchange_Certificate (O : in Object) return Boolean is
+   function Exchange_Certificate (O : Object) return Boolean is
    begin
       return O.P (Exchange_Certificate).Bool_Value;
    end Exchange_Certificate;
@@ -181,7 +181,7 @@ package body AWS.Config is
    -- Force_Client_Data_Timeout --
    -------------------------------
 
-   function Force_Client_Data_Timeout (O : in Object) return Duration is
+   function Force_Client_Data_Timeout (O : Object) return Duration is
    begin
       return O.P (Force_Client_Data_Timeout).Dur_Value;
    end Force_Client_Data_Timeout;
@@ -190,7 +190,7 @@ package body AWS.Config is
    -- Force_Client_Header_Timeout --
    ---------------------------------
 
-   function Force_Client_Header_Timeout (O : in Object) return Duration is
+   function Force_Client_Header_Timeout (O : Object) return Duration is
    begin
       return O.P (Force_Client_Header_Timeout).Dur_Value;
    end Force_Client_Header_Timeout;
@@ -199,7 +199,7 @@ package body AWS.Config is
    -- Force_Server_Response_Timeout --
    -----------------------------------
 
-   function Force_Server_Response_Timeout (O : in Object) return Duration is
+   function Force_Server_Response_Timeout (O : Object) return Duration is
    begin
       return O.P (Force_Server_Response_Timeout).Dur_Value;
    end Force_Server_Response_Timeout;
@@ -208,7 +208,7 @@ package body AWS.Config is
    -- Force_Wait_For_Client_Timeout --
    -----------------------------------
 
-   function Force_Wait_For_Client_Timeout (O : in Object) return Duration is
+   function Force_Wait_For_Client_Timeout (O : Object) return Duration is
    begin
       return O.P (Force_Wait_For_Client_Timeout).Dur_Value;
    end Force_Wait_For_Client_Timeout;
@@ -217,7 +217,7 @@ package body AWS.Config is
    -- Free_Slots_Keep_Alive_Limit --
    ---------------------------------
 
-   function Free_Slots_Keep_Alive_Limit (O : in Object) return Natural is
+   function Free_Slots_Keep_Alive_Limit (O : Object) return Natural is
    begin
       return O.P (Free_Slots_Keep_Alive_Limit).Nat_Value;
    end Free_Slots_Keep_Alive_Limit;
@@ -243,7 +243,7 @@ package body AWS.Config is
    -- Hotplug_Port --
    ------------------
 
-   function Hotplug_Port (O : in Object) return Positive is
+   function Hotplug_Port (O : Object) return Positive is
    begin
       return O.P (Hotplug_Port).Pos_Value;
    end Hotplug_Port;
@@ -261,7 +261,7 @@ package body AWS.Config is
    -- Keep_Alive_Close_Limit --
    ----------------------------
 
-   function Keep_Alive_Close_Limit (O : in Object) return Positive is
+   function Keep_Alive_Close_Limit (O : Object) return Positive is
    begin
       if O.P (Keep_Alive_Close_Limit).Nat_Value = 0 then
          return Max_Connection (O) * 4;
@@ -274,7 +274,7 @@ package body AWS.Config is
    -- Keep_Alive_Force_Limit --
    ----------------------------
 
-   function Keep_Alive_Force_Limit (O : in Object) return Positive is
+   function Keep_Alive_Force_Limit (O : Object) return Positive is
    begin
       if O.P (Keep_Alive_Force_Limit).Nat_Value = 0 then
          return Max_Connection (O) * 2;
@@ -287,7 +287,7 @@ package body AWS.Config is
    -- Key --
    ---------
 
-   function Key (O : in Object) return String is
+   function Key (O : Object) return String is
    begin
       return To_String (O.P (Key).Str_Value);
    end Key;
@@ -296,7 +296,7 @@ package body AWS.Config is
    -- Line_Stack_Size --
    ---------------------
 
-   function Line_Stack_Size (O : in Object) return Positive is
+   function Line_Stack_Size (O : Object) return Positive is
    begin
       return O.P (Line_Stack_Size).Pos_Value;
    end Line_Stack_Size;
@@ -305,7 +305,7 @@ package body AWS.Config is
    -- Log_Extended_Fields_Generic_Iterate --
    -----------------------------------------
 
-   procedure Log_Extended_Fields_Generic_Iterate (O : in Object) is
+   procedure Log_Extended_Fields_Generic_Iterate (O : Object) is
    begin
       for J in 1 .. Log_Extended_Fields_Length (O) loop
          Field_Id (SV.Element (O.P (Log_Extended_Fields).Strs_Value, J));
@@ -316,7 +316,7 @@ package body AWS.Config is
    -- Log_Extended_Fields_Length --
    --------------------------------
 
-   function Log_Extended_Fields_Length (O : in Object) return Natural is
+   function Log_Extended_Fields_Length (O : Object) return Natural is
    begin
       return Natural (SV.Length (O.P (Log_Extended_Fields).Strs_Value));
    end Log_Extended_Fields_Length;
@@ -325,7 +325,7 @@ package body AWS.Config is
    -- Log_File_Directory --
    ------------------------
 
-   function Log_File_Directory (O : in Object) return String is
+   function Log_File_Directory (O : Object) return String is
    begin
       return To_String (O.P (Log_File_Directory).Dir_Value);
    end Log_File_Directory;
@@ -334,7 +334,7 @@ package body AWS.Config is
    -- Log_Filename_Prefix --
    -------------------------
 
-   function Log_Filename_Prefix (O : in Object) return String is
+   function Log_Filename_Prefix (O : Object) return String is
    begin
       return To_String (O.P (Log_Filename_Prefix).Str_Value);
    end Log_Filename_Prefix;
@@ -343,7 +343,7 @@ package body AWS.Config is
    -- Log_Split_Mode --
    --------------------
 
-   function Log_Split_Mode (O : in Object) return String is
+   function Log_Split_Mode (O : Object) return String is
    begin
       return To_String (O.P (Log_Split_Mode).Str_Value);
    end Log_Split_Mode;
@@ -352,7 +352,7 @@ package body AWS.Config is
    -- Logo_Image --
    ----------------
 
-   function Logo_Image (O : in Object) return String is
+   function Logo_Image (O : Object) return String is
    begin
       return To_String (O.P (Logo_Image).Str_Value);
    end Logo_Image;
@@ -370,7 +370,7 @@ package body AWS.Config is
    -- Max_Connection --
    --------------------
 
-   function Max_Connection (O : in Object) return Positive is
+   function Max_Connection (O : Object) return Positive is
    begin
       return O.P (Max_Connection).Pos_Value;
    end Max_Connection;
@@ -379,7 +379,7 @@ package body AWS.Config is
    -- Read_If_Present --
    ---------------------
 
-   procedure Read_If_Present (Filename : in String) is
+   procedure Read_If_Present (Filename : String) is
    begin
       Ini.Read (Server_Config, Filename);
    exception
@@ -391,7 +391,7 @@ package body AWS.Config is
    -- Receive_Timeout --
    ---------------------
 
-   function Receive_Timeout (O : in Object) return Duration is
+   function Receive_Timeout (O : Object) return Duration is
    begin
       return O.P (Receive_Timeout).Dur_Value;
    end Receive_Timeout;
@@ -400,7 +400,7 @@ package body AWS.Config is
    -- Reuse_Address --
    -------------------
 
-   function Reuse_Address (O : in Object) return Boolean is
+   function Reuse_Address (O : Object) return Boolean is
    begin
       return O.P (Reuse_Address).Bool_Value;
    end Reuse_Address;
@@ -409,7 +409,7 @@ package body AWS.Config is
    -- Security --
    --------------
 
-   function Security (O : in Object) return Boolean is
+   function Security (O : Object) return Boolean is
    begin
       return O.P (Security).Bool_Value;
    end Security;
@@ -418,7 +418,7 @@ package body AWS.Config is
    -- Security_Mode --
    -------------------
 
-   function Security_Mode (O : in Object) return String is
+   function Security_Mode (O : Object) return String is
    begin
       return To_String (O.P (Security_Mode).Str_Value);
    end Security_Mode;
@@ -427,7 +427,7 @@ package body AWS.Config is
    -- Send_Timeout --
    ------------------
 
-   function Send_Timeout (O : in Object) return Duration is
+   function Send_Timeout (O : Object) return Duration is
    begin
       return O.P (Send_Timeout).Dur_Value;
    end Send_Timeout;
@@ -436,7 +436,7 @@ package body AWS.Config is
    -- Server_Host --
    -----------------
 
-   function Server_Host (O : in Object) return String is
+   function Server_Host (O : Object) return String is
    begin
       return To_String (O.P (Server_Host).Str_Value);
    end Server_Host;
@@ -445,7 +445,7 @@ package body AWS.Config is
    -- Server_Name --
    -----------------
 
-   function Server_Name (O : in Object) return String is
+   function Server_Name (O : Object) return String is
    begin
       return To_String (O.P (Server_Name).Str_Value);
    end Server_Name;
@@ -454,7 +454,7 @@ package body AWS.Config is
    -- Server_Port --
    -----------------
 
-   function Server_Port (O : in Object) return Natural is
+   function Server_Port (O : Object) return Natural is
    begin
       return O.P (Server_Port).Nat_Value;
    end Server_Port;
@@ -463,7 +463,7 @@ package body AWS.Config is
    -- Session --
    -------------
 
-   function Session (O : in Object) return Boolean is
+   function Session (O : Object) return Boolean is
    begin
       return O.P (Session).Bool_Value;
    end Session;
@@ -490,7 +490,7 @@ package body AWS.Config is
    -- Session_Name --
    ------------------
 
-   function Session_Name (O : in Object) return String is
+   function Session_Name (O : Object) return String is
    begin
       return To_String (O.P (Session_Name).Str_Value);
    end Session_Name;
@@ -499,7 +499,7 @@ package body AWS.Config is
    -- Status_Page --
    -----------------
 
-   function Status_Page (O : in Object) return String is
+   function Status_Page (O : Object) return String is
    begin
       return To_String (O.P (Status_Page).Str_Value);
    end Status_Page;
@@ -526,7 +526,7 @@ package body AWS.Config is
    -- Up_Image --
    --------------
 
-   function Up_Image (O : in Object) return String is
+   function Up_Image (O : Object) return String is
    begin
       return To_String (O.P (Up_Image).Str_Value);
    end Up_Image;
@@ -535,7 +535,7 @@ package body AWS.Config is
    -- Upload_Directory --
    ----------------------
 
-   function Upload_Directory (O : in Object) return String is
+   function Upload_Directory (O : Object) return String is
    begin
       return To_String (O.P (Upload_Directory).Dir_Value);
    end Upload_Directory;
@@ -544,7 +544,7 @@ package body AWS.Config is
    -- Upload_Size_Limit --
    -----------------------
 
-   function Upload_Size_Limit (O : in Object) return Positive is
+   function Upload_Size_Limit (O : Object) return Positive is
    begin
       return O.P (Upload_Size_Limit).Pos_Value;
    end Upload_Size_Limit;
@@ -553,7 +553,7 @@ package body AWS.Config is
    -- WWW_Root --
    --------------
 
-   function WWW_Root (O : in Object) return String is
+   function WWW_Root (O : Object) return String is
    begin
       return To_String (O.P (WWW_Root).Dir_Value);
    end WWW_Root;

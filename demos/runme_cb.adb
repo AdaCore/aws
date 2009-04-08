@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2001                          --
---                                ACT-Europe                                --
+--                     Copyright (C) 2000-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -34,28 +33,28 @@ package body Runme_CB is
 
    use AWS;
 
-   function Get (Request : in Status.Data) return Response.Data;
-   --  Handle the Get requests.
+   function Get (Request : Status.Data) return Response.Data;
+   --  Handle the Get requests
 
    function Get_No_Session
-     (Request : in Status.Data) return Response.Data;
-   --  Handle the Get requests with no session.
+     (Request : Status.Data) return Response.Data;
+   --  Handle the Get requests with no session
 
-   function Put (Request : in Status.Data) return Response.Data;
-   --  Handle the Put requests.
+   function Put (Request : Status.Data) return Response.Data;
+   --  Handle the Put requests
 
    ---------
    -- Get --
    ---------
 
-   function Get (Request : in Status.Data) return Response.Data is
+   function Get (Request : Status.Data) return Response.Data is
       URI        : constant String          := Status.URI (Request);
       P_List     : constant Parameters.List := Status.Parameters (Request);
       Session_Id : constant Session.Id      := Status.Session (Request);
       C : Natural := 0;
 
    begin
-      --  let's play with the Session now.
+      --  let's play with the Session now
 
       if Session.Exist (Session_Id, "counter") then
          C := Session.Get (Session_Id, "counter");
@@ -165,7 +164,7 @@ package body Runme_CB is
    --------------------
 
    function Get_No_Session
-     (Request : in Status.Data) return Response.Data
+     (Request : Status.Data) return Response.Data
    is
       URI    : constant String          := Status.URI (Request);
       P_List : constant Parameters.List := Status.Parameters (Request);
@@ -218,7 +217,7 @@ package body Runme_CB is
    -- Put --
    ---------
 
-   function Put (Request : in Status.Data) return Response.Data is
+   function Put (Request : Status.Data) return Response.Data is
       pragma Unreferenced (Request);
    begin
       return Response.Acknowledge (Status_Code => Messages.S200);
@@ -228,7 +227,7 @@ package body Runme_CB is
    -- Service --
    -------------
 
-   function Service (Request : in Status.Data)
+   function Service (Request : Status.Data)
      return Response.Data is
       use type Status.Request_Method;
    begin
@@ -251,7 +250,7 @@ package body Runme_CB is
    -- Service_Sec --
    -----------------
 
-   function Service_Sec (Request : in Status.Data)
+   function Service_Sec (Request : Status.Data)
      return Response.Data is
       use type Status.Request_Method;
    begin

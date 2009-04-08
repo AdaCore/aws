@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2003-2007                          --
---                                 AdaCore                                  --
+--                     Copyright (C) 2003-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -36,27 +35,27 @@ package AWS.Resources.Streams.Disk is
    type Stream_Type is new Streams.Stream_Type with private;
 
    procedure Open
-     (File :    out Stream_Type;
-      Name : in     String;
-      Form : in     String    := "shared=no");
+     (File : out Stream_Type;
+      Name : String;
+      Form : String    := "shared=no");
 
-   overriding function End_Of_File (Resource : in Stream_Type) return Boolean;
+   overriding function End_Of_File (Resource : Stream_Type) return Boolean;
 
    overriding procedure Read
      (Resource : in out Stream_Type;
-      Buffer   :    out Stream_Element_Array;
-      Last     :    out Stream_Element_Offset);
+      Buffer   : out Stream_Element_Array;
+      Last     : out Stream_Element_Offset);
 
    overriding function Size
-     (Resource : in Stream_Type) return Stream_Element_Offset;
+     (Resource : Stream_Type) return Stream_Element_Offset;
 
-   overriding function Name (Resource : in Stream_Type) return String;
+   overriding function Name (Resource : Stream_Type) return String;
 
    overriding procedure Reset (Resource : in out Stream_Type);
 
    overriding procedure Set_Index
      (Resource : in out Stream_Type;
-      To       : in     Stream_Element_Offset);
+      To       : Stream_Element_Offset);
 
    overriding procedure Close (Resource : in out Stream_Type);
 

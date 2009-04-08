@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2008, AdaCore                     --
+--                     Copyright (C) 2000-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -45,7 +45,7 @@ package body AWS.Headers.Set is
    -- Add --
    ---------
 
-   procedure Add (Headers : in out List; Name, Value : in String) is
+   procedure Add (Headers : in out List; Name, Value : String) is
    begin
       Tables.Set.Add (P_List (Headers), Name, Value);
    end Add;
@@ -54,7 +54,7 @@ package body AWS.Headers.Set is
    -- Debug --
    -----------
 
-   procedure Debug (Activate : in Boolean) is
+   procedure Debug (Activate : Boolean) is
    begin
       Debug_Flag := Activate;
    end Debug;
@@ -63,9 +63,9 @@ package body AWS.Headers.Set is
    -- Read --
    ----------
 
-   procedure Read (Socket : in Net.Socket_Type'Class; Headers : in out List) is
+   procedure Read (Socket : Net.Socket_Type'Class; Headers : in out List) is
 
-      procedure Parse_Header_Lines (Line : in String);
+      procedure Parse_Header_Lines (Line : String);
       --  Parse the Line eventually catenated with the next line if it is a
       --  continuation line see [RFC 2616 - 4.2].
 
@@ -73,7 +73,7 @@ package body AWS.Headers.Set is
       -- Parse_Header_Lines --
       ------------------------
 
-      procedure Parse_Header_Lines (Line : in String) is
+      procedure Parse_Header_Lines (Line : String) is
          End_Of_Message : constant String := "";
       begin
          if Line = End_Of_Message then
@@ -148,9 +148,9 @@ package body AWS.Headers.Set is
 
    procedure Update
      (Headers : in out List;
-      Name    : in     String;
-      Value   : in     String;
-      N       : in     Positive := 1) is
+      Name    : String;
+      Value   : String;
+      N       : Positive := 1) is
    begin
       Tables.Set.Update (P_List (Headers), Name, Value, N);
    end Update;

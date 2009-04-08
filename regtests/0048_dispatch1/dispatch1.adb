@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2008, AdaCore                     --
+--                     Copyright (C) 2003-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -48,7 +48,7 @@ procedure Dispatch1 is
    Free_Port : Positive;
 
    function CB1
-     (Request : in AWS.Status.Data)
+     (Request : AWS.Status.Data)
       return AWS.Response.Data
    is
       pragma Unreferenced (Request);
@@ -57,7 +57,7 @@ procedure Dispatch1 is
    end CB1;
 
    function CB2
-     (Request : in AWS.Status.Data)
+     (Request : AWS.Status.Data)
       return AWS.Response.Data
    is
       pragma Unreferenced (Request);
@@ -66,7 +66,7 @@ procedure Dispatch1 is
    end CB2;
 
    function CB3
-     (Request : in AWS.Status.Data)
+     (Request : AWS.Status.Data)
       return AWS.Response.Data
    is
       pragma Unreferenced (Request);
@@ -75,7 +75,7 @@ procedure Dispatch1 is
    end CB3;
 
    function CB4
-     (Request : in AWS.Status.Data)
+     (Request : AWS.Status.Data)
       return AWS.Response.Data
    is
       pragma Unreferenced (Request);
@@ -84,7 +84,7 @@ procedure Dispatch1 is
    end CB4;
 
    function CB5
-     (Request : in AWS.Status.Data)
+     (Request : AWS.Status.Data)
       return AWS.Response.Data
    is
       pragma Unreferenced (Request);
@@ -93,7 +93,7 @@ procedure Dispatch1 is
    end CB5;
 
    function Default
-     (Request : in AWS.Status.Data)
+     (Request : AWS.Status.Data)
       return AWS.Response.Data
    is
       URI : constant String := Status.URI (Request);
@@ -101,7 +101,7 @@ procedure Dispatch1 is
       return AWS.Response.Build ("text/html", "Default " & URI);
    end Default;
 
-   procedure Test (URI : in String) is
+   procedure Test (URI : String) is
       R : Response.Data;
    begin
       Text_IO.Put_Line (URI);

@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2008, AdaCore                     --
+--                     Copyright (C) 2003-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -34,8 +34,8 @@ package body WSDL_5 is
    --------------
 
    procedure Register
-     (Name    : in String;
-      Surface : in Color) is
+     (Name    : String;
+      Surface : Color) is
    begin
       C := Surface;
    end Register;

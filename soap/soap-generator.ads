@@ -45,24 +45,24 @@ package SOAP.Generator is
 
    overriding procedure Start_Service
      (O             : in out Object;
-      Name          : in     String;
-      Documentation : in     String;
-      Location      : in     String);
+      Name          : String;
+      Documentation : String;
+      Location      : String);
    --  Called for every service in the WSDL document
 
    overriding procedure End_Service
      (O    : in out Object;
-      Name : in     String);
+      Name : String);
    --  Called at the end of the service
 
    overriding procedure New_Procedure
      (O          : in out Object;
-      Proc       : in     String;
-      SOAPAction : in     String;
-      Namespace  : in     Name_Space.Object;
-      Input      : in     WSDL.Parameters.P_Set;
-      Output     : in     WSDL.Parameters.P_Set;
-      Fault      : in     WSDL.Parameters.P_Set);
+      Proc       : String;
+      SOAPAction : String;
+      Namespace  : Name_Space.Object;
+      Input      : WSDL.Parameters.P_Set;
+      Output     : WSDL.Parameters.P_Set;
+      Fault      : WSDL.Parameters.P_Set);
    --  Called for each SOAP procedure found in the WSDL document for the
    --  current service.
 
@@ -70,10 +70,10 @@ package SOAP.Generator is
    -- Query --
    -----------
 
-   function Procs_Spec (O : in Object) return String;
+   function Procs_Spec (O : Object) return String;
    --  Returns the spec where SOAP service procedures are defined
 
-   function Types_Spec (O : in Object) return String;
+   function Types_Spec (O : Object) return String;
    --  Returns the spec where SOAP types are defined
 
    --------------
@@ -95,11 +95,11 @@ package SOAP.Generator is
    procedure Ada_Style (O : in out Object);
    --  Use Ada style identifier, by default the WSDL casing is used
 
-   procedure Endpoint (O : in out Object; URL : in String);
+   procedure Endpoint (O : in out Object; URL : String);
    --  Set default endpoint to use instead of the one specified in the WSDL
    --  document.
 
-   procedure Specs_From (O : in out Object; Spec : in String);
+   procedure Specs_From (O : in out Object; Spec : String);
    --  Use type definitions for Array and Record and SOAP services procedure
    --  from this Ada spec. This requires that all record definitions are
    --  insided this spec. This options is useful when generating stub/skeleton
@@ -107,34 +107,34 @@ package SOAP.Generator is
    --  definition are already coded in Ada, it is preferable to reuse them to
    --  not have to convert to/from both definitions.
 
-   procedure Types_From (O : in out Object; Spec : in String);
+   procedure Types_From (O : in out Object; Spec : String);
    --  Use type definitions for Array and Record from this Ada spec instead of
    --  the one defined above. If there is no spec defined above, the procs are
    --  also used from this spec.
 
-   procedure Main (O : in out Object; Name : in String);
+   procedure Main (O : in out Object; Name : String);
    --  Set the main program to be generated. This is useful for simple server.
    --  Main can be specified only if the SOAP callbacks are generated.
 
    procedure CVS_Tag (O : in out Object);
    --  Add CVS tag Id in the unit header (no CVS by default)
 
-   procedure WSDL_File (O : in out Object; Filename : in String);
+   procedure WSDL_File (O : in out Object; Filename : String);
    --  Add WSDL file in parent file comments (no WSDL by default)
 
-   procedure Options (O : in out Object; Options : in String);
+   procedure Options (O : in out Object; Options : String);
    --  Set options used with wsdl2aws tool to generate the code
 
    procedure Overwrite (O : in out Object);
    --  Add WSDL file in parent file comments (no overwritting by default)
 
-   procedure Set_Proxy (O : in out Object; Proxy, User, Password : in String);
+   procedure Set_Proxy (O : in out Object; Proxy, User, Password : String);
    --  Set proxy user and password, needed if behind a firewall with
    --  authentication.
 
    procedure Set_Timeouts
      (O        : in out Object;
-      Timeouts : in Client.Timeouts_Values);
+      Timeouts : Client.Timeouts_Values);
    --  Set the SOAP call timeouts
 
    procedure Debug (O : in out Object);

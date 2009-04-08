@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2003                          --
---                               ACT-Europe                                 --
+--                     Copyright (C) 2000-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -31,10 +30,10 @@ with AWS.Response;
 package AWS.Communication.Client is
 
    function Send_Message
-     (Server     : in String;
-      Port       : in Positive;
-      Name       : in String;
-      Parameters : in Parameter_Set := Null_Parameter_Set)
+     (Server     : String;
+      Port       : Positive;
+      Name       : String;
+      Parameters : Parameter_Set := Null_Parameter_Set)
       return Response.Data;
    --  Send a message to server with a set of parameters. The destination is
    --  server is http://Server:Port, the message name is Name and the set of

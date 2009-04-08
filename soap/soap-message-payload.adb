@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2008, AdaCore                     --
+--                     Copyright (C) 2000-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -32,9 +32,9 @@ package body SOAP.Message.Payload is
    -----------
 
    function Build
-     (Procedure_Name : in String;
-      P_Set          : in SOAP.Parameters.List;
-      Name_Space     : in SOAP.Name_Space.Object := SOAP.Name_Space.AWS)
+     (Procedure_Name : String;
+      P_Set          : SOAP.Parameters.List;
+      Name_Space     : SOAP.Name_Space.Object := SOAP.Name_Space.AWS)
       return Object is
    begin
       return (Name_Space   => Name_Space,
@@ -46,7 +46,7 @@ package body SOAP.Message.Payload is
    -- Procedure_Name --
    --------------------
 
-   function Procedure_Name (P : in Object'Class) return String is
+   function Procedure_Name (P : Object'Class) return String is
    begin
       return Wrapper_Name (P);
    end Procedure_Name;
@@ -55,7 +55,7 @@ package body SOAP.Message.Payload is
    -- Set_Procedure_Name --
    ------------------------
 
-   procedure Set_Procedure_Name (P : in out Object'Class; Name : in String) is
+   procedure Set_Procedure_Name (P : in out Object'Class; Name : String) is
    begin
       Set_Wrapper_Name (P, Name);
    end Set_Procedure_Name;

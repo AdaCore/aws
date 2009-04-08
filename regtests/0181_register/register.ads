@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2004-2008, AdaCore                     --
+--                     Copyright (C) 2004-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -32,16 +32,16 @@ package Register is
    use Framework;
 
    procedure Add
-     (Server_Address : in String;
-      Server_Name    : in String;
-      Description    : in String;
-      Help           : in String;
-      Demo           : in String;
-      Options        : in Options_Table;
-      Type_In        : in Files_Table;
-      Type_Out       : in Files_Table;
-      Rank           : in Ranks_Table);
+     (Server_Address : String;
+      Server_Name    : String;
+      Description    : String;
+      Help           : String;
+      Demo           : String;
+      Options        : Options_Table;
+      Type_In        : Files_Table;
+      Type_Out       : Files_Table;
+      Rank           : Ranks_Table);
 
-   procedure Unregister (Server_Name : in String);
+   procedure Unregister (Server_Name : String);
 
 end Register;

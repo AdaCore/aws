@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2002-2008, AdaCore                     --
+--                     Copyright (C) 2002-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -41,26 +41,26 @@ package AWS.Net.Std is
 
    overriding procedure Bind
      (Socket        : in out Socket_Type;
-      Port          : in     Natural;
-      Host          : in     String  := "";
-      Reuse_Address : in     Boolean := False);
+      Port          : Natural;
+      Host          : String  := "";
+      Reuse_Address : Boolean := False);
    --  Bind a socket on a given port
 
    overriding procedure Listen
-     (Socket     : in Socket_Type;
-      Queue_Size : in Positive := 5);
+     (Socket     : Socket_Type;
+      Queue_Size : Positive := 5);
    --  Set the queue size of the socket
 
    overriding procedure Accept_Socket
-     (Socket     : in     Net.Socket_Type'Class;
+     (Socket     : Net.Socket_Type'Class;
       New_Socket : in out Socket_Type);
    --  Accept a connection on a socket
 
    overriding procedure Connect
      (Socket : in out Socket_Type;
-      Host   : in     String;
-      Port   : in     Positive;
-      Wait   : in     Boolean := True);
+      Host   : String;
+      Port   : Positive;
+      Wait   : Boolean := True);
    --  Connect a socket on a given host/port. If Wait is True Connect will wait
    --  for the connection to be established for timeout seconds, specified by
    --  Set_Timeout routine. If Wait is False Connect will return immediately,
@@ -69,7 +69,7 @@ package AWS.Net.Std is
    --  True in Events parameter.
 
    overriding procedure Shutdown
-     (Socket : in Socket_Type; How : in Shutmode_Type := Shut_Read_Write);
+     (Socket : Socket_Type; How : Shutmode_Type := Shut_Read_Write);
    --  Shutdown the read, write or both side of the socket.
    --  If How is Both, close it. Does not raise Socket_Error if the socket is
    --  not connected or already shutdown.
@@ -79,18 +79,18 @@ package AWS.Net.Std is
    --------
 
    overriding procedure Send
-     (Socket : in     Socket_Type;
-      Data   : in     Stream_Element_Array;
-      Last   :    out Stream_Element_Offset);
+     (Socket : Socket_Type;
+      Data   : Stream_Element_Array;
+      Last   : out Stream_Element_Offset);
 
    overriding procedure Receive
-     (Socket : in     Socket_Type;
-      Data   :    out Stream_Element_Array;
-      Last   :    out Stream_Element_Offset);
+     (Socket : Socket_Type;
+      Data   : out Stream_Element_Array;
+      Last   : out Stream_Element_Offset);
    pragma Inline (Receive);
 
    overriding function Pending
-     (Socket : in Socket_Type) return Stream_Element_Count;
+     (Socket : Socket_Type) return Stream_Element_Count;
    --  Returns the number of bytes which are available inside socket
    --  for immediate read.
 
@@ -98,42 +98,42 @@ package AWS.Net.Std is
    -- Others --
    ------------
 
-   overriding function Get_FD (Socket : in Socket_Type) return Integer;
+   overriding function Get_FD (Socket : Socket_Type) return Integer;
    --  Returns the file descriptor associated with the socket
 
-   overriding function Peer_Addr (Socket : in Socket_Type) return String;
+   overriding function Peer_Addr (Socket : Socket_Type) return String;
    --  Returns the peer name/address
 
-   overriding function Peer_Port (Socket : in Socket_Type) return Positive;
+   overriding function Peer_Port (Socket : Socket_Type) return Positive;
    --  Returns the port of the peer socket
 
-   overriding function Get_Addr (Socket : in Socket_Type) return String;
+   overriding function Get_Addr (Socket : Socket_Type) return String;
    --  Returns the name/address of the socket
 
-   overriding function Get_Port (Socket : in Socket_Type) return Positive;
+   overriding function Get_Port (Socket : Socket_Type) return Positive;
    --  Returns the port of the socket
 
    function Host_Name return String;
 
    overriding procedure Set_Send_Buffer_Size
-     (Socket : in Socket_Type;
-      Size   : in Natural);
+     (Socket : Socket_Type;
+      Size   : Natural);
    --  Set the internal socket send buffer size.
    --  Do not confuse with buffers for the AWS.Net.Buffered operations.
 
    overriding procedure Set_Receive_Buffer_Size
-     (Socket : in Socket_Type;
-      Size   : in Natural);
+     (Socket : Socket_Type;
+      Size   : Natural);
    --  Set the internal socket receive buffer size.
    --  Do not confuse with buffers for the AWS.Net.Buffered operations.
 
    overriding function Get_Send_Buffer_Size
-     (Socket : in Socket_Type) return Natural;
+     (Socket : Socket_Type) return Natural;
    --  Returns the internal socket send buffer size.
    --  Do not confuse with buffers for the AWS.Net.Buffered operations.
 
    overriding function Get_Receive_Buffer_Size
-     (Socket : in Socket_Type) return Natural;
+     (Socket : Socket_Type) return Natural;
    --  Returns the internal socket receive buffer size.
    --  Do not confuse with buffers for the AWS.Net.Buffered operations.
 
@@ -141,7 +141,7 @@ package AWS.Net.Std is
    pragma Inline (Errno);
    --  Return error code for the last socket operation
 
-   overriding function Errno (Socket : in Socket_Type) return Integer;
+   overriding function Errno (Socket : Socket_Type) return Integer;
    --  Returns and clears error state in socket
 
 private

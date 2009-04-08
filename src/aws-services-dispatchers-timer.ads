@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2003-2007                          --
---                                 AdaCore                                  --
+--                     Copyright (C) 2003-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -53,106 +52,106 @@ package AWS.Services.Dispatchers.Timer is
    subtype Second_Number is Calendar.Formatting.Second_Number;
 
    function Once
-     (From_Year   : in Year_Number;
-      From_Month  : in Month_Number;
-      From_Day    : in Day_Number;
-      From_Hour   : in Hour_Number;
-      From_Minute : in Minute_Number;
-      From_Second : in Second_Number;
-      To_Year     : in Year_Number;
-      To_Month    : in Month_Number;
-      To_Day      : in Day_Number;
-      To_Hour     : in Hour_Number;
-      To_Minute   : in Minute_Number;
-      To_Second   : in Second_Number)
+     (From_Year   : Year_Number;
+      From_Month  : Month_Number;
+      From_Day    : Day_Number;
+      From_Hour   : Hour_Number;
+      From_Minute : Minute_Number;
+      From_Second : Second_Number;
+      To_Year     : Year_Number;
+      To_Month    : Month_Number;
+      To_Day      : Day_Number;
+      To_Hour     : Hour_Number;
+      To_Minute   : Minute_Number;
+      To_Second   : Second_Number)
       return Period;
    --  A period that is uniq in time
 
    function Yearly
-     (From_Month  : in Month_Number;
-      From_Day    : in Day_Number;
-      From_Hour   : in Hour_Number;
-      From_Minute : in Minute_Number;
-      From_Second : in Second_Number;
-      To_Month    : in Month_Number;
-      To_Day      : in Day_Number;
-      To_Hour     : in Hour_Number;
-      To_Minute   : in Minute_Number;
-      To_Second   : in Second_Number)
+     (From_Month  : Month_Number;
+      From_Day    : Day_Number;
+      From_Hour   : Hour_Number;
+      From_Minute : Minute_Number;
+      From_Second : Second_Number;
+      To_Month    : Month_Number;
+      To_Day      : Day_Number;
+      To_Hour     : Hour_Number;
+      To_Minute   : Minute_Number;
+      To_Second   : Second_Number)
       return Period;
    --  A period that repeats each year
 
    function Monthly
-     (From_Day    : in Day_Number;
-      From_Hour   : in Hour_Number;
-      From_Minute : in Minute_Number;
-      From_Second : in Second_Number;
-      To_Day      : in Day_Number;
-      To_Hour     : in Hour_Number;
-      To_Minute   : in Minute_Number;
-      To_Second   : in Second_Number)
+     (From_Day    : Day_Number;
+      From_Hour   : Hour_Number;
+      From_Minute : Minute_Number;
+      From_Second : Second_Number;
+      To_Day      : Day_Number;
+      To_Hour     : Hour_Number;
+      To_Minute   : Minute_Number;
+      To_Second   : Second_Number)
       return Period;
    --  A period that repeats each month
 
    function Weekly
-     (From_Day    : in Day_Name;
-      From_Hour   : in Hour_Number;
-      From_Minute : in Minute_Number;
-      From_Second : in Second_Number;
-      To_Day      : in Day_Name;
-      To_Hour     : in Hour_Number;
-      To_Minute   : in Minute_Number;
-      To_Second   : in Second_Number)
+     (From_Day    : Day_Name;
+      From_Hour   : Hour_Number;
+      From_Minute : Minute_Number;
+      From_Second : Second_Number;
+      To_Day      : Day_Name;
+      To_Hour     : Hour_Number;
+      To_Minute   : Minute_Number;
+      To_Second   : Second_Number)
       return Period;
    --  A period that repeats each week
 
    function Daily
-     (From_Hour   : in Hour_Number;
-      From_Minute : in Minute_Number;
-      From_Second : in Second_Number;
-      To_Hour     : in Hour_Number;
-      To_Minute   : in Minute_Number;
-      To_Second   : in Second_Number)
+     (From_Hour   : Hour_Number;
+      From_Minute : Minute_Number;
+      From_Second : Second_Number;
+      To_Hour     : Hour_Number;
+      To_Minute   : Minute_Number;
+      To_Second   : Second_Number)
       return Period;
    --  A period that repeats each day
 
    function Hourly
-     (From_Minute : in Minute_Number;
-      From_Second : in Second_Number;
-      To_Minute   : in Minute_Number;
-      To_Second   : in Second_Number)
+     (From_Minute : Minute_Number;
+      From_Second : Second_Number;
+      To_Minute   : Minute_Number;
+      To_Second   : Second_Number)
       return Period;
    --  A period that repeats each hour
 
    function Minutely
-     (From_Second : in Second_Number;
-      To_Second   : in Second_Number)
+     (From_Second : Second_Number;
+      To_Second   : Second_Number)
       return Period;
    --  A period that repeats each minute
 
    procedure Register
      (Dispatcher : in out Handler;
-      Name       : in     String;
-      Period     : in     Timer.Period;
-      Action     : in     AWS.Dispatchers.Handler'Class);
+      Name       : String;
+      Period     : Timer.Period;
+      Action     : AWS.Dispatchers.Handler'Class);
    --  Register a Period to use the specified dispatcher
 
    procedure Register
      (Dispatcher : in out Handler;
-      Name       : in     String;
-      Period     : in     Timer.Period;
-      Action     : in     Response.Callback);
+      Name       : String;
+      Period     : Timer.Period;
+      Action     : Response.Callback);
    --  Idem as above but take a callback procedure as parameter
 
    procedure Unregister
      (Dispatcher : in out Handler;
-      Name       : in     String);
+      Name       : String);
    --  Removes the period dispatcher named Name. Does nothing if Name is not
    --  found.
 
    procedure Register_Default_Callback
      (Dispatcher : in out Handler;
-      Action     : in     AWS.Dispatchers.Handler'Class);
+      Action     : AWS.Dispatchers.Handler'Class);
    --  Register the default callback. This will be used if no period
    --  matches the current time.
 
@@ -164,15 +163,15 @@ private
    overriding procedure Finalize   (Dispatcher : in out Handler);
 
    overriding function Dispatch
-     (Dispatcher : in Handler;
-      Request    : in Status.Data) return Response.Data;
+     (Dispatcher : Handler;
+      Request    : Status.Data) return Response.Data;
    --  Dispatch will call the time dispatcher that matches the current time.
    --  Note that if a callback returns the Response.Empty message, Dispatch
    --  will just continue to the next matching callback. In any cases, if no
    --  handler matches it will call the default callback. If no default
    --  callback is registered an error HTML message (code 404) is returned.
 
-   overriding function Clone (Dispatcher : in Handler) return Handler;
+   overriding function Clone (Dispatcher : Handler) return Handler;
    --  Returns a deep copy of the dispatcher
 
    type Kind is (Once, Yearly, Monthly, Weekly, Daily, Hourly, Minutely);

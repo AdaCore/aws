@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2008, AdaCore                     --
+--                     Copyright (C) 2003-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -39,12 +39,12 @@ package WSDL_4_Server is
 
    subtype Handler is SOAP.Dispatchers.Callback.Handler;
 
-   function HTTP_CB (Request : in Status.Data) return Response.Data;
+   function HTTP_CB (Request : Status.Data) return Response.Data;
 
    function SOAP_CB
-     (SOAPAction : in String;
-      Payload    : in Message.Payload.Object;
-      Request    : in AWS.Status.Data)
+     (SOAPAction : String;
+      Payload    : Message.Payload.Object;
+      Request    : AWS.Status.Data)
       return Response.Data;
 
 end WSDL_4_Server;

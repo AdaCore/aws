@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2006-2008, AdaCore                     --
+--                     Copyright (C) 2006-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -30,7 +30,7 @@ with Ada.Text_IO;
 
 procedure SDig is
 
-   procedure Test (D : in Duration; N : in Positive) is
+   procedure Test (D : Duration; N : Positive) is
    begin
       Ada.Text_IO.Put_Line (AWS.Utils.Significant_Image (D, N));
    end Test;

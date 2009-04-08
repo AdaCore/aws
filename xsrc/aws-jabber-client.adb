@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                       Copyright (C) 2008, AdaCore                        --
+--                     Copyright (C) 2008-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -47,7 +47,7 @@ package body AWS.Jabber.Client is
 
    use Ada;
 
-   procedure XMPP_Send (Account : in Client.Account; Message : in String);
+   procedure XMPP_Send (Account : Client.Account; Message : String);
    --  Send a XMPP message to the jabber server
 
    -----------
@@ -133,10 +133,10 @@ package body AWS.Jabber.Client is
    -----------------
 
    procedure IO_Message
-     (From         : in Jabber_ID;
-      Message_Type : in Client.Message_Type;
-      Subject      : in String;
-      Content      : in String) is
+     (From         : Jabber_ID;
+      Message_Type : Client.Message_Type;
+      Subject      : String;
+      Content      : String) is
    begin
       Text_IO.Put_Line ("From :" & String (From));
       if Message_Type = M_Normal then
@@ -151,8 +151,8 @@ package body AWS.Jabber.Client is
    -----------------
 
    procedure IO_Presence
-     (From   : in Jabber_ID;
-      Status : in String) is
+     (From   : Jabber_ID;
+      Status : String) is
    begin
       Text_IO.Put_Line (String (From) & " is " & Status);
    end IO_Presence;
@@ -162,11 +162,11 @@ package body AWS.Jabber.Client is
    ----------
 
    procedure Send
-     (Account      : in Client.Account;
-      JID          : in Jabber_ID;
-      Content      : in String;
-      Subject      : in String := "";
-      Message_Type : in Client.Message_Type := M_Normal)
+     (Account      : Client.Account;
+      JID          : Jabber_ID;
+      Content      : String;
+      Subject      : String := "";
+      Message_Type : Client.Message_Type := M_Normal)
    is
 
       function Send_Type return String;
@@ -205,7 +205,7 @@ package body AWS.Jabber.Client is
 
    procedure Set_Authentication_Type
      (Account   : in out Client.Account;
-      Auth_Type : in     Authentication_Mechanism) is
+      Auth_Type : Authentication_Mechanism) is
    begin
       Account.Auth_Type := Auth_Type;
    end Set_Authentication_Type;
@@ -216,7 +216,7 @@ package body AWS.Jabber.Client is
 
    procedure Set_Host
      (Account : in out Client.Account;
-      Host    : in     String) is
+      Host    : String) is
    begin
       Account.Host := To_Unbounded_String (Host);
    end Set_Host;
@@ -227,9 +227,9 @@ package body AWS.Jabber.Client is
 
    procedure Set_Login_Information
      (Account  : in out Client.Account;
-      User     : in     String;
-      Password : in     String;
-      Resource : in     String := "") is
+      User     : String;
+      Password : String;
+      Resource : String := "") is
    begin
       Account.User.Name     := To_Unbounded_String (User);
       Account.User.Password := To_Unbounded_String (Password);
@@ -242,7 +242,7 @@ package body AWS.Jabber.Client is
 
    procedure Set_Port
      (Account : in out Client.Account;
-      Port    : in Client.Port) is
+      Port    : Client.Port) is
    begin
       Account.Port := Port;
    end Set_Port;
@@ -253,7 +253,7 @@ package body AWS.Jabber.Client is
 
    procedure Set_Presence_Hook
      (Account : in out Client.Account;
-      Hook    : in     Presence_Hook) is
+      Hook    : Presence_Hook) is
    begin
       Account.Hooks.Presence := Hook;
    end Set_Presence_Hook;
@@ -263,9 +263,9 @@ package body AWS.Jabber.Client is
    ------------------
 
    function To_Jabber_ID
-     (Username : in String;
-      Server   : in String;
-      Resource : in String := "") return Jabber_ID is
+     (Username : String;
+      Server   : String;
+      Resource : String := "") return Jabber_ID is
    begin
       if Resource /= "" then
          return Jabber_ID (Username & '@' & Server & '/' & Resource);
@@ -290,21 +290,21 @@ package body AWS.Jabber.Client is
       Connection_Current_Step     : Connection_Step := Initialize_Connection;
       Authentication_Current_Step : Authentication_Step := First_Challenge;
 
-      procedure Get_Message (XML : in String; Start, Stop : in out Positive);
+      procedure Get_Message (XML : String; Start, Stop : in out Positive);
       --  Returns Start and Stop where XML (Start .. Stop) is the next XML
       --  chunk. Start and Stop are initialy set as bound for the previous
       --  slice. The first time this routine is called we have
       --  Start = Stop = XML'First. Returns Start = Stop if this tag must be
       --  skipped and Start > XML'Last when there is nothing more to read.
 
-      procedure Parse_Message (XML : in String);
+      procedure Parse_Message (XML : String);
       --  Parse the XML message and call the appropriate hooks
 
       -----------------
       -- Get_Message --
       -----------------
 
-      procedure Get_Message (XML : in String; Start, Stop : in out Positive) is
+      procedure Get_Message (XML : String; Start, Stop : in out Positive) is
          K : Positive;
          I : Natural;
       begin
@@ -382,7 +382,7 @@ package body AWS.Jabber.Client is
       -- Parse_Message --
       -------------------
 
-      procedure Parse_Message (XML : in String) is
+      procedure Parse_Message (XML : String) is
          use Input_Sources.Strings;
 
          package XMPP_Parser is
@@ -419,28 +419,28 @@ package body AWS.Jabber.Client is
 
             overriding procedure Start_Element
               (Handler       : in out Tree_Reader;
-               Namespace_URI : in     Unicode.CES.Byte_Sequence := "";
-               Local_Name    : in     Unicode.CES.Byte_Sequence := "";
-               Qname         : in     Unicode.CES.Byte_Sequence := "";
-               Atts          : in     Sax.Attributes.Attributes'Class);
+               Namespace_URI : Unicode.CES.Byte_Sequence := "";
+               Local_Name    : Unicode.CES.Byte_Sequence := "";
+               Qname         : Unicode.CES.Byte_Sequence := "";
+               Atts          : Sax.Attributes.Attributes'Class);
 
             overriding procedure End_Element
               (Handler       : in out Tree_Reader;
-               Namespace_URI : in     Unicode.CES.Byte_Sequence := "";
-               Local_Name    : in     Unicode.CES.Byte_Sequence := "";
-               Qname         : in     Unicode.CES.Byte_Sequence := "");
+               Namespace_URI : Unicode.CES.Byte_Sequence := "";
+               Local_Name    : Unicode.CES.Byte_Sequence := "";
+               Qname         : Unicode.CES.Byte_Sequence := "");
 
             overriding procedure Characters
               (Handler : in out Tree_Reader;
-               Ch      : in     Unicode.CES.Byte_Sequence);
+               Ch      : Unicode.CES.Byte_Sequence);
 
             overriding procedure Ignorable_Whitespace
               (Handler : in out Tree_Reader;
-               Ch      : in     Unicode.CES.Byte_Sequence);
+               Ch      : Unicode.CES.Byte_Sequence);
 
             procedure Process
               (Account  : in out Client.Account;
-               Message  : in     XMPP_Message_Access);
+               Message  : XMPP_Message_Access);
          end XMPP_Parser;
 
          function Message_Suffix return String;
@@ -476,7 +476,7 @@ package body AWS.Jabber.Client is
 
             overriding procedure Characters
               (Handler : in out Tree_Reader;
-               Ch      : in     Unicode.CES.Byte_Sequence) is
+               Ch      : Unicode.CES.Byte_Sequence) is
             begin
                Append (Handler.Value, To_Unbounded_String (Ch));
             end Characters;
@@ -487,9 +487,9 @@ package body AWS.Jabber.Client is
 
             overriding procedure End_Element
               (Handler       : in out Tree_Reader;
-               Namespace_URI : in     Unicode.CES.Byte_Sequence := "";
-               Local_Name    : in     Unicode.CES.Byte_Sequence := "";
-               Qname         : in     Unicode.CES.Byte_Sequence := "")
+               Namespace_URI : Unicode.CES.Byte_Sequence := "";
+               Local_Name    : Unicode.CES.Byte_Sequence := "";
+               Qname         : Unicode.CES.Byte_Sequence := "")
             is
                pragma Unreferenced (Namespace_URI);
                pragma Unreferenced (Local_Name);
@@ -522,7 +522,7 @@ package body AWS.Jabber.Client is
 
             overriding procedure Ignorable_Whitespace
               (Handler : in out Tree_Reader;
-               Ch      : in     Unicode.CES.Byte_Sequence) is
+               Ch      : Unicode.CES.Byte_Sequence) is
             begin
                Append (Handler.Value, Ch);
             end Ignorable_Whitespace;
@@ -533,13 +533,13 @@ package body AWS.Jabber.Client is
 
             procedure Process
               (Account : in out Client.Account;
-               Message : in     XMPP_Message_Access)
+               Message : XMPP_Message_Access)
             is
                procedure Digest_MD5_Authenticate;
 
                function Value
-                 (M   : in XMPP_Message_Access;
-                  Key : in String) return String;
+                 (M   : XMPP_Message_Access;
+                  Key : String) return String;
                --  Returns the value for Key in the message M
                --  or The empty string if the key is not found.
 
@@ -756,8 +756,8 @@ package body AWS.Jabber.Client is
                -----------
 
                function Value
-                 (M   : in XMPP_Message_Access;
-                  Key : in String) return String
+                 (M   : XMPP_Message_Access;
+                  Key : String) return String
                is
                   Cursor : Messages_Maps.Cursor;
                begin
@@ -837,10 +837,10 @@ package body AWS.Jabber.Client is
 
             overriding procedure Start_Element
               (Handler       : in out Tree_Reader;
-               Namespace_URI : in     Unicode.CES.Byte_Sequence := "";
-               Local_Name    : in     Unicode.CES.Byte_Sequence := "";
-               Qname         : in     Unicode.CES.Byte_Sequence := "";
-               Atts          : in     Sax.Attributes.Attributes'Class)
+               Namespace_URI : Unicode.CES.Byte_Sequence := "";
+               Local_Name    : Unicode.CES.Byte_Sequence := "";
+               Qname         : Unicode.CES.Byte_Sequence := "";
+               Atts          : Sax.Attributes.Attributes'Class)
             is
                pragma Unreferenced (Namespace_URI);
                pragma Unreferenced (Qname);
@@ -937,7 +937,7 @@ package body AWS.Jabber.Client is
    -- XMPP_Send --
    ---------------
 
-   procedure XMPP_Send (Account : in Client.Account; Message : in String) is
+   procedure XMPP_Send (Account : Client.Account; Message : String) is
    begin
       Net.Buffered.Put_Line (Account.Sock.all, Message);
       Net.Buffered.Flush (Account.Sock.all);

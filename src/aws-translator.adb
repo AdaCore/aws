@@ -34,8 +34,8 @@ package body AWS.Translator is
 
    procedure Compress_Decompress
      (Stream : in out AWS.Resources.Streams.Memory.ZLib.Stream_Type'Class;
-      Data   : in     Stream_Element_Array;
-      Result :    out Utils.Stream_Element_Array_Access);
+      Data   : Stream_Element_Array;
+      Result : out Utils.Stream_Element_Array_Access);
    --  Compress or decompress (depending on the Stream initialization)
    --  Data. Set result with the compressed or decompressed string. This is
    --  used to implement the Compress and Decompress routines.
@@ -54,30 +54,30 @@ package body AWS.Translator is
    end record;
 
    procedure Add
-     (Add   : not null access procedure (Ch : in Character);
+     (Add   : not null access procedure (Ch : Character);
       State : in out Encoding_State;
-      Ch    : in Character);
+      Ch    : Character);
    --  This method contains the algorithm for encoding the characters
 
    procedure Add
-     (Add   : not null access procedure (Ch : in Character);
+     (Add   : not null access procedure (Ch : Character);
       State : in out Decoding_State;
-      Ch    : in Character);
+      Ch    : Character);
    --  This method contains the algorithm for decoding the characters
 
    procedure Flush
-     (Add   : not null access procedure (Ch : in Character);
+     (Add   : not null access procedure (Ch : Character);
       State : in out Encoding_State);
    --  This method is implemented for flushing to add the last bits
 
    package Conversion is
 
-      function To_String (Data : in Stream_Element_Array) return String;
+      function To_String (Data : Stream_Element_Array) return String;
       pragma Inline (To_String);
       --  Convert a Stream_Element_Array to a string
 
       function To_Stream_Element_Array
-        (Data : in String) return Stream_Element_Array;
+        (Data : String) return Stream_Element_Array;
       pragma Inline (To_Stream_Element_Array);
       --  Convert a String to a Stream_Element_Array
 
@@ -126,9 +126,9 @@ package body AWS.Translator is
    ---------
 
    procedure Add
-     (Add   : not null access procedure (Ch : in Character);
+     (Add   : not null access procedure (Ch : Character);
       State : in out Encoding_State;
-      Ch    : in Character)
+      Ch    : Character)
    is
       E : Unsigned_8 := 0;
    begin
@@ -159,9 +159,9 @@ package body AWS.Translator is
    end Add;
 
    procedure Add
-     (Add   : not null access procedure (Ch : in Character);
+     (Add   : not null access procedure (Ch : Character);
       State : in out Decoding_State;
-      Ch    : in Character) is
+      Ch    : Character) is
    begin
       if Ch = ASCII.LF or else Ch = ASCII.CR then
          null;
@@ -198,18 +198,18 @@ package body AWS.Translator is
    -------------------
 
    procedure Base64_Decode
-     (B64_Data : in     Unbounded_String;
-      Data     :    out Unbounded_String)
+     (B64_Data : Unbounded_String;
+      Data     : out Unbounded_String)
    is
 
-      procedure Add_Char (Ch : in Character);
+      procedure Add_Char (Ch : Character);
       --  Append a single char into Data
 
       --------------
       -- Add_Char --
       --------------
 
-      procedure Add_Char (Ch : in Character) is
+      procedure Add_Char (Ch : Character) is
       begin
          Append (Data, Ch);
       end Add_Char;
@@ -232,9 +232,9 @@ package body AWS.Translator is
       end if;
    end Base64_Decode;
 
-   function Base64_Decode (B64_Data : in String) return Stream_Element_Array is
+   function Base64_Decode (B64_Data : String) return Stream_Element_Array is
 
-      procedure Add_Char (Ch : in Character);
+      procedure Add_Char (Ch : Character);
       --  Add single char into Result
 
       Result : Stream_Element_Array
@@ -246,7 +246,7 @@ package body AWS.Translator is
       -- Add_Char --
       --------------
 
-      procedure Add_Char (Ch : in Character) is
+      procedure Add_Char (Ch : Character) is
       begin
          Last := Last + 1;
          Result (Last) := Character'Pos (Ch);
@@ -260,7 +260,7 @@ package body AWS.Translator is
       return Result (1 .. Last - Stream_Element_Offset (S.Pad));
    end Base64_Decode;
 
-   function Base64_Decode (B64_Data : in String) return String is
+   function Base64_Decode (B64_Data : String) return String is
    begin
       return To_String (Base64_Decode (B64_Data));
    end Base64_Decode;
@@ -270,18 +270,18 @@ package body AWS.Translator is
    -------------------
 
    procedure Base64_Encode
-     (Data     : in     Unbounded_String;
-      B64_Data :    out Unbounded_String)
+     (Data     : Unbounded_String;
+      B64_Data : out Unbounded_String)
    is
 
-      procedure Add_Char (Ch : in Character);
+      procedure Add_Char (Ch : Character);
       --  Add single char into Base64
 
       --------------
       -- Add_Char --
       --------------
 
-      procedure Add_Char (Ch : in Character) is
+      procedure Add_Char (Ch : Character) is
       begin
          Append (B64_Data, Ch);
       end Add_Char;
@@ -298,9 +298,9 @@ package body AWS.Translator is
       Flush (Add_Char'Access, S);
    end Base64_Encode;
 
-   function Base64_Encode (Data : in Stream_Element_Array) return String is
+   function Base64_Encode (Data : Stream_Element_Array) return String is
 
-      procedure Add_Char (Ch : in Character);
+      procedure Add_Char (Ch : Character);
       --  Add single char into result string
 
       Result : Unbounded_String;
@@ -310,7 +310,7 @@ package body AWS.Translator is
       -- Add_Char --
       --------------
 
-      procedure Add_Char (Ch : in Character) is
+      procedure Add_Char (Ch : Character) is
       begin
          Append (Result, Ch);
       end Add_Char;
@@ -324,7 +324,7 @@ package body AWS.Translator is
       return To_String (Result);
    end Base64_Encode;
 
-   function Base64_Encode (Data : in String) return String is
+   function Base64_Encode (Data : String) return String is
       Stream_Data : constant Stream_Element_Array :=
                       To_Stream_Element_Array (Data);
    begin
@@ -336,9 +336,9 @@ package body AWS.Translator is
    --------------
 
    function Compress
-     (Data   : in Stream_Element_Array;
-      Level  : in Compression_Level            := Default_Compression;
-      Header : in ZL.Header_Type               := ZL.Default_Header)
+     (Data   : Stream_Element_Array;
+      Level  : Compression_Level            := Default_Compression;
+      Header : ZL.Header_Type               := ZL.Default_Header)
       return Utils.Stream_Element_Array_Access
    is
       Stream : ZL.Stream_Type;
@@ -356,8 +356,8 @@ package body AWS.Translator is
 
    procedure Compress_Decompress
      (Stream : in out AWS.Resources.Streams.Memory.ZLib.Stream_Type'Class;
-      Data   : in     Stream_Element_Array;
-      Result :    out Utils.Stream_Element_Array_Access)
+      Data   : Stream_Element_Array;
+      Result : out Utils.Stream_Element_Array_Access)
    is
       use ZL;
 
@@ -412,8 +412,8 @@ package body AWS.Translator is
    ----------------
 
    function Decompress
-     (Data   : in Stream_Element_Array;
-      Header : in ZL.Header_Type                   := ZL.Default_Header)
+     (Data   : Stream_Element_Array;
+      Header : ZL.Header_Type                   := ZL.Default_Header)
       return Utils.Stream_Element_Array_Access
    is
       Stream : ZL.Stream_Type;
@@ -430,7 +430,7 @@ package body AWS.Translator is
    -----------
 
    procedure Flush
-     (Add   : not null access procedure (Ch : in Character);
+     (Add   : not null access procedure (Ch : Character);
       State : in out Encoding_State)
    is
       Encoded_Length : Integer;
@@ -463,7 +463,7 @@ package body AWS.Translator is
    -- QP_Decode --
    ---------------
 
-   function QP_Decode (QP_Data : in String) return String is
+   function QP_Decode (QP_Data : String) return String is
 
       End_Of_QP : constant String := "00";
       K         : Positive := QP_Data'First;
@@ -506,7 +506,7 @@ package body AWS.Translator is
    -----------------------------
 
    function To_Stream_Element_Array
-     (Data : in String)
+     (Data : String)
       return Stream_Element_Array
       renames Conversion.To_Stream_Element_Array;
 
@@ -515,7 +515,7 @@ package body AWS.Translator is
    ---------------
 
    function To_String
-     (Data : in Stream_Element_Array)
+     (Data : Stream_Element_Array)
       return String
       renames Conversion.To_String;
 
@@ -524,7 +524,7 @@ package body AWS.Translator is
    -------------------------
 
    function To_Unbounded_String
-     (Data : in Stream_Element_Array) return Unbounded_String
+     (Data : Stream_Element_Array) return Unbounded_String
    is
       Chunk_Size : constant := 1_024;
       Result     : Unbounded_String;

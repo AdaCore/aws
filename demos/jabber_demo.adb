@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                   Copyright (C) 2002-2008, AdaCore                       --
+--                   Copyright (C) 2002-2009, AdaCore                       --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -41,7 +41,7 @@ procedure Jabber_Demo is
    Chat_Command : constant String := "/msg";
 
    procedure Chat
-     (Account : in AWS.Jabber.Client.Account; Command : in String);
+     (Account : AWS.Jabber.Client.Account; Command : String);
    --  Parse and execute the chat command
 
    procedure Parse_Command_Line;
@@ -59,8 +59,8 @@ procedure Jabber_Demo is
    ----------
 
    procedure Chat
-     (Account : in AWS.Jabber.Client.Account;
-      Command : in String)
+     (Account : AWS.Jabber.Client.Account;
+      Command : String)
    is
       Sent : Boolean := False;
    begin

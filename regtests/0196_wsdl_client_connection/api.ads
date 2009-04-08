@@ -29,12 +29,12 @@ package API is
 
    procedure Empty;
 
-   procedure Callme (X : in Natural);
+   procedure Callme (X : Natural);
 
-   procedure Callme_Message (X : in Natural; Message : in String);
+   procedure Callme_Message (X : Natural; Message : String);
 
    function Get_Value return Natural;
 
-   function Length (Str : in String) return Positive;
+   function Length (Str : String) return Positive;
 
 end API;

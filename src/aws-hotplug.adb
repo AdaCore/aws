@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2005                          --
---                                 AdaCore                                  --
+--                     Copyright (C) 2000-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -36,10 +35,10 @@ package body AWS.Hotplug is
    -----------
 
    procedure Apply
-     (Filters : in     Filter_Set;
-      Status  : in     AWS.Status.Data;
-      Found   :    out Boolean;
-      Data    :    out Response.Data)
+     (Filters : Filter_Set;
+      Status  : AWS.Status.Data;
+      Found   : out Boolean;
+      Data    : out Response.Data)
    is
       use type AWS.Status.Request_Method;
 
@@ -119,7 +118,7 @@ package body AWS.Hotplug is
    -- Equal_Data --
    ----------------
 
-   function Equal_Data (Left, Right : in Filter_Data) return Boolean is
+   function Equal_Data (Left, Right : Filter_Data) return Boolean is
    begin
       return Left.Regexp_Str = Right.Regexp_Str;
    end Equal_Data;
@@ -130,7 +129,7 @@ package body AWS.Hotplug is
 
    procedure Move_Down
      (Filters : in out Filter_Set;
-      N       : in     Positive) is
+      N       : Positive) is
    begin
       if Positive (Filter_Table.Length (Filters.Set)) > N then
          Filter_Table.Swap (Filters.Set, N, N + 1);
@@ -143,7 +142,7 @@ package body AWS.Hotplug is
 
    procedure Move_Up
      (Filters : in out Filter_Set;
-      N       : in     Positive) is
+      N       : Positive) is
    begin
       if Positive (Filter_Table.Length (Filters.Set)) >= N
         and then N > 1
@@ -158,8 +157,8 @@ package body AWS.Hotplug is
 
    procedure Register
      (Filters : in out Filter_Set;
-      Regexp  : in     String;
-      URL     : in     String)
+      Regexp  : String;
+      URL     : String)
    is
       Item   : Filter_Data;
       Cursor : Filter_Table.Cursor;
@@ -197,7 +196,7 @@ package body AWS.Hotplug is
    -- Set_Mode --
    --------------
 
-   procedure Set_Mode (Filters : in out Filter_Set; Mode : in Register_Mode) is
+   procedure Set_Mode (Filters : in out Filter_Set; Mode : Register_Mode) is
    begin
       Filters.Mode := Mode;
    end Set_Mode;
@@ -208,7 +207,7 @@ package body AWS.Hotplug is
 
    procedure Unregister
      (Filters : in out Filter_Set;
-      Regexp  : in     String) is
+      Regexp  : String) is
    begin
       for K in 1 .. Natural (Filter_Table.Length (Filters.Set)) loop
          if To_String (Filter_Table.Element (Filters.Set, K).Regexp_Str)

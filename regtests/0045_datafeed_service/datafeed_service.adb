@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2004-2008, AdaCore                     --
+--                     Copyright (C) 2004-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -52,7 +52,7 @@ procedure Datafeed_Service is
         (Integer'Image (datafeedService.Client.Ping (Value => 10)));
    end WSDL_Demo_Client;
 
-   function Ping (Value : in Integer) return Integer;
+   function Ping (Value : Integer) return Integer;
 
    -------------
    -- SOAP_CB --
@@ -66,7 +66,7 @@ procedure Datafeed_Service is
    -- CB --
    --------
 
-   function CB (Request : in Status.Data) return Response.Data is
+   function CB (Request : Status.Data) return Response.Data is
       SOAPAction : constant String := Status.SOAPAction (Request);
    begin
       if SOAPAction = "" then
@@ -80,7 +80,7 @@ procedure Datafeed_Service is
    -- Ping --
    ----------
 
-   function Ping (Value : in Integer) return Integer is
+   function Ping (Value : Integer) return Integer is
    begin
       return Value;
    end Ping;

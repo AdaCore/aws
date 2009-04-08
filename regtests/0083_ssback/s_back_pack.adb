@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2004-2008, AdaCore                     --
+--                     Copyright (C) 2004-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -52,7 +52,7 @@ package body S_Back_Pack is
 
    type String_Access is access constant String;
 
-   function CB (Request : in Status.Data) return Response.Data;
+   function CB (Request : Status.Data) return Response.Data;
 
    -----------------
    -- Wait_Socket --
@@ -69,7 +69,7 @@ package body S_Back_Pack is
    -- CB --
    --------
 
-   function CB (Request : in Status.Data) return Response.Data is
+   function CB (Request : Status.Data) return Response.Data is
       URI  : constant String := Status.URI (Request);
    begin
       if URI = Wait_Other_Call then
@@ -144,16 +144,16 @@ package body S_Back_Pack is
    -- Run --
    ---------
 
-   procedure Run (Protocol : in String; Port : in Positive) is
+   procedure Run (Protocol : String; Port : Positive) is
 
       URL : constant String
         := Protocol & "://localhost:" & Utils.Image (Port);
 
       task IO is
          entry Start;
-         entry Put_Line (Str : in String);
-         entry Put_Line_1 (Str : in String);
-         entry Put_Line_2 (Str : in String);
+         entry Put_Line (Str : String);
+         entry Put_Line_1 (Str : String);
+         entry Put_Line_2 (Str : String);
          entry Stop;
       end IO;
 
@@ -170,7 +170,7 @@ package body S_Back_Pack is
 
       task body IO is
 
-         procedure Write_Line (Str : in String) is
+         procedure Write_Line (Str : String) is
          begin
             Ada.Text_IO.Put_Line (Str);
             Ada.Text_IO.Flush;
@@ -180,16 +180,16 @@ package body S_Back_Pack is
          accept Start;
          loop
             select
-               accept Put_Line_1 (Str : in String) do
+               accept Put_Line_1 (Str : String) do
                   Write_Line (Str);
                end Put_Line_1;
 
-               accept Put_Line_2 (Str : in String) do
+               accept Put_Line_2 (Str : String) do
                   Write_Line (Str);
                end Put_Line_2;
 
             or
-               accept Put_Line (Str : in String) do
+               accept Put_Line (Str : String) do
                   Write_Line (Str);
                end Put_Line;
 

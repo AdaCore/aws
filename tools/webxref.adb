@@ -68,7 +68,7 @@ procedure Webxref is
       Blast   : Natural;
    end record;
 
-   procedure Open (Filename : in String; Iterator : in out Reader);
+   procedure Open (Filename : String; Iterator : in out Reader);
    --  Open filename and initialize the file iterator
 
    procedure Close (Iterator : in out Reader);
@@ -81,15 +81,15 @@ procedure Webxref is
    --  Clear content from the iterator context
 
    function Index
-     (Iterator : in Reader;
-      Pattern  : in String;
-      From     : in Positive := 1) return Natural;
+     (Iterator : Reader;
+      Pattern  : String;
+      From     : Positive := 1) return Natural;
    --  Returns the position of Pattern starting at From in iterator content
 
-   function Eof (Iterator : in Reader) return Boolean;
+   function Eof (Iterator : Reader) return Boolean;
    --  Returns True if end of file reached
 
-   function Is_Id_Ignored (Name : in String) return Boolean;
+   function Is_Id_Ignored (Name : String) return Boolean;
    --  Returns True if this name is to be ignored
 
    type Name_Kind is
@@ -119,13 +119,13 @@ procedure Webxref is
 
    No_Kind             : constant Kind_Set := (others => False);
 
-   procedure Process_CSS (Filename : in String);
+   procedure Process_CSS (Filename : String);
    --  Process a CSS file
 
-   procedure Process_ML (Filename : in String; Kinds : in Kind_Set);
+   procedure Process_ML (Filename : String; Kinds : Kind_Set);
    --  Process a Meta Language file HTML, XML
 
-   procedure Process (Filename : in String);
+   procedure Process (Filename : String);
    --  Process any file, dispatch to Process_ML or Process_CSS depending on the
    --  file extension.
 
@@ -143,18 +143,18 @@ procedure Webxref is
 
    procedure Parse_Command_Line;
 
-   procedure Record_Id (Name : in String; Location : in Occurence);
+   procedure Record_Id (Name : String; Location : Occurence);
    --  Record Id name into Id_Dict
 
-   procedure Record_Class (Name : in String; Location : in Occurence);
+   procedure Record_Class (Name : String; Location : Occurence);
    --  Record Class name into Class_Dict
 
-   procedure Log_Error (Location : in Occurence; Message : in String);
+   procedure Log_Error (Location : Occurence; Message : String);
    --  Log error message
 
    procedure Check_Prefix
-     (Name, Prefix : in String;
-      Location     : in Occurence);
+     (Name, Prefix : String;
+      Location     : Occurence);
    --  Check if Name has the right prefix
 
    Global_Prefix  : constant String := "global_";
@@ -165,7 +165,7 @@ procedure Webxref is
 
    type Mode is (Xref, Unused, Undefined);
 
-   function Is_Mode (Kind : in Kind_Set; Check_Mode : in Mode) return Boolean;
+   function Is_Mode (Kind : Kind_Set; Check_Mode : Mode) return Boolean;
    --  Returns True if Kind conform to Check_Mode
 
    Check        : Mode := Xref;
@@ -183,13 +183,13 @@ procedure Webxref is
 
       type Id is new Positive;
 
-      function Get (Name : in String) return Id;
+      function Get (Name : String) return Id;
       --  Returns a uniq Id for Name
 
-      procedure Add (Id  : in Dict.Id; Occ : in Occurence);
+      procedure Add (Id  : Dict.Id; Occ : Occurence);
       --  Adds given occurence for Id
 
-      function Get (Id : in Dict.Id) return String;
+      function Get (Id : Dict.Id) return String;
       --  Returns Id's name
 
       type Node is record
@@ -198,10 +198,10 @@ procedure Webxref is
          Occ   : Occurences.Vector;
       end record;
 
-      function Get (Id : in Dict.Id) return Node;
+      function Get (Id : Dict.Id) return Node;
       --  Returns node for the given Id
 
-      procedure Dump (Filter : in Mode);
+      procedure Dump (Filter : Mode);
       --  Dump dictionary content on the console
 
    end Dict;
@@ -211,8 +211,8 @@ procedure Webxref is
    ------------------
 
    procedure Check_Prefix
-     (Name, Prefix : in String;
-      Location     : in Occurence) is
+     (Name, Prefix : String;
+      Location     : Occurence) is
    begin
       if Fixed.Index (Name, Global_Prefix) /= Name'First then
          if Prefix'Length >= Name'Length
@@ -268,8 +268,8 @@ procedure Webxref is
       ---------
 
       procedure Add
-        (Id  : in Dict.Id;
-         Occ : in Occurence)
+        (Id  : Dict.Id;
+         Occ : Occurence)
       is
          procedure Process (Element : in out Node);
 
@@ -291,18 +291,18 @@ procedure Webxref is
       -- Dump --
       ----------
 
-      procedure Dump (Filter : in Mode) is
+      procedure Dump (Filter : Mode) is
 
-         procedure Dump (Position : in Id_Name.Cursor);
+         procedure Dump (Position : Id_Name.Cursor);
          --  Dump name and iterates through all occurences
 
          ----------
          -- Dump --
          ----------
 
-         procedure Dump (Position : in Id_Name.Cursor) is
+         procedure Dump (Position : Id_Name.Cursor) is
 
-            procedure Dump (Position : in Occurences.Cursor);
+            procedure Dump (Position : Occurences.Cursor);
             --  Dump the pointed occurence
 
             Element : constant Node := Id_Name.Element (Position);
@@ -311,7 +311,7 @@ procedure Webxref is
             -- Dump --
             ----------
 
-            procedure Dump (Position : in Occurences.Cursor) is
+            procedure Dump (Position : Occurences.Cursor) is
                Def_Ref : Unbounded_String;
             begin
                declare
@@ -362,7 +362,7 @@ procedure Webxref is
       -- Get --
       ---------
 
-      function Get (Name : in String) return Id is
+      function Get (Name : String) return Id is
       begin
          if NId.Contains (Name) then
             return NId.Element (Name);
@@ -376,7 +376,7 @@ procedure Webxref is
          end if;
       end Get;
 
-      function Get (Id : in Dict.Id) return String is
+      function Get (Id : Dict.Id) return String is
       begin
          if Natural (IdN.Length) >= Natural (Id) then
             return To_String (IdN.Element (Id).Name);
@@ -385,7 +385,7 @@ procedure Webxref is
          end if;
       end Get;
 
-      function Get (Id : in Dict.Id) return Node is
+      function Get (Id : Dict.Id) return Node is
       begin
          if Natural (IdN.Length) >= Natural (Id) then
             return IdN.Element (Id);
@@ -404,7 +404,7 @@ procedure Webxref is
    -- Eof --
    ---------
 
-   function Eof (Iterator : in Reader) return Boolean is
+   function Eof (Iterator : Reader) return Boolean is
    begin
       return Text_IO.End_Of_File (Iterator.File);
    end Eof;
@@ -414,9 +414,9 @@ procedure Webxref is
    -----------
 
    function Index
-     (Iterator : in Reader;
-      Pattern  : in String;
-      From     : in Positive := 1) return Natural is
+     (Iterator : Reader;
+      Pattern  : String;
+      From     : Positive := 1) return Natural is
    begin
       return Fixed.Index
         (Iterator.Content (From .. Iterator.Last), Pattern);
@@ -426,7 +426,7 @@ procedure Webxref is
    -- Is_Id_Ignored --
    -------------------
 
-   function Is_Id_Ignored (Name : in String) return Boolean is
+   function Is_Id_Ignored (Name : String) return Boolean is
       use type Strings.Maps.Character_Set;
    begin
       --  Ignore if it is a number
@@ -440,7 +440,7 @@ procedure Webxref is
    -------------
 
    function Is_Mode
-     (Kind : in Kind_Set; Check_Mode : in Mode) return Boolean is
+     (Kind : Kind_Set; Check_Mode : Mode) return Boolean is
    begin
       case Check_Mode is
          when Xref =>
@@ -466,7 +466,7 @@ procedure Webxref is
    -- Log_Error --
    ---------------
 
-   procedure Log_Error (Location : in Occurence; Message : in String) is
+   procedure Log_Error (Location : Occurence; Message : String) is
    begin
       Has_Error := True;
       Text_IO.Put_Line
@@ -492,7 +492,7 @@ procedure Webxref is
    -- Open --
    ----------
 
-   procedure Open (Filename : in String; Iterator : in out Reader) is
+   procedure Open (Filename : String; Iterator : in out Reader) is
    begin
       Text_IO.Open (Iterator.File, Text_IO.In_File, Filename);
       Clear_Content (Iterator);
@@ -574,7 +574,7 @@ procedure Webxref is
    -- Process --
    -------------
 
-   procedure Process (Filename : in String) is
+   procedure Process (Filename : String) is
       Ext : constant String :=
               Characters.Handling.To_Lower (Directories.Extension (Filename));
    begin
@@ -597,11 +597,11 @@ procedure Webxref is
    -- Process_CSS --
    -----------------
 
-   procedure Process_CSS (Filename : in String) is
+   procedure Process_CSS (Filename : String) is
 
       Seps : constant Maps.Character_Set := Maps.To_Set (" ,{");
 
-      procedure Register_CSS_Path (Iterator : in Reader; Pos : in Natural);
+      procedure Register_CSS_Path (Iterator : Reader; Pos : Natural);
       --  Parse and register a CSS path, we just want to extract the classes
       --  and ids.
 
@@ -609,7 +609,7 @@ procedure Webxref is
       -- Register_CSS_Path --
       -----------------------
 
-      procedure Register_CSS_Path (Iterator : in Reader; Pos : in Natural) is
+      procedure Register_CSS_Path (Iterator : Reader; Pos : Natural) is
          Path : constant String :=
                   Iterator.Buffer (1 .. Iterator.Blast - Iterator.Last + Pos);
          S, E : Natural := 1;
@@ -698,24 +698,24 @@ procedure Webxref is
    -- Process_ML --
    ----------------
 
-   procedure Process_ML (Filename : in String; Kinds : in Kind_Set) is
+   procedure Process_ML (Filename : String; Kinds : Kind_Set) is
 
       procedure Find
-        (Iterator  : in Reader;
-         Attribute : in String;
+        (Iterator  : Reader;
+         Attribute : String;
          Process   : not null access procedure
-                       (Iterator : in Reader;
-                        Name     : in String;
-                        Column   : in Positive));
+                       (Iterator : Reader;
+                        Name     : String;
+                        Column   : Positive));
       --  Call process for value of the given attribute name
 
       procedure Process_Id
-        (Iterator : in Reader; Name : in String; Column : in Positive);
+        (Iterator : Reader; Name : String; Column : Positive);
 
       procedure Process_Class
-        (Iterator : in Reader; Name : in String; Column : in Positive);
+        (Iterator : Reader; Name : String; Column : Positive);
 
-      procedure Check_Include (Iterator : in Reader);
+      procedure Check_Include (Iterator : Reader);
       --  Check template include. We want here to include as id reference all
       --  parameters to the aws_*.tjs includes.
 
@@ -723,7 +723,7 @@ procedure Webxref is
       -- Check_Include --
       -------------------
 
-      procedure Check_Include (Iterator : in Reader) is
+      procedure Check_Include (Iterator : Reader) is
          use type Strings.Maps.Character_Set;
          Blank      : constant Strings.Maps.Character_Set :=
                         Strings.Maps.To_Set (" " & ASCII.HT);
@@ -802,20 +802,20 @@ procedure Webxref is
       ----------
 
       procedure Find
-        (Iterator  : in Reader;
-         Attribute : in String;
+        (Iterator  : Reader;
+         Attribute : String;
          Process   : not null access procedure
-                       (Iterator : in Reader;
-                        Name     : in String;
-                        Column   : in Positive))
+                       (Iterator : Reader;
+                        Name     : String;
+                        Column   : Positive))
       is
-         procedure Check (C : in Character);
+         procedure Check (C : Character);
 
          -----------
          -- Check --
          -----------
 
-         procedure Check (C : in Character) is
+         procedure Check (C : Character) is
             First, Last : Natural := 1;
          begin
             loop
@@ -849,7 +849,7 @@ procedure Webxref is
       -------------------
 
       procedure Process_Class
-        (Iterator : in Reader; Name : in String; Column : in Positive) is
+        (Iterator : Reader; Name : String; Column : Positive) is
       begin
          Record_Class
            (Name,
@@ -861,7 +861,7 @@ procedure Webxref is
       ----------------
 
       procedure Process_Id
-        (Iterator : in Reader; Name : in String; Column : in Positive) is
+        (Iterator : Reader; Name : String; Column : Positive) is
       begin
          if not Is_Id_Ignored (Name) then
             Record_Id
@@ -894,7 +894,7 @@ procedure Webxref is
    -- Record_Class --
    ------------------
 
-   procedure Record_Class (Name : in String; Location : in Occurence) is
+   procedure Record_Class (Name : String; Location : Occurence) is
       Id : constant Class_Dict.Id := Class_Dict.Get (Name);
    begin
       if Class_Prefix /= Null_Unbounded_String then
@@ -908,16 +908,16 @@ procedure Webxref is
    -- Record_Id --
    ---------------
 
-   procedure Record_Id (Name : in String; Location : in Occurence) is
+   procedure Record_Id (Name : String; Location : Occurence) is
 
-      function Prefix_From_File (Filename : in String) return String;
+      function Prefix_From_File (Filename : String) return String;
       --  Returns the expected prefix for Ids declared in Filename
 
       ----------------------
       -- Prefix_From_File --
       ----------------------
 
-      function Prefix_From_File (Filename : in String) return String is
+      function Prefix_From_File (Filename : String) return String is
          Prefix   : Unbounded_String;
          Get_Next : Boolean := True;
       begin

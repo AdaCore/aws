@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2008, AdaCore                     --
+--                     Copyright (C) 2000-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -150,10 +150,10 @@ package AWS.Messages is
    subtype Client_Error  is Status_Code range S400 .. S424;
    subtype Server_Error  is Status_Code range S500 .. S507;
 
-   function Image (S : in Status_Code) return String;
+   function Image (S : Status_Code) return String;
    --  Returns Status_Code image. This value does not contain the leading S
 
-   function Reason_Phrase (S : in Status_Code) return String;
+   function Reason_Phrase (S : Status_Code) return String;
    --  Returns the reason phrase for the status code S, see [RFC 2616 - 6.1.1]
 
    ----------------------
@@ -189,81 +189,81 @@ package AWS.Messages is
    -- HTTP message constructors --
    -------------------------------
 
-   function Accept_Encoding (Encoding : in String) return String;
+   function Accept_Encoding (Encoding : String) return String;
    pragma Inline (Accept_Encoding);
 
-   function Accept_Type (Mode : in String) return String;
+   function Accept_Type (Mode : String) return String;
    pragma Inline (Accept_Type);
 
-   function Accept_Language (Mode : in String) return String;
+   function Accept_Language (Mode : String) return String;
    pragma Inline (Accept_Language);
 
-   function Authorization (Mode, Password : in String) return String;
+   function Authorization (Mode, Password : String) return String;
    pragma Inline (Authorization);
 
-   function Connection (Mode : in String) return String;
+   function Connection (Mode : String) return String;
    pragma Inline (Connection);
 
-   function Content_Length (Size : in Natural) return String;
+   function Content_Length (Size : Natural) return String;
    pragma Inline (Content_Length);
 
-   function Cookie (Value : in String) return String;
+   function Cookie (Value : String) return String;
    pragma Inline (Cookie);
 
    function Content_Type
-     (Format : in String; Boundary : in String := "") return String;
+     (Format : String; Boundary : String := "") return String;
    pragma Inline (Content_Type);
 
-   function Cache_Control (Option : in Cache_Option) return String;
+   function Cache_Control (Option : Cache_Option) return String;
    pragma Inline (Cache_Control);
 
    function Content_Disposition
-     (Format   : in String;
-      Name     : in String;
-      Filename : in String) return String;
+     (Format   : String;
+      Name     : String;
+      Filename : String) return String;
    pragma Inline (Content_Disposition);
    --  Note that this is not part of HTTP/1.1 standard, it is there because
    --  there is a lot of implementation around using it. This header is used
    --  in multipart data.
 
-   function Host (Name : in String) return String;
+   function Host (Name : String) return String;
    pragma Inline (Host);
 
-   function Last_Modified (Date : in Calendar.Time) return String;
+   function Last_Modified (Date : Calendar.Time) return String;
    pragma Inline (Last_Modified);
 
-   function Location (URL : in String) return String;
+   function Location (URL : String) return String;
    pragma Inline (Location);
 
-   function Proxy_Authorization (Mode, Password : in String) return String;
+   function Proxy_Authorization (Mode, Password : String) return String;
    pragma Inline (Proxy_Authorization);
 
-   function Proxy_Connection (Mode : in String) return String;
+   function Proxy_Connection (Mode : String) return String;
    pragma Inline (Proxy_Connection);
 
-   function Data_Range (Value : in String) return String;
+   function Data_Range (Value : String) return String;
    pragma Inline (Data_Range);
 
-   function SOAPAction (URI : in String) return String;
+   function SOAPAction (URI : String) return String;
    pragma Inline (SOAPAction);
 
-   function Status_Line (Code : in Status_Code) return String;
+   function Status_Line (Code : Status_Code) return String;
    pragma Inline (Status_Line);
 
-   function Transfer_Encoding (Encoding : in String) return String;
+   function Transfer_Encoding (Encoding : String) return String;
    pragma Inline (Transfer_Encoding);
 
-   function User_Agent (Name : in String) return String;
+   function User_Agent (Name : String) return String;
    pragma Inline (User_Agent);
 
-   function WWW_Authenticate (Realm : in String) return String;
+   function WWW_Authenticate (Realm : String) return String;
    pragma Inline (WWW_Authenticate);
    --  Basic authentication request
 
    function WWW_Authenticate
-     (Realm : in String;
-      Nonce : in String;
-      Stale : in Boolean) return String;
+     (Realm : String;
+      Nonce : String;
+      Stale : Boolean) return String;
    pragma Inline (WWW_Authenticate);
    --  Digest authentication request
 
@@ -271,21 +271,21 @@ package AWS.Messages is
    --  helper functions --
    -----------------------
 
-   function Match (Str, Pattern : in String) return Boolean;
+   function Match (Str, Pattern : String) return Boolean;
    pragma Inline (Match);
    --  Returns True if Pattern matches the begining of Str. The test is not
    --  case sensitive.
 
-   function Does_Not_Match (Str, Pattern : in String) return Boolean;
+   function Does_Not_Match (Str, Pattern : String) return Boolean;
    pragma Inline (Does_Not_Match);
    --  Returns True if Pattern does not matches the begining of Str. The test
    --  is not case sensitive.
 
-   function To_HTTP_Date (Time : in Calendar.Time) return String;
+   function To_HTTP_Date (Time : Calendar.Time) return String;
    --  Returns an Ada time as a string using the HTTP normalized format.
    --  Format is RFC 822, updated by RFC 1123.
 
-   function To_Time (HTTP_Date : in String) return Calendar.Time;
+   function To_Time (HTTP_Date : String) return Calendar.Time;
    --  Returns an Ada time from an HTTP one. This is To_HTTP_Date opposite
    --  function.
 

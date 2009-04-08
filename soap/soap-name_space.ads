@@ -38,29 +38,29 @@ package SOAP.Name_Space is
    No_Name_Space : constant Object;
 
    function Create
-     (Name, Value : in String;
-      Prefix      : in String := Default_Prefix) return Object;
+     (Name, Value : String;
+      Prefix      : String := Default_Prefix) return Object;
    --  Returns a name space
 
    procedure Set
      (O           : in out Object;
-      Name, Value : in String;
-      Prefix      : in String := Default_Prefix);
+      Name, Value : String;
+      Prefix      : String := Default_Prefix);
    --  Set value for the name space object
 
-   function Is_Defined (O : in Object) return Boolean;
+   function Is_Defined (O : Object) return Boolean;
    --  Returns True if the name space is defined
 
-   function Prefix (O : in Object) return String;
+   function Prefix (O : Object) return String;
    --  Returns the name space prefix
 
-   function Name (O : in Object) return String;
+   function Name (O : Object) return String;
    --  Returns the name space name
 
-   function Value (O : in Object) return String;
+   function Value (O : Object) return String;
    --  Returns the name space value
 
-   function Image (O : in Object) return String;
+   function Image (O : Object) return String;
    --  Return the name space string representation prefix:name="value"
 
 private

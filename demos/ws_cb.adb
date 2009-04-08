@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2007                          --
---                                 AdaCore                                  --
+--                     Copyright (C) 2000-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -57,7 +56,7 @@ package body WS_CB is
       Picture : Unbounded_String;
    end record;
 
-   --  Simple ID generator.
+   --  Simple ID generator
 
    protected New_Client_Id is
       procedure Get (New_Id : out String);
@@ -66,11 +65,11 @@ package body WS_CB is
    end New_Client_Id;
 
    task Server_Push_Task;
-   --  The push data are generated here.
+   --  The push data are generated here
 
    function To_Array
-     (Time : in Ada.Calendar.Time;
-      Env  : in Client_Env) return Ada.Streams.Stream_Element_Array;
+     (Time : Ada.Calendar.Time;
+      Env  : Client_Env) return Ada.Streams.Stream_Element_Array;
 
    package Time_Push is new AWS.Server.Push
      (Client_Output_Type => Ada.Calendar.Time,
@@ -83,7 +82,7 @@ package body WS_CB is
    -- Get --
    ---------
 
-   function Get (Request : in AWS.Status.Data) return AWS.Response.Data is
+   function Get (Request : AWS.Status.Data) return AWS.Response.Data is
       URI      : constant String := AWS.Status.URI (Request);
       Filename : constant String := WWW_Root & URI (2 .. URI'Last);
 
@@ -148,7 +147,7 @@ package body WS_CB is
    -- Put --
    ---------
 
-   function Put (Request : in AWS.Status.Data) return AWS.Response.Data is
+   function Put (Request : AWS.Status.Data) return AWS.Response.Data is
       pragma Unreferenced (Request);
    begin
       return AWS.Response.Acknowledge (Status_Code => AWS.Messages.S200);
@@ -158,7 +157,7 @@ package body WS_CB is
    -- Service --
    -------------
 
-   function Service (Request : in AWS.Status.Data) return AWS.Response.Data is
+   function Service (Request : AWS.Status.Data) return AWS.Response.Data is
       use type AWS.Status.Request_Method;
    begin
       if AWS.Status.Method (Request) = AWS.Status.GET
@@ -196,8 +195,8 @@ package body WS_CB is
    --------------
 
    function To_Array
-     (Time : in Ada.Calendar.Time;
-      Env  : in Client_Env) return Ada.Streams.Stream_Element_Array
+     (Time : Ada.Calendar.Time;
+      Env  : Client_Env) return Ada.Streams.Stream_Element_Array
    is
       use GNAT.Calendar.Time_IO;
    begin

@@ -31,7 +31,7 @@ package body API is
 
    use Ada;
 
-   procedure Callme (X : in Natural) is
+   procedure Callme (X : Natural) is
    begin
       Text_IO.Put_Line ("Callme:" & Natural'Image (X));
    end Callme;
@@ -41,7 +41,7 @@ package body API is
       null;
    end Empty;
 
-   procedure Callme_Message (X : in Natural; Message : in String) is
+   procedure Callme_Message (X : Natural; Message : String) is
    begin
       Text_IO.Put_Line (Message & Natural'Image (X));
    end Callme_Message;
@@ -51,7 +51,7 @@ package body API is
       return 1;
    end Get_Value;
 
-   function Length (Str : in String) return Positive is
+   function Length (Str : String) return Positive is
    begin
       return Str'Length;
    end Length;

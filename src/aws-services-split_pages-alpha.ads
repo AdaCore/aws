@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2004-2008, AdaCore                     --
+--                     Copyright (C) 2004-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -58,20 +58,20 @@ package AWS.Services.Split_Pages.Alpha is
    type Splitter is new Split_Pages.Splitter with private;
 
    overriding function Get_Page_Ranges
-     (This  : in Splitter;
-      Table : in Templates.Translate_Set) return Ranges_Table;
+     (This  : Splitter;
+      Table : Templates.Translate_Set) return Ranges_Table;
 
    overriding function Get_Translations
-     (This   : in Splitter;
-      Page   : in Positive;
-      URIs   : in URI_Table;
-      Ranges : in Ranges_Table) return Templates.Translate_Set;
+     (This   : Splitter;
+      Page   : Positive;
+      URIs   : URI_Table;
+      Ranges : Ranges_Table) return Templates.Translate_Set;
 
-   procedure Set_Key (This : in out Splitter; Key : in String);
+   procedure Set_Key (This : in out Splitter; Key : String);
    --  Set the key field, this is the name of the vector association in the
    --  translate_set that will be used to create the index.
 
-   procedure Set_Default_Href (This : in out Splitter; Href : in String);
+   procedure Set_Default_Href (This : in out Splitter; Href : String);
    --  Href to use for letter having no entry in the key, if not specified the
    --  empty string is used.
 

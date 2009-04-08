@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2004-2008, AdaCore                     --
+--                     Copyright (C) 2004-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -42,7 +42,7 @@ package body AWS.Net.Log is
    -- Error --
    -----------
 
-   procedure Error (Socket : in Socket_Type'Class; Message : in String) is
+   procedure Error (Socket : Socket_Type'Class; Message : String) is
    begin
       --  Draft check for State.Error before enter critical section
 
@@ -71,7 +71,7 @@ package body AWS.Net.Log is
    -- Event --
    -----------
 
-   procedure Event (Action : in Event_Type; Socket : in Socket_Type'Class) is
+   procedure Event (Action : Event_Type; Socket : Socket_Type'Class) is
    begin
       State.Semaphore.Seize;
 
@@ -122,9 +122,9 @@ package body AWS.Net.Log is
    -----------
 
    procedure Start
-     (Write : in Write_Callback;
-      Event : in Event_Callback := null;
-      Error : in Error_Callback := null) is
+     (Write : Write_Callback;
+      Event : Event_Callback := null;
+      Error : Error_Callback := null) is
    begin
       State.Semaphore.Seize;
       State.Write := Write;
@@ -150,10 +150,10 @@ package body AWS.Net.Log is
    -----------
 
    procedure Write
-     (Direction : in Data_Direction;
-      Socket    : in Socket_Type'Class;
-      Data      : in Stream_Element_Array;
-      Last      : in Stream_Element_Offset) is
+     (Direction : Data_Direction;
+      Socket    : Socket_Type'Class;
+      Data      : Stream_Element_Array;
+      Last      : Stream_Element_Offset) is
    begin
       State.Semaphore.Seize;
 

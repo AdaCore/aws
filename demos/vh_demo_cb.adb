@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2003                            --
---                                ACT-Europe                                --
+--                     Copyright (C) 2003-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -35,7 +34,7 @@ package body VH_Demo_CB is
    -----------
 
    function H1_CB
-     (Request : in AWS.Status.Data)
+     (Request : AWS.Status.Data)
      return AWS.Response.Data
    is
       P : AWS.Parameters.List := AWS.Status.Parameters (Request);
@@ -51,7 +50,7 @@ package body VH_Demo_CB is
    -----------
 
    function H2_CB
-     (Request : in AWS.Status.Data)
+     (Request : AWS.Status.Data)
      return AWS.Response.Data
    is
       P : AWS.Parameters.List := AWS.Status.Parameters (Request);

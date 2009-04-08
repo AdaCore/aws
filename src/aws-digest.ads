@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2008, AdaCore                     --
+--                     Copyright (C) 2000-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -41,25 +41,25 @@ package AWS.Digest is
    --  Create a Nonce value for the digest authentication
    --  see [RFC-2617 - 3.2.1]
 
-   function Check_Nonce (Value : in String) return Boolean;
+   function Check_Nonce (Value : String) return Boolean;
    --  Check Nonce for validity and expiration.
    --  We could not send a type Nonce here, because Nonce received from
    --  HTTP client, and have to checked for the length too.
 
    function Create
-     (Username, Realm, Password : in String;
-      Nonce                     : in String;
-      Method, URI               : in String) return Digest_String;
+     (Username, Realm, Password : String;
+      Nonce                     : String;
+      Method, URI               : String) return Digest_String;
    --  Returns a simple MD5 Digest
 
    function Create
-     (Username, Realm, Password : in String;
-      Nonce, NC, CNonce, QOP    : in String;
-      Method, URI               : in String) return Digest_String;
+     (Username, Realm, Password : String;
+      Nonce, NC, CNonce, QOP    : String;
+      Method, URI               : String) return Digest_String;
    --  Returns a more complex MD5 Digest if QOP field is not empty
 
    function Tail
-     (Nonce, NC, CNonce, QOP, Method, URI : in String) return String;
+     (Nonce, NC, CNonce, QOP, Method, URI : String) return String;
    --  Returns the precalculated tail part of the digest
    --  if QOP field is not empty
    --     Tail := ':' & Nonce & ':' & NC & ':' & CNonce & ':' & QOP & ':'

@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2007-2008, AdaCore                     --
+--                     Copyright (C) 2007-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -49,7 +49,7 @@ procedure Change_Dispatch is
    WS        : AWS.Server.HTTP;
 
    function CB1
-     (Request : in AWS.Status.Data)
+     (Request : AWS.Status.Data)
       return AWS.Response.Data
    is
       pragma Unreferenced (Request);
@@ -59,7 +59,7 @@ procedure Change_Dispatch is
    end CB1;
 
    function CB2
-     (Request : in AWS.Status.Data)
+     (Request : AWS.Status.Data)
       return AWS.Response.Data
    is
       pragma Unreferenced (Request);
@@ -72,7 +72,7 @@ procedure Change_Dispatch is
    end CB2;
 
    function Default
-     (Request : in AWS.Status.Data)
+     (Request : AWS.Status.Data)
       return AWS.Response.Data
    is
       URI : constant String := Status.URI (Request);
@@ -84,7 +84,7 @@ procedure Change_Dispatch is
       return AWS.Response.Build ("text/html", "Default " & URI);
    end Default;
 
-   procedure Test (URI : in String) is
+   procedure Test (URI : String) is
       R : Response.Data;
    begin
       Text_IO.Put_Line (URI);
@@ -114,7 +114,7 @@ begin
    Test ("/thisone");
    Test ("/thisone");
 
-   --  Close servers.
+   --  Close servers
 
    AWS.Server.Shutdown (WS);
 end Change_Dispatch;

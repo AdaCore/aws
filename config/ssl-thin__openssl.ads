@@ -2,7 +2,7 @@
 --                            Secure Sockets Layer                          --
 --                         Binding to OpenSSL library                       --
 --                                                                          --
---                     Copyright (C) 2000-2008, AdaCore                     --
+--                     Copyright (C) 2000-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -264,14 +264,14 @@ package SSL.Thin is
 
    function  CRYPTO_num_locks return Natural;
 
-   procedure CRYPTO_set_id_callback (Id_Function : in Pointer);
-   procedure CRYPTO_set_locking_callback (Locking_Function : in Pointer);
+   procedure CRYPTO_set_id_callback (Id_Function : Pointer);
+   procedure CRYPTO_set_locking_callback (Locking_Function : Pointer);
    function  CRYPTO_get_locking_callback return Pointer;
 
-   procedure CRYPTO_set_dynlock_create_callback (Create_Function : in Pointer);
-   procedure CRYPTO_set_dynlock_lock_callback (Lock_Function : in Pointer);
+   procedure CRYPTO_set_dynlock_create_callback (Create_Function : Pointer);
+   procedure CRYPTO_set_dynlock_lock_callback (Lock_Function : Pointer);
    procedure CRYPTO_set_dynlock_destroy_callback
-     (Destroy_Function : in Pointer);
+     (Destroy_Function : Pointer);
 
    function CRYPTO_get_dynlock_create_callback  return Pointer;
    function CRYPTO_get_dynlock_lock_callback    return Pointer;
@@ -290,7 +290,7 @@ package SSL.Thin is
    function SSLeay return long;
    --  Returns OpenSSL numeric release version identifier
 
-   function SSLeay_version_info (T : in int) return Cstr.chars_ptr;
+   function SSLeay_version_info (T : int) return Cstr.chars_ptr;
    --  Returns version information line
 
    -------------------------------
@@ -310,26 +310,26 @@ package SSL.Thin is
    function TLSv1_server_method  return SSL_Method;
    function TLSv1_client_method  return SSL_Method;
 
-   function SSL_CTX_new (Meth : in SSL_Method) return SSL_CTX;
+   function SSL_CTX_new (Meth : SSL_Method) return SSL_CTX;
 
-   procedure SSL_CTX_free (P1 : in SSL_CTX);
+   procedure SSL_CTX_free (P1 : SSL_CTX);
 
-   procedure SSL_CTX_set_quiet_shutdown (Ctx : in SSL_CTX; Mode : in int);
+   procedure SSL_CTX_set_quiet_shutdown (Ctx : SSL_CTX; Mode : int);
 
    function SSL_CTX_ctrl
-     (Ctx  : in SSL_CTX;
-      Cmd  : in int;
-      Larg : in int;
-      Parg : in Pointer) return int;
+     (Ctx  : SSL_CTX;
+      Cmd  : int;
+      Larg : int;
+      Parg : Pointer) return int;
 
    -------------------------------------
    -- Library initialization routines --
    -------------------------------------
 
    function CRYPTO_set_mem_functions
-     (M : in System.Address;
-      R : in System.Address;
-      F : in System.Address) return int;
+     (M : System.Address;
+      R : System.Address;
+      F : System.Address) return int;
 
    procedure SSL_library_init;
 
@@ -346,101 +346,101 @@ package SSL.Thin is
    function ERR_get_error return Error_Code;
 
    function ERR_error_string
-     (Code : in Error_Code; Buffer : in Cstr.chars_ptr) return Cstr.chars_ptr;
+     (Code : Error_Code; Buffer : Cstr.chars_ptr) return Cstr.chars_ptr;
 
    procedure ERR_error_string_n
-     (Code : in Error_Code; Buffer : in Cstr.chars_ptr; Len : in size_t);
+     (Code : Error_Code; Buffer : Cstr.chars_ptr; Len : size_t);
 
-   procedure ERR_remove_state (pid : in int := 0);
+   procedure ERR_remove_state (pid : int := 0);
 
    -----------------------------------------
    -- Connection handler control routines --
    -----------------------------------------
 
-   function SSL_new (Ctx : in SSL_CTX) return SSL_Handle;
+   function SSL_new (Ctx : SSL_CTX) return SSL_Handle;
 
-   procedure SSL_free (SSL : in SSL_Handle);
+   procedure SSL_free (SSL : SSL_Handle);
 
-   function SSL_clear (SSL : in SSL_Handle) return int;
+   function SSL_clear (SSL : SSL_Handle) return int;
 
-   function SSL_set_fd (S : in SSL_Handle; Fd : in int) return int;
+   function SSL_set_fd (S : SSL_Handle; Fd : int) return int;
 
-   procedure SSL_set_bio (SSL : in SSL_Handle; RBIO, WBIO : in BIO_Access);
+   procedure SSL_set_bio (SSL : SSL_Handle; RBIO, WBIO : BIO_Access);
 
-   function SSL_get_rbio (SSL : in SSL_Handle) return BIO_Access;
-   function SSL_get_wbio (SSL : in SSL_Handle) return BIO_Access;
+   function SSL_get_rbio (SSL : SSL_Handle) return BIO_Access;
+   function SSL_get_wbio (SSL : SSL_Handle) return BIO_Access;
 
-   procedure SSL_set_read_ahead (S : in SSL_Handle; Yes : in int);
+   procedure SSL_set_read_ahead (S : SSL_Handle; Yes : int);
 
-   function SSL_connect (SSL : in SSL_Handle) return int;
+   function SSL_connect (SSL : SSL_Handle) return int;
 
-   function SSL_accept (SSL : in SSL_Handle) return int;
+   function SSL_accept (SSL : SSL_Handle) return int;
 
-   procedure SSL_set_connect_state (SSL : in SSL_Handle);
+   procedure SSL_set_connect_state (SSL : SSL_Handle);
 
-   procedure SSL_set_accept_state (SSL : in SSL_Handle);
+   procedure SSL_set_accept_state (SSL : SSL_Handle);
 
-   function SSL_renegotiate (SSL : in SSL_Handle) return int;
+   function SSL_renegotiate (SSL : SSL_Handle) return int;
 
-   function SSL_do_handshake (SSL : in SSL_Handle) return int;
+   function SSL_do_handshake (SSL : SSL_Handle) return int;
 
-   function SSL_want (S : in SSL_Handle) return int;
+   function SSL_want (S : SSL_Handle) return int;
 
    function SSL_read
-     (SSL : in SSL_Handle; Buf : in Pointer; Num : in int) return int;
+     (SSL : SSL_Handle; Buf : Pointer; Num : int) return int;
 
    function SSL_peek
-     (SSL : in SSL_Handle; Buf : in Pointer; Num : in int) return int;
+     (SSL : SSL_Handle; Buf : Pointer; Num : int) return int;
 
    function SSL_write
-     (SSL : in SSL_Handle; Buf : in Pointer; Num : in int) return int;
+     (SSL : SSL_Handle; Buf : Pointer; Num : int) return int;
 
-   function SSL_pending (S : in SSL_Handle) return int;
+   function SSL_pending (S : SSL_Handle) return int;
 
-   function SSL_get_error (SSL : in SSL_Handle; ret : in int) return int;
+   function SSL_get_error (SSL : SSL_Handle; ret : int) return int;
 
-   function SSL_shutdown (SSL : in SSL_Handle) return int;
+   function SSL_shutdown (SSL : SSL_Handle) return int;
 
-   procedure SSL_set_shutdown (SSL : in SSL_Handle; Mode : in int);
+   procedure SSL_set_shutdown (SSL : SSL_Handle; Mode : int);
 
    ----------------------
    --  Crypto routines --
    ----------------------
 
    type Generate_Key_Callback is access
-     procedure (I1, I2 : in Integer; Param : in Pointer);
+     procedure (I1, I2 : Integer; Param : Pointer);
    pragma Convention (C, Generate_Key_Callback);
 
    function RSA_generate_key
-     (Bits     : in int;
-      E        : in unsigned;
-      Callback : in Generate_Key_Callback;
-      Cb_Arg   : in Pointer) return RSA;
+     (Bits     : int;
+      E        : unsigned;
+      Callback : Generate_Key_Callback;
+      Cb_Arg   : Pointer) return RSA;
 
    function SSL_use_RSAPrivateKey
-     (SSL : in SSL_Handle; Private_Key : in RSA) return int;
+     (SSL : SSL_Handle; Private_Key : RSA) return int;
 
    function SSL_CTX_use_PrivateKey_file
-     (Ctx : in SSL_CTX; File : in char_array; C_Type : in int) return int;
+     (Ctx : SSL_CTX; File : char_array; C_Type : int) return int;
 
    function SSL_use_PrivateKey_file
-     (SSL : in SSL_Handle; File : in char_array; C_Type : in int) return int;
+     (SSL : SSL_Handle; File : char_array; C_Type : int) return int;
 
    function SSL_CTX_use_certificate_file
-     (Ctx : in SSL_CTX; File : in char_array; C_Type : in int) return int;
+     (Ctx : SSL_CTX; File : char_array; C_Type : int) return int;
 
    function SSL_CTX_use_certificate_chain_file
-     (Ctx : in SSL_CTX; File : in char_array) return int;
+     (Ctx : SSL_CTX; File : char_array) return int;
 
    function SSL_use_certificate_file
-     (SSL : in SSL_Handle; File : in char_array; C_Type : in int) return int;
+     (SSL : SSL_Handle; File : char_array; C_Type : int) return int;
 
-   function SSL_CTX_check_private_key (Ctx : in SSL_CTX) return int;
+   function SSL_CTX_check_private_key (Ctx : SSL_CTX) return int;
 
    procedure SSL_CTX_set_verify
-     (Ctx : in SSL_CTX; Mode : in int; Callback : in Pointer);
+     (Ctx : SSL_CTX; Mode : int; Callback : Pointer);
 
-   procedure RAND_seed (Buf : in Pointer; Num : in Integer);
+   procedure RAND_seed (Buf : Pointer; Num : Integer);
 
    function RAND_status return Integer;
 
@@ -448,19 +448,19 @@ package SSL.Thin is
 
    --  Certificate
 
-   function SSL_get_peer_certificate (SSL : in SSL_Handle) return X509;
+   function SSL_get_peer_certificate (SSL : SSL_Handle) return X509;
 
-   procedure X509_free (X509 : in Thin.X509);
+   procedure X509_free (X509 : Thin.X509);
 
    function X509_NAME_oneline
-     (Name : in X509_Name;
-      Buf  : in Pointer;
-      Size : in int) return Cstr.chars_ptr;
+     (Name : X509_Name;
+      Buf  : Pointer;
+      Size : int) return Cstr.chars_ptr;
 
-   function X509_get_subject_name (X509 : in Thin.X509) return X509_Name;
-   function X509_get_issuer_name (X509 : in Thin.X509) return X509_Name;
+   function X509_get_subject_name (X509 : Thin.X509) return X509_Name;
+   function X509_get_issuer_name (X509 : Thin.X509) return X509_Name;
 
-   procedure SSL_CTX_set_default_verify_paths (Ctx : in SSL_CTX);
+   procedure SSL_CTX_set_default_verify_paths (Ctx : SSL_CTX);
 
    -------------------
    --  BIO routines --
@@ -469,54 +469,54 @@ package SSL.Thin is
    function BIO_s_socket return BIO_Method_Access;
    function BIO_s_mem return BIO_Method_Access;
 
-   function BIO_new (Method : in BIO_Method_St) return BIO_Access;
-   function BIO_new (Method : in BIO_Method_Access) return BIO_Access;
+   function BIO_new (Method : BIO_Method_St) return BIO_Access;
+   function BIO_new (Method : BIO_Method_Access) return BIO_Access;
 
    function BIO_int_ctrl
-     (Bp   : in BIO_Access;
-      Cmd  : in int;
-      Larg : in long;
-      Iarg : in int) return long;
+     (Bp   : BIO_Access;
+      Cmd  : int;
+      Larg : long;
+      Iarg : int) return long;
 
    procedure BIO_int_ctrl
-     (Bp : in BIO_Access; Cmd : in int; Larg : in long; Iarg : in int);
+     (Bp : BIO_Access; Cmd : int; Larg : long; Iarg : int);
    --  BIO_set_fd(b,fd,c) BIO_int_ctrl(b,BIO_C_SET_FD,c,fd)
 
    function BIO_ctrl
-     (Bp   : in BIO_Access;
-      Cmd  : in int;
-      Larg : in long;
-      Parg : in Pointer) return long;
+     (Bp   : BIO_Access;
+      Cmd  : int;
+      Larg : long;
+      Parg : Pointer) return long;
    --  BIO_pending(b) = (int)BIO_ctrl(b,BIO_CTRL_PENDING,0,NULL)
 
    procedure BIO_ctrl
-     (Bp : in BIO_Access; Cmd : in int; Larg : in long; Parg : in Pointer);
+     (Bp : BIO_Access; Cmd : int; Larg : long; Parg : Pointer);
    --  BIO_get_fd(b,c) = BIO_ctrl(b,BIO_C_GET_FD,0,(char *)c)
    --  BIO_set_mem_eof_return(b,v)
    --  = BIO_ctrl(b,BIO_C_SET_BUF_MEM_EOF_RETURN,v,NULL)
 
    function BIO_read
-     (BIO : in BIO_Access; Data : in Pointer; Len : in int) return int;
+     (BIO : BIO_Access; Data : Pointer; Len : int) return int;
 
    function BIO_write
-     (BIO : in BIO_Access; Data : in Pointer; Len : in int) return int;
+     (BIO : BIO_Access; Data : Pointer; Len : int) return int;
 
    function BIO_new_bio_pair
-     (bio1 : access BIO_Access; writebuf1 : in size_t;
-      bio2 : access BIO_Access; writebuf2 : in size_t) return int;
+     (bio1 : access BIO_Access; writebuf1 : size_t;
+      bio2 : access BIO_Access; writebuf2 : size_t) return int;
 
-   function BIO_nread0 (BIO : in BIO_Access; Buf : in Pointer) return int;
+   function BIO_nread0 (BIO : BIO_Access; Buf : Pointer) return int;
    function BIO_nread
-     (BIO : in BIO_Access; Buf : in Pointer; Num : in int) return int;
+     (BIO : BIO_Access; Buf : Pointer; Num : int) return int;
    --  Buf is the address of the buffer address
 
-   function BIO_nwrite0 (BIO : in BIO_Access; Buf : in Pointer) return int;
+   function BIO_nwrite0 (BIO : BIO_Access; Buf : Pointer) return int;
    function BIO_nwrite
-     (BIO : in BIO_Access; Buf : in Pointer; Num : in int) return int;
+     (BIO : BIO_Access; Buf : Pointer; Num : int) return int;
    --  Buf is the address of the buffer address
 
-   function BIO_free (BIO : in BIO_Access) return int;
-   procedure BIO_free (BIO : in BIO_Access);
+   function BIO_free (BIO : BIO_Access) return int;
+   procedure BIO_free (BIO : BIO_Access);
 
    SSL_SESS_CACHE_OFF                : constant := 0;
    SSL_SESS_CACHE_CLIENT             : constant := 1;
@@ -530,17 +530,17 @@ package SSL.Thin is
      SSL_SESS_CACHE_NO_INTERNAL_LOOKUP + SSL_SESS_CACHE_NO_INTERNAL_STORE;
 
    function SSL_CTX_set_session_cache_mode
-     (Ctx : in SSL_CTX; Mode : in long) return long;
+     (Ctx : SSL_CTX; Mode : long) return long;
 
-   procedure SSL_CTX_flush_sessions (Ctx : in SSL_CTX; Tm : in long);
+   procedure SSL_CTX_flush_sessions (Ctx : SSL_CTX; Tm : long);
 
    type SSL_Session is new Pointer;
 
    function SSL_set_session
-     (SSL : in SSL_Handle; session : in SSL_Session) return int;
+     (SSL : SSL_Handle; session : SSL_Session) return int;
 
-   function SSL_get_session (SSL : in SSL_Handle) return SSL_Session;
-   function SSL_get1_session (SSL : in SSL_Handle) return SSL_Session;
+   function SSL_get_session (SSL : SSL_Handle) return SSL_Session;
+   function SSL_get1_session (SSL : SSL_Handle) return SSL_Session;
 
 private
 

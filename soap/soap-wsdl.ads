@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2003-2005                          --
---                                 AdaCore                                  --
+--                     Copyright (C) 2003-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -26,7 +25,7 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  This package provides services to handle WSDL.
+--  This package provides services to handle WSDL
 
 with DOM.Core;
 
@@ -42,7 +41,7 @@ package SOAP.WSDL is
 
    type Object is private;
 
-   function Load (Filename : in String) return Object;
+   function Load (Filename : String) return Object;
    --  Load and parse a WSDL document and return the XML tree representation
 
    type Parameter_Type is
@@ -55,47 +54,47 @@ package SOAP.WSDL is
    --  This is the context of the variable, either as a simple parameter or as
    --  a record or array component.
 
-   function Is_Standard (XSD_Type : in String) return Boolean;
+   function Is_Standard (XSD_Type : String) return Boolean;
    --  Returns true is XSD_Type is a standard type (not an array or a record)
 
-   function To_Type (XSD_Type : in String) return Parameter_Type;
+   function To_Type (XSD_Type : String) return Parameter_Type;
    --  Returns the Ada parameter style for the XML type XSD_Type
 
    function To_Ada
-     (P       : in Parameter_Type;
-      Context : in Context_Type := Parameter)
+     (P       : Parameter_Type;
+      Context : Context_Type := Parameter)
       return String;
    --  Returns P's Ada type string representation
 
    procedure From_Ada
-     (Ada_Type : in     String;
-      Result   :    out WSDL.Parameter_Type;
-      Standard :    out Boolean);
+     (Ada_Type : String;
+      Result   : out WSDL.Parameter_Type;
+      Standard : out Boolean);
    --  Set Result with the type corresponding to the Ada type name
 
-   function To_XSD (P : in WSDL.Parameter_Type) return String;
+   function To_XSD (P : WSDL.Parameter_Type) return String;
    --  Returns the XSD type corresponding to P
 
    function V_Routine
-     (P       : in Parameter_Type;
-      Context : in Context_Type := Parameter)
+     (P       : Parameter_Type;
+      Context : Context_Type := Parameter)
       return String;
-   --  Returns the V routine to use to get value for a Parameter_Type.
+   --  Returns the V routine to use to get value for a Parameter_Type
 
    function Get_Routine
-     (P       : in Parameter_Type;
-      Context : in Context_Type := Parameter)
+     (P       : Parameter_Type;
+      Context : Context_Type := Parameter)
       return String;
-   --  Returns the Get routine to use to get value for a Parameter_Type.
+   --  Returns the Get routine to use to get value for a Parameter_Type
 
    function Set_Routine
-     (P       : in Parameter_Type;
-      Context : in Context_Type := Parameter)
+     (P       : Parameter_Type;
+      Context : Context_Type := Parameter)
       return String;
-   --  Returns the constructor to use to create a Parameter_Type.
+   --  Returns the constructor to use to create a Parameter_Type
 
-   function Set_Type (P : in Parameter_Type) return String;
-   --  Returns SOAP type for P.
+   function Set_Type (P : Parameter_Type) return String;
+   --  Returns SOAP type for P
 
 private
 

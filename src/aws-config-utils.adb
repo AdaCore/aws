@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2006-2008, AdaCore                      --
+--                     Copyright (C) 2006-2009, AdaCore                      --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -36,18 +36,18 @@ package body AWS.Config.Utils is
    -- Parse_Strings --
    -------------------
 
-   procedure Parse_Strings (Vector : in out SV.Vector; Line : in String) is
+   procedure Parse_Strings (Vector : in out SV.Vector; Line : String) is
       use Ada.Strings;
       First  : Positive := Line'First;
       Last   : Natural;
 
-      procedure Append (Item : in String);
+      procedure Append (Item : String);
 
       ------------
       -- Append --
       ------------
 
-      procedure Append (Item : in String) is
+      procedure Append (Item : String) is
       begin
          SV.Append
            (Vector, Fixed.Trim (Item, AWS.Utils.Spaces, AWS.Utils.Spaces));
@@ -80,18 +80,18 @@ package body AWS.Config.Utils is
 
    procedure Set_Parameter
      (Param_Set     : in out Parameter_Set;
-      Name          : in     Parameter_Name;
-      Value         : in     String;
-      Error_Context : in     String)
+      Name          : Parameter_Name;
+      Value         : String;
+      Error_Context : String)
    is
       procedure Set_Parameter (Param : in out Values);
       --  Set parameter depending on the type (Param.Kind)
 
-      procedure Error (Message : in String);
+      procedure Error (Message : String);
       --  Raises Constraint_Error with associated message and Error_Context
       --  string.
 
-      function "+" (S : in String)
+      function "+" (S : String)
         return Unbounded_String
         renames To_Unbounded_String;
 
@@ -99,7 +99,7 @@ package body AWS.Config.Utils is
       -- Error --
       -----------
 
-      procedure Error (Message : in String) is
+      procedure Error (Message : String) is
          function Error_Message return String;
 
          -------------------
@@ -200,7 +200,7 @@ package body AWS.Config.Utils is
    -----------
 
    function Value
-     (Item : in String; Error_Context : in String) return Parameter_Name is
+     (Item : String; Error_Context : String) return Parameter_Name is
    begin
       return Parameter_Name'Value (Item);
    exception

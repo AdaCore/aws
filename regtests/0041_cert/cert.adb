@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2008, AdaCore                     --
+--                     Copyright (C) 2003-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -49,11 +49,11 @@ procedure Cert is
    use Ada.Text_IO;
    use AWS;
 
-   function CB (Request : in Status.Data) return Response.Data;
+   function CB (Request : Status.Data) return Response.Data;
 
-   procedure Display_Certificate (Socket : in Net.SSL.Socket_Type);
+   procedure Display_Certificate (Socket : Net.SSL.Socket_Type);
 
-   procedure Display_Certificate (Cert : in Net.SSL.Certificate.Object);
+   procedure Display_Certificate (Cert : Net.SSL.Certificate.Object);
 
    task Server is
       entry Started;
@@ -66,7 +66,7 @@ procedure Cert is
    -- CB --
    --------
 
-   function CB (Request : in Status.Data) return Response.Data is
+   function CB (Request : Status.Data) return Response.Data is
       URI  : constant String                := Status.URI (Request);
       Sock : constant Net.Socket_Type'Class := Status.Socket (Request);
    begin
@@ -88,7 +88,7 @@ procedure Cert is
    -- Display_Certificate --
    -------------------------
 
-   procedure Display_Certificate (Cert : in Net.SSL.Certificate.Object) is
+   procedure Display_Certificate (Cert : Net.SSL.Certificate.Object) is
       use type Net.SSL.Certificate.Object;
    begin
       if Cert = Net.SSL.Certificate.Undefined then
@@ -99,7 +99,7 @@ procedure Cert is
       end if;
    end Display_Certificate;
 
-   procedure Display_Certificate (Socket : in Net.SSL.Socket_Type) is
+   procedure Display_Certificate (Socket : Net.SSL.Socket_Type) is
       Cert : constant Net.SSL.Certificate.Object
         := Net.SSL.Certificate.Get (Socket);
    begin
@@ -142,7 +142,7 @@ procedure Cert is
    -- Request --
    -------------
 
-   procedure Request (URL : in String) is
+   procedure Request (URL : String) is
       O_URL : constant AWS.URL.Object := AWS.URL.Parse (URL);
       R     : Response.Data;
       C     : Client.HTTP_Connection;

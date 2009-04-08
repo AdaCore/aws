@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2001                          --
---                                ACT-Europe                                --
+--                     Copyright (C) 2000-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -31,12 +30,12 @@ with AWS.Response;
 
 package Runme_CB is
 
-   function Service (Request : in AWS.Status.Data)
+   function Service (Request : AWS.Status.Data)
      return AWS.Response.Data;
-   --  callback procedure for the standard server.
+   --  callback procedure for the standard server
 
-   function Service_Sec (Request : in AWS.Status.Data)
+   function Service_Sec (Request : AWS.Status.Data)
      return AWS.Response.Data;
-   --  callback procedure for the secure server.
+   --  callback procedure for the secure server
 
 end Runme_CB;

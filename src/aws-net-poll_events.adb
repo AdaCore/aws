@@ -29,11 +29,11 @@ with AWS.OS_Lib;
 
 package body AWS.Net.Poll_Events is
 
-   procedure Set_Mode (Item : out Thin.Pollfd; Mode : in Wait_Event_Set);
+   procedure Set_Mode (Item : out Thin.Pollfd; Mode : Wait_Event_Set);
 
    type Poll_Access is access all Set;
 
-   procedure Check_Range (FD_Set : in Set; Index : in Positive);
+   procedure Check_Range (FD_Set : Set; Index : Positive);
    pragma Inline (Check_Range);
 
    ---------
@@ -42,8 +42,8 @@ package body AWS.Net.Poll_Events is
 
    overriding procedure Add
      (FD_Set : in out Set;
-      FD     : in     FD_Type;
-      Event  : in     Wait_Event_Set) is
+      FD     : FD_Type;
+      Event  : Wait_Event_Set) is
    begin
       if FD_Set.Size = FD_Set.Length then
          raise Constraint_Error;
@@ -63,7 +63,7 @@ package body AWS.Net.Poll_Events is
    -- Check_Range --
    -----------------
 
-   procedure Check_Range (FD_Set : in Set; Index : in Positive) is
+   procedure Check_Range (FD_Set : Set; Index : Positive) is
    begin
       if Index > FD_Set.Length then
          raise Constraint_Error;
@@ -75,7 +75,7 @@ package body AWS.Net.Poll_Events is
    ----------
 
    overriding function Copy
-     (FD_Set : not null access Set; Size : in Natural) return FD_Set_Access
+     (FD_Set : not null access Set; Size : Natural) return FD_Set_Access
    is
       Result : Poll_Access;
    begin
@@ -99,7 +99,7 @@ package body AWS.Net.Poll_Events is
    -- Length --
    ------------
 
-   overriding function Length (FD_Set : in Set) return Natural is
+   overriding function Length (FD_Set : Set) return Natural is
    begin
       return FD_Set.Length;
    end Length;
@@ -108,7 +108,7 @@ package body AWS.Net.Poll_Events is
    -- Next --
    ----------
 
-   overriding procedure Next (FD_Set : in Set; Index : in out Positive) is
+   overriding procedure Next (FD_Set : Set; Index : in out Positive) is
       use type Thin.Events_Type;
    begin
       loop
@@ -123,7 +123,7 @@ package body AWS.Net.Poll_Events is
    -- Remove --
    ------------
 
-   overriding procedure Remove (FD_Set : in out Set; Index : in Positive) is
+   overriding procedure Remove (FD_Set : in out Set; Index : Positive) is
    begin
       Check_Range (FD_Set, Index);
 
@@ -143,8 +143,8 @@ package body AWS.Net.Poll_Events is
 
    overriding procedure Replace
      (FD_Set : in out Set;
-      Index  : in     Positive;
-      FD     : in     FD_Type) is
+      Index  : Positive;
+      FD     : FD_Type) is
    begin
       Check_Range (FD_Set, Index);
       FD_Set.Fds (Index).FD := OS_Lib.FD_Type (FD);
@@ -155,13 +155,13 @@ package body AWS.Net.Poll_Events is
    --------------
 
    overriding procedure Set_Mode
-     (FD_Set : in out Set; Index : in Positive; Mode : in Wait_Event_Set) is
+     (FD_Set : in out Set; Index : Positive; Mode : Wait_Event_Set) is
    begin
       Check_Range (FD_Set, Index);
       Set_Mode (FD_Set.Fds (Index), Mode);
    end Set_Mode;
 
-   procedure Set_Mode (Item : out Thin.Pollfd; Mode : in Wait_Event_Set) is
+   procedure Set_Mode (Item : out Thin.Pollfd; Mode : Wait_Event_Set) is
       use OS_Lib;
    begin
       Item.REvents := 0;
@@ -182,7 +182,7 @@ package body AWS.Net.Poll_Events is
    ------------
 
    overriding function Status
-     (FD_Set : in Set; Index : in Positive) return Event_Set
+     (FD_Set : Set; Index : Positive) return Event_Set
    is
       use AWS.OS_Lib;
    begin
@@ -200,7 +200,7 @@ package body AWS.Net.Poll_Events is
    ----------
 
    overriding procedure Wait
-     (FD_Set : in out Set; Timeout : in Duration; Count : out Natural)
+     (FD_Set : in out Set; Timeout : Duration; Count : out Natural)
    is
       use type Thin.Timeout_Type;
 

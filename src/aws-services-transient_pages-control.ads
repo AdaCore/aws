@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2003                            --
---                                ACT-Europe                                --
+--                     Copyright (C) 2003-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -33,7 +32,7 @@
 
 package AWS.Services.Transient_Pages.Control is
 
-   procedure Register (Transient_Check_Interval : in Duration);
+   procedure Register (Transient_Check_Interval : Duration);
    --  Register the check interval for the cleaner task, increment server's
    --  count.
 

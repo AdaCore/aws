@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2008, AdaCore                     --
+--                     Copyright (C) 2003-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -42,7 +42,7 @@ package body Error_Strm is
 
    procedure Create
      (Resource : in out AWS.Resources.Streams.Stream_Type'Class;
-      Size     : in     Stream_Element_Offset) is
+      Size     : Stream_Element_Offset) is
    begin
       File_Tagged (Resource).Size   := Size;
       File_Tagged (Resource).Offset := 0;
@@ -53,7 +53,7 @@ package body Error_Strm is
    -----------------
 
    function End_Of_File
-     (Resource : in File_Tagged)
+     (Resource : File_Tagged)
       return Boolean is
    begin
       return Resource.Offset >= Resource.Size;
@@ -65,8 +65,8 @@ package body Error_Strm is
 
    procedure Read
      (Resource : in out File_Tagged;
-      Buffer   :    out Stream_Element_Array;
-      Last     :    out Stream_Element_Offset) is
+      Buffer   : out Stream_Element_Array;
+      Last     : out Stream_Element_Offset) is
    begin
       raise Constraint_Error;
    end Read;
@@ -86,7 +86,7 @@ package body Error_Strm is
 
    procedure Set_Index
      (File     : in out File_Tagged;
-      Position : in     Stream_Element_Offset) is
+      Position : Stream_Element_Offset) is
    begin
       null;
    end Set_Index;

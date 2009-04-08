@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                    Copyright (C) 2005-2008, AdaCore                      --
+--                    Copyright (C) 2005-2009, AdaCore                      --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -38,7 +38,7 @@ package AWS.Server.HTTP_Utils is
 
    procedure Answer_To_Client
      (HTTP_Server  : in out AWS.Server.HTTP;
-      Line_Index   : in     Positive;
+      Line_Index   : Positive;
       C_Stat       : in out AWS.Status.Data;
       Socket_Taken : in out Boolean;
       Will_Close   : in out Boolean);
@@ -49,9 +49,9 @@ package AWS.Server.HTTP_Utils is
 
    procedure Get_Message_Data
      (HTTP_Server  : in out AWS.Server.HTTP;
-      Line_Index   : in     Positive;
+      Line_Index   : Positive;
       C_Stat       : in out AWS.Status.Data;
-      Expect_100   : in     Boolean);
+      Expect_100   : Boolean);
    --  If the client sent us some data read them.
    --  This procedure fill in the C_Stat status data.
 
@@ -59,12 +59,12 @@ package AWS.Server.HTTP_Utils is
    --  Parse HTTP request line. This procedure fills in the C_Stat status
    --  data.
 
-   function Is_Valid_HTTP_Date (HTTP_Date : in String) return Boolean;
+   function Is_Valid_HTTP_Date (HTTP_Date : String) return Boolean;
    --  Check the date format as some Web brower seems to return invalid date
    --  field.
 
    procedure Parse_Request_Line
-     (Command : in     String;
+     (Command : String;
       C_Stat  : in out AWS.Status.Data);
    --  Parse the request line:
    --  Request-Line = Method SP Request-URI SP HTTP-Version CRLF
@@ -72,20 +72,20 @@ package AWS.Server.HTTP_Utils is
    procedure Send
      (Answer       : in out Response.Data;
       HTTP_Server  : in out AWS.Server.HTTP;
-      Line_Index   : in     Positive;
-      C_Stat       : in     AWS.Status.Data;
+      Line_Index   : Positive;
+      C_Stat       : AWS.Status.Data;
       Socket_Taken : in out Boolean;
       Will_Close   : in out Boolean);
    --  Send Answer to the client's browser
 
    procedure Send_Resource
-     (Method      : in     Status.Request_Method;
-      Close       : in     Boolean;
+     (Method      : Status.Request_Method;
+      Close       : Boolean;
       File        : in out Resources.File_Type;
       Length      : in out Resources.Content_Length_Type;
-      HTTP_Server : in     AWS.Server.HTTP;
-      Line_Index  : in     Positive;
-      C_Stat      : in     AWS.Status.Data);
+      HTTP_Server : AWS.Server.HTTP;
+      Line_Index  : Positive;
+      C_Stat      : AWS.Status.Data);
    --  Send the last header line Transfer-Encoding and Content_Length if
    --  necessary and send the file content. Length is the size of the
    --  resource/file as known before the call, Length returned value is the
@@ -93,8 +93,8 @@ package AWS.Server.HTTP_Utils is
    --  True.
 
    procedure Set_Close_Status
-     (C_Stat     : in     AWS.Status.Data;
-      Keep_Alive : in     Boolean;
+     (C_Stat     : AWS.Status.Data;
+      Keep_Alive : Boolean;
       Will_Close : in out Boolean);
    --  Set Will_Close properly depending on the HTTP version and current
    --  request status. This routine must be called after Get_Message_header as

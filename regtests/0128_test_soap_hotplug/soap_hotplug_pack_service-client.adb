@@ -29,9 +29,9 @@ package body SOAP_Hotplug_Pack_Service.Client is
    ----------
 
    function Job1
-     (X        : in Integer;
-      Y        : in Integer;
-      Endpoint : in String := SOAP_Hotplug_Pack_Service.URL)
+     (X        : Integer;
+      Y        : Integer;
+      Endpoint : String := SOAP_Hotplug_Pack_Service.URL)
       return Integer
    is
       P_Set   : SOAP.Parameters.List;
@@ -71,9 +71,9 @@ package body SOAP_Hotplug_Pack_Service.Client is
    ----------
 
    function Job2
-     (X        : in Integer;
-      Y        : in Integer;
-      Endpoint : in String := SOAP_Hotplug_Pack_Service.URL)
+     (X        : Integer;
+      Y        : Integer;
+      Endpoint : String := SOAP_Hotplug_Pack_Service.URL)
       return Integer
    is
       P_Set   : SOAP.Parameters.List;

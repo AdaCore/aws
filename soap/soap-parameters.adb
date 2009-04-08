@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2007                          --
---                                 AdaCore                                  --
+--                     Copyright (C) 2000-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -36,7 +35,7 @@ package body SOAP.Parameters is
    -- "&" --
    ---------
 
-   function "&" (P : in List; O : in Types.Object'Class) return List is
+   function "&" (P : List; O : Types.Object'Class) return List is
       NP : List := P;
    begin
       NP.N := NP.N + 1;
@@ -48,7 +47,7 @@ package body SOAP.Parameters is
    -- "+" --
    ---------
 
-   function "+" (O : in Types.Object'Class) return List is
+   function "+" (O : Types.Object'Class) return List is
       P : List;
    begin
       P.V (1) := Types."+" (O);
@@ -61,8 +60,8 @@ package body SOAP.Parameters is
    --------------
 
    function Argument
-     (P    : in List;
-      Name : in String)
+     (P    : List;
+      Name : String)
       return Types.Object'Class
    is
       use type Types.Object_Safe_Pointer;
@@ -81,8 +80,8 @@ package body SOAP.Parameters is
    --------------
 
    function Argument
-     (P : in List;
-      N : in Positive)
+     (P : List;
+      N : Positive)
       return Types.Object'Class
    is
       use type Types.Object_Safe_Pointer;
@@ -94,7 +93,7 @@ package body SOAP.Parameters is
    -- Argument_Count --
    --------------------
 
-   function Argument_Count (P : in List) return Natural is
+   function Argument_Count (P : List) return Natural is
    begin
       return P.N;
    end Argument_Count;
@@ -103,7 +102,7 @@ package body SOAP.Parameters is
    -- Check --
    -----------
 
-   procedure Check (P : in List; N : in Natural) is
+   procedure Check (P : List; N : Natural) is
    begin
       if P.N /= N then
          raise Data_Error with "(check) Too many arguments";
@@ -114,7 +113,7 @@ package body SOAP.Parameters is
    -- Check_Array --
    -----------------
 
-   procedure Check_Array (P : in List; Name : in String) is
+   procedure Check_Array (P : List; Name : String) is
       O : constant Types.Object'Class := Argument (P, Name);
    begin
       if O not in Types.SOAP_Array then
@@ -128,7 +127,7 @@ package body SOAP.Parameters is
    -- Check_Base64 --
    ------------------
 
-   procedure Check_Base64 (P : in List; Name : in String) is
+   procedure Check_Base64 (P : List; Name : String) is
       O : constant Types.Object'Class := Argument (P, Name);
    begin
       if O not in Types.SOAP_Base64 then
@@ -142,7 +141,7 @@ package body SOAP.Parameters is
    -- Check_Boolean --
    -------------------
 
-   procedure Check_Boolean (P : in List; Name : in String) is
+   procedure Check_Boolean (P : List; Name : String) is
       O : constant Types.Object'Class := Argument (P, Name);
    begin
       if O not in Types.XSD_Boolean then
@@ -156,7 +155,7 @@ package body SOAP.Parameters is
    -- Check_Float --
    -----------------
 
-   procedure Check_Float (P : in List; Name : in String) is
+   procedure Check_Float (P : List; Name : String) is
       O : constant Types.Object'Class := Argument (P, Name);
    begin
       if O not in Types.XSD_Float then
@@ -170,7 +169,7 @@ package body SOAP.Parameters is
    -- Check_Integer --
    -------------------
 
-   procedure Check_Integer (P : in List; Name : in String) is
+   procedure Check_Integer (P : List; Name : String) is
       O : constant Types.Object'Class := Argument (P, Name);
    begin
       if O not in Types.XSD_Integer then
@@ -184,7 +183,7 @@ package body SOAP.Parameters is
    -- Check_Null --
    ----------------
 
-   procedure Check_Null (P : in List; Name : in String) is
+   procedure Check_Null (P : List; Name : String) is
       O : constant Types.Object'Class := Argument (P, Name);
    begin
       if O not in Types.XSD_Null then
@@ -198,7 +197,7 @@ package body SOAP.Parameters is
    -- Check_Record --
    ------------------
 
-   procedure Check_Record (P : in List; Name : in String) is
+   procedure Check_Record (P : List; Name : String) is
       O : constant Types.Object'Class := Argument (P, Name);
    begin
       if O not in Types.SOAP_Record then
@@ -212,7 +211,7 @@ package body SOAP.Parameters is
    -- Check_Time_Instant --
    ------------------------
 
-   procedure Check_Time_Instant (P : in List; Name : in String) is
+   procedure Check_Time_Instant (P : List; Name : String) is
       O : constant Types.Object'Class := Argument (P, Name);
    begin
       if O not in Types.XSD_Time_Instant then
@@ -226,7 +225,7 @@ package body SOAP.Parameters is
    -- Exist --
    -----------
 
-   function Exist (P : in List; Name : in String) return Boolean is
+   function Exist (P : List; Name : String) return Boolean is
       use type Types.Object_Safe_Pointer;
    begin
       for K in 1 .. P.N loop
@@ -242,87 +241,87 @@ package body SOAP.Parameters is
    -- Get --
    ---------
 
-   function Get (P : in List; Name : in String) return Types.Long is
+   function Get (P : List; Name : String) return Types.Long is
    begin
       return Types.Get (Argument (P, Name));
    end Get;
 
-   function Get (P : in List; Name : in String) return Integer is
+   function Get (P : List; Name : String) return Integer is
    begin
       return Types.Get (Argument (P, Name));
    end Get;
 
-   function Get (P : in List; Name : in String) return Types.Short is
+   function Get (P : List; Name : String) return Types.Short is
    begin
       return Types.Get (Argument (P, Name));
    end Get;
 
-   function Get (P : in List; Name : in String) return Types.Byte is
+   function Get (P : List; Name : String) return Types.Byte is
    begin
       return Types.Get (Argument (P, Name));
    end Get;
 
-   function Get (P : in List; Name : in String) return Float is
+   function Get (P : List; Name : String) return Float is
    begin
       return Types.Get (Argument (P, Name));
    end Get;
 
-   function Get (P : in List; Name : in String) return Long_Float is
+   function Get (P : List; Name : String) return Long_Float is
    begin
       return Types.Get (Argument (P, Name));
    end Get;
 
-   function Get (P : in List; Name : in String) return String is
+   function Get (P : List; Name : String) return String is
    begin
       return Types.Get (Argument (P, Name));
    end Get;
 
-   function Get (P : in List; Name : in String) return Unbounded_String is
+   function Get (P : List; Name : String) return Unbounded_String is
    begin
       return Types.Get (Argument (P, Name));
    end Get;
 
-   function Get (P : in List; Name : in String) return Boolean is
+   function Get (P : List; Name : String) return Boolean is
    begin
       return Types.Get (Argument (P, Name));
    end Get;
 
-   function Get (P : in List; Name : in String) return Ada.Calendar.Time is
+   function Get (P : List; Name : String) return Ada.Calendar.Time is
    begin
       return Types.Get (Argument (P, Name));
    end Get;
 
-   function Get (P : in List; Name : in String) return Types.Unsigned_Long is
+   function Get (P : List; Name : String) return Types.Unsigned_Long is
    begin
       return Types.Get (Argument (P, Name));
    end Get;
 
-   function Get (P : in List; Name : in String) return Types.Unsigned_Int is
+   function Get (P : List; Name : String) return Types.Unsigned_Int is
    begin
       return Types.Get (Argument (P, Name));
    end Get;
 
-   function Get (P : in List; Name : in String) return Types.Unsigned_Short is
+   function Get (P : List; Name : String) return Types.Unsigned_Short is
    begin
       return Types.Get (Argument (P, Name));
    end Get;
 
-   function Get (P : in List; Name : in String) return Types.Unsigned_Byte is
+   function Get (P : List; Name : String) return Types.Unsigned_Byte is
    begin
       return Types.Get (Argument (P, Name));
    end Get;
 
-   function Get (P : in List; Name : in String) return Types.SOAP_Base64 is
+   function Get (P : List; Name : String) return Types.SOAP_Base64 is
    begin
       return Types.Get (Argument (P, Name));
    end Get;
 
-   function Get (P : in List; Name : in String) return Types.SOAP_Record is
+   function Get (P : List; Name : String) return Types.SOAP_Record is
    begin
       return Types.Get (Argument (P, Name));
    end Get;
 
-   function Get (P : in List; Name : in String) return Types.SOAP_Array is
+   function Get (P : List; Name : String) return Types.SOAP_Array is
    begin
       return Types.Get (Argument (P, Name));
    end Get;

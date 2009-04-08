@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2008, AdaCore                     --
+--                     Copyright (C) 2000-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -33,7 +33,7 @@ package body AWS.Session.Control is
    -- Force --
    -----------
 
-   procedure Force_Cleaner (Timeout : in Duration := 0.0) is
+   procedure Force_Cleaner (Timeout : Duration := 0.0) is
    begin
       select
          Cleaner_Task.Force;
@@ -78,7 +78,7 @@ package body AWS.Session.Control is
    -----------
 
    procedure Start
-     (Session_Check_Interval : in Duration; Session_Lifetime : in Duration) is
+     (Session_Check_Interval : Duration; Session_Lifetime : Duration) is
    begin
       Cleaner_Control.Start (Session_Check_Interval, Session_Lifetime);
    end Start;

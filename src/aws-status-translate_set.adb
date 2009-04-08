@@ -26,7 +26,7 @@
 ------------------------------------------------------------------------------
 
 function AWS.Status.Translate_Set
-  (Status : in Data) return Templates.Translate_Set
+  (Status : Data) return Templates.Translate_Set
 is
    use Templates;
    Tr : Templates.Translate_Set;

@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2004-2008, AdaCore                     --
+--                     Copyright (C) 2004-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -59,7 +59,7 @@ procedure Attachment is
       entry Stop;
    end Server;
 
-   procedure Output (Filename, Local_Filename, Content_Type : in String);
+   procedure Output (Filename, Local_Filename, Content_Type : String);
    --  Output content of filename. Output is base64 encoded if content type is
    --  not textual data.
 
@@ -68,10 +68,10 @@ procedure Attachment is
    ----------
 
    procedure Dump
-     (Direction : in Net.Log.Data_Direction;
-      Socket    : in Net.Socket_Type'Class;
-      Data      : in Stream_Element_Array;
-      Last      : in Stream_Element_Offset)
+     (Direction : Net.Log.Data_Direction;
+      Socket    : Net.Socket_Type'Class;
+      Data      : Stream_Element_Array;
+      Last      : Stream_Element_Offset)
    is
       use type Net.Log.Data_Direction;
    begin
@@ -87,7 +87,7 @@ procedure Attachment is
    -- Output --
    ------------
 
-   procedure Output (Filename, Local_Filename, Content_Type : in String) is
+   procedure Output (Filename, Local_Filename, Content_Type : String) is
       use Ada.Streams;
       File   : Stream_IO.File_Type;
       Buffer : Stream_Element_Array (1 .. 4_048);
@@ -116,7 +116,7 @@ procedure Attachment is
    -- HW_CB --
    -----------
 
-   function HW_CB (Request : in AWS.Status.Data) return AWS.Response.Data is
+   function HW_CB (Request : AWS.Status.Data) return AWS.Response.Data is
       Att_List : constant AWS.Attachments.List :=
                    AWS.Status.Attachments (Request);
       Atts     : constant Integer := AWS.Attachments.Count (Att_List);

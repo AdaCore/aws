@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2003-2004                          --
---                                ACT-Europe                                --
+--                     Copyright (C) 2003-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -49,7 +48,7 @@ procedure Split is
    Conf : Config.Object := Config.Get_Current;
 
    function Vect
-     (Prefix : in String; Size : in Positive)
+     (Prefix : String; Size : Positive)
       return Templates.Vector_Tag;
    --  Returns a vector tag with Size values, each having the given Prefix
 
@@ -57,7 +56,7 @@ procedure Split is
    -- CB --
    --------
 
-   function CB (Request : in Status.Data) return Response.Data is
+   function CB (Request : Status.Data) return Response.Data is
       use Templates;
 
       URI : constant String := Status.URI (Request);
@@ -95,7 +94,7 @@ procedure Split is
    ----------
 
    function Vect
-     (Prefix : in String; Size : in Positive)
+     (Prefix : String; Size : Positive)
       return Templates.Vector_Tag
    is
       use type Templates.Vector_Tag;

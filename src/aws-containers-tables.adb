@@ -44,10 +44,10 @@ with Ada.Containers.Generic_Array_Sort;
 package body AWS.Containers.Tables is
 
    procedure Get_Indexes
-     (Table   : in     Table_Type;
-      Name    : in     String;
-      Indexes :    out Name_Index_Table;
-      Found   :    out Boolean);
+     (Table   : Table_Type;
+      Name    : String;
+      Indexes : out Name_Index_Table;
+      Found   : out Boolean);
    pragma Inline (Get_Indexes);
    --  Returns all Name/Value indexes for the specified name.
    --  Found is set to False if Name was not found in Table and True otherwise.
@@ -56,7 +56,7 @@ package body AWS.Containers.Tables is
    -- Case_Sensitive --
    --------------------
 
-   function Case_Sensitive (Table : in Table_Type) return Boolean is
+   function Case_Sensitive (Table : Table_Type) return Boolean is
    begin
       return Table.Case_Sensitive;
    end Case_Sensitive;
@@ -65,7 +65,7 @@ package body AWS.Containers.Tables is
    -- Count --
    -----------
 
-   function Count (Table : in Table_Type) return Natural is
+   function Count (Table : Table_Type) return Natural is
    begin
       return Natural (Data_Table.Length (Table.Data));
    end Count;
@@ -74,7 +74,7 @@ package body AWS.Containers.Tables is
    -- Count --
    -----------
 
-   function Count (Table : in Table_Type; Name : in String) return Natural is
+   function Count (Table : Table_Type; Name : String) return Natural is
       Value : Name_Index_Table;
       Found : Boolean;
    begin
@@ -91,7 +91,7 @@ package body AWS.Containers.Tables is
    -- Exist --
    -----------
 
-   function Exist (Table : in Table_Type; Name : in String) return Boolean is
+   function Exist (Table : Table_Type; Name : String) return Boolean is
    begin
       return Index_Table.Contains
         (Table.Index, Normalize_Name (Name, not Table.Case_Sensitive));
@@ -102,7 +102,7 @@ package body AWS.Containers.Tables is
    ---------------------------
 
    procedure Generic_Iterate_Names
-     (Table : in Table_Type; Coupler : in String)
+     (Table : Table_Type; Coupler : String)
    is
       use type Ada.Containers.Count_Type;
 
@@ -151,9 +151,9 @@ package body AWS.Containers.Tables is
    ---------
 
    function Get
-     (Table : in Table_Type;
-      Name  : in String;
-      N     : in Positive := 1) return String
+     (Table : Table_Type;
+      Name  : String;
+      N     : Positive := 1) return String
    is
       Value : Name_Index_Table;
       Found : Boolean;
@@ -168,7 +168,7 @@ package body AWS.Containers.Tables is
       end if;
    end Get;
 
-   function Get (Table : in Table_Type; N : in Positive) return Element is
+   function Get (Table : Table_Type; N : Positive) return Element is
    begin
       if N <= Natural (Data_Table.Length (Table.Data)) then
          return Data_Table.Element (Table.Data, Key_Positive (N));
@@ -182,10 +182,10 @@ package body AWS.Containers.Tables is
    -----------------
 
    procedure Get_Indexes
-     (Table   : in     Table_Type;
-      Name    : in     String;
-      Indexes :    out Name_Index_Table;
-      Found   :    out Boolean)
+     (Table   : Table_Type;
+      Name    : String;
+      Indexes : out Name_Index_Table;
+      Found   : out Boolean)
    is
       Cursor : Index_Table.Cursor;
    begin
@@ -205,7 +205,7 @@ package body AWS.Containers.Tables is
    --------------
 
    function Get_Name
-     (Table : in Table_Type; N : in Positive := 1) return String is
+     (Table : Table_Type; N : Positive := 1) return String is
    begin
       if N <= Natural (Data_Table.Length (Table.Data)) then
          return Data_Table.Element (Table.Data, Key_Positive (N)).Name;
@@ -219,7 +219,7 @@ package body AWS.Containers.Tables is
    ---------------
 
    function Get_Names
-     (Table : in Table_Type; Sort : in Boolean := False) return VString_Array
+     (Table : Table_Type; Sort : Boolean := False) return VString_Array
    is
       procedure Sort_Names is
         new Ada.Containers.Generic_Array_Sort
@@ -249,7 +249,7 @@ package body AWS.Containers.Tables is
    ---------------
 
    function Get_Value
-     (Table : in Table_Type; N : in Positive := 1) return String is
+     (Table : Table_Type; N : Positive := 1) return String is
    begin
       if N <= Natural (Data_Table.Length (Table.Data)) then
          return Data_Table.Element (Table.Data, Key_Positive (N)).Value;
@@ -263,7 +263,7 @@ package body AWS.Containers.Tables is
    ----------------
 
    function Get_Values
-     (Table : in Table_Type; Name : in String) return VString_Array
+     (Table : Table_Type; Name : String) return VString_Array
    is
       Value : Name_Index_Table;
       Found : Boolean;
@@ -295,9 +295,9 @@ package body AWS.Containers.Tables is
    -------------------
 
    procedure Iterate_Names
-     (Table   : in Table_Type;
-      Coupler : in String;
-      Process : not null access procedure (Name, Value : in String))
+     (Table   : Table_Type;
+      Coupler : String;
+      Process : not null access procedure (Name, Value : String))
    is
       procedure For_Each is new Generic_Iterate_Names (Process.all);
    begin
@@ -308,7 +308,7 @@ package body AWS.Containers.Tables is
    -- Name_Count --
    ----------------
 
-   function Name_Count (Table : in Table_Type) return Natural is
+   function Name_Count (Table : Table_Type) return Natural is
    begin
       return Natural (Index_Table.Length (Table.Index));
    end Name_Count;
@@ -318,7 +318,7 @@ package body AWS.Containers.Tables is
    --------------------
 
    function Normalize_Name
-     (Name : in String; To_Upper : in Boolean) return String is
+     (Name : String; To_Upper : Boolean) return String is
    begin
       if To_Upper then
          return Ada.Characters.Handling.To_Upper (Name);

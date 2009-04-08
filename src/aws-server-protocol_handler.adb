@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2008, AdaCore                      --
+--                     Copyright (C) 2000-2009, AdaCore                      --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -94,8 +94,8 @@ begin
          First_Line    : Boolean := True;
          Switch        : constant array (Boolean) of
            access function
-             (Socket : in Net.Socket_Type'Class;
-              Events : in Net.Wait_Event_Set) return Net.Event_Set
+             (Socket : Net.Socket_Type'Class;
+              Events : Net.Wait_Event_Set) return Net.Event_Set
            := (True => Net.Wait'Access, False => Net.Check'Access);
       begin
          Response.Set.Mode (Error_Answer, Response.No_Data);

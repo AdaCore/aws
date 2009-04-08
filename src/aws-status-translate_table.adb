@@ -26,7 +26,7 @@
 ------------------------------------------------------------------------------
 
 function AWS.Status.Translate_Table
-  (Status : in Data) return Templates.Translate_Table
+  (Status : Data) return Templates.Translate_Table
 is
    use Templates;
 begin

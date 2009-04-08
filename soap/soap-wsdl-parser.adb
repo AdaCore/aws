@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2003-2007                          --
---                                 AdaCore                                  --
+--                     Copyright (C) 2003-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -55,132 +54,132 @@ package body SOAP.WSDL.Parser is
    NS_Num : Natural := 0;
 
    function Get_Node
-     (Parent  : in DOM.Core.Node;
-      Element : in String;
-      Name    : in String        := "";
-      NS      : in Boolean       := False)
+     (Parent  : DOM.Core.Node;
+      Element : String;
+      Name    : String        := "";
+      NS      : Boolean       := False)
       return DOM.Core.Node;
    --  Returns child node named Element having the value Name for attribute
    --  "name" if specified.
 
-   function "+" (Str : in String) return Unbounded_String
+   function "+" (Str : String) return Unbounded_String
      renames To_Unbounded_String;
 
-   function "-" (Str : in Unbounded_String) return String
+   function "-" (Str : Unbounded_String) return String
      renames To_String;
 
    procedure Parse_Service
      (O        : in out Object'Class;
-      Service  : in     DOM.Core.Node;
-      Document : in     WSDL.Object);
+      Service  : DOM.Core.Node;
+      Document : WSDL.Object);
    --  Parse WSDL service nodes
 
    procedure Parse_Binding
      (O        : in out Object'Class;
-      Binding  : in     DOM.Core.Node;
-      Document : in     WSDL.Object);
+      Binding  : DOM.Core.Node;
+      Document : WSDL.Object);
    --  Parse WSDL binding nodes
 
    procedure Parse_Definitions
-     (O           : in Object'Class;
-      Definitions : in DOM.Core.Node;
-      Document    : in WSDL.Object);
+     (O           : Object'Class;
+      Definitions : DOM.Core.Node;
+      Document    : WSDL.Object);
    --  Parse WSDL definition node
 
    procedure Parse_Operation
      (O         : in out Object'Class;
-      Operation : in     DOM.Core.Node;
-      Document  : in     WSDL.Object);
+      Operation : DOM.Core.Node;
+      Document  : WSDL.Object);
    --  Parse WSDL operation nodes
 
    procedure Parse_PortType
      (O         : in out Object'Class;
-      Operation : in     DOM.Core.Node;
-      Document  : in     WSDL.Object);
+      Operation : DOM.Core.Node;
+      Document  : WSDL.Object);
    --  Parse WSDL PortType nodes
 
    procedure Parse_Part
      (O        : in out Object'Class;
-      Part     : in     DOM.Core.Node;
-      Document : in     WSDL.Object);
+      Part     : DOM.Core.Node;
+      Document : WSDL.Object);
    --  Parse WSDL part nodes
 
    procedure Parse_Message
      (O        : in out Object'Class;
-      Message  : in     DOM.Core.Node;
-      Document : in     WSDL.Object);
+      Message  : DOM.Core.Node;
+      Document : WSDL.Object);
    --  Parse WSDL message nodes
 
    procedure Parse_Element
      (O        : in out Object'Class;
-      Element  : in     DOM.Core.Node;
-      Document : in     WSDL.Object);
+      Element  : DOM.Core.Node;
+      Document : WSDL.Object);
    --  Parse WSDL element nodes
 
    procedure Add_Parameter
      (O      : in out Object'Class;
-      Name   : in     String;
-      P_Type : in     Parameter_Type);
+      Name   : String;
+      P_Type : Parameter_Type);
    pragma Inline (Add_Parameter);
    --  Add parameter Name / P_Type into O using current mode (O.Mode)
 
    procedure Add_Parameter
      (O     : in out Object'Class;
-      Param : in     Parameters.Parameter);
+      Param : Parameters.Parameter);
    pragma Inline (Add_Parameter);
    --  Add parameter into O using current mode (O.Mode)
 
    function Parse_Parameter
-     (O        : in Object'Class;
-      N        : in DOM.Core.Node;
-      Document : in WSDL.Object)
+     (O        : Object'Class;
+      N        : DOM.Core.Node;
+      Document : WSDL.Object)
       return Parameters.Parameter;
    --  Returns parameter in node P
 
    function Parse_Record
-     (O        : in Object'Class;
-      R        : in DOM.Core.Node;
-      Document : in WSDL.Object)
+     (O        : Object'Class;
+      R        : DOM.Core.Node;
+      Document : WSDL.Object)
       return Parameters.Parameter;
    --  Returns record in node N
 
    function Parse_Array
-     (O        : in Object'Class;
-      R        : in DOM.Core.Node;
-      Document : in WSDL.Object)
+     (O        : Object'Class;
+      R        : DOM.Core.Node;
+      Document : WSDL.Object)
       return Parameters.Parameter;
    --  Returns array in node N
 
    function Parse_Simple
-     (O        : in Object'Class;
-      R        : in DOM.Core.Node;
-      Document : in WSDL.Object)
+     (O        : Object'Class;
+      R        : DOM.Core.Node;
+      Document : WSDL.Object)
       return Parameters.Parameter;
    --  Returns the derived or enumeration type in node N (N must be a
    --  simpleType schema node).
 
    function Is_Array
-     (O : in Object'Class;
-      N : in DOM.Core.Node)
+     (O : Object'Class;
+      N : DOM.Core.Node)
       return Boolean;
    --  Returns True if N is an array description node. Set the array element
    --  name into the object.
 
    function Is_Record
-     (O : in Object'Class;
-      N : in DOM.Core.Node)
+     (O : Object'Class;
+      N : DOM.Core.Node)
       return Boolean;
-   --  Returns True if N is a struct description node.
+   --  Returns True if N is a struct description node
 
-   procedure Check_Character (R : in DOM.Core.Node);
+   procedure Check_Character (R : DOM.Core.Node);
    --  Checks that N is a valid schema definition for a Character Ada type
 
    function Get_Target_Name_Space
-     (N : in DOM.Core.Node) return Name_Space.Object;
+     (N : DOM.Core.Node) return Name_Space.Object;
    --  Returns the targetNamespace
 
    function Get_NS_Name_For
-     (N : in DOM.Core.Node; Value : in String) return String;
+     (N : DOM.Core.Node; Value : String) return String;
    --  Returns the namespace Name given the Value. The value is checked
    --  starting from N.
 
@@ -188,7 +187,7 @@ package body SOAP.WSDL.Parser is
    -- Debug --
    -----------
 
-   procedure Trace (Message : in String; N : in DOM.Core.Node);
+   procedure Trace (Message : String; N : DOM.Core.Node);
    --  Display trace message and info about the node
 
    ----------------
@@ -206,8 +205,8 @@ package body SOAP.WSDL.Parser is
 
    procedure Add_Parameter
      (O      : in out Object'Class;
-      Name   : in     String;
-      P_Type : in     Parameter_Type) is
+      Name   : String;
+      P_Type : Parameter_Type) is
    begin
       Add_Parameter
         (O, (Parameters.K_Simple, +Name, No_Name_Space, null, P_Type));
@@ -215,7 +214,7 @@ package body SOAP.WSDL.Parser is
 
    procedure Add_Parameter
      (O     : in out Object'Class;
-      Param : in     Parameters.Parameter) is
+      Param : Parameters.Parameter) is
    begin
       Parameters.Append (O.Params (O.Mode), Param);
    end Add_Parameter;
@@ -224,11 +223,11 @@ package body SOAP.WSDL.Parser is
    -- Check_Character --
    ---------------------
 
-   procedure Check_Character (R : in DOM.Core.Node) is
+   procedure Check_Character (R : DOM.Core.Node) is
 
       function Character_Facet
-        (Parent : in DOM.Core.Node;
-         Child  : in Boolean := False)
+        (Parent : DOM.Core.Node;
+         Child  : Boolean := False)
          return DOM.Core.Node;
       --  Returns the first node corresponding to a character type definition.
       --  It skips annotation tag for example.
@@ -238,8 +237,8 @@ package body SOAP.WSDL.Parser is
       ---------------------
 
       function Character_Facet
-        (Parent : in DOM.Core.Node;
-         Child  : in Boolean := False)
+        (Parent : DOM.Core.Node;
+         Child  : Boolean := False)
          return DOM.Core.Node
       is
          N : DOM.Core.Node := Parent;
@@ -374,7 +373,7 @@ package body SOAP.WSDL.Parser is
    -- Exclude --
    -------------
 
-   procedure Exclude (O : in out Object; Operation : in String) is
+   procedure Exclude (O : in out Object; Operation : String) is
       Pos     : Exclude_Set.Cursor;
       Success : Boolean;
    begin
@@ -386,16 +385,16 @@ package body SOAP.WSDL.Parser is
    --------------
 
    function Get_Node
-     (Parent  : in DOM.Core.Node;
-      Element : in String;
-      Name    : in String        := "";
-      NS      : in Boolean       := False)
+     (Parent  : DOM.Core.Node;
+      Element : String;
+      Name    : String        := "";
+      NS      : Boolean       := False)
       return DOM.Core.Node
    is
       function Get_Node_Int
-        (Parent  : in DOM.Core.Node;
-         Element : in String;
-         Name    : in String)
+        (Parent  : DOM.Core.Node;
+         Element : String;
+         Name    : String)
          return DOM.Core.Node;
       --  Recursive procedure that does the job
 
@@ -404,9 +403,9 @@ package body SOAP.WSDL.Parser is
       ------------------
 
       function Get_Node_Int
-        (Parent  : in DOM.Core.Node;
-         Element : in String;
-         Name    : in String)
+        (Parent  : DOM.Core.Node;
+         Element : String;
+         Name    : String)
          return DOM.Core.Node
       is
          N, R : DOM.Core.Node;
@@ -473,7 +472,7 @@ package body SOAP.WSDL.Parser is
    ---------------------
 
    function Get_NS_Name_For
-     (N : in DOM.Core.Node; Value : in String) return String is
+     (N : DOM.Core.Node; Value : String) return String is
    begin
       if N = null then
          return "";
@@ -505,7 +504,7 @@ package body SOAP.WSDL.Parser is
    ---------------------------
 
    function Get_Target_Name_Space
-     (N : in DOM.Core.Node) return Name_Space.Object
+     (N : DOM.Core.Node) return Name_Space.Object
    is
       V : constant String := XML.Get_Attr_Value (N, "targetNamespace", True);
       P : Name_Spaces.Cursor;
@@ -537,8 +536,8 @@ package body SOAP.WSDL.Parser is
    --------------
 
    function Is_Array
-     (O : in Object'Class;
-      N : in DOM.Core.Node)
+     (O : Object'Class;
+      N : DOM.Core.Node)
       return Boolean
    is
       function Array_Elements return Unbounded_String;
@@ -620,8 +619,8 @@ package body SOAP.WSDL.Parser is
    ---------------
 
    function Is_Record
-     (O : in Object'Class;
-      N : in DOM.Core.Node)
+     (O : Object'Class;
+      N : DOM.Core.Node)
       return Boolean
    is
       pragma Unreferenced (O);
@@ -650,7 +649,7 @@ package body SOAP.WSDL.Parser is
 
    procedure Parse
      (O        : in out Object'Class;
-      Document : in     WSDL.Object)
+      Document : WSDL.Object)
    is
       N     : constant DOM.Core.Node
         := XML.First_Child (DOM.Core.Node (Document));
@@ -685,9 +684,9 @@ package body SOAP.WSDL.Parser is
    -----------------
 
    function Parse_Array
-     (O        : in Object'Class;
-      R        : in DOM.Core.Node;
-      Document : in WSDL.Object)
+     (O        : Object'Class;
+      R        : DOM.Core.Node;
+      Document : WSDL.Object)
       return Parameters.Parameter
    is
       P : Parameters.Parameter (Parameters.K_Array);
@@ -734,8 +733,8 @@ package body SOAP.WSDL.Parser is
 
    procedure Parse_Binding
      (O        : in out Object'Class;
-      Binding  : in     DOM.Core.Node;
-      Document : in     WSDL.Object)
+      Binding  : DOM.Core.Node;
+      Document : WSDL.Object)
    is
       N : DOM.Core.Node;
    begin
@@ -810,9 +809,9 @@ package body SOAP.WSDL.Parser is
    -----------------------
 
    procedure Parse_Definitions
-     (O           : in Object'Class;
-      Definitions : in DOM.Core.Node;
-      Document    : in WSDL.Object)
+     (O           : Object'Class;
+      Definitions : DOM.Core.Node;
+      Document    : WSDL.Object)
    is
       pragma Unreferenced (O, Document);
 
@@ -838,8 +837,8 @@ package body SOAP.WSDL.Parser is
 
    procedure Parse_Element
      (O        : in out Object'Class;
-      Element  : in     DOM.Core.Node;
-      Document : in     WSDL.Object)
+      Element  : DOM.Core.Node;
+      Document : WSDL.Object)
    is
       N       : DOM.Core.Node := Element;
       CT_Node : DOM.Core.Node;
@@ -913,8 +912,8 @@ package body SOAP.WSDL.Parser is
 
    procedure Parse_Message
      (O        : in out Object'Class;
-      Message  : in     DOM.Core.Node;
-      Document : in     WSDL.Object)
+      Message  : DOM.Core.Node;
+      Document : WSDL.Object)
    is
       N : DOM.Core.Node := Message;
    begin
@@ -934,8 +933,8 @@ package body SOAP.WSDL.Parser is
 
    procedure Parse_Operation
      (O         : in out Object'Class;
-      Operation : in     DOM.Core.Node;
-      Document  : in     WSDL.Object)
+      Operation : DOM.Core.Node;
+      Document  : WSDL.Object)
    is
       N : DOM.Core.Node;
    begin
@@ -996,9 +995,9 @@ package body SOAP.WSDL.Parser is
    ---------------------
 
    function Parse_Parameter
-     (O        : in Object'Class;
-      N        : in DOM.Core.Node;
-      Document : in WSDL.Object)
+     (O        : Object'Class;
+      N        : DOM.Core.Node;
+      Document : WSDL.Object)
       return Parameters.Parameter
    is
       P_Type : constant String := XML.Get_Attr_Value (N, "type", False);
@@ -1056,8 +1055,8 @@ package body SOAP.WSDL.Parser is
 
    procedure Parse_Part
      (O        : in out Object'Class;
-      Part     : in     DOM.Core.Node;
-      Document : in     WSDL.Object)
+      Part     : DOM.Core.Node;
+      Document : WSDL.Object)
    is
       N       : DOM.Core.Node;
       ET      : Unbounded_String;
@@ -1132,17 +1131,17 @@ package body SOAP.WSDL.Parser is
 
    procedure Parse_PortType
      (O         : in out Object'Class;
-      Operation : in     DOM.Core.Node;
-      Document  : in     WSDL.Object)
+      Operation : DOM.Core.Node;
+      Document  : WSDL.Object)
    is
-      procedure Get_Element (M : in DOM.Core.Node);
+      procedure Get_Element (M : DOM.Core.Node);
       --  Returns the element node which contains parameters for node M
 
       -----------------
       -- Get_Element --
       -----------------
 
-      procedure Get_Element (M : in DOM.Core.Node) is
+      procedure Get_Element (M : DOM.Core.Node) is
          N       : DOM.Core.Node;
          Message : Unbounded_String;
       begin
@@ -1153,7 +1152,7 @@ package body SOAP.WSDL.Parser is
             "message", -Message);
 
          if N = null then
-            --  In this case the message reference the schema element.
+            --  In this case the message reference the schema element
 
             N := Get_Node
               (XML.First_Child (DOM.Core.Node (Document)),
@@ -1228,9 +1227,9 @@ package body SOAP.WSDL.Parser is
    ------------------
 
    function Parse_Record
-     (O        : in Object'Class;
-      R        : in DOM.Core.Node;
-      Document : in WSDL.Object)
+     (O        : Object'Class;
+      R        : DOM.Core.Node;
+      Document : WSDL.Object)
       return Parameters.Parameter
    is
       P : Parameters.Parameter (Parameters.K_Record);
@@ -1275,8 +1274,8 @@ package body SOAP.WSDL.Parser is
 
    procedure Parse_Service
      (O        : in out Object'Class;
-      Service  : in     DOM.Core.Node;
-      Document : in     WSDL.Object)
+      Service  : DOM.Core.Node;
+      Document : WSDL.Object)
    is
       Port, N       : DOM.Core.Node;
       Name          : Unbounded_String;
@@ -1332,22 +1331,22 @@ package body SOAP.WSDL.Parser is
    ------------------
 
    function Parse_Simple
-     (O        : in Object'Class;
-      R        : in DOM.Core.Node;
-      Document : in WSDL.Object)
+     (O        : Object'Class;
+      R        : DOM.Core.Node;
+      Document : WSDL.Object)
       return Parameters.Parameter
    is
       pragma Unreferenced (Document);
 
       function Build_Derived
-        (Name, Base : in String;
-         E          : in DOM.Core.Node)
+        (Name, Base : String;
+         E          : DOM.Core.Node)
          return Parameters.Parameter;
       --  Returns the derived type definition
 
       function Build_Enumeration
-        (Name, Base : in String;
-         E          : in DOM.Core.Node)
+        (Name, Base : String;
+         E          : DOM.Core.Node)
          return Parameters.Parameter;
       --  Returns the enumeration type definition
 
@@ -1356,8 +1355,8 @@ package body SOAP.WSDL.Parser is
       -------------------
 
       function Build_Derived
-        (Name, Base : in String;
-         E          : in DOM.Core.Node)
+        (Name, Base : String;
+         E          : DOM.Core.Node)
          return Parameters.Parameter
       is
          P : Parameters.Parameter (Parameters.K_Derived);
@@ -1389,8 +1388,8 @@ package body SOAP.WSDL.Parser is
       -----------------------
 
       function Build_Enumeration
-        (Name, Base : in String;
-         E          : in DOM.Core.Node)
+        (Name, Base : String;
+         E          : DOM.Core.Node)
          return Parameters.Parameter
       is
          pragma Unreferenced (Base);
@@ -1467,7 +1466,7 @@ package body SOAP.WSDL.Parser is
    -- Trace --
    -----------
 
-   procedure Trace (Message : in String; N : in DOM.Core.Node) is
+   procedure Trace (Message : String; N : DOM.Core.Node) is
    begin
       if Verbose_Mode = 2 then
          Text_IO.Put_Line (Message);
@@ -1504,7 +1503,7 @@ package body SOAP.WSDL.Parser is
    -- Verbose --
    -------------
 
-   procedure Verbose (Level : in Verbose_Level := 1) is
+   procedure Verbose (Level : Verbose_Level := 1) is
    begin
       Verbose_Mode := Level;
    end Verbose;

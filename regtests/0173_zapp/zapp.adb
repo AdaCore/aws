@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2008, AdaCore                     --
+--                     Copyright (C) 2003-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -45,23 +45,23 @@ procedure ZApp is
 
    Free_Port : Positive := 8787;
 
-   function CB (Request : in Status.Data) return Response.Data;
+   function CB (Request : Status.Data) return Response.Data;
 
    --------
    -- CB --
    --------
 
-   function CB (Request : in Status.Data) return Response.Data is
+   function CB (Request : Status.Data) return Response.Data is
 
       Answer : Response.Data;
 
-      procedure Append (Item : in String);
+      procedure Append (Item : String);
 
       ------------
       -- Append --
       ------------
 
-      procedure Append (Item : in String) is
+      procedure Append (Item : String) is
       begin
          if Item'Length > 0 then
             Response.Set.Append_Body (Answer, Item & ASCII.LF);

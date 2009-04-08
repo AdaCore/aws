@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2005-2008, AdaCore                     --
+--                     Copyright (C) 2005-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -43,16 +43,16 @@ package AWS.Net.Acceptors is
 
    procedure Listen
      (Acceptor            : in out Acceptor_Type;
-      Host                : in     String;
-      Port                : in     Natural;
-      Queue_Size          : in     Positive;
-      Timeout             : in     Duration := Forever;
-      First_Timeout       : in     Duration := Forever;
-      Force_Timeout       : in     Duration := Forever;
-      Force_First_Timeout : in     Duration := Forever;
-      Force_Length        : in     Positive := Positive'Last;
-      Close_Length        : in     Positive := Positive'Last;
-      Reuse_Address       : in     Boolean  := False);
+      Host                : String;
+      Port                : Natural;
+      Queue_Size          : Positive;
+      Timeout             : Duration := Forever;
+      First_Timeout       : Duration := Forever;
+      Force_Timeout       : Duration := Forever;
+      Force_First_Timeout : Duration := Forever;
+      Force_Length        : Positive := Positive'Last;
+      Close_Length        : Positive := Positive'Last;
+      Reuse_Address       : Boolean  := False);
    --  Prepare Acceptor to accept sockets and wait for incoming data from the
    --  given Host and Port. Use Queue_Size for the Listen call.
    --  Timeout is to wait for the next data from the socket, should be longer
@@ -64,13 +64,13 @@ package AWS.Net.Acceptors is
    --  socket would be closed without timeout condition.
 
    procedure Set_Socket_Constructor
-     (Acceptor : in out Acceptor_Type; Constructor : in Socket_Constructor);
+     (Acceptor : in out Acceptor_Type; Constructor : Socket_Constructor);
 
    procedure Get
      (Acceptor : in out Acceptor_Type;
       Socket   : out    Socket_Access;
       On_Error : access procedure
-        (E : in Ada.Exceptions.Exception_Occurrence) := null);
+        (E : Ada.Exceptions.Exception_Occurrence) := null);
    --  Returns a socket from the internal socket set which has data to read.
    --  Should not be called simultaneously from different tasks.
    --  On_Error needs to be able to catch Socket_Error on Accept_Socket or
@@ -82,13 +82,13 @@ package AWS.Net.Acceptors is
    --  If On_Error is null, the exception on error is propagated.
 
    function Server_Socket
-     (Acceptor : in Acceptor_Type) return Socket_Type'Class;
+     (Acceptor : Acceptor_Type) return Socket_Type'Class;
    pragma Inline (Server_Socket);
    --  return server accepting socket. Need only to show server socket FD in
    --  server status page.
 
    procedure Give_Back
-     (Acceptor : in out Acceptor_Type; Socket : in Socket_Access);
+     (Acceptor : in out Acceptor_Type; Socket : Socket_Access);
    --  Give back socket which has been taken from Get routine above. Generally
    --  this is called from a different task while the Get routine is blocked
    --  waiting for a socket.
@@ -98,7 +98,7 @@ package AWS.Net.Acceptors is
    --  different task while the Get routine is blocked waiting for a
    --  socket.
 
-   function Length (Acceptor : in Acceptor_Type) return Natural;
+   function Length (Acceptor : Acceptor_Type) return Natural;
    pragma Inline (Length);
    --  Return number of sockets in the internal socket set.
    --  Note that this number include server accepting socket

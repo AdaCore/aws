@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2008, AdaCore                     --
+--                     Copyright (C) 2003-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -50,7 +50,7 @@ procedure Test_WSDL is
       Text_IO.Put_Line (R_Hello_Demo.Client.sayHello (Firstname => "AWS"));
    end WSDL_Demo_Client;
 
-   function sayHello (Firstname : in String) return String;
+   function sayHello (Firstname : String) return String;
 
    -------------
    -- SOAP_CB --
@@ -64,7 +64,7 @@ procedure Test_WSDL is
    -- CB --
    --------
 
-   function CB (Request : in Status.Data) return Response.Data is
+   function CB (Request : Status.Data) return Response.Data is
       SOAPAction : constant String := Status.SOAPAction (Request);
    begin
       if SOAPAction = "sayHello" then
@@ -78,7 +78,7 @@ procedure Test_WSDL is
    -- sayHello --
    --------------
 
-   function sayHello (Firstname : in String) return String is
+   function sayHello (Firstname : String) return String is
    begin
       return "Hello " & Firstname & " and welcome!";
    end sayHello;

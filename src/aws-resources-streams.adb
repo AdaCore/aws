@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2002-2008, AdaCore                     --
+--                     Copyright (C) 2002-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -32,8 +32,8 @@ package body AWS.Resources.Streams is
    ------------
 
    procedure Create
-     (Resource :    out File_Type;
-      Stream   : in     Stream_Access) is
+     (Resource : out File_Type;
+      Stream   : Stream_Access) is
    begin
       Resource := File_Type (Stream);
    end Create;
@@ -42,7 +42,7 @@ package body AWS.Resources.Streams is
    -- Name --
    ----------
 
-   function Name (Resource : in Stream_Type) return String is
+   function Name (Resource : Stream_Type) return String is
       pragma Unreferenced (Resource);
    begin
       return "";
@@ -53,7 +53,7 @@ package body AWS.Resources.Streams is
    ----------
 
    overriding function Size
-     (Resource : in Stream_Type) return Stream_Element_Offset
+     (Resource : Stream_Type) return Stream_Element_Offset
    is
       pragma Unreferenced (Resource);
    begin

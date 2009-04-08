@@ -102,21 +102,21 @@ package body Ada2WSDL.Generator is
    Name_Spaces : NS_Maps.Map;
    NS_Num      : Natural := 0;
 
-   procedure Insert_NS (Value : in String);
+   procedure Insert_NS (Value : String);
    --  Insert a new namespace value into Name_Spaces table
 
-   function NS_Prefix (Value : in String) return String;
+   function NS_Prefix (Value : String) return String;
    --  Returns the name space prefix for the given name space value
 
-   function "+" (S : in String) return Unbounded_String
+   function "+" (S : String) return Unbounded_String
       renames To_Unbounded_String;
 
-   function "-" (S : in Unbounded_String) return String
+   function "-" (S : Unbounded_String) return String
       renames To_String;
 
-   function To_XSD (NS, Ada_Type : in String) return String;
+   function To_XSD (NS, Ada_Type : String) return String;
 
-   procedure Check_Routine (Name : in String);
+   procedure Check_Routine (Name : String);
    --  Checks the routine name, no overloading is allowed, raises
    --  Constraint_Error if name already exits.
 
@@ -124,7 +124,7 @@ package body Ada2WSDL.Generator is
    -- Check_Routine --
    -------------------
 
-   procedure Check_Routine (Name : in String) is
+   procedure Check_Routine (Name : String) is
       use Exceptions;
    begin
       for I in 1 .. Index loop
@@ -142,7 +142,7 @@ package body Ada2WSDL.Generator is
    -- Insert_NS --
    ---------------
 
-   procedure Insert_NS (Value : in String) is
+   procedure Insert_NS (Value : String) is
       P       : NS_Maps.Cursor;
       Success : Boolean;
    begin
@@ -156,7 +156,7 @@ package body Ada2WSDL.Generator is
    -- New_Component --
    -------------------
 
-   procedure New_Component (NS, Comp_Name, Comp_Type : in String) is
+   procedure New_Component (NS, Comp_Name, Comp_Type : String) is
 
       New_P       : constant Parameter_Access
         := new Parameter'(+Comp_Name, +Comp_Type,
@@ -181,7 +181,7 @@ package body Ada2WSDL.Generator is
    -- New_Formal --
    ----------------
 
-   procedure New_Formal (NS, Var_Name, Var_Type : in String) is
+   procedure New_Formal (NS, Var_Name, Var_Type : String) is
       New_P : constant Parameter_Access
         := new Parameter'
                  (+Var_Name, +Var_Type, +To_XSD (NS, Var_Type), null);
@@ -205,7 +205,7 @@ package body Ada2WSDL.Generator is
    -- New_Literal --
    -----------------
 
-   procedure New_Literal (Name : in String) is
+   procedure New_Literal (Name : String) is
       New_P : constant Parameter_Access
         := new Parameter'(+Name, +"", +"", null);
    begin
@@ -226,7 +226,7 @@ package body Ada2WSDL.Generator is
    -- NS_Prefix --
    ---------------
 
-   function NS_Prefix (Value : in String) return String is
+   function NS_Prefix (Value : String) return String is
       use AWS;
    begin
       if Value = "" then
@@ -240,7 +240,7 @@ package body Ada2WSDL.Generator is
    -- Register_Derived --
    ----------------------
 
-   procedure Register_Derived (NS, Name, Parent_Name : in String) is
+   procedure Register_Derived (NS, Name, Parent_Name : String) is
       New_P : constant Parameter_Access :=
                 new Parameter'
                   (+Name, +Parent_Name, +To_XSD (NS, Parent_Name), null);
@@ -274,7 +274,7 @@ package body Ada2WSDL.Generator is
    ---------------------------
 
    procedure Register_Safe_Pointer
-     (Name, Type_Name, Access_Name : in String)
+     (Name, Type_Name, Access_Name : String)
    is
       use Exceptions;
       D : Definition (Safe_Pointer_Definition);
@@ -303,7 +303,7 @@ package body Ada2WSDL.Generator is
    -- Register_Type --
    -------------------
 
-   procedure Register_Type (NS, Name, Root_Name : in String) is
+   procedure Register_Type (NS, Name, Root_Name : String) is
       New_P : constant Parameter_Access :=
                 new Parameter'
                   (+Name, +Root_Name, +To_XSD (NS, Root_Name), null);
@@ -336,7 +336,7 @@ package body Ada2WSDL.Generator is
    -- Return_Type --
    -----------------
 
-   procedure Return_Type (NS, Name : in String) is
+   procedure Return_Type (NS, Name : String) is
       New_P : constant Parameter_Access
         := new Parameter'(+"Result", +Name, +To_XSD (NS, Name), null);
    begin
@@ -353,8 +353,8 @@ package body Ada2WSDL.Generator is
    -----------------
 
    procedure Start_Array
-     (NS, Name, Component_Type : in String;
-      Length                   : in Natural := 0)
+     (NS, Name, Component_Type : String;
+      Length                   : Natural := 0)
    is
       New_P : constant Parameter_Access
         := new Parameter'(+"item", +Component_Type,
@@ -398,7 +398,7 @@ package body Ada2WSDL.Generator is
    -- Start_Enumeration --
    -----------------------
 
-   procedure Start_Enumeration (NS, Name : in String) is
+   procedure Start_Enumeration (NS, Name : String) is
       D : Definition (Enumeration);
    begin
       --  We need to write a schema for this derived type
@@ -422,7 +422,7 @@ package body Ada2WSDL.Generator is
    -- Start_Record --
    ------------------
 
-   procedure Start_Record (NS, Name : in String) is
+   procedure Start_Record (NS, Name : String) is
       D : Definition (Structure);
    begin
       --  We need to write a schema for this record
@@ -445,7 +445,7 @@ package body Ada2WSDL.Generator is
    -- Start_Routine --
    -------------------
 
-   procedure Start_Routine (Name, Comment : in String) is
+   procedure Start_Routine (Name, Comment : String) is
       D : Definition (Routine);
    begin
       Check_Routine (Name);
@@ -464,7 +464,7 @@ package body Ada2WSDL.Generator is
    -- To_XSD --
    ------------
 
-   function To_XSD (NS, Ada_Type : in String) return String is
+   function To_XSD (NS, Ada_Type : String) return String is
       P        : WSDL.Parameter_Type;
       Standard : Boolean;
    begin
@@ -496,7 +496,7 @@ package body Ada2WSDL.Generator is
    -- Type_Exists --
    -----------------
 
-   function Type_Exists (NS, Name : in String) return Boolean is
+   function Type_Exists (NS, Name : String) return Boolean is
    begin
       for I in 1 .. Index loop
          if API (I).Def_Mode = Structure
@@ -517,7 +517,7 @@ package body Ada2WSDL.Generator is
    -- Write --
    -----------
 
-   procedure Write (Filename : in String) is
+   procedure Write (Filename : String) is
 
       use Ada.Text_IO;
 
@@ -554,13 +554,13 @@ package body Ada2WSDL.Generator is
 
       procedure Write_Binding is
 
-         procedure Write_Operation (R : in Definition);
+         procedure Write_Operation (R : Definition);
 
          ---------------------
          -- Write_Operation --
          ---------------------
 
-         procedure Write_Operation (R : in Definition) is
+         procedure Write_Operation (R : Definition) is
 
             procedure Write_SOAP_Body;
 
@@ -674,21 +674,21 @@ package body Ada2WSDL.Generator is
 
       procedure Write_Messages is
 
-         procedure Write_Message (R : in Definition);
+         procedure Write_Message (R : Definition);
 
          ---------------------
          -- Write_Operation --
          ---------------------
 
-         procedure Write_Message (R : in Definition) is
+         procedure Write_Message (R : Definition) is
 
-            procedure Write_Part (P : in Parameter_Access);
+            procedure Write_Part (P : Parameter_Access);
 
             ----------------
             -- Write_Part --
             ----------------
 
-            procedure Write_Part (P : in Parameter_Access) is
+            procedure Write_Part (P : Parameter_Access) is
                A : Parameter_Access := P;
             begin
                while A /= null loop
@@ -733,13 +733,13 @@ package body Ada2WSDL.Generator is
 
       procedure Write_Port_Type is
 
-         procedure Write_Operation (R : in Definition);
+         procedure Write_Operation (R : Definition);
 
          ---------------------
          -- Write_Operation --
          ---------------------
 
-         procedure Write_Operation (R : in Definition) is
+         procedure Write_Operation (R : Definition) is
 
             Name : constant String := -R.Name;
 
@@ -791,16 +791,16 @@ package body Ada2WSDL.Generator is
 
       procedure Write_Schema is
 
-         procedure Write_Array (E : in Definition);
+         procedure Write_Array (E : Definition);
          --  Write array element tags
 
-         procedure Write_Record (E : in Definition);
+         procedure Write_Record (E : Definition);
          --  Write record element tags
 
-         procedure Write_Type (E : in Definition);
+         procedure Write_Type (E : Definition);
          --  Write a derived type (simpleType)
 
-         procedure Write_Enumeration (E : in Definition);
+         procedure Write_Enumeration (E : Definition);
          --  Write an enumeration type definition (simpleType)
 
          procedure Write_Character;
@@ -810,7 +810,7 @@ package body Ada2WSDL.Generator is
          -- Write_Array --
          -----------------
 
-         procedure Write_Array (E : in Definition) is
+         procedure Write_Array (E : Definition) is
 
             function Array_Constraint return String;
             --  Returns the array constaint
@@ -866,7 +866,7 @@ package body Ada2WSDL.Generator is
          -- Write_Enumeration --
          -----------------------
 
-         procedure Write_Enumeration (E : in Definition) is
+         procedure Write_Enumeration (E : Definition) is
             P : Parameter_Access := E.Parameters;
          begin
             New_Line;
@@ -888,7 +888,7 @@ package body Ada2WSDL.Generator is
          -- Write_Record --
          ------------------
 
-         procedure Write_Record (E : in Definition) is
+         procedure Write_Record (E : Definition) is
             P : Parameter_Access := E.Parameters;
          begin
             New_Line;
@@ -910,7 +910,7 @@ package body Ada2WSDL.Generator is
          -- Write_Type --
          ----------------
 
-         procedure Write_Type (E : in Definition) is
+         procedure Write_Type (E : Definition) is
             P : constant Parameter_Access := E.Parameters;
          begin
             New_Line;

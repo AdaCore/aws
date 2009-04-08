@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2004-2008, AdaCore                     --
+--                     Copyright (C) 2004-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -39,12 +39,12 @@ package body AWS.Services.Split_Pages.Alpha is
    ---------------------
 
    overriding function Get_Page_Ranges
-     (This  : in Splitter;
-      Table : in Templates.Translate_Set) return Ranges_Table
+     (This  : Splitter;
+      Table : Templates.Translate_Set) return Ranges_Table
    is
       use Templates;
 
-      procedure Set_Entry (C : in Character; Index : in Natural);
+      procedure Set_Entry (C : Character; Index : Natural);
       --  Set index for character C entry
 
       Self    : Splitter renames Splitter (This.Self.all);
@@ -58,7 +58,7 @@ package body AWS.Services.Split_Pages.Alpha is
       -- Set_Entry --
       ---------------
 
-      procedure Set_Entry (C : in Character; Index : in Natural) is
+      procedure Set_Entry (C : Character; Index : Natural) is
       begin
          if C < Initial then
             --  Not sorted
@@ -149,15 +149,15 @@ package body AWS.Services.Split_Pages.Alpha is
    ----------------------
 
    overriding function Get_Translations
-     (This   : in Splitter;
-      Page   : in Positive;
-      URIs   : in URI_Table;
-      Ranges : in Ranges_Table) return Templates.Translate_Set
+     (This   : Splitter;
+      Page   : Positive;
+      URIs   : URI_Table;
+      Ranges : Ranges_Table) return Templates.Translate_Set
    is
       use Templates;
       pragma Unreferenced (Ranges);
 
-      procedure Add_Entry (Index : in Natural);
+      procedure Add_Entry (Index : Natural);
       --  Append entry for the given index into the hrefs vector
 
       Self     : Splitter renames Splitter (This.Self.all);
@@ -169,7 +169,7 @@ package body AWS.Services.Split_Pages.Alpha is
       -- Add_Entry --
       ---------------
 
-      procedure Add_Entry (Index : in Natural) is
+      procedure Add_Entry (Index : Natural) is
       begin
          if Index = 0 then
             --  This entry has no element
@@ -239,7 +239,7 @@ package body AWS.Services.Split_Pages.Alpha is
    ----------------------
 
    procedure Set_Default_Href
-     (This : in out Splitter; Href : in String) is
+     (This : in out Splitter; Href : String) is
    begin
       This.Default_Href := To_Unbounded_String (Href);
    end Set_Default_Href;
@@ -248,7 +248,7 @@ package body AWS.Services.Split_Pages.Alpha is
    -- Set_Key --
    -------------
 
-   procedure Set_Key (This : in out Splitter; Key : in String) is
+   procedure Set_Key (This : in out Splitter; Key : String) is
    begin
       This.Key := To_Unbounded_String (Key);
    end Set_Key;

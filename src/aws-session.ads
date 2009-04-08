@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2008, AdaCore                     --
+--                     Copyright (C) 2000-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -38,7 +38,7 @@ package AWS.Session is
    function Create return Id;
    --  Create a new uniq Session Id
 
-   procedure Delete (SID : in Id);
+   procedure Delete (SID : Id);
    --  Delete session, does nothing if SID does not exists.
    --  In most cases, the client browser will still send the cookie identifying
    --  the session on its next request. In such a case, the function
@@ -48,56 +48,56 @@ package AWS.Session is
    --  AWS.Response.Set.Clear_Session when you send a response to the customer
    --  after deleting the session, so that the cookie is not sent again.
 
-   function Delete_If_Empty (SID : in Id) return Boolean;
+   function Delete_If_Empty (SID : Id) return Boolean;
    --  Delete session only if there is no key/value pairs.
    --  Returns True if session deleted.
    --  Need to delete not used just created session to avoid too many empty
    --  session creation.
 
-   function Image (SID : in Id) return String;
+   function Image (SID : Id) return String;
    pragma Inline (Image);
    --  Return ID image
 
-   function Value (SID : in String) return Id;
+   function Value (SID : String) return Id;
    pragma Inline (Value);
    --  Build an ID from a String, returns No_Session if SID is not recongnized
    --  as an AWS session ID.
 
-   function Exist (SID : in Id) return Boolean;
+   function Exist (SID : Id) return Boolean;
    --  Returns True if SID exist
 
-   procedure Touch (SID : in Id);
+   procedure Touch (SID : Id);
    --  Update to current time the timestamp associated with SID. Does nothing
    --  if SID does not exists.
 
-   procedure Set (SID : in Id; Key : in String; Value : in String);
+   procedure Set (SID : Id; Key : String; Value : String);
    --  Set key/value pair for the SID
 
-   procedure Set (SID : in Id; Key : in String; Value : in Integer);
+   procedure Set (SID : Id; Key : String; Value : Integer);
    --  Set key/value pair for the SID
 
-   procedure Set (SID : in Id; Key : in String; Value : in Float);
+   procedure Set (SID : Id; Key : String; Value : Float);
    --  Set key/value pair for the SID
 
-   procedure Set (SID : in Id; Key : in String; Value : in Boolean);
+   procedure Set (SID : Id; Key : String; Value : Boolean);
    --  Set key/value pair for the SID
 
-   function Get (SID : in Id; Key : in String) return String;
+   function Get (SID : Id; Key : String) return String;
    pragma Inline (Get);
    --  Returns the Value for Key in the session SID or the emptry string if
    --  key does not exist.
 
-   function Get (SID : in Id; Key : in String) return Integer;
+   function Get (SID : Id; Key : String) return Integer;
    pragma Inline (Get);
    --  Returns the Value for Key in the session SID or the integer value 0 if
    --  key does not exist or is not an integer.
 
-   function Get (SID : in Id; Key : in String) return Float;
+   function Get (SID : Id; Key : String) return Float;
    pragma Inline (Get);
    --  Returns the Value for Key in the session SID or the float value 0.0 if
    --  key does not exist or is not a float.
 
-   function Get (SID : in Id; Key : in String) return Boolean;
+   function Get (SID : Id; Key : String) return Boolean;
    pragma Inline (Get);
    --  Returns the Value for Key in the session SID or the boolean False if
    --  key does not exist or is not a boolean.
@@ -107,20 +107,20 @@ package AWS.Session is
       Null_Data : Data;
    package Generic_Data is
 
-      procedure Set (SID : in Id; Key : in String; Value : in Data);
+      procedure Set (SID : Id; Key : String; Value : Data);
       --  Set key/value pair for the SID
 
-      function Get (SID : in Id; Key : in String) return Data;
+      function Get (SID : Id; Key : String) return Data;
       pragma Inline (Get);
       --  Returns the Value for Key in the session SID or Null_Data if
       --  key does not exist.
 
    end Generic_Data;
 
-   procedure Remove (SID : in Id; Key : in String);
+   procedure Remove (SID : Id; Key : String);
    --  Removes Key from the specified session
 
-   function Exist (SID : in Id; Key : in String) return Boolean;
+   function Exist (SID : Id; Key : String) return Boolean;
    --  Returns True if Key exist in session SID
 
    function Server_Count return Natural;
@@ -129,7 +129,7 @@ package AWS.Session is
    function Length return Natural;
    --  Returns number of sessions
 
-   function Length (SID : in Id) return Natural;
+   function Length (SID : Id) return Natural;
    --  Returns number of key/value pairs in session SID
 
    procedure Clear;
@@ -141,9 +141,9 @@ package AWS.Session is
 
    generic
       with procedure Action
-        (N          : in     Positive;
-         SID        : in     Id;
-         Time_Stamp : in     Ada.Calendar.Time;
+        (N          : Positive;
+         SID        : Id;
+         Time_Stamp : Ada.Calendar.Time;
          Quit       : in out Boolean);
    procedure For_Every_Session;
    --  Iterator which call Action for every active session. N is the SID
@@ -156,10 +156,10 @@ package AWS.Session is
 
    generic
       with procedure Action
-        (N          : in     Positive;
-         Key, Value : in     String;
+        (N          : Positive;
+         Key, Value : String;
          Quit       : in out Boolean);
-   procedure For_Every_Session_Data (SID : in Id);
+   procedure For_Every_Session_Data (SID : Id);
    --  Iterator which returns all the key/value pair defined for session SID.
    --  Quit is set to False by default, it is possible to control the iterator
    --  termination by setting its value to True. Note that in the Action
@@ -171,14 +171,14 @@ package AWS.Session is
    -- Lifetime --
    --------------
 
-   procedure Set_Lifetime (Seconds : in Duration);
+   procedure Set_Lifetime (Seconds : Duration);
    --  Set the lifetime for session data. At the point a session is deleted,
    --  reusing the session ID makes AWS.Status.Session_Timed_Out return True.
 
    function Get_Lifetime return Duration;
    --  Get current session lifetime for session data
 
-   function Has_Expired (SID : in Id) return Boolean;
+   function Has_Expired (SID : Id) return Boolean;
    --  Returns true if SID should be considered as expired (ie there hasn't
    --  been any transaction on it since Get_Lifetime seconds. Such a session
    --  should be deleted. Calling this function is mostly internal to AWS, and
@@ -188,10 +188,10 @@ package AWS.Session is
    -- Session Callback --
    ----------------------
 
-   type Callback is access procedure (SID : in Id);
+   type Callback is access procedure (SID : Id);
    --  Callback procedure called when a sesssion is deleted from the server
 
-   procedure Set_Callback (Callback : in Session.Callback);
+   procedure Set_Callback (Callback : Session.Callback);
    --  Set the callback procedure to call when a session is deleted from the
    --  server. If Callback is Null the session's callback will be removed.
 
@@ -199,10 +199,10 @@ package AWS.Session is
    -- Session IO --
    ----------------
 
-   procedure Save (File_Name : in String);
+   procedure Save (File_Name : String);
    --  Save all sessions data into File_Name
 
-   procedure Load (File_Name : in String);
+   procedure Load (File_Name : String);
    --  Restore all sessions data from File_Name
 
 private
@@ -227,7 +227,7 @@ private
 
    protected Cleaner_Control is
 
-      procedure Start (Check_Interval : in Duration; Lifetime : in Duration);
+      procedure Start (Check_Interval : Duration; Lifetime : Duration);
       --  Launch the cleaner task the first time and does nothing after
 
       procedure Stop (Need_Release : out Boolean);

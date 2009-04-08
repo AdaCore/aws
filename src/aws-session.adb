@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2008, AdaCore                     --
+--                     Copyright (C) 2000-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -67,16 +67,16 @@ package body AWS.Session is
       Root       : Key_Value_Set_Access;
    end record;
 
-   function To_Hash (SID : in Id) return Ada.Containers.Hash_Type;
+   function To_Hash (SID : Id) return Ada.Containers.Hash_Type;
 
    package Session_Set is new Ada.Containers.Hashed_Maps
      (Id, Session_Node, To_Hash, "=");
 
    procedure Get_Node
      (Sessions : in out Session_Set.Map;
-      SID      : in     Id;
-      Node     :    out Session_Node;
-      Found    :    out Boolean);
+      SID      : Id;
+      Node     : out Session_Node;
+      Found    : out Boolean);
    --  Returns Node for specified SID, if found update the timestamp for
    --  this node and set Found to True, otherwise set Found to False.
 
@@ -92,14 +92,14 @@ package body AWS.Session is
 
    overriding procedure Read
      (Stream : in out String_Stream_Type;
-      Item   :    out Stream_Element_Array;
-      Last   :    out Stream_Element_Offset);
+      Item   : out Stream_Element_Array;
+      Last   : out Stream_Element_Offset);
 
    overriding procedure Write
-     (Stream : in out String_Stream_Type; Item : in Stream_Element_Array);
+     (Stream : in out String_Stream_Type; Item : Stream_Element_Array);
    --  See inherited documentation
 
-   procedure Open (Stream : in out String_Stream_Type'Class; Str : in String);
+   procedure Open (Stream : in out String_Stream_Type'Class; Str : String);
    --  Open a new string. Str is the initial value of the string, to which will
    --  be appended the result of 'Output.
 
@@ -120,46 +120,46 @@ package body AWS.Session is
 
    protected Database is
 
-      entry Add_Session (SID : in Id);
+      entry Add_Session (SID : Id);
       --  Add a new session ID into the database
 
       entry New_Session (SID : out Id);
       --  Add a new session SID into the database
 
-      entry Delete_Session (SID : in Id);
+      entry Delete_Session (SID : Id);
       --  Removes session SID from the database
 
-      entry Delete_If_Empty (SID : in Id; Removed : out Boolean);
+      entry Delete_If_Empty (SID : Id; Removed : out Boolean);
       --  Removes session SID only if there is no key/value pairs
 
-      function Session_Exist (SID : in Id) return Boolean;
+      function Session_Exist (SID : Id) return Boolean;
       --  Returns True if session SID exist in the database
 
-      function Session_Has_Expired (SID : in Id) return Boolean;
+      function Session_Has_Expired (SID : Id) return Boolean;
       --  Returns True if session SID has exceeded its lifetime
 
       function Length return Natural;
       --  Returns number of sessions in database
 
-      function Length (SID : in Id) return Natural;
+      function Length (SID : Id) return Natural;
       --  Returns number of key/value pairs in session SID
 
-      procedure Touch_Session (SID : in Id);
+      procedure Touch_Session (SID : Id);
       --  Updates the session Time_Stamp to current time. Does nothing if SID
       --  does not exist.
 
-      procedure Key_Exist (SID : in Id; Key : in String; Result : out Boolean);
+      procedure Key_Exist (SID : Id; Key : String; Result : out Boolean);
       --  Result is set to True if Key_Name exist in session SID
 
       procedure Get_Value
-        (SID : in Id; Key : in String; Value : out Unbounded_String);
+        (SID : Id; Key : String; Value : out Unbounded_String);
       --  Value is set with the value associated with the key Key_Name in
       --  session SID.
 
-      entry Set_Value (SID : in Id; Key, Value : in String);
+      entry Set_Value (SID : Id; Key, Value : String);
       --  Add the pair key/value into the session SID
 
-      entry Remove_Key (SID : in Id;  Key : in String);
+      entry Remove_Key (SID : Id;  Key : String);
       --  Removes Key from the session SID
 
       --
@@ -181,7 +181,7 @@ package body AWS.Session is
       --  Get_Value, Session_Exist). Returns the Sessions tree first position.
 
       procedure Lock_And_Get_Session
-        (SID : in Id; Node : out Session_Node; Found : out Boolean);
+        (SID : Id; Node : out Session_Node; Found : out Boolean);
       --  Increment Lock by 1, all entries modifying data are locked. Routines
       --  reading values from the database can still be called (Key_Exist,
       --  Get_Value, Session_Exist). Returns the Session node.
@@ -312,7 +312,7 @@ package body AWS.Session is
       -- Start --
       -----------
 
-      procedure Start (Check_Interval : in Duration; Lifetime : in Duration) is
+      procedure Start (Check_Interval : Duration; Lifetime : Duration) is
       begin
          S_Count := S_Count + 1;
 
@@ -350,7 +350,7 @@ package body AWS.Session is
       -- Add_Session --
       -----------------
 
-      entry Add_Session (SID : in Id) when Lock_Counter = 0 is
+      entry Add_Session (SID : Id) when Lock_Counter = 0 is
          New_Node : Session_Node;
          Cursor   : Session_Set.Cursor;
          Success  : Boolean;
@@ -370,7 +370,7 @@ package body AWS.Session is
       ---------------------
 
       entry Delete_If_Empty
-        (SID : in Id; Removed : out Boolean) when Lock_Counter = 0
+        (SID : Id; Removed : out Boolean) when Lock_Counter = 0
       is
          use type Ada.Containers.Count_Type;
          Cursor : Session_Set.Cursor := Sessions.Find (SID);
@@ -395,7 +395,7 @@ package body AWS.Session is
       -- Delete_Session --
       --------------------
 
-      entry Delete_Session (SID : in Id) when Lock_Counter = 0 is
+      entry Delete_Session (SID : Id) when Lock_Counter = 0 is
          Cursor : Session_Set.Cursor := Sessions.Find (SID);
          Node   : Session_Node;
       begin
@@ -412,13 +412,13 @@ package body AWS.Session is
 
       procedure Destroy is
 
-         procedure Destroy (Cursor : in Session_Set.Cursor);
+         procedure Destroy (Cursor : Session_Set.Cursor);
 
          -------------
          -- Destroy --
          -------------
 
-         procedure Destroy (Cursor : in Session_Set.Cursor) is
+         procedure Destroy (Cursor : Session_Set.Cursor) is
             Item : Session_Node := Session_Set.Element (Cursor);
          begin
             Free (Item.Root);
@@ -434,7 +434,7 @@ package body AWS.Session is
       ---------------
 
       procedure Get_Value
-        (SID : in Id; Key : in String; Value : out Unbounded_String)
+        (SID : Id; Key : String; Value : out Unbounded_String)
       is
          Node   : Session_Node;
          Found  : Boolean;
@@ -460,7 +460,7 @@ package body AWS.Session is
       ---------------
 
       procedure Key_Exist
-        (SID : in Id; Key : in String; Result : out Boolean)
+        (SID : Id; Key : String; Result : out Boolean)
       is
          Node : Session_Node;
       begin
@@ -480,7 +480,7 @@ package body AWS.Session is
          return Natural (Sessions.Length);
       end Length;
 
-      function Length (SID : in Id) return Natural is
+      function Length (SID : Id) return Natural is
          C : constant Session_Set.Cursor := Sessions.Find (SID);
       begin
          if Session_Set.Has_Element (C) then
@@ -495,7 +495,7 @@ package body AWS.Session is
       --------------------------
 
       procedure Lock_And_Get_Session
-        (SID : in Id; Node : out Session_Node; Found : out Boolean)
+        (SID : Id; Node : out Session_Node; Found : out Boolean)
       is
          C : constant Session_Set.Cursor := Sessions.Find (SID);
       begin
@@ -600,7 +600,7 @@ package body AWS.Session is
       -- Remove --
       ------------
 
-      entry Remove_Key (SID : in Id; Key : in String) when Lock_Counter = 0 is
+      entry Remove_Key (SID : Id; Key : String) when Lock_Counter = 0 is
          Node   : Session_Node;
          Found  : Boolean;
       begin
@@ -615,7 +615,7 @@ package body AWS.Session is
       -- Session_Exist --
       -------------------
 
-      function Session_Exist (SID : in Id) return Boolean is
+      function Session_Exist (SID : Id) return Boolean is
       begin
          return Sessions.Contains (SID);
       end Session_Exist;
@@ -624,7 +624,7 @@ package body AWS.Session is
       -- Session_Has_Expired --
       -------------------------
 
-      function Session_Has_Expired (SID : in Id) return Boolean is
+      function Session_Has_Expired (SID : Id) return Boolean is
          use type Real_Time.Time;
          Cursor : constant Session_Set.Cursor := Sessions.Find (SID);
       begin
@@ -643,7 +643,7 @@ package body AWS.Session is
       ---------------
 
       entry Set_Value
-        (SID : in Id; Key, Value : in String) when Lock_Counter = 0
+        (SID : Id; Key, Value : String) when Lock_Counter = 0
       is
          Node   : Session_Node;
          Found  : Boolean;
@@ -659,7 +659,7 @@ package body AWS.Session is
       -- Touch_Session --
       -------------------
 
-      procedure Touch_Session (SID : in Id) is
+      procedure Touch_Session (SID : Id) is
          Node   : Session_Node;
          Found  : Boolean;
       begin
@@ -681,7 +681,7 @@ package body AWS.Session is
    -- Delete --
    ------------
 
-   procedure Delete (SID : in Id) is
+   procedure Delete (SID : Id) is
    begin
       Database.Delete_Session (SID);
    end Delete;
@@ -690,7 +690,7 @@ package body AWS.Session is
    -- Delete_If_Empty --
    ---------------------
 
-   function Delete_If_Empty (SID : in Id) return Boolean is
+   function Delete_If_Empty (SID : Id) return Boolean is
       Removed : Boolean;
    begin
       Database.Delete_If_Empty (SID, Removed);
@@ -701,12 +701,12 @@ package body AWS.Session is
    -- Exist --
    -----------
 
-   function Exist (SID : in Id) return Boolean is
+   function Exist (SID : Id) return Boolean is
    begin
       return Database.Session_Exist (SID);
    end Exist;
 
-   function Exist (SID : in Id; Key : in String) return Boolean is
+   function Exist (SID : Id; Key : String) return Boolean is
       Result : Boolean;
    begin
       Database.Key_Exist (SID, Key, Result);
@@ -758,9 +758,9 @@ package body AWS.Session is
    -- For_Every_Session_Data --
    ----------------------------
 
-   procedure For_Every_Session_Data (SID : in Id) is
+   procedure For_Every_Session_Data (SID : Id) is
 
-      procedure For_Every_Data (Node : in Session_Node);
+      procedure For_Every_Data (Node : Session_Node);
       --  Iterate through all Key/Value pairs
 
       Node     : Session_Node;
@@ -772,7 +772,7 @@ package body AWS.Session is
       -- For_Every_Data --
       --------------------
 
-      procedure For_Every_Data (Node : in Session_Node) is
+      procedure For_Every_Data (Node : Session_Node) is
          Cursor : Key_Value.Cursor;
       begin
          Cursor := Key_Value.First (Node.Root.all);
@@ -814,7 +814,7 @@ package body AWS.Session is
       -- Get --
       ---------
 
-      function Get (SID : in Id; Key : in String) return Data is
+      function Get (SID : Id; Key : String) return Data is
          Result : constant String := Get (SID, Key);
          Str    : aliased String_Stream_Type;
          Value  : Data;
@@ -833,7 +833,7 @@ package body AWS.Session is
       -- Set --
       ---------
 
-      procedure Set (SID : in Id; Key : in String; Value : in Data) is
+      procedure Set (SID : Id; Key : String; Value : Data) is
          Str : aliased String_Stream_Type;
       begin
          Data'Write (Str'Access, Value);
@@ -846,14 +846,14 @@ package body AWS.Session is
    -- Get --
    ---------
 
-   function Get (SID : in Id; Key : in String) return String is
+   function Get (SID : Id; Key : String) return String is
       Value : Unbounded_String;
    begin
       Database.Get_Value (SID, Key, Value);
       return To_String (Value);
    end Get;
 
-   function Get (SID : in Id; Key : in String) return Integer is
+   function Get (SID : Id; Key : String) return Integer is
       Value : constant String := Get (SID, Key);
    begin
       return Integer'Value (Value);
@@ -862,7 +862,7 @@ package body AWS.Session is
          return 0;
    end Get;
 
-   function Get (SID : in Id; Key : in String) return Float is
+   function Get (SID : Id; Key : String) return Float is
       Value : constant String := Get (SID, Key);
    begin
       return Float'Value (Value);
@@ -871,7 +871,7 @@ package body AWS.Session is
          return 0.0;
    end Get;
 
-   function Get (SID : in Id; Key : in String) return Boolean is
+   function Get (SID : Id; Key : String) return Boolean is
    begin
       return Get (SID, Key) = "T";
    end Get;
@@ -891,19 +891,19 @@ package body AWS.Session is
 
    procedure Get_Node
      (Sessions : in out Session_Set.Map;
-      SID      : in     Id;
-      Node     :    out Session_Node;
-      Found    :    out Boolean)
+      SID      : Id;
+      Node     : out Session_Node;
+      Found    : out Boolean)
    is
       Cursor : constant Session_Set.Cursor := Sessions.Find (SID);
 
-      procedure Process (Key : in Id; Item : in out Session_Node);
+      procedure Process (Key : Id; Item : in out Session_Node);
 
       -------------
       -- Process --
       -------------
 
-      procedure Process (Key : in Id; Item : in out Session_Node) is
+      procedure Process (Key : Id; Item : in out Session_Node) is
          pragma Unreferenced (Key);
       begin
          Item.Time_Stamp := Real_Time.Clock;
@@ -922,7 +922,7 @@ package body AWS.Session is
    -- Has_Expired --
    -----------------
 
-   function Has_Expired (SID : in Id) return Boolean is
+   function Has_Expired (SID : Id) return Boolean is
    begin
       return Database.Session_Has_Expired (SID);
    end Has_Expired;
@@ -931,7 +931,7 @@ package body AWS.Session is
    -- Image --
    -----------
 
-   function Image (SID : in Id) return String is
+   function Image (SID : Id) return String is
    begin
       return SID_Prefix & String (SID);
    end Image;
@@ -945,7 +945,7 @@ package body AWS.Session is
       return Database.Length;
    end Length;
 
-   function Length (SID : in Id) return Natural is
+   function Length (SID : Id) return Natural is
    begin
       return Database.Length (SID);
    end Length;
@@ -954,7 +954,7 @@ package body AWS.Session is
    -- Load --
    ----------
 
-   procedure Load (File_Name : in String) is
+   procedure Load (File_Name : String) is
       use Ada.Streams.Stream_IO;
       File       : File_Type;
       Stream_Ptr : Stream_Access;
@@ -993,7 +993,7 @@ package body AWS.Session is
    ----------
 
    procedure Open
-     (Stream : in out String_Stream_Type'Class; Str : in String) is
+     (Stream : in out String_Stream_Type'Class; Str : String) is
    begin
       Stream.Str        := To_Unbounded_String (Str);
       Stream.Read_Index := 1;
@@ -1005,8 +1005,8 @@ package body AWS.Session is
 
    overriding procedure Read
      (Stream : in out String_Stream_Type;
-      Item   :    out Stream_Element_Array;
-      Last   :    out Stream_Element_Offset)
+      Item   : out Stream_Element_Array;
+      Last   : out Stream_Element_Offset)
    is
       Str : constant String := Slice
         (Stream.Str, Stream.Read_Index, Stream.Read_Index + Item'Length - 1);
@@ -1024,7 +1024,7 @@ package body AWS.Session is
    -- Remove --
    ------------
 
-   procedure Remove (SID : in Id; Key : in String) is
+   procedure Remove (SID : Id; Key : String) is
    begin
       Database.Remove_Key (SID, Key);
    end Remove;
@@ -1033,7 +1033,7 @@ package body AWS.Session is
    -- Save --
    ----------
 
-   procedure Save (File_Name : in String) is
+   procedure Save (File_Name : String) is
       use Ada.Streams.Stream_IO;
 
       File       : File_Type;
@@ -1049,14 +1049,14 @@ package body AWS.Session is
       procedure Process_Session  is
          Node : constant Session_Node := Session_Set.Element (Position);
 
-         procedure Process (C : in Key_Value.Cursor);
+         procedure Process (C : Key_Value.Cursor);
          --  Callback for each key/value pair for a specific session
 
          -------------
          -- Process --
          -------------
 
-         procedure Process (C : in Key_Value.Cursor) is
+         procedure Process (C : Key_Value.Cursor) is
          begin
             String'Output (Stream_Ptr, Key_Value.Key (C));
             String'Output (Stream_Ptr, Key_Value.Element (C));
@@ -1110,12 +1110,12 @@ package body AWS.Session is
    -- Set --
    ---------
 
-   procedure Set (SID : in Id; Key : in String; Value : in String) is
+   procedure Set (SID : Id; Key : String; Value : String) is
    begin
       Database.Set_Value (SID, Key, Value);
    end Set;
 
-   procedure Set (SID : in Id; Key : in String; Value : in Integer) is
+   procedure Set (SID : Id; Key : String; Value : Integer) is
       V : constant String := Integer'Image (Value);
    begin
       if V (1) = ' ' then
@@ -1125,7 +1125,7 @@ package body AWS.Session is
       end if;
    end Set;
 
-   procedure Set (SID : in Id; Key : in String; Value : in Float) is
+   procedure Set (SID : Id; Key : String; Value : Float) is
       V : constant String := Float'Image (Value);
    begin
       if V (1) = ' ' then
@@ -1135,7 +1135,7 @@ package body AWS.Session is
       end if;
    end Set;
 
-   procedure Set (SID : in Id; Key : in String; Value : in Boolean) is
+   procedure Set (SID : Id; Key : String; Value : Boolean) is
       V : String (1 .. 1);
    begin
       if Value then
@@ -1151,7 +1151,7 @@ package body AWS.Session is
    -- Set__Callback --
    -------------------
 
-   procedure Set_Callback (Callback : in Session.Callback) is
+   procedure Set_Callback (Callback : Session.Callback) is
    begin
       Session_Callback := Callback;
    end Set_Callback;
@@ -1160,7 +1160,7 @@ package body AWS.Session is
    -- Set_Lifetime --
    ------------------
 
-   procedure Set_Lifetime (Seconds : in Duration) is
+   procedure Set_Lifetime (Seconds : Duration) is
    begin
       Lifetime := Real_Time.To_Time_Span (Seconds);
    end Set_Lifetime;
@@ -1169,7 +1169,7 @@ package body AWS.Session is
    -- To_Hash --
    -------------
 
-   function To_Hash (SID : in Id) return Ada.Containers.Hash_Type is
+   function To_Hash (SID : Id) return Ada.Containers.Hash_Type is
    begin
       return Ada.Strings.Hash (String (SID));
    end To_Hash;
@@ -1178,7 +1178,7 @@ package body AWS.Session is
    -- Touch --
    -----------
 
-   procedure Touch (SID : in Id) is
+   procedure Touch (SID : Id) is
    begin
       Database.Touch_Session (SID);
    end Touch;
@@ -1187,7 +1187,7 @@ package body AWS.Session is
    -- Value --
    -----------
 
-   function Value (SID : in String) return Id is
+   function Value (SID : String) return Id is
    begin
       if SID'Length /= Id'Length + SID_Prefix'Length
         or else
@@ -1206,7 +1206,7 @@ package body AWS.Session is
    -----------
 
    overriding procedure Write
-     (Stream : in out String_Stream_Type; Item : in Stream_Element_Array)
+     (Stream : in out String_Stream_Type; Item : Stream_Element_Array)
    is
       Str : String (1 .. Integer (Item'Length));
       S   : Integer := Str'First;

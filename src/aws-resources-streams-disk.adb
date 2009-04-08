@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                          Copyright (C) 2003-2007                         --
---                                  AdaCore                                 --
+--                     Copyright (C) 2000-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -42,7 +41,7 @@ package body AWS.Resources.Streams.Disk is
    -----------------
 
    overriding function End_Of_File
-     (Resource : in Stream_Type) return Boolean is
+     (Resource : Stream_Type) return Boolean is
    begin
       return Resource.Current > Resource.Last
         and then Stream_IO.End_Of_File (Resource.File);
@@ -52,7 +51,7 @@ package body AWS.Resources.Streams.Disk is
    -- Name --
    ----------
 
-   overriding function Name (Resource : in Stream_Type) return String is
+   overriding function Name (Resource : Stream_Type) return String is
    begin
       return Stream_IO.Name (Resource.File);
    end Name;
@@ -62,9 +61,9 @@ package body AWS.Resources.Streams.Disk is
    ----------
 
    procedure Open
-     (File :    out Stream_Type;
-      Name : in     String;
-      Form : in     String    := "shared=no") is
+     (File : out Stream_Type;
+      Name : String;
+      Form : String    := "shared=no") is
    begin
       Stream_IO.Open
         (File.File,
@@ -79,8 +78,8 @@ package body AWS.Resources.Streams.Disk is
 
    overriding procedure Read
      (Resource : in out Stream_Type;
-      Buffer   :    out Stream_Element_Array;
-      Last     :    out Stream_Element_Offset)
+      Buffer   : out Stream_Element_Array;
+      Last     : out Stream_Element_Offset)
    is
       Buf_Len : constant Stream_Element_Offset
         := Resource.Last - Resource.Current + 1;
@@ -132,7 +131,7 @@ package body AWS.Resources.Streams.Disk is
 
    overriding procedure Set_Index
      (Resource : in out Stream_Type;
-      To       : in     Stream_Element_Offset)
+      To       : Stream_Element_Offset)
    is
       use type Stream_IO.Count;
       Size : constant Stream_Element_Offset :=
@@ -151,7 +150,7 @@ package body AWS.Resources.Streams.Disk is
    ----------
 
    overriding function Size
-     (Resource : in Stream_Type) return Stream_Element_Offset is
+     (Resource : Stream_Type) return Stream_Element_Offset is
    begin
       return Stream_Element_Offset (Stream_IO.Size (Resource.File));
    end Size;

@@ -22,15 +22,15 @@ package SOAP_Hotplug_Pack_Service.CB is
    subtype Handler is SOAP.Dispatchers.Callback.Handler;
 
    function SOAP_CB
-     (SOAPAction : in String;
-      Payload    : in Message.Payload.Object;
-      Request    : in AWS.Status.Data)
+     (SOAPAction : String;
+      Payload    : Message.Payload.Object;
+      Request    : AWS.Status.Data)
       return Response.Data;
 
    function SOAP_Hotplug_CB
-     (SOAPAction : in String;
-      Payload    : in Message.Payload.Object;
-      Request    : in AWS.Status.Data)
+     (SOAPAction : String;
+      Payload    : Message.Payload.Object;
+      Request    : AWS.Status.Data)
       return Response.Data;
    --  Use by the hotplug mode, invert call to Job1 and Job2
 

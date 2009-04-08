@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2008, AdaCore                     --
+--                     Copyright (C) 2000-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -38,7 +38,7 @@ package body SOAP.Message.Response.Error is
    Start_Fault_Env            : constant String := "<soap:Fault>";
    End_Fault_Env              : constant String := "</soap:Fault>";
 
-   function Fault_Code (Name, Subname : in String) return Faultcode;
+   function Fault_Code (Name, Subname : String) return Faultcode;
    --  Returns the Faultcode for Name and Subname. If Subname is empty it
    --  returns Name otherwise it returns Name & '.' & Subname.
 
@@ -47,8 +47,8 @@ package body SOAP.Message.Response.Error is
    -----------
 
    function Build
-     (Faultcode   : in Error.Faultcode;
-      Faultstring : in String)
+     (Faultcode   : Error.Faultcode;
+      Faultstring : String)
       return Object
    is
       use SOAP.Types;
@@ -78,7 +78,7 @@ package body SOAP.Message.Response.Error is
    -- Client --
    ------------
 
-   function Client (Subname : in String := "") return Faultcode is
+   function Client (Subname : String := "") return Faultcode is
    begin
       return Fault_Code (Client_Faultcode, Subname);
    end Client;
@@ -87,7 +87,7 @@ package body SOAP.Message.Response.Error is
    -- Fault_Code --
    ----------------
 
-   function Fault_Code (Name, Subname : in String) return Faultcode is
+   function Fault_Code (Name, Subname : String) return Faultcode is
    begin
       if Subname = "" then
          return Faultcode (Name);
@@ -101,7 +101,7 @@ package body SOAP.Message.Response.Error is
    -- From --
    ----------
 
-   overriding function From (P : in Message.Payload.Object) return Object is
+   overriding function From (P : Message.Payload.Object) return Object is
       pragma Unreferenced (P);
       N : Object;
    begin
@@ -112,7 +112,7 @@ package body SOAP.Message.Response.Error is
    -- Is_Error --
    --------------
 
-   overriding function Is_Error (E : in Object) return Boolean is
+   overriding function Is_Error (E : Object) return Boolean is
       pragma Unreferenced (E);
    begin
       return True;
@@ -122,7 +122,7 @@ package body SOAP.Message.Response.Error is
    -- Must_Understand --
    ---------------------
 
-   function Must_Understand (Subname : in String := "") return Faultcode is
+   function Must_Understand (Subname : String := "") return Faultcode is
    begin
       return Fault_Code (Must_Understand_Faultcode, Subname);
    end Must_Understand;
@@ -131,7 +131,7 @@ package body SOAP.Message.Response.Error is
    -- Server --
    ------------
 
-   function Server (Subname : in String := "") return Faultcode is
+   function Server (Subname : String := "") return Faultcode is
    begin
       return Fault_Code (Server_Faultcode, Subname);
    end Server;
@@ -140,7 +140,7 @@ package body SOAP.Message.Response.Error is
    -- Version_Mismatch --
    ----------------------
 
-   function Version_Mismatch (Subname : in String := "") return Faultcode is
+   function Version_Mismatch (Subname : String := "") return Faultcode is
    begin
       return Fault_Code (Version_Mismatch_Faultcode, Subname);
    end Version_Mismatch;
@@ -149,7 +149,7 @@ package body SOAP.Message.Response.Error is
    -- XML_Image --
    ---------------
 
-   overriding function XML_Image (E : in Object) return Unbounded_String is
+   overriding function XML_Image (E : Object) return Unbounded_String is
       NL           : constant String := ASCII.CR & ASCII.LF;
       Message_Body : Unbounded_String;
 

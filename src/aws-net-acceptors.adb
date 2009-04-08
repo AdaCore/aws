@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                   Copyright (C) 2005-2008, AdaCore                       --
+--                   Copyright (C) 2005-2009, AdaCore                       --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -43,7 +43,7 @@ package body AWS.Net.Acceptors is
      (Acceptor : in out Acceptor_Type;
       Socket   : out    Socket_Access;
       On_Error : access procedure
-        (E : in Ada.Exceptions.Exception_Occurrence) := null)
+        (E : Ada.Exceptions.Exception_Occurrence) := null)
    is
       use type Sets.Socket_Count;
 
@@ -282,7 +282,7 @@ package body AWS.Net.Acceptors is
    ---------------
 
    procedure Give_Back
-     (Acceptor : in out Acceptor_Type; Socket : in Socket_Access) is
+     (Acceptor : in out Acceptor_Type; Socket : Socket_Access) is
    begin
       Acceptor.W_Signal.Send ((1 => Socket_Command));
 
@@ -300,7 +300,7 @@ package body AWS.Net.Acceptors is
    -- Length --
    ------------
 
-   function Length (Acceptor : in Acceptor_Type) return Natural is
+   function Length (Acceptor : Acceptor_Type) return Natural is
    begin
       return Natural (Sets.Count (Acceptor.Set));
    end Length;
@@ -311,20 +311,20 @@ package body AWS.Net.Acceptors is
 
    procedure Listen
      (Acceptor            : in out Acceptor_Type;
-      Host                : in     String;
-      Port                : in     Natural;
-      Queue_Size          : in     Positive;
-      Timeout             : in     Duration := Forever;
-      First_Timeout       : in     Duration := Forever;
-      Force_Timeout       : in     Duration := Forever;
-      Force_First_Timeout : in     Duration := Forever;
-      Force_Length        : in     Positive := Positive'Last;
-      Close_Length        : in     Positive := Positive'Last;
-      Reuse_Address       : in     Boolean  := False)
+      Host                : String;
+      Port                : Natural;
+      Queue_Size          : Positive;
+      Timeout             : Duration := Forever;
+      First_Timeout       : Duration := Forever;
+      Force_Timeout       : Duration := Forever;
+      Force_First_Timeout : Duration := Forever;
+      Force_Length        : Positive := Positive'Last;
+      Close_Length        : Positive := Positive'Last;
+      Reuse_Address       : Boolean  := False)
    is
       use type Sets.Socket_Count;
 
-      function Correct_2 (Item : in Positive) return Sets.Socket_Count;
+      function Correct_2 (Item : Positive) return Sets.Socket_Count;
       pragma Inline (Correct_2);
       --  Take in account 2 auxiliary sockets, Server and R_Signal
 
@@ -335,7 +335,7 @@ package body AWS.Net.Acceptors is
       -- Correct_2 --
       ---------------
 
-      function Correct_2 (Item : in Positive) return Sets.Socket_Count is
+      function Correct_2 (Item : Positive) return Sets.Socket_Count is
       begin
          if Item >= Positive'Last - 2 then
             return Sets.Socket_Count (Item);
@@ -387,7 +387,7 @@ package body AWS.Net.Acceptors is
    -------------------
 
    function Server_Socket
-     (Acceptor : in Acceptor_Type) return Socket_Type'Class is
+     (Acceptor : Acceptor_Type) return Socket_Type'Class is
    begin
       return Acceptor.Server.all;
    end Server_Socket;
@@ -397,7 +397,7 @@ package body AWS.Net.Acceptors is
    ----------------------------
 
    procedure Set_Socket_Constructor
-     (Acceptor : in out Acceptor_Type; Constructor : in Socket_Constructor) is
+     (Acceptor : in out Acceptor_Type; Constructor : Socket_Constructor) is
    begin
       Acceptor.Constructor := Constructor;
    end Set_Socket_Constructor;

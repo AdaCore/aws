@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2004-2008, AdaCore                     --
+--                     Copyright (C) 2004-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -34,7 +34,7 @@ with AWS.Translator;
 
 package body AWS.Client.XML.Input_Sources is
 
-   function "+" (Item : in Stream_Element_Array) return String
+   function "+" (Item : Stream_Element_Array) return String
      renames AWS.Translator.To_String;
 
    ------------
@@ -42,8 +42,8 @@ package body AWS.Client.XML.Input_Sources is
    ------------
 
    procedure Create
-     (Connection : in     HTTP_Connection;
-      Input      :    out HTTP_Input)
+     (Connection : HTTP_Connection;
+      Input      : out HTTP_Input)
    is
       use Unicode.CES;
       Length : Integer;
@@ -96,7 +96,7 @@ package body AWS.Client.XML.Input_Sources is
    -- Eof --
    ---------
 
-   overriding function Eof (From : in HTTP_Input) return Boolean is
+   overriding function Eof (From : HTTP_Input) return Boolean is
    begin
       if From.First <= From.Last then
          return False;
@@ -117,7 +117,7 @@ package body AWS.Client.XML.Input_Sources is
 
    overriding procedure Next_Char
      (From : in out HTTP_Input;
-      C    :    out Unicode.Unicode_Char)
+      C    : out Unicode.Unicode_Char)
    is
       ES  : Unicode.CES.Encoding_Scheme;
       CS  : Unicode.CCS.Character_Set;

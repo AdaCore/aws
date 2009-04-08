@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2008, AdaCore                     --
+--                     Copyright (C) 2003-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -60,7 +60,7 @@ procedure Sessions3 is
    -- CB --
    --------
 
-   function CB (Request : in Status.Data) return Response.Data is
+   function CB (Request : Status.Data) return Response.Data is
       SID : constant Session.ID := Status.Session (Request);
       N   : Natural := 0;
    begin
@@ -79,7 +79,7 @@ procedure Sessions3 is
    -- Image --
    -----------
 
-   function Image (Str : in String) return String is
+   function Image (Str : String) return String is
       Last : constant Natural := Strings.Fixed.Index (Str, "activated.");
    begin
       --  Remove stack traceback information

@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2001                          --
---                                ACT-Europe                                --
+--                     Copyright (C) 2000-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -62,23 +61,23 @@ procedure Com_1 is
    Last_Message_Received : Boolean := False;
 
    function Receive
-     (Server     : in String;
-      Message    : in String;
-      State      : in String_Access;
-      Parameters : in Communication.Parameter_Set
+     (Server     : String;
+      Message    : String;
+      State      : String_Access;
+      Parameters : Communication.Parameter_Set
         := Communication.Null_Parameter_Set)
      return Response.Data;
-   --  Communication callback.
+   --  Communication callback
 
    -------------
    -- Receive --
    -------------
 
    function Receive
-     (Server     : in String;
-      Message    : in String;
-      State      : in String_Access;
-      Parameters : in Communication.Parameter_Set
+     (Server     : String;
+      Message    : String;
+      State      : String_Access;
+      Parameters : Communication.Parameter_Set
         := Communication.Null_Parameter_Set)
      return Response.Data is
    begin

@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2003-2006                          --
---                                 AdaCore                                  --
+--                     Copyright (C) 2003-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -47,16 +46,16 @@ package body Ada2WSDL is
    -- Location --
    --------------
 
-   function Location (E : in Asis.Element) return String is
+   function Location (E : Asis.Element) return String is
 
-      function Image (Str : in Wide_String) return String;
+      function Image (Str : Wide_String) return String;
       --  Return Str as a lower-case and trimmed string
 
       -----------
       -- Image --
       -----------
 
-      function Image (Str : in Wide_String) return String is
+      function Image (Str : Wide_String) return String is
       begin
          return Characters.Handling.To_Lower
            (Strings.Fixed.Trim
@@ -81,8 +80,8 @@ package body Ada2WSDL is
    ----------------------
 
    procedure Raise_Spec_Error
-     (E       : in Asis.Element;
-      Message : in String) is
+     (E       : Asis.Element;
+      Message : String) is
    begin
       Exceptions.Raise_Exception
         (Spec_Error'Identity, Location (E) & ": " & Message);

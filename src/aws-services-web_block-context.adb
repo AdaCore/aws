@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2007-2008, AdaCore                     --
+--                     Copyright (C) 2007-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -37,14 +37,14 @@ package body AWS.Services.Web_Block.Context is
    -- Copy --
    ----------
 
-   function Copy (CID : in Id) return Id is
+   function Copy (CID : Id) return Id is
       New_CID : constant Id := Create;
    begin
       Copy (CID, New_CID);
       return New_CID;
    end Copy;
 
-   procedure Copy (CID : in Id; New_CID : in Id) is
+   procedure Copy (CID : Id; New_CID : Id) is
 
       --   Note that we first copy the context into a vector and set the new
       --   context from it. This is because it is not possible to call
@@ -61,8 +61,8 @@ package body AWS.Services.Web_Block.Context is
       Data    : Vector;
 
       procedure Insert
-        (N          : in     Positive;
-         Key, Value : in     String;
+        (N          : Positive;
+         Key, Value : String;
          Quit       : in out Boolean);
       --  Insert key/value into O
 
@@ -71,8 +71,8 @@ package body AWS.Services.Web_Block.Context is
       ------------
 
       procedure Insert
-        (N          : in     Positive;
-         Key, Value : in     String;
+        (N          : Positive;
+         Key, Value : String;
          Quit       : in out Boolean)
       is
          pragma Unreferenced (N, Quit);
@@ -116,12 +116,12 @@ package body AWS.Services.Web_Block.Context is
    -- Exist --
    -----------
 
-   overriding function Exist (CID : in Id) return Boolean is
+   overriding function Exist (CID : Id) return Boolean is
    begin
       return Session.Exist (Session.Id (CID));
    end Exist;
 
-   function Exist (Context : in Object; Name : in String) return Boolean is
+   function Exist (Context : Object; Name : String) return Boolean is
    begin
       return Session.Exist (Context.SID, Name);
    end Exist;
@@ -130,7 +130,7 @@ package body AWS.Services.Web_Block.Context is
    -- Get --
    ---------
 
-   function Get (CID : in Id) return Object is
+   function Get (CID : Id) return Object is
    begin
       return Object'(SID => Session.Id (CID));
    end Get;
@@ -139,7 +139,7 @@ package body AWS.Services.Web_Block.Context is
    -- Get_Value --
    ---------------
 
-   function Get_Value (Context : in Object; Name : in String) return String is
+   function Get_Value (Context : Object; Name : String) return String is
    begin
       return Session.Get (Context.SID, Name);
    end Get_Value;
@@ -148,7 +148,7 @@ package body AWS.Services.Web_Block.Context is
    -- Image --
    -----------
 
-   overriding function Image (CID : in Id) return String is
+   overriding function Image (CID : Id) return String is
    begin
       return Session.Image (Session.Id (CID));
    end Image;
@@ -157,7 +157,7 @@ package body AWS.Services.Web_Block.Context is
    -- Remove --
    ------------
 
-   procedure Remove (Context : in Object; Name : in String) is
+   procedure Remove (Context : Object; Name : String) is
    begin
       Session.Remove (Context.SID, Name);
    end Remove;
@@ -166,7 +166,7 @@ package body AWS.Services.Web_Block.Context is
    -- Set_Value --
    ---------------
 
-   procedure Set_Value (Context : in out Object; Name, Value : in String) is
+   procedure Set_Value (Context : in out Object; Name, Value : String) is
    begin
       Session.Set (Context.SID, Name, Value);
    end Set_Value;
@@ -175,7 +175,7 @@ package body AWS.Services.Web_Block.Context is
    -- Value --
    -----------
 
-   overriding function Value (CID : in String) return Id is
+   overriding function Value (CID : String) return Id is
    begin
       return Id (Session.Value (CID));
    exception
@@ -197,7 +197,7 @@ package body AWS.Services.Web_Block.Context is
       -- Get_Value --
       ---------------
 
-      function Get_Value (Context : in Object; Name : in String) return Data is
+      function Get_Value (Context : Object; Name : String) return Data is
       begin
          return Get (Context.SID, Name);
       end Get_Value;
@@ -208,8 +208,8 @@ package body AWS.Services.Web_Block.Context is
 
       procedure Set_Value
         (Context : in out Object;
-         Name    : in String;
-         Value   : in Data) is
+         Name    : String;
+         Value   : Data) is
       begin
          Set (Context.SID, Name, Value);
       end Set_Value;

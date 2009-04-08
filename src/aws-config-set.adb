@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2008, AdaCore                     --
+--                     Copyright (C) 2000-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -34,7 +34,7 @@ package body AWS.Config.Set is
    -- Accept_Queue_Size --
    -----------------------
 
-   procedure Accept_Queue_Size (O : in out Object; Value : in Positive) is
+   procedure Accept_Queue_Size (O : in out Object; Value : Positive) is
    begin
       O.P (Accept_Queue_Size).Pos_Value := Value;
    end Accept_Queue_Size;
@@ -43,7 +43,7 @@ package body AWS.Config.Set is
    -- Admin_URI --
    ---------------
 
-   procedure Admin_URI (O : in out Object; Value : in String) is
+   procedure Admin_URI (O : in out Object; Value : String) is
    begin
       O.P (Admin_URI).Str_Value := To_Unbounded_String (Value);
    end Admin_URI;
@@ -54,7 +54,7 @@ package body AWS.Config.Set is
 
    procedure Case_Sensitive_Parameters
      (O     : in out Object;
-      Value : in     Boolean) is
+      Value : Boolean) is
    begin
       O.P (Case_Sensitive_Parameters).Bool_Value := Value;
    end Case_Sensitive_Parameters;
@@ -63,7 +63,7 @@ package body AWS.Config.Set is
    -- Certificate --
    -----------------
 
-   procedure Certificate (O : in out Object; Filename : in String) is
+   procedure Certificate (O : in out Object; Filename : String) is
    begin
       O.P (Certificate).Str_Value := To_Unbounded_String (Filename);
    end Certificate;
@@ -72,7 +72,7 @@ package body AWS.Config.Set is
    -- Check_URL_Validity --
    ------------------------
 
-   procedure Check_URL_Validity (O : in out Object; Value : in Boolean) is
+   procedure Check_URL_Validity (O : in out Object; Value : Boolean) is
    begin
       O.P (Check_URL_Validity).Bool_Value := Value;
    end Check_URL_Validity;
@@ -83,7 +83,7 @@ package body AWS.Config.Set is
 
    procedure Cleaner_Client_Data_Timeout
      (O     : in out Object;
-      Value : in     Duration) is
+      Value : Duration) is
    begin
       O.P (Cleaner_Client_Data_Timeout).Dur_Value := Value;
    end Cleaner_Client_Data_Timeout;
@@ -94,7 +94,7 @@ package body AWS.Config.Set is
 
    procedure Cleaner_Client_Header_Timeout
      (O     : in out Object;
-      Value : in     Duration) is
+      Value : Duration) is
    begin
       O.P (Cleaner_Client_Header_Timeout).Dur_Value := Value;
    end Cleaner_Client_Header_Timeout;
@@ -105,7 +105,7 @@ package body AWS.Config.Set is
 
    procedure Cleaner_Server_Response_Timeout
      (O     : in out Object;
-      Value : in     Duration) is
+      Value : Duration) is
    begin
       O.P (Cleaner_Server_Response_Timeout).Dur_Value := Value;
    end Cleaner_Server_Response_Timeout;
@@ -116,7 +116,7 @@ package body AWS.Config.Set is
 
    procedure Cleaner_Wait_For_Client_Timeout
      (O     : in out Object;
-      Value : in     Duration) is
+      Value : Duration) is
    begin
       O.P (Cleaner_Wait_For_Client_Timeout).Dur_Value := Value;
    end Cleaner_Wait_For_Client_Timeout;
@@ -125,7 +125,7 @@ package body AWS.Config.Set is
    -- Directory_Browser_Page --
    ----------------------------
 
-   procedure Directory_Browser_Page (O : in out Object; Value : in String) is
+   procedure Directory_Browser_Page (O : in out Object; Value : String) is
    begin
       O.P (Directory_Browser_Page).Str_Value := To_Unbounded_String (Value);
    end Directory_Browser_Page;
@@ -134,7 +134,7 @@ package body AWS.Config.Set is
    -- Down_Image --
    ----------------
 
-   procedure Down_Image (O : in out Object; Value : in String) is
+   procedure Down_Image (O : in out Object; Value : String) is
    begin
       O.P (Down_Image).Str_Value := To_Unbounded_String (Value);
    end Down_Image;
@@ -144,7 +144,7 @@ package body AWS.Config.Set is
    -------------------------------
 
    procedure Error_Log_Filename_Prefix
-     (O : in out Object; Value : in String) is
+     (O : in out Object; Value : String) is
    begin
       O.P (Error_Log_Filename_Prefix).Str_Value := To_Unbounded_String (Value);
    end Error_Log_Filename_Prefix;
@@ -153,7 +153,7 @@ package body AWS.Config.Set is
    -- Error_Log_Split_Mode --
    --------------------------
 
-   procedure Error_Log_Split_Mode (O : in out Object; Value : in String) is
+   procedure Error_Log_Split_Mode (O : in out Object; Value : String) is
    begin
       O.P (Error_Log_Split_Mode).Str_Value := To_Unbounded_String (Value);
    end Error_Log_Split_Mode;
@@ -162,7 +162,7 @@ package body AWS.Config.Set is
    -- Exchange_Certificate --
    --------------------------
 
-   procedure Exchange_Certificate (O : in out Object; Value : in Boolean) is
+   procedure Exchange_Certificate (O : in out Object; Value : Boolean) is
    begin
       O.P (Exchange_Certificate).Bool_Value := Value;
    end Exchange_Certificate;
@@ -173,7 +173,7 @@ package body AWS.Config.Set is
 
    procedure Force_Client_Data_Timeout
      (O     : in out Object;
-      Value : in     Duration) is
+      Value : Duration) is
    begin
       O.P (Force_Client_Data_Timeout).Dur_Value := Value;
    end Force_Client_Data_Timeout;
@@ -184,7 +184,7 @@ package body AWS.Config.Set is
 
    procedure Force_Client_Header_Timeout
      (O     : in out Object;
-      Value : in     Duration) is
+      Value : Duration) is
    begin
       O.P (Force_Client_Header_Timeout).Dur_Value := Value;
    end Force_Client_Header_Timeout;
@@ -195,7 +195,7 @@ package body AWS.Config.Set is
 
    procedure Force_Server_Response_Timeout
      (O     : in out Object;
-      Value : in     Duration) is
+      Value : Duration) is
    begin
       O.P (Force_Server_Response_Timeout).Dur_Value := Value;
    end Force_Server_Response_Timeout;
@@ -206,7 +206,7 @@ package body AWS.Config.Set is
 
    procedure Force_Wait_For_Client_Timeout
      (O     : in out Object;
-      Value : in     Duration) is
+      Value : Duration) is
    begin
       O.P (Force_Wait_For_Client_Timeout).Dur_Value := Value;
    end Force_Wait_For_Client_Timeout;
@@ -217,7 +217,7 @@ package body AWS.Config.Set is
 
    procedure Free_Slots_Keep_Alive_Limit
      (O     : in out Object;
-      Value : in     Natural) is
+      Value : Natural) is
    begin
       O.P (Free_Slots_Keep_Alive_Limit).Nat_Value := Value;
    end Free_Slots_Keep_Alive_Limit;
@@ -226,7 +226,7 @@ package body AWS.Config.Set is
    -- Hotplug_Port --
    ------------------
 
-   procedure Hotplug_Port (O : in out Object; Value : in Positive) is
+   procedure Hotplug_Port (O : in out Object; Value : Positive) is
    begin
       O.P (Hotplug_Port).Pos_Value := Value;
    end Hotplug_Port;
@@ -235,7 +235,7 @@ package body AWS.Config.Set is
    -- Keep_Alive_Force_Limit --
    ----------------------------
 
-   procedure Keep_Alive_Force_Limit (O : in out Object; Value : in Natural) is
+   procedure Keep_Alive_Force_Limit (O : in out Object; Value : Natural) is
    begin
       O.P (Hotplug_Port).Nat_Value := Value;
    end Keep_Alive_Force_Limit;
@@ -244,7 +244,7 @@ package body AWS.Config.Set is
    -- Key --
    ---------
 
-   procedure Key (O : in out Object; Filename : in String) is
+   procedure Key (O : in out Object; Filename : String) is
    begin
       O.P (Key).Str_Value := To_Unbounded_String (Filename);
    end Key;
@@ -253,7 +253,7 @@ package body AWS.Config.Set is
    -- Line_Stack_Size --
    ---------------------
 
-   procedure Line_Stack_Size (O : in out Object; Value : in Positive) is
+   procedure Line_Stack_Size (O : in out Object; Value : Positive) is
    begin
       O.P (Line_Stack_Size).Pos_Value := Value;
    end Line_Stack_Size;
@@ -262,7 +262,7 @@ package body AWS.Config.Set is
    -- Log_Extended_Fields --
    -------------------------
 
-   procedure Log_Extended_Fields (O : in out Object; Value : in String) is
+   procedure Log_Extended_Fields (O : in out Object; Value : String) is
    begin
       Utils.Parse_Strings (O.P (Log_Extended_Fields).Strs_Value, Value);
    end Log_Extended_Fields;
@@ -271,7 +271,7 @@ package body AWS.Config.Set is
    -- Log_File_Directory --
    ------------------------
 
-   procedure Log_File_Directory (O : in out Object; Value : in String) is
+   procedure Log_File_Directory (O : in out Object; Value : String) is
    begin
       O.P (Log_File_Directory).Dir_Value := To_Unbounded_String (Value);
    end Log_File_Directory;
@@ -280,7 +280,7 @@ package body AWS.Config.Set is
    -- Log_Filename_Prefix --
    -------------------------
 
-   procedure Log_Filename_Prefix (O : in out Object; Value : in String) is
+   procedure Log_Filename_Prefix (O : in out Object; Value : String) is
    begin
       O.P (Log_Filename_Prefix).Str_Value := To_Unbounded_String (Value);
    end Log_Filename_Prefix;
@@ -289,7 +289,7 @@ package body AWS.Config.Set is
    -- Log_Split_Mode --
    --------------------
 
-   procedure Log_Split_Mode (O : in out Object; Value : in String) is
+   procedure Log_Split_Mode (O : in out Object; Value : String) is
    begin
       O.P (Log_Split_Mode).Str_Value := To_Unbounded_String (Value);
    end Log_Split_Mode;
@@ -298,7 +298,7 @@ package body AWS.Config.Set is
    -- Logo_Image --
    ----------------
 
-   procedure Logo_Image (O : in out Object; Value : in String) is
+   procedure Logo_Image (O : in out Object; Value : String) is
    begin
       O.P (Logo_Image).Str_Value := To_Unbounded_String (Value);
    end Logo_Image;
@@ -307,7 +307,7 @@ package body AWS.Config.Set is
    -- Max_Connection --
    --------------------
 
-   procedure Max_Connection (O : in out Object; Value : in Positive) is
+   procedure Max_Connection (O : in out Object; Value : Positive) is
    begin
       O.P (Max_Connection).Pos_Value := Value;
    end Max_Connection;
@@ -318,18 +318,18 @@ package body AWS.Config.Set is
 
    procedure Parameter
      (Config        : in out Object;
-      Name          : in     String;
-      Value         : in     String;
-      Error_Context : in     String := "") is
+      Name          : String;
+      Value         : String;
+      Error_Context : String := "") is
    begin
       Utils.Set_Parameter
         (Config.P, Utils.Value (Name, Error_Context), Value, Error_Context);
    end Parameter;
 
    procedure Parameter
-     (Name          : in String;
-      Value         : in String;
-      Error_Context : in String := "") is
+     (Name          : String;
+      Value         : String;
+      Error_Context : String := "") is
    begin
       Utils.Set_Parameter
         (Process_Options,
@@ -342,7 +342,7 @@ package body AWS.Config.Set is
    -- Receive_Timeout --
    ---------------------
 
-   procedure Receive_Timeout (O : in out Object; Value : in Duration) is
+   procedure Receive_Timeout (O : in out Object; Value : Duration) is
    begin
       O.P (Receive_Timeout).Dur_Value := Value;
    end Receive_Timeout;
@@ -351,7 +351,7 @@ package body AWS.Config.Set is
    -- Reuse_Address --
    -------------------
 
-   procedure Reuse_Address (O : in out Object; Value : in Boolean) is
+   procedure Reuse_Address (O : in out Object; Value : Boolean) is
    begin
       O.P (Reuse_Address).Bool_Value := Value;
    end Reuse_Address;
@@ -360,7 +360,7 @@ package body AWS.Config.Set is
    -- Security --
    --------------
 
-   procedure Security (O : in out Object; Value : in Boolean) is
+   procedure Security (O : in out Object; Value : Boolean) is
    begin
       O.P (Security).Bool_Value := Value;
    end Security;
@@ -369,7 +369,7 @@ package body AWS.Config.Set is
    -- Security_Mode --
    -------------------
 
-   procedure Security_Mode (O : in out Object; Mode : in String) is
+   procedure Security_Mode (O : in out Object; Mode : String) is
    begin
       O.P (Security_Mode).Str_Value := To_Unbounded_String (Mode);
    end Security_Mode;
@@ -378,7 +378,7 @@ package body AWS.Config.Set is
    -- Send_Timeout --
    ------------------
 
-   procedure Send_Timeout (O : in out Object; Value : in Duration) is
+   procedure Send_Timeout (O : in out Object; Value : Duration) is
    begin
       O.P (Send_Timeout).Dur_Value := Value;
    end Send_Timeout;
@@ -387,7 +387,7 @@ package body AWS.Config.Set is
    -- Server_Host --
    -----------------
 
-   procedure Server_Host (O : in out Object; Value : in String) is
+   procedure Server_Host (O : in out Object; Value : String) is
    begin
       O.P (Server_Host).Str_Value := To_Unbounded_String (Value);
    end Server_Host;
@@ -396,7 +396,7 @@ package body AWS.Config.Set is
    -- Server_Name --
    -----------------
 
-   procedure Server_Name (O : in out Object; Value : in String) is
+   procedure Server_Name (O : in out Object; Value : String) is
    begin
       O.P (Server_Name).Str_Value := To_Unbounded_String (Value);
    end Server_Name;
@@ -405,7 +405,7 @@ package body AWS.Config.Set is
    -- Server_Port --
    -----------------
 
-   procedure Server_Port (O : in out Object; Value : in Natural) is
+   procedure Server_Port (O : in out Object; Value : Natural) is
    begin
       O.P (Server_Port).Nat_Value := Value;
    end Server_Port;
@@ -414,7 +414,7 @@ package body AWS.Config.Set is
    -- Session --
    -------------
 
-   procedure Session (O : in out Object; Value : in Boolean) is
+   procedure Session (O : in out Object; Value : Boolean) is
    begin
       O.P (Session).Bool_Value := Value;
    end Session;
@@ -423,7 +423,7 @@ package body AWS.Config.Set is
    -- Session_Cleanup_Interval --
    ------------------------------
 
-   procedure Session_Cleanup_Interval (Value : in Duration) is
+   procedure Session_Cleanup_Interval (Value : Duration) is
    begin
       Process_Options (Session_Cleanup_Interval).Dur_Value := Value;
    end Session_Cleanup_Interval;
@@ -432,7 +432,7 @@ package body AWS.Config.Set is
    -- Session_Lifetime --
    ----------------------
 
-   procedure Session_Lifetime (Value : in Duration) is
+   procedure Session_Lifetime (Value : Duration) is
    begin
       Process_Options (Session_Lifetime).Dur_Value := Value;
    end Session_Lifetime;
@@ -441,7 +441,7 @@ package body AWS.Config.Set is
    -- Session_Name --
    ------------------
 
-   procedure Session_Name (O : in out Object; Value : in String) is
+   procedure Session_Name (O : in out Object; Value : String) is
    begin
       O.P (Session_Name).Str_Value := To_Unbounded_String (Value);
    end Session_Name;
@@ -450,7 +450,7 @@ package body AWS.Config.Set is
    -- Status_Page --
    -----------------
 
-   procedure Status_Page (O : in out Object; Value : in String) is
+   procedure Status_Page (O : in out Object; Value : String) is
    begin
       O.P (Status_Page).Str_Value := To_Unbounded_String (Value);
    end Status_Page;
@@ -459,7 +459,7 @@ package body AWS.Config.Set is
    -- Transient_Cleanup_Interval --
    --------------------------------
 
-   procedure Transient_Cleanup_Interval (Value : in Duration) is
+   procedure Transient_Cleanup_Interval (Value : Duration) is
    begin
       Process_Options (Transient_Cleanup_Interval).Dur_Value := Value;
    end Transient_Cleanup_Interval;
@@ -468,7 +468,7 @@ package body AWS.Config.Set is
    -- Transient_Lifetime --
    ------------------------
 
-   procedure Transient_Lifetime (Value : in Duration) is
+   procedure Transient_Lifetime (Value : Duration) is
    begin
       Process_Options (Transient_Lifetime).Dur_Value := Value;
    end Transient_Lifetime;
@@ -477,7 +477,7 @@ package body AWS.Config.Set is
    -- Up_Image --
    --------------
 
-   procedure Up_Image (O : in out Object; Value : in String) is
+   procedure Up_Image (O : in out Object; Value : String) is
    begin
       O.P (Up_Image).Str_Value := To_Unbounded_String (Value);
    end Up_Image;
@@ -486,7 +486,7 @@ package body AWS.Config.Set is
    -- Upload_Directory --
    ----------------------
 
-   procedure Upload_Directory (O : in out Object; Value : in String) is
+   procedure Upload_Directory (O : in out Object; Value : String) is
    begin
       O.P (Upload_Directory).Dir_Value :=
         To_Unbounded_String (AWS.Utils.Normalized_Directory (Value));
@@ -496,7 +496,7 @@ package body AWS.Config.Set is
    -- Upload_Size_Limit --
    -----------------------
 
-   procedure Upload_Size_Limit (O : in out Object; Value : in Positive) is
+   procedure Upload_Size_Limit (O : in out Object; Value : Positive) is
    begin
       O.P (Upload_Size_Limit).Pos_Value := Value;
    end Upload_Size_Limit;
@@ -505,7 +505,7 @@ package body AWS.Config.Set is
    -- WWW_Root --
    --------------
 
-   procedure WWW_Root (O : in out Object; Value : in String) is
+   procedure WWW_Root (O : in out Object; Value : String) is
    begin
       O.P (WWW_Root).Dir_Value :=
         To_Unbounded_String (AWS.Utils.Normalized_Directory (Value));

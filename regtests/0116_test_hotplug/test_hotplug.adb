@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2004-2008, AdaCore                     --
+--                     Copyright (C) 2004-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -52,7 +52,7 @@ procedure Test_Hotplug is
       entry Stop;
    end Hotplug_Server;
 
-   procedure Request (URI : in String);
+   procedure Request (URI : String);
    --  Request URI resource to main server, output result
 
    Hotplug_Port : Natural := 1235;
@@ -117,7 +117,7 @@ procedure Test_Hotplug is
    -- Request --
    -------------
 
-   procedure Request (URI : in String) is
+   procedure Request (URI : String) is
       R : Response.Data;
    begin
       R := Client.Get

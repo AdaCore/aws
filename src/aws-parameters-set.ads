@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2008, AdaCore                     --
+--                     Copyright (C) 2000-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -31,15 +31,15 @@ package AWS.Parameters.Set is
 
    procedure Add
      (Parameter_List : in out List;
-      Name, Value    : in     String;
-      Decode         : in     Boolean := True);
+      Name, Value    : String;
+      Decode         : Boolean := True);
    --  Add a new Key/Value pair into the parameter set.
    --  If Decode is true, decodes Name and Value. This is used when handling
    --  multipart/form-data for example.
    --  A new value is always added, so if there is already a parameter with
    --  that name, Get will still return the old value.
 
-   procedure Add (Parameter_List : in out List; Parameters : in String);
+   procedure Add (Parameter_List : in out List; Parameters : String);
    --  Set parameters for the current request. This is used for a POST method
    --  because the parameters are found in the message body and are not known
    --  when we parse the request line. The Parameters string has the form
@@ -55,11 +55,11 @@ package AWS.Parameters.Set is
 
    procedure Update
      (Parameter_List : in out List;
-      Name, Value    : in     String;
-      Decode         : in     Boolean := True);
+      Name, Value    : String;
+      Decode         : Boolean := True);
    --  Same as Add, but replace an existing parameter if there is one
 
-   procedure Case_Sensitive (Parameter_List : in out List; Mode : in Boolean);
+   procedure Case_Sensitive (Parameter_List : in out List; Mode : Boolean);
    --  If Mode is True it will use all parameters with case sensitivity
 
    procedure Reset (Parameter_List : in out List);

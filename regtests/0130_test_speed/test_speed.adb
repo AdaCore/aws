@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2004-2008, AdaCore                     --
+--                     Copyright (C) 2004-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -85,7 +85,7 @@ procedure Test_Speed is
 
       S : A_Str;
 
-      procedure Call (K : in Positive) is
+      procedure Call (K : Positive) is
          I : Integer := K;
       begin
          I := I + 78;

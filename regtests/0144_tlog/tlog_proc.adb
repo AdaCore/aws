@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2006-2008, AdaCore                     --
+--                     Copyright (C) 2006-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -51,7 +51,7 @@ with AWS.Utils;
 
 with Get_Free_Port;
 
-procedure TLog_Proc (Extended_Fields : in String) is
+procedure TLog_Proc (Extended_Fields : String) is
 
    use Ada;
    use GNAT;
@@ -95,9 +95,9 @@ procedure TLog_Proc (Extended_Fields : in String) is
    ---------
 
    procedure UEH
-     (E      : in     Ada.Exceptions.Exception_Occurrence;
+     (E      : Ada.Exceptions.Exception_Occurrence;
       Log    : in out AWS.Log.Object;
-      Error  : in     AWS.Exceptions.Data;
+      Error  : AWS.Exceptions.Data;
       Answer : in out Response.Data) is
    begin
       Answer := Response.Build
@@ -112,8 +112,8 @@ procedure TLog_Proc (Extended_Fields : in String) is
    ---------
 
    procedure Del
-     (Name  : in     String;
-      Index : in     Positive;
+     (Name  : String;
+      Index : Positive;
       Quit  : in out Boolean)
    is
       Success : Boolean;
@@ -135,7 +135,7 @@ procedure TLog_Proc (Extended_Fields : in String) is
    -- Hide_Date --
    ---------------
 
-   function Hide_Date (Filename : in String) return String is
+   function Hide_Date (Filename : String) return String is
       R : String := Filename;
    begin
       for K in R'Range loop
@@ -221,7 +221,7 @@ procedure TLog_Proc (Extended_Fields : in String) is
    -- CB --
    --------
 
-   function CB (Request : in Status.Data) return Response.Data is
+   function CB (Request : Status.Data) return Response.Data is
       URI : constant String := Status.URI (Request);
    begin
       if URI = Skip_Log then
@@ -293,7 +293,7 @@ begin
       Host       => "http://localhost:" & Utils.Image (Port),
       Retry      => 0);
 
-   --  Test for basic authentication.
+   --  Test for basic authentication
 
    Client.Set_WWW_Authentication (Connect, "login", "pwd", Client.Basic);
 
@@ -307,7 +307,7 @@ begin
 
    Client.Close (Connect);
 
-   --  test for invalid header line logging.
+   --  test for invalid header line logging
 
    declare
       use AWS.Net;

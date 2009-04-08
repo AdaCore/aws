@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2004                            --
---                                ACT-Europe                                --
+--                     Copyright (C) 2004-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -39,7 +38,7 @@ package AWS.Services.Callbacks is
    generic
       Prefix    : String; -- the prefix found in the URI
       Directory : String; -- the directory where the file is
-   function File (Request : in Status.Data) return Response.Data;
+   function File (Request : Status.Data) return Response.Data;
    --  This is a callback function where URL:
    --     http://<host>/<prefix>toto
    --  references the file:

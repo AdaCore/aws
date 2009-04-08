@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2003-2007                          --
---                                 AdaCore                                  --
+--                     Copyright (C) 2003-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -50,7 +49,7 @@ procedure interopLab_Main is
    use interopLab.Types;
 
    function "+"
-     (Str : in String)
+     (Str : String)
       return Unbounded_String
       renames To_Unbounded_String;
 
@@ -60,7 +59,7 @@ procedure interopLab_Main is
    -- Output --
    ------------
 
-   procedure Output (S : in SOAPStruct_Type) is
+   procedure Output (S : SOAPStruct_Type) is
    begin
       Integer_Text_IO.Put (S.varInt); Text_IO.New_Line;
       FIO.Put (S.varFloat, Exp => 0, Aft => 2); Text_IO.New_Line;

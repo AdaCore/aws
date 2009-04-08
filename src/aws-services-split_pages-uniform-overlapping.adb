@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2004-2008, AdaCore                     --
+--                     Copyright (C) 2004-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -32,8 +32,8 @@ package body AWS.Services.Split_Pages.Uniform.Overlapping is
    ---------------------
 
    overriding function Get_Page_Ranges
-     (This  : in Splitter;
-      Table : in Templates.Translate_Set)
+     (This  : Splitter;
+      Table : Templates.Translate_Set)
       return Ranges_Table
    is
       Result : Ranges_Table

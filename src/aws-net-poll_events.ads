@@ -35,31 +35,31 @@ package AWS.Net.Poll_Events is
 
    overriding procedure Add
      (FD_Set : in out Set;
-      FD     : in     FD_Type;
-      Event  : in     Wait_Event_Set);
+      FD     : FD_Type;
+      Event  : Wait_Event_Set);
 
    overriding procedure Replace
      (FD_Set : in out Set;
-      Index  : in     Positive;
-      FD     : in     FD_Type);
+      Index  : Positive;
+      FD     : FD_Type);
 
    overriding procedure Set_Mode
-     (FD_Set : in out Set; Index : in Positive; Mode : in Wait_Event_Set);
+     (FD_Set : in out Set; Index : Positive; Mode : Wait_Event_Set);
 
    overriding function Copy
-     (FD_Set : not null access Set; Size : in Natural) return FD_Set_Access;
+     (FD_Set : not null access Set; Size : Natural) return FD_Set_Access;
 
-   overriding procedure Remove (FD_Set : in out Set; Index : in Positive);
+   overriding procedure Remove (FD_Set : in out Set; Index : Positive);
 
-   overriding function Length (FD_Set : in Set) return Natural;
+   overriding function Length (FD_Set : Set) return Natural;
 
    overriding procedure Wait
-     (FD_Set : in out Set; Timeout : in Duration; Count : out Natural);
+     (FD_Set : in out Set; Timeout : Duration; Count : out Natural);
 
-   overriding procedure Next (FD_Set : in Set; Index : in out Positive);
+   overriding procedure Next (FD_Set : Set; Index : in out Positive);
 
    overriding function Status
-     (FD_Set : in Set; Index : in Positive) return Event_Set;
+     (FD_Set : Set; Index : Positive) return Event_Set;
 
 private
 

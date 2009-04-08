@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2004-2008, AdaCore                     --
+--                     Copyright (C) 2004-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -39,7 +39,7 @@ package body WSDL_7 is
    -- Proc --
    ----------
 
-   procedure Proc (P : in SOAP.Utils.SOAP_Base64) is
+   procedure Proc (P : SOAP.Utils.SOAP_Base64) is
    begin
       Keep := Types.B64 (P, "P");
    end Proc;
@@ -48,7 +48,7 @@ package body WSDL_7 is
    -- Func --
    ----------
 
-   function Func (P : in Integer) return Utils.SOAP_Base64 is
+   function Func (P : Integer) return Utils.SOAP_Base64 is
    begin
       Text_IO.Put_Line (Integer'Image (P));
       return V (Keep);

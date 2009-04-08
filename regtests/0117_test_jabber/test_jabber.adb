@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                          Copyright (C) 2008, AdaCore                     --
+--                     Copyright (C) 2008-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -67,7 +67,7 @@ procedure Test_Jabber is
       Sock     : Socket_Access;
 
       procedure Buffered_Put_Line
-        (Socket : in Socket_Type'Class; Item : in String);
+        (Socket : Socket_Type'Class; Item : String);
       --  Print Text message and then call Buffered.Put_Line
 
       -----------------------
@@ -75,7 +75,7 @@ procedure Test_Jabber is
       -----------------------
 
       procedure Buffered_Put_Line
-        (Socket : in Socket_Type'Class; Item : in String) is
+        (Socket : Socket_Type'Class; Item : String) is
       begin
          if Verbose then
             Text_IO.New_Line;

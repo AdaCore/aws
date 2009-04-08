@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2004                            --
---                                ACT-Europe                                --
+--                     Copyright (C) 2004-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -38,22 +37,20 @@ package AWS.Client.Hotplug is
    --  authorization file. See AWS.Server.Hotplug.Activate.
 
    function Register
-     (Name     : in String;
-      Password : in String;
-      Server   : in String;
-      Regexp   : in String;
-      URL      : in String)
-      return Response.Data;
+     (Name     : String;
+      Password : String;
+      Server   : String;
+      Regexp   : String;
+      URL      : String) return Response.Data;
    --  Register hotplug module Name into Server with address URL to respond to
    --  requests matching Regexp. Server must be a valid URL, http://host:port.
    --  If port is not specified the default HTTP port is used.
 
    function Unregister
-     (Name     : in String;
-      Password : in String;
-      Server   : in String;
-      Regexp   : in String)
-      return Response.Data;
+     (Name     : String;
+      Password : String;
+      Server   : String;
+      Regexp   : String) return Response.Data;
    --  Unregister hotplug module Name responding to Regexp requests from
    --  Server. See comment above about Password.
 

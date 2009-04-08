@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2008, AdaCore                     --
+--                     Copyright (C) 2000-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -26,7 +26,7 @@
 ------------------------------------------------------------------------------
 
 function AWS.Hotplug.Get_Status
-  (Filters : in Filter_Set) return Templates_Parser.Translate_Set
+  (Filters : Filter_Set) return Templates_Parser.Translate_Set
 is
 
    use Templates_Parser;

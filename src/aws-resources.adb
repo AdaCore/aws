@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2002-2008, AdaCore                     --
+--                     Copyright (C) 2002-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -46,7 +46,7 @@ package body AWS.Resources is
    -- End_Of_File --
    -----------------
 
-   function End_Of_File (Resource : in File_Type) return Boolean is
+   function End_Of_File (Resource : File_Type) return Boolean is
    begin
       return End_Of_File (Resource.all);
    end End_Of_File;
@@ -55,7 +55,7 @@ package body AWS.Resources is
    -- Exist --
    -----------
 
-   function Exist (Name : in String) return File_Instance is
+   function Exist (Name : String) return File_Instance is
       Result : File_Instance;
    begin
       Result := Embedded.Exist (Name);
@@ -71,7 +71,7 @@ package body AWS.Resources is
    -- File_Size --
    ---------------
 
-   function File_Size (Name : in String) return Utils.File_Size_Type is
+   function File_Size (Name : String) return Utils.File_Size_Type is
    begin
       if Resources.Embedded.Is_Regular_File (Name) then
          return Resources.Embedded.File_Size (Name);
@@ -84,7 +84,7 @@ package body AWS.Resources is
    -- File_Timestamp --
    --------------------
 
-   function File_Timestamp (Name : in String) return Ada.Calendar.Time is
+   function File_Timestamp (Name : String) return Ada.Calendar.Time is
    begin
       if Resources.Embedded.Is_Regular_File (Name) then
          return Resources.Embedded.File_Timestamp (Name);
@@ -99,8 +99,8 @@ package body AWS.Resources is
 
    procedure Get_Line
      (Resource : in out File_Type;
-      Buffer   :    out String;
-      Last     :    out Natural)
+      Buffer   : out String;
+      Last     : out Natural)
    is
       Byte     : Stream_Element_Array (1 .. 1);
       Last_Ind : Stream_Element_Offset;
@@ -139,7 +139,7 @@ package body AWS.Resources is
    -- Is_GZip --
    -------------
 
-   function Is_GZip (Name : in String) return Boolean is
+   function Is_GZip (Name : String) return Boolean is
    begin
       return Name'Length > GZip_Ext'Length
         and then Name (Name'Last - GZip_Ext'Length + 1 .. Name'Last)
@@ -150,7 +150,7 @@ package body AWS.Resources is
    -- Is_Regular_File --
    ---------------------
 
-   function Is_Regular_File (Name : in String) return Boolean is
+   function Is_Regular_File (Name : String) return Boolean is
    begin
       return Resources.Embedded.Is_Regular_File (Name)
         or else Resources.Files.Is_Regular_File (Name);
@@ -160,7 +160,7 @@ package body AWS.Resources is
    -- LF_Terminated --
    -------------------
 
-   function LF_Terminated (Resource : in File_Type) return Boolean is
+   function LF_Terminated (Resource : File_Type) return Boolean is
    begin
       return Resource.all.LFT;
    end LF_Terminated;
@@ -170,9 +170,9 @@ package body AWS.Resources is
    ----------
 
    procedure Open
-     (File :    out File_Type;
-      Name : in     String;
-      Form : in     String    := "";
+     (File : out File_Type;
+      Name : String;
+      Form : String    := "";
       GZip : in out Boolean) is
    begin
       --  Try to open the file in memory, if not found open the file on disk
@@ -185,9 +185,9 @@ package body AWS.Resources is
    end Open;
 
    procedure Open
-     (File :    out File_Type;
-      Name : in     String;
-      Form : in     String    := "")
+     (File : out File_Type;
+      Name : String;
+      Form : String    := "")
    is
       GZip : Boolean := False;
    begin
@@ -200,8 +200,8 @@ package body AWS.Resources is
 
    procedure Read
      (Resource : in out File_Type;
-      Buffer   :    out Stream_Element_Array;
-      Last     :    out Stream_Element_Offset) is
+      Buffer   : out Stream_Element_Array;
+      Last     : out Stream_Element_Offset) is
    begin
       Read (Resource.all, Buffer, Last);
    end Read;
@@ -221,7 +221,7 @@ package body AWS.Resources is
 
    procedure Set_Index
      (Resource : in out File_Type;
-      To       : in     Stream_Element_Offset) is
+      To       : Stream_Element_Offset) is
    begin
       Set_Index (Resource.all, To);
    end Set_Index;
@@ -230,7 +230,7 @@ package body AWS.Resources is
    -- Size --
    ----------
 
-   function Size (Resource : in File_Type) return Content_Length_Type is
+   function Size (Resource : File_Type) return Content_Length_Type is
    begin
       return Size (Resource.all);
    end Size;

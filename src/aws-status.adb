@@ -40,7 +40,7 @@ package body AWS.Status is
    -- Accept_Encoding --
    ---------------------
 
-   function Accept_Encoding (D : in Data) return String is
+   function Accept_Encoding (D : Data) return String is
    begin
       return Headers.Get (D.Header, Messages.Accept_Encoding_Token);
    end Accept_Encoding;
@@ -49,7 +49,7 @@ package body AWS.Status is
    -- Attachments --
    -----------------
 
-   function Attachments (D : in Data) return AWS.Attachments.List is
+   function Attachments (D : Data) return AWS.Attachments.List is
    begin
       return D.Attachments;
    end Attachments;
@@ -58,7 +58,7 @@ package body AWS.Status is
    -- Authorization_CNonce --
    --------------------------
 
-   function Authorization_CNonce (D : in Data) return String is
+   function Authorization_CNonce (D : Data) return String is
    begin
       return To_String (D.Auth_CNonce);
    end Authorization_CNonce;
@@ -67,7 +67,7 @@ package body AWS.Status is
    -- Authorization_Mode --
    ------------------------
 
-   function Authorization_Mode (D : in Data) return Authorization_Type is
+   function Authorization_Mode (D : Data) return Authorization_Type is
    begin
       return D.Auth_Mode;
    end Authorization_Mode;
@@ -76,7 +76,7 @@ package body AWS.Status is
    -- Authorization_Name --
    ------------------------
 
-   function Authorization_Name (D : in Data) return String is
+   function Authorization_Name (D : Data) return String is
    begin
       return To_String (D.Auth_Name);
    end Authorization_Name;
@@ -85,7 +85,7 @@ package body AWS.Status is
    -- Authorization_NC --
    ----------------------
 
-   function Authorization_NC (D : in Data) return String is
+   function Authorization_NC (D : Data) return String is
    begin
       return To_String (D.Auth_NC);
    end Authorization_NC;
@@ -94,7 +94,7 @@ package body AWS.Status is
    -- Authorization_Nonce --
    -------------------------
 
-   function Authorization_Nonce (D : in Data) return String is
+   function Authorization_Nonce (D : Data) return String is
    begin
       return To_String (D.Auth_Nonce);
    end Authorization_Nonce;
@@ -103,7 +103,7 @@ package body AWS.Status is
    -- Authorization_Password --
    ----------------------------
 
-   function Authorization_Password (D : in Data) return String is
+   function Authorization_Password (D : Data) return String is
    begin
       return To_String (D.Auth_Password);
    end Authorization_Password;
@@ -112,7 +112,7 @@ package body AWS.Status is
    -- Authorization_QOP --
    -----------------------
 
-   function Authorization_QOP (D : in Data) return String is
+   function Authorization_QOP (D : Data) return String is
    begin
       return To_String (D.Auth_QOP);
    end Authorization_QOP;
@@ -121,7 +121,7 @@ package body AWS.Status is
    -- Authorization_Realm --
    -------------------------
 
-   function Authorization_Realm (D : in Data) return String is
+   function Authorization_Realm (D : Data) return String is
    begin
       return To_String (D.Auth_Realm);
    end Authorization_Realm;
@@ -130,7 +130,7 @@ package body AWS.Status is
    -- Authorization_Response --
    ----------------------------
 
-   function Authorization_Response (D : in Data) return String is
+   function Authorization_Response (D : Data) return String is
    begin
       return To_String (D.Auth_Response);
    end Authorization_Response;
@@ -139,7 +139,7 @@ package body AWS.Status is
    -- Authorization_Tail --
    ------------------------
 
-   function Authorization_Tail (D : in Data) return String is
+   function Authorization_Tail (D : Data) return String is
    begin
       return AWS.Digest.Tail
         (Nonce  => Authorization_Nonce (D),
@@ -154,7 +154,7 @@ package body AWS.Status is
    -- Authorization_URI --
    -----------------------
 
-   function Authorization_URI (D : in Data) return String is
+   function Authorization_URI (D : Data) return String is
    begin
       return To_String (D.Auth_URI);
    end Authorization_URI;
@@ -163,7 +163,7 @@ package body AWS.Status is
    -- Binary_Data --
    -----------------
 
-   function Binary_Data (D : in Data) return Stream_Element_Array is
+   function Binary_Data (D : Data) return Stream_Element_Array is
       Result : Stream_Element_Array (1 .. Binary_Size (D));
       Last   : Stream_Element_Offset;
    begin
@@ -177,7 +177,7 @@ package body AWS.Status is
    -- Binary_Size --
    -----------------
 
-   function Binary_Size (D : in Data) return Stream_Element_Offset is
+   function Binary_Size (D : Data) return Stream_Element_Offset is
    begin
       if D.Binary_Data = null then
          return 0;
@@ -190,15 +190,15 @@ package body AWS.Status is
    -- Check_Digest --
    ------------------
 
-   function Check_Digest (D : in Data; Password : in String) return Boolean is
+   function Check_Digest (D : Data; Password : String) return Boolean is
       use type Messages.Status_Code;
    begin
       return Check_Digest (D, Password) = Messages.S200;
    end Check_Digest;
 
    function Check_Digest
-     (D        : in Data;
-      Password : in String) return Messages.Status_Code
+     (D        : Data;
+      Password : String) return Messages.Status_Code
    is
       Nonce    : constant String := Authorization_Nonce (D);
       Auth_URI : constant String := To_String (D.Auth_URI);
@@ -245,7 +245,7 @@ package body AWS.Status is
    -- Connection --
    ----------------
 
-   function Connection (D : in Data) return String is
+   function Connection (D : Data) return String is
    begin
       return Headers.Get (D.Header, Messages.Connection_Token);
    end Connection;
@@ -254,7 +254,7 @@ package body AWS.Status is
    -- Content_Length --
    --------------------
 
-   function Content_Length (D : in Data) return Natural is
+   function Content_Length (D : Data) return Natural is
    begin
       return D.Content_Length;
    end Content_Length;
@@ -263,7 +263,7 @@ package body AWS.Status is
    -- Content_Type --
    ------------------
 
-   function Content_Type (D : in Data) return String is
+   function Content_Type (D : Data) return String is
    begin
       return Headers.Get (D.Header, Messages.Content_Type_Token);
    end Content_Type;
@@ -272,7 +272,7 @@ package body AWS.Status is
    -- End_Of_Body --
    -----------------
 
-   function End_Of_Body (D : in Data) return Boolean is
+   function End_Of_Body (D : Data) return Boolean is
    begin
       return Containers.Memory_Streams.End_Of_File (D.Binary_Data.all);
    end End_Of_Body;
@@ -281,7 +281,7 @@ package body AWS.Status is
    -- Expect --
    ------------
 
-   function Expect (D : in Data) return String is
+   function Expect (D : Data) return String is
    begin
       return Headers.Get (D.Header, Messages.Expect_Token);
    end Expect;
@@ -290,7 +290,7 @@ package body AWS.Status is
    -- Has_Session --
    -----------------
 
-   function Has_Session (D : in Data) return Boolean is
+   function Has_Session (D : Data) return Boolean is
       use type AWS.Session.Id;
    begin
       return D.Session_Id /= AWS.Session.No_Session;
@@ -300,7 +300,7 @@ package body AWS.Status is
    -- Header --
    ------------
 
-   function Header (D : in Data) return Headers.List is
+   function Header (D : Data) return Headers.List is
    begin
       return D.Header;
    end Header;
@@ -309,7 +309,7 @@ package body AWS.Status is
    -- Host --
    ----------
 
-   function Host (D : in Data) return String is
+   function Host (D : Data) return String is
    begin
       return Headers.Get (D.Header, Messages.Host_Token);
    end Host;
@@ -318,7 +318,7 @@ package body AWS.Status is
    -- HTTP_Version --
    ------------------
 
-   function HTTP_Version (D : in Data) return String is
+   function HTTP_Version (D : Data) return String is
    begin
       return To_String (D.HTTP_Version);
    end HTTP_Version;
@@ -327,7 +327,7 @@ package body AWS.Status is
    -- If_Modified_Since --
    -----------------------
 
-   function If_Modified_Since (D : in Data) return String is
+   function If_Modified_Since (D : Data) return String is
    begin
       return Headers.Get (D.Header, Messages.If_Modified_Since_Token);
    end If_Modified_Since;
@@ -336,7 +336,7 @@ package body AWS.Status is
    -- Is_Body_Uploaded --
    ----------------------
 
-   function Is_Body_Uploaded (D : in Data) return Boolean is
+   function Is_Body_Uploaded (D : Data) return Boolean is
    begin
       return D.Uploaded;
    end Is_Body_Uploaded;
@@ -345,7 +345,7 @@ package body AWS.Status is
    -- Is_SOAP --
    -------------
 
-   function Is_SOAP (D : in Data) return Boolean is
+   function Is_SOAP (D : Data) return Boolean is
    begin
       return D.SOAP_Action;
    end Is_SOAP;
@@ -355,10 +355,10 @@ package body AWS.Status is
    ------------------
 
    function Is_Supported
-     (D        : in Data;
-      Encoding : in Messages.Content_Encoding) return Boolean
+     (D        : Data;
+      Encoding : Messages.Content_Encoding) return Boolean
    is
-      function To_Lower (Item : in String) return String
+      function To_Lower (Item : String) return String
          renames Ada.Characters.Handling.To_Lower;
 
       Encoding_Image : constant String
@@ -376,15 +376,15 @@ package body AWS.Status is
       Enable_Others : Boolean := True;
       --  All others encoding enabled by default
 
-      procedure Named_Value (Name, Value : in String; Quit : in out Boolean);
+      procedure Named_Value (Name, Value : String; Quit : in out Boolean);
 
-      procedure Value (Item : in String; Quit : in out Boolean);
+      procedure Value (Item : String; Quit : in out Boolean);
 
       -----------------
       -- Named_Value --
       -----------------
 
-      procedure Named_Value (Name, Value : in String; Quit : in out Boolean) is
+      procedure Named_Value (Name, Value : String; Quit : in out Boolean) is
       begin
          if (Name = "q" or Name = "Q") and Float'Value (Value) = 0.0 then
             if Found_Encoding then
@@ -402,7 +402,7 @@ package body AWS.Status is
       -- Value --
       -----------
 
-      procedure Value (Item : in String; Quit : in out Boolean) is
+      procedure Value (Item : String; Quit : in out Boolean) is
       begin
          if Found_Encoding then
             if Enable_Encoding then
@@ -446,7 +446,7 @@ package body AWS.Status is
    -- Keep_Alive --
    ----------------
 
-   function Keep_Alive (D : in Data) return Boolean is
+   function Keep_Alive (D : Data) return Boolean is
    begin
       return D.Keep_Alive;
    end Keep_Alive;
@@ -455,12 +455,12 @@ package body AWS.Status is
    -- Method --
    ------------
 
-   function Method (D : in Data) return Request_Method is
+   function Method (D : Data) return Request_Method is
    begin
       return D.Method;
    end Method;
 
-   function Method (D : in Data) return String is
+   function Method (D : Data) return String is
    begin
       return To_String (D.Method_String);
    end Method;
@@ -469,7 +469,7 @@ package body AWS.Status is
    -- Multipart_Boundary --
    ------------------------
 
-   function Multipart_Boundary (D : in Data) return String is
+   function Multipart_Boundary (D : Data) return String is
       use Headers;
    begin
       --  Get the Boundary value from the Contant_Type header value.
@@ -486,7 +486,7 @@ package body AWS.Status is
    ---------------
 
    function Parameter
-     (D : in Data; Name : in String; N : in Positive := 1) return String is
+     (D : Data; Name : String; N : Positive := 1) return String is
    begin
       return AWS.URL.Parameter (D.URI, Name, N);
    end Parameter;
@@ -495,7 +495,7 @@ package body AWS.Status is
    -- Parameters --
    ----------------
 
-   function Parameters (D : in Data) return AWS.Parameters.List is
+   function Parameters (D : Data) return AWS.Parameters.List is
    begin
       return AWS.URL.Parameters (D.URI);
    end Parameters;
@@ -504,7 +504,7 @@ package body AWS.Status is
    -- Payload --
    -------------
 
-   function Payload (D : in Data) return String is
+   function Payload (D : Data) return String is
    begin
       if D.SOAP_Action then
          return Translator.To_String (Binary_Data (D));
@@ -517,7 +517,7 @@ package body AWS.Status is
    -- Peername --
    --------------
 
-   function Peername (D : in Data) return String is
+   function Peername (D : Data) return String is
    begin
       return To_String (D.Peername);
    end Peername;
@@ -526,7 +526,7 @@ package body AWS.Status is
    -- Preferred_Coding --
    ----------------------
 
-   function Preferred_Coding (D : in Data) return Messages.Content_Encoding is
+   function Preferred_Coding (D : Data) return Messages.Content_Encoding is
 
       Best_Encoding : Messages.Content_Encoding := Messages.Identity;
       Next_Encoding : Messages.Content_Encoding;
@@ -537,15 +537,15 @@ package body AWS.Status is
       Best_QValue : Float := 0.0;
       Next_QValue : Float;
 
-      procedure Named_Value (Name, Value : in String; Quit : in out Boolean);
+      procedure Named_Value (Name, Value : String; Quit : in out Boolean);
 
-      procedure Value (Item : in String; Quit : in out Boolean);
+      procedure Value (Item : String; Quit : in out Boolean);
 
       -----------------
       -- Named_Value --
       -----------------
 
-      procedure Named_Value (Name, Value : in String; Quit : in out Boolean) is
+      procedure Named_Value (Name, Value : String; Quit : in out Boolean) is
          pragma Unreferenced (Quit);
       begin
          if Supported and then (Name = "Q" or Name = "q") then
@@ -557,7 +557,7 @@ package body AWS.Status is
       -- Value --
       -----------
 
-      procedure Value (Item : in String; Quit : in out Boolean) is
+      procedure Value (Item : String; Quit : in out Boolean) is
       begin
          if Supported and then Next_QValue > Best_QValue then
             Best_Encoding := Next_Encoding;
@@ -603,9 +603,9 @@ package body AWS.Status is
    ---------------
 
    procedure Read_Body
-     (D      : in     Data;
-      Buffer :    out Stream_Element_Array;
-      Last   :    out Stream_Element_Offset)
+     (D      : Data;
+      Buffer : out Stream_Element_Array;
+      Last   : out Stream_Element_Offset)
    is
       use type Stream_Element_Offset;
    begin
@@ -620,7 +620,7 @@ package body AWS.Status is
    -- Referer --
    -------------
 
-   function Referer (D : in Data) return String is
+   function Referer (D : Data) return String is
    begin
       return Headers.Get (D.Header, Messages.Referer_Token);
    end Referer;
@@ -629,12 +629,12 @@ package body AWS.Status is
    -- Request_Time --
    ------------------
 
-   function Request_Time (D : in Data) return Ada.Calendar.Time is
+   function Request_Time (D : Data) return Ada.Calendar.Time is
    begin
       return D.Calendar_Time;
    end Request_Time;
 
-   function Request_Time (D : in Data) return Ada.Real_Time.Time is
+   function Request_Time (D : Data) return Ada.Real_Time.Time is
    begin
       return D.Monotonic_Time;
    end Request_Time;
@@ -643,7 +643,7 @@ package body AWS.Status is
    -- Reset_Body_Index --
    ----------------------
 
-   procedure Reset_Body_Index (D : in Data) is
+   procedure Reset_Body_Index (D : Data) is
    begin
       if D.Binary_Data /= null then
          Containers.Memory_Streams.Reset (D.Binary_Data.all);
@@ -654,7 +654,7 @@ package body AWS.Status is
    -- Session --
    -------------
 
-   function Session (D : in Data) return AWS.Session.Id is
+   function Session (D : Data) return AWS.Session.Id is
    begin
       if Has_Session (D) then
          return D.Session_Id;
@@ -670,7 +670,7 @@ package body AWS.Status is
    -- Session_Created --
    ---------------------
 
-   function Session_Created (D : in Data) return Boolean is
+   function Session_Created (D : Data) return Boolean is
    begin
       return D.Session_Created;
    end Session_Created;
@@ -679,7 +679,7 @@ package body AWS.Status is
    -- Session_Timed_out --
    -----------------------
 
-   function Session_Timed_Out (D : in Data) return Boolean is
+   function Session_Timed_Out (D : Data) return Boolean is
    begin
       return D.Session_Timed_Out;
    end Session_Timed_Out;
@@ -688,7 +688,7 @@ package body AWS.Status is
    -- SOAPAction --
    ----------------
 
-   function SOAPAction (D : in Data) return String is
+   function SOAPAction (D : Data) return String is
       Result : constant String
         := Headers.Get (D.Header, Messages.SOAPAction_Token);
    begin
@@ -706,12 +706,12 @@ package body AWS.Status is
    -- Socket --
    ------------
 
-   function Socket (D : in Data) return Net.Socket_Access is
+   function Socket (D : Data) return Net.Socket_Access is
    begin
       return D.Socket;
    end Socket;
 
-   function Socket (D : in Data) return Net.Socket_Type'Class is
+   function Socket (D : Data) return Net.Socket_Type'Class is
    begin
       return D.Socket.all;
    end Socket;
@@ -720,12 +720,12 @@ package body AWS.Status is
    -- URI --
    ---------
 
-   function URI (D : in Data) return String is
+   function URI (D : Data) return String is
    begin
       return URL.Pathname (D.URI);
    end URI;
 
-   function URI (D : in Data) return URL.Object is
+   function URI (D : Data) return URL.Object is
    begin
       return D.URI;
    end URI;
@@ -734,7 +734,7 @@ package body AWS.Status is
    -- User_Agent --
    ----------------
 
-   function User_Agent (D : in Data) return String is
+   function User_Agent (D : Data) return String is
    begin
       return Headers.Get (D.Header, Messages.User_Agent_Token);
    end User_Agent;

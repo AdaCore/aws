@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2002-2005                          --
---                                 AdaCore                                  --
+--                     Copyright (C) 2002-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -34,37 +33,37 @@ package AWS.Resources.Streams is
 
    type Stream_Access is access all Stream_Type'Class;
 
-   function End_Of_File (Resource : in Stream_Type) return Boolean is abstract;
+   function End_Of_File (Resource : Stream_Type) return Boolean is abstract;
 
    procedure Read
      (Resource : in out Stream_Type;
-      Buffer   :    out Stream_Element_Array;
-      Last     :    out Stream_Element_Offset) is abstract;
+      Buffer   : out Stream_Element_Array;
+      Last     : out Stream_Element_Offset) is abstract;
 
    procedure Reset (Resource : in out Stream_Type) is abstract;
 
    procedure Set_Index
      (Resource : in out Stream_Type;
-      To       : in     Stream_Element_Offset) is abstract;
+      To       : Stream_Element_Offset) is abstract;
    --  Set the position in the stream, next Read will start at the position
    --  whose index is To. If To is outside the content the index is set to
    --  Last + 1 to ensure that next End_Of_File will return True.
 
    procedure Close (Resource : in out Stream_Type) is abstract;
 
-   function Size (Resource : in Stream_Type) return Stream_Element_Offset;
+   function Size (Resource : Stream_Type) return Stream_Element_Offset;
    --  This default implementation returns Undefined_Length. If the derived
    --  stream implementation knows about the size (in bytes) of the stream
    --  this routine should be redefined.
 
-   function Name (Resource : in Stream_Type) return String;
+   function Name (Resource : Stream_Type) return String;
    --  This default implementation returns the empty string. It is must be
    --  overwritten by file based stream to provide the proper filename
    --  associated with the stream.
 
    procedure Create
-     (Resource :    out File_Type;
-      Stream   : in     Stream_Access);
+     (Resource : out File_Type;
+      Stream   : Stream_Access);
    pragma Inline (Create);
    --  Create a resource file from user defined stream
 

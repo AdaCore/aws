@@ -30,14 +30,14 @@ with AWS.SMTP.Messages;
 
 package AWS.SMTP.Server is
 
-   type Callback is access procedure (Message : in Messages.Data);
+   type Callback is access procedure (Message : Messages.Data);
 
    type Handle is limited private;
 
    procedure Start
      (Server : in out Handle;
-      Host   : in     Receiver;
-      Action : in     Callback);
+      Host   : Receiver;
+      Action : Callback);
    --  Start the server. This must be called once
 
    procedure Shutdown (Server : in out Handle);

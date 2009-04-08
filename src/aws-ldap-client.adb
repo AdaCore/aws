@@ -57,7 +57,7 @@ package body AWS.LDAP.Client is
    C_Bool : constant array (Boolean) of IC.int := (False => 0, True => 1);
    --  Map Boolean with the corrsponding C values
 
-   function To_C (Mods : in LDAP_Mods.Vector) return Thin.LDAPMods;
+   function To_C (Mods : LDAP_Mods.Vector) return Thin.LDAPMods;
    --  Create C-Style LDAPMod ** structure used to store all
    --  modification operations to perform on a LDAP-entry.
 
@@ -65,16 +65,16 @@ package body AWS.LDAP.Client is
    --  Releases memory associated with the LDAPMod C-style structure which
    --  has been allocated for LDAP add/modify and delete operations.
 
-   procedure Raise_Error (Code : in Thin.Return_Code; Message : in String);
+   procedure Raise_Error (Code : Thin.Return_Code; Message : String);
    pragma No_Return (Raise_Error);
    --  Raises LDAP_Error, set exception message to Message, add error message
    --  string.
 
-   function Attrib (Name, Value : in String) return String;
+   function Attrib (Name, Value : String) return String;
    pragma Inline (Attrib);
    --  Returns Name or Name=Value if Value is not the empty string
 
-   procedure Check_Handle (Dir : in Directory);
+   procedure Check_Handle (Dir : Directory);
    pragma Inline (Check_Handle);
    --  Raises LDAP_Error if Dir is Null_Directory
 
@@ -83,9 +83,9 @@ package body AWS.LDAP.Client is
    ---------
 
    procedure Add
-     (Dir  : in Directory;
-      DN   : in String;
-      Mods : in LDAP_Mods.Vector)
+     (Dir  : Directory;
+      DN   : String;
+      Mods : LDAP_Mods.Vector)
    is
       Res    : IC.int;
       C_DN   : chars_ptr := New_String (DN);
@@ -119,7 +119,7 @@ package body AWS.LDAP.Client is
    -- Attrib --
    ------------
 
-   function Attrib (Name, Value : in String) return String is
+   function Attrib (Name, Value : String) return String is
    begin
       if Value = "" then
          return Name;
@@ -133,10 +133,10 @@ package body AWS.LDAP.Client is
    ----------------
 
    function Attributes
-     (S1, S2, S3, S4, S5, S6, S7, S8, S9, S10 : in String := "")
+     (S1, S2, S3, S4, S5, S6, S7, S8, S9, S10 : String := "")
       return String_Set
    is
-      function "+" (S : in String) return Unbounded_String
+      function "+" (S : String) return Unbounded_String
         renames To_Unbounded_String;
    begin
       if S1 = "" then
@@ -180,8 +180,8 @@ package body AWS.LDAP.Client is
 
    procedure Bind
      (Dir      : in out Directory;
-      Login    : in     String;
-      Password : in     String)
+      Login    : String;
+      Password : String)
    is
       Res        : IC.int;
       C_Login    : chars_ptr := New_String (Login);
@@ -204,7 +204,7 @@ package body AWS.LDAP.Client is
    -- c --
    -------
 
-   function c (Val : in String := "") return String is
+   function c (Val : String := "") return String is
    begin
       return Attrib ("c", Val);
    end c;
@@ -214,7 +214,7 @@ package body AWS.LDAP.Client is
    ---------
 
    function Cat
-     (S1, S2, S3, S4, S5, S6, S7, S8, S9, S10 : in String := "") return String
+     (S1, S2, S3, S4, S5, S6, S7, S8, S9, S10 : String := "") return String
    is
       v : constant Character := ',';
    begin
@@ -260,7 +260,7 @@ package body AWS.LDAP.Client is
    -- Check_Handle --
    ------------------
 
-   procedure Check_Handle (Dir : in Directory) is
+   procedure Check_Handle (Dir : Directory) is
    begin
       if not Is_Open (Dir) then
          Raise_Error
@@ -272,7 +272,7 @@ package body AWS.LDAP.Client is
    -- cn --
    --------
 
-   function cn (Val : in String := "") return String is
+   function cn (Val : String := "") return String is
    begin
       return Attrib ("cn", Val);
    end cn;
@@ -282,8 +282,8 @@ package body AWS.LDAP.Client is
    -------------------
 
    function Count_Entries
-     (Dir   : in Directory;
-      Chain : in LDAP_Message) return Natural is
+     (Dir   : Directory;
+      Chain : LDAP_Message) return Natural is
    begin
       Check_Handle (Dir);
       return Natural (Thin.ldap_count_entries (Dir, Chain));
@@ -293,7 +293,7 @@ package body AWS.LDAP.Client is
    -- dc --
    --------
 
-   function dc (Val : in String := "") return String is
+   function dc (Val : String := "") return String is
    begin
       return Attrib ("dc", Val);
    end dc;
@@ -302,7 +302,7 @@ package body AWS.LDAP.Client is
    -- Delete --
    ------------
 
-   procedure Delete (Dir : in Directory; DN : in String)  is
+   procedure Delete (Dir : Directory; DN : String)  is
       Res  : IC.int;
       C_DN : chars_ptr := New_String (DN);
    begin
@@ -329,7 +329,7 @@ package body AWS.LDAP.Client is
    -- DN2UFN --
    ------------
 
-   function DN2UFN (DN : in String) return String is
+   function DN2UFN (DN : String) return String is
       C_DN   : chars_ptr := New_String (DN);
       C_UFN  : chars_ptr := Thin.ldap_dn2ufn (C_DN);
       Result : constant String := Value (C_UFN);
@@ -344,8 +344,8 @@ package body AWS.LDAP.Client is
    ----------------
 
    function Explode_DN
-     (DN       : in String;
-      No_Types : in Boolean := True) return String_Set
+     (DN       : String;
+      No_Types : Boolean := True) return String_Set
    is
       C_DN : chars_ptr := New_String (DN);
       Res  : Thin.Attribute_Set_Access;
@@ -375,8 +375,8 @@ package body AWS.LDAP.Client is
    ---------------------
 
    function First_Attribute
-     (Dir  : in  Directory;
-      Node : in LDAP_Message;
+     (Dir  : Directory;
+      Node : LDAP_Message;
       BER  : not null access BER_Element) return String
    is
       Result : chars_ptr;
@@ -398,8 +398,8 @@ package body AWS.LDAP.Client is
    -----------------
 
    function First_Entry
-     (Dir   : in Directory;
-      Chain : in LDAP_Message) return LDAP_Message is
+     (Dir   : Directory;
+      Chain : LDAP_Message) return LDAP_Message is
    begin
       Check_Handle (Dir);
       return Thin.ldap_first_entry (Dir, Chain);
@@ -410,8 +410,8 @@ package body AWS.LDAP.Client is
    -------------------------
 
    procedure For_Every_Attribute
-     (Dir  : in Directory;
-      Node : in LDAP_Message)
+     (Dir  : Directory;
+      Node : LDAP_Message)
    is
       BER  : aliased LDAP.Client.BER_Element;
       Quit : Boolean;
@@ -449,7 +449,7 @@ package body AWS.LDAP.Client is
    -- For_Every_Entry --
    ---------------------
 
-   procedure For_Every_Entry (Dir : in Directory; Chain : in LDAP_Message) is
+   procedure For_Every_Entry (Dir : Directory; Chain : LDAP_Message) is
       use type LDAP_Message;
 
       Message : LDAP_Message;
@@ -472,14 +472,14 @@ package body AWS.LDAP.Client is
    -- Free --
    ----------
 
-   procedure Free (Chain : in LDAP_Message) is
+   procedure Free (Chain : LDAP_Message) is
       Res : IC.int;
       pragma Unreferenced (Res);
    begin
       Res := Thin.ldap_msgfree (Chain);
    end Free;
 
-   procedure Free (BER : in BER_Element) is
+   procedure Free (BER : BER_Element) is
    begin
       Thin.ber_free (BER, 0);
    end Free;
@@ -498,8 +498,8 @@ package body AWS.LDAP.Client is
    ------------
 
    function Get_DN
-     (Dir  : in Directory;
-      Node : in LDAP_Message) return String
+     (Dir  : Directory;
+      Node : LDAP_Message) return String
    is
       Result : chars_ptr;
    begin
@@ -514,7 +514,7 @@ package body AWS.LDAP.Client is
    ---------------
 
    function Get_Error
-     (E : in Ada.Exceptions.Exception_Occurrence) return Thin.Return_Code
+     (E : Ada.Exceptions.Exception_Occurrence) return Thin.Return_Code
    is
       Message     : constant String := Exceptions.Exception_Message (E);
       First, Last : Natural;
@@ -549,9 +549,9 @@ package body AWS.LDAP.Client is
    ----------------
 
    function Get_Values
-     (Dir    : in Directory;
-      Node   : in LDAP_Message;
-      Target : in String) return String_Set
+     (Dir    : Directory;
+      Node   : LDAP_Message;
+      Target : String) return String_Set
    is
       C_Target : chars_ptr := New_String (Target);
       Attribs  : Thin.Attribute_Set_Access;
@@ -582,7 +582,7 @@ package body AWS.LDAP.Client is
    -- givenName --
    ---------------
 
-   function givenName (Val : in String := "") return String is
+   function givenName (Val : String := "") return String is
    begin
       return Attrib ("givenName", Val);
    end givenName;
@@ -592,8 +592,8 @@ package body AWS.LDAP.Client is
    ----------
 
    function Init
-     (Host : in String;
-      Port : in Positive := Default_Port) return Directory
+     (Host : String;
+      Port : Positive := Default_Port) return Directory
    is
       use type Thin.LDAP_Type;
 
@@ -610,7 +610,7 @@ package body AWS.LDAP.Client is
    -- Is_Open --
    -------------
 
-   function Is_Open (Dir : in Directory) return Boolean is
+   function Is_Open (Dir : Directory) return Boolean is
       use type Thin.LDAP_Type;
    begin
       return Dir /= Null_Directory;
@@ -620,7 +620,7 @@ package body AWS.LDAP.Client is
    -- l --
    -------
 
-   function l (Val : in String := "") return String is
+   function l (Val : String := "") return String is
    begin
       return Attrib ("l", Val);
    end l;
@@ -629,7 +629,7 @@ package body AWS.LDAP.Client is
    -- mail --
    ----------
 
-   function mail (Val : in String := "") return String is
+   function mail (Val : String := "") return String is
    begin
       return Attrib ("mail", Val);
    end mail;
@@ -639,9 +639,9 @@ package body AWS.LDAP.Client is
    ------------
 
    procedure Modify
-     (Dir  : in Directory;
-      DN   : in String;
-      Mods : in LDAP_Mods.Vector)
+     (Dir  : Directory;
+      DN   : String;
+      Mods : LDAP_Mods.Vector)
    is
       Res    : IC.int;
       C_DN   : chars_ptr := New_String (DN);
@@ -676,9 +676,9 @@ package body AWS.LDAP.Client is
    --------------------
 
    function Next_Attribute
-     (Dir  : in Directory;
-      Node : in LDAP_Message;
-      BER  : in BER_Element) return String
+     (Dir  : Directory;
+      Node : LDAP_Message;
+      BER  : BER_Element) return String
    is
       Result : chars_ptr;
    begin
@@ -704,8 +704,8 @@ package body AWS.LDAP.Client is
    ----------------
 
    function Next_Entry
-     (Dir     : in Directory;
-      Entries : in LDAP_Message) return LDAP_Message is
+     (Dir     : Directory;
+      Entries : LDAP_Message) return LDAP_Message is
    begin
       Check_Handle (Dir);
       return Thin.ldap_next_entry (Dir, Entries);
@@ -715,7 +715,7 @@ package body AWS.LDAP.Client is
    -- o --
    -------
 
-   function o (Val : in String := "") return String is
+   function o (Val : String := "") return String is
    begin
       return Attrib ("o", Val);
    end o;
@@ -724,7 +724,7 @@ package body AWS.LDAP.Client is
    -- ou --
    --------
 
-   function ou (Val : in String := "") return String is
+   function ou (Val : String := "") return String is
    begin
       return Attrib ("ou", Val);
    end ou;
@@ -733,7 +733,7 @@ package body AWS.LDAP.Client is
    -- Raise_Error --
    -----------------
 
-   procedure Raise_Error (Code : in Thin.Return_Code; Message : in String) is
+   procedure Raise_Error (Code : Thin.Return_Code; Message : String) is
       Err_Message : constant String := Value (Thin.ldap_err2string (Code));
    begin
       raise LDAP_Error
@@ -746,12 +746,12 @@ package body AWS.LDAP.Client is
    ------------
 
    function Search
-     (Dir        : in Directory;
-      Base       : in String;
-      Filter     : in String;
-      Scope      : in Scope_Type    := LDAP_Scope_Default;
-      Attrs      : in Attribute_Set := Null_Set;
-      Attrs_Only : in Boolean       := False) return LDAP_Message
+     (Dir        : Directory;
+      Base       : String;
+      Filter     : String;
+      Scope      : Scope_Type    := LDAP_Scope_Default;
+      Attrs      : Attribute_Set := Null_Set;
+      Attrs_Only : Boolean       := False) return LDAP_Message
    is
       Res      : IC.int;
       C_Base   : chars_ptr := New_String (Base);
@@ -814,7 +814,7 @@ package body AWS.LDAP.Client is
    -- sn --
    --------
 
-   function sn (Val : in String := "") return String is
+   function sn (Val : String := "") return String is
    begin
       return Attrib ("sn", Val);
    end sn;
@@ -823,7 +823,7 @@ package body AWS.LDAP.Client is
    -- st --
    --------
 
-   function st (Val : in String := "") return String is
+   function st (Val : String := "") return String is
    begin
       return Attrib ("st", Val);
    end st;
@@ -832,7 +832,7 @@ package body AWS.LDAP.Client is
    -- telephoneNumber --
    ---------------------
 
-   function telephoneNumber (Val : in String := "") return String is
+   function telephoneNumber (Val : String := "") return String is
    begin
       return Attrib ("telephoneNumber", Val);
    end telephoneNumber;
@@ -841,7 +841,7 @@ package body AWS.LDAP.Client is
    -- To_C --
    ----------
 
-   function To_C (Mods : in LDAP_Mods.Vector) return Thin.LDAPMods is
+   function To_C (Mods : LDAP_Mods.Vector) return Thin.LDAPMods is
       use LDAP_Mods;
       Position : Cursor := Mods.First;
       CMods    : Thin.LDAPMods
@@ -884,7 +884,7 @@ package body AWS.LDAP.Client is
    -- uid --
    ---------
 
-   function uid (Val : in String := "") return String is
+   function uid (Val : String := "") return String is
    begin
       return Attrib ("uid", Val);
    end uid;

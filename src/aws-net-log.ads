@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2004-2006                          --
---                                 AdaCore                                  --
+--                     Copyright (C) 2004-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -43,25 +42,25 @@ package AWS.Net.Log is
    type Event_Type is (Connect, Accept_Socket, Shutdown);
 
    type Write_Callback is access procedure
-     (Direction : in Data_Direction;
-      Socket    : in Socket_Type'Class;
-      Data      : in Stream_Element_Array;
-      Last      : in Stream_Element_Offset);
+     (Direction : Data_Direction;
+      Socket    : Socket_Type'Class;
+      Data      : Stream_Element_Array;
+      Last      : Stream_Element_Offset);
    --  The callback procedure which is called for each incoming/outgoing data
 
    type Event_Callback is access procedure
-     (Action : in Event_Type; Socket : in Socket_Type'Class);
+     (Action : Event_Type; Socket : Socket_Type'Class);
    --  The callback procedure which is called for every socket creation,
    --  connect and accept.
 
    type Error_Callback is access procedure
-     (Socket : in Socket_Type'Class; Message : in String);
+     (Socket : Socket_Type'Class; Message : String);
    --  The callback procedure which is called for every socket error
 
    procedure Start
-     (Write : in Write_Callback;
-      Event : in Event_Callback := null;
-      Error : in Error_Callback := null);
+     (Write : Write_Callback;
+      Event : Event_Callback := null;
+      Error : Error_Callback := null);
    --  Activate the logging
 
    function Is_Active return Boolean;
@@ -77,19 +76,19 @@ package AWS.Net.Log is
    --  Returns True if Event Log is activated and False otherwise
 
    procedure Write
-     (Direction : in Data_Direction;
-      Socket    : in Socket_Type'Class;
-      Data      : in Stream_Element_Array;
-      Last      : in Stream_Element_Offset);
+     (Direction : Data_Direction;
+      Socket    : Socket_Type'Class;
+      Data      : Stream_Element_Array;
+      Last      : Stream_Element_Offset);
    --  Write sent/received data indirectly through the callback routine,
    --  if activated (i.e. Start routine above has been called). Otherwise this
    --  call does nothing.
 
-   procedure Event (Action : in Event_Type; Socket : in Socket_Type'Class);
+   procedure Event (Action : Event_Type; Socket : Socket_Type'Class);
    --  Call Event callback if activated (i.e. Start routine above has been
    --  called). Otherwise this call does nothing.
 
-   procedure Error (Socket : in Socket_Type'Class; Message : in String);
+   procedure Error (Socket : Socket_Type'Class; Message : String);
    --  Call Error callback if activated (i.e. Start routine above has been
    --  called). Otherwise this call does nothing.
 

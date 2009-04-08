@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2003-2007                          --
---                                 AdaCore                                  --
+--                     Copyright (C) 2003-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -38,7 +37,7 @@ package body Skel is
 
    procedure End_Service
      (O    : in out Object;
-      Name : in     String)
+      Name : String)
    is
       U_Name : constant String := To_Unit_Name (Format_Name (O, Name));
    begin
@@ -59,12 +58,12 @@ package body Skel is
 
    procedure New_Procedure
      (O          : in out Object;
-      Proc       : in     String;
-      SOAPAction : in     String;
-      Namespace  : in     Name_Space.Object;
-      Input      : in     WSDL.Parameters.P_Set;
-      Output     : in     WSDL.Parameters.P_Set;
-      Fault      : in     WSDL.Parameters.P_Set)
+      Proc       : String;
+      SOAPAction : String;
+      Namespace  : Name_Space.Object;
+      Input      : WSDL.Parameters.P_Set;
+      Output     : WSDL.Parameters.P_Set;
+      Fault      : WSDL.Parameters.P_Set)
    is
       pragma Unreferenced (Namespace, Fault);
 
@@ -73,7 +72,7 @@ package body Skel is
       use type WSDL.Parameters.Kind;
       use type WSDL.Parameter_Type;
 
-      procedure Output_Parameters (N : in WSDL.Parameters.P_Set);
+      procedure Output_Parameters (N : WSDL.Parameters.P_Set);
       --  Output parameters
 
       L_Proc  : constant String := Format_Name (O, Proc);
@@ -85,7 +84,7 @@ package body Skel is
       -- Output_Parameters --
       -----------------------
 
-      procedure Output_Parameters (N : in WSDL.Parameters.P_Set) is
+      procedure Output_Parameters (N : WSDL.Parameters.P_Set) is
          R : WSDL.Parameters.P_Set;
       begin
          Text_IO.Put (Skel_Adb, "          ");
@@ -166,11 +165,11 @@ package body Skel is
       Text_IO.Put_Line
         (Skel_Ads, "   function " & L_Proc & "_CB");
       Text_IO.Put_Line
-        (Skel_Ads, "     (SOAPAction : in String;");
+        (Skel_Ads, "     (SOAPAction : String;");
       Text_IO.Put_Line
-        (Skel_Ads, "      Payload    : in SOAP.Message.Payload.Object;");
+        (Skel_Ads, "      Payload    : SOAP.Message.Payload.Object;");
       Text_IO.Put_Line
-        (Skel_Ads, "      Request    : in AWS.Status.Data)");
+        (Skel_Ads, "      Request    : AWS.Status.Data)");
       Text_IO.Put_Line
         (Skel_Ads, "      return AWS.Response.Data;");
 
@@ -183,11 +182,11 @@ package body Skel is
       Text_IO.Put_Line
         (Skel_Adb, "   function " & L_Proc & "_CB");
       Text_IO.Put_Line
-        (Skel_Adb, "     (SOAPAction : in String;");
+        (Skel_Adb, "     (SOAPAction : String;");
       Text_IO.Put_Line
-        (Skel_Adb, "      Payload    : in SOAP.Message.Payload.Object;");
+        (Skel_Adb, "      Payload    : SOAP.Message.Payload.Object;");
       Text_IO.Put_Line
-        (Skel_Adb, "      Request    : in AWS.Status.Data)");
+        (Skel_Adb, "      Request    : AWS.Status.Data)");
       Text_IO.Put_Line
         (Skel_Adb, "      return AWS.Response.Data");
       Text_IO.Put_Line (Skel_Adb, "   is");
@@ -622,9 +621,9 @@ package body Skel is
 
    procedure Start_Service
      (O             : in out Object;
-      Name          : in     String;
-      Documentation : in     String;
-      Location      : in     String)
+      Name          : String;
+      Documentation : String;
+      Location      : String)
    is
       pragma Unreferenced (Documentation);
 

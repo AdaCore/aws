@@ -36,7 +36,7 @@ package body Stub is
 
    procedure End_Service
      (O    : in out Object;
-      Name : in     String)
+      Name : String)
    is
       U_Name : constant String := To_Unit_Name (Format_Name (O, Name));
    begin
@@ -90,61 +90,61 @@ package body Stub is
 
    procedure New_Procedure
      (O          : in out Object;
-      Proc       : in     String;
-      SOAPAction : in     String;
-      Namespace  : in     Name_Space.Object;
-      Input      : in     WSDL.Parameters.P_Set;
-      Output     : in     WSDL.Parameters.P_Set;
-      Fault      : in     WSDL.Parameters.P_Set)
+      Proc       : String;
+      SOAPAction : String;
+      Namespace  : Name_Space.Object;
+      Input      : WSDL.Parameters.P_Set;
+      Output     : WSDL.Parameters.P_Set;
+      Fault      : WSDL.Parameters.P_Set)
    is
       use type SOAP.WSDL.Parameters.P_Set;
 
       procedure Output_Parameter
-        (K      : in Positive;
-         Prefix : in String;
-         N      : in WSDL.Parameters.P_Set);
+        (K      : Positive;
+         Prefix : String;
+         N      : WSDL.Parameters.P_Set);
       --  Ouptut parameter
 
       procedure Output_Simple
-        (K      : in Positive;
-         Prefix : in String;
-         N      : in WSDL.Parameters.P_Set);
+        (K      : Positive;
+         Prefix : String;
+         N      : WSDL.Parameters.P_Set);
       --  Output a simple parameter
 
       procedure Output_Derived
-        (K      : in Positive;
-         Prefix : in String;
-         N      : in WSDL.Parameters.P_Set);
+        (K      : Positive;
+         Prefix : String;
+         N      : WSDL.Parameters.P_Set);
       --  Output a derived type parameter
 
       procedure Output_Enumeration
-        (K      : in Positive;
-         Prefix : in String;
-         N      : in WSDL.Parameters.P_Set);
+        (K      : Positive;
+         Prefix : String;
+         N      : WSDL.Parameters.P_Set);
       --  Output an enumeration type parameter
 
       procedure Output_Record
-        (K      : in Positive;
-         Prefix : in String;
-         N      : in WSDL.Parameters.P_Set);
+        (K      : Positive;
+         Prefix : String;
+         N      : WSDL.Parameters.P_Set);
       --  Output a record parameter
 
       procedure Output_Array
-        (K      : in Positive;
-         Prefix : in String;
-         N      : in WSDL.Parameters.P_Set);
+        (K      : Positive;
+         Prefix : String;
+         N      : WSDL.Parameters.P_Set);
       --  Output an array parameter
 
-      procedure Output_Result (N : in WSDL.Parameters.P_Set);
+      procedure Output_Result (N : WSDL.Parameters.P_Set);
 
       ------------------
       -- Output_Array --
       ------------------
 
       procedure Output_Array
-        (K      : in Positive;
-         Prefix : in String;
-         N      : in WSDL.Parameters.P_Set) is
+        (K      : Positive;
+         Prefix : String;
+         N      : WSDL.Parameters.P_Set) is
       begin
          if Prefix = "" then
             --  Not inside a record
@@ -168,9 +168,9 @@ package body Stub is
       --------------------
 
       procedure Output_Derived
-        (K      : in Positive;
-         Prefix : in String;
-         N      : in WSDL.Parameters.P_Set)
+        (K      : Positive;
+         Prefix : String;
+         N      : WSDL.Parameters.P_Set)
       is
          use type WSDL.Parameter_Type;
       begin
@@ -201,9 +201,9 @@ package body Stub is
       ------------------------
 
       procedure Output_Enumeration
-        (K      : in Positive;
-         Prefix : in String;
-         N      : in WSDL.Parameters.P_Set)
+        (K      : Positive;
+         Prefix : String;
+         N      : WSDL.Parameters.P_Set)
       is
          use type WSDL.Parameter_Type;
       begin
@@ -229,9 +229,9 @@ package body Stub is
       ----------------------
 
       procedure Output_Parameter
-        (K      : in Positive;
-         Prefix : in String;
-         N      : in WSDL.Parameters.P_Set)
+        (K      : Positive;
+         Prefix : String;
+         N      : WSDL.Parameters.P_Set)
       is
          use Ada.Strings.Fixed;
          use type WSDL.Parameters.Kind;
@@ -274,9 +274,9 @@ package body Stub is
       -------------------
 
       procedure Output_Record
-        (K      : in Positive;
-         Prefix : in String;
-         N      : in WSDL.Parameters.P_Set)
+        (K      : Positive;
+         Prefix : String;
+         N      : WSDL.Parameters.P_Set)
       is
          use Ada.Strings.Fixed;
       begin
@@ -300,7 +300,7 @@ package body Stub is
       -- Output_Result --
       -------------------
 
-      procedure Output_Result (N : in WSDL.Parameters.P_Set) is
+      procedure Output_Result (N : WSDL.Parameters.P_Set) is
          use type WSDL.Parameters.Kind;
          use type WSDL.Parameter_Type;
       begin
@@ -343,9 +343,9 @@ package body Stub is
       -------------------
 
       procedure Output_Simple
-        (K      : in Positive;
-         Prefix : in String;
-         N      : in WSDL.Parameters.P_Set)
+        (K      : Positive;
+         Prefix : String;
+         N      : WSDL.Parameters.P_Set)
       is
          use type WSDL.Parameter_Type;
       begin
@@ -716,9 +716,9 @@ package body Stub is
 
    procedure Start_Service
      (O             : in out Object;
-      Name          : in     String;
-      Documentation : in     String;
-      Location      : in     String)
+      Name          : String;
+      Documentation : String;
+      Location      : String)
    is
       pragma Unreferenced (Location, Documentation);
 

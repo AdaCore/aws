@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                       Copyright (C) 2008, AdaCore                        --
+--                     Copyright (C) 2008-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -37,12 +37,12 @@ package body AWS.Jabber.Digest_Md5 is
    use Ada;
 
    function Response
-     (Username, Realm, Password, Host, Nonce, Cnonce : in String)
+     (Username, Realm, Password, Host, Nonce, Cnonce : String)
       return String;
    --  Generate the response directive
 
    function Make_URP_Hash
-     (Username, Realm, Password : in String) return String;
+     (Username, Realm, Password : String) return String;
    --  Compute the 16 octect md5 hash of username:realm:password
 
    ----------------------
@@ -50,18 +50,18 @@ package body AWS.Jabber.Digest_Md5 is
    ----------------------
 
    function Decode_Challenge
-     (Encoded_Challenge : in String) return Challenge
+     (Encoded_Challenge : String) return Challenge
    is
       Decoded_Challenge : Challenge;
 
-      procedure Parse_Key_Value (S : in String);
+      procedure Parse_Key_Value (S : String);
       --  Parse a key=value string and fill challenge
 
       ---------------------
       -- Parse_Key_Value --
       ---------------------
 
-      procedure Parse_Key_Value (S : in String) is
+      procedure Parse_Key_Value (S : String) is
       begin
          for K in S'Range loop
             if S (K) = '=' then
@@ -109,7 +109,7 @@ package body AWS.Jabber.Digest_Md5 is
    -------------------
 
    function Make_URP_Hash
-     (Username, Realm, Password : in String) return String
+     (Username, Realm, Password : String) return String
    is
       type Byte is mod 2 ** 8;
       type Byte_Array is array (Long_Integer range <>) of Byte;
@@ -123,13 +123,13 @@ package body AWS.Jabber.Digest_Md5 is
         (Source => Fingerprint,
          Target => Fingerprint_String);
 
-      function Digest_From_Text (S : in Digest_String) return Fingerprint;
+      function Digest_From_Text (S : Digest_String) return Fingerprint;
 
       ----------------------
       -- Digest_From_Text --
       ----------------------
 
-      function Digest_From_Text (S : in Digest_String) return Fingerprint is
+      function Digest_From_Text (S : Digest_String) return Fingerprint is
          type Word is mod 2 ** 32;
 
          function Shift_Left  (Value : Word; Amount : Natural) return Word;
@@ -182,7 +182,7 @@ package body AWS.Jabber.Digest_Md5 is
    ---------------------
 
    function Reply_Challenge
-     (Username, Realm, Password, Host, Nonce : in String) return String
+     (Username, Realm, Password, Host, Nonce : String) return String
    is
       --  Return a base64 encoded form of
       --  username="Username",realm="Realm",nonce="Nonce",
@@ -213,7 +213,7 @@ package body AWS.Jabber.Digest_Md5 is
    --------------
 
    function Response
-     (Username, Realm, Password, Host, Nonce, Cnonce : in String) return String
+     (Username, Realm, Password, Host, Nonce, Cnonce : String) return String
    is
       --  The value of the response directive is computed as follows:
       --   * Create a 16 octet md5 hash of a string

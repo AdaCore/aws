@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2008, AdaCore                     --
+--                     Copyright (C) 2000-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -45,12 +45,12 @@ procedure Unexph is
    use Ada.Text_IO;
    use AWS;
 
-   function CB (Request : in Status.Data) return Response.Data;
+   function CB (Request : Status.Data) return Response.Data;
 
    procedure UEH
-     (E      : in     Ada.Exceptions.Exception_Occurrence;
+     (E      : Ada.Exceptions.Exception_Occurrence;
       Log    : in out AWS.Log.Object;
-      Error  : in     AWS.Exceptions.Data;
+      Error  : AWS.Exceptions.Data;
       Answer : in out Response.Data);
 
    task Server is
@@ -67,7 +67,7 @@ procedure Unexph is
    -- CB --
    --------
 
-   function CB (Request : in Status.Data) return Response.Data is
+   function CB (Request : Status.Data) return Response.Data is
    begin
       raise Program_Error;
       return Response.Build (MIME.Text_HTML, "be happy.");
@@ -101,9 +101,9 @@ procedure Unexph is
    ---------
 
    procedure UEH
-     (E      : in     Ada.Exceptions.Exception_Occurrence;
+     (E      : Ada.Exceptions.Exception_Occurrence;
       Log    : in out AWS.Log.Object;
-      Error  : in     AWS.Exceptions.Data;
+      Error  : AWS.Exceptions.Data;
       Answer : in out Response.Data) is
    begin
       Ada.Text_IO.Put_Line

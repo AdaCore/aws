@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2007                          --
---                                 AdaCore                                  --
+--                     Copyright (C) 2007-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -46,7 +45,7 @@ package body AWS.Resources.Streams.Pipe is
    -----------------
 
    overriding function End_Of_File
-     (Resource : in Stream_Type) return Boolean is
+     (Resource : Stream_Type) return Boolean is
    begin
       return Resource.EOF;
    end End_Of_File;
@@ -56,10 +55,10 @@ package body AWS.Resources.Streams.Pipe is
    ----------
 
    procedure Open
-     (Pipe    :    out Stream_Type;
-      Command : in     String;
-      Args    : in     OS_Lib.Argument_List;
-      Timeout : in     Integer := 10_000) is
+     (Pipe    : out Stream_Type;
+      Command : String;
+      Args    : OS_Lib.Argument_List;
+      Timeout : Integer := 10_000) is
    begin
       Expect.Non_Blocking_Spawn (Pipe.Pid, Command, Args);
       Pipe.EOF := False;
@@ -72,8 +71,8 @@ package body AWS.Resources.Streams.Pipe is
 
    overriding procedure Read
      (Resource : in out Stream_Type;
-      Buffer   :    out Stream_Element_Array;
-      Last     :    out Stream_Element_Offset)
+      Buffer   : out Stream_Element_Array;
+      Last     : out Stream_Element_Offset)
    is
       Regexp : constant Regpat.Pattern_Matcher :=
                  Regpat.Compile (".+", Flags => Regpat.Single_Line);

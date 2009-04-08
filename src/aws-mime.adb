@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2008, AdaCore                     --
+--                     Copyright (C) 2000-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -63,7 +63,7 @@ package body AWS.MIME is
       Next : Node_Access;
    end record;
 
-   function Equivalent_Keys (Left, Right : in String) return Boolean;
+   function Equivalent_Keys (Left, Right : String) return Boolean;
 
    package Key_Value is new Ada.Containers.Indefinite_Hashed_Maps
      (String, String, Ada.Strings.Hash_Case_Insensitive, Equivalent_Keys, "=");
@@ -72,18 +72,18 @@ package body AWS.MIME is
 
    protected Set is
 
-      function Get (Filename : in String; Default : in String) return String;
+      function Get (Filename : String; Default : String) return String;
       --  Returns Filename's MIME content type
 
-      function Extension (Content_Type : in String) return String;
+      function Extension (Content_Type : String) return String;
       --  Returns the best guess of the extension to use for the Content Type
 
-      procedure Add_Extension (Ext : in String; MIME_Type : in String);
+      procedure Add_Extension (Ext : String; MIME_Type : String);
       --  Add Ext to the set of known content type extensions
 
       procedure Add_Regexp
-        (Filename  : in Regexp.Regexp;
-         MIME_Type : in String);
+        (Filename  : Regexp.Regexp;
+         MIME_Type : String);
       --  Add Filename to the set of known content type regular expressions
 
    private
@@ -92,7 +92,7 @@ package body AWS.MIME is
       Last    : Node_Access;
    end Set;
 
-   function To_Lower (Item : in String)
+   function To_Lower (Item : String)
      return String
      renames Ada.Characters.Handling.To_Lower;
 
@@ -100,8 +100,8 @@ package body AWS.MIME is
    --  Initialize MIME table
 
    function Is_Type
-     (MIME_Type : in String;
-      Type_Name : in String) return Boolean;
+     (MIME_Type : String;
+      Type_Name : String) return Boolean;
    pragma Inline (Is_Type);
    --  Returns True if MIME_Type is of Type_Name type. The type name is the
    --  first part of the MIME Type (the part before the /).
@@ -110,7 +110,7 @@ package body AWS.MIME is
    -- Add_Extension --
    -------------------
 
-   procedure Add_Extension (Ext : in String; MIME_Type : in String) is
+   procedure Add_Extension (Ext : String; MIME_Type : String) is
    begin
       Set.Add_Extension (Ext, MIME_Type);
    end Add_Extension;
@@ -119,7 +119,7 @@ package body AWS.MIME is
    -- Add_Regexp --
    ----------------
 
-   procedure Add_Regexp (Filename : in String; MIME_Type : in String) is
+   procedure Add_Regexp (Filename : String; MIME_Type : String) is
       R_Filename : Regexp.Regexp;
    begin
       R_Filename := Regexp.Compile (Filename);
@@ -135,8 +135,8 @@ package body AWS.MIME is
    ------------------
 
    function Content_Type
-     (Filename : in String;
-      Default  : in String := Application_Octet_Stream) return String is
+     (Filename : String;
+      Default  : String := Application_Octet_Stream) return String is
    begin
       return Set.Get (Filename, Default => Default);
    end Content_Type;
@@ -145,7 +145,7 @@ package body AWS.MIME is
    -- Equivalent_Keys --
    ---------------------
 
-   function Equivalent_Keys (Left, Right : in String) return Boolean is
+   function Equivalent_Keys (Left, Right : String) return Boolean is
    begin
       return To_Lower (Left) = To_Lower (Right);
    end Equivalent_Keys;
@@ -154,7 +154,7 @@ package body AWS.MIME is
    -- Extension --
    ---------------
 
-   function Extension (Content_Type : in String) return String is
+   function Extension (Content_Type : String) return String is
    begin
       return Set.Extension (Content_Type);
    end Extension;
@@ -333,7 +333,7 @@ package body AWS.MIME is
    -- Is_Application --
    --------------------
 
-   function Is_Application (MIME_Type : in String) return Boolean is
+   function Is_Application (MIME_Type : String) return Boolean is
    begin
       return Is_Type (MIME_Type, "application/");
    end Is_Application;
@@ -342,7 +342,7 @@ package body AWS.MIME is
    -- Is_Audio --
    --------------
 
-   function Is_Audio (MIME_Type : in String) return Boolean is
+   function Is_Audio (MIME_Type : String) return Boolean is
    begin
       return Is_Type (MIME_Type, "audio/");
    end Is_Audio;
@@ -351,7 +351,7 @@ package body AWS.MIME is
    -- Is_Image --
    --------------
 
-   function Is_Image (MIME_Type : in String) return Boolean is
+   function Is_Image (MIME_Type : String) return Boolean is
    begin
       return Is_Type (MIME_Type, "image/");
    end Is_Image;
@@ -360,7 +360,7 @@ package body AWS.MIME is
    -- Is_Text --
    -------------
 
-   function Is_Text (MIME_Type : in String) return Boolean is
+   function Is_Text (MIME_Type : String) return Boolean is
    begin
       return Is_Type (MIME_Type, "text/");
    end Is_Text;
@@ -370,8 +370,8 @@ package body AWS.MIME is
    -------------
 
    function Is_Type
-     (MIME_Type : in String;
-      Type_Name : in String) return Boolean is
+     (MIME_Type : String;
+      Type_Name : String) return Boolean is
    begin
       return MIME_Type'Length > Type_Name'Length
           and then
@@ -385,7 +385,7 @@ package body AWS.MIME is
    -- Is_Video --
    --------------
 
-   function Is_Video (MIME_Type : in String) return Boolean is
+   function Is_Video (MIME_Type : String) return Boolean is
    begin
       return Is_Type (MIME_Type, "video/");
    end Is_Video;
@@ -400,7 +400,7 @@ package body AWS.MIME is
       -- Add_Extension --
       -------------------
 
-      procedure Add_Extension (Ext : in String; MIME_Type : in String) is
+      procedure Add_Extension (Ext : String; MIME_Type : String) is
       begin
          Key_Value.Include (Ext_Set, Ext, MIME_Type);
       end Add_Extension;
@@ -410,8 +410,8 @@ package body AWS.MIME is
       ----------------
 
       procedure Add_Regexp
-        (Filename  : in Regexp.Regexp;
-         MIME_Type : in String)
+        (Filename  : Regexp.Regexp;
+         MIME_Type : String)
       is
          Item : constant R_MIME_Type
            := (Filename, To_Unbounded_String (MIME_Type));
@@ -429,7 +429,7 @@ package body AWS.MIME is
       -- Extension --
       ---------------
 
-      function Extension (Content_Type : in String) return String is
+      function Extension (Content_Type : String) return String is
       begin
          if Content_Type = Default_Content_Type then
             null; -- We don't want to give unknown data the exe extension
@@ -457,7 +457,7 @@ package body AWS.MIME is
       -- Get --
       ---------
 
-      function Get (Filename : in String; Default : in String) return String is
+      function Get (Filename : String; Default : String) return String is
          Ext    : constant String := Directories.Extension (Filename);
          Cursor : Key_Value.Cursor;
       begin

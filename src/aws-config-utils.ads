@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                           Copyright (C) 2006                             --
---                                 AdaCore                                  --
+--                     Copyright (C) 2006-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -30,9 +29,9 @@ private package AWS.Config.Utils is
 
    procedure Set_Parameter
      (Param_Set     : in out Parameter_Set;
-      Name          : in     Parameter_Name;
-      Value         : in     String;
-      Error_Context : in     String);
+      Name          : Parameter_Name;
+      Value         : String;
+      Error_Context : String);
    --  Set the AWS parameters. Raises Constraint_Error in case of wrong
    --  parameter value. Error_Context should contain additional information
    --  about the parameter. This  message will be added to the Constraint_Error
@@ -40,11 +39,11 @@ private package AWS.Config.Utils is
    --  about where this parameter come form.
 
    function Value
-     (Item : in String; Error_Context : in String) return Parameter_Name;
+     (Item : String; Error_Context : String) return Parameter_Name;
    --  Convert string representation of AWS parameter name into Parameter_Name
    --  type.
 
-   procedure Parse_Strings (Vector : in out SV.Vector; Line : in String);
+   procedure Parse_Strings (Vector : in out SV.Vector; Line : String);
    --  Split comma separated values from Line into Vector.
    --  Trim spaces from both sides.
 

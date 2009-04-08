@@ -48,7 +48,7 @@ procedure Pauth is
    use Ada.Text_IO;
    use AWS;
 
-   function CB (Request : in Status.Data) return Response.Data;
+   function CB (Request : Status.Data) return Response.Data;
 
    task Server is
       entry Wait_Start;
@@ -71,7 +71,7 @@ procedure Pauth is
    -- CB --
    --------
 
-   function CB (Request : in Status.Data) return Response.Data is
+   function CB (Request : Status.Data) return Response.Data is
       Username    : String := AWS.Status.Authorization_Name (Request);
       Valid_Nonce : Boolean;
    begin

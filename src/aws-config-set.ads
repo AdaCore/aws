@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2008, AdaCore                     --
+--                     Copyright (C) 2000-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -37,59 +37,59 @@ package AWS.Config.Set is
    -- Server --
    ------------
 
-   procedure Server_Name (O : in out Object; Value : in String);
+   procedure Server_Name (O : in out Object; Value : String);
    --  This is the name of the server as set by AWS.Server.Start
 
-   procedure Server_Host (O : in out Object; Value : in String);
+   procedure Server_Host (O : in out Object; Value : String);
    --  This is the server host as set by the HTTP object declaration
 
-   procedure Server_Port (O : in out Object; Value : in Natural);
+   procedure Server_Port (O : in out Object; Value : Natural);
    --  This is the server port as set by the HTTP object declaration
 
-   procedure Hotplug_Port (O : in out Object; Value : in Positive);
+   procedure Hotplug_Port (O : in out Object; Value : Positive);
    --  This is the hotplug communication port needed to register and
    --  un-register an hotplug module.
 
-   procedure Session (O : in out Object; Value : in Boolean);
+   procedure Session (O : in out Object; Value : Boolean);
    --  Enable session handling is Value is True
 
-   procedure Case_Sensitive_Parameters (O : in out Object; Value : in Boolean);
+   procedure Case_Sensitive_Parameters (O : in out Object; Value : Boolean);
    --  Parameters are handled with the case if Value is True
 
-   procedure Line_Stack_Size (O : in out Object; Value : in Positive);
+   procedure Line_Stack_Size (O : in out Object; Value : Positive);
    --  HTTP lines stack size
 
-   procedure Reuse_Address (O : in out Object; Value : in Boolean);
+   procedure Reuse_Address (O : in out Object; Value : Boolean);
    --  Set the reuse address policy allowing a bind without a dealy to the same
    --  address and port.
 
-   procedure Session_Name (O : in out Object; Value : in String);
+   procedure Session_Name (O : in out Object; Value : String);
    --  Name of the cookie session
 
    ----------------
    -- Connection --
    ----------------
 
-   procedure Max_Connection (O : in out Object; Value : in Positive);
+   procedure Max_Connection (O : in out Object; Value : Positive);
    --  This is the max simultaneous connections as set by the HTTP object
    --  declaration.
 
    procedure Free_Slots_Keep_Alive_Limit
-     (O : in out Object; Value : in Natural);
+     (O : in out Object; Value : Natural);
    --  The minimum number of free slots where keep-alive connections are still
    --  enabled. After this limit no more keep-alive connection will be
    --  accepted by the server. This parameter must be used for heavy-loaded
    --  servers to make sure the server will never run out of slots. This limit
    --  must be less than Max_Connection.
 
-   procedure Keep_Alive_Force_Limit (O : in out Object; Value : in Natural);
+   procedure Keep_Alive_Force_Limit (O : in out Object; Value : Natural);
    --  Define maximum number of keep alive sockets where server process it with
    --  normal timeouts. If number of keep-alive sockets become more than
    --  Keep_Alive_Force_Limit, server start to use shorter force timeouts.
    --  If this parameter not defined in configuration or defined as 0 value
    --  server use calculated value Max_Connection * 2.
 
-   procedure Accept_Queue_Size (O : in out Object; Value : in Positive);
+   procedure Accept_Queue_Size (O : in out Object; Value : Positive);
    --  This is the size of the queue for the incoming requests. Higher this
    --  value will be and less "connection refused" will be reported to the
    --  client.
@@ -98,38 +98,38 @@ package AWS.Config.Set is
    -- Data --
    ----------
 
-   procedure WWW_Root (O : in out Object; Value : in String);
+   procedure WWW_Root (O : in out Object; Value : String);
    --  This is the root directory name for the server. This variable is not
    --  used internally by AWS. It is supposed to be used by the callback
    --  procedures who want to retrieve physical objects (images, Web
    --  pages...). The default value is the current working directory.
 
-   procedure Upload_Directory (O : in out Object; Value : in String);
+   procedure Upload_Directory (O : in out Object; Value : String);
    --  This point to the directory where uploaded files will be stored. The
    --  directory returned will end with a directory separator.
 
-   procedure Upload_Size_Limit (O : in out Object; Value : in Positive);
+   procedure Upload_Size_Limit (O : in out Object; Value : Positive);
    --  Set the maximum size accepted for uploaded files
 
-   procedure Directory_Browser_Page (O : in out Object; Value : in String);
+   procedure Directory_Browser_Page (O : in out Object; Value : String);
    --  Filename for the directory browser template page
 
    ---------
    -- Log --
    ---------
 
-   procedure Log_File_Directory (O : in out Object; Value : in String);
+   procedure Log_File_Directory (O : in out Object; Value : String);
    --  This point to the directory where log files will be written. The
    --  directory returned will end with a directory separator.
 
-   procedure Log_Filename_Prefix (O : in out Object; Value : in String);
+   procedure Log_Filename_Prefix (O : in out Object; Value : String);
    --  This is the prefix to use for the log filename
 
-   procedure Log_Split_Mode (O : in out Object; Value : in String);
+   procedure Log_Split_Mode (O : in out Object; Value : String);
    --  This is split mode for the log file. Possible values are : Each_Run,
    --  Daily, Monthly and None. Any other values will raise an exception.
 
-   procedure Log_Extended_Fields (O : in out Object; Value : in String);
+   procedure Log_Extended_Fields (O : in out Object; Value : String);
    --  Comma separated list of the extended log field names. If this parameter
    --  is empty, the HTTP log would have fixed apache compartible format:
    --
@@ -163,10 +163,10 @@ package AWS.Config.Set is
    --  sc(<header>) Any header field name sent from server to client
    --  x-<appfield> Any application defined field name
 
-   procedure Error_Log_Filename_Prefix (O : in out Object; Value : in String);
+   procedure Error_Log_Filename_Prefix (O : in out Object; Value : String);
    --  This is the prefix to use for the log filename
 
-   procedure Error_Log_Split_Mode (O : in out Object; Value : in String);
+   procedure Error_Log_Split_Mode (O : in out Object; Value : String);
    --  This is split mode for the log file. Possible values are : Each_Run,
    --  Daily, Monthly and None. Any other values will raise an exception.
 
@@ -174,19 +174,19 @@ package AWS.Config.Set is
    -- Status --
    ------------
 
-   procedure Admin_URI (O : in out Object; Value : in String);
+   procedure Admin_URI (O : in out Object; Value : String);
    --  This is the name of the admin server page as set by AWS.Server.Start
 
-   procedure Status_Page (O : in out Object; Value : in String);
+   procedure Status_Page (O : in out Object; Value : String);
    --  Filename for the status template page
 
-   procedure Up_Image (O : in out Object; Value : in String);
+   procedure Up_Image (O : in out Object; Value : String);
    --  Filename for the up arrow image used in the status page
 
-   procedure Down_Image (O : in out Object; Value : in String);
+   procedure Down_Image (O : in out Object; Value : String);
    --  Filename for the down arrow image used in the status page
 
-   procedure Logo_Image (O : in out Object; Value : in String);
+   procedure Logo_Image (O : in out Object; Value : String);
    --  Filename for the AWS logo image used in the status page
 
    --------------
@@ -195,107 +195,107 @@ package AWS.Config.Set is
 
    procedure Cleaner_Wait_For_Client_Timeout
      (O     : in out Object;
-      Value : in     Duration);
+      Value : Duration);
    --  Number of seconds to timout on waiting for a client request.
    --  This is a timeout for regular cleaning task.
 
    procedure Cleaner_Client_Header_Timeout
      (O     : in out Object;
-      Value : in     Duration);
+      Value : Duration);
    --  Number of seconds to timout on waiting for client header.
    --  This is a timeout for regular cleaning task.
 
    procedure Cleaner_Client_Data_Timeout
      (O     : in out Object;
-      Value : in     Duration);
+      Value : Duration);
    --  Number of seconds to timout on waiting for client message body.
    --  This is a timeout for regular cleaning task.
 
    procedure Cleaner_Server_Response_Timeout
      (O     : in out Object;
-      Value : in     Duration);
+      Value : Duration);
    --  Number of seconds to timout on waiting for client to accept answer.
    --  This is a timeout for regular cleaning task.
 
    procedure Force_Wait_For_Client_Timeout
      (O     : in out Object;
-      Value : in     Duration);
+      Value : Duration);
    --  Number of seconds to timout on waiting for a client request.
    --  This is a timeout for urgent request when resources are missing.
 
    procedure Force_Client_Header_Timeout
      (O     : in out Object;
-      Value : in     Duration);
+      Value : Duration);
    --  Number of seconds to timout on waiting for client header.
    --  This is a timeout for urgent request when resources are missing.
 
    procedure Force_Client_Data_Timeout
      (O     : in out Object;
-      Value : in     Duration);
+      Value : Duration);
    --  Number of seconds to timout on waiting for client message body.
    --  This is a timeout for urgent request when resources are missing.
 
    procedure Force_Server_Response_Timeout
      (O     : in out Object;
-      Value : in     Duration);
+      Value : Duration);
    --  Number of seconds to timout on waiting for client to accept answer.
    --  This is a timeout for urgent request when resources are missing.
 
-   procedure Send_Timeout (O  : in out Object; Value : in Duration);
+   procedure Send_Timeout (O  : in out Object; Value : Duration);
    --  Number of seconds to timeout when sending chunck of data
 
-   procedure Receive_Timeout (O : in out Object; Value : in Duration);
+   procedure Receive_Timeout (O : in out Object; Value : Duration);
    --  Number of seconds to timeout when receiving chunck of data
 
    --------------
    -- Security --
    --------------
 
-   procedure Check_URL_Validity (O : in out Object; Value : in Boolean);
+   procedure Check_URL_Validity (O : in out Object; Value : Boolean);
    --  Set the check URL validity flag. If True an URL that reference a
    --  resource above the Web root will be rejected.
 
-   procedure Security (O : in out Object; Value : in Boolean);
+   procedure Security (O : in out Object; Value : Boolean);
    --  Enable security (HTTPS/SSL) if Value is True
 
-   procedure Certificate (O : in out Object; Filename : in String);
+   procedure Certificate (O : in out Object; Filename : String);
    --  Set the certificate to be used with the secure server
 
-   procedure Key (O : in out Object; Filename : in String);
+   procedure Key (O : in out Object; Filename : String);
    --  Set the key to be used with the secure server
 
-   procedure Security_Mode (O : in out Object; Mode : in String);
+   procedure Security_Mode (O : in out Object; Mode : String);
    --  Set the security mode to be used with the secure server. Only values
    --  from AWS.Net.SSL.Method can be used.
 
-   procedure Exchange_Certificate (O : in out Object; Value : in Boolean);
+   procedure Exchange_Certificate (O : in out Object; Value : Boolean);
    --  Set to True to request the client to send its certificate to the server
 
    -------------------------
    -- Per Process Options --
    -------------------------
 
-   procedure Session_Cleanup_Interval (Value : in Duration);
+   procedure Session_Cleanup_Interval (Value : Duration);
    --  Number of seconds between each run of the cleaner task to remove
    --  obsolete session data.
 
-   procedure Session_Lifetime (Value : in Duration);
+   procedure Session_Lifetime (Value : Duration);
    --  Number of seconds to keep a session if not used. After this period the
    --  session data is obsoleted and will be removed during next cleanup.
 
-   procedure Transient_Cleanup_Interval (Value : in Duration);
+   procedure Transient_Cleanup_Interval (Value : Duration);
    --  Number of seconds between each run of the cleaner task to remove
    --  transient pages.
 
-   procedure Transient_Lifetime (Value : in Duration);
+   procedure Transient_Lifetime (Value : Duration);
    --  Number of seconds to keep a transient page. After this period the
    --  transient page is obsoleted and will be removed during next cleanup.
 
    procedure Parameter
      (Config        : in out Object;
-      Name          : in     String;
-      Value         : in     String;
-      Error_Context : in     String := "");
+      Name          : String;
+      Value         : String;
+      Error_Context : String := "");
    --  Set one of the AWS HTTP per server parameters. Raises Constraint_Error
    --  in case of wrong parameter name or wrong parameter value.
    --  Error_Context may contain additional information about the parameter.
@@ -304,9 +304,9 @@ package AWS.Config.Set is
    --  where this parameter come form.
 
    procedure Parameter
-     (Name          : in String;
-      Value         : in String;
-      Error_Context : in String := "");
+     (Name          : String;
+      Value         : String;
+      Error_Context : String := "");
    --  Set one of the AWS HTTP per process parameters. See description above
 
 end AWS.Config.Set;

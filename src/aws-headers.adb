@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2008, AdaCore                     --
+--                     Copyright (C) 2000-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -38,7 +38,7 @@ package body AWS.Headers is
    -- Get_Line --
    --------------
 
-   function Get_Line (Headers : in List; N : in Positive) return String is
+   function Get_Line (Headers : List; N : Positive) return String is
       Pair : constant Element := Get (Headers, N);
    begin
       if Pair.Name = "" then
@@ -52,10 +52,10 @@ package body AWS.Headers is
    -- Get_Values --
    ----------------
 
-   function Get_Values (Headers : in List; Name : in String) return String is
+   function Get_Values (Headers : List; Name : String) return String is
       Values : constant VString_Array := Get_Values (Headers, Name);
 
-      function Get_Values (Start_From : in Positive) return String;
+      function Get_Values (Start_From : Positive) return String;
       --  Return string of header values comma separated
       --  concateneted starting from Start_From index.
 
@@ -63,7 +63,7 @@ package body AWS.Headers is
       -- Get_Values --
       ----------------
 
-      function Get_Values (Start_From : in Positive) return String is
+      function Get_Values (Start_From : Positive) return String is
          Value : constant String := To_String (Values (Start_From));
       begin
          if Start_From = Values'Last then
@@ -85,7 +85,7 @@ package body AWS.Headers is
    -- Length --
    ------------
 
-   function Length (Headers : in AWS.Headers.List) return Natural is
+   function Length (Headers : AWS.Headers.List) return Natural is
       L : Natural := 2; -- The ending CR+LF
    begin
       for J in 1 .. AWS.Headers.Count (Headers) loop
@@ -103,7 +103,7 @@ package body AWS.Headers is
    -----------------
 
    procedure Send_Header
-     (Socket : in Net.Socket_Type'Class; Headers : in List) is
+     (Socket : Net.Socket_Type'Class; Headers : List) is
    begin
       for J in 1 .. Count (Headers) loop
          Net.Buffered.Put_Line (Socket, Get_Line (Headers, J));

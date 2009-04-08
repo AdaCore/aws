@@ -2,8 +2,7 @@
 --                              Ada Web Server                              --
 --                   S M T P - Simple Mail Transfer Protocol                --
 --                                                                          --
---                           Copyright (C) 2007                             --
---                                 AdaCore                                  --
+--                     Copyright (C) 2007-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -41,9 +40,9 @@ package body AWS.SMTP.Authentication.Plain is
    -----------------
 
    overriding procedure Before_Send
-     (Credential : in     Plain.Credential;
+     (Credential : Plain.Credential;
       Sock       : in out Net.Socket_Type'Class;
-      Status     :    out SMTP.Status)
+      Status     : out SMTP.Status)
    is
       Answer : Server_Reply;
    begin
@@ -79,7 +78,7 @@ package body AWS.SMTP.Authentication.Plain is
    -- Image --
    -----------
 
-   overriding function Image (Info : in Credential) return String is
+   overriding function Image (Info : Credential) return String is
       UTF_8_NUL : constant Character := Character'Val (0);
       --  Part of AUTH PLAIN message text, acting as a separator
 
@@ -111,7 +110,7 @@ package body AWS.SMTP.Authentication.Plain is
    -- Initialize --
    ----------------
 
-   function Initialize (Auth_Cid, Password : in String) return Credential is
+   function Initialize (Auth_Cid, Password : String) return Credential is
       use Ada.Strings;
 
       Result : Credential;

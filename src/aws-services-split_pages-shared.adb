@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2004                            --
---                                ACT-Europe                                --
+--                     Copyright (C) 2004-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -35,8 +34,8 @@ package body AWS.Services.Split_Pages.Shared is
    -----------------------
 
    function Associated_Vector
-     (Table : in Templates.Translate_Set;
-      Key   : in String)
+     (Table : Templates.Translate_Set;
+      Key   : String)
       return Templates.Tag
    is
       --  Determine key vector
@@ -62,7 +61,7 @@ package body AWS.Services.Split_Pages.Shared is
    -- Safe_URI --
    --------------
 
-   function Safe_URI (URIs : in URI_Table; I : in Natural) return String is
+   function Safe_URI (URIs : URI_Table; I : Natural) return String is
    begin
       if I in URIs'Range then
          return To_String (URIs (I));

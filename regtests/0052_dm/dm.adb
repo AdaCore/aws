@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2005-2008, AdaCore                     --
+--                     Copyright (C) 2005-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -70,23 +70,23 @@ procedure DM is
       Signature : MD5.Message_Digest;
    end record;
 
-   function CB (Request : in Status.Data) return Response.Data;
+   function CB (Request : Status.Data) return Response.Data;
 
    task type Client is
-      entry Start (N : in Positive);
+      entry Start (N : Positive);
       entry Stop (Info : out Download_Info);
    end Client;
 
    Filename : constant String := "dm_file.data";
 
-   procedure Put_Line (Str : in String);
+   procedure Put_Line (Str : String);
    --  Output Str if in Debug mode
 
    function Create_Filename return MD5.Message_Digest;
    --  Generate file content and return the MD5 signature
 
    function MD5_Signature
-     (Content : in Unbounded_String) return MD5.Message_Digest;
+     (Content : Unbounded_String) return MD5.Message_Digest;
    --  Returns the MD5 signature for Content
 
    Some_Waiting : Boolean := False;
@@ -108,7 +108,7 @@ procedure DM is
    -- CB --
    --------
 
-   function CB (Request : in Status.Data) return Response.Data is
+   function CB (Request : Status.Data) return Response.Data is
       URI    : constant String := Status.URI (Request);
       Stream : Resources.Streams.Stream_Access;
    begin
@@ -138,7 +138,7 @@ procedure DM is
       Code : Messages.Status_Code;
       N    : Positive;
 
-      function Get (URI : in String) return Response.Data;
+      function Get (URI : String) return Response.Data;
       --  Get response for the specified URI, store the URI
 
       function Reload return Response.Data;
@@ -148,7 +148,7 @@ procedure DM is
       -- Get --
       ---------
 
-      function Get (URI : in String) return Response.Data is
+      function Get (URI : String) return Response.Data is
       begin
          Client.URI := To_Unbounded_String (URI);
          return AWS.Client.Get (URI);
@@ -164,7 +164,7 @@ procedure DM is
       end Reload;
 
    begin
-      accept Start (N : in Positive) do
+      accept Start (N : Positive) do
          Client.N := N;
       end Start;
 
@@ -256,7 +256,7 @@ procedure DM is
    -------------------
 
    function MD5_Signature
-     (Content : in Unbounded_String) return MD5.Message_Digest
+     (Content : Unbounded_String) return MD5.Message_Digest
    is
       Chunk_Size  : constant := 4 * 1_024;
       Len         : constant Positive := Length (Content);
@@ -278,7 +278,7 @@ procedure DM is
    -- Put_Line --
    --------------
 
-   procedure Put_Line (Str : in String) is
+   procedure Put_Line (Str : String) is
    begin
       if Debug then
          Text_IO.Put_Line (Str);

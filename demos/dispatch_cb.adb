@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2003                            --
---                                ACT-Europe                                --
+--                     Copyright (C) 2003-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -29,7 +28,7 @@
 package body Dispatch_CB is
 
    function HW_CB
-     (Request : in AWS.Status.Data)
+     (Request : AWS.Status.Data)
       return AWS.Response.Data
    is
       pragma Unreferenced (Request);
@@ -38,4 +37,3 @@ package body Dispatch_CB is
    end HW_CB;
 
 end Dispatch_CB;
-

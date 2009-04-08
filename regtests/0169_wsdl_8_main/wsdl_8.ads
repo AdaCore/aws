@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2004-2008, AdaCore                     --
+--                     Copyright (C) 2004-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -39,7 +39,7 @@ package WSDL_8 is
    type Set_Of_Files is array (Positive range <>) of File_Data;
 
    procedure Proc
-     (Name  : in String;
-      Files : in Set_Of_Files);
+     (Name  : String;
+      Files : Set_Of_Files);
 
 end WSDL_8;

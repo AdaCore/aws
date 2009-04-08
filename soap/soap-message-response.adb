@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2008, AdaCore                     --
+--                     Copyright (C) 2000-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -35,7 +35,7 @@ package body SOAP.Message.Response is
    -- Build --
    -----------
 
-   function Build (R : in Object'Class) return AWS.Response.Data is
+   function Build (R : Object'Class) return AWS.Response.Data is
    begin
       return AWS.Response.Build
          (AWS.MIME.Text_XML, UString_Message => SOAP.Message.XML.Image (R));
@@ -45,7 +45,7 @@ package body SOAP.Message.Response is
    -- From --
    ----------
 
-   function From (P : in Message.Payload.Object) return Object is
+   function From (P : Message.Payload.Object) return Object is
       NP : Object;
    begin
       Set_Wrapper_Name (NP, Payload.Procedure_Name (P) & "Response");
@@ -61,7 +61,7 @@ package body SOAP.Message.Response is
    -- Is_Error --
    --------------
 
-   function Is_Error (R : in Object) return Boolean is
+   function Is_Error (R : Object) return Boolean is
       pragma Warnings (Off, R);
    begin
       return False;

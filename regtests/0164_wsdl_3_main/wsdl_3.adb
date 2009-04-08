@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2008, AdaCore                     --
+--                     Copyright (C) 2003-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -38,7 +38,7 @@ package body WSDL_3 is
    -- Image_Rec1 --
    ----------------
 
-   function Image_Rec1 (Rec : in Rec1) return String is
+   function Image_Rec1 (Rec : Rec1) return String is
    begin
       return "(" & Integer'Image (Rec.Item1)
         & ", " & Natural'Image (Rec.Item2)
@@ -50,7 +50,7 @@ package body WSDL_3 is
    -- Image_Rec2 --
    ----------------
 
-   function Image_Rec2 (Rec : in Rec2) return String is
+   function Image_Rec2 (Rec : Rec2) return String is
    begin
       return "(" & Image_Rec1 (Rec.Field1)
         & ", " & Rec.Field2
@@ -63,7 +63,7 @@ package body WSDL_3 is
    -- Image_Rec3 --
    ----------------
 
-   function Image_Rec3 (Rec : in Rec3) return String is
+   function Image_Rec3 (Rec : Rec3) return String is
       R : Unbounded_String;
    begin
       Append (R, "(");

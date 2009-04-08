@@ -2,8 +2,7 @@
 --                              Ada Web Server                              --
 --                 S M T P - Simple Mail Transfer Protocol                  --
 --                                                                          --
---                            Copyright (C) 2008                            --
---                                 AdaCore                                  --
+--                     Copyright (C) 2008-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -34,7 +33,7 @@ package body AWS.SMTP.Messages.Set is
    -------------
 
    procedure Headers
-     (Message : in out Data; Headers : in AWS.Headers.List) is
+     (Message : in out Data; Headers : AWS.Headers.List) is
    begin
       Message.Headers := Headers;
    end Headers;
@@ -43,7 +42,7 @@ package body AWS.SMTP.Messages.Set is
    -- Set_Body --
    --------------
 
-   procedure Set_Body (Message : in out Data; Message_Body : in String) is
+   procedure Set_Body (Message : in out Data; Message_Body : String) is
    begin
       Message.Message_Body := To_Unbounded_String (Message_Body);
    end Set_Body;

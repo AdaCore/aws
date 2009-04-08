@@ -291,32 +291,32 @@ main (int argc, char *argv[])
   P ("   pragma Convention (C, Addr_Info);\n\n");
 
   P ("   function GetAddrInfo\n");
-  P ("     (node    : in C.Strings.chars_ptr;\n");
-  P ("      service : in C.Strings.chars_ptr;\n");
-  P ("      hints   : in Addr_Info;\n");
+  P ("     (node    : C.Strings.chars_ptr;\n");
+  P ("      service : C.Strings.chars_ptr;\n");
+  P ("      hints   : Addr_Info;\n");
   P ("      res     : not null access Addr_Info_Access) return C.int;\n\n");
 
-  P ("   procedure FreeAddrInfo (res : in Addr_Info_Access);\n\n");
+  P ("   procedure FreeAddrInfo (res : Addr_Info_Access);\n\n");
 
-  P ("   function GAI_StrError (ecode : in C.int)");
+  P ("   function GAI_StrError (ecode : C.int)");
   P (" return C.Strings.chars_ptr;\n\n");
 
   P ("   function Set_Sock_Opt\n");
-  P ("     (S       : in C.int;\n");
-  P ("      Level   : in C.int;\n");
-  P ("      OptName : in C.int;\n");
-  P ("      OptVal  : in System.Address;\n");
-  P ("      OptLen  : in C.int) return C.int;\n\n");
+  P ("     (S       : C.int;\n");
+  P ("      Level   : C.int;\n");
+  P ("      OptName : C.int;\n");
+  P ("      OptVal  : System.Address;\n");
+  P ("      OptLen  : C.int) return C.int;\n\n");
 
   P ("   function C_Ioctl\n");
-  P ("     (S   : in C.int;\n");
-  P ("      Req : in C.int;\n");
+  P ("     (S   : C.int;\n");
+  P ("      Req : C.int;\n");
   P ("      Arg : access C.int) return C.int;\n\n");
 
-  P ("   function C_Close (Fd : in C.int) return C.int;\n\n");
+  P ("   function C_Close (Fd : C.int) return C.int;\n\n");
 
   P ("   procedure WSA_Startup\n");
-  P ("     (Version : in C.int; Data : in System.Address)");
+  P ("     (Version : C.int; Data : System.Address)");
 #ifdef _WIN32
   P (";\n");
   P ("   pragma Import (Stdcall, WSA_Startup, \"WSAStartup\");\n\n");

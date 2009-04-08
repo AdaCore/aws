@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                          Copyright (C) 2003-2004                         --
---                                ACT-Europe                                --
+--                     Copyright (C) 2003-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -34,7 +33,7 @@ package body AWS.Server.Log is
    -- Error_Name --
    ----------------
 
-   function Error_Name (Web_Server : in HTTP) return String is
+   function Error_Name (Web_Server : HTTP) return String is
    begin
       return AWS.Log.Filename (Web_Server.Error_Log);
    end Error_Name;
@@ -52,7 +51,7 @@ package body AWS.Server.Log is
    -- Is_Active --
    ---------------
 
-   function Is_Active (Web_Server : in HTTP) return Boolean is
+   function Is_Active (Web_Server : HTTP) return Boolean is
    begin
       return AWS.Log.Is_Active (Web_Server.Log);
    end Is_Active;
@@ -61,7 +60,7 @@ package body AWS.Server.Log is
    -- Is_Error_Active --
    ---------------------
 
-   function Is_Error_Active (Web_Server : in HTTP) return Boolean is
+   function Is_Error_Active (Web_Server : HTTP) return Boolean is
    begin
       return AWS.Log.Is_Active (Web_Server.Error_Log);
    end Is_Error_Active;
@@ -70,7 +69,7 @@ package body AWS.Server.Log is
    -- Name --
    ----------
 
-   function Name (Web_Server : in HTTP) return String is
+   function Name (Web_Server : HTTP) return String is
    begin
       return AWS.Log.Filename (Web_Server.Log);
    end Name;
@@ -81,19 +80,19 @@ package body AWS.Server.Log is
 
    procedure Start
      (Web_Server      : in out HTTP;
-      Split_Mode      : in     AWS.Log.Split_Mode := AWS.Log.None;
-      Filename_Prefix : in     String             := "";
-      Auto_Flush      : in     Boolean            := False)
+      Split_Mode      : AWS.Log.Split_Mode := AWS.Log.None;
+      Filename_Prefix : String             := "";
+      Auto_Flush      : Boolean            := False)
    is
       use type AWS.Log.Split_Mode;
 
-      procedure Register_Extended_Field (Id : in String);
+      procedure Register_Extended_Field (Id : String);
 
       -----------------------------
       -- Register_Extended_Field --
       -----------------------------
 
-      procedure Register_Extended_Field (Id : in String) is
+      procedure Register_Extended_Field (Id : String) is
       begin
          AWS.Log.Register_Field (Web_Server.Log, Id);
       end Register_Extended_Field;
@@ -128,8 +127,8 @@ package body AWS.Server.Log is
 
    procedure Start_Error
      (Web_Server      : in out HTTP;
-      Split_Mode      : in     AWS.Log.Split_Mode := AWS.Log.None;
-      Filename_Prefix : in     String             := "")
+      Split_Mode      : AWS.Log.Split_Mode := AWS.Log.None;
+      Filename_Prefix : String             := "")
    is
       use type AWS.Log.Split_Mode;
    begin

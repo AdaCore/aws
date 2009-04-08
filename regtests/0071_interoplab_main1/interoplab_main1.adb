@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2008, AdaCore                     --
+--                     Copyright (C) 2003-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -53,7 +53,7 @@ procedure Interoplab_Main1 is
    H_Server : AWS.Server.HTTP;
 
    function "+"
-     (Str : in String)
+     (Str : String)
       return Unbounded_String
       renames To_Unbounded_String;
 
@@ -63,7 +63,7 @@ procedure Interoplab_Main1 is
    -- Output --
    ------------
 
-   procedure Output (S : in SOAPStruct_Type) is
+   procedure Output (S : SOAPStruct_Type) is
    begin
       Integer_Text_IO.Put (S.varInt); Text_IO.New_Line;
       FIO.Put (S.VarFloat, Exp => 0, Aft => 2); Text_IO.New_Line;
@@ -74,7 +74,7 @@ procedure Interoplab_Main1 is
    -- T_echoString_CB --
    ---------------------
 
-   function T_echoString_CB (inputString : in String) return String is
+   function T_echoString_CB (inputString : String) return String is
    begin
       return inputString;
    end T_echoString_CB;
@@ -101,7 +101,7 @@ procedure Interoplab_Main1 is
    --------------------------
 
    function T_echoStringArray_CB
-      (inputStringArray : in ArrayOfstring_Type)
+      (inputStringArray : ArrayOfstring_Type)
        return echoStringArray_Result is
    begin
       return inputStringArray;
@@ -132,7 +132,7 @@ procedure Interoplab_Main1 is
    ----------------------
 
    function T_echoBoolean_CB
-     (inputBoolean : in Boolean)
+     (inputBoolean : Boolean)
       return Boolean is
    begin
       return inputBoolean;
@@ -163,7 +163,7 @@ procedure Interoplab_Main1 is
    ---------------------
 
    function T_echoBase64_CB
-     (inputBase64 : in String)
+     (inputBase64 : String)
       return String is
    begin
       return inputBase64;
@@ -193,7 +193,7 @@ procedure Interoplab_Main1 is
    ----------------------
 
    function T_echoInteger_CB
-      (inputInteger : in Integer)
+      (inputInteger : Integer)
        return Integer is
    begin
       return inputInteger;
@@ -221,7 +221,7 @@ procedure Interoplab_Main1 is
    ---------------------------
 
    function T_echoIntegerArray_CB
-      (inputIntegerArray : in ArrayOfint_Type)
+      (inputIntegerArray : ArrayOfint_Type)
        return echoIntegerArray_Result is
    begin
       return inputIntegerArray;
@@ -254,7 +254,7 @@ procedure Interoplab_Main1 is
    --------------------
 
    function T_echoFloat_CB
-      (inputFloat : in Float)
+      (inputFloat : Float)
        return Float is
    begin
       return inputFloat;
@@ -282,7 +282,7 @@ procedure Interoplab_Main1 is
    ---------------------
 
    function T_echoStruct_CB
-      (inputStruct : in SOAPStruct_Type)
+      (inputStruct : SOAPStruct_Type)
        return echoStruct_Result is
    begin
       return inputStruct;
@@ -315,7 +315,7 @@ procedure Interoplab_Main1 is
    -------------------
 
    function T_echoDate_CB
-      (inputDate : in Ada.Calendar.Time)
+      (inputDate : Ada.Calendar.Time)
        return Ada.Calendar.Time is
    begin
       return inputDate;
@@ -351,7 +351,7 @@ procedure Interoplab_Main1 is
    -------------------------
 
    function T_echoFloatArray_CB
-      (inputFloatArray : in ArrayOffloat_Type)
+      (inputFloatArray : ArrayOffloat_Type)
        return EchoFloatArray_Result is
    begin
       return inputFloatArray;
@@ -386,7 +386,7 @@ procedure Interoplab_Main1 is
    ---------------------
 
    function T_echoStructArray_CB
-      (inputStructArray : in ArrayOfSOAPStruct_Type)
+      (inputStructArray : ArrayOfSOAPStruct_Type)
        return echoStructArray_Result is
    begin
       return inputStructArray;
@@ -442,7 +442,7 @@ procedure Interoplab_Main1 is
    -- CB --
    --------
 
-   function CB (Request : in Status.Data) return Response.Data is
+   function CB (Request : Status.Data) return Response.Data is
       SOAPAction : constant String := Status.SOAPAction (Request);
       Payload    : constant SOAP.Message.Payload.Object
         := SOAP.Message.XML.Load_Payload (AWS.Status.Payload (Request));

@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2004                          --
---                               ACT-Europe                                 --
+--                     Copyright (C) 2000-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -34,10 +33,10 @@ generic
    type T_Access is access T;
 
    with function Callback
-     (Server     : in String; -- Host name
-      Name       : in String; -- Message name
-      Context    : in T_Access;
-      Parameters : in Parameter_Set := Null_Parameter_Set)
+     (Server     : String; -- Host name
+      Name       : String; -- Message name
+      Context    : T_Access;
+      Parameters : Parameter_Set := Null_Parameter_Set)
       return Response.Data;
 
 package AWS.Communication.Server is
@@ -47,7 +46,7 @@ package AWS.Communication.Server is
    --  parameter. This communication server must be started with the Start
    --  procedure and can be stopped with the procedure Shutdown below.
 
-   procedure Start (Port : in Positive; Context : in T_Access);
+   procedure Start (Port : Positive; Context : T_Access);
    --  Start communication HTTP server listening at the given port
 
    procedure Shutdown;

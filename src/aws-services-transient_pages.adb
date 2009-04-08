@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2008, AdaCore                     --
+--                     Copyright (C) 2003-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -61,14 +61,14 @@ package body AWS.Services.Transient_Pages is
       --  Generate a unique ID used to create a transient URI
 
       procedure Register
-        (URI      : in String;
-         Resource : in Item);
+        (URI      : String;
+         Resource : Item);
       --  Register URI into the database
 
       procedure Get_Value
-        (URI    : in     String;
-         Result :    out Item;
-         Found  :    out Boolean);
+        (URI    : String;
+         Result : out Item;
+         Found  : out Boolean);
       --  Returns URI's information or set Found to False if not found
 
       procedure Clean;
@@ -90,8 +90,8 @@ package body AWS.Services.Transient_Pages is
       --------------
 
       procedure Register
-        (Transient_Check_Interval : in     Duration;
-         Need_Start               :    out Boolean) is
+        (Transient_Check_Interval : Duration;
+         Need_Start               : out Boolean) is
       begin
          Need_Start     := Server_Count = 0 and then Cleaner_Task = null;
          Server_Count   := Server_Count + 1;
@@ -215,9 +215,9 @@ package body AWS.Services.Transient_Pages is
       ---------------
 
       procedure Get_Value
-        (URI    : in     String;
-         Result :    out Item;
-         Found  :    out Boolean)
+        (URI    : String;
+         Result : out Item;
+         Found  : out Boolean)
       is
          Cursor : Table.Cursor;
       begin
@@ -236,8 +236,8 @@ package body AWS.Services.Transient_Pages is
       --------------
 
       procedure Register
-        (URI      : in     String;
-         Resource : in     Item)
+        (URI      : String;
+         Resource : Item)
       is
          Cursor  : Table.Cursor;
          Success : Boolean;
@@ -251,7 +251,7 @@ package body AWS.Services.Transient_Pages is
    -- Get --
    ---------
 
-   function Get (URI : in String) return AWS.Resources.Streams.Stream_Access is
+   function Get (URI : String) return AWS.Resources.Streams.Stream_Access is
       Result : Item;
       Found  : Boolean;
    begin
@@ -282,9 +282,9 @@ package body AWS.Services.Transient_Pages is
    --------------
 
    procedure Register
-     (URI      : in String;
-      Resource : in AWS.Resources.Streams.Stream_Access;
-      Lifetime : in Duration := Default.Transient_Lifetime)
+     (URI      : String;
+      Resource : AWS.Resources.Streams.Stream_Access;
+      Lifetime : Duration := Default.Transient_Lifetime)
    is
       use Real_Time;
    begin

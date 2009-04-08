@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2002-2008, AdaCore                     --
+--                     Copyright (C) 2002-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -53,18 +53,18 @@ package AWS.Resources is
    --  connection in the HTTP/1.0.
 
    procedure Open
-     (File :    out File_Type;
-      Name : in     String;
-      Form : in     String    := "");
+     (File : out File_Type;
+      Name : String;
+      Form : String    := "");
    --  Open file in mode In_File. Only reading from the file is supported.
    --  This procedure open the in-memory (embedded) file if present, otherwise
    --  the file on disk is opened. Note that if Name file is not found, it
    --  checks for Name & ".gz" and unzipped the file content in this case.
 
    procedure Open
-     (File :    out File_Type;
-      Name : in     String;
-      Form : in     String    := "";
+     (File : out File_Type;
+      Name : String;
+      Form : String    := "";
       GZip : in out Boolean);
    --  Open file in mode In_File. Only reading from the file is supported.
    --  This procedure open the in-memory (embedded) file if present, otherwise
@@ -80,7 +80,7 @@ package AWS.Resources is
 
    procedure Set_Index
      (Resource : in out File_Type;
-      To       : in     Stream_Element_Offset);
+      To       : Stream_Element_Offset);
    --  Set the position in the stream, next Read will start at the position
    --  whose index is To. If To is outside the content the index is set to
    --  Last + 1 to ensure that next End_Of_File will return True.
@@ -90,44 +90,44 @@ package AWS.Resources is
 
    procedure Read
      (Resource : in out File_Type;
-      Buffer   :    out Stream_Element_Array;
-      Last     :    out Stream_Element_Offset);
+      Buffer   : out Stream_Element_Array;
+      Last     : out Stream_Element_Offset);
    --  Returns a set of bytes from the file
 
    procedure Get_Line
      (Resource  : in out File_Type;
-      Buffer    :    out String;
-      Last      :    out Natural);
+      Buffer    : out String;
+      Last      : out Natural);
    --  Returns a line from the file. A line is a set of character terminated
    --  by ASCII.LF (UNIX style EOF) or ASCII.CR+ASCII.LF (DOS style EOF).
 
-   function End_Of_File (Resource : in File_Type) return Boolean;
-   --  Returns true if there is no more data to read.
+   function End_Of_File (Resource : File_Type) return Boolean;
+   --  Returns true if there is no more data to read
 
-   function LF_Terminated (Resource : in File_Type) return Boolean;
+   function LF_Terminated (Resource : File_Type) return Boolean;
    --  Returns True if last line returned by Get_Line was terminated with a LF
    --  or CR+LF on DOS based systems.
 
-   function Size (Resource : in File_Type) return Content_Length_Type;
+   function Size (Resource : File_Type) return Content_Length_Type;
    --  Returns the size (in bytes) of the resource. If the size of the
    --  resource is not defined, the routine Size returns Undefined_Length
    --  value.
 
-   function Exist (Name : in String) return File_Instance;
+   function Exist (Name : String) return File_Instance;
    --  Return GZip if only file Name & ".gz" exists.
    --  Return Plain if only file Name exists.
    --  Return Both if both file Name and Name & ".gz" exists.
    --  Return None if files neither Name nor Name & ".gz" exist.
 
-   function Is_Regular_File (Name : in String) return Boolean;
+   function Is_Regular_File (Name : String) return Boolean;
    --  Returns True if Filename is a regular file and is readable. Checks
    --  first for in memory file then for disk file.
 
-   function File_Size (Name : in String) return Utils.File_Size_Type;
+   function File_Size (Name : String) return Utils.File_Size_Type;
    --  Returns Filename's size in bytes. Checks first for in memory file
    --  then for disk file.
 
-   function File_Timestamp (Name : in String) return Ada.Calendar.Time;
+   function File_Timestamp (Name : String) return Ada.Calendar.Time;
    --  Get the time for last modification to a file in UTC/GMT. Checks first
    --  for in memory file then for disk file.
 
@@ -147,18 +147,18 @@ private
 
    type File_Type is access all File_Tagged'Class;
 
-   function Is_GZip (Name : in String) return Boolean;
-   --  Return true if filename is with .gz extension.
+   function Is_GZip (Name : String) return Boolean;
+   --  Return true if filename is with .gz extension
 
-   function End_Of_File (Resource : in File_Tagged) return Boolean is abstract;
+   function End_Of_File (Resource : File_Tagged) return Boolean is abstract;
 
    procedure Read
      (Resource : in out File_Tagged;
-      Buffer   :    out Stream_Element_Array;
-      Last     :    out Stream_Element_Offset) is abstract;
+      Buffer   : out Stream_Element_Array;
+      Last     : out Stream_Element_Offset) is abstract;
 
    function Size
-     (Resource : in File_Tagged) return Stream_Element_Offset is abstract;
+     (Resource : File_Tagged) return Stream_Element_Offset is abstract;
 
    procedure Close (File : in out File_Tagged) is abstract;
 
@@ -166,7 +166,7 @@ private
 
    procedure Set_Index
      (File : in out File_Tagged;
-      To   : in Stream_Element_Offset) is abstract;
+      To   : Stream_Element_Offset) is abstract;
 
    procedure Free is
       new Ada.Unchecked_Deallocation (Resources.File_Tagged'Class, File_Type);

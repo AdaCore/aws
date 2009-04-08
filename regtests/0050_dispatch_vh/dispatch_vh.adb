@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2008, AdaCore                     --
+--                     Copyright (C) 2003-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -48,7 +48,7 @@ procedure Dispatch_VH is
    Free_Port : Positive;
 
    function CB1
-     (Request : in AWS.Status.Data)
+     (Request : AWS.Status.Data)
       return AWS.Response.Data
    is
       pragma Unreferenced (Request);
@@ -57,7 +57,7 @@ procedure Dispatch_VH is
    end CB1;
 
    function CB2
-     (Request : in AWS.Status.Data)
+     (Request : AWS.Status.Data)
       return AWS.Response.Data
    is
       pragma Unreferenced (Request);
@@ -65,7 +65,7 @@ procedure Dispatch_VH is
       return AWS.Response.Build ("text/html", "Dispatch 2 !");
    end CB2;
 
-   procedure Test (URL : in String) is
+   procedure Test (URL : String) is
       R : Response.Data;
    begin
       Text_IO.Put_Line (URL (URL'First .. URL'First + 15));

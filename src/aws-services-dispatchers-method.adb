@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2007                          --
---                                 AdaCore                                  --
+--                     Copyright (C) 2000-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -37,7 +36,7 @@ package body AWS.Services.Dispatchers.Method is
    -- Clone --
    -----------
 
-   overriding function Clone (Dispatcher : in Handler) return Handler is
+   overriding function Clone (Dispatcher : Handler) return Handler is
       New_Dispatcher : Handler;
    begin
       if Dispatcher.Action /= null then
@@ -62,8 +61,8 @@ package body AWS.Services.Dispatchers.Method is
    --------------
 
    overriding function Dispatch
-     (Dispatcher : in Handler;
-      Request    : in Status.Data) return Response.Data
+     (Dispatcher : Handler;
+      Request    : Status.Data) return Response.Data
    is
       Method : constant Status.Request_Method := Status.Method (Request);
    begin
@@ -115,8 +114,8 @@ package body AWS.Services.Dispatchers.Method is
 
    procedure Register
      (Dispatcher : in out Handler;
-      Method     : in     Status.Request_Method;
-      Action     : in     AWS.Dispatchers.Handler'Class) is
+      Method     : Status.Request_Method;
+      Action     : AWS.Dispatchers.Handler'Class) is
    begin
       if Dispatcher.Table (Method) /= null then
          Free (Dispatcher.Table (Method));
@@ -127,8 +126,8 @@ package body AWS.Services.Dispatchers.Method is
 
    procedure Register
      (Dispatcher : in out Handler;
-      Method     : in     Status.Request_Method;
-      Action     : in     Response.Callback) is
+      Method     : Status.Request_Method;
+      Action     : Response.Callback) is
    begin
       Register (Dispatcher, Method, AWS.Dispatchers.Callback.Create (Action));
    end Register;
@@ -139,7 +138,7 @@ package body AWS.Services.Dispatchers.Method is
 
    procedure Register_Default_Callback
      (Dispatcher : in out Handler;
-      Action     : in     AWS.Dispatchers.Handler'Class) is
+      Action     : AWS.Dispatchers.Handler'Class) is
    begin
       if Dispatcher.Action /= null then
          Free (Dispatcher.Action);
@@ -154,7 +153,7 @@ package body AWS.Services.Dispatchers.Method is
 
    procedure Unregister
      (Dispatcher : in out Handler;
-      Method     : in     Status.Request_Method) is
+      Method     : Status.Request_Method) is
    begin
       if Dispatcher.Table (Method) = null then
          raise Constraint_Error

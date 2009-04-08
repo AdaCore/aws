@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2003-2007                          --
---                                 AdaCore                                  --
+--                     Copyright (C) 2003-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -41,12 +40,12 @@ package Ada2WSDL is
    Spec_Error      : exception;
    --  Raised if ada2wsdl has found a problem while parsing the Ada spec
 
-   function Location (E : in Asis.Element) return String;
+   function Location (E : Asis.Element) return String;
    --  Returns E's location in the form <line>:<column>
 
    procedure Raise_Spec_Error
-     (E       : in Asis.Element;
-      Message : in String);
+     (E       : Asis.Element;
+      Message : String);
    pragma No_Return (Raise_Spec_Error);
    --  Raises Spec_Error exception with the given message. Add a source
    --  location information for entity E.

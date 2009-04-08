@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                        Copyright (C) 2008, AdaCore                       --
+--                     Copyright (C) 2008-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -45,7 +45,7 @@ procedure Connect_Timeout is
    procedure Stop_Time;
    --  Record ending time
 
-   procedure Check_Duration (D : in Duration; Message : in String);
+   procedure Check_Duration (D : Duration; Message : String);
    --  Check that duration is about D seconds
 
    Resp        : Response.Data;
@@ -55,7 +55,7 @@ procedure Connect_Timeout is
    -- Check_Duration --
    --------------------
 
-   procedure Check_Duration (D : in Duration; Message : in String) is
+   procedure Check_Duration (D : Duration; Message : String) is
       use type Calendar.Time;
       Elaps : constant Duration := Stop - Start - D;
    begin

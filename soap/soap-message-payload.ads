@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2005                          --
---                                 AdaCore                                  --
+--                     Copyright (C) 2000-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -33,16 +32,16 @@ package SOAP.Message.Payload is
 
    type Object is new Message.Object with private;
 
-   function Procedure_Name (P : in Object'Class) return String;
-   --  Retruns the Payload procedure name.
+   function Procedure_Name (P : Object'Class) return String;
+   --  Retruns the Payload procedure name
 
-   procedure Set_Procedure_Name (P : in out Object'Class; Name : in String);
-   --  Set the payload procedure name.
+   procedure Set_Procedure_Name (P : in out Object'Class; Name : String);
+   --  Set the payload procedure name
 
    function Build
-     (Procedure_Name : in String;
-      P_Set          : in SOAP.Parameters.List;
-      Name_Space     : in SOAP.Name_Space.Object := SOAP.Name_Space.AWS)
+     (Procedure_Name : String;
+      P_Set          : SOAP.Parameters.List;
+      Name_Space     : SOAP.Name_Space.Object := SOAP.Name_Space.AWS)
       return Object;
    --  Retruns a Payload object initialized with the procedure name,
    --  parameters and name space.

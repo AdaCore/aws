@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2004-2008, AdaCore                     --
+--                     Copyright (C) 2004-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -35,7 +35,7 @@ with AWS.Net.SSL;
 
 with Get_Free_Port;
 
-procedure S_Sock2_Proc (Security : in Boolean; Port : in Positive) is
+procedure S_Sock2_Proc (Security : Boolean; Port : Positive) is
 
    use AWS;
    use Ada;

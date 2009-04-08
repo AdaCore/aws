@@ -79,41 +79,41 @@ package AWS.Net is
    -- Initialize --
    ----------------
 
-   function Socket (Security : in Boolean) return Socket_Type'Class;
+   function Socket (Security : Boolean) return Socket_Type'Class;
    --  Create an uninitialized socket
 
-   function Socket (Security : in Boolean) return Socket_Access;
+   function Socket (Security : Boolean) return Socket_Access;
    --  Create a dynamically allocated uninitialized socket
 
    procedure Bind
      (Socket        : in out Socket_Type;
-      Port          : in     Natural;
-      Host          : in     String  := "";
-      Reuse_Address : in     Boolean := False) is abstract;
+      Port          : Natural;
+      Host          : String  := "";
+      Reuse_Address : Boolean := False) is abstract;
    --  Create the server socket and bind it on the given port.
    --  Using 0 for the port will tell the OS to allocate a non-privileged
    --  free port. The port can be later retrieved using Get_Port on the
    --  bound socket.
 
    procedure Listen
-     (Socket : in Socket_Type; Queue_Size : in Positive := 5) is abstract;
+     (Socket : Socket_Type; Queue_Size : Positive := 5) is abstract;
    --  Set the queue size of the socket
 
    procedure Accept_Socket
-     (Socket : in Socket_Type'Class; New_Socket : in out Socket_Type)
+     (Socket : Socket_Type'Class; New_Socket : in out Socket_Type)
       is abstract;
    --  Accept a connection on a socket. If it raises Socket_Error, all
    --  resources used by new_Socket have been released.
    --  There is not need to call Free or Shutdown.
 
    type Socket_Constructor is access
-     function (Security : in Boolean) return Socket_Type'Class;
+     function (Security : Boolean) return Socket_Type'Class;
 
    procedure Connect
      (Socket : in out Socket_Type;
-      Host   : in     String;
-      Port   : in     Positive;
-      Wait   : in     Boolean := True) is abstract;
+      Host   : String;
+      Port   : Positive;
+      Wait   : Boolean := True) is abstract;
    --  Connect a socket on a given host/port. If Wait is True Connect will wait
    --  for the connection to be established for timeout seconds, specified by
    --  Set_Timeout routine. If Wait is False Connect will return immediately,
@@ -125,8 +125,8 @@ package AWS.Net is
    --  Create 2 sockets and connect them together
 
    procedure Shutdown
-     (Socket : in Socket_Type;
-      How    : in Shutmode_Type := Shut_Read_Write) is abstract;
+     (Socket : Socket_Type;
+      How    : Shutmode_Type := Shut_Read_Write) is abstract;
    --  Shutdown the read, write or both side of the socket.
    --  If How is Both, close it. Does not raise Socket_Error if the socket is
    --  not connected or already shutdown.
@@ -139,13 +139,13 @@ package AWS.Net is
    --------
 
    procedure Send
-     (Socket : in Socket_Type'Class; Data : in Stream_Element_Array);
+     (Socket : Socket_Type'Class; Data : Stream_Element_Array);
    --  Send Data chunk to the socket
 
    procedure Send
-     (Socket : in     Socket_Type;
-      Data   : in     Stream_Element_Array;
-      Last   :    out Stream_Element_Offset) is abstract;
+     (Socket : Socket_Type;
+      Data   : Stream_Element_Array;
+      Last   : out Stream_Element_Offset) is abstract;
    --  Try to place data to Socket's output buffer.
    --  If all data cannot be placed to the socket output buffer, Last will
    --  be lower than Data'Last, if no data has been placed into the output
@@ -153,20 +153,20 @@ package AWS.Net is
    --  or Stream_Element_Offset'Last is used.
 
    procedure Receive
-     (Socket : in     Socket_Type;
-      Data   :    out Stream_Element_Array;
-      Last   :    out Stream_Element_Offset) is abstract;
+     (Socket : Socket_Type;
+      Data   : out Stream_Element_Array;
+      Last   : out Stream_Element_Offset) is abstract;
    --  Read a chunk of data from the socket and set appropriate Last value.
    --  This call always returns some data and will wait for incoming data only
    --  if necessary.
 
    function Receive
-     (Socket : in Socket_Type'Class;
-      Max    : in Stream_Element_Count := 4096) return Stream_Element_Array;
+     (Socket : Socket_Type'Class;
+      Max    : Stream_Element_Count := 4096) return Stream_Element_Array;
    --  Read a chunk of data from the socket and returns it. This call always
    --  returns some data and will wait for incoming data only if necessary.
 
-   function Pending (Socket : in Socket_Type) return Stream_Element_Count
+   function Pending (Socket : Socket_Type) return Stream_Element_Count
       is abstract;
    --  Returns the number of bytes which are available inside socket
    --  for immediate read.
@@ -175,87 +175,87 @@ package AWS.Net is
    -- Others --
    ------------
 
-   function Get_FD (Socket : in Socket_Type) return FD_Type is abstract;
+   function Get_FD (Socket : Socket_Type) return FD_Type is abstract;
    --  Returns the file descriptor associated with the socket
 
-   function Peer_Addr (Socket : in Socket_Type) return String is abstract;
+   function Peer_Addr (Socket : Socket_Type) return String is abstract;
    --  Returns the peer name/address
 
-   function Peer_Port (Socket : in Socket_Type) return Positive is abstract;
+   function Peer_Port (Socket : Socket_Type) return Positive is abstract;
    --  Returns the port of the peer socket
 
-   function Get_Addr (Socket : in Socket_Type) return String is abstract;
+   function Get_Addr (Socket : Socket_Type) return String is abstract;
    --  Returns the name/address of the socket
 
-   function Get_Port (Socket : in Socket_Type) return Positive is abstract;
+   function Get_Port (Socket : Socket_Type) return Positive is abstract;
    --  Returns the port of the socket
 
    function Host_Name return String;
    --  Returns the running host name
 
    procedure Set_Send_Buffer_Size
-     (Socket : in Socket_Type; Size : in Natural) is abstract;
+     (Socket : Socket_Type; Size : Natural) is abstract;
    --  Set the internal socket send buffer size.
    --  Do not confuse with buffers for the AWS.Net.Buffered operations.
 
    procedure Set_Receive_Buffer_Size
-     (Socket : in Socket_Type; Size : in Natural) is abstract;
+     (Socket : Socket_Type; Size : Natural) is abstract;
    --  Set the internal socket receive buffer size.
    --  Do not confuse with buffers for the AWS.Net.Buffered operations.
 
-   function Get_Send_Buffer_Size (Socket : in Socket_Type) return Natural
+   function Get_Send_Buffer_Size (Socket : Socket_Type) return Natural
       is abstract;
    --  Returns the internal socket send buffer size.
    --  Do not confuse with buffers for the AWS.Net.Buffered operations.
 
-   function Get_Receive_Buffer_Size (Socket : in Socket_Type) return Natural
+   function Get_Receive_Buffer_Size (Socket : Socket_Type) return Natural
       is abstract;
    --  Returns the internal socket receive buffer size.
    --  Do not confuse with buffers for the AWS.Net.Buffered operations.
 
    procedure Set_Blocking_Mode
-     (Socket : in out Socket_Type; Blocking : in Boolean);
+     (Socket : in out Socket_Type; Blocking : Boolean);
    pragma Obsolescent ("Use Set_Timeout instead");
    --  Set the blocking mode for the socket
 
-   procedure Set_Timeout (Socket : in out Socket_Type; Timeout : in Duration);
+   procedure Set_Timeout (Socket : in out Socket_Type; Timeout : Duration);
    pragma Inline (Set_Timeout);
    --  Sets the timeout for the socket read/write operations
 
    procedure Set_No_Delay
-     (Socket : in Socket_Type; Value : in Boolean := True);
+     (Socket : Socket_Type; Value : Boolean := True);
    --  Set/clear TCP_NODELAY option on socket
 
    function Wait
-     (Socket : in Socket_Type'Class;
-      Events : in Wait_Event_Set) return Event_Set;
+     (Socket : Socket_Type'Class;
+      Events : Wait_Event_Set) return Event_Set;
    --  Waiting for Input/Output/Error events.
    --  Waiting time is defined by Set_Timeout.
    --  Empty event set in result mean that timeout occured.
 
    function Check
-     (Socket : in Socket_Type'Class;
-      Events : in Wait_Event_Set) return Event_Set;
+     (Socket : Socket_Type'Class;
+      Events : Wait_Event_Set) return Event_Set;
    --  Check for Input/Output/Error events availability.
    --  No wait for socket timeout.
 
    function Poll
-     (Socket  : in Socket_Type'Class;
-      Events  : in Wait_Event_Set;
-      Timeout : in Duration) return Event_Set;
+     (Socket  : Socket_Type'Class;
+      Events  : Wait_Event_Set;
+      Timeout : Duration) return Event_Set;
    --  Wait events on socket descriptor for specified Timeout
 
-   function Errno (Socket : in Socket_Type) return Integer is abstract;
+   function Errno (Socket : Socket_Type) return Integer is abstract;
    --  Returns and clears error state in socket
 
-   function Is_Timeout (E : in Exception_Occurrence) return Boolean;
+   function Is_Timeout (E : Exception_Occurrence) return Boolean;
    --  Returns True if the message associated with the Exception_Occurence for
    --  a Socket_Error is a timeout.
 
    function To_FD_Set
-     (Socket : in Socket_Type;
-      Events : in Wait_Event_Set;
-      Size   : in Positive := 1) return FD_Set'Class;
+     (Socket : Socket_Type;
+      Events : Wait_Event_Set;
+      Size   : Positive := 1) return FD_Set'Class;
    --  Create appropriate socket FD set and put Socket fd there
 
    --------------------
@@ -266,8 +266,8 @@ package AWS.Net is
 
    procedure Add
      (FD_Set : in out FD_Set_Access;
-      FD     : in     FD_Type;
-      Event  : in     Wait_Event_Set);
+      FD     : FD_Type;
+      Event  : Wait_Event_Set);
    --  Add FD to the end of FD_Set
 
    procedure Free (FD_Set : in out FD_Set_Access);
@@ -276,52 +276,52 @@ package AWS.Net is
 
    procedure Add
      (FD_Set : in out Net.FD_Set;
-      FD     : in     FD_Type;
-      Event  : in     Wait_Event_Set) is abstract;
+      FD     : FD_Type;
+      Event  : Wait_Event_Set) is abstract;
    --  Add FD to the end of FD_Set
 
    procedure Replace
      (FD_Set : in out Net.FD_Set;
-      Index  : in     Positive;
-      FD     : in     FD_Type) is abstract;
+      Index  : Positive;
+      FD     : FD_Type) is abstract;
    --  Replaces the socket FD in FD_Set
 
    procedure Set_Mode
      (FD_Set : in out Net.FD_Set;
-      Index  : in     Positive;
-      Mode   : in     Wait_Event_Set) is abstract;
+      Index  : Positive;
+      Mode   : Wait_Event_Set) is abstract;
    --  Sets the kind of network events to wait for
 
    function Copy
      (FD_Set : not null access Net.FD_Set;
-      Size   : in Natural) return FD_Set_Access is abstract;
+      Size   : Natural) return FD_Set_Access is abstract;
    --  Allocates and copy the given FD_Set with different size
 
    procedure Remove
-     (FD_Set : in out Net.FD_Set; Index : in Positive) is abstract;
+     (FD_Set : in out Net.FD_Set; Index : Positive) is abstract;
    --  Removes socket FD from Index position.
    --  Last socket FD in FD_Set is placed at position Index.
 
-   function Length (FD_Set : in Net.FD_Set) return Natural is abstract;
+   function Length (FD_Set : Net.FD_Set) return Natural is abstract;
    --  Returns number of socket FD elements in FD_Set
 
    procedure Wait
      (FD_Set  : in out Net.FD_Set;
-      Timeout : in     Duration;
-      Count   :    out Natural) is abstract;
+      Timeout : Duration;
+      Count   : out Natural) is abstract;
    --  Wait for network events on the sockets FD set. Count value is the
    --  number of socket FDs with non empty event set.
 
    procedure Next
-     (FD_Set : in Net.FD_Set; Index : in out Positive) is abstract;
+     (FD_Set : Net.FD_Set; Index : in out Positive) is abstract;
    --  Looking for an active (for which an event has been detected by routine
    --  Wait above) socket FD starting from Index and return Index of the found
    --  active socket FD. Use functions Status to retreive the kind of network
    --  events for this socket.
 
    function Status
-     (FD_Set : in Net.FD_Set;
-      Index  : in Positive) return Event_Set is abstract;
+     (FD_Set : Net.FD_Set;
+      Index  : Positive) return Event_Set is abstract;
    --  Returns events for the socket FD at position Index
 
    procedure Free (Socket : in out Socket_Type) is null;
@@ -336,7 +336,7 @@ private
    type FD_Set (Size : Natural) is abstract tagged null record;
 
    procedure Wait_For
-     (Mode : in Wait_Event_Type; Socket : in Socket_Type'Class);
+     (Mode : Wait_Event_Type; Socket : Socket_Type'Class);
    --  Wait for a socket to be ready for input or output operation.
    --  Raises Socket_Error if an error or timeout occurs.
 
@@ -383,7 +383,7 @@ private
    --  Return error code for the last socket operation
 
    procedure Raise_Socket_Error
-     (Socket : in Socket_Type'Class; Text : in String);
+     (Socket : Socket_Type'Class; Text : String);
    pragma No_Return (Raise_Socket_Error);
 
    --  Controlled primitives

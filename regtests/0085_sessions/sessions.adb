@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2008, AdaCore                     --
+--                     Copyright (C) 2003-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -63,7 +63,7 @@ procedure Sessions is
    -- CB --
    --------
 
-   function CB (Request : in Status.Data) return Response.Data is
+   function CB (Request : Status.Data) return Response.Data is
       SID : constant Session.ID := Status.Session (Request);
       N   : Natural := 0;
    begin
@@ -113,9 +113,9 @@ procedure Sessions is
       N : Natural := 0;
 
       procedure Action
-        (N          : in     Positive;
-         SID        : in     Session.ID;
-         Time_Stamp : in     Ada.Calendar.Time;
+        (N          : Positive;
+         SID        : Session.ID;
+         Time_Stamp : Ada.Calendar.Time;
          Quit       : in out Boolean)
       is
          K : Natural;

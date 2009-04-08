@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2008, AdaCore                     --
+--                     Copyright (C) 2000-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -43,14 +43,14 @@ procedure Build is
 
    File : Text_IO.File_Type;
 
-   function Image (D : in Duration) return String;
+   function Image (D : Duration) return String;
    --  D string representation
 
    -----------
    -- Image --
    -----------
 
-   function Image (D : in Duration) return String is
+   function Image (D : Duration) return String is
       D_S : constant String   := Duration'Image (D);
       I   : constant Positive := Strings.Fixed.Index (D_S, ".");
    begin

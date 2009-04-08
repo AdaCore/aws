@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2008, AdaCore                     --
+--                     Copyright (C) 2003-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -83,7 +83,7 @@ procedure Get_Post is
    -- CB --
    --------
 
-   function CB (Request : in Status.Data) return Response.Data is
+   function CB (Request : Status.Data) return Response.Data is
       Params : constant Parameters.List := Status.Parameters (Request);
    begin
       Text_IO.Put_Line ("P1      >" & Parameters.Get (Params, "P1"));
@@ -98,10 +98,10 @@ procedure Get_Post is
    ----------
 
    procedure Dump
-     (Direction : in Net.Log.Data_Direction;
-      Socket    : in Net.Socket_Type'Class;
-      Data      : in Stream_Element_Array;
-      Last      : in Stream_Element_Offset)
+     (Direction : Net.Log.Data_Direction;
+      Socket    : Net.Socket_Type'Class;
+      Data      : Stream_Element_Array;
+      Last      : Stream_Element_Offset)
    is
       use type Net.Log.Data_Direction;
    begin

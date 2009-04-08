@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2004-2008, AdaCore                     --
+--                     Copyright (C) 2004-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -27,8 +27,8 @@
 
 package SOAP_Hotplug_Pack is
 
-   function Job1 (X, Y : in Integer) return Integer;
+   function Job1 (X, Y : Integer) return Integer;
 
-   function Job2 (X, Y : in Integer) return Integer;
+   function Job2 (X, Y : Integer) return Integer;
 
 end SOAP_Hotplug_Pack;

@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                    Copyright (C) 2002-2008, AdaCore                      --
+--                    Copyright (C) 2002-2009, AdaCore                      --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -31,7 +31,7 @@ with AWS.URL;        use AWS.URL;
 
 procedure Turl4 is
 
-   procedure Test (URL : in String; Ok : Boolean) is
+   procedure Test (URL : String; Ok : Boolean) is
       O : Object;
    begin
       O := Parse (URL);

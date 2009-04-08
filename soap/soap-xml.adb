@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2003-2004                          --
---                                ACT-Europe                                --
+--                     Copyright (C) 2003-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -38,7 +37,7 @@ package body SOAP.XML is
    -- First_Child --
    -----------------
 
-   function First_Child (Parent : in DOM.Core.Node) return DOM.Core.Node is
+   function First_Child (Parent : DOM.Core.Node) return DOM.Core.Node is
       use type DOM.Core.Node;
       use type DOM.Core.Node_Types;
       N : DOM.Core.Node;
@@ -61,10 +60,9 @@ package body SOAP.XML is
    --------------------
 
    function Get_Attr_Value
-     (N    : in DOM.Core.Node;
-      Name : in String;
-      NS   : in Boolean := True)
-      return String
+     (N    : DOM.Core.Node;
+      Name : String;
+      NS   : Boolean := True) return String
      is
       use type DOM.Core.Node;
 
@@ -92,18 +90,18 @@ package body SOAP.XML is
    -- Get_Ref --
    -------------
 
-   function Get_Ref (N : in DOM.Core.Node) return DOM.Core.Node is
+   function Get_Ref (N : DOM.Core.Node) return DOM.Core.Node is
 
       use type DOM.Core.Node;
 
-      function Body_Node (N : in DOM.Core.Node) return DOM.Core.Node;
+      function Body_Node (N : DOM.Core.Node) return DOM.Core.Node;
       --  Returns Payload body node for N being inside this node
 
       ---------------
       -- Body_Node --
       ---------------
 
-      function Body_Node (N : in DOM.Core.Node) return DOM.Core.Node is
+      function Body_Node (N : DOM.Core.Node) return DOM.Core.Node is
          L_N : DOM.Core.Node := N;
 
       begin
@@ -147,7 +145,7 @@ package body SOAP.XML is
    -- Next_Sibling --
    ------------------
 
-   function Next_Sibling (N : in DOM.Core.Node) return DOM.Core.Node is
+   function Next_Sibling (N : DOM.Core.Node) return DOM.Core.Node is
       use type DOM.Core.Node;
       use type DOM.Core.Node_Types;
       M : DOM.Core.Node := N;

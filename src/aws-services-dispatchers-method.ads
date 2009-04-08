@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2007                          --
---                                 AdaCore                                  --
+--                     Copyright (C) 2000-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -38,24 +37,24 @@ package AWS.Services.Dispatchers.Method is
 
    procedure Register
      (Dispatcher : in out Handler;
-      Method     : in     Status.Request_Method;
-      Action     : in     AWS.Dispatchers.Handler'Class);
-   --  Register callback to use for a specific request method.
+      Method     : Status.Request_Method;
+      Action     : AWS.Dispatchers.Handler'Class);
+   --  Register callback to use for a specific request method
 
    procedure Register
      (Dispatcher : in out Handler;
-      Method     : in     Status.Request_Method;
-      Action     : in     Response.Callback);
-   --  Idem as above but take a callback procedure as parameter.
+      Method     : Status.Request_Method;
+      Action     : Response.Callback);
+   --  Idem as above but take a callback procedure as parameter
 
    procedure Unregister
      (Dispatcher : in out Handler;
-      Method     : in     Status.Request_Method);
-   --  Removes Method from the list of request method to handle.
+      Method     : Status.Request_Method);
+   --  Removes Method from the list of request method to handle
 
    procedure Register_Default_Callback
      (Dispatcher : in out Handler;
-      Action     : in     AWS.Dispatchers.Handler'Class);
+      Action     : AWS.Dispatchers.Handler'Class);
    --  Register the default callback. This will be used if no request method
    --  have been activated.
 
@@ -65,13 +64,13 @@ private
    overriding procedure Finalize   (Dispatcher : in out Handler);
 
    overriding function Dispatch
-     (Dispatcher : in Handler;
-      Request    : in Status.Data) return Response.Data;
+     (Dispatcher : Handler;
+      Request    : Status.Data) return Response.Data;
    --  Dispatch to the corresponding method callback, if no such callback
    --  registered it dispatches to the default callback. If there is no default
    --  callback it returns an error message (code 404).
 
-   overriding function Clone (Dispatcher : in Handler) return Handler;
+   overriding function Clone (Dispatcher : Handler) return Handler;
    --  Returns a deep copy of the dispatcher
 
    type Method_Table is

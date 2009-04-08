@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2008, AdaCore                     --
+--                     Copyright (C) 2000-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -38,7 +38,7 @@ private package SOAP.Message.Reader is
    type Tree_Reader is new Sax.Readers.Reader with private;
    --  Tree_Reader create a DOM tree using the SAX parser
 
-   function Get_Tree (Read : in Tree_Reader) return Document;
+   function Get_Tree (Read : Tree_Reader) return Document;
 
 private
 
@@ -53,23 +53,23 @@ private
 
    overriding procedure Start_Element
      (Handler       : in out Tree_Reader;
-      Namespace_URI : in     Unicode.CES.Byte_Sequence       := "";
-      Local_Name    : in     Unicode.CES.Byte_Sequence       := "";
-      Qname         : in     Unicode.CES.Byte_Sequence       := "";
-      Atts          : in     Sax.Attributes.Attributes'Class);
+      Namespace_URI : Unicode.CES.Byte_Sequence       := "";
+      Local_Name    : Unicode.CES.Byte_Sequence       := "";
+      Qname         : Unicode.CES.Byte_Sequence       := "";
+      Atts          : Sax.Attributes.Attributes'Class);
 
    overriding procedure End_Element
      (Handler       : in out Tree_Reader;
-      Namespace_URI : in     Unicode.CES.Byte_Sequence := "";
-      Local_Name    : in     Unicode.CES.Byte_Sequence := "";
-      Qname         : in     Unicode.CES.Byte_Sequence := "");
+      Namespace_URI : Unicode.CES.Byte_Sequence := "";
+      Local_Name    : Unicode.CES.Byte_Sequence := "";
+      Qname         : Unicode.CES.Byte_Sequence := "");
 
    overriding procedure Characters
      (Handler : in out Tree_Reader;
-      Ch      : in     Unicode.CES.Byte_Sequence);
+      Ch      : Unicode.CES.Byte_Sequence);
 
    overriding procedure Ignorable_Whitespace
      (Handler : in out Tree_Reader;
-      Ch      : in     Unicode.CES.Byte_Sequence);
+      Ch      : Unicode.CES.Byte_Sequence);
 
 end SOAP.Message.Reader;

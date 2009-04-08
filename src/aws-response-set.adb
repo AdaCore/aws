@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2002-2008, AdaCore                     --
+--                     Copyright (C) 2002-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -55,8 +55,8 @@ package body AWS.Response.Set is
 
    procedure Add_Header
      (D     : in out Data;
-      Name  : in     String;
-      Value : in     String) is
+      Name  : String;
+      Value : String) is
    begin
       Headers.Set.Add (D.Header, Name, Value);
    end Add_Header;
@@ -67,14 +67,14 @@ package body AWS.Response.Set is
 
    procedure Append_Body
      (D    : in out Data;
-      Item : in     Streams.Stream_Element_Array)  is
+      Item : Streams.Stream_Element_Array)  is
    begin
       Check_Memory_Stream (D);
 
       RSM.Append (RSM.Stream_Type'Class (D.Stream.all), Item);
    end Append_Body;
 
-   procedure Append_Body (D : in out Data; Item : in String) is
+   procedure Append_Body (D : in out Data; Item : String) is
    begin
       Append_Body (D, Translator.To_Stream_Element_Array (Item));
    end Append_Body;
@@ -85,9 +85,9 @@ package body AWS.Response.Set is
 
    procedure Authentication
      (D     : in out Data;
-      Realm : in     String;
-      Mode  : in     Authentication_Mode := Basic;
-      Stale : in     Boolean             := False)
+      Realm : String;
+      Mode  : Authentication_Mode := Basic;
+      Stale : Boolean             := False)
    is
       N : Positive := 1;
       --  The index for the update of WWW-Authenticate header values.
@@ -129,7 +129,7 @@ package body AWS.Response.Set is
 
    procedure Cache_Control
      (D     : in out Data;
-      Value : in     Messages.Cache_Option)
+      Value : Messages.Cache_Option)
    is
       use type Messages.Cache_Option;
    begin
@@ -212,7 +212,7 @@ package body AWS.Response.Set is
 
    procedure Close_Resource
      (D     : in out Data;
-      State : in     Boolean) is
+      State : Boolean) is
    begin
       D.Close_Stream := State;
    end Close_Resource;
@@ -223,7 +223,7 @@ package body AWS.Response.Set is
 
    procedure Content_Type
      (D     : in out Data;
-      Value : in     String) is
+      Value : String) is
    begin
       Headers.Set.Update
         (D.Header,
@@ -237,8 +237,8 @@ package body AWS.Response.Set is
 
    procedure Data_Encoding
      (D         : in out Data;
-      Encoding  : in     Messages.Content_Encoding;
-      Direction : in     Encoding_Direction := Encode)
+      Encoding  : Messages.Content_Encoding;
+      Direction : Encoding_Direction := Encode)
    is
       use type Resources.Streams.Stream_Access;
       Header : RSM.ZLib.Header_Type := ZLib.None;
@@ -294,7 +294,7 @@ package body AWS.Response.Set is
 
    procedure Filename
      (D     : in out Data;
-      Value : in     String) is
+      Value : String) is
    begin
       D.Filename := To_Unbounded_String (Value);
       D.Mode     := File;
@@ -304,7 +304,7 @@ package body AWS.Response.Set is
    -- Is_Valid --
    --------------
 
-   function Is_Valid (D : in Data) return Boolean is
+   function Is_Valid (D : Data) return Boolean is
       use type Messages.Status_Code;
       Redirection_Code : Boolean;
    begin
@@ -339,7 +339,7 @@ package body AWS.Response.Set is
 
    procedure Location
      (D     : in out Data;
-      Value : in     String) is
+      Value : String) is
    begin
       Headers.Set.Update
         (D.Header,
@@ -353,7 +353,7 @@ package body AWS.Response.Set is
 
    procedure Message_Body
      (D     : in out Data;
-      Value : in     Streams.Stream_Element_Array) is
+      Value : Streams.Stream_Element_Array) is
    begin
       Clear_Memory_Stream (D);
 
@@ -362,14 +362,14 @@ package body AWS.Response.Set is
 
    procedure Message_Body
      (D     : in out Data;
-      Value : in     String) is
+      Value : String) is
    begin
       Message_Body (D, To_Unbounded_String (Value));
    end Message_Body;
 
    procedure Message_Body
      (D     : in out Data;
-      Value : in     Unbounded_String)
+      Value : Unbounded_String)
    is
       use Streams;
 
@@ -403,7 +403,7 @@ package body AWS.Response.Set is
 
    procedure Mode
      (D     : in out Data;
-      Value : in     Data_Mode) is
+      Value : Data_Mode) is
    begin
       D.Mode := Value;
    end Mode;
@@ -413,7 +413,7 @@ package body AWS.Response.Set is
    -----------------
 
    procedure Read_Header
-     (Socket : in     Net.Socket_Type'Class;
+     (Socket : Net.Socket_Type'Class;
       D      : in out Data) is
    begin
       Headers.Set.Read (Socket, D.Header);
@@ -425,7 +425,7 @@ package body AWS.Response.Set is
 
    procedure Status_Code
      (D     : in out Data;
-      Value : in     Messages.Status_Code) is
+      Value : Messages.Status_Code) is
    begin
       D.Status_Code := Value;
    end Status_Code;
@@ -437,7 +437,7 @@ package body AWS.Response.Set is
    procedure Stream
      (D        : in out Data;
       Handle   : not null access Resources.Streams.Stream_Type'Class;
-      Encoding : in Messages.Content_Encoding := Messages.Identity)
+      Encoding : Messages.Content_Encoding := Messages.Identity)
    is
       use type Messages.Content_Encoding;
    begin
@@ -486,9 +486,9 @@ package body AWS.Response.Set is
 
    procedure Update_Header
      (D     : in out Data;
-      Name  : in     String;
-      Value : in     String;
-      N     : in     Positive := 1) is
+      Name  : String;
+      Value : String;
+      N     : Positive := 1) is
    begin
       Headers.Set.Update (D.Header, Name, Value, N);
    end Update_Header;

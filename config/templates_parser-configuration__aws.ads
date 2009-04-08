@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2005-2008, AdaCore                     --
+--                     Copyright (C) 2005-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -34,17 +34,17 @@ package Templates_Parser.Configuration is
    subtype Time_Stamp is Ada.Calendar.Time;
 
    overriding function "="
-     (T1, T2 : in Time_Stamp)
+     (T1, T2 : Time_Stamp)
       return Boolean
       renames Ada.Calendar."=";
 
    function Is_Regular_File
-     (Filename : in String)
+     (Filename : String)
       return Boolean
       renames AWS.Utils.Is_Regular_File;
 
    function File_Time_Stamp
-     (Filename : in String)
+     (Filename : String)
       return Time_Stamp
       renames AWS.Utils.File_Time_Stamp;
 

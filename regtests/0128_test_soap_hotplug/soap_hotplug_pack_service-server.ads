@@ -26,24 +26,24 @@ package SOAP_Hotplug_Pack_Service.Server is
 
    generic
       with function Job1
-        (X        : in Integer;
-         Y        : in Integer)
+        (X        : Integer;
+         Y        : Integer)
          return Integer;
    function Job1_CB
-     (SOAPAction : in String;
-      Payload    : in SOAP.Message.Payload.Object;
-      Request    : in AWS.Status.Data)
+     (SOAPAction : String;
+      Payload    : SOAP.Message.Payload.Object;
+      Request    : AWS.Status.Data)
       return AWS.Response.Data;
 
    generic
       with function Job2
-        (X        : in Integer;
-         Y        : in Integer)
+        (X        : Integer;
+         Y        : Integer)
          return Integer;
    function Job2_CB
-     (SOAPAction : in String;
-      Payload    : in SOAP.Message.Payload.Object;
-      Request    : in AWS.Status.Data)
+     (SOAPAction : String;
+      Payload    : SOAP.Message.Payload.Object;
+      Request    : AWS.Status.Data)
       return AWS.Response.Data;
 
 end SOAP_Hotplug_Pack_Service.Server;

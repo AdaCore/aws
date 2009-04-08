@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2006-2008, AdaCore                     --
+--                     Copyright (C) 2006-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -28,9 +28,9 @@
 package WSDL_9 is
 
    function Send_SMS
-     (User     : in String;
-      Password : in String;
-      Mobile   : in String;
-      Content  : in String) return String;
+     (User     : String;
+      Password : String;
+      Mobile   : String;
+      Content  : String) return String;
 
 end WSDL_9;

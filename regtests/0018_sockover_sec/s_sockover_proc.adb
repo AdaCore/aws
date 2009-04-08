@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2005-2008, AdaCore                     --
+--                     Copyright (C) 2005-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -35,7 +35,7 @@ with AWS.Net;
 
 with Get_Free_Port;
 
-procedure S_SockOver_Proc (Security : in Boolean) is
+procedure S_SockOver_Proc (Security : Boolean) is
 
    use AWS;
    use Ada;
@@ -65,7 +65,7 @@ procedure S_SockOver_Proc (Security : in Boolean) is
    -- Transmit --
    --------------
 
-   procedure Transmit (Sample : in Stream_Element_Array) is
+   procedure Transmit (Sample : Stream_Element_Array) is
       Last   : Stream_Element_Offset;
       Buffer : Stream_Element_Array (1 .. 1024);
    begin

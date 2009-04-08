@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                          Copyright (C) 2003-2004                         --
---                                ACT-Europe                                --
+--                     Copyright (C) 2003-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -49,9 +48,9 @@ package AWS.Exceptions is
    end record;
 
    type Unexpected_Exception_Handler is access
-     procedure (E      : in     Ada.Exceptions.Exception_Occurrence;
+     procedure (E      : Ada.Exceptions.Exception_Occurrence;
                 Log    : in out AWS.Log.Object;
-                Error  : in     Data;
+                Error  : Data;
                 Answer : in out Response.Data);
    --  Unexpected exception handler can be set to monitor server errors.
    --  Answer can be set with the answer to send back to the client's

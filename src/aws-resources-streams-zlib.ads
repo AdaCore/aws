@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2003-2007                          --
---                                 AdaCore                                  --
+--                     Copyright (C) 2003-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -45,46 +44,46 @@ package AWS.Resources.Streams.ZLib is
 
    procedure Deflate_Initialize
      (Resource     : in out Stream_Type;
-      Source       : in     Streams.Stream_Access;
-      Level        : in     Compression_Level  := ZL.Default_Compression;
-      Strategy     : in     Strategy_Type      := ZL.Default_Strategy;
-      Method       : in     Compression_Method := ZL.Deflated;
-      Window_Bits  : in     Window_Bits_Type   := ZL.Default_Window_Bits;
-      Memory_Level : in     Memory_Level_Type  := ZL.Default_Memory_Level;
-      Header       : in     Header_Type        := ZL.Default);
+      Source       : Streams.Stream_Access;
+      Level        : Compression_Level  := ZL.Default_Compression;
+      Strategy     : Strategy_Type      := ZL.Default_Strategy;
+      Method       : Compression_Method := ZL.Deflated;
+      Window_Bits  : Window_Bits_Type   := ZL.Default_Window_Bits;
+      Memory_Level : Memory_Level_Type  := ZL.Default_Memory_Level;
+      Header       : Header_Type        := ZL.Default);
    --  Initialize the compression of the user defined stream
 
    procedure Inflate_Initialize
      (Resource    : in out Stream_Type;
-      Source      : in     Streams.Stream_Access;
-      Window_Bits : in     Window_Bits_Type := ZL.Default_Window_Bits;
-      Header      : in     Header_Type      := ZL.Default);
+      Source      : Streams.Stream_Access;
+      Window_Bits : Window_Bits_Type := ZL.Default_Window_Bits;
+      Header      : Header_Type      := ZL.Default);
    --  Initialize the decompression of the user defined stream
 
    function Deflate_Create
-     (Source       : in Streams.Stream_Access;
-      Level        : in Compression_Level     := ZL.Default_Compression;
-      Strategy     : in Strategy_Type         := ZL.Default_Strategy;
-      Method       : in Compression_Method    := ZL.Deflated;
-      Window_Bits  : in Window_Bits_Type      := ZL.Default_Window_Bits;
-      Memory_Level : in Memory_Level_Type     := ZL.Default_Memory_Level;
-      Header       : in Header_Type           := ZL.Default)
+     (Source       : Streams.Stream_Access;
+      Level        : Compression_Level     := ZL.Default_Compression;
+      Strategy     : Strategy_Type         := ZL.Default_Strategy;
+      Method       : Compression_Method    := ZL.Deflated;
+      Window_Bits  : Window_Bits_Type      := ZL.Default_Window_Bits;
+      Memory_Level : Memory_Level_Type     := ZL.Default_Memory_Level;
+      Header       : Header_Type           := ZL.Default)
       return Stream_Access;
    --  Creates dynamically allocated Stream_Type and initialize the compression
    --  of the user defined stream.
 
    function Inflate_Create
-     (Source       : in Streams.Stream_Access;
-      Window_Bits  : in Window_Bits_Type      := ZL.Default_Window_Bits;
-      Header       : in Header_Type           := ZL.Default)
+     (Source       : Streams.Stream_Access;
+      Window_Bits  : Window_Bits_Type      := ZL.Default_Window_Bits;
+      Header       : Header_Type           := ZL.Default)
       return Stream_Access;
    --  Creates dynamically allocated Stream_Type and initialize the
    --  decompression of the user defined stream.
 
    overriding procedure Read
      (Resource : in out Stream_Type;
-      Buffer   :    out Stream_Element_Array;
-      Last     :    out Stream_Element_Offset);
+      Buffer   : out Stream_Element_Array;
+      Last     : out Stream_Element_Offset);
    --  Get the source data from the Source stream, encode it, and return
    --  encoded data in the Buffer.
 
@@ -94,9 +93,9 @@ package AWS.Resources.Streams.ZLib is
 
    overriding procedure Set_Index
      (Resource : in out Stream_Type;
-      To       : in     Stream_Element_Offset);
+      To       : Stream_Element_Offset);
 
-   overriding function End_Of_File (Resource : in Stream_Type) return Boolean;
+   overriding function End_Of_File (Resource : Stream_Type) return Boolean;
    --  Returns true if there is no more data to read
 
 private

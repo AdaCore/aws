@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2008, AdaCore                     --
+--                     Copyright (C) 2003-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -34,13 +34,13 @@ package AWS.Services.Transient_Pages is
    --  Create a unique URI, must be used to register a transient web page
 
    procedure Register
-     (URI      : in String;
-      Resource : in AWS.Resources.Streams.Stream_Access;
-      Lifetime : in Duration := Default.Transient_Lifetime);
+     (URI      : String;
+      Resource : AWS.Resources.Streams.Stream_Access;
+      Lifetime : Duration := Default.Transient_Lifetime);
    --  Register a new transient page, this page will be deleted after Lifetime
    --  seconds.
 
-   function Get (URI : in String) return AWS.Resources.Streams.Stream_Access;
+   function Get (URI : String) return AWS.Resources.Streams.Stream_Access;
    --  Returns the stream access for the URI or null if this URI has not been
    --  registered.
 
@@ -65,8 +65,8 @@ private
    protected Cleaner_Control is
 
       procedure Register
-        (Transient_Check_Interval : in     Duration;
-         Need_Start               :    out Boolean);
+        (Transient_Check_Interval : Duration;
+         Need_Start               : out Boolean);
       --  Increment number of registerd servers. Set Need_Start flag to True
       --  if it is necessary to start cleaner task.
 

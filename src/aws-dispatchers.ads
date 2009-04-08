@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2007                          --
---                                 AdaCore                                  --
+--                     Copyright (C) 2000-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -49,11 +48,11 @@ package AWS.Dispatchers is
    --  no more object are referenced by calling Ref_Counter below.
 
    function Dispatch
-     (Dispatcher : in Handler;
-      Request    : in Status.Data) return Response.Data is abstract;
+     (Dispatcher : Handler;
+      Request    : Status.Data) return Response.Data is abstract;
    --  Call the appropriate inherited dispatcher
 
-   function Ref_Counter (Dispatcher : in Handler) return Natural;
+   function Ref_Counter (Dispatcher : Handler) return Natural;
    --  Returns the reference counter for Handler. If 0 is returned then this
    --  object is not referenced anymore, it is safe to deallocate ressources.
 

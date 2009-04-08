@@ -47,19 +47,19 @@ package AWS.Attachments is
    type Encoding is (None, Base64);
 
    function File
-     (Filename     : in String;
-      Encode       : in Encoding := None;
-      Content_Id   : in String := "";
-      Content_Type : in String := MIME.Text_Plain) return Content;
+     (Filename     : String;
+      Encode       : Encoding := None;
+      Content_Id   : String := "";
+      Content_Type : String := MIME.Text_Plain) return Content;
    --  A filename as content, if Encode is set to Base64 the file content will
    --  be base64 encoded.
 
    function Value
-     (Data         : in String;
-      Name         : in String := "";
-      Encode       : in Encoding := None;
-      Content_Id   : in String := "";
-      Content_Type : in String := MIME.Text_Plain) return Content;
+     (Data         : String;
+      Name         : String := "";
+      Encode       : Encoding := None;
+      Content_Id   : String := "";
+      Content_Type : String := MIME.Text_Plain) return Content;
    --  A string as content
 
    type Attachment_Kind is (Data, Alternative);
@@ -68,26 +68,26 @@ package AWS.Attachments is
 
    procedure Add
      (Attachments : in out List;
-      Filename    : in     String;
-      Content_Id  : in     String;
-      Headers     : in     AWS.Headers.List := AWS.Headers.Empty_List;
-      Name        : in     String := "";
-      Encode      : in     Encoding := None);
+      Filename    : String;
+      Content_Id  : String;
+      Headers     : AWS.Headers.List := AWS.Headers.Empty_List;
+      Name        : String := "";
+      Encode      : Encoding := None);
    --  Adds an Attachment to the list
 
    procedure Add
      (Attachments : in out List;
-      Filename    : in     String;
-      Headers     : in     AWS.Headers.List;
-      Name        : in     String := "";
-      Encode      : in     Encoding := None);
+      Filename    : String;
+      Headers     : AWS.Headers.List;
+      Name        : String := "";
+      Encode      : Encoding := None);
    --  Adds an Attachment to the list
 
    procedure Add
      (Attachments : in out List;
-      Name        : in     String;
-      Data        : in     Content;
-      Headers     : in     AWS.Headers.List := AWS.Headers.Empty_List);
+      Name        : String;
+      Data        : Content;
+      Headers     : AWS.Headers.List := AWS.Headers.Empty_List);
    --  Add content to the attachment list
 
    --  Alternatives content
@@ -96,94 +96,94 @@ package AWS.Attachments is
 
    procedure Add
      (Parts : in out Alternatives;
-      Data  : in     Content);
+      Data  : Content);
    --  Add an alternative content
 
    procedure Add
      (Attachments : in out List;
-      Parts       : in     Alternatives);
+      Parts       : Alternatives);
    --  Add an alternative group to the current attachment list
 
    procedure Reset
      (Attachments  : in out List;
-      Delete_Files : in     Boolean);
+      Delete_Files : Boolean);
    --  Reset the list to be empty. If Delete_Files is set to true the
    --  attached files are removed from the file system.
 
-   function Count (Attachments : in List) return Natural;
+   function Count (Attachments : List) return Natural;
    pragma Inline (Count);
    --  Returns the number of Attachments in the data
 
    function Get
-     (Attachments : in List;
-      Index       : in Positive) return Element;
+     (Attachments : List;
+      Index       : Positive) return Element;
    --  Returns specified Attachment
 
    function Get
-     (Attachments : in List;
-      Content_Id  : in String) return Element;
+     (Attachments : List;
+      Content_Id  : String) return Element;
    --  Returns the Attachment with the Content Id
 
    generic
       with procedure Action
-        (Attachment : in     Element;
-         Index      : in     Positive;
+        (Attachment : Element;
+         Index      : Positive;
          Quit       : in out Boolean);
-   procedure For_Every_Attachment (Attachments : in List);
+   procedure For_Every_Attachment (Attachments : List);
    --  Calls action for every Attachment in Message. Stop iterator if Quit is
    --  set to True, Quit is set to False by default.
 
    procedure Iterate
-     (Attachments : in List;
-      Process     : not null access procedure (Attachment : in Element));
+     (Attachments : List;
+      Process     : not null access procedure (Attachment : Element));
    --  Calls Process for every Attachment in Message
 
-   function Headers (Attachment : in Element) return AWS.Headers.List;
+   function Headers (Attachment : Element) return AWS.Headers.List;
    pragma Inline (Headers);
    --  Returns the list of header lines for the attachment
 
-   function Content_Type (Attachment : in Element) return String;
+   function Content_Type (Attachment : Element) return String;
    --  Get value for "Content-Type:" header
 
-   function Content_Id (Attachment : in Element) return String;
+   function Content_Id (Attachment : Element) return String;
    --  Returns Attachment's content id
 
-   function Local_Filename (Attachment : in Element) return String;
+   function Local_Filename (Attachment : Element) return String;
    --  Returns the local filename of the Attachment.
    --  Local filename is the name the receiver used when extracting the
    --  Attachment into a file.
 
-   function Filename (Attachment : in Element) return String;
+   function Filename (Attachment : Element) return String;
    --  Original filename on the server side. This is generally encoded on the
    --  content-type or content-disposition header.
 
-   function Kind (Attachment : in Element) return Attachment_Kind;
+   function Kind (Attachment : Element) return Attachment_Kind;
    pragma Inline (Kind);
    --  Returns the kind of the given attachment
 
    function Length
-     (Attachments : in List;
-      Boundary    : in String) return Natural;
+     (Attachments : List;
+      Boundary    : String) return Natural;
    --  Returns the complete size of all attachments including the surrounding
    --  boundaries.
 
    procedure Send_MIME_Header
-     (Socket      : in     Net.Socket_Type'Class;
-      Attachments : in     List;
-      Boundary    :    out Unbounded_String;
-      Alternative : in     Boolean := False);
+     (Socket      : Net.Socket_Type'Class;
+      Attachments : List;
+      Boundary    : out Unbounded_String;
+      Alternative : Boolean := False);
    --  Output MIME header, returns the boundary for the content
 
    procedure Send
-     (Socket      : in AWS.Net.Socket_Type'Class;
-      Attachments : in List;
-      Boundary    : in String);
+     (Socket      : AWS.Net.Socket_Type'Class;
+      Attachments : List;
+      Boundary    : String);
    --  Send all Attachments, including the surrounding boundarys, in the list
    --  to the socket.
 
    type Root_MIME_Kind is (Multipart_Mixed, Multipart_Alternative);
 
-   function Root_MIME (Attachments : in List) return Root_MIME_Kind;
+   function Root_MIME (Attachments : List) return Root_MIME_Kind;
    --  Returns the root MIME kind for the given attachment list
 
 private

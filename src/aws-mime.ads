@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2008, AdaCore                     --
+--                     Copyright (C) 2000-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -123,12 +123,12 @@ package AWS.MIME is
    -- Setting --
    -------------
 
-   procedure Add_Extension (Ext : in String; MIME_Type : in String);
+   procedure Add_Extension (Ext : String; MIME_Type : String);
    --  Add extension Ext (file extension without the dot, e.g. "txt") to the
    --  set of MIME type extension handled by this API. Ext will be mapped to
    --  the MIME_Type string.
 
-   procedure Add_Regexp (Filename : in String; MIME_Type : in String);
+   procedure Add_Regexp (Filename : String; MIME_Type : String);
    --  Add a specific rule to the MIME type table. Filename is a regular
    --  expression and will be mapped to the MIME_Type string.
 
@@ -137,31 +137,31 @@ package AWS.MIME is
    ---------------
 
    function Content_Type
-      (Filename : in String;
-       Default  : in String := Application_Octet_Stream) return String;
+      (Filename : String;
+       Default  : String := Application_Octet_Stream) return String;
    --  Returns the MIME Content Type based on filename's extension or if not
    --  found the MIME Content type where Filename matches one of the specific
    --  rules set by Add_Regexp (see below).
    --  Returns Default if the file type is unknown (i.e. no extension and
    --  no regular expression match filename).
 
-   function Extension (Content_Type : in String) return String;
+   function Extension (Content_Type : String) return String;
    --  Returns the best guess of the extension to use for the Content Type.
    --  Note that extensions added indirectly by Add_Regexp are not searched.
 
-   function Is_Text (MIME_Type : in String) return Boolean;
+   function Is_Text (MIME_Type : String) return Boolean;
    --  Returns True if the MIME_Type is a text data
 
-   function Is_Audio (MIME_Type : in String) return Boolean;
+   function Is_Audio (MIME_Type : String) return Boolean;
    --  Returns True if the MIME_Type is an audio data
 
-   function Is_Image (MIME_Type : in String) return Boolean;
+   function Is_Image (MIME_Type : String) return Boolean;
    --  Returns True if the MIME_Type is an image data
 
-   function Is_Video (MIME_Type : in String) return Boolean;
+   function Is_Video (MIME_Type : String) return Boolean;
    --  Returns True if the MIME_Type is a video data
 
-   function Is_Application (MIME_Type : in String) return Boolean;
+   function Is_Application (MIME_Type : String) return Boolean;
    --  Returns True if the MIME_Type is an application data
 
 end AWS.MIME;

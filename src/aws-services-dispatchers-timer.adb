@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2008, AdaCore                     --
+--                     Copyright (C) 2003-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -40,7 +40,7 @@ package body AWS.Services.Dispatchers.Timer is
    -- Clone --
    -----------
 
-   overriding function Clone (Dispatcher : in Handler) return Handler is
+   overriding function Clone (Dispatcher : Handler) return Handler is
       New_Dispatcher : Handler;
    begin
       if Dispatcher.Action /= null then
@@ -75,12 +75,12 @@ package body AWS.Services.Dispatchers.Timer is
    -----------
 
    function Daily
-     (From_Hour   : in Hour_Number;
-      From_Minute : in Minute_Number;
-      From_Second : in Second_Number;
-      To_Hour     : in Hour_Number;
-      To_Minute   : in Minute_Number;
-      To_Second   : in Second_Number) return Period is
+     (From_Hour   : Hour_Number;
+      From_Minute : Minute_Number;
+      From_Second : Second_Number;
+      To_Hour     : Hour_Number;
+      To_Minute   : Minute_Number;
+      To_Second   : Second_Number) return Period is
    begin
       return Period'(Mode => Daily,
                      From => (Hour   => From_Hour,
@@ -98,18 +98,18 @@ package body AWS.Services.Dispatchers.Timer is
    --------------
 
    overriding function Dispatch
-     (Dispatcher : in Handler;
-      Request    : in Status.Data) return Response.Data
+     (Dispatcher : Handler;
+      Request    : Status.Data) return Response.Data
    is
       use type Calendar.Time;
 
-      function Match_Once     (Item : in Node_Access) return Boolean;
-      function Match_Yearly   (Item : in Node_Access) return Boolean;
-      function Match_Monthly  (Item : in Node_Access) return Boolean;
-      function Match_Weekly   (Item : in Node_Access) return Boolean;
-      function Match_Daily    (Item : in Node_Access) return Boolean;
-      function Match_Hourly   (Item : in Node_Access) return Boolean;
-      function Match_Minutely (Item : in Node_Access) return Boolean;
+      function Match_Once     (Item : Node_Access) return Boolean;
+      function Match_Yearly   (Item : Node_Access) return Boolean;
+      function Match_Monthly  (Item : Node_Access) return Boolean;
+      function Match_Weekly   (Item : Node_Access) return Boolean;
+      function Match_Daily    (Item : Node_Access) return Boolean;
+      function Match_Hourly   (Item : Node_Access) return Boolean;
+      function Match_Minutely (Item : Node_Access) return Boolean;
 
       Now : constant Calendar.Time := Calendar.Clock;
 
@@ -126,7 +126,7 @@ package body AWS.Services.Dispatchers.Timer is
       -- Match_Daily --
       -----------------
 
-      function Match_Daily (Item : in Node_Access) return Boolean is
+      function Match_Daily (Item : Node_Access) return Boolean is
          F        : Date_Time renames Item.Period.From;
          T        : Date_Time renames Item.Period.To;
          From, To : Calendar.Time;
@@ -143,7 +143,7 @@ package body AWS.Services.Dispatchers.Timer is
       -- Match_Hourly --
       ------------------
 
-      function Match_Hourly (Item : in Node_Access) return Boolean is
+      function Match_Hourly (Item : Node_Access) return Boolean is
          F        : Date_Time renames Item.Period.From;
          T        : Date_Time renames Item.Period.To;
          From, To : Calendar.Time;
@@ -160,7 +160,7 @@ package body AWS.Services.Dispatchers.Timer is
       -- Match_Minutely --
       --------------------
 
-      function Match_Minutely (Item : in Node_Access) return Boolean is
+      function Match_Minutely (Item : Node_Access) return Boolean is
          F        : Date_Time renames Item.Period.From;
          T        : Date_Time renames Item.Period.To;
          From, To : Calendar.Time;
@@ -177,7 +177,7 @@ package body AWS.Services.Dispatchers.Timer is
       -- Match_Monthly --
       -------------------
 
-      function Match_Monthly (Item : in Node_Access) return Boolean is
+      function Match_Monthly (Item : Node_Access) return Boolean is
          F        : Date_Time renames Item.Period.From;
          T        : Date_Time renames Item.Period.To;
          From, To : Calendar.Time;
@@ -194,7 +194,7 @@ package body AWS.Services.Dispatchers.Timer is
       -- Match_Once --
       ----------------
 
-      function Match_Once (Item : in Node_Access) return Boolean is
+      function Match_Once (Item : Node_Access) return Boolean is
          F        : Date_Time renames Item.Period.From;
          T        : Date_Time renames Item.Period.To;
          From, To : Calendar.Time;
@@ -211,7 +211,7 @@ package body AWS.Services.Dispatchers.Timer is
       -- Match_Weekly --
       ------------------
 
-      function Match_Weekly (Item : in Node_Access) return Boolean is
+      function Match_Weekly (Item : Node_Access) return Boolean is
          F        : Date_Time renames Item.Period.From;
          T        : Date_Time renames Item.Period.To;
          From, To : Calendar.Time;
@@ -232,7 +232,7 @@ package body AWS.Services.Dispatchers.Timer is
       -- Match_Yearly --
       ------------------
 
-      function Match_Yearly (Item : in Node_Access) return Boolean is
+      function Match_Yearly (Item : Node_Access) return Boolean is
          F        : Date_Time renames Item.Period.From;
          T        : Date_Time renames Item.Period.To;
          From, To : Calendar.Time;
@@ -334,10 +334,10 @@ package body AWS.Services.Dispatchers.Timer is
    ------------
 
    function Hourly
-     (From_Minute : in Minute_Number;
-      From_Second : in Second_Number;
-      To_Minute   : in Minute_Number;
-      To_Second   : in Second_Number) return Period is
+     (From_Minute : Minute_Number;
+      From_Second : Second_Number;
+      To_Minute   : Minute_Number;
+      To_Second   : Second_Number) return Period is
    begin
       return Period'(Mode => Hourly,
                      From => (Minute => From_Minute,
@@ -362,8 +362,8 @@ package body AWS.Services.Dispatchers.Timer is
    --------------
 
    function Minutely
-     (From_Second : in Second_Number;
-      To_Second   : in Second_Number) return Period is
+     (From_Second : Second_Number;
+      To_Second   : Second_Number) return Period is
    begin
       return Period'(Mode => Minutely,
                      From => (Second => From_Second,
@@ -377,14 +377,14 @@ package body AWS.Services.Dispatchers.Timer is
    -------------
 
    function Monthly
-     (From_Day    : in Day_Number;
-      From_Hour   : in Hour_Number;
-      From_Minute : in Minute_Number;
-      From_Second : in Second_Number;
-      To_Day      : in Day_Number;
-      To_Hour     : in Hour_Number;
-      To_Minute   : in Minute_Number;
-      To_Second   : in Second_Number) return Period is
+     (From_Day    : Day_Number;
+      From_Hour   : Hour_Number;
+      From_Minute : Minute_Number;
+      From_Second : Second_Number;
+      To_Day      : Day_Number;
+      To_Hour     : Hour_Number;
+      To_Minute   : Minute_Number;
+      To_Second   : Second_Number) return Period is
    begin
       return Period'(Mode => Monthly,
                      From => (Day    => From_Day,
@@ -404,18 +404,18 @@ package body AWS.Services.Dispatchers.Timer is
    ----------
 
    function Once
-     (From_Year   : in Year_Number;
-      From_Month  : in Month_Number;
-      From_Day    : in Day_Number;
-      From_Hour   : in Hour_Number;
-      From_Minute : in Minute_Number;
-      From_Second : in Second_Number;
-      To_Year     : in Year_Number;
-      To_Month    : in Month_Number;
-      To_Day      : in Day_Number;
-      To_Hour     : in Hour_Number;
-      To_Minute   : in Minute_Number;
-      To_Second   : in Second_Number) return Period is
+     (From_Year   : Year_Number;
+      From_Month  : Month_Number;
+      From_Day    : Day_Number;
+      From_Hour   : Hour_Number;
+      From_Minute : Minute_Number;
+      From_Second : Second_Number;
+      To_Year     : Year_Number;
+      To_Month    : Month_Number;
+      To_Day      : Day_Number;
+      To_Hour     : Hour_Number;
+      To_Minute   : Minute_Number;
+      To_Second   : Second_Number) return Period is
    begin
       return Period'(Mode => Once,
                      From => (Year   => From_Year,
@@ -440,9 +440,9 @@ package body AWS.Services.Dispatchers.Timer is
 
    procedure Register
      (Dispatcher : in out Handler;
-      Name       : in     String;
-      Period     : in     Timer.Period;
-      Action     : in     AWS.Dispatchers.Handler'Class)
+      Name       : String;
+      Period     : Timer.Period;
+      Action     : AWS.Dispatchers.Handler'Class)
    is
       Value : constant Node_Access :=
                 new Node'(To_Unbounded_String (Name),
@@ -454,9 +454,9 @@ package body AWS.Services.Dispatchers.Timer is
 
    procedure Register
      (Dispatcher : in out Handler;
-      Name       : in     String;
-      Period     : in     Timer.Period;
-      Action     : in     Response.Callback) is
+      Name       : String;
+      Period     : Timer.Period;
+      Action     : Response.Callback) is
    begin
       Register
         (Dispatcher, Name, Period, AWS.Dispatchers.Callback.Create (Action));
@@ -468,7 +468,7 @@ package body AWS.Services.Dispatchers.Timer is
 
    procedure Register_Default_Callback
      (Dispatcher : in out Handler;
-      Action     : in     AWS.Dispatchers.Handler'Class) is
+      Action     : AWS.Dispatchers.Handler'Class) is
    begin
       if Dispatcher.Action /= null then
          Free (Dispatcher.Action);
@@ -483,7 +483,7 @@ package body AWS.Services.Dispatchers.Timer is
 
    procedure Unregister
      (Dispatcher : in out Handler;
-      Name       : in     String) is
+      Name       : String) is
    begin
       for K in 1 .. Natural (Period_Table.Length (Dispatcher.Table)) loop
          declare
@@ -505,14 +505,14 @@ package body AWS.Services.Dispatchers.Timer is
    ------------
 
    function Weekly
-     (From_Day    : in Day_Name;
-      From_Hour   : in Hour_Number;
-      From_Minute : in Minute_Number;
-      From_Second : in Second_Number;
-      To_Day      : in Day_Name;
-      To_Hour     : in Hour_Number;
-      To_Minute   : in Minute_Number;
-      To_Second   : in Second_Number) return Period
+     (From_Day    : Day_Name;
+      From_Hour   : Hour_Number;
+      From_Minute : Minute_Number;
+      From_Second : Second_Number;
+      To_Day      : Day_Name;
+      To_Hour     : Hour_Number;
+      To_Minute   : Minute_Number;
+      To_Second   : Second_Number) return Period
    is
       P : Period;
    begin
@@ -533,16 +533,16 @@ package body AWS.Services.Dispatchers.Timer is
    ------------
 
    function Yearly
-     (From_Month  : in Month_Number;
-      From_Day    : in Day_Number;
-      From_Hour   : in Hour_Number;
-      From_Minute : in Minute_Number;
-      From_Second : in Second_Number;
-      To_Month    : in Month_Number;
-      To_Day      : in Day_Number;
-      To_Hour     : in Hour_Number;
-      To_Minute   : in Minute_Number;
-      To_Second   : in Second_Number) return Period
+     (From_Month  : Month_Number;
+      From_Day    : Day_Number;
+      From_Hour   : Hour_Number;
+      From_Minute : Minute_Number;
+      From_Second : Second_Number;
+      To_Month    : Month_Number;
+      To_Day      : Day_Number;
+      To_Hour     : Hour_Number;
+      To_Minute   : Minute_Number;
+      To_Second   : Second_Number) return Period
    is
       P : Period;
    begin

@@ -41,9 +41,9 @@ package body AWS.Net.Generic_Sets is
 
    procedure Add_Private
      (Set    : in out Socket_Set_Type;
-      Socket : in     Socket_Access;
-      Mode   : in     Waiting_Mode;
-      Length :    out Socket_Count);
+      Socket : Socket_Access;
+      Mode   : Waiting_Mode;
+      Length : out Socket_Count);
    --  Add Socket into Set
 
    ---------
@@ -52,8 +52,8 @@ package body AWS.Net.Generic_Sets is
 
    procedure Add
      (Set    : in out Socket_Set_Type;
-      Socket : in     Socket_Type'Class;
-      Mode   : in     Waiting_Mode)
+      Socket : Socket_Type'Class;
+      Mode   : Waiting_Mode)
    is
       Length : Socket_Index;
    begin
@@ -63,8 +63,8 @@ package body AWS.Net.Generic_Sets is
 
    procedure Add
      (Set    : in out Socket_Set_Type;
-      Socket : in     Socket_Access;
-      Mode   : in     Waiting_Mode)
+      Socket : Socket_Access;
+      Mode   : Waiting_Mode)
    is
       Length : Socket_Index;
    begin
@@ -74,9 +74,9 @@ package body AWS.Net.Generic_Sets is
 
    procedure Add
      (Set    : in out Socket_Set_Type;
-      Socket : in     Socket_Type'Class;
-      Data   : in     Data_Type;
-      Mode   : in     Waiting_Mode)
+      Socket : Socket_Type'Class;
+      Data   : Data_Type;
+      Mode   : Waiting_Mode)
    is
       Length : Socket_Index;
    begin
@@ -87,9 +87,9 @@ package body AWS.Net.Generic_Sets is
 
    procedure Add
      (Set    : in out Socket_Set_Type;
-      Socket : in     Socket_Access;
-      Data   : in     Data_Type;
-      Mode   : in     Waiting_Mode)
+      Socket : Socket_Access;
+      Data   : Data_Type;
+      Mode   : Waiting_Mode)
    is
       Length : Socket_Index;
    begin
@@ -104,9 +104,9 @@ package body AWS.Net.Generic_Sets is
 
    procedure Add_Private
      (Set    : in out Socket_Set_Type;
-      Socket : in     Socket_Access;
-      Mode   : in     Waiting_Mode;
-      Length :    out Socket_Count) is
+      Socket : Socket_Access;
+      Mode   : Waiting_Mode;
+      Length : out Socket_Count) is
    begin
       if Set.Set = null then
          --  Allocate only few elements in array first, because this package
@@ -147,7 +147,7 @@ package body AWS.Net.Generic_Sets is
    -- Count --
    -----------
 
-   function Count (Set : in Socket_Set_Type) return Socket_Count is
+   function Count (Set : Socket_Set_Type) return Socket_Count is
    begin
       if Set.Poll = null then
          return 0;
@@ -172,8 +172,8 @@ package body AWS.Net.Generic_Sets is
    --------------
 
    function Get_Data
-     (Set   : in Socket_Set_Type;
-      Index : in Socket_Index) return Data_Type is
+     (Set   : Socket_Set_Type;
+      Index : Socket_Index) return Data_Type is
    begin
       return Set.Set (Index).Data;
    end Get_Data;
@@ -183,8 +183,8 @@ package body AWS.Net.Generic_Sets is
    ----------------
 
    function Get_Socket
-     (Set   : in Socket_Set_Type;
-      Index : in Socket_Index) return Socket_Type'Class is
+     (Set   : Socket_Set_Type;
+      Index : Socket_Index) return Socket_Type'Class is
    begin
       return Set.Set (Index).Socket.all;
    end Get_Socket;
@@ -194,8 +194,8 @@ package body AWS.Net.Generic_Sets is
    --------------
 
    function In_Range
-     (Set   : in Socket_Set_Type;
-      Index : in Socket_Index) return Boolean is
+     (Set   : Socket_Set_Type;
+      Index : Socket_Index) return Boolean is
    begin
       return Index <= Count (Set);
    end In_Range;
@@ -205,7 +205,7 @@ package body AWS.Net.Generic_Sets is
    --------------
 
    function Is_Error
-     (Set : in Socket_Set_Type; Index : in Socket_Index) return Boolean is
+     (Set : Socket_Set_Type; Index : Socket_Index) return Boolean is
    begin
       return Status (Set.Poll.all, Positive (Index)) (Error);
    end Is_Error;
@@ -215,10 +215,10 @@ package body AWS.Net.Generic_Sets is
    -------------------
 
    procedure Is_Read_Ready
-     (Set   : in     Socket_Set_Type;
-      Index : in     Socket_Index;
-      Ready :    out Boolean;
-      Error :    out Boolean)
+     (Set   : Socket_Set_Type;
+      Index : Socket_Index;
+      Ready : out Boolean;
+      Error : out Boolean)
    is
       Result : constant Event_Set := Status (Set.Poll.all, Positive (Index));
    begin
@@ -227,7 +227,7 @@ package body AWS.Net.Generic_Sets is
    end Is_Read_Ready;
 
    function Is_Read_Ready
-     (Set : in Socket_Set_Type; Index : in Socket_Index) return Boolean is
+     (Set : Socket_Set_Type; Index : Socket_Index) return Boolean is
    begin
       return Status (Set.Poll.all, Positive (Index)) (Net.Input);
    end Is_Read_Ready;
@@ -237,7 +237,7 @@ package body AWS.Net.Generic_Sets is
    --------------------
 
    function Is_Write_Ready
-     (Set : in Socket_Set_Type; Index : in Socket_Index) return Boolean is
+     (Set : Socket_Set_Type; Index : Socket_Index) return Boolean is
    begin
       return Status (Set.Poll.all, Positive (Index)) (Net.Output);
    end Is_Write_Ready;
@@ -247,7 +247,7 @@ package body AWS.Net.Generic_Sets is
    ----------
 
    procedure Next
-     (Set : in Socket_Set_Type; Index : in out Socket_Index) is
+     (Set : Socket_Set_Type; Index : in out Socket_Index) is
    begin
       Next (Set.Poll.all, Positive (Index));
    end Next;
@@ -258,7 +258,7 @@ package body AWS.Net.Generic_Sets is
 
    procedure Remove_Socket
      (Set   : in out Socket_Set_Type;
-      Index : in     Socket_Index)
+      Index : Socket_Index)
    is
       Last : constant Socket_Count := Socket_Count (Length (Set.Poll.all));
    begin
@@ -277,8 +277,8 @@ package body AWS.Net.Generic_Sets is
 
    procedure Remove_Socket
      (Set    : in out Socket_Set_Type;
-      Index  : in     Socket_Index;
-      Socket :    out Socket_Access)
+      Index  : Socket_Index;
+      Socket : out Socket_Access)
    is
       Last : constant Socket_Count := Socket_Count (Length (Set.Poll.all));
    begin
@@ -320,8 +320,8 @@ package body AWS.Net.Generic_Sets is
 
    procedure Set_Data
      (Set   : in out Socket_Set_Type;
-      Index : in     Socket_Index;
-      Data  : in     Data_Type) is
+      Index : Socket_Index;
+      Data  : Data_Type) is
    begin
       Set.Set (Index).Data := Data;
    end Set_Data;
@@ -332,8 +332,8 @@ package body AWS.Net.Generic_Sets is
 
    procedure Set_Mode
      (Set    : in out Socket_Set_Type;
-      Index  : in     Socket_Index;
-      Mode   : in     Waiting_Mode) is
+      Index  : Socket_Index;
+      Mode   : Waiting_Mode) is
    begin
       Set_Mode (Set.Poll.all, Integer (Index), Mode);
    end Set_Mode;
@@ -344,7 +344,7 @@ package body AWS.Net.Generic_Sets is
 
    procedure Update_Socket
      (Set     : in out Socket_Set_Type;
-      Index   : in     Socket_Index;
+      Index   : Socket_Index;
       Process : not null access procedure
                   (Socket : in out Socket_Type'Class;
                    Data   : in out Data_Type)) is
@@ -362,8 +362,8 @@ package body AWS.Net.Generic_Sets is
 
    procedure Wait
      (Set     : in out Socket_Set_Type;
-      Timeout : in     Duration;
-      Count   :    out Socket_Count) is
+      Timeout : Duration;
+      Count   : out Socket_Count) is
    begin
       if Set.Poll = null then
          Count := 0;
@@ -375,7 +375,7 @@ package body AWS.Net.Generic_Sets is
 
    procedure Wait
      (Set     : in out Socket_Set_Type;
-      Timeout : in     Duration)
+      Timeout : Duration)
    is
       Dummy : Socket_Count;
    begin

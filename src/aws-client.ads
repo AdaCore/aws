@@ -70,29 +70,29 @@ package AWS.Client is
    --  No timeout, allow infinite time to send or retrieve data
 
    function Timeouts
-     (Connect  : in Duration := Net.Forever;
-      Send     : in Duration := Net.Forever;
-      Receive  : in Duration := Net.Forever;
-      Response : in Duration := Net.Forever) return Timeouts_Values;
+     (Connect  : Duration := Net.Forever;
+      Send     : Duration := Net.Forever;
+      Receive  : Duration := Net.Forever;
+      Response : Duration := Net.Forever) return Timeouts_Values;
    --  Constructor for the timeouts values
 
-   function Timeouts (Each : in Duration) return Timeouts_Values;
+   function Timeouts (Each : Duration) return Timeouts_Values;
    --  Constructor for the timeouts values, sets all timeouts values (see
    --  Contructor above) to Each.
 
-   function Connect_Timeout (T : in Timeouts_Values) return Duration;
+   function Connect_Timeout (T : Timeouts_Values) return Duration;
    pragma Inline (Connect_Timeout);
    --  Returns the corresponding timeout value
 
-   function Send_Timeout (T : in Timeouts_Values) return Duration;
+   function Send_Timeout (T : Timeouts_Values) return Duration;
    pragma Inline (Send_Timeout);
    --  Returns the corresponding timeout value
 
-   function Receive_Timeout (T : in Timeouts_Values) return Duration;
+   function Receive_Timeout (T : Timeouts_Values) return Duration;
    pragma Inline (Receive_Timeout);
    --  Returns the corresponding timeout value
 
-   function Response_Timeout (T : in Timeouts_Values) return Duration;
+   function Response_Timeout (T : Timeouts_Values) return Duration;
    pragma Inline (Response_Timeout);
    --  Returns the corresponding timeout value
 
@@ -126,17 +126,17 @@ package AWS.Client is
    Empty_Attachment_List : constant Attachment_List := Attachments.Empty_List;
 
    function Get
-     (URL                : in String;
-      User               : in String          := No_Data;
-      Pwd                : in String          := No_Data;
-      Proxy              : in String          := No_Data;
-      Proxy_User         : in String          := No_Data;
-      Proxy_Pwd          : in String          := No_Data;
-      Timeouts           : in Timeouts_Values := No_Timeout;
-      Data_Range         : in Content_Range   := No_Range;
-      Follow_Redirection : in Boolean         := False;
-      Certificate        : in String          := Default.Client_Certificate;
-      Headers            : in Header_List     := Empty_Header_List)
+     (URL                : String;
+      User               : String          := No_Data;
+      Pwd                : String          := No_Data;
+      Proxy              : String          := No_Data;
+      Proxy_User         : String          := No_Data;
+      Proxy_Pwd          : String          := No_Data;
+      Timeouts           : Timeouts_Values := No_Timeout;
+      Data_Range         : Content_Range   := No_Range;
+      Follow_Redirection : Boolean         := False;
+      Certificate        : String          := Default.Client_Certificate;
+      Headers            : Header_List     := Empty_Header_List)
       return Response.Data;
    --  Retrieve the message data given a specific URL. It open a connection
    --  with the server and ask for the resource specified in the URL it then
@@ -157,89 +157,89 @@ package AWS.Client is
    --  Get will retry one time if it fails.
 
    function Head
-     (URL        : in String;
-      User       : in String          := No_Data;
-      Pwd        : in String          := No_Data;
-      Proxy      : in String          := No_Data;
-      Proxy_User : in String          := No_Data;
-      Proxy_Pwd  : in String          := No_Data;
-      Timeouts   : in Timeouts_Values := No_Timeout;
-      Headers    : in Header_List     := Empty_Header_List)
+     (URL        : String;
+      User       : String          := No_Data;
+      Pwd        : String          := No_Data;
+      Proxy      : String          := No_Data;
+      Proxy_User : String          := No_Data;
+      Proxy_Pwd  : String          := No_Data;
+      Timeouts   : Timeouts_Values := No_Timeout;
+      Headers    : Header_List     := Empty_Header_List)
       return Response.Data;
    --  Idem as above but we do not get the message body.
    --  Head will retry one time if it fails.
 
    function Put
-     (URL        : in String;
-      Data       : in String;
-      User       : in String          := No_Data;
-      Pwd        : in String          := No_Data;
-      Proxy      : in String          := No_Data;
-      Proxy_User : in String          := No_Data;
-      Proxy_Pwd  : in String          := No_Data;
-      Timeouts   : in Timeouts_Values := No_Timeout;
-      Headers    : in Header_List     := Empty_Header_List)
+     (URL        : String;
+      Data       : String;
+      User       : String          := No_Data;
+      Pwd        : String          := No_Data;
+      Proxy      : String          := No_Data;
+      Proxy_User : String          := No_Data;
+      Proxy_Pwd  : String          := No_Data;
+      Timeouts   : Timeouts_Values := No_Timeout;
+      Headers    : Header_List     := Empty_Header_List)
       return Response.Data;
    --  Send to the server URL a PUT request with Data
    --  Put will retry one time if it fails.
 
    function Post
-     (URL          : in String;
-      Data         : in String;
-      Content_Type : in String          := No_Data;
-      User         : in String          := No_Data;
-      Pwd          : in String          := No_Data;
-      Proxy        : in String          := No_Data;
-      Proxy_User   : in String          := No_Data;
-      Proxy_Pwd    : in String          := No_Data;
-      Timeouts     : in Timeouts_Values := No_Timeout;
-      Attachments  : in Attachment_List := Empty_Attachment_List;
-      Headers      : in Header_List     := Empty_Header_List)
+     (URL          : String;
+      Data         : String;
+      Content_Type : String          := No_Data;
+      User         : String          := No_Data;
+      Pwd          : String          := No_Data;
+      Proxy        : String          := No_Data;
+      Proxy_User   : String          := No_Data;
+      Proxy_Pwd    : String          := No_Data;
+      Timeouts     : Timeouts_Values := No_Timeout;
+      Attachments  : Attachment_List := Empty_Attachment_List;
+      Headers      : Header_List     := Empty_Header_List)
       return Response.Data;
    --  Send to the server URL a POST request with Data
    --  Post will retry one time if it fails.
 
    function Post
-     (URL          : in String;
-      Data         : in Stream_Element_Array;
-      Content_Type : in String          := No_Data;
-      User         : in String          := No_Data;
-      Pwd          : in String          := No_Data;
-      Proxy        : in String          := No_Data;
-      Proxy_User   : in String          := No_Data;
-      Proxy_Pwd    : in String          := No_Data;
-      Timeouts     : in Timeouts_Values := No_Timeout;
-      Attachments  : in Attachment_List := Empty_Attachment_List;
-      Headers      : in Header_List     := Empty_Header_List)
+     (URL          : String;
+      Data         : Stream_Element_Array;
+      Content_Type : String          := No_Data;
+      User         : String          := No_Data;
+      Pwd          : String          := No_Data;
+      Proxy        : String          := No_Data;
+      Proxy_User   : String          := No_Data;
+      Proxy_Pwd    : String          := No_Data;
+      Timeouts     : Timeouts_Values := No_Timeout;
+      Attachments  : Attachment_List := Empty_Attachment_List;
+      Headers      : Header_List     := Empty_Header_List)
       return Response.Data;
    --  Idem as above but with binary data
 
    function SOAP_Post
-     (URL         : in String;
-      Data        : in String;
-      SOAPAction  : in String;
-      User        : in String          := No_Data;
-      Pwd         : in String          := No_Data;
-      Proxy       : in String          := No_Data;
-      Proxy_User  : in String          := No_Data;
-      Proxy_Pwd   : in String          := No_Data;
-      Timeouts    : in Timeouts_Values := No_Timeout;
-      Attachments : in Attachment_List := Empty_Attachment_List;
-      Headers     : in Header_List     := Empty_Header_List)
+     (URL         : String;
+      Data        : String;
+      SOAPAction  : String;
+      User        : String          := No_Data;
+      Pwd         : String          := No_Data;
+      Proxy       : String          := No_Data;
+      Proxy_User  : String          := No_Data;
+      Proxy_Pwd   : String          := No_Data;
+      Timeouts    : Timeouts_Values := No_Timeout;
+      Attachments : Attachment_List := Empty_Attachment_List;
+      Headers     : Header_List     := Empty_Header_List)
       return Response.Data;
    --  Send to the server URL a POST request with Data
    --  Post will retry one time if it fails.
 
    function Upload
-     (URL        : in String;
-      Filename   : in String;
-      User       : in String          := No_Data;
-      Pwd        : in String          := No_Data;
-      Proxy      : in String          := No_Data;
-      Proxy_User : in String          := No_Data;
-      Proxy_Pwd  : in String          := No_Data;
-      Timeouts   : in Timeouts_Values := No_Timeout;
-      Headers    : in Header_List     := Empty_Header_List)
+     (URL        : String;
+      Filename   : String;
+      User       : String          := No_Data;
+      Pwd        : String          := No_Data;
+      Proxy      : String          := No_Data;
+      Proxy_User : String          := No_Data;
+      Proxy_Pwd  : String          := No_Data;
+      Timeouts   : Timeouts_Values := No_Timeout;
+      Headers    : Header_List     := Empty_Header_List)
       return Response.Data;
    --  This is a file upload request. Filename file's content will be send to
    --  the server at address URL.
@@ -251,34 +251,34 @@ package AWS.Client is
    type HTTP_Connection is limited private;
 
    function Create
-     (Host        : in     String;
-      User        : in     String          := No_Data;
-      Pwd         : in     String          := No_Data;
-      Proxy       : in     String          := No_Data;
-      Proxy_User  : in     String          := No_Data;
-      Proxy_Pwd   : in     String          := No_Data;
-      Retry       : in     Natural         := Retry_Default;
-      Persistent  : in     Boolean         := True;
-      Timeouts    : in     Timeouts_Values := No_Timeout;
-      Server_Push : in     Boolean         := False;
-      Certificate : in     String          := Default.Client_Certificate;
-      User_Agent  : in     String          := Default.User_Agent)
+     (Host        : String;
+      User        : String          := No_Data;
+      Pwd         : String          := No_Data;
+      Proxy       : String          := No_Data;
+      Proxy_User  : String          := No_Data;
+      Proxy_Pwd   : String          := No_Data;
+      Retry       : Natural         := Retry_Default;
+      Persistent  : Boolean         := True;
+      Timeouts    : Timeouts_Values := No_Timeout;
+      Server_Push : Boolean         := False;
+      Certificate : String          := Default.Client_Certificate;
+      User_Agent  : String          := Default.User_Agent)
       return HTTP_Connection;
 
    procedure Create
      (Connection  : in out HTTP_Connection;
-      Host        : in     String;
-      User        : in     String          := No_Data;
-      Pwd         : in     String          := No_Data;
-      Proxy       : in     String          := No_Data;
-      Proxy_User  : in     String          := No_Data;
-      Proxy_Pwd   : in     String          := No_Data;
-      Retry       : in     Natural         := Retry_Default;
-      Persistent  : in     Boolean         := True;
-      Timeouts    : in     Timeouts_Values := No_Timeout;
-      Server_Push : in     Boolean         := False;
-      Certificate : in     String          := Default.Client_Certificate;
-      User_Agent  : in     String          := Default.User_Agent);
+      Host        : String;
+      User        : String          := No_Data;
+      Pwd         : String          := No_Data;
+      Proxy       : String          := No_Data;
+      Proxy_User  : String          := No_Data;
+      Proxy_Pwd   : String          := No_Data;
+      Retry       : Natural         := Retry_Default;
+      Persistent  : Boolean         := True;
+      Timeouts    : Timeouts_Values := No_Timeout;
+      Server_Push : Boolean         := False;
+      Certificate : String          := Default.Client_Certificate;
+      User_Agent  : String          := Default.User_Agent);
    --  Create a new connection. This is to be used with Keep-Alive client API
    --  below. The connection will be tried Retry times if it fails. If
    --  persistent is True the connection will remain open otherwise it will be
@@ -293,18 +293,18 @@ package AWS.Client is
    --  the client interface to present itself to the server.
 
    function Get_Certificate
-     (Connection : in HTTP_Connection) return AWS.Net.SSL.Certificate.Object;
+     (Connection : HTTP_Connection) return AWS.Net.SSL.Certificate.Object;
    --  Return the certificate used for the secure connection. If this is not a
    --  secure connection, returns Net.SSL.Certificate.Undefined.
 
-   function Host (Connection : in HTTP_Connection) return String;
+   function Host (Connection : HTTP_Connection) return String;
    --  Returns the host as recorded into the connection
 
    procedure Set_WWW_Authentication
      (Connection : in out HTTP_Connection;
-      User       : in     String;
-      Pwd        : in     String;
-      Mode       : in     Authentication_Mode);
+      User       : String;
+      Pwd        : String;
+      Mode       : Authentication_Mode);
    --  Sets the username password and authentication mode for the Web
    --  authentication.
    --
@@ -321,32 +321,32 @@ package AWS.Client is
 
    procedure Set_Proxy_Authentication
      (Connection : in out HTTP_Connection;
-      User       : in     String;
-      Pwd        : in     String;
-      Mode       : in     Authentication_Mode);
+      User       : String;
+      Pwd        : String;
+      Mode       : Authentication_Mode);
    --  Sets the username, password and authentication mode for the proxy
    --  authentication.
 
    procedure Copy_Cookie
-     (Source      : in     HTTP_Connection;
+     (Source      : HTTP_Connection;
       Destination : in out HTTP_Connection);
    --  Copy a session Id from connection Source to connection Destination.
    --  Allow both connections to share the same user environment. Note that
    --  user's environment are thread-safe.
 
-   function Get_Cookie (Connection : in HTTP_Connection) return String;
+   function Get_Cookie (Connection : HTTP_Connection) return String;
    pragma Inline (Get_Cookie);
    --  Get the connection cookie
 
    procedure Set_Cookie
-     (Connection : in out HTTP_Connection; Cookie : in String);
+     (Connection : in out HTTP_Connection; Cookie : String);
    pragma Inline (Set_Cookie);
    --  Set the connection cookie
 
    function Read_Until
-     (Connection : in HTTP_Connection;
-      Delimiter  : in String;
-      Wait       : in Boolean := True) return String;
+     (Connection : HTTP_Connection;
+      Delimiter  : String;
+      Wait       : Boolean := True) return String;
    --  Read data on the Connection until the delimiter (including the
    --  delimiter). It can be used to retrieve the next piece of data from a
    --  push server. If Wait is False the routine is looking for delimiter only
@@ -356,15 +356,15 @@ package AWS.Client is
 
    procedure Read_Until
      (Connection : in out HTTP_Connection;
-      Delimiter  : in     String;
+      Delimiter  : String;
       Result     : in out Ada.Strings.Unbounded.Unbounded_String;
-      Wait       : in     Boolean := True);
+      Wait       : Boolean := True);
    --  Idem as above but returns the result as an Unbounded_String
 
    procedure Read_Some
      (Connection : in out HTTP_Connection;
-      Data       :    out Ada.Streams.Stream_Element_Array;
-      Last       :    out Ada.Streams.Stream_Element_Offset);
+      Data       : out Ada.Streams.Stream_Element_Array;
+      Last       : out Ada.Streams.Stream_Element_Offset);
    --  Reads any available data from the client's connection.
    --  If no data available, it will wait for some data to become available or
    --  until it timeouts. Returns Last < Data'First when there is no data
@@ -373,8 +373,8 @@ package AWS.Client is
 
    procedure Read
      (Connection : in out HTTP_Connection;
-      Data       :    out Ada.Streams.Stream_Element_Array;
-      Last       :    out Ada.Streams.Stream_Element_Offset);
+      Data       : out Ada.Streams.Stream_Element_Array;
+      Last       : out Ada.Streams.Stream_Element_Offset);
    --  Reads data from the client's connection until Data buffer if filled
    --  or it reached the end of the response. Returns Last < Data'Last if
    --  there is no more data available in HTTP response. Connection have
@@ -382,63 +382,63 @@ package AWS.Client is
 
    procedure Get
      (Connection : in out HTTP_Connection;
-      Result     :    out Response.Data;
-      URI        : in     String          := No_Data;
-      Data_Range : in     Content_Range   := No_Range;
-      Headers    : in     Header_List     := Empty_Header_List);
+      Result     : out Response.Data;
+      URI        : String          := No_Data;
+      Data_Range : Content_Range   := No_Range;
+      Headers    : Header_List     := Empty_Header_List);
    --  Same as Get above but using a Connection
 
    procedure Head
      (Connection : in out HTTP_Connection;
-      Result     :    out Response.Data;
-      URI        : in     String          := No_Data;
-      Headers    : in     Header_List     := Empty_Header_List);
+      Result     : out Response.Data;
+      URI        : String          := No_Data;
+      Headers    : Header_List     := Empty_Header_List);
    --  Same as Head above but using a Connection
 
    procedure Put
      (Connection : in out HTTP_Connection;
-      Result     :    out Response.Data;
-      Data       : in     String;
-      URI        : in     String      := No_Data;
-      Headers    : in     Header_List := Empty_Header_List);
+      Result     : out Response.Data;
+      Data       : String;
+      URI        : String      := No_Data;
+      Headers    : Header_List := Empty_Header_List);
    --  Same as Put above but using a Connection
 
    procedure Post
      (Connection   : in out HTTP_Connection;
-      Result       :    out Response.Data;
-      Data         : in     String;
-      Content_Type : in     String          := No_Data;
-      URI          : in     String          := No_Data;
-      Attachments  : in     Attachment_List := Empty_Attachment_List;
-      Headers      : in     Header_List     := Empty_Header_List);
+      Result       : out Response.Data;
+      Data         : String;
+      Content_Type : String          := No_Data;
+      URI          : String          := No_Data;
+      Attachments  : Attachment_List := Empty_Attachment_List;
+      Headers      : Header_List     := Empty_Header_List);
    --  Same as Post above but using a Connection
 
    procedure Post
      (Connection   : in out HTTP_Connection;
-      Result       :    out Response.Data;
-      Data         : in     Stream_Element_Array;
-      Content_Type : in     String          := No_Data;
-      URI          : in     String          := No_Data;
-      Attachments  : in     Attachment_List := Empty_Attachment_List;
-      Headers      : in     Header_List     := Empty_Header_List);
+      Result       : out Response.Data;
+      Data         : Stream_Element_Array;
+      Content_Type : String          := No_Data;
+      URI          : String          := No_Data;
+      Attachments  : Attachment_List := Empty_Attachment_List;
+      Headers      : Header_List     := Empty_Header_List);
    --  Same as Post above but using a Connection
 
    procedure Upload
      (Connection : in out HTTP_Connection;
-      Result     :    out Response.Data;
-      Filename   : in     String;
-      URI        : in     String          := No_Data;
-      Headers    : in     Header_List     := Empty_Header_List);
+      Result     : out Response.Data;
+      Filename   : String;
+      URI        : String          := No_Data;
+      Headers    : Header_List     := Empty_Header_List);
    --  Same as Upload above but using a Connection
 
    procedure SOAP_Post
-     (Connection  : in     HTTP_Connection;
-      Result      :    out Response.Data;
-      SOAPAction  : in     String;
-      Data        : in     String;
-      Streaming   : in     Boolean         := False;
-      Attachments : in     Attachment_List := Empty_Attachment_List;
-      Headers     : in     Header_List     := Empty_Header_List);
+     (Connection  : HTTP_Connection;
+      Result      : out Response.Data;
+      SOAPAction  : String;
+      Data        : String;
+      Streaming   : Boolean         := False;
+      Attachments : Attachment_List := Empty_Attachment_List;
+      Headers     : Header_List     := Empty_Header_List);
    --  Same as SOAP_Post above but using a Connection
    --  Streaming is to be able to parse response XML on the fly,
    --  without intermediate buffer.
@@ -448,14 +448,14 @@ package AWS.Client is
 
    procedure Set_Streaming_Output
      (Connection : in out HTTP_Connection;
-      Value      : in     Boolean);
+      Value      : Boolean);
    pragma Inline (Set_Streaming_Output);
    --  Call this routine with Value => True to be able to read data as a
    --  stream by using Read and/or Read_Some routines above. Note that
    --  Connection is already in Streaming mode if it has been created
    --  with Server_Push => True.
 
-   procedure Set_Debug (On : in Boolean);
+   procedure Set_Debug (On : Boolean);
    --  Set debug mode on/off. If debug is activated the request header and the
    --  server response header will be displayed.
 
@@ -541,12 +541,12 @@ private
       Decode_Last   : Stream_Element_Offset;
    end record;
 
-   procedure Debug_Message (Prefix, Message : in String);
+   procedure Debug_Message (Prefix, Message : String);
    pragma Inline (Debug_Message);
    --  Output Message prefixed with Prefix if Debug_On is True and does
    --  nothing otherwise.
 
-   procedure Debug_Exception (E : in Ada.Exceptions.Exception_Occurrence);
+   procedure Debug_Exception (E : Ada.Exceptions.Exception_Occurrence);
    pragma Inline (Debug_Exception);
    --  Output E exception if Debug_On is True and does nothing otherwise
 

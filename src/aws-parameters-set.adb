@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2008, AdaCore                     --
+--                     Copyright (C) 2000-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -43,8 +43,8 @@ package body AWS.Parameters.Set is
 
    procedure Add
      (Parameter_List : in out List;
-      Name, Value    : in     String;
-      Decode         : in     Boolean := True) is
+      Name, Value    : String;
+      Decode         : Boolean := True) is
    begin
       if Parameter_List.Parameters = Null_Unbounded_String then
          Append (Parameter_List.Parameters, "?");
@@ -69,7 +69,7 @@ package body AWS.Parameters.Set is
    -- Add --
    ---------
 
-   procedure Add (Parameter_List : in out List; Parameters : in String) is
+   procedure Add (Parameter_List : in out List; Parameters : String) is
       use Ada.Strings;
 
       P : String renames Parameters;
@@ -177,7 +177,7 @@ package body AWS.Parameters.Set is
 
    procedure Case_Sensitive
      (Parameter_List : in out List;
-      Mode           : in     Boolean) is
+      Mode           : Boolean) is
    begin
       Tables.Set.Case_Sensitive (Tables.Table_Type (Parameter_List), Mode);
    end Case_Sensitive;
@@ -198,8 +198,8 @@ package body AWS.Parameters.Set is
 
    procedure Update
      (Parameter_List : in out List;
-      Name, Value    : in     String;
-      Decode         : in     Boolean := True)
+      Name, Value    : String;
+      Decode         : Boolean := True)
    is
       First : constant Natural :=
                 Index (Parameter_List.Parameters, Name & "=");

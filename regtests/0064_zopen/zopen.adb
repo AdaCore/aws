@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2008, AdaCore                     --
+--                     Copyright (C) 2003-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -46,14 +46,14 @@ procedure ZOpen is
 
    Port : Positive := 1271;
 
-   procedure Call_It (URI : in String);
-   function CB (Request : in Status.Data) return Response.Data;
+   procedure Call_It (URI : String);
+   function CB (Request : Status.Data) return Response.Data;
 
    -------------
    -- Call_It --
    -------------
 
-   procedure Call_It (URI : in String) is
+   procedure Call_It (URI : String) is
       R : Response.Data;
    begin
       R := Client.Get ("http://localhost:" & Utils.Image (Port) & URI);
@@ -64,7 +64,7 @@ procedure ZOpen is
    -- CB --
    --------
 
-   function CB (Request : in Status.Data) return Response.Data is
+   function CB (Request : Status.Data) return Response.Data is
       URI      : constant String := Status.URI (Request);
       Filename : constant String := URI (URI'First + 1 .. URI'Last);
    begin

@@ -66,50 +66,50 @@ package body AWS.Net.Std is
    end record;
    pragma Convention (C, Sockaddr_In6);
 
-   procedure Raise_Socket_Error (Error : in Integer);
+   procedure Raise_Socket_Error (Error : Integer);
    pragma No_Return (Raise_Socket_Error);
    pragma Inline (Raise_Socket_Error);
 
-   procedure Raise_Socket_Error (Error : in Integer; Socket : in Socket_Type);
+   procedure Raise_Socket_Error (Error : Integer; Socket : Socket_Type);
    pragma No_Return (Raise_Socket_Error);
    pragma Inline (Raise_Socket_Error);
 
-   procedure Raise_Socket_Error (Errmsg : in String);
+   procedure Raise_Socket_Error (Errmsg : String);
    pragma No_Return (Raise_Socket_Error);
    pragma Inline (Raise_Socket_Error);
    --  Log socket error and raise exception
 
-   function Image (Sin6 : in Sockaddr_In6) return String;
+   function Image (Sin6 : Sockaddr_In6) return String;
    --  Returns image of the socket address
 
-   function Error_Message (Error : in Integer) return String;
+   function Error_Message (Error : Integer) return String;
 
    function Get_Addr_Info
-     (Host  : in String;
-      Port  : in Natural;
-      Flags : in Interfaces.C.int := 0) return OS_Lib.Addr_Info_Access;
+     (Host  : String;
+      Port  : Natural;
+      Flags : Interfaces.C.int := 0) return OS_Lib.Addr_Info_Access;
    --  Returns the inet address information for the given host and port.
    --  Flags should be used from getaddrinfo C routine.
 
    function Get_Int_Sock_Opt
-     (Socket : in Socket_Type; Name : in Interfaces.C.int) return Integer;
+     (Socket : Socket_Type; Name : Interfaces.C.int) return Integer;
    --  Return socket option with Integer size
 
    procedure Set_Int_Sock_Opt
-     (Socket : in Socket_Type; Name : in Interfaces.C.int; Value : Integer);
+     (Socket : Socket_Type; Name : Interfaces.C.int; Value : Integer);
    --  Return socket option with Integer size
 
-   procedure Set_Non_Blocking_Mode (Socket : in Socket_Type);
+   procedure Set_Non_Blocking_Mode (Socket : Socket_Type);
    --  Set the socket to the non-blocking mode.
    --  AWS is not using blocking sockets internally.
 
    function Swap_Little_Endian
-     (S : in Interfaces.Unsigned_16) return Interfaces.Unsigned_16;
+     (S : Interfaces.Unsigned_16) return Interfaces.Unsigned_16;
 
    function C_Socket
-     (Domain   : in C.int;
-      Typ      : in C.int;
-      Protocol : in C.int) return C.int;
+     (Domain   : C.int;
+      Typ      : C.int;
+      Protocol : C.int) return C.int;
    pragma Import (Stdcall, C_Socket, "socket");
 
    function C_Getsockname
@@ -119,10 +119,10 @@ package body AWS.Net.Std is
    pragma Import (Stdcall, C_Getsockname, "getsockname");
 
    function C_Getsockopt
-     (S       : in C.int;
-      Level   : in C.int;
-      OptName : in C.int;
-      OptVal  : in System.Address;
+     (S       : C.int;
+      Level   : C.int;
+      OptName : C.int;
+      OptVal  : System.Address;
       OptLen  : not null access C.int) return C.int;
    pragma Import (Stdcall, C_Getsockopt, "getsockopt");
 
@@ -137,14 +137,14 @@ package body AWS.Net.Std is
    -------------------
 
    overriding procedure Accept_Socket
-     (Socket     : in     Net.Socket_Type'Class;
+     (Socket     : Net.Socket_Type'Class;
       New_Socket : in out Socket_Type)
    is
       use type C.int;
 
       function C_Accept
-        (S       : in Integer;
-         Addr    : in System.Address;
+        (S       : Integer;
+         Addr    : System.Address;
          Addrlen : not null access C.int) return C.int;
       pragma Import (Stdcall, C_Accept, "accept");
 
@@ -179,9 +179,9 @@ package body AWS.Net.Std is
 
    overriding procedure Bind
      (Socket        : in out Socket_Type;
-      Port          : in     Natural;
-      Host          : in     String  := "";
-      Reuse_Address : in     Boolean := False)
+      Port          : Natural;
+      Host          : String  := "";
+      Reuse_Address : Boolean := False)
    is
       use type C.int;
 
@@ -192,9 +192,9 @@ package body AWS.Net.Std is
       Errno : Integer;
 
       function C_Bind
-        (S       : in C.int;
-         Name    : in System.Address;
-         Namelen : in C.int) return C.int;
+        (S       : C.int;
+         Name    : System.Address;
+         Namelen : C.int) return C.int;
       pragma Import (Stdcall, C_Bind, "bind");
 
    begin
@@ -234,9 +234,9 @@ package body AWS.Net.Std is
 
    overriding procedure Connect
      (Socket : in out Socket_Type;
-      Host   : in     String;
-      Port   : in     Positive;
-      Wait   : in     Boolean := True)
+      Host   : String;
+      Port   : Positive;
+      Wait   : Boolean := True)
    is
       use type C.int;
 
@@ -246,9 +246,9 @@ package body AWS.Net.Std is
       Errno : Integer;
 
       function C_Connect
-        (S       : in C.int;
-         Name    : in System.Address;
-         Namelen : in C.int) return C.int;
+        (S       : C.int;
+         Name    : System.Address;
+         Namelen : C.int) return C.int;
       pragma Import (Stdcall, C_Connect, "connect");
 
    begin
@@ -313,7 +313,7 @@ package body AWS.Net.Std is
       return GNAT.Sockets.Thin.Socket_Errno;
    end Errno;
 
-   overriding function Errno (Socket : in Socket_Type) return Integer is
+   overriding function Errno (Socket : Socket_Type) return Integer is
    begin
       return Get_Int_Sock_Opt (Socket, OS_Lib.SO_ERROR);
    end Errno;
@@ -322,7 +322,7 @@ package body AWS.Net.Std is
    -- Error_Message --
    -------------------
 
-   function Error_Message (Error : in Integer) return String is
+   function Error_Message (Error : Integer) return String is
    begin
       return '[' & Utils.Image (Error) & "] "
         & C.Strings.Value (Sockets.Thin.Socket_Error_Message (Error));
@@ -343,7 +343,7 @@ package body AWS.Net.Std is
    -- Get_Addr --
    --------------
 
-   overriding function Get_Addr (Socket : in Socket_Type) return String is
+   overriding function Get_Addr (Socket : Socket_Type) return String is
       use type Interfaces.C.int;
 
       Name : aliased Sockaddr_In6;
@@ -362,9 +362,9 @@ package body AWS.Net.Std is
    -------------------
 
    function Get_Addr_Info
-     (Host  : in String;
-      Port  : in Natural;
-      Flags : in Interfaces.C.int := 0) return OS_Lib.Addr_Info_Access
+     (Host  : String;
+      Port  : Natural;
+      Flags : Interfaces.C.int := 0) return OS_Lib.Addr_Info_Access
    is
       package CS renames Interfaces.C.Strings;
       use type C.int;
@@ -411,7 +411,7 @@ package body AWS.Net.Std is
    -- Get_FD --
    ------------
 
-   overriding function Get_FD (Socket : in Socket_Type) return Integer is
+   overriding function Get_FD (Socket : Socket_Type) return Integer is
    begin
       if Socket.S = null then
          return Integer (No_Socket);
@@ -425,7 +425,7 @@ package body AWS.Net.Std is
    ----------------------
 
    function Get_Int_Sock_Opt
-     (Socket : in Socket_Type; Name : in Interfaces.C.int) return Integer
+     (Socket : Socket_Type; Name : Interfaces.C.int) return Integer
    is
       use type C.int;
 
@@ -451,7 +451,7 @@ package body AWS.Net.Std is
    -- Get_Port --
    --------------
 
-   overriding function Get_Port (Socket : in Socket_Type) return Positive is
+   overriding function Get_Port (Socket : Socket_Type) return Positive is
       use type Interfaces.C.int;
 
       Name : aliased Sockaddr_In6;
@@ -471,7 +471,7 @@ package body AWS.Net.Std is
    -----------------------------
 
    overriding function Get_Receive_Buffer_Size
-     (Socket : in Socket_Type) return Natural is
+     (Socket : Socket_Type) return Natural is
    begin
       return Get_Int_Sock_Opt (Socket, OS_Lib.SO_RCVBUF);
    end Get_Receive_Buffer_Size;
@@ -481,7 +481,7 @@ package body AWS.Net.Std is
    --------------------------
 
    overriding function Get_Send_Buffer_Size
-     (Socket : in Socket_Type) return Natural is
+     (Socket : Socket_Type) return Natural is
    begin
       return Get_Int_Sock_Opt (Socket, OS_Lib.SO_SNDBUF);
    end Get_Send_Buffer_Size;
@@ -499,16 +499,16 @@ package body AWS.Net.Std is
    -- Image --
    -----------
 
-   function Image (Sin6 : in Sockaddr_In6) return String  is
+   function Image (Sin6 : Sockaddr_In6) return String  is
       use type C.short;
 
-      function IPv4_Image (Addr : in System.Address) return String;
+      function IPv4_Image (Addr : System.Address) return String;
 
       ----------------
       -- IPv4_Image --
       ----------------
 
-      function IPv4_Image (Addr : in System.Address) return String is
+      function IPv4_Image (Addr : System.Address) return String is
          type In_Addr is record
             B1, B2, B3, B4 : C.unsigned_char;
          end record;
@@ -583,11 +583,11 @@ package body AWS.Net.Std is
    ------------
 
    overriding procedure Listen
-     (Socket : in Socket_Type; Queue_Size : in Positive := 5)
+     (Socket : Socket_Type; Queue_Size : Positive := 5)
    is
       use type C.int;
 
-      function C_Listen (S : in C.int; Backlog : in C.int) return C.int;
+      function C_Listen (S : C.int; Backlog : C.int) return C.int;
       pragma Import (Stdcall, C_Listen, "listen");
 
    begin
@@ -600,7 +600,7 @@ package body AWS.Net.Std is
    -- Peer_Addr --
    ---------------
 
-   overriding function Peer_Addr (Socket : in Socket_Type) return String is
+   overriding function Peer_Addr (Socket : Socket_Type) return String is
       use type C.int;
 
       Sin6 : aliased Sockaddr_In6;
@@ -619,7 +619,7 @@ package body AWS.Net.Std is
    -- Peer_Port --
    ---------------
 
-   overriding function Peer_Port (Socket : in Socket_Type) return Positive is
+   overriding function Peer_Port (Socket : Socket_Type) return Positive is
       use type Interfaces.C.int;
 
       Name : aliased Sockaddr_In6;
@@ -639,7 +639,7 @@ package body AWS.Net.Std is
    -------------
 
    overriding function Pending
-     (Socket : in Socket_Type) return Stream_Element_Count
+     (Socket : Socket_Type) return Stream_Element_Count
    is
       use type C.int;
       Arg : aliased C.int;
@@ -660,19 +660,19 @@ package body AWS.Net.Std is
    ------------------------
 
    procedure Raise_Socket_Error
-     (Error : in Integer; Socket : in Socket_Type)
+     (Error : Integer; Socket : Socket_Type)
    is
       Msg : constant String := Error_Message (Error);
    begin
       Raise_Socket_Error (Socket, Msg);
    end Raise_Socket_Error;
 
-   procedure Raise_Socket_Error (Error : in Integer) is
+   procedure Raise_Socket_Error (Error : Integer) is
    begin
       Raise_Socket_Error (Error_Message (Error));
    end Raise_Socket_Error;
 
-   procedure Raise_Socket_Error (Errmsg : in String) is
+   procedure Raise_Socket_Error (Errmsg : String) is
       Null_Socket : constant Socket_Type := (Net.Socket_Type with S => null);
    begin
       Raise_Socket_Error (Null_Socket, Errmsg);
@@ -683,19 +683,19 @@ package body AWS.Net.Std is
    -------------
 
    overriding procedure Receive
-     (Socket : in     Socket_Type;
-      Data   :    out Stream_Element_Array;
-      Last   :    out Stream_Element_Offset)
+     (Socket : Socket_Type;
+      Data   : out Stream_Element_Array;
+      Last   : out Stream_Element_Offset)
    is
       use type C.int;
 
       Res : C.int;
 
       function C_Recv
-        (S     : in C.int;
-         Msg   : in System.Address;
-         Len   : in C.int;
-         Flags : in C.int) return C.int;
+        (S     : C.int;
+         Msg   : System.Address;
+         Len   : C.int;
+         Flags : C.int) return C.int;
       pragma Import (Stdcall, C_Recv, "recv");
 
    begin
@@ -732,9 +732,9 @@ package body AWS.Net.Std is
    ----------
 
    overriding procedure Send
-     (Socket : in     Socket_Type;
-      Data   : in     Stream_Element_Array;
-      Last   :    out Stream_Element_Offset)
+     (Socket : Socket_Type;
+      Data   : Stream_Element_Array;
+      Last   : out Stream_Element_Offset)
    is
       use type C.int;
 
@@ -742,12 +742,12 @@ package body AWS.Net.Std is
       RC    : C.int;
 
       function C_Sendto
-        (S     : in C.int;
-         Msg   : in System.Address;
-         Len   : in C.int;
-         Flags : in C.int;
+        (S     : C.int;
+         Msg   : System.Address;
+         Len   : C.int;
+         Flags : C.int;
          To    : access Sockaddr_In6;
-         Tolen : in C.int) return C.int;
+         Tolen : C.int) return C.int;
       pragma Import (StdCall, C_Sendto, "sendto");
 
    begin
@@ -796,7 +796,7 @@ package body AWS.Net.Std is
    ----------------------
 
    procedure Set_Int_Sock_Opt
-     (Socket : in Socket_Type; Name : in Interfaces.C.int; Value : Integer)
+     (Socket : Socket_Type; Name : Interfaces.C.int; Value : Integer)
    is
       use type C.int;
 
@@ -818,7 +818,7 @@ package body AWS.Net.Std is
    -- Set_Non_Blocking_Mode --
    ---------------------------
 
-   procedure Set_Non_Blocking_Mode (Socket : in Socket_Type) is
+   procedure Set_Non_Blocking_Mode (Socket : Socket_Type) is
       use type C.int;
       Enabled : aliased C.int := 1;
    begin
@@ -832,7 +832,7 @@ package body AWS.Net.Std is
    -----------------------------
 
    overriding procedure Set_Receive_Buffer_Size
-     (Socket : in Socket_Type; Size : in Natural) is
+     (Socket : Socket_Type; Size : Natural) is
    begin
       Set_Int_Sock_Opt (Socket, OS_Lib.SO_RCVBUF, Size);
    end Set_Receive_Buffer_Size;
@@ -842,7 +842,7 @@ package body AWS.Net.Std is
    --------------------------
 
    overriding procedure Set_Send_Buffer_Size
-     (Socket : in Socket_Type; Size : in Natural) is
+     (Socket : Socket_Type; Size : Natural) is
    begin
       Set_Int_Sock_Opt (Socket, OS_Lib.SO_SNDBUF, Size);
    end Set_Send_Buffer_Size;
@@ -852,7 +852,7 @@ package body AWS.Net.Std is
    --------------
 
    overriding procedure Shutdown
-     (Socket : in Socket_Type; How : in Shutmode_Type := Shut_Read_Write)
+     (Socket : Socket_Type; How : Shutmode_Type := Shut_Read_Write)
    is
       use type C.int;
       FD : constant C.int := Socket.S.FD;
@@ -862,7 +862,7 @@ package body AWS.Net.Std is
                  Shut_Read       => OS_Lib.SHUT_RD,
                  Shut_Write      => OS_Lib.SHUT_WR);
 
-      function C_Shutdown (S : in C.int; How : in C.int) return C.int;
+      function C_Shutdown (S : C.int; How : C.int) return C.int;
       pragma Import (Stdcall, C_Shutdown, "shutdown");
 
    begin
@@ -900,7 +900,7 @@ package body AWS.Net.Std is
    -- Swap_Little_Endian --
    ------------------------
 
-   function Swap_Little_Endian (S : in Unsigned_16) return Unsigned_16 is
+   function Swap_Little_Endian (S : Unsigned_16) return Unsigned_16 is
       use System;
       Big_Endian : constant Boolean := Default_Bit_Order = High_Order_First;
    begin

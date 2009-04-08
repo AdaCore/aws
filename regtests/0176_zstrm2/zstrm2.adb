@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2008, AdaCore                     --
+--                     Copyright (C) 2003-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -39,7 +39,7 @@ procedure Zstrm2 is
 
    Message : constant String := "a message";
 
-   procedure Run (Encoding : in Messages.Content_Encoding) is
+   procedure Run (Encoding : Messages.Content_Encoding) is
       Answer : Response.Data;
    begin
       Response.Set.Data_Encoding (Answer, Encoding);

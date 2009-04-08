@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2008, AdaCore                     --
+--                     Copyright (C) 2003-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -35,25 +35,25 @@ package SOAP.Dispatchers.Callback is
    --  main server callback.
 
    function Create
-     (HTTP_Callback : in AWS.Response.Callback;
-      SOAP_Callback : in Dispatchers.SOAP_Callback) return Handler;
+     (HTTP_Callback : AWS.Response.Callback;
+      SOAP_Callback : Dispatchers.SOAP_Callback) return Handler;
    --  Build a dispatcher for the specified callback
 
 private
 
-   overriding function Clone (Dispatch : in Handler) return Handler;
+   overriding function Clone (Dispatch : Handler) return Handler;
    --  Returns a deep copy of the dispatcher
 
    overriding function Dispatch_SOAP
-     (Dispatcher : in Handler;
-      SOAPAction : in String;
-      Payload    : in Message.Payload.Object;
-      Request    : in AWS.Status.Data) return AWS.Response.Data;
+     (Dispatcher : Handler;
+      SOAPAction : String;
+      Payload    : Message.Payload.Object;
+      Request    : AWS.Status.Data) return AWS.Response.Data;
    --  This dispatch function is called for SOAP requests
 
    overriding function Dispatch_HTTP
-     (Dispatcher : in Handler;
-      Request    : in AWS.Status.Data) return AWS.Response.Data;
+     (Dispatcher : Handler;
+      Request    : AWS.Status.Data) return AWS.Response.Data;
    --  This dispatch function is called for standard HTTP requests
 
    type Handler is new Dispatchers.Handler with record

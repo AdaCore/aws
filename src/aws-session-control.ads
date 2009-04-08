@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2008, AdaCore                     --
+--                     Copyright (C) 2000-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -33,10 +33,10 @@
 package AWS.Session.Control is
 
    procedure Start
-     (Session_Check_Interval : in Duration; Session_Lifetime : in Duration);
+     (Session_Check_Interval : Duration; Session_Lifetime : Duration);
    --  Start session cleaner task
 
-   procedure Force_Cleaner (Timeout : in Duration := 0.0);
+   procedure Force_Cleaner (Timeout : Duration := 0.0);
 
    procedure Shutdown;
    --  Stop session cleaner task

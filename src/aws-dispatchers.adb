@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2008, AdaCore                     --
+--                     Copyright (C) 2000-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -75,7 +75,7 @@ package body AWS.Dispatchers is
    -- Ref_Counter --
    -----------------
 
-   function Ref_Counter (Dispatcher : in Handler) return Natural is
+   function Ref_Counter (Dispatcher : Handler) return Natural is
       use type Utils.Counter_Access;
    begin
       if Dispatcher.Ref_Counter = null then

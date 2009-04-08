@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2004-2008, AdaCore                     --
+--                     Copyright (C) 2004-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -43,7 +43,7 @@ with Sax.Readers;    use Sax.Readers;
 
 with Unicode.CES;
 
-procedure XMLT_Proc (Port : in Positive; Security : in Boolean) is
+procedure XMLT_Proc (Port : Positive; Security : Boolean) is
 
    use AWS;
    use AWS.Client.XML.Input_Sources;
@@ -60,7 +60,7 @@ procedure XMLT_Proc (Port : in Positive; Security : in Boolean) is
    -- CB --
    --------
 
-   function CB (Request : in Status.Data) return Response.Data is
+   function CB (Request : Status.Data) return Response.Data is
       Answer : Response.Data;
       URI    : constant String := Status.URI (Request);
    begin

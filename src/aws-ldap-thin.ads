@@ -38,7 +38,7 @@ package AWS.LDAP.Thin is
 
    subtype chars_ptr is C.Strings.chars_ptr;
 
-   function NS (S : in String) return chars_ptr renames C.Strings.New_String;
+   function NS (S : String) return chars_ptr renames C.Strings.New_String;
 
    LDAP_VERSION1 : constant := 1;
    LDAP_VERSION2 : constant := 2;
@@ -380,7 +380,7 @@ package AWS.LDAP.Thin is
 
    subtype ATTR_ERROR is Return_Code range 16#10# .. 16#15#;
 
-   function LDAP_ATTR_ERROR (n : in Return_Code) return Boolean;
+   function LDAP_ATTR_ERROR (n : Return_Code) return Boolean;
 
    LDAP_NO_SUCH_ATTRIBUTE         : constant := 16#10#;
    LDAP_UNDEFINED_TYPE            : constant := 16#11#;
@@ -391,7 +391,7 @@ package AWS.LDAP.Thin is
 
    subtype NAME_ERROR is Return_Code range 16#20# .. 16#24#;
 
-   function LDAP_NAME_ERROR (n : in Return_Code) return Boolean;
+   function LDAP_NAME_ERROR (n : Return_Code) return Boolean;
 
    LDAP_NO_SUCH_OBJECT            : constant := 16#20#;
    LDAP_ALIAS_PROBLEM             : constant := 16#21#;
@@ -401,7 +401,7 @@ package AWS.LDAP.Thin is
 
    subtype SECURITY_ERROR is Return_Code range 16#30# .. 16#32#;
 
-   function LDAP_SECURITY_ERROR (n : in Return_Code) return Boolean;
+   function LDAP_SECURITY_ERROR (n : Return_Code) return Boolean;
 
    LDAP_INAPPROPRIATE_AUTH        : constant := 16#30#;
    LDAP_INVALID_CREDENTIALS       : constant := 16#31#;
@@ -409,7 +409,7 @@ package AWS.LDAP.Thin is
 
    subtype SERVICE_ERROR is Return_Code range 16#33# .. 16#36#;
 
-   function LDAP_SERVICE_ERROR (n : in Return_Code) return Boolean;
+   function LDAP_SERVICE_ERROR (n : Return_Code) return Boolean;
 
    LDAP_BUSY                      : constant := 16#33#;
    LDAP_UNAVAILABLE               : constant := 16#34#;
@@ -418,7 +418,7 @@ package AWS.LDAP.Thin is
 
    subtype UPDATE_ERROR is Return_Code range 16#40# .. 16#47#;
 
-   function LDAP_UPDATE_ERROR (n : in Return_Code) return Boolean;
+   function LDAP_UPDATE_ERROR (n : Return_Code) return Boolean;
 
    LDAP_NAMING_VIOLATION          : constant := 16#40#;
    LDAP_OBJECT_CLASS_VIOLATION    : constant := 16#41#;
@@ -433,9 +433,9 @@ package AWS.LDAP.Thin is
 
    subtype API_ERROR is Return_Code range 16#51# .. 16#61#;
 
-   function LDAP_API_ERROR (n : in Return_Code) return Boolean;
+   function LDAP_API_ERROR (n : Return_Code) return Boolean;
 
-   function LDAP_API_RESULT (n : in Return_Code) return Boolean;
+   function LDAP_API_RESULT (n : Return_Code) return Boolean;
 
    LDAP_SERVER_DOWN               : constant := 16#51#;
    LDAP_LOCAL_ERROR               : constant := 16#52#;
@@ -525,26 +525,26 @@ package AWS.LDAP.Thin is
    --  Init LDAP
 
    function ldap_init
-     (host : in chars_ptr;
-      port : in C.int) return LDAP_Type;
+     (host : chars_ptr;
+      port : C.int) return LDAP_Type;
 
    function ldap_simple_bind
-     (ld     : in LDAP_Type;
-      who    : in chars_ptr;
-      passwd : in chars_ptr) return C.int;
+     (ld     : LDAP_Type;
+      who    : chars_ptr;
+      passwd : chars_ptr) return C.int;
 
    function ldap_simple_bind_s
-     (ld     : in LDAP_Type;
-      who    : in chars_ptr;
-      passwd : in chars_ptr) return C.int;
+     (ld     : LDAP_Type;
+      who    : chars_ptr;
+      passwd : chars_ptr) return C.int;
 
    function ldap_bind_s
-     (ld         : in LDAP_Type;
-      who        : in chars_ptr;
-      passwd     : in chars_ptr;
-      authmethod : in C.int) return C.int;
+     (ld         : LDAP_Type;
+      who        : chars_ptr;
+      passwd     : chars_ptr;
+      authmethod : C.int) return C.int;
 
-   function ldap_unbind_s (ld : in LDAP_Type) return C.int;
+   function ldap_unbind_s (ld : LDAP_Type) return C.int;
 
    --  Search
 
@@ -556,21 +556,21 @@ package AWS.LDAP.Thin is
    type BerElement is private;
 
    function ldap_search_s
-     (ld        : in LDAP_Type;
-      base      : in chars_ptr;
-      scope     : in C.int;
-      filter    : in chars_ptr;
-      attrs     : in C.Strings.chars_ptr_array;
-      attrsonly : in C.int;
+     (ld        : LDAP_Type;
+      base      : chars_ptr;
+      scope     : C.int;
+      filter    : chars_ptr;
+      attrs     : C.Strings.chars_ptr_array;
+      attrsonly : C.int;
       res       : not null access LDAPMessage) return C.int;
 
    function ldap_search_s
-     (ld        : in LDAP_Type;
-      base      : in chars_ptr;
-      scope     : in C.int;
-      filter    : in chars_ptr;
-      attrs     : in chars_ptr; -- To be able to pass a null ptr
-      attrsonly : in C.int;
+     (ld        : LDAP_Type;
+      base      : chars_ptr;
+      scope     : C.int;
+      filter    : chars_ptr;
+      attrs     : chars_ptr; -- To be able to pass a null ptr
+      attrsonly : C.int;
       res       : not null access LDAPMessage) return C.int;
 
    --  Add / Modify / Delete
@@ -604,56 +604,56 @@ package AWS.LDAP.Thin is
    --  Add
 
    function ldap_add_s
-     (ld    : in LDAP_Type;
-      dn    : in chars_ptr;
-      attrs : in LDAPMods_Access) return C.int;
+     (ld    : LDAP_Type;
+      dn    : chars_ptr;
+      attrs : LDAPMods_Access) return C.int;
 
    --  Modify
 
    function ldap_modify_s
-     (ld   : in LDAP_Type;
-      dn   : in chars_ptr;
-      mods : in LDAPMods_Access) return C.int;
+     (ld   : LDAP_Type;
+      dn   : chars_ptr;
+      mods : LDAPMods_Access) return C.int;
 
    --  Delete
 
    function ldap_delete_s
-     (ld : in LDAP_Type;
-      dn : in chars_ptr) return C.int;
+     (ld : LDAP_Type;
+      dn : chars_ptr) return C.int;
 
    --  Helpers
 
    function ldap_count_entries
-     (ld    : in LDAP_Type;
-      chain : in LDAPMessage) return C.int;
+     (ld    : LDAP_Type;
+      chain : LDAPMessage) return C.int;
 
    function ldap_first_entry
-     (ld    : in LDAP_Type;
-      chain : in LDAPMessage) return LDAPMessage;
+     (ld    : LDAP_Type;
+      chain : LDAPMessage) return LDAPMessage;
 
    function ldap_next_entry
-     (ld      : in LDAP_Type;
-      entries : in LDAPMessage) return LDAPMessage;
+     (ld      : LDAP_Type;
+      entries : LDAPMessage) return LDAPMessage;
 
    function ldap_get_dn
-     (ld      : in LDAP_Type;
-      entries : in LDAPMessage) return chars_ptr;
+     (ld      : LDAP_Type;
+      entries : LDAPMessage) return chars_ptr;
 
    function ldap_first_attribute
-     (ld      : in LDAP_Type;
-      entries : in LDAPMessage;
+     (ld      : LDAP_Type;
+      entries : LDAPMessage;
       ber     : not null access BerElement) return chars_ptr;
 
    function ldap_next_attribute
-     (ld       : in LDAP_Type;
-      entries  : in LDAPMessage;
-      ber      : in BerElement) return chars_ptr;
+     (ld       : LDAP_Type;
+      entries  : LDAPMessage;
+      ber      : BerElement) return chars_ptr;
 
-   function ldap_msgfree (lm : in LDAPMessage) return C.int;
+   function ldap_msgfree (lm : LDAPMessage) return C.int;
 
-   function ldap_msgid (lm : in LDAPMessage) return C.int;
+   function ldap_msgid (lm : LDAPMessage) return C.int;
 
-   function ldap_msgtype (lm : in LDAPMessage) return C.int;
+   function ldap_msgtype (lm : LDAPMessage) return C.int;
 
    subtype Attribute_Set is C.Strings.chars_ptr_array (C.size_t);
    type Attribute_Set_Access is access all Attribute_Set;
@@ -664,29 +664,29 @@ package AWS.LDAP.Thin is
    --  use Item routine below.
 
    function Item
-     (Set   : in Attribute_Set_Access;
-      Index : in C.int) return chars_ptr;
+     (Set   : Attribute_Set_Access;
+      Index : C.int) return chars_ptr;
    pragma Inline (Item);
    --  Returns item at positon Index in Set
 
    function ldap_get_values
-     (ld      : in LDAP_Type;
-      entries : in LDAPMessage;
-      target  : in chars_ptr) return Attribute_Set_Access;
+     (ld      : LDAP_Type;
+      entries : LDAPMessage;
+      target  : chars_ptr) return Attribute_Set_Access;
 
-   function ldap_count_values (V : in Attribute_Set_Access) return C.int;
+   function ldap_count_values (V : Attribute_Set_Access) return C.int;
 
-   procedure ldap_value_free (V : in Attribute_Set_Access);
+   procedure ldap_value_free (V : Attribute_Set_Access);
 
-   function ldap_err2string (err : in C.int) return chars_ptr;
+   function ldap_err2string (err : C.int) return chars_ptr;
 
-   function ldap_dn2ufn (dn : in chars_ptr) return chars_ptr;
+   function ldap_dn2ufn (dn : chars_ptr) return chars_ptr;
 
    function ldap_explode_dn
-     (dn      : in chars_ptr;
-      notypes : in C.int) return Attribute_Set_Access;
+     (dn      : chars_ptr;
+      notypes : C.int) return Attribute_Set_Access;
 
-   procedure ber_free (BER : in BerElement; fbuf : in C.int);
+   procedure ber_free (BER : BerElement; fbuf : C.int);
 
 private
 

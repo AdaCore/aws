@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2008, AdaCore                     --
+--                     Copyright (C) 2000-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -49,8 +49,8 @@ package body AWS.Net is
 
    procedure Add
      (FD_Set : in out FD_Set_Access;
-      FD     : in     FD_Type;
-      Event  : in     Wait_Event_Set)
+      FD     : FD_Type;
+      Event  : Wait_Event_Set)
    is
       Old_Set : FD_Set_Access;
    begin
@@ -83,8 +83,8 @@ package body AWS.Net is
    -----------
 
    function Check
-     (Socket : in Socket_Type'Class;
-      Events : in Wait_Event_Set) return Event_Set is
+     (Socket : Socket_Type'Class;
+      Events : Wait_Event_Set) return Event_Set is
    begin
       return Poll (Socket, Events, 0.0);
    end Check;
@@ -148,7 +148,7 @@ package body AWS.Net is
    -- Is_Timeout --
    ----------------
 
-   function Is_Timeout (E : in Exception_Occurrence) return Boolean is
+   function Is_Timeout (E : Exception_Occurrence) return Boolean is
    begin
       return Strings.Fixed.Index (Exception_Message (E), Timeout_Token) > 0;
    end Is_Timeout;
@@ -158,9 +158,9 @@ package body AWS.Net is
    ----------
 
    function Poll
-     (Socket  : in Socket_Type'Class;
-      Events  : in Wait_Event_Set;
-      Timeout : in Duration) return Event_Set
+     (Socket  : Socket_Type'Class;
+      Events  : Wait_Event_Set;
+      Timeout : Duration) return Event_Set
    is
       Waiter : FD_Set'Class := To_FD_Set (Socket, Events);
       Dummy  : Natural;
@@ -174,7 +174,7 @@ package body AWS.Net is
    ------------------------
 
    procedure Raise_Socket_Error
-     (Socket : in Socket_Type'Class; Text : in String) is
+     (Socket : Socket_Type'Class; Text : String) is
    begin
       Log.Error (Socket, Text);
       raise Socket_Error with Text;
@@ -185,8 +185,8 @@ package body AWS.Net is
    -------------
 
    function Receive
-     (Socket : in Socket_Type'Class;
-      Max    : in Stream_Element_Count := 4096) return Stream_Element_Array
+     (Socket : Socket_Type'Class;
+      Max    : Stream_Element_Count := 4096) return Stream_Element_Array
    is
       Result : Stream_Element_Array (1 .. Max);
       Last   : Stream_Element_Offset;
@@ -201,7 +201,7 @@ package body AWS.Net is
    ----------
 
    procedure Send
-     (Socket : in Socket_Type'Class; Data : in Stream_Element_Array)
+     (Socket : Socket_Type'Class; Data : Stream_Element_Array)
    is
       First : Stream_Element_Offset := Data'First;
       Last  : Stream_Element_Offset;
@@ -226,7 +226,7 @@ package body AWS.Net is
    -----------------------
 
    procedure Set_Blocking_Mode
-     (Socket : in out Socket_Type; Blocking : in Boolean) is
+     (Socket : in out Socket_Type; Blocking : Boolean) is
    begin
       if Blocking then
          Set_Timeout (Socket_Type'Class (Socket), Forever);
@@ -240,7 +240,7 @@ package body AWS.Net is
    ------------------
 
    procedure Set_No_Delay
-     (Socket : in Socket_Type; Value : in Boolean := True)
+     (Socket : Socket_Type; Value : Boolean := True)
    is
       use Interfaces;
       use type C.int;
@@ -263,7 +263,7 @@ package body AWS.Net is
    -----------------
 
    procedure Set_Timeout
-     (Socket : in out Socket_Type; Timeout : in Duration) is
+     (Socket : in out Socket_Type; Timeout : Duration) is
    begin
       Socket.Timeout := Timeout;
    end Set_Timeout;
@@ -272,7 +272,7 @@ package body AWS.Net is
    -- Socket --
    ------------
 
-   function Socket (Security : in Boolean) return Socket_Type'Class is
+   function Socket (Security : Boolean) return Socket_Type'Class is
    begin
       if Security then
          declare
@@ -292,7 +292,7 @@ package body AWS.Net is
       end if;
    end Socket;
 
-   function Socket (Security : in Boolean) return Socket_Access is
+   function Socket (Security : Boolean) return Socket_Access is
    begin
       return new Socket_Type'Class'(Socket (Security));
    end Socket;
@@ -332,9 +332,9 @@ package body AWS.Net is
    ---------------
 
    function To_FD_Set
-     (Socket : in Socket_Type;
-      Events : in Wait_Event_Set;
-      Size   : in Positive := 1) return FD_Set'Class
+     (Socket : Socket_Type;
+      Events : Wait_Event_Set;
+      Size   : Positive := 1) return FD_Set'Class
    is
       Result : Poll_Events.Set (Size);
    begin
@@ -347,8 +347,8 @@ package body AWS.Net is
    ----------
 
    function Wait
-     (Socket : in Socket_Type'Class;
-      Events : in Wait_Event_Set) return Event_Set is
+     (Socket : Socket_Type'Class;
+      Events : Wait_Event_Set) return Event_Set is
    begin
       return Poll (Socket, Events, Socket.Timeout);
    end Wait;
@@ -358,7 +358,7 @@ package body AWS.Net is
    --------------
 
    procedure Wait_For
-     (Mode : in Wait_Event_Type; Socket : in Socket_Type'Class)
+     (Mode : Wait_Event_Type; Socket : Socket_Type'Class)
    is
       Events : Wait_Event_Set := (others => False);
       Result : Event_Set;

@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2003-2007                          --
---                                 AdaCore                                  --
+--                     Copyright (C) 2003-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -42,30 +41,30 @@ package AWS.Resources.Streams.Memory is
 
    procedure Append
      (Resource : in out Stream_Type;
-      Buffer   : in     Stream_Element_Array;
-      Trim     : in     Boolean := False);
+      Buffer   : Stream_Element_Array;
+      Trim     : Boolean := False);
    --  Append Buffer into the memory stream
 
    procedure Append
      (Resource : in out Stream_Type;
-      Buffer   : in     Stream_Element_Access);
+      Buffer   : Stream_Element_Access);
    --  Append static data pointed to Buffer into the memory stream as is.
    --  The stream will free the memory on close.
 
    procedure Append
      (Resource : in out Stream_Type;
-      Buffer   : in     Buffer_Access);
+      Buffer   : Buffer_Access);
    --  Append static data pointed to Buffer into the memory stream as is.
    --  The stream would not try to free the memory on close.
 
    overriding procedure Read
      (Resource : in out Stream_Type;
-      Buffer   :    out Stream_Element_Array;
-      Last     :    out Stream_Element_Offset);
+      Buffer   : out Stream_Element_Array;
+      Last     : out Stream_Element_Offset);
    --  Returns a chunck of data in Buffer, Last point to the last element
    --  returned in Buffer.
 
-   overriding function End_Of_File (Resource : in Stream_Type) return Boolean;
+   overriding function End_Of_File (Resource : Stream_Type) return Boolean;
    --  Returns True if the end of the memory stream has been reached
 
    procedure Clear (Resource : in out Stream_Type);
@@ -77,12 +76,12 @@ package AWS.Resources.Streams.Memory is
 
    overriding procedure Set_Index
      (Resource : in out Stream_Type;
-      To       : in     Stream_Element_Offset);
+      To       : Stream_Element_Offset);
    --  Set the position in the stream, next Read will start at the position
    --  whose index is To.
 
    overriding function Size
-     (Resource : in Stream_Type) return Stream_Element_Offset;
+     (Resource : Stream_Type) return Stream_Element_Offset;
    --  Returns the number of bytes in the memory stream
 
    overriding procedure Close (Resource : in out Stream_Type);

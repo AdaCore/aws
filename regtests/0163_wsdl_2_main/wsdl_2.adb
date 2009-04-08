@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2008, AdaCore                     --
+--                     Copyright (C) 2003-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -35,7 +35,7 @@ package body WSDL_2 is
    -- Add --
    ---------
 
-   function Add (A, B : in Complex) return Complex is
+   function Add (A, B : Complex) return Complex is
    begin
       return (A.X + B.X, A.Y + B.Y);
    end Add;
@@ -44,7 +44,7 @@ package body WSDL_2 is
    -- Sum --
    ---------
 
-   function Sum (T : in Table) return Integer is
+   function Sum (T : Table) return Integer is
       Result : Integer := 0;
    begin
       for K in T'Range loop

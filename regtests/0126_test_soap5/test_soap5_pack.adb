@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2004-2008, AdaCore                     --
+--                     Copyright (C) 2004-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -55,8 +55,8 @@ package body Test_SOAP5_Pack is
    use Ada.Text_IO;
    use AWS;
 
-   function CB      (Request : in Status.Data) return Response.Data;
-   function SOAP_CB (Request : in Status.Data) return Response.Data;
+   function CB      (Request : Status.Data) return Response.Data;
+   function SOAP_CB (Request : Status.Data) return Response.Data;
 
    HTTP       : AWS.Server.HTTP;
 
@@ -66,7 +66,7 @@ package body Test_SOAP5_Pack is
    -- CB --
    --------
 
-   function CB (Request : in Status.Data) return Response.Data is
+   function CB (Request : Status.Data) return Response.Data is
       SOAPAction : constant String := Status.SOAPAction (Request);
    begin
       Put_Line ("SOAPAction : " & SOAPAction);
@@ -91,9 +91,9 @@ package body Test_SOAP5_Pack is
    -------------
 
    procedure Request
-     (Proc       : in String;
-      X, Y       : in Integer;
-      SOAPAction : in string)
+     (Proc       : String;
+      X, Y       : Integer;
+      SOAPAction : String)
    is
       use SOAP.Types;
       use type SOAP.Parameters.List;
@@ -121,7 +121,7 @@ package body Test_SOAP5_Pack is
    -- SOAP_CB --
    -------------
 
-   function SOAP_CB (Request : in Status.Data) return Response.Data is
+   function SOAP_CB (Request : Status.Data) return Response.Data is
       use SOAP.Types;
       use SOAP.Parameters;
 
@@ -162,7 +162,7 @@ package body Test_SOAP5_Pack is
    -- Run --
    ---------
 
-   procedure Run (Protocol : in String; Port : in Positive) is
+   procedure Run (Protocol : String; Port : Positive) is
       Free_Port : Positive := Port;
 
       task Server is

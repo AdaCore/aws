@@ -2,8 +2,7 @@
 --                              Ada Web Server                              --
 --                   S M T P - Simple Mail Transfer Protocol                --
 --                                                                          --
---                         Copyright (C) 2000-2007                          --
---                                 AdaCore                                  --
+--                     Copyright (C) 2000-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -106,8 +105,8 @@ package body AWS.SMTP is
    ------------------
 
    procedure Check_Answer
-     (Sock  : in     Net.Socket_Type'Class;
-      Reply :    out Server_Reply)
+     (Sock  : Net.Socket_Type'Class;
+      Reply : out Server_Reply)
    is
       Buffer : constant String := Net.Buffered.Get_Line (Sock);
    begin
@@ -129,7 +128,7 @@ package body AWS.SMTP is
    -- E_Mail --
    ------------
 
-   function E_Mail (Name : in String; Address : in String)
+   function E_Mail (Name : String; Address : String)
      return E_Mail_Data is
    begin
       return (To_Unbounded_String (Name), To_Unbounded_String (Address));
@@ -139,7 +138,7 @@ package body AWS.SMTP is
    -- Image --
    -----------
 
-   function Image (R : in Reply_Code) return String is
+   function Image (R : Reply_Code) return String is
       RI : constant String := Reply_Code'Image (R);
    begin
       for K in Code_Table'Range loop
@@ -152,8 +151,8 @@ package body AWS.SMTP is
    end Image;
 
    function Image
-     (E_Mail : in E_Mail_Data;
-      Mode   : in Address_Mode := Full) return String is
+     (E_Mail : E_Mail_Data;
+      Mode   : Address_Mode := Full) return String is
    begin
       case Mode is
          when Full =>
@@ -166,7 +165,7 @@ package body AWS.SMTP is
       end case;
    end Image;
 
-   function Image (Answer : in Server_Reply) return String is
+   function Image (Answer : Server_Reply) return String is
       Code_Image : constant String := Reply_Code'Image (Answer.Code);
    begin
       return Code_Image (Code_Image'First + 1 .. Code_Image'Last)
@@ -178,8 +177,8 @@ package body AWS.SMTP is
    ----------------
 
    function Initialize
-     (Server_Name : in String;
-      Port        : in Positive := Default_SMTP_Port;
+     (Server_Name : String;
+      Port        : Positive := Default_SMTP_Port;
       Credential  : access constant Authentication.Credential'Class := null)
       return Receiver is
    begin
@@ -190,7 +189,7 @@ package body AWS.SMTP is
    -- Is_Ok --
    -----------
 
-   function Is_Ok (Status : in SMTP.Status) return Boolean is
+   function Is_Ok (Status : SMTP.Status) return Boolean is
    begin
       return Status.Reason = Null_Unbounded_String;
    end Is_Ok;
@@ -199,7 +198,7 @@ package body AWS.SMTP is
    -- Message --
    -------------
 
-   function Message (R : in Reply_Code) return String is
+   function Message (R : Reply_Code) return String is
    begin
       return Image (R) & ' ' & Name (R);
    end Message;
@@ -208,7 +207,7 @@ package body AWS.SMTP is
    -- Name --
    ----------
 
-   function Name (R : in Reply_Code) return String is
+   function Name (R : Reply_Code) return String is
    begin
       for K in Code_Table'Range loop
          if Code_Table (K).Code = R then
@@ -223,7 +222,7 @@ package body AWS.SMTP is
    -- Parse --
    -----------
 
-   function Parse (E_Mail : in String) return E_Mail_Data is
+   function Parse (E_Mail : String) return E_Mail_Data is
       use Strings.Fixed;
 
       I1, I2 : Natural;
@@ -256,7 +255,7 @@ package body AWS.SMTP is
    -- Status_Code --
    -----------------
 
-   function Status_Code (Status : in SMTP.Status) return Reply_Code is
+   function Status_Code (Status : SMTP.Status) return Reply_Code is
    begin
       return Status.Code;
    end Status_Code;
@@ -265,7 +264,7 @@ package body AWS.SMTP is
    -- Status_Message --
    --------------------
 
-   function Status_Message (Status : in SMTP.Status) return String is
+   function Status_Message (Status : SMTP.Status) return String is
    begin
       return To_String (Status.Reason);
    end Status_Message;

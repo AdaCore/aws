@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                          Copyright (C) 2003-2004                         --
---                                ACT-Europe                                --
+--                     Copyright (C) 2003-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -36,7 +35,7 @@ package body Name_Set is
    -- Add --
    ---------
 
-   procedure Add (Name : in String) is
+   procedure Add (Name : String) is
    begin
       S := S + 1;
       Set (S) := To_Unbounded_String (Name);
@@ -46,7 +45,7 @@ package body Name_Set is
    -- Exists --
    ------------
 
-   function Exists (Name : in String) return Boolean is
+   function Exists (Name : String) return Boolean is
    begin
       for K in 1 .. S loop
          if To_String (Set (K)) = Name then

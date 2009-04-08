@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2008, AdaCore                     --
+--                     Copyright (C) 2003-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -47,25 +47,25 @@ package body AWS.Services.Web_Mail is
 
    use AWS;
 
-   function Login (Request : in Status.Data) return Response.Data;
+   function Login (Request : Status.Data) return Response.Data;
    --  Get the login data from Request and returns the summary of the mailbox
 
-   function Summary (Request : in AWS.Status.Data) return AWS.Response.Data;
+   function Summary (Request : AWS.Status.Data) return AWS.Response.Data;
    --  Returns a list of all messages in the mailbox
 
-   function Message (Request : in AWS.Status.Data) return AWS.Response.Data;
+   function Message (Request : AWS.Status.Data) return AWS.Response.Data;
    --  Returns a list of all messages in the mailbox
 
-   function Delete (Request : in AWS.Status.Data) return AWS.Response.Data;
+   function Delete (Request : AWS.Status.Data) return AWS.Response.Data;
    --  Delete a message, returns to the summary page
 
    function Reply
-     (Request : in AWS.Status.Data;
-      To_All  : in Boolean)
+     (Request : AWS.Status.Data;
+      To_All  : Boolean)
       return AWS.Response.Data;
    --  Returns a reply form
 
-   function Send (Request : in AWS.Status.Data) return AWS.Response.Data;
+   function Send (Request : AWS.Status.Data) return AWS.Response.Data;
    --  Send a message, used by the reply form above
 
    -------------
@@ -84,17 +84,17 @@ package body AWS.Services.Web_Mail is
    end record;
 
    procedure Load_Context
-     (SID     : in     Session.Id;
-      Context :    out Context_Data);
+     (SID     : Session.Id;
+      Context : out Context_Data);
    --  Load server context as stored in the session SID
 
    function "+"
-     (Str : in String)
+     (Str : String)
       return Unbounded_String
       renames To_Unbounded_String;
 
    function "-"
-     (U_Str : in Unbounded_String)
+     (U_Str : Unbounded_String)
       return String
       renames To_String;
 
@@ -102,7 +102,7 @@ package body AWS.Services.Web_Mail is
    -- Callback --
    --------------
 
-   function Callback (Request : in AWS.Status.Data) return AWS.Response.Data is
+   function Callback (Request : AWS.Status.Data) return AWS.Response.Data is
       WWW_Root   : String renames AWS.Config.WWW_Root (Config.Get_Current);
       WM_Session : constant Session.Id := Status.Session (Request);
       URI        : constant String     := Status.URI (Request);
@@ -197,7 +197,7 @@ package body AWS.Services.Web_Mail is
    -- Delete --
    ------------
 
-   function Delete (Request : in AWS.Status.Data) return AWS.Response.Data is
+   function Delete (Request : AWS.Status.Data) return AWS.Response.Data is
       WM_Session : constant Session.Id := Status.Session (Request);
       P_List     : constant Parameters.List := Status.Parameters (Request);
 
@@ -225,8 +225,8 @@ package body AWS.Services.Web_Mail is
    ------------------
 
    procedure Load_Context
-     (SID     : in     Session.Id;
-      Context :    out Context_Data)
+     (SID     : Session.Id;
+      Context : out Context_Data)
    is
       POP_Server  : constant String  := Session.Get (SID, "WM_POP_SERVER");
       POP_K       : constant Natural := Strings.Fixed.Index (POP_Server, ":");
@@ -269,7 +269,7 @@ package body AWS.Services.Web_Mail is
    -- Login --
    -----------
 
-   function Login (Request : in Status.Data) return Response.Data is
+   function Login (Request : Status.Data) return Response.Data is
       WM_Session : constant Session.Id      := Status.Session (Request);
       P_List     : constant Parameters.List := Status.Parameters (Request);
    begin
@@ -288,7 +288,7 @@ package body AWS.Services.Web_Mail is
    -- Message --
    -------------
 
-   function Message (Request : in AWS.Status.Data) return AWS.Response.Data is
+   function Message (Request : AWS.Status.Data) return AWS.Response.Data is
       WWW_Root   : String renames Config.WWW_Root (Config.Get_Current);
       WM_Session : constant Session.Id := Status.Session (Request);
       P_List     : constant Parameters.List := Status.Parameters (Request);
@@ -314,8 +314,8 @@ package body AWS.Services.Web_Mail is
          Att_Ref  : Templates.Vector_Tag;
 
          procedure Add_Attachment
-           (Attachment : in     POP.Attachment;
-            Index      : in     Positive;
+           (Attachment : POP.Attachment;
+            Index      : Positive;
             Quit       : in out Boolean);
          --  Add new attachment data
 
@@ -324,8 +324,8 @@ package body AWS.Services.Web_Mail is
          --------------------
 
          procedure Add_Attachment
-           (Attachment : in     POP.Attachment;
-            Index      : in     Positive;
+           (Attachment : POP.Attachment;
+            Index      : Positive;
             Quit       : in out Boolean)
          is
             pragma Unreferenced (Index, Quit);
@@ -427,8 +427,8 @@ package body AWS.Services.Web_Mail is
    -----------
 
    function Reply
-     (Request : in AWS.Status.Data;
-      To_All  : in Boolean) return AWS.Response.Data
+     (Request : AWS.Status.Data;
+      To_All  : Boolean) return AWS.Response.Data
    is
       WWW_Root   : String renames Config.WWW_Root (Config.Get_Current);
       WM_Session : constant Session.Id := Status.Session (Request);
@@ -510,7 +510,7 @@ package body AWS.Services.Web_Mail is
    -- Send --
    ----------
 
-   function Send (Request : in AWS.Status.Data) return AWS.Response.Data is
+   function Send (Request : AWS.Status.Data) return AWS.Response.Data is
       WWW_Root   : String renames Config.WWW_Root (Config.Get_Current);
       WM_Session : constant Session.Id := Status.Session (Request);
       P_List     : constant Parameters.List := Status.Parameters (Request);
@@ -587,13 +587,13 @@ package body AWS.Services.Web_Mail is
    -- Summary --
    -------------
 
-   function Summary (Request : in AWS.Status.Data) return AWS.Response.Data is
+   function Summary (Request : AWS.Status.Data) return AWS.Response.Data is
       WWW_Root   : String renames Config.WWW_Root (Config.Get_Current);
       WM_Session : constant Session.Id := Status.Session (Request);
 
       procedure Add_Message
-        (Message : in     POP.Message;
-         Index   : in     Positive;
+        (Message : POP.Message;
+         Index   : Positive;
          Quit    : in out Boolean);
       --  Add message information into the vertor tags
 
@@ -608,8 +608,8 @@ package body AWS.Services.Web_Mail is
       -----------------
 
       procedure Add_Message
-        (Message : in     POP.Message;
-         Index   : in     Positive;
+        (Message : POP.Message;
+         Index   : Positive;
          Quit    : in out Boolean)
       is
          pragma Unreferenced (Quit);

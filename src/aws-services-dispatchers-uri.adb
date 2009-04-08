@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2008, AdaCore                     --
+--                     Copyright (C) 2000-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -40,11 +40,11 @@ package body AWS.Services.Dispatchers.URI is
       Reg_URI : GNAT.Regexp.Regexp;
    end record;
 
-   overriding function Clone (URI : in Reg_URI) return Reg_URI;
+   overriding function Clone (URI : Reg_URI) return Reg_URI;
    --  Returns a deep copy of URI
 
    overriding function Match
-     (URI : in Reg_URI; Value : in String) return Boolean;
+     (URI : Reg_URI; Value : String) return Boolean;
 
    procedure Free is
      new Ada.Unchecked_Deallocation (Std_URI'Class, URI_Class_Access);
@@ -53,7 +53,7 @@ package body AWS.Services.Dispatchers.URI is
    -- Copy --
    ----------
 
-   overriding function Clone (Dispatcher : in Handler) return Handler is
+   overriding function Clone (Dispatcher : Handler) return Handler is
       New_Dispatcher : Handler;
    begin
       if Dispatcher.Action /= null then
@@ -80,7 +80,7 @@ package body AWS.Services.Dispatchers.URI is
    -- Clone --
    -----------
 
-   overriding function Clone (URI : in Std_URI) return Std_URI is
+   overriding function Clone (URI : Std_URI) return Std_URI is
       New_URI : Std_URI := URI;
    begin
       if URI.Action /= null then
@@ -95,7 +95,7 @@ package body AWS.Services.Dispatchers.URI is
    -- Clone --
    -----------
 
-   overriding function Clone (URI : in Reg_URI) return Reg_URI is
+   overriding function Clone (URI : Reg_URI) return Reg_URI is
       New_URI : Reg_URI := URI;
    begin
       if URI.Action /= null then
@@ -111,8 +111,8 @@ package body AWS.Services.Dispatchers.URI is
    --------------
 
    overriding function Dispatch
-     (Dispatcher : in Handler;
-      Request    : in Status.Data) return Response.Data
+     (Dispatcher : Handler;
+      Request    : Status.Data) return Response.Data
    is
       use type Response.Data_Mode;
 
@@ -187,7 +187,7 @@ package body AWS.Services.Dispatchers.URI is
    -- Match --
    -----------
 
-   function Match (URI : in Std_URI; Value : in String) return Boolean is
+   function Match (URI : Std_URI; Value : String) return Boolean is
       U : constant String := To_String (URI.URI);
    begin
       if URI.Prefix then
@@ -203,7 +203,7 @@ package body AWS.Services.Dispatchers.URI is
    end Match;
 
    overriding function Match
-     (URI : in Reg_URI; Value : in String) return Boolean is
+     (URI : Reg_URI; Value : String) return Boolean is
    begin
       return GNAT.Regexp.Match (Value, URI.Reg_URI);
    end Match;
@@ -214,9 +214,9 @@ package body AWS.Services.Dispatchers.URI is
 
    procedure Register
      (Dispatcher : in out Handler;
-      URI        : in     String;
-      Action     : in     AWS.Dispatchers.Handler'Class;
-      Prefix     : in     Boolean := False)
+      URI        : String;
+      Action     : AWS.Dispatchers.Handler'Class;
+      Prefix     : Boolean := False)
    is
       Value : constant URI_Class_Access
         := new Std_URI'(new AWS.Dispatchers.Handler'Class'(Action),
@@ -227,9 +227,9 @@ package body AWS.Services.Dispatchers.URI is
 
    procedure Register
      (Dispatcher : in out Handler;
-      URI        : in     String;
-      Action     : in     Response.Callback;
-      Prefix     : in     Boolean := False) is
+      URI        : String;
+      Action     : Response.Callback;
+      Prefix     : Boolean := False) is
    begin
       Register
         (Dispatcher, URI, AWS.Dispatchers.Callback.Create (Action), Prefix);
@@ -241,7 +241,7 @@ package body AWS.Services.Dispatchers.URI is
 
    procedure Register_Default_Callback
      (Dispatcher : in out Handler;
-      Action     : in     AWS.Dispatchers.Handler'Class) is
+      Action     : AWS.Dispatchers.Handler'Class) is
    begin
       if Dispatcher.Action /= null then
          Free (Dispatcher.Action);
@@ -256,8 +256,8 @@ package body AWS.Services.Dispatchers.URI is
 
    procedure Register_Regexp
      (Dispatcher : in out Handler;
-      URI        : in     String;
-      Action     : in     AWS.Dispatchers.Handler'Class)
+      URI        : String;
+      Action     : AWS.Dispatchers.Handler'Class)
    is
       Value : constant URI_Class_Access
         := new Reg_URI'(new AWS.Dispatchers.Handler'Class'(Action),
@@ -269,8 +269,8 @@ package body AWS.Services.Dispatchers.URI is
 
    procedure Register_Regexp
      (Dispatcher : in out Handler;
-      URI        : in     String;
-      Action     : in     Response.Callback) is
+      URI        : String;
+      Action     : Response.Callback) is
    begin
       Register_Regexp
         (Dispatcher, URI, AWS.Dispatchers.Callback.Create (Action));
@@ -282,7 +282,7 @@ package body AWS.Services.Dispatchers.URI is
 
    procedure Unregister
      (Dispatcher : in out Handler;
-      URI        : in     String) is
+      URI        : String) is
    begin
       for K in 1 .. Natural (URI_Table.Length (Dispatcher.Table)) loop
          declare

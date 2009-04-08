@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2004-2008, AdaCore                     --
+--                     Copyright (C) 2004-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -27,6 +27,6 @@
 
 package Wait_Pack is
 
-   procedure Run (Security : in Boolean; Port : in Positive);
+   procedure Run (Security : Boolean; Port : Positive);
 
 end Wait_Pack;

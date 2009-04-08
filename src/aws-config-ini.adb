@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2008, AdaCore                     --
+--                     Copyright (C) 2000-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -41,7 +41,7 @@ package body AWS.Config.Ini is
    -- Program_Ini_File --
    ----------------------
 
-   function Program_Ini_File (Full_Path : in Boolean) return String is
+   function Program_Ini_File (Full_Path : Boolean) return String is
       Exec_Name : constant String := Command_Line.Command_Name;
       Last      : Natural;
       First     : Natural;
@@ -78,15 +78,15 @@ package body AWS.Config.Ini is
 
    procedure Read
      (Config   : in out Object;
-      Filename : in     String)
+      Filename : String)
    is
-      procedure Raise_Error (Message : in String);
+      procedure Raise_Error (Message : String);
       --  Raise error message with filename and line number
 
       function Error_Context return String;
       --  Return the string with filename and line number
 
-      procedure Set_Value (Key : in String; Value : in String);
+      procedure Set_Value (Key : String; Value : String);
 
       Line : Natural;
       --  Current line number parsed
@@ -104,7 +104,7 @@ package body AWS.Config.Ini is
       -- Raise_Error --
       -----------------
 
-      procedure Raise_Error (Message : in String) is
+      procedure Raise_Error (Message : String) is
       begin
          raise Constraint_Error with Error_Context & Message;
       end Raise_Error;
@@ -113,7 +113,7 @@ package body AWS.Config.Ini is
       -- Set_Value --
       ---------------
 
-      procedure Set_Value (Key : in String; Value : in String) is
+      procedure Set_Value (Key : String; Value : String) is
          P : constant Parameter_Name := Utils.Value (Key, Error_Context);
       begin
          if P in Server_Parameter_Name then

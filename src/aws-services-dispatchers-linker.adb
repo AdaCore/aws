@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2005-2007                          --
---                                 AdaCore                                  --
+--                     Copyright (C) 2005-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -36,7 +35,7 @@ package body AWS.Services.Dispatchers.Linker is
    -- Clone --
    -----------
 
-   overriding function Clone (Dispatcher : in Handler) return Handler is
+   overriding function Clone (Dispatcher : Handler) return Handler is
       New_Dispatcher : Handler;
    begin
       if Dispatcher.First /= null then
@@ -59,8 +58,8 @@ package body AWS.Services.Dispatchers.Linker is
    --------------
 
    overriding function Dispatch
-     (Dispatcher : in Handler;
-      Request    : in Status.Data) return Response.Data
+     (Dispatcher : Handler;
+      Request    : Status.Data) return Response.Data
    is
       use type Messages.Status_Code;
       R : Response.Data;
@@ -103,7 +102,7 @@ package body AWS.Services.Dispatchers.Linker is
 
    procedure Register
      (Dispatcher    : in out Handler;
-      First, Second : in     AWS.Dispatchers.Handler'Class) is
+      First, Second : AWS.Dispatchers.Handler'Class) is
    begin
       Dispatcher :=
         (AWS.Dispatchers.Handler with

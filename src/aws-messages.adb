@@ -159,7 +159,7 @@ package body AWS.Messages is
    -- Accept_Encoding --
    ---------------------
 
-   function Accept_Encoding (Encoding : in String) return String is
+   function Accept_Encoding (Encoding : String) return String is
    begin
       return Accept_Encoding_Token & HD & Encoding;
    end Accept_Encoding;
@@ -168,7 +168,7 @@ package body AWS.Messages is
    -- Accept_Language --
    ---------------------
 
-   function Accept_Language (Mode : in String) return String is
+   function Accept_Language (Mode : String) return String is
    begin
       return Accept_Language_Token & HD & Mode;
    end Accept_Language;
@@ -177,7 +177,7 @@ package body AWS.Messages is
    -- Accept_Type --
    -----------------
 
-   function Accept_Type (Mode : in String) return String is
+   function Accept_Type (Mode : String) return String is
    begin
       return Accept_Token & HD & Mode;
    end Accept_Type;
@@ -186,7 +186,7 @@ package body AWS.Messages is
    -- Authorization --
    -------------------
 
-   function Authorization (Mode, Password : in String) return String is
+   function Authorization (Mode, Password : String) return String is
    begin
       return Authorization_Token & HD & Mode & ' ' & Password;
    end Authorization;
@@ -195,7 +195,7 @@ package body AWS.Messages is
    -- Cache_Control --
    -------------------
 
-   function Cache_Control (Option : in Cache_Option) return String is
+   function Cache_Control (Option : Cache_Option) return String is
    begin
       return Cache_Control_Token & HD & String (Option);
    end Cache_Control;
@@ -204,7 +204,7 @@ package body AWS.Messages is
    -- Connection --
    ----------------
 
-   function Connection (Mode : in String) return String is
+   function Connection (Mode : String) return String is
    begin
       return Connection_Token & HD & Mode;
    end Connection;
@@ -214,9 +214,9 @@ package body AWS.Messages is
    -------------------------
 
    function Content_Disposition
-     (Format   : in String;
-      Name     : in String;
-      Filename : in String) return String is
+     (Format   : String;
+      Name     : String;
+      Filename : String) return String is
    begin
       if Filename = "" then
          return Content_Disposition_Token & HD & Format
@@ -232,7 +232,7 @@ package body AWS.Messages is
    -- Content_Length --
    --------------------
 
-   function Content_Length (Size : in Natural) return String is
+   function Content_Length (Size : Natural) return String is
    begin
       return Content_Length_Token & HD & Utils.Image (Size);
    end Content_Length;
@@ -242,7 +242,7 @@ package body AWS.Messages is
    ------------------
 
    function Content_Type
-     (Format : in String; Boundary : in String := "") return String is
+     (Format : String; Boundary : String := "") return String is
    begin
       if Boundary = "" then
          return Content_Type_Token & HD & Format;
@@ -257,7 +257,7 @@ package body AWS.Messages is
    -- Cookie --
    ------------
 
-   function Cookie (Value : in String) return String is
+   function Cookie (Value : String) return String is
    begin
       return Cookie_Token & HD & Value;
    end Cookie;
@@ -266,7 +266,7 @@ package body AWS.Messages is
    -- Data_Range --
    ----------------
 
-   function Data_Range (Value : in String) return String is
+   function Data_Range (Value : String) return String is
    begin
       return Range_Token & HD & Value;
    end Data_Range;
@@ -275,7 +275,7 @@ package body AWS.Messages is
    -- Does_Not_Match --
    --------------------
 
-   function Does_Not_Match (Str, Pattern : in String) return Boolean is
+   function Does_Not_Match (Str, Pattern : String) return Boolean is
       use Ada.Characters;
       U_Str     : constant String := Handling.To_Upper (Str);
       U_Pattern : constant String := Handling.To_Upper (Pattern);
@@ -288,7 +288,7 @@ package body AWS.Messages is
    -- Host --
    ----------
 
-   function Host (Name : in String) return String is
+   function Host (Name : String) return String is
    begin
       return Host_Token & HD & Name;
    end Host;
@@ -297,7 +297,7 @@ package body AWS.Messages is
    -- Image --
    -----------
 
-   function Image (S : in Status_Code) return String is
+   function Image (S : Status_Code) return String is
    begin
       return Status_Messages (S).Code;
    end Image;
@@ -306,7 +306,7 @@ package body AWS.Messages is
    -- Last_Modified --
    -------------------
 
-   function Last_Modified (Date : in Calendar.Time) return String is
+   function Last_Modified (Date : Calendar.Time) return String is
    begin
       return Last_Modified_Token & HD & To_HTTP_Date (Date);
    end Last_Modified;
@@ -315,7 +315,7 @@ package body AWS.Messages is
    -- Location --
    --------------
 
-   function Location (URL : in String) return String is
+   function Location (URL : String) return String is
    begin
       return Location_Token & HD & URL;
    end Location;
@@ -324,7 +324,7 @@ package body AWS.Messages is
    -- Match --
    -----------
 
-   function Match (Str, Pattern : in String) return Boolean is
+   function Match (Str, Pattern : String) return Boolean is
       use Ada.Characters;
       U_Str     : constant String := Handling.To_Upper (Str);
       U_Pattern : constant String := Handling.To_Upper (Pattern);
@@ -337,7 +337,7 @@ package body AWS.Messages is
    -- Proxy_Authorization --
    -------------------------
 
-   function Proxy_Authorization (Mode, Password : in String) return String is
+   function Proxy_Authorization (Mode, Password : String) return String is
    begin
       return Proxy_Authorization_Token & HD & Mode & ' ' & Password;
    end Proxy_Authorization;
@@ -346,7 +346,7 @@ package body AWS.Messages is
    -- Proxy_Connection --
    ----------------------
 
-   function Proxy_Connection (Mode : in String) return String is
+   function Proxy_Connection (Mode : String) return String is
    begin
       return Proxy_Connection_Token & HD & Mode;
    end Proxy_Connection;
@@ -355,7 +355,7 @@ package body AWS.Messages is
    -- Reason_Phrase --
    -------------------
 
-   function Reason_Phrase (S : in Status_Code) return String is
+   function Reason_Phrase (S : Status_Code) return String is
    begin
       return Status_Messages (S).Reason_Phrase.all;
    end Reason_Phrase;
@@ -364,7 +364,7 @@ package body AWS.Messages is
    -- SOAPAction --
    ----------------
 
-   function SOAPAction (URI : in String) return String is
+   function SOAPAction (URI : String) return String is
    begin
       return SOAPAction_Token & HD & '"' & URI & '"';
    end SOAPAction;
@@ -373,7 +373,7 @@ package body AWS.Messages is
    -- Status_Line --
    -----------------
 
-   function Status_Line (Code : in Status_Code) return String is
+   function Status_Line (Code : Status_Code) return String is
    begin
       return HTTP_Version & ' '
         & Status_Messages (Code).Code & ' '
@@ -384,23 +384,23 @@ package body AWS.Messages is
    -- To_HTTP_Date --
    ------------------
 
-   function To_HTTP_Date (Time : in Calendar.Time) return String is
+   function To_HTTP_Date (Time : Calendar.Time) return String is
 
-      function Truncation (S : in Calendar.Day_Duration) return Natural;
+      function Truncation (S : Calendar.Day_Duration) return Natural;
       --  returns the integral value of S
 
-      function Image (V : in Natural) return String;
+      function Image (V : Natural) return String;
       --  returns V image without the leading space and with leading zero if
       --  only one digit
 
-      function Weekday (Date : in Calendar.Time) return String;
+      function Weekday (Date : Calendar.Time) return String;
       --  returns the weekday as a 3 letters string for the Date
 
       -----------
       -- Image --
       -----------
 
-      function Image (V : in Natural) return String is
+      function Image (V : Natural) return String is
          V_Image : constant String := Natural'Image (V);
       begin
          if V_Image'Length = 2 then
@@ -415,7 +415,7 @@ package body AWS.Messages is
       -- Truncation --
       ----------------
 
-      function Truncation (S : in Calendar.Day_Duration) return Natural is
+      function Truncation (S : Calendar.Day_Duration) return Natural is
       begin
          if S = 0.0 then
             return 0;
@@ -428,7 +428,7 @@ package body AWS.Messages is
       -- Weekday --
       -------------
 
-      function Weekday (Date : in Calendar.Time) return String is
+      function Weekday (Date : Calendar.Time) return String is
 
          Day_Names : constant array (Integer range 0 .. 6) of String (1 .. 3)
            := ("Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat");
@@ -478,10 +478,10 @@ package body AWS.Messages is
    -- To_Time --
    -------------
 
-   function To_Time (HTTP_Date : in String) return Calendar.Time is
+   function To_Time (HTTP_Date : String) return Calendar.Time is
 
       function Month_Number
-        (Month_Name : in String) return Calendar.Month_Number;
+        (Month_Name : String) return Calendar.Month_Number;
       --  returns the month number given a 3 letter month name
 
       F : constant Positive := HTTP_Date'First;
@@ -491,7 +491,7 @@ package body AWS.Messages is
       ------------------
 
       function Month_Number
-        (Month_Name : in String) return Calendar.Month_Number is
+        (Month_Name : String) return Calendar.Month_Number is
       begin
          for I in Calendar.Month_Number loop
             if Month_Name = Messages.Month_Name (I) then
@@ -518,7 +518,7 @@ package body AWS.Messages is
    -- Transfer_Encoding --
    -----------------------
 
-   function Transfer_Encoding (Encoding : in String) return String is
+   function Transfer_Encoding (Encoding : String) return String is
    begin
       return Transfer_Encoding_Token & HD & Encoding;
    end Transfer_Encoding;
@@ -527,7 +527,7 @@ package body AWS.Messages is
    -- User_Agent --
    ----------------
 
-   function User_Agent (Name : in String) return String is
+   function User_Agent (Name : String) return String is
    begin
       return User_Agent_Token & HD & Name;
    end User_Agent;
@@ -536,15 +536,15 @@ package body AWS.Messages is
    -- Www_Authenticate --
    ----------------------
 
-   function WWW_Authenticate (Realm : in String) return String is
+   function WWW_Authenticate (Realm : String) return String is
    begin
       return WWW_Authenticate_Token & HD & "Basic realm=""" & Realm & """";
    end WWW_Authenticate;
 
    function WWW_Authenticate
-     (Realm : in String;
-      Nonce : in String;
-      Stale : in Boolean)
+     (Realm : String;
+      Nonce : String;
+      Stale : Boolean)
       return String is
    begin
       return WWW_Authenticate_Token & HD

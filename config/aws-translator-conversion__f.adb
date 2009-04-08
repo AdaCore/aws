@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2001                          --
---                                ACT-Europe                                --
+--                     Copyright (C) 2000-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -40,7 +39,7 @@ package body Conversion is
    -----------------------------
 
    function To_Stream_Element_Array
-     (Data : in String)
+     (Data : String)
       return Stream_Element_Array
    is
 
@@ -62,7 +61,7 @@ package body Conversion is
    ---------------
 
    function To_String
-     (Data : in Stream_Element_Array)
+     (Data : Stream_Element_Array)
       return String
    is
 

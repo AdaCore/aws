@@ -2,8 +2,7 @@
 --                              Ada Web Server                              --
 --                 S M T P - Simple Mail Transfer Protocol                  --
 --                                                                          --
---                            Copyright (C) 2008                            --
---                                 AdaCore                                  --
+--                     Copyright (C) 2008-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -47,7 +46,7 @@ package body AWS.SMTP.Server is
    QUIT : constant String := "QUIT";
    RCPT : constant String := "RCPT";
 
-   function Get_Message (Sock : in Net.Socket_Type'Class) return Messages.Data;
+   function Get_Message (Sock : Net.Socket_Type'Class) return Messages.Data;
    --  Get an incoming message from the server
 
    ------------------
@@ -87,7 +86,7 @@ package body AWS.SMTP.Server is
    -----------------
 
    function Get_Message
-     (Sock : in Net.Socket_Type'Class) return Messages.Data
+     (Sock : Net.Socket_Type'Class) return Messages.Data
    is
 
       Empty_Line : constant String := "";
@@ -239,8 +238,8 @@ package body AWS.SMTP.Server is
 
    procedure Start
      (Server : in out Handle;
-      Host   : in     Receiver;
-      Action : in     Callback) is
+      Host   : Receiver;
+      Action : Callback) is
    begin
       --  Initialize server listening port
 

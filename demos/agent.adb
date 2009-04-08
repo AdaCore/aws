@@ -102,13 +102,13 @@ procedure Agent is
      := To_Unbounded_String (Default.Client_Certificate);
 
    function Parse_Command_Line return Boolean;
-   --  Parse Agent command line. Returns False on error.
+   --  Parse Agent command line. Returns False on error
 
-   function Get_Auth_Mode (Mode : in String) return Client.Authentication_Mode;
+   function Get_Auth_Mode (Mode : String) return Client.Authentication_Mode;
    --  Return the authentication value from the string representation.
    --  raises the human readable exception on error.
 
-   procedure Show_Certificate (Cert : in Net.SSL.Certificate.Object);
+   procedure Show_Certificate (Cert : Net.SSL.Certificate.Object);
 
    procedure Usage;
 
@@ -117,7 +117,7 @@ procedure Agent is
    -------------------
 
    function Get_Auth_Mode
-     (Mode : in String) return Client.Authentication_Mode is
+     (Mode : String) return Client.Authentication_Mode is
    begin
       return Client.Authentication_Mode'Value (Mode);
    exception
@@ -239,7 +239,7 @@ procedure Agent is
    -- Show_Certificate --
    ----------------------
 
-   procedure Show_Certificate (Cert : in Net.SSL.Certificate.Object) is
+   procedure Show_Certificate (Cert : Net.SSL.Certificate.Object) is
       use Ada.Text_IO;
       use type Net.SSL.Certificate.Object;
    begin

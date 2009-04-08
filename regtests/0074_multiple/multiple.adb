@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2008, AdaCore                     --
+--                     Copyright (C) 2003-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -46,7 +46,7 @@ procedure Multiple is
    use Ada.Text_IO;
    use AWS;
 
-   function CB (Request : in Status.Data) return Response.Data;
+   function CB (Request : Status.Data) return Response.Data;
 
    HTTP1 : AWS.Server.HTTP;
    Port1 : Natural := 1252;
@@ -58,7 +58,7 @@ procedure Multiple is
    -- CB --
    --------
 
-   function CB (Request : in Status.Data) return Response.Data is
+   function CB (Request : Status.Data) return Response.Data is
       Server : constant AWS.Server.HTTP_Access := AWS.Server.Get_Current;
    begin
       return Response.Build
@@ -70,7 +70,7 @@ procedure Multiple is
    -- Request --
    -------------
 
-   procedure Request (URL : in String) is
+   procedure Request (URL : String) is
       R : Response.Data;
    begin
       R := Client.Get (URL);

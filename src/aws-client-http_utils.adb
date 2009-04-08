@@ -46,13 +46,13 @@ package body AWS.Client.HTTP_Utils is
    use Ada;
    use AWS.Client;
 
-   function Image (Data_Range : in Content_Range) return String;
+   function Image (Data_Range : Content_Range) return String;
    --  Returns the partial content range parameter to be passed to the Range
    --  header.
 
    function "+"
-     (Left  : in Real_Time.Time;
-      Right : in Real_Time.Time_Span) return Real_Time.Time;
+     (Left  : Real_Time.Time;
+      Right : Real_Time.Time_Span) return Real_Time.Time;
    --  Returns Real_Time.Time_Last if Right is Real_Time.Time_Span_Last,
    --  otherwise returns Left + Right.
 
@@ -61,8 +61,8 @@ package body AWS.Client.HTTP_Utils is
    ---------
 
    function "+"
-     (Left  : in Real_Time.Time;
-      Right : in Real_Time.Time_Span) return Real_Time.Time
+     (Left  : Real_Time.Time;
+      Right : Real_Time.Time_Span) return Real_Time.Time
    is
       use Real_Time;
    begin
@@ -220,7 +220,7 @@ package body AWS.Client.HTTP_Utils is
    procedure Decrement_Authentication_Attempt
      (Connection : in out HTTP_Connection;
       Counter    : in out Auth_Attempts_Count;
-      Over       :    out Boolean)
+      Over       : out Boolean)
    is
       type Over_Data is array (Authentication_Level) of Boolean;
 
@@ -260,8 +260,8 @@ package body AWS.Client.HTTP_Utils is
 
    procedure Get_Response
      (Connection : in out HTTP_Connection;
-      Result     :    out Response.Data;
-      Get_Body   : in     Boolean         := True)
+      Result     : out Response.Data;
+      Get_Body   : Boolean         := True)
    is
       use type Messages.Status_Code;
 
@@ -338,7 +338,7 @@ package body AWS.Client.HTTP_Utils is
    -- Image --
    -----------
 
-   function Image (Data_Range : in Content_Range) return String is
+   function Image (Data_Range : Content_Range) return String is
       Result : Unbounded_String;
    begin
       Append (Result, "bytes=");
@@ -362,13 +362,13 @@ package body AWS.Client.HTTP_Utils is
 
    procedure Internal_Post
      (Connection   : in out HTTP_Connection;
-      Result       :    out Response.Data;
-      Data         : in     Stream_Element_Array;
-      URI          : in     String;
-      SOAPAction   : in     String;
-      Content_Type : in     String;
-      Attachments  : in     Attachment_List;
-      Headers      : in     Header_List          := Empty_Header_List)
+      Result       : out Response.Data;
+      Data         : Stream_Element_Array;
+      URI          : String;
+      SOAPAction   : String;
+      Content_Type : String;
+      Attachments  : Attachment_List;
+      Headers      : Header_List          := Empty_Header_List)
    is
       use type AWS.Attachments.List;
    begin
@@ -401,13 +401,13 @@ package body AWS.Client.HTTP_Utils is
 
    procedure Internal_Post_With_Attachment
      (Connection   : in out HTTP_Connection;
-      Result       :    out Response.Data;
-      Data         : in     Stream_Element_Array;
-      URI          : in     String;
-      SOAPAction   : in     String;
-      Content_Type : in     String;
-      Attachments  : in     Attachment_List;
-      Headers      : in     Header_List          := Empty_Header_List)
+      Result       : out Response.Data;
+      Data         : Stream_Element_Array;
+      URI          : String;
+      SOAPAction   : String;
+      Content_Type : String;
+      Attachments  : Attachment_List;
+      Headers      : Header_List          := Empty_Header_List)
    is
       use Real_Time;
       Stamp     : constant Time := Clock;
@@ -565,12 +565,12 @@ package body AWS.Client.HTTP_Utils is
 
    procedure Internal_Post_Without_Attachment
      (Connection   : in out HTTP_Connection;
-      Result       :    out Response.Data;
-      Data         : in     Stream_Element_Array;
-      URI          : in     String;
-      SOAPAction   : in     String;
-      Content_Type : in     String;
-      Headers      : in     Header_List := Empty_Header_List)
+      Result       : out Response.Data;
+      Data         : Stream_Element_Array;
+      URI          : String;
+      SOAPAction   : String;
+      Content_Type : String;
+      Headers      : Header_List := Empty_Header_List)
    is
       use Real_Time;
       Stamp         : constant Time := Clock;
@@ -627,14 +627,14 @@ package body AWS.Client.HTTP_Utils is
 
    procedure Open_Send_Common_Header
      (Connection : in out HTTP_Connection;
-      Method     : in     String;
-      URI        : in     String;
-      Headers    : in     Header_List := Empty_Header_List)
+      Method     : String;
+      URI        : String;
+      Headers    : Header_List := Empty_Header_List)
    is
       Sock    : Net.Socket_Access := Connection.Socket;
       No_Data : Unbounded_String renames Null_Unbounded_String;
 
-      function HTTP_Prefix (Security : in Boolean) return String;
+      function HTTP_Prefix (Security : Boolean) return String;
       --  Returns "http://" or "https://" if Security is set to True
 
       function Persistence return String;
@@ -664,7 +664,7 @@ package body AWS.Client.HTTP_Utils is
       -- HTTP_Prefix --
       -----------------
 
-      function HTTP_Prefix (Security : in Boolean) return String is
+      function HTTP_Prefix (Security : Boolean) return String is
       begin
          if Security then
             return "https://";
@@ -811,8 +811,8 @@ package body AWS.Client.HTTP_Utils is
 
    procedure Parse_Header
      (Connection : in out HTTP_Connection;
-      Answer     :    out Response.Data;
-      Keep_Alive :    out Boolean)
+      Answer     : out Response.Data;
+      Keep_Alive : out Boolean)
    is
       Sock : Net.Socket_Type'Class renames Connection.Socket.all;
 
@@ -822,8 +822,8 @@ package body AWS.Client.HTTP_Utils is
         := (others => Any);
 
       procedure Parse_Authenticate_Line
-        (Level     : in Authentication_Level;
-         Auth_Line : in String);
+        (Level     : Authentication_Level;
+         Auth_Line : String);
       --  Parses Authentication request line and fill Connection.Auth (Level)
       --  field with the information read on the line. Handle WWW and Proxy
       --  authentication.
@@ -831,11 +831,11 @@ package body AWS.Client.HTTP_Utils is
       procedure Read_Status_Line;
       --  Read the status line
 
-      procedure Set_Keep_Alive (Data : in String);
+      procedure Set_Keep_Alive (Data : String);
       --  Set the Parse_Header.Keep_Alive depending on data from the
       --  Proxy-Connection or Connection header line.
 
-      function "+" (S : in String) return Unbounded_String
+      function "+" (S : String) return Unbounded_String
              renames To_Unbounded_String;
 
       -----------------------------
@@ -843,8 +843,8 @@ package body AWS.Client.HTTP_Utils is
       -----------------------------
 
       procedure Parse_Authenticate_Line
-        (Level     : in Authentication_Level;
-         Auth_Line : in     String)
+        (Level     : Authentication_Level;
+         Auth_Line : String)
       is
          use Ada.Characters.Handling;
 
@@ -860,14 +860,14 @@ package body AWS.Client.HTTP_Utils is
          --  then before.
 
          procedure Value
-           (Item : in     String;
+           (Item : String;
             Quit : in out Boolean);
          --  Routine receiving unnamed value during parsing of
          --  authentication line.
 
          procedure Named_Value
-           (Name  : in     String;
-            Value : in     String;
+           (Name  : String;
+            Value : String;
             Quit  : in out Boolean);
          --  Routine receiving name/value pairs during parsing of
          --  authentication line.
@@ -877,8 +877,8 @@ package body AWS.Client.HTTP_Utils is
          -----------------
 
          procedure Named_Value
-           (Name  : in     String;
-            Value : in     String;
+           (Name  : String;
+            Value : String;
             Quit  : in out Boolean)
          is
             pragma Warnings (Off, Quit);
@@ -926,7 +926,7 @@ package body AWS.Client.HTTP_Utils is
          -----------
 
          procedure Value
-           (Item : in     String;
+           (Item : String;
             Quit : in out Boolean)
          is
             pragma Warnings (Off, Quit);
@@ -1020,7 +1020,7 @@ package body AWS.Client.HTTP_Utils is
       -- Set_Keep_Alive --
       --------------------
 
-      procedure Set_Keep_Alive (Data : in String) is
+      procedure Set_Keep_Alive (Data : String) is
       begin
          if Messages.Match (Data, "Close") then
             Keep_Alive := False;
@@ -1048,13 +1048,13 @@ package body AWS.Client.HTTP_Utils is
                                 (Header
                                    (Answer, Messages.Content_Encoding_Token));
 
-         procedure Decode_Init (Header : in ZLib.Header_Type);
+         procedure Decode_Init (Header : ZLib.Header_Type);
 
          -----------------
          -- Decode_Init --
          -----------------
 
-         procedure Decode_Init (Header : in ZLib.Header_Type) is
+         procedure Decode_Init (Header : ZLib.Header_Type) is
             use type Utils.Stream_Element_Array_Access;
          begin
             ZLib.Inflate_Init (Connection.Decode_Filter, Header => Header);
@@ -1131,8 +1131,8 @@ package body AWS.Client.HTTP_Utils is
 
    procedure Read_Body
      (Connection : in out HTTP_Connection;
-      Result     :    out Response.Data;
-      Store      : in Boolean)
+      Result     : out Response.Data;
+      Store      : Boolean)
    is
       use Ada.Real_Time;
       Expire : constant Time := Clock + Connection.Timeouts.Response;
@@ -1168,10 +1168,10 @@ package body AWS.Client.HTTP_Utils is
 
    procedure Send_Authentication_Header
      (Connection : in out HTTP_Connection;
-      Token      : in     String;
+      Token      : String;
       Data       : in out Authentication_Type;
-      URI        : in     String;
-      Method     : in     String)
+      URI        : String;
+      Method     : String)
    is
       User : constant String := To_String (Data.User);
       Pwd  : constant String := To_String (Data.Pwd);
@@ -1295,11 +1295,11 @@ package body AWS.Client.HTTP_Utils is
 
    procedure Send_Common_Post
      (Connection   : in out HTTP_Connection;
-      Data         : in     Stream_Element_Array;
-      URI          : in     String;
-      SOAPAction   : in     String;
-      Content_Type : in     String;
-      Headers      : in     Header_List := Empty_Header_List) is
+      Data         : Stream_Element_Array;
+      URI          : String;
+      SOAPAction   : String;
+      Content_Type : String;
+      Headers      : Header_List := Empty_Header_List) is
    begin
       Open_Send_Common_Header (Connection, "POST", URI, Headers);
 
@@ -1339,19 +1339,19 @@ package body AWS.Client.HTTP_Utils is
    -----------------
 
    procedure Send_Header
-     (Sock : in Net.Socket_Type'Class;
-      Data : in String) is
+     (Sock : Net.Socket_Type'Class;
+      Data : String) is
    begin
       Net.Buffered.Put_Line (Sock, Data);
       Debug_Message ("> ", Data);
    end Send_Header;
 
    procedure Send_Header
-     (Sock        : in AWS.Net.Socket_Type'Class;
-      Header      : in String;
-      Constructor : not null access function (Value : in String) return String;
-      Value       : in String;
-      Headers     : in Header_List) is
+     (Sock        : AWS.Net.Socket_Type'Class;
+      Header      : String;
+      Constructor : not null access function (Value : String) return String;
+      Value       : String;
+      Headers     : Header_List) is
    begin
       if not Headers.Exist (Header) then
          Send_Header (Sock, Constructor (Value));
@@ -1363,10 +1363,10 @@ package body AWS.Client.HTTP_Utils is
    ------------------------
 
    procedure Set_Authentication
-     (Auth :    out Authentication_Type;
-      User : in     String;
-      Pwd  : in     String;
-      Mode : in     Authentication_Mode) is
+     (Auth : out Authentication_Type;
+      User : String;
+      Pwd  : String;
+      Mode : Authentication_Mode) is
    begin
       Auth.User      := To_Unbounded_String (User);
       Auth.Pwd       := To_Unbounded_String (Pwd);
@@ -1392,7 +1392,7 @@ package body AWS.Client.HTTP_Utils is
 
    procedure Set_HTTP_Connection
      (HTTP_Client : in out HTTP_Connection;
-      Sock_Ptr    : in     AWS.Net.Socket_Access) is
+      Sock_Ptr    : AWS.Net.Socket_Access) is
    begin
       HTTP_Client.Socket := Sock_Ptr;
       HTTP_Client.Opened := True;
@@ -1402,7 +1402,7 @@ package body AWS.Client.HTTP_Utils is
    -- Value --
    -----------
 
-   function Value (V : in String) return Unbounded_String is
+   function Value (V : String) return Unbounded_String is
    begin
       if V = No_Data then
          return Null_Unbounded_String;

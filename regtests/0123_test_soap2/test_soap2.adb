@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2008, AdaCore                     --
+--                     Copyright (C) 2000-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -49,8 +49,8 @@ procedure Test_SOAP2 is
    use Ada.Text_IO;
    use AWS;
 
-   function CB      (Request : in Status.Data) return Response.Data;
-   function SOAP_CB (Request : in Status.Data) return Response.Data;
+   function CB      (Request : Status.Data) return Response.Data;
+   function SOAP_CB (Request : Status.Data) return Response.Data;
 
    task Server is
       entry Start;
@@ -64,7 +64,7 @@ procedure Test_SOAP2 is
    -- CB --
    --------
 
-   function CB (Request : in Status.Data) return Response.Data is
+   function CB (Request : Status.Data) return Response.Data is
       SOAP_Action : constant String := Status.SOAPAction (Request);
    begin
       if SOAP_Action = "/soap_demo" then
@@ -81,7 +81,7 @@ procedure Test_SOAP2 is
    -- Request --
    -------------
 
-   procedure Request (Str : in String) is
+   procedure Request (Str : String) is
       use SOAP.Types;
       use type SOAP.Parameters.List;
 
@@ -142,7 +142,7 @@ procedure Test_SOAP2 is
    -- SOAP_CB --
    -------------
 
-   function SOAP_CB (Request : in Status.Data) return Response.Data is
+   function SOAP_CB (Request : Status.Data) return Response.Data is
       use SOAP.Types;
       use SOAP.Parameters;
 

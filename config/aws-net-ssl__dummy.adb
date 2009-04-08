@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2006-2008, AdaCore                     --
+--                     Copyright (C) 2006-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -42,7 +42,7 @@ package body AWS.Net.SSL is
    -------------------
 
    overriding procedure Accept_Socket
-     (Socket : in Net.Socket_Type'Class; New_Socket : in out Socket_Type) is
+     (Socket : Net.Socket_Type'Class; New_Socket : in out Socket_Type) is
    begin
       raise Program_Error with Error_Message;
    end Accept_Socket;
@@ -51,7 +51,7 @@ package body AWS.Net.SSL is
    -- Clear_Session_Cache --
    -------------------------
 
-   procedure Clear_Session_Cache (Config : in SSL.Config := Null_Config) is
+   procedure Clear_Session_Cache (Config : SSL.Config := Null_Config) is
    begin
       null;
    end Clear_Session_Cache;
@@ -62,9 +62,9 @@ package body AWS.Net.SSL is
 
    overriding procedure Connect
      (Socket   : in out Socket_Type;
-      Host     : in     String;
-      Port     : in     Positive;
-      Wait     : in     Boolean := True) is
+      Host     : String;
+      Port     : Positive;
+      Wait     : Boolean := True) is
    begin
       raise Program_Error with Error_Message;
    end Connect;
@@ -102,11 +102,11 @@ package body AWS.Net.SSL is
 
    procedure Initialize
      (Config               : in out SSL.Config;
-      Certificate_Filename : in     String;
-      Security_Mode        : in     Method     := SSLv23;
-      Key_Filename         : in     String     := "";
-      Exchange_Certificate : in     Boolean    := False;
-      Session_Cache_Size   : in     Positive   := 16#4000#) is
+      Certificate_Filename : String;
+      Security_Mode        : Method     := SSLv23;
+      Key_Filename         : String     := "";
+      Exchange_Certificate : Boolean    := False;
+      Session_Cache_Size   : Positive   := 16#4000#) is
    begin
       raise Program_Error with Error_Message;
    end Initialize;
@@ -116,7 +116,7 @@ package body AWS.Net.SSL is
    -------------
 
    overriding function Pending
-     (Socket : in Socket_Type) return Stream_Element_Count is
+     (Socket : Socket_Type) return Stream_Element_Count is
    begin
       raise Program_Error with Error_Message;
       return 0;
@@ -127,9 +127,9 @@ package body AWS.Net.SSL is
    -------------
 
    overriding procedure Receive
-     (Socket : in     Socket_Type;
-      Data   :    out Stream_Element_Array;
-      Last   :    out Stream_Element_Offset) is
+     (Socket : Socket_Type;
+      Data   : out Stream_Element_Array;
+      Last   : out Stream_Element_Offset) is
    begin
       raise Program_Error with Error_Message;
    end Receive;
@@ -148,8 +148,8 @@ package body AWS.Net.SSL is
    -------------------
 
    function Secure_Client
-     (Socket : in Net.Socket_Type'Class;
-      Config : in SSL.Config := Null_Config) return Socket_Type
+     (Socket : Net.Socket_Type'Class;
+      Config : SSL.Config := Null_Config) return Socket_Type
    is
       pragma Unreferenced (Socket, Config);
       S : Socket_Type;
@@ -163,8 +163,8 @@ package body AWS.Net.SSL is
    -------------------
 
    function Secure_Server
-     (Socket : in Net.Socket_Type'Class;
-      Config : in SSL.Config := Null_Config) return Socket_Type
+     (Socket : Net.Socket_Type'Class;
+      Config : SSL.Config := Null_Config) return Socket_Type
    is
       pragma Unreferenced (Socket, Config);
       S : Socket_Type;
@@ -178,9 +178,9 @@ package body AWS.Net.SSL is
    ----------
 
    overriding procedure Send
-     (Socket : in     Socket_Type;
-      Data   : in     Stream_Element_Array;
-      Last   :    out Stream_Element_Offset) is
+     (Socket : Socket_Type;
+      Data   : Stream_Element_Array;
+      Last   : out Stream_Element_Offset) is
    begin
       raise Program_Error with Error_Message;
    end Send;
@@ -190,7 +190,7 @@ package body AWS.Net.SSL is
    ----------------
 
    procedure Set_Config
-     (Socket : in out Socket_Type; Config : in SSL.Config) is
+     (Socket : in out Socket_Type; Config : SSL.Config) is
    begin
       raise Program_Error with Error_Message;
    end Set_Config;
@@ -200,7 +200,7 @@ package body AWS.Net.SSL is
    ----------------------------
 
    procedure Set_Session_Cache_Size
-     (Size : in Natural; Config : in SSL.Config := Null_Config) is
+     (Size : Natural; Config : SSL.Config := Null_Config) is
    begin
       null;
    end Set_Session_Cache_Size;
@@ -210,7 +210,7 @@ package body AWS.Net.SSL is
    -----------------
 
    overriding procedure Set_Timeout
-     (Socket : in out Socket_Type; Timeout : in Duration) is
+     (Socket : in out Socket_Type; Timeout : Duration) is
    begin
       raise Program_Error with Error_Message;
    end Set_Timeout;
@@ -220,7 +220,7 @@ package body AWS.Net.SSL is
    --------------
 
    overriding procedure Shutdown
-     (Socket : in Socket_Type; How : in Shutmode_Type := Shut_Read_Write) is
+     (Socket : Socket_Type; How : Shutmode_Type := Shut_Read_Write) is
    begin
       raise Program_Error with Error_Message;
    end Shutdown;
@@ -238,7 +238,7 @@ package body AWS.Net.SSL is
    -- Version --
    -------------
 
-   function Version (Build_Info : in Boolean := False) return String is
+   function Version (Build_Info : Boolean := False) return String is
       pragma Unreferenced (Build_Info);
    begin
       return Error_Message;

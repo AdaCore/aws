@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2008, AdaCore                     --
+--                     Copyright (C) 2003-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -27,6 +27,6 @@
 
 package S_Huge_Response_Pack is
 
-   procedure Run (Port : in Positive; Security : in Boolean);
+   procedure Run (Port : Positive; Security : Boolean);
 
 end S_Huge_Response_Pack;

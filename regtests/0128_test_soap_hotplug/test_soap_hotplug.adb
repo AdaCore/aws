@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2004-2008, AdaCore                     --
+--                     Copyright (C) 2004-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -55,7 +55,7 @@ procedure Test_SOAP_Hotplug is
       entry Stop;
    end Hotplug_Server;
 
-   procedure Request (X, Y : in Integer);
+   procedure Request (X, Y : Integer);
    --  Request URI resource to main server, output result
 
    Hotplug_Port : Natural := 1135;
@@ -120,7 +120,7 @@ procedure Test_SOAP_Hotplug is
    -- Request --
    -------------
 
-   procedure Request (X, Y : in Integer) is
+   procedure Request (X, Y : Integer) is
       R : Integer;
    begin
       R := SOAP_Hotplug_Pack_Service.Client.Job1

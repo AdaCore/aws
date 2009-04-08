@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2003                            --
---                                ACT-Europe                                --
+--                     Copyright (C) 2003-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -38,7 +37,7 @@ package body SOAP_SVS_CB is
 
    use Ada;
 
-   function SOAP_CB (Request : in AWS.Status.Data) return AWS.Response.Data;
+   function SOAP_CB (Request : AWS.Status.Data) return AWS.Response.Data;
    --  Callback used when SOAPAction is /validator1
 
    ------------------------------
@@ -46,42 +45,42 @@ package body SOAP_SVS_CB is
    ------------------------------
 
    function SOAP_Count_The_Entities
-     (PL : in SOAP.Message.Payload.Object)
+     (PL : SOAP.Message.Payload.Object)
      return AWS.Response.Data;
 
    function SOAP_Easy_Struct_Test
-     (PL : in SOAP.Message.Payload.Object)
+     (PL : SOAP.Message.Payload.Object)
      return AWS.Response.Data;
 
    function SOAP_Echo_Struct_Test
-     (PL : in SOAP.Message.Payload.Object)
+     (PL : SOAP.Message.Payload.Object)
      return AWS.Response.Data;
 
    function SOAP_Many_Types_Test
-     (PL : in SOAP.Message.Payload.Object)
+     (PL : SOAP.Message.Payload.Object)
      return AWS.Response.Data;
 
    function SOAP_Moderate_Size_Array_Check
-     (PL : in SOAP.Message.Payload.Object)
+     (PL : SOAP.Message.Payload.Object)
      return AWS.Response.Data;
 
    function SOAP_Nested_Struct_Test
-     (PL : in SOAP.Message.Payload.Object)
+     (PL : SOAP.Message.Payload.Object)
      return AWS.Response.Data;
 
    function SOAP_Simple_Struct_Return_Test
-     (PL : in SOAP.Message.Payload.Object)
+     (PL : SOAP.Message.Payload.Object)
      return AWS.Response.Data;
 
    function SOAP_Which_Toolkit
-     (PL : in SOAP.Message.Payload.Object)
+     (PL : SOAP.Message.Payload.Object)
      return AWS.Response.Data;
 
    --------
    -- CB --
    --------
 
-   function CB (Request : in AWS.Status.Data) return AWS.Response.Data is
+   function CB (Request : AWS.Status.Data) return AWS.Response.Data is
       SOAPAction : constant String := AWS.Status.SOAPAction (Request);
    begin
       if SOAPAction = "/validator1" then
@@ -98,7 +97,7 @@ package body SOAP_SVS_CB is
    -- SOAP_CB --
    -------------
 
-   function SOAP_CB (Request : in AWS.Status.Data) return AWS.Response.Data is
+   function SOAP_CB (Request : AWS.Status.Data) return AWS.Response.Data is
       use SOAP.Types;
       use SOAP.Parameters;
 
@@ -166,7 +165,7 @@ package body SOAP_SVS_CB is
    -----------------------------
 
    function SOAP_Count_The_Entities
-     (PL : in SOAP.Message.Payload.Object)
+     (PL : SOAP.Message.Payload.Object)
      return AWS.Response.Data
    is
       use SOAP.Types;
@@ -238,7 +237,7 @@ package body SOAP_SVS_CB is
    ---------------------------
 
    function SOAP_Easy_Struct_Test
-     (PL : in SOAP.Message.Payload.Object)
+     (PL : SOAP.Message.Payload.Object)
      return AWS.Response.Data
    is
       use SOAP.Types;
@@ -288,7 +287,7 @@ package body SOAP_SVS_CB is
    ---------------------------
 
    function SOAP_Echo_Struct_Test
-     (PL : in SOAP.Message.Payload.Object)
+     (PL : SOAP.Message.Payload.Object)
      return AWS.Response.Data
    is
       use SOAP.Types;
@@ -331,7 +330,7 @@ package body SOAP_SVS_CB is
    --------------------------
 
    function SOAP_Many_Types_Test
-     (PL : in SOAP.Message.Payload.Object)
+     (PL : SOAP.Message.Payload.Object)
      return AWS.Response.Data
    is
       use SOAP.Types;
@@ -378,7 +377,7 @@ package body SOAP_SVS_CB is
    ------------------------------------
 
    function SOAP_Moderate_Size_Array_Check
-     (PL : in SOAP.Message.Payload.Object)
+     (PL : SOAP.Message.Payload.Object)
      return AWS.Response.Data
    is
       use SOAP.Types;
@@ -424,7 +423,7 @@ package body SOAP_SVS_CB is
    -----------------------------
 
    function SOAP_Nested_Struct_Test
-     (PL : in SOAP.Message.Payload.Object)
+     (PL : SOAP.Message.Payload.Object)
      return AWS.Response.Data
    is
       use SOAP.Types;
@@ -475,7 +474,7 @@ package body SOAP_SVS_CB is
    ------------------------------------
 
    function SOAP_Simple_Struct_Return_Test
-     (PL : in SOAP.Message.Payload.Object)
+     (PL : SOAP.Message.Payload.Object)
      return AWS.Response.Data
    is
       use SOAP.Types;
@@ -525,7 +524,7 @@ package body SOAP_SVS_CB is
    ------------------------
 
    function SOAP_Which_Toolkit
-     (PL : in SOAP.Message.Payload.Object)
+     (PL : SOAP.Message.Payload.Object)
      return AWS.Response.Data
    is
       use SOAP.Types;

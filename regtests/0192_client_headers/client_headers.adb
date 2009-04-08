@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                       Copyright (C) 2008, AdaCore                        --
+--                     Copyright (C) 2008-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -57,17 +57,17 @@ procedure Client_Headers is
    -- CB --
    --------
 
-   function CB (Request : in Status.Data) return Response.Data is
+   function CB (Request : Status.Data) return Response.Data is
       H : constant Headers.List := Status.Header (Request);
 
-      procedure Output (Header : in String);
+      procedure Output (Header : String);
       --  Output corresping header value
 
       ------------
       -- Output --
       ------------
 
-      procedure Output (Header : in String) is
+      procedure Output (Header : String) is
       begin
          if Headers.Exist (H, Header) then
             Text_IO.Put_Line
@@ -98,10 +98,10 @@ procedure Client_Headers is
    ----------
 
    procedure Dump
-     (Direction : in Net.Log.Data_Direction;
-      Socket    : in Net.Socket_Type'Class;
-      Data      : in Stream_Element_Array;
-      Last      : in Stream_Element_Offset)
+     (Direction : Net.Log.Data_Direction;
+      Socket    : Net.Socket_Type'Class;
+      Data      : Stream_Element_Array;
+      Last      : Stream_Element_Offset)
    is
       use type Net.Log.Data_Direction;
    begin

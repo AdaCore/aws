@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                       Copyright (C) 2008, AdaCore                        --
+--                     Copyright (C) 2008-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -57,17 +57,17 @@ procedure Post_Attachments is
    -- CB --
    --------
 
-   function CB (Request : in Status.Data) return Response.Data is
+   function CB (Request : Status.Data) return Response.Data is
       Params  : constant Parameters.List := Status.Parameters (Request);
       Attachs : constant Attachments.List := Status.Attachments (Request);
 
-      procedure Output_A_Name (E : in Attachments.Element);
+      procedure Output_A_Name (E : Attachments.Element);
 
       -------------------
       -- Output_A_Name --
       -------------------
 
-      procedure Output_A_Name (E : in Attachments.Element) is
+      procedure Output_A_Name (E : Attachments.Element) is
       begin
          Text_IO.Put_Line ("Filename       " & Attachments.Filename (E));
          Text_IO.Put_Line
@@ -91,10 +91,10 @@ procedure Post_Attachments is
    ----------
 
    procedure Dump
-     (Direction : in Net.Log.Data_Direction;
-      Socket    : in Net.Socket_Type'Class;
-      Data      : in Stream_Element_Array;
-      Last      : in Stream_Element_Offset)
+     (Direction : Net.Log.Data_Direction;
+      Socket    : Net.Socket_Type'Class;
+      Data      : Stream_Element_Array;
+      Last      : Stream_Element_Offset)
    is
       use type Net.Log.Data_Direction;
    begin

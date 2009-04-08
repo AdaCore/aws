@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2008, AdaCore                     --
+--                     Copyright (C) 2000-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -56,8 +56,8 @@ package body AWS.Status.Set is
 
    procedure Add_Parameter
      (D           : in out Data;
-      Name, Value : in     String;
-      Decode      : in Boolean := True) is
+      Name, Value : String;
+      Decode      : Boolean := True) is
    begin
       AWS.Parameters.Set.Add
         (AWS.URL.Set.Parameters (D.URI'Access).all, Name, Value, Decode);
@@ -67,7 +67,7 @@ package body AWS.Status.Set is
    -- Add_Parameters --
    --------------------
 
-   procedure Add_Parameters (D : in out Data; Parameters : in String) is
+   procedure Add_Parameters (D : in out Data; Parameters : String) is
    begin
       AWS.Parameters.Set.Add
         (AWS.URL.Set.Parameters (D.URI'Access).all, Parameters);
@@ -79,8 +79,8 @@ package body AWS.Status.Set is
 
    procedure Append_Body
      (D      : in out Data;
-      Buffer : in     Stream_Element_Array;
-      Trim   : in     Boolean := False) is
+      Buffer : Stream_Element_Array;
+      Trim   : Boolean := False) is
    begin
       if D.Binary_Data = null then
          D.Binary_Data := new Containers.Memory_Streams.Stream_Type;
@@ -94,7 +94,7 @@ package body AWS.Status.Set is
    -----------------
 
    procedure Attachments
-     (D : in out Data; Attachments : in AWS.Attachments.List) is
+     (D : in out Data; Attachments : AWS.Attachments.List) is
    begin
       D.Attachments := Attachments;
    end Attachments;
@@ -105,9 +105,9 @@ package body AWS.Status.Set is
 
    procedure Authenticate
      (D                      : in out Data;
-      Authorization_Mode     : in     Authorization_Type;
-      Authorization_Name     : in     String;
-      Authorization_Password : in     String) is
+      Authorization_Mode     : Authorization_Type;
+      Authorization_Name     : String;
+      Authorization_Password : String) is
    begin
       D.Auth_Mode     := Authorization_Mode;
       D.Auth_Name     := To_Unbounded_String (Authorization_Name);
@@ -123,15 +123,15 @@ package body AWS.Status.Set is
       Header_Value : constant String
         := AWS.Headers.Get (D.Header, Messages.Authorization_Token);
 
-      procedure Named_Value (Name, Value : in String; Quit : in out Boolean);
+      procedure Named_Value (Name, Value : String; Quit : in out Boolean);
 
-      procedure Value (Item : in String; Quit : in out Boolean);
+      procedure Value (Item : String; Quit : in out Boolean);
 
       -----------------
       -- Named_Value --
       -----------------
 
-      procedure Named_Value (Name, Value : in String; Quit : in out Boolean) is
+      procedure Named_Value (Name, Value : String; Quit : in out Boolean) is
 
          type Digest_Attribute
             is (Username, Realm, Nonce, NC, CNonce,
@@ -142,7 +142,7 @@ package body AWS.Status.Set is
 
          Attribute : Digest_Attribute;
 
-         function "+" (Item : in String) return Unbounded_String
+         function "+" (Item : String) return Unbounded_String
            renames To_Unbounded_String;
 
       begin
@@ -183,7 +183,7 @@ package body AWS.Status.Set is
       -- Value --
       -----------
 
-      procedure Value (Item : in String; Quit : in out Boolean) is
+      procedure Value (Item : String; Quit : in out Boolean) is
          Upper_Item : constant String
            := Ada.Characters.Handling.To_Upper (Item);
       begin
@@ -237,7 +237,7 @@ package body AWS.Status.Set is
 
    procedure Binary
      (D         : in out Data;
-      Parameter : in     Stream_Element_Array) is
+      Parameter : Stream_Element_Array) is
    begin
       if D.Binary_Data = null then
          D.Binary_Data := new Containers.Memory_Streams.Stream_Type;
@@ -250,7 +250,7 @@ package body AWS.Status.Set is
    -- Case_Sensitive_Parameters --
    -------------------------------
 
-   procedure Case_Sensitive_Parameters (D : in out Data; Mode : in Boolean) is
+   procedure Case_Sensitive_Parameters (D : in out Data; Mode : Boolean) is
    begin
       AWS.Parameters.Set.Case_Sensitive
         (AWS.URL.Set.Parameters (D.URI'Access).all, Mode);
@@ -262,9 +262,9 @@ package body AWS.Status.Set is
 
    procedure Connection_Data
      (D        : in out Data;
-      Host     : in     String;
-      Port     : in     Positive;
-      Security : in     Boolean) is
+      Host     : String;
+      Port     : Positive;
+      Security : Boolean) is
    begin
       AWS.URL.Set.Connection_Data (D.URI, Host, Port, Security);
    end Connection_Data;
@@ -302,7 +302,7 @@ package body AWS.Status.Set is
    -- Keep_Alive --
    ----------------
 
-   procedure Keep_Alive (D : in out Data; Flag : in Boolean) is
+   procedure Keep_Alive (D : in out Data; Flag : Boolean) is
    begin
       D.Keep_Alive := Flag;
    end Keep_Alive;
@@ -311,7 +311,7 @@ package body AWS.Status.Set is
    -- Parameters --
    ----------------
 
-   procedure Parameters (D : in out Data; Set : in AWS.Parameters.List) is
+   procedure Parameters (D : in out Data; Set : AWS.Parameters.List) is
    begin
       AWS.URL.Set.Parameters (D.URI, Set);
    end Parameters;
@@ -331,9 +331,9 @@ package body AWS.Status.Set is
    ---------------
 
    procedure Read_Body
-     (Socket   : in     Net.Socket_Type'Class;
+     (Socket   : Net.Socket_Type'Class;
       D        : in out Data;
-      Boundary : in     String := "")
+      Boundary : String := "")
    is
       use Containers.Memory_Streams;
       use type Stream_Element_Offset;
@@ -394,7 +394,7 @@ package body AWS.Status.Set is
    -----------------
 
    procedure Read_Header
-     (Socket : in     Net.Socket_Type'Class;
+     (Socket : Net.Socket_Type'Class;
       D      : in out Data) is
    begin
       Headers.Set.Read (Socket, D.Header);
@@ -407,9 +407,9 @@ package body AWS.Status.Set is
 
    procedure Request
      (D            : in out Data;
-      Method       : in     String;
-      URI          : in     String;
-      HTTP_Version : in     String) is
+      Method       : String;
+      URI          : String;
+      HTTP_Version : String) is
    begin
       D.Calendar_Time  := Ada.Calendar.Clock;
       D.Monotonic_Time := Ada.Real_Time.Clock;
@@ -498,7 +498,7 @@ package body AWS.Status.Set is
 
    procedure Socket
      (D    : in out Data;
-      Sock : in     Net.Socket_Access) is
+      Sock : Net.Socket_Access) is
    begin
       D.Socket   := Sock;
       D.Peername := To_Unbounded_String (Net.Peer_Addr (Sock.all));
@@ -539,13 +539,13 @@ package body AWS.Status.Set is
                use type AWS.Session.Id;
 
                procedure Value
-                 (Item : in     String;
+                 (Item : String;
                   Quit : in out Boolean) is null;
                --  Called for every un-named value read from the header value
 
                procedure Named_Value
-                 (Name  : in     String;
-                  Value : in     String;
+                 (Name  : String;
+                  Value : String;
                   Quit  : in out Boolean);
                --  Called for every named value read from the header value
 
@@ -554,8 +554,8 @@ package body AWS.Status.Set is
                -----------------
 
                procedure Named_Value
-                 (Name  : in     String;
-                  Value : in     String;
+                 (Name  : String;
+                  Value : String;
                   Quit  : in out Boolean) is
                begin
                   --  Check if it is current process Cookie
