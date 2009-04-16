@@ -31,32 +31,17 @@ with Ada.Unchecked_Deallocation;
 with Interfaces.C;
 
 with AWS.Net.Log;
-with AWS.OS_Lib;
 
 pragma Warnings (Off);
-
---  Ignore warning about portability of the GNAT.Sockets.Thin because we are
---  using only Socket_Errno which exists on all mains platforms Unix, Windows
---  and VMS.
-
-with GNAT.Sockets.Thin;
+--  Ignore warning about portability of the GNAT.Sockets.Constants, these
+--  constants should be fairly stable.
 with GNAT.Sockets.Constants;
-
 pragma Warnings (On);
-
-with Interfaces.C.Strings;
-with System;
 
 package body AWS.Net.Std is
 
    use GNAT;
    use type Interfaces.C.int;
-
-   Failure : constant Interfaces.C.int := -1;
-   --  Declared here as it used to be in GNAT.Sockets.Thin and has been moved
-   --  into GNAT.Sockets.Thin.Common as part of a code refactoring. This was
-   --  done on 2008/04/09, when this compiler becomes old enough the
-   --  Thin.Common definition should be used and this declaration removed.
 
    type Socket_Hidden is record
       FD : Sockets.Socket_Type := Sockets.No_Socket;
@@ -72,11 +57,6 @@ package body AWS.Net.Std is
    pragma No_Return (Raise_Exception);
    --  Raise and log exception Socket_Error with E's message and a reference to
    --  the routine name.
-
-   procedure Raise_Socket_Error (Error : Integer; Socket : Socket_Type);
-   pragma No_Return (Raise_Socket_Error);
-
-   function Error_Message (Error : Integer) return String;
 
    function Get_Inet_Addr (Host : String) return Sockets.Inet_Addr_Type;
    pragma Inline (Get_Inet_Addr);
@@ -219,8 +199,8 @@ package body AWS.Net.Std is
 
       if Wait then
          declare
-            Events : constant Event_Set
-              := Net.Wait (Socket, (Output => True, Input => False));
+            Events : constant Event_Set :=
+                       Net.Wait (Socket, (Output => True, Input => False));
 
             procedure Raise_Error (Errno : Integer);
 
@@ -229,7 +209,9 @@ package body AWS.Net.Std is
             -----------------
 
             procedure Raise_Error (Errno : Integer) is
-               Msg : constant String := Error_Message (Errno);
+               Msg : constant String :=
+                       "Error :" & Integer'Image (Errno)
+                       & " Net.Connect failed because Net.Wait failed.";
             begin
                Log.Error (Socket, Msg);
                Sockets.Close_Socket (Socket.S.FD);
@@ -261,42 +243,107 @@ package body AWS.Net.Std is
    -- Errno --
    -----------
 
-   function Errno return Integer is
-   begin
-      return GNAT.Sockets.Thin.Socket_Errno;
-   end Errno;
-
    overriding function Errno (Socket : Socket_Type) return Integer is
-      use Interfaces;
       use Sockets;
-      RC  : C.int;
-      Res : aliased C.int := 0;
-      Len : aliased C.int := Res'Size / System.Storage_Unit;
+
+      package SC renames Sockets.Constants;
+
+      Option : constant Option_Type :=
+                 Get_Socket_Option (Socket.S.FD, Name => Error);
    begin
-      RC := Thin.C_Getsockopt
-              (S       => Interfaces.C.int (Get_FD (Socket)),
-               Level   => Constants.SOL_SOCKET,
-               Optname => Constants.SO_ERROR,
-               Optval  => Res'Address,
-               Optlen  => Len'Access);
-
-      if RC = Failure then
-         Raise_Socket_Error (Errno, Socket);
-      end if;
-
-      return Integer (Res);
+      case Option.Error is
+         when Success                                       =>
+            return 0;
+         when Permission_Denied                             =>
+            return SC.EACCES;
+         when Address_Already_In_Use                        =>
+            return SC.EADDRINUSE;
+         when Cannot_Assign_Requested_Address               =>
+            return SC.EADDRNOTAVAIL;
+         when Address_Family_Not_Supported_By_Protocol      =>
+            return SC.EAFNOSUPPORT;
+         when Operation_Already_In_Progress                 =>
+            return SC.EALREADY;
+         when Bad_File_Descriptor                           =>
+            return SC.EBADF;
+         when Software_Caused_Connection_Abort              =>
+            return SC.ECONNABORTED;
+         when Connection_Refused                            =>
+            return SC.ECONNREFUSED;
+         when Connection_Reset_By_Peer                      =>
+            return SC.ECONNRESET;
+         when Destination_Address_Required                  =>
+            return SC.EDESTADDRREQ;
+         when Bad_Address                                   =>
+            return SC.EFAULT;
+         when Host_Is_Down                                  =>
+            return SC.EHOSTDOWN;
+         when No_Route_To_Host                              =>
+            return SC.EHOSTUNREACH;
+         when Operation_Now_In_Progress                     =>
+            return SC.EINPROGRESS;
+         when Interrupted_System_Call                       =>
+            return SC.EINTR;
+         when Invalid_Argument                              =>
+            return SC.EINVAL;
+         when Input_Output_Error                            =>
+            return SC.EIO;
+         when Transport_Endpoint_Already_Connected          =>
+            return SC.EISCONN;
+         when Too_Many_Symbolic_Links                       =>
+            return SC.ELOOP;
+         when Too_Many_Open_Files                           =>
+            return SC.EMFILE;
+         when Message_Too_Long                              =>
+            return SC.EMSGSIZE;
+         when File_Name_Too_Long                            =>
+            return SC.ENAMETOOLONG;
+         when Network_Is_Down                               =>
+            return SC.ENETDOWN;
+         when Network_Dropped_Connection_Because_Of_Reset   =>
+            return SC.ENETRESET;
+         when Network_Is_Unreachable                        =>
+            return SC.ENETUNREACH;
+         when No_Buffer_Space_Available                     =>
+            return SC.ENOBUFS;
+         when Protocol_Not_Available                        =>
+            return SC.ENOPROTOOPT;
+         when Transport_Endpoint_Not_Connected              =>
+            return SC.ENOTCONN;
+         when Socket_Operation_On_Non_Socket                =>
+            return SC.ENOTSOCK;
+         when Operation_Not_Supported                       =>
+            return SC.EOPNOTSUPP;
+         when Protocol_Family_Not_Supported                 =>
+            return SC.EPFNOSUPPORT;
+         when Broken_Pipe                                   =>
+            return SC.EPIPE;
+         when Protocol_Not_Supported                        =>
+            return SC.EPROTONOSUPPORT;
+         when Protocol_Wrong_Type_For_Socket                =>
+            return SC.EPROTOTYPE;
+         when Cannot_Send_After_Transport_Endpoint_Shutdown =>
+            return SC.ESHUTDOWN;
+         when Socket_Type_Not_Supported                     =>
+            return SC.ESOCKTNOSUPPORT;
+         when Connection_Timed_Out                          =>
+            return SC.ETIMEDOUT;
+         when Too_Many_References                           =>
+            return SC.ETOOMANYREFS;
+         when Resource_Temporarily_Unavailable              =>
+            return SC.EWOULDBLOCK;
+         when Unknown_Host                                  =>
+            return SC.HOST_NOT_FOUND;
+         when Host_Name_Lookup_Failure                      =>
+            return SC.TRY_AGAIN;
+         when Non_Recoverable_Error                         =>
+            return SC.NO_RECOVERY;
+         when Unknown_Server_Error                          =>
+            return SC.NO_DATA;
+         when others                                        =>
+            return Integer'Last;
+      end case;
    end Errno;
-
-   -------------------
-   -- Error_Message --
-   -------------------
-
-   function Error_Message (Error : Integer) return String is
-      use Interfaces;
-   begin
-      return '[' & Utils.Image (Error) & "] "
-        & C.Strings.Value (Sockets.Thin.Socket_Error_Message (Error));
-   end Error_Message;
 
    ----------
    -- Free --
@@ -446,18 +493,14 @@ package body AWS.Net.Std is
    overriding function Pending
      (Socket : Socket_Type) return Stream_Element_Count
    is
-      use Interfaces;
-      Arg : aliased C.int;
-      Res : constant C.int := Sockets.Thin.Socket_Ioctl
-                                (C.int (Get_FD (Socket)),
-                                 Sockets.Constants.FIONREAD,
-                                 Arg'Unchecked_Access);
+      Res : Sockets.Request_Type (Sockets.N_Bytes_To_Read);
    begin
-      if Res = Failure then
-         Raise_Socket_Error (Errno, Socket);
-      end if;
+      Sockets.Control_Socket (Socket.S.FD, Res);
 
-      return Stream_Element_Count (Arg);
+      return Stream_Element_Count (Res.Size);
+   exception
+      when E : Sockets.Socket_Error =>
+         Raise_Exception (E, "Pending", Socket);
    end Pending;
 
    ---------------------
@@ -474,19 +517,6 @@ package body AWS.Net.Std is
       Log.Error (Socket, Message => Msg);
       raise Socket_Error with Msg;
    end Raise_Exception;
-
-   ------------------------
-   -- Raise_Socket_Error --
-   ------------------------
-
-   procedure Raise_Socket_Error
-     (Error : Integer; Socket : Socket_Type)
-   is
-      Msg : constant String := Error_Message (Error);
-   begin
-      Log.Error (Socket, Message => Msg);
-      raise Socket_Error with Msg;
-   end Raise_Socket_Error;
 
    -------------
    -- Receive --
@@ -528,43 +558,9 @@ package body AWS.Net.Std is
       Data   : Stream_Element_Array;
       Last   : out Stream_Element_Offset)
    is
-      use Interfaces;
-
-      Errno : Integer;
-      RC    : C.int;
+      use type Sockets.Error_Type;
    begin
-      RC := Sockets.Thin.C_Sendto
-              (C.int (Get_FD (Socket)),
-               Data'Address,
-               Data'Length,
-               OS_Lib.MSG_NOSIGNAL,
-               To    => System.Null_Address,
-               Tolen => 0);
-
-      if RC = Failure then
-         Errno := Std.Errno;
-
-         if Errno = Sockets.Constants.EWOULDBLOCK then
-            if Data'First = Stream_Element_Offset'First then
-               Last := Stream_Element_Offset'Last;
-            else
-               Last := Data'First - 1;
-            end if;
-
-            return;
-
-         else
-            Raise_Socket_Error (Errno, Socket);
-         end if;
-      end if;
-
-      if RC = 0 and then Data'First = Stream_Element_Offset'First then
-         --  Could not Last := Data'First - 1;
-
-         Last := Stream_Element_Offset'Last;
-      else
-         Last := Data'First + Stream_Element_Offset (RC) - 1;
-      end if;
+      Sockets.Send_Socket (Socket.S.FD, Data, Last, null);
 
       if Net.Log.Is_Write_Active then
          Net.Log.Write
@@ -573,6 +569,24 @@ package body AWS.Net.Std is
             Data      => Data,
             Last      => Last);
       end if;
+   exception
+      when E : Sockets.Socket_Error =>
+         declare
+            Error : constant Sockets.Error_Type :=
+                      Sockets.Resolve_Exception (E);
+         begin
+            if Error = Sockets.Resource_Temporarily_Unavailable then
+               if Data'First = Stream_Element_Offset'First then
+                  Last := Stream_Element_Offset'Last;
+               else
+                  Last := Data'First - 1;
+               end if;
+
+               return;
+            else
+               Raise_Exception (E, "Send", Socket);
+            end if;
+         end;
    end Send;
 
    ---------------------------

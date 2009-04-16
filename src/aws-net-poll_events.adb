@@ -236,7 +236,7 @@ package body AWS.Net.Poll_Events is
                Timeout => Poll_Timeout));
 
          if Result < 0 then
-            Errno := Net.Errno;
+            Errno := AWS.OS_Lib.Socket_Errno;
 
             --  In case of EINTR error we have to continue waiting for network
             --  events.

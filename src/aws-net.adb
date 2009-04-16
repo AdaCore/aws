@@ -41,8 +41,6 @@ package body AWS.Net is
 
    Timeout_Token : constant String := " timeout.";
 
-   function Errno return Integer renames Std.Errno;
-
    ---------
    -- Add --
    ---------
@@ -254,7 +252,8 @@ package body AWS.Net is
             OptLen  => Flag'Size / System.Storage_Unit) /= 0
       then
          Raise_Socket_Error
-           (Socket, "Set_No_Delay error code" & Integer'Image (Std.Errno));
+           (Socket,
+            "Set_No_Delay error code" & Integer'Image (OS_Lib.Socket_Errno));
       end if;
    end Set_No_Delay;
 
