@@ -589,6 +589,24 @@ package body AWS.Net.Std is
          end;
    end Send;
 
+   ------------------
+   -- Set_No_Delay --
+   ------------------
+
+   overriding procedure Set_No_Delay
+     (Socket : Socket_Type; Value : Boolean := True)
+   is
+      use Sockets;
+   begin
+      Set_Socket_Option
+        (Socket.S.FD,
+         Level  => IP_Protocol_For_TCP_Level,
+         Option => (No_Delay, Value));
+   exception
+      when E : Sockets.Socket_Error =>
+         Raise_Exception (E, "Set_No_Delay", Socket);
+   end Set_No_Delay;
+
    ---------------------------
    -- Set_Non_Blocking_Mode --
    ---------------------------

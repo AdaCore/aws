@@ -223,7 +223,7 @@ package AWS.Net is
    --  Sets the timeout for the socket read/write operations
 
    procedure Set_No_Delay
-     (Socket : Socket_Type; Value : Boolean := True);
+     (Socket : Socket_Type; Value : Boolean := True) is null;
    --  Set/clear TCP_NODELAY option on socket
 
    function Wait

@@ -96,7 +96,10 @@ package body AWS.Net.Std is
    --  Return socket option with Integer size
 
    procedure Set_Int_Sock_Opt
-     (Socket : Socket_Type; Name : Interfaces.C.int; Value : Integer);
+     (Socket : Socket_Type;
+      Name   : Interfaces.C.int;
+      Value  : Integer;
+      Level  : Interfaces.C.int := OS_Lib.SOL_SOCKET);
    --  Return socket option with Integer size
 
    procedure Set_Non_Blocking_Mode (Socket : Socket_Type);
@@ -796,14 +799,17 @@ package body AWS.Net.Std is
    ----------------------
 
    procedure Set_Int_Sock_Opt
-     (Socket : Socket_Type; Name : Interfaces.C.int; Value : Integer)
+     (Socket : Socket_Type;
+      Name   : Interfaces.C.int;
+      Value  : Integer;
+      Level  : Interfaces.C.int := OS_Lib.SOL_SOCKET)
    is
       use type C.int;
 
       Res : constant C.int
         := OS_Lib.Set_Sock_Opt
              (Socket.S.FD,
-              OS_Lib.SOL_SOCKET,
+              Level,
               Name,
               Value'Address,
               Value'Size / System.Storage_Unit);
@@ -813,6 +819,22 @@ package body AWS.Net.Std is
          Raise_Socket_Error (Errno, Socket);
       end if;
    end Set_Int_Sock_Opt;
+
+   ------------------
+   -- Set_No_Delay --
+   ------------------
+
+   overriding procedure Set_No_Delay
+     (Socket : Socket_Type; Value : Boolean := True)
+   is
+      use Sockets;
+   begin
+      Set_Int_Sock_Opt
+        (Socket,
+         Name   => OS_Lib.TCP_NODELAY,
+         Level  => OS_Lib.IPPROTO_TCP,
+         Value  => Boolean'Pos (Value));
+   end Set_No_Delay;
 
    ---------------------------
    -- Set_Non_Blocking_Mode --

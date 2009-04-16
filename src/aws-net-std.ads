@@ -115,6 +115,10 @@ package AWS.Net.Std is
 
    function Host_Name return String;
 
+   overriding procedure Set_No_Delay
+     (Socket : Socket_Type; Value : Boolean := True);
+   --  Set/clear TCP_NODELAY option on socket
+
    overriding procedure Set_Send_Buffer_Size
      (Socket : Socket_Type;
       Size   : Natural);

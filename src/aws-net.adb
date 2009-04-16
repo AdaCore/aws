@@ -27,15 +27,11 @@
 
 with Ada.Strings.Fixed;
 with Ada.Unchecked_Deallocation;
-with Interfaces.C;
 
 with AWS.Net.Poll_Events;
 with AWS.Net.Log;
 with AWS.Net.Std;
 with AWS.Net.SSL;
-with AWS.OS_Lib;
-
-with System;
 
 package body AWS.Net is
 
@@ -232,30 +228,6 @@ package body AWS.Net is
          Set_Timeout (Socket_Type'Class (Socket), 0.0);
       end if;
    end Set_Blocking_Mode;
-
-   ------------------
-   -- Set_No_Delay --
-   ------------------
-
-   procedure Set_No_Delay
-     (Socket : Socket_Type; Value : Boolean := True)
-   is
-      use Interfaces;
-      use type C.int;
-      Flag : aliased Integer := Boolean'Pos (Value);
-   begin
-      if OS_Lib.Set_Sock_Opt
-           (S       => C.int (Get_FD (Socket_Type'Class (Socket))),
-            Level   => OS_Lib.IPPROTO_TCP,
-            OptName => OS_Lib.TCP_NODELAY,
-            OptVal  => Flag'Address,
-            OptLen  => Flag'Size / System.Storage_Unit) /= 0
-      then
-         Raise_Socket_Error
-           (Socket,
-            "Set_No_Delay error code" & Integer'Image (OS_Lib.Socket_Errno));
-      end if;
-   end Set_No_Delay;
 
    -----------------
    -- Set_Timeout --
