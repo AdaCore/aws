@@ -448,7 +448,7 @@ package body AWS.Net.Std is
    is
       use Interfaces;
       Arg : aliased C.int;
-      Res : constant C.int := Sockets.Thin.C_Ioctl
+      Res : constant C.int := Sockets.Thin.Socket_Ioctl
                                 (C.int (Get_FD (Socket)),
                                  Sockets.Constants.FIONREAD,
                                  Arg'Unchecked_Access);
