@@ -166,7 +166,7 @@ package body AWS.Net.Std is
       New_Socket.S.FD := C_Accept (Get_FD (Socket), Dummy'Address, Len'Access);
 
       if New_Socket.S.FD = Failure then
-         Raise_Socket_Error (Std.Errno, Socket_Type (Socket));
+         Raise_Socket_Error (OS_Lib.Socket_Errno, Socket_Type (Socket));
       end if;
 
       if Net.Log.Is_Event_Active then
@@ -209,7 +209,7 @@ package body AWS.Net.Std is
 
       if FD = Failure then
          OS_Lib.FreeAddrInfo (Info);
-         Raise_Socket_Error (Std.Errno);
+         Raise_Socket_Error (OS_Lib.Socket_Errno);
       end if;
 
       Socket.S := new Socket_Hidden'(FD => FD);
@@ -223,7 +223,7 @@ package body AWS.Net.Std is
       OS_Lib.FreeAddrInfo (Info);
 
       if Res = Failure then
-         Errno := Std.Errno;
+         Errno := OS_Lib.Socket_Errno;
          Res   := OS_Lib.C_Close (FD);
          Raise_Socket_Error (Errno, Socket);
       end if;
@@ -263,7 +263,7 @@ package body AWS.Net.Std is
 
       if FD = Failure then
          OS_Lib.FreeAddrInfo (Info);
-         Raise_Socket_Error (Std.Errno);
+         Raise_Socket_Error (OS_Lib.Socket_Errno);
       end if;
 
       Socket.S := new Socket_Hidden'(FD => FD);
@@ -275,7 +275,7 @@ package body AWS.Net.Std is
       OS_Lib.FreeAddrInfo (Info);
 
       if Res = Failure then
-         Errno := Std.Errno;
+         Errno := OS_Lib.Socket_Errno;
 
          if Errno = OS_Lib.EWOULDBLOCK
            or else Errno = OS_Lib.EINPROGRESS
@@ -310,11 +310,6 @@ package body AWS.Net.Std is
    -----------
    -- Errno --
    -----------
-
-   function Errno return Integer is
-   begin
-      return GNAT.Sockets.Thin.Socket_Errno;
-   end Errno;
 
    overriding function Errno (Socket : Socket_Type) return Integer is
    begin
@@ -354,7 +349,7 @@ package body AWS.Net.Std is
 
    begin
       if C_Getsockname (Socket.S.FD, Name'Address, Len'Access) = Failure then
-         Raise_Socket_Error (Errno, Socket);
+         Raise_Socket_Error (OS_Lib.Socket_Errno, Socket);
       end if;
 
       return Image (Name);
@@ -401,7 +396,7 @@ package body AWS.Net.Std is
                 res     => Result'Access);
 
       if Res = OS_Lib.EAI_SYSTEM then
-         Raise_Socket_Error (Errno);
+         Raise_Socket_Error (OS_Lib.Socket_Errno);
 
       elsif Res /= 0 then
          Raise_Socket_Error (CS.Value (OS_Lib.GAI_StrError (Res)));
@@ -444,7 +439,7 @@ package body AWS.Net.Std is
            OptLen  => Len'Access);
    begin
       if RC = Failure then
-         Raise_Socket_Error (Errno, Socket);
+         Raise_Socket_Error (OS_Lib.Socket_Errno, Socket);
       end if;
 
       return Integer (Res);
@@ -462,7 +457,7 @@ package body AWS.Net.Std is
 
    begin
       if C_Getsockname (Socket.S.FD, Name'Address, Len'Access) = Failure then
-         Raise_Socket_Error (Errno, Socket);
+         Raise_Socket_Error (OS_Lib.Socket_Errno, Socket);
       end if;
 
       return Positive
@@ -595,7 +590,7 @@ package body AWS.Net.Std is
 
    begin
       if C_Listen (Socket.S.FD, C.int (Queue_Size)) = Failure then
-         Raise_Socket_Error (Errno, Socket);
+         Raise_Socket_Error (OS_Lib.Socket_Errno, Socket);
       end if;
    end Listen;
 
@@ -611,7 +606,7 @@ package body AWS.Net.Std is
 
    begin
       if C_Getpeername (Socket.S.FD, Sin6'Address, Len'Access) = Failure then
-         Raise_Socket_Error (Std.Errno, Socket);
+         Raise_Socket_Error (OS_Lib.Socket_Errno, Socket);
       end if;
 
       return Image (Sin6);
@@ -630,7 +625,7 @@ package body AWS.Net.Std is
 
    begin
       if C_Getpeername (Socket.S.FD, Name'Address, Len'Access) = Failure then
-         Raise_Socket_Error (Errno, Socket);
+         Raise_Socket_Error (OS_Lib.Socket_Errno, Socket);
       end if;
 
       return Positive
@@ -652,7 +647,7 @@ package body AWS.Net.Std is
                                  Arg'Unchecked_Access);
    begin
       if Res = Failure then
-         Raise_Socket_Error (Errno, Socket);
+         Raise_Socket_Error (OS_Lib.Socket_Errno, Socket);
       end if;
 
       return Stream_Element_Count (Arg);
@@ -711,7 +706,7 @@ package body AWS.Net.Std is
          0);
 
       if Res = Failure then
-         Raise_Socket_Error (Errno, Socket);
+         Raise_Socket_Error (OS_Lib.Socket_Errno, Socket);
 
       elsif Res = 0 then
          --  socket closed by peer
@@ -761,7 +756,7 @@ package body AWS.Net.Std is
                OS_Lib.MSG_NOSIGNAL, null, 0);
 
       if RC = Failure then
-         Errno := Std.Errno;
+         Errno := OS_Lib.Socket_Errno;
 
          if Errno = OS_Lib.EWOULDBLOCK then
             if Data'First = Stream_Element_Offset'First then
@@ -816,7 +811,7 @@ package body AWS.Net.Std is
 
    begin
       if Res = Failure then
-         Raise_Socket_Error (Errno, Socket);
+         Raise_Socket_Error (OS_Lib.Socket_Errno, Socket);
       end if;
    end Set_Int_Sock_Opt;
 
@@ -845,7 +840,7 @@ package body AWS.Net.Std is
       Enabled : aliased C.int := 1;
    begin
       if OS_Lib.C_Ioctl (Socket.S.FD, OS_Lib.FIONBIO, Enabled'Access) /= 0 then
-         Raise_Socket_Error (Errno, Socket);
+         Raise_Socket_Error (OS_Lib.Socket_Errno, Socket);
       end if;
    end Set_Non_Blocking_Mode;
 
@@ -893,7 +888,7 @@ package body AWS.Net.Std is
       end if;
 
       if C_Shutdown (FD, To_OS (How)) = Failure then
-         EN := Std.Errno;
+         EN := OS_Lib.Socket_Errno;
 
          if EN /= OS_Lib.ENOTCONN then
             Log.Error (Socket, Error_Message (EN));
@@ -913,7 +908,7 @@ package body AWS.Net.Std is
          --  Back true FD for logging
 
          Socket.S.FD := FD;
-         Log.Error (Socket, Error_Message (Std.Errno));
+         Log.Error (Socket, Error_Message (OS_Lib.Socket_Errno));
          Socket.S.FD := No_Socket;
       end if;
    end Shutdown;
