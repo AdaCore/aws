@@ -43,6 +43,7 @@ with System.Storage_Elements;
 
 with AWS.Config;
 with AWS.Net.Log;
+with AWS.OS_Lib;
 with AWS.Utils;
 
 package body AWS.Net.SSL is
@@ -434,8 +435,9 @@ package body AWS.Net.SSL is
                when TSSL.SSL_ERROR_SYSCALL =>
                   Raise_Socket_Error
                     (Socket,
-                     "System error (" & Utils.Image (Integer (Errno))
-                      & ") on SSL receive");
+                     "System error ("
+                     & Utils.Image (Integer (OS_Lib.Socket_Errno))
+                     & ") on SSL receive");
 
                when others => Raise_Socket_Error (Socket, Error_Stack);
             end case;
@@ -594,8 +596,9 @@ package body AWS.Net.SSL is
                   when TSSL.SSL_ERROR_SYSCALL =>
                      Raise_Socket_Error
                        (Socket,
-                        "System error (" & Utils.Image (Integer (Errno))
-                         & ") on SSL send");
+                        "System error ("
+                        & Utils.Image (Integer (OS_Lib.Socket_Errno))
+                        & ") on SSL send");
 
                   when others =>
                      Err_Code := TSSL.ERR_get_error;
@@ -603,7 +606,8 @@ package body AWS.Net.SSL is
                      if Err_Code = 0 then
                         Raise_Socket_Error
                           (Socket,
-                           "Error (" & Utils.Image (Integer (Error_Code))
+                           "Error ("
+                           & Utils.Image (Integer (Error_Code))
                            & ") on SSL send");
                      else
                         Raise_Socket_Error (Socket, Error_Str (Err_Code));
