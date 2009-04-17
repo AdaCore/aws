@@ -809,8 +809,8 @@ package SSL.Thin is
 
    function gnutls_certificate_set_x509_key_mem
      (res  : gnutls_certificate_credentials_t;
-      CERT : a_gnutls_datum_t;
-      KEY  : a_gnutls_datum_t;
+      cert : a_gnutls_datum_t;
+      key  : a_gnutls_datum_t;
       p4   : gnutls_x509_crt_fmt_t) return C.int;
 
    function gnutls_certificate_set_x509_key
@@ -1167,10 +1167,10 @@ package SSL.Thin is
       Thread_CBS : gcry_thread_cbs) return gcry_error_t;
    pragma Import (C, gcry_control, "gcry_control");
 
-   ---------------------------------------------------------------------
-   -- Tricks to support AWS.Net.SSL specification compartibility with --
-   -- OpenSSL thin binding.                                           --
-   ---------------------------------------------------------------------
+   --------------------------------------------------------------------
+   -- Tricks to support AWS.Net.SSL specification compatibility with --
+   -- OpenSSL thin binding.                                          --
+   --------------------------------------------------------------------
 
    function SSLeay (Dummy : C.int := 0) return C.int;
    pragma Import (C, SSLeay, "gnutls_check_version");
@@ -1178,6 +1178,8 @@ package SSL.Thin is
    subtype SSL_Handle is gnutls_session_t;
 
    Null_Handle : constant SSL_Handle := null;
+
+   type BIO_Access is null record;
 
 private
 

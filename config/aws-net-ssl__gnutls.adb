@@ -25,6 +25,7 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
+with Ada.Directories;
 with Ada.Exceptions;
 with Ada.Streams.Stream_IO;
 with Ada.Strings.Fixed;
@@ -37,7 +38,6 @@ with System;
 
 with AWS.Config;
 with AWS.Net.Log;
-with AWS.OS_Lib;
 with AWS.Utils;
 
 package body AWS.Net.SSL is
@@ -110,7 +110,8 @@ package body AWS.Net.SSL is
       Certificate_Filename : String;
       Security_Mode        : Method  := SSLv23;
       Key_Filename         : String  := "";
-      Exchange_Certificate : Boolean := False);
+      Exchange_Certificate : Boolean := False;
+      Session_Cache_Size   : Positive   := 16#4000#);
 
    procedure Session_Client (Socket : in out Socket_Type);
    procedure Session_Server (Socket : in out Socket_Type);
@@ -143,7 +144,7 @@ package body AWS.Net.SSL is
    -- Accept_Socket --
    -------------------
 
-   procedure Accept_Socket
+   overriding procedure Accept_Socket
      (Socket     : Net.Socket_Type'Class;
       New_Socket : in out Socket_Type) is
    begin
@@ -193,11 +194,20 @@ package body AWS.Net.SSL is
       Check_Error_Code (Code, Dummy);
    end Check_Error_Code;
 
+   -------------------------
+   -- Clear_Session_Cache --
+   -------------------------
+
+   procedure Clear_Session_Cache (Config : SSL.Config := Null_Config) is
+   begin
+      null;
+   end Clear_Session_Cache;
+
    -------------
    -- Connect --
    -------------
 
-   procedure Connect
+   overriding procedure Connect
      (Socket : in out Socket_Type;
       Host   : String;
       Port   : Positive;
@@ -285,7 +295,7 @@ package body AWS.Net.SSL is
    -- Finalize --
    --------------
 
-   procedure Finalize (Socket : in out Socket_Type) is
+   overriding procedure Finalize (Socket : in out Socket_Type) is
       use System;
       use type TSSL.gnutls_session_t;
 
@@ -317,7 +327,7 @@ package body AWS.Net.SSL is
    -- Free --
    ----------
 
-   procedure Free (Socket : in out Socket_Type) is
+   overriding procedure Free (Socket : in out Socket_Type) is
       use type TSSL.gnutls_session_t;
    begin
       if Socket.SSL /= null then
@@ -337,7 +347,8 @@ package body AWS.Net.SSL is
       Certificate_Filename : String;
       Security_Mode        : Method     := SSLv23;
       Key_Filename         : String     := "";
-      Exchange_Certificate : Boolean    := False) is
+      Exchange_Certificate : Boolean    := False;
+      Session_Cache_Size   : Positive   := 16#4000#) is
    begin
       if Config = null then
          Config := new TS_SSL;
@@ -348,7 +359,8 @@ package body AWS.Net.SSL is
          Certificate_Filename => Certificate_Filename,
          Security_Mode        => Security_Mode,
          Key_Filename         => Key_Filename,
-         Exchange_Certificate => Exchange_Certificate);
+         Exchange_Certificate => Exchange_Certificate,
+         Session_Cache_Size   => Session_Cache_Size);
    end Initialize;
 
    procedure Initialize
@@ -356,15 +368,17 @@ package body AWS.Net.SSL is
       Certificate_Filename : String;
       Security_Mode        : Method     := SSLv23;
       Key_Filename         : String     := "";
-      Exchange_Certificate : Boolean    := False)
+      Exchange_Certificate : Boolean    := False;
+      Session_Cache_Size   : Positive   := 16#4000#)
    is
+      pragma Unreferenced (Session_Cache_Size);
       use type TSSL.gnutls_anon_client_credentials_t;
       use type TSSL.gnutls_anon_server_credentials_t;
       use type TSSL.gnutls_certificate_credentials_t;
       use type TSSL.gnutls_dh_params_t;
 
       procedure Set_Certificate
-        (CC : in out TSSL.gnutls_certificate_credentials_t);
+        (CC : TSSL.gnutls_certificate_credentials_t);
       --  Set credentials from Cetificate_Filename and Key_Filename
 
       ---------------------
@@ -372,7 +386,7 @@ package body AWS.Net.SSL is
       ---------------------
 
       procedure Set_Certificate
-        (CC : in out TSSL.gnutls_certificate_credentials_t)
+        (CC : TSSL.gnutls_certificate_credentials_t)
       is
 
          procedure Check_File (Prefix, Filename : String);
@@ -384,8 +398,9 @@ package body AWS.Net.SSL is
          ----------------
 
          procedure Check_File (Prefix, Filename : String) is
+            use type Directories.File_Kind;
          begin
-            if not OS_Lib.Is_Regular_File (Filename) then
+            if Directories.Kind (Filename) /= Directories.Ordinary_File then
                Raise_Exception
                  (Socket_Error'Identity,
                   Prefix & " file """ & Filename & """ error.");
@@ -402,7 +417,6 @@ package body AWS.Net.SSL is
 
             declare
                use Ada.Strings;
-               use type C.unsigned;
 
                function Get_File_Data return String;
                --  Returns certificate file data
@@ -499,9 +513,9 @@ package body AWS.Net.SSL is
 
                Code := TSSL.gnutls_certificate_set_x509_key_mem
                  (CC,
-                  Cert => Cert'Unchecked_Access,
-                  Key  => Key'Unchecked_Access,
-                  P4   => TSSL.GNUTLS_X509_FMT_PEM);
+                  cert => Cert'Unchecked_Access,
+                  key  => Key'Unchecked_Access,
+                  p4   => TSSL.GNUTLS_X509_FMT_PEM);
 
                if Code = TSSL.GNUTLS_E_BASE64_DECODING_ERROR then
                   Raise_Exception
@@ -657,7 +671,8 @@ package body AWS.Net.SSL is
    -- Pending --
    -------------
 
-   function Pending (Socket : Socket_Type) return Stream_Element_Count is
+   overriding function Pending
+     (Socket : Socket_Type) return Stream_Element_Count is
    begin
       return Stream_Element_Count
                (TSSL.gnutls_record_check_pending (Socket.SSL));
@@ -705,14 +720,13 @@ package body AWS.Net.SSL is
    -- Receive --
    -------------
 
-   procedure Receive
+   overriding procedure Receive
      (Socket : Socket_Type;
       Data   : out Stream_Element_Array;
       Last   : out Stream_Element_Offset)
    is
-      use type TSSL.ssize_t;
-      Code : constant TSSL.ssize_t
-        := TSSL.gnutls_record_recv (Socket.SSL, Data'Address, Data'Length);
+      Code : constant TSSL.ssize_t :=
+               TSSL.gnutls_record_recv (Socket.SSL, Data'Address, Data'Length);
    begin
       if Code < 0 then
          Check_Error_Code (TSSL.GNUTLS_E_PULL_ERROR, Socket);
@@ -801,14 +815,13 @@ package body AWS.Net.SSL is
    -- Send --
    ----------
 
-   procedure Send
+   overriding procedure Send
      (Socket : Socket_Type;
       Data   : Stream_Element_Array;
       Last   : out Stream_Element_Offset)
    is
-      use type TSSL.ssize_t;
-      Code : constant TSSL.ssize_t
-        := TSSL.gnutls_record_send (Socket.SSL, Data'Address, Data'Length);
+      Code : constant TSSL.ssize_t :=
+               TSSL.gnutls_record_send (Socket.SSL, Data'Address, Data'Length);
    begin
       if Code < 0 then
          Check_Error_Code (TSSL.GNUTLS_E_PUSH_ERROR, Socket);
@@ -941,11 +954,21 @@ package body AWS.Net.SSL is
       Socket.Config := Config;
    end Set_Config;
 
+   ----------------------------
+   -- Set_Session_Cache_Size --
+   ----------------------------
+
+   procedure Set_Session_Cache_Size
+     (Size : Natural; Config : SSL.Config := Null_Config) is
+   begin
+      null;
+   end Set_Session_Cache_Size;
+
    -----------------
    -- Set_Timeout --
    -----------------
 
-   procedure Set_Timeout
+   overriding procedure Set_Timeout
      (Socket  : in out Socket_Type;
       Timeout : Duration)
    is
@@ -970,7 +993,9 @@ package body AWS.Net.SSL is
    -- Shutdown --
    --------------
 
-   procedure Shutdown (Socket : Socket_Type) is
+   overriding procedure Shutdown
+     (Socket : Socket_Type; How : Shutmode_Type := Shut_Read_Write)
+   is
       use System;
       Code : C.int;
    begin
@@ -986,20 +1011,31 @@ package body AWS.Net.SSL is
          Net.Log.Error (Socket, C.Strings.Value (TSSL.gnutls_strerror (Code)));
       end if;
 
-      Net.Std.Shutdown (NSST (Socket));
+      Net.Std.Shutdown (NSST (Socket), How);
    end Shutdown;
 
    -----------------
    -- Socket_Pair --
    -----------------
 
-   procedure Socket_Pair (S1, S2 : out Socket_Type) is
+   overriding procedure Socket_Pair (S1, S2 : out Socket_Type) is
       ST1, ST2 : Std.Socket_Type;
    begin
       Std.Socket_Pair (ST1, ST2);
       S1 := Secure_Server (ST1);
       S2 := Secure_Client (ST2);
    end Socket_Pair;
+
+   -------------
+   -- Version --
+   -------------
+
+   function Version (Build_Info : Boolean := False) return String is
+      pragma Unreferenced (Build_Info);
+   begin
+      --  ???
+      return "gnutls";
+   end Version;
 
 begin
    if TSSL.gcry_control
