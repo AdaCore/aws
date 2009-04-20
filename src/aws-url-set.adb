@@ -159,9 +159,9 @@ package body AWS.URL.Set is
       HTTP_Token  : constant String := "http://";
       HTTPS_Token : constant String := "https://";
 
-      L_URL : constant String
-        := Strings.Fixed.Translate (URL, Strings.Maps.To_Mapping ("\", "/"));
-
+      L_URL : constant String :=
+                      Strings.Fixed.Translate
+                        (URL, Strings.Maps.To_Mapping ("\", "/"));
       P : Natural;
 
       procedure Parse (URL : String; Protocol_Specified : Boolean);
@@ -174,7 +174,7 @@ package body AWS.URL.Set is
       -- Parse --
       -----------
 
-      procedure Parse (URL : String;  Protocol_Specified : Boolean) is
+      procedure Parse (URL : String; Protocol_Specified : Boolean) is
 
          function "+" (S : String) return Unbounded_String
             renames To_Unbounded_String;
