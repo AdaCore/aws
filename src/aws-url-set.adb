@@ -176,9 +176,7 @@ package body AWS.URL.Set is
 
       procedure Parse (URL : String;  Protocol_Specified : Boolean) is
 
-         function "+"
-           (S : String)
-            return Unbounded_String
+         function "+" (S : String) return Unbounded_String
             renames To_Unbounded_String;
 
          procedure Parse_Path_File (Start : Positive);
@@ -304,8 +302,10 @@ package body AWS.URL.Set is
                end if;
 
                Item.Path := +"/";
+
             else
                --  Here we have a complete URL [host:port/path]
+
                if Utils.Is_Number (URL (I1 + 1 .. I2 - 1)) then
                   Item.Port := Positive'Value (URL (I1 + 1 .. I2 - 1));
                else
@@ -384,7 +384,7 @@ package body AWS.URL.Set is
          Item.Path := Item.N_Path;
       end if;
 
-      --  Raise URL_Error is the URL is suspicious
+      --  Raise URL_Error if the URL is suspicious
 
       if Check_Validity and then Item.Status = Wrong then
          Raise_URL_Error
