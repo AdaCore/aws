@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #                              Ada Web Server
 #
-#                          Copyright (C) 2003-2008
+#                          Copyright (C) 2003-2009
 #                                  AdaCore
 #
 #  This library is free software; you can redistribute it and/or modify
@@ -73,6 +73,7 @@ PROFILES_DIR    = r"%(profiles_dir)s"
 DIFFS_DIR       = r"%(diffs_dir)s"
 WITH_GPROF      = %(with_gprof)s
 WITH_GDB        = %(with_gdb)s
+WITH_VALGRIND   = %(with_valgrind)s
 WITH_GPRBUILD   = %(with_gprbuild)s
 BUILD_FAILURE   = %(build_failure)d
 DIFF_FAILURE    = %(diff_failure)d
@@ -407,6 +408,8 @@ def run_testsuite():
                     default=False, help="Generate profiling reports")
     main.add_option("--with-gdb", dest="with_gdb", action="store_true",
                     default=False, help="Run with gdb")
+    main.add_option("--with-valgrind", dest="with_valgrind", action="store_true",
+                    default=False, help="Run with valgrind")
     main.add_option("--with-gnatmake", dest="with_gprbuild",
                     action="store_false", default=False,
                     help="Compile with gnatmake")

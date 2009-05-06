@@ -17,7 +17,7 @@ os.chdir(TESTDIR)
 
 from config import (
     set_config, PROFILES_DIR, DIFFS_DIR,
-    WITH_GPROF, WITH_GDB, WITH_GPRBUILD,
+    WITH_GPROF, WITH_GDB, WITH_GPRBUILD, WITH_VALGRIND,
     BUILD_FAILURE, DIFF_FAILURE, UNKNOWN_FAILURE
 )
 set_config()
@@ -87,6 +87,9 @@ def run(bin, options=None, output_file=None):
     if WITH_GDB:
         process = Run(["gdb", "--eval-command=run", "--batch-silent",
                  "--args", bin] + options, output=output_file, timeout=timeout)
+    elif WITH_VALGRIND:
+        process = Run(["valgrind", "-q", "./" + bin] + options,
+                      output=output_file, timeout=timeout)
     else:
         process = Run(["./" + bin] + options,
                       output=output_file, timeout=timeout)
