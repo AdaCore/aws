@@ -71,7 +71,7 @@ package body AWS.Log is
                 Split           => Log.Split,
                 File_Directory  => To_String (Log.File_Directory),
                 Filename_Prefix => To_String (Log.Filename_Prefix),
-                Auto_Flush      => Auto_Flush);
+                Auto_Flush      => Log.Auto_Flush);
       end if;
    end Check_Split;
 
