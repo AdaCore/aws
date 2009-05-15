@@ -67,10 +67,11 @@ package body AWS.Log is
 
          Text_IO.Close (Log.File);
 
-         Start (Log,
-                Log.Split,
-                To_String (Log.File_Directory),
-                To_String (Log.Filename_Prefix));
+         Start (Log             => Log,
+                Split           => Log.Split,
+                File_Directory  => To_String (Log.File_Directory),
+                Filename_Prefix => To_String (Log.Filename_Prefix),
+                Auto_Flush      => Auto_Flush);
       end if;
    end Check_Split;
 
