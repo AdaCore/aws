@@ -89,7 +89,6 @@ project Shared is
 
    XMLAda : Install_Status := external ("PRJ_XMLADA", "Installed");
    ASIS   : Install_Status := external ("PRJ_ASIS", "Installed");
-   XMLAda : Install_Status := external ("PRJ_XMLADA", "Installed");
    LDAP   : Install_Status := external ("PRJ_LDAP", "Installed");
 
    ---------
