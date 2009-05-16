@@ -107,7 +107,6 @@ class Runner(object):
     (by spawning a python process).
     """
 
-
     def __init__(self, options):
         """Fill the test lists"""
 
@@ -424,8 +423,9 @@ def run_testsuite():
                     default=False, help="Generate profiling reports")
     main.add_option("--with-gdb", dest="with_gdb", action="store_true",
                     default=False, help="Run with gdb")
-    main.add_option("--with-valgrind", dest="with_valgrind", action="store_true",
-                    default=False, help="Run with valgrind")
+    main.add_option("--with-valgrind", dest="with_valgrind",
+                    action="store_true", default=False,
+                    help="Run with valgrind")
     main.add_option("--with-gnatmake", dest="with_gprbuild",
                     action="store_false", default=False,
                     help="Compile with gnatmake")
