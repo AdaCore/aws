@@ -36,6 +36,7 @@ import shutil
 import sys
 
 from glob import glob
+from makevar import MakeVar
 
 # Importing gnatpython modules
 CURDIR = os.getcwd()
@@ -125,6 +126,21 @@ class Runner(object):
             tags_file = open('testsuite.tags')
             self.config.tags = tags_file.read().strip()
             tags_file.close()
+
+        if self.config.from_build_dir:
+            os.environ["ADA_PROJECT_PATH"] = CURDIR
+            # Read makefile.setup to set proper build environment
+            c = MakeVar('../makefile.setup')
+            os.environ["PRJ_BUILD"] = c.get (
+                "DEBUG", "true", "Debug", "Release")
+            os.environ["PRJ_XMLADA"] = c.get (
+                "XMLADA", "true", "Installed", "Disabled")
+            os.environ["PRJ_ASIS"] = c.get (
+                "ASIS", "true", "Installed", "Disabled")
+            os.environ["PRJ_LDAP"] = c.get (
+                "LDAP", "true", "Installed", "Disabled")
+            os.environ["SOCKET"] = c.get ("SOCKET")
+            os.environ["LIBRARY_TYPE"] = "static"
 
         logging.debug("Running the testsuite with the following tags: %s" %
                       self.config.tags)
@@ -418,6 +434,9 @@ def run_testsuite():
                     help="Compile with gprbuild (default is gnatmake)")
     main.add_option("--old-res", dest="old_res", type="string",
                     help="Old testsuite.res file")
+    main.add_option("--from-build-dir", dest="from_build_dir",
+                    action="store_true", default=False,
+                    help="Run testsuite from local build (in repository)")
     main.parse_args()
 
     run = Runner(main.options)
