@@ -50,7 +50,7 @@ def gnatmake(prj):
     cmd = ["gnatmake"]
     if WITH_GPROF:
         cmd = cmd + ["-pg"]
-    cmd = cmd + ["-p", "-f", "-gnat05", "-P" + prj, "-bargs", "-E"]
+    cmd = cmd + ["-p", "-gnat05", "-P" + prj, "-bargs", "-E"]
     process = Run(cmd)
     if process.status:
         #  Exit with error
@@ -61,7 +61,7 @@ def gnatmake(prj):
 
 def gprbuild(prj):
     """Compile a project with gprbuild"""
-    cmd = ["gprbuild", "-p", "-f", "-cargs", "-gnat05", "-P" + prj,
+    cmd = ["gprbuild", "-p", "-cargs", "-gnat05", "-P" + prj,
            "-bargs", "-E"]
     if WITH_GPROF:
         cmd = cmd + ["-cargs", "-pg", "-O2", "-largs", "-pg"]
