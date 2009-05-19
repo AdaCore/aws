@@ -55,10 +55,10 @@ package body AWS.Client.Hotplug is
 
       --  Ask the server for a Nonce string
 
-      Response := AWS.Communication.Client.Send_Message
+      Response := Communication.Client.Send_Message
         (AWS.URL.Host (Srv), AWS.URL.Port (Srv),
          AWS.Server.Hotplug.Request_Nonce_Message,
-         AWS.Communication.Parameters (Name));
+         Communication.Parameters (Name));
 
       if AWS.Response.Status_Code (Response) /= Messages.S200 then
          return Response;
@@ -67,8 +67,7 @@ package body AWS.Client.Hotplug is
       --  Send registration with a digest encoded using the server Nonce
 
       declare
-         Nonce : constant String
-           := AWS.Response.Message_Body (Response);
+         Nonce : constant String := AWS.Response.Message_Body (Response);
       begin
          Digest := AWS.Digest.Create
            (Name, "hotplug",
@@ -78,7 +77,7 @@ package body AWS.Client.Hotplug is
          return AWS.Communication.Client.Send_Message
            (AWS.URL.Host (Srv), AWS.URL.Port (Srv),
             AWS.Server.Hotplug.Register_Message,
-            AWS.Communication.Parameters (Name, Digest, Regexp, URL));
+            Communication.Parameters (Name, Digest, Regexp, URL));
       end;
    exception
       when AWS.URL.URL_Error =>
@@ -107,7 +106,7 @@ package body AWS.Client.Hotplug is
       Response := AWS.Communication.Client.Send_Message
         (AWS.URL.Host (Srv), AWS.URL.Port (Srv),
          AWS.Server.Hotplug.Request_Nonce_Message,
-         AWS.Communication.Parameters (Name));
+         Communication.Parameters (Name));
 
       if AWS.Response.Status_Code (Response) /= Messages.S200 then
          return Response;
@@ -116,8 +115,7 @@ package body AWS.Client.Hotplug is
       --  Send unregister message with a digest encoded using the server Nonce
 
       declare
-         Nonce : constant String
-           := AWS.Response.Message_Body (Response);
+         Nonce : constant String := AWS.Response.Message_Body (Response);
       begin
          Digest := AWS.Digest.Create
            (Name, "hotplug",
@@ -127,7 +125,7 @@ package body AWS.Client.Hotplug is
          return AWS.Communication.Client.Send_Message
            (AWS.URL.Host (Srv), AWS.URL.Port (Srv),
             AWS.Server.Hotplug.Unregister_Message,
-            AWS.Communication.Parameters (Name, Digest, Regexp));
+            Communication.Parameters (Name, Digest, Regexp));
       end;
    exception
       when AWS.URL.URL_Error =>

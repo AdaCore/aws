@@ -39,8 +39,7 @@ package body AWS.Communication.Client is
      (Server     : String;
       Port       : Positive;
       Name       : String;
-      Parameters : Parameter_Set := Null_Parameter_Set)
-      return Response.Data
+      Parameters : Parameter_Set := Null_Parameter_Set) return Response.Data
    is
       URL : Unbounded_String;
    begin
