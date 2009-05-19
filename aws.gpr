@@ -29,7 +29,6 @@ with "shared";
 with "include/include";
 with "src/src";
 with "ssl/ssl";
-with "demos/demos";
 with "tools/tools";
 with "docs/docs";
 with "gps/gps_support";
