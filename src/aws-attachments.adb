@@ -46,7 +46,7 @@ package body AWS.Attachments is
 
    UID : Utils.Counter (0);
    --  Unique Id used for generating the MIME boundaries
-
+   --
    ---------
    -- Add --
    ---------
