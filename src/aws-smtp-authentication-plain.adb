@@ -100,7 +100,7 @@ package body AWS.SMTP.Authentication.Plain is
    begin
       pragma Assert
         (Info.Last_A <= Info.Auth_Cid'Last
-         and Info.Last_P <= Info.Password'Last);
+         and then Info.Last_P <= Info.Password'Last);
 
       return Translator.Base64_Encode
         (Translator.To_Stream_Element_Array (Message));
@@ -121,7 +121,7 @@ package body AWS.SMTP.Authentication.Plain is
    begin
       pragma Assert
         (Auth_Cid'Length <= Result.Auth_Cid'Length
-         and Password'Length <= Result.Password'Length);
+         and then Password'Length <= Result.Password'Length);
 
       Fixed.Move
         (Source  => Auth_Cid,

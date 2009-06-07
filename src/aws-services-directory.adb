@@ -128,7 +128,7 @@ package body AWS.Services.Directory is
                if Left.Directory /= Right.Directory then
                   return Left.Directory < Right.Directory xor Ascending;
 
-               elsif not Left.Directory and not Right.Directory then
+               elsif not Left.Directory and then not Right.Directory then
                   declare
                      Mime_Left  : constant String
                        := Content_Type (To_String (Left.Name));
@@ -146,7 +146,7 @@ package body AWS.Services.Directory is
                if Left.Directory /= Right.Directory then
                   return Left.Directory < Right.Directory xor Ascending;
 
-               elsif not Left.Directory and not Right.Directory then
+               elsif not Left.Directory and then not Right.Directory then
                   declare
                      use Ada.Characters.Handling;
                      Ext_Left  : constant String
@@ -165,7 +165,7 @@ package body AWS.Services.Directory is
                if Left.Directory /= Right.Directory then
                   return Left.Directory < Right.Directory xor Ascending;
 
-               elsif not Left.Directory and not Right.Directory then
+               elsif not Left.Directory and then not Right.Directory then
                   declare
                      Ext_Left  : constant String
                        := Get_Ext (To_String (Left.Name));

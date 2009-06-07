@@ -277,7 +277,7 @@ package body AWS.Client.HTTP_Utils is
 
       procedure Disconnect is
       begin
-         if not Keep_Alive and not Connection.Streaming then
+         if not Keep_Alive and then not Connection.Streaming then
             Disconnect (Connection);
          end if;
       end Disconnect;

@@ -386,7 +386,9 @@ package body AWS.Status is
 
       procedure Named_Value (Name, Value : String; Quit : in out Boolean) is
       begin
-         if (Name = "q" or Name = "Q") and Float'Value (Value) = 0.0 then
+         if (Name = "q" or else Name = "Q")
+           and then Float'Value (Value) = 0.0
+         then
             if Found_Encoding then
                --  Encoding is disabled by encoding;q=0;
 
@@ -439,7 +441,7 @@ package body AWS.Status is
         or else
         (not Found_Encoding and Found_Others and Enable_Others)
         or else
-        (Encoding = Messages.Identity and Enable_Others);
+        (Encoding = Messages.Identity and then Enable_Others);
    end Is_Supported;
 
    ----------------
@@ -548,7 +550,7 @@ package body AWS.Status is
       procedure Named_Value (Name, Value : String; Quit : in out Boolean) is
          pragma Unreferenced (Quit);
       begin
-         if Supported and then (Name = "Q" or Name = "q") then
+         if Supported and then (Name = "Q" or else Name = "q") then
             Next_QValue := Float'Value (Value);
          end if;
       end Named_Value;

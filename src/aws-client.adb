@@ -839,7 +839,7 @@ package body AWS.Client is
             Read (Connection.Decode_Filter, Data, Last);
          end;
 
-         if Last < Data'First and Connection.Transfer = Chunked then
+         if Last < Data'First and then Connection.Transfer = Chunked then
             --  When the 4 byte check sum is in the last chunk
             --  external routines could think that data is over,
             --  and would not call Read_Some any more. We have to
@@ -847,7 +847,9 @@ package body AWS.Client is
 
             Read_Internal (Data, Last);
 
-            if Data'First <= Last or Connection.Transfer /= End_Response then
+            if Data'First <= Last
+              or else Connection.Transfer /= End_Response
+            then
                raise Protocol_Error;
             end if;
          end if;
