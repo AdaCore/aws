@@ -180,7 +180,7 @@ package body AWS.Config.Utils is
          declare
             Not_Supported_Msg : constant String
               := " option '" & Parameter_Name'Image (Name)
-              & "' not supported for this configuration context.";
+              & "' not supported for this configuration context";
          begin
             if Name in Process_Parameter_Name'Range then
                Error ("Per process" & Not_Supported_Msg);

@@ -37,6 +37,7 @@ with Ada.Text_IO;
 with GNAT.MD5;
 
 with AWS.Attachments;
+with AWS.Digest;
 with AWS.Dispatchers;
 with AWS.Headers.Set;
 with AWS.Headers.Values;
@@ -201,12 +202,14 @@ package body AWS.Server.HTTP_Utils is
       -----------------
 
       function Status_Page (URI : String) return Response.Data is
-
+         use type AWS.Status.Authorization_Type;
          Answer   : Response.Data;
          Username : constant String :=
                       AWS.Status.Authorization_Name (C_Stat);
          Password : constant String :=
                       AWS.Status.Authorization_Password (C_Stat);
+         Method   : constant AWS.Status.Authorization_Type :=
+                      AWS.Status.Authorization_Mode (C_Stat);
 
          procedure Answer_File (File_Name : String);
          --  Assign File to Answer response data
@@ -225,13 +228,39 @@ package body AWS.Server.HTTP_Utils is
       begin
          --  First check for authentification
 
-         if Password = ""
-           or else CNF.Admin_Password (HTTP_Server.Properties) /=
-             GNAT.MD5.Digest (Username & ":aws:" & Password)
-         then
-            Answer := Response.Authenticate ("AWS Admin Page", Response.Basic);
+         if Method = AWS.Status.Digest then
+            if AWS.Status.Authorization_Response (C_Stat)
+               = GNAT.MD5.Digest
+                   (CNF.Admin_Password (HTTP_Server.Properties)
+                    & AWS.Status.Authorization_Tail (C_Stat))
+            then
+               if not AWS.Digest.Check_Nonce
+                        (Status.Authorization_Nonce (C_Stat))
+               then
+                  return AWS.Response.Authenticate
+                           (CNF.Admin_Realm (HTTP_Server.Properties),
+                            AWS.Response.Digest,
+                            Stale => True);
+               end if;
+            else
+               return AWS.Response.Authenticate
+                        (CNF.Admin_Realm (HTTP_Server.Properties),
+                         AWS.Response.Digest);
+            end if;
 
-         elsif URI = Admin_URI then
+         elsif (Method = AWS.Status.Basic
+                and then CNF.Admin_Password (HTTP_Server.Properties)
+                         /= GNAT.MD5.Digest
+                              (Username
+                               & ':' & CNF.Admin_Realm (HTTP_Server.Properties)
+                               & ':' & Password))
+           or else Method = AWS.Status.None or else Password = ""
+         then
+            return Response.Authenticate
+                     (CNF.Admin_Realm (HTTP_Server.Properties), Response.Any);
+         end if;
+
+         if URI = Admin_URI then
 
             --  Status page
             begin

@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                    Copyright (C) 2004-2008, AdaCore                      --
+--                    Copyright (C) 2004-2009, AdaCore                      --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -29,6 +29,7 @@
 
 with Ada.Command_Line;
 with Ada.Text_IO;
+with AWS.Default;
 
 with GNAT.MD5;
 
@@ -36,10 +37,16 @@ procedure AWS_Password is
    use Ada;
    use Ada.Command_Line;
 begin
-   if Argument_Count /= 2 then
-      Text_IO.Put_Line ("Usage: aws_password <module> <password>");
-   else
+   if Argument_Count = 2 then
       Text_IO.Put_Line
-        (GNAT.MD5.Digest (Argument (1) & ":aws:" & Argument (2)));
+        (GNAT.MD5.Digest
+           (Argument (1) & ':' & AWS.Default.Admin_Realm
+            & ':' & Argument (2)));
+   elsif Argument_Count = 3 then
+      Text_IO.Put_Line
+        (GNAT.MD5.Digest
+           (Argument (1) & ':' & Argument (3) & ':' & Argument (2)));
+   else
+      Text_IO.Put_Line ("Usage: aws_password <module> <password> [realm]");
    end if;
 end AWS_Password;

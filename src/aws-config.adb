@@ -60,6 +60,15 @@ package body AWS.Config is
       return To_String (O.P (Admin_Password).Str_Value);
    end Admin_Password;
 
+   -----------------
+   -- Admin_Realm --
+   -----------------
+
+   function Admin_Realm (O : Object) return String is
+   begin
+      return To_String (O.P (Admin_Realm).Str_Value);
+   end Admin_Realm;
+
    ---------------
    -- Admin_URI --
    ---------------

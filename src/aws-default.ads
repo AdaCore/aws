@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2008, AdaCore                     --
+--                     Copyright (C) 2000-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -51,6 +51,7 @@ package AWS.Default is
    WWW_Root                        : constant String  := "./";
    Admin_URI                       : constant String  := "";
    Admin_Password                  : constant String  := "";
+   Admin_Realm                     : constant String  := "AWS Admin Page";
    Server_Port                     : constant         := 8080;
    Hotplug_Port                    : constant         := 8888;
    Max_Connection                  : constant         := 5;
