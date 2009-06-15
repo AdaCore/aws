@@ -37,7 +37,7 @@ package AWS.Server.Hotplug is
 
    --  The Authorization_File below is a file that contains authorizations
    --  for the hotplug modules. Only modules that have an entry into this
-   --  file will be able to register to server. Each line on this fille must
+   --  file will be able to register to server. Each line on this file must
    --  have the following format:
    --
    --  <module_name>:<md5_password>:<host>:<port>
