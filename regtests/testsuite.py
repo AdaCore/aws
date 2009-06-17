@@ -66,8 +66,8 @@ import os
 import sys
 import test_support
 
-PROFILES_DIR    = "%(profiles_dir)s"
-DIFFS_DIR       = "%(diffs_dir)s"
+PROFILES_DIR    = r"%(profiles_dir)s"
+DIFFS_DIR       = r"%(diffs_dir)s"
 WITH_GPROF      = %(with_gprof)s
 WITH_GDB        = %(with_gdb)s
 WITH_GPRBUILD   = %(with_gprbuild)s
@@ -83,7 +83,7 @@ def set_config():
 
     logging.basicConfig(level=logging.DEBUG,
                         datefmt='%%H:%%M:%%S',
-                        filename=os.path.join('%(log_dir)s',
+                        filename=os.path.join(r'%(log_dir)s',
                                               log_filename),
                         mode="w")
 
