@@ -62,21 +62,6 @@ to work properly. Of course we try to avoid this as much as possible
 but we really prefer to have a clean API instead of keeping awkward
 implementations.
 
-  Timeouts_Values record is now a private type. Use the AWS.Client.Timeouts
-  constructor to create the corresponding record. This abstraction will
-  avoid future incompatibilities.
-
-  The project file aws_ssl.gpr has been removed. It was not working
-  anymore as the SSL configuration is done a configuration time. The
-  main aws.gpr project file will now support SSL if AWS is built
-  with SSL activated.
-
-  Function AWS.Hotplug.Get_Status returns a Translate_Set now instead of
-  a Translate_Table. Using a Translate_Set is safer and the recommended way
-  to access the translations. This change is needed as callers are now using
-  a Translate_Set. Note that for the same reasons Server.Status.Translations
-  routine returning a Translate_Table has been marked as obsolescent.
-
   hotplug_password tool has been renamed to aws_password. The password
   must be regenerated.
 
