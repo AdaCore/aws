@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2003                            --
---                                ACT-Europe                                --
+--                     Copyright (C) 2003-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -37,5 +36,5 @@ with Hello_Demo.Client;
 procedure WSDL_Demo_Client is
    use Ada;
 begin
-   Text_IO.Put_Line (Hello_Demo.Client.sayHello (Firstname => "AWS"));
+   Text_IO.Put_Line (Hello_Demo.Client.sayHello (firstName => "AWS"));
 end WSDL_Demo_Client;

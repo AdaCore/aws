@@ -42,10 +42,12 @@ begin
         (GNAT.MD5.Digest
            (Argument (1) & ':' & AWS.Default.Admin_Realm
             & ':' & Argument (2)));
+
    elsif Argument_Count = 3 then
       Text_IO.Put_Line
         (GNAT.MD5.Digest
            (Argument (1) & ':' & Argument (3) & ':' & Argument (2)));
+
    else
       Text_IO.Put_Line ("Usage: aws_password <module> <password> [realm]");
    end if;

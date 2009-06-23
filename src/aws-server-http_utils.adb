@@ -242,6 +242,7 @@ package body AWS.Server.HTTP_Utils is
                             AWS.Response.Digest,
                             Stale => True);
                end if;
+
             else
                return AWS.Response.Authenticate
                         (CNF.Admin_Realm (HTTP_Server.Properties),
