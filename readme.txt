@@ -68,6 +68,8 @@ implementations.
   In the Templates Parser, user's filters Execute method is using "not null"
   constraint. An update of the redefined Execute routine is required.
 
+  Logging filename format changed for Each_Run split mode. Now there is a time
+  part after date part in case when log started more than once a day.
 
 Obsolescent features
 --------------------
