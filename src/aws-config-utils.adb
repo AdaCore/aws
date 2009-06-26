@@ -172,7 +172,8 @@ package body AWS.Config.Utils is
          when others =>
             Error
               ("wrong value for " & Parameter_Name'Image (Name)
-               & " " & To_String (Expected_Type) & " expected");
+               & " " & To_String (Expected_Type) & " expected, but '"
+               & Value & "' found");
       end Set_Parameter;
 
    begin

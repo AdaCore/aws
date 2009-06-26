@@ -349,6 +349,15 @@ package body AWS.Config is
    end Log_Filename_Prefix;
 
    --------------------
+   -- Log_Size_Limit --
+   --------------------
+
+   function Log_Size_Limit (O : Object) return Natural is
+   begin
+      return O.P (Log_Size_Limit).Nat_Value;
+   end Log_Size_Limit;
+
+   --------------------
    -- Log_Split_Mode --
    --------------------
 

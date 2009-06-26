@@ -83,6 +83,8 @@ package AWS.Default is
    Error_Log_Split_Mode            : constant String := "NONE";
    Error_Log_Filename_Prefix       : constant String := "@_error";
 
+   Log_Size_Limit                  : constant Natural := 0;
+
    --  Session
 
    Session                         : constant Boolean  := False;

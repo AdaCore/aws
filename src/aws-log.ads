@@ -70,15 +70,18 @@ package AWS.Log is
    procedure Start
      (Log             : in out Object;
       Split           : Split_Mode := None;
+      Size_Limit      : Natural    := 0;
       File_Directory  : String     := Not_Specified;
       Filename_Prefix : String     := Not_Specified;
       Auto_Flush      : Boolean    := False);
    --  Activate server's activity logging. Split indicate the way the log file
-   --  should be created. Log_File_Prefix is the log filename prefix. If it is
-   --  not specified the default prefix is the program name.
-   --  Set Auto_Flush to True if you want every write to the log to be flushed
-   --  (not buffered). Auto_Flush should be set to True only for logs with few
-   --  entries per second as the flush has a performance penalty.
+   --  should be created. If Size_Limit more than zero and size of log file
+   --  become more than Size_Limit, log file would be splitted. Filename_Prefix
+   --  is the log filename prefix. If it is not specified the default prefix is
+   --  the program name. Set Auto_Flush to True if you want every write to the
+   --  log to be flushed (not buffered). Auto_Flush should be set to True only
+   --  for logs with few entries per second as the flush has a performance
+   --  penalty.
 
    procedure Register_Field (Log : in out Object; Id : String);
    --  Register field to be written into extended log format
@@ -173,6 +176,7 @@ private
       File_Directory  : Unbounded_String;
       Filename_Prefix : Unbounded_String;
       Split           : Split_Mode := None;
+      Size_Limit      : Natural    := 0;
       Current_Tag     : Positive;
       Semaphore       : Utils.Semaphore;
       Auto_Flush      : Boolean;

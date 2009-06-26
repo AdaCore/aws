@@ -179,6 +179,9 @@ package AWS.Config is
    --  This is split mode for the log file. Possible values are : Each_Run,
    --  Daily, Monthly and None. Any other values will raise an exception.
 
+   function Log_Size_Limit (O : Object) return Natural;
+   pragma Inline (Log_Size_Limit);
+
    generic
       with procedure Field_Id (Id : String);
    procedure Log_Extended_Fields_Generic_Iterate (O : Object);
@@ -381,6 +384,7 @@ private
       Log_Filename_Prefix,
       Log_Extended_Fields,
       Log_Split_Mode,
+      Log_Size_Limit,
       Error_Log_Filename_Prefix,
       Error_Log_Split_Mode,
       Upload_Directory,
@@ -521,6 +525,9 @@ private
 
          Log_Split_Mode =>
            (Str, To_Unbounded_String (Default.Log_Split_Mode)),
+
+         Log_Size_Limit =>
+           (Nat, Default.Log_Size_Limit),
 
          Error_Log_Filename_Prefix =>
            (Str, To_Unbounded_String (Default.Error_Log_Filename_Prefix)),

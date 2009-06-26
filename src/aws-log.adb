@@ -30,6 +30,7 @@ with Ada.Command_Line;
 with Ada.Directories;
 with Ada.Strings.Fixed;
 with Ada.Strings.Maps;
+with Ada.Text_IO.C_Streams;
 
 with GNAT.Calendar.Time_IO;
 
@@ -50,11 +51,16 @@ package body AWS.Log is
    --  Write data into the log file, change log file depending on the log file
    --  split mode and Now.
 
+   function Get_Position (File : Ada.Text_IO.File_Type) return Natural;
+   pragma Inline (Get_Position);
+   --  Returns current write position in the text file
+
    -----------------
    -- Check_Split --
    -----------------
 
    procedure Check_Split (Log : in out Object; Now : Ada.Calendar.Time) is
+      Keep_Split : Split_Mode;
    begin
       if (Log.Split = Daily
           and then Log.Current_Tag /= Calendar.Day (Now))
@@ -69,9 +75,26 @@ package body AWS.Log is
 
          Start (Log             => Log,
                 Split           => Log.Split,
+                Size_Limit      => Log.Size_Limit,
                 File_Directory  => To_String (Log.File_Directory),
                 Filename_Prefix => To_String (Log.Filename_Prefix),
                 Auto_Flush      => Log.Auto_Flush);
+
+      elsif Log.Size_Limit > 0
+        and then Get_Position (Log.File) > Log.Size_Limit
+      then
+         Keep_Split := Log.Split;
+
+         Text_IO.Close (Log.File);
+
+         Start (Log             => Log,
+                Split           => Each_Run,
+                Size_Limit      => Log.Size_Limit,
+                File_Directory  => To_String (Log.File_Directory),
+                Filename_Prefix => To_String (Log.Filename_Prefix),
+                Auto_Flush      => Log.Auto_Flush);
+
+         Log.Split := Keep_Split;
       end if;
    end Check_Split;
 
@@ -121,6 +144,16 @@ package body AWS.Log is
          Log.Semaphore.Release;
          raise;
    end Flush;
+
+   ------------------
+   -- Get_Position --
+   ------------------
+
+   function Get_Position (File : Ada.Text_IO.File_Type) return Natural is
+      use Ada.Text_IO.C_Streams;
+   begin
+      return Natural (ICS.ftell (C_Stream (File)));
+   end Get_Position;
 
    ---------------
    -- Is_Active --
@@ -282,6 +315,7 @@ package body AWS.Log is
    procedure Start
      (Log             : in out Object;
       Split           : Split_Mode := None;
+      Size_Limit      : Natural    := 0;
       File_Directory  : String     := Not_Specified;
       Filename_Prefix : String     := Not_Specified;
       Auto_Flush      : Boolean    := False)
@@ -292,10 +326,12 @@ package body AWS.Log is
         Utils.Normalized_Directory (File_Directory)
         & Log_Prefix (Filename_Prefix)
         & GNAT.Calendar.Time_IO.Image (Now, "%Y-%m-%d");
+      Time_Part : String (1 .. 7);
    begin
       Log.Filename_Prefix := To_Unbounded_String (Filename_Prefix);
       Log.File_Directory  := To_Unbounded_String (File_Directory);
       Log.Split           := Split;
+      Log.Size_Limit      := Size_Limit;
       Log.Auto_Flush      := Auto_Flush;
       Log.Header_Written  := False;
 
@@ -306,14 +342,19 @@ package body AWS.Log is
             null;
 
          when Each_Run =>
-            for K in 1 .. 86_400 loop
-               --  no more than one run per second during a full day
+            if Directories.Exists (To_String (Filename)) then
+               Time_Part := GNAT.Calendar.Time_IO.Image (Now, "-%H%M%S");
 
-               exit when not Directories.Exists (To_String (Filename));
+               Filename := To_Unbounded_String (Prefix & Time_Part & ".log");
 
-               Filename := To_Unbounded_String
-                 (Prefix & "-" & Utils.Image (K) & ".log");
-            end loop;
+               for K in 1 .. 99 loop
+                  exit when not Directories.Exists (To_String (Filename));
+
+                  Filename :=
+                    To_Unbounded_String
+                      (Prefix & Time_Part & '-' & Utils.Image (K) & ".log");
+               end loop;
+            end if;
 
          when Daily =>
             Log.Current_Tag := Ada.Calendar.Day (Now);
