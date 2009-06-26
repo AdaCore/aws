@@ -116,9 +116,10 @@ package body AWS.Server.Log is
       AWS.Log.Start
         (Web_Server.Log,
          AWS.Log.Split_Mode'Value (CNF.Log_Split_Mode (Web_Server.Properties)),
-         CNF.Log_File_Directory (Web_Server.Properties),
-         CNF.Log_Filename_Prefix (Web_Server.Properties),
-         Auto_Flush => Auto_Flush);
+         Size_Limit      => CNF.Log_Size_Limit (Web_Server.Properties),
+         File_Directory  => CNF.Log_File_Directory (Web_Server.Properties),
+         Filename_Prefix => CNF.Log_Filename_Prefix (Web_Server.Properties),
+         Auto_Flush      => Auto_Flush);
    end Start;
 
    -----------------
@@ -146,9 +147,11 @@ package body AWS.Server.Log is
         (Web_Server.Error_Log,
          AWS.Log.Split_Mode'Value
            (CNF.Error_Log_Split_Mode (Web_Server.Properties)),
-         CNF.Log_File_Directory (Web_Server.Properties),
-         CNF.Error_Log_Filename_Prefix (Web_Server.Properties),
-         Auto_Flush => True);
+         Size_Limit      => CNF.Log_Size_Limit (Web_Server.Properties),
+         File_Directory  => CNF.Log_File_Directory (Web_Server.Properties),
+         Filename_Prefix => CNF.Error_Log_Filename_Prefix
+                              (Web_Server.Properties),
+         Auto_Flush      => True);
    end Start_Error;
 
    ----------
