@@ -80,7 +80,10 @@ project Tools is
    -- Builder --
    -------------
 
-   package Builder renames Shared.Builder;
+   package Builder is
+      for Default_Switches ("Ada") use Shared.Builder'Default_Switches ("Ada");
+      for Executable ("ada2wsdl-main.adb") use "ada2wsdl";
+   end Builder;
 
    ---------
    -- Ide --
