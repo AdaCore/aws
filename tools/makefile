@@ -65,7 +65,7 @@ ifeq ($(XMLADA),true)
 	$(CP) ../$(BDIR)/static/tools/wsdl2aws${EXEEXT} $(I_BIN)
 endif
 ifeq (${ASIS},true)
-	$(CP) ../$(BDIR)/static/tools/ada2wsdl{EXEEXT} $(I_BIN)
+	$(CP) ../$(BDIR)/static/tools/ada2wsdl${EXEEXT} $(I_BIN)
 endif
 
 check:
