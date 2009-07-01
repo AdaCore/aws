@@ -594,7 +594,6 @@ package body AWS.Status is
 
       if Supported and then Next_QValue > Best_QValue then
          Best_Encoding := Next_Encoding;
-         Best_QValue   := Next_QValue;
       end if;
 
       return Best_Encoding;
