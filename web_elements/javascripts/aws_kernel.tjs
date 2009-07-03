@@ -634,7 +634,10 @@ AWS.Ajax.XML = new function() {
    {
       var url = node.getAttribute('url');
 
-      if (url.indexOf('http',0) == -1 && url.indexOf('@_CTX_WB_@') == -1) {
+      if (url.indexOf('http',0) == -1
+          && url.indexOf('@_CTX_WB_@') == -1
+          && url[0] != '#')
+      {
          @@--  pointing inside server and no context
          if (url.indexOf("?",0) == -1)
             url = url + '?';
