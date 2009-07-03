@@ -1,7 +1,7 @@
 @@----------------------------------------------------------------------------
 @@--                              Ada Web Server
 @@--
-@@--                         Copyright (C) 2007-2008
+@@--                         Copyright (C) 2007-2009
 @@--                                 AdaCore
 @@--
 @@--  This library is free software; you can redistribute it and/or modify
@@ -32,6 +32,9 @@
 @@SET@@ CTX_WB = "CTX_WB"
 @@SET@@ CTX_OLD_WB = "CTX_OLD_WB"
 @@--  The context parameter name
+
+@@SET@@ TIMEZONE_COOKIE = ""
+@@--  Set to empty string for no timezone support
 
 @@---------------------------------------------------------------- AWS
 
@@ -128,6 +131,23 @@ AWS.Tools = new function() {
          idx = idx + 1;
       }
    }
+
+   @@IF@@ @_TIMEZONE_COOKIE_@ /= ""
+   @@--  Use cookie to record that the timezone has been sent
+   @@INCLUDE@@ cookies.js
+
+   @@-- Handle Web Browser local timezone
+
+   this.TZ_offset = new Date().getTimezoneOffset();
+
+   this.setTimezone =
+      function ()
+   {
+      if (readCookie ("@_TIMEZONE_COOKIE_@") == null) {
+         createCookie ("@_TIMEZONE_COOKIE_@", this.TZ_offset, 1);
+      }
+   }
+   @@END_IF@@
 }
 
 @@---------------------------------------------------------------- CONTEXT
@@ -712,3 +732,7 @@ AWS.Ajax.XML = new function() {
 @@-- INIT
 
 AWS.Tools.addLoadEvent (AWS.Context.update);
+
+@@IF@@ @_TIMEZONE_COOKIE_@ /= ""
+AWS.Tools.setTimezone();
+@@END_IF@@
