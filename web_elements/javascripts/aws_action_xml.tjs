@@ -4,10 +4,11 @@
 @@-- $3    a set of parameters to pass to the URL
 @@-- $4-$8 are linked fields id to this request, all fields are passed as
 @@--       parameters to the request.
+@@-- $18   ID index to be added to $2 (index in table for unique id for ex)
 @@-- $19   URL to call instead of the generated one
 @@-- $20   the name of a function to call when this routine terminate
 @@--
-@@-- The final request is : /$1$$$2?$3&$4=value($4)&$5=value($5)
+@@-- The final request is : /$1$$$2$18?$3&$4=value($4)&$5=value($5)
 @@-- or                   : $19?$3&$4=value($4)&$5=value($5)
 @@-- with value(name) being the value for the field named "name".
 
@@ -20,13 +21,15 @@
 @@SET@@ F4 = $7
 @@SET@@ F5 = $8
 
+@@SET@@ ID_INDEX = $18
 @@SET@@ CONSTANT_URL = $19
 @@SET@@ ONCOMPLETE = $20
 
 <script type="text/javascript">
 <!--
-   function call_@_ACTION_@_@_ID_@()
-      @@INCLUDE@@ aws_func_xml.tjs (@_ACTION_@, @_ID_@, @_PARAMETERS_@, @_F1_@, @_F2_@, @_F3_@, @_F4_@, @_F5_@, 19=>@_CONSTANT_URL_@, 20=>@_ONCOMPLETE_@)
+   function call_@_ACTION_@_@_ID_@@_ID_INDEX_@()
+      @@INCLUDE@@ aws_func_xml.tjs (@_ACTION_@, @_ID_@, @_PARAMETERS_@, @_F1_@, @_F2_@, @_F3_@, @_F4_@, @_F5_@, 18=>@_ID_INDEX_@, 19=>@_CONSTANT_URL_@, 20=>@_ONCOMPLETE_@)
+
 -->
 </script>
-@@INCLUDE@@ aws_action_js.tjs @_ACTION_@ @_ID_@
+@@INCLUDE@@ aws_action_js.tjs (@_ACTION_@, @_ID_@, 18=>@_ID_INDEX_@)

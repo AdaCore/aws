@@ -3,6 +3,7 @@
 @@-- $2    the tag node ID to handle in the DOM tree
 @@-- $3    a set of parameters to pass to the URL
 @@-- $4-$8 are linked fields id to this request, all fields are passed as
+@@-- $18   ID index to be added to $2 (index in table for unique id for ex)
 @@-- $19   URL to call instead of the generated one
 @@-- $20   the name of a function to call when this routine terminate
 @@--
@@ -19,6 +20,7 @@
 @@SET@@ XML_F4 = $7
 @@SET@@ XML_F5 = $8
 
+@@SET@@ XML_ID_INDEX = $18
 @@SET@@ CONSTANT_URL = $19
 @@SET@@ XML_ONCOMPLETE = $20
 
@@ -26,7 +28,7 @@
 @@IF@@ @_CONSTANT_URL_@ /= ""
       var rurl="@_CONSTANT_URL_@";
 @@ELSE@@
-      var rurl="/@_XML_ACTION_@$@_XML_ID_@";
+      var rurl="/@_XML_ACTION_@$@_XML_ID_@@_XML_ID_INDEX_@";
 @@END_IF@@
       var rpars = "";
       var roncomplete = "";
