@@ -186,7 +186,6 @@ AWS.Context = new function() {
 
    this.update = function ()
    {
-
       @@IF@@ @_AWS_CONTEXT_PER_WINDOW_@ = true
       @@--  Check if context has to be renewed
 
