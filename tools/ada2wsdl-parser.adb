@@ -955,7 +955,7 @@ package body Ada2WSDL.Parser is
             when others =>
                Raise_Spec_Error
                  (E,
-                  Message => "Only arrays with one numeric index supported.");
+                  Message => "Only arrays with numeric indexes supported.");
          end;
       end Array_Type_Suffix;
 
