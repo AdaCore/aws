@@ -166,7 +166,7 @@ package body SOAP.Utils is
          if Last >= Result'Last then
             Old := Result;
             Result := new String (1 .. Old'Last * 2);
-            Result (1 .. Result'Last) := Old.all;
+            Result (1 .. Old'Last) := Old.all;
             Free (Old);
          end if;
          Last := Last + 1;
