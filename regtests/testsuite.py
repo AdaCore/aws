@@ -140,6 +140,11 @@ class Runner(object):
                 "LDAP", "true", "Installed", "Disabled")
             os.environ["SOCKET"] = c.get ("SOCKET")
             os.environ["LIBRARY_TYPE"] = "static"
+            # Add current tools in from of PATH
+            os.environ["PATH"] = CURDIR + os.sep + ".." + os.sep \
+              + ".build" + os.sep + os.environ["PRJ_BUILD"].lower() \
+              + os.sep + "static" + os.sep + "tools" \
+              + os.pathsep + os.environ["PATH"]
 
         logging.debug("Running the testsuite with the following tags: %s" %
                       self.config.tags)
