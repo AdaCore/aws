@@ -34,16 +34,18 @@ DUMMY_OPTS = -XPRJ_BUILD=Debug -XLIBRARY_TYPE=static
 setup_dir:
 	-$(MKDIR) -p $(SDIR)/src
 
+force: ;
+
 setup: setup_dir $(SDIR)/src/aws-translator-conversion.adb \
 	$(SDIR)/src/aws-os_lib.ads
 
-$(SDIR)/src/aws-translator-conversion.adb: makefile
+$(SDIR)/src/aws-translator-conversion.adb: makefile force
 	echo Setup conversion support
 	$(GNAT_FOR_HOST) make -p -Psetup $(DUMMY_OPTS)
 	$(SDIR)/test_uconv
 	$(MV) aws-translator-conversion.adb $(SDIR)/src
 
-$(SDIR)/src/aws-os_lib.ads: makefile src/check_config.c
+$(SDIR)/src/aws-os_lib.ads: makefile src/check_config.c force
 	echo Setup OS specific definitions
 	$(GCC_FOR_HOST) -o $(SDIR)/check_config src/check_config.c
 	$(SDIR)/check_config $(SDIR)/src/aws-os_lib.ads
