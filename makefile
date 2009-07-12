@@ -76,7 +76,7 @@ ALL_OPTIONS	= $(MAKE_OPT) SOCKET="$(SOCKET)" XMLADA="$(XMLADA)" \
 	GREP="$(GREP)" SED="$(SED)" DIFF="$(DIFF)" CHMOD="$(CHMOD)" \
 	GZIP="$(GZIP)" TAR="$(TAR)" DLLTOOL="$(DLLTOOL)" DLL2DEF="$(DLL2DEF)" \
 	WINDRES="$(WINDRES)" GPRBUILD="$(GPRBUILD)" \
-	AWK="$(AWK)" CAT="$(CAT)" \
+	AWK="$(AWK)" CAT="$(CAT)" GCC="$(GCC)" \
 	BDIR="$(BDIR)" prefix="$(prefix)" ENABLE_SHARED="$(ENABLE_SHARED)" \
 	SOEXT="$(SOEXT)" BUILD_DOC_SCRIPT="false" GNAT="$(GNAT)" \
 	T2A="../../$(BDIR)/static/tools/templates2ada" \
