@@ -31,7 +31,7 @@ SDIR = ../$(BDIR)/../setup
 
 setup_dir:
 	-$(MKDIR) -p $(SDIR)/src
-	-$(GPRBUILD) -XPRJ_BUILD=Debug -XLIBRARY_TYPE=static -Psetup
+	-$(GPRBUILD) -p -XPRJ_BUILD=Debug -XLIBRARY_TYPE=static -Psetup
 
 force: ;
 
