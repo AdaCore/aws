@@ -98,10 +98,6 @@ package body AWS.SMTP.Authentication.Plain is
       --  elements and therefore use unchecked conversion.
 
    begin
-      pragma Assert
-        (Info.Last_A <= Info.Auth_Cid'Last
-         and then Info.Last_P <= Info.Password'Last);
-
       return Translator.Base64_Encode
         (Translator.To_Stream_Element_Array (Message));
    end Image;
