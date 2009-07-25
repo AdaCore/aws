@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2005-2009, AdaCore                     --
+--                        Copyright (C) 2009, AdaCore                       --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -25,27 +25,10 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-with Ada.Calendar;
+with "aws";
 
-with AWS.Resources;
+project Bug is
 
-package Templates_Parser.Configuration is
+   for Main use ("bug.adb");
 
-   subtype Time_Stamp is Ada.Calendar.Time;
-
-   overriding function "="
-     (T1, T2 : Time_Stamp)
-      return Boolean
-      renames Ada.Calendar."=";
-
-   function Is_Regular_File
-     (Filename : String)
-      return Boolean
-      renames AWS.Resources.Is_Regular_File;
-
-   function File_Time_Stamp
-     (Filename : String)
-      return Time_Stamp
-      renames AWS.Resources.File_Timestamp;
-
-end Templates_Parser.Configuration;
+end Bug;

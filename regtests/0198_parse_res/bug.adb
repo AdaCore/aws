@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2005-2009, AdaCore                     --
+--                       Copyright (C) 2009, AdaCore                        --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -25,27 +25,23 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-with Ada.Calendar;
+with Ada.Text_IO;            use Ada.Text_IO;
 
-with AWS.Resources;
+with AWS.Resources.Embedded;
+with AWS.Utils;
+with AWS.Templates;
 
-package Templates_Parser.Configuration is
+with Res;
 
-   subtype Time_Stamp is Ada.Calendar.Time;
+procedure Bug is
+   use AWS;
 
-   overriding function "="
-     (T1, T2 : Time_Stamp)
-      return Boolean
-      renames Ada.Calendar."=";
+   Name : constant String := "text.txt";
+   Set  : Templates.Translate_Set;
+begin
+   Put_Line ("On disk : " & Aws.Utils.Is_Regular_File (Name)'Img);
+   Put_Line ("Embedded: " & Aws.Resources.Embedded.Exist (Name)'Img);
 
-   function Is_Regular_File
-     (Filename : String)
-      return Boolean
-      renames AWS.Resources.Is_Regular_File;
-
-   function File_Time_Stamp
-     (Filename : String)
-      return Time_Stamp
-      renames AWS.Resources.File_Timestamp;
-
-end Templates_Parser.Configuration;
+   Templates.Insert (Set, Templates.Assoc ("NAME", "text.txt"));
+   Put_Line (Templates.Parse (Name, Set));
+end Bug;
