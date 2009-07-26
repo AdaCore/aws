@@ -1344,6 +1344,10 @@ regtests/0198_parse_res/bug.adb
 regtests/0198_parse_res/bug.gpr
 regtests/0198_parse_res/test.out
 regtests/0198_parse_res/test.py
+regtests/0199_empty_res/empty_res.adb
+regtests/0199_empty_res/empty_res.gpr
+regtests/0199_empty_res/test.out
+regtests/0199_empty_res/test.py
 regtests/aws.gpr
 regtests/common/get_free_port.adb
 regtests/gen_system_tags.py

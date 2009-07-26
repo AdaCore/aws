@@ -4,7 +4,7 @@
 
 Authors:
    Dmitriy Anisimkov
-   Pascal Obry                                           March 11th, 2009
+   Pascal Obry                                              July 26th, 2009
 
 
 
@@ -49,6 +49,8 @@ Listed below are some minor enhancements and fixes:
    - SOAP with Digest authentication has been fixed.
 
    - The build process is now drived by gprbuild.
+
+   - Fix handling of empty resources.
 
    - Plus many small fixes, enhancements, API comments, and documentation work.
 

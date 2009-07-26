@@ -203,6 +203,12 @@ procedure AwsRes is
          exit when Last < Buffer'Last;
       end loop;
 
+      --  The resource was empty, nothing output yet
+
+      if First then
+         Text_IO.Put (O_File, "         (1 .. 0 => <>");
+      end if;
+
       Text_IO.Put_Line (O_File, ");");
 
       --  Output end of package
