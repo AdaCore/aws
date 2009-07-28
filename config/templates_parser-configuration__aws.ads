@@ -33,7 +33,7 @@ package Templates_Parser.Configuration is
 
    subtype Time_Stamp is Ada.Calendar.Time;
 
-   overriding function "="
+   function "="
      (T1, T2 : Time_Stamp)
       return Boolean
       renames Ada.Calendar."=";
