@@ -211,7 +211,8 @@ class Runner(object):
 
         This will also log the result for interactive use of the testsuite.
         """
-        self.report.add(name, status, comment=comment, diff=diff_content)
+        self.report.add(name, status,
+                        comment=comment.strip('"'), diff=diff_content)
 
         result = "%-60s %-9s %s" % (name, status, comment)
 
