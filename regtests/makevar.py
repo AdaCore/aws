@@ -32,45 +32,45 @@ line_sep = '\n'
 kv_sep = '='
 
 class MakeVar:
-	"""Simple makefile variable parser."""
+    """Simple makefile variable parser."""
 
-	def __init__(self, config_file=None):
-		self.config_file = config_file
-		self.keys = []   # config keys
-		self.config = {} # key/value dictionary
-		self.temp = []   # for temp storing
+    def __init__(self, config_file=None):
+        self.config_file = config_file
+        self.keys = []   # config keys
+        self.config = {} # key/value dictionary
+        self.temp = []   # for temp storing
 
-		config_file = open (self.config_file)
-		self.temp = config_file.read().strip()
+        config_file = open(self.config_file)
+        self.temp = config_file.read().strip()
 
-		# split line
-		self.temp = self.temp.split(line_sep)
+        # split line
+        self.temp = self.temp.split(line_sep)
 
-		# remove blanks lines
-		self.temp = [line for line in self.temp if line]
+        # remove blanks lines
+        self.temp = [line for line in self.temp if line]
 
-		# parse key=value, skip comment lines
-		for item in self.temp:
-			if str(item.strip())[0] != comment_character:
-				name, value = item.split(kv_sep, 1)
+        # parse key=value, skip comment lines
+        for item in self.temp:
+            if str(item.strip())[0] != comment_character:
+                name, value = item.split(kv_sep, 1)
 
-				# add to config dict and keys list
-				self.config[name.strip()] = value.strip()
-				self.keys.append(name.strip())
+                # add to config dict and keys list
+                self.config[name.strip()] = value.strip()
+                self.keys.append(name.strip())
 
-		config_file.close()
+        config_file.close()
 
-	def get(self, key, value="", equal="", notequal=""):
-		"""Returns the value associated with key if value not set.
-		Returns equal if the value associated with key is value
-		and notequal otherwise"""
-		if key in self.keys:
-			if value == "":
-				return self.config[key]
-			else:
-				if self.config[key] == value:
-					return equal
-				else:
-					return notequal
-		else:
-			return notequal
+    def get(self, key, value="", equal="", notequal=""):
+        """Returns the value associated with key if value not set.
+        Returns equal if the value associated with key is value
+        and notequal otherwise"""
+        if key in self.keys:
+            if value == "":
+                return self.config[key]
+            else:
+                if self.config[key] == value:
+                    return equal
+                else:
+                    return notequal
+        else:
+            return notequal
