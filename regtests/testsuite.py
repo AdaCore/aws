@@ -341,15 +341,15 @@ def gen_collect_result(report_func):
         else:
             if xfail:
                 status = 'XFAIL'
+            elif process.status == DIFF_FAILURE:
+                status = 'DIFF'
             else:
-                if process.status == DIFF_FAILURE:
-                    status = 'DIFF'
-                    diff_file = open(os.path.join(DIFFS_DIR,
-                                                  test.testdir + '.diff'))
-                    diff_content = diff_file.read()
-                    diff_file.close()
-                else:
-                    status = 'PROBLEM'
+                status = 'PROBLEM'
+            diff_fname = os.path.join(DIFFS_DIR, test.testdir + '.diff')
+            if os.path.exists(diff_fname):
+                f = open(diff_fname)
+                diff_content = f.read()
+                f.close()
 
         report_func(test.testdir, status, xfail, diff_content)
     return collect_result

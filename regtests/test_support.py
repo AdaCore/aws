@@ -55,6 +55,9 @@ def gnatmake(prj):
     if process.status:
         #  Exit with error
         logging.error(process.out)
+        diff_file = open(os.path.join(DIFFS_DIR, TEST_NAME + ".diff"), 'w')
+        diff_file.write(process.out)
+        diff_file.close()
         sys.exit(BUILD_FAILURE)
     else:
         logging.debug(process.out)
@@ -69,6 +72,9 @@ def gprbuild(prj):
     if process.status:
         #  Exit with error
         logging.error(process.out)
+        diff_file = open(os.path.join(DIFFS_DIR, TEST_NAME + ".diff"), 'w')
+        diff_file.write(process.out)
+        diff_file.close()
         sys.exit(BUILD_FAILURE)
     else:
         logging.debug(process.out)
