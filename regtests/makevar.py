@@ -28,7 +28,6 @@
 import sys
 
 comment_character = '#'
-line_sep = '\n'
 kv_sep = '='
 
 class MakeVar:
@@ -38,20 +37,15 @@ class MakeVar:
         self.config_file = config_file
         self.keys = []   # config keys
         self.config = {} # key/value dictionary
-        self.temp = []   # for temp storing
 
         config_file = open(self.config_file)
-        self.temp = config_file.read().strip()
-
-        # split line
-        self.temp = self.temp.split(line_sep)
-
+        lines = (line.strip() for line in config_file)
         # remove blanks lines
-        self.temp = [line for line in self.temp if line]
+        lines = (line for line in lines if line)
 
         # parse key=value, skip comment lines
-        for item in self.temp:
-            if str(item.strip())[0] != comment_character:
+        for item in lines:
+            if item.strip()[0] != comment_character:
                 name, value = item.split(kv_sep, 1)
 
                 # add to config dict and keys list
@@ -62,6 +56,7 @@ class MakeVar:
 
     def get(self, key, value="", equal="", notequal=""):
         """Returns the value associated with key if value not set.
+
         Returns equal if the value associated with key is value
         and notequal otherwise"""
         if key in self.keys:

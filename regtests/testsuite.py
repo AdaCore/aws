@@ -130,15 +130,15 @@ class Runner(object):
             os.environ["ADA_PROJECT_PATH"] = CURDIR
             # Read makefile.setup to set proper build environment
             c = MakeVar('../makefile.setup')
-            os.environ["PRJ_BUILD"] = c.get (
+            os.environ["PRJ_BUILD"] = c.get(
                 "DEBUG", "true", "Debug", "Release")
-            os.environ["PRJ_XMLADA"] = c.get (
+            os.environ["PRJ_XMLADA"] = c.get(
                 "XMLADA", "true", "Installed", "Disabled")
-            os.environ["PRJ_ASIS"] = c.get (
+            os.environ["PRJ_ASIS"] = c.get(
                 "ASIS", "true", "Installed", "Disabled")
-            os.environ["PRJ_LDAP"] = c.get (
+            os.environ["PRJ_LDAP"] = c.get(
                 "LDAP", "true", "Installed", "Disabled")
-            os.environ["SOCKET"] = c.get ("SOCKET")
+            os.environ["SOCKET"] = c.get("SOCKET")
             os.environ["LIBRARY_TYPE"] = "static"
             # Add current tools in from of PATH
             os.environ["PATH"] = CURDIR + os.sep + ".." + os.sep \
@@ -310,7 +310,7 @@ def linktree(src, dst, symlinks=0):
         except (IOError, os.error), why:
             print "Can't link %s to %s: %s" % (srcname, dstname, str(why))
 
-def run_testcase(test, job_info):
+def run_testcase(test, _job_info):
     """Run a single test"""
     logging.debug("Running " + test.testdir)
     linktree(test.testdir, os.path.join(BUILDS_DIR, test.testdir))
@@ -327,7 +327,7 @@ def run_testcase(test, job_info):
 
 def gen_collect_result(report_func):
     """Returns the collect_result function"""
-    def collect_result(test, process, job_info):
+    def collect_result(test, process, _job_info):
         """Collect a test result"""
         xfail = test.getopt('xfail', '')
         diff_content = ""
