@@ -33,10 +33,14 @@ package Templates_Parser.Configuration is
 
    subtype Time_Stamp is Ada.Calendar.Time;
 
+   pragma Style_Checks (Off);
+   --  Kill bogus style check on missing overriding keyword with old GNAT
+   --  versions.
    function "="
      (T1, T2 : Time_Stamp)
       return Boolean
       renames Ada.Calendar."=";
+   pragma Style_Checks (All_Checks);
 
    function Is_Regular_File
      (Filename : String)
