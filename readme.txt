@@ -52,6 +52,8 @@ Listed below are some minor enhancements and fixes:
 
    - Fix handling of empty resources.
 
+   - Fix usage of Null_Set in Templates_Parser.
+
    - Plus many small fixes, enhancements, API comments, and documentation work.
 
 
