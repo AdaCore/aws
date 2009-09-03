@@ -1308,6 +1308,7 @@ regtests/0189_sessions/test.out
 regtests/0189_sessions/test.py
 regtests/0190_soap_no_namespace/driver.adb
 regtests/0190_soap_no_namespace/driver.gpr
+regtests/0190_soap_no_namespace/test.opt
 regtests/0190_soap_no_namespace/test.out
 regtests/0190_soap_no_namespace/test.py
 regtests/0191_post_attachments/file1.dat
