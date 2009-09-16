@@ -204,6 +204,46 @@ package body AWS.Client is
       end if;
    end Debug_Message;
 
+   ----------------------
+   -- Error_Processing --
+   ----------------------
+
+   procedure Error_Processing
+     (Connection : in out HTTP_Connection;
+      Try_Count  : in out Natural;
+      Result     : out Response.Data;
+      Context    : String;
+      E          : Ada.Exceptions.Exception_Occurrence;
+      Stamp      : Ada.Real_Time.Time)
+   is
+      use Real_Time;
+      Message : constant String := Ada.Exceptions.Exception_Information (E);
+   begin
+      Debug_Exception (E);
+
+      Disconnect (Connection);
+
+      if Real_Time.Clock - Stamp >= Connection.Timeouts.Response
+        or else Net.Is_Timeout (E)
+        or else Strings.Fixed.Index (Message, "] Connection timed out") > 0
+      then
+         Result := Response.Build
+           (MIME.Text_Plain, Context & " Timeout", Messages.S408);
+
+      elsif Try_Count = 0 then
+         Result := Response.Build
+                     (MIME.Text_Plain,
+                      Context & " request error. " & Message,
+                      Messages.S400);
+
+      else
+         Result := Response.Empty;
+
+         Try_Count := Try_Count - 1;
+      end if;
+
+   end Error_Processing;
+
    ---------
    -- Get --
    ---------
@@ -313,20 +353,10 @@ package body AWS.Client is
 
          exception
             when E : Net.Socket_Error | Connection_Error =>
-               Debug_Exception (E);
+               Error_Processing
+                 (Connection, Try_Count, Result, "Get", E, Stamp);
 
-               Disconnect (Connection);
-
-               if Try_Count = 0
-                 or else Clock - Stamp >= Connection.Timeouts.Response
-               then
-                  Result := Response.Build
-                    (MIME.Text_HTML, "Get Timeout", Messages.S408);
-
-                  exit Retry;
-               end if;
-
-               Try_Count := Try_Count - 1;
+               exit Retry when not Response.Is_Empty (Result);
          end;
       end loop Retry;
    end Get;
@@ -1206,21 +1236,11 @@ package body AWS.Client is
             end if;
 
          exception
-
             when E : Net.Socket_Error | Connection_Error =>
-               Debug_Exception (E);
+               Error_Processing
+                 (Connection, Try_Count, Result, "Upload", E, Stamp);
 
-               Disconnect (Connection);
-
-               if Try_Count = 0
-                 or else Clock - Stamp >= Connection.Timeouts.Response
-               then
-                  Result := Response.Build
-                    (MIME.Text_HTML, "Upload Timeout", Messages.S408);
-                  exit Retry;
-               end if;
-
-               Try_Count := Try_Count - 1;
+               exit Retry when not Response.Is_Empty (Result);
          end;
       end loop Retry;
    end Upload;

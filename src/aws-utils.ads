@@ -103,6 +103,10 @@ package AWS.Utils is
    --  Returns an str in a single line. All CR and LF are converted to spaces,
    --  trailing spaces are removed.
 
+   function Head_Before (Source, Pattern : String) return String;
+   --  Returns first part of string before Pattern or the Source string if
+   --  Pattern not found.
+
    ---------------
    -- Semaphore --
    ---------------

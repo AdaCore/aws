@@ -550,4 +550,14 @@ private
    pragma Inline (Debug_Exception);
    --  Output E exception if Debug_On is True and does nothing otherwise
 
+   procedure Error_Processing
+     (Connection : in out HTTP_Connection;
+      Try_Count  : in out Natural;
+      Result     : out Response.Data;
+      Context    : String;
+      E          : Ada.Exceptions.Exception_Occurrence;
+      Stamp      : Ada.Real_Time.Time);
+   --  Check timeout and Try_Count and set error responce into Result
+   --  if necessary.
+
 end AWS.Client;

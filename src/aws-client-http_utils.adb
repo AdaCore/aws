@@ -542,19 +542,10 @@ package body AWS.Client.HTTP_Utils is
 
          exception
             when E : Net.Socket_Error | Connection_Error =>
-               Debug_Exception (E);
+               Error_Processing
+                 (Connection, Try_Count, Result, "Upload", E, Stamp);
 
-               Disconnect (Connection);
-
-               if Try_Count = 0
-                 or else Clock - Stamp >= Connection.Timeouts.Response
-               then
-                  Result := Response.Build
-                    (MIME.Text_HTML, "Upload Timeout", Messages.S408);
-                  exit Retry;
-               end if;
-
-               Try_Count := Try_Count - 1;
+               exit Retry when not Response.Is_Empty (Result);
          end;
       end loop Retry;
    end Internal_Post_With_Attachment;
@@ -604,19 +595,10 @@ package body AWS.Client.HTTP_Utils is
 
          exception
             when E : Net.Socket_Error | Connection_Error =>
-               Debug_Exception (E);
+               Error_Processing
+                 (Connection, Try_Count, Result, "Post", E, Stamp);
 
-               Disconnect (Connection);
-
-               if Try_Count = 0
-                 or else Clock - Stamp >= Connection.Timeouts.Response
-               then
-                  Result := Response.Build
-                    (MIME.Text_HTML, "Post Timeout", Messages.S408);
-                  exit Retry;
-               end if;
-
-               Try_Count := Try_Count - 1;
+               exit Retry when not Response.Is_Empty (Result);
          end;
       end loop Retry;
    end Internal_Post_Without_Attachment;

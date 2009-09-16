@@ -33,6 +33,10 @@ with AWS.Net.Log;
 with AWS.Net.Std;
 with AWS.Net.SSL;
 
+with AWS.OS_Lib;
+
+with Interfaces.C.Strings;
+
 package body AWS.Net is
 
    Timeout_Token : constant String := " timeout.";
@@ -82,6 +86,22 @@ package body AWS.Net is
    begin
       return Poll (Socket, Events, 0.0);
    end Check;
+
+   -------------------
+   -- Error_Message --
+   -------------------
+
+   function Error_Message (Errno : Integer) return String is
+      use Interfaces.C.Strings;
+      Ptr  : constant chars_ptr := OS_Lib.Socket_StrError (Errno);
+      Code : constant String    := '[' & Utils.Image (Errno) & "] ";
+   begin
+      if Ptr = Null_Ptr then
+         return Code & "Unknown error";
+      else
+         return Code & Value (Ptr);
+      end if;
+   end Error_Message;
 
    --------------
    -- Finalize --

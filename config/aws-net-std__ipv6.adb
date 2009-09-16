@@ -31,20 +31,11 @@ with AWS.Net.Log;
 with AWS.OS_Lib;
 with AWS.Utils;
 
-pragma Warnings (Off);
-
---  Ignore warning about portability of the GNAT.Sockets.Thin
-
-with GNAT.Sockets.Thin;
-
-pragma Warnings (On);
-
 with Interfaces.C.Strings;
 with System;
 
 package body AWS.Net.Std is
 
-   use GNAT;
    use Interfaces;
 
    No_Socket : constant C.int := C.int (-1);
@@ -82,8 +73,6 @@ package body AWS.Net.Std is
    function Image (Sin6 : Sockaddr_In6) return String;
    --  Returns image of the socket address
 
-   function Error_Message (Error : Integer) return String;
-
    function Get_Addr_Info
      (Host  : String;
       Port  : Natural;
@@ -109,10 +98,7 @@ package body AWS.Net.Std is
    function Swap_Little_Endian
      (S : Interfaces.Unsigned_16) return Interfaces.Unsigned_16;
 
-   function C_Socket
-     (Domain   : C.int;
-      Typ      : C.int;
-      Protocol : C.int) return C.int;
+   function C_Socket (Domain, Typ, Protocol : C.int) return C.int;
    pragma Import (Stdcall, C_Socket, "socket");
 
    function C_Getsockname
@@ -134,6 +120,10 @@ package body AWS.Net.Std is
       Name    : System.Address;
       Namelen : not null access C.int) return C.int;
    pragma Import (Stdcall, C_Getpeername, "getpeername");
+
+   function C_Gethostname
+     (Name : System.Address; Namelen : C.int) return C.int;
+   pragma Import (Stdcall, C_Gethostname, "gethostname");
 
    -------------------
    -- Accept_Socket --
@@ -316,16 +306,6 @@ package body AWS.Net.Std is
       return Get_Int_Sock_Opt (Socket, OS_Lib.SO_ERROR);
    end Errno;
 
-   -------------------
-   -- Error_Message --
-   -------------------
-
-   function Error_Message (Error : Integer) return String is
-   begin
-      return '[' & Utils.Image (Error) & "] "
-        & C.Strings.Value (Sockets.Thin.Socket_Error_Message (Error));
-   end Error_Message;
-
    ----------
    -- Free --
    ----------
@@ -489,8 +469,14 @@ package body AWS.Net.Std is
    ---------------
 
    function Host_Name return String is
+      use type C.int;
+      Name : aliased C.char_array (1 .. 64);
    begin
-      return Sockets.Host_Name;
+      if C_Gethostname (Name'Address, Name'Length) = Failure then
+         Raise_Socket_Error (OS_Lib.Socket_Errno);
+      end if;
+
+      return C.To_Ada (Name);
    end Host_Name;
 
    -----------
@@ -820,9 +806,7 @@ package body AWS.Net.Std is
    ------------------
 
    overriding procedure Set_No_Delay
-     (Socket : Socket_Type; Value : Boolean := True)
-   is
-      use Sockets;
+     (Socket : Socket_Type; Value : Boolean := True) is
    begin
       Set_Int_Sock_Opt
         (Socket,

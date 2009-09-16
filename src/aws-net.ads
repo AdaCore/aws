@@ -383,6 +383,10 @@ private
      (Socket : Socket_Type'Class; Text : String);
    pragma No_Return (Raise_Socket_Error);
 
+   function Error_Message (Errno : Integer) return String;
+   --  Returns the error message string for the error number Errno. If Errno is
+   --  not known, returns "Unknown system error".
+
    --  Controlled primitives
 
    overriding procedure Initialize (Socket : in out Socket_Type);

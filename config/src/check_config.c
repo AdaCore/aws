@@ -307,6 +307,9 @@ main (int argc, char *argv[])
   P ("   function GAI_StrError (ecode : C.int)");
   P (" return C.Strings.chars_ptr;\n\n");
 
+  P ("   function Socket_StrError (ecode : Integer)");
+  P (" return C.Strings.chars_ptr;\n\n");
+
   P ("   function Set_Sock_Opt\n");
   P ("     (S       : C.int;\n");
   P ("      Level   : C.int;\n");
@@ -332,7 +335,7 @@ main (int argc, char *argv[])
 
   P ("   function Socket_Errno return Integer");
 #ifndef _WIN32
-  P ("     renames GNAT.OS_Lib.Errno");
+  P (" renames GNAT.OS_Lib.Errno");
 #endif
   P (";\n\n");
 
@@ -346,11 +349,17 @@ main (int argc, char *argv[])
   //  We are using simple replacement in win32/gai_strerror.c
 
   P ("   pragma Import (C, GAI_StrError, \"AWS_gai_strerror\");\n");
+
+  //  There is no way in Windows to get error message from socket error code.
+  //  Use the own partial implementation of the POSIX strerror.
+
+  P ("   pragma Import (C, Socket_StrError, \"socket_strerror\");\n");
   P ("   pragma Import (Stdcall, C_Ioctl, \"ioctlsocket\");\n");
   P ("   pragma Import (Stdcall, C_Close, \"closesocket\");\n");
   P ("   pragma Import (Stdcall, Socket_Errno, \"WSAGetLastError\");\n");
 #else
   P ("   pragma Import (C, GAI_StrError, \"gai_strerror\");\n");
+  P ("   pragma Import (C, Socket_StrError, \"strerror\");\n");
   P ("   pragma Import (C, C_Ioctl, \"ioctl\");\n");
   P ("   pragma Import (C, C_Close, \"close\");\n");
 #endif

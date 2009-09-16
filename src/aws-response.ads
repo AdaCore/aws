@@ -285,6 +285,10 @@ package AWS.Response is
    pragma Inline (Mode);
    --  Returns the data mode, either Header, Message or File
 
+   function Is_Empty (D : Data) return Boolean;
+   pragma Inline (Is_Empty);
+   --  Returns True if D.Mode is No_Data
+
    function Message_Body (D : Data) return String;
    pragma Inline (Message_Body);
    --  Returns the message body content as a string.

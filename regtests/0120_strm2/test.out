@@ -1,1 +1,3 @@
-> Get Timeout
+> Get request error. Exception name: AWS.NET.SOCKET_ERROR
+Message: Receive : Socket closed by peer.
+

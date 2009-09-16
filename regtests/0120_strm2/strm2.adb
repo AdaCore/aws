@@ -31,7 +31,7 @@ with Ada.Text_IO;
 with Ada.Exceptions;
 with Ada.Streams;
 
-with AWS.Server;
+with AWS.Server.Status;
 with AWS.Client;
 with AWS.Status;
 with AWS.MIME;
@@ -39,6 +39,7 @@ with AWS.Response;
 with AWS.Messages;
 
 with AWS.Resources.Streams;
+with AWS.Utils;
 
 with Error_Strm;
 
@@ -82,7 +83,7 @@ procedure Strm2 is
    begin
       AWS.Server.Start
         (HTTP, "Testing user defined stream.",
-         CB'Unrestricted_Access, Port => 1250, Max_Connection => 3);
+         CB'Unrestricted_Access, Port => 0, Max_Connection => 3);
 
       accept Wait_Start;
       accept Stop;
@@ -96,7 +97,8 @@ begin
 
    Client.Create
      (Connection => Connect,
-      Host       => "http://localhost:1250",
+      Host       => "http://localhost:"
+                    & Utils.Image (AWS.Server.Status.Port (HTTP)),
       Timeouts   => Client.Timeouts
         (Connect => 1.0, Send => 5.0, Receive => 5.0));
 
@@ -104,7 +106,9 @@ begin
 
    Client.Close (Connect);
 
-   Text_IO.Put_Line ("> " & Response.Message_Body (R));
+   Text_IO.Put_Line
+     ("> " & Utils.Head_Before
+               (Response.Message_Body (R), "Call stack traceback locations:"));
 
    Server.Stop;
 

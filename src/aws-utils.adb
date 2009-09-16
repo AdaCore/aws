@@ -324,6 +324,20 @@ package body AWS.Utils is
       return Local_To_GMT (Calendar.Clock);
    end GMT_Clock;
 
+   -----------------
+   -- Head_Before --
+   -----------------
+
+   function Head_Before (Source, Pattern : String) return String is
+      Index : constant Natural := Ada.Strings.Fixed.Index (Source, Pattern);
+   begin
+      if Index = 0 then
+         return Source;
+      else
+         return Source (Source'First .. Index - 1);
+      end if;
+   end Head_Before;
+
    ---------
    -- Hex --
    ---------

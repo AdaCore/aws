@@ -165,7 +165,10 @@ procedure Upload2 is
       R : Response.Data;
    begin
       R := Client.Upload (URL, Filename);
-      Put_Line ("=> " & Response.Message_Body (R));
+      Put_Line
+        ("=> "
+         & Utils.Head_Before
+             (Response.Message_Body (R), "Call stack traceback locations:"));
       New_Line;
    exception
       when AWS.Net.Socket_Error =>

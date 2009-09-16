@@ -1,7 +1,7 @@
 /////////////////////////////////////////////////////////////////////////////
 //                             Ada Web Server                               /
 //                                                                          /
-//                    Copyright (C) 2003-2008, AdaCore                      /
+//                    Copyright (C) 2003-2009, AdaCore                      /
 //                                                                          /
 //  This library is free software; you can redistribute it and/or modify    /
 //  it under the terms of the GNU General Public License as published by    /
@@ -55,5 +55,109 @@ char * AWS_gai_strerror (int ecode)
       return "The ai_socktype member is not supported.";
     default:
       return "Unknown error.";
+    }
+}
+
+//  Windows does not have socket error code to error message convertion
+
+char * socket_strerror (int ecode)
+{
+  switch (ecode)
+  {
+    case WSAEINTR:
+      return "Interrupted system call";
+    case WSAEBADF:
+      return "Bad file number";
+    case WSAEACCES:
+      return "Permission denied";
+    case WSAEFAULT:
+      return "Bad address";
+    case WSAEINVAL:
+      return "Invalid argument";
+    case WSAEMFILE:
+      return "Too many open files";
+    case WSAEWOULDBLOCK:
+      return "Operation would block";
+    case WSAEINPROGRESS:
+      return "Operation now in progress";
+    case WSAEALREADY:
+      return "Operation already in progress";
+    case WSAENOTSOCK:
+      return "Socket operation on nonsocket";
+    case WSAEDESTADDRREQ:
+      return "Destination address required";
+    case WSAEMSGSIZE:
+      return "Message too long";
+    case WSAEPROTOTYPE:
+      return "Protocol wrong type for socket";
+    case WSAENOPROTOOPT:
+      return "Protocol not available";
+    case WSAEPROTONOSUPPORT:
+      return "Protocol not supported";
+    case WSAESOCKTNOSUPPORT:
+      return "Socket type not supported";
+    case WSAEOPNOTSUPP:
+      return "Operation not supported on socket";
+    case WSAEPFNOSUPPORT:
+      return "Protocol family not supported";
+    case WSAEAFNOSUPPORT:
+      return "Address family not supported by protocol family";
+    case WSAEADDRINUSE:
+      return "Address already in use";
+    case WSAEADDRNOTAVAIL:
+      return "Cannot assign requested address";
+    case WSAENETDOWN:
+      return "Network is down";
+    case WSAENETUNREACH:
+      return "Network is unreachable";
+    case WSAENETRESET:
+      return "Network dropped connection on reset";
+    case WSAECONNABORTED:
+      return "Software caused connection abort";
+    case WSAECONNRESET:
+      return "Connection reset by peer";
+    case WSAENOBUFS:
+      return "No buffer space available";
+    case WSAEISCONN :
+      return "Socket is already connected";
+    case WSAENOTCONN:
+      return "Socket is not connected";
+    case WSAESHUTDOWN:
+      return "Cannot send after socket shutdown";
+    case WSAETOOMANYREFS:
+      return "Too many references: cannot splice";
+    case WSAETIMEDOUT:
+      return "Connection timed out";
+    case WSAECONNREFUSED:
+      return "Connection refused";
+    case WSAELOOP:
+      return "Too many levels of symbolic links";
+    case WSAENAMETOOLONG:
+      return "File name too long";
+    case WSAEHOSTDOWN:
+      return "Host is down";
+    case WSAEHOSTUNREACH:
+      return "No route to host";
+    case WSASYSNOTREADY:
+      return "Returned by WSAStartup(), indicating that "
+                     "the network subsystem is unusable";
+    case WSAVERNOTSUPPORTED:
+      return "Returned by WSAStartup(), indicating that "
+                     "the Windows Sockets DLL cannot support "
+                     "this application";
+    case WSANOTINITIALISED:
+      return "Winsock not initialized";
+    case WSAEDISCON:
+      return "Disconnected";
+    case HOST_NOT_FOUND:
+      return "Host not found";
+    case TRY_AGAIN:
+      return "Nonauthoritative host not found";
+    case NO_RECOVERY:
+      return "Nonrecoverable error";
+    case NO_DATA:
+      return "Valid name, no data record of requested type";
+    default:
+      return NULL;
     }
 }

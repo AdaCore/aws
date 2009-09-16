@@ -442,6 +442,15 @@ package body AWS.Response is
    end Initialize;
 
    --------------
+   -- Is_Empty --
+   --------------
+
+   function Is_Empty (D : Data) return Boolean is
+   begin
+      return D.Mode = No_Data;
+   end Is_Empty;
+
+   --------------
    -- Location --
    --------------
 
