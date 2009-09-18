@@ -39,8 +39,7 @@ package body Conversion is
    -----------------------------
 
    function To_Stream_Element_Array
-     (Data : String)
-      return Stream_Element_Array
+     (Data : String) return Stream_Element_Array
    is
 
       subtype Fixed_String is String (Data'First .. Data'Last);
@@ -60,10 +59,7 @@ package body Conversion is
    -- To_String --
    ---------------
 
-   function To_String
-     (Data : Stream_Element_Array)
-      return String
-   is
+   function To_String (Data : Stream_Element_Array) return String is
 
       subtype Fixed_String is String (Integer (Data'First)
         .. Integer (Data'Last));
