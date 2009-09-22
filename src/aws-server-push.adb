@@ -1749,6 +1749,9 @@ package body AWS.Server.Push is
          for J in reverse 2 .. Count (Write_Set) loop
             declare
                Remove : Boolean := False;
+               Error  : Unbounded_String;
+               Err_SP : Object_Access;
+               Err_CH : Client_Holder_Access;
 
                procedure Process
                  (Socket : in out Socket_Type'Class;
@@ -1774,7 +1777,9 @@ package body AWS.Server.Push is
 
                   procedure Socket_Error (Message : String) is
                   begin
-                     Client.SP.Waiter_Error (Client.CH, Message);
+                     Error  := To_Unbounded_String (Message);
+                     Err_SP := Client.SP;
+                     Err_CH := Client.CH;
                      Remove := True;
                   end Socket_Error;
 
@@ -1824,6 +1829,10 @@ package body AWS.Server.Push is
                Update_Socket (Write_Set, J, Process'Access);
 
                if Remove then
+                  if Err_SP /= null then
+                     Err_SP.Waiter_Error (Err_CH, To_String (Error));
+                  end if;
+
                   Remove_Socket (Write_Set, J);
                end if;
             end;
