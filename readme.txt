@@ -4,7 +4,7 @@
 
 Authors:
    Dmitriy Anisimkov
-   Pascal Obry                                              July 26th, 2009
+   Pascal Obry                                            Septembre 23rd, 2009
 
 
 
@@ -152,7 +152,7 @@ Templates_Parser sources:
 
 GNU/Ada - GNAT
 
-   You need at least GNAT 2008 GPL Edition or GNAT Pro 6.0.1.
+   You need at least GNAT 2009 GPL Edition or GNAT Pro 6.2.1.
 
    http://libre.adacore.com/GNAT/
 
