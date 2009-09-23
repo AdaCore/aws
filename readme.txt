@@ -1,10 +1,10 @@
 
                             A W S - Ada Web Server
-			   2.7.0 release / SOAP 1.5
+			   2.8.0 release / SOAP 1.5
 
 Authors:
    Dmitriy Anisimkov
-   Pascal Obry                                              July 26th, 2009
+   Pascal Obry                                            September 23th, 2009
 
 
 
@@ -39,22 +39,6 @@ New features are described into the file docs/features.
 
 Listed below are some minor enhancements and fixes:
 
-   - Attachments' headers are properly parsed and stored with the attachment
-     object on the server side.
-
-   - <program_name>.ini file is properly looked into the application
-     directory on all platforms. It is also now looked into the current
-     working directory.
-
-   - SOAP with Digest authentication has been fixed.
-
-   - The build process is now drived by gprbuild.
-
-   - Fix handling of empty resources.
-
-   - Fix usage of Null_Set in Templates_Parser.
-
-   - Plus many small fixes, enhancements, API comments, and documentation work.
 
 
 Non upward compatible changes
@@ -66,14 +50,6 @@ to work properly. Of course we try to avoid this as much as possible
 but we really prefer to have a clean API instead of keeping awkward
 implementations.
 
-  hotplug_password tool has been renamed to aws_password. The password
-  must be regenerated.
-
-  In the Templates Parser, user's filters Execute method is using "not null"
-  constraint. An update of the redefined Execute routine is required.
-
-  Logging filename format changed for Each_Run split mode. Now there is a time
-  part after date part in case when log started more than once a day.
 
 Obsolescent features
 --------------------
@@ -105,15 +81,6 @@ See documentation for build information.
 To edit a project using AWS you need at least GPS 4.3.0 because of a
 restriction in previous version on variable reference for external default
 value.
-
-
-Validation
-----------
-
-AWS 2.7.0 test suite is passed every night on multiple plateforms (Windows,
-GNU/Linux - i686 and x86_64 - , Solaris and HP-UX).
-
-Previous version of AWS have been built on FreeBSD 4.1 and MacOSX.
 
 
 Known problems
@@ -152,7 +119,7 @@ Templates_Parser sources:
 
 GNU/Ada - GNAT
 
-   You need at least GNAT 2008 GPL Edition or GNAT Pro 6.0.1.
+   You need at least GNAT 2009 GPL Edition or GNAT Pro 6.2.1.
 
    http://libre.adacore.com/GNAT/
 
