@@ -46,7 +46,7 @@ package AWS.Net is
    --  Raised by all routines below, a message will indicate the nature of
    --  the error.
 
-   type Socket_Type is abstract tagged private;
+   type Socket_Type is abstract new Finalization.Controlled with private;
    type Socket_Access is access all Socket_Type'Class;
 
    type Socket_Set is array (Positive range <>) of Socket_Access;
