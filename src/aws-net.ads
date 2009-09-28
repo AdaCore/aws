@@ -25,7 +25,7 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  This is two implementations for this spec. One for standard sockets and
+--  There is two implementations for this spec. One for standard sockets and
 --  one for SSL socket. Note that the SSL implementation does support standard
 --  socket too, this is controlled with the Security boolean on rountine
 --  below. The corresponding implementation will be selected at build time.
