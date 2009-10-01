@@ -154,7 +154,8 @@ class Runner(object):
                       self.config.tags)
 
         # Open report file
-        self.report = Report(TESTSUITE_RES)
+        self.report = Report(TESTSUITE_RES,
+                             discs=self.config.tags.replace(',', ', '))
 
         # Set python path
         if "PYTHONPATH" in os.environ:
