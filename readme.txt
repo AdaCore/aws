@@ -1,6 +1,6 @@
 
                             A W S - Ada Web Server
-			   2.7.0 release / SOAP 1.5
+			   2.7.1 release / SOAP 1.5
 
 Authors:
    Dmitriy Anisimkov
@@ -110,7 +110,7 @@ value.
 Validation
 ----------
 
-AWS 2.7.0 test suite is passed every night on multiple plateforms (Windows,
+AWS 2.7.1 test suite is passed every night on multiple plateforms (Windows,
 GNU/Linux - i686 and x86_64 - , Solaris and HP-UX).
 
 Previous version of AWS have been built on FreeBSD 4.1 and MacOSX.
