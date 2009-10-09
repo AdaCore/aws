@@ -334,7 +334,7 @@ def gen_collect_result(report_func):
     """Returns the collect_result function"""
     def collect_result(test, process, _job_info):
         """Collect a test result"""
-        xfail = test.getopt('xfail', '')
+        xfail = test.getopt('xfail', None)
         diff_content = ""
         # Compute job status
         # The status can be UOK, OK, XFAIL, DIFF or PROBLEM
@@ -344,7 +344,7 @@ def gen_collect_result(report_func):
             else:
                 status = 'OK'
         else:
-            if xfail:
+            if xfail is not None:
                 status = 'XFAIL'
             elif process.status == DIFF_FAILURE:
                 status = 'DIFF'
