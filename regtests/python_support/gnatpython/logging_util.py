@@ -2,6 +2,7 @@
 """
 from logging import (addLevelName, StreamHandler, FileHandler,
                      Filter, Formatter, getLogger, DEBUG, codecs)
+from gnatpython.env import Env
 
 import os
 import types
@@ -10,6 +11,31 @@ import types
 RAW = 5
 # Register the new level name
 addLevelName (RAW, 'RAW')
+
+COLOR_UNCHANGED=-1
+COLOR_BLACK=0
+COLOR_RED=1
+COLOR_GREEN=2
+COLOR_YELLOW=3
+COLOR_BLUE=4
+COLOR_MAGENTA=5
+COLOR_CYAN=6
+COLOR_WHITE=7
+
+def highlight (str, fg=COLOR_UNCHANGED, bg=COLOR_UNCHANGED):
+   """Return a version of string with color highlighting applied to it.
+      This is suitable for display on a console.
+      Nothing is done if color has been disabled"""
+   if not Env().main_options.enable_color:
+      return str
+   else:
+      if bg == COLOR_UNCHANGED:
+         colors = "%d" % (30+fg,)
+      elif fg == COLOR_UNCHANGED:
+         colors = "%d" % (40+fg,)
+      else:
+         colors = "%d;%d" % (40+bg, 30+fg)
+      return "\033[%sm%s\033[m" % (colors, str,)
 
 class RawFilter (Filter):
     """Filter in/out RAW level records"""

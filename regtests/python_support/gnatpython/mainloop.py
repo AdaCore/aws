@@ -27,6 +27,7 @@ sequentially.
 import logging
 import os
 from time import sleep
+from gnatpython.env import Env
 
 logger = logging.getLogger ('gnatpython.mainloop')
 
@@ -58,10 +59,12 @@ class Worker (object):
         self.nb_retry = 0
 
         if isinstance (items, list):
-            self.jobs = items.reverse ()
+            items.reverse ()
+            self.jobs = items
         else:
             self.jobs = [items]
 
+        logger.debug ('Init worker %d with %r' % (self.slot, self.jobs))
         self.current_process = None
         self.current_job     = None
         self.execute_next ()
@@ -142,43 +145,29 @@ class MainLoop (object):
                   item_list,
                   run_testcase,
                   collect_result,
-                  parallelism=1,
+                  parallelism=None,
                   abort_file=None,
                   dyn_poll_interval=True):
         """Launch loop
 
         PARAMETERS
           item_list: a list of jobs
-
-          run_testcase: a function that takes a job for argument
-                        and return the spawned process (ex.Run object). Its
-                        prototype should be func (name, job_info).
-                        name: job identifier
-                        job_info: related information, passed in a tuple:
-                        (slot_number, job_retry)
-                          slot_number: identifier of the Worker that is used
-                          to run this testcase.
-                          job_retry: number of times that the testcase have
-                          been run already.
-
-                        Note that if you want to take advantage of the
-                        parallelism the spawned process should be launched
-                        in background (ie with bg=True when using ex.Run)
-
-          collect_result: a function called when a job is
-                          finished. The prototype should be func
-                          (name, process, job_info). If collect_result
-                          raise NeedRequeue then the test will be
-                          requeued.
-                          job_info is a tuple: (slot_number, job_nb_retry)
-
+          run_testcase: a function that takes a job for argument and return
+            the spawned process (ex.Run object). Its prototype should be
+            func (name, job_info) with name the job identifier and job_info the
+            related information, passed in a tuple (slot_number, job_retry)
+            Note that if you want to take advantage of the parallelism the
+            spawned process should be launched in background (ie with bg=True
+            when using ex.Run)
+          collect_result: a function called when a job is finished. The
+            prototype should be func (name, process, job_info). If
+            collect_result raise NeedRequeue then the test will be requeued.
+            job_info is a tuple: (slot_number, job_nb_retry)
           parallelism: number of workers
-
           abort_file: If specified, the loop will abort if the file is present
-
           dyn_poll_interval: If True the interval between each polling
-                     iteration is automatically updated. Otherwise it's set to
-                     0.1 seconds
+            iteration is automatically updated. Otherwise it's set to 0.1
+            seconds.
 
         RETURN VALUE
           a MainLoop instance
@@ -186,19 +175,29 @@ class MainLoop (object):
         REMARKS
           None
         """
-        self.abort_file    = abort_file
-        self.workers       = [None] * parallelism
+        e = Env ()
+        self.parallelism = e.get_attr ("main_options.mainloop_jobs",
+                                       default_value = 1,
+                                       forced_value = parallelism)
+        self.abort_file = e.get_attr ("main_options.mainloop_abort_file",
+                                      default_value = None,
+                                      forced_value = abort_file)
+
+        logger.debug ("start main loop with %d workers (arbort on %s)"
+                      % (self.parallelism, self.abort_file))
+        self.workers       = [None] * self.parallelism
         iterator           = item_list.__iter__ ()
         active_workers     = 0
-        max_active_workers = parallelism
+        max_active_workers = self.parallelism
         poll_sleep         = 0.1
 
         try:
             while True:
                 # Check for abortion
-                if abort_file is not None and os.path.isfile (abort_file):
+                if self.abort_file is not None and \
+                  os.path.isfile (self.abort_file):
                     logger.info ('Aborting: file %s has been found'
-                                 % abort_file)
+                                 % self.abort_file)
                     self.abort()
                     return      # Exit the loop
 
@@ -206,7 +205,6 @@ class MainLoop (object):
                 for slot, worker in enumerate (self.workers):
                     if worker is None:
                         # a worker slot is free so use it for next job
-                        logger.debug ('Active worker on slot %d' % slot)
                         next_job = iterator.next ()
                         self.workers[slot] = Worker (next_job,
                                                      run_testcase,
@@ -258,9 +256,30 @@ def compute_next_dyn_poll (poll_counter, poll_sleep):
     # much to launch new jobs. Adjust accordingly.
     if poll_counter > 8 and poll_sleep < 1.0:
         poll_sleep *= 1.25
-        logger.debug ('Increase poll interval to %d' % poll_sleep)
+        logger.debug ('Increase poll interval to %f' % poll_sleep)
     elif poll_sleep > 0.0001:
         poll_sleep *= 0.75
-        logger.debug ('Decrease poll interval to %d' % poll_sleep)
+        logger.debug ('Decrease poll interval to %f' % poll_sleep)
     return poll_sleep
 
+def add_mainloop_options (main):
+    """Add command line options to control mainloop default
+
+    PARAMETERS
+      main : a gnatpython.main.Main instance
+
+    RETURN VALUE
+      None
+    """
+
+    main.add_option ("-j", "--jobs",
+                     dest="mainloop_jobs",
+                     type="int",
+                     metavar="N",
+                     default=1,
+                     help="Specify the number of jobs to run silmutaneously")
+    main.add_option ("--abort-file",
+                     dest="mainloop_abort_file",
+                     metavar="FILE",
+                     default="",
+                     help="Specify a file whose presence cause loop abortion")

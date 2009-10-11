@@ -10,8 +10,12 @@ from subprocess import Popen, STDOUT, PIPE
 
 import logging
 import os
+import sys
+import time
 
-BUF_SIZE=128
+BUF_SIZE = 128
+
+logger = logging.getLogger('gnatpython.ex')
 
 class Run:
     """
@@ -22,7 +26,8 @@ class Run:
       pid    : PID
     """
     def __init__ (self, cmds, cwd=None, output=PIPE,
-                  error=STDOUT, input=None, bg=False, timeout=None, env=None):
+                  error=STDOUT, input=None, bg=False, timeout=None, env=None,
+                  set_sigpipe=False):
         """Spawn a process
 
         PARAMETERS
@@ -38,7 +43,9 @@ class Run:
           output:  can be PIPE, a filename string, a fd on an already opened
                    file, a python file object or None.
           env:     dictionary for environment variables (e.g. os.environ)
-          error:   same as output and also STDOUT (use output setting)
+          error:   same as output or STDOUT, which indicates that the stderr
+                   data from the applications should be captured into the
+                   same file handle as for stdout.
           input:   same as output
           bg:      if True then run in background
           timeout: limit execution time (in seconds).
@@ -56,22 +63,30 @@ class Run:
           If you prepend the input with '|', then the content of input string
           will be used for process stdin.
         """
-        self.input  = input
-        self.stdin  = input
-        self.output = output
-        self.stdout = output
-        self.error  = error
-        self.stderr = error
+        def subprocess_setup():
+            """Reset SIGPIPE hander
+
+            Python installs a SIGPIPE handler by default. This is usually not what
+            non-Python subprocesses expect.
+            """
+            if set_sigpipe:
+                # Set sigpipe only when set_sigpipe is True
+                # This should fix HC16-020 and could be activated by default
+                import signal
+                signal.signal(signal.SIGPIPE, signal.SIG_DFL)
+
+
+        # First resolve output, error and input
+        self.input_file  = File(input, 'r')
+        self.output_file = File(output, 'w')
+        self.error_file  = File(error, 'w')
+
+        self.status = None
         self.out    = ''
         self.err    = ''
-        self.status = None
-        self.comm   = None
 
         if env is None:
             env = os.environ
-
-        # First resolve output, error and input
-        self.__open_files ()
 
         rlimit_args = []
         if timeout is not None:
@@ -79,21 +94,30 @@ class Run:
 
         try:
             if not isinstance(cmds[0], list):
-                logging.debug ('Run: ' + '%s' % (rlimit_args + cmds))
-                self.internal = Popen (rlimit_args + cmds,
-                                       stdin=self.stdin,
-                                       stdout=self.stdout,
-                                       stderr=self.stderr,
-                                       cwd=cwd,
-                                       env=env,
-                                       universal_newlines=True)
+                logger.debug('Run: %s' % " ".join(rlimit_args + cmds))
+
+                popen_args = {
+                    'stdin' : self.input_file.fd,
+                    'stdout' : self.output_file.fd,
+                    'stderr' : self.error_file.fd,
+                    'cwd'    : cwd,
+                    'env'    : env,
+                    'universal_newlines' : True}
+
+                if sys.platform != 'win32':
+                    # preexec_fn is no supported on windows
+                    popen_args['preexec_fn'] = subprocess_setup
+
+                self.internal = Popen(rlimit_args + cmds, **popen_args)
 
             else:
                 cmds[0] = rlimit_args + cmds[0]
+                logger.debug ('Run: %s ' %
+                              " | ".join([" ".join(cmd) for cmd in cmds]))
                 runs = []
                 for index, cmd in enumerate(cmds):
                     if index == 0:
-                        stdin = self.stdin
+                        stdin = self.input_file.fd
                     else:
                         stdin = runs[index - 1].stdout
 
@@ -101,21 +125,27 @@ class Run:
                     # universal_newlines mode. Indeed commands transmitting
                     # binary data between them will crash
                     # (ex: gzip -dc toto.txt | tar -xf -)
-                    if index == (len(cmds) - 1):
-                        stdout = self.stdout
+                    if index == len(cmds) - 1:
+                        stdout   = self.output_file.fd
                         txt_mode = True
                     else:
-                        stdout = PIPE
+                        stdout   = PIPE
                         txt_mode = False
 
-                    runs.append (Popen(cmd,
-                                       stdin=stdin,
-                                       stdout=stdout,
-                                       stderr=self.stderr,
-                                       cwd=cwd,
-                                       env=env,
-                                       universal_newlines=txt_mode))
-                self.internal = runs[-1]
+                    popen_args = {
+                        'stdin' : stdin,
+                        'stdout' : stdout,
+                        'stderr' : self.error_file.fd,
+                        'cwd'    : cwd,
+                        'env'    : env,
+                        'universal_newlines' : txt_mode}
+
+                    if sys.platform != 'win32':
+                        # preexec_fn is no supported on windows
+                        popen_args['preexec_fn'] = subprocess_setup
+
+                    runs.append(Popen(cmd, **popen_args))
+                    self.internal = runs[-1]
 
         except Exception:
             self.__error ()
@@ -126,38 +156,11 @@ class Run:
         if not bg:
             self.wait ()
 
-    def __open_files (self):
-        """Internal procedure"""
-        if isinstance (self.output, str):
-            if self.output[0] == '+':
-                self.stdout = open (self.output[1:], 'a+')
-                self.stdout.seek (0, 2)
-            else:
-                self.stdout = open (self.output, 'w+')
-
-        if isinstance (self.error, str):
-            if self.error[0] == '+':
-                self.stderr = open (self.error[1:], 'a+')
-                self.stderr.seek (0, 2)
-            else:
-                self.stderr = open (self.error, 'w+')
-
-        if isinstance (self.input, str):
-            if self.stdin.startswith('|'):
-                self.stdin = PIPE
-            else:
-                self.stdin  = open (self.input, 'r')
-
     def __close_files (self):
         """Internal procedure"""
-        if isinstance (self.output, str) and isinstance (self.stdout, file):
-            self.stdout.close ()
-
-        if isinstance (self.error, str) and isinstance (self.stderr, file):
-            self.stderr.close ()
-
-        if isinstance (self.input, str) and isinstance (self.stdin, file):
-            self.stdin.close ()
+        self.output_file.close ()
+        self.error_file.close ()
+        self.input_file.close()
 
     def __error (self):
         """Set pid to -1 and status to 127 before closing files"""
@@ -167,48 +170,44 @@ class Run:
 
     def wait (self):
         """Wait until process ends and return its status"""
-
-        if self.input is not None and self.input.startswith('|'):
-            self.comm = self.internal.communicate(self.input[1:])
-
         if self.status == 127:
             return self.status
 
         self.status = None
-        done = False
 
-        while not done:
-            if self.status is not None:
-                done = True
+        if self.input_file.fd == PIPE:
+            comm = self.internal.communicate(self.input_file.get_command())
+            if self.output_file.fd == PIPE:
+                self.out = comm[0]
 
-            if self.output == PIPE:
-                if self.stdin == PIPE:
-                    self.out = self.comm[0]
-                else:
-                    if done:
-                        tmp_out = self.internal.stdout.read ()
-                    else:
-                        tmp_out = self.internal.stdout.read (BUF_SIZE)
-                    logging.log (gnatpython.logging_util.RAW, tmp_out)
-                    self.out += tmp_out
-            else:
-                self.out = ""
+            if self.error_file.fd == PIPE:
+                self.err = comm[0]
 
-            if self.error == PIPE:
-                if self.stdin == PIPE:
-                    self.err = self.comm[0]
-                else:
-                    if done:
-                        tmp_err = self.internal.stderr.read ()
-                    else:
-                        tmp_err = self.internal.stderr.read (BUF_SIZE)
-                    logging.log (gnatpython.logging_util.RAW, tmp_err)
-                    self.err += tmp_err
-            else:
-                self.err = ""
+        if self.output_file.fd != PIPE and self.error_file.fd != PIPE:
+            self.status = self.internal.wait ()
+        else:
+            size = BUF_SIZE
+            while size != -1:
+                if self.status is not None:
+                    size = -1     # Read until EOF
 
-            if self.status is None:
-                self.status = self.internal.poll ()
+                if self.output_file.fd == PIPE and self.input_file.fd != PIPE:
+                    # Read at most size bytes of output pipe
+                    _buffer = self.internal.stdout.read(size)
+                    if _buffer != "":
+                        logger.log(gnatpython.logging_util.RAW, _buffer)
+                        self.out += _buffer
+
+                if self.error_file.fd == PIPE and self.input_file.fd != PIPE:
+                    # Read at most size bytes of error pipe
+                    _buffer = self.internal.stderr.read(size)
+                    if _buffer != "":
+                        logger.log(gnatpython.logging_util.RAW, _buffer)
+                        self.err += _buffer
+
+                if self.status is None:
+                    self.status = self.internal.poll ()
+                    time.sleep (0.1)
 
         self.__close_files ()
         return self.status
@@ -224,3 +223,54 @@ class Run:
         else:
             result = 127
         return result
+
+class File(object):
+    """Can be a PIPE, a file object"""
+    def __init__(self, name, mode='r'):
+        """Create a new File
+
+        PARAMETERS
+          name: can be PIPE, STDOUT, a filename string,
+                an opened fd, a python file object,
+                or a command to pipe (if starts with |)
+
+          mode: can be 'r' or 'w'
+                if name starts with + the mode will be a+
+        """
+        assert mode in 'rw', 'Mode should be r or w'
+
+        self.name     = name
+        self.to_close = False
+        if isinstance (name, str):
+            # can be a pipe or a filename
+            if mode == 'r' and name.startswith('|'):
+                self.fd = PIPE
+            else:
+                if mode == 'w':
+                    if name.startswith('+'):
+                        open_mode = 'a+'
+                        name = name[1:]
+                    else:
+                        open_mode = 'w+'
+                else:
+                    open_mode = 'r'
+
+                self.fd = open(name, open_mode)
+                if open_mode == 'a+':
+                    self.fd.seek(0, 2)
+                self.to_close = True
+
+        else:
+            # this is a file descriptor
+            self.fd = name
+
+    def get_command(self):
+        """Returns the command to run to create the pipe"""
+        if self.fd == PIPE:
+            return self.name[1:]
+
+    def close(self):
+        """Close the file if needed"""
+        if self.to_close:
+            self.fd.close()
+

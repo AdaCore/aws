@@ -19,6 +19,8 @@ TAGS = 0
 ARG  = 1
 OVERIDABLE = 2
 
+logger = logging.getLogger("gnatpython.optfileparser")
+
 class OptFileParse(object):
     """
     ATTRIBUTES
@@ -31,7 +33,9 @@ class OptFileParse(object):
         PARAMETERS
           system_tags: either a list of tags or a string containing the list
                        of tags separated by commas
-          filename:    the test.opt to be parsed
+          filename:    the test.opt to be parsed. If this is a string then the
+                       argument is a filename otherwise if this is a list we 
+                       consider it is the content of the .opt file
 
         RETURN VALUE
           an OptFileParse object
@@ -55,7 +59,7 @@ class OptFileParse(object):
         self.__matches = {}
         self.__parse_file (filename)
 
-    def get_value (self, cmd, default_value = None):
+    def get_value (self, cmd, default_value=None):
         """Query on the parsing result
 
         PARAMETERS
@@ -105,22 +109,34 @@ class OptFileParse(object):
             result[key] = self.get_value (key, default_values[key])
         return result
 
-    def get_note (self):
+    def get_note (self, sep=None):
         """Get the note
 
         PARAMETERS
-          None
+          sep: string used to join the activating tags. Default is ','. If 
+               '' is specified then a list is returned.
 
         RETURN VALUE
           a string (list of tags responsible for the activation of the test)
+          is sep is not '' or a list.
 
         REMARKS
-          If there is no note then '' is returned
+          If there is no note then '' or [] is returned depending on the sep
+          value
         """
-        if self.__note is not None and not self.is_dead:
-            return ",".join (self.__note[TAGS])
+        if sep is None:
+            sep = ','
+
+        if len (sep) == 0:
+            if self.__note is not None and not self.is_dead:
+                return self.__note[TAGS]
+            else:
+                return []
         else:
-            return ''
+            if self.__note is not None and not self.is_dead:
+                return ",".join (self.__note[TAGS])
+            else:
+                return ''
 
     # INTERNAL FUNCTIONS
     def __process_opt_line(self, line):
@@ -139,7 +155,7 @@ class OptFileParse(object):
             return
 
         m = OPTLINE_REGEXPS.match(processed_line)
-        if not m:
+        if m is None:
             raise BadFormattingError("Can not parse line: " + line)
 
         # find command, tags and argument
@@ -166,7 +182,7 @@ class OptFileParse(object):
             self.__enable_note = True
 
         if cmd != 'required' and self.__match (tags):
-            logging.debug ('match: ' + cmd +  ', tags=' + '%s' % tags)
+            logger.debug ('match: ' + cmd +  ', tags=' + '%s' % tags)
             if self.__is_overidable (cmd):
                 self.__matches[cmd] = (tags, arg, self.__is_all (tags))
 
@@ -181,7 +197,8 @@ class OptFileParse(object):
         return not self.__matches.has_key (cmd) \
           or self.__matches[cmd][OVERIDABLE]
 
-    def __is_all (self, tag_list):
+    @classmethod
+    def __is_all (cls, tag_list):
         return len (tag_list) == 1 and tag_list[0].lower () == 'all'
 
     def __is_dead_cmd (self, cmd):
@@ -206,11 +223,19 @@ class OptFileParse(object):
         return True
 
     def __parse_file(self, filename):
-        if os.path.isfile (filename):
+        have_opt_data = False
+        if isinstance (filename, list):
+            for line in filename:
+                self.__process_opt_line (line)
+            have_opt_data = True
+        elif os.path.isfile (filename):
             optfile = open(filename, "r")
             for line in optfile:
                 self.__process_opt_line(line)
+            optfile.close ()
+            have_opt_data = True
 
+        if have_opt_data:
             if self.__matches.has_key ('required'):
                 self.__matches['dead'] = self.__matches['required']
                 self.is_dead = True
@@ -224,7 +249,6 @@ class OptFileParse(object):
             if (self.__note is not None and self.__note[OVERIDABLE]) \
                 or not self.__enable_note:
                 self.__note = None
-            optfile.close ()
 
     def __str__ (self):
         result = ''

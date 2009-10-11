@@ -31,7 +31,7 @@ REGRESSION_STATUS = CRASH_STATUS + DIFF_STATUS
 
 class Report(object):
     """Generate res files"""
-    def __init__(self, filename, old_report=None, sync_on_disc=True):
+    def __init__(self, filename, old_report=None, sync_on_disc=True, discs=""):
         """Create a new report object.
 
         If the old_report is provided, the generated report will contain
@@ -42,9 +42,10 @@ class Report(object):
         filename     : the new report filename
         old_report   : the last report filename
         sync_on_disc : if False, keep the report in memory and only write it
-        when write() is called.
+          when write() is called.
         """
         self.content = {}
+        self.discs = discs
         self.sync_on_disc = sync_on_disc
 
         # read old report
@@ -57,7 +58,7 @@ class Report(object):
             rm(filename)
 
         if sync_on_disc:
-            self.__put_line('{')
+            self.__put_line('{"discs" : r"""%s""", "tests": {' % discs)
 
     def add(self, test_id, status, **kwargs):
         """Add a new test result
@@ -73,7 +74,12 @@ class Report(object):
         kwargs['status'] = status
 
         if self.sync_on_disc:
-            self.__put_line("'%s': %s," % (test_id, kwargs))
+            self.__put_line("'%s': {" % test_id)
+            for key in kwargs:
+                self.__put_line("'%s': " % key)
+                self.__put_line('r"""%s""",' % kwargs[key])
+            self.__put_line('},')
+
         else:
             self.content[test_id] = kwargs
 
@@ -83,9 +89,10 @@ class Report(object):
         If sync_on_disc is true, append just the last line
         """
         if self.sync_on_disc:
-            self.__put_line('}')
+            self.__put_line('}}')
         else:
-            self.__put_line("%s" % self.content)
+            self.__put_line('{"discs" : r"""%s""", "tests": %s}' %
+                            (self.discs, self.content))
 
     def __put_line(self, line):
         """Internal procedure
@@ -93,7 +100,13 @@ class Report(object):
         Write a new line in report file
         """
         report_file = open(self.filename, 'a')
-        report_file.write(line + '\n')
+        try:
+            report_file.write(line + '\n')
+        except UnicodeDecodeError:
+            report_file.write(line.encode("ascii", "replace") + '\n')
+        except UnicodeEncodeError:
+            report_file.write(line.encode("ascii", "replace") + '\n')
+
         report_file.close()
 
 def eval_report(report_filename):
@@ -136,9 +149,16 @@ class GenerateRep(object):
           targetname  : specify the target name used during the run
         """
         self.results = {'new': eval_report(new_results),
-                        'old': {}}
+                        'old': {'tests' : ''}}
         if old_results is not None:
-            self.results['old'] = eval_report(old_results)
+            try:
+                self.results['old'] = eval_report(old_results)
+                # old results should contain 'tests' key
+                if not 'tests' in self.results['old']:
+                    self.results['old'] = {'tests' : ''}
+            except (SyntaxError, IOError):
+                # Ignore the old report if invalid.
+                pass
 
         self.metrics = {'new_tests': [],
                         'removed_tests': [],
@@ -170,7 +190,7 @@ class GenerateRep(object):
             self.gnat_version_and_date = ''
 
         gcc = Run(['gcc', '-dumpversion'])
-        self.gcc_version = gcc.out
+        self.gcc_version = gcc.out.strip()
 
         self.arch = Arch(targetname)
 
@@ -179,12 +199,12 @@ class GenerateRep(object):
         else:
             self.runtime = runtime
 
-        for test in self.results['new']:
-            if test not in self.results['old']:
+        for test in self.results['new']['tests']:
+            if test not in self.results['old']['tests']:
                 self.metrics['new_tests'].append(test)
 
-        for test in self.results['old']:
-            if test not in self.results['new']:
+        for test in self.results['old']['tests']:
+            if test not in self.results['new']['tests']:
                 self.metrics['removed_tests'].append(test)
 
         # Compute tests
@@ -193,12 +213,12 @@ class GenerateRep(object):
     def __compute_metrics(self):
         """Compute all metrics"""
 
-        for test, result in self.results['new'].iteritems():
+        for test, result in self.results['new']['tests'].iteritems():
             if result['status'] in REGRESSION_STATUS:
 
                 # Is it a new regression ?
-                if not test in self.results['old'] or \
-                        self.results['old'][test]['status'] \
+                if not test in self.results['old']['tests'] or \
+                        self.results['old']['tests'][test]['status'] \
                         not in REGRESSION_STATUS:
                     # Yes append to new regression list
                     self.metrics['new_reg_list'].append(test)
@@ -214,8 +234,9 @@ class GenerateRep(object):
 
             # Report fixed regressions
             elif result['status'] in OK_STATUS and \
-                    test in self.results['old'] and \
-                    self.results['old'][test]['status'] in REGRESSION_STATUS:
+                    test in self.results['old']['tests'] and \
+                    self.results['old']['tests'][test]['status'] \
+                    in REGRESSION_STATUS:
                 self.metrics['fixed_reg_list'].append(test)
 
             # Report invalid test
@@ -224,8 +245,9 @@ class GenerateRep(object):
 
             # Report new dead test
             elif result['status'] in DEAD_STATUS and \
-                    test in self.results['old'] and \
-                    not self.results['old'][test]['status'] in DEAD_STATUS:
+                    test in self.results['old']['tests'] and \
+                    not self.results['old']['tests'][test]['status'] \
+                    in DEAD_STATUS:
                 self.metrics['new_dead_list'].append(test)
 
         self.metrics['counts'].update({
@@ -240,23 +262,23 @@ class GenerateRep(object):
     def __compute_numbers(self):
         """Compute number of effective, crash, diff and removed test"""
         # Compute number of effective tests
-        for test, result in self.results['new'].iteritems():
+        for test, result in self.results['new']['tests'].iteritems():
             if not result['status'] in DEAD_STATUS:
                 self.metrics['counts']['effective'] += 1
 
         # Compute number of crash
-        for test, result in self.results['new'].iteritems():
+        for test, result in self.results['new']['tests'].iteritems():
             if result['status'] in CRASH_STATUS:
                 self.metrics['counts']['crash'] += 1
 
         # Compute number of diff
-        for test, result in self.results['new'].iteritems():
+        for test, result in self.results['new']['tests'].iteritems():
             if result['status'] in DIFF_STATUS:
                 self.metrics['counts']['diff'] += 1
 
         # Compute number of removed test
-        for test in self.results['old']:
-            if test not in self.results['new']:
+        for test in self.results['old']['tests']:
+            if test not in self.results['new']['tests']:
                 self.metrics['counts']['removed'] += 1
 
     def get_subject(self):
@@ -270,9 +292,8 @@ class GenerateRep(object):
             'machine': self.arch.machine
             }
 
-    def get_report(self, additional_header=""):
-        """Returns a formatted report content"""
-
+    def get_report_stats(self, additional_header):
+        """Returns report stats"""
         header_dict = self.__dict__.copy()
         header_dict.update(self.metrics['counts'])
         header_dict['additional_header'] = additional_header
@@ -296,7 +317,11 @@ Version : %(gcc_version)s
 %(removed)5d test(s) removed
 
 """ % header_dict
+        return header
 
+    def get_report_body(self):
+        """Returns report body"""
+        header = ""
         for (title, test_list) in [
             ('new regression(s)', self.metrics['new_reg_list']),
             ('already detected regression(s)',
@@ -309,8 +334,8 @@ Version : %(gcc_version)s
             ]:
             header += "---------------- %d %s\n" % (len(test_list), title)
             for reg in test_list:
-                header += '%s:%s:\n' % (reg,
-                                        self.results['new'][reg]['status'])
+                header += '%s:%s:\n' % (
+                    reg, self.results['new']['tests'][reg]['status'])
             header += '\n'
 
         header += "---------------- differences in output\n"
@@ -319,11 +344,11 @@ Version : %(gcc_version)s
                           + self.metrics['xfail_list'])
 
         if reg_list:
-            if 'diff' in self.results['new'][reg_list[0]]:
+            if 'diff' in self.results['new']['tests'][reg_list[0]]:
                 # Use diffs
                 for reg in reg_list:
                     header += '=============== %s\n' % reg
-                    header += self.results['new'][reg]['diff']
+                    header += self.results['new']['tests'][reg]['diff']
             else:
                 # Use expected /actual output
                 for reg in reg_list:
@@ -333,5 +358,9 @@ Version : %(gcc_version)s
                     header += '---------------- actual output'
                     header += reg['actual_output']
         header += '\n'
-
         return header
+
+    def get_report(self, additional_header=""):
+        """Returns a formatted report content"""
+        return self.get_report_stats(additional_header) + \
+            self.get_report_body()

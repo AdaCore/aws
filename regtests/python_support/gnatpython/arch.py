@@ -1,11 +1,12 @@
 """This package contains a single class called Arch that allows the user to
 instantiate configuration objects containing information about the system
-(native or cross)
+(native or cross).
 """
 
 import platform
 import re
 import os.path
+import sys
 from gnatpython import config
 
 UNKNOWN = 'unknown'
@@ -31,18 +32,18 @@ class _Arch__OS:
 class Arch:
     """
     ATTRIBUTES
-      cpu.name
-      cpu.endian
-      cpu.bits
-      os.name
-      os.version
-      os.is_bareboard
-      is_hie
-      platform (AdaCore platform product name. Ex: x86-linux)
-      triplet (GCC TARGET)
-      machine (machine name)
-      domain  (domain name)
-      is_host (true if this is not a cross context)
+      cpu.name: 
+      cpu.endian:
+      cpu.bits:
+      os.name:
+      os.version:
+      os.is_bareboard:
+      is_hie:
+      platform: AdaCore platform product name. Ex: x86-linux
+      triplet:  GCC target
+      machine:  machine name
+      domain:   domain name
+      is_host:  True if this is not a cross context
     """
 
     def __init__ (self, platform_name=None, version=None, is_host=False):
@@ -55,12 +56,10 @@ class Arch:
                     (native case only).
                     Otherwise should be a valid version string.
           is_host:  if True the system is not a cross one. Default is False
-                    except if a platform_name is specified
+                    except if a platform_name is specified or if the
+                    platform_name is equal to the automatically detected one.
         RETURN VALUE
           An instantiation of Arch class
-
-        REMARKS
-          None
         """
 
         # Create necesarry namespaces using "dummy" classes __CPU and __OS
@@ -80,6 +79,14 @@ class Arch:
 
         uname = platform.uname ()
 
+        if self.platform is None:
+            # In this case we try to guess the host platform
+            self.platform = self.__guess_platform ()
+        else:
+            if self.platform == self.__guess_platform():
+                # This is a native platform
+                self.is_host = True
+
         if self.is_host:
             # This is host so we can find the machine name using uname fields
             tmp = uname [1].lower ().split ('.', 1)
@@ -88,10 +95,6 @@ class Arch:
                 self.domain = tmp[1]
             else:
                 self.domain = ""
-
-        if self.platform is None:
-            # In this case we try to guess the host platform
-            self.platform = self.__guess_platform ()
 
         # Fill other attributes
         self.__fill_info ()
@@ -106,7 +109,7 @@ class Arch:
         Returns a dictionary containing os and cpu exported vars
         and self.__dict__ content
         """
-        str_dict = self.__dict__
+        str_dict = self.__dict__.copy ()
         for (key, var) in self.os.__dict__.items():
             str_dict["os_" + key] = var
         for (key, var) in self.cpu.__dict__.items():
@@ -160,7 +163,7 @@ class Arch:
 
         # If version is not given by the user guess it or set it to the
         # default (cross case)
-        if self.is_host:
+        if self.is_host and self.os.version is None:
             self.os.version = self.__guess_os_version ()
         if self.os.version is None:
             self.os.version = config.os_info[self.os.name]['version']
@@ -244,9 +247,14 @@ class Arch:
         REMARKS
           None
         """
+        if self.os.name in ('freebsd', 'tru64'):
+            # Do not compute OS version but read config.os_info table
+            return None
 
         uname = platform.uname ()
-        if self.os.name == 'linux':
+        if self.os.name == 'darwin':
+            return uname[2]
+        elif self.os.name == 'linux':
             if os.path.isfile ('/etc/redhat-release'):
                 # RedHat distributions
                 return 'redhat'
@@ -287,10 +295,6 @@ class Arch:
                 return None
         elif self.os.name == 'aix':
             return uname[3] + '.' + uname[2]
-        elif self.os.name == 'darwin':
-            return ''
-        elif self.os.name == 'freebsd':
-            return ''
         elif self.os.name == 'hp-ux':
             version = uname[2]
             if version[0:2] == 'B.':
@@ -300,12 +304,39 @@ class Arch:
             return uname[2]
         elif self.os.name == 'lynxos':
             return ''
-        elif self.os.name == 'tru64':
-            return None
         elif self.os.name == 'solaris':
             return '2' + uname[2][1:]
         elif self.os.name == 'windows':
-            return ''
+            winver = sys.getwindowsversion ()
+            if winver[3] != 2:
+                # Don't try to set versions for Win 3.x or Win 9x series
+                return None
+            else:
+                # this a WIN32_NT version
+                if winver[0] == 6:
+                    # versions starting with Vista. Currently we don't know
+                    # how to make distinction between server 2008 and Vista
+                    # or Windows 7. Indeed Server 2008 is version 6.0 as Vista
+                    # and Server 2008 R2 is 6.1 as Windows 7.
+                    if winver[1] == 0:
+                        return 'Vista'
+                    elif winver[1] == 1:
+                        return '7'
+                    else:
+                        return None
+
+                elif winver[0] == 5:
+                    # versions from 2000 to 2008
+                    if winver[1] == 0:
+                        return '2000'
+                    elif winver[1] == 1:
+                        return 'XP'
+                    elif winver[1] == 2:
+                        return '2003'
+                else:
+                    # Don't try to guess versions of NT versions older than
+                    # Windows 2000
+                    return None
         return None
 
 if __name__ == "__main__":
