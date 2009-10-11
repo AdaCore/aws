@@ -356,7 +356,7 @@ def gen_collect_result(report_func):
                 diff_content = f.read()
                 f.close()
 
-        report_func(test.testdir, status, xfail, diff_content)
+        report_func(test.testdir, status, xfail or "", diff_content)
     return collect_result
 
 class TestCase(object):
