@@ -265,38 +265,6 @@ class Runner(object):
         # Save result in OLD_TESTSUITE_RES for next run
         cp(TESTSUITE_RES, OLD_TESTSUITE_RES)
 
-class ConsoleColorFormatter(logging.Formatter):
-    """Output colorfull text"""
-    def __init__(self, fmt=None, datefmt=None):
-        """Initialize the formatter with specified format strings.
-
-        Use a colored output if possible.
-        """
-        logging.Formatter.__init__(self, fmt, datefmt)
-
-        # Should we use color output
-        self.usecolor = not ((sys.platform=='win32')
-                             or ('NOCOLOR' in os.environ)
-                             or (os.environ.get('TERM', 'dumb')
-                                 in ['dumb', 'emacs'])
-                             or (not sys.stderr.isatty()))
-
-    def format(self, record):
-        """If TERM supports colors, colorize output"""
-        output = logging.Formatter.format(self, record)
-        if self.usecolor:
-            if "PROBLEM" in output or "DIFF" in output:
-                output = '\033[01;31m' + output + '\033[0m'
-            elif "UOK" in output:
-                output = '\033[01;33m' + output + '\033[0m'
-            elif "OK" in output:
-                output = '\033[01;32m' + output + '\033[0m'
-            elif "XFAIL" in output:
-                output = '\033[00;31m' + output + '\033[0m'
-            elif "DEAD" in output:
-                output = '\033[01;36m' + output + '\033[0m'
-        return output
-
 def linktree(src, dst, symlinks=0):
     """Hard link all files from src directory in dst directory"""
     names = os.listdir(src)
@@ -415,7 +383,7 @@ def run_testsuite():
 
     logging.basicConfig(level=logging.DEBUG,
                         filename='%s/testsuite.log' % OUTPUTS_DIR, mode='w')
-    main = Main(formatter=ConsoleColorFormatter('%(message)s'))
+    main = Main(formatter='%(message)s')
     main.add_option("--tests", dest="tests",
                     help="list of tests to run, a space separated string or " \
                         "a filename.")
