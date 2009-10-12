@@ -1,8 +1,8 @@
 ====================================================
-AWS 2.7 NEW FEATURES LIST Current as of Mar 10, 2009
+AWS 2.7 NEW FEATURES LIST Current as of Oct 12, 2009
 ====================================================
 
-Copyright (c) 2006-2009, AdaCore
+Copyright (C) 2006-2009, AdaCore
 
 This file contains a list of new features introduced in AWS.
 A full description of all AWS features can be found in the AWS
@@ -12,7 +12,7 @@ An ISO date (YYYY-MM-DD) appears in parentheses after the
 description line. This date shows the implementation date
 of the feature.
 
-New features in AWS 2.7.0
+New features in AWS 2.7.1
 -------------------------
 
 NF-27-I309-020 SOAP client stub based on persistent connection (2009-03-10)
