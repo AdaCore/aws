@@ -422,8 +422,6 @@ install: install_dirs $(MODULES_INSTALL)
 ifeq ($(XMLADA),true)
 	$(CP) templates_parser/xsrc/*.ad[sb] $(I_INC)
 endif
-	-$(CP) templates_parser/docs/templates_parser.html $(I_DOC)
-	-$(CP) templates_parser/docs/templates_parser.info* $(I_DOC)
 	$(CP) templates_parser/tools/templates.tads $(I_TPL)
 	$(CP) $(CONFADC) $(I_LIB)/static
 	$(CP) $(CONFGPR) $(I_AGP)

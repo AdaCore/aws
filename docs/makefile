@@ -232,6 +232,10 @@ install:
 	-$(CP) aws.html $(I_DOC)
 	-$(CP) aws.txt $(I_DOC)
 	-$(CP) aws*.info* $(I_DOC)
+	-$(CP) ../templates_parser/docs/templates_parser.pdf $(I_DOC)
+	-$(CP) ../templates_parser/docs/templates_parser.html $(I_DOC)
+	-$(CP) ../templates_parser/docs/templates_parser.txt $(I_DOC)
+	-$(CP) ../templates_parser/docs/templates_parser.info* $(I_DOC)
 
 clean:
 	-$(GNAT) clean -XLIBRARY_TYPE=static -Pdocs
