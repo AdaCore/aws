@@ -4,7 +4,7 @@
 
 Authors:
    Dmitriy Anisimkov
-   Pascal Obry                                            September 23th, 2009
+   Pascal Obry                                            October 13th, 2009
 
 
 
@@ -39,6 +39,8 @@ New features are described into the file docs/features.
 
 Listed below are some minor enhancements and fixes:
 
+   - The PS documentation has been removed. Only PDF documentation is
+     now generated.
 
 
 Non upward compatible changes

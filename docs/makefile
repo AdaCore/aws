@@ -33,7 +33,6 @@ BUILD_DOC_SCRIPT = true
 #  the documentation (see gen_doc.*).
 
 MAKEINFO	= $(shell which makeinfo 2> /dev/null)
-DVIPS		= $(shell which dvips 2> /dev/null)
 TEXI2DVI	= $(shell which texi2dvi 2> /dev/null)
 PDFTEX		= $(shell which pdftex 2> /dev/null)
 
@@ -127,9 +126,9 @@ build_doc: $(APIFILES) aws_docs sg_docs
 	echo AWS Documentation built with success.
 	${MAKE} -C ../templates_parser doc
 
-aws_docs: aws.texi aws.pdf aws.ps aws.html aws.txt aws.info
+aws_docs: aws.texi aws.pdf aws.html aws.txt aws.info
 
-sg_docs: style-guide.pdf style-guide.ps style-guide.html style-guide.txt \
+sg_docs: style-guide.pdf style-guide.html style-guide.txt \
 	style-guide.info
 
 setup:
@@ -156,26 +155,6 @@ ada.sed: makefile
 
 %.adb.texi: %.adb ada.sed gentexifile
 	./gentexifile $< NOGROUP
-
-%.dvi: %.texi
-ifneq (${TEXI2DVI},)
-	echo Building $@
-	-${TEXI2DVI} --expand --clean --quiet $<
-else
-	@echo "--------------------------------------------------------"
-	@echo "texi2dvi not found, cannot build DVI or PS documentation"
-	@echo "--------------------------------------------------------"
-endif
-
-%.ps: %.dvi
-ifneq (${DVIPS},)
-	echo Building $@
-	-${DVIPS} -q $< -o $@
-else
-	@echo "------------------------------------------------------"
-	@echo "dvips not found, cannot build POSTSCRIPT documentation"
-	@echo "------------------------------------------------------"
-endif
 
 %.pdf: %.texi
 ifneq (${TEXI2DVI},)
@@ -249,13 +228,14 @@ check_texi:
 aws.texi: gen_texi check_texi
 
 install:
+	-$(CP) aws.pdf $(I_DOC)
 	-$(CP) aws.html $(I_DOC)
 	-$(CP) aws.txt $(I_DOC)
-	-$(CP) *.info* $(I_DOC)
+	-$(CP) aws*.info* $(I_DOC)
 
 clean:
 	-$(GNAT) clean -XLIBRARY_TYPE=static -Pdocs
-	-$(RM) -f aws.texi aws.dvi aws.html aws.info* aws.log aws.ps aws.txt
+	-$(RM) -f aws.texi aws.html aws.info* aws.log aws.txt
 	-$(RM) -f $(APIFILES) *~ genout
-	-$(RM) -f style-guide.dvi style-guide.html style-guide.info* \
-		style-guide.log style-guide.ps style-guide.txt
+	-$(RM) -f style-guide.html style-guide.info* \
+		style-guide.log style-guide.txt
