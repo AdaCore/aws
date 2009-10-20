@@ -53,7 +53,7 @@ procedure SockOver_Proc (Security : Boolean) is
                & One & Two & Three & One & Two & Three;
 
    Sample2 : constant Stream_Element_Array
-                        (Sample1'First + 1 .. Sample1'Last + 1) := Sample1;
+               (Sample1'First + 1 .. Sample1'Last + 1) := Sample1;
    Sample3 : constant Stream_Element_Array (1 .. Sample1'Length) := Sample1;
 
    Server : Net.Socket_Type'Class := Net.Socket (False);
@@ -98,7 +98,8 @@ procedure SockOver_Proc (Security : Boolean) is
             Net.Receive (Peer, Buffer, Last);
             exit when Last < Buffer'Last;
          end loop;
-      exception when Net.Socket_Error => null; -- Ignore input timeout
+      exception
+         when Net.Socket_Error => null; -- Ignore input timeout
       end;
    end Transmit;
 
