@@ -146,11 +146,11 @@ package AWS.Net is
      (Socket : Socket_Type;
       Data   : Stream_Element_Array;
       Last   : out Stream_Element_Offset) is abstract;
-   --  Try to place data to Socket's output buffer.
-   --  If all data cannot be placed to the socket output buffer, Last will
-   --  be lower than Data'Last, if no data has been placed into the output
-   --  buffer, Last is set to be out of Data'Range, either Data'First - 1
-   --  or Stream_Element_Offset'Last is used.
+   --  Try to place data to Socket's output buffer. If all data cannot be
+   --  placed to the socket output buffer, Last will be lower than Data'Last,
+   --  if no data has been placed into the output buffer, Last is set to
+   --  Data'First - 1. If Data'First is equal to Stream_Element_Offset'First
+   --  then constraint error is raised to follow advice in AI95-227.
 
    procedure Receive
      (Socket : Socket_Type;
@@ -392,5 +392,14 @@ private
    overriding procedure Initialize (Socket : in out Socket_Type);
    overriding procedure Adjust     (Socket : in out Socket_Type);
    overriding procedure Finalize   (Socket : in out Socket_Type);
+
+   function Last_Index
+     (First : Stream_Element_Offset;
+      Count : Natural) return Ada.Streams.Stream_Element_Offset;
+   --  Compute the Last OUT parameter for the various Send / Receive
+   --  subprograms: returns First + Count - 1.
+   --  When First = Stream_Element_Offset'First and Res = 0, Constraint_Error
+   --  is raised. This is consistent with the semantics of stream operations
+   --  as clarified in AI95-227.
 
 end AWS.Net;

@@ -745,12 +745,7 @@ package body AWS.Net.Std is
          Errno := OS_Lib.Socket_Errno;
 
          if Errno = OS_Lib.EWOULDBLOCK then
-            if Data'First = Stream_Element_Offset'First then
-               Last := Stream_Element_Offset'Last;
-            else
-               Last := Data'First - 1;
-            end if;
-
+            Last := Last_Index (Data'First, 0);
             return;
 
          else
@@ -758,13 +753,7 @@ package body AWS.Net.Std is
          end if;
       end if;
 
-      if RC = 0 and then Data'First = Stream_Element_Offset'First then
-         --  Could not Last := Data'First - 1;
-
-         Last := Stream_Element_Offset'Last;
-      else
-         Last := Data'First + Stream_Element_Offset (RC) - 1;
-      end if;
+      Last := Last_Index (Data'First, Natural (RC));
 
       if Net.Log.Is_Write_Active then
          Net.Log.Write

@@ -576,13 +576,7 @@ package body AWS.Net.Std is
                       Sockets.Resolve_Exception (E);
          begin
             if Error = Sockets.Resource_Temporarily_Unavailable then
-               if Data'First = Stream_Element_Offset'First then
-                  Last := Stream_Element_Offset'Last;
-               else
-                  Last := Data'First - 1;
-               end if;
-
-               return;
+               Last := Last_Index (Data'First, 0);
             else
                Raise_Exception (E, "Send", Socket);
             end if;

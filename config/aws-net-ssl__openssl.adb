@@ -562,12 +562,7 @@ package body AWS.Net.SSL is
 
    begin
       if not Check (Socket, (Input => False, Output => True)) (Output) then
-         if Data'First = Stream_Element_Offset'First then
-            Last := Stream_Element_Offset'Last;
-         else
-            Last := Data'First - 1;
-         end if;
-
+         Last := Last_Index (Data'First, 0);
          return;
       end if;
 

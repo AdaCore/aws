@@ -4,7 +4,7 @@
 
 Authors:
    Dmitriy Anisimkov
-   Pascal Obry                                            October 13th, 2009
+   Pascal Obry                                            October 17th, 2009
 
 
 
@@ -51,6 +51,20 @@ In such a case we try to give proper advice on how to change the code
 to work properly. Of course we try to avoid this as much as possible
 but we really prefer to have a clean API instead of keeping awkward
 implementations.
+
+   - The Send rountine will now raise Constraint_Error if no data has been
+     sent and Data'First = Stream_Element_Offset'First.
+
+     A common case to have Data'First = Stream_Element_Offset'First is:
+
+        I  : Stream_Element;
+        A  : Stream_Element_Array;
+
+        I & A;
+
+     This is easily worked around by using:
+
+        (0 => I) & A;
 
 
 Obsolescent features

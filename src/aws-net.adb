@@ -167,6 +167,22 @@ package body AWS.Net is
       return Strings.Fixed.Index (Exception_Message (E), Timeout_Token) > 0;
    end Is_Timeout;
 
+   ----------------
+   -- Last_Index --
+   ----------------
+
+   function Last_Index
+     (First : Stream_Element_Offset;
+      Count : Natural) return Ada.Streams.Stream_Element_Offset is
+   begin
+      if First = Stream_Element_Offset'First and then Count = 0 then
+         raise Constraint_Error with
+           "last index out of range (no element transferred)";
+      else
+         return First + Stream_Element_Offset (Count - 1);
+      end if;
+   end Last_Index;
+
    ----------
    -- Poll --
    ----------

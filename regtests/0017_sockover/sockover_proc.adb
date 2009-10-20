@@ -45,11 +45,12 @@ procedure SockOver_Proc (Security : Boolean) is
    Two   : constant Stream_Element := 2;
    Three : constant Stream_Element := 3;
 
-   Sample1 : constant Stream_Element_Array
-     := One & Two & Three & One & Two & Three & One & Two & Three & One & Two
-        & Three & One & Two & Three & One & Two & Three & One & Two & Three
-        & One & Two & Three & One & Two & Three & One & Two & Three & One & Two
-        & Three & One & Two & Three & One & Two & Three & One & Two & Three;
+   Sample1 : constant Stream_Element_Array :=
+               (0 => One) & Two & Three & One & Two & Three & One & Two & Three
+               & One & Two & Three & One & Two & Three & One & Two & Three
+               & One & Two & Three & One & Two & Three & One & Two & Three
+               & One & Two & Three & One & Two & Three & One & Two & Three
+               & One & Two & Three & One & Two & Three;
 
    Sample2 : constant Stream_Element_Array
                         (Sample1'First + 1 .. Sample1'Last + 1) := Sample1;
