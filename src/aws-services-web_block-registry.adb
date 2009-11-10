@@ -427,16 +427,13 @@ package body AWS.Services.Web_Block.Registry is
       Prefix           : Boolean := False;
       Context_Required : Boolean := False)
    is
-      WO : Web_Object;
+      WO : constant Web_Object :=
+             (Callback_Template => False,
+              Content_Type      => To_Unbounded_String (Content_Type),
+              Template          => To_Unbounded_String (Template),
+              Data_CB           => Data_CB,
+              Context_Required  => Context_Required);
    begin
-      --  WO := (To_Unbounded_String (Template), Data_CB);
-      --  ??? problem with GNAT GPL 2006.
-
-      WO.Content_Type     := To_Unbounded_String (Content_Type);
-      WO.Template         := To_Unbounded_String (Template);
-      WO.Data_CB          := Data_CB;
-      WO.Context_Required := Context_Required;
-
       --  Register Tag
 
       WO_Map.Include (Key, WO);
@@ -457,13 +454,13 @@ package body AWS.Services.Web_Block.Registry is
       Content_Type     : String := MIME.Text_HTML;
       Context_Required : Boolean := False)
    is
-      WO : Web_Object (True);
+      WO : constant Web_Object :=
+             (Callback_Template => True,
+              Content_Type      => To_Unbounded_String (Content_Type),
+              Template_CB       => Template_CB,
+              Data_CB           => Data_CB,
+              Context_Required  => Context_Required);
    begin
-      WO.Content_Type     := To_Unbounded_String (Content_Type);
-      WO.Template_CB      := Template_CB;
-      WO.Data_CB          := Data_CB;
-      WO.Context_Required := Context_Required;
-
       --  Register Tag
 
       WO_Map.Include (Key, WO);
