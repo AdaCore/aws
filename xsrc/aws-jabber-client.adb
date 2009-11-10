@@ -931,6 +931,9 @@ package body AWS.Jabber.Client is
          --  We have been deconnected, this is the way Jabber terminate the
          --  session.
          null;
+      when E : others =>
+         Text_IO.Put_Line (Exceptions.Exception_Information (E));
+         raise;
    end Incoming_Stream;
 
    ---------------
