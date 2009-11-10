@@ -15,7 +15,7 @@ else
    awk="gawk"
 fi
 
-$awk 'BEGIN{out=1}$1=="end"&&substr($0,1,1)=="e"{out=1}out==1{print}$1=="private"&&out==1{out=0; print "   --  implementation removed"}' ${SOURCE} > genout
+$awk 'BEGIN{out=1}$1=="end"&&substr($0,1,1)=="e"{out=1}out==1{print}$1=="private"&&$2!="with"&&out==1{out=0; print "   --  implementation removed"}' ${SOURCE} > genout
 
 rm -f ${TMPTAR}
 
