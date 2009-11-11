@@ -42,6 +42,7 @@ with AWS.Utils;
 with Get_Free_Port;
 
 procedure Test_Jabber is
+
    use type Ada.Tags.Tag;
    use Ada;
    use AWS;
@@ -131,8 +132,8 @@ procedure Test_Jabber is
          begin
             if Verbose then
                Text_IO.New_Line;
-               Text_IO.Put_Line ("############# Client :: ["
-                                   & Got_Message & "]");
+               Text_IO.Put_Line
+                 ("############# Client :: [" & Got_Message & "]");
             end if;
 
             if Strings.Fixed.Index (Got_Message, "PLAIN") /= 0 then
@@ -143,6 +144,7 @@ procedure Test_Jabber is
                  (Sock.all,
                   "<success xmlns='urn:ietf:params:xml:ns:xmpp-sasl'/>");
                Buffered.Flush (Sock.all);
+
             elsif Strings.Fixed.Index (Got_Message, "<stream:stream") /= 0 then
                --  Client create new stream
                --  Return supported features
