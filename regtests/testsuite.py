@@ -392,8 +392,6 @@ def run_testsuite():
                     help="Add a test that always fail")
     main.add_option("--view-diffs", dest="view_diffs", action="store_true",
                     default=False, help="show diffs on stdout")
-    main.add_option("--jobs", dest="jobs", type="int", default=5,
-                    help="Number of jobs to run in parallel")
     main.add_option("--delay", dest="delay", type="float", default=0.1,
                     help="Delay between two loops")
     main.add_option("--tags", dest="tags",
