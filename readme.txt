@@ -56,6 +56,9 @@ Listed below are some minor enhancements and fixes:
 
    - Fix usage of Null_Set in Templates_Parser.
 
+   - Make sure that spaces/HT are stripped out from identifiers generated
+     by ada2wsdl parser.
+
    - Plus many small fixes, enhancements, API comments, and documentation work.
 
 
