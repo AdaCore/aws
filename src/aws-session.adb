@@ -36,7 +36,7 @@ with Ada.Unchecked_Deallocation;
 
 with AWS.Default;
 with AWS.Containers.Key_Value;
-with AWS.Utils;
+with AWS.Utils.Streams;
 
 package body AWS.Session is
 
@@ -79,29 +79,6 @@ package body AWS.Session is
       Found    : out Boolean);
    --  Returns Node for specified SID, if found update the timestamp for
    --  this node and set Found to True, otherwise set Found to False.
-
-   --------------------
-   --  String stream --
-   --------------------
-
-   type String_Stream_Type is new Root_Stream_Type with record
-      Str        : Unbounded_String;
-      Read_Index : Natural := 1;
-   end record;
-   --  A stream that reads and writes to a string
-
-   overriding procedure Read
-     (Stream : in out String_Stream_Type;
-      Item   : out Stream_Element_Array;
-      Last   : out Stream_Element_Offset);
-
-   overriding procedure Write
-     (Stream : in out String_Stream_Type; Item : Stream_Element_Array);
-   --  See inherited documentation
-
-   procedure Open (Stream : in out String_Stream_Type'Class; Str : String);
-   --  Open a new string. Str is the initial value of the string, to which will
-   --  be appended the result of 'Output.
 
    Max_Expired : constant := 50;
 
@@ -816,14 +793,14 @@ package body AWS.Session is
 
       function Get (SID : Id; Key : String) return Data is
          Result : constant String := Get (SID, Key);
-         Str    : aliased String_Stream_Type;
+         Str    : aliased Utils.Streams.Strings;
          Value  : Data;
       begin
          if Result = "" then
             return Null_Data;
 
          else
-            Open (Str, Result);
+            Utils.Streams.Open (Str, Result);
             Data'Read (Str'Access, Value);
             return Value;
          end if;
@@ -834,10 +811,10 @@ package body AWS.Session is
       ---------
 
       procedure Set (SID : Id; Key : String; Value : Data) is
-         Str : aliased String_Stream_Type;
+         Str : aliased Utils.Streams.Strings;
       begin
          Data'Write (Str'Access, Value);
-         Set (SID, Key, To_String (Str.Str));
+         Set (SID, Key, Utils.Streams.Value (Str'Access));
       end Set;
 
    end Generic_Data;
@@ -987,38 +964,6 @@ package body AWS.Session is
 
       Close (File);
    end Load;
-
-   ----------
-   -- Open --
-   ----------
-
-   procedure Open
-     (Stream : in out String_Stream_Type'Class; Str : String) is
-   begin
-      Stream.Str        := To_Unbounded_String (Str);
-      Stream.Read_Index := 1;
-   end Open;
-
-   ----------
-   -- Read --
-   ----------
-
-   overriding procedure Read
-     (Stream : in out String_Stream_Type;
-      Item   : out Stream_Element_Array;
-      Last   : out Stream_Element_Offset)
-   is
-      Str : constant String := Slice
-        (Stream.Str, Stream.Read_Index, Stream.Read_Index + Item'Length - 1);
-      J   : Stream_Element_Offset := Item'First;
-   begin
-      for S in Str'Range loop
-         Item (J) := Stream_Element (Character'Pos (Str (S)));
-         J := J + 1;
-      end loop;
-      Last := Item'First + Str'Length - 1;
-      Stream.Read_Index := Stream.Read_Index + Item'Length;
-   end Read;
 
    ------------
    -- Remove --
@@ -1200,23 +1145,5 @@ package body AWS.Session is
          return Id (SID (SID'First + SID_Prefix'Length .. SID'Last));
       end if;
    end Value;
-
-   -----------
-   -- Write --
-   -----------
-
-   overriding procedure Write
-     (Stream : in out String_Stream_Type; Item : Stream_Element_Array)
-   is
-      Str : String (1 .. Integer (Item'Length));
-      S   : Integer := Str'First;
-   begin
-      for J in Item'Range loop
-         Str (S) := Character'Val (Item (J));
-         S := S + 1;
-      end loop;
-
-      Append (Stream.Str, Str);
-   end Write;
 
 end AWS.Session;

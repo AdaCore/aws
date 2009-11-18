@@ -1609,6 +1609,8 @@ src/aws-url-set.adb
 src/aws-url-set.ads
 src/aws-url.adb
 src/aws-url.ads
+src/aws-utils-streams.adb
+src/aws-utils-streams.ads
 src/aws-utils.adb
 src/aws-utils.ads
 src/aws.ads
