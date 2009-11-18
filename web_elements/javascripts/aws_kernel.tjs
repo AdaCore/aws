@@ -412,7 +412,7 @@ AWS.Ajax = new function() {
          var O_ajax = new Ajax.Updater
              ({success: placeholder},
               url,
-              {method:     'get',
+              {method:    'get',
               parameters: AWS.Context.add_ajax(pars),
               onFailure:  AWS.Tools.report_error,
               onComplete: function(req)

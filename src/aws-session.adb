@@ -51,7 +51,7 @@ package body AWS.Session is
    --  Check for obsolete section interval
 
    Lifetime       : Real_Time.Time_Span :=
-     Real_Time.To_Time_Span (Default.Session_Lifetime);
+                      Real_Time.To_Time_Span (Default.Session_Lifetime);
    --  A session is obsolete if not used after Session_Lifetime seconds
 
    package Key_Value renames Containers.Key_Value;
@@ -637,8 +637,8 @@ package body AWS.Session is
       -------------------
 
       procedure Touch_Session (SID : Id) is
-         Node   : Session_Node;
-         Found  : Boolean;
+         Node  : Session_Node;
+         Found : Boolean;
       begin
          Get_Node (Sessions, SID, Node, Found);
       end Touch_Session;
@@ -700,12 +700,12 @@ package body AWS.Session is
       use type Real_Time.Time;
       use type Calendar.Time;
 
-      Cursor   : Session_Set.Cursor;
-      Order    : Positive := 1;
-      Quit     : Boolean  := False;
-
       Now_Monoton  : constant Real_Time.Time := Real_Time.Clock;
       Now_Calendar : constant Calendar.Time  := Calendar.Clock;
+
+      Cursor : Session_Set.Cursor;
+      Order  : Positive := 1;
+      Quit   : Boolean  := False;
 
    begin
       Database.Lock_And_Get_Sessions (Cursor);
