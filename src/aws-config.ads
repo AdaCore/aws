@@ -43,10 +43,18 @@ package AWS.Config is
 
    Default_Config : constant Object;
 
+   --  For the external configuration to be loaded either Get_Current or
+   --  Load_Config must be called explicitely.
+
    function Get_Current return Object;
    --  Returns a configuration record. This is the properties as read in files
    --  'aws.ini' and 'progname.ini'. This configuration object holds only the
    --  per-server options.
+
+   procedure Load_Config;
+   --  Load configuration and store it into an internal object. This can be
+   --  called when only some server-wide configuration are to be set from
+   --  .ini files for example.
 
    ------------------------
    -- Per Server options --

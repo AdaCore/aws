@@ -239,10 +239,7 @@ package body AWS.Config is
    begin
       if not Ini_Loaded then
          Ini_Loaded := True;
-
-         Read_If_Present ("aws.ini");
-         Read_If_Present (Ini.Program_Ini_File (Full_Path => True));
-         Read_If_Present (Ini.Program_Ini_File (Full_Path => False));
+         Load_Config;
       end if;
 
       return Server_Config;
@@ -309,6 +306,17 @@ package body AWS.Config is
    begin
       return O.P (Line_Stack_Size).Pos_Value;
    end Line_Stack_Size;
+
+   -----------------
+   -- Load_Config --
+   -----------------
+
+   procedure Load_Config is
+   begin
+      Read_If_Present ("aws.ini");
+      Read_If_Present (Ini.Program_Ini_File (Full_Path => True));
+      Read_If_Present (Ini.Program_Ini_File (Full_Path => False));
+   end Load_Config;
 
    -----------------------------------------
    -- Log_Extended_Fields_Generic_Iterate --
