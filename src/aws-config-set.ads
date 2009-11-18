@@ -291,6 +291,10 @@ package AWS.Config.Set is
    --  Number of seconds to keep a transient page. After this period the
    --  transient page is obsoleted and will be removed during next cleanup.
 
+   procedure Context_Lifetime (Value : Duration);
+   --  Number of seconds to keep a context if not used. After this period the
+   --  context data is obsoleted and will be removed during next cleanup.
+
    procedure Parameter
      (Config        : in out Object;
       Name          : String;

@@ -92,6 +92,10 @@ package AWS.Default is
    Session_Cleanup_Interval        : constant Duration := Five_Minutes;
    Session_Lifetime                : constant Duration := Ten_Minutes;
 
+   --  Context
+
+   Context_Lifetime                : constant Duration := Eight_Hours;
+
    --  Transient pages
 
    Transient_Cleanup_Interval      : constant Duration := Three_Minutes;

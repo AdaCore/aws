@@ -121,6 +121,15 @@ package body AWS.Config.Set is
       O.P (Cleaner_Wait_For_Client_Timeout).Dur_Value := Value;
    end Cleaner_Wait_For_Client_Timeout;
 
+   ----------------------
+   -- Context_Lifetime --
+   ----------------------
+
+   procedure Context_Lifetime (Value : Duration) is
+   begin
+      Process_Options (Context_Lifetime).Dur_Value := Value;
+   end Context_Lifetime;
+
    ----------------------------
    -- Directory_Browser_Page --
    ----------------------------

@@ -141,6 +141,15 @@ package body AWS.Config is
       return O.P (Cleaner_Wait_For_Client_Timeout).Dur_Value;
    end Cleaner_Wait_For_Client_Timeout;
 
+   ----------------------
+   -- Context_Lifetime --
+   ----------------------
+
+   function Context_Lifetime return Duration is
+   begin
+      return Process_Options (Context_Lifetime).Dur_Value;
+   end Context_Lifetime;
+
    ----------------------------
    -- Directory_Browser_Page --
    ----------------------------

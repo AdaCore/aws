@@ -361,6 +361,11 @@ package AWS.Config is
    pragma Inline (Input_Line_Size_Limit);
    --  Limit of the HTTP protocol text lines length
 
+   function Context_Lifetime return Duration;
+   pragma Inline (Context_Lifetime);
+   --  Number of seconds to keep a context if not used. After this period the
+   --  context data is obsoleted and will be removed during next cleanup.
+
 private
 
    package SV renames AWS.Containers.String_Vectors;
@@ -424,13 +429,14 @@ private
       Transient_Cleanup_Interval,
       Transient_Lifetime,
       Input_Line_Size_Limit,
-      Max_Concurrent_Download);
+      Max_Concurrent_Download,
+      Context_Lifetime);
 
    subtype Server_Parameter_Name is Parameter_Name
      range Server_Name .. Case_Sensitive_Parameters;
 
    subtype Process_Parameter_Name is Parameter_Name
-     range Session_Cleanup_Interval .. Max_Concurrent_Download;
+     range Session_Cleanup_Interval .. Context_Lifetime;
 
    type Value_Type  is (Str, Dir, Nat, Pos, Dur, Bool, Str_Vect);
 
@@ -629,6 +635,9 @@ private
            (Pos, Default.Input_Line_Size_Limit),
 
          Max_Concurrent_Download =>
-           (Pos, Default.Max_Concurrent_Download));
+           (Pos, Default.Max_Concurrent_Download),
+
+         Context_Lifetime =>
+           (Dur, Default.Context_Lifetime));
 
 end AWS.Config;
