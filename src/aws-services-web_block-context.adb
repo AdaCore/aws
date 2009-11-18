@@ -25,105 +25,132 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-with Ada.Containers.Vectors;
-with Ada.Strings.Unbounded;
+with Ada.Calendar;
+with Ada.Containers.Hashed_Maps;
+
+with AWS.Config;
+with AWS.Utils.Streams;
 
 package body AWS.Services.Web_Block.Context is
 
-   use Ada;
-   use Ada.Strings.Unbounded;
+   use Ada.Streams;
 
-   ----------
-   -- Copy --
-   ----------
+   Max_Id_Deleted : constant := 100;
+   --  Maximum number of contexts deleted in one pass
 
-   function Copy (CID : Id) return Id is
-      New_CID : constant Id := Create;
-   begin
-      Copy (CID, New_CID);
-      return New_CID;
-   end Copy;
+   function Hash (Key : Id) return Containers.Hash_Type;
 
-   procedure Copy (CID : Id; New_CID : Id) is
+   type Context_Stamp is record
+      C       : Object;
+      Created : Calendar.Time; -- used to delete when expired
+   end record;
 
-      --   Note that we first copy the context into a vector and set the new
-      --   context from it. This is because it is not possible to call
-      --   Set_Value from inside the For_Every_Session_Data callback.
+   package Contexts is new Containers.Hashed_Maps
+     (Id, Context_Stamp, Hash, "=");
 
-      type Context_Data is record
-         Key, Value : Unbounded_String;
-      end record;
+   --  Concurrent Database
 
-      package CD_Vector is new Containers.Vectors (Positive, Context_Data);
-      use CD_Vector;
+   protected Database is
 
-      O       : Object := Get (New_CID);
-      Data    : Vector;
+      procedure Clean;
+      --  Removes expired contexts
 
-      procedure Insert
-        (N          : Positive;
-         Key, Value : String;
-         Quit       : in out Boolean);
-      --  Insert key/value into O
+      function Contains (CID : Id) return Boolean;
+      --  Returns True if context CID is in the database
 
-      ------------
-      -- Insert --
-      ------------
+      function Get (CID : Id) return Object;
+      --  Retruns the context object
 
-      procedure Insert
-        (N          : Positive;
-         Key, Value : String;
-         Quit       : in out Boolean)
-      is
-         pragma Unreferenced (N, Quit);
+      procedure Include (Context : Object; CID : Id);
+      --  Add or update context into the database
+
+   private
+      DB : Contexts.Map;
+   end Database;
+
+   --------------
+   -- Database --
+   --------------
+
+   protected body Database is
+
+      -----------
+      -- Clean --
+      -----------
+
+      procedure Clean is
+         use type Ada.Calendar.Time;
+         Now      : constant Calendar.Time := Calendar.Clock;
+         Elapsed  : constant Duration := Config.Context_Lifetime;
+         CIDS     : array (1 .. Max_Id_Deleted) of Id;
+         Last     : Natural := 0;
+         Position : Contexts.Cursor := DB.First;
       begin
-         Append
-           (Container => Data,
-            New_Item  => Context_Data'(Key   => To_Unbounded_String (Key),
-                                       Value => To_Unbounded_String (Value)));
-      end Insert;
+         --  First check for obsolete context
 
-      ------------------
-      -- Copy_Context --
-      ------------------
+         while Contexts.Has_Element (Position) and then Last < CIDS'Last loop
+            if Now - Contexts.Element (Position).Created > Elapsed then
+               Last := Last + 1;
+               CIDS (Last) := Contexts.Key (Position);
+            end if;
 
-      procedure Copy_Context is new Session.For_Every_Session_Data (Insert);
+            Contexts.Next (Position);
+         end loop;
 
-   begin
-      Copy_Context (Session.Id (CID));
+         for K in CIDS'First .. Last loop
+            DB.Delete (CIDS (K));
+         end loop;
+      end Clean;
 
-      --  Now create the new context
+      --------------
+      -- Contains --
+      --------------
 
-      for K in Positive range 1 .. Natural (Length (Data)) loop
-         declare
-            D : constant Context_Data := Element (Data, K);
-         begin
-            Set_Value (O, To_String (D.Key), To_String (D.Value));
-         end;
-      end loop;
-   end Copy;
+      function Contains (CID : Id) return Boolean is
+      begin
+         return DB.Contains (CID);
+      end Contains;
 
-   ------------
-   -- Create --
-   ------------
+      ---------
+      -- Get --
+      ---------
 
-   overriding function Create return Id is
-   begin
-      return Id (Session.Create);
-   end Create;
+      function Get (CID : Id) return Object is
+      begin
+         if DB.Contains (CID) then
+            return DB.Element (CID).C;
+         else
+            return Empty;
+         end if;
+      end Get;
+
+      -------------
+      -- Include --
+      -------------
+
+      procedure Include (Context : Object; CID : Id) is
+      begin
+         Clean;
+
+         --  Register new context
+
+         DB.Include (CID, Context_Stamp'(Context, Calendar.Clock));
+      end Include;
+
+   end Database;
 
    -----------
    -- Exist --
    -----------
 
-   overriding function Exist (CID : Id) return Boolean is
-   begin
-      return Session.Exist (Session.Id (CID));
-   end Exist;
-
    function Exist (Context : Object; Name : String) return Boolean is
    begin
-      return Session.Exist (Context.SID, Name);
+      return Context.Contains (Name);
+   end Exist;
+
+   function Exist (CID : Id) return Boolean is
+   begin
+      return Database.Contains (CID);
    end Exist;
 
    ---------
@@ -132,7 +159,7 @@ package body AWS.Services.Web_Block.Context is
 
    function Get (CID : Id) return Object is
    begin
-      return Object'(SID => Session.Id (CID));
+      return Database.Get (CID);
    end Get;
 
    ---------------
@@ -141,25 +168,53 @@ package body AWS.Services.Web_Block.Context is
 
    function Get_Value (Context : Object; Name : String) return String is
    begin
-      return Session.Get (Context.SID, Name);
+      if Context.Contains (Name) then
+         return Context.Element (Name);
+      else
+         return "";
+      end if;
    end Get_Value;
+
+   ----------
+   -- Hash --
+   ----------
+
+   function Hash (Key : Id) return Containers.Hash_Type is
+   begin
+      return Strings.Hash (String (Key));
+   end Hash;
 
    -----------
    -- Image --
    -----------
 
-   overriding function Image (CID : Id) return String is
+   function Image (CID : Id) return String is
    begin
-      return Session.Image (Session.Id (CID));
+      return String (CID);
    end Image;
+
+   --------------
+   -- Register --
+   --------------
+
+   function Register (Context : Object) return Id is
+      Stream : aliased Utils.Streams.SHA1;
+      CID    : Id;
+   begin
+      Object'Output (Stream'Access, Context);
+      CID := Id (Utils.Streams.Value (Stream'Access));
+
+      Database.Include (Context, CID);
+      return CID;
+   end Register;
 
    ------------
    -- Remove --
    ------------
 
-   procedure Remove (Context : Object; Name : String) is
+   procedure Remove (Context : in out Object; Name : String) is
    begin
-      Session.Remove (Context.SID, Name);
+      Context.Exclude (Name);
    end Remove;
 
    ---------------
@@ -168,19 +223,20 @@ package body AWS.Services.Web_Block.Context is
 
    procedure Set_Value (Context : in out Object; Name, Value : String) is
    begin
-      Session.Set (Context.SID, Name, Value);
+      Context.Include (Name, Value);
    end Set_Value;
 
    -----------
    -- Value --
    -----------
 
-   overriding function Value (CID : String) return Id is
+   function Value (CID : String) return Id is
    begin
-      return Id (Session.Value (CID));
-   exception
-      when Constraint_Error =>
-         return Id (Session.No_Session);
+      if CID'Length = Id'Length then
+         return Id (CID);
+      else
+         return Id'(others => 'x');
+      end if;
    end Value;
 
    ------------------
@@ -189,17 +245,27 @@ package body AWS.Services.Web_Block.Context is
 
    package body Generic_Data is
 
-      package Context_Generic_Data is
-        new Session.Generic_Data (Data, Null_Data);
-      use Context_Generic_Data;
-
       ---------------
       -- Get_Value --
       ---------------
 
       function Get_Value (Context : Object; Name : String) return Data is
+         Position : constant KV.Cursor := Context.Find (Name);
       begin
-         return Get (Context.SID, Name);
+         if KV.Has_Element (Position) then
+            declare
+               Result : constant String := KV.Element (Position);
+               Str    : aliased Utils.Streams.Strings;
+               Value  : Data;
+            begin
+               Utils.Streams.Open (Str, Result);
+               Data'Read (Str'Access, Value);
+               return Value;
+            end;
+
+         else
+            return Null_Data;
+         end if;
       end Get_Value;
 
       ---------------
@@ -209,9 +275,12 @@ package body AWS.Services.Web_Block.Context is
       procedure Set_Value
         (Context : in out Object;
          Name    : String;
-         Value   : Data) is
+         Value   : Data)
+      is
+         Str : aliased Utils.Streams.Strings;
       begin
-         Set (Context.SID, Name, Value);
+         Data'Write (Str'Access, Value);
+         Context.Include (Name, Utils.Streams.Value (Str'Access));
       end Set_Value;
 
    end Generic_Data;

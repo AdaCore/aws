@@ -25,14 +25,21 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-with AWS.Session;
+with Ada.Containers.Indefinite_Hashed_Maps;
+with Ada.Strings.Hash;
+
+with GNAT.SHA1;
 
 package AWS.Services.Web_Block.Context is
 
    type Object is tagged private;
    --  A context object, can be used to record key/name values
 
+   Empty : constant Object;
+
    type Id is private;
+   --  An object Id, the Id depends only on the context content. Two context
+   --  with the very same content will have the same Id.
 
    function Image (CID : Id) return String;
    --  Returns CID string representation
@@ -40,17 +47,11 @@ package AWS.Services.Web_Block.Context is
    function Value (CID : String) return Id;
    --  Returns Id given it's string representation
 
-   function Create return Id;
-   --  Create a new context and returns the corresponding Id
-
-   procedure Copy (CID : Id; New_CID : Id);
-   --  Copy a context
-
-   function Copy (CID : Id) return Id;
-   --  Returns a new context which is a copy of CID
+   function Register (Context : Object) return Id;
+   --  Register the context into the database, returns its Id
 
    function Exist (CID : Id) return Boolean;
-   --  Returns Trus if CID context exists into the database
+   --  Returns True if CID context exists into the database
 
    function Get (CID : Id) return Object;
    --  Returns the context object corresponding to CID
@@ -82,17 +83,21 @@ package AWS.Services.Web_Block.Context is
    function Exist (Context : Object; Name : String) return Boolean;
    --  Returns true if the key Name exist in this context
 
-   procedure Remove (Context : Object; Name : String);
+   procedure Remove (Context : in out Object; Name : String);
    --  Remove the context for key Name
 
 private
 
-   use AWS;
+   use GNAT;
+   use Ada;
 
-   type Id is new Session.Id;
+   package KV is new Containers.Indefinite_Hashed_Maps
+     (String, String, Strings.Hash, "=");
 
-   type Object is tagged record
-      SID : Session.Id;
-   end record;
+   type Object is new KV.Map with null record;
+
+   type Id is new SHA1.Message_Digest;
+
+   Empty : constant Object := Object'(KV.Map with null record);
 
 end AWS.Services.Web_Block.Context;

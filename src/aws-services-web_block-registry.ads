@@ -45,6 +45,8 @@ package AWS.Services.Web_Block.Registry is
       --  The page's content type
       Set          : Templates.Translate_Set;
       --  The translate set used to render the page
+      Ctx_Id       : Context.Id;
+      --  The page context id
    end record;
 
    No_Page : constant Page;
@@ -84,6 +86,7 @@ package AWS.Services.Web_Block.Registry is
      (Key           : String;
       Request       : Status.Data;
       Translations  : Templates.Translate_Set;
+      Context       : Web_Block.Context.Object := Web_Block.Context.Empty;
       Context_Error : String := "") return Page;
    --  Parse the Web page registered under Key. Context_Error is the key
    --  of the registered template to use when a required context is not
@@ -98,18 +101,22 @@ package AWS.Services.Web_Block.Registry is
       Translations  : Templates.Translate_Set;
       Status_Code   : Messages.Status_Code := Messages.S200;
       Cache_Control : Messages.Cache_Option := Messages.Unspecified;
+      Context       : Web_Block.Context.Object := Web_Block.Context.Empty;
       Context_Error : String := "") return Response.Data;
    --  Same as above but returns a standard Web page
 
    function Get_Context
-     (Request : not null access Status.Data) return Web_Block.Context.Object;
-   --  Gets the proper context id for this request
+     (Request : Status.Data) return Web_Block.Context.Object;
+   --  Gets the proper context object for this request. Note that if the
+   --  context object is modified outside of the Web_Block framework it must be
+   --  passed to the Build or Parse procedure above.
 
 private
 
    No_Page : constant Page :=
                Page'(Content      => Null_Unbounded_String,
                      Content_Type => Null_Unbounded_String,
-                     Set          => Templates.Null_Set);
+                     Set          => Templates.Null_Set,
+                     Ctx_Id       => <>);
 
 end AWS.Services.Web_Block.Registry;

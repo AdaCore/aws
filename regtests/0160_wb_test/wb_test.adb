@@ -154,7 +154,7 @@ procedure WB_Test is
          Orig_Context : constant String :=
                           Get_Value (To_String (R.Content), "ctx");
       begin
-         Status.Set.Add_Parameter (S, "CTX_WB", Orig_Context);
+         Status.Set.Add_Parameter (S, "CTX_WB", Orig_Context, Replace => True);
 
          for K in 1 .. 100 + N * 4 loop
             declare
@@ -162,11 +162,14 @@ procedure WB_Test is
                Context : constant String := Get_Value (Content, "ctx");
                T       : Templates.Translate_Set;
             begin
-               if Orig_Context /= Context then
+               if K > 1 and then Orig_Context = Context then
                   raise Constraint_Error with "wrong context received";
                end if;
 
                R := Web_Block.Registry.Parse ("WHATEVER", S, T);
+               Status.Set.Add_Parameter
+                 (S, "CTX_WB", Get_Value (To_String (R.Content), "ctx"),
+                  Replace => True);
             end;
          end loop;
       end;

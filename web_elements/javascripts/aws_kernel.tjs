@@ -26,11 +26,7 @@
 @@--  covered by the  GNU Public License.
 @@----------------------------------------------------------------------------
 
-@@SET@@ AWS_CONTEXT_PER_WINDOW = true
-@@--  If the context should be renew on a new window (or tab) creation
-
 @@SET@@ CTX_WB = "CTX_WB"
-@@SET@@ CTX_OLD_WB = "CTX_OLD_WB"
 @@--  The context parameter name
 
 @@SET@@ TIMEZONE_COOKIE = ""
@@ -171,14 +167,16 @@ AWS.Context = new function() {
           return $(context).innerHTML;
    }
 
-   this.getold = function ()
+   this.set = function (value)
    {
-      var context = document.getElementById('@_CTX_OLD_WB_@');
+      var context = document.getElementById('@_CTX_WB_@');
 
       if (context == null)
-          return "";
+          return;
       else
-          return $(context).innerHTML;
+          $(context).innerHTML = value;
+
+      this.update();
    }
 
    @@-- --------------------------------
@@ -186,20 +184,6 @@ AWS.Context = new function() {
 
    this.update = function ()
    {
-      @@IF@@ @_AWS_CONTEXT_PER_WINDOW_@ = true
-      @@--  Check if context has to be renewed
-
-      if (!is_new_context
-          && (!document.referrer || history.length == history_first)) {
-	 @@--  This is a new page in the browser
-	 @@--  Renew the context
-
-	 is_new_context = true;
-	 AWS.Ajax.XML.request
-           ("/xml_reset_context.xml?CTX_WB_COPY=true", "", AWS.Context.update);
-      }
-      @@END_IF@@
-
       var k = 0;
 
       @@-- anchors
@@ -251,7 +235,6 @@ AWS.Context = new function() {
           pars = pars + "&";
 
       pars = pars + "@_CTX_WB_@=" + this.get();
-      pars = pars + "&@_CTX_OLD_WB_@=" + this.getold();
 
       return pars;
    }
@@ -281,11 +264,6 @@ AWS.Context = new function() {
          href = href.substr(0, href.length - 1); // Remove & or ?
       }
 
-      if (href.indexOf("@_CTX_OLD_WB_@", 0) != -1) {
-         href = href.split("@_CTX_OLD_WB_@")[0];
-         href = href.substr(0, href.length - 1); // Remove & or ?
-      }
-
       if (href.indexOf('?',0) == -1) {
           href = href + '?';
       } else {
@@ -293,7 +271,6 @@ AWS.Context = new function() {
       }
 
       href = href + "@_CTX_WB_@=" + this.get();
-      href = href + "&@_CTX_OLD_WB_@=" + this.getold();
 
       if (href_last != "") {
          href = href + "#" + href_last;
@@ -313,7 +290,6 @@ AWS.Context = new function() {
       var k = 0;
       var items = form.elements;
       var found_context = false;
-      var found_old_context = false;
 
       for (k=0; k<items.length; k++) {
          if (items[k].tagName == "INPUT"
@@ -326,16 +302,6 @@ AWS.Context = new function() {
             }
             found_context = true;
          }
-         if (items[k].tagName == "INPUT"
-             && items[k].getAttribute('NAME') == '@_CTX_OLD_WB_@') {
-
-            // Update context if needed
-
-            if (items[k].getAttribute('VALUE') != AWS.Context.getold()) {
-               items[k].setAttribute ('VALUE', AWS.Context.getold());
-            }
-            found_old_context = true;
-         }
       }
 
       //  Insert new context field
@@ -347,27 +313,6 @@ AWS.Context = new function() {
          hi.setAttribute('value', AWS.Context.get());
          form.appendChild(hi);
       }
-
-      if (!found_old_context) {
-         hi = document.createElement('input');
-         hi.setAttribute('type', 'hidden');
-         hi.setAttribute('name', '@_CTX_OLD_WB_@');
-         hi.setAttribute('value', AWS.Context.getold());
-         form.appendChild(hi);
-      }
-   }
-
-   @@--
-
-   is_msie = navigator.appName.indexOf("Microsoft") >= 0;
-
-   var is_new_context = false;
-   var history_first;
-
-   if (is_msie) {
-      history_first = 0;
-   } else {
-      history_first = 1;
    }
 }
 
@@ -495,8 +440,20 @@ AWS.Ajax.XML = new function() {
              handler_apply_style (node);
           } else if (node.nodeName == 'insert_after') {
              handler_insert_after (node);
+          } else if (node.nodeName == 'ctx') {
+             handler_ctx (node);
           }
       }
+   }
+
+   @@-- Internal handler, replace current context in Web page
+
+   function handler_ctx (node)
+   {
+      var cid = node.getAttribute("id");
+      AWS.Context.set (cid);
+
+      AWS.Ajax.update_framework();
    }
 
    @@-- Replace a node content by an HTML String
@@ -644,8 +601,6 @@ AWS.Ajax.XML = new function() {
             url = url + '&';
 
          url = url + "@_CTX_WB_@=" + AWS.Context.get();
-         url = url + "&@_CTX_OLD_WB_@=" + AWS.Context.getold();
-
       }
 
       /* Redirect to url */
