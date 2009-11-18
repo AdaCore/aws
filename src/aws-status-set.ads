@@ -99,12 +99,14 @@ package AWS.Status.Set is
    procedure Add_Parameter
      (D           : in out Data;
       Name, Value : String;
-      Decode      : Boolean := True);
+      Decode      : Boolean := True;
+      Replace     : Boolean := False);
    pragma Inline (Add_Parameter);
-   --  Add one parameter into the internal parameters list.
+   --  Add or replace one parameter into the internal parameters list.
    --  The Name and Value should be already decoded.
    --  If Decode is true, decodes Name and Value. This is used when handling
-   --  multipart/form-data for example.
+   --  multipart/form-data for example. If Replace is True the paramater named
+   --  Name will be set with Value (or added if not already present).
 
    procedure Add_Parameters (D : in out Data; Parameters : String);
    pragma Inline (Add_Parameters);
