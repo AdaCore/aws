@@ -70,11 +70,24 @@ procedure Client_Headers is
       procedure Output (Header : String) is
       begin
          if Headers.Exist (H, Header) then
-            Text_IO.Put_Line
-              (Header & ": " &
-               Strings.Fixed.Translate
-                 (Headers.Get (H, Header),
-                  Strings.Maps.To_Mapping ("0123456789", "xxxxxxxxxx")));
+            declare
+               Value : constant String := Headers.Get (H, Header);
+               Last  : Natural := Value'Last;
+            begin
+               --  Remove 'w' in user's agent version (wavefront)
+               if Header = Messages.User_Agent_Token
+                 and then Value (Last) = 'w'
+               then
+                  Last := Last - 1;
+               end if;
+
+               Text_IO.Put_Line
+                 (Header & ": " &
+                  Strings.Fixed.Translate
+                    (Value (Value'First .. Last),
+                     Strings.Maps.To_Mapping ("0123456789", "xxxxxxxxxx")));
+            end;
+
          else
             Text_IO.Put_Line (Header & ": NOT FOUND");
          end if;
