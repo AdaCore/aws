@@ -30,6 +30,7 @@ with Ada.Text_IO;
 with Ada.Strings.Fixed;
 with Ada.Strings.Unbounded;
 
+with AWS.MIME;
 with AWS.Services.Web_Block.Context;
 with AWS.Services.Web_Block.Registry;
 with AWS.Status.Set;
@@ -148,38 +149,20 @@ procedure WB_Test is
       end Get_Value;
 
    begin
-      R := Web_Block.Registry.Parse ("WHATEVER", S, T);
-
-      declare
-         Orig_Context : constant String :=
-                          Get_Value (To_String (R.Content), "ctx");
-      begin
-         Status.Set.Add_Parameter (S, "CTX_WB", Orig_Context, Replace => True);
-
-         for K in 1 .. 100 + N * 4 loop
-            declare
-               Content : constant String := To_String (R.Content);
-               Context : constant String := Get_Value (Content, "ctx");
-               T       : Templates.Translate_Set;
-            begin
-               if K > 1 and then Orig_Context = Context then
-                  raise Constraint_Error with "wrong context received";
-               end if;
-
-               R := Web_Block.Registry.Parse ("WHATEVER", S, T);
-               Status.Set.Add_Parameter
-                 (S, "CTX_WB", Get_Value (To_String (R.Content), "ctx"),
-                  Replace => True);
-            end;
-         end loop;
-      end;
+      for K in 1 .. 101 + N * 4 loop
+         R := Web_Block.Registry.Parse ("WHATEVER", S, T);
+         Status.Set.Add_Parameter
+           (S, "CTX_WB", Get_Value (To_String (R.Content), "ctx"),
+            Replace => True);
+      end loop;
 
       Results (N) := Positive'Value (Get_Value (To_String (R.Content), "tag"));
    end Request;
 
 begin
    Web_Block.Registry.Register
-     ("WHATEVER", "wb_test.tmplt", Data_CB'Unrestricted_Access);
+     ("WHATEVER", "wb_test.tmplt", Data_CB'Unrestricted_Access,
+     Content_Type => MIME.Text_Plain);
 
    for K in Clients'Range loop
       Clients (K).Start (K);

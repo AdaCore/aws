@@ -168,14 +168,17 @@ package body AWS.Services.Web_Block.Registry is
          end if;
       end Get_Context;
 
-      Ctx      : constant String :=
-                   Parameters.Get (Status.Parameters (Request), Context_Var);
-      LT       : aliased Lazy_Handler :=
-                   Lazy_Handler'(Templates.Dynamic.Lazy_Tag
-                                 with Request      => Request,
-                                      Translations => Translations,
-                                 Ctx               => Get_Context);
-      Position : Web_Object_Maps.Cursor;
+      Tag_Context_Var : constant String :=
+                          Templates.Tag_From_Name (Context_Var);
+      Ctx             : constant String :=
+                          Parameters.Get
+                            (Status.Parameters (Request), Context_Var);
+      LT              : aliased Lazy_Handler :=
+                          Lazy_Handler'(Templates.Dynamic.Lazy_Tag
+                                        with Request      => Request,
+                                        Translations      => Translations,
+                                        Ctx               => Get_Context);
+      Position        : Web_Object_Maps.Cursor;
 
       function Get_Matching_Key (Search_Key : String) return String;
       --  Get the Prefix Key matching Search_Key in Prefix_URI_Vector
@@ -278,7 +281,13 @@ package body AWS.Services.Web_Block.Registry is
                --  will affect the Web Block Javascript runtime. So a
                --  corresponding change must be done into aws_kernel.tjs.
 
-               if CT = MIME.Text_HTML then
+               --  Check if we have an explicite context in the template. In
+               --  this case we inject the context into this variable. If not
+               --  we inject the context into HTML and XML document as follow.
+
+               C_Index := Index (Content, Tag_Context_Var);
+
+               if CT = MIME.Text_HTML and then C_Index = 0 then
                   --  A web page, we insert the context just after the
                   --  <body> tag, format:
                   --
@@ -299,7 +308,7 @@ package body AWS.Services.Web_Block.Registry is
                      end if;
                   end if;
 
-               elsif CT = MIME.Text_XML then
+               elsif CT = MIME.Text_XML and then C_Index = 0 then
                   --  Inject context into the XML response, format:
                   --
                   --  <ctx id="CID"/>
@@ -313,6 +322,13 @@ package body AWS.Services.Web_Block.Registry is
                         "<ctx id="""
                           & Web_Block.Context.Image (CID) & """/>");
                   end if;
+
+               elsif C_Index /= 0 then
+                  Replace_Slice
+                    (Content,
+                     Low  => C_Index,
+                     High => C_Index + Tag_Context_Var'Length - 1,
+                     By   => Web_Block.Context.Image (CID));
                end if;
 
                Parsed_Page :=
@@ -389,43 +405,57 @@ package body AWS.Services.Web_Block.Registry is
    is
       Position : Web_Object_Maps.Cursor;
    begin
-      --  Get Web Object
+      --  Specific case for the contextual var
 
-      Position := WO_Map.Find (Var_Name);
+      if Var_Name = Context_Var then
+         --  We do not want to remove the context var now, just replace it by
+         --  the corresponding context var name. The proper context will be
+         --  injected into the Web page later.
 
-      if Position /= No_Element then
-         declare
-            T             : Templates.Translate_Set;
-            Template_Name : Unbounded_String;
-         begin
-            --  Get translation set for this tag
+         Templates.Insert
+           (Translations,
+            Templates.Assoc
+              (Context_Var, Templates.Tag_From_Name (Context_Var)));
 
-            Templates.Insert (T, Translations);
-            Templates.Insert (T, Lazy_Tag.Translations);
+      else
+         --  Get Web Object
 
-            if Element (Position).Data_CB /= null then
-               Element (Position).Data_CB
-                 (Lazy_Tag.Request, Lazy_Tag.Ctx'Access, T);
-            end if;
+         Position := WO_Map.Find (Var_Name);
 
-            if Element (Position).Callback_Template then
-               Template_Name := To_Unbounded_String
-                 (Element (Position).Template_CB (Lazy_Tag.Request));
-            else
-               Template_Name := Element (Position).Template;
-            end if;
+         if Position /= No_Element then
+            declare
+               T             : Templates.Translate_Set;
+               Template_Name : Unbounded_String;
+            begin
+               --  Get translation set for this tag
 
-            Lazy_Tag.Translations := T;
+               Templates.Insert (T, Translations);
+               Templates.Insert (T, Lazy_Tag.Translations);
 
-            Templates.Insert
-              (Translations,
-               Templates.Assoc
-                 (Var_Name,
-                  Unbounded_String'(Templates.Parse
-                    (To_String (Template_Name), T,
-                       Lazy_Tag =>
-                         Templates.Dynamic.Lazy_Tag_Access (Lazy_Tag)))));
-         end;
+               if Element (Position).Data_CB /= null then
+                  Element (Position).Data_CB
+                    (Lazy_Tag.Request, Lazy_Tag.Ctx'Access, T);
+               end if;
+
+               if Element (Position).Callback_Template then
+                  Template_Name := To_Unbounded_String
+                    (Element (Position).Template_CB (Lazy_Tag.Request));
+               else
+                  Template_Name := Element (Position).Template;
+               end if;
+
+               Lazy_Tag.Translations := T;
+
+               Templates.Insert
+                 (Translations,
+                  Templates.Assoc
+                    (Var_Name,
+                     Unbounded_String'(Templates.Parse
+                       (To_String (Template_Name), T,
+                          Lazy_Tag =>
+                            Templates.Dynamic.Lazy_Tag_Access (Lazy_Tag)))));
+            end;
+         end if;
       end if;
    end Value;
 
