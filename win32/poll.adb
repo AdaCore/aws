@@ -78,21 +78,20 @@ is
       readfds   : System.Address;
       writefds  : System.Address;
       exceptfds : System.Address;
-      timeout   : System.Address)
-      return C.int;
+      timeout   : System.Address) return C.int;
    pragma Import (Stdcall, C_Select, "select");
 
-   Poll_Ptr : constant Conversion.Object_Pointer
-     := Conversion.To_Pointer (Fds);
+   Poll_Ptr  : constant Conversion.Object_Pointer :=
+                 Conversion.To_Pointer (Fds);
 
    Timeout_V : aliased Timeval;
 
-   Rfds : aliased FD_Set_Type;
-   Wfds : aliased FD_Set_Type;
-   Efds : aliased FD_Set_Type;
+   Rfds      : aliased FD_Set_Type;
+   Wfds      : aliased FD_Set_Type;
+   Efds      : aliased FD_Set_Type;
 
-   Rfdsa : System.Address;
-   Wfdsa : System.Address;
+   Rfdsa     : System.Address;
+   Wfdsa     : System.Address;
 
    FD_Events : Thin.Events_Type;
    Rs        : C.int;
