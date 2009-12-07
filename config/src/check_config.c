@@ -130,7 +130,7 @@ main (int argc, char *argv[])
   //  instead, because Win32 use the same error codes in Errno report.
 
   const char *i_conv      = "Stdcall";
-  const int s_fd_type     = sizeof (int) * 8;
+  const int s_fd_type     = sizeof (SOCKET) * 8;
   const int s_events_type = sizeof (short) * 8;
   const int s_socklen_t   = sizeof (size_t) * 8;
   const int v_POLLIN      = 1;

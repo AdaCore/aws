@@ -1,7 +1,7 @@
 ----------------------------------------------------------------
 --  ZLib for Ada thick binding.                               --
 --                                                            --
---  Copyright (C) 2002-2008, Dmitriy Anisimkov                --
+--  Copyright (C) 2002-2009, Dmitriy Anisimkov                --
 --                                                            --
 --  Open source license information is in the zlib.ads file.  --
 ----------------------------------------------------------------
@@ -10,7 +10,7 @@ package body ZLib.Thin is
 
    ZLIB_VERSION  : constant Chars_Ptr := zlibVersion;
 
-   Z_Stream_Size : constant Int := Z_Stream'Size / System.Storage_Unit;
+   Z_Stream_Size : constant Int := Z_Stream'Object_Size / System.Storage_Unit;
 
    --------------
    -- Avail_In --

@@ -52,7 +52,7 @@ is
 
    subtype Nfds_Range is nfds_t range 1 .. Nfds;
 
-   type FD_Array is array (Nfds_Range) of C.int;
+   type FD_Array is array (Nfds_Range) of Thin.FD_Type;
    pragma Convention (C, FD_Array);
 
    type Poll_Array is array (FD_Array'Range) of Thin.Pollfd;
@@ -67,10 +67,10 @@ is
    end record;
    pragma Convention (C, FD_Set_Type);
 
-   procedure FD_SET (FD : C.int; Set : in out FD_Set_Type);
+   procedure FD_SET (FD : Thin.FD_Type; Set : in out FD_Set_Type);
    pragma Inline (FD_SET);
 
-   function FD_ISSET (FD : C.int; Set : System.Address) return C.int;
+   function FD_ISSET (FD : Thin.FD_Type; Set : System.Address) return C.int;
    pragma Import (Stdcall, FD_ISSET, "__WSAFDIsSet");
 
    function C_Select
@@ -100,7 +100,7 @@ is
    -- FD_SET --
    ------------
 
-   procedure FD_SET (FD : C.int; Set : in out FD_Set_Type) is
+   procedure FD_SET (FD : Thin.FD_Type; Set : in out FD_Set_Type) is
    begin
       Set.Count := Set.Count + 1;
       Set.Set (nfds_t (Set.Count)) := FD;
@@ -122,12 +122,12 @@ begin
       FD_Events := Poll_Ptr (J).Events;
 
       if (FD_Events and (POLLIN or POLLPRI)) /= 0 then
-         FD_SET (C.int (Poll_Ptr (J).FD), Rfds);
+         FD_SET (Poll_Ptr (J).FD, Rfds);
       elsif (FD_Events and POLLOUT) /= 0 then
-         FD_SET (C.int (Poll_Ptr (J).FD), Wfds);
+         FD_SET (Poll_Ptr (J).FD, Wfds);
       end if;
 
-      FD_SET (C.int (Poll_Ptr (J).FD), Efds);
+      FD_SET (Poll_Ptr (J).FD, Efds);
    end loop;
 
    --  Any non-null descriptor set must contain at least one handle
@@ -159,17 +159,17 @@ begin
       Rs := 0;
 
       for J in Nfds_Range loop
-         if FD_ISSET (C.int (Poll_Ptr (J).FD), Rfds'Address) /= 0 then
+         if FD_ISSET (Poll_Ptr (J).FD, Rfds'Address) /= 0 then
             Poll_Ptr (J).REvents := Poll_Ptr (J).REvents or POLLIN;
             Rs := Rs + 1;
          end if;
 
-         if FD_ISSET (C.int (Poll_Ptr (J).FD), Wfds'Address) /= 0 then
+         if FD_ISSET (Poll_Ptr (J).FD, Wfds'Address) /= 0 then
             Poll_Ptr (J).REvents := Poll_Ptr (J).REvents or POLLOUT;
             Rs := Rs + 1;
          end if;
 
-         if FD_ISSET (C.int (Poll_Ptr (J).FD), Efds'Address) /= 0 then
+         if FD_ISSET (Poll_Ptr (J).FD, Efds'Address) /= 0 then
             Poll_Ptr (J).REvents := Poll_Ptr (J).REvents or POLLERR;
             Rs := Rs + 1;
          end if;

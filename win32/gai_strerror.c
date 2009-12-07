@@ -47,8 +47,11 @@ char * AWS_gai_strerror (int ecode)
       return "Memory allocation failure.";
     case EAI_NODATA:
       return "No address associated with nodename.";
+#ifndef _WIN64
+    /* on Win64 EAI_NODATA and EAI_NONAME have the same value */
     case EAI_NONAME:
       return "Neither nodename nor servname provided, or not known.";
+#endif
     case EAI_SERVICE:
       return "The servname parameter is not supported for ai_socktype.";
     case EAI_SOCKTYPE:

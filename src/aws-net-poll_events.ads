@@ -64,7 +64,7 @@ package AWS.Net.Poll_Events is
 private
 
    type Poll_Set is array (Positive range <>) of Thin.Pollfd;
-   pragma Pack (Poll_Set);
+   pragma Convention (C, Poll_Set);
 
    type Set (Size : Natural) is new FD_Set (Size) with record
       Length : Natural := 0;
