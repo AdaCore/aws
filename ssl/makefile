@@ -28,26 +28,26 @@
 .SILENT:
 
 ifneq (${OS}, Windows_NT)
-SSL_PATH1 := $(shell ls /usr/lib/libcrypto.a 2> /dev/null)
-SSL_PATH2 := $(shell ls /lib/libcrypto.a 2> /dev/null)
-SSL_PATH3 := $(shell ls /usr/lib/libcrypto.so 2> /dev/null)
-SSL_PATH4 := $(shell ls /lib/libcrypto.so 2> /dev/null)
-SSL_PATH5 := $(shell ls /usr/lib/libcrypto.dylib 2> /dev/null)
-endif
-
-SSL_PATH = $(SSL_PATH1)
+SSL_PATH = $(shell ls /usr/lib/libcrypto.a 2> /dev/null)
 
 ifeq (${SSL_PATH},)
-	SSL_PATH = $(SSL_PATH2)
+	SSL_PATH = $(shell ls /lib/libcrypto.a 2> /dev/null)
 endif
 ifeq (${SSL_PATH},)
-	SSL_PATH = $(SSL_PATH3)
+	SSL_PATH = $(shell ls /usr/lib64/libcrypto.a 2> /dev/null)
 endif
 ifeq (${SSL_PATH},)
-	SSL_PATH = $(SSL_PATH4)
+	SSL_PATH = $(shell ls /usr/lib/libcrypto.so 2> /dev/null)
 endif
 ifeq (${SSL_PATH},)
-	SSL_PATH = $(SSL_PATH5)
+	SSL_PATH = $(shell ls /lib/libcrypto.so 2> /dev/null)
+endif
+ifeq (${SSL_PATH},)
+	SSL_PATH = $(shell ls /usr/lib64/libcrypto.so 2> /dev/null)
+endif
+ifeq (${SSL_PATH},)
+	SSL_PATH = $(shell ls /usr/lib/libcrypto.dylib 2> /dev/null)
+endif
 endif
 
 check:
