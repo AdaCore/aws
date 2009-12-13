@@ -93,7 +93,6 @@ aws.ky
 aws.log
 aws.pdf
 aws.pg
-aws.ps
 aws.texi
 aws.toc
 aws.tp
@@ -115,6 +114,5 @@ soap.ads.texi
 style-guide.html
 style-guide.info
 style-guide.pdf
-style-guide.ps
 style-guide.txt
 templates_parser.ads.texi
