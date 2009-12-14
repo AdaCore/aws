@@ -43,6 +43,7 @@ CURDIR = os.getcwd()
 PYTHON_SUPPORT = os.path.join(CURDIR, "python_support")
 sys.path.append(PYTHON_SUPPORT)
 
+from gnatpython.env import Env
 from gnatpython.ex import Run
 from gnatpython.fileutils import ln, cp
 from gnatpython.main import Main
@@ -129,6 +130,12 @@ class Runner(object):
             except IOError:
                 print "Cannot find testsuite.tags. Please run make setup"
                 sys.exit(1)
+
+        # Add more discriminants
+        target_cpu = Env().target.cpu
+        self.config.tags += ",%s-endian" % target_cpu.endian
+        self.config.tags += ",%s" % target_cpu.name
+        self.config.tags += ",%dbit" % target_cpu.bits
 
         if self.config.from_build_dir:
             os.environ["ADA_PROJECT_PATH"] = CURDIR
