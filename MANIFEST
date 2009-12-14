@@ -1349,6 +1349,8 @@ regtests/0199_empty_res/empty_res.adb
 regtests/0199_empty_res/empty_res.gpr
 regtests/0199_empty_res/test.out
 regtests/0199_empty_res/test.py
+regtests/0200_wb_context/test-be.out
+regtests/0200_wb_context/test.opt
 regtests/0200_wb_context/test.out
 regtests/0200_wb_context/test.py
 regtests/0200_wb_context/wb_context.adb
