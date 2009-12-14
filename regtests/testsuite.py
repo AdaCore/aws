@@ -294,6 +294,10 @@ def run_testcase(test, _job_info):
     else:
         env = None
 
+    test_out = test.getopt('out')
+    if test_out and test_out != 'test.out':
+        cp(os.path.join(BUILDS_DIR, test.testdir, test_out),
+           os.path.join(BUILDS_DIR, test.testdir, 'test.out'))
     return Run([sys.executable,
                 os.path.join(BUILDS_DIR, test.filename)],
                bg=True, output=None, error=None, env=env)
