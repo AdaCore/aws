@@ -45,17 +45,6 @@ procedure SockOver_Proc (Security : Boolean) is
    Two   : constant Stream_Element := 2;
    Three : constant Stream_Element := 3;
 
-   Sample1 : constant Stream_Element_Array :=
-               (0 => One) & Two & Three & One & Two & Three & One & Two & Three
-               & One & Two & Three & One & Two & Three & One & Two & Three
-               & One & Two & Three & One & Two & Three & One & Two & Three
-               & One & Two & Three & One & Two & Three & One & Two & Three
-               & One & Two & Three & One & Two & Three;
-
-   Sample2 : constant Stream_Element_Array
-               (Sample1'First + 1 .. Sample1'Last + 1) := Sample1;
-   Sample3 : constant Stream_Element_Array (1 .. Sample1'Length) := Sample1;
-
    Server : Net.Socket_Type'Class := Net.Socket (False);
    Peer   : Net.Socket_Type'Class := Net.Socket (Security);
    Client : Net.Socket_Type'Class := Net.Socket (Security);
@@ -66,7 +55,13 @@ procedure SockOver_Proc (Security : Boolean) is
    -- Transmit --
    --------------
 
-   procedure Transmit (Sample : Stream_Element_Array) is
+   procedure Transmit (Bound : Stream_Element_Offset) is
+      Sample : constant Stream_Element_Array :=
+        (Bound => One) & Two & Three & One & Two & Three & One & Two & Three
+         & One & Two & Three & One & Two & Three & One & Two & Three
+         & One & Two & Three & One & Two & Three & One & Two & Three
+         & One & Two & Three & One & Two & Three & One & Two & Three
+         & One & Two & Three & One & Two & Three;
       Last   : Stream_Element_Offset;
       Buffer : Stream_Element_Array (1 .. 1024);
    begin
@@ -134,9 +129,9 @@ begin
    Net.Set_Timeout (Client, 0.1);
    Net.Set_Timeout (Peer,   0.1);
 
-   Transmit (Sample3);
-   Transmit (Sample2);
-   Transmit (Sample1);
+   Transmit (0);
+   Transmit (1);
+   Transmit (-2);
 
    Net.Shutdown (Server);
    Net.Shutdown (Client);
