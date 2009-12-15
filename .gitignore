@@ -11,7 +11,6 @@ docs/ada.sed
 docs/aws.html
 docs/aws.info*
 docs/aws.pdf
-docs/aws.ps
 docs/aws.sed
 docs/aws.texi
 docs/aws.txt
@@ -20,7 +19,6 @@ docs/genout
 docs/style-guide.html
 docs/style-guide.info
 docs/style-guide.pdf
-docs/style-guide.ps
 docs/style-guide.txt
 gps/aws_api.xml
 gps/gen_gps_ref
