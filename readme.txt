@@ -4,7 +4,7 @@
 
 Authors:
    Dmitriy Anisimkov
-   Pascal Obry                                            October 17th, 2009
+   Pascal Obry                                            December 15th, 2009
 
 
 
@@ -41,6 +41,9 @@ Listed below are some minor enhancements and fixes:
 
    - The PS documentation has been removed. Only PDF documentation is
      now generated.
+
+   - The installed Zlib is now used by default. If not already
+     installed the version distributed with AWS is built as before.
 
 
 Non upward compatible changes

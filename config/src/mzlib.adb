@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                      Copyright (C) 2004-2009, AdaCore                    --
+--                        Copyright (C) 2009, AdaCore                       --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -25,28 +25,7 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-with "../../shared";
-with "../../.build/projects/aws_config";
-
-project Zlib is
-
-   for Languages use ("C");
-
-   case AWS_Config.Zlib_Exists is
-      when "true" =>
-         for Source_Dirs use ();
-         for Library_Dir use ".";
-	 for Externally_Built use "true";
-      when "false" =>
-         for Source_Dirs use (".");
-         for Object_Dir use "../../" & Shared'Object_Dir & "/zlib";
-         for Library_Dir use "../../" & Shared'Library_Dir & "/zlib";
-   end case;
-
-   for Library_Name use "z";
-   for Library_Kind use Shared.Library_Type;
-
-   package Compiler renames Shared.Compiler;
-   package Ide renames Shared.Ide;
-
-end Zlib;
+procedure Mzlib is
+begin
+   null;
+end Mzlib;

@@ -316,6 +316,9 @@ setup_config:
 	echo 'project AWS_Config is' > $(CONFGPR)
 	echo '   for Source_Dirs use ();' >> $(CONFGPR)
 	echo >> $(CONFGPR)
+	echo '   type Boolean_Type is ("true", "false");' >> $(CONFGPR)
+	echo '   Zlib_Exists : Boolean_Type := "$(ZLIB)";' >> $(CONFGPR)
+	echo >> $(CONFGPR)
 	echo '   type SOCKLIB_Type is ("GNAT", "IPv6");' >> $(CONFGPR)
 	echo 'pragma Source_File_Name' > $(CONFADC)
 	echo -n '  (AWS.Net.Std, Body_File_Name => ' >> $(CONFADC)
@@ -373,6 +376,7 @@ gen_setup:
 	echo "prefix=$(prefix)" > makefile.setup
 	echo "DEFAULT_LIBRARY_TYPE=$(DEFAULT_LIBRARY_TYPE)" >> makefile.setup
 	echo "ENABLE_SHARED=$(ENABLE_SHARED)" >> makefile.setup
+	echo "ZLIB=$(ZLIB)" >> makefile.setup
 	echo "XMLADA=$(XMLADA)" >> makefile.setup
 	echo "ASIS=$(ASIS)" >> makefile.setup
 	echo "IPv6=$(IPv6)" >> makefile.setup
