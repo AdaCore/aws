@@ -532,6 +532,10 @@ package body AWS.Net.Std is
          Result : constant String := C.To_Ada (Host);
          IPv4_Prefix : constant String := "::ffff:";
       begin
+         --  Looks like it is not neccessary in OpenSUSE 11.2, but is
+         --  necessary in OpenSUSE 11.0. So we could remove it after all linux
+         --  rantime libraries would remove ::ffff: prefix itselves.
+
          if Result'Length > IPv4_Prefix'Length
            and then Result (IPv4_Prefix'Range) = IPv4_Prefix
          then
