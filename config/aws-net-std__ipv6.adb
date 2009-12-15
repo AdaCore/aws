@@ -528,7 +528,18 @@ package body AWS.Net.Std is
          Raise_Socket_Error (CS.Value (OS_Lib.GAI_StrError (Res)));
       end if;
 
-      return C.To_Ada (Host);
+      declare
+         Result : constant String := C.To_Ada (Host);
+         IPv4_Prefix : constant String := "::ffff:";
+      begin
+         if Result'Length > IPv4_Prefix'Length
+           and then Result (IPv4_Prefix'Range) = IPv4_Prefix
+         then
+            return Result (IPv4_Prefix'Last + 1 .. Result'Last);
+         else
+            return Result;
+         end if;
+      end;
    end Image;
 
    ------------
