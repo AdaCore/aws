@@ -32,7 +32,7 @@ with AWS.OS_Lib;
 with AWS.Utils;
 
 with Interfaces.C.Strings;
-with System;
+with System.Address_To_Access_Conversions;
 
 package body AWS.Net.Std is
 
@@ -56,6 +56,8 @@ package body AWS.Net.Std is
       Scope_Id  : Interfaces.C.unsigned_long;  -- set of interfaces for a scope
    end record;
    pragma Convention (C, Sockaddr_In6);
+
+   package AC6 is new System.Address_To_Access_Conversions (Sockaddr_In6);
 
    procedure Raise_Socket_Error (Error : Integer);
    pragma No_Return (Raise_Socket_Error);
@@ -262,8 +264,6 @@ package body AWS.Net.Std is
 
       Res := C_Connect (FD, Info.ai_addr, C.int (Info.ai_addrlen));
 
-      OS_Lib.FreeAddrInfo (Info);
-
       if Res = Failure then
          Errno := OS_Lib.Socket_Errno;
 
@@ -288,9 +288,18 @@ package body AWS.Net.Std is
 
          if Errno /= 0 then
             Res := OS_Lib.C_Close (FD);
-            Raise_Socket_Error (Errno, Socket);
+
+            declare
+               Addr : constant String :=
+                 Image (AC6.To_Pointer (Info.ai_addr).all);
+            begin
+               OS_Lib.FreeAddrInfo (Info);
+               Raise_Socket_Error (Socket, Error_Message (Errno) & ' ' & Addr);
+            end;
          end if;
       end if;
+
+      OS_Lib.FreeAddrInfo (Info);
 
       if Net.Log.Is_Event_Active then
          Net.Log.Event (Net.Log.Connect, Socket);
@@ -643,12 +652,9 @@ package body AWS.Net.Std is
    -- Raise_Socket_Error --
    ------------------------
 
-   procedure Raise_Socket_Error
-     (Error : Integer; Socket : Socket_Type)
-   is
-      Msg : constant String := Error_Message (Error);
+   procedure Raise_Socket_Error (Error : Integer; Socket : Socket_Type) is
    begin
-      Raise_Socket_Error (Socket, Msg);
+      Raise_Socket_Error (Socket, Error_Message (Error));
    end Raise_Socket_Error;
 
    procedure Raise_Socket_Error (Error : Integer) is
@@ -657,9 +663,9 @@ package body AWS.Net.Std is
    end Raise_Socket_Error;
 
    procedure Raise_Socket_Error (Errmsg : String) is
-      Null_Socket : constant Socket_Type := (Net.Socket_Type with S => null);
    begin
-      Raise_Socket_Error (Null_Socket, Errmsg);
+      Raise_Socket_Error
+        (Socket_Type'(Net.Socket_Type with S => null), Errmsg);
    end Raise_Socket_Error;
 
    -------------
