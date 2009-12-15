@@ -180,8 +180,8 @@ package body AWS.Net.Std is
    is
       use type C.int;
 
-      Info  : constant OS_Lib.Addr_Info_Access
-        := Get_Addr_Info (Host, Port, OS_Lib.AI_PASSIVE);
+      Info  : constant OS_Lib.Addr_Info_Access :=
+                Get_Addr_Info (Host, Port, OS_Lib.AI_PASSIVE);
       FD    : C.int;
       Res   : C.int;
       Errno : Integer;
@@ -363,15 +363,15 @@ package body AWS.Net.Std is
       C_Serv : aliased C.char_array := C.To_C (AWS.Utils.Image (Port));
       Res    : C.int;
       Result : aliased OS_Lib.Addr_Info_Access;
-      Hints  : constant OS_Lib.Addr_Info
-        := (ai_family    => OS_Lib.PF_UNSPEC,
-            ai_socktype  => OS_Lib.SOCK_STREAM,
-            ai_protocol  => OS_Lib.IPPROTO_IP,
-            ai_flags     => Flags,
-            ai_addrlen   => 0,
-            ai_canonname => CS.Null_Ptr,
-            ai_addr      => System.Null_Address,
-            ai_next      => null);
+      Hints  : constant OS_Lib.Addr_Info :=
+                 (ai_family    => OS_Lib.PF_UNSPEC,
+                  ai_socktype  => OS_Lib.SOCK_STREAM,
+                  ai_protocol  => OS_Lib.IPPROTO_IP,
+                  ai_flags     => Flags,
+                  ai_addrlen   => 0,
+                  ai_canonname => CS.Null_Ptr,
+                  ai_addr      => System.Null_Address,
+                  ai_next      => null);
    begin
       if Host = "" then
          P_Node := CS.Null_Ptr;
@@ -421,12 +421,12 @@ package body AWS.Net.Std is
       Len : aliased C.int := Res'Size / System.Storage_Unit;
 
       RC  : constant C.int :=
-        C_Getsockopt
-          (S       => Socket.S.FD,
-           Level   => OS_Lib.SOL_SOCKET,
-           OptName => Name,
-           OptVal  => Res'Address,
-           OptLen  => Len'Access);
+              C_Getsockopt
+                (S       => Socket.S.FD,
+                 Level   => OS_Lib.SOL_SOCKET,
+                 OptName => Name,
+                 OptVal  => Res'Address,
+                 OptLen  => Len'Access);
    begin
       if RC = Failure then
          Raise_Socket_Error (OS_Lib.Socket_Errno, Socket);
@@ -512,14 +512,14 @@ package body AWS.Net.Std is
 
       Host : aliased C.char_array := (0 .. 128 => C.nul);
       Res  : constant C.int :=
-        getnameinfo
-          (sa      => Sin6'Address,
-           salen   => Len,
-           host    => CS.To_Chars_Ptr (Host'Unchecked_Access),
-           hostlen => Host'Length,
-           serv    => CS.Null_Ptr,
-           servlen => 0,
-           flags   => OS_Lib.NI_NUMERICHOST);
+               getnameinfo
+                 (sa      => Sin6'Address,
+                  salen   => Len,
+                  host    => CS.To_Chars_Ptr (Host'Unchecked_Access),
+                  hostlen => Host'Length,
+                  serv    => CS.Null_Ptr,
+                  servlen => 0,
+                  flags   => OS_Lib.NI_NUMERICHOST);
    begin
       if Res = OS_Lib.EAI_SYSTEM then
          Raise_Socket_Error (OS_Lib.Socket_Errno);
@@ -529,7 +529,7 @@ package body AWS.Net.Std is
       end if;
 
       declare
-         Result : constant String := C.To_Ada (Host);
+         Result      : constant String := C.To_Ada (Host);
          IPv4_Prefix : constant String := "::ffff:";
       begin
          --  Looks like it is not neccessary in OpenSUSE 11.2, but is
@@ -679,7 +679,6 @@ package body AWS.Net.Std is
 
       elsif Res = 0 then
          --  socket closed by peer
-
          raise Socket_Error with "Receive : Socket closed by peer.";
       end if;
 
@@ -759,13 +758,13 @@ package body AWS.Net.Std is
    is
       use type C.int;
 
-      Res : constant C.int
-        := OS_Lib.Set_Sock_Opt
-             (Socket.S.FD,
-              Level,
-              Name,
-              Value'Address,
-              Value'Size / System.Storage_Unit);
+      Res : constant C.int :=
+              OS_Lib.Set_Sock_Opt
+                (Socket.S.FD,
+                 Level,
+                 Name,
+                 Value'Address,
+                 Value'Size / System.Storage_Unit);
 
    begin
       if Res = Failure then
@@ -782,9 +781,9 @@ package body AWS.Net.Std is
    begin
       Set_Int_Sock_Opt
         (Socket,
-         Name   => OS_Lib.TCP_NODELAY,
-         Level  => OS_Lib.IPPROTO_TCP,
-         Value  => Boolean'Pos (Value));
+         Name  => OS_Lib.TCP_NODELAY,
+         Level => OS_Lib.IPPROTO_TCP,
+         Value => Boolean'Pos (Value));
    end Set_No_Delay;
 
    ---------------------------
@@ -828,8 +827,8 @@ package body AWS.Net.Std is
      (Socket : Socket_Type; How : Shutmode_Type := Shut_Read_Write)
    is
       use type C.int;
-      FD : constant C.int := Socket.S.FD;
-      EN : Integer;
+      FD    : constant C.int := Socket.S.FD;
+      EN    : Integer;
       To_OS : constant array (Shutmode_Type) of C.int :=
                 (Shut_Read_Write => OS_Lib.SHUT_RDWR,
                  Shut_Read       => OS_Lib.SHUT_RD,
