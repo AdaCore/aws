@@ -60,10 +60,6 @@ MAKE_OPT	= -s
 BDIR		= .build/release
 endif
 
-TEST_MODE	= Separated
-#  Can be set to "Grouped" to use a single driver for most tests. This
-#  speed-up the non regression.
-
 #############################################################################
 #  NO NEED TO CHANGE ANYTHING PAST THIS POINT
 #############################################################################
@@ -228,8 +224,7 @@ GALL_OPTIONS := $(ALL_OPTIONS) \
 	I_SBN="$(I_SBN)" \
 	I_WEL="$(I_WEL)" \
 	I_DOC="$(I_DOC)" \
-	I_PLG="$(I_PLG)" \
-	TEST_MODE="$(TEST_MODE)"
+	I_PLG="$(I_PLG)"
 
 ${MODULES_SETUP}: force
 	${MAKE} -C ${@:%_setup=%} setup $(GALL_OPTIONS)
