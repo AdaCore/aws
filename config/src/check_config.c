@@ -212,6 +212,14 @@ main (int argc, char *argv[])
   P ("   AI_NUMERICHOST : constant := %d;\n", AI_NUMERICHOST);
   P ("   EAI_SYSTEM     : constant := %d;\n\n", EAI_SYSTEM);
 
+  /* getaddrname flags */
+
+  P ("   NI_NAMEREQD    : constant := %d;\n", NI_NAMEREQD);
+  P ("   NI_DGRAM       : constant := %d;\n", NI_DGRAM);
+  P ("   NI_NOFQDN      : constant := %d;\n", NI_NOFQDN);
+  P ("   NI_NUMERICHOST : constant := %d;\n", NI_NUMERICHOST);
+  P ("   NI_NUMERICSERV : constant := %d;\n\n", NI_NUMERICSERV);
+
   /* other constants */
 
   P ("   IPPROTO_TCP  : constant := %d;\n", IPPROTO_TCP);

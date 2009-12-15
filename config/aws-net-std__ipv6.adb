@@ -72,7 +72,7 @@ package body AWS.Net.Std is
    pragma Inline (Raise_Socket_Error);
    --  Log socket error and raise exception
 
-   function Image (Sin6 : Sockaddr_In6) return String;
+   function Image (Sin6 : Sockaddr_In6; Len : OS_Lib.socklen_t) return String;
    --  Returns image of the socket address
 
    function Get_Addr_Info
@@ -106,7 +106,7 @@ package body AWS.Net.Std is
    function C_Getsockname
      (S       : C.int;
       Name    : System.Address;
-      Namelen : not null access C.int) return C.int;
+      Namelen : not null access OS_Lib.socklen_t) return C.int;
    pragma Import (Stdcall, C_Getsockname, "getsockname");
 
    function C_Getsockopt
@@ -120,7 +120,7 @@ package body AWS.Net.Std is
    function C_Getpeername
      (S       : C.int;
       Name    : System.Address;
-      Namelen : not null access C.int) return C.int;
+      Namelen : not null access OS_Lib.socklen_t) return C.int;
    pragma Import (Stdcall, C_Getpeername, "getpeername");
 
    function C_Gethostname
@@ -291,7 +291,7 @@ package body AWS.Net.Std is
 
             declare
                Addr : constant String :=
-                 Image (AC6.To_Pointer (Info.ai_addr).all);
+                 Image (AC6.To_Pointer (Info.ai_addr).all, Info.ai_addrlen);
             begin
                OS_Lib.FreeAddrInfo (Info);
                Raise_Socket_Error (Socket, Error_Message (Errno) & ' ' & Addr);
@@ -331,17 +331,18 @@ package body AWS.Net.Std is
    --------------
 
    overriding function Get_Addr (Socket : Socket_Type) return String is
-      use type Interfaces.C.int;
+      use type C.int;
+      use type OS_Lib.socklen_t;
 
       Name : aliased Sockaddr_In6;
-      Len  : aliased Interfaces.C.int := Name'Size / 8;
+      Len  : aliased OS_Lib.socklen_t := Name'Size / 8;
 
    begin
       if C_Getsockname (Socket.S.FD, Name'Address, Len'Access) = Failure then
          Raise_Socket_Error (OS_Lib.Socket_Errno, Socket);
       end if;
 
-      return Image (Name);
+      return Image (Name, Len);
    end Get_Addr;
 
    -------------------
@@ -439,10 +440,11 @@ package body AWS.Net.Std is
    --------------
 
    overriding function Get_Port (Socket : Socket_Type) return Positive is
-      use type Interfaces.C.int;
+      use type C.int;
+      use type OS_Lib.socklen_t;
 
       Name : aliased Sockaddr_In6;
-      Len  : aliased Interfaces.C.int := Name'Size / 8;
+      Len  : aliased OS_Lib.socklen_t := Name'Size / 8;
 
    begin
       if C_Getsockname (Socket.S.FD, Name'Address, Len'Access) = Failure then
@@ -492,83 +494,41 @@ package body AWS.Net.Std is
    -- Image --
    -----------
 
-   function Image (Sin6 : Sockaddr_In6) return String  is
-      use type C.short;
+   function Image
+     (Sin6 : Sockaddr_In6; Len : OS_Lib.socklen_t) return String
+   is
+      use type C.int;
+      package CS renames Interfaces.C.Strings;
 
-      function IPv4_Image (Addr : System.Address) return String;
+      function getnameinfo
+        (sa      : System.Address;
+         salen   : OS_Lib.socklen_t;
+         host    : CS.chars_ptr;
+         hostlen : C.size_t;
+         serv    : CS.chars_ptr;
+         servlen : C.size_t;
+         flags   : C.int) return C.int;
+      pragma Import (StdCall, getnameinfo, "getnameinfo");
 
-      ----------------
-      -- IPv4_Image --
-      ----------------
-
-      function IPv4_Image (Addr : System.Address) return String is
-         type In_Addr is record
-            B1, B2, B3, B4 : C.unsigned_char;
-         end record;
-
-         IP_Addr : In_Addr;
-         for IP_Addr'Address use Addr;
-      begin
-         return Utils.Image (Integer (IP_Addr.B1))
-                  & '.' & Utils.Image (Integer (IP_Addr.B2))
-                  & '.' & Utils.Image (Integer (IP_Addr.B3))
-                  & '.' & Utils.Image (Integer (IP_Addr.B4));
-      end IPv4_Image;
-
+      Host : aliased C.char_array := (0 .. 128 => C.nul);
+      Res  : constant C.int :=
+        getnameinfo
+          (sa      => Sin6'Address,
+           salen   => Len,
+           host    => CS.To_Chars_Ptr (Host'Unchecked_Access),
+           hostlen => Host'Length,
+           serv    => CS.Null_Ptr,
+           servlen => 0,
+           flags   => OS_Lib.NI_NUMERICHOST);
    begin
-      if Sin6.Family = OS_Lib.PF_INET then
-         --  IP address in the IPv4 address record is in the FlowInfo IPv6
-         --  address offset.
+      if Res = OS_Lib.EAI_SYSTEM then
+         Raise_Socket_Error (OS_Lib.Socket_Errno);
 
-         return IPv4_Image (Sin6.FlowInfo'Address);
-
-      elsif Sin6.Family = OS_Lib.PF_INET6
-        or else Sin6.Family = OS_Lib.PF_INET6 * 256 + OS_Lib.PF_INET6
-      --  ??? looks like FreeBSD 4.10 error in ipv6 address structure result
-      then
-         declare
-            Result : String (1 .. 8 * 5);
-            Index  : Positive := Result'First;
-            Zero   : Boolean  := True;
-         begin
-            for J in Sin6.Addr'Range loop
-               if Sin6.Addr (J) = 0 and Zero then
-                  --  Any number of starting zeroes showing by ::
-
-                  if Index = Result'First then
-                     Result (Result'First .. Result'First + 1) := "::";
-                     Index := Index + 2;
-                  end if;
-
-               else
-                  if Zero and then J = 6 and then Sin6.Addr (J) = 16#FFFF# then
-                     --  ::ffff: - IPv4 mapped address on IPv6 protocol
-
-                     return IPv4_Image (Sin6.Addr (7)'Address);
-                  end if;
-
-                  Zero := False;
-
-                  declare
-                     Img16 : constant String
-                       := Utils.Hex
-                            (Integer (Swap_Little_Endian (Sin6.Addr (J))));
-                  begin
-                     Result (Index .. Index + Img16'Length) := Img16 & ':';
-                     Index := Index + Img16'Length + 1;
-                  end;
-               end if;
-            end loop;
-
-            --  Ignore trailing ':' in case of none zero line
-
-            return Result (Result'First .. Index - 1 - Boolean'Pos (not Zero));
-         end;
-
-      else
-         return "unknown protocol family" & C.short'Image (Sin6.Family);
+      elsif Res /= 0 then
+         Raise_Socket_Error (CS.Value (OS_Lib.GAI_StrError (Res)));
       end if;
 
+      return C.To_Ada (Host);
    end Image;
 
    ------------
@@ -595,16 +555,17 @@ package body AWS.Net.Std is
 
    overriding function Peer_Addr (Socket : Socket_Type) return String is
       use type C.int;
+      use type OS_Lib.socklen_t;
 
       Sin6 : aliased Sockaddr_In6;
-      Len  : aliased C.int := Sin6'Size / 8;
+      Len  : aliased OS_Lib.socklen_t := Sin6'Size / 8;
 
    begin
       if C_Getpeername (Socket.S.FD, Sin6'Address, Len'Access) = Failure then
          Raise_Socket_Error (OS_Lib.Socket_Errno, Socket);
       end if;
 
-      return Image (Sin6);
+      return Image (Sin6, Len);
 
    end Peer_Addr;
 
@@ -613,10 +574,11 @@ package body AWS.Net.Std is
    ---------------
 
    overriding function Peer_Port (Socket : Socket_Type) return Positive is
-      use type Interfaces.C.int;
+      use type C.int;
+      use type OS_Lib.socklen_t;
 
       Name : aliased Sockaddr_In6;
-      Len  : aliased Interfaces.C.int := Name'Size / 8;
+      Len  : aliased OS_Lib.socklen_t := Name'Size / 8;
 
    begin
       if C_Getpeername (Socket.S.FD, Name'Address, Len'Access) = Failure then
