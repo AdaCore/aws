@@ -30,8 +30,9 @@ with Ada.Text_IO;
 with AWS.Client;
 with AWS.MIME;
 with AWS.Response;
-with AWS.Server;
+with AWS.Server.Status;
 with AWS.Status;
+with AWS.Utils;
 
 procedure HostIP is
 
@@ -47,17 +48,18 @@ procedure HostIP is
 
    procedure Call_It is
       R : Response.Data;
+      Port : constant String := Utils.Image (Server.Status.Port (WS));
    begin
-      R := Client.Get ("http://localhost:4568/zero");
+      R := Client.Get ("http://localhost:" & Port & "/zero");
       Text_IO.Put_Line (Response.Message_Body (R));
 
-      R := Client.Get ("http://127.0.0.1:4568/zero");
+      R := Client.Get ("http://127.0.0.1:" & Port & "/zero");
       Text_IO.Put_Line (Response.Message_Body (R));
    end Call_It;
 
 begin
    Server.Start
-     (WS, "hostip", CB'Unrestricted_Access, Port => 4568, Max_Connection => 5);
+     (WS, "hostip", CB'Unrestricted_Access, Port => 0, Max_Connection => 5);
    Text_IO.Put_Line ("started"); Ada.Text_IO.Flush;
 
    Call_It;

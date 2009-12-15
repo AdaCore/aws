@@ -311,11 +311,12 @@ package body AWS.Net is
    procedure Socket_Pair (S1, S2 : out Socket_Type) is
       Server : Std.Socket_Type;
       subtype STC is Socket_Type'Class;
+      Local_Host : constant String := "127.0.0.1";
    begin
-      Std.Bind (Server, 0);
+      Std.Bind (Server, Host => Local_Host, Port => 0);
       Std.Listen (Server);
 
-      Connect (STC (S1), "127.0.0.1", Std.Get_Port (Server));
+      Connect (STC (S1), Host => Local_Host, Port => Std.Get_Port (Server));
 
       Std.Set_Timeout (Server, 0.25);
 
@@ -324,7 +325,7 @@ package body AWS.Net is
 
          --  to be shure that it is S1 and S2 connected together
 
-         exit when Peer_Addr (STC (S2)) = "127.0.0.1"
+         exit when Peer_Addr (STC (S2)) = Local_Host
            and then Peer_Port (STC (S2)) = Get_Port (STC (S1))
            and then Peer_Port (STC (S1)) = Get_Port (STC (S2));
 
