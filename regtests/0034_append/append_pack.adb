@@ -31,7 +31,7 @@ with Ada.Text_IO;
 with AWS.Client;
 with AWS.MIME;
 with AWS.Response.Set;
-with AWS.Server;
+with AWS.Server.Status;
 with AWS.Status;
 with AWS.Utils;
 
@@ -87,21 +87,20 @@ package body Append_Pack is
    end CB;
 
    procedure Run (Protocol : String) is
-      Port : Positive := 1200;
       R    : Response.Data;
    begin
-      Get_Free_Port (Port);
-
       Server.Start
         (WS, "append message " & Protocol,
          CB'Access,
          Security       => Protocol = "https",
-         Port           => Port,
+         Port           => 0,
          Max_Connection => 5);
 
       Ada.Text_IO.Put_Line ("started");
 
-      R := Client.Get (Protocol & "://localhost:" & AWS.Utils.Image (Port));
+      R := Client.Get
+             (Protocol & "://localhost:"
+              & Utils.Image (Server.Status.Port (WS)));
 
       Ada.Text_IO.Put (Response.Message_Body (R));
 
