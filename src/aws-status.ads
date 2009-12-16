@@ -160,7 +160,7 @@ package AWS.Status is
 
    function Peername               (D : Data) return String;
    pragma Inline (Peername);
-   --  Returns the name of the peer (the name of the client computer)
+   --  Returns the address of the peer (the IP address of the client computer)
 
    function Socket                 (D : Data) return Net.Socket_Type'Class;
    pragma Inline (Socket);
