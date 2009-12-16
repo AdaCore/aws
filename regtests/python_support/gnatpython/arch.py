@@ -32,7 +32,7 @@ class _Arch__OS:
 class Arch:
     """
     ATTRIBUTES
-      cpu.name: 
+      cpu.name:
       cpu.endian:
       cpu.bits:
       os.name:
@@ -307,36 +307,39 @@ class Arch:
         elif self.os.name == 'solaris':
             return '2' + uname[2][1:]
         elif self.os.name == 'windows':
-            winver = sys.getwindowsversion ()
-            if winver[3] != 2:
-                # Don't try to set versions for Win 3.x or Win 9x series
-                return None
+            if sys.platform == 'cygwin':
+                return ''
             else:
-                # this a WIN32_NT version
-                if winver[0] == 6:
-                    # versions starting with Vista. Currently we don't know
-                    # how to make distinction between server 2008 and Vista
-                    # or Windows 7. Indeed Server 2008 is version 6.0 as Vista
-                    # and Server 2008 R2 is 6.1 as Windows 7.
-                    if winver[1] == 0:
-                        return 'Vista'
-                    elif winver[1] == 1:
-                        return '7'
-                    else:
-                        return None
-
-                elif winver[0] == 5:
-                    # versions from 2000 to 2008
-                    if winver[1] == 0:
-                        return '2000'
-                    elif winver[1] == 1:
-                        return 'XP'
-                    elif winver[1] == 2:
-                        return '2003'
-                else:
-                    # Don't try to guess versions of NT versions older than
-                    # Windows 2000
+                winver = sys.getwindowsversion ()
+                if winver[3] != 2:
+                    # Don't try to set versions for Win 3.x or Win 9x series
                     return None
+                else:
+                    # this a WIN32_NT version
+                    if winver[0] == 6:
+                        # versions starting with Vista. Currently we don't know
+                        # how to make distinction between server 2008 and Vista
+                        # or Windows 7. Indeed Server 2008 is version 6.0
+                        # as Vista and Server 2008 R2 is 6.1 as Windows 7.
+                        if winver[1] == 0:
+                            return 'Vista'
+                        elif winver[1] == 1:
+                            return '7'
+                        else:
+                            return None
+
+                    elif winver[0] == 5:
+                        # versions from 2000 to 2008
+                        if winver[1] == 0:
+                            return '2000'
+                        elif winver[1] == 1:
+                            return 'XP'
+                        elif winver[1] == 2:
+                            return '2003'
+                    else:
+                        # Don't try to guess versions of NT versions older than
+                        # Windows 2000
+                        return None
         return None
 
 if __name__ == "__main__":
