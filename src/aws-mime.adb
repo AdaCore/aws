@@ -252,6 +252,7 @@ package body AWS.MIME is
       Set.Add_Extension ("xml",     Text_XML);
       Set.Add_Extension ("sgml",    Text_X_SGML);
       Set.Add_Extension ("sgm",     Text_X_SGML);
+      Set.Add_Extension ("js",      Text_Javascript);
 
       --  Image
 
