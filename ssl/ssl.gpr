@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2003-2007                          --
---                                 AdaCore                                  --
+--                     Copyright (C) 2003-2009 - AdaCore                    --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -36,7 +35,7 @@ project SSL is
 
    for Languages use ("Ada", "Project file");
 
-   for Source_Dirs use (".", "../config");
+   for Source_Dirs use (".", "../config/src");
 
    for Object_Dir use "../" & Shared'Object_Dir & "/ssl";
    for Library_Dir use "../" & Shared'Library_Dir & "/ssl";

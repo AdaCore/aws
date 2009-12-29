@@ -50,26 +50,26 @@ ifeq ($(PLATFORM), native)
 else
 #  On cross platforms we use the slow/safe version
 #  ??? we can do better
-	$(CP) aws-translator-conversion__p.adb \
+	$(CP) src/aws-translator-conversion__p.adb \
 		$(SDIR)/src/aws-translator-conversion.adb
 endif
 
-$(NSDIR)/src/aws-os_lib.ads: makefile src/check_config.c force
+$(NSDIR)/src/aws-os_lib.ads: makefile setup/check_config.c force
 	echo Setup OS specific definitions
 ifeq ($(PLATFORM), native)
 	$(NSDIR)/check_config $(NSDIR)/src/aws-os_lib.ads
 else
-	$(CP) aws-os_lib__$(PLATFORM).ads $(SDIR)/src/aws-os_lib.ads
+	$(CP) src/aws-os_lib__$(PLATFORM).ads $(SDIR)/src/aws-os_lib.ads
 endif
 
 install:
 	$(CP) $(SDIR)/src/aws-translator-conversion.adb $(TI_INC)
 	$(CP) $(SDIR)/src/aws-os_lib.ads $(TI_INC)
-	$(CP) aws-net-std__* $(I_INC)
-	$(CP) aws-net-ssl__* $(I_INC)
-	$(CP) aws-net-ssl-certificate__* $(I_INC)
-	$(CP) ssl-thin__* $(I_INC)
-	$(CP) templates_parser-* $(I_INC)
+	$(CP) src/aws-net-std__* $(I_INC)
+	$(CP) src/aws-net-ssl__* $(I_INC)
+	$(CP) src/aws-net-ssl-certificate__* $(I_INC)
+	$(CP) src/ssl-thin__* $(I_INC)
+	$(CP) src/templates_parser-* $(I_INC)
 	$(CP) projects/aws_components.gpr $(I_AGP)
 	$(CP) projects/aws.gpr $(I_GPR)
 	$(CP) projects/*_lib.gpr $(I_AGP)

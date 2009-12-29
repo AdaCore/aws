@@ -32,7 +32,7 @@ project Setup is
    for Languages use ("Ada", "C");
    for Main use ("test_uconv", "check_config");
 
-   for Source_Dirs use ("src");
+   for Source_Dirs use ("setup");
    for Object_Dir use "../" & Shared.Target_Dir & "/setup/obj";
    for Exec_Dir use "../" & Shared.Target_Dir & "/setup";
 

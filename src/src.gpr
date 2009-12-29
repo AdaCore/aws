@@ -36,7 +36,7 @@ project Src is
    for Languages use ("Ada", "C", "Project file", "makefile");
 
    for Source_Dirs use
-     ("core", "extended", "../templates_parser/src", "../config",
+     ("core", "extended", "../templates_parser/src", "../config/src",
       "../" & Shared.Target_Dir & "/setup/src");
 
    --  XMLAda Installed, add xsrc and soap directories

@@ -45,6 +45,9 @@ Listed below are some minor enhancements and fixes:
    - The installed Zlib is now used by default. If not already
      installed the version distributed with AWS is built as before.
 
+   - Setup procedure and config sources have been reorganized to ease
+     maintenance for developpers.
+
    - Sources have been reorganized to ease maintenance for developpers.
 
 
