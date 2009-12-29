@@ -279,7 +279,7 @@ main (int argc, char *argv[])
       || ai_addrlen_offset   >= ai_canonname_offset
       || ai_addr_offset      >= ai_next_offset
       || ai_canonname_offset >= ai_next_offset)
-      //  Broke source code because of
+      /*  Broke source code because of */
       P ("   Unexpected addrinfo fields order.");
 
   P ("   type Addr_Info;\n");
