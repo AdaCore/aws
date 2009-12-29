@@ -391,6 +391,8 @@ endif
 	echo '   Default_Library_Type := "'$(DEFAULT_LIBRARY_TYPE)'";' \
 		>> $(CONFGPR)
 	echo >> $(CONFGPR)
+	echo '   Default_Target := "'$(DEFAULT_TARGET)'";' >> $(CONFGPR)
+	echo >> $(CONFGPR)
 	echo '   type OS_Type is ("Windows_NT", "UNIX");' >> $(CONFGPR)
 ifeq ($(OS), Windows_NT)
 	echo '   OS : OS_Type := "Windows_NT";' >> $(CONFGPR)
@@ -429,6 +431,7 @@ setup_final: setup_config
 gen_setup:
 	echo "prefix=$(prefix)" > makefile.setup
 	echo "DEFAULT_LIBRARY_TYPE=$(DEFAULT_LIBRARY_TYPE)" >> makefile.setup
+	echo "DEFAULT_TARGET=$(DEFAULT_TARGET)" >> makefile.setup
 	echo "ENABLE_SHARED=$(ENABLE_SHARED)" >> makefile.setup
 	echo "ZLIB=$(ZLIB)" >> makefile.setup
 	echo "XMLADA=$(XMLADA)" >> makefile.setup
