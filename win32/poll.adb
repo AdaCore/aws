@@ -32,8 +32,7 @@ with AWS.Net.Thin;
 function Poll
   (Fds     : System.Address;
    Nfds    : AWS.OS_Lib.nfds_t;
-   Timeout : C.int)
-   return C.int
+   Timeout : C.int) return C.int
 is
    use AWS.Net;
    use AWS.OS_Lib;
