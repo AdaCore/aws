@@ -27,7 +27,8 @@
 
 .SILENT:
 
-ALL_API = $(sort $(shell ls ../src/*.ads ../xsrc/*.ads ../soap/*.ads \
+ALL_API = $(sort $(shell ls ../src/core/*.ads ../src/extended/*.ads \
+	../src/soap/*.ads  ../src/xsrc/*.ads \
 	../templates_parser/src/*.ads ../templates_parser/xsrc/*.ads))
 
 setup:

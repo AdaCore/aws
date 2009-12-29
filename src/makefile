@@ -30,14 +30,17 @@
 setup:
 
 install:
-	$(CP) a*.ad[sb] $(I_INC)
+	$(CP) core/*.ad[sb] extended/*.ad[sb] $(I_INC)
 	$(CP) ../$(BDIR)/static/lib/src/* $(I_LIB)/static
 ifeq (${ENABLE_SHARED}, true)
 	$(CP) ../$(BDIR)/relocatable/lib/src/* $(I_LIB)/relocatable
 endif
 ifeq ($(XMLADA),true)
-	$(CP) ../soap/*.ad[sb] $(I_INC)
-	$(CP) ../xsrc/*.ad[sb] $(I_INC)
+	$(CP) soap/*.ad[sb] $(I_INC)
+	$(CP) xsrc/*.ad[sb] $(I_INC)
+endif
+ifeq ($(LDAP),true)
+	$(CP) ldap/*.ad[sb] $(I_INC)
 endif
 
 check:

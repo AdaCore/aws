@@ -4,7 +4,7 @@
 
 Authors:
    Dmitriy Anisimkov
-   Pascal Obry                                            December 15th, 2009
+   Pascal Obry                                            December 24th, 2009
 
 
 
@@ -44,6 +44,8 @@ Listed below are some minor enhancements and fixes:
 
    - The installed Zlib is now used by default. If not already
      installed the version distributed with AWS is built as before.
+
+   - Sources have been reorganized to ease maintenance for developpers.
 
 
 Non upward compatible changes
