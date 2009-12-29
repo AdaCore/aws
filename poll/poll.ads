@@ -25,7 +25,7 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  Emulates UNIX "poll" call under Win32
+--  Emulates UNIX "poll" call using "select" OS support
 
 with Interfaces.C; use Interfaces;
 with System;
@@ -35,6 +35,5 @@ with AWS.OS_Lib;
 function Poll
   (Fds     : System.Address;
    Nfds    : AWS.OS_Lib.nfds_t;
-   Timeout : C.int)
-   return C.int;
+   Timeout : C.int) return C.int;
 pragma Export (C, Poll, "poll");

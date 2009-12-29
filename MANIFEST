@@ -224,6 +224,9 @@ include/zlib/zutil.c
 include/zlib/zutil.h
 makefile
 makefile.conf
+poll/os_support.c
+poll/poll.adb
+poll/poll.ads
 readme.txt
 regtests/0001_turl/test.out
 regtests/0001_turl/test.py
@@ -2052,8 +2055,6 @@ win32/gai_strerror.c
 win32/libeay32.dll
 win32/libssl32.dll
 win32/makefile
-win32/poll.adb
-win32/poll.ads
 win32/readme.txt
 win32/ssl.def
 xsrc/README

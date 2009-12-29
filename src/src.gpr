@@ -53,7 +53,7 @@ project Src is
 
    case Shared.OS is
       when "Windows_NT" =>
-         for Source_Dirs use project'Source_Dirs & ("../win32");
+         for Source_Dirs use Project'Source_Dirs & ("../poll", "../win32");
       when others =>
          null;
    end case;

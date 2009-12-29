@@ -75,6 +75,8 @@ P (const char *str, ...)
 int
 main (int argc, char *argv[])
 {
+  const struct timeval tv;
+
 #ifndef NO_IPV6_SUPPORT
   const struct addrinfo ai;
 
@@ -159,6 +161,9 @@ main (int argc, char *argv[])
   const int v_MSG_NOSIGNAL = 0;
 #endif
 
+  const int v_FD_SETSIZE = FD_SETSIZE;
+  const int s_timeval_s  = sizeof (tv.tv_sec) * 8;
+
   /* Open output file in binary mode to ensure UNIX line ending */
 
   if (argc == 2)
@@ -198,12 +203,13 @@ main (int argc, char *argv[])
 
   /* POLL constants */
 
-  P ("   POLLIN   : constant := %d;\n", v_POLLIN);
-  P ("   POLLPRI  : constant := %d;\n", v_POLLPRI);
-  P ("   POLLOUT  : constant := %d;\n", v_POLLOUT);
-  P ("   POLLERR  : constant := %d;\n", v_POLLERR);
-  P ("   POLLHUP  : constant := %d;\n", v_POLLHUP);
-  P ("   POLLNVAL : constant := %d;\n\n", v_POLLNVAL);
+  P ("   FD_SETSIZE : constant := %d;\n", v_FD_SETSIZE);
+  P ("   POLLIN     : constant := %d;\n", v_POLLIN);
+  P ("   POLLPRI    : constant := %d;\n", v_POLLPRI);
+  P ("   POLLOUT    : constant := %d;\n", v_POLLOUT);
+  P ("   POLLERR    : constant := %d;\n", v_POLLERR);
+  P ("   POLLHUP    : constant := %d;\n", v_POLLHUP);
+  P ("   POLLNVAL   : constant := %d;\n\n", v_POLLNVAL);
 
   /* getaddrinfo constants */
 
@@ -270,6 +276,12 @@ main (int argc, char *argv[])
   P ("   type socklen_t is mod 2 ** %d;\n", s_socklen_t);
   P ("   for socklen_t'Size use %d;\n\n", s_socklen_t);
 
+  /* timeval fields */
+
+  P ("   type timeval_field_t is range -(2 ** %d) .. 2 ** %d - 1;\n",
+     s_timeval_s - 1, s_timeval_s - 1);
+  P ("   for timeval_field_t'Size use %d;\n\n", s_timeval_s);
+
   /* Addr_Info */
 
   if (ai_flags_offset > 0
@@ -317,6 +329,11 @@ main (int argc, char *argv[])
 
   P ("   function Socket_StrError (ecode : Integer)");
   P (" return C.Strings.chars_ptr;\n\n");
+
+  P ("   procedure FD_ZERO (Set : System.Address);\n");
+  P ("   procedure FD_SET (FD : FD_Type; Set : System.Address);\n");
+  P ("   function FD_ISSET (FD : FD_Type; Set : System.Address)");
+  P (" return C.int;\n\n");
 
   P ("   function Set_Sock_Opt\n");
   P ("     (S       : C.int;\n");
@@ -372,7 +389,10 @@ main (int argc, char *argv[])
   P ("   pragma Import (C, C_Close, \"close\");\n");
 #endif
 
-  P ("   pragma Import (%s, Set_Sock_Opt, \"setsockopt\");\n\n", i_conv);
+  P ("   pragma Import (%s, Set_Sock_Opt, \"setsockopt\");\n", i_conv);
+  P ("   pragma Import (C, FD_ZERO, \"__aws_clear_socket_set\");\n");
+  P ("   pragma Import (C, FD_SET, \"__aws_set_socket_in_set\");\n");
+  P ("   pragma Import (C, FD_ISSET, \"__aws_is_socket_in_set\");\n\n");
 
   P ("end AWS.OS_Lib;\n");
   fclose (fd);
