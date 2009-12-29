@@ -34,8 +34,8 @@ project Docs is
    for Languages use ("Ada", "Project file");
 
    for Main use ("build.adb");
-   for Object_Dir use "../" & Shared.Root_Dir & "/common/obj";
-   for Exec_Dir use  "../" & Shared.Root_Dir & "/common/bin";
+   for Object_Dir use "../" & Shared.Target_Dir & "/common/obj";
+   for Exec_Dir use  "../" & Shared.Target_Dir & "/common/bin";
 
    ---------
    -- Ide --

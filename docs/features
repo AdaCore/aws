@@ -1,5 +1,5 @@
 ====================================================
-AWS 2.8 NEW FEATURES LIST Current as of Oct 12, 2009
+AWS 2.8 NEW FEATURES LIST Current as of Dec 24, 2009
 ====================================================
 
 Copyright (C) 2006-2009, AdaCore
@@ -14,3 +14,9 @@ of the feature.
 
 New features in AWS 2.8.0
 -------------------------
+
+NF-28-IC11-015 Port AWS to VxWorks (2009-12-24)
+
+   AWS can now be used on VxWorks. The build procedure has been modified
+   to be able to build the tools on the native platform and the libraries
+   on the cross platform.

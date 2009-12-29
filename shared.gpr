@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2008, AdaCore                     --
+--                     Copyright (C) 2003-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -58,13 +58,21 @@ project Shared is
    type Library_Kind is ("relocatable", "static");
    Library_Type : Library_Kind := external ("LIBRARY_TYPE", "static");
 
+   ---------------------
+   -- Target to build --
+   ---------------------
+
+   type Target_Type is ("native", "vxworks");
+   Target : Target_Type := external ("PLATFORM", "native");
+
    -----------------------
    -- Build directories --
    -----------------------
 
-   Root_Dir := ".build";
+   Root_Dir   := ".build";
+   Target_Dir := Root_Dir & "/" & Target;
 
-   for Exec_Dir use Root_Dir;
+   for Exec_Dir use Target_Dir;
 
    case Build is
       when "Debug" =>

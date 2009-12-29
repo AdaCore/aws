@@ -37,7 +37,7 @@ project Src is
 
    for Source_Dirs use
      (".", "../templates_parser/src", "../config",
-      "../" & Shared.Root_Dir & "/setup/src");
+      "../" & Shared.Target_Dir & "/setup/src");
 
    --  XMLAda Installed, add xsrc and soap directories
 
@@ -50,6 +50,13 @@ project Src is
    end case;
 
    -- For Windows OS add the Win32 directory
+
+   case Shared.Target is
+      when "vxworks" =>
+         for Source_Dirs use Project'Source_Dirs & "../poll";
+      when "native" =>
+         null;
+   end case;
 
    case Shared.OS is
       when "Windows_NT" =>

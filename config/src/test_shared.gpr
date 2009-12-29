@@ -28,8 +28,8 @@
 
 project Test_Shared is
    for Source_Dirs use (".");
-   for Object_Dir use "../../.build/setup/obj";
-   for Library_Dir use "../../.build/setup/lib";
+   for Object_Dir use "../../.build/native/setup/obj";
+   for Library_Dir use "../../.build/native/setup/lib";
    for Library_Name use "lib";
    for Library_Kind use "relocatable";
 end Test_Shared;

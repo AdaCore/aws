@@ -197,6 +197,7 @@ Major supported features are:
 * Requirements::
 * AWS.Net.Std::
 * Building::
+* Building on cross-platforms::
 * Demos::
 * Installing::
 @end menu
@@ -324,6 +325,23 @@ If you want to build only the @code{AWS} libraries and tools and do not want
 to build the demos you can set @code{DEMOS} to "false" as in:
 
 @AWSEXP {$ make DEMOS=false setup}
+
+@c ----------------------------------------------------------------------
+
+@node Building on cross-platforms
+@section Building on cross-platforms
+@cindex Building
+@cindex cross-platforms
+
+@noindent
+To build for a cross platform the TARGET makefile variable must be set
+with the cross toolchain to be used. The value must be the triplet of
+the toolchain to use.
+
+@noindent
+For example, to build on VxWorks:
+
+@AWSEXP {$ make TARGET=powerpc-wrs-vxworks setup build}
 
 @c ----------------------------------------------------------------------
 

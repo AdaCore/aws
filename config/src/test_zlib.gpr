@@ -27,7 +27,7 @@
 
 project Test_Zlib is
    for Source_Dirs use (".");
-   for Object_Dir use "../../.build/setup/zobj";
+   for Object_Dir use "../../.build/native/setup/zobj";
    for Main use ("mzlib");
 
    package Linker is

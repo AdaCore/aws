@@ -36,7 +36,7 @@ project Tools is
 
    for Source_Dirs use
      (".", "../templates_parser/tools",
-      "../" & Shared.Root_Dir & "/setup/tsrc");
+      "../" & Shared.Target_Dir & "/setup/tsrc");
 
    for Main use ("awsres.adb", "aws_password.adb", "templates2ada.adb",
                  "webxref.adb", "templatespp.adb");

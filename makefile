@@ -52,12 +52,16 @@ endif
 EXEEXT	=
 endif
 
+BROOTDIR=.build
+
 ifeq ($(DEBUG), true)
 MAKE_OPT	=
-BDIR		= .build/debug
+BDIR		= $(BROOTDIR)/$(PLATFORM)/debug
+NBDIR           = $(BROOTDIR)/native/debug
 else
 MAKE_OPT	= -s
-BDIR		= .build/release
+BDIR		= $(BROOTDIR)/$(PLATFORM)/release
+NBDIR           = $(BROOTDIR)/native/release
 endif
 
 #############################################################################
@@ -72,11 +76,12 @@ ALL_OPTIONS	= $(MAKE_OPT) SOCKET="$(SOCKET)" XMLADA="$(XMLADA)" \
 	GREP="$(GREP)" SED="$(SED)" DIFF="$(DIFF)" CHMOD="$(CHMOD)" \
 	GZIP="$(GZIP)" TAR="$(TAR)" DLLTOOL="$(DLLTOOL)" DLL2DEF="$(DLL2DEF)" \
 	WINDRES="$(WINDRES)" GPRBUILD="$(GPRBUILD)" \
-	AWK="$(AWK)" CAT="$(CAT)" GCC="$(GCC)" \
-	BDIR="$(BDIR)" prefix="$(prefix)" ENABLE_SHARED="$(ENABLE_SHARED)" \
+	AWK="$(AWK)" CAT="$(CAT)" GCC="$(GCC)" BDIR="$(BDIR)" \
+	NBDIR="$(NBDIR)" prefix="$(prefix)" ENABLE_SHARED="$(ENABLE_SHARED)" \
 	SOEXT="$(SOEXT)" BUILD_DOC_SCRIPT="false" GNAT="$(GNAT)" \
 	T2A="../../$(BDIR)/static/tools/templates2ada" \
-	LIBRARY_TYPE="$(LIBRARY_TYPE)" CJOBS="$(CJOBS)" PYTHON="$(PYTHON)"
+	LIBRARY_TYPE="$(LIBRARY_TYPE)" CJOBS="$(CJOBS)" PYTHON="$(PYTHON)" \
+	PLATFORM="$(PLATFORM)"
 
 build_doc:
 	echo ""
@@ -191,12 +196,22 @@ else
 PRJ_BUILD=Release
 endif
 
+#  Target PLATFORM is the option for gprbuild --target option, PLATFORM is
+#  the name used in the project file.
+
+ifeq ($(strip $(findstring vxworks, $(TARGET))),vxworks)
+   PLATFORM=vxworks
+else
+   PLATFORM=$(TARGET)
+endif
+
 #  Install directories
 
 I_BIN	= $(prefix)/bin
 I_INC	= $(prefix)/include/aws
+TI_INC	= $(prefix)/include/aws/$(PLATFORM)
 I_CPN	= $(prefix)/include/aws/components
-I_LIB	= $(prefix)/lib/aws
+I_LIB	= $(prefix)/lib/aws/$(PLATFORM)
 I_GPR	= $(prefix)/lib/gnat
 I_AGP	= $(prefix)/lib/gnat/aws
 I_TPL	= $(prefix)/share/examples/aws/templates
@@ -213,8 +228,10 @@ GALL_OPTIONS := $(ALL_OPTIONS) \
 	PRJ_SOCKLIB="$(PRJ_SOCKLIB)" \
 	PRJ_LDAP="$(PRJ_LDAP)" \
 	TP_XMLADA="$(TP_XMLADA)" \
+	PLATFORM="$(PLATFORM)" \
 	I_BIN="$(I_BIN)" \
 	I_INC="$(I_INC)" \
+	TI_INC="$(TI_INC)" \
 	I_CPN="$(I_CPN)" \
 	I_LIB="$(I_LIB)" \
 	I_GPR="$(I_GPR)" \
@@ -239,23 +256,46 @@ GPROPTS = -XPRJ_BUILD=$(PRJ_BUILD) -XPRJ_SOCKLIB=$(PRJ_SOCKLIB) \
 		-XPRJ_ASIS=$(PRJ_ASIS) -XPRJ_LDAP=$(PRJ_LDAP) \
 		-XPRJ_XMLADA=$(PRJ_XMLADA) -XSOCKET=$(SOCKET)
 
-build:
-	$(GPRBUILD) -p -j$(CJOBS) $(GPROPTS) \
+#######################################################################
+#  build
+
+build-native:
+	$(GPRBUILD) -p -j$(CJOBS) $(GPROPTS) -XPLATFORM=native \
 		-XLIBRARY_TYPE=static tools/tools.gpr
 ifeq (${ENABLE_SHARED}, true)
-	$(GPRBUILD) -p -j$(CJOBS) $(GPROPTS) \
+	$(GPRBUILD) -p -j$(CJOBS) $(GPROPTS) -XPLATFORM=native \
 		-XLIBRARY_TYPE=relocatable src/src.gpr
 endif
 ifeq (${DEMOS}, true)
 	${MAKE} -C demos $(GALL_OPTIONS) after-build
-	$(GPRBUILD) -p -j$(CJOBS) $(GPROPTS) \
+	$(GPRBUILD) -p -j$(CJOBS) $(GPROPTS) -XPLATFORM=native \
 		-XLIBRARY_TYPE=static demos/demos.gpr
 endif
-	$(GPRBUILD) -p -j$(CJOBS) $(GPROPTS) \
+	$(GPRBUILD) -p -j$(CJOBS) $(GPROPTS) -XPLATFORM=native \
 		-XLIBRARY_TYPE=static gps/gps_support.gpr
 	${MAKE} -C gps $(GALL_OPTIONS) after-build
 
-clean:
+build-cross:
+	$(GPRBUILD) -p --target=$(TARGET) -j$(CJOBS) $(GPROPTS) \
+		-XPLATFORM=$(PLATFORM) -XLIBRARY_TYPE=static \
+		src/src.gpr
+ifeq (${DEMOS}, true)
+	${MAKE} -C demos $(GALL_OPTIONS) after-build
+	$(GPRBUILD) -p --target=$(TARGET) -j$(CJOBS) $(GPROPTS) \
+		-XPLATFORM=$(PLATFORM) -XLIBRARY_TYPE=static \
+		demos/demos.gpr
+endif
+
+ifeq (${TARGET}, native)
+build: build-native
+else
+build: build-cross
+endif
+
+#######################################################################
+#  clean
+
+clean-native:
 	-$(GPRCLEAN) $(GPROPTS) -XLIBRARY_TYPE=static tools/tools.gpr
 ifeq (${ENABLE_SHARED}, true)
 	-$(GPRCLEAN) $(GPROPTS) -XLIBRARY_TYPE=relocatable src/src.gpr
@@ -264,15 +304,29 @@ ifeq (${DEMOS}, true)
 	-$(GPRCLEAN) $(GPROPTS) -XLIBRARY_TYPE=static demos/demos.gpr
 endif
 	-$(GPRCLEAN) $(GPROPTS) -XLIBRARY_TYPE=static gps/gps_support.gpr
+
+clean-cross:
+	-$(GPRCLEAN) $(GPROPTS) --target=$(TARGET) -XLIBRARY_TYPE=static \
+		-XPLATFORM=$(PLATFORM) src/src.gpr
+ifeq (${DEMOS}, true)
+	-$(GPRCLEAN) $(GPROPTS) --target=$(TARGET) -XLIBRARY_TYPE=static \
+		-XPLATFORM=$(PLATFORM) demos/demos.gpr
+endif
+
+ifeq (${TARGET}, native)
+clean: clean-native
+else
+clean: clean-cross
+endif
 	-${MAKE} -C regtests $(GALL_OPTIONS) clean
 	-${MAKE} -C docs $(GALL_OPTIONS) clean
 	-${MAKE} -C templates_parser clean AWS=AWS
-	-${RM} -fr .build
+	-${RM} -fr $(BROOTDIR)
 	-${RM} -f makefile.setup
 
 check: $(MODULES_CHECK)
 
-PRJDIR = .build/projects
+PRJDIR = $(BROOTDIR)/projects
 
 gasis_dummy:
 	echo "project AWS_ASIS is" > $(PRJDIR)/aws_asis.gpr;
@@ -385,6 +439,7 @@ gen_setup:
 	echo "DEBUG=$(DEBUG)" >> makefile.setup
 	echo "CJOBS=$(CJOBS)" >> makefile.setup
 	echo "DEMOS=$(DEMOS)" >> makefile.setup
+	echo "TARGET=$(TARGET)" >> makefile.setup
 
 setup: gen_setup setup_dir setup_modules setup_final setup_tp $(GEXT_MODULE)
 
@@ -392,7 +447,7 @@ setup_tp:
 	$(MAKE) -C templates_parser setup $(GALL_OPTIONS)
 
 install_clean:
-	$(RM) -fr $(I_INC)
+	$(RM) -fr $(I_INC)/$(PLATFORM)
 	$(RM) -fr $(I_LIB)
 	$(RM) -fr $(I_AGP)
 	$(RM) -fr $(prefix)/share/examples/aws
@@ -402,6 +457,7 @@ install_clean:
 install_dirs: install_clean
 	$(MKDIR) -p $(I_BIN)
 	$(MKDIR) -p $(I_INC)
+	$(MKDIR) -p $(TI_INC)
 	$(MKDIR) -p $(I_CPN)
 	$(MKDIR) -p $(I_LIB)/static
 ifeq (${ENABLE_SHARED}, true)

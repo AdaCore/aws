@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2005-2008                          --
---                                 AdaCore                                  --
+--                     Copyright (C) 2005-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -36,14 +35,10 @@ project AWS_Shared is
    Library_Type : Library_Kind :=
       external ("LIBRARY_TYPE", AWS_Config.Default_Library_Type);
 
-   for Library_Dir use "../../aws";
+   type Target_Type is ("native", "vxworks");
+   Target : Target_Type := external ("PLATFORM", "native");
 
-   case Library_Type is
-      when "static" =>
-         for Library_Dir use Project'Library_Dir & "/static";
-      when "relocatable" =>
-         for Library_Dir use Project'Library_Dir & "/relocatable";
-   end case;
+   for Library_Dir use "../../aws/" & Target & "/" & Library_Type;
 
    ------------
    -- Naming --

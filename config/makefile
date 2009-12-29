@@ -27,29 +27,44 @@
 
 .SILENT:
 
-SDIR = ../$(BDIR)/../setup
+SDIR  = ../$(BDIR)/../setup
+NSDIR = ../$(NBDIR)/../setup
 
 setup_dir:
-	-$(MKDIR) -p $(SDIR)/src
-	-$(GPRBUILD) -p -XPRJ_BUILD=Debug -XLIBRARY_TYPE=static -Psetup
+	-$(MKDIR) -p $(SDIR)/src $(NSDIR)/src
+ifeq ($(PLATFORM), native)
+	-$(GPRBUILD) -p -XPRJ_BUILD=Debug -XLIBRARY_TYPE=static \
+		-XPLATFORM=native -Psetup
+endif
 
 force: ;
 
 setup: setup_dir $(SDIR)/src/aws-translator-conversion.adb \
-	$(SDIR)/src/aws-os_lib.ads
+	$(NSDIR)/src/aws-os_lib.ads
 
 $(SDIR)/src/aws-translator-conversion.adb: makefile force
 	echo Setup conversion support
-	$(SDIR)/test_uconv
-	$(MV) aws-translator-conversion.adb $(SDIR)/src
+ifeq ($(PLATFORM), native)
+	$(NSDIR)/test_uconv
+	$(MV) aws-translator-conversion.adb $(NSDIR)/src
+else
+#  On cross platforms we use the slow/safe version
+#  ??? we can do better
+	$(CP) aws-translator-conversion__p.adb \
+		$(SDIR)/src/aws-translator-conversion.adb
+endif
 
-$(SDIR)/src/aws-os_lib.ads: makefile src/check_config.c force
+$(NSDIR)/src/aws-os_lib.ads: makefile src/check_config.c force
 	echo Setup OS specific definitions
-	$(SDIR)/check_config $(SDIR)/src/aws-os_lib.ads
+ifeq ($(PLATFORM), native)
+	$(NSDIR)/check_config $(NSDIR)/src/aws-os_lib.ads
+else
+	$(CP) aws-os_lib__$(PLATFORM).ads $(SDIR)/src/aws-os_lib.ads
+endif
 
 install:
-	$(CP) $(SDIR)/src/aws-translator-conversion.adb $(I_INC)
-	$(CP) $(SDIR)/src/aws-os_lib.ads $(I_INC)
+	$(CP) $(SDIR)/src/aws-translator-conversion.adb $(TI_INC)
+	$(CP) $(SDIR)/src/aws-os_lib.ads $(TI_INC)
 	$(CP) aws-net-std__* $(I_INC)
 	$(CP) aws-net-ssl__* $(I_INC)
 	$(CP) aws-net-ssl-certificate__* $(I_INC)

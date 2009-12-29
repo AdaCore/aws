@@ -27,7 +27,7 @@
 
 .SILENT:
 
-SDIR = ../$(BDIR)/../setup
+SDIR = ../$(NBDIR)/../setup
 
 ifdef ASIS
 GEN   = $(SDIR)/tsrc/ada2wsdl-options.adb
@@ -56,6 +56,7 @@ setup_dir:
 setup: setup_dir $(GEN)
 
 install:
+ifeq ($(PLATFORM),native)
 	-$(CP) ../$(BDIR)/static/tools/awsres${EXEEXT} $(I_BIN)
 	-$(CP) ../$(BDIR)/static/tools/aws_password${EXEEXT} $(I_BIN)
 	-$(CP) ../$(BDIR)/static/tools/templates2ada${EXEEXT} $(I_BIN)
@@ -66,6 +67,7 @@ ifeq ($(XMLADA),true)
 endif
 ifeq (${ASIS},true)
 	$(CP) ../$(BDIR)/static/tools/ada2wsdl${EXEEXT} $(I_BIN)
+endif
 endif
 
 check:

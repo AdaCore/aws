@@ -53,8 +53,8 @@ endif
 check:
 	$(GNAT) check -Pssl -rules -from=../aws.checks
 
-SSLGPR	=	../$(BDIR)/../projects/aws_ssl_shared.gpr
-ISSLGPR	=	../$(BDIR)/../projects/install_aws_ssl_shared.gpr
+SSLGPR	=	../$(BDIR)/../../projects/aws_ssl_shared.gpr
+ISSLGPR	=	../$(BDIR)/../../projects/install_aws_ssl_shared.gpr
 
 setup_ssl:
 	echo "project AWS_SSL_Shared is" > $(SSLGPR)

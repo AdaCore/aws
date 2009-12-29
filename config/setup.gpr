@@ -33,8 +33,8 @@ project Setup is
    for Main use ("test_uconv", "check_config");
 
    for Source_Dirs use ("src");
-   for Object_Dir use "../.build/setup/obj";
-   for Exec_Dir use "../.build/setup";
+   for Object_Dir use "../" & Shared.Target_Dir & "/setup/obj";
+   for Exec_Dir use "../" & Shared.Target_Dir & "/setup";
 
    package Ide renames Shared.Ide;
 

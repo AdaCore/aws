@@ -36,7 +36,8 @@ with "aws/aws_config";
 
 project AWS is
 
-   for Source_Dirs use ("../../include/aws");
+   for Source_Dirs use
+     ("../../include/aws", "../../include/aws/" & AWS_Shared.Target);
 
    for Library_Dir use "aws/" & AWS_Shared'Library_Dir;
    for Library_Name use "aws";

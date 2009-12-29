@@ -42,7 +42,7 @@ install:
 check:
 
 after-build:
-	../$(BDIR)/../common/bin/gen_gps_ref $(ALL_API)
+	../$(BDIR)/../../native/common/bin/gen_gps_ref $(ALL_API)
 
 clean:
 	-$(RM) -f *~ aws_api.xml

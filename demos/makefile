@@ -25,10 +25,17 @@
 #  covered by the  GNU Public License.                                     #
 ############################################################################
 
-AWSRES   = ../../../$(BDIR)/static/tools/awsres
-WSDL2AWS = ../../../$(BDIR)/static/tools/wsdl2aws
+ifeq (${TARGET}, native)
+AWSRES   = ../../../$(NBDIR)/static/tools/awsres
+WSDL2AWS = ../../../$(NBDIR)/static/tools/wsdl2aws
+else
+#  On cross platforms we want to use the native tools installed with the
+#  compiler.
+AWSRES   = awsres
+WSDL2AWS = wsdl2aws
+endif
 
-SRCDIR	= ../$(BDIR)/../common/demos
+SRCDIR	= ../$(BDIR)/../../common/demos
 
 build_res:
 	echo Generate resources for res_demo

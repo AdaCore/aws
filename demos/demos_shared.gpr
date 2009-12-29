@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2004-2008, AdaCore                     --
+--                     Copyright (C) 2004-2009, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -55,7 +55,7 @@ project Demos_Shared is
 
    package Linker is
 
-      COFF_Res := ("../.build/common/lib/win32/aws.coff");
+      COFF_Res := ("../.build/" & Shared.Target & "/common/lib/win32/aws.coff");
 
       case Shared.OS is
          when "Windows_NT" =>
