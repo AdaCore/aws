@@ -235,23 +235,21 @@ package body AWS.Net.Poll_Events is
                Nfds    => Thin.nfds_t (FD_Set.Length),
                Timeout => Poll_Timeout));
 
-         if Result < 0 then
-            Errno := AWS.OS_Lib.Socket_Errno;
+         exit when Result >= 0;
 
-            --  In case of EINTR error we have to continue waiting for network
-            --  events.
+         Errno := AWS.OS_Lib.Socket_Errno;
 
-            if Errno /= OS_Lib.EINTR then
-               --  Call Raise_Socket_Error with dummy created socket and
-               --  error code, to raise exception and log error message.
+         --  In case of EINTR error we have to continue waiting for network
+         --  events.
 
-               Raise_Socket_Error
-                 (AWS.Net.Socket (False),
-                  "Poll (Size => " & Utils.Image (FD_Set.Length)
-                  & ") error code" & Integer'Image (Errno));
-            end if;
-         else
-            exit;
+         if Errno /= OS_Lib.EINTR then
+            --  Call Raise_Socket_Error with dummy created socket and
+            --  error code, to raise exception and log error message.
+
+            Raise_Socket_Error
+              (AWS.Net.Socket (False),
+               "Poll (Size => " & Utils.Image (FD_Set.Length)
+                 & ") error code" & Integer'Image (Errno));
          end if;
       end loop;
 
