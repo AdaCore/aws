@@ -32,7 +32,7 @@ starting with the following compilers:
 Building from Subversion
 ------------------------
 
-To build the documentation in HTML, PDF, PostScript, INFO and plain text
+To build the documentation in HTML, PDF, INFO and plain text
 format you need to have a working makeinfo and Tex package installed on
 your system.
 
