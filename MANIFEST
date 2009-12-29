@@ -10,6 +10,7 @@ config/aws-net-ssl__gnutls.adb
 config/aws-net-ssl__openssl.adb
 config/aws-net-std__gnat.adb
 config/aws-net-std__ipv6.adb
+config/aws-os_lib__vxworks.ads
 config/aws-translator-conversion__f.adb
 config/aws-translator-conversion__p.adb
 config/makefile
@@ -23,6 +24,7 @@ config/projects/aws_ssl_lib.gpr
 config/projects/aws_ssl_support.gpr
 config/setup.gpr
 config/src/check_config.c
+config/src/makefile.vxworks
 config/src/mzlib.adb
 config/src/test_asis.gpr
 config/src/test_shared.gpr
