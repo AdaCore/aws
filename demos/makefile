@@ -25,7 +25,7 @@
 #  covered by the  GNU Public License.                                     #
 ############################################################################
 
-ifeq (${TARGET}, native)
+ifeq (${PLATFORM}, native)
 AWSRES   = ../../../$(NBDIR)/static/tools/awsres
 WSDL2AWS = ../../../$(NBDIR)/static/tools/wsdl2aws
 else
