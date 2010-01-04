@@ -1643,16 +1643,6 @@ ssl/ssl.ads
 ssl/ssl.gpr
 ssl/ssl_error_lib.gpr
 ssl/ssl_lib.gpr
-support/README.TXT
-support/g-calend.adb
-support/g-calend.ads
-support/g-catiio.adb
-support/g-catiio.ads
-support/g-regexp.adb
-support/g-regexp.ads
-support/g-regpat.adb
-support/g-regpat.ads
-support/gnat.ads
 templates_parser/config/tp_xmlada_dummy.gpr
 templates_parser/config/tp_xmlada_installed.gpr
 templates_parser/docs/all_sources.ada
