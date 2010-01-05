@@ -399,6 +399,7 @@ ifeq ($(OS), Windows_NT)
 else
 	echo '   OS : OS_Type := "UNIX";' >> $(CONFGPR)
 endif
+	echo >> $(CONFGPR)
 	echo 'end AWS_Config;' >> $(CONFGPR)
 	echo 'pragma Source_File_Name' >> $(CONFADC)
 	echo '  (SSL.Thin, Spec_File_Name => "ssl-thin__$(SSL_SUFFIX).ads");' \
