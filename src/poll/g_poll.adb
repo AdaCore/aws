@@ -25,43 +25,33 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
+--  Emulates UNIX "poll" call using "select" OS support
+
 with System.Address_To_Access_Conversions;
 
 with AWS.Net.Thin;
 
-function Poll
+function G_Poll
   (Fds     : System.Address;
    Nfds    : AWS.OS_Lib.nfds_t;
    Timeout : C.int) return C.int
 is
    use AWS;
    use AWS.Net;
-   use AWS.OS_Lib;
 
    use type C.int;
    use type C.long;
    use type System.Address;
+   use type AWS.OS_Lib.timeval_field_t;
+   use type AWS.OS_Lib.Events_Type;
 
    Failure : constant C.int := -1;
 
-   type FD_Array is array
-     (nfds_t range 1 .. OS_Lib.FD_SETSIZE) of Thin.FD_Type;
-   pragma Convention (C, FD_Array);
-
-   type Poll_Array is array (nfds_t range 1 .. Nfds) of Thin.Pollfd;
+   type Poll_Array is array (OS_Lib.nfds_t range 1 .. Nfds) of Thin.Pollfd;
    pragma Convention (C, Poll_Array);
 
    package Conversion is
      new System.Address_To_Access_Conversions (Poll_Array);
-
-   --  FD_Set_Type is an opaque type and must only be large enough to
-   --  match the equivalent C structure.
-
-   type FD_Set_Type is record
-      Pad : System.Address; -- this is Count on Win32 for example
-      Set : FD_Array;
-   end record;
-   pragma Convention (C, FD_Set_Type);
 
    function C_Select
      (Nfds      : C.int;
@@ -100,24 +90,24 @@ begin
    Timeout_V.tv_sec  := OS_Lib.timeval_field_t (Timeout) / 1000;
    Timeout_V.tv_usec := OS_Lib.timeval_field_t (Timeout) mod 1000 * 1000;
 
-   OS_Lib.FD_ZERO (Rfds'Address);
-   OS_Lib.FD_ZERO (Wfds'Address);
-   OS_Lib.FD_ZERO (Efds'Address);
+   FD_ZERO (Rfds'Address);
+   FD_ZERO (Wfds'Address);
+   FD_ZERO (Efds'Address);
 
    for J in Poll_Array'Range loop
       Poll_Ptr (J).REvents := 0;
 
       FD_Events := Poll_Ptr (J).Events;
 
-      if (FD_Events and (POLLIN or POLLPRI)) /= 0 then
-         OS_Lib.FD_SET (Poll_Ptr (J).FD, Rfds'Address);
+      if (FD_Events and (OS_Lib.POLLIN or OS_Lib.POLLPRI)) /= 0 then
+         FD_SET (Poll_Ptr (J).FD, Rfds'Address);
          Rcount := Rcount + 1;
-      elsif (FD_Events and POLLOUT) /= 0 then
-         OS_Lib.FD_SET (Poll_Ptr (J).FD, Wfds'Address);
+      elsif (FD_Events and OS_Lib.POLLOUT) /= 0 then
+         FD_SET (Poll_Ptr (J).FD, Wfds'Address);
          Wcount := Wcount + 1;
       end if;
 
-      OS_Lib.FD_SET (Poll_Ptr (J).FD, Efds'Address);
+      FD_SET (Poll_Ptr (J).FD, Efds'Address);
 
       Width := C.int'Max (Width, C.int (Poll_Ptr (J).FD));
    end loop;
@@ -153,22 +143,22 @@ begin
       Rs := 0;
 
       for J in Poll_Array'Range loop
-         if OS_Lib.FD_ISSET (Poll_Ptr (J).FD, Rfds'Address) /= 0 then
-            Poll_Ptr (J).REvents := Poll_Ptr (J).REvents or POLLIN;
+         if FD_ISSET (Poll_Ptr (J).FD, Rfds'Address) /= 0 then
+            Poll_Ptr (J).REvents := Poll_Ptr (J).REvents or OS_Lib.POLLIN;
             Rs := Rs + 1;
          end if;
 
-         if OS_Lib.FD_ISSET (Poll_Ptr (J).FD, Wfds'Address) /= 0 then
-            Poll_Ptr (J).REvents := Poll_Ptr (J).REvents or POLLOUT;
+         if FD_ISSET (Poll_Ptr (J).FD, Wfds'Address) /= 0 then
+            Poll_Ptr (J).REvents := Poll_Ptr (J).REvents or OS_Lib.POLLOUT;
             Rs := Rs + 1;
          end if;
 
-         if OS_Lib.FD_ISSET (Poll_Ptr (J).FD, Efds'Address) /= 0 then
-            Poll_Ptr (J).REvents := Poll_Ptr (J).REvents or POLLERR;
+         if FD_ISSET (Poll_Ptr (J).FD, Efds'Address) /= 0 then
+            Poll_Ptr (J).REvents := Poll_Ptr (J).REvents or OS_Lib.POLLERR;
             Rs := Rs + 1;
          end if;
       end loop;
    end if;
 
    return Rs;
-end Poll;
+end G_Poll;

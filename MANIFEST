@@ -1583,9 +1583,12 @@ src/ldap/aws-ldap-thin.adb
 src/ldap/aws-ldap-thin.ads
 src/ldap/aws-ldap.ads
 src/makefile
+src/poll/g_poll.adb
+src/poll/g_poll.ads
 src/poll/os_support.c
-src/poll/poll.adb
 src/poll/poll.ads
+src/poll/poll__posix.adb
+src/poll/poll__win32.adb
 src/soap/soap-client.adb
 src/soap/soap-client.ads
 src/soap/soap-dispatchers-callback.adb

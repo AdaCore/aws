@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                      Copyright (C) 2003-2009, AdaCore                    --
+--                     Copyright (C) 2003-2010, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -149,6 +149,21 @@ project Src is
          when "IPv6" =>
             for Implementation ("AWS.Net.Std")
               use "aws-net-std__ipv6.adb";
+      end case;
+
+      --  Poll
+
+      case Shared.Target is
+           when "native" =>
+	      case Shared.OS is
+                 when "Windows_NT" =>
+                    for Implementation ("Poll") use "poll__win32.adb";
+                 when others =>
+                    null;
+              end case;
+
+	   when "vxworks" =>
+              for Implementation ("Poll") use "poll__posix.adb";
       end case;
 
       --  SSL Lib
