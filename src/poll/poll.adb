@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2004-2009, AdaCore                     --
+--                     Copyright (C) 2004-2010, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -44,12 +44,6 @@ is
 
    Failure : constant C.int := -1;
 
-   type Timeval is record
-      tv_sec  : OS_Lib.timeval_field_t; -- Seconds
-      tv_usec : OS_Lib.timeval_field_t; -- Microseconds
-   end record;
-   pragma Convention (C, Timeval);
-
    type FD_Array is array
      (nfds_t range 1 .. OS_Lib.FD_SETSIZE) of Thin.FD_Type;
    pragma Convention (C, FD_Array);
@@ -80,7 +74,7 @@ is
    Poll_Ptr  : constant Conversion.Object_Pointer :=
                  Conversion.To_Pointer (Fds);
 
-   Timeout_V : aliased Timeval;
+   Timeout_V : aliased OS_Lib.Timeval;
 
    Rfds      : aliased FD_Set_Type;
    Rcount    : Natural := 0;

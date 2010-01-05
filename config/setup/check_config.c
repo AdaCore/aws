@@ -1,7 +1,7 @@
 /***************************************************************************/
 /*                             Ada Web Server                              */
 /*                                                                         */
-/*                    Copyright (C) 2000-2009, AdaCore                     */
+/*                    Copyright (C) 2000-2010, AdaCore                     */
 /*                                                                         */
 /* This library is free software; you can redistribute it and/or modify    */
 /* it under the terms of the GNU General Public License as published by    */
@@ -309,11 +309,17 @@ main (int argc, char *argv[])
   P ("   type socklen_t is mod 2 ** %d;\n", s_socklen_t);
   P ("   for socklen_t'Size use %d;\n\n", s_socklen_t);
 
-  /* timeval fields */
+  /* timeval */
 
   P ("   type timeval_field_t is range -(2 ** %d) .. 2 ** %d - 1;\n",
      s_timeval_s - 1, s_timeval_s - 1);
   P ("   for timeval_field_t'Size use %d;\n\n", s_timeval_s);
+
+  P ("   type Timeval is record\n");
+  P ("      tv_sec  : timeval_field_t; -- Seconds\n");
+  P ("      tv_usec : timeval_field_t; -- Microseconds\n");
+  P ("   end record;\n");
+  P ("   pragma Convention (C, Timeval);\n\n");
 
   /* Addr_Info */
 

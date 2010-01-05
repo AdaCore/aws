@@ -77,6 +77,12 @@ package AWS.OS_Lib is
    type timeval_field_t is range -(2 ** 31) .. 2 ** 31 - 1;
    for timeval_field_t'Size use 32;
 
+   type Timeval is record
+      tv_sec  : timeval_field_t; -- Seconds
+      tv_usec : timeval_field_t; -- Microseconds
+   end record;
+   pragma Convention (C, Timeval);
+
    type Addr_Info;
    type Addr_Info_Access is access all Addr_Info;
 
