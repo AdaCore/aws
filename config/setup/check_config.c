@@ -192,6 +192,32 @@ main (int argc, char *argv[])
   const int v_MSG_NOSIGNAL = 0;
 #endif
 
+#ifdef NI_NAMEREQD
+  const int v_NI_NAMEREQD = NI_NAMEREQD;
+#else
+  const int v_NI_NAMEREQD = 0;
+#endif
+#ifdef NI_DGRAM
+  const int v_NI_DGRAM = NI_DGRAM;
+#else
+  const int v_NI_DGRAM = 0;
+#endif
+#ifdef NI_NOFQDN
+  const int v_NI_NOFQDN = NI_NOFQDN;
+#else
+  const int v_NI_NOFQDN = 0;
+#endif
+#ifdef NI_NUMERICHOST
+  const int v_NI_NUMERICHOST = NI_NUMERICHOST;
+#else
+  const int v_NI_NUMERICHOST = 0;
+#endif
+#ifdef NI_NUMERICSERV
+  const int v_NI_NUMERICSERV = NI_NUMERICSERV;
+#else
+  const int v_NI_NUMERICSERV = 0;
+#endif
+
   const int v_FD_SETSIZE = FD_SETSIZE;
   const int s_timeval_s  = sizeof (tv.tv_sec) * 8;
 
@@ -253,11 +279,11 @@ main (int argc, char *argv[])
 
   /* getaddrname flags */
 
-  P ("   NI_NAMEREQD    : constant := %d;\n", NI_NAMEREQD);
-  P ("   NI_DGRAM       : constant := %d;\n", NI_DGRAM);
-  P ("   NI_NOFQDN      : constant := %d;\n", NI_NOFQDN);
-  P ("   NI_NUMERICHOST : constant := %d;\n", NI_NUMERICHOST);
-  P ("   NI_NUMERICSERV : constant := %d;\n\n", NI_NUMERICSERV);
+  P ("   NI_NAMEREQD    : constant := %d;\n", v_NI_NAMEREQD);
+  P ("   NI_DGRAM       : constant := %d;\n", v_NI_DGRAM);
+  P ("   NI_NOFQDN      : constant := %d;\n", v_NI_NOFQDN);
+  P ("   NI_NUMERICHOST : constant := %d;\n", v_NI_NUMERICHOST);
+  P ("   NI_NUMERICSERV : constant := %d;\n\n", v_NI_NUMERICSERV);
 
   /* other constants */
 
