@@ -1,8 +1,7 @@
 #!/usr/bin/env python
 #                              Ada Web Server
 #
-#                          Copyright (C) 2003-2009
-#                                  AdaCore
+#                     Copyright (C) 2003-2010, AdaCore
 #
 #  This library is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -151,9 +150,12 @@ class Runner(object):
                 "LDAP", "true", "Installed", "Disabled")
             os.environ["SOCKET"] = c.get("SOCKET")
             os.environ["LIBRARY_TYPE"] = "static"
+            # from-build-dir only supported on native platforms
+            os.environ["PLATFORM"] = "native"
             # Add current tools in from of PATH
             os.environ["PATH"] = CURDIR + os.sep + ".." + os.sep \
-              + ".build" + os.sep + os.environ["PRJ_BUILD"].lower() \
+              + ".build" + os.sep + os.environ["PLATFORM"] \
+              + os.sep + os.environ["PRJ_BUILD"].lower() \
               + os.sep + "static" + os.sep + "tools" \
               + os.pathsep + os.environ["PATH"]
 
