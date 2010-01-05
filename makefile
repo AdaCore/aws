@@ -81,7 +81,7 @@ ALL_OPTIONS	= $(MAKE_OPT) SOCKET="$(SOCKET)" XMLADA="$(XMLADA)" \
 	SOEXT="$(SOEXT)" BUILD_DOC_SCRIPT="false" GNAT="$(GNAT)" \
 	T2A="../../$(BDIR)/static/tools/templates2ada" \
 	LIBRARY_TYPE="$(LIBRARY_TYPE)" CJOBS="$(CJOBS)" PYTHON="$(PYTHON)" \
-	PLATFORM="$(PLATFORM)"
+	PLATFORM="$(PLATFORM)" ZLIB="$(ZLIB)"
 
 build_doc:
 	echo ""
