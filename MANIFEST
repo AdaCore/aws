@@ -1360,6 +1360,10 @@ regtests/0200_wb_context/test.py
 regtests/0200_wb_context/wb_context.adb
 regtests/0200_wb_context/wb_context.gpr
 regtests/0200_wb_context/wb_context.ini
+regtests/0201_hello/hello.adb
+regtests/0201_hello/hello.gpr
+regtests/0201_hello/test.out
+regtests/0201_hello/test.py
 regtests/aws.gpr
 regtests/common/get_free_port.adb
 regtests/gen_system_tags.py
