@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2009, AdaCore                     --
+--                     Copyright (C) 2003-2010, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -925,9 +925,45 @@ package body Ada2WSDL.Generator is
          if Schema_Needed or else Character_Schema then
             New_Line;
             Put_Line ("   <wsdl:types>");
-            Put_Line
+            Put
               ("      <xsd:schema"
-               & " xmlns:xsd=""http://www.w3.org/2001/XMLSchema"">");
+               & " xmlns:xsd=""http://www.w3.org/2001/XMLSchema""");
+
+            --  The following code is to check if all schema definitions are
+            --  having the same namespace. If so, we place a targetNamespace
+            --  node into the main schema node. This is to work around a
+            --  Microsoft .Net toolset bug where targetNamespace into schema's
+            --  type definitions are not taken into account. This is of course
+            --  mandatory to avoid name clashes (in Ada two types with the same
+            --  name in different packages for example).
+
+            declare
+               Global_NS : Unbounded_String;
+               Single_NS : Boolean := True;
+            begin
+               for I in 1 .. Index loop
+                  case API (I).Def_Mode is
+                     when Structure | Table | Simple_Type | Enumeration =>
+                        if Global_NS = Null_Unbounded_String then
+                           Global_NS := API (I).NS;
+
+                        elsif Global_NS /= API (I).NS then
+                           Single_NS := False;
+                        end if;
+
+                     when Safe_Pointer_Definition | Routine =>
+                        null;
+                  end case;
+               end loop;
+
+               if Single_NS then
+                  New_Line;
+                  Put ("         targetNamespace=""" & (-Global_NS) & '"');
+               end if;
+
+               --  Finally, close schema
+               Put_Line (">");
+            end;
 
             if Character_Schema then
                Write_Character;

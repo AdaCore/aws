@@ -20,3 +20,10 @@ NF-28-IC11-015 Port AWS to VxWorks (2009-12-24)
    AWS can now be used on VxWorks. The build procedure has been modified
    to be able to build the tools on the native platform and the libraries
    on the cross platform.
+
+NF-28-IC10-001 Generate targetNamespace in schema when possible (2010-01-07)
+
+   ada2wsdl now generates a targetNamespace attribute into the schema node
+   when all children are using the same namespace. This is to work around a
+   Microsoft .Net toolset bug/limitation where targetNamespace into shema
+   definitions (simpleType, complexType) are not supported.
