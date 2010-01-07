@@ -158,9 +158,9 @@ package body Ada2WSDL.Generator is
 
    procedure New_Component (NS, Comp_Name, Comp_Type : String) is
 
-      New_P       : constant Parameter_Access
-        := new Parameter'(+Comp_Name, +Comp_Type,
-                          +To_XSD (NS, Comp_Type), null);
+      New_P : constant Parameter_Access :=
+                new Parameter'
+                  (+Comp_Name, +Comp_Type, +To_XSD (NS, Comp_Type), null);
    begin
       if Options.Verbose then
          Text_IO.Put_Line
@@ -182,9 +182,9 @@ package body Ada2WSDL.Generator is
    ----------------
 
    procedure New_Formal (NS, Var_Name, Var_Type : String) is
-      New_P : constant Parameter_Access
-        := new Parameter'
-                 (+Var_Name, +Var_Type, +To_XSD (NS, Var_Type), null);
+      New_P : constant Parameter_Access :=
+                new Parameter'
+                  (+Var_Name, +Var_Type, +To_XSD (NS, Var_Type), null);
    begin
       if Options.Verbose then
          Text_IO.Put_Line
@@ -206,8 +206,8 @@ package body Ada2WSDL.Generator is
    -----------------
 
    procedure New_Literal (Name : String) is
-      New_P : constant Parameter_Access
-        := new Parameter'(+Name, +"", +"", null);
+      New_P : constant Parameter_Access :=
+                new Parameter'(+Name, +"", +"", null);
    begin
       if Options.Verbose then
          Text_IO.Put_Line ("        " & Name);
@@ -244,8 +244,7 @@ package body Ada2WSDL.Generator is
       New_P : constant Parameter_Access :=
                 new Parameter'
                   (+Name, +Parent_Name, +To_XSD (NS, Parent_Name), null);
-
-      D : Definition (Simple_Type);
+      D     : Definition (Simple_Type);
    begin
       --  We need to write a schema for this derived type
       Schema_Needed := True;
@@ -307,8 +306,7 @@ package body Ada2WSDL.Generator is
       New_P : constant Parameter_Access :=
                 new Parameter'
                   (+Name, +Root_Name, +To_XSD (NS, Root_Name), null);
-
-      D : Definition (Simple_Type);
+      D     : Definition (Simple_Type);
    begin
       --  We need to write a schema for this derived type
       Schema_Needed := True;
@@ -337,8 +335,8 @@ package body Ada2WSDL.Generator is
    -----------------
 
    procedure Return_Type (NS, Name : String) is
-      New_P : constant Parameter_Access
-        := new Parameter'(+"Result", +Name, +To_XSD (NS, Name), null);
+      New_P : constant Parameter_Access :=
+                new Parameter'(+"Result", +Name, +To_XSD (NS, Name), null);
    begin
       if Options.Verbose then
          Text_IO.Put_Line
@@ -356,11 +354,10 @@ package body Ada2WSDL.Generator is
      (NS, Name, Component_Type : String;
       Length                   : Natural := 0)
    is
-      New_P : constant Parameter_Access
-        := new Parameter'(+"item", +Component_Type,
-                          +To_XSD (NS, Component_Type), null);
-
-      D : Definition (Table);
+      New_P : constant Parameter_Access :=
+                new Parameter'(+"item", +Component_Type,
+                               +To_XSD (NS, Component_Type), null);
+      D     : Definition (Table);
    begin
       --  We need to write a schema for this record
       Schema_Needed := True;
@@ -978,9 +975,8 @@ package body Ada2WSDL.Generator is
                   when Simple_Type => Write_Type (API (I));
                   when Enumeration => Write_Enumeration (API (I));
 
-                  when Safe_Pointer_Definition
-                     | Routine
-                       => null;
+                  when Safe_Pointer_Definition | Routine =>
+                     null;
                end case;
             end loop;
 
