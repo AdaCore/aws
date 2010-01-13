@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2009, AdaCore                     --
+--                     Copyright (C) 2000-2010, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -58,7 +58,8 @@ package body AWS.Net.Std is
    --  Raise and log exception Socket_Error with E's message and a reference to
    --  the routine name.
 
-   function Get_Inet_Addr (Host : String) return Sockets.Inet_Addr_Type;
+   function Get_Inet_Addr
+     (Host : String; Passive : Boolean) return Sockets.Inet_Addr_Type;
    pragma Inline (Get_Inet_Addr);
    --  Returns the inet address for the given host
 
@@ -119,11 +120,7 @@ package body AWS.Net.Std is
 
       Socket.S := new Socket_Hidden;
 
-      if Host = "" then
-         Inet_Addr := Sockets.Any_Inet_Addr;
-      else
-         Inet_Addr := Get_Inet_Addr (Host);
-      end if;
+      Inet_Addr := Get_Inet_Addr (Host, Passive => True);
 
       Sockets.Create_Socket (Socket.S.FD);
       Created := True;
@@ -172,7 +169,7 @@ package body AWS.Net.Std is
       Close_On_Exception := True;
 
       Sock_Addr := (Sockets.Family_Inet,
-                    Get_Inet_Addr (Host),
+                    Get_Inet_Addr (Host, Passive => False),
                     Sockets.Port_Type (Port));
 
       Set_Non_Blocking_Mode (Socket);
@@ -384,11 +381,19 @@ package body AWS.Net.Std is
    -- Get_Inet_Addr --
    -------------------
 
-   function Get_Inet_Addr (Host : String) return Sockets.Inet_Addr_Type is
+   function Get_Inet_Addr
+     (Host : String; Passive : Boolean) return Sockets.Inet_Addr_Type
+   is
       use Strings.Maps;
       IP : constant Character_Set := To_Set ("0123456789.");
    begin
-      if Is_Subset (To_Set (Host), IP) then
+      if Host = "" then
+         if Passive then
+            return Sockets.Any_Inet_Addr;
+         else
+            return Sockets.Loopback_Inet_Addr;
+         end if;
+      elsif Is_Subset (To_Set (Host), IP) then
          --  Only numbers, this is an IP address
          return Sockets.Inet_Addr (Host);
       else
