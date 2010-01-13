@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2004-2009, AdaCore                     --
+--                     Copyright (C) 2004-2010, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -356,6 +356,7 @@ package body AWS.Net.Std is
    is
       package CS renames Interfaces.C.Strings;
       use type C.int;
+      use type C.unsigned;
       use type OS_Lib.Addr_Info_Access;
 
       C_Node : aliased C.char_array := C.To_C (Host);
@@ -367,7 +368,8 @@ package body AWS.Net.Std is
                  (ai_family    => OS_Lib.PF_UNSPEC,
                   ai_socktype  => OS_Lib.SOCK_STREAM,
                   ai_protocol  => OS_Lib.IPPROTO_IP,
-                  ai_flags     => Flags,
+                  ai_flags     =>
+                    C.int (C.unsigned (Flags) or OS_Lib.AI_NUMERICSERV),
                   ai_addrlen   => 0,
                   ai_canonname => CS.Null_Ptr,
                   ai_addr      => System.Null_Address,
