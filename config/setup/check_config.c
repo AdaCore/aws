@@ -217,6 +217,11 @@ main (int argc, char *argv[])
 #else
   const int v_NI_NUMERICSERV = 0;
 #endif
+#ifdef AI_NUMERICSERV
+  const int v_AI_NUMERICSERV = AI_NUMERICSERV;
+#else
+  const int v_AI_NUMERICSERV = 0;
+#endif
 
   const int v_FD_SETSIZE = FD_SETSIZE;
   const int s_timeval_s  = sizeof (tv.tv_sec) * 8;
@@ -275,7 +280,7 @@ main (int argc, char *argv[])
   P ("   AI_PASSIVE     : constant := %d;\n", AI_PASSIVE);
   P ("   AI_CANONNAME   : constant := %d;\n", AI_CANONNAME);
   P ("   AI_NUMERICHOST : constant := %d;\n", AI_NUMERICHOST);
-  P ("   AI_NUMERICSERV : constant := %d;\n", AI_NUMERICSERV);
+  P ("   AI_NUMERICSERV : constant := %d;\n", v_AI_NUMERICSERV);
   P ("   EAI_SYSTEM     : constant := %d;\n\n", EAI_SYSTEM);
 
   /* getaddrname flags */
