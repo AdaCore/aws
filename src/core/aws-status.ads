@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2009, AdaCore                     --
+--                     Copyright (C) 2000-2010, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -144,6 +144,10 @@ package AWS.Status is
    function Referer                (D : Data) return String;
    pragma Inline (Referer);
    --  Get value for "Referer:" header
+
+   function Cache_Control          (D : Data) return String;
+   pragma Inline (Cache_Control);
+   --  Get value for "Cache-Control:" header
 
    function Is_Supported
      (D        : Data;

@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2009, AdaCore                     --
+--                     Copyright (C) 2000-2010, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -185,6 +185,15 @@ package body AWS.Status is
          return Containers.Memory_Streams.Size (D.Binary_Data.all);
       end if;
    end Binary_Size;
+
+   -------------------
+   -- Cache_Control --
+   -------------------
+
+   function Cache_Control (D : Data) return String is
+   begin
+      return Headers.Get (D.Header, Messages.Cache_Control_Token);
+   end Cache_Control;
 
    ------------------
    -- Check_Digest --
