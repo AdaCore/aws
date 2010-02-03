@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2004-2009, AdaCore                     --
+--                     Copyright (C) 2004-2010, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -48,8 +48,8 @@ procedure S_NBConn_Proc (Security : Boolean) is
    Port       : Positive := 7000;
    Server     : Net.Socket_Type'Class := Net.Socket (False);
    Clients    : array (1 .. Queue_Size + 2) of Net.Socket_Access;
-   Sample     : constant Ada.Streams.Stream_Element_Array (1 .. 100)
-     := (others => 1);
+   Sample     : constant Ada.Streams.Stream_Element_Array (1 .. 100) :=
+                  (others => 1);
 
    task Server_Task is
       entry Get (N : Positive);
@@ -114,10 +114,10 @@ begin
 
    for J in Clients'Range loop
       declare
-         Events : constant Net.Event_Set
-           := Net.Wait
-                (Clients (J).all,
-                 (Net.Output => True, others => False));
+         Events : constant Net.Event_Set :=
+                    Net.Wait
+                      (Clients (J).all,
+                        (Net.Output => True, others => False));
       begin
          if Events (Net.Output) then
             Put ("connected");

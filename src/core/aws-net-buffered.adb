@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2002-2009, AdaCore                     --
+--                     Copyright (C) 2002-2010, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -390,7 +390,7 @@ package body AWS.Net.Buffered is
      (Socket : Socket_Type'Class;
       Item   : Stream_Element_Array)
    is
-      C : Write_Cache renames Socket.C.W_Cache;
+      C         : Write_Cache renames Socket.C.W_Cache;
       Next_Last : constant Stream_Element_Offset := C.Last + Item'Length;
    begin
       if Next_Last > C.Max_Size then
