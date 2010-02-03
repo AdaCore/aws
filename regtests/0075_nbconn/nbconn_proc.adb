@@ -46,13 +46,12 @@ procedure NBConn_Proc (Security : Boolean) is
 
    Queue_Size : constant := 5;
    Port       : Positive := 7000;
-   Server     : Net.Socket_Type'Class := Net.Socket (False);
    Clients    : array (1 .. Queue_Size + 2) of Net.Socket_Access;
    Sample     : constant Ada.Streams.Stream_Element_Array (1 .. 100)
      := (others => 1);
 
    task Server_Task is
-      entry Get (N : Positive);
+      entry Start;
       entry Done;
    end Server_Task;
 
@@ -61,12 +60,20 @@ procedure NBConn_Proc (Security : Boolean) is
    -----------------
 
    task body Server_Task is
-      Peer : Net.Socket_Access;
+      Peer   : Net.Socket_Access;
+      Server : Net.Socket_Type'Class := Net.Socket (False);
    begin
+      Get_Free_Port (Port);
+
+      Net.Bind (Server, Port);
+      Net.Listen (Server, Queue_Size);
+
+      Put_Line ("Server ready.");
+
+      accept Start;
+
       for J in Clients'Range loop
-         accept Get (N : Positive) do
-            Peer := Net.Socket (Security);
-         end Get;
+         Peer := Net.Socket (Security);
 
          Net.Accept_Socket (Server, Peer.all);
 
@@ -87,6 +94,8 @@ procedure NBConn_Proc (Security : Boolean) is
 
       accept Done;
 
+      Net.Shutdown (Server);
+
    exception
       when E : others =>
          Put_Line ("Server task " & Ada.Exceptions.Exception_Information (E));
@@ -99,12 +108,7 @@ procedure NBConn_Proc (Security : Boolean) is
    end Server_Task;
 
 begin
-   Get_Free_Port (Port);
-
-   Net.Bind (Server, Port);
-   Net.Listen (Server, Queue_Size);
-
-   Put_Line ("Server ready.");
+   Server_Task.Start;
 
    for J in Clients'Range loop
       Clients (J) := Net.Socket (Security);
@@ -126,8 +130,6 @@ begin
          end if;
 
          Put_Line (Integer'Image (J));
-
-         Server_Task.Get (J);
 
          if Security then
             Net.SSL.Do_Handshake (Net.SSL.Socket_Type (Clients (J).all));
@@ -152,8 +154,6 @@ begin
       Net.Shutdown (Clients (J).all);
       Net.Free (Clients (J));
    end loop;
-
-   Net.Shutdown (Server);
 
 exception
    when E : others =>
