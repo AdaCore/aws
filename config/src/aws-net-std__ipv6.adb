@@ -862,11 +862,12 @@ package body AWS.Net.Std is
       Socket.S.FD := No_Socket;
 
       if OS_Lib.C_Close (FD) = Failure then
-         --  Back true FD for logging
+         --  Use copy of the socket with the original discriptor because
+         --  original socket is without descriptor now.
 
-         Socket.S.FD := FD;
-         Log.Error (Socket, Error_Message (OS_Lib.Socket_Errno));
-         Socket.S.FD := No_Socket;
+         Log.Error
+           (Socket_Type'(Net.Socket_Type with new Socket_Hidden'(FD => FD)),
+            Error_Message (OS_Lib.Socket_Errno));
       end if;
    end Shutdown;
 

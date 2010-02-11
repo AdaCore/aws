@@ -704,15 +704,14 @@ package body AWS.Net.Std is
             Sockets.Close_Socket (FD);
          exception
             when E : Sockets.Socket_Error | Constraint_Error =>
-               --  Back original socket handle to log
-
-               Socket.S.FD := FD;
+               --  Use copy of the socket with the original discriptor
+               --  because original socket is without descriptor now.
 
                Log.Error
-                 (Socket,
+                 (Socket_Type'
+                    (Net.Socket_Type with new Socket_Hidden'(FD => FD)),
                   Message => "Close : "
                              & Ada.Exceptions.Exception_Message (E));
-               Socket.S.FD := Sockets.No_Socket;
          end;
       end if;
    end Shutdown;
