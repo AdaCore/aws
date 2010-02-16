@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2009, AdaCore                     --
+--                     Copyright (C) 2000-2010, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -101,7 +101,7 @@ package AWS.Server is
    --  set to True the server will use an HTTPS/SSL connection. If Session is
    --  set to True the server will be able to get a status for each client
    --  connected. A session Id is used for that, on the client side it is a
-   --  cookie. Case_Sensitive_Parameters if set to False it means that the CGI
+   --  cookie. Case_Sensitive_Parameters if set to False it means that the
    --  parameters name will be handled without case sensitivity. Upload
    --  directory point to a directory where uploaded files will be stored.
 
