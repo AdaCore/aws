@@ -1,7 +1,7 @@
 ############################################################################
 #                              Ada Web Server                              #
 #                                                                          #
-#                     Copyright (C) 2003-2009, AdaCore                     #
+#                     Copyright (C) 2003-2010, AdaCore                     #
 #                                                                          #
 #  This library is free software; you can redistribute it and/or modify    #
 #  it under the terms of the GNU General Public License as published by    #
@@ -92,7 +92,7 @@ setup_ssl_install:
 	echo "project AWS_SSL_Shared is" > $(ISSLGPR)
 	echo "   for Source_Files use ();" >> $(ISSLGPR)
 ifeq (${OS}, Windows_NT)
-	echo '   LIB_Path := "../../aws/ssl";' >> $(ISSLGPR)
+	echo '   LIB_Path := "../../aws/native/ssl";' >> $(ISSLGPR)
 	echo '   S_SSL_Lib := "ssl";' >> $(ISSLGPR)
 	echo '   R_SSL_Lib := "ssl32";' >> $(ISSLGPR)
 	echo '   S_CRY_Lib := "crypto";' >> $(ISSLGPR)
