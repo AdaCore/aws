@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2007-2009, AdaCore                     --
+--                     Copyright (C) 2007-2010, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -424,6 +424,8 @@ package body AWS.Services.Web_Block.Registry is
 
          if Position /= No_Element then
             declare
+               Keep          : constant Templates.Translate_Set :=
+                                 Lazy_Tag.Translations;
                T             : Templates.Translate_Set;
                Template_Name : Unbounded_String;
             begin
@@ -454,6 +456,11 @@ package body AWS.Services.Web_Block.Registry is
                        (To_String (Template_Name), T,
                           Lazy_Tag =>
                             Templates.Dynamic.Lazy_Tag_Access (Lazy_Tag)))));
+
+               --  We restore the lazy tag state as we do not want to
+               --  propagate changes to siblings.
+
+               Lazy_Tag.Translations := Keep;
             end;
          end if;
       end if;
