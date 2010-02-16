@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2009, AdaCore                     --
+--                     Copyright (C) 2000-2010, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -278,8 +278,8 @@ package body AWS.Server is
    task body Line is
       use Ada.Exceptions;
 
-      TA : constant Line_Attribute.Attribute_Handle
-        := Line_Attribute.Reference;
+      TA : constant Line_Attribute.Attribute_Handle :=
+             Line_Attribute.Reference;
    begin
 
       select
