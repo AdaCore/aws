@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2007-2009, AdaCore                     --
+--                     Copyright (C) 2007-2010, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -101,9 +101,11 @@ package AWS.Services.Web_Block.Registry is
       Translations  : Templates.Translate_Set;
       Status_Code   : Messages.Status_Code := Messages.S200;
       Cache_Control : Messages.Cache_Option := Messages.Unspecified;
-      Context       : Web_Block.Context.Object := Web_Block.Context.Empty;
+      Context       : access Web_Block.Context.Object := null;
       Context_Error : String := "") return Response.Data;
-   --  Same as above but returns a standard Web page
+   --  Same as above but returns a standard Web page. If Context is set it
+   --  is the initial value and will be setup at the end to correspond to
+   --  the recorded new context.
 
    function Get_Context
      (Request : Status.Data) return Web_Block.Context.Object;

@@ -85,11 +85,28 @@ package body AWS.Services.Web_Block.Registry is
       Translations  : Templates.Translate_Set;
       Status_Code   : Messages.Status_Code := Messages.S200;
       Cache_Control : Messages.Cache_Option := Messages.Unspecified;
-      Context       : Web_Block.Context.Object := Web_Block.Context.Empty;
+      Context       : access Web_Block.Context.Object := null;
       Context_Error : String := "") return Response.Data
    is
+
+      function Get_Context return Web_Block.Context.Object;
+      --  Returns the context object
+
+      -----------------
+      -- Get_Context --
+      -----------------
+
+      function Get_Context return Web_Block.Context.Object is
+      begin
+         if Context = null then
+            return Web_Block.Context.Empty;
+         else
+            return Context.all;
+         end if;
+      end Get_Context;
+
       P    : constant Page :=
-               Parse (Key, Request, Translations, Context, Context_Error);
+               Parse (Key, Request, Translations, Get_Context, Context_Error);
       Data : Response.Data;
    begin
       if P = No_Page then
@@ -102,6 +119,12 @@ package body AWS.Services.Web_Block.Registry is
             To_String (P.Content),
             Status_Code   => Status_Code,
             Cache_Control => Cache_Control);
+      end if;
+
+      --  Return the new context
+
+      if Context /= null then
+         Context.all := Web_Block.Context.Get (P.Ctx_Id);
       end if;
 
       return Data;

@@ -15,6 +15,12 @@ of the feature.
 New features in AWS 2.8.0
 -------------------------
 
+NF-28-J215-015 Updated Web_Block context accessible (2010-02-15)
+
+   It is now possible to query the updated context in the Web_Block
+   framework. This make it possible to do specialized actions after
+   rendering a Web page (i.e. after evaluating all the web blocks).
+
 NF-28-IC11-015 Port AWS to VxWorks (2009-12-24)
 
    AWS can now be used on VxWorks. The build procedure has been modified

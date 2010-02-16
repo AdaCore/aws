@@ -1,0 +1,15 @@
+MAIN   : SET
+BLOCK  : SET2
+SBLOCK : SET in BLOCK2
+Main   :
+[GVALUE]
+<<
+   [GVALUE]
+   This is the Web Block ._6_.
+      Sub block: (_6_) [GVALUE]
+--
+   [GVALUE]
+   This is the Web Block2 ..
+      Sub block: () [GVALUE]
+>>
+[GVALUE]
