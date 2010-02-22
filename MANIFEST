@@ -1372,6 +1372,9 @@ regtests/0202_wb_context/test.out
 regtests/0202_wb_context/test.py
 regtests/0202_wb_context/web_blocks_ctx.adb
 regtests/0202_wb_context/web_blocks_ctx.gpr
+regtests/0203_wsdl_res_part/hello2.wsdl
+regtests/0203_wsdl_res_part/test.out
+regtests/0203_wsdl_res_part/test.py
 regtests/aws.gpr
 regtests/common/get_free_port.adb
 regtests/gen_system_tags.py

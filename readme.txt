@@ -4,7 +4,7 @@
 
 Authors:
    Dmitriy Anisimkov
-   Pascal Obry                                            December 24th, 2009
+   Pascal Obry                                            February 17th, 2010
 
 
 
@@ -38,6 +38,9 @@ Changes
 New features are described into the file docs/features.
 
 Listed below are some minor enhancements and fixes:
+
+   - Fix wsdl2aws to properly support SOAP routines with response having
+     multiple parts.
 
    - The PS documentation has been removed. Only PDF documentation is
      now generated.

@@ -1423,7 +1423,7 @@ package body SOAP.Generator is
          if NS = Name_Space.No_Name_Space
            or else Name_Space.Value (NS) = ""
          then
-            return "";
+            return Generate_Namespace (Name_Space.AWS, True);
 
          else
             declare
@@ -1865,9 +1865,16 @@ package body SOAP.Generator is
             N := N.Next;
          end loop;
 
-         Text_IO.Put_Line
-           (Rec_Adb,
-            "         Name, """ & To_String (P.T_Name) & """);");
+         if P.Mode = WSDL.Parameters.K_Simple then
+            --  This is an unnamed record (output described as a set of part)
+
+            Text_IO.Put_Line (Rec_Adb, "         Name);");
+
+         else
+            Text_IO.Put_Line
+              (Rec_Adb,
+               "         Name, """ & To_String (P.T_Name) & """);");
+         end if;
 
          if P.NS /= Name_Space.No_Name_Space then
             Text_IO.Put_Line
