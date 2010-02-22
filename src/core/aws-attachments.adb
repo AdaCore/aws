@@ -96,13 +96,14 @@ package body AWS.Attachments is
    is
       Has_Content_Type : constant Boolean :=
                            Headers.Exist (AWS.Messages.Content_Type_Token);
-      A : Element :=
-            (AWS.Attachments.Data, Headers,
-             Data.Length + AWS.Headers.Length (Headers), Data);
+      A                : Element :=
+                           (AWS.Attachments.Data, Headers,
+                            Data.Length + AWS.Headers.Length (Headers), Data);
    begin
       if Data.Filename = Null_Unbounded_String then
          if Data.Content_Type /= Null_Unbounded_String
-           and then not Has_Content_Type then
+           and then not Has_Content_Type
+         then
             AWS.Headers.Set.Add
               (Headers => A.Headers,
                Name    => AWS.Messages.Content_Type_Token,

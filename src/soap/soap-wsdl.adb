@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2009, AdaCore                     --
+--                     Copyright (C) 2003-2010, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -136,8 +136,7 @@ package body SOAP.WSDL is
 
    function Get_Routine
      (P       : Parameter_Type;
-      Context : Context_Type := Parameter)
-      return String is
+      Context : Context_Type := Parameter) return String is
    begin
       case P is
          when P_String =>
@@ -201,8 +200,7 @@ package body SOAP.WSDL is
 
    function Set_Routine
      (P       : Parameter_Type;
-      Context : Context_Type := Parameter)
-      return String is
+      Context : Context_Type := Parameter) return String is
    begin
       case P is
          when P_Long           => return "SOAP.Types.L";
@@ -266,8 +264,7 @@ package body SOAP.WSDL is
 
    function To_Ada
      (P       : Parameter_Type;
-      Context : Context_Type := Parameter)
-      return String is
+      Context : Context_Type := Parameter) return String is
    begin
       case P is
          when P_Long           => return "SOAP.Types.Long";
@@ -414,8 +411,7 @@ package body SOAP.WSDL is
 
    function V_Routine
      (P       : Parameter_Type;
-      Context : Context_Type := Parameter)
-      return String is
+      Context : Context_Type := Parameter) return String is
    begin
       case P is
          when P_String =>

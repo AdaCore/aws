@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2009, AdaCore                     --
+--                     Copyright (C) 2000-2010, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -92,8 +92,7 @@ package body SOAP.Types is
    function A
      (V         : Object_Set;
       Name      : String;
-      Type_Name : String := "")
-      return SOAP_Array is
+      Type_Name : String := "") return SOAP_Array is
    begin
       return
         (Finalization.Controlled
@@ -137,8 +136,7 @@ package body SOAP.Types is
 
    function B
      (V    : Boolean;
-      Name : String  := "item")
-      return XSD_Boolean is
+      Name : String  := "item") return XSD_Boolean is
    begin
       return
         (Finalization.Controlled
@@ -147,8 +145,7 @@ package body SOAP.Types is
 
    function B
      (V    : Byte;
-      Name : String  := "item")
-      return XSD_Byte is
+      Name : String  := "item") return XSD_Byte is
    begin
       return
         (Finalization.Controlled
@@ -161,8 +158,7 @@ package body SOAP.Types is
 
    function B64
      (V      : String;
-      Name   : String  := "item")
-      return SOAP_Base64 is
+      Name   : String  := "item") return SOAP_Base64 is
    begin
       return
         (Finalization.Controlled
@@ -176,8 +172,7 @@ package body SOAP.Types is
 
    function D
      (V    : Long_Float;
-      Name : String          := "item")
-      return XSD_Double is
+      Name : String          := "item") return XSD_Double is
    begin
       return
         (Finalization.Controlled
@@ -191,8 +186,7 @@ package body SOAP.Types is
    function E
      (V         : String;
       Type_Name : String;
-      Name      : String := "item")
-      return SOAP_Enumeration is
+      Name      : String := "item") return SOAP_Enumeration is
    begin
       return (Finalization.Controlled
               with To_Unbounded_String (Name), No_Name_Space,
@@ -206,8 +200,7 @@ package body SOAP.Types is
 
    function F
      (V    : Float;
-      Name : String := "item")
-      return XSD_Float is
+      Name : String := "item") return XSD_Float is
    begin
       return
         (Finalization.Controlled
@@ -646,8 +639,7 @@ package body SOAP.Types is
 
    function I
      (V    : Integer;
-      Name : String := "item")
-      return XSD_Integer is
+      Name : String := "item") return XSD_Integer is
    begin
       return
         (Finalization.Controlled
@@ -871,8 +863,7 @@ package body SOAP.Types is
 
    function L
      (V    : Long;
-      Name : String := "item")
-      return XSD_Long is
+      Name : String := "item") return XSD_Long is
    begin
       return
         (Finalization.Controlled
@@ -915,8 +906,7 @@ package body SOAP.Types is
    function R
      (V         : Object_Set;
       Name      : String;
-      Type_Name : String := "")
-      return SOAP_Record
+      Type_Name : String := "") return SOAP_Record
    is
       function T_Name return String;
       pragma Inline (T_Name);
@@ -956,8 +946,7 @@ package body SOAP.Types is
 
    function S
      (V    : String;
-      Name : String := "item")
-      return XSD_String
+      Name : String := "item") return XSD_String
    is
       L_V : constant String := Utils.To_Utf8 (V);
    begin
@@ -969,8 +958,7 @@ package body SOAP.Types is
 
    function S
      (V      : Unbounded_String;
-      Name   : String  := "item")
-      return XSD_String is
+      Name   : String  := "item") return XSD_String is
    begin
       return
         (Finalization.Controlled
@@ -1013,8 +1001,7 @@ package body SOAP.Types is
    function T
      (V        : Calendar.Time;
       Name     : String        := "item";
-      Timezone : TZ            := GMT)
-      return XSD_Time_Instant is
+      Timezone : TZ            := GMT) return XSD_Time_Instant is
    begin
       return
         (Finalization.Controlled

@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2001-2009, AdaCore                     --
+--                     Copyright (C) 2001-2010, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -138,8 +138,7 @@ package SOAP.Types is
    function A
      (V         : Object_Set;
       Name      : String;
-      Type_Name : String := "")
-      return SOAP_Array;
+      Type_Name : String := "") return SOAP_Array;
    --  Type_Name of the array's elements, if not specified it will be computed
    --  based on element's name.
 
@@ -166,8 +165,7 @@ package SOAP.Types is
 
    function B64
      (V    : String;
-      Name : String := "item")
-      return SOAP_Base64;
+      Name : String := "item") return SOAP_Base64;
 
    function V (O : SOAP_Base64) return String;
 
@@ -217,8 +215,7 @@ package SOAP.Types is
 
    function D
      (V    : Long_Float;
-      Name : String          := "item")
-      return XSD_Double;
+      Name : String          := "item") return XSD_Double;
 
    function V (O : XSD_Double) return Long_Float;
 
@@ -295,8 +292,7 @@ package SOAP.Types is
    function R
      (V         : Object_Set;
       Name      : String;
-      Type_Name : String := "")
-      return SOAP_Record;
+      Type_Name : String := "") return SOAP_Record;
    --  If Type_Name is omitted then the type name is the name of the record.
    --  Type_Name must be specified for item into an array for example.
 
@@ -336,13 +332,11 @@ package SOAP.Types is
 
    function S
      (V    : String;
-      Name : String := "item")
-      return XSD_String;
+      Name : String := "item") return XSD_String;
 
    function S
      (V    : Unbounded_String;
-      Name : String  := "item")
-      return XSD_String;
+      Name : String  := "item") return XSD_String;
 
    function V (O : XSD_String) return String;
 
@@ -367,8 +361,7 @@ package SOAP.Types is
    function T
      (V        : Ada.Calendar.Time;
       Name     : String        := "item";
-      Timezone : TZ            := GMT)
-      return XSD_Time_Instant;
+      Timezone : TZ            := GMT) return XSD_Time_Instant;
 
    function V (O : XSD_Time_Instant) return Ada.Calendar.Time;
    --  Returns a GMT date and time
@@ -462,8 +455,7 @@ package SOAP.Types is
    function E
      (V         : String;
       Type_Name : String;
-      Name      : String := "item")
-      return SOAP_Enumeration;
+      Name      : String := "item") return SOAP_Enumeration;
 
    function V (O : SOAP_Enumeration) return String;
 

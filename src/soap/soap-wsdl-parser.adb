@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2009, AdaCore                     --
+--                     Copyright (C) 2003-2010, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -57,8 +57,7 @@ package body SOAP.WSDL.Parser is
      (Parent  : DOM.Core.Node;
       Element : String;
       Name    : String        := "";
-      NS      : Boolean       := False)
-      return DOM.Core.Node;
+      NS      : Boolean       := False) return DOM.Core.Node;
    --  Returns child node named Element having the value Name for attribute
    --  "name" if specified.
 
@@ -132,43 +131,37 @@ package body SOAP.WSDL.Parser is
    function Parse_Parameter
      (O        : Object'Class;
       N        : DOM.Core.Node;
-      Document : WSDL.Object)
-      return Parameters.Parameter;
+      Document : WSDL.Object) return Parameters.Parameter;
    --  Returns parameter in node P
 
    function Parse_Record
      (O        : Object'Class;
       R        : DOM.Core.Node;
-      Document : WSDL.Object)
-      return Parameters.Parameter;
+      Document : WSDL.Object) return Parameters.Parameter;
    --  Returns record in node N
 
    function Parse_Array
      (O        : Object'Class;
       R        : DOM.Core.Node;
-      Document : WSDL.Object)
-      return Parameters.Parameter;
+      Document : WSDL.Object) return Parameters.Parameter;
    --  Returns array in node N
 
    function Parse_Simple
      (O        : Object'Class;
       R        : DOM.Core.Node;
-      Document : WSDL.Object)
-      return Parameters.Parameter;
+      Document : WSDL.Object) return Parameters.Parameter;
    --  Returns the derived or enumeration type in node N (N must be a
    --  simpleType schema node).
 
    function Is_Array
      (O : Object'Class;
-      N : DOM.Core.Node)
-      return Boolean;
+      N : DOM.Core.Node) return Boolean;
    --  Returns True if N is an array description node. Set the array element
    --  name into the object.
 
    function Is_Record
      (O : Object'Class;
-      N : DOM.Core.Node)
-      return Boolean;
+      N : DOM.Core.Node) return Boolean;
    --  Returns True if N is a struct description node
 
    procedure Check_Character (R : DOM.Core.Node);
@@ -227,8 +220,7 @@ package body SOAP.WSDL.Parser is
 
       function Character_Facet
         (Parent : DOM.Core.Node;
-         Child  : Boolean := False)
-         return DOM.Core.Node;
+         Child  : Boolean := False) return DOM.Core.Node;
       --  Returns the first node corresponding to a character type definition.
       --  It skips annotation tag for example.
 
@@ -238,8 +230,7 @@ package body SOAP.WSDL.Parser is
 
       function Character_Facet
         (Parent : DOM.Core.Node;
-         Child  : Boolean := False)
-         return DOM.Core.Node
+         Child  : Boolean := False) return DOM.Core.Node
       is
          N : DOM.Core.Node := Parent;
       begin
@@ -261,6 +252,7 @@ package body SOAP.WSDL.Parser is
       end Character_Facet;
 
       N : DOM.Core.Node := R;
+
    begin
       Trace ("(Check_Character)", R);
 
@@ -388,14 +380,12 @@ package body SOAP.WSDL.Parser is
      (Parent  : DOM.Core.Node;
       Element : String;
       Name    : String        := "";
-      NS      : Boolean       := False)
-      return DOM.Core.Node
+      NS      : Boolean       := False) return DOM.Core.Node
    is
       function Get_Node_Int
         (Parent  : DOM.Core.Node;
          Element : String;
-         Name    : String)
-         return DOM.Core.Node;
+         Name    : String) return DOM.Core.Node;
       --  Recursive procedure that does the job
 
       ------------------
@@ -405,8 +395,7 @@ package body SOAP.WSDL.Parser is
       function Get_Node_Int
         (Parent  : DOM.Core.Node;
          Element : String;
-         Name    : String)
-         return DOM.Core.Node
+         Name    : String) return DOM.Core.Node
       is
          N, R : DOM.Core.Node;
          E    : Natural;
@@ -537,8 +526,7 @@ package body SOAP.WSDL.Parser is
 
    function Is_Array
      (O : Object'Class;
-      N : DOM.Core.Node)
-      return Boolean
+      N : DOM.Core.Node) return Boolean
    is
       function Array_Elements return Unbounded_String;
       --  Returns array's element type encoded in node L
@@ -550,8 +538,8 @@ package body SOAP.WSDL.Parser is
       --------------------
 
       function Array_Elements return Unbounded_String is
-         Attributes : constant  DOM.Core.Named_Node_Map
-           := DOM.Core.Nodes.Attributes (L);
+         Attributes : constant  DOM.Core.Named_Node_Map :=
+                        DOM.Core.Nodes.Attributes (L);
       begin
          --  Look for arrayType in Attributes list
 
@@ -620,8 +608,7 @@ package body SOAP.WSDL.Parser is
 
    function Is_Record
      (O : Object'Class;
-      N : DOM.Core.Node)
-      return Boolean
+      N : DOM.Core.Node) return Boolean
    is
       pragma Unreferenced (O);
       L : DOM.Core.Node := N;
@@ -651,8 +638,8 @@ package body SOAP.WSDL.Parser is
      (O        : in out Object'Class;
       Document : WSDL.Object)
    is
-      N     : constant DOM.Core.Node
-        := XML.First_Child (DOM.Core.Node (Document));
+      N     : constant DOM.Core.Node :=
+                XML.First_Child (DOM.Core.Node (Document));
       NL    : constant DOM.Core.Node_List := DOM.Core.Nodes.Child_Nodes (N);
       Found : Boolean := False;
    begin
@@ -686,8 +673,7 @@ package body SOAP.WSDL.Parser is
    function Parse_Array
      (O        : Object'Class;
       R        : DOM.Core.Node;
-      Document : WSDL.Object)
-      return Parameters.Parameter
+      Document : WSDL.Object) return Parameters.Parameter
    is
       P : Parameters.Parameter (Parameters.K_Array);
    begin
@@ -712,10 +698,10 @@ package body SOAP.WSDL.Parser is
          if not WSDL.Is_Standard (To_String (O.Array_Elements)) then
             --  This is not a standard type, parse it
             declare
-               N : constant DOM.Core.Node
-                 := Get_Node (DOM.Core.Node (Document),
-                              "definitions.types.schema.complexType",
-                              To_String (O.Array_Elements));
+               N : constant DOM.Core.Node :=
+                     Get_Node (DOM.Core.Node (Document),
+                               "definitions.types.schema.complexType",
+                               To_String (O.Array_Elements));
             begin
                --  ??? Right now pretend that it is a record, there is
                --  certainly some cases not covered here.
@@ -767,8 +753,8 @@ package body SOAP.WSDL.Parser is
       --  Read all operations
 
       declare
-         NL : constant DOM.Core.Node_List
-           := DOM.Core.Nodes.Child_Nodes (Binding);
+         NL : constant DOM.Core.Node_List :=
+                DOM.Core.Nodes.Child_Nodes (Binding);
       begin
          for K in 0 .. DOM.Core.Nodes.Length (NL) - 1 loop
             declare
@@ -889,8 +875,8 @@ package body SOAP.WSDL.Parser is
 
          else
             declare
-               NL : constant DOM.Core.Node_List
-                 := DOM.Core.Nodes.Child_Nodes (N);
+               NL : constant DOM.Core.Node_List :=
+                      DOM.Core.Nodes.Child_Nodes (N);
             begin
                for K in 0 .. DOM.Core.Nodes.Length (NL) - 1 loop
                   declare
@@ -997,8 +983,7 @@ package body SOAP.WSDL.Parser is
    function Parse_Parameter
      (O        : Object'Class;
       N        : DOM.Core.Node;
-      Document : WSDL.Object)
-      return Parameters.Parameter
+      Document : WSDL.Object) return Parameters.Parameter
    is
       P_Type : constant String := XML.Get_Attr_Value (N, "type", False);
    begin
@@ -1014,9 +999,9 @@ package body SOAP.WSDL.Parser is
 
       else
          declare
-            R : DOM.Core.Node
-              := Get_Node (DOM.Core.Node (Document),
-                           "definitions.types.schema.complexType", P_Type);
+            R : DOM.Core.Node :=
+                  Get_Node (DOM.Core.Node (Document),
+                            "definitions.types.schema.complexType", P_Type);
          begin
             if R = null then
                --  Now check for a simpleType
@@ -1058,8 +1043,8 @@ package body SOAP.WSDL.Parser is
       Part     : DOM.Core.Node;
       Document : WSDL.Object)
    is
-      N       : DOM.Core.Node;
-      ET      : Unbounded_String;
+      N  : DOM.Core.Node;
+      ET : Unbounded_String;
    begin
       Trace ("(Parse_Part)", Part);
 
@@ -1229,8 +1214,7 @@ package body SOAP.WSDL.Parser is
    function Parse_Record
      (O        : Object'Class;
       R        : DOM.Core.Node;
-      Document : WSDL.Object)
-      return Parameters.Parameter
+      Document : WSDL.Object) return Parameters.Parameter
    is
       P : Parameters.Parameter (Parameters.K_Record);
       N : DOM.Core.Node;
@@ -1333,21 +1317,18 @@ package body SOAP.WSDL.Parser is
    function Parse_Simple
      (O        : Object'Class;
       R        : DOM.Core.Node;
-      Document : WSDL.Object)
-      return Parameters.Parameter
+      Document : WSDL.Object) return Parameters.Parameter
    is
       pragma Unreferenced (Document);
 
       function Build_Derived
         (Name, Base : String;
-         E          : DOM.Core.Node)
-         return Parameters.Parameter;
+         E          : DOM.Core.Node) return Parameters.Parameter;
       --  Returns the derived type definition
 
       function Build_Enumeration
         (Name, Base : String;
-         E          : DOM.Core.Node)
-         return Parameters.Parameter;
+         E          : DOM.Core.Node) return Parameters.Parameter;
       --  Returns the enumeration type definition
 
       -------------------
@@ -1356,8 +1337,7 @@ package body SOAP.WSDL.Parser is
 
       function Build_Derived
         (Name, Base : String;
-         E          : DOM.Core.Node)
-         return Parameters.Parameter
+         E          : DOM.Core.Node) return Parameters.Parameter
       is
          P : Parameters.Parameter (Parameters.K_Derived);
       begin
@@ -1389,8 +1369,7 @@ package body SOAP.WSDL.Parser is
 
       function Build_Enumeration
         (Name, Base : String;
-         E          : DOM.Core.Node)
-         return Parameters.Parameter
+         E          : DOM.Core.Node) return Parameters.Parameter
       is
          pragma Unreferenced (Base);
 
@@ -1409,10 +1388,11 @@ package body SOAP.WSDL.Parser is
            and then Utils.No_NS (DOM.Core.Nodes.Node_Name (E)) = "enumeration"
          loop
             declare
-               Value    : constant String
-                 := XML.Get_Attr_Value (N, "value", False);
-               New_Node : constant Parameters.E_Node_Access
-                 := new Parameters.E_Node'(To_Unbounded_String (Value), null);
+               Value    : constant String :=
+                            XML.Get_Attr_Value (N, "value", False);
+               New_Node : constant Parameters.E_Node_Access :=
+                            new Parameters.E_Node'
+                              (To_Unbounded_String (Value), null);
             begin
                if D = null then
                   P.E_Def := New_Node;

@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2009, AdaCore                     --
+--                     Copyright (C) 2003-2010, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -2237,9 +2237,10 @@ package body SOAP.Generator is
       Output_Types (Output);
 
       if Output /= null then
-         --  Output mode and more than one parameter
+         --  Something in the SOAP procedure output
 
          if Output.Next = null then
+            --  A single parameter
 
             case Output.Mode is
 
@@ -2281,6 +2282,9 @@ package body SOAP.Generator is
             end case;
 
          else
+            --  Multiple parameters in the output, generate a record in this
+            --  case.
+
             Generate_Record (L_Proc & "_Result", Output, Output => True);
          end if;
       end if;
@@ -2772,8 +2776,7 @@ package body SOAP.Generator is
 
    function Version_String return String is
    begin
-      return "--  AWS " & AWS.Version
-        & " - SOAP " & SOAP.Version;
+      return "--  AWS " & AWS.Version & " - SOAP " & SOAP.Version;
    end Version_String;
 
    ---------------

@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2009, AdaCore                     --
+--                     Copyright (C) 2003-2010, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -62,8 +62,7 @@ package SOAP.WSDL is
 
    function To_Ada
      (P       : Parameter_Type;
-      Context : Context_Type := Parameter)
-      return String;
+      Context : Context_Type := Parameter) return String;
    --  Returns P's Ada type string representation
 
    procedure From_Ada
@@ -77,20 +76,17 @@ package SOAP.WSDL is
 
    function V_Routine
      (P       : Parameter_Type;
-      Context : Context_Type := Parameter)
-      return String;
+      Context : Context_Type := Parameter) return String;
    --  Returns the V routine to use to get value for a Parameter_Type
 
    function Get_Routine
      (P       : Parameter_Type;
-      Context : Context_Type := Parameter)
-      return String;
+      Context : Context_Type := Parameter) return String;
    --  Returns the Get routine to use to get value for a Parameter_Type
 
    function Set_Routine
      (P       : Parameter_Type;
-      Context : Context_Type := Parameter)
-      return String;
+      Context : Context_Type := Parameter) return String;
    --  Returns the constructor to use to create a Parameter_Type
 
    function Set_Type (P : Parameter_Type) return String;
