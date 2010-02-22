@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                       Copyright (C) 2008, AdaCore                        --
+--                    Copyright (C) 2008-2010, AdaCore                      --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -29,6 +29,8 @@ with Ada.Exceptions;
 with Ada.Text_IO;
 
 with AWS.Attachments;
+with AWS.Headers.Set;
+with AWS.Messages;
 with AWS.MIME;
 with AWS.SMTP.Client;
 with AWS.SMTP.Server;
@@ -137,6 +139,35 @@ begin
       Status      => Status);
 
    SMTP_Pck.Callback.Wait; Text_IO.Flush;
+
+   declare
+      CT_Attac   : Attachments.List;
+      CT_Headers : Headers.List;
+   begin
+      Headers.Set.Add
+         (CT_Headers,
+          Messages.Content_Type_Token,
+          MIME.Text_Plain & "; charset=UTF-8");
+
+      Attachments.Add
+        (CT_Attac,
+         Name => "utf8",
+         Data => Attachments.Value
+           ("this is the default plain text UTF-8",
+            Encode => Attachments.Base64),
+         Headers => CT_Headers);
+
+      SMTP.Client.Send
+         (Host,
+         From        => SMTP.E_Mail (From_Name, From_Email),
+         To          => (1 => SMTP.E_Mail ("Pascal Obry", "aws@obry.net")),
+         Subject     =>
+          "Sending an UTF-8 attachement from Ada code",
+         Attachments => CT_Attac,
+         Status      => Status);
+
+      SMTP_Pck.Callback.Wait; Text_IO.Flush;
+   end;
 
    SMTP.Server.Shutdown (Server);
 

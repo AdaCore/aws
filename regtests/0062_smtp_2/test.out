@@ -119,3 +119,20 @@ z59Ae+6cibMoTZ08gyr1OdSoUaRLo0J1WhSqVKVNqd60ehVoVq01uXZlCqms2bNo0QYEADs=
 ------=_NextPart_9999999999.2--
 
 
+From         My Name <my.name@righthere.fr>
+To           Pascal Obry <aws@obry.net>
+Subject      Sending an UTF-8 attachement from Ada code
+Content-Type multipart/mixed; boundary="----=_NextPart_9999999999.4"
+This is multipart MIME message
+If you read this, your mailer does not support MIME.
+
+
+------=_NextPart_9999999999.4
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: base64
+
+
+dGhpcyBpcyB0aGUgZGVmYXVsdCBwbGFpbiB0ZXh0IFVURi04
+------=_NextPart_9999999999.4--
+
+
