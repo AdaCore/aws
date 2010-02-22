@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2004-2009, AdaCore                     --
+--                     Copyright (C) 2004-2010, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -73,7 +73,9 @@ package AWS.Attachments is
       Headers     : AWS.Headers.List := AWS.Headers.Empty_List;
       Name        : String := "";
       Encode      : Encoding := None);
-   --  Adds an Attachment to the list
+   --  Adds an Attachment to the list.
+   --  Note that Headers will overwrite Attachments headers such as
+   --  Content_Type.
 
    procedure Add
      (Attachments : in out List;
@@ -81,14 +83,18 @@ package AWS.Attachments is
       Headers     : AWS.Headers.List;
       Name        : String := "";
       Encode      : Encoding := None);
-   --  Adds an Attachment to the list
+   --  Adds an Attachment to the list.
+   --  Note that Headers will overwrite Attachments headers such as
+   --  Content_Type.
 
    procedure Add
      (Attachments : in out List;
       Name        : String;
       Data        : Content;
       Headers     : AWS.Headers.List := AWS.Headers.Empty_List);
-   --  Add content to the attachment list
+   --  Adds an Attachment to the list.
+   --  Note that Headers will overwrite Attachments headers such as
+   --  Content_Type.
 
    --  Alternatives content
 
