@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2004-2009, AdaCore                     --
+--                     Copyright (C) 2004-2010, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -94,12 +94,15 @@ package body AWS.Attachments is
       Data        : Content;
       Headers     : AWS.Headers.List := AWS.Headers.Empty_List)
    is
+      Has_Content_Type : constant Boolean :=
+                           Headers.Exist (AWS.Messages.Content_Type_Token);
       A : Element :=
             (AWS.Attachments.Data, Headers,
              Data.Length + AWS.Headers.Length (Headers), Data);
    begin
       if Data.Filename = Null_Unbounded_String then
-         if Data.Content_Type /= Null_Unbounded_String then
+         if Data.Content_Type /= Null_Unbounded_String
+           and then not Has_Content_Type then
             AWS.Headers.Set.Add
               (Headers => A.Headers,
                Name    => AWS.Messages.Content_Type_Token,
@@ -112,18 +115,21 @@ package body AWS.Attachments is
             Name    => AWS.Messages.Content_Disposition_Token,
             Value   => "attachment; filename=""" & Name & '"');
 
-         if Data.Content_Type = Null_Unbounded_String then
-            AWS.Headers.Set.Add
-              (Headers => A.Headers,
-               Name    => AWS.Messages.Content_Type_Token,
-               Value   => MIME.Content_Type (Name) & "; name="""
-               &  Name & '"');
-         else
-            AWS.Headers.Set.Add
-              (Headers => A.Headers,
-               Name    => AWS.Messages.Content_Type_Token,
-               Value   => To_String (Data.Content_Type) & "; name="""
-               &  Name & '"');
+         if not Has_Content_Type then
+            --  Content_Type is not in A.Headers, add it
+            if Data.Content_Type = Null_Unbounded_String then
+               AWS.Headers.Set.Add
+                 (Headers => A.Headers,
+                  Name    => AWS.Messages.Content_Type_Token,
+                  Value   => MIME.Content_Type (Name) & "; name="""
+                  &  Name & '"');
+            else
+               AWS.Headers.Set.Add
+                 (Headers => A.Headers,
+                  Name    => AWS.Messages.Content_Type_Token,
+                  Value   => To_String (Data.Content_Type) & "; name="""
+                  &  Name & '"');
+            end if;
          end if;
 
          if Data.Encode = None then
