@@ -74,8 +74,8 @@ package AWS.Attachments is
       Name        : String := "";
       Encode      : Encoding := None);
    --  Adds an Attachment to the list.
-   --  Note that Headers will overwrite Attachments headers such as
-   --  Content_Type.
+   --  Note that the encoding will overwrite the corresponding entry in
+   --  headers.
 
    procedure Add
      (Attachments : in out List;
@@ -84,8 +84,8 @@ package AWS.Attachments is
       Name        : String := "";
       Encode      : Encoding := None);
    --  Adds an Attachment to the list.
-   --  Note that Headers will overwrite Attachments headers such as
-   --  Content_Type.
+   --  Note that the encoding will overwrite the corresponding entry in
+   --  headers.
 
    procedure Add
      (Attachments : in out List;
@@ -93,8 +93,8 @@ package AWS.Attachments is
       Data        : Content;
       Headers     : AWS.Headers.List := AWS.Headers.Empty_List);
    --  Adds an Attachment to the list.
-   --  Note that Headers will overwrite Attachments headers such as
-   --  Content_Type.
+   --  Note that the encoding and content type attached to Data will
+   --  overwrite the corresponding entry in headers.
 
    --  Alternatives content
 

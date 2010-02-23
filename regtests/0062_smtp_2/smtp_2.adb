@@ -140,7 +140,7 @@ begin
 
    SMTP_Pck.Callback.Wait; Text_IO.Flush;
 
-   --  Check multiple Content_Type, ensure the one in headers is used
+   --  Check multiple Content_Type, ensure the one in Data is used
 
    declare
       CT_Attac   : Attachments.List;
@@ -148,15 +148,15 @@ begin
    begin
       Headers.Set.Add
          (CT_Headers,
-          Messages.Content_Type_Token,
-          MIME.Text_Plain & "; charset=UTF-8");
+          Messages.Content_Type_Token, MIME.Text_Plain);
 
       Attachments.Add
         (CT_Attac,
          Name => "utf8",
          Data => Attachments.Value
            ("this is the default plain text UTF-8",
-            Encode => Attachments.Base64),
+            Encode       => Attachments.Base64,
+            Content_Type => MIME.Text_Plain & "; charset=UTF-8"),
          Headers => CT_Headers);
 
       SMTP.Client.Send

@@ -101,10 +101,8 @@ package body AWS.Attachments is
                             Data.Length + AWS.Headers.Length (Headers), Data);
    begin
       if Data.Filename = Null_Unbounded_String then
-         if Data.Content_Type /= Null_Unbounded_String
-           and then not Has_Content_Type
-         then
-            AWS.Headers.Set.Add
+         if Data.Content_Type /= Null_Unbounded_String then
+            AWS.Headers.Set.Update
               (Headers => A.Headers,
                Name    => AWS.Messages.Content_Type_Token,
                Value   => To_String (Data.Content_Type));
@@ -116,21 +114,24 @@ package body AWS.Attachments is
             Name    => AWS.Messages.Content_Disposition_Token,
             Value   => "attachment; filename=""" & Name & '"');
 
-         if not Has_Content_Type then
-            --  Content_Type is not in A.Headers, add it
-            if Data.Content_Type = Null_Unbounded_String then
+         if Data.Content_Type = Null_Unbounded_String then
+            if not Has_Content_Type then
+               --  Content_Type is not in A.Headers nor defined with Data,
+               --  create one based on the file name.
+
                AWS.Headers.Set.Add
                  (Headers => A.Headers,
                   Name    => AWS.Messages.Content_Type_Token,
                   Value   => MIME.Content_Type (Name) & "; name="""
-                  &  Name & '"');
-            else
-               AWS.Headers.Set.Add
-                 (Headers => A.Headers,
-                  Name    => AWS.Messages.Content_Type_Token,
-                  Value   => To_String (Data.Content_Type) & "; name="""
-                  &  Name & '"');
+                    &  Name & '"');
             end if;
+
+         else
+            AWS.Headers.Set.Update
+              (Headers => A.Headers,
+               Name    => AWS.Messages.Content_Type_Token,
+               Value   => To_String (Data.Content_Type) & "; name="""
+                 &  Name & '"');
          end if;
 
          if Data.Encode = None then
