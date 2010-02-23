@@ -96,6 +96,9 @@ package body AWS.Attachments is
    is
       Has_Content_Type : constant Boolean :=
                            Headers.Exist (AWS.Messages.Content_Type_Token);
+      Has_Content_TE   : constant Boolean :=
+                           Headers.Exist
+                             (AWS.Messages.Content_Transfer_Encoding_Token);
       A                : Element :=
                            (AWS.Attachments.Data, Headers,
                             Data.Length + AWS.Headers.Length (Headers), Data);
@@ -134,7 +137,7 @@ package body AWS.Attachments is
                  &  Name & '"');
          end if;
 
-         if Data.Encode = None then
+         if Data.Encode = None and then not Has_Content_TE then
             if MIME.Is_Text (MIME.Content_Type (Name)) then
                AWS.Headers.Set.Add
                  (Headers => A.Headers,
@@ -150,7 +153,7 @@ package body AWS.Attachments is
       end if;
 
       if Data.Encode = Base64 then
-         AWS.Headers.Set.Add
+         AWS.Headers.Set.Update
            (Headers => A.Headers,
             Name    => AWS.Messages.Content_Transfer_Encoding_Token,
             Value   => "base64");

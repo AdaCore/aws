@@ -170,6 +170,36 @@ begin
       SMTP_Pck.Callback.Wait; Text_IO.Flush;
    end;
 
+   --  Check multiple Content_Transfer_Encoding, ensure the one in Data is
+   --  used.
+
+   declare
+      CTE_Attac   : Attachments.List;
+      CTE_Headers : Headers.List;
+   begin
+      Headers.Set.Add
+         (CTE_Headers,
+          Messages.Content_Transfer_Encoding_Token, "8bits");
+
+      Attachments.Add
+        (CTE_Attac,
+         Name => "8bits",
+         Data => Attachments.Value
+           ("this is the default plain text UTF-8",
+            Encode => Attachments.Base64),
+         Headers => CTE_Headers);
+
+      SMTP.Client.Send
+        (Host,
+         From        => SMTP.E_Mail (From_Name, From_Email),
+         To          => (1 => SMTP.E_Mail ("Pascal Obry", "aws@obry.net")),
+         Subject     => "Sending an 8bits-8 attachement from Ada code",
+         Attachments => CTE_Attac,
+         Status      => Status);
+
+      SMTP_Pck.Callback.Wait; Text_IO.Flush;
+   end;
+
    SMTP.Server.Shutdown (Server);
 
 exception

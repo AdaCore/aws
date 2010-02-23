@@ -136,3 +136,20 @@ dGhpcyBpcyB0aGUgZGVmYXVsdCBwbGFpbiB0ZXh0IFVURi04
 ------=_NextPart_9999999999.4--
 
 
+From         My Name <my.name@righthere.fr>
+To           Pascal Obry <aws@obry.net>
+Subject      Sending an 8bits-8 attachement from Ada code
+Content-Type multipart/mixed; boundary="----=_NextPart_9999999999.5"
+This is multipart MIME message
+ If you read this, your mailer does not support MIME.
+
+
+ ------=_NextPart_9999999999.5
+ Content-Transfer-Encoding: base64
+ Content-Type: text/plain
+
+
+ dGhpcyBpcyB0aGUgZGVmYXVsdCBwbGFpbiB0ZXh0IFVURi04
+ ------=_NextPart_9999999999.5--
+
+
