@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2007-2009, AdaCore                     --
+--                     Copyright (C) 2007-2010, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -60,7 +60,7 @@ package AWS.Services.Web_Block.Context is
    --  Add a new name/value pair
 
    function Get_Value (Context : Object; Name : String) return String;
-   --  Get the value for the key Name
+   --  Returns the value for the key Name or an empty string if does not exist
 
    generic
       type Data is private;
