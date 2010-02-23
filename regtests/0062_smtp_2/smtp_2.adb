@@ -140,6 +140,8 @@ begin
 
    SMTP_Pck.Callback.Wait; Text_IO.Flush;
 
+   --  Check multiple Content_Type, ensure the one in headers is used
+
    declare
       CT_Attac   : Attachments.List;
       CT_Headers : Headers.List;
@@ -158,11 +160,10 @@ begin
          Headers => CT_Headers);
 
       SMTP.Client.Send
-         (Host,
+        (Host,
          From        => SMTP.E_Mail (From_Name, From_Email),
          To          => (1 => SMTP.E_Mail ("Pascal Obry", "aws@obry.net")),
-         Subject     =>
-          "Sending an UTF-8 attachement from Ada code",
+         Subject     => "Sending an UTF-8 attachement from Ada code",
          Attachments => CT_Attac,
          Status      => Status);
 
