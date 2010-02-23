@@ -3,121 +3,121 @@ From         Pascal Obry <obry@nowhere.org>
 To           John Doe <john.doe@nothere.net>
 Subject      First message
 Content-Type 
-First message body
-
+First message body
+
 
 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 2
 From         My Name <my.name@righthere.fr>
 To           Pascal Obry <aws@obry.net>
 Subject      Sending e-mail + attachment from Ada code
 Content-Type multipart/mixed; boundary="----=_NextPart_9999999999.0"
-This is multipart MIME message
-If you read this, your mailer does not support MIME.
-
-
-------=_NextPart_9999999999.0
-Content-Type: text/plain
-
-
-Thanks to AWS/SMTP, it's easy !
-------=_NextPart_9999999999.0
-Content-Disposition: attachment; filename="ada.gif"
-Content-Type: image/gif; name="ada.gif"
-Content-Transfer-Encoding: base64
-
-
-R0lGODlhFAAWAOcAAAAAAIAAAACAAICAAAAAgIAAgACAgMDAwMDcwKbK8EAgAGAgAIAgAKAgAMAgAOAg
-AABAACBAAEBAAGBAAIBAAKBAAMBAAOBAAABgACBgAEBgAGBgAIBgAKBgAMBgAOBgAACAACCAAECAAGCA
-AICAAKCAAMCAAOCAAACgACCgAECgAGCgAICgAKCgAMCgAOCgAADAACDAAEDAAGDAAIDAAKDAAMDAAODA
-AADgACDgAEDgAGDgAIDgAKDgAMDgAODgAAAAQCAAQEAAQGAAQIAAQKAAQMAAQOAAQAAgQCAgQEAgQGAg
-QIAgQKAgQMAgQOAgQABAQCBAQEBAQGBAQIBAQKBAQMBAQOBAQABgQCBgQEBgQGBgQIBgQKBgQMBgQOBg
-QACAQCCAQECAQGCAQICAQKCAQMCAQOCAQACgQCCgQECgQGCgQICgQKCgQMCgQOCgQADAQCDAQEDAQGDA
-QIDAQKDAQMDAQODAQADgQCDgQEDgQGDgQIDgQKDgQMDgQODgQAAAgCAAgEAAgGAAgIAAgKAAgMAAgOAA
-gAAggCAggEAggGAggIAggKAggMAggOAggABAgCBAgEBAgGBAgIBAgKBAgMBAgOBAgABggCBggEBggGBg
-gIBggKBggMBggOBggACAgCCAgECAgGCAgICAgKCAgMCAgOCAgACggCCggECggGCggICggKCggMCggOCg
-gADAgCDAgEDAgGDAgIDAgKDAgMDAgODAgADggCDggEDggGDggIDggKDggMDggODggAAAwCAAwEAAwGAA
-wIAAwKAAwMAAwOAAwAAgwCAgwEAgwGAgwIAgwKAgwMAgwOAgwABAwCBAwEBAwGBAwIBAwKBAwMBAwOBA
-wABgwCBgwEBgwGBgwIBgwKBgwMBgwOBgwACAwCCAwECAwGCAwICAwKCAwMCAwOCAwACgwCCgwECgwGCg
-wICgwKCgwMCgwOCgwADAwCDAwEDAwGDAwIDAwKDAwP/78KCgpICAgP8AAAD/AP//AAAA//8A/wD/////
-/yH+GUNvcHlyaWdodCwgQW5pc2lta292LCBHUEwAIfkEAQoA/gAsAAAAABQAFgAACHkA/fmDQlCgQYEF
-DxokCEUhwoYOCyYcyBAiw4cUMWa02FAiR40VQ3rE6HHiyI0dL4Ks+HCiw5cHSf0DQLOmzZsA/kGS+a+n
-z59Ae+6cibMoTZ08gyr1OdSoUaRLo0J1WhSqVKVNqd60ehVoVq01uXZlCqms2bNo0QYEADs=
-------=_NextPart_9999999999.0--
-
+This is multipart MIME message
+If you read this, your mailer does not support MIME.
+
+
+------=_NextPart_9999999999.0
+Content-Type: text/plain
+
+
+Thanks to AWS/SMTP, it's easy !
+------=_NextPart_9999999999.0
+Content-Disposition: attachment; filename="ada.gif"
+Content-Type: image/gif; name="ada.gif"
+Content-Transfer-Encoding: base64
+
+
+R0lGODlhFAAWAOcAAAAAAIAAAACAAICAAAAAgIAAgACAgMDAwMDcwKbK8EAgAGAgAIAgAKAgAMAgAOAg
+AABAACBAAEBAAGBAAIBAAKBAAMBAAOBAAABgACBgAEBgAGBgAIBgAKBgAMBgAOBgAACAACCAAECAAGCA
+AICAAKCAAMCAAOCAAACgACCgAECgAGCgAICgAKCgAMCgAOCgAADAACDAAEDAAGDAAIDAAKDAAMDAAODA
+AADgACDgAEDgAGDgAIDgAKDgAMDgAODgAAAAQCAAQEAAQGAAQIAAQKAAQMAAQOAAQAAgQCAgQEAgQGAg
+QIAgQKAgQMAgQOAgQABAQCBAQEBAQGBAQIBAQKBAQMBAQOBAQABgQCBgQEBgQGBgQIBgQKBgQMBgQOBg
+QACAQCCAQECAQGCAQICAQKCAQMCAQOCAQACgQCCgQECgQGCgQICgQKCgQMCgQOCgQADAQCDAQEDAQGDA
+QIDAQKDAQMDAQODAQADgQCDgQEDgQGDgQIDgQKDgQMDgQODgQAAAgCAAgEAAgGAAgIAAgKAAgMAAgOAA
+gAAggCAggEAggGAggIAggKAggMAggOAggABAgCBAgEBAgGBAgIBAgKBAgMBAgOBAgABggCBggEBggGBg
+gIBggKBggMBggOBggACAgCCAgECAgGCAgICAgKCAgMCAgOCAgACggCCggECggGCggICggKCggMCggOCg
+gADAgCDAgEDAgGDAgIDAgKDAgMDAgODAgADggCDggEDggGDggIDggKDggMDggODggAAAwCAAwEAAwGAA
+wIAAwKAAwMAAwOAAwAAgwCAgwEAgwGAgwIAgwKAgwMAgwOAgwABAwCBAwEBAwGBAwIBAwKBAwMBAwOBA
+wABgwCBgwEBgwGBgwIBgwKBgwMBgwOBgwACAwCCAwECAwGCAwICAwKCAwMCAwOCAwACgwCCgwECgwGCg
+wICgwKCgwMCgwOCgwADAwCDAwEDAwGDAwIDAwKDAwP/78KCgpICAgP8AAAD/AP//AAAA//8A/wD/////
+/yH+GUNvcHlyaWdodCwgQW5pc2lta292LCBHUEwAIfkEAQoA/gAsAAAAABQAFgAACHkA/fmDQlCgQYEF
+DxokCEUhwoYOCyYcyBAiw4cUMWa02FAiR40VQ3rE6HHiyI0dL4Ks+HCiw5cHSf0DQLOmzZsA/kGS+a+n
+z59Ae+6cibMoTZ08gyr1OdSoUaRLo0J1WhSqVKVNqd60ehVoVq01uXZlCqms2bNo0QYEADs=
+------=_NextPart_9999999999.0--
+
 
 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 3
 From         My Name <my.name@righthere.fr>
 To           Pascal Obry <aws@obry.net>
 Subject      Sending alternative parts e-mail from Ada code
 Content-Type multipart/alternative; boundary="----=_NextPart_9999999999.1"
-This is multipart MIME message
-If you read this, your mailer does not support MIME.
-
-
-------=_NextPart_9999999999.1
-Content-Type: text/plain
-
-
-this is the default plain text
-------=_NextPart_9999999999.1
-Content-Type: text/html
-
-
-<p>this is the default <i>HTML</i> text
-------=_NextPart_9999999999.1--
-
+This is multipart MIME message
+If you read this, your mailer does not support MIME.
+
+
+------=_NextPart_9999999999.1
+Content-Type: text/plain
+
+
+this is the default plain text
+------=_NextPart_9999999999.1
+Content-Type: text/html
+
+
+<p>this is the default <i>HTML</i> text
+------=_NextPart_9999999999.1--
+
 
 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 4
 From         My Name <my.name@righthere.fr>
 To           Pascal Obry <aws@obry.net>
 Subject      Sending alternative parts e-mail plus attachment from Ada code
 Content-Type multipart/mixed; boundary="----=_NextPart_9999999999.2"
-This is multipart MIME message
-If you read this, your mailer does not support MIME.
-
-
-------=_NextPart_9999999999.2
-Content-Type: multipart/alternative; boundary="----=_NextPart_9999999999.3"
-
-
-------=_NextPart_9999999999.3
-Content-Type: text/plain
-
-
-this is the default plain text
-------=_NextPart_9999999999.3
-Content-Type: text/html
-
-
-<p>this is the default <i>HTML</i> text
-
-
-------=_NextPart_9999999999.3--
-------=_NextPart_9999999999.2
-Content-Disposition: attachment; filename="ada.gif"
-Content-Type: image/gif; name="ada.gif"
-Content-Transfer-Encoding: base64
-Content-ID: <ada.gif>
-
-
-R0lGODlhFAAWAOcAAAAAAIAAAACAAICAAAAAgIAAgACAgMDAwMDcwKbK8EAgAGAgAIAgAKAgAMAgAOAg
-AABAACBAAEBAAGBAAIBAAKBAAMBAAOBAAABgACBgAEBgAGBgAIBgAKBgAMBgAOBgAACAACCAAECAAGCA
-AICAAKCAAMCAAOCAAACgACCgAECgAGCgAICgAKCgAMCgAOCgAADAACDAAEDAAGDAAIDAAKDAAMDAAODA
-AADgACDgAEDgAGDgAIDgAKDgAMDgAODgAAAAQCAAQEAAQGAAQIAAQKAAQMAAQOAAQAAgQCAgQEAgQGAg
-QIAgQKAgQMAgQOAgQABAQCBAQEBAQGBAQIBAQKBAQMBAQOBAQABgQCBgQEBgQGBgQIBgQKBgQMBgQOBg
-QACAQCCAQECAQGCAQICAQKCAQMCAQOCAQACgQCCgQECgQGCgQICgQKCgQMCgQOCgQADAQCDAQEDAQGDA
-QIDAQKDAQMDAQODAQADgQCDgQEDgQGDgQIDgQKDgQMDgQODgQAAAgCAAgEAAgGAAgIAAgKAAgMAAgOAA
-gAAggCAggEAggGAggIAggKAggMAggOAggABAgCBAgEBAgGBAgIBAgKBAgMBAgOBAgABggCBggEBggGBg
-gIBggKBggMBggOBggACAgCCAgECAgGCAgICAgKCAgMCAgOCAgACggCCggECggGCggICggKCggMCggOCg
-gADAgCDAgEDAgGDAgIDAgKDAgMDAgODAgADggCDggEDggGDggIDggKDggMDggODggAAAwCAAwEAAwGAA
-wIAAwKAAwMAAwOAAwAAgwCAgwEAgwGAgwIAgwKAgwMAgwOAgwABAwCBAwEBAwGBAwIBAwKBAwMBAwOBA
-wABgwCBgwEBgwGBgwIBgwKBgwMBgwOBgwACAwCCAwECAwGCAwICAwKCAwMCAwOCAwACgwCCgwECgwGCg
-wICgwKCgwMCgwOCgwADAwCDAwEDAwGDAwIDAwKDAwP/78KCgpICAgP8AAAD/AP//AAAA//8A/wD/////
-/yH+GUNvcHlyaWdodCwgQW5pc2lta292LCBHUEwAIfkEAQoA/gAsAAAAABQAFgAACHkA/fmDQlCgQYEF
-DxokCEUhwoYOCyYcyBAiw4cUMWa02FAiR40VQ3rE6HHiyI0dL4Ks+HCiw5cHSf0DQLOmzZsA/kGS+a+n
-z59Ae+6cibMoTZ08gyr1OdSoUaRLo0J1WhSqVKVNqd60ehVoVq01uXZlCqms2bNo0QYEADs=
-------=_NextPart_9999999999.2--
-
+This is multipart MIME message
+If you read this, your mailer does not support MIME.
+
+
+------=_NextPart_9999999999.2
+Content-Type: multipart/alternative; boundary="----=_NextPart_9999999999.3"
+
+
+------=_NextPart_9999999999.3
+Content-Type: text/plain
+
+
+this is the default plain text
+------=_NextPart_9999999999.3
+Content-Type: text/html
+
+
+<p>this is the default <i>HTML</i> text
+
+
+------=_NextPart_9999999999.3--
+------=_NextPart_9999999999.2
+Content-Disposition: attachment; filename="ada.gif"
+Content-Type: image/gif; name="ada.gif"
+Content-Transfer-Encoding: base64
+Content-ID: <ada.gif>
+
+
+R0lGODlhFAAWAOcAAAAAAIAAAACAAICAAAAAgIAAgACAgMDAwMDcwKbK8EAgAGAgAIAgAKAgAMAgAOAg
+AABAACBAAEBAAGBAAIBAAKBAAMBAAOBAAABgACBgAEBgAGBgAIBgAKBgAMBgAOBgAACAACCAAECAAGCA
+AICAAKCAAMCAAOCAAACgACCgAECgAGCgAICgAKCgAMCgAOCgAADAACDAAEDAAGDAAIDAAKDAAMDAAODA
+AADgACDgAEDgAGDgAIDgAKDgAMDgAODgAAAAQCAAQEAAQGAAQIAAQKAAQMAAQOAAQAAgQCAgQEAgQGAg
+QIAgQKAgQMAgQOAgQABAQCBAQEBAQGBAQIBAQKBAQMBAQOBAQABgQCBgQEBgQGBgQIBgQKBgQMBgQOBg
+QACAQCCAQECAQGCAQICAQKCAQMCAQOCAQACgQCCgQECgQGCgQICgQKCgQMCgQOCgQADAQCDAQEDAQGDA
+QIDAQKDAQMDAQODAQADgQCDgQEDgQGDgQIDgQKDgQMDgQODgQAAAgCAAgEAAgGAAgIAAgKAAgMAAgOAA
+gAAggCAggEAggGAggIAggKAggMAggOAggABAgCBAgEBAgGBAgIBAgKBAgMBAgOBAgABggCBggEBggGBg
+gIBggKBggMBggOBggACAgCCAgECAgGCAgICAgKCAgMCAgOCAgACggCCggECggGCggICggKCggMCggOCg
+gADAgCDAgEDAgGDAgIDAgKDAgMDAgODAgADggCDggEDggGDggIDggKDggMDggODggAAAwCAAwEAAwGAA
+wIAAwKAAwMAAwOAAwAAgwCAgwEAgwGAgwIAgwKAgwMAgwOAgwABAwCBAwEBAwGBAwIBAwKBAwMBAwOBA
+wABgwCBgwEBgwGBgwIBgwKBgwMBgwOBgwACAwCCAwECAwGCAwICAwKCAwMCAwOCAwACgwCCgwECgwGCg
+wICgwKCgwMCgwOCgwADAwCDAwEDAwGDAwIDAwKDAwP/78KCgpICAgP8AAAD/AP//AAAA//8A/wD/////
+/yH+GUNvcHlyaWdodCwgQW5pc2lta292LCBHUEwAIfkEAQoA/gAsAAAAABQAFgAACHkA/fmDQlCgQYEF
+DxokCEUhwoYOCyYcyBAiw4cUMWa02FAiR40VQ3rE6HHiyI0dL4Ks+HCiw5cHSf0DQLOmzZsA/kGS+a+n
+z59Ae+6cibMoTZ08gyr1OdSoUaRLo0J1WhSqVKVNqd60ehVoVq01uXZlCqms2bNo0QYEADs=
+------=_NextPart_9999999999.2--
+
 
 From         My Name <my.name@righthere.fr>
 To           Pascal Obry <aws@obry.net>
