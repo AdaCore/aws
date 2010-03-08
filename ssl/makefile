@@ -27,29 +27,6 @@
 
 .SILENT:
 
-ifneq (${OS}, Windows_NT)
-SSL_PATH = $(shell ls /usr/lib/libcrypto.a 2> /dev/null)
-
-ifeq (${SSL_PATH},)
-	SSL_PATH = $(shell ls /lib/libcrypto.a 2> /dev/null)
-endif
-ifeq (${SSL_PATH},)
-	SSL_PATH = $(shell ls /usr/lib64/libcrypto.a 2> /dev/null)
-endif
-ifeq (${SSL_PATH},)
-	SSL_PATH = $(shell ls /usr/lib/libcrypto.so 2> /dev/null)
-endif
-ifeq (${SSL_PATH},)
-	SSL_PATH = $(shell ls /lib/libcrypto.so 2> /dev/null)
-endif
-ifeq (${SSL_PATH},)
-	SSL_PATH = $(shell ls /usr/lib64/libcrypto.so 2> /dev/null)
-endif
-ifeq (${SSL_PATH},)
-	SSL_PATH = $(shell ls /usr/lib/libcrypto.dylib 2> /dev/null)
-endif
-endif
-
 check:
 	$(GNAT) check -Pssl -rules -from=../aws.checks
 
@@ -77,7 +54,7 @@ ifeq (${OS}, Windows_NT)
 	echo '   S_TLS_Lib := "gcrypt";' >> $(SSLGPR)
 	echo '   R_TLS_Lib := "gcrypt";' >> $(SSLGPR)
 else
-	echo '   LIB_Path := "'$(dir $(SSL_PATH))'";' >> $(SSLGPR)
+	echo '   LIB_Path := ".";' >> $(SSLGPR)
 	echo '   S_SSL_Lib := "ssl";' >> $(SSLGPR)
 	echo '   R_SSL_Lib := "ssl";' >> $(SSLGPR)
 	echo '   S_CRY_Lib := "crypto";' >> $(SSLGPR)
@@ -100,7 +77,7 @@ ifeq (${OS}, Windows_NT)
 	echo '   S_TLS_Lib := "gcrypt";' >> $(ISSLGPR)
 	echo '   R_TLS_Lib := "gcrypt";' >> $(ISSLGPR)
 else
-	echo '   LIB_Path := "'$(dir $(SSL_PATH))'";' >> $(ISSLGPR)
+	echo '   LIB_Path := ".";' >> $(ISSLGPR)
 	echo '   S_SSL_Lib := "ssl";' >> $(ISSLGPR)
 	echo '   R_SSL_Lib := "ssl";' >> $(ISSLGPR)
 	echo '   S_CRY_Lib := "crypto";' >> $(ISSLGPR)
