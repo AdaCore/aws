@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2008-2009, AdaCore                     --
+--                     Copyright (C) 2008-2010, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -55,6 +55,7 @@ procedure Test_Jabber is
 
    task type Server_Task is
       entry Started;
+      entry Stopped;
    end Server_Task;
 
    -----------------
@@ -197,6 +198,8 @@ procedure Test_Jabber is
       Shutdown (Sock.all);
       Free (Sock);
 
+      accept Stopped;
+
    exception
       when E : Socket_Error =>
          Text_IO.Put_Line (Ada.Exceptions.Exception_Information (E));
@@ -221,5 +224,7 @@ begin
       --  Wait for the server to start
 
       Connect (Account);
+
+      Jabber_Server.Stopped;
    end Run;
 end Test_Jabber;
