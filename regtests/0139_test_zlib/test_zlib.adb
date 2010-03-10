@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2009, AdaCore                     --
+--                     Copyright (C) 2000-2010, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -31,7 +31,6 @@
 --  3. Build this program automatically compile all ZLib.* packages under
 --     GNAT compiler.
 
-with Ada.Numerics.Discrete_Random;
 with Ada.Streams.Stream_IO;
 with Ada.Text_IO;
 
@@ -51,14 +50,10 @@ procedure Test_Zlib is
    Continuous  : constant Boolean := False;
 
    Header      : constant ZLib.Header_Type := ZLib.Default;
-                                              --  ZLib.None;
-                                              --  ZLib.Auto;
-                                              --  ZLib.GZip;
    --  Do not use Header other then Default in ZLib versions 1.1.4
    --  and older.
 
    Strategy    : constant ZLib.Strategy_Type := ZLib.Default_Strategy;
-   Init_Random : constant := 10;
 
    -- End --
 
@@ -116,6 +111,15 @@ procedure Test_Zlib is
    --  This procedure is moving data from File_In to File_Out
    --  with compression or decompression, depend on initialization of
    --  Filter parameter.
+
+   package Random is
+      --  Simple Random generator, we do not want to use the GNAT one that
+      --  can change from time to time.
+
+      subtype Visible_Symbols is Stream_Element range 16#20# .. 16#7E#;
+
+      function Get return Visible_Symbols;
+   end Random;
 
    -------------------
    -- Compare_Files --
@@ -209,12 +213,6 @@ procedure Test_Zlib is
    -------------------
 
    procedure Generate_File is
-      subtype Visible_Symbols is Stream_Element range 16#20# .. 16#7E#;
-
-      package Random_Elements is
-         new Numerics.Discrete_Random (Visible_Symbols);
-
-      Gen    : Random_Elements.Generator;
       Buffer : Stream_Element_Array := (1 .. 77 => 16#20#) & 10;
 
       Buffer_Count : constant Count := File_Size / Buffer'Length;
@@ -234,14 +232,11 @@ procedure Test_Zlib is
          for K in 0 .. D loop
             Buffer
               (Buffer'First + Stream_Element_Offset
-                 ((J + K) mod (Buffer'Length - 1) + 1) - 1) :=
-              Random_Elements.Random (Gen);
+                 ((J + K) mod (Buffer'Length - 1) + 1) - 1) := Random.Get;
          end loop;
       end Fill_Buffer;
 
    begin
-      Random_Elements.Reset (Gen, Init_Random);
-
       Create (File_In, Out_File, In_File_Name);
 
       Fill_Buffer (1, Buffer'Length - 2);
@@ -282,6 +277,30 @@ procedure Test_Zlib is
          Width => Stream_IO.Count'Image (File_Size)'Length);
       Text_IO.New_Line;
    end Print_Statistic;
+
+   ------------
+   -- Random --
+   ------------
+
+   package body Random is
+
+      Size  : constant Integer :=
+                Integer (Visible_Symbols'Last - Visible_Symbols'First) + 1;
+
+      State : Integer := 10;
+
+      ---------
+      -- Get --
+      ---------
+
+      function Get return Visible_Symbols is
+      begin
+         State := (State * 125) mod 2796203;
+         return Visible_Symbols
+           (Integer (Visible_Symbols'First) + State mod Size);
+      end Get;
+
+   end Random;
 
    Z_Version : constant String := Zlib.Version;
 
