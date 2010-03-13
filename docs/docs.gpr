@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                      Copyright (C) 2004-2009, AdaCore                    --
+--                     Copyright (C) 2004-2010, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -31,7 +31,7 @@ with "../src/src";
 
 project Docs is
 
-   for Languages use ("Ada", "Project file");
+   for Languages use ("Ada", "Project file", "makefile");
 
    for Main use ("build.adb");
    for Object_Dir use "../" & Shared.Target_Dir & "/common/obj";
