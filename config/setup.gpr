@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2006-2009, AdaCore                     --
+--                     Copyright (C) 2006-2010, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -30,7 +30,7 @@ with "../shared";
 project Setup is
 
    for Languages use ("Ada", "C");
-   for Main use ("test_uconv", "check_config");
+   for Main use ("check_config");
 
    for Source_Dirs use ("setup");
    for Object_Dir use "../" & Shared.Target_Dir & "/setup/obj";

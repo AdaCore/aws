@@ -1,7 +1,7 @@
 ############################################################################
 #                              Ada Web Server                              #
 #                                                                          #
-#                     Copyright (C) 2003-2009, AdaCore                     #
+#                     Copyright (C) 2003-2010, AdaCore                     #
 #                                                                          #
 #  This library is free software; you can redistribute it and/or modify    #
 #  it under the terms of the GNU General Public License as published by    #
@@ -39,20 +39,7 @@ endif
 
 force: ;
 
-setup: setup_dir $(SDIR)/src/aws-translator-conversion.adb \
-	$(NSDIR)/src/aws-os_lib.ads
-
-$(SDIR)/src/aws-translator-conversion.adb: makefile force
-	echo Setup conversion support
-ifeq ($(PLATFORM), native)
-	$(NSDIR)/test_uconv
-	$(MV) aws-translator-conversion.adb $(NSDIR)/src
-else
-#  On cross platforms we use the slow/safe version
-#  ??? we can do better
-	$(CP) src/aws-translator-conversion__p.adb \
-		$(SDIR)/src/aws-translator-conversion.adb
-endif
+setup: setup_dir $(NSDIR)/src/aws-os_lib.ads
 
 $(NSDIR)/src/aws-os_lib.ads: makefile setup/check_config.c force
 	echo Setup OS specific definitions
@@ -63,7 +50,6 @@ else
 endif
 
 install:
-	$(CP) $(SDIR)/src/aws-translator-conversion.adb $(TI_INC)
 	$(CP) $(SDIR)/src/aws-os_lib.ads $(TI_INC)
 	$(CP) src/aws-net-std__* $(I_INC)
 	$(CP) src/aws-net-ssl__* $(I_INC)

@@ -17,7 +17,6 @@ config/setup/makefile.vxworks
 config/setup/mzlib.adb
 config/setup/test_asis.gpr
 config/setup/test_shared.gpr
-config/setup/test_uconv.adb
 config/setup/test_xmlada.gpr
 config/setup/test_zlib.gpr
 config/src/aws-net-ssl-certificate__dummy.adb
@@ -29,8 +28,6 @@ config/src/aws-net-ssl__openssl.adb
 config/src/aws-net-std__gnat.adb
 config/src/aws-net-std__ipv6.adb
 config/src/aws-os_lib__vxworks.ads
-config/src/aws-translator-conversion__f.adb
-config/src/aws-translator-conversion__p.adb
 config/src/ssl-thin__dummy.ads
 config/src/ssl-thin__gnutls.ads
 config/src/ssl-thin__openssl.ads
@@ -1501,6 +1498,7 @@ src/core/aws-status-translate_set.ads
 src/core/aws-status.adb
 src/core/aws-status.ads
 src/core/aws-templates.ads
+src/core/aws-translator-conversion.adb
 src/core/aws-translator.adb
 src/core/aws-translator.ads
 src/core/aws-url-raise_url_error.adb
