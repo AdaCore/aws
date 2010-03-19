@@ -17,8 +17,8 @@ exec_cmd('gnatmem', ['5', '-i', 'gmem.out', './check_mem'],
 r1 = open ('check_mem.run1').readlines()
 r2 = open ('check_mem.run2').readlines()
 
-fr1 = ""
-fr2 = ""
+fr1 = "1"
+fr2 = "2"
 
 for item in r1:
     if item[0:8] == "   Final":
