@@ -1,7 +1,7 @@
 ############################################################################
 #                              Ada Web Server                              #
 #                                                                          #
-#                     Copyright (C) 2003-2009, AdaCore                     #
+#                     Copyright (C) 2003-2010, AdaCore                     #
 #                                                                          #
 #  This library is free software; you can redistribute it and/or modify    #
 #  it under the terms of the GNU General Public License as published by    #
@@ -88,26 +88,11 @@ build_doc:
 	echo "=== Build doc"
 	${MAKE} -C docs build_doc $(GALL_OPTIONS)
 
-tp_regtests: run_tp_regtests run_tp_regtests_result
-
-run_tp_regtests:
-#  Do not report Templates Parser regression here
-#  as we want to continue for passing the AWS tests.
-#  The check is done later using run_tp_regtests_result.
-	echo ""
-	echo "=== Run Templates Parser regression tests"
-	-${MAKE} -C templates_parser/regtests test $(GALL_OPTIONS)
-
-run_tp_regtests_result:
-	${MAKE} -C templates_parser/regtests test_result $(GALL_OPTIONS)
-
-aws_regtests:
+run_regtests:
 	echo ""
 	echo "=== Run regression tests"
 	echo ""
 	$(MAKE) -C regtests aws_regtests $(ALL_OPTIONS)
-
-run_regtests: run_tp_regtests aws_regtests run_tp_regtests_result
 
 distrib:
 	(VERSION=`grep " Version" src/aws.ads | cut -d\" -f2`; \
@@ -320,7 +305,6 @@ clean: clean-cross
 endif
 	-${MAKE} -C regtests $(GALL_OPTIONS) clean
 	-${MAKE} -C docs $(GALL_OPTIONS) clean
-	-${MAKE} -C templates_parser clean AWS=AWS
 	-${RM} -fr $(BROOTDIR)
 	-${RM} -f makefile.setup
 
