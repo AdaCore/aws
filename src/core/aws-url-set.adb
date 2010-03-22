@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2007-2009, AdaCore                     --
+--                     Copyright (C) 2007-2010, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -303,7 +303,7 @@ package body AWS.URL.Set is
 
                Item.Path := +"/";
 
-            else
+            elsif I1 < I2 then
                --  Here we have a complete URL [host:port/path]
 
                if Utils.Is_Number (URL (I1 + 1 .. I2 - 1)) then
@@ -311,6 +311,12 @@ package body AWS.URL.Set is
                else
                   Raise_URL_Error (Set.Parse.URL, "Port is not valid");
                end if;
+
+               Parse_Path_File (I2);
+
+            else
+               --  Here we have a complete URL, with no port specified
+               --  The semicolon is part of the URL
 
                Parse_Path_File (I2);
             end if;

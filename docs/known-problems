@@ -1,0 +1,6 @@
+Known Problems fixed in AWS 2.8
+
+- J322-004: URL containing colons (":")
+  Problem:    A URL containing a colon (except when it separates the
+              user:password) is not properly decoded by AWS
+  Workaround: none found
