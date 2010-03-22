@@ -159,10 +159,10 @@ package body AWS.URL.Set is
       HTTP_Token  : constant String := "http://";
       HTTPS_Token : constant String := "https://";
 
-      L_URL : constant String :=
+      L_URL       : constant String :=
                       Strings.Fixed.Translate
                         (URL, Strings.Maps.To_Mapping ("\", "/"));
-      P : Natural;
+      P           : Natural;
 
       procedure Parse (URL : String; Protocol_Specified : Boolean);
       --  Parse URL, the URL must not contain the HTTP_Token prefix.
