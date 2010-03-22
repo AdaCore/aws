@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2009, AdaCore                     --
+--                     Copyright (C) 2000-2010, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -66,6 +66,9 @@ begin
    Test ("http://www.myserver.com:89/app/.\..\toto?url=http://titi&a=2");
    Test ("http://www.myserver.com:89/..?url=http://titi&a=2");
    Test ("http://www.myserver.com:89/./..?a=2");
+   Test ("https://www.myserver.com/bugs/I9/DIR/"
+         & "X2%202010:%20Notification%20to%20authors.eml"
+         &"?filename=X2%202010:%20Notification%20to%20authors.eml");
    Test (".");
    Test ("./toto");
    Test ("./../toto");

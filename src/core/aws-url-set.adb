@@ -290,11 +290,11 @@ package body AWS.URL.Set is
             end if;
 
          else
-            --  Here we have a port specified [host:port]
-            Item.Host := +URL (F .. I1 - 1);
-
             if I2 = 0 then
                --  No path, we have [host:port]
+
+               Item.Host := +URL (F .. I1 - 1);
+
                if Utils.Is_Number (URL (I1 + 1 .. URL'Last)) then
                   Item.Port := Positive'Value (URL (I1 + 1 .. URL'Last));
                else
@@ -306,6 +306,8 @@ package body AWS.URL.Set is
             elsif I1 < I2 then
                --  Here we have a complete URL [host:port/path]
 
+               Item.Host := +URL (F .. I1 - 1);
+
                if Utils.Is_Number (URL (I1 + 1 .. I2 - 1)) then
                   Item.Port := Positive'Value (URL (I1 + 1 .. I2 - 1));
                else
@@ -316,7 +318,9 @@ package body AWS.URL.Set is
 
             else
                --  Here we have a complete URL, with no port specified
-               --  The semicolon is part of the URL
+               --  The semicolon is part of the URL [host/path]
+
+               Item.Host := +URL (F .. I2 - 1);
 
                Parse_Path_File (I2);
             end if;
