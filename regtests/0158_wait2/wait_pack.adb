@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2004-2009, AdaCore                     --
+--                     Copyright (C) 2004-2010, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -130,13 +130,16 @@ package body Wait_Pack is
 
       for J in 1 .. Set_Size * 4 loop
          Client_Side.Next;
-         Sets.Wait (Set, 1.0);
+
+         Sets.Wait (Set, 5.0);
 
          Index := 1;
 
          Sets.Next (Set, Index);
 
-         if not Sets.Is_Read_Ready (Set, Index) then
+         if not Sets.In_Range (Set, Index)
+           or else not Sets.Is_Read_Ready (Set, Index)
+         then
             Put_Line ("Could not read from socket.");
             exit;
          end if;
