@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2008-2009, AdaCore                     --
+--                     Copyright (C) 2008-2010, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -89,7 +89,7 @@ begin
    declare
       R : constant String := R_Hello_Timeout_Demo.Client.sayHello
         ("pascal",
-         Endpoint => "http://www.google.com:9856",
+         Endpoint => "http://www.adacore.com:9856",
          Timeouts => Client.Timeouts
            (Connect => 4.0, Send => 2.0, Receive => 1.0));
    begin

@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2008-2009, AdaCore                     --
+--                     Copyright (C) 2008-2010, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -88,7 +88,7 @@ begin
    begin
       Start_Time;
       Resp := Client.Get
-        ("http://www.google.com:9264",
+        ("http://www.adacore.com:9264",
          Timeouts => Client.Timeouts
            (Connect => 5.0, Send => 2.0, Receive => 4.0));
       Stop_Time;
@@ -102,7 +102,7 @@ begin
    begin
       Start_Time;
       Resp := Client.Post
-        ("http://www.google.com:9264", "toto", "text/plain",
+        ("http://www.adacore.com:9264", "toto", "text/plain",
          Timeouts => Client.Timeouts
            (Connect => 2.0, Send => 2.0, Receive => 2.0));
       Stop_Time;
