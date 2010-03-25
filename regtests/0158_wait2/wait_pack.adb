@@ -28,6 +28,7 @@
 with Ada.Exceptions;
 with Ada.Streams;
 with Ada.Text_IO;
+
 with AWS.Net.Generic_Sets;
 with AWS.Net.SSL;
 
@@ -145,8 +146,8 @@ package body Wait_Pack is
          end if;
 
          declare
-            Socket         : Net.Socket_Type'Class
-              := Sets.Get_Socket (Set, Index);
+            Socket         : Net.Socket_Type'Class :=
+                               Sets.Get_Socket (Set, Index);
             New_Sock       : Net.Socket_Type'Class := Net.Socket (Security);
             Socket_Removed : Boolean := False;
          begin
