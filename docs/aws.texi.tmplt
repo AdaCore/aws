@@ -407,7 +407,7 @@ very big table is split on multiple pages. A set of links can be used
 to navigate to the next or previous page or to access directly to a
 given page.
 
-@item test_jabber
+@item jabber_demo
 
 A simple Jabber command line client to check the presence of a JID
 (Jabber ID). This uses the Jabber API, @pxref{AWS.Jabber}.

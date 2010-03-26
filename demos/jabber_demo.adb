@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                   Copyright (C) 2002-2009, AdaCore                       --
+--                     Copyright (C) 2002-2010, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -88,7 +88,7 @@ procedure Jabber_Demo is
       use Text_IO;
    begin
       New_Line;
-      Put_Line ("Usage : test_jabber -h host -l login -p pwd");
+      Put_Line ("Usage : jabber_demo -h host -l login -p pwd");
       New_Line;
       Put_Line ("  -h Host      Jabber host server");
       Put_Line ("  -l login     Login for the Jabber server account");
