@@ -226,5 +226,9 @@ begin
       Connect (Account);
 
       Jabber_Server.Stopped;
+
+      while not Jabber_Server'Terminated loop
+         delay 1.0;
+      end loop;
    end Run;
 end Test_Jabber;
