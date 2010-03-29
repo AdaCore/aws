@@ -396,7 +396,7 @@ def run_testsuite():
 
     logging.basicConfig(level=logging.DEBUG,
                         filename='%s/testsuite.log' % OUTPUTS_DIR, mode='w')
-    main = Main(formatter='%(message)s')
+    main = Main(formatter='%(message)s', add_targets_options=True)
     main.add_option("--tests", dest="tests",
                     help="list of tests to run, a space separated string or " \
                         "a filename.")
