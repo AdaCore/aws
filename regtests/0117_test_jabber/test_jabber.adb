@@ -55,6 +55,8 @@ procedure Test_Jabber is
 
    task type Server_Task is
       entry Started;
+      entry Can_Stop;
+      entry Shutdown;
       entry Stopped;
    end Server_Task;
 
@@ -67,6 +69,7 @@ procedure Test_Jabber is
 
       Acceptor : Acceptors.Acceptor_Type;
       Sock     : Socket_Access;
+      First    : Boolean := True;
 
       procedure Buffered_Put_Line
         (Socket : Socket_Type'Class; Item : String);
@@ -186,12 +189,30 @@ procedure Test_Jabber is
                     & "xmlns='urn:ietf:params:xml:ns:xmpp-session'/></iq>");
                Buffered.Flush (Sock.all);
 
-            elsif Strings.Fixed.Index (Got_Message, "<presence") /= 0 then
-               Ada.Text_IO.Put_Line ("Success");
+            elsif Strings.Fixed.Index
+              (Got_Message, "<presence from=") /= 0
+            then
+               if First then
+                  Ada.Text_IO.Put_Line ("Success.");
+                  accept Can_Stop;
+                  First := False;
+               end if;
+
+            elsif Strings.Fixed.Index
+              (Got_Message, "<presence type='unavai") /= 0
+            then
+               Ada.Text_IO.Put_Line ("Going off line.");
+
+            elsif Strings.Fixed.Index
+              (Got_Message, "</stream:stream") /= 0
+            then
+               Ada.Text_IO.Put_Line ("End now.");
                exit;
             end if;
          end;
       end loop;
+
+      accept Shutdown;
 
       Acceptors.Give_Back (Acceptor, Sock);
       Acceptors.Shutdown (Acceptor);
@@ -224,6 +245,12 @@ begin
       --  Wait for the server to start
 
       Connect (Account);
+
+      Jabber_Server.Can_Stop;
+
+      Close (Account);
+
+      Jabber_Server.Shutdown;
 
       Jabber_Server.Stopped;
 

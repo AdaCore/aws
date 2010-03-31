@@ -104,12 +104,6 @@ package body AWS.Jabber.Client is
               & ':' & Utils.Image (Positive (Account.Port));
       end Connection;
 
-      --  Start Incoming_Stream reader
-
-      Account.Stream := new Incoming_Stream (Account.Self);
-
-      Account.Is_Running := True;
-
       --  Initialize the Jabber protocol
 
       XMPP_Send
@@ -118,6 +112,12 @@ package body AWS.Jabber.Client is
          & "<stream:stream to=" & Utils.Quote (To_String (Account.Host))
          & " xmlns='jabber:client'"
          & " xmlns:stream='http://etherx.jabber.org/streams' version='1.0'>");
+
+      --  Start Incoming_Stream reader
+
+      Account.Stream := new Incoming_Stream (Account.Self);
+
+      Account.Is_Running := True;
 
    exception
       when E : others =>
