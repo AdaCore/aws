@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2008-2009, AdaCore                     --
+--                     Copyright (C) 2008-2010, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -928,7 +928,7 @@ package body AWS.Jabber.Client is
 
    exception
       when Net.Socket_Error =>
-         --  We have been deconnected, this is the way Jabber terminate the
+         --  We have been disconnected, this is the way Jabber terminate the
          --  session.
          null;
       when E : others =>
