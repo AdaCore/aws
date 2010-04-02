@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2005-2009, AdaCore                     --
+--                     Copyright (C) 2005-2010, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -74,7 +74,7 @@ procedure S_Accs_Proc (Security : Boolean) is
       Connect (Sock, "127.0.0.1", Free_Port);
       Connected := True;
 
-      Set_Timeout (Sock, 3.0);
+      Set_Timeout (Sock, 6.0);
 
       for J in 1 .. Client_Request_Count loop
          Buffered.Put_Line
@@ -141,7 +141,7 @@ procedure S_Accs_Proc (Security : Boolean) is
             end;
          end if;
 
-         Set_Timeout (Sock.all, 2.0);
+         Set_Timeout (Sock.all, 4.0);
 
          begin
             Buffered.Put_Line
