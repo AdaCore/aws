@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2009, AdaCore                     --
+--                     Copyright (C) 2003-2010, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -34,6 +34,7 @@ package SOAP.WSDL.Parameters is
    use Ada.Strings.Unbounded;
 
    type Kind is (K_Record, K_Array, K_Derived, K_Simple, K_Enumeration);
+   subtype Compound_Type is Kind range K_Record .. K_Array;
 
    --  Enumeration values
 

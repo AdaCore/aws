@@ -1995,7 +1995,7 @@ package body SOAP.Generator is
 
          Put_File_Header (O, F_Ads);
 
-         if P.Mode in K_Record .. K_Array then
+         if P.Mode in Compound_Type then
             if Output then
                Generate_References (F_Ads, P);
             else

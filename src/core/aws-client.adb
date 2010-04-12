@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2009, AdaCore                     --
+--                     Copyright (C) 2000-2010, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -285,30 +285,31 @@ package body AWS.Client is
             raise;
       end;
 
-      if Follow_Redirection
-        and then Response.Status_Code (Result) = Messages.S305
-      then
-         --  This is "Use Proxy" message, Location point to the proxy to use.
-         --  We do not have the login/password for the proxy.
-         return Get
-           (URL, User, Pwd, Response.Location (Result),
-            Timeouts => Timeouts, Follow_Redirection => Follow_Redirection,
-            Certificate => Certificate);
+      declare
+         SC : constant Messages.Status_Code := Response.Status_Code (Result);
+      begin
+         if Follow_Redirection and then SC = Messages.S305 then
+            --  This is "Use Proxy" message, Location point to the proxy to
+            --  use. We do not have the login/password for the proxy.
+            return Get
+              (URL, User, Pwd, Response.Location (Result),
+               Timeouts           => Timeouts,
+               Follow_Redirection => Follow_Redirection,
+               Certificate        => Certificate);
 
-      elsif Follow_Redirection
-          and then
-        Response.Status_Code (Result) in Messages.S301 .. Messages.S307
-          and then
-        Response.Status_Code (Result) /= Messages.S304
-      then
-         --  All other redirections, 304 is not one of them
-         return Get
-           (Response.Location (Result), User, Pwd,
-            Proxy, Proxy_User, Proxy_Pwd, Timeouts,
-            Data_Range, Follow_Redirection, Certificate => Certificate);
-      else
-         return Result;
-      end if;
+         elsif Follow_Redirection
+           and then SC in Messages.Redirection
+           and then SC /= Messages.S300 -- multiple choices
+           and then SC /= Messages.S304 -- not modified, no redirection
+         then
+            return Get
+              (Response.Location (Result), User, Pwd,
+               Proxy, Proxy_User, Proxy_Pwd, Timeouts,
+               Data_Range, Follow_Redirection, Certificate => Certificate);
+         else
+            return Result;
+         end if;
+      end;
    end Get;
 
    ---------
