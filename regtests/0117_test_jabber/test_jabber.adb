@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2008-2009, AdaCore                     --
+--                     Copyright (C) 2008-2010, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -208,20 +208,16 @@ begin
    Get_Free_Port (Free_Port);
    Run : declare
       Jabber_Server : Server_Task;
+      Account       : Jabber.Client.Account;
    begin
+      Set_Host (Account, "127.0.0.1");
+      Set_Login_Information (Account, "user", "passwd");
+      Set_Authentication_Type (Account, Plain_Mechanism);
+      Set_Port (Account, Port (Free_Port));
+
       Jabber_Server.Started;
       --  Wait for the server to start
 
-      declare
-         Account : Jabber.Client.Account;
-      begin
-
-         Set_Host (Account, "127.0.0.1");
-         Set_Login_Information (Account, "user", "passwd");
-         Set_Authentication_Type (Account, Plain_Mechanism);
-         Set_Port (Account, Port (Free_Port));
-
-         Connect (Account);
-      end;
+      Connect (Account);
    end Run;
 end Test_Jabber;
