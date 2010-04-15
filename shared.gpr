@@ -107,6 +107,7 @@ project Shared is
    VCS_Kind : VCS_Type := external ("PRJ_VCS", "Subversion");
 
    package Ide is
+      for Compiler_Command ("makefile") use "";
       for VCS_Kind use VCS_Kind;
       for VCS_Log_Check
         use "style_checker -l70 -H";
