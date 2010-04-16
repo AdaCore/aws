@@ -52,7 +52,6 @@ project Include is
    --------------
 
    package Compiler is
-      for Driver ("makefile") use "";
 
       case Shared.Build is
          when "Debug" =>

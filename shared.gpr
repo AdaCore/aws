@@ -135,7 +135,6 @@ project Shared is
      ("-O2", "-gnatn");
 
    package Compiler is
-      for Driver ("makefile") use "";
 
       case Build is
          when "Debug" =>
