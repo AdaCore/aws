@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2009, AdaCore                     --
+--                     Copyright (C) 2003-2010, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -30,6 +30,7 @@ with GNAT.Calendar.Time_IO;
 with AWS.Config;
 with AWS.Hotplug.Get_Status;
 with AWS.Session;
+with AWS.Server.Log;
 with AWS.Utils;
 
 package body AWS.Server.Status is
@@ -392,13 +393,23 @@ package body AWS.Server.Status is
 
       Insert (Result, Assoc ("LOGO", Admin_URI & "-logo"));
 
-      Insert (Result, Assoc ("LOG", Log.Is_Active (Server.Log)));
+      Insert (Result, Assoc ("LOG", Log.Is_Active (Server)));
 
-      Insert (Result, Assoc ("LOG_FILE", Log.Filename (Server.Log)));
+      Insert (Result, Assoc ("LOG_FILE", Log.Name (Server)));
 
       Insert
         (Result,
-         Assoc ("LOG_MODE", Log.Split_Mode'Image (Log.Mode (Server.Log))));
+         Assoc ("ERROR_LOG", Log.Is_Error_Active (Server)));
+
+      Insert
+        (Result,
+         Assoc ("ERROR_LOG_FILE", Log.Error_Name (Server)));
+
+      Insert
+        (Result,
+         Assoc
+           ("LOG_MODE",
+            AWS.Log.Split_Mode'Image (AWS.Log.Mode (Server.Log))));
 
       Insert (Result, Assoc ("ADMIN", Admin_URI));
 

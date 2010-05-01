@@ -5557,6 +5557,16 @@ This is set to true if logging is active.
 
 The log file full pathname.
 
+@item ERROR_LOG (boolean tag)
+@cindex ERROR_LOG
+
+This is set to true if error logging is active.
+
+@item ERROR_LOG_FILE
+@cindex ERROR_LOG_FILE
+
+The error log file full pathname.
+
 @item LOG_MODE
 @cindex LOG_MODE
 

@@ -68,7 +68,7 @@ status.</H3>
 
 <br>
 
-<H3>Logs information:</H3>
+<H3>Access Log information:</H3>
 
 @@IF@@ @_LOG_@
 
@@ -87,10 +87,30 @@ status.</H3>
 </table>
 
 @@ELSE@@
-   No log activated.
+   No access log activated.
 @@END_IF@@
 
-<br>
+<H3>Error Log information:</H3>
+
+@@IF@@ @_ERROR_LOG_@
+
+<table>
+
+<tr>
+<td width=250>Error Log filename
+<td><b>@_ERROR_LOG_FILE_@</b>
+</tr>
+
+<tr>
+<td>Mode
+<td><b>@_LOG_MODE_@</b>
+</tr>
+
+</table>
+
+@@ELSE@@
+   No error log activated.
+@@END_IF@@
 
 <H3>Slots information are given below:</H3>
 
