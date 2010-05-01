@@ -1491,8 +1491,8 @@ It indicates how to split the logs. Each_Run means that a new log file
 is used each time the process is started. Daily and Monthly will use a
 new log file each day or month. The default is @_LOG_SPLIT_MODE_@.
 
-@item Logo (string).
-@cindex Logo
+@item Logo_Image (string).
+@cindex Logo_Image
 The name of the logo image to use in the status page. The default is
 @file{@_LOGO_IMAGE_@}.
 
