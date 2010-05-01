@@ -5468,17 +5468,22 @@ Here are the tag variables recognized by @code{AWS} status page:
 
 @table @b
 
-@item ACCEPT_QUEUE_SIZE
-@cindex ACCEPT_QUEUE_SIZE
-
-@pxref{Configuration options}.
-
 @item ABORTABLE_V (vector tag)
 @cindex ABORTABLE_V
 
 A list of boolean. One for each connection. True means that this
 connection can be aborted if none is available. This is to be inserted
 in a template table.
+
+@item ACCEPT_QUEUE_SIZE
+@cindex ACCEPT_QUEUE_SIZE
+
+@pxref{Configuration options}.
+
+@item ACCEPTOR_LENGTH
+@cindex ACCEPTOR_LENGTH
+
+Number of sockets in the internal socket set.
 
 @item ACTIVITY_COUNTER_V (vector tag)
 @cindex ACTIVITY_COUNTER_V
@@ -5494,13 +5499,18 @@ keep-alive connection has processed.
 A list of date. One for each connection. This is the time of the latest
 request answered.
 
-@item CLEANER_WAIT_FOR_CLIENT_TIMEOUT
-@cindex CLEANER_WAIT_FOR_CLIENT_TIMEOUT
+@item ADMIN
+@cindex ADMIN
+
+URI to the administrative page.
+
+@item CASE_SENSITIVE_PARAMETERS
+@cindex CASE_SENSITIVE_PARAMETERS
 
 @pxref{Configuration options}.
 
-@item CLEANER_CLIENT_HEADER_TIMEOUT
-@cindex CLEANER_CLIENT_HEADER_TIMEOUT
+@item CHECK_URL_VALIDITY
+@cindex CHECK_URL_VALIDITY
 
 @pxref{Configuration options}.
 
@@ -5509,53 +5519,25 @@ request answered.
 
 @pxref{Configuration options}.
 
+@item CLEANER_CLIENT_HEADER_TIMEOUT
+@cindex CLEANER_CLIENT_HEADER_TIMEOUT
+
+@pxref{Configuration options}.
+
 @item CLEANER_SERVER_RESPONSE_TIMEOUT
 @cindex CLEANER_SERVER_RESPONSE_TIMEOUT
 
 @pxref{Configuration options}.
 
-@item FORCE_WAIT_FOR_CLIENT_TIMEOUT
-@cindex FORCE_WAIT_FOR_CLIENT_TIMEOUT
+@item CLEANER_WAIT_FOR_CLIENT_TIMEOUT
+@cindex CLEANER_WAIT_FOR_CLIENT_TIMEOUT
 
 @pxref{Configuration options}.
 
-@item FORCE_CLIENT_HEADER_TIMEOUT
-@cindex FORCE_CLIENT_HEADER_TIMEOUT
+@item CURRENT_CONNECTIONS
+@cindex CURRENT_CONNECTIONS
 
-@pxref{Configuration options}.
-
-@item FORCE_CLIENT_DATA_TIMEOUT
-@cindex FORCE_CLIENT_DATA_TIMEOUT
-
-@pxref{Configuration options}.
-
-@item FORCE_SERVER_RESPONSE_TIMEOUT
-@cindex FORCE_SERVER_RESPONSE_TIMEOUT
-
-@pxref{Configuration options}.
-
-@item KEYS_M (matrix tag)
-@cindex KEYS_M
-
-A list of set of keys (for each key correspond a value in the tag
-VALUES_L, see below). Each key in the vector tag start with an @code{HTML}
-"<td>" tag. This is to be able to display the key/value in column.
-
-@item LOGO
-@cindex LOGO
-
-A string to be placed in an img @code{HTML} tag. This is the name of
-the @code{AWS} logo image.
-
-@item LOG (boolean tag)
-@cindex LOG
-
-This is set to true if logging is active.
-
-@item LOG_FILE
-@cindex LOG_FILE
-
-The log file full pathname.
+Number of current connections to the server.
 
 @item ERROR_LOG (boolean tag)
 @cindex ERROR_LOG
@@ -5567,38 +5549,113 @@ This is set to true if error logging is active.
 
 The error log file full pathname.
 
+@item ERROR_LOG_FILENAME_PREFIX
+@cindex ERROR_LOG_FILENAME_PREFIX
+
+@pxref{Configuration options}.
+
+@item ERROR_LOG_SPLIT_MODE
+@cindex ERROR_LOG_SPLIT_MODE
+
+@pxref{Configuration options}.
+
+@item FORCE_CLIENT_DATA_TIMEOUT
+@cindex FORCE_CLIENT_DATA_TIMEOUT
+
+@pxref{Configuration options}.
+
+@item FORCE_CLIENT_HEADER_TIMEOUT
+@cindex FORCE_CLIENT_HEADER_TIMEOUT
+
+@pxref{Configuration options}.
+
+@item FORCE_SERVER_RESPONSE_TIMEOUT
+@cindex FORCE_SERVER_RESPONSE_TIMEOUT
+
+@pxref{Configuration options}.
+
+@item FORCE_WAIT_FOR_CLIENT_TIMEOUT
+@cindex FORCE_WAIT_FOR_CLIENT_TIMEOUT
+
+@pxref{Configuration options}.
+
+@item FREE_SLOTS_KEEP_ALIVE_LIMIT
+@cindex FREE_SLOTS_KEEP_ALIVE_LIMIT
+
+@pxref{Configuration options}.
+
+@item LINE_STACK_SIZE
+@cindex LINE_STACK_SIZE
+
+@pxref{Configuration options}.
+
+@item KEYS_M (matrix tag)
+@cindex KEYS_M
+
+A list of set of keys (for each key correspond a value in the tag
+VALUES_L, see below). Each key in the vector tag start with an @code{HTML}
+"<td>" tag. This is to be able to display the key/value in column.
+
+@item LOG (boolean tag)
+@cindex LOG
+
+This is set to true if logging is active.
+
+@item LOG_FILE
+@cindex LOG_FILE
+
+The log file full pathname.
+
+@item LOG_FILENAME_PREFIX
+@cindex LOG_FILENAME_PREFIX
+
+@pxref{Configuration options}.
+
+@item LOG_FILE_DIRECTORY
+@cindex LOG_FILE_DIRECTORY
+
+@pxref{Configuration options}.
+
 @item LOG_MODE
 @cindex LOG_MODE
 
 The rotating log mode, this is either @code{NONE}, @code{DAILY},
 @code{MONTHLY} or @code{EACH_RUN}.
 
+@item LOGO
+@cindex LOGO
+
+A string to be placed in an img @code{HTML} tag. This is the name of
+the @code{AWS} logo image.
+
+@item MAX_CONCURRENT_DOWNLOAD
+@cindex MAX_CONCURRENT_DOWNLOAD
+
+@pxref{Configuration options}.
+
 @item MAX_CONNECTION
 @cindex MAX_CONNECTION
 
 @pxref{Configuration options}.
 
-@item OPENED_V (vector tag)
-@cindex OPENED_V
-
-A list of boolean. One for each connection. True means that the socket
-is open. This is to be inserted in a template table.
-
-@item PEERNAME_V (vector tag)
-@cindex PEERNAME_V
+@item PEER_NAME_V (vector tag)
+@cindex PEER_NAME_V
 
 A list of peer name. One for each connection. This is the name of the last
 peer connected to the slot.
 
-@item QUIT_V (vector tag)
-@cindex QUIT_V
+@item PHASE_V (vector tag)
+@cindex PHASE_V
 
-A list of boolean. One for each connection. True means that the
-connection will terminate as soon as possible. This is to be inserted
-in a template table.
+What is the slot currently doing, for example Server_Processing or Closed.
 
 @item RECEIVE_TIMEOUT
 @cindex RECEIVE_TIMEOUT
+
+@pxref{Configuration options}.
+
+@item REUSE_ADDRESS
+@cindex REUSE_ADDRESS
 
 @pxref{Configuration options}.
 
@@ -5607,8 +5664,18 @@ in a template table.
 
 A boolean set to True if this is a secure socket (HTTPS/SSL).
 
+@item SECURITY_MODE
+@cindex SECURITY_MODE
+
+@pxref{Configuration options}.
+
 @item SEND_TIMEOUT
 @cindex SEND_TIMEOUT
+
+@pxref{Configuration options}.
+
+@item SERVER_HOST
+@cindex SERVER_HOST
 
 @pxref{Configuration options}.
 
@@ -5627,11 +5694,10 @@ A boolean set to True if this is a secure socket (HTTPS/SSL).
 
 Server socket ID.
 
-@item SESSION_LIFETIME
-@cindex SESSION_LIFETIME
+@item SESSION
+@cindex SESSION
 
-Number of seconds to keep session information. After this period a
-session is obsoleted and will be removed at next cleanup.
+@pxref{Configuration options}.
 
 @item SESSION_CLEANUP_INTERVAL
 @cindex SESSION_CLEANUP_INTERVAL
@@ -5639,16 +5705,27 @@ session is obsoleted and will be removed at next cleanup.
 Number of seconds between each run of the session cleanup task. This
 task will remove all session data that have been obsoleted.
 
-@item SESSIONS_TS_V (vector tag)
-@cindex SESSIONS_TS_V
+@item SESSION_LIFETIME
+@cindex SESSION_LIFETIME
 
-A list of time stamp. Each item correspond to a session last access time.
+Number of seconds to keep session information. After this period a
+session is obsoleted and will be removed at next cleanup.
+
+@item SESSION_NAME
+@cindex SESSION_NAME
+
+@pxref{Configuration options}.
 
 @item SESSIONS_TERMINATE_V (vector tag)
 @cindex SESSIONS_TERMINATE_V
 
 A list of time. Each item correspond to the time when the session will
 be obsoleted.
+
+@item SESSIONS_TS_V (vector tag)
+@cindex SESSIONS_TS_V
+
+A list of time stamp. Each item correspond to a session last access time.
 
 @item SESSIONS_V (vector tag)
 @cindex SESSIONS_V
@@ -5671,8 +5748,28 @@ A list of sockets ID. One for each connection.
 
 @pxref{Configuration options}.
 
+@item START_TIME
+@cindex START_TIME
+
+A timestamp in YYYY-MM-DD HH:MM:SS format. When the server was started.
+
+@item TRANSIENT_CLEANUP_INTERVAL
+@cindex TRANSIENT_CLEANUP_INTERVAL
+
+@pxref{Configuration options}.
+
+@item TRANSIENT_LIFETIME
+@cindex TRANSIENT_LIFETIME
+
+@pxref{Configuration options}.
+
 @item UPLOAD_DIRECTORY
 @cindex UPLOAD_DIRECTORY
+
+@pxref{Configuration options}.
+
+@item UPLOAD_SIZE_LIMIT
+@cindex UPLOAD_SIZE_LIMIT
 
 @pxref{Configuration options}.
 
@@ -5687,6 +5784,11 @@ KEYS_L, see above). Each key in the vector tag start with an @code{HTML}
 @cindex VERSION
 
 @code{AWS} version string.
+
+@item WWW_ROOT
+@cindex WWW_ROOT
+
+@pxref{Configuration options}.
 
 @end table
 

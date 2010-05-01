@@ -1,280 +1,845 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD W3 HTML 3.2//EN">
-
-<html>
+@@------------------------------------------------------------------------------
+@@--                              Ada Web Server                              --
+@@--                                                                          --
+@@--                     Copyright (C) 2000-2010, AdaCore                     --
+@@--                                                                          --
+@@--  This library is free software; you can redistribute it and/or modify    --
+@@--  it under the terms of the GNU General Public License as published by    --
+@@--  the Free Software Foundation; either version 2 of the License, or (at   --
+@@--  your option) any later version.                                         --
+@@--                                                                          --
+@@--  This library is distributed in the hope that it will be useful, but     --
+@@--  WITHOUT ANY WARRANTY; without even the implied warranty of              --
+@@--  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU       --
+@@--  General Public License for more details.                                --
+@@--                                                                          --
+@@--  You should have received a copy of the GNU General Public License       --
+@@--  along with this library; if not, write to the Free Software Foundation, --
+@@--  Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.          --
+@@--                                                                          --
+@@--  As a special exception, if other files instantiate generics from this   --
+@@--  unit, or you link this unit with other files to produce an executable,  --
+@@--  this  unit  does not  by itself cause  the resulting executable to be   --
+@@--  covered by the GNU General Public License. This exception does not      --
+@@--  however invalidate any other reasons why the executable file  might be  --
+@@--  covered by the  GNU Public License.                                     --
+@@------------------------------------------------------------------------------
+@@--
+@@--  VARIOUS TEMPLATES_PARSER CONSTANTS
+@@--
+@@--  This constant controls the amount of session data to output.
+@@--  Set this to @_SESSIONS_V'Length_@ to output all sessions.
+@@--  WARNING! On a busy server with sessions enabled, this can
+@@--  produce a very large table, so use with caution.
+@@SET@@ AMOUNT_OF_SESSIONS_TO_OUTPUT    = 20
+@@--
+@@SET@@ ALERT_FONT_COLOR                = #f00
+@@SET@@ BODY_FONT_COLOR                 = #005696
+@@SET@@ BODY_BGCOLOR                    = #555
+@@SET@@ BORDER_LEFT_AND_TOP             = #8caec9
+@@SET@@ BORDER_RIGHT_AND_BOTTOM         = #192036
+@@SET@@ COPYRIGHT_BORDER_COLOR          = #587891
+@@SET@@ COPYRIGHT_FONT_COLOR            = #f1f1f1
+@@SET@@ DATA_FONT_COLOR                 = #000
+@@SET@@ DEVELOPER_BORDER_COLOR          = #8caec9
+@@SET@@ DEVELOPER_COLOR                 = #192036
+@@SET@@ GENERIC_INFO_COLOR              = #f1f1f1
+@@SET@@ HOTPLUG_LINK_COLOR              = #7c9847
+@@SET@@ HOTPLUG_LINK_HOVER_COLOR        = #546b89
+@@SET@@ LINK_COLOR                      = #b4d278
+@@SET@@ LINK_HOVER_COLOR                = #f1f1f1
+@@SET@@ HEADLINE_BGCOLOR                = #546b89
+@@SET@@ HEADLINE_FONT_COLOR             = #fcfcfc
+@@SET@@ SECTION_HEADLINE_COLOR          = #f1f1f1
+@@SET@@ TABLE_BGCOLOR                   = #e5eef3
+@@SET@@ TABLE_ROW_MODULUS_COLOR         = #fbfbf9
+@@SET@@ TABLE_TD_BORDER_COLOR           = #546b89
+@@--
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+          "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-<title>AWS - Status page</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>
+        @_SERVER_NAME_@ - Status page
+    </title>
+    <style type="text/css">
+        body, div, table, a, tr, td, h3, h4, p {
+            padding: 0px;
+            margin: 0px;
+        }
+
+        body {
+            width: 900px;
+            padding: 25px 0px;
+            margin-left: auto;
+            margin-right: auto;
+            color: @_BODY_FONT_COLOR_@;
+            background-color: @_BODY_BGCOLOR_@;
+            font-family: Verdana, sans-serif;
+            font-size: 14px;
+        }
+
+        .headline_box {
+            padding: 13px 0px 10px 0px;
+            border-top: double 4px @_BORDER_LEFT_AND_TOP_@;
+            border-right: double 4px @_BORDER_RIGHT_AND_BOTTOM_@;
+            border-bottom: double 4px @_BORDER_RIGHT_AND_BOTTOM_@;
+            border-left: double 4px @_BORDER_LEFT_AND_TOP_@;
+            color: @_HEADLINE_FONT_COLOR_@;
+            background-color: @_HEADLINE_BGCOLOR_@;
+            text-align: center;
+        }
+
+        .headline_server_name {
+            margin: 10px 0px;
+        }
+
+        .headline_version {
+            font-size: 12px;
+            font-weight: normal;
+        }
+
+        .section_headline {
+            margin-top: 30px;
+            margin-bottom: 5px;
+            text-align: center;
+            color: @_SECTION_HEADLINE_COLOR_@;
+        }
+
+        .link_box {
+            text-align: center;
+            font-size: 12px;
+        }
+
+        a {
+            color: @_LINK_COLOR_@;
+        }
+
+        a:hover {
+            color: @_LINK_HOVER_COLOR_@;
+        }
+
+        .alert {
+            padding-left: 5px;
+            color: @_ALERT_FONT_COLOR_@
+        }
+
+        table {
+            margin-top: 15px;
+            width: 100%;
+            border-collapse: collapse;
+            border-top: solid 3px @_BORDER_LEFT_AND_TOP_@;
+            border-right: solid 2px @_BORDER_RIGHT_AND_BOTTOM_@;
+            border-left: solid 3px @_BORDER_LEFT_AND_TOP_@;
+            border-bottom: solid 2px @_BORDER_RIGHT_AND_BOTTOM_@;
+            background-color: @_TABLE_BGCOLOR_@;
+        }
+
+        th {
+            padding: 10px 5px;
+            color: @_HEADLINE_FONT_COLOR_@;
+            background-color: @_HEADLINE_BGCOLOR_@;
+        }
+
+        td {
+            padding: 7px 5px;
+        }
+
+        .key {
+            width: 35%;
+            border-right: solid 1px @_TABLE_TD_BORDER_COLOR_@;
+        }
+
+        .background {
+            background-color: @_TABLE_ROW_MODULUS_COLOR_@;
+        }
+
+        .bold {
+            font-weight: bold;
+        }
+
+        .left {
+            text-align: left !important;
+        }
+
+        .data_color {
+            color: @_DATA_FONT_COLOR_@;
+        }
+
+        .slots_information {
+            text-align: center;
+            font-size: 12px;
+        }
+
+        .no_active_sessions,
+        .no_hotplug_module {
+            margin: 15px 0px 0px 5px;
+            color: @_GENERIC_INFO_COLOR_@;
+            text-align: center;
+        }
+
+        .sessions_information {
+            font-size: 12px;
+        }
+
+        .sessions_information td {
+            text-align: center;
+            vertical-align: text-top;
+        }
+
+        .sessions_information div {
+            padding-left: 5px;
+            width: 430px;
+            overflow: auto;
+            text-align: left;
+        }
+
+        .italic {
+            font-style: italic;
+        }
+
+        .more_session_data_available {
+            margin: 8px 0px 0px 5px;
+            font-size: 12px;
+            color: @_GENERIC_INFO_COLOR_@;
+        }
+
+        .hotplug_modules td {
+            text-align: center;
+        }
+
+        .hotplug_link {
+            padding: 0px 5px;
+        }
+
+        .hotplug_link a {
+            color: @_HOTPLUG_LINK_COLOR_@;
+        }
+
+        .hotplug_link a:hover {
+            color: @_HOTPLUG_LINK_HOVER_COLOR_@ !important;
+        }
+
+        .copyright {
+            margin-top: 40px;
+            border: solid 1px @_COPYRIGHT_BORDER_COLOR_@;
+            font-size: 12px;
+            text-align: center;
+        }
+
+        .copyright p {
+            margin: 10px;
+            color: @_COPYRIGHT_FONT_COLOR_@;
+        }
+    </style>
 </head>
+<body>
+    <div class="headline_box">
+        <h3 class="">
+            AWS Server Status Page
+        </h3>
+        <h4 class="headline_server_name">
+            "@_SERVER_NAME_@"
+        </h4>
+        <p class="headline_version">
+            AWS version @_VERSION_@
+        </p>
+    </div>
+    <h3 class="section_headline">
+        Configuration
+    </h3>
+    <p class="link_box">
+        <a href="http://www.adacore.com/wp-content/files/auto_update/aws-docs/aws.html#Configuration-options">AWS configuration options manual</a>
+    </p>
+    <table class="configuration_table">
+        <tr>
+            <th>
+                Directive
+            </th>
+            <th>
+                Value
+            </th>
+        </tr>
+        <tr class="background">
+            <td class="key">
+                Accept Queue Size:
+            </td>
+            <td class="data_color">
+                @_ACCEPT_QUEUE_SIZE_@
+            </td>
+        </tr>
+        <tr>
+            <td class="key">
+                Case Sensitive Parameters:
+            </td>
+            <td class="data_color">
+                @_YES_NO:CASE_SENSITIVE_PARAMETERS_@
+            </td>
+        </tr>
+        <tr class="background">
+            <td class="key">
+                Check URL Validity:
+            </td>
+            <td class="data_color">
+                @_YES_NO:CHECK_URL_VALIDITY_@
+            </td>
+        </tr>
+        <tr>
+            <td class="key">
+                Cleaner Client Data Timeout:
+            </td>
+            <td class="data_color">
+                @_CLEANER_CLIENT_HEADER_TIMEOUT_@ seconds
+            </td>
+        </tr>
+        <tr class="background">
+            <td class="key">
+                Cleaner Client Header Timeout:
+            </td>
+            <td class="data_color">
+                @_CLEANER_CLIENT_HEADER_TIMEOUT_@ seconds
+            </td>
+        </tr>
+        <tr>
+            <td class="key">
+                Cleaner Server Response Timeout:
+            </td>
+            <td class="data_color">
+                @_CLEANER_SERVER_RESPONSE_TIMEOUT_@ seconds
+            </td>
+        </tr>
+        <tr class="background">
+            <td class="key">
+                Cleaner Wait For Client Timeout:
+            </td>
+            <td class="data_color">
+                @_CLEANER_WAIT_FOR_CLIENT_TIMEOUT_@ seconds
+            </td>
+        </tr>
+        <tr>
+            <td class="key">
+                Force Client Data Timeout:
+            </td>
+            <td class="data_color">
+                @_FORCE_CLIENT_HEADER_TIMEOUT_@ seconds
+            </td>
+        </tr>
+        <tr class="background">
+            <td class="key">
+                Force Client Header Timeout:
+            </td>
+            <td class="data_color">
+                @_FORCE_CLIENT_HEADER_TIMEOUT_@ seconds
+            </td>
+        </tr>
+        <tr>
+            <td class="key">
+                Force Server Response Timeout:
+            </td>
+            <td class="data_color">
+                @_FORCE_SERVER_RESPONSE_TIMEOUT_@ seconds
+            </td>
+        </tr>
+        <tr class="background">
+            <td class="key">
+                Force Wait For Client Timeout:
+            </td>
+            <td class="data_color">
+                @_FORCE_WAIT_FOR_CLIENT_TIMEOUT_@ seconds
+            </td>
+        </tr>
+        <tr>
+            <td class="key">
+                Free Slots Keep Alive Limit:
+            </td>
+            <td class="data_color">
+                @_FREE_SLOTS_KEEP_ALIVE_LIMIT_@
+            </td>
+        </tr>
+        <tr class="background">
+            <td class="key">
+                Line Stack Size:
+            </td>
+            <td class="data_color">
+                @_LINE_STACK_SIZE_@ bytes
+            </td>
+        </tr>
+        <tr>
+            <td class="key">
+                Max Concurrent Download:
+            </td>
+            <td class="data_color">
+                @_MAX_CONCURRENT_DOWNLOAD_@
+            </td>
+        </tr>
+        <tr class="background">
+            <td class="key">
+                Maximum Connections:
+            </td>
+            <td class="data_color">
+                @_MAX_CONNECTION_@
+            </td>
+        </tr>
+        <tr>
+            <td class="key">
+                Receive Timeout:
+            </td>
+            <td class="data_color">
+                @_RECEIVE_TIMEOUT_@ seconds
+            </td>
+        </tr>
+         <tr class="background">
+            <td class="key">
+                Reuse Address:
+            </td>
+            <td class="data_color">
+                @_YES_NO:REUSE_ADDRESS_@
+                @@IF@@ @_REUSE_ADDRESS_@
+                    <span class="alert">(unsafe setting. Use with caution)</span>
+                @@END_IF@@
+            </td>
+        </tr>
+         <tr>
+            <td class="key">
+                Security Mode:
+            </td>
+            <td class="data_color">
+                @_SECURITY_MODE_@
+            </td>
+        </tr>
+        <tr class="background">
+            <td class="key">
+                Send Timeout:
+            </td>
+            <td class="data_color">
+                @_SEND_TIMEOUT_@ seconds
+            </td>
+        </tr>
+        <tr>
+            <td class="key">
+                Server Has Session:
+            </td>
+            <td class="data_color">
+                @_YES_NO:SESSION_@
+            </td>
+        </tr>
+         <tr class="background">
+            <td class="key">
+                Server Host:
+            </td>
+            <td class="data_color">
+                @_SERVER_HOST_@
+                @@IF@@ not @_EXIST:SERVER_HOST_@
+                    Not set
+                @@END_IF@@
+            </td>
+        </tr>
+        <tr>
+            <td class="key">
+                Server Port:
+            </td>
+            <td class="data_color">
+                @_SERVER_PORT_@
+            </td>
+        </tr>
+        <tr class="background">
+            <td class="key">
+                Server Security:
+            </td>
+            <td class="data_color">
+                @_YES_NO:SECURITY_@
+            </td>
+        </tr>
+        <tr>
+            <td class="key">
+                Server Socket:
+            </td>
+            <td class="data_color">
+                @_SERVER_SOCK_@
+            </td>
+        </tr>
+        <tr class="background">
+            <td class="key">
+                Session Cleanup Interval:
+            </td>
+            <td class="data_color">
+                @_SESSION_CLEANUP_INTERVAL_@ seconds
+            </td>
+        </tr>
+        <tr>
+            <td class="key">
+                Session Lifetime:
+            </td>
+            <td class="data_color">
+                @_SESSION_LIFETIME_@ seconds
+            </td>
+        </tr>
+        <tr class="background">
+            <td class="key">
+                Session Name:
+            </td>
+            <td class="data_color">
+                @_SESSION_NAME_@
+            </td>
+        </tr>
+        <tr>
+            <td class="key">
+                Transient Cleanup Interval:
+            </td>
+            <td class="data_color">
+                @_TRANSIENT_CLEANUP_INTERVAL_@ seconds
+            </td>
+        </tr>
+        <tr class="background">
+            <td class="key">
+                Transient Lifetime:
+            </td>
+            <td class="data_color">
+                @_TRANSIENT_LIFETIME_@ seconds
+            </td>
+        </tr>
+        <tr>
+            <td class="key">
+                Upload Directory:
+            </td>
+            <td class="data_color">
+                @@IF@@ @_UPLOAD_DIRECTORY_@ /= ""
+                    @_UPLOAD_DIRECTORY_@
+                @@ELSE@@
+                    Upload directory is not set.
+                @@END_IF@@
+            </td>
+        </tr>
+        <tr class="background">
+            <td class="key">
+                Upload Size Limit:
+            </td>
+            <td class="data_color">
+                @_UPLOAD_SIZE_LIMIT_@ bytes
+            </td>
+        </tr>
+        <tr>
+            <td class="key">
+                WWW Root:
+            </td>
+            <td class="data_color">
+                @_WWW_ROOT_@
+            </td>
+        </tr>
+    </table>
+    <h3 class="section_headline">
+        Server Information
+    </h3>
+    <table>
+        <tr>
+            <th>
+                Directive
+            </th>
+            <th>
+                Value
+            </th>
+        </tr>
+        <tr class="background">
+            <td class="key">
+                Acceptor Length:
+            </td>
+            <td class="data_color">
+                @_ACCEPTOR_LENGTH_@
+            </td>
+        </tr>
+        <tr>
+            <td class="key">
+                Current Amount Of Sessions:
+            </td>
+            <td class="data_color">
+                @_SESSIONS_V'Length_@
+            </td>
+        </tr>
+        <tr class="background">
+            <td class="key">
+                Current Connections:
+            </td>
+            <td class="data_color">
+                @_CURRENT_CONNECTIONS_@
+            </td>
+        </tr>
+        <tr>
+            <td class="key">
+                Started On:
+            </td>
+            <td class="data_color">
+                @@--  The START_TIME tag date format is "YYYY-MM-DD HH:MM:SS" so it can be manipulated
+                @@--  with the FORMAT_DATE filter. Assuming START_TIME at "2010-27-04 10:42:13" here are
+                @@--  some examples:
+                @@--  @_FORMAT_DATE(%a %D %T):START_TIME_@ results in "Tue 04/27/10 10:42:13"
+                @@--  @_FORMAT_DATE(%d%m%y %H%M%S):START_TIME_@ results in "270410 133256"
+                @@--  @_FORMAT_DATE(%d-%m-%y %T):START_TIME_@ results in "27-04-10 13:32:56"
 
-<body bgcolor="lightgrey">
-
-<table width=100%>
-
-<tr>
-<td width=50%>
-<H2 align=center>Ada Web Server Status</H2>
-
-<td width=50%>
-<img align=center src="@_LOGO_@"> Version @_VERSION_@
-</table>
-
-<br>
-<hr>
-<br>
-
-<p><i>@_FORMAT_DATE(%A %d %B %Y, %T):NOW_@.</i>
-
-<br>
-<br>
-
-<br>
-
-<H3>The following data describe server "<i>@_SERVER_NAME_@</i>" current
-status.</H3>
-
-<table>
-
-<tr>
-<td width=250>Started on
-<td><b>@_FORMAT_DATE(%a %D %T):START_TIME_@</b>
-</tr>
-
-<tr>
-<td width=250>Maximum connections
-<td><b>@_MAX_CONNECTION_@</b>
-</tr>
-
-<tr>
-<td>Server Port
-<td><b>@_SERVER_PORT_@</b>
-</tr>
-
-<tr>
-<td>Server Socket
-<td><b>@_SERVER_SOCK_@</b>
-</tr>
-
-<tr>
-<td>Server Security (HTTPS/SSL)
-<td><b>@_YES_NO:SECURITY_@</b>
-</tr>
-
-<tr>
-<td>Server has session
-<td><b>@_YES_NO:SESSION_@</b>
-</tr>
-
-</table>
-
-<br>
-
-<H3>Access Log information:</H3>
-
-@@IF@@ @_LOG_@
-
-<table>
-
-<tr>
-<td width=250>Log filename
-<td><b>@_LOG_FILE_@</b>
-</tr>
-
-<tr>
-<td>Mode
-<td><b>@_LOG_MODE_@</b>
-</tr>
-
-</table>
-
-@@ELSE@@
-   No access log activated.
-@@END_IF@@
-
-<H3>Error Log information:</H3>
-
-@@IF@@ @_ERROR_LOG_@
-
-<table>
-
-<tr>
-<td width=250>Error Log filename
-<td><b>@_ERROR_LOG_FILE_@</b>
-</tr>
-
-<tr>
-<td>Mode
-<td><b>@_LOG_MODE_@</b>
-</tr>
-
-</table>
-
-@@ELSE@@
-   No error log activated.
-@@END_IF@@
-
-<H3>Slots information are given below:</H3>
-
-<table>
-
-<tr bgcolor=yellow>
-<td align=center>Slot number
-<td align=center>Socket
-<td align=center>Last Client IP
-<td align=center>Phase
-<td align=center>Abortable
-<td align=center>Slot Counter
-<td align=center>Socket Counter
-<td align=center>Activity Time Stamp
-</tr>
-
-@@TABLE@@
-<tr bgcolor=white>
-<td align=center>@_TABLE_LINE_@
-<td align=center>@_SOCK_V_@
-@@IF@@ @_EXIST:PEER_NAME_V_@
-  <td align=center>@_PEER_NAME_V_@
-@@ELSE@@
-  <td align=center>&nbsp;
-@@END_IF@@
-<td align=center>@_CAPITALIZE:PHASE_V_@
-<td align=center>@_YES_NO:ABORTABLE_V_@
-<td align=center>@_ACTIVITY_COUNTER_V_@
-<td align=center>@_SLOT_ACTIVITY_COUNTER_V_@
-<td>@_FORMAT_DATE(%a %D %T):ACTIVITY_TIME_STAMP_V_@
-</tr>
-@@SECTION@@
-<tr bgcolor=turquoise>
-<td align=center>@_TABLE_LINE_@
-<td align=center>@_SOCK_V_@
-@@IF@@ @_EXIST:PEER_NAME_V_@
-  <td align=center>@_PEER_NAME_V_@
-@@ELSE@@
-  <td align=center>&nbsp;
-@@END_IF@@
-<td align=center>@_CAPITALIZE:PHASE_V_@
-<td align=center>@_YES_NO:ABORTABLE_V_@
-<td align=center>@_ACTIVITY_COUNTER_V_@
-<td align=center>@_SLOT_ACTIVITY_COUNTER_V_@
-<td>@_FORMAT_DATE(%a %D %T):ACTIVITY_TIME_STAMP_V_@
-</tr>
-@@END_TABLE@@
-
-</table>
-
-<br>
-
-<H3>Sessions information are given below:</H3>
-
-@@IF@@ @_SESSION_@
-<table>
-
-<tr>
-<td width=200>Session Lifetime
-<td><b>@_SESSION_LIFETIME_@ secs</b>
-</tr>
-
-<tr>
-<td width=200>Session cleanup interval
-<td><b>@_SESSION_CLEANUP_INTERVAL_@ secs</b>
-</tr>
-</table>
-
-<br>
-
-@@END_IF@@
-
-@@IF@@ @_IS_EMPTY:SESSIONS_V_@
-
-  <i>No active session.</i>
-
-@@ELSE@@
-
-  <ol>
-  @@TABLE@@
-
-  <li>Session ID: <tt><font size=+1><b>@_SESSIONS_V_@</b></font></tt>
-     (<i>@_FORMAT_DATE(%a %D %T):SESSIONS_TS_V_@</i> ... <i>@_FORMAT_DATE(%a %D %T):SESSIONS_TERMINATE_V_@</i>)
-
-  <table>
-  <tr>
-  @@TABLE@@
-    @@IF@@ @_EXIST:KEYS_M_@
-      <td bgcolor=yellow>
-      @_KEYS_M_@
-      </td>
+                @_FORMAT_DATE(%d-%m-%y %T):START_TIME_@
+            </td>
+        </tr>
+    </table>
+    <h3 class="section_headline">
+        Log Information
+    </h3>
+    <table>
+        <tr>
+            <th>
+                Directive
+            </th>
+            <th>
+                Value
+            </th>
+        </tr>
+        <tr class="background">
+            <td class="key">
+                Log File Directory:
+            </td>
+            <td class="data_color">
+                @_LOG_FILE_DIRECTORY_@
+            </td>
+        </tr>
+        <tr>
+            <td class="key">
+                Error Log Filename Prefix:
+            </td>
+            <td class="data_color">
+                @_ERROR_LOG_FILENAME_PREFIX_@
+            </td>
+        </tr>
+        <tr class="background">
+            <td class="key">
+                Error Log Split Mode:
+            </td>
+            <td class="data_color">
+                @_ERROR_LOG_SPLIT_MODE_@
+            </td>
+        </tr>
+        <tr>
+            <td class="key">
+                Error Log:
+            </td>
+            <td class="data_color">
+                @@IF@@ @_ERROR_LOG_@
+                    @_ERROR_LOG_FILE_@
+                @@ELSE@@
+                    No error logfile defined
+                @@END_IF@@
+            </td>
+        </tr>
+        <tr class="background">
+            <td class="key">
+                Log Filename Prefix:
+            </td>
+            <td class="data_color">
+                @_LOG_FILENAME_PREFIX_@
+            </td>
+        </tr>
+         <tr>
+            <td class="key">
+                Log mode:
+            </td>
+            <td class="data_color">
+                @_LOG_MODE_@
+            </td>
+        </tr>
+        <tr class="background">
+            <td class="key">
+                Log:
+            </td>
+            <td class="data_color">
+                @@IF@@ @_LOG_@
+                    @_LOG_FILE_@
+                @@ELSE@@
+                    No access logfile defined
+                @@END_IF@@
+            </td>
+        </tr>
+    </table>
+    <h3 class="section_headline">
+        Slots Information
+    </h3>
+    <table class="slots_information data_color">
+        <tr>
+            <th>
+                Slot no.
+            </th>
+            <th>
+                Socket
+            </th>
+            <th>
+                Last Client IP
+            </th>
+            <th>
+                Phase
+            </th>
+            <th>
+                Abortable
+            </th>
+            <th>
+                Slot Counter
+            </th>
+            <th>
+                Socket Counter
+            </th>
+            <th>
+                Activity Time Stamp
+            </th>
+        </tr>
+        @@TABLE@@
+            @@BEGIN@@
+            <tr class="background">
+            @@SECTION@@
+            <tr>
+            @@END@@
+                <td>
+                @_TABLE_LINE_@
+                </td>
+                <td>
+                @_SOCK_V_@
+                </td>
+                @@IF@@ @_EXIST:PEER_NAME_V_@
+                <td>
+                @_PEER_NAME_V_@
+                </td>
+                @@ELSE@@
+                <td>
+                &nbsp;
+                </td>
+                @@END_IF@@
+                <td>
+                @_CAPITALIZE:PHASE_V_@
+                </td>
+                <td>
+                @_YES_NO:ABORTABLE_V_@
+                </td>
+                <td>
+                @_ACTIVITY_COUNTER_V_@
+                </td>
+                <td>
+                @_SLOT_ACTIVITY_COUNTER_V_@
+                </td>
+                <td>
+                @_FORMAT_DATE(%d-%m-%y %T):ACTIVITY_TIME_STAMP_V_@
+                </td>
+            </tr>
+        @@END_TABLE@@
+    </table>
+    <h3 class="section_headline">
+        Sessions Information
+    </h3>
+    @@IF@@ @_IS_EMPTY:SESSIONS_V_@
+        <p class="no_active_sessions">
+            No active sessions on server.
+        </p>
+    @@ELSE@@
+        <table class="sessions_information data_color">
+            <tr>
+                <th>
+                Session ID
+                </th>
+                <th>
+                Start
+                </th>
+                <th>
+                End
+                </th>
+                <th>
+                Session Data
+                </th>
+            </tr>
+            @@TABLE@@
+                @@IF@@ (@_TABLE_LINE_@ <= @_AMOUNT_OF_SESSIONS_TO_OUTPUT_@)
+                    @@IF@@ @_MOD(2):TABLE_LINE_@ = 0
+                    <tr>
+                    @@ELSE@@
+                    <tr class="background">
+                    @@END_IF@@
+                        <td class="left">
+                            @_SESSIONS_V_@
+                        </td>
+                        <td>
+                            @_FORMAT_DATE(%d-%m-%y %T):SESSIONS_TS_V_@
+                        </td>
+                        <td>
+                            @_FORMAT_DATE(%d-%m-%y %T):SESSIONS_TERMINATE_V_@
+                        </td>
+                        <td>
+                            <div>
+                                @@INLINE(")(", ")(")@@
+                                    @@TABLE@@
+                                        @_KEYS_M_@=@_VALUES_M_@
+                                    @@END_TABLE@@
+                                @@END_INLINE@@
+                            </div>
+                        </td>
+                    </tr>
+                @@END_IF@@
+            @@END_TABLE@@
+        </table>
+        @@IF@@ (@_AMOUNT_OF_SESSIONS_TO_OUTPUT_@ < @_SESSIONS_V'Length_@)
+            <p class="more_session_data_available italic">
+                More session data is available. To see this, adjust the AMOUNT_OF_SESSIONS_TO_OUTPUT constant in this template.
+            </p>
+        @@END_IF@@
     @@END_IF@@
-  @@END_TABLE@@
-  </tr>
-
-  <tr>
-  @@TABLE@@
-    @@IF@@ @_EXIST:KEYS_M_@
-      <td bgcolor=turquoise>
-      @_VALUES_M_@
-      </td>
+    <h3 class="section_headline">
+        Hotplug Modules
+    </h3>
+    @@IF@@ @_IS_EMPTY:HP_REGEXP_V_@
+        <p class="no_hotplug_module">
+            No hotplug module loaded.
+        </p>
+    @@ELSE@@
+        <table class="hotplug_modules data_color">
+            <tr>
+                <th>
+                    Order
+                </th>
+                <th>
+                    Module Regexp
+                </th>
+                <th>
+                    Server Address
+                </th>
+                <th>
+                    Actions
+                </th>
+            </tr>
+            @@TABLE@@
+                @@BEGIN@@
+                <tr class="background">
+                @@SECTION@@
+                <tr>
+                @@END@@
+                    <td>
+                        @_TABLE_LINE_@
+                    </td>
+                    <td>
+                        @_HP_REGEXP_V_@
+                    </td>
+                    <td>
+                        @_HP_URL_V_@
+                    </td>
+                    <td>
+                        <span class="hotplug_link bold"><a href="@_ADMIN_@-HPup?N=@_TABLE_LINE_@">UP</a></span>
+                        <span class="hotplug_link bold"><a href="@_ADMIN_@-HPdown?N=@_TABLE_LINE_@">DOWN</a></span>
+                    </td>
+                </tr>
+            @@END_TABLE@@
+        </table>
     @@END_IF@@
-  @@END_TABLE@@
-  </tr>
-  </table>
-
-  </table>
-  @@END_TABLE@@
-
-  </ol>
-
-@@END_IF@@
-
-<br>
-
-<H3>Hotplug modules are listed below:</H3>
-
-@@IF@@ @_IS_EMPTY:HP_REGEXP_V_@
-
-  <i>No Hotplug module loaded.</i>
-
-@@ELSE@@
-
-  <table>
-
-  <tr bgcolor=yellow>
-  <td width=20>Order
-  <td width=150>Module Regexp
-  <td width=300>Server address
-  <td>
-  </tr>
-
-  @@TABLE@@
-    <tr bgcolor=white>
-    <td>@_TABLE_LINE_@
-    <td align=center>@_HP_REGEXP_V_@
-    <td>@_HP_URL_V_@
-    <td><a href="@_ADMIN_@-HPup?N=@_TABLE_LINE_@">
-    <img src="@_ADMIN_@-uparr" border=0></a>
-    <a href="@_ADMIN_@-HPdown?N=@_TABLE_LINE_@">
-    <img src="@_ADMIN_@-downarr" border=0></a>
-    </tr>
-  @@SECTION@@
-    <tr bgcolor=turquoise>
-    <td>@_TABLE_LINE_@
-    <td align=center>@_HP_REGEXP_V_@
-    <td>@_HP_URL_V_@
-    <td><a href="@_ADMIN_@-HPup?N=@_TABLE_LINE_@">
-    <img src="@_ADMIN_@-uparr" border=0></a>
-    <a href="@_ADMIN_@-HPdown?N=@_TABLE_LINE_@">
-    <img src="@_ADMIN_@-downarr" border=0></a>
-    </tr>
-  @@END_TABLE@@
-  </table>
-
-@@END_IF@@
-
-<br>
-<hr>
-<br>
-
-<p>AWS has been developed in Ada with the GNAT compiler
-(see the <a href="http://www.adacore.com">AdaCore</a> web site).
-<p><a href="mailto:anisimkov@ada-ru.org">Dmitriy Anisimkov</a>,
-<a href="mailto:p.obry@wanadoo.fr">Pascal Obry</a>
-
+    <div class="copyright">
+        <p>
+            AWS has been developed in Ada with the GNAT compiler (see the <a href="http://www.adacore.com">AdaCore</a> web site).
+        </p>
+        <p>
+            <a href="mailto:anisimkov@ada-ru.org">Dmitriy Anisimkov</a> | <a href="mailto:p.obry@wanadoo.fr">Pascal Obry</a>
+        </p>
+        <p>
+            Copyright (C) 2000-2010, AdaCore
+        </p>
+    </div>
 </body>
 </html>

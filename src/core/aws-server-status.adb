@@ -282,11 +282,10 @@ package body AWS.Server.Status is
             Slot_Activity_Counter := Slot_Activity_Counter
               & Slot_Data.Slot_Activity_Counter;
 
-            Activity_Time_Stamp := Activity_Time_Stamp &
-              GNAT.Calendar.Time_IO.Image
-                (Now_Calendar - Real_Time.To_Duration
-                                  (Now_Monolit - Slot_Data.Phase_Time_Stamp),
-                 "%Y-%m-%d %T");
+            Activity_Time_Stamp := Activity_Time_Stamp
+              & GNAT.Calendar.Time_IO.Image
+                 (Now_Calendar - Real_Time.To_Duration
+                   (Now_Monolit - Slot_Data.Phase_Time_Stamp), "%Y-%m-%d %T");
          end loop;
 
          Insert (Result, Assoc ("SOCK_V",             Sock));
@@ -294,8 +293,7 @@ package body AWS.Server.Status is
          Insert (Result, Assoc ("PHASE_V",            Phase));
          Insert (Result, Assoc ("ABORTABLE_V",        Abortable));
          Insert (Result, Assoc ("ACTIVITY_COUNTER_V", Activity_Counter));
-         Insert
-           (Result, Assoc ("ACTIVITY_TIME_STAMP_V",   Activity_Time_Stamp));
+         Insert (Result, Assoc ("ACTIVITY_TIME_STAMP_V", Activity_Time_Stamp));
          Insert
            (Result, Assoc ("SLOT_ACTIVITY_COUNTER_V", Slot_Activity_Counter));
 
@@ -306,90 +304,129 @@ package body AWS.Server.Status is
       Result    : Translate_Set;
 
    begin
-      Insert (Result,
-              Assoc ("SERVER_NAME", CNF.Server_Name (Server.Properties)));
+      Insert (Result, Assoc ("SERVER_NAME",
+        CNF.Server_Name (Server.Properties)));
+
+      Insert (Result, Assoc ("CASE_SENSITIVE_PARAMETERS",
+        CNF.Case_Sensitive_Parameters (Server.Properties)));
+
+      Insert (Result, Assoc ("CHECK_URL_VALIDITY",
+        CNF.Check_URL_Validity (Server.Properties)));
+
+      Insert (Result, Assoc ("ERROR_LOG_FILENAME_PREFIX",
+        CNF.Error_Log_Filename_Prefix (Server.Properties)));
+
+      Insert (Result, Assoc ("ERROR_LOG_SPLIT_MODE",
+        CNF.Error_Log_Split_Mode (Server.Properties)));
+
+      Insert (Result, Assoc ("FREE_SLOTS_KEEP_ALIVE_LIMIT",
+        CNF.Free_Slots_Keep_Alive_Limit (Server.Properties)));
+
+      Insert (Result, Assoc ("LINE_STACK_SIZE",
+        CNF.Line_Stack_Size (Server.Properties)));
+
+      Insert (Result, Assoc ("LOG_FILE_DIRECTORY",
+        CNF.Log_File_Directory (Server.Properties)));
+
+      Insert (Result, Assoc ("LOG_FILENAME_PREFIX",
+        CNF.Log_Filename_Prefix (Server.Properties)));
+
+      Insert (Result, Assoc ("REUSE_ADDRESS",
+        CNF.Reuse_Address (Server.Properties)));
+
+      Insert (Result, Assoc ("SECURITY_MODE",
+        CNF.Security_Mode (Server.Properties)));
+
+      Insert (Result, Assoc ("SERVER_HOST",
+        CNF.Server_Host (Server.Properties)));
+
+      Insert (Result, Assoc ("SESSION_NAME",
+        CNF.Session_Name (Server.Properties)));
+
+      Insert (Result, Assoc ("TRANSIENT_CLEANUP_INTERVAL",
+        Utils.Image (CNF.Transient_Cleanup_Interval)));
+
+      Insert (Result, Assoc ("TRANSIENT_LIFETIME",
+        Utils.Image (CNF.Transient_Lifetime)));
+
+      Insert (Result, Assoc ("UPLOAD_SIZE_LIMIT",
+        CNF.Upload_Size_Limit (Server.Properties)));
+
+      Insert (Result, Assoc ("WWW_ROOT",
+        CNF.WWW_Root (Server.Properties)));
 
       Insert (Result, Assoc ("START_TIME",
-                     GNAT.Calendar.Time_IO.Image
-                       (Server.Start_Time, "%Y-%m-%d %T")));
+        GNAT.Calendar.Time_IO.Image
+          (Server.Start_Time, "%Y-%m-%d %T")));
+
+      Insert (Result, Assoc ("MAX_CONCURRENT_DOWNLOAD",
+        CNF.Max_Concurrent_Download));
 
       Insert (Result, Assoc ("MAX_CONNECTION",
-                     CNF.Max_Connection (Server.Properties)));
+        CNF.Max_Connection (Server.Properties)));
 
       Insert (Result, Assoc ("SERVER_PORT",
-                     CNF.Server_Port (Server.Properties)));
+        CNF.Server_Port (Server.Properties)));
 
       Insert (Result, Assoc ("SECURITY",
-                     CNF.Security (Server.Properties)));
+        CNF.Security (Server.Properties)));
 
       Insert (Result, Assoc ("SERVER_SOCK",
-                     Integer (Net.Get_FD (Socket (Server)))));
+        Integer (Net.Get_FD (Socket (Server)))));
 
       Insert (Result, Assoc ("ACCEPTOR_LENGTH",
-                     Net.Acceptors.Length (Server.Acceptor)));
+        Net.Acceptors.Length (Server.Acceptor)));
 
       Insert (Result, Assoc ("CURRENT_CONNECTIONS",
-                     Current_Connections (Server)));
+        Current_Connections (Server)));
 
       Insert (Result, Assoc ("VERSION", Version));
 
       Insert (Result, Assoc ("SESSION", CNF.Session (Server.Properties)));
 
-      Insert
-        (Result,
-         Assoc ("SESSION_LIFETIME", Utils.Image (Session.Get_Lifetime)));
+      Insert (Result, Assoc ("SESSION_LIFETIME",
+        Utils.Image (Session.Get_Lifetime)));
 
       Insert (Result, Assoc ("SESSION_CLEANUP_INTERVAL",
-                     Utils.Image (CNF.Session_Cleanup_Interval)));
+        Utils.Image (CNF.Session_Cleanup_Interval)));
 
       Insert (Result, Assoc ("CLEANER_WAIT_FOR_CLIENT_TIMEOUT",
-                     Utils.Image
-                       (CNF.Cleaner_Wait_For_Client_Timeout
-                          (Server.Properties))));
+        Utils.Image
+          (CNF.Cleaner_Wait_For_Client_Timeout (Server.Properties))));
 
       Insert (Result, Assoc ("CLEANER_CLIENT_HEADER_TIMEOUT",
-                     Utils.Image
-                       (CNF.Cleaner_Client_Header_Timeout
-                          (Server.Properties))));
+        Utils.Image (CNF.Cleaner_Client_Header_Timeout (Server.Properties))));
 
       Insert (Result, Assoc ("CLEANER_CLIENT_DATA_TIMEOUT",
-                     Utils.Image
-                       (CNF.Cleaner_Client_Data_Timeout (Server.Properties))));
+        Utils.Image (CNF.Cleaner_Client_Data_Timeout (Server.Properties))));
 
       Insert (Result, Assoc ("CLEANER_SERVER_RESPONSE_TIMEOUT",
-                     Utils.Image
-                       (CNF.Cleaner_Server_Response_Timeout
-                          (Server.Properties))));
+        Utils.Image
+          (CNF.Cleaner_Server_Response_Timeout (Server.Properties))));
 
       Insert (Result, Assoc ("FORCE_WAIT_FOR_CLIENT_TIMEOUT",
-                     Utils.Image
-                       (CNF.Force_Wait_For_Client_Timeout
-                          (Server.Properties))));
+        Utils.Image (CNF.Force_Wait_For_Client_Timeout (Server.Properties))));
 
       Insert (Result, Assoc ("FORCE_CLIENT_HEADER_TIMEOUT",
-                     Utils.Image
-                       (CNF.Force_Client_Header_Timeout (Server.Properties))));
+        Utils.Image (CNF.Force_Client_Header_Timeout (Server.Properties))));
 
       Insert (Result, Assoc ("FORCE_CLIENT_DATA_TIMEOUT",
-                     Utils.Image
-                       (CNF.Force_Client_Data_Timeout (Server.Properties))));
+        Utils.Image (CNF.Force_Client_Data_Timeout (Server.Properties))));
 
       Insert (Result, Assoc ("FORCE_SERVER_RESPONSE_TIMEOUT",
-                     Utils.Image
-                       (CNF.Force_Server_Response_Timeout
-                          (Server.Properties))));
+        Utils.Image (CNF.Force_Server_Response_Timeout (Server.Properties))));
 
       Insert (Result, Assoc ("SEND_TIMEOUT",
-                     Utils.Image (CNF.Send_Timeout (Server.Properties))));
+        Utils.Image (CNF.Send_Timeout (Server.Properties))));
 
       Insert (Result, Assoc ("RECEIVE_TIMEOUT",
-                     Utils.Image (CNF.Receive_Timeout (Server.Properties))));
+        Utils.Image (CNF.Receive_Timeout (Server.Properties))));
 
       Insert (Result, Assoc ("ACCEPT_QUEUE_SIZE",
-                     Utils.Image (CNF.Accept_Queue_Size (Server.Properties))));
+        Utils.Image (CNF.Accept_Queue_Size (Server.Properties))));
 
-      Insert
-        (Result, Assoc ("STATUS_PAGE", CNF.Status_Page (Server.Properties)));
+      Insert (Result, Assoc ("STATUS_PAGE",
+        CNF.Status_Page (Server.Properties)));
 
       Insert (Result, Assoc ("LOGO", Admin_URI & "-logo"));
 
@@ -397,25 +434,18 @@ package body AWS.Server.Status is
 
       Insert (Result, Assoc ("LOG_FILE", Log.Name (Server)));
 
-      Insert
-        (Result,
-         Assoc ("ERROR_LOG", Log.Is_Error_Active (Server)));
+      Insert (Result, Assoc ("ERROR_LOG",
+        Log.Is_Error_Active (Server)));
 
-      Insert
-        (Result,
-         Assoc ("ERROR_LOG_FILE", Log.Error_Name (Server)));
+      Insert (Result, Assoc ("ERROR_LOG_FILE", Log.Error_Name (Server)));
 
-      Insert
-        (Result,
-         Assoc
-           ("LOG_MODE",
-            AWS.Log.Split_Mode'Image (AWS.Log.Mode (Server.Log))));
+      Insert (Result, Assoc ("LOG_MODE",
+        AWS.Log.Split_Mode'Image (AWS.Log.Mode (Server.Log))));
 
       Insert (Result, Assoc ("ADMIN", Admin_URI));
 
-      Insert
-        (Result,
-         Assoc ("UPLOAD_DIRECTORY", CNF.Upload_Directory (Server.Properties)));
+      Insert (Result, Assoc ("UPLOAD_DIRECTORY",
+        CNF.Upload_Directory (Server.Properties)));
 
       Insert (Result, Slot_Table);
       Insert (Result, Session_Table);
