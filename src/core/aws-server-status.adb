@@ -192,11 +192,11 @@ package body AWS.Server.Status is
             Sessions    := Sessions & Session.Image (SID);
 
             Sessions_TS := Sessions_TS
-              & GNAT.Calendar.Time_IO.Image (Time_Stamp, "%a %D %T");
+              & GNAT.Calendar.Time_IO.Image (Time_Stamp, "%Y-%m-%d %T");
 
             Sessions_Terminate := Sessions_Terminate
               & GNAT.Calendar.Time_IO.Image
-              (Time_Stamp + Session.Get_Lifetime, "%a %D %T");
+              (Time_Stamp + Session.Get_Lifetime, "%Y-%m-%d %T");
 
             Build_Key_Value_List (SID);
 
@@ -286,7 +286,7 @@ package body AWS.Server.Status is
               GNAT.Calendar.Time_IO.Image
                 (Now_Calendar - Real_Time.To_Duration
                                   (Now_Monolit - Slot_Data.Phase_Time_Stamp),
-                 "%a %D %T");
+                 "%Y-%m-%d %T");
          end loop;
 
          Insert (Result, Assoc ("SOCK_V",             Sock));
@@ -311,7 +311,7 @@ package body AWS.Server.Status is
 
       Insert (Result, Assoc ("START_TIME",
                      GNAT.Calendar.Time_IO.Image
-                       (Server.Start_Time, "%A %-d %B %Y, %T")));
+                       (Server.Start_Time, "%Y-%m-%d %T")));
 
       Insert (Result, Assoc ("MAX_CONNECTION",
                      CNF.Max_Connection (Server.Properties)));

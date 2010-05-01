@@ -21,8 +21,7 @@
 <hr>
 <br>
 
-<p><i>@_DAY_NAME_@ @_DAY_@ @_MONTH_NAME_@ @_YEAR_@,
-@_HOUR_@:@_MINUTE_@:@_SECOND_@.</i>
+<p><i>@_FORMAT_DATE(%A %d %B %Y, %T):NOW_@.</i>
 
 <br>
 <br>
@@ -36,7 +35,7 @@ status.</H3>
 
 <tr>
 <td width=250>Started on
-<td><b>@_START_TIME_@</b>
+<td><b>@_FORMAT_DATE(%a %D %T):START_TIME_@</b>
 </tr>
 
 <tr>
@@ -140,7 +139,7 @@ status.</H3>
 <td align=center>@_YES_NO:ABORTABLE_V_@
 <td align=center>@_ACTIVITY_COUNTER_V_@
 <td align=center>@_SLOT_ACTIVITY_COUNTER_V_@
-<td>@_ACTIVITY_TIME_STAMP_V_@
+<td>@_FORMAT_DATE(%a %D %T):ACTIVITY_TIME_STAMP_V_@
 </tr>
 @@SECTION@@
 <tr bgcolor=turquoise>
@@ -155,7 +154,7 @@ status.</H3>
 <td align=center>@_YES_NO:ABORTABLE_V_@
 <td align=center>@_ACTIVITY_COUNTER_V_@
 <td align=center>@_SLOT_ACTIVITY_COUNTER_V_@
-<td>@_ACTIVITY_TIME_STAMP_V_@
+<td>@_FORMAT_DATE(%a %D %T):ACTIVITY_TIME_STAMP_V_@
 </tr>
 @@END_TABLE@@
 
@@ -193,7 +192,7 @@ status.</H3>
   @@TABLE@@
 
   <li>Session ID: <tt><font size=+1><b>@_SESSIONS_V_@</b></font></tt>
-     (<i>@_SESSIONS_TS_V_@</i> ... <i>@_SESSIONS_TERMINATE_V_@</i>)
+     (<i>@_FORMAT_DATE(%a %D %T):SESSIONS_TS_V_@</i> ... <i>@_FORMAT_DATE(%a %D %T):SESSIONS_TERMINATE_V_@</i>)
 
   <table>
   <tr>
