@@ -125,7 +125,8 @@ ifeq (${DEMOS}, true)
 EXTRA_MODULES = demos
 endif
 
-MODULES = config win32 include ssl src tools docs gps regtests ${EXTRA_MODULES}
+MODULES = config win32 include ssl src tools docs \
+	gps regtests web_elements ${EXTRA_MODULES}
 
 MODULES_SETUP = ${MODULES:%=%_setup}
 
