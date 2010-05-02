@@ -491,7 +491,8 @@ the include path for the libraries @code{OpenSSL}, @code{Socket} and
 When the build is done you must install @code{AWS} at a specific
 location. The target directory is defined with the @var{prefix}
 @file{makefile.conf} variable. The default value is set to the
-compiler root directory. To install:
+compiler root directory. Note that the previously installed version is
+automatically removed before installing the new one. To install:
 
 @AWSEXP {$ make install}
 
