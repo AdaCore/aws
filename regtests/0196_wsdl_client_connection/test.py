@@ -6,6 +6,6 @@ exec_cmd('ada2wsdl',
 exec_cmd('wsdl2aws',
          ['-q', '-f', '-cb', '-types', 'api', '-main', 'srv_main', 'api.wsdl'])
 
-exec_cmd('gnatchop', ['-w', 'srv_main.adb'])
+exec_cmd('gnatchop', ['-w', 'srv_main.adb'], output_file="gnatchop.out")
 
-build_diff('api_main');
+build_and_run('api_main');

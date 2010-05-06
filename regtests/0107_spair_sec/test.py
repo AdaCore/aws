@@ -1,3 +1,3 @@
 from test_support import *
 
-build_diff('spair_sec');
+build_and_run('spair_sec');

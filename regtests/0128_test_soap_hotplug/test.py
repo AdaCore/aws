@@ -1,3 +1,3 @@
 from test_support import *
 
-build_diff('test_soap_hotplug');
+build_and_run('test_soap_hotplug');

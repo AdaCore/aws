@@ -1,3 +1,3 @@
 from test_support import *
 
-build_diff('wb_context');
+build_and_run('wb_context');

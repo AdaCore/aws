@@ -1,3 +1,3 @@
 from test_support import *
 
-build_diff('upload2');
+build_and_run('upload2');

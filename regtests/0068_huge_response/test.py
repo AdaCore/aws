@@ -1,3 +1,3 @@
 from test_support import *
 
-build_diff('huge_response');
+build_and_run('huge_response');

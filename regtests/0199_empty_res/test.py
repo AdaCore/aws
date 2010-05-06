@@ -8,4 +8,4 @@ f.close()
 
 exec_cmd('awsres', ['-q', 'text.txt'])
 
-build_diff('empty_res');
+build_and_run('empty_res');

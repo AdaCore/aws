@@ -22,4 +22,4 @@ os.utime(os.path.join ("icons", "test-dir1"), (tdir, tdir))
 os.utime(os.path.join ("icons", "test-dir2"), (tdir, tdir))
 os.utime(os.path.join ("icons", "test-dir3"), (tdir, tdir))
 
-build_diff('dirop')
+build_and_run('dirop')

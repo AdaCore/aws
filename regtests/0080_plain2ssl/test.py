@@ -1,3 +1,3 @@
 from test_support import *
 
-build_diff('plain2ssl');
+build_and_run('plain2ssl');

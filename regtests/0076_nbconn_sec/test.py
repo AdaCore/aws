@@ -1,3 +1,3 @@
 from test_support import *
 
-build_diff('nbconn_sec');
+build_and_run('nbconn_sec');

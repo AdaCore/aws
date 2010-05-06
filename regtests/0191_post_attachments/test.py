@@ -1,3 +1,3 @@
 from test_support import *
 
-build_diff('post_attachments');
+build_and_run('post_attachments');

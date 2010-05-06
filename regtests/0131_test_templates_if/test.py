@@ -1,3 +1,3 @@
 from test_support import *
 
-build_diff('test_templates_if');
+build_and_run('test_templates_if');

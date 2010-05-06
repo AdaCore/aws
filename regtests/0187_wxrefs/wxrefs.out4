@@ -1,6 +1,0 @@
-wx_block.thtml:2:5: this_is_an_id has wrong prefix, expecting id_this_is_an_id
-wx_page.html:2:5: item1 has wrong prefix, expecting id_item1
-wx_page.html:4:31: item_toto has wrong prefix, expecting id_item_toto
-wx_page.html:6:10: item2 has wrong prefix, expecting id_item2
-wx_page.html:8:7: item3 has wrong prefix, expecting id_item3
-wx_page.html:11:7: item_global_whatever has wrong prefix, expecting id_item_global_whatever

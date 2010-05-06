@@ -1,3 +1,3 @@
 from test_support import *
 
-build_diff('tlog');
+build_and_run('tlog');

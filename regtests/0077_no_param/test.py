@@ -1,3 +1,3 @@
 from test_support import *
 
-build_diff('no_param');
+build_and_run('no_param');

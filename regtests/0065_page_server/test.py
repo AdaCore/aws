@@ -4,4 +4,4 @@ import os
 os.mkdir('icons');
 open('icons/sound1.gif','w')
 
-build_diff('page_server');
+build_and_run('page_server');

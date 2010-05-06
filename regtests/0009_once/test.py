@@ -1,3 +1,3 @@
 from test_support import *
 
-build_diff('once');
+build_and_run('once');

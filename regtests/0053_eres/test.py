@@ -35,4 +35,4 @@ exec_cmd('awsres',
          ['-q', '-r', 'zresres', 'file1.txt',
           '-z', 'file2.txt', 'filez.tmplt'])
 
-build_diff('eres');
+build_and_run('eres');

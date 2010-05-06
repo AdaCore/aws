@@ -1,3 +1,3 @@
 from test_support import *
 
-build_diff('append_sec');
+build_and_run('append_sec');

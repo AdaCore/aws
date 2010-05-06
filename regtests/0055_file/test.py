@@ -1,3 +1,3 @@
 from test_support import *
 
-build_diff('file');
+build_and_run('file');

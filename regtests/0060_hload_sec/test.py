@@ -1,3 +1,3 @@
 from test_support import *
 
-build_diff('hload_sec');
+build_and_run('hload_sec');

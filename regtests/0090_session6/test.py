@@ -1,3 +1,3 @@
 from test_support import *
 
-build_diff('session6');
+build_and_run('session6');

@@ -1,3 +1,3 @@
 from test_support import *
 
-build_diff('attachment_headers');
+build_and_run('attachment_headers');

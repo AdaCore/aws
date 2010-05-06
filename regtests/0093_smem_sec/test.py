@@ -1,3 +1,3 @@
 from test_support import *
 
-build_diff('smem_sec');
+build_and_run('smem_sec');

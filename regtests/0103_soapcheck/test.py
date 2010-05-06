@@ -5,4 +5,4 @@ exec_cmd('ada2wsdl',
 exec_cmd('wsdl2aws',
          ['-q', '-f', '-cb', '-spec', 'pck', 'pck.wsdl'])
 
-build_diff('soapcheck');
+build_and_run('soapcheck');

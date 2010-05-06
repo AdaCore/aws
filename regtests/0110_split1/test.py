@@ -1,3 +1,3 @@
 from test_support import *
 
-build_diff('split1');
+build_and_run('split1');

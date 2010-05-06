@@ -1,3 +1,3 @@
 from test_support import *
 
-build_diff('web_blocks_ctx');
+build_and_run('web_blocks_ctx');

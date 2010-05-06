@@ -40,7 +40,6 @@ exec_cmd('awsres',
 build('tres');
 
 run('tres', output_file='tres.run1')
-diff('test.out1', 'tres.run1')
 
 #  Change file on disk
 
@@ -57,4 +56,3 @@ f.write('line 3, file 3\n')
 f.close()
 
 run('tres', output_file='tres.run2')
-diff('test.out2', 'tres.run2')

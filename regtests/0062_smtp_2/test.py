@@ -1,3 +1,3 @@
 from test_support import *
 
-build_diff('smtp_2');
+build_and_run('smtp_2');

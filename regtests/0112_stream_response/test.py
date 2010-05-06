@@ -1,3 +1,3 @@
 from test_support import *
 
-build_diff('stream_response');
+build_and_run('stream_response');

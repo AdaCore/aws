@@ -1,3 +1,3 @@
 from test_support import *
 
-build_diff('dispatch_vh');
+build_and_run('dispatch_vh');

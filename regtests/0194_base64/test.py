@@ -1,3 +1,3 @@
 from test_support import *
 
-build_diff('test_base64');
+build_and_run('test_base64');

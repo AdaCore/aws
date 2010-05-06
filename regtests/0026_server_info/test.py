@@ -1,3 +1,3 @@
 from test_support import *
 
-build_diff('server_info');
+build_and_run('server_info');

@@ -1,3 +1,3 @@
 from test_support import *
 
-build_diff('sock3');
+build_and_run('sock3');

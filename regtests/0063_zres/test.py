@@ -15,14 +15,14 @@ f.write('content of filec.txt\n')
 f.close()
 
 f=open('file1.txt', 'w')
-f.write('line1, file 1\n')
-f.write('line2, file 1\n')
+f.write('line 1, file 1\n')
+f.write('line 2, file 1\n')
 f.close()
 
 f=open('file2.txt', 'w')
-f.write('line1, file 2\n')
-f.write('line2, file 2\n')
-f.write('line3, file 2\n')
+f.write('line 1, file 2\n')
+f.write('line 2, file 2\n')
+f.write('line 3, file 2\n')
 f.close()
 
 f=open('filez.tmplt', 'w')
@@ -35,4 +35,4 @@ exec_cmd('awsres',
          ['-q', '-r', 'zresres', 'file1.txt',
           '-z', 'file2.txt', 'filez.tmplt'])
 
-build_diff('zres');
+build_and_run('zres');

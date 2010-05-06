@@ -1,3 +1,3 @@
 from test_support import *
 
-build_diff('wait2');
+build_and_run('wait2');

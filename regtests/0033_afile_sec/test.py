@@ -1,3 +1,3 @@
 from test_support import *
 
-build_diff('afile_sec');
+build_and_run('afile_sec');

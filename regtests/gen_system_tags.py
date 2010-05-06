@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env gnatpython
 """
 ./gen_system_tags.py /path/to/aws/makefile.setup
 
@@ -8,11 +8,6 @@ testsuite driver
 
 import os
 import sys
-
-#  Importing gnatpython modules
-CURDIR = os.getcwd()
-PYTHON_SUPPORT = os.path.join(CURDIR, "python_support")
-sys.path.append(PYTHON_SUPPORT)
 
 from gnatpython.arch import Arch
 from gnatpython.main import Main

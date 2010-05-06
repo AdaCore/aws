@@ -1,3 +1,3 @@
 from test_support import *
 
-build_diff('auth2');
+build_and_run('auth2');

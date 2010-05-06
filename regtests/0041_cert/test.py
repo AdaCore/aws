@@ -1,3 +1,3 @@
 from test_support import *
 
-build_diff('cert');
+build_and_run('cert');

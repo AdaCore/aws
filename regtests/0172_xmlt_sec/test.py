@@ -1,3 +1,3 @@
 from test_support import *
 
-build_diff('xmlt_sec');
+build_and_run('xmlt_sec');

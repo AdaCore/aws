@@ -1,0 +1,36 @@
+AWS Testsuite
+=============
+
+To run the testsuite, you'll need to install GNATPython.
+
+You'll need to install GNATPython to run the testsuite.
+
+Before running the testsuite, you need to run 'make setup' in AWS
+root directory.
+
+To run the testsuite with N jobs in parallel and to show error messages,
+run:
+
+./testsuite.py -j N --diff
+
+All results are stored in the 'out' directory by default.
+
+To run only the 0001_turl tests:
+
+./testsuite.py -j N --diff 0001_turl
+
+A report is created in out/report.
+
+See ./testsuite.py -h for more help
+
+How to add a new test
+=====================
+
+To add a new test, create a new directory xxx_name with a test.py and
+a test.out
+
+The test.py should start with:
+
+"from test_support import *"
+
+then you can use all test_support.py functions.

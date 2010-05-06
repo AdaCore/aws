@@ -6,4 +6,4 @@ exec_cmd('ada2wsdl',
 exec_cmd('wsdl2aws',
          ['-q', '-f', '-cb', '-types', 'wsdl_1', 'wsdl_1.wsdl'])
 
-build_diff('wsdl_1_main');
+build_and_run('wsdl_1_main');

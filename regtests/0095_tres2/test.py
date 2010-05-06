@@ -1,3 +1,3 @@
 from test_support import *
 
-build_diff('tres2');
+build_and_run('tres2');

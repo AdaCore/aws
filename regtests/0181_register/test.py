@@ -5,5 +5,4 @@ exec_cmd('ada2wsdl',
           '-o', 'register.wsdl'],
          output_file='ada2wsdl.res')
 
-tail('ada2wsdl.res', 'test.res', 3)
-diff()
+tail('ada2wsdl.res', None, 3)

@@ -1,0 +1,51 @@
+
+*** Class dictionary
+wx_page.html:2:19: definition and reference of class1
+wx_style.css:2:2: definition of class1
+wx_page.html:6:24: definition and reference of class2
+wx_style.css:5:2: definition of classZ
+
+*** Id dictionary
+wx_block.thtml:2:5: definition and reference of this_is_an_id
+wx_page.html:2:5: definition and reference of item1
+wx_reply.txml:1:5: reference of item1
+wx_style.css:8:2: definition of item1
+wx_style.css:11:2: definition of item1
+wx_page.html:4:31: definition and reference of item_toto
+wx_page.html:6:10: definition and reference of item2
+wx_page.html:8:7: definition and reference of item3
+wx_reply.txml:2:5: reference of item3
+wx_style.css:11:12: definition of item3
+wx_page.html:10:5: definition and reference of global_item
+wx_page.html:11:7: definition and reference of item_global_whatever
+wx_reply.txml:3:8: reference of item8
+wx_style.css:14:2: definition of itema
+
+*** Class dictionary
+wx_page.html:6:24: definition and reference of class2
+wx_style.css:5:2: definition of classZ
+
+*** Id dictionary
+wx_block.thtml:2:5: definition and reference of this_is_an_id
+wx_page.html:4:31: definition and reference of item_toto
+wx_page.html:6:10: definition and reference of item2
+wx_page.html:10:5: definition and reference of global_item
+wx_page.html:11:7: definition and reference of item_global_whatever
+wx_style.css:14:2: definition of itema
+
+*** Class dictionary
+
+*** Id dictionary
+wx_reply.txml:3:8: reference of item8
+wx_block.thtml:2:5: this_is_an_id has wrong prefix, expecting id_this_is_an_id
+wx_page.html:2:5: item1 has wrong prefix, expecting id_item1
+wx_page.html:4:31: item_toto has wrong prefix, expecting id_item_toto
+wx_page.html:6:10: item2 has wrong prefix, expecting id_item2
+wx_page.html:8:7: item3 has wrong prefix, expecting id_item3
+wx_page.html:11:7: item_global_whatever has wrong prefix, expecting id_item_global_whatever
+wx_block.thtml:2:5: this_is_an_id has wrong prefix, expecting wb_this_is_an_id
+wx_page.html:2:5: item1 has wrong prefix, expecting wp_item1
+wx_page.html:4:31: item_toto has wrong prefix, expecting wp_item_toto
+wx_page.html:6:10: item2 has wrong prefix, expecting wp_item2
+wx_page.html:8:7: item3 has wrong prefix, expecting wp_item3
+wx_page.html:11:7: item_global_whatever has wrong prefix, expecting wp_item_global_whatever

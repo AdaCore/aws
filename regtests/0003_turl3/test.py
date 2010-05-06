@@ -1,3 +1,3 @@
 from test_support import *
 
-build_diff('turl3');
+build_and_run('turl3');

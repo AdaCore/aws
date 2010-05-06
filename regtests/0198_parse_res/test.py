@@ -15,4 +15,4 @@ exec_cmd('awsres', ['-q', 'text.txt'])
 
 os.remove("text.txt")
 
-build_diff('bug');
+build_and_run('bug');

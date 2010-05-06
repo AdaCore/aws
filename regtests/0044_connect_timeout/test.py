@@ -1,3 +1,3 @@
 from test_support import *
 
-build_diff('connect_timeout');
+build_and_run('connect_timeout');

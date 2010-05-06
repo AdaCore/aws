@@ -1,3 +1,3 @@
 from test_support import *
 
-build_diff('test_net_log');
+build_and_run('test_net_log');

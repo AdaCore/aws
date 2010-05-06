@@ -1,3 +1,3 @@
 from test_support import *
 
-build_diff('test_soap3');
+build_and_run('test_soap3');

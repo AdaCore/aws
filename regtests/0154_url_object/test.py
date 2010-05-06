@@ -1,3 +1,3 @@
 from test_support import *
 
-build_diff('url_object');
+build_and_run('url_object');

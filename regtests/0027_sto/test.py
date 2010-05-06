@@ -1,3 +1,3 @@
 from test_support import *
 
-build_diff('sto');
+build_and_run('sto');

@@ -17,4 +17,4 @@ f.close()
 exec_cmd('gzip', ['-2', 'fileb.txt'])
 exec_cmd('gzip', ['-9', 'filec.txt'])
 
-build_diff('zopen');
+build_and_run('zopen');

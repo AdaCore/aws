@@ -1,3 +1,3 @@
 from test_support import *
 
-build_diff('moved');
+build_and_run('moved');

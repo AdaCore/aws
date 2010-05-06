@@ -1,3 +1,3 @@
 from test_support import *
 
-build_diff('web_blocks');
+build_and_run('web_blocks');

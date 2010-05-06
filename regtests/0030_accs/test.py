@@ -1,3 +1,3 @@
 from test_support import *
 
-build_diff('accs');
+build_and_run('accs');

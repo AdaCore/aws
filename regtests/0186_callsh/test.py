@@ -4,4 +4,5 @@ exec_cmd('ada2wsdl',
          ['-q', '-d', '-f', '-I.', '-Pcallsh', 'callsh.ads',
           '-o', 'callsh.wsdl'])
 
-diff('test.out', 'callsh.wsdl')
+with open('callsh.wsdl') as result:
+    print result.read()

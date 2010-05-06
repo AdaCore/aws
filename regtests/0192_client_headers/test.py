@@ -1,3 +1,3 @@
 from test_support import *
 
-build_diff('client_headers');
+build_and_run('client_headers');

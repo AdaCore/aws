@@ -29,6 +29,3 @@ for item in r2:
 
 if fr1 != fr2:
     logging.error(fr1 + "!=" + fr2)
-    sys.exit(1)
-else:
-    sys.exit(0)

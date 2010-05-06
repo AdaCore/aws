@@ -1,3 +1,3 @@
 from test_support import *
 
-build_diff('param2');
+build_and_run('param2');
