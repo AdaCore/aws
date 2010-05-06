@@ -1,7 +1,7 @@
 ############################################################################
 #                              Ada Web Server                              #
 #                                                                          #
-#                     Copyright (C) 2003-2008, AdaCore                     #
+#                     Copyright (C) 2003-2010, AdaCore                     #
 #                                                                          #
 #  This library is free software; you can redistribute it and/or modify    #
 #  it under the terms of the GNU General Public License as published by    #
@@ -27,30 +27,13 @@
 
 .SILENT:
 
-#  To run the testsuite:
-#
-#     $ ./testsuite.py
-#
-#  To run some specific tests only:
-#
-#     $ ./testsuite.py --tests='0001_turl 0009_once'
-
-ifeq (${OS}, Windows_NT)
-  RLIMIT_SRC = support/rlimit-NT.c
-else
-  RLIMIT_SRC = support/rlimit.c
-endif
-
 build:
 
 testsuite.tags: ../makefile.setup gen_system_tags.py
 	$(PYTHON) gen_system_tags.py ../makefile.setup 2>/dev/null || \
 		(echo "Can not generate system tags. The test are disabled")
 
-setup: testsuite.tags rlimit$(EXEEXT)
-
-rlimit$(EXEEXT): $(RLIMIT_SRC)
-	$(GCC) -o rlimit$(EXEEXT) $(RLIMIT_SRC)
+setup: testsuite.tags
 
 aws_regtests:
 	test -f testsuite.tags || (echo 'Did you run make setup ?'; exit 1)
@@ -60,4 +43,4 @@ install:
 
 clean:
 	-$(RM) -f testsuite.tags testsuite.res testsuite.duration_* *.pyc
-	-$(RM) -fr .outputs .build rlimit$(EXEEXT)
+	-$(RM) -fr .outputs .build

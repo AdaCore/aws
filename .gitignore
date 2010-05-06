@@ -27,7 +27,6 @@ regtests/*.log
 regtests/*.res
 regtests/.outputs
 regtests/config.py
-regtests/rlimit*
 regtests/testsuite.duration*
 regtests/testsuite.tags
 templates_parser
