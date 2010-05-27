@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2009, AdaCore                     --
+--                     Copyright (C) 2000-2010, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -53,6 +53,7 @@ package AWS.MIME is
    Image_Jpeg                  : constant String := "image/jpeg";
    Image_Png                   : constant String := "image/png";
    Image_Tiff                  : constant String := "image/tiff";
+   Image_Icon                  : constant String := "image/x-icon";
    Image_X_Portable_Anymap     : constant String := "image/x-portable-anymap";
    Image_X_Portable_Bitmap     : constant String := "image/x-portable-bitmap";
    Image_X_Portable_Graymap    : constant String := "image/x-portable-graymap";
