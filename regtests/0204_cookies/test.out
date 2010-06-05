@@ -1,0 +1,4 @@
+ckey=cval; Max-Age=315360000.00; Path=/; Version=1;
+date=9; Max-Age=3600.00; Path=/; Version=1;
+z=7.63000E%2B01; Max-Age=315360000.00; Path=/justhere; Version=1;
+shutdown
