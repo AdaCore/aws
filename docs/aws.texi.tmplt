@@ -170,7 +170,7 @@ Major supported features are:
 
 @item Basic and Digest authentication
 
-@item Transparent session handling
+@item Transparent session handling (server side)
 
 @item HTTP state management (client side cookies)
 
@@ -1632,11 +1632,11 @@ Server.Start (WS, Service'Access, Conf);}
 
 @noindent
 @code{AWS} provides a way to keep session data while users are
-browsing. There is no need to mess with the Cookies, @code{AWS} will do
-that for you. The idea is simple. A session ID will be transparently
-created and then you'll be able to insert and retrieve session data
-using a standard Ada API (@xref{AWS.Session}.). Session data
-are key/value pair each of them being strings. How to deal with that ?
+browsing. It works by creating transparently a session ID where it
+is possible to insert, delete and retrieve session data using a standard
+Ada API (@xref{AWS.Session}.). Session data are key/value pair each of
+them being strings. These sessions data are kept on the server, for
+client side state management see @xref{HTTP state management}.
 
 @itemize @bullet
 
