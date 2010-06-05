@@ -29,10 +29,14 @@ with Ada.Strings.Fixed;     use Ada.Strings.Fixed;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
 with AWS.Headers;
+with AWS.Messages;
 with AWS.Response.Set;
 with AWS.URL;
+with AWS.Utils;
 
 package body AWS.Cookie is
+
+   Version_Token : constant String := "Version=1";
 
    --------------
    --  Exists  --
@@ -44,7 +48,7 @@ package body AWS.Cookie is
    is
       Headers : constant AWS.Headers.List := Status.Header (Request);
       Cookie  : constant String :=
-                  AWS.Headers.Get_Values (Headers, Cookie_Token);
+                  AWS.Headers.Get_Values (Headers, Messages.Cookie_Token);
    begin
       return Index (Cookie, Key & "=") > 0;
    end Exists;
@@ -61,7 +65,7 @@ package body AWS.Cookie is
       Set (Content => Content,
            Key     => Key,
            Value   => "",
-           Max_Age => 0,
+           Max_Age => 0.0,
            Path    => Path);
    end Expire;
 
@@ -73,10 +77,10 @@ package body AWS.Cookie is
      (Request : Status.Data;
       Key     : String) return String
    is
-      Headers       : constant AWS.Headers.List :=
-                        Status.Header (Request);
+      Headers       : constant AWS.Headers.List := Status.Header (Request);
       Cookie        : constant String :=
-                        AWS.Headers.Get_Values (Headers, Cookie_Token);
+                        AWS.Headers.Get_Values
+                          (Headers, Messages.Cookie_Token);
       Content_Start : constant Natural :=
                         Index (Cookie, Key & "=") + Key'Length + 1;
       Content_End   : Natural;
@@ -141,7 +145,7 @@ package body AWS.Cookie is
       Value   : String;
       Comment : String := "";
       Domain  : String := "";
-      Max_Age : Natural := Ten_Years;
+      Max_Age : Duration := Default.Ten_Years;
       Path    : String := "/";
       Secure  : Boolean := False)
    is
@@ -149,8 +153,11 @@ package body AWS.Cookie is
 
       Value_Part     : constant String :=
                          Key & "=" & URL.Encode (Value) & "; ";
-      Max_Age_Part   : constant String := Max_Age_Token & Max_Age'Img & "; ";
-      Path_Part      : constant String := Path_Token & Path & "; ";
+      Max_Age_Part   : constant String :=
+                         Messages.Max_Age_Token & "="
+                           & Utils.Image (Max_Age) & "; ";
+      Path_Part      : constant String :=
+                         Messages.Path_Token & "=" & Path & "; ";
       Cookie_UString : Unbounded_String :=
                          To_Unbounded_String
                            (Value_Part & Max_Age_Part & Path_Part);
@@ -160,22 +167,24 @@ package body AWS.Cookie is
       end if;
 
       if Comment /= "" then
-         Append (Cookie_UString, Comment_Token & Comment & "; ");
+         Append
+           (Cookie_UString, Messages.Comment_Token & "=" & Comment & "; ");
       end if;
 
       if Domain /= "" then
-         Append (Cookie_UString, Domain_Token & Domain & "; ");
+         Append
+           (Cookie_UString, Messages.Domain_Token & "=" & Domain & "; ");
       end if;
 
       if Secure then
-         Append (Cookie_UString, Secure_Token & "; ");
+         Append (Cookie_UString, Messages.Secure_Token & "; ");
       end if;
 
       Append (Cookie_UString, Version_Token & "; ");
 
       Response.Set.Add_Header
         (Content,
-         Name  => Set_Cookie_Token,
+         Name  => Messages.Set_Cookie_Token,
          Value => To_String (Cookie_UString));
    end Set;
 
@@ -185,12 +194,11 @@ package body AWS.Cookie is
       Value   : Integer;
       Comment : String := "";
       Domain  : String := "";
-      Max_Age : Natural := Ten_Years;
+      Max_Age : Duration := Default.Ten_Years;
       Path    : String := "/";
       Secure  : Boolean := False)
    is
-      String_Value : constant String :=
-                       Trim (Integer'Image (Value), Ada.Strings.Left);
+      String_Value : constant String := Utils.Image (Value);
    begin
       Set (Content => Content,
            Key     => Key,
@@ -208,7 +216,7 @@ package body AWS.Cookie is
       Value   : Float;
       Comment : String := "";
       Domain  : String := "";
-      Max_Age : Natural := Ten_Years;
+      Max_Age : Duration := Default.Ten_Years;
       Path    : String := "/";
       Secure  : Boolean := False)
    is
@@ -231,7 +239,7 @@ package body AWS.Cookie is
       Value   : Boolean;
       Comment : String := "";
       Domain  : String := "";
-      Max_Age : Natural := Ten_Years;
+      Max_Age : Duration := Default.Ten_Years;
       Path    : String := "/";
       Secure  : Boolean := False) is
    begin

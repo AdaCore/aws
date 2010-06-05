@@ -28,6 +28,7 @@
 --  A package for basic HTTP state management, ie. cookies. Tokens and
 --  attributes adhere to RFC-2109: http://tools.ietf.org/html/rfc2109
 
+with AWS.Default;
 with AWS.Response;
 with AWS.Status;
 
@@ -38,21 +39,6 @@ package AWS.Cookie is
    --  headers to an un-initialized AWS.Response.Data object.
    --  The AWS.Response.Data object is initialized using the
    --  AWS.Response.Build function.
-
-   Cookie_Token      : constant String := "Cookie";
-   Comment_Token     : constant String := "Comment=";
-   Domain_Token      : constant String := "Domain=";
-   Max_Age_Token     : constant String := "Max-Age=";
-   Path_Token        : constant String := "Path=";
-   Secure_Token      : constant String := "Secure";
-   Set_Cookie_Token  : constant String := "Set-Cookie";
-   Version_Token     : constant String := "Version=1";
-
-   ----------------------
-   --  Numeric Tokens  --
-   ----------------------
-
-   Ten_Years         : constant Natural := 86_400 * 365 * 10;
 
    function Exists
      (Request : Status.Data;
@@ -98,7 +84,7 @@ package AWS.Cookie is
       Value   : String;
       Comment : String := "";
       Domain  : String := "";
-      Max_Age : Natural := Ten_Years;
+      Max_Age : Duration := Default.Ten_Years;
       Path    : String := "/";
       Secure  : Boolean := False);
    --  Set a new cookie named 'Key' with value 'Value'. See RFC 2109 for more
@@ -116,7 +102,7 @@ package AWS.Cookie is
       Value   : Integer;
       Comment : String := "";
       Domain  : String := "";
-      Max_Age : Natural := Ten_Years;
+      Max_Age : Duration := Default.Ten_Years;
       Path    : String := "/";
       Secure  : Boolean := False);
    --  Set a new cookie named 'Key' with Integer value 'Value'. The Integer is
@@ -134,7 +120,7 @@ package AWS.Cookie is
       Value   : Float;
       Comment : String := "";
       Domain  : String := "";
-      Max_Age : Natural := Ten_Years;
+      Max_Age : Duration := Default.Ten_Years;
       Path    : String := "/";
       Secure  : Boolean := False);
    --  Set a new cookie named 'Key' with Float value 'Value'. The Float is
@@ -152,7 +138,7 @@ package AWS.Cookie is
       Value   : Boolean;
       Comment : String := "";
       Domain  : String := "";
-      Max_Age : Natural := Ten_Years;
+      Max_Age : Duration := Default.Ten_Years;
       Path    : String := "/";
       Secure  : Boolean := False);
    --  Set a new cookie named 'Key' with Boolean value 'Value'. The Boolean is

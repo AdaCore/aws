@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2009, AdaCore                     --
+--                     Copyright (C) 2000-2010, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -105,11 +105,18 @@ package AWS.Messages is
    Expires_Token             : constant String := "Expires";
    Last_Modified_Token       : constant String := "Last-Modified";
 
+   --  Cookie token RFC 2109
+   Cookie_Token              : constant String := "Cookie";
+   Set_Cookie_Token          : constant String := "Set-Cookie";
+   Comment_Token             : constant String := "Comment";
+   Domain_Token              : constant String := "Domain";
+   Max_Age_Token             : constant String := "Max-Age";
+   Path_Token                : constant String := "Path";
+   Secure_Token              : constant String := "Secure";
+
    --  Other tokens
    Proxy_Connection_Token    : constant String := "Proxy-Connection";
    Content_Disposition_Token : constant String := "Content-Disposition";
-   Cookie_Token              : constant String := "Cookie";
-   Set_Cookie_Token          : constant String := "Set-Cookie";
    SOAPAction_Token          : constant String := "SOAPAction";
    Content_Id_Token          : constant String := "Content-ID";
    Content_Transfer_Encoding_Token : constant String

@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2009, AdaCore                     --
+--                     Copyright (C) 2000-2010, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -34,6 +34,8 @@ package AWS.Default is
    pragma Pure;
 
    --  All times are in seconds
+
+   Ten_Years     : constant := 86_400.0 * 365 * 10;
 
    One_Hour      : constant := 3_600.0;
    One_Minute    : constant :=    60.0;
