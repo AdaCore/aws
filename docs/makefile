@@ -1,7 +1,7 @@
 ############################################################################
 #                              Ada Web Server                              #
 #                                                                          #
-#                     Copyright (C) 2003-2009, AdaCore                     #
+#                     Copyright (C) 2003-2010, AdaCore                     #
 #                                                                          #
 #  This library is free software; you can redistribute it and/or modify    #
 #  it under the terms of the GNU General Public License as published by    #
@@ -52,6 +52,7 @@ APIFILES = ../src/core/aws.ads.texi \
 	../src/core/aws-config-set.ads.texi \
 	../src/core/aws-config.ads.texi \
 	../src/core/aws-containers-tables.ads.texi \
+	../src/extended/aws-cookie.ads.texi \
 	../src/core/aws-default.ads.texi \
 	../src/core/aws-dispatchers-callback.ads.texi \
 	../src/core/aws-dispatchers.ads.texi \

@@ -1516,6 +1516,8 @@ src/extended/aws-communication-server.adb
 src/extended/aws-communication-server.ads
 src/extended/aws-communication.adb
 src/extended/aws-communication.ads
+src/extended/aws-cookie.adb
+src/extended/aws-cookie.ads
 src/extended/aws-net-log-callbacks.adb
 src/extended/aws-net-log-callbacks.ads
 src/extended/aws-net-sets.ads

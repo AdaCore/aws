@@ -53,7 +53,7 @@ Copyright @copyright{} 2000, Pascal Obry
 
 Copyright @copyright{} 2001, Pascal Obry, Dmitriy Anisimkov
 
-Copyright @copyright{} 2002-2007, AdaCore
+Copyright @copyright{} 2002-2010, AdaCore
 
 @*
 
@@ -171,6 +171,8 @@ Major supported features are:
 @item Basic and Digest authentication
 
 @item Transparent session handling
+
+@item HTTP state management (client side cookies)
 
 @item File upload
 
@@ -526,6 +528,7 @@ Now you are ready to use @code{AWS} !
 * Building answers::
 * Configuration options::
 * Session handling::
+* HTTP state management::
 * Authentication::
 * File upload::
 * Communication::
@@ -1689,6 +1692,99 @@ restored as they were at shutdown time. Client will just see nothing. With this
 feature it is possible to shutdown a server to update its look or because a
 bug has been fixed for example. It is then possible to restart it
 keeping the complete Web server context.
+
+@c ----------------------------------------------------------------------
+
+@node HTTP state management
+@section HTTP state management
+@cindex HTTP state
+@cindex Cookies
+
+@noindent
+@code{AWS} provides a full implementation of RFC 2109 via the @code{AWS.Cookie}
+package. Using this package you set, get and expire client-side HTTP cookies.
+
+@noindent
+First we set a cookie:
+
+@AWSEXP {@b{declare}
+   Content : AWS.Response.Data;
+@b{begin}
+   AWS.Cookie.Set (Content,
+                   Key      => "hello",
+                   Value    => "world",
+                   Max_Age  => 86400);
+@b{end};}
+
+@noindent
+Here we set the cookie @code{hello} with the value @code{world}, and we tell
+the client to expire the cookie 86400 seconds into the future.
+
+@noindent
+Getting the cookie value back is equally simple:
+
+@AWSEXP {@b{declare}
+   Request : AWS.Status.Data
+   --  Assume that this object contain an actual HTTP request.
+@b{begin}
+   Put_Line (AWS.Cookie.Get (Request, "hello"));
+   --  Output 'world'
+@b{end};}
+
+@noindent
+Had the cookie @code{hello} not existed, an empty @code{String} would've been
+returned.
+
+@noindent
+In some cases it might be of value to know if a given cookie exists, and for
+that we have the @code{Exists} function available.
+
+@AWSEXP {@b{declare}
+   Request : AWS.Status.Data
+   --  Assume that this object contain an actual HTTP request
+@b{begin}
+   @b{if} AWS.Cookie.Exists ("hello") @b{then}
+      Put_Line ("The 'hello' cookie exists!");
+   @b{end if};
+@b{end};}
+
+Note that @code{Exists} doesn't care if the cookie contains an actual value or
+not. If a cookie with no value exists, @code{Exists} will return
+@code{True}.
+
+@noindent
+And finally we might wish to tell the client to expire a cookie:
+
+@AWSEXP {@b{declare}
+   Content : AWS.Response.Data;
+@b{begin}
+   AWS.Cookie.Expire (Content,
+                      Key  => "hello");
+@b{end};}
+
+@noindent
+The Cookie package provide @code{Get} functions and @code{Set} procedures for
+@code{String}, @code{Integer}, @code{Float} and @code{Boolean} types, but since
+cookies are inherently strings, it's important to understand what happens when
+the cookie @code{String} value can't be converted properly to either
+@code{Integer}, @code{Float} or @code{Boolean}.
+
+@noindent
+So if either conversion fails or the cookie simply doesn't exist, the following
+happens:
+
+@itemize @bullet
+
+@item For @code{Integer}, the value 0 is returned
+
+@item For @code{Float}, the value 0.0 is returned.
+
+@item For @code{Boolean}, the value @code{False} is returned. Note that only
+the string ``True'' is @code{True}. Everything else is @code{False}.
+
+@end itemize
+
+For more information, @xref{AWS.Cookie}.
 
 @c ----------------------------------------------------------------------
 
@@ -6061,6 +6157,7 @@ AWS User's API:
 * AWS.Config.Ini::
 * AWS.Config.Set::
 * AWS.Containers.Tables::
+* AWS.Cookie::
 * AWS.Default::
 * AWS.Dispatchers::
 * AWS.Dispatchers.Callback::
@@ -6211,6 +6308,13 @@ SOAP User's API:
 @cindex AWS.Containers.Tables
 
 @include aws-containers-tables.ads.texi
+
+@page
+@node AWS.Cookie
+@appendixsec AWS.Cookie
+@cindex AWS.Cookie
+
+@include aws-cookie.ads.texi
 
 @page
 @node AWS.Default
