@@ -41,7 +41,6 @@
 @subtitle AWS - version @_AWS_VERSION_@
 @subtitle Support for SOAP 1.1 - version @_SOAP_VERSION_@
 @subtitle SMTP, POP, LDAP and Jabber protocols.
-@subtitle Document revision level $Revision$
 @subtitle Date: @today{}
 @author AdaCore
 
