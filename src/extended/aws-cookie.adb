@@ -25,22 +25,26 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-with Ada.Strings.Fixed;       use Ada.Strings.Fixed;
-with Ada.Strings.Unbounded;   use Ada.Strings.Unbounded;
+with Ada.Strings.Fixed;     use Ada.Strings.Fixed;
+with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
+
 with AWS.Headers;
 with AWS.Response.Set;
 with AWS.URL;
 
 package body AWS.Cookie is
+
    --------------
    --  Exists  --
    --------------
-   function Exists (Request : AWS.Status.Data;
-                    Key     : String) return Boolean
+
+   function Exists
+     (Request : Status.Data;
+      Key     : String) return Boolean
    is
-      Headers  : constant AWS.Headers.List := AWS.Status.Header (Request);
-      Cookie   : constant String := AWS.Headers.Get_Values
-        (Headers, Cookie_Token);
+      Headers : constant AWS.Headers.List := Status.Header (Request);
+      Cookie  : constant String :=
+                  AWS.Headers.Get_Values (Headers, Cookie_Token);
    begin
       return Index (Cookie, Key & "=") > 0;
    end Exists;
@@ -48,31 +52,34 @@ package body AWS.Cookie is
    --------------
    --  Expire  --
    --------------
-   procedure Expire (Content : in out AWS.Response.Data;
-                     Key     :        String;
-                     Path    :        String := "/")
-   is
+
+   procedure Expire
+     (Content : in out Response.Data;
+      Key     : String;
+      Path    : String := "/") is
    begin
-      Set (Content   => Content,
-           Key       => Key,
-           Value     => "",
-           Max_Age   => 0,
-           Path      => Path);
+      Set (Content => Content,
+           Key     => Key,
+           Value   => "",
+           Max_Age => 0,
+           Path    => Path);
    end Expire;
 
    -----------
    --  Get  --
    -----------
-   function Get (Request : AWS.Status.Data;
-                 Key     : String) return String
+
+   function Get
+     (Request : Status.Data;
+      Key     : String) return String
    is
-      Headers        : constant AWS.Headers.List
-        := AWS.Status.Header (Request);
-      Cookie         : constant String := AWS.Headers.Get_Values
-        (Headers, Cookie_Token);
-      Content_Start  : constant Natural
-        := Index (Cookie, Key & "=") + Key'Length + 1;
-      Content_End    : Natural;
+      Headers       : constant AWS.Headers.List :=
+                        Status.Header (Request);
+      Cookie        : constant String :=
+                        AWS.Headers.Get_Values (Headers, Cookie_Token);
+      Content_Start : constant Natural :=
+                        Index (Cookie, Key & "=") + Key'Length + 1;
+      Content_End   : Natural;
    begin
       if Content_Start = 0 then
          return "";
@@ -86,14 +93,16 @@ package body AWS.Cookie is
          Content_End := Content_End - 1;
       end if;
 
-      return AWS.URL.Decode (Cookie (Content_Start .. Content_End));
+      return URL.Decode (Cookie (Content_Start .. Content_End));
    end Get;
 
    -----------
    --  Get  --
    -----------
-   function Get (Request : AWS.Status.Data;
-                 Key     : String) return Integer
+
+   function Get
+     (Request : Status.Data;
+      Key     : String) return Integer
    is
       Value : constant String := Get (Request, Key);
    begin
@@ -103,11 +112,9 @@ package body AWS.Cookie is
          return 0;
    end Get;
 
-   -----------
-   --  Get  --
-   -----------
-   function Get (Request : AWS.Status.Data;
-                 Key     : String) return Float
+   function Get
+     (Request : Status.Data;
+      Key     : String) return Float
    is
       Value : constant String := Get (Request, Key);
    begin
@@ -117,12 +124,9 @@ package body AWS.Cookie is
          return 0.0;
    end Get;
 
-   -----------
-   --  Get  --
-   -----------
-   function Get (Request : AWS.Status.Data;
-                 Key     : String) return Boolean
-   is
+   function Get
+     (Request : Status.Data;
+      Key     : String) return Boolean is
    begin
       return Get (Request, Key) = "True";
    end Get;
@@ -130,60 +134,63 @@ package body AWS.Cookie is
    -----------
    --  Set  --
    -----------
-   procedure Set (Content             : in out AWS.Response.Data;
-                  Key                 :        String;
-                  Value               :        String;
-                  Comment             :        String := "";
-                  Domain              :        String := "";
-                  Max_Age             :        Natural := Ten_Years;
-                  Path                :        String := "/";
-                  Secure              :        Boolean := False)
-   is
-      use AWS.Response;
 
-      Value_Part     : constant String
-        := Key & "=" & AWS.URL.Encode (Value) & "; ";
+   procedure Set
+     (Content : in out Response.Data;
+      Key     : String;
+      Value   : String;
+      Comment : String := "";
+      Domain  : String := "";
+      Max_Age : Natural := Ten_Years;
+      Path    : String := "/";
+      Secure  : Boolean := False)
+   is
+      use type Response.Data_Mode;
+
+      Value_Part     : constant String :=
+                         Key & "=" & URL.Encode (Value) & "; ";
       Max_Age_Part   : constant String := Max_Age_Token & Max_Age'Img & "; ";
       Path_Part      : constant String := Path_Token & Path & "; ";
-      Cookie_UString : Unbounded_String :=  To_Unbounded_String
-        (Value_Part & Max_Age_Part & Path_Part);
+      Cookie_UString : Unbounded_String :=
+                         To_Unbounded_String
+                           (Value_Part & Max_Age_Part & Path_Part);
    begin
-      if AWS.Response.Mode (Content) = No_Data then
+      if Response.Mode (Content) = Response.No_Data then
          raise Response_Data_Not_Initialized;
       end if;
 
       if Comment /= "" then
          Append (Cookie_UString, Comment_Token & Comment & "; ");
       end if;
+
       if Domain /= "" then
          Append (Cookie_UString, Domain_Token & Domain & "; ");
       end if;
+
       if Secure then
          Append (Cookie_UString, Secure_Token & "; ");
       end if;
 
       Append (Cookie_UString, Version_Token & "; ");
 
-      AWS.Response.Set.Add_Header
+      Response.Set.Add_Header
         (Content,
          Name  => Set_Cookie_Token,
          Value => To_String (Cookie_UString));
    end Set;
 
-   -----------
-   --  Set  --
-   -----------
-   procedure Set (Content             : in out AWS.Response.Data;
-                  Key                 :        String;
-                  Value               :        Integer;
-                  Comment             :        String := "";
-                  Domain              :        String := "";
-                  Max_Age             :        Natural := Ten_Years;
-                  Path                :        String := "/";
-                  Secure              :        Boolean := False)
+   procedure Set
+     (Content : in out Response.Data;
+      Key     : String;
+      Value   : Integer;
+      Comment : String := "";
+      Domain  : String := "";
+      Max_Age : Natural := Ten_Years;
+      Path    : String := "/";
+      Secure  : Boolean := False)
    is
-      String_Value : constant String := Trim
-        (Integer'Image (Value), Ada.Strings.Left);
+      String_Value : constant String :=
+                       Trim (Integer'Image (Value), Ada.Strings.Left);
    begin
       Set (Content => Content,
            Key     => Key,
@@ -195,20 +202,18 @@ package body AWS.Cookie is
            Secure  => Secure);
    end Set;
 
-   -----------
-   --  Set  --
-   -----------
-   procedure Set (Content             : in out AWS.Response.Data;
-                  Key                 :        String;
-                  Value               :        Float;
-                  Comment             :        String := "";
-                  Domain              :        String := "";
-                  Max_Age             :        Natural := Ten_Years;
-                  Path                :        String := "/";
-                  Secure              :        Boolean := False)
+   procedure Set
+     (Content : in out Response.Data;
+      Key     : String;
+      Value   : Float;
+      Comment : String := "";
+      Domain  : String := "";
+      Max_Age : Natural := Ten_Years;
+      Path    : String := "/";
+      Secure  : Boolean := False)
    is
-      String_Value : constant String := Trim
-        (Float'Image (Value), Ada.Strings.Left);
+      String_Value : constant String :=
+                       Trim (Float'Image (Value), Ada.Strings.Left);
    begin
       Set (Content => Content,
            Key     => Key,
@@ -220,18 +225,15 @@ package body AWS.Cookie is
            Secure  => Secure);
    end Set;
 
-   -----------
-   --  Set  --
-   -----------
-   procedure Set (Content             : in out AWS.Response.Data;
-                  Key                 :        String;
-                  Value               :        Boolean;
-                  Comment             :        String := "";
-                  Domain              :        String := "";
-                  Max_Age             :        Natural := Ten_Years;
-                  Path                :        String := "/";
-                  Secure              :        Boolean := False)
-   is
+   procedure Set
+     (Content : in out Response.Data;
+      Key     : String;
+      Value   : Boolean;
+      Comment : String := "";
+      Domain  : String := "";
+      Max_Age : Natural := Ten_Years;
+      Path    : String := "/";
+      Secure  : Boolean := False) is
    begin
       if Value then
          Set (Content => Content,
@@ -253,4 +255,5 @@ package body AWS.Cookie is
               Secure  => Secure);
       end if;
    end Set;
+
 end AWS.Cookie;

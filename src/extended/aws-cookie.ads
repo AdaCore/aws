@@ -32,18 +32,13 @@ with AWS.Response;
 with AWS.Status;
 
 package AWS.Cookie is
-   ------------------
-   --  Exceptions  --
-   ------------------
+
    Response_Data_Not_Initialized : exception;
    --  The Response_Data_Not_Initialized exception is raised when trying to add
    --  headers to an un-initialized AWS.Response.Data object.
    --  The AWS.Response.Data object is initialized using the
    --  AWS.Response.Build function.
 
-   ---------------------
-   --  Cookie Tokens  --
-   ---------------------
    Cookie_Token      : constant String := "Cookie";
    Comment_Token     : constant String := "Comment=";
    Domain_Token      : constant String := "Domain=";
@@ -56,51 +51,56 @@ package AWS.Cookie is
    ----------------------
    --  Numeric Tokens  --
    ----------------------
+
    Ten_Years         : constant Natural := 86_400 * 365 * 10;
 
-   ----------------------------
-   --  Functions/Procedures  --
-   ----------------------------
-   function Exists (Request : AWS.Status.Data;
-                    Key     : String) return Boolean;
+   function Exists
+     (Request : Status.Data;
+      Key     : String) return Boolean;
    --  Check if the 'Key' cookie exists in AWS.Headers.List. Return Boolean
    --  True of the cookie exists, else Boolean False.
 
-   procedure Expire (Content : in out AWS.Response.Data;
-                     Key     :        String;
-                     Path    :        String := "/");
+   procedure Expire
+     (Content : in out Response.Data;
+      Key     :        String;
+      Path    :        String := "/");
    --  Expire the 'Key' cookie. This is done by setting the Max-Age attribute
    --  to 0. The Value of the cookie is also set to "", in case a browser does
    --  not honor the Max-Age attribute.
 
-   function Get (Request : AWS.Status.Data;
-                 Key     : String) return String;
+   function Get
+     (Request : Status.Data;
+      Key     : String) return String;
    --  Return the 'Key' cookie from AWS.Headers.List. If the cookie does not
    --  exist, return an empty string, ie. ""
 
-   function Get (Request : AWS.Status.Data;
-                 Key     : String) return Integer;
+   function Get
+     (Request : Status.Data;
+      Key     : String) return Integer;
    --  Return the 'Key' cookie from AWS.Headers.List. If the cookie does not
    --  exist or can't be converted from String to Integer then return 0.
 
-   function Get (Request : AWS.Status.Data;
-                 Key     : String) return Float;
+   function Get
+     (Request : Status.Data;
+      Key     : String) return Float;
    --  Return the 'Key' cookie from AWS.Headers.List. If the cookie does not
    --  exist or can't be converted from String to Float then return 0.0.
 
-   function Get (Request : AWS.Status.Data;
-                 Key     : String) return Boolean;
+   function Get
+     (Request : Status.Data;
+      Key     : String) return Boolean;
    --  Return the 'Key' cookie from AWS.Headers.List. Only if the cookie value
    --  equals "True" is Boolean True returned, else Boolean False is returned.
 
-   procedure Set (Content             : in out AWS.Response.Data;
-                  Key                 :        String;
-                  Value               :        String;
-                  Comment             :        String := "";
-                  Domain              :        String := "";
-                  Max_Age             :        Natural := Ten_Years;
-                  Path                :        String := "/";
-                  Secure              :        Boolean := False);
+   procedure Set
+     (Content : in out Response.Data;
+      Key     : String;
+      Value   : String;
+      Comment : String := "";
+      Domain  : String := "";
+      Max_Age : Natural := Ten_Years;
+      Path    : String := "/";
+      Secure  : Boolean := False);
    --  Set a new cookie named 'Key' with value 'Value'. See RFC 2109 for more
    --  information about the individual cookie attributes:
    --    http://tools.ietf.org/html/rfc2109
@@ -110,14 +110,15 @@ package AWS.Cookie is
    --      Is raised if AWS.Cookie.Set is called before the Content object has
    --      been initialized by a call to AWS.Response.Build
 
-   procedure Set (Content             : in out AWS.Response.Data;
-                  Key                 :        String;
-                  Value               :        Integer;
-                  Comment             :        String := "";
-                  Domain              :        String := "";
-                  Max_Age             :        Natural := Ten_Years;
-                  Path                :        String := "/";
-                  Secure              :        Boolean := False);
+   procedure Set
+     (Content : in out Response.Data;
+      Key     : String;
+      Value   : Integer;
+      Comment : String := "";
+      Domain  : String := "";
+      Max_Age : Natural := Ten_Years;
+      Path    : String := "/";
+      Secure  : Boolean := False);
    --  Set a new cookie named 'Key' with Integer value 'Value'. The Integer is
    --  converted to a String, as both cookie keys and values are inherently
    --  strings.
@@ -127,14 +128,15 @@ package AWS.Cookie is
    --      Is raised if AWS.Cookie.Set is called before the Content object has
    --      been initialized by a call to AWS.Response.Build
 
-   procedure Set (Content             : in out AWS.Response.Data;
-                  Key                 :        String;
-                  Value               :        Float;
-                  Comment             :        String := "";
-                  Domain              :        String := "";
-                  Max_Age             :        Natural := Ten_Years;
-                  Path                :        String := "/";
-                  Secure              :        Boolean := False);
+   procedure Set
+     (Content : in out Response.Data;
+      Key     : String;
+      Value   : Float;
+      Comment : String := "";
+      Domain  : String := "";
+      Max_Age : Natural := Ten_Years;
+      Path    : String := "/";
+      Secure  : Boolean := False);
    --  Set a new cookie named 'Key' with Float value 'Value'. The Float is
    --  converted to a String, as both cookie keys and values are inherently
    --  strings.
@@ -144,14 +146,15 @@ package AWS.Cookie is
    --      Is raised if AWS.Cookie.Set is called before the Content object has
    --      been initialized by a call to AWS.Response.Build
 
-   procedure Set (Content             : in out AWS.Response.Data;
-                  Key                 :        String;
-                  Value               :        Boolean;
-                  Comment             :        String := "";
-                  Domain              :        String := "";
-                  Max_Age             :        Natural := Ten_Years;
-                  Path                :        String := "/";
-                  Secure              :        Boolean := False);
+   procedure Set
+     (Content : in out Response.Data;
+      Key     : String;
+      Value   : Boolean;
+      Comment : String := "";
+      Domain  : String := "";
+      Max_Age : Natural := Ten_Years;
+      Path    : String := "/";
+      Secure  : Boolean := False);
    --  Set a new cookie named 'Key' with Boolean value 'Value'. The Boolean is
    --  converted to a String ("False" or "True"), as both cookie keys and
    --  values are inherently strings.
@@ -160,4 +163,5 @@ package AWS.Cookie is
    --    Response_Data_Not_Initialized
    --      Is raised if AWS.Cookie.Set is called before the Content object has
    --      been initialized by a call to AWS.Response.Build
+
 end AWS.Cookie;
