@@ -36,11 +36,6 @@ MAKEINFO	= $(shell which makeinfo 2> /dev/null)
 TEXI2DVI	= $(shell which texi2dvi 2> /dev/null)
 PDFTEX		= $(shell which pdftex 2> /dev/null)
 
-ADA_KW    = use package is in out exception function with type constant \
-		private of return range procedure begin end array record \
-		subtype generic limited access all tagged abstract renames \
-		pragma new case when null
-
 APIFILES = ../src/core/aws.ads.texi \
 	../src/core/aws-attachments.ads.texi \
 	../src/core/aws-client.ads.texi \
@@ -136,25 +131,10 @@ setup:
 
 build:
 
-ada.sed: makefile
-	echo "s/\([^@_]\)@\([^@_]\)/\1@@\2/" > ada.sed
-	echo "s/-- \(.*\)$$/-- @i{\1}/" >> ada.sed
-	echo "/--/!s/\([^-][^-][^\"]*\)\"\([^\"]*\)\"/\1\"@i{\2}\"/g" \
-		>> ada.sed
-	echo "s/\([^@]\)@_/\1@@_/g" >> ada.sed
-	echo "s/_@\([^@]\)/_@@\1/g" >> ada.sed
-	echo "s/_@_/_@@_/g" >> ada.sed
-	for kw in $(ADA_KW); do \
-		echo "s/^\([^-]* \)$$kw/\1@b{$$kw}/g" >> ada.sed; \
-		echo "s/^\([^-]* \)$$kw/\1@b{$$kw}/g" >> ada.sed; \
-		echo "s/^\( *\)$$kw /\1@b{$$kw} /g" >> ada.sed; \
-		echo "s/^$$kw$$/@b{$$kw}/g" >> ada.sed; \
-	done
-
-%.ads.texi: %.ads ada.sed gentexifile
+%.ads.texi: %.ads gentexifile
 	./gentexifile $< NOGROUP
 
-%.adb.texi: %.adb ada.sed gentexifile
+%.adb.texi: %.adb gentexifile
 	./gentexifile $< NOGROUP
 
 %.pdf: %.texi
