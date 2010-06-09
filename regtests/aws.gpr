@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                        Copyright (C) 2009, AdaCore                       --
+--                     Copyright (C) 2009-2010, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -28,7 +28,7 @@
 --  Project file used to run the testsuite from the build directory. Useful
 --  for AWS's developers:
 --
---  ./testsuite --from-build-dir --tests=0001_turl
+--  ./testsuite --from-build-dir 0001_turl
 --
 
 with "../shared";
