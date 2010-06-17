@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2009, AdaCore                     --
+--                     Copyright (C) 2000-2010, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -31,8 +31,6 @@ with Ada.Directories;
 with AWS.Utils;
 
 package body AWS.Messages is
-
-   type String_Access is access constant String;
 
    subtype Status_Code_Image is String (1 .. 3);
 
@@ -97,7 +95,7 @@ package body AWS.Messages is
 
    type Status_Data is record
       Code          : Status_Code_Image;
-      Reason_Phrase : String_Access;
+      Reason_Phrase : access constant String;
    end record;
 
    Status_Messages : constant array (Status_Code) of Status_Data

@@ -2,7 +2,7 @@
 --                              Ada Web Server                              --
 --                   S M T P - Simple Mail Transfer Protocol                --
 --                                                                          --
---                     Copyright (C) 2000-2009, AdaCore                     --
+--                     Copyright (C) 2000-2010, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -68,11 +68,9 @@ package body AWS.SMTP is
      "Requested action not taken: mailbox name not allowed";
    C_554 : aliased constant String := "Transaction failed";
 
-   type Code_Name is access constant String;
-
    type Reply_Code_Data is record
       Code : Reply_Code;
-      Name : Code_Name;
+      Name : access constant String;
    end record;
 
    Code_Table : constant array (Positive range <>) of Reply_Code_Data :=

@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2009, AdaCore                     --
+--                     Copyright (C) 2000-2010, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -271,10 +271,8 @@ package body SOAP.Message.XML is
                N    : DOM.Core.Node)
                return Types.Object'Class;
 
-   type Type_Name_Access is access constant String;
-
    type Type_Handler is record
-      Name    : Type_Name_Access;
+      Name    : access constant String;
       Handler : Parse_Type;
       Encoded : Boolean; --  True if based on soap-enc namespaces
    end record;
