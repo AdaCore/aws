@@ -1,6 +1,6 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
---                   S M T P - Simple Mail Transfer Protocol                --
+--                 S M T P - Simple Mail Transfer Protocol                  --
 --                                                                          --
 --                     Copyright (C) 2000-2010, AdaCore                     --
 --                                                                          --
@@ -43,29 +43,29 @@ package body AWS.SMTP is
    C_251 : aliased constant String := "User not local; will forward";
    C_334 : aliased constant String := "Provide BASE64 watchword";
    C_354 : aliased constant String :=
-     "Start mail input; end with <CRLF>.<CRLF>";
+             "Start mail input; end with <CRLF>.<CRLF>";
    C_421 : aliased constant String :=
-     "Service not available, closing transmission channel";
+             "Service not available, closing transmission channel";
    C_450 : aliased constant String :=
-     "Requested mail action not taken: mailbox unavailable";
+             "Requested mail action not taken: mailbox unavailable";
    C_451 : aliased constant String :=
-     "Requested action aborted: local error in processing";
+             "Requested action aborted: local error in processing";
    C_452 : aliased constant String :=
-     "Requested action not taken: insufficient system storage";
+             "Requested action not taken: insufficient system storage";
    C_500 : aliased constant String := "Syntax error, command unrecognized";
    C_501 : aliased constant String :=
-     "Syntax error in parameters or arguments";
+             "Syntax error in parameters or arguments";
    C_502 : aliased constant String := "Command not implemented";
    C_503 : aliased constant String := "Bad sequence of commands";
    C_504 : aliased constant String := "Command parameter not implemented";
    C_550 : aliased constant String :=
-     "Requested action not taken: mailbox unavailable";
+             "Requested action not taken: mailbox unavailable";
    C_551 : aliased constant String :=
-     "User not local; please try <forward-path>";
+             "User not local; please try <forward-path>";
    C_552 : aliased constant String :=
-     "Requested mail action aborted: exceeded storage allocation";
+             "Requested mail action aborted: exceeded storage allocation";
    C_553 : aliased constant String :=
-     "Requested action not taken: mailbox name not allowed";
+             "Requested action not taken: mailbox name not allowed";
    C_554 : aliased constant String := "Transaction failed";
 
    type Reply_Code_Data is record

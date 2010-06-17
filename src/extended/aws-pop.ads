@@ -2,7 +2,7 @@
 --                              Ada Web Server                              --
 --                       P O P - Post Office Protocol                       --
 --                                                                          --
---                     Copyright (C) 2003-2009, AdaCore                     --
+--                     Copyright (C) 2003-2010, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -56,8 +56,7 @@ package AWS.POP is
       User         : String;
       Password     : String;
       Authenticate : Authenticate_Mode := Clear_Text;
-      Port         : Positive          := Default_POP_Port)
-      return Mailbox;
+      Port         : Positive          := Default_POP_Port) return Mailbox;
    --  Connect on the given Port to Server_Name and open User's Mailbox. This
    --  mailbox object will be used to retrieve messages.
 
@@ -82,8 +81,7 @@ package AWS.POP is
    function Get
      (Mailbox : POP.Mailbox;
       N       : Positive;
-      Remove  : Boolean     := False)
-      return Message;
+      Remove  : Boolean     := False) return Message;
    --  Retrieve Nth message from the mailbox, let the message on the mailbox
    --  if Remove is False.
 
@@ -94,8 +92,7 @@ package AWS.POP is
 
    function Get_Header
      (Mailbox : POP.Mailbox;
-      N       : Positive)
-      return Message;
+      N       : Positive) return Message;
    --  Retrieve headers for the Nth message from the mailbox, let the message
    --  on the mailbox. This is useful to build a quick summary of the mailbox.
 
@@ -155,8 +152,7 @@ package AWS.POP is
 
    function Header
      (Message : POP.Message;
-      Header  : String)
-      return String;
+      Header  : String) return String;
    --  Returns header value for header named Header, returns the empty string
    --  if such header does not exist.
 
