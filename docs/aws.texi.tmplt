@@ -3484,7 +3484,7 @@ Here is an example of such XML document:
 @noindent
 The template to use this feature is @file{aws_action_xml.tjs}. The
 usage is similar to what is described in the previous section
-(@pxref{Basic Ajax support}) expect that in this case we do not have to
+(@pxref{Basic Ajax support}) except that in this case we do not have to
 pass the placeholder.
 
 @noindent
