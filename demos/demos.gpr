@@ -41,8 +41,7 @@ project Demos is
              "zdemo.adb", "split.adb", "web_mail.adb", "web_elements.adb",
              "test_mail.adb", "multiple_sessions.adb", "agent.adb");
 
-   Mains_XMLAda := ("soap_client.adb", "soap_server.adb", "soap_svs.adb",
-                    "soap_cvs.adb",
+   Mains_XMLAda := ("soap_client.adb", "soap_server.adb",
                     "soap_server_disp.adb", "jabber_demo.adb");
 
    for Source_Files use
@@ -65,8 +64,7 @@ project Demos is
            project'Source_Files
              & Mains_XMLADA
              & ("soap_server_cb.ads", "soap_server_cb.adb",
-                "soap_server_disp_cb.ads", "soap_server_disp_cb.adb",
-                "soap_svs_cb.ads", "soap_svs_cb.adb");
+                "soap_server_disp_cb.ads", "soap_server_disp_cb.adb");
       when "Disabled" =>
          null;
    end case;
