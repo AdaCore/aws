@@ -39,8 +39,7 @@ project Demos is
              "hotplug.adb", "dispatch.adb", "wps.adb", "ws.adb",
              "auth.adb", "text_input.adb", "vh_demo.adb", "res_demo.adb",
              "zdemo.adb", "split.adb", "web_mail.adb", "web_elements.adb",
-             "test_mail.adb", "multiple_sessions.adb", "agent.adb",
-             "runme.adb");
+             "test_mail.adb", "multiple_sessions.adb", "agent.adb");
 
    Mains_XMLAda := ("soap_client.adb", "soap_server.adb", "soap_svs.adb",
                     "soap_cvs.adb", "wsdl_demo_client.adb",
@@ -57,7 +56,6 @@ project Demos is
               "rdemo.ads", "rdemo.adb",
               "hotplug_cb.ads", "hotplug_cb.adb",
               "res_demo_cb.ads", "res_demo_cb.adb",
-              "runme_cb.ads", "runme_cb.adb",
               "web_elements_containers.ads", "web_elements_containers.adb",
               "rdemo-adains_png.ads", "rdemo-page3_html.ads", "demos.gpr");
 
