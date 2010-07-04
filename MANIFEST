@@ -44,8 +44,9 @@ demos/base64.adb
 demos/bounded_index.thtml
 demos/bounded_s_index.thtml
 demos/cert.pem
-demos/com_1.adb
-demos/com_2.adb
+demos/com/com.gpr
+demos/com/com_1.adb
+demos/com/com_2.adb
 demos/demos.gpr
 demos/demos_shared.gpr
 demos/dispatch/dispatch.adb
