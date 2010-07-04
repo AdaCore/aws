@@ -40,12 +40,9 @@ demos/auth/auth.adb
 demos/auth/auth.gpr
 demos/auth/auth_cb.adb
 demos/auth/auth_cb.ads
-demos/base64.adb
 demos/com/com.gpr
 demos/com/com_1.adb
 demos/com/com_2.adb
-demos/demos.gpr
-demos/demos_shared.gpr
 demos/dispatch/dispatch.adb
 demos/dispatch/dispatch.gpr
 demos/dispatch/dispatch_cb.adb
