@@ -33,13 +33,14 @@ config/src/ssl-thin__gnutls.ads
 config/src/ssl-thin__openssl.ads
 config/src/templates_parser-configuration__aws.ads
 config/src/templates_parser-input__aws.adb
-demos/agent.adb
+demos/agent/agent.adb
+demos/agent/agent.gpr
+demos/agent/cert.pem
 demos/auth/auth.adb
 demos/auth/auth.gpr
 demos/auth/auth_cb.adb
 demos/auth/auth_cb.ads
 demos/base64.adb
-demos/cert.pem
 demos/com/com.gpr
 demos/com/com_1.adb
 demos/com/com_2.adb
