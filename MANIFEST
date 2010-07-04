@@ -67,10 +67,13 @@ demos/makefile
 demos/multiple_sessions.adb
 demos/page1.html
 demos/page2.html
-demos/page3.html
-demos/res_demo.adb
-demos/res_demo_cb.adb
-demos/res_demo_cb.ads
+demos/res_demo/adains.png
+demos/res_demo/makefile
+demos/res_demo/page3.html
+demos/res_demo/res_demo.adb
+demos/res_demo/res_demo.gpr
+demos/res_demo/res_demo_cb.adb
+demos/res_demo/res_demo_cb.ads
 demos/runme/adains.png
 demos/runme/aws_down.png
 demos/runme/aws_logo.png

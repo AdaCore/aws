@@ -37,7 +37,7 @@ project Demos is
 
    Mains := ("com_1.adb", "com_2.adb", "main.adb",
              "hotplug.adb", "dispatch.adb", "wps.adb", "ws.adb",
-             "auth.adb", "text_input.adb", "vh_demo.adb", "res_demo.adb",
+             "auth.adb", "text_input.adb", "vh_demo.adb",
              "zdemo.adb", "split.adb", "web_mail.adb", "web_elements.adb",
              "test_mail.adb", "multiple_sessions.adb", "agent.adb");
 
@@ -53,11 +53,9 @@ project Demos is
               "vh_demo_cb.ads", "vh_demo_cb.adb",
               "ws_cb.ads", "ws_cb.adb",
               "zdemo_cb.ads", "zdemo_cb.adb",
-              "rdemo.ads", "rdemo.adb",
               "hotplug_cb.ads", "hotplug_cb.adb",
-              "res_demo_cb.ads", "res_demo_cb.adb",
               "web_elements_containers.ads", "web_elements_containers.adb",
-              "rdemo-adains_png.ads", "rdemo-page3_html.ads", "demos.gpr");
+              "demos.gpr");
 
    for Main use Mains;
 
