@@ -1,7 +1,7 @@
 ############################################################################
 #                              Ada Web Server                              #
 #                                                                          #
-#                     Copyright (C) 2003-2009, AdaCore                     #
+#                     Copyright (C) 2003-2010, AdaCore                     #
 #                                                                          #
 #  This library is free software; you can redistribute it and/or modify    #
 #  it under the terms of the GNU General Public License as published by    #
@@ -55,8 +55,6 @@ endif
 
 setup:
 	$(MKDIR) $(SRCDIR)
-
-after-build: build_res $(BUILD_EXT)
 
 install:
 	$(CP) *.thtml $(I_TPL)

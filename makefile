@@ -121,12 +121,7 @@ force:
 #############################################################################
 #  Configuration for GNAT Projet Files
 
-ifeq (${DEMOS}, true)
-EXTRA_MODULES = demos
-endif
-
-MODULES = config win32 include ssl src tools docs \
-	gps regtests web_elements ${EXTRA_MODULES}
+MODULES = config win32 include ssl src tools docs gps regtests web_elements
 
 MODULES_SETUP = ${MODULES:%=%_setup}
 
@@ -252,11 +247,6 @@ ifeq (${ENABLE_SHARED}, true)
 	$(GPRBUILD) -p -j$(CJOBS) $(GPROPTS) -XPLATFORM=native \
 		-XLIBRARY_TYPE=relocatable src/src.gpr
 endif
-ifeq (${DEMOS}, true)
-	${MAKE} -C demos $(GALL_OPTIONS) after-build
-	$(GPRBUILD) -p -j$(CJOBS) $(GPROPTS) -XPLATFORM=native \
-		-XLIBRARY_TYPE=static demos/demos.gpr
-endif
 	$(GPRBUILD) -p -j$(CJOBS) $(GPROPTS) -XPLATFORM=native \
 		-XLIBRARY_TYPE=static gps/gps_support.gpr
 	${MAKE} -C gps $(GALL_OPTIONS) after-build
@@ -265,12 +255,6 @@ build-cross:
 	$(GPRBUILD) -p --target=$(TARGET) -j$(CJOBS) $(GPROPTS) \
 		-XPLATFORM=$(PLATFORM) -XLIBRARY_TYPE=static \
 		src/src.gpr
-ifeq (${DEMOS}, true)
-	${MAKE} -C demos $(GALL_OPTIONS) after-build
-	$(GPRBUILD) -p --target=$(TARGET) -j$(CJOBS) $(GPROPTS) \
-		-XPLATFORM=$(PLATFORM) -XLIBRARY_TYPE=static \
-		demos/demos.gpr
-endif
 
 ifeq (${TARGET}, native)
 build: build-native
@@ -286,18 +270,11 @@ clean-native:
 ifeq (${ENABLE_SHARED}, true)
 	-$(GPRCLEAN) $(GPROPTS) -XLIBRARY_TYPE=relocatable src/src.gpr
 endif
-ifeq (${DEMOS}, true)
-	-$(GPRCLEAN) $(GPROPTS) -XLIBRARY_TYPE=static demos/demos.gpr
-endif
 	-$(GPRCLEAN) $(GPROPTS) -XLIBRARY_TYPE=static gps/gps_support.gpr
 
 clean-cross:
 	-$(GPRCLEAN) $(GPROPTS) --target=$(TARGET) -XLIBRARY_TYPE=static \
 		-XPLATFORM=$(PLATFORM) src/src.gpr
-ifeq (${DEMOS}, true)
-	-$(GPRCLEAN) $(GPROPTS) --target=$(TARGET) -XLIBRARY_TYPE=static \
-		-XPLATFORM=$(PLATFORM) demos/demos.gpr
-endif
 
 ifeq (${TARGET}, native)
 clean: clean-native
@@ -427,7 +404,6 @@ gen_setup:
 	echo "LDAP=$(LDAP)" >> makefile.setup
 	echo "DEBUG=$(DEBUG)" >> makefile.setup
 	echo "CJOBS=$(CJOBS)" >> makefile.setup
-	echo "DEMOS=$(DEMOS)" >> makefile.setup
 	echo "TARGET=$(TARGET)" >> makefile.setup
 
 setup: gen_setup setup_dir setup_modules setup_final setup_tp $(GEXT_MODULE)
