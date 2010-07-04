@@ -120,7 +120,8 @@ demos/split/sliding_s_index.thtml
 demos/split/split.adb
 demos/split/split.gpr
 demos/split/split.thtml
-demos/test_ldap.adb
+demos/test_ldap/test_ldap.adb
+demos/test_ldap/test_ldap.gpr
 demos/test_mail/test_mail.adb
 demos/test_mail/test_mail.gpr
 demos/text_input.gpr
