@@ -121,7 +121,8 @@ force:
 #############################################################################
 #  Configuration for GNAT Projet Files
 
-MODULES = config win32 include ssl src tools docs gps regtests web_elements
+MODULES = config win32 include ssl src tools docs gps regtests \
+	web_elements demos
 
 MODULES_SETUP = ${MODULES:%=%_setup}
 

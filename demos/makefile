@@ -28,8 +28,7 @@
 setup:
 
 install:
-	$(CP) *.thtml $(I_TPL)
-	$(CP) wm_login.html $(I_TPL)
-	$(CP) aws_*.png $(I_IMG)
+	$(CP) web_mail/*html $(I_TPL)
+	$(CP) runme/aws_*.png $(I_IMG)
 
 check:
