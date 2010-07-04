@@ -35,9 +35,10 @@ config/src/templates_parser-configuration__aws.ads
 config/src/templates_parser-input__aws.adb
 demos/404.thtml
 demos/agent.adb
-demos/auth.adb
-demos/auth_cb.adb
-demos/auth_cb.ads
+demos/auth/auth.adb
+demos/auth/auth.gpr
+demos/auth/auth_cb.adb
+demos/auth/auth_cb.ads
 demos/aws_directory.thtml
 demos/base64.adb
 demos/bounded_index.thtml
