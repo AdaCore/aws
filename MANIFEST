@@ -38,7 +38,6 @@ demos/auth/auth.adb
 demos/auth/auth.gpr
 demos/auth/auth_cb.adb
 demos/auth/auth_cb.ads
-demos/aws_directory.thtml
 demos/base64.adb
 demos/cert.pem
 demos/com/com.gpr
@@ -159,10 +158,13 @@ demos/wm_message.thtml
 demos/wm_reply.thtml
 demos/wm_summary.thtml
 demos/wps.adb
-demos/ws.adb
-demos/ws.ini
-demos/ws_cb.adb
-demos/ws_cb.ads
+demos/ws/aws_directory.thtml
+demos/ws/page1.html
+demos/ws/ws.adb
+demos/ws/ws.gpr
+demos/ws/ws.ini
+demos/ws/ws_cb.adb
+demos/ws/ws_cb.ads
 demos/zdemo/adains.png.gz
 demos/zdemo/zdemo.adb
 demos/zdemo/zdemo.gpr
