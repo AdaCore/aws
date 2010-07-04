@@ -34,7 +34,6 @@ config/src/ssl-thin__openssl.ads
 config/src/templates_parser-configuration__aws.ads
 config/src/templates_parser-input__aws.adb
 demos/404.thtml
-demos/adains.png.gz
 demos/agent.adb
 demos/auth.adb
 demos/auth_cb.adb
@@ -157,9 +156,11 @@ demos/xml_action.txml
 demos/xml_clear.xml
 demos/xml_clear_no.xml
 demos/xml_get_list.txml
-demos/zdemo.adb
-demos/zdemo_cb.adb
-demos/zdemo_cb.ads
+demos/zdemo/adains.png.gz
+demos/zdemo/zdemo.adb
+demos/zdemo/zdemo.gpr
+demos/zdemo/zdemo_cb.adb
+demos/zdemo/zdemo_cb.ads
 docs/TODO
 docs/aws.css
 docs/aws.html

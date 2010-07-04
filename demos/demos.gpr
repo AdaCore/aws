@@ -37,7 +37,7 @@ project Demos is
 
    Mains := ("wps.adb", "ws.adb",
              "auth.adb", "text_input.adb", "vh_demo.adb",
-             "zdemo.adb", "split.adb", "web_mail.adb", "web_elements.adb",
+             "split.adb", "web_mail.adb", "web_elements.adb",
              "test_mail.adb", "multiple_sessions.adb", "agent.adb");
 
    Mains_XMLAda := ("soap_client.adb", "soap_server.adb",
@@ -48,7 +48,6 @@ project Demos is
               "text_input_cb.ads", "text_input_cb.adb",
               "vh_demo_cb.ads", "vh_demo_cb.adb",
               "ws_cb.ads", "ws_cb.adb",
-              "zdemo_cb.ads", "zdemo_cb.adb",
               "web_elements_containers.ads", "web_elements_containers.adb",
               "demos.gpr");
 
