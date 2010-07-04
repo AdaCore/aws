@@ -42,8 +42,7 @@ project Demos is
              "test_mail.adb", "multiple_sessions.adb", "agent.adb");
 
    Mains_XMLAda := ("soap_client.adb", "soap_server.adb", "soap_svs.adb",
-                    "soap_cvs.adb", "wsdl_demo_client.adb",
-                    "wsdl_demo_server.adb", "interoplab_main.adb",
+                    "soap_cvs.adb", "interoplab_main.adb",
                     "soap_server_disp.adb", "jabber_demo.adb");
 
    for Source_Files use
@@ -65,12 +64,7 @@ project Demos is
          for Source_Files use
            project'Source_Files
              & Mains_XMLADA
-             & ("hello_demo.ads",
-                "hello_demo-client.ads", "hello_demo-client.adb",
-                "hello_demo-server.ads", "hello_demo-server.adb",
-                "hello_demo-types.ads",
-                "wsdl_demo_server_cb.ads", "wsdl_demo_server_cb.adb",
-                "interoplab.ads",
+             & ("interoplab.ads",
                 "interoplab-client.ads", "interoplab-client.adb",
                 "interoplab-types.ads",
                 "soap_server_cb.ads", "soap_server_cb.adb",

@@ -51,10 +51,15 @@ demos/demos_shared.gpr
 demos/dispatch.adb
 demos/dispatch_cb.adb
 demos/dispatch_cb.ads
-demos/hello.wsdl
 demos/hello_world/hello_world.adb
 demos/hello_world/hello_world_cb.adb
 demos/hello_world/hello_world_cb.ads
+demos/hello_wsdl/hello.wsdl
+demos/hello_wsdl/makefile
+demos/hello_wsdl/wsdl_demo_client.adb
+demos/hello_wsdl/wsdl_demo_server.adb
+demos/hello_wsdl/wsdl_demo_server_cb.adb
+demos/hello_wsdl/wsdl_demo_server_cb.ads
 demos/hotplug.adb
 demos/hotplug_cb.adb
 demos/hotplug_cb.ads
@@ -136,10 +141,6 @@ demos/ws.adb
 demos/ws.ini
 demos/ws_cb.adb
 demos/ws_cb.ads
-demos/wsdl_demo_client.adb
-demos/wsdl_demo_server.adb
-demos/wsdl_demo_server_cb.adb
-demos/wsdl_demo_server_cb.ads
 demos/xml1.xml
 demos/xml2.xml
 demos/xml3.xml

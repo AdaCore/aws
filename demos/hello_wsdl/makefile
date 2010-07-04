@@ -1,7 +1,7 @@
 ############################################################################
 #                              Ada Web Server                              #
 #                                                                          #
-#                     Copyright (C) 2003-2010, AdaCore                     #
+#                        Copyright (C) 2010, AdaCore                       #
 #                                                                          #
 #  This library is free software; you can redistribute it and/or modify    #
 #  it under the terms of the GNU General Public License as published by    #
@@ -25,26 +25,13 @@
 #  covered by the  GNU Public License.                                     #
 ############################################################################
 
-SRCDIR	= ../$(BDIR)/../../common/demos
+all: build_wsdl
+	gnat make -P hello_wsdl
 
 build_wsdl:
 	echo Generate stub/skel from WSDL documents
-	(cd $(SRCDIR) && \
-	$(WSDL2AWS) -q -f -doc -noskel ../../../demos/interoplab_main.wsdl)
+	wsdl2aws -q -f -doc -timeouts 1,2,2 hello.wsdl
 
-ifeq (${PRJ_XMLADA}, Installed)
-BUILD_EXT = build_wsdl
-endif
-
-setup:
-	$(MKDIR) $(SRCDIR)
-
-install:
-	$(CP) *.thtml $(I_TPL)
-	$(CP) wm_login.html $(I_TPL)
-	$(CP) aws_*.png $(I_IMG)
-ifeq ($(SOCKET),ssl)
-	-$(CP) ../$(BDIR)/static/demos/agent${EXEEXT} $(I_SBN)
-endif
-
-check:
+clean:
+	gnat clean -P hello_wsdl
+	rm -f hello_demo*
