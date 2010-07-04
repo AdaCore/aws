@@ -1,0 +1,25 @@
+
+This directory contains some AWS's demos. To run the demos AWS must have
+been built and installed properly.
+
+To build:
+
+   - if a makefile is present
+
+     $ make
+
+   - if there is no makefile
+
+     $ gnat make -P <demo_name>.gpr
+
+To clean-up:
+
+   - if a makefile is present
+
+     $ make clean
+
+   - if there is no makefile
+
+     $ gnat clean -P <demo_name>.gpr
+
+To launch the demo just run the executable(s) produced.
