@@ -108,9 +108,11 @@ demos/soap_demo/soap_demo.gpr
 demos/soap_demo/soap_server.adb
 demos/soap_demo/soap_server_cb.adb
 demos/soap_demo/soap_server_cb.ads
-demos/soap_server_disp.adb
-demos/soap_server_disp_cb.adb
-demos/soap_server_disp_cb.ads
+demos/soap_disp/soap_client.adb
+demos/soap_disp/soap_disp.gpr
+demos/soap_disp/soap_server_disp.adb
+demos/soap_disp/soap_server_disp_cb.adb
+demos/soap_disp/soap_server_disp_cb.ads
 demos/soap_vs/soap_cvs.adb
 demos/soap_vs/soap_svs.adb
 demos/soap_vs/soap_svs_cb.adb
