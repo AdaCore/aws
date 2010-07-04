@@ -40,8 +40,7 @@ project Demos is
              "split.adb", "web_mail.adb", "web_elements.adb",
              "test_mail.adb", "multiple_sessions.adb", "agent.adb");
 
-   Mains_XMLAda := ("soap_client.adb", "soap_server.adb",
-                    "soap_server_disp.adb", "jabber_demo.adb");
+   Mains_XMLAda := ("soap_server_disp.adb", "jabber_demo.adb");
 
    for Source_Files use
      Mains & ("auth_cb.ads","auth_cb.adb",
@@ -59,8 +58,7 @@ project Demos is
          for Source_Files use
            project'Source_Files
              & Mains_XMLADA
-             & ("soap_server_cb.ads", "soap_server_cb.adb",
-                "soap_server_disp_cb.ads", "soap_server_disp_cb.adb");
+             & ("soap_server_disp_cb.ads", "soap_server_disp_cb.adb");
       when "Disabled" =>
          null;
    end case;

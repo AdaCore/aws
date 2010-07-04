@@ -103,10 +103,11 @@ demos/simple_index.thtml
 demos/simple_s_index.thtml
 demos/sliding_index.thtml
 demos/sliding_s_index.thtml
-demos/soap_client.adb
-demos/soap_server.adb
-demos/soap_server_cb.adb
-demos/soap_server_cb.ads
+demos/soap_demo/soap_client.adb
+demos/soap_demo/soap_demo.gpr
+demos/soap_demo/soap_server.adb
+demos/soap_demo/soap_server_cb.adb
+demos/soap_demo/soap_server_cb.ads
 demos/soap_server_disp.adb
 demos/soap_server_disp_cb.adb
 demos/soap_server_disp_cb.ads
