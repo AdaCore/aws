@@ -48,9 +48,10 @@ demos/com_1.adb
 demos/com_2.adb
 demos/demos.gpr
 demos/demos_shared.gpr
-demos/dispatch.adb
-demos/dispatch_cb.adb
-demos/dispatch_cb.ads
+demos/dispatch/dispatch.adb
+demos/dispatch/dispatch.gpr
+demos/dispatch/dispatch_cb.adb
+demos/dispatch/dispatch_cb.ads
 demos/hello_world/hello_world.adb
 demos/hello_world/hello_world_cb.adb
 demos/hello_world/hello_world_cb.ads

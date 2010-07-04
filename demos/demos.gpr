@@ -36,7 +36,7 @@ project Demos is
    for Source_Dirs use (".", "../.build/common/demos");
 
    Mains := ("com_1.adb", "com_2.adb", "main.adb",
-             "hotplug.adb", "dispatch.adb", "wps.adb", "ws.adb",
+             "hotplug.adb", "wps.adb", "ws.adb",
              "auth.adb", "text_input.adb", "vh_demo.adb",
              "zdemo.adb", "split.adb", "web_mail.adb", "web_elements.adb",
              "test_mail.adb", "multiple_sessions.adb", "agent.adb");
@@ -45,8 +45,7 @@ project Demos is
                     "soap_server_disp.adb", "jabber_demo.adb");
 
    for Source_Files use
-     Mains & ("dispatch_cb.ads", "dispatch_cb.adb",
-              "auth_cb.ads","auth_cb.adb",
+     Mains & ("auth_cb.ads","auth_cb.adb",
               "text_input_cb.ads", "text_input_cb.adb",
               "vh_demo_cb.ads", "vh_demo_cb.adb",
               "ws_cb.ads", "ws_cb.adb",
