@@ -68,7 +68,8 @@ demos/interoplab/interoplab.gpr
 demos/interoplab/interoplab_main.adb
 demos/interoplab/interoplab_main.wsdl
 demos/interoplab/makefile
-demos/jabber_demo.adb
+demos/jabber_demo/jabber_demo.adb
+demos/jabber_demo/jabber_demo.gpr
 demos/makefile
 demos/multiple_sessions/multiple_sessions.adb
 demos/multiple_sessions/multiple_sessions.gpr
