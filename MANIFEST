@@ -126,9 +126,10 @@ demos/text_input.gpr
 demos/text_input/text_input.adb
 demos/text_input/text_input_cb.adb
 demos/text_input/text_input_cb.ads
-demos/vh_demo.adb
-demos/vh_demo_cb.adb
-demos/vh_demo_cb.ads
+demos/vh_demo/vh_demo.adb
+demos/vh_demo/vh_demo.gpr
+demos/vh_demo/vh_demo_cb.adb
+demos/vh_demo/vh_demo_cb.ads
 demos/we_ajax_group.html
 demos/we_ajax_user.html
 demos/we_library.html
