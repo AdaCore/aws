@@ -35,8 +35,7 @@ project Demos is
    for Languages use ("Ada", "Project file");
    for Source_Dirs use (".", "../.build/common/demos");
 
-   Mains := ("main.adb",
-             "hotplug.adb", "wps.adb", "ws.adb",
+   Mains := ("wps.adb", "ws.adb",
              "auth.adb", "text_input.adb", "vh_demo.adb",
              "zdemo.adb", "split.adb", "web_mail.adb", "web_elements.adb",
              "test_mail.adb", "multiple_sessions.adb", "agent.adb");
@@ -50,7 +49,6 @@ project Demos is
               "vh_demo_cb.ads", "vh_demo_cb.adb",
               "ws_cb.ads", "ws_cb.adb",
               "zdemo_cb.ads", "zdemo_cb.adb",
-              "hotplug_cb.ads", "hotplug_cb.adb",
               "web_elements_containers.ads", "web_elements_containers.adb",
               "demos.gpr");
 
