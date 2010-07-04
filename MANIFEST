@@ -33,7 +33,6 @@ config/src/ssl-thin__gnutls.ads
 config/src/ssl-thin__openssl.ads
 config/src/templates_parser-configuration__aws.ads
 config/src/templates_parser-input__aws.adb
-demos/404.thtml
 demos/agent.adb
 demos/auth/auth.adb
 demos/auth/auth.gpr
@@ -41,8 +40,6 @@ demos/auth/auth_cb.adb
 demos/auth/auth_cb.ads
 demos/aws_directory.thtml
 demos/base64.adb
-demos/bounded_index.thtml
-demos/bounded_s_index.thtml
 demos/cert.pem
 demos/com/com.gpr
 demos/com/com_1.adb
@@ -98,10 +95,6 @@ demos/runme/runme_info.ads
 demos/runme/runme_server.adb
 demos/runme/runme_service.adb
 demos/runme/runme_service.ads
-demos/simple_index.thtml
-demos/simple_s_index.thtml
-demos/sliding_index.thtml
-demos/sliding_s_index.thtml
 demos/soap_demo/soap_client.adb
 demos/soap_demo/soap_demo.gpr
 demos/soap_demo/soap_server.adb
@@ -117,8 +110,16 @@ demos/soap_vs/soap_svs.adb
 demos/soap_vs/soap_svs_cb.adb
 demos/soap_vs/soap_svs_cb.ads
 demos/soap_vs/soap_vs.gpr
-demos/split.adb
-demos/split.thtml
+demos/split/404.thtml
+demos/split/bounded_index.thtml
+demos/split/bounded_s_index.thtml
+demos/split/simple_index.thtml
+demos/split/simple_s_index.thtml
+demos/split/sliding_index.thtml
+demos/split/sliding_s_index.thtml
+demos/split/split.adb
+demos/split/split.gpr
+demos/split/split.thtml
 demos/test_ldap.adb
 demos/test_mail.adb
 demos/text_input.gpr
