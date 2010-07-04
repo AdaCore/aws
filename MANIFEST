@@ -157,7 +157,10 @@ demos/wm_login.html
 demos/wm_message.thtml
 demos/wm_reply.thtml
 demos/wm_summary.thtml
-demos/wps.adb
+demos/wps/aws_directory.thtml
+demos/wps/wps.adb
+demos/wps/wps.gpr
+demos/wps/wps.ini
 demos/ws/aws_directory.thtml
 demos/ws/page1.html
 demos/ws/ws.adb

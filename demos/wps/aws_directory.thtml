@@ -1,0 +1,211 @@
+<html><head><title>Index of @_URI_@</title>
+<meta content="Ada Web Server" name="GENERATOR"/></head>
+<body>
+
+<h2>Index of @_URI_@</h2>
+
+<table width="90%" align="center">
+
+<tr>
+<td colspan="4" align="right">
+@@IF@@ @_MODE_@ = complex
+  <a href="?MODE=simple">Switch to simple order</a>
+@@ELSE@@
+  <a href="?MODE=complex">Switch to complex order</a>
+@@END_IF@@
+</td>
+</tr>
+
+<tr><td colspan="4"><hr/></td></tr>
+
+<tr>
+<td valign="bottom">
+@@IF@@ @_MODE_@ = complex
+  <a href="@_ORIG_ORDR_@">Original</a><br/>
+  <a href="@_EXT_ORDR_@">Extension case insensitive</a><br/>
+  <a href="@_SEXT_ORDR_@">Extension case sensitive</a><br/>
+  <a href="@_MIME_ORDR_@">Mime type</a><br/>
+  <a href="@_DIR_ORDR_@">Directory flag</a>
+@@ELSE@@  
+  <a href="@_EXT_ORDR_@">Type</a><br/>
+@@END_IF@@
+</td>
+
+<td valign="bottom">
+@@IF@@ @_MODE_@ = complex
+  <a href="@_DIR_NAME_ORDR_@">Directory flag / name case insensitive</a><br/>
+  <a href="@_DIR_SNME_ORDR_@">Directory flag / name case sensitive</a><br/>
+  <a href="@_NAME_ORDR_@">Name case insensitive</a><br/>
+  <a href="@_SNME_ORDR_@">Name case sensitive</a>
+@@ELSE@@
+  <a href="@_DIR_NAME_ORDR_@">Name</a><br/>
+@@END_IF@@
+</td>
+
+<td valign="bottom">
+@@IF@@ @_MODE_@ = complex
+  <a href="@_DIR_TIME_ORDR_@">Directory flag / modification time</a><br/>
+  <a href="@_TIME_ORDR_@">Modification time</a>
+@@ELSE@@  
+  <a href="@_DIR_TIME_ORDR_@">Modification time</a><br/>
+@@END_IF@@
+</td>
+
+<td valign="bottom" align="right">
+  <a href="@_SIZE_ORDR_@">Size</a>
+</td>
+
+</tr>
+
+<tr><td colspan="4"><hr/></td></tr>
+
+@@TABLE@@
+<tr>
+
+<td>
+@@IF@@ @_IS_DIR_V_@
+
+@@IF@@ @_MATCH(\.\./):NAME_V_@
+<a href="@_NAME_V_@?MODE=@_MODE_@">
+<img border="0" src="/icons/dirup.gif" ALT="up"/></a>
+@@ELSIF@@ @_MATCH(\./):NAME_V_@
+<a href="@_NAME_V_@?MODE=@_MODE_@">
+<img border="0" src="/icons/folder.open.gif" ALT="current"/></a>
+@@ELSE@@
+<a href="@_NAME_V_@?MODE=@_MODE_@">
+<img border="0" src="/icons/folder.gif" ALT="dir"/></a>
+@@END_IF@@
+
+@@ELSIF@@ @_MATCH(.*\.zip|.*\.gz|.*\.tgz|.*\.arj|.*\.rar|.*\.jar|.*\.lzh|.*\.z):LOWER:NAME_V_@
+<a href="@_NAME_V_@">
+<img border="0" src="/icons/compressed.gif" ALT="compressed"/></a>
+
+@@ELSIF@@ @_MATCH(readme\..*):LOWER:NAME_V_@
+<a href="@_NAME_V_@">
+<img border="0" src="/icons/alert.red.gif" ALT="read me"/></a>
+
+@@ELSIF@@ @_MATCH(read\.?me):LOWER:NAME_V_@
+<a href="@_NAME_V_@">
+<img border="0" src="/icons/alert.black.gif" ALT="read me"/></a>
+
+@@ELSIF@@ @_MATCH(.*\.bin|.*\.o|.*\.obj|.*\.lib|.*\.a|.*\.exe|.*\.dll):LOWER:NAME_V_@
+<a href="@_NAME_V_@">
+<img border="0" src="/icons/binary.gif" ALT="bin"/></a>
+
+@@ELSIF@@ @_MATCH(.*\.hex|.*\.hqx|.*\.binhex):LOWER:NAME_V_@
+<a href="@_NAME_V_@"><img border="0" src="/icons/binhex.gif" ALT="hex"/></a>
+
+@@ELSIF@@ @_MATCH(.*\.sys|.*\.drv):LOWER:NAME_V_@
+<a href="@_NAME_V_@"><img border="0" src="/icons/bomb.gif" ALT="dont"/></a>
+
+@@ELSIF@@ @_MATCH(.*\.cc?|.*\.h|.*\.cpp|.*\.hpp):LOWER:NAME_V_@
+<a href="@_NAME_V_@"><img border="0" src="/icons/c.gif" ALT="C"/></a>
+
+@@ELSIF@@ @_MATCH(.*\.dvi):LOWER:NAME_V_@
+<a href="@_NAME_V_@"><img border="0" src="/icons/dvi.gif" ALT="dvi"/></a>
+
+@@ELSIF@@ @_MATCH(.*\.f|.*\.for):LOWER:NAME_V_@
+<a href="@_NAME_V_@"><img border="0" src="/icons/f.gif" ALT="for"/></a>
+
+@@ELSIF@@ @_MATCH(.*\.bmp|.*\.ico|.*\.pcx):LOWER:NAME_V_@
+<a href="@_NAME_V_@"><img border="0" src="/icons/image1.gif" ALT="img"/></a>
+
+@@ELSIF@@ @_MATCH(.*\.gif|.*\.png):LOWER:NAME_V_@
+<a href="@_NAME_V_@"><img border="0" src="/icons/image2.gif" ALT="img"/></a>
+
+@@ELSIF@@ @_MATCH(.*\.jpe?g):LOWER:NAME_V_@
+<a href="@_NAME_V_@"><img border="0" src="/icons/image3.gif" ALT="img"/></a>
+
+@@ELSIF@@ @_MATCH(.*\.[s;t]?html?):LOWER:NAME_V_@
+<a href="@_NAME_V_@"><img border="0" src="/icons/layout.gif" ALT="html"/></a>
+
+@@ELSIF@@ @_MATCH(.*\.mpe?g|.*\.avi):LOWER:NAME_V_@
+<a href="@_NAME_V_@"><img border="0" src="/icons/movie.gif" ALT="movie"/></a>
+
+@@ELSIF@@ @_MATCH(.*\.ads):LOWER:NAME_V_@
+<a href="@_NAME_V_@"><img border="0" src="/icons/ads.gif" ALT="ada"/></a>
+
+@@ELSIF@@ @_MATCH(.*\.adb):LOWER:NAME_V_@
+<a href="@_NAME_V_@"><img border="0" src="/icons/adb.gif" ALT="ada"/></a>
+
+@@ELSIF@@ @_MATCH(.*\.ada):LOWER:NAME_V_@
+<a href="@_NAME_V_@"><img border="0" src="/icons/ada.gif" ALT="ada"/></a>
+
+@@ELSIF@@ @_MATCH(.*\.p[l;t;h;y]?|.*\.pas):LOWER:NAME_V_@
+<a href="@_NAME_V_@"><img border="0" src="/icons/p.gif" ALT="p"/></a>
+
+@@ELSIF@@ @_MATCH(.*\.pdf):LOWER:NAME_V_@
+<a href="@_NAME_V_@"><img border="0" src="/icons/pdf.gif" ALT="pdf"/></a>
+
+@@ELSIF@@ @_MATCH(.*\.diff|.*\.patch):LOWER:NAME_V_@
+<a href="@_NAME_V_@"><img border="0" src="/icons/patch.gif" ALT="patch"/></a>
+
+@@ELSIF@@ @_MATCH(.*\.sh|.*\.shar|.*\.ksh|.*\.csh|.*\.m4|.*\.in|.*\.el|.*\.bat|.*\.tcl|makefile.*|install.*):LOWER:NAME_V_@
+<a href="@_NAME_V_@"><img border="0" src="/icons/script.gif" ALT="script"/></a>
+
+@@ELSIF@@ @_MATCH(.*\.mp3|.*\.ra|.*\.wav|.*\.wma):LOWER:NAME_V_@
+<a href="@_NAME_V_@"><img border="0" src="/icons/sound1.gif" ALT="sound"/></a>
+
+@@ELSIF@@ @_MATCH(.*\.cda|.*\.midi?):LOWER:NAME_V_@
+<a href="@_NAME_V_@"><img border="0" src="/icons/sound2.gif" ALT="sound"/></a>
+
+@@ELSIF@@ @_MATCH(.*\.ps):LOWER:NAME_V_@
+<a href="@_NAME_V_@"><img border="0" src="/icons/ps.gif" ALT="tar"/></a>
+
+@@ELSIF@@ @_MATCH(.*\.tar):LOWER:NAME_V_@
+<a href="@_NAME_V_@"><img border="0" src="/icons/tar.gif" ALT="tar"/></a>
+
+@@ELSIF@@ @_MATCH(.*\.texi?):LOWER:NAME_V_@
+<a href="@_NAME_V_@"><img border="0" src="/icons/tex.gif" ALT="tex"/></a>
+
+@@ELSIF@@ @_MATCH(.*\.txt|.*\.lst|.*\.log|changelog|todo\.*):LOWER:NAME_V_@
+<a href="@_NAME_V_@"><img border="0" src="/icons/text.gif" ALT="text"/></a>
+
+@@ELSIF@@ @_MATCH(.*\.uue?):LOWER:NAME_V_@
+<a href="@_NAME_V_@"><img border="0" src="/icons/uu.gif" ALT="uue"/></a>
+
+@@ELSIF@@ @_MATCH(.*\.eml):LOWER:NAME_V_@
+<a href="@_NAME_V_@"><img border="0" src="/icons/quill.gif" ALT="email"/></a>
+
+@@ELSIF@@ @_MATCH(.*\.pem|.*\.ss):LOWER:NAME_V_@
+<a href="@_NAME_V_@"><img border="0" src="/icons/file_sec.gif" ALT="secur"/></a>
+
+@@ELSIF@@ @_MATCH(.*\.tmplt|.*\.ini|.*\.ora|.*\.idl|.*\.opt|.*\.cfg|.*\.conf|gnat\.ago|config.*):LOWER:NAME_V_@
+<a href="@_NAME_V_@"><img border="0" src="/icons/file_red.gif" ALT="cfg"/></a>
+
+@@ELSIF@@ @_MATCH(.*\.ali|.*\.class|.*\.sql|.*\.info|.*\.bak|.*\.pod|.*\.[0-9]|[a-z;A-Z;0-9;_]*):LOWER:NAME_V_@
+<a href="@_NAME_V_@"><img border="0" src="/icons/file.gif" ALT="any"/></a>
+
+@@ELSE@@
+<a href="@_NAME_V_@"><img border="0" src="/icons/unknown.gif" ALT="unknown"/></a>
+
+@@END_IF@@
+</td>
+
+<td>
+@@IF@@ @_IS_DIR_V_@
+  <a href="@_NAME_V_@?MODE=@_MODE_@">@_NAME_V_@</a>
+@@ELSE@@
+  <a href="@_URI_@@_NAME_V_@">@_NAME_V_@</a>
+@@END_IF@@
+</td>
+
+<td>@_TIME_V_@</td>
+<td align="right">@_FORMAT_NUMBER:SIZE_V_@</td>
+</tr>
+
+@@END_TABLE@@
+
+<tr><td colspan="4"><hr/></td></tr>
+
+<tr>
+<td colspan="2">
+<i><a href="http://libre.adacore.com/aws">Ada Web Server</a>
+/@_VERSION_@</i>
+</td>
+</tr>
+
+</table>
+
+</body>
+</html>
