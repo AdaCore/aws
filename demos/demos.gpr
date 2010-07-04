@@ -42,7 +42,7 @@ project Demos is
              "test_mail.adb", "multiple_sessions.adb", "agent.adb");
 
    Mains_XMLAda := ("soap_client.adb", "soap_server.adb", "soap_svs.adb",
-                    "soap_cvs.adb", "interoplab_main.adb",
+                    "soap_cvs.adb",
                     "soap_server_disp.adb", "jabber_demo.adb");
 
    for Source_Files use
@@ -64,20 +64,9 @@ project Demos is
          for Source_Files use
            project'Source_Files
              & Mains_XMLADA
-             & ("interoplab.ads",
-                "interoplab-client.ads", "interoplab-client.adb",
-                "interoplab-types.ads",
-                "soap_server_cb.ads", "soap_server_cb.adb",
+             & ("soap_server_cb.ads", "soap_server_cb.adb",
                 "soap_server_disp_cb.ads", "soap_server_disp_cb.adb",
-                "soap_svs_cb.ads", "soap_svs_cb.adb",
-                "soapinterop-org-xsd-arrayoffloat_type_pkg.ads",
-                "soapinterop-org-xsd-arrayofint_type_pkg.ads",
-                "soapinterop-org-xsd-arrayofsoapstruct_type_pkg.ads",
-                "soapinterop-org-xsd-arrayofstring_type_pkg.ads",
-                "soapinterop-org-xsd-soapstruct_type_pkg.adb",
-                "soapinterop-org-xsd-soapstruct_type_pkg.ads",
-                "soapinterop-org-xsd.ads",
-                "soapinterop-org.ads", "soapinterop.ads");
+                "soap_svs_cb.ads", "soap_svs_cb.adb");
       when "Disabled" =>
          null;
    end case;

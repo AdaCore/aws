@@ -64,8 +64,10 @@ demos/hotplug.adb
 demos/hotplug_cb.adb
 demos/hotplug_cb.ads
 demos/hotplug_module.ini
-demos/interoplab_main.adb
-demos/interoplab_main.wsdl
+demos/interoplab/interoplab.gpr
+demos/interoplab/interoplab_main.adb
+demos/interoplab/interoplab_main.wsdl
+demos/interoplab/makefile
 demos/jabber_demo.adb
 demos/main.adb
 demos/makefile

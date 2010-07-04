@@ -1,7 +1,7 @@
 ############################################################################
 #                              Ada Web Server                              #
 #                                                                          #
-#                     Copyright (C) 2003-2010, AdaCore                     #
+#                        Copyright (C) 2010, AdaCore                       #
 #                                                                          #
 #  This library is free software; you can redistribute it and/or modify    #
 #  it under the terms of the GNU General Public License as published by    #
@@ -25,11 +25,13 @@
 #  covered by the  GNU Public License.                                     #
 ############################################################################
 
-setup:
+all: build_wsdl
+	gnat make -P interoplab
 
-install:
-	$(CP) *.thtml $(I_TPL)
-	$(CP) wm_login.html $(I_TPL)
-	$(CP) aws_*.png $(I_IMG)
+build_wsdl:
+	echo Generate stub/skel from WSDL document
+	wsdl2aws -q -f -doc -noskel interoplab_main.wsdl
 
-check:
+clean:
+	gnat clean -P interoplab
+	rm -f interoplab.ads interoplab-* soapinterop*
