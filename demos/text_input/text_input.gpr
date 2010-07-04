@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2010, AdaCore                     --
+--                       Copyright (C) 2010, AdaCore                        --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -25,82 +25,14 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-with "../shared";
-with "../include/include";
-with "../src/src";
-with "demos_shared";
+with "aws";
 
-project Demos is
+project Text_Input is
+   for Source_Dirs use (".");
+   for Main use ("text_input.adb");
 
-   for Languages use ("Ada", "Project file");
-   for Source_Dirs use (".", "../.build/common/demos");
+   package Builder is
+      for Default_Switches ("Ada") use ("-gnat05");
+   end Builder;
 
-   Mains := ("wps.adb", "ws.adb",
-             "auth.adb", "vh_demo.adb",
-             "split.adb", "web_mail.adb", "web_elements.adb",
-             "test_mail.adb", "multiple_sessions.adb", "agent.adb");
-
-   Mains_XMLAda := ("jabber_demo.adb");
-
-   for Source_Files use
-     Mains & ("auth_cb.ads","auth_cb.adb",
-              "vh_demo_cb.ads", "vh_demo_cb.adb",
-              "ws_cb.ads", "ws_cb.adb",
-              "web_elements_containers.ads", "web_elements_containers.adb",
-              "demos.gpr");
-
-   for Main use Mains;
-
-   case Shared.XMLAda is
-      when "Installed" =>
-         for Main use project'Main & Mains_XMLAda;
-         for Source_Files use
-           project'Source_Files
-             & Mains_XMLADA;
-      when "Disabled" =>
-         null;
-   end case;
-
-   case Shared.LDAP is
-      when "Installed" =>
-         for Main use project'Main & ("test_ldap.adb");
-         for Source_Files use
-           project'Source_Files & ("test_ldap.adb");
-      when others =>
-         null;
-   end case;
-
-   for Object_Dir use "../" & Shared'Object_Dir & "/demos";
-   for Exec_Dir use "../" & Shared'Exec_Dir & "/demos";
-
-   ---------
-   -- Ide --
-   ---------
-
-   package Ide renames Shared.Ide;
-
-   ------------
-   -- Binder --
-   ------------
-
-   package Binder renames Shared.Binder;
-
-   -------------
-   -- Builder --
-   -------------
-
-   package Builder renames Shared.Builder;
-
-   --------------
-   -- Compiler --
-   --------------
-
-   package Compiler renames Demos_Shared.Compiler;
-
-   ------------
-   -- Linker --
-   ------------
-
-   package Linker renames Demos_Shared.Linker;
-
-end Demos;
+end Text_Input;
