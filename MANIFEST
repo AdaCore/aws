@@ -57,9 +57,9 @@ demos/dispatch.adb
 demos/dispatch_cb.adb
 demos/dispatch_cb.ads
 demos/hello.wsdl
-demos/hello_world.adb
-demos/hello_world_cb.adb
-demos/hello_world_cb.ads
+demos/hello_world/hello_world.adb
+demos/hello_world/hello_world_cb.adb
+demos/hello_world/hello_world_cb.ads
 demos/hotplug.adb
 demos/hotplug_cb.adb
 demos/hotplug_cb.ads

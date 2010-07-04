@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2009, AdaCore                     --
+--                     Copyright (C) 2003-2010, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -35,7 +35,7 @@ project Demos is
    for Languages use ("Ada", "Project file");
    for Source_Dirs use (".", "../.build/common/demos");
 
-   Mains := ("hello_world.adb", "com_1.adb", "com_2.adb", "main.adb",
+   Mains := ("com_1.adb", "com_2.adb", "main.adb",
              "hotplug.adb", "dispatch.adb", "wps.adb", "ws.adb",
              "auth.adb", "text_input.adb", "vh_demo.adb", "res_demo.adb",
              "zdemo.adb", "split.adb", "web_mail.adb", "web_elements.adb",
@@ -56,7 +56,6 @@ project Demos is
               "zdemo_cb.ads", "zdemo_cb.adb",
               "rdemo.ads", "rdemo.adb",
               "hotplug_cb.ads", "hotplug_cb.adb",
-              "hello_world_cb.ads", "hello_world_cb.adb",
               "res_demo_cb.ads", "res_demo_cb.adb",
               "runme_cb.ads", "runme_cb.adb",
               "web_elements_containers.ads", "web_elements_containers.adb",

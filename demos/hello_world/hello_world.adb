@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2009, AdaCore                     --
+--                     Copyright (C) 2000-2010, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -25,16 +25,30 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-package body Hello_World_CB is
+--  The famous Hello Word demo, using AWS framework.
 
-   -----------
-   -- HW_CB --
-   -----------
+with Ada.Text_IO;
 
-   function HW_CB (Request : AWS.Status.Data) return AWS.Response.Data is
-      pragma Unreferenced (Request);
-   begin
-      return AWS.Response.Build ("text/html", "<p>Hello world !");
-   end HW_CB;
+with AWS.Default;
+with AWS.Server;
 
-end Hello_World_CB;
+with Hello_World_CB;
+
+procedure Hello_World is
+
+   WS : AWS.Server.HTTP;
+
+begin
+   Ada.Text_IO.Put_Line
+     ("Call me on port"
+      & Positive'Image (AWS.Default.Server_Port)
+      & ", I will stop in 60 seconds...");
+
+   AWS.Server.Start (WS, "Hello World",
+                     Max_Connection => 1,
+                     Callback       => Hello_World_CB.HW_CB'Access);
+
+   delay 60.0;
+
+   AWS.Server.Shutdown (WS);
+end Hello_World;
