@@ -1,9 +1,9 @@
 
-@@INCLUDE@@ ../web_elements/javascripts/aws.tjs
+@@INCLUDE@@ ../../web_elements/javascripts/aws.tjs
 
 <html>
    <head>
-@@INCLUDE@@ ../web_elements/notebook/notebook.thtml Tabs currentPage TabContents page1
+@@INCLUDE@@ ../../web_elements/notebook/notebook.thtml Tabs currentPage TabContents page1
 <style>
 h1             { font-size: large; text-align: center; }
 .TabContents   { background: white; height: 20em }
@@ -134,7 +134,7 @@ html>div, #page7         { height: 27em; }
       </div>
 
       <div Class="Result" id="placeholder">... result here ...
-      @@INCLUDE@@ ../web_elements/javascripts/aws_action_replace.tjs onclick clickme placeholder
+      @@INCLUDE@@ ../../web_elements/javascripts/aws_action_replace.tjs onclick clickme placeholder
       </div>
 
       <div class="Code">
@@ -160,9 +160,9 @@ html>div, #page7         { height: 27em; }
       </div>
 
       <div Class="Result" id="placeholder2">... result here ...
-      @@INCLUDE@@ ../web_elements/javascripts/aws_action_replace.tjs (onclick, data, placeholder2, 5=>field)
-      @@INCLUDE@@ ../web_elements/javascripts/aws_action_clear.tjs (onclick, cdata, field)
-      @@INCLUDE@@ ../web_elements/javascripts/aws_action_clear.tjs (onclick, cplaceh, placeholder2)
+      @@INCLUDE@@ ../../web_elements/javascripts/aws_action_replace.tjs (onclick, data, placeholder2, 5=>field)
+      @@INCLUDE@@ ../../web_elements/javascripts/aws_action_clear.tjs (onclick, cdata, field)
+      @@INCLUDE@@ ../../web_elements/javascripts/aws_action_clear.tjs (onclick, cplaceh, placeholder2)
       </div>
 
       <div class="Code">
@@ -192,7 +192,7 @@ html>div, #page7         { height: 27em; }
       </div>
 
       <div Class="Result" id="placeholder3">... result here ...
-      @@INCLUDE@@ ../web_elements/javascripts/aws_action_replace.tjs (onchange, select_color, placeholder3, 5=>select_color)
+      @@INCLUDE@@ ../../web_elements/javascripts/aws_action_replace.tjs (onchange, select_color, placeholder3, 5=>select_color)
       </div>
 
       <div class="Code">
@@ -232,7 +232,7 @@ html>div, #page7         { height: 27em; }
       </div>
 
       <div Class="Result" id="form_result">... result here ...
-      @@INCLUDE@@ ../web_elements/javascripts/aws_action_replace.tjs (onsubmit, small_form, form_result, 5=>small_form)
+      @@INCLUDE@@ ../../web_elements/javascripts/aws_action_replace.tjs (onsubmit, small_form, form_result, 5=>small_form)
       </div>
 
       <div class="Code">
@@ -268,24 +268,24 @@ html>div, #page7         { height: 27em; }
          <br>
       </fieldset>
       <br>
-      @@INCLUDE@@ ../web_elements/javascripts/aws_action_replace.tjs onclick db_sel1 action
-      @@INCLUDE@@ ../web_elements/javascripts/aws_action_replace.tjs onclick db_sel2 action
+      @@INCLUDE@@ ../../web_elements/javascripts/aws_action_replace.tjs onclick db_sel1 action
+      @@INCLUDE@@ ../../web_elements/javascripts/aws_action_replace.tjs onclick db_sel2 action
       </form>
       </div>
 
 <script>
    function list_group()
    {
-      @@INCLUDE@@ ../web_elements/javascripts/aws_func_replace.tjs (null, g_list, group_list)
+      @@INCLUDE@@ ../../web_elements/javascripts/aws_func_replace.tjs (null, g_list, group_list)
    }
    function list_user()
    {
-      @@INCLUDE@@ ../web_elements/javascripts/aws_func_replace.tjs (null, u_list, user_list)
+      @@INCLUDE@@ ../../web_elements/javascripts/aws_func_replace.tjs (null, u_list, user_list)
    }
 </script>
       <div id="action" class="CResult"></div>
-      @@INCLUDE@@ ../web_elements/javascripts/aws_action_replace.tjs (onclick, g_action, action, 5=>db_group, 20=>list_group)
-      @@INCLUDE@@ ../web_elements/javascripts/aws_action_replace.tjs (onclick, u_action, action, 5=>db_user, 20=>list_user)
+      @@INCLUDE@@ ../../web_elements/javascripts/aws_action_replace.tjs (onclick, g_action, action, 5=>db_group, 20=>list_group)
+      @@INCLUDE@@ ../../web_elements/javascripts/aws_action_replace.tjs (onclick, u_action, action, 5=>db_user, 20=>list_user)
       <div class="List">
       <div class="HList">Groups</div>
       <div class="HList">Users</div>
@@ -310,10 +310,10 @@ html>div, #page7         { height: 27em; }
          <input id="xml4" type="button" name="action4" value="Action + Call URL"
          <br>
       </fieldset>
-      @@INCLUDE@@ ../web_elements/javascripts/aws_action_xml.tjs (onclick, xml1)
-      @@INCLUDE@@ ../web_elements/javascripts/aws_action_xml.tjs (onclick, xml_clear)
-      @@INCLUDE@@ ../web_elements/javascripts/aws_action_xml.tjs (onclick, xml3)
-      @@INCLUDE@@ ../web_elements/javascripts/aws_action_xml.tjs (onclick, xml4)
+      @@INCLUDE@@ ../../web_elements/javascripts/aws_action_xml.tjs (onclick, xml1)
+      @@INCLUDE@@ ../../web_elements/javascripts/aws_action_xml.tjs (onclick, xml_clear)
+      @@INCLUDE@@ ../../web_elements/javascripts/aws_action_xml.tjs (onclick, xml3)
+      @@INCLUDE@@ ../../web_elements/javascripts/aws_action_xml.tjs (onclick, xml4)
       </div>
 
       <div Class="XML_Result">
@@ -345,8 +345,8 @@ html>div, #page7         { height: 27em; }
       <p><input id="xml2" type="button" name="action1" value="Yes">
       <input id="xml_clear_no" type="button" name="action1" value="No">
       </div>
-      @@INCLUDE@@ ../web_elements/javascripts/aws_action_xml.tjs (onclick, xml2)
-      @@INCLUDE@@ ../web_elements/javascripts/aws_action_xml.tjs (onclick, xml_clear_no)
+      @@INCLUDE@@ ../../web_elements/javascripts/aws_action_xml.tjs (onclick, xml2)
+      @@INCLUDE@@ ../../web_elements/javascripts/aws_action_xml.tjs (onclick, xml_clear_no)
 
       <br><br>
       <div Class="Status" id="xml_status_bar">Click on the buttons</div>
@@ -378,7 +378,7 @@ html>div, #page7         { height: 27em; }
            <ul id="tolist" class="ulist"></ul>
         </fieldset>
 
-      @@INCLUDE@@ ../web_elements/javascripts/aws_sortable.tjs fromlist tolist
+      @@INCLUDE@@ ../../web_elements/javascripts/aws_sortable.tjs fromlist tolist
       </div>
 
       <br>
@@ -388,9 +388,9 @@ html>div, #page7         { height: 27em; }
       <input id="xml6" type="button" name="action2" value="Remove sortable">
       <input id="xml_get_list" type="button" name="action3" value="Check result">
      
-      @@INCLUDE@@ ../web_elements/javascripts/aws_action_xml.tjs (onclick, xml5)
-      @@INCLUDE@@ ../web_elements/javascripts/aws_action_xml.tjs (onclick, xml6)
-      @@INCLUDE@@ ../web_elements/javascripts/aws_action_xml.tjs (onclick, xml_get_list, 4=>tolist)
+      @@INCLUDE@@ ../../web_elements/javascripts/aws_action_xml.tjs (onclick, xml5)
+      @@INCLUDE@@ ../../web_elements/javascripts/aws_action_xml.tjs (onclick, xml6)
+      @@INCLUDE@@ ../../web_elements/javascripts/aws_action_xml.tjs (onclick, xml_get_list, 4=>tolist)
       </div>
 
       <div class="Result" id="list_result">... result here ...</div>
