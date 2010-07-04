@@ -70,7 +70,8 @@ demos/interoplab/interoplab_main.wsdl
 demos/interoplab/makefile
 demos/jabber_demo.adb
 demos/makefile
-demos/multiple_sessions.adb
+demos/multiple_sessions/multiple_sessions.adb
+demos/multiple_sessions/multiple_sessions.gpr
 demos/res_demo/adains.png
 demos/res_demo/makefile
 demos/res_demo/page3.html
