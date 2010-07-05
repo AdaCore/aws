@@ -1,10 +1,10 @@
 
                             A W S - Ada Web Server
-			   2.8.0 release / SOAP 1.5
+			   2.9.0 release / SOAP 1.5
 
 Authors:
    Dmitriy Anisimkov
-   Pascal Obry                                            February 17th, 2010
+   Pascal Obry                                                July 5th, 2010
 
 
 
@@ -39,19 +39,6 @@ New features are described into the file docs/features.
 
 Listed below are some minor enhancements and fixes:
 
-   - Fix wsdl2aws to properly support SOAP routines with response having
-     multiple parts.
-
-   - The PS documentation has been removed. Only PDF documentation is
-     now generated.
-
-   - The installed Zlib is now used by default. If not already
-     installed the version distributed with AWS is built as before.
-
-   - Setup procedure and config sources have been reorganized to ease
-     maintenance for developpers.
-
-   - Sources have been reorganized to ease maintenance for developpers.
 
 
 Non upward compatible changes
@@ -63,19 +50,6 @@ to work properly. Of course we try to avoid this as much as possible
 but we really prefer to have a clean API instead of keeping awkward
 implementations.
 
-   - The Send rountine will now raise Constraint_Error if no data has been
-     sent and Data'First = Stream_Element_Offset'First.
-
-     A common case to have Data'First = Stream_Element_Offset'First is:
-
-        I  : Stream_Element;
-        A  : Stream_Element_Array;
-
-        I & A;
-
-     This is easily worked around by using:
-
-        (0 => I) & A;
 
 
 Obsolescent features
