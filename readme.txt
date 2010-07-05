@@ -39,6 +39,9 @@ New features are described into the file docs/features.
 
 Listed below are some minor enhancements and fixes:
 
+   - Reorganize the demo sources. It is now easier to build/run each
+     demo independently. It is also easier to know which sources are
+     part of a given demo.
 
 
 Non upward compatible changes
