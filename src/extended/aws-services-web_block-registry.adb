@@ -352,11 +352,17 @@ package body AWS.Services.Web_Block.Registry is
                   end if;
 
                elsif C_Index /= 0 then
-                  Replace_Slice
-                    (Content,
-                     Low  => C_Index,
-                     High => C_Index + Tag_Context_Var'Length - 1,
-                     By   => Web_Block.Context.Image (CID));
+                  --  Replace all context variables
+                  Replace_Contexts : loop
+                     Replace_Slice
+                       (Content,
+                        Low  => C_Index,
+                        High => C_Index + Tag_Context_Var'Length - 1,
+                        By   => Web_Block.Context.Image (CID));
+                     C_Index := Index
+                       (Content, Tag_Context_Var, From => C_Index + 1);
+                     exit Replace_Contexts when C_Index = 0;
+                  end loop Replace_Contexts;
                end if;
 
                Parsed_Page :=
