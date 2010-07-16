@@ -349,18 +349,17 @@ For example, to build on VxWorks:
 @section Demos
 
 @noindent
-During the build, the @code{AWS} library and demos will be compiled. The
-demos are a good way to learn how to use @code{AWS}. Yet to learn all
-features in @code{AWS} you'll need to read the documentation.
+@code{AWS} comes with some ready to use demos. The demos are a good
+way to learn how to use @code{AWS}.
 
 @noindent
-Here are a short description of the demos:
+Here are a short description of them:
 
 @table @file
 
 @item agent
 
-A program using the AWS client interface. This simple tool can be used
+A program using the @code{AWS} client interface. This simple tool can be used
 to retrieve Web page content. It supports passing through a proxy with
 authentication and basic authentication on the Web site.
 
@@ -368,10 +367,9 @@ authentication and basic authentication on the Web site.
 
 A simple program to test the Web Basic and Digest authentication feature.
 
-@item com_1
-@item com_2
+@item com
 
-Two simples program that uses the AWS communication service.
+Two simples program that uses the @code{AWS} communication service.
 
 @item dispatch
 
@@ -382,10 +380,22 @@ A simple demo using the dispatcher facility. @pxref{URI dispatcher}.
 The famous Hello World program. This is a server that will always
 return a Web page saying ``Hello World!''.
 
-@item main
 @item hotplug
 
 A simple test for the hotplug feature.
+
+@item interoplab
+
+A WSDL based demo that test most of the @code{SOAP} features.
+
+@item jabber_demo
+
+A simple Jabber command line client to check the presence of a JID
+(Jabber ID). This uses the Jabber API, @pxref{AWS.Jabber}.
+
+@item multiple_sessions
+
+A demo of two embedded servers using different sessions.
 
 @item res_demo
 
@@ -396,26 +406,35 @@ image and an @code{HTML} page. The executable is self contained.
 
 An example that test many @code{AWS} features.
 
-@item multiple_sessions
+@item soap_demo
 
-A demo of two embedded servers using different sessions.
+A simple client/server program to test the @code{SOAP} protocol.
+
+@item soap_disp
+
+Like above but use a @code{SOAP} dispatcher.
+
+@item soap_vs
+
+A client and server that implement seven @code{SOAP} procedures for
+testing purpose.
 
 @item split
 
-A demo for the transient pages and page splitter AWS's feature. Here a
-very big table is split on multiple pages. A set of links can be used
-to navigate to the next or previous page or to access directly to a
-given page.
-
-@item jabber_demo
-
-A simple Jabber command line client to check the presence of a JID
-(Jabber ID). This uses the Jabber API, @pxref{AWS.Jabber}.
+A demo for the transient pages and page splitter @code{AWS}'s
+feature. Here a very big table is split on multiple pages. A set of
+links can be used to navigate to the next or previous page or to
+access directly to a given page.
 
 @item test_ldap
 
-A simple LDAP demo which access a public LDAP server and display some
-information.
+A simple @code{LDAP} demo which access a public @code{LDAP} server and
+display some information.
+
+@item test_mail
+
+A simple application that send a set of @code{SMTP} messages with
+different kind of attachments.
 
 @item text_input
 
@@ -426,22 +445,35 @@ A simple demo which handle textarea and display the content.
 Two servers on the same machine... virtual hosting demo.
 @pxref{Virtual host dispatcher}.
 
+@item web_block
+
+A simple Web Bock based counter.
+
+@item web_block_ajax
+
+As above but using also @code{Ajax}.
+
+@item web_block_ajax_templates
+
+As above but using also the @code{templates2ada} tool which create a
+tight coupling between the web templates and the @code{Ada} code.
+
 @item web_elements
 
 A driver to browse the Web Elements library and see some examples.
 
 @item web_mail
 
-A simple Web Mail implementation that works on a POP mailbox.
-
-@item ws
-
-A static Web page server and push enabled server.
+A simple Web Mail implementation that works on a @code{POP} mailbox.
 
 @item wps
 
 A very simple static Web page server based on @code{AWS.Services.Page_Server}.
 @pxref{Static Page server}.
+
+@item ws
+
+A static Web page server and push enabled server.
 
 @item zdemo
 
@@ -450,36 +482,7 @@ A simple demo of the Gzip content encoding feature.
 @end table
 
 @noindent
-If @code{XML/Ada} is installed it is possible to build the @code{SOAP} binding
-and the @code{SOAP} demos, for this just type:
-
-@AWSEXP {$ make build_soap}
-
-@noindent
-There is four demos:
-
-@table @file
-
-@item soap_client
-@item soap_server
-
-A simple client/server program to test the @code{SOAP} protocol.
-
-@item soap_svs
-
-A server that implements seven @code{SOAP} procedures for testing purpose.
-
-@item soap_cvs
-
-The client @code{SOAP} program that test all seven @code{SOAP}
-procedure of the above server.
-
-@end table
-
-@noindent
-In each case you'll certainly have to edit the makefile to correctly set
-the include path for the libraries @code{OpenSSL}, @code{Socket} and
-@code{XML/Ada}. For more information, look at the makefiles.
+For build instructions see @file{demos/README}.
 
 @c ----------------------------------------------------------------------
 
