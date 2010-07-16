@@ -317,7 +317,12 @@ package body AWS.Services.Web_Block.Registry is
                   --  <div id="CTX_WB" style="display:none">CID</div>
                   --
 
-                  C_Index := Index (Content, "<body ");
+                  C_Index := Index (Content, "<body>");
+
+                  if C_Index = 0 then
+                     --  If not found, look for a body with some attributes
+                     C_Index := Index (Content, "<body ");
+                  end if;
 
                   if C_Index /= 0 then
                      --  Look for the end of the body tag
