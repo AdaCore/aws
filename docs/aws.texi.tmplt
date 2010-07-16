@@ -2630,7 +2630,7 @@ Refer to the Ada spec for a complete API and usage description.
 * Split pages::
 * Download Manager::
 * Web Elements::
-* Web Block Context::
+* Web Blocks::
 * Web Cross-References::
 @end menu
 
@@ -3608,9 +3608,15 @@ explaining in details the usage of each parameter.
 
 @c ----------------------------------------------------------------------
 
-@node Web Block Context
-@section Web Block Context
-@cindex Web Block Context
+@node Web Blocks
+@section Web Blocks
+@cindex Web Blocks
+
+@menu
+* Web Block example::
+* Web Block and Ajax::
+* Web Block and templates2ada::
+@end menu
 
 @noindent
 The @code{AWS.Services.Web_Block} hierarchy contains an API useful for
@@ -3629,34 +3635,58 @@ The block is registered together with its templates and a callback to use
 to get user's data for this specific block with the given context.
 
 @noindent
-So using this API instead of having a set of callbacks returning an
+So using this API, instead of having a set of callbacks returning an
 @code{AWS.Response.Data} and where the final rendering is to be done
-by the client code we have a set of callbacks that returns a
+by the client code, we have a set of callbacks that returns a
 @code{Translate_Set}. The client just have to fill the set with the
 data corresponding to the actual request and possibly using the
 context. The final rendering is done by the provided services in
 @code{Web_Block.Registry}.
 
 @noindent
-It is possible to use the @code{Templates_Parser's templates2ada} tool for
-generating the callbacks register calls. This ensures that all tags on the
-application Web Pages have a corresponding callback.
+Note that all Web pages must also be registered into the registry
+to ensure that the context identification is properly kept. The context
+identification is injected into the Web pages transparently for the
+end-user when using @code{Ajax}.
+
+@node Web Block example
+@subsection Web Block example
 
 @noindent
-Let's have a simple example, a block with a single tag (@@_LAZY_COUNTER_@@)
-that is incremented by one each time it is used.
+Let's have a simple example, a page containing a single block with a
+tag (@@_COUNTER_@@) which is incremented by one each time it is
+used. The code can be found in @file{demos/web_block}.
 
 @noindent
-First create the following simple HTML fragment and place it into
-@file{templates/counter.thtml}. Note that by convention the lazy tags
-(see Templates_Parser documentation) start with the prefix @code{LAZY_}.
+First create the following HTML fragment and place it into
+@file{counter.thtml}.
 
-@AWSEXP{<p>@@_LAZY_COUNTER_@@</p>}
+@AWSEXP{<p>@@_COUNTER_@@</p>}
+
+@noindent
+Then create the main page and place it into @file{page.thtml}. The
+important part is the @@_CTX_WB_@@ tag which is passed to the link. This
+tag is the context identifier, it must be passed to each request. Note
+that this is automatically done when using the @code{Ajax} framework
+(@pxref{Web Block and Ajax}).
+
+@AWSEXP{<html>
+   <head>
+      <title>Main Page</title>
+   </head>
+   <body>
+      <p>This is the main page, bellow is a simple counter</p>
+      <p>@@_COUNTER_@@</p>
+      <a href="/?CTX_WB=@@_CTX_WB_@@>Next</a>
+   </body>
+</html>
+}
 
 @noindent
 The @code{Web_Callbacks} package contains the application callbacks.
 
-@AWSEXP{with AWS.Status;
+@AWSEXP{@b{with} AWS.Response;
+@b{with} AWS.Status;
 @b{with} AWS.Templates;
 @b{with} AWS.Services.Web_Block.Context;
 
@@ -3665,79 +3695,16 @@ The @code{Web_Callbacks} package contains the application callbacks.
    @b{use} AWS;
    @b{use} AWS.Services;
 
+   @b{function} Main (Request : @b{in} Status.Data) @b{return} Response.Data;
+   --  Main callback which handle the home page
+
    @b{procedure} Counter
-     (Request      : @b{in}     Status.Data;
-      Context      : @b{access} Web_Block.Context.Object;
-      Translations : @b{in out} AWS.Templates.Translate_Set);
+     (Request      : @b{in}              Status.Data;
+      Context      : @b{not null access} Web_Block.Context.Object;
+      Translations : @b{in out}          Templates.Translate_Set);
+   --  The callback handling the counter web block
 
 @b{end} Web_Callbacks;}
-
-@noindent
-We need also modify the standard @file{templates.tads} as distributed
-with the @code{Templates_Parser} to add the following template code:
-
-@AWSEXP{with AWS.Services.Web_Block.Registry;
-@b{with} Web_Callbacks;
-
-@b{package body} @@_PACKAGE_@@ @b{is}
-
-   @b{package body} Lazy @b{is}
-
-      @b{procedure} Register;
-      --  Register lazy tags into the AWS's Web Block framework
-
-      --------------
-      -- Register --
-      --------------
-
-      @b{procedure} Register @b{is}
-         @b{use} AWS.Services;
-      @b{begin}
-  @@@@TABLE@@@@
-     @@@@IF@@@@ @@@code{_}UPPER:SLICE(1..5):VARIABLE_LIST_@@ = "LAZY_"
-         Web_Block.Registry.Register
-            ("@@_VARIABLE_LIST_@@",
-            "templates/@@@code{_}LOWER:REPLACE_ALL(LAZY_/):VARIABLE_LIST_ @@.thtml",
-             Web_Callbacks.@@@code{_}CAPITALIZE:REPLACE_ALL(LAZY_/):VARIABLE_LIST_@@'Access);
-     @@@@END_IF@@@@
-  @@@@END_TABLE@@@@
-      @b{end} Register;
-
-   @b{begin}
-      Lazy.Register;
-   @b{end} Lazy;
-
-@b{end} @@_PACKAGE_@@;}
-
-@noindent
-Basically this is to write a register call for every template's
-tag. The registration is done during elaboration. The templates can be
-tailored as needed, for example it is also possible to generate all
-callback's specs.
-
-@noindent
-Now let's parse the template HTML fragment and create the
-corresponding Ada spec:
-
-@AWSEXP{$ templates2ada -d templates -o code.ada -r templates.tads
-$ gnatchop code.ada}
-
-@noindent
-Look at the generated code, it properly register the @code{Counter}
-callback to be used for rendering @code{LAZY_COUNTER} using the
-@file{templates/counter.thtml}. So we have a tight coupling between
-the code and the template file. If the tag is renamed in the template
-file the application will not compile anymore. This greatly helps
-keeping the application code synchronized.
-
-@AWSEXP{@b{procedure} Register @b{is}
-   @b{use} AWS.Services;
-@b{begin}
-   Web_Block.Registry.Register
-      ("LAZY_COUNTER",
-       "templates/counter.thtml",
-       Web_Callbacks.Counter'Access);
-@b{end} Register;}
 
 @noindent
 Last part is to actually implement the @code{Counter} callback. Here
@@ -3745,14 +3712,20 @@ is a possible implementation making use of the context to keep the
 counter state.
 
 @AWSEXP{@b{with} AWS.Utils;
-@b{with} Templates;
+@b{with} AWS.Messages;
+@b{with} AWS.MIME;
+@b{with} AWS.Services.Web_Block.Registry;
 
 @b{package body} Web_Callbacks @b{is}
 
+   -------------
+   -- Counter --
+   -------------
+
    @b{procedure} Counter
-     (Request      : @b{in}     Status.Data;
-      Context      : @b{access} Web_Block.Context.Object;
-      Translations : @b{in out} AWS.Templates.Translate_Set)
+     (Request      : @b{in}              Status.Data;
+      Context      : @b{not null access} Web_Block.Context.Object;
+      Translations : @b{in out}          Templates.Translate_Set)
    @b{is}
       N : Natural := 0;
    @b{begin}
@@ -3763,12 +3736,305 @@ counter state.
       N := N + 1;
       Context.Set_Value ("N", Utils.Image (N));
 
-      AWS.Templates.Insert
+      Templates.Insert
         (Translations,
-         AWS.Templates.Assoc (Templates.Lazy.Lazy_Counter, N));
+         AWS.Templates.Assoc ("COUNTER", N));
    @b{end} Counter;
 
+   ----------
+   -- Main --
+   ----------
+
+   @b{function} Main (Request : @b{in} Status.Data) @b{return} Response.Data @b{is}
+      URI : constant String := Status.URI (Request);
+   @b{begin}
+      return Web_Block.Registry.Build
+        (Key          => URI,
+         Request      => Request,
+         Translations => Set);
+   @b{end} Main;
+
 @b{end} Web_Callbacks;}
+
+@noindent
+Finally, we write the main procedure:
+
+@AWSEXP{@b{with} Ada.Text_IO;
+
+@b{with} AWS.Server;
+@b{with} AWS.Services.Web_Block.Registry;
+
+@b{with} Web_Callbacks;
+
+@b{procedure} Web_Block @b{is}
+
+   @b{use} Ada;
+   @b{use} AWS;
+   @b{use} AWS.Services;
+
+   HTTP : AWS.Server.HTTP;
+
+@b{begin}
+   --  First we register the main page and the counter block
+
+   Services.Web_Block.Registry.Register
+     ("/", "page.thtml", null);
+
+   Services.Web_Block.Registry.Register
+     ("COUNTER", "counter.thtml",
+      Web_Callbacks.Counter'Access, Context_Required => True);
+
+   --  Then we just start the server
+
+   Server.Start (HTTP, "web_block", Web_Callbacks.Main'Access);
+
+   Text_IO.Put_Line ("Press Q to terminate.");
+
+   Server.Wait (Server.Q_Key_Pressed);
+
+   Server.Shutdown (HTTP);
+@b{end} Web_Block;}
+
+@noindent
+Compile and run the server. Then connect to the server and click on
+next. The counter will be incremented by one each time.
+
+@node Web Block and Ajax
+@subsection Web Block and Ajax
+
+@noindent
+The Web Block framework has really been designed to be used with
+@code{Ajax}. It is the only way to gain the full power of the Web Block
+framework.
+
+@noindent
+For the complete code, see @code{demos/web_block_ajax}.
+
+@noindent
+When using @code{Ajax} it is not needed to explicitly pass the context
+identification to every link. This is done automatically by the
+framework. So the main page will look like this:
+
+@AWSEXP{<html>
+   <head>
+      <title>Main Page</title>
+      @@@@INCLUDE@@@@ ../../web_elements/javascripts/aws.tjs
+   </head>
+   <body>
+      <p>This is the main page, bellow is a simple counter</p>
+      @@_WIDGET_COUNTER_@@
+   </body>
+</html>}
+
+@noindent
+The counter widget is on @file{widget_counter.thtml}:
+
+@AWSEXP{<!-- implementation of a simple counter widget -->
+<p><div id="counter">@@_COUNTER_@@</div></p>
+<a id="next" href="/">Next</a>
+@@@@INCLUDE@@@@ ../../web_elements/javascripts/aws_action_xml.tjs (onclick, next)}
+
+For the @code{Ajax} part, @pxref{Ajax}.
+
+@noindent
+We now have one more register call for registering the @code{next} button
+@code{Ajax} callback, and a callback named @code{Widget_Counter} for
+displaying the block:
+
+@AWSEXP{Services.Web_Block.Registry.Register
+  ("WIDGET_COUNTER", "widget_counter.thtml",
+   Web_Callbacks.Widget_Counter'Access);
+
+Services.Web_Block.Registry.Register
+  ("/onclick$next", "r_widget_counter.txml",
+   Web_Callbacks.Onclick_Next'Access,
+   Content_Type     => MIME.Text_XML,
+   Context_Required => True);}
+
+@noindent
+The @code{next} @code{Ajax} button is using an XML based response which
+is defined in @file{r_widget_counter.txml}:
+
+@AWSEXP{<response>
+   <replace id="counter">@@_COUNTER_@@</replace>
+</response>}
+
+@noindent
+The @code{Widget_Counter} callbacks just have to set the
+@code{COUNTER} tag variable to the corresponding value. This is used to
+display the block. The @code{Ajax} callback @code{Onclick_Next} has to
+increment the counter and set the @code{COUNTER} tag variable, a simple
+implementation is:
+
+@AWSEXP{@b{procedure} Onclick_Next
+  (Request      : @b{in}              Status.Data;
+   Context      : @b{not null access} Web_Block.Context.Object;
+   Translations : @b{in out}          Templates.Translate_Set)
+@b{is}
+   N : Natural := 0;
+@b{begin}
+   @b{if} Context.Exist ("N") @b{then}
+      N := Natural'Value (Context.Get_Value ("N"));
+   @b{end if};
+
+   N := N + 1;
+
+   Context.Set_Value ("N", Utils.Image (N));
+
+   Templates.Insert
+     (Translations, Templates.Assoc ("COUNTER", N));
+@b{end} Onclick_Next;}
+
+@noindent
+The framework will then call @code{Onclick_Next} when pressing the
+@code{Next} button. This routine increments N by one sending back a
+response based on @code{r_widget_counter.txml}. Finally, the client
+browser will parse this XML response and do the corresponding actions.
+
+@node Web Block and templates2ada
+@subsection Web Block and templates2ada
+
+@noindent
+For the complete code, see @code{demos/web_block_ajax_templates}.
+
+@noindent
+It is possible to use the @code{Templates_Parser's templates2ada} tool for
+generating the callbacks register calls. This ensures that all tags on the
+application Web Pages have a corresponding callback.
+
+@noindent
+The code is almost identical to the standard @code{Ajax} example above. The
+main difference is that we need to use a naming convention for the
+blocks. This way we can generate automatically the corresponding
+callbacks using a template. A common convention is to add @code{LAZY_} as
+prefix for the name of the blocks. With this convention the main page
+template is:
+
+@AWSEXP{<html>
+   <head>
+      <title>Main Page</title>
+      @@@@INCLUDE@@@@ ../../web_elements/javascripts/aws.tjs
+   </head>
+   <body>
+      <p>This is the main page, bellow is a simple counter</p>
+      @@_LAZY_WIDGET_COUNTER_@@
+   </body>
+</html>}
+
+@noindent
+We need also modify the standard @file{templates.tads} as distributed
+with the @code{Templates_Parser}. Here is the interesting part:
+
+@AWSEXP{@b{with} AWS.MIME;
+@b{with} AWS.Services.Web_Block.Registry;
+@b{with} Web_Callbacks;
+
+@@@@TABLE@@@@
+@b{with} @@_PACKAGE_@@.@@_CAPITALIZE:REPLACE_ALL(\./_):BASENAME_@@;
+@@@@END_TABLE@@@@
+
+@b{package body} @@_PACKAGE_@@ @b{is}
+
+   @b{use} AWS;
+
+   @b{package body} Lazy @b{is}
+
+      --------------
+      -- Register --
+      --------------
+
+      @b{procedure} Register @b{is}
+         @b{use} AWS.Services;
+      @b{begin}
+         --  Register blocks
+@@@@TABLE@@@@
+   @@@@IF@@@@ @@_UPPER:SLICE(1..5):VARIABLE_LIST_@@ = "LAZY_"
+         Web_Block.Registry.Register
+           ("@@_VARIABLE_LIST_@@",
+            "@@_LOWER:REPLACE_ALL(LAZY_/):VARIABLE_LIST_@@.thtml",
+            Web_Callbacks.@@_CAPITALIZE:REPLACE_ALL(LAZY_/):VARIABLE_LIST_@@'Access);
+   @@@@END_IF@@@@
+@@@@END_TABLE@@@@
+         --  Register Ajax
+@@@@TABLE@@@@
+   @@@@TABLE@@@@
+      @@@@IF@@@@ not @@_IS_EMPTY:AJAX_EVENT_@@
+         Services.Web_Block.Registry.Register
+            ("/@@_AJAX_EVENT_@@$@@_AJAX_ACTION_@@",
+             @@_PACKAGE_@@.R_@@_CAPITALIZE:REPLACE_ALL(\./_):AJAX_FILE_@@.Template,
+             Web_Callbacks.@@_CAPITALIZE:AJAX_EVENT_@@_@@_CAPITALIZE:AJAX_ACTION_@@'Access,
+             Content_Type     => MIME.Text_XML,
+             Context_Required => True);
+      @@@@END_IF@@@@
+   @@@@END_TABLE@@@@
+@@@@END_TABLE@@@@
+      @b{end} Register;
+   @b{end} Lazy;
+
+@b{end} @@_PACKAGE_@@;}
+
+@noindent
+Basically this is to write a register call for every template's
+tag starting with @code{LAZY_}. The second section is to write a
+register call for every @code{Ajax} event. All callbacks are expected to be in
+a package named @code{Web_Callbacks}. It is of course possible to change
+this template to reference callbacks for blocks and @code{Ajax} in separate
+packages. The use of a template here is very flexible.
+
+@noindent
+Now let's parse the application HTML and XML templates and create the
+corresponding Ada specs and register calls:
+
+@AWSEXP{$ templates2ada -d . -o code.ada -t templates.tada -e .thtml -e .txml
+$ gnatchop code.ada}
+
+@noindent
+Look at the generated code, it properly register the @code{Widget_Counter}
+callback to be used for rendering @code{LAZY_WIDGET_COUNTER} using the
+@file{widget_counter.thtml}. So we have a tight coupling between
+the code and the template file. If the tag is renamed in the template
+file the application will not compile anymore. The same is true for @code{Ajax}
+callbacks, every @code{Ajax} action put in a template file needs a
+corresponding callback in Ada. This greatly helps keeping the
+application code synchronized.
+
+@AWSEXP{@b{procedure} Register @b{is}
+   @b{use} AWS.Services;
+@b{begin}
+   Web_Block.Registry.Register
+      ("LAZY_WIDGET_COUNTER",
+       "widget_counter.thtml",
+       Web_Callbacks.Widget_Counter'Access);
+   Services.Web_Block.Registry.Register
+      ("/onclick$next",
+       WBlocks.R_Widget_Counter.Template,
+       Web_Callbacks.Onclick_Next'Access,
+       Content_Type     => MIME.Text_XML,
+       Context_Required => True);
+@b{end} Register;}
+
+@noindent
+Moreover, an Ada spec containing reference for the tag names is
+generated for every HTML and XML template file. All tags can be
+referenced using those specs, it is not needed to use string
+literal in the application. Again, this ensures that a tag which is
+renamed or deleted is detected at compilation time. For example the
+@code{Widget_Counter} callback can be rewritten as follow:
+
+@AWSEXP{@b{procedure} Widget_Counter
+  (Request      : @b{in}              Status.Data;
+   Context      : @b{not null access} Web_Block.Context.Object;
+   Translations : @b{in out}          Templates.Translate_Set)
+@b{is}
+   N : Natural := 0;
+@b{begin}
+   @b{if} Context.Exist ("N") @b{then}
+      N := Natural'Value (Context.Get_Value ("N"));
+   @b{end if};
+
+   Templates.Insert
+     (Translations, Templates.Assoc (WBlocks.Widget_Counter.COUNTER, N));
+@b{end} Widget_Counter;}
 
 @c ======================================================================
 
@@ -3778,7 +4044,7 @@ counter state.
 @cindex web cross-references
 
 @noindent
-When building an Ajax Web applications it is required to give ids to
+When building an @code{Ajax} Web applications it is required to give ids to
 web elements to be able to reference them. It is also quite common to
 use CSS to give such and such item a specific style. After some time
 it is quite difficult to keep track of all those ids. Are they all
@@ -3807,7 +4073,7 @@ referencing a CSS definition and meta-language definition.
 
 @item .txml
 
-An Ajax response file. Ids declared inside are recorded as referencing
+An @code{Ajax} response file. Ids declared inside are recorded as referencing
 a meta-language definition.
 
 @end table
@@ -3825,12 +4091,12 @@ By default @code{webxref} output all the references to ids and classes.
 
 Output the ids/classes that are defined but not used. For example an
 id declared in a CSS but never referenced into an HTML document or an
-HTML id never referenced in an Ajax response file @file{.txml} document.
+HTML id never referenced in an @code{Ajax} response file @file{.txml} document.
 
 @item finding undeclared items
 
 Output ids/classes that are referenced but never defined. This is for
-example an id inside an Ajax response file which is never defined into
+example an id inside an @code{Ajax} response file which is never defined into
 an HTML document.
 
 @item enforcing a naming scheme for ids and classes

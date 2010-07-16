@@ -1,0 +1,11 @@
+<html>
+   <head>
+      <title>Main Page</title>
+   </head>
+   <body>
+      <p>This is the main page, bellow is a simple counter</p>
+      <p>@_COUNTER_@</p>
+      <a href="/add?CTX_WB=@_CTX_WB_@">Next</a>
+      <a href="/sub?CTX_WB=@_CTX_WB_@">Previous</a>
+   </body>
+</html>

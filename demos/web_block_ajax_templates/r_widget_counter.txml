@@ -1,0 +1,3 @@
+<response>
+   <replace id="counter">@_COUNTER_@</replace>
+</response>

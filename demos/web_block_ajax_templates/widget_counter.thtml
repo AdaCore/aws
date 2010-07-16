@@ -1,0 +1,6 @@
+<!-- implementation of a simple counter widget -->
+<p><div id="counter">@_COUNTER_@</div></p>
+<a id="next" href="/">Next</a>
+<a id="previous" href="/">Previous</a>
+@@INCLUDE@@ ../../web_elements/javascripts/aws_action_xml.tjs (onclick, next)
+@@INCLUDE@@ ../../web_elements/javascripts/aws_action_xml.tjs (onclick, previous)

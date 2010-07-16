@@ -1,0 +1,10 @@
+<html>
+   <head>
+      <title>Main Page</title>
+      @@INCLUDE@@ ../../web_elements/javascripts/aws.tjs
+   </head>
+   <body>
+      <p>This is the main page, bellow is a simple counter</p>
+      @_LAZY_WIDGET_COUNTER_@
+   </body>
+</html>
