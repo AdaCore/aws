@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2009, AdaCore                     --
+--                     Copyright (C) 2000-2010, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -51,7 +51,7 @@ with AWS.Response;
 package AWS.Services.Page_Server is
 
    procedure Directory_Browsing (Activated : Boolean);
-   --  If Activated is set to True the directory browsing faciity will be
+   --  If Activated is set to True the directory browsing facility will be
    --  activated. By default this feature is not activated.
 
    function Callback (Request : AWS.Status.Data) return AWS.Response.Data;
