@@ -1,5 +1,5 @@
 
-@@-- $1    action name onclick onchange
+@@-- $1    action name (onclick, onchange...)
 @@-- $2    the tag node ID to handle in the DOM tree
 @@-- $3    a set of parameters to pass to the URL
 @@-- $4-$8 are linked fields id to this request, all fields are passed as

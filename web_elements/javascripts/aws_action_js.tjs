@@ -1,5 +1,5 @@
 
-@@-- $1  action to register, default onclick
+@@-- $1  action to register
 @@-- $2  the tag node ID to handle in the DOM tree
 @@-- $3  the name of the javascript routine to execute
 @@-- $18 ID index to be added to $2 (index in table for unique id for ex)
