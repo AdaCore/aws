@@ -100,7 +100,7 @@ project Tools is
       case Shared.Build is
          when "Release" =>
             for Default_Switches ("Ada") use ("-s");
-	 when others =>
+         when others =>
             null;
       end case;
 
