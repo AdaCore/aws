@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2009, AdaCore                     --
+--                     Copyright (C) 2003-2010, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -36,6 +36,8 @@ project Shared is
    OS : OS_Type := external ("OS", "UNIX");
 
    type Install_Status is ("Installed", "Disabled");
+
+   Processors := External ("PROCESSORS", "2");
 
    -------------
    -- SOCKLIB --
@@ -169,7 +171,7 @@ project Shared is
    -------------
 
    package Builder is
-      for Default_Switches ("Ada") use ("-m");
+      for Switches (others) use ("-m", "-j" & Processors);
    end Builder;
 
 end Shared;

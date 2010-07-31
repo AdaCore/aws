@@ -80,7 +80,7 @@ ALL_OPTIONS	= $(MAKE_OPT) SOCKET="$(SOCKET)" XMLADA="$(XMLADA)" \
 	NBDIR="$(NBDIR)" prefix="$(prefix)" ENABLE_SHARED="$(ENABLE_SHARED)" \
 	SOEXT="$(SOEXT)" BUILD_DOC_SCRIPT="false" GNAT="$(GNAT)" \
 	T2A="../../$(BDIR)/static/tools/templates2ada" \
-	LIBRARY_TYPE="$(LIBRARY_TYPE)" CJOBS="$(CJOBS)" PYTHON="$(PYTHON)" \
+	LIBRARY_TYPE="$(LIBRARY_TYPE)" PYTHON="$(PYTHON)" \
 	PLATFORM="$(PLATFORM)" ZLIB="$(ZLIB)"
 
 build_doc:
@@ -236,24 +236,25 @@ ${MODULES_CHECK}: force
 
 GPROPTS = -XPRJ_BUILD=$(PRJ_BUILD) -XPRJ_SOCKLIB=$(PRJ_SOCKLIB) \
 		-XPRJ_ASIS=$(PRJ_ASIS) -XPRJ_LDAP=$(PRJ_LDAP) \
-		-XPRJ_XMLADA=$(PRJ_XMLADA) -XSOCKET=$(SOCKET)
+		-XPRJ_XMLADA=$(PRJ_XMLADA) -XSOCKET=$(SOCKET) \
+		-XPROCESSORS=$(PROCESSORS)
 
 #######################################################################
 #  build
 
 build-native:
-	$(GPRBUILD) -p -j$(CJOBS) $(GPROPTS) -XPLATFORM=native \
+	$(GPRBUILD) -p $(GPROPTS) -XPLATFORM=native \
 		-XLIBRARY_TYPE=static tools/tools.gpr
 ifeq (${ENABLE_SHARED}, true)
-	$(GPRBUILD) -p -j$(CJOBS) $(GPROPTS) -XPLATFORM=native \
+	$(GPRBUILD) -p $(GPROPTS) -XPLATFORM=native \
 		-XLIBRARY_TYPE=relocatable src/src.gpr
 endif
-	$(GPRBUILD) -p -j$(CJOBS) $(GPROPTS) -XPLATFORM=native \
+	$(GPRBUILD) -p $(GPROPTS) -XPLATFORM=native \
 		-XLIBRARY_TYPE=static gps/gps_support.gpr
 	${MAKE} -C gps $(GALL_OPTIONS) after-build
 
 build-cross:
-	$(GPRBUILD) -p --target=$(TARGET) -j$(CJOBS) $(GPROPTS) \
+	$(GPRBUILD) -p --target=$(TARGET) $(GPROPTS) \
 		-XPLATFORM=$(PLATFORM) -XLIBRARY_TYPE=static \
 		src/src.gpr
 
@@ -404,7 +405,7 @@ gen_setup:
 	echo "SOCKET=$(SOCKET)" >> makefile.setup
 	echo "LDAP=$(LDAP)" >> makefile.setup
 	echo "DEBUG=$(DEBUG)" >> makefile.setup
-	echo "CJOBS=$(CJOBS)" >> makefile.setup
+	echo "PROCESSORS=$(PROCESSORS)" >> makefile.setup
 	echo "TARGET=$(TARGET)" >> makefile.setup
 
 setup: gen_setup setup_dir setup_modules setup_final setup_tp $(GEXT_MODULE)
