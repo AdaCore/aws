@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2009, AdaCore                     --
+--                     Copyright (C) 2000-2010, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -61,6 +61,9 @@ procedure Build is
 
 begin
    --  If a tag is added into this table make sure to update gen_doc.sed.tmplt
+
+   Insert (T, Assoc ("UNDERSCORE", "_"));
+   --  Tag to avoid templates parser confusion when output template tags
 
    Insert (T, Assoc ("AWS_VERSION", AWS.Version));
    Insert (T, Assoc ("SOAP_VERSION", SOAP.Version));

@@ -1,3 +1,5 @@
+@@INCLUDE@@ ../../web_elements/javascripts/ajax_api.tjs
+@@--
 <html>
    <head>
       <title>Main Page</title>

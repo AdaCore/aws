@@ -3256,6 +3256,8 @@ Let's have a very simple example:
 
 @AWSEXP{@@@@INCLUDE@@@@@ aws.tjs}
 
+Must be included in every Web pages into the @code{<head>} tag.
+
 @item The widget: a button
 
 @AWSEXP{<input @b{id="clickme"} type="button" value="Clik Me">}
@@ -3484,10 +3486,11 @@ Here is an example of such XML document:
 }
 
 @noindent
-The template to use this feature is @file{aws_action_xml.tjs}. The
-usage is similar to what is described in the previous section
-(@pxref{Basic Ajax support}) except that in this case we do not have to
-pass the placeholder.
+To register an @code{Ajax} action to a specific tag id a macro can be
+used. It is named @code{JS_ACTION} and defined in @file{ajax_api.tjs}.
+The usage is similar to what is described in the previous section
+(@pxref{Basic Ajax support}) except that in this case we use a macron
+instead of an include file and we do not have to pass the placeholder.
 
 @noindent
 Let's revisit the first example above to use the @code{XML}
@@ -3497,6 +3500,15 @@ Let's revisit the first example above to use the @code{XML}
 @item The AWS/Ajax runtime support
 
 @AWSEXP{@@@@INCLUDE@@@@@ aws.tjs}
+
+Must be included in every Web pages into the @code{<head>} tag.
+
+@item The AWS/Ajax API
+
+@AWSEXP{@@@@INCLUDE@@@@@ ajax_api.tjs}
+
+Must be included at least once during an application life-time. It
+gives access to the @code{JS_ACTION} macro.
 
 @item The widget: a button
 
@@ -3508,7 +3520,7 @@ Let's revisit the first example above to use the @code{XML}
 
 @item The AWS/Ajax
 
-@AWSEXP{@@@@INCLUDE@@@@ aws_action_xml.tjs onclick @b{clickme}}
+@AWSEXP{@@_JS_ACTION(onclick, @b{clickme})_@@}
 
 Basically it places an @b{onclick} attribute (the event) in the @code{HTML}
 @code{<input>} identified as @b{clickme} (the action) above. Here is
@@ -3563,16 +3575,16 @@ specific area is an @code{HTML} fragment, the content must be placed into a
 
 @noindent
 Finally, if this is not enough because you need to use some specific
-@code{JavaScript} code, @code{AWS} provides a template to add an event
-to a specific widget, the action being the name of a @code{JavaScript}
-routine, see @file{aws_action_js.tjs}.
+@code{JavaScript} code, @code{AWS} provides a macro named
+@code{BIND_JS} to add an event to a specific widget, the action being
+the name of a @code{JavaScript} routine.
 
 @noindent
-This template together with @file{aws_func_replace.tjs},
-@file{aws_func_clear.tjs} and @file{aws_func_xml.tjs} can be used to
-chain multiple actions. Those templates are the function body used by
-the corresponding templates @file{aws_action_replace.tjs},
-@file{aws_action_clear.tjs} and @file{aws_action_xml.tjs}.
+This macro together with the @file{aws_func_replace.tjs},
+@file{aws_func_clear.tjs} templates and the @file{JS_ACTION} macro can
+be used to chain multiple actions. Those templates are the function
+body used by the corresponding templates @file{aws_action_replace.tjs},
+@file{aws_action_clear.tjs}.
 
 @noindent
 Let say you want to clear a widget, change the content of another one
@@ -3596,18 +3608,20 @@ call_this_routine();
 
 Then to add the event on the widget:
 
-@AWSEXP{@@@@INCLUDE@@@@ aws_action_js.tjs (@b{onclick} @b{clickme} @b{clear_replace})}
+@AWSEXP{@@_BIND_JS(@b{onclick}, @b{clickme} @b{clear_replace})_@@}
 
 @end itemize
 
 @noindent
 Furthermore, it is possible to pass (as the parameter number 20) a
-routine to call after a specific action to all templates. This is another
-way to chain multiple actions for a single event.
+routine to call after a specific action to all templates and to the
+@code{JS_ACTION} macro. This is another way to chain multiple actions
+for a single event.
 
 @noindent
-Note that all @code{AWS/Ajax} templates have a set of comments at the start
-explaining in details the usage of each parameter.
+Note that all @code{AWS/Ajax} templates and the @file{ajax_api.tjs}
+file have a set of comments at the start explaining in details the
+usage of each parameter.
 
 @c ----------------------------------------------------------------------
 
@@ -3818,7 +3832,8 @@ When using @code{Ajax} it is not needed to explicitly pass the context
 identification to every link. This is done automatically by the
 framework. So the main page will look like this:
 
-@AWSEXP{<html>
+@AWSEXP{@@@@INCLUDE@@@@ ../../web_elements/javascripts/ajax_api.tjs
+<html>
    <head>
       <title>Main Page</title>
       @@@@INCLUDE@@@@ ../../web_elements/javascripts/aws.tjs
@@ -3835,7 +3850,7 @@ The counter widget is on @file{widget_counter.thtml}:
 @AWSEXP{<!-- implementation of a simple counter widget -->
 <p><div id="counter">@@_COUNTER_@@</div></p>
 <a id="next" href="/">Next</a>
-@@@@INCLUDE@@@@ ../../web_elements/javascripts/aws_action_xml.tjs (onclick, next)}
+@@_JS_ACTION(onclick, next)_@@}
 
 For the @code{Ajax} part, @pxref{Ajax}.
 
@@ -3913,7 +3928,8 @@ callbacks using a template. A common convention is to add @code{LAZY_} as
 prefix for the name of the blocks. With this convention the main page
 template is:
 
-@AWSEXP{<html>
+@AWSEXP{@@@@INCLUDE@@@@ ../../web_elements/javascripts/ajax_api.tjs
+<html>
    <head>
       <title>Main Page</title>
       @@@@INCLUDE@@@@ ../../web_elements/javascripts/aws.tjs
@@ -3928,7 +3944,11 @@ template is:
 We need also modify the standard @file{templates.tads} as distributed
 with the @code{Templates_Parser}. Here is the interesting part:
 
-@AWSEXP{@b{with} AWS.MIME;
+@AWSEXP{@@@@SET@@@@ PACKAGE = WBlocks
+
+...
+
+@b{with} AWS.MIME;
 @b{with} AWS.Services.Web_Block.Registry;
 @b{with} Web_Callbacks;
 
@@ -3965,7 +3985,7 @@ with the @code{Templates_Parser}. Here is the interesting part:
          Services.Web_Block.Registry.Register
             ("/@@_AJAX_EVENT_@@$@@_AJAX_ACTION_@@",
              @@_PACKAGE_@@.R_@@_CAPITALIZE:REPLACE_ALL(\./_):AJAX_FILE_@@.Template,
-             Web_Callbacks.@@_CAPITALIZE:AJAX_EVENT_@@_@@_CAPITALIZE:AJAX_ACTION_@@'Access,
+             Web_Callbacks.@@_CAPITALIZE:AJAX_EVENT_@@@_UNDERSCORE_@@@_CAPITALIZE:AJAX_ACTION_@@'Access,
              Content_Type     => MIME.Text_XML,
              Context_Required => True);
       @@@@END_IF@@@@
@@ -3992,14 +4012,15 @@ corresponding Ada specs and register calls:
 $ gnatchop code.ada}
 
 @noindent
-Look at the generated code, it properly register the @code{Widget_Counter}
-callback to be used for rendering @code{LAZY_WIDGET_COUNTER} using the
-@file{widget_counter.thtml}. So we have a tight coupling between
-the code and the template file. If the tag is renamed in the template
-file the application will not compile anymore. The same is true for @code{Ajax}
-callbacks, every @code{Ajax} action put in a template file needs a
-corresponding callback in Ada. This greatly helps keeping the
-application code synchronized.
+Look at the generated code below, it properly register the
+@code{Widget_Counter} callback to be used for rendering
+@code{LAZY_WIDGET_COUNTER} using the @file{widget_counter.thtml}. So
+we have a tight coupling between the code and the template file. If
+the tag is renamed in the template file the application will not
+compile anymore. The same is true for @code{Ajax} callbacks, every
+@code{Ajax} action put in a template file needs a corresponding
+callback in Ada. This greatly helps keeping the application code
+synchronized.
 
 @AWSEXP{@b{procedure} Register @b{is}
    @b{use} AWS.Services;
@@ -4015,6 +4036,15 @@ application code synchronized.
        Content_Type     => MIME.Text_XML,
        Context_Required => True);
 @b{end} Register;}
+
+@noindent
+In the main, it is just now required to register the Web pages and to
+call the generated @code{Register} procedure:
+
+@AWSEXP{Services.Web_Block.Registry.Register ("/", "page.thtml", null);
+
+WBlocks.Lazy.Register;
+}
 
 @noindent
 Moreover, an Ada spec containing reference for the tag names is

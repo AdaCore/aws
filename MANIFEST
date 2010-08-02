@@ -2092,6 +2092,7 @@ web_elements/icons/tex.gif
 web_elements/icons/text.gif
 web_elements/icons/unknown.gif
 web_elements/icons/uu.gif
+web_elements/javascripts/ajax_api.tjs
 web_elements/javascripts/aws.tjs
 web_elements/javascripts/aws_action_clear.tjs
 web_elements/javascripts/aws_action_js.tjs

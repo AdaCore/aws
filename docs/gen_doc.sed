@@ -1,3 +1,4 @@
+s,@_UNDERSCORE_@,_,g
 s,@_AWS_VERSION_@,2.9.0w,g
 s,@_SOAP_VERSION_@,1.5.0,g
 s,@_MAX_CONNECT_@,5,g
