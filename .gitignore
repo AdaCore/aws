@@ -6,6 +6,8 @@
 *~
 .build
 .gpsrcs
+demos/web_block_ajax_templates/code.ada
+demos/web_block_ajax_templates/wblocks*
 docs/*.ad[sb].texi
 docs/ada.sed
 docs/aws.html
@@ -27,6 +29,7 @@ regtests/*.log
 regtests/*.res
 regtests/.outputs
 regtests/config.py
+regtests/out
 regtests/testsuite.duration*
 regtests/testsuite.tags
 templates_parser
