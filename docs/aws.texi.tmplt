@@ -3273,7 +3273,7 @@ Basically it places an @b{onclick} attribute (the event) in the @code{HTML}
 what happen when the button is clicked:
 
 @itemize
-@item send the "/clickme" HTTP request to the server
+@item send the "/onclick$clickme" HTTP request to the server
 @item asynchronously wait for the answer, when received place the
 message body into the @code{<div>} @b{placeholder}.
 @end itemize
@@ -3515,7 +3515,7 @@ Basically it places an @b{onclick} attribute (the event) in the @code{HTML}
 what happen when the button is clicked:
 
 @itemize
-@item send the "/clickme" HTTP request to the server
+@item send the "/onclick$clickme" HTTP request to the server
 @item asynchronously wait for the XML answer, when received parse the
 answer and perform the actions according to the @code{XML} content.
 @end itemize
