@@ -1,0 +1,108 @@
+##############################################################################
+# Consistency checks
+
+ifneq ($(DEBUG), true)
+ifneq ($(DEBUG), false)
+$(error DEBUG variable must be set to true or false)
+endif
+endif
+
+ifneq ($(IPv6), true)
+ifneq ($(IPv6), false)
+$(error IPv6 variable must be set to true or false)
+endif
+endif
+
+ifeq  ($(ENABLE_SHARED), )
+ENABLE_SHARED=false
+endif
+
+ifeq  ($(XMLADA), )
+XMLADA=false
+endif
+
+ifeq  ($(ASIS), )
+ASIS=false
+endif
+
+ifeq  ($(TARGET), )
+TARGET=native
+endif
+
+ifneq  ($(ZLIB), true)
+ZLIB=false
+endif
+
+ifneq ($(TARGET), native)
+ifeq ($(ENABLE_SHARED), true)
+$(error shared libraries not supported on cross platforms)
+endif
+ifeq ($(ASIS), true)
+$(error ASIS not supported on cross platforms)
+endif
+ifeq ($(LDAP), true)
+$(error LDAP not supported on cross platforms)
+endif
+endif
+
+ifneq ($(ENABLE_SHARED), true)
+ifneq ($(ENABLE_SHARED), false)
+$(error ENABLE_SHARED variable must be set to true or false)
+endif
+endif
+
+ifneq ($(DEFAULT_LIBRARY_TYPE), static)
+ifneq ($(DEFAULT_LIBRARY_TYPE), relocatable)
+$(error DEFAULT_LIBRARY_TYPE variable must be set to static or relocatable)
+endif
+endif
+
+ifneq ($(ASIS), true)
+ifneq ($(ASIS), false)
+$(error ASIS variable must be set to true or false)
+endif
+endif
+
+ifneq ($(XMLADA), true)
+ifneq ($(XMLADA), false)
+$(error XMLADA variable must be set to true or false)
+endif
+endif
+
+ifneq ($(LDAP), true)
+ifneq ($(LDAP), false)
+$(error LDAP variable must be set to true or false)
+endif
+endif
+
+ifeq ($(ASIS), true)
+ifeq ($(XMLADA), false)
+$(error ASIS is set and requires XMLADA to be installed. \
+	You may be missing XMLADA=true)
+endif
+endif
+
+ifneq ($(SOCKET), std)
+ifneq ($(SOCKET), openssl)
+ifneq ($(SOCKET), gnutls)
+$(error SOCKET variable must be set to std, openssl or gnutls)
+endif
+endif
+endif
+
+ifneq ($(INSTALL), )
+$(error INSTALL variable is deprecated, please use prefix instead)
+endif
+
+ifneq ($(SHARED), )
+$(error SHARED variable is deprecated, please use ENABLE_SHARED instead)
+endif
+
+ifeq ("$(prefix)", "..")
+$(error "Wrong install path : prefix='$(prefix)', \
+  Check that GNAT is in the PATH")
+else
+ifeq ("$(prefix)", "")
+$(error "Wrong install path : empty prefix variable")
+endif
+endif

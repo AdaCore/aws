@@ -31,8 +31,13 @@
 #  can be changed in makefile.conf
 
 include makefile.conf
+#  default setup
 
 -include makefile.setup
+#  user setup
+
+include makefile.checks
+#  consistency checks
 
 LIBRARY_TYPE = static
 
