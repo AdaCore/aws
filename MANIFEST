@@ -272,6 +272,7 @@ include/zlib/zlibdefs.h
 include/zlib/zutil.c
 include/zlib/zutil.h
 makefile
+makefile.checks
 makefile.conf
 readme.txt
 regtests/0001_turl/test.out
