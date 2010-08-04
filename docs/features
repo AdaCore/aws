@@ -15,7 +15,7 @@ of the feature.
 New features in AWS 2.9.0
 -------------------------
 
-NF-29-J706-026 Improve Ajax support in AWS
+NF-29-J706-026 Improve Ajax support in AWS (2010-08-02)
 
    The AWS/Ajax implementation now takes advantage of the new Templates_Parser
    macro support. This makes Ajax more integrated into AWS and improves the
