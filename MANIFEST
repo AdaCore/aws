@@ -1432,6 +1432,10 @@ regtests/0205_etag_header/etag_header.adb
 regtests/0205_etag_header/etag_header.gpr
 regtests/0205_etag_header/test.out
 regtests/0205_etag_header/test.py
+regtests/0206_expires_header/expires_header.adb
+regtests/0206_expires_header/expires_header.gpr
+regtests/0206_expires_header/test.out
+regtests/0206_expires_header/test.py
 regtests/README
 regtests/aws.gpr
 regtests/common/get_free_port.adb

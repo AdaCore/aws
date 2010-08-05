@@ -245,6 +245,11 @@ package AWS.Messages is
    function ETag (Value : ETag_Value) return String;
    pragma Inline (ETag);
 
+   function Expires (Date : Calendar.Time) return String;
+   pragma Inline (Expires);
+   --  The date should not be more than a year in the future, see RFC 2616
+   --  [14.21 Expires].
+
    function Host (Name : String) return String;
    pragma Inline (Host);
 

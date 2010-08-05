@@ -30,6 +30,7 @@
 --  it is either a response built on the server side or the response received
 --  on the client side.
 
+with Ada.Calendar;
 with Ada.Strings.Unbounded;
 with Ada.Streams;
 with Ada.Finalization;
@@ -267,6 +268,10 @@ package AWS.Response is
    function Cache_Control (D : Data) return Messages.Cache_Option;
    pragma Inline (Cache_Control);
    --  Returns the cache control specified for the response
+
+   function Expires (D : Data) return Calendar.Time;
+   pragma Inline (Expires);
+   --  Returns the Expires date as a time value
 
    function Location (D : Data) return String;
    pragma Inline (Location);

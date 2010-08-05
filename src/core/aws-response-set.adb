@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2002-2009, AdaCore                     --
+--                     Copyright (C) 2002-2010, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -287,6 +287,27 @@ package body AWS.Response.Set is
          end if;
       end if;
    end Data_Encoding;
+
+   -------------
+   -- Expires --
+   -------------
+
+   procedure Expires
+     (D     : in out Data;
+      Value : Calendar.Time) is
+   begin
+      Expires (D, Messages.To_HTTP_Date (Value));
+   end Expires;
+
+   procedure Expires
+     (D     : in out Data;
+      Value : String) is
+   begin
+      Headers.Set.Update
+        (D.Header,
+         Name  => Messages.Expires_Token,
+         Value => Value);
+   end Expires;
 
    --------------
    -- Filename --

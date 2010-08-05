@@ -305,6 +305,15 @@ package body AWS.Messages is
       return ETag_Token & HD & String (Value);
    end ETag;
 
+   -------------
+   -- Expires --
+   -------------
+
+   function Expires (Date : Calendar.Time) return String is
+   begin
+      return Expires_Token & HD & To_HTTP_Date (Date);
+   end Expires;
+
    ----------
    -- Host --
    ----------

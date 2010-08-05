@@ -1,0 +1,8 @@
+>>>>> /get
+Expires response : 'Tue, 15 Nov 1994 08:12:31 GMT'
+>>>>> /head
+Expires response : 'Tue, 15 Nov 1994 08:12:31 GMT'
+>>>>> /post
+Expires response : 'Tue, 15 Nov 1994 08:12:31 GMT'
+Expirers Header : 'Expires: Tue, 15 Nov 1994 08:12:31 GMT'
+shutdown

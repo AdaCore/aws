@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2002-2009, AdaCore                     --
+--                     Copyright (C) 2002-2010, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -71,6 +71,18 @@ package AWS.Response.Set is
       Value : String);
    pragma Inline (Content_Type);
    --  Set the MIME type for the message body
+
+   procedure Expires
+     (D     : in out Data;
+      Value : Calendar.Time);
+   pragma Inline (Expires);
+   --  Set the Expires date
+
+   procedure Expires
+     (D     : in out Data;
+      Value : String);
+   pragma Inline (Expires);
+   --  As above but with a preformatted HTTP_Date
 
    procedure Cache_Control
      (D     : in out Data;

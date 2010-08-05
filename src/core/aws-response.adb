@@ -286,6 +286,15 @@ package body AWS.Response is
       return Result;
    end Empty;
 
+   -------------
+   -- Expires --
+   -------------
+
+   function Expires (D : Data) return Calendar.Time is
+   begin
+      return Messages.To_Time (Headers.Get (D.Header, Messages.Expires_Token));
+   end Expires;
+
    ----------
    -- File --
    ----------
