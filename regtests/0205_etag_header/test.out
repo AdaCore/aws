@@ -1,0 +1,11 @@
+>>>>> /get
+ETag: "azerty"
+
+>>>>> /head
+ETag: W/"qwerty"
+
+>>>>> /post
+ETag: W/"qwerty"
+
+Etag Header : 'ETag: "mytag"'
+shutdown

@@ -258,6 +258,22 @@ package body AWS.Messages is
       return Cookie_Token & HD & Value;
    end Cookie;
 
+   -----------------
+   -- Create_ETag --
+   -----------------
+
+   function Create_ETag
+     (Name : String; Weak : Boolean := False) return ETag_Value
+   is
+      ET : constant ETag_Value := '"' & ETag_Value (Name) & '"';
+   begin
+      if Weak then
+         return "W/" & ET;
+      else
+         return ET;
+      end if;
+   end Create_ETag;
+
    ----------------
    -- Data_Range --
    ----------------
@@ -279,6 +295,15 @@ package body AWS.Messages is
       return Pattern'Length > Str'Length
         or else U_Str (1 .. Pattern'Length) /= U_Pattern;
    end Does_Not_Match;
+
+   ----------
+   -- ETag --
+   ----------
+
+   function ETag (Value : ETag_Value) return String is
+   begin
+      return ETag_Token & HD & String (Value);
+   end ETag;
 
    ----------
    -- Host --

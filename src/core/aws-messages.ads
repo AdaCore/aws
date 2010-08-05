@@ -192,6 +192,17 @@ package AWS.Messages is
    No_Store      : constant Cache_Option;
    Prevent_Cache : constant Cache_Option;
 
+   ----------
+   -- ETag --
+   ----------
+
+   type ETag_Value is new String;
+
+   function Create_ETag
+     (Name : String; Weak : Boolean := False) return ETag_Value;
+   --  Returns an ETag value (strong by default and Weak if specified). For a
+   --  discussion about ETag see RFC 2616 [3.11 Entity Tags] and [14.19 ETag].
+
    -------------------------------
    -- HTTP message constructors --
    -------------------------------
@@ -230,6 +241,9 @@ package AWS.Messages is
    --  Note that this is not part of HTTP/1.1 standard, it is there because
    --  there is a lot of implementation around using it. This header is used
    --  in multipart data.
+
+   function ETag (Value : ETag_Value) return String;
+   pragma Inline (ETag);
 
    function Host (Name : String) return String;
    pragma Inline (Host);
