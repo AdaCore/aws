@@ -4,7 +4,7 @@
 
 Authors:
    Dmitriy Anisimkov
-   Pascal Obry                                                July 5th, 2010
+   Pascal Obry                                              August 5th, 2010
 
 
 
@@ -35,7 +35,8 @@ interoperability. Some users have also reported to have used AWS/SOAP with
 Changes
 -------
 
-New features are described into the file docs/features.
+New features, for each AWS version, are described into the files
+docs/features-*.
 
 Listed below are some minor enhancements and fixes:
 

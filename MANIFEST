@@ -209,6 +209,11 @@ docs/aws.texi.tmplt
 docs/aws.txt
 docs/build.adb
 docs/docs.gpr
+docs/features-2.5
+docs/features-2.6
+docs/features-2.7
+docs/features-2.8
+docs/features-2.9
 docs/gen_doc.sed
 docs/gen_doc.sed.tmplt
 docs/gentexifile
