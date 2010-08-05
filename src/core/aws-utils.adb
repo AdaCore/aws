@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2009, AdaCore                     --
+--                     Copyright (C) 2000-2010, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -55,6 +55,21 @@ package body AWS.Utils is
    --  from Filename_In to Filename_Out.
 
    Random_Generator : Integer_Random.Generator;
+
+   ---------------------
+   -- Append_With_Sep --
+   ---------------------
+
+   procedure Append_With_Sep
+     (Content : in out Unbounded_String;
+      Value   : String;
+      Sep     : String := ", ") is
+   begin
+      if Content /= Null_Unbounded_String then
+         Append (Content, Sep);
+      end if;
+      Append (Content, Value);
+   end Append_With_Sep;
 
    --------------
    -- Compress --

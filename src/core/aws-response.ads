@@ -269,6 +269,10 @@ package AWS.Response is
    pragma Inline (Cache_Control);
    --  Returns the cache control specified for the response
 
+   function Cache_Control (D : Data) return Messages.Cache_Data;
+   --  As above but returns a structured record of type "Cache_Data (Request)"
+   --  representing the cache options.
+
    function Expires (D : Data) return Calendar.Time;
    pragma Inline (Expires);
    --  Returns the Expires date as a time value

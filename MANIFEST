@@ -1436,6 +1436,10 @@ regtests/0206_expires_header/expires_header.adb
 regtests/0206_expires_header/expires_header.gpr
 regtests/0206_expires_header/test.out
 regtests/0206_expires_header/test.py
+regtests/0207_cache_control_header/cache_control_header.adb
+regtests/0207_cache_control_header/cache_control_header.gpr
+regtests/0207_cache_control_header/test.out
+regtests/0207_cache_control_header/test.py
 regtests/README
 regtests/aws.gpr
 regtests/common/get_free_port.adb

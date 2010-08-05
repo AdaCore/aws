@@ -27,10 +27,14 @@
 
 with Ada.Characters.Handling;
 with Ada.Directories;
+with Ada.Strings.Unbounded;
 
+with AWS.Headers.Values;
 with AWS.Utils;
 
 package body AWS.Messages is
+
+   use Ada.Strings.Unbounded;
 
    subtype Status_Code_Image is String (1 .. 3);
 
@@ -196,6 +200,11 @@ package body AWS.Messages is
    function Cache_Control (Option : Cache_Option) return String is
    begin
       return Cache_Control_Token & HD & String (Option);
+   end Cache_Control;
+
+   function Cache_Control (Data : Cache_Data) return String is
+   begin
+      return Cache_Control (To_Cache_Option (Data));
    end Cache_Control;
 
    ----------------
@@ -409,6 +418,171 @@ package body AWS.Messages is
         & Status_Messages (Code).Code & ' '
         & Status_Messages (Code).Reason_Phrase.all;
    end Status_Line;
+
+   -------------------
+   -- To_Cache_Data --
+   -------------------
+
+   function To_Cache_Data
+     (Kind : Cache_Kind; Value : Cache_Option) return Cache_Data
+   is
+      use AWS.Headers;
+
+      Result : Cache_Data (Kind);
+
+      procedure Simple_Value (Item : String; Quit : in out Boolean);
+      --  Receives un-named value
+
+      procedure Named_Value (Name, Value : String; Quit : in out Boolean);
+      --  Receives named value
+
+      -----------------
+      -- Named_Value --
+      -----------------
+
+      procedure Named_Value (Name, Value : String; Quit : in out Boolean) is
+      begin
+         Quit := False;
+
+         if Utils.Is_Number (Value) then
+            if Name = "max-stale" then
+               Result.Max_Stale := Delta_Seconds'Value (Value);
+
+            elsif Name = "min-fresh" then
+               Result.Min_Fresh := Delta_Seconds'Value (Value);
+
+            elsif Name = "max-age" then
+               Result.Max_Age := Delta_Seconds'Value (Value);
+
+            elsif Name = "s-maxage" then
+               Result.S_Max_Age := Delta_Seconds'Value (Value);
+            end if;
+
+         else
+            if Name = "private" then
+               Result.Private_Field := To_Unbounded_String (Value);
+            end if;
+         end if;
+      end Named_Value;
+
+      -----------
+      -- Value --
+      -----------
+
+      procedure Simple_Value (Item : String; Quit : in out Boolean) is
+      begin
+         Quit := False;
+
+         if Item = "no-cache" then
+            Result.No_Cache := True;
+
+         elsif Item = "no-store" then
+            Result.No_Store := True;
+
+         elsif Item = "no-transform" then
+            Result.No_Transform := True;
+
+         elsif Item = "only-if-cached" then
+            Result.Only_If_Cached := True;
+
+         elsif Item = "public" then
+            Result.Public := True;
+
+         elsif Item = "private" then
+            Result.Private_Field := All_Private;
+
+         elsif Item = "must-revalidate" then
+            Result.Must_Revalidate := True;
+
+         elsif Item = "proxy-revalidate" then
+            Result.Proxy_Revalidate := True;
+         end if;
+      end Simple_Value;
+
+      procedure Parse is new Headers.Values.Parse (Simple_Value, Named_Value);
+
+   begin
+      Parse (String (Value));
+      return Result;
+   end To_Cache_Data;
+
+   ---------------------
+   -- To_Cache_Option --
+   ---------------------
+
+   function To_Cache_Option (Data : Cache_Data) return Cache_Option is
+      Result : Unbounded_String;
+   begin
+      if Data.No_Cache then
+         Utils.Append_With_Sep (Result, "no-cache");
+      end if;
+
+      if Data.No_Store then
+         Utils.Append_With_Sep (Result, "no-store");
+      end if;
+
+      if Data.No_Transform then
+         Utils.Append_With_Sep (Result, "no-transform");
+      end if;
+
+      if Data.Max_Age /= Unset then
+         Utils.Append_With_Sep
+           (Result, "max-age=" & Utils.Image (Integer (Data.Max_Age)));
+      end if;
+
+      case Data.CKind is
+         when Request =>
+            if Data.Max_Stale /= Unset then
+               if Data.Max_Stale = Any_Max_Stale then
+                  Utils.Append_With_Sep (Result, "max-stale");
+               else
+                  Utils.Append_With_Sep
+                    (Result, "max-stale="
+                     & Utils.Image (Integer (Data.Max_Stale)));
+               end if;
+            end if;
+
+            if Data.Min_Fresh /= Unset then
+               Utils.Append_With_Sep
+                 (Result, "min-fresh="
+                  & Utils.Image (Integer (Data.Min_Fresh)));
+            end if;
+
+            if Data.Only_If_Cached then
+               Utils.Append_With_Sep (Result, "only-if-cached");
+            end if;
+
+         when Response =>
+            if Data.S_Max_Age /= Unset then
+               Utils.Append_With_Sep
+                 (Result, "s-maxage="
+                  & Utils.Image (Integer (Data.S_Max_Age)));
+            end if;
+
+            if Data.Public then
+               Utils.Append_With_Sep (Result, "public");
+            end if;
+
+            if Data.Private_Field /= Private_Unset then
+               if Data.Private_Field = All_Private then
+                  Utils.Append_With_Sep (Result, "private");
+               else
+                  Utils.Append_With_Sep
+                    (Result, "private=" & To_String (Data.Private_Field));
+               end if;
+            end if;
+
+            if Data.Must_Revalidate then
+               Utils.Append_With_Sep (Result, "must-revalidate");
+            end if;
+
+            if Data.Proxy_Revalidate then
+               Utils.Append_With_Sep (Result, "proxy-revalidate");
+            end if;
+      end case;
+
+      return Cache_Option (To_String (Result));
+   end To_Cache_Option;
 
    ------------------
    -- To_HTTP_Date --

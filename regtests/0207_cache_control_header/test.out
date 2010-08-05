@@ -1,0 +1,14 @@
+>>>>> /get
+Cache-Control: no-cache, max-stale=3
+
+>>>>> /head
+Cache-Control: min-fresh=12, only-if-cached
+
+>>>>> /post
+Cache-Control: min-fresh=12, only-if-cached
+
+Cache Option Header : ''
+Cache Option Header : 'no-cache, max-age=0, s-maxage=0'
+Cache Option Header : 'no-store'
+Cache Option Header : 'no-cache, no-store, max-age=0, s-maxage=0'
+shutdown

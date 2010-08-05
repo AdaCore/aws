@@ -200,6 +200,11 @@ package body AWS.Response is
         (Headers.Get (D.Header, Messages.Cache_Control_Token));
    end Cache_Control;
 
+   function Cache_Control (D : Data) return Messages.Cache_Data is
+   begin
+      return Messages.To_Cache_Data (Messages.Response, Cache_Control (D));
+   end Cache_Control;
+
    --------------------
    -- Close_Resource --
    --------------------

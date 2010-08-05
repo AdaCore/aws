@@ -26,10 +26,12 @@
 ------------------------------------------------------------------------------
 
 with Ada.Calendar;
+with Ada.Strings.Unbounded;
 
 package AWS.Messages is
 
    use Ada;
+   use Ada.Strings.Unbounded;
 
    -----------------
    -- HTTP tokens --
@@ -176,9 +178,8 @@ package AWS.Messages is
    -------------------
 
    type Cache_Option is new String;
-
    --  Cache_Option is a string and any specific option can be specified. We
-   --  define three options:
+   --  define four options:
    --
    --  Unspecified   : No cache option will used.
    --  No_Cache      : Ask browser and proxy to not cache data (no-cache,
@@ -191,6 +192,52 @@ package AWS.Messages is
    No_Cache      : constant Cache_Option;
    No_Store      : constant Cache_Option;
    Prevent_Cache : constant Cache_Option;
+
+   type Cache_Kind is (Request, Response);
+
+   type Delta_Seconds is new Integer range -1 .. Integer'Last;
+   --  Represents a delta-seconds parameter for some Cache_Data fields like
+   --  max-age, max-stale (value -1 is used for Unset).
+
+   Unset         : constant Delta_Seconds;
+   No_Max_Stale  : constant Delta_Seconds;
+   Any_Max_Stale : constant Delta_Seconds;
+
+   type Private_Option is new Unbounded_String;
+
+   All_Private   : constant Private_Option;
+   Private_Unset : constant Private_Option;
+
+   --  Cache_Data is a record that represents cache control information
+
+   type Cache_Data (CKind : Cache_Kind) is record
+      No_Cache       : Boolean       := False;
+      No_Store       : Boolean       := False;
+      No_Transform   : Boolean       := False;
+      Max_Age        : Delta_Seconds := Unset;
+
+      case CKind is
+         when Request =>
+            Max_Stale      : Delta_Seconds := Unset;
+            Min_Fresh      : Delta_Seconds := Unset;
+            Only_If_Cached : Boolean       := False;
+
+         when Response =>
+            S_Max_Age        : Delta_Seconds  := Unset;
+            Public           : Boolean        := False;
+            Private_Field    : Private_Option := Private_Unset;
+            Must_Revalidate  : Boolean        := False;
+            Proxy_Revalidate : Boolean        := False;
+      end case;
+   end record;
+
+   function To_Cache_Option (Data : Cache_Data) return Cache_Option;
+   --  Returns a cache control value for an HTTP request/response, fields are
+   --  described into RFC 2616 [14.9 Cache-Control].
+
+   function To_Cache_Data
+     (Kind : Cache_Kind; Value : Cache_Option) return Cache_Data;
+   --  Returns a Cache_Data record parsed out of Cache_Option
 
    ----------
    -- ETag --
@@ -233,6 +280,9 @@ package AWS.Messages is
    pragma Inline (Content_Type);
 
    function Cache_Control (Option : Cache_Option) return String;
+   pragma Inline (Cache_Control);
+
+   function Cache_Control (Data : Cache_Data) return String;
    pragma Inline (Cache_Control);
 
    function Content_Disposition
@@ -317,5 +367,13 @@ private
    No_Cache      : constant Cache_Option := "no-cache, max-age=0, s-maxage=0";
    No_Store      : constant Cache_Option := "no-store";
    Prevent_Cache : constant Cache_Option := No_Store & ", " & No_Cache;
+
+   Unset         : constant Delta_Seconds := -1;
+   No_Max_Stale  : constant Delta_Seconds := Unset;
+   Any_Max_Stale : constant Delta_Seconds := Delta_Seconds'Last;
+
+   All_Private   : constant Private_Option := To_Unbounded_String ("*");
+   Private_Unset : constant Private_Option :=
+                     Private_Option (Null_Unbounded_String);
 
 end AWS.Messages;

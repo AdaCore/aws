@@ -190,9 +190,15 @@ package body AWS.Status is
    -- Cache_Control --
    -------------------
 
-   function Cache_Control (D : Data) return String is
+   function Cache_Control (D : Data) return Messages.Cache_Option is
    begin
-      return Headers.Get (D.Header, Messages.Cache_Control_Token);
+      return Messages.Cache_Option
+        (Headers.Get (D.Header, Messages.Cache_Control_Token));
+   end Cache_Control;
+
+   function Cache_Control (D : Data) return Messages.Cache_Data is
+   begin
+      return Messages.To_Cache_Data (Messages.Request, Cache_Control (D));
    end Cache_Control;
 
    ------------------

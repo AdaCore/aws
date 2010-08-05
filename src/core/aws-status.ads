@@ -145,9 +145,13 @@ package AWS.Status is
    pragma Inline (Referer);
    --  Get value for "Referer:" header
 
-   function Cache_Control          (D : Data) return String;
+   function Cache_Control          (D : Data) return Messages.Cache_Option;
    pragma Inline (Cache_Control);
    --  Get value for "Cache-Control:" header
+
+   function Cache_Control (D : Data) return Messages.Cache_Data;
+   pragma Inline (Cache_Control);
+   --  Returns the cache control data specified for the request
 
    function Is_Supported
      (D        : Data;

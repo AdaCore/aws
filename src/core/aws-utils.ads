@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2009, AdaCore                     --
+--                     Copyright (C) 2000-2010, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -30,6 +30,7 @@ with Ada.Directories;
 with Ada.Finalization;
 with Ada.Streams;
 with Ada.Strings.Maps;
+with Ada.Strings.Unbounded;
 with Ada.Task_Identification;
 with Ada.Unchecked_Deallocation;
 
@@ -40,6 +41,7 @@ package AWS.Utils is
 
    use Ada;
    use Ada.Streams;
+   use Ada.Strings.Unbounded;
    use Ada.Task_Identification;
 
    type Random_Integer is range 0 .. Integer'Last;
@@ -106,6 +108,13 @@ package AWS.Utils is
    function Head_Before (Source, Pattern : String) return String;
    --  Returns first part of string before Pattern or the Source string if
    --  Pattern not found.
+
+   procedure Append_With_Sep
+     (Content : in out Unbounded_String;
+      Value   : String;
+      Sep     : String := ", ");
+   --  Append Value into Content, append Sep before value if Content is not
+   --  empty.
 
    ---------------
    -- Semaphore --
