@@ -64,9 +64,16 @@ def build(prj):
 
 def gnatmake(prj):
     """Compile a project with gnatmake"""
-    cmd = ["gnatmake"]
+    cmd = []
+    if Env().is_cross:
+        cmd.append(Env().target.triplet + '-gnatmake')
+    else:
+        cmd.append('gnatmake')
     if Env().testsuite_config.with_gprof:
-        cmd = cmd + ["-pg"]
+        cmd.append('-pg')
+    if Env().is_cross:
+        if Env().target.os.name.startswith('vxworks'):
+            cmd.append('-XPLATFORM=vxworks')
     cmd = cmd + ["-p", "-gnat05", "-P" + prj, "-bargs", "-E"]
     process = Run(cmd)
     if process.status:
@@ -94,15 +101,21 @@ def run(bin, options=None, output_file=None):
     else:
         timeout = 300
 
-    if Env().testsuite_config.with_gdb:
-        Run(["gdb", "--eval-command=run", "--batch-silent",
-             "--args", bin] + options, output=output_file, timeout=timeout)
-    elif Env().testsuite_config.with_valgrind:
-        Run(["valgrind", "-q", "./" + bin] + options,
-            output=output_file, timeout=timeout)
+    if Env().is_cross:
+        # Import gnatpython excross module only when needed
+        from gnatpython.internal.excross import run_cross
+        run_cross([bin + Env().target.os.exeext],
+                  output=output_file, timeout=timeout)
     else:
-        Run(["./" + bin] + options,
-            output=output_file, timeout=timeout)
+        if Env().testsuite_config.with_gdb:
+            Run(["gdb", "--eval-command=run", "--batch-silent",
+                 "--args", bin] + options, output=output_file, timeout=timeout)
+        elif Env().testsuite_config.with_valgrind:
+            Run(["valgrind", "-q", "./" + bin] + options,
+                output=output_file, timeout=timeout)
+        else:
+            Run(["./" + bin] + options,
+                output=output_file, timeout=timeout)
 
     if Env().testsuite_config.with_gprof:
         Run(["gprof", bin] + options,
