@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                    Copyright (C) 2000-2009, AdaCore                      --
+--                    Copyright (C) 2000-2010, AdaCore                      --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -199,10 +199,9 @@ package AWS.Response is
    ------------------------
 
    function Acknowledge
-     (Status_Code   : Messages.Status_Code;
-      Message_Body  : String := "";
-      Content_Type  : String := MIME.Text_HTML)
-      return Data;
+     (Status_Code  : Messages.Status_Code;
+      Message_Body : String := "";
+      Content_Type : String := MIME.Text_HTML) return Data;
    --  Returns a message to the Web browser. This routine must be used to
    --  send back an error message to the Web browser. For example if a
    --  requested resource cannot be served a message with status code S404
@@ -237,10 +236,7 @@ package AWS.Response is
    -- Header --
    ------------
 
-   function Header
-     (D    : Data;
-      Name : String;
-      N    : Positive) return String;
+   function Header (D : Data; Name : String; N : Positive) return String;
    pragma Inline (Header);
    --  Return the N-th value for header Name
 

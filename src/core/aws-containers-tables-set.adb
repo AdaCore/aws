@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2009, AdaCore                     --
+--                     Copyright (C) 2000-2010, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -95,8 +95,8 @@ package body AWS.Containers.Tables.Set is
       Value : String;
       N     : Natural)
    is
-      L_Key : constant String
-        :=  Normalize_Name (Name, not Table.Case_Sensitive);
+      L_Key  : constant String :=
+                 Normalize_Name (Name, not Table.Case_Sensitive);
 
       Cursor : Index_Table.Cursor := Index_Table.Find (Table.Index, L_Key);
 

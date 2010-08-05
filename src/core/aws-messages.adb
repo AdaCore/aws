@@ -212,9 +212,7 @@ package body AWS.Messages is
    -------------------------
 
    function Content_Disposition
-     (Format   : String;
-      Name     : String;
-      Filename : String) return String is
+     (Format, Name, Filename : String) return String is
    begin
       if Filename = "" then
          return Content_Disposition_Token & HD & Format
@@ -540,10 +538,7 @@ package body AWS.Messages is
    end WWW_Authenticate;
 
    function WWW_Authenticate
-     (Realm : String;
-      Nonce : String;
-      Stale : Boolean)
-      return String is
+     (Realm, Nonce : String; Stale : Boolean) return String is
    begin
       return WWW_Authenticate_Token & HD
         & "Digest qop=""auth"", realm=""" & Realm

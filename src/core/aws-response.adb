@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2009, AdaCore                     --
+--                     Copyright (C) 2000-2010, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -48,8 +48,7 @@ package body AWS.Response is
    function Acknowledge
      (Status_Code  : Messages.Status_Code;
       Message_Body : String := "";
-      Content_Type : String := MIME.Text_HTML)
-      return Data
+      Content_Type : String := MIME.Text_HTML) return Data
    is
       Result : Data;
    begin
@@ -99,8 +98,8 @@ package body AWS.Response is
 
    function Authentication (D : Data) return Authentication_Mode is
       use AWS.Headers;
-      Auth_Values : constant VString_Array
-        := Get_Values (D.Header, Messages.WWW_Authenticate_Token);
+      Auth_Values : constant VString_Array :=
+                      Get_Values (D.Header, Messages.WWW_Authenticate_Token);
    begin
       if Auth_Values'Length = 1 then
          return Authentication_Mode'Value
@@ -116,13 +115,14 @@ package body AWS.Response is
 
    function Authentication_Stale (D : Data) return Boolean is
       use AWS.Headers;
-      Auth_Values : constant VString_Array
-        := Get_Values (D.Header, Messages.WWW_Authenticate_Token);
+      Auth_Values : constant VString_Array :=
+                      Get_Values (D.Header, Messages.WWW_Authenticate_Token);
    begin
       for J in Auth_Values'Range loop
          declare
-            Stale_Image : constant String
-              := Values.Search (To_String (Auth_Values (J)), "stale", False);
+            Stale_Image : constant String :=
+                            Values.Search
+                              (To_String (Auth_Values (J)), "stale", False);
          begin
             if Stale_Image /= "" then
                return Boolean'Value (Stale_Image);
@@ -214,8 +214,8 @@ package body AWS.Response is
    --------------------
 
    function Content_Length (D : Data) return Content_Length_Type is
-      CL_Image : constant String
-        := Headers.Get (D.Header, Messages.Content_Length_Token);
+      CL_Image : constant String :=
+                   Headers.Get (D.Header, Messages.Content_Length_Token);
    begin
       if CL_Image = "" then
          return Undefined_Length;
@@ -414,19 +414,12 @@ package body AWS.Response is
       return D.Header;
    end Header;
 
-   function Header
-     (D    : Data;
-      Name : String;
-      N    : Positive)
-      return String is
+   function Header (D : Data; Name : String; N : Positive) return String is
    begin
       return Headers.Get (D.Header, Name, N);
    end Header;
 
-   function Header
-     (D    : Data;
-      Name : String)
-      return String is
+   function Header (D : Data; Name : String) return String is
    begin
       return Headers.Get_Values (D.Header, Name);
    end Header;
