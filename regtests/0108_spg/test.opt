@@ -1,2 +1,3 @@
 sparc-solaris DEAD
 pa-hpux XFAIL
+vxworks DEAD
