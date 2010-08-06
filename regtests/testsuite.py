@@ -69,9 +69,11 @@ class Runner(object):
 
         # Always add ALL and target info
         self.discs = ['ALL'] + Env().discriminants
+        if Env().target.os.name == 'vxworks6':
+            self.discs.append('vxworks')
 
         if options.discs:
-            self.discs += options.discs
+            self.discs += options.discs.split(',')
 
         if options.with_gdb:
             # Serialize runs and disable gprof
