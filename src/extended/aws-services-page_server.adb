@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2009, AdaCore                     --
+--                     Copyright (C) 2000-2010, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -27,6 +27,7 @@
 
 with Ada.Strings.Fixed;
 with Ada.Strings.Maps;
+with Ada.Strings.Unbounded;
 
 with AWS.Config;
 with AWS.Messages;
@@ -39,7 +40,11 @@ with AWS.Utils;
 
 package body AWS.Services.Page_Server is
 
+   use Ada.Strings.Unbounded;
+
    Browse_Directory : Boolean := False;
+   Cache_Option     : Unbounded_String;
+   --  Store the cache options to be sent
 
    --------------
    -- Callback --
@@ -56,9 +61,17 @@ package body AWS.Services.Page_Server is
 
    begin
       if Resources.Is_Regular_File (Filename) then
-         return AWS.Response.File
-           (Content_Type => AWS.MIME.Content_Type (Filename),
-            Filename     => Filename);
+         if Cache_Option /= Null_Unbounded_String then
+            return AWS.Response.File
+              (Content_Type  => AWS.MIME.Content_Type (Filename),
+               Filename      => Filename,
+               Cache_Control => Messages.Cache_Option
+                 (To_String (Cache_Option)));
+         else
+            return AWS.Response.File
+              (Content_Type => AWS.MIME.Content_Type (Filename),
+               Filename     => Filename);
+         end if;
 
       elsif Browse_Directory and then Utils.Is_Directory (Filename) then
          declare
@@ -66,11 +79,21 @@ package body AWS.Services.Page_Server is
               := Config.Directory_Browser_Page
                    (Server.Config (Server.Get_Current.all));
          begin
-            return AWS.Response.Build
-              (Content_Type => MIME.Text_HTML,
-               Message_Body =>
-                 AWS.Services.Directory.Browse
-                   (Filename, Directory_Browser_Page, Request));
+            if Cache_Option /= Null_Unbounded_String then
+               return AWS.Response.Build
+                 (Content_Type => MIME.Text_HTML,
+                  Message_Body =>
+                    AWS.Services.Directory.Browse
+                      (Filename, Directory_Browser_Page, Request),
+                 Cache_Control => Messages.Cache_Option
+                    (To_String (Cache_Option)));
+            else
+               return AWS.Response.Build
+                 (Content_Type => MIME.Text_HTML,
+                  Message_Body =>
+                    AWS.Services.Directory.Browse
+                      (Filename, Directory_Browser_Page, Request));
+            end if;
          end;
 
       else
@@ -107,5 +130,15 @@ package body AWS.Services.Page_Server is
    begin
       Browse_Directory := Activated;
    end Directory_Browsing;
+
+   -----------------------
+   -- Set_Cache_Control --
+   -----------------------
+
+   procedure Set_Cache_Control (Data : Messages.Cache_Data) is
+   begin
+      Cache_Option :=
+        To_Unbounded_String (String (Messages.To_Cache_Option (Data)));
+   end Set_Cache_Control;
 
 end AWS.Services.Page_Server;

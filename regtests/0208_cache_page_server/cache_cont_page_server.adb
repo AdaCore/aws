@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2010, AdaCore                     --
+--                       Copyright (C) 2010, AdaCore                        --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -25,41 +25,44 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  The Callback is an implementation of a simple static Web page server. It
---  will return the Web pages found in the Web server directory. If directory
---  browsing is activated, it will be possible to browse directory content if
---  the requested ressource is a directory. There is two specials files that
---  are recognized:
---
---    404.thtml              The Web page returned if the requested page is
---                           not found. This is a template with a single tag
---                           variable named PAGE. It will be replaced by the
---                           ressource which was not found.
---
---                           Note that on Microsoft IE this page will be
---                           displayed only if the total page size is bigger
---                           than 512 bytes or it includes at least one
---                           image.
---
---    aws_directory.thtml    The template page used for directory browsing.
---                           See AWS.Services.Directory for a full description
---                           of this template usage.
+with Ada.Text_IO;
 
+with AWS.Client;
+with AWS.Config.Set;
 with AWS.Messages;
-with AWS.Status;
 with AWS.Response;
+with AWS.Server;
+with AWS.Services.Page_Server;
+with AWS.Utils;
 
-package AWS.Services.Page_Server is
+with Get_Free_Port;
 
-   procedure Directory_Browsing (Activated : Boolean);
-   --  If Activated is set to True the directory browsing facility will be
-   --  activated. By default this feature is not activated.
+procedure Cache_Cont_Page_Server is
+   use Ada;
+   use AWS;
 
-   procedure Set_Cache_Control (Data : Messages.Cache_Data);
-   --  Set the Cache-Control header for each response given by the following
-   --  callback.
+   Conf : Config.Object;
+   WS   : Server.HTTP;
+   R    : Response.Data;
+   Port : Natural := 1946;
 
-   function Callback (Request : AWS.Status.Data) return AWS.Response.Data;
-   --  This is the AWS callback for the simple static Web pages server
+   CC   : constant Messages.Cache_Data :=
+            (Messages.Response, Max_Age => 4,
+             Proxy_Revalidate => True, others => <>);
+begin
+   Get_Free_Port (Port);
 
-end AWS.Services.Page_Server;
+   Config.Set.WWW_Root (Conf, ".");
+   Config.Set.Server_Port (Conf, Port);
+
+   Server.Start (WS, Services.Page_Server.Callback'Access, Conf);
+
+   Services.Page_Server.Set_Cache_Control (CC);
+
+   R := Client.Get ("http://localhost:" & Utils.Image (Port) & "/test.py");
+
+   Text_IO.Put_Line
+     ("CC: " & String (Messages.Cache_Option'(Response.Cache_Control (R))));
+
+   Server.Shutdown (WS);
+end Cache_Cont_Page_Server;

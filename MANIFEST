@@ -1440,6 +1440,10 @@ regtests/0207_cache_control_header/cache_control_header.adb
 regtests/0207_cache_control_header/cache_control_header.gpr
 regtests/0207_cache_control_header/test.out
 regtests/0207_cache_control_header/test.py
+regtests/0208_cache_page_server/cache_cont_page_server.adb
+regtests/0208_cache_page_server/cache_cont_page_server.gpr
+regtests/0208_cache_page_server/test.out
+regtests/0208_cache_page_server/test.py
 regtests/README
 regtests/aws.gpr
 regtests/common/get_free_port.adb
