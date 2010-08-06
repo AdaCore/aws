@@ -55,7 +55,7 @@ package body AWS.Services.Page_Server is
       use type Templates.Translate_Set;
 
       WWW_Root : String renames AWS.Config.WWW_Root
-        (Server.Config (Server.Get_Current.all));
+                   (Server.Config (Server.Get_Current.all));
       URI      : constant String := AWS.Status.URI (Request);
       Filename : constant String := WWW_Root & URI (2 .. URI'Last);
 
@@ -75,9 +75,10 @@ package body AWS.Services.Page_Server is
 
       elsif Browse_Directory and then Utils.Is_Directory (Filename) then
          declare
-            Directory_Browser_Page : constant String
-              := Config.Directory_Browser_Page
-                   (Server.Config (Server.Get_Current.all));
+            Directory_Browser_Page : constant String :=
+                                       Config.Directory_Browser_Page
+                                         (Server.Config
+                                            (Server.Get_Current.all));
          begin
             if Cache_Option /= Null_Unbounded_String then
                return AWS.Response.Build
