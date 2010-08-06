@@ -121,6 +121,10 @@ class Runner(object):
         Env().testsuite_config = options
         Env().store(os.environ["TEST_CONFIG"])
 
+        # Save discriminants
+        with open(self.result_dir + "/discs", "w") as discs_f:
+            discs_f.write(" ".join(self.discs))
+
     def start(self, tests, show_diffs=False, old_result_dir=None):
         """Start the testsuite"""
         # Generate the testcases list
