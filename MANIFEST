@@ -602,10 +602,12 @@ regtests/0053_eres/adains.png
 regtests/0053_eres/adains.png.gz
 regtests/0053_eres/eres.adb
 regtests/0053_eres/eres.gpr
+regtests/0053_eres/test.opt
 regtests/0053_eres/test.out
 regtests/0053_eres/test.py
 regtests/0054_file2/file2.adb
 regtests/0054_file2/file2.gpr
+regtests/0054_file2/test.opt
 regtests/0054_file2/test.out
 regtests/0054_file2/test.py
 regtests/0055_file/file.adb
@@ -652,6 +654,7 @@ regtests/0062_smtp_2/smtp_pck.adb
 regtests/0062_smtp_2/smtp_pck.ads
 regtests/0062_smtp_2/test.out
 regtests/0062_smtp_2/test.py
+regtests/0063_zres/test.opt
 regtests/0063_zres/test.out
 regtests/0063_zres/test.py
 regtests/0063_zres/zres.adb
@@ -1396,10 +1399,12 @@ regtests/0196_wsdl_client_connection/test.out
 regtests/0196_wsdl_client_connection/test.py
 regtests/0198_parse_res/bug.adb
 regtests/0198_parse_res/bug.gpr
+regtests/0198_parse_res/test.opt
 regtests/0198_parse_res/test.out
 regtests/0198_parse_res/test.py
 regtests/0199_empty_res/empty_res.adb
 regtests/0199_empty_res/empty_res.gpr
+regtests/0199_empty_res/test.opt
 regtests/0199_empty_res/test.out
 regtests/0199_empty_res/test.py
 regtests/0200_wb_context/test-be.out
