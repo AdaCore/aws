@@ -1386,6 +1386,7 @@ regtests/0186_callsh/callsh.gpr
 regtests/0186_callsh/test.opt
 regtests/0186_callsh/test.out
 regtests/0186_callsh/test.py
+regtests/0187_wxrefs/test.opt
 regtests/0187_wxrefs/test.out
 regtests/0187_wxrefs/test.py
 regtests/0187_wxrefs/wx_block.thtml
