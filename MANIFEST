@@ -754,6 +754,7 @@ regtests/0078_partial/test.out
 regtests/0078_partial/test.py
 regtests/0079_pipe_stream/pipe_stream.adb
 regtests/0079_pipe_stream/pipe_stream.gpr
+regtests/0079_pipe_stream/test.opt
 regtests/0079_pipe_stream/test.out
 regtests/0079_pipe_stream/test.py
 regtests/0080_plain2ssl/cert.pem
