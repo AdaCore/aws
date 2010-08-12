@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2009, AdaCore                     --
+--                     Copyright (C) 2000-2010, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -48,14 +48,9 @@ procedure Param is
 
    function CB (Request : Status.Data) return Response.Data;
 
-   task Server is
-      entry Started;
-      entry Stopped;
-      entry Run;
-   end Server;
-
-   HTTP : AWS.Server.HTTP;
-   Port : Natural := 1243;
+   HTTP   : AWS.Server.HTTP;
+   Port   : Natural := 1243;
+   Config : AWS.Config.Object;
 
    --------
    -- CB --
@@ -115,42 +110,6 @@ procedure Param is
       end if;
    end CB;
 
-   ------------
-   -- Server --
-   ------------
-
-   task body Server is
-      Config : AWS.Config.Object;
-   begin
-      Get_Free_Port (Port);
-
-      AWS.Config.Set.Server_Port (Config, Port);
-      AWS.Config.Set.Max_Connection (Config, 5);
-      AWS.Config.Set.Server_Name (Config, "param");
-      AWS.Config.Set.Case_Sensitive_Parameters (Config, False);
-
-      AWS.Server.Start (HTTP, CB'Unrestricted_Access, Config);
-
-      accept Started;
-
-      Put_Line ("Server started");
-      New_Line;
-
-      accept Run;
-
-      select
-         accept Stopped;
-      or
-         delay 5.0;
-         Put_Line ("Too much time to do the job !");
-      end select;
-
-      AWS.Server.Shutdown (HTTP);
-   exception
-      when E : others =>
-         Put_Line ("Server Error " & Exceptions.Exception_Information (E));
-   end Server;
-
    -------------
    -- Request --
    -------------
@@ -166,25 +125,33 @@ procedure Param is
 begin
    Put_Line ("Start main, wait for server to start...");
 
-   Server.Started;
-   Server.Run;
+   Get_Free_Port (Port);
+
+   AWS.Config.Set.Server_Port (Config, Port);
+   AWS.Config.Set.Max_Connection (Config, 5);
+   AWS.Config.Set.Server_Name (Config, "param");
+   AWS.Config.Set.Case_Sensitive_Parameters (Config, False);
+
+   AWS.Server.Start (HTTP, CB'Unrestricted_Access, Config);
+   Put_Line ("Server started");
+   New_Line;
 
    Request ("http://localhost:" & Utils.Image (Port)
-              & "/call");
+            & "/call");
    Request ("http://localhost:" & Utils.Image (Port)
-              & "/call call");
+            & "/call call");
    Request ("http://localhost:" & Utils.Image (Port)
-              & "/call?p1=8&p2=azerty%3e%20%26%3c%3fqwerty");
+            & "/call?p1=8&p2=azerty%3e%20%26%3c%3fqwerty");
    Request ("http://localhost:" & Utils.Image (Port)
-              & "/call call?p1=8&p2=azerty%3e%20qwerty");
+            & "/call call?p1=8&p2=azerty%3e%20qwerty");
    Request ("http://localhost:" & Utils.Image (Port)
-              & "/call%20call%3fp1=a%20a%3f");
+            & "/call%20call%3fp1=a%20a%3f");
    Request ("http://localhost:" & Utils.Image (Port)
-              & "/spec?p%261=1%3d1&p%3D2=2%262");
+            & "/spec?p%261=1%3d1&p%3D2=2%262");
    Request ("http://localhost:" & Utils.Image (Port)
-              & "/dup?p1=p-1.1&P1=p-1.2&P2=p-2.1&p2=p-2.2");
+            & "/dup?p1=p-1.1&P1=p-1.2&P2=p-2.1&p2=p-2.2");
 
-   Server.Stopped;
+   AWS.Server.Shutdown (HTTP);
 
 exception
    when E : others =>
