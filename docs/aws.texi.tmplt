@@ -1318,7 +1318,9 @@ AWS server runs in the same directory.
 This file is parsed after @file{aws.ini}. It is possible with this
 initialization file to have specific settings for some servers.
 @file{program_name.ini} is looked first in the application's directory
-and then in the current working directory.
+and then in the current working directory. This is only supported on
+platforms where @code{Ada.Command_Line} is implemented. So, on @b{VxWorks}
+only @file{aws.ini} is parsed.
 
 @end table
 

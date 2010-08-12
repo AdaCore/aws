@@ -447,8 +447,10 @@ regtests/0025_server_config/aws.ini
 regtests/0025_server_config/server_config.adb
 regtests/0025_server_config/server_config.gpr
 regtests/0025_server_config/server_config.ini
+regtests/0025_server_config/test.opt
 regtests/0025_server_config/test.out
 regtests/0025_server_config/test.py
+regtests/0025_server_config/test_vxworks.out
 regtests/0026_server_info/server_info.adb
 regtests/0026_server_info/server_info.gpr
 regtests/0026_server_info/test.opt
