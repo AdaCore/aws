@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2008-2010, AdaCore                     --
+--                       Copyright (C) 2010, AdaCore                        --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -25,9 +25,14 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-with "aws";
+package Stack_Size is
 
-project Strm2 is
-   for Source_Dirs use (".", "../common");
-   for Main use ("strm2.adb");
-end Strm2;
+   Value : constant := 50 * 1024;
+   --  This is the value used for the stack size of a server task into the
+   --  test suite. The server task needs some stack space to be able to
+   --  start all AWS lines (tasks). On native platform this is not a
+   --  problem. On VxWorks, for example, the 20k default stack size is not
+   --  sufficient. Testing shows that a minimum stack size is around 30k.
+   --  This global value can be adjusted if needed.
+
+end Stack_Size;

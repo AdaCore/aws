@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2009, AdaCore                     --
+--                     Copyright (C) 2003-2010, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -41,6 +41,8 @@ with AWS.Messages;
 with AWS.Resources.Streams;
 with AWS.Utils;
 
+with Stack_Size;
+
 with Error_Strm;
 
 procedure Strm2 is
@@ -52,6 +54,7 @@ procedure Strm2 is
    function CB (Request : Status.Data) return Response.Data;
 
    task Server is
+      pragma Storage_Size (Stack_Size.Value);
       entry Wait_Start;
       entry Stop;
    end Server;

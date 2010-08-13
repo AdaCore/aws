@@ -1494,6 +1494,7 @@ regtests/0208_cache_page_server/test.py
 regtests/README
 regtests/aws.gpr
 regtests/common/get_free_port.adb
+regtests/common/stack_size.ads
 regtests/gen_system_tags.py
 regtests/makefile
 regtests/makevar.py
