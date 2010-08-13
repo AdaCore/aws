@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                       Copyright (C) 2009, AdaCore                        --
+--                     Copyright (C) 2009-2010, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -25,9 +25,11 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
+with "../../shared";
+
 project Test_Zlib is
    for Source_Dirs use (".");
-   for Object_Dir use "../../.build/native/setup/zobj";
+   for Object_Dir use "../../" & Shared.Target_Dir & "/setup/zobj";
    for Main use ("mzlib");
 
    package Linker is

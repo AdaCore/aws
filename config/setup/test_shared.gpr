@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2008                            --
---                                 AdaCore                                  --
+--                     Copyright (C) 2008-2010, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -26,10 +25,12 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
+with "../../shared";
+
 project Test_Shared is
    for Source_Dirs use (".");
-   for Object_Dir use "../../.build/native/setup/obj";
-   for Library_Dir use "../../.build/native/setup/lib";
+   for Object_Dir use "../../" & Shared.Target_Dir & "/setup/obj";
+   for Library_Dir_Dir use "../../" & Shared.Target_Dir & "/setup/lib";
    for Library_Name use "lib";
    for Library_Kind use "relocatable";
 end Test_Shared;
