@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2009, AdaCore                     --
+--                     Copyright (C) 2000-2010, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -164,8 +164,7 @@ package AWS.Client is
       Proxy_User : String          := No_Data;
       Proxy_Pwd  : String          := No_Data;
       Timeouts   : Timeouts_Values := No_Timeout;
-      Headers    : Header_List     := Empty_Header_List)
-      return Response.Data;
+      Headers    : Header_List     := Empty_Header_List) return Response.Data;
    --  Idem as above but we do not get the message body.
    --  Head will retry one time if it fails.
 
@@ -178,8 +177,7 @@ package AWS.Client is
       Proxy_User : String          := No_Data;
       Proxy_Pwd  : String          := No_Data;
       Timeouts   : Timeouts_Values := No_Timeout;
-      Headers    : Header_List     := Empty_Header_List)
-      return Response.Data;
+      Headers    : Header_List     := Empty_Header_List) return Response.Data;
    --  Send to the server URL a PUT request with Data
    --  Put will retry one time if it fails.
 
@@ -225,8 +223,7 @@ package AWS.Client is
       Proxy_Pwd   : String          := No_Data;
       Timeouts    : Timeouts_Values := No_Timeout;
       Attachments : Attachment_List := Empty_Attachment_List;
-      Headers     : Header_List     := Empty_Header_List)
-      return Response.Data;
+      Headers     : Header_List     := Empty_Header_List) return Response.Data;
    --  Send to the server URL a POST request with Data
    --  Post will retry one time if it fails.
 
@@ -239,8 +236,7 @@ package AWS.Client is
       Proxy_User : String          := No_Data;
       Proxy_Pwd  : String          := No_Data;
       Timeouts   : Timeouts_Values := No_Timeout;
-      Headers    : Header_List     := Empty_Header_List)
-      return Response.Data;
+      Headers    : Header_List     := Empty_Header_List) return Response.Data;
    --  This is a file upload request. Filename file's content will be send to
    --  the server at address URL.
 
@@ -473,7 +469,7 @@ private
    end record;
 
    No_Timeout : constant Timeouts_Values :=
-     (Response => Forever, others => Net.Forever);
+                  (Response => Forever, others => Net.Forever);
    No_Data    : constant String := "";
 
    Undefined_Length : Response.Content_Length_Type

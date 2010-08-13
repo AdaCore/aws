@@ -719,10 +719,10 @@ package body AWS.Server is
       procedure Increment_Slot_Activity_Counter
         (Index : Positive; Free_Slots : out Natural) is
       begin
-         Table (Index).Slot_Activity_Counter
-           := Table (Index).Slot_Activity_Counter + 1;
-         Table (Index).Alive_Counter
-           := Table (Index).Alive_Counter + 1;
+         Table (Index).Slot_Activity_Counter :=
+           Table (Index).Slot_Activity_Counter + 1;
+         Table (Index).Alive_Counter :=
+           Table (Index).Alive_Counter + 1;
          Free_Slots := Count;
       end Increment_Slot_Activity_Counter;
 
@@ -744,8 +744,8 @@ package body AWS.Server is
       ----------------
 
       procedure Mark_Phase (Index : Positive; Phase : Slot_Phase) is
-         Mode : constant array (Boolean) of Timeout_Mode
-           := (True => Force, False => Cleaner);
+         Mode : constant array (Boolean) of Timeout_Mode :=
+                  (True => Force, False => Cleaner);
       begin
          --  Check if the Aborted phase happen after socket operation
          --  and before Mark_Phase call.
@@ -796,8 +796,7 @@ package body AWS.Server is
       -------------
 
       entry Release
-        (Index : Positive; Shutdown : out Boolean) when Shutdown_Count = 0
-      is
+        (Index : Positive; Shutdown : out Boolean) when Shutdown_Count = 0 is
       begin
          pragma Assert (Count < N);
          --  No more release than it is possible
@@ -889,8 +888,8 @@ package body AWS.Server is
    ------------------
 
    procedure Socket_Taken is
-      TA : constant Line_Attribute.Attribute_Handle
-        := Line_Attribute.Reference;
+      TA : constant Line_Attribute.Attribute_Handle :=
+             Line_Attribute.Reference;
    begin
       TA.Server.Slots.Socket_Taken (TA.Line);
    end Socket_Taken;
@@ -910,8 +909,7 @@ package body AWS.Server is
       Session                   : Boolean   := False;
       Case_Sensitive_Parameters : Boolean   := True;
       Upload_Directory          : String    := Default.Upload_Directory;
-      Line_Stack_Size           : Positive  := Default.Line_Stack_Size)
-   is
+      Line_Stack_Size           : Positive  := Default.Line_Stack_Size) is
    begin
       CNF.Set.Server_Name      (Web_Server.Properties, Name);
       CNF.Set.Admin_URI        (Web_Server.Properties, Admin_URI);
@@ -964,8 +962,8 @@ package body AWS.Server is
    is
       use type Net.SSL.Config;
 
-      Max_Connection : constant Positive
-        := CNF.Max_Connection (Web_Server.Properties);
+      Max_Connection : constant Positive :=
+                         CNF.Max_Connection (Web_Server.Properties);
 
       function Security_Mode return Net.SSL.Method;
       --  Returns the server security mode, returns the default method if the

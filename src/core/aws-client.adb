@@ -241,7 +241,6 @@ package body AWS.Client is
 
          Try_Count := Try_Count - 1;
       end if;
-
    end Error_Processing;
 
    ---------
@@ -367,8 +366,7 @@ package body AWS.Client is
    ---------------------
 
    function Get_Certificate
-     (Connection : HTTP_Connection)
-      return Net.SSL.Certificate.Object
+     (Connection : HTTP_Connection) return Net.SSL.Certificate.Object
    is
       use type Net.Socket_Access;
    begin
@@ -505,8 +503,7 @@ package body AWS.Client is
       Proxy_Pwd    : String          := No_Data;
       Timeouts     : Timeouts_Values := No_Timeout;
       Attachments  : Attachment_List := Empty_Attachment_List;
-      Headers      : Header_List     := Empty_Header_List)
-      return Response.Data
+      Headers      : Header_List     := Empty_Header_List) return Response.Data
    is
       Connection : HTTP_Connection;
       Result     : Response.Data;
@@ -539,8 +536,7 @@ package body AWS.Client is
       Proxy_Pwd    : String          := No_Data;
       Timeouts     : Timeouts_Values := No_Timeout;
       Attachments  : Attachment_List := Empty_Attachment_List;
-      Headers      : Header_List     := Empty_Header_List)
-      return Response.Data
+      Headers      : Header_List     := Empty_Header_List) return Response.Data
    is
       Connection : HTTP_Connection;
       Result     : Response.Data;
@@ -569,8 +565,7 @@ package body AWS.Client is
       Content_Type : String          := No_Data;
       URI          : String          := No_Data;
       Attachments  : Attachment_List := Empty_Attachment_List;
-      Headers      : Header_List     := Empty_Header_List)
-   is
+      Headers      : Header_List     := Empty_Header_List) is
    begin
       if Content_Type = No_Data then
          Internal_Post
@@ -602,8 +597,7 @@ package body AWS.Client is
       Content_Type : String          := No_Data;
       URI          : String          := No_Data;
       Attachments  : Attachment_List := Empty_Attachment_List;
-      Headers      : Header_List     := Empty_Header_List)
-   is
+      Headers      : Header_List     := Empty_Header_List) is
    begin
       if Content_Type = No_Data then
          Internal_Post
@@ -641,8 +635,7 @@ package body AWS.Client is
       Proxy_User : String          := No_Data;
       Proxy_Pwd  : String          := No_Data;
       Timeouts   : Timeouts_Values := No_Timeout;
-      Headers    : Header_List     := Empty_Header_List)
-      return Response.Data
+      Headers    : Header_List     := Empty_Header_List) return Response.Data
    is
       Connection : HTTP_Connection;
       Result     : Response.Data;
@@ -785,10 +778,11 @@ package body AWS.Client is
          ------------------
 
          procedure Read_Limited is
-            Limit : constant Stream_Element_Offset
-              := Stream_Element_Offset'Min
-                (Data'Last,
-                 Data'First + Stream_Element_Offset (Connection.Length) - 1);
+            Limit : constant Stream_Element_Offset :=
+                      Stream_Element_Offset'Min
+                        (Data'Last,
+                         Data'First +
+                           Stream_Element_Offset (Connection.Length) - 1);
          begin
             Net.Buffered.Read (Sock, Data (Data'First .. Limit), Last);
 
@@ -833,10 +827,10 @@ package body AWS.Client is
 
             when Chunked =>
                if Connection.Length = 0 then
-                  Connection.Length
-                    := Utils.Hex_Value
-                         (Strings.Fixed.Trim
-                            (Net.Buffered.Get_Line (Sock), Strings.Both));
+                  Connection.Length :=
+                    Utils.Hex_Value
+                      (Strings.Fixed.Trim
+                           (Net.Buffered.Get_Line (Sock), Strings.Both));
 
                   if Connection.Length = 0 then
                      Skip_Line;
@@ -1025,8 +1019,7 @@ package body AWS.Client is
       Proxy_Pwd   : String          := No_Data;
       Timeouts    : Timeouts_Values := No_Timeout;
       Attachments : Attachment_List := Empty_Attachment_List;
-      Headers     : Header_List     := Empty_Header_List)
-      return Response.Data
+      Headers     : Header_List     := Empty_Header_List) return Response.Data
    is
       Connection : HTTP_Connection;
       Result     : Response.Data;
@@ -1255,8 +1248,7 @@ package body AWS.Client is
       Proxy_User : String          := No_Data;
       Proxy_Pwd  : String          := No_Data;
       Timeouts   : Timeouts_Values := No_Timeout;
-      Headers    : Header_List     := Empty_Header_List)
-      return Response.Data
+      Headers    : Header_List     := Empty_Header_List) return Response.Data
    is
       Connection : HTTP_Connection;
       Result     : Response.Data;

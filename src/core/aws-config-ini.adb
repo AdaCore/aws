@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2009, AdaCore                     --
+--                     Copyright (C) 2000-2010, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -123,8 +123,8 @@ package body AWS.Config.Ini is
          end if;
       end Set_Value;
 
-      Separators : constant Strings.Maps.Character_Set
-        := Strings.Maps.To_Set (' ' & ASCII.HT);
+      Separators : constant Strings.Maps.Character_Set :=
+                     Strings.Maps.To_Set (' ' & ASCII.HT);
 
       File    : Text_IO.File_Type;
       Buffer  : String (1 .. 1024);
@@ -164,8 +164,10 @@ package body AWS.Config.Ini is
 
                declare
                   Key   : constant String := Buffer (K_First .. K_Last);
-                  Value : constant String := Strings.Fixed.Trim
-                    (Buffer (K_Last + 1 .. Last), Separators, Separators);
+                  Value : constant String :=
+                            Strings.Fixed.Trim
+                              (Buffer (K_Last + 1 .. Last),
+                               Separators, Separators);
                begin
                   if Value = "" then
                      Raise_Error ("No value for " & Key);
