@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2004-2009, AdaCore                     --
+--                     Copyright (C) 2004-2010, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -30,7 +30,9 @@ with Ada.Streams;
 with Ada.Text_IO;
 with AWS.Net.Sets;
 with AWS.Net.SSL;
+
 with Get_Free_Port;
+with Stack_Size;
 
 procedure Wait_Proc (Security : Boolean; Port : Positive) is
 
@@ -48,6 +50,7 @@ procedure Wait_Proc (Security : Boolean; Port : Positive) is
    Free_Port   : Positive := Port;
 
    task Client_Side is
+      pragma Storage_Size (Stack_Size.Value);
       entry Start;
    end Client_Side;
 

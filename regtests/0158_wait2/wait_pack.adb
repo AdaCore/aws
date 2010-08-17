@@ -33,6 +33,7 @@ with AWS.Net.Generic_Sets;
 with AWS.Net.SSL;
 
 with Get_Free_Port;
+with Stack_Size;
 
 package body Wait_Pack is
 
@@ -59,6 +60,7 @@ package body Wait_Pack is
       Index       : Sets.Socket_Index := 1;
 
       task Client_Side is
+         pragma Storage_Size (Stack_Size.Value);
          entry Next;
       end Client_Side;
 

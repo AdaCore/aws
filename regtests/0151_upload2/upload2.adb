@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2009, AdaCore                     --
+--                     Copyright (C) 2003-2010, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -44,6 +44,7 @@ with AWS.Status;
 with AWS.Utils;
 
 with Get_Free_Port;
+with Stack_Size;
 
 procedure Upload2 is
 
@@ -54,6 +55,7 @@ procedure Upload2 is
    function CB (Request : Status.Data) return Response.Data;
 
    task Server is
+      pragma Storage_Size (Stack_Size.Value);
       entry Start;
       entry Started;
       entry Stopped;
