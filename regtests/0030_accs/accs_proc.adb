@@ -36,6 +36,7 @@ with AWS.Net.Buffered;
 with AWS.Utils;
 
 with Get_Free_Port;
+with Stack_Size;
 
 procedure Accs_Proc (Security : Boolean) is
 
@@ -51,9 +52,12 @@ procedure Accs_Proc (Security : Boolean) is
 
    Semaphore : AWS.Utils.Semaphore;
 
-   task type Server_Task;
+   task type Server_Task is
+      pragma Storage_Size (Stack_Size.Value);
+   end Server_Task;
 
    task type Client_Task is
+      pragma Storage_Size (Stack_Size.Value);
       entry Start (Index : Positive);
    end Client_Task;
 

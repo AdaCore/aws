@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2004-2008, AdaCore                     --
+--                     Copyright (C) 2004-2010, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -32,6 +32,7 @@ with Ada.Exceptions;
 with Ada.Streams;
 
 with AWS.Net.Buffered;
+with Stack_Size;
 
 procedure SockExt_Proc (Security : Boolean; Port : Positive) is
 
@@ -49,6 +50,7 @@ procedure SockExt_Proc (Security : Boolean; Port : Positive) is
    Read_Count  : Natural := 0;
 
    task Client_Side is
+      pragma Storage_Size (Stack_Size.Value);
       entry Start;
       entry Read;
       entry Stop;

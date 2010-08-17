@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2009, AdaCore                     --
+--                     Copyright (C) 2000-2010, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -37,6 +37,8 @@ with AWS.Server.Status;
 with AWS.Status;
 with AWS.Utils;
 
+with Stack_Size;
+
 procedure TGetParam_Proc (Protocol : String) is
 
    use Ada;
@@ -46,6 +48,7 @@ procedure TGetParam_Proc (Protocol : String) is
    function CB (Request : Status.Data) return Response.Data;
 
    task Server is
+      pragma Storage_Size (Stack_Size.Value);
       entry Start;
       entry Started;
       entry Stopped;

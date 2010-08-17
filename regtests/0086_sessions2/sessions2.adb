@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2009, AdaCore                     --
+--                     Copyright (C) 2003-2010, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -40,6 +40,7 @@ with AWS.Status;
 with AWS.Utils;
 
 with Get_Free_Port;
+with Stack_Size;
 
 procedure Sessions2 is
 
@@ -50,11 +51,13 @@ procedure Sessions2 is
    Port : Natural := 1256;
 
    task type T_Client is
+      pragma Storage_Size (Stack_Size.Value);
       entry Start (N : Positive);
       entry Stopped;
    end T_Client;
 
    task Server is
+      pragma Storage_Size (Stack_Size.Value);
       entry Start;
       entry Started;
       entry Stop;

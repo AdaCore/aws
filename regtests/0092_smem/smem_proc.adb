@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2005-2009, AdaCore                     --
+--                     Copyright (C) 2005-2010, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -32,6 +32,8 @@ with Ada.Streams;
 with Ada.Text_IO;
 with AWS.Net.Std;
 
+with Stack_Size;
+
 procedure SMem_Proc (Security : Boolean) is
    use AWS.Net;
    use Ada.Streams;
@@ -50,7 +52,10 @@ procedure SMem_Proc (Security : Boolean) is
    -------------
 
    procedure Connect is
-      task Connector;
+      task Connector is
+         pragma Storage_Size (Stack_Size.Value);
+      end Connector;
+
       task body Connector is
       begin
          Connect (S1, "127.0.0.1", Std.Get_Port (Server));
@@ -71,7 +76,9 @@ procedure SMem_Proc (Security : Boolean) is
       Buffer : Stream_Element_Array (Sample'First .. Sample'Last + 2);
       Last   : Stream_Element_Offset;
 
-      task Send;
+      task Send is
+         pragma Storage_Size (Stack_Size.Value);
+      end Send;
 
       task body Send is
       begin

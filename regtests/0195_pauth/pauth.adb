@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                        Copyright (C) 2009, AdaCore                       --
+--                     Copyright (C) 2009-2010, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -40,6 +40,7 @@ with AWS.Messages;
 with AWS.Utils;
 
 with Get_Free_Port;
+with Stack_Size;
 
 procedure Pauth is
 
@@ -51,6 +52,7 @@ procedure Pauth is
    function CB (Request : Status.Data) return Response.Data;
 
    task Server is
+      pragma Storage_Size (Stack_Size.Value);
       entry Wait_Start;
       entry Stop;
    end Server;

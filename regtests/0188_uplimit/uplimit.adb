@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2008-2009, AdaCore                     --
+--                     Copyright (C) 2008-2010, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -44,6 +44,8 @@ with AWS.Status;
 with AWS.Translator;
 with AWS.Utils;
 
+with Stack_Size;
+
 procedure Uplimit is
 
    use Ada;
@@ -54,6 +56,7 @@ procedure Uplimit is
    function CB (Request : Status.Data) return Response.Data;
 
    task Server is
+      pragma Storage_Size (Stack_Size.Value);
       entry Start;
       entry Started (Port : out Positive);
       entry Stopped;

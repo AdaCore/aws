@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2004-2009, AdaCore                     --
+--                     Copyright (C) 2004-2010, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -37,6 +37,7 @@ with AWS.Status;
 with AWS.Utils;
 
 with Get_Free_Port;
+with Stack_Size;
 
 procedure Sessions4 is
 
@@ -59,6 +60,7 @@ procedure Sessions4 is
    Null_Context : constant Context := (0, "          ", False, ASCII.Nul);
 
    task Server is
+      pragma Storage_Size (Stack_Size.Value);
       entry Started;
       entry Stop;
    end Server;
