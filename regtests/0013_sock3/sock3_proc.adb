@@ -43,7 +43,9 @@ procedure Sock3_Proc (Security : Boolean; Port : Positive) is
    use Ada;
    use Ada.Streams;
 
-   Sample    : Stream_Element_Array (1 .. 100_000) := (others => 12);
+   B_Size    : constant := 100_000;
+
+   Sample    : Stream_Element_Array (1 .. B_Size) := (others => 12);
 
    Server    : Net.Socket_Type'Class := Net.Socket (False);
    Peer      : Net.Socket_Type'Class := Net.Socket (Security);
@@ -51,7 +53,7 @@ procedure Sock3_Proc (Security : Boolean; Port : Positive) is
    Free_Port : Positive := Port;
 
    task Client_Side is
-      pragma Storage_Size (Stack_Size.Value);
+      pragma Storage_Size (Stack_Size.Value + B_Size);
       entry Start;
       entry Stop;
    end Client_Side;
