@@ -1,3 +1,3 @@
 from test_support import *
 
-build_and_run('compress');
+build_and_run('tcompress');
