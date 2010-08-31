@@ -328,7 +328,8 @@ main (int argc, char *argv[])
 
   /* FD_Type */
 
-  P ("   type FD_Type is mod 2 ** %d;\n", s_fd_type);
+  P ("   type FD_Type is range  -(2 ** %d) .. 2 ** %d - 1;\n",
+     s_fd_type - 1, s_fd_type - 1);
   P ("   for FD_Type'Size use %d;\n\n", s_fd_type);
 
   /* Events_Type */
@@ -413,15 +414,12 @@ main (int argc, char *argv[])
   P ("      OptVal  : System.Address;\n");
   P ("      OptLen  : C.int) return C.int;\n\n");
 
-  P ("   function C_Ioctl\n");
-  P ("     (S   : C.int;\n");
-  P ("      Req : C.int;\n");
-  P ("      Arg : access C.int) return C.int;\n\n");
+  P ("   function C_Ioctl (S : C.int; Req : C.int; Arg : access C.int)"
+     " return C.int;\n\n");
 
   P ("   function C_Close (Fd : C.int) return C.int;\n\n");
 
-  P ("   procedure WSA_Startup\n");
-  P ("     (Version : C.int; Data : System.Address)");
+  P ("   procedure WSA_Startup (Version : C.int; Data : System.Address)");
 #ifdef _WIN32
   P (";\n");
   P ("   pragma Import (Stdcall, WSA_Startup, \"WSAStartup\");\n\n");
