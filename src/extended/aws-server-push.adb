@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2009, AdaCore                     --
+--                     Copyright (C) 2000-2010, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -471,10 +471,10 @@ package body AWS.Server.Push is
             end if;
          end Action;
 
-         C  : Tables.Cursor := Container.First;
-         G  : Group_Maps.Cursor;
+         C : Tables.Cursor := Container.First;
+         G : Group_Maps.Cursor;
 
-      begin
+      begin -- Info
          Container.Iterate (Action'Access);
 
          G := Groups.First;
@@ -943,9 +943,7 @@ package body AWS.Server.Push is
       -- Unregister_Clients --
       ------------------------
 
-      procedure Unregister_Clients
-        (Queue : out Tables.Map; Open : Boolean)
-      is
+      procedure Unregister_Clients (Queue : out Tables.Map; Open : Boolean) is
          Cursor : Tables.Cursor;
       begin
          Object.Open := Unregister_Clients.Open;
@@ -966,9 +964,7 @@ package body AWS.Server.Push is
       -- Unsubscribe --
       -----------------
 
-      procedure Unsubscribe
-        (Client_Id : Client_Key; Group_Id : String)
-      is
+      procedure Unsubscribe (Client_Id : Client_Key; Group_Id : String) is
 
          procedure Modify
            (Key : String; Element : in out Client_Holder_Access);
@@ -1575,7 +1571,7 @@ package body AWS.Server.Push is
          Counter := Counter + 1;
       end Add_Item;
 
-   begin
+   begin -- Waiter
       Net.Socket_Pair (R_Signal, W_Signal);
       Add (Write_Set, R_Signal'Unchecked_Access, Mode => Write_Sets.Input);
 
@@ -1600,7 +1596,8 @@ package body AWS.Server.Push is
                   --  those socket is slow receiving the socket data.
 
                   declare
-                     Message : constant String := Exception_Message (E);
+                     Message : constant String :=
+                       "Clear waiter because of: " & Exception_Message (E);
 
                      procedure Process
                        (Socket : in out Socket_Type'Class;
