@@ -30,7 +30,7 @@ with "../../shared";
 project Test_Shared is
    for Source_Dirs use (".");
    for Object_Dir use "../../" & Shared.Target_Dir & "/setup/obj";
-   for Library_Dir_Dir use "../../" & Shared.Target_Dir & "/setup/lib";
+   for Library_Dir use "../../" & Shared.Target_Dir & "/setup/lib";
    for Library_Name use "lib";
    for Library_Kind use "relocatable";
 end Test_Shared;
