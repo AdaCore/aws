@@ -1,4 +1,4 @@
-#!/usr/bin/env gnatpython
+#!/usr/bin/env python
 """
 ./gen_system_tags.py /path/to/aws/makefile.setup
 

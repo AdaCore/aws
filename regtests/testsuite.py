@@ -1,4 +1,4 @@
-#!/usr/bin/env gnatpython
+#!/usr/bin/env python
 #                              Ada Web Server
 #
 #                     Copyright (C) 2003-2010, AdaCore
