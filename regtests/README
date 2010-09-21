@@ -4,7 +4,7 @@ AWS Testsuite
 You'll need GNATPython to run the testsuite.
 To use it:
 
-svn checkout svn://scm.forge.open-do.org/scmrepos/svn/gnatpython
+svn checkout svn://scm.forge.open-do.org/scmrepos/svn/gnatpython/trunk
 export PYTHONPATH=/path/to/gnatpython
 Compile rlimit and add it to your PATH.
 
