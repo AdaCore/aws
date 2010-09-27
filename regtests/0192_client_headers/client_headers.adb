@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2008-2009, AdaCore                     --
+--                     Copyright (C) 2008-2010, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -29,6 +29,7 @@ with Ada.Text_IO;
 with Ada.Streams;
 with Ada.Strings.Fixed;
 with Ada.Strings.Maps;
+with Ada.Strings.Unbounded;
 
 with AWS.Client;
 with AWS.Headers.Set;
@@ -48,6 +49,7 @@ procedure Client_Headers is
 
    use Ada;
    use Ada.Streams;
+   use Ada.Strings.Unbounded;
    use AWS;
 
    WS   : Server.HTTP;
@@ -71,21 +73,23 @@ procedure Client_Headers is
       begin
          if Headers.Exist (H, Header) then
             declare
-               Value : constant String := Headers.Get (H, Header);
-               Last  : Natural := Value'Last;
+               Value : Unbounded_String :=
+                         To_Unbounded_String
+                           (Strings.Fixed.Translate
+                              (Headers.Get (H, Header),
+                               Strings.Maps.To_Mapping
+                                 ("0123456789", "xxxxxxxxxx")));
+               K     : Natural;
             begin
-               --  Remove 'w' in user's agent version (wavefront)
-               if Header = Messages.User_Agent_Token
-                 and then Value (Last) = 'w'
-               then
-                  Last := Last - 1;
-               end if;
+               loop
+                  K := Strings.Unbounded.Index (Value, "xx.");
 
-               Text_IO.Put_Line
-                 (Header & ": " &
-                  Strings.Fixed.Translate
-                    (Value (Value'First .. Last),
-                     Strings.Maps.To_Mapping ("0123456789", "xxxxxxxxxx")));
+                  exit when K = 0;
+
+                  Strings.Unbounded.Replace_Slice (Value, K, K + 2, "x.");
+               end loop;
+
+               Text_IO.Put_Line (Header & ": " & To_String (Value));
             end;
 
          else
