@@ -3407,8 +3407,8 @@ widget. The result must be an @code{XML/Ajax} document that will be parsed.
 @item make a list sortable
 
 @AWSEXP{<make_sortable>
-   <list id="firstlist"/>
-   <list id="secondlist"/>
+   <list id="@b{firstlist}"/>
+   <list id="@b{secondlist}"/>
 </make_sortable>
 }
 
@@ -3421,10 +3421,10 @@ callback. Note that for the serialization to work properly, each
 @code{LI} elements must be given the id of the list and then the value
 we want to pass.
 
-@AWSEXP{<ul id="firstlist">
-   <li id="firstlist_red">Red</li>
-   <li id="firstlist_green">Green</li>
-   <li id="firstlist_blue">Blue</li>
+@AWSEXP{<ul id="@b{firstlist}">
+   <li id="@b{firstlist_red}">Red</li>
+   <li id="@b{firstlist_green}">Green</li>
+   <li id="@b{firstlist_blue}">Blue</li>
 </ul>
 }
 
@@ -3436,8 +3436,8 @@ multi-valued parameter named @b{firstlist[]}.
 @item make a list not sortable
 
 @AWSEXP{<destroy_sortable>
-   <list id="firstlist"/>
-   <list id="secondlist"/>
+   <list id="@b{firstlist}"/>
+   <list id="@b{secondlist}"/>
 </destroy_sortable>
 }
 
@@ -3455,9 +3455,9 @@ Redirect the browser to the specified URL.
 
 Refresh the current page as if the Web Browser refresh button was pressed.
 
-@item Add a CSS style to a given node
+@item add a CSS style to a given node
 
-@AWSEXP{<apply_style id="node_id">
+@AWSEXP{<apply_style id="@b{node_id}">
    <attribute id="display" value="none"/>
 </apply_style>
 }
