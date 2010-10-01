@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2004-2009, AdaCore                     --
+--                     Copyright (C) 2004-2010, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -176,6 +176,14 @@ procedure Web_Elements is
                     (1 => Templates.Assoc ("COUNTER", C),
                      2 => Templates.Assoc ("LIST_V", List_V)))));
          end;
+
+      elsif URI = "/onclick$showdata" then
+         return Response.Build
+           (MIME.Text_XML,
+            String'(Templates.Parse
+                      ("xml_showdata.txml",
+                       (1 => Templates.Assoc
+                          ("TEXT", Parameters.Get (P_List, "xfield"))))));
 
       elsif URI'Length > 12
         and then URI (URI'First .. URI'First + 11) = "/onclick$xml"

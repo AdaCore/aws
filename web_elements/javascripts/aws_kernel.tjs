@@ -442,6 +442,12 @@ AWS.Ajax.XML = new function() {
              handler_insert_after (node);
           } else if (node.nodeName == 'ctx') {
              handler_ctx (node);
+          } else if (node.nodeName == 'read_only') {
+            handler_read_only (node);
+          } else if (node.nodeName == 'disabled') {
+            handler_disabled (node);
+          } else if (node.nodeName == 'reset') {
+            handler_reset (node);
           }
       }
    }
@@ -683,6 +689,42 @@ AWS.Ajax.XML = new function() {
             $(elm_id).style[id] = value;
          }
       }
+   }
+
+   @@-- Action on read_only
+
+   function handler_read_only (node)
+   {
+      var id = node.getAttribute('id');
+      var value = node.getAttribute('value');
+
+      if (value == 'true') {
+         $(id).readOnly = true;
+      } else if (value == 'false') {
+         $(id).readOnly = false;
+      }
+   }
+
+   @@-- Action on disabled
+
+   function handler_disabled (node)
+   {
+      var id = node.getAttribute('id');
+      var value = node.getAttribute('value');
+
+      if (value == 'true') {
+         $(id).disabled = true;
+      } else if (value == 'false') {
+         $(id).disabled = false;
+      }
+   }
+
+   @@-- Action on reset
+
+   function handler_reset (node)
+   {
+      var id = node.getAttribute('id');
+      $(id).reset();
    }
 }
 

@@ -3465,6 +3465,18 @@ Refresh the current page as if the Web Browser refresh button was pressed.
 Add the CSS style @code{display:none} to the @b{node_id} element. It
 is possible to specify multiple attributes if needed.
 
+@item make an entry disabled or enabled
+
+@AWSEXP{<disabled id="@b{item_id}" value="@b{true/false}"/>}
+
+@item make an entry read-only or writable
+
+@AWSEXP{<read_only id="@b{item_id}" value="@b{true/false}"/>}
+
+@item reset a form
+
+@AWSEXP{<reset id="@b{form_id}"/>}
+
 @end itemize
 
 @noindent

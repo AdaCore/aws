@@ -14,3 +14,9 @@ of the feature.
 
 New features in AWS 2.10
 ------------------------
+
+NF-210-J930-037 Three new Ajax actions have been implemented (2010-10-01)
+
+   It is now possible to disable/enable an entry in a form or to make it
+   read-only/writable. The last action can be used to reset a form to
+   its default values.

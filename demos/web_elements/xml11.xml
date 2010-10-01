@@ -1,0 +1,5 @@
+<response>
+   <replace id="xml3_status_bar">
+   Form values are reset to their default values...</replace>
+   <reset id="XML3_form"/>
+</response>

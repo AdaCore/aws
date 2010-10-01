@@ -1,0 +1,4 @@
+<response>
+   <replace id="xml3_status_bar">Entry is now enabled...</replace>
+   <disabled id="xfield" value="false"/>
+</response>

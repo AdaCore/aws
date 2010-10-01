@@ -122,6 +122,9 @@ html>div, #page7         { height: 27em; }
         <li id="page7">
             <a href="#" onclick="switchTabPage_Tabs('page7')">
             XML 2</a></li>
+        <li id="page8">
+            <a href="#" onclick="switchTabPage_Tabs('page8')">
+            XML 3</a></li>
       </ul>
 
       <!-- Button -->
@@ -399,6 +402,42 @@ html>div, #page7         { height: 27em; }
       <div Class="Status" id="xml2_status_bar">Click on the buttons</div>
 
       </div>
+
+      <!-- XML Based Requests (3) -->
+
+      <div class="TabContents" id="page8">
+
+      <div class="Demo">
+      <p>Enter some text in the following entry:
+      <form id="XML3_form">
+         <p><input id="xfield" type="text" value="enter some text here">
+         <p>Click on the button...</p>
+         <p><input id="showdata" type="button" value="Click Me"></p>
+      </form>
+
+      @@INCLUDE@@ ../../web_elements/javascripts/aws_action_xml.tjs (onclick, showdata, 4=>xfield)
+
+      <br><br>
+      <input id="xml7" type="button" name="adisable" value="Disable Entry"/>
+      @@INCLUDE@@ ../../web_elements/javascripts/aws_action_xml.tjs (onclick, xml7)
+      <input id="xml8" type="button" name="adisable" value="Enable Entry"/>
+      @@INCLUDE@@ ../../web_elements/javascripts/aws_action_xml.tjs (onclick, xml8)
+      <br><br>
+      <input id="xml9" type="button" name="aro" value="Set Read-Only"/>
+      @@INCLUDE@@ ../../web_elements/javascripts/aws_action_xml.tjs (onclick, xml9)
+      <input id="xml10" type="button" name="aro" value="Set Read-Write"/>
+      @@INCLUDE@@ ../../web_elements/javascripts/aws_action_xml.tjs (onclick, xml10)
+      <br><br>
+      <input id="xml11" type="button" name="reset_form" value="Reset"/>
+      @@INCLUDE@@ ../../web_elements/javascripts/aws_action_xml.tjs (onclick, xml11)
+      </div>
+
+      <div Class="Result" id="xml3_result">... result here ...</div>
+
+      <div class="Status" id="xml3_status_bar"></div>
+      </div>
+
+      <!-- End -->
 
       </td>
 

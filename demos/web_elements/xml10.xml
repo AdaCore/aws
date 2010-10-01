@@ -1,0 +1,4 @@
+<response>
+   <replace id="xml3_status_bar">Entry is now writable...</replace>
+   <read_only id="xfield" value="false"/>
+</response>
