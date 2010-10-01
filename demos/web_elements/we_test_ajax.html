@@ -61,7 +61,7 @@ html>div, #page7         { height: 27em; }
 .Dialog        { position: absolute; top: 4em; left: 4em;
                  width: 30em; height: 5em; z-index: 10;
                  background-color: #ffffff; padding: 10px;
-		 display: none; border-style: double;
+                 display: none; border-style: double;
                  border-style: solid;
                  border-color: #ff0000;
                }
@@ -89,9 +89,9 @@ html>div, #page7         { height: 27em; }
                  font-size: large;
                }
 
-.ulist	       {
+.ulist         {
                  height: 8em;
-	       }
+               }
 
 </style>
    </head>
@@ -322,24 +322,24 @@ html>div, #page7         { height: 27em; }
       <div Class="XML_Result">
         <div id="text1">text1</div>
         <div id="text2">text2</div>
-	<br>
-	<input id="input1" type="text" value="enter here 1">
-	<input id="input2" type="text" value="enter here 2">
-	<br><br>
-	<select id="xmlsel"></select>
-	<br><br>
-	<fieldset>
+        <br>
+        <input id="input1" type="text" value="enter here 1">
+        <input id="input2" type="text" value="enter here 2">
+        <br><br>
+        <select id="xmlsel"></select>
+        <br><br>
+        <fieldset>
            <legend>Options</legend>
-	   <input id="radio1" type="radio" name="rsel">option1</input>
-	   <input id="radio2" type="radio" name="rsel">option2</input>
-	   <input id="radio3" type="radio" name="rsel">option3</input>
+           <input id="radio1" type="radio" name="rsel">option1</input>
+           <input id="radio2" type="radio" name="rsel">option2</input>
+           <input id="radio3" type="radio" name="rsel">option3</input>
         </fieldset>
-	<br><br>
-	<fieldset>
+        <br><br>
+        <fieldset>
            <legend>Multiple Options</legend>
-	   <input id="check1" type="checkbox" name="csel">optiona</input>
-	   <input id="check2" type="checkbox" name="csel">optionb</input>
-	   <input id="check3" type="checkbox" name="csel">optionc</input>
+           <input id="check1" type="checkbox" name="csel">optiona</input>
+           <input id="check2" type="checkbox" name="csel">optionb</input>
+           <input id="check3" type="checkbox" name="csel">optionc</input>
         </fieldset>
       </div>
 
@@ -362,10 +362,10 @@ html>div, #page7         { height: 27em; }
 
       <p> Select some colors you like...</p>
 
-	<fieldset>
+        <fieldset>
            <legend>Colors</legend>
            <ul id="fromlist" class="ulist">
-	      <li id="fromlist_red">Red</li>
+              <li id="fromlist_red">Red</li>
               <li id="fromlist_green">Green</li>
               <li id="fromlist_blue">Blue</li>
               <li id="fromlist_yellow">Yellow</li>
@@ -376,7 +376,7 @@ html>div, #page7         { height: 27em; }
 
       <div class="Demo">
       <p>... and place them below.</p>
-	<fieldset>
+        <fieldset>
            <legend>Colors you like</legend>
            <ul id="tolist" class="ulist"></ul>
         </fieldset>
@@ -390,7 +390,7 @@ html>div, #page7         { height: 27em; }
       <input id="xml5" type="button" name="action1" value="Make sortable">
       <input id="xml6" type="button" name="action2" value="Remove sortable">
       <input id="xml_get_list" type="button" name="action3" value="Check result">
-     
+
       @@INCLUDE@@ ../../web_elements/javascripts/aws_action_xml.tjs (onclick, xml5)
       @@INCLUDE@@ ../../web_elements/javascripts/aws_action_xml.tjs (onclick, xml6)
       @@INCLUDE@@ ../../web_elements/javascripts/aws_action_xml.tjs (onclick, xml_get_list, 4=>tolist)
