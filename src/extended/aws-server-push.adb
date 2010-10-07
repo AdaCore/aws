@@ -300,7 +300,7 @@ package body AWS.Server.Push is
       end loop;
 
       if Last < Data'First and then Chunk_Lists.Has_Element (C) then
-         raise Constraint_Error with "Too big message.";
+         raise Constraint_Error with "Too big message";
       end if;
    end Get_Data;
 
@@ -450,11 +450,11 @@ package body AWS.Server.Push is
                if not Group_Maps.Has_Element (G) then
                   raise Program_Error with
                     "Not found group " & Group_Sets.Element (CG)
-                    & " for client.";
+                    & " for client";
                end if;
 
                if Group_Maps.Element (G).Element (Tables.Key (C)) /= CA then
-                  raise Program_Error with "loose client in group.";
+                  raise Program_Error with "Loose client in group";
                end if;
 
                CG := Group_Sets.Next (CG);
@@ -486,7 +486,7 @@ package body AWS.Server.Push is
                if not
                  Tables.Element (C).Groups.Contains (Group_Maps.Key (G))
                then
-                  raise Program_Error with "loose group in client.";
+                  raise Program_Error with "Loose group in client";
                end if;
 
                C := Tables.Next (C);
@@ -1283,7 +1283,7 @@ package body AWS.Server.Push is
             Waiter.Add (Server'Unrestricted_Access, Queue);
          or
             delay Waiter_Timeout;
-            raise Program_Error with "Add queue to waiter timeout.";
+            raise Program_Error with "Add queue to waiter timeout";
          end select;
       end if;
    end Send;
@@ -1682,11 +1682,11 @@ package body AWS.Server.Push is
                               if Client.SP /= Server
                                 or else Client.CH /= Holder
                               then
-                                 raise Program_Error
-                                   with "Broken data in waiter.";
+                                 raise Program_Error with
+                                   "Broken data in waiter";
                               end if;
 
-                              --  We could write to phase directly becuse
+                              --  We could write to phase directly because
                               --  Holder have to be out of protected object.
 
                               Holder.Phase := Available;
@@ -1697,15 +1697,15 @@ package body AWS.Server.Push is
                            Remove_Socket (Write_Set, J, Socket);
 
                            if Socket /= Holder.Socket then
-                              raise Program_Error
-                                with "Broken socket in waiter.";
+                              raise Program_Error with
+                                "Broken socket in waiter";
                            end if;
 
                            exit;
                         end;
 
                      elsif Get_Data (Write_Set, J).CH = Holder then
-                        raise Program_Error with "Broken holder.";
+                        raise Program_Error with "Broken holder";
                      end if;
                   end loop;
                end Remove;
@@ -1870,7 +1870,7 @@ package body AWS.Server.Push is
          Waiter.Add (Server'Unrestricted_Access, Holder);
       or
          delay Waiter_Timeout;
-         raise Program_Error with "Add socket to waiter timeout.";
+         raise Program_Error with "Add socket to waiter timeout";
       end select;
    end Waiter_Add;
 
@@ -1887,7 +1887,7 @@ package body AWS.Server.Push is
          Waiter.Remove (Server'Unrestricted_Access, Holder);
       or
          delay Waiter_Timeout;
-         raise Program_Error with "Remove socket from waiter timeout.";
+         raise Program_Error with "Remove socket from waiter timeout";
       end select;
    end Waiter_Remove;
 
