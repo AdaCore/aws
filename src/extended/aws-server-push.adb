@@ -26,6 +26,7 @@
 ------------------------------------------------------------------------------
 
 with Ada.Calendar;
+with Ada.Containers.Doubly_Linked_Lists;
 with Ada.Real_Time;
 with Ada.Text_IO;
 with Ada.Unchecked_Deallocation;
@@ -112,6 +113,8 @@ package body AWS.Server.Push is
    procedure Waiter_Remove
      (Server : in out Object; Holder : Client_Holder_Access);
 
+   procedure Waiter_Signal;
+
    New_Line : constant String := ASCII.CR & ASCII.LF;
    --  HTTP new line
 
@@ -127,28 +130,48 @@ package body AWS.Server.Push is
    W_Signal  : aliased Net.Socket_Type'Class := Net.Socket (Security => False);
    --  Socket to signal waiter to do to select task entries
 
-   Waiter_Timeout : constant Duration := 8.0;
-
    Internal_Error_Handler : Error_Handler := Text_IO.Put_Line'Access;
 
    type Object_Access is access all Object;
 
-   task Waiter is
-      entry Add (Server : Object_Access; Holder : Client_Holder_Access);
+   type Waiter_Queue_Element is record
+      Server : Object_Access;
+      Holder : Client_Holder_Access;
+      Add    : Boolean;
+   end record;
 
-      entry Add (Server : Object_Access; Queue : Tables.Map);
+   package Waiter_Queues is
+     new Ada.Containers.Doubly_Linked_Lists (Waiter_Queue_Element);
 
-      entry Remove
-        (Server : Object_Access; Holder : Client_Holder_Access);
-      --  Socket should be appropriate and only for error control
+   protected Waiter_Queue is
+      procedure Add (Item : Waiter_Queue_Element);
+      procedure Add (Queue : Waiter_Queues.List);
+      procedure Get (Queue : out Waiter_Queues.List);
+   private
+      Queue : Waiter_Queues.List;
+   end Waiter_Queue;
 
-      entry Info
+   protected Waiter_Information is
+
+      procedure Info
         (Size        : out Natural;
          Max_Size    : out Natural;
          Max_Size_DT : out Ada.Calendar.Time;
          Counter     : out Wait_Counter_Type);
 
       entry Empty;
+
+      procedure Set_Size (Size : Positive; Counter : Wait_Counter_Type);
+
+   private
+      Size        : Positive := 1;
+      Max_Size    : Positive := 1;
+      Max_Size_DT : Ada.Calendar.Time := Ada.Calendar.Clock;
+      Counter     : Wait_Counter_Type := 0;
+   end Waiter_Information;
+
+   task Waiter is
+      entry Resume;
    end Waiter;
 
    -------------------
@@ -314,18 +337,11 @@ package body AWS.Server.Push is
       Max_Size_DT : out Ada.Calendar.Time;
       Counter     : out Wait_Counter_Type) is
    begin
-      W_Signal.Send (Byte0);
-
-      select
-         Waiter.Info
-           (Size        => Size,
-            Max_Size    => Max_Size,
-            Max_Size_DT => Max_Size_DT,
-            Counter     => Counter);
-      or
-         delay Waiter_Timeout;
-         raise Program_Error with "Get waiter info timeout";
-      end select;
+      Waiter_Information.Info
+        (Size        => Size,
+         Max_Size    => Max_Size,
+         Max_Size_DT => Max_Size_DT,
+         Counter     => Counter);
    end Info;
 
    procedure Info
@@ -1190,6 +1206,14 @@ package body AWS.Server.Push is
             Waiter_Remove (Server, Holder);
          end if;
 
+         Tables.Next (C);
+      end loop;
+
+      C := Queue.First;
+
+      while Tables.Has_Element (C) loop
+         Holder := Tables.Element (C);
+
          if Get_Final_Data /= null then
             declare
                Data : Stream_Element_Array (1 .. 8196);
@@ -1214,7 +1238,7 @@ package body AWS.Server.Push is
 
          Free (Holder);
 
-         C := Tables.Next (C);
+         Tables.Next (C);
       end loop;
    end Release;
 
@@ -1244,18 +1268,22 @@ package body AWS.Server.Push is
       C      : Tables.Cursor;
       Holder : Client_Holder_Access;
       Queue  : Tables.Map;
-
+      WQ     : Waiter_Queues.List;
    begin
       Server.Send (Data, Group_Id, Content_Type, Thin_Id, Queue);
 
       Cursor := Queue.First;
 
       while Tables.Has_Element (Cursor) loop
-         C      := Cursor;
-         Cursor := Tables.Next (Cursor);
-         Holder := Tables.Element (C);
+         Holder := Tables.Element (Cursor);
 
-         if Holder.Errmsg /= Null_Unbounded_String then
+         C := Cursor;
+         Tables.Next (Cursor);
+
+         if Holder.Errmsg = Null_Unbounded_String then
+            WQ.Append ((Server'Unrestricted_Access, Holder, Add => True));
+
+         else
             declare
                Client_Id : constant String := Tables.Key (C);
             begin
@@ -1264,7 +1292,6 @@ package body AWS.Server.Push is
                end if;
 
                Holder.Socket.Shutdown;
-               Queue.Delete (C);
 
                if Holder.Phase /= Available then
                   raise Program_Error with
@@ -1276,15 +1303,9 @@ package body AWS.Server.Push is
          end if;
       end loop;
 
-      if Queue.Length > 0 then
-         W_Signal.Send (Byte0);
-
-         select
-            Waiter.Add (Server'Unrestricted_Access, Queue);
-         or
-            delay Waiter_Timeout;
-            raise Program_Error with "Add queue to waiter timeout";
-         end select;
+      if not WQ.Is_Empty then
+         Waiter_Queue.Add (WQ);
+         Waiter_Signal;
       end if;
    end Send;
 
@@ -1408,9 +1429,7 @@ package body AWS.Server.Push is
    ---------------
 
    procedure Subscribe
-     (Server    : in out Object;
-      Client_Id : Client_Key;
-      Group_Id  : String) is
+     (Server : in out Object; Client_Id : Client_Key; Group_Id : String) is
    begin
       Server.Subscribe (Client_Id, Group_Id);
    end Subscribe;
@@ -1499,9 +1518,7 @@ package body AWS.Server.Push is
    -----------------
 
    procedure Unsubscribe
-     (Server    : in out Object;
-      Client_Id : Client_Key;
-      Group_Id  : String) is
+     (Server : in out Object; Client_Id : Client_Key; Group_Id : String) is
    begin
       Server.Unsubscribe (Client_Id, Group_Id);
    end Unsubscribe;
@@ -1515,6 +1532,21 @@ package body AWS.Server.Push is
    begin
       Server.Unsubscribe_Copy (Source => Source, Target => Target);
    end Unsubscribe_Copy;
+
+   --------------------------
+   -- Wait_Send_Completion --
+   --------------------------
+
+   function Wait_Send_Completion (Timeout : Duration) return Boolean is
+   begin
+      select
+         Waiter_Information.Empty;
+         return True;
+      or
+         delay Timeout;
+         return False;
+      end select;
+   end Wait_Send_Completion;
 
    ------------
    -- Waiter --
@@ -1540,14 +1572,14 @@ package body AWS.Server.Push is
       Bytes    : Stream_Element_Array (1 .. 32);
       B_Last   : Stream_Element_Offset;
 
-      Counter     : Wait_Counter_Type := 0;
-      Max_Size    : Positive := 1;
-      Max_Size_DT : Ada.Calendar.Time := Ada.Calendar.Clock;
-
-      Post_Read : Boolean;
+      Queue      : Waiter_Queues.List;
+      Queue_Item : Waiter_Queue_Element;
+      Counter    : Wait_Counter_Type := 0;
 
       procedure Add_Item
         (Server : Object_Access; Holder : Client_Holder_Access);
+
+      procedure Wait_On_Sockets;
 
       --------------
       -- Add_Item --
@@ -1571,96 +1603,97 @@ package body AWS.Server.Push is
          Counter := Counter + 1;
       end Add_Item;
 
+      ---------------------
+      -- Wait_On_Sockets --
+      ---------------------
+
+      procedure Wait_On_Sockets is
+      begin
+         Wait (Write_Set, Timeout => Duration'Last);
+      exception
+         when E : Socket_Error =>
+            --  !!! Most possible it is ENOBUFS or ENOMEM error
+            --  because of too many open sockets. We should see the exact
+            --  error in the socket error log file.
+            --  We should close sockets in waiter because server has a
+            --  lack of socket resources and clients in other peer of
+            --  those socket is slow receiving the socket data.
+
+            declare
+               Message : constant String :=
+                 "Clear waiter because of: " & Exception_Message (E);
+
+               procedure Process
+                 (Socket : in out Socket_Type'Class;
+                  Client : in out Client_In_Wait);
+
+               -------------
+               -- Process --
+               -------------
+
+               procedure Process
+                  (Socket : in out Socket_Type'Class;
+                  Client : in out Client_In_Wait) is
+               begin
+                  Client.SP.Waiter_Error (Client.CH, Message);
+                  Net.Log.Error (Socket, Message);
+               end Process;
+
+            begin
+               for J in reverse 2 .. Count (Write_Set) loop
+                  Update_Socket (Write_Set, J, Process'Access);
+                  Remove_Socket (Write_Set, J);
+               end loop;
+            end;
+      end Wait_On_Sockets;
+
    begin -- Waiter
       Net.Socket_Pair (R_Signal, W_Signal);
       Add (Write_Set, R_Signal'Unchecked_Access, Mode => Write_Sets.Input);
 
       loop
-         Post_Read := Count (Write_Set) = 1;
+         if Count (Write_Set) = 1 then
+            --  We need this selective accept for task Waiter termination on
+            --  process termination. Otherwise process termination hangs on
+            --  waiting task waiter termination.
 
-         if Post_Read then
-            B_Last := 1;
+            select
+               accept Resume;
+            or terminate;
+            end select;
+
+            Waiter_Queue.Get (Queue);
 
          else
-            B_Last := 0;
-
-            begin
-               Wait (Write_Set, Timeout => Duration'Last);
-            exception
-               when E : Socket_Error =>
-                  --  !!! Most possible it is ENOBUFS or ENOMEM error
-                  --  because of too many open sockets. We should see the exact
-                  --  error in the socket error log file.
-                  --  We should close sockets in waiter because server has a
-                  --  lack of socket resources and clients in other peer of
-                  --  those socket is slow receiving the socket data.
-
-                  declare
-                     Message : constant String :=
-                       "Clear waiter because of: " & Exception_Message (E);
-
-                     procedure Process
-                       (Socket : in out Socket_Type'Class;
-                        Client : in out Client_In_Wait);
-
-                     -------------
-                     -- Process --
-                     -------------
-
-                     procedure Process
-                       (Socket : in out Socket_Type'Class;
-                        Client : in out Client_In_Wait) is
-                     begin
-                        Client.SP.Waiter_Error (Client.CH, Message);
-                        Net.Log.Error (Socket, Message);
-                     end Process;
-
-                  begin
-                     for J in reverse 2 .. Count (Write_Set) loop
-                        Update_Socket (Write_Set, J, Process'Access);
-                        Remove_Socket (Write_Set, J);
-                     end loop;
-                  end;
-            end;
+            Wait_On_Sockets;
 
             if Is_Read_Ready (Write_Set, 1) then
                Net.Receive (R_Signal, Bytes, B_Last);
+               Waiter_Queue.Get (Queue);
             end if;
          end if;
 
-         while B_Last > 0 loop
-            select
-               accept Add
-                 (Server : Object_Access; Holder : Client_Holder_Access)
-               do
-                  Add_Item (Server, Holder);
-               end Add;
+         while not Queue.Is_Empty loop
+            Queue_Item := Queue.First_Element;
+            Queue.Delete_First;
 
-            or
-               accept Add (Server : Object_Access; Queue : Tables.Map) do
-                  declare
-                     C : Tables.Cursor := Queue.First;
-                  begin
-                     while Tables.Has_Element (C) loop
-                        Add_Item (Server, Tables.Element (C));
-                        C := Tables.Next (C);
-                     end loop;
-                  end;
-               end Add;
+            if Queue_Item.Add then
+               Add_Item (Queue_Item.Server, Queue_Item.Holder);
 
-            or
-               accept Remove
-                 (Server : Object_Access; Holder : Client_Holder_Access)
-               do
-                  case Holder.Phase is
-                     when Going     => requeue Remove;
-                     when Available => return;
-                     when Waiting   => null;
-                  end case;
+            else -- Remove
+               case Queue_Item.Holder.Phase is
+               when Available =>
+                  --  Socket already gone, nothing to do
+                  null;
 
+               when Going =>
+                  --  Socket on the way to waiter, move back to waiter queue
+                  Waiter_Queue.Add (Queue_Item);
+
+               when Waiting =>
                   for J in reverse 2 .. Count (Write_Set) loop
                      if Get_Socket (Write_Set, J).Get_FD
-                        = Holder.Socket.Get_FD
+                        = Queue_Item.Holder.Socket.Get_FD
                      then
                         declare
                            Socket : Net.Socket_Access;
@@ -1679,8 +1712,8 @@ package body AWS.Server.Push is
                            is
                               pragma Unreferenced (Socket);
                            begin
-                              if Client.SP /= Server
-                                or else Client.CH /= Holder
+                              if Client.SP /= Queue_Item.Server
+                                or else Client.CH /= Queue_Item.Holder
                               then
                                  raise Program_Error with
                                    "Broken data in waiter";
@@ -1689,14 +1722,14 @@ package body AWS.Server.Push is
                               --  We could write to phase directly because
                               --  Holder have to be out of protected object.
 
-                              Holder.Phase := Available;
+                              Queue_Item.Holder.Phase := Available;
                            end Process;
 
                         begin
                            Update_Socket (Write_Set, J, Process'Access);
                            Remove_Socket (Write_Set, J, Socket);
 
-                           if Socket /= Holder.Socket then
+                           if Socket /= Queue_Item.Holder.Socket then
                               raise Program_Error with
                                 "Broken socket in waiter";
                            end if;
@@ -1704,44 +1737,15 @@ package body AWS.Server.Push is
                            exit;
                         end;
 
-                     elsif Get_Data (Write_Set, J).CH = Holder then
+                     elsif Get_Data (Write_Set, J).CH = Queue_Item.Holder then
                         raise Program_Error with "Broken holder";
                      end if;
                   end loop;
-               end Remove;
+               end case;
 
-            or
-               accept Info
-                 (Size        : out Natural;
-                  Max_Size    : out Natural;
-                  Max_Size_DT : out Ada.Calendar.Time;
-                  Counter     : out Wait_Counter_Type)
-               do
-                  Size             := Integer (Count (Write_Set) - 1);
-                  Info.Max_Size    := Waiter.Max_Size - 1;
-                  Info.Max_Size_DT := Waiter.Max_Size_DT;
-                  Info.Counter     := Waiter.Counter;
-               end Info;
-
-            or
-               when Count (Write_Set) <= 1 => accept Empty;
-               Post_Read := False;
-            or
-               terminate;
-            end select;
-
-            if Post_Read then
-               Net.Receive (R_Signal, Bytes, B_Last);
-               Post_Read := False;
+               --  end Remove
             end if;
-
-            B_Last := B_Last - 1;
          end loop;
-
-         if Integer (Count (Write_Set)) > Max_Size then
-            Max_Size    := Integer (Count (Write_Set));
-            Max_Size_DT := Ada.Calendar.Clock;
-         end if;
 
          for J in reverse 2 .. Count (Write_Set) loop
             declare
@@ -1834,6 +1838,11 @@ package body AWS.Server.Push is
                end if;
             end;
          end loop;
+
+         --  Set size after receiving loop because most important to know about
+         --  empty waiter than maximum size.
+
+         Waiter_Information.Set_Size (Integer (Count (Write_Set)), Counter);
       end loop;
 
    exception
@@ -1842,21 +1851,6 @@ package body AWS.Server.Push is
            ("Server push broken, " & Exception_Information (E));
    end Waiter;
 
-   --------------------------
-   -- Wait_Send_Completion --
-   --------------------------
-
-   function Wait_Send_Completion (Timeout : Duration) return Boolean is
-   begin
-      select
-         Waiter.Empty;
-         return True;
-      or
-         delay Timeout;
-         return False;
-      end select;
-   end Wait_Send_Completion;
-
    ----------------
    -- Waiter_Add --
    ----------------
@@ -1864,15 +1858,78 @@ package body AWS.Server.Push is
    procedure Waiter_Add
      (Server : in out Object; Holder : Client_Holder_Access) is
    begin
-      W_Signal.Send (Byte0);
+      --  Waiter_Queue_Element' is necessary to workaround GNAT-2010 bug
 
-      select
-         Waiter.Add (Server'Unrestricted_Access, Holder);
-      or
-         delay Waiter_Timeout;
-         raise Program_Error with "Add socket to waiter timeout";
-      end select;
+      Waiter_Queue.Add
+        (Waiter_Queue_Element'
+           (Server'Unrestricted_Access, Holder, Add => True));
+      Waiter_Signal;
    end Waiter_Add;
+
+   ------------------
+   -- Waiter_Queue --
+   ------------------
+
+   protected body Waiter_Queue is
+
+      procedure Add (Item : Waiter_Queue_Element) is
+      begin
+         Queue.Append (Item);
+      end Add;
+
+      procedure Add (Queue : Waiter_Queues.List) is
+         C : Waiter_Queues.Cursor := Add.Queue.First;
+      begin
+         while Waiter_Queues.Has_Element (C) loop
+            Waiter_Queue.Queue.Append (Waiter_Queues.Element (C));
+            Waiter_Queues.Next (C);
+         end loop;
+      end Add;
+
+      procedure Get (Queue : out Waiter_Queues.List) is
+      begin
+         Get.Queue := Waiter_Queue.Queue;
+
+         Waiter_Queue.Queue.Clear;
+      end Get;
+
+   end Waiter_Queue;
+
+   ------------------------
+   -- Waiter_Information --
+   ------------------------
+
+   protected body Waiter_Information is
+
+      procedure Info
+        (Size        : out Natural;
+         Max_Size    : out Natural;
+         Max_Size_DT : out Ada.Calendar.Time;
+         Counter     : out Wait_Counter_Type) is
+      begin
+         Info.Size        := Waiter_Information.Size - 1;
+         Info.Max_Size    := Waiter_Information.Max_Size - 1;
+         Info.Max_Size_DT := Waiter_Information.Max_Size_DT;
+         Info.Counter     := Waiter_Information.Counter;
+      end Info;
+
+      entry Empty when Size <= 1 is
+      begin
+         null;
+      end Empty;
+
+      procedure Set_Size (Size : Positive; Counter : Wait_Counter_Type) is
+      begin
+         Waiter_Information.Counter := Set_Size.Counter;
+         Waiter_Information.Size    := Set_Size.Size;
+
+         if Size > Max_Size then
+            Max_Size := Size;
+            Max_Size_DT := Ada.Calendar.Clock;
+         end if;
+      end Set_Size;
+
+   end Waiter_Information;
 
    -------------------
    -- Waiter_Remove --
@@ -1881,14 +1938,26 @@ package body AWS.Server.Push is
    procedure Waiter_Remove
      (Server : in out Object; Holder : Client_Holder_Access) is
    begin
-      W_Signal.Send (Byte0);
+      --  Waiter_Queue_Element' is necessary to workaround GNAT-2010 bug
 
-      select
-         Waiter.Remove (Server'Unrestricted_Access, Holder);
-      or
-         delay Waiter_Timeout;
-         raise Program_Error with "Remove socket from waiter timeout";
-      end select;
+      Waiter_Queue.Add
+        (Waiter_Queue_Element'
+           (Server'Unrestricted_Access, Holder, Add => False));
+      Waiter_Signal;
    end Waiter_Remove;
+
+   -------------------
+   -- Waiter_Signal --
+   -------------------
+
+   procedure Waiter_Signal is
+   begin
+      select
+         Waiter.Resume;
+      or delay 0.0;
+         W_Signal.Send (Byte0);
+      end select;
+
+   end Waiter_Signal;
 
 end AWS.Server.Push;
