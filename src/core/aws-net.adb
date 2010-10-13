@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2009, AdaCore                     --
+--                     Copyright (C) 2000-2010, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -157,6 +157,15 @@ package body AWS.Net is
          Socket.C := new RW_Cache;
       end if;
    end Initialize;
+
+   --------------------
+   -- Is_Peer_Closed --
+   --------------------
+
+   function Is_Peer_Closed (E : Exception_Occurrence) return Boolean is
+   begin
+      return Exception_Message (E) = Peer_Closed_Message;
+   end Is_Peer_Closed;
 
    ----------------
    -- Is_Timeout --

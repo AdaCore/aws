@@ -539,7 +539,7 @@ package body AWS.Net.Std is
       --  Check if socket closed by peer
 
       if Last = Data'First - 1 then
-         raise Socket_Error with "Receive : Socket closed by peer.";
+         raise Socket_Error with Peer_Closed_Message;
       end if;
 
       if Net.Log.Is_Write_Active then

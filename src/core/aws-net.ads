@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2009, AdaCore                     --
+--                     Copyright (C) 2000-2010, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -252,6 +252,10 @@ package AWS.Net is
    --  Returns True if the message associated with the Exception_Occurence for
    --  a Socket_Error is a timeout.
 
+   function Is_Peer_Closed (E : Exception_Occurrence) return Boolean;
+   --  Returns True if the message associated with the Exception_Occurence for
+   --  a Socket_Error is a "socket closed by peer".
+
    function To_FD_Set
      (Socket : Socket_Type;
       Events : Wait_Event_Set;
@@ -354,6 +358,8 @@ private
    --  efficient. Before reading data, the write cache  is flushed.
 
    Forever : constant Duration := Duration'Last;
+
+   Peer_Closed_Message : constant String := "Receive : Socket closed by peer.";
 
    type Read_Cache (Max_Size : Stream_Element_Count) is record
       Buffer : Stream_Element_Array (1 .. Max_Size);
