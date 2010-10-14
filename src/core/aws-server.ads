@@ -495,4 +495,12 @@ private
      (Line_Attribute_Record, (Line => 1, others => <>));
    --  A line specific attribute
 
+   procedure Null_Procedure is null;
+
+   First_Server : access procedure := Null_Procedure'Access;
+   --  This procedure calls on first server started
+
+   No_Servers : access procedure := Null_Procedure'Access;
+   --  This procedure calls on last server shutdown
+
 end AWS.Server;

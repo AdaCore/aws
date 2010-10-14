@@ -550,7 +550,11 @@ package body AWS.Server is
 
       --  Server removed
 
-      Server_Counter.Decrement;
+      Server_Counter.Decrement (Value => Wait_Counter);
+
+      if Wait_Counter = 0 then
+         No_Servers.all;
+      end if;
    end Shutdown;
 
    ---------------------
@@ -964,6 +968,7 @@ package body AWS.Server is
 
       Max_Connection : constant Positive :=
                          CNF.Max_Connection (Web_Server.Properties);
+      SC : Natural;
 
       function Security_Mode return Net.SSL.Method;
       --  Returns the server security mode, returns the default method if the
@@ -1090,7 +1095,11 @@ package body AWS.Server is
       Services.Transient_Pages.Control.Register
         (Transient_Check_Interval => CNF.Transient_Cleanup_Interval);
 
-      Server_Counter.Increment;
+      Server_Counter.Increment (Value => SC);
+
+      if SC = 1 then
+         First_Server.all;
+      end if;
    end Start;
 
    ----------

@@ -189,6 +189,12 @@ package body AWS.Utils is
          C := C + Amount;
       end Increment;
 
+      procedure Increment (Amount : Natural := 1; Value : out Natural) is
+      begin
+         C := C + Amount;
+         Value := C;
+      end Increment;
+
       -----------
       -- Value --
       -----------

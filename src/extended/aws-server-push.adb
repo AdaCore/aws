@@ -115,6 +115,13 @@ package body AWS.Server.Push is
 
    procedure Waiter_Signal;
 
+   procedure Waiter_Pause;
+
+   procedure Waiter_Resume;
+
+   No_Servers   : access procedure;
+   First_Server : access procedure;
+
    New_Line : constant String := ASCII.CR & ASCII.LF;
    --  HTTP new line
 
@@ -1567,8 +1574,7 @@ package body AWS.Server.Push is
       use Write_Sets;
       use Real_Time;
 
-      R_Signal : aliased Net.Socket_Type'Class :=
-                   Net.Socket (Security => False);
+      R_Signal : aliased Net.Socket_Type'Class := Socket (Security => False);
       Bytes    : Stream_Element_Array (1 .. 32);
       B_Last   : Stream_Element_Offset;
 
@@ -1651,26 +1657,14 @@ package body AWS.Server.Push is
       Net.Socket_Pair (R_Signal, W_Signal);
       Add (Write_Set, R_Signal'Unchecked_Access, Mode => Write_Sets.Input);
 
+      Waiter_Pause;
+
       loop
-         if Count (Write_Set) = 1 then
-            --  We need this selective accept for task Waiter termination on
-            --  process termination. Otherwise process termination hangs on
-            --  waiting task waiter termination.
+         Wait_On_Sockets;
 
-            select
-               accept Resume;
-            or terminate;
-            end select;
-
+         if Is_Read_Ready (Write_Set, 1) then
+            Net.Receive (R_Signal, Bytes, B_Last);
             Waiter_Queue.Get (Queue);
-
-         else
-            Wait_On_Sockets;
-
-            if Is_Read_Ready (Write_Set, 1) then
-               Net.Receive (R_Signal, Bytes, B_Last);
-               Waiter_Queue.Get (Queue);
-            end if;
          end if;
 
          while not Queue.Is_Empty loop
@@ -1678,7 +1672,17 @@ package body AWS.Server.Push is
             Queue.Delete_First;
 
             if Queue_Item.Add then
-               Add_Item (Queue_Item.Server, Queue_Item.Holder);
+               if Queue_Item.Holder = null
+                 and then Queue_Item.Server = null
+               then
+                  select
+                     accept Resume;
+                  or terminate;
+                  end select;
+
+               else
+                  Add_Item (Queue_Item.Server, Queue_Item.Holder);
+               end if;
 
             else -- Remove
                case Queue_Item.Holder.Phase is
@@ -1931,6 +1935,16 @@ package body AWS.Server.Push is
 
    end Waiter_Information;
 
+   procedure Waiter_Pause is
+   begin
+      Push.No_Servers.all;
+
+      --  Waiter_Queue_Element' is necessary to workaround GNAT-2010 bug
+
+      Waiter_Queue.Add (Waiter_Queue_Element'(null, null, True));
+      Waiter_Signal;
+   end Waiter_Pause;
+
    -------------------
    -- Waiter_Remove --
    -------------------
@@ -1947,17 +1961,33 @@ package body AWS.Server.Push is
    end Waiter_Remove;
 
    -------------------
+   -- Waiter_Resume --
+   -------------------
+
+   procedure Waiter_Resume is
+   begin
+      Push.First_Server.all;
+
+      select
+         Waiter.Resume;
+      or delay 10.0;
+         raise Program_Error with "Could not resume server push waiter";
+      end select;
+   end Waiter_Resume;
+
+   -------------------
    -- Waiter_Signal --
    -------------------
 
    procedure Waiter_Signal is
    begin
-      select
-         Waiter.Resume;
-      or delay 0.0;
-         W_Signal.Send (Byte0);
-      end select;
-
+      W_Signal.Send (Byte0);
    end Waiter_Signal;
 
+begin
+   Push.No_Servers   := Server.No_Servers;
+   Push.First_Server := Server.First_Server;
+
+   Server.No_Servers   := Waiter_Pause'Access;
+   Server.First_Server := Waiter_Resume'Access;
 end AWS.Server.Push;
