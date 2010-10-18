@@ -26,7 +26,7 @@
 ------------------------------------------------------------------------------
 
 with "aws_shared";
-with "aws/aws_libz";
+with "aws_libz";
 
 project AWS_Components is
    for Source_Dirs use ("../../../include/aws/components");
