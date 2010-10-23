@@ -127,8 +127,8 @@ package body AWS.Server.Push is
 
    Byte0 : constant Stream_Element_Array := (1 => 0);
 
-   Boundary  : constant String := "AWS.Push.Boundary_"
-     & Utils.Random_String (8);
+   Boundary  : constant String :=
+                 "AWS.Push.Boundary_" & Utils.Random_String (8);
    --  This is the multi-part boundary string used by AWS push server
 
    Delimiter : constant String := "--" & Boundary & New_Line;
@@ -1627,7 +1627,7 @@ package body AWS.Server.Push is
 
             declare
                Message : constant String :=
-                 "Clear waiter because of: " & Exception_Message (E);
+                           "Clear waiter because of: " & Exception_Message (E);
 
                procedure Process
                  (Socket : in out Socket_Type'Class;
@@ -1639,7 +1639,7 @@ package body AWS.Server.Push is
 
                procedure Process
                   (Socket : in out Socket_Type'Class;
-                  Client : in out Client_In_Wait) is
+                   Client : in out Client_In_Wait) is
                begin
                   Client.SP.Waiter_Error (Client.CH, Message);
                   Net.Log.Error (Socket, Message);
@@ -1876,6 +1876,10 @@ package body AWS.Server.Push is
 
    protected body Waiter_Queue is
 
+      ---------
+      -- Add --
+      ---------
+
       procedure Add (Item : Waiter_Queue_Element) is
       begin
          Queue.Append (Item);
@@ -1889,6 +1893,10 @@ package body AWS.Server.Push is
             Waiter_Queues.Next (C);
          end loop;
       end Add;
+
+      ---------
+      -- Get --
+      ---------
 
       procedure Get (Queue : out Waiter_Queues.List) is
       begin
@@ -1905,6 +1913,10 @@ package body AWS.Server.Push is
 
    protected body Waiter_Information is
 
+      ----------
+      -- Info --
+      ----------
+
       procedure Info
         (Size        : out Natural;
          Max_Size    : out Natural;
@@ -1917,10 +1929,18 @@ package body AWS.Server.Push is
          Info.Counter     := Waiter_Information.Counter;
       end Info;
 
+      -----------
+      -- Empty --
+      -----------
+
       entry Empty when Size <= 1 is
       begin
          null;
       end Empty;
+
+      --------------
+      -- Set_Size --
+      --------------
 
       procedure Set_Size (Size : Positive; Counter : Wait_Counter_Type) is
       begin
@@ -1934,6 +1954,10 @@ package body AWS.Server.Push is
       end Set_Size;
 
    end Waiter_Information;
+
+   ------------------
+   -- Waiter_Pause --
+   ------------------
 
    procedure Waiter_Pause is
    begin

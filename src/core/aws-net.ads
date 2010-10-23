@@ -359,7 +359,7 @@ private
 
    Forever : constant Duration := Duration'Last;
 
-   Peer_Closed_Message : constant String := "Receive : Socket closed by peer.";
+   Peer_Closed_Message : constant String := "Receive : Socket closed by peer";
 
    type Read_Cache (Max_Size : Stream_Element_Count) is record
       Buffer : Stream_Element_Array (1 .. Max_Size);
