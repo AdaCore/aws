@@ -119,8 +119,8 @@ package body AWS.Server.Push is
 
    procedure Waiter_Resume;
 
-   No_Servers   : access procedure := Null_Procedure'Access;
-   First_Server : access procedure;
+   No_Servers   : not null access procedure := Null_Procedure'Access;
+   First_Server : not null access procedure := Null_Procedure'Access;
 
    New_Line : constant String := ASCII.CR & ASCII.LF;
    --  HTTP new line

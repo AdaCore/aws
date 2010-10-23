@@ -497,10 +497,10 @@ private
 
    procedure Null_Procedure is null;
 
-   First_Server : access procedure := Null_Procedure'Access;
+   First_Server : not null access procedure := Null_Procedure'Access;
    --  This procedure calls on first server started
 
-   No_Servers : access procedure := Null_Procedure'Access;
+   No_Servers   : not null access procedure := Null_Procedure'Access;
    --  This procedure calls on last server shutdown
 
 end AWS.Server;
