@@ -5,6 +5,6 @@ Ok, exception received on the server side
   => ADA.IO_EXCEPTIONS.NAME_ERROR
   => Cannot create file /this/one/does/not/exists/.test.out
 => Upload request error. Exception name: AWS.NET.SOCKET_ERROR
-Message: Receive : Socket closed by peer.
+Message: Receive : Socket closed by peer
 
 
