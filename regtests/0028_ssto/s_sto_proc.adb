@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2004-2009, AdaCore                     --
+--                     Copyright (C) 2004-2010, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -45,6 +45,7 @@ procedure S_STO_Proc (Security : Boolean; Port : Positive) is
    Peer, Client : Net.Socket_Type'Class := Net.Socket (Security);
 
    task Client_Side is
+      entry Done;
       entry Start;
       entry Stop;
    end Client_Side;
@@ -102,6 +103,8 @@ procedure S_STO_Proc (Security : Boolean; Port : Positive) is
 
       Net.Shutdown (Client);
 
+      accept Done;
+
       Text_IO.Put_Line ("client task done.");
 
       accept Stop;
@@ -149,6 +152,8 @@ begin
          Ada.Text_IO.Put_Line ("send");
          Ada.Text_IO.Put_Line (Exceptions.Exception_Message (E));
    end;
+
+   Client_Side.Done;
 
    Client_Side.Stop;
 
