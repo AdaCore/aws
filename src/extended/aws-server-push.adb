@@ -50,6 +50,9 @@ package body AWS.Server.Push is
    --  Going when the socket is in process to be placed into waiting poll.
    --  Waiting when the socket is in the waiting poll.
 
+   type Action_Type is (Add, Remove, Shutdown, Deallocate);
+   --  Command to server push waiter
+
    type Client_Holder is record
       Socket      : Net.Socket_Access;
       Kind        : Mode;
@@ -107,11 +110,10 @@ package body AWS.Server.Push is
       Data   : out Stream_Element_Array;
       Last   : out Stream_Element_Offset);
 
-   procedure Waiter_Add
-     (Server : in out Object; Holder : Client_Holder_Access);
-
-   procedure Waiter_Remove
-     (Server : in out Object; Holder : Client_Holder_Access);
+   procedure Waiter_Command
+     (Server : in out Object;
+      Holder : Client_Holder_Access;
+      Action : Action_Type);
 
    procedure Waiter_Signal;
 
@@ -144,7 +146,7 @@ package body AWS.Server.Push is
    type Waiter_Queue_Element is record
       Server : Object_Access;
       Holder : Client_Holder_Access;
-      Add    : Boolean;
+      Action : Action_Type;
    end record;
 
    package Waiter_Queues is
@@ -1100,12 +1102,13 @@ package body AWS.Server.Push is
       Server.Register (Client_Id, Holder, Duplicated, Duplicated_Age);
 
       if Duplicated /= null then
-         if Duplicated.Phase /= Available then
-            Waiter_Remove (Server, Duplicated);
+         if Duplicated.Phase = Available then
+            Duplicated.Socket.Shutdown;
+            Free (Duplicated);
+         else
+            Waiter_Command (Server, Duplicated, Shutdown);
          end if;
 
-         Duplicated.Socket.Shutdown;
-         Free (Duplicated);
       end if;
 
       begin
@@ -1142,7 +1145,7 @@ package body AWS.Server.Push is
             raise;
       end;
 
-      Waiter_Add (Server, Holder);
+      Waiter_Command (Server, Holder, Add);
 
       Socket_Taken;
    end Register;
@@ -1210,13 +1213,17 @@ package body AWS.Server.Push is
          Holder := Tables.Element (C);
 
          if Holder.Phase /= Available then
-            Waiter_Remove (Server, Holder);
+            Waiter_Command (Server, Holder, Remove);
          end if;
 
          Tables.Next (C);
       end loop;
 
       C := Queue.First;
+
+      if not Wait_Send_Completion (10.0) then
+         Internal_Error_Handler ("Could not clear server push waiter");
+      end if;
 
       while Tables.Has_Element (C) loop
          Holder := Tables.Element (C);
@@ -1288,7 +1295,7 @@ package body AWS.Server.Push is
          Tables.Next (Cursor);
 
          if Holder.Errmsg = Null_Unbounded_String then
-            WQ.Append ((Server'Unrestricted_Access, Holder, Add => True));
+            WQ.Append ((Server'Unrestricted_Access, Holder, Add));
 
          else
             declare
@@ -1373,7 +1380,7 @@ package body AWS.Server.Push is
             end;
          end if;
 
-         Waiter_Add (Server, Holder);
+         Waiter_Command (Server, Holder, Add);
       end if;
    end Send_To;
 
@@ -1499,15 +1506,19 @@ package body AWS.Server.Push is
          return;
       end if;
 
-      if Holder.Phase /= Available then
-         Waiter_Remove (Server, Holder);
+      if Holder.Phase = Available then
+         if Close_Socket then
+            Holder.Socket.Shutdown;
+         end if;
+
+         Free (Holder);
+
+      elsif Close_Socket then
+         Waiter_Command (Server, Holder, Shutdown);
+      else
+         Waiter_Command (Server, Holder, Deallocate);
       end if;
 
-      if Close_Socket then
-         Holder.Socket.Shutdown;
-      end if;
-
-      Free (Holder);
    end Unregister;
 
    ------------------------
@@ -1585,6 +1596,8 @@ package body AWS.Server.Push is
       procedure Add_Item
         (Server : Object_Access; Holder : Client_Holder_Access);
 
+      procedure Remove_Processing;
+
       procedure Wait_On_Sockets;
 
       --------------
@@ -1608,6 +1621,18 @@ package body AWS.Server.Push is
 
          Counter := Counter + 1;
       end Add_Item;
+
+      procedure Remove_Processing is
+      begin
+         case Queue_Item.Action is
+            when Add        => raise Program_Error;
+            when Remove     => null;
+            when Deallocate => Free (Queue_Item.Holder);
+            when Shutdown   =>
+               Queue_Item.Holder.Socket.Shutdown;
+               Free (Queue_Item.Holder);
+         end case;
+      end Remove_Processing;
 
       ---------------------
       -- Wait_On_Sockets --
@@ -1671,7 +1696,7 @@ package body AWS.Server.Push is
             Queue_Item := Queue.First_Element;
             Queue.Delete_First;
 
-            if Queue_Item.Add then
+            if Queue_Item.Action = Add then
                if Queue_Item.Holder = null
                  and then Queue_Item.Server = null
                then
@@ -1684,11 +1709,12 @@ package body AWS.Server.Push is
                   Add_Item (Queue_Item.Server, Queue_Item.Holder);
                end if;
 
-            else -- Remove
+            else -- Remove | Shutdown | Deallocate
                case Queue_Item.Holder.Phase is
                when Available =>
-                  --  Socket already gone, nothing to do
-                  null;
+                  --  Socket already gone, remove processing only
+
+                  Remove_Processing;
 
                when Going =>
                   --  Socket on the way to waiter, move back to waiter queue
@@ -1738,6 +1764,10 @@ package body AWS.Server.Push is
                                 "Broken socket in waiter";
                            end if;
 
+                           Remove_Processing;
+
+                           Queue_Item.Holder := null; -- To check integrity
+
                            exit;
                         end;
 
@@ -1745,10 +1775,13 @@ package body AWS.Server.Push is
                         raise Program_Error with "Broken holder";
                      end if;
                   end loop;
-               end case;
 
-               --  end Remove
-            end if;
+                  if Queue_Item.Holder /= null then
+                     Internal_Error_Handler
+                       ("Error: removing server push socket not found");
+                  end if;
+               end case;
+            end if; -- end Remove | Shutdown | Deallocate
          end loop;
 
          for J in reverse 2 .. Count (Write_Set) loop
@@ -1855,20 +1888,21 @@ package body AWS.Server.Push is
            ("Server push broken, " & Exception_Information (E));
    end Waiter;
 
-   ----------------
-   -- Waiter_Add --
-   ----------------
+   --------------------
+   -- Waiter_Command --
+   --------------------
 
-   procedure Waiter_Add
-     (Server : in out Object; Holder : Client_Holder_Access) is
+   procedure Waiter_Command
+     (Server : in out Object;
+      Holder : Client_Holder_Access;
+      Action : Action_Type) is
    begin
       --  Waiter_Queue_Element' is necessary to workaround GNAT-2010 bug
 
       Waiter_Queue.Add
-        (Waiter_Queue_Element'
-           (Server'Unrestricted_Access, Holder, Add => True));
+        (Waiter_Queue_Element'(Server'Unrestricted_Access, Holder, Action));
       Waiter_Signal;
-   end Waiter_Add;
+   end Waiter_Command;
 
    ------------------
    -- Waiter_Queue --
@@ -1965,24 +1999,9 @@ package body AWS.Server.Push is
 
       --  Waiter_Queue_Element' is necessary to workaround GNAT-2010 bug
 
-      Waiter_Queue.Add (Waiter_Queue_Element'(null, null, True));
+      Waiter_Queue.Add (Waiter_Queue_Element'(null, null, Add));
       Waiter_Signal;
    end Waiter_Pause;
-
-   -------------------
-   -- Waiter_Remove --
-   -------------------
-
-   procedure Waiter_Remove
-     (Server : in out Object; Holder : Client_Holder_Access) is
-   begin
-      --  Waiter_Queue_Element' is necessary to workaround GNAT-2010 bug
-
-      Waiter_Queue.Add
-        (Waiter_Queue_Element'
-           (Server'Unrestricted_Access, Holder, Add => False));
-      Waiter_Signal;
-   end Waiter_Remove;
 
    -------------------
    -- Waiter_Resume --
