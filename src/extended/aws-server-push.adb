@@ -1622,6 +1622,10 @@ package body AWS.Server.Push is
          Counter := Counter + 1;
       end Add_Item;
 
+      -----------------------
+      -- Remove_Processing --
+      -----------------------
+
       procedure Remove_Processing is
       begin
          case Queue_Item.Action is
