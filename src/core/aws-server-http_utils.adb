@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2005-2009, AdaCore                     --
+--                     Copyright (C) 2005-2010, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -1103,8 +1103,7 @@ package body AWS.Server.HTTP_Utils is
    ------------------------
 
    procedure Parse_Request_Line
-     (Command : String;
-      C_Stat  : in out AWS.Status.Data)
+     (Command : String; C_Stat : in out AWS.Status.Data)
    is
 
       I1, I2 : Natural;
@@ -1458,11 +1457,13 @@ package body AWS.Server.HTTP_Utils is
          declare
             use Real_Time;
             use type Strings.Maps.Character_Set;
+            Start : constant Time := Status.Request_Time (C_Stat);
          begin
-            Log.Set_Field
-              (LA.Server.Log, LA.Log_Data, "time-taken",
-               Utils.Significant_Image
-                 (To_Duration (Clock - Status.Request_Time (C_Stat)), 3));
+            if Start /= Time_First then
+               Log.Set_Field
+                 (LA.Server.Log, LA.Log_Data, "time-taken",
+                  Utils.Significant_Image (To_Duration (Clock - Start), 3));
+            end if;
 
             Log.Set_Header_Fields
               (LA.Server.Log, LA.Log_Data, "cs", Status.Header (C_Stat));

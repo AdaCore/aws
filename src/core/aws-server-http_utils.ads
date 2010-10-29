@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                    Copyright (C) 2005-2009, AdaCore                      --
+--                    Copyright (C) 2005-2010, AdaCore                      --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -64,8 +64,7 @@ package AWS.Server.HTTP_Utils is
    --  field.
 
    procedure Parse_Request_Line
-     (Command : String;
-      C_Stat  : in out AWS.Status.Data);
+     (Command : String; C_Stat : in out AWS.Status.Data);
    --  Parse the request line:
    --  Request-Line = Method SP Request-URI SP HTTP-Version CRLF
 

@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2009, AdaCore                     --
+--                     Copyright (C) 2000-2010, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -483,6 +483,7 @@ package body AWS.Status.Set is
       D.Session_Created   := False;
       D.Session_Timed_Out := False;
       D.Uploaded          := False;
+      D.Monotonic_Time    := Ada.Real_Time.Time_First;
 
       AWS.Headers.Set.Reset (D.Header);
       AWS.Parameters.Set.Reset (AWS.URL.Set.Parameters (D.URI'Access).all);
