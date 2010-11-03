@@ -37,7 +37,7 @@ setup: testsuite.tags
 
 aws_regtests:
 	test -f testsuite.tags || (echo 'Did you run make setup ?'; exit 1)
-	$(PYTHON) testsuite.py
+	$(PYTHON) testsuite.py --from-build-dir
 
 install:
 
