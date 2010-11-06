@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                      ZLib for Ada thick binding.                         --
 --                                                                          --
---              Copyright (C) 2002-2008 Dmitriy Anisimkov                   --
+--              Copyright (C) 2002-2010 Dmitriy Anisimkov                   --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -52,7 +52,7 @@ package ZLib is
    --  Header type usage have a some limitation for inflate.
    --  See comment for Inflate_Init.
 
-   subtype Count is Ada.Streams.Stream_Element_Count;
+   subtype Count is Long_Long_Integer range 0 .. Long_Long_Integer'Last;
 
    Default_Memory_Level : constant Memory_Level_Type := 8;
    Default_Window_Bits  : constant Window_Bits_Type  := 15;
