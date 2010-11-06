@@ -25,11 +25,13 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-with Ada.Containers.Indefinite_Hashed_Maps;
 with Ada.Containers.Vectors;
+with Ada.Containers.Indefinite_Hashed_Maps;
 with Ada.Strings.Hash;
 
 with AWS.Parameters;
+
+with GNAT.Regpat;
 
 package body AWS.Services.Web_Block.Registry is
 
@@ -52,10 +54,20 @@ package body AWS.Services.Web_Block.Registry is
       Translations : in out          Templates.Translate_Set);
    --  Handle lazy tags
 
+   type Web_Object_Data_Callback (With_Params : Boolean := False) is record
+      case With_Params is
+         when False =>
+            Callback : Data_Callback;
+         when True =>
+            Callback_With_Parameters : Data_With_Param_Callback;
+      end case;
+   end record;
+
    type Web_Object (Callback_Template : Boolean := False) is record
       Content_Type     : Unbounded_String;
       Context_Required : Boolean;
-      Data_CB          : Data_Callback;
+
+      Data_CB          : Web_Object_Data_Callback;
 
       case Callback_Template is
          when False =>
@@ -65,15 +77,29 @@ package body AWS.Services.Web_Block.Registry is
       end case;
    end record;
 
-   package Web_Object_Maps is new Containers.Indefinite_Hashed_Maps
+   package Web_Object_Maps is new Ada.Containers.Indefinite_Hashed_Maps
      (String, Web_Object, Strings.Hash, "=");
    use Web_Object_Maps;
 
    WO_Map : Map;
 
-   package Prefix_URI is new Containers.Vectors (Positive, Unbounded_String);
+   type Pattern_Matcher_Access is access all GNAT.Regpat.Pattern_Matcher;
 
-   Prefix_URI_Vector : Prefix_URI.Vector;
+   type URL_Pattern (With_Matcher : Boolean := False) is record
+      Prefix  : Unbounded_String;
+      case With_Matcher is
+         when True =>
+            Matcher : Pattern_Matcher_Access;
+            Key     : Unbounded_String;
+         when False =>
+            null;
+      end case;
+   end record;
+
+   package Pattern_URL_Container is new Ada.Containers.Vectors
+      (Positive, URL_Pattern);
+
+   Pattern_URL_Vector : Pattern_URL_Container.Vector;
 
    -----------
    -- Build --
@@ -203,58 +229,93 @@ package body AWS.Services.Web_Block.Registry is
                                         Ctx               => Get_Context);
       Position        : Web_Object_Maps.Cursor;
 
-      function Get_Matching_Key (Search_Key : String) return String;
-      --  Get the Prefix Key matching Search_Key in Prefix_URI_Vector
+      function Get_Matching_Web_Object
+         (Search_Key : String) return Callback_Parameters;
+      --  Get the Web_Object matching Search_Key in Pattern_URL_Vector
+      --  Returns the Parameters extracted from the URL patterns.
 
-      ----------------------
-      -- Get_Matching_Key --
-      ----------------------
+      -----------------------------
+      -- Get_Matching_Web_Object --
+      -----------------------------
 
-      function Get_Matching_Key (Search_Key : String) return String is
-         use Prefix_URI;
-         Cursor : Prefix_URI.Cursor := Prefix_URI.First (Prefix_URI_Vector);
+      function Get_Matching_Web_Object (Search_Key : String)
+         return Callback_Parameters is
       begin
-         while Cursor /= Prefix_URI.No_Element loop
-            declare
-               K : constant String := To_String (Prefix_URI.Element (Cursor));
-            begin
-               if K'Length <= Search_Key'Length
-                 and then
-                   Search_Key
-                     (Search_Key'First .. Search_Key'First + K'Length - 1) = K
-               then
-                  return K;
-               end if;
-            end;
-            Prefix_URI.Next (Cursor);
-         end loop;
+         Position := WO_Map.Find (Key);
 
-         return "";
-      end Get_Matching_Key;
+         if Position /= No_Element then
+            return Empty_Callback_Parameters;
+         end if;
+
+         declare
+            use Pattern_URL_Container;
+            use GNAT.Regpat;
+            Vector_Cursor : Pattern_URL_Container.Cursor :=
+                              First (Pattern_URL_Vector);
+         begin
+            while Vector_Cursor /= Pattern_URL_Container.No_Element loop
+               declare
+                  P_URI : constant URL_Pattern := Element (Vector_Cursor);
+                  K     : constant String := To_String (P_URI.Prefix);
+               begin
+                  if K'Length <= Search_Key'Length
+                  and then
+                     Search_Key
+                        (Search_Key'First ..
+                               Search_Key'First + K'Length - 1) = K
+                  then
+
+                     --  If a regexp is defined, check whether it matched
+                     if P_URI.With_Matcher then
+                        declare
+                           Count   : constant Natural :=
+                                       Paren_Count (P_URI.Matcher.all);
+                           Matched : Match_Array (0 .. Count);
+                        begin
+                           Match (Self    => P_URI.Matcher.all,
+                                 Data    => Search_Key,
+                                 Matches => Matched);
+                           if Matched (0) /= No_Match then
+                              --  Returns the registered web object
+                              --  Registered with a key = Prefix + Regexp
+                              Position := WO_Map.Find (To_String (P_URI.Key));
+                              declare
+                                 Params : Callback_Parameters (1 .. Count);
+                              begin
+                                 for J in 1 .. Count loop
+                                    Params (J) :=
+                                       To_Unbounded_String (Search_Key
+                                          (Matched (J).First ..
+                                             Matched (J).Last));
+                                 end loop;
+                                 return Params;
+                              end;
+                           end if;
+                        end;
+                     else
+                        --  Only a prefix is defined.
+                        --  No need to search for other candidates
+                        Position := WO_Map.Find (K);
+                        return Empty_Callback_Parameters;
+                     end if;
+                  end if;
+               end;
+               Next (Vector_Cursor);
+            end loop;
+
+            return Empty_Callback_Parameters;
+         end;
+      end Get_Matching_Web_Object;
 
       Parsed_Page : Page := No_Page;
+      Parameters  : constant Callback_Parameters :=
+                      Get_Matching_Web_Object (Key);
 
    begin
       --  Use provided context if a user's defined one
 
       if Context /= Web_Block.Context.Empty then
          LT.Ctx := Context;
-      end if;
-
-      --  Get Web Object
-
-      Position := WO_Map.Find (Key);
-
-      if Position = No_Element then
-         --  Search key in Prefix_URI_Vector
-
-         declare
-            Matching_Key : constant String := Get_Matching_Key (Key);
-         begin
-            if Matching_Key /= "" then
-               Position := WO_Map.Find (Matching_Key);
-            end if;
-         end;
       end if;
 
       if Position /= No_Element then
@@ -276,8 +337,18 @@ package body AWS.Services.Web_Block.Registry is
             else
                Templates.Insert (T, Translations);
 
-               if Element (Position).Data_CB /= null then
-                  Element (Position).Data_CB (LT.Request, LT.Ctx'Access, T);
+               --  Call the Data_CB
+               if not Element (Position).Data_CB.With_Params then
+                  if Element (Position).Data_CB.Callback /= null then
+                     Element (Position).Data_CB.Callback
+                       (LT.Request, LT.Ctx'Access, T);
+                  end if;
+               else
+                  if Element (Position).Data_CB.Callback_With_Parameters
+                    /= null then
+                     Element (Position).Data_CB.Callback_With_Parameters
+                        (LT.Request, LT.Ctx'Access, Parameters, T);
+                  end if;
                end if;
 
                if Element (Position).Callback_Template then
@@ -392,7 +463,8 @@ package body AWS.Services.Web_Block.Registry is
              (Callback_Template => False,
               Content_Type      => To_Unbounded_String (Content_Type),
               Template          => To_Unbounded_String (Template),
-              Data_CB           => Data_CB,
+              Data_CB           => Web_Object_Data_Callback'(
+                 With_Params => False, Callback => Data_CB),
               Context_Required  => Context_Required);
    begin
       --  Register Tag
@@ -400,7 +472,10 @@ package body AWS.Services.Web_Block.Registry is
       WO_Map.Include (Key, WO);
 
       if Prefix then
-         Prefix_URI.Append (Prefix_URI_Vector, To_Unbounded_String (Key));
+         Pattern_URL_Container.Append
+           (Pattern_URL_Vector,
+            URL_Pattern'(Prefix       => To_Unbounded_String (Key),
+                         With_Matcher => False));
       end if;
    end Register;
 
@@ -419,14 +494,80 @@ package body AWS.Services.Web_Block.Registry is
              (Callback_Template => True,
               Content_Type      => To_Unbounded_String (Content_Type),
               Template_CB       => Template_CB,
-              Data_CB           => Data_CB,
+              Data_CB           => Web_Object_Data_Callback'(
+                 With_Params => False, Callback => Data_CB),
               Context_Required  => Context_Required);
    begin
       --  Register Tag
 
       WO_Map.Include (Key, WO);
-      Prefix_URI.Append (Prefix_URI_Vector, To_Unbounded_String (Key));
    end Register;
+
+   --------------------------
+   -- Register_Pattern_URL --
+   --------------------------
+
+   procedure Register_Pattern_URL
+     (Prefix           : String;
+      Regexp           : String;
+      Template         : String;
+      Data_CB          : Data_With_Param_Callback;
+      Content_Type     : String  := MIME.Text_HTML;
+      Context_Required : Boolean := False)
+   is
+      WO : constant Web_Object :=
+             (Callback_Template => False,
+              Content_Type      => To_Unbounded_String (Content_Type),
+              Template          => To_Unbounded_String (Template),
+              Data_CB           => Web_Object_Data_Callback'(
+                 With_Params => True, Callback_With_Parameters => Data_CB),
+              Context_Required  => Context_Required);
+      Key     : constant String := Prefix & Regexp;
+      Matcher : constant Pattern_Matcher_Access :=
+         new GNAT.Regpat.Pattern_Matcher'(
+            GNAT.Regpat.Compile (Key, GNAT.Regpat.Case_Insensitive));
+   begin
+      --  Register Tag
+
+      WO_Map.Include (Key, WO);
+      Pattern_URL_Container.Append
+         (Pattern_URL_Vector,
+            URL_Pattern'(Prefix       => To_Unbounded_String (Prefix),
+                         With_Matcher => True,
+                         Key          => To_Unbounded_String (Key),
+                         Matcher      => Matcher));
+   end Register_Pattern_URL;
+
+   procedure Register_Pattern_URL
+     (Prefix           : String;
+      Regexp           : String;
+      Template_CB      : Template_Callback;
+      Data_CB          : Data_With_Param_Callback;
+      Content_Type     : String  := MIME.Text_HTML;
+      Context_Required : Boolean := False)
+   is
+      WO : constant Web_Object :=
+             (Callback_Template => True,
+              Content_Type      => To_Unbounded_String (Content_Type),
+              Template_CB       => Template_CB,
+              Data_CB           => Web_Object_Data_Callback'(
+                 With_Params => True, Callback_With_Parameters => Data_CB),
+              Context_Required  => Context_Required);
+      Key     : constant String := Prefix & Regexp;
+      Matcher : constant Pattern_Matcher_Access :=
+         new GNAT.Regpat.Pattern_Matcher'(
+            GNAT.Regpat.Compile (Key, GNAT.Regpat.Case_Insensitive));
+   begin
+      --  Register Tag
+
+      WO_Map.Include (Key, WO);
+      Pattern_URL_Container.Append
+         (Pattern_URL_Vector,
+            URL_Pattern'(Prefix       => To_Unbounded_String (Prefix),
+                         With_Matcher => True,
+                         Key          => To_Unbounded_String (Key),
+                         Matcher      => Matcher));
+   end Register_Pattern_URL;
 
    -----------
    -- Value --
@@ -468,8 +609,10 @@ package body AWS.Services.Web_Block.Registry is
                Templates.Insert (T, Translations);
                Templates.Insert (T, Lazy_Tag.Translations);
 
-               if Element (Position).Data_CB /= null then
-                  Element (Position).Data_CB
+               if not Element (Position).Data_CB.With_Params and then
+                  Element (Position).Data_CB.Callback /= null
+               then
+                  Element (Position).Data_CB.Callback
                     (Lazy_Tag.Request, Lazy_Tag.Ctx'Access, T);
                end if;
 

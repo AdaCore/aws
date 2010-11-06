@@ -27,6 +27,7 @@
 
 with Ada.Strings.Unbounded;
 
+with AWS.Containers.Tables;
 with AWS.Messages;
 with AWS.MIME;
 with AWS.Response;
@@ -36,6 +37,7 @@ with AWS.Templates;
 
 package AWS.Services.Web_Block.Registry is
 
+   use Ada;
    use Ada.Strings.Unbounded;
 
    type Page is record
@@ -54,6 +56,15 @@ package AWS.Services.Web_Block.Registry is
    type Data_Callback is access procedure
      (Request      : Status.Data;
       Context      : not null access Web_Block.Context.Object;
+      Translations : in out Templates.Translate_Set);
+
+   type Callback_Parameters is new Containers.Tables.VString_Array;
+   Empty_Callback_Parameters : Callback_Parameters (1 .. 0);
+
+   type Data_With_Param_Callback is access procedure
+     (Request      : Status.Data;
+      Context      : not null access Web_Block.Context.Object;
+      Parameters   :        Callback_Parameters;
       Translations : in out Templates.Translate_Set);
 
    type Template_Callback is access function
@@ -81,6 +92,32 @@ package AWS.Services.Web_Block.Registry is
    --  Key is a Lazy_Tag or template page name. Template_CB is the callback
    --  used to retrieve the corresponding template file name. Data_CB is the
    --  callback used to retrieve the translation table to render the page.
+
+   procedure Register_Pattern_URL
+     (Prefix           : String;
+      Regexp           : String;
+      Template         : String;
+      Data_CB          : Data_With_Param_Callback;
+      Content_Type     : String  := MIME.Text_HTML;
+      Context_Required : Boolean := False);
+   --  Prefix is the prefix key to match
+   --  Then the rest of the url is a regular expression defined by Regexp
+   --  All regular-expression groups (inside parenthesis) is captured and pass
+   --  to the Data_CB in the Parameters vector
+   --  For instance, with:
+   --      Prefix = '/page/'
+   --      Regexp = '([0-9]+)/section-([a-z]+)/.*'
+   --  The url '/page/42/section-b/part2' will be matched and Data_CB will
+   --  be called with Parameters = <42, "b">
+
+   procedure Register_Pattern_URL
+     (Prefix           : String;
+      Regexp           : String;
+      Template_CB      : Template_Callback;
+      Data_CB          : Data_With_Param_Callback;
+      Content_Type     : String  := MIME.Text_HTML;
+      Context_Required : Boolean := False);
+   --  Same as above but takes a Template_Callback
 
    function Parse
      (Key           : String;
