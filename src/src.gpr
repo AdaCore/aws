@@ -49,20 +49,20 @@ project Src is
          null;
    end case;
 
-   -- For Windows OS add the Win32 directory
+   --  For Windows OS native build add the Win32 directory
+   --  For Windows OS and vxworks target add poll implementation
 
    case Shared.Target is
       when "vxworks" =>
          for Source_Dirs use Project'Source_Dirs & "poll";
-      when "native" =>
-         null;
-   end case;
 
-   case Shared.OS is
-      when "Windows_NT" =>
-         for Source_Dirs use Project'Source_Dirs & ("poll", "win32");
-      when others =>
-         null;
+      when "native" =>
+         case Shared.OS is
+            when "Windows_NT" =>
+               for Source_Dirs use Project'Source_Dirs & ("poll", "win32");
+            when others =>
+               null;
+         end case;
    end case;
 
    for Object_Dir use "../" & Shared'Object_Dir & "/src";
