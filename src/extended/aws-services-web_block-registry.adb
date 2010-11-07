@@ -36,6 +36,7 @@ with GNAT.Regpat;
 package body AWS.Services.Web_Block.Registry is
 
    use Ada;
+   use GNAT;
 
    Context_Var : constant String := "CTX_WB";
 
@@ -86,7 +87,7 @@ package body AWS.Services.Web_Block.Registry is
    type Pattern_Matcher_Access is access all GNAT.Regpat.Pattern_Matcher;
 
    type URL_Pattern (With_Matcher : Boolean := False) is record
-      Prefix  : Unbounded_String;
+      Prefix : Unbounded_String;
       case With_Matcher is
          when True =>
             Matcher : Pattern_Matcher_Access;
@@ -238,8 +239,8 @@ package body AWS.Services.Web_Block.Registry is
       -- Get_Matching_Web_Object --
       -----------------------------
 
-      function Get_Matching_Web_Object (Search_Key : String)
-         return Callback_Parameters is
+      function Get_Matching_Web_Object
+        (Search_Key : String) return Callback_Parameters is
       begin
          Position := WO_Map.Find (Key);
 
@@ -273,8 +274,9 @@ package body AWS.Services.Web_Block.Registry is
                            Matched : Match_Array (0 .. Count);
                         begin
                            Match (Self    => P_URI.Matcher.all,
-                                 Data    => Search_Key,
-                                 Matches => Matched);
+                                  Data    => Search_Key,
+                                  Matches => Matched);
+
                            if Matched (0) /= No_Match then
                               --  Returns the registered web object
                               --  Registered with a key = Prefix + Regexp
@@ -292,6 +294,7 @@ package body AWS.Services.Web_Block.Registry is
                               end;
                            end if;
                         end;
+
                      else
                         --  Only a prefix is defined.
                         --  No need to search for other candidates
@@ -345,7 +348,8 @@ package body AWS.Services.Web_Block.Registry is
                   end if;
                else
                   if Element (Position).Data_CB.Callback_With_Parameters
-                    /= null then
+                    /= null
+                  then
                      Element (Position).Data_CB.Callback_With_Parameters
                         (LT.Request, LT.Ctx'Access, Parameters, T);
                   end if;
@@ -463,8 +467,9 @@ package body AWS.Services.Web_Block.Registry is
              (Callback_Template => False,
               Content_Type      => To_Unbounded_String (Content_Type),
               Template          => To_Unbounded_String (Template),
-              Data_CB           => Web_Object_Data_Callback'(
-                 With_Params => False, Callback => Data_CB),
+              Data_CB           => Web_Object_Data_Callback'
+                                     (With_Params => False,
+                                      Callback    => Data_CB),
               Context_Required  => Context_Required);
    begin
       --  Register Tag
@@ -494,8 +499,9 @@ package body AWS.Services.Web_Block.Registry is
              (Callback_Template => True,
               Content_Type      => To_Unbounded_String (Content_Type),
               Template_CB       => Template_CB,
-              Data_CB           => Web_Object_Data_Callback'(
-                 With_Params => False, Callback => Data_CB),
+              Data_CB           => Web_Object_Data_Callback'
+                                     (With_Params => False,
+                                      Callback    => Data_CB),
               Context_Required  => Context_Required);
    begin
       --  Register Tag
@@ -519,13 +525,14 @@ package body AWS.Services.Web_Block.Registry is
              (Callback_Template => False,
               Content_Type      => To_Unbounded_String (Content_Type),
               Template          => To_Unbounded_String (Template),
-              Data_CB           => Web_Object_Data_Callback'(
-                 With_Params => True, Callback_With_Parameters => Data_CB),
+              Data_CB           => Web_Object_Data_Callback'
+                                     (With_Params              => True,
+                                      Callback_With_Parameters => Data_CB),
               Context_Required  => Context_Required);
       Key     : constant String := Prefix & Regexp;
       Matcher : constant Pattern_Matcher_Access :=
-         new GNAT.Regpat.Pattern_Matcher'(
-            GNAT.Regpat.Compile (Key, GNAT.Regpat.Case_Insensitive));
+                  new Regpat.Pattern_Matcher'
+                    (Regpat.Compile (Key, Regpat.Case_Insensitive));
    begin
       --  Register Tag
 
@@ -550,13 +557,14 @@ package body AWS.Services.Web_Block.Registry is
              (Callback_Template => True,
               Content_Type      => To_Unbounded_String (Content_Type),
               Template_CB       => Template_CB,
-              Data_CB           => Web_Object_Data_Callback'(
-                 With_Params => True, Callback_With_Parameters => Data_CB),
+              Data_CB           => Web_Object_Data_Callback'
+                                     (With_Params              => True,
+                                      Callback_With_Parameters => Data_CB),
               Context_Required  => Context_Required);
       Key     : constant String := Prefix & Regexp;
       Matcher : constant Pattern_Matcher_Access :=
-         new GNAT.Regpat.Pattern_Matcher'(
-            GNAT.Regpat.Compile (Key, GNAT.Regpat.Case_Insensitive));
+                  new Regpat.Pattern_Matcher'
+                    (Regpat.Compile (Key, Regpat.Case_Insensitive));
    begin
       --  Register Tag
 

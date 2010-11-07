@@ -64,7 +64,7 @@ package AWS.Services.Web_Block.Registry is
    type Data_With_Param_Callback is access procedure
      (Request      : Status.Data;
       Context      : not null access Web_Block.Context.Object;
-      Parameters   :        Callback_Parameters;
+      Parameters   : Callback_Parameters;
       Translations : in out Templates.Translate_Set);
 
    type Template_Callback is access function
