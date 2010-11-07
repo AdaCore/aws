@@ -155,14 +155,14 @@ project Src is
 
       case Shared.Target is
            when "native" =>
-	      case Shared.OS is
+              case Shared.OS is
                  when "Windows_NT" =>
                     for Implementation ("Poll") use "poll__win32.adb";
                  when others =>
                     null;
               end case;
 
-	   when "vxworks" =>
+           when "vxworks" =>
               for Implementation ("Poll") use "poll__posix.adb";
       end case;
 
