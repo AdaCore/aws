@@ -1,6 +1,6 @@
-Known Problems fixed in AWS 2.8
+Known Problems fixed in AWS 2.10
 
-- J322-004: URL containing colons (":")
-  Problem:    A URL containing a colon (except when it separates the
-              user:password) is not properly decoded by AWS
-  Workaround: none found
+- JB05-022: Cannot write more than 2**31 bytes in a compressed stream
+  Problem:    With a 32 bits compiler, writing more than 2**31 bytes into a
+              compressed stream raises a constraint error.
+  Workaround: Use a 64 bits compiler.
