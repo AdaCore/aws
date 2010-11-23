@@ -241,9 +241,7 @@ package body AWS.Status.Set is
    -- Binary --
    ------------
 
-   procedure Binary
-     (D         : in out Data;
-      Parameter : Stream_Element_Array) is
+   procedure Binary (D : in out Data; Parameter : Stream_Element_Array) is
    begin
       if D.Binary_Data = null then
          D.Binary_Data := new Containers.Memory_Streams.Stream_Type;
@@ -399,9 +397,7 @@ package body AWS.Status.Set is
    -- Read_Header --
    -----------------
 
-   procedure Read_Header
-     (Socket : Net.Socket_Type'Class;
-      D      : in out Data) is
+   procedure Read_Header (Socket : Net.Socket_Type'Class; D : in out Data) is
    begin
       Headers.Set.Read (Socket, D.Header);
       Update_Data_From_Header (D);
@@ -503,9 +499,7 @@ package body AWS.Status.Set is
    -- Socket --
    ------------
 
-   procedure Socket
-     (D    : in out Data;
-      Sock : Net.Socket_Access) is
+   procedure Socket (D : in out Data; Sock : Net.Socket_Access) is
    begin
       D.Socket   := Sock;
       D.Peername := To_Unbounded_String (Net.Peer_Addr (Sock.all));
