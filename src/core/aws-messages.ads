@@ -27,6 +27,7 @@
 
 with Ada.Calendar;
 with Ada.Strings.Unbounded;
+with Ada.Streams;
 
 package AWS.Messages is
 
@@ -269,7 +270,8 @@ package AWS.Messages is
    function Connection (Mode : String) return String;
    pragma Inline (Connection);
 
-   function Content_Length (Size : Natural) return String;
+   function Content_Length
+     (Size : Ada.Streams.Stream_Element_Offset) return String;
    pragma Inline (Content_Length);
 
    function Cookie (Value : String) return String;

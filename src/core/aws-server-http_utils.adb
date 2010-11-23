@@ -1697,8 +1697,7 @@ package body AWS.Server.HTTP_Utils is
                & Utils.Image (Natural (First)) & "-"
                & Utils.Image (Natural (Last))
                & "/" & Utils.Image (Natural (Length)));
-            Net.Buffered.Put_Line
-              (Sock, Messages.Content_Length (Positive (R_Length)));
+            Net.Buffered.Put_Line (Sock, Messages.Content_Length (R_Length));
             Net.Buffered.New_Line (Sock);
 
             Resources.Set_Index (File, First + 1);
@@ -1785,8 +1784,7 @@ package body AWS.Server.HTTP_Utils is
          --  connection. [RFC 1945 - 7.2.2] See the Will_Close local variable.
 
          if Length /= Resources.Undefined_Length then
-            Net.Buffered.Put_Line
-              (Sock, Messages.Content_Length (Natural (Length)));
+            Net.Buffered.Put_Line (Sock, Messages.Content_Length (Length));
          end if;
 
          --  Terminate header

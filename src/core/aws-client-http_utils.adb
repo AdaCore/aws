@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2005-2009, AdaCore                     --
+--                     Copyright (C) 2005-2010, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -426,7 +426,7 @@ package body AWS.Client.HTTP_Utils is
       procedure Build_Root_Part_Header;
       --  Builds the rootpart header and calculates its size
 
-      function Content_Length return Integer;
+      function Content_Length return Stream_Element_Offset;
       --  Returns the total message content length
 
       ----------------------------
@@ -450,13 +450,14 @@ package body AWS.Client.HTTP_Utils is
       -- Content_Length --
       --------------------
 
-      function Content_Length return Integer is
+      function Content_Length return Stream_Element_Offset is
       begin
          return 2
            + Boundary'Length + 2    -- Root part boundary + CR+LF
-           + AWS.Headers.Length (Root_Part_Header)
+           + Stream_Element_Offset (AWS.Headers.Length (Root_Part_Header))
            + Data'Length            -- Root part data length
-           + AWS.Attachments.Length (Attachments, Boundary);
+           + Stream_Element_Offset
+               (AWS.Attachments.Length (Attachments, Boundary));
       end Content_Length;
 
    begin

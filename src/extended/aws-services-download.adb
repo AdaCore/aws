@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2005-2009, AdaCore                     --
+--                     Copyright (C) 2005-2010, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -474,7 +474,7 @@ package body AWS.Services.Download is
 
          Net.Buffered.Put_Line
            (Sock, Messages.Content_Length
-              (Natural (Resources.Streams.Size (Info.Stream.all))));
+                    (Resources.Streams.Size (Info.Stream.all)));
 
          Net.Buffered.Put_Line
            (Sock, Messages.Content_Type (MIME.Application_Octet_Stream));

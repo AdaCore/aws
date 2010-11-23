@@ -237,9 +237,11 @@ package body AWS.Messages is
    -- Content_Length --
    --------------------
 
-   function Content_Length (Size : Natural) return String is
+   function Content_Length
+     (Size : Ada.Streams.Stream_Element_Offset) return String is
    begin
-      return Content_Length_Token & HD & Utils.Image (Size);
+      return Content_Length_Token & ':'
+             & Ada.Streams.Stream_Element_Offset'Image (Size);
    end Content_Length;
 
    ------------------

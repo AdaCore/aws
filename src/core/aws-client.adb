@@ -1118,7 +1118,7 @@ package body AWS.Client is
       Auth_Attempts : Auth_Attempts_Count := (others => 2);
       Auth_Is_Over  : Boolean;
 
-      function Content_Length return Integer;
+      function Content_Length return Stream_Element_Offset;
       --  Returns the total message content length
 
       procedure Send_File;
@@ -1128,14 +1128,14 @@ package body AWS.Client is
       -- Content_Length --
       --------------------
 
-      function Content_Length return Integer is
+      function Content_Length return Stream_Element_Offset is
       begin
          return 2 * Boundary'Length                -- 2 boundaries
            + 2                                     -- second one end with "--"
            + 10                                    -- 5 lines with CR+LF
            + CT'Length                             -- content length header
            + CD'Length                             -- content disposition head
-           + Integer (Utils.File_Size (Filename))  -- file size
+           + Stream_Element_Offset (Utils.File_Size (Filename))
            + 2;                                    -- CR+LF after file data
       end Content_Length;
 
