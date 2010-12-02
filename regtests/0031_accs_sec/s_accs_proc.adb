@@ -46,9 +46,7 @@ procedure S_Accs_Proc (Security : Boolean) is
 
    Free_Port : Positive := 8421;
    Acceptor  : Acceptors.Acceptor_Type;
-   Counter   : Natural := 0;
-   pragma Atomic (Counter);
-
+   Counter   : AWS.Utils.Counter (0);
    Semaphore : AWS.Utils.Semaphore;
 
    task type Server_Task;
@@ -148,7 +146,7 @@ procedure S_Accs_Proc (Security : Boolean) is
               (Sock.all, '(' & Buffered.Get_Line (Sock.all) & ')');
             Buffered.Flush (Sock.all);
 
-            Counter := Counter + 1;
+            Counter.Increment;
 
             Acceptors.Give_Back (Acceptor, Sock);
 
@@ -199,11 +197,11 @@ begin
          end loop;
       end loop;
 
-      if Counter = Client_Request_Count * Clients'Length then
+      if Counter.Value = Client_Request_Count * Clients'Length then
          Ada.Text_IO.Put_Line ("Done.");
       else
          Ada.Text_IO.Put_Line
-           ("Regression" & Integer'Image (Counter)
+           ("Regression" & Integer'Image (Counter.Value)
             & " /=" & Integer'Image (Client_Request_Count)
             & " *" & Integer'Image (Clients'Length));
       end if;
