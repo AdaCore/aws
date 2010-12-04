@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2009, AdaCore                     --
+--                     Copyright (C) 2000-2010, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -409,6 +409,15 @@ package body AWS.Config is
    begin
       return O.P (Max_Connection).Pos_Value;
    end Max_Connection;
+
+   ----------------
+   -- MIME_Types --
+   ----------------
+
+   function MIME_Types (O : Object) return String is
+   begin
+      return To_String (O.P (MIME_Types).Str_Value);
+   end MIME_Types;
 
    ---------------------
    -- Read_If_Present --

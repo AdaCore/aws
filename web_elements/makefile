@@ -1,8 +1,7 @@
 ############################################################################
 #                              Ada Web Server                              #
 #                                                                          #
-#                            Copyright (C) 2007                            #
-#                                 AdaCore                                  #
+#                      Copyright (C) 2007-2010, AdaCore                    #
 #                                                                          #
 #  This library is free software; you can redistribute it and/or modify    #
 #  it under the terms of the GNU General Public License as published by    #
@@ -38,6 +37,7 @@ clean:
 
 init:
 	$(CP) readme.txt $(I_WEL)
+	$(CP) mime.types $(I_WEL)
 
 force:
 

@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2009, AdaCore                     --
+--                     Copyright (C) 2000-2010, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -168,6 +168,10 @@ package AWS.Config is
    function Directory_Browser_Page (O : Object) return String;
    pragma Inline (Directory_Browser_Page);
    --  Filename for the directory browser template page
+
+   function MIME_Types (O : Object) return String;
+   pragma Inline (MIME_Types);
+   --  Returns the name of the MIME types to use
 
    ---------
    -- Log --
@@ -423,6 +427,7 @@ private
       Reuse_Address,
       Check_URL_Validity,
       Case_Sensitive_Parameters,
+      MIME_Types,
       --  Per process options
       Session_Cleanup_Interval,
       Session_Lifetime,
@@ -433,7 +438,7 @@ private
       Context_Lifetime);
 
    subtype Server_Parameter_Name is Parameter_Name
-     range Server_Name .. Case_Sensitive_Parameters;
+     range Server_Name .. MIME_Types;
 
    subtype Process_Parameter_Name is Parameter_Name
      range Session_Cleanup_Interval .. Context_Lifetime;
@@ -610,7 +615,10 @@ private
            (Pos, Default.Line_Stack_Size),
 
          Reuse_Address =>
-           (Bool, Default.Reuse_Address));
+           (Bool, Default.Reuse_Address),
+
+         MIME_Types =>
+           (Str, To_Unbounded_String (Default.MIME_Types)));
 
    type Object is record
       P : Parameter_Set (Server_Parameter_Name) := Default_Parameters;

@@ -68,6 +68,7 @@ package AWS.Default is
    Input_Line_Size_Limit           : constant         := 16#4000#;
    Max_Concurrent_Download         : constant         := 25;
    Reuse_Address                   : constant Boolean := False;
+   MIME_Types                      : constant String  := "aws.mime";
 
    --  Client configuration
 

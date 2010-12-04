@@ -70,6 +70,7 @@ begin
    Insert (T, Assoc ("MAX_CONCURRENT_DOWNLOAD",
                      Image (Default.Max_Concurrent_Download)));
    Insert (T, Assoc ("MAX_CONNECT", Image (Default.Max_Connection)));
+   Insert (T, Assoc ("MIME_TYPES", Default.MIME_Types));
    Insert (T, Assoc ("KEEP_ALIVE_LIMIT",
                      Image (Default.Free_Slots_Keep_Alive_Limit)));
    Insert (T, Assoc ("QUEUE_SIZE", Default.Accept_Queue_Size));

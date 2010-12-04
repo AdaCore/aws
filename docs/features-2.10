@@ -15,6 +15,12 @@ of the feature.
 New features in AWS 2.10
 ------------------------
 
+NF-210-JB05-029 Enhance MIME types support (2010-12-04)
+
+   It is now possible to specify the name of the file containing the
+   list of MIME types through the server configuration. A standard
+   MIME types is also provided.
+
 NF-210-J930-037 Three new Ajax actions have been implemented (2010-10-01)
 
    It is now possible to disable/enable an entry in a form or to make it

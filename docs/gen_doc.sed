@@ -3,6 +3,7 @@ s,@_AWS_VERSION_@,2.10.0,g
 s,@_SOAP_VERSION_@,1.5.0,g
 s,@_MAX_CONCURRENT_DOWNLOAD_@,25,g
 s,@_MAX_CONNECT_@,5,g
+s,@_MIME_TYPES_@,aws.mime,g
 s,@_KEEP_ALIVE_LIMIT_@,1,g
 s,@_QUEUE_SIZE_@,64,g
 s,@_SERVER_NAME_@,AWS Module,g

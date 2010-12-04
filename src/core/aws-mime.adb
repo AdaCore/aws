@@ -35,6 +35,7 @@ with Ada.Strings.Unbounded;
 
 with GNAT.Regexp;
 
+with AWS.Config;
 with AWS.Resources.Files;
 with AWS.Utils;
 
@@ -164,7 +165,7 @@ package body AWS.MIME is
 
    procedure Initialize is
 
-      AWS_MIME : constant String := "aws.mime";
+      AWS_MIME : constant String := Config.MIME_Types (Config.Get_Current);
 
       procedure Load;
       --  Load aws.mime file, record every MIME types. Note that this file can

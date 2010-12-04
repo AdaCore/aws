@@ -1479,6 +1479,12 @@ regtests/0208_cache_page_server/cache_cont_page_server.adb
 regtests/0208_cache_page_server/cache_cont_page_server.gpr
 regtests/0208_cache_page_server/test.out
 regtests/0208_cache_page_server/test.py
+regtests/0210_mime/aws.ini
+regtests/0210_mime/mime.types
+regtests/0210_mime/test.out
+regtests/0210_mime/test.py
+regtests/0210_mime/tmime2.adb
+regtests/0210_mime/tmime2.gpr
 regtests/README
 regtests/aws.gpr
 regtests/common/get_free_port.adb
@@ -2169,6 +2175,7 @@ web_elements/javascripts/scriptaculous.js
 web_elements/makefile
 web_elements/menu_css/arrow.png
 web_elements/menu_css/menu.tcss
+web_elements/mime.types
 web_elements/notebook/cookies.js
 web_elements/notebook/notebook.thtml
 web_elements/readme.txt
