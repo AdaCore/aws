@@ -160,6 +160,7 @@ procedure Sessions2 is
    begin
       Text_IO.Put_Line ("New SID");
       Display_Data (SID);
+      Text_IO.Flush;
    end Delete_SID;
 
 begin
@@ -184,6 +185,8 @@ begin
    delay 5.0;
 
    Session.Set_Callback (null);
+
+   delay 1.0;
 
    Server.Stop;
 
