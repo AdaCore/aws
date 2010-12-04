@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2009, AdaCore                     --
+--                     Copyright (C) 2000-2010, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -26,13 +26,12 @@
 ------------------------------------------------------------------------------
 
 with Ada.Characters.Handling;
+with Ada.Containers.Indefinite_Hashed_Maps;
 with Ada.Directories;
 with Ada.Strings.Fixed;
+with Ada.Strings.Hash_Case_Insensitive;
 with Ada.Strings.Maps;
 with Ada.Strings.Unbounded;
-
-with Ada.Containers.Indefinite_Hashed_Maps;
-with Ada.Strings.Hash_Case_Insensitive;
 
 with GNAT.Regexp;
 
