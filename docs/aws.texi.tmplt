@@ -1503,6 +1503,11 @@ new log file each day or month. The default is @_LOG_SPLIT_MODE_@.
 The name of the logo image to use in the status page. The default is
 @file{@_LOGO_IMAGE_@}.
 
+@item Max_Concurrent_Download (positive)
+@cindex Max_Concurrent_Download
+Control the maximum number of parallel downloads accepted by the download
+manager. The default value is @_MAX_CONCURRENT_DOWNLOAD_@.
+
 @item Max_Connection (positive)
 @cindex Max_Connection
 This is the maximum number of simultaneous connections for the
