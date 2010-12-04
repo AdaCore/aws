@@ -4,7 +4,7 @@
 
 Authors:
    Dmitriy Anisimkov
-   Pascal Obry                                           September 23rd, 2010
+   Pascal Obry                                           Decembre 4th, 2010
 
 
 
@@ -39,6 +39,10 @@ New features, for each AWS version, are described into the files
 docs/features-*.
 
 Listed below are some minor enhancements and fixes:
+
+   - Remove OpenSSL DLL for Windows platform. It is better to used the
+     latest ones which gets security update and there is now easy to
+     install OpenSSL binary distributions for Windows.
 
 
 

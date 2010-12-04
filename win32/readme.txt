@@ -1,17 +1,13 @@
 
-* How to use OpenSSL dynamic link libraries for Win32.
+* To run application using SSL it is required to install the OpenSSL DLL.
+  See the following page for a link:
 
-   OpenSSL Version 0.9.8b
+  http://www.openssl.org/related/binaries.html
 
-   1. Copy libeay32.dll and libssl32.dll to the directory referred in the
-      PATH environment variable.
+  The needed DLLs are: libeay32.dll and libssl32.dll
 
-   2. gnatmake should be called with:
-
-      -largs -L{AWS Directory}/lib/ -lssl -lcrypto
-
-   Note that the libssl.a and libcrypto.a import libraries will be created
-   during AWS build procedure. See makefile.
+  Note that the libssl.a and libcrypto.a import libraries will be created
+  during AWS build procedure. See makefile.
 
 * How to use LDAP
 
