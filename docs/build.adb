@@ -68,15 +68,15 @@ begin
    Insert (T, Assoc ("AWS_VERSION", AWS.Version));
    Insert (T, Assoc ("SOAP_VERSION", SOAP.Version));
    Insert (T, Assoc ("MAX_CONCURRENT_DOWNLOAD",
-                     Image (Default.Max_Concurrent_Download)));
-   Insert (T, Assoc ("MAX_CONNECT", Image (Default.Max_Connection)));
+                     Image (Natural'(Default.Max_Concurrent_Download))));
+   Insert (T, Assoc ("MAX_CONNECT", Image (Natural'(Default.Max_Connection))));
    Insert (T, Assoc ("MIME_TYPES", Default.MIME_Types));
    Insert (T, Assoc ("KEEP_ALIVE_LIMIT",
-                     Image (Default.Free_Slots_Keep_Alive_Limit)));
+                     Image (Natural'(Default.Free_Slots_Keep_Alive_Limit))));
    Insert (T, Assoc ("QUEUE_SIZE", Default.Accept_Queue_Size));
    Insert (T, Assoc ("SERVER_NAME", Default.Server_Name));
-   Insert (T, Assoc ("SERVER_PORT", Image (Default.Server_Port)));
-   Insert (T, Assoc ("HOTPLUG_PORT", Image (Default.Hotplug_Port)));
+   Insert (T, Assoc ("SERVER_PORT", Image (Natural'(Default.Server_Port))));
+   Insert (T, Assoc ("HOTPLUG_PORT", Image (Natural'(Default.Hotplug_Port))));
    Insert (T, Assoc ("LOG_FILE_DIR", Default.Log_File_Directory));
    Insert (T, Assoc ("LOG_SPLIT_MODE", Default.Log_Split_Mode));
    Insert (T, Assoc ("ERROR_LOG_SPLIT_MODE", Default.Error_Log_Split_Mode));
