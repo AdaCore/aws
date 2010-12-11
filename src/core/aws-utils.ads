@@ -53,8 +53,8 @@ package AWS.Utils is
 
    subtype File_Size_Type is Directories.File_Size;
 
-   Spaces : constant Strings.Maps.Character_Set
-     := Strings.Maps.To_Set (' ' & ASCII.HT & ASCII.LF & ASCII.CR);
+   Spaces : constant Strings.Maps.Character_Set :=
+              Strings.Maps.To_Set (' ' & ASCII.HT & ASCII.LF & ASCII.CR);
    --  Set of spaces to ignore during parsing
 
    -------------------------------
