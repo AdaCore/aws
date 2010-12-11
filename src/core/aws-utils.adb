@@ -453,6 +453,20 @@ package body AWS.Utils is
    -- Image --
    -----------
 
+   function Image (N : Stream_Element_Offset) return String is
+      N_Img : constant String := Stream_Element_Offset'Image (N);
+   begin
+      if N_Img (N_Img'First) = ' ' then
+         return N_Img (N_Img'First + 1 .. N_Img'Last);
+      else
+         return N_Img;
+      end if;
+   end Image;
+
+   -----------
+   -- Image --
+   -----------
+
    function Image (D : Duration) return String is
       D_Img : constant String  := Duration'Image (D);
       K     : constant Natural := Strings.Fixed.Index (D_Img, ".");

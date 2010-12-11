@@ -1375,7 +1375,7 @@ package body SOAP.Types is
       Append (Result, " soapenc:arrayType=""");
       Append (Result, Array_Type);
       Append (Result, '[');
-      Append (Result, AWS.Utils.Image (O.O'Length));
+      Append (Result, AWS.Utils.Image (Natural (O.O'Length)));
       Append (Result, "]""");
       Append (Result, xsi_type (XML_Array));
       Append (Result, '>');

@@ -74,6 +74,9 @@ package AWS.Utils is
    function Image (N : Natural) return String;
    --  Returns image of N without the leading blank
 
+   function Image (N : Stream_Element_Offset) return String;
+   --  Returns image of N without the leading blank
+
    function Image (D : Duration) return String;
    --  Returns image of D without the leading blank and with only 2 decimals
    --  numbers.

@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2009, AdaCore                     --
+--                     Copyright (C) 2000-2010, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -75,7 +75,8 @@ package body SOAP.Utils is
             when '"'    => Append (Result, "&quot;");
             when Character'Val (0) .. Character'Val (31) =>
                Append (Result, "&#");
-               Append (Result, AWS.Utils.Image (Character'Pos (Str (K))));
+               Append
+                 (Result, AWS.Utils.Image (Natural (Character'Pos (Str (K)))));
                Append (Result, ';');
             when others => Append (Result, Str (K));
          end case;
