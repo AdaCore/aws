@@ -62,6 +62,12 @@
 #include <sys/filio.h>
 #endif
 
+#if defined (__NetBSD__)  \
+ || defined (__OpenBSD__) \
+ || defined (__FreeBSD__)
+#include <sys/time.h>
+#endif
+
 FILE *fd;
 
 void
@@ -119,7 +125,7 @@ main (int argc, char *argv[])
   const int ai_next_offset      = -1;
 #endif
 
-#if defined(__FreeBSD__) || defined(_WIN32) || defined(__vxworks)
+#if defined(_WIN32) || defined(__vxworks)
   const int s_nfds_t = sizeof (int) * 8;
 #else
   const int s_nfds_t = sizeof (nfds_t) * 8;
