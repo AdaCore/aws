@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2009, AdaCore                     --
+--                     Copyright (C) 2000-2010, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -416,6 +416,7 @@ package body AWS.Log is
       ------------------
 
       function Length_Image return String is
+         use type Response.Content_Length_Type;
       begin
          if Content_Length = Response.Undefined_Length then
             return "";

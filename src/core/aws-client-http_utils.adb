@@ -294,7 +294,8 @@ package body AWS.Client.HTTP_Utils is
       declare
          TE     : constant String  :=
                     Response.Header (Result, Messages.Transfer_Encoding_Token);
-         CT_Len : constant Integer := Response.Content_Length (Result);
+         CT_Len : constant Response.Content_Length_Type :=
+                    Response.Content_Length (Result);
       begin
          if TE = "chunked" then
 

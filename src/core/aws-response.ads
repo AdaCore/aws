@@ -46,6 +46,7 @@ with AWS.Status;
 package AWS.Response is
 
    use Ada;
+   use Ada.Streams;
 
    type Data is private;
    --  Note that this type use a reference counter which is not thread safe
@@ -70,7 +71,8 @@ package AWS.Response is
    --  authentication from client.
    --  Note the order here should not be changed as it is used in AWS.Client.
 
-   subtype Content_Length_Type is Integer range -1 .. Integer'Last;
+   subtype Content_Length_Type
+     is Stream_Element_Offset range -1 .. Stream_Element_Offset'Last;
 
    Undefined_Length : constant Content_Length_Type;
    --  Undefined length could be used when we do not know the message length

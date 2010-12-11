@@ -1514,7 +1514,7 @@ package body AWS.Server.HTTP_Utils is
          end;
 
       else
-         Log.Write (HTTP_Server.Log, C_Stat, Status_Code, Integer (Length));
+         Log.Write (HTTP_Server.Log, C_Stat, Status_Code, Length);
       end if;
    end Send;
 

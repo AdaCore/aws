@@ -786,8 +786,7 @@ package body AWS.Client is
          begin
             Net.Buffered.Read (Sock, Data (Data'First .. Limit), Last);
 
-            Connection.Length
-              := Connection.Length - Integer (Last - Data'First + 1);
+            Connection.Length := Connection.Length - (Last - Data'First + 1);
          end Read_Limited;
 
          ---------------
@@ -828,9 +827,10 @@ package body AWS.Client is
             when Chunked =>
                if Connection.Length = 0 then
                   Connection.Length :=
-                    Utils.Hex_Value
-                      (Strings.Fixed.Trim
-                           (Net.Buffered.Get_Line (Sock), Strings.Both));
+                    Response.Content_Length_Type
+                      (Utils.Hex_Value
+                        (Strings.Fixed.Trim
+                          (Net.Buffered.Get_Line (Sock), Strings.Both)));
 
                   if Connection.Length = 0 then
                      Skip_Line;
