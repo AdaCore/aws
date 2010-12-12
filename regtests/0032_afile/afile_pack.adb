@@ -46,8 +46,8 @@ package body AFile_Pack is
 
    WS   : Server.HTTP;
    FN   : constant String := "test.out";
-   Size : constant Response.Content_Length_Type
-    := Response.Content_Length_Type (Resources.File_Size (FN));
+   Size : constant Response.Content_Length_Type :=
+            Response.Content_Length_Type (Resources.File_Size (FN));
 
    --------
    -- CB --
@@ -161,8 +161,8 @@ package body AFile_Pack is
            ("= " & Response.Header (R, Messages.Content_Disposition_Token, 1));
 
          declare
-            S : constant Response.Content_Length_Type
-              := Response.Content_Length (R);
+            S : constant Response.Content_Length_Type :=
+                  Response.Content_Length (R);
          begin
             if S = Response.Undefined_Length then
                Text_IO.Put_Line ("Error: " & Res & " undefined size.");
