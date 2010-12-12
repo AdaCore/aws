@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2004-2009, AdaCore                     --
+--                     Copyright (C) 2004-2010, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -148,6 +148,7 @@ package body AFile_Pack is
       -------------
 
       procedure Call_It (Res : String) is
+         use type Response.Content_Length_Type;
          R : Response.Data;
       begin
          R := Client.Get

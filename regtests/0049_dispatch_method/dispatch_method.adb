@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2009, AdaCore                     --
+--                     Copyright (C) 2003-2010, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -113,7 +113,7 @@ begin
 
       R := Client.Head (URL);
       Text_IO.Put_Line ("> " & Response.Message_Body (R));
-      Text_IO.Put_Line ("> " & Integer'Image (Response.Content_Length (R)));
+      Text_IO.Put_Line ("> " & Utils.Image (Response.Content_Length (R)));
    end;
 
    --  Close servers

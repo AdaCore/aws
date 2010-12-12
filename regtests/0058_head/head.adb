@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2009, AdaCore                     --
+--                     Copyright (C) 2000-2010, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -43,6 +43,7 @@ procedure Head is
    use Ada;
    use Ada.Text_IO;
    use AWS;
+   use type Response.Content_Length_Type;
 
    function CB (Request : Status.Data) return Response.Data;
 
@@ -82,11 +83,11 @@ begin
      /= Response.Content_Length (R_Head)
    then
       Put_Line ("Length difference between GET and HEAD.");
-      Put_Line ("   GET  " & Integer'Image (Response.Content_Length (R_Get)));
-      Put_Line ("   HEAD " & Integer'Image (Response.Content_Length (R_Head)));
+      Put_Line ("   GET  " & Utils.Image (Response.Content_Length (R_Get)));
+      Put_Line ("   HEAD " & Utils.Image (Response.Content_Length (R_Head)));
 
    elsif Response.Content_Length (R_Get)
-     /= Integer (Utils.File_Size (My_Name))
+     /= Response.Content_Length_Type (Utils.File_Size (My_Name))
    then
       Put_Line ("Length difference between GET and real length.");
 

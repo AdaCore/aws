@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2009, AdaCore                     --
+--                     Copyright (C) 2000-2010, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -223,7 +223,7 @@ begin
    Put_Line
      (Messages.Status_Code'Image (Response.Status_Code (R))
       & ' ' & Response.Content_Type (R)
-      & ' ' & Integer'Image (Response.Content_Length (R)));
+      & ' ' & Utils.Image (Response.Content_Length (R)));
 
    Client.Close (Connect);
 

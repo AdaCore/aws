@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2009, AdaCore                     --
+--                     Copyright (C) 2003-2010, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -55,6 +55,7 @@ procedure File is
    end CB;
 
    procedure Call_It is
+      use type Response.Content_Length_Type;
       R : Response.Data;
    begin
       R := Client.Get ("http://localhost:" & Utils.Image (Port) & "/zero");
@@ -63,7 +64,7 @@ procedure File is
          Text_IO.Put_Line ("OK length is 0");
       else
          Text_IO.Put_Line
-           ("NOK length is " & Natural'Image (Response.Content_Length (R)));
+           ("NOK length is " & Utils.Image (Response.Content_Length (R)));
          Text_IO.Put_Line
            ("=> " & Response.Message_Body (R));
       end if;
