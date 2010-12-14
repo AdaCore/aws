@@ -36,6 +36,8 @@ LPATH	=	$(dir $(shell gcc -print-file-name=libssl.a))
 setup_ssl:
 	echo "project AWS_Lib_Shared is" > $(LIBGPR)
 	echo "   for Source_Files use ();" >> $(LIBGPR)
+	echo '   type SSL_Library_Kind is ("relocatable", "static");' >> $(LIBGPR)
+	echo '   SSL_Library_Type : SSL_Library_Kind := external ("SSL_LIBRARY_TYPE", "relocatable");' >> $(LIBGPR)
 ifeq (${SOCKET}, std)
 	echo '   LIB_Path := "";' >> $(LIBGPR)
 	echo '   S_SSL_Lib := "";' >> $(LIBGPR)

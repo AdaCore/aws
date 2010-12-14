@@ -29,7 +29,6 @@
 
 with "../.build/projects/aws_config";
 with "../.build/projects/aws_lib_shared";
-with "../shared";
 with "dl_lib";
 
 project Crypto_Lib is
@@ -41,14 +40,14 @@ project Crypto_Lib is
       when "std" =>
          null;
       when "openssl" =>
-         case Shared.Library_Type is
+         case AWS_Lib_Shared.SSL_Library_Type is
             when "static" =>
                for Library_Name use AWS_Lib_Shared.S_CRY_Lib;
             when "relocatable" =>
                for Library_Name use AWS_Lib_Shared.R_CRY_Lib;
          end case;
       when "gnutls" =>
-         case Shared.Library_Type is
+         case AWS_Lib_Shared.SSL_Library_Type is
             when "static" =>
                for Library_Name use AWS_Lib_Shared.S_TLS_Lib;
             when "relocatable" =>
@@ -56,7 +55,7 @@ project Crypto_Lib is
          end case;
    end case;
 
-   for Library_Kind use Shared.Library_Type;
+   for Library_Kind use AWS_Lib_Shared.SSL_Library_Type;
    for Externally_Built use "true";
 
 end Crypto_Lib;
