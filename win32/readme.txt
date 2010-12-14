@@ -11,9 +11,5 @@
 
 * How to use LDAP
 
-  During the build procedure libldap.a will be created using the definition
-  file wldap32.def. This import library will be created to use wldap32.dll
-  which is installed on Windows NT, 2000 and XP machines.
-
   To build applications using LDAP you need to provides the -lldap linker
   option.
