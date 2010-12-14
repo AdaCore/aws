@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2004-2010, AdaCore                     --
+--                       Copyright (C) 2010, AdaCore                        --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -25,38 +25,26 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  Project for libcrypto.a external library
+--  Project for libdl.so external library.
+--
+--  Note that we are always linking to the shared version of this library as
+--  it is hightly recommended.
 
-with "../.build/projects/aws_config";
 with "../.build/projects/aws_ssl_shared";
 with "../shared";
-with "dl_lib";
 
-project Crypto_Lib is
+project DL_Lib is
 
    for Source_Files use ();
-   for Library_Dir use AWS_SSL_Shared.LIB_Path;
 
-   case AWS_Config.Socket is
-      when "std" =>
+   case Shared.OS is
+      when "Windows_NT" =>
          null;
-      when "openssl" =>
-         case Shared.Library_Type is
-            when "static" =>
-               for Library_Name use AWS_SSL_Shared.S_CRY_Lib;
-            when "relocatable" =>
-               for Library_Name use AWS_SSL_Shared.R_CRY_Lib;
-         end case;
-      when "gnutls" =>
-         case Shared.Library_Type is
-            when "static" =>
-               for Library_Name use AWS_SSL_Shared.S_TLS_Lib;
-            when "relocatable" =>
-               for Library_Name use AWS_SSL_Shared.R_TLS_Lib;
-         end case;
+      when others =>
+         for Library_Dir use AWS_SSL_Shared.LIB_Path;
+         for Library_Name use "dl";
+         for Library_Kind use "relocatable";
+         for Externally_Built use "true";
    end case;
 
-   for Library_Kind use Shared.Library_Type;
-   for Externally_Built use "true";
-
-end Crypto_Lib;
+end DL_Lib;
