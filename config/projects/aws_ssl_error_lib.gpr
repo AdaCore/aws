@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2004-2005                          --
---                                 AdaCore                                  --
+--                      Copyright (C) 2004-2010, AdaCore                    --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -29,12 +28,12 @@
 --  Project for libssl.a external library
 
 with "aws_config";
-with "aws_ssl_shared";
+with "aws_lib_shared";
 
 project AWS_SSL_Error_Lib is
 
   for Source_Files use ();
-  for Library_Dir use AWS_SSL_Shared.LIB_Path;
+  for Library_Dir use AWS_Lib_Shared.LIB_Path;
 
   case AWS_Config.Socket is
      when "std" =>

@@ -28,14 +28,14 @@
 --  Project for libcrypto.a external library
 
 with "../.build/projects/aws_config";
-with "../.build/projects/aws_ssl_shared";
+with "../.build/projects/aws_lib_shared";
 with "../shared";
 with "dl_lib";
 
 project Crypto_Lib is
 
    for Source_Files use ();
-   for Library_Dir use AWS_SSL_Shared.LIB_Path;
+   for Library_Dir use AWS_Lib_Shared.LIB_Path;
 
    case AWS_Config.Socket is
       when "std" =>
@@ -43,16 +43,16 @@ project Crypto_Lib is
       when "openssl" =>
          case Shared.Library_Type is
             when "static" =>
-               for Library_Name use AWS_SSL_Shared.S_CRY_Lib;
+               for Library_Name use AWS_Lib_Shared.S_CRY_Lib;
             when "relocatable" =>
-               for Library_Name use AWS_SSL_Shared.R_CRY_Lib;
+               for Library_Name use AWS_Lib_Shared.R_CRY_Lib;
          end case;
       when "gnutls" =>
          case Shared.Library_Type is
             when "static" =>
-               for Library_Name use AWS_SSL_Shared.S_TLS_Lib;
+               for Library_Name use AWS_Lib_Shared.S_TLS_Lib;
             when "relocatable" =>
-               for Library_Name use AWS_SSL_Shared.R_TLS_Lib;
+               for Library_Name use AWS_Lib_Shared.R_TLS_Lib;
          end case;
    end case;
 
