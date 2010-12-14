@@ -27,34 +27,17 @@
 
 .SILENT:
 
-#  Build the library only if Win32 OS. On other OS these libraries must be
-#  installed separately or are most of the time already installed.
-
 LDIR = ../$(BDIR)/../common/lib/win32
 
-LIBSSL		= $(LDIR)/libssl.dll.a
-LIBCRYPTO	= $(LDIR)/libcrypto.dll.a
 AWS_COFF	= $(LDIR)/aws.coff
 
 ifeq (${OS}, Windows_NT)
    RES        = $(AWS_COFF)
-   IMPORT_LIB = $(LIBSSL) $(LIBCRYPTO)
    TINSTALL   = install_win32
 else
    RES        =
-   IMPORT_LIB =
    TINSTALL   =
 endif
-
-$(LIBSSL): ssl.def
-	echo Building import libray libssl.dll.a
-	$(DLLTOOL) --def ssl.def --dllname libssl32.dll \
-	        --output-lib $(LIBSSL)
-
-$(LIBCRYPTO): crypto.def
-	echo Building import library libcrypto.dll.a
-	$(DLLTOOL) --def crypto.def --dllname libeay32.dll \
-		--output-lib $(LIBCRYPTO)
 
 $(AWS_COFF): aws.rc
 	echo Building aws.coff
@@ -63,12 +46,9 @@ $(AWS_COFF): aws.rc
 setup_dir:
 	-$(MKDIR) -p $(LDIR)
 
-setup: setup_dir $(RES) $(IMPORT_LIB)
+setup: setup_dir $(RES)
 
 install_win32:
-	-$(MKDIR) -p $(I_LIB)/ssl
-	$(CP) $(LIBSSL) $(I_LIB)/ssl
-	$(CP) $(LIBCRYPTO) $(I_LIB)/ssl
 	$(CP) $(AWS_COFF) $(I_LIB)
 
 install: $(TINSTALL)

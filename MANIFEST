@@ -2185,7 +2185,5 @@ web_elements/rounded_boxes/rcorner.gif
 web_elements/rounded_boxes/rounded_boxes.tcss
 win32/aws.ico
 win32/aws.rc
-win32/crypto.def
 win32/makefile
 win32/readme.txt
-win32/ssl.def
