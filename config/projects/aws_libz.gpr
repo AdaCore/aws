@@ -26,12 +26,19 @@
 ------------------------------------------------------------------------------
 
 with "aws_shared";
+with "aws_ssl_shared";
 with "aws_config";
 
 project AWS_Libz is
 
    for Source_Files use ();
-   for Library_Dir use AWS_Shared'Library_Dir;
+
+   case AWS_Config.Zlib_Exists is
+      when "true" =>
+         for Library_Dir use AWS_SSL_Shared.Lib_Path;
+      when "false" =>
+         for Library_Dir use AWS_Shared'Library_Dir;
+   end case;
 
    case AWS_Shared.Target is
       when "native" =>
