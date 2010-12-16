@@ -1,7 +1,7 @@
 ############################################################################
 #                              Ada Web Server                              #
 #                                                                          #
-#                     Copyright (C) 2003-2010, AdaCore                     #
+#                        Copyright (C) 2010, AdaCore                       #
 #                                                                          #
 #  This library is free software; you can redistribute it and/or modify    #
 #  it under the terms of the GNU General Public License as published by    #
@@ -25,19 +25,14 @@
 #  covered by the  GNU Public License.                                     #
 ############################################################################
 
-MAKEFILES = $(wildcard */makefile)
+-include ../../makefile.setup
 
-setup:
+ifneq (${SOCKET},std)
+all:
+	gnat make -P runme
+else
+all:
+endif
 
-install:
-	$(CP) web_mail/*html $(I_TPL)
-	$(CP) runme/aws_*.png $(I_IMG)
-
-build: $(MAKEFILES)
-
-$(MAKEFILES): force
-	$(MAKE) -C $(dir $@)
-
-force:
-
-check:
+clean:
+	gnat clean -P runme

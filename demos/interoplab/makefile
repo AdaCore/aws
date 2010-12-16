@@ -25,8 +25,14 @@
 #  covered by the  GNU Public License.                                     #
 ############################################################################
 
+-include ../../makefile.setup
+
+ifneq (${XMLADA},false)
 all: build_wsdl
 	gnat make -P interoplab
+else
+all:
+endif
 
 build_wsdl:
 	echo Generate stub/skel from WSDL document
