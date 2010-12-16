@@ -33,7 +33,7 @@ project Hello_WSDL is
    for Main use ("wsdl_demo_client.adb", "wsdl_demo_server.adb");
 
    package Builder is
-      for Default_Switches ("Ada") use ("-gnat05");
+      for Default_Switches ("Ada") use ("-m", "-gnat05");
    end Builder;
 
 end Hello_WSDL;
