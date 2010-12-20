@@ -49,6 +49,15 @@ project Docs is
 
    package Compiler renames Shared.Compiler;
 
+   ------------
+   -- Binder --
+   ------------
+
+   package Binder is
+      for Default_Switches ("Ada")
+         use Shared.Builder'Default_Switches ("Ada") & ("-static");
+   end Binder;
+
    -------------
    -- Builder --
    -------------
