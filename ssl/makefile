@@ -31,7 +31,7 @@ check:
 	$(GNAT) check -Pssl -rules -from=../aws.checks
 
 LIBGPR	=	../$(BDIR)/../../projects/aws_lib_shared.gpr
-LPATH	=	$(dir $(shell gcc -print-file-name=libssl.a))
+LPATH	=	$(dir $(shell $(GCC) -print-file-name=libssl.a))
 
 setup_ssl:
 	echo "project AWS_Lib_Shared is" > $(LIBGPR)
