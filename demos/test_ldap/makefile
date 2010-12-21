@@ -29,10 +29,10 @@
 
 ifneq (${LDAP},false)
 all:
-	gnat make -P auth
+	gnat make -P test_ldap
 else
 all:
 endif
 
 clean:
-	gnat clean -P auth
+	gnat clean -P test_ldap
