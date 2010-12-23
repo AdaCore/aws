@@ -26,6 +26,7 @@
 ------------------------------------------------------------------------------
 
 with "aws";
+with "../../shared";
 
 project Test_LDAP is
 
@@ -35,5 +36,14 @@ project Test_LDAP is
    package Builder is
       for Default_Switches ("Ada") use ("-gnat05");
    end Builder;
+
+   package Linker is
+      case Shared.OS is
+         when "Windows_NT" =>
+            for Default_Switches ("Ada") use ("-lwldap32");
+         when others =>
+            for Default_Switches ("Ada") use ("-lldap");
+      end case;
+   end Linker;
 
 end Test_LDAP;
