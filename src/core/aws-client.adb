@@ -221,11 +221,8 @@ package body AWS.Client is
    begin
       Debug_Exception (E);
 
-      Disconnect (Connection);
-
       if Real_Time.Clock - Stamp >= Connection.Timeouts.Response
-        or else Net.Is_Timeout (E)
-        or else Strings.Fixed.Index (Message, "] Connection timed out") > 0
+        or else Net.Is_Timeout (Connection.Socket.all, E)
       then
          Result := Response.Build
            (MIME.Text_Plain, Context & " Timeout", Messages.S408);
@@ -241,6 +238,8 @@ package body AWS.Client is
 
          Try_Count := Try_Count - 1;
       end if;
+
+      Disconnect (Connection);
    end Error_Processing;
 
    ---------

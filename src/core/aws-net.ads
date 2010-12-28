@@ -248,11 +248,15 @@ package AWS.Net is
    function Errno (Socket : Socket_Type) return Integer is abstract;
    --  Returns and clears error state in socket
 
-   function Is_Timeout (E : Exception_Occurrence) return Boolean;
+   function Is_Timeout
+     (Socket : Socket_Type;
+      E      : Exception_Occurrence) return Boolean;
    --  Returns True if the message associated with the Exception_Occurence for
    --  a Socket_Error is a timeout.
 
-   function Is_Peer_Closed (E : Exception_Occurrence) return Boolean;
+   function Is_Peer_Closed
+     (Socket : Socket_Type;
+      E      : Exception_Occurrence) return Boolean;
    --  Returns True if the message associated with the Exception_Occurence for
    --  a Socket_Error is a "socket closed by peer".
 
@@ -360,6 +364,9 @@ private
    Forever : constant Duration := Duration'Last;
 
    Peer_Closed_Message : constant String := "Receive : Socket closed by peer";
+
+   function Get_Socket_Errno (E : Exception_Occurrence) return Natural;
+   --  Returns the errno recorded into the exception message
 
    type Read_Cache (Max_Size : Stream_Element_Count) is record
       Buffer : Stream_Element_Array (1 .. Max_Size);

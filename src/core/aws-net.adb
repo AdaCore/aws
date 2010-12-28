@@ -138,6 +138,36 @@ package body AWS.Net is
       Dispose (FD_Set);
    end Free;
 
+   ----------------------
+   -- Get_Socket_Errno --
+   ----------------------
+
+   function Get_Socket_Errno (E : Exception_Occurrence) return Natural is
+      M           : constant String := Exception_Message (E);
+      First, Last : Natural;
+      Errno       : Natural := 0;
+   begin
+      --  First check SOCKET_ERROR
+      First := Strings.Fixed.Index (M, "SOCKET_ERROR");
+
+      if First /= 0 then
+         --  Now check for the start of the message containing the errno
+         First := Strings.Fixed.Index (M, "Message: [", From => First);
+
+         if First /= 0 then
+            First := First + 10;
+            Last := First;
+            while Last < M'Last and then M (Last + 1) in '0' .. '9' loop
+               Last := Last + 1;
+            end loop;
+         end if;
+
+         Errno := Natural'Value (M (First .. Last));
+      end if;
+
+      return Errno;
+   end Get_Socket_Errno;
+
    ---------------
    -- Host_Name --
    ---------------
@@ -162,7 +192,11 @@ package body AWS.Net is
    -- Is_Peer_Closed --
    --------------------
 
-   function Is_Peer_Closed (E : Exception_Occurrence) return Boolean is
+   function Is_Peer_Closed
+     (Socket : Socket_Type;
+      E      : Exception_Occurrence) return Boolean
+   is
+      pragma Unreferenced (Socket);
    begin
       return Exception_Message (E) = Peer_Closed_Message;
    end Is_Peer_Closed;
@@ -171,7 +205,11 @@ package body AWS.Net is
    -- Is_Timeout --
    ----------------
 
-   function Is_Timeout (E : Exception_Occurrence) return Boolean is
+   function Is_Timeout
+     (Socket : Socket_Type;
+      E      : Exception_Occurrence) return Boolean
+   is
+      pragma Unreferenced (Socket);
    begin
       return Strings.Fixed.Index (Exception_Message (E), Timeout_Token) > 0;
    end Is_Timeout;

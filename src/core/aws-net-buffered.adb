@@ -309,7 +309,7 @@ package body AWS.Net.Buffered is
                   Read (Socket);
                exception
                   when E : Socket_Error =>
-                     if Size (Buffer) = 0 or else Is_Timeout (E)  then
+                     if Size (Buffer) = 0 or else Is_Timeout (Socket, E)  then
                         raise;
                      else
                         C.First := 1;

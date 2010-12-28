@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2002-2009, AdaCore                     --
+--                     Copyright (C) 2002-2010, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -114,6 +114,18 @@ package AWS.Net.Std is
    --  Returns the port of the socket
 
    function Host_Name return String;
+
+   overriding function Is_Timeout
+     (Socket : Socket_Type;
+      E      : Exception_Occurrence) return Boolean;
+   --  Returns True if the message associated with the Exception_Occurence for
+   --  a Socket_Error is a timeout.
+
+   overriding function Is_Peer_Closed
+     (Socket : Socket_Type;
+      E      : Exception_Occurrence) return Boolean;
+   --  Returns True if the message associated with the Exception_Occurence for
+   --  a Socket_Error is a "socket closed by peer".
 
    overriding procedure Set_No_Delay
      (Socket : Socket_Type; Value : Boolean := True);

@@ -452,6 +452,34 @@ package body AWS.Net.Std is
       return Sockets.Host_Name;
    end Host_Name;
 
+   --------------------
+   -- Is_Peer_Closed --
+   --------------------
+
+   overriding function Is_Peer_Closed
+     (Socket : Socket_Type;
+      E      : Exception_Occurrence) return Boolean
+   is
+      use type Sockets.Error_Type;
+   begin
+      return Is_Peer_Closed (Net.Socket_Type (Socket), E)
+        or else Get_Socket_Errno (E) = Sockets.Constants.ECONNRESET;
+   end Is_Peer_Closed;
+
+   ----------------
+   -- Is_Timeout --
+   ----------------
+
+   overriding function Is_Timeout
+     (Socket : Socket_Type;
+      E      : Exception_Occurrence) return Boolean
+   is
+      use type Sockets.Error_Type;
+   begin
+      return Is_Timeout (Net.Socket_Type (Socket), E)
+        or else Get_Socket_Errno (E) = Sockets.Constants.ETIMEDOUT;
+   end Is_Timeout;
+
    ------------
    -- Listen --
    ------------

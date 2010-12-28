@@ -548,6 +548,29 @@ package body AWS.Net.Std is
       end;
    end Image;
 
+   --------------------
+   -- Is_Peer_Closed --
+   --------------------
+
+   overriding function Is_Peer_Closed
+     (Socket : Socket_Type;
+      E      : Exception_Occurrence) return Boolean is
+   begin
+      return Is_Peer_Closed (Net.Socket_Type (Socket), E);
+   end Is_Peer_Closed;
+
+   ----------------
+   -- Is_Timeout --
+   ----------------
+
+   overriding function Is_Timeout
+     (Socket : Socket_Type;
+      E      : Exception_Occurrence) return Boolean is
+   begin
+      return Is_Timeout (Net.Socket_Type (Socket), E)
+        or else Get_Socket_Errno (E) = OS_Lib.ETIMEDOUT;
+   end Is_Timeout;
+
    ------------
    -- Listen --
    ------------
