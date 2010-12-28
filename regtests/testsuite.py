@@ -101,6 +101,8 @@ class Runner(object):
                 "ASIS", "true", "Installed", "Disabled")
             os.environ["PRJ_LDAP"] = c.get(
                 "LDAP", "true", "Installed", "Disabled")
+            os.environ["PRJ_SOCKLIB"] = c.get(
+                "IPv6", "true", "IPv6", "GNAT")
             os.environ["SOCKET"] = c.get("SOCKET")
             os.environ["LIBRARY_TYPE"] = "static"
             # from-build-dir only supported on native platforms
