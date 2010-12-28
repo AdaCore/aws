@@ -45,7 +45,6 @@ from gnatpython.mainloop import (MainLoop, add_mainloop_options,
 from gnatpython.testdriver import add_run_test_options
 from gnatpython.reports import ReportDiff
 
-
 class Runner(object):
     """Run the testsuite
 
@@ -160,7 +159,6 @@ class Runner(object):
         # Write report
         ReportDiff(self.result_dir,
                    old_result_dir).txt_image(self.report_file)
-
 
 def run_testsuite():
     """Main: parse command line and run the testsuite"""

@@ -626,7 +626,7 @@ package body AWS.Net.Std is
       end if;
 
       return Positive
-               (Swap_Little_Endian (Interfaces.Unsigned_16 (Name.Port)));
+        (Swap_Little_Endian (Interfaces.Unsigned_16 (Name.Port)));
    end Peer_Port;
 
    -------------
