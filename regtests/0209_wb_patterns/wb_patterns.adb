@@ -43,7 +43,7 @@ with AWS.Utils;
 
 with Get_Free_Port;
 
-procedure Web_Blocks is
+procedure WB_Patterns is
 
    use Ada;
    use AWS;
@@ -163,4 +163,4 @@ begin
    --  Close servers
 
    AWS.Server.Shutdown (WS);
-end Web_Blocks;
+end WB_Patterns;

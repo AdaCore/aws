@@ -27,7 +27,7 @@
 
 with "aws";
 
-project Web_Blocks is
+project WB_Patterns is
    for Source_Dirs use (".", "../common");
-   for Main use ("web_blocks.adb");
-end Web_Blocks;
+   for Main use ("wb_patterns.adb");
+end WB_Patterns;

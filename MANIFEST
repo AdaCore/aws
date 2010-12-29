@@ -1504,6 +1504,8 @@ regtests/0208_cache_page_server/cache_cont_page_server.adb
 regtests/0208_cache_page_server/cache_cont_page_server.gpr
 regtests/0208_cache_page_server/test.out
 regtests/0208_cache_page_server/test.py
+regtests/0209_wb_patterns/wb_patterns.adb
+regtests/0209_wb_patterns/wb_patterns.gpr
 regtests/0210_mime/aws.ini
 regtests/0210_mime/mime.types
 regtests/0210_mime/test.out
