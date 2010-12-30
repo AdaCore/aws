@@ -395,9 +395,6 @@ endif
 
 setup_modules: $(MODULES_SETUP)
 
-setup_final: setup_config
-	$(MAKE) -C ssl $(GALL_OPTIONS) setup_config
-
 gen_setup:
 	echo "prefix=$(prefix)" > makefile.setup
 	echo "DEFAULT_LIBRARY_TYPE=$(DEFAULT_LIBRARY_TYPE)" >> makefile.setup
@@ -413,7 +410,7 @@ gen_setup:
 	echo "PROCESSORS=$(PROCESSORS)" >> makefile.setup
 	echo "TARGET=$(TARGET)" >> makefile.setup
 
-setup: gen_setup setup_dir setup_modules setup_final setup_tp $(GEXT_MODULE)
+setup: gen_setup setup_dir setup_modules setup_config setup_tp $(GEXT_MODULE)
 
 setup_tp:
 	$(MAKE) -C templates_parser setup $(GALL_OPTIONS)
