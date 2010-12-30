@@ -160,9 +160,9 @@ package body AWS.Net is
             while Last < M'Last and then M (Last + 1) in '0' .. '9' loop
                Last := Last + 1;
             end loop;
-         end if;
 
-         Errno := Natural'Value (M (First .. Last));
+            Errno := Natural'Value (M (First .. Last));
+         end if;
       end if;
 
       return Errno;
