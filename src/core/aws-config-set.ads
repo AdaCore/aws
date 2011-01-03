@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2009, AdaCore                     --
+--                     Copyright (C) 2000-2011, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -58,6 +58,9 @@ package AWS.Config.Set is
 
    procedure Line_Stack_Size (O : in out Object; Value : Positive);
    --  HTTP lines stack size
+
+   procedure MIME_Types (O : in out Object; Value : String);
+   --  The name of the file containing the MIME types associations
 
    procedure Reuse_Address (O : in out Object; Value : Boolean);
    --  Set the reuse address policy allowing a bind without a dealy to the same
@@ -125,6 +128,10 @@ package AWS.Config.Set is
    procedure Log_Filename_Prefix (O : in out Object; Value : String);
    --  This is the prefix to use for the log filename
 
+   procedure Log_Size_Limit (O : in out Object; Value : Natural);
+   --  If Log_Size_Limit is more than zero and size of log file
+   --  become more than Log_Size_Limit, log file is be split.
+
    procedure Log_Split_Mode (O : in out Object; Value : String);
    --  This is split mode for the log file. Possible values are : Each_Run,
    --  Daily, Monthly and None. Any other values will raise an exception.
@@ -173,6 +180,11 @@ package AWS.Config.Set is
    ------------
    -- Status --
    ------------
+
+   procedure Admin_Password (O : in out Object; Value : String);
+   --  This is the password for the admin server page as set by
+   --  AWS.Server.Start. The password must be created with the aws_password
+   --  tool.
 
    procedure Admin_URI (O : in out Object; Value : String);
    --  This is the name of the admin server page as set by AWS.Server.Start

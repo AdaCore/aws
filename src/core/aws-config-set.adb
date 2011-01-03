@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2009, AdaCore                     --
+--                     Copyright (C) 2000-2011, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -38,6 +38,15 @@ package body AWS.Config.Set is
    begin
       O.P (Accept_Queue_Size).Pos_Value := Value;
    end Accept_Queue_Size;
+
+   --------------------
+   -- Admin_Password --
+   --------------------
+
+   procedure Admin_Password (O : in out Object; Value : String) is
+   begin
+      O.P (Admin_Password).Str_Value := To_Unbounded_String (Value);
+   end Admin_Password;
 
    ---------------
    -- Admin_URI --
@@ -295,6 +304,15 @@ package body AWS.Config.Set is
    end Log_Filename_Prefix;
 
    --------------------
+   -- Log_Size_Limit --
+   --------------------
+
+   procedure Log_Size_Limit (O : in out Object; Value : Natural) is
+   begin
+      O.P (Log_Size_Limit).Nat_Value := Value;
+   end Log_Size_Limit;
+
+   --------------------
    -- Log_Split_Mode --
    --------------------
 
@@ -320,6 +338,15 @@ package body AWS.Config.Set is
    begin
       O.P (Max_Connection).Pos_Value := Value;
    end Max_Connection;
+
+   ----------------
+   -- MIME_Types --
+   ----------------
+
+   procedure MIME_Types (O : in out Object; Value : String) is
+   begin
+      O.P (MIME_Types).Str_Value := To_Unbounded_String (Value);
+   end MIME_Types;
 
    ---------------
    -- Parameter --
