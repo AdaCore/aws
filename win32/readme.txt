@@ -11,5 +11,5 @@
 
 * How to use LDAP
 
-  To build applications using LDAP you need to provides the -lldap linker
-  option.
+  To build applications using LDAP you need to provides the -lwldap32
+  linker option.
