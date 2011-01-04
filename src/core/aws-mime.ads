@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2010, AdaCore                     --
+--                     Copyright (C) 2000-2011, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -165,5 +165,9 @@ package AWS.MIME is
 
    function Is_Application (MIME_Type : String) return Boolean;
    --  Returns True if the MIME_Type is an application data
+
+   procedure Load (MIME_File : String);
+   --  Load MIME_File, record every MIME type. Note that the format of this
+   --  file follows the common standard format used by Apache mime.types.
 
 end AWS.MIME;

@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2010, AdaCore                     --
+--                     Copyright (C) 2000-2011, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -167,76 +167,6 @@ package body AWS.MIME is
 
       AWS_MIME : constant String := Config.MIME_Types (Config.Get_Current);
 
-      procedure Load;
-      --  Load aws.mime file, record every MIME types. Note that this file can
-      --  be a resource (embedded file).
-
-      ----------
-      -- Load --
-      ----------
-
-      procedure Load is
-         use type Strings.Maps.Character_Set;
-
-         MIME_Set : constant Strings.Maps.Character_Set
-           := not Strings.Maps.To_Set (" " & ASCII.HT);
-         --  The token would be any characters sequence
-         --  other then space an tab.
-
-         File     : Resources.File_Type;
-
-         Buffer   : String (1 .. 1_024);
-         Last     : Natural;
-
-         --  MIME type slice (M_First .. M_Last)
-
-         M_First  : Positive;
-         M_Last   : Natural;
-
-         --  Extension slice (E_First .. E_Last)
-         E_First  : Positive;
-         E_Last   : Natural;
-
-      begin
-         Resources.Files.Open (File, AWS_MIME);
-
-         while not Resources.End_Of_File (File) loop
-            Resources.Get_Line (File, Buffer, Last);
-
-            --  Look for the MIME type
-
-            Strings.Fixed.Find_Token
-              (Buffer (Buffer'First .. Last),
-               MIME_Set, Strings.Inside, M_First, M_Last);
-
-            E_First := M_Last + 1;
-
-            Read_Extension : loop
-               Strings.Fixed.Find_Token
-                 (Buffer (E_First .. Last),
-                  MIME_Set, Strings.Inside, E_First, E_Last);
-
-               exit Read_Extension when E_Last = 0;
-
-               if Buffer (E_First) = '/' and then Buffer (E_Last) = '/' then
-                  --  Regular expression is inside slashes
-                  Add_Regexp
-                    (Buffer (E_First + 1 .. E_Last - 1),
-                     Buffer (M_First .. M_Last));
-               else
-                  Set.Add_Extension
-                    (Buffer (E_First .. E_Last),
-                     Buffer (M_First .. M_Last));
-               end if;
-
-               E_First := E_Last + 1;
-            end loop Read_Extension;
-
-         end loop;
-
-         Resources.Close (File);
-      end Load;
-
    begin
       --  Text
 
@@ -326,7 +256,7 @@ package body AWS.MIME is
       --  Check if there is a aws.mime file to read
 
       if Utils.Is_Regular_File (AWS_MIME) then
-         Load;
+         Load (MIME_File => AWS_MIME);
       end if;
    end Initialize;
 
@@ -390,6 +320,72 @@ package body AWS.MIME is
    begin
       return Is_Type (MIME_Type, "video/");
    end Is_Video;
+
+   ----------
+   -- Load --
+   ----------
+
+   procedure Load (MIME_File : String) is
+      use type Strings.Maps.Character_Set;
+
+      MIME_Set : constant Strings.Maps.Character_Set :=
+                   not Strings.Maps.To_Set (" " & ASCII.HT);
+      --  The token would be any characters sequence
+      --  other then space an tab.
+
+      File     : Resources.File_Type;
+
+      Buffer   : String (1 .. 1_024);
+      Last     : Natural;
+
+      --  MIME type slice (M_First .. M_Last)
+
+      M_First  : Positive;
+      M_Last   : Natural;
+
+      --  Extension slice (E_First .. E_Last)
+
+      E_First  : Positive;
+      E_Last   : Natural;
+
+   begin
+      Resources.Files.Open (File, MIME_File);
+
+      while not Resources.End_Of_File (File) loop
+         Resources.Get_Line (File, Buffer, Last);
+
+         --  Look for the MIME type
+
+         Strings.Fixed.Find_Token
+           (Buffer (Buffer'First .. Last),
+            MIME_Set, Strings.Inside, M_First, M_Last);
+
+         E_First := M_Last + 1;
+
+         Read_Extension : loop
+            Strings.Fixed.Find_Token
+              (Buffer (E_First .. Last),
+               MIME_Set, Strings.Inside, E_First, E_Last);
+
+            exit Read_Extension when E_Last = 0;
+
+            if Buffer (E_First) = '/' and then Buffer (E_Last) = '/' then
+               --  Regular expression is inside slashes
+               Add_Regexp
+                 (Buffer (E_First + 1 .. E_Last - 1),
+                  Buffer (M_First .. M_Last));
+            else
+               Set.Add_Extension
+                 (Buffer (E_First .. E_Last),
+                  Buffer (M_First .. M_Last));
+            end if;
+
+            E_First := E_Last + 1;
+         end loop Read_Extension;
+      end loop;
+
+      Resources.Close (File);
+   end Load;
 
    ---------
    -- Set --
