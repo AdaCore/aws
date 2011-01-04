@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2010, AdaCore                     --
+--                     Copyright (C) 2000-2011, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -72,8 +72,8 @@ package AWS.Default is
 
    --  Client configuration
 
-   User_Agent                      : constant String
-     := "AWS (Ada Web Server) v" & Version;
+   User_Agent                      : constant String :=
+                                       "AWS (Ada Web Server) v" & Version;
 
    --  Log values. The character '@' in the error log filename prefix is
    --  replaced by the running program name.
