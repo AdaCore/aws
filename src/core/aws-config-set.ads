@@ -97,6 +97,10 @@ package AWS.Config.Set is
    --  value will be and less "connection refused" will be reported to the
    --  client.
 
+   procedure Max_Concurrent_Download (Value : Positive);
+   --  Control the maximum number of parallel downloads accepted by the
+   --  download manager.
+
    ----------
    -- Data --
    ----------

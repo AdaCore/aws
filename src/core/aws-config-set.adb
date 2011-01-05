@@ -330,6 +330,15 @@ package body AWS.Config.Set is
       O.P (Logo_Image).Str_Value := To_Unbounded_String (Value);
    end Logo_Image;
 
+   -------------------------------
+   --  Max_Concurrent_Download  --
+   -------------------------------
+
+   procedure Max_Concurrent_Download (Value : Positive) is
+   begin
+      Process_Options (Max_Concurrent_Download).Pos_Value := Value;
+   end Max_Concurrent_Download;
+
    --------------------
    -- Max_Connection --
    --------------------
