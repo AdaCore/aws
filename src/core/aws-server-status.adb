@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2010, AdaCore                     --
+--                     Copyright (C) 2003-2011, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -25,6 +25,7 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
+with Ada.Strings.Unbounded;
 with GNAT.Calendar.Time_IO;
 
 with AWS.Config;
@@ -322,8 +323,23 @@ package body AWS.Server.Status is
       Insert (Result, Assoc ("FREE_SLOTS_KEEP_ALIVE_LIMIT",
         CNF.Free_Slots_Keep_Alive_Limit (Server.Properties)));
 
+      Insert (Result, Assoc ("CONTEXT_LIFETIME",
+        Utils.Image (CNF.Context_Lifetime)));
+
+      Insert (Result, Assoc ("DIRECTORY_BROWSER_PAGE",
+        CNF.Directory_Browser_Page (Server.Properties)));
+
+      Insert (Result, Assoc ("INPUT_LINE_SIZE_LIMIT",
+        CNF.Input_Line_Size_Limit));
+
+      Insert (Result, Assoc ("KEEP_ALIVE_FORCE_LIMIT",
+        CNF.Keep_Alive_Force_Limit (Server.Properties)));
+
       Insert (Result, Assoc ("LINE_STACK_SIZE",
         CNF.Line_Stack_Size (Server.Properties)));
+
+      Insert (Result, Assoc ("HOTPLUG_PORT",
+        CNF.Hotplug_Port (Server.Properties)));
 
       Insert (Result, Assoc ("LOG_FILE_DIRECTORY",
         CNF.Log_File_Directory (Server.Properties)));
@@ -336,6 +352,9 @@ package body AWS.Server.Status is
 
       Insert (Result, Assoc ("SECURITY_MODE",
         CNF.Security_Mode (Server.Properties)));
+
+      Insert (Result, Assoc ("EXCHANGE_CERTIFICATE",
+        CNF.Exchange_Certificate (Server.Properties)));
 
       Insert (Result, Assoc ("SERVER_HOST",
         CNF.Server_Host (Server.Properties)));
@@ -370,6 +389,9 @@ package body AWS.Server.Status is
 
       Insert (Result, Assoc ("SECURITY",
         CNF.Security (Server.Properties)));
+
+      Insert (Result, Assoc ("RSA_KEY",
+        CNF.Key (Server.Properties)));
 
       Insert (Result, Assoc ("SERVER_SOCK",
         Integer (Net.Get_FD (Socket (Server)))));
@@ -441,6 +463,32 @@ package body AWS.Server.Status is
 
       Insert (Result, Assoc ("LOG_MODE",
         AWS.Log.Split_Mode'Image (AWS.Log.Mode (Server.Log))));
+
+      Insert (Result, Assoc ("RESOURCES_SERVED",
+        Resources_Served (Server)));
+
+      Log_Extended_Fields : declare
+         Extended_Fields : Ada.Strings.Unbounded.Unbounded_String;
+
+         procedure Field_Id (Id : String);
+         --  Append Log_Extended_Fields to a Extended_Fields
+
+         ----------------
+         --  Field_Id  --
+         ----------------
+
+         procedure Field_Id (Id : String) is
+         begin
+            Ada.Strings.Unbounded.Append (Extended_Fields, Id & " ");
+         end Field_Id;
+
+         procedure LEFGI is new
+           AWS.Config.Log_Extended_Fields_Generic_Iterate (Field_Id);
+
+      begin
+         LEFGI (Server.Properties);
+         Insert (Result, Assoc ("LOG_EXTENDED_FIELDS", Extended_Fields));
+      end Log_Extended_Fields;
 
       Insert (Result, Assoc ("ADMIN", Admin_URI));
 

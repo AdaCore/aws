@@ -319,13 +319,37 @@
         </tr>
         <tr>
             <td class="key">
-                Force Client Data Timeout:
+                Context Lifetime:
             </td>
             <td class="data_color">
-                @_FORCE_CLIENT_HEADER_TIMEOUT_@ seconds
+                @_CONTEXT_LIFETIME_@ seconds
             </td>
         </tr>
         <tr class="background">
+            <td class="key">
+                Directory Browser Page:
+            </td>
+            <td class="data_color">
+                @_DIRECTORY_BROWSER_PAGE_@
+            </td>
+        </tr>
+        <tr>
+            <td class="key">
+                Exchange Certificate:
+            </td>
+            <td class="data_color">
+                @_YES_NO:EXCHANGE_CERTIFICATE_@
+            </td>
+        </tr>
+        <tr class="background">
+            <td class="key">
+                Force Client Data Timeout:
+            </td>
+            <td class="data_color">
+                @_FORCE_CLIENT_DATA_TIMEOUT_@ seconds
+            </td>
+        </tr>
+        <tr>
             <td class="key">
                 Force Client Header Timeout:
             </td>
@@ -333,7 +357,7 @@
                 @_FORCE_CLIENT_HEADER_TIMEOUT_@ seconds
             </td>
         </tr>
-        <tr>
+        <tr class="background">
             <td class="key">
                 Force Server Response Timeout:
             </td>
@@ -341,7 +365,7 @@
                 @_FORCE_SERVER_RESPONSE_TIMEOUT_@ seconds
             </td>
         </tr>
-        <tr class="background">
+        <tr>
             <td class="key">
                 Force Wait For Client Timeout:
             </td>
@@ -349,12 +373,48 @@
                 @_FORCE_WAIT_FOR_CLIENT_TIMEOUT_@ seconds
             </td>
         </tr>
-        <tr>
+        <tr class="background">
             <td class="key">
                 Free Slots Keep Alive Limit:
             </td>
             <td class="data_color">
                 @_FREE_SLOTS_KEEP_ALIVE_LIMIT_@
+            </td>
+        </tr>
+        <tr class="background">
+            <td class="key">
+                Hotplug Port:
+            </td>
+            <td class="data_color">
+                @_HOTPLUG_PORT_@
+            </td>
+        </tr>
+        <tr>
+            <td class="key">
+                Input Line Size Limit:
+            </td>
+            <td class="data_color">
+                @_INPUT_LINE_SIZE_LIMIT_@
+            </td>
+        </tr>
+        <tr class="background">
+            <td class="key">
+                Keep Alive Force Limit:
+            </td>
+            <td class="data_color">
+                @_KEEP_ALIVE_FORCE_LIMIT_@
+            </td>
+        </tr>
+        <tr>
+            <td class="key">
+                Key (RSA):
+            </td>
+            <td class="data_color">
+                @@IF@@ @_RSA_KEY_@ /= ""
+                    @_RSA_KEY_@
+                @@ELSE@@
+                    Not set
+                @@END_IF@@
             </td>
         </tr>
         <tr class="background">
@@ -507,7 +567,7 @@
                 @@IF@@ @_UPLOAD_DIRECTORY_@ /= ""
                     @_UPLOAD_DIRECTORY_@
                 @@ELSE@@
-                    Upload directory is not set.
+                    Not set
                 @@END_IF@@
             </td>
         </tr>
@@ -579,6 +639,14 @@
                 @_FORMAT_DATE(%d-%m-%y %T):START_TIME_@
             </td>
         </tr>
+        <tr class="background">
+            <td class="key">
+                Resources Served:
+            </td>
+            <td class="data_color">
+                @_RESOURCES_SERVED_@
+            </td>
+        </tr>
     </table>
     <h3 class="section_headline">
         Log Information
@@ -624,7 +692,7 @@
                 @@IF@@ @_ERROR_LOG_@
                     @_ERROR_LOG_FILE_@
                 @@ELSE@@
-                    No error logfile defined
+                    Not set
                 @@END_IF@@
             </td>
         </tr>
@@ -652,7 +720,19 @@
                 @@IF@@ @_LOG_@
                     @_LOG_FILE_@
                 @@ELSE@@
-                    No access logfile defined
+                    Not set
+                @@END_IF@@
+            </td>
+        </tr>
+        <tr class="background">
+            <td class="key">
+                Log Extended Fields:
+            </td>
+            <td class="data_color">
+                @@IF@@ @_LOG_EXTENDED_FIELDS_@ /= ""
+                    @_LOG_EXTENDED_FIELDS_@
+                @@ELSE@@
+                    Not set
                 @@END_IF@@
             </td>
         </tr>
