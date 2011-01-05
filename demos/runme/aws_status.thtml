@@ -290,7 +290,7 @@
                 Cleaner Client Data Timeout:
             </td>
             <td class="data_color">
-                @_CLEANER_CLIENT_HEADER_TIMEOUT_@ seconds
+                @_CLEANER_CLIENT_DATA_TIMEOUT_@ seconds
             </td>
         </tr>
         <tr class="background">
