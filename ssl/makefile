@@ -32,6 +32,7 @@ check:
 
 LIBGPR	=	../$(BDIR)/../../projects/aws_lib_shared.gpr
 LPATH	=	$(dir $(shell $(GCC) -print-file-name=libssl.a))
+ZPATH	=	$(dir $(shell $(GCC) -print-file-name=libz.a))
 
 setup_ssl:
 	echo "project AWS_Lib_Shared is" > $(LIBGPR)
@@ -60,6 +61,12 @@ else
 endif
 	echo '   S_TLS_Lib := "gcrypt";' >> $(LIBGPR)
 	echo '   R_TLS_Lib := "gcrypt";' >> $(LIBGPR)
+endif
+	echo '   --  libz' >> $(LIBGPR)
+ifeq (${ZPATH}, ./)
+	echo '   LIBZ_Path := "${prefix}/lib/aws/native/static";' >> $(LIBGPR)
+else
+	echo '   LIBZ_Path := "${ZPATH}";' >> $(LIBGPR)
 endif
 	echo "end AWS_Lib_Shared;" >> $(LIBGPR)
 

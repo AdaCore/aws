@@ -33,16 +33,10 @@ project AWS_Libz is
 
    for Source_Files use ();
 
-   case AWS_Config.Zlib_Exists is
-      when "true" =>
-         for Library_Dir use AWS_Lib_Shared.Lib_Path;
-      when "false" =>
-         for Library_Dir use AWS_Shared'Library_Dir;
-   end case;
-
    case AWS_Shared.Target is
       when "native" =>
          for Library_Name use "z";
+         for Library_Dir use AWS_Lib_Shared.Libz_Path;
          for Library_Kind use AWS_Shared.Library_Type;
          for Externally_Built use "true";
 
@@ -50,6 +44,7 @@ project AWS_Libz is
          case AWS_Config.Zlib_Exists is
             when "false" =>
                for Library_Name use "z";
+               for Library_Dir use AWS_Lib_Shared.Libz_Path;
                for Library_Kind use AWS_Shared.Library_Type;
                for Externally_Built use "true";
             when "true" =>
