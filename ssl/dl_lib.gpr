@@ -30,7 +30,7 @@
 --  Note that we are always linking to the shared version of this library as
 --  it is hightly recommended.
 
-with "../.build/projects/aws_ssl_shared";
+with "../.build/projects/aws_lib_shared";
 with "../shared";
 
 project DL_Lib is
@@ -41,7 +41,7 @@ project DL_Lib is
       when "Windows_NT" =>
          null;
       when others =>
-         for Library_Dir use AWS_SSL_Shared.LIB_Path;
+         for Library_Dir use AWS_Lib_Shared.LIB_Path;
          for Library_Name use "dl";
          for Library_Kind use "relocatable";
          for Externally_Built use "true";

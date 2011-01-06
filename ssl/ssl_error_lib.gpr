@@ -28,12 +28,12 @@
 --  Project for libgpg-error.a external library
 
 with "../.build/projects/aws_config";
-with "../.build/projects/aws_ssl_shared";
+with "../.build/projects/aws_lib_shared";
 
 project SSL_Error_Lib is
 
   for Source_Files use ();
-  for Library_Dir use AWS_SSL_Shared.LIB_Path;
+  for Library_Dir use AWS_Lib_Shared.LIB_Path;
 
   case AWS_Config.Socket is
      when "std" | "openssl" =>
