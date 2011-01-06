@@ -85,6 +85,7 @@ demos/runme/aws_down.png
 demos/runme/aws_logo.png
 demos/runme/aws_status.thtml
 demos/runme/aws_up.png
+demos/runme/cert.pem
 demos/runme/runme.adb
 demos/runme/runme.gpr
 demos/runme/runme.ini
