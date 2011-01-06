@@ -27,7 +27,6 @@
 
 --  Project for libssl.a external library
 
-with "aws_shared";
 with "aws_config";
 with "aws_lib_shared";
 
@@ -40,14 +39,14 @@ project AWS_SSL_Lib is
       when "std" =>
          null;
       when "openssl" =>
-         case AWS_Shared.Library_Type is
+         case AWS_Lib_Shared.SSL_Library_Type is
             when "static" =>
                for Library_Name use AWS_Lib_Shared.S_SSL_Lib;
             when "relocatable" =>
                for Library_Name use AWS_Lib_Shared.R_SSL_Lib;
          end case;
       when "gnutls" =>
-         case AWS_Shared.Library_Type is
+         case AWS_Lib_Shared.SSL_Library_Type is
             when "static" =>
                for Library_Name use AWS_Lib_Shared.S_TLS_Lib;
             when "relocatable" =>
@@ -55,7 +54,7 @@ project AWS_SSL_Lib is
          end case;
    end case;
 
-   for Library_Kind use AWS_Shared.Library_Type;
+   for Library_Kind use AWS_Lib_Shared.SSL_Library_Type;
    for Externally_Built use "true";
 
 end AWS_SSL_Lib;
