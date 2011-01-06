@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2004-2009, AdaCore                     --
+--                     Copyright (C) 2004-2010, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -29,12 +29,12 @@
 
 with "aws_shared";
 with "aws_config";
-with "aws_ssl_shared";
+with "aws_lib_shared";
 
 project AWS_Crypto_Lib is
 
    for Source_Files use ();
-   for Library_Dir use AWS_SSL_Shared.LIB_Path;
+   for Library_Dir use AWS_Lib_Shared.LIB_Path;
 
    case AWS_Config.Socket is
       when "std" =>
@@ -42,16 +42,16 @@ project AWS_Crypto_Lib is
       when "openssl" =>
          case AWS_Shared.Library_Type is
             when "static" =>
-               for Library_Name use AWS_SSL_Shared.S_CRY_Lib;
+               for Library_Name use AWS_Lib_Shared.S_CRY_Lib;
             when "relocatable" =>
-               for Library_Name use AWS_SSL_Shared.R_CRY_Lib;
+               for Library_Name use AWS_Lib_Shared.R_CRY_Lib;
          end case;
       when "gnutls" =>
          case AWS_Shared.Library_Type is
             when "static" =>
-               for Library_Name use AWS_SSL_Shared.S_TLS_Lib;
+               for Library_Name use AWS_Lib_Shared.S_TLS_Lib;
             when "relocatable" =>
-               for Library_Name use AWS_SSL_Shared.R_TLS_Lib;
+               for Library_Name use AWS_Lib_Shared.R_TLS_Lib;
          end case;
    end case;
 

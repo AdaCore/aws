@@ -30,36 +30,36 @@
 check:
 	$(GNAT) check -Pssl -rules -from=../aws.checks
 
-SSLGPR	=	../$(BDIR)/../../projects/aws_ssl_shared.gpr
+LIBGPR	=	../$(BDIR)/../../projects/aws_lib_shared.gpr
 LPATH	=	$(dir $(shell gcc -print-file-name=libssl.a))
 
 setup_ssl:
-	echo "project AWS_SSL_Shared is" > $(SSLGPR)
-	echo "   for Source_Files use ();" >> $(SSLGPR)
+	echo "project AWS_Lib_Shared is" > $(LIBGPR)
+	echo "   for Source_Files use ();" >> $(LIBGPR)
 ifeq (${SOCKET}, std)
-	echo '   LIB_Path := "";' >> $(SSLGPR)
-	echo '   S_SSL_Lib := "";' >> $(SSLGPR)
-	echo '   R_SSL_Lib := "";' >> $(SSLGPR)
-	echo '   S_CRY_Lib := "";' >> $(SSLGPR)
-	echo '   R_CRY_Lib := "";' >> $(SSLGPR)
-	echo '   S_TLS_Lib := "";' >> $(SSLGPR)
-	echo '   R_TLS_Lib := "";' >> $(SSLGPR)
+	echo '   LIB_Path := "";' >> $(LIBGPR)
+	echo '   S_SSL_Lib := "";' >> $(LIBGPR)
+	echo '   R_SSL_Lib := "";' >> $(LIBGPR)
+	echo '   S_CRY_Lib := "";' >> $(LIBGPR)
+	echo '   R_CRY_Lib := "";' >> $(LIBGPR)
+	echo '   S_TLS_Lib := "";' >> $(LIBGPR)
+	echo '   R_TLS_Lib := "";' >> $(LIBGPR)
 else
-	echo '   LIB_Path := "${LPATH}";' >> $(SSLGPR)
-	echo '   S_SSL_Lib := "ssl";' >> $(SSLGPR)
+	echo '   LIB_Path := "${LPATH}";' >> $(LIBGPR)
+	echo '   S_SSL_Lib := "ssl";' >> $(LIBGPR)
 ifeq (${OS}, Windows_NT)
-	echo '   R_SSL_Lib := "ssl32";' >> $(SSLGPR)
-	echo '   S_CRY_Lib := "crypto";' >> $(SSLGPR)
-	echo '   R_CRY_Lib := "eay32";' >> $(SSLGPR)
+	echo '   R_SSL_Lib := "ssl32";' >> $(LIBGPR)
+	echo '   S_CRY_Lib := "crypto";' >> $(LIBGPR)
+	echo '   R_CRY_Lib := "eay32";' >> $(LIBGPR)
 else
-	echo '   R_SSL_Lib := "ssl";' >> $(SSLGPR)
-	echo '   S_CRY_Lib := "crypto";' >> $(SSLGPR)
-	echo '   R_CRY_Lib := "crypto";' >> $(SSLGPR)
+	echo '   R_SSL_Lib := "ssl";' >> $(LIBGPR)
+	echo '   S_CRY_Lib := "crypto";' >> $(LIBGPR)
+	echo '   R_CRY_Lib := "crypto";' >> $(LIBGPR)
 endif
-	echo '   S_TLS_Lib := "gcrypt";' >> $(SSLGPR)
-	echo '   R_TLS_Lib := "gcrypt";' >> $(SSLGPR)
+	echo '   S_TLS_Lib := "gcrypt";' >> $(LIBGPR)
+	echo '   R_TLS_Lib := "gcrypt";' >> $(LIBGPR)
 endif
-	echo "end AWS_SSL_Shared;" >> $(SSLGPR)
+	echo "end AWS_Lib_Shared;" >> $(LIBGPR)
 
 setup:
 
@@ -71,4 +71,4 @@ install:
 ifeq (${ENABLE_SHARED}, true)
 	$(CP) ../$(BDIR)/relocatable/lib/ssl/* $(I_LIB)/relocatable
 endif
-	$(CP) $(SSLGPR) $(I_AGP)/aws_ssl_shared.gpr
+	$(CP) $(LIBGPR) $(I_AGP)/aws_lib_shared.gpr
