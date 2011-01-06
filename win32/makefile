@@ -46,12 +46,12 @@ else
    TINSTALL   =
 endif
 
-$(LIBSSL): libssl32.dll ssl.def
+$(LIBSSL): ssl.def
 	echo Building import libray libssl.dll.a
 	$(DLLTOOL) --def ssl.def --dllname libssl32.dll \
 	        --output-lib $(LIBSSL)
 
-$(LIBCRYPTO): libeay32.dll crypto.def
+$(LIBCRYPTO): crypto.def
 	echo Building import library libcrypto.dll.a
 	$(DLLTOOL) --def crypto.def --dllname libeay32.dll \
 		--output-lib $(LIBCRYPTO)
