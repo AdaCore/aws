@@ -1,7 +1,7 @@
 ############################################################################
 #                              Ada Web Server                              #
 #                                                                          #
-#                     Copyright (C) 2003-2009, AdaCore                     #
+#                     Copyright (C) 2003-2010, AdaCore                     #
 #                                                                          #
 #  This library is free software; you can redistribute it and/or modify    #
 #  it under the terms of the GNU General Public License as published by    #
@@ -70,10 +70,6 @@ install_win32:
 	$(CP) $(LIBSSL) $(I_LIB)/ssl
 	$(CP) $(LIBCRYPTO) $(I_LIB)/ssl
 	$(CP) $(AWS_COFF) $(I_LIB)
-ifeq (${ENABLE_SHARED}, true)
-	$(CP) *.dll $(I_LIB)/ssl
-	$(CP) *.dll $(I_BIN)
-endif
 
 install: $(TINSTALL)
 
