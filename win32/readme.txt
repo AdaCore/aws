@@ -1,13 +1,13 @@
 
-* To run application using SSL it is required to install the OpenSSL DLL.
-  See the following page for a link:
+* To build and run applications using SSL it is required to install
+  the OpenSSL DLL. See the following page for a link:
 
   http://www.openssl.org/related/binaries.html
 
   The needed DLLs are: libeay32.dll and libssl32.dll
 
-  Note that the libssl.a and libcrypto.a import libraries will be created
-  during AWS build procedure. See makefile.
+  They must be copied into <gnat_root>/lib to be found by the
+  linker and into <gnat_root>/bin to be found at runtime.
 
 * How to use LDAP
 
