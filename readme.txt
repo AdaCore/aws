@@ -4,7 +4,7 @@
 
 Authors:
    Dmitriy Anisimkov
-   Pascal Obry                                           September 23rd, 2010
+   Pascal Obry                                           Decembre 4th, 2010
 
 
 
@@ -43,6 +43,10 @@ Listed below are some minor enhancements and fixes:
    - Reorganize the demo sources. It is now easier to build/run each
      demo independently. It is also easier to know which sources are
      part of a given demo.
+
+   - Remove OpenSSL DLL for Windows platform. It is better to used the
+     latest ones which gets security update and there is now easy to
+     install OpenSSL binary distributions for Windows.
 
 
 Non upward compatible changes
