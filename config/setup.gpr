@@ -30,7 +30,7 @@ with "../shared";
 project Setup is
 
    for Languages use ("Ada", "C");
-   for Main use ("check_config");
+   for Main use ("check_config.c");
 
    for Source_Dirs use ("setup");
    for Object_Dir use "../" & Shared.Target_Dir & "/setup/obj";
