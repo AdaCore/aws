@@ -1,7 +1,7 @@
 ############################################################################
 #                              Ada Web Server                              #
 #                                                                          #
-#                     Copyright (C) 2003-2010, AdaCore                     #
+#                     Copyright (C) 2003-2011, AdaCore                     #
 #                                                                          #
 #  This library is free software; you can redistribute it and/or modify    #
 #  it under the terms of the GNU General Public License as published by    #
@@ -70,7 +70,7 @@ endif
 endif
 	echo '   --  libz' >> $(LIBGPR)
 ifeq (${ZPATH}, ./)
-	echo '   LIBZ_Path := "${prefix}/lib/aws/native/static";' >> $(LIBGPR)
+	echo '   LIBZ_Path := "${prefix}/lib/aws/$(PLATFORM)/static";' >> $(LIBGPR)
 else
 	echo '   LIBZ_Path := "${ZPATH}";' >> $(LIBGPR)
 endif
