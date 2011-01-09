@@ -314,6 +314,10 @@ package body ZLib is
       procedure Check_Version;
       --  Check the latest header types compatibility.
 
+      -------------------
+      -- Check_Version --
+      -------------------
+
       procedure Check_Version is
       begin
          if Version <= "1.1.4" then
