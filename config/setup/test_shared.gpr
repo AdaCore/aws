@@ -33,4 +33,5 @@ project Test_Shared is
    for Library_Dir use "../../" & Shared.Target_Dir & "/setup/lib";
    for Library_Name use "lib";
    for Library_Kind use "relocatable";
+   for Excluded_Source_Files use ("mzlib.adb");
 end Test_Shared;
