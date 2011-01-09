@@ -33,6 +33,15 @@ ZPATH	= $(dir $(shell $(GCC) -print-file-name=libz.a))
 SDIR	= ../$(BDIR)/../setup
 NSDIR	= ../$(NBDIR)/../setup
 
+#  For native platforms check if the Zlib is working fine and has a correct
+#  version. For embedded platforms we only check if the static libz exists.
+
+ifeq (${PLATFORM}, native)
+ifeq (${ZLIB}, false)
+ZPATH = ./
+endif
+endif
+
 setup_dir:
 	-$(MKDIR) -p $(SDIR)/src $(NSDIR)/src
 ifeq ($(PLATFORM), native)

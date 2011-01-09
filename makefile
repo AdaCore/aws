@@ -27,6 +27,8 @@
 
 .SILENT:
 
+BROOTDIR=.build
+
 #  NOTE: You should not have to change this makefile. Configuration options
 #  can be changed in makefile.conf
 
@@ -56,8 +58,6 @@ endif
 endif
 EXEEXT	=
 endif
-
-BROOTDIR=.build
 
 ifeq ($(DEBUG), true)
 MAKE_OPT	=
