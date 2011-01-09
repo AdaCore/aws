@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2006-2010, AdaCore                     --
+--                     Copyright (C) 2006-2011, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -29,7 +29,7 @@ with "../shared";
 
 project Setup is
 
-   for Languages use ("Ada", "C");
+   for Languages use ("C");
    for Main use ("check_config.c");
 
    for Source_Dirs use ("setup");
