@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                        Copyright (C) 2009, AdaCore                       --
+--                     Copyright (C) 2009-2011, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -25,7 +25,27 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
+with Ada.Command_Line;
+with Interfaces.C.Strings;
+
 procedure Mzlib is
+   use Ada;
+
+   function zlibVersion return Interfaces.C.Strings.chars_ptr;
+   pragma Import (C, zlibVersion, "zlibVersion");
+
+   Min : constant String := "1.2.1";
+   Ver : constant String := Interfaces.C.Strings.Value (zlibVersion);
+
 begin
-   null;
+   Command_Line.Set_Exit_Status (Command_Line.Success);
+
+   if Ver'Length >= Min'Length then
+      Check_Ver : for K in 1 .. Min'Length loop
+         if Ver (Ver'First + K - 1) < Min (Min'First + K - 1) then
+            Command_Line.Set_Exit_Status (Command_Line.Failure);
+            exit Check_Ver;
+         end if;
+      end loop Check_Ver;
+   end if;
 end Mzlib;
