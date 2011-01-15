@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2005-2010, AdaCore                     --
+--                     Copyright (C) 2005-2011, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -1258,6 +1258,8 @@ package body AWS.Server.HTTP_Utils is
          use type Calendar.Time;
          use type AWS.Status.Request_Method;
 
+         type File_Status is (Changed, Up_To_Date, Not_Found);
+
          Sock          : constant Net.Socket_Type'Class :=
                            Status.Socket (C_Stat);
          Method        : constant AWS.Status.Request_Method :=
@@ -1266,26 +1268,40 @@ package body AWS.Server.HTTP_Utils is
                            Response.Filename (Answer);
          File_Mode     : constant Boolean :=
                            Response.Mode (Answer) = Response.File;
-
-         Is_Up_To_Date : Boolean := False;
+         F_Status      : File_Status := Changed;
          File          : Resources.File_Type;
          File_Time     : Ada.Calendar.Time;
       begin
          if File_Mode then
-            File_Time := Resources.File_Timestamp (Filename);
+            if Resources.Is_Regular_File (Filename) then
+               File_Time := Resources.File_Timestamp (Filename);
 
-            Is_Up_To_Date
-              := Is_Valid_HTTP_Date (Status.If_Modified_Since (C_Stat))
-                    and then
-                 File_Time
-                   = Messages.To_Time (Status.If_Modified_Since (C_Stat));
-            --  Equal used here see [RFC 2616 - 14.25]
+               if Is_Valid_HTTP_Date (Status.If_Modified_Since (C_Stat))
+                 and then
+                   File_Time
+                     = Messages.To_Time (Status.If_Modified_Since (C_Stat))
+                   --  Equal used here see [RFC 2616 - 14.25]
+               then
+                  F_Status := Up_To_Date;
+               else
+                  F_Status := Changed;
+               end if;
+
+            else
+               F_Status := Not_Found;
+            end if;
          end if;
 
-         if Is_Up_To_Date then
-            --  [RFC 2616 - 10.3.5]
-            Net.Buffered.Put_Line
-              (Sock, Messages.Status_Line (Messages.S304));
+         if F_Status in Up_To_Date .. Not_Found then
+            if F_Status = Up_To_Date then
+               --  [RFC 2616 - 10.3.5]
+               Net.Buffered.Put_Line
+                 (Sock, Messages.Status_Line (Messages.S304));
+            else
+               --  File is not found on disk, returns now with 404
+               Net.Buffered.Put_Line
+                 (Sock, Messages.Status_Line (Messages.S404));
+            end if;
 
             Send_General_Header (Sock);
             Net.Buffered.New_Line (Sock);

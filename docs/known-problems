@@ -4,3 +4,10 @@ Known Problems fixed in AWS 2.10
   Problem:    With a 32 bits compiler, writing more than 2**31 bytes into a
               compressed stream raises a constraint error.
   Workaround: Use a 64 bits compiler.
+
+- J511-016: Exception raised for Response.File when file does not exist
+  Problem:    When a Response.File is send back to the client and the
+              actual file does not exist on disk and exception is
+              raised. This is not a proper behavior. AWS now returns
+              a 404 status code.
+  Workaround: Check file existence before calling Response.File

@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2010, AdaCore                     --
+--                     Copyright (C) 2000-2011, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -339,44 +339,46 @@ package body AWS.Response is
       Set.Filename      (Result, Filename);
       Set.Cache_Control (Result, Cache_Control);
 
-      --  Set the Content_Disposition to properly pass the filename to
-      --  the browser.
+      if Resources.Is_Regular_File (Filename) then
+         --  Set the Content_Disposition to properly pass the filename to
+         --  the browser.
 
-      case Disposition is
-         when Attachment =>
-            Set.Add_Header
-              (Result,
-               Messages.Content_Disposition_Token,
-               "attachment; filename=""" & CD_Filename & '"');
+         case Disposition is
+            when Attachment =>
+               Set.Add_Header
+                 (Result,
+                  Messages.Content_Disposition_Token,
+                  "attachment; filename=""" & CD_Filename & '"');
 
-         when Inline =>
-            Set.Add_Header
-              (Result,
-               Messages.Content_Disposition_Token,
-               "inline; filename=""" & CD_Filename & '"');
+            when Inline =>
+               Set.Add_Header
+                 (Result,
+                  Messages.Content_Disposition_Token,
+                  "inline; filename=""" & CD_Filename & '"');
 
-         when None =>
-            null;
-      end case;
+            when None =>
+               null;
+         end case;
 
-      if Once then
-         Set.Mode (Result, File_Once);
-      else
-         Set.Mode (Result, File);
+         if Once then
+            Set.Mode (Result, File_Once);
+         else
+            Set.Mode (Result, File);
+         end if;
+
+         case Encoding is
+            when Messages.GZip     =>
+               Response.Set.Add_Header
+                 (Result, Messages.Content_Encoding_Token, "gzip");
+
+            when Messages.Deflate  =>
+               Response.Set.Add_Header
+                 (Result, Messages.Content_Encoding_Token, "deflate");
+
+            when Messages.Identity =>
+               null;
+         end case;
       end if;
-
-      case Encoding is
-         when Messages.GZip     =>
-            Response.Set.Add_Header
-              (Result, Messages.Content_Encoding_Token, "gzip");
-
-         when Messages.Deflate  =>
-            Response.Set.Add_Header
-              (Result, Messages.Content_Encoding_Token, "deflate");
-
-         when Messages.Identity =>
-            null;
-      end case;
 
       return Result;
    end File;

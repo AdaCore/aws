@@ -1513,6 +1513,11 @@ regtests/0210_mime/test.out
 regtests/0210_mime/test.py
 regtests/0210_mime/tmime2.adb
 regtests/0210_mime/tmime2.gpr
+regtests/0211_file_not_found/data.txt
+regtests/0211_file_not_found/file_not_found.adb
+regtests/0211_file_not_found/file_not_found.gpr
+regtests/0211_file_not_found/test.out
+regtests/0211_file_not_found/test.py
 regtests/README
 regtests/aws.gpr
 regtests/common/get_free_port.adb
