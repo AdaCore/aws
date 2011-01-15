@@ -1233,7 +1233,7 @@ package body AWS.Server.HTTP_Utils is
       Will_Close   : in out Boolean)
    is
       LA : constant Line_Attribute.Attribute_Handle :=
-        Line_Attribute.Reference;
+             Line_Attribute.Reference;
 
       use type Response.Data_Mode;
 
@@ -1581,7 +1581,6 @@ package body AWS.Server.HTTP_Utils is
 
       procedure Send_File is
          Buffer : Streams.Stream_Element_Array (1 .. Buffer_Size);
-
       begin
          loop
             Resources.Read (File, Buffer, Last);
@@ -1607,11 +1606,12 @@ package body AWS.Server.HTTP_Utils is
          Buffer : Streams.Stream_Element_Array (1 .. Chunk_Size);
          --  Each chunk will have a maximum length of Buffer'Length
 
-         CRLF : constant Streams.Stream_Element_Array
-           := (1 => Character'Pos (ASCII.CR), 2 => Character'Pos (ASCII.LF));
+         CRLF : constant Streams.Stream_Element_Array :=
+                  (1 => Character'Pos (ASCII.CR),
+                   2 => Character'Pos (ASCII.LF));
 
-         Last_Chunk : constant Streams.Stream_Element_Array
-           := Character'Pos ('0') & CRLF & CRLF;
+         Last_Chunk : constant Streams.Stream_Element_Array :=
+                        Character'Pos ('0') & CRLF & CRLF;
          --  Last chunk for a chunked encoding stream. See [RFC 2616 - 3.6.1]
 
       begin
