@@ -101,8 +101,8 @@ procedure Agent is
    Timeouts           : Client.Timeouts_Values := Client.No_Timeout;
    Connect            : AWS.Client.HTTP_Connection;
    Cookie             : Unbounded_String;
-   Client_Cert        : Unbounded_String
-     := To_Unbounded_String (Default.Client_Certificate);
+   Client_Cert        : Unbounded_String :=
+                          To_Unbounded_String (Default.Client_Certificate);
 
    function Parse_Command_Line return Boolean;
    --  Parse Agent command line. Returns False on error
@@ -159,7 +159,7 @@ procedure Agent is
                      use AWS.Resources;
                      use Ada.Streams;
                      Send_File : File_Type;
-                     Last : Stream_Element_Offset;
+                     Last      : Stream_Element_Offset;
                   begin
                      Open (Send_File, GNAT.Command_Line.Parameter);
                      Data_To_Send :=
@@ -171,6 +171,7 @@ procedure Agent is
                         raise Program_Error;
                      end if;
                   end;
+
                else
                   Interval := Duration'Value (GNAT.Command_Line.Parameter);
                end if;
@@ -349,27 +350,31 @@ begin
 
    loop
       case Method is
-      when Status.GET =>
-         if Keep_Alive then
-            Client.Get (Connect, Data);
-         else
-            Data := Client.Get
-              (To_String (URL), To_String (User), To_String (Pwd),
-               To_String (Proxy),
-               To_String (Proxy_User), To_String (Proxy_Pwd),
-               Follow_Redirection => Follow_Redirection,
-               Certificate        => To_String (Client_Cert));
-         end if;
+         when Status.GET =>
+            if Keep_Alive then
+               Client.Get (Connect, Data);
+            else
+               Data := Client.Get
+                 (To_String (URL), To_String (User), To_String (Pwd),
+                  To_String (Proxy),
+                  To_String (Proxy_User), To_String (Proxy_Pwd),
+                  Follow_Redirection => Follow_Redirection,
+                  Certificate        => To_String (Client_Cert));
+            end if;
 
-      when Status.PUT =>
-         Client.Put (Connection => Connect,
-                     Result     => Data,
-                     Data       => Data_To_Send.all);
-      when Status.POST =>
-         Client.Post (Connection => Connect,
-                      Result     => Data,
-                      Data       => Data_To_Send.all);
-      when others => null;
+         when Status.PUT =>
+            Client.Put
+              (Connection => Connect,
+               Result     => Data,
+               Data       => Data_To_Send.all);
+
+         when Status.POST =>
+            Client.Post
+              (Connection => Connect,
+               Result     => Data,
+               Data       => Data_To_Send.all);
+
+         when others => null;
       end case;
 
       Text_IO.Put_Line
@@ -430,8 +435,7 @@ begin
                   declare
                      F : Streams.Stream_IO.File_Type;
                   begin
-                     Stream_IO.Create
-                       (F, Stream_IO.Out_File, "agent.out");
+                     Stream_IO.Create (F, Stream_IO.Out_File, "agent.out");
 
                      loop
                         Resources.Read (Message_Stream, Buffer, Last);
@@ -450,8 +454,8 @@ begin
 
                      for K in Buffer'First .. Last loop
                         declare
-                           C : constant Character
-                             := Character'Val (Buffer (K));
+                           C : constant Character :=
+                                 Character'Val (Buffer (K));
                         begin
                            if C = ASCII.CR
                              or else C = ASCII.LF
@@ -477,8 +481,8 @@ begin
       if Server_Push then
          loop
             declare
-               Line : constant String
-                 := Client.Read_Until (Connect, "" & ASCII.LF);
+               Line : constant String :=
+                        Client.Read_Until (Connect, "" & ASCII.LF);
             begin
                exit when Line = "";
                Text_IO.Put (Line);
