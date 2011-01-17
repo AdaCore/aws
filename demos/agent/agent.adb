@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2010, AdaCore                     --
+--                     Copyright (C) 2000-2011, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -25,7 +25,7 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  Usage: agent [options] [GET/PUT] <URL>
+--  Usage: agent [options] [GET/PUT/POST] <URL>
 --         -f                      force display of message body.
 --         -o                      output result in file agent.out.
 --         -k                      keep-alive connection.
@@ -68,6 +68,7 @@ with AWS.MIME;
 with AWS.Net.SSL.Certificate;
 with AWS.Status;
 with AWS.URL;
+with AWS.Utils;
 
 procedure Agent is
 
@@ -91,6 +92,7 @@ procedure Agent is
    Proxy_Auth         : Client.Authentication_Mode := Client.Basic;
    Force              : Boolean := False;
    File               : Boolean := False;
+   Data_To_Send       : Utils.Stream_Element_Array_Access;
    Keep_Alive         : Boolean := False;
    Server_Push        : Boolean := False;
    Follow_Redirection : Boolean := False;
@@ -136,7 +138,7 @@ procedure Agent is
    begin
       loop
          case GNAT.Command_Line.Getopt
-           ("f o d h u: p: a: pu: pp: pa: proxy: k i: s sc: r c cc: t:")
+           ("f o d h u: p: a: pu: pp: pa: proxy: k i: if: s sc: r c cc: t:")
          is
             when ASCII.NUL =>
                exit;
@@ -152,7 +154,26 @@ procedure Agent is
                File := True;
 
             when 'i' =>
-               Interval := Duration'Value (GNAT.Command_Line.Parameter);
+               if GNAT.Command_Line.Full_Switch = "if" then
+                  declare
+                     use AWS.Resources;
+                     use Ada.Streams;
+                     Send_File : File_Type;
+                     Last : Stream_Element_Offset;
+                  begin
+                     Open (Send_File, GNAT.Command_Line.Parameter);
+                     Data_To_Send :=
+                       new Stream_Element_Array (1 .. Size (Send_File));
+                     Read (Send_File, Data_To_Send.all, Last);
+                     Close (Send_File);
+
+                     if Last /= Data_To_Send.all'Last then
+                        raise Program_Error;
+                     end if;
+                  end;
+               else
+                  Interval := Duration'Value (GNAT.Command_Line.Parameter);
+               end if;
 
             when 'd' =>
                AWS.Client.Set_Debug (On => True);
@@ -222,13 +243,14 @@ procedure Agent is
       end if;
 
       Get_Method : begin
-         Method := Status.Request_Method'Value
-           (GNAT.Command_Line.Get_Argument);
+         Method :=
+           Status.Request_Method'Value (GNAT.Command_Line.Get_Argument);
       exception
          when Constraint_Error =>
-            Text_IO.Put_Line ("Method should be GET or PUT. See '" &
-                             Ada.Command_Line.Command_Name & " -h'.");
-            Ada.Command_Line.Set_Exit_Status (Ada.Command_Line.Failure);
+            Text_IO.Put_Line
+              ("Method should be GET, PUT or POST. See '"
+               & Ada.Command_Line.Command_Name & " -h'.");
+            Command_Line.Set_Exit_Status (Ada.Command_Line.Failure);
             return False;
       end Get_Method;
 
@@ -326,8 +348,8 @@ begin
    end if;
 
    loop
-      if Method = Status.GET then
-
+      case Method is
+      when Status.GET =>
          if Keep_Alive then
             Client.Get (Connect, Data);
          else
@@ -339,14 +361,16 @@ begin
                Certificate        => To_String (Client_Cert));
          end if;
 
-      else
-         --  ??? PUT just send a simple piece of Data.
-         --  ??? would also be nice to handle POST request
-
+      when Status.PUT =>
          Client.Put (Connection => Connect,
                      Result     => Data,
-                     Data       => "Un essai");
-      end if;
+                     Data       => Data_To_Send.all);
+      when Status.POST =>
+         Client.Post (Connection => Connect,
+                      Result     => Data,
+                      Data       => Data_To_Send.all);
+      when others => null;
+      end case;
 
       Text_IO.Put_Line
         ("Status Code = "

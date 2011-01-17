@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2010, AdaCore                     --
+--                     Copyright (C) 2000-2011, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -398,6 +398,13 @@ package AWS.Client is
       URI        : String      := No_Data;
       Headers    : Header_List := Empty_Header_List);
    --  Same as Put above but using a Connection
+
+   procedure Put
+     (Connection : in out HTTP_Connection;
+      Result     : out Response.Data;
+      Data       : Stream_Element_Array;
+      URI        : String      := No_Data;
+      Headers    : Header_List := Empty_Header_List);
 
    procedure Post
      (Connection   : in out HTTP_Connection;

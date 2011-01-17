@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2010, AdaCore                     --
+--                     Copyright (C) 2000-2011, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -661,7 +661,7 @@ package body AWS.Client is
    procedure Put
      (Connection : in out HTTP_Connection;
       Result     : out Response.Data;
-      Data       : String;
+      Data       : Stream_Element_Array;
       URI        : String      := No_Data;
       Headers    : Header_List := Empty_Header_List)
    is
@@ -686,12 +686,11 @@ package body AWS.Client is
 
             --  Send message body
 
-            Net.Buffered.Put_Line (Connection.Socket.all, Data);
+            Net.Buffered.Write (Connection.Socket.all, Data);
 
             --  Get answer from server
 
-            Parse_Header
-              (Connection, Result, Keep_Alive);
+            Parse_Header (Connection, Result, Keep_Alive);
 
             if not Keep_Alive then
                Disconnect (Connection);
@@ -721,6 +720,21 @@ package body AWS.Client is
                Try_Count := Try_Count - 1;
          end;
       end loop Retry;
+   end Put;
+
+   procedure Put
+     (Connection : in out HTTP_Connection;
+      Result     : out Response.Data;
+      Data       : String;
+      URI        : String      := No_Data;
+      Headers    : Header_List := Empty_Header_List) is
+   begin
+      Put
+        (Connection => Connection,
+         Result     => Result,
+         Data       => Translator.To_Stream_Element_Array (Data),
+         URI        => URI,
+         Headers    => Headers);
    end Put;
 
    ----------
