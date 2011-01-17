@@ -1280,7 +1280,7 @@ package body AWS.Server.HTTP_Utils is
                  and then
                    File_Time
                      = Messages.To_Time (Status.If_Modified_Since (C_Stat))
-                   --  Equal used here see [RFC 2616 - 14.25]
+               --  Equal used here see [RFC 2616 - 14.25]
                then
                   F_Status := Up_To_Date;
                else
