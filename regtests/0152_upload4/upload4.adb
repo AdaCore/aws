@@ -50,10 +50,10 @@ procedure Upload4 is
    function CB (Request : Status.Data) return Response.Data;
 
    procedure Error
-     (E           : Ada.Exceptions.Exception_Occurrence;
-      Log         : in out AWS.Log.Object;
-      Error       : AWS.Exceptions.Data;
-      Answer      : in out Response.Data);
+     (E      : Ada.Exceptions.Exception_Occurrence;
+      Log    : in out AWS.Log.Object;
+      Error  : AWS.Exceptions.Data;
+      Answer : in out Response.Data);
 
    task Server is
       entry Start;
@@ -69,10 +69,10 @@ procedure Upload4 is
    -----------
 
    procedure Error
-     (E           : Ada.Exceptions.Exception_Occurrence;
-      Log         : in out AWS.Log.Object;
-      Error       : AWS.Exceptions.Data;
-      Answer      : in out Response.Data) is
+     (E      : Ada.Exceptions.Exception_Occurrence;
+      Log    : in out AWS.Log.Object;
+      Error  : AWS.Exceptions.Data;
+      Answer : in out Response.Data) is
    begin
       Put_Line (Ada.Exceptions.Exception_Message (E));
    end Error;
