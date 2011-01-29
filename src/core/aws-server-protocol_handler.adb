@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2009, AdaCore                      --
+--                     Copyright (C) 2000-2011, AdaCore                      --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -50,8 +50,9 @@ procedure Protocol_Handler (LA : in out Line_Attribute_Record) is
 
    use type Resources.Content_Length_Type;
 
-   Case_Sensitive_Parameters : constant Boolean
-     := CNF.Case_Sensitive_Parameters (LA.Server.Properties);
+   Case_Sensitive_Parameters : constant Boolean :=
+                                 CNF.Case_Sensitive_Parameters
+                                   (LA.Server.Properties);
 
    Sock_Ptr     : Socket_Access;
 
@@ -64,16 +65,16 @@ procedure Protocol_Handler (LA : in out Line_Attribute_Record) is
    --  to the client using this socket. The value will be changed by
    --  Set_Close_Status.
 
-   Keep_Alive_Limit : constant Natural
-     := CNF.Free_Slots_Keep_Alive_Limit (LA.Server.Properties);
+   Keep_Alive_Limit : constant Natural :=
+                        CNF.Free_Slots_Keep_Alive_Limit (LA.Server.Properties);
 
-   Free_Slots : Natural;
+   Free_Slots   : Natural;
 
-   Extended_Log : constant Boolean
-     := CNF.Log_Extended_Fields_Length (LA.Server.Properties) > 0;
+   Extended_Log : constant Boolean :=
+                    CNF.Log_Extended_Fields_Length (LA.Server.Properties) > 0;
 
-   Multislots : constant Boolean
-     := CNF.Max_Connection (LA.Server.Properties) > 1;
+   Multislots   : constant Boolean :=
+                    CNF.Max_Connection (LA.Server.Properties) > 1;
 
 begin
    --  This new connection has been initialized because some data are being
@@ -93,10 +94,11 @@ begin
          Back_Possible : Boolean;
          First_Line    : Boolean := True;
          Switch        : constant array (Boolean) of
-           access function
-             (Socket : Net.Socket_Type'Class;
-              Events : Net.Wait_Event_Set) return Net.Event_Set
-           := (True => Net.Wait'Access, False => Net.Check'Access);
+                           access function
+                             (Socket : Net.Socket_Type'Class;
+                              Events : Net.Wait_Event_Set) return Net.Event_Set
+                           := (True  => Net.Wait'Access,
+                               False => Net.Check'Access);
       begin
          Response.Set.Mode (Error_Answer, Response.No_Data);
 
