@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2004-2009, AdaCore                     --
+--                     Copyright (C) 2004-2011, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -56,6 +56,7 @@ procedure Upload4 is
       Answer      : in out Response.Data);
 
    task Server is
+      entry Start;
       entry Started;
       entry Stopped;
    end Server;
@@ -100,6 +101,8 @@ procedure Upload4 is
 
    task body Server is
    begin
+      accept Start;
+
       AWS.Server.Set_Unexpected_Exception_Handler
         (HTTP, Error'Unrestricted_Access);
 
@@ -142,6 +145,7 @@ procedure Upload4 is
 begin
    Put_Line ("Start main, wait for server to start...");
 
+   Server.Start;
    Server.Started;
 
    Request
