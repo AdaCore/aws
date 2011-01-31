@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2010, AdaCore                     --
+--                     Copyright (C) 2000-2011, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -210,6 +210,11 @@ package body AWS.Net is
       E      : Exception_Occurrence) return Boolean
    is
       pragma Unreferenced (Socket);
+   begin
+      return Is_Timeout (E);
+   end Is_Timeout;
+
+   function Is_Timeout (E : Exception_Occurrence) return Boolean is
    begin
       return Strings.Fixed.Index (Exception_Message (E), Timeout_Token) > 0;
    end Is_Timeout;

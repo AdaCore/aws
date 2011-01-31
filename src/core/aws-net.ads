@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2010, AdaCore                     --
+--                     Copyright (C) 2000-2011, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -253,6 +253,9 @@ package AWS.Net is
       E      : Exception_Occurrence) return Boolean;
    --  Returns True if the message associated with the Exception_Occurence for
    --  a Socket_Error is a timeout.
+
+   function Is_Timeout (E : Exception_Occurrence) return Boolean;
+   --  As above but without Socket parameter
 
    function Is_Peer_Closed
      (Socket : Socket_Type;
