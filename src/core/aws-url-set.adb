@@ -120,7 +120,7 @@ package body AWS.URL.Set is
          --  Look for previous directory, which should be removed
 
          P := Strings.Fixed.Index
-           (Slice (URL_Path, 1, K - 1), "/", Strings.Backward);
+                (Slice (URL_Path, 1, K - 1), "/", Strings.Backward);
 
          exit when P = 0;
 
