@@ -1,0 +1,147 @@
+
+====================
+Notes for developers
+====================
+
+-----
+setup
+-----
+
+First of all, it is very important to properly set your name and email into
+the repository. These information will be used for every commits.
+
+   $ git config user.name "John Doe"
+   $ git config user.email john.doe@whatever.com
+
+------
+commit
+------
+
+The main working branch is named master. Releases are taken from this
+branch. All the commits are to be done or merged there at some point.
+
+Simple commits like a minor reformatting, a style fix can be made directly
+on master branch:
+
+   $ git checkout master
+   $ git commit -m "..."
+   $ git push origin
+
+New features or fixes must be prepared on separate branches. The naming
+convention for those branches are:
+
+   <developer_initials>/<name> (referred as branch_name in this document)
+
+   e.g. po/improve-build-procedure
+
+   Branch name should be all lower case and use dash as word separator.
+
+A patch-set must follow the following properties:
+
+   - The first line of the commit log message must be a summary of the
+     change. This first line is what is viewed in many Git output (log
+     --oneline, cherry -v, etc...)
+
+   - Actual work must be separated from minor reformating or style fixes
+
+   - A work must be done on small and incremental commits. This is generally
+     far easier to review than a large commit. For example if the
+     implementation of a given feature required a new API, it required
+     to have a commit adding the new API and then a commit implementing
+     the feature and using this new API.
+
+-------
+merging
+-------
+
+When the branch is ready it is pushed to AWS repository for review:
+
+   $ git push origin <branch_name>
+
+When reviewed and accepted the branch is merged back (no fast forward)
+into master:
+
+   $ git checkout master
+   $ git merge --log --no-ff <branch_name>
+
+Merging is done by the AWS project manager.
+
+This work/review cycle will help having proper patch set (code,
+documentation work, test and possibly feature or known-problem entries)
+before merging. This is especially important to make it easier to merge
+fixes in release branches.
+
+When such branches are not needed anymore they are removed from the central
+repository:
+
+   $ git push origin :<branch_name>
+
+----------------------
+external contributions
+----------------------
+
+For developers without commit access to the main AWS repository the
+contribution can be made by sending patches to the AWS-patches mailing-list:
+
+   $ git format-patch -<n> -o tobesent
+   $ git send-email --to aws-patches@lists.forge.open-do.org tobesent/*
+
+Contributed code must follow the style described into style-guide document.
+
+==============================
+Notes on the releases handling
+==============================
+
+------
+naming
+------
+
+AWS version number : vX.Y.Z (Z=0 on master, Z>=1 for releases)
+Release branch     : vX.Y
+Tags               : vX.Y.Z (Z>=1)
+
+---------
+branching
+---------
+
+When a release is about to be ready a branch is created (vX.Y):
+
+   $ git branch v2.0 master
+
+At this point some adjustments are needed:
+
+   * on the branch
+
+      $ git checkout v2.0
+      $ edit src/core/aws.ads (set proper version number: X.Y.1)
+      $ edit readme.txt (likewise)
+
+   * on master
+
+      $ git checkout master
+      $ edit src/core/aws.ads (set proper version number X.Y+1.0 or X+1.0.0)
+      $ edit readme.txt (likewise + clean-up "Changes",
+        "Non upward compatible changes" and "Obsolescent features" sections)
+
+-------------
+stabilization
+-------------
+
+If important fixes are made (committed on master) they are merged into this
+branch:
+
+   $ git merge --log --no-ff <branch_name>
+
+For this, <branch_name> may have to be rebased on release branch:
+
+   $ git rebase --onto v2.0 <branch_name>^ <branch_name>
+   (if there is a single commit to be merged from <branch_name>)
+
+When the release is fully ready a corresponding tag is created (vX.Y.1):
+
+   $ git tag -a v2.0.1
+   $ git push --tags
+
+If interim releases are needed to fix some important bugs, as before fixes
+are committed to master and merged into the branch. The tags numbering will
+then be 2.0.2, then 2.0.3 and so on.

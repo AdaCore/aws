@@ -240,6 +240,7 @@ docs/aws.texi
 docs/aws.texi.tmplt
 docs/aws.txt
 docs/build.adb
+docs/dev-notes
 docs/docs.gpr
 docs/features-2.5
 docs/features-2.6
