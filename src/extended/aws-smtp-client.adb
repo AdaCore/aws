@@ -2,7 +2,7 @@
 --                              Ada Web Server                              --
 --                   S M T P - Simple Mail Transfer Protocol                --
 --                                                                          --
---                     Copyright (C) 2000-2009, AdaCore                     --
+--                     Copyright (C) 2000-2011, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -55,12 +55,12 @@ package body AWS.SMTP.Client is
    --  Close session with the SMTP server
 
    procedure Output_Header
-     (Sock     : Net.Socket_Type'Class;
-      From     : E_Mail_Data;
-      To       : Recipients;
-      Subject  : String;
-      Status   : out SMTP.Status;
-      Is_MIME  : Boolean := False);
+     (Sock    : Net.Socket_Type'Class;
+      From    : E_Mail_Data;
+      To      : Recipients;
+      Subject : String;
+      Status  : out SMTP.Status;
+      Is_MIME : Boolean := False);
    --  Output SMTP headers (MAIL, RCPT, DATA, From, To, Subject, Date)
 
    procedure Put_Translated_Line
@@ -163,12 +163,12 @@ package body AWS.SMTP.Client is
    -------------------
 
    procedure Output_Header
-     (Sock     : Net.Socket_Type'Class;
-      From     : E_Mail_Data;
-      To       : Recipients;
-      Subject  : String;
-      Status   : out SMTP.Status;
-      Is_MIME  : Boolean := False)
+     (Sock    : Net.Socket_Type'Class;
+      From    : E_Mail_Data;
+      To      : Recipients;
+      Subject : String;
+      Status  : out SMTP.Status;
+      Is_MIME : Boolean := False)
    is
       function Current_Date return String;
       --  Returns current date and time for SMTP "Date:" field

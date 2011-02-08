@@ -2,7 +2,7 @@
 --                              Ada Web Server                              --
 --                   S M T P - Simple Mail Transfer Protocol                --
 --                                                                          --
---                     Copyright (C) 2000-2009, AdaCore                     --
+--                     Copyright (C) 2000-2011, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -179,7 +179,7 @@ private
          when File =>
             null;
          when Base64_Data =>
-            Data  : Unbounded_String;
+            Data : Unbounded_String;
       end case;
    end record;
 
