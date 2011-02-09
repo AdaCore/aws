@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2009, AdaCore                     --
+--                     Copyright (C) 2000-2011, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -32,8 +32,7 @@ package body AWS.Communication is
    ---------------
 
    function Parameters
-     (P1, P2, P3, P4, P5 : String := "")
-      return Parameter_Set
+     (P1, P2, P3, P4, P5 : String := "") return Parameter_Set
    is
       procedure Add (P : String);
       --  Add parameter P into PS

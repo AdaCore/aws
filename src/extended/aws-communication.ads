@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2009, AdaCore                     --
+--                     Copyright (C) 2000-2011, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -40,8 +40,8 @@ package AWS.Communication is
 
    Null_Parameter_Set : constant Parameter_Set;
 
-   function Parameters (P1, P2, P3, P4, P5 : String := "")
-     return Parameter_Set;
+   function Parameters
+     (P1, P2, P3, P4, P5 : String := "") return Parameter_Set;
    --  Constructor function to help create a Parameter_Set. This function will
    --  return a Parameter_Set array containing any parameter with a non emptry
    --  string value.
@@ -51,7 +51,7 @@ private
    AWS_Com : constant String := "/AWS_Com";
    --  This is the URI for communication messages
 
-   Null_Parameter_Set : constant Parameter_Set (2 .. 1)
-     := Parameter_Set'(2 .. 1 => Null_Unbounded_String);
+   Null_Parameter_Set : constant Parameter_Set (2 .. 1) :=
+                          Parameter_Set'(2 .. 1 => Null_Unbounded_String);
 
 end AWS.Communication;
