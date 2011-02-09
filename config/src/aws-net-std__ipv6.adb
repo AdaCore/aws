@@ -294,7 +294,10 @@ package body AWS.Net.Std is
                  Image (AC6.To_Pointer (Info.ai_addr).all, Info.ai_addrlen);
             begin
                OS_Lib.FreeAddrInfo (Info);
-               Raise_Socket_Error (Socket, Error_Message (Errno) & ' ' & Addr);
+               Raise_Socket_Error
+                 (Socket,
+                  Error_Message (Errno) & " Connect to " & Host & " [" & Addr
+                  & "]:" & Utils.Image (Port));
             end;
          end if;
       end if;

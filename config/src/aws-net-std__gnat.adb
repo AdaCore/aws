@@ -207,8 +207,8 @@ package body AWS.Net.Std is
 
             procedure Raise_Error (Errno : Integer) is
                Msg : constant String :=
-                       Error_Message (Errno)
-                       & " Net.Connect failed because Net.Wait failed.";
+                       Error_Message (Errno) & " Connect to " & Host & ' '
+                       & Sockets.Image (Sock_Addr);
             begin
                Log.Error (Socket, Msg);
                Sockets.Close_Socket (Socket.S.FD);
