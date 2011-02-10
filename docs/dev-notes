@@ -13,6 +13,47 @@ the repository. These information will be used for every commits.
    $ git config user.name "John Doe"
    $ git config user.email john.doe@whatever.com
 
+-----------------
+local style check
+-----------------
+
+To enable local style check, first get and compile style_checker:
+
+   $ git clone git://github.com/TurboGit/style_checker.git
+   $ cd style_checker
+   $ make
+   $ cp style_checker /path/to/bin
+
+Then get the git-scripts repository:
+
+   $ git clone git://github.com/TurboGit/git-scripts.git
+
+Use the pre-commit script from git-scripts, on UNIX you can just use a
+soft link:
+
+   $ cd AWS/.git/hooks
+   $ ln -s /path/to/git-scripts/pre-commit .
+
+Finaly create a configuration into $HOME/.git-pre-commit, just copy paste
+the following lines into your shell:
+
+$ cd $HOME
+$ cat > .git-pre-commit << EOF
+REPOSIT_NAME=$1
+OWEB="-H -cP -cY -l256"
+
+case "$REPOSIT_NAME" in
+   AWS) CPYR="[[:space:]]Copyright[[:space:]]\(C\)[[:space:]]([12]\d\d\d-)?2\d\d\d,[[:space:]]AdaCore[[:space:]]"
+        SC_OPTS="-ign out -ign tmplt -ign sed -ign txt \
+        -lang TXML $OWEB -lang XML $OWEB -lang HTML $OWEB -lang XSD $OWEB \
+        -lang CSS $OWEB -lang Ada -d -cp -cy -sp -gnat05 -sp -gnatyI -cf $CPYR \
+        -lang makefile -cp -cy -cf $CPYR -lang Python -H"
+        EXCLUDE="\(features\)"
+        MANIFEST="MANIFEST"
+        ;;
+esac
+EOF
+
 ------
 commit
 ------
