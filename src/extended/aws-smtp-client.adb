@@ -63,6 +63,13 @@ package body AWS.SMTP.Client is
       Is_MIME : Boolean := False);
    --  Output SMTP headers (MAIL, RCPT, DATA, From, To, Subject, Date)
 
+   procedure Output_Simple_Header
+     (Sock   : Net.Socket_Type'Class;
+      From   : E_Mail_Data;
+      To     : Recipients;
+      Status : out SMTP.Status);
+   --  Output SMTP headers (MAIL, RCPT, DATA)
+
    procedure Put_Translated_Line
      (Sock : Net.Socket_Type'Class;
       Text : String);
@@ -191,8 +198,49 @@ package body AWS.SMTP.Client is
          end if;
       end Current_Date;
 
-      Answer : Server_Reply;
+   begin
+      --  Output the MAIL, RCPT and DATA headers
+      Output_Simple_Header (Sock, From, To, Status);
 
+      if Is_Ok (Status) then
+         --  Time Stamp
+         Net.Buffered.Put_Line (Sock, "Date: " & Current_Date);
+
+         --  From
+         Net.Buffered.Put_Line (Sock, "From: " & Image (From));
+
+         --  Subject
+         Net.Buffered.Put_Line (Sock, "Subject: " & Subject);
+
+         --  To
+         Net.Buffered.Put (Sock, "To: " & Image (To (To'First)));
+
+         for K in To'First + 1 .. To'Last loop
+            Net.Buffered.Put (Sock, ", " & Image (To (K)));
+         end loop;
+
+         Net.Buffered.New_Line (Sock);
+
+         if Is_MIME then
+            Net.Buffered.Put_Line
+              (Sock, "MIME-Version: 1.0 (produced by AWS/SMTP)");
+         else
+            Net.Buffered.New_Line (Sock);
+         end if;
+      end if;
+   end Output_Header;
+
+   --------------------------
+   -- Output_Simple_Header --
+   --------------------------
+
+   procedure Output_Simple_Header
+     (Sock   : Net.Socket_Type'Class;
+      From   : E_Mail_Data;
+      To     : Recipients;
+      Status : out SMTP.Status)
+   is
+      Answer : Server_Reply;
    begin
       --  MAIL
       Net.Buffered.Put_Line
@@ -201,7 +249,6 @@ package body AWS.SMTP.Client is
       Check_Answer (Sock, Answer);
 
       if Answer.Code = Requested_Action_Ok then
-
          --  RCPT
          for K in To'Range loop
             Net.Buffered.Put_Line
@@ -216,39 +263,11 @@ package body AWS.SMTP.Client is
          end loop;
 
          if Is_Ok (Status) then
-
             --  DATA
             Net.Buffered.Put_Line (Sock, "DATA");
             Check_Answer (Sock, Answer);
 
-            if Answer.Code = Start_Mail_Input then
-
-               --  Time Stamp
-               Net.Buffered.Put_Line (Sock, "Date: " & Current_Date);
-
-               --  From
-               Net.Buffered.Put_Line (Sock, "From: " & Image (From));
-
-               --  Subject
-               Net.Buffered.Put_Line (Sock, "Subject: " & Subject);
-
-               --  To
-               Net.Buffered.Put (Sock, "To: " & Image (To (To'First)));
-
-               for K in To'First + 1 .. To'Last loop
-                  Net.Buffered.Put (Sock, ", " & Image (To (K)));
-               end loop;
-
-               Net.Buffered.New_Line (Sock);
-
-               if Is_MIME then
-                  Net.Buffered.Put_Line
-                    (Sock, "MIME-Version: 1.0 (produced by AWS/SMTP)");
-               else
-                  Net.Buffered.New_Line (Sock);
-               end if;
-
-            else
+            if Answer.Code /= Start_Mail_Input then
                --  Not possible to send mail header data
                Add (Answer, Status);
             end if;
@@ -258,7 +277,7 @@ package body AWS.SMTP.Client is
          --  Error in From address
          Add (Answer, Status);
       end if;
-   end Output_Header;
+   end Output_Simple_Header;
 
    -------------------------
    -- Put_Translated_Line --
@@ -408,6 +427,59 @@ package body AWS.SMTP.Client is
             if Is_Ok (Status) then
                --  Message body
                Put_Translated_Line (Sock.all, Message);
+
+               Terminate_Mail_Data (Sock.all);
+
+               Check_Answer (Sock.all, Answer);
+
+               if Is_Ok (Status) and then Server.Auth /= null then
+                  Server.Auth.After_Send (Sock.all, Status);
+               end if;
+
+               if Answer.Code /= Requested_Action_Ok then
+                  Add (Answer, Status);
+               end if;
+            end if;
+         end if;
+
+         Close (Sock, Status);
+      end if;
+
+   exception
+      --  Raise Server_Error for all problems encountered
+
+      when E : others =>
+         Shutdown (Sock);
+         raise Server_Error with Ada.Exceptions.Exception_Information (E);
+   end Send;
+
+   ----------
+   -- Send --
+   ----------
+
+   procedure Send
+     (Server : Receiver;
+      From   : E_Mail_Data;
+      To     : Recipients;
+      Source : String;
+      Status : out SMTP.Status)
+   is
+      Sock   : Net.Socket_Access;
+      Answer : Server_Reply;
+   begin
+      Open (Server, Sock, Status);
+
+      if Is_Ok (Status) then
+         if Server.Auth /= null then
+            Server.Auth.Before_Send (Sock.all, Status);
+         end if;
+
+         if Is_Ok (Status) then
+            Output_Simple_Header (Sock.all, From, To, Status);
+
+            if Is_Ok (Status) then
+               --  Message body
+               Put_Translated_Line (Sock.all, Source);
 
                Terminate_Mail_Data (Sock.all);
 

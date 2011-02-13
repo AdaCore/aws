@@ -144,6 +144,17 @@ package AWS.SMTP.Client is
    --  unrecoverable error (e.g. can't contact the server).
 
    procedure Send
+     (Server : Receiver;
+      From   : E_Mail_Data;
+      To     : Recipients;
+      Source : String;
+      Status : out SMTP.Status);
+   --  Send a message via Server. The email Source has already been composed by
+   --  other means, such as the GNATcoll email facilities.
+   --  Raise Server_Error in case of an unrecoverable error, e.g. can't contact
+   --  the server.
+
+   procedure Send
      (Server      : Receiver;
       From        : E_Mail_Data;
       To          : Recipients;
