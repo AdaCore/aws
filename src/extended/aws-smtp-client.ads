@@ -100,7 +100,7 @@ package AWS.SMTP.Client is
    --  This is a way to send a file attachment from in-memory data.
 
    type Attachment_Set is array (Positive range <>) of Attachment;
-   --  A set of file attachments.
+   --  A set of file attachments
 
    procedure Send
      (Server      : Receiver;
