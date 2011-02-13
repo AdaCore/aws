@@ -27,25 +27,25 @@
 ------------------------------------------------------------------------------
 
 --
---  This unit implement API to send mail message. It is possible to send
---  simple mail [RFC 821] and mail with MIME attachments [RFC 2045 & 2049].
+--  This unit implements an API to send email messages. It is possible to send
+--  simple email [RFC 821] and email with MIME attachments [RFC 2045 & 2049].
 --
---  How to send a mail:
+--  How to send an email:
 --
 --  1) Initialize a Server to send the messages.
 --
---     Wanadoo : SMTP.Server := SMTP.Client.Initialize ("smtp.wanadoo.fr");
+--     Wanadoo : SMTP.Receiver := SMTP.Client.Initialize ("smtp.wanadoo.fr");
 --
 --     Optionally, request Authentication
 --
 --     Auth : aliased SMTP.Authentication.Credential :=
 --              SMTP.Authentication.Plain.Initialize ("id", "password");
 --
---     Wanadoo : SMTP.Server :=
+--     Wanadoo : SMTP.Receiver :=
 --                 SMTP.Client.Initialize
 --                   ("smtp.wanadoo.fr", Credential => Auth'Access);
 --
---  2) Send a message via this server.
+--  2) Send a message via the server.
 --
 --     Result : SMTP.Status;
 --
@@ -81,25 +81,26 @@ package AWS.SMTP.Client is
       Subject : String;
       Message : String;
       Status  : out SMTP.Status);
-   --  Send a message via Server. The mail is a simple message composed of a
+   --  Send a message via Server. The email is a simple message composed of a
    --  subject and a text message body. Raise Server_Error in case of an
    --  unrecoverable error (e.g. can't contact the server).
 
    type Attachment is private;
-   --  This is an attachment object, either a File or a Base64 content. It
-   --  supports only simple attachments. For full attachment support use
+   --  This is an attachment object, either a File or some Base64 encoded
+   --  content.
+   --  only simple attachments are supported. For full attachment support use
    --  AWS.Attachments with the corresponding Send routine below.
 
    function File (Filename : String) return Attachment;
    --  Returns a file attachment. Filename point to a file on the file system
 
    function Base64_Data (Name, Content : String) return Attachment;
-   --  Returns a base64 attachment. Content is the Base64 encoded
-   --  data. Attachment is named Name. This is a way to send a file attachment
-   --  from in-memory data.
+   --  Returns a base64 encoded attachment. Content must already be Base64
+   --  encoded data. The attachment is named Name.
+   --  This is a way to send a file attachment from in-memory data.
 
    type Attachment_Set is array (Positive range <>) of Attachment;
-   --  A set of file attachments
+   --  A set of file attachments.
 
    procedure Send
      (Server      : Receiver;
@@ -109,10 +110,10 @@ package AWS.SMTP.Client is
       Message     : String := "";
       Attachments : Attachment_Set;
       Status      : out SMTP.Status);
-   --  Send a message via Server. The mail is a MIME message composed of a
-   --  subject, a message and a set of files MIME encoded. Raise Server_Error
+   --  Send a message via Server. The email is a MIME message composed of a
+   --  subject, a message and a set of MIME encoded files. Raise Server_Error
    --  in case of an unrecoverable error (e.g. can't contact the server).
-   --  Raises Constraint_Error is a file attachment cannot be opened.
+   --  Raises Constraint_Error if a file attachment cannot be opened.
 
    type Message_File is new String;
 
@@ -123,7 +124,7 @@ package AWS.SMTP.Client is
       Subject  : String;
       Filename : Message_File;
       Status   : out SMTP.Status);
-   --  Send filename content via Server. The mail is a message composed of a
+   --  Send filename content via Server. The email is a message composed of a
    --  subject and a message body coming from a file. Raises Server_Error in
    --  case of an unrecoverable error (e.g. can't contact the server). Raises
    --  Constraint_Error if Filename cannot be opened.
@@ -162,10 +163,10 @@ package AWS.SMTP.Client is
       Message     : String := "";
       Attachments : Attachment_Set;
       Status      : out SMTP.Status);
-   --  Send a message via Server. The mail is a MIME message composed of a
+   --  Send a message via Server. The email is a MIME message composed of a
    --  subject, a message and a set of files MIME encoded. Raise Server_Error
    --  in case of an unrecoverable error (e.g. can't contact the server).
-   --  Raises Constraint_Error is a file attachment cannot be opened.
+   --  Raises Constraint_Error if a file attachment cannot be opened.
 
    procedure Send
      (Server      : Receiver;
