@@ -122,9 +122,16 @@ external contributions
 ----------------------
 
 For developers without commit access to the main AWS repository the
-contribution can be made by sending patches to the AWS-patches mailing-list:
+contribution can be made by sending patches to the AWS-patches mailing-list.
+For example to send the last three commits on the current branch:
 
-   $ git format-patch -<n> -o tobesent
+   $ git send-email --to aws-patches@lists.forge.open-do.org HEAD~3
+
+It is also possible to add a cover-letter to explain the goal of a
+patch-set:
+
+   $ git format-patch --cover-letter -3 -o tobesent
+   $ edit tobesent/0000-cover-letter.patch
    $ git send-email --to aws-patches@lists.forge.open-do.org tobesent/*
 
 Contributed code must follow the style described into style-guide document.
