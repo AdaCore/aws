@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="utf-8"?>
+<wsdl:definitions xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+                  xmlns:tm="http://microsoft.com/wsdl/mime/textMatching/"
+                  xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/"
+                  xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/"
+                  xmlns:tns="http://www.webserviceX.NET/"
+                  xmlns:s="http://www.w3.org/2001/XMLSchema"
+                  xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/"
+                  xmlns:http="http://schemas.xmlsoap.org/wsdl/http/"
+                  targetNamespace="http://www.webserviceX.NET/"
+                  xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+  <wsdl:types>
+    <s:schema elementFormDefault="qualified" targetNamespace="http://www.webserviceX.NET/">
+      <s:element name="ChangeComputerUnit">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="ComputerValue" type="s:double" />
+            <s:element minOccurs="1" maxOccurs="1" name="fromComputerUnit" type="tns:Computers" />
+            <s:element minOccurs="1" maxOccurs="1" name="toComputerUnit" type="tns:Computers" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:simpleType name="Computers">
+        <s:restriction base="s:string">
+          <s:enumeration value="Bit" />
+          <s:enumeration value="Byte" />
+          <s:enumeration value="Kilobyte" />
+          <s:enumeration value="Megabyte" />
+          <s:enumeration value="Gigabyte" />
+          <s:enumeration value="Terabyte" />
+          <s:enumeration value="Petabyte" />
+        </s:restriction>
+      </s:simpleType>
+      <s:element name="ChangeComputerUnitResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="ChangeComputerUnitResult" type="s:double" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="double" type="s:double" />
+    </s:schema>
+  </wsdl:types>
+  <wsdl:message name="ChangeComputerUnitSoapIn">
+    <wsdl:part name="parameters" element="tns:ChangeComputerUnit" />
+  </wsdl:message>
+  <wsdl:message name="ChangeComputerUnitSoapOut">
+    <wsdl:part name="parameters" element="tns:ChangeComputerUnitResponse" />
+  </wsdl:message>
+  <wsdl:message name="ChangeComputerUnitHttpGetIn">
+    <wsdl:part name="ComputerValue" type="s:string" />
+    <wsdl:part name="fromComputerUnit" type="s:string" />
+    <wsdl:part name="toComputerUnit" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="ChangeComputerUnitHttpGetOut">
+    <wsdl:part name="Body" element="tns:double" />
+  </wsdl:message>
+  <wsdl:message name="ChangeComputerUnitHttpPostIn">
+    <wsdl:part name="ComputerValue" type="s:string" />
+    <wsdl:part name="fromComputerUnit" type="s:string" />
+    <wsdl:part name="toComputerUnit" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="ChangeComputerUnitHttpPostOut">
+    <wsdl:part name="Body" element="tns:double" />
+  </wsdl:message>
+  <wsdl:portType name="ComputerUnitSoap">
+    <wsdl:operation name="ChangeComputerUnit">
+      <wsdl:input message="tns:ChangeComputerUnitSoapIn" />
+      <wsdl:output message="tns:ChangeComputerUnitSoapOut" />
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:portType name="ComputerUnitHttpGet">
+    <wsdl:operation name="ChangeComputerUnit">
+      <wsdl:input message="tns:ChangeComputerUnitHttpGetIn" />
+      <wsdl:output message="tns:ChangeComputerUnitHttpGetOut" />
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:portType name="ComputerUnitHttpPost">
+    <wsdl:operation name="ChangeComputerUnit">
+      <wsdl:input message="tns:ChangeComputerUnitHttpPostIn" />
+      <wsdl:output message="tns:ChangeComputerUnitHttpPostOut" />
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:binding name="ComputerUnitSoap" type="tns:ComputerUnitSoap">
+    <soap:binding transport="http://schemas.xmlsoap.org/soap/http" />
+    <wsdl:operation name="ChangeComputerUnit">
+      <soap:operation soapAction="http://www.webserviceX.NET/ChangeComputerUnit" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:binding name="ComputerUnitSoap12" type="tns:ComputerUnitSoap">
+    <soap12:binding transport="http://schemas.xmlsoap.org/soap/http" />
+    <wsdl:operation name="ChangeComputerUnit">
+      <soap12:operation soapAction="http://www.webserviceX.NET/ChangeComputerUnit" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:binding name="ComputerUnitHttpGet" type="tns:ComputerUnitHttpGet">
+    <http:binding verb="GET" />
+    <wsdl:operation name="ChangeComputerUnit">
+      <http:operation location="/ChangeComputerUnit" />
+      <wsdl:input>
+        <http:urlEncoded />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:binding name="ComputerUnitHttpPost" type="tns:ComputerUnitHttpPost">
+    <http:binding verb="POST" />
+    <wsdl:operation name="ChangeComputerUnit">
+      <http:operation location="/ChangeComputerUnit" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:service name="ComputerUnit">
+    <wsdl:port name="ComputerUnitSoap" binding="tns:ComputerUnitSoap">
+      <soap:address location="http://www.webservicex.net/ConvertComputer.asmx" />
+    </wsdl:port>
+    <wsdl:port name="ComputerUnitSoap12" binding="tns:ComputerUnitSoap12">
+      <soap12:address location="http://www.webservicex.net/ConvertComputer.asmx" />
+    </wsdl:port>
+    <wsdl:port name="ComputerUnitHttpGet" binding="tns:ComputerUnitHttpGet">
+      <http:address location="http://www.webservicex.net/ConvertComputer.asmx" />
+    </wsdl:port>
+    <wsdl:port name="ComputerUnitHttpPost" binding="tns:ComputerUnitHttpPost">
+      <http:address location="http://www.webservicex.net/ConvertComputer.asmx" />
+    </wsdl:port>
+  </wsdl:service>
+</wsdl:definitions>
