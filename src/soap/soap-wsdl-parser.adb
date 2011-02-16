@@ -1481,18 +1481,18 @@ package body SOAP.WSDL.Parser is
             Text_IO.Put_Line ("   Node is null.");
          else
             declare
-               Name : constant String
-                 := DOM.Core.Nodes.Local_Name (N);
-               Atts : constant DOM.Core.Named_Node_Map
-                 := DOM.Core.Nodes.Attributes (N);
+               Name : constant String :=
+                        DOM.Core.Nodes.Local_Name (N);
+               Atts : constant DOM.Core.Named_Node_Map :=
+                        DOM.Core.Nodes.Attributes (N);
             begin
                Text_IO.Put_Line ("   " & Name);
 
                for K in 0 .. DOM.Core.Nodes.Length (Atts) - 1 loop
                   Text_IO.Put ("      ");
                   declare
-                     N    : constant DOM.Core.Node
-                       := DOM.Core.Nodes.Item (Atts, K);
+                     N     : constant DOM.Core.Node :=
+                               DOM.Core.Nodes.Item (Atts, K);
                      Name  : constant String := DOM.Core.Nodes.Local_Name (N);
                      Value : constant String := DOM.Core.Nodes.Node_Value (N);
                   begin
