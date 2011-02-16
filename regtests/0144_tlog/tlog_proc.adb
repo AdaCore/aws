@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2006-2009, AdaCore                     --
+--                     Copyright (C) 2006-2011, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -214,7 +214,7 @@ procedure TLog_Proc (Extended_Fields : String) is
          end if;
       end loop;
 
-      AWK.Close (AWK.Current_Session);
+      AWK.Close (AWK.Current_Session.all);
    end Parse_Logs;
 
    --------
