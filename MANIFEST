@@ -1519,6 +1519,16 @@ regtests/0211_file_not_found/file_not_found.adb
 regtests/0211_file_not_found/file_not_found.gpr
 regtests/0211_file_not_found/test.out
 regtests/0211_file_not_found/test.py
+regtests/0213_check_mem_nossl/api.adb
+regtests/0213_check_mem_nossl/api.ads
+regtests/0213_check_mem_nossl/check_mem_nossl.adb
+regtests/0213_check_mem_nossl/check_mem_nossl.gpr
+regtests/0213_check_mem_nossl/check_mem_nossl.ini
+regtests/0213_check_mem_nossl/check_mem_nossl.tmplt
+regtests/0213_check_mem_nossl/cm2_include.tmplt
+regtests/0213_check_mem_nossl/cm2_split.tmplt
+regtests/0213_check_mem_nossl/test.opt
+regtests/0213_check_mem_nossl/test.py
 regtests/README
 regtests/aws.gpr
 regtests/common/get_free_port.adb

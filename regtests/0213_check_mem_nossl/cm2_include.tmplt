@@ -1,0 +1,25 @@
+
+Check_Mem include file
+
+@_ONE_@
+
+@_TWO_@
+
+@@IF@@ @_EXIST_@
+@_V_@
+@_M_@
+
+@@TABLE@@
+@_TWO_@ @_V_@
+@@END_TABLE@@
+
+@@TABLE@@
+@_ONE_@
+@@TABLE@@
+@_M_@
+@@END_TABLE@@
+@@END_TABLE@@
+
+@@END_IF@@
+
+End of the include.
