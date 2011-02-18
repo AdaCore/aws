@@ -18,6 +18,7 @@ ROOT_DIR = os.getcwd()
 TEST_DIR = os.path.dirname(sys.modules['__main__'].__file__)
 TEST_NAME = os.path.basename(TEST_DIR)
 
+
 def setup():
     cd(TEST_DIR)
     for prj in glob('*.gpr'):
@@ -105,7 +106,13 @@ def run(bin, options=None, output_file=None):
         # Import gnatpython excross module only when needed
         from gnatpython.internal.excross import run_cross
         run_cross([bin + Env().target.os.exeext],
-                  output=output_file, timeout=timeout)
+                  output=output_file, timeout=timeout,
+                  copy_files_on_target=['*.txt',
+                                        '*.tmplt',
+                                        '*.thtml',
+                                        '*.ini',
+                                        '*.types',
+                                        '*.gif'])
     else:
         if Env().testsuite_config.with_gdb:
             Run(["gdb", "--eval-command=run", "--batch-silent",
