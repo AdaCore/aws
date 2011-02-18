@@ -1519,6 +1519,12 @@ regtests/0211_file_not_found/file_not_found.adb
 regtests/0211_file_not_found/file_not_found.gpr
 regtests/0211_file_not_found/test.out
 regtests/0211_file_not_found/test.py
+regtests/0212_element_complexType/ConvertComputer.wsdl
+regtests/0212_element_complexType/test.opt
+regtests/0212_element_complexType/test.out
+regtests/0212_element_complexType/test.py
+regtests/0212_element_complexType/test_conv.adb
+regtests/0212_element_complexType/test_conv.gpr
 regtests/README
 regtests/aws.gpr
 regtests/common/get_free_port.adb

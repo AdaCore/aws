@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2010, AdaCore                     --
+--                     Copyright (C) 2003-2011, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -613,6 +613,13 @@ package body SOAP.WSDL.Parser is
       pragma Unreferenced (O);
       L : DOM.Core.Node := N;
    begin
+      if Utils.No_NS (DOM.Core.Nodes.Node_Name (L)) = "element"
+        and then XML.First_Child (L) /= null
+      then
+         --  Handle an element enclosing the complexType
+         L := XML.First_Child (L);
+      end if;
+
       if Utils.No_NS (DOM.Core.Nodes.Node_Name (L)) = "complexType" then
          L := XML.First_Child (L);
 
@@ -834,6 +841,7 @@ package body SOAP.WSDL.Parser is
       while N /= null
         and then DOM.Core.Nodes.Local_Name (N) /= "complexType"
         and then DOM.Core.Nodes.Local_Name (N) /= "simpleType"
+        and then DOM.Core.Nodes.Local_Name (N) /= "element"
       loop
          N := XML.First_Child (N);
       end loop;
@@ -853,6 +861,15 @@ package body SOAP.WSDL.Parser is
          declare
             Parent : constant DOM.Core.Node := N;
          begin
+            if N /= null
+              and then DOM.Core.Nodes.Local_Name (N) = "element"
+            then
+               --  Move to complexType node
+               N := XML.First_Child (N);
+            end if;
+
+            --  Enter complexType node
+
             N := XML.First_Child (N);
 
             if N = null then
@@ -1223,7 +1240,9 @@ package body SOAP.WSDL.Parser is
 
       pragma Assert
         (R /= null
-         and then Utils.No_NS (DOM.Core.Nodes.Node_Name (R)) = "complexType");
+         and then
+           (Utils.No_NS (DOM.Core.Nodes.Node_Name (R)) = "complexType"
+            or else Utils.No_NS (DOM.Core.Nodes.Node_Name (R)) = "element"));
 
       P.NS := Get_Target_Name_Space (R);
 
@@ -1235,9 +1254,16 @@ package body SOAP.WSDL.Parser is
          P.Name   := O.Current_Name;
          P.T_Name := +Name;
 
+         if Utils.No_NS (DOM.Core.Nodes.Node_Name (R)) = "element" then
+            --  Skip enclosing element
+            N := XML.First_Child (R);
+         else
+            N := R;
+         end if;
+
          --  Enter complexType element
 
-         N := XML.First_Child (R);
+         N := XML.First_Child (N);
 
          --  Get first element
 
@@ -1455,18 +1481,18 @@ package body SOAP.WSDL.Parser is
             Text_IO.Put_Line ("   Node is null.");
          else
             declare
-               Name : constant String
-                 := DOM.Core.Nodes.Local_Name (N);
-               Atts : constant DOM.Core.Named_Node_Map
-                 := DOM.Core.Nodes.Attributes (N);
+               Name : constant String :=
+                        DOM.Core.Nodes.Local_Name (N);
+               Atts : constant DOM.Core.Named_Node_Map :=
+                        DOM.Core.Nodes.Attributes (N);
             begin
                Text_IO.Put_Line ("   " & Name);
 
                for K in 0 .. DOM.Core.Nodes.Length (Atts) - 1 loop
                   Text_IO.Put ("      ");
                   declare
-                     N    : constant DOM.Core.Node
-                       := DOM.Core.Nodes.Item (Atts, K);
+                     N     : constant DOM.Core.Node :=
+                               DOM.Core.Nodes.Item (Atts, K);
                      Name  : constant String := DOM.Core.Nodes.Local_Name (N);
                      Value : constant String := DOM.Core.Nodes.Node_Value (N);
                   begin
