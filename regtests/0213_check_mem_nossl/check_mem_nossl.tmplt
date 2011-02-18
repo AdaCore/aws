@@ -1,0 +1,29 @@
+
+Check_Mem_Nossl template
+
+@@INCLUDE@@ cm2_include.tmplt
+
+@_ONE_@
+
+@_TWO_@
+
+@@IF@@ @_EXIST_@
+@_V_@
+@_M_@
+
+@@TABLE@@
+@_TWO_@ @_V_@
+@@END_TABLE@@
+
+@@INCLUDE@@ cm2_include.tmplt
+
+@@TABLE@@
+@_LOWER:ONE_@ @_UPPER:ONE_@
+@@TABLE@@
+@_M_@
+@@END_TABLE@@
+@@END_TABLE@@
+
+@@END_IF@@
+
+End of the template.
