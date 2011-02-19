@@ -1268,7 +1268,7 @@ package body AWS.Server.HTTP_Utils is
                        Response.Filename (Answer);
          File_Mode : constant Boolean :=
                        Response.Mode (Answer) in
-                         Response.File .. Response.File_Once;
+                         Response.File .. Response.Stream;
          F_Status  : File_Status := Changed;
          File      : Resources.File_Type;
          File_Time : Ada.Calendar.Time;
