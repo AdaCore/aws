@@ -237,10 +237,22 @@ procedure Check_Mem_Nossl is
          Strm := new Resources.Streams.Disk.Stream_Type;
 
          Resources.Streams.Disk.Open
-           (Resources.Streams.Disk.Stream_Type (Strm.all), "check_mem2.adb");
+           (Resources.Streams.Disk.Stream_Type (Strm.all),
+            "check_mem_nossl.adb");
 
          return Response.Stream
                   (MIME.Text_Plain, Strm, Encoding => Messages.GZip);
+
+      elsif URI = "/stream-unknown" then
+         Strm := new Resources.Streams.Disk.Stream_Type;
+
+         Resources.Streams.Disk.Open
+           (Resources.Streams.Disk.Stream_Type (Strm.all),
+            "check_mem2.adb");
+
+         return Response.Stream
+           (MIME.Text_Plain, Strm, Encoding => Messages.GZip);
+
       else
          Check ("Unknown URI " & URI);
          return Response.Build
@@ -381,6 +393,7 @@ procedure Check_Mem_Nossl is
       Request ("/template");
       Request ("/no-template");
       Request ("/stream");
+      Request ("/stream-unknown");
 
       Request ("multProc", 2, 3);
       Request ("multProc", 98, 123);
