@@ -1273,7 +1273,7 @@ package body AWS.Server.HTTP_Utils is
          File      : Resources.File_Type;
          File_Time : Ada.Calendar.Time;
       begin
-         if File_Mode then
+         if File_Mode and then Filename /= "" then
             if Resources.Is_Regular_File (Filename) then
                File_Time := Resources.File_Timestamp (Filename);
 
@@ -1347,6 +1347,11 @@ package body AWS.Server.HTTP_Utils is
 
          Send_General_Header (Sock);
 
+         --  Send Content-Type, Cache-Control, Location, WWW-Authenticate
+         --  and others user defined header lines.
+
+         Response.Send_Header (Socket => Sock, D => Answer);
+
          --  Send file last-modified timestamp info in case of a file
 
          if File_Mode then
@@ -1411,11 +1416,6 @@ package body AWS.Server.HTTP_Utils is
             Response.Set.Update_Header
               (Answer, Messages.Connection_Token, Value => "keep-alive");
          end if;
-
-         --  Send Content-Type, Cache-Control, Location, WWW-Authenticate
-         --  and others user defined header lines.
-
-         Response.Send_Header (Socket => Sock, D => Answer);
       end Send_General_Header;
 
       ----------------------
@@ -1431,6 +1431,11 @@ package body AWS.Server.HTTP_Utils is
          Net.Buffered.Put_Line (Sock, Messages.Status_Line (Status_Code));
 
          Send_General_Header (Sock);
+
+         --  Send Content-Type, Cache-Control, Location, WWW-Authenticate
+         --  and others user defined header lines.
+
+         Response.Send_Header (Socket => Sock, D => Answer);
 
          --  There is no content
 
