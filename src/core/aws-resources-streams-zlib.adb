@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2009, AdaCore                     --
+--                     Copyright (C) 2003-2011, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -33,8 +33,10 @@ package body AWS.Resources.Streams.ZLib is
 
    overriding procedure Close (Resource : in out Stream_Type) is
    begin
-      Close (Resource.Source);
-      ZL.Close (Resource.Filter, Ignore_Error => True);
+      if Resource.Source /= null then
+         Close (Resource.Source);
+         ZL.Close (Resource.Filter, Ignore_Error => True);
+      end if;
    end Close;
 
    --------------------

@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2010, AdaCore                     --
+--                     Copyright (C) 2000-2011, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -90,10 +90,9 @@ procedure Strm is
    --------
 
    function CB (Request : Status.Data) return Response.Data is
-      File : AWS.Resources.Streams.Stream_Access
-        := new User_Strm.File_Tagged;
+      File : AWS.Resources.Streams.Stream_Access :=
+               new User_Strm.File_Tagged;
    begin
-
       User_Strm.Create
         (Resource       => File.all,
          Undefined_Size => Status.URI (Request) /= Length_Defined_URI,
@@ -150,9 +149,8 @@ procedure Strm is
    procedure Compare_Message is
       use Ada.Streams;
 
-      Message      : constant Stream_Element_Array
-        := Response.Message_Body (R);
-
+      Message      : constant Stream_Element_Array :=
+                       Response.Message_Body (R);
       Same_Message : Stream_Element_Array (Message'Range);
 
       File : User_Strm.File_Tagged;

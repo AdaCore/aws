@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2009, AdaCore                     --
+--                     Copyright (C) 2000-2011, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -33,7 +33,9 @@ package body AWS.Resources.Streams.Disk is
 
    overriding procedure Close (Resource : in out Stream_Type) is
    begin
-      Stream_IO.Close (Resource.File);
+      if Stream_IO.Is_Open (Resource.File) then
+         Stream_IO.Close (Resource.File);
+      end if;
    end Close;
 
    -----------------
@@ -53,7 +55,7 @@ package body AWS.Resources.Streams.Disk is
 
    overriding function Name (Resource : Stream_Type) return String is
    begin
-      return Stream_IO.Name (Resource.File);
+      return To_String (Resource.Name);
    end Name;
 
    ----------
@@ -65,11 +67,15 @@ package body AWS.Resources.Streams.Disk is
       Name : String;
       Form : String    := "shared=no") is
    begin
+      File.Name := To_Unbounded_String (Name);
+
       Stream_IO.Open
         (File.File,
          Stream_IO.In_File, Name, Form);
-
       File.Stream := Stream_IO.Stream (File.File);
+   exception
+      when Stream_IO.Name_Error =>
+         null;
    end Open;
 
    ----------
@@ -81,8 +87,8 @@ package body AWS.Resources.Streams.Disk is
       Buffer   : out Stream_Element_Array;
       Last     : out Stream_Element_Offset)
    is
-      Buf_Len : constant Stream_Element_Offset
-        := Resource.Last - Resource.Current + 1;
+      Buf_Len : constant Stream_Element_Offset :=
+                  Resource.Last - Resource.Current + 1;
    begin
       if Buffer'Length <= Natural (Buf_Len) then
          --  Enough chars in the buffer, return them
@@ -94,8 +100,8 @@ package body AWS.Resources.Streams.Disk is
       else
          --  Return the current buffer
 
-         Buffer (Buffer'First .. Buffer'First + Buf_Len - 1)
-           := Resource.Buffer (Resource.Current .. Resource.Last);
+         Buffer (Buffer'First .. Buffer'First + Buf_Len - 1) :=
+           Resource.Buffer (Resource.Current .. Resource.Last);
 
          --  And read the remaining data directly on the file
 

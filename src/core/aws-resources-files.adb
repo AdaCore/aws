@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2002-2009, AdaCore                     --
+--                     Copyright (C) 2002-2011, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -27,7 +27,6 @@
 
 with Ada.Directories;
 with Ada.IO_Exceptions;
-with Ada.Unchecked_Deallocation;
 
 with AWS.Resources.Streams.Disk;
 with AWS.Resources.Streams.ZLib;
@@ -120,58 +119,64 @@ package body AWS.Resources.Files is
    is
       use type AWS.Resources.Streams.Stream_Access;
 
-      Stream : AWS.Resources.Streams.Stream_Access;
+      File_Kind : constant Resources.File_Instance := Resources.Exist (Name);
+      Stream    : AWS.Resources.Streams.Stream_Access;
 
-      procedure Open_File (Name : String; Last : Boolean);
+      procedure Open_File (Name : String);
 
       ---------------
       -- Open_File --
       ---------------
 
-      procedure Open_File (Name : String; Last : Boolean) is
-         procedure Free is
-           new Ada.Unchecked_Deallocation
-             (Streams.Stream_Type'Class, Streams.Stream_Access);
+      procedure Open_File (Name : String) is
       begin
          Stream := new AWS.Resources.Streams.Disk.Stream_Type;
 
          AWS.Resources.Streams.Disk.Open
            (AWS.Resources.Streams.Disk.Stream_Type (Stream.all), Name, Form);
-      exception
-         when Ada.IO_Exceptions.Name_Error =>
-            Free (Stream);
-
-            if Last then
-               raise;
-            end if;
       end Open_File;
 
    begin
       if Is_GZip (Name) then
          --  Don't try to open file Name & ".gz.gz"
 
-         GZip := False;
+         case File_Kind is
+            when Both | Resources.GZip =>
+               GZip := False;
+               Open_File (Name);
 
-         Open_File (Name, True);
+            when Plain | None =>
+               raise IO_Exceptions.Name_Error;
+         end case;
 
       elsif GZip then
-         Open_File (Name & ".gz", False);
 
-         if Stream = null then
-            Open_File (Name, True);
+         case File_Kind is
+            when Both | Resources.GZip =>
+               Open_File (Name & ".gz");
 
-            GZip := False;
-         end if;
+            when Plain =>
+               Open_File (Name);
+               GZip := False;
+
+            when None =>
+               raise IO_Exceptions.Name_Error;
+         end case;
 
       else
-         Open_File (Name, False);
 
-         if Stream = null then
-            Open_File (Name & ".gz", True);
+         case File_Kind is
+            when Both | Plain =>
+               Open_File (Name);
 
-            Stream := Streams.ZLib.Inflate_Create
-                        (Stream, Header => ZLib.GZip);
-         end if;
+            when Resources.GZip =>
+               Open_File (Name & ".gz");
+               Stream := Streams.ZLib.Inflate_Create
+                 (Stream, Header => ZLib.GZip);
+
+            when None =>
+               raise IO_Exceptions.Name_Error;
+         end case;
       end if;
 
       Streams.Create (File, Stream);
