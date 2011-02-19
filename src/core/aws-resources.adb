@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2002-2009, AdaCore                     --
+--                     Copyright (C) 2002-2011, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -58,12 +58,17 @@ package body AWS.Resources is
    function Exist (Name : String) return File_Instance is
       Result : File_Instance;
    begin
-      Result := Embedded.Exist (Name);
+      if Name = "" then
+         return None;
 
-      if Result = None then
-         return Files.Exist (Name);
       else
-         return Result;
+         Result := Embedded.Exist (Name);
+
+         if Result = None then
+            return Files.Exist (Name);
+         else
+            return Result;
+         end if;
       end if;
    end Exist;
 

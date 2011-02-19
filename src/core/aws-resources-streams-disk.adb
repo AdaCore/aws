@@ -33,7 +33,9 @@ package body AWS.Resources.Streams.Disk is
 
    overriding procedure Close (Resource : in out Stream_Type) is
    begin
-      Stream_IO.Close (Resource.File);
+      if Stream_IO.Is_Open (Resource.File) then
+         Stream_IO.Close (Resource.File);
+      end if;
    end Close;
 
    -----------------
@@ -53,7 +55,11 @@ package body AWS.Resources.Streams.Disk is
 
    overriding function Name (Resource : Stream_Type) return String is
    begin
-      return Stream_IO.Name (Resource.File);
+      if Stream_IO.Is_Open (Resource.File) then
+         return Stream_IO.Name (Resource.File);
+      else
+         return "";
+      end if;
    end Name;
 
    ----------
@@ -68,8 +74,10 @@ package body AWS.Resources.Streams.Disk is
       Stream_IO.Open
         (File.File,
          Stream_IO.In_File, Name, Form);
-
       File.Stream := Stream_IO.Stream (File.File);
+   exception
+      when Stream_IO.Name_Error =>
+         null;
    end Open;
 
    ----------
