@@ -235,18 +235,18 @@ package body AWS.Server.HTTP_Utils is
                     & AWS.Status.Authorization_Tail (C_Stat))
             then
                if not AWS.Digest.Check_Nonce
-                        (Status.Authorization_Nonce (C_Stat))
+                 (Status.Authorization_Nonce (C_Stat))
                then
                   return AWS.Response.Authenticate
-                           (CNF.Admin_Realm (HTTP_Server.Properties),
-                            AWS.Response.Digest,
-                            Stale => True);
+                    (CNF.Admin_Realm (HTTP_Server.Properties),
+                     AWS.Response.Digest,
+                     Stale => True);
                end if;
 
             else
                return AWS.Response.Authenticate
-                        (CNF.Admin_Realm (HTTP_Server.Properties),
-                         AWS.Response.Digest);
+                 (CNF.Admin_Realm (HTTP_Server.Properties),
+                  AWS.Response.Digest);
             end if;
 
          elsif (Method = AWS.Status.Basic
@@ -258,7 +258,7 @@ package body AWS.Server.HTTP_Utils is
            or else Method = AWS.Status.None or else Password = ""
          then
             return Response.Authenticate
-                     (CNF.Admin_Realm (HTTP_Server.Properties), Response.Any);
+              (CNF.Admin_Realm (HTTP_Server.Properties), Response.Any);
          end if;
 
          if URI = Admin_URI then
@@ -1260,17 +1260,18 @@ package body AWS.Server.HTTP_Utils is
 
          type File_Status is (Changed, Up_To_Date, Not_Found);
 
-         Sock          : constant Net.Socket_Type'Class :=
-                           Status.Socket (C_Stat);
-         Method        : constant AWS.Status.Request_Method :=
-                           Status.Method (C_Stat);
-         Filename      : constant String :=
-                           Response.Filename (Answer);
-         File_Mode     : constant Boolean :=
-                           Response.Mode (Answer) = Response.File;
-         F_Status      : File_Status := Changed;
-         File          : Resources.File_Type;
-         File_Time     : Ada.Calendar.Time;
+         Sock      : constant Net.Socket_Type'Class :=
+                       Status.Socket (C_Stat);
+         Method    : constant AWS.Status.Request_Method :=
+                       Status.Method (C_Stat);
+         Filename  : constant String :=
+                       Response.Filename (Answer);
+         File_Mode : constant Boolean :=
+                       Response.Mode (Answer) in
+                         Response.File .. Response.File_Once;
+         F_Status  : File_Status := Changed;
+         File      : Resources.File_Type;
+         File_Time : Ada.Calendar.Time;
       begin
          if File_Mode then
             if Resources.Is_Regular_File (Filename) then
@@ -1447,9 +1448,9 @@ package body AWS.Server.HTTP_Utils is
       Status_Code := Response.Status_Code (Answer);
 
       case Response.Mode (Answer) is
-
          when Response.File | Response.File_Once | Response.Stream
-              | Response.Message =>
+            | Response.Message
+            =>
             HTTP_Server.Slots.Mark_Phase (Line_Index, Server_Response);
             Send_Data;
 

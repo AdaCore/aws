@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2009, AdaCore                     --
+--                     Copyright (C) 2000-2011, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -38,9 +38,7 @@ package User_Strm is
 
    type File_Tagged is new Streams.Stream_Type with private;
 
-   function End_Of_File
-     (Resource : File_Tagged)
-      return Boolean;
+   function End_Of_File (Resource : File_Tagged) return Boolean;
 
    procedure Read
      (Resource : in out File_Tagged;

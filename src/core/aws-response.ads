@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                    Copyright (C) 2000-2010, AdaCore                      --
+--                    Copyright (C) 2000-2011, AdaCore                      --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -305,9 +305,7 @@ package AWS.Response is
    --  For get data from user defined streams routine Create_Resource should
    --  be used.
 
-   function Message_Body
-     (D : Data)
-      return Strings.Unbounded.Unbounded_String;
+   function Message_Body (D : Data) return Strings.Unbounded.Unbounded_String;
    --  Returns message body content as an unbounded_string
 
    function Message_Body (D : Data) return Streams.Stream_Element_Array;
