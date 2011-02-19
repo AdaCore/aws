@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2009, AdaCore                     --
+--                     Copyright (C) 2003-2011, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -29,6 +29,8 @@
 --  is read from an on-disk file.
 
 with Ada.Streams.Stream_IO;
+
+private with Ada.Strings.Unbounded;
 
 package AWS.Resources.Streams.Disk is
 
@@ -61,6 +63,8 @@ package AWS.Resources.Streams.Disk is
 
 private
 
+   use Ada.Strings.Unbounded;
+
    Buffer_Size : constant := 8_192;
 
    type Stream_Type is new Streams.Stream_Type with record
@@ -70,6 +74,7 @@ private
       Buffer  : Stream_Element_Array (1 .. Buffer_Size);
       Current : Stream_Element_Offset := 1;
       Last    : Stream_Element_Offset := 0;
+      Name    : Unbounded_String;
    end record;
 
 end AWS.Resources.Streams.Disk;

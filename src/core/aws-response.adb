@@ -677,6 +677,10 @@ package body AWS.Response is
       Set.Cache_Control  (Result, Cache_Control);
       Set.Close_Resource (Result, Server_Close);
 
+      if Resources.Streams.Name (Handle.all) /= "" then
+         Set.Filename (Result, Resources.Streams.Name (Handle.all));
+      end if;
+
       --  Set the Content_Disposition to properly pass the filename to
       --  the browser.
 

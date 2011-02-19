@@ -55,11 +55,7 @@ package body AWS.Resources.Streams.Disk is
 
    overriding function Name (Resource : Stream_Type) return String is
    begin
-      if Stream_IO.Is_Open (Resource.File) then
-         return Stream_IO.Name (Resource.File);
-      else
-         return "";
-      end if;
+      return To_String (Resource.Name);
    end Name;
 
    ----------
@@ -71,6 +67,8 @@ package body AWS.Resources.Streams.Disk is
       Name : String;
       Form : String    := "shared=no") is
    begin
+      File.Name := To_Unbounded_String (Name);
+
       Stream_IO.Open
         (File.File,
          Stream_IO.In_File, Name, Form);
