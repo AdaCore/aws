@@ -7,7 +7,7 @@ Known Problems fixed in AWS 2.10
 
 - J511-016: Exception raised for Response.File when file does not exist
   Problem:    When a Response.File is send back to the client and the
-              actual file does not exist on disk and exception is
+              actual file does not exist on disk an exception is
               raised. This is not a proper behavior. AWS now returns
               a 404 status code.
   Workaround: Check file existence before calling Response.File
