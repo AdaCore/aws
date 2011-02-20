@@ -1,5 +1,12 @@
 Known Problems fixed in AWS 2.10
 
+- K219-001: Exception raised for Response.Stream when file does not exist
+  Problem:    When a Response.Stream based on a file is send back to the
+              client and the actual file does not exist on disk an exception
+              is raised. This is not a proper behavior. AWS now returns
+              a 404 status code. This is also a cause of a memory leak.
+  Workaround: Check file existence before creating the stream object
+
 - JB05-022: Cannot write more than 2**31 bytes in a compressed stream
   Problem:    With a 32 bits compiler, writing more than 2**31 bytes into a
               compressed stream raises a constraint error.
