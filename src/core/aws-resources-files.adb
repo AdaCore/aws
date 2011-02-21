@@ -43,16 +43,23 @@ package body AWS.Resources.Files is
    -----------
 
    function Exist (Name : String) return File_Instance is
+      VP, VG : Boolean := False;
    begin
-      if not Is_GZip (Name)
-        and then Utils.Is_Regular_File (Name & GZip_Ext)
-      then
-         if Utils.Is_Regular_File (Name) then
-            return Both;
-         else
-            return GZip;
-         end if;
-      elsif Utils.Is_Regular_File (Name) then
+      if Is_GZip (Name) then
+         VG := Utils.Is_Regular_File (Name);
+         VP := Utils.Is_Regular_File
+           (Name (Name'First .. Name'Last - GZip_Ext'Length));
+
+      else
+         VP := Utils.Is_Regular_File (Name);
+         VG := Utils.Is_Regular_File (Name & GZip_Ext);
+      end if;
+
+      if VG and then VP then
+         return Both;
+      elsif VG then
+         return GZip;
+      elsif VP then
          return Plain;
       else
          return None;
