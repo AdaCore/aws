@@ -141,9 +141,9 @@ demos/test_ldap/test_ldap.gpr
 demos/test_mail/makefile
 demos/test_mail/test_mail.adb
 demos/test_mail/test_mail.gpr
-demos/text_input.gpr
 demos/text_input/makefile
 demos/text_input/text_input.adb
+demos/text_input/text_input.gpr
 demos/text_input/text_input_cb.adb
 demos/text_input/text_input_cb.ads
 demos/vh_demo/makefile
@@ -848,7 +848,7 @@ regtests/0092_smem/smem_proc.adb
 regtests/0092_smem/test.out
 regtests/0092_smem/test.py
 regtests/0093_smem_sec/cert.pem
-regtests/0093_smem_sec/smem_proc.adb
+regtests/0093_smem_sec/s_smem_proc.adb
 regtests/0093_smem_sec/smem_sec.adb
 regtests/0093_smem_sec/smem_sec.gpr
 regtests/0093_smem_sec/test.opt
@@ -927,7 +927,7 @@ regtests/0106_spair/spair_proc.adb
 regtests/0106_spair/test.out
 regtests/0106_spair/test.py
 regtests/0107_spair_sec/cert.pem
-regtests/0107_spair_sec/spair_proc.adb
+regtests/0107_spair_sec/s_spair_proc.adb
 regtests/0107_spair_sec/spair_sec.adb
 regtests/0107_spair_sec/spair_sec.gpr
 regtests/0107_spair_sec/test.opt
@@ -1821,7 +1821,10 @@ src/xsrc/README
 src/xsrc/aws-client-xml-input_sources.adb
 src/xsrc/aws-client-xml-input_sources.ads
 src/xsrc/aws-client-xml.ads
-src/xsrc/aws-jabber.adb
+src/xsrc/aws-jabber-client.adb
+src/xsrc/aws-jabber-client.ads
+src/xsrc/aws-jabber-digest_md5.adb
+src/xsrc/aws-jabber-digest_md5.ads
 src/xsrc/aws-jabber.ads
 ssl/crypto_lib.gpr
 ssl/dl_lib.gpr
