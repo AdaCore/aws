@@ -1539,6 +1539,15 @@ regtests/0214_stream_not_found/stream_not_found.adb
 regtests/0214_stream_not_found/stream_not_found.gpr
 regtests/0214_stream_not_found/test.out
 regtests/0214_stream_not_found/test.py
+regtests/0215_file_versions/data2.txt
+regtests/0215_file_versions/data3.txt
+regtests/0215_file_versions/data3.txt.gz
+regtests/0215_file_versions/data4.txt.gz
+regtests/0215_file_versions/file_versions.adb
+regtests/0215_file_versions/file_versions.gpr
+regtests/0215_file_versions/hello.txt.gz
+regtests/0215_file_versions/test.out
+regtests/0215_file_versions/test.py
 regtests/README
 regtests/aws.gpr
 regtests/common/get_free_port.adb

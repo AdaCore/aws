@@ -1,0 +1,12 @@
+started
+R : Hello World
+
+shutdown
+> data1.txt        NONE
+> data1.txt.gz     NONE
+> data2.txt        PLAIN
+> data2.txt.gz     PLAIN
+> data3.txt        BOTH
+> data3.txt.gz     BOTH
+> data4.txt        GZIP
+> data4.txt.gz     GZIP
