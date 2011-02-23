@@ -32,6 +32,5 @@ regtests/config.py
 regtests/out
 regtests/testsuite.duration*
 regtests/testsuite.tags
-templates_parser
 testsuite.rep
 testsuite.res_last

@@ -1,0 +1,3 @@
+[submodule "templates_parser"]
+	path = templates_parser
+	url = ../../template-parser/template-parser.git
