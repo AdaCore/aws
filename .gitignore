@@ -35,4 +35,3 @@ regtests/testsuite.tags
 templates_parser
 testsuite.rep
 testsuite.res_last
-workspace/*
