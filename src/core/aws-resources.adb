@@ -73,19 +73,11 @@ package body AWS.Resources is
    -----------
 
    function Exist (Name : String) return File_Instance is
-      Result : File_Instance;
    begin
       if Name = "" then
          return None;
-
       else
-         Result := Embedded.Exist (Name);
-
-         if Result = None then
-            return Files.Exist (Name);
-         else
-            return Result;
-         end if;
+         return Embedded.Exist (Name) or Files.Exist (Name);
       end if;
    end Exist;
 
