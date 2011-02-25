@@ -32,6 +32,23 @@ package body AWS.Resources is
 
    use Ada;
 
+   ----------
+   -- "or" --
+   ----------
+
+   function "or" (I1, I2 : File_Instance) return File_Instance is
+   begin
+      if I1 = I2 then
+         return I1;
+      elsif I1 = None then
+         return I2;
+      elsif I2 = None then
+         return I1;
+      else
+         return Both;
+      end if;
+   end "or";
+
    -----------
    -- Close --
    -----------
