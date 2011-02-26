@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2002-2009, AdaCore                     --
+--                     Copyright (C) 2002-2011, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -43,6 +43,9 @@ package AWS.Resources is
    --  Plain : A non-compressed version of this file exists.
    --  GZip  : A gzip encoded version of this file exists.
    --  Both  : Both versions of this file exists.
+
+   function "or" (I1, I2 : File_Instance) return File_Instance;
+   --  Returns the union of I1 and I2
 
    subtype Content_Length_Type is Stream_Element_Offset;
 

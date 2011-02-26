@@ -32,6 +32,23 @@ package body AWS.Resources is
 
    use Ada;
 
+   ----------
+   -- "or" --
+   ----------
+
+   function "or" (I1, I2 : File_Instance) return File_Instance is
+   begin
+      if I1 = I2 then
+         return I1;
+      elsif I1 = None then
+         return I2;
+      elsif I2 = None then
+         return I1;
+      else
+         return Both;
+      end if;
+   end "or";
+
    -----------
    -- Close --
    -----------
@@ -56,19 +73,11 @@ package body AWS.Resources is
    -----------
 
    function Exist (Name : String) return File_Instance is
-      Result : File_Instance;
    begin
       if Name = "" then
          return None;
-
       else
-         Result := Embedded.Exist (Name);
-
-         if Result = None then
-            return Files.Exist (Name);
-         else
-            return Result;
-         end if;
+         return Embedded.Exist (Name) or Files.Exist (Name);
       end if;
    end Exist;
 
