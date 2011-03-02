@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2010, AdaCore                     --
+--                     Copyright (C) 2000-2011, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -47,7 +47,7 @@ procedure Head is
 
    function CB (Request : Status.Data) return Response.Data;
 
-   My_Name : constant String := "head.adb";
+   My_Name : constant String := "head.txt";
    HTTP    : AWS.Server.HTTP;
    Port    : Natural := 1244;
    Connect : Client.HTTP_Connection;

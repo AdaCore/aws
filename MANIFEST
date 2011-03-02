@@ -665,6 +665,7 @@ regtests/0057_googlesearch/test.out
 regtests/0057_googlesearch/test.py
 regtests/0058_head/head.adb
 regtests/0058_head/head.gpr
+regtests/0058_head/head.txt
 regtests/0058_head/test.out
 regtests/0058_head/test.py
 regtests/0059_hload/hload.adb
