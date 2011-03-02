@@ -111,6 +111,7 @@ def run(bin, options=None, output_file=None):
                                         '*.gz',
                                         '*.tmplt',
                                         '*.thtml',
+                                        '*.html',
                                         '*.ini',
                                         '*.types',
                                         '*.gif'])
