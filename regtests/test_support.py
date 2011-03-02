@@ -115,6 +115,7 @@ def run(bin, options=None, output_file=None):
                                         '*.html',
                                         '*.ini',
                                         '*.types',
+                                        '*.mime',
                                         '*.gif'])
     else:
         if Env().testsuite_config.with_gdb:
