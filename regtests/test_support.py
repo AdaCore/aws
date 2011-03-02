@@ -108,6 +108,7 @@ def run(bin, options=None, output_file=None):
         run_cross([bin + Env().target.os.exeext],
                   output=output_file, timeout=timeout,
                   copy_files_on_target=['*.txt',
+                                        '*.gz',
                                         '*.tmplt',
                                         '*.thtml',
                                         '*.ini',
