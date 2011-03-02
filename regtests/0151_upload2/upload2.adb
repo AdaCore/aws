@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2010, AdaCore                     --
+--                     Copyright (C) 2003-2011, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -185,7 +185,7 @@ begin
    Server.Started;
 
    Request
-     ("http://localhost:" & Utils.Image (Port) & "/upload", "test.out");
+     ("http://localhost:" & Utils.Image (Port) & "/upload", "file.txt");
 
    Server.Stopped;
 

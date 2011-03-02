@@ -1183,6 +1183,7 @@ regtests/0150_upload/test.out
 regtests/0150_upload/test.py
 regtests/0150_upload/upload.adb
 regtests/0150_upload/upload.gpr
+regtests/0151_upload2/file.txt
 regtests/0151_upload2/test.out
 regtests/0151_upload2/test.py
 regtests/0151_upload2/upload2.adb
