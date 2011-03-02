@@ -109,6 +109,7 @@ def run(bin, options=None, output_file=None):
                   output=output_file, timeout=timeout,
                   copy_files_on_target=['*.txt',
                                         '*.gz',
+                                        '*.dat',
                                         '*.tmplt',
                                         '*.thtml',
                                         '*.html',
