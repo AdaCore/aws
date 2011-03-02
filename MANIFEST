@@ -707,6 +707,7 @@ regtests/0065_page_server/page_server.adb
 regtests/0065_page_server/page_server.gpr
 regtests/0065_page_server/test.out
 regtests/0065_page_server/test.py
+regtests/0066_upload3/file2.txt
 regtests/0066_upload3/test.out
 regtests/0066_upload3/test.py
 regtests/0066_upload3/upload3.adb
