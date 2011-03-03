@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2009, AdaCore                     --
+--                     Copyright (C) 2000-2011, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -46,10 +46,18 @@ package body AWS.Dispatchers is
    --------------
 
    overriding procedure Finalize (Dispatcher : in out Handler) is
+      use type Utils.Counter_Access;
+      Ref_Counter : Utils.Counter_Access := Dispatcher.Ref_Counter;
    begin
-      Dispatcher.Ref_Counter.all := Dispatcher.Ref_Counter.all - 1;
-      if Dispatcher.Ref_Counter.all = 0 then
-         Utils.Free (Dispatcher.Ref_Counter);
+      --  Ensure call is idempotent
+
+      Dispatcher.Ref_Counter := null;
+
+      if Ref_Counter /= null then
+         Ref_Counter.all := Ref_Counter.all - 1;
+         if Ref_Counter.all = 0 then
+            Utils.Free (Ref_Counter);
+         end if;
       end if;
    end Finalize;
 

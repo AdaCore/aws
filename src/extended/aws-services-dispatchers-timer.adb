@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2009, AdaCore                     --
+--                     Copyright (C) 2003-2011, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -311,10 +311,11 @@ package body AWS.Services.Dispatchers.Timer is
    --------------
 
    overriding procedure Finalize (Dispatcher : in out Handler) is
+      Ref_Counter : constant Natural := Dispatcher.Ref_Counter;
    begin
       Finalize (AWS.Dispatchers.Handler (Dispatcher));
 
-      if Ref_Counter (Dispatcher) = 0 then
+      if Ref_Counter = 1 then
          for K in 1 .. Period_Table.Length (Dispatcher.Table) loop
             declare
                Item : Node_Access
