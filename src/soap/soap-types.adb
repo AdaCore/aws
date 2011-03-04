@@ -42,10 +42,10 @@ package body SOAP.Types is
 
    use Ada;
 
-   procedure Free is
+   procedure Unchecked_Free is
       new Ada.Unchecked_Deallocation (Object_Set, Object_Set_Access);
 
-   procedure Free is
+   procedure Unchecked_Free is
       new Ada.Unchecked_Deallocation (Natural, Counter_Access);
 
    function xsi_type (Name : String) return String;
@@ -212,11 +212,11 @@ package body SOAP.Types is
    --------------
 
    overriding procedure Finalize (O : in out Object_Safe_Pointer) is
-      procedure Free is
+      procedure Unchecked_Free is
         new Ada.Unchecked_Deallocation (Object'Class, Object_Access);
    begin
       if O.O /= null then
-         Free (O.O);
+         Unchecked_Free (O.O);
       end if;
    end Finalize;
 
@@ -231,8 +231,8 @@ package body SOAP.Types is
          Ref_Counter.all := Ref_Counter.all - 1;
 
          if Ref_Counter.all = 0 then
-            Free (O.O);
-            Free (Ref_Counter);
+            Unchecked_Free (O.O);
+            Unchecked_Free (Ref_Counter);
          end if;
       end if;
    end Finalize;

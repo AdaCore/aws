@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2004-2009, AdaCore                     --
+--                     Copyright (C) 2004-2011, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -31,10 +31,10 @@ with AWS.Net;
 
 package body AWS.Net.Generic_Sets is
 
-   procedure Free is
+   procedure Unchecked_Free is
      new Ada.Unchecked_Deallocation (Socket_Array, Socket_Array_Access);
 
-   procedure Free is
+   procedure Unchecked_Free is
      new Ada.Unchecked_Deallocation (Socket_Type'Class, Socket_Access);
       --  We could not use AWS.Net.Free because Socket_Set_Type did not
       --  allocate internal socket data.
@@ -130,7 +130,7 @@ package body AWS.Net.Generic_Sets is
 
             Set.Set (Prev_Set'Range)  := Prev_Set.all;
 
-            Free (Prev_Set);
+            Unchecked_Free (Prev_Set);
          end;
       end if;
 
@@ -163,7 +163,7 @@ package body AWS.Net.Generic_Sets is
    overriding procedure Finalize (Set : in out Socket_Set_Type) is
    begin
       Reset (Set);
-      Free (Set.Set);
+      Unchecked_Free (Set.Set);
       Free (Set.Poll);
    end Finalize;
 
@@ -263,7 +263,7 @@ package body AWS.Net.Generic_Sets is
       Last : constant Socket_Count := Socket_Count (Length (Set.Poll.all));
    begin
       if Set.Set (Index).Allocated then
-         Generic_Sets.Free (Set.Set (Index).Socket);
+         Generic_Sets.Unchecked_Free (Set.Set (Index).Socket);
       end if;
 
       if Index < Last then
@@ -308,7 +308,7 @@ package body AWS.Net.Generic_Sets is
 
       for K in reverse 1 .. Last loop
          if Set.Set (K).Allocated then
-            Generic_Sets.Free (Set.Set (K).Socket);
+            Generic_Sets.Unchecked_Free (Set.Set (K).Socket);
          end if;
          Remove (Set.Poll.all, Positive (K));
       end loop;

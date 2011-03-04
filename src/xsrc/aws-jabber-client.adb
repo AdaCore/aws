@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2008-2010, AdaCore                     --
+--                     Copyright (C) 2008-2011, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -55,7 +55,7 @@ package body AWS.Jabber.Client is
    -----------
 
    procedure Close (Account : in out Client.Account)  is
-      procedure Free is new Ada.Unchecked_Deallocation
+      procedure Unchecked_Free is new Ada.Unchecked_Deallocation
         (Incoming_Stream, Incoming_Stream_Access);
    begin
       if Account.Is_Running then
@@ -78,7 +78,7 @@ package body AWS.Jabber.Client is
 
          Net.Free (Account.Sock);
 
-         Free (Account.Stream);
+         Unchecked_Free (Account.Stream);
          Account.Is_Running := False;
       end if;
    end Close;
@@ -406,9 +406,8 @@ package body AWS.Jabber.Client is
 
             type XMPP_Message_Access is access all XMPP_Message;
 
-            procedure Release is
-              new Ada.Unchecked_Deallocation
-                (XMPP_Message, XMPP_Message_Access);
+            procedure Unchecked_Free is new Ada.Unchecked_Deallocation
+              (XMPP_Message, XMPP_Message_Access);
             --  Release all maemory associated with the response object_access
 
             type Tree_Reader is new Sax.Readers.Reader with record
@@ -441,6 +440,7 @@ package body AWS.Jabber.Client is
             procedure Process
               (Account  : in out Client.Account;
                Message  : XMPP_Message_Access);
+
          end XMPP_Parser;
 
          function Message_Suffix return String;
@@ -903,7 +903,7 @@ package body AWS.Jabber.Client is
          --  Add message into the Mailbox
 
          XMPP_Parser.Process (Account.all, Reader.R);
-         XMPP_Parser.Release (Reader.R);
+         XMPP_Parser.Unchecked_Free (Reader.R);
       end Parse_Message;
 
    begin

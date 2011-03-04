@@ -58,7 +58,7 @@ package body AWS.Client is
          ZLib.Close (Connection.Decode_Filter, Ignore_Error => True);
       end if;
 
-      Utils.Free (Connection.Decode_Buffer);
+      Utils.Unchecked_Free (Connection.Decode_Buffer);
    end Close;
 
    ---------------------

@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2010, AdaCore                     --
+--                     Copyright (C) 2000-2011, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -182,7 +182,7 @@ package AWS.Utils is
    type Stream_Element_Array_Constant_Access is
      access constant Streams.Stream_Element_Array;
 
-   procedure Free is new Unchecked_Deallocation
+   procedure Unchecked_Free is new Unchecked_Deallocation
      (Streams.Stream_Element_Array, Stream_Element_Array_Access);
 
    ----------------
@@ -265,7 +265,8 @@ package AWS.Utils is
 
    type Counter_Access is access Natural;
 
-   procedure Free is new Unchecked_Deallocation (Natural, Counter_Access);
+   procedure Unchecked_Free is
+     new Unchecked_Deallocation (Natural, Counter_Access);
 
    ----------------------------
    -- File oriented routines --

@@ -53,7 +53,7 @@ package body AWS.Dispatchers is
       if Ref_Counter /= null then
          Ref_Counter.all := Ref_Counter.all - 1;
          if Ref_Counter.all = 0 then
-            Utils.Free (Ref_Counter);
+            Utils.Unchecked_Free (Ref_Counter);
          end if;
       end if;
    end Finalize;
@@ -63,10 +63,10 @@ package body AWS.Dispatchers is
    ----------
 
    procedure Free (Dispatcher : in out Handler_Class_Access) is
-      procedure Release is
+      procedure Unchecked_Free is
         new Ada.Unchecked_Deallocation (Handler'Class, Handler_Class_Access);
    begin
-      Release (Dispatcher);
+      Unchecked_Free (Dispatcher);
    end Free;
 
    ----------------

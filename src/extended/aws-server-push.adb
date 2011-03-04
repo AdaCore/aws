@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2010, AdaCore                     --
+--                     Copyright (C) 2000-2011, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -76,7 +76,8 @@ package body AWS.Server.Push is
 
    procedure Free (Holder : in out Client_Holder_Access);
 
-   procedure Free is new Unchecked_Deallocation (Tables.Map, Map_Access);
+   procedure Unchecked_Free is
+     new Unchecked_Deallocation (Tables.Map, Map_Access);
 
    procedure Release
      (Server         : in out Object;
@@ -289,11 +290,11 @@ package body AWS.Server.Push is
    ----------
 
    procedure Free (Holder : in out Client_Holder_Access) is
-      procedure Deallocate is
+      procedure Unchecked_Free is
          new Unchecked_Deallocation (Client_Holder, Client_Holder_Access);
    begin
       Net.Free (Holder.Socket);
-      Deallocate (Holder);
+      Unchecked_Free (Holder);
    end Free;
 
    --------------
@@ -940,7 +941,7 @@ package body AWS.Server.Push is
 
             if Map.Length = 0 then
                Groups.Delete (C);
-               Free (Map);
+               Unchecked_Free (Map);
             end if;
          end Delete_Group;
 
@@ -1016,7 +1017,7 @@ package body AWS.Server.Push is
 
                if Group.Length = 0 then
                   Groups.Delete (CG);
-                  Free (Group);
+                  Unchecked_Free (Group);
                end if;
             end if;
          end Modify;
@@ -1067,7 +1068,7 @@ package body AWS.Server.Push is
 
          if Group.Length = 0 then
             Groups.Delete (CG);
-            Free (Group);
+            Unchecked_Free (Group);
          end if;
 
       end Unsubscribe_Copy;

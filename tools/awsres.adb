@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2002-2009, AdaCore                     --
+--                     Copyright (C) 2002-2011, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -113,8 +113,9 @@ procedure AwsRes is
 
       First     : Boolean := True;
 
-      procedure Free is new Ada.Unchecked_Deallocation
-                              (RS.Stream_Type'Class, RS.Stream_Access);
+      procedure Unchecked_Free is new Ada.Unchecked_Deallocation
+        (RS.Stream_Type'Class, RS.Stream_Access);
+
    begin
       if not Quiet then
          Text_IO.Put ("creating " & Filename);
@@ -218,7 +219,7 @@ procedure AwsRes is
         (O_File, "end " & To_String (Root_Pck) & '.' & Unit_Name & ';');
 
       RS.Close (I_File.all);
-      Free     (I_File);
+      Unchecked_Free (I_File);
 
       Text_IO.Close (O_File);
 

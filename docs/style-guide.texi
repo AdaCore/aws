@@ -639,6 +639,9 @@ body, then just before the begin is a line:
         @b{begin}
 @end smallexample
 
+@item
+Unchecked_Deallocation instances must be named Unchecked_Free.
+
 @end itemize
 
 @c  -------------------------------------------------------------------------

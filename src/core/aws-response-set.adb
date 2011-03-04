@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2002-2010, AdaCore                     --
+--                     Copyright (C) 2002-2011, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -172,7 +172,7 @@ package body AWS.Response.Set is
    begin
       if not D.Ref_Counter.Stream_Taken and then D.Stream /= null then
          Resources.Streams.Close (D.Stream.all);
-         Free (D.Stream);
+         Unchecked_Free (D.Stream);
       end if;
 
       Headers.Set.Reset (D.Header);

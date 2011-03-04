@@ -399,7 +399,7 @@ package body AWS.Response is
 
       use Resources.Streams;
 
-      procedure Free is new Ada.Unchecked_Deallocation
+      procedure Unchecked_Free is new Ada.Unchecked_Deallocation
         (Release_Controller, Release_Controller_Access);
 
       Ref_Counter : Release_Controller_Access := Object.Ref_Counter;
@@ -420,10 +420,10 @@ package body AWS.Response is
             then
                --  We can finalize it as the socket has not been recorded
                Close (Object.Stream.all);
-               Free (Object.Stream);
+               Unchecked_Free (Object.Stream);
             end if;
 
-            Free (Ref_Counter);
+            Unchecked_Free (Ref_Counter);
          end if;
       end if;
    end Finalize;

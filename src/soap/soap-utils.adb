@@ -300,9 +300,11 @@ package body SOAP.Utils is
 
    package body Safe_Pointers is
 
-      procedure Free is new Ada.Unchecked_Deallocation (T, T_Access);
+      procedure Unchecked_Free is
+        new Ada.Unchecked_Deallocation (T, T_Access);
 
-      procedure Free is new Ada.Unchecked_Deallocation (Natural, Ref_Counter);
+      procedure Unchecked_Free is
+        new Ada.Unchecked_Deallocation (Natural, Ref_Counter);
 
       ------------
       -- Adjust --
@@ -328,8 +330,8 @@ package body SOAP.Utils is
             Ref.all := Ref.all - 1;
 
             if Ref.all = 0 then
-               Free (SP.Item);
-               Free (Ref);
+               Unchecked_Free (SP.Item);
+               Unchecked_Free (Ref);
             end if;
          end if;
       end Finalize;

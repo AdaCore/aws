@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --                             Strings  Cutter                              --
 --                                                                          --
---                        Copyright (C) 1995 - 2007                         --
---                               Pascal Obry                                --
+--                   Copyright (C) 1995-2011, Pascal Obry                   --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -48,7 +47,7 @@ package body Strings_Cutter is
    -- Free --
    ----------
 
-   procedure Free is
+   procedure Unchecked_Free is
       new Ada.Unchecked_Deallocation (Cut_String_Record, Cut_String);
 
    ----------------
@@ -119,7 +118,7 @@ package body Strings_Cutter is
    procedure Destroy (S : in out Cut_String) is
    begin
       if S /= null then
-         Free (S);
+         Unchecked_Free (S);
       end if;
    end Destroy;
 

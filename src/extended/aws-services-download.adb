@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2005-2010, AdaCore                     --
+--                     Copyright (C) 2005-2011, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -582,7 +582,7 @@ package body AWS.Services.Download is
    ----------
 
    procedure Stop is
-      procedure Free is new Ada.Unchecked_Deallocation
+      procedure Unchecked_Free is new Ada.Unchecked_Deallocation
         (Download_Manager, Download_Manager_Access);
    begin
       Dispatchers.URI.Unregister (DM_Handler, "/" & URI_Prefix);
@@ -592,7 +592,7 @@ package body AWS.Services.Download is
          delay 0.1;
       end loop;
 
-      Free (DM);
+      Unchecked_Free (DM);
 
       Data_Manager.Release;
    end Stop;

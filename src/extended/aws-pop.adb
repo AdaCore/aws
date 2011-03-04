@@ -246,7 +246,7 @@ package body AWS.POP is
 
    overriding procedure Finalize (Attachment : in out POP.Attachment) is
       use type Utils.Counter_Access;
-      procedure Free is new Unchecked_Deallocation
+      procedure Unchecked_Free is new Unchecked_Deallocation
         (AWS.Resources.Streams.Stream_Type'Class,
          AWS.Resources.Streams.Stream_Access);
       Ref_Count : Utils.Counter_Access := Attachment.Ref_Count;
@@ -261,8 +261,8 @@ package body AWS.POP is
          if Ref_Count.all = 0 then
             AWS.Resources.Streams.Memory.Close
               (Stream_Type (Attachment.Content.all));
-            Free (Attachment.Content);
-            Utils.Free (Ref_Count);
+            Unchecked_Free (Attachment.Content);
+            Utils.Unchecked_Free (Ref_Count);
          end if;
       end if;
    end Finalize;
@@ -280,7 +280,7 @@ package body AWS.POP is
          Ref_Count.all := Ref_Count.all + 1;
 
          if Ref_Count.all = 0 then
-            Utils.Free (Ref_Count);
+            Utils.Unchecked_Free (Ref_Count);
          end if;
 
          while A /= null loop

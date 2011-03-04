@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2009, AdaCore                     --
+--                     Copyright (C) 2000-2011, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -57,7 +57,7 @@ package body AWS.Session is
    package Key_Value renames Containers.Key_Value;
    type Key_Value_Set_Access is access Key_Value.Map;
 
-   procedure Free is new Ada.Unchecked_Deallocation
+   procedure Unchecked_Free is new Ada.Unchecked_Deallocation
      (Key_Value.Map, Key_Value_Set_Access);
 
    --  table of session ID
@@ -338,7 +338,7 @@ package body AWS.Session is
          Sessions.Insert (SID, New_Node, Cursor, Success);
 
          if not Success then
-            Free (New_Node.Root);
+            Unchecked_Free (New_Node.Root);
          end if;
       end Add_Session;
 
@@ -359,7 +359,7 @@ package body AWS.Session is
             Removed := Node.Root.Length = 0;
 
             if Removed then
-               Free (Node.Root);
+               Unchecked_Free (Node.Root);
                Sessions.Delete (Cursor);
             end if;
 
@@ -378,7 +378,7 @@ package body AWS.Session is
       begin
          if Session_Set.Has_Element (Cursor) then
             Node := Session_Set.Element (Cursor);
-            Free (Node.Root);
+            Unchecked_Free (Node.Root);
             Sessions.Delete (Cursor);
          end if;
       end Delete_Session;
@@ -398,7 +398,7 @@ package body AWS.Session is
          procedure Destroy (Cursor : Session_Set.Cursor) is
             Item : Session_Node := Session_Set.Element (Cursor);
          begin
-            Free (Item.Root);
+            Unchecked_Free (Item.Root);
          end Destroy;
 
       begin

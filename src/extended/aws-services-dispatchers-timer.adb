@@ -34,7 +34,8 @@ package body AWS.Services.Dispatchers.Timer is
 
    use AWS.Dispatchers;
 
-   procedure Free is new Ada.Unchecked_Deallocation (Node, Node_Access);
+   procedure Unchecked_Free is
+     new Ada.Unchecked_Deallocation (Node, Node_Access);
 
    -----------
    -- Clone --
@@ -322,7 +323,7 @@ package body AWS.Services.Dispatchers.Timer is
                  := Period_Table.Element (Dispatcher.Table, Natural (K));
             begin
                Free (Item.Action);
-               Free (Item);
+               Unchecked_Free (Item);
             end;
          end loop;
 
@@ -491,7 +492,7 @@ package body AWS.Services.Dispatchers.Timer is
             Item : Node_Access := Period_Table.Element (Dispatcher.Table, K);
          begin
             if To_String (Item.Name) = Name then
-               Free (Item);
+               Unchecked_Free (Item);
                Period_Table.Delete (Dispatcher.Table, K);
                return;
             end if;

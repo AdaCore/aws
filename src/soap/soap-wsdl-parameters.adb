@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2009, AdaCore                     --
+--                     Copyright (C) 2003-2011, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -130,9 +130,11 @@ package body SOAP.WSDL.Parameters is
 
    procedure Release (P : in out P_Set) is
 
-      procedure Free is new Ada.Unchecked_Deallocation (Parameter, P_Set);
+      procedure Unchecked_Free is
+        new Ada.Unchecked_Deallocation (Parameter, P_Set);
 
-      procedure Free is new Ada.Unchecked_Deallocation (E_Node, E_Node_Access);
+      procedure Unchecked_Free is
+        new Ada.Unchecked_Deallocation (E_Node, E_Node_Access);
 
    begin
       if P /= null then
@@ -147,14 +149,14 @@ package body SOAP.WSDL.Parameters is
 
                while C /= null loop
                   N := C.Next;
-                  Free (C);
+                  Unchecked_Free (C);
                   C := N;
                end loop;
             end;
          end if;
 
          Release (P.Next);
-         Free (P);
+         Unchecked_Free (P);
       end if;
    end Release;
 
