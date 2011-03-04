@@ -121,8 +121,8 @@ package body AWS.Services.Dispatchers.URI is
    begin
       for K in 1 .. URI_Table.Length (Dispatcher.Table) loop
          declare
-            Item : constant URI_Class_Access
-              := URI_Table.Element (Dispatcher.Table, Natural (K));
+            Item : constant URI_Class_Access :=
+                     URI_Table.Element (Dispatcher.Table, Natural (K));
          begin
             if Match (Item.all, URI) then
                Result := Dispatch (Item.Action.all, Request);
@@ -162,8 +162,8 @@ package body AWS.Services.Dispatchers.URI is
       if Ref_Counter = 1 then
          for K in 1 .. URI_Table.Length (Dispatcher.Table) loop
             declare
-               Item : URI_Class_Access
-                 := URI_Table.Element (Dispatcher.Table, Natural (K));
+               Item : URI_Class_Access :=
+                        URI_Table.Element (Dispatcher.Table, Natural (K));
             begin
                Free (Item.Action);
                Free (Item);
