@@ -29,9 +29,6 @@ with Ada.Unchecked_Deallocation;
 
 package body AWS.Dispatchers is
 
-   procedure Release is
-      new Ada.Unchecked_Deallocation (Handler'Class, Handler_Class_Access);
-
    ------------
    -- Adjust --
    ------------
@@ -66,6 +63,8 @@ package body AWS.Dispatchers is
    ----------
 
    procedure Free (Dispatcher : in out Handler_Class_Access) is
+      procedure Release is
+        new Ada.Unchecked_Deallocation (Handler'Class, Handler_Class_Access);
    begin
       Release (Dispatcher);
    end Free;
