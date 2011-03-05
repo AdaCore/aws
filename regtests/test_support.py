@@ -116,7 +116,8 @@ def run(bin, options=None, output_file=None):
                                         '*.ini',
                                         '*.types',
                                         '*.mime',
-                                        '*.gif'])
+                                        '*.gif',
+                                        '*.png'])
     else:
         if Env().testsuite_config.with_gdb:
             Run(["gdb", "--eval-command=run", "--batch-silent",
