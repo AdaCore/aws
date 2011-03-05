@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2010, AdaCore                     --
+--                     Copyright (C) 2000-2011, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -39,7 +39,7 @@ package body AWS.Log is
    function Log_Prefix (Prefix : String) return String;
    --  Returns the prefix to be added before the log filename. The returned
    --  value is the executable name without directory and filetype if Prefix
-   --  is No_Prefix otherwise Prefix is returned.
+   --  is Not_Specified otherwise Prefix is returned.
 
    procedure Check_Split (Log : in out Object; Now : Ada.Calendar.Time);
    --  Split log file if necessary
