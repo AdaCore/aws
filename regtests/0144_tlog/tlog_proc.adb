@@ -59,8 +59,8 @@ procedure TLog_Proc (Extended_Fields : String) is
 
    Filename : constant String := "file.tmp";
    Skip_Log : constant String := "/skip-log-record";
-   Today    : constant String
-     := GNAT.Calendar.Time_IO.Image (Ada.Calendar.Clock, "%Y-%m-%d");
+   Today    : constant String :=
+                GNAT.Calendar.Time_IO.Image (Ada.Calendar.Clock, "%Y-%m-%d");
    Success  : Boolean;
 
    WS   : Server.HTTP;
@@ -76,10 +76,8 @@ procedure TLog_Proc (Extended_Fields : String) is
 
    procedure Create_File is
       File : Streams.Stream_IO.File_Type;
-
       L1   : constant Streams.Stream_Element_Array :=
-        Translator.To_Stream_Element_Array ("9");
-
+               Translator.To_Stream_Element_Array ("9");
    begin
       Streams.Stream_IO.Create (File, Streams.Stream_IO.Out_File, Filename);
 
@@ -152,7 +150,7 @@ procedure TLog_Proc (Extended_Fields : String) is
 
    procedure Parse_Logs is
       use type AWK.Count;
-      I    : AWK.Count;
+      I       : AWK.Count;
       Ext_Log : Boolean;
    begin
       AWK.Add_File ("tlog-" & Today & ".log");
@@ -249,9 +247,8 @@ procedure TLog_Proc (Extended_Fields : String) is
       end if;
    end CB;
 
-   R : Response.Data;
-
    Connect : Client.HTTP_Connection;
+   R       : Response.Data;
 
 begin
    if Extended_Fields = "" then
