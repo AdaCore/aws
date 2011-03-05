@@ -1441,6 +1441,7 @@ regtests/0193_attachment_headers/attachment_headers.adb
 regtests/0193_attachment_headers/attachment_headers.gpr
 regtests/0193_attachment_headers/test.out
 regtests/0193_attachment_headers/test.py
+regtests/0193_attachment_headers/test.txt
 regtests/0194_base64/test.out
 regtests/0194_base64/test.py
 regtests/0194_base64/test_base64.adb

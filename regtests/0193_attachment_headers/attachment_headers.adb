@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                      Copyright (C) 2008-2009, AdaCore                    --
+--                      Copyright (C) 2008-2011, AdaCore                    --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -160,7 +160,7 @@ begin
 
    AWS.Attachments.Add
      (Attachments => Attachments,
-      Filename => "test.py", Headers => Headers);
+      Filename => "test.txt", Headers => Headers);
 
    Text_IO.Put_Line ("Call Post...");
 
