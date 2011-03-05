@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2009, AdaCore                     --
+--                     Copyright (C) 2003-2011, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -34,7 +34,8 @@ package body AWS.Services.Dispatchers.Timer is
 
    use AWS.Dispatchers;
 
-   procedure Free is new Ada.Unchecked_Deallocation (Node, Node_Access);
+   procedure Unchecked_Free is
+     new Ada.Unchecked_Deallocation (Node, Node_Access);
 
    -----------
    -- Clone --
@@ -311,17 +312,18 @@ package body AWS.Services.Dispatchers.Timer is
    --------------
 
    overriding procedure Finalize (Dispatcher : in out Handler) is
+      Ref_Counter : constant Natural := Dispatcher.Ref_Counter;
    begin
       Finalize (AWS.Dispatchers.Handler (Dispatcher));
 
-      if Ref_Counter (Dispatcher) = 0 then
+      if Ref_Counter = 1 then
          for K in 1 .. Period_Table.Length (Dispatcher.Table) loop
             declare
                Item : Node_Access
                  := Period_Table.Element (Dispatcher.Table, Natural (K));
             begin
                Free (Item.Action);
-               Free (Item);
+               Unchecked_Free (Item);
             end;
          end loop;
 
@@ -490,7 +492,7 @@ package body AWS.Services.Dispatchers.Timer is
             Item : Node_Access := Period_Table.Element (Dispatcher.Table, K);
          begin
             if To_String (Item.Name) = Name then
-               Free (Item);
+               Unchecked_Free (Item);
                Period_Table.Delete (Dispatcher.Table, K);
                return;
             end if;

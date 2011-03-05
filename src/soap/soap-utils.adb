@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2010, AdaCore                     --
+--                     Copyright (C) 2000-2011, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -300,9 +300,11 @@ package body SOAP.Utils is
 
    package body Safe_Pointers is
 
-      procedure Free is new Ada.Unchecked_Deallocation (T, T_Access);
+      procedure Unchecked_Free is
+        new Ada.Unchecked_Deallocation (T, T_Access);
 
-      procedure Free is new Ada.Unchecked_Deallocation (Natural, Ref_Counter);
+      procedure Unchecked_Free is
+        new Ada.Unchecked_Deallocation (Natural, Ref_Counter);
 
       ------------
       -- Adjust --
@@ -318,12 +320,19 @@ package body SOAP.Utils is
       --------------
 
       overriding procedure Finalize (SP : in out Safe_Pointer) is
+         Ref : Ref_Counter := SP.Ref;
       begin
-         SP.Ref.all := SP.Ref.all - 1;
+         --  Ensure call is idempotent
 
-         if SP.Ref.all = 0 then
-            Free (SP.Item);
-            Free (SP.Ref);
+         SP.Ref := null;
+
+         if Ref /= null then
+            Ref.all := Ref.all - 1;
+
+            if Ref.all = 0 then
+               Unchecked_Free (SP.Item);
+               Unchecked_Free (Ref);
+            end if;
          end if;
       end Finalize;
 

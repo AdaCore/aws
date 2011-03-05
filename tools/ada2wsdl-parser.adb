@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2009, AdaCore                     --
+--                     Copyright (C) 2003-2011, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -1523,7 +1523,8 @@ package body Ada2WSDL.Parser is
       -- Free --
       ----------
 
-      procedure Free is new Ada.Unchecked_Deallocation (String, String_Access);
+      procedure Unchecked_Free is
+        new Ada.Unchecked_Deallocation (String, String_Access);
 
       -------------------
       -- Get_Tree_Name --
@@ -1595,7 +1596,7 @@ package body Ada2WSDL.Parser is
          raise Parameter_Error;
       end if;
 
-      Free (File_Name);
+      Unchecked_Free (File_Name);
    end Create_Tree;
 
    ------------------------

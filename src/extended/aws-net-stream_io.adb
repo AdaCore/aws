@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2009, AdaCore                     --
+--                     Copyright (C) 2000-2011, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -25,8 +25,6 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-with Ada.Unchecked_Deallocation;
-
 with AWS.Net.Buffered;
 
 package body AWS.Net.Stream_IO is
@@ -45,8 +43,6 @@ package body AWS.Net.Stream_IO is
    ----------
 
    procedure Free (Stream : in out Socket_Stream_Access) is
-      procedure Free is new Ada.Unchecked_Deallocation
-        (Socket_Stream_Type, Socket_Stream_Access);
    begin
       Free (Stream.Socket);
       Free (Stream);

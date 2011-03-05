@@ -45,7 +45,7 @@ package body AWS.Server is
    use Ada;
    use type Net.Socket_Access;
 
-   procedure Free is new Ada.Unchecked_Deallocation
+   procedure Unchecked_Free is new Ada.Unchecked_Deallocation
      (Dispatchers.Handler'Class, Dispatchers.Handler_Class_Access);
 
    procedure Start
@@ -363,7 +363,7 @@ package body AWS.Server is
      (Web_Server : in out HTTP;
       Dispatcher : Dispatchers.Handler'Class) is
    begin
-      Free (Web_Server.New_Dispatcher);
+      Unchecked_Free (Web_Server.New_Dispatcher);
       Web_Server.New_Dispatcher :=
         new Dispatchers.Handler'Class'
           (Dispatchers.Handler'Class (Dispatcher.Clone));
@@ -437,9 +437,12 @@ package body AWS.Server is
 
    procedure Shutdown (Web_Server : in out HTTP) is
 
-      procedure Free is new Unchecked_Deallocation (Line_Set, Line_Set_Access);
-      procedure Free is new Unchecked_Deallocation (Slots, Slots_Access);
-      procedure Free is new Unchecked_Deallocation (Line, Line_Access);
+      procedure Unchecked_Free is
+        new Unchecked_Deallocation (Line_Set, Line_Set_Access);
+      procedure Unchecked_Free is
+        new Unchecked_Deallocation (Slots, Slots_Access);
+      procedure Unchecked_Free is
+        new Unchecked_Deallocation (Line, Line_Access);
 
       All_Lines_Terminated : Boolean := False;
       Slot_State           : Slot_Phase := Closed;
@@ -521,14 +524,14 @@ package body AWS.Server is
       --  Release lines and slots memory
 
       for K in Web_Server.Lines'Range loop
-         Free (Web_Server.Lines (K));
+         Unchecked_Free (Web_Server.Lines (K));
       end loop;
 
-      Free (Web_Server.Lines);
+      Unchecked_Free (Web_Server.Lines);
 
-      Free (Web_Server.Slots);
+      Unchecked_Free (Web_Server.Slots);
 
-      Free (Web_Server.Dispatcher);
+      Unchecked_Free (Web_Server.Dispatcher);
 
       --  Release the session server if needed
 

@@ -56,7 +56,7 @@ package body AWS.Resources is
    procedure Close (Resource : in out File_Type) is
    begin
       Close (Resource.all);
-      Free (Resource);
+      Unchecked_Free (Resource);
    end Close;
 
    -----------------

@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2009, AdaCore                     --
+--                     Copyright (C) 2000-2011, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -49,7 +49,7 @@ package body AWS.Session.Control is
 
    procedure Shutdown is
 
-      procedure Free is
+      procedure Unchecked_Free is
          new Ada.Unchecked_Deallocation (Cleaner, Cleaner_Access);
 
       Need_Release : Boolean;
@@ -69,7 +69,7 @@ package body AWS.Session.Control is
 
          --  Release memory
 
-         Free (Cleaner_Task);
+         Unchecked_Free (Cleaner_Task);
       end if;
    end Shutdown;
 

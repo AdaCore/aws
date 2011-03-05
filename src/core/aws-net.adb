@@ -108,15 +108,22 @@ package body AWS.Net is
    --------------
 
    overriding procedure Finalize (Socket : in out Socket_Type) is
-      procedure Free is
+      procedure Unchecked_Free is
         new Unchecked_Deallocation (RW_Cache, RW_Cache_Access);
+      Cache     : RW_Cache_Access := Socket.C;
       Ref_Count : Natural;
    begin
-      Socket.C.Ref_Count.Decrement (Value => Ref_Count);
+      --  Ensure call is idempotent
 
-      if Ref_Count = 0 then
-         Free (Socket_Type'Class (Socket));
-         Free (Socket.C);
+      Socket.C := null;
+
+      if Cache /= null then
+         Cache.Ref_Count.Decrement (Value => Ref_Count);
+
+         if Ref_Count = 0 then
+            Free (Socket_Type'Class (Socket));
+            Unchecked_Free (Cache);
+         end if;
       end if;
    end Finalize;
 
@@ -125,17 +132,17 @@ package body AWS.Net is
    ----------
 
    procedure Free (Socket : in out Socket_Access) is
-      procedure Free is
+      procedure Unchecked_Free is
         new Ada.Unchecked_Deallocation (Socket_Type'Class, Socket_Access);
    begin
-      Free (Socket);
+      Unchecked_Free (Socket);
    end Free;
 
    procedure Free (FD_Set : in out FD_Set_Access) is
-      procedure Dispose is
+      procedure Unchecked_Free is
         new Ada.Unchecked_Deallocation (Net.FD_Set'Class, FD_Set_Access);
    begin
-      Dispose (FD_Set);
+      Unchecked_Free (FD_Set);
    end Free;
 
    ----------------------

@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2009, AdaCore                     --
+--                     Copyright (C) 2000-2011, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -148,11 +148,12 @@ package body AWS.Services.Dispatchers.Virtual_Host is
    --------------
 
    overriding procedure Finalize (Dispatcher : in out Handler) is
-      Cursor : Virtual_Host_Table.Cursor;
+      Ref_Counter : constant Natural := Dispatcher.Ref_Counter;
+      Cursor      : Virtual_Host_Table.Cursor;
    begin
       Finalize (AWS.Dispatchers.Handler (Dispatcher));
 
-      if Ref_Counter (Dispatcher) = 0 then
+      if Ref_Counter = 1 then
          Cursor := Dispatcher.Table.First;
 
          while Virtual_Host_Table.Has_Element (Cursor) loop

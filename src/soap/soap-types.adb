@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2010, AdaCore                     --
+--                     Copyright (C) 2000-2011, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -42,10 +42,10 @@ package body SOAP.Types is
 
    use Ada;
 
-   procedure Free is
+   procedure Unchecked_Free is
       new Ada.Unchecked_Deallocation (Object_Set, Object_Set_Access);
 
-   procedure Free is
+   procedure Unchecked_Free is
       new Ada.Unchecked_Deallocation (Natural, Counter_Access);
 
    function xsi_type (Name : String) return String;
@@ -212,21 +212,28 @@ package body SOAP.Types is
    --------------
 
    overriding procedure Finalize (O : in out Object_Safe_Pointer) is
-      procedure Free is
+      procedure Unchecked_Free is
         new Ada.Unchecked_Deallocation (Object'Class, Object_Access);
    begin
       if O.O /= null then
-         Free (O.O);
+         Unchecked_Free (O.O);
       end if;
    end Finalize;
 
    overriding procedure Finalize (O : in out Composite) is
+      Ref_Counter : Counter_Access := O.Ref_Counter;
    begin
-      O.Ref_Counter.all := O.Ref_Counter.all - 1;
+      --  Ensure call is idempotent
 
-      if O.Ref_Counter.all = 0 then
-         Free (O.O);
-         Free (O.Ref_Counter);
+      O.Ref_Counter := null;
+
+      if Ref_Counter /= null then
+         Ref_Counter.all := Ref_Counter.all - 1;
+
+         if Ref_Counter.all = 0 then
+            Unchecked_Free (O.O);
+            Unchecked_Free (Ref_Counter);
+         end if;
       end if;
    end Finalize;
 

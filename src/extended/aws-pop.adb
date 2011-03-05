@@ -2,7 +2,7 @@
 --                              Ada Web Server                              --
 --                       P O P - Post Office Protocol                       --
 --                                                                          --
---                     Copyright (C) 2003-2009, AdaCore                     --
+--                     Copyright (C) 2003-2011, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -245,33 +245,50 @@ package body AWS.POP is
    --------------
 
    overriding procedure Finalize (Attachment : in out POP.Attachment) is
-      procedure Free is new Unchecked_Deallocation
+      use type Utils.Counter_Access;
+      procedure Unchecked_Free is new Unchecked_Deallocation
         (AWS.Resources.Streams.Stream_Type'Class,
          AWS.Resources.Streams.Stream_Access);
+      Ref_Count : Utils.Counter_Access := Attachment.Ref_Count;
    begin
-      Attachment.Ref_Count.all := Attachment.Ref_Count.all + 1;
+      --  Ensure call is idempotent
 
-      if Attachment.Ref_Count.all = 0 then
-         AWS.Resources.Streams.Memory.Close
-           (Stream_Type (Attachment.Content.all));
-         Free (Attachment.Content);
-         Utils.Free (Attachment.Ref_Count);
+      Attachment.Ref_Count := null;
+
+      if Ref_Count /= null then
+         Ref_Count.all := Ref_Count.all + 1;
+
+         if Ref_Count.all = 0 then
+            AWS.Resources.Streams.Memory.Close
+              (Stream_Type (Attachment.Content.all));
+            Unchecked_Free (Attachment.Content);
+            Utils.Unchecked_Free (Ref_Count);
+         end if;
       end if;
    end Finalize;
 
    overriding procedure Finalize (Message : in out POP.Message) is
-      A : Attachment_Access := Message.Attachments;
+      use type Utils.Counter_Access;
+      Ref_Count : Utils.Counter_Access := Message.Ref_Count;
+      A         : Attachment_Access := Message.Attachments;
    begin
-      Message.Ref_Count.all := Message.Ref_Count.all + 1;
+      --  Ensure call is idempotent
 
-      if Message.Ref_Count.all = 0 then
-         Utils.Free (Message.Ref_Count);
+      Message.Ref_Count := null;
+
+      if Ref_Count /= null then
+         Ref_Count.all := Ref_Count.all + 1;
+
+         if Ref_Count.all = 0 then
+            Utils.Unchecked_Free (Ref_Count);
+         end if;
+
+         while A /= null loop
+            --  ??? free A there
+            Finalize (A.all);
+            A := A.Next;
+         end loop;
       end if;
-
-      while A /= null loop
-         Finalize (A.all);
-         A := A.Next;
-      end loop;
    end Finalize;
 
    --------------------------

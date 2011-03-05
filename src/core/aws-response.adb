@@ -399,24 +399,32 @@ package body AWS.Response is
 
       use Resources.Streams;
 
-      procedure Free is new Ada.Unchecked_Deallocation
+      procedure Unchecked_Free is new Ada.Unchecked_Deallocation
         (Release_Controller, Release_Controller_Access);
 
+      Ref_Counter : Release_Controller_Access := Object.Ref_Counter;
+
    begin
-      Object.Ref_Counter.Counter := Object.Ref_Counter.Counter - 1;
+      --  Ensure call is idempotent
 
-      if Object.Ref_Counter.Counter = 0 then
-         --  No more reference to this object
+      Object.Ref_Counter := null;
 
-         if not Object.Ref_Counter.Stream_Taken
-           and then Object.Stream /= null
-         then
-            --  We can finalize it as the socket has not been recorded
-            Close (Object.Stream.all);
-            Free (Object.Stream);
+      if Ref_Counter /= null then
+         Ref_Counter.Counter := Ref_Counter.Counter - 1;
+
+         if Ref_Counter.Counter = 0 then
+            --  No more reference to this object
+
+            if not Ref_Counter.Stream_Taken
+              and then Object.Stream /= null
+            then
+               --  We can finalize it as the socket has not been recorded
+               Close (Object.Stream.all);
+               Unchecked_Free (Object.Stream);
+            end if;
+
+            Unchecked_Free (Ref_Counter);
          end if;
-
-         Free (Object.Ref_Counter);
       end if;
    end Finalize;
 

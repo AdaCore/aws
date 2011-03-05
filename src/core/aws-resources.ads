@@ -171,7 +171,7 @@ private
      (File : in out File_Tagged;
       To   : Stream_Element_Offset) is abstract;
 
-   procedure Free is
+   procedure Unchecked_Free is
       new Ada.Unchecked_Deallocation (Resources.File_Tagged'Class, File_Type);
 
 end AWS.Resources;

@@ -636,8 +636,11 @@ body, then just before the begin is a line:
 @smallexample
         --  @i{Start of processing for bla bla}
 
-	@b{begin}
+        @b{begin}
 @end smallexample
+
+@item
+Unchecked_Deallocation instances must be named Unchecked_Free.
 
 @end itemize
 
@@ -683,7 +686,7 @@ unique, to prevent name clashes when the packages are "use"d.
 @smallexample
       @b{package} Entity @b{is}
          @b{type} Entity_Kind @b{is} ...;
-	 ...
+         ...
       @b{end} Entity;
 @end smallexample
 

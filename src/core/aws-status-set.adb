@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2010, AdaCore                     --
+--                     Copyright (C) 2000-2011, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -291,12 +291,12 @@ package body AWS.Status.Set is
    ----------
 
    procedure Free (D : in out Data) is
-      procedure Free is new Ada.Unchecked_Deallocation
+      procedure Unchecked_Free is new Ada.Unchecked_Deallocation
         (Containers.Memory_Streams.Stream_Type, Memory_Stream_Access);
    begin
       if D.Binary_Data /= null then
          Containers.Memory_Streams.Close (D.Binary_Data.all);
-         Free (D.Binary_Data);
+         Unchecked_Free (D.Binary_Data);
       end if;
 
       AWS.Attachments.Reset (D.Attachments, Delete_Files => True);
