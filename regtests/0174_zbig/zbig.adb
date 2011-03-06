@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2008, AdaCore                     --
+--                     Copyright (C) 2003-2011, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -38,8 +38,8 @@ procedure ZBig is
 
    Stream : Stream_Type;
 
-   Buffer : AWS.Utils.Stream_Element_Array_Access
-     := new Ada.Streams.Stream_Element_Array (1 .. 20_000_000);
+   Buffer : AWS.Utils.Stream_Element_Array_Access :=
+              new Ada.Streams.Stream_Element_Array (1 .. 20_000_000);
 
 begin
    for J in Buffer'Range loop
