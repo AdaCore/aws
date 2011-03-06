@@ -436,7 +436,7 @@ procedure Check_Mem is
       Packed := Translator.Compress (Sample);
 
       Test (Unpack, Packed.all);
-      Utils.Free (Packed);
+      Utils.Unchecked_Free (Packed);
 
       Test (Plain, Sample);
    end Check_Memory_Streams;
@@ -474,8 +474,8 @@ procedure Check_Mem is
            (Integer'Image (Data'Length) & " bytes compressed to"
               & Integer'Image (Comp'Length));
 
-         Utils.Free (Comp);
-         Utils.Free (Decomp);
+         Utils.Unchecked_Free (Comp);
+         Utils.Unchecked_Free (Decomp);
       end Test;
 
    begin
