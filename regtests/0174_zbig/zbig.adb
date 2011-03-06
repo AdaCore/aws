@@ -55,7 +55,7 @@ begin
    Deflate_Initialize (Stream);
    Append (Stream, Buffer.all);
 
-   AWS.Utils.Free (Buffer);
+   AWS.Utils.Unchecked_Free (Buffer);
 
    Ada.Text_IO.Put_Line (Stream_Element_Offset'Image (Size (Stream)));
 

@@ -59,8 +59,8 @@ procedure TCompress is
         (Integer'Image (Data'Length) & " bytes compressed to"
            & Integer'Image (Comp'Length));
 
-      Utils.Free (Comp);
-      Utils.Free (Decomp);
+      Utils.Unchecked_Free (Comp);
+      Utils.Unchecked_Free (Decomp);
    end Test;
 
    procedure Run is

@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2009, AdaCore                     --
+--                     Copyright (C) 2003-2011, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -89,7 +89,7 @@ procedure File2 is
       Text_IO.Put_Line ("-- file2.txt.gz unzipped --");
       Text_IO.Put_Line (Translator.To_String (Ptr.all));
 
-      Utils.Free (Ptr);
+      Utils.Unchecked_Free (Ptr);
    end Call_It;
 
    --------
