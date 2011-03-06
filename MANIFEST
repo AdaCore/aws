@@ -635,6 +635,7 @@ regtests/0052_dm/aws_download_manager_start.thtml
 regtests/0052_dm/aws_download_manager_waiting.thtml
 regtests/0052_dm/dm.adb
 regtests/0052_dm/dm.gpr
+regtests/0052_dm/test.opt
 regtests/0052_dm/test.out
 regtests/0052_dm/test.py
 regtests/0053_eres/adains.png
