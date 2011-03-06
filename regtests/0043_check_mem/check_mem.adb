@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2009, AdaCore                     --
+--                     Copyright (C) 2003-2011, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -89,7 +89,7 @@ procedure Check_Mem is
       entry Stopped;
    end Server;
 
-   HTTP      : AWS.Server.HTTP;
+   HTTP : AWS.Server.HTTP;
 
    -------------------
    -- Get_Free_Port --
@@ -203,12 +203,12 @@ procedure Check_Mem is
             Vect   : Templates.Vector_Tag := +"V1" & "V2" & "V3";
             Matrix : constant Templates.Matrix_Tag := +Vect & Vect;
 
-            Trans : constant Templates.Translate_Table
-              := (1 => Templates.Assoc ("ONE", 1),
-                  2 => Templates.Assoc ("TWO", 2),
-                  3 => Templates.Assoc ("EXIST", True),
-                  4 => Templates.Assoc ("V", Vect),
-                  5 => Templates.Assoc ("M", Matrix));
+            Trans : constant Templates.Translate_Table :=
+                      (1 => Templates.Assoc ("ONE", 1),
+                       2 => Templates.Assoc ("TWO", 2),
+                       3 => Templates.Assoc ("EXIST", True),
+                       4 => Templates.Assoc ("V", Vect),
+                       5 => Templates.Assoc ("M", Matrix));
          begin
             Templates.Clear (Vect);
             Vect := +"V1" & "V2" & "V3";
@@ -456,8 +456,8 @@ procedure Check_Mem is
       ----------
 
       procedure Test (Str : String) is
-         Data   : constant Streams.Stream_Element_Array
-           := Translator.To_Stream_Element_Array (Str);
+         Data   : constant Streams.Stream_Element_Array :=
+                    Translator.To_Stream_Element_Array (Str);
          Comp   : Utils.Stream_Element_Array_Access;
          Decomp : Utils.Stream_Element_Array_Access;
       begin
@@ -494,14 +494,14 @@ procedure Check_Mem is
 
       use Templates;
 
-      T1 : Translate_Table
-        := (1 => Assoc ("ONE", "one"),
-            2 => Assoc ("TWO", "2"),
-            3 => Assoc ("THREE", "3"));
+      T1 : Translate_Table :=
+             (1 => Assoc ("ONE", "one"),
+              2 => Assoc ("TWO", "2"),
+              3 => Assoc ("THREE", "3"));
 
-      T2 : Translate_Table
-        := (1 => Assoc ("V1", Vector_Tag'(+"t11" & "t12" & "t13")),
-            2 => Assoc ("V2", Vector_Tag'(+"t21" & "t22" & "t23")));
+      T2 : Translate_Table :=
+             (1 => Assoc ("V1", Vector_Tag'(+"t11" & "t12" & "t13")),
+              2 => Assoc ("V2", Vector_Tag'(+"t21" & "t22" & "t23")));
 
       R : Response.Data;
    begin
