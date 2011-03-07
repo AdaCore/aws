@@ -1554,6 +1554,11 @@ regtests/0215_file_versions/file_versions.gpr
 regtests/0215_file_versions/hello.txt.gz
 regtests/0215_file_versions/test.out
 regtests/0215_file_versions/test.py
+regtests/0216_log_304/file.txt
+regtests/0216_log_304/log_check.adb
+regtests/0216_log_304/log_check.gpr
+regtests/0216_log_304/test.out
+regtests/0216_log_304/test.py
 regtests/README
 regtests/aws.gpr
 regtests/common/get_free_port.adb

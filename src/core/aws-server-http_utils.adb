@@ -1296,10 +1296,12 @@ package body AWS.Server.HTTP_Utils is
          if F_Status in Up_To_Date .. Not_Found then
             if F_Status = Up_To_Date then
                --  [RFC 2616 - 10.3.5]
+               Status_Code := Messages.S304;
                Net.Buffered.Put_Line
                  (Sock, Messages.Status_Line (Messages.S304));
             else
                --  File is not found on disk, returns now with 404
+               Status_Code := Messages.S404;
                Net.Buffered.Put_Line
                  (Sock, Messages.Status_Line (Messages.S404));
             end if;
@@ -1313,6 +1315,7 @@ package body AWS.Server.HTTP_Utils is
            (Status.Header (C_Stat), Messages.Range_Token) /= ""
          then
             --  Partial range request, answer accordingly
+            Status_Code := Messages.S206;
             Net.Buffered.Put_Line (Sock, Messages.Status_Line (Messages.S206));
 
          else
