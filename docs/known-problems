@@ -1,5 +1,12 @@
 Known Problems fixed in AWS 2.10
 
+- K307-010: Logged status code for files always 200.
+  Problem:    The status code for non existing files is 404, this is
+              properly sent to the web browser but 200 is stored into
+              the log file. Likewise for up-to-date status code 304.
+  Workaround: Properly check file status in callback and set the
+              corresponding status code.
+
 - K219-001: Exception raised for Response.Stream when file does not exist
   Problem:    When a Response.Stream based on a file is send back to the
               client and the actual file does not exist on disk an exception

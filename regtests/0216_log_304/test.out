@@ -1,0 +1,18 @@
+started
+R : whatever!
+
+S : 200
+R : 
+S : 304
+R : 
+S : 404
+R : not found
+S : 404
+R : xx
+S : 200
+shutdown
+/file.txt - 200
+/file.txt - 304
+/does-not-exist - 404
+/data - 404
+/data2 - 200
