@@ -112,6 +112,9 @@ begin
    Services.Dispatchers.URI.Register_Regexp
      (H, ".*abc.*", CB3'Unrestricted_Access);
 
+   Services.Dispatchers.URI.Register_Regexp
+     (H, "^/this_[iI][sS].*g_uri$", CB3'Unrestricted_Access);
+
    Services.Dispatchers.URI.Register_Default_Callback
      (H, AWS.Dispatchers.Callback.Create (Default'Unrestricted_Access));
 
@@ -137,6 +140,8 @@ begin
    Test ("/prefix/");
    Test ("/prefix/toto");
    Test ("/prefix/azerty/tutu");
+   Test ("/this_is_a_long_uri");
+   Test ("/this_IS_a_long_uri");
 
    --  Close servers
 
