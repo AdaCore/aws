@@ -380,6 +380,7 @@ regtests/0007_dirop/icons/tex.gif
 regtests/0007_dirop/icons/text.gif
 regtests/0007_dirop/icons/unknown.gif
 regtests/0007_dirop/icons/uu.gif
+regtests/0007_dirop/test.opt
 regtests/0007_dirop/test.out
 regtests/0007_dirop/test.py
 regtests/0008_nonce/nonce.adb
