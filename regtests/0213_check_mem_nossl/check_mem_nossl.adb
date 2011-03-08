@@ -42,6 +42,7 @@ with AWS.Resources.Streams.Disk;
 with AWS.Resources.Streams.Memory.ZLib;
 with AWS.Server;
 with AWS.Session;
+with AWS.Services.Dispatchers.URI;
 with AWS.Services.Split_Pages;
 with AWS.Status;
 with AWS.Templates;

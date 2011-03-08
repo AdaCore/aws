@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2009, AdaCore                     --
+--                     Copyright (C) 2003-2011, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -47,55 +47,37 @@ procedure Dispatch1 is
    Cfg       : Config.Object;
    Free_Port : Positive;
 
-   function CB1
-     (Request : AWS.Status.Data)
-      return AWS.Response.Data
-   is
+   function CB1 (Request : AWS.Status.Data) return AWS.Response.Data is
       pragma Unreferenced (Request);
    begin
       return AWS.Response.Build ("text/html", "Dispatch 1 !");
    end CB1;
 
-   function CB2
-     (Request : AWS.Status.Data)
-      return AWS.Response.Data
-   is
+   function CB2 (Request : AWS.Status.Data) return AWS.Response.Data is
       pragma Unreferenced (Request);
    begin
       return AWS.Response.Build ("text/html", "Dispatch 2 !");
    end CB2;
 
-   function CB3
-     (Request : AWS.Status.Data)
-      return AWS.Response.Data
-   is
+   function CB3 (Request : AWS.Status.Data) return AWS.Response.Data is
       pragma Unreferenced (Request);
    begin
       return AWS.Response.Build ("text/html", "Dispatch 3 !");
    end CB3;
 
-   function CB4
-     (Request : AWS.Status.Data)
-      return AWS.Response.Data
-   is
+   function CB4 (Request : AWS.Status.Data) return AWS.Response.Data is
       pragma Unreferenced (Request);
    begin
       return AWS.Response.Build ("text/html", "Dispatch 4 !");
    end CB4;
 
-   function CB5
-     (Request : AWS.Status.Data)
-      return AWS.Response.Data
-   is
+   function CB5 (Request : AWS.Status.Data) return AWS.Response.Data is
       pragma Unreferenced (Request);
    begin
       return AWS.Response.Build ("text/html", "Dispatch 5 !");
    end CB5;
 
-   function Default
-     (Request : AWS.Status.Data)
-      return AWS.Response.Data
-   is
+   function Default (Request : AWS.Status.Data) return AWS.Response.Data is
       URI : constant String := Status.URI (Request);
    begin
       return AWS.Response.Build ("text/html", "Default " & URI);
@@ -130,6 +112,9 @@ begin
    Services.Dispatchers.URI.Register_Regexp
      (H, ".*abc.*", CB3'Unrestricted_Access);
 
+   Services.Dispatchers.URI.Register_Regexp
+     (H, "^/this_[iI][sS].*g_uri$", CB3'Unrestricted_Access);
+
    Services.Dispatchers.URI.Register_Default_Callback
      (H, AWS.Dispatchers.Callback.Create (Default'Unrestricted_Access));
 
@@ -155,6 +140,8 @@ begin
    Test ("/prefix/");
    Test ("/prefix/toto");
    Test ("/prefix/azerty/tutu");
+   Test ("/this_is_a_long_uri");
+   Test ("/this_IS_a_long_uri");
 
    --  Close servers
 

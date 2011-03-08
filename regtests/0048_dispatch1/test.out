@@ -20,3 +20,7 @@
 > Dispatch 5 !
 /prefix/azerty/tutu
 > Dispatch 5 !
+/this_is_a_long_uri
+> Dispatch 3 !
+/this_IS_a_long_uri
+> Dispatch 3 !

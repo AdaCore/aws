@@ -27,17 +27,20 @@
 
 with Ada.Unchecked_Deallocation;
 
-with GNAT.Regexp;
+with GNAT.Regpat;
 
 with AWS.Dispatchers.Callback;
 with AWS.Messages;
 
 package body AWS.Services.Dispatchers.URI is
 
+   use GNAT;
    use AWS.Dispatchers;
 
+   type Regpat_Access is access all Regpat.Pattern_Matcher;
+
    type Reg_URI is new Std_URI with record
-      Reg_URI : GNAT.Regexp.Regexp;
+      Reg_URI : Regpat_Access;
    end record;
 
    overriding function Clone (URI : Reg_URI) return Reg_URI;
@@ -99,10 +102,11 @@ package body AWS.Services.Dispatchers.URI is
       New_URI : Reg_URI := URI;
    begin
       if URI.Action /= null then
-         New_URI.Action  :=
+         New_URI.Action :=
            new AWS.Dispatchers.Handler'Class'
              (AWS.Dispatchers.Handler'Class (URI.Action.Clone));
       end if;
+      New_URI.Reg_URI := new Regpat.Pattern_Matcher'(URI.Reg_URI.all);
       return New_URI;
    end Clone;
 
@@ -155,6 +159,9 @@ package body AWS.Services.Dispatchers.URI is
    --------------
 
    overriding procedure Finalize (Dispatcher : in out Handler) is
+      procedure Unchecked_Free is
+        new Ada.Unchecked_Deallocation (Regpat.Pattern_Matcher, Regpat_Access);
+
       Ref_Counter : constant Natural := Dispatcher.Ref_Counter;
    begin
       Finalize (AWS.Dispatchers.Handler (Dispatcher));
@@ -166,6 +173,10 @@ package body AWS.Services.Dispatchers.URI is
                         URI_Table.Element (Dispatcher.Table, Natural (K));
             begin
                Free (Item.Action);
+
+               if Item.all in Reg_URI then
+                  Unchecked_Free (Reg_URI (Item.all).Reg_URI);
+               end if;
                Unchecked_Free (Item);
             end;
          end loop;
@@ -206,7 +217,7 @@ package body AWS.Services.Dispatchers.URI is
    overriding function Match
      (URI : Reg_URI; Value : String) return Boolean is
    begin
-      return GNAT.Regexp.Match (Value, URI.Reg_URI);
+      return Regpat.Match (URI.Reg_URI.all, Value);
    end Match;
 
    --------------
@@ -219,9 +230,9 @@ package body AWS.Services.Dispatchers.URI is
       Action     : AWS.Dispatchers.Handler'Class;
       Prefix     : Boolean := False)
    is
-      Value : constant URI_Class_Access
-        := new Std_URI'(new AWS.Dispatchers.Handler'Class'(Action),
-                        To_Unbounded_String (URI), Prefix);
+      Value : constant URI_Class_Access :=
+                new Std_URI'(new AWS.Dispatchers.Handler'Class'(Action),
+                             To_Unbounded_String (URI), Prefix);
    begin
       URI_Table.Append (Dispatcher.Table, Value);
    end Register;
@@ -260,10 +271,11 @@ package body AWS.Services.Dispatchers.URI is
       URI        : String;
       Action     : AWS.Dispatchers.Handler'Class)
    is
-      Value : constant URI_Class_Access
-        := new Reg_URI'(new AWS.Dispatchers.Handler'Class'(Action),
-                        To_Unbounded_String (URI), False,
-                        GNAT.Regexp.Compile (URI));
+      Value : constant URI_Class_Access :=
+                new Reg_URI'
+                  (new AWS.Dispatchers.Handler'Class'(Action),
+                   To_Unbounded_String (URI), False,
+                   new Regpat.Pattern_Matcher'(Regpat.Compile (URI)));
    begin
       URI_Table.Append (Dispatcher.Table, Value);
    end Register_Regexp;
@@ -287,8 +299,8 @@ package body AWS.Services.Dispatchers.URI is
    begin
       for K in 1 .. Natural (URI_Table.Length (Dispatcher.Table)) loop
          declare
-            Item : URI_Class_Access
-              := URI_Table.Element (Dispatcher.Table, K);
+            Item : URI_Class_Access :=
+                     URI_Table.Element (Dispatcher.Table, K);
          begin
             if To_String (Item.URI) = URI then
                Free (Item.Action);
