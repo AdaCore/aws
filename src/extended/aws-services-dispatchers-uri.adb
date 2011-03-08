@@ -99,7 +99,7 @@ package body AWS.Services.Dispatchers.URI is
       New_URI : Reg_URI := URI;
    begin
       if URI.Action /= null then
-         New_URI.Action  :=
+         New_URI.Action :=
            new AWS.Dispatchers.Handler'Class'
              (AWS.Dispatchers.Handler'Class (URI.Action.Clone));
       end if;
@@ -219,9 +219,9 @@ package body AWS.Services.Dispatchers.URI is
       Action     : AWS.Dispatchers.Handler'Class;
       Prefix     : Boolean := False)
    is
-      Value : constant URI_Class_Access
-        := new Std_URI'(new AWS.Dispatchers.Handler'Class'(Action),
-                        To_Unbounded_String (URI), Prefix);
+      Value : constant URI_Class_Access :=
+                new Std_URI'(new AWS.Dispatchers.Handler'Class'(Action),
+                             To_Unbounded_String (URI), Prefix);
    begin
       URI_Table.Append (Dispatcher.Table, Value);
    end Register;
@@ -287,8 +287,8 @@ package body AWS.Services.Dispatchers.URI is
    begin
       for K in 1 .. Natural (URI_Table.Length (Dispatcher.Table)) loop
          declare
-            Item : URI_Class_Access
-              := URI_Table.Element (Dispatcher.Table, K);
+            Item : URI_Class_Access :=
+                     URI_Table.Element (Dispatcher.Table, K);
          begin
             if To_String (Item.URI) = URI then
                Free (Item.Action);
