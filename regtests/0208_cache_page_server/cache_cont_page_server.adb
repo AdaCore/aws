@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                       Copyright (C) 2010, AdaCore                        --
+--                     Copyright (C) 2010-2011, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -59,7 +59,7 @@ begin
 
    Services.Page_Server.Set_Cache_Control (CC);
 
-   R := Client.Get ("http://localhost:" & Utils.Image (Port) & "/test.py");
+   R := Client.Get ("http://localhost:" & Utils.Image (Port) & "/test.txt");
 
    Text_IO.Put_Line
      ("CC: " & String (Messages.Cache_Option'(Response.Cache_Control (R))));
