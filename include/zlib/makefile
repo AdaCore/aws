@@ -1,7 +1,7 @@
 ############################################################################
 #                              Ada Web Server                              #
 #                                                                          #
-#                     Copyright (C) 2003-2009, AdaCore                     #
+#                     Copyright (C) 2003-2011, AdaCore                     #
 #                                                                          #
 #  This library is free software; you can redistribute it and/or modify    #
 #  it under the terms of the GNU General Public License as published by    #
@@ -34,8 +34,8 @@ LIBZ_static = $(LDIR_S)/libz.a
 LIBZ_shared = $(LDIR_R)/libz$(SOEXT)
 
 install:
-ifeq ($(ZLIB), false)
 	$(CP) $(LIBZ_static) $(I_LIB)/static
+ifeq ($(ZLIB), false)
 ifeq (${ENABLE_SHARED}, true)
 	$(CP) $(LIBZ_shared) $(I_LIB)/relocatable
 endif
