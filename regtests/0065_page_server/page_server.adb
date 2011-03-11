@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2007-2008, AdaCore                     --
+--                     Copyright (C) 2007-2011, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -25,6 +25,7 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
+with Ada.Directories;
 with Ada.Text_IO;
 
 with AWS.Client;
@@ -46,8 +47,15 @@ procedure Page_Server is
    WS   : Server.HTTP;
    R    : Response.Data;
    Port : Natural := 1946;
+   File : Text_IO.File_Type;
 
 begin
+   --  Populate the server Web Root
+
+   Directories.Create_Directory ("icons");
+   Text_IO.Create (File, Text_IO.Out_File, "icons/sound1.gif");
+   Text_IO.Close (File);
+
    Get_Free_Port (Port);
 
    Config.Set.WWW_Root (Conf, "icons");
