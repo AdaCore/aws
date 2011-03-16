@@ -36,11 +36,6 @@ with GNAT.Calendar.Time_IO;
 
 package body AWS.Log is
 
-   function Log_Prefix (Prefix : String) return String;
-   --  Returns the prefix to be added before the log filename. The returned
-   --  value is the executable name without directory and filetype if Prefix
-   --  is Not_Specified otherwise Prefix is returned.
-
    procedure Check_Split (Log : in out Object; Now : Ada.Calendar.Time);
    --  Split log file if necessary
 
@@ -164,63 +159,6 @@ package body AWS.Log is
       return Text_IO.Is_Open (Log.File);
    end Is_Active;
 
-   ----------------
-   -- Log_Prefix --
-   ----------------
-
-   function Log_Prefix (Prefix : String) return String is
-
-      function Prog_Name return String;
-      --  Return current program name
-
-      ---------------
-      -- Prog_Name --
-      ---------------
-
-      function Prog_Name return String is
-         Name  : constant String := Ada.Command_Line.Command_Name;
-         First : Natural;
-         Last  : Natural;
-      begin
-         First := Strings.Fixed.Index
-           (Name, Strings.Maps.To_Set ("/\"), Going => Strings.Backward);
-
-         if First = 0 then
-            First := Name'First;
-         else
-            First := First + 1;
-         end if;
-
-         Last := Strings.Fixed.Index
-           (Name (First .. Name'Last), ".", Strings.Backward);
-
-         if Last = 0 then
-            Last := Name'Last;
-         else
-            Last := Last - 1;
-         end if;
-
-         return Name (First .. Last);
-      end Prog_Name;
-
-   begin
-      if Prefix = Not_Specified then
-         return "";
-
-      else
-         declare
-            K : constant Natural := Strings.Fixed.Index (Prefix, "@");
-         begin
-            if K = 0 then
-               return Prefix & '-';
-            else
-               return Prefix (Prefix'First .. K - 1)
-                 & Prog_Name & Prefix (K + 1 .. Prefix'Last) & '-';
-            end if;
-         end;
-      end if;
-   end Log_Prefix;
-
    ----------
    -- Mode --
    ----------
@@ -322,6 +260,69 @@ package body AWS.Log is
    is
       Now      : constant Calendar.Time := Calendar.Clock;
       Filename : Unbounded_String;
+
+      function Log_Prefix (Prefix : String) return String;
+      --  Returns the prefix to be added before the log filename. The returned
+      --  value is the executable name without directory and filetype if Prefix
+      --  is Not_Specified otherwise Prefix is returned.
+
+      ----------------
+      -- Log_Prefix --
+      ----------------
+
+      function Log_Prefix (Prefix : String) return String is
+
+         function Prog_Name return String;
+         --  Return current program name
+
+         ---------------
+         -- Prog_Name --
+         ---------------
+
+         function Prog_Name return String is
+            Name  : constant String := Ada.Command_Line.Command_Name;
+            First : Natural;
+            Last  : Natural;
+         begin
+            First := Strings.Fixed.Index
+              (Name, Strings.Maps.To_Set ("/\"), Going => Strings.Backward);
+
+            if First = 0 then
+               First := Name'First;
+            else
+               First := First + 1;
+            end if;
+
+            Last := Strings.Fixed.Index
+              (Name (First .. Name'Last), ".", Strings.Backward);
+
+            if Last = 0 then
+               Last := Name'Last;
+            else
+               Last := Last - 1;
+            end if;
+
+            return Name (First .. Last);
+         end Prog_Name;
+
+      begin
+         if Prefix = Not_Specified then
+            return "";
+
+         else
+            declare
+               K : constant Natural := Strings.Fixed.Index (Prefix, "@");
+            begin
+               if K = 0 then
+                  return Prefix & '-';
+               else
+                  return Prefix (Prefix'First .. K - 1)
+                    & Prog_Name & Prefix (K + 1 .. Prefix'Last) & '-';
+               end if;
+            end;
+         end if;
+      end Log_Prefix;
+
       Prefix   : constant String :=
         Utils.Normalized_Directory (File_Directory)
         & Log_Prefix (Filename_Prefix)
