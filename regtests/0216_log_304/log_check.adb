@@ -51,11 +51,9 @@ procedure Log_Check is
    use GNAT;
    use AWS;
 
-   WS    : Server.HTTP;
-
-   Port  : Natural := 3241;
-
-   MS    : Unbounded_String;
+   WS   : Server.HTTP;
+   Port : Natural := 3241;
+   MS   : Unbounded_String;
 
    --------
    -- CB --

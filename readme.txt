@@ -55,10 +55,10 @@ to work properly. Of course we try to avoid this as much as possible
 but we really prefer to have a clean API instead of keeping awkward
 implementations.
 
-The AWS.Services.Dispatchers.URI.Register_Regexp implementation was
-done using a globing pattern instead of a regular expression as
-documented in the spec. So the Register_Regexp calls must be reviewed
-and globing patterns changed to real regular expressions.
+   The AWS.Services.Dispatchers.URI.Register_Regexp implementation was
+   done using a globing pattern instead of a regular expression as
+   documented in the spec. So the Register_Regexp calls must be reviewed
+   and globing patterns changed to real regular expressions.
 
    The log file-name's timestamp has been removed when Split_Mode is None.
    This makes the naming compatible with logrotate but may be incompatible
