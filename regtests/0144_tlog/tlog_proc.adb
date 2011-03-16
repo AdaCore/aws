@@ -267,8 +267,8 @@ begin
 
    Server.Start (WS, CB'Unrestricted_Access, Config => Config);
 
-   Server.Log.Start (WS, Filename_Prefix => "tlog");
-   Server.Log.Start_Error (WS, Filename_Prefix => "tlog_error");
+   Server.Log.Start (WS, Log.Daily, Filename_Prefix => "tlog");
+   Server.Log.Start_Error (WS, Log.Daily, Filename_Prefix => "tlog_error");
 
    Ada.Text_IO.Put_Line ("started");
 

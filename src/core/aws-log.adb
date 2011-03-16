@@ -258,13 +258,31 @@ package body AWS.Log is
       Filename_Prefix : String     := Not_Specified;
       Auto_Flush      : Boolean    := False)
    is
-      Now      : constant Calendar.Time := Calendar.Clock;
-      Filename : Unbounded_String;
+      function Get_Prefix return String;
+      --  Returns the prefix to use for the log filename
 
       function Log_Prefix (Prefix : String) return String;
       --  Returns the prefix to be added before the log filename. The returned
       --  value is the executable name without directory and filetype if Prefix
       --  is Not_Specified otherwise Prefix is returned.
+
+      Now : constant Calendar.Time := Calendar.Clock;
+
+      ----------------
+      -- Get_Prefix --
+      ----------------
+
+      function Get_Prefix return String is
+      begin
+         if Split = None then
+            return Utils.Normalized_Directory (File_Directory)
+              & Log_Prefix (Filename_Prefix);
+         else
+            return Utils.Normalized_Directory (File_Directory)
+              & Log_Prefix (Filename_Prefix) & '-'
+              & GNAT.Calendar.Time_IO.Image (Now, "%Y-%m-%d");
+         end if;
+      end Get_Prefix;
 
       ----------------
       -- Log_Prefix --
@@ -314,19 +332,17 @@ package body AWS.Log is
                K : constant Natural := Strings.Fixed.Index (Prefix, "@");
             begin
                if K = 0 then
-                  return Prefix & '-';
+                  return Prefix;
                else
                   return Prefix (Prefix'First .. K - 1)
-                    & Prog_Name & Prefix (K + 1 .. Prefix'Last) & '-';
+                    & Prog_Name & Prefix (K + 1 .. Prefix'Last);
                end if;
             end;
          end if;
       end Log_Prefix;
 
-      Prefix   : constant String :=
-        Utils.Normalized_Directory (File_Directory)
-        & Log_Prefix (Filename_Prefix)
-        & GNAT.Calendar.Time_IO.Image (Now, "%Y-%m-%d");
+      Filename  : Unbounded_String;
+      Prefix    : constant String := Get_Prefix;
       Time_Part : String (1 .. 7);
    begin
       Log.Filename_Prefix := To_Unbounded_String (Filename_Prefix);

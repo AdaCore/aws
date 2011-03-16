@@ -60,6 +60,9 @@ done using a globing pattern instead of a regular expression as
 documented in the spec. So the Register_Regexp calls must be reviewed
 and globing patterns changed to real regular expressions.
 
+   The log file-name's timestamp has been removed when Split_Mode is None.
+   This makes the naming compatible with logrotate but may be incompatible
+   with external handling of log files.
 
 
 Obsolescent features
