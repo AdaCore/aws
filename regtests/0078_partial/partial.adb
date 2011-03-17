@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2005-2010, AdaCore                     --
+--                     Copyright (C) 2005-2011, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -51,7 +51,7 @@ procedure Partial is
    use AWS;
    use GNAT;
 
-   Filename : constant String := "partial.adb";
+   Filename : constant String := "partial.txt";
 
    function CB (Request : Status.Data) return Response.Data;
 

@@ -780,6 +780,7 @@ regtests/0077_no_param/test.out
 regtests/0077_no_param/test.py
 regtests/0078_partial/partial.adb
 regtests/0078_partial/partial.gpr
+regtests/0078_partial/partial.txt
 regtests/0078_partial/test.out
 regtests/0078_partial/test.py
 regtests/0079_pipe_stream/pipe_stream.adb
