@@ -51,13 +51,9 @@ procedure Log_Check is
    use GNAT;
    use AWS;
 
-   Today : constant String :=
-             GNAT.Calendar.Time_IO.Image (Ada.Calendar.Clock, "%Y-%m-%d");
-   WS    : Server.HTTP;
-
-   Port  : Natural := 3241;
-
-   MS    : Unbounded_String;
+   WS   : Server.HTTP;
+   Port : Natural := 3241;
+   MS   : Unbounded_String;
 
    --------
    -- CB --
@@ -117,7 +113,7 @@ procedure Log_Check is
       Filename : constant := 6;
       Status   : constant := 8;
    begin
-      AWK.Add_File ("log_check-" & Today & ".log");
+      AWK.Add_File ("log_check.log");
 
       AWK.Open;
 
