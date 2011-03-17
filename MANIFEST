@@ -592,6 +592,7 @@ regtests/0043_check_mem/test.opt
 regtests/0043_check_mem/test.py
 regtests/0044_connect_timeout/connect_timeout.adb
 regtests/0044_connect_timeout/connect_timeout.gpr
+regtests/0044_connect_timeout/test.opt
 regtests/0044_connect_timeout/test.out
 regtests/0044_connect_timeout/test.py
 regtests/0045_datafeed_service/datafeed_service.adb
