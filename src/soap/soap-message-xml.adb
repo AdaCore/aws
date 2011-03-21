@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2010, AdaCore                     --
+--                     Copyright (C) 2000-2011, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -437,7 +437,8 @@ package body SOAP.Message.XML is
             Faultstring => SOAP.Parameters.Get (S.Parameters, "faultstring"));
       else
          return Message.Response.Object'
-           (S.Name_Space, S.Wrapper_Name, S.Parameters);
+           (Message.Object'(S.Name_Space, S.Wrapper_Name, S.Parameters)
+            with null record);
       end if;
 
    exception
@@ -483,7 +484,8 @@ package body SOAP.Message.XML is
             Faultstring => SOAP.Parameters.Get (S.Parameters, "faultstring"));
       else
          return Message.Response.Object'
-           (S.Name_Space, S.Wrapper_Name, S.Parameters);
+           (Message.Object'(S.Name_Space, S.Wrapper_Name, S.Parameters)
+            with null record);
       end if;
 
    exception
