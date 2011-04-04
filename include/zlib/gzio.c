@@ -18,6 +18,7 @@
 
 #include "zutil.h"
 #include <stdio.h>
+#include <errno.h>
 
 #ifdef NO_DEFLATE       /* for compatibility with old definition */
 #  define NO_GZCOMPRESS
