@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2008-2010, AdaCore                     --
+--                     Copyright (C) 2008-2011, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -82,12 +82,16 @@ procedure Client_Headers is
                K     : Natural;
             begin
                loop
-                  K := Strings.Unbounded.Index (Value, "xx.");
+                  K := Index (Value, "xx.");
 
                   exit when K = 0;
 
-                  Strings.Unbounded.Replace_Slice (Value, K, K + 2, "x.");
+                  Replace_Slice (Value, K, K + 2, "x.");
                end loop;
+
+               if Element (Value, Length (Value)) = 'w' then
+                  Replace_Slice (Value, Length (Value), Length (Value), "");
+               end if;
 
                Text_IO.Put_Line (Header & ": " & To_String (Value));
             end;
