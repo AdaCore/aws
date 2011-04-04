@@ -1,1 +1,2 @@
 include/*.ad* no-precommit-check
+include/zlib/* no-precommit-check
