@@ -290,7 +290,11 @@ include/zlib/crc32.c
 include/zlib/crc32.h
 include/zlib/deflate.c
 include/zlib/deflate.h
-include/zlib/gzio.c
+include/zlib/gzclose.c
+include/zlib/gzguts.h
+include/zlib/gzlib.c
+include/zlib/gzread.c
+include/zlib/gzwrite.c
 include/zlib/infback.c
 include/zlib/inffast.c
 include/zlib/inffast.h
@@ -306,7 +310,6 @@ include/zlib/uncompr.c
 include/zlib/zconf.h
 include/zlib/zlib.gpr
 include/zlib/zlib.h
-include/zlib/zlibdefs.h
 include/zlib/zutil.c
 include/zlib/zutil.h
 makefile
