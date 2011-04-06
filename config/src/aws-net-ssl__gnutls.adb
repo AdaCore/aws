@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2006-2009, AdaCore                     --
+--                     Copyright (C) 2006-2011, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -554,13 +554,13 @@ package body AWS.Net.SSL is
 
    begin
       if (Security_Mode = SSLv2
-          or Security_Mode = SSLv23
-          or Security_Mode = TLSv1
-          or Security_Mode = SSLv3
-          or Security_Mode = SSLv2_Server
-          or Security_Mode = SSLv23_Server
-          or Security_Mode = TLSv1_Server
-          or Security_Mode = SSLv3_Server)
+          or else Security_Mode = SSLv23
+          or else Security_Mode = TLSv1
+          or else Security_Mode = SSLv3
+          or else Security_Mode = SSLv2_Server
+          or else Security_Mode = SSLv23_Server
+          or else Security_Mode = TLSv1_Server
+          or else Security_Mode = SSLv3_Server)
         and then Config.ASC = null
         and then Config.CSC = null
       then
@@ -591,13 +591,13 @@ package body AWS.Net.SSL is
       end if;
 
       if (Security_Mode = SSLv2
-          or Security_Mode = SSLv23
-          or Security_Mode = TLSv1
-          or Security_Mode = SSLv3
-          or Security_Mode = SSLv2_Client
-          or Security_Mode = SSLv23_Client
-          or Security_Mode = TLSv1_Client
-          or Security_Mode = SSLv3_Client)
+          or else Security_Mode = SSLv23
+          or else Security_Mode = TLSv1
+          or else Security_Mode = SSLv3
+          or else Security_Mode = SSLv2_Client
+          or else Security_Mode = SSLv23_Client
+          or else Security_Mode = TLSv1_Client
+          or else Security_Mode = SSLv3_Client)
         and then Config.CCC = null
       then
          Check_Error_Code
@@ -827,7 +827,7 @@ package body AWS.Net.SSL is
          Check_Error_Code (TSSL.GNUTLS_E_PUSH_ERROR, Socket);
       end if;
 
-      if Data'First = Stream_Element_Offset'First and Code = 0 then
+      if Data'First = Stream_Element_Offset'First and then Code = 0 then
          Last := Data'Last + 1;
       else
          Last := Data'First + Stream_Element_Offset (Code) - 1;
