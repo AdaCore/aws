@@ -74,8 +74,10 @@ else
 	echo '   S_CRY_Lib := "crypto";' >> $(LIBGPR)
 	echo '   R_CRY_Lib := "crypto";' >> $(LIBGPR)
 endif
-	echo '   S_TLS_Lib := "gcrypt";' >> $(LIBGPR)
-	echo '   R_TLS_Lib := "gcrypt";' >> $(LIBGPR)
+	echo '   S_TLS_Lib := "gnutls";' >> $(LIBGPR)
+	echo '   R_TLS_Lib := "gnutls";' >> $(LIBGPR)
+	echo '   S_GCR_Lib := "gcrypt";' >> $(LIBGPR)
+	echo '   R_GCR_Lib := "gcrypt";' >> $(LIBGPR)
 endif
 	echo '   --  libz' >> $(LIBGPR)
 ifeq (${ZPATH}, ./)

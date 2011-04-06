@@ -48,9 +48,9 @@ project AWS_Crypto_Lib is
       when "gnutls" =>
          case AWS_Lib_Shared.SSL_Library_Type is
             when "static" =>
-               for Library_Name use AWS_Lib_Shared.S_TLS_Lib;
+               for Library_Name use AWS_Lib_Shared.S_GCR_Lib;
             when "relocatable" =>
-               for Library_Name use AWS_Lib_Shared.R_TLS_Lib;
+               for Library_Name use AWS_Lib_Shared.R_GCR_Lib;
          end case;
    end case;
 

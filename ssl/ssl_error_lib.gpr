@@ -42,7 +42,7 @@ project SSL_Error_Lib is
         for Library_Name use "gpg-error";
   end case;
 
-  for Library_Kind use "static";
+  for Library_Kind use AWS_Lib_Shared.SSL_Library_Type;
   for Externally_Built use "true";
 
 end SSL_Error_Lib;

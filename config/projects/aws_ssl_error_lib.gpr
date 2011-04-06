@@ -41,7 +41,7 @@ project AWS_SSL_Error_Lib is
      when "openssl" =>
         null;
      when "gnutls" =>
-        for Library_Name use "gpg_error";
+        for Library_Name use "gpg-error";
   end case;
 
   for Library_Kind use "static";
