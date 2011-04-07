@@ -62,6 +62,8 @@ ifeq (${SOCKET}, std)
 	echo '   R_CRY_Lib := "";' >> $(LIBGPR)
 	echo '   S_TLS_Lib := "";' >> $(LIBGPR)
 	echo '   R_TLS_Lib := "";' >> $(LIBGPR)
+	echo '   S_GCR_Lib := "";' >> $(LIBGPR)
+	echo '   R_GCR_Lib := "";' >> $(LIBGPR)
 else
 	echo '   LIB_Path := "${LPATH}";' >> $(LIBGPR)
 	echo '   S_SSL_Lib := "ssl";' >> $(LIBGPR)
