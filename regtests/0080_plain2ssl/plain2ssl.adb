@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2004-2008, AdaCore                     --
+--                     Copyright (C) 2004-2011, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -58,6 +58,10 @@ procedure Plain2SSL is
          --  We have to send in task for SSL negotiation
 
          Send (Source, Sample);
+
+      exception
+         when E : others =>
+            Put_Line ("Send_Task " & Ada.Exceptions.Exception_Information (E));
       end Send_Task;
 
    begin
