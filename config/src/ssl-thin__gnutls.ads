@@ -1163,10 +1163,17 @@ package SSL.Thin is
    subtype gpg_error_t is C.unsigned;
    subtype gcry_error_t is gpg_error_t;
 
-   function gcry_control
-     (CMD        : C.int;
-      Thread_CBS : gcry_thread_cbs) return gcry_error_t;
-   pragma Import (C, gcry_control, "gcry_control");
+   function aws_gcry_set_thread_cbs
+     (Thread_CBS : gcry_thread_cbs) return gcry_error_t;
+   pragma Import (C, aws_gcry_set_thread_cbs, "__aws_gcry_set_thread_cbs");
+   --  Calls gcry_control (GCRYCTL_SET_THREAD_CBS, cbs) over C module gcry.c
+   --  because varargs does not supported in Ada directly.
+
+   function gcry_strerror (Err : gcry_error_t) return CS.chars_ptr;
+   pragma Import (C, gcry_strerror, "gcry_strerror");
+
+   function gcry_strsource (Err : gcry_error_t) return CS.chars_ptr;
+   pragma Import (C, gcry_strsource, "gcry_strsource");
 
    --------------------------------------------------------------------
    -- Tricks to support AWS.Net.SSL specification compatibility with --

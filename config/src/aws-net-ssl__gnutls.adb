@@ -65,6 +65,8 @@ package body AWS.Net.SSL is
    procedure Check_Error_Code (Code : C.int);
    procedure Check_Error_Code (Code : C.int; Socket : Socket_Type'Class);
 
+   procedure Check_Error_Code (Code : TSSL.gcry_error_t);
+
    procedure Check_Config (Socket : in out Socket_Type);
    pragma Inline (Check_Config);
 
@@ -194,6 +196,17 @@ package body AWS.Net.SSL is
       Dummy : Socket_Type;
    begin
       Check_Error_Code (Code, Dummy);
+   end Check_Error_Code;
+
+   procedure Check_Error_Code (Code : TSSL.gpg_error_t) is
+   begin
+      if Code = 0 then
+         return;
+      end if;
+
+      raise Program_Error with
+        '[' & Code'Img & "] " & C.Strings.Value (TSSL.gcry_strerror (Code))
+        & '/' & C.Strings.Value (TSSL.gcry_strsource (Code));
    end Check_Error_Code;
 
    -------------------------
@@ -1041,17 +1054,14 @@ package body AWS.Net.SSL is
    end Version;
 
 begin
-   if TSSL.gcry_control
-     (CMD        => TSSL.GCRYCTL_SET_THREAD_CBS,
-      Thread_CBS => (Option        => TSSL.GCRY_THREAD_OPTION_USER,
-                     Mutex_Init    => Locking.Init'Address,
-                     Mutex_Destroy => Locking.Destroy'Address,
-                     Mutex_Lock    => Locking.Lock'Address,
-                     Mutex_Unlock  => Locking.Unlock'Address,
-                     others        => System.Null_Address)) /= 0
-   then
-      raise Program_Error;
-   end if;
+   Check_Error_Code
+     (TSSL.aws_gcry_set_thread_cbs
+        (Thread_CBS => (Option        => TSSL.GCRY_THREAD_OPTION_USER,
+                        Mutex_Init    => Locking.Init'Address,
+                        Mutex_Destroy => Locking.Destroy'Address,
+                        Mutex_Lock    => Locking.Lock'Address,
+                        Mutex_Unlock  => Locking.Unlock'Address,
+                        others        => <>)));
 
    if TSSL.gnutls_global_init /= 0 then
       raise Program_Error;
