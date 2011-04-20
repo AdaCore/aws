@@ -401,7 +401,7 @@ package SSL.Thin is
 
    subtype a_c_signed_char_t is System.Address;
    type a_size_t is access all C.size_t;
-   type gnutls_transport_ptr_t is new System.Address;
+   type gnutls_transport_ptr_t is new C.int;
 
    type gnutls_session_t;
    type gnutls_datum_t;

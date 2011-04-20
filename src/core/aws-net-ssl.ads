@@ -184,12 +184,4 @@ private
    overriding procedure Free (Socket : in out Socket_Type);
    --  Release memory associated with the socket object
 
-   overriding procedure Set_Timeout
-     (Socket : in out Socket_Type; Timeout : Duration);
-   --  Overriden to change the status of the internal SSL data
-
-   overriding procedure Finalize (Socket : in out Socket_Type);
-   --  Finalize overriden for GNUTLS implementation.
-   --  for OpenSSL implementation, it have to call inherited routine.
-
 end AWS.Net.SSL;

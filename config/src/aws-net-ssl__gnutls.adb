@@ -31,8 +31,6 @@ with Ada.Directories;
 with Ada.Exceptions;
 with Ada.Streams.Stream_IO;
 with Ada.Strings.Fixed;
-with Ada.Task_Attributes;
-with Ada.Unchecked_Conversion;
 with Ada.Unchecked_Deallocation;
 
 with Interfaces.C.Strings;
@@ -49,40 +47,19 @@ package body AWS.Net.SSL is
    use type C.unsigned;
    use type C.int;
 
-   package Skip_Exceptions is new Ada.Task_Attributes
-     (Ada.Exceptions.Exception_Occurrence_Access, null);
-
-   function To_Access is new Ada.Unchecked_Conversion
-     (TSSL.gnutls_transport_ptr_t, Socket_Access);
-
    subtype NSST is Net.Std.Socket_Type;
 
    type Mutex_Access is access all AWS.Utils.Semaphore;
-
-   subtype Stream_Array is
-     Stream_Element_Array (1 .. Stream_Element_Offset'Last);
 
    procedure Check_Error_Code (Code : C.int);
    procedure Check_Error_Code (Code : C.int; Socket : Socket_Type'Class);
 
    procedure Check_Error_Code (Code : TSSL.gcry_error_t);
 
+   procedure Code_Processing (Code : C.int; Socket : Socket_Type'Class);
+
    procedure Check_Config (Socket : in out Socket_Type);
    pragma Inline (Check_Config);
-
-   procedure Save_Exception (E : Ada.Exceptions.Exception_Occurrence);
-
-   function Push
-     (Socket : Std.Socket_Type;
-      Data   : Stream_Array;
-      Length : Stream_Element_Count) return Stream_Element_Offset;
-   pragma Convention (C, Push);
-
-   function Pull
-     (Socket : Std.Socket_Type;
-      Data   : access Stream_Array;
-      Length : Stream_Element_Count) return Stream_Element_Offset;
-   pragma Convention (C, Pull);
 
    package Locking is
 
@@ -176,12 +153,7 @@ package body AWS.Net.SSL is
    procedure Check_Error_Code
      (Code : C.int; Socket : Socket_Type'Class) is
    begin
-      if Code = TSSL.GNUTLS_E_PULL_ERROR
-        or else Code = TSSL.GNUTLS_E_PUSH_ERROR
-      then
-         Ada.Exceptions.Reraise_Occurrence (Skip_Exceptions.Value.all);
-
-      elsif Code /= 0 then
+      if Code /= 0 then
          declare
             Error : constant String
               := C.Strings.Value (TSSL.gnutls_strerror (Code));
@@ -217,6 +189,23 @@ package body AWS.Net.SSL is
    begin
       null;
    end Clear_Session_Cache;
+
+   ---------------------
+   -- Code_Processing --
+   ---------------------
+
+   procedure Code_Processing (Code : C.int; Socket : Socket_Type'Class) is
+   begin
+      case Code is
+      when TSSL.GNUTLS_E_INTERRUPTED | TSSL.GNUTLS_E_AGAIN =>
+         case TSSL.gnutls_record_get_direction (Socket.SSL) is
+         when 0 => Wait_For (Input, Socket);
+         when 1 => Wait_For (Output, Socket);
+         when others => raise Program_Error;
+         end case;
+      when others => Check_Error_Code (Code, Socket);
+      end case;
+   end Code_Processing;
 
    -------------
    -- Connect --
@@ -272,8 +261,15 @@ package body AWS.Net.SSL is
    ------------------
 
    procedure Do_Handshake (Socket : in out Socket_Type) is
+      Code : TSSL.ssize_t;
    begin
-      Check_Error_Code (TSSL.gnutls_handshake (Socket.SSL), Socket);
+      loop
+         Code := TSSL.gnutls_handshake (Socket.SSL);
+
+         exit when Code = TSSL.GNUTLS_E_SUCCESS;
+
+         Code_Processing (Code, Socket);
+      end loop;
    end Do_Handshake;
 
    --------------
@@ -305,38 +301,6 @@ package body AWS.Net.SSL is
          TSSL.gnutls_dh_params_deinit (Config.DH_Params);
          Config.DH_Params := null;
       end if;
-   end Finalize;
-
-   --------------
-   -- Finalize --
-   --------------
-
-   overriding procedure Finalize (Socket : in out Socket_Type) is
-      use System;
-      use type TSSL.gnutls_session_t;
-
-      Sock : Socket_Access;
-   begin
-      if Socket.SSL /= null
-        and then Net.Socket_Type (Socket).C.Ref_Count.Value = 2
-      then
-         --  Free one more reference from gnutls_transport_ptr_t
-
-         Sock := To_Access (TSSL.gnutls_transport_get_ptr (Socket.SSL));
-
-         --  Unregister the push/pull callbacks to avoid access violation in
-         --  case the socket was not shutdown properly. on the
-
-         TSSL.gnutls_transport_set_push_function (Socket.SSL, Null_Address);
-         TSSL.gnutls_transport_set_pull_function (Socket.SSL, Null_Address);
-
-         TSSL.gnutls_transport_set_ptr
-           (Socket.SSL, TSSL.gnutls_transport_ptr_t (System.Null_Address));
-
-         Free (Sock);
-      end if;
-
-      Std.Finalize (Std.Socket_Type (Socket));
    end Finalize;
 
    ----------
@@ -639,6 +603,13 @@ package body AWS.Net.SSL is
    package body Locking is
       use AWS.Utils;
 
+      procedure Finalize;
+
+      Working : Boolean := True;
+
+      F : Utils.Finalizer (Finalize'Access);
+      pragma Unreferenced (F);
+
       -------------
       -- Destroy --
       -------------
@@ -651,13 +622,24 @@ package body AWS.Net.SSL is
          return 0;
       end Destroy;
 
+      --------------
+      -- Finalize --
+      --------------
+
+      procedure Finalize is
+      begin
+         Working := False;
+      end Finalize;
+
       ----------
       -- Init --
       ----------
 
       function Init (Item : access Mutex_Access) return Integer is
       begin
-         Item.all := new Semaphore;
+         if Working then
+            Item.all := new Semaphore;
+         end if;
          return 0;
       end Init;
 
@@ -667,7 +649,9 @@ package body AWS.Net.SSL is
 
       function Lock (Item : access Mutex_Access) return Integer is
       begin
-         Item.all.Seize;
+         if Working then
+            Item.all.Seize;
+         end if;
          return 0;
       end Lock;
 
@@ -677,7 +661,9 @@ package body AWS.Net.SSL is
 
       function Unlock (Item : access Mutex_Access) return Integer is
       begin
-         Item.all.Release;
+         if Working then
+            Item.all.Release;
+         end if;
          return 0;
       end Unlock;
 
@@ -694,44 +680,6 @@ package body AWS.Net.SSL is
                (TSSL.gnutls_record_check_pending (Socket.SSL));
    end Pending;
 
-   ----------
-   -- Pull --
-   ----------
-
-   function Pull
-     (Socket : Std.Socket_Type;
-      Data   : access Stream_Array;
-      Length : Stream_Element_Count) return Stream_Element_Offset
-   is
-      Last : Stream_Element_Offset;
-   begin
-      Std.Receive (Socket, Data (1 .. Length), Last);
-      return Last;
-   exception
-      when E : others =>
-         Save_Exception (E);
-         return -1;
-   end Pull;
-
-   ----------
-   -- Push --
-   ----------
-
-   function Push
-     (Socket : Std.Socket_Type;
-      Data   : Stream_Array;
-      Length : Stream_Element_Count) return Stream_Element_Offset
-   is
-      Last : Stream_Element_Count;
-   begin
-      Std.Send (Socket, Data (1 .. Length), Last);
-      return Last;
-   exception
-      when E : others =>
-         Save_Exception (E);
-         return -1;
-   end Push;
-
    -------------
    -- Receive --
    -------------
@@ -741,14 +689,21 @@ package body AWS.Net.SSL is
       Data   : out Stream_Element_Array;
       Last   : out Stream_Element_Offset)
    is
-      Code : constant TSSL.ssize_t :=
-               TSSL.gnutls_record_recv (Socket.SSL, Data'Address, Data'Length);
+      Code : TSSL.ssize_t;
    begin
-      if Code < 0 then
-         Check_Error_Code (TSSL.GNUTLS_E_PULL_ERROR, Socket);
-      end if;
+      loop
+         Code :=
+           TSSL.gnutls_record_recv (Socket.SSL, Data'Address, Data'Length);
 
-      Last := Data'First + Stream_Element_Offset (Code) - 1;
+         if Code = 0 then
+            raise Socket_Error with Peer_Closed_Message;
+         elsif Code > 0 then
+            Last := Data'First + Stream_Element_Offset (Code) - 1;
+            exit;
+         end if;
+
+         Code_Processing (Code, Socket);
+      end loop;
    end Receive;
 
    -------------
@@ -763,21 +718,6 @@ package body AWS.Net.SSL is
          Free (Config);
       end if;
    end Release;
-
-   --------------------
-   -- Save_Exception --
-   --------------------
-
-   procedure Save_Exception (E : Ada.Exceptions.Exception_Occurrence) is
-      TA : constant Skip_Exceptions.Attribute_Handle
-        := Skip_Exceptions.Reference;
-   begin
-      if TA.all = null then
-         TA.all := Ada.Exceptions.Save_Occurrence (E);
-      else
-         Ada.Exceptions.Save_Occurrence (TA.all.all, E);
-      end if;
-   end Save_Exception;
 
    ------------
    -- Secure --
@@ -836,18 +776,19 @@ package body AWS.Net.SSL is
       Data   : Stream_Element_Array;
       Last   : out Stream_Element_Offset)
    is
-      Code : constant TSSL.ssize_t :=
-               TSSL.gnutls_record_send (Socket.SSL, Data'Address, Data'Length);
+      Code : TSSL.ssize_t;
    begin
-      if Code < 0 then
-         Check_Error_Code (TSSL.GNUTLS_E_PUSH_ERROR, Socket);
-      end if;
+      loop
+         Code :=
+           TSSL.gnutls_record_send (Socket.SSL, Data'Address, Data'Length);
 
-      if Data'First = Stream_Element_Offset'First and then Code = 0 then
-         Last := Data'Last + 1;
-      else
-         Last := Data'First + Stream_Element_Offset (Code) - 1;
-      end if;
+         if Code >= 0 then
+            Last := Last_Index (Data'First, Natural (Code));
+            exit;
+         end if;
+
+         Code_Processing (Code, Socket);
+      end loop;
    end Send;
 
    --------------------
@@ -945,17 +886,16 @@ package body AWS.Net.SSL is
    -----------------------
 
    procedure Session_Transport (Socket : in out Socket_Type) is
-      Sock : constant Socket_Access
-        := new Std.Socket_Type'(Std.Socket_Type (Socket));
    begin
-      --  Note : We make a copy of socket into the GNU/TLS transport ptr.
-      --  Finalize have to Free Socket when reference counter is 2 and it must
-      --  free the internal copy.
-
       TSSL.gnutls_transport_set_ptr
-        (Socket.SSL, TSSL.gnutls_transport_ptr_t (Sock.all'Address));
-      TSSL.gnutls_transport_set_push_function (Socket.SSL, Push'Address);
-      TSSL.gnutls_transport_set_pull_function (Socket.SSL, Pull'Address);
+        (Socket.SSL, TSSL.gnutls_transport_ptr_t (Socket.Get_FD));
+
+      --  www.gnu.org/software/gnutls/manual/html_node/The-transport-layer.html
+      --
+      --  For non blocking sockets or other custom made pull/push functions
+      --  the gnutls_transport_set_lowat must be called, with a zero low water
+      --  mark value.
+
       TSSL.gnutls_transport_set_lowat (Socket.SSL, 0);
    end Session_Transport;
 
@@ -980,31 +920,6 @@ package body AWS.Net.SSL is
       null;
    end Set_Session_Cache_Size;
 
-   -----------------
-   -- Set_Timeout --
-   -----------------
-
-   overriding procedure Set_Timeout
-     (Socket  : in out Socket_Type;
-      Timeout : Duration)
-   is
-      use type SSL_Handle;
-      Sock : Socket_Access;
-   begin
-      --  This version set the timeout for both the Socket parameter and the
-      --  transport ptr stored socket.
-
-      if Socket.SSL /= null then
-         Sock := To_Access (TSSL.gnutls_transport_get_ptr (Socket.SSL));
-      end if;
-
-      if Sock /= null then
-         Sock.Timeout := Timeout;
-      end if;
-
-      Set_Timeout (Net.Socket_Type (Socket), Timeout);
-   end Set_Timeout;
-
    --------------
    -- Shutdown --
    --------------
@@ -1015,17 +930,19 @@ package body AWS.Net.SSL is
       use System;
       Code : C.int;
    begin
-      --  Unregister the push/pull callback to avoid locking on the
-      --  gnutls_bye() call.
+      loop
+         Code := TSSL.gnutls_bye (Socket.SSL, TSSL.GNUTLS_SHUT_RDWR);
 
-      TSSL.gnutls_transport_set_push_function (Socket.SSL, Null_Address);
-      TSSL.gnutls_transport_set_pull_function (Socket.SSL, Null_Address);
+         exit when Code = TSSL.GNUTLS_E_SUCCESS;
 
-      Code := TSSL.gnutls_bye (Socket.SSL, TSSL.GNUTLS_SHUT_RDWR);
+         begin
+            Code_Processing (Code, Socket);
+         exception when E : others =>
+            Net.Log.Error (Socket, Ada.Exceptions.Exception_Message (E));
+         end;
+      end loop;
 
-      if Code /= 0 then
-         Net.Log.Error (Socket, C.Strings.Value (TSSL.gnutls_strerror (Code)));
-      end if;
+      TSSL.gnutls_transport_set_ptr (Socket.SSL, 0);
 
       Net.Std.Shutdown (NSST (Socket), How);
    end Shutdown;
