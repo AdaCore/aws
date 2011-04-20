@@ -964,10 +964,10 @@ package body AWS.Net.SSL is
    -------------
 
    function Version (Build_Info : Boolean := False) return String is
+      use C.Strings;
       pragma Unreferenced (Build_Info);
    begin
-      --  ???
-      return "gnutls";
+      return "GNUTLS " & Value (TSSL.gnutls_check_version (Null_Ptr));
    end Version;
 
 begin
