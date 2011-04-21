@@ -162,7 +162,7 @@ package body AWS.Net.SSL is
               := C.Strings.Value (TSSL.gnutls_strerror (Code));
          begin
             Net.Log.Error (Socket, Error);
-            Ada.Exceptions.Raise_Exception (Socket_Error'Identity, Error);
+            raise Socket_Error with Error;
          end;
       end if;
    end Check_Error_Code;
@@ -787,11 +787,6 @@ package body AWS.Net.SSL is
    is
       Code : TSSL.ssize_t;
    begin
-      if not Check (Socket, (Input => False, Output => True)) (Output) then
-         Last := Last_Index (Data'First, 0);
-         return;
-      end if;
-
       loop
          Code :=
            TSSL.gnutls_record_send (Socket.SSL, Data'Address, Data'Length);
@@ -801,7 +796,17 @@ package body AWS.Net.SSL is
             exit;
          end if;
 
-         Code_Processing (Code, Socket);
+         case Code is
+         when TSSL.GNUTLS_E_INTERRUPTED | TSSL.GNUTLS_E_AGAIN =>
+            case TSSL.gnutls_record_get_direction (Socket.SSL) is
+            when 0 => Wait_For (Input, Socket);
+            when 1 =>
+               Last := Last_Index (Data'First, 0);
+               exit;
+            when others => raise Program_Error;
+            end case;
+         when others => Check_Error_Code (Code, Socket);
+         end case;
       end loop;
    end Send;
 
