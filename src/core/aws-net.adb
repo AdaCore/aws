@@ -467,14 +467,14 @@ package body AWS.Net is
    --------------
 
    procedure Wait_For
-     (Mode : Wait_Event_Type; Socket : Socket_Type'Class)
+     (Mode : Wait_Event_Type; Socket : Socket_Type'Class; Timeout : Duration)
    is
       Events : Wait_Event_Set := (others => False);
       Result : Event_Set;
    begin
       Events (Mode) := True;
 
-      Result := Wait (Socket, Events);
+      Result := Poll (Socket, Events, Timeout);
 
       if Result = Event_Set'(others => False) then
          Raise_Socket_Error
@@ -487,6 +487,11 @@ package body AWS.Net is
       elsif not Result (Mode) then
          raise Program_Error;
       end if;
+   end Wait_For;
+
+   procedure Wait_For (Mode : Wait_Event_Type; Socket : Socket_Type'Class) is
+   begin
+      Wait_For (Mode, Socket, Socket.Timeout);
    end Wait_For;
 
 end AWS.Net;

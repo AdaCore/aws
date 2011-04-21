@@ -56,6 +56,9 @@ package body AWS.Net.SSL is
 
    procedure Check_Error_Code (Code : TSSL.gcry_error_t);
 
+   procedure Code_Processing
+     (Code : C.int; Socket : Socket_Type'Class; Timeout : Duration);
+
    procedure Code_Processing (Code : C.int; Socket : Socket_Type'Class);
 
    procedure Check_Config (Socket : in out Socket_Type);
@@ -194,17 +197,23 @@ package body AWS.Net.SSL is
    -- Code_Processing --
    ---------------------
 
-   procedure Code_Processing (Code : C.int; Socket : Socket_Type'Class) is
+   procedure Code_Processing
+     (Code : C.int; Socket : Socket_Type'Class; Timeout : Duration) is
    begin
       case Code is
       when TSSL.GNUTLS_E_INTERRUPTED | TSSL.GNUTLS_E_AGAIN =>
          case TSSL.gnutls_record_get_direction (Socket.SSL) is
-         when 0 => Wait_For (Input, Socket);
-         when 1 => Wait_For (Output, Socket);
+         when 0 => Wait_For (Input, Socket, Timeout);
+         when 1 => Wait_For (Output, Socket, Timeout);
          when others => raise Program_Error;
          end case;
       when others => Check_Error_Code (Code, Socket);
       end case;
+   end Code_Processing;
+
+   procedure Code_Processing (Code : C.int; Socket : Socket_Type'Class) is
+   begin
+      Code_Processing (Code, Socket, Net.Socket_Type (Socket).Timeout);
    end Code_Processing;
 
    -------------
@@ -778,6 +787,11 @@ package body AWS.Net.SSL is
    is
       Code : TSSL.ssize_t;
    begin
+      if not Check (Socket, (Input => False, Output => True)) (Output) then
+         Last := Last_Index (Data'First, 0);
+         return;
+      end if;
+
       loop
          Code :=
            TSSL.gnutls_record_send (Socket.SSL, Data'Address, Data'Length);
@@ -940,9 +954,12 @@ package body AWS.Net.SSL is
          exit when Code = TSSL.GNUTLS_E_SUCCESS;
 
          begin
-            Code_Processing (Code, Socket);
+            Code_Processing
+              (Code, Socket,
+               Duration'Min (Net.Socket_Type (Socket).Timeout, 0.25));
          exception when E : others =>
             Net.Log.Error (Socket, Ada.Exceptions.Exception_Message (E));
+            exit;
          end;
       end loop;
 
