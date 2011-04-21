@@ -929,9 +929,13 @@ package body AWS.Net.SSL is
    is
       use System;
       Code : C.int;
+      To_C : constant array (Shutmode_Type) of TSSL.gnutls_close_request_t :=
+               (Shut_Read_Write => TSSL.GNUTLS_SHUT_RDWR,
+                Shut_Read       => TSSL.GNUTLS_SHUT_RDWR, -- Absend, use RDWR
+                Shut_Write      => TSSL.GNUTLS_SHUT_WR);
    begin
       loop
-         Code := TSSL.gnutls_bye (Socket.SSL, TSSL.GNUTLS_SHUT_RDWR);
+         Code := TSSL.gnutls_bye (Socket.SSL, To_C (How));
 
          exit when Code = TSSL.GNUTLS_E_SUCCESS;
 
