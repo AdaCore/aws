@@ -817,15 +817,6 @@ package body AWS.Net.SSL is
    procedure Session_Client (Socket : in out Socket_Type) is
       use TSSL;
       Session : aliased gnutls_session_t;
-
-      type Priority_List is array (0 .. 4) of gnutls_kx_algorithm_t;
-      pragma Convention (C, Priority_List);
-
-      kx_prio : constant Priority_List :=
-                  (GNUTLS_KX_RSA, GNUTLS_KX_RSA_EXPORT,
-                   GNUTLS_KX_DHE_RSA, GNUTLS_KX_DHE_DSS,
-                   GNUTLS_0);
-
    begin
       Check_Config (Socket);
 
@@ -835,8 +826,6 @@ package body AWS.Net.SSL is
 
       Check_Error_Code (gnutls_set_default_priority (Session), Socket);
 
-      Check_Error_Code
-        (gnutls_kx_set_priority (Session, kx_prio'Address), Socket);
       Check_Error_Code
         (gnutls_credentials_set (Session, cred => Socket.Config.ACC), Socket);
 
@@ -855,23 +844,12 @@ package body AWS.Net.SSL is
    procedure Session_Server (Socket : in out Socket_Type) is
       use TSSL;
       Session : aliased gnutls_session_t;
-
-      type Priority_List is array (0 .. 4) of gnutls_kx_algorithm_t;
-      pragma Convention (C, Priority_List);
-      kx_prio : constant Priority_List :=
-                  (GNUTLS_KX_RSA, GNUTLS_KX_RSA_EXPORT,
-                   GNUTLS_KX_DHE_RSA, GNUTLS_KX_DHE_DSS,
-                   GNUTLS_0);
-
    begin
       Check_Config (Socket);
 
       Check_Error_Code (gnutls_init (Session'Access, GNUTLS_SERVER), Socket);
 
       Check_Error_Code (gnutls_set_default_priority (Session), Socket);
-
-      Check_Error_Code
-        (gnutls_kx_set_priority (Session, kx_prio'Address), Socket);
 
       if Socket.Config.CSC = null then
          Check_Error_Code
