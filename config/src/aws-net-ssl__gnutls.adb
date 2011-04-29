@@ -28,13 +28,9 @@
 ------------------------------------------------------------------------------
 
 with Ada.Directories;
-with Ada.Exceptions;
-with Ada.Streams.Stream_IO;
-with Ada.Strings.Fixed;
 with Ada.Unchecked_Deallocation;
 
 with Interfaces.C.Strings;
-with System;
 
 with AWS.Config;
 with AWS.Net.Log;
@@ -390,155 +386,39 @@ package body AWS.Net.SSL is
             use type Directories.File_Kind;
          begin
             if Directories.Kind (Filename) /= Directories.Ordinary_File then
-               Raise_Exception
-                 (Socket_Error'Identity,
-                  Prefix & " file """ & Filename & """ error.");
+               raise Socket_Error with
+                 Prefix & " file """ & Filename & """ error.";
             end if;
          end Check_File;
 
          Code : C.int;
 
       begin
-         if Key_Filename = "" then
-            --  Load certificates and private key from Certificate_File
+         Check_File ("Certificate", Certificate_Filename);
 
-            Check_File ("Certificate", Certificate_Filename);
+         declare
+            use C.Strings;
+            Cert : aliased C.char_array := C.To_C (Certificate_Filename);
+            Key  : aliased C.char_array := C.To_C (Key_Filename);
+            CP   : constant chars_ptr := To_Chars_Ptr (Cert'Unchecked_Access);
+            KP   : chars_ptr;
+         begin
+            if Key_Filename = "" then
+               KP := CP;
+            else
+               Check_File ("Key", Key_Filename);
+               KP := To_Chars_Ptr (Key'Unchecked_Access);
+            end if;
 
-            declare
-               use Ada.Strings;
+            Code := TSSL.gnutls_certificate_set_x509_key_file
+                      (CC, CP, KP, TSSL.GNUTLS_X509_FMT_PEM);
 
-               function Get_File_Data return String;
-               --  Returns certificate file data
-
-               Prefix : constant String := "-----BEGIN ";
-               Suffix : constant String := "-----END ";
-               Cert_C : constant String := "CERTIFICATE-----";
-               First  : Natural := 1;
-               Last   : Natural;
-               Cert   : aliased TSSL.gnutls_datum_t
-                 := (System.Null_Address, 0);
-               Key    : aliased TSSL.gnutls_datum_t
-                 := (System.Null_Address, 0);
-
-               -------------------
-               -- Get_File_Data --
-               -------------------
-
-               function Get_File_Data return String is
-                  use Ada.Streams.Stream_IO;
-                  File : File_Type;
-               begin
-                  Open
-                    (File, In_File, Certificate_Filename,
-                     Form => "shared=no");
-
-                  declare
-                     Result : aliased String (1 .. Natural (Size (File)));
-                  begin
-                     String'Read (Stream (File), Result);
-                     Close (File);
-                     return Result;
-                  end;
-               end Get_File_Data;
-
-               Data : aliased constant String := Get_File_Data;
-
-            begin
-               loop
-                  First := Fixed.Index (Data (First .. Data'Last), Prefix);
-                  exit when First = 0;
-
-                  Last := Fixed.Index (Data (First .. Data'Last), Suffix);
-
-                  if Last = 0 then
-                     Last := Data'Last;
-                  else
-                     Last := Fixed.Index
-                       (Data (Last .. Data'Last), "" & ASCII.LF);
-                     if Last = 0 then
-                        Last := Data'Last;
-                     end if;
-                  end if;
-
-                  if Data (First + Prefix'Length
-                           .. First + Prefix'Length + Cert_C'Length - 1)
-                    = Cert_C
-                  then
-                     if Cert.size = 0 then
-                        Cert.data := Data (First)'Address;
-
-                        if Key.size = 0 then
-                           --  Store first certificate position temporary
-                           --  in size field and wait for private key.
-
-                           Cert.size := C.unsigned (First);
-
-                        else
-                           --  If key already gotten then all other data
-                           --  is certificates list.
-
-                           Cert.size := C.unsigned (Data'Last - First);
-
-                           exit;
-                        end if;
-                     end if;
-
-                  else
-                     Key.data := Data (First)'Address;
-                     Key.size := C.unsigned (Last - First);
-
-                     if Cert.size > 0 then
-                        --  If key gotten after certificate, calculate
-                        --  size of certificates list.
-
-                        Cert.size := C.unsigned (First) - Cert.size;
-                        exit;
-                     end if;
-                  end if;
-
-                  exit when Last = Data'Last;
-                  First := Last;
-               end loop;
-
-               Code := TSSL.gnutls_certificate_set_x509_key_mem
-                 (CC,
-                  cert => Cert'Unchecked_Access,
-                  key  => Key'Unchecked_Access,
-                  p4   => TSSL.GNUTLS_X509_FMT_PEM);
-
-               if Code = TSSL.GNUTLS_E_BASE64_DECODING_ERROR then
-                  Raise_Exception
-                    (Socket_Error'Identity,
-                     "Certificate file """
-                     & Certificate_Filename & """ error.");
-               else
-                  Check_Error_Code (Code);
-               end if;
-            end;
-
-         else
-            Check_File ("Certificate", Certificate_Filename);
-            Check_File ("Key", Key_Filename);
-
-            declare
-               Cert : aliased C.char_array := C.To_C (Certificate_Filename);
-               Key  : aliased C.char_array := C.To_C (Key_Filename);
-            begin
-               Code := TSSL.gnutls_certificate_set_x509_key_file
-                 (CC,
-                  C.Strings.To_Chars_Ptr (Cert'Unchecked_Access),
-                  C.Strings.To_Chars_Ptr (Key'Unchecked_Access),
-                  TSSL.GNUTLS_X509_FMT_PEM);
-
-               if Code = TSSL.GNUTLS_E_BASE64_DECODING_ERROR then
-                  Raise_Exception
-                    (Socket_Error'Identity,
-                     "Certificate/Key file error.");
-               else
-                  Check_Error_Code (Code);
-               end if;
-            end;
-         end if;
+            if Code = TSSL.GNUTLS_E_BASE64_DECODING_ERROR then
+               raise Socket_Error with "Certificate/Key file error.";
+            else
+               Check_Error_Code (Code);
+            end if;
+         end;
       end Set_Certificate;
 
    begin
@@ -587,12 +467,18 @@ package body AWS.Net.SSL is
           or else Security_Mode = SSLv23_Client
           or else Security_Mode = TLSv1_Client
           or else Security_Mode = SSLv3_Client)
+        and then Config.ACC = null
         and then Config.CCC = null
       then
          Check_Error_Code
            (TSSL.gnutls_anon_allocate_client_credentials (Config.ACC'Access));
+
          Check_Error_Code
            (TSSL.gnutls_certificate_allocate_credentials (Config.CCC'Access));
+
+         if Certificate_Filename /= "" then
+            Set_Certificate (Config.CCC);
+         end if;
       end if;
    end Initialize;
 
@@ -849,6 +735,8 @@ package body AWS.Net.SSL is
 
       Check_Error_Code (gnutls_init (Session'Access, GNUTLS_SERVER), Socket);
 
+      Socket.SSL := Session;
+
       Check_Error_Code (gnutls_set_default_priority (Session), Socket);
 
       if Socket.Config.CSC = null then
@@ -872,8 +760,6 @@ package body AWS.Net.SSL is
       end if;
 
       gnutls_dh_set_prime_bits (Session, DH_Bits);
-
-      Socket.SSL := Session;
 
       Session_Transport (Socket);
    end Session_Server;
@@ -924,7 +810,6 @@ package body AWS.Net.SSL is
    overriding procedure Shutdown
      (Socket : Socket_Type; How : Shutmode_Type := Shut_Read_Write)
    is
-      use System;
       Code : C.int;
       To_C : constant array (Shutmode_Type) of TSSL.gnutls_close_request_t :=
                (Shut_Read_Write => TSSL.GNUTLS_SHUT_RDWR,
