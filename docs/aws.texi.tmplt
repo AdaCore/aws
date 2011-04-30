@@ -5126,7 +5126,7 @@ parsing the @code{WSDL} document tree.
 Add @code{WSDL} document as comment into the generated root unit.
 
 @item -cvs
-Add CVS Îd tag in every generated file.
+Add CVS Id tag in every generated file.
 
 @item -nostub
 Do not generated stubs, only skeletons are generated.
@@ -6441,7 +6441,7 @@ Authors (alphabetically):
    Satish Thatte, Microsoft
    Dave Winer, UserLand Software, Inc.
 
-Copyright© 2000 DevelopMentor, International Business Machines Corporation,
+Copyright 2000 DevelopMentor, International Business Machines Corporation,
 Lotus Development Corporation, Microsoft, UserLand Software
 @end smallexample
 
