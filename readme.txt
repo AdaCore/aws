@@ -1,10 +1,10 @@
 
                             A W S - Ada Web Server
-                           2.9.1 release / SOAP 1.5
+                           2.9.2 release / SOAP 1.5
 
 Authors:
    Dmitriy Anisimkov
-   Pascal Obry                                           Decembre 4th, 2010
+   Pascal Obry                                               May 12th, 2011
 
 
 
