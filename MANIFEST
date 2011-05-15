@@ -827,6 +827,7 @@ regtests/0085_sessions/test.out
 regtests/0085_sessions/test.py
 regtests/0086_sessions2/sessions2.adb
 regtests/0086_sessions2/sessions2.gpr
+regtests/0086_sessions2/test.opt
 regtests/0086_sessions2/test.out
 regtests/0086_sessions2/test.py
 regtests/0087_sessions3/sessions3.adb
@@ -1164,6 +1165,7 @@ regtests/0143_timer/test.out
 regtests/0143_timer/test.py
 regtests/0143_timer/timer.adb
 regtests/0143_timer/timer.gpr
+regtests/0144_tlog/test.opt
 regtests/0144_tlog/test.out
 regtests/0144_tlog/test.py
 regtests/0144_tlog/tlog.adb
@@ -1222,6 +1224,7 @@ regtests/0155_user_sock/user_sock.adb
 regtests/0155_user_sock/user_sock.gpr
 regtests/0155_user_sock/usock.adb
 regtests/0155_user_sock/usock.ads
+regtests/0156_wait/test.opt
 regtests/0156_wait/test.out
 regtests/0156_wait/test.py
 regtests/0156_wait/wait.adb
