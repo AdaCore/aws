@@ -146,7 +146,7 @@ naming
 
 AWS version number : vX.Y.Z (Z=0 on master, Z>=1 for releases)
 Release branch     : vX.Y
-Tags               : vX.Y.Z (Z>=1)
+Tags               : vX.Y.Z (Z=0 for the branchpoint and Z>=1 otherwise)
 
 ---------
 branching
