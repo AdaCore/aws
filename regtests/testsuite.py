@@ -37,11 +37,11 @@ from glob import glob
 from makevar import MakeVar
 
 from gnatpython.env import Env
-from gnatpython.fileutils import mkdir, rm
 from gnatpython.main import Main
 from gnatpython.mainloop import (MainLoop, add_mainloop_options,
                                  generate_collect_result,
-                                 generate_run_testcase)
+                                 generate_run_testcase,
+                                 setup_result_dir)
 from gnatpython.testdriver import add_run_test_options
 from gnatpython.reports import ReportDiff
 
@@ -57,14 +57,8 @@ class Runner(object):
         """Fill the test lists"""
 
         # Various files needed or created by the testsuite
-        self.result_dir = options.output_dir
-        mkdir(self.result_dir)
-        self.results_file = self.result_dir + '/results'
-        self.report_file = self.result_dir + '/report'
-
-        # Remove old results and report
-        rm(self.results_file)
-        rm(self.report_file)
+        setup_result_dir(options)
+        self.options = options
 
         # Always add ALL and target info
         self.discs = ['ALL'] + Env().discriminants
@@ -125,7 +119,7 @@ class Runner(object):
         Env().store(os.environ["TEST_CONFIG"])
 
         # Save discriminants
-        with open(self.result_dir + "/discs", "w") as discs_f:
+        with open(options.output_dir + "/discs", "w") as discs_f:
             discs_f.write(" ".join(self.discs))
 
     def start(self, tests, show_diffs=False, old_result_dir=None):
@@ -150,20 +144,22 @@ class Runner(object):
 
         # Run the main loop
         collect_result = generate_collect_result(
-            self.result_dir, self.results_file,
+            self.options.output_dir, self.options.results_file,
             show_diffs)
         run_testcase = generate_run_testcase('run-test', self.discs,
                                              Env().testsuite_config)
         MainLoop(tests, run_testcase, collect_result,
                  Env().testsuite_config.mainloop_jobs)
         # Write report
-        ReportDiff(self.result_dir,
-                   old_result_dir).txt_image(self.report_file)
+        ReportDiff(self.options.output_dir,
+                self.options.old_output_dir).txt_image(
+                        self.options.report_file)
+
 
 def run_testsuite():
     """Main: parse command line and run the testsuite"""
     main = Main(formatter='%(message)s', add_targets_options=True)
-    add_mainloop_options(main)
+    add_mainloop_options(main, extended_options=True)
     add_run_test_options(main)
     main.add_option("--with-Z999", dest="with_Z999",
                     action="store_true", default=False,
@@ -193,8 +189,7 @@ def run_testsuite():
     main.parse_args()
 
     run = Runner(main.options)
-    run.start(main.args, show_diffs=main.options.view_diffs,
-              old_result_dir=main.options.old_result_dir)
+    run.start(main.args, show_diffs=main.options.view_diffs)
 
 if __name__ == "__main__":
     # Run the testsuite
