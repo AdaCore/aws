@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2010, AdaCore                     --
+--                     Copyright (C) 2003-2011, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -31,7 +31,7 @@ with "../shared";
 with "../include/include";
 with "../ssl/ssl";
 
-project Src is
+library project Src is
 
    for Languages use ("Ada", "C", "Project file", "makefile");
 

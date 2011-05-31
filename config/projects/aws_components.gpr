@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2004-2010, AdaCore                     --
+--                     Copyright (C) 2004-2011, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -28,7 +28,7 @@
 with "aws_shared";
 with "aws_libz";
 
-project AWS_Components is
+library project AWS_Components is
    for Source_Dirs use ("../../../include/aws/components");
    for Library_Dir use AWS_Shared'Library_Dir;
    for Library_Name use "aws_include";
