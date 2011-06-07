@@ -142,14 +142,39 @@ class Runner(object):
             # Do not run Z999 test
             tests = [t for t in tests if t != 'Z999_xfail']
 
+        test_metrics = {'total': len(tests)}
+
         # Run the main loop
         collect_result = generate_collect_result(
-            self.options.output_dir, self.options.results_file,
-            show_diffs)
+            options=self.options,
+            output_diff=show_diffs,
+            metrics=test_metrics)
         run_testcase = generate_run_testcase('run-test', self.discs,
                                              Env().testsuite_config)
         MainLoop(tests, run_testcase, collect_result,
                  Env().testsuite_config.mainloop_jobs)
+
+        if self.options.retry_threshold > 0:
+            # Set skip if ok and run the testsuite if mainloop_jobs set to 1
+            # to avoid parallelism problems on the tests that have previously
+            # failed.
+            if test_metrics['failed'] < self.options.retry_threshold:
+                logging.warning("%d tests have failed (threshold was %d)."
+                        " Retrying..."
+                        % (test_metrics['failed'],
+                           self.options.retry_threshold))
+
+                # Regenerate collect_result function
+                self.options.skip_if_ok = True
+                self.options.skip_if_dead = True
+                collect_result = generate_collect_result(
+                    options=self.options,
+                    output_diff=show_diffs,
+                    metrics=test_metrics)
+                MainLoop(tests, run_testcase, collect_result, 1)
+            else:
+                logging.error("Too many errors")
+
         # Write report
         ReportDiff(self.options.output_dir,
                 self.options.old_output_dir).txt_image(
@@ -186,6 +211,10 @@ def run_testsuite():
     main.add_option("--from-build-dir", dest="from_build_dir",
                     action="store_true", default=False,
                     help="Run testsuite from local build (in repository)")
+    main.add_option('--retry-when-errors-lower-than', dest='retry_threshold',
+                    metavar="MAX_FAILED", default=0, type=int,
+                    help="Retry the test that have failed if the number of "
+                    "errors if lower than MAX_FAILED")
     main.parse_args()
 
     run = Runner(main.options)
