@@ -22,26 +22,13 @@ LDIR = ../$(BDIR)/../common/lib/win32
 
 AWS_COFF	= $(LDIR)/aws.coff
 
+all:
+
+setup:
+
+install:
 ifeq (${OS}, Windows_NT)
-   RES        = $(AWS_COFF)
-   TINSTALL   = install_win32
-else
-   RES        =
-   TINSTALL   =
+	$(CP) $(AWS_COFF) $(I_LIB)
 endif
-
-$(AWS_COFF): aws.rc
-	echo Building aws.coff
-	$(WINDRES) -i aws.rc -o $(AWS_COFF)
-
-setup_dir:
-	-$(MKDIR) -p $(LDIR)
-
-setup: setup_dir $(RES)
-
-install_win32:
-	$(CP) $(AWS_COFF) $(DESTDIR)$(I_LIB)
-
-install: $(TINSTALL)
 
 check:

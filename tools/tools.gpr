@@ -20,6 +20,7 @@ with "../.build/projects/aws_asis";
 with "../shared.gpr";
 with "../include/include";
 with "../src/src";
+with "../win32/win32";
 
 project Tools is
 
@@ -100,6 +101,15 @@ project Tools is
       case Shared.Build is
          when "Release" =>
             for Default_Switches ("Ada") use ("-s");
+         when others =>
+            null;
+      end case;
+
+      case Shared.OS is
+         when "Windows_NT" =>
+            for Default_Switches ("Ada")
+               use Tools.Linker'Default_Switches ("Ada") &
+                 ("../" & Shared.Target_Dir & "/common/win32/aws.coff");
          when others =>
             null;
       end case;
