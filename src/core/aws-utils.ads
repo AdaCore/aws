@@ -321,6 +321,9 @@ package AWS.Utils is
    --  The format used is (+|-)HHMM as described into RFC 822. If offset is
    --  zero it returns the empty string.
 
+   AWS_Epoch : constant Calendar.Time := Calendar.Time_Of (2000, 01, 01, 0.0);
+   --  AWS birthdate
+
    -----------------------
    -- File compresssion --
    -----------------------
