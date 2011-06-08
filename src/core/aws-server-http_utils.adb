@@ -1273,10 +1273,8 @@ package body AWS.Server.HTTP_Utils is
          File      : Resources.File_Type;
          File_Time : Ada.Calendar.Time := Utils.AWS_Epoch;
       begin
-         if File_Mode then
-            if Filename /= ""
-              and then Resources.Is_Regular_File (Filename)
-            then
+         if File_Mode and then Filename /= "" then
+            if Resources.Is_Regular_File (Filename) then
                File_Time := Resources.File_Timestamp (Filename);
 
                if Is_Valid_HTTP_Date (Status.If_Modified_Since (C_Stat))
