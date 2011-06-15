@@ -170,8 +170,10 @@ package body AWS.Response.Set is
    procedure Clear (D : in out Data) is
       use type Resources.Streams.Stream_Access;
    begin
-      if not D.Ref_Counter.Stream_Taken and then D.Stream /= null then
-         Resources.Streams.Close (D.Stream.all);
+      if D.Stream /= null then
+         if not D.Ref_Counter.Stream_Taken then
+            Resources.Streams.Close (D.Stream.all);
+         end if;
          Unchecked_Free (D.Stream);
       end if;
 
