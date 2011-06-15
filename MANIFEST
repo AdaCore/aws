@@ -1573,6 +1573,10 @@ regtests/0216_log_304/log_check.adb
 regtests/0216_log_304/log_check.gpr
 regtests/0216_log_304/test.out
 regtests/0216_log_304/test.py
+regtests/0217_stream_response/stream_response.adb
+regtests/0217_stream_response/stream_response.gpr
+regtests/0217_stream_response/test.out
+regtests/0217_stream_response/test.py
 regtests/README
 regtests/aws.gpr
 regtests/common/get_free_port.adb
