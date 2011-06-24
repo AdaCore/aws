@@ -2179,6 +2179,8 @@ templates_parser/src/templates_parser-expr.adb
 templates_parser/src/templates_parser-filter.adb
 templates_parser/src/templates_parser-input.ads
 templates_parser/src/templates_parser-input__standalone.adb
+templates_parser/src/templates_parser-macro.adb
+templates_parser/src/templates_parser-simplifier.adb
 templates_parser/src/templates_parser-print_tree.adb
 templates_parser/src/templates_parser-query.adb
 templates_parser/src/templates_parser-query.ads
