@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2005-2009, AdaCore                     --
+--                     Copyright (C) 2005-2011, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -88,10 +88,16 @@ package AWS.Net.Acceptors is
    --  server status page.
 
    procedure Give_Back
-     (Acceptor : in out Acceptor_Type; Socket : Socket_Access);
+     (Acceptor : in out Acceptor_Type;
+      Socket : Socket_Access;
+      Success : out Boolean);
    --  Give back socket which has been taken from Get routine above. Generally
    --  this is called from a different task while the Get routine is blocked
    --  waiting for a socket.
+
+   procedure Give_Back
+     (Acceptor : in out Acceptor_Type; Socket : Socket_Access);
+   --  Idem but raise Program_Error on timeout
 
    procedure Shutdown (Acceptor : in out Acceptor_Type);
    --  Shutdown all internal sockets. Generally this is called from a

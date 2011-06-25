@@ -91,7 +91,7 @@ begin
          Expectation_Failed : exception;
 
          Error_Answer  : Response.Data;
-         Back_Possible : Boolean;
+         Back_OK       : Boolean;
          First_Line    : Boolean := True;
          Switch        : constant array (Boolean) of
                            access function
@@ -118,10 +118,20 @@ begin
               (Sock_Ptr.all,
                (Net.Input => True, others => False)) (Net.Input)
             then
-               LA.Server.Slots.Prepare_Back (LA.Line, Back_Possible);
+               LA.Server.Slots.Prepare_Back (LA.Line, Back_OK);
 
-               if Back_Possible then
-                  Net.Acceptors.Give_Back (LA.Server.Acceptor, Sock_Ptr);
+               if Back_OK then
+                  Net.Acceptors.Give_Back
+                    (LA.Server.Acceptor, Sock_Ptr, Back_OK);
+
+                  if not Back_OK then
+                     AWS.Log.Write
+                       (LA.Server.Error_Log,
+                        "Could not put socket back into acceptor, line"
+                        & LA.Line'Img);
+
+                     Sock_Ptr.Shutdown;
+                  end if;
                end if;
 
                exit For_Every_Request;
