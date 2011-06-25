@@ -76,6 +76,14 @@ procedure Plain2SSL is
       else
          Put_Line ("Error.");
       end if;
+
+   exception
+      when E : Socket_Error =>
+         if Is_Timeout (E) then
+            Put_Line ("Error.");
+         else
+            raise;
+         end if;
    end Test;
 
 begin
@@ -90,8 +98,8 @@ begin
    Connect (Client, "localhost", Port);
    Accept_Socket (Server, Peer);
 
-   Set_Timeout (Client, 2.0);
-   Set_Timeout (Peer, 2.0);
+   Set_Timeout (Client, 1.0);
+   Set_Timeout (Peer, 1.0);
 
    Test (Client, Peer);
    Test (Peer, Client);
