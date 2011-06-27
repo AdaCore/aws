@@ -668,9 +668,15 @@ package body AWS.Net.Std is
    end Raise_Socket_Error;
 
    procedure Raise_Socket_Error (Errmsg : String) is
+      Socket : constant Socket_Type :=
+                 Socket_Type'(Net.Socket_Type with S => null);
+      --  Directly usage of the Socket_Type'(Net.Socket_Type with S => null) in
+      --  Raise_Socket_Error call cause GNAT GPL 2011 following warning output
+      --
+      --  warning: implied return after this statement will raise Program_Error
+      --  warning: procedure <empty> is marked as No_Return
    begin
-      Raise_Socket_Error
-        (Socket_Type'(Net.Socket_Type with S => null), Errmsg);
+      Raise_Socket_Error (Socket, Errmsg);
    end Raise_Socket_Error;
 
    -------------
