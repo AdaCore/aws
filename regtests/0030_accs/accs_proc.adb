@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2005-2010, AdaCore                     --
+--                     Copyright (C) 2005-2011, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -126,7 +126,7 @@ procedure Accs_Proc (Security : Boolean) is
             when Socket_Error =>
                Semaphore.Release;
                Ada.Text_IO.Put_Line ("Acceptor closed.");
-               raise;
+               exit;
             when others =>
                Semaphore.Release;
                raise;
@@ -162,8 +162,6 @@ procedure Accs_Proc (Security : Boolean) is
       end loop;
 
    exception
-      when Socket_Error =>
-         null;
       when E : others =>
          Ada.Text_IO.Put_Line (Ada.Exceptions.Exception_Information (E));
    end Server_Task;
