@@ -27,13 +27,12 @@
 
 --  Waiting on a group of sockets for reading and accept new connections
 
+with Ada.Containers.Doubly_Linked_Lists;
 with Ada.Real_Time;
 with Ada.Exceptions;
 
 with AWS.Net;
 with AWS.Net.Generic_Sets;
-
-with AWS.Utils;
 
 package AWS.Net.Acceptors is
 
@@ -93,11 +92,13 @@ package AWS.Net.Acceptors is
       Success : out Boolean);
    --  Give back socket which has been taken from Get routine above. Generally
    --  this is called from a different task while the Get routine is blocked
-   --  waiting for a socket.
+   --  waiting for a socket. Socket would not be given back in case of socket
+   --  queue size exceed Queue_Size Acceptor property and Success parameter
+   --  would return False value in this case.
 
    procedure Give_Back
      (Acceptor : in out Acceptor_Type; Socket : Socket_Access);
-   --  Idem but raise Program_Error on timeout
+   --  Idem but do not check sockets queue length
 
    procedure Shutdown (Acceptor : in out Acceptor_Type);
    --  Shutdown all internal sockets. Generally this is called from a
@@ -114,7 +115,21 @@ package AWS.Net.Acceptors is
 
 private
 
-   package Mailboxes is new Utils.Mailbox_G (Socket_Access);
+   package Socket_Lists is
+     new Ada.Containers.Doubly_Linked_Lists (Socket_Access);
+
+   protected type Socket_Box is
+
+      procedure Add
+        (S : Socket_Access; Max_Size : Positive; Success : out Boolean);
+
+      entry Get (S : out Socket_Access);
+
+      function Size return Natural;
+
+   private
+      Buffer : Socket_Lists.List;
+   end Socket_Box;
 
    type Socket_Data_Type is record
       Time  : Ada.Real_Time.Time;
@@ -128,7 +143,7 @@ private
       W_Signal            : Socket_Access;
       R_Signal            : Socket_Access;
       Server              : Socket_Access;
-      Box                 : Mailboxes.Mailbox (8);
+      Box                 : Socket_Box;
       Index               : Sets.Socket_Count;
       Last                : Sets.Socket_Count;
       Timeout             : Ada.Real_Time.Time_Span;
@@ -137,6 +152,7 @@ private
       Force_First_Timeout : Ada.Real_Time.Time_Span;
       Force_Length        : Sets.Socket_Count;
       Close_Length        : Sets.Socket_Count;
+      Back_Queue_Size     : Positive;
       Constructor         : Socket_Constructor := Socket'Access;
    end record;
 

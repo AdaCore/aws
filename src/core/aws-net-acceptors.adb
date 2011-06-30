@@ -286,13 +286,11 @@ package body AWS.Net.Acceptors is
       Socket : Socket_Access;
       Success : out Boolean) is
    begin
-      select
-         Acceptor.Box.Add (Socket);
+      Acceptor.Box.Add (Socket, Positive (Acceptor.Back_Queue_Size), Success);
+
+      if Success then
          Acceptor.W_Signal.Send ((1 => Socket_Command));
-         Success := True;
-      or delay 8.0;
-         Success := False;
-      end select;
+      end if;
    end Give_Back;
 
    procedure Give_Back
@@ -300,10 +298,12 @@ package body AWS.Net.Acceptors is
    is
       Success : Boolean;
    begin
-      Give_Back (Acceptor, Socket, Success);
+      Acceptor.Box.Add (Socket, Positive'Last, Success);
 
-      if not Success then
-         raise Program_Error with "Accepting task could be died or too busy";
+      if Success then
+         Acceptor.W_Signal.Send ((1 => Socket_Command));
+      else
+         raise Program_Error;
       end if;
    end Give_Back;
 
@@ -388,6 +388,7 @@ package body AWS.Net.Acceptors is
       Acceptor.Force_Timeout       := To_Time_Span (Force_Timeout);
       Acceptor.First_Timeout       := To_Time_Span (First_Timeout);
       Acceptor.Force_First_Timeout := To_Time_Span (Force_First_Timeout);
+      Acceptor.Back_Queue_Size     := Queue_Size;
 
       Acceptor.Force_Length := Correct_2 (Force_Length);
       Acceptor.Close_Length := Correct_2 (Close_Length);
@@ -424,5 +425,47 @@ package body AWS.Net.Acceptors is
          Free (Acceptor.W_Signal);
       end if;
    end Shutdown;
+
+   ----------------
+   -- Socket_Box --
+   ----------------
+
+   protected body Socket_Box is
+
+      ---------
+      -- Add --
+      ---------
+
+      procedure Add
+        (S : Socket_Access; Max_Size : Positive; Success : out Boolean) is
+      begin
+         Success := Natural (Buffer.Length) < Max_Size;
+
+         if Success then
+            Buffer.Append (S);
+         end if;
+      end Add;
+
+      ---------
+      -- Get --
+      ---------
+
+      entry Get
+        (S : out Socket_Access) when Ada.Containers.">" (Buffer.Length, 0) is
+      begin
+         S := Buffer.First_Element;
+         Buffer.Delete_First;
+      end Get;
+
+      ----------
+      -- Size --
+      ----------
+
+      function Size return Natural is
+      begin
+         return Natural (Buffer.Length);
+      end Size;
+
+   end Socket_Box;
 
 end AWS.Net.Acceptors;
