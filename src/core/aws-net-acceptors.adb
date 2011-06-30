@@ -42,6 +42,7 @@ package body AWS.Net.Acceptors is
    procedure Get
      (Acceptor : in out Acceptor_Type;
       Socket   : out    Socket_Access;
+      To_Close : out    Socket_List;
       On_Error : access procedure
         (E : Ada.Exceptions.Exception_Occurrence) := null)
    is
@@ -206,8 +207,7 @@ package body AWS.Net.Acceptors is
                Acceptor.Last := Acceptor.Last - 1;
 
                if Error then
-                  Shutdown (Socket.all);
-                  Free (Socket);
+                  To_Close.Append (Socket);
 
                elsif Ready then
                   return;
@@ -228,8 +228,7 @@ package body AWS.Net.Acceptors is
                   if Diff <= Time_Span_Zero then
                      Sets.Remove_Socket (Acceptor.Set, Acceptor.Index, Socket);
                      Acceptor.Last := Acceptor.Last - 1;
-                     Shutdown (Socket.all);
-                     Free (Socket);
+                     To_Close.Append (Socket);
                   else
                      if Diff < Wait_Timeout then
                         Wait_Timeout := Diff;
@@ -245,8 +244,7 @@ package body AWS.Net.Acceptors is
          if Oldest_Idx > 0 and then Acceptor.Last > Acceptor.Close_Length then
             Sets.Remove_Socket (Acceptor.Set, Oldest_Idx, Socket);
             Acceptor.Last := Acceptor.Last - 1;
-            Shutdown (Socket.all);
-            Free (Socket);
+            To_Close.Append (Socket);
          end if;
 
          begin
@@ -275,6 +273,17 @@ package body AWS.Net.Acceptors is
             Add_Sockets;
          end if;
       end loop;
+   end Get;
+
+   procedure Get
+     (Acceptor : in out Acceptor_Type;
+      Socket   : out    Socket_Access;
+      On_Error : access procedure
+        (E : Ada.Exceptions.Exception_Occurrence) := null)
+   is
+      To_Close : Socket_List;
+   begin
+      Get (Acceptor, Socket, To_Close, On_Error);
    end Get;
 
    ---------------
@@ -425,6 +434,18 @@ package body AWS.Net.Acceptors is
          Free (Acceptor.W_Signal);
       end if;
    end Shutdown;
+
+   procedure Shutdown_And_Free (Set : Socket_List) is
+      C : Socket_Lists.Cursor := Set.First;
+      S : Socket_Access;
+   begin
+      while Socket_Lists.Has_Element (C) loop
+         S := Socket_Lists.Element (C);
+         S.Shutdown;
+         S.Free;
+         Socket_Lists.Next (C);
+      end loop;
+   end Shutdown_And_Free;
 
    ----------------
    -- Socket_Box --

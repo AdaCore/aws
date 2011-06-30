@@ -40,6 +40,11 @@ package AWS.Net.Acceptors is
 
    type Acceptor_Type is limited private;
 
+   package Socket_Lists is
+     new Ada.Containers.Doubly_Linked_Lists (Socket_Access);
+
+   subtype Socket_List is Socket_Lists.List;
+
    procedure Listen
      (Acceptor            : in out Acceptor_Type;
       Host                : String;
@@ -80,6 +85,19 @@ package AWS.Net.Acceptors is
    --  callback to decrease the number of simultaneous keep-alive connections.
    --  If On_Error is null, the exception on error is propagated.
 
+   procedure Get
+     (Acceptor : in out Acceptor_Type;
+      Socket   : out    Socket_Access;
+      To_Close : out    Socket_List;
+      On_Error : access procedure
+        (E : Ada.Exceptions.Exception_Occurrence) := null);
+   --  Idem but with output socket list which have to be shutdowned and freed.
+   --  It should be done out of critical section if any.
+
+   procedure Shutdown_And_Free (Set : Socket_List);
+   --  Use this routine to shutdown and free list of sockets returned from Get
+   --  routine above.
+
    function Server_Socket
      (Acceptor : Acceptor_Type) return Socket_Type'Class;
    pragma Inline (Server_Socket);
@@ -114,9 +132,6 @@ package AWS.Net.Acceptors is
    --  not initialized or already shutdowned.
 
 private
-
-   package Socket_Lists is
-     new Ada.Containers.Doubly_Linked_Lists (Socket_Access);
 
    protected type Socket_Box is
 
