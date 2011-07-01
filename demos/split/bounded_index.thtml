@@ -1,10 +1,10 @@
-@@-- Builds an index for split pages. 
+@@-- Builds an index for split pages.
 @@-- If there are more entries than the maximum allowed, the first, last, and
 @@-- currententries are always displayed; extra entries are replaced with "..."
 @@-- and are associated to $2
 @@--
 @@-- Parameters: $1= Number of visible index entries
-@@--             $2 (optional) = Href to use for "..." entries. 
+@@--             $2 (optional) = Href to use for "..." entries.
 @@--                             (none by default)
 @@--
 @@-- Can be used with splitters:

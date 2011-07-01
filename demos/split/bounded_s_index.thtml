@@ -1,4 +1,4 @@
-@@-- Builds an index for split pages (secondary index). 
+@@-- Builds an index for split pages (secondary index).
 @@-- If there are more entries than the maximum allowed, the first, last, and
 @@-- current entries are always displayed; extra entries are replaced with
 @@-- "..." and are associated to $2

@@ -15,7 +15,7 @@
 
 @@IF@@ not @_IS_EMPTY:S_PREVIOUS_@
    <a href="@_S_FIRST_@"><img src=/first.jpg border=0 align=absmiddle></a>
-   <a href="@_S_PREVIOUS_@"><img src=/prev.jpg border=0 align=absmiddle></a> 
+   <a href="@_S_PREVIOUS_@"><img src=/prev.jpg border=0 align=absmiddle></a>
 @@END_IF@@
 
 @@TABLE@@

@@ -119,7 +119,7 @@
 	</message>
 	<message name="echoHexBinaryResponse">
 		<part name="return" type="xsd:hexBinary"/>
-	</message>	
+	</message>
 	<portType name="interopTestPortType">
 		<operation name="echoVoid">
 			<input message="tns:echoVoidRequest"/>
@@ -176,7 +176,7 @@
 		<operation name="echoHexBinary">
 			<input message="tns:echoHexBinaryRequest"/>
 			<output message="tns:echoHexBinaryResponse"/>
-		</operation>		
+		</operation>
 	</portType>
 	<binding name="interopTestBinding" type="tns:interopTestPortType">
 		<soap:binding style="rpc" transport="http://schemas.xmlsoap.org/soap/http"/>

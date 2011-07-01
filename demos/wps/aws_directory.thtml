@@ -26,7 +26,7 @@
   <a href="@_SEXT_ORDR_@">Extension case sensitive</a><br/>
   <a href="@_MIME_ORDR_@">Mime type</a><br/>
   <a href="@_DIR_ORDR_@">Directory flag</a>
-@@ELSE@@  
+@@ELSE@@
   <a href="@_EXT_ORDR_@">Type</a><br/>
 @@END_IF@@
 </td>
@@ -46,7 +46,7 @@
 @@IF@@ @_MODE_@ = complex
   <a href="@_DIR_TIME_ORDR_@">Directory flag / modification time</a><br/>
   <a href="@_TIME_ORDR_@">Modification time</a>
-@@ELSE@@  
+@@ELSE@@
   <a href="@_DIR_TIME_ORDR_@">Modification time</a><br/>
 @@END_IF@@
 </td>

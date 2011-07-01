@@ -1,4 +1,4 @@
-@@-- Builds an index for split pages. 
+@@-- Builds an index for split pages.
 @@-- A sliding window of the indicated size is provided, the current page
 @@-- staying centered (if possible) within the window.
 @@-- Entries that have no associated hrefs are displayed (without link) only if
@@ -20,7 +20,7 @@
 
 @@IF@@ not @_IS_EMPTY:PREVIOUS_@
    <a href="@_FIRST_@">[first]</a>
-   <a href="@_PREVIOUS_@">[previous]</a> 
+   <a href="@_PREVIOUS_@">[previous]</a>
 @@END_IF@@
 
 @@TABLE@@
