@@ -1,5 +1,11 @@
 Known Problems fixed in AWS 2.10
 
+- K722-021: Properly match URI regexp at first character
+  Problem:    The URI regular expression used in AWS.Services.Dispatchers.URI
+              was not properly matching from the start of the URI.
+  Workaround: Change the regexp registering order to match the expected
+              behavior when possible.
+
 - K308-027 : Dispatchers.URI.Register_Regexp supporting globing patterns
   Problem:   Despite what was in the documented in the spec, the
              implementation of the Register_Regexp was wrong. A globing

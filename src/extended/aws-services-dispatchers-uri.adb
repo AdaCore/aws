@@ -217,7 +217,7 @@ package body AWS.Services.Dispatchers.URI is
    overriding function Match
      (URI : Reg_URI; Value : String) return Boolean is
    begin
-      return Regpat.Match (URI.Reg_URI.all, Value);
+      return Regpat.Match (URI.Reg_URI.all, Value) = Value'First;
    end Match;
 
    --------------

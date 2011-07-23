@@ -1577,6 +1577,10 @@ regtests/0217_stream_response/stream_response.adb
 regtests/0217_stream_response/stream_response.gpr
 regtests/0217_stream_response/test.out
 regtests/0217_stream_response/test.py
+regtests/0218_uri_regexp/test.out
+regtests/0218_uri_regexp/test.py
+regtests/0218_uri_regexp/uri_regexp.adb
+regtests/0218_uri_regexp/uri_regexp.gpr
 regtests/README
 regtests/aws.gpr
 regtests/common/get_free_port.adb
@@ -2180,10 +2184,10 @@ templates_parser/src/templates_parser-filter.adb
 templates_parser/src/templates_parser-input.ads
 templates_parser/src/templates_parser-input__standalone.adb
 templates_parser/src/templates_parser-macro.adb
-templates_parser/src/templates_parser-simplifier.adb
 templates_parser/src/templates_parser-print_tree.adb
 templates_parser/src/templates_parser-query.adb
 templates_parser/src/templates_parser-query.ads
+templates_parser/src/templates_parser-simplifier.adb
 templates_parser/src/templates_parser-utils.adb
 templates_parser/src/templates_parser-utils.ads
 templates_parser/src/templates_parser.adb
