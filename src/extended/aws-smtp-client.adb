@@ -163,6 +163,10 @@ package body AWS.SMTP.Client is
          Add (Answer, Status);
          Shutdown (Sock);
       end if;
+   exception
+      when others =>
+         Shutdown (Sock);
+         raise;
    end Open;
 
    -------------------

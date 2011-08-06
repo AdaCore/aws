@@ -1,5 +1,10 @@
 Known Problems fixed in AWS 2.10
 
+- K806-002: Fix memory leak when a wrong SMTP server is used.
+  Problem:    When a wrong SMTP server name is used, the AWS.SMTP.Client.Send
+              routine leaked memory on each call.
+  Workaround: Fix the name of the SMTP server.
+
 - K722-021: Properly match URI regexp at first character
   Problem:    The URI regular expression used in AWS.Services.Dispatchers.URI
               was not properly matching from the start of the URI.
