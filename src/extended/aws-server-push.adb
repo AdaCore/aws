@@ -98,6 +98,7 @@ package body AWS.Server.Push is
       Client_Id      : Client_Key;
       Holder         : in out Client_Holder_Access;
       Init_Data      : Stream_Element_Array;
+      Content_Type   : String;
       Duplicated_Age : Duration);
    --  Internal register routine
 
@@ -1096,9 +1097,26 @@ package body AWS.Server.Push is
       Client_Id      : Client_Key;
       Holder         : in out Client_Holder_Access;
       Init_Data      : Stream_Element_Array;
+      Content_Type   : String;
       Duplicated_Age : Duration)
    is
       Duplicated : Client_Holder_Access;
+
+      function Content_Type_Header return String;
+
+      -------------------------
+      -- Content_Type_Header --
+      -------------------------
+
+      function Content_Type_Header return String is
+      begin
+         if Content_Type = "" then
+            return "";
+         else
+            return Messages.Content_Type (Content_Type) & New_Line;
+         end if;
+      end Content_Type_Header;
+
    begin
       Server.Register (Client_Id, Holder, Duplicated, Duplicated_Age);
 
@@ -1122,7 +1140,8 @@ package body AWS.Server.Push is
          if Holder.Kind = Chunked then
             Net.Buffered.Put_Line
               (Holder.Socket.all,
-               Messages.Transfer_Encoding ("chunked") & New_Line);
+               Content_Type_Header & Messages.Transfer_Encoding ("chunked")
+               & New_Line);
 
          elsif Holder.Kind = Multipart then
             Net.Buffered.Put_Line
@@ -1131,7 +1150,7 @@ package body AWS.Server.Push is
                & New_Line);
 
          else
-            Net.Buffered.New_Line (Holder.Socket.all);
+            Net.Buffered.Put_Line (Holder.Socket.all, Content_Type_Header);
          end if;
 
          Net.Buffered.Write (Holder.Socket.all, Init_Data);
@@ -1170,6 +1189,7 @@ package body AWS.Server.Push is
          Client_Id,
          Holder,
          Data_Chunk (Holder, Init_Data, Init_Content_Type),
+         Init_Content_Type,
          Duplicated_Age);
    end Register;
 
@@ -1178,6 +1198,7 @@ package body AWS.Server.Push is
       Client_Id      : Client_Key;
       Socket         : Net.Socket_Type'Class;
       Environment    : Client_Environment;
+      Content_Type   : String             := "";
       Kind           : Mode               := Plain;
       Duplicated_Age : Duration           := Duration'Last;
       Groups         : Group_Set          := Empty_Group;
@@ -1186,7 +1207,9 @@ package body AWS.Server.Push is
       Holder : Client_Holder_Access :=
                  To_Holder (Socket, Environment, Kind, Groups, Timeout);
    begin
-      Register (Server, Client_Id, Holder, (1 .. 0 => 0), Duplicated_Age);
+      Register
+        (Server, Client_Id, Holder, (1 .. 0 => 0), Content_Type,
+         Duplicated_Age);
    end Register;
 
    -------------

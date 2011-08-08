@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2009, AdaCore                     --
+--                     Copyright (C) 2000-2011, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -112,14 +112,13 @@ package body WS_CB is
             end if;
 
             Time_Push.Register
-              (Server      => SP,
-               Client_Id   => Client_Id,
-               Socket      => AWS.Status.Socket (Request),
-               Environment => (Clock, Picture),
-               Kind        => Time_Push.Multipart);
-
-            Time_Push.Send_To
-              (SP, Client_Id, Ada.Calendar.Clock, "text/html");
+              (Server            => SP,
+               Client_Id         => Client_Id,
+               Socket            => AWS.Status.Socket (Request),
+               Environment       => (Clock, Picture),
+               Init_Content_Type => "text/plain",
+               Init_Data         => Ada.Calendar.Clock,
+               Kind              => Time_Push.Multipart);
          end;
 
          return AWS.Response.Socket_Taken;

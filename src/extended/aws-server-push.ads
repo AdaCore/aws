@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2009, AdaCore                     --
+--                     Copyright (C) 2000-2011, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -106,7 +106,7 @@ package AWS.Server.Push is
       Groups            : Group_Set          := Empty_Group;
       Timeout           : Duration           := Default.Send_Timeout);
    --  Add client identified by Client_Id to the server subscription
-   --  list and send the Init_Data (as a Data_Content_Type mime content) to
+   --  list and send the Init_Data (as a Init_Content_Type mime content) to
    --  him. After registering this client will be able to receive pushed data
    --  from the server in brodcasting mode.
    --  If Duplicated_Age less than age of the already registered same Client_Id
@@ -115,15 +115,19 @@ package AWS.Server.Push is
    --  write availability timeout.
 
    procedure Register
-     (Server          : in out Object;
-      Client_Id       : Client_Key;
-      Socket          : Net.Socket_Type'Class;
-      Environment     : Client_Environment;
-      Kind            : Mode               := Plain;
-      Duplicated_Age  : Duration           := Duration'Last;
-      Groups          : Group_Set          := Empty_Group;
-      Timeout         : Duration           := Default.Send_Timeout);
-   --  Same as above but without sending initial data
+     (Server         : in out Object;
+      Client_Id      : Client_Key;
+      Socket         : Net.Socket_Type'Class;
+      Environment    : Client_Environment;
+      Content_Type   : String             := "";
+      Kind           : Mode               := Plain;
+      Duplicated_Age : Duration           := Duration'Last;
+      Groups         : Group_Set          := Empty_Group;
+      Timeout        : Duration           := Default.Send_Timeout);
+   --  Same as above but without sending initial data.
+   --  Content_Type applicable only when Kind parameter is Plain or Chunked,
+   --  in Multipart server push mode each server push message would have own
+   --  Content_Type defined.
 
    procedure Unregister
      (Server       : in out Object;
