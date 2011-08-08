@@ -1125,11 +1125,10 @@ package body AWS.Server.Push is
                Messages.Transfer_Encoding ("chunked") & New_Line);
 
          elsif Holder.Kind = Multipart then
-            Net.Buffered.Put
+            Net.Buffered.Put_Line
               (Holder.Socket.all,
-               Messages.Content_Type
-                 (MIME.Multipart_X_Mixed_Replace, Boundary)
-               & New_Line & New_Line);
+               Messages.Content_Type (MIME.Multipart_X_Mixed_Replace, Boundary)
+               & New_Line);
 
          else
             Net.Buffered.New_Line (Holder.Socket.all);
