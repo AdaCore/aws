@@ -15,6 +15,13 @@ of the feature.
 New features in AWS 2.10
 ------------------------
 
+NF-210-K814-001 Add new configuration option Send_Buffer_Size (2011-08-20)
+
+   The Send_Buffer_Size server configuration parameter is to define the
+   socket internal buffer size when sending data to the client. Using a
+   bigger buffer increase the performance on slow or long distance
+   connections. The default is set to 32k.
+
 NF-210-K315-046 Make log file-name compatible with logrotate (2011-03-16)
 
    The log file-name's timestamp has been removed when Split_Mode is None.

@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2010, AdaCore                     --
+--                     Copyright (C) 2000-2011, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -103,6 +103,12 @@ package AWS.Config is
    pragma Inline (Max_Connection);
    --  This is the max simultaneous connections as set by the HTTP object
    --  declaration.
+
+   function Send_Buffer_Size (O : Object) return Positive;
+   pragma Inline (Send_Buffer_Size);
+   --  This is the socket buffer size used for sending data. Increasing this
+   --  value will give better performances on slow or long distances
+   --  connections.
 
    function Free_Slots_Keep_Alive_Limit (O : Object) return Natural;
    pragma Inline (Free_Slots_Keep_Alive_Limit);
@@ -393,6 +399,7 @@ private
       Exchange_Certificate,
       Hotplug_Port,
       Max_Connection,
+      Send_Buffer_Size,
       Free_Slots_Keep_Alive_Limit,
       Keep_Alive_Force_Limit,
       Keep_Alive_Close_Limit,
@@ -562,6 +569,9 @@ private
 
          Max_Connection =>
            (Pos, Default.Max_Connection),
+
+         Send_Buffer_Size =>
+           (Pos, Default.Send_Buffer_Size),
 
          Free_Slots_Keep_Alive_Limit =>
            (Nat, Default.Free_Slots_Keep_Alive_Limit),

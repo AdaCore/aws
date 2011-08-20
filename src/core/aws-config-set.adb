@@ -419,6 +419,15 @@ package body AWS.Config.Set is
       O.P (Security_Mode).Str_Value := To_Unbounded_String (Mode);
    end Security_Mode;
 
+   ----------------------
+   -- Send_Buffer_Size --
+   ----------------------
+
+   procedure Send_Buffer_Size (O : in out Object; Value : Positive) is
+   begin
+      O.P (Send_Buffer_Size).Pos_Value := Value;
+   end Send_Buffer_Size;
+
    ------------------
    -- Send_Timeout --
    ------------------

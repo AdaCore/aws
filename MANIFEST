@@ -1581,6 +1581,10 @@ regtests/0218_uri_regexp/test.out
 regtests/0218_uri_regexp/test.py
 regtests/0218_uri_regexp/uri_regexp.adb
 regtests/0218_uri_regexp/uri_regexp.gpr
+regtests/0219_socket_send_buffer/socket_send_buffer.adb
+regtests/0219_socket_send_buffer/socket_send_buffer.gpr
+regtests/0219_socket_send_buffer/test.out
+regtests/0219_socket_send_buffer/test.py
 regtests/README
 regtests/aws.gpr
 regtests/common/get_free_port.adb

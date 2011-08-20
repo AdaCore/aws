@@ -313,6 +313,9 @@ package body AWS.Server is
                               Accept_Socket_Serialized (TA.Server);
             Need_Shutdown : Boolean;
          begin
+            Net.Set_Send_Buffer_Size
+              (Socket.all, AWS.Config.Send_Buffer_Size (TA.Server.Config));
+
             TA.Server.Slots.Set (Socket, TA.Line);
 
             Protocol_Handler (TA.all);

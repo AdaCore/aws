@@ -1544,6 +1544,11 @@ only for debugging purpose. The default is @_REUSE_ADDRESS_@.
 Set the security mode to use for the secure connections. The default
 mode is "@b{@_SECURITY_MODE_@}". @pxref{AWS.Net.SSL}.
 
+@item Send_Buffer_Size (positive)
+@cindex Send_Buffer_Size
+This is the socket internal buffer used for sending data to the
+clients. The default is @_SEND_BUFFER_SIZE_@.
+
 @item Send_Timeout (duration)
 @cindex Send_Timeout
 Number of seconds to timeout when sending chunk of data. The default is

@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2010, AdaCore                     --
+--                     Copyright (C) 2000-2011, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -109,6 +109,7 @@ begin
                      Image (Default.Force_Client_Data_Timeout)));
    Insert (T, Assoc ("FT_SERVER_RESPONSE",
                      Image (Default.Force_Server_Response_Timeout)));
+   Insert (T, Assoc ("SEND_BUFFER_SIZE", Default.Send_Buffer_Size));
    Insert (T, Assoc ("SEND_TIMEOUT", Image (Default.Send_Timeout)));
    Insert (T, Assoc ("RECEIVE_TIMEOUT", Image (Default.Receive_Timeout)));
    Insert (T, Assoc ("LOGO_IMAGE", Default.Logo_Image));

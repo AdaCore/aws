@@ -77,6 +77,11 @@ package AWS.Config.Set is
    --  This is the max simultaneous connections as set by the HTTP object
    --  declaration.
 
+   procedure Send_Buffer_Size (O : in out Object; Value : Positive);
+   --  This is the socket buffer size used for sending data. Increasing this
+   --  value will give better performances on slow or long distances
+   --  connections.
+
    procedure Free_Slots_Keep_Alive_Limit
      (O : in out Object; Value : Natural);
    --  The minimum number of free slots where keep-alive connections are still

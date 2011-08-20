@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2010, AdaCore                     --
+--                     Copyright (C) 2000-2011, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -466,6 +466,15 @@ package body AWS.Config is
    begin
       return To_String (O.P (Security_Mode).Str_Value);
    end Security_Mode;
+
+   ----------------------
+   -- Send_Buffer_Size --
+   ----------------------
+
+   function Send_Buffer_Size (O : Object) return Positive is
+   begin
+      return O.P (Send_Buffer_Size).Pos_Value;
+   end Send_Buffer_Size;
 
    ------------------
    -- Send_Timeout --
