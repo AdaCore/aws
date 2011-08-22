@@ -247,8 +247,31 @@ package body AWS.Net.Acceptors is
             To_Close.Append (Socket);
          end if;
 
+         declare
+            use type Ada.Containers.Count_Type;
+            Count : Sets.Socket_Count;
+            S     : Socket_Access;
          begin
-            Sets.Wait (Acceptor.Set, Real_Time.To_Duration (Wait_Timeout));
+            loop
+               if To_Close.Length = 0 then
+                  Sets.Wait
+                    (Acceptor.Set, Real_Time.To_Duration (Wait_Timeout));
+                  exit;
+               end if;
+
+               --  We could not wait too long when we have sockets to close.
+               --  Otherwise client could not understand that server closed
+               --  its keep-alive socket on inactivity timeout.
+
+               Sets.Wait (Acceptor.Set, 0.0, Count);
+               exit when Count > 0;
+
+               S := To_Close.First_Element;
+               To_Close.Delete_First;
+               S.Shutdown;
+               S.Free;
+            end loop;
+
             Error := False;
          exception
             when E : Socket_Error =>
@@ -284,6 +307,7 @@ package body AWS.Net.Acceptors is
       To_Close : Socket_List;
    begin
       Get (Acceptor, Socket, To_Close, On_Error);
+      Shutdown_And_Free (To_Close);
    end Get;
 
    ---------------
