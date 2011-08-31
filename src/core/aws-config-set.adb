@@ -425,7 +425,7 @@ package body AWS.Config.Set is
 
    procedure Send_Buffer_Size (O : in out Object; Value : Positive) is
    begin
-      O.P (Send_Buffer_Size).Pos_Value := Value;
+      O.P (Send_Buffer_Size).Nat_Value := Value;
    end Send_Buffer_Size;
 
    ------------------

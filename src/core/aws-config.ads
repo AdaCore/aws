@@ -104,7 +104,7 @@ package AWS.Config is
    --  This is the max simultaneous connections as set by the HTTP object
    --  declaration.
 
-   function Send_Buffer_Size (O : Object) return Positive;
+   function Send_Buffer_Size (O : Object) return Natural;
    pragma Inline (Send_Buffer_Size);
    --  This is the socket buffer size used for sending data. Increasing this
    --  value will give better performances on slow or long distances
@@ -571,7 +571,7 @@ private
            (Pos, Default.Max_Connection),
 
          Send_Buffer_Size =>
-           (Pos, Default.Send_Buffer_Size),
+           (Nat, Default.Send_Buffer_Size),
 
          Free_Slots_Keep_Alive_Limit =>
            (Nat, Default.Free_Slots_Keep_Alive_Limit),

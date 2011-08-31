@@ -471,9 +471,9 @@ package body AWS.Config is
    -- Send_Buffer_Size --
    ----------------------
 
-   function Send_Buffer_Size (O : Object) return Positive is
+   function Send_Buffer_Size (O : Object) return Natural is
    begin
-      return O.P (Send_Buffer_Size).Pos_Value;
+      return O.P (Send_Buffer_Size).Nat_Value;
    end Send_Buffer_Size;
 
    ------------------
