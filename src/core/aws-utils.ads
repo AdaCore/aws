@@ -119,6 +119,11 @@ package AWS.Utils is
    --  Append Value into Content, append Sep before value if Content is not
    --  empty.
 
+   function Match (Str, Pattern : String) return Boolean;
+   pragma Inline (Match);
+   --  Returns True if Pattern matches the begining of Str. The test is not
+   --  case sensitive.
+
    ---------------
    -- Semaphore --
    ---------------

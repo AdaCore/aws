@@ -27,7 +27,6 @@
 
 with Ada.Strings.Fixed;
 
-with AWS.Messages;
 with AWS.Parameters.Set;
 with AWS.URL.Raise_URL_Error;
 with AWS.Utils;
@@ -344,16 +343,16 @@ package body AWS.URL.Set is
 
       --  Checks for prefix
 
-      if Messages.Match (L_URL, HTTP_Token) then
+      if Utils.Match (L_URL, HTTP_Token) then
          Item.Port := Default_HTTP_Port;
          Parse (L_URL (L_URL'First + HTTP_Token'Length .. P), True);
 
-      elsif Messages.Match (L_URL, HTTPS_Token) then
+      elsif Utils.Match (L_URL, HTTPS_Token) then
          Item.Port := Default_HTTPS_Port;
          Parse (L_URL (L_URL'First + HTTPS_Token'Length .. P), True);
          Item.Protocol := HTTPS;
 
-      elsif Messages.Match (L_URL, FTP_Token) then
+      elsif Utils.Match (L_URL, FTP_Token) then
          Item.Port := Default_FTP_Port;
          Parse (L_URL (L_URL'First + FTP_Token'Length .. P), True);
          Item.Protocol := FTP;

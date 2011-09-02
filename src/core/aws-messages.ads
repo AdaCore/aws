@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2010, AdaCore                     --
+--                     Copyright (C) 2000-2011, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -344,16 +344,6 @@ package AWS.Messages is
    -----------------------
    --  helper functions --
    -----------------------
-
-   function Match (Str, Pattern : String) return Boolean;
-   pragma Inline (Match);
-   --  Returns True if Pattern matches the begining of Str. The test is not
-   --  case sensitive.
-
-   function Does_Not_Match (Str, Pattern : String) return Boolean;
-   pragma Inline (Does_Not_Match);
-   --  Returns True if Pattern does not matches the begining of Str. The test
-   --  is not case sensitive.
 
    function To_HTTP_Date (Time : Calendar.Time) return String;
    --  Returns an Ada time as a string using the HTTP normalized format.

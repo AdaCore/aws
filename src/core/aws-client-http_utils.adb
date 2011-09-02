@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2005-2010, AdaCore                     --
+--                     Copyright (C) 2005-2011, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -980,7 +980,7 @@ package body AWS.Client.HTTP_Utils is
          --  Checking the first line in the HTTP header.
          --  It must match Messages.HTTP_Token.
 
-         if Messages.Match (Line, Messages.HTTP_Token) then
+         if Utils.Match (Line, Messages.HTTP_Token) then
             Status :=
               Messages.Status_Code'Value
                 ('S' & Line (Messages.HTTP_Token'Length + Line'First + 4
@@ -1006,10 +1006,10 @@ package body AWS.Client.HTTP_Utils is
 
       procedure Set_Keep_Alive (Data : String) is
       begin
-         if Messages.Match (Data, "Close") then
+         if Utils.Match (Data, "Close") then
             Keep_Alive := False;
 
-         elsif Messages.Match (Data, "Keep-Alive") then
+         elsif Utils.Match (Data, "Keep-Alive") then
             Keep_Alive := True;
          end if;
       end Set_Keep_Alive;

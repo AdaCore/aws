@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2010, AdaCore                     --
+--                     Copyright (C) 2000-2011, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -26,6 +26,7 @@
 ------------------------------------------------------------------------------
 
 with Ada.Calendar.Time_Zones;
+with Ada.Characters.Handling;
 with Ada.Integer_Text_IO;
 with Ada.Numerics.Discrete_Random;
 with Ada.Numerics.Long_Elementary_Functions;
@@ -589,6 +590,19 @@ package body AWS.Utils is
       end Mailbox;
 
    end Mailbox_G;
+
+   -----------
+   -- Match --
+   -----------
+
+   function Match (Str, Pattern : String) return Boolean is
+      use Ada.Characters;
+      U_Str     : constant String := Handling.To_Upper (Str);
+      U_Pattern : constant String := Handling.To_Upper (Pattern);
+   begin
+      return Pattern'Length <= Str'Length
+        and then U_Str (1 .. Pattern'Length) = U_Pattern;
+   end Match;
 
    --------------------------
    -- Normalized_Directory --

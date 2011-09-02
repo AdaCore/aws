@@ -4,7 +4,7 @@
 
 Authors:
    Dmitriy Anisimkov
-   Pascal Obry                                           Decembre 4th, 2010
+   Pascal Obry                                          September 2nd, 2011
 
 
 
@@ -63,6 +63,11 @@ implementations.
    The log file-name's timestamp has been removed when Split_Mode is None.
    This makes the naming compatible with logrotate but may be incompatible
    with external handling of log files.
+
+   The AWS.Messages.Match helper routine has been moved to AWS.Utils.
+
+   The AWS.Messages.Does_Not_Match helper routine has been removed, use
+   "not Match" instead.
 
 
 Obsolescent features

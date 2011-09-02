@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2010, AdaCore                     --
+--                     Copyright (C) 2000-2011, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -25,7 +25,6 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-with Ada.Characters.Handling;
 with Ada.Directories;
 with Ada.Strings.Unbounded;
 
@@ -292,19 +291,6 @@ package body AWS.Messages is
       return Range_Token & HD & Value;
    end Data_Range;
 
-   --------------------
-   -- Does_Not_Match --
-   --------------------
-
-   function Does_Not_Match (Str, Pattern : String) return Boolean is
-      use Ada.Characters;
-      U_Str     : constant String := Handling.To_Upper (Str);
-      U_Pattern : constant String := Handling.To_Upper (Pattern);
-   begin
-      return Pattern'Length > Str'Length
-        or else U_Str (1 .. Pattern'Length) /= U_Pattern;
-   end Does_Not_Match;
-
    ----------
    -- ETag --
    ----------
@@ -358,19 +344,6 @@ package body AWS.Messages is
    begin
       return Location_Token & HD & URL;
    end Location;
-
-   -----------
-   -- Match --
-   -----------
-
-   function Match (Str, Pattern : String) return Boolean is
-      use Ada.Characters;
-      U_Str     : constant String := Handling.To_Upper (Str);
-      U_Pattern : constant String := Handling.To_Upper (Pattern);
-   begin
-      return Pattern'Length <= Str'Length
-        and then U_Str (1 .. Pattern'Length) = U_Pattern;
-   end Match;
 
    -------------------------
    -- Proxy_Authorization --

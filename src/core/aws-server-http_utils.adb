@@ -1868,11 +1868,10 @@ package body AWS.Server.HTTP_Utils is
       --  Connection, check connection string with Match to skip connection
       --  options [RFC 2616 - 14.10].
 
-      Will_Close := AWS.Messages.Match (Connection, "close")
+      Will_Close := Utils.Match (Connection, "close")
         or else not Keep_Alive
         or else (Status.HTTP_Version (C_Stat) = HTTP_10
-                 and then
-                 AWS.Messages.Does_Not_Match (Connection, "keep-alive"));
+                 and then not Utils.Match (Connection, "keep-alive"));
    end Set_Close_Status;
 
 end AWS.Server.HTTP_Utils;
