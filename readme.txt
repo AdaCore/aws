@@ -4,7 +4,7 @@
 
 Authors:
    Dmitriy Anisimkov
-   Pascal Obry                                          September 2nd, 2011
+   Pascal Obry                                          September 21st, 2011
 
 
 
@@ -54,6 +54,10 @@ In such a case we try to give proper advice on how to change the code
 to work properly. Of course we try to avoid this as much as possible
 but we really prefer to have a clean API instead of keeping awkward
 implementations.
+
+   The SSLv2 support has been removed. This has been motivated by the
+   fact that support for SSLv2 is being removed from GNU/Debian
+   package. Use SSLv23 or SSLv3 methods instead.
 
    The AWS.Services.Dispatchers.URI.Register_Regexp implementation was
    done using a globing pattern instead of a regular expression as

@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2009, AdaCore                     --
+--                     Copyright (C) 2000-2011, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -1011,10 +1011,7 @@ package body AWS.Net.SSL is
            (Cert_Filename : String; Key_Filename : String);
 
          Methods : constant array (Method) of Meth_Func :=
-                     (SSLv2          => TSSL.SSLv2_method'Access,
-                      SSLv2_Server   => TSSL.SSLv2_server_method'Access,
-                      SSLv2_Client   => TSSL.SSLv2_client_method'Access,
-                      SSLv23         => TSSL.SSLv23_method'Access,
+                     (SSLv23         => TSSL.SSLv23_method'Access,
                       SSLv23_Server  => TSSL.SSLv23_server_method'Access,
                       SSLv23_Client  => TSSL.SSLv23_client_method'Access,
                       TLSv1          => TSSL.TLSv1_method'Access,

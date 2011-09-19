@@ -2,7 +2,7 @@
 --                            Secure Sockets Layer                          --
 --                         Binding to OpenSSL library                       --
 --                                                                          --
---                     Copyright (C) 2000-2009, AdaCore                     --
+--                     Copyright (C) 2000-2011, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -300,9 +300,6 @@ package SSL.Thin is
    function SSLv3_method         return SSL_Method;
    function SSLv3_server_method  return SSL_Method;
    function SSLv3_client_method  return SSL_Method;
-   function SSLv2_method         return SSL_Method;
-   function SSLv2_server_method  return SSL_Method;
-   function SSLv2_client_method  return SSL_Method;
    function SSLv23_method        return SSL_Method;
    function SSLv23_server_method return SSL_Method;
    function SSLv23_client_method return SSL_Method;
@@ -639,9 +636,6 @@ private
    pragma Import (C, SSLv3_method, "SSLv3_method");
    pragma Import (C, SSLv3_server_method, "SSLv3_server_method");
    pragma Import (C, SSLv3_client_method, "SSLv3_client_method");
-   pragma Import (C, SSLv2_method, "SSLv2_method");
-   pragma Import (C, SSLv2_server_method, "SSLv2_server_method");
-   pragma Import (C, SSLv2_client_method, "SSLv2_client_method");
    pragma Import (C, SSLv23_method, "SSLv23_method");
    pragma Import (C, SSLv23_server_method, "SSLv23_server_method");
    pragma Import (C, SSLv23_client_method, "SSLv23_client_method");
