@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2010, AdaCore                     --
+--                     Copyright (C) 2000-2011, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -172,12 +172,12 @@ package AWS.Status is
 
    function Socket                 (D : Data) return Net.Socket_Type'Class;
    pragma Inline (Socket);
-   --  Returns the socket used to transfert data between the client and
+   --  Returns the socket used to transfer data between the client and
    --  server.
 
    function Socket                 (D : Data) return Net.Socket_Access;
    pragma Inline (Socket);
-   --  Returns the socket used to transfert data between the client and
+   --  Returns the socket used to transfer data between the client and
    --  server. Use Socket_Access to avoid memory allocation if we would need
    --  socket access further.
 
