@@ -68,7 +68,7 @@ package body AWS.Server.Push is
    end record;
 
    function To_Holder
-     (Socket      : Net.Socket_Type'Class;
+     (Socket      : Net.Socket_Access;
       Environment : Client_Environment;
       Kind        : Mode;
       Groups      : Group_Set;
@@ -282,8 +282,12 @@ package body AWS.Server.Push is
       end Suffix;
 
    begin
-      return Translator.To_Stream_Element_Array (Prefix) & Data_To_Send
-            & Translator.To_Stream_Element_Array (Suffix);
+      if Data_To_Send'Length > 0 then
+         return Translator.To_Stream_Element_Array (Prefix) & Data_To_Send
+                & Translator.To_Stream_Element_Array (Suffix);
+      else
+         return (1 .. 0 => 0);
+      end if;
    end Data_Chunk;
 
    ----------
@@ -1172,7 +1176,7 @@ package body AWS.Server.Push is
    procedure Register
      (Server            : in out Object;
       Client_Id         : Client_Key;
-      Socket            : Net.Socket_Type'Class;
+      Socket            : Net.Socket_Access;
       Environment       : Client_Environment;
       Init_Data         : Client_Output_Type;
       Init_Content_Type : String             := "";
@@ -1183,6 +1187,32 @@ package body AWS.Server.Push is
    is
       Holder : Client_Holder_Access :=
                  To_Holder (Socket, Environment, Kind, Groups, Timeout);
+   begin
+      Register
+        (Server,
+         Client_Id,
+         Holder,
+         Data_Chunk (Holder, Init_Data, Init_Content_Type),
+         Init_Content_Type,
+         Duplicated_Age);
+   end Register;
+
+   procedure Register
+     (Server            : in out Object;
+      Client_Id         : Client_Key;
+      Socket            : Net.Socket_Type'Class;
+      Environment       : Client_Environment;
+      Init_Data         : Client_Output_Type;
+      Init_Content_Type : String             := "";
+      Kind              : Mode               := Plain;
+      Duplicated_Age    : Duration           := Duration'Last;
+      Groups            : Group_Set          := Empty_Group;
+      Timeout           : Duration           := Default.Send_Timeout)
+   is
+      Holder : Client_Holder_Access :=
+                 To_Holder
+                   (new Socket_Type'Class'(Socket), Environment, Kind, Groups,
+                    Timeout);
    begin
       Register
         (Server,
@@ -1205,7 +1235,9 @@ package body AWS.Server.Push is
       Timeout        : Duration           := Default.Send_Timeout)
    is
       Holder : Client_Holder_Access :=
-                 To_Holder (Socket, Environment, Kind, Groups, Timeout);
+                 To_Holder
+                   (new Socket_Type'Class'(Socket), Environment, Kind, Groups,
+                    Timeout);
    begin
       Register
         (Server, Client_Id, Holder, (1 .. 0 => 0), Content_Type,
@@ -1486,7 +1518,7 @@ package body AWS.Server.Push is
    ---------------
 
    function To_Holder
-     (Socket      : Net.Socket_Type'Class;
+     (Socket      : Net.Socket_Access;
       Environment : Client_Environment;
       Kind        : Mode;
       Groups      : Group_Set;
@@ -1502,7 +1534,7 @@ package body AWS.Server.Push is
         (Kind        => Kind,
          Environment => Environment,
          Created     => Real_Time.Clock,
-         Socket      => new Socket_Type'Class'(Socket),
+         Socket      => Socket,
          Groups      => Holder_Groups,
          Chunks      => <>,
          Chunk_Sent  => 0,

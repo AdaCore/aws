@@ -97,7 +97,7 @@ package AWS.Server.Push is
    procedure Register
      (Server            : in out Object;
       Client_Id         : Client_Key;
-      Socket            : Net.Socket_Type'Class;
+      Socket            : Net.Socket_Access;
       Environment       : Client_Environment;
       Init_Data         : Client_Output_Type;
       Init_Content_Type : String             := "";
@@ -113,6 +113,19 @@ package AWS.Server.Push is
    --  then old one will be unregistered first (no exception will be raised).
    --  The Timeout is not for socket send timeout, but for internal waiting for
    --  write availability timeout.
+
+   procedure Register
+     (Server            : in out Object;
+      Client_Id         : Client_Key;
+      Socket            : Net.Socket_Type'Class;
+      Environment       : Client_Environment;
+      Init_Data         : Client_Output_Type;
+      Init_Content_Type : String             := "";
+      Kind              : Mode               := Plain;
+      Duplicated_Age    : Duration           := Duration'Last;
+      Groups            : Group_Set          := Empty_Group;
+      Timeout           : Duration           := Default.Send_Timeout);
+   --  Same as above but with Socket_Type'Class parameter
 
    procedure Register
      (Server         : in out Object;
