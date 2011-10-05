@@ -343,7 +343,8 @@ private
         (Client_Id      : Client_Key;
          Holder         : in out Client_Holder_Access;
          Duplicated     : out Client_Holder_Access;
-         Duplicated_Age : Duration);
+         Duplicated_Age : Duration;
+         Ext_Sock_Alloc : Boolean);
       --  See above.
       --  Holder would be released in case of registration failure.
 

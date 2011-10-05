@@ -74,7 +74,8 @@ package body AWS.Server.Push is
       Groups      : Group_Set;
       Timeout     : Duration) return Client_Holder_Access;
 
-   procedure Free (Holder : in out Client_Holder_Access);
+   procedure Free
+     (Holder : in out Client_Holder_Access; Socket : Boolean := True);
 
    procedure Unchecked_Free is
      new Unchecked_Deallocation (Tables.Map, Map_Access);
@@ -99,7 +100,8 @@ package body AWS.Server.Push is
       Holder         : in out Client_Holder_Access;
       Init_Data      : Stream_Element_Array;
       Content_Type   : String;
-      Duplicated_Age : Duration);
+      Duplicated_Age : Duration;
+      Ext_Sock_Alloc : Boolean);
    --  Internal register routine
 
    function Data_Chunk
@@ -294,11 +296,16 @@ package body AWS.Server.Push is
    -- Free --
    ----------
 
-   procedure Free (Holder : in out Client_Holder_Access) is
+   procedure Free
+     (Holder : in out Client_Holder_Access; Socket : Boolean := True)
+   is
       procedure Unchecked_Free is
          new Unchecked_Deallocation (Client_Holder, Client_Holder_Access);
    begin
-      Net.Free (Holder.Socket);
+      if Socket then
+         Net.Free (Holder.Socket);
+      end if;
+
       Unchecked_Free (Holder);
    end Free;
 
@@ -547,7 +554,8 @@ package body AWS.Server.Push is
         (Client_Id      : Client_Key;
          Holder         : in out Client_Holder_Access;
          Duplicated     : out Client_Holder_Access;
-         Duplicated_Age : Duration)
+         Duplicated_Age : Duration;
+         Ext_Sock_Alloc : Boolean)
       is
          use Real_Time;
 
@@ -567,7 +575,7 @@ package body AWS.Server.Push is
 
       begin
          if not Open then
-            Free (Holder);
+            Free (Holder, Socket => not Ext_Sock_Alloc);
             raise Closed;
          end if;
 
@@ -583,7 +591,7 @@ package body AWS.Server.Push is
                Unregister (Cursor);
                Container.Insert (Client_Id, Holder);
             else
-               Free (Holder);
+               Free (Holder, Socket => not Ext_Sock_Alloc);
                raise Duplicate_Client_Id;
             end if;
          end if;
@@ -1102,7 +1110,8 @@ package body AWS.Server.Push is
       Holder         : in out Client_Holder_Access;
       Init_Data      : Stream_Element_Array;
       Content_Type   : String;
-      Duplicated_Age : Duration)
+      Duplicated_Age : Duration;
+      Ext_Sock_Alloc : Boolean)
    is
       Duplicated : Client_Holder_Access;
 
@@ -1122,7 +1131,8 @@ package body AWS.Server.Push is
       end Content_Type_Header;
 
    begin
-      Server.Register (Client_Id, Holder, Duplicated, Duplicated_Age);
+      Server.Register
+        (Client_Id, Holder, Duplicated, Duplicated_Age, Ext_Sock_Alloc);
 
       if Duplicated /= null then
          if Duplicated.Phase = Available then
@@ -1160,15 +1170,20 @@ package body AWS.Server.Push is
          Net.Buffered.Write (Holder.Socket.all, Init_Data);
          Net.Buffered.Flush (Holder.Socket.all);
 
+         Waiter_Command (Server, Holder, Add);
+
       exception
-         when others =>
+         when E : others =>
             Server.Unregister (Client_Id, Holder);
+
+            Net.Log.Error
+              (Holder.Socket.all,
+               "Server push write header error "
+               & Ada.Exceptions.Exception_Information (E));
+
             Holder.Socket.Shutdown;
             Free (Holder);
-            raise;
       end;
-
-      Waiter_Command (Server, Holder, Add);
 
       Socket_Taken;
    end Register;
@@ -1194,7 +1209,8 @@ package body AWS.Server.Push is
          Holder,
          Data_Chunk (Holder, Init_Data, Init_Content_Type),
          Init_Content_Type,
-         Duplicated_Age);
+         Duplicated_Age,
+         Ext_Sock_Alloc => True);
    end Register;
 
    procedure Register
@@ -1220,7 +1236,8 @@ package body AWS.Server.Push is
          Holder,
          Data_Chunk (Holder, Init_Data, Init_Content_Type),
          Init_Content_Type,
-         Duplicated_Age);
+         Duplicated_Age,
+         Ext_Sock_Alloc => False);
    end Register;
 
    procedure Register
@@ -1241,7 +1258,7 @@ package body AWS.Server.Push is
    begin
       Register
         (Server, Client_Id, Holder, (1 .. 0 => 0), Content_Type,
-         Duplicated_Age);
+         Duplicated_Age, Ext_Sock_Alloc => False);
    end Register;
 
    -------------
