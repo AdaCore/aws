@@ -343,7 +343,6 @@ package body AWS.Net is
       if Security then
          declare
             Result : SSL.Socket_Type;
-            pragma Warnings (Off, Result);
          begin
             return Result;
          end;
@@ -351,7 +350,6 @@ package body AWS.Net is
       else
          declare
             Result : Std.Socket_Type;
-            pragma Warnings (Off, Result);
          begin
             return Result;
          end;
