@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2006-2009, AdaCore                     --
+--                     Copyright (C) 2006-2011, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -34,6 +34,7 @@ with Ada.Strings.Unbounded;
 with Ada.Text_IO.Editing;
 
 with AWS.Client;
+with AWS.Net;
 with AWS.Parameters;
 with AWS.Response;
 with AWS.Server.Push;
@@ -98,7 +99,7 @@ package body S_Sp_Pack is
          Groups            => (+GID0, +GID1),
          Init_Data         => 0.01,
          Init_Content_Type => "text/number",
-         Socket            => AWS.Status.Socket (Request),
+         Socket            => Net.Socket_Type'Class'(Status.Socket (Request)),
          Environment       => Picture (Mode_Value),
          Kind              => Mode_Value);
 
