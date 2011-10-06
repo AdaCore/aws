@@ -37,6 +37,7 @@ with AWS.Config;
 with AWS.OS_Lib;
 with AWS.Messages;
 with AWS.MIME;
+with AWS.Net;
 with AWS.Parameters;
 with AWS.Services.Directory;
 with AWS.Server.Push;
@@ -114,7 +115,8 @@ package body WS_CB is
             Time_Push.Register
               (Server            => SP,
                Client_Id         => Client_Id,
-               Socket            => AWS.Status.Socket (Request),
+               Socket            =>
+                 AWS.Net.Socket_Access'(AWS.Status.Socket (Request)),
                Environment       => (Clock, Picture),
                Init_Content_Type => "text/plain",
                Init_Data         => Ada.Calendar.Clock,
