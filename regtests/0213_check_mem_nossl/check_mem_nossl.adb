@@ -678,6 +678,16 @@ begin
    --  iterations.
 
    for K in 1 ..  Iteration loop
+
+      declare
+         R : Response.Data;
+      begin
+         R := AWS.Client.Get ("http://www.nowayitexists.com/me/aws");
+      exception
+         when E : others =>
+            Put_Line ("*** " & Exception_Message (E));
+      end;
+
       Client;
       Check_Zlib;
       Check_Memory_Streams;
