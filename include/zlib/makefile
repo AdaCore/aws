@@ -34,9 +34,9 @@ LIBZ_static = $(LDIR_S)/libz.a
 LIBZ_shared = $(LDIR_R)/libz$(SOEXT)
 
 install:
-	$(CP) $(LIBZ_static) $(I_LIB)/static
+	$(CP) $(LIBZ_static) $(DESTDIR)$(I_LIB)/static
 ifeq ($(ZLIB), false)
 ifeq (${ENABLE_SHARED}, true)
-	$(CP) $(LIBZ_shared) $(I_LIB)/relocatable
+	$(CP) $(LIBZ_shared) $(DESTDIR)$(I_LIB)/relocatable
 endif
 endif

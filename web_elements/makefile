@@ -1,7 +1,7 @@
 ############################################################################
 #                              Ada Web Server                              #
 #                                                                          #
-#                      Copyright (C) 2007-2010, AdaCore                    #
+#                      Copyright (C) 2007-2011, AdaCore                    #
 #                                                                          #
 #  This library is free software; you can redistribute it and/or modify    #
 #  it under the terms of the GNU General Public License as published by    #
@@ -36,13 +36,13 @@ build:
 clean:
 
 init:
-	$(CP) readme.txt $(I_WEL)
-	$(CP) mime.types $(I_WEL)
+	$(CP) readme.txt $(DESTDIR)$(I_WEL)
+	$(CP) mime.types $(DESTDIR)$(I_WEL)
 
 force:
 
 $(DIRS): force
-	$(MKDIR) $(I_WEL)/$@
-	$(CP) $@/*.* $(I_WEL)/$@
+	$(MKDIR) $(DESTDIR)$(I_WEL)/$@
+	$(CP) $@/*.* $(DESTDIR)$(I_WEL)/$@
 
 install: init $(DIRS)

@@ -1,7 +1,7 @@
 ############################################################################
 #                              Ada Web Server                              #
 #                                                                          #
-#                     Copyright (C) 2003-2009, AdaCore                     #
+#                     Copyright (C) 2003-2011, AdaCore                     #
 #                                                                          #
 #  This library is free software; you can redistribute it and/or modify    #
 #  it under the terms of the GNU General Public License as published by    #
@@ -30,10 +30,10 @@
 setup:
 
 install:
-	$(CP) *.ad? $(I_CPN)
-	-$(CP) ../$(BDIR)/static/lib/include/* $(I_LIB)/static
+	$(CP) *.ad? $(DESTDIR)$(I_CPN)
+	-$(CP) ../$(BDIR)/static/lib/include/* $(DESTDIR)$(I_LIB)/static
 ifeq (${ENABLE_SHARED}, true)
-	-$(CP) ../$(BDIR)/relocatable/lib/include/* $(I_LIB)/relocatable
+	-$(CP) ../$(BDIR)/relocatable/lib/include/* $(DESTDIR)$(I_LIB)/relocatable
 endif
 	${MAKE} -C zlib install $(GALL_OPTIONS)
 

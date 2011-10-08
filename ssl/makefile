@@ -1,7 +1,7 @@
 ############################################################################
 #                              Ada Web Server                              #
 #                                                                          #
-#                     Copyright (C) 2003-2010, AdaCore                     #
+#                     Copyright (C) 2003-2011, AdaCore                     #
 #                                                                          #
 #  This library is free software; you can redistribute it and/or modify    #
 #  it under the terms of the GNU General Public License as published by    #
@@ -33,8 +33,8 @@ check:
 setup:
 
 install:
-	$(CP) *.ad[sb] $(I_INC)
-	$(CP) ../$(BDIR)/static/lib/ssl/* $(I_LIB)/static
+	$(CP) *.ad[sb] $(DESTDIR)$(I_INC)
+	$(CP) ../$(BDIR)/static/lib/ssl/* $(DESTDIR)$(I_LIB)/static
 ifeq (${ENABLE_SHARED}, true)
-	$(CP) ../$(BDIR)/relocatable/lib/ssl/* $(I_LIB)/relocatable
+	$(CP) ../$(BDIR)/relocatable/lib/ssl/* $(DESTDIR)$(I_LIB)/relocatable
 endif
