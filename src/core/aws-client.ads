@@ -27,6 +27,7 @@
 
 with Ada.Real_Time;
 with Ada.Exceptions;
+with Ada.Finalization;
 with Ada.Streams;
 with Ada.Strings.Unbounded;
 
@@ -464,6 +465,7 @@ package AWS.Client is
 
 private
 
+   use Ada;
    use Ada.Strings.Unbounded;
 
    Forever : constant Ada.Real_Time.Time_Span := Ada.Real_Time.Time_Span_Last;
@@ -516,7 +518,7 @@ private
       Until_Close,    -- Document end on close socket
       End_Response);  -- Document is over
 
-   type HTTP_Connection is limited record
+   type HTTP_Connection is new Finalization.Limited_Controlled with record
       Self : HTTP_Connection_Access := HTTP_Connection'Unchecked_Access;
 
       Connect_URL   : AWS.URL.Object;
@@ -543,6 +545,8 @@ private
       Decode_First  : Stream_Element_Offset;
       Decode_Last   : Stream_Element_Offset;
    end record;
+
+   overriding procedure Finalize (Connection : in out HTTP_Connection);
 
    procedure Debug_Message (Prefix, Message : String);
    pragma Inline (Debug_Message);
