@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2009, AdaCore                     --
+--                     Copyright (C) 2000-2011, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -25,7 +25,9 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
+with Ada.Characters.Latin_1;
 with Ada.Strings.Fixed;
+with Ada.Strings.Maps;
 with Ada.Text_IO;
 
 with AWS.Containers.Tables.Set;
@@ -35,6 +37,25 @@ package body AWS.Headers.Set is
 
    use Ada;
    use AWS.Containers;
+
+   use type Strings.Maps.Character_Set;
+
+   Printable_Set : constant Strings.Maps.Character_Set :=
+                     Strings.Maps.To_Set
+                       (Strings.Maps.Character_Range'
+                          (Low  => ' ',
+                           High => Character'Val (126)));
+   --  This is RFC2616 CHAR except CTL
+   --     CHAR           = <any US-ASCII character (octets 0 - 127)>
+   --     CTL            = <any US-ASCII control character
+   --                       (octets 0 - 31) and DEL (127)>
+
+   RFC2616_Separator_Set : constant Strings.Maps.Character_Set :=
+                             Strings.Maps.To_Set
+                               (" ()<>@,;:\""/[]?={}" & Characters.Latin_1.HT);
+
+   RFC2616_Token_Set     : constant Strings.Maps.Character_Set :=
+                             Printable_Set - RFC2616_Separator_Set;
 
    subtype P_List is Tables.Table_Type;
 
@@ -105,9 +126,15 @@ package body AWS.Headers.Set is
 
                   --  Put name and value to the container separately
 
-                  Delimiter_Index := Fixed.Index (Line, ":");
+                  Delimiter_Index := Fixed.Index
+                    (Source => Line,
+                     Set    => RFC2616_Token_Set,
+                     Test   => Outside);
 
-                  if Delimiter_Index = 0 then
+                  if Delimiter_Index = 0                  -- No delimiter
+                    or else Delimiter_Index = Line'First  -- Empty name
+                    or else Line (Delimiter_Index) /= ':' -- Wrong separator
+                  then
                      --  No delimiter, this is not a valid Header Line
 
                      raise Format_Error with Line;
