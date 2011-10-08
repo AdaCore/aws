@@ -249,8 +249,11 @@ package body AWS.Client.HTTP_Utils is
 
          if Connection.Socket /= null then
             Net.Shutdown (Connection.Socket.all);
-            Net.Free (Connection.Socket);
          end if;
+      end if;
+
+      if Connection.Socket /= null then
+         Net.Free (Connection.Socket);
       end if;
    end Disconnect;
 

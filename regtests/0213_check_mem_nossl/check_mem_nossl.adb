@@ -66,6 +66,7 @@ with Get_Free_Port;
 procedure Check_Mem_Nossl is
 
    use Ada;
+   use Ada.Exceptions;
    use Ada.Strings.Unbounded;
    use Ada.Text_IO;
 
@@ -290,7 +291,7 @@ procedure Check_Mem_Nossl is
       AWS.Server.Shutdown (HTTP);
    exception
       when E : others =>
-         Put_Line ("Server Error " & Exceptions.Exception_Information (E));
+         Put_Line ("Server Error " & Exception_Information (E));
    end Server;
 
    -------------
@@ -583,8 +584,7 @@ procedure Check_Mem_Nossl is
          end loop;
       exception
          when E : others =>
-            Put_Line
-              ("On connect " & Ada.Exceptions.Exception_Information (E));
+            Put_Line ("On connect " & Exception_Information (E));
       end Connector;
 
    begin
@@ -678,6 +678,16 @@ begin
    --  iterations.
 
    for K in 1 ..  Iteration loop
+
+      declare
+         R : Response.Data;
+      begin
+         R := AWS.Client.Get ("http://www.nowayitexists.com/me/aws");
+      exception
+         when E : others =>
+            Put_Line ("*** " & Exception_Message (E));
+      end;
+
       Client;
       Check_Zlib;
       Check_Memory_Streams;
@@ -707,6 +717,6 @@ begin
    Command_Line.Set_Exit_Status (Command_Line.Success);
 exception
    when E : others =>
-      Put_Line ("Main Error " & Exceptions.Exception_Information (E));
+      Put_Line ("Main Error " & Exception_Information (E));
       Command_Line.Set_Exit_Status (Command_Line.Failure);
 end Check_Mem_Nossl;

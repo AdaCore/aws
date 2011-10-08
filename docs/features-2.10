@@ -15,6 +15,12 @@ of the feature.
 New features in AWS 2.10
 ------------------------
 
+NF-210-KA08-001 HTTP_Connection is now a controlled object
+
+   The HTTP_Connection object is now controlled. The finalization ensure
+   that the socket is properly closed. This avoids memory leak if close
+   is not explicitly called.
+
 NF-210-K814-001 Add new configuration option Send_Buffer_Size (2011-08-20)
 
    The Send_Buffer_Size server configuration parameter is to define the

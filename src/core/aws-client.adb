@@ -39,7 +39,6 @@ with AWS.Translator;
 
 package body AWS.Client is
 
-   use Ada;
    use AWS.Client.HTTP_Utils;
 
    -----------
@@ -241,6 +240,15 @@ package body AWS.Client is
 
       Disconnect (Connection);
    end Error_Processing;
+
+   --------------
+   -- Finalize --
+   --------------
+
+   procedure Finalize (Connection : in out HTTP_Connection) is
+   begin
+      Close (Connection);
+   end Finalize;
 
    ---------
    -- Get --

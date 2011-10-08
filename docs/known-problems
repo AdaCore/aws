@@ -1,5 +1,10 @@
 Known Problems fixed in AWS 2.10
 
+- KA08-001: Memory leak in client connection for wrong URL
+  Problem:    When an invalid URL is used on AWS.Client.Get the socket is
+              not properly freed. This creates a memory leak.
+  Workaround: Check URL validity first.
+
 - K806-002: Fix memory leak when a wrong SMTP server is used.
   Problem:    When a wrong SMTP server name is used, the AWS.SMTP.Client.Send
               routine leaked memory on each call.
