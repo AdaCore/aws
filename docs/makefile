@@ -209,11 +209,13 @@ check_texi:
 aws.texi: gen_texi check_texi
 
 install:
-	-$(CP) aws.pdf $(DESTDIR)$(I_DOC)
+	if [ -f aws.pdf ]; then \
+	   -$(CP) aws.pdf $(DESTDIR)$(I_DOC); \
+	   -$(CP) ../templates_parser/docs/templates_parser.pdf $(DESTDIR)$(I_DOC); \
+	fi;
 	-$(CP) aws.html $(DESTDIR)$(I_DOC)
 	-$(CP) aws.txt $(DESTDIR)$(I_DOC)
 	-$(CP) aws*.info* $(DESTDIR)$(I_DOC)
-	-$(CP) ../templates_parser/docs/templates_parser.pdf $(DESTDIR)$(I_DOC)
 	-$(CP) ../templates_parser/docs/templates_parser.html $(DESTDIR)$(I_DOC)
 	-$(CP) ../templates_parser/docs/templates_parser.txt $(DESTDIR)$(I_DOC)
 	-$(CP) ../templates_parser/docs/templates_parser.info* $(DESTDIR)$(I_DOC)
