@@ -107,6 +107,8 @@ into master:
 
 Merging is done by the AWS project manager.
 
+Note that for a branch with a single commit a fast forward is allowed.
+
 This work/review cycle will help having proper patch set (code,
 documentation work, test and possibly feature or known-problem entries)
 before merging. This is especially important to make it easier to merge
