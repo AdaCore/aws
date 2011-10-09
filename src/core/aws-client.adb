@@ -245,7 +245,7 @@ package body AWS.Client is
    -- Finalize --
    --------------
 
-   procedure Finalize (Connection : in out HTTP_Connection) is
+   overriding procedure Finalize (Connection : in out HTTP_Connection) is
    begin
       Close (Connection);
    end Finalize;
