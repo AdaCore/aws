@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2005-2009, AdaCore                     --
+--                     Copyright (C) 2005-2011, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -41,8 +41,7 @@ package AWS.Services.Download is
    procedure Start
      (Server_Dispatcher       : AWS.Dispatchers.Handler'Class;
       Main_Dispatcher         : out Services.Dispatchers.Linker.Handler;
-      Max_Concurrent_Download : Positive :=
-        Config.Max_Concurrent_Download);
+      Max_Concurrent_Download : Positive := Config.Max_Concurrent_Download);
    --  Start the download manager server. Server_Dispatcher is the dispatcher
    --  for the Web server. Main_Dispatcher is the dispatcher that must be used
    --  with the main server start routine. This dispatcher handles the standard

@@ -561,8 +561,7 @@ package body AWS.Services.Download is
    procedure Start
      (Server_Dispatcher       : AWS.Dispatchers.Handler'Class;
       Main_Dispatcher         : out Services.Dispatchers.Linker.Handler;
-      Max_Concurrent_Download : Positive :=
-        Config.Max_Concurrent_Download) is
+      Max_Concurrent_Download : Positive := Config.Max_Concurrent_Download) is
    begin
       Download.Max_Concurrent_Download := Max_Concurrent_Download;
 
