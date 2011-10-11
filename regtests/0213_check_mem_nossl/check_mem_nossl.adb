@@ -40,6 +40,7 @@ with AWS.Parameters;
 with AWS.Response.Set;
 with AWS.Resources.Streams.Disk;
 with AWS.Resources.Streams.Memory.ZLib;
+with AWS.Resources.Streams.ZLib;
 with AWS.Server;
 with AWS.Session;
 with AWS.Services.Dispatchers.URI;
@@ -244,7 +245,10 @@ procedure Check_Mem_Nossl is
             "check_mem_nossl.adb");
 
          return Response.Stream
-                  (MIME.Text_Plain, Strm, Encoding => Messages.GZip);
+           (MIME.Text_Plain,
+            Resources.Streams.ZLib.Deflate_Create
+              (Strm, Header => Resources.Streams.ZLib.ZL.Gzip),
+            Encoding => Messages.GZip);
 
       elsif URI = "/stream-unknown" then
          Strm := new Resources.Streams.Disk.Stream_Type;
