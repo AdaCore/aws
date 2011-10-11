@@ -41,6 +41,7 @@ with AWS.Parameters;
 with AWS.Response.Set;
 with AWS.Resources.Streams.Disk;
 with AWS.Resources.Streams.Memory.ZLib;
+with AWS.Resources.Streams.ZLib;
 with AWS.Server;
 with AWS.Session;
 with AWS.Services.Split_Pages;
@@ -219,13 +220,19 @@ procedure Check_Mem is
          end;
 
       elsif URI = "/stream" then
-         Strm := new Resources.Streams.Disk.Stream_Type;
+         declare
+            use AWS.Resources.Streams;
+         begin
+            Strm := new Disk.Stream_Type;
 
-         Resources.Streams.Disk.Open
-           (Resources.Streams.Disk.Stream_Type (Strm.all), "check_mem.adb");
+            Disk.Open (Disk.Stream_Type (Strm.all), "check_mem.adb");
 
-         return Response.Stream
-                  (MIME.Text_Plain, Strm, Encoding => Messages.GZip);
+            return Response.Stream
+                     (MIME.Text_Plain,
+                      ZLib.Deflate_Create (Strm, Header => ZLib.ZL.GZip),
+                      Encoding => Messages.GZip);
+         end;
+
       else
          Check ("Unknown URI " & URI);
          return Response.Build
@@ -639,5 +646,10 @@ begin
 exception
    when E : others =>
       Put_Line ("Main Error " & Exceptions.Exception_Information (E));
+
+      if not Server'Terminated then
+         Server.Stopped;
+      end if;
+
       Command_Line.Set_Exit_Status (Command_Line.Failure);
 end Check_Mem;
