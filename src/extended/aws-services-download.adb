@@ -25,6 +25,7 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
+with Ada.Calendar;
 with Ada.Exceptions;
 with Ada.Streams;
 with Ada.Strings.Unbounded;
@@ -61,20 +62,22 @@ package body AWS.Services.Download is
    --  will start as soon as a download terminates.
 
    type Download_Information is record
-      URI      : Unbounded_String; -- download manager unique key URI
-      Name     : Unbounded_String; -- the resource name (filename)
-      R_URI    : Unbounded_String; -- the resource URI
-      Started  : Boolean;          -- True if download can start
-      Header   : Boolean;          -- True if HTTP header sent
-      Stream   : Resources.Streams.Stream_Access; -- data stream (input)
-      Socket   : Net.Socket_Access;               -- client socket (output)
-      Position : Waiting_Position; -- position in the waiting line
-      Index    : Positive;         -- item vector index (for fast update)
+      URI        : Unbounded_String; -- download manager unique key URI
+      Name       : Unbounded_String; -- the resource name (filename)
+      R_URI      : Unbounded_String; -- the resource URI
+      Started    : Boolean;          -- True if download can start
+      Header     : Boolean;          -- True if HTTP header sent
+      Stream     : Resources.Streams.Stream_Access; -- data stream (input)
+      Socket     : Net.Socket_Access;               -- client socket (output)
+      Position   : Waiting_Position; -- position in the waiting line
+      Index      : Positive;         -- item vector index (for fast update)
+      Time_Stamp : Calendar.Time;    -- when the download was created
    end record;
 
    No_Information : constant Download_Information :=
                       (Null_Unbounded_String, Null_Unbounded_String,
-                       Null_Unbounded_String, False, False, null, null, 0, 1);
+                       Null_Unbounded_String, False, False, null, null,
+                       0, 1, Calendar.Clock);
 
    package Download_Vectors is
      new Ada.Containers.Vectors (Positive, Download_Information);
@@ -116,7 +119,7 @@ package body AWS.Services.Download is
       procedure Create_Set (Socket_Set : in out Sock_Set.Socket_Set_Type);
       --  Returns in Socket_Set the socket to look at for output availability
 
-      function Get (URI : String) return Download_Information;
+      procedure Get (URI : String; Download : out Download_Information);
       --  Returns the Download_Information for the given URI or No_Information
       --  if this URI is not part of the download data. Note that this routine
       --  also set the Index and Position fields according to the position in
@@ -182,7 +185,8 @@ package body AWS.Services.Download is
               (To_Unbounded_String (Key_URI), To_Unbounded_String (Name),
                To_Unbounded_String (Status.URI (Request)),
                False, False,
-               Resources.Streams.Stream_Access (Resource), null, 0, 1));
+               Resources.Streams.Stream_Access (Resource), null,
+               0, 1, Calendar.Clock));
 
          return Response.URL
            ("/" & URI_Prefix & "?RES_URI=" & Key_URI,
@@ -199,7 +203,7 @@ package body AWS.Services.Download is
       URI    : constant String := Parameters.Get (P_List, "RES_URI");
       Info   : Download_Information;
    begin
-      Info := Data_Manager.Get (URI);
+      Data_Manager.Get (URI, Info);
 
       if Info = No_Information then
          --  This should not happen, guard against bad URL (reload after
@@ -276,10 +280,24 @@ package body AWS.Services.Download is
       -- Get --
       ---------
 
-      function Get (URI : String) return Download_Information is
+      procedure Get (URI : String; Download : out Download_Information) is
+         use type Calendar.Time;
          Info  : Download_Information;
          Index : Natural := 0;
       begin
+         --  First remove old entries which have not been checked for at least
+         --  15 seconds.
+
+         Remove_Old_Entries : while not Downloads.Is_Empty loop
+            Info := Downloads.First_Element;
+            if Calendar.Clock - Info.Time_Stamp > 15.0 then
+               Downloads.Delete_First;
+               Count := Count - 1;
+            else
+               exit Remove_Old_Entries;
+            end if;
+         end loop Remove_Old_Entries;
+
          --  Look for the given URI in the vector
 
          for K in 1 .. Natural (Downloads.Length) loop
@@ -292,10 +310,14 @@ package body AWS.Services.Download is
 
          if Index = 0 then
             --  Not found
-            return No_Information;
+            Info := No_Information;
 
          else
             Info.Index := Index;
+            --  As this download was checked, update time-stamp
+            Info.Time_Stamp := Calendar.Clock;
+
+            Downloads.Replace_Element (Index, Info);
 
             if Index <= Max_Concurrent_Download then
                Info.Position := 0;
@@ -303,8 +325,9 @@ package body AWS.Services.Download is
                Info.Position :=
                  Waiting_Position (Index - Max_Concurrent_Download);
             end if;
-            return Info;
          end if;
+
+         Download := Info;
       end Get;
 
       -------------
