@@ -852,7 +852,7 @@ package body AWS.Server.Push is
       -----------------------
 
       procedure Shutdown_If_Empty (Open : out Boolean) is
-         use type Containers.Count_Type;
+         use type Ada.Containers.Count_Type;
       begin
          if Container.Length = 0 then
             Object.Open := False;
@@ -946,7 +946,7 @@ package body AWS.Server.Push is
          ------------------
 
          procedure Delete_Group (J : Group_Sets.Cursor) is
-            use type Containers.Count_Type;
+            use type Ada.Containers.Count_Type;
             C   : Group_Maps.Cursor := Groups.Find (Group_Sets.Element (J));
             Map : Map_Access := Group_Maps.Element (C);
          begin
@@ -1016,7 +1016,7 @@ package body AWS.Server.Push is
            (Key : String; Element : in out Client_Holder_Access)
          is
             pragma Unreferenced (Key);
-            use type Containers.Count_Type;
+            use type Ada.Containers.Count_Type;
             Cursor : Group_Sets.Cursor := Element.Groups.Find (Group_Id);
             CG     : Group_Maps.Cursor;
             Group  : Map_Access;
@@ -1048,7 +1048,7 @@ package body AWS.Server.Push is
       ----------------------
 
       procedure Unsubscribe_Copy (Source : String; Target : String) is
-         use type Containers.Count_Type;
+         use type Ada.Containers.Count_Type;
 
          CG     : Group_Maps.Cursor := Groups.Find (Target);
          CF     : Tables.Cursor;
@@ -1349,7 +1349,7 @@ package body AWS.Server.Push is
       Thin_Id      : String             := "";
       Client_Gone  : access procedure (Client_Id : String) := null)
    is
-      use type Containers.Count_Type;
+      use type Ada.Containers.Count_Type;
       Cursor : Tables.Cursor;
       C      : Tables.Cursor;
       Holder : Client_Holder_Access;

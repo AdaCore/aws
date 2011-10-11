@@ -37,6 +37,7 @@ with Ada.Strings.Hash;
 with Ada.Streams;
 with Ada.Strings.Unbounded;
 
+with AWS.Containers.Tables;
 with AWS.Default;
 with AWS.Net;
 
@@ -90,7 +91,7 @@ package AWS.Server.Push is
 
    type Wait_Counter_Type is mod System.Max_Binary_Modulus;
 
-   type Group_Set is array (Positive range <>) of Unbounded_String;
+   subtype Group_Set is Containers.Tables.VString_Array;
 
    Empty_Group : constant Group_Set := (1 .. 0 => Null_Unbounded_String);
 
