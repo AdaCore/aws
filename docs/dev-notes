@@ -81,9 +81,11 @@ A patch-set must follow the following properties:
 
    - The first line of the commit log message must be a summary of the
      change. This first line is what is viewed in many Git output (log
-     --oneline, cherry -v, etc...)
+     --oneline, cherry -v, etc...) and should be restricted to 80
+     characters.
 
    - Actual work must be separated from minor reformating or style fixes
+     which should be done on separate commits.
 
    - A work must be done on small and incremental commits. This is generally
      far easier to review than a large commit. For example if the
