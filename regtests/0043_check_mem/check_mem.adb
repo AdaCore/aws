@@ -30,7 +30,7 @@ with Ada.Exceptions;
 with Ada.IO_Exceptions;
 with Ada.Streams;
 with Ada.Strings.Unbounded;
-with Ada.Text_IO;
+with Ada.Text_IO.Editing;
 
 with AWS.Client;
 with AWS.MIME;
@@ -42,7 +42,7 @@ with AWS.Response.Set;
 with AWS.Resources.Streams.Disk;
 with AWS.Resources.Streams.Memory.ZLib;
 with AWS.Resources.Streams.ZLib;
-with AWS.Server;
+with AWS.Server.Push;
 with AWS.Session;
 with AWS.Services.Split_Pages;
 with AWS.Status;
@@ -67,6 +67,8 @@ procedure Check_Mem is
 
    use AWS;
 
+   CRLF : constant String := ASCII.CR & ASCII.LF;
+
    function CB (Request : Status.Data) return Response.Data;
 
    procedure Check (Str : String);
@@ -85,12 +87,25 @@ procedure Check_Mem is
 
    function Get_Free_Port return Positive;
 
+   type Push_Data_Type is delta 0.01 digits 7;
+
+   function To_Array
+     (Data : Push_Data_Type;
+      Env  : Text_IO.Editing.Picture)
+      return Ada.Streams.Stream_Element_Array;
+
+   package Server_Push is new AWS.Server.Push
+     (Client_Output_Type => Push_Data_Type,
+      Client_Environment => Text_IO.Editing.Picture,
+      To_Stream_Array    => To_Array);
+
    task Server is
       entry Started;
       entry Stopped;
    end Server;
 
    HTTP : AWS.Server.HTTP;
+   Push : Server_Push.Object;
 
    -------------------
    -- Get_Free_Port --
@@ -232,6 +247,19 @@ procedure Check_Mem is
                       ZLib.Deflate_Create (Strm, Header => ZLib.ZL.GZip),
                       Encoding => Messages.GZip);
          end;
+
+      elsif URI = "/server-push" then
+         Server_Push.Register
+           (Server            => Push,
+            Client_ID         => Session.Image (SID),
+            Groups            => P_List.Get_Values ("group"),
+            Socket            => Net.Socket_Access'(Status.Socket (Request)),
+            Init_Data         => 76543.21,
+            Init_Content_Type => "text/number",
+            Environment       => Editing.To_Picture (P_List.Get ("picture")),
+            Kind              => Server_Push.Plain);
+
+         return Response.Socket_Taken;
 
       else
          Check ("Unknown URI " & URI);
@@ -448,6 +476,75 @@ procedure Check_Mem is
       Test (Plain, Sample);
    end Check_Memory_Streams;
 
+   -----------------------
+   -- Check_Server_Push --
+   -----------------------
+
+   procedure Check_Server_Push is
+      Connect : array (1 .. 8) of AWS.Client.HTTP_Connection;
+      Answer  : AWS.Response.Data;
+      Data    : Push_Data_Type;
+
+      procedure Check_Data (Index : Positive; Sample : Push_Data_Type);
+
+      ----------------
+      -- Check_Data --
+      ----------------
+
+      procedure Check_Data (Index : Positive; Sample : Push_Data_Type) is
+         SPD : constant String :=
+                 AWS.Client.Read_Until (Connect (Index), CRLF);
+      begin
+         if Push_Data_Type'Value (SPD (SPD'First .. SPD'Last - 2))
+            /= Sample
+         then
+            raise Constraint_Error with Sample'Img & " /= " & SPD;
+         end if;
+      end Check_Data;
+
+   begin
+      Data := 12345.67;
+
+      --  Initialize all the push connections
+
+      for J in Connect'Range loop
+         AWS.Client.Create
+           (Connection  => Connect (J),
+            Host        => "http://localhost:" & S_Port,
+            Timeouts    => AWS.Client.Timeouts
+              (Connect => 5.0,
+               Send => 15.0, Receive => 15.0, Response => 15.0),
+            Server_Push => True);
+
+         AWS.Client.Get
+           (Connect (J), Answer,
+            "/server-push?picture=zzzz9.99&group=aa&group=bb&group=cc&group=id"
+            & AWS.Utils.Image (J));
+      end loop;
+
+      for J in Connect'Range loop
+         Check_Data (J, 76543.21);
+      end loop;
+
+      for J in Connect'Range loop
+         Server_Push.Send
+           (Push,
+            Group_Id     => "id" & AWS.Utils.Image (J),
+            Data         => Data + Push_Data_Type (J),
+            Content_Type => "text/number");
+      end loop;
+
+      for J in Connect'Range loop
+         Check_Data (J, Data + Push_Data_Type (J));
+      end loop;
+
+      for J in Connect'Range loop
+         AWS.Client.Close (Connect (J));
+      end loop;
+
+      Server_Push.Send (Push, Data => Data, Content_Type => "text/plain");
+   end Check_Server_Push;
+
    ----------------
    -- Check_Zlib --
    ----------------
@@ -607,6 +704,20 @@ procedure Check_Mem is
       end loop;
    end Check_Socket;
 
+   --------------
+   -- To_Array --
+   --------------
+
+   function To_Array
+     (Data : Push_Data_Type;
+      Env  : Text_IO.Editing.Picture) return Ada.Streams.Stream_Element_Array
+   is
+      package Format is new Text_IO.Editing.Decimal_Output (Push_Data_Type);
+   begin
+      return Translator.To_Stream_Element_Array
+               (Format.Image (Data, Env) & CRLF);
+   end To_Array;
+
 begin
    Put_Line ("Start main, wait for server to start...");
 
@@ -634,6 +745,7 @@ begin
       Check_Socket;
       Check_Reconnect (False);
       Check_Reconnect (True);
+      Check_Server_Push;
    end loop;
 
    Server.Stopped;

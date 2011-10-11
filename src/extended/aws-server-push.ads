@@ -126,7 +126,8 @@ package AWS.Server.Push is
       Duplicated_Age    : Duration           := Duration'Last;
       Groups            : Group_Set          := Empty_Group;
       Timeout           : Duration           := Default.Send_Timeout);
-   --  Same as above but with Socket_Type'Class parameter
+   --  Same as above but with Socket_Type'Class parameter.
+   --  Is not recommended, use above one with Socket_Access parameter.
 
    procedure Register
      (Server         : in out Object;
@@ -142,6 +143,7 @@ package AWS.Server.Push is
    --  Content_Type applicable only when Kind parameter is Plain or Chunked,
    --  in Multipart server push mode each server push message would have own
    --  Content_Type defined.
+   --  Is not recommended, use above one with Socket_Access parameter.
 
    procedure Unregister
      (Server       : in out Object;
