@@ -260,10 +260,10 @@ package body AWS.Services.Download is
          N           : Positive;
       begin
          N := Positive'Min
-           (Max_Concurrent_Download, Positive (Length (Downloads)));
+           (Max_Concurrent_Download, Positive (Downloads.Length));
 
          for K in 1 .. N loop
-            Info := Element (Downloads, K);
+            Info := Downloads.Element (K);
 
             if Info.Socket /= null then
                Sock_Set.Add (Socket_Set, Info.Socket, Output_Only);
@@ -282,8 +282,8 @@ package body AWS.Services.Download is
       begin
          --  Look for the given URI in the vector
 
-         for K in 1 .. Natural (Length (Downloads)) loop
-            Info := Element (Downloads, K);
+         for K in 1 .. Natural (Downloads.Length) loop
+            Info := Downloads.Element (K);
             if URI = To_String (Info.URI) then
                Index := K;
                exit;
@@ -328,7 +328,7 @@ package body AWS.Services.Download is
          --  a lower position in case some downloads have endded since we got
          --  this item.
          for K in reverse 1 .. Download.Index loop
-            if Download.URI = Element (Downloads, K).URI then
+            if Download.URI = Downloads.Element (K).URI then
                return K;
             end if;
          end loop;
@@ -342,7 +342,7 @@ package body AWS.Services.Download is
 
       procedure Insert (Download : Download_Information) is
       begin
-         Append (Downloads, Download);
+         Downloads.Append (Download);
          Count := Count + 1;
       end Insert;
 
@@ -361,7 +361,7 @@ package body AWS.Services.Download is
 
       procedure Release is
       begin
-         Clear (Downloads);
+         Downloads.Clear;
       end Release;
 
       ------------
@@ -370,7 +370,7 @@ package body AWS.Services.Download is
 
       procedure Remove (Download : Download_Information) is
       begin
-         Delete (Downloads, Index (Download));
+         Downloads.Delete (Index (Download));
          Count := Count - 1;
       end Remove;
 
@@ -398,7 +398,7 @@ package body AWS.Services.Download is
 
       procedure Update (Download : Download_Information) is
       begin
-         Replace_Element (Downloads, Index (Download), Download);
+         Downloads.Replace_Element (Index (Download), Download);
       end Update;
 
    end Data_Manager;
