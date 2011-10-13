@@ -1,5 +1,11 @@
 Known Problems fixed in AWS 2.10
 
+- KA13-048: AWS sends multiple Content-Type headers for data-range
+  Problem:    When a client asks for a byte range, AWS server replies
+              with a non conformant header containing two Content-Type
+              headers.
+  Workaround: None
+
 - KA10-018: Download Manager could use all CPU
   Problem:    When initializing a download and until the download is started
               on the client side, the download server enter a busy waiting
@@ -28,9 +34,9 @@ Known Problems fixed in AWS 2.10
               behavior when possible.
 
 - K308-027 : Dispatchers.URI.Register_Regexp supporting globing patterns
-  Problem:   Despite what was in the documented in the spec, the
-             implementation of the Register_Regexp was wrong. A globing
-             pattern was used instead of a regular expression.
+  Problem:    Despite what was in the documented in the spec, the
+              implementation of the Register_Regexp was wrong. A globing
+              pattern was used instead of a regular expression.
   Workaround: Use a globing pattern.
 
 - K307-010: Logged status code for files always 200.

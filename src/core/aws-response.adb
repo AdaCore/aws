@@ -235,7 +235,7 @@ package body AWS.Response is
 
    function Content_Type (D : Data) return String is
    begin
-      return Headers.Get (D.Header, Messages.Content_Type_Token);
+      return To_String (D.Content_Type);
    end Content_Type;
 
    ----------------------

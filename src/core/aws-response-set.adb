@@ -227,10 +227,7 @@ package body AWS.Response.Set is
      (D     : in out Data;
       Value : String) is
    begin
-      Headers.Set.Update
-        (D.Header,
-         Name  => Messages.Content_Type_Token,
-         Value => Value);
+      D.Content_Type := To_Unbounded_String (Value);
    end Content_Type;
 
    -------------------
@@ -440,6 +437,11 @@ package body AWS.Response.Set is
       D      : in out Data) is
    begin
       Headers.Set.Read (Socket, D.Header);
+
+      --  Set D.Content_Type with the value read from the socket
+
+      D.Content_Type := To_Unbounded_String
+        (Headers.Get (D.Header, Messages.Content_Type_Token));
    end Read_Header;
 
    -----------------

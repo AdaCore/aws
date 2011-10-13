@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                    Copyright (C) 2005-2010, AdaCore                      --
+--                    Copyright (C) 2005-2011, AdaCore                      --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -78,8 +78,8 @@ package AWS.Server.HTTP_Utils is
    --  Send Answer to the client's browser
 
    procedure Send_Resource
-     (Method      : Status.Request_Method;
-      Close       : Boolean;
+     (Answer      : in out Response.Data;
+      Method      : Status.Request_Method;
       File        : in out Resources.File_Type;
       Length      : in out Resources.Content_Length_Type;
       HTTP_Server : AWS.Server.HTTP;

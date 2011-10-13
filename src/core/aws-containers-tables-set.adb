@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2010, AdaCore                     --
+--                     Copyright (C) 2000-2011, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -120,7 +120,7 @@ package body AWS.Containers.Tables.Set is
                  Value        => Value);
       begin
          if N = 0 or else N = Natural (Name_Indexes.Length (Item)) + 1 then
-            --  Add item at then end of the table
+            --  Add item at the end of the table
 
             Data_Table.Append (Table.Data, NV);
 

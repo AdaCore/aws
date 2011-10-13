@@ -1350,8 +1350,8 @@ package body AWS.Server.HTTP_Utils is
 
          Send_General_Header (Sock);
 
-         --  Send Content-Type, Cache-Control, Location, WWW-Authenticate
-         --  and others user defined header lines.
+         --  Send Cache-Control, Location, WWW-Authenticate and others
+         --  user defined header lines.
 
          Response.Send_Header (Socket => Sock, D => Answer);
 
@@ -1372,8 +1372,7 @@ package body AWS.Server.HTTP_Utils is
          --  Send message body
 
          Send_Resource
-           (Method, Response.Close_Resource (Answer), File, Length,
-            HTTP_Server, Line_Index, C_Stat);
+           (Answer, Method, File, Length, HTTP_Server, Line_Index, C_Stat);
          Net.Buffered.Flush (Sock);
       end Send_Data;
 
@@ -1435,8 +1434,11 @@ package body AWS.Server.HTTP_Utils is
 
          Send_General_Header (Sock);
 
-         --  Send Content-Type, Cache-Control, Location, WWW-Authenticate
-         --  and others user defined header lines.
+         Net.Buffered.Put_Line
+           (Sock, Messages.Content_Type (Response.Content_Type (Answer)));
+
+         --  Send Cache-Control, Location, WWW-Authenticate and others
+         --  user defined header lines.
 
          Response.Send_Header (Socket => Sock, D => Answer);
 
@@ -1548,8 +1550,8 @@ package body AWS.Server.HTTP_Utils is
    -------------------
 
    procedure Send_Resource
-     (Method      : Status.Request_Method;
-      Close       : Boolean;
+     (Answer      : in out Response.Data;
+      Method      : Status.Request_Method;
       File        : in out Resources.File_Type;
       Length      : in out Resources.Content_Length_Type;
       HTTP_Server : AWS.Server.HTTP;
@@ -1571,6 +1573,7 @@ package body AWS.Server.HTTP_Utils is
                       Headers.Get_Values
                         (Status.Header (C_Stat), Messages.Range_Token);
       --  The ranges for partial sending if defined
+      Close       : constant Boolean := Response.Close_Resource (Answer);
 
       procedure Send_File;
       --  Send file in one part
@@ -1762,7 +1765,11 @@ package body AWS.Server.HTTP_Utils is
             Send_File;
          end if;
 
-         if N_Range /= 1 then
+         if N_Range = 1 then
+            Net.Buffered.Put_Line
+              (Sock, Messages.Content_Type (Response.Content_Type (Answer)));
+
+         else
             --  Then we will send a multipart/byteranges
             Net.Buffered.Put_Line
               (Sock,
@@ -1804,6 +1811,9 @@ package body AWS.Server.HTTP_Utils is
       elsif Status.HTTP_Version (C_Stat) = HTTP_10
         or else Length /= Resources.Undefined_Length
       then
+         Net.Buffered.Put_Line
+           (Sock, Messages.Content_Type (Response.Content_Type (Answer)));
+
          --  If content length is undefined and we handle an HTTP/1.0 protocol
          --  then the end of the stream will be determined by closing the
          --  connection. [RFC 1945 - 7.2.2] See the Will_Close local variable.
@@ -1822,6 +1832,9 @@ package body AWS.Server.HTTP_Utils is
          end if;
 
       else
+         Net.Buffered.Put_Line
+           (Sock, Messages.Content_Type (Response.Content_Type (Answer)));
+
          --  HTTP/1.1 case and we do not know the message length
          --
          --  Terminate header, do not send the Content_Length see
