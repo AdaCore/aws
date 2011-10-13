@@ -140,6 +140,10 @@ package body AWS.Services.Download is
 
    private
 
+      procedure Check_Queue;
+      --  Check all sockets in the queue and set Socket_Present if sockets are
+      --  present so waiting for data.
+
       Count     : Natural := 0;
       --  Set to true when there is nothing to do
 
@@ -150,7 +154,8 @@ package body AWS.Services.Download is
 
       UID       : Natural := 0;
 
-      Closing   : Boolean := False;
+      Closing        : Boolean := False;
+      Socket_Present : Boolean := False;
 
    end Data_Manager;
 
@@ -253,6 +258,23 @@ package body AWS.Services.Download is
 
    protected body Data_Manager is
 
+      -----------------
+      -- Check_Queue --
+      -----------------
+
+      procedure Check_Queue is
+         use type Net.Socket_Access;
+      begin
+         Socket_Present := False;
+
+         Check_Socket_Present : for K in 1 .. Natural (Downloads.Length) loop
+            if Downloads.Element (K).Socket /= null then
+               Socket_Present := True;
+               exit Check_Socket_Present;
+            end if;
+         end loop Check_Socket_Present;
+      end Check_Queue;
+
       ----------------
       -- Create_Set --
       ----------------
@@ -327,6 +349,8 @@ package body AWS.Services.Download is
          end if;
 
          Download := Info;
+
+         Check_Queue;
       end Get;
 
       -------------
@@ -372,7 +396,7 @@ package body AWS.Services.Download is
       -- Ready --
       -----------
 
-      entry Ready when Count > 0 or else Closing is
+      entry Ready when Socket_Present or else Closing is
       begin
          null;
       end Ready;
@@ -384,6 +408,7 @@ package body AWS.Services.Download is
       procedure Release is
       begin
          Downloads.Clear;
+         Socket_Present := False;
          Count := 0;
       end Release;
 
@@ -395,6 +420,7 @@ package body AWS.Services.Download is
       begin
          Downloads.Delete (Index (Download));
          Count := Count - 1;
+         Check_Queue;
       end Remove;
 
       ------------------
@@ -420,7 +446,14 @@ package body AWS.Services.Download is
       ------------
 
       procedure Update (Download : Download_Information) is
+         use type Net.Socket_Access;
       begin
+         --  Set Socket_Ready status if a socket is available
+
+         if Download.Socket /= null then
+            Socket_Present := True;
+         end if;
+
          Downloads.Replace_Element (Index (Download), Download);
       end Update;
 

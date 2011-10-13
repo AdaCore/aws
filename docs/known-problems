@@ -1,5 +1,11 @@
 Known Problems fixed in AWS 2.10
 
+- KA10-018: Download Manager could use all CPU
+  Problem:    When initializing a download and until the download is started
+              on the client side, the download server enter a busy waiting
+              loop eating lot of CPU.
+  Workaround: Accept the download on the Web browser as soon as possible.
+
 - KA10-005: Download Manager could lock
   Problem:    An initiated download that is actually never downloaded could
               lock the download manager.
