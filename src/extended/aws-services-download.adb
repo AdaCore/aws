@@ -46,6 +46,7 @@ with AWS.Utils;
 package body AWS.Services.Download is
 
    use Ada;
+   use Ada.Exceptions;
    use Ada.Streams;
    use Ada.Strings.Unbounded;
    use Ada.Containers;
@@ -80,7 +81,7 @@ package body AWS.Services.Download is
                        0, 1, Calendar.Clock);
 
    package Download_Vectors is
-     new Ada.Containers.Vectors (Positive, Download_Information);
+     new Containers.Vectors (Positive, Download_Information);
    use Download_Vectors;
 
    --  The task that handles the downloads
@@ -571,10 +572,9 @@ package body AWS.Services.Download is
       end loop Main;
    exception
       when E : others =>
-         Ada.Text_IO.Put_Line
-           (Ada.Text_IO.Current_Error,
-            "Download manager bug detected: "
-            & Ada.Exceptions.Exception_Information (E));
+         Text_IO.Put_Line
+           (Text_IO.Current_Error,
+            "Download manager bug detected: " & Exception_Information (E));
    end Download_Manager;
 
    -----------
@@ -604,7 +604,7 @@ package body AWS.Services.Download is
    ----------
 
    procedure Stop is
-      procedure Unchecked_Free is new Ada.Unchecked_Deallocation
+      procedure Unchecked_Free is new Unchecked_Deallocation
         (Download_Manager, Download_Manager_Access);
    begin
       Dispatchers.URI.Unregister (DM_Handler, "/" & URI_Prefix);
