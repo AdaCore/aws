@@ -25,6 +25,7 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
+with Ada.Calendar;
 with Ada.Exceptions;
 with Ada.Streams;
 with Ada.Strings.Unbounded;
@@ -45,6 +46,7 @@ with AWS.Utils;
 package body AWS.Services.Download is
 
    use Ada;
+   use Ada.Exceptions;
    use Ada.Streams;
    use Ada.Strings.Unbounded;
    use Ada.Containers;
@@ -61,23 +63,25 @@ package body AWS.Services.Download is
    --  will start as soon as a download terminates.
 
    type Download_Information is record
-      URI      : Unbounded_String; -- download manager unique key URI
-      Name     : Unbounded_String; -- the resource name (filename)
-      R_URI    : Unbounded_String; -- the resource URI
-      Started  : Boolean;          -- True if download can start
-      Header   : Boolean;          -- True if HTTP header sent
-      Stream   : Resources.Streams.Stream_Access; -- data stream (input)
-      Socket   : Net.Socket_Access;               -- client socket (output)
-      Position : Waiting_Position; -- position in the waiting line
-      Index    : Positive;         -- item vector index (for fast update)
+      URI        : Unbounded_String; -- download manager unique key URI
+      Name       : Unbounded_String; -- the resource name (filename)
+      R_URI      : Unbounded_String; -- the resource URI
+      Started    : Boolean;          -- True if download can start
+      Header     : Boolean;          -- True if HTTP header sent
+      Stream     : Resources.Streams.Stream_Access; -- data stream (input)
+      Socket     : Net.Socket_Access;               -- client socket (output)
+      Position   : Waiting_Position; -- position in the waiting line
+      Index      : Positive;         -- item vector index (for fast update)
+      Time_Stamp : Calendar.Time;    -- when the download was created
    end record;
 
    No_Information : constant Download_Information :=
                       (Null_Unbounded_String, Null_Unbounded_String,
-                       Null_Unbounded_String, False, False, null, null, 0, 1);
+                       Null_Unbounded_String, False, False, null, null,
+                       0, 1, Calendar.Clock);
 
    package Download_Vectors is
-     new Ada.Containers.Vectors (Positive, Download_Information);
+     new Containers.Vectors (Positive, Download_Information);
    use Download_Vectors;
 
    --  The task that handles the downloads
@@ -116,7 +120,7 @@ package body AWS.Services.Download is
       procedure Create_Set (Socket_Set : in out Sock_Set.Socket_Set_Type);
       --  Returns in Socket_Set the socket to look at for output availability
 
-      function Get (URI : String) return Download_Information;
+      procedure Get (URI : String; Download : out Download_Information);
       --  Returns the Download_Information for the given URI or No_Information
       --  if this URI is not part of the download data. Note that this routine
       --  also set the Index and Position fields according to the position in
@@ -136,6 +140,10 @@ package body AWS.Services.Download is
 
    private
 
+      procedure Check_Queue;
+      --  Check all sockets in the queue and set Socket_Present if sockets are
+      --  present so waiting for data.
+
       Count     : Natural := 0;
       --  Set to true when there is nothing to do
 
@@ -146,7 +154,8 @@ package body AWS.Services.Download is
 
       UID       : Natural := 0;
 
-      Closing   : Boolean := False;
+      Closing        : Boolean := False;
+      Socket_Present : Boolean := False;
 
    end Data_Manager;
 
@@ -182,7 +191,8 @@ package body AWS.Services.Download is
               (To_Unbounded_String (Key_URI), To_Unbounded_String (Name),
                To_Unbounded_String (Status.URI (Request)),
                False, False,
-               Resources.Streams.Stream_Access (Resource), null, 0, 1));
+               Resources.Streams.Stream_Access (Resource), null,
+               0, 1, Calendar.Clock));
 
          return Response.URL
            ("/" & URI_Prefix & "?RES_URI=" & Key_URI,
@@ -199,7 +209,7 @@ package body AWS.Services.Download is
       URI    : constant String := Parameters.Get (P_List, "RES_URI");
       Info   : Download_Information;
    begin
-      Info := Data_Manager.Get (URI);
+      Data_Manager.Get (URI, Info);
 
       if Info = No_Information then
          --  This should not happen, guard against bad URL (reload after
@@ -248,25 +258,40 @@ package body AWS.Services.Download is
 
    protected body Data_Manager is
 
+      -----------------
+      -- Check_Queue --
+      -----------------
+
+      procedure Check_Queue is
+         use type Net.Socket_Access;
+      begin
+         Socket_Present := False;
+
+         Check_Socket_Present : for K in 1 .. Natural (Downloads.Length) loop
+            if Downloads.Element (K).Socket /= null then
+               Socket_Present := True;
+               exit Check_Socket_Present;
+            end if;
+         end loop Check_Socket_Present;
+      end Check_Queue;
+
       ----------------
       -- Create_Set --
       ----------------
 
       procedure Create_Set (Socket_Set : in out Sock_Set.Socket_Set_Type) is
          use type Net.Socket_Access;
-         Output_Only : constant Sock_Set.Waiting_Mode :=
-                         (Net.Input => False, Net.Output => True);
-         Info        : Download_Information;
-         N           : Positive;
+         Info : Download_Information;
+         N    : Positive;
       begin
          N := Positive'Min
-           (Max_Concurrent_Download, Positive (Length (Downloads)));
+           (Max_Concurrent_Download, Positive (Downloads.Length));
 
          for K in 1 .. N loop
-            Info := Element (Downloads, K);
+            Info := Downloads.Element (K);
 
             if Info.Socket /= null then
-               Sock_Set.Add (Socket_Set, Info.Socket, Output_Only);
+               Sock_Set.Add (Socket_Set, Info.Socket, Sock_Set.Output);
                Sock_Set.Set_Data (Socket_Set, Sock_Set.Socket_Count (K), Info);
             end if;
          end loop;
@@ -276,14 +301,28 @@ package body AWS.Services.Download is
       -- Get --
       ---------
 
-      function Get (URI : String) return Download_Information is
+      procedure Get (URI : String; Download : out Download_Information) is
+         use type Calendar.Time;
          Info  : Download_Information;
          Index : Natural := 0;
       begin
+         --  First remove old entries which have not been checked for at least
+         --  15 seconds.
+
+         Remove_Old_Entries : while not Downloads.Is_Empty loop
+            Info := Downloads.First_Element;
+            if Calendar.Clock - Info.Time_Stamp > 15.0 then
+               Downloads.Delete_First;
+               Count := Count - 1;
+            else
+               exit Remove_Old_Entries;
+            end if;
+         end loop Remove_Old_Entries;
+
          --  Look for the given URI in the vector
 
-         for K in 1 .. Natural (Length (Downloads)) loop
-            Info := Element (Downloads, K);
+         for K in 1 .. Natural (Downloads.Length) loop
+            Info := Downloads.Element (K);
             if URI = To_String (Info.URI) then
                Index := K;
                exit;
@@ -292,10 +331,14 @@ package body AWS.Services.Download is
 
          if Index = 0 then
             --  Not found
-            return No_Information;
+            Info := No_Information;
 
          else
             Info.Index := Index;
+            --  As this download was checked, update time-stamp
+            Info.Time_Stamp := Calendar.Clock;
+
+            Downloads.Replace_Element (Index, Info);
 
             if Index <= Max_Concurrent_Download then
                Info.Position := 0;
@@ -303,8 +346,11 @@ package body AWS.Services.Download is
                Info.Position :=
                  Waiting_Position (Index - Max_Concurrent_Download);
             end if;
-            return Info;
          end if;
+
+         Download := Info;
+
+         Check_Queue;
       end Get;
 
       -------------
@@ -328,7 +374,7 @@ package body AWS.Services.Download is
          --  a lower position in case some downloads have endded since we got
          --  this item.
          for K in reverse 1 .. Download.Index loop
-            if Download.URI = Element (Downloads, K).URI then
+            if Download.URI = Downloads.Element (K).URI then
                return K;
             end if;
          end loop;
@@ -342,7 +388,7 @@ package body AWS.Services.Download is
 
       procedure Insert (Download : Download_Information) is
       begin
-         Append (Downloads, Download);
+         Downloads.Append (Download);
          Count := Count + 1;
       end Insert;
 
@@ -350,7 +396,7 @@ package body AWS.Services.Download is
       -- Ready --
       -----------
 
-      entry Ready when Count > 0 or else Closing is
+      entry Ready when Socket_Present or else Closing is
       begin
          null;
       end Ready;
@@ -361,7 +407,9 @@ package body AWS.Services.Download is
 
       procedure Release is
       begin
-         Clear (Downloads);
+         Downloads.Clear;
+         Socket_Present := False;
+         Count := 0;
       end Release;
 
       ------------
@@ -370,8 +418,9 @@ package body AWS.Services.Download is
 
       procedure Remove (Download : Download_Information) is
       begin
-         Delete (Downloads, Index (Download));
+         Downloads.Delete (Index (Download));
          Count := Count - 1;
+         Check_Queue;
       end Remove;
 
       ------------------
@@ -397,8 +446,15 @@ package body AWS.Services.Download is
       ------------
 
       procedure Update (Download : Download_Information) is
+         use type Net.Socket_Access;
       begin
-         Replace_Element (Downloads, Index (Download), Download);
+         --  Set Socket_Ready status if a socket is available
+
+         if Download.Socket /= null then
+            Socket_Present := True;
+         end if;
+
+         Downloads.Replace_Element (Index (Download), Download);
       end Update;
 
    end Data_Manager;
@@ -548,10 +604,9 @@ package body AWS.Services.Download is
       end loop Main;
    exception
       when E : others =>
-         Ada.Text_IO.Put_Line
-           (Ada.Text_IO.Current_Error,
-            "Download manager bug detected: "
-            & Ada.Exceptions.Exception_Information (E));
+         Text_IO.Put_Line
+           (Text_IO.Current_Error,
+            "Download manager bug detected: " & Exception_Information (E));
    end Download_Manager;
 
    -----------
@@ -581,7 +636,7 @@ package body AWS.Services.Download is
    ----------
 
    procedure Stop is
-      procedure Unchecked_Free is new Ada.Unchecked_Deallocation
+      procedure Unchecked_Free is new Unchecked_Deallocation
         (Download_Manager, Download_Manager_Access);
    begin
       Dispatchers.URI.Unregister (DM_Handler, "/" & URI_Prefix);
