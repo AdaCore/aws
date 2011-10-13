@@ -1,5 +1,11 @@
 Known Problems fixed in AWS 2.10
 
+- KA13-048: AWS sends multiple Content-Type headers for data-range
+  Problem:    When a client asks for a byte range, AWS server replies
+              with a non conformant header containing two Content-Type
+              headers.
+  Workaround: None
+
 - KA10-018: Download Manager could use all CPU
   Problem:    When initializing a download and until the download is started
               on the client side, the download server enter a busy waiting

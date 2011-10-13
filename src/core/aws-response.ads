@@ -396,6 +396,7 @@ private
       Mode         : Data_Mode            := No_Data;
       Status_Code  : Messages.Status_Code := Messages.S200;
       Filename     : Unbounded_String;
+      Content_Type : Unbounded_String;
       Stream       : Resources.Streams.Stream_Access;
       Header       : AWS.Headers.List;
       Close_Stream : Boolean              := True;

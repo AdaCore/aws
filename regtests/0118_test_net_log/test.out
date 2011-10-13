@@ -16,8 +16,8 @@ User-Agent:
 
 Date:
 Server:
-Content-Type: text/html
 Connection: close
+Content-Type: text/html
 Content-Length: 16
 
 <p>Hello world !
@@ -39,8 +39,8 @@ User-Agent:
 
 Date:
 Server:
-Content-Type: text/html
 Connection: close
+Content-Type: text/html
 Content-Length: 16
 
 <p>Hello world !
