@@ -386,6 +386,7 @@ package body AWS.Services.Download is
       procedure Release is
       begin
          Downloads.Clear;
+         Count := 0;
       end Release;
 
       ------------
