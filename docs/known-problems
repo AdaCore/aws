@@ -34,9 +34,9 @@ Known Problems fixed in AWS 2.10
               behavior when possible.
 
 - K308-027 : Dispatchers.URI.Register_Regexp supporting globing patterns
-  Problem:   Despite what was in the documented in the spec, the
-             implementation of the Register_Regexp was wrong. A globing
-             pattern was used instead of a regular expression.
+  Problem:    Despite what was in the documented in the spec, the
+              implementation of the Register_Regexp was wrong. A globing
+              pattern was used instead of a regular expression.
   Workaround: Use a globing pattern.
 
 - K307-010: Logged status code for files always 200.
