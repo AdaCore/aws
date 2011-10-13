@@ -259,10 +259,8 @@ package body AWS.Services.Download is
 
       procedure Create_Set (Socket_Set : in out Sock_Set.Socket_Set_Type) is
          use type Net.Socket_Access;
-         Output_Only : constant Sock_Set.Waiting_Mode :=
-                         (Net.Input => False, Net.Output => True);
-         Info        : Download_Information;
-         N           : Positive;
+         Info : Download_Information;
+         N    : Positive;
       begin
          N := Positive'Min
            (Max_Concurrent_Download, Positive (Downloads.Length));
@@ -271,7 +269,7 @@ package body AWS.Services.Download is
             Info := Downloads.Element (K);
 
             if Info.Socket /= null then
-               Sock_Set.Add (Socket_Set, Info.Socket, Output_Only);
+               Sock_Set.Add (Socket_Set, Info.Socket, Sock_Set.Output);
                Sock_Set.Set_Data (Socket_Set, Sock_Set.Socket_Count (K), Info);
             end if;
          end loop;
