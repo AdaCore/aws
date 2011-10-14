@@ -136,6 +136,8 @@ package AWS.SMTP is
 
    type Recipients is array (Positive range <>) of E_Mail_Data;
 
+   No_Recipient : constant Recipients (1 .. 0);
+
 private
 
    use Ada.Strings.Unbounded;
@@ -156,6 +158,8 @@ private
       Name    : Unbounded_String;
       Address : Unbounded_String;
    end record;
+
+   No_Recipient : constant Recipients (1 .. 0) := (others => <>);
 
    --  Server Reply code/reason
 

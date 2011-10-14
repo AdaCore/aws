@@ -15,6 +15,11 @@ of the feature.
 New features in AWS 2.10
 ------------------------
 
+NF-210-KA13-051 Add support for CC and BCC in SMTP API
+
+   All SMTP.Client.Send routines are not supporting CC (Carbon Copy) and
+   BCC (Blind Carbon Copy) recipients.
+
 NF-210-KA08-001 HTTP_Connection is now a controlled object
 
    The HTTP_Connection object is now controlled. The finalization ensure

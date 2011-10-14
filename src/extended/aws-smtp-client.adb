@@ -58,6 +58,8 @@ package body AWS.SMTP.Client is
      (Sock    : Net.Socket_Type'Class;
       From    : E_Mail_Data;
       To      : Recipients;
+      CC      : Recipients;
+      BCC     : Recipients;
       Subject : String;
       Status  : out SMTP.Status;
       Is_MIME : Boolean := False);
@@ -67,6 +69,8 @@ package body AWS.SMTP.Client is
      (Sock   : Net.Socket_Type'Class;
       From   : E_Mail_Data;
       To     : Recipients;
+      CC     : Recipients;
+      BCC    : Recipients;
       Status : out SMTP.Status);
    --  Output SMTP headers (MAIL, RCPT, DATA)
 
@@ -177,12 +181,17 @@ package body AWS.SMTP.Client is
      (Sock    : Net.Socket_Type'Class;
       From    : E_Mail_Data;
       To      : Recipients;
+      CC      : Recipients;
+      BCC     : Recipients;
       Subject : String;
       Status  : out SMTP.Status;
       Is_MIME : Boolean := False)
    is
       function Current_Date return String;
       --  Returns current date and time for SMTP "Date:" field
+
+      procedure Send (Header_Name : String; Emails : Recipients);
+      --  Write header Header_Name for the corresponding recipients
 
       ------------------
       -- Current_Date --
@@ -202,9 +211,27 @@ package body AWS.SMTP.Client is
          end if;
       end Current_Date;
 
+      ----------
+      -- Send --
+      ----------
+
+      procedure Send (Header_Name : String; Emails : Recipients) is
+      begin
+         if Emails /= No_Recipient then
+            Net.Buffered.Put
+              (Sock, Header_Name & ": " & Image (Emails (Emails'First)));
+
+            for K in Emails'First + 1 .. Emails'Last loop
+               Net.Buffered.Put (Sock, ", " & Image (Emails (K)));
+            end loop;
+
+            Net.Buffered.New_Line (Sock);
+         end if;
+      end Send;
+
    begin
       --  Output the MAIL, RCPT and DATA headers
-      Output_Simple_Header (Sock, From, To, Status);
+      Output_Simple_Header (Sock, From, To, CC, BCC, Status);
 
       if Is_Ok (Status) then
          --  Time Stamp
@@ -217,13 +244,14 @@ package body AWS.SMTP.Client is
          Net.Buffered.Put_Line (Sock, "Subject: " & Subject);
 
          --  To
-         Net.Buffered.Put (Sock, "To: " & Image (To (To'First)));
+         Send ("To", To);
 
-         for K in To'First + 1 .. To'Last loop
-            Net.Buffered.Put (Sock, ", " & Image (To (K)));
-         end loop;
+         --  CC
+         Send ("Cc", CC);
 
-         Net.Buffered.New_Line (Sock);
+         --  Note that BCC is not sent here as these are the data headers
+         --  sent to the client. The BCC recipients have been added into the
+         --  RCPT TO: fields.
 
          if Is_MIME then
             Net.Buffered.Put_Line
@@ -242,8 +270,33 @@ package body AWS.SMTP.Client is
      (Sock   : Net.Socket_Type'Class;
       From   : E_Mail_Data;
       To     : Recipients;
+      CC     : Recipients;
+      BCC    : Recipients;
       Status : out SMTP.Status)
    is
+      procedure Send (Emails : Recipients);
+      --  Procedure set to this recipient
+
+      ----------
+      -- Send --
+      ----------
+
+      procedure Send (Emails : Recipients) is
+         Answer : Server_Reply;
+      begin
+         for K in Emails'Range loop
+            Net.Buffered.Put_Line
+              (Sock,
+               "RCPT TO:<" & Image (Emails (K), Address) & '>');
+
+            Check_Answer (Sock, Answer);
+
+            if Answer.Code /= Requested_Action_Ok then
+               Add (Answer, Status);
+            end if;
+         end loop;
+      end Send;
+
       Answer : Server_Reply;
    begin
       --  MAIL
@@ -254,17 +307,12 @@ package body AWS.SMTP.Client is
 
       if Answer.Code = Requested_Action_Ok then
          --  RCPT
-         for K in To'Range loop
-            Net.Buffered.Put_Line
-              (Sock,
-               "RCPT TO:<" & Image (To (K), Address) & '>');
 
-            Check_Answer (Sock, Answer);
+         Send (To);
 
-            if Answer.Code /= Requested_Action_Ok then
-               Add (Answer, Status);
-            end if;
-         end loop;
+         Send (CC);
+
+         Send (BCC);
 
          if Is_Ok (Status) then
             --  DATA
@@ -308,9 +356,12 @@ package body AWS.SMTP.Client is
       To      : E_Mail_Data;
       Subject : String;
       Message : String;
-      Status  : out SMTP.Status) is
+      Status  : out SMTP.Status;
+      CC      : Recipients := No_Recipient;
+      BCC     : Recipients := No_Recipient) is
    begin
-      Send (Server, From, Recipients'(1 => To), Subject, Message, Status);
+      Send (Server, From, Recipients'(1 => To),
+            Subject, Message, Status, CC, BCC);
    end Send;
 
    ----------
@@ -324,11 +375,12 @@ package body AWS.SMTP.Client is
       Subject     : String;
       Message     : String := "";
       Attachments : Attachment_Set;
-      Status      : out SMTP.Status)
-   is
+      Status      : out SMTP.Status;
+      CC          : Recipients := No_Recipient;
+      BCC         : Recipients := No_Recipient) is
    begin
       Send (Server, From, Recipients'(1 => To),
-            Subject, Message, Attachments, Status);
+            Subject, Message, Attachments, Status, CC, BCC);
    end Send;
 
    ----------
@@ -341,7 +393,9 @@ package body AWS.SMTP.Client is
       To       : E_Mail_Data;
       Subject  : String;
       Filename : Message_File;
-      Status   : out SMTP.Status)
+      Status   : out SMTP.Status;
+      CC       : Recipients := No_Recipient;
+      BCC      : Recipients := No_Recipient)
    is
       Buffer : String (1 .. 2_048);
       Last   : Natural;
@@ -360,7 +414,7 @@ package body AWS.SMTP.Client is
 
          if Is_Ok (Status) then
             Output_Header
-              (Sock.all, From, Recipients'(1 => To), Subject, Status);
+              (Sock.all, From, Recipients'(1 => To), CC, BCC, Subject, Status);
 
             if Is_Ok (Status) then
                --  Message body
@@ -413,7 +467,9 @@ package body AWS.SMTP.Client is
       To      : Recipients;
       Subject : String;
       Message : String;
-      Status  : out SMTP.Status)
+      Status  : out SMTP.Status;
+      CC      : Recipients := No_Recipient;
+      BCC     : Recipients := No_Recipient)
    is
       Sock   : Net.Socket_Access;
       Answer : Server_Reply;
@@ -426,7 +482,7 @@ package body AWS.SMTP.Client is
          end if;
 
          if Is_Ok (Status) then
-            Output_Header (Sock.all, From, To, Subject, Status);
+            Output_Header (Sock.all, From, To, CC, BCC, Subject, Status);
 
             if Is_Ok (Status) then
                --  Message body
@@ -466,7 +522,9 @@ package body AWS.SMTP.Client is
       From   : E_Mail_Data;
       To     : Recipients;
       Source : String;
-      Status : out SMTP.Status)
+      Status : out SMTP.Status;
+      CC     : Recipients := No_Recipient;
+      BCC    : Recipients := No_Recipient)
    is
       Sock   : Net.Socket_Access;
       Answer : Server_Reply;
@@ -479,7 +537,7 @@ package body AWS.SMTP.Client is
          end if;
 
          if Is_Ok (Status) then
-            Output_Simple_Header (Sock.all, From, To, Status);
+            Output_Simple_Header (Sock.all, From, To, CC, BCC, Status);
 
             if Is_Ok (Status) then
                --  Message body
@@ -521,7 +579,9 @@ package body AWS.SMTP.Client is
       Subject     : String;
       Message     : String := "";
       Attachments : Attachment_Set;
-      Status      : out SMTP.Status)
+      Status      : out SMTP.Status;
+      CC          : Recipients := No_Recipient;
+      BCC         : Recipients := No_Recipient)
    is
       Att_List : AWS.Attachments.List;
    begin
@@ -566,7 +626,7 @@ package body AWS.SMTP.Client is
          end;
       end loop;
 
-      Send (Server, From, To, Subject, Att_List, Status);
+      Send (Server, From, To, Subject, Att_List, Status, CC, BCC);
    end Send;
 
    procedure Send
@@ -575,7 +635,9 @@ package body AWS.SMTP.Client is
       To          : Recipients;
       Subject     : String;
       Attachments : AWS.Attachments.List;
-      Status      : out SMTP.Status)
+      Status      : out SMTP.Status;
+      CC          : Recipients := No_Recipient;
+      BCC         : Recipients := No_Recipient)
    is
       use type AWS.Attachments.Root_MIME_Kind;
       Sock     : Net.Socket_Access;
@@ -591,7 +653,7 @@ package body AWS.SMTP.Client is
 
          if Is_Ok (Status) then
             Output_Header
-              (Sock.all, From, To, Subject, Status, Is_MIME => True);
+              (Sock.all, From, To, CC, BCC, Subject, Status, Is_MIME => True);
 
             if Is_Ok (Status) then
                --  Send MIME header
