@@ -2,7 +2,7 @@
 --                              Ada Web Server                              --
 --                   S M T P - Simple Mail Transfer Protocol                --
 --                                                                          --
---                     Copyright (C) 2000-2009, AdaCore                     --
+--                     Copyright (C) 2000-2011, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -126,8 +126,7 @@ package AWS.SMTP is
    --  Returns E_Mail only (Mode = Address), recipient name only (Mode = Name)
    --  or Name and e-mail (Mode = Full).
 
-   function E_Mail (Name : String; Address : String)
-     return E_Mail_Data;
+   function E_Mail (Name : String; Address : String) return E_Mail_Data;
    --  Returns an e-mail address
 
    function Parse (E_Mail : String) return E_Mail_Data;
