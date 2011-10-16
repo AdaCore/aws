@@ -80,7 +80,9 @@ package AWS.SMTP.Client is
       To      : E_Mail_Data;
       Subject : String;
       Message : String;
-      Status  : out SMTP.Status);
+      Status  : out SMTP.Status;
+      CC      : Recipients := No_Recipient;
+      BCC     : Recipients := No_Recipient);
    --  Send a message via Server. The email is a simple message composed of a
    --  subject and a text message body. Raise Server_Error in case of an
    --  unrecoverable error (e.g. can't contact the server).
@@ -109,7 +111,9 @@ package AWS.SMTP.Client is
       Subject     : String;
       Message     : String := "";
       Attachments : Attachment_Set;
-      Status      : out SMTP.Status);
+      Status      : out SMTP.Status;
+      CC          : Recipients := No_Recipient;
+      BCC         : Recipients := No_Recipient);
    --  Send a message via Server. The email is a MIME message composed of a
    --  subject, a message and a set of MIME encoded files. Raise Server_Error
    --  in case of an unrecoverable error (e.g. can't contact the server).
@@ -123,7 +127,9 @@ package AWS.SMTP.Client is
       To       : E_Mail_Data;
       Subject  : String;
       Filename : Message_File;
-      Status   : out SMTP.Status);
+      Status   : out SMTP.Status;
+      CC       : Recipients := No_Recipient;
+      BCC      : Recipients := No_Recipient);
    --  Send filename content via Server. The email is a message composed of a
    --  subject and a message body coming from a file. Raises Server_Error in
    --  case of an unrecoverable error (e.g. can't contact the server). Raises
@@ -139,7 +145,9 @@ package AWS.SMTP.Client is
       To      : Recipients;
       Subject : String;
       Message : String;
-      Status  : out SMTP.Status);
+      Status  : out SMTP.Status;
+      CC      : Recipients := No_Recipient;
+      BCC     : Recipients := No_Recipient);
    --  Send a message via Server. The mail is a simple message composed of a
    --  subject and a text message body. Raise Server_Error in case of an
    --  unrecoverable error (e.g. can't contact the server).
@@ -149,7 +157,9 @@ package AWS.SMTP.Client is
       From   : E_Mail_Data;
       To     : Recipients;
       Source : String;
-      Status : out SMTP.Status);
+      Status : out SMTP.Status;
+      CC     : Recipients := No_Recipient;
+      BCC    : Recipients := No_Recipient);
    --  Send a message via Server. The email Source has already been composed by
    --  other means, such as the GNATcoll email facilities.
    --  Raise Server_Error in case of an unrecoverable error, e.g. can't contact
@@ -162,7 +172,9 @@ package AWS.SMTP.Client is
       Subject     : String;
       Message     : String := "";
       Attachments : Attachment_Set;
-      Status      : out SMTP.Status);
+      Status      : out SMTP.Status;
+      CC          : Recipients := No_Recipient;
+      BCC         : Recipients := No_Recipient);
    --  Send a message via Server. The email is a MIME message composed of a
    --  subject, a message and a set of files MIME encoded. Raise Server_Error
    --  in case of an unrecoverable error (e.g. can't contact the server).
@@ -174,7 +186,9 @@ package AWS.SMTP.Client is
       To          : Recipients;
       Subject     : String;
       Attachments : AWS.Attachments.List;
-      Status      : out SMTP.Status);
+      Status      : out SMTP.Status;
+      CC          : Recipients := No_Recipient;
+      BCC         : Recipients := No_Recipient);
    --  As above but takes an attachment list which support complex attachments
    --  like multiplart/alternative.
 
