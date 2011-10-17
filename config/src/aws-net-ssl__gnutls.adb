@@ -422,11 +422,9 @@ package body AWS.Net.SSL is
       end Set_Certificate;
 
    begin
-      if (Security_Mode = SSLv2
-          or else Security_Mode = SSLv23
+      if (Security_Mode = SSLv23
           or else Security_Mode = TLSv1
           or else Security_Mode = SSLv3
-          or else Security_Mode = SSLv2_Server
           or else Security_Mode = SSLv23_Server
           or else Security_Mode = TLSv1_Server
           or else Security_Mode = SSLv3_Server)
@@ -459,11 +457,9 @@ package body AWS.Net.SSL is
          Config.RCC := Exchange_Certificate;
       end if;
 
-      if (Security_Mode = SSLv2
-          or else Security_Mode = SSLv23
+      if (Security_Mode = SSLv23
           or else Security_Mode = TLSv1
           or else Security_Mode = SSLv3
-          or else Security_Mode = SSLv2_Client
           or else Security_Mode = SSLv23_Client
           or else Security_Mode = TLSv1_Client
           or else Security_Mode = SSLv3_Client)
