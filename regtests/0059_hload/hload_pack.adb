@@ -32,6 +32,8 @@ with Ada.Exceptions;
 with Ada.Text_IO;
 with Ada.Strings.Unbounded;
 
+with GNAT.OS_Lib;
+
 with AWS.Server;
 with AWS.Response;
 with AWS.Status;
@@ -197,8 +199,10 @@ package body HLoad_Pack is
            (Connect,
             Protocol & "://localhost:" & Utils.Image (Free_Port),
             Timeouts => AWS.Client.Timeouts
-              (Connect => 5.0,
-               Send => 15.0, Receive => 15.0, Response => 15.0));
+              (Connect  => 15.0,
+               Send     => 15.0,
+               Receive  => 15.0,
+               Response => 15.0));
 
          for K in 1 .. Client_Count loop
             begin
@@ -231,6 +235,13 @@ package body HLoad_Pack is
          AWS.Client.Close (Connect);
 
          accept Stop;
+
+      exception
+         when E : others =>
+            Text_IO.Put_Line ("client " & To_String (Name) & " aborted.");
+            Text_IO.Put_Line
+              (" => " & Exceptions.Exception_Information (E));
+            accept Stop;
       end Client;
 
    begin
@@ -269,6 +280,7 @@ package body HLoad_Pack is
       when E : others =>
          Text_IO.Put_Line
            ("main task" & ASCII.LF & Exceptions.Exception_Information (E));
+         GNAT.OS_Lib.OS_Exit (1);
    end Run;
 
 end HLoad_Pack;
