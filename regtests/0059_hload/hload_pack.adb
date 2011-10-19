@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2004-2009, AdaCore                     --
+--                     Copyright (C) 2004-2011, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -63,7 +63,7 @@ package body HLoad_Pack is
       function Statistic_Image (Timed : Boolean) return String;
 
    private
-      Last : Ada.Calendar.Time;
+      Last  : Ada.Calendar.Time;
       Start : Ada.Calendar.Time;
 
       Counter   : Count;
@@ -155,7 +155,6 @@ package body HLoad_Pack is
 
          else
             return Result;
-
          end if;
       end Statistic_Image;
 
@@ -168,7 +167,8 @@ package body HLoad_Pack is
    procedure Run
      (Protocol : String;
       Port     : Positive;
-      Timed    : Boolean := False) is
+      Timed    : Boolean := False)
+   is
 
       task type Client is
          entry Start (Name : String);
@@ -186,7 +186,7 @@ package body HLoad_Pack is
       ------------
 
       task body Client is
-         Name : Unbounded_String;
+         Name    : Unbounded_String;
          Connect : AWS.Client.HTTP_Connection;
       begin
          accept Start (Name : String) do
@@ -203,10 +203,9 @@ package body HLoad_Pack is
          for K in 1 .. Client_Count loop
             begin
                declare
-                  K_Img : constant String
-                    := Utils.Image (K) & '-' & To_String (Name);
-
-                  R : AWS.Response.Data;
+                  K_Img    : constant String :=
+                               Utils.Image (K) & '-' & To_String (Name);
+                  R        : AWS.Response.Data;
                   Expected : constant String := "Data:" & K_Img;
                begin
                   AWS.Client.Get (Connect, R, "/toto?PARAM=" & K_Img);
