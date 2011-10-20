@@ -1,7 +1,7 @@
 from test_support import *
 
 build('content_type_data_range');
-exec_cmd('content_type_data_range', output_file='result.txt')
+run('content_type_data_range', output_file='result.txt')
 
 r = open ('result.txt').readlines()
 
