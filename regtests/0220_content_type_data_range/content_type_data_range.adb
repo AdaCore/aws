@@ -102,7 +102,7 @@ begin
       Value => "bytes=0-41,46-80");
 
    Client_Data := Client.Get
-     ("http://localhost:" & Utils.Image (Port) & "/test.py",
+     ("http://localhost:" & Utils.Image (Port) & "/test.txt",
       Headers => Client_Header);
 
 exception

@@ -1590,6 +1590,7 @@ regtests/0220_content_type_data_range/content_type_data_range.gpr
 regtests/0220_content_type_data_range/file.pack
 regtests/0220_content_type_data_range/test.out
 regtests/0220_content_type_data_range/test.py
+regtests/0220_content_type_data_range/test.txt
 regtests/README
 regtests/aws.gpr
 regtests/common/get_free_port.adb
