@@ -1,6 +1,6 @@
 
                             A W S - Ada Web Server
-                           2.10.0 release / SOAP 1.5
+                           2.11.0 release / SOAP 1.5
 
 Authors:
    Dmitriy Anisimkov
@@ -40,9 +40,6 @@ docs/features-*.
 
 Listed below are some minor enhancements and fixes:
 
-   - Remove OpenSSL DLL for Windows platform. It is better to used the
-     latest ones which gets security update and there is now easy to
-     install OpenSSL binary distributions for Windows.
 
 
 
@@ -55,23 +52,6 @@ to work properly. Of course we try to avoid this as much as possible
 but we really prefer to have a clean API instead of keeping awkward
 implementations.
 
-   The SSLv2 support has been removed. This has been motivated by the
-   fact that support for SSLv2 is being removed from GNU/Debian
-   package. Use SSLv23 or SSLv3 methods instead.
-
-   The AWS.Services.Dispatchers.URI.Register_Regexp implementation was
-   done using a globing pattern instead of a regular expression as
-   documented in the spec. So the Register_Regexp calls must be reviewed
-   and globing patterns changed to real regular expressions.
-
-   The log file-name's timestamp has been removed when Split_Mode is None.
-   This makes the naming compatible with logrotate but may be incompatible
-   with external handling of log files.
-
-   The AWS.Messages.Match helper routine has been moved to AWS.Utils.
-
-   The AWS.Messages.Does_Not_Match helper routine has been removed, use
-   "not Match" instead.
 
 
 Obsolescent features
