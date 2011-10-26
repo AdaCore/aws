@@ -39,7 +39,7 @@ with AWS.Utils;
 
 with Get_Free_Port;
 
-procedure Duplicate_Content_Type_Field is
+procedure Content_Type_Data_Range is
 
    use Ada;
    use Ada.Text_IO;
@@ -110,4 +110,4 @@ exception
       --  An exception is raised because the client API does not support
       --  data ranges.
       Server.Shutdown (WS);
-end Duplicate_Content_Type_Field;
+end Content_Type_Data_Range;
