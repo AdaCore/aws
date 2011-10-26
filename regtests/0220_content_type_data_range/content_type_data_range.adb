@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                       Copyright (C) 2011, AdaCore                        --
+--                     Copyright (C) 2011-2012, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -39,7 +39,7 @@ with AWS.Utils;
 
 with Get_Free_Port;
 
-procedure Duplicate_Content_Type_Field is
+procedure Content_Type_Data_Range is
 
    use Ada;
    use Ada.Text_IO;
@@ -110,4 +110,4 @@ exception
       --  An exception is raised because the client API does not support
       --  data ranges.
       Server.Shutdown (WS);
-end Duplicate_Content_Type_Field;
+end Content_Type_Data_Range;
