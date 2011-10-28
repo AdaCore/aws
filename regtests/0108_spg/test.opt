@@ -1,3 +1,4 @@
 sparc-solaris DEAD
+darwin XFAIL "OK except termination"
 pa-hpux XFAIL
 vxworks DEAD
