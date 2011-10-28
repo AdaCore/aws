@@ -27,9 +27,9 @@
 
 --  Test for output buffer overflow
 
-with Ada.Text_IO;
 with Ada.Exceptions;
 with Ada.Streams;
+with Ada.Text_IO;
 
 with AWS.Net;
 
