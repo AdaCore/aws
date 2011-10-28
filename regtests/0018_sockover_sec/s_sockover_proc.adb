@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2005-2009, AdaCore                     --
+--                     Copyright (C) 2005-2011, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -62,6 +62,7 @@ procedure S_SockOver_Proc (Security : Boolean) is
          & One & Two & Three & One & Two & Three & One & Two & Three
          & One & Two & Three & One & Two & Three & One & Two & Three
          & One & Two & Three & One & Two & Three;
+      Single : Stream_Element_Array (1 .. 1) := (others => 32);
       Last   : Stream_Element_Offset;
       Buffer : Stream_Element_Array (1 .. 1024);
    begin
@@ -79,7 +80,7 @@ procedure S_SockOver_Proc (Security : Boolean) is
             --  Loop because some data could be transferred from send buffer
             --  into receive buffer internally.
 
-            Net.Send (Client, Sample);
+            Net.Send (Client, Single);
          end loop;
       exception
          when E : Net.Socket_Error =>
