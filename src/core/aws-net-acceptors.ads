@@ -142,6 +142,8 @@ private
 
       function Size return Natural;
 
+      procedure Clear;
+
    private
       Buffer : Socket_Lists.List;
    end Socket_Box;

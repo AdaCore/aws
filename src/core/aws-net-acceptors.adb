@@ -457,6 +457,7 @@ package body AWS.Net.Acceptors is
          Shutdown (Acceptor.W_Signal.all);
          Free (Acceptor.W_Signal);
       end if;
+      Acceptor.Box.Clear;
    end Shutdown;
 
    -----------------------
@@ -494,6 +495,15 @@ package body AWS.Net.Acceptors is
             Buffer.Append (S);
          end if;
       end Add;
+
+      -----------
+      -- Clear --
+      -----------
+
+      procedure Clear is
+      begin
+         Shutdown_And_Free (Buffer);
+      end Clear;
 
       ---------
       -- Get --
