@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2004-2009, AdaCore                     --
+--                     Copyright (C) 2004-2011, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -73,8 +73,8 @@ package body Back_Pack is
       URI  : constant String := Status.URI (Request);
    begin
       if URI = Wait_Other_Call then
-         Store_Socket
-           := new Net.Socket_Type'Class'(Status.Socket (Request));
+         Store_Socket :=
+           new Net.Socket_Type'Class'(Status.Socket (Request));
 
          Store_Keep_Alive := Status.Keep_Alive (Request);
 
@@ -95,8 +95,8 @@ package body Back_Pack is
          end if;
 
          declare
-            Data : constant Ada.Streams.Stream_Element_Array
-              := Status.Binary_Data (Request);
+            Data : constant Ada.Streams.Stream_Element_Array :=
+                     Status.Binary_Data (Request);
          begin
             Net.Buffered.Put_Line
               (Store_Socket.all, Messages.Content_Length (Data'Length));

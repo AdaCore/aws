@@ -106,8 +106,8 @@ package AWS.Net.Acceptors is
 
    procedure Give_Back
      (Acceptor : in out Acceptor_Type;
-      Socket : Socket_Access;
-      Success : out Boolean);
+      Socket   : Socket_Access;
+      Success  : out Boolean);
    --  Give back socket which has been taken from Get routine above. Generally
    --  this is called from a different task while the Get routine is blocked
    --  waiting for a socket. Socket would not be given back in case of socket

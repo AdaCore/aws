@@ -220,10 +220,10 @@ package body AWS.Net.Acceptors is
 
                declare
                   use Ada.Real_Time;
-                  Data : constant Socket_Data_Type
-                    := Sets.Get_Data (Acceptor.Set, Acceptor.Index);
-                  Diff : constant Time_Span
-                    := Timeout (Data.First) - (Clock - Data.Time);
+                  Data : constant Socket_Data_Type :=
+                           Sets.Get_Data (Acceptor.Set, Acceptor.Index);
+                  Diff : constant Time_Span :=
+                           Timeout (Data.First) - (Clock - Data.Time);
                begin
                   if Diff <= Time_Span_Zero then
                      Sets.Remove_Socket (Acceptor.Set, Acceptor.Index, Socket);
@@ -316,8 +316,8 @@ package body AWS.Net.Acceptors is
 
    procedure Give_Back
      (Acceptor : in out Acceptor_Type;
-      Socket : Socket_Access;
-      Success : out Boolean) is
+      Socket   : Socket_Access;
+      Success  : out Boolean) is
    begin
       Acceptor.Box.Add (Socket, Positive (Acceptor.Back_Queue_Size), Success);
 
@@ -458,6 +458,10 @@ package body AWS.Net.Acceptors is
          Free (Acceptor.W_Signal);
       end if;
    end Shutdown;
+
+   -----------------------
+   -- Shutdown_And_Free --
+   -----------------------
 
    procedure Shutdown_And_Free (Set : Socket_List) is
       C : Socket_Lists.Cursor := Set.First;
