@@ -1,0 +1,32 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+          "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <title>Upload Demo</title>
+  </head>
+  <body>
+    <p>This is an upload form, please select a file:</p>
+    <form id="fupload" enctype="multipart/form-data"
+          action="/upload" method=post>
+      <input name=filename type=file>
+      <input type=submit name=go value="Send File">
+
+      <!--  The following iframe is the recipient for the upload  --
+        --  response. It is made invisible here, one could let it --
+        --  visible to display the response from the server.      -->
+      <iframe id="upload_target" name="upload_target" src=""
+              style="width:0;height:0;border:0px solid #fff;"></iframe>
+
+    </form>
+  </body>
+
+<script type="text/javascript">
+function init() {
+      document.getElementById('fupload').onsubmit=function() {
+         document.getElementById('fupload').target = 'upload_target';
+    }
+}
+window.onload=init;
+</script>
+
+</html>

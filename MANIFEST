@@ -146,6 +146,13 @@ demos/text_input/text_input.adb
 demos/text_input/text_input.gpr
 demos/text_input/text_input_cb.adb
 demos/text_input/text_input_cb.ads
+demos/upload/aws.ini
+demos/upload/main.html
+demos/upload/makefile
+demos/upload/upload.adb
+demos/upload/upload.gpr
+demos/upload/upload_cb.adb
+demos/upload/upload_cb.ads
 demos/vh_demo/makefile
 demos/vh_demo/vh_demo.adb
 demos/vh_demo/vh_demo.gpr
