@@ -149,7 +149,7 @@ naming
 ------
 
 AWS version number : vX.Y.Z (Z=0 on master, Z>=1 for releases)
-Release branch     : vX.Y
+Release branch     : release-X.Y
 Tags               : vX.Y.Z (Z=0 for the branchpoint and Z>=1 otherwise)
 
 ---------
@@ -158,13 +158,13 @@ branching
 
 When a release is about to be ready a branch is created (vX.Y):
 
-   $ git branch v2.0 master
+   $ git branch release-2.0 master
 
 At this point some adjustments are needed:
 
    * on the branch
 
-      $ git checkout v2.0
+      $ git checkout release-2.0
       $ edit src/core/aws.ads (set proper version number: X.Y.1)
       $ edit readme.txt (likewise)
 
@@ -187,7 +187,7 @@ branch:
 
 For this, <branch_name> may have to be rebased on release branch:
 
-   $ git rebase --onto v2.0 <branch_name>^ <branch_name>
+   $ git rebase --onto release-2.0 <branch_name>^ <branch_name>
    (if there is a single commit to be merged from <branch_name>)
 
 When the release is fully ready a corresponding tag is created (vX.Y.1):
