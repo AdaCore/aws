@@ -1600,6 +1600,12 @@ regtests/0220_content_type_data_range/file.pack
 regtests/0220_content_type_data_range/test.out
 regtests/0220_content_type_data_range/test.py
 regtests/0220_content_type_data_range/test.txt
+regtests/0221_log_callback/log_callback.adb
+regtests/0221_log_callback/log_callback.gpr
+regtests/0221_log_callback/logging.adb
+regtests/0221_log_callback/logging.ads
+regtests/0221_log_callback/test.out
+regtests/0221_log_callback/test.py
 regtests/README
 regtests/aws.gpr
 regtests/common/get_free_port.adb

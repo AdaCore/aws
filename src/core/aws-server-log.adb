@@ -122,6 +122,35 @@ package body AWS.Server.Log is
          Auto_Flush      => Auto_Flush);
    end Start;
 
+   -----------
+   -- Start --
+   -----------
+
+   procedure Start
+     (Web_Server : in out HTTP;
+      Callback   : AWS.Log.Callback;
+      Name       : String)
+   is
+      procedure Register_Extended_Field (Id : String);
+
+      -----------------------------
+      -- Register_Extended_Field --
+      -----------------------------
+
+      procedure Register_Extended_Field (Id : String) is
+      begin
+         AWS.Log.Register_Field (Web_Server.Log, Id);
+      end Register_Extended_Field;
+
+      procedure Register_Extended_Fields is
+        new CNF.Log_Extended_Fields_Generic_Iterate (Register_Extended_Field);
+
+   begin
+      Register_Extended_Fields (Web_Server.Properties);
+
+      AWS.Log.Start (Web_Server.Log, Callback, Name);
+   end Start;
+
    -----------------
    -- Start_Error --
    -----------------
@@ -152,6 +181,18 @@ package body AWS.Server.Log is
          Filename_Prefix => CNF.Error_Log_Filename_Prefix
                               (Web_Server.Properties),
          Auto_Flush      => True);
+   end Start_Error;
+
+   -----------------
+   -- Start_Error --
+   -----------------
+
+   procedure Start_Error
+     (Web_Server : in out HTTP;
+      Callback   : AWS.Log.Callback;
+      Name       : String) is
+   begin
+      AWS.Log.Start (Web_Server.Error_Log, Callback, Name);
    end Start_Error;
 
    ----------

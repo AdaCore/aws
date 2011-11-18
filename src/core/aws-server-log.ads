@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2009, AdaCore                     --
+--                     Copyright (C) 2003-2011, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -25,6 +25,8 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
+with AWS.Log;
+
 package AWS.Server.Log is
 
    ------------------
@@ -39,8 +41,20 @@ package AWS.Server.Log is
    --  Activate server's logging activity. See AWS.Log. If Auto_Flush is True
    --  the file will be flushed after all written data.
 
+   procedure Start
+     (Web_Server : in out HTTP;
+      Callback   : AWS.Log.Callback;
+      Name       : String);
+   --  Activate the Web_Server access log and direct all data to the Callback.
+   --  The Name String is returned when the Name function is called. It is a
+   --  simple identifier, that serves no other purpose than to give the
+   --  Callback a label.
+
    function Name (Web_Server : HTTP) return String;
-   --  Return the name of the Log or an empty string if one is not active
+   --  Return the name of the Log or an empty string if one is not active. If
+   --  an external writer is used to handle the access log, then the name of
+   --  that writer is returned. See the Start procedure for starting the access
+   --  log with a Callback.
 
    procedure Stop (Web_Server : in out HTTP);
    --  Stop server's logging activity. See AWS.Log
@@ -51,7 +65,8 @@ package AWS.Server.Log is
    procedure Flush (Web_Server : in out HTTP);
    --  Flush the server log.
    --  Note that error log does not need to be flushed because it is always
-   --  flushed by default.
+   --  flushed by default. If a Callback procedure is used to handle the log
+   --  data, then calling Flush does nothing.
 
    ---------------
    -- Error Log --
@@ -63,8 +78,20 @@ package AWS.Server.Log is
       Filename_Prefix : String             := "");
    --  Activate server's logging activity. See AWS.Log
 
+   procedure Start_Error
+     (Web_Server : in out HTTP;
+      Callback   : AWS.Log.Callback;
+      Name       : String);
+   --  Activate the Web_Server error log and direct all data to the Callback.
+   --  The Name String is returned when the Error_Name function is called. It
+   --  is a simple identifier, that serves no other purpose than to give the
+   --  Callback a label.
+
    function Error_Name (Web_Server : HTTP) return String;
-   --  Return the name of the Error Log or an empty string if one is not active
+   --  Return the name of the Error Log or an empty string if one is not
+   --  active. If a Callback is used to handle the error log, then the name of
+   --  the Callback is returned. See the Start_Error procedure for starting the
+   --  error log with a Callback.
 
    procedure Stop_Error (Web_Server : in out HTTP);
    --  Stop server's logging activity. See AWS.Log

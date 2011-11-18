@@ -30,6 +30,7 @@ with Ada.Command_Line;
 with Ada.Directories;
 with Ada.Strings.Fixed;
 with Ada.Strings.Maps;
+with Ada.Strings.Unbounded;
 with Ada.Text_IO.C_Streams;
 
 with GNAT.Calendar.Time_IO;
@@ -38,6 +39,16 @@ package body AWS.Log is
 
    procedure Check_Split (Log : in out Object; Now : Ada.Calendar.Time);
    --  Split log file if necessary
+
+   procedure Write_Callback (Log : in out Object; Data : in out Fields_Table);
+   --  Write extended format record to log file and prepare record for the next
+   --  data. It is not allowed to use same Fields_Table with different extended
+   --  logs.
+
+   procedure Write_File (Log : in out Object; Data : in out Fields_Table);
+   --  Write extended format record to log file and prepare record for the next
+   --  data. It is not allowed to use same Fields_Table with different extended
+   --  logs.
 
    procedure Write_Log
      (Log  : in out Object;
@@ -101,6 +112,8 @@ package body AWS.Log is
    begin
       if Text_IO.Is_Open (Log.File) then
          return Text_IO.Name (Log.File);
+      elsif Log.Writer /= null then
+         return To_String (Log.Writer_Name);
       else
          return "";
       end if;
@@ -122,7 +135,7 @@ package body AWS.Log is
    procedure Flush (Log : in out Object) is
       use Text_IO;
    begin
-      if Log.Auto_Flush then
+      if Log.Writer /= null or else Log.Auto_Flush then
          return;
       end if;
 
@@ -156,7 +169,7 @@ package body AWS.Log is
 
    function Is_Active (Log : Object) return Boolean is
    begin
-      return Text_IO.Is_Open (Log.File);
+      return Text_IO.Is_Open (Log.File) or else Log.Writer /= null;
    end Is_Active;
 
    ----------
@@ -388,16 +401,39 @@ package body AWS.Log is
          Text_IO.Create (Log.File, Text_IO.Out_File, To_String (Filename));
    end Start;
 
+   -----------
+   -- Start --
+   -----------
+
+   procedure Start
+     (Log    : in out Object;
+      Writer : Callback;
+      Name   : String) is
+   begin
+      Log.Writer         := Writer;
+      Log.Writer_Name    := To_Unbounded_String (Name);
+      Log.Header_Written := False;
+   end Start;
+
    ----------
    -- Stop --
    ----------
 
    procedure Stop (Log : in out Object) is
    begin
-      if Text_IO.Is_Open (Log.File) then
-         Write (Log, "Stop logging.");
-         Text_IO.Close (Log.File);
+      if not Log.Stop_Has_Been_Called then
+         if Log.Writer = null then
+            if Text_IO.Is_Open (Log.File) then
+               Write (Log, "Stop logging.");
+               Text_IO.Close (Log.File);
+            end if;
+         else
+            Log.Writer ("Stop logging.");
+            Log.Writer := null;
+         end if;
       end if;
+
+      Log.Stop_Has_Been_Called := True;
    end Stop;
 
    -----------
@@ -472,27 +508,37 @@ package body AWS.Log is
          end if;
       end Authorization_Name;
 
+      Log_Message : constant String :=
+                      AWS.Status.Peername (Connect_Stat)
+                      & " - " & Authorization_Name
+                      & " ["
+                      & GNAT.Calendar.Time_IO.Image (Now, "%d/%b/%Y:%T")
+                      & "] """
+                      & Status.Method (Connect_Stat)
+                      & ' '
+                      & Status.URI (Connect_Stat) & " "
+                      & Status.HTTP_Version (Connect_Stat) & """ "
+                      & Data;
+
    begin
-      Write_Log
-        (Log, Now,
-         AWS.Status.Peername (Connect_Stat)
-           & " - " & Authorization_Name
-           & " ["
-           & GNAT.Calendar.Time_IO.Image (Now, "%d/%b/%Y:%T")
-           & "] """
-           & Status.Method (Connect_Stat)
-           & ' '
-           & Status.URI (Connect_Stat) & " "
-           & Status.HTTP_Version (Connect_Stat) & """ "
-           & Data);
+      if Log.Writer = null then
+         Write_Log (Log, Now, Log_Message);
+      else
+         Log.Writer (Log_Message);
+      end if;
    end Write;
 
    procedure Write (Log : in out Object; Data : String) is
-      Now : constant Calendar.Time := Calendar.Clock;
+      Now         : constant Calendar.Time := Calendar.Clock;
+      Log_Message : constant String := "["
+                      & GNAT.Calendar.Time_IO.Image
+                        (Now, "%d/%b/%Y:%T") & "] " & Data;
    begin
-      Write_Log
-        (Log, Now,
-         "[" & GNAT.Calendar.Time_IO.Image (Now, "%d/%b/%Y:%T") & "] " & Data);
+      if Log.Writer = null then
+         Write_Log (Log, Now, Log_Message);
+      else
+         Log.Writer (Log_Message);
+      end if;
    end Write;
 
    --  Here is the extended log format:
@@ -503,6 +549,123 @@ package body AWS.Log is
    --  00:34:23 GET /foo/bar.html
 
    procedure Write (Log  : in out Object; Data : in out Fields_Table) is
+   begin
+      if Log.Writer = null then
+         Write_File (Log, Data);
+      else
+         Write_Callback (Log, Data);
+      end if;
+   end Write;
+
+   ----------------------
+   --  Write_Callback  --
+   ----------------------
+
+   procedure Write_Callback
+     (Log  : in out Object; Data : in out Fields_Table)
+   is
+      use Ada.Strings.Unbounded;
+      use GNAT.Calendar.Time_IO;
+
+      Length      : constant Natural := Natural (Log.Extended_Fields.Length);
+      Message     : Unbounded_String := Null_Unbounded_String;
+      Now         : Ada.Calendar.Time;
+      First_Field : Boolean := True;
+
+      procedure Write_And_Clear (Position : SV.Cursor);
+
+      ---------------------
+      -- Write_And_Clear --
+      ---------------------
+
+      procedure Write_And_Clear (Position : SV.Cursor) is
+      begin
+         if First_Field then
+            First_Field := False;
+            Append (Message, SV.Element (Position));
+         else
+            Append (Message, ' ' & SV.Element (Position));
+         end if;
+
+         Data.Values.Replace_Element (Position, "-");
+      end Write_And_Clear;
+
+   begin
+      if Length = 0 then
+         --  It is not extended log
+         return;
+      end if;
+
+      Now := Ada.Calendar.Clock;
+
+      if not Log.Header_Written then
+         Log.Header_Written := True;
+
+         Log.Writer ("#Software: AWS (Ada Web Server) v" & Version);
+         Log.Writer ("#Date: " & Image (Now, ISO_Date & " %T"));
+         Log.Writer ("#Fields:");
+
+         declare
+            Fields : Unbounded_String := Null_Unbounded_String;
+            Order  : array (1 .. Length) of Strings_Positive.Cursor;
+
+            procedure Process (Position : Strings_Positive.Cursor);
+
+            -------------
+            -- Process --
+            -------------
+
+            procedure Process (Position : Strings_Positive.Cursor)
+            is
+            begin
+               Order (Strings_Positive.Element (Position)) := Position;
+            end Process;
+
+         begin
+            Log.Extended_Fields.Iterate (Process'Access);
+
+            for J in Order'Range loop
+               Append (Fields, ' ' & Strings_Positive.Key (Order (J)));
+            end loop;
+
+            Log.Writer (To_String (Fields));
+         end;
+      end if;
+
+      --  Set date and time fields if the used does not fill it
+
+      declare
+         CSN : Strings_Positive.Cursor := Log.Extended_Fields.Find ("date");
+         P   : Positive;
+      begin
+         if Strings_Positive.Has_Element (CSN) then
+            P := Strings_Positive.Element (CSN);
+
+            if Data.Values.Element (P) = "-" then
+               Data.Values.Replace_Element (P, Image (Now, ISO_Date));
+            end if;
+         end if;
+
+         CSN := Log.Extended_Fields.Find ("time");
+
+         if Strings_Positive.Has_Element (CSN) then
+            P := Strings_Positive.Element (CSN);
+
+            if Data.Values.Element (P) = "-" then
+               Data.Values.Replace_Element (P, Image (Now, "%T"));
+            end if;
+         end if;
+      end;
+
+      Data.Values.Iterate (Write_And_Clear'Access);
+      Log.Writer (To_String (Message));
+   end Write_Callback;
+
+   ------------------
+   --  Write_File  --
+   ------------------
+
+   procedure Write_File (Log  : in out Object; Data : in out Fields_Table) is
       use GNAT.Calendar.Time_IO;
 
       Length      : constant Natural := Natural (Log.Extended_Fields.Length);
@@ -617,7 +780,7 @@ package body AWS.Log is
       when others =>
          Log.Semaphore.Release;
          raise;
-   end Write;
+   end Write_File;
 
    ---------------
    -- Write_Log --

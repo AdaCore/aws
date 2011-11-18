@@ -15,6 +15,12 @@ of the feature.
 New features in AWS 2.11
 ------------------------
 
+NF-211-KB29-027 Add support for external log handling
+
+   It is now possible to provide callback routines for the log module.
+   From there it is possible to store log data into a database or into
+   syslog if needed.
+
 NF-211-K914-009 Templates parser now supports Utf-8 BOM
 
    The templates parser now support files with leading Utf-8 BOM.
