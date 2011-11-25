@@ -60,8 +60,8 @@ package body AWS.Log is
       if (Log.Split = Daily
           and then Log.Current_Tag /= Calendar.Day (Now))
         or else
-         (Log.Split = Monthly
-          and then Log.Current_Tag /= Calendar.Month (Now))
+          (Log.Split = Monthly
+           and then Log.Current_Tag /= Calendar.Month (Now))
       then
          --  Could not call Stop, because Stop would write to log again and
          --  it cause unlimited recursion.
@@ -341,9 +341,10 @@ package body AWS.Log is
          end if;
       end Log_Prefix;
 
-      Filename  : Unbounded_String;
       Prefix    : constant String := Get_Prefix;
+      Filename  : Unbounded_String;
       Time_Part : String (1 .. 7);
+
    begin
       Log.Filename_Prefix := To_Unbounded_String (Filename_Prefix);
       Log.File_Directory  := To_Unbounded_String (File_Directory);
@@ -527,6 +528,7 @@ package body AWS.Log is
       end Write_And_Clear;
 
    begin
+
       if Length = 0 then
          --  It is not extended log
          return;

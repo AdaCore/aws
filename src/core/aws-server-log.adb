@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2009, AdaCore                     --
+--                     Copyright (C) 2003-2011, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -98,7 +98,7 @@ package body AWS.Server.Log is
       end Register_Extended_Field;
 
       procedure Register_Extended_Fields is
-         new CNF.Log_Extended_Fields_Generic_Iterate (Register_Extended_Field);
+        new CNF.Log_Extended_Fields_Generic_Iterate (Register_Extended_Field);
 
    begin
       if Split_Mode /= AWS.Log.None then

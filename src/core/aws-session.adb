@@ -413,8 +413,8 @@ package body AWS.Session is
       procedure Get_Value
         (SID : Id; Key : String; Value : out Unbounded_String)
       is
-         Node   : Session_Node;
-         Found  : Boolean;
+         Node  : Session_Node;
+         Found : Boolean;
       begin
          Value := Null_Unbounded_String;
 
@@ -422,8 +422,8 @@ package body AWS.Session is
 
          if Found then
             declare
-               Cursor : constant Key_Value.Cursor
-                 := Key_Value.Find (Node.Root.all, Key);
+               Cursor : constant Key_Value.Cursor :=
+                          Key_Value.Find (Node.Root.all, Key);
             begin
                if Key_Value.Has_Element (Cursor) then
                   Value := To_Unbounded_String (Key_Value.Element (Cursor));
@@ -500,9 +500,9 @@ package body AWS.Session is
       -----------------
 
       entry New_Session (SID : out Id) when Lock_Counter = 0 is
-         New_Node : constant Session_Node
-           := (Time_Stamp => Real_Time.Clock,
-               Root       => new Key_Value.Map);
+         New_Node : constant Session_Node :=
+                      (Time_Stamp => Real_Time.Clock,
+                       Root       => new Key_Value.Map);
 
          Cursor   : Session_Set.Cursor;
          Success  : Boolean;
@@ -578,8 +578,8 @@ package body AWS.Session is
       ------------
 
       entry Remove_Key (SID : Id; Key : String) when Lock_Counter = 0 is
-         Node   : Session_Node;
-         Found  : Boolean;
+         Node  : Session_Node;
+         Found : Boolean;
       begin
          Get_Node (Sessions, SID, Node, Found);
 
@@ -622,8 +622,8 @@ package body AWS.Session is
       entry Set_Value
         (SID : Id; Key, Value : String) when Lock_Counter = 0
       is
-         Node   : Session_Node;
-         Found  : Boolean;
+         Node  : Session_Node;
+         Found : Boolean;
       begin
          Get_Node (Sessions, SID, Node, Found);
 
@@ -740,10 +740,10 @@ package body AWS.Session is
       procedure For_Every_Data (Node : Session_Node);
       --  Iterate through all Key/Value pairs
 
-      Node     : Session_Node;
-      Order    : Positive := 1;
-      Quit     : Boolean  := False;
-      Found    : Boolean;
+      Node  : Session_Node;
+      Order : Positive := 1;
+      Quit  : Boolean  := False;
+      Found : Boolean;
 
       --------------------
       -- For_Every_Data --
