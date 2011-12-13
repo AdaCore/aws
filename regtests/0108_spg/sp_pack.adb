@@ -34,7 +34,7 @@ with Ada.Strings.Unbounded;
 with Ada.Text_IO.Editing;
 
 with AWS.Client;
-with AWS.Net;
+with AWS.Net.Buffered;
 with AWS.Parameters;
 with AWS.Response;
 with AWS.Server.Push;
@@ -52,6 +52,9 @@ package body Sp_Pack is
 
    CRLF        : constant String := ASCII.CR & ASCII.LF;
    End_Of_Part : constant String := '.' & CRLF;
+
+   Big_Message : constant String :=
+     Ada.Strings.Fixed."*" (8574, "1234567890") & End_Of_Part;
 
    function To_Array
      (Data : Push_Data_Type;
@@ -125,8 +128,12 @@ package body Sp_Pack is
    is
       package Format is new Text_IO.Editing.Decimal_Output (Push_Data_Type);
    begin
-      return Translator.To_Stream_Element_Array
-               (Format.Image (Data, Env) & End_Of_Part);
+      if Data = Push_Data_Type'First then
+         return Translator.To_Stream_Element_Array (Big_Message);
+      else
+         return Translator.To_Stream_Element_Array
+                  (Format.Image (Data, Env) & End_Of_Part);
+      end if;
    end To_Array;
 
    ---------
@@ -263,6 +270,18 @@ package body Sp_Pack is
          Output (Client.Read_Until (Connect (J), End_Of_Part));
          Output (Client.Read_Until (Connect (J), End_Of_Part));
       end loop;
+
+      Server_Push.Send_To (Push, "12", Push_Data_Type'First);
+      AWS.Net.Buffered.Set_Input_Limit (Big_Message'Length);
+
+      declare
+         Received : constant String :=
+           Client.Read_Until (Connect (12), End_Of_Part);
+      begin
+         if Received /= Big_Message then
+            Output ("Big_Message wrong " & Received  & " /= " & Big_Message);
+         end if;
+      end;
 
       for J in Connect'Range loop
          --  Next line will automatically unregister server push clients,

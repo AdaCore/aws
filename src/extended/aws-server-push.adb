@@ -330,7 +330,27 @@ package body AWS.Server.Push is
             Next    : constant Stream_Element_Offset :=
                         Last + Message.Data'Last;
          begin
-            exit when Next > Data'Last;
+            if Next > Data'Last then
+               if Last < Data'First then
+                  --  Too big single message need to send partially
+
+                  Data := Message.Data (1 .. Data'Last);
+                  Last := Data'Last;
+
+                  if Message.Thin /= "" then
+                     Holder.Thin.Delete (Message.Thin);
+                  end if;
+
+                  Holder.Chunks.Replace_Element
+                    (C,
+                     (Size      => Message.Data'Length - Data'Length,
+                      Thin_Size => 0,
+                      Data     => Message.Data (Last + 1 .. Message.Data'Last),
+                      Thin    => ""));
+               end if;
+
+               exit;
+            end if;
 
             Data (Last + 1 .. Next) := Message.Data;
             Last := Next;
@@ -344,9 +364,6 @@ package body AWS.Server.Push is
          end;
       end loop;
 
-      if Last < Data'First and then Chunk_Lists.Has_Element (C) then
-         raise Constraint_Error with "Too big message";
-      end if;
    end Get_Data;
 
    ----------
