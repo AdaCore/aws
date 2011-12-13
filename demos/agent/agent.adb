@@ -28,6 +28,7 @@
 --         -sc                     Set cookie.
 --         -cc                     client certificate
 --         -t                      wait response timeout.
+--         -v                      show version and exit.
 --         -proxy <proxy_url>
 --         -u <user_name>
 --         -p <password>
@@ -129,10 +130,16 @@ procedure Agent is
    begin
       loop
          case GNAT.Command_Line.Getopt
-           ("f o d h u: p: a: pu: pp: pa: proxy: k i: if: s sc: r c cc: t:")
+           ("f o d h v u: p: a: pu: pp: pa: proxy: k i: if: s sc: r c cc: t:")
          is
             when ASCII.NUL =>
                exit;
+
+            when 'v' =>
+               Ada.Text_IO.Put_Line
+                 (AWS.Version & ASCII.LF & AWS.Net.SSL.Version);
+
+               return False;
 
             when 'h' =>
                Usage;

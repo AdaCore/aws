@@ -242,9 +242,13 @@ package SSL.Thin is
       GNUTLS_COMP_LZO     => 3);
    for gnutls_compression_method_t'Size use C.int'Size;
 
-   type gnutls_connection_end_t is (GNUTLS_SERVER, GNUTLS_CLIENT);
-   for gnutls_connection_end_t use (GNUTLS_SERVER => 1, GNUTLS_CLIENT => 2);
+   type gnutls_connection_end_t is mod 2**4;
    for gnutls_connection_end_t'Size use C.int'Size;
+
+   GNUTLS_SERVER : constant gnutls_connection_end_t := 1;
+   GNUTLS_CLIENT : constant gnutls_connection_end_t := 2;
+   GNUTLS_DATAGRAM : constant gnutls_connection_end_t := 4;
+   GNUTLS_NONBLOCK : constant gnutls_connection_end_t := 8;
 
    type gnutls_alert_level_t is (GNUTLS_AL_WARNING, GNUTLS_AL_FATAL);
    for gnutls_alert_level_t use (GNUTLS_AL_WARNING => 1, GNUTLS_AL_FATAL => 2);
