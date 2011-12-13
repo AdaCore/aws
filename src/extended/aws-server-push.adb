@@ -345,8 +345,9 @@ package body AWS.Server.Push is
                     (C,
                      (Size      => Message.Data'Length - Data'Length,
                       Thin_Size => 0,
-                      Data     => Message.Data (Last + 1 .. Message.Data'Last),
-                      Thin    => ""));
+                      Data      =>
+                        Message.Data (Last + 1 .. Message.Data'Last),
+                      Thin      => ""));
                end if;
 
                exit;
@@ -538,8 +539,8 @@ package body AWS.Server.Push is
             C := Group_Maps.Element (G).First;
 
             while Tables.Has_Element (C) loop
-               if not
-                 Tables.Element (C).Groups.Contains (Group_Maps.Key (G))
+               if
+                 not Tables.Element (C).Groups.Contains (Group_Maps.Key (G))
                then
                   raise Program_Error with "Loose group in client";
                end if;

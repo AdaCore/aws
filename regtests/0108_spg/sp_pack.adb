@@ -54,7 +54,7 @@ package body Sp_Pack is
    End_Of_Part : constant String := '.' & CRLF;
 
    Big_Message : constant String :=
-     Ada.Strings.Fixed."*" (8574, "1234567890") & End_Of_Part;
+                   Strings.Fixed."*" (8574, "1234567890") & End_Of_Part;
 
    function To_Array
      (Data : Push_Data_Type;
@@ -202,7 +202,7 @@ package body Sp_Pack is
             Host        => URL,
             Timeouts    => Client.Timeouts
               (Connect => 5.0,
-               Send => 15.0, Receive => 15.0, Response => 15.0),
+               Send    => 15.0, Receive => 15.0, Response => 15.0),
             Server_Push => True);
 
          Client.Get (Connect (J), Answer, "/uri?CID=" & Utils.Image (J));
@@ -276,7 +276,7 @@ package body Sp_Pack is
 
       declare
          Received : constant String :=
-           Client.Read_Until (Connect (12), End_Of_Part);
+                      Client.Read_Until (Connect (12), End_Of_Part);
       begin
          if Received /= Big_Message then
             Output ("Big_Message wrong " & Received  & " /= " & Big_Message);
