@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2008-2010, AdaCore                     --
+--                     Copyright (C) 2008-2011, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -216,8 +216,6 @@ procedure Test_Jabber is
 
       Acceptors.Give_Back (Acceptor, Sock);
       Acceptors.Shutdown (Acceptor);
-      Shutdown (Sock.all);
-      Free (Sock);
 
       accept Stopped;
 
