@@ -1606,6 +1606,10 @@ regtests/0221_log_callback/logging.adb
 regtests/0221_log_callback/logging.ads
 regtests/0221_log_callback/test.out
 regtests/0221_log_callback/test.py
+regtests/0222_sea_to_string/sea2str.adb
+regtests/0222_sea_to_string/sea2str.gpr
+regtests/0222_sea_to_string/test.out
+regtests/0222_sea_to_string/test.py
 regtests/README
 regtests/aws.gpr
 regtests/common/get_free_port.adb

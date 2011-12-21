@@ -1,2 +1,6 @@
 Known Problems fixed in AWS 2.11
 
+- KC20-007 : Constraint error in Translator.To_String
+  Problem:    When the bounds of the Stream_Element_Array parameter are
+              not in Positive'Range a constraint error is raised.
+  Workaround: Make sure the bounds of the parameter are in Positive'Range

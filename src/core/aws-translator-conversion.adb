@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2010, AdaCore                     --
+--                     Copyright (C) 2003-2011, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -104,11 +104,13 @@ package body Conversion is
         (Data : Stream_Element_Array) return String
       is
 
-         subtype Fixed_String is String (Integer (Data'First)
-           .. Integer (Data'Last));
+         Start : constant Positive := Integer'Max (1, Integer (Data'First));
+         --  If possible keep Data'Range
 
-         subtype Fixed_Array is Stream_Element_Array
-            (Data'First .. Data'Last);
+         subtype Fixed_String is
+           String (Start .. Start + Natural (Data'Length) - 1);
+
+         subtype Fixed_Array is Stream_Element_Array (Data'First .. Data'Last);
 
          function To_Characters is
            new Ada.Unchecked_Conversion (Fixed_Array, Fixed_String);
@@ -147,10 +149,14 @@ package body Conversion is
       ---------------
 
       function To_String (Data : Stream_Element_Array) return String is
-         Result : String (Integer (Data'First) .. Integer (Data'Last));
+         Start : constant Positive := Integer'Max (1, Integer (Data'First));
+         --  If possible keep Data'Range
+
+         Result : String (Start .. Start + Natural (Data'Length) - 1);
       begin
          for K in Data'Range loop
-            Result (Integer (K)) := Character'Val (Data (K));
+            Result (Start + Natural (K - Data'First)) :=
+              Character'Val (Data (K));
          end loop;
          return Result;
       end To_String;
