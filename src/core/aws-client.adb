@@ -804,8 +804,8 @@ package body AWS.Client is
             Limit : constant Stream_Element_Offset :=
                       Stream_Element_Offset'Min
                         (Data'Last,
-                         Data'First +
-                           Stream_Element_Offset (Connection.Length) - 1);
+                         Data'First
+                           + Stream_Element_Offset (Connection.Length) - 1);
          begin
             Net.Buffered.Read (Sock, Data (Data'First .. Limit), Last);
 

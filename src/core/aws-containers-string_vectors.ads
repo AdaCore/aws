@@ -31,4 +31,3 @@ with Ada.Containers.Indefinite_Vectors;
 
 package AWS.Containers.String_Vectors is
    new Ada.Containers.Indefinite_Vectors (Positive, String);
-

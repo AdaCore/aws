@@ -48,7 +48,7 @@ procedure Cookies is
 
    function CB (Request : Status.Data) return Response.Data is
       R : Response.Data :=
-	    Response.Build (MIME.Text_HTML, "response with cookies");
+            Response.Build (MIME.Text_HTML, "response with cookies");
    begin
       Cookie.Set (R, "ckey", "cval");
       Cookie.Set (R, "date", 9, Max_Age => Default.One_Hour);
@@ -63,7 +63,7 @@ procedure Cookies is
    procedure Dump_Header (Name, Value : String) is
    begin
       if Name = Messages.Set_Cookie_Token then
-	 Text_IO.Put_Line (Name & " " & Value);
+         Text_IO.Put_Line (Name & " " & Value);
       end if;
    end Dump_Header;
 
@@ -82,10 +82,10 @@ begin
 
    declare
       Values : constant Containers.Tables.VString_Array :=
-	         Headers.Get_Values (H, Messages.Set_Cookie_Token);
+                 Headers.Get_Values (H, Messages.Set_Cookie_Token);
    begin
       for K in Values'Range loop
-	 Text_IO.Put_Line (To_String (Values (K)));
+         Text_IO.Put_Line (To_String (Values (K)));
       end loop;
    end;
 

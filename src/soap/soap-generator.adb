@@ -926,8 +926,8 @@ package body SOAP.Generator is
                Text_IO.Put_Line
                  (Tmp_Ads, "   subtype " & F_Name);
                Text_IO.Put_Line
-                 (Tmp_Ads, "     is " &
-                  To_Unit_Name (To_String (Prefix)) & '.' & F_Name & ';');
+                 (Tmp_Ads, "     is "
+                  & To_Unit_Name (To_String (Prefix)) & '.' & F_Name & ';');
             end if;
 
             --  Access to it
@@ -1727,8 +1727,8 @@ package body SOAP.Generator is
                   Text_IO.Put_Line
                     (Rec_Adb, "               with SOAP.Types.Name (R)");
                   Text_IO.Put_Line
-                    (Rec_Adb, "                  & ""." &
-                     F_Name & " expected "
+                    (Rec_Adb, "                  & ""."
+                     & F_Name & " expected "
                      & I_Type & ", """);
                   Text_IO.Put_Line
                     (Rec_Adb, "                  & ""found "" & External_Tag ("

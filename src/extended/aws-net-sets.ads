@@ -27,7 +27,7 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  Waiting on group of sockets for input/output availability.
+--  Waiting on group of sockets for input/output availability
 
 with AWS.Utils;
 with AWS.Net.Generic_Sets;

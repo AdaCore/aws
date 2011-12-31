@@ -536,8 +536,8 @@ package body AWS.Services.Web_Mail is
             E_Mail := Context.User_Name & '@' & POP_Host;
          else
             --  Get the domain name after the first dot
-            E_Mail := Context.User_Name & '@' &
-                        POP_Host (K + 1 .. POP_Host'Last);
+            E_Mail := Context.User_Name & '@'
+                        & POP_Host (K + 1 .. POP_Host'Last);
          end if;
 
          return SMTP.E_Mail (To_String (E_Mail), To_String (E_Mail));

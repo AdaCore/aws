@@ -619,8 +619,8 @@ package body AWS.Services.Web_Block.Registry is
                Templates.Insert (T, Translations);
                Templates.Insert (T, Lazy_Tag.Translations);
 
-               if not Element (Position).Data_CB.With_Params and then
-                  Element (Position).Data_CB.Callback /= null
+               if not Element (Position).Data_CB.With_Params
+                  and then Element (Position).Data_CB.Callback /= null
                then
                   Element (Position).Data_CB.Callback
                     (Lazy_Tag.Request, Lazy_Tag.Ctx'Access, T);

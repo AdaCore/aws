@@ -337,8 +337,8 @@ package body AWS.Services.Directory is
             Names := Names & Item.Name;
          end if;
 
-         Times  := Times &
-           GNAT.Calendar.Time_IO.Image (Item.Time, "%Y/%m/%d %T");
+         Times  := Times
+           & GNAT.Calendar.Time_IO.Image (Item.Time, "%Y/%m/%d %T");
 
          Is_Dir := Is_Dir & Item.Directory;
       end Each_Entry;

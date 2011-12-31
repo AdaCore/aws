@@ -571,8 +571,8 @@ package body AWS.Jabber.Client is
                   end Next_Step;
 
                begin
-                  if Authentication_Current_Step = First_Challenge and then
-                    Contains (Message.all, "challenge")
+                  if Authentication_Current_Step = First_Challenge
+                    and then Contains (Message.all, "challenge")
                   then
                      Reply_Challenge : declare
                         Challenge  : constant Digest_Md5.Challenge :=
@@ -805,8 +805,8 @@ package body AWS.Jabber.Client is
                         XMPP_Send
                           (Account,
                            "<auth xmlns='urn:ietf:params:xml:ns:xmpp-sasl' "
-                           & "mechanism='PLAIN'>" &
-                           AWS.Translator.Base64_Encode
+                           & "mechanism='PLAIN'>"
+                           & AWS.Translator.Base64_Encode
                              (ASCII.NUL & To_String (Account.User.Name)
                               & ASCII.NUL & To_String (Account.User.Password))
                            & "</auth>");

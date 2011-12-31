@@ -89,23 +89,26 @@ package body Runme_Service is
    procedure Main is
    begin
       --  Change to the right directory
+
       Directory_Operations.Change_Dir (Runme_Info.Get_Executable_Path);
 
       --  Set SSL certificate
+
       AWS.Server.Set_Security
         (WSS, Runme_Info.Get_Executable_Path & "\cert.pem");
 
-      --  All output goes to a log file.
+      --  All output goes to a log file
+
       Text_IO.Create (Output, Text_IO.Out_File, "runme.service.log");
       Text_IO.Set_Output (Output);
 
-      --  Update state.
+      --  Update state
 
       Service.Status.Set
         (Target    => Server.Status,
          New_State => Service.Status.Run_State);
 
-      --  Start servers.
+      --  Start servers
 
       Running := True;
 
@@ -126,7 +129,7 @@ package body Runme_Service is
       end loop;
 
    exception
-      when E: others =>
+      when E : others =>
          Text_IO.Put_Line ("Service Error : " & Exception_Information (E));
          Text_IO.Flush;
          raise;

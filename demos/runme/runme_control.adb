@@ -30,13 +30,13 @@ procedure Runme_Control is
    Syntax_Error : exception;
 
    procedure Install_Service;
-   --  Register service into OS.
+   --  Register service into OS
 
    procedure Remove_Service;
-   --  Unregister service into OS.
+   --  Unregister service into OS
 
    procedure Parse_Command_Line;
-   --  Parse command line and set options.
+   --  Parse command line and set options
 
    type Mode is (Nothing, Install, Uninstall);
    Option : Mode := Nothing;
@@ -52,7 +52,7 @@ procedure Runme_Control is
                            & " not found. Check the path.");
 
       else
-         -- Install the service
+         --  Install the service
          Service.Create
            (Service_Name => Runme_Info.Service_Name,
             Display_Name => Runme_Info.Display_Name,
@@ -76,31 +76,29 @@ procedure Runme_Control is
 
    procedure Parse_Command_Line is
    begin
-     loop
-        case GNAT.Command_Line.Getopt ("i u") is
+      loop
+         case GNAT.Command_Line.Getopt ("i u") is
+            when ASCII.NUL =>
+               exit;
 
-           when ASCII.NUL =>
-              exit;
+            when 'i' =>
+               if Option = Nothing then
+                  Option := Install;
+               else
+                  raise Syntax_Error;
+               end if;
 
-           when 'i' =>
-              if Option = Nothing then
-                 Option := Install;
-              else
-                 raise Syntax_Error;
-              end if;
+            when 'u' =>
+               if Option = Nothing then
+                  Option := Uninstall;
+               else
+                  raise Syntax_Error;
+               end if;
 
-           when 'u' =>
-              if Option = Nothing then
-                 Option := Uninstall;
-              else
-                 raise Syntax_Error;
-              end if;
-
-           when others =>
-              raise Syntax_Error;
-
-        end case;
-     end loop;
+            when others =>
+               raise Syntax_Error;
+         end case;
+      end loop;
    end Parse_Command_Line;
 
 begin
