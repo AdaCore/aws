@@ -16,6 +16,10 @@
 --  to http://www.gnu.org/licenses for a complete copy of the license.      --
 ------------------------------------------------------------------------------
 
+--  You need to edit this demo to set the proper SMTP server and recipient
+
+with Ada.Text_IO;
+
 with AWS.Attachments;
 with AWS.MIME;
 with AWS.SMTP.Client;
