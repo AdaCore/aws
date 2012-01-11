@@ -30,6 +30,7 @@
 with Ada.Characters.Latin_1;
 with Ada.Strings.Fixed;
 with Ada.Strings.Maps;
+with Ada.Strings.Unbounded;
 with Ada.Text_IO;
 
 with AWS.Containers.Tables.Set;
@@ -88,77 +89,84 @@ package body AWS.Headers.Set is
 
    procedure Read (Socket : Net.Socket_Type'Class; Headers : in out List) is
 
-      procedure Parse_Header_Lines (Line : String);
-      --  Parse the Line eventually catenated with the next line if it is a
-      --  continuation line see [RFC 2616 - 4.2].
+      use Ada.Strings.Unbounded;
 
-      ------------------------
-      -- Parse_Header_Lines --
-      ------------------------
+      procedure Parse_Header_Line (Line : String);
+      --  Parse this line, update Headers accordingly
 
-      procedure Parse_Header_Lines (Line : String) is
-         End_Of_Message : constant String := "";
+      -----------------------
+      -- Parse_Header_Line --
+      -----------------------
+
+      procedure Parse_Header_Line (Line : String) is
+         use Ada.Strings;
+         Delimiter_Index : Natural;
       begin
-         if Line = End_Of_Message then
-            return;
-
-         else
-            declare
-               use Ada.Strings;
-
-               Next_Line       : constant String :=
-                                   Net.Buffered.Get_Line (Socket);
-               Delimiter_Index : Natural;
-
-            begin
-               if Next_Line /= End_Of_Message
-                    and then
-                 (Next_Line (Next_Line'First) = ' '
-                  or else Next_Line (Next_Line'First) = ASCII.HT)
-               then
-                  --  Continuing value on the next line. Header fields can be
-                  --  extended over multiple lines by preceding each extra
-                  --  line with at least one SP or HT.
-                  Parse_Header_Lines (Line & Next_Line);
-
-               else
-                  if Debug_Flag then
-                     Text_IO.Put_Line ('>' & Line);
-                  end if;
-
-                  --  Put name and value to the container separately
-
-                  Delimiter_Index := Fixed.Index
-                    (Source => Line,
-                     Set    => RFC2616_Token_Set,
-                     Test   => Outside);
-
-                  if Delimiter_Index = 0                  -- No delimiter
-                    or else Delimiter_Index = Line'First  -- Empty name
-                    or else Line (Delimiter_Index) /= ':' -- Wrong separator
-                  then
-                     --  No delimiter, this is not a valid Header Line
-
-                     raise Format_Error with Line;
-                  end if;
-
-                  Add (Headers,
-                       Name  => Line (Line'First .. Delimiter_Index - 1),
-                       Value => Fixed.Trim
-                                  (Line (Delimiter_Index + 1 .. Line'Last),
-                                   Side => Both));
-
-                  --  Parse next header line
-
-                  Parse_Header_Lines (Next_Line);
-               end if;
-            end;
+         if Debug_Flag then
+            Text_IO.Put_Line ('>' & Line);
          end if;
-      end Parse_Header_Lines;
+
+         --  Put name and value to the container separately
+
+         Delimiter_Index := Fixed.Index
+           (Source => Line,
+            Set    => RFC2616_Token_Set,
+            Test   => Outside);
+
+         if Delimiter_Index = 0                  -- No delimiter
+           or else Delimiter_Index = Line'First  -- Empty name
+           or else Line (Delimiter_Index) /= ':' -- Wrong separator
+         then
+            --  No delimiter, this is not a valid Header Line
+
+            raise Format_Error with Line;
+         end if;
+
+         Add (Headers,
+           Name  => Line (Line'First .. Delimiter_Index - 1),
+           Value => Fixed.Trim
+             (Line (Delimiter_Index + 1 .. Line'Last),
+              Side => Both));
+      end Parse_Header_Line;
+
+      End_Of_Message : constant String := "";
+      Line           : Unbounded_String :=
+                         To_Unbounded_String (Net.Buffered.Get_Line (Socket));
 
    begin
       Reset (Headers);
-      Parse_Header_Lines (Net.Buffered.Get_Line (Socket));
+
+      --  Parse the Line eventually catenated with the next line if it is a
+      --  continuation line see [RFC 2616 - 4.2].
+
+      loop
+         exit when Line = Null_Unbounded_String;
+
+         declare
+            Next_Line : constant String := Net.Buffered.Get_Line (Socket);
+         begin
+            if Next_Line /= End_Of_Message
+              and then
+                (Next_Line (Next_Line'First) = ' '
+                 or else Next_Line (Next_Line'First) = ASCII.HT)
+            then
+               --  Continuing value on the next line. Header fields can be
+               --  extended over multiple lines by preceding each extra
+               --  line with at least one SP or HT.
+
+               Append (Line, Next_Line);
+
+            else
+               --  Handle current line
+
+               Parse_Header_Line (To_String (Line));
+
+               --  Then start another line with read content
+
+               Line := To_Unbounded_String (Next_Line);
+            end if;
+         end;
+      end loop;
    end Read;
 
    -----------
