@@ -17,9 +17,11 @@
 ------------------------------------------------------------------------------
 
 with "aws";
-with "../../shared";
 
 project Test_LDAP is
+
+   type OS_Type is ("UNIX", "Windows_NT", "Darwin");
+   OS : OS_Type := external ("OS", "UNIX");
 
    for Source_Dirs use (".");
    for Main use ("test_ldap.adb");
@@ -29,7 +31,7 @@ project Test_LDAP is
    end Builder;
 
    package Linker is
-      case Shared.OS is
+      case OS is
          when "Windows_NT" =>
             for Default_Switches ("Ada") use ("-lwldap32");
          when others =>
