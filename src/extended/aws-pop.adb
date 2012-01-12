@@ -156,11 +156,11 @@ package body AWS.POP is
          Check_Response (Response);
       end;
 
-      Net.Std.Shutdown (Mailbox.Sock);
+      Mailbox.Sock.Shutdown;
 
    exception
       when POP_Error =>
-         Net.Std.Shutdown (Mailbox.Sock);
+         Mailbox.Sock.Shutdown;
          raise;
    end Close;
 
@@ -642,11 +642,12 @@ package body AWS.POP is
       Mailbox   : POP.Mailbox;
    begin
       Mailbox.Name := To_Unbounded_String (Server_Name);
-      Mailbox.Sock := Net.Std.Socket_Type (Net.Socket (False).all);
+      Mailbox.Sock := Net.Std.Socket_Type
+                        (Net.Socket_Type'Class'(Net.Socket (False)));
 
       --  Connect to the server
 
-      Net.Std.Connect (Mailbox.Sock, Server_Name, Port);
+      Mailbox.Sock.Connect (Server_Name, Port);
 
       declare
          Response : constant String
@@ -734,7 +735,7 @@ package body AWS.POP is
 
    exception
       when POP_Error =>
-         Net.Std.Shutdown (Mailbox.Sock);
+         Mailbox.Sock.Shutdown;
          raise;
    end Initialize;
 

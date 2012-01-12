@@ -67,7 +67,7 @@ package body AWS.SMTP.Server is
 
          Server.Action (Message);
 
-         Net.Shutdown (Sock);
+         Sock.Shutdown;
       end loop;
 
    exception
