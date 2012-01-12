@@ -1702,14 +1702,13 @@ package body AWS.Server.HTTP_Utils is
 
             --  Computer First / Last and the range length
 
-            if R (I_Minus + 1 .. R'Last) = "" then
+            if I_Minus = R'Last then
                Last := Length - 1;
             else
-               Last := Stream_Element_Offset'Value
-                 (R (I_Minus + 1 .. R'Last));
+               Last := Stream_Element_Offset'Value (R (I_Minus + 1 .. R'Last));
             end if;
 
-            if R (R'First .. I_Minus - 1) = "" then
+            if R'First = I_Minus then
                --  In this case we want to get the last N bytes from the file
                First := Length - Last;
                Last := Length - 1;
