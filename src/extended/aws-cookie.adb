@@ -30,7 +30,7 @@
 with Ada.Strings.Fixed;     use Ada.Strings.Fixed;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
-with AWS.Headers;
+with AWS.Headers.Values;
 with AWS.Messages;
 with AWS.Response.Set;
 with AWS.URL;
@@ -45,14 +45,20 @@ package body AWS.Cookie is
    --------------
 
    function Exists
-     (Request : Status.Data;
-      Key     : String) return Boolean
+     (Request        : Status.Data;
+      Key            : String;
+      Case_Sensitive : Boolean := True) return Boolean
    is
-      Headers : constant AWS.Headers.List := Status.Header (Request);
-      Cookie  : constant String :=
-                  AWS.Headers.Get_Values (Headers, Messages.Cookie_Token);
+      Headers     : constant AWS.Headers.List := Status.Header (Request);
+      Cookies     : constant String :=
+                      AWS.Headers.Get_Values (Headers, Messages.Cookie_Token);
+      Headers_Set : constant AWS.Headers.Values.Set :=
+                      AWS.Headers.Values.Split (Cookies);
+      Key_Index   : constant Natural :=
+                      AWS.Headers.Values.Index
+                        (Headers_Set, Key, Case_Sensitive);
    begin
-      return Index (Cookie, Key & "=") > 0;
+      return Key_Index > 0;
    end Exists;
 
    --------------
@@ -76,41 +82,25 @@ package body AWS.Cookie is
    -----------
 
    function Get
-     (Request : Status.Data;
-      Key     : String) return String
+     (Request        : Status.Data;
+      Key            : String;
+      Case_Sensitive : Boolean := True) return String
    is
-      Headers       : constant AWS.Headers.List := Status.Header (Request);
-      Cookie        : constant String :=
-                        AWS.Headers.Get_Values
-                          (Headers, Messages.Cookie_Token);
-      Content_Start : constant Natural :=
-                        Index (Cookie, Key & "=") + Key'Length + 1;
-      Content_End   : Natural;
+      Headers : constant AWS.Headers.List := Status.Header (Request);
+      Cookies : constant String :=
+                  AWS.Headers.Get_Values (Headers, Messages.Cookie_Token);
+      Value   : constant String :=
+                  AWS.Headers.Values.Search (Cookies, Key, Case_Sensitive);
    begin
-      if Content_Start = 0 then
-         return "";
-      end if;
-
-      Content_End := Index (Cookie, ";", From => Content_Start);
-
-      if Content_End = 0 then
-         Content_End := Cookie'Last;
-      else
-         Content_End := Content_End - 1;
-      end if;
-
-      return URL.Decode (Cookie (Content_Start .. Content_End));
+      return URL.Decode (Value);
    end Get;
 
-   -----------
-   --  Get  --
-   -----------
-
    function Get
-     (Request : Status.Data;
-      Key     : String) return Integer
+     (Request        : Status.Data;
+      Key            : String;
+      Case_Sensitive : Boolean := True) return Integer
    is
-      Value : constant String := Get (Request, Key);
+      Value : constant String := Get (Request, Key, Case_Sensitive);
    begin
       return Integer'Value (Value);
    exception
@@ -119,10 +109,11 @@ package body AWS.Cookie is
    end Get;
 
    function Get
-     (Request : Status.Data;
-      Key     : String) return Float
+     (Request        : Status.Data;
+      Key            : String;
+      Case_Sensitive : Boolean := True) return Float
    is
-      Value : constant String := Get (Request, Key);
+      Value : constant String := Get (Request, Key, Case_Sensitive);
    begin
       return Float'Value (Value);
    exception
@@ -131,10 +122,11 @@ package body AWS.Cookie is
    end Get;
 
    function Get
-     (Request : Status.Data;
-      Key     : String) return Boolean is
+     (Request        : Status.Data;
+      Key            : String;
+      Case_Sensitive : Boolean := True) return Boolean is
    begin
-      return Get (Request, Key) = "True";
+      return Get (Request, Key, Case_Sensitive) = "True";
    end Get;
 
    -----------

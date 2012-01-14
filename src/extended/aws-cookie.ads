@@ -43,8 +43,9 @@ package AWS.Cookie is
    --  AWS.Response.Build function.
 
    function Exists
-     (Request : Status.Data;
-      Key     : String) return Boolean;
+     (Request        : Status.Data;
+      Key            : String;
+      Case_Sensitive : Boolean := True) return Boolean;
    --  Check if the 'Key' cookie exists in AWS.Headers.List. Return Boolean
    --  True of the cookie exists, else Boolean False.
 
@@ -57,26 +58,30 @@ package AWS.Cookie is
    --  not honor the Max-Age attribute.
 
    function Get
-     (Request : Status.Data;
-      Key     : String) return String;
+     (Request        : Status.Data;
+      Key            : String;
+      Case_Sensitive : Boolean := True) return String;
    --  Return the 'Key' cookie from AWS.Headers.List. If the cookie does not
    --  exist, return an empty string, ie. ""
 
    function Get
-     (Request : Status.Data;
-      Key     : String) return Integer;
+     (Request        : Status.Data;
+      Key            : String;
+      Case_Sensitive : Boolean := True) return Integer;
    --  Return the 'Key' cookie from AWS.Headers.List. If the cookie does not
    --  exist or can't be converted from String to Integer then return 0.
 
    function Get
-     (Request : Status.Data;
-      Key     : String) return Float;
+     (Request        : Status.Data;
+      Key            : String;
+      Case_Sensitive : Boolean := True) return Float;
    --  Return the 'Key' cookie from AWS.Headers.List. If the cookie does not
    --  exist or can't be converted from String to Float then return 0.0.
 
    function Get
-     (Request : Status.Data;
-      Key     : String) return Boolean;
+     (Request        : Status.Data;
+      Key            : String;
+      Case_Sensitive : Boolean := True) return Boolean;
    --  Return the 'Key' cookie from AWS.Headers.List. Only if the cookie value
    --  equals "True" is Boolean True returned, else Boolean False is returned.
 
