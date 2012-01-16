@@ -327,7 +327,10 @@ package body AWS.Server is
             TA.Server.Slots.Release (TA.Line, Need_Shutdown);
 
             if Need_Shutdown then
-               Net.Shutdown (Socket.all);
+               Socket.Shutdown;
+
+               --  Don't use Socket.Free, it does not deallocate Socket
+
                Net.Free (Socket);
             end if;
          end;

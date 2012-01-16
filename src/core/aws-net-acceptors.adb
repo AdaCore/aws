@@ -271,7 +271,7 @@ package body AWS.Net.Acceptors is
                S := To_Close.First_Element;
                To_Close.Delete_First;
                S.Shutdown;
-               S.Free;
+               Free (S); -- Don't use S.Free, it does not deallocate S
             end loop;
 
             Error := False;
@@ -473,7 +473,7 @@ package body AWS.Net.Acceptors is
       while Socket_Lists.Has_Element (C) loop
          S := Socket_Lists.Element (C);
          S.Shutdown;
-         S.Free;
+         Free (S); -- Don't use S.Free, it does not deallocate S
          Socket_Lists.Next (C);
       end loop;
    end Shutdown_And_Free;
