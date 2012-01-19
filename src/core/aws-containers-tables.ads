@@ -27,11 +27,11 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-with Ada.Containers.Indefinite_Hashed_Maps;
-with Ada.Containers.Indefinite_Vectors;
-with Ada.Containers.Vectors;
 with Ada.Strings.Unbounded;
 
+private with Ada.Containers.Indefinite_Hashed_Maps;
+private with Ada.Containers.Indefinite_Vectors;
+private with Ada.Containers.Vectors;
 private with AWS.Utils;
 
 package AWS.Containers.Tables is
