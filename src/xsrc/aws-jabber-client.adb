@@ -31,7 +31,6 @@ with Ada.Characters.Handling;
 with Ada.Containers.Indefinite_Hashed_Maps;
 with Ada.Exceptions;
 with Ada.Strings.Fixed;
-with Ada.Strings.Hash;
 with Ada.Text_IO;
 with Ada.Unchecked_Deallocation;
 
@@ -390,7 +389,7 @@ package body AWS.Jabber.Client is
          package XMPP_Parser is
 
             package Messages_Maps is new Ada.Containers.Indefinite_Hashed_Maps
-              (String, String, Strings.Hash, "=", "=");
+              (String, String, AWS.Utils.Hash, "=", "=");
 
             type XMPP_Message is new Messages_Maps.Map with null record;
             --  A XMPP_Message, this is just a set of key/value pair. Each key

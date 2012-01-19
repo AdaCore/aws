@@ -31,7 +31,6 @@ with Ada.Containers.Hashed_Maps;
 with Ada.Exceptions;
 with Ada.Real_Time;
 with Ada.Streams.Stream_IO;
-with Ada.Strings.Hash;
 with Ada.Strings.Unbounded;
 with Ada.Text_IO;
 with Ada.Unchecked_Deallocation;
@@ -1118,7 +1117,7 @@ package body AWS.Session is
 
    function To_Hash (SID : Id) return Ada.Containers.Hash_Type is
    begin
-      return Ada.Strings.Hash (String (SID));
+      return AWS.Utils.Hash (String (SID));
    end To_Hash;
 
    -----------
