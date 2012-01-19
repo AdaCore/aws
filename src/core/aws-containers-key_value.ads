@@ -28,8 +28,9 @@
 ------------------------------------------------------------------------------
 
 with Ada.Containers.Indefinite_Hashed_Maps;
-with Ada.Strings.Hash;
+
+with AWS.Utils;
 
 package AWS.Containers.Key_Value is
   new Ada.Containers.Indefinite_Hashed_Maps
-        (String, String, Ada.Strings.Hash, "=", "=");
+    (String, String, AWS.Utils.Hash, "=", "=");

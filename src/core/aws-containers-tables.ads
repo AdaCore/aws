@@ -27,11 +27,12 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-with Ada.Containers.Indefinite_Hashed_Maps;
-with Ada.Containers.Indefinite_Vectors;
-with Ada.Containers.Vectors;
-with Ada.Strings.Hash;
 with Ada.Strings.Unbounded;
+
+private with Ada.Containers.Indefinite_Hashed_Maps;
+private with Ada.Containers.Indefinite_Vectors;
+private with Ada.Containers.Vectors;
+private with AWS.Utils;
 
 package AWS.Containers.Tables is
 
@@ -127,7 +128,7 @@ private
 
    package Index_Table is
      new Ada.Containers.Indefinite_Hashed_Maps
-       (String, Name_Index_Table, Ada.Strings.Hash, "=", Name_Indexes."=");
+       (String, Name_Index_Table, AWS.Utils.Hash, "=", Name_Indexes."=");
    --  Index of the Element_Array
 
    subtype Index_Table_Type is Index_Table.Map;
