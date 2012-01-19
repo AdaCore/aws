@@ -1,5 +1,10 @@
 Known Problems fixed in AWS 2.11
 
+- L119-003 : Deterministic string hash routine
+  Problem:    The Ada.Strings.Hash routine is deterministic and make
+              AWS vulnerable to DoS.
+  Workaround: None
+
 - KC20-007 : Constraint error in Translator.To_String
   Problem:    When the bounds of the Stream_Element_Array parameter are
               not in Positive'Range a constraint error is raised.
