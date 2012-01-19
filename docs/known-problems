@@ -1,5 +1,10 @@
 Known Problems fixed in AWS 2.10
 
+- L119-003 : Deterministic string hash routine
+  Problem:    The Ada.Strings.Hash routine is deterministic and make
+              AWS vulnerable to DoS.
+  Workaround: None
+
 - KA13-048: AWS sends multiple Content-Type headers for data-range
   Problem:    When a client asks for a byte range, AWS server replies
               with a non conformant header containing two Content-Type
