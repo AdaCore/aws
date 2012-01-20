@@ -517,7 +517,7 @@ package body AWS.Utils is
    function Initialize_Hash_Seed return Containers.Hash_Type is
       use type Containers.Hash_Type;
 
-      Buffer : constant String (1 .. System'Address'Size / 8) :=
+      Buffer : constant String (1 .. System.Address'Size / 8) :=
                  (others => '.');
       for Buffer'Alignment use 8;
       Addr   : constant System.Address := Initialize_Hash_Seed'Address;
