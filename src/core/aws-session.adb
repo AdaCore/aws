@@ -35,15 +35,15 @@ with Ada.Strings.Unbounded;
 with Ada.Text_IO;
 with Ada.Unchecked_Deallocation;
 
-with AWS.Default;
 with AWS.Containers.Key_Value;
+with AWS.Default;
 with AWS.Utils.Streams;
 
 package body AWS.Session is
 
    use Ada;
-   use Ada.Streams;
    use Ada.Exceptions;
+   use Ada.Streams;
    use Ada.Strings.Unbounded;
 
    SID_Prefix     : constant String := "SID-";
@@ -695,9 +695,9 @@ package body AWS.Session is
 
    procedure For_Every_Session is
 
-      use type Session_Set.Cursor;
-      use type Real_Time.Time;
       use type Calendar.Time;
+      use type Real_Time.Time;
+      use type Session_Set.Cursor;
 
       Now_Monoton  : constant Real_Time.Time := Real_Time.Clock;
       Now_Calendar : constant Calendar.Time  := Calendar.Clock;

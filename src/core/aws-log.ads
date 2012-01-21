@@ -37,14 +37,14 @@
 --  This package is thread safe.
 
 with Ada.Finalization;
-with Ada.Text_IO;
 with Ada.Strings.Unbounded;
+with Ada.Text_IO;
 
 with AWS.Containers.String_Vectors;
 with AWS.Headers;
-with AWS.Status;
-with AWS.Response;
 with AWS.Messages;
+with AWS.Response;
+with AWS.Status;
 
 private with Ada.Containers.Indefinite_Ordered_Maps;
 private with AWS.Utils;
