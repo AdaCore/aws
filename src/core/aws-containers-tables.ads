@@ -29,10 +29,9 @@
 
 with Ada.Strings.Unbounded;
 
-private with Ada.Containers.Indefinite_Hashed_Maps;
+private with Ada.Containers.Indefinite_Ordered_Maps;
 private with Ada.Containers.Indefinite_Vectors;
 private with Ada.Containers.Vectors;
-private with AWS.Utils;
 
 package AWS.Containers.Tables is
 
@@ -126,9 +125,8 @@ private
    package Data_Table is
      new Ada.Containers.Indefinite_Vectors (Key_Positive, Element);
 
-   package Index_Table is
-     new Ada.Containers.Indefinite_Hashed_Maps
-       (String, Name_Index_Table, AWS.Utils.Hash, "=", Name_Indexes."=");
+   package Index_Table is new Ada.Containers.Indefinite_Ordered_Maps
+     (String, Name_Index_Table, "<", Name_Indexes."=");
    --  Index of the Element_Array
 
    subtype Index_Table_Type is Index_Table.Map;

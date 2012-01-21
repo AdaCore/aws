@@ -27,10 +27,7 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-with Ada.Containers.Indefinite_Hashed_Maps;
-
-with AWS.Utils;
+with Ada.Containers.Indefinite_Ordered_Maps;
 
 package AWS.Containers.Key_Value is
-  new Ada.Containers.Indefinite_Hashed_Maps
-    (String, String, AWS.Utils.Hash, "=", "=");
+  new Ada.Containers.Indefinite_Ordered_Maps (String, String);

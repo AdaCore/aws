@@ -50,9 +50,6 @@ package body AWS.Utils is
    function Local_To_GMT (DT : Calendar.Time) return Calendar.Time;
    pragma Inline (Local_To_GMT);
 
-   function Initialize_Hash_Seed return Containers.Hash_Type;
-   --  It is very important for this routine to be non deterministic
-
    procedure Compress_Decompress
      (Filter       : in out ZLib.Filter_Type;
       Filename_In  : String;
@@ -61,8 +58,6 @@ package body AWS.Utils is
    --  from Filename_In to Filename_Out.
 
    Random_Generator : Integer_Random.Generator;
-
-   Hash_Seed        : Containers.Hash_Type;
 
    ---------------------
    -- Append_With_Sep --
@@ -353,30 +348,6 @@ package body AWS.Utils is
       return Local_To_GMT (Calendar.Clock);
    end GMT_Clock;
 
-   ----------
-   -- Hash --
-   ----------
-
-   function Hash (Key : String) return Containers.Hash_Type is
-
-      use type Containers.Hash_Type;
-
-      function Shift_Left
-        (Value  : Containers.Hash_Type;
-         Amount : Natural) return Containers.Hash_Type;
-      pragma Import (Intrinsic, Shift_Left);
-
-      H : Containers.Hash_Type := Hash_Seed;
-
-   begin
-      for J in Key'Range loop
-         H := Character'Pos (Key (J))
-                + Shift_Left (H, 6) + Shift_Left (H, 16) - H;
-      end loop;
-
-      return H;
-   end Hash;
-
    -----------------
    -- Head_Before --
    -----------------
@@ -509,35 +480,6 @@ package body AWS.Utils is
          return D_Img (D_Img'First + 1 .. K + 2);
       end if;
    end Image;
-
-   --------------------------
-   -- Initialize_Hash_Seed --
-   --------------------------
-
-   function Initialize_Hash_Seed return Containers.Hash_Type is
-      use type Containers.Hash_Type;
-
-      Buffer : constant String (1 .. System.Address'Size / 8) :=
-                 (others => '.');
-      for Buffer'Alignment use 8;
-      Addr   : constant System.Address := Initialize_Hash_Seed'Address;
-      for Addr'Address use Buffer'Address;
-
-      H : Containers.Hash_Type := Containers.Hash_Type (Random);
-      --  The hash seed is composed of a random number which is initialized
-      --  with the current clock. See elaboration code in this package.
-
-   begin
-      --  And the address of the Initialize_Hash_Seed routine, this is highly
-      --  platform specific and very dependent on the application code and the
-      --  compilers options.
-
-      for K in Buffer'Range loop
-         H := H + Character'Pos (Buffer (K));
-      end loop;
-
-      return H;
-   end Initialize_Hash_Seed;
 
    ------------------
    -- Is_Directory --
@@ -977,5 +919,4 @@ package body AWS.Utils is
 
 begin
    Integer_Random.Reset (Random_Generator);
-   Hash_Seed := Initialize_Hash_Seed;
 end AWS.Utils;

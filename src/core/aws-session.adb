@@ -27,7 +27,7 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-with Ada.Containers.Hashed_Maps;
+with Ada.Containers.Ordered_Maps;
 with Ada.Exceptions;
 with Ada.Real_Time;
 with Ada.Streams.Stream_IO;
@@ -68,10 +68,8 @@ package body AWS.Session is
       Root       : Key_Value_Set_Access;
    end record;
 
-   function To_Hash (SID : Id) return Ada.Containers.Hash_Type;
-
-   package Session_Set is new Ada.Containers.Hashed_Maps
-     (Id, Session_Node, To_Hash, "=");
+   package Session_Set is
+     new Ada.Containers.Ordered_Maps (Id, Session_Node);
 
    procedure Get_Node
      (Sessions : in out Session_Set.Map;
@@ -1110,15 +1108,6 @@ package body AWS.Session is
    begin
       Lifetime := Real_Time.To_Time_Span (Seconds);
    end Set_Lifetime;
-
-   -------------
-   -- To_Hash --
-   -------------
-
-   function To_Hash (SID : Id) return Ada.Containers.Hash_Type is
-   begin
-      return AWS.Utils.Hash (String (SID));
-   end To_Hash;
 
    -----------
    -- Touch --

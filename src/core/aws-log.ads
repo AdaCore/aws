@@ -46,7 +46,7 @@ with AWS.Status;
 with AWS.Response;
 with AWS.Messages;
 
-private with Ada.Containers.Indefinite_Hashed_Maps;
+private with Ada.Containers.Indefinite_Ordered_Maps;
 private with AWS.Utils;
 
 package AWS.Log is
@@ -185,8 +185,8 @@ private
    use Ada;
    use Ada.Strings.Unbounded;
 
-   package Strings_Positive is new Ada.Containers.Indefinite_Hashed_Maps
-     (String, Positive, AWS.Utils.Hash, "=", "=");
+   package Strings_Positive is
+     new Ada.Containers.Indefinite_Ordered_Maps (String, Positive);
 
    package SV renames AWS.Containers.String_Vectors;
 

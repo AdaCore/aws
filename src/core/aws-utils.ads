@@ -28,7 +28,6 @@
 ------------------------------------------------------------------------------
 
 with Ada.Calendar;
-with Ada.Containers;
 with Ada.Directories;
 with Ada.Finalization;
 with Ada.Streams;
@@ -360,15 +359,5 @@ package AWS.Utils is
    --  access type then Clone can be empty otherwise a new pointer must be
    --  created to point to a copy of the pointed data (and recursively,
    --  as a deep-copy is expected).
-
-   ------------------------
-   -- Secure String Hash --
-   ------------------------
-
-   function Hash (Key : String) return Containers.Hash_Type;
-   --  This routine returns a Hash_Type that should be used with
-   --  AWS containers. This is so because the standard hash routine
-   --  (Ada.Strings.Hash) has a reproducible property which can be used
-   --  to create high collision and create a deny of service.
 
 end AWS.Utils;
