@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2009, AdaCore                     --
+--                     Copyright (C) 2000-2012, AdaCore                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -25,11 +25,11 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-with Ada.Containers.Indefinite_Hashed_Maps;
-with Ada.Containers.Indefinite_Vectors;
-with Ada.Containers.Vectors;
-with Ada.Strings.Hash;
 with Ada.Strings.Unbounded;
+
+private with Ada.Containers.Indefinite_Ordered_Maps;
+private with Ada.Containers.Indefinite_Vectors;
+private with Ada.Containers.Vectors;
 
 package AWS.Containers.Tables is
 
@@ -123,9 +123,8 @@ private
    package Data_Table is
      new Ada.Containers.Indefinite_Vectors (Key_Positive, Element);
 
-   package Index_Table is
-     new Ada.Containers.Indefinite_Hashed_Maps
-       (String, Name_Index_Table, Ada.Strings.Hash, "=", Name_Indexes."=");
+   package Index_Table is new Ada.Containers.Indefinite_Ordered_Maps
+     (String, Name_Index_Table, "<", Name_Indexes."=");
    --  Index of the Element_Array
 
    subtype Index_Table_Type is Index_Table.Map;
