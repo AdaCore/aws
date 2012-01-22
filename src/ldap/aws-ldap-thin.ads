@@ -38,6 +38,8 @@ package AWS.LDAP.Thin is
 
    package C renames Interfaces.C;
 
+   use type Interfaces.C.int;
+
    subtype chars_ptr is C.Strings.chars_ptr;
 
    function NS (S : String) return chars_ptr renames C.Strings.New_String;
@@ -360,7 +362,7 @@ package AWS.LDAP.Thin is
 
    --  Possible error codes we can return
 
-   subtype Return_Code is C.int range 16#00# .. 16#61#;
+   subtype Return_Code is C.int range -16#01# .. 16#61#;
 
    LDAP_SUCCESS                   : constant := 16#00#;
    LDAP_OPERATIONS_ERROR          : constant := 16#01#;

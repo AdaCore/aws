@@ -59,6 +59,9 @@ package body AWS.LDAP.Client is
    C_Bool : constant array (Boolean) of IC.int := (False => 0, True => 1);
    --  Map Boolean with the corrsponding C values
 
+   function Err_Code_Image (Code : Thin.Return_Code) return String;
+   --  Returns image of Code without the leading blank
+
    function To_C (Mods : LDAP_Mods.Vector) return Thin.LDAPMods;
    --  Create C-Style LDAPMod ** structure used to store all
    --  modification operations to perform on a LDAP-entry.
@@ -340,6 +343,20 @@ package body AWS.LDAP.Client is
       Free (C_UFN);
       return Result;
    end DN2UFN;
+
+   ----------------------
+   --  Err_Code_Image  --
+   ----------------------
+
+   function Err_Code_Image (Code : Thin.Return_Code) return String is
+      S : constant String := Thin.Return_Code'Image (Code);
+   begin
+      if S (S'First) = ' ' then
+         return S (S'First + 1 .. S'Last);
+      else
+         return S;
+      end if;
+   end Err_Code_Image;
 
    ----------------
    -- Explode_DN --
@@ -739,8 +756,7 @@ package body AWS.LDAP.Client is
       Err_Message : constant String := Value (Thin.ldap_err2string (Code));
    begin
       raise LDAP_Error
-        with Message & " - ["
-          & AWS.Utils.Image (Integer (Code)) & "] " & Err_Message;
+        with Message & " - [" & Err_Code_Image (Code) & "] " & Err_Message;
    end Raise_Error;
 
    ------------
