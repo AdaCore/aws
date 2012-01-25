@@ -51,8 +51,8 @@ package AWS.Cookie is
 
    procedure Expire
      (Content : in out Response.Data;
-      Key     :        String;
-      Path    :        String := "/");
+      Key     : String;
+      Path    : String := "/");
    --  Expire the 'Key' cookie. This is done by setting the Max-Age attribute
    --  to 0. The Value of the cookie is also set to "", in case a browser does
    --  not honor the Max-Age attribute.
