@@ -1091,9 +1091,9 @@ package body AWS.Session is
       Database.Set_Value (SID, Key, V);
    end Set;
 
-   -------------------
-   -- Set__Callback --
-   -------------------
+   ------------------
+   -- Set_Callback --
+   ------------------
 
    procedure Set_Callback (Callback : Session.Callback) is
    begin
