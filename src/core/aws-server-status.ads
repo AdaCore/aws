@@ -57,6 +57,9 @@ package AWS.Server.Status is
    function Port (Server : HTTP) return Positive;
    --  Returns the server's socket port
 
+   function Host (Server : HTTP) return String;
+   --  Returns the server's socket host
+
    function Current_Connections (Server : HTTP) return Natural;
    --  Returns the current number of connections
 

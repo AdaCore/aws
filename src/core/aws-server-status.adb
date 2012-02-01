@@ -49,6 +49,15 @@ package body AWS.Server.Status is
       return Server.Slots.N - Server.Slots.Free_Slots;
    end Current_Connections;
 
+   ----------
+   -- Host --
+   ----------
+
+   function Host (Server : HTTP) return String is
+   begin
+      return Net.Acceptors.Server_Socket (Server.Acceptor).Get_Addr;
+   end Host;
+
    ---------------------------
    -- Is_Security_Activated --
    ---------------------------
