@@ -1,5 +1,5 @@
 s,@_UNDERSCORE_@,_,g
-s,@_AWS_VERSION_@,2.10.0w,g
+s,@_AWS_VERSION_@,2.10.2,g
 s,@_SOAP_VERSION_@,1.5.0,g
 s,@_MAX_CONCURRENT_DOWNLOAD_@,25,g
 s,@_MAX_CONNECT_@,5,g
@@ -37,7 +37,7 @@ s,@_LOGO_IMAGE_@,aws_logo.png,g
 s,@_DOWN_IMAGE_@,aws_down.png,g
 s,@_UP_IMAGE_@,aws_up.png,g
 s,@_STATUS_PAGE_@,aws_status.thtml,g
-s,@_SEND_BUFFER_SIZE_@,32768,g
+s,@_SEND_BUFFER_SIZE_@,0,g
 s,@_SESSION_@,FALSE,g
 s,@_SESSION_NAME_@,AWS,g
 s,@_SESSION_LIFETIME_@,600.0,g
