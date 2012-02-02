@@ -143,8 +143,8 @@ package body S_AFile_Pack is
          R : Response.Data;
       begin
          R := Client.Get
-                (Protocol & "://localhost:" & AWS.Utils.Image (Port)
-                  & '/' & Res);
+                (Protocol & "://" & Server.Status.Host (WS) & ':'
+                  & AWS.Utils.Image (Port) & '/' & Res);
 
          Text_IO.Put (Res);
          Text_IO.Set_Col (9);

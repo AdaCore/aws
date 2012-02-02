@@ -56,9 +56,9 @@ procedure Sock2_Proc (Security : Boolean; Port : Positive) is
    begin
       accept Start;
 
-      delay 0.125;
+      Client.Set_Timeout (2.0);
 
-      Net.Connect (Client, "localhost", Free_Port);
+      Client.Connect ("localhost", Free_Port);
 
       loop
          declare
@@ -99,14 +99,17 @@ begin
 
    Text_IO.Put_Line ("start");
 
-   Net.Bind (Server, Free_Port);
+   Net.Bind (Server, Free_Port, "localhost");
    Net.Listen (Server);
 
    Client_Side.Start;
 
+   Server.Set_Timeout (2.0);
+
    Net.Accept_Socket (Server, Peer);
 
-   Net.Send (Peer, Sample);
+   Peer.Set_Timeout (3.0);
+   Peer.Send (Sample);
 
    Client_Side.Stop;
 
@@ -118,4 +121,5 @@ begin
 exception
    when E : others =>
       Text_IO.Put_Line (Exceptions.Exception_Information (E));
+      Client_Side.Stop;
 end Sock2_Proc;

@@ -97,7 +97,7 @@ begin
 
    Text_IO.Put_Line ("start");
 
-   Net.Bind (Server, Free_Port);
+   Net.Bind (Server, Free_Port, "localhost");
    Net.Listen (Server);
 
    Client_Side.Start;

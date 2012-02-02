@@ -37,6 +37,7 @@ with AWS.Net.Buffered;
 with AWS.Response;
 with AWS.Status;
 with AWS.Server.Log;
+with AWS.Server.Status;
 with AWS.Translator;
 with AWS.Utils;
 
@@ -263,23 +264,25 @@ begin
 
    Ada.Text_IO.Put_Line ("started");
 
-   R := Client.Get ("http://localhost:" & Utils.Image (Port) & "/one");
-   R := Client.Get ("http://localhost:" & Utils.Image (Port) & "/azerty");
-   R := Client.Get ("http://localhost:" & Utils.Image (Port) & "/file");
-   R := Client.Get ("http://localhost:" & Utils.Image (Port) & "/one");
-   R := Client.Get ("http://localhost:" & Utils.Image (Port) & "/file");
-   R := Client.Get ("http://localhost:" & Utils.Image (Port) & Skip_Log);
-   R := Client.Get ("http://localhost:" & Utils.Image (Port) & "/error");
-   R := Client.Get ("http://localhost:" & Utils.Image (Port) & "/azerty");
-   R := Client.Get ("http://localhost:" & Utils.Image (Port) & "/error");
-   R := Client.Get ("http://localhost:" & Utils.Image (Port) & "/one");
-   R := Client.Get ("http://localhost:" & Utils.Image (Port) & "/azerty");
-   R := Client.Get ("http://localhost:" & Utils.Image (Port) & "/file");
+   declare
+      URL : constant String :=
+         AWS.Server.Status.Host (WS) & ':' & Utils.Image (Port);
+   begin
+      R := Client.Get (URL & "/one");
+      R := Client.Get (URL & "/azerty");
+      R := Client.Get (URL & "/file");
+      R := Client.Get (URL & "/one");
+      R := Client.Get (URL & "/file");
+      R := Client.Get (URL & Skip_Log);
+      R := Client.Get (URL & "/error");
+      R := Client.Get (URL & "/azerty");
+      R := Client.Get (URL & "/error");
+      R := Client.Get (URL & "/one");
+      R := Client.Get (URL & "/azerty");
+      R := Client.Get (URL & "/file");
 
-   Client.Create
-     (Connection => Connect,
-      Host       => "http://localhost:" & Utils.Image (Port),
-      Retry      => 0);
+      Client.Create (Connection => Connect, Host => URL, Retry => 0);
+   end;
 
    --  Test for basic authentication
 
@@ -301,7 +304,7 @@ begin
       use AWS.Net;
       Sock : Socket_Type'Class := Socket (False);
    begin
-      Net.Connect (Sock, "localhost", Port);
+      Net.Connect (Sock, AWS.Server.Status.Host (WS), Port);
       Buffered.Put_Line (Sock, "GET /header/line/error HTTP/1.1");
       Buffered.Put_Line (Sock, "header line error");
       Buffered.New_Line (Sock);

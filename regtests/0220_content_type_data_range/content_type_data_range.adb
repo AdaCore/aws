@@ -24,7 +24,7 @@ with AWS.Containers.Tables.Set;
 with AWS.Headers.Set;
 with AWS.MIME;
 with AWS.Response;
-with AWS.Server;
+with AWS.Server.Status;
 with AWS.Status;
 with AWS.Utils;
 
@@ -93,7 +93,8 @@ begin
       Value => "bytes=0-41,46-80");
 
    Client_Data := Client.Get
-     ("http://localhost:" & Utils.Image (Port) & "/test.txt",
+     ("http://" & AWS.Server.Status.Host (WS) & ':' & Utils.Image (Port)
+        & "/test.txt",
       Headers => Client_Header);
 
 exception

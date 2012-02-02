@@ -118,9 +118,10 @@ begin
 
    Get_Free_Port (Port);
 
+   AWS.Config.Set.Server_Host (Config, "localhost");
    AWS.Config.Set.Server_Port (Config, Port);
-   AWS.Config.Set.Max_Connection (Config, 5);
    AWS.Config.Set.Server_Name (Config, "param");
+   AWS.Config.Set.Max_Connection (Config, 5);
    AWS.Config.Set.Case_Sensitive_Parameters (Config, False);
 
    AWS.Server.Start (HTTP, CB'Unrestricted_Access, Config);

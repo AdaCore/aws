@@ -78,7 +78,7 @@ package body Append_Pack is
    end CB;
 
    procedure Run (Protocol : String) is
-      R    : Response.Data;
+      R : Response.Data;
    begin
       Server.Start
         (WS, "append message " & Protocol,
@@ -90,7 +90,7 @@ package body Append_Pack is
       Ada.Text_IO.Put_Line ("started");
 
       R := Client.Get
-             (Protocol & "://localhost:"
+             (Protocol & "://" & Server.Status.Host (WS) & ':'
               & Utils.Image (Server.Status.Port (WS)));
 
       Ada.Text_IO.Put (Response.Message_Body (R));

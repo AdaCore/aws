@@ -22,7 +22,7 @@ with AWS.Client;
 with AWS.MIME;
 with AWS.Resources;
 with AWS.Response.Set;
-with AWS.Server;
+with AWS.Server.Status;
 with AWS.Status;
 with AWS.Utils;
 with AWS.Messages;
@@ -53,7 +53,9 @@ procedure Stream_Response is
    begin
       --  Standard
 
-      R := Client.Get ("http://localhost:" & Utils.Image (Port));
+      R := Client.Get
+             ("http://" & AWS.Server.Status.Host (WS) & ':'
+              & Utils.Image (Port));
 
       Text_IO.Put_Line
         ("RC " & " : "
@@ -106,7 +108,8 @@ begin
 
    delay 1.0;
 
-   Client.Create (Cnx, "http://localhost:" & Utils.Image (Port));
+   Client.Create
+     (Cnx, "http://" & AWS.Server.Status.Host (WS) & ':' & Utils.Image (Port));
 
    for K in 1 .. 5 loop
       Call_It;

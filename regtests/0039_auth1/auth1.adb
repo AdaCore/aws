@@ -23,7 +23,7 @@ with GNAT.MD5;
 
 with AWS.Client;
 with AWS.Digest;
-with AWS.Server;
+with AWS.Server.Status;
 with AWS.Status;
 with AWS.MIME;
 with AWS.Response;
@@ -147,7 +147,8 @@ begin
 
    Client.Create
      (Connection => Connect,
-      Host       => "http://localhost:" & Utils.Image (Port),
+      Host       => "http://" & AWS.Server.Status.Host (HTTP) & ':'
+                      & Utils.Image (Port),
       Timeouts   => Client.Timeouts
         (Connect => 5.0, Send => 5.0, Receive => 5.0));
 

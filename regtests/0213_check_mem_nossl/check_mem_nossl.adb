@@ -572,7 +572,7 @@ procedure Check_Mem_Nossl is
          accept Start;
 
          for J in 1 .. N loop
-            Connect (Client, "localhost", Std.Get_Port (Server));
+            Connect (Client, Server.Get_Addr, Server.Get_Port);
             Send (Client, (1 .. 10 => 11));
             Receive (Client, Buffer, Last);
             Shutdown (Client);

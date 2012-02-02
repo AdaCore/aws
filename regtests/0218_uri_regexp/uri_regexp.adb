@@ -21,7 +21,7 @@ with Ada.Text_IO;
 with AWS.Client;
 with AWS.Config.Set;
 with AWS.Dispatchers.Callback;
-with AWS.Server;
+with AWS.Server.Status;
 with AWS.Services.Dispatchers.URI;
 with AWS.Status;
 with AWS.Response;
@@ -37,6 +37,7 @@ procedure URI_Regexp is
 
    Cfg       : Config.Object;
    Free_Port : Positive := 1295;
+   WS        : AWS.Server.HTTP;
 
    function CB1 (Request : AWS.Status.Data) return AWS.Response.Data is
       pragma Unreferenced (Request);
@@ -61,13 +62,12 @@ procedure URI_Regexp is
    begin
       Text_IO.Put_Line (URI);
       R := Client.Get
-        ("http://localhost:" & AWS.Utils.Image (Free_Port) & URI);
+        ("http://" & AWS.Server.Status.Host (WS) & ':'
+           & AWS.Utils.Image (Free_Port) & URI);
       Text_IO.Put_Line ("> " & Response.Message_Body (R));
    end Test;
 
    H  : AWS.Services.Dispatchers.URI.Handler;
-
-   WS : AWS.Server.HTTP;
 
 begin
    Services.Dispatchers.URI.Register_Regexp

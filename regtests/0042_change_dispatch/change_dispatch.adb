@@ -21,7 +21,7 @@ with Ada.Text_IO;
 with AWS.Client;
 with AWS.Config.Set;
 with AWS.Dispatchers.Callback;
-with AWS.Server;
+with AWS.Server.Status;
 with AWS.Services.Dispatchers.URI;
 with AWS.Status;
 with AWS.Response;
@@ -80,7 +80,8 @@ procedure Change_Dispatch is
    begin
       Text_IO.Put_Line (URI);
       R := Client.Get
-        ("http://localhost:" & AWS.Utils.Image (Free_Port) & URI);
+        ("http://" & AWS.Server.Status.Host (WS) & ':'
+         & AWS.Utils.Image (Free_Port) & URI);
       Text_IO.Put_Line ("> " & Response.Message_Body (R));
    end Test;
 

@@ -72,7 +72,9 @@ procedure Server_Info is
    begin
       accept Start;
 
-      Client.Create (C, "http://localhost:" & Utils.Image (Port1));
+      Client.Create
+        (C,
+         "http://" & AWS.Server.Status.Host (WS) & ':' & Utils.Image (Port1));
 
       Client.Get (C, R, "/");
 

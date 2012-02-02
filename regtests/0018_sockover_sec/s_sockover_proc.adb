@@ -95,7 +95,7 @@ begin
 
    Get_Free_Port (Free_Port);
 
-   Net.Bind (Server, Free_Port);
+   Net.Bind (Server, Free_Port, "localhost");
    Net.Listen (Server);
 
    if Security then

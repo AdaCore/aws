@@ -143,7 +143,7 @@ procedure S_SockTO_Proc (Security : Boolean; Port : Positive) is
 begin
    Get_Free_Port (Free_Port);
 
-   Net.Bind (Server, Free_Port);
+   Net.Bind (Server, Free_Port, "localhost");
    Net.Listen (Server);
 
    Client_Side.Start;

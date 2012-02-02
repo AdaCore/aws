@@ -19,6 +19,7 @@
 with Ada.Text_IO;
 
 with AWS.Client;
+with AWS.Config.Set;
 with AWS.Messages;
 with AWS.MIME;
 with AWS.Response;
@@ -32,6 +33,7 @@ procedure Once is
    use AWS;
 
    WS : Server.HTTP;
+   WP : Config.Object;
 
    --------
    -- CB --
@@ -74,8 +76,12 @@ procedure Once is
    File : Text_IO.File_Type;
 
 begin
-   Server.Start
-     (WS, "once", CB'Unrestricted_Access, Port => 0, Max_Connection => 5);
+   Config.Set.Server_Name    (WP, "once");
+   Config.Set.Server_Host    (WP, "localhost");
+   Config.Set.Server_Port    (WP, 0);
+   Config.Set.Max_Connection (WP, 5);
+
+   Server.Start (WS, CB'Unrestricted_Access, WP);
    Text_IO.Put_Line ("started"); Ada.Text_IO.Flush;
 
    delay 1.0;

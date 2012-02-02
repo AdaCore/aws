@@ -19,7 +19,7 @@
 with Ada.Text_IO;
 with Ada.Exceptions;
 
-with AWS.Server;
+with AWS.Server.Status;
 with AWS.Client;
 with AWS.Status;
 with AWS.MIME;
@@ -64,10 +64,13 @@ begin
       CB'Unrestricted_Access, Port => Port, Max_Connection => 3);
 
    R := Client.Get
-     ("http://localhost:" & Utils.Image (Port), "toto", "toto_pwd");
+     ("http://" & AWS.Server.Status.Host (HTTP) & ':' & Utils.Image (Port),
+      "toto", "toto_pwd");
    Text_IO.Put_Line (Response.Message_Body (R));
 
-   R := Client.Get ("http://localhost:" & Utils.Image (Port), "xyz", "_123_");
+   R := Client.Get
+     ("http://" & AWS.Server.Status.Host (HTTP) & ':' & Utils.Image (Port),
+      "xyz", "_123_");
    Text_IO.Put_Line (Response.Message_Body (R));
 
    AWS.Server.Shutdown (HTTP);

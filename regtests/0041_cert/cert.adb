@@ -23,7 +23,7 @@
 with Ada.Text_IO;
 with Ada.Exceptions;
 
-with AWS.Server;
+with AWS.Server.Status;
 with AWS.Client;
 with AWS.Config.Set;
 with AWS.Status;
@@ -160,7 +160,7 @@ begin
 
    Server.Started;
 
-   Request ("https://localhost:7429/simple");
+   Request ("https://" & AWS.Server.Status.Host (HTTP) & ":7429/simple");
 
    Server.Stopped;
 

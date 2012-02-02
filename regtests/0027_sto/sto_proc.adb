@@ -54,7 +54,7 @@ procedure STO_Proc (Security : Boolean; Port : Positive) is
 
       delay 1.5;
 
-      Net.Connect (Client, "localhost", Port);
+      Net.Connect (Client, Server.Get_Addr, Port);
       Net.Set_Timeout (Client, 1.0);
 
       begin

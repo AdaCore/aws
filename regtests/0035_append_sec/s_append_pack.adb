@@ -22,7 +22,7 @@ with Ada.Text_IO;
 with AWS.Client;
 with AWS.MIME;
 with AWS.Response.Set;
-with AWS.Server;
+with AWS.Server.Status;
 with AWS.Status;
 with AWS.Utils;
 
@@ -92,7 +92,9 @@ package body S_Append_Pack is
 
       Ada.Text_IO.Put_Line ("started");
 
-      R := Client.Get (Protocol & "://localhost:" & AWS.Utils.Image (Port));
+      R := Client.Get
+             (Protocol & "://" & Server.Status.Host (WS) & ':'
+              & AWS.Utils.Image (Port));
 
       Ada.Text_IO.Put (Response.Message_Body (R));
 

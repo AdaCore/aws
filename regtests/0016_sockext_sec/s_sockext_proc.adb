@@ -109,7 +109,7 @@ begin
 
    Text_IO.Put_Line ("Server start.");
 
-   Net.Bind (Server, Port);
+   Net.Bind (Server, Port, "localhost");
    Net.Listen (Server);
 
    Client_Side.Start;

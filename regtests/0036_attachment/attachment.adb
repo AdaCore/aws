@@ -26,7 +26,7 @@ with AWS.Client;
 with AWS.MIME;
 with AWS.Net.Log;
 with AWS.Response;
-with AWS.Server;
+with AWS.Server.Status;
 with AWS.Status;
 with AWS.Translator;
 with AWS.Utils;
@@ -44,6 +44,7 @@ procedure Attachment is
    Att      : AWS.Attachments.List;
    Response : AWS.Response.Data;
 
+   WS       : AWS.Server.HTTP;
    Port     : Natural := 6734;
 
    task Server is
@@ -132,7 +133,6 @@ procedure Attachment is
    ------------
 
    task body Server is
-      WS : AWS.Server.HTTP;
    begin
       Get_Free_Port (Port);
 
@@ -169,8 +169,9 @@ begin
 
    --  AWS.Net.Log.Start (Dump'Unrestricted_Access);
 
-   Response := Aws.Client.Post
-     (URL         => "http://localhost:" & Utils.Image (Port) & "/any_URI",
+   Response := AWS.Client.Post
+     (URL         => "http://" & AWS.Server.Status.Host (WS) & ':'
+                       & Utils.Image (Port) & "/any_URI",
       Data        => "Dummy message",
       Attachments => Att);
 
