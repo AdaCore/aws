@@ -27,7 +27,7 @@ with AWS.Headers;
 with AWS.Messages;
 with AWS.MIME;
 with AWS.Response;
-with AWS.Server;
+with AWS.Server.Status;
 with AWS.Status;
 with AWS.Utils;
 
@@ -77,7 +77,8 @@ begin
      (WS, "Client Headers", CB'Unrestricted_Access, Port => Port);
 
    R := AWS.Client.Get
-     (URL => "http://localhost:" & Utils.Image (Port) & "/whatever");
+     (URL => "http://" & AWS.Server.Status.Host (WS) & ':' & Utils.Image (Port)
+              & "/whatever");
    H := Response.Header (R);
 
    declare

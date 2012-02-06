@@ -25,7 +25,7 @@ with Ada.Strings.Unbounded;
 
 with GNAT.OS_Lib;
 
-with AWS.Server;
+with AWS.Server.Status;
 with AWS.Response;
 with AWS.Status;
 with AWS.MIME;
@@ -188,7 +188,8 @@ package body HLoad_Pack is
 
          AWS.Client.Create
            (Connect,
-            Protocol & "://localhost:" & Utils.Image (Free_Port),
+            Protocol & "://" & AWS.Server.Status.Host (WS) & ':'
+            & Utils.Image (Free_Port),
             Timeouts => AWS.Client.Timeouts
               (Connect  => 15.0,
                Send     => 15.0,

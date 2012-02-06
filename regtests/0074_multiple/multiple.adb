@@ -19,7 +19,7 @@
 with Ada.Text_IO;
 with Ada.Exceptions;
 
-with AWS.Server;
+with AWS.Server.Status;
 with AWS.Client;
 with AWS.Config;
 with AWS.Status;
@@ -84,10 +84,15 @@ begin
      (HTTP2, "server2",
       CB'Unrestricted_Access, Port => Port2, Max_Connection => 5);
 
-   Request ("http://localhost:" & Utils.Image (Port1) & "/call");
-   Request ("http://localhost:" & Utils.Image (Port2) & "/call");
-   Request ("http://localhost:" & Utils.Image (Port2) & "/call");
-   Request ("http://localhost:" & Utils.Image (Port1) & "/call");
+   declare
+      Prefix : constant String :=
+        "http://" & AWS.Server.Status.Host (HTTP1) & ':';
+   begin
+      Request (Prefix & Utils.Image (Port1) & "/call");
+      Request (Prefix & Utils.Image (Port2) & "/call");
+      Request (Prefix & Utils.Image (Port2) & "/call");
+      Request (Prefix & Utils.Image (Port1) & "/call");
+   end;
 
    AWS.Server.Shutdown (HTTP1);
    AWS.Server.Shutdown (HTTP2);

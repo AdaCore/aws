@@ -44,6 +44,7 @@ package body S_Wait_Pack is
       Set_Size    : constant := 20;
       Sample_Size : constant := 10;
 
+      Server      : Net.Socket_Type'Class := Net.Socket (False);
       Free_Port   : Positive := Port;
 
       Index       : Sets.Socket_Index := 1;
@@ -66,7 +67,7 @@ package body S_Wait_Pack is
             begin
                accept Next;
                delay A_Bit;
-               Net.Connect (Socket, "localhost", Free_Port);
+               Net.Connect (Socket, Server.Get_Addr, Free_Port);
 
                accept Next;
                delay A_Bit;
@@ -107,8 +108,7 @@ package body S_Wait_Pack is
               ("Client side " & Ada.Exceptions.Exception_Information (E));
       end Client_Side;
 
-      Set    : Sets.Socket_Set_Type;
-      Server : Net.Socket_Type'Class := Net.Socket (False);
+      Set : Sets.Socket_Set_Type;
 
    begin
       Get_Free_Port (Free_Port);

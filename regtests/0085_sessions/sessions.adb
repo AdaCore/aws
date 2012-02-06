@@ -23,7 +23,7 @@ with Ada.Text_IO;
 with AWS.Client;
 with AWS.MIME;
 with AWS.Response;
-with AWS.Server;
+with AWS.Server.Status;
 with AWS.Session;
 with AWS.Status;
 with AWS.Utils;
@@ -82,7 +82,9 @@ procedure Sessions is
    begin
       accept Start;
 
-      Client.Create (C, "http://localhost:" & Utils.Image (Port));
+      Client.Create
+        (C,
+         "http://" & AWS.Server.Status.Host (WS) & ':' & Utils.Image (Port));
 
       for K in 1 .. 10 loop
          Client.Get (C, R, "/");

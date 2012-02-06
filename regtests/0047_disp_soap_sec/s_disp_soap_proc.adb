@@ -26,7 +26,7 @@ with AWS.Messages;
 with AWS.MIME;
 with AWS.Parameters;
 with AWS.Response;
-with AWS.Server;
+with AWS.Server.Status;
 with AWS.Status;
 with AWS.Utils;
 
@@ -185,7 +185,8 @@ begin
 
    AWS.Client.Create
      (Connection => Connect,
-      Host       => Protocol & "://localhost:" & AWS.Utils.Image (Port));
+      Host       => Protocol & "://" & AWS.Server.Status.Host (HTTP) & ':'
+                    & AWS.Utils.Image (Port));
 
    Request ("multProc", 2, 3);
    Request ("multProc", 9, 9);
