@@ -98,8 +98,12 @@ package AWS.Utils is
    --  Returns the value for the hexadecimal number Hex. Raises
    --  Constraint_Error is Hex is not an hexadecimal number.
 
-   function Is_Number (S : String) return Boolean;
-   --  Returns True is S contains only decimal digits and is not empty
+   function Is_Number
+     (S              : String;
+      Allow_Negative : Boolean := False) return Boolean;
+   --  Returns True if S contains only decimal digits and is not empty. If
+   --  Allow_Negative is True, then also allow the '-' character in the first
+   --  position of S.
 
    function Quote (Str : String; Replace : String := """") return String;
    --  Returns Str with character '"' added at the start and the end

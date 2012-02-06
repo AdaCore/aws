@@ -495,11 +495,20 @@ package body AWS.Utils is
    -- Is_Number --
    ---------------
 
-   function Is_Number (S : String) return Boolean is
+   function Is_Number
+     (S              : String;
+      Allow_Negative : Boolean := False) return Boolean
+   is
       use Strings.Maps;
+      Start : Positive := S'First;
    begin
+      if Allow_Negative and then S'Length > 1 and then S (Start) = '-' then
+         Start := S'First + 1;
+      end if;
+
       return S'Length > 0
-        and then Is_Subset (To_Set (S), Constants.Decimal_Digit_Set);
+        and then Is_Subset
+          (To_Set (S (Start .. S'Last)), Constants.Decimal_Digit_Set);
    end Is_Number;
 
    ---------------------
