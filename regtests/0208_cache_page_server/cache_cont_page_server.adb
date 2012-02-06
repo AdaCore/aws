@@ -22,7 +22,7 @@ with AWS.Client;
 with AWS.Config.Set;
 with AWS.Messages;
 with AWS.Response;
-with AWS.Server;
+with AWS.Server.Status;
 with AWS.Services.Page_Server;
 with AWS.Utils;
 
@@ -50,7 +50,9 @@ begin
 
    Services.Page_Server.Set_Cache_Control (CC);
 
-   R := Client.Get ("http://localhost:" & Utils.Image (Port) & "/test.txt");
+   R := Client.Get
+          ("http://" & Server.Status.Host (WS) & ':' & Utils.Image (Port)
+           & "/test.txt");
 
    Text_IO.Put_Line
      ("CC: " & String (Messages.Cache_Option'(Response.Cache_Control (R))));

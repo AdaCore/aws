@@ -23,7 +23,7 @@ with AWS.Headers.Set;
 with AWS.Messages;
 with AWS.MIME;
 with AWS.Response;
-with AWS.Server;
+with AWS.Server.Status;
 with AWS.Status;
 with AWS.Utils;
 
@@ -106,24 +106,25 @@ begin
      (H,
       Messages.Cache_Control_Token, String (Messages.To_Cache_Option (RCD)));
 
-   R := AWS.Client.Get
-     (URL => "http://localhost:" & Utils.Image (Port) & "/get", Headers => H);
+   declare
+      URL : constant String :=
+        "http://" & Server.Status.Host (WS) & ':' & Utils.Image (Port);
+   begin
+      R := AWS.Client.Get (URL =>  URL & "/get", Headers => H);
 
-   Headers.Set.Reset (H);
+      Headers.Set.Reset (H);
 
-   Headers.Set.Add
-     (H,
-      Messages.Cache_Control_Token,
-      String (Messages.To_Cache_Option
-                ((Messages.Request,
-                  Only_If_Cached => True, Min_Fresh => 12, Others => <>))));
+      Headers.Set.Add
+        (H,
+         Messages.Cache_Control_Token,
+         String (Messages.To_Cache_Option
+                  ((Messages.Request,
+                     Only_If_Cached => True, Min_Fresh => 12, others => <>))));
 
-   R := AWS.Client.Head
-     (URL => "http://localhost:" & Utils.Image (Port) & "/head", Headers => H);
+      R := AWS.Client.Head (URL => URL & "/head", Headers => H);
 
-   R := AWS.Client.Post
-     (URL => "http://localhost:" & Utils.Image (Port) & "/post",
-      Data => "", Headers => H);
+      R := AWS.Client.Post (URL => URL & "/post", Data => "", Headers => H);
+   end;
 
    Text_IO.Put_Line
      ("Cache Option Header : '"

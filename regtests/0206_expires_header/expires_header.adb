@@ -23,7 +23,7 @@ with AWS.Client;
 with AWS.Messages;
 with AWS.MIME;
 with AWS.Response.Set;
-with AWS.Server;
+with AWS.Server.Status;
 with AWS.Status;
 with AWS.Utils;
 
@@ -54,7 +54,8 @@ procedure Expires_Header is
       return R;
    end CB;
 
-   R : Response.Data;
+   R  : Response.Data;
+   WC : Client.HTTP_Connection;
 
 begin
    Get_Free_Port (Port);
@@ -62,28 +63,30 @@ begin
    Server.Start
      (WS, "Expires Header", CB'Unrestricted_Access, Port => Port);
 
-   R := AWS.Client.Get
-     (URL => "http://localhost:" & Utils.Image (Port) & "/get");
+   Client.Create
+     (WC, "http://" & Server.Status.Host (WS) & ':' & Utils.Image (Port));
+
+   Client.Get (WC, R, URI => "/get");
 
    Text_IO.Put_Line
      ("Expires response : '"
       & Messages.To_HTTP_Date (Response.Expires (R)) & ''');
 
-   R := AWS.Client.Head
-     (URL => "http://localhost:" & Utils.Image (Port) & "/head");
+   Client.Head (WC, R, URI => "/head");
 
    Text_IO.Put_Line
      ("Expires response : '"
       & Messages.To_HTTP_Date (Response.Expires (R)) & ''');
 
-   R := AWS.Client.Post
-     (URL => "http://localhost:" & Utils.Image (Port) & "/post", Data => "");
+   Client.Post (WC, R, URI => "/post", Data => "");
 
    Text_IO.Put_Line
      ("Expires response : '"
       & Messages.To_HTTP_Date (Response.Expires (R)) & ''');
 
    Text_IO.Put_Line ("Expirers Header : '" & Messages.Expires (D) & ''');
+
+   Client.Close (WC);
 
    Server.Shutdown (WS);
    Text_IO.Put_Line ("shutdown");

@@ -21,7 +21,7 @@ with Ada.Text_IO;
 with AWS.Client;
 with AWS.MIME;
 with AWS.Response;
-with AWS.Server;
+with AWS.Server.Status;
 with AWS.Status;
 with AWS.Utils;
 with AWS.Messages;
@@ -56,7 +56,9 @@ procedure File_Not_Found is
       use type Response.Content_Length_Type;
       R : Response.Data;
    begin
-      R := Client.Get ("http://localhost:" & Utils.Image (Port) & URL);
+      R := Client.Get
+             ("http://" & Server.Status.Host (WS) & ':' & Utils.Image (Port)
+              & URL);
 
       Text_IO.Put_Line
         ("RC " & URL & " : "

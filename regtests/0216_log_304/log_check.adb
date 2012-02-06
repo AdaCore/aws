@@ -28,8 +28,8 @@ with AWS.Headers.Set;
 with AWS.Messages;
 with AWS.MIME;
 with AWS.Response;
-with AWS.Server;
 with AWS.Server.Log;
+with AWS.Server.Status;
 with AWS.Status;
 with AWS.Utils;
 
@@ -85,7 +85,8 @@ procedure Log_Check is
       end if;
 
       R := Client.Get
-        ("http://localhost:" & Utils.Image (Port) & '/' & Filename,
+        ("http://" & Server.Status.Host (WS) & ':' & Utils.Image (Port)
+           & '/' & Filename,
          Headers => H);
       Text_IO.Put_Line ("R : " & Response.Message_Body (R));
       Text_IO.Put_Line ("S : " & Messages.Image (Response.Status_Code (R)));

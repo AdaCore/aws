@@ -23,7 +23,7 @@ with AWS.Client;
 with AWS.MIME;
 with AWS.Resources;
 with AWS.Response;
-with AWS.Server;
+with AWS.Server.Status;
 with AWS.Status;
 with AWS.Translator;
 with AWS.Utils;
@@ -64,7 +64,8 @@ begin
       CB'Unrestricted_Access, Port => Port, Max_Connection => 1);
    Text_IO.Put_Line ("started"); Ada.Text_IO.Flush;
 
-   R := Client.Get ("http://localhost:" & Utils.Image (Port));
+   R := Client.Get
+          ("http://" & Server.Status.Host (WS) & ':' & Utils.Image (Port));
 
    Text_IO.Put_Line
      ("R : "

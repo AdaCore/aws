@@ -23,7 +23,7 @@ with AWS.Client;
 with AWS.Config.Set;
 with AWS.Dispatchers.Callback;
 with AWS.Messages;
-with AWS.Server;
+with AWS.Server.Status;
 with AWS.Services.Dispatchers.URI;
 with AWS.Services.Web_Block.Context;
 with AWS.Services.Web_Block.Registry;
@@ -43,6 +43,7 @@ procedure WB_Patterns is
 
    Cfg       : Config.Object;
    Free_Port : Positive;
+   WS        : AWS.Server.HTTP;
 
    procedure Main_Callback
      (Request      :                 Status.Data;
@@ -100,7 +101,8 @@ procedure WB_Patterns is
 
    procedure Test (URI : String) is
       R : constant Response.Data := Client.Get
-        ("http://localhost:" & AWS.Utils.Image (Free_Port) & URI);
+        ("http://" & AWS.Server.Status.Host (WS) & ':'
+         & AWS.Utils.Image (Free_Port) & URI);
       Content : constant String := Response.Message_Body (R);
    begin
       if Content /= "" then
@@ -109,8 +111,6 @@ procedure WB_Patterns is
    end Test;
 
    H  : AWS.Services.Dispatchers.URI.Handler;
-
-   WS : AWS.Server.HTTP;
 
 begin
    Services.Dispatchers.URI.Register_Default_Callback
