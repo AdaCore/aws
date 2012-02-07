@@ -181,6 +181,11 @@ package AWS.Config is
    pragma Inline (MIME_Types);
    --  Returns the name of the MIME types to use
 
+   function Max_POST_Parameters (O : Object) return Positive;
+   pragma Inline (Max_POST_Parameters);
+   --  Returns the maximum number of POST parameters handled. Past this limit
+   --  the exception Too_Many_Parameters is raised.
+
    ---------
    -- Log --
    ---------
@@ -436,6 +441,7 @@ private
       Reuse_Address,
       Check_URL_Validity,
       Case_Sensitive_Parameters,
+      Max_POST_Parameters,
       MIME_Types,
       --  Per process options
       Session_Cleanup_Interval,
@@ -628,6 +634,9 @@ private
 
          Reuse_Address =>
            (Bool, Default.Reuse_Address),
+
+         Max_POST_Parameters =>
+           (Pos, Default.Max_POST_Parameters),
 
          MIME_Types =>
            (Str, To_Unbounded_String (Default.MIME_Types)));

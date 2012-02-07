@@ -128,6 +128,10 @@ package AWS.Config.Set is
    procedure Directory_Browser_Page (O : in out Object; Value : String);
    --  Filename for the directory browser template page
 
+   procedure Max_POST_Parameters (O : in out Object; Value : Positive);
+   --  Set the maximum number of POST parameters handled. Past this limit
+   --  the exception Too_Many_Parameters is raised.
+
    ---------
    -- Log --
    ---------

@@ -350,6 +350,15 @@ package body AWS.Config.Set is
       O.P (Max_Connection).Pos_Value := Value;
    end Max_Connection;
 
+   -------------------------
+   -- Max_POST_Parameters --
+   -------------------------
+
+   procedure Max_POST_Parameters (O : in out Object; Value : Positive) is
+   begin
+      O.P (Max_POST_Parameters).Pos_Value := Value;
+   end Max_POST_Parameters;
+
    ----------------
    -- MIME_Types --
    ----------------

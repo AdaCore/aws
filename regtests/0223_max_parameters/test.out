@@ -1,0 +1,12 @@
+started
+P1      >12
+P2      >azerty
+P3      >azerty
+BODY_P1 >56
+BODY_P2 >inthebody
+BODY_P3 >secure_aws
+ok
+shutdown
+started
+Got exception TOO_MANY_PARAMETERS
+shutdown

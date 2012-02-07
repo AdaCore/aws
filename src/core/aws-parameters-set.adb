@@ -30,14 +30,24 @@
 with Ada.Streams;
 with Ada.Strings.Fixed;
 
-with AWS.Containers.Tables.Set;
 with AWS.Config;
+with AWS.Containers.Tables.Set;
+with AWS.Server;
 with AWS.Translator;
 with AWS.URL;
+with AWS.Utils;
 
 package body AWS.Parameters.Set is
 
    use AWS.Containers;
+
+   procedure Add_Internal
+     (Parameter_List : in out List;
+      Parameters     : String;
+      Count          : in out Natural;
+      Max_Parameters : Positive);
+   --  Add parameters as parsed from Parameters and raised Too_Many_Parameters
+   --  if the Max_Parameters count is reached.
 
    ---------
    -- Add --
@@ -72,41 +82,9 @@ package body AWS.Parameters.Set is
    ---------
 
    procedure Add (Parameter_List : in out List; Parameters : String) is
-      use Ada.Strings;
-
-      P : String renames Parameters;
-      C : Positive := P'First;
-      I : Natural;
-      S : Positive := P'First;
-      E : Natural;
+      Count : Natural := 0;
    begin
-      --  Skip leading question mark if present
-
-      if P /= "" and then P (C) = '?' then
-         C := Positive'Succ (C);
-         S := Positive'Succ (S);
-      end if;
-
-      loop
-         I := Fixed.Index (P (C .. P'Last), "=");
-
-         exit when I = 0;
-
-         S := I + 1;
-
-         E := Fixed.Index (P (S .. P'Last), "&");
-
-         if E = 0 then
-            --  last parameter
-
-            Add (Parameter_List, P (C .. I - 1), P (S .. P'Last));
-            exit;
-
-         else
-            Add (Parameter_List, P (C .. I - 1), P (S .. E - 1));
-            C := E + 1;
-         end if;
-      end loop;
+      Add_Internal (Parameter_List, Parameters, Count, Positive'Last);
    end Add;
 
    procedure Add
@@ -116,6 +94,14 @@ package body AWS.Parameters.Set is
       use Ada.Streams;
       use AWS.Containers.Memory_Streams;
       use AWS.Translator;
+
+      Max_Parameters : constant Positive :=
+                         Config.Max_POST_Parameters
+                           (Server.Config (Server.Get_Current.all));
+      --  For security reasons we only allow a maximum number of parameters per
+      --  HTTP request.
+
+      Count          : Natural := 0;
 
       Amp   : constant Stream_Element := Character'Pos ('&');
       Buffer : Stream_Element_Array
@@ -147,7 +133,9 @@ package body AWS.Parameters.Set is
          Find_Last_Amp : for J in reverse First .. Last loop
             if Buffer (J) = Amp then
                Found := True;
-               Add (Parameter_List, To_String (Buffer (1 .. J - 1)));
+               Add_Internal
+                 (Parameter_List, To_String (Buffer (1 .. J - 1)),
+                  Count, Max_Parameters);
                Buffer (1 .. Last - J) := Buffer (J + 1 .. Last);
                First := Last - J + 1;
                exit Find_Last_Amp;
@@ -165,13 +153,86 @@ package body AWS.Parameters.Set is
 
             WNF := True;
 
-            Add (Parameter_List, To_String (Buffer (1 .. Last)));
+            Add_Internal
+              (Parameter_List, To_String (Buffer (1 .. Last)),
+               Count, Max_Parameters);
+
             First := 1;
          end if;
 
          exit when Last < Buffer'Last;
       end loop;
    end Add;
+
+   ------------------
+   -- Add_Internal --
+   ------------------
+
+   procedure Add_Internal
+     (Parameter_List : in out List;
+      Parameters     : String;
+      Count          : in out Natural;
+      Max_Parameters : Positive)
+   is
+      use Ada.Strings;
+
+      procedure Add (Name, Value : String);
+      pragma Inline (Add);
+      --  Add Str as parameter, check for Max_Parameters
+
+      ---------
+      -- Add --
+      ---------
+
+      procedure Add (Name, Value : String) is
+      begin
+         Count := Count + 1;
+
+         if Count <= Max_Parameters then
+            Add (Parameter_List, Name, Value);
+
+         else
+            raise Too_Many_Parameters
+              with "Maximum number of parameters reached: "
+                & Utils.Image (Max_Parameters)
+                & ", see Config.Max_POST_Parameters.";
+         end if;
+      end Add;
+
+      P : String renames Parameters;
+      C : Positive := P'First;
+      I : Natural;
+      S : Positive := P'First;
+      E : Natural;
+   begin
+      --  Skip leading question mark if present
+
+      if P /= "" and then P (C) = '?' then
+         C := Positive'Succ (C);
+         S := Positive'Succ (S);
+      end if;
+
+      loop
+         I := Fixed.Index (P (C .. P'Last), "=");
+
+         exit when I = 0;
+
+         S := I + 1;
+
+         E := Fixed.Index (P (S .. P'Last), "&");
+
+         if E = 0 then
+            --  last parameter
+
+            Add (Name => P (C .. I - 1), Value => P (S .. P'Last));
+            exit;
+
+         else
+            Add (Name => P (C .. I - 1), Value => P (S .. E - 1));
+            C := E + 1;
+         end if;
+      end loop;
+   end Add_Internal;
 
    --------------------
    -- Case_Sensitive --

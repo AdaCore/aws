@@ -412,6 +412,15 @@ package body AWS.Config is
       return O.P (Max_Connection).Pos_Value;
    end Max_Connection;
 
+   -------------------------
+   -- Max_POST_Parameters --
+   -------------------------
+
+   function Max_POST_Parameters (O : Object) return Positive is
+   begin
+      return O.P (Max_POST_Parameters).Pos_Value;
+   end Max_POST_Parameters;
+
    ----------------
    -- MIME_Types --
    ----------------

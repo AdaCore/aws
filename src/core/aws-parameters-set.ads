@@ -42,18 +42,19 @@ package AWS.Parameters.Set is
    --  that name, Get will still return the old value.
 
    procedure Add (Parameter_List : in out List; Parameters : String);
-   --  Set parameters for the current request. This is used for a POST method
-   --  because the parameters are found in the message body and are not known
-   --  when we parse the request line. The Parameters string has the form
-   --  "name1=value1&name2=value2...". The paramaters are added to the list.
-   --  The parameters can start with a '?' (standard Web character separator)
-   --  which is just ignored.
+   --  Set parameters for the current request. The Parameters string has the
+   --  form "name1=value1&name2=value2...". The paramaters are added to the
+   --  list. The parameters can start with a '?' (standard Web character
+   --  separator) which is just ignored.
 
    procedure Add
      (Parameter_List : in out List;
       Parameters     : in out AWS.Containers.Memory_Streams.Stream_Type);
-   --  The same as above, but use different parameters source. Used to reduce
-   --  stack usage on big POST requests.
+   --  Same as above, but use different parameters source. Used to reduce
+   --  stack usage on big POST requests. This is the routine used by AWS for
+   --  parsing the POST parameters. This routine also control the maximum
+   --  number of parameter parsed as set by the corresponding configuration
+   --  option.
 
    procedure Update
      (Parameter_List : in out List;
@@ -71,5 +72,8 @@ package AWS.Parameters.Set is
    Too_Long_Parameter : exception;
    --  Raises if Add routine reading parameters from Memory_Stream detects
    --  too long parameter.
+
+   Too_Many_Parameters : exception;
+   --  Raised when the maximum number of parameters has been reached
 
 end AWS.Parameters.Set;

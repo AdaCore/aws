@@ -69,6 +69,7 @@ package AWS.Default is
    Line_Stack_Size                 : constant         := 16#150_000#;
    Case_Sensitive_Parameters       : constant Boolean := True;
    Input_Line_Size_Limit           : constant         := 16#4000#;
+   Max_POST_Parameters             : constant         := 100;
    Max_Concurrent_Download         : constant         := 25;
    Reuse_Address                   : constant Boolean := False;
    MIME_Types                      : constant String  := "aws.mime";
