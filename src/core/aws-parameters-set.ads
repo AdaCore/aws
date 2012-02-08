@@ -70,8 +70,8 @@ package AWS.Parameters.Set is
    --  ready for new use.
 
    Too_Long_Parameter : exception;
-   --  Raises if Add routine reading parameters from Memory_Stream detects
-   --  too long parameter.
+   --  Raised if the Add routine detects a too long parameter line when reading
+   --  parameters from Memory_Stream.
 
    Too_Many_Parameters : exception;
    --  Raised when the maximum number of parameters has been reached
