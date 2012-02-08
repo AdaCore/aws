@@ -144,11 +144,11 @@ package body AWS.Parameters.Set is
 
          if not Found then
             if WNF and then First <= Last then
-               raise Too_Long_Parameter with
-                 "Too long one of HTTP parameters: "
+               raise Too_Long_Parameter
+                 with "HTTP parameter line too long : "
                  & Slice
-                     (Parameter_List.Parameters,
-                      1, Integer'Min (Length (Parameter_List.Parameters), 64));
+                   (Parameter_List.Parameters,
+                    1, Integer'Min (Length (Parameter_List.Parameters), 64));
             end if;
 
             WNF := True;
