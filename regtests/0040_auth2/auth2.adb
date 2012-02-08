@@ -21,6 +21,7 @@ with Ada.Exceptions;
 
 with AWS.Server.Status;
 with AWS.Client;
+with AWS.Config.Set;
 with AWS.Status;
 with AWS.MIME;
 with AWS.Response;
@@ -38,7 +39,7 @@ procedure Auth2 is
    function CB (Request : Status.Data) return Response.Data;
 
    HTTP : AWS.Server.HTTP;
-
+   CNF  : Config.Object;
    R    : Response.Data;
    Port : Natural := 1255;
 
@@ -59,9 +60,12 @@ procedure Auth2 is
 begin
    Get_Free_Port (Port);
 
-   AWS.Server.Start
-     (HTTP, "Test authentication.",
-      CB'Unrestricted_Access, Port => Port, Max_Connection => 3);
+   Config.Set.Server_Name    (CNF, "Test authentication.");
+   Config.Set.Server_Host    (CNF, "localhost");
+   Config.Set.Server_Port    (CNF, Port);
+   Config.Set.Max_Connection (CNF, 3);
+
+   AWS.Server.Start (HTTP, CB'Unrestricted_Access, CNF);
 
    R := Client.Get
      ("http://" & AWS.Server.Status.Host (HTTP) & ':' & Utils.Image (Port),

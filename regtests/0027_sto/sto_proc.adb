@@ -114,7 +114,7 @@ begin
 
    Text_IO.Put_Line ("start");
 
-   Net.Bind (Server, Port);
+   Net.Bind (Server, Port, "localhost");
    Net.Listen (Server);
    Net.Set_Timeout (Server, 1.0);
 

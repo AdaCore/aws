@@ -25,6 +25,7 @@ with Ada.Strings.Unbounded;
 with Ada.Text_IO.Editing;
 
 with AWS.Client;
+with AWS.Config.Set;
 with AWS.Net.Buffered;
 with AWS.Parameters;
 with AWS.Response;
@@ -138,6 +139,7 @@ package body Sp_Pack is
       Data    : Push_Data_Type;
 
       HTTP : AWS.Server.HTTP;
+      CNF  : Config.Object;
 
       procedure Output (Data : String);
       --  Ignore random string --AWS.Push.Boundary_1044468257,
@@ -174,13 +176,13 @@ package body Sp_Pack is
       end Output;
 
    begin
-      AWS.Server.Start
-        (HTTP,
-         "Testing server push.",
-         CB'Access,
-         Port           => Port,
-         Security       => Protocol = "https",
-         Max_Connection => 3);
+      Config.Set.Server_Name    (CNF, "Testing server push.");
+      Config.Set.Server_Host    (CNF, "localhost");
+      Config.Set.Server_Port    (CNF, Port);
+      Config.Set.Security       (CNF, Protocol = "https");
+      Config.Set.Max_Connection (CNF, 3);
+
+      AWS.Server.Start (HTTP, CB'Access, CNF);
 
       Data := 1000.0;
 

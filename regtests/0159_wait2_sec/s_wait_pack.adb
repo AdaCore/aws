@@ -113,7 +113,7 @@ package body S_Wait_Pack is
    begin
       Get_Free_Port (Free_Port);
 
-      Net.Bind (Server, Free_Port);
+      Net.Bind (Server, Free_Port, "localhost");
       Net.Listen (Server);
       Net.Set_Blocking_Mode (Server, False);
 

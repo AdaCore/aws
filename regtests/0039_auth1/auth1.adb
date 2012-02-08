@@ -22,6 +22,7 @@ with Ada.Exceptions;
 with GNAT.MD5;
 
 with AWS.Client;
+with AWS.Config.Set;
 with AWS.Digest;
 with AWS.Server.Status;
 with AWS.Status;
@@ -127,12 +128,16 @@ procedure Auth1 is
    ------------
 
    task body Server is
+      CNF : Config.Object;
    begin
       Get_Free_Port (Port);
 
-      AWS.Server.Start
-        (HTTP, "Test authentication.",
-         CB'Unrestricted_Access, Port => Port, Max_Connection => 3);
+      Config.Set.Server_Name    (CNF, "Test authentication.");
+      Config.Set.Server_Host    (CNF, "localhost");
+      Config.Set.Server_Port    (CNF, Port);
+      Config.Set.Max_Connection (CNF, 3);
+
+      AWS.Server.Start (HTTP, CB'Unrestricted_Access, CNF);
 
       accept Wait_Start;
       accept Stop;

@@ -57,6 +57,7 @@ procedure Content_Type_Data_Range is
 begin
    Get_Free_Port (Port);
 
+   Config.Set.Server_Host (Conf, "localhost");
    Config.Set.Server_Port (Conf, Port);
 
    Headers.Set.Debug (True);

@@ -25,12 +25,13 @@ with Ada.Strings.Unbounded;
 
 with GNAT.OS_Lib;
 
-with AWS.Server.Status;
-with AWS.Response;
-with AWS.Status;
-with AWS.MIME;
 with AWS.Client;
+with AWS.Config.Set;
+with AWS.MIME;
 with AWS.Parameters;
+with AWS.Response;
+with AWS.Server.Status;
+with AWS.Status;
 with AWS.Utils;
 
 with Get_Free_Port;
@@ -168,7 +169,8 @@ package body HLoad_Pack is
          entry Stop;
       end Client;
 
-      WS : Server.HTTP;
+      WS  : Server.HTTP;
+      CNF : Config.Object;
 
       Free_Port : Positive := Port;
 
@@ -240,14 +242,14 @@ package body HLoad_Pack is
       Get_Free_Port (Free_Port);
       Interval_Timer.Reset;
 
-      Server.Start
-        (WS,
-         "Heavy Loaded",
-         CB'Access,
-         Port           => Free_Port,
-         Security       => Protocol = "https",
-         Max_Connection => Max_Line,
-         Session        => True);
+      Config.Set.Server_Name    (CNF, "Heavy Loaded");
+      Config.Set.Server_Host    (CNF, "localhost");
+      Config.Set.Server_Port    (CNF, Free_Port);
+      Config.Set.Security       (CNF, Protocol = "https");
+      Config.Set.Max_Connection (CNF, Max_Line);
+      Config.Set.Session        (CNF, True);
+
+      Server.Start (WS, CB'Access, CNF);
 
       Ada.Text_IO.Put_Line ("server started."); Ada.Text_IO.Flush;
 

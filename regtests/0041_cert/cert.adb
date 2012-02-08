@@ -104,6 +104,7 @@ procedure Cert is
    task body Server is
       Conf : Config.Object;
    begin
+      Config.Set.Server_Host (Conf, "localhost");
       Config.Set.Server_Port (Conf, 7429);
       Config.Set.Max_Connection (Conf, 5);
       Config.Set.Security (Conf, True);

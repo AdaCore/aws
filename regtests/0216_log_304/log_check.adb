@@ -24,6 +24,7 @@ with GNAT.AWK;
 with GNAT.Calendar.Time_IO;
 
 with AWS.Client;
+with AWS.Config.Set;
 with AWS.Headers.Set;
 with AWS.Messages;
 with AWS.MIME;
@@ -43,6 +44,7 @@ procedure Log_Check is
    use AWS;
 
    WS   : Server.HTTP;
+   CNF  : Config.Object;
    Port : Natural := 3241;
    MS   : Unbounded_String;
 
@@ -126,9 +128,12 @@ procedure Log_Check is
 begin
    Get_Free_Port (Port);
 
-   Server.Start
-     (WS, "log_check",
-      CB'Unrestricted_Access, Port => Port, Max_Connection => 1);
+   Config.Set.Server_Name    (CNF, "log_check");
+   Config.Set.Server_Host    (CNF, "localhost");
+   Config.Set.Server_Port    (CNF, Port);
+   Config.Set.Max_Connection (CNF, 1);
+
+   Server.Start (WS, CB'Unrestricted_Access, CNF);
    Text_IO.Put_Line ("started"); Ada.Text_IO.Flush;
 
    Server.Log.Start (WS, Filename_Prefix => "log_check");

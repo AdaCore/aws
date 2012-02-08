@@ -19,6 +19,7 @@
 with Ada.Text_IO;
 
 with AWS.Client;
+with AWS.Config.Set;
 with AWS.MIME;
 with AWS.Response;
 with AWS.Server.Status;
@@ -34,6 +35,7 @@ procedure File_Not_Found is
    use AWS;
 
    WS   : Server.HTTP;
+   CNF  : Config.Object;
    Port : Positive := 8567;
 
    function CB (Request : Status.Data) return Response.Data is
@@ -77,11 +79,12 @@ procedure File_Not_Found is
 begin
    Get_Free_Port (Port);
 
-   Server.Start
-     (WS, "file_not_found",
-      CB'Unrestricted_Access,
-      Port           => Port,
-      Max_Connection => 5);
+   Config.Set.Server_Name    (CNF, "file_not_found");
+   Config.Set.Server_Host    (CNF, "localhost");
+   Config.Set.Server_Port    (CNF, Port);
+   Config.Set.Max_Connection (CNF, 5);
+
+   Server.Start (WS, CB'Unrestricted_Access, CNF);
    Text_IO.Put_Line ("started"); Ada.Text_IO.Flush;
 
    delay 1.0;

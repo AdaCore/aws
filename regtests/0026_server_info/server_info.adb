@@ -19,6 +19,7 @@
 with Ada.Exceptions;
 with Ada.Text_IO;
 
+with AWS.Config.Set;
 with AWS.Client;
 with AWS.MIME;
 with AWS.Response;
@@ -35,6 +36,7 @@ procedure Server_Info is
    use AWS;
 
    WS    : Server.HTTP;
+   CNF   : Config.Object;
    Port1 : Natural := 1258;
    Port2 : Natural := 1259;
 
@@ -101,11 +103,12 @@ procedure Server_Info is
    begin
       Get_Free_Port (Port1);
 
-      AWS.Server.Start
-        (WS, "Server Info",
-         CB'Unrestricted_Access,
-         Port           => Port1,
-         Max_Connection => 6);
+      Config.Set.Server_Name    (CNF, "Server Info");
+      Config.Set.Server_Host    (CNF, "localhost");
+      Config.Set.Server_Port    (CNF, Port1);
+      Config.Set.Max_Connection (CNF, 6);
+
+      AWS.Server.Start (WS, CB'Unrestricted_Access, CNF);
 
       Text_IO.Put_Line ("started");
 
@@ -172,12 +175,11 @@ begin
 
    Get_Free_Port (Port2);
 
-   AWS.Server.Start
-     (WS, "Server Info",
-      CB'Unrestricted_Access,
-      Port           => Port2,
-      Max_Connection => 2,
-      Session        => True);
+   Config.Set.Server_Port    (CNF, Port2);
+   Config.Set.Session        (CNF, True);
+   Config.Set.Max_Connection (CNF, 2);
+
+   AWS.Server.Start (WS, CB'Unrestricted_Access, CNF);
 
    Text_IO.Put_Line
      ("Shutdown " & Boolean'Image (AWS.Server.Status.Is_Shutdown (WS)));

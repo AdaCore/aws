@@ -81,6 +81,7 @@ begin
 
    Get_Free_Port (Free_Port);
    AWS.Config.Set.Server_Port (Cfg, Free_Port);
+   AWS.Config.Set.Server_Host (Cfg, "localhost");
 
    AWS.Server.Start (WS, Dispatcher => H, Config => Cfg);
 

@@ -21,7 +21,7 @@ with Ada.Exceptions;
 
 with AWS.Server.Status;
 with AWS.Client;
-with AWS.Config;
+with AWS.Config.Set;
 with AWS.Status;
 with AWS.MIME;
 with AWS.Response;
@@ -44,6 +44,8 @@ procedure Multiple is
 
    HTTP2 : AWS.Server.HTTP;
    Port2 : Natural := 1253;
+
+   CNF : Config.Object;
 
    --------
    -- CB --
@@ -74,15 +76,19 @@ begin
 
    Get_Free_Port (Port1);
 
-   AWS.Server.Start
-     (HTTP1, "server1",
-      CB'Unrestricted_Access, Port => Port1, Max_Connection => 5);
+   Config.Set.Server_Name    (CNF, "server1");
+   Config.Set.Server_Host    (CNF, "localhost");
+   Config.Set.Server_Port    (CNF, Port1);
+   Config.Set.Max_Connection (CNF, 5);
+
+   AWS.Server.Start (HTTP1, CB'Unrestricted_Access, CNF);
 
    Get_Free_Port (Port2);
 
-   AWS.Server.Start
-     (HTTP2, "server2",
-      CB'Unrestricted_Access, Port => Port2, Max_Connection => 5);
+   Config.Set.Server_Name (CNF, "server2");
+   Config.Set.Server_Port (CNF, Port2);
+
+   AWS.Server.Start (HTTP2, CB'Unrestricted_Access, CNF);
 
    declare
       Prefix : constant String :=

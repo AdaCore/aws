@@ -95,12 +95,10 @@ begin
 
    Free_Port := AWS.Config.Server_Port (Cfg);
    Get_Free_Port (Free_Port);
+   AWS.Config.Set.Server_Host (Cfg, "localhost");
    AWS.Config.Set.Server_Port (Cfg, Free_Port);
 
-   AWS.Server.Start
-     (WS,
-      Dispatcher => H,
-      Config     => Cfg);
+   AWS.Server.Start (WS, Dispatcher => H, Config => Cfg);
 
    Test ("/thisone");
    Test ("/thisone");

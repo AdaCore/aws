@@ -20,6 +20,7 @@ with Ada.Calendar;
 with Ada.Text_IO;
 
 with AWS.Client;
+with AWS.Config.Set;
 with AWS.Messages;
 with AWS.MIME;
 with AWS.Response.Set;
@@ -35,6 +36,7 @@ procedure Expires_Header is
    use AWS;
 
    WS   : Server.HTTP;
+   CNF  : Config.Object;
    Port : Positive := 8275;
 
    Date : constant String := "Tue, 15 Nov 1994 08:12:31 GMT";
@@ -60,8 +62,11 @@ procedure Expires_Header is
 begin
    Get_Free_Port (Port);
 
-   Server.Start
-     (WS, "Expires Header", CB'Unrestricted_Access, Port => Port);
+   Config.Set.Server_Name (CNF, "Expires Header");
+   Config.Set.Server_Host (CNF, "localhost");
+   Config.Set.Server_Port (CNF, Port);
+
+   Server.Start (WS, CB'Unrestricted_Access, CNF);
 
    Client.Create
      (WC, "http://" & Server.Status.Host (WS) & ':' & Utils.Image (Port));

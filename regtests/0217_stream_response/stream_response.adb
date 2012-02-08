@@ -19,6 +19,7 @@
 with Ada.Text_IO;
 
 with AWS.Client;
+with AWS.Config.Set;
 with AWS.MIME;
 with AWS.Resources;
 with AWS.Response.Set;
@@ -35,6 +36,7 @@ procedure Stream_Response is
    use AWS;
 
    WS    : Server.HTTP;
+   CNF   : Config.Object;
    Port  : Positive := 8167;
    Index : Natural := 0;
    Cnx   : Client.HTTP_Connection;
@@ -99,11 +101,12 @@ procedure Stream_Response is
 begin
    Get_Free_Port (Port);
 
-   Server.Start
-     (WS, "stream_response",
-      CB'Unrestricted_Access,
-      Port           => Port,
-      Max_Connection => 5);
+   Config.Set.Server_Name    (CNF, "stream_response");
+   Config.Set.Server_Host    (CNF, "localhost");
+   Config.Set.Server_Port    (CNF, Port);
+   Config.Set.Max_Connection (CNF, 5);
+
+   Server.Start (WS, CB'Unrestricted_Access, CNF);
    Text_IO.Put_Line ("started"); Ada.Text_IO.Flush;
 
    delay 1.0;

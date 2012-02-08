@@ -20,6 +20,7 @@ with Ada.Streams;
 with Ada.Text_IO;
 
 with AWS.Client;
+with AWS.Config.Set;
 with AWS.MIME;
 with AWS.Resources;
 with AWS.Response;
@@ -38,7 +39,8 @@ procedure File_Versions is
    use Ada.Streams;
    use AWS;
 
-   WS : Server.HTTP;
+   WS  : Server.HTTP;
+   CNF : Config.Object;
 
    function CB (Request : Status.Data) return Response.Data is
    begin
@@ -59,9 +61,12 @@ procedure File_Versions is
 begin
    Get_Free_Port (Port);
 
-   Server.Start
-     (WS, "file_versions",
-      CB'Unrestricted_Access, Port => Port, Max_Connection => 1);
+   Config.Set.Server_Name    (CNF, "file_versions");
+   Config.Set.Server_Host    (CNF, "localhost");
+   Config.Set.Server_Port    (CNF, Port);
+   Config.Set.Max_Connection (CNF, 1);
+
+   Server.Start (WS, CB'Unrestricted_Access, CNF);
    Text_IO.Put_Line ("started"); Ada.Text_IO.Flush;
 
    R := Client.Get

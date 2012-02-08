@@ -138,12 +138,10 @@ begin
 
    Free_Port := AWS.Config.Server_Port (Cfg);
    Get_Free_Port (Free_Port);
+   AWS.Config.Set.Server_Host (Cfg, "localhost");
    AWS.Config.Set.Server_Port (Cfg, Free_Port);
 
-   AWS.Server.Start
-     (WS,
-      Dispatcher => H,
-      Config     => Cfg);
+   AWS.Server.Start (WS, Dispatcher => H, Config => Cfg);
 
    Test ("/main/8/a/33"); --  Main_P callback
    Test ("/main/2/b/7");  --  Main_P callback

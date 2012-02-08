@@ -252,6 +252,7 @@ begin
 
    Get_Free_Port (Port);
 
+   AWS.Config.Set.Server_Host (Config, "localhost");
    AWS.Config.Set.Server_Port (Config, Port);
    AWS.Config.Set.Server_Name (Config, "tlog");
    AWS.Config.Set.Max_Connection (Config, 1);

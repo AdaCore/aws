@@ -20,6 +20,7 @@
 
 with Ada.Text_IO;
 
+with AWS.Config.Set;
 with AWS.MIME;
 with AWS.Response;
 with AWS.Server;
@@ -34,6 +35,7 @@ procedure Test_WSDL is
    use AWS;
 
    H_Server : Server.HTTP;
+   CNF      : Config.Object;
 
    procedure WSDL_Demo_Client is
       use Ada;
@@ -75,10 +77,11 @@ procedure Test_WSDL is
    end sayHello;
 
 begin
-   Server.Start
-     (H_Server, "WSDL Hello demo",
-      CB'Unrestricted_Access,
-      Port => R_Hello_Demo.Server.Port);
+   Config.Set.Server_Name (CNF, "WSDL Hello demo");
+   Config.Set.Server_Host (CNF, "localhost");
+   Config.Set.Server_Port (CNF, R_Hello_Demo.Server.Port);
+
+   Server.Start (H_Server, CB'Unrestricted_Access, CNF);
 
    WSDL_Demo_Client;
 

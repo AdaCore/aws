@@ -20,6 +20,7 @@ with Ada.Strings.Unbounded;
 with Ada.Text_IO;
 
 with AWS.Client;
+with AWS.Config.Set;
 with AWS.Containers.Tables;
 with AWS.Cookie;
 with AWS.Default;
@@ -40,6 +41,7 @@ procedure Cookies is
    use AWS;
 
    WS   : Server.HTTP;
+   CNF  : Config.Object;
    Port : Positive := 8379;
 
    --------
@@ -73,8 +75,11 @@ procedure Cookies is
 begin
    Get_Free_Port (Port);
 
-   Server.Start
-     (WS, "Client Headers", CB'Unrestricted_Access, Port => Port);
+   Config.Set.Server_Name    (CNF, "Client Headers");
+   Config.Set.Server_Host    (CNF, "localhost");
+   Config.Set.Server_Port    (CNF, Port);
+
+   Server.Start (WS, CB'Unrestricted_Access, CNF);
 
    R := AWS.Client.Get
      (URL => "http://" & AWS.Server.Status.Host (WS) & ':' & Utils.Image (Port)

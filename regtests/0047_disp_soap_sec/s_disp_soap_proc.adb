@@ -171,6 +171,7 @@ begin
    Put_Line ("Start main, wait for server to start...");
 
    AWS.Config.Set.Server_Port (Config, Port);
+   AWS.Config.Set.Server_Host (Config, "localhost");
    AWS.Config.Set.Security    (Config, Protocol = "https");
 
    AWS.Server.Start

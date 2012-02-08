@@ -20,6 +20,7 @@ with Ada.Strings.Unbounded;
 with Ada.Text_IO;
 
 with AWS.Client;
+with AWS.Config.Set;
 with AWS.MIME;
 with AWS.Response.Set;
 with AWS.Server.Status;
@@ -33,7 +34,8 @@ package body Append_Pack is
    use Ada;
    use AWS;
 
-   WS : Server.HTTP;
+   WS  : Server.HTTP;
+   CNF : Config.Object;
 
    function CB (Request : Status.Data) return Response.Data;
 
@@ -80,13 +82,13 @@ package body Append_Pack is
    procedure Run (Protocol : String) is
       R : Response.Data;
    begin
-      Server.Start
-        (WS, "append message " & Protocol,
-         CB'Access,
-         Security       => Protocol = "https",
-         Port           => 0,
-         Max_Connection => 5);
+      Config.Set.Server_Name    (CNF, "append message " & Protocol);
+      Config.Set.Server_Host    (CNF, "localhost");
+      Config.Set.Server_Port    (CNF, 0);
+      Config.Set.Security       (CNF, Protocol = "https");
+      Config.Set.Max_Connection (CNF, 5);
 
+      Server.Start (WS, CB'Access, CNF);
       Ada.Text_IO.Put_Line ("started");
 
       R := Client.Get

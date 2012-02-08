@@ -23,6 +23,7 @@ with Ada.Text_IO;
 
 with AWS.Attachments;
 with AWS.Client;
+with AWS.Config.Set;
 with AWS.MIME;
 with AWS.Net.Log;
 with AWS.Response;
@@ -45,6 +46,7 @@ procedure Attachment is
    Response : AWS.Response.Data;
 
    WS       : AWS.Server.HTTP;
+   CNF      : Config.Object;
    Port     : Natural := 6734;
 
    task Server is
@@ -136,11 +138,12 @@ procedure Attachment is
    begin
       Get_Free_Port (Port);
 
-      AWS.Server.Start
-        (WS, "Attachment Server",
-         Callback         => HW_CB'Unrestricted_Access,
-         Port             => Port,
-         Upload_Directory => ".");
+      Config.Set.Server_Name      (CNF, "Attachment Server");
+      Config.Set.Server_Host      (CNF, "localhost");
+      Config.Set.Server_Port      (CNF, Port);
+      Config.Set.Upload_Directory (CNF, ".");
+
+      AWS.Server.Start (WS, HW_CB'Unrestricted_Access, CNF);
 
       accept Started;
 

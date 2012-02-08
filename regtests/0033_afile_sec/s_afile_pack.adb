@@ -22,6 +22,7 @@ with Ada.Exceptions;
 with Ada.Text_IO;
 
 with AWS.Client;
+with AWS.Config.Set;
 with AWS.Messages;
 with AWS.MIME;
 with AWS.Response;
@@ -36,6 +37,7 @@ package body S_AFile_Pack is
    use AWS;
 
    WS   : Server.HTTP;
+   CNF  : Config.Object;
    FN   : constant String := "test.out";
    Size : constant Response.Content_Length_Type
     := Response.Content_Length_Type (Resources.File_Size (FN));
@@ -164,13 +166,13 @@ package body S_AFile_Pack is
       end Call_It;
 
    begin
-      Server.Start
-        (WS,
-         "afile " & Protocol,
-         CB'Access,
-         Security       => Protocol = "https",
-         Port           => 0,
-         Max_Connection => 5);
+      Config.Set.Server_Name    (CNF, "afile " & Protocol);
+      Config.Set.Server_Host    (CNF, "localhost");
+      Config.Set.Server_Port    (CNF, 0);
+      Config.Set.Security       (CNF, Protocol = "https");
+      Config.Set.Max_Connection (CNF, 5);
+
+      Server.Start (WS, CB'Access, CNF);
 
       Port := Server.Status.Port (WS);
 

@@ -21,6 +21,7 @@ with Ada.Exceptions;
 with Ada.Text_IO;
 
 with AWS.Client;
+with AWS.Config.Set;
 with AWS.MIME;
 with AWS.Response;
 with AWS.Server.Status;
@@ -142,15 +143,17 @@ procedure Sessions is
    ------------
 
    task body Server is
+      CNF : Config.Object;
    begin
       Get_Free_Port (Port);
 
-      AWS.Server.Start
-        (WS, "session",
-         CB'Unrestricted_Access,
-         Port           => Port,
-         Max_Connection => 5,
-         Session        => True);
+      Config.Set.Server_Name    (CNF, "session");
+      Config.Set.Server_Host    (CNF, "localhost");
+      Config.Set.Server_Port    (CNF, Port);
+      Config.Set.Max_Connection (CNF, 5);
+      Config.Set.Session        (CNF, True);
+
+      AWS.Server.Start (WS, CB'Unrestricted_Access, CNF);
 
       accept Started;
 
