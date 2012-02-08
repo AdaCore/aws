@@ -118,6 +118,7 @@ begin
    Insert (T, Assoc ("TRANSIENT_CLEANUP_INTERVAL",
                      Image (Default.Transient_Cleanup_Interval)));
    Insert (T, Assoc ("WWW_ROOT", Default.WWW_Root));
+   Insert (T, Assoc ("MAX_POST_PARAMETERS", Default.Max_POST_Parameters));
 
    --  Generates the documentation
 

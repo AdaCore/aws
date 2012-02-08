@@ -1522,6 +1522,11 @@ Note that the total number of threads used by a server is:
         Add 1 only if the session feature is activated. This is
         due to the session cleaner task.}
 
+@item Max_POST_Parameters (positive)
+@cindex Max_POST_Parameters
+The maximum number of POST parameters supported by AWS. The default
+value is @file{@_MAX_POST_PARAMETERS_@}.
+
 @item MIME_Types (string)
 @cindex MIME_Types
 The name of the file containing the MIME types associations. The default file
