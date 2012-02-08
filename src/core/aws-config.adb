@@ -27,7 +27,7 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-with Ada.Text_IO;
+with Ada.Directories;
 
 with AWS.Config.Ini;
 
@@ -435,11 +435,11 @@ package body AWS.Config is
    ---------------------
 
    procedure Read_If_Present (Filename : String) is
+      use Ada;
    begin
-      Ini.Read (Server_Config, Filename);
-   exception
-      when Ada.Text_IO.Name_Error =>
-         null;
+      if Directories.Exists (Filename) then
+         Ini.Read (Server_Config, Filename);
+      end if;
    end Read_If_Present;
 
    ---------------------
