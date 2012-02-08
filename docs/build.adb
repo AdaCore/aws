@@ -16,11 +16,11 @@
 --  to http://www.gnu.org/licenses for a complete copy of the license.      --
 ------------------------------------------------------------------------------
 
-with Ada.Text_IO;
 with Ada.Strings.Fixed;
+with Ada.Text_IO;
 
-with AWS.Utils;
 with AWS.Default;
+with AWS.Utils;
 with SOAP;
 
 with Templates_Parser;
