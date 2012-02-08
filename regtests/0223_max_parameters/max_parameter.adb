@@ -69,26 +69,6 @@ procedure Max_Parameter is
       return Response.Build (MIME.Text_HTML, "ok");
    end CB;
 
-   ----------
-   -- Dump --
-   ----------
-
-   procedure Dump
-     (Direction : Net.Log.Data_Direction;
-      Socket    : Net.Socket_Type'Class;
-      Data      : Stream_Element_Array;
-      Last      : Stream_Element_Offset)
-   is
-      use type Net.Log.Data_Direction;
-   begin
-      if Direction = Net.Log.Sent then
-         Text_IO.Put_Line
-           ("********** " & Net.Log.Data_Direction'Image (Direction));
-         Text_IO.Put_Line (Translator.To_String (Data (Data'First .. Last)));
-         Text_IO.New_Line;
-      end if;
-   end Dump;
-
    R : Response.Data;
 
 begin
@@ -106,8 +86,6 @@ begin
    Server.Start (WS, CB'Unrestricted_Access, CNF);
 
    Text_IO.Put_Line ("started"); Ada.Text_IO.Flush;
-
-   --  AWS.Net.Log.Start (Dump'Unrestricted_Access);
 
    R := Client.Post
           ("http://localhost:" & Utils.Image (Port)
