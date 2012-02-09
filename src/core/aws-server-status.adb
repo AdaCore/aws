@@ -32,8 +32,8 @@ with GNAT.Calendar.Time_IO;
 
 with AWS.Config;
 with AWS.Hotplug.Get_Status;
-with AWS.Session;
 with AWS.Server.Log;
+with AWS.Session;
 with AWS.URL.Set;
 with AWS.Utils;
 
@@ -103,6 +103,10 @@ package body AWS.Server.Status is
       O : URL.Object;
 
       function Localhost return String;
+
+      ---------------
+      -- Localhost --
+      ---------------
 
       function Localhost return String is
       begin
@@ -303,8 +307,8 @@ package body AWS.Server.Status is
          Now_Monolit  : constant Real_Time.Time := Real_Time.Clock;
          Now_Calendar : constant Calendar.Time  := Calendar.Clock;
 
-         use type Real_Time.Time;
          use type Calendar.Time;
+         use type Real_Time.Time;
 
       begin
          for K in 1 .. CNF.Max_Connection (Server.Properties) loop
