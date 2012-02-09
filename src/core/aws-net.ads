@@ -192,6 +192,8 @@ package AWS.Net is
    function Get_Port (Socket : Socket_Type) return Positive is abstract;
    --  Returns the port of the socket
 
+   function Is_IPv6 (Socket : Socket_Type) return Boolean is abstract;
+
    function Host_Name return String;
    --  Returns the running host name
 

@@ -115,6 +115,8 @@ package AWS.Net.Std is
    overriding function Get_Port (Socket : Socket_Type) return Positive;
    --  Returns the port of the socket
 
+   overriding function Is_IPv6 (Socket : Socket_Type) return Boolean;
+
    function Host_Name return String;
 
    overriding function Is_Timeout

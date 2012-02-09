@@ -60,6 +60,8 @@ package AWS.Server.Status is
    function Host (Server : HTTP) return String;
    --  Returns the server's socket host
 
+   function Is_IPv6 (Server : HTTP) return Boolean;
+
    function Current_Connections (Server : HTTP) return Natural;
    --  Returns the current number of connections
 

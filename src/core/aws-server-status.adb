@@ -58,6 +58,15 @@ package body AWS.Server.Status is
       return Net.Acceptors.Server_Socket (Server.Acceptor).Get_Addr;
    end Host;
 
+   -------------
+   -- Is_IPv6 --
+   -------------
+
+   function Is_IPv6 (Server : HTTP) return Boolean is
+   begin
+      return Net.Acceptors.Server_Socket (Server.Acceptor).Is_IPv6;
+   end Is_IPv6;
+
    ---------------------------
    -- Is_Security_Activated --
    ---------------------------

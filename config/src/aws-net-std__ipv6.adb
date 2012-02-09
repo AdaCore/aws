@@ -553,6 +553,26 @@ package body AWS.Net.Std is
       end;
    end Image;
 
+   -------------
+   -- Is_IPv6 --
+   -------------
+
+   overriding function Is_IPv6 (Socket : Socket_Type) return Boolean is
+      use type C.int;
+      use type C.short;
+      use type OS_Lib.socklen_t;
+
+      Name : aliased Sockaddr_In6;
+      Len  : aliased OS_Lib.socklen_t := Name'Size / 8;
+
+   begin
+      if C_Getsockname (Socket.S.FD, Name'Address, Len'Access) = Failure then
+         Raise_Socket_Error (OS_Lib.Socket_Errno, Socket);
+      end if;
+
+      return Name.Family = OS_Lib.AF_INET6;
+   end Is_IPv6;
+
    --------------------
    -- Is_Peer_Closed --
    --------------------

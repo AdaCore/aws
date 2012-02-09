@@ -454,6 +454,19 @@ package body AWS.Net.Std is
       return Sockets.Host_Name;
    end Host_Name;
 
+   -------------
+   -- Is_IPv6 --
+   -------------
+
+   overriding function Is_IPv6 (Socket : Socket_Type) return Boolean is
+      use Sockets;
+   begin
+      return Get_Socket_Name (Socket.S.FD).Family = Family_Inet6;
+   exception
+      when E : Sockets.Socket_Error =>
+         Raise_Exception (E, "Is_IPv6", Socket);
+   end Is_IPv6;
+
    --------------------
    -- Is_Peer_Closed --
    --------------------
