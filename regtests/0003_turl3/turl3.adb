@@ -64,6 +64,7 @@ procedure Turl3 is
 begin
    Test ("http://me:pwd@www.myserver.com:89/app/request?p1=9&p2=toto");
    Test ("http://me:pwd@www.myserver.com/app/request?p1=9&p2=toto");
+   Test ("http://me:pwd@[1234:5678::9ABCD]/app/request?p1=9&p2=toto");
    Test ("http://me:pwd@www.myserver.com");
    Test ("http://me:pwd@www.myserver.com:89");
    Test ("http://me:@www.myserver.com:89");

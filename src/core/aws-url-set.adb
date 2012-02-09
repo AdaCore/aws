@@ -180,11 +180,14 @@ package body AWS.URL.Set is
          function "+" (S : String) return Unbounded_String
             renames To_Unbounded_String;
 
+         procedure Set_Host (First, Last : Positive);
+
          procedure Parse_Path_File (Start : Positive);
          --  Parse Path and File URL information starting at position Start in
          --  URL.
 
          I1, I2, I3 : Natural;
+         LB, RB     : Natural;
          F          : Positive;
 
          ---------------------
@@ -231,12 +234,30 @@ package body AWS.URL.Set is
             end if;
          end Parse_Path_File;
 
+         --------------
+         -- Set_Host --
+         --------------
+
+         procedure Set_Host (First, Last : Positive) is
+         begin
+            if First < Last
+              and then URL (First) = '['
+              and then URL (Last) = ']'
+            then
+               Item.Host := +URL (First + 1 .. Last - 1);
+            else
+               Item.Host := +URL (First .. Last);
+            end if;
+         end Set_Host;
+
          User_Password : Boolean := False;
 
       begin
          I1 := Strings.Fixed.Index (URL, ":");
          I2 := Strings.Fixed.Index (URL, "/");
          I3 := Strings.Fixed.Index (URL, "@");
+         LB := Strings.Fixed.Index (URL, "[");
+         RB := Strings.Fixed.Index (URL, "]");
 
          --  Check for [user:password@]
 
@@ -254,6 +275,14 @@ package body AWS.URL.Set is
 
          else
             F := URL'First;
+         end if;
+
+         if LB < RB and then LB > 0 then
+            if RB < URL'Last and then URL (RB + 1) = ':' then
+               I1 := RB + 1;
+            else
+               I1 := 0;
+            end if;
          end if;
 
          if I1 = 0
@@ -281,19 +310,19 @@ package body AWS.URL.Set is
 
             if I2 = 0 then
                --  No path information, case [user:password@host]
-               Item.Host := +URL (F .. URL'Last);
+               Set_Host (F, URL'Last);
                Item.Path := +"/";
 
             else
                --  A path, case [user:password@host/path]
-               Item.Host := +URL (F .. I2 - 1);
+               Set_Host (F, I2 - 1);
                Parse_Path_File (I2);
             end if;
 
          elsif I2 = 0 then
             --  No path, we have [host:port]
 
-            Item.Host := +URL (F .. I1 - 1);
+            Set_Host (F, I1 - 1);
 
             if Utils.Is_Number (URL (I1 + 1 .. URL'Last)) then
                Item.Port := Positive'Value (URL (I1 + 1 .. URL'Last));
@@ -306,7 +335,7 @@ package body AWS.URL.Set is
          elsif I1 < I2 then
             --  Here we have a complete URL [host:port/path]
 
-            Item.Host := +URL (F .. I1 - 1);
+            Set_Host (F, I1 - 1);
 
             if Utils.Is_Number (URL (I1 + 1 .. I2 - 1)) then
                Item.Port := Positive'Value (URL (I1 + 1 .. I2 - 1));
@@ -320,7 +349,7 @@ package body AWS.URL.Set is
             --  Here we have a complete URL, with no port specified
             --  The semicolon is part of the URL [host/path]
 
-            Item.Host := +URL (F .. I2 - 1);
+            Set_Host (F, I2 - 1);
 
             Parse_Path_File (I2);
          end if;

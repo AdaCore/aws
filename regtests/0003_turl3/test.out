@@ -48,6 +48,31 @@ http://me:pwd@www.myserver.com/app/request?p1=9&p2=toto
    Parameters : ?p1=9&p2=toto
    Query      : p1=9&p2=toto
    URI        : /app/request?p1=9&p2=toto
+http://me:pwd@[1234:5678::9ABCD]/app/request?p1=9&p2=toto
+http://me:pwd@[1234:5678::9ABCD]/app/request?p1=9&p2=toto
+   Protocol   : http
+   User       : me
+   Password   : pwd
+   Server     : 1234:5678::9ABCD
+   Port       : 80
+   Path       : /app/
+   File       : request
+   Pathname   : /app/request
+   Parameters : ?p1=9&p2=toto
+   Query      : p1=9&p2=toto
+   URI        : /app/request?p1=9&p2=toto
+   *
+   Protocol   : http
+   User       : me
+   Password   : pwd
+   Server     : 1234:5678::9ABCD
+   Port       : 80
+   Path       : /app/
+   File       : request
+   Pathname   : /app/request
+   Parameters : ?p1=9&p2=toto
+   Query      : p1=9&p2=toto
+   URI        : /app/request?p1=9&p2=toto
 http://me:pwd@www.myserver.com
 http://me:pwd@www.myserver.com/
    Protocol   : http
@@ -56,10 +81,10 @@ http://me:pwd@www.myserver.com/
    Server     : www.myserver.com
    Port       : 80
    Path       : /
-   File       : 
+   File       :
    Pathname   : /
-   Parameters : 
-   Query      : 
+   Parameters :
+   Query      :
    URI        : /
    *
    Protocol   : http
@@ -68,10 +93,10 @@ http://me:pwd@www.myserver.com/
    Server     : www.myserver.com
    Port       : 80
    Path       : /
-   File       : 
+   File       :
    Pathname   : /
-   Parameters : 
-   Query      : 
+   Parameters :
+   Query      :
    URI        : /
 http://me:pwd@www.myserver.com:89
 http://me:pwd@www.myserver.com:89/
@@ -81,10 +106,10 @@ http://me:pwd@www.myserver.com:89/
    Server     : www.myserver.com
    Port       : 89
    Path       : /
-   File       : 
+   File       :
    Pathname   : /
-   Parameters : 
-   Query      : 
+   Parameters :
+   Query      :
    URI        : /
    *
    Protocol   : http
@@ -93,66 +118,66 @@ http://me:pwd@www.myserver.com:89/
    Server     : www.myserver.com
    Port       : 89
    Path       : /
-   File       : 
+   File       :
    Pathname   : /
-   Parameters : 
-   Query      : 
+   Parameters :
+   Query      :
    URI        : /
 http://me:@www.myserver.com:89
 http://me:@www.myserver.com:89/
    Protocol   : http
    User       : me
-   Password   : 
+   Password   :
    Server     : www.myserver.com
    Port       : 89
    Path       : /
-   File       : 
+   File       :
    Pathname   : /
-   Parameters : 
-   Query      : 
+   Parameters :
+   Query      :
    URI        : /
    *
    Protocol   : http
    User       : me
-   Password   : 
+   Password   :
    Server     : www.myserver.com
    Port       : 89
    Path       : /
-   File       : 
+   File       :
    Pathname   : /
-   Parameters : 
-   Query      : 
+   Parameters :
+   Query      :
    URI        : /
 http://me:@www.myserver.com
 http://me:@www.myserver.com/
    Protocol   : http
    User       : me
-   Password   : 
+   Password   :
    Server     : www.myserver.com
    Port       : 80
    Path       : /
-   File       : 
+   File       :
    Pathname   : /
-   Parameters : 
-   Query      : 
+   Parameters :
+   Query      :
    URI        : /
    *
    Protocol   : http
    User       : me
-   Password   : 
+   Password   :
    Server     : www.myserver.com
    Port       : 80
    Path       : /
-   File       : 
+   File       :
    Pathname   : /
-   Parameters : 
-   Query      : 
+   Parameters :
+   Query      :
    URI        : /
 http://:@www.myserver.com:89/app/request?p1=9&p2=toto
 http://www.myserver.com:89/app/request?p1=9&p2=toto
    Protocol   : http
-   User       : 
-   Password   : 
+   User       :
+   Password   :
    Server     : www.myserver.com
    Port       : 89
    Path       : /app/
@@ -163,8 +188,8 @@ http://www.myserver.com:89/app/request?p1=9&p2=toto
    URI        : /app/request?p1=9&p2=toto
    *
    Protocol   : http
-   User       : 
-   Password   : 
+   User       :
+   Password   :
    Server     : www.myserver.com
    Port       : 89
    Path       : /app/
@@ -176,8 +201,8 @@ http://www.myserver.com:89/app/request?p1=9&p2=toto
 http://:@www.myserver.com/app/request?p1=9&p2=toto
 http://www.myserver.com/app/request?p1=9&p2=toto
    Protocol   : http
-   User       : 
-   Password   : 
+   User       :
+   Password   :
    Server     : www.myserver.com
    Port       : 80
    Path       : /app/
@@ -188,8 +213,8 @@ http://www.myserver.com/app/request?p1=9&p2=toto
    URI        : /app/request?p1=9&p2=toto
    *
    Protocol   : http
-   User       : 
-   Password   : 
+   User       :
+   Password   :
    Server     : www.myserver.com
    Port       : 80
    Path       : /app/
@@ -201,52 +226,52 @@ http://www.myserver.com/app/request?p1=9&p2=toto
 http://:@www.myserver.com/app/request
 http://www.myserver.com/app/request
    Protocol   : http
-   User       : 
-   Password   : 
+   User       :
+   Password   :
    Server     : www.myserver.com
    Port       : 80
    Path       : /app/
    File       : request
    Pathname   : /app/request
-   Parameters : 
-   Query      : 
+   Parameters :
+   Query      :
    URI        : /app/request
    *
    Protocol   : http
-   User       : 
-   Password   : 
+   User       :
+   Password   :
    Server     : www.myserver.com
    Port       : 80
    Path       : /app/
    File       : request
    Pathname   : /app/request
-   Parameters : 
-   Query      : 
+   Parameters :
+   Query      :
    URI        : /app/request
 http://:@www.myserver.com
 http://www.myserver.com/
    Protocol   : http
-   User       : 
-   Password   : 
+   User       :
+   Password   :
    Server     : www.myserver.com
    Port       : 80
    Path       : /
-   File       : 
+   File       :
    Pathname   : /
-   Parameters : 
-   Query      : 
+   Parameters :
+   Query      :
    URI        : /
    *
    Protocol   : http
-   User       : 
-   Password   : 
+   User       :
+   Password   :
    Server     : www.myserver.com
    Port       : 80
    Path       : /
-   File       : 
+   File       :
    Pathname   : /
-   Parameters : 
-   Query      : 
+   Parameters :
+   Query      :
    URI        : /
 https://me:pwd@www.myserver.com:89/app/request?p1=9&p2=toto
 https://me:pwd@www.myserver.com:89/app/request?p1=9&p2=toto

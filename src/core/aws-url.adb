@@ -390,6 +390,21 @@ package body AWS.URL is
       pragma Inline (User_Password);
       --  Returns the user:password@ if present and the empty string otherwise
 
+      function Host return String;
+
+      ----------
+      -- Host --
+      ----------
+
+      function Host return String is
+      begin
+         if Strings.Unbounded.Index (URL.Host, ":") > 0 then
+            return '[' & Host (URL) & ']';
+         else
+            return Host (URL);
+         end if;
+      end Host;
+
       -------------------
       -- User_Password --
       -------------------
@@ -410,8 +425,7 @@ package body AWS.URL is
          return Pathname_And_Parameters (URL);
       else
          return Protocol_Name (URL) & "://"
-           & User_Password
-           & Host (URL) & Port_Not_Default (URL) & Pathname (URL)
+           & User_Password & Host & Port_Not_Default (URL) & Pathname (URL)
            & Parameters (URL);
       end if;
    end URL;

@@ -60,6 +60,8 @@ begin
    Test ("https://www.myserver.com/bugs/I9/DIR/"
          & "X2%202010:%20Notification%20to%20authors.eml"
          &"?filename=X2%202010:%20Notification%20to%20authors.eml");
+   Test ("http://[1234:5678::9ABCD]/app/request?p1=9&p2=toto");
+   Test ("http://[1234:5678::9ABCD]:89/app/.\..\toto?url=http://titi&a=2");
    Test (".");
    Test ("./toto");
    Test ("./../toto");
