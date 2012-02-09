@@ -21,13 +21,11 @@ with Ada.Text_IO;
 with AWS.Client;
 with AWS.Config.Set;
 with AWS.Dispatchers.Callback;
-with AWS.Server;
+with AWS.Server.Status;
 with AWS.Services.Dispatchers.URI;
 with AWS.Status;
 with AWS.Response;
 with AWS.Utils;
-
-with Get_Free_Port;
 
 procedure Dispatch1 is
 
@@ -35,8 +33,8 @@ procedure Dispatch1 is
    use AWS;
    use AWS.Services;
 
-   Cfg       : Config.Object;
-   Free_Port : Positive;
+   WS  : AWS.Server.HTTP;
+   Cfg : Config.Object;
 
    function CB1 (Request : AWS.Status.Data) return AWS.Response.Data is
       pragma Unreferenced (Request);
@@ -78,14 +76,11 @@ procedure Dispatch1 is
       R : Response.Data;
    begin
       Text_IO.Put_Line (URI);
-      R := Client.Get
-        ("http://localhost:" & AWS.Utils.Image (Free_Port) & URI);
+      R := Client.Get (AWS.Server.Status.Local_URL (WS) & URI);
       Text_IO.Put_Line ("> " & Response.Message_Body (R));
    end Test;
 
    H  : AWS.Services.Dispatchers.URI.Handler;
-
-   WS : AWS.Server.HTTP;
 
 begin
    Services.Dispatchers.URI.Register
@@ -111,14 +106,9 @@ begin
 
    Cfg := AWS.Config.Get_Current;
 
-   Free_Port := AWS.Config.Server_Port (Cfg);
-   Get_Free_Port (Free_Port);
-   AWS.Config.Set.Server_Port (Cfg, Free_Port);
+   AWS.Config.Set.Server_Port (Cfg, 0);
 
-   AWS.Server.Start
-     (WS,
-      Dispatcher => H,
-      Config     => Cfg);
+   AWS.Server.Start (WS, Dispatcher => H, Config => Cfg);
 
    Test ("/thisone");
    Test ("/disp");

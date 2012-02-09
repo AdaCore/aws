@@ -20,6 +20,7 @@
 
 with Ada.Text_IO;
 
+with AWS.Config.Set;
 with AWS.MIME;
 with AWS.Response;
 with AWS.Server.Log;
@@ -35,6 +36,7 @@ procedure Datafeed_Service is
    use AWS;
 
    H_Server : Server.HTTP;
+   CNF      : Config.Object;
 
    procedure WSDL_Demo_Client is
       use Ada;
@@ -77,10 +79,11 @@ procedure Datafeed_Service is
    end Ping;
 
 begin
-   Server.Start
-     (H_Server, "WSDL demo",
-      CB'Unrestricted_Access,
-      Port => DatafeedService.Server.Port);
+   Config.Set.Server_Name (CNF, "WSDL demo");
+   Config.Set.Server_Host (CNF, "localhost");
+   Config.Set.Server_Port (CNF, DatafeedService.Server.Port);
+
+   Server.Start (H_Server, CB'Unrestricted_Access, CNF);
 
    WSDL_Demo_Client;
 

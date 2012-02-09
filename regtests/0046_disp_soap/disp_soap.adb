@@ -18,11 +18,7 @@
 
 with Disp_SOAP_Proc;
 
-with Get_Free_Port;
-
 procedure Disp_SOAP is
-   Port : Natural := 6547;
 begin
-   Get_Free_Port (Port);
-   Disp_SOAP_Proc ("http", Port);
+   Disp_SOAP_Proc ("http");
 end Disp_SOAP;

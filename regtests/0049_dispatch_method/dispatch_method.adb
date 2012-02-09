@@ -22,13 +22,11 @@ with Ada.Text_IO;
 with AWS.Client;
 with AWS.Config.Set;
 with AWS.Dispatchers.Callback;
-with AWS.Server;
+with AWS.Server.Status;
 with AWS.Services.Dispatchers.Method;
 with AWS.Status;
 with AWS.Response;
 with AWS.Utils;
-
-with Get_Free_Port;
 
 procedure Dispatch_Method is
 
@@ -36,8 +34,7 @@ procedure Dispatch_Method is
    use AWS;
    use AWS.Services;
 
-   Cfg       : Config.Object;
-   Free_Port : Positive;
+   Cfg : Config.Object;
 
    function CB1
      (Request : AWS.Status.Data)
@@ -83,18 +80,12 @@ begin
    Services.Dispatchers.Method.Register
      (H, Status.POST, CB3'Unrestricted_Access);
 
-   Free_Port := AWS.Config.Server_Port (Cfg);
-   Get_Free_Port (Free_Port);
-   AWS.Config.Set.Server_Port (Cfg, Free_Port);
+   AWS.Config.Set.Server_Port (Cfg, 0);
 
-   AWS.Server.Start
-     (WS,
-      Dispatcher => H,
-      Config     => Cfg);
+   AWS.Server.Start (WS, Dispatcher => H, Config => Cfg);
 
    declare
-      URL : constant String
-        := "http://localhost:" & Utils.Image (Free_Port) & "/test";
+      URL : constant String := AWS.Server.Status.Local_URL (WS) & "/test";
    begin
       R := Client.Get (URL);
       Text_IO.Put_Line ("> " & Response.Message_Body (R));

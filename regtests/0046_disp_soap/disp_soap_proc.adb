@@ -38,7 +38,7 @@ with SOAP.Parameters;
 with SOAP.Types;
 with SOAP.Dispatchers.Callback;
 
-procedure Disp_SOAP_Proc (Protocol : String; Port : Natural) is
+procedure Disp_SOAP_Proc (Protocol : String) is
 
    use Ada;
    use Ada.Text_IO;
@@ -170,8 +170,7 @@ procedure Disp_SOAP_Proc (Protocol : String; Port : Natural) is
 begin
    Put_Line ("Start main, wait for server to start...");
 
-   AWS.Config.Set.Server_Port (Config, Port);
-   AWS.Config.Set.Server_Host (Config, "localhost");
+   AWS.Config.Set.Server_Port (Config, 0);
    AWS.Config.Set.Security    (Config, Protocol = "https");
 
    AWS.Server.Start
@@ -185,9 +184,7 @@ begin
    New_Line;
 
    AWS.Client.Create
-     (Connection => Connect,
-      Host       => Protocol & "://" & AWS.Server.Status.Host (HTTP) & ':'
-                      & AWS.Utils.Image (Port));
+     (Connection => Connect, Host => AWS.Server.Status.Local_URL (HTTP));
 
    Request ("multProc", 2, 3);
    Request ("multProc", 9, 9);

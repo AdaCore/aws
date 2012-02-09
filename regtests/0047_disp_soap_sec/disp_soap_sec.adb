@@ -18,11 +18,7 @@
 
 with S_Disp_SOAP_Proc;
 
-with Get_Free_Port;
-
 procedure Disp_SOAP_Sec is
-   Port : Natural := 4447;
 begin
-   Get_Free_Port (Port);
-   S_Disp_SOAP_Proc ("https", Port);
+   S_Disp_SOAP_Proc ("https");
 end Disp_SOAP_Sec;
