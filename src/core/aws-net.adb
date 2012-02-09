@@ -197,6 +197,16 @@ package body AWS.Net is
       end if;
    end Initialize;
 
+   -------------
+   -- Is_IPv6 --
+   -------------
+
+   function Is_IPv6 (Socket : Socket_Type) return Boolean is
+      pragma Unreferenced (Socket);
+   begin
+      return False;
+   end Is_IPv6;
+
    --------------------
    -- Is_Peer_Closed --
    --------------------
