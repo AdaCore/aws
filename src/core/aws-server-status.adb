@@ -103,6 +103,8 @@ package body AWS.Server.Status is
       O : URL.Object;
 
       function Localhost return String;
+      pragma Inline (Localhost);
+      --  Returns localhost for Server in IPv4 or IPv6
 
       ---------------
       -- Localhost --
