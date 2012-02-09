@@ -22,5 +22,5 @@ with HLoad_Pack;
 
 procedure HLoad is
 begin
-   HLoad_Pack.Run ("http", 1234);
+   HLoad_Pack.Run ("http");
 end HLoad;

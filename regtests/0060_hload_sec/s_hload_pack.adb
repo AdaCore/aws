@@ -23,7 +23,7 @@ with Ada.Exceptions;
 with Ada.Text_IO;
 with Ada.Strings.Unbounded;
 
-with AWS.Server;
+with AWS.Server.Status;
 with AWS.Response;
 with AWS.Status;
 with AWS.MIME;
@@ -156,10 +156,7 @@ package body S_HLoad_Pack is
    -- Run --
    ---------
 
-   procedure Run
-     (Protocol : String;
-      Port     : Positive;
-      Timed    : Boolean := False) is
+   procedure Run (Protocol : String; Timed : Boolean := False) is
 
       task type Client is
          entry Start (Name : String);
@@ -167,8 +164,6 @@ package body S_HLoad_Pack is
       end Client;
 
       WS : Server.HTTP;
-
-      Free_Port : Positive := Port;
 
       Clients : array (1 .. Max_Client) of Client;
 
@@ -186,7 +181,7 @@ package body S_HLoad_Pack is
 
          AWS.Client.Create
            (Connect,
-            Protocol & "://localhost:" & Utils.Image (Free_Port),
+            AWS.Server.Status.Local_URL (WS),
             Timeouts => AWS.Client.Timeouts
               (Connect => 5.0,
                Send => 15.0, Receive => 15.0, Response => 15.0));
@@ -226,14 +221,13 @@ package body S_HLoad_Pack is
       end Client;
 
    begin
-      Get_Free_Port (Free_Port);
       Interval_Timer.Reset;
 
       Server.Start
         (WS,
          "Heavy Loaded",
          CB'Access,
-         Port           => Free_Port,
+         Port           => 0,
          Security       => Protocol = "https",
          Max_Connection => Max_Line,
          Session        => True);

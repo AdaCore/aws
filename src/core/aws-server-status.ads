@@ -62,6 +62,9 @@ package AWS.Server.Status is
 
    function Is_IPv6 (Server : HTTP) return Boolean;
 
+   function Local_URL (Server : HTTP) return String;
+   --  Local URL of the server
+
    function Current_Connections (Server : HTTP) return Natural;
    --  Returns the current number of connections
 

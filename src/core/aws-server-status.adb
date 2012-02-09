@@ -34,6 +34,7 @@ with AWS.Config;
 with AWS.Hotplug.Get_Status;
 with AWS.Session;
 with AWS.Server.Log;
+with AWS.URL.Set;
 with AWS.Utils;
 
 package body AWS.Server.Status is
@@ -93,6 +94,18 @@ package body AWS.Server.Status is
    begin
       return Server.Shutdown;
    end Is_Shutdown;
+
+   ---------------
+   -- Local_URL --
+   ---------------
+
+   function Local_URL (Server : HTTP) return String is
+      O : URL.Object;
+   begin
+      URL.Set.Connection_Data
+        (O, Host (Server), Port (Server), Is_Security_Activated (Server));
+      return URL.URL (O);
+   end Local_URL;
 
    ----------
    -- Port --

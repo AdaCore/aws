@@ -20,9 +20,6 @@
 
 package HLoad_Pack is
 
-   procedure Run
-     (Protocol : String;
-      Port     : Positive;
-      Timed    : Boolean := False);
+   procedure Run (Protocol : String; Timed : Boolean := False);
 
 end HLoad_Pack;

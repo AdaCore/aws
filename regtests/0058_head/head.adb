@@ -19,15 +19,13 @@
 with Ada.Text_IO;
 with Ada.Exceptions;
 
-with AWS.Server;
+with AWS.Server.Status;
 with AWS.Client;
 with AWS.Status;
 with AWS.MIME;
 with AWS.Response;
 with AWS.Messages;
 with AWS.Utils;
-
-with Get_Free_Port;
 
 procedure Head is
 
@@ -40,7 +38,6 @@ procedure Head is
 
    My_Name : constant String := "head.txt";
    HTTP    : AWS.Server.HTTP;
-   Port    : Natural := 1244;
    Connect : Client.HTTP_Connection;
    R_Get   : Response.Data;
    R_Head  : Response.Data;
@@ -55,15 +52,13 @@ procedure Head is
    end CB;
 
 begin
-   Get_Free_Port (Port);
-
    AWS.Server.Start
      (HTTP, "Testing head request.",
-      CB'Unrestricted_Access, Port => Port, Max_Connection => 3);
+      CB'Unrestricted_Access, Port => 0, Max_Connection => 3);
 
    Client.Create
      (Connection => Connect,
-      Host       => "http://localhost:" & Utils.Image (Port),
+      Host       => Server.Status.Local_URL (HTTP),
       Timeouts   => Client.Timeouts
         (Connect => 5.0, Send => 5.0, Receive => 5.0));
 

@@ -20,9 +20,6 @@
 
 package S_HLoad_Pack is
 
-   procedure Run
-     (Protocol : String;
-      Port     : Positive;
-      Timed    : Boolean := False);
+   procedure Run (Protocol : String; Timed : Boolean := False);
 
 end S_HLoad_Pack;

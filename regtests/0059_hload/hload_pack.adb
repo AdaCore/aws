@@ -34,8 +34,6 @@ with AWS.Server.Status;
 with AWS.Status;
 with AWS.Utils;
 
-with Get_Free_Port;
-
 package body HLoad_Pack is
 
    use Ada;
@@ -158,11 +156,7 @@ package body HLoad_Pack is
    -- Run --
    ---------
 
-   procedure Run
-     (Protocol : String;
-      Port     : Positive;
-      Timed    : Boolean := False)
-   is
+   procedure Run (Protocol : String; Timed : Boolean := False) is
 
       task type Client is
          entry Start (Name : String);
@@ -171,8 +165,6 @@ package body HLoad_Pack is
 
       WS  : Server.HTTP;
       CNF : Config.Object;
-
-      Free_Port : Positive := Port;
 
       Clients : array (1 .. Max_Client) of Client;
 
@@ -190,8 +182,7 @@ package body HLoad_Pack is
 
          AWS.Client.Create
            (Connect,
-            Protocol & "://" & AWS.Server.Status.Host (WS) & ':'
-            & Utils.Image (Free_Port),
+            AWS.Server.Status.Local_URL (WS),
             Timeouts => AWS.Client.Timeouts
               (Connect  => 15.0,
                Send     => 15.0,
@@ -239,12 +230,11 @@ package body HLoad_Pack is
       end Client;
 
    begin
-      Get_Free_Port (Free_Port);
       Interval_Timer.Reset;
 
       Config.Set.Server_Name    (CNF, "Heavy Loaded");
       Config.Set.Server_Host    (CNF, "localhost");
-      Config.Set.Server_Port    (CNF, Free_Port);
+      Config.Set.Server_Port    (CNF, 0);
       Config.Set.Security       (CNF, Protocol = "https");
       Config.Set.Max_Connection (CNF, Max_Line);
       Config.Set.Session        (CNF, True);
