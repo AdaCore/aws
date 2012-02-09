@@ -16,8 +16,6 @@
 --  to http://www.gnu.org/licenses for a complete copy of the license.      --
 ------------------------------------------------------------------------------
 
-with Ada.Directories;
-with Ada.Streams;
 with Ada.Strings.Unbounded;
 with Ada.Text_IO;
 
@@ -25,12 +23,10 @@ with AWS.Client;
 with AWS.Config.Set;
 with AWS.Messages;
 with AWS.MIME;
-with AWS.Net.Log;
-with AWS.Parameters.Set;
+with AWS.Parameters;
 with AWS.Response;
 with AWS.Server;
 with AWS.Status;
-with AWS.Translator;
 with AWS.Utils;
 
 with Get_Free_Port;
@@ -38,7 +34,6 @@ with Get_Free_Port;
 procedure Max_Parameter (Max_Parameters : Positive) is
 
    use Ada;
-   use Ada.Streams;
    use Ada.Strings.Unbounded;
    use AWS;
    use type AWS.Messages.Status_Code;
