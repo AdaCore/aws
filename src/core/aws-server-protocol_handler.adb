@@ -30,6 +30,8 @@
 --  This procedure is responsible of handling the HTTP protocol. Every
 --  responses and incoming requests are parsed/formated here.
 
+with Ada.Exceptions;
+
 with AWS.Config;
 with AWS.Log;
 with AWS.Messages;
@@ -48,6 +50,7 @@ with AWS.Utils;
 separate (AWS.Server)
 
 procedure Protocol_Handler (LA : in out Line_Attribute_Record) is
+
    use AWS.Server.HTTP_Utils;
 
    use type Resources.Content_Length_Type;
@@ -88,6 +91,7 @@ begin
 
    For_Every_Request : loop
       declare
+         use Ada.Exceptions;
          use type Response.Data_Mode;
 
          Expectation_Failed : exception;
@@ -250,7 +254,9 @@ begin
                Will_Close);
 
          when E : Net.Buffered.Data_Overflow
-              | Parameters.Set.Too_Long_Parameter =>
+           | Parameters.Set.Too_Long_Parameter
+           | Parameters.Set.Too_Many_Parameters
+           =>
             AWS.Log.Write
               (LA.Server.Error_Log,
                LA.Stat,
@@ -264,6 +270,16 @@ begin
                  (Status_Code  => Messages.S414,
                   Content_Type => "text/plain",
                   Message_Body => Ada.Exceptions.Exception_Message (E));
+
+            elsif
+              Exception_Identity (E) =
+                Parameters.Set.Too_Many_Parameters'Identity
+            then
+               Error_Answer := Response.Build
+                 (Status_Code  => Messages.S403,
+                  Content_Type => "text/plain",
+                  Message_Body => Ada.Exceptions.Exception_Message (E));
+
             else
                Error_Answer := Response.Build
                  (Status_Code  => Messages.S400,

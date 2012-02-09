@@ -94,10 +94,15 @@ begin
    if Response.Status_Code (R) = Messages.S200 then
       Text_IO.Put_Line (Response.Message_Body (R));
 
-   elsif Response.Status_Code (R) = Messages.S500
-     and then Index (Response.Message_Body (R), "TOO_MANY_PARAMETERS") /= 0
+   elsif Response.Status_Code (R) = Messages.S403
+     and then Index (Response.Message_Body (R), "Maximum number of para") /= 0
    then
       Text_IO.Put_Line ("Got exception TOO_MANY_PARAMETERS");
+
+   else
+      Text_IO.Put_Line
+        ("Got : " & Messages.Status_Code'Image (Response.Status_Code (R)));
+      Text_IO.Put_Line (Response.Message_Body (R));
    end if;
 
    Server.Shutdown (WS);
