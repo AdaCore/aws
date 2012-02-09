@@ -290,41 +290,39 @@ package body AWS.URL.Set is
                Parse_Path_File (I2);
             end if;
 
-         else
-            if I2 = 0 then
-               --  No path, we have [host:port]
+         elsif I2 = 0 then
+            --  No path, we have [host:port]
 
-               Item.Host := +URL (F .. I1 - 1);
+            Item.Host := +URL (F .. I1 - 1);
 
-               if Utils.Is_Number (URL (I1 + 1 .. URL'Last)) then
-                  Item.Port := Positive'Value (URL (I1 + 1 .. URL'Last));
-               else
-                  Raise_URL_Error (Set.Parse.URL, "Port is not valid");
-               end if;
-
-               Item.Path := +"/";
-
-            elsif I1 < I2 then
-               --  Here we have a complete URL [host:port/path]
-
-               Item.Host := +URL (F .. I1 - 1);
-
-               if Utils.Is_Number (URL (I1 + 1 .. I2 - 1)) then
-                  Item.Port := Positive'Value (URL (I1 + 1 .. I2 - 1));
-               else
-                  Raise_URL_Error (Set.Parse.URL, "Port is not valid");
-               end if;
-
-               Parse_Path_File (I2);
-
+            if Utils.Is_Number (URL (I1 + 1 .. URL'Last)) then
+               Item.Port := Positive'Value (URL (I1 + 1 .. URL'Last));
             else
-               --  Here we have a complete URL, with no port specified
-               --  The semicolon is part of the URL [host/path]
-
-               Item.Host := +URL (F .. I2 - 1);
-
-               Parse_Path_File (I2);
+               Raise_URL_Error (Set.Parse.URL, "Port is not valid");
             end if;
+
+            Item.Path := +"/";
+
+         elsif I1 < I2 then
+            --  Here we have a complete URL [host:port/path]
+
+            Item.Host := +URL (F .. I1 - 1);
+
+            if Utils.Is_Number (URL (I1 + 1 .. I2 - 1)) then
+               Item.Port := Positive'Value (URL (I1 + 1 .. I2 - 1));
+            else
+               Raise_URL_Error (Set.Parse.URL, "Port is not valid");
+            end if;
+
+            Parse_Path_File (I2);
+
+         else
+            --  Here we have a complete URL, with no port specified
+            --  The semicolon is part of the URL [host/path]
+
+            Item.Host := +URL (F .. I2 - 1);
+
+            Parse_Path_File (I2);
          end if;
       end Parse;
 
