@@ -1614,6 +1614,8 @@ regtests/0222_sea_to_string/test.out
 regtests/0222_sea_to_string/test.py
 regtests/0223_max_parameters/max_parameter.adb
 regtests/0223_max_parameters/max_parameter.gpr
+regtests/0223_max_parameters/max_parameter_2.adb
+regtests/0223_max_parameters/max_parameter_3.adb
 regtests/0223_max_parameters/test.out
 regtests/0223_max_parameters/test.py
 regtests/README

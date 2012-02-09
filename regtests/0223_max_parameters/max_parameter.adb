@@ -16,7 +16,6 @@
 --  to http://www.gnu.org/licenses for a complete copy of the license.      --
 ------------------------------------------------------------------------------
 
-with Ada.Command_Line;
 with Ada.Directories;
 with Ada.Streams;
 with Ada.Strings.Unbounded;
@@ -36,7 +35,7 @@ with AWS.Utils;
 
 with Get_Free_Port;
 
-procedure Max_Parameter is
+procedure Max_Parameter (Max_Parameters : Positive) is
 
    use Ada;
    use Ada.Streams;
@@ -78,10 +77,7 @@ begin
    Config.Set.Server_Host (CNF, "localhost");
    Config.Set.Server_Port (CNF, Port);
 
-   if Command_Line.Argument_Count = 1 then
-      Config.Set.Max_POST_Parameters
-        (CNF, Positive'Value (Command_Line.Argument (1)));
-   end if;
+   Config.Set.Max_POST_Parameters (CNF, Max_Parameters);
 
    Server.Start (WS, CB'Unrestricted_Access, CNF);
 

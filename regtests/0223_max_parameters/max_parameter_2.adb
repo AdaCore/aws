@@ -16,9 +16,9 @@
 --  to http://www.gnu.org/licenses for a complete copy of the license.      --
 ------------------------------------------------------------------------------
 
-with "aws";
+with Max_Parameter;
 
-project Max_Parameter is
-   for Source_Dirs use (".", "../common");
-   for Main use ("max_parameter_2.adb", "max_parameter_3.adb");
-end Max_Parameter;
+procedure Max_Parameter_2 is
+begin
+   Max_Parameter (2);
+end Max_Parameter_2;
