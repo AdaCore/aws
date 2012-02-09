@@ -101,9 +101,21 @@ package body AWS.Server.Status is
 
    function Local_URL (Server : HTTP) return String is
       O : URL.Object;
+
+      function Localhost return String;
+
+      function Localhost return String is
+      begin
+         if Is_IPv6 (Server) then
+            return "[::1]";
+         else
+            return "127.0.0.1";
+         end if;
+      end Localhost;
+
    begin
       URL.Set.Connection_Data
-        (O, Host (Server), Port (Server), Is_Security_Activated (Server));
+        (O, Localhost, Port (Server), Is_Security_Activated (Server));
       return URL.URL (O);
    end Local_URL;
 
