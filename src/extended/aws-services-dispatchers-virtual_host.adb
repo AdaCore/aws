@@ -103,7 +103,7 @@ package body AWS.Services.Dispatchers.Virtual_Host is
       Node     : VH_Node;
       Cursor   : Virtual_Host_Table.Cursor;
    begin
-      K := Strings.Fixed.Index (Hostname, ":");
+      K := Strings.Fixed.Index (Hostname, ":", Strings.Backward);
 
       if K = 0 then
          K := Hostname'Last;

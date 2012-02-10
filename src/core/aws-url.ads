@@ -87,8 +87,9 @@ package AWS.URL is
    function Protocol_Name (URL : Object) return String;
    --  Returns "http" or "https" depending on the protocol used by URL
 
-   function Host (URL : Object) return String;
-   --  Returns the hostname
+   function Host
+     (URL : Object; IPv6_Brackets : Boolean := False) return String;
+   --  Returns the hostname in IPv6 breakets if necessary
 
    function Port (URL : Object) return Positive;
    --  Returns the port as a positive
@@ -125,7 +126,9 @@ package AWS.URL is
    --  Returns user's password part of the URL. Returns the empty string if
    --  password was not specified.
 
-   function Server_Name (URL : Object) return String renames Host;
+   function Server_Name
+     (URL : Object; IPv6_Brackets : Boolean := False) return String
+     renames Host;
 
    function Security (URL : Object) return Boolean;
    --  Returns True if it is a Secure HTTP (HTTPS) URL

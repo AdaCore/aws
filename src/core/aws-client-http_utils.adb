@@ -131,7 +131,7 @@ package body AWS.Client.HTTP_Utils is
          declare
             use AWS.URL;
             Host_Address : constant String :=
-                             Host (Connection.Host_URL)
+                             Host (Connection.Host_URL, IPv6_Brackets => True)
                              & Port_Not_Default (Connection.Host_URL);
          begin
             Send_Header
@@ -674,7 +674,8 @@ package body AWS.Client.HTTP_Utils is
       end Persistence;
 
       Host_Address : constant String :=
-                       AWS.URL.Host (Connection.Host_URL)
+                       AWS.URL.Host
+                         (Connection.Host_URL, IPv6_Brackets => True)
                        & AWS.URL.Port_Not_Default (Connection.Host_URL);
 
    begin

@@ -194,9 +194,16 @@ package body AWS.URL is
    -- Host --
    ----------
 
-   function Host (URL : Object) return String is
+   function Host
+     (URL : Object; IPv6_Brackets : Boolean := False) return String is
    begin
-      return To_String (URL.Host);
+      if IPv6_Brackets
+        and then Ada.Strings.Unbounded.Index (URL.Host, ":") > 0
+      then
+         return '[' & To_String (URL.Host) & ']';
+      else
+         return To_String (URL.Host);
+      end if;
    end Host;
 
    --------------
@@ -390,21 +397,6 @@ package body AWS.URL is
       pragma Inline (User_Password);
       --  Returns the user:password@ if present and the empty string otherwise
 
-      function Host return String;
-
-      ----------
-      -- Host --
-      ----------
-
-      function Host return String is
-      begin
-         if Strings.Unbounded.Index (URL.Host, ":") > 0 then
-            return '[' & Host (URL) & ']';
-         else
-            return Host (URL);
-         end if;
-      end Host;
-
       -------------------
       -- User_Password --
       -------------------
@@ -425,8 +417,8 @@ package body AWS.URL is
          return Pathname_And_Parameters (URL);
       else
          return Protocol_Name (URL) & "://"
-           & User_Password & Host & Port_Not_Default (URL) & Pathname (URL)
-           & Parameters (URL);
+           & User_Password & Host (URL, IPv6_Brackets => True)
+           & Port_Not_Default (URL) & Pathname (URL) & Parameters (URL);
       end if;
    end URL;
 
