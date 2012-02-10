@@ -48,7 +48,7 @@ package AWS.Communication.Server is
    --  parameter. This communication server must be started with the Start
    --  procedure and can be stopped with the procedure Shutdown below.
 
-   procedure Start (Port : Positive; Context : T_Access);
+   procedure Start (Port : Positive; Context : T_Access; Host : String := "");
    --  Start communication HTTP server listening at the given port
 
    procedure Shutdown;

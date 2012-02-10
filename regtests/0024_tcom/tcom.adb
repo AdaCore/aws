@@ -104,7 +104,8 @@ procedure Tcom is
 begin
    Get_Free_Port (Free_Port);
 
-   Com_Server.Start (Free_Port, C'Access);
+   Com_Server.Start
+     (Context => C'Access, Host => "localhost", Port => Free_Port);
 
    R := Communication.Client.Send_Message
      ("localhost", Free_Port, "zero");

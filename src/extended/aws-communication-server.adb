@@ -29,6 +29,7 @@
 
 with Ada.Unchecked_Conversion;
 
+with AWS.Config.Set;
 with AWS.Messages;
 with AWS.Parameters;
 with AWS.Server;
@@ -123,16 +124,20 @@ package body AWS.Communication.Server is
    -- Start --
    -----------
 
-   procedure Start (Port : Positive; Context : T_Access) is
-      CB : constant Internal_Callback := Receive'Access;
+   procedure Start
+     (Port : Positive; Context : T_Access; Host : String := "")
+   is
+      CB  : constant Internal_Callback := Receive'Access;
+      CNF : Config.Object;
    begin
       Server.Context := Context;
 
-      AWS.Server.Start
-        (Com_Server, "Communication Server",
-         Max_Connection => 1,
-         Port           => Port,
-         Callback       => To_Callback (CB));
+      Config.Set.Server_Name    (CNF, "Communication Server");
+      Config.Set.Server_Host    (CNF, Host);
+      Config.Set.Server_Port    (CNF, Port);
+      Config.Set.Max_Connection (CNF, 1);
+
+      AWS.Server.Start (Com_Server, To_Callback (CB), Config => CNF);
    end Start;
 
 end AWS.Communication.Server;
