@@ -23,11 +23,9 @@ with AWS.Client;
 with AWS.Config.Set;
 with AWS.Messages;
 with AWS.Response;
-with AWS.Server;
+with AWS.Server.Status;
 with AWS.Services.Page_Server;
 with AWS.Utils;
-
-with Get_Free_Port;
 
 procedure Page_Server is
    use Ada;
@@ -37,7 +35,6 @@ procedure Page_Server is
    Conf : Config.Object;
    WS   : Server.HTTP;
    R    : Response.Data;
-   Port : Natural := 1946;
    File : Text_IO.File_Type;
 
 begin
@@ -47,14 +44,12 @@ begin
    Text_IO.Create (File, Text_IO.Out_File, "icons/sound1.gif");
    Text_IO.Close (File);
 
-   Get_Free_Port (Port);
-
    Config.Set.WWW_Root (Conf, "icons");
-   Config.Set.Server_Port (Conf, Port);
+   Config.Set.Server_Port (Conf, 0);
 
    Server.Start (WS, Services.Page_Server.Callback'Access, Conf);
 
-   R := Client.Get ("http://localhost:" & Utils.Image (Port) & "/sound1.gif");
+   R := Client.Get (Server.Status.Local_URL (WS) & "/sound1.gif");
 
    if Response.Status_Code (R) = Messages.S200  then
       Text_IO.Put_Line ("OK for sound1.gif");
@@ -62,7 +57,7 @@ begin
       Text_IO.Put_Line ("NOK for sound1.gif");
    end if;
 
-   R := Client.Get ("http://localhost:" & Utils.Image (Port) & "/nothere.gif");
+   R := Client.Get (Server.Status.Local_URL (WS) & "/nothere.gif");
 
    if Response.Status_Code (R) = Messages.S404  then
       Text_IO.Put_Line ("OK for nothere.gif");

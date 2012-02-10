@@ -29,6 +29,7 @@ with AWS.Net;
 with AWS.Parameters;
 with AWS.Response;
 with AWS.Server.Push;
+with AWS.Server.Status;
 with AWS.Status;
 with AWS.Translator;
 with AWS.Utils;
@@ -124,14 +125,12 @@ package body S_Sp_Pack is
    -- Run --
    ---------
 
-   procedure Run (Protocol : String; Port : Positive) is
+   procedure Run (Protocol : String) is
       Connect : array (1 .. 30) of Client.HTTP_Connection;
       Answer  : AWS.Response.Data;
       Data    : Push_Data_Type;
 
       HTTP : AWS.Server.HTTP;
-      URL  : constant String
-        := Protocol & "://localhost:" & AWS.Utils.Image (Port);
 
       procedure Output (Data : String);
       --  Ignore random string --AWS.Push.Boundary_1044468257,
@@ -172,7 +171,7 @@ package body S_Sp_Pack is
         (HTTP,
          "Testing server push.",
          CB'Access,
-         Port           => Port,
+         Port           => 0,
          Security       => Protocol = "https",
          Max_Connection => 3);
 
@@ -183,7 +182,7 @@ package body S_Sp_Pack is
       for J in Connect'Range loop
          Client.Create
            (Connection  => Connect (J),
-            Host        => URL,
+            Host        => AWS.Server.Status.Local_URL (HTTP),
             Timeouts    => Client.Timeouts
               (Connect => 5.0,
                Send => 15.0, Receive => 15.0, Response => 15.0),

@@ -25,11 +25,9 @@ with AWS.Messages;
 with AWS.MIME;
 with AWS.Parameters;
 with AWS.Response;
-with AWS.Server;
+with AWS.Server.Status;
 with AWS.Status;
 with AWS.Utils;
-
-with Get_Free_Port;
 
 procedure Max_Parameter (Max_Parameters : Positive) is
 
@@ -38,9 +36,8 @@ procedure Max_Parameter (Max_Parameters : Positive) is
    use AWS;
    use type AWS.Messages.Status_Code;
 
-   WS   : Server.HTTP;
-   Port : Positive := 8270;
-   CNF  : Config.Object;
+   WS  : Server.HTTP;
+   CNF : Config.Object;
 
    CRLF : constant String := ASCII.CR & ASCII.LF;
 
@@ -66,11 +63,9 @@ procedure Max_Parameter (Max_Parameters : Positive) is
    R : Response.Data;
 
 begin
-   Get_Free_Port (Port);
-
    Config.Set.Server_Name (CNF, "Max Parameter");
    Config.Set.Server_Host (CNF, "localhost");
-   Config.Set.Server_Port (CNF, Port);
+   Config.Set.Server_Port (CNF, 0);
 
    Config.Set.Max_POST_Parameters (CNF, Max_Parameters);
 
@@ -79,8 +74,8 @@ begin
    Text_IO.Put_Line ("started"); Ada.Text_IO.Flush;
 
    R := Client.Post
-          ("http://localhost:" & Utils.Image (Port)
-           & "/this_uri?P1=12&P2=azerty&P3=aws", M_Body);
+          (Server.Status.Local_URL (WS) & "/this_uri?P1=12&P2=azerty&P3=aws",
+           M_Body);
 
    if Response.Status_Code (R) = Messages.S200 then
       Text_IO.Put_Line (Response.Message_Body (R));

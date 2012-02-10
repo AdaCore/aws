@@ -22,11 +22,9 @@ with AWS.Client;
 with AWS.Messages;
 with AWS.MIME;
 with AWS.Response;
-with AWS.Server;
+with AWS.Server.Status;
 with AWS.Status;
 with AWS.Utils;
-
-with Get_Free_Port;
 
 procedure ZOpen is
 
@@ -34,8 +32,6 @@ procedure ZOpen is
    use AWS;
 
    WS : Server.HTTP;
-
-   Port : Positive := 1271;
 
    procedure Call_It (URI : String);
    function CB (Request : Status.Data) return Response.Data;
@@ -47,7 +43,7 @@ procedure ZOpen is
    procedure Call_It (URI : String) is
       R : Response.Data;
    begin
-      R := Client.Get ("http://localhost:" & Utils.Image (Port) & URI);
+      R := Client.Get (Server.Status.Local_URL (WS) & URI);
       Ada.Text_IO.Put (Response.Message_Body (R));
    end Call_It;
 
@@ -63,12 +59,10 @@ procedure ZOpen is
    end CB;
 
 begin
-   Get_Free_Port (Port);
-
    Server.Start
      (WS, "zopen",
       CB'Unrestricted_Access,
-      Port           => Port,
+      Port           => 0,
       Max_Connection => 5);
 
    Ada.Text_IO.Put_Line ("ZOpen started");

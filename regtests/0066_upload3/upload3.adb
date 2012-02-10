@@ -30,11 +30,10 @@ with AWS.Messages;
 with AWS.Net;
 with AWS.Parameters;
 with AWS.Response;
-with AWS.Server;
+with AWS.Server.Status;
 with AWS.Status;
 with AWS.Utils;
 
-with Get_Free_Port;
 with Stack_Size;
 
 procedure Upload3 is
@@ -53,7 +52,6 @@ procedure Upload3 is
    end Server;
 
    HTTP : AWS.Server.HTTP;
-   Port : Natural := 8821;
 
    procedure Problem
      (E      : Ada.Exceptions.Exception_Occurrence;
@@ -121,10 +119,8 @@ procedure Upload3 is
    task body Server is
       Web_Config : Config.Object;
    begin
-      Get_Free_Port (Port);
-
       Config.Set.Server_Name (Web_Config, "upload3");
-      Config.Set.Server_Port (Web_Config, Port);
+      Config.Set.Server_Port (Web_Config, 0);
       Config.Set.Max_Connection (Web_Config, 5);
       Config.Set.Upload_Directory (Web_Config, "/this/one/does/not/exists/");
 
@@ -177,8 +173,7 @@ begin
    Server.Start;
    Server.Started;
 
-   Request
-     ("http://localhost:" & Utils.Image (Port) & "/upload", "file2.txt");
+   Request (AWS.Server.Status.Local_URL (HTTP) & "/upload", "file2.txt");
 
    Server.Stopped;
 

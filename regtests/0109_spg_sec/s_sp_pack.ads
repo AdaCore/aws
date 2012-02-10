@@ -20,6 +20,6 @@
 
 package S_Sp_Pack is
 
-   procedure Run (Protocol : String; Port : Positive);
+   procedure Run (Protocol : String);
 
 end S_Sp_Pack;
