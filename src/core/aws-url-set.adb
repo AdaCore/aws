@@ -51,6 +51,9 @@ package body AWS.URL.Set is
    begin
       if Host = "" then
          URL.Host := To_Unbounded_String ("localhost");
+      elsif Host (Host'First) = '[' and then Host (Host'Last) = ']' then
+         URL.Host :=
+           To_Unbounded_String (Host (Host'First + 1 .. Host'Last - 1));
       else
          URL.Host := To_Unbounded_String (Host);
       end if;

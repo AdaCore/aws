@@ -124,7 +124,7 @@ package body AWS.Server.Status is
          if not Is_Any_Address (Server) then
             return Host (Server);
          elsif Is_IPv6 (Server) then
-            return "[::1]";
+            return "::1";
          else
             return "127.0.0.1";
          end if;
