@@ -77,6 +77,10 @@ procedure Dispatch_VH is
       --  Wee need to make stable output just renaming IPv6 numeric address
       --  into IPv4.
 
+      ------------------
+      -- Pretend_IPv4 --
+      ------------------
+
       function Pretend_IPv4 (Addr : String) return String is
       begin
          if Addr = "[::1]" then
