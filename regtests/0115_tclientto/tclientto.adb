@@ -20,7 +20,7 @@ with Ada.Text_IO;
 with Ada.Exceptions;
 
 with AWS.Net;
-with AWS.Server;
+with AWS.Server.Status;
 with AWS.Client;
 with AWS.Status;
 with AWS.MIME;
@@ -29,8 +29,6 @@ with AWS.Parameters;
 with AWS.Messages;
 with AWS.Utils;
 
-with Get_Free_Port;
-
 procedure Tclientto is
 
    use Ada;
@@ -38,8 +36,6 @@ procedure Tclientto is
    use AWS;
 
    function CB (Request : Status.Data) return Response.Data;
-
-   Port : Positive := 1235;
 
    task Server is
       entry Start;
@@ -80,11 +76,9 @@ procedure Tclientto is
    begin
       accept Start;
 
-      Get_Free_Port (Port);
-
       AWS.Server.Start
         (HTTP, "Test Client Timeouts",
-         CB'Unrestricted_Access, Port => Port, Max_Connection => 5);
+         CB'Unrestricted_Access, Port => 0, Max_Connection => 5);
 
       Put_Line ("Server started");
       New_Line;
@@ -105,26 +99,27 @@ procedure Tclientto is
 
    procedure Request is
       R : Response.Data;
+      Local_URL : constant String := AWS.Server.Status.Local_URL (HTTP);
    begin
-      R := Client.Get ("http://localhost:" & Utils.Image (Port) & "/3sec",
+      R := Client.Get (Local_URL & "/3sec",
                        Timeouts => Client.Timeouts
                          (Connect => 1.0, Send  => 1.0, Receive => 1.0));
       Put_Line ("=> " & Response.Message_Body (R));
       New_Line;
 
-      R := Client.Get ("http://localhost:" & Utils.Image (Port) & "/3sec",
+      R := Client.Get (Local_URL & "/3sec",
                        Timeouts => Client.Timeouts
                          (Connect => 1.0, Send  => 10.0, Receive => 10.0));
       Put_Line ("=> " & Response.Message_Body (R));
       New_Line;
 
-      R := Client.Get ("http://localhost:" & Utils.Image (Port) & "/10sec",
+      R := Client.Get (Local_URL & "/10sec",
                        Timeouts => Client.Timeouts
                          (Connect => 1.0, Send  => 1.0, Receive => 20.0));
       Put_Line ("=> " & Response.Message_Body (R));
       New_Line;
 
-      R := Client.Get ("http://localhost:" & Utils.Image (Port) & "/10sec",
+      R := Client.Get (Local_URL & "/10sec",
                        Timeouts => Client.Timeouts
                          (Connect => 1.0, Send  => 10.0, Receive => 7.0));
       Put_Line ("=> " & Response.Message_Body (R));
@@ -141,7 +136,7 @@ procedure Tclientto is
    begin
       Client.Create
         (Connection => Connect,
-         Host       => "http://localhost:" & Utils.Image (Port),
+         Host       => AWS.Server.Status.Local_URL (HTTP),
          Timeouts   => Client.Timeouts (Connect => 1.0, Receive => 5.0));
 
       Client.Get (Connect, R, "/3sec");

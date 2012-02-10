@@ -19,13 +19,11 @@
 with Ada.Text_IO;
 
 with AWS.Client;
-with AWS.Server;
+with AWS.Server.Status;
 with AWS.Response;
 with AWS.Status;
 with AWS.MIME;
 with AWS.Utils;
-
-with Get_Free_Port;
 
 procedure Hello is
 
@@ -38,19 +36,16 @@ procedure Hello is
       return Response.Build (MIME.Text_HTML, "Hello World!");
    end CB;
 
-   Port : Natural := 1234;
-   R    : Response.Data;
+   R : Response.Data;
 
 begin
-   Get_Free_Port (Port);
-
    Server.Start
-     (WS, "simple", CB'Unrestricted_Access, Port => Port, Max_Connection => 5);
+     (WS, "simple", CB'Unrestricted_Access, Port => 0, Max_Connection => 5);
    Ada.Text_IO.Put_Line ("started"); Ada.Text_IO.Flush;
 
    delay 1.0;
 
-   R := Client.Get ("http://localhost:" & Utils.Image (Port));
+   R := Client.Get (Server.Status.Local_URL (WS));
    Ada.Text_IO.Put_Line ("R : " & Response.Message_Body (R));
 
    Server.Shutdown (WS);

@@ -22,11 +22,9 @@ with Ada.Text_IO; use Ada.Text_IO;
 with AWS.Client;
 with AWS.Net.Log;
 with AWS.Response;
-with AWS.Server;
+with AWS.Server.Status;
 with AWS.Status;
 with AWS.Utils;
-
-with Get_Free_Port;
 
 procedure Test_Net_Log is
 
@@ -35,10 +33,12 @@ procedure Test_Net_Log is
    use type Streams.Stream_Element_Offset;
 
    WS     : AWS.Server.HTTP;
-   Port   : Natural := 4789;
    Result : Response.Data;
 
    DS, DR : File_Type;
+
+   Hello : String   := "/876543210";
+   Last  : Positive;
 
    Adjust : constant Streams.Stream_Element_Offset := AWS.Version'Length - 4;
 
@@ -125,13 +125,10 @@ procedure Test_Net_Log is
    -- HW_CB --
    -----------
 
-   function HW_CB
-     (Request : Status.Data)
-      return AWS.Response.Data
-   is
+   function HW_CB (Request : Status.Data) return AWS.Response.Data is
       URI : constant String := AWS.Status.URI (Request);
    begin
-      if URI = "/hello" then
+      if URI = Hello (1 .. Last) then
          delay 3.0; -- wait a bit to have more chance to get a sync log
          return AWS.Response.Build ("text/html", "<p>Hello world !");
       else
@@ -154,17 +151,19 @@ procedure Test_Net_Log is
    end Output;
 
 begin
-   Get_Free_Port (Port);
-
    Net.Log.Start (Write => HTTP_Log'Unrestricted_Access);
 
    Server.Start
-     (WS, "Hello World", Callback => HW_CB'Unrestricted_Access, Port => Port);
+     (WS, "Hello World", Callback => HW_CB'Unrestricted_Access, Port => 0);
 
    Create (DS, Out_File, "net_log_sent");
    Create (DR, Out_File, "net_log_received");
 
-   Result := Client.Get ("http://localhost:" & Utils.Image (Port) & "/hello");
+   --  Compensate port length in URL
+
+   Last := Hello'Last - Utils.Image (Server.Status.Port (WS))'Length;
+
+   Result := Client.Get (Server.Status.Local_URL (WS) & Hello (1 .. Last));
 
    Server.Shutdown (WS);
    Net.Log.Stop;

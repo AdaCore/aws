@@ -23,19 +23,16 @@ with AWS.Headers.Set;
 with AWS.Messages;
 with AWS.MIME;
 with AWS.Response;
-with AWS.Server;
+with AWS.Server.Status;
 with AWS.Status;
 with AWS.Utils;
-
-with Get_Free_Port;
 
 procedure ETag_Header is
 
    use Ada;
    use AWS;
 
-   WS   : Server.HTTP;
-   Port : Positive := 8274;
+   WS : Server.HTTP;
 
    --------
    -- CB --
@@ -77,16 +74,13 @@ procedure ETag_Header is
    H  : Headers.List;
 
 begin
-   Get_Free_Port (Port);
-
-   Server.Start
-     (WS, "ETag Header", CB'Unrestricted_Access, Port => Port);
+   Server.Start (WS, "ETag Header", CB'Unrestricted_Access, Port => 0);
 
    Headers.Set.Add
      (H, Messages.ETag_Token, String (Messages.Create_ETag ("azerty")));
 
    R := AWS.Client.Get
-     (URL => "http://localhost:" & Utils.Image (Port) & "/get", Headers => H);
+          (URL => Server.Status.Local_URL (WS) & "/get", Headers => H);
 
    Headers.Set.Reset (H);
 
@@ -95,11 +89,11 @@ begin
       String (Messages.Create_ETag ("qwerty", Weak => True)));
 
    R := AWS.Client.Head
-     (URL => "http://localhost:" & Utils.Image (Port) & "/head", Headers => H);
+          (URL => Server.Status.Local_URL (WS) & "/head", Headers => H);
 
    R := AWS.Client.Post
-     (URL => "http://localhost:" & Utils.Image (Port) & "/post",
-      Data => "", Headers => H);
+          (URL => Server.Status.Local_URL (WS) & "/post", Data => "",
+           Headers => H);
 
    Text_IO.Put_Line
      ("Etag Header : '"

@@ -25,6 +25,7 @@ with AWS.Client.Hotplug;
 with AWS.Messages;
 with AWS.Response;
 with AWS.Server.Hotplug;
+with AWS.Server.Status;
 with AWS.Utils;
 
 with Hotplug_Pack;

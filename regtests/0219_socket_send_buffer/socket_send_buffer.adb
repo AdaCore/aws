@@ -21,13 +21,11 @@ with Ada.Text_IO;
 with AWS.Client;
 with AWS.Config.Set;
 with AWS.Net;
-with AWS.Server;
+with AWS.Server.Status;
 with AWS.Response;
 with AWS.Status;
 with AWS.MIME;
 with AWS.Utils;
-
-with Get_Free_Port;
 
 procedure Socket_Send_Buffer is
 
@@ -44,32 +42,26 @@ procedure Socket_Send_Buffer is
       return Response.Build (MIME.Text_HTML, "Socket_Send_Buffer_Size");
    end CB;
 
-   WS : Server.HTTP;
-   Port : Natural := 2349;
+   WS   : Server.HTTP;
    R    : Response.Data;
    Conf : Config.Object;
 
 begin
-   Get_Free_Port (Port);
-
-   Config.Set.Server_Port (Conf, Port);
+   Config.Set.Server_Port (Conf, 0);
 
    AWS.Server.Start (WS, CB'Unrestricted_Access, Conf);
 
    Text_IO.Put_Line ("started"); Ada.Text_IO.Flush;
 
-   R := Client.Get ("http://localhost:" & Utils.Image (Port));
+   R := Client.Get (Server.Status.Local_URL (WS));
 
    AWS.Server.Shutdown (WS);
 
-   Get_Free_Port (Port);
-
    Config.Set.Send_Buffer_Size (Conf, 128_000);
-   Config.Set.Server_Port (Conf, Port);
 
    AWS.Server.Start (WS, CB'Unrestricted_Access, Conf);
 
-   R := Client.Get ("http://localhost:" & Utils.Image (Port));
+   R := Client.Get (Server.Status.Local_URL (WS));
 
    Server.Shutdown (WS);
 

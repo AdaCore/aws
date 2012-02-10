@@ -29,10 +29,9 @@ with AWS.Messages;
 with AWS.Resources.Streams;
 with AWS.Response;
 with AWS.Server.Log;
+with AWS.Server.Status;
 with AWS.Status;
 with AWS.Utils;
-
-with Get_Free_Port;
 
 with User_Strm;
 
@@ -53,7 +52,6 @@ procedure Strm is
    procedure Compare_Message;
 
    task Server is
-      entry Start;
       entry Wait_Start;
       entry Stop;
    end Server;
@@ -62,14 +60,12 @@ procedure Strm is
    Connect : Client.HTTP_Connection;
    R       : Response.Data;
 
-   Free_Port : Positive := 1238;
-
    File_Size : constant := 98_100;
    --  !!! Do not change the file size.
    --  It is just for control error when only CRC in the last chunk
    --  of the deflate compressed data.
 
-   Base_URL : String := "http://localhost:0000";
+   Base_URL : access String;
 
    Length_Defined_URI   : constant String := "/length_defined";
    Length_Undefined_URI : constant String := "/length_undefined";
@@ -117,11 +113,9 @@ procedure Strm is
       AWS.Server.Set_Unexpected_Exception_Handler
         (HTTP, UEH'Unrestricted_Access);
 
-      accept Start;
-
       AWS.Server.Start
         (HTTP, "Testing user defined stream.",
-         CB'Unrestricted_Access, Port => Free_Port, Max_Connection => 3);
+         CB'Unrestricted_Access, Port => 0, Max_Connection => 3);
 
       AWS.Server.Log.Start (HTTP);
 
@@ -178,19 +172,15 @@ procedure Strm is
    end UEH;
 
 begin
-   Get_Free_Port (Free_Port);
-
-   Server.Start;
-
-   Base_URL (Base_URL'Last - 3 .. Base_URL'Last) := Utils.Image (Free_Port);
-
    Server.Wait_Start;
+
+   Base_URL := new String'(AWS.Server.Status.Local_URL (HTTP));
 
    --  Keep-alive test
 
    Client.Create
      (Connection => Connect,
-      Host       => Base_URL,
+      Host       => Base_URL.all,
       Timeouts   => Client.Timeouts
         (Connect => 1.0, Send => 5.0, Receive => 5.0, Response => 5.0));
 
@@ -218,16 +208,16 @@ begin
 
    --  Non keep-alive test
 
-   R := Client.Get (Base_URL & Length_Defined_URI);
+   R := Client.Get (Base_URL.all & Length_Defined_URI);
    Compare_Message;
 
-   R := Client.Get (Base_URL & Length_Undefined_URI);
+   R := Client.Get (Base_URL.all & Length_Undefined_URI);
    Compare_Message;
 
-   R := Client.Get (Base_URL & Deflated_URI);
+   R := Client.Get (Base_URL.all & Deflated_URI);
    Compare_Message;
 
-   R := Client.Get (Base_URL & GZip_URI);
+   R := Client.Get (Base_URL.all & GZip_URI);
    Compare_Message;
 
    Server.Stop;

@@ -24,14 +24,12 @@ with AWS.Config.Set;
 with AWS.Messages;
 with AWS.MIME;
 with AWS.Response;
-with AWS.Server;
+with AWS.Server.Status;
 with AWS.Services.Split_Pages;
 with AWS.Services.Dispatchers.Transient_Pages;
 with AWS.Status;
 with AWS.Templates;
 with AWS.Utils;
-
-with Get_Free_Port;
 
 procedure Split1 is
 
@@ -39,8 +37,7 @@ procedure Split1 is
    use Ada.Strings.Unbounded;
    use AWS;
 
-   WS   : Server.HTTP;
-   Port : Natural := 1268;
+   WS : Server.HTTP;
 
    M_Body : Unbounded_String;
 
@@ -104,7 +101,7 @@ procedure Split1 is
    procedure Get_First is
       R : Response.Data;
    begin
-      R := Client.Get ("http://localhost:" & Utils.Image (Port) & "/main");
+      R := Client.Get (Server.Status.Local_URL (WS) & "/main");
       M_Body := Response.Message_Body (R);
 
       Text_IO.Put_Line ("First: " & Clean_Body);
@@ -121,7 +118,7 @@ procedure Split1 is
       First := Index (M_Body, "next=[");
       Last  := Index (M_Body, "]", Strings.Backward);
 
-      R := Client.Get ("http://localhost:" & Utils.Image (Port)
+      R := Client.Get (Server.Status.Local_URL (WS)
                          & Slice (M_Body, First + 6, Last - 1));
 
       M_Body := Response.Message_Body (R);
@@ -140,7 +137,7 @@ procedure Split1 is
       First := Index (M_Body, "previous=[");
       Last  := Index (M_Body, "]");
 
-      R := Client.Get ("http://localhost:" & Utils.Image (Port)
+      R := Client.Get (Server.Status.Local_URL (WS)
                          & Slice (M_Body, First + 10, Last - 1));
 
       M_Body := Response.Message_Body (R);
@@ -149,9 +146,7 @@ procedure Split1 is
    end Get_Previous;
 
 begin
-   Get_Free_Port (Port);
-
-   Config.Set.Server_Port (Conf, Port);
+   Config.Set.Server_Port (Conf, 0);
    Config.Set.Max_Connection (Conf, 5);
 
    Services.Dispatchers.Transient_Pages.Register

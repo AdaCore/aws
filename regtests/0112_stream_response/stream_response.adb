@@ -23,12 +23,10 @@ with AWS.Client;
 with AWS.MIME;
 with AWS.Resources;
 with AWS.Response;
-with AWS.Server;
+with AWS.Server.Status;
 with AWS.Status;
 with AWS.Translator;
 with AWS.Utils;
-
-with Get_Free_Port;
 
 procedure Stream_Response is
 
@@ -36,9 +34,8 @@ procedure Stream_Response is
    use Ada.Streams;
    use AWS;
 
-   WS   : Server.HTTP;
-   N    : Natural := 0;
-   Port : Positive := 1246;
+   WS : Server.HTTP;
+   N  : Natural := 0;
 
    function CB (Request : Status.Data) return Response.Data is
    begin
@@ -54,7 +51,7 @@ procedure Stream_Response is
       Buffer : Stream_Element_Array (1 .. 10);
       Last   : Stream_Element_Offset;
    begin
-      R := Client.Get ("http://localhost:" & Utils.Image (Port));
+      R := Client.Get (Server.Status.Local_URL (WS));
 
       Response.Message_Body (R, S);
 
@@ -72,12 +69,10 @@ procedure Stream_Response is
    end Get_Next;
 
 begin
-   Get_Free_Port (Port);
-
    Server.Start
      (WS, "stream_response",
       CB'Unrestricted_Access,
-      Port => Port,
+      Port => 0,
       Max_Connection => 15);
 
    Text_IO.Put_Line ("started"); Ada.Text_IO.Flush;
