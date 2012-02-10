@@ -454,6 +454,19 @@ package body AWS.Net.Std is
       return Sockets.Host_Name;
    end Host_Name;
 
+   --------------------
+   -- Is_Any_Address --
+   --------------------
+
+   overriding function Is_Any_Address (Socket : Socket_Type) return Boolean is
+      use Sockets;
+   begin
+      return Get_Socket_Name (Socket.S.FD).Addr = Any_Inet_Addr;
+   exception
+      when E : Sockets.Socket_Error =>
+         Raise_Exception (E, "Is_Any_Address", Socket);
+   end Is_Any_Address;
+
    -------------
    -- Is_IPv6 --
    -------------

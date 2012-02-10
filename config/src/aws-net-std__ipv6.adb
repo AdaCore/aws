@@ -553,6 +553,30 @@ package body AWS.Net.Std is
       end;
    end Image;
 
+   --------------------
+   -- Is_Any_Address --
+   --------------------
+
+   overriding function Is_Any_Address (Socket : Socket_Type) return Boolean is
+      use type C.int;
+      use type C.short;
+      use type OS_Lib.socklen_t;
+
+      Name : aliased Sockaddr_In6;
+      Len  : aliased OS_Lib.socklen_t := Name'Size / 8;
+
+   begin
+      if C_Getsockname (Socket.S.FD, Name'Address, Len'Access) = Failure then
+         Raise_Socket_Error (OS_Lib.Socket_Errno, Socket);
+      end if;
+
+      if Name.Family = OS_Lib.AF_INET6 then
+         return Name.Addr = (Name.Addr'Range => 0);
+      else
+         return Name.Addr (1 .. 2) = (1 .. 2 => 0);
+      end if;
+   end Is_Any_Address;
+
    -------------
    -- Is_IPv6 --
    -------------

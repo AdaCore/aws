@@ -60,6 +60,10 @@ package AWS.Server.Status is
    function Host (Server : HTTP) return String;
    --  Returns the server's socket host
 
+   function Is_Any_Address (Server : HTTP) return Boolean;
+   --  Return true if the server accepts connections on any of the hosts's
+   --  network addresses.
+
    function Is_IPv6 (Server : HTTP) return Boolean;
 
    function Local_URL (Server : HTTP) return String;

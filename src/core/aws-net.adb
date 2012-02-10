@@ -197,6 +197,16 @@ package body AWS.Net is
       end if;
    end Initialize;
 
+   --------------------
+   -- Is_Any_Address --
+   --------------------
+
+   function Is_Any_Address (Socket : Socket_Type) return Boolean is
+      pragma Unreferenced (Socket);
+   begin
+      return False;
+   end Is_Any_Address;
+
    -------------
    -- Is_IPv6 --
    -------------

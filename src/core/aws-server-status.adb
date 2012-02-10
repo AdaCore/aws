@@ -59,6 +59,15 @@ package body AWS.Server.Status is
       return Net.Acceptors.Server_Socket (Server.Acceptor).Get_Addr;
    end Host;
 
+   --------------------
+   -- Is_Any_Address --
+   --------------------
+
+   function Is_Any_Address (Server : HTTP) return Boolean is
+   begin
+      return Net.Acceptors.Server_Socket (Server.Acceptor).Is_Any_Address;
+   end Is_Any_Address;
+
    -------------
    -- Is_IPv6 --
    -------------
@@ -112,7 +121,9 @@ package body AWS.Server.Status is
 
       function Localhost return String is
       begin
-         if Is_IPv6 (Server) then
+         if not Is_Any_Address (Server) then
+            return Host (Server);
+         elsif Is_IPv6 (Server) then
             return "[::1]";
          else
             return "127.0.0.1";
