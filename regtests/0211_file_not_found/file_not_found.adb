@@ -58,9 +58,7 @@ procedure File_Not_Found is
       use type Response.Content_Length_Type;
       R : Response.Data;
    begin
-      R := Client.Get
-             ("http://" & Server.Status.Host (WS) & ':' & Utils.Image (Port)
-              & URL);
+      R := Client.Get (Server.Status.Local_URL (WS) & URL);
 
       Text_IO.Put_Line
         ("RC " & URL & " : "

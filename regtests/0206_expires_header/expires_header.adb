@@ -68,8 +68,7 @@ begin
 
    Server.Start (WS, CB'Unrestricted_Access, CNF);
 
-   Client.Create
-     (WC, "http://" & Server.Status.Host (WS) & ':' & Utils.Image (Port));
+   Client.Create (WC, Server.Status.Local_URL (WS));
 
    Client.Get (WC, R, URI => "/get");
 

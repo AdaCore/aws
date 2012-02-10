@@ -297,6 +297,7 @@ begin
    Signature := Create_Filename;
 
    Get_Free_Port (Port);
+   Config.Set.Server_Host (Conf, "localhost");
    Config.Set.Server_Port (Conf, Port);
 
    Services.Dispatchers.URI.Register

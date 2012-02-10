@@ -69,8 +69,7 @@ begin
    Server.Start (WS, CB'Unrestricted_Access, CNF);
    Text_IO.Put_Line ("started"); Ada.Text_IO.Flush;
 
-   R := Client.Get
-          ("http://" & Server.Status.Host (WS) & ':' & Utils.Image (Port));
+   R := Client.Get (Server.Status.Local_URL (WS));
 
    Text_IO.Put_Line
      ("R : "

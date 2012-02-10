@@ -112,8 +112,7 @@ begin
       Messages.Cache_Control_Token, String (Messages.To_Cache_Option (RCD)));
 
    declare
-      URL : constant String :=
-        "http://" & Server.Status.Host (WS) & ':' & Utils.Image (Port);
+      URL : constant String := Server.Status.Local_URL (WS);
    begin
       R := AWS.Client.Get (URL =>  URL & "/get", Headers => H);
 

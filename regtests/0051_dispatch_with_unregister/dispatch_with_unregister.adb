@@ -21,13 +21,11 @@ with Ada.Text_IO;
 with AWS.Client;
 with AWS.Config.Set;
 with AWS.Dispatchers.Callback;
-with AWS.Server;
+with AWS.Server.Status;
 with AWS.Services.Dispatchers.URI;
 with AWS.Status;
 with AWS.Response;
 with AWS.Utils;
-
-with Get_Free_Port;
 
 procedure Dispatch_With_Unregister is
 
@@ -35,8 +33,8 @@ procedure Dispatch_With_Unregister is
    use AWS;
    use AWS.Services;
 
-   Cfg       : Config.Object;
-   Free_Port : Positive := 1245;
+   WS  : AWS.Server.HTTP;
+   Cfg : Config.Object;
 
    ---------
    -- CB1 --
@@ -98,15 +96,12 @@ procedure Dispatch_With_Unregister is
       R : Response.Data;
    begin
       Text_IO.Put_Line (URI);
-      R := Client.Get
-        ("http://localhost:" & AWS.Utils.Image (Free_Port) & URI);
+      R := Client.Get (Server.Status.Local_URL (WS) & URI);
       Text_IO.Put_Line ("> " & Response.Message_Body (R));
    end Test;
 
    H      : AWS.Services.Dispatchers.URI.Handler;
    H_Temp : AWS.Services.Dispatchers.URI.Handler;
-
-   WS     : AWS.Server.HTTP;
 
 begin
    Services.Dispatchers.URI.Register
@@ -121,15 +116,9 @@ begin
    Services.Dispatchers.URI.Register_Default_Callback
      (H_Temp, AWS.Dispatchers.Callback.Create (Default2'Unrestricted_Access));
 
-   Cfg := AWS.Config.Get_Current;
+   AWS.Config.Set.Server_Port (Cfg, 0);
 
-   Get_Free_Port (Free_Port);
-   AWS.Config.Set.Server_Port (Cfg, Free_Port);
-
-   AWS.Server.Start
-     (WS,
-      Dispatcher => H,
-      Config     => Cfg);
+   AWS.Server.Start (WS, Dispatcher => H, Config => Cfg);
 
    Test ("/disp1");
 

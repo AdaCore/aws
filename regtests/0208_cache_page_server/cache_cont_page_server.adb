@@ -51,9 +51,7 @@ begin
 
    Services.Page_Server.Set_Cache_Control (CC);
 
-   R := Client.Get
-          ("http://" & Server.Status.Host (WS) & ':' & Utils.Image (Port)
-           & "/test.txt");
+   R := Client.Get (Server.Status.Local_URL (WS) & "/test.txt");
 
    Text_IO.Put_Line
      ("CC: " & String (Messages.Cache_Option'(Response.Cache_Control (R))));

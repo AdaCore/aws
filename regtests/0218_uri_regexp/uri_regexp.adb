@@ -61,9 +61,7 @@ procedure URI_Regexp is
       R : Response.Data;
    begin
       Text_IO.Put_Line (URI);
-      R := Client.Get
-        ("http://" & AWS.Server.Status.Host (WS) & ':'
-           & AWS.Utils.Image (Free_Port) & URI);
+      R := Client.Get (AWS.Server.Status.Local_URL (WS) & URI);
       Text_IO.Put_Line ("> " & Response.Message_Body (R));
    end Test;
 

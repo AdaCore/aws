@@ -191,8 +191,7 @@ package body Sp_Pack is
       for J in Connect'Range loop
          Client.Create
            (Connection  => Connect (J),
-            Host        => Protocol & "://" & AWS.Server.Status.Host (HTTP)
-                           & ':' & AWS.Utils.Image (Port),
+            Host        => AWS.Server.Status.Local_URL (HTTP),
             Timeouts    => Client.Timeouts
               (Connect => 5.0,
                Send    => 15.0, Receive => 15.0, Response => 15.0),

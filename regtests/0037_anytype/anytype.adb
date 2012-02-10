@@ -22,6 +22,7 @@ with Ada.Calendar;
 with Ada.Command_Line;
 with Ada.Text_IO;
 
+with AWS.Config.Set;
 with AWS.MIME;
 with AWS.Net.Log.Callbacks;
 with AWS.Response;
@@ -43,6 +44,7 @@ procedure AnyType is
    use AnyType_Service;
 
    H_Server : AWS.Server.HTTP;
+   CNF      : AWS.Config.Object;
 
    function Call
      (Param1 : Types.Set_Of_int_Type;
@@ -130,10 +132,11 @@ procedure AnyType is
    end Trim;
 
 begin
-   AWS.Server.Start
-     (H_Server, "AnyType Server",
-      CB'Unrestricted_Access,
-      Port => AnyType_Service.Server.Port);
+   Config.Set.Server_Name (CNF, "AnyType Server");
+   Config.Set.Server_Host (CNF, "localhost");
+   Config.Set.Server_Port (CNF, AnyType_Service.Server.Port);
+
+   AWS.Server.Start (H_Server, CB'Unrestricted_Access, CNF);
 
    AWS.Net.Log.Callbacks.Initialize
      ("anytype.netlog", AWS.Net.Log.Callbacks.Text'Access);

@@ -94,9 +94,7 @@ package body S_Append_Pack is
       Server.Start (WS, CB'Access, CNF);
       Ada.Text_IO.Put_Line ("started");
 
-      R := Client.Get
-             (Protocol & "://" & Server.Status.Host (WS) & ':'
-              & AWS.Utils.Image (Port));
+      R := Client.Get (Server.Status.Local_URL (WS));
 
       Ada.Text_IO.Put (Response.Message_Body (R));
 

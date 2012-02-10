@@ -83,9 +83,7 @@ procedure Sessions is
    begin
       accept Start;
 
-      Client.Create
-        (C,
-         "http://" & AWS.Server.Status.Host (WS) & ':' & Utils.Image (Port));
+      Client.Create (C, AWS.Server.Status.Local_URL (WS));
 
       for K in 1 .. 10 loop
          Client.Get (C, R, "/");

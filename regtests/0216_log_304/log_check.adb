@@ -86,9 +86,7 @@ procedure Log_Check is
             To_String (MS));
       end if;
 
-      R := Client.Get
-        ("http://" & Server.Status.Host (WS) & ':' & Utils.Image (Port)
-           & '/' & Filename,
+      R := Client.Get (Server.Status.Local_URL (WS) & '/' & Filename,
          Headers => H);
       Text_IO.Put_Line ("R : " & Response.Message_Body (R));
       Text_IO.Put_Line ("S : " & Messages.Image (Response.Status_Code (R)));

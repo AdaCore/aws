@@ -28,16 +28,13 @@ with AWS.Status;
 with AWS.Utils;
 with AWS.Messages;
 
-with Get_Free_Port;
-
 procedure Stream_Not_Found is
 
    use Ada;
    use AWS;
 
-   WS   : Server.HTTP;
-   CNF  : Config.Object;
-   Port : Positive := 8567;
+   WS  : Server.HTTP;
+   CNF : Config.Object;
 
    function CB (Request : Status.Data) return Response.Data is
       URI  : constant String := Status.URI (Request);
@@ -70,9 +67,7 @@ procedure Stream_Not_Found is
       use type Response.Content_Length_Type;
       R : Response.Data;
    begin
-      R := Client.Get
-             ("http://" & Server.Status.Host (WS) & ':' & Utils.Image (Port)
-              & URL);
+      R := Client.Get (Server.Status.Local_URL (WS) & URL);
 
       Text_IO.Put_Line
         ("RC " & URL & " : "
@@ -89,11 +84,9 @@ procedure Stream_Not_Found is
    end Call_It;
 
 begin
-   Get_Free_Port (Port);
-
    Config.Set.Server_Name    (CNF, "stream_not_found");
    Config.Set.Server_Host    (CNF, "localhost");
-   Config.Set.Server_Port    (CNF, Port);
+   Config.Set.Server_Port    (CNF, 0);
    Config.Set.Max_Connection (CNF, 5);
 
    Server.Start (WS, CB'Unrestricted_Access, CNF);

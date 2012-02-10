@@ -41,8 +41,6 @@ with AWS.Server.Status;
 with AWS.Translator;
 with AWS.Utils;
 
-with Get_Free_Port;
-
 procedure TLog_Proc (Extended_Fields : String) is
 
    use Ada;
@@ -55,8 +53,7 @@ procedure TLog_Proc (Extended_Fields : String) is
                 GNAT.Calendar.Time_IO.Image (Ada.Calendar.Clock, "%Y-%m-%d");
    Success  : Boolean;
 
-   WS   : Server.HTTP;
-   Port : Natural := 8251;
+   WS : Server.HTTP;
 
    X_Counter : Natural := 0;
 
@@ -250,10 +247,7 @@ begin
 
    AWS.Server.Set_Unexpected_Exception_Handler (WS, UEH'Unrestricted_Access);
 
-   Get_Free_Port (Port);
-
-   AWS.Config.Set.Server_Host (Config, "localhost");
-   AWS.Config.Set.Server_Port (Config, Port);
+   AWS.Config.Set.Server_Port (Config, 0);
    AWS.Config.Set.Server_Name (Config, "tlog");
    AWS.Config.Set.Max_Connection (Config, 1);
    AWS.Config.Set.Log_Extended_Fields (Config, Extended_Fields);
@@ -266,8 +260,7 @@ begin
    Ada.Text_IO.Put_Line ("started");
 
    declare
-      URL : constant String :=
-         AWS.Server.Status.Host (WS) & ':' & Utils.Image (Port);
+      URL : constant String := AWS.Server.Status.Local_URL (WS);
    begin
       R := Client.Get (URL & "/one");
       R := Client.Get (URL & "/azerty");
@@ -305,7 +298,7 @@ begin
       use AWS.Net;
       Sock : Socket_Type'Class := Socket (False);
    begin
-      Net.Connect (Sock, AWS.Server.Status.Host (WS), Port);
+      Net.Connect (Sock, "127.0.0.1", Server.Status.Port (WS));
       Buffered.Put_Line (Sock, "GET /header/line/error HTTP/1.1");
       Buffered.Put_Line (Sock, "header line error");
       Buffered.New_Line (Sock);

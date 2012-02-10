@@ -55,9 +55,7 @@ procedure Stream_Response is
    begin
       --  Standard
 
-      R := Client.Get
-             ("http://" & AWS.Server.Status.Host (WS) & ':'
-              & Utils.Image (Port));
+      R := Client.Get (AWS.Server.Status.Local_URL (WS));
 
       Text_IO.Put_Line
         ("RC " & " : "
@@ -111,8 +109,7 @@ begin
 
    delay 1.0;
 
-   Client.Create
-     (Cnx, "http://" & AWS.Server.Status.Host (WS) & ':' & Utils.Image (Port));
+   Client.Create (Cnx, AWS.Server.Status.Local_URL (WS));
 
    for K in 1 .. 5 loop
       Call_It;

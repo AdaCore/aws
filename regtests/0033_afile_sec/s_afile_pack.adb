@@ -144,9 +144,7 @@ package body S_AFile_Pack is
          use type Response.Content_Length_Type;
          R : Response.Data;
       begin
-         R := Client.Get
-                (Protocol & "://" & Server.Status.Host (WS) & ':'
-                  & AWS.Utils.Image (Port) & '/' & Res);
+         R := Client.Get (Server.Status.Local_URL (WS) & '/' & Res);
 
          Text_IO.Put (Res);
          Text_IO.Set_Col (9);

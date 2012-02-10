@@ -27,17 +27,14 @@ with AWS.Status;
 with AWS.Response;
 with AWS.Utils;
 
-with Get_Free_Port;
-
 procedure Change_Dispatch is
 
    use Ada;
    use AWS;
    use AWS.Services;
 
-   Cfg       : Config.Object;
-   Free_Port : Positive;
-   WS        : AWS.Server.HTTP;
+   WS  : AWS.Server.HTTP;
+   Cfg : Config.Object;
 
    function CB1
      (Request : AWS.Status.Data)
@@ -79,9 +76,7 @@ procedure Change_Dispatch is
       R : Response.Data;
    begin
       Text_IO.Put_Line (URI);
-      R := Client.Get
-        ("http://" & AWS.Server.Status.Host (WS) & ':'
-         & AWS.Utils.Image (Free_Port) & URI);
+      R := Client.Get (AWS.Server.Status.Local_URL (WS) & URI);
       Text_IO.Put_Line ("> " & Response.Message_Body (R));
    end Test;
 
@@ -91,12 +86,8 @@ begin
    Services.Dispatchers.URI.Register
      (H, "/thisone", Default'Unrestricted_Access);
 
-   Cfg := AWS.Config.Get_Current;
-
-   Free_Port := AWS.Config.Server_Port (Cfg);
-   Get_Free_Port (Free_Port);
    AWS.Config.Set.Server_Host (Cfg, "localhost");
-   AWS.Config.Set.Server_Port (Cfg, Free_Port);
+   AWS.Config.Set.Server_Port (Cfg, 0);
 
    AWS.Server.Start (WS, Dispatcher => H, Config => Cfg);
 

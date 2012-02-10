@@ -67,14 +67,10 @@ begin
 
    AWS.Server.Start (HTTP, CB'Unrestricted_Access, CNF);
 
-   R := Client.Get
-     ("http://" & AWS.Server.Status.Host (HTTP) & ':' & Utils.Image (Port),
-      "toto", "toto_pwd");
+   R := Client.Get (AWS.Server.Status.Local_URL (HTTP), "toto", "toto_pwd");
    Text_IO.Put_Line (Response.Message_Body (R));
 
-   R := Client.Get
-     ("http://" & AWS.Server.Status.Host (HTTP) & ':' & Utils.Image (Port),
-      "xyz", "_123_");
+   R := Client.Get (AWS.Server.Status.Local_URL (HTTP), "xyz", "_123_");
    Text_IO.Put_Line (Response.Message_Body (R));
 
    AWS.Server.Shutdown (HTTP);

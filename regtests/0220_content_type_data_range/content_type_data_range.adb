@@ -94,9 +94,8 @@ begin
       Value => "bytes=0-41,46-80");
 
    Client_Data := Client.Get
-     ("http://" & AWS.Server.Status.Host (WS) & ':' & Utils.Image (Port)
-        & "/test.txt",
-      Headers => Client_Header);
+                    (AWS.Server.Status.Local_URL (WS) & "/test.txt",
+                     Headers => Client_Header);
 
 exception
    when others =>

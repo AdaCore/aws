@@ -100,9 +100,8 @@ procedure WB_Patterns is
    ----------
 
    procedure Test (URI : String) is
-      R : constant Response.Data := Client.Get
-        ("http://" & AWS.Server.Status.Host (WS) & ':'
-         & AWS.Utils.Image (Free_Port) & URI);
+      R : constant Response.Data :=
+                     Client.Get (AWS.Server.Status.Local_URL (WS) & URI);
       Content : constant String := Response.Message_Body (R);
    begin
       if Content /= "" then

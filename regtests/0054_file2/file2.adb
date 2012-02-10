@@ -23,6 +23,7 @@ with AWS.MIME;
 with AWS.Net.Log.Callbacks;
 with AWS.Response;
 with AWS.Server.Log;
+with AWS.Server.Status;
 with AWS.Status;
 with AWS.Translator;
 with AWS.URL;
@@ -31,15 +32,13 @@ with AWS.Utils;
 with zresres;
 
 with ZLib;
-with Get_Free_Port;
 
 procedure File2 is
 
    use Ada;
    use AWS;
 
-   WS   : Server.HTTP;
-   Port : Natural := 4569;
+   WS : Server.HTTP;
 
    procedure Call_It;
 
@@ -55,7 +54,7 @@ procedure File2 is
       Ptr     : Utils.Stream_Element_Array_Access;
 
    begin
-      Client.Create (Connect, "http://localhost:" & Utils.Image (Port));
+      Client.Create (Connect, Server.Status.Local_URL (WS));
 
       Client.Get (Connect, R, "file1.txt");
 
@@ -94,13 +93,11 @@ procedure File2 is
    end CB;
 
 begin
-   Get_Free_Port (Port);
-
    Net.Log.Callbacks.Initialize
      ("file2.netlog", Net.Log.Callbacks.Binary'Access);
 
    Server.Start
-     (WS, "file", CB'Unrestricted_Access, Port => Port, Max_Connection => 5);
+     (WS, "file", CB'Unrestricted_Access, Port => 0, Max_Connection => 5);
 
    Server.Log.Start_Error (WS);
 

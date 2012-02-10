@@ -27,7 +27,6 @@ with AWS.Server.Status;
 with AWS.Status;
 with AWS.Utils;
 
-with Get_Free_Port;
 with Stack_Size;
 
 procedure Server_Info is
@@ -74,9 +73,7 @@ procedure Server_Info is
    begin
       accept Start;
 
-      Client.Create
-        (C,
-         "http://" & AWS.Server.Status.Host (WS) & ':' & Utils.Image (Port1));
+      Client.Create (C, AWS.Server.Status.Local_URL (WS));
 
       Client.Get (C, R, "/");
 
@@ -101,11 +98,9 @@ procedure Server_Info is
 
    task body Server is
    begin
-      Get_Free_Port (Port1);
-
       Config.Set.Server_Name    (CNF, "Server Info");
       Config.Set.Server_Host    (CNF, "localhost");
-      Config.Set.Server_Port    (CNF, Port1);
+      Config.Set.Server_Port    (CNF, 0);
       Config.Set.Max_Connection (CNF, 6);
 
       AWS.Server.Start (WS, CB'Unrestricted_Access, CNF);
@@ -173,9 +168,7 @@ begin
 
    Text_IO.New_Line;
 
-   Get_Free_Port (Port2);
-
-   Config.Set.Server_Port    (CNF, Port2);
+   Config.Set.Server_Port    (CNF, 0);
    Config.Set.Session        (CNF, True);
    Config.Set.Max_Connection (CNF, 2);
 

@@ -173,8 +173,7 @@ begin
    --  AWS.Net.Log.Start (Dump'Unrestricted_Access);
 
    Response := AWS.Client.Post
-     (URL         => "http://" & AWS.Server.Status.Host (WS) & ':'
-                       & Utils.Image (Port) & "/any_URI",
+     (URL         => AWS.Server.Status.Local_URL (WS) & "/any_URI",
       Data        => "Dummy message",
       Attachments => Att);
 

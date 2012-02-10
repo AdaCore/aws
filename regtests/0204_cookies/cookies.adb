@@ -81,9 +81,7 @@ begin
 
    Server.Start (WS, CB'Unrestricted_Access, CNF);
 
-   R := AWS.Client.Get
-     (URL => "http://" & AWS.Server.Status.Host (WS) & ':' & Utils.Image (Port)
-              & "/whatever");
+   R := AWS.Client.Get (URL => AWS.Server.Status.Local_URL (WS) & "/whatever");
    H := Response.Header (R);
 
    declare

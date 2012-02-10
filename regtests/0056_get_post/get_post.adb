@@ -25,12 +25,10 @@ with AWS.MIME;
 with AWS.Net.Log;
 with AWS.Parameters;
 with AWS.Response;
-with AWS.Server;
+with AWS.Server.Status;
 with AWS.Status;
 with AWS.Translator;
 with AWS.Utils;
-
-with Get_Free_Port;
 
 procedure Get_Post is
 
@@ -38,8 +36,7 @@ procedure Get_Post is
    use Ada.Streams;
    use AWS;
 
-   WS   : Server.HTTP;
-   Port : Positive := 8270;
+   WS : Server.HTTP;
 
    CRLF : constant String := ASCII.CR & ASCII.LF;
 
@@ -107,29 +104,24 @@ procedure Get_Post is
    R : Response.Data;
 
 begin
-   Get_Free_Port (Port);
-
-   Server.Start (WS, "Get Post", CB'Unrestricted_Access, Port => Port);
+   Server.Start (WS, "Get Post", CB'Unrestricted_Access, Port => 0);
    Text_IO.Put_Line ("started"); Ada.Text_IO.Flush;
 
    --  AWS.Net.Log.Start (Dump'Unrestricted_Access);
 
    R := Client.Post
-          ("http://localhost:" & Utils.Image (Port)
-           & "/this_uri?P1=12&P2=azerty", M_Body);
+          (Server.Status.Local_URL (WS) & "/this_uri?P1=12&P2=azerty", M_Body);
 
    Text_IO.Put_Line (Response.Message_Body (R));
 
    R := Client.Post
-          ("http://localhost:" & Utils.Image (Port)
-           & "/this_uri?P1=12&P2=qwerty", M2_Body,
+          (Server.Status.Local_URL (WS) & "/this_uri?P1=12&P2=qwerty", M2_Body,
            Content_Type => MIME.Multipart_Form_Data & "; boundary=""XXXX""");
 
    Text_IO.Put_Line (Response.Message_Body (R));
 
    R := Client.Post
-          ("http://localhost:" & Utils.Image (Port)
-           & "/this_uri?P1=29&P2=poiuyt", M3_Body,
+          (Server.Status.Local_URL (WS) & "/this_uri?P1=29&P2=poiuyt", M3_Body,
            Content_Type => MIME.Multipart_Form_Data & "; boundary=""XXXX""");
 
    Text_IO.Put_Line (Response.Message_Body (R));

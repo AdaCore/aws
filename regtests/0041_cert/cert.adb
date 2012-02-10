@@ -105,7 +105,7 @@ procedure Cert is
       Conf : Config.Object;
    begin
       Config.Set.Server_Host (Conf, "localhost");
-      Config.Set.Server_Port (Conf, 7429);
+      Config.Set.Server_Port (Conf, 0);
       Config.Set.Max_Connection (Conf, 5);
       Config.Set.Security (Conf, True);
       Config.Set.Exchange_Certificate (Conf, True);
@@ -161,7 +161,7 @@ begin
 
    Server.Started;
 
-   Request ("https://" & AWS.Server.Status.Host (HTTP) & ":7429/simple");
+   Request (AWS.Server.Status.Local_URL (HTTP) & "/simple");
 
    Server.Stopped;
 

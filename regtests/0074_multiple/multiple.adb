@@ -29,8 +29,6 @@ with AWS.Parameters;
 with AWS.Messages;
 with AWS.Utils;
 
-with Get_Free_Port;
-
 procedure Multiple is
 
    use Ada;
@@ -40,10 +38,7 @@ procedure Multiple is
    function CB (Request : Status.Data) return Response.Data;
 
    HTTP1 : AWS.Server.HTTP;
-   Port1 : Natural := 1252;
-
    HTTP2 : AWS.Server.HTTP;
-   Port2 : Natural := 1253;
 
    CNF : Config.Object;
 
@@ -74,30 +69,26 @@ procedure Multiple is
 begin
    Put_Line ("Start main, wait for server to start...");
 
-   Get_Free_Port (Port1);
-
    Config.Set.Server_Name    (CNF, "server1");
    Config.Set.Server_Host    (CNF, "localhost");
-   Config.Set.Server_Port    (CNF, Port1);
+   Config.Set.Server_Port    (CNF, 0);
    Config.Set.Max_Connection (CNF, 5);
 
    AWS.Server.Start (HTTP1, CB'Unrestricted_Access, CNF);
 
-   Get_Free_Port (Port2);
-
    Config.Set.Server_Name (CNF, "server2");
-   Config.Set.Server_Port (CNF, Port2);
+   Config.Set.Server_Port (CNF, 0);
 
    AWS.Server.Start (HTTP2, CB'Unrestricted_Access, CNF);
 
    declare
-      Prefix : constant String :=
-        "http://" & AWS.Server.Status.Host (HTTP1) & ':';
+      URL1 : constant String := AWS.Server.Status.Local_URL (HTTP1);
+      URL2 : constant String := AWS.Server.Status.Local_URL (HTTP2);
    begin
-      Request (Prefix & Utils.Image (Port1) & "/call");
-      Request (Prefix & Utils.Image (Port2) & "/call");
-      Request (Prefix & Utils.Image (Port2) & "/call");
-      Request (Prefix & Utils.Image (Port1) & "/call");
+      Request (URL1 & "/call");
+      Request (URL2 & "/call");
+      Request (URL2 & "/call");
+      Request (URL1 & "/call");
    end;
 
    AWS.Server.Shutdown (HTTP1);
