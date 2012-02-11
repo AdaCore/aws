@@ -19,7 +19,7 @@
 with Ada.Text_IO;
 with Ada.Exceptions;
 
-with AWS.Server;
+with AWS.Server.Status;
 with AWS.Client;
 with AWS.Status;
 with AWS.MIME;
@@ -84,7 +84,8 @@ procedure Test_SOAP2 is
       declare
          Response     : constant SOAP.Message.Response.Object'Class :=
            SOAP.Client.Call
-           ("http://localhost:6544/soap_demo", Payload, "/soap_demo");
+             (AWS.Server.Status.Local_URL (HTTP) & "/soap_demo", Payload,
+              "/soap_demo");
 
          R_Parameters : constant SOAP.Parameters.List
            := SOAP.Message.Parameters (Response);
@@ -109,7 +110,7 @@ procedure Test_SOAP2 is
 
       AWS.Server.Start
         (HTTP, "soap_demo",
-         CB'Unrestricted_Access, Port => 6544, Max_Connection => 5);
+         CB'Unrestricted_Access, Port => 0, Max_Connection => 5);
 
       Put_Line ("Server started");
       New_Line;

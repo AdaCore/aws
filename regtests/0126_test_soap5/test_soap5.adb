@@ -20,5 +20,5 @@ with Test_SOAP5_Pack;
 
 procedure Test_SOAP5 is
 begin
-   Test_SOAP5_Pack.Run ("http", 6548);
+   Test_SOAP5_Pack.Run (Security => False);
 end Test_SOAP5;

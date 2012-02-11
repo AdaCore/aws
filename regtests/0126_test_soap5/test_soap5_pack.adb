@@ -27,11 +27,9 @@ with AWS.Messages;
 with AWS.MIME;
 with AWS.Parameters;
 with AWS.Response;
-with AWS.Server;
+with AWS.Server.Status;
 with AWS.Status;
 with AWS.Utils;
-
-with Get_Free_Port;
 
 with SOAP.Client;
 with SOAP.Message.Payload;
@@ -153,8 +151,7 @@ package body Test_SOAP5_Pack is
    -- Run --
    ---------
 
-   procedure Run (Protocol : String; Port : Positive) is
-      Free_Port : Positive := Port;
+   procedure Run (Security : Boolean) is
 
       task Server is
          entry Started;
@@ -168,13 +165,11 @@ package body Test_SOAP5_Pack is
 
       task body Server is
       begin
-         Get_Free_Port (Free_Port);
-
          AWS.Server.Start
            (HTTP, "soap_demo",
             CB'Access,
-            Security       => Protocol = "https",
-            Port           => Free_Port,
+            Security       => Security,
+            Port           => 0,
             Max_Connection => 5);
 
          accept Started;
@@ -205,8 +200,7 @@ package body Test_SOAP5_Pack is
       Server.Ready;
 
       AWS.Client.Create
-        (Connection,
-         Protocol & "://localhost:" & Utils.Image (Free_Port) & "/soap_demo");
+        (Connection, AWS.Server.Status.Local_URL (HTTP) & "/soap_demo");
 
       Request ("multProc", 2, 3, "/mul");
       Request ("multProc", 9, 9, "/mul");

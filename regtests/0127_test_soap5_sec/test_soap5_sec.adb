@@ -20,5 +20,5 @@ with S_Test_SOAP5_Pack;
 
 procedure Test_SOAP5_Sec is
 begin
-   S_Test_SOAP5_Pack.Run ("https", 4465);
+   S_Test_SOAP5_Pack.Run (Security => True);
 end Test_SOAP5_Sec;

@@ -24,7 +24,7 @@ with AWS.Messages;
 with AWS.MIME;
 with AWS.Response;
 with AWS.Parameters;
-with AWS.Server;
+with AWS.Server.Status;
 with AWS.Status;
 with AWS.Utils;
 
@@ -35,7 +35,7 @@ with SOAP.Message.XML;
 with SOAP.Parameters;
 with SOAP.Types;
 
-procedure S_Test_SOAP_Proc (Protocol : String; Port : Positive) is
+procedure S_Test_SOAP_Proc (Security : Boolean) is
 
    use Ada;
    use Ada.Text_IO;
@@ -85,7 +85,7 @@ procedure S_Test_SOAP_Proc (Protocol : String; Port : Positive) is
       declare
          Response     : constant SOAP.Message.Response.Object'Class :=
            SOAP.Client.Call
-           (Protocol & "://localhost:" & AWS.Utils.Image (Port)
+           (AWS.Server.Status.Local_URL (HTTP)
               & "/soap_demo", Payload, "/soap_demo");
 
          R_Parameters : constant SOAP.Parameters.List
@@ -109,9 +109,9 @@ procedure S_Test_SOAP_Proc (Protocol : String; Port : Positive) is
       AWS.Server.Start
         (HTTP, "soap_demo",
          CB'Unrestricted_Access,
-         Port           => Port,
+         Port           => 0,
          Max_Connection => 5,
-         Security       => Protocol = "https");
+         Security       => Security);
 
       Put_Line ("Server started");
       New_Line;

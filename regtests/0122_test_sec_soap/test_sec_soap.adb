@@ -24,5 +24,5 @@ with S_Test_SOAP_Proc;
 
 procedure Test_Sec_SOAP is
 begin
-   S_Test_SOAP_Proc ("https", 8001);
+   S_Test_SOAP_Proc (Security => True);
 end Test_Sec_SOAP;

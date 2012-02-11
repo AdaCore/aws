@@ -24,6 +24,6 @@ procedure Test_SOAP is
    use AWS.Net;
 begin
    Log.Callbacks.Initialize ("test_soap.netlog", Log.Callbacks.Text'Access);
-   Test_SOAP_Proc ("http", 6543);
+   Test_SOAP_Proc (Security => False);
    Log.Callbacks.Finalize;
 end Test_SOAP;

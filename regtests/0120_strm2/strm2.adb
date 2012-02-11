@@ -91,8 +91,7 @@ begin
 
    Client.Create
      (Connection => Connect,
-      Host       => "http://localhost:"
-                    & Utils.Image (AWS.Server.Status.Port (HTTP)),
+      Host       => AWS.Server.Status.Local_URL (HTTP),
       Timeouts   => Client.Timeouts
         (Connect => 1.0, Send => 5.0, Receive => 5.0));
 

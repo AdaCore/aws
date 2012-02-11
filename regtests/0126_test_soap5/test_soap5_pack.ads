@@ -20,6 +20,6 @@
 
 package Test_SOAP5_Pack is
 
-   procedure Run (Protocol : String; Port : Positive);
+   procedure Run (Security : Boolean);
 
 end Test_SOAP5_Pack;
