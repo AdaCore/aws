@@ -560,6 +560,7 @@ package body AWS.Net.Std is
    overriding function Is_Any_Address (Socket : Socket_Type) return Boolean is
       use type C.int;
       use type C.short;
+      use type C.unsigned_long;
       use type OS_Lib.socklen_t;
 
       Name : aliased Sockaddr_In6;
@@ -573,7 +574,10 @@ package body AWS.Net.Std is
       if Name.Family = OS_Lib.AF_INET6 then
          return Name.Addr = (Name.Addr'Range => 0);
       else
-         return Name.Addr (1 .. 2) = (1 .. 2 => 0);
+         --  !!! Hack, IPv4 address in sockaddr structure is exactly on
+         --  FlowInfo place in IPv6 sockaddr.
+
+         return Name.FlowInfo = 0;
       end if;
    end Is_Any_Address;
 

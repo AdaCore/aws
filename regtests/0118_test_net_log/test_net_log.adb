@@ -129,7 +129,7 @@ procedure Test_Net_Log is
       URI : constant String := AWS.Status.URI (Request);
    begin
       if URI = Hello (1 .. Last) then
-         delay 3.0; -- wait a bit to have more chance to get a sync log
+         delay 0.25; -- wait a bit to have more chance to get a sync log
          return AWS.Response.Build ("text/html", "<p>Hello world !");
       else
          return AWS.Response.Build ("text/html", "<p>Hum...");
@@ -155,6 +155,10 @@ begin
 
    Server.Start
      (WS, "Hello World", Callback => HW_CB'Unrestricted_Access, Port => 0);
+
+   if not Server.Status.Is_Any_Address (WS) then
+      Put_Line ("AWS.Net.Std.Is_Any_Address error");
+   end if;
 
    Create (DS, Out_File, "net_log_sent");
    Create (DR, Out_File, "net_log_received");

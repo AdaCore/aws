@@ -27,17 +27,14 @@ with AWS.Status;
 with AWS.Response;
 with AWS.Utils;
 
-with Get_Free_Port;
-
 procedure URI_Regexp is
 
    use Ada;
    use AWS;
    use AWS.Services;
 
-   Cfg       : Config.Object;
-   Free_Port : Positive := 1295;
-   WS        : AWS.Server.HTTP;
+   Cfg : Config.Object;
+   WS  : AWS.Server.HTTP;
 
    function CB1 (Request : AWS.Status.Data) return AWS.Response.Data is
       pragma Unreferenced (Request);
@@ -77,11 +74,14 @@ begin
    Services.Dispatchers.URI.Register_Default_Callback
      (H, AWS.Dispatchers.Callback.Create (Default'Unrestricted_Access));
 
-   Get_Free_Port (Free_Port);
-   AWS.Config.Set.Server_Port (Cfg, Free_Port);
    AWS.Config.Set.Server_Host (Cfg, "localhost");
+   AWS.Config.Set.Server_Port (Cfg, 0);
 
    AWS.Server.Start (WS, Dispatcher => H, Config => Cfg);
+
+   if Server.Status.Is_Any_Address (WS) then
+      Text_IO.Put_Line ("AWS.Net.Std.Is_Any_Address error");
+   end if;
 
    Test ("/site/template/xxx");
 
