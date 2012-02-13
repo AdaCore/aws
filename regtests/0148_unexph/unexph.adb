@@ -23,12 +23,11 @@ with AWS.Client;
 with AWS.Exceptions;
 with AWS.MIME;
 with AWS.Response;
-with AWS.Server;
+with AWS.Server.Status;
 with AWS.Status;
 with AWS.Log;
 with AWS.Utils;
 
-with Get_Free_Port;
 with Stack_Size;
 
 procedure Unexph is
@@ -52,9 +51,7 @@ procedure Unexph is
    end Server;
 
    HTTP : AWS.Server.HTTP;
-   Port : Natural := 1240;
-
-   R : Response.Data;
+   R    : Response.Data;
 
    --------
    -- CB --
@@ -75,11 +72,9 @@ procedure Unexph is
       AWS.Server.Set_Unexpected_Exception_Handler
         (HTTP, UEH'Unrestricted_Access);
 
-      Get_Free_Port (Port);
-
       AWS.Server.Start
         (HTTP, "Test unexpected exception handler",
-         CB'Unrestricted_Access, Port => Port, Max_Connection => 3);
+         CB'Unrestricted_Access, Port => 0, Max_Connection => 3);
 
       accept Wait_Start;
       accept Stop;
@@ -108,7 +103,7 @@ begin
    Server.Wait_Start;
 
    R := Client.Get
-          ("http://localhost:" & Utils.Image (Port) & "/test",
+          (AWS.Server.Status.Local_URL (HTTP) & "/test",
            Timeouts => Client.Timeouts
              (Connect => 1.0, Send => 2.0, Receive => 2.0));
 

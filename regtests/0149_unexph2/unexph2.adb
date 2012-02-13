@@ -26,12 +26,11 @@ with AWS.Client;
 with AWS.Exceptions;
 with AWS.MIME;
 with AWS.Response;
-with AWS.Server;
+with AWS.Server.Status;
 with AWS.Status;
 with AWS.Log;
 with AWS.Utils;
 
-with Get_Free_Port;
 with Stack_Size;
 
 procedure Unexph2 is
@@ -42,9 +41,7 @@ procedure Unexph2 is
    use GNAT;
 
    HTTP : AWS.Server.HTTP;
-   Port : Natural := 1247;
-
-   R : Response.Data;
+   R    : Response.Data;
 
    task Server is
       pragma Storage_Size (Stack_Size.Value);
@@ -105,11 +102,9 @@ procedure Unexph2 is
 
    task body Server is
    begin
-      Get_Free_Port (Port);
-
       AWS.Server.Start
         (HTTP, "Test default unexpected exception handler",
-         CB'Unrestricted_Access, Port => Port, Max_Connection => 3);
+         CB'Unrestricted_Access, Port => 0, Max_Connection => 3);
 
       accept Wait_Start;
       accept Stop;
@@ -123,7 +118,7 @@ begin
    Server.Wait_Start;
 
    R := Client.Get
-     ("http://localhost:" & Utils.Image (Port) & "/test",
+     (AWS.Server.Status.Local_URL (HTTP) & "/test",
       Timeouts => Client.Timeouts
         (Connect => 1.0, Send => 2.0, Receive => 2.0, Response => 20.0));
 
@@ -133,7 +128,7 @@ begin
    Create_500_Tmplt;
 
    R := Client.Get
-     ("http://localhost:" & Utils.Image (Port) & "/test",
+     (AWS.Server.Status.Local_URL (HTTP) & "/test",
       Timeouts => Client.Timeouts
         (Connect => 1.0, Send => 2.0, Receive => 2.0, Response => 20.0));
 

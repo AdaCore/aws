@@ -141,9 +141,7 @@ begin
    Server.Started;
 
    declare
-      URL_Prefix : constant String :=
-        Protocol & "://localhost:"
-        & Utils.Image (AWS.Server.Status.Port (HTTP));
+      URL_Prefix : constant String := AWS.Server.Status.Local_URL (HTTP);
    begin
       Request (URL_Prefix & "/simple");
       Request (URL_Prefix & "/simple?p1=8&p2=azerty%20qwerty");
