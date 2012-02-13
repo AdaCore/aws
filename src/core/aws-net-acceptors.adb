@@ -360,13 +360,14 @@ package body AWS.Net.Acceptors is
       Host                : String;
       Port                : Natural;
       Queue_Size          : Positive;
-      Timeout             : Duration := Forever;
-      First_Timeout       : Duration := Forever;
-      Force_Timeout       : Duration := Forever;
-      Force_First_Timeout : Duration := Forever;
-      Force_Length        : Positive := Positive'Last;
-      Close_Length        : Positive := Positive'Last;
-      Reuse_Address       : Boolean  := False)
+      Family              : Family_Type := Family_Unspec;
+      Timeout             : Duration    := Forever;
+      First_Timeout       : Duration    := Forever;
+      Force_Timeout       : Duration    := Forever;
+      Force_First_Timeout : Duration    := Forever;
+      Force_Length        : Positive    := Positive'Last;
+      Close_Length        : Positive    := Positive'Last;
+      Reuse_Address       : Boolean     := False)
    is
       use type Sets.Socket_Count;
 
@@ -404,7 +405,7 @@ package body AWS.Net.Acceptors is
    begin
       Acceptor.Server := New_Socket;
       Bind
-        (Acceptor.Server.all, Host => Host, Port => Port,
+        (Acceptor.Server.all, Host => Host, Port => Port, Family => Family,
          Reuse_Address => Reuse_Address);
       Listen (Acceptor.Server.all, Queue_Size => Queue_Size);
 

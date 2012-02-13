@@ -1026,6 +1026,8 @@ package body AWS.Server is
          Host                => CNF.Server_Host (Web_Server.Properties),
          Port                => CNF.Server_Port (Web_Server.Properties),
          Queue_Size          => CNF.Accept_Queue_Size (Web_Server.Properties),
+         Family              =>
+           Net.Family_Type'Value (CNF.Protocol_Family (Web_Server.Properties)),
          Timeout             =>
            CNF.Cleaner_Wait_For_Client_Timeout (Web_Server.Properties),
          First_Timeout       =>

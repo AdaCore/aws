@@ -395,6 +395,15 @@ package body AWS.Config.Set is
    end Parameter;
 
    ---------------------
+   -- Protocol_Family --
+   ---------------------
+
+   procedure Protocol_Family (O : in out Object; Value : String) is
+   begin
+      O.P (Protocol_Family).Str_Value := To_Unbounded_String (Value);
+   end Protocol_Family;
+
+   ---------------------
    -- Receive_Timeout --
    ---------------------
 

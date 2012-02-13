@@ -42,6 +42,10 @@ package AWS.Config.Set is
    procedure Server_Name (O : in out Object; Value : String);
    --  This is the name of the server as set by AWS.Server.Start
 
+   procedure Protocol_Family (O : in out Object; Value : String);
+   --  Set the server protocol family. Family_Inet for IPv4, Family_Inet6 for
+   --  IPv6 and Family_Unspec for unspecified protocol family.
+
    procedure Server_Host (O : in out Object; Value : String);
    --  This is the server host as set by the HTTP object declaration
 

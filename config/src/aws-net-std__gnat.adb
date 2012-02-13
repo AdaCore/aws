@@ -69,6 +69,10 @@ package body AWS.Net.Std is
    --  Set the socket to the non-blocking mode.
    --  AWS is not using blocking sockets internally.
 
+   To_GNAT : constant array (Family_Type) of Sockets.Family_Type :=
+     (Family_Inet => Sockets.Family_Inet, Family_Inet6 => Sockets.Family_Inet6,
+      Family_Unspec => Sockets.Family_Inet);
+
    -------------------
    -- Accept_Socket --
    -------------------
@@ -109,8 +113,9 @@ package body AWS.Net.Std is
    overriding procedure Bind
      (Socket        : in out Socket_Type;
       Port          : Natural;
-      Host          : String  := "";
-      Reuse_Address : Boolean := False)
+      Host          : String      := "";
+      Reuse_Address : Boolean     := False;
+      Family        : Family_Type := Family_Unspec)
    is
       use Ada.Strings.Maps;
       Inet_Addr : Sockets.Inet_Addr_Type;
@@ -136,7 +141,7 @@ package body AWS.Net.Std is
 
       Sockets.Bind_Socket
         (Socket.S.FD,
-         (Sockets.Family_Inet, Inet_Addr, Sockets.Port_Type (Port)));
+         (To_GNAT (Family), Inet_Addr, Sockets.Port_Type (Port)));
 
    exception
       when E : Sockets.Socket_Error | Sockets.Host_Error =>
@@ -155,7 +160,8 @@ package body AWS.Net.Std is
      (Socket : in out Socket_Type;
       Host   : String;
       Port   : Positive;
-      Wait   : Boolean := True)
+      Wait   : Boolean     := True;
+      Family : Family_Type := Family_Unspec)
    is
       Sock_Addr : Sockets.Sock_Addr_Type;
 
@@ -170,7 +176,7 @@ package body AWS.Net.Std is
       Sockets.Create_Socket (Socket.S.FD);
       Close_On_Exception := True;
 
-      Sock_Addr := (Sockets.Family_Inet,
+      Sock_Addr := (To_GNAT (Family),
                     Get_Inet_Addr (Host, Passive => False),
                     Sockets.Port_Type (Port));
 

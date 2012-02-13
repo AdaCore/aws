@@ -213,9 +213,10 @@ package body AWS.Net.SSL is
      (Socket : in out Socket_Type;
       Host   : String;
       Port   : Positive;
-      Wait   : Boolean := True) is
+      Wait   : Boolean     := True;
+      Family : Family_Type := Family_Unspec) is
    begin
-      Net.Std.Connect (NSST (Socket), Host, Port, Wait);
+      Net.Std.Connect (NSST (Socket), Host, Port, Wait, Family);
 
       Session_Client (Socket);
 

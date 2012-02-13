@@ -55,7 +55,8 @@ package AWS.Net.SSL is
      (Socket : in out Socket_Type;
       Host   : String;
       Port   : Positive;
-      Wait   : Boolean := True);
+      Wait   : Boolean     := True;
+      Family : Family_Type := Family_Unspec);
    --  Connect a socket on a given host/port. If Wait is True Connect will wait
    --  for the connection to be established for timeout seconds, specified by
    --  Set_Timeout routine. If Wait is False Connect will return immediately,

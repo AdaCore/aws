@@ -431,6 +431,15 @@ package body AWS.Config is
    end MIME_Types;
 
    ---------------------
+   -- Protocol_Family --
+   ---------------------
+
+   function Protocol_Family (O : Object) return String is
+   begin
+      return To_String (O.P (Protocol_Family).Str_Value);
+   end Protocol_Family;
+
+   ---------------------
    -- Read_If_Present --
    ---------------------
 

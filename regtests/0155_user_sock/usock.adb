@@ -116,9 +116,10 @@ package body USock is
      (Socket        : in out U_Socket;
       Port          : Natural;
       Host          : String := "";
-      Reuse_Address : Boolean := False)
+      Reuse_Address : Boolean := False;
+      Family        : Net.Family_Type := Net.Family_Unspec)
    is
-      pragma Unreferenced (Socket, Port, Host);
+      pragma Unreferenced (Socket, Port, Host, Reuse_Address, Family);
    begin
       Text_IO.Put_Line ("Bind on U_Socket");
    end Bind;
@@ -168,9 +169,10 @@ package body USock is
      (Socket : in out U_Socket;
       Host   : String;
       Port   : Positive;
-      Wait   : Boolean := True)
+      Wait   : Boolean := True;
+      Family : Net.Family_Type := Net.Family_Unspec)
    is
-      pragma Unreferenced (Socket, Host, Port, Wait);
+      pragma Unreferenced (Socket, Host, Port, Wait, Family);
    begin
       Text_IO.Put_Line ("Connect on U_Socket");
    end Connect;

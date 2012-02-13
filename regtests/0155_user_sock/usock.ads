@@ -37,7 +37,8 @@ package USock is
      (Socket        : in out U_Socket;
       Port          : Natural;
       Host          : String := "";
-      Reuse_Address : Boolean := False);
+      Reuse_Address : Boolean := False;
+      Family        : Net.Family_Type := Net.Family_Unspec);
 
    overriding procedure Listen
      (Socket     : U_Socket;
@@ -51,7 +52,8 @@ package USock is
      (Socket : in out U_Socket;
       Host   : String;
       Port   : Positive;
-      Wait   : Boolean := True);
+      Wait   : Boolean := True;
+      Family : Net.Family_Type := Net.Family_Unspec);
 
    overriding procedure Shutdown
      (Socket : U_Socket;

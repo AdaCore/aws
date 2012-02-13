@@ -50,6 +50,10 @@ package body AWS.Net.Std is
    type In6_Addr is array (1 .. 8) of Interfaces.Unsigned_16;
    pragma Convention (C, In6_Addr);
 
+   To_C : constant array (Family_Type) of C.int :=
+     (Family_Inet => OS_Lib.AF_INET, Family_Inet6 => OS_Lib.AF_INET6,
+      Family_Unspec => OS_Lib.AF_UNSPEC);
+
    type Sockaddr_In6 is record
       Family    : Interfaces.C.short;          -- AF_INET6
       Port      : Interfaces.C.unsigned_short; -- transport layer port #
@@ -78,9 +82,10 @@ package body AWS.Net.Std is
    --  Returns image of the socket address
 
    function Get_Addr_Info
-     (Host  : String;
-      Port  : Natural;
-      Flags : Interfaces.C.int := 0) return OS_Lib.Addr_Info_Access;
+     (Host   : String;
+      Port   : Natural;
+      Family : Family_Type;
+      Flags  : Interfaces.C.int := 0) return OS_Lib.Addr_Info_Access;
    --  Returns the inet address information for the given host and port.
    --  Flags should be used from getaddrinfo C routine.
 
@@ -177,13 +182,14 @@ package body AWS.Net.Std is
    overriding procedure Bind
      (Socket        : in out Socket_Type;
       Port          : Natural;
-      Host          : String  := "";
-      Reuse_Address : Boolean := False)
+      Host          : String      := "";
+      Reuse_Address : Boolean     := False;
+      Family        : Family_Type := Family_Unspec)
    is
       use type C.int;
 
       Info  : constant OS_Lib.Addr_Info_Access :=
-                Get_Addr_Info (Host, Port, OS_Lib.AI_PASSIVE);
+                Get_Addr_Info (Host, Port, Family, OS_Lib.AI_PASSIVE);
       FD    : C.int;
       Res   : C.int;
       Errno : Integer;
@@ -233,11 +239,13 @@ package body AWS.Net.Std is
      (Socket : in out Socket_Type;
       Host   : String;
       Port   : Positive;
-      Wait   : Boolean := True)
+      Wait   : Boolean     := True;
+      Family : Family_Type := Family_Unspec)
    is
       use type C.int;
 
-      Info  : constant OS_Lib.Addr_Info_Access := Get_Addr_Info (Host, Port);
+      Info  : constant OS_Lib.Addr_Info_Access :=
+                Get_Addr_Info (Host, Port, Family);
       FD    : C.int;
       Res   : C.int;
       Errno : Integer;
@@ -355,9 +363,10 @@ package body AWS.Net.Std is
    -------------------
 
    function Get_Addr_Info
-     (Host  : String;
-      Port  : Natural;
-      Flags : Interfaces.C.int := 0) return OS_Lib.Addr_Info_Access
+     (Host   : String;
+      Port   : Natural;
+      Family : Family_Type;
+      Flags  : Interfaces.C.int := 0) return OS_Lib.Addr_Info_Access
    is
       package CS renames Interfaces.C.Strings;
       use type C.int;
@@ -370,7 +379,7 @@ package body AWS.Net.Std is
       Res    : C.int;
       Result : aliased OS_Lib.Addr_Info_Access;
       Hints  : constant OS_Lib.Addr_Info :=
-                 (ai_family    => OS_Lib.PF_UNSPEC,
+                 (ai_family    => To_C (Family),
                   ai_socktype  => OS_Lib.SOCK_STREAM,
                   ai_protocol  => OS_Lib.IPPROTO_IP,
                   ai_flags     =>

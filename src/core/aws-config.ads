@@ -70,6 +70,11 @@ package AWS.Config is
    pragma Inline (Server_Name);
    --  This is the name of the server as set by AWS.Server.Start
 
+   function Protocol_Family (O : Object) return String;
+   pragma Inline (Protocol_Family);
+   --  Server protocol family. Family_Inet for IPv4, Family_Inet6 for IPv6 and
+   --  Family_Unspec for unspecified protocol family.
+
    function Server_Host (O : Object) return String;
    pragma Inline (Server_Host);
    --  This is the server host. Can be used if the computer has a more than
@@ -397,6 +402,7 @@ private
       Admin_URI,
       Admin_Password,
       Admin_Realm,
+      Protocol_Family,
       Server_Host,
       Server_Port,
       Security,
@@ -592,6 +598,9 @@ private
 
          Accept_Queue_Size =>
            (Pos, Default.Accept_Queue_Size),
+
+         Protocol_Family =>
+           (Str, To_Unbounded_String (Default.Protocol_Family)),
 
          Server_Host =>
            (Str, Null_Unbounded_String),

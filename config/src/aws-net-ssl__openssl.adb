@@ -180,11 +180,12 @@ package body AWS.Net.SSL is
      (Socket : in out Socket_Type;
       Host   : String;
       Port   : Positive;
-      Wait   : Boolean := True)
+      Wait   : Boolean     := True;
+      Family : Family_Type := Family_Unspec)
    is
       Success : Boolean;
    begin
-      Net.Std.Connect (NSST (Socket), Host, Port, Wait);
+      Net.Std.Connect (NSST (Socket), Host, Port, Wait, Family);
 
       if Socket.Config = null then
          Initialize_Default_Config;

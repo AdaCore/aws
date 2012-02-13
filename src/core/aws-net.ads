@@ -72,6 +72,8 @@ package AWS.Net is
    --  Type for set events to wait, note that Error event would be waited
    --  anyway.
 
+   type Family_Type is (Family_Inet, Family_Inet6, Family_Unspec);
+
    type Shutmode_Type is (Shut_Read, Shut_Write, Shut_Read_Write);
 
    Forever : constant Duration;
@@ -90,8 +92,9 @@ package AWS.Net is
    procedure Bind
      (Socket        : in out Socket_Type;
       Port          : Natural;
-      Host          : String  := "";
-      Reuse_Address : Boolean := False) is abstract;
+      Host          : String      := "";
+      Reuse_Address : Boolean     := False;
+      Family        : Family_Type := Family_Unspec) is abstract;
    --  Create the server socket and bind it on the given port.
    --  Using 0 for the port will tell the OS to allocate a non-privileged
    --  free port. The port can be later retrieved using Get_Port on the
@@ -102,8 +105,7 @@ package AWS.Net is
    --  Set the queue size of the socket
 
    procedure Accept_Socket
-     (Socket : Socket_Type'Class; New_Socket : in out Socket_Type)
-      is abstract;
+     (Socket : Socket_Type'Class; New_Socket : in out Socket_Type) is abstract;
    --  Accept a connection on a socket. If it raises Socket_Error, all
    --  resources used by new_Socket have been released.
    --  There is not need to call Free or Shutdown.
@@ -115,7 +117,8 @@ package AWS.Net is
      (Socket : in out Socket_Type;
       Host   : String;
       Port   : Positive;
-      Wait   : Boolean := True) is abstract;
+      Wait   : Boolean     := True;
+      Family : Family_Type := Family_Unspec) is abstract;
    --  Connect a socket on a given host/port. If Wait is True Connect will wait
    --  for the connection to be established for timeout seconds, specified by
    --  Set_Timeout routine. If Wait is False Connect will return immediately,

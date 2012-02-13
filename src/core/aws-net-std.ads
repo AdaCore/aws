@@ -44,8 +44,9 @@ package AWS.Net.Std is
    overriding procedure Bind
      (Socket        : in out Socket_Type;
       Port          : Natural;
-      Host          : String  := "";
-      Reuse_Address : Boolean := False);
+      Host          : String      := "";
+      Reuse_Address : Boolean     := False;
+      Family        : Family_Type := Family_Unspec);
    --  Bind a socket on a given port
 
    overriding procedure Listen
@@ -62,7 +63,8 @@ package AWS.Net.Std is
      (Socket : in out Socket_Type;
       Host   : String;
       Port   : Positive;
-      Wait   : Boolean := True);
+      Wait   : Boolean     := True;
+      Family : Family_Type := Family_Unspec);
    --  Connect a socket on a given host/port. If Wait is True Connect will wait
    --  for the connection to be established for timeout seconds, specified by
    --  Set_Timeout routine. If Wait is False Connect will return immediately,
