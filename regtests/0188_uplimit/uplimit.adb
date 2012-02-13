@@ -48,8 +48,7 @@ procedure Uplimit is
 
    task Server is
       pragma Storage_Size (Stack_Size.Value);
-      entry Start;
-      entry Started (Port : out Positive);
+      entry Started;
       entry Stopped;
    end Server;
 
@@ -145,16 +144,12 @@ procedure Uplimit is
       AWS.Server.Set_Unexpected_Exception_Handler
         (HTTP, Problem'Unrestricted_Access);
 
-      accept Start;
-
       AWS.Server.Start (HTTP, CB'Unrestricted_Access, Web_Config);
 
       Put_Line ("Server started");
       New_Line;
 
-      accept Started (Port : out Positive) do
-         Port := AWS.Server.Status.Port (HTTP);
-      end Started;
+      accept Started;
 
       select
          accept Stopped;
@@ -191,10 +186,9 @@ procedure Uplimit is
 begin
    Put_Line ("Start main, wait for server to start...");
 
-   Server.Start;
-   Server.Started (Port);
+   Server.Started;
 
-   AWS.Client.Create (Client, "http://localhost:" & Utils.Image (Port));
+   AWS.Client.Create (Client, AWS.Server.Status.Local_URL (HTTP));
 
    AWS.Client.Post (Client, R, 1000 * "0123456789", URI => "/noup"); Print;
    AWS.Client.Post (Client, R, 1100 * "abcdefghij", URI => "/noup"); Print;

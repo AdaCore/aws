@@ -77,8 +77,9 @@ package body API_@_UNIT_NAME_@ is
       Conf : Config.Object;
       Disp : API_Service.CB.Handler;
    begin
-      Config.Set.Server_Port
-         (Conf, API_Service.Server.Port);
+      Config.Set.Server_Host (Conf, "localhost");
+      Config.Set.Server_Port (Conf, API_Service.Server.Port);
+
       Disp := SOAP.Dispatchers.Callback.Create
         (CB'Unrestricted_Access,
          @_SOAP_SERVICE_@.CB.SOAP_CB'Access);

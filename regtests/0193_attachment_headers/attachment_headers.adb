@@ -27,12 +27,10 @@ with AWS.Headers.Set;
 with AWS.MIME;
 with AWS.Net.Log;
 with AWS.Response;
-with AWS.Server;
+with AWS.Server.Status;
 with AWS.Status;
 with AWS.Translator;
 with AWS.Utils;
-
-with Get_Free_Port;
 
 procedure Attachment_Headers is
 
@@ -126,19 +124,16 @@ procedure Attachment_Headers is
    Attachments : AWS.Attachments.List;
    Headers     : AWS.Headers.List;
    Result      : AWS.Response.Data;
-   Port        : Positive := 9976;
    Srv         : Server.HTTP;
 
 begin
    Text_IO.Put_Line ("Start...");
 
-   Get_Free_Port (Port);
-
    Server.Start
      (Srv, "attachment_headers",
       Upload'Unrestricted_Access,
       Upload_Directory => ".",
-      Port             => Port);
+      Port             => 0);
 
    AWS.Headers.Set.Add
      (Headers, Name => "X-Message-Seconds", Value => "64");
@@ -158,7 +153,7 @@ begin
    --  AWS.Net.Log.Start (Dump'Unrestricted_Access);
 
    Result := Client.Post
-     (URL          => "http://localhost:" & Utils.Image (Port) & "/upload",
+     (URL          => Server.Status.Local_URL (Srv) & "/upload",
       Data         => "ID=1",
       Content_Type => MIME.Application_Form_Data,
       Attachments  => Attachments,

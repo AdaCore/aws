@@ -3,7 +3,7 @@ User-Agent: AWS (Ada Web Server) vx.x.x
 Accept-Language: fr, ru, us
 Accept-Encoding: deflate, gzip
 Accept: text/html, */*
-Host: localhost:xxxx
+Host: x.x.x.x:x
 Range: NOT FOUND
 If-Modified-Since: NOT FOUND
 
@@ -12,7 +12,7 @@ User-Agent: AWS (Ada Web Server) vx.x.x
 Accept-Language: fr, ru, us
 Accept-Encoding: deflate, gzip
 Accept: text/html, */*
-Host: localhost:xxxx
+Host: x.x.x.x:x
 Range: NOT FOUND
 If-Modified-Since: NOT FOUND
 
@@ -21,7 +21,7 @@ User-Agent: AWS (Ada Web Server) vx.x.x
 Accept-Language: fr, ru, us
 Accept-Encoding: deflate, gzip
 Accept: text/html, */*
-Host: localhost:xxxx
+Host: x.x.x.x:x
 Range: NOT FOUND
 If-Modified-Since: NOT FOUND
 
@@ -30,7 +30,7 @@ User-Agent: AWS (Ada Web Server) vx.x.x
 Accept-Language: fr
 Accept-Encoding: deflate, gzip
 Accept: text/html, */*
-Host: localhost:xxxx
+Host: x.x.x.x:x
 Range: NOT FOUND
 If-Modified-Since: yesterday :)
 
@@ -39,7 +39,7 @@ User-Agent: Very_Secret
 Accept-Language: fr
 Accept-Encoding: deflate, gzip
 Accept: text/html, */*
-Host: localhost:xxxx
+Host: x.x.x.x:x
 Range: NOT FOUND
 If-Modified-Since: yesterday :)
 

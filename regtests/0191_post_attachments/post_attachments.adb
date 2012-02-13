@@ -28,21 +28,16 @@ with AWS.MIME;
 with AWS.Net.Log;
 with AWS.Parameters;
 with AWS.Response;
-with AWS.Server;
+with AWS.Server.Status;
 with AWS.Status;
 with AWS.Translator;
 with AWS.Utils;
-
-with Get_Free_Port;
 
 procedure Post_Attachments is
 
    use Ada;
    use Ada.Streams;
    use AWS;
-
-   WS   : Server.HTTP;
-   Port : Positive := 8270;
 
    --------
    -- CB --
@@ -98,12 +93,12 @@ procedure Post_Attachments is
       end if;
    end Dump;
 
+   WS          : Server.HTTP;
+   WC          : Client.HTTP_Connection;
    R           : Response.Data;
    Attachments : AWS.Attachments.List;
 
 begin
-   Get_Free_Port (Port);
-
    AWS.Attachments.Add
      (Attachments => Attachments,
       Filename    => "file1.dat",
@@ -116,53 +111,48 @@ begin
    Server.Start
      (WS, "Post Attachments",
       CB'Unrestricted_Access,
-      Port             => Port,
+      Port             => 0,
       Upload_Directory => ".");
 
    Text_IO.Put_Line ("started"); Ada.Text_IO.Flush;
 
    --  AWS.Net.Log.Start (Dump'Unrestricted_Access);
 
-   Text_IO.New_Line;
-
-   R := AWS.Client.Post
-     (URL  => "http://localhost:" & Utils.Image (Port) & "/Upload",
-      Data => "ID=100");
+   Client.Create (WC, Server.Status.Local_URL (WS));
 
    Text_IO.New_Line;
 
-   R := AWS.Client.Post
-     (URL          => "http://localhost:" & Utils.Image (Port) & "/Upload",
-      Data         => "ID=101",
+   AWS.Client.Post (WC, R, URI => "/Upload", Data => "ID=100");
+
+   Text_IO.New_Line;
+
+   AWS.Client.Post
+     (WC, R, URI => "/Upload", Data => "ID=101",
       Content_Type => AWS.MIME.Application_Form_Data,
       Attachments  => Attachments);
 
    Text_IO.New_Line;
 
-   R := AWS.Client.Post
-     (URL          =>
-        "http://localhost:" & Utils.Image (Port) & "/Upload?ID=102",
-      Data         => AWS.Client.No_Data,
+   AWS.Client.Post
+     (WC, R, URI => "/Upload?ID=102", Data => AWS.Client.No_Data,
       Content_Type => AWS.MIME.Application_Form_Data,
       Attachments  => Attachments);
 
    Text_IO.New_Line;
 
-   R := AWS.Client.Post
-     (URL          =>
-        "http://localhost:" & Utils.Image (Port) & "/Upload?ID=103",
-      Data         => "AnyOldString",
+   AWS.Client.Post
+     (WC, R, URI => "/Upload?ID=103", Data => "AnyOldString",
       Content_Type => AWS.Client.No_Data,
       Attachments  => Attachments);
 
    Text_IO.New_Line;
 
-   R := AWS.Client.Post
-     (URL          => "http://localhost:" & Utils.Image (Port) & "/Upload",
-      Data         => "ID=104",
+   AWS.Client.Post
+     (WC, R, URI => "/Upload", Data => "ID=104",
       Content_Type => AWS.MIME.Application_Form_Data,
       Attachments  => Attachments);
 
+   Client.Close (WC);
    Server.Shutdown (WS);
    Text_IO.Put_Line ("shutdown");
 end Post_Attachments;

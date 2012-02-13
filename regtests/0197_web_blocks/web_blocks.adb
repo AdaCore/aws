@@ -22,7 +22,7 @@ with AWS.Client;
 with AWS.Config.Set;
 with AWS.Dispatchers.Callback;
 with AWS.Messages;
-with AWS.Server;
+with AWS.Server.Status;
 with AWS.Services.Dispatchers.URI;
 with AWS.Services.Web_Block.Context;
 with AWS.Services.Web_Block.Registry;
@@ -31,16 +31,14 @@ with AWS.Templates;
 with AWS.Response;
 with AWS.Utils;
 
-with Get_Free_Port;
-
 procedure Web_Blocks is
 
    use Ada;
    use AWS;
    use AWS.Services;
 
-   Cfg       : Config.Object;
-   Free_Port : Positive;
+   WS  : AWS.Server.HTTP;
+   Cfg : Config.Object;
 
    procedure Main_Callback
      (Request      :                 Status.Data;
@@ -70,7 +68,7 @@ procedure Web_Blocks is
 
    procedure Test (URI : String) is
       R : constant Response.Data := Client.Get
-        ("http://localhost:" & AWS.Utils.Image (Free_Port) & URI);
+        (Server.Status.Local_URL (WS) & URI);
       Content : constant String := Response.Message_Body (R);
    begin
       if Content /= "" then
@@ -79,8 +77,6 @@ procedure Web_Blocks is
    end Test;
 
    H  : AWS.Services.Dispatchers.URI.Handler;
-
-   WS : AWS.Server.HTTP;
 
 begin
    Services.Dispatchers.URI.Register_Default_Callback
@@ -92,16 +88,10 @@ begin
       "page_main.thtml",
       Main_Callback'Unrestricted_Access);
    --  This default callback will handle all Web_Block callbacks
-   Cfg := AWS.Config.Get_Current;
 
-   Free_Port := AWS.Config.Server_Port (Cfg);
-   Get_Free_Port (Free_Port);
-   AWS.Config.Set.Server_Port (Cfg, Free_Port);
+   AWS.Config.Set.Server_Port (Cfg, 0);
 
-   AWS.Server.Start
-     (WS,
-      Dispatcher => H,
-      Config     => Cfg);
+   AWS.Server.Start (WS, Dispatcher => H, Config => Cfg);
 
    Test ("/main");
 

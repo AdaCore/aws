@@ -29,12 +29,10 @@ with AWS.MIME;
 with AWS.Net.Log;
 with AWS.Parameters;
 with AWS.Response;
-with AWS.Server;
+with AWS.Server.Status;
 with AWS.Status;
 with AWS.Translator;
 with AWS.Utils;
-
-with Get_Free_Port;
 
 procedure Client_Headers is
 
@@ -43,8 +41,7 @@ procedure Client_Headers is
    use Ada.Strings.Unbounded;
    use AWS;
 
-   WS   : Server.HTTP;
-   Port : Positive := 8270;
+   WS : Server.HTTP;
 
    --------
    -- CB --
@@ -78,6 +75,14 @@ procedure Client_Headers is
                   exit when K = 0;
 
                   Replace_Slice (Value, K, K + 2, "x.");
+               end loop;
+
+               loop
+                  K := Index (Value, ":xx");
+
+                  exit when K = 0;
+
+                  Replace_Slice (Value, K, K + 2, ":x");
                end loop;
 
                if Element (Value, Length (Value)) = 'w' then
@@ -130,37 +135,32 @@ procedure Client_Headers is
    H  : Headers.List;
 
 begin
-   Get_Free_Port (Port);
-
    Server.Start
-     (WS, "Client Headers", CB'Unrestricted_Access, Port => Port);
+     (WS, "Client Headers", CB'Unrestricted_Access, Port => 0);
 
    --  AWS.Net.Log.Start (Dump'Unrestricted_Access);
 
-   R := AWS.Client.Get
-     (URL => "http://localhost:" & Utils.Image (Port) & "/1");
-   R := AWS.Client.Head
-     (URL => "http://localhost:" & Utils.Image (Port) & "/2");
-   R := AWS.Client.Post
-     (URL => "http://localhost:" & Utils.Image (Port) & "/3", Data => "V=1");
+   declare
+      URL : constant String := Server.Status.Local_URL (WS);
+   begin
+      R := AWS.Client.Get (URL => URL & "/1");
+      R := AWS.Client.Head (URL => URL & "/2");
+      R := AWS.Client.Post (URL & "/3", Data => "V=1");
 
-   Headers.Set.Add (H, Messages.Accept_Language_Token, "fr");
-   Headers.Set.Add (H, Messages.If_Modified_Since_Token, "yesterday :)");
+      Headers.Set.Add (H, Messages.Accept_Language_Token, "fr");
+      Headers.Set.Add (H, Messages.If_Modified_Since_Token, "yesterday :)");
 
-   R := AWS.Client.Get
-     (URL => "http://localhost:" & Utils.Image (Port) & "/4", Headers => H);
+      R := AWS.Client.Get (URL => URL & "/4", Headers => H);
 
-   Headers.Set.Add (H, Messages.User_Agent_Token, "Very_Secret");
+      Headers.Set.Add (H, Messages.User_Agent_Token, "Very_Secret");
 
-   R := AWS.Client.Head
-     (URL => "http://localhost:" & Utils.Image (Port) & "/5", Headers => H);
+      R := AWS.Client.Head (URL => URL & "/5", Headers => H);
 
-   Headers.Set.Update (H, Messages.User_Agent_Token, "Or_Not");
-   Headers.Set.Add (H, Messages.Host_Token, "me");
+      Headers.Set.Update (H, Messages.User_Agent_Token, "Or_Not");
+      Headers.Set.Add (H, Messages.Host_Token, "me");
 
-   R := AWS.Client.Post
-     (URL => "http://localhost:" & Utils.Image (Port) & "/6",
-      Data => "V=2", Headers => H);
+      R := AWS.Client.Post (URL => URL & "/6", Data => "V=2", Headers => H);
+   end;
 
    Server.Shutdown (WS);
    Text_IO.Put_Line ("shutdown");
