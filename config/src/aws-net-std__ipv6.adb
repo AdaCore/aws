@@ -378,12 +378,11 @@ package body AWS.Net.Std is
       C_Serv : aliased C.char_array := C.To_C (AWS.Utils.Image (Port));
       Res    : C.int;
       Result : aliased OS_Lib.Addr_Info_Access;
-      Hints  : constant OS_Lib.Addr_Info :=
+      Hints  : OS_Lib.Addr_Info :=
                  (ai_family    => To_C (Family),
                   ai_socktype  => OS_Lib.SOCK_STREAM,
                   ai_protocol  => OS_Lib.IPPROTO_IP,
-                  ai_flags     =>
-                    C.int (C.unsigned (Flags) or OS_Lib.AI_NUMERICSERV),
+                  ai_flags     => C.int (Flags),
                   ai_addrlen   => 0,
                   ai_canonname => CS.Null_Ptr,
                   ai_addr      => System.Null_Address,
@@ -544,22 +543,7 @@ package body AWS.Net.Std is
          Raise_Socket_Error (CS.Value (OS_Lib.GAI_StrError (Res)));
       end if;
 
-      declare
-         Result      : constant String := C.To_Ada (Host);
-         IPv4_Prefix : constant String := "::ffff:";
-      begin
-         --  Looks like it is not neccessary in OpenSUSE 11.2, but is necessary
-         --  in OpenSUSE 11.0. So we can remove it, after all the linux runtime
-         --  libraries will remove this prefix anyway.
-
-         if Result'Length > IPv4_Prefix'Length
-           and then Result (IPv4_Prefix'Range) = IPv4_Prefix
-         then
-            return Result (IPv4_Prefix'Last + 1 .. Result'Last);
-         else
-            return Result;
-         end if;
-      end;
+      return C.To_Ada (Host);
    end Image;
 
    --------------------
