@@ -21,8 +21,8 @@ with Ada.Exceptions;
 
 with AWS.Config.Set;
 pragma Elaborate_All (AWS.Config.Set);
-with AWS.Server;
-pragma Elaborate_All (AWS.Server);
+with AWS.Server.Status;
+pragma Elaborate_All (AWS.Server.Status);
 with AWS.Status;
 pragma Elaborate_All (AWS.Status);
 with AWS.Response;
@@ -57,17 +57,16 @@ procedure Soapcheck is
    use SOAP.Parameters;
    use SOAP.Types;
 
-   Port : Integer := 9876;
-
    function URL return String;
+
+   WS : AWS.Server.HTTP;
 
    function URL return String is
    begin
-      return "http://localhost:" & Utils.Image (Port);
+      return Server.Status.Local_URL (WS);
    end URL;
 
-   function CB (Request : Status.Data) return Response.Data
-   is
+   function CB (Request : Status.Data) return Response.Data is
       R : Response.Data;
    begin
       return R;
@@ -75,8 +74,7 @@ procedure Soapcheck is
 
    function To_SOAP_Object
      (R    : Pck_Service.Types.Rec_Type;
-      Name : String := "item")
-      return SOAP.Types.SOAP_Record
+      Name : String := "item") return SOAP.Types.SOAP_Record
    is
       Result : SOAP.Types.SOAP_Record;
    begin
@@ -161,12 +159,11 @@ procedure Soapcheck is
       end;
    end Print;
 
-   WS   : AWS.Server.HTTP;
    Conf : Config.Object;
    Disp : Pck_Service.CB.Handler;
 
 begin
-   Config.Set.Server_Port (Conf, Port);
+   Config.Set.Server_Port (Conf, 0);
    Disp := SOAP.Dispatchers.Callback.Create
      (CB'Unrestricted_Access,
       Pck_Service.CB.SOAP_CB'Access);

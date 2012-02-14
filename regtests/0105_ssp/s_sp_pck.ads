@@ -20,6 +20,6 @@
 
 package S_Sp_Pck is
 
-   procedure Run (Protocol : String; Port : Positive);
+   procedure Run (Security : Boolean);
 
 end S_Sp_Pck;

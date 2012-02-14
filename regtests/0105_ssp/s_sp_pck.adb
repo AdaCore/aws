@@ -27,6 +27,7 @@ with AWS.Client;
 with AWS.Parameters;
 with AWS.Response;
 with AWS.Server.Push;
+with AWS.Server.Status;
 with AWS.Status;
 with AWS.Translator;
 with AWS.Utils;
@@ -84,14 +85,12 @@ package body S_Sp_Pck is
    -- Run --
    ---------
 
-   procedure Run (Protocol : String; Port : Positive) is
+   procedure Run (Security : Boolean) is
       Connect : array (Server_Push.Mode'Range) of Client.HTTP_Connection;
       Answer  : AWS.Response.Data;
       Data    : Push_Data_Type;
 
       HTTP : AWS.Server.HTTP;
-      URL  : constant String
-        := Protocol & "://localhost:" & AWS.Utils.Image (Port);
 
       procedure Output (Data : String);
       --  Ignore random string --AWS.Push.Boundary_1044468257,
@@ -132,8 +131,8 @@ package body S_Sp_Pck is
         (HTTP,
          "Testing server push.",
          CB'Access,
-         Port           => Port,
-         Security       => Protocol = "https",
+         Port           => 0,
+         Security       => Security,
          Max_Connection => 3);
 
       Data := 1000.0;
@@ -143,9 +142,10 @@ package body S_Sp_Pck is
       for J in Connect'Range loop
          Client.Create
            (Connection  => Connect (J),
-            Host        => URL,
+            Host        => Server.Status.Local_URL (HTTP),
             Timeouts    => Client.Timeouts
-              (Connect => 5.0, Send => 15.0, Receive => 15.0),
+              (Connect => 5.0,
+               Send => 15.0, Receive => 15.0, Response => 15.0),
             Server_Push => True);
 
          Client.Get (Connect (J), Answer, "/uri?mode="
