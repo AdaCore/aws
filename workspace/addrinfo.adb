@@ -17,6 +17,7 @@
 ------------------------------------------------------------------------------
 
 with Ada.Text_IO;
+with AWS.Net.Std;
 with AWS.OS_Lib;
 with Interfaces.C.Strings;
 with System;
@@ -107,6 +108,7 @@ procedure AddrInfo is
    end Get_Addr_Info;
 
 begin
+   Ada.Text_IO.Put_Line (AWS.Net.Std.Host_Name);
    Get_Addr_Info ("", OS_Lib.AI_PASSIVE);
    Get_Addr_Info ("localhost", 0);
 end AddrInfo;
