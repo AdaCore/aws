@@ -378,7 +378,7 @@ package body AWS.Net.Std is
       C_Serv : aliased C.char_array := C.To_C (AWS.Utils.Image (Port));
       Res    : C.int;
       Result : aliased OS_Lib.Addr_Info_Access;
-      Hints  : OS_Lib.Addr_Info :=
+      Hints  : constant OS_Lib.Addr_Info :=
                  (ai_family    => To_C (Family),
                   ai_socktype  => OS_Lib.SOCK_STREAM,
                   ai_protocol  => OS_Lib.IPPROTO_IP,
