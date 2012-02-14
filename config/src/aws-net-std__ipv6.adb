@@ -57,9 +57,9 @@ package body AWS.Net.Std is
    type Sockaddr_In6 is record
       Family    : Interfaces.C.short;          -- AF_INET6
       Port      : Interfaces.C.unsigned_short; -- transport layer port #
-      FlowInfo  : Interfaces.C.unsigned_long;  -- IPv6 traffic class&flow info
+      FlowInfo  : Interfaces.Unsigned_32;      -- IPv6 traffic class&flow info
       Addr      : In6_Addr;                    -- IPv6 address
-      Scope_Id  : Interfaces.C.unsigned_long;  -- set of interfaces for a scope
+      Scope_Id  : Interfaces.Unsigned_32;      -- set of interfaces for a scope
    end record;
    pragma Convention (C, Sockaddr_In6);
 
