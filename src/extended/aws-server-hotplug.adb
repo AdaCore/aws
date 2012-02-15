@@ -102,7 +102,8 @@ package body AWS.Server.Hotplug is
      (Web_Server         : HTTP_Access;
       Port               : Positive;
       Authorization_File : String;
-      Register_Mode      : AWS.Hotplug.Register_Mode := AWS.Hotplug.Add)
+      Register_Mode      : AWS.Hotplug.Register_Mode := AWS.Hotplug.Add;
+      Host               : String                    := "")
    is
       use Ada;
       use Ada.Characters.Handling;
@@ -117,7 +118,7 @@ package body AWS.Server.Hotplug is
       Line   : Strings_Cutter.Cut_String;
       N      : Natural := 0;
    begin
-      Hotplug_Server.Start (Port, Web_Server);
+      Hotplug_Server.Start (Port, Web_Server, Host => Host);
       AWS.Hotplug.Set_Mode (Web_Server.Filters, Register_Mode);
 
       Text_IO.Open (File, Text_IO.In_File, Authorization_File);

@@ -54,7 +54,8 @@ package AWS.Server.Hotplug is
      (Web_Server         : HTTP_Access;
       Port               : Positive;
       Authorization_File : String;
-      Register_Mode      : AWS.Hotplug.Register_Mode := AWS.Hotplug.Add);
+      Register_Mode      : AWS.Hotplug.Register_Mode := AWS.Hotplug.Add;
+      Host               : String                    := "");
    --  Start hotplug server listening at the specified Port for the Web_Server.
    --  Only client modules listed in the authorization file will be able to
    --  connect to this server. For better securite the host of redictection
