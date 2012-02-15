@@ -123,6 +123,8 @@ package AWS.Net.Std is
 
    overriding function Is_IPv6 (Socket : Socket_Type) return Boolean;
 
+   function IPv6_Available return Boolean;
+
    function Host_Name return String;
 
    overriding function Is_Timeout

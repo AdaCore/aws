@@ -198,6 +198,15 @@ package body AWS.Net is
    end Initialize;
 
    --------------------
+   -- IPv6_Available --
+   --------------------
+
+   function IPv6_Available return Boolean is
+   begin
+      return Std.IPv6_Available;
+   end IPv6_Available;
+
+   --------------------
    -- Is_Any_Address --
    --------------------
 

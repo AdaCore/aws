@@ -145,14 +145,15 @@ main (int argc, char *argv[])
   #define SHUT_RDWR SD_BOTH
   #endif
 
-  #define ETIMEDOUT   WSAETIMEDOUT
-  #define ENOTCONN    WSAENOTCONN
-  #define EWOULDBLOCK WSAEWOULDBLOCK
-  #define EINPROGRESS WSAEINPROGRESS
-  #define EINTR       WSAEINTR
-  #define ENOBUFS     WSAENOBUFS
-  #define ENOMEM      WSAENOBUFS
-  #define EAI_SYSTEM  EAI_AGAIN
+  #define EADDRNOTAVAIL WSAEADDRNOTAVAIL
+  #define ETIMEDOUT     WSAETIMEDOUT
+  #define ENOTCONN      WSAENOTCONN
+  #define EWOULDBLOCK   WSAEWOULDBLOCK
+  #define EINPROGRESS   WSAEINPROGRESS
+  #define EINTR         WSAEINTR
+  #define ENOBUFS       WSAENOBUFS
+  #define ENOMEM        WSAENOBUFS
+  #define EAI_SYSTEM    EAI_AGAIN
   //  EAI_SYSTEM getaddrinfo error code does not supported by Win32, but need
   //  for correct error handling, we could use any Win32 socket error code
   //  instead, because Win32 use the same error codes in Errno report.
@@ -301,34 +302,35 @@ main (int argc, char *argv[])
 
   /* other constants */
 
-  P ("   IPPROTO_TCP  : constant := %d;\n", IPPROTO_TCP);
-  P ("   IPPROTO_IP   : constant := %d;\n", IPPROTO_IP);
-  P ("   PF_UNSPEC    : constant := %d;\n", PF_UNSPEC);
-  P ("   PF_INET      : constant := %d;\n", PF_INET);
-  P ("   PF_INET6     : constant := %d;\n", PF_INET6);
-  P ("   AF_INET      : constant := %d;\n", AF_INET);
-  P ("   AF_INET6     : constant := %d;\n", AF_INET6);
-  P ("   AF_UNSPEC    : constant := %d;\n", AF_UNSPEC);
-  P ("   SO_ERROR     : constant := %d;\n", SO_ERROR);
-  P ("   SO_SNDBUF    : constant := %d;\n", SO_SNDBUF);
-  P ("   SO_RCVBUF    : constant := %d;\n", SO_RCVBUF);
-  P ("   SO_REUSEADDR : constant := %d;\n", SO_REUSEADDR);
-  P ("   TCP_NODELAY  : constant := %d;\n", TCP_NODELAY);
-  P ("   SOCK_STREAM  : constant := %d;\n", SOCK_STREAM);
-  P ("   SOL_SOCKET   : constant := %d;\n", SOL_SOCKET);
-  P ("   SHUT_RDWR    : constant := %d;\n", SHUT_RDWR);
-  P ("   SHUT_RD      : constant := %d;\n", SHUT_RD);
-  P ("   SHUT_WR      : constant := %d;\n", SHUT_WR);
-  P ("   ETIMEDOUT    : constant := %d;\n", ETIMEDOUT);
-  P ("   EWOULDBLOCK  : constant := %d;\n", EWOULDBLOCK);
-  P ("   ENOTCONN     : constant := %d;\n", ENOTCONN);
-  P ("   EINPROGRESS  : constant := %d;\n", EINPROGRESS);
-  P ("   EINTR        : constant := %d;\n", EINTR);
-  P ("   ENOBUFS      : constant := %d;\n", ENOBUFS);
-  P ("   ENOMEM       : constant := %d;\n", ENOMEM);
-  P ("   FIONBIO      : constant := %d;\n", FIONBIO);
-  P ("   FIONREAD     : constant := %d;\n", FIONREAD);
-  P ("   MSG_NOSIGNAL : constant := %d;\n\n", v_MSG_NOSIGNAL);
+  P ("   IPPROTO_TCP   : constant := %d;\n", IPPROTO_TCP);
+  P ("   IPPROTO_IP    : constant := %d;\n", IPPROTO_IP);
+  P ("   PF_UNSPEC     : constant := %d;\n", PF_UNSPEC);
+  P ("   PF_INET       : constant := %d;\n", PF_INET);
+  P ("   PF_INET6      : constant := %d;\n", PF_INET6);
+  P ("   AF_INET       : constant := %d;\n", AF_INET);
+  P ("   AF_INET6      : constant := %d;\n", AF_INET6);
+  P ("   AF_UNSPEC     : constant := %d;\n", AF_UNSPEC);
+  P ("   SO_ERROR      : constant := %d;\n", SO_ERROR);
+  P ("   SO_SNDBUF     : constant := %d;\n", SO_SNDBUF);
+  P ("   SO_RCVBUF     : constant := %d;\n", SO_RCVBUF);
+  P ("   SO_REUSEADDR  : constant := %d;\n", SO_REUSEADDR);
+  P ("   TCP_NODELAY   : constant := %d;\n", TCP_NODELAY);
+  P ("   SOCK_STREAM   : constant := %d;\n", SOCK_STREAM);
+  P ("   SOL_SOCKET    : constant := %d;\n", SOL_SOCKET);
+  P ("   SHUT_RDWR     : constant := %d;\n", SHUT_RDWR);
+  P ("   SHUT_RD       : constant := %d;\n", SHUT_RD);
+  P ("   SHUT_WR       : constant := %d;\n", SHUT_WR);
+  P ("   EADDRNOTAVAIL : constant := %d;\n", EADDRNOTAVAIL);
+  P ("   ETIMEDOUT     : constant := %d;\n", ETIMEDOUT);
+  P ("   EWOULDBLOCK   : constant := %d;\n", EWOULDBLOCK);
+  P ("   ENOTCONN      : constant := %d;\n", ENOTCONN);
+  P ("   EINPROGRESS   : constant := %d;\n", EINPROGRESS);
+  P ("   EINTR         : constant := %d;\n", EINTR);
+  P ("   ENOBUFS       : constant := %d;\n", ENOBUFS);
+  P ("   ENOMEM        : constant := %d;\n", ENOMEM);
+  P ("   FIONBIO       : constant := %d;\n", FIONBIO);
+  P ("   FIONREAD      : constant := %d;\n", FIONREAD);
+  P ("   MSG_NOSIGNAL  : constant := %d;\n\n", v_MSG_NOSIGNAL);
 
   /* nfds_t */
 

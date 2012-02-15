@@ -23,10 +23,10 @@ with Interfaces.C.Strings;
 with System;
 
 procedure AddrInfo is
+   use Ada.Text_IO;
    use AWS;
 
    procedure Get_Addr_Info (Host : String; Flags : Interfaces.C.int) is
-      use Ada.Text_IO;
       use Interfaces;
 
       package CS renames Interfaces.C.Strings;
@@ -108,7 +108,14 @@ procedure AddrInfo is
    end Get_Addr_Info;
 
 begin
-   Ada.Text_IO.Put_Line (AWS.Net.Std.Host_Name);
+   Put (AWS.Net.Std.Host_Name);
+
+   if Net.IPv6_Available then
+      Put_Line (" IPv6");
+   else
+      New_Line;
+   end if;
+
    Get_Addr_Info ("", OS_Lib.AI_PASSIVE);
    Get_Addr_Info ("localhost", 0);
 end AddrInfo;

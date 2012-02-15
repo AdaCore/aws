@@ -107,6 +107,10 @@ package body AWS.Net.Std is
    function Swap_Little_Endian
      (S : Interfaces.Unsigned_16) return Interfaces.Unsigned_16;
 
+   function C_Bind
+     (S : C.int; Name : System.Address; Namelen : C.int) return C.int;
+   pragma Import (Stdcall, C_Bind, "bind");
+
    function C_Socket (Domain, Typ, Protocol : C.int) return C.int;
    pragma Import (Stdcall, C_Socket, "socket");
 
@@ -139,8 +143,7 @@ package body AWS.Net.Std is
    -------------------
 
    overriding procedure Accept_Socket
-     (Socket     : Net.Socket_Type'Class;
-      New_Socket : in out Socket_Type)
+     (Socket : Net.Socket_Type'Class; New_Socket : in out Socket_Type)
    is
       use type C.int;
 
@@ -193,12 +196,6 @@ package body AWS.Net.Std is
       FD    : C.int;
       Res   : C.int;
       Errno : Integer;
-
-      function C_Bind
-        (S       : C.int;
-         Name    : System.Address;
-         Namelen : C.int) return C.int;
-      pragma Import (Stdcall, C_Bind, "bind");
 
    begin
       if Socket.S /= null then
@@ -547,6 +544,48 @@ package body AWS.Net.Std is
    end Image;
 
    --------------------
+   -- IPv6_Available --
+   --------------------
+
+   function IPv6_Available return Boolean is
+      use type C.int;
+
+      FD    : C.int;
+      Res   : C.int;
+      Errno : Integer;
+
+      Addr : constant Sockaddr_In6 :=
+        (Family => OS_Lib.AF_INET6,
+         Port   => 0,
+         Addr   => (1 .. 7 => 0, In6_Addr'Last => Swap_Little_Endian (1)),
+         others => 0);
+
+   begin
+      FD := C_Socket (OS_Lib.AF_INET6, OS_Lib.SOCK_STREAM, 0);
+
+      if FD = Failure then
+         Raise_Socket_Error (OS_Lib.Socket_Errno);
+      end if;
+
+      Res := C_Bind (FD, Addr'Address, Addr'Size / System.Storage_Unit);
+
+      if Res = Failure then
+         Errno := OS_Lib.Socket_Errno;
+         Res   := OS_Lib.C_Close (FD);
+
+         if Errno = OS_Lib.EADDRNOTAVAIL then
+            return False;
+         else
+            Raise_Socket_Error (Errno);
+         end if;
+      end if;
+
+      Res := OS_Lib.C_Close (FD);
+
+      return True;
+   end IPv6_Available;
+
+   --------------------
    -- Is_Any_Address --
    --------------------
 
@@ -599,8 +638,7 @@ package body AWS.Net.Std is
    --------------------
 
    overriding function Is_Peer_Closed
-     (Socket : Socket_Type;
-      E      : Exception_Occurrence) return Boolean is
+     (Socket : Socket_Type; E : Exception_Occurrence) return Boolean is
    begin
       return Is_Peer_Closed (Net.Socket_Type (Socket), E);
    end Is_Peer_Closed;
@@ -610,8 +648,7 @@ package body AWS.Net.Std is
    ----------------
 
    overriding function Is_Timeout
-     (Socket : Socket_Type;
-      E      : Exception_Occurrence) return Boolean is
+     (Socket : Socket_Type; E : Exception_Occurrence) return Boolean is
    begin
       return Is_Timeout (Net.Socket_Type (Socket), E)
         or else Get_Socket_Errno (E) = OS_Lib.ETIMEDOUT;

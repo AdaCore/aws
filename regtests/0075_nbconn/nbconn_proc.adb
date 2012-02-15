@@ -26,7 +26,6 @@ with GNAT.OS_Lib;
 
 with AWS.Net.Buffered;
 with AWS.Net.SSL;
-with Get_Free_Port;
 
 procedure NBConn_Proc (Security : Boolean) is
 
@@ -36,7 +35,7 @@ procedure NBConn_Proc (Security : Boolean) is
    use AWS;
 
    Queue_Size : constant := 5;
-   Port       : Positive := 7000;
+   Server     : Net.Socket_Type'Class := Net.Socket (False);
    Clients    : array (1 .. Queue_Size + 2) of Net.Socket_Access;
    Sample     : constant Ada.Streams.Stream_Element_Array (1 .. 100) :=
                   (others => 1);
@@ -51,13 +50,15 @@ procedure NBConn_Proc (Security : Boolean) is
    -----------------
 
    task body Server_Task is
-      Peer   : Net.Socket_Access;
-      Server : Net.Socket_Type'Class := Net.Socket (False);
+      Peer : Net.Socket_Access;
    begin
-      Get_Free_Port (Port);
+      if Net.IPv6_Available then
+         Server.Bind (0, Family => Net.Family_Inet6);
+      else
+         Server.Bind (0, Family => Net.Family_Inet);
+      end if;
 
-      Net.Bind (Server, Port);
-      Net.Listen (Server, Queue_Size);
+      Server.Listen (Queue_Size);
 
       Put_Line ("Server ready.");
 
@@ -66,7 +67,7 @@ procedure NBConn_Proc (Security : Boolean) is
       for J in Clients'Range loop
          Peer := Net.Socket (Security);
 
-         Net.Accept_Socket (Server, Peer.all);
+         Server.Accept_Socket (Peer.all);
 
          declare
             use Ada.Streams;
@@ -79,13 +80,13 @@ procedure NBConn_Proc (Security : Boolean) is
             end if;
          end;
 
-         Net.Shutdown (Peer.all);
+         Peer.Shutdown;
          Net.Free (Peer);
       end loop;
 
       accept Done;
 
-      Net.Shutdown (Server);
+      Server.Shutdown;
 
    exception
       when E : others =>
@@ -103,7 +104,7 @@ begin
 
    for J in Clients'Range loop
       Clients (J) := Net.Socket (Security);
-      Net.Connect (Clients (J).all, "localhost", Port, Wait => False);
+      Clients (J).Connect ("localhost", Server.Get_Port, Wait => False);
       Put_Line ("connect" & Integer'Image (J));
    end loop;
 

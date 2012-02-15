@@ -461,6 +461,15 @@ package body AWS.Net.Std is
    end Host_Name;
 
    --------------------
+   -- IPv6_Available --
+   --------------------
+
+   function IPv6_Available return Boolean is
+   begin
+      return False;
+   end IPv6_Available;
+
+   --------------------
    -- Is_Any_Address --
    --------------------
 

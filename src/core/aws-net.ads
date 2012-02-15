@@ -201,6 +201,9 @@ package AWS.Net is
 
    function Is_IPv6 (Socket : Socket_Type) return Boolean;
 
+   function IPv6_Available return Boolean;
+   --  Returns True if IPv6 available in OS and in AWS socket implementation
+
    function Host_Name return String;
    --  Returns the running host name
 
