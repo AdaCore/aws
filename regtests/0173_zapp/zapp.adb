@@ -21,11 +21,9 @@ with Ada.Text_IO;
 with AWS.Client;
 with AWS.Messages;
 with AWS.Response.Set;
-with AWS.Server;
+with AWS.Server.Status;
 with AWS.Status;
 with AWS.Utils;
-
-with Get_Free_Port;
 
 procedure ZApp is
 
@@ -33,8 +31,6 @@ procedure ZApp is
    use AWS;
 
    WS : Server.HTTP;
-
-   Free_Port : Positive := 8787;
 
    function CB (Request : Status.Data) return Response.Data;
 
@@ -84,17 +80,15 @@ procedure ZApp is
    R : Response.Data;
 
 begin
-   Get_Free_Port (Free_Port);
-
    Server.Start
      (WS, "append message",
       CB'Unrestricted_Access,
-      Port           => Free_Port,
+      Port           => 0,
       Max_Connection => 5);
 
    Ada.Text_IO.Put_Line ("started");
 
-   R := Client.Get ("http://localhost:" & AWS.Utils.Image (Free_Port));
+   R := Client.Get (Server.Status.Local_URL (WS));
 
    Ada.Text_IO.Put (Response.Message_Body (R));
 

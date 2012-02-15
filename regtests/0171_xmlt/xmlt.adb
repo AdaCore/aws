@@ -17,11 +17,8 @@
 ------------------------------------------------------------------------------
 
 with XMLT_Proc;
-with Get_Free_Port;
 
 procedure XMLT is
-   Port : Natural := 8789;
 begin
-   Get_Free_Port (Port);
-   XMLT_Proc (Port, False);
+   XMLT_Proc (False);
 end XMLT;

@@ -24,7 +24,7 @@ with Ada.Text_IO;    use Ada.Text_IO;
 
 with AWS.Client.XML.Input_Sources;
 with AWS.Response.Set;
-with AWS.Server;
+with AWS.Server.Status;
 with AWS.Status;
 with AWS.Utils;
 
@@ -34,7 +34,7 @@ with Sax.Readers;    use Sax.Readers;
 
 with Unicode.CES;
 
-procedure XMLT_Proc (Port : Positive; Security : Boolean) is
+procedure XMLT_Proc (Security : Boolean) is
 
    use AWS;
    use AWS.Client.XML.Input_Sources;
@@ -127,20 +127,6 @@ procedure XMLT_Proc (Port : Positive; Security : Boolean) is
          raise;
    end Test_Name;
 
-   ---------
-   -- URL --
-   ---------
-
-   function URL return String is
-      Draft : constant String := "://localhost:" & AWS.Utils.Image (Port);
-   begin
-      if Security then
-         return "https" & Draft;
-      else
-         return "http" & Draft;
-      end if;
-   end URL;
-
 begin
    --  Parse the command line
 
@@ -148,13 +134,13 @@ begin
      (Web,
       "XML output",
       CB'Unrestricted_Access,
-      Port           => Port,
+      Port           => 0,
       Security       => Security,
       Max_Connection => 3);
 
    Client.Create
      (HTTP,
-      Host        => URL,
+      Host        => Server.Status.Local_URL (Web),
       Server_Push => True,
       Persistent  => True,
       Timeouts    => Client.Timeouts

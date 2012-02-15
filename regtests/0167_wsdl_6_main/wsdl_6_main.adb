@@ -310,6 +310,7 @@ procedure WSDL_6_Main is
    Disp : WSDL_6_Service.CB.Handler;
 
 begin
+   Config.Set.Server_Host (Conf, "localhost");
    Config.Set.Server_Port (Conf, WSDL_6_Service.Server.Port);
 
    Disp := SOAP.Dispatchers.Callback.Create

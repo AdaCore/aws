@@ -56,8 +56,9 @@ procedure WSDL_9_Main is
    R    : AWS.Response.Data;
 
 begin
-   Config.Set.Server_Port
-      (Conf, WSDL_9_Service.Server.Port);
+   Config.Set.Server_Host (Conf, "localhost");
+   Config.Set.Server_Port (Conf, WSDL_9_Service.Server.Port);
+
    Disp := SOAP.Dispatchers.Callback.Create
      (CB'Unrestricted_Access,
       WSDL_9_Service.CB.SOAP_CB'Access);
@@ -65,17 +66,58 @@ begin
    AWS.Server.Start (WS, Disp, Conf);
 
    R := AWS.Client.SOAP_Post
-     (URL, "<?xml version=""1.0"" encoding=""UTF-8"" ?>" & CRLF & "<SOAP-ENV:Envelope xmlns:SOAP-ENV=""http://schemas.xmlsoap.org/soap/envelope/"" xmlns:SOAP-ENC=""http://schemas.xmlsoap.org/soap/encoding/"" xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance"" xmlns:xsd=""http://www.w3.org/2001/XMLSchema"" xmlns:ns2=""http://soapaws/MG_SOAP_pkg/"" xmlns:ns1=""http://soapaws/MG_SOAP_def/""><SOAP-ENV:Body SOAP-ENV:encodingStyle=""http://schemas.xmlsoap.org/soap/encoding/""><ns1:Send_SMS><User>test</User><Password>test</Password><Mobile>0626985825</Mobile><Content>Test ns1</Content></ns1:Send_SMS></SOAP-ENV:Body></SOAP-ENV:Envelope>", "Send_SMS");
+     (URL,
+      "<?xml version='1.0' encoding='UTF-8' ?>" & CRLF
+      & "<SOAP-ENV:Envelope"
+      & " xmlns:SOAP-ENV='http://schemas.xmlsoap.org/soap/envelope/'"
+      & " xmlns:SOAP-ENC='http://schemas.xmlsoap.org/soap/encoding/'"
+      & " xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'"
+      & " xmlns:xsd='http://www.w3.org/2001/XMLSchema'"
+      & " xmlns:ns2='http://soapaws/MG_SOAP_pkg/'"
+      & " xmlns:ns1='http://soapaws/MG_SOAP_def/'>"
+      & "<SOAP-ENV:Body"
+      & " SOAP-ENV:encodingStyle='http://schemas.xmlsoap.org/soap/encoding/'>"
+      & "<ns1:Send_SMS><User>test</User><Password>test</Password>"
+      & "<Mobile>0626985825</Mobile><Content>Test ns1</Content></ns1:Send_SMS>"
+      & "</SOAP-ENV:Body></SOAP-ENV:Envelope>", "Send_SMS");
 
    Text_IO.Put_Line (Response.Message_Body (R));
 
    R := AWS.Client.SOAP_Post
-     (URL, "<?xml version=""1.0"" encoding=""UTF-8"" ?>" & CRLF & "<SOAP-ENV:Envelope xmlns:SOAP-ENV=""http://schemas.xmlsoap.org/soap/envelope/"" xmlns:SOAP-ENC=""http://schemas.xmlsoap.org/soap/encoding/"" xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance"" xmlns:xsd=""http://www.w3.org/2001/XMLSchema"" xmlns:ns2=""http://soapaws/MG_SOAP_pkg/"" xmlns:ns1=""http://soapaws/MG_SOAP_def/""><SOAP-ENV:Body SOAP-ENV:encodingStyle=""http://schemas.xmlsoap.org/soap/encoding/""><ns1:Send_SMS><User href=""#_1""/><Password href=""#_1""/><Mobile>0626985825</Mobile><Content>Test ns1</Content></ns1:Send_SMS><multiRef id=""_1"" xsi:type=""xsd:string"">test</multiRef></SOAP-ENV:Body></SOAP-ENV:Envelope>", "Send_SMS");
+     (URL,
+      "<?xml version='1.0' encoding='UTF-8' ?>" & CRLF
+      & "<SOAP-ENV:Envelope"
+      & " xmlns:SOAP-ENV='http://schemas.xmlsoap.org/soap/envelope/'"
+      & " xmlns:SOAP-ENC='http://schemas.xmlsoap.org/soap/encoding/'"
+      & " xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'"
+      & " xmlns:xsd='http://www.w3.org/2001/XMLSchema'"
+      & " xmlns:ns2='http://soapaws/MG_SOAP_pkg/'"
+      & " xmlns:ns1='http://soapaws/MG_SOAP_def/'>"
+      & "<SOAP-ENV:Body"
+      & " SOAP-ENV:encodingStyle='http://schemas.xmlsoap.org/soap/encoding/'>"
+      & "<ns1:Send_SMS><User href='#_1'/><Password href='#_1'/>"
+      & "<Mobile>0626985825</Mobile><Content>Test ns1</Content></ns1:Send_SMS>"
+      & "<multiRef id='_1' xsi:type='xsd:string'>test</multiRef>"
+      & "</SOAP-ENV:Body></SOAP-ENV:Envelope>", "Send_SMS");
 
    Text_IO.Put_Line (Response.Message_Body (R));
 
    R := AWS.Client.SOAP_Post
-     (URL, "<?xml version=""1.0"" encoding=""UTF-8"" ?>" & CRLF & "<SOAP-ENV:Envelope xmlns:SOAP-ENV=""http://schemas.xmlsoap.org/soap/envelope/"" xmlns:SOAP-ENC=""http://schemas.xmlsoap.org/soap/encoding/"" xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance"" xmlns:xsd=""http://www.w3.org/2001/XMLSchema"" xmlns:ns2=""http://soapaws/MG_SOAP_pkg/"" xmlns:ns1=""http://soapaws/MG_SOAP_def/""><SOAP-ENV:Body SOAP-ENV:encodingStyle=""http://schemas.xmlsoap.org/soap/encoding/""><ns1:Send_SMS><User href=""#_1""/><Password href=""#_1""/><Mobile>0626985825</Mobile><Content>Test ns1</Content></ns1:Send_SMS><id id=""_1"" xsi:type=""xsd:string"">test</id></SOAP-ENV:Body></SOAP-ENV:Envelope>", "Send_SMS");
+     (URL,
+      "<?xml version='1.0' encoding='UTF-8' ?>" & CRLF
+      & "<SOAP-ENV:Envelope"
+      & " xmlns:SOAP-ENV='http://schemas.xmlsoap.org/soap/envelope/'"
+      & " xmlns:SOAP-ENC='http://schemas.xmlsoap.org/soap/encoding/'"
+      & " xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'"
+      & " xmlns:xsd='http://www.w3.org/2001/XMLSchema'"
+      & " xmlns:ns2='http://soapaws/MG_SOAP_pkg/'"
+      & " xmlns:ns1='http://soapaws/MG_SOAP_def/'>"
+      & "<SOAP-ENV:Body"
+      & " SOAP-ENV:encodingStyle='http://schemas.xmlsoap.org/soap/encoding/'>"
+      & "<ns1:Send_SMS><User href='#_1'/><Password href='#_1'/>"
+      & "<Mobile>0626985825</Mobile><Content>Test ns1</Content></ns1:Send_SMS>"
+      & "<id id='_1' xsi:type='xsd:string'>test</id></SOAP-ENV:Body>"
+      & "</SOAP-ENV:Envelope>", "Send_SMS");
 
    Text_IO.Put_Line (Response.Message_Body (R));
 

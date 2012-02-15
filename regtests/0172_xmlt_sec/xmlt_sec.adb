@@ -18,11 +18,7 @@
 
 with S_XMLT_Proc;
 
-with Get_Free_Port;
-
 procedure XMLT_Sec is
-   Port : Natural := 4489;
 begin
-   Get_Free_Port (Port);
-   S_XMLT_Proc (Port, True);
+   S_XMLT_Proc (True);
 end XMLT_Sec;
