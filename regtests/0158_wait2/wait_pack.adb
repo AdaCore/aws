@@ -19,11 +19,9 @@
 with Ada.Exceptions;
 with Ada.Streams;
 with Ada.Text_IO;
-
 with AWS.Net.Generic_Sets;
 with AWS.Net.SSL;
 
-with Get_Free_Port;
 with Stack_Size;
 
 package body Wait_Pack is
@@ -39,14 +37,14 @@ package body Wait_Pack is
    -- Run --
    ---------
 
-   procedure Run (Security : Boolean; Port : Positive) is
+   procedure Run (Security : Boolean) is
       use Ada.Text_IO;
       use type Sets.Socket_Count;
 
       Set_Size    : constant := 20;
       Sample_Size : constant := 10;
 
-      Free_Port   : Positive := Port;
+      Server      : Net.Socket_Type'Class := Net.Socket (False);
 
       Index       : Sets.Socket_Index := 1;
 
@@ -69,7 +67,7 @@ package body Wait_Pack is
             begin
                accept Next;
                delay A_Bit;
-               Net.Connect (Socket, "localhost", Free_Port);
+               Net.Connect (Socket, Server.Get_Addr, Server.Get_Port);
 
                accept Next;
                delay A_Bit;
@@ -110,22 +108,18 @@ package body Wait_Pack is
               ("Client side " & Ada.Exceptions.Exception_Information (E));
       end Client_Side;
 
-      Set    : Sets.Socket_Set_Type;
-      Server : Net.Socket_Type'Class := Net.Socket (False);
+      Set : Sets.Socket_Set_Type;
 
    begin
-      Get_Free_Port (Free_Port);
-
-      Net.Bind (Server, Free_Port);
-      Net.Listen (Server);
-      Net.Set_Blocking_Mode (Server, False);
+      Server.Bind (0);
+      Server.Listen;
+      Server.Set_Blocking_Mode (False);
 
       Sets.Add (Set, Server, Sets.Input);
 
       for J in 1 .. Set_Size * 4 loop
          Client_Side.Next;
-
-         Sets.Wait (Set, 5.0);
+         Sets.Wait (Set, 1.0);
 
          Index := 1;
 

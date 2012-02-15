@@ -18,11 +18,7 @@
 
 with Huge_Response_Pack;
 
-with Get_Free_Port;
-
 procedure Huge_Response is
-   Port : Natural := 1257;
 begin
-   Get_Free_Port (Port);
-   Huge_Response_Pack.Run (Port, False);
+   Huge_Response_Pack.Run (False);
 end Huge_Response;

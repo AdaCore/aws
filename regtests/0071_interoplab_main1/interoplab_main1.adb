@@ -21,6 +21,7 @@ with Ada.Integer_Text_IO;
 with Ada.Strings.Unbounded;
 with Ada.Text_IO;
 
+with AWS.Config.Set;
 with AWS.MIME;
 with AWS.Response;
 with AWS.Server;
@@ -494,11 +495,14 @@ procedure Interoplab_Main1 is
       end if;
    end CB;
 
+   CNF : Config.Object;
+
 begin
-   AWS.Server.Start
-     (H_Server, "WSDL interopLab Server",
-      CB'Unrestricted_Access,
-      Port => Tinteroplab.Server.Port);
+   Config.Set.Server_Name (CNF, "WSDL interopLab Server");
+   Config.Set.Server_Host (CNF, "localhost");
+   Config.Set.Server_Port (CNF, Tinteroplab.Server.Port);
+
+   AWS.Server.Start (H_Server, CB'Unrestricted_Access, CNF);
 
    T_echoVoid;
    T_echoString;

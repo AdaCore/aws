@@ -22,7 +22,7 @@ with Ada.Text_IO;
 with AWS.Client;
 with AWS.MIME;
 with AWS.Response;
-with AWS.Server;
+with AWS.Server.Status;
 with AWS.Session;
 with AWS.Status;
 with AWS.Templates;
@@ -46,7 +46,6 @@ package body Line_Status_Pck is
    procedure Check (Connection : in out Client.HTTP_Connection);
 
    WS     : Server.HTTP;
-   Port   : Natural;
    Ctx    : aliased Parse_Context;
    C1, C2 : Client.HTTP_Connection;
 
@@ -107,16 +106,18 @@ package body Line_Status_Pck is
    -- Run --
    ---------
 
-   procedure Run (Port : Natural) is
+   procedure Run is
       R : Response.Data;
    begin
-      Line_Status_Pck.Port := Port;
-
       Server.Start
-        (WS, "Line Status", CB'Access, Session => True, Port => Port);
+        (WS, "Line Status", CB'Access, Session => True, Port => 0);
 
-      Client.Create (C1, "http://localhost:" & Utils.Image (Port));
-      Client.Create (C2, "http://localhost:" & Utils.Image (Port));
+      declare
+         URL : constant String := Server.Status.Local_URL (WS);
+      begin
+         Client.Create (C1, URL);
+         Client.Create (C2, URL);
+      end;
 
       Check (C1);
       Check (C1);

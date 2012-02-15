@@ -18,6 +18,6 @@
 
 package Line_Status_Pck is
 
-   procedure Run (Port : Natural);
+   procedure Run;
 
 end Line_Status_Pck;

@@ -18,11 +18,7 @@
 
 with S_Back_Pack;
 
-with Get_Free_Port;
-
 procedure SSBack is
-   Port : Natural := 4469;
 begin
-   Get_Free_Port (Port);
-   S_Back_Pack.Run ("https", Port);
+   S_Back_Pack.Run (Security => True);
 end SSBack;

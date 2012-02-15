@@ -18,12 +18,9 @@
 
 --  Test Status.Data context from callback
 
-with Get_Free_Port;
 with Line_Status_Pck;
 
 procedure Line_Status is
-   Port : Natural := 8764;
 begin
-   Get_Free_Port (Port);
-   Line_Status_Pck.Run (Port);
+   Line_Status_Pck.Run;
 end Line_Status;

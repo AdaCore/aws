@@ -22,11 +22,9 @@ with AWS.Client;
 with AWS.Messages;
 with AWS.MIME;
 with AWS.Response;
-with AWS.Server;
+with AWS.Server.Status;
 with AWS.Status;
 with AWS.Utils;
-
-with Get_Free_Port;
 
 procedure Redirect is
 
@@ -34,8 +32,7 @@ procedure Redirect is
    use AWS;
    use type AWS.Messages.Status_Code;
 
-   WS   : Server.HTTP;
-   Port : Natural := 1239;
+   WS : Server.HTTP;
 
    --------
    -- CB --
@@ -62,7 +59,7 @@ procedure Redirect is
    procedure Call_It is
       R : Response.Data;
    begin
-      R := Client.Get ("http://localhost:" & Utils.Image (Port) & "/first");
+      R := Client.Get (Server.Status.Local_URL (WS) & "/first");
 
       if Response.Status_Code (R) = Messages.S302 then
          Text_IO.Put_Line ("OK, status is good");
@@ -77,10 +74,8 @@ procedure Redirect is
    end Call_It;
 
 begin
-   Get_Free_Port (Port);
-
    Server.Start
-     (WS, "file", CB'Unrestricted_Access, Port => Port, Max_Connection => 5);
+     (WS, "file", CB'Unrestricted_Access, Port => 0, Max_Connection => 5);
    Text_IO.Put_Line ("started"); Ada.Text_IO.Flush;
 
    Call_It;

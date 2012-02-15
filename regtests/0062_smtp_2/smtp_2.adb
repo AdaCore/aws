@@ -138,8 +138,7 @@ begin
       CT_Headers : Headers.List;
    begin
       Headers.Set.Add
-         (CT_Headers,
-          Messages.Content_Type_Token, MIME.Text_Plain);
+        (CT_Headers, Messages.Content_Type_Token, MIME.Text_Plain);
 
       Attachments.Add
         (CT_Attac,
@@ -169,8 +168,7 @@ begin
       CTE_Headers : Headers.List;
    begin
       Headers.Set.Add
-         (CTE_Headers,
-          Messages.Content_Transfer_Encoding_Token, "8bits");
+        (CTE_Headers, Messages.Content_Transfer_Encoding_Token, "8bits");
 
       Attachments.Add
         (CTE_Attac,

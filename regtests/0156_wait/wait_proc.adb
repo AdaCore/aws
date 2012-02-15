@@ -22,10 +22,9 @@ with Ada.Text_IO;
 with AWS.Net.Sets;
 with AWS.Net.SSL;
 
-with Get_Free_Port;
 with Stack_Size;
 
-procedure Wait_Proc (Security : Boolean; Port : Positive) is
+procedure Wait_Proc (Security : Boolean) is
 
    use Ada.Exceptions;
    use Ada.Streams;
@@ -38,7 +37,7 @@ procedure Wait_Proc (Security : Boolean; Port : Positive) is
    Set_Size    : constant := 20;
    Sample_Size : constant := 10;
 
-   Free_Port   : Positive := Port;
+   Server : Net.Socket_Type'Class := Net.Socket (False);
 
    task Client_Side is
       pragma Storage_Size (Stack_Size.Value);
@@ -62,9 +61,9 @@ procedure Wait_Proc (Security : Boolean; Port : Positive) is
          declare
             Socket : Net.Socket_Type'Class := Net.Socket (Security);
          begin
-            Net.Set_Timeout (Socket, 1.0);
+            Socket.Set_Timeout (1.0);
 
-            Net.Connect (Socket, "localhost", Free_Port, Wait => False);
+            Socket.Connect (Server.Get_Addr, Server.Get_Port, Wait => False);
 
             Sets.Add (Set, Socket, Sets.Output);
          end;
@@ -94,7 +93,7 @@ procedure Wait_Proc (Security : Boolean; Port : Positive) is
 
                elsif Sets.Is_Read_Ready (Set, Index) then
                   begin
-                     Data  := Net.Receive (Socket);
+                     Data  := Socket.Receive;
 
                      Sum := Sum + Data (Data'First);
 
@@ -111,7 +110,7 @@ procedure Wait_Proc (Security : Boolean; Port : Positive) is
                elsif Sets.Is_Error (Set, Index) then
                   Put_Line ("Socket error" & Integer'Image (Errno (Socket)));
 
-                  Net.Shutdown (Socket);
+                  Socket.Shutdown;
                   Sets.Remove_Socket (Set, Index);
 
                else
@@ -126,19 +125,14 @@ procedure Wait_Proc (Security : Boolean; Port : Positive) is
 
    exception
       when E : others =>
-         Put_Line
-           ("Client side " & Exception_Information (E));
+         Put_Line ("Client side " & Exception_Information (E));
    end Client_Side;
 
-   Server : Net.Socket_Type'Class := Net.Socket (False);
-
 begin
-   Get_Free_Port (Free_Port);
+   Server.Bind (Host => "localhost", Port => 0);
+   Server.Listen (Set_Size);
 
-   Net.Bind (Server, Free_Port);
-   Net.Listen (Server, Set_Size);
-
-   Net.Set_Timeout (Server, 1.0);
+   Server.Set_Timeout (1.0);
 
    Client_Side.Start;
 
@@ -146,20 +140,18 @@ begin
       declare
          New_Sock : Net.Socket_Type'Class := Net.Socket (Security);
       begin
-         Net.Accept_Socket (Server, New_Socket => New_Sock);
+         Server.Accept_Socket (New_Socket => New_Sock);
 
-         Net.Send
-           (New_Sock, (1 .. Sample_Size => Stream_Element (J)));
+         New_Sock.Send ((1 .. Sample_Size => Stream_Element (J)));
 
          delay 0.5;
-         Net.Shutdown (New_Sock);
+         New_Sock.Shutdown;
       end;
    end loop;
 
-   Net.Shutdown (Server);
+   Server.Shutdown;
 
 exception
    when E : others =>
-      Put_Line
-        ("Server side " & Exception_Information (E));
+      Put_Line ("Server side " & Exception_Information (E));
 end Wait_Proc;

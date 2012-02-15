@@ -20,5 +20,5 @@ with Wait_Pack;
 
 procedure Wait2 is
 begin
-   Wait_Pack.Run (False, 1246);
+   Wait_Pack.Run (False);
 end Wait2;

@@ -26,7 +26,7 @@ with Ada.Exceptions;
 with GNAT.Directory_Operations;
 with GNAT.OS_Lib;
 
-with AWS.Server;
+with AWS.Server.Status;
 with AWS.Client;
 with AWS.Status;
 with AWS.MIME;
@@ -34,8 +34,6 @@ with AWS.Response;
 with AWS.Parameters;
 with AWS.Messages;
 with AWS.Utils;
-
-with Get_Free_Port;
 
 procedure Upload5 is
 
@@ -54,8 +52,6 @@ procedure Upload5 is
    end Server;
 
    HTTP  : AWS.Server.HTTP;
-
-   Port  : Natural := 7645;
 
    First : Boolean := True;
    --  Set to True for the first file upload
@@ -128,14 +124,12 @@ procedure Upload5 is
 
    task body Server is
    begin
-      Get_Free_Port (Port);
-
       accept Start;
 
       AWS.Server.Start
         (HTTP, "upload",
          CB'Unrestricted_Access,
-         Port             => Port,
+         Port             => 0,
          Max_Connection   => 5,
          Upload_Directory => "upload_dir/");
 
@@ -187,10 +181,12 @@ begin
 
    Server.Started;
 
-   Request
-     ("http://localhost:" & Utils.Image (Port) & "/upload", "test.out");
-   Request
-     ("http://localhost:" & Utils.Image (Port) & "/upload", "upload5.adb");
+   declare
+      URL : constant String := AWS.Server.Status.Local_URL (HTTP) &  "/upload";
+   begin
+      Request (URL, "test.out");
+      Request (URL, "upload5.adb");
+   end;
 
    Server.Stop;
    Server.Stopped;

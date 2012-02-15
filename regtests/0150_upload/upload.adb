@@ -22,7 +22,7 @@ with Ada.Strings.Maps.Constants;
 with Ada.Text_IO;
 with Ada.Exceptions;
 
-with AWS.Server;
+with AWS.Server.Status;
 with AWS.Client;
 with AWS.Status;
 with AWS.MIME;
@@ -31,8 +31,6 @@ with AWS.Response;
 with AWS.Parameters;
 with AWS.Messages;
 with AWS.Utils;
-
-with Get_Free_Port;
 
 procedure Upload is
 
@@ -49,8 +47,6 @@ procedure Upload is
    end Server;
 
    HTTP : AWS.Server.HTTP;
-
-   Port : Natural := 7642;
 
    --------
    -- CB --
@@ -94,14 +90,12 @@ procedure Upload is
 
    task body Server is
    begin
-      Get_Free_Port (Port);
-
       accept Start;
 
       AWS.Server.Start
         (HTTP, "upload",
          CB'Unrestricted_Access,
-         Port             => Port,
+         Port             => 0,
          Max_Connection   => 5,
          Upload_Directory => "./");
 
@@ -143,10 +137,12 @@ begin
    Server.Start;
    Server.Started;
 
-   Request
-     ("http://localhost:" & Utils.Image (Port) & "/upload", "test.out");
-   Request
-     ("http://localhost:" & Utils.Image (Port) & "/upload", "upload.adb");
+   declare
+      URL : constant String := AWS.Server.Status.Local_URL (HTTP);
+   begin
+      Request (URL & "/upload", "test.out");
+      Request (URL & "/upload", "upload.adb");
+   end;
 
    Server.Stopped;
 

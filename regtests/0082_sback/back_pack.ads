@@ -18,6 +18,6 @@
 
 package Back_Pack is
 
-   procedure Run (Protocol : String; Port : Positive);
+   procedure Run (Security : Boolean);
 
 end Back_Pack;

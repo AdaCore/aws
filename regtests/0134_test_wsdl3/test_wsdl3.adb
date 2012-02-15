@@ -21,6 +21,7 @@
 with Ada.Calendar;
 with Ada.Text_IO;
 
+with AWS.Config.Set;
 with AWS.MIME;
 with AWS.Response;
 with AWS.Server;
@@ -112,11 +113,14 @@ procedure Test_WSDL3 is
       end loop;
    end WSDL_Demo_Client;
 
+   CNF : Config.Object;
+
 begin
-   AWS.Server.Start
-     (H_Server, "WSDL Stock Quote Server",
-      CB'Unrestricted_Access,
-      Port => Stock_Quote_Service.Server.Port);
+   Config.Set.Server_Name (CNF, "WSDL Stock Quote Server");
+   Config.Set.Server_Host (CNF, "localhost");
+   Config.Set.Server_Port (CNF, Stock_Quote_Service.Server.Port);
+
+   AWS.Server.Start (H_Server, CB'Unrestricted_Access, CNF);
 
    WSDL_Demo_Client;
 

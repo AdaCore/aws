@@ -22,15 +22,13 @@ with Ada.Exceptions;
 with AWS.Client;
 with AWS.Exceptions;
 with AWS.Log;
-with AWS.Server;
+with AWS.Server.Status;
 with AWS.Status;
 with AWS.MIME;
 with AWS.Response;
 with AWS.Parameters;
 with AWS.Messages;
 with AWS.Utils;
-
-with Get_Free_Port;
 
 procedure Upload4 is
 
@@ -47,13 +45,11 @@ procedure Upload4 is
       Answer : in out Response.Data);
 
    task Server is
-      entry Start;
       entry Started;
       entry Stopped;
    end Server;
 
    HTTP : AWS.Server.HTTP;
-   Port : Positive := 7644;
 
    -----------
    -- Error --
@@ -92,17 +88,13 @@ procedure Upload4 is
 
    task body Server is
    begin
-      accept Start;
-
       AWS.Server.Set_Unexpected_Exception_Handler
         (HTTP, Error'Unrestricted_Access);
-
-      Get_Free_Port (Port);
 
       AWS.Server.Start
         (HTTP, "upload4",
          CB'Unrestricted_Access,
-         Port             => Port,
+         Port             => 0,
          Max_Connection   => 5);
 
       Put_Line ("Server started");
@@ -136,11 +128,9 @@ procedure Upload4 is
 begin
    Put_Line ("Start main, wait for server to start...");
 
-   Server.Start;
    Server.Started;
 
-   Request
-     ("http://localhost:" & Utils.Image (Port) & "/upload", "test.out");
+   Request (AWS.Server.Status.Local_URL (HTTP) & "/upload", "test.out");
 
    Server.Stopped;
 

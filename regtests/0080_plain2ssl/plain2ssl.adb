@@ -20,7 +20,6 @@ with Ada.Exceptions;
 with Ada.Streams;
 with Ada.Text_IO;
 with AWS.Net.SSL;
-with Get_Free_Port;
 
 procedure Plain2SSL is
    use AWS.Net;
@@ -28,8 +27,8 @@ procedure Plain2SSL is
    use Ada.Text_IO;
 
    Client, Server, Peer : Socket_Type'Class := Socket (False);
-   Port   : Positive := 3456;
    Sample : Stream_Element_Array (1 .. 1000);
+   Family : Family_Type;
 
    procedure Test (Source, Target : Socket_Type'Class);
 
@@ -83,10 +82,15 @@ begin
                       (J mod (Stream_Element_Offset (Stream_Element'Last)));
    end loop;
 
-   Get_Free_Port (Port);
-   Bind (Server, Port);
-   Listen (Server);
-   Connect (Client, "localhost", Port);
+   if IPv6_Available then
+      Family := Family_Inet6;
+   else
+      Family := Family_Inet;
+   end if;
+
+   Server.Bind (0, Family => Family);
+   Server.Listen;
+   Connect (Client, "localhost", Server.Get_Port, Family => Family);
    Accept_Socket (Server, Peer);
 
    Set_Timeout (Client, 1.0);

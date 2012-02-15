@@ -25,12 +25,11 @@ with AWS.Client;
 with AWS.Config.Set;
 with AWS.MIME;
 with AWS.Response.Set;
-with AWS.Server;
+with AWS.Server.Status;
 with AWS.Session;
 with AWS.Status;
 with AWS.Utils;
 
-with Get_Free_Port;
 with Stack_Size;
 
 procedure Sessions5 is
@@ -38,11 +37,9 @@ procedure Sessions5 is
    use Ada;
    use AWS;
 
-   WS   : Server.HTTP;
-   Port : Natural := 1265;
-
-   C : Client.HTTP_Connection;
-   R : Response.Data;
+   WS : Server.HTTP;
+   C  : Client.HTTP_Connection;
+   R  : Response.Data;
 
    task Server is
       pragma Storage_Size (Stack_Size.Value);
@@ -87,12 +84,10 @@ procedure Sessions5 is
 
    task body Server is
    begin
-      Get_Free_Port (Port);
-
       AWS.Server.Start
         (WS, "session",
          CB'Unrestricted_Access,
-         Port           => Port,
+         Port           => 0,
          Max_Connection => 5,
          Session        => True);
 
@@ -114,7 +109,7 @@ begin
 
    Server.Started;
 
-   Client.Create (C, "http://localhost:" & Utils.Image (Port));
+   Client.Create (C, AWS.Server.Status.Local_URL (WS));
 
    for K in 1 .. 10 loop
       Client.Get (C, R, "/");

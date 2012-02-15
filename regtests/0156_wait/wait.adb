@@ -20,5 +20,5 @@ with Wait_Proc;
 
 procedure Wait is
 begin
-   Wait_Proc (False, 1245);
+   Wait_Proc (False);
 end Wait;

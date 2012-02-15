@@ -22,7 +22,7 @@ with Ada.Text_IO;
 with AWS.Client;
 with AWS.MIME;
 with AWS.Response.Set;
-with AWS.Server;
+with AWS.Server.Status;
 with AWS.Status;
 with AWS.Utils;
 
@@ -53,22 +53,18 @@ package body S_Huge_Response_Pack is
    -- Run --
    ---------
 
-   procedure Run (Port : Positive; Security : Boolean) is
+   procedure Run (Security : Boolean) is
    begin
       Server.Start
         (WS, "huge_message",
          CB'Access,
-         Port           => Port,
+         Port           => 0,
          Security       => Security,
          Max_Connection => 1);
 
       Ada.Text_IO.Put_Line ("started"); Ada.Text_IO.Flush;
 
-      if Security then
-         R := Client.Get ("https://localhost:" & AWS.Utils.Image (Port));
-      else
-         R := Client.Get ("http://localhost:" & AWS.Utils.Image (Port));
-      end if;
+      R := Client.Get (Server.Status.Local_URL (WS));
 
       if Message = Unbounded_String'(Response.Message_Body (R)) then
          Text_IO.Put_Line ("Ok");

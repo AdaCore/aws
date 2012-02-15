@@ -24,14 +24,13 @@ with GNAT.MD5;
 
 with AWS.Client;
 with AWS.Digest;
-with AWS.Server;
+with AWS.Server.Status;
 with AWS.Status;
 with AWS.MIME;
 with AWS.Response;
 with AWS.Messages;
 with AWS.Utils;
 
-with Get_Free_Port;
 with Stack_Size;
 
 procedure Partial is
@@ -66,7 +65,6 @@ procedure Partial is
    Connect : Client.HTTP_Connection;
 
    R     : Response.Data;
-   Port  : Natural := 1286;
    P_MD5 : MD5.Message_Digest;
    D_MD5 : MD5.Message_Digest;
 
@@ -133,11 +131,9 @@ procedure Partial is
 
    task body Server is
    begin
-      Get_Free_Port (Port);
-
       AWS.Server.Start
         (HTTP, "Test Partial Download.",
-         CB'Unrestricted_Access, Port => Port, Max_Connection => 2);
+         CB'Unrestricted_Access, Port => 0, Max_Connection => 2);
 
       accept Wait_Start;
       accept Stop;
@@ -155,8 +151,7 @@ begin
    P_MD5 := File_MD5 (Filename);
 
    Client.Create
-     (Connection => Connect,
-      Host       => "http://localhost:" & Utils.Image (Port));
+     (Connection => Connect, Host => AWS.Server.Status.Local_URL (HTTP));
 
    --  Get file by chunck
 

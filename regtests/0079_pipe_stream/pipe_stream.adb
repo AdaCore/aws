@@ -24,13 +24,11 @@ with GNAT.OS_Lib;
 
 with AWS.Client;
 with AWS.MIME;
-with AWS.Server;
+with AWS.Server.Status;
 with AWS.Status;
 with AWS.Resources.Streams.Pipe;
 with AWS.Response;
 with AWS.Utils;
-
-with Get_Free_Port;
 
 procedure Pipe_Stream is
 
@@ -65,14 +63,11 @@ procedure Pipe_Stream is
    --------------
 
    procedure Run_Test is
-      Port : Natural := 8456;
-      R    : Response.Data;
+      R : Response.Data;
    begin
-      Get_Free_Port (Port);
+      Server.Start (WS, "pipe", CB'Unrestricted_Access, Port => 0);
 
-      Server.Start (WS, "pipe", CB'Unrestricted_Access, Port => Port);
-
-      R := Client.Get ("http://localhost:" & Utils.Image (Port));
+      R := Client.Get (Server.Status.Local_URL (WS));
 
       declare
          M : constant String := Response.Message_Body (R);

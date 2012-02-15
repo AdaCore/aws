@@ -18,6 +18,6 @@
 
 package S_Huge_Response_Pack is
 
-   procedure Run (Port : Positive; Security : Boolean);
+   procedure Run (Security : Boolean);
 
 end S_Huge_Response_Pack;

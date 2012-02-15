@@ -20,5 +20,5 @@ with S_Wait_Proc;
 
 procedure Wait_Sec is
 begin
-   S_Wait_Proc (True, 4445);
+   S_Wait_Proc (True);
 end Wait_Sec;

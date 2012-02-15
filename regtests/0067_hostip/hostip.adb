@@ -19,7 +19,9 @@
 with Ada.Text_IO;
 
 with AWS.Client;
+with AWS.Config.Set;
 with AWS.MIME;
+with AWS.Net;
 with AWS.Response;
 with AWS.Server.Status;
 with AWS.Status;
@@ -39,18 +41,28 @@ procedure HostIP is
 
    procedure Call_It is
       R : Response.Data;
-      Port : constant String := Utils.Image (Server.Status.Port (WS));
    begin
-      R := Client.Get ("http://localhost:" & Port & "/zero");
+      R := Client.Get
+             ("http://localhost:" & Utils.Image (Server.Status.Port (WS))
+              & "/zero");
       Text_IO.Put_Line (Response.Message_Body (R));
 
-      R := Client.Get ("http://127.0.0.1:" & Port & "/zero");
+      R := Client.Get (Server.Status.Local_URL (WS) & "/zero");
       Text_IO.Put_Line (Response.Message_Body (R));
    end Call_It;
 
+   CFG : Config.Object;
+
 begin
-   Server.Start
-     (WS, "hostip", CB'Unrestricted_Access, Port => 0, Max_Connection => 5);
+   Config.Set.Server_Name    (CFG, "hostip");
+   Config.Set.Server_Port    (CFG, 0);
+   Config.Set.Max_Connection (CFG, 5);
+
+   if AWS.Net.IPv6_Available then
+      Config.Set.Server_Host (CFG, "localhost");
+   end if;
+
+   Server.Start (WS, CB'Unrestricted_Access, CFG);
    Text_IO.Put_Line ("started"); Ada.Text_IO.Flush;
 
    Call_It;

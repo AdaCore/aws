@@ -18,6 +18,7 @@
 
 with Ada.Exceptions;
 with Ada.Streams;
+with Ada.Strings.Unbounded;
 with Ada.Text_IO;
 
 with AWS.Client;
@@ -25,7 +26,7 @@ with AWS.Messages;
 with AWS.MIME;
 with AWS.Net.Buffered;
 with AWS.Response;
-with AWS.Server;
+with AWS.Server.Status;
 with AWS.Status;
 with AWS.Utils;
 
@@ -64,8 +65,8 @@ package body S_Back_Pack is
       URI  : constant String := Status.URI (Request);
    begin
       if URI = Wait_Other_Call then
-         Store_Socket
-           := new Net.Socket_Type'Class'(Status.Socket (Request));
+         Store_Socket :=
+           new Net.Socket_Type'Class'(Status.Socket (Request));
 
          Store_Keep_Alive := Status.Keep_Alive (Request);
 
@@ -86,8 +87,8 @@ package body S_Back_Pack is
          end if;
 
          declare
-            Data : constant Ada.Streams.Stream_Element_Array
-              := Status.Binary_Data (Request);
+            Data : constant Ada.Streams.Stream_Element_Array :=
+                     Status.Binary_Data (Request);
          begin
             Net.Buffered.Put_Line
               (Store_Socket.all, Messages.Content_Length (Data'Length));
@@ -135,10 +136,7 @@ package body S_Back_Pack is
    -- Run --
    ---------
 
-   procedure Run (Protocol : String; Port : Positive) is
-
-      URL : constant String
-        := Protocol & "://localhost:" & Utils.Image (Port);
+   procedure Run (Security : Boolean) is
 
       task IO is
          entry Start;
@@ -149,7 +147,7 @@ package body S_Back_Pack is
       end IO;
 
       task Wait_Call is
-         entry Start;
+         entry Start (URL : String);
          entry Next (Keep_Alive : Boolean);
          entry Stop;
          entry Stopped;
@@ -196,13 +194,17 @@ package body S_Back_Pack is
       ---------------
 
       task body Wait_Call is
+         use Ada.Strings.Unbounded;
          R          : Response.Data;
          Connect    : Client.HTTP_Connection;
          Keep_Alive : Boolean;
+         URL        : Unbounded_String;
       begin
-         accept Start;
+         accept Start (URL : String) do
+            Wait_Call.URL := To_Unbounded_String (URL);
+         end Start;
 
-         Client.Create (Connect, URL);
+         Client.Create (Connect, To_String (URL));
 
          loop
             select
@@ -217,7 +219,7 @@ package body S_Back_Pack is
             if Keep_Alive then
                Client.Get (Connect, R, Wait_Other_Call);
             else
-               R := Client.Get (URL & Wait_Other_Call);
+               R := Client.Get (To_String (URL) & Wait_Other_Call);
             end if;
             IO.Put_Line_1 (Response.Message_Body (R));
          end loop;
@@ -240,8 +242,8 @@ package body S_Back_Pack is
            (WS,
             "file",
             CB'Access,
-            Security       => Protocol = "https",
-            Port           => Port,
+            Security       => Security,
+            Port           => 0,
             Max_Connection => 5);
       exception
          when others =>
@@ -251,12 +253,12 @@ package body S_Back_Pack is
 
       IO.Put_Line ("started");
 
-      Wait_Call.Start;
-
       declare
          R : Response.Data;
-
+         URL : aliased constant String := AWS.Server.Status.Local_URL (WS);
       begin
+         Wait_Call.Start (URL);
+
          for J in 1 .. 10 loop
             Wait_Call.Next (J rem 2 = 0);
 

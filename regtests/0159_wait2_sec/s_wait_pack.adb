@@ -22,8 +22,6 @@ with Ada.Text_IO;
 with AWS.Net.Generic_Sets;
 with AWS.Net.SSL;
 
-with Get_Free_Port;
-
 package body S_Wait_Pack is
 
    use Ada.Streams;
@@ -37,7 +35,7 @@ package body S_Wait_Pack is
    -- Run --
    ---------
 
-   procedure Run (Security : Boolean; Port : Positive) is
+   procedure Run (Security : Boolean) is
       use Ada.Text_IO;
       use type Sets.Socket_Count;
 
@@ -45,7 +43,6 @@ package body S_Wait_Pack is
       Sample_Size : constant := 10;
 
       Server      : Net.Socket_Type'Class := Net.Socket (False);
-      Free_Port   : Positive := Port;
 
       Index       : Sets.Socket_Index := 1;
 
@@ -67,7 +64,7 @@ package body S_Wait_Pack is
             begin
                accept Next;
                delay A_Bit;
-               Net.Connect (Socket, Server.Get_Addr, Free_Port);
+               Net.Connect (Socket, Server.Get_Addr, Server.Get_Port);
 
                accept Next;
                delay A_Bit;
@@ -111,11 +108,9 @@ package body S_Wait_Pack is
       Set : Sets.Socket_Set_Type;
 
    begin
-      Get_Free_Port (Free_Port);
-
-      Net.Bind (Server, Free_Port, "localhost");
-      Net.Listen (Server);
-      Net.Set_Blocking_Mode (Server, False);
+      Server.Bind (0);
+      Server.Listen;
+      Server.Set_Blocking_Mode (False);
 
       Sets.Add (Set, Server, Sets.Input);
 

@@ -18,6 +18,6 @@
 
 package Wait_Pack is
 
-   procedure Run (Security : Boolean; Port : Positive);
+   procedure Run (Security : Boolean);
 
 end Wait_Pack;

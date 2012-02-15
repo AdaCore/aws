@@ -20,5 +20,5 @@ with S_Wait_Pack;
 
 procedure Wait2_Sec is
 begin
-   S_Wait_Pack.Run (True, 4246);
+   S_Wait_Pack.Run (True);
 end Wait2_Sec;
