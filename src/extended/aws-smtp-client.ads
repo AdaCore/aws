@@ -72,6 +72,7 @@ package AWS.SMTP.Client is
    function Initialize
      (Server_Name : String;
       Port        : Positive := Default_SMTP_Port;
+      Family      : Net.Family_Type := Net.Family_Unspec;
       Credential  : access constant Authentication.Credential'Class := null)
       return Receiver renames SMTP.Initialize;
 

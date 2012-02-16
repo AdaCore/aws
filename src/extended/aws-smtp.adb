@@ -178,10 +178,12 @@ package body AWS.SMTP is
    function Initialize
      (Server_Name : String;
       Port        : Positive := Default_SMTP_Port;
+      Family      : Net.Family_Type := Net.Family_Unspec;
       Credential  : access constant Authentication.Credential'Class := null)
       return Receiver is
    begin
-      return (To_Unbounded_String (Server_Name), Port, null, Credential);
+      return (Family, To_Unbounded_String (Server_Name), Port, null,
+              Credential);
    end Initialize;
 
    -----------

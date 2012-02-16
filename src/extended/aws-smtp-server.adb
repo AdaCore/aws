@@ -248,8 +248,8 @@ package body AWS.SMTP.Server is
 
       Server.Host.Sock := Net.Socket (Security => False);
 
-      Net.Bind (Server.Host.Sock.all, Host.Port);
-      Net.Listen (Server.Host.Sock.all);
+      Server.Host.Sock.Bind (Port => Host.Port, Family => Host.Family);
+      Server.Host.Sock.Listen;
 
       Server.Action := Action;
 

@@ -23,6 +23,7 @@ with AWS.Attachments;
 with AWS.Headers.Set;
 with AWS.Messages;
 with AWS.MIME;
+with AWS.Net;
 with AWS.SMTP.Client;
 with AWS.SMTP.Server;
 
@@ -41,6 +42,7 @@ procedure SMTP_2 is
    Filename   : constant String := "ada.gif";
 
    Port   : Positive := 9025;
+   Family : Net.Family_Type;
    Host   : SMTP.Receiver;
    Server : SMTP.Server.Handle;
    Status : SMTP.Status;
@@ -50,7 +52,13 @@ procedure SMTP_2 is
 begin
    Get_Free_Port (Port);
 
-   Host := SMTP.Initialize ("localhost", Port);
+   if Net.IPv6_Available then
+      Family := Net.Family_Inet6;
+   else
+      Family := Net.Family_Inet;
+   end if;
+
+   Host := SMTP.Initialize ("localhost", Port, Family => Family);
 
    SMTP.Server.Start (Server, Host, SMTP_Pck.Dump_Mail'Access);
 

@@ -58,6 +58,7 @@ package AWS.SMTP is
    function Initialize
      (Server_Name : String;
       Port        : Positive := Default_SMTP_Port;
+      Family      : Net.Family_Type := Net.Family_Unspec;
       Credential  : access constant Authentication.Credential'Class := null)
       return Receiver;
    --  Create a Server composed of the Name and the Port (default SMTP port
@@ -144,10 +145,11 @@ private
    use Ada.Strings.Unbounded;
 
    type Receiver is record
-      Name : Unbounded_String;
-      Port : Positive;
-      Sock : Net.Socket_Access;
-      Auth : access constant Authentication.Credential'Class;
+      Family : Net.Family_Type;
+      Name   : Unbounded_String;
+      Port   : Positive;
+      Sock   : Net.Socket_Access;
+      Auth   : access constant Authentication.Credential'Class;
    end record;
 
    type Status is record

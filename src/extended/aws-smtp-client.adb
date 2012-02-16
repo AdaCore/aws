@@ -145,7 +145,8 @@ package body AWS.SMTP.Client is
       --  Open server
       Sock := Net.Socket (Security => False);
 
-      Net.Connect (Sock.all, To_String (Server.Name), Server.Port);
+      Sock.Connect
+        (To_String (Server.Name), Server.Port, Family => Server.Family);
 
       --  Check connect message
       Check_Answer (Sock.all, Answer);
@@ -153,8 +154,7 @@ package body AWS.SMTP.Client is
       if Answer.Code = Service_Ready then
 
          --  Open session
-         Net.Buffered.Put_Line
-           (Sock.all, "HELO " & Net.Host_Name);
+         Net.Buffered.Put_Line (Sock.all, "HELO " & Net.Host_Name);
          Check_Answer (Sock.all, Answer);
 
          --  If no success, close the connection
