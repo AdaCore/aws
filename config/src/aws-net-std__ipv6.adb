@@ -47,21 +47,13 @@ package body AWS.Net.Std is
       FD : Interfaces.C.int := No_Socket;
    end record;
 
-   type In6_Addr is array (1 .. 8) of Interfaces.Unsigned_16;
-   pragma Convention (C, In6_Addr);
+   subtype In6_Addr is OS_Lib.In6_Addr;
 
    To_C : constant array (Family_Type) of C.int :=
      (Family_Inet => OS_Lib.AF_INET, Family_Inet6 => OS_Lib.AF_INET6,
       Family_Unspec => OS_Lib.AF_UNSPEC);
 
-   type Sockaddr_In6 is record
-      Family    : Interfaces.C.short;          -- AF_INET6
-      Port      : Interfaces.C.unsigned_short; -- transport layer port #
-      FlowInfo  : Interfaces.Unsigned_32;      -- IPv6 traffic class&flow info
-      Addr      : In6_Addr;                    -- IPv6 address
-      Scope_Id  : Interfaces.Unsigned_32;      -- set of interfaces for a scope
-   end record;
-   pragma Convention (C, Sockaddr_In6);
+   subtype Sockaddr_In6 is OS_Lib.Sockaddr_In6;
 
    package AC6 is new System.Address_To_Access_Conversions (Sockaddr_In6);
 
@@ -556,9 +548,8 @@ package body AWS.Net.Std is
 
       Addr : constant Sockaddr_In6 :=
         (Family => OS_Lib.AF_INET6,
-         Port   => 0,
          Addr   => (1 .. 7 => 0, In6_Addr'Last => Swap_Little_Endian (1)),
-         others => 0);
+         others => <>);
 
    begin
       FD := C_Socket (OS_Lib.AF_INET6, OS_Lib.SOCK_STREAM, 0);
@@ -594,6 +585,8 @@ package body AWS.Net.Std is
       use type C.short;
       use type C.unsigned_long;
       use type OS_Lib.socklen_t;
+      use type OS_Lib.sa_family_t;
+      use type In6_Addr;
 
       Name : aliased Sockaddr_In6;
       Len  : aliased OS_Lib.socklen_t := Name'Size / 8;
@@ -621,6 +614,7 @@ package body AWS.Net.Std is
       use type C.int;
       use type C.short;
       use type OS_Lib.socklen_t;
+      use type OS_Lib.sa_family_t;
 
       Name : aliased Sockaddr_In6;
       Len  : aliased OS_Lib.socklen_t := Name'Size / 8;

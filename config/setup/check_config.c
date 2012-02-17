@@ -127,6 +127,10 @@ main (int argc, char *argv[])
   const int ai_next_offset      = -1;
 #endif
 
+  struct sockaddr_in sa;
+  const int sin_family_offset = (void *)&sa.sin_family - (void *)&sa;
+  const int s_sa_family_t = sizeof (sa.sin_family) * 8;
+
 #if defined(_WIN32) || defined(__vxworks)
   const int s_nfds_t = sizeof (int) * 8;
 #else
@@ -365,6 +369,30 @@ main (int argc, char *argv[])
      "   end record;\n"
      "   pragma Convention (C, Timeval);\n\n");
 
+  /* sa_family_t */
+
+  P ("   type sa_family_t is mod 2 ** %d;\n", s_sa_family_t);
+  P ("   for sa_family_t'Size use %d;\n\n", s_sa_family_t);
+
+  /* Sock_Addr_In */
+
+  P ("   type In6_Addr is array (1 .. 8) of Interfaces.Unsigned_16;\n"
+     "   pragma Convention (C, In6_Addr);\n\n"
+
+     "   type Sockaddr_In6 is record\n");
+  if (sin_family_offset == 1)
+  P ("      Length    : Interfaces.Unsigned_8 := 0;\n");
+  else if (sin_family_offset != 0)
+    P ("Unexpected sockaddr_in6 field family offset.");
+
+  P ("      Family    : sa_family_t := 0;\n"
+     "      Port      : Interfaces.C.unsigned_short := 0;\n"
+     "      FlowInfo  : Interfaces.Unsigned_32 := 0;\n"
+     "      Addr      : In6_Addr := (others => 0);\n"
+     "      Scope_Id  : Interfaces.Unsigned_32 := 0;\n"
+     "   end record;\n"
+     "   pragma Convention (C, Sockaddr_In6);\n\n");
+
   /* Addr_Info */
 
   if (ai_flags_offset > 0
@@ -375,7 +403,7 @@ main (int argc, char *argv[])
       || ai_addr_offset      >= ai_next_offset
       || ai_canonname_offset >= ai_next_offset)
       /*  Broke source code because of */
-      P ("   Unexpected addrinfo fields order.");
+      P ("Unexpected addrinfo fields order.");
 
   P ("   type Addr_Info;\n"
      "   type Addr_Info_Access is access all Addr_Info;\n\n"
