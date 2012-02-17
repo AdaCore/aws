@@ -26,7 +26,6 @@ with AWS.Net.SSL;
 with AWS.Net.Buffered;
 with AWS.Utils;
 
-with Get_Free_Port;
 with Stack_Size;
 
 procedure Accs_Proc (Security : Boolean) is
@@ -36,7 +35,6 @@ procedure Accs_Proc (Security : Boolean) is
 
    Client_Request_Count : constant := 10;
 
-   Free_Port : Positive := 8421;
    Acceptor  : Acceptors.Acceptor_Type;
    Counter   : AWS.Utils.Counter (0);
    Semaphore : AWS.Utils.Semaphore;
@@ -64,7 +62,16 @@ procedure Accs_Proc (Security : Boolean) is
          Client_Task.Index := Index;
       end Start;
 
-      Connect (Sock, "127.0.0.1", Free_Port);
+      declare
+         AS : constant Socket_Type'Class := Acceptors.Server_Socket (Acceptor);
+      begin
+         if AS.Is_IPv6 then
+            Connect (Sock, "::1", AS.Get_Port);
+         else
+            Connect (Sock, "127.0.0.1", AS.Get_Port);
+         end if;
+      end;
+
       Connected := True;
 
       Set_Timeout (Sock, 6.0);
@@ -162,8 +169,7 @@ procedure Accs_Proc (Security : Boolean) is
 begin
    Semaphore.Seize;
 
-   Get_Free_Port (Free_Port);
-   Acceptors.Listen (Acceptor, "", Free_Port, 11);
+   Acceptors.Listen (Acceptor, "", 0, 11);
 
    declare
       Servers : array (1 .. 3) of Server_Task;

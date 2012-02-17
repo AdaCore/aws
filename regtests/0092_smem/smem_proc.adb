@@ -49,7 +49,11 @@ procedure SMem_Proc (Security : Boolean) is
 
       task body Connector is
       begin
-         Connect (S1, "127.0.0.1", Std.Get_Port (Server));
+         if Server.Is_IPv6 then
+            Connect (S1, "::1", Server.Get_Port);
+         else
+            Connect (S1, "127.0.0.1", Server.Get_Port);
+         end if;
       exception
          when E : others =>
             Put_Line

@@ -26,11 +26,10 @@ with Ada.Unchecked_Deallocation;
 with AWS.Containers;
 with AWS.Jabber.Client;
 with AWS.Net.Acceptors;
-with AWS.Net.SSL;
 with AWS.Net.Buffered;
+with AWS.Net.SSL;
+with AWS.Net.Std;
 with AWS.Utils;
-
-with Get_Free_Port;
 
 procedure Test_Jabber is
 
@@ -41,8 +40,8 @@ procedure Test_Jabber is
    use Ada.Exceptions;
    use AWS.Jabber.Client;
 
-   Verbose   : constant Boolean := False;
-   Free_Port : Positive := 8422;
+   Verbose  : constant Boolean := False;
+   Acceptor : Acceptors.Acceptor_Type;
 
    task type Server_Task is
       entry Started;
@@ -58,7 +57,6 @@ procedure Test_Jabber is
    task body Server_Task is
       use AWS.Containers;
 
-      Acceptor : Acceptors.Acceptor_Type;
       Sock     : Socket_Access;
       First    : Boolean := True;
 
@@ -81,7 +79,7 @@ procedure Test_Jabber is
       end Buffered_Put_Line;
 
    begin
-      Acceptors.Listen (Acceptor, "", Free_Port, 11);
+      Acceptors.Listen (Acceptor, "", 0, 11);
       accept Started;
       Acceptors.Get (Acceptor, Sock);
 
@@ -219,19 +217,25 @@ procedure Test_Jabber is
          Text_IO.Put_Line (Ada.Exceptions.Exception_Information (E));
    end Server_Task;
 
+   Jabber_Server : Server_Task;
+
 begin
-   Get_Free_Port (Free_Port);
+   Jabber_Server.Started;
+   --  Wait for the server to start
+
    Run : declare
-      Jabber_Server : Server_Task;
-      Account       : Jabber.Client.Account;
+      Account : Jabber.Client.Account;
+      AS : Net.Socket_Type'Class := Acceptors.Server_Socket (Acceptor);
    begin
-      Set_Host (Account, "127.0.0.1");
+      if AS.Is_IPv6 then
+         Set_Host (Account, "::1");
+      else
+         Set_Host (Account, "127.0.0.1");
+      end if;
+
       Set_Login_Information (Account, "user", "passwd");
       Set_Authentication_Type (Account, Plain_Mechanism);
-      Set_Port (Account, Port (Free_Port));
-
-      Jabber_Server.Started;
-      --  Wait for the server to start
+      Set_Port (Account, Port (AS.Get_Port));
 
       Connect (Account);
 
