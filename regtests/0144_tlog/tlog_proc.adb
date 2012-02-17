@@ -249,6 +249,7 @@ begin
 
    AWS.Config.Set.Server_Port (Config, 0);
    AWS.Config.Set.Server_Name (Config, "tlog");
+   AWS.Config.Set.Protocol_Family (Config, "Family_Inet");
    AWS.Config.Set.Max_Connection (Config, 1);
    AWS.Config.Set.Log_Extended_Fields (Config, Extended_Fields);
 

@@ -23,6 +23,7 @@ with Ada.Strings.Maps;
 with Ada.Strings.Unbounded;
 
 with AWS.Client;
+with AWS.Config.Set;
 with AWS.Headers.Set;
 with AWS.Messages;
 with AWS.MIME;
@@ -131,12 +132,16 @@ procedure Client_Headers is
       end if;
    end Dump;
 
-   R  : Response.Data;
-   H  : Headers.List;
+   R   : Response.Data;
+   H   : Headers.List;
+   CFG : Config.Object;
 
 begin
-   Server.Start
-     (WS, "Client Headers", CB'Unrestricted_Access, Port => 0);
+   Config.Set.Server_Name (CFG, "Client Headers");
+   Config.Set.Server_Port (CFG, 0);
+   Config.Set.Protocol_Family (CFG, "Family_Inet");
+
+   Server.Start (WS, CB'Unrestricted_Access, CFG);
 
    --  AWS.Net.Log.Start (Dump'Unrestricted_Access);
 

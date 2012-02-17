@@ -20,6 +20,7 @@ with Ada.Streams;
 with Ada.Text_IO; use Ada.Text_IO;
 
 with AWS.Client;
+with AWS.Config.Set;
 with AWS.Net.Log;
 with AWS.Response;
 with AWS.Server.Status;
@@ -32,7 +33,8 @@ procedure Test_Net_Log is
    use AWS;
    use type Streams.Stream_Element_Offset;
 
-   WS     : AWS.Server.HTTP;
+   WS     : Server.HTTP;
+   CFG    : Config.Object;
    Result : Response.Data;
 
    DS, DR : File_Type;
@@ -153,8 +155,11 @@ procedure Test_Net_Log is
 begin
    Net.Log.Start (Write => HTTP_Log'Unrestricted_Access);
 
-   Server.Start
-     (WS, "Hello World", Callback => HW_CB'Unrestricted_Access, Port => 0);
+   Config.Set.Server_Name (CFG, "Hello World");
+   Config.Set.Server_Port (CFG, 0);
+   Config.Set.Protocol_Family (CFG, "Family_Inet");
+
+   Server.Start (WS, HW_CB'Unrestricted_Access, CFG);
 
    if not Server.Status.Is_Any_Address (WS) then
       Put_Line ("AWS.Net.Std.Is_Any_Address error");
