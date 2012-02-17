@@ -935,7 +935,7 @@ package body AWS.Net.Std is
      (Socket : Socket_Type; How : Shutmode_Type := Shut_Read_Write)
    is
       use type C.int;
-      FD    : constant C.int := Socket.S.FD;
+      FD    : C.int;
       EN    : Integer;
       To_OS : constant array (Shutmode_Type) of C.int :=
                 (Shut_Read_Write => OS_Lib.SHUT_RDWR,
@@ -946,6 +946,16 @@ package body AWS.Net.Std is
       pragma Import (Stdcall, C_Shutdown, "shutdown");
 
    begin
+      if Socket.S = null then
+         return;
+      end if;
+
+      FD := Socket.S.FD;
+
+      if FD = No_Socket then
+         return;
+      end if;
+
       if Net.Log.Is_Event_Active then
          Net.Log.Event (Net.Log.Shutdown, Socket);
       end if;
@@ -958,12 +968,12 @@ package body AWS.Net.Std is
          end if;
       end if;
 
-      --  Avoid any activity under closed socket in other threads.
-      --  Reduce risk to send/receive data on other new created sockets.
-
       if How /= Shut_Read_Write then
          return;
       end if;
+
+      --  Avoid any activity under closed socket in other threads.
+      --  Reduce risk to send/receive data on other new created sockets.
 
       Socket.S.FD := No_Socket;
 
