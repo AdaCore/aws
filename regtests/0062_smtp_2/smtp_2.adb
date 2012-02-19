@@ -58,7 +58,8 @@ begin
       Family := Net.Family_Inet;
    end if;
 
-   Host := SMTP.Initialize ("localhost", Port, Family => Family);
+   Host := SMTP.Initialize
+             (Net.Localhost (Net.IPv6_Available), Port, Family => Family);
 
    SMTP.Server.Start (Server, Host, SMTP_Pck.Dump_Mail'Access);
 
