@@ -273,6 +273,19 @@ package body AWS.Net is
       end if;
    end Last_Index;
 
+   ---------------
+   -- Localhost --
+   ---------------
+
+   function Localhost (IPv6 : Boolean) return String is
+   begin
+      if IPv6 then
+         return "::1";
+      else
+         return "127.0.0.1";
+      end if;
+   end Localhost;
+
    ----------
    -- Poll --
    ----------

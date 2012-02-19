@@ -65,11 +65,7 @@ procedure Accs_Proc (Security : Boolean) is
       declare
          AS : constant Socket_Type'Class := Acceptors.Server_Socket (Acceptor);
       begin
-         if AS.Is_IPv6 then
-            Connect (Sock, "::1", AS.Get_Port);
-         else
-            Connect (Sock, "127.0.0.1", AS.Get_Port);
-         end if;
+         Connect (Sock, Localhost (AS.Is_IPv6), AS.Get_Port);
       end;
 
       Connected := True;

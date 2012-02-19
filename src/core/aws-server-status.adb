@@ -121,12 +121,10 @@ package body AWS.Server.Status is
 
       function Localhost return String is
       begin
-         if not Is_Any_Address (Server) then
-            return Host (Server);
-         elsif Is_IPv6 (Server) then
-            return "::1";
+         if Is_Any_Address (Server) then
+            return Net.Localhost (Is_IPv6 (Server));
          else
-            return "127.0.0.1";
+            return Host (Server);
          end if;
       end Localhost;
 

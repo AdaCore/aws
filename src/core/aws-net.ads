@@ -356,6 +356,9 @@ package AWS.Net is
    --  Free. We could not have it in the private part because we could not make
    --  AWS.Net.SSL.Free overriding this way.
 
+   function Localhost (IPv6 : Boolean) return String;
+   --  Returns "::1" if IPv6 is true or "127.0.0.1" otherwise
+
 private
 
    type FD_Set (Size : Natural) is abstract tagged null record;

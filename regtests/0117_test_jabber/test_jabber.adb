@@ -227,15 +227,11 @@ begin
       Account : Jabber.Client.Account;
       AS : Net.Socket_Type'Class := Acceptors.Server_Socket (Acceptor);
    begin
-      if AS.Is_IPv6 then
-         Set_Host (Account, "::1");
-      else
-         Set_Host (Account, "127.0.0.1");
-      end if;
+      Set_Host (Account, Localhost (AS.Is_IPv6));
+      Set_Port (Account, Port (AS.Get_Port));
 
       Set_Login_Information (Account, "user", "passwd");
       Set_Authentication_Type (Account, Plain_Mechanism);
-      Set_Port (Account, Port (AS.Get_Port));
 
       Connect (Account);
 
