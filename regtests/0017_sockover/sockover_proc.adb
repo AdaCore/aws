@@ -24,8 +24,6 @@ with Ada.Text_IO;
 
 with AWS.Net;
 
-with Get_Free_Port;
-
 procedure SockOver_Proc (Security : Boolean) is
 
    use AWS;
@@ -39,8 +37,6 @@ procedure SockOver_Proc (Security : Boolean) is
    Server : Net.Socket_Type'Class := Net.Socket (False);
    Peer   : Net.Socket_Type'Class := Net.Socket (Security);
    Client : Net.Socket_Type'Class := Net.Socket (Security);
-
-   Free_Port : Positive := 8080;
 
    --------------
    -- Transmit --
@@ -60,7 +56,7 @@ procedure SockOver_Proc (Security : Boolean) is
       --  Fill output buffer
 
       loop
-         Net.Send (Client, Sample, Last);
+         Client.Send (Sample, Last);
          exit when not (Last in Sample'Range);
       end loop;
 
@@ -71,7 +67,7 @@ procedure SockOver_Proc (Security : Boolean) is
             --  Loop because some data could be transferred from send buffer
             --  into receive buffer internally.
 
-            Net.Send (Client, Single);
+            Client.Send (Single);
          end loop;
       exception
          when E : Net.Socket_Error =>
@@ -82,7 +78,7 @@ procedure SockOver_Proc (Security : Boolean) is
 
       begin
          loop
-            Net.Receive (Peer, Buffer, Last);
+            Peer.Receive (Buffer, Last);
             exit when Last < Buffer'Last;
          end loop;
       exception
@@ -93,10 +89,8 @@ procedure SockOver_Proc (Security : Boolean) is
 begin
    Text_IO.Put_Line ("Start.");
 
-   Get_Free_Port (Free_Port);
-
-   Net.Bind (Server, Free_Port, "localhost");
-   Net.Listen (Server);
+   Server.Bind (0, "localhost");
+   Server.Listen;
 
    if Security then
       --  Need 2 tasks for handshake
@@ -106,28 +100,28 @@ begin
 
          task body Connector is
          begin
-            Net.Connect (Client, "localhost", Free_Port);
+            Client.Connect ("localhost", Server.Get_Port);
          end Connector;
 
       begin
-         Net.Accept_Socket (Server, Peer);
+         Server.Accept_Socket (Peer);
       end;
 
    else
-      Net.Connect (Client, "localhost", Free_Port);
-      Net.Accept_Socket (Server, Peer);
+      Client.Connect ("localhost", Server.Get_Port);
+      Server.Accept_Socket (Peer);
    end if;
 
-   Net.Set_Timeout (Client, 0.1);
-   Net.Set_Timeout (Peer,   0.1);
+   Client.Set_Timeout (0.1);
+   Peer.Set_Timeout (0.1);
 
    Transmit (0);
    Transmit (1);
    Transmit (-2);
 
-   Net.Shutdown (Server);
-   Net.Shutdown (Client);
-   Net.Shutdown (Peer);
+   Server.Shutdown;
+   Client.Shutdown;
+   Peer.Shutdown;
 
    Text_IO.Put_Line ("Done.");
 
