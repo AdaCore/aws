@@ -15,6 +15,12 @@ of the feature.
 New features in AWS 2.11
 ------------------------
 
+NF-211-L221-032 AWS now supports IPv6
+
+   AWS now supports IPv6, to enable IPv6 support:
+
+      $ make IPv6=true setup
+
 NF-211-L120-005 Add support for limiting HTTP POST parameters
 
    It is now possible to limit the maximum number of POST parameters
