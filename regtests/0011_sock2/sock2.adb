@@ -22,5 +22,5 @@ with Sock2_Proc;
 
 procedure Sock2 is
 begin
-   Sock2_Proc (False, 8800);
+   Sock2_Proc (False);
 end Sock2;

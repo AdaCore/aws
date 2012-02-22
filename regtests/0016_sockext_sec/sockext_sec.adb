@@ -20,11 +20,7 @@
 
 with S_SockExt_Proc;
 
-with Get_Free_Port;
-
 procedure SockExt_Sec is
-   Port : Natural := 4701;
 begin
-   Get_Free_Port (Port);
-   S_SockExt_Proc (True, Port);
+   S_SockExt_Proc (True);
 end SockExt_Sec;

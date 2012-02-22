@@ -22,5 +22,5 @@ with Sock3_Proc;
 
 procedure Sock3 is
 begin
-   Sock3_Proc (False, 8803);
+   Sock3_Proc (False);
 end Sock3;

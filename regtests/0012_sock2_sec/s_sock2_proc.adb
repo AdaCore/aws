@@ -24,20 +24,16 @@ with Ada.Streams;
 
 with AWS.Net.SSL;
 
-with Get_Free_Port;
-
-procedure S_Sock2_Proc (Security : Boolean; Port : Positive) is
+procedure S_Sock2_Proc (Security : Boolean) is
 
    use AWS;
    use Ada;
    use Ada.Streams;
 
-   Sample    : Stream_Element_Array (1 .. 100_000);
+   Sample : Stream_Element_Array (1 .. 100_000);
 
-   Server    : Net.Socket_Type'Class := Net.Socket (False);
-   Peer      : Net.Socket_Type'Class := Net.Socket (Security);
-
-   Free_Port : Positive := Port;
+   Server : Net.Socket_Type'Class := Net.Socket (False);
+   Peer   : Net.Socket_Type'Class := Net.Socket (Security);
 
    task Client_Side is
       entry Start;
@@ -56,7 +52,7 @@ procedure S_Sock2_Proc (Security : Boolean; Port : Positive) is
 
       delay 0.125;
 
-      Net.Connect (Client, "localhost", Free_Port);
+      Client.Connect (Server.Get_Addr, Server.Get_Port);
 
       loop
          declare
@@ -75,7 +71,7 @@ procedure S_Sock2_Proc (Security : Boolean; Port : Positive) is
          end;
       end loop;
 
-      Net.Shutdown (Client);
+      Client.Shutdown;
 
       Text_IO.Put_Line ("client task done.");
 
@@ -93,23 +89,21 @@ begin
                       (J mod Stream_Element_Offset (Stream_Element'Last));
    end loop;
 
-   Get_Free_Port (Free_Port);
-
    Text_IO.Put_Line ("start");
 
-   Net.Bind (Server, Free_Port, "localhost");
-   Net.Listen (Server);
+   Server.Bind (0, "localhost");
+   Server.Listen;
 
    Client_Side.Start;
 
-   Net.Accept_Socket (Server, Peer);
+   Server.Accept_Socket (Peer);
 
-   Net.Send (Peer, Sample);
+   Peer.Send (Sample);
 
    Client_Side.Stop;
 
-   Net.Shutdown (Peer);
-   Net.Shutdown (Server);
+   Peer.Shutdown;
+   Server.Shutdown;
 
    Text_IO.Put_Line ("done.");
 

@@ -25,7 +25,7 @@ with Ada.Streams;
 with AWS.Net.Buffered;
 with Stack_Size;
 
-procedure SockExt_Proc (Security : Boolean; Port : Positive) is
+procedure SockExt_Proc (Security : Boolean) is
 
    use AWS;
    use Ada;
@@ -58,8 +58,8 @@ procedure SockExt_Proc (Security : Boolean; Port : Positive) is
 
       Text_IO.Put_Line ("Client start.");
 
-      Net.Connect (Client, "localhost", Port);
-      Net.Set_Timeout (Client, 1.0);
+      Client.Connect (Server.Get_Addr, Server.Get_Port);
+      Client.Set_Timeout (1.0);
 
       accept Read;
 
@@ -111,8 +111,8 @@ begin
 
    Text_IO.Put_Line ("Server start.");
 
-   Net.Bind (Server, Port, "localhost");
-   Net.Listen (Server);
+   Server.Bind (0, "localhost");
+   Server.Listen;
 
    Client_Side.Start;
 

@@ -24,21 +24,18 @@ with Ada.Streams;
 
 with AWS.Net.SSL;
 
-with Get_Free_Port;
 with Stack_Size;
 
-procedure Sock2_Proc (Security : Boolean; Port : Positive) is
+procedure Sock2_Proc (Security : Boolean) is
 
    use AWS;
    use Ada;
    use Ada.Streams;
 
-   Sample    : Stream_Element_Array (1 .. 100_000);
+   Sample : Stream_Element_Array (1 .. 100_000);
 
-   Server    : Net.Socket_Type'Class := Net.Socket (False);
-   Peer      : Net.Socket_Type'Class := Net.Socket (Security);
-
-   Free_Port : Positive := Port;
+   Server : Net.Socket_Type'Class := Net.Socket (False);
+   Peer   : Net.Socket_Type'Class := Net.Socket (Security);
 
    task Client_Side is
       pragma Storage_Size (Stack_Size.Value);
@@ -58,7 +55,7 @@ procedure Sock2_Proc (Security : Boolean; Port : Positive) is
 
       Client.Set_Timeout (2.0);
 
-      Client.Connect ("localhost", Free_Port);
+      Client.Connect (Server.Get_Addr, Server.Get_Port);
 
       loop
          declare
@@ -95,11 +92,9 @@ begin
                       (J mod Stream_Element_Offset (Stream_Element'Last));
    end loop;
 
-   Get_Free_Port (Free_Port);
-
    Text_IO.Put_Line ("start");
 
-   Net.Bind (Server, Free_Port, "localhost");
+   Net.Bind (Server, 0, "localhost");
    Net.Listen (Server);
 
    Client_Side.Start;

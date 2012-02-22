@@ -61,9 +61,7 @@ procedure Once is
       use type Messages.Status_Code;
       R : Response.Data;
    begin
-      R := Client.Get
-             ("http://localhost:" & Utils.Image (Server.Status.Port (WS))
-              & "/once");
+      R := Client.Get (Server.Status.Local_URL (WS) & "/once");
 
       if Response.Status_Code (R) = Messages.S404 then
          Text_IO.Put_Line ("404 not found");

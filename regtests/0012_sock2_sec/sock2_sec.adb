@@ -22,5 +22,5 @@ with S_Sock2_Proc;
 
 procedure Sock2_Sec is
 begin
-   S_Sock2_Proc (True, 4400);
+   S_Sock2_Proc (True);
 end Sock2_Sec;
