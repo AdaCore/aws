@@ -22,5 +22,5 @@ with S_SockTO_Proc;
 
 procedure SSockTO is
 begin
-   S_SockTO_Proc (True, 4402);
+   S_SockTO_Proc (True);
 end SSockTO;

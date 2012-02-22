@@ -100,7 +100,7 @@ begin
 
          task body Connector is
          begin
-            Client.Connect ("localhost", Server.Get_Port);
+            Client.Connect (Server.Get_Addr, Server.Get_Port);
          end Connector;
 
       begin
@@ -108,7 +108,7 @@ begin
       end;
 
    else
-      Client.Connect ("localhost", Server.Get_Port);
+      Client.Connect (Server.Get_Addr, Server.Get_Port);
       Server.Accept_Socket (Peer);
    end if;
 

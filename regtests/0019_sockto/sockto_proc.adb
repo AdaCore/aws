@@ -23,18 +23,17 @@ with Ada.Streams;
 with Ada.Text_IO;
 with Ada.Exceptions;
 
-with Get_Free_Port;
-
-procedure SockTO_Proc (Security : Boolean; Port : Positive) is
+procedure SockTO_Proc (Security : Boolean) is
 
    use AWS;
    use Ada;
    use Streams;
 
-   D1   : constant Duration := 1.0;
-   D2   : constant Duration := D1 * 1.5;
+   D1 : constant Duration := 1.0;
+   D2 : constant Duration := D1 * 1.5;
 
-   Free_Port : Positive := Port;
+   Server : Net.Socket_Type'Class := Net.Socket (False);
+   Peer   : Net.Socket_Type'Class := Net.Socket (Security);
 
    task Client_Side is
       entry Start;
@@ -45,8 +44,7 @@ procedure SockTO_Proc (Security : Boolean; Port : Positive) is
    pragma Inline (Data);
 
    procedure Get
-     (Socket : Net.Socket_Type'Class;
-      Length : Stream_Element_Count);
+     (Socket : Net.Socket_Type'Class; Length : Stream_Element_Count);
    --  Read all data length
 
    -----------------
@@ -60,7 +58,7 @@ procedure SockTO_Proc (Security : Boolean; Port : Positive) is
 
       Net.Set_Timeout (Client, D1);
 
-      Net.Connect (Client, "localhost", Free_Port);
+      Client.Connect (Server.Get_Addr, Server.Get_Port);
 
       for J in 1 .. 5 loop
          Net.Send (Client, Data (1234));
@@ -81,10 +79,7 @@ procedure SockTO_Proc (Security : Boolean; Port : Positive) is
    -- Data --
    ----------
 
-   function Data
-     (Length : Stream_Element_Count)
-      return Stream_Element_Array
-   is
+   function Data (Length : Stream_Element_Count) return Stream_Element_Array is
       Result : Stream_Element_Array (1 .. Length);
    begin
       for J in Result'Range loop
@@ -101,8 +96,7 @@ procedure SockTO_Proc (Security : Boolean; Port : Positive) is
    ---------
 
    procedure Get
-     (Socket : Net.Socket_Type'Class;
-      Length : Stream_Element_Count)
+     (Socket : Net.Socket_Type'Class; Length : Stream_Element_Count)
    is
       Sample : constant Stream_Element_Array := Data (Length);
       Rest   : Stream_Element_Count  := Length;
@@ -110,8 +104,7 @@ procedure SockTO_Proc (Security : Boolean; Port : Positive) is
    begin
       loop
          declare
-            Buffer : constant Stream_Element_Array
-              := Net.Receive (Socket, Rest);
+            Buffer : constant Stream_Element_Array := Socket.Receive (Rest);
             Next   : constant Stream_Element_Offset := Index + Buffer'Length;
          begin
             if Buffer /= Sample (Index .. Next - 1) then
@@ -137,14 +130,9 @@ procedure SockTO_Proc (Security : Boolean; Port : Positive) is
             & ' ' & Exceptions.Exception_Message (E));
    end Get;
 
-   Server : Net.Socket_Type'Class := Net.Socket (False);
-   Peer   : Net.Socket_Type'Class := Net.Socket (Security);
-
 begin
-   Get_Free_Port (Free_Port);
-
-   Net.Bind (Server, Free_Port, "localhost");
-   Net.Listen (Server);
+   Server.Bind (0, "localhost");
+   Server.Listen;
 
    Client_Side.Start;
 
