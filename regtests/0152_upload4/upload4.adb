@@ -44,11 +44,6 @@ procedure Upload4 is
       Error  : AWS.Exceptions.Data;
       Answer : in out Response.Data);
 
-   task Server is
-      entry Started;
-      entry Stopped;
-   end Server;
-
    HTTP : AWS.Server.HTTP;
 
    -----------
@@ -82,39 +77,6 @@ procedure Upload4 is
       end if;
    end CB;
 
-   ------------
-   -- Server --
-   ------------
-
-   task body Server is
-   begin
-      AWS.Server.Set_Unexpected_Exception_Handler
-        (HTTP, Error'Unrestricted_Access);
-
-      AWS.Server.Start
-        (HTTP, "upload4",
-         CB'Unrestricted_Access,
-         Port             => 0,
-         Max_Connection   => 5);
-
-      Put_Line ("Server started");
-      New_Line;
-
-      accept Started;
-
-      select
-         accept Stopped;
-      or
-         delay 5.0;
-         Put_Line ("Too much time to do the job !");
-      end select;
-
-      AWS.Server.Shutdown (HTTP);
-   exception
-      when E : others =>
-         Put_Line ("Server Error " & Ada.Exceptions.Exception_Information (E));
-   end Server;
-
    -------------
    -- Request --
    -------------
@@ -128,13 +90,23 @@ procedure Upload4 is
 begin
    Put_Line ("Start main, wait for server to start...");
 
-   Server.Started;
+   Server.Set_Unexpected_Exception_Handler (HTTP, Error'Unrestricted_Access);
+
+   Server.Start
+     (HTTP, "upload4",
+      CB'Unrestricted_Access,
+      Port             => 0,
+      Max_Connection   => 5);
+
+   Put_Line ("Server started");
+   New_Line;
 
    Request (AWS.Server.Status.Local_URL (HTTP) & "/upload", "test.out");
 
-   Server.Stopped;
+   Server.Shutdown (HTTP);
 
 exception
    when E : others =>
       Put_Line ("Main Error " & Ada.Exceptions.Exception_Information (E));
+      Server.Shutdown (HTTP);
 end Upload4;

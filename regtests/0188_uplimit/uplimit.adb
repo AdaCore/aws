@@ -35,8 +35,6 @@ with AWS.Status;
 with AWS.Translator;
 with AWS.Utils;
 
-with Stack_Size;
-
 procedure Uplimit is
 
    use Ada;
@@ -46,13 +44,9 @@ procedure Uplimit is
 
    function CB (Request : Status.Data) return Response.Data;
 
-   task Server is
-      pragma Storage_Size (Stack_Size.Value);
-      entry Started;
-      entry Stopped;
-   end Server;
+   HTTP : Server.HTTP;
 
-   HTTP : AWS.Server.HTTP;
+   procedure Start_Server;
 
    procedure Problem
      (E      : Ada.Exceptions.Exception_Occurrence;
@@ -134,37 +128,21 @@ procedure Uplimit is
    -- Server --
    ------------
 
-   task body Server is
+   procedure Start_Server is
       Web_Config : Config.Object;
    begin
       Config.Set.Server_Port (Web_Config, 0);
       Config.Set.Upload_Directory (Web_Config, "./");
       Config.Set.Upload_Size_Limit (Web_Config, 11_000);
 
-      AWS.Server.Set_Unexpected_Exception_Handler
+      Server.Set_Unexpected_Exception_Handler
         (HTTP, Problem'Unrestricted_Access);
 
-      AWS.Server.Start (HTTP, CB'Unrestricted_Access, Web_Config);
+      Server.Start (HTTP, CB'Unrestricted_Access, Web_Config);
 
       Put_Line ("Server started");
       New_Line;
-
-      accept Started;
-
-      select
-         accept Stopped;
-      or
-         delay 20.0;
-         Put_Line ("Too much time to do the job !");
-      end select;
-
-      AWS.Server.Shutdown (HTTP);
-
-      Put_Line ("Server stopped");
-   exception
-      when E : others =>
-         Put_Line ("Server Error " & Ada.Exceptions.Exception_Information (E));
-   end Server;
+   end Start_Server;
 
    -------------
    -- Request --
@@ -186,9 +164,9 @@ procedure Uplimit is
 begin
    Put_Line ("Start main, wait for server to start...");
 
-   Server.Started;
+   Start_Server;
 
-   AWS.Client.Create (Client, AWS.Server.Status.Local_URL (HTTP));
+   AWS.Client.Create (Client, Server.Status.Local_URL (HTTP));
 
    AWS.Client.Post (Client, R, 1000 * "0123456789", URI => "/noup"); Print;
    AWS.Client.Post (Client, R, 1100 * "abcdefghij", URI => "/noup"); Print;
@@ -197,9 +175,11 @@ begin
    AWS.Client.Post (Client, R, 1100 * "qwertyuiop"); Print;
    AWS.Client.Post (Client, R, 1200 * "QWERTYUIOP"); Print;
 
-   Server.Stopped;
+   Server.Shutdown (HTTP);
+   Put_Line ("Server stopped");
 
 exception
    when E : others =>
+      Server.Shutdown (HTTP);
       Put_Line ("Main Error " & Ada.Exceptions.Exception_Information (E));
 end Uplimit;

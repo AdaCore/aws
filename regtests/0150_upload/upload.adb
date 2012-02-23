@@ -40,12 +40,6 @@ procedure Upload is
 
    function CB (Request : Status.Data) return Response.Data;
 
-   task Server is
-      entry Start;
-      entry Started;
-      entry Stopped;
-   end Server;
-
    HTTP : AWS.Server.HTTP;
 
    --------
@@ -84,39 +78,6 @@ procedure Upload is
       end if;
    end CB;
 
-   ------------
-   -- Server --
-   ------------
-
-   task body Server is
-   begin
-      accept Start;
-
-      AWS.Server.Start
-        (HTTP, "upload",
-         CB'Unrestricted_Access,
-         Port             => 0,
-         Max_Connection   => 5,
-         Upload_Directory => "./");
-
-      Put_Line ("Server started");
-      New_Line;
-
-      accept Started;
-
-      select
-         accept Stopped;
-      or
-         delay 5.0;
-         Put_Line ("Too much time to do the job !");
-      end select;
-
-      AWS.Server.Shutdown (HTTP);
-   exception
-      when E : others =>
-         Put_Line ("Server Error " & Exceptions.Exception_Information (E));
-   end Server;
-
    -------------
    -- Request --
    -------------
@@ -134,19 +95,27 @@ procedure Upload is
 begin
    Put_Line ("Start main, wait for server to start...");
 
-   Server.Start;
-   Server.Started;
+   Server.Start
+     (HTTP, "upload",
+      CB'Unrestricted_Access,
+      Port             => 0,
+      Max_Connection   => 5,
+      Upload_Directory => "./");
+
+   Put_Line ("Server started");
+   New_Line;
 
    declare
-      URL : constant String := AWS.Server.Status.Local_URL (HTTP);
+      URL : constant String := Server.Status.Local_URL (HTTP);
    begin
       Request (URL & "/upload", "test.out");
       Request (URL & "/upload", "upload.adb");
    end;
 
-   Server.Stopped;
+   Server.Shutdown (HTTP);
 
 exception
    when E : others =>
       Put_Line ("Main Error " & Exceptions.Exception_Information (E));
+      Server.Shutdown (HTTP);
 end Upload;

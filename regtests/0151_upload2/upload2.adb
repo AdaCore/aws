@@ -34,8 +34,6 @@ with AWS.Server.Status;
 with AWS.Status;
 with AWS.Utils;
 
-with Stack_Size;
-
 procedure Upload2 is
 
    use Ada;
@@ -44,14 +42,9 @@ procedure Upload2 is
 
    function CB (Request : Status.Data) return Response.Data;
 
-   task Server is
-      pragma Storage_Size (Stack_Size.Value);
-      entry Start;
-      entry Started;
-      entry Stopped;
-   end Server;
-
    HTTP : AWS.Server.HTTP;
+
+   procedure Start_Server;
 
    procedure Problem
      (E      : Ada.Exceptions.Exception_Occurrence;
@@ -109,15 +102,13 @@ procedure Upload2 is
         ("  => " & Fixed.Replace_Slice (Error_Message, First, Last, ""));
    end Problem;
 
-   ------------
-   -- Server --
-   ------------
+   ------------------
+   -- Start_Server --
+   ------------------
 
-   task body Server is
+   procedure Start_Server is
       Web_Config : Config.Object;
    begin
-      accept Start;
-
       Config.Set.Server_Name (Web_Config, "upload2");
       Config.Set.Server_Port (Web_Config, 0);
       Config.Set.Max_Connection (Web_Config, 5);
@@ -130,21 +121,7 @@ procedure Upload2 is
 
       Put_Line ("Server started");
       New_Line;
-
-      accept Started;
-
-      select
-         accept Stopped;
-      or
-         delay 25.0;
-         Put_Line ("Too much time to do the job !");
-      end select;
-
-      AWS.Server.Shutdown (HTTP);
-   exception
-      when E : others =>
-         Put_Line ("Server Error " & Ada.Exceptions.Exception_Information (E));
-   end Server;
+   end Start_Server;
 
    -------------
    -- Request --
@@ -167,15 +144,14 @@ procedure Upload2 is
 begin
    Put_Line ("Start main, wait for server to start...");
 
-   Server.Start;
-
-   Server.Started;
+   Start_Server;
 
    Request (AWS.Server.Status.Local_URL (HTTP) & "/upload", "file.txt");
 
-   Server.Stopped;
+   Server.Shutdown (HTTP);
 
 exception
    when E : others =>
       Put_Line ("Main Error " & Ada.Exceptions.Exception_Information (E));
+      Server.Shutdown (HTTP);
 end Upload2;
