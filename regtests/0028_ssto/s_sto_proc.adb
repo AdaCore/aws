@@ -25,7 +25,7 @@ with Ada.Streams;
 
 with AWS.Net;
 
-procedure S_STO_Proc (Security : Boolean; Port : Positive) is
+procedure S_STO_Proc (Security : Boolean) is
 
    use AWS;
    use Ada;
@@ -69,14 +69,14 @@ procedure S_STO_Proc (Security : Boolean; Port : Positive) is
 
       delay 1.5;
 
-      Net.Connect (Client, Server.Get_Addr, Port);
-      Net.Set_Timeout (Client, 1.0);
+      Client.Connect (Server.Get_Addr, Server.Get_Port);
+      Client.Set_Timeout (1.0);
 
       declare
          use Ada.Real_Time;
          Stamp : constant Time := Clock;
       begin
-         if Net.Receive (Client) /= (1 .. 0 => 0) then
+         if Client.Receive /= (1 .. 0 => 0) then
             Text_IO.Put_Line ("wrong receive");
          end if;
       exception
@@ -109,7 +109,7 @@ procedure S_STO_Proc (Security : Boolean; Port : Positive) is
 
       accept Done;
 
-      Net.Shutdown (Client);
+      Client.Shutdown;
 
       Text_IO.Put_Line ("client task done.");
 
@@ -129,9 +129,9 @@ begin
 
    Text_IO.Put_Line ("start");
 
-   Net.Bind (Server, Port, "localhost");
-   Net.Listen (Server);
-   Net.Set_Timeout (Server, 1.0);
+   Server.Bind (0, "localhost");
+   Server.Listen;
+   Server.Set_Timeout (1.0);
 
    Client_Side.Start;
 
@@ -147,9 +147,9 @@ begin
          Ada.Text_IO.Put_Line (Exceptions.Exception_Message (E));
    end;
 
-   Net.Accept_Socket (Server, Peer);
+   Server.Accept_Socket (Peer);
 
-   Net.Set_Timeout (Peer, 1.0);
+   Peer.Set_Timeout (1.0);
 
    delay 1.5;
 
@@ -172,7 +172,7 @@ begin
 
    Client_Side.Stop;
 
-   Net.Shutdown (Peer);
+   Peer.Shutdown;
 
    Text_IO.Put_Line ("done.");
 

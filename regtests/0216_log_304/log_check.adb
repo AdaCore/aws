@@ -34,8 +34,6 @@ with AWS.Server.Status;
 with AWS.Status;
 with AWS.Utils;
 
-with Get_Free_Port;
-
 procedure Log_Check is
 
    use Ada;
@@ -43,10 +41,9 @@ procedure Log_Check is
    use GNAT;
    use AWS;
 
-   WS   : Server.HTTP;
-   CNF  : Config.Object;
-   Port : Natural := 3241;
-   MS   : Unbounded_String;
+   WS  : Server.HTTP;
+   CNF : Config.Object;
+   MS  : Unbounded_String;
 
    --------
    -- CB --
@@ -124,11 +121,9 @@ procedure Log_Check is
    end Parse_Logs;
 
 begin
-   Get_Free_Port (Port);
-
    Config.Set.Server_Name    (CNF, "log_check");
    Config.Set.Server_Host    (CNF, "localhost");
-   Config.Set.Server_Port    (CNF, Port);
+   Config.Set.Server_Port    (CNF, 0);
    Config.Set.Max_Connection (CNF, 1);
 
    Server.Start (WS, CB'Unrestricted_Access, CNF);

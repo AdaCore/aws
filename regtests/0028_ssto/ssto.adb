@@ -20,11 +20,7 @@
 
 with S_STO_Proc;
 
-with Get_Free_Port;
-
 procedure SSTO is
-   Port : Natural := 4401;
 begin
-   Get_Free_Port (Port);
-   S_STO_Proc (True, Port);
+   S_STO_Proc (True);
 end SSTO;

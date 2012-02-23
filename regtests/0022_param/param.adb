@@ -25,11 +25,9 @@ with AWS.Messages;
 with AWS.MIME;
 with AWS.Parameters;
 with AWS.Response;
-with AWS.Server;
+with AWS.Server.Status;
 with AWS.Status;
 with AWS.Utils;
-
-with Get_Free_Port;
 
 procedure Param is
 
@@ -39,8 +37,7 @@ procedure Param is
 
    function CB (Request : Status.Data) return Response.Data;
 
-   HTTP   : AWS.Server.HTTP;
-   Port   : Natural := 1243;
+   HTTP   : Server.HTTP;
    Config : AWS.Config.Object;
 
    --------
@@ -116,32 +113,27 @@ procedure Param is
 begin
    Put_Line ("Start main, wait for server to start...");
 
-   Get_Free_Port (Port);
-
    AWS.Config.Set.Server_Host (Config, "localhost");
-   AWS.Config.Set.Server_Port (Config, Port);
+   AWS.Config.Set.Server_Port (Config, 0);
    AWS.Config.Set.Server_Name (Config, "param");
    AWS.Config.Set.Max_Connection (Config, 5);
    AWS.Config.Set.Case_Sensitive_Parameters (Config, False);
 
-   AWS.Server.Start (HTTP, CB'Unrestricted_Access, Config);
+   Server.Start (HTTP, CB'Unrestricted_Access, Config);
    Put_Line ("Server started");
    New_Line;
 
-   Request ("http://localhost:" & Utils.Image (Port)
-            & "/call");
-   Request ("http://localhost:" & Utils.Image (Port)
-            & "/call call");
-   Request ("http://localhost:" & Utils.Image (Port)
-            & "/call?p1=8&p2=azerty%3e%20%26%3c%3fqwerty");
-   Request ("http://localhost:" & Utils.Image (Port)
-            & "/call call?p1=8&p2=azerty%3e%20qwerty");
-   Request ("http://localhost:" & Utils.Image (Port)
-            & "/call%20call%3fp1=a%20a%3f");
-   Request ("http://localhost:" & Utils.Image (Port)
-            & "/spec?p%261=1%3d1&p%3D2=2%262");
-   Request ("http://localhost:" & Utils.Image (Port)
-            & "/dup?p1=p-1.1&P1=p-1.2&P2=p-2.1&p2=p-2.2");
+   declare
+      URL : constant String := Server.Status.Local_URL (HTTP);
+   begin
+      Request (URL & "/call");
+      Request (URL & "/call call");
+      Request (URL & "/call?p1=8&p2=azerty%3e%20%26%3c%3fqwerty");
+      Request (URL & "/call call?p1=8&p2=azerty%3e%20qwerty");
+      Request (URL & "/call%20call%3fp1=a%20a%3f");
+      Request (URL & "/spec?p%261=1%3d1&p%3D2=2%262");
+      Request (URL & "/dup?p1=p-1.1&P1=p-1.2&P2=p-2.1&p2=p-2.2");
+   end;
 
    AWS.Server.Shutdown (HTTP);
 
