@@ -31,8 +31,6 @@ with AWS.Status;
 with AWS.Log;
 with AWS.Utils;
 
-with Stack_Size;
-
 procedure Unexph2 is
 
    use Ada;
@@ -40,14 +38,8 @@ procedure Unexph2 is
    use AWS;
    use GNAT;
 
-   HTTP : AWS.Server.HTTP;
+   HTTP : Server.HTTP;
    R    : Response.Data;
-
-   task Server is
-      pragma Storage_Size (Stack_Size.Value);
-      entry Wait_Start;
-      entry Stop;
-   end Server;
 
    ----------------------
    -- Create_500_Tmplt --
@@ -96,26 +88,10 @@ procedure Unexph2 is
       return Response.Build (MIME.Text_HTML, "be happy.");
    end CB;
 
-   ------------
-   -- Server --
-   ------------
-
-   task body Server is
-   begin
-      AWS.Server.Start
-        (HTTP, "Test default unexpected exception handler",
-         CB'Unrestricted_Access, Port => 0, Max_Connection => 3);
-
-      accept Wait_Start;
-      accept Stop;
-
-   exception
-      when E : others =>
-         Put_Line ("Server Error " & Ada.Exceptions.Exception_Information (E));
-   end Server;
-
 begin
-   Server.Wait_Start;
+   Server.Start
+     (HTTP, "Test default unexpected exception handler",
+      CB'Unrestricted_Access, Port => 0, Max_Connection => 3);
 
    R := Client.Get
      (AWS.Server.Status.Local_URL (HTTP) & "/test",
@@ -128,7 +104,7 @@ begin
    Create_500_Tmplt;
 
    R := Client.Get
-     (AWS.Server.Status.Local_URL (HTTP) & "/test",
+     (Server.Status.Local_URL (HTTP) & "/test",
       Timeouts => Client.Timeouts
         (Connect => 1.0, Send => 2.0, Receive => 2.0, Response => 20.0));
 
@@ -138,10 +114,10 @@ begin
 
    Delete_500_Tmplt;
 
-   Server.Stop;
+   Server.Shutdown (HTTP);
 
 exception
    when E : others =>
-      Server.Stop;
       Put_Line ("Main Error " & Ada.Exceptions.Exception_Information (E));
+      Server.Shutdown (HTTP);
 end Unexph2;

@@ -28,22 +28,13 @@ with AWS.Server.Status;
 with AWS.Status;
 with AWS.Utils;
 
-with Stack_Size;
-
-procedure TGetParam_Proc (Protocol : String) is
+procedure TGetParam_Proc (Security : Boolean) is
 
    use Ada;
    use Ada.Text_IO;
    use AWS;
 
    function CB (Request : Status.Data) return Response.Data;
-
-   task Server is
-      pragma Storage_Size (Stack_Size.Value);
-      entry Start;
-      entry Started;
-      entry Stopped;
-   end Server;
 
    HTTP : AWS.Server.HTTP;
 
@@ -92,39 +83,6 @@ procedure TGetParam_Proc (Protocol : String) is
       end if;
    end CB;
 
-   ------------
-   -- Server --
-   ------------
-
-   task body Server is
-   begin
-      accept Start;
-
-      AWS.Server.Start
-        (HTTP, "TGetParam",
-         CB'Unrestricted_Access,
-         Port           => 0,
-         Security       => Protocol = "https",
-         Max_Connection => 5);
-
-      Put_Line ("Server started");
-      New_Line;
-
-      accept Started;
-
-      select
-         accept Stopped;
-      or
-         delay 5.0;
-         Put_Line ("Too much time to do the job !");
-      end select;
-
-      AWS.Server.Shutdown (HTTP);
-   exception
-      when E : others =>
-         Put_Line ("Server Error " & Exceptions.Exception_Information (E));
-   end Server;
-
    -------------
    -- Request --
    -------------
@@ -140,8 +98,15 @@ procedure TGetParam_Proc (Protocol : String) is
 begin
    Put_Line ("Start main, wait for server to start...");
 
-   Server.Start;
-   Server.Started;
+   AWS.Server.Start
+     (HTTP, "TGetParam",
+      CB'Unrestricted_Access,
+      Port           => 0,
+      Security       => Security,
+      Max_Connection => 5);
+
+   Put_Line ("Server started");
+   New_Line;
 
    declare
       URL_Prefix : constant String := AWS.Server.Status.Local_URL (HTTP);
@@ -161,9 +126,10 @@ begin
       Request (URL_Prefix & "/simple?p1=8&p2=azerty%20qwerty");
    end;
 
-   Server.Stopped;
+   AWS.Server.Shutdown (HTTP);
 
 exception
    when E : others =>
       Put_Line ("Main Error " & Exceptions.Exception_Information (E));
+   AWS.Server.Shutdown (HTTP);
 end TGetParam_Proc;

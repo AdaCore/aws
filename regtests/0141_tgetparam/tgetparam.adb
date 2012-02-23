@@ -20,5 +20,5 @@ with TGetParam_Proc;
 
 procedure TGetParam is
 begin
-   TGetParam_Proc ("http");
+   TGetParam_Proc (False);
 end TGetParam;

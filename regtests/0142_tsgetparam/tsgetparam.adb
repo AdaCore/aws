@@ -24,5 +24,5 @@ with S_TGetParam_Proc;
 
 procedure TSGetParam is
 begin
-   S_TGetParam_Proc ("https");
+   S_TGetParam_Proc (Security => True);
 end TSGetParam;
