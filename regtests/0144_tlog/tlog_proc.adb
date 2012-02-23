@@ -141,11 +141,14 @@ procedure TLog_Proc (Extended_Fields : String) is
       use type AWK.Count;
       I       : AWK.Count;
       Ext_Log : Boolean;
+      Parser  : AWK.Session_Type;
    begin
-      AWK.Add_File ("tlog-" & Today & ".log");
-      AWK.Add_File ("tlog_error-" & Today & ".log");
+      AWK.Add_File ("tlog-" & Today & ".log", Parser);
+      AWK.Add_File ("tlog_error-" & Today & ".log", Parser);
 
-      AWK.Open;
+      AWK.Open (Session => Parser);
+
+      AWK.Set_Current (Parser);
 
       Text_IO.Put_Line ("> File : " & Hide_Date (AWK.File));
 
@@ -201,7 +204,7 @@ procedure TLog_Proc (Extended_Fields : String) is
          end if;
       end loop;
 
-      AWK.Close (AWK.Current_Session.all);
+      AWK.Close (Parser);
    end Parse_Logs;
 
    --------

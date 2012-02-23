@@ -101,23 +101,25 @@ procedure Log_Check is
    procedure Parse_Logs is
       Filename : constant := 6;
       Status   : constant := 8;
+      Parser   : AWK.Session_Type;
    begin
-      AWK.Add_File ("log_check.log");
+      AWK.Open (Filename => "log_check.log", Session => Parser);
 
-      AWK.Open;
+      while not AWK.End_Of_Data (Parser) loop
+         AWK.Get_Line (Session => Parser);
 
-      while not AWK.End_Of_Data loop
-         AWK.Get_Line;
-
-         if AWK.Field (2) = "Stop" and AWK.Field (3) = "logging." then
+         if AWK.Field (2, Parser) = "Stop"
+           and AWK.Field (3, Parser) = "logging."
+         then
             null;
          else
             Text_IO.Put_Line
-              (AWK.Field (Filename) & " - " & AWK.Field (Status));
+              (AWK.Field (Filename, Parser) & " - "
+               & AWK.Field (Status, Parser));
          end if;
       end loop;
 
-      AWK.Close (AWK.Current_Session.all);
+      AWK.Close (Parser);
    end Parse_Logs;
 
 begin
