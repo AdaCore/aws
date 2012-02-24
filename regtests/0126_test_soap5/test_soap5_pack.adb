@@ -152,55 +152,21 @@ package body Test_SOAP5_Pack is
    ---------
 
    procedure Run (Security : Boolean) is
-
-      task Server is
-         entry Started;
-         entry Ready;
-         entry Stopped;
-      end Server;
-
-      ------------
-      -- Server --
-      ------------
-
-      task body Server is
-      begin
-         AWS.Server.Start
-           (HTTP, "soap_demo",
-            CB'Access,
-            Security       => Security,
-            Port           => 0,
-            Max_Connection => 5);
-
-         accept Started;
-
-         Put_Line ("Server started");
-         New_Line;
-
-         accept Ready;
-
-         select
-            accept Stopped;
-         or
-            delay 5.0;
-            Put_Line ("Too much time to do the job !");
-         end select;
-
-         AWS.Server.Shutdown (HTTP);
-
-      exception
-         when E : others =>
-            Put_Line ("Server Error " & Exceptions.Exception_Information (E));
-      end Server;
-
    begin
       Put_Line ("Start main, wait for server to start...");
 
-      Server.Started;
-      Server.Ready;
+      Server.Start
+        (HTTP, "soap_demo",
+         CB'Access,
+         Security       => Security,
+         Port           => 0,
+         Max_Connection => 5);
 
-      AWS.Client.Create
-        (Connection, AWS.Server.Status.Local_URL (HTTP) & "/soap_demo");
+      Put_Line ("Server started");
+      New_Line;
+
+      Client.Create
+        (Connection, Server.Status.Local_URL (HTTP) & "/soap_demo");
 
       Request ("multProc", 2, 3, "/mul");
       Request ("multProc", 9, 9, "/mul");
@@ -219,10 +185,12 @@ package body Test_SOAP5_Pack is
 
       Client.Close (Connection);
 
-      Server.Stopped;
+      Server.Shutdown (HTTP);
+
    exception
       when E : others =>
          Put_Line ("Main Error " & Exceptions.Exception_Information (E));
+         Server.Shutdown (HTTP);
    end Run;
 
 end Test_SOAP5_Pack;

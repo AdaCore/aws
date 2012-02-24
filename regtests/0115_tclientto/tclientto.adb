@@ -37,13 +37,7 @@ procedure Tclientto is
 
    function CB (Request : Status.Data) return Response.Data;
 
-   task Server is
-      entry Start;
-      entry Started;
-      entry Stopped;
-   end Server;
-
-   HTTP : AWS.Server.HTTP;
+   HTTP : Server.HTTP;
 
    --------
    -- CB --
@@ -67,31 +61,6 @@ procedure Tclientto is
            (MIME.Text_HTML, URI & " not found", Messages.S404);
       end if;
    end CB;
-
-   ------------
-   -- Server --
-   ------------
-
-   task body Server is
-   begin
-      accept Start;
-
-      AWS.Server.Start
-        (HTTP, "Test Client Timeouts",
-         CB'Unrestricted_Access, Port => 0, Max_Connection => 5);
-
-      Put_Line ("Server started");
-      New_Line;
-
-      accept Started;
-
-      accept Stopped;
-
-      AWS.Server.Shutdown (HTTP);
-   exception
-      when E : others =>
-         Put_Line ("Server Error " & Exceptions.Exception_Information (E));
-   end Server;
 
    -------------
    -- Request --
@@ -161,17 +130,21 @@ procedure Tclientto is
 begin
    Put_Line ("Start main, wait for server to start...");
 
-   Server.Start;
-   Server.Started;
+   Server.Start
+     (HTTP, "Test Client Timeouts", CB'Unrestricted_Access, Port => 0,
+      Max_Connection => 5);
+
+   Put_Line ("Server started");
+   New_Line;
 
    Request;
 
    Alive_Request;
 
-   Server.Stopped;
+   Server.Shutdown (HTTP);
 
 exception
    when E : others =>
       Put_Line ("Main Error " & Exceptions.Exception_Information (E));
-      Server.Stopped;
+      Server.Shutdown (HTTP);
 end Tclientto;

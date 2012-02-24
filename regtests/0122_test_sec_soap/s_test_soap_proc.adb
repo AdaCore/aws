@@ -44,13 +44,7 @@ procedure S_Test_SOAP_Proc (Security : Boolean) is
    function CB      (Request : Status.Data) return Response.Data;
    function SOAP_CB (Request : Status.Data) return Response.Data;
 
-   task Server is
-      entry Start;
-      entry Started;
-      entry Stopped;
-   end Server;
-
-   HTTP : AWS.Server.HTTP;
+   HTTP : Server.HTTP;
 
    --------
    -- CB --
@@ -98,39 +92,6 @@ procedure S_Test_SOAP_Proc (Security : Boolean) is
       end;
    end Request;
 
-   ------------
-   -- Server --
-   ------------
-
-   task body Server is
-   begin
-      accept Start;
-
-      AWS.Server.Start
-        (HTTP, "soap_demo",
-         CB'Unrestricted_Access,
-         Port           => 0,
-         Max_Connection => 5,
-         Security       => Security);
-
-      Put_Line ("Server started");
-      New_Line;
-
-      accept Started;
-
-      select
-         accept Stopped;
-      or
-         delay 5.0;
-         Put_Line ("Too much time to do the job !");
-      end select;
-
-      AWS.Server.Shutdown (HTTP);
-   exception
-      when E : others =>
-         Put_Line ("Server Error " & Exceptions.Exception_Information (E));
-   end Server;
-
    -------------
    -- SOAP_CB --
    -------------
@@ -175,8 +136,14 @@ procedure S_Test_SOAP_Proc (Security : Boolean) is
 begin
    Put_Line ("Start main, wait for server to start...");
 
-   Server.Start;
-   Server.Started;
+   Server.Start
+     (HTTP, "soap_demo", CB'Unrestricted_Access,
+      Port           => 0,
+      Max_Connection => 5,
+      Security       => Security);
+
+   Put_Line ("Server started");
+   New_Line;
 
    Request ("multProc", 2, 3);
    Request ("multProc", 9, 9);
@@ -186,9 +153,10 @@ begin
    Request ("addProc", 9, 9);
    Request ("addProc", 10, 73);
 
-   Server.Stopped;
+   Server.Shutdown (HTTP);
 
 exception
    when E : others =>
       Put_Line ("Main Error " & Exceptions.Exception_Information (E));
+      Server.Shutdown (HTTP);
 end S_Test_SOAP_Proc;

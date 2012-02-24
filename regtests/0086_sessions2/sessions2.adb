@@ -45,13 +45,6 @@ procedure Sessions2 is
       entry Stopped;
    end T_Client;
 
-   task Server is
-      pragma Storage_Size (Stack_Size.Value);
-      entry Start;
-      entry Started;
-      entry Stop;
-   end Server;
-
    Clients : array (1 .. 5) of T_Client;
 
    --------
@@ -103,30 +96,6 @@ procedure Sessions2 is
          Text_IO.Put_Line (Exceptions.Exception_Information (E));
    end T_Client;
 
-   ------------
-   -- Server --
-   ------------
-
-   task body Server is
-   begin
-      accept Start;
-
-      AWS.Server.Start
-        (WS, "session",
-         CB'Unrestricted_Access,
-         Port           => 0,
-         Max_Connection => 5,
-         Session        => True);
-
-      accept Started;
-
-      Ada.Text_IO.Put_Line ("started");
-
-      accept Stop;
-
-      Ada.Text_IO.Put_Line ("Ready to stop");
-   end Server;
-
    ----------------
    -- Delete_SID --
    ----------------
@@ -154,8 +123,13 @@ begin
    Config.Set.Session_Cleanup_Interval (3.0);
    Config.Set.Session_Lifetime (2.0);
 
-   Server.Start;
-   Server.Started;
+   Server.Start
+     (WS, "session", CB'Unrestricted_Access,
+      Port           => 0,
+      Max_Connection => 5,
+      Session        => True);
+
+   Text_IO.Put_Line ("started");
 
    Session.Set_Callback (Delete_SID'Unrestricted_Access);
 
@@ -175,10 +149,10 @@ begin
 
    delay 1.0;
 
-   Server.Stop;
+   Text_IO.Put_Line ("Ready to stop");
 
-   AWS.Server.Shutdown (WS);
+   Server.Shutdown (WS);
 
    Session.Clear;
-   Ada.Text_IO.Put_Line ("shutdown");
+   Text_IO.Put_Line ("shutdown");
 end Sessions2;

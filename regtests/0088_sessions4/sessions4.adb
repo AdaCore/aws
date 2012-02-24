@@ -27,8 +27,6 @@ with AWS.Session;
 with AWS.Status;
 with AWS.Utils;
 
-with Stack_Size;
-
 procedure Sessions4 is
 
    use Ada;
@@ -46,12 +44,6 @@ procedure Sessions4 is
    end record;
 
    Null_Context : constant Context := (0, "          ", False, ASCII.Nul);
-
-   task Server is
-      pragma Storage_Size (Stack_Size.Value);
-      entry Started;
-      entry Stop;
-   end Server;
 
    package Context_Session is new Session.Generic_Data (Context, Null_Context);
 
@@ -103,59 +95,41 @@ procedure Sessions4 is
         & C.C;
    end Image;
 
-   ------------
-   -- Server --
-   ------------
-
-   task body Server is
-   begin
-      AWS.Server.Start
-        (WS, "session",
-         CB'Unrestricted_Access,
-         Port           => 0,
-         Max_Connection => 5,
-         Session        => True);
-
-      Ada.Text_IO.Put_Line ("started");
-
-      accept Started;
-
-      accept Stop;
-
-      Ada.Text_IO.Put_Line ("Ready to stop");
-   exception
-      when E : others =>
-         Text_IO.Put_Line (Exceptions.Exception_Information (E));
-   end Server;
-
 begin
-   Server.Started;
+   Server.Start
+     (WS, "session", CB'Unrestricted_Access,
+      Port           => 0,
+      Max_Connection => 5,
+      Session        => True);
+
+   Text_IO.Put_Line ("started");
 
    Client.Create (C, AWS.Server.Status.Local_URL (WS));
 
    Client.Get (C, R, "/");
-   Ada.Text_IO.Put_Line ("Response : " & Response.Message_Body (R));
+   Text_IO.Put_Line ("Response : " & Response.Message_Body (R));
 
    Client.Get (C, R, "/");
-   Ada.Text_IO.Put_Line ("Response : " & Response.Message_Body (R));
+   Text_IO.Put_Line ("Response : " & Response.Message_Body (R));
 
    Client.Get (C, R, "/");
-   Ada.Text_IO.Put_Line ("Response : " & Response.Message_Body (R));
+   Text_IO.Put_Line ("Response : " & Response.Message_Body (R));
 
    Client.Get (C, R, "/");
-   Ada.Text_IO.Put_Line ("Response : " & Response.Message_Body (R));
+   Text_IO.Put_Line ("Response : " & Response.Message_Body (R));
 
    Client.Get (C, R, "/");
-   Ada.Text_IO.Put_Line ("Response : " & Response.Message_Body (R));
+   Text_IO.Put_Line ("Response : " & Response.Message_Body (R));
 
-   Server.Stop;
+   Text_IO.Put_Line ("Ready to stop");
 
-   AWS.Server.Shutdown (WS);
-   Ada.Text_IO.Put_Line ("shutdown");
+   Server.Shutdown (WS);
+   Text_IO.Put_Line ("shutdown");
 
    Client.Close (C);
 
 exception
    when E : others =>
       Text_IO.Put_Line (Exceptions.Exception_Information (E));
+      Server.Shutdown (WS);
 end Sessions4;

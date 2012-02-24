@@ -29,9 +29,6 @@ with AWS.Session;
 with AWS.Status;
 with AWS.Utils;
 
-with Get_Free_Port;
-with Stack_Size;
-
 procedure Sessions3 is
 
    use Ada;
@@ -41,12 +38,6 @@ procedure Sessions3 is
 
    C : Client.HTTP_Connection;
    R : Response.Data;
-
-   task Server is
-      pragma Storage_Size (Stack_Size.Value);
-      entry Started;
-      entry Stop;
-   end Server;
 
    --------
    -- CB --
@@ -78,52 +69,34 @@ procedure Sessions3 is
       return Str (Str'First .. Last + 10) & Str (Str'Last - 13 .. Str'Last);
    end Image;
 
-   ------------
-   -- Server --
-   ------------
-
-   task body Server is
-   begin
-      AWS.Server.Start
-        (WS, "session",
-         CB'Unrestricted_Access,
-         Port           => 0,
-         Max_Connection => 5,
-         Session        => False);
-
-      Ada.Text_IO.Put_Line ("started");
-
-      accept Started;
-
-      accept Stop;
-
-      Ada.Text_IO.Put_Line ("Ready to stop");
-   exception
-      when E : others =>
-         Text_IO.Put_Line (Exceptions.Exception_Information (E));
-   end Server;
-
 begin
-   Server.Started;
+   Server.Start
+     (WS, "session", CB'Unrestricted_Access,
+      Port           => 0,
+      Max_Connection => 5,
+      Session        => False);
+
+   Text_IO.Put_Line ("started");
 
    Client.Create (C, AWS.Server.Status.Local_URL (WS));
 
    Client.Get (C, R, "/");
-   Ada.Text_IO.Put_Line ("Response : " & Image (Response.Message_Body (R)));
+   Text_IO.Put_Line ("Response : " & Image (Response.Message_Body (R)));
 
    Client.Get (C, R, "/");
-   Ada.Text_IO.Put_Line ("Response : " & Image (Response.Message_Body (R)));
+   Text_IO.Put_Line ("Response : " & Image (Response.Message_Body (R)));
 
-   Server.Stop;
+   Text_IO.Put_Line ("Ready to stop");
 
-   AWS.Server.Shutdown (WS);
+   Server.Shutdown (WS);
 
    Client.Close (C);
 
    Session.Clear;
-   Ada.Text_IO.Put_Line ("shutdown");
+   Text_IO.Put_Line ("shutdown");
 
 exception
    when E : others =>
       Text_IO.Put_Line (Exceptions.Exception_Information (E));
+      Server.Shutdown (WS);
 end Sessions3;

@@ -32,8 +32,6 @@ with AWS.Messages;
 with AWS.Resources.Streams;
 with AWS.Utils;
 
-with Stack_Size;
-
 with Error_Strm;
 
 procedure Strm2 is
@@ -44,13 +42,7 @@ procedure Strm2 is
 
    function CB (Request : Status.Data) return Response.Data;
 
-   task Server is
-      pragma Storage_Size (Stack_Size.Value);
-      entry Wait_Start;
-      entry Stop;
-   end Server;
-
-   HTTP    : AWS.Server.HTTP;
+   HTTP    : Server.HTTP;
    Connect : Client.HTTP_Connection;
    R       : Response.Data;
 
@@ -69,25 +61,10 @@ procedure Strm2 is
       end if;
    end CB;
 
-   ------------
-   -- Server --
-   ------------
-
-   task body Server is
-   begin
-      AWS.Server.Start
-        (HTTP, "Testing user defined stream.",
-         CB'Unrestricted_Access, Port => 0, Max_Connection => 3);
-
-      accept Wait_Start;
-      accept Stop;
-   exception
-      when E : others =>
-         Put_Line ("Server Error " & Exceptions.Exception_Information (E));
-   end Server;
-
 begin
-   Server.Wait_Start;
+   Server.Start
+     (HTTP, "Testing user defined stream.", CB'Unrestricted_Access, Port => 0,
+      Max_Connection => 3);
 
    Client.Create
      (Connection => Connect,
@@ -103,10 +80,10 @@ begin
      ("> " & Utils.Head_Before
                (Response.Message_Body (R), "Call stack traceback locations:"));
 
-   Server.Stop;
+   Server.Shutdown (HTTP);
 
 exception
    when E : others =>
       Put_Line ("Main Error " & Exceptions.Exception_Information (E));
-      Server.Stop;
+      Server.Shutdown (HTTP);
 end Strm2;

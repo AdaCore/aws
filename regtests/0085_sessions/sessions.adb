@@ -29,7 +29,6 @@ with AWS.Session;
 with AWS.Status;
 with AWS.Utils;
 
-with Get_Free_Port;
 with Stack_Size;
 
 procedure Sessions is
@@ -37,20 +36,13 @@ procedure Sessions is
    use Ada;
    use AWS;
 
-   WS   : Server.HTTP;
-   Port : Natural := 1273;
+   WS : Server.HTTP;
 
    task type T_Client is
       pragma Storage_Size (Stack_Size.Value);
       entry Start;
       entry Stopped;
    end T_Client;
-
-   task Server is
-      pragma Storage_Size (Stack_Size.Value);
-      entry Started;
-      entry Stop;
-   end Server;
 
    Clients : array (1 .. 10) of T_Client;
 
@@ -83,7 +75,7 @@ procedure Sessions is
    begin
       accept Start;
 
-      Client.Create (C, AWS.Server.Status.Local_URL (WS));
+      Client.Create (C, Server.Status.Local_URL (WS));
 
       for K in 1 .. 10 loop
          Client.Get (C, R, "/");
@@ -136,37 +128,18 @@ procedure Sessions is
       end if;
    end Get_Sessions;
 
-   ------------
-   -- Server --
-   ------------
-
-   task body Server is
-      CNF : Config.Object;
-   begin
-      Get_Free_Port (Port);
-
-      Config.Set.Server_Name    (CNF, "session");
-      Config.Set.Server_Host    (CNF, "localhost");
-      Config.Set.Server_Port    (CNF, Port);
-      Config.Set.Max_Connection (CNF, 5);
-      Config.Set.Session        (CNF, True);
-
-      AWS.Server.Start (WS, CB'Unrestricted_Access, CNF);
-
-      accept Started;
-
-      Ada.Text_IO.Put_Line ("started");
-
-      accept Stop;
-
-      Ada.Text_IO.Put_Line ("Ready to stop");
-   exception
-      when E : others =>
-         Ada.Text_IO.Put_Line ("Server error");
-   end Server;
+   CNF : Config.Object;
 
 begin
-   Server.Started;
+   Config.Set.Server_Name    (CNF, "session");
+   Config.Set.Server_Host    (CNF, "localhost");
+   Config.Set.Server_Port    (CNF, 0);
+   Config.Set.Max_Connection (CNF, 5);
+   Config.Set.Session        (CNF, True);
+
+   Server.Start (WS, CB'Unrestricted_Access, CNF);
+
+   Text_IO.Put_Line ("started");
 
    for K in Clients'Range loop
       Clients (K).Start;
@@ -184,11 +157,11 @@ begin
       Clients (K).Stopped;
    end loop;
 
-   Server.Stop;
+   Text_IO.Put_Line ("Ready to stop");
 
-   AWS.Server.Shutdown (WS);
+   Server.Shutdown (WS);
 
    Session.Clear;
 
-   Ada.Text_IO.Put_Line ("shutdown");
+   Text_IO.Put_Line ("shutdown");
 end Sessions;

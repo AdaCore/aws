@@ -43,13 +43,7 @@ procedure Test_SOAP2 is
    function CB      (Request : Status.Data) return Response.Data;
    function SOAP_CB (Request : Status.Data) return Response.Data;
 
-   task Server is
-      entry Start;
-      entry Started;
-      entry Stopped;
-   end Server;
-
-   HTTP : AWS.Server.HTTP;
+   HTTP : Server.HTTP;
 
    --------
    -- CB --
@@ -100,36 +94,6 @@ procedure Test_SOAP2 is
       end;
    end Request;
 
-   ------------
-   -- Server --
-   ------------
-
-   task body Server is
-   begin
-      accept Start;
-
-      AWS.Server.Start
-        (HTTP, "soap_demo",
-         CB'Unrestricted_Access, Port => 0, Max_Connection => 5);
-
-      Put_Line ("Server started");
-      New_Line;
-
-      accept Started;
-
-      select
-         accept Stopped;
-      or
-         delay 5.0;
-         Put_Line ("Too much time to do the job !");
-      end select;
-
-      AWS.Server.Shutdown (HTTP);
-   exception
-      when E : others =>
-         Put_Line ("Server Error " & Exceptions.Exception_Information (E));
-   end Server;
-
    -------------
    -- SOAP_CB --
    -------------
@@ -171,8 +135,12 @@ procedure Test_SOAP2 is
 begin
    Put_Line ("Start main, wait for server to start...");
 
-   Server.Start;
-   Server.Started;
+   Server.Start
+     (HTTP, "soap_demo", CB'Unrestricted_Access, Port => 0,
+      Max_Connection => 5);
+
+   Put_Line ("Server started");
+   New_Line;
 
    Request ("simple");
    Request (" simple");
@@ -183,9 +151,10 @@ begin
    Request ("a string  with   many    space");
    Request (" a string  with   many    space ");
 
-   Server.Stopped;
+   Server.Shutdown (HTTP);
 
 exception
    when E : others =>
       Put_Line ("Main Error " & Exceptions.Exception_Information (E));
+      Server.Shutdown (HTTP);
 end Test_SOAP2;
