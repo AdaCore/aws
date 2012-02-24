@@ -22,8 +22,9 @@ with Ada.Text_IO;
 
 with AWS.Config.Set;
 with AWS.MIME;
+with AWS.Net;
 with AWS.Response;
-with AWS.Server;
+with AWS.Server.Status;
 with AWS.Status;
 with SOAP.Utils;
 
@@ -35,6 +36,7 @@ procedure Test_WSDL is
    use AWS;
 
    H_Server : Server.HTTP;
+   IPv6_Srv : Server.HTTP;
    CNF      : Config.Object;
 
    procedure WSDL_Demo_Client is
@@ -82,6 +84,20 @@ begin
    Config.Set.Server_Port (CNF, R_Hello_Demo.Server.Port);
 
    Server.Start (H_Server, CB'Unrestricted_Access, CNF);
+
+   if Net.IPv6_Available then
+      --  Need to start second server on same port but on the different
+      --  Protocol_Family because we do not know which family would client try
+      --  to connect.
+
+      if AWS.Server.Status.Is_IPv6 (H_Server) then
+         Config.Set.Protocol_Family (CNF, "FAMILY_INET");
+      else
+         Config.Set.Protocol_Family (CNF, "FAMILY_INET6");
+      end if;
+
+      AWS.Server.Start (IPv6_Srv, CB'Unrestricted_Access, CNF);
+   end if;
 
    WSDL_Demo_Client;
 

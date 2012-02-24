@@ -23,8 +23,9 @@ with Ada.Text_IO;
 
 with AWS.Config.Set;
 with AWS.MIME;
+with AWS.Net;
 with AWS.Response;
-with AWS.Server;
+with AWS.Server.Status;
 with AWS.Status;
 with SOAP.Utils;
 
@@ -40,6 +41,7 @@ procedure Test_WSDL3 is
    use type Stock_Quote_Service.Types.Array_Of_Float_Type;
 
    H_Server : AWS.Server.HTTP;
+   IPv6_Srv : AWS.Server.HTTP;
 
    package FIO is new Text_IO.Float_IO (Float);
 
@@ -121,6 +123,20 @@ begin
    Config.Set.Server_Port (CNF, Stock_Quote_Service.Server.Port);
 
    AWS.Server.Start (H_Server, CB'Unrestricted_Access, CNF);
+
+   if Net.IPv6_Available then
+      --  Need to start second server on same port but on the different
+      --  Protocol_Family because we do not know which family would client try
+      --  to connect.
+
+      if AWS.Server.Status.Is_IPv6 (H_Server) then
+         Config.Set.Protocol_Family (CNF, "FAMILY_INET");
+      else
+         Config.Set.Protocol_Family (CNF, "FAMILY_INET6");
+      end if;
+
+      AWS.Server.Start (IPv6_Srv, CB'Unrestricted_Access, CNF);
+   end if;
 
    WSDL_Demo_Client;
 
