@@ -34,8 +34,6 @@ with AWS.Server.Status;
 with AWS.Status;
 with AWS.Utils;
 
-with Stack_Size;
-
 procedure Upload3 is
 
    use Ada;
@@ -44,14 +42,7 @@ procedure Upload3 is
 
    function CB (Request : Status.Data) return Response.Data;
 
-   task Server is
-      pragma Storage_Size (Stack_Size.Value);
-      entry Start;
-      entry Started;
-      entry Stopped;
-   end Server;
-
-   HTTP : AWS.Server.HTTP;
+   HTTP : Server.HTTP;
 
    procedure Problem
      (E      : Ada.Exceptions.Exception_Occurrence;
@@ -112,45 +103,6 @@ procedure Upload3 is
         (MIME.Text_HTML, "Sorry the server is temporarily unavailable.");
    end Problem;
 
-   ------------
-   -- Server --
-   ------------
-
-   task body Server is
-      Web_Config : Config.Object;
-   begin
-      Config.Set.Server_Name (Web_Config, "upload3");
-      Config.Set.Server_Port (Web_Config, 0);
-      Config.Set.Max_Connection (Web_Config, 5);
-      Config.Set.Upload_Directory (Web_Config, "/this/one/does/not/exists/");
-
-      AWS.Server.Set_Unexpected_Exception_Handler
-        (HTTP, Problem'Unrestricted_Access);
-
-      accept Start;
-
-      AWS.Server.Start (HTTP, CB'Unrestricted_Access, Web_Config);
-
-      Put_Line ("Server started");
-      New_Line;
-
-      accept Started;
-
-      select
-         accept Stopped;
-      or
-         delay 20.0;
-         Put_Line ("Too much time to do the job !");
-      end select;
-
-      AWS.Server.Shutdown (HTTP);
-
-      Put_Line ("Server stopped");
-   exception
-      when E : others =>
-         Put_Line ("Server Error " & Ada.Exceptions.Exception_Information (E));
-   end Server;
-
    -------------
    -- Request --
    -------------
@@ -167,17 +119,30 @@ procedure Upload3 is
          Put_Line (Ada.Exceptions.Exception_Information (E));
    end Request;
 
+   Web_Config : Config.Object;
+
 begin
    Put_Line ("Start main, wait for server to start...");
 
-   Server.Start;
-   Server.Started;
+   Config.Set.Server_Name (Web_Config, "upload3");
+   Config.Set.Server_Port (Web_Config, 0);
+   Config.Set.Max_Connection (Web_Config, 5);
+   Config.Set.Upload_Directory (Web_Config, "/this/one/does/not/exists/");
+
+   Server.Set_Unexpected_Exception_Handler (HTTP, Problem'Unrestricted_Access);
+
+   Server.Start (HTTP, CB'Unrestricted_Access, Web_Config);
+
+   Put_Line ("Server started");
+   New_Line;
 
    Request (AWS.Server.Status.Local_URL (HTTP) & "/upload", "file2.txt");
 
-   Server.Stopped;
+   Server.Shutdown (HTTP);
+   Put_Line ("Server stopped");
 
 exception
    when E : others =>
       Put_Line ("Main Error " & Ada.Exceptions.Exception_Information (E));
+      Server.Shutdown (HTTP);
 end Upload3;

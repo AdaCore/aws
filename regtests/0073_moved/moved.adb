@@ -27,8 +27,6 @@ with AWS.Response;
 with AWS.Messages;
 with AWS.Utils;
 
-with Stack_Size;
-
 procedure Moved is
 
    use Ada;
@@ -37,15 +35,9 @@ procedure Moved is
 
    function CB (Request : Status.Data) return Response.Data;
 
-   task Server is
-      pragma Storage_Size (Stack_Size.Value);
-      entry Wait_Start;
-      entry Stop;
-   end Server;
-
    Valid_URI : constant String := "/I_know_you_have_it";
 
-   HTTP    : AWS.Server.HTTP;
+   HTTP    : Server.HTTP;
    Connect : Client.HTTP_Connection;
    R       : Response.Data;
 
@@ -65,30 +57,14 @@ procedure Moved is
       end if;
    end CB;
 
-   ------------
-   -- Server --
-   ------------
-
-   task body Server is
-   begin
-      AWS.Server.Start
-        (HTTP, "Testing ""moved"" answer.",
-         CB'Unrestricted_Access, Port => 0, Max_Connection => 3);
-
-      accept Wait_Start;
-      accept Stop;
-
-   exception
-      when E : others =>
-         Put_Line ("Server Error " & Exceptions.Exception_Information (E));
-   end Server;
-
 begin
-   Server.Wait_Start;
+   Server.Start
+     (HTTP, "Testing ""moved"" answer.", CB'Unrestricted_Access, Port => 0,
+      Max_Connection => 3);
 
    Client.Create
      (Connection => Connect,
-      Host       => AWS.Server.Status.Local_URL (HTTP),
+      Host       => Server.Status.Local_URL (HTTP),
       Timeouts   => Client.Timeouts
         (Connect => 5.0, Send => 5.0, Receive => 5.0, Response => 5.0));
 
@@ -102,10 +78,10 @@ begin
 
    Client.Close (Connect);
 
-   Server.Stop;
+   Server.Shutdown (HTTP);
 
 exception
    when E : others =>
-      Server.Stop;
       Put_Line ("Main Error " & Exceptions.Exception_Information (E));
+      Server.Shutdown (HTTP);
 end Moved;

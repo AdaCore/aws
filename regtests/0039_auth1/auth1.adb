@@ -31,9 +31,6 @@ with AWS.Response;
 with AWS.Messages;
 with AWS.Utils;
 
-with Get_Free_Port;
-with Stack_Size;
-
 procedure Auth1 is
 
    use GNAT;
@@ -43,13 +40,7 @@ procedure Auth1 is
 
    function CB (Request : Status.Data) return Response.Data;
 
-   task Server is
-      pragma Storage_Size (Stack_Size.Value);
-      entry Wait_Start;
-      entry Stop;
-   end Server;
-
-   HTTP : AWS.Server.HTTP;
+   HTTP : Server.HTTP;
 
    Connect : Client.HTTP_Connection;
 
@@ -60,8 +51,7 @@ procedure Auth1 is
    Auth_Username : constant String := "AWS";
    Auth_Password : constant String := "letmein";
 
-   R    : Response.Data;
-   Port : Natural := 1236;
+   R : Response.Data;
 
    --------
    -- CB --
@@ -123,36 +113,19 @@ procedure Auth1 is
       end if;
    end CB;
 
-   ------------
-   -- Server --
-   ------------
-
-   task body Server is
-      CNF : Config.Object;
-   begin
-      Get_Free_Port (Port);
-
-      Config.Set.Server_Name    (CNF, "Test authentication.");
-      Config.Set.Server_Host    (CNF, "localhost");
-      Config.Set.Server_Port    (CNF, Port);
-      Config.Set.Max_Connection (CNF, 3);
-
-      AWS.Server.Start (HTTP, CB'Unrestricted_Access, CNF);
-
-      accept Wait_Start;
-      accept Stop;
-
-   exception
-      when E : others =>
-         Put_Line ("Server Error " & Exceptions.Exception_Information (E));
-   end Server;
+   CNF : Config.Object;
 
 begin
-   Server.Wait_Start;
+   Config.Set.Server_Name    (CNF, "Test authentication.");
+   Config.Set.Server_Host    (CNF, "localhost");
+   Config.Set.Server_Port    (CNF, 0);
+   Config.Set.Max_Connection (CNF, 3);
+
+   Server.Start (HTTP, CB'Unrestricted_Access, CNF);
 
    Client.Create
      (Connection => Connect,
-      Host       => AWS.Server.Status.Local_URL (HTTP),
+      Host       => Server.Status.Local_URL (HTTP),
       Timeouts   => Client.Timeouts
         (Connect => 5.0, Send => 5.0, Receive => 5.0));
 
@@ -203,10 +176,10 @@ begin
 
    Client.Close (Connect);
 
-   Server.Stop;
+   Server.Shutdown (HTTP);
 
 exception
    when E : others =>
-      Server.Stop;
       Put_Line ("Main Error " & Exceptions.Exception_Information (E));
+      Server.Shutdown (HTTP);
 end Auth1;

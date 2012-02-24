@@ -34,10 +34,8 @@ procedure Server_Info is
    use Ada;
    use AWS;
 
-   WS    : Server.HTTP;
-   CNF   : Config.Object;
-   Port1 : Natural := 1258;
-   Port2 : Natural := 1259;
+   WS  : Server.HTTP;
+   CNF : Config.Object;
 
    task type T_Client is
       pragma Storage_Size (Stack_Size.Value);
@@ -45,12 +43,6 @@ procedure Server_Info is
       entry Connected;
       entry Stopped;
    end T_Client;
-
-   task Server is
-      pragma Storage_Size (Stack_Size.Value);
-      entry Started;
-      entry Stop;
-   end Server;
 
    Clients : array (1 .. 5) of T_Client;
 
@@ -92,30 +84,15 @@ procedure Server_Info is
          Text_IO.Put_Line (Exceptions.Exception_Information (E));
    end T_Client;
 
-   ------------
-   -- Server --
-   ------------
-
-   task body Server is
-   begin
-      Config.Set.Server_Name    (CNF, "Server Info");
-      Config.Set.Server_Host    (CNF, "localhost");
-      Config.Set.Server_Port    (CNF, 0);
-      Config.Set.Max_Connection (CNF, 6);
-
-      AWS.Server.Start (WS, CB'Unrestricted_Access, CNF);
-
-      Text_IO.Put_Line ("started");
-
-      accept Started;
-
-      accept Stop;
-
-      Text_IO.Put_Line ("Ready to stop");
-   end Server;
-
 begin
-   Server.Started;
+   Config.Set.Server_Name    (CNF, "Server Info");
+   Config.Set.Server_Host    (CNF, "localhost");
+   Config.Set.Server_Port    (CNF, 0);
+   Config.Set.Max_Connection (CNF, 6);
+
+   Server.Start (WS, CB'Unrestricted_Access, CNF);
+
+   Text_IO.Put_Line ("started");
 
    Text_IO.Put_Line
      ("Shutdown " & Boolean'Image (AWS.Server.Status.Is_Shutdown (WS)));
@@ -159,9 +136,9 @@ begin
      ("Resources served "
         & Natural'Image (AWS.Server.Status.Resources_Served (WS)));
 
-   Server.Stop;
+   Text_IO.Put_Line ("Ready to stop");
 
-   AWS.Server.Shutdown (WS);
+   Server.Shutdown (WS);
 
    Text_IO.Put_Line
      ("Shutdown " & Boolean'Image (AWS.Server.Status.Is_Shutdown (WS)));
@@ -172,7 +149,7 @@ begin
    Config.Set.Session        (CNF, True);
    Config.Set.Max_Connection (CNF, 2);
 
-   AWS.Server.Start (WS, CB'Unrestricted_Access, CNF);
+   Server.Start (WS, CB'Unrestricted_Access, CNF);
 
    Text_IO.Put_Line
      ("Shutdown " & Boolean'Image (AWS.Server.Status.Is_Shutdown (WS)));
@@ -184,7 +161,7 @@ begin
      ("Server security "
         & Boolean'Image (AWS.Server.Status.Is_Security_Activated (WS)));
 
-   AWS.Server.Shutdown (WS);
+   Server.Shutdown (WS);
 
    Text_IO.Put_Line ("shutdown");
 end Server_Info;

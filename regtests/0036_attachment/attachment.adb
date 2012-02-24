@@ -32,9 +32,6 @@ with AWS.Status;
 with AWS.Translator;
 with AWS.Utils;
 
-with Get_Free_Port;
-with Stack_Size;
-
 procedure Attachment is
 
    use Ada;
@@ -42,18 +39,11 @@ procedure Attachment is
    use Ada.Strings;
    use AWS;
 
-   Att      : AWS.Attachments.List;
+   Att      : Attachments.List;
    Response : AWS.Response.Data;
 
-   WS       : AWS.Server.HTTP;
+   WS       : Server.HTTP;
    CNF      : Config.Object;
-   Port     : Natural := 6734;
-
-   task Server is
-      pragma Storage_Size (Stack_Size.Value);
-      entry Started;
-      entry Stop;
-   end Server;
 
    procedure Output (Filename, Local_Filename, Content_Type : String);
    --  Output content of filename. Output is base64 encoded if content type is
@@ -130,28 +120,6 @@ procedure Attachment is
         (MIME.Text_Plain, "Got" & Integer'Image (Atts) & " attachments");
    end HW_CB;
 
-   ------------
-   -- Server --
-   ------------
-
-   task body Server is
-   begin
-      Get_Free_Port (Port);
-
-      Config.Set.Server_Name      (CNF, "Attachment Server");
-      Config.Set.Server_Host      (CNF, "localhost");
-      Config.Set.Server_Port      (CNF, Port);
-      Config.Set.Upload_Directory (CNF, ".");
-
-      AWS.Server.Start (WS, HW_CB'Unrestricted_Access, CNF);
-
-      accept Started;
-
-      accept Stop;
-
-      AWS.Server.Shutdown (WS);
-   end Server;
-
 begin
    AWS.Attachments.Add
      (Attachments => Att,
@@ -168,7 +136,12 @@ begin
       Filename    => "aws_logo.png",
       Content_Id  => "My-Png-Attachment");
 
-   Server.Started;
+   Config.Set.Server_Name      (CNF, "Attachment Server");
+   Config.Set.Server_Host      (CNF, "localhost");
+   Config.Set.Server_Port      (CNF, 0);
+   Config.Set.Upload_Directory (CNF, ".");
+
+   Server.Start (WS, HW_CB'Unrestricted_Access, CNF);
 
    --  AWS.Net.Log.Start (Dump'Unrestricted_Access);
 
@@ -179,5 +152,5 @@ begin
 
    Text_IO.Put_Line ("Response=" & AWS.Response.Message_Body (Response));
 
-   Server.Stop;
+   Server.Shutdown (WS);
 end Attachment;

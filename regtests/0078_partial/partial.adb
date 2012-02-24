@@ -31,8 +31,6 @@ with AWS.Response;
 with AWS.Messages;
 with AWS.Utils;
 
-with Stack_Size;
-
 procedure Partial is
 
    use Ada;
@@ -54,13 +52,7 @@ procedure Partial is
       Status_Only : Boolean := False);
    --  Dump information about the response
 
-   task Server is
-      pragma Storage_Size (Stack_Size.Value);
-      entry Wait_Start;
-      entry Stop;
-   end Server;
-
-   HTTP : AWS.Server.HTTP;
+   HTTP : Server.HTTP;
 
    Connect : Client.HTTP_Connection;
 
@@ -125,26 +117,10 @@ procedure Partial is
       return MD5.Digest (Ctx);
    end File_MD5;
 
-   ------------
-   -- Server --
-   ------------
-
-   task body Server is
-   begin
-      AWS.Server.Start
-        (HTTP, "Test Partial Download.",
-         CB'Unrestricted_Access, Port => 0, Max_Connection => 2);
-
-      accept Wait_Start;
-      accept Stop;
-
-   exception
-      when E : others =>
-         Put_Line ("Server Error " & Exceptions.Exception_Information (E));
-   end Server;
-
 begin
-   Server.Wait_Start;
+   Server.Start
+     (HTTP, "Test Partial Download.", CB'Unrestricted_Access, Port => 0,
+      Max_Connection => 2);
 
    --  Compute MD5
 
@@ -180,7 +156,7 @@ begin
    end;
 
    Client.Close (Connect);
-   Server.Stop;
+   Server.Shutdown (HTTP);
 
    --  Compute MD5 of downloaded file, and check with original file
 
@@ -194,6 +170,6 @@ begin
 
 exception
    when E : others =>
-      Server.Stop;
       Put_Line ("Main Error " & Exceptions.Exception_Information (E));
+      Server.Shutdown (HTTP);
 end Partial;

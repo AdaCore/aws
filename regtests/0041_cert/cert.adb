@@ -46,12 +46,7 @@ procedure Cert is
 
    procedure Display_Certificate (Cert : Net.SSL.Certificate.Object);
 
-   task Server is
-      entry Started;
-      entry Stopped;
-   end Server;
-
-   HTTP : AWS.Server.HTTP;
+   HTTP : Server.HTTP;
 
    --------
    -- CB --
@@ -97,39 +92,6 @@ procedure Cert is
       Display_Certificate (Cert);
    end Display_Certificate;
 
-   ------------
-   -- Server --
-   ------------
-
-   task body Server is
-      Conf : Config.Object;
-   begin
-      Config.Set.Server_Host (Conf, "localhost");
-      Config.Set.Server_Port (Conf, 0);
-      Config.Set.Max_Connection (Conf, 5);
-      Config.Set.Security (Conf, True);
-      Config.Set.Exchange_Certificate (Conf, True);
-
-      AWS.Server.Start (HTTP, CB'Unrestricted_Access, Conf);
-
-      Put_Line ("Server started");
-      New_Line;
-
-      accept Started;
-
-      select
-         accept Stopped;
-      or
-         delay 5.0;
-         Put_Line ("Too much time to do the job !");
-      end select;
-
-      AWS.Server.Shutdown (HTTP);
-   exception
-      when E : others =>
-         Put_Line ("Server Error " & Exceptions.Exception_Information (E));
-   end Server;
-
    -------------
    -- Request --
    -------------
@@ -156,16 +118,28 @@ procedure Cert is
       Client.Close (C);
    end Request;
 
+   Conf : Config.Object;
+
 begin
    Put_Line ("Start main, wait for server to start...");
 
-   Server.Started;
+   Config.Set.Server_Host (Conf, "localhost");
+   Config.Set.Server_Port (Conf, 0);
+   Config.Set.Max_Connection (Conf, 5);
+   Config.Set.Security (Conf, True);
+   Config.Set.Exchange_Certificate (Conf, True);
+
+   Server.Start (HTTP, CB'Unrestricted_Access, Conf);
+
+   Put_Line ("Server started");
+   New_Line;
 
    Request (AWS.Server.Status.Local_URL (HTTP) & "/simple");
 
-   Server.Stopped;
+   Server.Shutdown (HTTP);
 
 exception
    when E : others =>
       Put_Line ("Main Error " & Exceptions.Exception_Information (E));
+      Server.Shutdown (HTTP);
 end Cert;
