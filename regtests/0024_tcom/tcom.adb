@@ -26,6 +26,7 @@ with AWS.Communication.Client;
 with AWS.Communication.Server;
 with AWS.Status;
 with AWS.MIME;
+with AWS.Net;
 with AWS.Response;
 with AWS.Parameters;
 with AWS.Messages;
@@ -101,26 +102,27 @@ procedure Tcom is
 
    R : Response.Data;
 
+   LH : constant String := Net.Localhost (Net.IPv6_Available);
+
 begin
    Get_Free_Port (Free_Port);
 
    Com_Server.Start
-     (Context => C'Access, Host => "localhost", Port => Free_Port);
+     (Context => C'Access, Host => LH, Port => Free_Port);
 
-   R := Communication.Client.Send_Message
-     ("localhost", Free_Port, "zero");
+   R := Communication.Client.Send_Message (LH, Free_Port, "zero");
 
    Put_Line ("R1 : " & Response.Message_Body (R));
    New_Line;
 
    R := Communication.Client.Send_Message
-     ("localhost", Free_Port, "one", (1 => +"first"));
+     (LH, Free_Port, "one", (1 => +"first"));
 
    Put_Line ("R2 : " & Response.Message_Body (R));
    New_Line;
 
    R := Communication.Client.Send_Message
-     ("localhost", Free_Port, "two", (+"first", +"second"));
+     (LH, Free_Port, "two", (+"first", +"second"));
 
    Put_Line ("R3 : " & Response.Message_Body (R));
    New_Line;

@@ -27,6 +27,8 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
+with Ada.Strings.Fixed;
+
 with AWS.Client;
 with AWS.Net;
 with AWS.Utils;
@@ -43,10 +45,15 @@ package body AWS.Communication.Client is
       Name       : String;
       Parameters : Parameter_Set := Null_Parameter_Set) return Response.Data
    is
-      URL : Unbounded_String;
+      URL : Unbounded_String := To_Unbounded_String ("http://");
    begin
-      URL := URL & "http://" & Server & ':' & Utils.Image (Port)
-        & AWS_Com
+      if Ada.Strings.Fixed.Index (Server, ":") > 0 then
+         URL := URL & '[' & Server & ']';
+      else
+         URL := URL & Server;
+      end if;
+
+      URL := URL & ':' & Utils.Image (Port) & AWS_Com
         & "?HOST=" & Net.Host_Name
         & "&NAME=" & Name;
 
