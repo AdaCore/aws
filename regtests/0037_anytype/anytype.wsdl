@@ -73,7 +73,7 @@
 
    <service name="anytype_Service">
       <port name="anytype_Port" binding="tns:anytype_Binding">
-         <soap:address location="http://localhost:7729"/>
+         <soap:address location="http://127.0.0.1:7729"/>
       </port>
    </service>
 </definitions>

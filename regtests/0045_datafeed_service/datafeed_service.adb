@@ -79,9 +79,9 @@ procedure Datafeed_Service is
    end Ping;
 
 begin
-   Config.Set.Server_Name (CNF, "WSDL demo");
-   Config.Set.Server_Host (CNF, "localhost");
-   Config.Set.Server_Port (CNF, DatafeedService.Server.Port);
+   Config.Set.Server_Name     (CNF, "WSDL demo");
+   Config.Set.Server_Port     (CNF, DatafeedService.Server.Port);
+   Config.Set.Protocol_Family (CNF, "FAMILY_INET");
 
    Server.Start (H_Server, CB'Unrestricted_Access, CNF);
 

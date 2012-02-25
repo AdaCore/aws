@@ -104,7 +104,8 @@ begin
 
    for J in Clients'Range loop
       Clients (J) := Net.Socket (Security);
-      Clients (J).Connect ("localhost", Server.Get_Port, Wait => False);
+      Clients (J).Connect
+        (Net.Localhost (Net.IPv6_Available), Server.Get_Port, Wait => False);
       Put_Line ("connect" & Integer'Image (J));
    end loop;
 

@@ -48,8 +48,7 @@ procedure AnyType is
 
    function Call
      (Param1 : Types.Set_Of_int_Type;
-      Param2 : Types.Set_Of_x_Type)
-      return Types.Call_Result;
+      Param2 : Types.Set_Of_x_Type) return Types.Call_Result;
 
    function Trim (Str : String) return String;
    --  Remove trailing 0, use to have output comparable to the Java one
@@ -132,9 +131,9 @@ procedure AnyType is
    end Trim;
 
 begin
-   Config.Set.Server_Name (CNF, "AnyType Server");
-   Config.Set.Server_Host (CNF, "localhost");
-   Config.Set.Server_Port (CNF, AnyType_Service.Server.Port);
+   Config.Set.Server_Name     (CNF, "AnyType Server");
+   Config.Set.Protocol_Family (CNF, "FAMILY_INET");
+   Config.Set.Server_Port     (CNF, AnyType_Service.Server.Port);
 
    AWS.Server.Start (H_Server, CB'Unrestricted_Access, CNF);
 

@@ -23,6 +23,7 @@ with Ada.Text_IO;
 
 with AWS.Config.Set;
 with AWS.MIME;
+with AWS.Net;
 with AWS.Response;
 with AWS.Server;
 with AWS.Status;
@@ -42,12 +43,11 @@ procedure Interoplab_Main1 is
    use Tinteroplab.Types;
    use Ada.Strings.Unbounded;
 
-   H_Server : AWS.Server.HTTP;
+   H_Server : Server.HTTP;
+   IPv6_Srv : Server.HTTP;
 
-   function "+"
-     (Str : String)
-      return Unbounded_String
-      renames To_Unbounded_String;
+   function "+" (Str : String) return Unbounded_String
+     renames To_Unbounded_String;
 
    package FIO is new Text_IO.Float_IO (Float);
 
@@ -498,11 +498,17 @@ procedure Interoplab_Main1 is
    CNF : Config.Object;
 
 begin
-   Config.Set.Server_Name (CNF, "WSDL interopLab Server");
-   Config.Set.Server_Host (CNF, "localhost");
-   Config.Set.Server_Port (CNF, Tinteroplab.Server.Port);
+   Config.Set.Server_Name     (CNF, "WSDL interopLab Server");
+   Config.Set.Server_Host     (CNF, "localhost");
+   Config.Set.Server_Port     (CNF, Tinteroplab.Server.Port);
+   Config.Set.Protocol_Family (CNF, "FAMILY_INET");
 
-   AWS.Server.Start (H_Server, CB'Unrestricted_Access, CNF);
+   Server.Start (H_Server, CB'Unrestricted_Access, CNF);
+
+   if Net.IPv6_Available then
+      Config.Set.Protocol_Family (CNF, "FAMILY_INET6");
+      Server.Start (IPv6_Srv, CB'Unrestricted_Access, CNF);
+   end if;
 
    T_echoVoid;
    T_echoString;
@@ -517,5 +523,9 @@ begin
    T_echoFloatArray;
    T_echoStructArray;
 
-   AWS.Server.Shutdown (H_Server);
+   Server.Shutdown (H_Server);
+
+   if Net.IPv6_Available then
+      Server.Shutdown (IPv6_Srv);
+   end if;
 end Interoplab_Main1;

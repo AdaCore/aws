@@ -54,12 +54,14 @@ procedure HostIP is
    CFG : Config.Object;
 
 begin
-   Config.Set.Server_Name    (CFG, "hostip");
-   Config.Set.Server_Port    (CFG, 0);
-   Config.Set.Max_Connection (CFG, 5);
+   Config.Set.Server_Host     (CFG, "localhost");
+   Config.Set.Server_Name     (CFG, "hostip");
+   Config.Set.Server_Port     (CFG, 0);
+   Config.Set.Protocol_Family (CFG, "FAMILY_INET");
+   Config.Set.Max_Connection  (CFG, 5);
 
    if AWS.Net.IPv6_Available then
-      Config.Set.Server_Host (CFG, "localhost");
+      Config.Set.Protocol_Family (CFG, "FAMILY_INET6");
    end if;
 
    Server.Start (WS, CB'Unrestricted_Access, CFG);

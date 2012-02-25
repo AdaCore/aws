@@ -30,15 +30,13 @@ with AWS.Messages;
 with AWS.MIME;
 with AWS.Resources.Streams.Disk;
 with AWS.Response;
-with AWS.Server;
+with AWS.Server.Status;
 with AWS.Services.Download;
 with AWS.Services.Dispatchers.Linker;
 with AWS.Services.Dispatchers.URI;
 with AWS.Status;
 with AWS.Translator;
 with AWS.Utils;
-
-with Get_Free_Port;
 
 procedure DM is
 
@@ -54,7 +52,7 @@ procedure DM is
 
    Nb_Client : constant := 5;
 
-   Port : Positive := 5629;
+   WS : Server.HTTP;
 
    type Download_Info is record
       Size      : Positive;
@@ -128,38 +126,41 @@ procedure DM is
       R    : Response.Data;
       Code : Messages.Status_Code;
       N    : Positive;
+      HTTP : AWS.Client.HTTP_Connection;
 
-      function Get (URI : String) return Response.Data;
+      procedure Get_R (URI : String);
       --  Get response for the specified URI, store the URI
 
-      function Reload return Response.Data;
+      procedure Reload_R;
       --  Reload the previous URI
 
       ---------
       -- Get --
       ---------
 
-      function Get (URI : String) return Response.Data is
+      procedure Get_R (URI : String) is
       begin
          Client.URI := To_Unbounded_String (URI);
-         return AWS.Client.Get (URI);
-      end Get;
+         AWS.Client.Get (HTTP, R, URI);
+      end Get_R;
 
       ------------
       -- Reload --
       ------------
 
-      function Reload return Response.Data is
+      procedure Reload_R is
       begin
-         return AWS.Client.Get (To_String (URI));
-      end Reload;
+         AWS.Client.Get (HTTP, R, To_String (URI));
+      end Reload_R;
 
    begin
       accept Start (N : Positive) do
          Client.N := N;
       end Start;
 
-      R := Get ("http://localhost:" & Utils.Image (Port) & "/download_file");
+      AWS.Client.Create (HTTP, Server.Status.Local_URL (WS));
+
+      Get_R ("/download_file");
 
       loop
          Code := Response.Status_Code (R);
@@ -171,9 +172,7 @@ procedure DM is
                Put_Line
                  ("Client " & Utils.Image (N) &
                   " " & Messages.Status_Code'Image (Code) & Message);
-               R := Get
-                 ("http://localhost:" & Utils.Image (Port)
-                  & Response.Location (R));
+               Get_R (Response.Location (R));
 
             elsif Fixed.Index (Message, "Download manager") /= 0 then
 
@@ -188,7 +187,7 @@ procedure DM is
                  ("Client " & Utils.Image (N) &
                   " " & Messages.Status_Code'Image (Code) & Message);
                delay 1.0;
-               R := Reload;
+               Reload_R;
 
             elsif Code = Messages.S200 then
                Downloads := Downloads + 1;
@@ -281,7 +280,6 @@ procedure DM is
    R    : Response.Data;
 
    Conf : Config.Object := Config.Get_Current;
-   WS   : Server.HTTP;
 
    Clients : array (1 .. Nb_Client) of Client;
 
@@ -296,9 +294,8 @@ begin
 
    Signature := Create_Filename;
 
-   Get_Free_Port (Port);
    Config.Set.Server_Host (Conf, "localhost");
-   Config.Set.Server_Port (Conf, Port);
+   Config.Set.Server_Port (Conf, 0);
 
    Services.Dispatchers.URI.Register
      (U, "/welcome", CB'Unrestricted_Access);
@@ -313,8 +310,7 @@ begin
 
    Server.Start (WS, D, Conf);
 
-   R := AWS.Client.Get
-     ("http://localhost:" & Utils.Image (Port) & "/welcome");
+   R := AWS.Client.Get (Server.Status.Local_URL (WS) & "/welcome");
 
    --  Start clients
 
@@ -332,8 +328,7 @@ begin
 
    Text_IO.Put_Line ("Clients stopped...");
 
-   R := AWS.Client.Get
-     ("http://localhost:" & Utils.Image (Port) & "/welcome");
+   R := AWS.Client.Get (Server.Status.Local_URL (WS) & "/welcome");
 
    --  Get the real size
 

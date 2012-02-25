@@ -102,4 +102,8 @@ begin
    WSDL_Demo_Client;
 
    Server.Shutdown (H_Server);
+
+   if Net.IPv6_Available then
+      Server.Shutdown (IPv6_Srv);
+   end if;
 end Test_WSDL;

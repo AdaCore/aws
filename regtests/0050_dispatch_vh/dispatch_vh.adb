@@ -22,6 +22,7 @@ with Ada.Text_IO;
 with AWS.Client;
 with AWS.Config.Set;
 with AWS.Dispatchers.Callback;
+with AWS.Net;
 with AWS.Server.Status;
 with AWS.Services.Dispatchers.Virtual_Host;
 with AWS.Status;
@@ -34,8 +35,7 @@ procedure Dispatch_VH is
    use AWS;
    use AWS.Services;
 
-   Cfg       : Config.Object;
-   Free_Port : Positive;
+   Cfg : Config.Object;
 
    function Remove_Port (Addr : String) return String;
 
@@ -71,30 +71,11 @@ procedure Dispatch_VH is
    ---------
 
    function CB2 (Request : AWS.Status.Data) return AWS.Response.Data is
-
-      function Pretend_IPv4 (Addr : String) return String;
-      --  This callback would catche either IPv4 or IPv6 numeric local address.
-      --  Wee need to make stable output just renaming IPv6 numeric address
-      --  into IPv4.
-
-      ------------------
-      -- Pretend_IPv4 --
-      ------------------
-
-      function Pretend_IPv4 (Addr : String) return String is
-      begin
-         if Addr = "[::1]" then
-            return "127.0.0.1";
-         else
-            return Addr;
-         end if;
-      end Pretend_IPv4;
-
    begin
       return AWS.Response.Build
         ("text/plain",
-         "http://" & Pretend_IPv4 (Remove_Port (AWS.Status.Host (Request)))
-         & ASCII.LF & "> Dispatch 2 !");
+         "http://" & Remove_Port (AWS.Status.Host (Request)) & ASCII.LF
+         & "> Dispatch 2 !");
    end CB2;
 
    ----------
@@ -108,9 +89,10 @@ procedure Dispatch_VH is
       Text_IO.Put_Line (Response.Message_Body (R));
    end Test;
 
-   H  : AWS.Services.Dispatchers.Virtual_Host.Handler;
+   H  : Services.Dispatchers.Virtual_Host.Handler;
 
-   WS : AWS.Server.HTTP;
+   WS : Server.HTTP;
+   W6 : Server.HTTP;
 
 begin
    Services.Dispatchers.Virtual_Host.Register
@@ -119,19 +101,38 @@ begin
    Services.Dispatchers.Virtual_Host.Register
      (H, "127.0.0.1", CB2'Unrestricted_Access);
 
-   Services.Dispatchers.Virtual_Host.Register
-     (H, "[::1]", CB2'Unrestricted_Access);
+   Config.Set.Server_Host (Cfg, "localhost");
+   Config.Set.Server_Port (Cfg, 0);
 
-   AWS.Config.Set.Server_Host (Cfg, "localhost");
-   AWS.Config.Set.Server_Port (Cfg, 0);
+   Server.Start (WS, Dispatcher => H, Config => Cfg);
 
-   AWS.Server.Start (WS, Dispatcher => H, Config => Cfg);
+   if Net.IPv6_Available then
+      --  Need to start server in opposite protocol family because we do not
+      --  know which family would bind localhost.
 
-   Test ("http://localhost:" & Utils.Image (Server.Status.Port (WS))
-         & "/thisone");
-   Test (Server.Status.Local_URL (WS) & "/thisone");
+      if Server.Status.Is_IPv6 (WS) then
+         Config.Set.Protocol_Family (Cfg, "FAMILY_INET");
+      else
+         Config.Set.Protocol_Family (Cfg, "FAMILY_INET6");
+      end if;
+
+      Config.Set.Server_Port (Cfg, Server.Status.Port (WS));
+
+      Server.Start (W6, Dispatcher => H, Config => Cfg);
+   end if;
+
+   declare
+      Port_Img : constant String := Utils.Image (Server.Status.Port (WS));
+   begin
+      Test ("http://localhost:" & Port_Img & "/thisone");
+      Test ("http://127.0.0.1:" & Port_Img & "/thisone");
+   end;
 
    --  Close servers
 
-   AWS.Server.Shutdown (WS);
+   Server.Shutdown (WS);
+
+   if Net.IPv6_Available then
+      Server.Shutdown (W6);
+   end if;
 end Dispatch_VH;

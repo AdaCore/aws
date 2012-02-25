@@ -141,4 +141,8 @@ begin
    WSDL_Demo_Client;
 
    AWS.Server.Shutdown (H_Server);
+
+   if Net.IPv6_Available then
+      AWS.Server.Shutdown (IPv6_Srv);
+   end if;
 end Test_WSDL2;

@@ -13,40 +13,40 @@
  <types>
 
  <schema xmlns="http://www.w3.org/2001/XMLSchema"
-   targetNamespace="urn:datafeed.dukascopy.com"> 
+   targetNamespace="urn:datafeed.dukascopy.com">
 
- <import namespace="http://schemas.xmlsoap.org/soap/encoding/" /> 
+ <import namespace="http://schemas.xmlsoap.org/soap/encoding/" />
 
  <complexType name="Stock">
  <sequence>
-  <element name="about_stock" nillable="true" type="xsd:string" /> 
-  <element name="id" type="xsd:int" /> 
-  <element name="name" nillable="true" type="xsd:string" /> 
-  <element name="pips" type="xsd:double" /> 
-  <element name="quote_type" type="xsd:int" /> 
+  <element name="about_stock" nillable="true" type="xsd:string" />
+  <element name="id" type="xsd:int" />
+  <element name="name" nillable="true" type="xsd:string" />
+  <element name="pips" type="xsd:double" />
+  <element name="quote_type" type="xsd:int" />
   </sequence>
  </complexType>
 
  <complexType name="Candle">
  <sequence>
-  <element name="artificial" type="xsd:boolean" /> 
-  <element name="closePrice" type="xsd:double" /> 
-  <element name="flat" type="xsd:boolean" /> 
-  <element name="id" type="xsd:int" /> 
-  <element name="maxPrice" type="xsd:double" /> 
-  <element name="minPrice" type="xsd:double" /> 
-  <element name="openPrice" type="xsd:double" /> 
-  <element name="periodType" type="xsd:int" /> 
-  <element name="time" type="xsd:long" /> 
-  <element name="timeIndex" type="xsd:int" /> 
-  <element name="volume" type="xsd:long" /> 
+  <element name="artificial" type="xsd:boolean" />
+  <element name="closePrice" type="xsd:double" />
+  <element name="flat" type="xsd:boolean" />
+  <element name="id" type="xsd:int" />
+  <element name="maxPrice" type="xsd:double" />
+  <element name="minPrice" type="xsd:double" />
+  <element name="openPrice" type="xsd:double" />
+  <element name="periodType" type="xsd:int" />
+  <element name="time" type="xsd:long" />
+  <element name="timeIndex" type="xsd:int" />
+  <element name="volume" type="xsd:long" />
   </sequence>
  </complexType>
 
  <complexType name="ArrayOfCandle">
  <complexContent>
  <restriction base="soapenc:Array">
-  <attribute ref="soapenc:arrayType" wsdl:arrayType="impl:Candle[]" /> 
+  <attribute ref="soapenc:arrayType" wsdl:arrayType="impl:Candle[]" />
   </restriction>
   </complexContent>
  </complexType>
@@ -54,7 +54,7 @@
  <complexType name="ArrayOfStock">
  <complexContent>
  <restriction base="soapenc:Array">
-  <attribute ref="soapenc:arrayType" wsdl:arrayType="impl:Stock[]" /> 
+  <attribute ref="soapenc:arrayType" wsdl:arrayType="impl:Stock[]" />
   </restriction>
   </complexContent>
  </complexType>
@@ -62,193 +62,193 @@
  </types>
 
  <wsdl:message name="testRequest">
-  <wsdl:part name="stock" type="xsd:int" /> 
+  <wsdl:part name="stock" type="xsd:int" />
   </wsdl:message>
 
  <wsdl:message name="getHistoryResponse">
-  <wsdl:part name="getHistoryReturn" type="impl:ArrayOfCandle" /> 
+  <wsdl:part name="getHistoryReturn" type="impl:ArrayOfCandle" />
   </wsdl:message>
 
  <wsdl:message name="getStocksResponse">
-  <wsdl:part name="getStocksReturn" type="impl:ArrayOfStock" /> 
+  <wsdl:part name="getStocksReturn" type="impl:ArrayOfStock" />
   </wsdl:message>
 
-  <wsdl:message name="getStocksRequest" /> 
+  <wsdl:message name="getStocksRequest" />
   <wsdl:message name="getLastRequest">
-     <wsdl:part name="stock" type="xsd:int" /> 
-     <wsdl:part name="type" type="xsd:int" /> 
-     <wsdl:part name="amount" type="xsd:int" /> 
+     <wsdl:part name="stock" type="xsd:int" />
+     <wsdl:part name="type" type="xsd:int" />
+     <wsdl:part name="amount" type="xsd:int" />
   </wsdl:message>
 
  <wsdl:message name="getNearestResponse">
-  <wsdl:part name="getNearestReturn" type="impl:Candle" /> 
+  <wsdl:part name="getNearestReturn" type="impl:Candle" />
  </wsdl:message>
 
  <wsdl:message name="getLastResponse">
-  <wsdl:part name="getLastReturn" type="impl:ArrayOfCandle" /> 
+  <wsdl:part name="getLastReturn" type="impl:ArrayOfCandle" />
  </wsdl:message>
 
  <wsdl:message name="getLastTimeRequest">
-  <wsdl:part name="type" type="xsd:int" /> 
+  <wsdl:part name="type" type="xsd:int" />
  </wsdl:message>
 
- <wsdl:message name="testResponse" /> 
+ <wsdl:message name="testResponse" />
 
  <wsdl:message name="getLastAllResponse">
-  <wsdl:part name="getLastAllReturn" type="impl:ArrayOfCandle" /> 
+  <wsdl:part name="getLastAllReturn" type="impl:ArrayOfCandle" />
  </wsdl:message>
 
  <wsdl:message name="getLastAllRequest">
-  <wsdl:part name="type" type="xsd:int" /> 
+  <wsdl:part name="type" type="xsd:int" />
  </wsdl:message>
 
  <wsdl:message name="pingResponse">
-  <wsdl:part name="pingReturn" type="xsd:int" /> 
+  <wsdl:part name="pingReturn" type="xsd:int" />
  </wsdl:message>
 
  <wsdl:message name="getLastTimeResponse">
-  <wsdl:part name="getLastTimeReturn" type="xsd:long" /> 
+  <wsdl:part name="getLastTimeReturn" type="xsd:long" />
  </wsdl:message>
 
  <wsdl:message name="pingRequest">
-  <wsdl:part name="value" type="xsd:int" /> 
+  <wsdl:part name="value" type="xsd:int" />
  </wsdl:message>
 
  <wsdl:message name="getNearestRequest">
-  <wsdl:part name="stock" type="xsd:int" /> 
-  <wsdl:part name="type" type="xsd:int" /> 
-  <wsdl:part name="time" type="xsd:long" /> 
+  <wsdl:part name="stock" type="xsd:int" />
+  <wsdl:part name="type" type="xsd:int" />
+  <wsdl:part name="time" type="xsd:long" />
  </wsdl:message>
 
  <wsdl:message name="getHistoryRequest">
-  <wsdl:part name="stock" type="xsd:int" /> 
-  <wsdl:part name="type" type="xsd:int" /> 
-  <wsdl:part name="startTime" type="xsd:long" /> 
-  <wsdl:part name="endTime" type="xsd:long" /> 
+  <wsdl:part name="stock" type="xsd:int" />
+  <wsdl:part name="type" type="xsd:int" />
+  <wsdl:part name="startTime" type="xsd:long" />
+  <wsdl:part name="endTime" type="xsd:long" />
  </wsdl:message>
 
  <wsdl:portType name="Datafeed">
  <wsdl:operation name="ping" parameterOrder="value">
-  <wsdl:input name="pingRequest" message="impl:pingRequest" /> 
-  <wsdl:output name="pingResponse" message="impl:pingResponse" /> 
+  <wsdl:input name="pingRequest" message="impl:pingRequest" />
+  <wsdl:output name="pingResponse" message="impl:pingResponse" />
   </wsdl:operation>
 
  <wsdl:operation name="test" parameterOrder="stock">
-  <wsdl:input name="testRequest" message="impl:testRequest" /> 
-  <wsdl:output name="testResponse" message="impl:testResponse" /> 
+  <wsdl:input name="testRequest" message="impl:testRequest" />
+  <wsdl:output name="testResponse" message="impl:testResponse" />
   </wsdl:operation>
 
  <wsdl:operation name="getLast" parameterOrder="stock type amount">
-  <wsdl:input name="getLastRequest" message="impl:getLastRequest" /> 
-  <wsdl:output name="getLastResponse" message="impl:getLastResponse" /> 
+  <wsdl:input name="getLastRequest" message="impl:getLastRequest" />
+  <wsdl:output name="getLastResponse" message="impl:getLastResponse" />
   </wsdl:operation>
 
  <wsdl:operation name="getStocks">
-  <wsdl:input name="getStocksRequest" message="impl:getStocksRequest" /> 
-  <wsdl:output name="getStocksResponse" message="impl:getStocksResponse" /> 
+  <wsdl:input name="getStocksRequest" message="impl:getStocksRequest" />
+  <wsdl:output name="getStocksResponse" message="impl:getStocksResponse" />
   </wsdl:operation>
  <wsdl:operation name="getHistory" parameterOrder="stock type startTime endTime">
-  <wsdl:input name="getHistoryRequest" message="impl:getHistoryRequest" /> 
-  <wsdl:output name="getHistoryResponse" message="impl:getHistoryResponse" /> 
+  <wsdl:input name="getHistoryRequest" message="impl:getHistoryRequest" />
+  <wsdl:output name="getHistoryResponse" message="impl:getHistoryResponse" />
   </wsdl:operation>
  <wsdl:operation name="getLastTime" parameterOrder="type">
-  <wsdl:input name="getLastTimeRequest" message="impl:getLastTimeRequest" /> 
-  <wsdl:output name="getLastTimeResponse" message="impl:getLastTimeResponse" /> 
+  <wsdl:input name="getLastTimeRequest" message="impl:getLastTimeRequest" />
+  <wsdl:output name="getLastTimeResponse" message="impl:getLastTimeResponse" />
   </wsdl:operation>
 
  <wsdl:operation name="getNearest" parameterOrder="stock type time">
-  <wsdl:input name="getNearestRequest" message="impl:getNearestRequest" /> 
-  <wsdl:output name="getNearestResponse" message="impl:getNearestResponse" /> 
+  <wsdl:input name="getNearestRequest" message="impl:getNearestRequest" />
+  <wsdl:output name="getNearestResponse" message="impl:getNearestResponse" />
   </wsdl:operation>
 
  <wsdl:operation name="getLastAll" parameterOrder="type">
-  <wsdl:input name="getLastAllRequest" message="impl:getLastAllRequest" /> 
-  <wsdl:output name="getLastAllResponse" message="impl:getLastAllResponse" /> 
+  <wsdl:input name="getLastAllRequest" message="impl:getLastAllRequest" />
+  <wsdl:output name="getLastAllResponse" message="impl:getLastAllResponse" />
   </wsdl:operation>
  </wsdl:portType>
 
  <wsdl:binding name="DatafeedSoapBinding" type="impl:Datafeed">
 
- <wsdlsoap:binding style="rpc" transport="http://schemas.xmlsoap.org/soap/http" /> 
+ <wsdlsoap:binding style="rpc" transport="http://schemas.xmlsoap.org/soap/http" />
 
  <wsdl:operation name="ping">
-  <wsdlsoap:operation soapAction="" /> 
+  <wsdlsoap:operation soapAction="" />
  <wsdl:input name="pingRequest">
-  <wsdlsoap:body use="encoded" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="urn:datafeed.dukascopy.com" /> 
+  <wsdlsoap:body use="encoded" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="urn:datafeed.dukascopy.com" />
   </wsdl:input>
  <wsdl:output name="pingResponse">
-  <wsdlsoap:body use="encoded" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="urn:datafeed.dukascopy.com" /> 
+  <wsdlsoap:body use="encoded" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="urn:datafeed.dukascopy.com" />
   </wsdl:output>
   </wsdl:operation>
 
  <wsdl:operation name="test">
-  <wsdlsoap:operation soapAction="" /> 
+  <wsdlsoap:operation soapAction="" />
  <wsdl:input name="testRequest">
-  <wsdlsoap:body use="encoded" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="urn:datafeed.dukascopy.com" /> 
+  <wsdlsoap:body use="encoded" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="urn:datafeed.dukascopy.com" />
   </wsdl:input>
  <wsdl:output name="testResponse">
-  <wsdlsoap:body use="encoded" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="urn:datafeed.dukascopy.com" /> 
+  <wsdlsoap:body use="encoded" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="urn:datafeed.dukascopy.com" />
   </wsdl:output>
   </wsdl:operation>
  <wsdl:operation name="getLast">
-  <wsdlsoap:operation soapAction="" /> 
+  <wsdlsoap:operation soapAction="" />
  <wsdl:input name="getLastRequest">
-  <wsdlsoap:body use="encoded" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="urn:datafeed.dukascopy.com" /> 
+  <wsdlsoap:body use="encoded" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="urn:datafeed.dukascopy.com" />
   </wsdl:input>
  <wsdl:output name="getLastResponse">
-  <wsdlsoap:body use="encoded" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="urn:datafeed.dukascopy.com" /> 
+  <wsdlsoap:body use="encoded" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="urn:datafeed.dukascopy.com" />
   </wsdl:output>
   </wsdl:operation>
  <wsdl:operation name="getStocks">
-  <wsdlsoap:operation soapAction="" /> 
+  <wsdlsoap:operation soapAction="" />
  <wsdl:input name="getStocksRequest">
-  <wsdlsoap:body use="encoded" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="urn:datafeed.dukascopy.com" /> 
+  <wsdlsoap:body use="encoded" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="urn:datafeed.dukascopy.com" />
   </wsdl:input>
  <wsdl:output name="getStocksResponse">
-  <wsdlsoap:body use="encoded" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="urn:datafeed.dukascopy.com" /> 
+  <wsdlsoap:body use="encoded" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="urn:datafeed.dukascopy.com" />
   </wsdl:output>
   </wsdl:operation>
  <wsdl:operation name="getHistory">
-  <wsdlsoap:operation soapAction="" /> 
+  <wsdlsoap:operation soapAction="" />
  <wsdl:input name="getHistoryRequest">
-  <wsdlsoap:body use="encoded" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="urn:datafeed.dukascopy.com" /> 
+  <wsdlsoap:body use="encoded" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="urn:datafeed.dukascopy.com" />
   </wsdl:input>
  <wsdl:output name="getHistoryResponse">
-  <wsdlsoap:body use="encoded" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="urn:datafeed.dukascopy.com" /> 
+  <wsdlsoap:body use="encoded" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="urn:datafeed.dukascopy.com" />
   </wsdl:output>
   </wsdl:operation>
  <wsdl:operation name="getLastTime">
-  <wsdlsoap:operation soapAction="" /> 
+  <wsdlsoap:operation soapAction="" />
  <wsdl:input name="getLastTimeRequest">
-  <wsdlsoap:body use="encoded" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="urn:datafeed.dukascopy.com" /> 
+  <wsdlsoap:body use="encoded" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="urn:datafeed.dukascopy.com" />
   </wsdl:input>
  <wsdl:output name="getLastTimeResponse">
-  <wsdlsoap:body use="encoded" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="urn:datafeed.dukascopy.com" /> 
+  <wsdlsoap:body use="encoded" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="urn:datafeed.dukascopy.com" />
   </wsdl:output>
   </wsdl:operation>
  <wsdl:operation name="getNearest">
-  <wsdlsoap:operation soapAction="" /> 
+  <wsdlsoap:operation soapAction="" />
  <wsdl:input name="getNearestRequest">
-  <wsdlsoap:body use="encoded" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="urn:datafeed.dukascopy.com" /> 
+  <wsdlsoap:body use="encoded" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="urn:datafeed.dukascopy.com" />
   </wsdl:input>
  <wsdl:output name="getNearestResponse">
-  <wsdlsoap:body use="encoded" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="urn:datafeed.dukascopy.com" /> 
+  <wsdlsoap:body use="encoded" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="urn:datafeed.dukascopy.com" />
   </wsdl:output>
   </wsdl:operation>
  <wsdl:operation name="getLastAll">
-  <wsdlsoap:operation soapAction="" /> 
+  <wsdlsoap:operation soapAction="" />
  <wsdl:input name="getLastAllRequest">
-  <wsdlsoap:body use="encoded" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="urn:datafeed.dukascopy.com" /> 
+  <wsdlsoap:body use="encoded" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="urn:datafeed.dukascopy.com" />
   </wsdl:input>
  <wsdl:output name="getLastAllResponse">
-  <wsdlsoap:body use="encoded" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="urn:datafeed.dukascopy.com" /> 
+  <wsdlsoap:body use="encoded" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="urn:datafeed.dukascopy.com" />
   </wsdl:output>
   </wsdl:operation>
   </wsdl:binding>
 
  <wsdl:service name="DatafeedService">
  <wsdl:port name="Datafeed" binding="impl:DatafeedSoapBinding">
-  <wsdlsoap:address location="http://localhost:9623" />
+  <wsdlsoap:address location="http://127.0.0.1:9623" />
   </wsdl:port>
   </wsdl:service>
 
