@@ -51,11 +51,6 @@ procedure Strm is
 
    procedure Compare_Message;
 
-   task Server is
-      entry Wait_Start;
-      entry Stop;
-   end Server;
-
    HTTP    : AWS.Server.HTTP;
    Connect : Client.HTTP_Connection;
    R       : Response.Data;
@@ -104,29 +99,6 @@ procedure Strm is
       end if;
    end CB;
 
-   ------------
-   -- Server --
-   ------------
-
-   task body Server is
-   begin
-      AWS.Server.Set_Unexpected_Exception_Handler
-        (HTTP, UEH'Unrestricted_Access);
-
-      AWS.Server.Start
-        (HTTP, "Testing user defined stream.",
-         CB'Unrestricted_Access, Port => 0, Max_Connection => 3);
-
-      AWS.Server.Log.Start (HTTP);
-
-      accept Wait_Start;
-      accept Stop;
-
-   exception
-      when E : others =>
-         Put_Line ("Server Error " & Ada.Exceptions.Exception_Information (E));
-   end Server;
-
    ---------------------
    -- Compare_Message --
    ---------------------
@@ -172,7 +144,13 @@ procedure Strm is
    end UEH;
 
 begin
-   Server.Wait_Start;
+   Server.Set_Unexpected_Exception_Handler (HTTP, UEH'Unrestricted_Access);
+
+   Server.Start
+     (HTTP, "Testing user defined stream.", CB'Unrestricted_Access, Port => 0,
+      Max_Connection => 3);
+
+   Server.Log.Start (HTTP);
 
    Base_URL := new String'(AWS.Server.Status.Local_URL (HTTP));
 
@@ -220,10 +198,10 @@ begin
    R := Client.Get (Base_URL.all & GZip_URI);
    Compare_Message;
 
-   Server.Stop;
+   Server.Shutdown (HTTP);
 
 exception
    when E : others =>
-      Server.Stop;
       Put_Line ("Main Error " & Ada.Exceptions.Exception_Information (E));
+      Server.Shutdown (HTTP);
 end Strm;
