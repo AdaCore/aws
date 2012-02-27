@@ -37,75 +37,14 @@ procedure Test_Hotplug is
    use Ada;
    use AWS;
 
-   Filter : constant String := "/H.*";
-
-   task Hotplug_Server is
-      entry Start;
-      entry Started;
-      entry Stop;
-   end Hotplug_Server;
+   Filter    : constant String := "/H.*";
+   Localhost : constant String := "127.0.0.1";
 
    procedure Request (URI : String);
    --  Request URI resource to main server, output result
 
    Hotplug_Port : Natural := 1235;
    Com_Port     : Natural := 2222;
-
-   --------------------
-   -- Hotplug_Server --
-   --------------------
-
-   task body Hotplug_Server is
-      use type Messages.Status_Code;
-      WS : Server.HTTP;
-      R  : Response.Data;
-      CF : Config.Object;
-   begin
-      accept  Start;
-
-      Config.Set.Server_Name    (CF, "Hotplug");
-      Config.Set.Admin_URI      (CF, "/Admin-Page");
-      Config.Set.Server_Host    (CF, "localhost");
-      Config.Set.Server_Port    (CF, Hotplug_Port);
-      Config.Set.Max_Connection (CF, 3);
-
-      Server.Start (WS, Hotplug_Pack.Hotplug'Access, CF);
-
-      R := Client.Hotplug.Register
-        ("hp_test", Hotplug_Pack.Password,
-         "http://localhost:" & Utils.Image (Com_Port),
-         Filter, "http://localhost:" & Utils.Image (Hotplug_Port));
-
-      if Response.Status_Code (R) = Messages.S200 then
-         Text_IO.Put_Line ("Register OK");
-      else
-         Text_IO.Put_Line
-           ("Register Error : " & Response.Message_Body (R));
-         raise Constraint_Error;
-      end if;
-
-      accept  Started;
-
-      accept Stop do
-         R := AWS.Client.Hotplug.Unregister
-           ("hp_test", Hotplug_Pack.Password,
-            "http://localhost:" & Utils.Image (Com_Port), Filter);
-
-         if Response.Status_Code (R) = Messages.S200 then
-            Text_IO.Put_Line ("Unregister OK");
-         else
-            Text_IO.Put_Line
-              ("Unregister Error : " & Response.Message_Body (R));
-         end if;
-
-         Server.Shutdown (WS);
-      end Stop;
-   exception
-      when E : others =>
-         Text_IO.Put_Line
-           ("Hotplug task " & Ada.Exceptions.Exception_Information (E));
-         Server.Shutdown (WS);
-   end Hotplug_Server;
 
    -------------
    -- Request --
@@ -118,6 +57,12 @@ procedure Test_Hotplug is
         (Server.Status.Local_URL (Hotplug_Pack.Main_Server) & "/" & URI);
       Text_IO.Put_Line ("Response: " & Response.Message_Body (R));
    end Request;
+
+   use type Messages.Status_Code;
+
+   WS  : Server.HTTP;
+   CFG : Config.Object;
+   R   : Response.Data;
 
 begin
    Text_IO.Put_Line ("Starting main server...");
@@ -132,21 +77,22 @@ begin
    begin
       Text_IO.Create (F, Text_IO.Out_File, "hotplug_access.ini");
       Text_IO.Put_Line
-        (F, "hp_test:f8de61f1f97df3613fbe29b031eb52c6:localhost:"
+        (F, "hp_test:f8de61f1f97df3613fbe29b031eb52c6:" & Localhost & ':'
          & Utils.Image (Hotplug_Port));
       Text_IO.Close (F);
    end;
 
-   Server.Start
-     (Hotplug_Pack.Main_Server, "Main",
-      Admin_URI      => "/Admin-Page",
-      Port           => 0,
-      Max_Connection => 3,
-      Callback       => Hotplug_Pack.Main'Access);
+   Config.Set.Server_Name    (CFG, "Main");
+   Config.Set.Admin_URI      (CFG, "/Admin-Page");
+   Config.Set.Server_Host    (CFG, Localhost);
+   Config.Set.Server_Port    (CFG, 0);
+   Config.Set.Max_Connection (CFG, 3);
+
+   Server.Start (Hotplug_Pack.Main_Server, Hotplug_Pack.Main'Access, CFG);
 
    Server.Hotplug.Activate
      (Hotplug_Pack.Main_Server'Access, Com_Port, "hotplug_access.ini",
-      Host => "localhost");
+      Host => Localhost);
 
    --  Send some requests
 
@@ -156,8 +102,25 @@ begin
 
    --  Start hotplug now
 
-   Hotplug_Server.Start;
-   Hotplug_Server.Started;
+   Config.Set.Server_Name    (CFG, "Hotplug");
+   Config.Set.Server_Port    (CFG, Hotplug_Port);
+
+   Server.Start (WS, Hotplug_Pack.Hotplug'Access, CFG);
+
+   R := Client.Hotplug.Register
+          ("hp_test", Hotplug_Pack.Password,
+           "http://" & Localhost & ':' & Utils.Image (Com_Port),
+           Filter, "http://" & Localhost & ':' & Utils.Image (Hotplug_Port));
+
+   if Response.Status_Code (R) = Messages.S200 then
+      Text_IO.Put_Line ("Register OK");
+   else
+      Text_IO.Put_Line
+         ("Register Error : " & Response.Message_Body (R));
+      raise Constraint_Error;
+   end if;
+
+   --  Hotplug started
 
    Request ("MkHuoi");
    Request ("toto");
@@ -165,11 +128,22 @@ begin
 
    Text_IO.Put_Line ("Stop hotplug server");
 
-   Hotplug_Server.Stop;
+   R := AWS.Client.Hotplug.Unregister
+          ("hp_test", Hotplug_Pack.Password,
+           "http://" & Localhost & ':' & Utils.Image (Com_Port), Filter);
+
+   if Response.Status_Code (R) = Messages.S200 then
+      Text_IO.Put_Line ("Unregister OK");
+   else
+      Text_IO.Put_Line
+        ("Unregister Error : " & Response.Message_Body (R));
+   end if;
+
+   Server.Shutdown (WS);
 
    Text_IO.Put_Line ("Shutdown hotplug server support");
 
-   AWS.Server.Hotplug.Shutdown;
+   Server.Hotplug.Shutdown;
 
    Text_IO.Put_Line ("Shutdown main server");
 
