@@ -42,73 +42,13 @@ procedure Test_SOAP_Hotplug is
 
    Filter : constant String := "/jo.*";
 
-   task Hotplug_Server is
-      entry Start;
-      entry Started;
-      entry Stop;
-   end Hotplug_Server;
-
    procedure Request (X, Y : Integer);
    --  Request URI resource to main server, output result
 
+   Localhost    : constant String := "127.0.0.1";
+   HTTP_Local   : constant String := "http://" & Localhost & ':';
    Hotplug_Port : Natural := 1135;
    Com_Port     : Natural := 2122;
-
-   --------------------
-   -- Hotplug_Server --
-   --------------------
-
-   task body Hotplug_Server is
-      use type Messages.Status_Code;
-      WS : Server.HTTP;
-      R  : Response.Data;
-      CF : Config.Object;
-   begin
-      accept  Start;
-
-      Config.Set.Server_Name    (CF, "Hotplug");
-      Config.Set.Admin_URI      (CF, "/Admin-Page");
-      Config.Set.Server_Host    (CF, "localhost");
-      Config.Set.Server_Port    (CF, Hotplug_Port);
-      Config.Set.Max_Connection (CF, 3);
-
-      Server.Start (WS, SOAP_Hotplug_CB.Hotplug'Access, CF);
-
-      R := Client.Hotplug.Register
-        ("hp_test", SOAP_Hotplug_CB.Password,
-         "http://localhost:" & Utils.Image (Com_Port),
-         Filter, "http://localhost:" & Utils.Image (Hotplug_Port));
-
-      if Response.Status_Code (R) = Messages.S200 then
-         Text_IO.Put_Line ("Register OK");
-      else
-         Text_IO.Put_Line
-           ("Register Error : " & Response.Message_Body (R));
-         raise Constraint_Error;
-      end if;
-      Text_IO.Flush;
-
-      accept  Started;
-
-      accept Stop do
-         R := AWS.Client.Hotplug.Unregister
-           ("hp_test", SOAP_Hotplug_CB.Password,
-            "http://localhost:" & Utils.Image (Com_Port), Filter);
-
-         if Response.Status_Code (R) = Messages.S200 then
-            Text_IO.Put_Line ("Unregister OK");
-         else
-            Text_IO.Put_Line
-              ("Unregister Error : " & Response.Message_Body (R));
-         end if;
-         Text_IO.Flush;
-
-         Server.Shutdown (WS);
-      end Stop;
-   exception
-      when others =>
-         Server.Shutdown (WS);
-   end Hotplug_Server;
 
    -------------
    -- Request --
@@ -126,6 +66,11 @@ procedure Test_SOAP_Hotplug is
       Text_IO.Flush;
    end Request;
 
+   use type Messages.Status_Code;
+   WS : Server.HTTP;
+   R  : Response.Data;
+   CF : Config.Object;
+
 begin
    Text_IO.Put_Line ("Starting main server...");
 
@@ -139,21 +84,22 @@ begin
    begin
       Text_IO.Create (F, Text_IO.Out_File, "hotplug_access.ini");
       Text_IO.Put_Line
-        (F, "hp_test:f8de61f1f97df3613fbe29b031eb52c6:localhost:"
+        (F, "hp_test:f8de61f1f97df3613fbe29b031eb52c6:" & Localhost & ':'
          & Utils.Image (Hotplug_Port));
       Text_IO.Close (F);
    end;
 
-   Server.Start
-     (SOAP_Hotplug_CB.Main_Server, "Main",
-      Admin_URI      => "/Admin-Page",
-      Port           => 0,
-      Max_Connection => 3,
-      Callback       => SOAP_Hotplug_CB.Main'Access);
+   Config.Set.Server_Name    (CF, "Main");
+   Config.Set.Admin_URI      (CF, "/Admin-Page");
+   Config.Set.Server_Host    (CF, Localhost);
+   Config.Set.Server_Port    (CF, 0);
+   Config.Set.Max_Connection (CF, 3);
+
+   Server.Start (SOAP_Hotplug_CB.Main_Server, SOAP_Hotplug_CB.Main'Access, CF);
 
    Server.Hotplug.Activate
      (SOAP_Hotplug_CB.Main_Server'Access, Com_Port, "hotplug_access.ini",
-      Host => "localhost");
+      Host => Localhost);
 
    --  Send some requests
 
@@ -162,8 +108,26 @@ begin
 
    --  Start hotplug now
 
-   Hotplug_Server.Start;
-   Hotplug_Server.Started;
+   Config.Set.Server_Name    (CF, "Hotplug");
+   Config.Set.Server_Port    (CF, Hotplug_Port);
+
+   Server.Start (WS, SOAP_Hotplug_CB.Hotplug'Access, CF);
+
+   R := Client.Hotplug.Register
+          ("hp_test", SOAP_Hotplug_CB.Password,
+           HTTP_Local & Utils.Image (Com_Port), Filter,
+           HTTP_Local & Utils.Image (Hotplug_Port));
+
+   if Response.Status_Code (R) = Messages.S200 then
+      Text_IO.Put_Line ("Register OK");
+   else
+      Text_IO.Put_Line
+         ("Register Error : " & Response.Message_Body (R));
+      raise Constraint_Error;
+   end if;
+   Text_IO.Flush;
+
+   --  Hotplug started
 
    Request (3, 7);
    Request (9, 2);
@@ -171,12 +135,24 @@ begin
    Text_IO.Put_Line ("Stop hotplug server");
    Text_IO.Flush;
 
-   Hotplug_Server.Stop;
+   R := Client.Hotplug.Unregister
+          ("hp_test", SOAP_Hotplug_CB.Password,
+           HTTP_Local & Utils.Image (Com_Port), Filter);
+
+   if Response.Status_Code (R) = Messages.S200 then
+      Text_IO.Put_Line ("Unregister OK");
+   else
+      Text_IO.Put_Line
+        ("Unregister Error : " & Response.Message_Body (R));
+   end if;
+   Text_IO.Flush;
+
+   Server.Shutdown (WS);
 
    Text_IO.Put_Line ("Shutdown hotplug server support");
    Text_IO.Flush;
 
-   AWS.Server.Hotplug.Shutdown;
+   Server.Hotplug.Shutdown;
 
    Text_IO.Put_Line ("Shutdown main server");
    Text_IO.Flush;
@@ -187,7 +163,7 @@ exception
    when E : others =>
       Text_IO.Put_Line ("Exception raised:" & Exception_Information (E));
       Text_IO.Flush;
-      Hotplug_Server.Stop;
-      AWS.Server.Hotplug.Shutdown;
+      Server.Shutdown (WS);
+      Server.Hotplug.Shutdown;
       Server.Shutdown (SOAP_Hotplug_CB.Main_Server);
 end Test_SOAP_Hotplug;
