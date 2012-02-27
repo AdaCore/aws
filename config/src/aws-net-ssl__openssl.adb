@@ -550,11 +550,6 @@ package body AWS.Net.SSL is
 
          Net.Std.Send (NSST (Socket), Data (1 .. Len), S_Last);
 
-         if S_Last /= Len then
-            Raise_Socket_Error
-              (Socket, "Socket buffer too small" & S_Last'Img & Len'Img);
-         end if;
-
          if S_Last > 0
            and then BIO_nread (Socket.IO, Data'Address, C.int (S_Last))
                     /= C.int (S_Last)
