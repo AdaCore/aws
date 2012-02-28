@@ -566,9 +566,9 @@ package body AWS.Net.SSL is
 
       loop
          RC := TSSL.SSL_write (Socket.SSL, Data'Address, Data'Length);
-         Socket_Write;
 
          if RC > 0 then
+            Socket_Write;
             Last  := Data'First + Stream_Element_Offset (RC) - 1;
 
             return;
@@ -585,6 +585,9 @@ package body AWS.Net.SSL is
                case Error_Code is
                   when TSSL.SSL_ERROR_WANT_READ =>
                      Socket_Read (Socket);
+
+                  when TSSL.SSL_ERROR_WANT_WRITE =>
+                     Socket_Write;
 
                   when TSSL.SSL_ERROR_SYSCALL =>
                      Raise_Socket_Error
