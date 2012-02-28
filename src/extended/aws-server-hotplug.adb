@@ -94,9 +94,9 @@ package body AWS.Server.Hotplug is
       Clients : Client_Table.Map;
    end Client_Handler;
 
-   ----------------------
-   -- Activate_Hotplug --
-   ----------------------
+   --------------
+   -- Activate --
+   --------------
 
    procedure Activate
      (Web_Server         : HTTP_Access;
@@ -304,9 +304,9 @@ package body AWS.Server.Hotplug is
          return Response.Acknowledge (Messages.S401, "Cannot register");
    end Message;
 
-   -------------------
-   -- Nonce_Handler --
-   -------------------
+   --------------------
+   -- Client_Handler --
+   --------------------
 
    protected body Client_Handler is
 
