@@ -33,6 +33,7 @@ procedure HostIP is
    use AWS;
 
    WS : Server.HTTP;
+   W6 : Server.HTTP;
 
    function CB (Request : Status.Data) return Response.Data is
    begin
@@ -60,15 +61,23 @@ begin
    Config.Set.Protocol_Family (CFG, "FAMILY_INET");
    Config.Set.Max_Connection  (CFG, 5);
 
+   Server.Start (WS, CB'Unrestricted_Access, CFG);
+
    if AWS.Net.IPv6_Available then
       Config.Set.Protocol_Family (CFG, "FAMILY_INET6");
+      Config.Set.Server_Port (CFG, Server.Status.Port (WS));
+      Server.Start (W6, CB'Unrestricted_Access, CFG);
    end if;
 
-   Server.Start (WS, CB'Unrestricted_Access, CFG);
    Text_IO.Put_Line ("started"); Ada.Text_IO.Flush;
 
    Call_It;
 
    Server.Shutdown (WS);
+
+   if AWS.Net.IPv6_Available then
+      Server.Shutdown (W6);
+   end if;
+
    Text_IO.Put_Line ("shutdown");
 end HostIP;
