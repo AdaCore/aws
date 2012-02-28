@@ -142,7 +142,16 @@ package body AWS.Parameters.Set is
             end if;
          end loop Find_Last_Amp;
 
-         if not Found then
+         if Found then
+            if Last < Buffer'Last then
+               Add_Internal
+                 (Parameter_List, To_String (Buffer (1 .. First - 1)), Count,
+                  Max_Parameters);
+
+               exit;
+            end if;
+
+         else
             if WNF and then First <= Last then
                raise Too_Long_Parameter
                  with "HTTP parameter line too long : "
@@ -158,9 +167,10 @@ package body AWS.Parameters.Set is
                Count, Max_Parameters);
 
             First := 1;
+
+            exit when Last < Buffer'Last;
          end if;
 
-         exit when Last < Buffer'Last;
       end loop;
    end Add;
 
