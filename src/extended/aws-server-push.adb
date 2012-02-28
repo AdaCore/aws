@@ -751,17 +751,14 @@ package body AWS.Server.Push is
             --  Net.Check is not blocking operation
 
             begin
-               Events :=
-                 Net.Check
-                   (Holder.Socket.all, (Output => True, Input => False));
+               Events := Holder.Socket.Check ((others => True));
             exception
-               when Socket_Error =>
+               when E : Socket_Error =>
                   --  !!! Most possible it is ENOBUFS or ENOMEM error
                   --  because of too many open sockets. We should see the exact
                   --  error in the socket error log file.
-                  --  We could do nothing with it here, we just behave like
-                  --  socket is not available for write.
 
+                  Holder.Errmsg := To_Unbounded_String (Exception_Message (E));
                   Events := (others => False);
             end;
 
@@ -772,6 +769,25 @@ package body AWS.Server.Push is
                     & Integer'Image (Net.Errno (Holder.Socket.all)));
                Net.Log.Error (Holder.Socket.all, To_String (Holder.Errmsg));
 
+            elsif Events (Input) then
+               --  Need to understand closed socket from peer
+
+               declare
+                  Unexpect : Stream_Element_Array (1 .. 64);
+                  Last     : Stream_Element_Offset;
+               begin
+                  Holder.Socket.Receive (Unexpect, Last);
+                  Holder.Errmsg :=
+                     To_Unbounded_String
+                        ("Unexpected data from server push socket: "
+                         & Translator.To_String (Unexpect (1 .. Last)));
+                  Net.Log.Error (Holder.Socket.all, To_String (Holder.Errmsg));
+               exception
+                  when E : Socket_Error =>
+                     Holder.Errmsg :=
+                       To_Unbounded_String (Exception_Message (E));
+               end;
+
             elsif Events (Output) then
                declare
                   Chunk : constant Stream_Element_Array :=
@@ -780,7 +796,7 @@ package body AWS.Server.Push is
                begin
                   --  It is not blocking Net.Send operation
 
-                  Net.Send (Holder.Socket.all, Chunk, Last);
+                  Holder.Socket.Send (Chunk, Last);
 
                   if Last = Chunk'Last then
                      --  Data sent completely
@@ -1709,7 +1725,7 @@ package body AWS.Server.Push is
            (Set    => Write_Set,
             Socket => Holder.Socket,
             Data   => (Server, Holder, Clock + Holder.Timeout),
-            Mode   => Write_Sets.Output);
+            Mode   => Write_Sets.Both);
 
          Counter := Counter + 1;
       end Add_Item;
@@ -1759,8 +1775,8 @@ package body AWS.Server.Push is
                -------------
 
                procedure Process
-                  (Socket : in out Socket_Type'Class;
-                   Client : in out Client_In_Wait) is
+                 (Socket : in out Socket_Type'Class;
+                  Client : in out Client_In_Wait) is
                begin
                   Client.SP.Waiter_Error (Client.CH, Message);
                   Net.Log.Error (Socket, Message);
@@ -1935,6 +1951,17 @@ package body AWS.Server.Push is
                   if Is_Error (Write_Set, J) then
                      Socket_Error_Log
                        ("Waiter socket error " & Utils.Image (Socket.Errno));
+
+                  elsif Is_Read_Ready (Write_Set, J) then
+                     begin
+                        Socket.Receive (Data, Last);
+                        Socket_Error_Log
+                          ("Unexpected input SP data: "
+                           & Translator.To_String (Data (1 .. Last)));
+                     exception
+                        when E : Net.Socket_Error =>
+                           Socket_Error (Exception_Message (E));
+                     end;
 
                   elsif Is_Write_Ready (Write_Set, J) then
                      Client.SP.Get_Data (Client.CH, Data, Last);
