@@ -464,7 +464,7 @@ package body AWS.Client.HTTP_Utils is
                (AWS.Attachments.Length (Attachments, Boundary));
       end Content_Length;
 
-   begin
+   begin -- Internal_Post_With_Attachment
       Build_Root_Part_Header;
 
       Retry : loop
@@ -678,7 +678,7 @@ package body AWS.Client.HTTP_Utils is
                          (Connection.Host_URL, IPv6_Brackets => True)
                        & AWS.URL.Port_Not_Default (Connection.Host_URL);
 
-   begin
+   begin -- Open_Send_Common_Header
       --  Open connection if needed
 
       if not Connection.Opened then
@@ -1020,7 +1020,7 @@ package body AWS.Client.HTTP_Utils is
 
       use type Messages.Status_Code;
 
-   begin
+   begin -- Parse_Header
       for Level in Authentication_Level'Range loop
          Connection.Auth (Level).Requested := False;
       end loop;
