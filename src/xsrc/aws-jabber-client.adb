@@ -40,7 +40,7 @@ with Sax.Readers;
 with Unicode.CES.Basic_8bit;
 
 with AWS.Jabber.Digest_Md5;
-with AWS.Net.Buffered;
+with AWS.Net;
 with AWS.Translator;
 with AWS.Utils;
 
@@ -911,8 +911,7 @@ package body AWS.Jabber.Client is
       loop
          declare
             XML_Response : constant String :=
-                             Translator.To_String
-                               (Net.Buffered.Read (Account.Sock.all));
+                             Translator.To_String (Account.Sock.Receive);
             Start, Stop  : Positive := XML_Response'First;
          begin
             loop
@@ -943,8 +942,8 @@ package body AWS.Jabber.Client is
 
    procedure XMPP_Send (Account : Client.Account; Message : String) is
    begin
-      Net.Buffered.Put_Line (Account.Sock.all, Message);
-      Net.Buffered.Flush (Account.Sock.all);
+      Account.Sock.Send
+        (Translator.To_Stream_Element_Array (Message & ASCII.CR & ASCII.LF));
    end XMPP_Send;
 
 end AWS.Jabber.Client;

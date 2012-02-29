@@ -247,4 +247,10 @@ begin
          delay 1.0;
       end loop;
    end Run;
+
+exception
+   when E : others =>
+      Text_IO.Put_Line (Ada.Exceptions.Exception_Information (E));
+      Jabber_Server.Shutdown;
+      Jabber_Server.Stopped;
 end Test_Jabber;
