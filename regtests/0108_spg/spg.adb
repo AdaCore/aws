@@ -18,12 +18,9 @@
 
 --  Server push regression test
 
-with Get_Free_Port;
 with Sp_Pack;
 
 procedure Spg is
-   Port : Natural := 8849;
 begin
-   Get_Free_Port (Port);
-   Sp_Pack.Run ("http", Port);
+   Sp_Pack.Run (Security => False);
 end Spg;

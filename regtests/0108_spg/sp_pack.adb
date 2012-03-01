@@ -133,7 +133,7 @@ package body Sp_Pack is
    -- Run --
    ---------
 
-   procedure Run (Protocol : String; Port : Positive) is
+   procedure Run (Security : Boolean) is
       Connect : array (1 .. 30) of Client.HTTP_Connection;
       Answer  : AWS.Response.Data;
       Data    : Push_Data_Type;
@@ -178,8 +178,8 @@ package body Sp_Pack is
    begin
       Config.Set.Server_Name    (CNF, "Testing server push.");
       Config.Set.Server_Host    (CNF, "localhost");
-      Config.Set.Server_Port    (CNF, Port);
-      Config.Set.Security       (CNF, Protocol = "https");
+      Config.Set.Server_Port    (CNF, 0);
+      Config.Set.Security       (CNF, Security);
       Config.Set.Max_Connection (CNF, 3);
 
       AWS.Server.Start (HTTP, CB'Access, CNF);
