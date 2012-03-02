@@ -322,10 +322,6 @@ package body AWS.Net.Acceptors is
       Success  : out Boolean) is
    begin
       Acceptor.Box.Add (Socket, Positive (Acceptor.Back_Queue_Size), Success);
-
-      if Success then
-         Acceptor.W_Signal.Send ((1 => Socket_Command));
-      end if;
    end Give_Back;
 
    procedure Give_Back
@@ -335,9 +331,7 @@ package body AWS.Net.Acceptors is
    begin
       Acceptor.Box.Add (Socket, Positive'Last, Success);
 
-      if Success then
-         Acceptor.W_Signal.Send ((1 => Socket_Command));
-      else
+      if not Success then
          raise Program_Error;
       end if;
    end Give_Back;
@@ -496,6 +490,7 @@ package body AWS.Net.Acceptors is
 
          if Success then
             Buffer.Append (S);
+            Acceptor.W_Signal.Send ((1 => Socket_Command));
          end if;
       end Add;
 

@@ -136,7 +136,7 @@ package AWS.Net.Acceptors is
 
 private
 
-   protected type Socket_Box is
+   protected type Socket_Box (Acceptor : access Acceptor_Type) is
 
       procedure Add
         (S : Socket_Access; Max_Size : Positive; Success : out Boolean);
@@ -163,7 +163,7 @@ private
       W_Signal            : Socket_Access;
       R_Signal            : Socket_Access;
       Server              : Socket_Access;
-      Box                 : Socket_Box;
+      Box                 : Socket_Box (Acceptor_Type'Access);
       Index               : Sets.Socket_Count;
       Last                : Sets.Socket_Count;
       Timeout             : Ada.Real_Time.Time_Span;

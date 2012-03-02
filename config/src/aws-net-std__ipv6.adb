@@ -43,8 +43,12 @@ package body AWS.Net.Std is
    No_Socket : constant C.int := C.int (-1);
    Failure   : constant C.int := C.int (-1);
 
+   type Unsigned_Lock is new Unsigned_8;
+
    type Socket_Hidden is record
       FD : Interfaces.C.int := No_Socket;
+      RL : aliased Unsigned_Lock := 0; -- Flag to detect read competition
+      pragma Atomic (RL);
    end record;
 
    subtype In6_Addr is OS_Lib.In6_Addr;
@@ -56,6 +60,10 @@ package body AWS.Net.Std is
    subtype Sockaddr_In6 is OS_Lib.Sockaddr_In6;
 
    package AC6 is new System.Address_To_Access_Conversions (Sockaddr_In6);
+
+   function Lock_Set
+     (Ptr : access Unsigned_Lock; Set : Unsigned_Lock) return Unsigned_Lock;
+   pragma Import (Intrinsic, Lock_Set, "__sync_lock_test_and_set_1");
 
    procedure Raise_Socket_Error (Error : Integer);
    pragma No_Return (Raise_Socket_Error);
@@ -201,7 +209,7 @@ package body AWS.Net.Std is
          Raise_Socket_Error (OS_Lib.Socket_Errno);
       end if;
 
-      Socket.S := new Socket_Hidden'(FD => FD);
+      Socket.S := new Socket_Hidden'(FD => FD, RL => 0);
 
       if Reuse_Address then
          Set_Int_Sock_Opt (Socket, OS_Lib.SO_REUSEADDR, 1);
@@ -257,7 +265,7 @@ package body AWS.Net.Std is
          Raise_Socket_Error (OS_Lib.Socket_Errno);
       end if;
 
-      Socket.S := new Socket_Hidden'(FD => FD);
+      Socket.S := new Socket_Hidden'(FD => FD, RL => 0);
 
       Set_Non_Blocking_Mode (Socket);
 
@@ -774,13 +782,20 @@ package body AWS.Net.Std is
       pragma Import (Stdcall, C_Recv, "recv");
 
    begin
-      Wait_For (Input, Socket);
+      if Lock_Set (Socket.S.RL'Access, 1) /= 0 then
+         raise Program_Error with "Simultaneous socket receive";
+      end if;
 
-      Res := C_Recv
-        (Socket.S.FD,
-         Data (Data'First)'Address,
-         Data'Length,
-         0);
+      begin
+         Wait_For (Input, Socket);
+      exception when others =>
+         Socket.S.RL := 0;
+         raise;
+      end;
+
+      Res := C_Recv (Socket.S.FD, Data (Data'First)'Address, Data'Length, 0);
+
+      Socket.S.RL := 0;
 
       if Res = Failure then
          Raise_Socket_Error (OS_Lib.Socket_Errno, Socket);
@@ -982,7 +997,8 @@ package body AWS.Net.Std is
          --  original socket is without descriptor now.
 
          Log.Error
-           (Socket_Type'(Net.Socket_Type with new Socket_Hidden'(FD => FD)),
+           (Socket_Type'
+              (Net.Socket_Type with new Socket_Hidden'(FD => FD, RL => 0)),
             Error_Message (OS_Lib.Socket_Errno));
       end if;
    end Shutdown;
