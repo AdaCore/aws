@@ -1,2 +1,1 @@
 vxworks DEAD "rlimit"
-darwin XFAIL "double free on finalization, see KA30-001"

@@ -1,2 +1,1 @@
 !ssl DEAD
-darwin XFAIL "double free on finalization, see KA30-001"
