@@ -32,7 +32,10 @@ procedure Socket_Send_Buffer is
    use Ada;
    use AWS;
 
-   V : array (1 .. 2) of Natural;
+   type Array_Of_Natural is array (1 .. 3) of Natural;
+
+   C : constant Array_Of_Natural := (32_000, 64_000, 128_000);
+   V : Array_Of_Natural;
    I : Positive := V'First;
 
    function CB (Request : Status.Data) return Response.Data is
@@ -45,30 +48,59 @@ procedure Socket_Send_Buffer is
    WS   : Server.HTTP;
    R    : Response.Data;
    Conf : Config.Object;
+   Div2 : Positive;
 
 begin
-   Config.Set.Server_Port (Conf, 0);
+   declare
+      S1, S2 : Net.Socket_Type'Class := Net.Socket (False);
+      BS : constant := 111001;
+      BR : Integer;
+   begin
+      S1.Socket_Pair (S2);
 
-   AWS.Server.Start (WS, CB'Unrestricted_Access, Conf);
+      S1.Set_Send_Buffer_Size (BS);
+      BR := S1.Get_Send_Buffer_Size;
+
+      if BS = BR then
+         --  Simmetric setsockopt and getsockopt on SO_SNDBUF
+
+         Div2 := 1;
+
+      elsif 2 * BS = BR then
+         --  Linux bug, setsockopt and getsockopt on SO_SNDBUF have
+         --  difference on multiplier 2
+
+         Div2 := 2;
+
+      else
+         Text_IO.Put_Line ("sockopt on SO_SNDBUF" & BS'Img & BR'Img);
+      end if;
+   end;
+
+   Config.Set.Server_Port (Conf, 0);
 
    Text_IO.Put_Line ("started"); Ada.Text_IO.Flush;
 
-   R := Client.Get (Server.Status.Local_URL (WS));
+   for J in C'Range loop
+      Config.Set.Send_Buffer_Size (Conf, C (J) / Div2);
 
-   AWS.Server.Shutdown (WS);
+      AWS.Server.Start (WS, CB'Unrestricted_Access, Conf);
 
-   Config.Set.Send_Buffer_Size (Conf, 128_000);
+      R := Client.Get (Server.Status.Local_URL (WS));
 
-   AWS.Server.Start (WS, CB'Unrestricted_Access, Conf);
+      AWS.Server.Shutdown (WS);
+   end loop;
 
-   R := Client.Get (Server.Status.Local_URL (WS));
-
-   Server.Shutdown (WS);
-
-   if V (2) > V (1) then
+   if V = C then
       Text_IO.Put_Line ("Ok");
    else
-      Text_IO.Put_Line ("NOk" & V (2)'Img & V (1)'Img);
+      Text_IO.Put ("NOk");
+
+      for J in V'Range loop
+         Text_IO.Put (V (J)'Img);
+      end loop;
+
+      Text_IO.New_Line;
    end if;
 
    Text_IO.Put_Line ("shutdown");
