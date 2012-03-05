@@ -253,7 +253,7 @@ package body AWS.Net.Poll_Events is
                  Thin.Timeout_Type
                    ((Timeout - To_Duration (Stamp - Clock)) * 1_000);
 
-               if Poll_Timeout <= 0 then
+               if Poll_Timeout < 0 then
                   Count := 0;
                   return;
                end if;
