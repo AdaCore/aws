@@ -766,7 +766,7 @@ package body AWS.Server.Push is
                Holder.Errmsg :=
                  To_Unbounded_String
                    ("Check server push output error "
-                    & Integer'Image (Net.Errno (Holder.Socket.all)));
+                    & Utils.Image (Net.Errno (Holder.Socket.all)));
                Net.Log.Error (Holder.Socket.all, To_String (Holder.Errmsg));
 
             elsif Events (Input) then
