@@ -27,6 +27,7 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
+with Ada.Real_Time;
 with AWS.OS_Lib;
 
 package body AWS.Net.Poll_Events is
@@ -204,11 +205,13 @@ package body AWS.Net.Poll_Events is
    overriding procedure Wait
      (FD_Set : in out Set; Timeout : Duration; Count : out Natural)
    is
+      use Ada.Real_Time;
       use type Thin.Timeout_Type;
 
       Result       : Integer;
       Poll_Timeout : Thin.Timeout_Type;
       Errno        : Integer;
+      Stamp        : constant Time := Clock;
    begin
       if FD_Set.Length = 0 then
          Count := 0;
@@ -244,7 +247,18 @@ package body AWS.Net.Poll_Events is
          --  In case of EINTR error we have to continue waiting for network
          --  events.
 
-         if Errno /= OS_Lib.EINTR then
+         if Errno = OS_Lib.EINTR then
+            if Poll_Timeout /= -1 then
+               Poll_Timeout :=
+                 Thin.Timeout_Type
+                   ((Timeout - To_Duration (Stamp - Clock)) * 1_000);
+
+               if Poll_Timeout <= 0 then
+                  Count := 0;
+                  return;
+               end if;
+            end if;
+         else
             --  Call Raise_Socket_Error with dummy created socket and
             --  error code, to raise exception and log error message.
 
