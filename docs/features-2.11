@@ -15,6 +15,11 @@ of the feature.
 New features in AWS 2.11
 ------------------------
 
+NF-211-L301-022 Add support for session cookies
+
+   A session cookie is one without a Max-Age attribute. Such cookies
+   expire when the web browser is closed.
+
 NF-211-L221-032 AWS now supports IPv6
 
    AWS now supports IPv6, to enable IPv6 support:

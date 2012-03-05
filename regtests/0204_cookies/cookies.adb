@@ -55,6 +55,8 @@ procedure Cookies is
       Cookie.Set (R, "ckey", "cval");
       Cookie.Set (R, "date", 9, Max_Age => Default.One_Hour);
       Cookie.Set (R, "z", 76.3, Path => "/justhere");
+      Cookie.Set
+        (R, "Ephemere", "value", Max_Age => Cookie.No_Max_Age, Path => "/po");
       return R;
    end CB;
 

@@ -147,17 +147,19 @@ package body AWS.Cookie is
 
       Value_Part     : constant String :=
                          Key & "=" & URL.Encode (Value) & "; ";
-      Max_Age_Part   : constant String :=
-                         Messages.Max_Age_Token & "="
-                           & Utils.Image (Max_Age) & "; ";
       Path_Part      : constant String :=
                          Messages.Path_Token & "=" & Path & "; ";
       Cookie_UString : Unbounded_String :=
-                         To_Unbounded_String
-                           (Value_Part & Max_Age_Part & Path_Part);
+                         To_Unbounded_String (Value_Part & Path_Part);
    begin
       if Response.Mode (Content) = Response.No_Data then
          raise Response_Data_Not_Initialized;
+      end if;
+
+      if Max_Age /= No_Max_Age then
+         Append
+           (Cookie_UString,
+            Messages.Max_Age_Token & "=" & Utils.Image (Max_Age) & "; ");
       end if;
 
       if Comment /= "" then

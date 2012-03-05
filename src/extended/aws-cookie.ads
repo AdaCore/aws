@@ -42,6 +42,10 @@ package AWS.Cookie is
    --  The AWS.Response.Data object is initialized using the
    --  AWS.Response.Build function.
 
+   No_Max_Age : constant Duration;
+   --  When no Max-Age is required, this value can be passed to the Set
+   --  routines below.
+
    function Exists
      (Request        : Status.Data;
       Key            : String;
@@ -157,4 +161,6 @@ package AWS.Cookie is
    --      Is raised if AWS.Cookie.Set is called before the Content object has
    --      been initialized by a call to AWS.Response.Build
 
+private
+   No_Max_Age : constant Duration := Duration'First;
 end AWS.Cookie;
