@@ -68,7 +68,7 @@ begin
    if V (2) > V (1) then
       Text_IO.Put_Line ("Ok");
    else
-      Text_IO.Put_Line ("NOk");
+      Text_IO.Put_Line ("NOk" & V (2)'Img & V (1)'Img);
    end if;
 
    Text_IO.Put_Line ("shutdown");
