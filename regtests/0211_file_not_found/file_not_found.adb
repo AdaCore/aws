@@ -27,16 +27,13 @@ with AWS.Status;
 with AWS.Utils;
 with AWS.Messages;
 
-with Get_Free_Port;
-
 procedure File_Not_Found is
 
    use Ada;
    use AWS;
 
-   WS   : Server.HTTP;
-   CNF  : Config.Object;
-   Port : Positive := 8567;
+   WS  : Server.HTTP;
+   CNF : Config.Object;
 
    function CB (Request : Status.Data) return Response.Data is
       URI : constant String := Status.URI (Request);
@@ -75,11 +72,9 @@ procedure File_Not_Found is
    end Call_It;
 
 begin
-   Get_Free_Port (Port);
-
    Config.Set.Server_Name    (CNF, "file_not_found");
    Config.Set.Server_Host    (CNF, "localhost");
-   Config.Set.Server_Port    (CNF, Port);
+   Config.Set.Server_Port    (CNF, 0);
    Config.Set.Max_Connection (CNF, 5);
 
    Server.Start (WS, CB'Unrestricted_Access, CNF);

@@ -26,8 +26,6 @@ with AWS.Server.Status;
 with AWS.Services.Page_Server;
 with AWS.Utils;
 
-with Get_Free_Port;
-
 procedure Cache_Cont_Page_Server is
    use Ada;
    use AWS;
@@ -35,17 +33,14 @@ procedure Cache_Cont_Page_Server is
    Conf : Config.Object;
    WS   : Server.HTTP;
    R    : Response.Data;
-   Port : Natural := 1946;
 
    CC   : constant Messages.Cache_Data :=
             (Messages.Response, Max_Age => 4,
              Proxy_Revalidate => True, others => <>);
 begin
-   Get_Free_Port (Port);
-
    Config.Set.WWW_Root (Conf, ".");
    Config.Set.Server_Host (Conf, "localhost");
-   Config.Set.Server_Port (Conf, Port);
+   Config.Set.Server_Port (Conf, 0);
 
    Server.Start (WS, Services.Page_Server.Callback'Access, Conf);
 

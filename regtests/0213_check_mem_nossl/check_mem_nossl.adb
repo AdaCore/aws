@@ -32,7 +32,7 @@ with AWS.Response.Set;
 with AWS.Resources.Streams.Disk;
 with AWS.Resources.Streams.Memory.ZLib;
 with AWS.Resources.Streams.ZLib;
-with AWS.Server;
+with AWS.Server.Status;
 with AWS.Session;
 with AWS.Services.Dispatchers.URI;
 with AWS.Services.Split_Pages;
@@ -52,8 +52,6 @@ with SOAP.Types;
 with API_Service.CB;
 with API_Service.Client;
 with API_Service.Server;
-
-with Get_Free_Port;
 
 procedure Check_Mem_Nossl is
 
@@ -80,29 +78,12 @@ procedure Check_Mem_Nossl is
 
    procedure Check_Socket;
 
-   function Get_Free_Port return Positive;
-
    task Server is
       entry Started;
       entry Stopped;
    end Server;
 
    HTTP      : AWS.Server.HTTP;
-
-   -------------------
-   -- Get_Free_Port --
-   -------------------
-
-   function Get_Free_Port return Positive is
-      Free_Port : Positive := 8188;
-   begin
-      Get_Free_Port (Free_Port);
-      return Free_Port;
-   end Get_Free_Port;
-
-   Port      : constant Positive := Get_Free_Port;
-   S_Port    : constant String   := AWS.Utils.Image (Port);
-
    Iteration : Positive;
 
    -----------
@@ -267,7 +248,7 @@ procedure Check_Mem_Nossl is
       AWS.Server.Start
         (HTTP, "check_mem2",
          CB'Unrestricted_Access,
-         Port           => Port,
+         Port           => 0,
          Max_Connection => 5,
          Session        => True);
 
@@ -346,7 +327,7 @@ procedure Check_Mem_Nossl is
       procedure Request (URL : String) is
          R : Response.Data;
       begin
-         R := AWS.Client.Get ("http://localhost:" & S_Port & URL);
+         R := AWS.Client.Get (AWS.Server.Status.Local_URL (HTTP) & URL);
          Check (Response.Message_Body (R));
       end Request;
 
@@ -362,7 +343,8 @@ procedure Check_Mem_Nossl is
          declare
             Response     : constant SOAP.Message.Response.Object'Class :=
                              SOAP.Client.Call
-                               ("http://localhost:" & S_Port & "/soap_demo",
+                               (AWS.Server.Status.Local_URL (HTTP)
+                                & "/soap_demo",
                                 Payload,
                                 "/soap_demo");
             R_Parameters : constant SOAP.Parameters.List :=
@@ -540,10 +522,11 @@ procedure Check_Mem_Nossl is
    procedure Check_ZOpen is
       use Templates;
       R : Response.Data;
+      Local_URL : constant String := AWS.Server.Status.Local_URL (HTTP);
    begin
-      R := AWS.Client.Get ("http://localhost:" & S_Port & "/filea.txt");
-      R := AWS.Client.Get ("http://localhost:" & S_Port & "/fileb.txt");
-      R := AWS.Client.Get ("http://localhost:" & S_Port & "/filec.txt");
+      R := AWS.Client.Get (Local_URL & "/filea.txt");
+      R := AWS.Client.Get (Local_URL & "/fileb.txt");
+      R := AWS.Client.Get (Local_URL & "/filec.txt");
    end Check_ZOpen;
 
    ---------------------
@@ -693,16 +676,15 @@ begin
       Check_Socket;
       Check_Reconnect;
       Check_SMTP;
-      API_Service.Client.Set
-        ("voiture", 2, Endpoint => "http://localhost:" & S_Port);
-      Put_Line
-        (Integer'Image
-           (API_Service.Client.Get
-              ("voiture",
-               Endpoint => "http://localhost:" & S_Port)));
-      Put_Line
-        (API_Service.Client.Get_Last_Key
-           (Endpoint => "http://localhost:" & S_Port));
+      declare
+         Local_URL : constant string := AWS.Server.Status.Local_URL (HTTP);
+      begin
+         API_Service.Client.Set ("voiture", 2, Endpoint => Local_URL);
+         Put_Line
+           (Integer'Image
+              (API_Service.Client.Get ("voiture", Endpoint => Local_URL)));
+         Put_Line (API_Service.Client.Get_Last_Key (Endpoint => Local_URL));
+      end;
    end loop;
 
    Server.Stopped;

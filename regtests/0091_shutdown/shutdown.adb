@@ -20,24 +20,19 @@ with Ada.Text_IO;
 with AWS.Server;
 
 with Srv;
-with Get_Free_Port;
 
 procedure Shutdown is
    use Ada;
    use AWS;
 
    WS : Server.HTTP;
-   Port1 : Natural := 1262;
-   Port2 : Natural := 1263;
 
 begin
    Text_IO.Put_Line ("start"); Text_IO.Flush;
 
-   Get_Free_Port (Port1);
-   Server.Start (Srv.WS, "demo", Srv.CB'Access, Port => Port1);
+   Server.Start (Srv.WS, "demo", Srv.CB'Access, Port => 0);
 
-   Get_Free_Port (Port2);
-   Server.Start (WS, "demo", Srv.CB'Access, Port => Port2);
+   Server.Start (WS, "demo", Srv.CB'Access, Port => 0);
 
    delay 2.0;
 

@@ -28,8 +28,6 @@ with AWS.Server.Status;
 with AWS.Status;
 with AWS.Utils;
 
-with Get_Free_Port;
-
 procedure Content_Type_Data_Range is
 
    use Ada;
@@ -48,17 +46,14 @@ procedure Content_Type_Data_Range is
    end CB;
 
    WS            : Server.HTTP;
-   Port          : Natural := 2745;
    Conf          : Config.Object;
    Client_Data   : Response.Data;
    Client_Header : Headers.List;
    CHeader       : Containers.Tables.Table_Type
                      renames Containers.Tables.Table_Type (Client_Header);
 begin
-   Get_Free_Port (Port);
-
    Config.Set.Server_Host (Conf, "localhost");
-   Config.Set.Server_Port (Conf, Port);
+   Config.Set.Server_Port (Conf, 0);
 
    Headers.Set.Debug (True);
 
@@ -79,7 +74,7 @@ begin
    Containers.Tables.Set.Add
      (CHeader,
       Name  => "Host",
-      Value => "localhost:" & Utils.Image (Port));
+      Value => "localhost:" & Utils.Image (Server.Status.Port (WS)));
    Containers.Tables.Set.Add
      (CHeader,
       Name  => "Pragma",

@@ -24,7 +24,7 @@ with Ada.Streams;
 
 with AWS.Net;
 
-procedure STO_Proc (Security : Boolean; Port : Positive) is
+procedure STO_Proc (Security : Boolean) is
 
    use AWS;
    use Ada;
@@ -54,7 +54,7 @@ procedure STO_Proc (Security : Boolean; Port : Positive) is
 
       delay 1.5;
 
-      Net.Connect (Client, Server.Get_Addr, Port);
+      Net.Connect (Client, Server.Get_Addr, Server.Get_Port);
       Net.Set_Timeout (Client, 1.0);
 
       begin
@@ -114,7 +114,7 @@ begin
 
    Text_IO.Put_Line ("start");
 
-   Net.Bind (Server, Port, "localhost");
+   Net.Bind (Server, 0, "localhost");
    Net.Listen (Server);
    Net.Set_Timeout (Server, 1.0);
 

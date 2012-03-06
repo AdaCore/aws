@@ -32,8 +32,6 @@ with AWS.Templates;
 with AWS.Response;
 with AWS.Utils;
 
-with Get_Free_Port;
-
 procedure WB_Patterns is
 
    use Ada;
@@ -41,9 +39,8 @@ procedure WB_Patterns is
    use AWS.Services;
    use AWS.Services.Web_Block.Registry;
 
-   Cfg       : Config.Object;
-   Free_Port : Positive;
-   WS        : AWS.Server.HTTP;
+   Cfg : Config.Object;
+   WS  : AWS.Server.HTTP;
 
    procedure Main_Callback
      (Request      :                 Status.Data;
@@ -135,10 +132,8 @@ begin
 
    Cfg := AWS.Config.Get_Current;
 
-   Free_Port := AWS.Config.Server_Port (Cfg);
-   Get_Free_Port (Free_Port);
    AWS.Config.Set.Server_Host (Cfg, "localhost");
-   AWS.Config.Set.Server_Port (Cfg, Free_Port);
+   AWS.Config.Set.Server_Port (Cfg, 0);
 
    AWS.Server.Start (WS, Dispatcher => H, Config => Cfg);
 

@@ -32,17 +32,14 @@ with AWS.Server.Status;
 with AWS.Status;
 with AWS.Utils;
 
-with Get_Free_Port;
-
 procedure Cookies is
 
    use Ada;
    use Ada.Strings.Unbounded;
    use AWS;
 
-   WS   : Server.HTTP;
-   CNF  : Config.Object;
-   Port : Positive := 8379;
+   WS  : Server.HTTP;
+   CNF : Config.Object;
 
    --------
    -- CB --
@@ -75,11 +72,9 @@ procedure Cookies is
    H : Headers.List;
 
 begin
-   Get_Free_Port (Port);
-
-   Config.Set.Server_Name    (CNF, "Client Headers");
-   Config.Set.Server_Host    (CNF, "localhost");
-   Config.Set.Server_Port    (CNF, Port);
+   Config.Set.Server_Name (CNF, "Client Headers");
+   Config.Set.Server_Host (CNF, "localhost");
+   Config.Set.Server_Port (CNF, 0);
 
    Server.Start (WS, CB'Unrestricted_Access, CNF);
 

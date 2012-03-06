@@ -28,8 +28,6 @@ with AWS.Server.Status;
 with AWS.Status;
 with AWS.Utils;
 
-with Get_Free_Port;
-
 procedure Cache_Control_Header is
 
    use Ada;
@@ -37,7 +35,6 @@ procedure Cache_Control_Header is
 
    WS   : Server.HTTP;
    CNF  : Config.Object;
-   Port : Positive := 8274;
 
    function Test_CC (Kind : Messages.Cache_Kind; Value : String) return String;
    --  Convert to/from Cache_Data/Cache_Option for testing purpose
@@ -99,11 +96,9 @@ procedure Cache_Control_Header is
    RCD : constant Messages.Cache_Data :=
            (Messages.Request, No_Cache => True, Max_Stale => 3, others => <>);
 begin
-   Get_Free_Port (Port);
-
    Config.Set.Server_Name (CNF, "Cache Control Header");
    Config.Set.Server_Host (CNF, "localhost");
-   Config.Set.Server_Port (CNF, Port);
+   Config.Set.Server_Port (CNF, 0);
 
    Server.Start (WS, CB'Unrestricted_Access, CNF);
 

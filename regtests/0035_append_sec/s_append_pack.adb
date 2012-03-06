@@ -27,8 +27,6 @@ with AWS.Server.Status;
 with AWS.Status;
 with AWS.Utils;
 
-with Get_Free_Port;
-
 package body S_Append_Pack is
 
    use Ada;
@@ -80,14 +78,11 @@ package body S_Append_Pack is
    end CB;
 
    procedure Run (Protocol : String) is
-      Port : Positive := 1200;
-      R    : Response.Data;
+      R : Response.Data;
    begin
-      Get_Free_Port (Port);
-
       Config.Set.Server_Name    (CNF, "append message " & Protocol);
       Config.Set.Server_Host    (CNF, "localhost");
-      Config.Set.Server_Port    (CNF, Port);
+      Config.Set.Server_Port    (CNF, 0);
       Config.Set.Security       (CNF, Protocol = "https");
       Config.Set.Max_Connection (CNF, 5);
 

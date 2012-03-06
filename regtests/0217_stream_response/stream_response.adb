@@ -28,8 +28,6 @@ with AWS.Status;
 with AWS.Utils;
 with AWS.Messages;
 
-with Get_Free_Port;
-
 procedure Stream_Response is
 
    use Ada;
@@ -97,11 +95,9 @@ procedure Stream_Response is
    end Call_It;
 
 begin
-   Get_Free_Port (Port);
-
    Config.Set.Server_Name    (CNF, "stream_response");
    Config.Set.Server_Host    (CNF, "localhost");
-   Config.Set.Server_Port    (CNF, Port);
+   Config.Set.Server_Port    (CNF, 0);
    Config.Set.Max_Connection (CNF, 5);
 
    Server.Start (WS, CB'Unrestricted_Access, CNF);

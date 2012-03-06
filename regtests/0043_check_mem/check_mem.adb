@@ -34,6 +34,7 @@ with AWS.Resources.Streams.Disk;
 with AWS.Resources.Streams.Memory.ZLib;
 with AWS.Resources.Streams.ZLib;
 with AWS.Server.Push;
+with AWS.Server.Status;
 with AWS.Session;
 with AWS.Services.Split_Pages;
 with AWS.Status;
@@ -47,8 +48,6 @@ with SOAP.Message.Response;
 with SOAP.Message.XML;
 with SOAP.Parameters;
 with SOAP.Types;
-
-with Get_Free_Port;
 
 procedure Check_Mem is
 
@@ -76,8 +75,6 @@ procedure Check_Mem is
 
    procedure Check_Socket;
 
-   function Get_Free_Port return Positive;
-
    type Push_Data_Type is delta 0.01 digits 7;
 
    function To_Array
@@ -97,20 +94,6 @@ procedure Check_Mem is
 
    HTTP : AWS.Server.HTTP;
    Push : Server_Push.Object;
-
-   -------------------
-   -- Get_Free_Port --
-   -------------------
-
-   function Get_Free_Port return Positive is
-      Free_Port : Positive := 8188;
-   begin
-      Get_Free_Port (Free_Port);
-      return Free_Port;
-   end Get_Free_Port;
-
-   Port      : constant Positive := Get_Free_Port;
-   S_Port    : constant String   := AWS.Utils.Image (Port);
 
    Iteration : Positive;
 
@@ -268,7 +251,7 @@ procedure Check_Mem is
       AWS.Server.Start
         (HTTP, "check_mem",
          CB'Unrestricted_Access,
-         Port           => Port,
+         Port           => 0,
          Max_Connection => 5,
          Session        => True);
 
@@ -346,7 +329,7 @@ procedure Check_Mem is
       procedure Request (URL : String) is
          R : Response.Data;
       begin
-         R := AWS.Client.Get ("http://localhost:" & S_Port & URL);
+         R := AWS.Client.Get (AWS.Server.Status.Local_URL (HTTP) & URL);
          Check (Response.Message_Body (R));
       end Request;
 
@@ -362,7 +345,7 @@ procedure Check_Mem is
          declare
             Response     : constant SOAP.Message.Response.Object'Class
               := SOAP.Client.Call
-                   ("http://localhost:" & S_Port & "/soap_demo",
+                   (AWS.Server.Status.Local_URL (HTTP) & "/soap_demo",
                     Payload,
                     "/soap_demo");
 
@@ -501,7 +484,7 @@ procedure Check_Mem is
       for J in Connect'Range loop
          AWS.Client.Create
            (Connection  => Connect (J),
-            Host        => "http://localhost:" & S_Port,
+            Host        => AWS.Server.Status.Local_URL (HTTP),
             Timeouts    => AWS.Client.Timeouts
               (Connect => 5.0,
                Send => 15.0, Receive => 15.0, Response => 15.0),
@@ -612,10 +595,11 @@ procedure Check_Mem is
       use Templates;
 
       R : Response.Data;
+      Local_URL : constant String := AWS.Server.Status.Local_URL (HTTP);
    begin
-      R := AWS.Client.Get ("http://localhost:" & S_Port & "/filea.txt");
-      R := AWS.Client.Get ("http://localhost:" & S_Port & "/fileb.txt");
-      R := AWS.Client.Get ("http://localhost:" & S_Port & "/filec.txt");
+      R := AWS.Client.Get (Local_URL & "/filea.txt");
+      R := AWS.Client.Get (Local_URL & "/fileb.txt");
+      R := AWS.Client.Get (Local_URL & "/filec.txt");
    end Check_ZOpen;
 
    ---------------------
@@ -643,7 +627,7 @@ procedure Check_Mem is
          accept Start;
 
          for J in 1 .. N loop
-            Connect (Client, Server.Get_Addr, Std.Get_Port (Server));
+            Connect (Client, Server.Get_Addr, Server.Get_Port);
             Send (Client, (1 .. 10 => 11));
             Receive (Client, Buffer, Last);
             Shutdown (Client);

@@ -28,8 +28,6 @@ with AWS.Server.Status;
 with AWS.Status;
 with AWS.Utils;
 
-with Get_Free_Port;
-
 procedure Expires_Header is
 
    use Ada;
@@ -60,11 +58,9 @@ procedure Expires_Header is
    WC : Client.HTTP_Connection;
 
 begin
-   Get_Free_Port (Port);
-
    Config.Set.Server_Name (CNF, "Expires Header");
    Config.Set.Server_Host (CNF, "localhost");
-   Config.Set.Server_Port (CNF, Port);
+   Config.Set.Server_Port (CNF, 0);
 
    Server.Start (WS, CB'Unrestricted_Access, CNF);
 

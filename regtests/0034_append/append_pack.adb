@@ -27,8 +27,6 @@ with AWS.Server.Status;
 with AWS.Status;
 with AWS.Utils;
 
-with Get_Free_Port;
-
 package body Append_Pack is
 
    use Ada;

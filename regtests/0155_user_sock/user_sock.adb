@@ -24,7 +24,6 @@ with AWS.Server;
 with AWS.Utils;
 
 with USock;
-with Get_Free_Port;
 
 procedure User_Sock is
 
@@ -32,15 +31,12 @@ procedure User_Sock is
    use AWS;
 
    WS   : Server.HTTP;
-   Port : Natural := 1234;
 
 begin
-   Get_Free_Port (Port);
-
    Server.Set_Socket_Constructor (WS, USock.Socket'Access);
 
    Server.Start
-     (WS, "User Socket", USock.CB'Access, Port => Port);
+     (WS, "User Socket", USock.CB'Access, Port => 0);
    Text_IO.Put_Line ("started"); Ada.Text_IO.Flush;
 
    Server.Shutdown (WS);

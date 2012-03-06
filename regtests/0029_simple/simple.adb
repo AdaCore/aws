@@ -23,8 +23,6 @@ with AWS.Response;
 with AWS.Status;
 with AWS.MIME;
 
-with Get_Free_Port;
-
 procedure Simple is
 
    use AWS;
@@ -36,13 +34,9 @@ procedure Simple is
       return Response.Build (MIME.Text_HTML, "should not be called");
    end CB;
 
-   Port : Natural := 1234;
-
 begin
-   Get_Free_Port (Port);
-
    Server.Start
-     (WS, "simple", CB'Unrestricted_Access, Port => Port, Max_Connection => 5);
+     (WS, "simple", CB'Unrestricted_Access, Port => 0, Max_Connection => 5);
    Ada.Text_IO.Put_Line ("started"); Ada.Text_IO.Flush;
    delay 1.0;
    Server.Shutdown (WS);

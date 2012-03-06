@@ -31,8 +31,6 @@ with AWS.Utils;
 
 with ZLib;
 
-with Get_Free_Port;
-
 procedure File_Versions is
 
    use Ada;
@@ -55,15 +53,12 @@ procedure File_Versions is
         (Resources.File_Instance'Image (Resources.Exist (Filename)));
    end Exist;
 
-   Port : Natural := 1234;
-   R    : Response.Data;
+   R : Response.Data;
 
 begin
-   Get_Free_Port (Port);
-
    Config.Set.Server_Name    (CNF, "file_versions");
    Config.Set.Server_Host    (CNF, "localhost");
-   Config.Set.Server_Port    (CNF, Port);
+   Config.Set.Server_Port    (CNF, 0);
    Config.Set.Max_Connection (CNF, 1);
 
    Server.Start (WS, CB'Unrestricted_Access, CNF);

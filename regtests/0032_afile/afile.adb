@@ -19,7 +19,6 @@
 --  Test file as attachment
 
 with AFile_Pack;
-with Get_Free_Port;
 
 procedure AFile is
 begin

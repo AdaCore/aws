@@ -31,8 +31,6 @@ with AWS.Client;
 with AWS.Parameters;
 with AWS.Utils;
 
-with Get_Free_Port;
-
 package body S_HLoad_Pack is
 
    use Ada;

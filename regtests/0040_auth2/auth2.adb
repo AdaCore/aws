@@ -28,8 +28,6 @@ with AWS.Response;
 with AWS.Messages;
 with AWS.Utils;
 
-with Get_Free_Port;
-
 procedure Auth2 is
 
    use Ada;
@@ -41,7 +39,6 @@ procedure Auth2 is
    HTTP : AWS.Server.HTTP;
    CNF  : Config.Object;
    R    : Response.Data;
-   Port : Natural := 1255;
 
    --------
    -- CB --
@@ -58,11 +55,9 @@ procedure Auth2 is
    end CB;
 
 begin
-   Get_Free_Port (Port);
-
    Config.Set.Server_Name    (CNF, "Test authentication.");
    Config.Set.Server_Host    (CNF, "localhost");
-   Config.Set.Server_Port    (CNF, Port);
+   Config.Set.Server_Port    (CNF, 0);
    Config.Set.Max_Connection (CNF, 3);
 
    AWS.Server.Start (HTTP, CB'Unrestricted_Access, CNF);
