@@ -31,8 +31,8 @@ with Ada.Streams;
 
 package body AWS.Net.Acceptors is
 
-   Server_Index   : constant := 1;
-   Signal_Index   : constant := 2;
+   Signal_Index   : constant := 1;
+   Server_Index   : constant := 2;
    First_Index    : constant := 3;
 
    Socket_Command : constant := 1;
@@ -74,8 +74,7 @@ package body AWS.Net.Acceptors is
          Sets.Is_Read_Ready (Acceptor.Set, Server_Index, Ready, Error);
 
          if Error then
-            Raise_Socket_Error
-              (Acceptor.Server.all, "Accepting socket error.");
+            Acceptor.Server.Raise_Socket_Error ("Accepting socket error");
 
          elsif Ready then
             declare
@@ -86,7 +85,7 @@ package body AWS.Net.Acceptors is
                --  take a long time inside Accept_Socket. We would make socket
                --  SSL later outside acceptor if necessary.
 
-               Accept_Socket (Acceptor.Server.all, New_Socket);
+               Acceptor.Server.Accept_Socket (New_Socket);
 
                Sets.Add
                  (Acceptor.Set,
@@ -129,7 +128,7 @@ package body AWS.Net.Acceptors is
                --  mailbox.
 
                begin
-                  Receive (Acceptor.R_Signal.all, Bytes, Last);
+                  Acceptor.R_Signal.Receive (Bytes, Last);
                exception
                   when Socket_Error =>
                      Shutdown;
@@ -161,7 +160,7 @@ package body AWS.Net.Acceptors is
       begin
          while Sets.Count (Acceptor.Set) > 0 loop
             Sets.Remove_Socket (Acceptor.Set, 1, Socket);
-            Shutdown (Socket.all);
+            Socket.Shutdown;
 
             --  We can free other sockets, because it is not
             --  used anywhere else when it is in socket set.
@@ -398,15 +397,15 @@ package body AWS.Net.Acceptors is
 
    begin
       Acceptor.Server := New_Socket;
-      Bind
-        (Acceptor.Server.all, Host => Host, Port => Port, Family => Family,
+      Acceptor.Server.Bind
+        (Host => Host, Port => Port, Family => Family,
          Reuse_Address => Reuse_Address);
-      Listen (Acceptor.Server.all, Queue_Size => Queue_Size);
+      Acceptor.Server.Listen (Queue_Size => Queue_Size);
 
       Acceptor.R_Signal := New_Socket;
       Acceptor.W_Signal := New_Socket;
-      Socket_Pair (Acceptor.W_Signal.all, Acceptor.R_Signal.all);
-      Set_Timeout (Acceptor.R_Signal.all, 10.0);
+      Acceptor.W_Signal.Socket_Pair (Acceptor.R_Signal.all);
+      Acceptor.R_Signal.Set_Timeout (10.0);
 
       Sets.Reset (Acceptor.Set);
       Sets.Add (Acceptor.Set, Acceptor.Server, Sets.Input);
@@ -451,7 +450,7 @@ package body AWS.Net.Acceptors is
    procedure Shutdown (Acceptor : in out Acceptor_Type) is
    begin
       if Acceptor.W_Signal /= null then
-         Shutdown (Acceptor.W_Signal.all);
+         Acceptor.W_Signal.Shutdown;
          Free (Acceptor.W_Signal);
       end if;
       Acceptor.Box.Clear;

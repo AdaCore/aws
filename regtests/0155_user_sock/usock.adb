@@ -268,8 +268,8 @@ package body USock is
    is
       pragma Unreferenced (Container);
    begin
-      return (Net.Input  => Done or Index /= 2,
-              --  2 is the signal socket index inside of
+      return (Net.Input  => Done or Index /= 1,
+              --  1 is the signal socket index inside of
               --  Net.Acceptors.Acceptor_Type.
               Net.Output => True,
               Net.Error  => Done);
