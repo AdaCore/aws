@@ -38,8 +38,6 @@ with AWS.Net.Generic_Sets;
 
 package AWS.Net.Acceptors is
 
-   Socket_Error : exception renames Net.Socket_Error;
-
    type Acceptor_Type is limited private;
 
    package Socket_Lists is

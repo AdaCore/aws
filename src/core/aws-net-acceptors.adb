@@ -408,8 +408,8 @@ package body AWS.Net.Acceptors is
       Acceptor.R_Signal.Set_Timeout (10.0);
 
       Sets.Reset (Acceptor.Set);
-      Sets.Add (Acceptor.Set, Acceptor.Server, Sets.Input);
       Sets.Add (Acceptor.Set, Acceptor.R_Signal, Sets.Input);
+      Sets.Add (Acceptor.Set, Acceptor.Server, Sets.Input);
 
       Acceptor.Index               := First_Index;
       Acceptor.Last                := Sets.Count (Acceptor.Set);
