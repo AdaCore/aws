@@ -20,6 +20,7 @@
 
 with Ada.Text_IO;
 with Ada.Exceptions;
+with Ada.Real_Time;
 with Ada.Streams;
 
 with AWS.Net;
@@ -35,11 +36,25 @@ procedure STO_Proc (Security : Boolean) is
    Server       : Net.Socket_Type'Class := Net.Socket (False);
    Peer, Client : Net.Socket_Type'Class := Net.Socket (Security);
 
+   procedure Check_Timeout (Span : Ada.Real_Time.Time_Span);
+
    task Client_Side is
       entry Done;
       entry Start;
       entry Stop;
    end Client_Side;
+
+   -------------------
+   -- Check_Timeout --
+   -------------------
+
+   procedure Check_Timeout (Span : Ada.Real_Time.Time_Span) is
+      D : constant Duration := Ada.Real_Time.To_Duration (Span);
+   begin
+      if not (D in 0.99 .. 1.1) then
+         Text_IO.Put_Line ("wrong timeout" & D'Img);
+      end if;
+   end Check_Timeout;
 
    -----------------
    -- Client_Side --
@@ -54,17 +69,19 @@ procedure STO_Proc (Security : Boolean) is
 
       delay 1.5;
 
-      Net.Connect (Client, Server.Get_Addr, Server.Get_Port);
-      Net.Set_Timeout (Client, 1.0);
+      Client.Connect (Server.Get_Addr, Server.Get_Port);
+      Client.Set_Timeout (1.0);
 
+      declare
+         use Ada.Real_Time;
+         Stamp : constant Time := Clock;
       begin
-         declare
-            Buffer : Stream_Element_Array := Net.Receive (Client);
-         begin
-            null;
-         end;
+         if Client.Receive /= (1 .. 0 => 0) then
+            Text_IO.Put_Line ("wrong receive");
+         end if;
       exception
          when E : Net.Socket_Error =>
+            Check_Timeout (Clock - Stamp);
             Ada.Text_IO.Put_Line ("receive");
             Ada.Text_IO.Put_Line (Exceptions.Exception_Message (E));
       end;
@@ -90,11 +107,9 @@ procedure STO_Proc (Security : Boolean) is
          end;
       end loop;
 
-      delay 2.0;
-
-      Net.Shutdown (Client);
-
       accept Done;
+
+      Client.Shutdown;
 
       Text_IO.Put_Line ("client task done.");
 
@@ -114,32 +129,41 @@ begin
 
    Text_IO.Put_Line ("start");
 
-   Net.Bind (Server, 0, "localhost");
-   Net.Listen (Server);
-   Net.Set_Timeout (Server, 1.0);
+   Server.Bind (0, "localhost");
+   Server.Listen;
+   Server.Set_Timeout (1.0);
 
    Client_Side.Start;
 
+   declare
+      use Ada.Real_Time;
+      Stamp : constant Time := Clock;
    begin
       Net.Accept_Socket (Server, Peer);
    exception
       when E : Net.Socket_Error =>
+         Check_Timeout (Clock - Stamp);
          Ada.Text_IO.Put_Line ("accept");
          Ada.Text_IO.Put_Line (Exceptions.Exception_Message (E));
    end;
 
-   Net.Accept_Socket (Server, Peer);
+   Server.Accept_Socket (Peer);
 
-   Net.Set_Timeout (Peer, 1.0);
+   Peer.Set_Timeout (1.0);
 
    delay 1.5;
 
+   declare
+      use Ada.Real_Time;
+      Stamp : Time;
    begin
       loop
+         Stamp := Clock;
          Net.Send (Peer, Sample);
       end loop;
    exception
       when E : Net.Socket_Error =>
+         Check_Timeout (Clock - Stamp);
          Ada.Text_IO.Put_Line ("send");
          Ada.Text_IO.Put_Line (Exceptions.Exception_Message (E));
    end;
@@ -148,7 +172,7 @@ begin
 
    Client_Side.Stop;
 
-   Net.Shutdown (Peer);
+   Peer.Shutdown;
 
    Text_IO.Put_Line ("done.");
 
