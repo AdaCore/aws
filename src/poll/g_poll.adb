@@ -104,7 +104,9 @@ begin
       if (FD_Events and (OS_Lib.POLLIN or OS_Lib.POLLPRI)) /= 0 then
          FD_SET (Poll_Ptr (J).FD, Rfds'Address);
          Rcount := Rcount + 1;
-      elsif (FD_Events and OS_Lib.POLLOUT) /= 0 then
+      end if;
+
+      if (FD_Events and OS_Lib.POLLOUT) /= 0 then
          FD_SET (Poll_Ptr (J).FD, Wfds'Address);
          Wcount := Wcount + 1;
       end if;
