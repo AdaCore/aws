@@ -67,13 +67,13 @@ package body Wait_Pack is
             begin
                accept Next;
                delay A_Bit;
-               Net.Connect (Socket, Server.Get_Addr, Server.Get_Port);
+               Socket.Connect
+                 (Net.Localhost (Server.Is_IPv6), Server.Get_Port);
 
                accept Next;
                delay A_Bit;
-               Net.Send
-                 (Socket,
-                  (1 .. Sample_Size => Stream_Element (J rem 256)));
+               Socket.Send
+                 ((1 .. Sample_Size => Stream_Element (J rem 256)));
 
                Sets.Add (Set, Socket, Sets.Output);
             end;
@@ -91,14 +91,13 @@ package body Wait_Pack is
 
                accept Next;
                delay A_Bit;
-               Net.Send
-                 (Socket,
-                  (1 .. Sample_Size =>
+               Socket.Send
+                 ((1 .. Sample_Size =>
                      Stream_Element (Sets.Count (Set) rem 256)));
 
                accept Next;
                delay A_Bit;
-               Net.Shutdown (Socket);
+               Socket.Shutdown;
             end;
          end loop;
 
@@ -138,18 +137,19 @@ package body Wait_Pack is
             New_Sock       : Net.Socket_Type'Class := Net.Socket (Security);
             Socket_Removed : Boolean := False;
          begin
-            if Net.Get_FD (Socket) = Net.Get_FD (Server) then
+            if Socket.Get_FD = Server.Get_FD then
                Put_Line ("Accept" & Integer'Image ((J + 1) / 2));
-               Net.Accept_Socket (Server, New_Socket => New_Sock);
+               Server.Accept_Socket (New_Socket => New_Sock);
 
-               Net.Set_Blocking_Mode (New_Sock, False);
+               New_Sock.Set_Blocking_Mode (False);
 
                Sets.Add (Set, New_Sock, Sets.Input);
+
             else
                declare
                   Data : Stream_Element_Array (1 .. Sample_Size);
                begin
-                  Data := Net.Receive (Socket);
+                  Data := Socket.Receive;
 
                   Put ("Data");
 
@@ -163,7 +163,7 @@ package body Wait_Pack is
                   when E : Net.Socket_Error =>
                      Put_Line ("Close socket.");
 
-                     Net.Shutdown (Socket);
+                     Socket.Shutdown;
                      Sets.Remove_Socket (Set, Index);
 
                      Socket_Removed := True;
@@ -178,7 +178,7 @@ package body Wait_Pack is
 
       end loop;
 
-      Net.Shutdown (Server);
+      Server.Shutdown;
 
       --  abort Client_Side;
       --  The task Client_Side terminates itself without abort statement.
