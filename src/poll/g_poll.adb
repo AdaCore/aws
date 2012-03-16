@@ -148,17 +148,20 @@ begin
 
       for J in Poll_Array'Range loop
          if FD_ISSET (Poll_Ptr (J).FD, Rfds'Address) /= 0 then
-            Poll_Ptr (J).REvents := Poll_Ptr (J).REvents or OS_Lib.POLLIN;
-            Rs := Rs + 1;
+            --  Do not need "or" with Poll_Ptr (J).REvents because it's zero
+
+            Poll_Ptr (J).REvents := OS_Lib.POLLIN;
          end if;
 
          if FD_ISSET (Poll_Ptr (J).FD, Wfds'Address) /= 0 then
             Poll_Ptr (J).REvents := Poll_Ptr (J).REvents or OS_Lib.POLLOUT;
-            Rs := Rs + 1;
          end if;
 
          if FD_ISSET (Poll_Ptr (J).FD, Efds'Address) /= 0 then
             Poll_Ptr (J).REvents := Poll_Ptr (J).REvents or OS_Lib.POLLERR;
+         end if;
+
+         if Poll_Ptr (J).REvents /= 0 then
             Rs := Rs + 1;
          end if;
       end loop;
