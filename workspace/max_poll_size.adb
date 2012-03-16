@@ -41,7 +41,6 @@ procedure Max_Poll_Size is
 
    Set                  : Sets.Socket_Set_Type;
    Cnt                  : Sets.Socket_Count;
-   Idx                  : Sets.Socket_Index;
    Server, Client, Peer : Socket_Type'Class := Socket (False);
    Data                 : constant Stream_Element_Array :=
      (1, 2, 3, 4, 5, 6, 7, 9, 10, 11, 12, 13, 14, 15, 16, 17, 19, 20, 21, 22);
@@ -60,8 +59,8 @@ begin
             exit;
       end;
 
-      Peer.Set_Timeout (1.0);
-      Client.Set_Timeout (1.0);
+      Peer.Set_Timeout (0.0);
+      Client.Set_Timeout (0.0);
 
       Sets.Add (Set, Peer, Sets.Input);
       Sets.Add (Set, Client, Sets.Input);
@@ -70,18 +69,16 @@ begin
    Put_Line (Sets.Count (Set)'Img);
 
    for J in 1 .. Sets.Count (Set) loop
-      Sets.Get_Socket (Set, J).Send (Data);
+      Sets.Get_Socket (Set, J - 1 + J rem 2 * 2).Send (Data);
 
       Sets.Wait (Set, 0.25, Cnt);
 
       if Cnt /= 1 then
-         Put_Line ("Wrong Cnt " & Cnt'Img);
+         Put_Line ("Wrong Cnt 1 /=" & Cnt'Img);
       end if;
 
-      Idx := J - 1 + J rem 2 * 2;
-
-      if Sets.Is_Read_Ready (Set, Idx) then
-         if Sets.Get_Socket (Set, Idx).Receive /= Data then
+      if Sets.Is_Read_Ready (Set, J) then
+         if Sets.Get_Socket (Set, J).Receive /= Data then
             Put_Line ("Wrong data");
          end if;
       else
@@ -89,4 +86,27 @@ begin
       end if;
    end loop;
 
+   Put_Line ("One socket active test done");
+
+   for J in 1 .. Sets.Count (Set) / 2 loop
+      Sets.Get_Socket (Set, J * 2).Send (Data);
+   end loop;
+
+   Sets.Wait (Set, 0.25, Cnt);
+
+   if Cnt /= Sets.Count (Set) / 2 then
+      Put_Line ("Wrong count " & Cnt'Img);
+   end if;
+
+   for J in 1 .. Sets.Count (Set) loop
+      if Sets.Is_Read_Ready (Set, J) = (J rem 2 = 0) then
+         Put_Line ("Wrong Ready state");
+      end if;
+
+      if J rem 2 = 1 and then Sets.Get_Socket (Set, J).Receive /= Data then
+         Put_Line ("Wrong Data");
+      end if;
+   end loop;
+
+   Put_Line ("Half sockets active test done");
 end Max_Poll_Size;
