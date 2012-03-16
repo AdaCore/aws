@@ -27,25 +27,66 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
+with Ada.Exceptions;
+with Ada.Streams;
 with Ada.Text_IO;
 with AWS.Net.Sets;
 
 procedure Max_Poll_Size is
    use AWS.Net;
+   use Ada.Streams;
+   use Ada.Text_IO;
+
+   use type Sets.Socket_Count;
+
    Set                  : Sets.Socket_Set_Type;
-   Port                 : constant Positive := 8088;
+   Cnt                  : Sets.Socket_Count;
+   Idx                  : Sets.Socket_Index;
    Server, Client, Peer : Socket_Type'Class := Socket (False);
+   Data                 : constant Stream_Element_Array :=
+     (1, 2, 3, 4, 5, 6, 7, 9, 10, 11, 12, 13, 14, 15, 16, 17, 19, 20, 21, 22);
 
 begin
-   Bind (Server, Port);
-   Listen (Server);
+   Server.Bind (0);
+   Server.Listen;
 
    loop
-      Connect (Client, "localhost", Port);
-      Accept_Socket (Server, Peer);
-      Sets.Add (Set, Peer, Sets.Output);
+      begin
+         Client.Connect (Localhost (Server.Is_IPv6), Server.Get_Port);
+         Server.Accept_Socket (Peer);
+      exception
+         when E : Socket_Error =>
+            Put_Line (Ada.Exceptions.Exception_Information (E));
+            exit;
+      end;
+
+      Peer.Set_Timeout (1.0);
+      Client.Set_Timeout (1.0);
+
+      Sets.Add (Set, Peer, Sets.Input);
       Sets.Add (Set, Client, Sets.Input);
-      Sets.Wait (Set, 0.001);
-      Ada.Text_IO.Put_Line (Sets.Count (Set)'Img);
    end loop;
+
+   Put_Line (Sets.Count (Set)'Img);
+
+   for J in 1 .. Sets.Count (Set) loop
+      Sets.Get_Socket (Set, J).Send (Data);
+
+      Sets.Wait (Set, 0.25, Cnt);
+
+      if Cnt /= 1 then
+         Put_Line ("Wrong Cnt " & Cnt'Img);
+      end if;
+
+      Idx := J - 1 + J rem 2 * 2;
+
+      if Sets.Is_Read_Ready (Set, Idx) then
+         if Sets.Get_Socket (Set, Idx).Receive /= Data then
+            Put_Line ("Wrong data");
+         end if;
+      else
+         Put_Line ("Wrong ready state");
+      end if;
+   end loop;
+
 end Max_Poll_Size;
