@@ -214,8 +214,12 @@ begin
                         Enought := True;
                      end if;
                else
-                  raise;
+                  Put_Line (Ada.Exceptions.Exception_Information (E));
+                  Enought := True;
                end if;
+            when E : others =>
+               Put_Line (Ada.Exceptions.Exception_Information (E));
+               Enought := True;
          end;
 
          for K in 1 .. Sets.Count (Set) loop
