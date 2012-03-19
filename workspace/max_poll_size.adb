@@ -156,6 +156,9 @@ begin
 
    Put_Line (Sets.Count (Set)'Img);
 
+   --  Test read timeout is not depend on others socket activities.
+   --  Actual for poll over posix select implementation.
+
    for J in reverse 1 .. Sets.Count (Set) loop
       declare
          use Ada.Real_Time;
@@ -217,6 +220,7 @@ begin
 
          for K in 1 .. Sets.Count (Set) loop
             --  Read from all sockets except the tested
+
             if K /= J then
                Read_Data (K, "3");
             end if;
@@ -227,7 +231,6 @@ begin
       exception
          when E : others =>
             Put_Line (Ada.Exceptions.Exception_Information (E));
-            abort Writer_Task;
             exit;
       end;
    end loop;
@@ -235,6 +238,8 @@ begin
    abort Writer_Task;
 
    Put_Line ("Timeout test complete");
+
+   --  Test appropriate socket activation
 
    for J in 1 .. Sets.Count (Set) loop
       Sets.Get_Socket (Set, J - 1 + J rem 2 * 2).Send (Data);
