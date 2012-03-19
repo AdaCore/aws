@@ -48,6 +48,10 @@ procedure Max_Poll_Size is
    Data                 : constant Stream_Element_Array :=
      (1, 2, 3, 4, 5, 6, 7, 9, 10, 11, 12, 13, 14, 15, 16, 17, 19, 20, 21, 22);
 
+   Error_Count : Integer := 16;
+   OK_Count    : Integer := 16;
+   OK_Previous : Boolean := True;
+
    Set_Size : constant := 4096;
    type FD_Set_Type is array (0 .. Set_Size - 1) of Boolean;
    pragma Pack (FD_Set_Type);
@@ -55,11 +59,10 @@ procedure Max_Poll_Size is
 
    FDS : FD_Set_Type;
 
-   task Reader_Task is
-      entry Read (Socket : Socket_Access);
-      entry Ready;
-      entry Was_Timeout (TO : out Duration);
-   end Reader_Task;
+   task Writer_Task is
+      entry Delayed_Send (Index : Sets.Socket_Index);
+      entry Cancel_Delay;
+   end Writer_Task;
 
    procedure Print_FDS is
       Count : Positive := 1;
@@ -100,44 +103,27 @@ procedure Max_Poll_Size is
    end Read_Data;
 
    -----------------
-   -- Reader_Task --
+   -- Writer_Task --
    -----------------
 
-   task body Reader_Task is
-      Socket : Socket_Access;
+   task body Writer_Task is
+      Index : Sets.Socket_Index;
    begin
       loop
-         accept Read (Socket : Socket_Access) do
-            Reader_Task.Socket := Read.Socket;
-         end Read;
+         accept Delayed_Send (Index : Sets.Socket_Index) do
+            Writer_Task.Index := Delayed_Send.Index;
+         end Delayed_Send;
 
-         declare
-            use Ada.Real_Time;
-            Stamp  : constant Time := Clock;
-            Span   : Duration;
-         begin
-            if Socket.Receive /= Data then
-               Put_Line ("Wrond data on timeout test");
-            end if;
-
-            accept Ready;
-         exception
-            when E : Socket_Error =>
-               if Is_Timeout (E) then
-                  Span := To_Duration (Clock - Stamp);
-
-                  accept Was_Timeout (TO : out Duration) do
-                     TO := Span;
-                  end Was_Timeout;
-               else
-                  raise;
-               end if;
-         end;
+         select
+            accept Cancel_Delay;
+         or delay 0.25;
+            Sets.Get_Socket (Set, Index).Send (Data);
+         end select;
       end loop;
    exception
       when E : others =>
          Ada.Text_IO.Put_Line (Ada.Exceptions.Exception_Information (E));
-   end Reader_Task;
+   end Writer_Task;
 
 begin
    Server.Bind (0);
@@ -173,10 +159,9 @@ begin
    for J in reverse 1 .. Sets.Count (Set) loop
       declare
          use Ada.Real_Time;
-         Timeout  : constant Duration := 1.0;
-         TO       : Duration;
          Peer_Idx : constant Sets.Socket_Index := J - 1 + J rem 2 * 2;
          Socket   : aliased Socket_Type'Class := Sets.Get_Socket (Set, J);
+         Enought  : Boolean := False;
       begin
          for K in 1 .. Sets.Count (Set) loop
             --  Write into all sockets except the peer one
@@ -185,23 +170,50 @@ begin
             end if;
          end loop;
 
-         Socket.Set_Timeout (Timeout);
+         Socket.Set_Timeout (10.0);
 
-         Reader_Task.Read (Socket'Unchecked_Access);
+         declare
+            use Ada.Real_Time;
+            Stamp : constant Time := Clock;
+         begin
+            Writer_Task.Delayed_Send (Peer_Idx);
 
-         select
-            Reader_Task.Was_Timeout (TO);
-            Put_Line ("Too short timeout" & J'Img & TO'Img);
-         or delay Timeout / 4;
-            Sets.Get_Socket (Set, Peer_Idx).Send (Data);
-            Put_Line ("OK" & J'Img);
+            if Socket.Receive /= Data then
+               Put_Line ("Wrond data on timeout test");
+            end if;
 
-            select
-               Reader_Task.Ready;
-            or delay Timeout;
-               Put_Line ("Unexpected delay");
-            end select;
-         end select;
+            if OK_Previous then
+               OK_Count := OK_Count - 1;
+
+               if OK_Count <= 0 then
+                  Put_Line ("Stop timeout test, enought success");
+                  Enought := True;
+               end if;
+
+            else
+               OK_Previous := True;
+            end if;
+
+         exception
+            when E : Socket_Error =>
+               Writer_Task.Cancel_Delay;
+
+               if Is_Timeout (E) then
+                  Put_Line
+                    ("Too short timeout" & J'Img
+                     & To_Duration (Clock - Stamp)'Img);
+
+                     OK_Previous := False;
+                     Error_Count := Error_Count - 1;
+
+                     if Error_Count <= 0 then
+                        Put_Line ("Stop timeout test, enought errors");
+                        Enought := True;
+                     end if;
+               else
+                  raise;
+               end if;
+         end;
 
          for K in 1 .. Sets.Count (Set) loop
             --  Read from all sockets except the tested
@@ -210,15 +222,17 @@ begin
             end if;
          end loop;
 
+         exit when Enought;
+
       exception
          when E : others =>
             Put_Line (Ada.Exceptions.Exception_Information (E));
-            abort Reader_Task;
+            abort Writer_Task;
             exit;
       end;
    end loop;
 
-   abort Reader_Task;
+   abort Writer_Task;
 
    Put_Line ("Timeout test complete");
 
