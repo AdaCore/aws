@@ -35,15 +35,13 @@
 #if defined(_WIN32)
 #include <winsock.h>
 #else
-#include <sys/socket.h>
+#include <sys/select.h>
 #endif
 #endif
 
 #if !defined (_WIN32)
 #define SOCKET int
 #endif
-
-#include <string.h>
 
 int
 __aws_is_socket_in_set (SOCKET socket, fd_set *set)
