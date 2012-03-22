@@ -64,37 +64,6 @@ procedure Max_Poll_Size is
       entry Cancel_Delay;
    end Writer_Task;
 
-   procedure Print_FDS is
-      Count : Positive := 1;
-      Last  : Boolean  := FDS (FDS'First);
-
-      procedure Flush is
-         Img : constant array (Boolean) of Character :=
-           (False => '-', True => '#');
-      begin
-         if Count > 1 then
-            Put (Count'Img);
-         end if;
-
-         Put (Img (Last));
-      end Flush;
-
-   begin
-      for J in FDS'First + 1 .. FDS'Last loop
-         if FDS (J) = Last then
-            Count := Count + 1;
-         else
-            Flush;
-            Count := 1;
-            Last := FDS (J);
-         end if;
-      end loop;
-
-      Flush;
-
-      New_Line;
-   end Print_FDS;
-
    procedure Read_Data (Idx : Sets.Socket_Index; Mark : String) is
    begin
       if Sets.Get_Socket (Set, Idx).Receive /= Data then
@@ -128,10 +97,6 @@ procedure Max_Poll_Size is
 begin
    Server.Bind (0);
    Server.Listen;
-
-   AWS.OS_Lib.FD_ZERO (FDS'Address);
-
-   Print_FDS;
 
    for J in FDS'Range loop
       FDS (J) := False;
