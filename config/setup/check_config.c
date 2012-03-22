@@ -441,11 +441,6 @@ main (int argc, char *argv[])
      "   function Socket_StrError (ecode : Integer)"
      " return C.Strings.chars_ptr;\n\n"
 
-     "   procedure FD_ZERO (Set : System.Address);\n"
-     "   procedure FD_SET (FD : FD_Type; Set : System.Address);\n"
-     "   function FD_ISSET (FD : FD_Type; Set : System.Address)"
-     " return C.int;\n\n"
-
      "   function Set_Sock_Opt\n"
      "     (S       : C.int;\n"
      "      Level   : C.int;\n"
@@ -497,10 +492,6 @@ main (int argc, char *argv[])
      "   pragma Import (C, C_Ioctl, \"ioctl\");\n"
      "   pragma Import (C, C_Close, \"close\");\n"
 #endif
-
-     "   pragma Import (C, FD_ZERO, \"__aws_clear_socket_set\");\n"
-     "   pragma Import (C, FD_SET, \"__aws_set_socket_in_set\");\n"
-     "   pragma Import (C, FD_ISSET, \"__aws_is_socket_in_set\");\n\n"
 
      "end AWS.OS_Lib;\n");
   fclose (fd);

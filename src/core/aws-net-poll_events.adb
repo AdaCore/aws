@@ -28,16 +28,31 @@
 ------------------------------------------------------------------------------
 
 with Ada.Real_Time;
-with AWS.OS_Lib;
+with Interfaces.C;
 
 package body AWS.Net.Poll_Events is
 
-   procedure Set_Mode (Item : out Thin.Pollfd; Mode : Wait_Event_Set);
+   procedure Set_Mode (Item : out Pollfd; Mode : Wait_Event_Set);
 
    type Poll_Access is access all Set;
 
+   subtype Timeout_Type is Interfaces.C.int;
+
    procedure Check_Range (FD_Set : Set; Index : Positive);
    pragma Inline (Check_Range);
+
+   procedure Wait
+     (Fds : in out Set; Timeout : Timeout_Type; Result : out Integer);
+
+   generic
+      type FD_Set_Type is private;
+      with procedure FD_ZERO (Set : in out FD_Set_Type);
+      with procedure FD_SET (FD : OS_Lib.FD_Type; Set : in out FD_Set_Type);
+      with function FD_ISSET
+             (FD : OS_Lib.FD_Type; Set : FD_Set_Type) return Interfaces.C.int;
+   procedure G_Poll
+     (Fds : in out Set; Timeout : Timeout_Type; Result : out Integer);
+   --  Need to implement Wait routine on top of posix or win32 select
 
    ---------
    -- Add --
@@ -55,6 +70,10 @@ package body AWS.Net.Poll_Events is
       if FD < 0 then
          raise Socket_Error with
            "Wrong socket descriptor " & FD_Type'Image (FD);
+      end if;
+
+      if FD_Type (FD_Set.Max_FD) < FD then
+         FD_Set.Max_FD := OS_Lib.FD_Type (FD);
       end if;
 
       FD_Set.Length := FD_Set.Length + 1;
@@ -80,6 +99,7 @@ package body AWS.Net.Poll_Events is
    overriding function Copy
      (FD_Set : not null access Set; Size : Natural) return FD_Set_Access
    is
+      use type OS_Lib.FD_Type;
       Result : Poll_Access;
    begin
       Result := new Set (Size);
@@ -95,8 +115,130 @@ package body AWS.Net.Poll_Events is
          Result.Fds    := FD_Set.Fds (1 .. Size);
       end if;
 
+      for J in 1 .. Result.Length loop
+         if Result.Max_FD < Result.Fds (J).FD then
+            Result.Max_FD := Result.Fds (J).FD;
+         end if;
+      end loop;
+
       return Result.all'Access;
    end Copy;
+
+   ------------
+   -- G_Poll --
+   ------------
+
+   procedure G_Poll
+     (Fds : in out Set; Timeout : Timeout_Type; Result : out Integer)
+   is
+      use Interfaces;
+
+      use type C.int;
+      use type C.long;
+      use type OS_Lib.FD_Type;
+      use type AWS.OS_Lib.timeval_field_t;
+      use type AWS.OS_Lib.Events_Type;
+
+      function C_Select
+        (Nfds      : C.int;
+         readfds   : access FD_Set_Type;
+         writefds  : access FD_Set_Type;
+         exceptfds : access FD_Set_Type;
+         timeout   : access OS_Lib.Timeval) return Integer;
+      pragma Import (Stdcall, C_Select, "select");
+
+      Timeout_V : aliased OS_Lib.Timeval;
+      Timeout_A : access OS_Lib.Timeval;
+
+      Rfds      : aliased FD_Set_Type;
+      Rcount    : Natural := 0;
+      Wfds      : aliased FD_Set_Type;
+      Wcount    : Natural := 0;
+      Efds      : aliased FD_Set_Type;
+
+      Rfdsa     : access FD_Set_Type;
+      Wfdsa     : access FD_Set_Type;
+
+      FD_Events : OS_Lib.Events_Type;
+
+   begin
+      --  Setup (convert data from poll to select layout)
+
+      if Timeout >= 0 then
+         Timeout_A := Timeout_V'Access;
+         Timeout_V.tv_sec  := OS_Lib.timeval_field_t  (Timeout / 1000);
+         Timeout_V.tv_usec := OS_Lib.timeval_field_t (Timeout rem 1000 * 1000);
+      end if;
+
+      FD_ZERO (Rfds);
+      FD_ZERO (Wfds);
+      FD_ZERO (Efds);
+
+      for J in Fds.Fds'First .. Fds.Length loop
+         Fds.Fds (J).REvents := 0;
+
+         FD_Events := Fds.Fds (J).Events;
+
+         if (FD_Events and (OS_Lib.POLLIN or OS_Lib.POLLPRI)) /= 0 then
+            FD_SET (Fds.Fds (J).FD, Rfds);
+            Rcount := Rcount + 1;
+         end if;
+
+         if (FD_Events and OS_Lib.POLLOUT) /= 0 then
+            FD_SET (Fds.Fds (J).FD, Wfds);
+            Wcount := Wcount + 1;
+         end if;
+
+         FD_SET (Fds.Fds (J).FD, Efds);
+
+         if Fds.Fds (J).FD > Fds.Max_FD then
+            raise Program_Error with "Wrong Max_FD";
+         end if;
+      end loop;
+
+      --  Any non-null descriptor set must contain at least one handle
+      --  to a socket on Windows (MSDN).
+
+      if Rcount /= 0 then
+         Rfdsa := Rfds'Access;
+      end if;
+
+      if Wcount /= 0 then
+         Wfdsa := Wfds'Access;
+      end if;
+
+      --  Call OS select
+
+      Result :=
+        C_Select
+          (C.int (Fds.Max_FD + 1), Rfdsa, Wfdsa, Efds'Access, Timeout_A);
+
+      --  Build result (convert back from select to poll layout)
+
+      if Result > 0 then
+         Result := 0;
+
+         for J in Fds.Fds'First .. Fds.Length loop
+            if FD_ISSET (Fds.Fds (J).FD, Rfds) /= 0 then
+               --  Do not need "or" with Poll_Ptr (J).REvents because it's zero
+
+               Fds.Fds (J).REvents := OS_Lib.POLLIN;
+            end if;
+
+            if FD_ISSET (Fds.Fds (J).FD, Wfds) /= 0 then
+               Fds.Fds (J).REvents := Fds.Fds (J).REvents or OS_Lib.POLLOUT;
+            end if;
+
+            if FD_ISSET (Fds.Fds (J).FD, Efds) /= 0 then
+               Fds.Fds (J).REvents := Fds.Fds (J).REvents or OS_Lib.POLLERR;
+            end if;
+
+            if Fds.Fds (J).REvents /= 0 then
+               Result := Result + 1;
+            end if;
+         end loop;
+      end if;
+   end G_Poll;
 
    ------------
    -- Length --
@@ -112,7 +254,7 @@ package body AWS.Net.Poll_Events is
    ----------
 
    overriding procedure Next (FD_Set : Set; Index : in out Positive) is
-      use type Thin.Events_Type;
+      use type OS_Lib.Events_Type;
    begin
       loop
          exit when Index > FD_Set.Length
@@ -151,6 +293,10 @@ package body AWS.Net.Poll_Events is
    begin
       Check_Range (FD_Set, Index);
       FD_Set.Fds (Index).FD := OS_Lib.FD_Type (FD);
+
+      if FD_Type (FD_Set.Max_FD) < FD then
+         FD_Set.Max_FD := OS_Lib.FD_Type (FD);
+      end if;
    end Replace;
 
    --------------
@@ -164,7 +310,7 @@ package body AWS.Net.Poll_Events is
       Set_Mode (FD_Set.Fds (Index), Mode);
    end Set_Mode;
 
-   procedure Set_Mode (Item : out Thin.Pollfd; Mode : Wait_Event_Set) is
+   procedure Set_Mode (Item : out Pollfd; Mode : Wait_Event_Set) is
       use OS_Lib;
    begin
       Item.REvents := 0;
@@ -202,14 +348,19 @@ package body AWS.Net.Poll_Events is
    -- Wait --
    ----------
 
+   procedure Wait
+     (Fds : in out Set; Timeout : Timeout_Type; Result : out Integer)
+   is separate;
+
    overriding procedure Wait
      (FD_Set : in out Set; Timeout : Duration; Count : out Natural)
    is
       use Ada.Real_Time;
-      use type Thin.Timeout_Type;
+      use type Timeout_Type;
 
       Result       : Integer;
-      Poll_Timeout : Thin.Timeout_Type;
+      Poll_Timeout : Duration := Timeout;
+      C_Timeout    : Timeout_Type;
       Errno        : Integer;
       Stamp        : constant Time := Clock;
    begin
@@ -218,27 +369,23 @@ package body AWS.Net.Poll_Events is
          return;
       end if;
 
-      if Timeout >= Duration (Thin.Timeout_Type'Last - 8) / 1_000 then
-         --  Minus 8 is to workaround Linux kernel 2.6.24 bug with close to
-         --  Integer'Last poll timeout values.
-         --  syscall (SYS_poll, &ufds, 1, 2147483644); // is waiting
-         --  syscall (SYS_poll, &ufds, 1, 2147483645); // is not waiting
-         --  Timeout values close to maximum could be not safe because of
-         --  possible time conversion boundary errors in the kernel.
-         --  Use unlimited timeout instead of maximum 24 days timeout for
-         --  safety reasons.
-
-         Poll_Timeout := -1;
-      else
-         Poll_Timeout := Thin.Timeout_Type (Timeout * 1_000);
-      end if;
-
       loop
-         Result := Integer
-           (Thin.Poll
-              (Fds     => FD_Set.Fds'Address,
-               Nfds    => Thin.nfds_t (FD_Set.Length),
-               Timeout => Poll_Timeout));
+         if Poll_Timeout >= Duration (Timeout_Type'Last - 8) / 1_000 then
+            --  Minus 8 is to workaround Linux kernel 2.6.24 bug with close to
+            --  Integer'Last poll timeout values.
+            --  syscall (SYS_poll, &ufds, 1, 2147483644); // is waiting
+            --  syscall (SYS_poll, &ufds, 1, 2147483645); // is not waiting
+            --  Timeout values close to maximum could be not safe because of
+            --  possible time conversion boundary errors in the kernel.
+            --  Use unlimited timeout instead of maximum 24 days timeout for
+            --  safety reasons.
+
+            C_Timeout := -1;
+         else
+            C_Timeout := Timeout_Type (Poll_Timeout * 1_000);
+         end if;
+
+         Wait (FD_Set, C_Timeout, Result);
 
          exit when Result >= 0;
 
@@ -248,12 +395,10 @@ package body AWS.Net.Poll_Events is
          --  events.
 
          if Errno = OS_Lib.EINTR then
-            if Poll_Timeout /= -1 then
-               Poll_Timeout :=
-                 Thin.Timeout_Type
-                   ((Timeout - To_Duration (Stamp - Clock)) * 1_000);
+            if C_Timeout >= 0 then
+               Poll_Timeout := Timeout - To_Duration (Stamp - Clock);
 
-               if Poll_Timeout < 0 then
+               if Poll_Timeout < 0.0 then
                   Count := 0;
                   return;
                end if;

@@ -27,15 +27,60 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  Emulates UNIX "poll" call using "select" OS support
+--  Wait implementation on top of posix select call
 
-with Interfaces.C; use Interfaces;
-with System;
+separate (AWS.Net.Poll_Events)
 
-with AWS.OS_Lib;
+procedure Wait
+  (Fds : in out Set; Timeout : Timeout_Type; Result : out Integer)
+is
+   use Interfaces;
+   use type OS_Lib.FD_Type;
 
-function Poll
-  (Fds     : System.Address;
-   Nfds    : AWS.OS_Lib.nfds_t;
-   Timeout : C.int) return C.int;
-pragma Export (C, Poll, "poll");
+   type Bit is range 0 .. 1;
+
+   type FD_Set_Type is array (OS_Lib.FD_Type range 0 .. Fds.Max_FD) of Bit;
+   pragma Pack (FD_Set_Type);
+   pragma Convention (C, FD_Set_Type);
+
+   procedure FD_ZERO (Set : in out FD_Set_Type);
+   pragma Inline (FD_ZERO);
+
+   procedure FD_SET (FD : OS_Lib.FD_Type; Set : in out FD_Set_Type);
+   pragma Inline (FD_SET);
+
+   function FD_ISSET (FD : OS_Lib.FD_Type; Set : FD_Set_Type) return C.int;
+   pragma Inline (FD_ISSET);
+
+   --------------
+   -- FD_ISSET --
+   --------------
+
+   function FD_ISSET (FD : OS_Lib.FD_Type; Set : FD_Set_Type) return C.int is
+   begin
+      return C.int (Set (FD));
+   end FD_ISSET;
+
+   ------------
+   -- FD_SET --
+   ------------
+
+   procedure FD_SET (FD : OS_Lib.FD_Type; Set : in out FD_Set_Type) is
+   begin
+      Set (FD) := 1;
+   end FD_SET;
+
+   -------------
+   -- FD_ZERO --
+   -------------
+
+   procedure FD_ZERO (Set : in out FD_Set_Type) is
+   begin
+      Set := (others => 0);
+   end FD_ZERO;
+
+   procedure Poll is new G_Poll (FD_Set_Type, FD_ZERO, FD_SET, FD_ISSET);
+
+begin
+   Poll (Fds, Timeout, Result);
+end Wait;

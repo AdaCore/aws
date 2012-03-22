@@ -64,11 +64,16 @@ procedure Max_Poll_Size is
       entry Cancel_Delay;
    end Writer_Task;
 
-   procedure Read_Data (Idx : Sets.Socket_Index; Mark : String) is
+   procedure Read_Data (Socket : Socket_Type'Class; Mark : String) is
    begin
-      if Sets.Get_Socket (Set, Idx).Receive /= Data then
+      if Socket.Receive /= Data then
          Put_Line ("Wrong data " & Mark);
       end if;
+   end Read_Data;
+
+   procedure Read_Data (Idx : Sets.Socket_Index; Mark : String) is
+   begin
+      Read_Data (Sets.Get_Socket (Set, Idx), Mark);
    end Read_Data;
 
    -----------------
@@ -108,18 +113,64 @@ begin
          Server.Accept_Socket (Peer);
       exception
          when E : Socket_Error =>
-            Put_Line (Ada.Exceptions.Exception_Information (E));
+            Put_Line
+              ("At connection " & Ada.Exceptions.Exception_Information (E));
+            Put_Line ("Wait count" & Sets.Count (Set)'Img);
             exit;
       end;
 
       Peer.Set_Timeout (0.0);
       Client.Set_Timeout (0.0);
 
+      Client.Send (Data);
+      Peer.Send (Data);
+
+      Read_Data (Peer, "peer");
+      Read_Data (Client, "client");
+
       Sets.Add (Set, Peer, Sets.Input);
       Sets.Add (Set, Client, Sets.Input);
    end loop;
 
-   Put_Line (Sets.Count (Set)'Img);
+   loop
+      declare
+         Socket : Socket_Access;
+      begin
+         Sets.Wait (Set, 0.0, Cnt);
+         exit;
+      exception
+         when E : Socket_Error =>
+            declare
+               Prefix : constant String := "Poll (Size => ";
+               Suffix :  constant String := ") error code 10024";
+               EM : constant String := Ada.Exceptions.Exception_Message (E);
+            begin
+               if EM'Length > Prefix'Length + Suffix'Length
+                 and then EM (Prefix'Range) = Prefix
+                 and then EM (EM'Last - Suffix'Length + 1 .. EM'Last) = Suffix
+               then
+                  if OK_Previous then
+                     Put_Line
+                       ("Too many sockets for poll "
+                        & EM (Prefix'Last + 1 .. EM'Last - Suffix'Length));
+                     OK_Previous := False;
+                  end if;
+               else
+                  Put_Line ("At wait " & EM);
+               end if;
+            end;
+
+            for J in 1 .. 2 loop
+               Sets.Remove_Socket (Set, Sets.Count (Set), Socket);
+               Socket.Shutdown;
+               Free (Socket);
+            end loop;
+      end;
+   end loop;
+
+   OK_Previous := True;
+
+   Put_Line ("Wait count" & Sets.Count (Set)'Img);
 
    --  Test read timeout is not depend on others socket activities.
    --  Actual for poll over posix select implementation.

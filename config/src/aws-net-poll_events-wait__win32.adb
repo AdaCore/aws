@@ -27,36 +27,55 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  Package with declarations for the Poll operation. This API is used to
---  implement AWS.Net.Sets.
+--  Wait implementation on top of windows select call
 
-with Interfaces.C.Strings;
-with System;
+separate (AWS.Net.Poll_Events)
 
-with AWS.OS_Lib;
-
-package AWS.Net.Thin is
-
+procedure Wait
+  (Fds : in out Set; Timeout : Timeout_Type; Result : out Integer)
+is
    use Interfaces;
+   use type C.int;
 
-   subtype FD_Type is OS_Lib.FD_Type;
-   subtype nfds_t is OS_Lib.nfds_t;
-   subtype Timeout_Type is C.int;
-   subtype Events_Type is OS_Lib.Events_Type;
+   type FD_Array is array (1 .. Fds.Length) of OS_Lib.FD_Type;
+   pragma Convention (C, FD_Array);
 
-   subtype chars_ptr is C.Strings.chars_ptr;
-
-   type Pollfd is record
-      FD      : FD_Type;
-      Events  : Events_Type := 0;
-      REvents : Events_Type := 0;
+   type FD_Set_Type is record
+      Count : C.int;
+      Set   : FD_Array;
    end record;
-   pragma Convention (C, Pollfd);
+   pragma Convention (C, FD_Set_Type);
 
-   function Poll
-     (Fds     : System.Address;
-      Nfds    : nfds_t;
-      Timeout : Timeout_Type) return C.int;
-   pragma Import (C, Poll, "poll");
+   procedure FD_ZERO (Set : in out FD_Set_Type);
+   pragma Inline (FD_ZERO);
 
-end AWS.Net.Thin;
+   procedure FD_SET (FD : OS_Lib.FD_Type; Set : in out FD_Set_Type);
+   pragma Inline (FD_SET);
+
+   function FD_ISSET (FD : OS_Lib.FD_Type; Set : FD_Set_Type) return C.int;
+   pragma Import (Stdcall, FD_ISSET, "__WSAFDIsSet");
+
+   ------------
+   -- FD_SET --
+   ------------
+
+   procedure FD_SET (FD : OS_Lib.FD_Type; Set : in out FD_Set_Type) is
+   begin
+      Set.Count := Set.Count + 1;
+      Set.Set (Integer (Set.Count)) := FD;
+   end FD_SET;
+
+   -------------
+   -- FD_ZERO --
+   -------------
+
+   procedure FD_ZERO (Set : in out FD_Set_Type) is
+   begin
+      Set.Count := 0;
+   end FD_ZERO;
+
+   procedure Poll is new G_Poll (FD_Set_Type, FD_ZERO, FD_SET, FD_ISSET);
+
+begin
+   Poll (Fds, Timeout, Result);
+end Wait;

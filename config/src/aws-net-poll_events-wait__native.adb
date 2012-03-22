@@ -27,24 +27,22 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-with AWS.Net.Thin;
-with G_Poll;
+--  Wait implementation on top of native poll call
 
-function Poll
-  (Fds     : System.Address;
-   Nfds    : AWS.OS_Lib.nfds_t;
-   Timeout : C.int) return C.int
+with System;
+
+separate (AWS.Net.Poll_Events)
+
+procedure Wait
+  (Fds : in out Set; Timeout : Timeout_Type; Result : out Integer)
 is
-   use AWS;
-   use AWS.Net;
-
-   type FD_Set_Type is array
-     (OS_Lib.nfds_t range 1 .. OS_Lib.FD_SETSIZE) of Thin.FD_Type;
-   pragma Convention (C, FD_Set_Type);
-
-   function POSIX_Poll is
-     new G_Poll (FD_Set_Type, OS_Lib.FD_ZERO, OS_Lib.FD_SET, OS_Lib.FD_ISSET);
+   function Poll
+     (Fds     : System.Address;
+      Nfds    : OS_Lib.nfds_t;
+      Timeout : Timeout_Type) return Interfaces.C.int;
+   pragma Import (C, Poll, "poll");
 
 begin
-   return POSIX_Poll (Fds, Nfds, Timeout);
-end Poll;
+   Result :=
+     Integer (Poll (Fds.Fds'Address, OS_Lib.nfds_t (Fds.Length), Timeout));
+end Wait;

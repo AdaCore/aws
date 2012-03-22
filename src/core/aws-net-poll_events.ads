@@ -27,7 +27,7 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-with AWS.Net.Thin;
+with AWS.OS_Lib;
 
 package AWS.Net.Poll_Events is
 
@@ -65,12 +65,20 @@ package AWS.Net.Poll_Events is
 
 private
 
-   type Poll_Set is array (Positive range <>) of Thin.Pollfd;
+   type Pollfd is record
+      FD      : OS_Lib.FD_Type;
+      Events  : OS_Lib.Events_Type := 0;
+      REvents : OS_Lib.Events_Type := 0;
+   end record;
+   pragma Convention (C, Pollfd);
+
+   type Poll_Set is array (Positive range <>) of Pollfd;
    pragma Convention (C, Poll_Set);
 
    type Set (Size : Natural) is new FD_Set (Size) with record
       Length : Natural := 0;
       Fds    : Poll_Set (1 .. Size);
+      Max_FD : OS_Lib.FD_Type := 0;
    end record;
 
 end AWS.Net.Poll_Events;

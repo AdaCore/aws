@@ -24,7 +24,7 @@ with "../ssl/ssl";
 
 library project Src is
 
-   for Languages use ("Ada", "C", "Project file", "makefile");
+   for Languages use ("Ada", "Project file", "makefile");
 
    for Source_Dirs use
      ("core", "extended", "../templates_parser/src", "../config/src",
@@ -41,19 +41,19 @@ library project Src is
    end case;
 
    --  For Windows OS native build add the Win32 directory
-   --  For Windows OS and vxworks target add poll implementation
 
    case Shared.Target is
-      when "vxworks" =>
-         for Source_Dirs use Project'Source_Dirs & "poll";
-
       when "native" =>
          case Shared.OS is
             when "Windows_NT" =>
-               for Source_Dirs use Project'Source_Dirs & ("poll", "win32");
+               for Languages use Project'Languages & ("C");
+               for Source_Dirs use Project'Source_Dirs & ("win32");
             when others =>
                null;
          end case;
+
+      when others =>
+         null;
    end case;
 
    for Object_Dir use "../" & Shared'Object_Dir & "/src";
@@ -148,13 +148,16 @@ library project Src is
            when "native" =>
               case Shared.OS is
                  when "Windows_NT" =>
-                    for Implementation ("Poll") use "poll__win32.adb";
+                    for Implementation ("AWS.Net.Poll_Events.Wait")
+                      use "aws-net-poll_events-wait__win32.adb";
                  when others =>
-                    null;
+                    for Implementation ("AWS.Net.Poll_Events.Wait")
+                      use "aws-net-poll_events-wait__native.adb";
               end case;
 
            when "vxworks" =>
-              for Implementation ("Poll") use "poll__posix.adb";
+              for Implementation ("AWS.Net.Poll_Events.Wait")
+                use "aws-net-poll_events-wait__posix.adb";
       end case;
 
       --  SSL Lib
