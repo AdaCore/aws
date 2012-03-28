@@ -34,6 +34,7 @@ with Ada.Text_IO;
 with AWS.Net.Sets;
 with AWS.Net.Std;
 with AWS.OS_Lib;
+with AWS.Utils;
 
 procedure Max_Poll_Size is
    use AWS.Net;
@@ -279,7 +280,23 @@ begin
 
    Put_Line ("One socket active test complete");
 
-   for J in 1 .. Sets.Count (Set) / 2 loop
+   --  Random reorder sockets to check poll independence from sockets order
+
+   for J in 1 .. Sets.Count (Set) loop
+      declare
+         S1, S2 : Socket_Access;
+         Idx : constant Sets.Socket_Index :=
+           Sets.Socket_Index (AWS.Utils.Random) rem (Sets.Count (Set) / 2 - 1)
+           * 2 + 1;
+      begin
+         Sets.Remove_Socket (Set, Idx, S1);
+         Sets.Remove_Socket (Set, Idx + 1, S2);
+         Sets.Add (Set, S1, Sets.Input);
+         Sets.Add (Set, S2, Sets.Input);
+      end;
+   end loop;
+
+   for J in reverse 1 .. Sets.Count (Set) / 2 loop
       Sets.Get_Socket (Set, J * 2).Send (Data);
    end loop;
 
@@ -300,4 +317,9 @@ begin
    end loop;
 
    Put_Line ("Half sockets active test complete");
+
+exception
+   when others =>
+      abort Writer_Task;
+      raise;
 end Max_Poll_Size;
