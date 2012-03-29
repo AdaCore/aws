@@ -140,10 +140,6 @@ package AWS.OS_Lib is
 
    function Socket_StrError (ecode : Integer) return C.Strings.chars_ptr;
 
-   procedure FD_ZERO (Set : System.Address);
-   procedure FD_SET (FD : FD_Type; Set : System.Address);
-   function FD_ISSET (FD : FD_Type; Set : System.Address) return C.int;
-
    function Set_Sock_Opt
      (S       : C.int;
       Level   : C.int;
@@ -171,8 +167,5 @@ private
    pragma Import (C, C_Ioctl, "ioctl");
    pragma Import (C, C_Close, "close");
    pragma Import (C, Set_Sock_Opt, "setsockopt");
-   pragma Import (C, FD_ZERO, "__aws_clear_socket_set");
-   pragma Import (C, FD_SET, "__aws_set_socket_in_set");
-   pragma Import (C, FD_ISSET, "__aws_is_socket_in_set");
 
 end AWS.OS_Lib;
