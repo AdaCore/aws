@@ -52,6 +52,9 @@ library project Src is
                null;
          end case;
 
+      when "vxworks" =>
+         for Languages use Project'Languages & ("C");
+         for Source_Dirs use Project'Source_Dirs & ("poll");
       when others =>
          null;
    end case;
