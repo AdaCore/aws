@@ -37,47 +37,18 @@ is
    use Interfaces;
    use type OS_Lib.FD_Type;
 
-   type Bit is range 0 .. 1;
-
-   type FD_Set_Type is array (OS_Lib.FD_Type range 0 .. Fds.Max_FD) of Bit;
-   pragma Pack (FD_Set_Type);
+   type FD_Set_Type is array
+     (OS_Lib.nfds_t range 1 .. OS_Lib.FD_SETSIZE) of OS_Lib.FD_Type;
    pragma Convention (C, FD_Set_Type);
 
    procedure FD_ZERO (Set : in out FD_Set_Type);
-   pragma Inline (FD_ZERO);
+   pragma Import (C, FD_ZERO, "__aws_clear_socket_set");
 
    procedure FD_SET (FD : OS_Lib.FD_Type; Set : in out FD_Set_Type);
-   pragma Inline (FD_SET);
+   pragma Import (C, FD_SET, "__aws_set_socket_in_set");
 
    function FD_ISSET (FD : OS_Lib.FD_Type; Set : FD_Set_Type) return C.int;
-   pragma Inline (FD_ISSET);
-
-   --------------
-   -- FD_ISSET --
-   --------------
-
-   function FD_ISSET (FD : OS_Lib.FD_Type; Set : FD_Set_Type) return C.int is
-   begin
-      return C.int (Set (FD));
-   end FD_ISSET;
-
-   ------------
-   -- FD_SET --
-   ------------
-
-   procedure FD_SET (FD : OS_Lib.FD_Type; Set : in out FD_Set_Type) is
-   begin
-      Set (FD) := 1;
-   end FD_SET;
-
-   -------------
-   -- FD_ZERO --
-   -------------
-
-   procedure FD_ZERO (Set : in out FD_Set_Type) is
-   begin
-      Set := (others => 0);
-   end FD_ZERO;
+   pragma Import (C, FD_ISSET, "__aws_is_socket_in_set");
 
    procedure Poll is new G_Poll (FD_Set_Type, FD_ZERO, FD_SET, FD_ISSET);
 

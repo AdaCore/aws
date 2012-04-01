@@ -1689,7 +1689,6 @@ src/core/aws-net-poll_events.ads
 src/core/aws-net-ssl-certificate.ads
 src/core/aws-net-ssl.ads
 src/core/aws-net-std.ads
-src/core/aws-net-thin.ads
 src/core/aws-net.adb
 src/core/aws-net.ads
 src/core/aws-parameters-set.adb
@@ -1845,12 +1844,7 @@ src/ldap/aws-ldap-thin.adb
 src/ldap/aws-ldap-thin.ads
 src/ldap/aws-ldap.ads
 src/makefile
-src/poll/g_poll.adb
-src/poll/g_poll.ads
 src/poll/os_support.c
-src/poll/poll.ads
-src/poll/poll__posix.adb
-src/poll/poll__win32.adb
 src/soap/soap-client.adb
 src/soap/soap-client.ads
 src/soap/soap-dispatchers-callback.adb

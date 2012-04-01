@@ -135,9 +135,9 @@ package body AWS.Net.Poll_Events is
 
       use type C.int;
       use type C.long;
+      use type OS_Lib.Events_Type;
       use type OS_Lib.FD_Type;
-      use type AWS.OS_Lib.timeval_field_t;
-      use type AWS.OS_Lib.Events_Type;
+      use type OS_Lib.timeval_field_t;
 
       function C_Select
         (Nfds      : C.int;
@@ -403,6 +403,7 @@ package body AWS.Net.Poll_Events is
                   return;
                end if;
             end if;
+
          else
             --  Call Raise_Socket_Error with dummy created socket and
             --  error code, to raise exception and log error message.
