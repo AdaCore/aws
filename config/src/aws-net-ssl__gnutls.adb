@@ -109,8 +109,6 @@ package body AWS.Net.SSL is
       Done : Boolean := False;
    end Default_Config_Synch;
 
-   DH_Bits : constant := 1024;
-
    procedure Initialize_Default_Config;
    --  Initializes default config. It could be called more then once, because
    --  secondary initialization is ignored.
@@ -433,8 +431,6 @@ package body AWS.Net.SSL is
       then
          Check_Error_Code
            (TSSL.gnutls_dh_params_init (Config.DH_Params'Access));
-         Check_Error_Code
-           (TSSL.gnutls_dh_params_generate2 (Config.DH_Params, DH_Bits));
 
          if Certificate_Filename = "" then
             Check_Error_Code
@@ -679,14 +675,25 @@ package body AWS.Net.SSL is
          end if;
 
          case Code is
-         when TSSL.GNUTLS_E_INTERRUPTED | TSSL.GNUTLS_E_AGAIN =>
+         when TSSL.GNUTLS_E_INTERRUPTED =>
             case TSSL.gnutls_record_get_direction (Socket.SSL) is
-            when 0 => Wait_For (Input, Socket);
+            when 0 =>
+               if Socket.Pending = 0 then
+                  Last := Last_Index (Data'First, 0);
+                  exit;
+               end if;
             when 1 =>
-               Last := Last_Index (Data'First, 0);
-               exit;
+               if not Socket.Check ((Output => True, Input => False))
+                        (Output)
+               then
+                  Last := Last_Index (Data'First, 0);
+                  exit;
+               end if;
             when others => raise Program_Error;
             end case;
+         when TSSL.GNUTLS_E_AGAIN =>
+            Last := Last_Index (Data'First, 0);
+            exit;
          when others => Check_Error_Code (Code, Socket);
          end case;
       end loop;
@@ -713,8 +720,6 @@ package body AWS.Net.SSL is
 
       Check_Error_Code
         (gnutls_credentials_set (Session, cred => Socket.Config.CCC), Socket);
-
-      gnutls_dh_set_prime_bits (Session, DH_Bits);
 
       Session_Transport (Socket);
    end Session_Client;
@@ -755,8 +760,6 @@ package body AWS.Net.SSL is
          end if;
       end if;
 
-      gnutls_dh_set_prime_bits (Session, DH_Bits);
-
       Session_Transport (Socket);
    end Session_Server;
 
@@ -768,14 +771,6 @@ package body AWS.Net.SSL is
    begin
       TSSL.gnutls_transport_set_ptr
         (Socket.SSL, TSSL.gnutls_transport_ptr_t (Socket.Get_FD));
-
-      --  www.gnu.org/software/gnutls/manual/html_node/The-transport-layer.html
-      --
-      --  For non blocking sockets or other custom made pull/push functions
-      --  the gnutls_transport_set_lowat must be called, with a zero low water
-      --  mark value.
-
-      TSSL.gnutls_transport_set_lowat (Socket.SSL, 0);
    end Session_Transport;
 
    ----------------
