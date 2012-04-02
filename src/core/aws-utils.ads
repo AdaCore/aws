@@ -259,10 +259,10 @@ package AWS.Utils is
       --  Decrements counter to the Amount
 
       procedure Increment (Amount : Natural := 1; Value : out Natural);
-      --  Adds Amount to the counter and returns the current value
+      --  Adds Amount to the counter and returns the new value
 
       procedure Decrement (Amount : Natural := 1; Value : out Natural);
-      --  Decrements counter to the Amount and returns the current value
+      --  Decrements counter to the Amount and returns the new value
 
       function Value return Natural;
       --  Returns the current counter value
