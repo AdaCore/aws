@@ -36,9 +36,10 @@ procedure Wait
 is
    use Interfaces;
    use type OS_Lib.FD_Type;
+   use type OS_Lib.nfds_t;
 
    type FD_Set_Type is array
-     (OS_Lib.nfds_t range 1 .. OS_Lib.FD_SETSIZE) of OS_Lib.FD_Type;
+     (OS_Lib.nfds_t range 1 .. OS_Lib.FD_SETSIZE / 8) of C.char;
    pragma Convention (C, FD_Set_Type);
 
    procedure FD_ZERO (Set : in out FD_Set_Type);
