@@ -68,8 +68,8 @@ on master branch:
    $ git commit -m "..."
    $ git push origin
 
-New features or fixes must be prepared on separate branches. The naming
-convention for those branches are:
+New features or fixes must be prepared on separate branches if there is
+multiple commits. The naming convention for those branches are:
 
    <developer_initials>/<name> (referred as branch_name in this document)
 
