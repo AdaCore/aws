@@ -27,6 +27,7 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
+with Ada.Strings.Fixed;
 with Ada.Characters.Handling;
 
 with AWS.Utils;
@@ -386,6 +387,32 @@ package body AWS.URL is
 
    function Resolve (URL : Object; Base_URL : Object) return Object is
       pragma Unreferenced (Base_URL);
+
+      function Merge (Path1, Path2 : String) return String;
+      pragma Unreferenced (Merge);
+      --  Merge two paths
+
+      -----------
+      -- Merge --
+      -----------
+
+      function Merge (Path1, Path2 : String) return String is
+         I : Integer;
+      begin
+         if Path2'Length > 0 and then Path2 (Path2'First) = '/' then
+            return Path2;
+
+         else
+            I := Strings.Fixed.Index (Path1, "/", Strings.Backward);
+
+            if I not in Path1'Range then
+               return "/" & Path2;
+            else
+               return Path1 (Path1'First .. I) & Path2;
+            end if;
+         end if;
+      end Merge;
+
    begin
       return URL;
    end Resolve;
