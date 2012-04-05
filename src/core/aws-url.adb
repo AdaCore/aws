@@ -392,6 +392,10 @@ package body AWS.URL is
       pragma Unreferenced (Merge);
       --  Merge two paths
 
+      procedure Remove_Dot_Segments (URL : in out Object);
+      pragma Unreferenced (Remove_Dot_Segments);
+      --  Remove dot segments as per RFC 3986 section 5.2.4
+
       -----------
       -- Merge --
       -----------
@@ -412,6 +416,134 @@ package body AWS.URL is
             end if;
          end if;
       end Merge;
+
+      -------------------------
+      -- Remove_Dot_Segments --
+      -------------------------
+
+      procedure Remove_Dot_Segments (URL : in out Object) is
+
+         function Starts_With
+           (S : String; Pat : String; From : Integer) return Boolean;
+         --  Return True if S starts with Pat at index From
+
+         function Remaining (S : String; From : Integer) return String;
+         --  Return String from the index From
+
+         procedure Go_Up;
+         --  Process ".." in path
+
+         Path : String := To_String (URL.Path);
+         I, N : Integer := Path'First;
+
+         -----------
+         -- Go_Up --
+         -----------
+
+         procedure Go_Up is
+            N : Integer;
+         begin
+            N := Index (URL.N_Path, "/", Ada.Strings.Backward);
+            if N = 0 then
+               URL.N_Path := Null_Unbounded_String;
+            else
+               Delete (URL.N_Path, N, Length (URL.N_Path));
+            end if;
+         end Go_Up;
+
+         ---------------
+         -- Remaining --
+         ---------------
+
+         function Remaining (S : String; From : Integer) return String is
+         begin
+            if From in S'Range then
+               return S (From .. S'Last);
+            else
+               return "";
+            end if;
+         end Remaining;
+
+         -----------------
+         -- Starts_With --
+         -----------------
+
+         function Starts_With
+           (S : String; Pat : String; From : Integer) return Boolean
+         is
+            To : constant Integer := From + Pat'Length - 1;
+         begin
+            if From in S'Range and then To in S'Range then
+               return S (From .. To) = Pat;
+            else
+               return False;
+            end if;
+         end Starts_With;
+
+      begin
+         URL.N_Path := Null_Unbounded_String;
+
+         while I in Path'Range loop
+
+            --  A.  If the input buffer begins with a prefix of "../" or "./",
+            --      then remove that prefix from the input buffer; otherwise,
+
+            if Starts_With (Path, "../", I) then
+               I := I + 3;
+            elsif Starts_With (Path, "./", I) then
+               I := I + 2;
+
+            --  B.  if the input buffer begins with a prefix of "/./" or "/.",
+            --      where "." is a complete path segment, then replace that
+            --      prefix with "/" in the input buffer; otherwise,
+
+            elsif Starts_With (Path, "/./", I) then
+               I := I + 2;
+            elsif Remaining (Path, I) = "/." then
+               I := I + 1;
+               Path (I) := '/';
+
+            --  C.  if the input buffer begins with a prefix of "/../" or
+            --      "/..", where ".." is a complete path segment, then replace
+            --      that prefix with "/" in the input buffer and remove the
+            --      last segment and its preceding "/" (if any) from the output
+            --      buffer; otherwise,
+
+            elsif Starts_With (Path, "/../", I) then
+               I := I + 3;
+               Go_Up;
+            elsif Remaining (Path, I) = "/.." then
+               I := I + 2;
+               Path (I) := '/';
+               Go_Up;
+
+            --  D.  if the input buffer consists only of "." or "..", then
+            --      remove that from the input buffer; otherwise,
+
+            elsif Remaining (Path, I) = ".." then
+               I := I + 2;
+            elsif Remaining (Path, I) = "." then
+               I := I + 1;
+
+            else
+               --  E.  move the first path segment in the input buffer to the
+               --      end of the output buffer, including the initial "/"
+               --      character(if any) and any subsequent characters up to,
+               --      but not including, the next "/" character or the end of
+               --      the input buffer.
+
+               N := Strings.Fixed.Index (Path, "/", I + 1);
+               if N in I + 1 .. Path'Last then
+                  Append (URL.N_Path, Path (I .. N - 1));
+                  I := N;
+               else
+
+                  Append (URL.N_Path, Path (I .. Path'Last));
+                  I := Path'Last + 1;
+               end if;
+            end if;
+         end loop;
+      end Remove_Dot_Segments;
 
    begin
       return URL;
