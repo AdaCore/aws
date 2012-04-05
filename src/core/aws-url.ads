@@ -218,7 +218,7 @@ private
       User       : Unbounded_String;
       Password   : Unbounded_String;
       Host       : Unbounded_String;
-      Port       : Positive          := Default_HTTP_Port;
+      Port       : Natural           := Default_HTTP_Port;
       Protocol   : Unbounded_String  := HTTP;
       Path       : Unbounded_String; -- Original path
       N_Path     : Unbounded_String; -- Normalized path

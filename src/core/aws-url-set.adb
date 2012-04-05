@@ -454,6 +454,7 @@ package body AWS.URL.Set is
       elsif L_URL /= "" then
          --  No known scheme detected. Look for a scheme anyway and parse the
          --  rest of the URL.
+         Item.Port := 0;
          Scheme := To_Unbounded_String (Parse_Scheme (L_URL));
 
          if Scheme /= Null_Unbounded_String then

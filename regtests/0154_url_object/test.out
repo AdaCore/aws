@@ -111,7 +111,7 @@ FAILURE       Expected: http://a/g
   Path     = /
   File     = g
 
-//g/                 -> ://g:80/
+//g/                 -> ://g:0/
 FAILURE       Expected: http://g/
 * http://a/b/c/d;p?q=q
   Protocol = http
@@ -119,7 +119,7 @@ FAILURE       Expected: http://g/
   Abs_Path = /b/c/d;p
   Path     = /b/c/
   File     = d;p
-* ://g:80/
+* ://g:0/
   Protocol = 
   Host     = g
   Abs_Path = /
