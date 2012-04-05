@@ -210,14 +210,16 @@ private
 
    type Path_Status is (Valid, Wrong);
 
-   type Protocol_Type is (HTTP, HTTPS, FTP);
+   HTTP  : constant Unbounded_String := To_Unbounded_String ("http");
+   HTTPS : constant Unbounded_String := To_Unbounded_String ("https");
+   FTP   : constant Unbounded_String := To_Unbounded_String ("ftp");
 
    type Object is record
       User       : Unbounded_String;
       Password   : Unbounded_String;
       Host       : Unbounded_String;
       Port       : Positive          := Default_HTTP_Port;
-      Protocol   : Protocol_Type     := HTTP;
+      Protocol   : Unbounded_String  := HTTP;
       Path       : Unbounded_String; -- Original path
       N_Path     : Unbounded_String; -- Normalized path
       File       : Unbounded_String;

@@ -28,6 +28,7 @@
 ------------------------------------------------------------------------------
 
 with Ada.Strings.Fixed;
+with Ada.Characters.Handling;
 
 with AWS.Parameters.Set;
 with AWS.URL.Raise_URL_Error;
@@ -167,10 +168,15 @@ package body AWS.URL.Set is
                       Strings.Fixed.Translate
                         (URL, Strings.Maps.To_Mapping ("\", "/"));
       P, F        : Natural;
+      Scheme      : Unbounded_String;
 
       procedure Parse (URL : String);
       --  Parse URL, the URL must not contain the HTTP_Token prefix.
       --  If a hostname is specified, the URL should start with "//"
+
+      function Parse_Scheme (URL : String) return String;
+      --  Parse the protocol part of the URL and return it. Return an empty
+      --  string if not found.
 
       -----------
       -- Parse --
@@ -371,6 +377,36 @@ package body AWS.URL.Set is
          end if;
       end Parse;
 
+      ------------------
+      -- Parse_Scheme --
+      ------------------
+
+      function Parse_Scheme (URL : String) return String is
+         Res : String := URL;
+      begin
+         for I in Res'Range loop
+            case Res (I) is
+               when 'a' .. 'z' =>
+                  null;
+
+               when 'A' .. 'Z' =>
+                  Res (I) := Characters.Handling.To_Lower (Res (I));
+
+               when ':' =>
+                  if I > Res'First then
+                     return Res (Res'First .. I - 1);
+                  else
+                     return "";
+                  end if;
+
+               when others =>
+                  return "";
+            end case;
+         end loop;
+
+         return "";
+      end Parse_Scheme;
+
    begin
       Item.Protocol := HTTP;
 
@@ -416,14 +452,18 @@ package body AWS.URL.Set is
          Item.Protocol := FTP;
 
       elsif L_URL /= "" then
-         --  Prefix is not recognized, this is either because there is no
-         --  protocol specified or the protocol is not supported by AWS. For
-         --  example a javascript reference start with "javascript:". This
-         --  will be caught on the next parsing level.
-         --
-         --  At least we know that it is not a Secure HTTP protocol URL.
+         --  No known scheme detected. Look for a scheme anyway and parse the
+         --  rest of the URL.
+         Scheme := To_Unbounded_String (Parse_Scheme (L_URL));
 
-         Parse (L_URL (L_URL'First .. P));
+         if Scheme /= Null_Unbounded_String then
+            Item.Protocol := Scheme;
+            Parse (L_URL (L_URL'First + Length (Scheme) + 1 .. P));
+
+         else
+            Item.Protocol := Null_Unbounded_String;
+            Parse (L_URL (L_URL'First .. P));
+         end if;
       end if;
 
       --  Normalize the URL path

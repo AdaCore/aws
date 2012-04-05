@@ -364,14 +364,7 @@ package body AWS.URL is
 
    function Protocol_Name (URL : Object) return String is
    begin
-      case URL.Protocol is
-         when HTTPS =>
-            return "https";
-         when HTTP =>
-            return "http";
-         when FTP =>
-            return "ftp";
-      end case;
+      return To_String (URL.Protocol);
    end Protocol_Name;
 
    -----------
