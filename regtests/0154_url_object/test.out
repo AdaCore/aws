@@ -32,7 +32,7 @@ shutdown
 ------------------------------------------------------
 Testing Relative URL Resolution - RFC 2557 Section 5.2
 
-Base: http://a/b/c/d;p?q
+Base: http://a/b/c/d;p?q=q
 ----------------------
 
 Normal Examples:
@@ -41,7 +41,7 @@ Message: Wrong URL: (g:h) Port is not valid.
 
 g                    -> g
 FAILURE       Expected: http://a/b/c/g
-* http://a/b/c/d;p
+* http://a/b/c/d;p?q=q
   Protocol = http
   Host     = a
   Abs_Path = /b/c/d;p
@@ -56,7 +56,7 @@ FAILURE       Expected: http://a/b/c/g
 
 ./g                  -> ./g
 FAILURE       Expected: http://a/b/c/g
-* http://a/b/c/d;p
+* http://a/b/c/d;p?q=q
   Protocol = http
   Host     = a
   Abs_Path = /b/c/d;p
@@ -71,7 +71,7 @@ FAILURE       Expected: http://a/b/c/g
 
 g/                   -> g/
 FAILURE       Expected: http://a/b/c/g/
-* http://a/b/c/d;p
+* http://a/b/c/d;p?q=q
   Protocol = http
   Host     = a
   Abs_Path = /b/c/d;p
@@ -86,7 +86,7 @@ FAILURE       Expected: http://a/b/c/g/
 
 /g                   -> /g
 FAILURE       Expected: http://a/g
-* http://a/b/c/d;p
+* http://a/b/c/d;p?q=q
   Protocol = http
   Host     = a
   Abs_Path = /b/c/d;p
@@ -101,7 +101,7 @@ FAILURE       Expected: http://a/g
 
 //g                  -> //g
 FAILURE       Expected: http://g
-* http://a/b/c/d;p
+* http://a/b/c/d;p?q=q
   Protocol = http
   Host     = a
   Abs_Path = /b/c/d;p
@@ -114,30 +114,30 @@ FAILURE       Expected: http://g
   Path     = //
   File     = g
 
-?y                   -> 
-FAILURE       Expected: http://a/b/c/d;p?y
-* http://a/b/c/d;p
+?y=y                 -> ?y=y
+FAILURE       Expected: http://a/b/c/d;p?y=y
+* http://a/b/c/d;p?q=q
   Protocol = http
   Host     = a
   Abs_Path = /b/c/d;p
   Path     = /b/c/
   File     = d;p
-* 
+* ?y=y
   Protocol = http
   Host     = 
   Abs_Path = 
   Path     = 
   File     = 
 
-g?y                  -> g
-FAILURE       Expected: http://a/b/c/g?y
-* http://a/b/c/d;p
+g?y=y                -> g?y=y
+FAILURE       Expected: http://a/b/c/g?y=y
+* http://a/b/c/d;p?q=q
   Protocol = http
   Host     = a
   Abs_Path = /b/c/d;p
   Path     = /b/c/
   File     = d;p
-* g
+* g?y=y
   Protocol = http
   Host     = 
   Abs_Path = g
@@ -145,8 +145,8 @@ FAILURE       Expected: http://a/b/c/g?y
   File     = g
 
 #s                   -> #s
-FAILURE       Expected: http://a/b/c/d;p?q#s
-* http://a/b/c/d;p
+FAILURE       Expected: http://a/b/c/d;p?q=q#s
+* http://a/b/c/d;p?q=q
   Protocol = http
   Host     = a
   Abs_Path = /b/c/d;p
@@ -161,7 +161,7 @@ FAILURE       Expected: http://a/b/c/d;p?q#s
 
 g#s                  -> g#s
 FAILURE       Expected: http://a/b/c/g#s
-* http://a/b/c/d;p
+* http://a/b/c/d;p?q=q
   Protocol = http
   Host     = a
   Abs_Path = /b/c/d;p
@@ -174,15 +174,15 @@ FAILURE       Expected: http://a/b/c/g#s
   Path     = 
   File     = g#s
 
-g?y#s                -> g
-FAILURE       Expected: http://a/b/c/g?y#s
-* http://a/b/c/d;p
+g?y=y#s              -> g?y=y#s
+FAILURE       Expected: http://a/b/c/g?y=y#s
+* http://a/b/c/d;p?q=q
   Protocol = http
   Host     = a
   Abs_Path = /b/c/d;p
   Path     = /b/c/
   File     = d;p
-* g
+* g?y=y#s
   Protocol = http
   Host     = 
   Abs_Path = g
@@ -191,7 +191,7 @@ FAILURE       Expected: http://a/b/c/g?y#s
 
 ;x                   -> ;x
 FAILURE       Expected: http://a/b/c/;x
-* http://a/b/c/d;p
+* http://a/b/c/d;p?q=q
   Protocol = http
   Host     = a
   Abs_Path = /b/c/d;p
@@ -206,7 +206,7 @@ FAILURE       Expected: http://a/b/c/;x
 
 g;x                  -> g;x
 FAILURE       Expected: http://a/b/c/g;x
-* http://a/b/c/d;p
+* http://a/b/c/d;p?q=q
   Protocol = http
   Host     = a
   Abs_Path = /b/c/d;p
@@ -219,15 +219,15 @@ FAILURE       Expected: http://a/b/c/g;x
   Path     = 
   File     = g;x
 
-g;x?y#s              -> g;x
-FAILURE       Expected: http://a/b/c/g;x?y#s
-* http://a/b/c/d;p
+g;x?y=y#s            -> g;x?y=y#s
+FAILURE       Expected: http://a/b/c/g;x?y=y#s
+* http://a/b/c/d;p?q=q
   Protocol = http
   Host     = a
   Abs_Path = /b/c/d;p
   Path     = /b/c/
   File     = d;p
-* g;x
+* g;x?y=y#s
   Protocol = http
   Host     = 
   Abs_Path = g;x
@@ -235,8 +235,8 @@ FAILURE       Expected: http://a/b/c/g;x?y#s
   File     = g;x
 
                      -> 
-FAILURE       Expected: http://a/b/c/d;p?q
-* http://a/b/c/d;p
+FAILURE       Expected: http://a/b/c/d;p?q=q
+* http://a/b/c/d;p?q=q
   Protocol = http
   Host     = a
   Abs_Path = /b/c/d;p
@@ -251,7 +251,7 @@ FAILURE       Expected: http://a/b/c/d;p?q
 
 .                    -> .
 FAILURE       Expected: http://a/b/c/
-* http://a/b/c/d;p
+* http://a/b/c/d;p?q=q
   Protocol = http
   Host     = a
   Abs_Path = /b/c/d;p
@@ -266,7 +266,7 @@ FAILURE       Expected: http://a/b/c/
 
 ./                   -> ./
 FAILURE       Expected: http://a/b/c/
-* http://a/b/c/d;p
+* http://a/b/c/d;p?q=q
   Protocol = http
   Host     = a
   Abs_Path = /b/c/d;p
@@ -281,7 +281,7 @@ FAILURE       Expected: http://a/b/c/
 
 ..                   -> ..
 FAILURE       Expected: http://a/b/
-* http://a/b/c/d;p
+* http://a/b/c/d;p?q=q
   Protocol = http
   Host     = a
   Abs_Path = /b/c/d;p
@@ -296,7 +296,7 @@ FAILURE       Expected: http://a/b/
 
 ../                  -> ../
 FAILURE       Expected: http://a/b/
-* http://a/b/c/d;p
+* http://a/b/c/d;p?q=q
   Protocol = http
   Host     = a
   Abs_Path = /b/c/d;p
@@ -311,7 +311,7 @@ FAILURE       Expected: http://a/b/
 
 ../g                 -> ../g
 FAILURE       Expected: http://a/b/g
-* http://a/b/c/d;p
+* http://a/b/c/d;p?q=q
   Protocol = http
   Host     = a
   Abs_Path = /b/c/d;p
@@ -326,7 +326,7 @@ FAILURE       Expected: http://a/b/g
 
 ../..                -> ../..
 FAILURE       Expected: http://a/
-* http://a/b/c/d;p
+* http://a/b/c/d;p?q=q
   Protocol = http
   Host     = a
   Abs_Path = /b/c/d;p
@@ -341,7 +341,7 @@ FAILURE       Expected: http://a/
 
 ../../               -> ../../
 FAILURE       Expected: http://a/
-* http://a/b/c/d;p
+* http://a/b/c/d;p?q=q
   Protocol = http
   Host     = a
   Abs_Path = /b/c/d;p
@@ -356,7 +356,7 @@ FAILURE       Expected: http://a/
 
 ../../g              -> ../../g
 FAILURE       Expected: http://a/g
-* http://a/b/c/d;p
+* http://a/b/c/d;p?q=q
   Protocol = http
   Host     = a
   Abs_Path = /b/c/d;p
@@ -373,7 +373,7 @@ FAILURE       Expected: http://a/g
 Too much '..':
 ../../../g           -> ../../../g
 FAILURE       Expected: http://a/g
-* http://a/b/c/d;p
+* http://a/b/c/d;p?q=q
   Protocol = http
   Host     = a
   Abs_Path = /b/c/d;p
@@ -388,7 +388,7 @@ FAILURE       Expected: http://a/g
 
 ../../../../g        -> ../../../../g
 FAILURE       Expected: http://a/g
-* http://a/b/c/d;p
+* http://a/b/c/d;p?q=q
   Protocol = http
   Host     = a
   Abs_Path = /b/c/d;p
@@ -405,7 +405,7 @@ FAILURE       Expected: http://a/g
 Do not remove '.' and '..' in path components:
 /./g                 -> /./g
 FAILURE       Expected: http://a/g
-* http://a/b/c/d;p
+* http://a/b/c/d;p?q=q
   Protocol = http
   Host     = a
   Abs_Path = /b/c/d;p
@@ -420,7 +420,7 @@ FAILURE       Expected: http://a/g
 
 /../g                -> /../g
 FAILURE       Expected: http://a/g
-* http://a/b/c/d;p
+* http://a/b/c/d;p?q=q
   Protocol = http
   Host     = a
   Abs_Path = /b/c/d;p
@@ -435,7 +435,7 @@ FAILURE       Expected: http://a/g
 
 g.                   -> g.
 FAILURE       Expected: http://a/b/c/g.
-* http://a/b/c/d;p
+* http://a/b/c/d;p?q=q
   Protocol = http
   Host     = a
   Abs_Path = /b/c/d;p
@@ -450,7 +450,7 @@ FAILURE       Expected: http://a/b/c/g.
 
 .g                   -> .g
 FAILURE       Expected: http://a/b/c/.g
-* http://a/b/c/d;p
+* http://a/b/c/d;p?q=q
   Protocol = http
   Host     = a
   Abs_Path = /b/c/d;p
@@ -465,7 +465,7 @@ FAILURE       Expected: http://a/b/c/.g
 
 g..                  -> g..
 FAILURE       Expected: http://a/b/c/g..
-* http://a/b/c/d;p
+* http://a/b/c/d;p?q=q
   Protocol = http
   Host     = a
   Abs_Path = /b/c/d;p
@@ -480,7 +480,7 @@ FAILURE       Expected: http://a/b/c/g..
 
 ..g                  -> ..g
 FAILURE       Expected: http://a/b/c/..g
-* http://a/b/c/d;p
+* http://a/b/c/d;p?q=q
   Protocol = http
   Host     = a
   Abs_Path = /b/c/d;p
@@ -497,7 +497,7 @@ FAILURE       Expected: http://a/b/c/..g
 Unnecessary '.' and '..':
 ./../g               -> ./../g
 FAILURE       Expected: http://a/b/g
-* http://a/b/c/d;p
+* http://a/b/c/d;p?q=q
   Protocol = http
   Host     = a
   Abs_Path = /b/c/d;p
@@ -512,7 +512,7 @@ FAILURE       Expected: http://a/b/g
 
 ./g/.                -> ./g/.
 FAILURE       Expected: http://a/b/c/g/
-* http://a/b/c/d;p
+* http://a/b/c/d;p?q=q
   Protocol = http
   Host     = a
   Abs_Path = /b/c/d;p
@@ -527,7 +527,7 @@ FAILURE       Expected: http://a/b/c/g/
 
 g/./h                -> g/./h
 FAILURE       Expected: http://a/b/c/g/h
-* http://a/b/c/d;p
+* http://a/b/c/d;p?q=q
   Protocol = http
   Host     = a
   Abs_Path = /b/c/d;p
@@ -542,7 +542,7 @@ FAILURE       Expected: http://a/b/c/g/h
 
 g/../h               -> g/../h
 FAILURE       Expected: http://a/b/c/h
-* http://a/b/c/d;p
+* http://a/b/c/d;p?q=q
   Protocol = http
   Host     = a
   Abs_Path = /b/c/d;p
@@ -557,7 +557,7 @@ FAILURE       Expected: http://a/b/c/h
 
 g;x=1/./y            -> g;x=1/./y
 FAILURE       Expected: http://a/b/c/g;x=1/y
-* http://a/b/c/d;p
+* http://a/b/c/d;p?q=q
   Protocol = http
   Host     = a
   Abs_Path = /b/c/d;p
@@ -572,7 +572,7 @@ FAILURE       Expected: http://a/b/c/g;x=1/y
 
 g;x=1/../y           -> g;x=1/../y
 FAILURE       Expected: http://a/b/c/y
-* http://a/b/c/d;p
+* http://a/b/c/d;p?q=q
   Protocol = http
   Host     = a
   Abs_Path = /b/c/d;p
@@ -587,30 +587,30 @@ FAILURE       Expected: http://a/b/c/y
 
 
 Separate query and fragment:
-g?y/./x              -> g
-FAILURE       Expected: http://a/b/c/g?y/./x
-* http://a/b/c/d;p
+g?y=/./x             -> g?y=/./x
+FAILURE       Expected: http://a/b/c/g?y=/./x
+* http://a/b/c/d;p?q=q
   Protocol = http
   Host     = a
   Abs_Path = /b/c/d;p
   Path     = /b/c/
   File     = d;p
-* g
+* g?y=/./x
   Protocol = http
   Host     = 
   Abs_Path = g
   Path     = 
   File     = g
 
-g?y/../x             -> g
-FAILURE       Expected: http://a/b/c/g?y/../x
-* http://a/b/c/d;p
+g?y=/../x            -> g?y=/../x
+FAILURE       Expected: http://a/b/c/g?y=/../x
+* http://a/b/c/d;p?q=q
   Protocol = http
   Host     = a
   Abs_Path = /b/c/d;p
   Path     = /b/c/
   File     = d;p
-* g
+* g?y=/../x
   Protocol = http
   Host     = 
   Abs_Path = g
@@ -619,7 +619,7 @@ FAILURE       Expected: http://a/b/c/g?y/../x
 
 g#s/./x              -> g#s/./x
 FAILURE       Expected: http://a/b/c/g#s/./x
-* http://a/b/c/d;p
+* http://a/b/c/d;p?q=q
   Protocol = http
   Host     = a
   Abs_Path = /b/c/d;p
@@ -634,7 +634,7 @@ FAILURE       Expected: http://a/b/c/g#s/./x
 
 g#s/../x             -> g#s/../x
 FAILURE       Expected: http://a/b/c/g#s/../x
-* http://a/b/c/d;p
+* http://a/b/c/d;p?q=q
   Protocol = http
   Host     = a
   Abs_Path = /b/c/d;p
