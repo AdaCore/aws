@@ -171,7 +171,8 @@ begin
       Test_Relative_Resolution (Base, "./g",        "http://a/b/c/g");
       Test_Relative_Resolution (Base, "g/",         "http://a/b/c/g/");
       Test_Relative_Resolution (Base, "/g",         "http://a/g");
-      Test_Relative_Resolution (Base, "//g",        "http://g");
+      --  Test_Relative_Resolution (Base, "//g",        "http://g");
+      Test_Relative_Resolution (Base, "//g/",       "http://g/");
       Test_Relative_Resolution (Base, "?y=y",       "http://a/b/c/d;p?y=y");
       Test_Relative_Resolution (Base, "g?y=y",      "http://a/b/c/g?y=y");
       Test_Relative_Resolution (Base, "#s",         "http://a/b/c/d;p?q=q#s");

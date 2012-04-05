@@ -99,20 +99,20 @@ FAILURE       Expected: http://a/g
   Path     = /
   File     = g
 
-//g                  -> //g
-FAILURE       Expected: http://g
+//g/                 -> //g/
+FAILURE       Expected: http://g/
 * http://a/b/c/d;p?q=q
   Protocol = http
   Host     = a
   Abs_Path = /b/c/d;p
   Path     = /b/c/
   File     = d;p
-* //g
+* //g/
   Protocol = http
   Host     = 
-  Abs_Path = //g
-  Path     = //
-  File     = g
+  Abs_Path = //g/
+  Path     = //g/
+  File     = 
 
 ?y=y                 -> ?y=y
 FAILURE       Expected: http://a/b/c/d;p?y=y
