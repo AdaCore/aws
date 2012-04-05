@@ -435,7 +435,11 @@ package body AWS.URL is
 
    begin
       if Host (URL) = "" then
-         return Pathname_And_Parameters (URL);
+         if Protocol_Name (URL) /= "" then
+            return Protocol_Name (URL) & ":" & Pathname_And_Parameters (URL);
+         else
+            return Pathname_And_Parameters (URL);
+         end if;
       else
          return Protocol_Name (URL) & "://"
            & User_Password & Host (URL, IPv6_Brackets => True)

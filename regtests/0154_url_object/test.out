@@ -36,21 +36,7 @@ Base: http://a/b/c/d;p?q=q
 ----------------------
 
 Normal Examples:
-g:h                  -> h
-FAILURE       Expected: g:h
-* http://a/b/c/d;p?q=q
-  Protocol = http
-  Host     = a
-  Abs_Path = /b/c/d;p
-  Path     = /b/c/
-  File     = d;p
-* h
-  Protocol = g
-  Host     = 
-  Abs_Path = h
-  Path     = 
-  File     = h
-
+g:h                  -> g:h
 g                    -> g
 FAILURE       Expected: http://a/b/c/g
 * http://a/b/c/d;p?q=q
@@ -661,18 +647,4 @@ FAILURE       Expected: http://a/b/c/g#s/../x
 
 
 No scheme in relative URI (strict):
-http:g               -> g
-FAILURE       Expected: http:g
-* http://a/b/c/d;p?q=q
-  Protocol = http
-  Host     = a
-  Abs_Path = /b/c/d;p
-  Path     = /b/c/
-  File     = d;p
-* g
-  Protocol = http
-  Host     = 
-  Abs_Path = g
-  Path     = 
-  File     = g
-
+http:g               -> http:g
