@@ -464,6 +464,10 @@ package body AWS.URL.Set is
             Item.Protocol := Null_Unbounded_String;
             Parse (L_URL (L_URL'First .. P));
          end if;
+
+      else
+         --  L_URL = ""
+         Item.Protocol := Null_Unbounded_String;
       end if;
 
       --  Normalize the URL path

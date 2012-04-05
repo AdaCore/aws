@@ -255,7 +255,7 @@ FAILURE       Expected: http://a/b/c/d;p?q=q
   Path     = /b/c/
   File     = d;p
 * 
-  Protocol = http
+  Protocol = 
   Host     = 
   Abs_Path = 
   Path     = 
