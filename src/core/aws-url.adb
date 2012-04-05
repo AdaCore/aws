@@ -386,15 +386,17 @@ package body AWS.URL is
    -------------
 
    function Resolve (URL : Object; Base_URL : Object) return Object is
-      pragma Unreferenced (Base_URL);
+
+      Res : Object;
 
       function Merge (Path1, Path2 : String) return String;
-      pragma Unreferenced (Merge);
       --  Merge two paths
 
       procedure Remove_Dot_Segments (URL : in out Object);
-      pragma Unreferenced (Remove_Dot_Segments);
       --  Remove dot segments as per RFC 3986 section 5.2.4
+
+      procedure Set_Protocol (Into :  in out Object; From : Object);
+      --  Change protocol of Into
 
       -----------
       -- Merge --
@@ -545,8 +547,66 @@ package body AWS.URL is
          end loop;
       end Remove_Dot_Segments;
 
+      ------------------
+      -- Set_Protocol --
+      ------------------
+
+      procedure Set_Protocol (Into :  in out Object; From : Object) is
+      begin
+         --  If both have default port, update it
+
+         if Into.Port = 0
+           or else (Port_Not_Default (Into) = ""
+                    and then Port_Not_Default (From) = "")
+         then
+            Into.Port := From.Port;
+         end if;
+
+         Into.Protocol := From.Protocol;
+      end Set_Protocol;
+
    begin
-      return URL;
+      if Protocol_Name (URL) /= "" then
+         Res := URL;
+
+      else
+         if Host (URL) /= "" then
+            Res := URL;
+            Set_Protocol  (Res, Base_URL);
+
+         else
+            if Abs_Path (URL) = "" then
+               Res := Base_URL;
+               if Query (URL) /= "" then
+                  Res.Parameters := URL.Parameters;
+               end if;
+
+            else
+               Res := URL;
+               if URL.Path = Null_Unbounded_String
+                 or else Slice (URL.Path, 1, 1) /= "/"
+               then
+                  --  Merge Base_URL path with URL path
+                  Res.Path := To_Unbounded_String
+                    (Merge (Abs_Path (Base_URL), To_String (URL.Path)));
+               end if;
+
+               Res.Parameters := URL.Parameters;
+               Res.User     := Base_URL.User;
+               Res.Password := Base_URL.Password;
+               Res.Host     := Base_URL.Host;
+               Res.Port     := Base_URL.Port;
+            end if;
+         end if;
+
+         Res.Protocol := Base_URL.Protocol;
+      end if;
+
+      Res.Fragment := URL.Fragment;
+      Remove_Dot_Segments (Res);
+      Res.Path := Res.N_Path;
+
+      return Res;
    end Resolve;
 
    -------------

@@ -15,6 +15,10 @@ of the feature.
 New features in AWS 2.11
 ------------------------
 
+NF-211-L402-023 Implement AWS.URL.Resolve function for URL resolution
+
+   AWS.URL.Resolve function was implemented using RFC 3956 Section 5.2.
+
 NF-211-L301-022 Add support for session cookies
 
    A session cookie is one without a Max-Age attribute. Such cookies
