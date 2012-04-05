@@ -36,9 +36,7 @@ Base: http://a/b/c/d;p?q=q
 ----------------------
 
 Normal Examples:
-Exception name: AWS.URL.URL_ERROR
-Message: Wrong URL: (g:h) Port is not valid.
-
+g:h                  -> g:h
 g                    -> g
 FAILURE       Expected: http://a/b/c/g
 * http://a/b/c/d;p?q=q
@@ -99,21 +97,7 @@ FAILURE       Expected: http://a/g
   Path     = /
   File     = g
 
-//g/                 -> //g/
-FAILURE       Expected: http://g/
-* http://a/b/c/d;p?q=q
-  Protocol = http
-  Host     = a
-  Abs_Path = /b/c/d;p
-  Path     = /b/c/
-  File     = d;p
-* //g/
-  Protocol = http
-  Host     = 
-  Abs_Path = //g/
-  Path     = //g/
-  File     = 
-
+//g/                 -> http://g/
 ?y=y                 -> ?y=y
 FAILURE       Expected: http://a/b/c/d;p?y=y
 * http://a/b/c/d;p?q=q
@@ -649,6 +633,18 @@ FAILURE       Expected: http://a/b/c/g#s/../x
 
 
 No scheme in relative URI (strict):
-Exception name: AWS.URL.URL_ERROR
-Message: Wrong URL: (http:g) Port is not valid.
+http:g               -> g
+FAILURE       Expected: http:g
+* http://a/b/c/d;p?q=q
+  Protocol = http
+  Host     = a
+  Abs_Path = /b/c/d;p
+  Path     = /b/c/
+  File     = d;p
+* g
+  Protocol = http
+  Host     = 
+  Abs_Path = g
+  Path     = 
+  File     = g
 
