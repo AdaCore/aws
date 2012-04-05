@@ -378,6 +378,25 @@ package body AWS.URL is
       return P (P'First + 1 .. P'Last);
    end Query;
 
+   -------------
+   -- Resolve --
+   -------------
+
+   function Resolve (URL : Object; Base_URL : Object) return Object is
+      pragma Unreferenced (Base_URL);
+   begin
+      return URL;
+   end Resolve;
+
+   -------------
+   -- Resolve --
+   -------------
+
+   function Resolve (URL : String; Base_URL : String) return String is
+   begin
+      return AWS.URL.URL (Resolve (Parse (URL), Parse (Base_URL)));
+   end Resolve;
+
    --------------
    -- Security --
    --------------

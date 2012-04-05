@@ -170,6 +170,18 @@ package AWS.URL is
    --  Return the parameter list associated with the URL
 
    --
+   --  URL Resolution
+   --
+
+   function Resolve (URL : Object; Base_URL : Object) return Object;
+   --  Resolve an URL relative to a Base_URL. Uses RFC 3986, section 5.2
+   --  algorithm.
+
+   function Resolve (URL : String; Base_URL : String) return String;
+   --  Resolve an URL relatively to a Base_URL. Same function as above, but
+   --  working with Strings.
+
+   --
    --  URL Encoding and Decoding
    --
 
