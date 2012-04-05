@@ -190,6 +190,15 @@ package body AWS.URL is
       end if;
    end File;
 
+   --------------
+   -- Fragment --
+   --------------
+
+   function Fragment (URL : Object) return String is
+   begin
+      return To_String (URL.Fragment);
+   end Fragment;
+
    ----------
    -- Host --
    ----------
@@ -437,7 +446,8 @@ package body AWS.URL is
       else
          return Protocol_Name (URL) & "://"
            & User_Password & Host (URL, IPv6_Brackets => True)
-           & Port_Not_Default (URL) & Pathname (URL) & Parameters (URL);
+           & Port_Not_Default (URL) & Pathname (URL) & Parameters (URL)
+           & Fragment (URL);
       end if;
    end URL;
 

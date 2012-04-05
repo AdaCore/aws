@@ -144,7 +144,7 @@ FAILURE       Expected: http://a/b/c/g?y=y
   Path     = 
   File     = g
 
-#s                   -> #s
+#s                   -> 
 FAILURE       Expected: http://a/b/c/d;p?q=q#s
 * http://a/b/c/d;p?q=q
   Protocol = http
@@ -152,14 +152,14 @@ FAILURE       Expected: http://a/b/c/d;p?q=q#s
   Abs_Path = /b/c/d;p
   Path     = /b/c/
   File     = d;p
-* #s
+* 
   Protocol = http
   Host     = 
-  Abs_Path = #s
+  Abs_Path = 
   Path     = 
-  File     = #s
+  File     = 
 
-g#s                  -> g#s
+g#s                  -> g
 FAILURE       Expected: http://a/b/c/g#s
 * http://a/b/c/d;p?q=q
   Protocol = http
@@ -167,14 +167,14 @@ FAILURE       Expected: http://a/b/c/g#s
   Abs_Path = /b/c/d;p
   Path     = /b/c/
   File     = d;p
-* g#s
+* g
   Protocol = http
   Host     = 
-  Abs_Path = g#s
+  Abs_Path = g
   Path     = 
-  File     = g#s
+  File     = g
 
-g?y=y#s              -> g?y=y#s
+g?y=y#s              -> g?y=y
 FAILURE       Expected: http://a/b/c/g?y=y#s
 * http://a/b/c/d;p?q=q
   Protocol = http
@@ -182,7 +182,7 @@ FAILURE       Expected: http://a/b/c/g?y=y#s
   Abs_Path = /b/c/d;p
   Path     = /b/c/
   File     = d;p
-* g?y=y#s
+* g?y=y
   Protocol = http
   Host     = 
   Abs_Path = g
@@ -219,7 +219,7 @@ FAILURE       Expected: http://a/b/c/g;x
   Path     = 
   File     = g;x
 
-g;x?y=y#s            -> g;x?y=y#s
+g;x?y=y#s            -> g;x?y=y
 FAILURE       Expected: http://a/b/c/g;x?y=y#s
 * http://a/b/c/d;p?q=q
   Protocol = http
@@ -227,7 +227,7 @@ FAILURE       Expected: http://a/b/c/g;x?y=y#s
   Abs_Path = /b/c/d;p
   Path     = /b/c/
   File     = d;p
-* g;x?y=y#s
+* g;x?y=y
   Protocol = http
   Host     = 
   Abs_Path = g;x
@@ -617,7 +617,7 @@ FAILURE       Expected: http://a/b/c/g?y=/../x
   Path     = 
   File     = g
 
-g#s/./x              -> g#s/./x
+g#s/./x              -> g
 FAILURE       Expected: http://a/b/c/g#s/./x
 * http://a/b/c/d;p?q=q
   Protocol = http
@@ -625,14 +625,14 @@ FAILURE       Expected: http://a/b/c/g#s/./x
   Abs_Path = /b/c/d;p
   Path     = /b/c/
   File     = d;p
-* g#s/./x
+* g
   Protocol = http
   Host     = 
-  Abs_Path = g#s/./x
-  Path     = g#s/./
-  File     = x
+  Abs_Path = g
+  Path     = 
+  File     = g
 
-g#s/../x             -> g#s/../x
+g#s/../x             -> g
 FAILURE       Expected: http://a/b/c/g#s/../x
 * http://a/b/c/d;p?q=q
   Protocol = http
@@ -640,12 +640,12 @@ FAILURE       Expected: http://a/b/c/g#s/../x
   Abs_Path = /b/c/d;p
   Path     = /b/c/
   File     = d;p
-* g#s/../x
+* g
   Protocol = http
   Host     = 
-  Abs_Path = g#s/../x
-  Path     = g#s/../
-  File     = x
+  Abs_Path = g
+  Path     = 
+  File     = g
 
 
 No scheme in relative URI (strict):

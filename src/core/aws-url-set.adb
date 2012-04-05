@@ -166,7 +166,7 @@ package body AWS.URL.Set is
       L_URL       : constant String :=
                       Strings.Fixed.Translate
                         (URL, Strings.Maps.To_Mapping ("\", "/"));
-      P           : Natural;
+      P, F        : Natural;
 
       procedure Parse (URL : String; Protocol_Specified : Boolean);
       --  Parse URL, the URL must not contain the HTTP_Token prefix.
@@ -361,15 +361,28 @@ package body AWS.URL.Set is
    begin
       Item.Protocol := HTTP;
 
+      --  Checks for fragment
+
+      F := Strings.Fixed.Index (L_URL, "#");
+
+      if F = 0 then
+         F := L_URL'Last;
+         Item.Fragment := Null_Unbounded_String;
+
+      else
+         Item.Fragment := To_Unbounded_String (L_URL (F .. L_URL'Last));
+         F := F - 1;
+      end if;
+
       --  Checks for parameters
 
       P := Strings.Fixed.Index (L_URL, "?");
 
       if P = 0 then
-         P := L_URL'Last;
+         P := F;
 
       else
-         AWS.Parameters.Set.Add (Item.Parameters, L_URL (P .. L_URL'Last));
+         AWS.Parameters.Set.Add (Item.Parameters, L_URL (P .. F));
          P := P - 1;
       end if;
 

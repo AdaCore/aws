@@ -48,11 +48,11 @@ package AWS.URL is
    --  RFC but are used and supported in many browsers. Here are the extended
    --  URL supported:
    --
-   --  http://username:password@www.here.com:80/dir1/dir2/xyz.html?p=8&x=doh
-   --   |                            |       | |          |       |
-   --   protocol                     host port path       file    parameters
+   --  http://user:pass@www.here.com:80/dir1/dir2/xyz.html?p=8&x=doh#anchor
+   --   |                    |       | |          |       |         |
+   --   protocol             host port path       file   parameters fragment
    --
-   --                                          <--  pathname  -->
+   --                                  <--  pathname  -->
 
    type Object is private;
 
@@ -169,6 +169,10 @@ package AWS.URL is
    pragma Inline (Parameters);
    --  Return the parameter list associated with the URL
 
+   function Fragment (URL : Object) return String;
+   pragma Inline (Fragment);
+   --  Return the part after the # sign (included)
+
    --
    --  URL Resolution
    --
@@ -219,6 +223,7 @@ private
       File       : Unbounded_String;
       Status     : Path_Status       := Wrong;
       Parameters : aliased AWS.Parameters.List;
+      Fragment   : Unbounded_String;
    end record;
 
    Default_Encoding_Set : constant Strings.Maps.Character_Set
