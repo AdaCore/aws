@@ -38,18 +38,22 @@ is
    use type OS_Lib.FD_Type;
    use type OS_Lib.nfds_t;
 
-   type FD_Set_Type is array
-     (OS_Lib.nfds_t range 1 .. OS_Lib.FD_SETSIZE / 8) of C.char;
+   type FD_Set_Type is array (0 .. Fds.Max_FD / C.long'Size) of C.long;
    pragma Convention (C, FD_Set_Type);
 
    procedure FD_ZERO (Set : in out FD_Set_Type);
-   pragma Import (C, FD_ZERO, "__aws_clear_socket_set");
+   --  Use own FD_ZERO routine because FD_Set_Type size depend on Fds.Max_FD
 
    procedure FD_SET (FD : OS_Lib.FD_Type; Set : in out FD_Set_Type);
    pragma Import (C, FD_SET, "__aws_set_socket_in_set");
 
    function FD_ISSET (FD : OS_Lib.FD_Type; Set : FD_Set_Type) return C.int;
    pragma Import (C, FD_ISSET, "__aws_is_socket_in_set");
+
+   procedure FD_ZERO (Set : in out FD_Set_Type) is
+   begin
+      Set := (others => 0);
+   end FD_ZERO;
 
    procedure Poll is new G_Poll (FD_Set_Type, FD_ZERO, FD_SET, FD_ISSET);
 
