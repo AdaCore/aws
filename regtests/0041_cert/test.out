@@ -3,11 +3,10 @@ Server started
 
 
 Server certificate as received by the client:
-Subject : O=AWS Team,CN=Ada Web Server Demo,EMAIL=Pascal Obry \<p.obry@wanadoo.fr\>\, Dmitriy Anisimkov \<anisimkov@yahoo.com\>
-Issuer  : O=AWS Team,CN=Ada Web Server Demo,EMAIL=Pascal Obry \<p.obry@wanadoo.fr\>\, Dmitriy Anisimkov \<anisimkov@yahoo.com\>
+Subject : C=FR,L=Paris,O=Ada Core Technologies/, Inc.,OU=AWS Team,CN=localhost,EMAIL=aws@lists.adacore.com
+Issuer  : C=FR,L=Paris,O=Ada Core Technologies/, Inc.,OU=AWS Team,CN=localhost,EMAIL=aws@lists.adacore.com
 
 Client certificate as received by the server:
-Subject : C=AU,ST=state,L=city,O=Home,OU=Home,CN=Pascal Obry,EMAIL=p.obry
-Issuer  : C=AU,ST=state,L=city,O=Home,OU=Home,CN=Pascal Obry,EMAIL=p.obry
+Subject : C=RU,ST=Siberia,L=Omsk,O=Self,CN=Dmitriy Anisimkov,EMAIL=anisimkov@ada-ru.org
+Issuer  : C=FR,L=Paris,O=Ada Core Technologies/, Inc.,OU=AWS Team,CN=localhost,EMAIL=aws@lists.adacore.com
 => simple ok
-

@@ -416,15 +416,6 @@ package SSL.Thin is
    type gnutls_certificate_server_retrieve_function is new System.Address;
    type gnutls_params_function is new System.Address;
 
-   type gnutls_certificate_client_retrieve_function is access function
-     (Session         : gnutls_session_t;
-      Req_CA_DN       : access gnutls_datum_t;
-      nreqs           : C.int;
-      pk_algos        : access gnutls_pk_algorithm_t;
-      pk_algos_length : C.int;
-      st              : access gnutls_retr_st) return C.int;
-   pragma Convention (C, gnutls_certificate_client_retrieve_function);
-
    type STRUCT_DSTRUCT;
 
    type gnutls_session_t is access all STRUCT_DSTRUCT;
@@ -443,6 +434,8 @@ package SSL.Thin is
    type gnutls_srp_client_credentials_t is access all STRUCT_DSTRUCT;
    type gnutls_openpgp_key_t is access all STRUCT_DSTRUCT;
    type gnutls_openpgp_privkey_t is access all STRUCT_DSTRUCT;
+   type gnutls_pubkey_t is access all STRUCT_DSTRUCT;
+   type gnutls_privkey_t is access all STRUCT_DSTRUCT;
 
    type gnutls_retr_st is record
       cert_type  : gnutls_certificate_type_t;
@@ -459,6 +452,42 @@ package SSL.Thin is
    end record;
    pragma Convention (C, gnutls_datum_t);
 
+   type gnutls_pcert_st is record
+      pubkey : gnutls_pubkey_t;
+      cert   : gnutls_datum_t;
+      c_type : gnutls_certificate_type_t;
+   end record;
+   pragma Convention (C, gnutls_pcert_st);
+
+   type a_gnutls_pcert_st is access all gnutls_pcert_st;
+
+   type gnutls_certificate_retrieve_function2 is access function
+     (Session         : gnutls_session_t;
+      req_ca_rdn      : access constant gnutls_datum_t;
+      nreqs           : C.int;
+      pk_algos        : access constant gnutls_pk_algorithm_t;
+      pk_algos_length : C.int;
+      st              : access a_gnutls_pcert_st;
+      pcert_length    : access C.unsigned;
+      privkey         : access gnutls_privkey_t) return C.int;
+   pragma Convention (C, gnutls_certificate_retrieve_function2);
+   --  !!! This ñallback in version 3.0.3 defined different in man and in file
+   --  gnutls.h. This is a new definition. Old definition was ended by field
+   --  st : access gnutls_pcert_st.
+
+   type gnutls_certificate_client_retrieve_function is access function
+     (Session         : gnutls_session_t;
+      Req_CA_DN       : access constant gnutls_datum_t;
+      nreqs           : C.int;
+      pk_algos        : access constant gnutls_pk_algorithm_t;
+      pk_algos_length : C.int;
+      st              : access gnutls_retr_st) return C.int;
+   pragma Convention (C, gnutls_certificate_client_retrieve_function);
+
+   type gnutls_certificate_verify_function is access function
+     (Session : gnutls_session_t) return C.int;
+   pragma Convention (C, gnutls_certificate_verify_function);
+
    type gnutls_db_store_func is access function
      (p1   : System.Address;
       key  : gnutls_datum_t;
@@ -466,13 +495,11 @@ package SSL.Thin is
    pragma Convention (C, gnutls_db_store_func);
 
    type gnutls_db_remove_func is access function
-     (p1  : System.Address;
-      key : gnutls_datum_t) return C.int;
+     (p1  : System.Address; key : gnutls_datum_t) return C.int;
    pragma Convention (C, gnutls_db_remove_func);
 
    type gnutls_db_retr_func is access function
-     (p1  : System.Address;
-      key : gnutls_datum_t) return gnutls_datum_t;
+     (p1  : System.Address; key : gnutls_datum_t) return gnutls_datum_t;
    pragma Convention (C, gnutls_db_retr_func);
 
    type STRUCT_DSTRUCT is null record;
@@ -786,6 +813,10 @@ package SSL.Thin is
       max_bits  : C.unsigned;
       max_depth : C.unsigned);
 
+   procedure gnutls_certificate_set_verify_function
+     (cred : gnutls_certificate_credentials_t;
+      func : gnutls_certificate_verify_function);
+
    function gnutls_certificate_set_x509_trust_file
      (res    : gnutls_certificate_credentials_t;
       CAFILE : CS.chars_ptr;
@@ -1058,13 +1089,17 @@ package SSL.Thin is
    function gnutls_rsa_export_get_modulus_bits
      (session : gnutls_session_t) return C.int;
 
+   procedure gnutls_certificate_set_retrieve_function2
+     (cred : gnutls_certificate_credentials_t;
+      func : gnutls_certificate_retrieve_function2);
+
    procedure gnutls_certificate_client_set_retrieve_function
-     (cc : gnutls_certificate_credentials_t;
-      rf : gnutls_certificate_client_retrieve_function);
+     (cred : gnutls_certificate_credentials_t;
+      func : gnutls_certificate_client_retrieve_function);
 
    procedure gnutls_certificate_server_set_retrieve_function
-     (cc : gnutls_certificate_credentials_t;
-      rf : gnutls_certificate_server_retrieve_function);
+     (cred : gnutls_certificate_credentials_t;
+      func : gnutls_certificate_server_retrieve_function);
 
    procedure gnutls_certificate_server_set_request
      (p1 : gnutls_session_t; p2 : gnutls_certificate_request_t);
@@ -1424,6 +1459,11 @@ private
 
    pragma Import
      (C,
+      gnutls_certificate_set_verify_function,
+      "gnutls_certificate_set_verify_function");
+
+   pragma Import
+     (C,
       gnutls_certificate_set_x509_trust_file,
       "gnutls_certificate_set_x509_trust_file");
 
@@ -1625,6 +1665,11 @@ private
      (C,
       gnutls_rsa_export_get_modulus_bits,
       "gnutls_rsa_export_get_modulus_bits");
+
+   pragma Import
+     (C,
+      gnutls_certificate_set_retrieve_function2,
+      "gnutls_certificate_set_retrieve_function2");
 
    pragma Import
      (C,

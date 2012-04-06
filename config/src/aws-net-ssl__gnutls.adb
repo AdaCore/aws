@@ -99,6 +99,9 @@ package body AWS.Net.SSL is
 
    procedure Session_Transport (Socket : in out Socket_Type);
 
+   function Verify_Callback (Session : TSSL.gnutls_session_t) return C.int;
+   pragma Convention (C, Verify_Callback);
+
    procedure Finalize (Config : in out TS_SSL);
 
    Default_Config : aliased TS_SSL;
@@ -446,6 +449,9 @@ package body AWS.Net.SSL is
 
             Set_Certificate (Config.CSC);
 
+            TSSL.gnutls_certificate_set_verify_function
+              (cred => Config.CSC, func => Verify_Callback'Access);
+
             TSSL.gnutls_certificate_set_dh_params
               (Config.CSC, Config.DH_Params);
          end if;
@@ -465,10 +471,11 @@ package body AWS.Net.SSL is
          Check_Error_Code
            (TSSL.gnutls_anon_allocate_client_credentials (Config.ACC'Access));
 
-         Check_Error_Code
-           (TSSL.gnutls_certificate_allocate_credentials (Config.CCC'Access));
-
          if Certificate_Filename /= "" then
+            Check_Error_Code
+              (TSSL.gnutls_certificate_allocate_credentials
+                 (Config.CCC'Access));
+
             Set_Certificate (Config.CCC);
          end if;
       end if;
@@ -718,8 +725,11 @@ package body AWS.Net.SSL is
       Check_Error_Code
         (gnutls_credentials_set (Session, cred => Socket.Config.ACC), Socket);
 
-      Check_Error_Code
-        (gnutls_credentials_set (Session, cred => Socket.Config.CCC), Socket);
+      if Socket.Config.CCC /= null then
+         Check_Error_Code
+           (gnutls_credentials_set (Session, cred => Socket.Config.CCC),
+            Socket);
+      end if;
 
       Session_Transport (Socket);
    end Session_Client;
@@ -838,6 +848,16 @@ package body AWS.Net.SSL is
       S1 := Secure_Server (ST1);
       S2 := Secure_Client (ST2);
    end Socket_Pair;
+
+   ---------------------
+   -- Verify_Callback --
+   ---------------------
+
+   function Verify_Callback (Session : TSSL.gnutls_session_t) return C.int is
+      pragma Unreferenced (Session);
+   begin
+      return 0;
+   end Verify_Callback;
 
    -------------
    -- Version --
