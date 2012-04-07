@@ -250,6 +250,24 @@ package SSL.Thin is
    GNUTLS_DATAGRAM : constant gnutls_connection_end_t := 4;
    GNUTLS_NONBLOCK : constant gnutls_connection_end_t := 8;
 
+   type gnutls_certificate_verify_flags is mod 1024;
+   for gnutls_certificate_verify_flags'Size use C.int'Size;
+   subtype certificate_verify_flags is gnutls_certificate_verify_flags;
+
+   --  GNUTLS_VERIFY_ prefix removed from gnutls_certificate_verify_flags
+   --  constants, it is not necessary for Ada type control and namespaces.
+
+   DISABLE_CA_SIGN             : constant certificate_verify_flags := 1;
+   ALLOW_X509_V1_CA_CRT        : constant certificate_verify_flags := 2;
+   DO_NOT_ALLOW_SAME           : constant certificate_verify_flags := 4;
+   ALLOW_ANY_X509_V1_CA_CRT    : constant certificate_verify_flags := 8;
+   ALLOW_SIGN_RSA_MD2          : constant certificate_verify_flags := 16;
+   ALLOW_SIGN_RSA_MD5          : constant certificate_verify_flags := 32;
+   DISABLE_TIME_CHECKS         : constant certificate_verify_flags := 64;
+   DISABLE_TRUSTED_TIME_CHECKS : constant certificate_verify_flags := 128;
+   DO_NOT_ALLOW_X509_V1_CA_CRT : constant certificate_verify_flags := 256;
+   DISABLE_CRL_CHECKS          : constant certificate_verify_flags := 512;
+
    type gnutls_alert_level_t is (GNUTLS_AL_WARNING, GNUTLS_AL_FATAL);
    for gnutls_alert_level_t use (GNUTLS_AL_WARNING => 1, GNUTLS_AL_FATAL => 2);
    for gnutls_alert_level_t'Size use C.int'Size;
@@ -1226,7 +1244,13 @@ package SSL.Thin is
 
    Null_Handle : constant SSL_Handle := null;
 
-   type BIO_Access is null record;
+   type Boolean_Access is access Boolean;
+
+   type BIO_Access is record
+      Handshaken : Boolean_Access;
+   end record;
+   --  Need to be renamed into something like Internal_Type together with
+   --  OpenSSL implementation after merge into trunk.
 
 private
 

@@ -60,6 +60,8 @@ package body AWS.Net.SSL is
    procedure Check_Config (Socket : in out Socket_Type);
    pragma Inline (Check_Config);
 
+   procedure Do_Handshake_Internal (Socket : Socket_Type);
+
    package Locking is
 
       function Init (Item : access Mutex_Access) return Integer;
@@ -126,12 +128,20 @@ package body AWS.Net.SSL is
    -------------------
 
    overriding procedure Accept_Socket
-     (Socket     : Net.Socket_Type'Class;
-      New_Socket : in out Socket_Type) is
+     (Socket : Net.Socket_Type'Class; New_Socket : in out Socket_Type) is
    begin
-      Net.Std.Accept_Socket (Socket, NSST (New_Socket));
-      Session_Server (New_Socket);
-      Do_Handshake (New_Socket);
+      loop
+         Net.Std.Accept_Socket (Socket, NSST (New_Socket));
+         Session_Server (New_Socket);
+
+         begin
+            Do_Handshake (New_Socket);
+            exit;
+         exception
+            when Socket_Error =>
+               New_Socket.Shutdown;
+         end;
+      end loop;
    end Accept_Socket;
 
    ------------------
@@ -150,8 +160,7 @@ package body AWS.Net.SSL is
    -- Check_Error_Code --
    ----------------------
 
-   procedure Check_Error_Code
-     (Code : C.int; Socket : Socket_Type'Class) is
+   procedure Check_Error_Code (Code : C.int; Socket : Socket_Type'Class) is
    begin
       if Code /= 0 then
          declare
@@ -267,6 +276,11 @@ package body AWS.Net.SSL is
    ------------------
 
    procedure Do_Handshake (Socket : in out Socket_Type) is
+   begin
+      Do_Handshake_Internal (Socket);
+   end Do_Handshake;
+
+   procedure Do_Handshake_Internal (Socket : Socket_Type) is
       Code : TSSL.ssize_t;
    begin
       loop
@@ -276,7 +290,9 @@ package body AWS.Net.SSL is
 
          Code_Processing (Code, Socket);
       end loop;
-   end Do_Handshake;
+
+      Socket.IO.Handshaken.all := True;
+   end Do_Handshake_Internal;
 
    --------------
    -- Finalize --
@@ -315,12 +331,15 @@ package body AWS.Net.SSL is
 
    overriding procedure Free (Socket : in out Socket_Type) is
       use type TSSL.gnutls_session_t;
+      procedure Unchecked_Free is new Ada.Unchecked_Deallocation
+        (Boolean, TSSL.Boolean_Access);
    begin
       if Socket.SSL /= null then
          TSSL.gnutls_deinit (Socket.SSL);
          Socket.SSL := null;
       end if;
 
+      Unchecked_Free (Socket.IO.Handshaken);
       Net.Std.Free (NSST (Socket));
    end Free;
 
@@ -363,17 +382,14 @@ package body AWS.Net.SSL is
       use type TSSL.gnutls_certificate_credentials_t;
       use type TSSL.gnutls_dh_params_t;
 
-      procedure Set_Certificate
-        (CC : TSSL.gnutls_certificate_credentials_t);
+      procedure Set_Certificate (CC : TSSL.gnutls_certificate_credentials_t);
       --  Set credentials from Cetificate_Filename and Key_Filename
 
       ---------------------
       -- Set_Certificate --
       ---------------------
 
-      procedure Set_Certificate
-        (CC : TSSL.gnutls_certificate_credentials_t)
-      is
+      procedure Set_Certificate (CC : TSSL.gnutls_certificate_credentials_t) is
 
          procedure Check_File (Prefix, Filename : String);
          --  Check that Filename is present, raise an exception adding
@@ -471,11 +487,13 @@ package body AWS.Net.SSL is
          Check_Error_Code
            (TSSL.gnutls_anon_allocate_client_credentials (Config.ACC'Access));
 
-         if Certificate_Filename /= "" then
-            Check_Error_Code
-              (TSSL.gnutls_certificate_allocate_credentials
-                 (Config.CCC'Access));
+         Check_Error_Code
+           (TSSL.gnutls_certificate_allocate_credentials (Config.CCC'Access));
+         --  It is a strange, but we have to allocate client certificate
+         --  credentials even if we would not assign certificate over there.
+         --  Checked in GNUTLS 3.0.3.
 
+         if Certificate_Filename /= "" then
             Set_Certificate (Config.CCC);
          end if;
       end if;
@@ -585,6 +603,10 @@ package body AWS.Net.SSL is
    is
       Code : TSSL.ssize_t;
    begin
+      if not Socket.IO.Handshaken.all then
+         Do_Handshake_Internal (Socket);
+      end if;
+
       loop
          Code :=
            TSSL.gnutls_record_recv (Socket.SSL, Data'Address, Data'Length);
@@ -633,14 +655,12 @@ package body AWS.Net.SSL is
 
    function Secure_Client
      (Socket : Net.Socket_Type'Class;
-      Config : SSL.Config := Null_Config)
-      return Socket_Type
+      Config : SSL.Config := Null_Config) return Socket_Type
    is
       Result : Socket_Type;
    begin
       Secure (Socket, Result, Config);
       Session_Client (Result);
-      Do_Handshake (Result);
       return Result;
    end Secure_Client;
 
@@ -650,14 +670,12 @@ package body AWS.Net.SSL is
 
    function Secure_Server
      (Socket : Net.Socket_Type'Class;
-      Config : SSL.Config := Null_Config)
-      return Socket_Type
+      Config : SSL.Config := Null_Config) return Socket_Type
    is
       Result : Socket_Type;
    begin
       Secure (Socket, Result, Config);
       Session_Server (Result);
-      Do_Handshake (Result);
       return Result;
    end Secure_Server;
 
@@ -672,6 +690,10 @@ package body AWS.Net.SSL is
    is
       Code : TSSL.ssize_t;
    begin
+      if not Socket.IO.Handshaken.all then
+         Do_Handshake_Internal (Socket);
+      end if;
+
       loop
          Code :=
            TSSL.gnutls_record_send (Socket.SSL, Data'Address, Data'Length);
@@ -757,8 +779,7 @@ package body AWS.Net.SSL is
 
       else
          Check_Error_Code
-           (gnutls_credentials_set
-              (Session, GNUTLS_CRD_CERTIFICATE, Socket.Config.CSC),
+           (gnutls_credentials_set (Session, cred => Socket.Config.CSC),
             Socket);
 
          if Socket.Config.RCC then
@@ -781,15 +802,14 @@ package body AWS.Net.SSL is
    begin
       TSSL.gnutls_transport_set_ptr
         (Socket.SSL, TSSL.gnutls_transport_ptr_t (Socket.Get_FD));
+      Socket.IO.Handshaken := new Boolean'(False);
    end Session_Transport;
 
    ----------------
    -- Set_Config --
    ----------------
 
-   procedure Set_Config
-     (Socket : in out Socket_Type;
-      Config : SSL.Config) is
+   procedure Set_Config (Socket : in out Socket_Type; Config : SSL.Config) is
    begin
       Socket.Config := Config;
    end Set_Config;
