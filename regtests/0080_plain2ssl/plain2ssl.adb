@@ -121,7 +121,16 @@ begin
          Test (Client, SSL_Peer);
       exception
          when E : Socket_Error =>
-            Put_Line (Ada.Exceptions.Exception_Message (E));
+            declare
+               Text : constant String := Ada.Exceptions.Exception_Message (E);
+            begin
+               if Text = "An unexpected TLS packet was received." & ASCII.LF
+                 or else Text = "1408F10B:SSL routines:SSL3_GET_RECORD:"
+                                &"wrong version number" & ASCII.LF -- OpenSSL
+               then
+                  Put_Line ("Expected error about wrong data received");
+               end if;
+            end;
       end;
 
       SSL.Shutdown (SSL_Client);
