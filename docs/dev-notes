@@ -71,9 +71,9 @@ on master branch:
 New features or fixes must be prepared on separate branches even if there
 is a single commit. The naming convention for those branches are:
 
-   <developer_initials>/<name> (referred as branch_name in this document)
+   topic/<developer_initials>/<name> (referred as branch_name in this document)
 
-   e.g. po/improve-build-procedure
+   e.g. topic/po/improve-build-procedure
 
    Branch name should be all lower case and use dash as word separator.
 
@@ -107,7 +107,8 @@ into master:
    $ git checkout master
    $ git merge --log --no-ff <branch_name>
 
-Merging is done by the AWS project manager.
+Merging is done by the AWS project manager. The topic/ prefix is to be
+removed from the merge commit log.
 
 Note that for a branch with a single commit a fast forward is allowed.
 
