@@ -563,7 +563,8 @@ package body AWS.Net.Std is
       FD := C_Socket (OS_Lib.AF_INET6, OS_Lib.SOCK_STREAM, 0);
 
       if FD = Failure then
-         Raise_Socket_Error (OS_Lib.Socket_Errno);
+         --  Windows failed here in case of IPv6 unavailable
+         return False;
       end if;
 
       Res := C_Bind (FD, Addr'Address, Addr'Size / System.Storage_Unit);
