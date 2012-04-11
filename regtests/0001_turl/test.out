@@ -28,29 +28,29 @@ http://a/tata/my_url/xyz/../../b/c/d/../../z
 /azerty/me/too.html
 /azerty/me/too.html
    Server    : 
-   Port      : 80
+   Port      : 0
    URI       : /azerty/me/too.html
    *
    Server    : 
-   Port      : 80
+   Port      : 0
    URI       : /azerty/me/too.html
 demo.html
 demo.html
    Server    : 
-   Port      : 80
+   Port      : 0
    URI       : demo.html
    *
    Server    : 
-   Port      : 80
+   Port      : 0
    URI       : demo.html
 ../demo.html
 ../demo.html
    Server    : 
-   Port      : 80
+   Port      : 0
    URI       : ../demo.html
    *
    Server    : 
-   Port      : 80
+   Port      : 0
    URI       : ../demo.html
 Error on http://myserver:8088/../demo.html - Wrong URL: (/../) Reference Web root parent directory.
 http://myserver.com
@@ -83,11 +83,11 @@ https://myserver.com/
 kye/demo.html
 kye/demo.html
    Server    : 
-   Port      : 80
+   Port      : 0
    URI       : kye/demo.html
    *
    Server    : 
-   Port      : 80
+   Port      : 0
    URI       : kye/demo.html
 http://www.myserver.com:12/request?p1=9
 http://www.myserver.com:12/request?p1=9

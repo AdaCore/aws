@@ -48,11 +48,11 @@ package AWS.URL is
    --  RFC but are used and supported in many browsers. Here are the extended
    --  URL supported:
    --
-   --  http://username:password@www.here.com:80/dir1/dir2/xyz.html?p=8&x=doh
-   --   |                            |       | |          |       |
-   --   protocol                     host port path       file    parameters
+   --  http://user:pass@www.here.com:80/dir1/dir2/xyz.html?p=8&x=doh#anchor
+   --   |                    |       | |          |       |         |
+   --   protocol             host port path       file   parameters fragment
    --
-   --                                          <--  pathname  -->
+   --                                  <--  pathname  -->
 
    type Object is private;
 
@@ -169,6 +169,22 @@ package AWS.URL is
    pragma Inline (Parameters);
    --  Return the parameter list associated with the URL
 
+   function Fragment (URL : Object) return String;
+   pragma Inline (Fragment);
+   --  Return the part after the # sign (included)
+
+   --
+   --  URL Resolution
+   --
+
+   function Resolve (URL : Object; Base_URL : Object) return Object;
+   --  Resolve an URL relative to a Base_URL. Uses RFC 3986, section 5.2
+   --  algorithm.
+
+   function Resolve (URL : String; Base_URL : String) return String;
+   --  Resolve an URL relatively to a Base_URL. Same function as above, but
+   --  working with Strings.
+
    --
    --  URL Encoding and Decoding
    --
@@ -194,19 +210,22 @@ private
 
    type Path_Status is (Valid, Wrong);
 
-   type Protocol_Type is (HTTP, HTTPS, FTP);
+   HTTP  : constant Unbounded_String := To_Unbounded_String ("http");
+   HTTPS : constant Unbounded_String := To_Unbounded_String ("https");
+   FTP   : constant Unbounded_String := To_Unbounded_String ("ftp");
 
    type Object is record
       User       : Unbounded_String;
       Password   : Unbounded_String;
       Host       : Unbounded_String;
-      Port       : Positive          := Default_HTTP_Port;
-      Protocol   : Protocol_Type     := HTTP;
+      Port       : Natural           := Default_HTTP_Port;
+      Protocol   : Unbounded_String  := HTTP;
       Path       : Unbounded_String; -- Original path
       N_Path     : Unbounded_String; -- Normalized path
       File       : Unbounded_String;
       Status     : Path_Status       := Wrong;
       Parameters : aliased AWS.Parameters.List;
+      Fragment   : Unbounded_String;
    end record;
 
    Default_Encoding_Set : constant Strings.Maps.Character_Set

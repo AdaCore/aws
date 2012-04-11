@@ -1,5 +1,15 @@
 Known Problems fixed in AWS 2.11
 
+- L402-023: URL Parsing failed to parse relative paths correctly
+  Problem:    URL Parsing in AWS.URL failed to parse relative URLs if the
+              first segment contained the character ':'. The first segment was
+              then interpreted as a hostname, with a port number or a
+              "user:password" part.
+  Workaround: Now URL parsing no longer understand URLs like
+              "user:pass@host:port/path" as absolute. Those URLs are now going
+              to be considered relative paths instead. Equivalent URLs are now
+              written in the form "//user:pass@host:port/path".
+
 - KC20-007 : Constraint error in Translator.To_String
   Problem:    When the bounds of the Stream_Element_Array parameter are
               not in Positive'Range a constraint error is raised.

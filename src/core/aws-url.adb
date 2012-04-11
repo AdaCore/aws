@@ -27,6 +27,7 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
+with Ada.Strings.Fixed;
 with Ada.Characters.Handling;
 
 with AWS.Utils;
@@ -189,6 +190,15 @@ package body AWS.URL is
          return To_String (URL.File);
       end if;
    end File;
+
+   --------------
+   -- Fragment --
+   --------------
+
+   function Fragment (URL : Object) return String is
+   begin
+      return To_String (URL.Fragment);
+   end Fragment;
 
    ----------
    -- Host --
@@ -355,14 +365,7 @@ package body AWS.URL is
 
    function Protocol_Name (URL : Object) return String is
    begin
-      case URL.Protocol is
-         when HTTPS =>
-            return "https";
-         when HTTP =>
-            return "http";
-         when FTP =>
-            return "ftp";
-      end case;
+      return To_String (URL.Protocol);
    end Protocol_Name;
 
    -----------
@@ -377,6 +380,243 @@ package body AWS.URL is
    begin
       return P (P'First + 1 .. P'Last);
    end Query;
+
+   -------------
+   -- Resolve --
+   -------------
+
+   function Resolve (URL : Object; Base_URL : Object) return Object is
+
+      Res : Object;
+
+      function Merge (Path1, Path2 : String) return String;
+      --  Merge two paths
+
+      procedure Remove_Dot_Segments (URL : in out Object);
+      --  Remove dot segments as per RFC 3986 section 5.2.4
+
+      procedure Set_Protocol (Into :  in out Object; From : Object);
+      --  Change protocol of Into
+
+      -----------
+      -- Merge --
+      -----------
+
+      function Merge (Path1, Path2 : String) return String is
+         I : Integer;
+      begin
+         if Path2'Length > 0 and then Path2 (Path2'First) = '/' then
+            return Path2;
+
+         else
+            I := Strings.Fixed.Index (Path1, "/", Strings.Backward);
+
+            if I not in Path1'Range then
+               return "/" & Path2;
+            else
+               return Path1 (Path1'First .. I) & Path2;
+            end if;
+         end if;
+      end Merge;
+
+      -------------------------
+      -- Remove_Dot_Segments --
+      -------------------------
+
+      procedure Remove_Dot_Segments (URL : in out Object) is
+
+         function Starts_With
+           (S : String; Pat : String; From : Integer) return Boolean;
+         --  Return True if S starts with Pat at index From
+
+         function Remaining (S : String; From : Integer) return String;
+         --  Return String from the index From
+
+         procedure Go_Up;
+         --  Process ".." in path
+
+         Path : String := To_String (URL.Path);
+         I, N : Integer := Path'First;
+
+         -----------
+         -- Go_Up --
+         -----------
+
+         procedure Go_Up is
+            N : Integer;
+         begin
+            N := Index (URL.N_Path, "/", Ada.Strings.Backward);
+            if N = 0 then
+               URL.N_Path := Null_Unbounded_String;
+            else
+               Delete (URL.N_Path, N, Length (URL.N_Path));
+            end if;
+         end Go_Up;
+
+         ---------------
+         -- Remaining --
+         ---------------
+
+         function Remaining (S : String; From : Integer) return String is
+         begin
+            if From in S'Range then
+               return S (From .. S'Last);
+            else
+               return "";
+            end if;
+         end Remaining;
+
+         -----------------
+         -- Starts_With --
+         -----------------
+
+         function Starts_With
+           (S : String; Pat : String; From : Integer) return Boolean
+         is
+            To : constant Integer := From + Pat'Length - 1;
+         begin
+            if From in S'Range and then To in S'Range then
+               return S (From .. To) = Pat;
+            else
+               return False;
+            end if;
+         end Starts_With;
+
+      begin
+         URL.N_Path := Null_Unbounded_String;
+
+         while I in Path'Range loop
+
+            --  A.  If the input buffer begins with a prefix of "../" or "./",
+            --      then remove that prefix from the input buffer; otherwise,
+
+            if Starts_With (Path, "../", I) then
+               I := I + 3;
+            elsif Starts_With (Path, "./", I) then
+               I := I + 2;
+
+            --  B.  if the input buffer begins with a prefix of "/./" or "/.",
+            --      where "." is a complete path segment, then replace that
+            --      prefix with "/" in the input buffer; otherwise,
+
+            elsif Starts_With (Path, "/./", I) then
+               I := I + 2;
+            elsif Remaining (Path, I) = "/." then
+               I := I + 1;
+               Path (I) := '/';
+
+            --  C.  if the input buffer begins with a prefix of "/../" or
+            --      "/..", where ".." is a complete path segment, then replace
+            --      that prefix with "/" in the input buffer and remove the
+            --      last segment and its preceding "/" (if any) from the output
+            --      buffer; otherwise,
+
+            elsif Starts_With (Path, "/../", I) then
+               I := I + 3;
+               Go_Up;
+            elsif Remaining (Path, I) = "/.." then
+               I := I + 2;
+               Path (I) := '/';
+               Go_Up;
+
+            --  D.  if the input buffer consists only of "." or "..", then
+            --      remove that from the input buffer; otherwise,
+
+            elsif Remaining (Path, I) = ".." then
+               I := I + 2;
+            elsif Remaining (Path, I) = "." then
+               I := I + 1;
+
+            else
+               --  E.  move the first path segment in the input buffer to the
+               --      end of the output buffer, including the initial "/"
+               --      character(if any) and any subsequent characters up to,
+               --      but not including, the next "/" character or the end of
+               --      the input buffer.
+
+               N := Strings.Fixed.Index (Path, "/", I + 1);
+               if N in I + 1 .. Path'Last then
+                  Append (URL.N_Path, Path (I .. N - 1));
+                  I := N;
+               else
+
+                  Append (URL.N_Path, Path (I .. Path'Last));
+                  I := Path'Last + 1;
+               end if;
+            end if;
+         end loop;
+      end Remove_Dot_Segments;
+
+      ------------------
+      -- Set_Protocol --
+      ------------------
+
+      procedure Set_Protocol (Into :  in out Object; From : Object) is
+      begin
+         --  If both have default port, update it
+
+         if Into.Port = 0
+           or else (Port_Not_Default (Into) = ""
+                    and then Port_Not_Default (From) = "")
+         then
+            Into.Port := From.Port;
+         end if;
+
+         Into.Protocol := From.Protocol;
+      end Set_Protocol;
+
+   begin
+      if Protocol_Name (URL) /= "" then
+         Res := URL;
+
+      else
+         if Host (URL) /= "" then
+            Res := URL;
+            Set_Protocol  (Res, Base_URL);
+
+         else
+            if Abs_Path (URL) = "" then
+               Res := Base_URL;
+               if Query (URL) /= "" then
+                  Res.Parameters := URL.Parameters;
+               end if;
+
+            else
+               Res := URL;
+               if URL.Path = Null_Unbounded_String
+                 or else Slice (URL.Path, 1, 1) /= "/"
+               then
+                  --  Merge Base_URL path with URL path
+                  Res.Path := To_Unbounded_String
+                    (Merge (Abs_Path (Base_URL), To_String (URL.Path)));
+               end if;
+
+               Res.Parameters := URL.Parameters;
+               Res.User     := Base_URL.User;
+               Res.Password := Base_URL.Password;
+               Res.Host     := Base_URL.Host;
+               Res.Port     := Base_URL.Port;
+            end if;
+         end if;
+
+         Res.Protocol := Base_URL.Protocol;
+      end if;
+
+      Res.Fragment := URL.Fragment;
+      Remove_Dot_Segments (Res);
+      Res.Path := Res.N_Path;
+
+      return Res;
+   end Resolve;
+
+   -------------
+   -- Resolve --
+   -------------
+
+   function Resolve (URL : String; Base_URL : String) return String is
+   begin
+      return AWS.URL.URL (Resolve (Parse (URL), Parse (Base_URL)));
+   end Resolve;
 
    --------------
    -- Security --
@@ -414,11 +654,16 @@ package body AWS.URL is
 
    begin
       if Host (URL) = "" then
-         return Pathname_And_Parameters (URL);
+         if Protocol_Name (URL) /= "" then
+            return Protocol_Name (URL) & ":" & Pathname_And_Parameters (URL);
+         else
+            return Pathname_And_Parameters (URL);
+         end if;
       else
          return Protocol_Name (URL) & "://"
            & User_Password & Host (URL, IPv6_Brackets => True)
-           & Port_Not_Default (URL) & Pathname (URL) & Parameters (URL);
+           & Port_Not_Default (URL) & Pathname (URL) & Parameters (URL)
+           & Fragment (URL);
       end if;
    end URL;
 

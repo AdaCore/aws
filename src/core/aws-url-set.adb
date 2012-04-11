@@ -28,6 +28,7 @@
 ------------------------------------------------------------------------------
 
 with Ada.Strings.Fixed;
+with Ada.Characters.Handling;
 
 with AWS.Parameters.Set;
 with AWS.URL.Raise_URL_Error;
@@ -159,26 +160,29 @@ package body AWS.URL.Set is
       Check_Validity : Boolean := True;
       Normalize      : Boolean := False)
    is
-      FTP_Token   : constant String := "ftp://";
-      HTTP_Token  : constant String := "http://";
-      HTTPS_Token : constant String := "https://";
+      FTP_Token   : constant String := "ftp:";
+      HTTP_Token  : constant String := "http:";
+      HTTPS_Token : constant String := "https:";
 
       L_URL       : constant String :=
                       Strings.Fixed.Translate
                         (URL, Strings.Maps.To_Mapping ("\", "/"));
-      P           : Natural;
+      P, F        : Natural;
+      Scheme      : Unbounded_String;
 
-      procedure Parse (URL : String; Protocol_Specified : Boolean);
+      procedure Parse (URL : String);
       --  Parse URL, the URL must not contain the HTTP_Token prefix.
-      --  Protocol_Specified is set to True when the protocol (http:// or
-      --  https:// prefix) was specified. This is used to raise ambiguity
-      --  while parsing the URL. See comment below.
+      --  If a hostname is specified, the URL should start with "//"
+
+      function Parse_Scheme (URL : String) return String;
+      --  Parse the protocol part of the URL and return it. Return an empty
+      --  string if not found.
 
       -----------
       -- Parse --
       -----------
 
-      procedure Parse (URL : String; Protocol_Specified : Boolean) is
+      procedure Parse (URL : String) is
 
          function "+" (S : String) return Unbounded_String
             renames To_Unbounded_String;
@@ -192,6 +196,8 @@ package body AWS.URL.Set is
          I1, I2, I3 : Natural;
          LB, RB     : Natural;
          F          : Positive;
+
+         Authority_Specified : Boolean;
 
          ---------------------
          -- Parse_Path_File --
@@ -253,123 +259,179 @@ package body AWS.URL.Set is
             end if;
          end Set_Host;
 
-         User_Password : Boolean := False;
-
       begin
-         I1 := Strings.Fixed.Index (URL, ":");
-         I2 := Strings.Fixed.Index (URL, "/");
-         I3 := Strings.Fixed.Index (URL, "@");
-         LB := Strings.Fixed.Index (URL, "[");
-         RB := Strings.Fixed.Index (URL, "]");
+         Authority_Specified := URL'Length > 2
+           and then URL (URL'First .. URL'First + 1) = "//";
 
-         --  Check for [user:password@]
-
-         if I1 /= 0 and then I3 /= 0 and then I1 < I3 then
-            --  We have [user:password@]
-            Item.User     := +URL (URL'First .. I1 - 1);
-            Item.Password := +URL (I1 + 1 .. I3 - 1);
-
-            F  := I3 + 1;
-
-            --  Check if there is another ':' specified
-            I1 := Strings.Fixed.Index (URL (F .. URL'Last), ":");
-
-            User_Password := True;
-
-         else
-            F := URL'First;
-         end if;
-
-         if LB < RB and then LB > 0 then
-            if RB < URL'Last and then URL (RB + 1) = ':' then
-               I1 := RB + 1;
-            else
-               I1 := 0;
-            end if;
-         end if;
-
-         if I1 = 0
-           and then not User_Password
-           and then not Protocol_Specified
-         then
-            --  No ':', there is no port specified and no host since we did
-            --  not have a [user:password@] parsed and there was no protocol
-            --  specified. Let's just parse the data as a path information.
+         if not Authority_Specified then
+            --  No "//", there is no authority (hostname or IP) specified.
+            --  Let's just parse the data as a path information.
             --
-            --  There is ambiguity here, the data could be either:
-            --
-            --     some_host_name/some_path
-            --   or
-            --     relative_path/some_more_path
-            --
-            --  As per explanations above we take the second choice.
+            --  There no is ambiguity here, the first part cannot be a hostname
+            --  (the URL would start with "//").
 
             Item.Host := +"";
             Parse_Path_File (URL'First);
 
-         elsif I1 = 0 then
-            --  In this case we have not port specified but a [user:password@]
-            --  was found, we expect the first string to be the hostname.
+         else
+            --  The URL starts with "//", so we look up various characters for
+            --  the authority part. At maximum length it could have:
+            --
+            --  //user:pass@host_or_ip:port/
+            --    |   |    |               |
+            --    F   I1   I3              I2
 
-            if I2 = 0 then
-               --  No path information, case [user:password@host]
-               Set_Host (F, URL'Last);
+            F := URL'First + 2;
+
+            I1 := Strings.Fixed.Index (URL, ":", F);
+            I2 := Strings.Fixed.Index (URL, "/", F);
+            I3 := Strings.Fixed.Index (URL, "@", F);
+            LB := Strings.Fixed.Index (URL, "[", F);
+            RB := Strings.Fixed.Index (URL, "]", F);
+
+            --  Check for [user:password@]
+
+            if I1 /= 0 and then I3 /= 0 and then I1 < I3 then
+               --  We have [user:password@]
+               Item.User     := +URL (F .. I1 - 1);
+               Item.Password := +URL (I1 + 1 .. I3 - 1);
+
+               F  := I3 + 1;
+
+               --  Check if there is another ':' specified
+               I1 := Strings.Fixed.Index (URL (F .. URL'Last), ":");
+            end if;
+
+            --  On the previous example, we now have:
+            --
+            --  //user:pass@host_or_ip:port/
+            --              |         |    |
+            --              F         I1   I2
+            --  (I3 no longer used)
+            --
+            --  If TPv6 address in brackets, the I1 should point to the ':'
+            --  character right after ']' (port number) or should be 0 (no port
+            --  number specified). For example we want:
+            --
+            --  //optional_user:pass@[IP:6::addr]:port/
+            --                       |          ||    |
+            --                       F, LB    RB  I1  I2
+
+            if LB < RB and then LB > 0 then
+               if RB < URL'Last and then URL (RB + 1) = ':' then
+                  I1 := RB + 1;
+               else
+                  I1 := 0;
+               end if;
+            end if;
+
+            if I1 = 0 then
+               --  In this case we have not port specified
+               --  We expect the first string to be the hostname.
+
+               if I2 = 0 then
+                  --  No path information, case [user:password@host]
+                  Set_Host (F, URL'Last);
+                  Item.Path := +"/";
+
+               else
+                  --  A path, case [user:password@host/path]
+                  Set_Host (F, I2 - 1);
+                  Parse_Path_File (I2);
+               end if;
+
+            elsif I2 = 0 then
+               --  No path, we have [host:port]
+
+               Set_Host (F, I1 - 1);
+
+               if Utils.Is_Number (URL (I1 + 1 .. URL'Last)) then
+                  Item.Port := Positive'Value (URL (I1 + 1 .. URL'Last));
+               else
+                  Raise_URL_Error (Set.Parse.URL, "Port is not valid");
+               end if;
+
                Item.Path := +"/";
 
+            elsif I1 < I2 then
+               --  Here we have a complete URL [host:port/path]
+
+               Set_Host (F, I1 - 1);
+
+               if Utils.Is_Number (URL (I1 + 1 .. I2 - 1)) then
+                  Item.Port := Positive'Value (URL (I1 + 1 .. I2 - 1));
+               else
+                  Raise_URL_Error (Set.Parse.URL, "Port is not valid");
+               end if;
+
+               Parse_Path_File (I2);
+
             else
-               --  A path, case [user:password@host/path]
+               --  Here we have a complete URL, with no port specified
+               --  The semicolon is part of the URL [host/path]
+
                Set_Host (F, I2 - 1);
+
                Parse_Path_File (I2);
             end if;
-
-         elsif I2 = 0 then
-            --  No path, we have [host:port]
-
-            Set_Host (F, I1 - 1);
-
-            if Utils.Is_Number (URL (I1 + 1 .. URL'Last)) then
-               Item.Port := Positive'Value (URL (I1 + 1 .. URL'Last));
-            else
-               Raise_URL_Error (Set.Parse.URL, "Port is not valid");
-            end if;
-
-            Item.Path := +"/";
-
-         elsif I1 < I2 then
-            --  Here we have a complete URL [host:port/path]
-
-            Set_Host (F, I1 - 1);
-
-            if Utils.Is_Number (URL (I1 + 1 .. I2 - 1)) then
-               Item.Port := Positive'Value (URL (I1 + 1 .. I2 - 1));
-            else
-               Raise_URL_Error (Set.Parse.URL, "Port is not valid");
-            end if;
-
-            Parse_Path_File (I2);
-
-         else
-            --  Here we have a complete URL, with no port specified
-            --  The semicolon is part of the URL [host/path]
-
-            Set_Host (F, I2 - 1);
-
-            Parse_Path_File (I2);
          end if;
       end Parse;
 
+      ------------------
+      -- Parse_Scheme --
+      ------------------
+
+      function Parse_Scheme (URL : String) return String is
+         Res : String := URL;
+      begin
+         for I in Res'Range loop
+            case Res (I) is
+               when 'a' .. 'z' =>
+                  null;
+
+               when 'A' .. 'Z' =>
+                  Res (I) := Characters.Handling.To_Lower (Res (I));
+
+               when ':' =>
+                  if I > Res'First then
+                     return Res (Res'First .. I - 1);
+                  else
+                     return "";
+                  end if;
+
+               when others =>
+                  return "";
+            end case;
+         end loop;
+
+         return "";
+      end Parse_Scheme;
+
    begin
       Item.Protocol := HTTP;
+
+      --  Checks for fragment
+
+      F := Strings.Fixed.Index (L_URL, "#");
+
+      if F = 0 then
+         F := L_URL'Last;
+         Item.Fragment := Null_Unbounded_String;
+
+      else
+         Item.Fragment := To_Unbounded_String (L_URL (F .. L_URL'Last));
+         F := F - 1;
+      end if;
 
       --  Checks for parameters
 
       P := Strings.Fixed.Index (L_URL, "?");
 
       if P = 0 then
-         P := L_URL'Last;
+         P := F;
 
       else
-         AWS.Parameters.Set.Add (Item.Parameters, L_URL (P .. L_URL'Last));
+         AWS.Parameters.Set.Add (Item.Parameters, L_URL (P .. F));
          P := P - 1;
       end if;
 
@@ -377,27 +439,36 @@ package body AWS.URL.Set is
 
       if Utils.Match (L_URL, HTTP_Token) then
          Item.Port := Default_HTTP_Port;
-         Parse (L_URL (L_URL'First + HTTP_Token'Length .. P), True);
+         Parse (L_URL (L_URL'First + HTTP_Token'Length .. P));
 
       elsif Utils.Match (L_URL, HTTPS_Token) then
          Item.Port := Default_HTTPS_Port;
-         Parse (L_URL (L_URL'First + HTTPS_Token'Length .. P), True);
+         Parse (L_URL (L_URL'First + HTTPS_Token'Length .. P));
          Item.Protocol := HTTPS;
 
       elsif Utils.Match (L_URL, FTP_Token) then
          Item.Port := Default_FTP_Port;
-         Parse (L_URL (L_URL'First + FTP_Token'Length .. P), True);
+         Parse (L_URL (L_URL'First + FTP_Token'Length .. P));
          Item.Protocol := FTP;
 
       elsif L_URL /= "" then
-         --  Prefix is not recognized, this is either because there is no
-         --  protocol specified or the protocol is not supported by AWS. For
-         --  example a javascript reference start with "javascript:". This
-         --  will be caught on the next parsing level.
-         --
-         --  At least we know that it is not a Secure HTTP protocol URL.
+         --  No known scheme detected. Look for a scheme anyway and parse the
+         --  rest of the URL.
+         Item.Port := 0;
+         Scheme := To_Unbounded_String (Parse_Scheme (L_URL));
 
-         Parse (L_URL (L_URL'First .. P), False);
+         if Scheme /= Null_Unbounded_String then
+            Item.Protocol := Scheme;
+            Parse (L_URL (L_URL'First + Length (Scheme) + 1 .. P));
+
+         else
+            Item.Protocol := Null_Unbounded_String;
+            Parse (L_URL (L_URL'First .. P));
+         end if;
+
+      else
+         --  L_URL = ""
+         Item.Protocol := Null_Unbounded_String;
       end if;
 
       --  Normalize the URL path

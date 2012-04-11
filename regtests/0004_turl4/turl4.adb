@@ -46,9 +46,9 @@ procedure Turl4 is
    end Test;
 
 begin
-   Test ("javascript:retour()", False);
-   Test ("javascript:retour('kkk')", False);
-   Test ("kkk:retour('uuu')", False);
+   Test ("javascript:retour()", True);
+   Test ("javascript:retour('kkk')", True);
+   Test ("kkk:retour('uuu')", True);
    Test ("()", True);
    Test ("'", True);
 end Turl4;

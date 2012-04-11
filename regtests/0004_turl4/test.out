@@ -1,5 +1,5 @@
-Ok,  URL_Exception for : javascript:retour()
-Ok,  URL_Exception for : javascript:retour('kkk')
-Ok,  URL_Exception for : kkk:retour('uuu')
+OK,  no exception raised : javascript:retour()
+OK,  no exception raised : javascript:retour('kkk')
+OK,  no exception raised : kkk:retour('uuu')
 OK,  no exception raised : ()
 OK,  no exception raised : '
