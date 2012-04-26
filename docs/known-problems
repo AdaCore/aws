@@ -1,5 +1,10 @@
 Known Problems fixed in AWS 2.11
 
+- L413-030 : Cookies lost when adding session values
+  Problem:    The first cookie is lost after adding a session key/value
+              pair in the first callback to the server.
+  Workaround: Append a dummy cookie in the initial callback
+
 - L402-023: URL Parsing failed to parse relative paths correctly
   Problem:    URL Parsing in AWS.URL failed to parse relative URLs if the
               first segment contained the character ':'. The first segment was

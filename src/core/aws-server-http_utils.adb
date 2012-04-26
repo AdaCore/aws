@@ -1393,7 +1393,7 @@ package body AWS.Server.HTTP_Utils is
             --  This is an HTTP connection with session but there is no session
             --  ID set yet. So, send cookie to client browser.
 
-            Response.Set.Update_Header
+            Response.Set.Add_Header
               (D     => Answer,
                Name  => Messages.Set_Cookie_Token,
                Value => CNF.Session_Name (HTTP_Server.Properties) & '='
