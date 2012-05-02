@@ -106,7 +106,8 @@ package body Conversion is
         (Data : Stream_Element_Array) return String
       is
 
-         Start : constant Positive := Integer'Max (1, Integer (Data'First));
+         Start : constant Positive :=
+                   Positive (Stream_Element_Offset'Max (1, Data'First));
          --  If possible keep Data'Range
 
          subtype Fixed_String is
@@ -151,7 +152,8 @@ package body Conversion is
       ---------------
 
       function To_String (Data : Stream_Element_Array) return String is
-         Start : constant Positive := Integer'Max (1, Integer (Data'First));
+         Start  : constant Positive :=
+                    Positive (Stream_Element_Offset'Max (1, Data'First));
          --  If possible keep Data'Range
 
          Result : String (Start .. Start + Natural (Data'Length) - 1);

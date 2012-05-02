@@ -1,5 +1,11 @@
 Known Problems fixed in AWS 2.11
 
+- L502-004 : Constraint error in Translator.To_String
+  Problem:    When the bounds of the Stream_Element_Array parameter are
+              not given (starting at Stream_Element_Offset'First) a
+              constraint error is raised.
+  Workaround: Make sure the bounds of the parameter are in Positive'Range
+
 - L413-030 : Cookies lost when adding session values
   Problem:    The first cookie is lost after adding a session key/value
               pair in the first callback to the server.

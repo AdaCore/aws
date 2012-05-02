@@ -25,6 +25,7 @@ with AWS.Utils;
 procedure TCompress is
 
    use Ada;
+   use Ada.Streams;
    use AWS;
 
    use type Streams.Stream_Element_Array;
@@ -115,4 +116,10 @@ begin
      ("=== Compression" & Translator.Compression_Level'Image (Comp_Level));
 
    Run;
+
+   declare
+      V : Stream_Element_Array := (89, 87, 55);
+   begin
+      Text_IO.Put_Line (Translator.To_String (V));
+   end;
 end TCompress;
