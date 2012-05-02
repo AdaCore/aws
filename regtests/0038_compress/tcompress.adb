@@ -31,6 +31,10 @@ procedure TCompress is
 
    Comp_Level : Translator.Compression_Level := 0;
 
+   ----------
+   -- Test --
+   ----------
+
    procedure Test (Str : String) is
       Data   : constant Streams.Stream_Element_Array :=
                  Translator.To_Stream_Element_Array (Str);
@@ -53,6 +57,10 @@ procedure TCompress is
       Utils.Unchecked_Free (Comp);
       Utils.Unchecked_Free (Decomp);
    end Test;
+
+   ---------
+   -- Run --
+   ---------
 
    procedure Run is
    begin

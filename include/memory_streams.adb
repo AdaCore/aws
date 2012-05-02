@@ -353,7 +353,7 @@ package body Memory_Streams is
 
       loop
          if Stream.Current.Next = null then
-            --  Last block.
+            --  Last block
 
             if Stream.Current.Steady then
                Append (Stream.Current.Const.all);
