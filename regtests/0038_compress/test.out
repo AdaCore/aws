@@ -1,5 +1,7 @@
 === Compression 0
 Ok
+ 0 bytes compressed to 11
+Ok
  6 bytes compressed to 17
 Ok
  36 bytes compressed to 47
@@ -10,6 +12,8 @@ Ok
 
 === Compression 2
 Ok
+ 0 bytes compressed to 8
+Ok
  6 bytes compressed to 14
 Ok
  36 bytes compressed to 36
@@ -19,6 +23,8 @@ Ok
  1017 bytes compressed to 153
 
 === Compression 9
+Ok
+ 0 bytes compressed to 8
 Ok
  6 bytes compressed to 14
 Ok

@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                       Generic memory stream                              --
 --                                                                          --
---                      Copyright (C) 2003-2007                             --
+--                      Copyright (C) 2003-2012                             --
 --                         Dmitriy Anisimkov                                --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -438,7 +438,8 @@ package body Memory_Streams is
 
    procedure Trim_Last_Block (Stream : in out Stream_Type) is
    begin
-      if Stream.Last.Steady
+      if Stream.Last = null
+        or else Stream.Last.Steady
         or else Stream.Last.Data'Length = Stream.Last_Length
       then
          return;

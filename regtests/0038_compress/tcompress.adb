@@ -56,6 +56,8 @@ procedure TCompress is
 
    procedure Run is
    begin
+      Test ("");
+
       Test ("simple");
 
       Test ("AWS can compress and decompress data");
