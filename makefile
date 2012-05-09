@@ -90,28 +90,6 @@ run_regtests:
 	echo ""
 	$(MAKE) -C regtests aws_regtests $(ALL_OPTIONS)
 
-distrib:
-	(VERSION=`grep " Version" src/aws.ads | cut -d\" -f2`; \
-	AWS=aws-$${VERSION}; \
-	$(RM) -f $${AWS}.tar.gz; \
-	$(MKDIR) $${AWS}; \
-	\
-	while read file; \
-	do \
-		for file in $$file; do \
-			dir=$$(dirname $$file); \
-			if [ ! -d $${AWS}/$$dir ]; then \
-				$(MKDIR) $${AWS}/$$dir; \
-			fi; \
-			$(CP) $$file $${AWS}/$$file; \
-		done; \
-	done < ./MANIFEST; \
-	\
-	$(CP) -fr docs/html/* $${AWS}/docs/html; \
-	$(TAR) cf $${AWS}.tar $${AWS};\
-	$(GZIP) -9 $${AWS}.tar;\
-	$(RM) -fr $${AWS})
-
 force:
 
 #############################################################################
