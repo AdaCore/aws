@@ -15,6 +15,11 @@ of the feature.
 New features in AWS 2.11
 ------------------------
 
+NF-211-L523-018 Support for EXTENDS and BLOCKS in templates parser
+
+   The templates parser now supports including a file while substituting
+   parts of it.
+
 NF-211-L402-023 Implement AWS.URL.Resolve function for URL resolution
 
    AWS.URL.Resolve function was implemented using RFC 3956 Section 5.2.
