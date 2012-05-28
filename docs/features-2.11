@@ -20,33 +20,33 @@ NF-211-L523-018 Support for EXTENDS and BLOCKS in templates parser (2012-05-24)
    The templates parser now supports including a file while substituting
    parts of it.
 
-NF-211-L402-023 Implement AWS.URL.Resolve function for URL resolution
+NF-211-L402-023 Implement URL.Resolve function for URL resolution (2012-05-12)
 
    AWS.URL.Resolve function was implemented using RFC 3956 Section 5.2.
 
-NF-211-L301-022 Add support for session cookies
+NF-211-L301-022 Add support for session cookies (2012-03-05)
 
    A session cookie is one without a Max-Age attribute. Such cookies
    expire when the web browser is closed.
 
-NF-211-L221-032 AWS now supports IPv6
+NF-211-L221-032 AWS now supports IPv6 (2012-02-21)
 
    AWS now supports IPv6, to enable IPv6 support:
 
       $ make IPv6=true setup
 
-NF-211-L120-005 Add support for limiting HTTP POST parameters
+NF-211-L120-005 Add support for limiting HTTP POST parameters (2012-02-08)
 
    It is now possible to limit the maximum number of POST parameters
    that AWS will handle. This is a per server configuration option
    whose default value is set to 100.
 
-NF-211-KB29-027 Add support for external log handling
+NF-211-KB29-027 Add support for external log handling (2011-11-18)
 
    It is now possible to provide callback routines for the log module.
    From there it is possible to store log data into a database or into
    syslog if needed.
 
-NF-211-K914-009 Templates parser now supports Utf-8 BOM
+NF-211-K914-009 Templates parser now supports Utf-8 BOM (2011-10-27)
 
    The templates parser now support files with leading Utf-8 BOM.
