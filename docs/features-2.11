@@ -15,7 +15,7 @@ of the feature.
 New features in AWS 2.11
 ------------------------
 
-NF-211-L523-018 Support for EXTENDS and BLOCKS in templates parser
+NF-211-L523-018 Support for EXTENDS and BLOCKS in templates parser (2012-05-24)
 
    The templates parser now supports including a file while substituting
    parts of it.
