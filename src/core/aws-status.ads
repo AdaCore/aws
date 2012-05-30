@@ -164,6 +164,22 @@ package AWS.Status is
    --  Returns supported by AWS coding preferred by client from the
    --  Accept-Coding header.
 
+   -------------------------------------------
+   -- Cross-Origin Resource Sharing Headers --
+   -------------------------------------------
+
+   function Origin (D : Data) return String;
+   pragma Inline (Origin);
+   --  Get value for "Origin:" header
+
+   function Access_Control_Request_Headers (D : Data) return String;
+   pragma Inline (Access_Control_Request_Headers);
+   --  Get value for "Access-Control-Request-Headers:" header
+
+   function Access_Control_Request_Method (D : Data) return String;
+   pragma Inline (Access_Control_Request_Method);
+   --  Get value for "Access-Control-Request-Method:" header
+
    ----------------
    -- Connection --
    ----------------

@@ -47,6 +47,26 @@ package body AWS.Status is
       return Headers.Get (D.Header, Messages.Accept_Encoding_Token);
    end Accept_Encoding;
 
+   ------------------------------------
+   -- Access_Control_Request_Headers --
+   ------------------------------------
+
+   function Access_Control_Request_Headers (D : Data) return String is
+   begin
+      return Headers.Get
+        (D.Header, Messages.Access_Control_Request_Headers_Token);
+   end Access_Control_Request_Headers;
+
+   -----------------------------------
+   -- Access_Control_Request_Method --
+   -----------------------------------
+
+   function Access_Control_Request_Method (D : Data) return String is
+   begin
+      return Headers.Get
+        (D.Header, Messages.Access_Control_Request_Method_Token);
+   end Access_Control_Request_Method;
+
    -----------------
    -- Attachments --
    -----------------
@@ -499,6 +519,15 @@ package body AWS.Status is
         (Get (D.Header, Messages.Content_Type_Token),
          "Boundary", Case_Sensitive => False);
    end Multipart_Boundary;
+
+   ------------
+   -- Origin --
+   ------------
+
+   function Origin (D : Data) return String is
+   begin
+      return Headers.Get (D.Header, Messages.Origin_Token);
+   end Origin;
 
    ---------------
    -- Parameter --

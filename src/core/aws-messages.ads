@@ -88,6 +88,13 @@ package AWS.Messages is
    TE_Token                  : constant String := "TE";
    User_Agent_Token          : constant String := "User-Agent";
 
+   --  Cross-Origin Resource Sharing request header tokens.
+   Access_Control_Request_Headers_Token : constant String
+     := "Access-Control-Request-Headers";
+   Access_Control_Request_Method_Token  : constant String
+     := "Access-Control-Request-Method";
+   Origin_Token                         : constant String := "Origin";
+
    --  Response header tokens RFC 2616
    Accept_Ranges_Token       : constant String := "Accept-Ranges";
    Age_Token                 : constant String := "Age";
@@ -98,6 +105,20 @@ package AWS.Messages is
    Server_Token              : constant String := "Server";
    Vary_Token                : constant String := "Vary";
    WWW_Authenticate_Token    : constant String := "WWW-Authenticate";
+
+   --  Cross-Origin Resource Sharing response header tokens
+   Access_Control_Allow_Credentials_Token : constant String
+     := "Access-Control-Allow-Credentials";
+   Access_Control_Allow_Headers_Token     : constant String
+     := "Access-Control-Allow-Headers";
+   Access_Control_Allow_Methods_Token     : constant String
+     := "Access-Control-Allow-Methods";
+   Access_Control_Allow_Origin_Token      : constant String
+     := "Access-Control-Allow-Origin";
+   Access_Control_Expose_Headers_Token    : constant String
+     := "Access-Control-Expose-Headers";
+   Access_Control_Max_Age_Token           : constant String
+     := "Access-Control-Max-Age";
 
    --  Entity header tokens RFC 2616
    Allow_Token               : constant String := "Allow";
