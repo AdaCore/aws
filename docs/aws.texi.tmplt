@@ -1736,7 +1736,7 @@ First we set a cookie:
    AWS.Cookie.Set (Content,
                    Key      => "hello",
                    Value    => "world",
-                   Max_Age  => 86400);
+                   Max_Age  => 86400.0);
 @b{end};}
 
 @noindent
