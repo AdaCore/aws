@@ -29,8 +29,6 @@
 
 with Ada.Unchecked_Deallocation;
 
-with AWS.Net;
-
 package body AWS.Net.Generic_Sets is
 
    procedure Unchecked_Free is
@@ -120,8 +118,8 @@ package body AWS.Net.Generic_Sets is
          Length := 1;
 
       else
-         Add (Set.Poll, Get_FD (Socket.all), Mode);
-         Length := Socket_Count (Net.Length (Set.Poll.all));
+         Add (Set.Poll, Socket.Get_FD, Mode);
+         Length := Socket_Count (Set.Poll.Length);
       end if;
 
       if Length > Set.Set'Length then
@@ -138,10 +136,10 @@ package body AWS.Net.Generic_Sets is
 
       Set.Set (Length).Socket := Socket;
 
-      if Integer (Length) /= Net.Length (Set.Poll.all) then
+      if Integer (Length) /= Set.Poll.Length then
          raise Constraint_Error with
             Socket_Count'Image (Length) & " <>"
-            & Integer'Image (Net.Length (Set.Poll.all));
+            & Integer'Image (Set.Poll.Length);
       end if;
    end Add_Private;
 
@@ -154,7 +152,7 @@ package body AWS.Net.Generic_Sets is
       if Set.Poll = null then
          return 0;
       else
-         return Socket_Count (Length (Set.Poll.all));
+         return Socket_Count (Set.Poll.Length);
       end if;
    end Count;
 
@@ -209,7 +207,7 @@ package body AWS.Net.Generic_Sets is
    function Is_Error
      (Set : Socket_Set_Type; Index : Socket_Index) return Boolean is
    begin
-      return Status (Set.Poll.all, Positive (Index)) (Error);
+      return Set.Poll.Status (Positive (Index)) (Error);
    end Is_Error;
 
    -------------------
@@ -222,7 +220,7 @@ package body AWS.Net.Generic_Sets is
       Ready : out Boolean;
       Error : out Boolean)
    is
-      Result : constant Event_Set := Status (Set.Poll.all, Positive (Index));
+      Result : constant Event_Set := Set.Poll.Status (Positive (Index));
    begin
       Ready := Result (Net.Input);
       Error := Result (Net.Error);
@@ -231,7 +229,7 @@ package body AWS.Net.Generic_Sets is
    function Is_Read_Ready
      (Set : Socket_Set_Type; Index : Socket_Index) return Boolean is
    begin
-      return Status (Set.Poll.all, Positive (Index)) (Net.Input);
+      return Set.Poll.Status (Positive (Index)) (Net.Input);
    end Is_Read_Ready;
 
    --------------------
@@ -241,7 +239,7 @@ package body AWS.Net.Generic_Sets is
    function Is_Write_Ready
      (Set : Socket_Set_Type; Index : Socket_Index) return Boolean is
    begin
-      return Status (Set.Poll.all, Positive (Index)) (Net.Output);
+      return Set.Poll.Status (Positive (Index)) (Net.Output);
    end Is_Write_Ready;
 
    ----------
@@ -251,7 +249,7 @@ package body AWS.Net.Generic_Sets is
    procedure Next
      (Set : Socket_Set_Type; Index : in out Socket_Index) is
    begin
-      Next (Set.Poll.all, Positive (Index));
+      Set.Poll.Next (Positive (Index));
    end Next;
 
    -------------------
@@ -262,7 +260,7 @@ package body AWS.Net.Generic_Sets is
      (Set   : in out Socket_Set_Type;
       Index : Socket_Index)
    is
-      Last : constant Socket_Count := Socket_Count (Length (Set.Poll.all));
+      Last : constant Socket_Count := Socket_Count (Set.Poll.Length);
    begin
       if Set.Set (Index).Allocated then
          Generic_Sets.Unchecked_Free (Set.Set (Index).Socket);
@@ -274,7 +272,7 @@ package body AWS.Net.Generic_Sets is
          raise Constraint_Error;
       end if;
 
-      Remove (Set.Poll.all, Positive (Index));
+      Set.Poll.Remove (Positive (Index));
    end Remove_Socket;
 
    procedure Remove_Socket
@@ -282,7 +280,7 @@ package body AWS.Net.Generic_Sets is
       Index  : Socket_Index;
       Socket : out Socket_Access)
    is
-      Last : constant Socket_Count := Socket_Count (Length (Set.Poll.all));
+      Last : constant Socket_Count := Socket_Count (Set.Poll.Length);
    begin
       Socket := Set.Set (Index).Socket;
 
@@ -292,7 +290,7 @@ package body AWS.Net.Generic_Sets is
          raise Constraint_Error;
       end if;
 
-      Remove (Set.Poll.all, Positive (Index));
+      Set.Poll.Remove (Positive (Index));
    end Remove_Socket;
 
    -----------
@@ -306,13 +304,14 @@ package body AWS.Net.Generic_Sets is
          return;
       end if;
 
-      Last := Socket_Count (Length (Set.Poll.all));
+      Last := Socket_Count (Set.Poll.Length);
 
       for K in reverse 1 .. Last loop
          if Set.Set (K).Allocated then
             Generic_Sets.Unchecked_Free (Set.Set (K).Socket);
          end if;
-         Remove (Set.Poll.all, Positive (K));
+
+         Set.Poll.Remove (Positive (K));
       end loop;
    end Reset;
 
@@ -337,7 +336,7 @@ package body AWS.Net.Generic_Sets is
       Index  : Socket_Index;
       Mode   : Waiting_Mode) is
    begin
-      Set_Mode (Set.Poll.all, Integer (Index), Mode);
+      Set.Poll.Set_Mode (Integer (Index), Mode);
    end Set_Mode;
 
    -------------------
@@ -372,7 +371,7 @@ package body AWS.Net.Generic_Sets is
          return;
       end if;
 
-      Wait (Set.Poll.all, Timeout, Integer (Count));
+      Set.Poll.Wait (Timeout, Integer (Count));
    end Wait;
 
    procedure Wait
