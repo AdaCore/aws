@@ -201,6 +201,10 @@ package AWS.Net is
 
    function Is_IPv6 (Socket : Socket_Type) return Boolean;
 
+   function Is_Listening (Socket : Socket_Type) return Boolean is abstract;
+   --  Returns true if the socket has been marked to accept connections with
+   --  listen.
+
    function IPv6_Available return Boolean;
    --  Returns True if IPv6 available in OS and in AWS socket implementation
 

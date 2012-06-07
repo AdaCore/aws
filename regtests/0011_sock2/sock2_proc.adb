@@ -57,6 +57,10 @@ procedure Sock2_Proc (Security : Boolean) is
 
       Client.Connect (Server.Get_Addr, Server.Get_Port);
 
+      if Client.Is_Listening then
+         Text_IO.Put_Line ("Error: Client.Is_Listening");
+      end if;
+
       loop
          declare
             Buffer : Stream_Element_Array := Net.Receive (Client);
@@ -101,10 +105,18 @@ begin
 
    Server.Set_Timeout (2.0);
 
-   Net.Accept_Socket (Server, Peer);
+   if not Server.Is_Listening then
+      Text_IO.Put_Line ("Error: not Server.Is_Listening");
+   end if;
+
+   Server.Accept_Socket (Peer);
 
    Peer.Set_Timeout (3.0);
    Peer.Send (Sample);
+
+   if Peer.Is_Listening then
+      Text_IO.Put_Line ("Error: Peer.Is_Listening");
+   end if;
 
    Client_Side.Stop;
 

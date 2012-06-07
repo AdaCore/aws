@@ -314,6 +314,7 @@ main (int argc, char *argv[])
   P ("   AF_INET       : constant := %d;\n", AF_INET);
   P ("   AF_INET6      : constant := %d;\n", AF_INET6);
   P ("   AF_UNSPEC     : constant := %d;\n", AF_UNSPEC);
+  P ("   SO_ACCEPTCONN : constant := %d;\n", SO_ACCEPTCONN);
   P ("   SO_ERROR      : constant := %d;\n", SO_ERROR);
   P ("   SO_SNDBUF     : constant := %d;\n", SO_SNDBUF);
   P ("   SO_RCVBUF     : constant := %d;\n", SO_RCVBUF);
