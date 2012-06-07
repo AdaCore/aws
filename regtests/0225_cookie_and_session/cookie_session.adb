@@ -24,7 +24,7 @@ with AWS.Cookie;
 with AWS.Headers;
 with AWS.Messages;
 with AWS.Response;
-with AWS.Server;
+with AWS.Server.Status;
 with AWS.Session;
 with AWS.Status;
 
@@ -51,9 +51,10 @@ procedure Cookie_Session is
 
 begin
    Server.Start
-     (WS, "Cookie Session", Callback'Unrestricted_Access, Session => True);
+     (WS, "Cookie Session", Callback'Unrestricted_Access, Port => 0,
+      Session => True);
 
-   Res := Client.Get ("http://localhost:8080");
+   Res := Client.Get (Server.Status.Local_URL (WS));
 
    HL := Response.Header (Res);
 
