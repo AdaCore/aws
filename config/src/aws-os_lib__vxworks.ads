@@ -99,7 +99,7 @@ package AWS.OS_Lib is
    type nfds_t is mod 2 ** 32;
    for nfds_t'Size use 32;
 
-   type FD_Type is mod 2 ** 32;
+   type FD_Type is range  -(2 ** 31) .. 2 ** 31 - 1;
    for FD_Type'Size use 32;
 
    type Events_Type is mod 2 ** 16;
