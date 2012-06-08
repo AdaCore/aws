@@ -117,6 +117,22 @@ package AWS.OS_Lib is
    end record;
    pragma Convention (C, Timeval);
 
+   type sa_family_t is mod 2 ** 8;
+   for sa_family_t'Size use 8;
+
+   type In6_Addr is array (1 .. 8) of Interfaces.Unsigned_16;
+   pragma Convention (C, In6_Addr);
+
+   type Sockaddr_In6 is record
+      Length    : Interfaces.Unsigned_8 := 0;
+      Family    : sa_family_t := 0;
+      Port      : Interfaces.C.unsigned_short := 0;
+      FlowInfo  : Interfaces.Unsigned_32 := 0;
+      Addr      : In6_Addr := (others => 0);
+      Scope_Id  : Interfaces.Unsigned_32 := 0;
+   end record;
+   pragma Convention (C, Sockaddr_In6);
+
    type Addr_Info;
    type Addr_Info_Access is access all Addr_Info;
 
