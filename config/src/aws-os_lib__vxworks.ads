@@ -56,6 +56,7 @@ package AWS.OS_Lib is
    AI_PASSIVE     : constant := 1;
    AI_CANONNAME   : constant := 2;
    AI_NUMERICHOST : constant := 4;
+   AI_NUMERICSERV : constant := 4096;
    EAI_SYSTEM     : constant := 11;
 
    NI_NAMEREQD    : constant := 4;
@@ -64,38 +65,41 @@ package AWS.OS_Lib is
    NI_NUMERICHOST : constant := 2;
    NI_NUMERICSERV : constant := 8;
 
-   IPPROTO_TCP  : constant := 6;
-   IPPROTO_IP   : constant := 0;
-   PF_UNSPEC    : constant := 0;
-   PF_INET      : constant := 2;
-   PF_INET6     : constant := 28;
-   AF_INET      : constant := 2;
-   AF_INET6     : constant := 28;
-   SO_ERROR     : constant := 4103;
-   SO_SNDBUF    : constant := 4097;
-   SO_RCVBUF    : constant := 4098;
-   SO_REUSEADDR : constant := 4;
-   TCP_NODELAY  : constant := 1;
-   SOCK_STREAM  : constant := 1;
-   SOL_SOCKET   : constant := 65535;
-   SHUT_RDWR    : constant := 2;
-   SHUT_RD      : constant := 0;
-   SHUT_WR      : constant := 1;
-   ETIMEDOUT    : constant := 60;
-   EWOULDBLOCK  : constant := 70;
-   ENOTCONN     : constant := 57;
-   EINPROGRESS  : constant := 68;
-   EINTR        : constant := 4;
-   ENOBUFS      : constant := 55;
-   ENOMEM       : constant := 12;
-   FIONBIO      : constant := 16;
-   FIONREAD     : constant := 1;
-   MSG_NOSIGNAL : constant := 0;
+   IPPROTO_TCP   : constant := 6;
+   IPPROTO_IP    : constant := 0;
+   PF_UNSPEC     : constant := 0;
+   PF_INET       : constant := 2;
+   PF_INET6      : constant := 28;
+   AF_INET       : constant := 2;
+   AF_INET6      : constant := 28;
+   AF_UNSPEC     : constant := 0;
+   SO_ACCEPTCONN : constant := 30;
+   SO_ERROR      : constant := 4103;
+   SO_SNDBUF     : constant := 4097;
+   SO_RCVBUF     : constant := 4098;
+   SO_REUSEADDR  : constant := 4;
+   TCP_NODELAY   : constant := 1;
+   SOCK_STREAM   : constant := 1;
+   SOL_SOCKET    : constant := 65535;
+   SHUT_RDWR     : constant := 2;
+   SHUT_RD       : constant := 0;
+   SHUT_WR       : constant := 1;
+   EADDRNOTAVAIL : constant := 49;
+   ETIMEDOUT     : constant := 60;
+   EWOULDBLOCK   : constant := 70;
+   ENOTCONN      : constant := 57;
+   EINPROGRESS   : constant := 68;
+   EINTR         : constant := 4;
+   ENOBUFS       : constant := 55;
+   ENOMEM        : constant := 12;
+   FIONBIO       : constant := 16;
+   FIONREAD      : constant := 1;
+   MSG_NOSIGNAL  : constant := 0;
 
    type nfds_t is mod 2 ** 32;
    for nfds_t'Size use 32;
 
-   type FD_Type is mod 2 ** 32;
+   type FD_Type is range  -(2 ** 31) .. 2 ** 31 - 1;
    for FD_Type'Size use 32;
 
    type Events_Type is mod 2 ** 16;
@@ -112,6 +116,22 @@ package AWS.OS_Lib is
       tv_usec : timeval_field_t; -- Microseconds
    end record;
    pragma Convention (C, Timeval);
+
+   type sa_family_t is mod 2 ** 8;
+   for sa_family_t'Size use 8;
+
+   type In6_Addr is array (1 .. 8) of Interfaces.Unsigned_16;
+   pragma Convention (C, In6_Addr);
+
+   type Sockaddr_In6 is record
+      Length    : Interfaces.Unsigned_8 := 0;
+      Family    : sa_family_t := 0;
+      Port      : Interfaces.C.unsigned_short := 0;
+      FlowInfo  : Interfaces.Unsigned_32 := 0;
+      Addr      : In6_Addr := (others => 0);
+      Scope_Id  : Interfaces.Unsigned_32 := 0;
+   end record;
+   pragma Convention (C, Sockaddr_In6);
 
    type Addr_Info;
    type Addr_Info_Access is access all Addr_Info;
@@ -147,25 +167,20 @@ package AWS.OS_Lib is
       OptVal  : System.Address;
       OptLen  : C.int) return C.int;
 
-   function C_Ioctl
-     (S   : C.int;
-      Req : C.int;
-      Arg : access C.int) return C.int;
+   function C_Ioctl (S : C.int; Req : C.int; Arg : access C.int) return C.int;
 
    function C_Close (Fd : C.int) return C.int;
 
-   procedure WSA_Startup
-     (Version : C.int; Data : System.Address) is null;
+   procedure WSA_Startup (Version : C.int; Data : System.Address) is null;
    function Socket_Errno return Integer renames GNAT.OS_Lib.Errno;
 
 private
 
    pragma Import (C, GetAddrInfo, "getaddrinfo");
    pragma Import (C, FreeAddrInfo, "freeaddrinfo");
+   pragma Import (C, Set_Sock_Opt, "setsockopt");
    pragma Import (C, GAI_StrError, "gai_strerror");
    pragma Import (C, Socket_StrError, "strerror");
    pragma Import (C, C_Ioctl, "ioctl");
    pragma Import (C, C_Close, "close");
-   pragma Import (C, Set_Sock_Opt, "setsockopt");
-
 end AWS.OS_Lib;
