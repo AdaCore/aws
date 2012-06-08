@@ -151,25 +151,20 @@ package AWS.OS_Lib is
       OptVal  : System.Address;
       OptLen  : C.int) return C.int;
 
-   function C_Ioctl
-     (S   : C.int;
-      Req : C.int;
-      Arg : access C.int) return C.int;
+   function C_Ioctl (S : C.int; Req : C.int; Arg : access C.int) return C.int;
 
    function C_Close (Fd : C.int) return C.int;
 
-   procedure WSA_Startup
-     (Version : C.int; Data : System.Address) is null;
+   procedure WSA_Startup (Version : C.int; Data : System.Address) is null;
    function Socket_Errno return Integer renames GNAT.OS_Lib.Errno;
 
 private
 
    pragma Import (C, GetAddrInfo, "getaddrinfo");
    pragma Import (C, FreeAddrInfo, "freeaddrinfo");
+   pragma Import (C, Set_Sock_Opt, "setsockopt");
    pragma Import (C, GAI_StrError, "gai_strerror");
    pragma Import (C, Socket_StrError, "strerror");
    pragma Import (C, C_Ioctl, "ioctl");
    pragma Import (C, C_Close, "close");
-   pragma Import (C, Set_Sock_Opt, "setsockopt");
-
 end AWS.OS_Lib;
