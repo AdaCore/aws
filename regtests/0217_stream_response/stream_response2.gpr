@@ -18,7 +18,7 @@
 
 with "aws";
 
-project Stream_Response is
+project Stream_Response2 is
    for Source_Dirs use (".", "../common");
-   for Main use ("stream_response.adb");
-end Stream_Response;
+   for Main use ("stream_response2.adb");
+end Stream_Response2;

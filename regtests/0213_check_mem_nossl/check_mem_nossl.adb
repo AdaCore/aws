@@ -49,9 +49,9 @@ with SOAP.Message.XML;
 with SOAP.Parameters;
 with SOAP.Types;
 
-with API_Service.CB;
-with API_Service.Client;
-with API_Service.Server;
+with API2_Service.CB;
+with API2_Service.Client;
+with API2_Service.Server;
 
 procedure Check_Mem_Nossl is
 
@@ -128,7 +128,7 @@ procedure Check_Mem_Nossl is
                         SOAP.Message.XML.Load_Payload
                           (AWS.Status.Payload (Request));
          begin
-            return API_Service.CB.SOAP_CB (SOAP_Action, Payload, Request);
+            return API2_Service.CB.SOAP_CB (SOAP_Action, Payload, Request);
          end;
 
       elsif URI = "/simple" then
@@ -679,11 +679,11 @@ begin
       declare
          Local_URL : constant string := AWS.Server.Status.Local_URL (HTTP);
       begin
-         API_Service.Client.Set ("voiture", 2, Endpoint => Local_URL);
+         API2_Service.Client.Set ("voiture", 2, Endpoint => Local_URL);
          Put_Line
            (Integer'Image
-              (API_Service.Client.Get ("voiture", Endpoint => Local_URL)));
-         Put_Line (API_Service.Client.Get_Last_Key (Endpoint => Local_URL));
+              (API2_Service.Client.Get ("voiture", Endpoint => Local_URL)));
+         Put_Line (API2_Service.Client.Get_Last_Key (Endpoint => Local_URL));
       end;
    end loop;
 

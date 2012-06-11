@@ -28,7 +28,7 @@ with AWS.Status;
 with AWS.Utils;
 with AWS.Messages;
 
-procedure Stream_Response is
+procedure Stream_Response2 is
 
    use Ada;
    use AWS;
@@ -113,4 +113,4 @@ begin
 
    Server.Shutdown (WS);
    Text_IO.Put_Line ("shutdown");
-end Stream_Response;
+end Stream_Response2;

@@ -16,12 +16,41 @@
 --  to http://www.gnu.org/licenses for a complete copy of the license.      --
 ------------------------------------------------------------------------------
 
-package API is
+with Ada.Strings.Unbounded;
 
-   procedure Set (Key : String; Value : Integer);
+package body API2 is
 
-   function Get (Key : String) return Integer;
+   use Ada.Strings.Unbounded;
 
-   function Get_Last_Key return String;
+   K : Unbounded_String;
+   V : Integer;
 
-end API;
+   ---------
+   -- Set --
+   ---------
+
+   procedure Set (Key : String; Value : Integer) is
+   begin
+      K := To_Unbounded_String (Key);
+      V := Value;
+   end Set;
+
+   ---------
+   -- Get --
+   ---------
+
+   function Get (Key : String) return Integer is
+   begin
+      return V;
+   end Get;
+
+   ------------------
+   -- Get_Last_Key --
+   ------------------
+
+   function Get_Last_Key return String is
+   begin
+      return To_String (K);
+   end Get_Last_Key;
+
+end API2;

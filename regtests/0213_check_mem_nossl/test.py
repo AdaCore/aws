@@ -2,12 +2,12 @@ from test_support import *
 
 #  Generate WSDL
 
-exec_cmd('ada2wsdl', ['-q', '-f', '-o', 'api.wsdl', 'api.ads'],
+exec_cmd('ada2wsdl', ['-q', '-f', '-o', 'api2.wsdl', 'api2.ads'],
          ignore_error=True)
 
 #  Generate stub and skeleton
 
-exec_cmd('wsdl2aws', ['-q', '-f', '-types', 'api', '-cb', 'api.wsdl'],
+exec_cmd('wsdl2aws', ['-q', '-f', '-types', 'api2', '-cb', 'api2.wsdl'],
          ignore_error=True)
 
 #  Build driver
