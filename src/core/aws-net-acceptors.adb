@@ -32,10 +32,33 @@ with Ada.Streams;
 package body AWS.Net.Acceptors is
 
    Signal_Index   : constant := 1;
-   Server_Index   : constant := 2;
-   First_Index    : constant := 3;
+   First_Index    : constant := 2;
 
    Socket_Command : constant := 1;
+
+   -------------------
+   -- Add_Listening --
+   -------------------
+
+   procedure Add_Listening
+     (Acceptor      : in out Acceptor_Type;
+      Host          : String;
+      Port          : Natural;
+      Family        : Family_Type := Family_Unspec;
+      Reuse_Address : Boolean     := False)
+   is
+      Server : constant Socket_Access :=
+         new Socket_Type'Class'(Acceptor.Constructor (False));
+   begin
+      Server.Bind
+        (Host => Host, Port => Port, Family => Family,
+         Reuse_Address => Reuse_Address);
+      Server.Listen (Queue_Size => Acceptor.Back_Queue_Size);
+
+      Give_Back (Acceptor, Server);
+
+      Acceptor.Server := Server;
+   end Add_Listening;
 
    ---------
    -- Get --
@@ -50,6 +73,8 @@ package body AWS.Net.Acceptors is
    is
       use type Sets.Socket_Count;
 
+      function Accept_Listening return Boolean;
+
       procedure Add_Sockets;
       --  Add sockets to the acceptor either from Accept_Socket or from
       --  Give_Back.
@@ -60,18 +85,17 @@ package body AWS.Net.Acceptors is
       Too_Many_FD  : Boolean := False;
       Ready, Error : Boolean;
 
-      -----------------
-      -- Add_Sockets --
-      -----------------
+      ----------------------
+      -- Accept_Listening --
+      ----------------------
 
-      procedure Add_Sockets is
+      function Accept_Listening return Boolean is
+         Server : constant Socket_Type'Class :=
+           Sets.Get_Socket (Acceptor.Set, Acceptor.Index);
       begin
-         --  Save Acceptor.Last to do not try to get status of new arrived
-         --  sockets until it wouldn't in the Wait call.
-
-         Acceptor.Last := Sets.Count (Acceptor.Set);
-
-         Sets.Is_Read_Ready (Acceptor.Set, Server_Index, Ready, Error);
+         if not Server.Is_Listening then
+            return False;
+         end if;
 
          if Error then
             Acceptor.Server.Raise_Socket_Error ("Accepting socket error");
@@ -85,7 +109,7 @@ package body AWS.Net.Acceptors is
                --  take a long time inside Accept_Socket. We would make socket
                --  SSL later outside acceptor if necessary.
 
-               Acceptor.Server.Accept_Socket (New_Socket);
+               Server.Accept_Socket (New_Socket);
 
                Sets.Add
                  (Acceptor.Set,
@@ -111,6 +135,15 @@ package body AWS.Net.Acceptors is
             end;
          end if;
 
+         return True;
+      end Accept_Listening;
+
+      -----------------
+      -- Add_Sockets --
+      -----------------
+
+      procedure Add_Sockets is
+      begin
          Sets.Is_Read_Ready (Acceptor.Set, Signal_Index, Ready, Error);
 
          if Error then
@@ -197,12 +230,13 @@ package body AWS.Net.Acceptors is
          Wait_Timeout := Timeout (not First);
          Oldest_Idx   := 0;
 
-         Read_Ready : loop
-            exit Read_Ready when Acceptor.Index > Acceptor.Last;
-
+         Read_Ready : while Acceptor.Index <= Acceptor.Last loop
             Sets.Is_Read_Ready (Acceptor.Set, Acceptor.Index, Ready, Error);
 
-            if Error or else Ready then
+            if Accept_Listening then
+               Acceptor.Index := Acceptor.Index + 1;
+
+            elsif Error or else Ready then
                Sets.Remove_Socket (Acceptor.Set, Acceptor.Index, Socket);
 
                Acceptor.Last := Acceptor.Last - 1;
@@ -272,6 +306,11 @@ package body AWS.Net.Acceptors is
                S.Shutdown;
                Free (S); -- Don't use S.Free, it does not deallocate S
             end loop;
+
+            --  Save Acceptor.Last to do not try to get status of new arrived
+            --  sockets until it wouldn't in the Wait call.
+
+            Acceptor.Last := Sets.Count (Acceptor.Set);
 
             Error := False;
          exception

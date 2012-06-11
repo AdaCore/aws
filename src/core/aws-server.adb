@@ -145,6 +145,21 @@ package body AWS.Server is
       end if;
    end Accept_Socket_Serialized;
 
+   -------------------
+   -- Add_Listening --
+   -------------------
+
+   procedure Add_Listening
+     (Web_Server    : in out HTTP;
+      Host          : String;
+      Port          : Natural;
+      Family        : Net.Family_Type := Net.Family_Unspec;
+      Reuse_Address : Boolean         := False) is
+   begin
+      Net.Acceptors.Add_Listening
+        (Web_Server.Acceptor, Host, Port, Family, Reuse_Address);
+   end Add_Listening;
+
    ------------
    -- Config --
    ------------
