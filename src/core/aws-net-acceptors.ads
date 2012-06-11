@@ -68,6 +68,18 @@ package AWS.Net.Acceptors is
    --  If number of sockets became more then Close_Length, closest to timeout
    --  socket would be closed without timeout condition.
 
+   procedure Add_Listening
+     (Acceptor      : in out Acceptor_Type;
+      Host          : String;
+      Port          : Natural;
+      Family        : Family_Type := Family_Unspec;
+      Reuse_Address : Boolean     := False);
+   --  Add the binded/listening socket on host, port and protocol family. To be
+   --  able to connect web enabled application with others in the internal
+   --  network, and then give access for external clients by start listening on
+   --  externally available address. Generally this is called from a different
+   --  task while the Get routine is blocked waiting for a socket.
+
    procedure Set_Socket_Constructor
      (Acceptor : in out Acceptor_Type; Constructor : Socket_Constructor);
 

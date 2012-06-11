@@ -210,6 +210,18 @@ package AWS.Server is
    procedure Skip_Log_Record;
    --  Disable logging only for the current processing request
 
+   procedure Add_Listening
+     (Web_Server    : in out HTTP;
+      Host          : String;
+      Port          : Natural;
+      Family        : Net.Family_Type := Net.Family_Unspec;
+      Reuse_Address : Boolean         := False);
+   --  Add the binded/listening socket on host, port and protocol family. To be
+   --  able to connect web enabled application with others in the internal
+   --  network, and then give access for external clients by start listening on
+   --  externally available address. Also it could be used to bind one server
+   --  to IPv4 and IPv6 protocols simultaneously.
+
 private
 
    procedure Default_Unexpected_Exception_Handler
