@@ -57,7 +57,7 @@ package body AWS.Net.Acceptors is
 
       Give_Back (Acceptor, Server);
 
-      Acceptor.Server := Server;
+      Acceptor.Servers.Add (Server);
    end Add_Listening;
 
    ---------
@@ -98,7 +98,7 @@ package body AWS.Net.Acceptors is
          end if;
 
          if Error then
-            Acceptor.Server.Raise_Socket_Error ("Accepting socket error");
+            Server.Raise_Socket_Error ("Accepting socket error");
 
          elsif Ready then
             declare
@@ -434,12 +434,15 @@ package body AWS.Net.Acceptors is
 
       use Real_Time;
 
+      Server : constant Socket_Access := New_Socket;
+
    begin
-      Acceptor.Server := New_Socket;
-      Acceptor.Server.Bind
+      Server.Bind
         (Host => Host, Port => Port, Family => Family,
          Reuse_Address => Reuse_Address);
-      Acceptor.Server.Listen (Queue_Size => Queue_Size);
+      Server.Listen (Queue_Size => Queue_Size);
+
+      Acceptor.Servers.Add (Server);
 
       Acceptor.R_Signal := New_Socket;
       Acceptor.W_Signal := New_Socket;
@@ -448,7 +451,7 @@ package body AWS.Net.Acceptors is
 
       Sets.Reset (Acceptor.Set);
       Sets.Add (Acceptor.Set, Acceptor.R_Signal, Sets.Input);
-      Sets.Add (Acceptor.Set, Acceptor.Server, Sets.Input);
+      Sets.Add (Acceptor.Set, Server, Sets.Input);
 
       Acceptor.Index               := First_Index;
       Acceptor.Last                := Sets.Count (Acceptor.Set);
@@ -469,8 +472,35 @@ package body AWS.Net.Acceptors is
    function Server_Socket
      (Acceptor : Acceptor_Type) return Socket_Type'Class is
    begin
-      return Acceptor.Server.all;
+      return Acceptor.Servers.Get.First_Element.all;
    end Server_Socket;
+
+   --------------------
+   -- Server_Sockets --
+   --------------------
+
+   function Server_Sockets (Acceptor : Acceptor_Type) return Socket_List is
+   begin
+      return Acceptor.Servers.Get;
+   end Server_Sockets;
+
+   ------------------------
+   -- Server_Sockets_Set --
+   ------------------------
+
+   protected body Server_Sockets_Set is
+
+      procedure Add (S : Socket_Access) is
+      begin
+         Sockets.Append (S);
+      end Add;
+
+      function Get return Socket_List is
+      begin
+         return Sockets;
+      end Get;
+
+   end Server_Sockets_Set;
 
    ----------------------------
    -- Set_Socket_Constructor --
