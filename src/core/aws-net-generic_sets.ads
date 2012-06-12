@@ -195,7 +195,7 @@ package AWS.Net.Generic_Sets is
    procedure Next (Set : Socket_Set_Type; Index : in out Socket_Index);
    --  Looking for active socket starting from Index and return Index of the
    --  found active socket. After search use functions In_Range,
-   --  Is_Write_Ready, Is_Read_Ready and Is_Error to be shure that active
+   --  Is_Write_Ready, Is_Read_Ready and Is_Error to be sure that active
    --  socket is found in the Set.
 
    procedure Reset (Set : in out Socket_Set_Type);
