@@ -118,8 +118,7 @@ package AWS.Net.Generic_Sets is
 
    function Is_Read_Ready
      (Set   : Socket_Set_Type;
-      Index : Socket_Index)
-      return Boolean;
+      Index : Socket_Index) return Boolean;
    pragma Inline (Is_Read_Ready);
    --  Return True if data could be read from socket and socket was in Input
    --  or Both waiting mode.
