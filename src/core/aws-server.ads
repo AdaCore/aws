@@ -222,7 +222,7 @@ package AWS.Server is
       Reuse_Address : Boolean         := False);
    --  Add the binded/listening socket on host, port and protocol family. To be
    --  able to connect web enabled application with others in the internal
-   --  network, and then give access for external clients by start listening on
+   --  network, and then give access for external clients by listening on
    --  externally available address. Also it could be used to bind one server
    --  to IPv4 and IPv6 protocols simultaneously.
 

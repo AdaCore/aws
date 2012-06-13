@@ -76,7 +76,7 @@ package AWS.Net.Acceptors is
       Reuse_Address : Boolean     := False);
    --  Add the binded/listening socket on host, port and protocol family. To be
    --  able to connect web enabled application with others in the internal
-   --  network, and then give access for external clients by start listening on
+   --  network, and then give access for external clients by listening on
    --  externally available address. Generally this is called from a different
    --  task while the Get routine is blocked waiting for a socket.
 

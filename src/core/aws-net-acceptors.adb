@@ -91,7 +91,7 @@ package body AWS.Net.Acceptors is
 
       function Accept_Listening return Boolean is
          Server : constant Socket_Type'Class :=
-           Sets.Get_Socket (Acceptor.Set, Acceptor.Index);
+                    Sets.Get_Socket (Acceptor.Set, Acceptor.Index);
       begin
          if not Server.Is_Listening then
             return False;
@@ -490,10 +490,18 @@ package body AWS.Net.Acceptors is
 
    protected body Server_Sockets_Set is
 
+      ---------
+      -- Add --
+      ---------
+
       procedure Add (S : Socket_Access) is
       begin
          Sockets.Append (S);
       end Add;
+
+      ---------
+      -- Get --
+      ---------
 
       function Get return Socket_List is
       begin
