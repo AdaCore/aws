@@ -201,6 +201,8 @@ package body AWS.Net.Acceptors is
             Free (Socket);
          end loop;
 
+         Acceptor.Servers.Clear;
+
          raise Socket_Error;
       end Shutdown;
 
@@ -498,6 +500,15 @@ package body AWS.Net.Acceptors is
       begin
          Sockets.Append (S);
       end Add;
+
+      -----------
+      -- Clear --
+      -----------
+
+      procedure Clear is
+      begin
+         Sockets.Clear;
+      end Clear;
 
       ---------
       -- Get --

@@ -170,6 +170,7 @@ private
    protected type Server_Sockets_Set is
       procedure Add (S : Socket_Access);
       function Get return Socket_List;
+      procedure Clear;
    private
       Sockets : Socket_List;
    end Server_Sockets_Set;
