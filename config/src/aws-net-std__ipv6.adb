@@ -46,7 +46,7 @@ package body AWS.Net.Std is
    type Unsigned_Lock is new Unsigned_8;
 
    type Socket_Hidden is record
-      FD : Interfaces.C.int := No_Socket;
+      FD : C.int := No_Socket;
       RL : aliased Unsigned_Lock := 0; -- Flag to detect read competition
       pragma Atomic (RL);
    end record;
@@ -85,27 +85,26 @@ package body AWS.Net.Std is
      (Host   : String;
       Port   : Natural;
       Family : Family_Type;
-      Flags  : Interfaces.C.int := 0) return OS_Lib.Addr_Info_Access;
+      Flags  : C.int := 0) return OS_Lib.Addr_Info_Access;
    --  Returns the inet address information for the given host and port.
    --  Flags should be used from getaddrinfo C routine.
 
    function Get_Int_Sock_Opt
-     (Socket : Socket_Type; Name : Interfaces.C.int) return Integer;
+     (Socket : Socket_Type; Name : C.int) return Integer;
    --  Return socket option with Integer size
 
    procedure Set_Int_Sock_Opt
      (Socket : Socket_Type;
-      Name   : Interfaces.C.int;
+      Name   : C.int;
       Value  : Integer;
-      Level  : Interfaces.C.int := OS_Lib.SOL_SOCKET);
+      Level  : C.int := OS_Lib.SOL_SOCKET);
    --  Return socket option with Integer size
 
    procedure Set_Non_Blocking_Mode (Socket : Socket_Type);
    --  Set the socket to the non-blocking mode.
    --  AWS is not using blocking sockets internally.
 
-   function Swap_Little_Endian
-     (S : Interfaces.Unsigned_16) return Interfaces.Unsigned_16;
+   function Swap_Little_Endian (S : Unsigned_16) return Unsigned_16;
 
    function C_Bind
      (S : C.int; Name : System.Address; Namelen : C.int) return C.int;
@@ -363,7 +362,7 @@ package body AWS.Net.Std is
      (Host   : String;
       Port   : Natural;
       Family : Family_Type;
-      Flags  : Interfaces.C.int := 0) return OS_Lib.Addr_Info_Access
+      Flags  : C.int := 0) return OS_Lib.Addr_Info_Access
    is
       package CS renames Interfaces.C.Strings;
       use type C.int;
@@ -385,6 +384,10 @@ package body AWS.Net.Std is
                   ai_addr      => System.Null_Address,
                   ai_next      => null);
    begin
+      if Port > Positive (Unsigned_16'Last) then
+         raise Constraint_Error with "Port number too big";
+      end if;
+
       if Host = "" then
          P_Node := CS.Null_Ptr;
       else
@@ -425,7 +428,7 @@ package body AWS.Net.Std is
    ----------------------
 
    function Get_Int_Sock_Opt
-     (Socket : Socket_Type; Name : Interfaces.C.int) return Integer
+     (Socket : Socket_Type; Name : C.int) return Integer
    is
       use type C.int;
 
@@ -463,8 +466,7 @@ package body AWS.Net.Std is
          Raise_Socket_Error (OS_Lib.Socket_Errno, Socket);
       end if;
 
-      return Positive
-               (Swap_Little_Endian (Interfaces.Unsigned_16 (Name.Port)));
+      return Positive (Swap_Little_Endian (Unsigned_16 (Name.Port)));
    end Get_Port;
 
    -----------------------------
@@ -720,8 +722,7 @@ package body AWS.Net.Std is
          Raise_Socket_Error (OS_Lib.Socket_Errno, Socket);
       end if;
 
-      return Positive
-        (Swap_Little_Endian (Interfaces.Unsigned_16 (Name.Port)));
+      return Positive (Swap_Little_Endian (Unsigned_16 (Name.Port)));
    end Peer_Port;
 
    -------------
@@ -885,9 +886,9 @@ package body AWS.Net.Std is
 
    procedure Set_Int_Sock_Opt
      (Socket : Socket_Type;
-      Name   : Interfaces.C.int;
+      Name   : C.int;
       Value  : Integer;
-      Level  : Interfaces.C.int := OS_Lib.SOL_SOCKET)
+      Level  : C.int := OS_Lib.SOL_SOCKET)
    is
       use type C.int;
 
@@ -1024,7 +1025,7 @@ package body AWS.Net.Std is
       if Big_Endian then
          return S;
       else
-         return Interfaces.Rotate_Left (S, 8);
+         return Rotate_Left (S, 8);
       end if;
    end Swap_Little_Endian;
 
