@@ -4,5 +4,4 @@ Ok.
 Ok.
 Error.
 Error.
-1408F10B:SSL routines:SSL3_GET_RECORD:wrong version number
-
+Expected error about wrong data received

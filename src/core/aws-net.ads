@@ -368,9 +368,12 @@ private
    type FD_Set (Size : Natural) is abstract tagged null record;
 
    procedure Wait_For
-     (Mode : Wait_Event_Type; Socket : Socket_Type'Class);
+     (Mode : Wait_Event_Type; Socket : Socket_Type'Class; Timeout : Duration);
    --  Wait for a socket to be ready for input or output operation.
    --  Raises Socket_Error if an error or timeout occurs.
+
+   procedure Wait_For (Mode : Wait_Event_Type; Socket : Socket_Type'Class);
+   --  Idem, but use socket timeout
 
    --  This object is to cache data writed to the stream. It is more efficient
    --  than to write byte by byte on the stream.

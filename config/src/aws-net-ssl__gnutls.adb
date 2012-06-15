@@ -28,15 +28,9 @@
 ------------------------------------------------------------------------------
 
 with Ada.Directories;
-with Ada.Exceptions;
-with Ada.Streams.Stream_IO;
-with Ada.Strings.Fixed;
-with Ada.Task_Attributes;
-with Ada.Unchecked_Conversion;
 with Ada.Unchecked_Deallocation;
 
 with Interfaces.C.Strings;
-with System;
 
 with AWS.Config;
 with AWS.Net.Log;
@@ -49,38 +43,24 @@ package body AWS.Net.SSL is
    use type C.unsigned;
    use type C.int;
 
-   package Skip_Exceptions is new Ada.Task_Attributes
-     (Ada.Exceptions.Exception_Occurrence_Access, null);
-
-   function To_Access is new Ada.Unchecked_Conversion
-     (TSSL.gnutls_transport_ptr_t, Socket_Access);
-
    subtype NSST is Net.Std.Socket_Type;
 
    type Mutex_Access is access all AWS.Utils.Semaphore;
 
-   subtype Stream_Array is
-     Stream_Element_Array (1 .. Stream_Element_Offset'Last);
-
    procedure Check_Error_Code (Code : C.int);
    procedure Check_Error_Code (Code : C.int; Socket : Socket_Type'Class);
+
+   procedure Check_Error_Code (Code : TSSL.gcry_error_t);
+
+   procedure Code_Processing
+     (Code : C.int; Socket : Socket_Type'Class; Timeout : Duration);
+
+   procedure Code_Processing (Code : C.int; Socket : Socket_Type'Class);
 
    procedure Check_Config (Socket : in out Socket_Type);
    pragma Inline (Check_Config);
 
-   procedure Save_Exception (E : Ada.Exceptions.Exception_Occurrence);
-
-   function Push
-     (Socket : Std.Socket_Type;
-      Data   : Stream_Array;
-      Length : Stream_Element_Count) return Stream_Element_Offset;
-   pragma Convention (C, Push);
-
-   function Pull
-     (Socket : Std.Socket_Type;
-      Data   : access Stream_Array;
-      Length : Stream_Element_Count) return Stream_Element_Offset;
-   pragma Convention (C, Pull);
+   procedure Do_Handshake_Internal (Socket : Socket_Type);
 
    package Locking is
 
@@ -121,6 +101,9 @@ package body AWS.Net.SSL is
 
    procedure Session_Transport (Socket : in out Socket_Type);
 
+   function Verify_Callback (Session : TSSL.gnutls_session_t) return C.int;
+   pragma Convention (C, Verify_Callback);
+
    procedure Finalize (Config : in out TS_SSL);
 
    Default_Config : aliased TS_SSL;
@@ -130,8 +113,6 @@ package body AWS.Net.SSL is
    private
       Done : Boolean := False;
    end Default_Config_Synch;
-
-   DH_Bits : constant := 1024;
 
    procedure Initialize_Default_Config;
    --  Initializes default config. It could be called more then once, because
@@ -147,12 +128,20 @@ package body AWS.Net.SSL is
    -------------------
 
    overriding procedure Accept_Socket
-     (Socket     : Net.Socket_Type'Class;
-      New_Socket : in out Socket_Type) is
+     (Socket : Net.Socket_Type'Class; New_Socket : in out Socket_Type) is
    begin
-      Net.Std.Accept_Socket (Socket, NSST (New_Socket));
-      Session_Server (New_Socket);
-      Do_Handshake (New_Socket);
+      loop
+         Net.Std.Accept_Socket (Socket, NSST (New_Socket));
+         Session_Server (New_Socket);
+
+         begin
+            Do_Handshake (New_Socket);
+            exit;
+         exception
+            when Socket_Error =>
+               New_Socket.Shutdown;
+         end;
+      end loop;
    end Accept_Socket;
 
    ------------------
@@ -171,21 +160,15 @@ package body AWS.Net.SSL is
    -- Check_Error_Code --
    ----------------------
 
-   procedure Check_Error_Code
-     (Code : C.int; Socket : Socket_Type'Class) is
+   procedure Check_Error_Code (Code : C.int; Socket : Socket_Type'Class) is
    begin
-      if Code = TSSL.GNUTLS_E_PULL_ERROR
-        or else Code = TSSL.GNUTLS_E_PUSH_ERROR
-      then
-         Ada.Exceptions.Reraise_Occurrence (Skip_Exceptions.Value.all);
-
-      elsif Code /= 0 then
+      if Code /= 0 then
          declare
             Error : constant String
               := C.Strings.Value (TSSL.gnutls_strerror (Code));
          begin
             Net.Log.Error (Socket, Error);
-            Ada.Exceptions.Raise_Exception (Socket_Error'Identity, Error);
+            raise Socket_Error with Error;
          end;
       end if;
    end Check_Error_Code;
@@ -196,6 +179,17 @@ package body AWS.Net.SSL is
       Check_Error_Code (Code, Dummy);
    end Check_Error_Code;
 
+   procedure Check_Error_Code (Code : TSSL.gpg_error_t) is
+   begin
+      if Code = 0 then
+         return;
+      end if;
+
+      raise Program_Error with
+        '[' & Code'Img & "] " & C.Strings.Value (TSSL.gcry_strerror (Code))
+        & '/' & C.Strings.Value (TSSL.gcry_strsource (Code));
+   end Check_Error_Code;
+
    -------------------------
    -- Clear_Session_Cache --
    -------------------------
@@ -204,6 +198,29 @@ package body AWS.Net.SSL is
    begin
       null;
    end Clear_Session_Cache;
+
+   ---------------------
+   -- Code_Processing --
+   ---------------------
+
+   procedure Code_Processing
+     (Code : C.int; Socket : Socket_Type'Class; Timeout : Duration) is
+   begin
+      case Code is
+      when TSSL.GNUTLS_E_INTERRUPTED | TSSL.GNUTLS_E_AGAIN =>
+         case TSSL.gnutls_record_get_direction (Socket.SSL) is
+         when 0 => Wait_For (Input, Socket, Timeout);
+         when 1 => Wait_For (Output, Socket, Timeout);
+         when others => raise Program_Error;
+         end case;
+      when others => Check_Error_Code (Code, Socket);
+      end case;
+   end Code_Processing;
+
+   procedure Code_Processing (Code : C.int; Socket : Socket_Type'Class) is
+   begin
+      Code_Processing (Code, Socket, Net.Socket_Type (Socket).Timeout);
+   end Code_Processing;
 
    -------------
    -- Connect --
@@ -260,8 +277,22 @@ package body AWS.Net.SSL is
 
    procedure Do_Handshake (Socket : in out Socket_Type) is
    begin
-      Check_Error_Code (TSSL.gnutls_handshake (Socket.SSL), Socket);
+      Do_Handshake_Internal (Socket);
    end Do_Handshake;
+
+   procedure Do_Handshake_Internal (Socket : Socket_Type) is
+      Code : TSSL.ssize_t;
+   begin
+      loop
+         Code := TSSL.gnutls_handshake (Socket.SSL);
+
+         exit when Code = TSSL.GNUTLS_E_SUCCESS;
+
+         Code_Processing (Code, Socket);
+      end loop;
+
+      Socket.IO.Handshaken.all := True;
+   end Do_Handshake_Internal;
 
    --------------
    -- Finalize --
@@ -294,50 +325,21 @@ package body AWS.Net.SSL is
       end if;
    end Finalize;
 
-   --------------
-   -- Finalize --
-   --------------
-
-   overriding procedure Finalize (Socket : in out Socket_Type) is
-      use System;
-      use type TSSL.gnutls_session_t;
-
-      Sock : Socket_Access;
-   begin
-      if Socket.SSL /= null
-        and then Net.Socket_Type (Socket).C.Ref_Count.Value = 2
-      then
-         --  Free one more reference from gnutls_transport_ptr_t
-
-         Sock := To_Access (TSSL.gnutls_transport_get_ptr (Socket.SSL));
-
-         --  Unregister the push/pull callbacks to avoid access violation in
-         --  case the socket was not shutdown properly. on the
-
-         TSSL.gnutls_transport_set_push_function (Socket.SSL, Null_Address);
-         TSSL.gnutls_transport_set_pull_function (Socket.SSL, Null_Address);
-
-         TSSL.gnutls_transport_set_ptr
-           (Socket.SSL, TSSL.gnutls_transport_ptr_t (System.Null_Address));
-
-         Free (Sock);
-      end if;
-
-      Std.Finalize (Std.Socket_Type (Socket));
-   end Finalize;
-
    ----------
    -- Free --
    ----------
 
    overriding procedure Free (Socket : in out Socket_Type) is
       use type TSSL.gnutls_session_t;
+      procedure Unchecked_Free is new Ada.Unchecked_Deallocation
+        (Boolean, TSSL.Boolean_Access);
    begin
       if Socket.SSL /= null then
          TSSL.gnutls_deinit (Socket.SSL);
          Socket.SSL := null;
       end if;
 
+      Unchecked_Free (Socket.IO.Handshaken);
       Net.Std.Free (NSST (Socket));
    end Free;
 
@@ -380,17 +382,14 @@ package body AWS.Net.SSL is
       use type TSSL.gnutls_certificate_credentials_t;
       use type TSSL.gnutls_dh_params_t;
 
-      procedure Set_Certificate
-        (CC : TSSL.gnutls_certificate_credentials_t);
+      procedure Set_Certificate (CC : TSSL.gnutls_certificate_credentials_t);
       --  Set credentials from Cetificate_Filename and Key_Filename
 
       ---------------------
       -- Set_Certificate --
       ---------------------
 
-      procedure Set_Certificate
-        (CC : TSSL.gnutls_certificate_credentials_t)
-      is
+      procedure Set_Certificate (CC : TSSL.gnutls_certificate_credentials_t) is
 
          procedure Check_File (Prefix, Filename : String);
          --  Check that Filename is present, raise an exception adding
@@ -404,163 +403,45 @@ package body AWS.Net.SSL is
             use type Directories.File_Kind;
          begin
             if Directories.Kind (Filename) /= Directories.Ordinary_File then
-               Raise_Exception
-                 (Socket_Error'Identity,
-                  Prefix & " file """ & Filename & """ error.");
+               raise Socket_Error with
+                 Prefix & " file """ & Filename & """ error.";
             end if;
          end Check_File;
 
          Code : C.int;
 
       begin
-         if Key_Filename = "" then
-            --  Load certificates and private key from Certificate_File
+         Check_File ("Certificate", Certificate_Filename);
 
-            Check_File ("Certificate", Certificate_Filename);
+         declare
+            use C.Strings;
+            Cert : aliased C.char_array := C.To_C (Certificate_Filename);
+            Key  : aliased C.char_array := C.To_C (Key_Filename);
+            CP   : constant chars_ptr := To_Chars_Ptr (Cert'Unchecked_Access);
+            KP   : chars_ptr;
+         begin
+            if Key_Filename = "" then
+               KP := CP;
+            else
+               Check_File ("Key", Key_Filename);
+               KP := To_Chars_Ptr (Key'Unchecked_Access);
+            end if;
 
-            declare
-               use Ada.Strings;
+            Code := TSSL.gnutls_certificate_set_x509_key_file
+                      (CC, CP, KP, TSSL.GNUTLS_X509_FMT_PEM);
 
-               function Get_File_Data return String;
-               --  Returns certificate file data
-
-               Prefix : constant String := "-----BEGIN ";
-               Suffix : constant String := "-----END ";
-               Cert_C : constant String := "CERTIFICATE-----";
-               First  : Natural := 1;
-               Last   : Natural;
-               Cert   : aliased TSSL.gnutls_datum_t
-                 := (System.Null_Address, 0);
-               Key    : aliased TSSL.gnutls_datum_t
-                 := (System.Null_Address, 0);
-
-               -------------------
-               -- Get_File_Data --
-               -------------------
-
-               function Get_File_Data return String is
-                  use Ada.Streams.Stream_IO;
-                  File : File_Type;
-               begin
-                  Open
-                    (File, In_File, Certificate_Filename,
-                     Form => "shared=no");
-
-                  declare
-                     Result : aliased String (1 .. Natural (Size (File)));
-                  begin
-                     String'Read (Stream (File), Result);
-                     Close (File);
-                     return Result;
-                  end;
-               end Get_File_Data;
-
-               Data : aliased constant String := Get_File_Data;
-
-            begin
-               loop
-                  First := Fixed.Index (Data (First .. Data'Last), Prefix);
-                  exit when First = 0;
-
-                  Last := Fixed.Index (Data (First .. Data'Last), Suffix);
-
-                  if Last = 0 then
-                     Last := Data'Last;
-                  else
-                     Last := Fixed.Index
-                       (Data (Last .. Data'Last), "" & ASCII.LF);
-                     if Last = 0 then
-                        Last := Data'Last;
-                     end if;
-                  end if;
-
-                  if Data (First + Prefix'Length
-                           .. First + Prefix'Length + Cert_C'Length - 1)
-                    = Cert_C
-                  then
-                     if Cert.size = 0 then
-                        Cert.data := Data (First)'Address;
-
-                        if Key.size = 0 then
-                           --  Store first certificate position temporary
-                           --  in size field and wait for private key.
-
-                           Cert.size := C.unsigned (First);
-
-                        else
-                           --  If key already gotten then all other data
-                           --  is certificates list.
-
-                           Cert.size := C.unsigned (Data'Last - First);
-
-                           exit;
-                        end if;
-                     end if;
-
-                  else
-                     Key.data := Data (First)'Address;
-                     Key.size := C.unsigned (Last - First);
-
-                     if Cert.size > 0 then
-                        --  If key gotten after certificate, calculate
-                        --  size of certificates list.
-
-                        Cert.size := C.unsigned (First) - Cert.size;
-                        exit;
-                     end if;
-                  end if;
-
-                  exit when Last = Data'Last;
-                  First := Last;
-               end loop;
-
-               Code := TSSL.gnutls_certificate_set_x509_key_mem
-                 (CC,
-                  cert => Cert'Unchecked_Access,
-                  key  => Key'Unchecked_Access,
-                  p4   => TSSL.GNUTLS_X509_FMT_PEM);
-
-               if Code = TSSL.GNUTLS_E_BASE64_DECODING_ERROR then
-                  Raise_Exception
-                    (Socket_Error'Identity,
-                     "Certificate file """
-                     & Certificate_Filename & """ error.");
-               else
-                  Check_Error_Code (Code);
-               end if;
-            end;
-
-         else
-            Check_File ("Certificate", Certificate_Filename);
-            Check_File ("Key", Key_Filename);
-
-            declare
-               Cert : aliased C.char_array := C.To_C (Certificate_Filename);
-               Key  : aliased C.char_array := C.To_C (Key_Filename);
-            begin
-               Code := TSSL.gnutls_certificate_set_x509_key_file
-                 (CC,
-                  C.Strings.To_Chars_Ptr (Cert'Unchecked_Access),
-                  C.Strings.To_Chars_Ptr (Key'Unchecked_Access),
-                  TSSL.GNUTLS_X509_FMT_PEM);
-
-               if Code = TSSL.GNUTLS_E_BASE64_DECODING_ERROR then
-                  Raise_Exception
-                    (Socket_Error'Identity,
-                     "Certificate/Key file error.");
-               else
-                  Check_Error_Code (Code);
-               end if;
-            end;
-         end if;
+            if Code = TSSL.GNUTLS_E_BASE64_DECODING_ERROR then
+               raise Socket_Error with "Certificate/Key file error.";
+            else
+               Check_Error_Code (Code);
+            end if;
+         end;
       end Set_Certificate;
 
    begin
-      if (Security_Mode = SSLv2
-          or else Security_Mode = SSLv23
+      if (Security_Mode = SSLv23
           or else Security_Mode = TLSv1
           or else Security_Mode = SSLv3
-          or else Security_Mode = SSLv2_Server
           or else Security_Mode = SSLv23_Server
           or else Security_Mode = TLSv1_Server
           or else Security_Mode = SSLv3_Server)
@@ -569,8 +450,6 @@ package body AWS.Net.SSL is
       then
          Check_Error_Code
            (TSSL.gnutls_dh_params_init (Config.DH_Params'Access));
-         Check_Error_Code
-           (TSSL.gnutls_dh_params_generate2 (Config.DH_Params, DH_Bits));
 
          if Certificate_Filename = "" then
             Check_Error_Code
@@ -586,6 +465,9 @@ package body AWS.Net.SSL is
 
             Set_Certificate (Config.CSC);
 
+            TSSL.gnutls_certificate_set_verify_function
+              (cred => Config.CSC, func => Verify_Callback'Access);
+
             TSSL.gnutls_certificate_set_dh_params
               (Config.CSC, Config.DH_Params);
          end if;
@@ -593,20 +475,27 @@ package body AWS.Net.SSL is
          Config.RCC := Exchange_Certificate;
       end if;
 
-      if (Security_Mode = SSLv2
-          or else Security_Mode = SSLv23
+      if (Security_Mode = SSLv23
           or else Security_Mode = TLSv1
           or else Security_Mode = SSLv3
-          or else Security_Mode = SSLv2_Client
           or else Security_Mode = SSLv23_Client
           or else Security_Mode = TLSv1_Client
           or else Security_Mode = SSLv3_Client)
+        and then Config.ACC = null
         and then Config.CCC = null
       then
          Check_Error_Code
            (TSSL.gnutls_anon_allocate_client_credentials (Config.ACC'Access));
+
          Check_Error_Code
            (TSSL.gnutls_certificate_allocate_credentials (Config.CCC'Access));
+         --  It is a strange, but we have to allocate client certificate
+         --  credentials even if we would not assign certificate over there.
+         --  Checked in GNUTLS 3.0.3.
+
+         if Certificate_Filename /= "" then
+            Set_Certificate (Config.CCC);
+         end if;
       end if;
    end Initialize;
 
@@ -626,6 +515,13 @@ package body AWS.Net.SSL is
    package body Locking is
       use AWS.Utils;
 
+      procedure Finalize;
+
+      Working : Boolean := True;
+
+      F : Utils.Finalizer (Finalize'Access);
+      pragma Unreferenced (F);
+
       -------------
       -- Destroy --
       -------------
@@ -638,13 +534,24 @@ package body AWS.Net.SSL is
          return 0;
       end Destroy;
 
+      --------------
+      -- Finalize --
+      --------------
+
+      procedure Finalize is
+      begin
+         Working := False;
+      end Finalize;
+
       ----------
       -- Init --
       ----------
 
       function Init (Item : access Mutex_Access) return Integer is
       begin
-         Item.all := new Semaphore;
+         if Working then
+            Item.all := new Semaphore;
+         end if;
          return 0;
       end Init;
 
@@ -654,7 +561,9 @@ package body AWS.Net.SSL is
 
       function Lock (Item : access Mutex_Access) return Integer is
       begin
-         Item.all.Seize;
+         if Working then
+            Item.all.Seize;
+         end if;
          return 0;
       end Lock;
 
@@ -664,7 +573,9 @@ package body AWS.Net.SSL is
 
       function Unlock (Item : access Mutex_Access) return Integer is
       begin
-         Item.all.Release;
+         if Working then
+            Item.all.Release;
+         end if;
          return 0;
       end Unlock;
 
@@ -681,44 +592,6 @@ package body AWS.Net.SSL is
                (TSSL.gnutls_record_check_pending (Socket.SSL));
    end Pending;
 
-   ----------
-   -- Pull --
-   ----------
-
-   function Pull
-     (Socket : Std.Socket_Type;
-      Data   : access Stream_Array;
-      Length : Stream_Element_Count) return Stream_Element_Offset
-   is
-      Last : Stream_Element_Offset;
-   begin
-      Std.Receive (Socket, Data (1 .. Length), Last);
-      return Last;
-   exception
-      when E : others =>
-         Save_Exception (E);
-         return -1;
-   end Pull;
-
-   ----------
-   -- Push --
-   ----------
-
-   function Push
-     (Socket : Std.Socket_Type;
-      Data   : Stream_Array;
-      Length : Stream_Element_Count) return Stream_Element_Offset
-   is
-      Last : Stream_Element_Count;
-   begin
-      Std.Send (Socket, Data (1 .. Length), Last);
-      return Last;
-   exception
-      when E : others =>
-         Save_Exception (E);
-         return -1;
-   end Push;
-
    -------------
    -- Receive --
    -------------
@@ -728,14 +601,25 @@ package body AWS.Net.SSL is
       Data   : out Stream_Element_Array;
       Last   : out Stream_Element_Offset)
    is
-      Code : constant TSSL.ssize_t :=
-               TSSL.gnutls_record_recv (Socket.SSL, Data'Address, Data'Length);
+      Code : TSSL.ssize_t;
    begin
-      if Code < 0 then
-         Check_Error_Code (TSSL.GNUTLS_E_PULL_ERROR, Socket);
+      if not Socket.IO.Handshaken.all then
+         Do_Handshake_Internal (Socket);
       end if;
 
-      Last := Data'First + Stream_Element_Offset (Code) - 1;
+      loop
+         Code :=
+           TSSL.gnutls_record_recv (Socket.SSL, Data'Address, Data'Length);
+
+         if Code = 0 then
+            raise Socket_Error with Peer_Closed_Message;
+         elsif Code > 0 then
+            Last := Data'First + Stream_Element_Offset (Code) - 1;
+            exit;
+         end if;
+
+         Code_Processing (Code, Socket);
+      end loop;
    end Receive;
 
    -------------
@@ -750,21 +634,6 @@ package body AWS.Net.SSL is
          Free (Config);
       end if;
    end Release;
-
-   --------------------
-   -- Save_Exception --
-   --------------------
-
-   procedure Save_Exception (E : Ada.Exceptions.Exception_Occurrence) is
-      TA : constant Skip_Exceptions.Attribute_Handle
-        := Skip_Exceptions.Reference;
-   begin
-      if TA.all = null then
-         TA.all := Ada.Exceptions.Save_Occurrence (E);
-      else
-         Ada.Exceptions.Save_Occurrence (TA.all.all, E);
-      end if;
-   end Save_Exception;
 
    ------------
    -- Secure --
@@ -786,14 +655,12 @@ package body AWS.Net.SSL is
 
    function Secure_Client
      (Socket : Net.Socket_Type'Class;
-      Config : SSL.Config := Null_Config)
-      return Socket_Type
+      Config : SSL.Config := Null_Config) return Socket_Type
    is
       Result : Socket_Type;
    begin
       Secure (Socket, Result, Config);
       Session_Client (Result);
-      Do_Handshake (Result);
       return Result;
    end Secure_Client;
 
@@ -803,14 +670,12 @@ package body AWS.Net.SSL is
 
    function Secure_Server
      (Socket : Net.Socket_Type'Class;
-      Config : SSL.Config := Null_Config)
-      return Socket_Type
+      Config : SSL.Config := Null_Config) return Socket_Type
    is
       Result : Socket_Type;
    begin
       Secure (Socket, Result, Config);
       Session_Server (Result);
-      Do_Handshake (Result);
       return Result;
    end Secure_Server;
 
@@ -823,18 +688,44 @@ package body AWS.Net.SSL is
       Data   : Stream_Element_Array;
       Last   : out Stream_Element_Offset)
    is
-      Code : constant TSSL.ssize_t :=
-               TSSL.gnutls_record_send (Socket.SSL, Data'Address, Data'Length);
+      Code : TSSL.ssize_t;
    begin
-      if Code < 0 then
-         Check_Error_Code (TSSL.GNUTLS_E_PUSH_ERROR, Socket);
+      if not Socket.IO.Handshaken.all then
+         Do_Handshake_Internal (Socket);
       end if;
 
-      if Data'First = Stream_Element_Offset'First and then Code = 0 then
-         Last := Data'Last + 1;
-      else
-         Last := Data'First + Stream_Element_Offset (Code) - 1;
-      end if;
+      loop
+         Code :=
+           TSSL.gnutls_record_send (Socket.SSL, Data'Address, Data'Length);
+
+         if Code >= 0 then
+            Last := Last_Index (Data'First, Natural (Code));
+            exit;
+         end if;
+
+         case Code is
+         when TSSL.GNUTLS_E_INTERRUPTED =>
+            case TSSL.gnutls_record_get_direction (Socket.SSL) is
+            when 0 =>
+               if Socket.Pending = 0 then
+                  Last := Last_Index (Data'First, 0);
+                  exit;
+               end if;
+            when 1 =>
+               if not Socket.Check ((Output => True, Input => False))
+                        (Output)
+               then
+                  Last := Last_Index (Data'First, 0);
+                  exit;
+               end if;
+            when others => raise Program_Error;
+            end case;
+         when TSSL.GNUTLS_E_AGAIN =>
+            Last := Last_Index (Data'First, 0);
+            exit;
+         when others => Check_Error_Code (Code, Socket);
+         end case;
+      end loop;
    end Send;
 
    --------------------
@@ -844,15 +735,6 @@ package body AWS.Net.SSL is
    procedure Session_Client (Socket : in out Socket_Type) is
       use TSSL;
       Session : aliased gnutls_session_t;
-
-      type Priority_List is array (0 .. 4) of gnutls_kx_algorithm_t;
-      pragma Convention (C, Priority_List);
-
-      kx_prio : constant Priority_List :=
-                  (GNUTLS_KX_RSA, GNUTLS_KX_RSA_EXPORT,
-                   GNUTLS_KX_DHE_RSA, GNUTLS_KX_DHE_DSS,
-                   GNUTLS_0);
-
    begin
       Check_Config (Socket);
 
@@ -863,14 +745,13 @@ package body AWS.Net.SSL is
       Check_Error_Code (gnutls_set_default_priority (Session), Socket);
 
       Check_Error_Code
-        (gnutls_kx_set_priority (Session, kx_prio'Address), Socket);
-      Check_Error_Code
         (gnutls_credentials_set (Session, cred => Socket.Config.ACC), Socket);
 
-      Check_Error_Code
-        (gnutls_credentials_set (Session, cred => Socket.Config.CCC), Socket);
-
-      gnutls_dh_set_prime_bits (Session, DH_Bits);
+      if Socket.Config.CCC /= null then
+         Check_Error_Code
+           (gnutls_credentials_set (Session, cred => Socket.Config.CCC),
+            Socket);
+      end if;
 
       Session_Transport (Socket);
    end Session_Client;
@@ -882,23 +763,14 @@ package body AWS.Net.SSL is
    procedure Session_Server (Socket : in out Socket_Type) is
       use TSSL;
       Session : aliased gnutls_session_t;
-
-      type Priority_List is array (0 .. 4) of gnutls_kx_algorithm_t;
-      pragma Convention (C, Priority_List);
-      kx_prio : constant Priority_List :=
-                  (GNUTLS_KX_RSA, GNUTLS_KX_RSA_EXPORT,
-                   GNUTLS_KX_DHE_RSA, GNUTLS_KX_DHE_DSS,
-                   GNUTLS_0);
-
    begin
       Check_Config (Socket);
 
       Check_Error_Code (gnutls_init (Session'Access, GNUTLS_SERVER), Socket);
 
-      Check_Error_Code (gnutls_set_default_priority (Session), Socket);
+      Socket.SSL := Session;
 
-      Check_Error_Code
-        (gnutls_kx_set_priority (Session, kx_prio'Address), Socket);
+      Check_Error_Code (gnutls_set_default_priority (Session), Socket);
 
       if Socket.Config.CSC = null then
          Check_Error_Code
@@ -907,8 +779,7 @@ package body AWS.Net.SSL is
 
       else
          Check_Error_Code
-           (gnutls_credentials_set
-              (Session, GNUTLS_CRD_CERTIFICATE, Socket.Config.CSC),
+           (gnutls_credentials_set (Session, cred => Socket.Config.CSC),
             Socket);
 
          if Socket.Config.RCC then
@@ -920,10 +791,6 @@ package body AWS.Net.SSL is
          end if;
       end if;
 
-      gnutls_dh_set_prime_bits (Session, DH_Bits);
-
-      Socket.SSL := Session;
-
       Session_Transport (Socket);
    end Session_Server;
 
@@ -932,27 +799,17 @@ package body AWS.Net.SSL is
    -----------------------
 
    procedure Session_Transport (Socket : in out Socket_Type) is
-      Sock : constant Socket_Access
-        := new Std.Socket_Type'(Std.Socket_Type (Socket));
    begin
-      --  Note : We make a copy of socket into the GNU/TLS transport ptr.
-      --  Finalize have to Free Socket when reference counter is 2 and it must
-      --  free the internal copy.
-
       TSSL.gnutls_transport_set_ptr
-        (Socket.SSL, TSSL.gnutls_transport_ptr_t (Sock.all'Address));
-      TSSL.gnutls_transport_set_push_function (Socket.SSL, Push'Address);
-      TSSL.gnutls_transport_set_pull_function (Socket.SSL, Pull'Address);
-      TSSL.gnutls_transport_set_lowat (Socket.SSL, 0);
+        (Socket.SSL, TSSL.gnutls_transport_ptr_t (Socket.Get_FD));
+      Socket.IO.Handshaken := new Boolean'(False);
    end Session_Transport;
 
    ----------------
    -- Set_Config --
    ----------------
 
-   procedure Set_Config
-     (Socket : in out Socket_Type;
-      Config : SSL.Config) is
+   procedure Set_Config (Socket : in out Socket_Type; Config : SSL.Config) is
    begin
       Socket.Config := Config;
    end Set_Config;
@@ -967,31 +824,6 @@ package body AWS.Net.SSL is
       null;
    end Set_Session_Cache_Size;
 
-   -----------------
-   -- Set_Timeout --
-   -----------------
-
-   overriding procedure Set_Timeout
-     (Socket  : in out Socket_Type;
-      Timeout : Duration)
-   is
-      use type SSL_Handle;
-      Sock : Socket_Access;
-   begin
-      --  This version set the timeout for both the Socket parameter and the
-      --  transport ptr stored socket.
-
-      if Socket.SSL /= null then
-         Sock := To_Access (TSSL.gnutls_transport_get_ptr (Socket.SSL));
-      end if;
-
-      if Sock /= null then
-         Sock.Timeout := Timeout;
-      end if;
-
-      Set_Timeout (Net.Socket_Type (Socket), Timeout);
-   end Set_Timeout;
-
    --------------
    -- Shutdown --
    --------------
@@ -999,20 +831,28 @@ package body AWS.Net.SSL is
    overriding procedure Shutdown
      (Socket : Socket_Type; How : Shutmode_Type := Shut_Read_Write)
    is
-      use System;
       Code : C.int;
+      To_C : constant array (Shutmode_Type) of TSSL.gnutls_close_request_t :=
+               (Shut_Read_Write => TSSL.GNUTLS_SHUT_RDWR,
+                Shut_Read       => TSSL.GNUTLS_SHUT_RDWR, -- Absend, use RDWR
+                Shut_Write      => TSSL.GNUTLS_SHUT_WR);
    begin
-      --  Unregister the push/pull callback to avoid locking on the
-      --  gnutls_bye() call.
+      loop
+         Code := TSSL.gnutls_bye (Socket.SSL, To_C (How));
 
-      TSSL.gnutls_transport_set_push_function (Socket.SSL, Null_Address);
-      TSSL.gnutls_transport_set_pull_function (Socket.SSL, Null_Address);
+         exit when Code = TSSL.GNUTLS_E_SUCCESS;
 
-      Code := TSSL.gnutls_bye (Socket.SSL, TSSL.GNUTLS_SHUT_RDWR);
+         begin
+            Code_Processing
+              (Code, Socket,
+               Duration'Min (Net.Socket_Type (Socket).Timeout, 0.25));
+         exception when E : others =>
+            Net.Log.Error (Socket, Ada.Exceptions.Exception_Message (E));
+            exit;
+         end;
+      end loop;
 
-      if Code /= 0 then
-         Net.Log.Error (Socket, C.Strings.Value (TSSL.gnutls_strerror (Code)));
-      end if;
+      TSSL.gnutls_transport_set_ptr (Socket.SSL, 0);
 
       Net.Std.Shutdown (NSST (Socket), How);
    end Shutdown;
@@ -1029,29 +869,36 @@ package body AWS.Net.SSL is
       S2 := Secure_Client (ST2);
    end Socket_Pair;
 
+   ---------------------
+   -- Verify_Callback --
+   ---------------------
+
+   function Verify_Callback (Session : TSSL.gnutls_session_t) return C.int is
+      pragma Unreferenced (Session);
+   begin
+      return 0;
+   end Verify_Callback;
+
    -------------
    -- Version --
    -------------
 
    function Version (Build_Info : Boolean := False) return String is
+      use C.Strings;
       pragma Unreferenced (Build_Info);
    begin
-      --  ???
-      return "gnutls";
+      return "GNUTLS " & Value (TSSL.gnutls_check_version (Null_Ptr));
    end Version;
 
 begin
-   if TSSL.gcry_control
-     (CMD        => TSSL.GCRYCTL_SET_THREAD_CBS,
-      Thread_CBS => (Option        => TSSL.GCRY_THREAD_OPTION_USER,
-                     Mutex_Init    => Locking.Init'Address,
-                     Mutex_Destroy => Locking.Destroy'Address,
-                     Mutex_Lock    => Locking.Lock'Address,
-                     Mutex_Unlock  => Locking.Unlock'Address,
-                     others        => System.Null_Address)) /= 0
-   then
-      raise Program_Error;
-   end if;
+   Check_Error_Code
+     (TSSL.aws_gcry_set_thread_cbs
+        (Thread_CBS => (Option        => TSSL.GCRY_THREAD_OPTION_USER,
+                        Mutex_Init    => Locking.Init'Address,
+                        Mutex_Destroy => Locking.Destroy'Address,
+                        Mutex_Lock    => Locking.Lock'Address,
+                        Mutex_Unlock  => Locking.Unlock'Address,
+                        others        => <>)));
 
    if TSSL.gnutls_global_init /= 0 then
       raise Program_Error;

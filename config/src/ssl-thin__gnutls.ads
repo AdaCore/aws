@@ -242,9 +242,31 @@ package SSL.Thin is
       GNUTLS_COMP_LZO     => 3);
    for gnutls_compression_method_t'Size use C.int'Size;
 
-   type gnutls_connection_end_t is (GNUTLS_SERVER, GNUTLS_CLIENT);
-   for gnutls_connection_end_t use (GNUTLS_SERVER => 1, GNUTLS_CLIENT => 2);
+   type gnutls_connection_end_t is mod 2**4;
    for gnutls_connection_end_t'Size use C.int'Size;
+
+   GNUTLS_SERVER : constant gnutls_connection_end_t := 1;
+   GNUTLS_CLIENT : constant gnutls_connection_end_t := 2;
+   GNUTLS_DATAGRAM : constant gnutls_connection_end_t := 4;
+   GNUTLS_NONBLOCK : constant gnutls_connection_end_t := 8;
+
+   type gnutls_certificate_verify_flags is mod 1024;
+   for gnutls_certificate_verify_flags'Size use C.int'Size;
+   subtype certificate_verify_flags is gnutls_certificate_verify_flags;
+
+   --  GNUTLS_VERIFY_ prefix removed from gnutls_certificate_verify_flags
+   --  constants, it is not necessary for Ada type control and namespaces.
+
+   DISABLE_CA_SIGN             : constant certificate_verify_flags := 1;
+   ALLOW_X509_V1_CA_CRT        : constant certificate_verify_flags := 2;
+   DO_NOT_ALLOW_SAME           : constant certificate_verify_flags := 4;
+   ALLOW_ANY_X509_V1_CA_CRT    : constant certificate_verify_flags := 8;
+   ALLOW_SIGN_RSA_MD2          : constant certificate_verify_flags := 16;
+   ALLOW_SIGN_RSA_MD5          : constant certificate_verify_flags := 32;
+   DISABLE_TIME_CHECKS         : constant certificate_verify_flags := 64;
+   DISABLE_TRUSTED_TIME_CHECKS : constant certificate_verify_flags := 128;
+   DO_NOT_ALLOW_X509_V1_CA_CRT : constant certificate_verify_flags := 256;
+   DISABLE_CRL_CHECKS          : constant certificate_verify_flags := 512;
 
    type gnutls_alert_level_t is (GNUTLS_AL_WARNING, GNUTLS_AL_FATAL);
    for gnutls_alert_level_t use (GNUTLS_AL_WARNING => 1, GNUTLS_AL_FATAL => 2);
@@ -401,7 +423,7 @@ package SSL.Thin is
 
    subtype a_c_signed_char_t is System.Address;
    type a_size_t is access all C.size_t;
-   type gnutls_transport_ptr_t is new System.Address;
+   type gnutls_transport_ptr_t is new C.int;
 
    type gnutls_session_t;
    type gnutls_datum_t;
@@ -411,15 +433,6 @@ package SSL.Thin is
    type gnutls_srp_client_credentials_function is new System.Address;
    type gnutls_certificate_server_retrieve_function is new System.Address;
    type gnutls_params_function is new System.Address;
-
-   type gnutls_certificate_client_retrieve_function is access function
-     (Session         : gnutls_session_t;
-      Req_CA_DN       : access gnutls_datum_t;
-      nreqs           : C.int;
-      pk_algos        : access gnutls_pk_algorithm_t;
-      pk_algos_length : C.int;
-      st              : access gnutls_retr_st) return C.int;
-   pragma Convention (C, gnutls_certificate_client_retrieve_function);
 
    type STRUCT_DSTRUCT;
 
@@ -439,6 +452,8 @@ package SSL.Thin is
    type gnutls_srp_client_credentials_t is access all STRUCT_DSTRUCT;
    type gnutls_openpgp_key_t is access all STRUCT_DSTRUCT;
    type gnutls_openpgp_privkey_t is access all STRUCT_DSTRUCT;
+   type gnutls_pubkey_t is access all STRUCT_DSTRUCT;
+   type gnutls_privkey_t is access all STRUCT_DSTRUCT;
 
    type gnutls_retr_st is record
       cert_type  : gnutls_certificate_type_t;
@@ -455,6 +470,42 @@ package SSL.Thin is
    end record;
    pragma Convention (C, gnutls_datum_t);
 
+   type gnutls_pcert_st is record
+      pubkey : gnutls_pubkey_t;
+      cert   : gnutls_datum_t;
+      c_type : gnutls_certificate_type_t;
+   end record;
+   pragma Convention (C, gnutls_pcert_st);
+
+   type a_gnutls_pcert_st is access all gnutls_pcert_st;
+
+   type gnutls_certificate_retrieve_function2 is access function
+     (Session         : gnutls_session_t;
+      req_ca_rdn      : access constant gnutls_datum_t;
+      nreqs           : C.int;
+      pk_algos        : access constant gnutls_pk_algorithm_t;
+      pk_algos_length : C.int;
+      st              : access a_gnutls_pcert_st;
+      pcert_length    : access C.unsigned;
+      privkey         : access gnutls_privkey_t) return C.int;
+   pragma Convention (C, gnutls_certificate_retrieve_function2);
+   --  !!! This ñallback in version 3.0.3 defined different in man and in file
+   --  gnutls.h. This is a new definition. Old definition was ended by field
+   --  st : access gnutls_pcert_st.
+
+   type gnutls_certificate_client_retrieve_function is access function
+     (Session         : gnutls_session_t;
+      Req_CA_DN       : access constant gnutls_datum_t;
+      nreqs           : C.int;
+      pk_algos        : access constant gnutls_pk_algorithm_t;
+      pk_algos_length : C.int;
+      st              : access gnutls_retr_st) return C.int;
+   pragma Convention (C, gnutls_certificate_client_retrieve_function);
+
+   type gnutls_certificate_verify_function is access function
+     (Session : gnutls_session_t) return C.int;
+   pragma Convention (C, gnutls_certificate_verify_function);
+
    type gnutls_db_store_func is access function
      (p1   : System.Address;
       key  : gnutls_datum_t;
@@ -462,13 +513,11 @@ package SSL.Thin is
    pragma Convention (C, gnutls_db_store_func);
 
    type gnutls_db_remove_func is access function
-     (p1  : System.Address;
-      key : gnutls_datum_t) return C.int;
+     (p1  : System.Address; key : gnutls_datum_t) return C.int;
    pragma Convention (C, gnutls_db_remove_func);
 
    type gnutls_db_retr_func is access function
-     (p1  : System.Address;
-      key : gnutls_datum_t) return gnutls_datum_t;
+     (p1  : System.Address; key : gnutls_datum_t) return gnutls_datum_t;
    pragma Convention (C, gnutls_db_retr_func);
 
    type STRUCT_DSTRUCT is null record;
@@ -782,6 +831,10 @@ package SSL.Thin is
       max_bits  : C.unsigned;
       max_depth : C.unsigned);
 
+   procedure gnutls_certificate_set_verify_function
+     (cred : gnutls_certificate_credentials_t;
+      func : gnutls_certificate_verify_function);
+
    function gnutls_certificate_set_x509_trust_file
      (res    : gnutls_certificate_credentials_t;
       CAFILE : CS.chars_ptr;
@@ -1054,13 +1107,17 @@ package SSL.Thin is
    function gnutls_rsa_export_get_modulus_bits
      (session : gnutls_session_t) return C.int;
 
+   procedure gnutls_certificate_set_retrieve_function2
+     (cred : gnutls_certificate_credentials_t;
+      func : gnutls_certificate_retrieve_function2);
+
    procedure gnutls_certificate_client_set_retrieve_function
-     (cc : gnutls_certificate_credentials_t;
-      rf : gnutls_certificate_client_retrieve_function);
+     (cred : gnutls_certificate_credentials_t;
+      func : gnutls_certificate_client_retrieve_function);
 
    procedure gnutls_certificate_server_set_retrieve_function
-     (cc : gnutls_certificate_credentials_t;
-      rf : gnutls_certificate_server_retrieve_function);
+     (cred : gnutls_certificate_credentials_t;
+      func : gnutls_certificate_server_retrieve_function);
 
    procedure gnutls_certificate_server_set_request
      (p1 : gnutls_session_t; p2 : gnutls_certificate_request_t);
@@ -1163,10 +1220,17 @@ package SSL.Thin is
    subtype gpg_error_t is C.unsigned;
    subtype gcry_error_t is gpg_error_t;
 
-   function gcry_control
-     (CMD        : C.int;
-      Thread_CBS : gcry_thread_cbs) return gcry_error_t;
-   pragma Import (C, gcry_control, "gcry_control");
+   function aws_gcry_set_thread_cbs
+     (Thread_CBS : gcry_thread_cbs) return gcry_error_t;
+   pragma Import (C, aws_gcry_set_thread_cbs, "__aws_gcry_set_thread_cbs");
+   --  Calls gcry_control (GCRYCTL_SET_THREAD_CBS, cbs) over C module gcry.c
+   --  because varargs does not supported in Ada directly.
+
+   function gcry_strerror (Err : gcry_error_t) return CS.chars_ptr;
+   pragma Import (C, gcry_strerror, "gcry_strerror");
+
+   function gcry_strsource (Err : gcry_error_t) return CS.chars_ptr;
+   pragma Import (C, gcry_strsource, "gcry_strsource");
 
    --------------------------------------------------------------------
    -- Tricks to support AWS.Net.SSL specification compatibility with --
@@ -1180,7 +1244,13 @@ package SSL.Thin is
 
    Null_Handle : constant SSL_Handle := null;
 
-   type BIO_Access is null record;
+   type Boolean_Access is access Boolean;
+
+   type BIO_Access is record
+      Handshaken : Boolean_Access;
+   end record;
+   --  Need to be renamed into something like Internal_Type together with
+   --  OpenSSL implementation after merge into trunk.
 
 private
 
@@ -1413,6 +1483,11 @@ private
 
    pragma Import
      (C,
+      gnutls_certificate_set_verify_function,
+      "gnutls_certificate_set_verify_function");
+
+   pragma Import
+     (C,
       gnutls_certificate_set_x509_trust_file,
       "gnutls_certificate_set_x509_trust_file");
 
@@ -1614,6 +1689,11 @@ private
      (C,
       gnutls_rsa_export_get_modulus_bits,
       "gnutls_rsa_export_get_modulus_bits");
+
+   pragma Import
+     (C,
+      gnutls_certificate_set_retrieve_function2,
+      "gnutls_certificate_set_retrieve_function2");
 
    pragma Import
      (C,

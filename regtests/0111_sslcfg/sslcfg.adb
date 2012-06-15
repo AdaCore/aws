@@ -19,6 +19,7 @@
 --  Test for certificate or keyfile absence and wrong format
 
 with Ada.Exceptions;
+with Ada.Strings.Fixed;
 with Ada.Text_IO;
 with AWS.Net.SSL;
 
@@ -41,7 +42,22 @@ procedure SSLCfg is
       Ada.Text_IO.Put_Line ("Success.");
    exception
       when E : others =>
-         Ada.Text_IO.Put_Line (Ada.Exceptions.Exception_Message (E));
+         declare
+            use Ada.Strings;
+            use Ada.Text_IO;
+            Text : constant String := Ada.Exceptions.Exception_Message (E);
+         begin
+            if Fixed.Index (Text, ":fopen:No such file or directory") > 0
+              or Text = "file ""absent-file"" does not exist"
+            then
+               Put_Line ("Expected error about absent file");
+
+            elsif Fixed.Index (Text, ":PEM_read_bio:no start line") > 0
+              or Text = "Base64 unexpected header error."
+            then
+               Put_Line ("Expected error about wrong data");
+            end if;
+         end;
    end Test;
 
 begin

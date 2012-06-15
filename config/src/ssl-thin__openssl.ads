@@ -229,6 +229,66 @@ package SSL.Thin is
    RSA_3  : constant := 3;
    RSA_F4 : constant := 16#10001#;
 
+   ASN1_OBJECT_FLAG_DYNAMIC         : constant := 16#01#;
+   ASN1_OBJECT_FLAG_CRITICAL        : constant := 16#02#;
+   ASN1_OBJECT_FLAG_DYNAMIC_STRINGS : constant := 16#04#;
+   ASN1_OBJECT_FLAG_DYNAMIC_DATA    : constant := 16#08#;
+   ASN1_STRING_FLAG_BITS_LEFT       : constant := 16#08#;
+   ASN1_STRING_FLAG_NDEF            : constant := 16#010#;
+   ASN1_STRING_FLAG_CONT            : constant := 16#020#;
+   ASN1_STRING_FLAG_MSTRING         : constant := 16#040#;
+   ASN1_LONG_UNDEF                  : constant := 16#7fffffff#;
+   ASN1_STRFLGS_ESC_2253            : constant := 1;
+   ASN1_STRFLGS_ESC_CTRL            : constant := 2;
+   ASN1_STRFLGS_ESC_MSB             : constant := 4;
+   ASN1_STRFLGS_ESC_QUOTE           : constant := 8;
+   CHARTYPE_PRINTABLESTRING         : constant := 16#10#;
+   CHARTYPE_FIRST_ESC_2253          : constant := 16#20#;
+   CHARTYPE_LAST_ESC_2253           : constant := 16#40#;
+   ASN1_STRFLGS_UTF8_CONVERT        : constant := 16#10#;
+   ASN1_STRFLGS_IGNORE_TYPE         : constant := 16#20#;
+   ASN1_STRFLGS_SHOW_TYPE           : constant := 16#40#;
+   ASN1_STRFLGS_DUMP_ALL            : constant := 16#80#;
+   ASN1_STRFLGS_DUMP_UNKNOWN        : constant := 16#100#;
+   ASN1_STRFLGS_DUMP_DER            : constant := 16#200#;
+
+   ASN1_STRFLGS_RFC2253 : constant := ASN1_STRFLGS_ESC_2253
+                                    + ASN1_STRFLGS_ESC_CTRL
+                                    + ASN1_STRFLGS_ESC_MSB
+                                    + ASN1_STRFLGS_UTF8_CONVERT
+                                    + ASN1_STRFLGS_DUMP_UNKNOWN
+                                    + ASN1_STRFLGS_DUMP_DER;
+
+   XN_FLAG_SEP_MASK            : constant := 16#f# * 2 ** 16;
+   XN_FLAG_COMPAT              : constant := 0;
+   XN_FLAG_SEP_COMMA_PLUS      : constant := 1 * 2 ** 16;
+   XN_FLAG_SEP_CPLUS_SPC       : constant := 2 * 2 ** 16;
+   XN_FLAG_SEP_SPLUS_SPC       : constant := 3 * 2 ** 16;
+   XN_FLAG_SEP_MULTILINE       : constant := 4 * 2 ** 16;
+   XN_FLAG_DN_REV              : constant := 2 ** 20;
+   XN_FLAG_FN_MASK             : constant := 3 * 2 ** 21;
+   XN_FLAG_FN_SN               : constant := 0;
+   XN_FLAG_FN_LN               : constant := 1 * 2 ** 21;
+   XN_FLAG_FN_OID              : constant := 2 * 2 ** 21;
+   XN_FLAG_FN_NONE             : constant := 3 * 2 ** 21;
+   XN_FLAG_SPC_EQ              : constant := 2 ** 23;
+   XN_FLAG_DUMP_UNKNOWN_FIELDS : constant := 2 ** 24;
+   XN_FLAG_FN_ALIGN            : constant := 2 ** 25;
+
+   XN_FLAG_RFC2253 : constant := ASN1_STRFLGS_RFC2253
+                               + XN_FLAG_SEP_COMMA_PLUS
+                               + XN_FLAG_DN_REV
+                               + XN_FLAG_FN_SN
+                               + XN_FLAG_DUMP_UNKNOWN_FIELDS;
+
+   XN_FLAG_RFC2253_DIRECT : constant := ASN1_STRFLGS_RFC2253
+                                      + XN_FLAG_SEP_COMMA_PLUS
+                                      + XN_FLAG_FN_SN
+                                      + XN_FLAG_DUMP_UNKNOWN_FIELDS;
+   --  XN_FLAG_RFC2253 macros has a XN_FLAG_DN_REV flag (reverse attributes),
+   --  but GNUTLS has a direct attributes order and I do not see such reverse
+   --  in RFC2253.
+
    --------------------------
    --  SSL mode constants. --
    --------------------------
@@ -455,6 +515,12 @@ package SSL.Thin is
       Buf  : Pointer;
       Size : int) return Cstr.chars_ptr;
 
+   function X509_NAME_print_ex
+     (Output : BIO_Access;
+      Name   : X509_Name;
+      Indent : int;
+      flags  : unsigned_long) return int;
+
    function X509_get_subject_name (X509 : Thin.X509) return X509_Name;
    function X509_get_issuer_name (X509 : Thin.X509) return X509_Name;
 
@@ -483,8 +549,8 @@ package SSL.Thin is
    function BIO_ctrl
      (Bp   : BIO_Access;
       Cmd  : int;
-      Larg : long;
-      Parg : Pointer) return long;
+      Larg : long    := 0;
+      Parg : Pointer := Null_Pointer) return long;
    --  BIO_pending(b) = (int)BIO_ctrl(b,BIO_CTRL_PENDING,0,NULL)
 
    procedure BIO_ctrl
@@ -654,6 +720,7 @@ private
    pragma Import (C, X509_get_subject_name, "X509_get_subject_name");
    pragma Import (C, X509_get_issuer_name, "X509_get_issuer_name");
    pragma Import (C, X509_NAME_oneline, "X509_NAME_oneline");
+   pragma Import (C, X509_NAME_print_ex, "X509_NAME_print_ex");
    pragma Import (C, SSL_CTX_set_verify, "SSL_CTX_set_verify");
    pragma Import (C, SSL_CTX_set_default_verify_paths,
                     "SSL_CTX_set_default_verify_paths");

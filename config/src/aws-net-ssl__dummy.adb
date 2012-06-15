@@ -81,15 +81,6 @@ package body AWS.Net.SSL is
       raise Program_Error with Error_Message;
    end Do_Handshake;
 
-   --------------
-   -- Finalize --
-   --------------
-
-   overriding procedure Finalize (Socket : in out Socket_Type) is
-   begin
-      Std.Finalize (Std.Socket_Type (Socket));
-   end Finalize;
-
    ----------
    -- Free --
    ----------
@@ -207,16 +198,6 @@ package body AWS.Net.SSL is
    begin
       null;
    end Set_Session_Cache_Size;
-
-   -----------------
-   -- Set_Timeout --
-   -----------------
-
-   overriding procedure Set_Timeout
-     (Socket : in out Socket_Type; Timeout : Duration) is
-   begin
-      raise Program_Error with Error_Message;
-   end Set_Timeout;
 
    --------------
    -- Shutdown --
