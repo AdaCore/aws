@@ -121,6 +121,7 @@ package body USock is
    is
       pragma Unreferenced (Socket, Port, Host, Reuse_Address, Family);
    begin
+      Socket.Server := True;
       Text_IO.Put_Line ("Bind on U_Socket");
    end Bind;
 
@@ -176,6 +177,15 @@ package body USock is
    begin
       Text_IO.Put_Line ("Connect on U_Socket");
    end Connect;
+
+   ------------------
+   -- Is_Listening --
+   ------------------
+
+   overriding function Is_Listening (Socket : U_Socket) return Boolean is
+   begin
+      return Socket.Server;
+   end Is_Listening;
 
    --------------
    -- Shutdown --
