@@ -245,8 +245,8 @@ package SSL.Thin is
    type gnutls_connection_end_t is mod 2**4;
    for gnutls_connection_end_t'Size use C.int'Size;
 
-   GNUTLS_SERVER : constant gnutls_connection_end_t := 1;
-   GNUTLS_CLIENT : constant gnutls_connection_end_t := 2;
+   GNUTLS_SERVER   : constant gnutls_connection_end_t := 1;
+   GNUTLS_CLIENT   : constant gnutls_connection_end_t := 2;
    GNUTLS_DATAGRAM : constant gnutls_connection_end_t := 4;
    GNUTLS_NONBLOCK : constant gnutls_connection_end_t := 8;
 

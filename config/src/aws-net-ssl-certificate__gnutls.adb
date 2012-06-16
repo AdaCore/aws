@@ -27,10 +27,10 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-with AWS.Net.Log;
-
 with Interfaces.C.Strings;
 with System;
+
+with AWS.Net.Log;
 
 package body AWS.Net.SSL.Certificate is
 
@@ -49,8 +49,8 @@ package body AWS.Net.SSL.Certificate is
    begin
       if Code /= 0 then
          declare
-            Error : constant String
-              := C.Strings.Value (TSSL.gnutls_strerror (Code));
+            Error : constant String :=
+                      C.Strings.Value (TSSL.Gnutls_Strerror (Code));
          begin
             Net.Log.Error (Socket, Error);
             Ada.Exceptions.Raise_Exception (Socket_Error'Identity, Error);
@@ -71,9 +71,10 @@ package body AWS.Net.SSL.Certificate is
       --  Buffer size for the subject and issuer
 
       List_Size : aliased C.unsigned;
-      Datum : constant TSSL.a_gnutls_datum_t
-        := TSSL.gnutls_certificate_get_peers (Socket.SSL, List_Size'Access);
-      Cert  : aliased TSSL.gnutls_x509_crt_t;
+      Datum     : constant TSSL.a_gnutls_datum_t :=
+                    TSSL.gnutls_certificate_get_peers
+                      (Socket.SSL, List_Size'Access);
+      Cert      : aliased TSSL.gnutls_x509_crt_t;
 
       Subject  : aliased C.char_array := (1 .. Buffer_Size => C.nul);
       Subj_Len : aliased C.size_t := Buffer_Size;

@@ -293,8 +293,8 @@ package body AWS.Net.SSL is
                First := Error_Text'First + Trim_Start'Length;
             end if;
 
-            return Error_Text (First .. Error_Text'Last) &
-              ASCII.LF & Error_Stack;
+            return Error_Text (First .. Error_Text'Last)
+              & ASCII.LF & Error_Stack;
          end;
       end if;
    end Error_Stack;
@@ -514,7 +514,6 @@ package body AWS.Net.SSL is
       Data   : Stream_Element_Array;
       Last   : out Stream_Element_Offset)
    is
-      RC     : C.int;
 
       procedure Socket_Write;
       --  Non blocking write from IO to socket
@@ -548,6 +547,8 @@ package body AWS.Net.SSL is
             Raise_Socket_Error (Socket, "Socket write IO error");
          end if;
       end Socket_Write;
+
+      RC : C.int;
 
    begin
       if not Check (Socket, (Input => False, Output => True)) (Output) then
@@ -993,15 +994,15 @@ package body AWS.Net.SSL is
            (Cert_Filename : String; Key_Filename : String);
 
          Methods : constant array (Method) of Meth_Func :=
-                     (SSLv23         => TSSL.SSLv23_method'Access,
-                      SSLv23_Server  => TSSL.SSLv23_server_method'Access,
-                      SSLv23_Client  => TSSL.SSLv23_client_method'Access,
-                      TLSv1          => TSSL.TLSv1_method'Access,
-                      TLSv1_Server   => TSSL.TLSv1_server_method'Access,
-                      TLSv1_Client   => TSSL.TLSv1_client_method'Access,
-                      SSLv3          => TSSL.SSLv3_method'Access,
-                      SSLv3_Server   => TSSL.SSLv3_server_method'Access,
-                      SSLv3_Client   => TSSL.SSLv3_client_method'Access);
+                     (SSLv23        => TSSL.SSLv23_method'Access,
+                      SSLv23_Server => TSSL.SSLv23_server_method'Access,
+                      SSLv23_Client => TSSL.SSLv23_client_method'Access,
+                      TLSv1         => TSSL.TLSv1_method'Access,
+                      TLSv1_Server  => TSSL.TLSv1_server_method'Access,
+                      TLSv1_Client  => TSSL.TLSv1_client_method'Access,
+                      SSLv3         => TSSL.SSLv3_method'Access,
+                      SSLv3_Server  => TSSL.SSLv3_server_method'Access,
+                      SSLv3_Client  => TSSL.SSLv3_client_method'Access);
 
          ---------------------
          -- Set_Certificate --
@@ -1022,9 +1023,9 @@ package body AWS.Net.SSL is
 
             procedure File_Error (Prefix, Name : String) is
             begin
-               raise Socket_Error with
-                 Prefix & " file """ & Name & """ error." &
-                 ASCII.LF & Error_Stack;
+               raise Socket_Error
+                 with Prefix & " file """ & Name & """ error."
+                   & ASCII.LF & Error_Stack;
             end File_Error;
 
          begin

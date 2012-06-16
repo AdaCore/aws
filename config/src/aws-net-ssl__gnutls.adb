@@ -40,8 +40,8 @@ package body AWS.Net.SSL is
 
    use Interfaces;
 
-   use type C.unsigned;
    use type C.int;
+   use type C.unsigned;
 
    subtype NSST is Net.Std.Socket_Type;
 
@@ -164,8 +164,8 @@ package body AWS.Net.SSL is
    begin
       if Code /= 0 then
          declare
-            Error : constant String
-              := C.Strings.Value (TSSL.gnutls_strerror (Code));
+            Error : constant String :=
+                      C.Strings.Value (TSSL.gnutls_strerror (Code));
          begin
             Net.Log.Error (Socket, Error);
             raise Socket_Error with Error;
@@ -207,13 +207,15 @@ package body AWS.Net.SSL is
      (Code : C.int; Socket : Socket_Type'Class; Timeout : Duration) is
    begin
       case Code is
-      when TSSL.GNUTLS_E_INTERRUPTED | TSSL.GNUTLS_E_AGAIN =>
-         case TSSL.gnutls_record_get_direction (Socket.SSL) is
-         when 0 => Wait_For (Input, Socket, Timeout);
-         when 1 => Wait_For (Output, Socket, Timeout);
-         when others => raise Program_Error;
-         end case;
-      when others => Check_Error_Code (Code, Socket);
+         when TSSL.GNUTLS_E_INTERRUPTED | TSSL.GNUTLS_E_AGAIN =>
+            case TSSL.gnutls_record_get_direction (Socket.SSL) is
+               when 0      => Wait_For (Input, Socket, Timeout);
+               when 1      => Wait_For (Output, Socket, Timeout);
+               when others => raise Program_Error;
+            end case;
+
+         when others =>
+            Check_Error_Code (Code, Socket);
       end case;
    end Code_Processing;
 
@@ -403,8 +405,8 @@ package body AWS.Net.SSL is
             use type Directories.File_Kind;
          begin
             if Directories.Kind (Filename) /= Directories.Ordinary_File then
-               raise Socket_Error with
-                 Prefix & " file """ & Filename & """ error.";
+               raise Socket_Error
+                 with Prefix & " file """ & Filename & """ error.";
             end if;
          end Check_File;
 
@@ -704,26 +706,31 @@ package body AWS.Net.SSL is
          end if;
 
          case Code is
-         when TSSL.GNUTLS_E_INTERRUPTED =>
-            case TSSL.gnutls_record_get_direction (Socket.SSL) is
-            when 0 =>
-               if Socket.Pending = 0 then
-                  Last := Last_Index (Data'First, 0);
-                  exit;
-               end if;
-            when 1 =>
-               if not Socket.Check ((Output => True, Input => False))
-                        (Output)
-               then
-                  Last := Last_Index (Data'First, 0);
-                  exit;
-               end if;
-            when others => raise Program_Error;
-            end case;
-         when TSSL.GNUTLS_E_AGAIN =>
-            Last := Last_Index (Data'First, 0);
-            exit;
-         when others => Check_Error_Code (Code, Socket);
+            when TSSL.GNUTLS_E_INTERRUPTED =>
+               case TSSL.gnutls_record_get_direction (Socket.SSL) is
+               when 0 =>
+                  if Socket.Pending = 0 then
+                     Last := Last_Index (Data'First, 0);
+                     exit;
+                  end if;
+
+               when 1 =>
+                  if not Socket.Check ((Output => True, Input => False))
+                    (Output)
+                  then
+                     Last := Last_Index (Data'First, 0);
+                     exit;
+                  end if;
+               when others =>
+                  raise Program_Error;
+               end case;
+
+            when TSSL.GNUTLS_E_AGAIN =>
+               Last := Last_Index (Data'First, 0);
+               exit;
+
+            when others =>
+               Check_Error_Code (Code, Socket);
          end case;
       end loop;
    end Send;
