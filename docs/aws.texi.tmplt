@@ -3502,7 +3502,8 @@ is possible to specify multiple attributes if needed.
 @noindent
 Here is an example of such XML document:
 
-@AWSEXP{<response>
+@AWSEXP{<?xml version="1.0" encoding="UTF-8" ?>
+<response>
    <replace id="xml_status_bar">Fill Widgets...</replace>
    <replace id="text1">Response from XML</replace>
    <replace id="text2">Another response for text2</replace>
@@ -3572,7 +3573,8 @@ answer and perform the actions according to the @code{XML} content.
 To set the placeholder with "@b{new text}", the @code{XML} document
 returned by the server must be:
 
-@AWSEXP{<response>
+@AWSEXP{<?xml version="1.0" encoding="UTF-8" ?>
+<response>
    <replace id="@b{placeholder}">@b{new text}</replace>
 </response>
 }
@@ -3581,7 +3583,8 @@ returned by the server must be:
 If we want also to clear the input field named @b{field} and to select the
 radio button named @b{radio1} we must return:
 
-@AWSEXP{<response>
+@AWSEXP{<?xml version="1.0" encoding="UTF-8" ?>
+<response>
    <replace id="@b{placeholder}">@b{new text}</replace>
    <clear id="@b{field}"/>
    <radio action="select" id="@b{radio1}"/>
@@ -3597,7 +3600,8 @@ A final comment, if the text returned by the server to replace a
 specific area is an @code{HTML} fragment, the content must be placed into a
 @code{CDATA} tag:
 
-@AWSEXP{<response>
+@AWSEXP{<?xml version="1.0" encoding="UTF-8" ?>
+<response>
    <replace id="item_id">
       <![CDATA[ @i{HTML CODE HERE} ]]>
    </replace>
@@ -3907,7 +3911,8 @@ Services.Web_Block.Registry.Register
 The @code{next} @code{Ajax} button is using an XML based response which
 is defined in @file{r_widget_counter.txml}:
 
-@AWSEXP{<response>
+@AWSEXP{<?xml version="1.0" encoding="UTF-8" ?>
+<response>
    <replace id="counter">@@_COUNTER_@@</replace>
 </response>}
 

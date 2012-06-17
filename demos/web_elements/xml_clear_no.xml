@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="UTF-8" ?>
 <response>
    <replace id="xml_status_bar">Clear canceled...</replace>
    <apply_style id="dialog_yes_no">

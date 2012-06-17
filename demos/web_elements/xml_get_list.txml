@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="UTF-8" ?>
 <response>
    <replace id="xml2_status_bar">Got the list values.</replace>
    <replace id="list_result">@_LIST_V_@</replace>

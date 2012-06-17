@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="UTF-8" ?>
 <response>
    <replace id="xml2_status_bar">The list is now sortable...</replace>
    <create_sortable>
