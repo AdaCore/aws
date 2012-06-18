@@ -28,7 +28,7 @@ library project Src is
 
    for Source_Dirs use
      ("core", "extended", "../templates_parser/src", "../config/src",
-      "../" & Shared.Target_Dir & "/setup/src", ".");
+      "../config/ssl", "../" & Shared.Target_Dir & "/setup/src", ".");
 
    --  XMLAda Installed, add xsrc and soap directories
 
