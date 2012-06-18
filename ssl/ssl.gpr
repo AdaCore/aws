@@ -27,11 +27,11 @@ library project SSL is
    case Shared.Socket is
       when "gnutls" =>
          for Languages use ("Ada", "Project file", "C");
+         for Source_Dirs use (".", "../config/ssl", "../config/ssl/gnutls");
       when others =>
          for Languages use ("Ada", "Project file");
+         for Source_Dirs use (".", "../config/ssl");
    end case;
-
-   for Source_Dirs use (".", "../config/src");
 
    for Object_Dir use "../" & Shared'Object_Dir & "/ssl";
    for Library_Dir use "../" & Shared'Library_Dir & "/ssl";
