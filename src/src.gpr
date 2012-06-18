@@ -55,6 +55,7 @@ library project Src is
       when "vxworks" =>
          for Languages use Project'Languages & ("C");
          for Source_Dirs use Project'Source_Dirs & ("poll");
+
       when others =>
          null;
    end case;
@@ -84,6 +85,7 @@ library project Src is
                      for Library_Options use
                        Project'Library_Options & ("-lldap");
                end case;
+
             when "Disabled" =>
                null;
          end case;
@@ -138,11 +140,9 @@ library project Src is
 
       case Shared.SOCKLIB is
          when "GNAT" =>
-            for Implementation ("AWS.Net.Std")
-              use "aws-net-std__gnat.adb";
+            for Implementation ("AWS.Net.Std") use "aws-net-std__gnat.adb";
          when "IPv6" =>
-            for Implementation ("AWS.Net.Std")
-              use "aws-net-std__ipv6.adb";
+            for Implementation ("AWS.Net.Std") use "aws-net-std__ipv6.adb";
       end case;
 
       --  Poll
@@ -171,11 +171,13 @@ library project Src is
               use "aws-net-ssl__dummy.adb";
             for Implementation ("AWS.Net.SSL.Certificate")
               use "aws-net-ssl-certificate__dummy.adb";
+
          when "ssl"| "openssl" =>
             for Implementation ("AWS.Net.SSL")
               use "aws-net-ssl__openssl.adb";
             for Implementation ("AWS.Net.SSL.Certificate")
               use "aws-net-ssl-certificate__openssl.adb";
+
          when "gnutls" =>
             for Implementation ("AWS.Net.SSL")
               use "aws-net-ssl__gnutls.adb";
