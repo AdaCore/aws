@@ -112,7 +112,7 @@ package AWS.Status is
 
    function Connection             (D : Data) return String;
    pragma Inline (Connection);
-   --  Get the value for "Connection:" parameter
+   --  Get the value for "Connection:" header
 
    function Content_Length         (D : Data) return Natural;
    pragma Inline (Content_Length);

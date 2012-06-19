@@ -34,8 +34,8 @@ with Ada.Strings.Unbounded;
 package AWS.Messages is
 
    use Ada;
-   use Ada.Strings.Unbounded;
    use Ada.Streams;
+   use Ada.Strings.Unbounded;
 
    -----------------
    -- HTTP tokens --
@@ -88,7 +88,7 @@ package AWS.Messages is
    TE_Token                  : constant String := "TE";
    User_Agent_Token          : constant String := "User-Agent";
 
-   --  Cross-Origin Resource Sharing request header tokens.
+   --  Cross-Origin Resource Sharing request header tokens
    Access_Control_Request_Headers_Token : constant String
      := "Access-Control-Request-Headers";
    Access_Control_Request_Method_Token  : constant String

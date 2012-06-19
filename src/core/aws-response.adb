@@ -658,8 +658,7 @@ package body AWS.Response is
       Encoding      : Messages.Content_Encoding := Messages.Identity;
       Server_Close  : Boolean                   := True;
       Disposition   : Disposition_Mode          := None;
-      User_Filename : String                    := "")
-      return Data
+      User_Filename : String                    := "") return Data
    is
       function CD_Filename return String;
       pragma Inline (CD_Filename);

@@ -1525,7 +1525,7 @@ Note that the total number of threads used by a server is:
 @item Max_POST_Parameters (positive)
 @cindex Max_POST_Parameters
 The maximum number of POST parameters supported by AWS. The default
-value is @file{@_MAX_POST_PARAMETERS_@}.
+value is @_MAX_POST_PARAMETERS_@.
 
 @item MIME_Types (string)
 @cindex MIME_Types

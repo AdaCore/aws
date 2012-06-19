@@ -51,20 +51,20 @@ with AWS.Net;
 with AWS.Net.Buffered;
 with AWS.Parameters;
 with AWS.Response.Set;
-with AWS.Session;
 with AWS.Server.Get_Status;
+with AWS.Session;
 with AWS.Status.Set;
 with AWS.Templates;
 with AWS.Translator;
-with AWS.Utils;
 with AWS.URL;
+with AWS.Utils;
 
 package body AWS.Server.HTTP_Utils is
 
    use Ada;
+   use Ada.Streams;
    use Ada.Strings;
    use Ada.Strings.Unbounded;
-   use Ada.Streams;
    use AWS.Templates;
 
    protected File_Upload_UID is
@@ -413,15 +413,6 @@ package body AWS.Server.HTTP_Utils is
         (Start_Boundary, End_Boundary : String;
          Parse_Boundary               : Boolean)
       is
-         Name            : Unbounded_String;
-         Filename        : Unbounded_String;
-         Server_Filename : Unbounded_String;
-         Is_File_Upload  : Boolean;
-         Headers         : AWS.Headers.List;
-
-         End_Found       : Boolean := False;
-         --  Set to true when the end-boundary has been found
-
          function Target_Filename (Filename : String) return String;
          --  Returns the full path name for the file as stored on the
          --  server side.
@@ -439,6 +430,15 @@ package body AWS.Server.HTTP_Utils is
 
             return Upload_Path & Utils.Image (UID) & '.' & Filename;
          end Target_Filename;
+
+         Name            : Unbounded_String;
+         Filename        : Unbounded_String;
+         Server_Filename : Unbounded_String;
+         Is_File_Upload  : Boolean;
+         Headers         : AWS.Headers.List;
+
+         End_Found       : Boolean := False;
+         --  Set to true when the end-boundary has been found
 
       begin -- File_Upload
          --  Reach the boundary
@@ -651,9 +651,10 @@ package body AWS.Server.HTTP_Utils is
 
          function Check_EOF return Boolean is
 
-            Signature : constant Streams.Stream_Element_Array
-              := (1 => 13, 2 => 10)
-                   & Translator.To_Stream_Element_Array (Start_Boundary);
+            Signature : constant Streams.Stream_Element_Array :=
+                          (1 => 13, 2 => 10)
+                            & Translator.To_Stream_Element_Array
+                                (Start_Boundary);
 
             Buffer : Streams.Stream_Element_Array (1 .. Signature'Length);
             Index  : Streams.Stream_Element_Offset := Buffer'First;
@@ -683,8 +684,8 @@ package body AWS.Server.HTTP_Utils is
                end if;
 
                Get_File_Data.Buffer
-                 (Get_File_Data.Index .. Get_File_Data.Index + Index - 2)
-                 := Buffer (Buffer'First .. Index - 1);
+                 (Get_File_Data.Index .. Get_File_Data.Index + Index - 2) :=
+                 Buffer (Buffer'First .. Index - 1);
 
                Get_File_Data.Index := Get_File_Data.Index + Index - 1;
             end Write_Data;
@@ -824,13 +825,6 @@ package body AWS.Server.HTTP_Utils is
          Parse_Boundary               : Boolean;
          Root_Part_CID                : String)
       is
-         Server_Filename : Unbounded_String;
-         Content_Id      : Unbounded_String;
-         Headers         : AWS.Headers.List;
-
-         End_Found       : Boolean := False;
-         --  Set to true when the end-boundary has been found
-
          function Attachment_Filename (Extension : String) return String;
          --  Returns the full path name for the file as stored on the
          --  server side.
@@ -852,6 +846,13 @@ package body AWS.Server.HTTP_Utils is
                return Upload_Path & Utils.Image (UID) & '.' & Extension;
             end if;
          end Attachment_Filename;
+
+         Server_Filename : Unbounded_String;
+         Content_Id      : Unbounded_String;
+         Headers         : AWS.Headers.List;
+
+         End_Found       : Boolean := False;
+         --  Set to true when the end-boundary has been found
 
       begin -- Store_Attachments
          --  Reach the boundary
@@ -1234,12 +1235,12 @@ package body AWS.Server.HTTP_Utils is
       Socket_Taken : in out Boolean;
       Will_Close   : in out Boolean)
    is
-      LA : constant Line_Attribute.Attribute_Handle :=
-             Line_Attribute.Reference;
-
       use type Response.Data_Mode;
 
-      Status_Code : Messages.Status_Code;
+      LA           : constant Line_Attribute.Attribute_Handle :=
+                       Line_Attribute.Reference;
+
+      Status_Code : Messages.Status_Code := Response.Status_Code (Answer);
       Length      : Resources.Content_Length_Type := 0;
 
       procedure Send_General_Header (Sock : Net.Socket_Type'Class);
@@ -1257,8 +1258,8 @@ package body AWS.Server.HTTP_Utils is
       ---------------
 
       procedure Send_Data is
-         use type Calendar.Time;
          use type AWS.Status.Request_Method;
+         use type Calendar.Time;
 
          type File_Status is (Changed, Up_To_Date, Not_Found);
 
@@ -1457,8 +1458,6 @@ package body AWS.Server.HTTP_Utils is
       use type Response.Data;
 
    begin
-      Status_Code := Response.Status_Code (Answer);
-
       case Response.Mode (Answer) is
          when Response.File | Response.File_Once | Response.Stream
             | Response.Message
