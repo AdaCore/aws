@@ -149,6 +149,14 @@ package AWS.Messages is
    Content_Transfer_Encoding_Token : constant String
      := "Content-Transfer-Encoding";
 
+   --  WebSockets tokens
+   Websocket_Token              : constant String := "websocket";
+   Sec_WebSocket_Accept_Token   : constant String := "Sec-WebSocket-Accept";
+   Sec_WebSocket_Protocol_Token : constant String := "Sec-WebSocket-Protocol";
+   Sec_WebSocket_Key_Token      : constant String := "Sec-WebSocket-Key";
+   Sec_WebSocket_Version_Token  : constant String := "Sec-WebSocket-Version";
+   Chat_Token                   : constant String := "chat";
+
    S100_Continue : constant String := "100-continue";
    --  Supported expect header value
 
@@ -363,6 +371,9 @@ package AWS.Messages is
      (Realm, Nonce : String; Stale : Boolean) return String;
    pragma Inline (WWW_Authenticate);
    --  Digest authentication request
+
+   function Sec_WebSocket_Accept (Key : String) return String;
+   pragma Inline (Sec_WebSocket_Accept);
 
    -----------------------
    --  helper functions --

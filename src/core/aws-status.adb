@@ -697,6 +697,15 @@ package body AWS.Status is
       end if;
    end Reset_Body_Index;
 
+   -----------------------
+   -- Sec_WebSocket_Key --
+   -----------------------
+
+   function Sec_WebSocket_Key (D : Data) return String is
+   begin
+      return Headers.Get (D.Header, Messages.Sec_WebSocket_Key_Token);
+   end Sec_WebSocket_Key;
+
    -------------
    -- Session --
    -------------
@@ -762,6 +771,15 @@ package body AWS.Status is
    begin
       return D.Socket.all;
    end Socket;
+
+   -------------
+   -- Upgrade --
+   -------------
+
+   function Upgrade (D : Data) return String is
+   begin
+      return Headers.Get (D.Header, Messages.Upgrade_Token);
+   end Upgrade;
 
    ---------
    -- URI --
