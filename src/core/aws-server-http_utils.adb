@@ -1235,8 +1235,6 @@ package body AWS.Server.HTTP_Utils is
       Socket_Taken : in out Boolean;
       Will_Close   : in out Boolean)
    is
-      use type Response.Data_Mode;
-
       LA           : constant Line_Attribute.Attribute_Handle :=
                        Line_Attribute.Reference;
 
@@ -1384,7 +1382,6 @@ package body AWS.Server.HTTP_Utils is
       -------------------------
 
       procedure Send_General_Header (Sock : Net.Socket_Type'Class) is
-         use type Messages.Cache_Option;
       begin
          --  Session
 
@@ -1428,7 +1425,6 @@ package body AWS.Server.HTTP_Utils is
       ----------------------
 
       procedure Send_Header_Only is
-         use type AWS.Status.Request_Method;
          Sock : constant Net.Socket_Type'Class := Status.Socket (C_Stat);
       begin
          --  First let's output the status line
