@@ -55,6 +55,9 @@ APIFILES = ../src/core/aws.ads.texi \
 	../src/extended/aws-net-log-callbacks.ads.texi \
 	../src/core/aws-net-ssl.ads.texi \
 	../src/core/aws-net-ssl-certificate.ads.texi \
+	../src/core/aws-net-websocket.ads.texi \
+	../src/core/aws-net-websocket-registry.ads.texi \
+	../src/core/aws-net-websocket-registry-control.ads.texi \
 	../src/core/aws-parameters.ads.texi \
 	../src/extended/aws-pop.ads.texi \
 	../src/core/aws-resources-files.ads.texi \

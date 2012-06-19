@@ -6523,6 +6523,9 @@ AWS User's API:
 * AWS.Net.Log.Callbacks::
 * AWS.Net.SSL::
 * AWS.Net.SSL.Certificate::
+* AWS.Net.WebSocket::
+* AWS.Net.WebSocket.Registry::
+* AWS.Net.WebSocket.Registry.Control::
 * AWS.Parameters::
 * AWS.POP::
 * AWS.Resources::
@@ -6786,6 +6789,27 @@ SOAP User's API:
 @cindex AWS.Net.SSL.Certificate
 
 @include aws-net-ssl-certificate.ads.texi
+
+@page
+@node AWS.Net.WebSocket
+@appendixsec AWS.Net.WebSocket
+@cindex AWS.Net.WebSocket
+
+@include aws-net-websocket.ads.texi
+
+@page
+@node AWS.Net.WebSocket.Registry
+@appendixsec AWS.Net.WebSocket.Registry
+@cindex AWS.Net.WebSocket.Registry
+
+@include aws-net-websocket-registry.ads.texi
+
+@page
+@node AWS.Net.WebSocket.Registry.Control
+@appendixsec AWS.Net.WebSocket.Registry.Control
+@cindex AWS.Net.WebSocket.Registry.Control
+
+@include aws-net-websocket-registry-control.ads.texi
 
 @page
 @node AWS.Parameters
