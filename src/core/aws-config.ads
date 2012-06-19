@@ -388,6 +388,10 @@ package AWS.Config is
    --  Number of seconds to keep a context if not used. After this period the
    --  context data is obsoleted and will be removed during next cleanup.
 
+   function Max_WebSocket_Handler return Positive;
+   pragma Inline (Max_WebSocket_Handler);
+   --  This is the max simultaneous connections handling WebSocket's messages
+
 private
 
    package SV renames AWS.Containers.String_Vectors;
@@ -456,6 +460,7 @@ private
       Transient_Lifetime,
       Input_Line_Size_Limit,
       Max_Concurrent_Download,
+      Max_WebSocket_Handler,
       Context_Lifetime);
 
    subtype Server_Parameter_Name is Parameter_Name
@@ -674,6 +679,9 @@ private
 
          Max_Concurrent_Download =>
            (Pos, Default.Max_Concurrent_Download),
+
+         Max_WebSocket_Handler =>
+           (Pos, Default.Max_WebSocket_Handler),
 
          Context_Lifetime =>
            (Dur, Default.Context_Lifetime));

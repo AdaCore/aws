@@ -1527,6 +1527,11 @@ Note that the total number of threads used by a server is:
 The maximum number of POST parameters supported by AWS. The default
 value is @_MAX_POST_PARAMETERS_@.
 
+@item Max_WebSocket_Handler (positive)
+@cindex Max_WebSocket_Handler
+The maximum number of message to handle simultaenously. The default
+value is @_MAX_WEBSOCKET_HANDLER_@.
+
 @item MIME_Types (string)
 @cindex MIME_Types
 The name of the file containing the MIME types associations. The default file

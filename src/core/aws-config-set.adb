@@ -359,6 +359,15 @@ package body AWS.Config.Set is
       O.P (Max_POST_Parameters).Pos_Value := Value;
    end Max_POST_Parameters;
 
+   ---------------------------
+   -- Max_WebSocket_Handler --
+   ---------------------------
+
+   procedure Max_WebSocket_Handler (Value : Positive) is
+   begin
+      Process_Options (Max_WebSocket_Handler).Pos_Value := Value;
+   end Max_WebSocket_Handler;
+
    ----------------
    -- MIME_Types --
    ----------------

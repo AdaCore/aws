@@ -326,6 +326,9 @@ package AWS.Config.Set is
    --  Control the maximum number of parallel downloads accepted by the
    --  download manager.
 
+   procedure Max_WebSocket_Handler (Value : Positive);
+   --  This is the max simultaneous connections handling WebSocket's messages
+
    procedure Parameter
      (Config        : in out Object;
       Name          : String;

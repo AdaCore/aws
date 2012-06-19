@@ -60,6 +60,7 @@ package AWS.Default is
    Server_Port                     : constant         := 8080;
    Hotplug_Port                    : constant         := 8888;
    Max_Connection                  : constant         := 5;
+   Max_WebSocket_Handler           : constant         := 2;
    Send_Buffer_Size                : constant         := 0;
    Free_Slots_Keep_Alive_Limit     : constant         := 1;
    Keep_Alive_Force_Limit          : constant         := 0;
