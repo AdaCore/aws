@@ -392,6 +392,10 @@ package AWS.Config is
    pragma Inline (Max_WebSocket_Handler);
    --  This is the max simultaneous connections handling WebSocket's messages
 
+   function WebSocket_Message_Queue_Size return Positive;
+   pragma Inline (WebSocket_Message_Queue_Size);
+   --  This is the size of the queue containing incoming messages
+
 private
 
    package SV renames AWS.Containers.String_Vectors;
@@ -461,6 +465,7 @@ private
       Input_Line_Size_Limit,
       Max_Concurrent_Download,
       Max_WebSocket_Handler,
+      WebSocket_Message_Queue_Size,
       Context_Lifetime);
 
    subtype Server_Parameter_Name is Parameter_Name
@@ -682,6 +687,9 @@ private
 
          Max_WebSocket_Handler =>
            (Pos, Default.Max_WebSocket_Handler),
+
+         WebSocket_Message_Queue_Size =>
+           (Pos, Default.WebSocket_Message_Queue_Size),
 
          Context_Lifetime =>
            (Dur, Default.Context_Lifetime));

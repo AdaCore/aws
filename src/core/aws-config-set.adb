@@ -584,6 +584,15 @@ package body AWS.Config.Set is
       O.P (Upload_Size_Limit).Pos_Value := Value;
    end Upload_Size_Limit;
 
+   ----------------------------------
+   -- WebSocket_Message_Queue_Size --
+   ----------------------------------
+
+   procedure WebSocket_Message_Queue_Size (Value : Positive) is
+   begin
+      Process_Options (WebSocket_Message_Queue_Size).Pos_Value := Value;
+   end WebSocket_Message_Queue_Size;
+
    --------------
    -- WWW_Root --
    --------------

@@ -329,6 +329,9 @@ package AWS.Config.Set is
    procedure Max_WebSocket_Handler (Value : Positive);
    --  This is the max simultaneous connections handling WebSocket's messages
 
+   procedure WebSocket_Message_Queue_Size (Value : Positive);
+   --  This is the size of the queue containing incoming messages
+
    procedure Parameter
      (Config        : in out Object;
       Name          : String;

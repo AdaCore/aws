@@ -1631,6 +1631,12 @@ This is to set the directory where upload files must be stored. By
 default uploaded files are written in the current directory. The
 default is @file{@_UPLOAD_DIR_@}.
 
+@item WebSocket_Message_Queue_Size (positive)
+@cindex WebSocket_Message_Queue_Size
+This is the size of the queue containing incoming messages waiting
+to be handled by one of the task, see Max_WebSocket_Handler above. The
+default value is @_WEBSOCKET_MESSAGE_QUEUE_SIZE_@.
+
 @item WWW_Root (string)
 @cindex WWW_Root
 This option sets the Web Server root directory. All Web resources are

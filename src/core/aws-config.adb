@@ -631,6 +631,15 @@ package body AWS.Config is
       return O.P (Upload_Size_Limit).Pos_Value;
    end Upload_Size_Limit;
 
+   ----------------------------------
+   -- WebSocket_Message_Queue_Size --
+   ----------------------------------
+
+   function WebSocket_Message_Queue_Size return Positive is
+   begin
+      return Process_Options (WebSocket_Message_Queue_Size).Pos_Value;
+   end WebSocket_Message_Queue_Size;
+
    --------------
    -- WWW_Root --
    --------------
