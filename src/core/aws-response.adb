@@ -730,4 +730,20 @@ package body AWS.Response is
       return Result;
    end URL;
 
+   ---------------
+   -- Websocket --
+   ---------------
+
+   function Websocket return Data is
+      Result : Data;
+   begin
+      Set.Status_Code (Result, Messages.S101);
+      Set.Mode        (Result, WebSocket);
+      Set.Add_Header
+        (Result, Messages.Connection_Token, Messages.Upgrade_Token);
+      Set.Add_Header
+        (Result, Messages.Upgrade_Token, Messages.Websocket_Token);
+      return Result;
+   end Websocket;
+
 end AWS.Response;

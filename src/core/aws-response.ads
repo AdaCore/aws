@@ -64,6 +64,7 @@ package AWS.Response is
       File_Once,      -- Send a file once, delete it after sending
       Stream,         -- Send a stream
       Socket_Taken,   -- Socket has been taken from the server
+      WebSocket,      -- Protocol switched to WebSocket
       No_Data);       -- No data, this is not a response
 
    type Authentication_Mode is (Any, Basic, Digest);
@@ -356,6 +357,13 @@ package AWS.Response is
 
    function Close_Resource (D : Data) return Boolean;
    --  Returns True if the resource stream must be close
+
+   ----------------
+   -- WebSockets --
+   ----------------
+
+   function Websocket return Data;
+   --  WebSocket handshake from initial websocket connection
 
 private
 
