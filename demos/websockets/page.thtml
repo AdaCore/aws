@@ -1,0 +1,39 @@
+<html>
+  <head>
+    <title>Web Socket Demo</title>
+
+    @@INCLUDE@@ ../../web_elements/javascripts/aws.tjs
+
+    <script type="text/javascript">
+
+      var ws;
+
+      function updateP(id, message) {
+        document.getElementById(id).innerHTML = message;
+      }
+
+      function newMessage() {
+        ws.send('A message sent after 5 seconds');
+      }
+
+      function startWS() {
+          updateP('data', 'empty');
+
+          ws = AWS.WebSocket.open('ws://localhost:8080/echo', 'data', 'status');
+
+          if (ws != false)
+             updateP('status', "Your browser does support webSocket.");
+
+          setTimeout ("newMessage()", 2000);
+      };
+    </script>
+  </head>
+
+  <body onload="startWS();">
+    <p>This is the main page, bellow is a simple websocket counter</p>
+    <p id="data"></p>
+    <p id="from_user"></p>
+    <p id="echo"></p>
+    <p id="status"></p>
+  </body>
+</html>

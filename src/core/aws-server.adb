@@ -35,6 +35,7 @@ with AWS.Config.Set;
 with AWS.Dispatchers.Callback;
 with AWS.Messages;
 with AWS.MIME;
+with AWS.Net.WebSocket.Registry.Control;
 with AWS.Server.HTTP_Utils;
 with AWS.Server.Log;
 with AWS.Services.Transient_Pages.Control;
@@ -570,6 +571,8 @@ package body AWS.Server is
       end if;
 
       Services.Transient_Pages.Control.Shutdown;
+
+      Net.WebSocket.Registry.Control.Shutdown;
 
       if CNF.Security (Web_Server.Properties) then
          Net.SSL.Release (Web_Server.SSL_Config);

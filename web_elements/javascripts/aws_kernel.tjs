@@ -30,9 +30,10 @@
 @@---------------------------------------------------------------- AWS
 
 var AWS = {
-   Context : null,
-   Ajax    : null,
-   Tools   : null
+   Context   : null,
+   Ajax      : null,
+   WebSocket : null,
+   Tools     : null
 }
 
 @@---------------------------------------------------------------- TOOLS
@@ -396,18 +397,26 @@ AWS.Ajax.XML = new function() {
            parameters: AWS.Context.add_ajax(pars),
            onFailure : AWS.Tools.report_error,
            onComplete : function(req)
-           {AWS.Ajax.XML.handler(req);
+           {AWS.Ajax.XML.handler(req.responseXML);
             AWS.Ajax.update_framework();
             if (oncomplete != "") oncomplete();}});
    }
 
    @@-- Handle XML responses
 
-   this.handler = function (result)
+   this.fromString = function (str)
    {
-      // get XML result
-      var xml_result = result.responseXML;
-      var response   = xml_result.getElementsByTagName('response');
+      var parser = new DOMParser();
+      var doc = parser.parseFromString(str, "application/xml");
+      AWS.Ajax.XML.handler(doc);
+   }
+
+   @@-- Handle XML responses
+
+   this.handler = function (xml_actions)
+   {
+      var response = xml_actions.getElementsByTagName('response');
+
       var i = 0;
       for (i = 0; i < response[0].childNodes.length; i++) {
           var node = response[0].childNodes[i];
@@ -720,6 +729,75 @@ AWS.Ajax.XML = new function() {
    {
       var id = node.getAttribute('id');
       $(id).reset();
+   }
+}
+
+@@---------------------------------------------------------------- TOOLS
+
+AWS.WebSocket = new function() {
+
+   @@-----------
+   @@-- PUBLIC
+   @@-----------
+
+   @@-- --------------------------------
+   @@-- getTransport
+
+   this.getTransport = function (url)
+   {
+      return Try.these(
+        function() {return new WebSocket(url)},
+        function() {return new MozWebSocket(url)}
+      ) || false;
+   }
+
+    this.open = function(url, message_id, status_id)
+    {
+        ws = AWS.WebSocket.getTransport(url);
+
+        if (ws == false) {
+            if (status_id != null)
+                document.getElementById(status_id).innerHTML =
+                  'Your browser does NOT support webSocket.';
+            return;
+        }
+
+        ws.onmessage = default_onmessage;
+        ws.onerror = default_onerror;
+        ws.onclose = default_onclose;
+
+        if (message_id != null)
+            ws.aws_message_id=message_id;
+        if (status_id != null)
+            ws.aws_status_id=status_id;
+
+        return ws;
+    }
+
+   function default_onmessage(e)
+   {
+      var data=e.data;
+
+      // if the first characters are an <response, let's pretends this is
+      // an AWS XML response. Parse using the AWS XML Ajax framework.
+
+      if (data.substring(0,5) == '<?xml')
+         AWS.Ajax.XML.fromString(data);
+       else if (this.aws_message_id != null)
+         document.getElementById(this.aws_message_id).innerHTML = data;
+   }
+
+   function default_onclose(e)
+   {
+      if (this.aws_status_id != null)
+         document.getElementById(this.aws_status_id).innerHTML =
+            'WebSocket now closed';
+   }
+
+   function default_onerror(e)
+   {
+      if (this.aws_status_id != null)
+         document.getElementById(this.aws_status_id).innerHTML = e.data;
    }
 }
 
