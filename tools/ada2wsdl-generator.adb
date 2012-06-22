@@ -800,24 +800,6 @@ package body Ada2WSDL.Generator is
          -----------------
 
          procedure Write_Array (E : Definition) is
-
-            function Array_Constraint return String;
-            --  Returns the array constaint
-
-            ----------------------
-            -- Array_Constraint --
-            ----------------------
-
-            function Array_Constraint return String is
-            begin
-               if E.Length = 0 then
-                  --  This is an unconstrained array
-                  return "[]";
-               else
-                  return "[" & AWS.Utils.Image (E.Length) & "]";
-               end if;
-            end Array_Constraint;
-
          begin
             New_Line;
             Put_Line ("         <xsd:complexType name=""" & (-E.Name) & '"');
@@ -827,8 +809,11 @@ package body Ada2WSDL.Generator is
                       & "base=""soapenc:Array"">");
             Put_Line ("                  <xsd:attribute "
                       & "ref=""soapenc:arrayType"""
-                        & " wsdl:arrayType=""" & (-E.Parameters.XSD_Name)
-                        & Array_Constraint & """/>");
+                      & " wsdl:arrayType=""" & (-E.Parameters.XSD_Name)
+                      & (if E.Length = 0
+                         then "[]"
+                         else "[" & AWS.Utils.Image (E.Length) & "]")
+                      & """/>");
             Put_Line ("               </xsd:restriction>");
             Put_Line ("            </xsd:complexContent>");
             Put_Line ("         </xsd:complexType>");

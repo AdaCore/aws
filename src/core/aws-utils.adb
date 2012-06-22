@@ -27,6 +27,8 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
+pragma Ada_2012;
+
 with Ada.Calendar.Time_Zones;
 with Ada.Characters.Handling;
 with Ada.Integer_Text_IO;
@@ -440,8 +442,8 @@ package body AWS.Utils is
       R : Natural := 0;
 
    begin
-      for K in Hex'Range loop
-         R := R * 16 + Value (Hex (K));
+      for H of Hex loop
+         R := R * 16 + Value (H);
       end loop;
 
       return R;
@@ -862,12 +864,12 @@ package body AWS.Utils is
         := "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
       Rand  : Random_Integer := 0;
    begin
-      for I in Item'Range loop
+      for Elem of Item loop
          if Rand = 0 then
             Rand := Random;
          end if;
 
-         Item (I) := Chars (Integer (Rand rem Chars'Length) + 1);
+         Elem := Chars (Integer (Rand rem Chars'Length) + 1);
          Rand := Rand / Chars'Length;
       end loop;
    end Random_String;

@@ -916,31 +916,13 @@ package body SOAP.Types is
    function R
      (V         : Object_Set;
       Name      : String;
-      Type_Name : String := "") return SOAP_Record
-   is
-      function T_Name return String;
-      pragma Inline (T_Name);
-      --  Returns Type_Name is not empty and Name otherwise
-
-      ------------
-      -- T_Name --
-      ------------
-
-      function T_Name return String is
-      begin
-         if Type_Name = "" then
-            return Name;
-         else
-            return Type_Name;
-         end if;
-      end T_Name;
-
+      Type_Name : String := "") return SOAP_Record is
    begin
       return
         (Finalization.Controlled
          with To_Unbounded_String (Name), SOAP.Name_Space.AWS,
          new Natural'(1), new Object_Set'(V),
-         To_Unbounded_String (T_Name));
+         To_Unbounded_String (if Type_Name = "" then Name else Type_Name));
    end R;
 
    -------

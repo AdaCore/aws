@@ -27,6 +27,8 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
+pragma Ada_2012;
+
 with Ada.Calendar;
 with Ada.Containers.Doubly_Linked_Lists;
 with Ada.Real_Time;
@@ -1312,31 +1314,24 @@ package body AWS.Server.Push is
                           return Stream_Element_Array := null)
    is
       Queue  : Tables.Map;
-      C      : Tables.Cursor;
       Holder : Client_Holder_Access;
    begin
       Server.Unregister_Clients (Queue, Open => Left_Open);
 
-      C := Queue.First;
-
-      while Tables.Has_Element (C) loop
-         Holder := Tables.Element (C);
+      for Cursor in Queue.Iterate loop
+         Holder := Tables.Element (Cursor);
 
          if Holder.Phase /= Available then
             Waiter_Command (Server, Holder, Remove);
          end if;
-
-         Tables.Next (C);
       end loop;
-
-      C := Queue.First;
 
       if not Wait_Send_Completion (10.0) then
          Internal_Error_Handler ("Could not clear server push waiter");
       end if;
 
-      while Tables.Has_Element (C) loop
-         Holder := Tables.Element (C);
+      for Cursor in Queue.Iterate loop
+         Holder := Tables.Element (Cursor);
 
          if Get_Final_Data /= null then
             declare
@@ -1361,8 +1356,6 @@ package body AWS.Server.Push is
          end if;
 
          Free (Holder);
-
-         Tables.Next (C);
       end loop;
    end Release;
 
@@ -1388,28 +1381,21 @@ package body AWS.Server.Push is
       Client_Gone  : access procedure (Client_Id : String) := null)
    is
       use type Ada.Containers.Count_Type;
-      Cursor : Tables.Cursor;
-      C      : Tables.Cursor;
       Holder : Client_Holder_Access;
       Queue  : Tables.Map;
       WQ     : Waiter_Queues.List;
    begin
       Server.Send (Data, Group_Id, Content_Type, Thin_Id, Queue);
 
-      Cursor := Queue.First;
-
-      while Tables.Has_Element (Cursor) loop
+      for Cursor in Queue.Iterate loop
          Holder := Tables.Element (Cursor);
-
-         C := Cursor;
-         Tables.Next (Cursor);
 
          if Holder.Errmsg = Null_Unbounded_String then
             WQ.Append ((Server'Unrestricted_Access, Holder, Add));
 
          else
             declare
-               Client_Id : constant String := Tables.Key (C);
+               Client_Id : constant String := Tables.Key (Cursor);
             begin
                if Client_Gone /= null then
                   Client_Gone (Client_Id);
@@ -2048,11 +2034,9 @@ package body AWS.Server.Push is
       end Add;
 
       procedure Add (Queue : Waiter_Queues.List) is
-         C : Waiter_Queues.Cursor := Add.Queue.First;
       begin
-         while Waiter_Queues.Has_Element (C) loop
-            Waiter_Queue.Queue.Append (Waiter_Queues.Element (C));
-            Waiter_Queues.Next (C);
+         for Item of Add.Queue loop
+            Waiter_Queue.Queue.Append (Item);
          end loop;
       end Add;
 

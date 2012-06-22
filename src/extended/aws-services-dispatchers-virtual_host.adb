@@ -27,6 +27,8 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
+pragma Ada_2012;
+
 with Ada.Strings.Fixed;
 
 with AWS.Dispatchers.Callback;
@@ -50,7 +52,6 @@ package body AWS.Services.Dispatchers.Virtual_Host is
 
    overriding function Clone (Dispatcher : Handler) return Handler is
       New_Dispatcher : Handler;
-      Cursor         : Virtual_Host_Table.Cursor;
    begin
       if Dispatcher.Action /= null then
          New_Dispatcher.Action :=
@@ -58,12 +59,9 @@ package body AWS.Services.Dispatchers.Virtual_Host is
              (AWS.Dispatchers.Handler'Class (Dispatcher.Action.Clone));
       end if;
 
-      Cursor := Dispatcher.Table.First;
-
-      while Virtual_Host_Table.Has_Element (Cursor) loop
+      for Cursor in Dispatcher.Table.Iterate loop
          declare
-            Node : constant VH_Node :=
-                     Virtual_Host_Table.Element (Cursor);
+            Node : constant VH_Node := Virtual_Host_Table.Element (Cursor);
          begin
             if Node.Mode = Callback then
                New_Dispatcher.Table.Insert
@@ -83,7 +81,6 @@ package body AWS.Services.Dispatchers.Virtual_Host is
                        Hostname => Node.Hostname));
             end if;
          end;
-         Virtual_Host_Table.Next (Cursor);
       end loop;
 
       return New_Dispatcher;
@@ -151,23 +148,14 @@ package body AWS.Services.Dispatchers.Virtual_Host is
 
    overriding procedure Finalize (Dispatcher : in out Handler) is
       Ref_Counter : constant Natural := Dispatcher.Ref_Counter;
-      Cursor      : Virtual_Host_Table.Cursor;
    begin
       Finalize (AWS.Dispatchers.Handler (Dispatcher));
 
       if Ref_Counter = 1 then
-         Cursor := Dispatcher.Table.First;
-
-         while Virtual_Host_Table.Has_Element (Cursor) loop
-            declare
-               Node : VH_Node
-                 := Virtual_Host_Table.Element (Cursor);
-            begin
-               if Node.Mode = Callback then
-                  Free (Node.Action);
-               end if;
-            end;
-            Virtual_Host_Table.Next (Cursor);
+         for Node of Dispatcher.Table loop
+            if Node.Mode = Callback then
+               Free (Node.Action);
+            end if;
          end loop;
 
          Dispatcher.Table.Clear;

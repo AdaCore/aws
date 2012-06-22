@@ -27,6 +27,8 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
+pragma Ada_2012;
+
 with Ada.Calendar;
 with Ada.Exceptions;
 with Ada.Text_IO;
@@ -595,9 +597,8 @@ package body AWS.SMTP.Client is
                Content_Type => MIME.Text_Plain));
       end if;
 
-      for K in Attachments'Range loop
+      for A of Attachments loop
          declare
-            A : constant Attachment := Attachments (K);
             H : AWS.Headers.List;
          begin
             case A.Kind is

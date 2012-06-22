@@ -104,7 +104,7 @@ abstract project Shared is
         use "style_checker -l70 -H";
       for VCS_File_Check
         use "style_checker -ign out -ign tmplt -ign sed -ign txt"
-         & " -lang Ada -cp -cy -sp -gnat05"
+         & " -lang Ada -cp -cy -sp -gnat2012"
          & " -lang XML -l256";
    end Ide;
 
@@ -116,7 +116,7 @@ abstract project Shared is
    --  Options used for all Ada units in both Debug and Release modes
 
    Common_Options :=
-     ("-gnat05", "-gnatwcfijkmRuv", "-gnaty3abBcefhiIklmnoprstx", "-Wall")
+     ("-gnat2012", "-gnatwcfijkmRuv", "-gnaty3abBcefhiIklmnoprstx", "-Wall")
      & Global_Options;
    --  Common options used for the Debug and Release modes
 

@@ -27,6 +27,8 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
+pragma Ada_2012;
+
 with AWS.Translator;
 
 package body AWS.Utils.Streams is
@@ -101,8 +103,8 @@ package body AWS.Utils.Streams is
       Str : String (1 .. Integer (Item'Length));
       S   : Integer := Str'First;
    begin
-      for J in Item'Range loop
-         Str (S) := Character'Val (Item (J));
+      for Elem of Item loop
+         Str (S) := Character'Val (Elem);
          S := S + 1;
       end loop;
 

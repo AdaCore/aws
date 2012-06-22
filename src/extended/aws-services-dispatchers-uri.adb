@@ -27,6 +27,8 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
+pragma Ada_2012;
+
 with Ada.Unchecked_Deallocation;
 
 with GNAT.Regpat;
@@ -67,15 +69,10 @@ package body AWS.Services.Dispatchers.URI is
              (AWS.Dispatchers.Handler'Class (Dispatcher.Action.Clone));
       end if;
 
-      for K in 1 .. URI_Table.Length (Dispatcher.Table) loop
-         declare
-            Item : constant URI_Class_Access :=
-                     URI_Table.Element (Dispatcher.Table, Natural (K));
-         begin
-            URI_Table.Append
-              (New_Dispatcher.Table,
-               new Std_URI'Class'(Std_URI'Class (Item.Clone)));
-         end;
+      for Item of Dispatcher.Table loop
+         URI_Table.Append
+           (New_Dispatcher.Table,
+            new Std_URI'Class'(Std_URI'Class (Item.Clone)));
       end loop;
 
       return New_Dispatcher;
@@ -126,22 +123,17 @@ package body AWS.Services.Dispatchers.URI is
       URI    : constant String := Status.URI (Request);
       Result : Response.Data;
    begin
-      for K in 1 .. URI_Table.Length (Dispatcher.Table) loop
-         declare
-            Item : constant URI_Class_Access :=
-                     URI_Table.Element (Dispatcher.Table, Natural (K));
-         begin
-            if Match (Item.all, URI) then
-               Result := Dispatch (Item.Action.all, Request);
+      for Item of Dispatcher.Table loop
+         if Match (Item.all, URI) then
+            Result := Dispatch (Item.Action.all, Request);
 
-               --  Returns response if dispatcher did return something,
-               --  otherwise continue to next handler.
+            --  Returns response if dispatcher did return something,
+            --  otherwise continue to next handler.
 
-               if Response.Mode (Result) /= Response.No_Data then
-                  return Result;
-               end if;
+            if Response.Mode (Result) /= Response.No_Data then
+               return Result;
             end if;
-         end;
+         end if;
       end loop;
 
       --  No rule found, try the default dispatcher
@@ -170,18 +162,13 @@ package body AWS.Services.Dispatchers.URI is
       Finalize (AWS.Dispatchers.Handler (Dispatcher));
 
       if Ref_Counter = 1 then
-         for K in 1 .. URI_Table.Length (Dispatcher.Table) loop
-            declare
-               Item : URI_Class_Access :=
-                        URI_Table.Element (Dispatcher.Table, Natural (K));
-            begin
-               Free (Item.Action);
+         for Item of Dispatcher.Table loop
+            Free (Item.Action);
 
-               if Item.all in Reg_URI then
-                  Unchecked_Free (Reg_URI (Item.all).Reg_URI);
-               end if;
-               Unchecked_Free (Item);
-            end;
+            if Item.all in Reg_URI then
+               Unchecked_Free (Reg_URI (Item.all).Reg_URI);
+            end if;
+            Unchecked_Free (Item);
          end loop;
 
          Free (Dispatcher.Action);
