@@ -620,9 +620,6 @@ package body AWS.Client.HTTP_Utils is
       Sock    : Net.Socket_Access := Connection.Socket;
       No_Data : Unbounded_String renames Null_Unbounded_String;
 
-      function HTTP_Prefix (Security : Boolean) return String;
-      --  Returns "http://" or "https://" if Security is set to True
-
       function Persistence return String;
       pragma Inline (Persistence);
       --  Returns "Keep-Alive" is we have a persistent connection and "Close"
@@ -645,19 +642,6 @@ package body AWS.Client.HTTP_Utils is
          end loop;
          return E_URI;
       end Encoded_URI;
-
-      -----------------
-      -- HTTP_Prefix --
-      -----------------
-
-      function HTTP_Prefix (Security : Boolean) return String is
-      begin
-         if Security then
-            return "https://";
-         else
-            return "http://";
-         end if;
-      end HTTP_Prefix;
 
       -----------------
       -- Persistence --
@@ -725,7 +709,7 @@ package body AWS.Client.HTTP_Utils is
             Send_Header
               (Sock.all,
                Method & ' '
-               & HTTP_Prefix (AWS.URL.Security (Connection.Host_URL))
+               & URL.Protocol_Name (Connection.Host_URL) & "://"
                & Host_Address & Encoded_URI & ' ' & HTTP_Version);
          end if;
 
