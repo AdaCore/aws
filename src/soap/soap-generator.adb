@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2012, AdaCore                     --
+--                     Copyright (C) 2003-2013, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -30,7 +30,7 @@
 with Ada.Calendar;
 with Ada.Characters.Handling;
 with Ada.Strings.Fixed;
-with Ada.Strings.Maps;
+with Ada.Strings.Maps.Constants;
 with Ada.Text_IO;
 
 with GNAT.Calendar.Time_IO;
@@ -1380,7 +1380,7 @@ package body SOAP.Generator is
                N : constant String := Format_Name (O, Name);
             begin
                if Strings.Fixed.Count
-                 (Name, Strings.Maps.To_Set ("0123456789")) = Name'Length
+                 (Name, Strings.Maps.Constants.Decimal_Digit_Set) = Name'Length
                then
                   return 'n' & N;
                else
