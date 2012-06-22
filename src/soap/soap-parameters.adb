@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2012, AdaCore                     --
+--                     Copyright (C) 2000-2013, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -63,8 +63,7 @@ package body SOAP.Parameters is
 
    function Argument
      (P    : List;
-      Name : String)
-      return Types.Object'Class
+      Name : String) return Types.Object'Class
    is
       use type Types.Object_Safe_Pointer;
    begin
@@ -83,8 +82,7 @@ package body SOAP.Parameters is
 
    function Argument
      (P : List;
-      N : Positive)
-      return Types.Object'Class
+      N : Positive) return Types.Object'Class
    is
       use type Types.Object_Safe_Pointer;
    begin

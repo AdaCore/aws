@@ -29,13 +29,13 @@
 
 --  Dispatch a specific request to a callback depending on the URI
 
-private with Ada.Containers.Vectors;
-private with Ada.Strings.Unbounded;
-
 with AWS.Dispatchers;
 with AWS.Response;
 with AWS.Status;
 with AWS.Utils;
+
+private with Ada.Containers.Vectors;
+private with Ada.Strings.Unbounded;
 
 package AWS.Services.Dispatchers.URI is
 

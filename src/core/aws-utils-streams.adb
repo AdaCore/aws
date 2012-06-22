@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2009-2012, AdaCore                     --
+--                     Copyright (C) 2009-2013, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -59,6 +59,7 @@ package body AWS.Utils.Streams is
          Item (J) := Stream_Element (Character'Pos (Str (S)));
          J := J + 1;
       end loop;
+
       Last := Item'First + Str'Length - 1;
       Stream.Read_Index := Stream.Read_Index + Item'Length;
    end Read;

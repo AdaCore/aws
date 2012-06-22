@@ -979,10 +979,9 @@ package body AWS.Client.HTTP_Utils is
             --  By default HTTP/1.0 connection is not keep-alive but
             --  HTTP/1.1 is keep-alive.
 
-            Keep_Alive
-              := Line (Messages.HTTP_Token'Length + Line'First
-                         .. Messages.HTTP_Token'Length + Line'First + 2)
-                 >= "1.1";
+            Keep_Alive :=
+              Line (Messages.HTTP_Token'Length + Line'First
+                    .. Messages.HTTP_Token'Length + Line'First + 2) >= "1.1";
          else
             --  or else it is wrong answer from server
             raise Protocol_Error with Line;
@@ -1317,7 +1316,7 @@ package body AWS.Client.HTTP_Utils is
    end Send_Header;
 
    procedure Send_Header
-     (Sock        : AWS.Net.Socket_Type'Class;
+     (Sock        : Net.Socket_Type'Class;
       Header      : String;
       Constructor : not null access function (Value : String) return String;
       Value       : String;
@@ -1362,7 +1361,7 @@ package body AWS.Client.HTTP_Utils is
 
    procedure Set_HTTP_Connection
      (HTTP_Client : in out HTTP_Connection;
-      Sock_Ptr    : AWS.Net.Socket_Access) is
+      Sock_Ptr    : Net.Socket_Access) is
    begin
       HTTP_Client.Socket := Sock_Ptr;
       HTTP_Client.Opened := True;

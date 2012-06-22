@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2012, AdaCore                     --
+--                     Copyright (C) 2000-2013, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -211,8 +211,9 @@ package body AWS.Services.Dispatchers.Virtual_Host is
       Virtual_Hostname : String;
       Action           : AWS.Dispatchers.Handler'Class)
    is
-      Node : constant VH_Node
-        := (Virtual_Host.Callback, new AWS.Dispatchers.Handler'Class'(Action));
+      Node : constant VH_Node :=
+               (Virtual_Host.Callback,
+                new AWS.Dispatchers.Handler'Class'(Action));
    begin
       Register (Dispatcher, Virtual_Hostname, Node);
    end Register;

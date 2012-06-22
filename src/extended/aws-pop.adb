@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2012, AdaCore                     --
+--                     Copyright (C) 2003-2013, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -153,8 +153,7 @@ package body AWS.POP is
       Net.Buffered.Put_Line (Mailbox.Sock, "QUIT");
 
       declare
-         Response : constant String
-           := Net.Buffered.Get_Line (Mailbox.Sock);
+         Response : constant String := Net.Buffered.Get_Line (Mailbox.Sock);
       begin
          Check_Response (Response);
       end;
@@ -400,12 +399,12 @@ package body AWS.POP is
          --  Check for filename
 
          declare
-            Filename : constant String
-              := Headers.Values.Search
-                   (Headers.Get
-                    (Attachment.Headers,
-                     Messages.Content_Disposition_Token),
-                    "filename");
+            Filename : constant String :=
+                         Headers.Values.Search
+                           (Headers.Get
+                              (Attachment.Headers,
+                               Messages.Content_Disposition_Token),
+                            "filename");
          begin
             if Filename /= "" then
                Attachment.Filename := To_Unbounded_String (Filename);
@@ -416,19 +415,19 @@ package body AWS.POP is
 
          loop
             declare
-               Response : constant String
-                 := Net.Buffered.Get_Line (Mailbox.Sock);
+               Response : constant String :=
+                            Net.Buffered.Get_Line (Mailbox.Sock);
             begin
                Last := Response = End_Boundary;
 
                exit when Response = Boundary or else Last;
 
                if Base64 then
-                  AWS.Resources.Streams.Memory.Append
+                  Resources.Streams.Memory.Append
                     (Stream_Type (Attachment.Content.all),
                      Translator.Base64_Decode (Response));
                else
-                  AWS.Resources.Streams.Memory.Append
+                  Resources.Streams.Memory.Append
                     (Stream_Type (Attachment.Content.all),
                      Translator.To_Stream_Element_Array (Response & CRLF));
                end if;
@@ -445,8 +444,7 @@ package body AWS.POP is
       Net.Buffered.Put_Line (Mailbox.Sock, "RETR " & Utils.Image (N));
 
       declare
-         Response : constant String
-           := Net.Buffered.Get_Line (Mailbox.Sock);
+         Response : constant String := Net.Buffered.Get_Line (Mailbox.Sock);
       begin
          Check_Response (Response);
       end;
@@ -458,10 +456,11 @@ package body AWS.POP is
       --  Check for MIME message
 
       declare
-         Boundary_Field : constant String
-           := Headers.Values.Search
-                (Headers.Get (Mess.Headers, Messages.Content_Type_Token),
-                 "boundary");
+         Boundary_Field : constant String :=
+                            Headers.Values.Search
+                              (Headers.Get
+                                 (Mess.Headers, Messages.Content_Type_Token),
+                               "boundary");
       begin
          if Boundary_Field /= "" then
             Boundary := To_Unbounded_String ("--" & Boundary_Field);
@@ -473,8 +472,8 @@ package body AWS.POP is
 
          loop
             declare
-               Response : constant String
-                 := Net.Buffered.Get_Line (Mailbox.Sock);
+               Response : constant String :=
+                            Net.Buffered.Get_Line (Mailbox.Sock);
             begin
                exit when Response = ".";
                Append (Mess.Content, Response & CRLF);
@@ -486,8 +485,8 @@ package body AWS.POP is
 
          loop
             declare
-               Response : constant String
-                 := Net.Buffered.Get_Line (Mailbox.Sock);
+               Response : constant String :=
+                            Net.Buffered.Get_Line (Mailbox.Sock);
             begin
                exit when Response = To_String (Boundary);
                Append (Mess.Content, Response & CRLF);
@@ -519,8 +518,8 @@ package body AWS.POP is
 
          loop
             declare
-               Response : constant String
-                 := Net.Buffered.Get_Line (Mailbox.Sock);
+               Response : constant String :=
+                            Net.Buffered.Get_Line (Mailbox.Sock);
             begin
                exit when Response = ".";
             end;
@@ -569,8 +568,7 @@ package body AWS.POP is
       Net.Buffered.Put_Line (Mailbox.Sock, "LIST " & Utils.Image (N));
 
       declare
-         Response : constant String
-           := Net.Buffered.Get_Line (Mailbox.Sock);
+         Response : constant String := Net.Buffered.Get_Line (Mailbox.Sock);
          K : Natural;
       begin
          Check_Response (Response);
@@ -584,8 +582,7 @@ package body AWS.POP is
       --  Read 0 line from the body
 
       declare
-         Response : constant String
-           := Net.Buffered.Get_Line (Mailbox.Sock);
+         Response : constant String := Net.Buffered.Get_Line (Mailbox.Sock);
       begin
          Check_Response (Response);
       end;
@@ -599,8 +596,7 @@ package body AWS.POP is
 
       loop
          declare
-            Response : constant String
-              := Net.Buffered.Get_Line (Mailbox.Sock);
+            Response : constant String := Net.Buffered.Get_Line (Mailbox.Sock);
          begin
             exit when Response = ".";
          end;
@@ -653,8 +649,7 @@ package body AWS.POP is
       Mailbox.Sock.Connect (Server_Name, Port);
 
       declare
-         Response : constant String
-           := Net.Buffered.Get_Line (Mailbox.Sock);
+         Response : constant String := Net.Buffered.Get_Line (Mailbox.Sock);
       begin
          Check_Response (Response);
 
@@ -684,8 +679,7 @@ package body AWS.POP is
          Net.Buffered.Put_Line (Mailbox.Sock, "USER " & User);
 
          declare
-            Response : constant String
-              := Net.Buffered.Get_Line (Mailbox.Sock);
+            Response : constant String := Net.Buffered.Get_Line (Mailbox.Sock);
          begin
             Check_Response (Response);
          end;
@@ -693,8 +687,7 @@ package body AWS.POP is
          Net.Buffered.Put_Line (Mailbox.Sock, "PASS " & Password);
 
          declare
-            Response : constant String
-              := Net.Buffered.Get_Line (Mailbox.Sock);
+            Response : constant String := Net.Buffered.Get_Line (Mailbox.Sock);
          begin
             Check_Response (Response);
          end;
@@ -705,8 +698,7 @@ package body AWS.POP is
               & GNAT.MD5.Digest (To_String (Timestamp) & Password));
 
          declare
-            Response : constant String
-              := Net.Buffered.Get_Line (Mailbox.Sock);
+            Response : constant String := Net.Buffered.Get_Line (Mailbox.Sock);
          begin
             Check_Response (Response);
          end;
@@ -717,8 +709,7 @@ package body AWS.POP is
       Net.Buffered.Put_Line (Mailbox.Sock, "STAT");
 
       declare
-         Response : constant String
-           := Net.Buffered.Get_Line (Mailbox.Sock);
+         Response : constant String := Net.Buffered.Get_Line (Mailbox.Sock);
       begin
          Check_Response (Response);
 

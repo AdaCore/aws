@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2012, AdaCore                     --
+--                     Copyright (C) 2000-2013, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -36,8 +36,8 @@ with AWS.Messages;
 
 package body AWS.Services.Dispatchers.URI is
 
-   use GNAT;
    use AWS.Dispatchers;
+   use GNAT;
 
    type Regpat_Access is access all Regpat.Pattern_Matcher;
 
@@ -108,6 +108,7 @@ package body AWS.Services.Dispatchers.URI is
            new AWS.Dispatchers.Handler'Class'
              (AWS.Dispatchers.Handler'Class (URI.Action.Clone));
       end if;
+
       New_URI.Reg_URI := new Regpat.Pattern_Matcher'(URI.Reg_URI.all);
       return New_URI;
    end Clone;

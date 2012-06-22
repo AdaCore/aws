@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2012, AdaCore                     --
+--                     Copyright (C) 2003-2013, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -79,12 +79,12 @@
 --  In all templates the tag AWS_VERSION is defined and corresponds to the AWS
 --  version string.
 
-with AWS.Status;
 with AWS.Response;
+with AWS.Status;
 
 package AWS.Services.Web_Mail is
 
-   function Callback (Request : AWS.Status.Data) return AWS.Response.Data;
+   function Callback (Request : Status.Data) return Response.Data;
    --  This is the AWS callback for the simple static Web Mail server
 
 end AWS.Services.Web_Mail;

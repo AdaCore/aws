@@ -42,7 +42,10 @@ with AWS.URL.Set;
 
 package body AWS.Status.Set is
 
+   use Ada;
    use Ada.Strings;
+
+   use AWS;
 
    procedure Authorization (D : in out Data);
    --  Parse the Authorization parameters from the Authorization header value
@@ -128,8 +131,8 @@ package body AWS.Status.Set is
 
    procedure Authorization (D : in out Data) is
 
-      Header_Value : constant String
-        := AWS.Headers.Get (D.Header, Messages.Authorization_Token);
+      Header_Value : constant String :=
+                       Headers.Get (D.Header, Messages.Authorization_Token);
 
       procedure Named_Value (Name, Value : String; Quit : in out Boolean);
 
@@ -192,8 +195,8 @@ package body AWS.Status.Set is
       -----------
 
       procedure Value (Item : String; Quit : in out Boolean) is
-         Upper_Item : constant String
-           := Ada.Characters.Handling.To_Upper (Item);
+         Upper_Item : constant String :=
+                        Characters.Handling.To_Upper (Item);
       begin
          if Upper_Item = "BASIC" then
 
@@ -209,9 +212,11 @@ package body AWS.Status.Set is
             declare
                use Ada.Streams;
 
-               Auth_Str : constant String
-                 := Translator.To_String (Translator.Base64_Decode
-                   (Header_Value (Item'Length + 2 .. Header_Value'Last)));
+               Auth_Str : constant String :=
+                            Translator.To_String
+                              (Translator.Base64_Decode
+                                 (Header_Value
+                                    (Item'Length + 2 .. Header_Value'Last)));
 
                Delimit  : constant Natural := Fixed.Index (Auth_Str, ":");
             begin
@@ -219,17 +224,16 @@ package body AWS.Status.Set is
                   D.Auth_Name := To_Unbounded_String (Auth_Str);
 
                else
-                  D.Auth_Name
-                    := To_Unbounded_String (Auth_Str (1 .. Delimit - 1));
-                  D.Auth_Password
-                    := To_Unbounded_String
-                         (Auth_Str (Delimit + 1 .. Auth_Str'Last));
+                  D.Auth_Name :=
+                    To_Unbounded_String (Auth_Str (1 .. Delimit - 1));
+                  D.Auth_Password :=
+                    To_Unbounded_String
+                      (Auth_Str (Delimit + 1 .. Auth_Str'Last));
                end if;
             end;
 
          elsif Upper_Item = "DIGEST" then
             D.Auth_Mode := Digest;
-
          end if;
       end Value;
 
@@ -432,8 +436,8 @@ package body AWS.Status.Set is
       URI          : String;
       HTTP_Version : String) is
    begin
-      D.Calendar_Time  := Ada.Calendar.Clock;
-      D.Monotonic_Time := Ada.Real_Time.Clock;
+      D.Calendar_Time  := Calendar.Clock;
+      D.Monotonic_Time := Real_Time.Clock;
 
       --  Method is case sensitive
 
@@ -501,7 +505,7 @@ package body AWS.Status.Set is
       D.Uploaded          := False;
       D.Monotonic_Time    := Ada.Real_Time.Time_First;
 
-      AWS.Headers.Set.Reset (D.Header);
+      Headers.Set.Reset (D.Header);
       AWS.Parameters.Set.Reset (AWS.URL.Set.Parameters (D.URI'Access).all);
    end Reset;
 
@@ -544,8 +548,9 @@ package body AWS.Status.Set is
       Authorization (D);
 
       declare
-         Content_Length : constant String := AWS.Headers.Get
-           (D.Header, Messages.Content_Length_Token);
+         Content_Length : constant String :=
+                            AWS.Headers.Get
+                              (D.Header, Messages.Content_Length_Token);
       begin
          if Content_Length /= "" then
             D.Content_Length := Integer'Value (Content_Length);
@@ -642,7 +647,7 @@ package body AWS.Status.Set is
                -----------
 
                procedure Parse is
-                  new AWS.Headers.Values.Parse (Value, Named_Value);
+                 new Headers.Values.Parse (Value, Named_Value);
 
             begin
                Parse (To_String (Cookies_Set (Idx)));

@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2012, AdaCore                     --
+--                     Copyright (C) 2000-2013, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -167,8 +167,8 @@ package body SOAP.Message.Response.Error is
       begin
          for K in 1 .. SOAP.Parameters.Argument_Count (P) loop
             declare
-               P_K    : constant SOAP.Types.Object'Class
-                 := SOAP.Parameters.Argument (P, K);
+               P_K    : constant SOAP.Types.Object'Class :=
+                          SOAP.Parameters.Argument (P, K);
                P_Name : constant String := SOAP.Types.Name (P_K);
             begin
                Append

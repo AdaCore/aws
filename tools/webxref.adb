@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2007-2012, AdaCore                     --
+--                     Copyright (C) 2007-2013, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -91,7 +91,7 @@ procedure Webxref is
 
    type Kind_Set is array (Name_Kind) of Boolean;
 
-   Null_Kind_Set : constant Kind_Set := (others => False);
+   Null_Kind_Set       : constant Kind_Set := (others => False);
 
    CSS_Kind            : constant Kind_Set :=
                            (Def_CSS => True, others => False);
@@ -716,11 +716,11 @@ procedure Webxref is
 
       procedure Check_Include (Iterator : Reader) is
          use type Strings.Maps.Character_Set;
-         Blank      : constant Strings.Maps.Character_Set :=
-                        Strings.Maps.To_Set (" " & ASCII.HT);
-         Identifier : constant Strings.Maps.Character_Set :=
-                        Strings.Maps.Constants.Alphanumeric_Set
-                          or Strings.Maps.To_Set ("_");
+         Blank       : constant Strings.Maps.Character_Set :=
+                         Strings.Maps.To_Set (" " & ASCII.HT);
+         Identifier  : constant Strings.Maps.Character_Set :=
+                         Strings.Maps.Constants.Alphanumeric_Set
+                             or Strings.Maps.To_Set ("_");
          First, Last : Natural := 1;
       begin
          First := Index (Iterator, "@@INCLUDE@@");

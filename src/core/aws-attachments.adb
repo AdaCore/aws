@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2004-2012, AdaCore                     --
+--                     Copyright (C) 2004-2013, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -43,8 +43,7 @@ package body AWS.Attachments is
    use Ada.Streams;
 
    function "+"
-     (V : String)
-      return Unbounded_String renames To_Unbounded_String;
+     (V : String) return Unbounded_String renames To_Unbounded_String;
 
    UID : Utils.Counter (0);
    --  Unique Id used for generating the MIME boundaries

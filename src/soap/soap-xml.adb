@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2012, AdaCore                     --
+--                     Copyright (C) 2003-2013, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -94,6 +94,7 @@ package body SOAP.XML is
 
    function Get_Ref (N : DOM.Core.Node) return DOM.Core.Node is
 
+      use Ada;
       use type DOM.Core.Node;
 
       function Body_Node (N : DOM.Core.Node) return DOM.Core.Node;
@@ -107,7 +108,7 @@ package body SOAP.XML is
          L_N : DOM.Core.Node := N;
 
       begin
-         while Ada.Characters.Handling.To_Lower
+         while Characters.Handling.To_Lower
            (Utils.No_NS (DOM.Core.Nodes.Local_Name (L_N))) /= "body"
          loop
             L_N := DOM.Core.Nodes.Parent_Node (L_N);
@@ -116,8 +117,8 @@ package body SOAP.XML is
       end Body_Node;
 
       Atts : constant DOM.Core.Named_Node_Map := DOM.Core.Nodes.Attributes (N);
-      Href : constant DOM.Core.Node
-        := DOM.Core.Nodes.Get_Named_Item (Atts, "href");
+      Href : constant DOM.Core.Node :=
+               DOM.Core.Nodes.Get_Named_Item (Atts, "href");
 
       HN   : DOM.Core.Node;
 

@@ -27,8 +27,8 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-with Ada.Containers.Vectors;
 with Ada.Containers.Indefinite_Hashed_Maps;
+with Ada.Containers.Vectors;
 with Ada.Strings.Hash;
 
 with AWS.Parameters;
@@ -251,8 +251,8 @@ package body AWS.Services.Web_Block.Registry is
          end if;
 
          declare
-            use Pattern_URL_Container;
             use GNAT.Regpat;
+            use Pattern_URL_Container;
             Vector_Cursor : Pattern_URL_Container.Cursor :=
                               First (Pattern_URL_Vector);
          begin

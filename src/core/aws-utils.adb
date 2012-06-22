@@ -317,31 +317,12 @@ package body AWS.Utils is
    -------------------------------
 
    procedure For_Every_Directory_Entry (Directory_Name : String) is
+
+      Dir_Name : constant String := Normalized_Directory (Directory_Name);
+
       Iter : Directories.Search_Type;
       Item : Directories.Directory_Entry_Type;
-
       Quit : Boolean := False;
-
-      function Get_Directory return String;
-      --  Returns directory with an ending slash
-
-      -------------------
-      -- Get_Directory --
-      -------------------
-
-      function Get_Directory return String is
-      begin
-         if Directory_Name /= ""
-           and then Directory_Name (Directory_Name'Last) = '/'
-         then
-            return Directory_Name;
-         else
-            return Directory_Name & '/';
-         end if;
-      end Get_Directory;
-
-      Dir_Name : constant String := Get_Directory;
-
    begin
       Directories.Start_Search (Iter, Directory_Name, "");
 
@@ -398,9 +379,9 @@ package body AWS.Utils is
       Integer_Text_IO.Put (Hex_V, V, 16);
 
       declare
-         Result : constant String
-           := Hex_V (Fixed.Index (Hex_V, "#") + 1
-                       .. Fixed.Index (Hex_V, "#", Backward) - 1);
+         Result : constant String :=
+                    Hex_V (Fixed.Index (Hex_V, "#") + 1
+                           .. Fixed.Index (Hex_V, "#", Backward) - 1);
       begin
          if Width = 0 then
             return Result;

@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2005-2012, AdaCore                     --
+--                     Copyright (C) 2005-2013, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -32,8 +32,8 @@ with AWS.Response;
 
 package AWS.Client.HTTP_Utils is
 
-   use AWS.Client;
    use Ada.Strings.Unbounded;
+   use AWS.Client;
 
    Connection_Error : exception renames Client.Connection_Error;
    Protocol_Error   : exception renames Client.Protocol_Error;
@@ -142,13 +142,13 @@ package AWS.Client.HTTP_Utils is
    --  and common headers, using a Connection.
 
    procedure Send_Header
-     (Sock : AWS.Net.Socket_Type'Class;
+     (Sock : Net.Socket_Type'Class;
       Data : String);
    pragma Inline (Send_Header);
    --  Send header Data to socket and call Debug_Message
 
    procedure Send_Header
-     (Sock        : AWS.Net.Socket_Type'Class;
+     (Sock        : Net.Socket_Type'Class;
       Header      : String;
       Constructor : not null access function (Value : String) return String;
       Value       : String;
@@ -160,7 +160,7 @@ package AWS.Client.HTTP_Utils is
 
    procedure Set_HTTP_Connection
      (HTTP_Client : in out HTTP_Connection;
-      Sock_Ptr    : AWS.Net.Socket_Access);
+      Sock_Ptr    : Net.Socket_Access);
    --  Initialize HTTP_Client by positioning the socket used as Sock_Ptr
 
    function Value (V : String) return Unbounded_String;

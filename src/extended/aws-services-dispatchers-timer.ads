@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2012, AdaCore                     --
+--                     Copyright (C) 2003-2013, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -30,12 +30,13 @@
 --  Dispatch a specific request to a callback depending on current time
 
 with Ada.Calendar.Formatting;
-private with Ada.Containers.Vectors;
-private with Ada.Strings.Unbounded;
 
 with AWS.Dispatchers;
 with AWS.Response;
 with AWS.Status;
+
+private with Ada.Containers.Vectors;
+private with Ada.Strings.Unbounded;
 
 package AWS.Services.Dispatchers.Timer is
 

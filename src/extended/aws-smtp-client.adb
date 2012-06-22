@@ -28,8 +28,8 @@
 ------------------------------------------------------------------------------
 
 with Ada.Calendar;
-with Ada.Text_IO;
 with Ada.Exceptions;
+with Ada.Text_IO;
 
 with GNAT.Calendar.Time_IO;
 
@@ -696,7 +696,6 @@ package body AWS.SMTP.Client is
 
       when E : others =>
          Shutdown (Sock);
-
          raise Server_Error with Ada.Exceptions.Exception_Information (E);
    end Send;
 

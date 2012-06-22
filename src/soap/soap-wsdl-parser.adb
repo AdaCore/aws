@@ -548,14 +548,14 @@ package body SOAP.WSDL.Parser is
          for K in 0 .. DOM.Core.Nodes.Length (Attributes) - 1 loop
 
             declare
-               N : constant DOM.Core.Node
-                 := DOM.Core.Nodes.Item (Attributes, K);
+               N : constant DOM.Core.Node :=
+                     DOM.Core.Nodes.Item (Attributes, K);
             begin
                if Utils.No_NS (DOM.Core.Nodes.Node_Name (N)) = "arrayType" then
                   --  Found get the value removing []
                   declare
-                     Value : constant String
-                       := Utils.No_NS (DOM.Core.Nodes.Node_Value (N));
+                     Value : constant String :=
+                               Utils.No_NS (DOM.Core.Nodes.Node_Value (N));
                      First : Natural;
                      Last  : Natural;
                   begin
@@ -819,8 +819,8 @@ package body SOAP.WSDL.Parser is
    is
       pragma Unreferenced (O, Document);
 
-      Atts : constant DOM.Core.Named_Node_Map
-        := DOM.Core.Nodes.Attributes (Definitions);
+      Atts : constant DOM.Core.Named_Node_Map :=
+               DOM.Core.Nodes.Attributes (Definitions);
    begin
       Trace ("(Parse_Definitions)", Definitions);
 
@@ -976,8 +976,9 @@ package body SOAP.WSDL.Parser is
 
       declare
          NS_Value : constant String := XML.Get_Attr_Value (N, "namespace");
-         NS_Name  : constant String
-           := Get_NS_Name_For (DOM.Core.Nodes.Parent_Node (N), NS_Value);
+         NS_Name  : constant String :=
+                      Get_NS_Name_For
+                        (DOM.Core.Nodes.Parent_Node (N), NS_Value);
       begin
          if NS_Value /= "" then
             if NS_Name = "" then

@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2012, AdaCore                     --
+--                     Copyright (C) 2000-2013, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -31,8 +31,8 @@ with Ada.Calendar;
 with Ada.Strings.Fixed;
 with Ada.Unchecked_Deallocation;
 
-with Unicode.CES.Utf8;
 with Unicode.CES.Basic_8bit;
+with Unicode.CES.Utf8;
 
 with AWS.Utils;
 with SOAP.Message.XML;
@@ -353,8 +353,8 @@ package body SOAP.Utils is
 
       function To_Safe_Pointer (Item : T) return Safe_Pointer is
       begin
-         return (Ada.Finalization.Controlled with
-                   new T'(Item), new Natural'(1));
+         return (Ada.Finalization.Controlled
+                 with new T'(Item), new Natural'(1));
       end To_Safe_Pointer;
 
    end Safe_Pointers;
@@ -370,8 +370,9 @@ package body SOAP.Utils is
    begin
       if SOAPAction /= No_SOAPAction then
          declare
-            Payload : constant Message.Payload.Object
-              := Message.XML.Load_Payload (AWS.Status.Payload (Request));
+            Payload : constant Message.Payload.Object :=
+                        Message.XML.Load_Payload
+                          (AWS.Status.Payload (Request));
          begin
             return SOAP_CB (SOAPAction, Payload, Request);
          end;
@@ -518,8 +519,8 @@ package body SOAP.Utils is
    --------
 
    function US
-     (V      : Unbounded_String;
-      Name   : String  := "item") return Types.XSD_String is
+     (V    : Unbounded_String;
+      Name : String  := "item") return Types.XSD_String is
    begin
       return Types.S (To_String (V), Name);
    end US;

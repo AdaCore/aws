@@ -538,8 +538,8 @@ package body SOAP.Generator is
       Mode   : Header_Mode)
    is
       use Ada.Strings.Fixed;
-      use type SOAP.WSDL.Parameters.P_Set;
       use type SOAP.WSDL.Parameters.Kind;
+      use type SOAP.WSDL.Parameters.P_Set;
 
       procedure Put_Indent (Last : Character := ' ');
       --  Ouput proper indentation spaces
@@ -1401,12 +1401,13 @@ package body SOAP.Generator is
                end if;
             end Get_Prefix;
 
-            N    : constant String
-              := Get_Prefix & Get_Name
-                (Strings.Fixed.Translate
-                     (Name,
-                      Strings.Maps.To_Mapping ("./:", "___")));
+            N    : constant String :=
+                     Get_Prefix & Get_Name
+                       (Strings.Fixed.Translate
+                          (Name,
+                           Strings.Maps.To_Mapping ("./:", "___")));
             File : Text_IO.File_Type;
+
          begin
             if Create then
                Text_IO.Create (File, Text_IO.Out_File, To_Lower (N) & ".ads");
@@ -1523,8 +1524,8 @@ package body SOAP.Generator is
 
             while N /= null loop
                declare
-                  F_Name : constant String
-                    := Format_Name (O, To_String (N.Name));
+                  F_Name : constant String :=
+                             Format_Name (O, To_String (N.Name));
                begin
                   Text_IO.Put
                     (Rec_Ads, "      "

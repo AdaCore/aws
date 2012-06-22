@@ -571,8 +571,8 @@ package body SOAP.Message.XML is
                        SOAP.Name_Space.Name (LS.NS.enc) & ":arrayType";
          --  Attribute name
 
-         Type_Name : constant String
-           := Item_Type (Node_Value (Get_Named_Item (Atts, A_Name)));
+         Type_Name : constant String :=
+                       Item_Type (Node_Value (Get_Named_Item (Atts, A_Name)));
 
          A_Type    : constant Type_State := To_Type (Type_Name, LS.NS);
       begin
@@ -840,12 +840,13 @@ package body SOAP.Message.XML is
       --------------
 
       function Is_Array return Boolean is
-         XSI_Type : constant DOM.Core.Node
-           := Get_Named_Item
-               (Atts, SOAP.Name_Space.Name (LS.NS.xsi) & ":type");
-         SOAP_Enc : constant DOM.Core.Node
-           := Get_Named_Item
-               (Atts, SOAP.Name_Space.Name (LS.NS.enc) & ":arrayType");
+         XSI_Type : constant DOM.Core.Node :=
+                      Get_Named_Item
+                        (Atts, SOAP.Name_Space.Name (LS.NS.xsi) & ":type");
+         SOAP_Enc : constant DOM.Core.Node :=
+                      Get_Named_Item
+                        (Atts,
+                         SOAP.Name_Space.Name (LS.NS.enc) & ":arrayType");
       begin
          return
          --  Either we have xsi:type="soapenc:Array"
@@ -965,9 +966,8 @@ package body SOAP.Message.XML is
       use type DOM.Core.Node;
       use type DOM.Core.Node_Types;
 
-      OS : Types.Object_Set (1 .. Max_Object_Size);
-      K  : Natural := 0;
-
+      OS    : Types.Object_Set (1 .. Max_Object_Size);
+      K     : Natural := 0;
       Field : DOM.Core.Node := SOAP.XML.Get_Ref (N);
    begin
       if Name /= Local_Name (N)
@@ -1148,8 +1148,8 @@ package body SOAP.Message.XML is
             declare
                use type DOM.Core.Node;
 
-               xmlns : constant DOM.Core.Node
-                 := Get_Named_Item (Atts, "xmlns:" & Prefix);
+               xmlns : constant DOM.Core.Node :=
+                         Get_Named_Item (Atts, "xmlns:" & Prefix);
             begin
                if xmlns /= null then
                   S.Name_Space :=

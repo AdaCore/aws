@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2012, AdaCore                     --
+--                     Copyright (C) 2000-2013, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -52,26 +52,26 @@ package body AWS.Services.Page_Server is
    -- Callback --
    --------------
 
-   function Callback (Request : AWS.Status.Data) return AWS.Response.Data is
+   function Callback (Request : Status.Data) return Response.Data is
       use Ada.Strings;
       use type Templates.Translate_Set;
 
-      WWW_Root : String renames AWS.Config.WWW_Root
+      WWW_Root : String renames Config.WWW_Root
                    (Server.Config (Server.Get_Current.all));
-      URI      : constant String := AWS.Status.URI (Request);
+      URI      : constant String := Status.URI (Request);
       Filename : constant String := WWW_Root & URI (2 .. URI'Last);
 
    begin
       if Resources.Is_Regular_File (Filename) then
          if Cache_Option /= Null_Unbounded_String then
-            return AWS.Response.File
-              (Content_Type  => AWS.MIME.Content_Type (Filename),
+            return Response.File
+              (Content_Type  => MIME.Content_Type (Filename),
                Filename      => Filename,
                Cache_Control => Messages.Cache_Option
                  (To_String (Cache_Option)));
          else
-            return AWS.Response.File
-              (Content_Type => AWS.MIME.Content_Type (Filename),
+            return Response.File
+              (Content_Type => MIME.Content_Type (Filename),
                Filename     => Filename);
          end if;
 
@@ -83,18 +83,18 @@ package body AWS.Services.Page_Server is
                                             (Server.Get_Current.all));
          begin
             if Cache_Option /= Null_Unbounded_String then
-               return AWS.Response.Build
+               return Response.Build
                  (Content_Type => MIME.Text_HTML,
                   Message_Body =>
-                    AWS.Services.Directory.Browse
+                    Services.Directory.Browse
                       (Filename, Directory_Browser_Page, Request),
                  Cache_Control => Messages.Cache_Option
                     (To_String (Cache_Option)));
             else
-               return AWS.Response.Build
+               return Response.Build
                  (Content_Type => MIME.Text_HTML,
                   Message_Body =>
-                    AWS.Services.Directory.Browse
+                    Services.Directory.Browse
                       (Filename, Directory_Browser_Page, Request));
             end if;
          end;
@@ -106,14 +106,14 @@ package body AWS.Services.Page_Server is
             --  page size is bigger than 512 bytes or if it includes at
             --  leat one image.
 
-            return AWS.Response.Acknowledge
+            return Response.Acknowledge
                      (Messages.S404,
                       Templates.Parse
                         (WWW_Root & "404.thtml",
                          +Templates.Assoc ("PAGE", URI)));
 
          else
-            return AWS.Response.Acknowledge
+            return Response.Acknowledge
               (Messages.S404,
                "<p>Page '"
                --  Replace HTML control characters to the HTML inactive symbols

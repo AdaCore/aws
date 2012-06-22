@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2005-2012, AdaCore                     --
+--                     Copyright (C) 2005-2013, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -42,8 +42,7 @@ package body SOAP.Types.Untyped is
 
    overriding function S
      (V    : String;
-      Name : String := "item")
-      return Untyped
+      Name : String := "item") return Untyped
    is
       L_V : constant String := Utils.To_Utf8 (V);
    begin
@@ -55,8 +54,7 @@ package body SOAP.Types.Untyped is
 
    overriding function S
      (V    : Unbounded_String;
-      Name : String  := "item")
-      return Untyped is
+      Name : String  := "item") return Untyped is
    begin
       return
         (Finalization.Controlled

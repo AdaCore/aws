@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2004-2012, AdaCore                     --
+--                     Copyright (C) 2004-2013, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -38,8 +38,8 @@ package body AWS.Services.Split_Pages.Uniform.Overlapping is
       Table : Templates.Translate_Set)
       return Ranges_Table
    is
-      Result : Ranges_Table
-        := Get_Page_Ranges (Uniform.Splitter (This), Table);
+      Result : Ranges_Table :=
+                 Get_Page_Ranges (Uniform.Splitter (This), Table);
    begin
       for I in Result'First + 1 .. Result'Last loop
          Result (I).First := Integer'Max (Result (I).First - This.Overlap, 1);

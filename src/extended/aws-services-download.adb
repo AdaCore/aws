@@ -229,12 +229,14 @@ package body AWS.Services.Download is
             --  Let's go now, set the client side socket
             Info.Socket := new Net.Socket_Type'Class'(Status.Socket (Request));
             Data_Manager.Update (Info);
+
             return Response.Socket_Taken;
 
          else
             --  Display the start page before launching the download
             Info.Started := True;
             Data_Manager.Update (Info);
+
             return Response.Build
               (MIME.Text_HTML,
                String'(Templates.Parse
