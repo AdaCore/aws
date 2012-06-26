@@ -593,6 +593,17 @@ package body AWS.Config.Set is
       Process_Options (WebSocket_Message_Queue_Size).Pos_Value := Value;
    end WebSocket_Message_Queue_Size;
 
+   ----------------------
+   -- WebSocket_Origin --
+   ----------------------
+
+   procedure WebSocket_Origin (Value : String) is
+   begin
+      Process_Options (WebSocket_Origin).Is_Set := True;
+      Process_Options (WebSocket_Origin).Pattern :=
+        GNAT.Regexp.Compile (Value);
+   end WebSocket_Origin;
+
    --------------
    -- WWW_Root --
    --------------

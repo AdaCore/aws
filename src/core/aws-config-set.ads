@@ -332,6 +332,9 @@ package AWS.Config.Set is
    procedure WebSocket_Message_Queue_Size (Value : Positive);
    --  This is the size of the queue containing incoming messages
 
+   procedure WebSocket_Origin (Value : String);
+   --  This is regular expression to restrict WebSocket to a specific origin
+
    procedure Parameter
      (Config        : in out Object;
       Name          : String;

@@ -274,6 +274,15 @@ package body AWS.Config is
       return Process_Options (Input_Line_Size_Limit).Pos_Value;
    end Input_Line_Size_Limit;
 
+   -----------------------------
+   -- Is_WebSocket_Origin_Set --
+   -----------------------------
+
+   function Is_WebSocket_Origin_Set return Boolean is
+   begin
+      return Process_Options (Parameter_Name'(WebSocket_Origin)).Is_Set;
+   end Is_WebSocket_Origin_Set;
+
    ----------------------------
    -- Keep_Alive_Close_Limit --
    ----------------------------
@@ -639,6 +648,15 @@ package body AWS.Config is
    begin
       return Process_Options (WebSocket_Message_Queue_Size).Pos_Value;
    end WebSocket_Message_Queue_Size;
+
+   ----------------------
+   -- WebSocket_Origin --
+   ----------------------
+
+   function WebSocket_Origin return GNAT.Regexp.Regexp is
+   begin
+      return Process_Options (WebSocket_Origin).Pattern;
+   end WebSocket_Origin;
 
    --------------
    -- WWW_Root --

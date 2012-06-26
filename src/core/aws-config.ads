@@ -398,6 +398,13 @@ package AWS.Config is
    pragma Inline (WebSocket_Message_Queue_Size);
    --  This is the size of the queue containing incoming messages
 
+   function Is_WebSocket_Origin_Set return Boolean;
+   pragma Inline (Is_WebSocket_Origin_Set);
+   --  Returns True if the Origin has been set
+
+   function WebSocket_Origin return GNAT.Regexp.Regexp;
+   --  This is regular expression to restrict WebSocket to a specific origin
+
 private
 
    package SV renames AWS.Containers.String_Vectors;
@@ -468,6 +475,7 @@ private
       Max_Concurrent_Download,
       Max_WebSocket_Handler,
       WebSocket_Message_Queue_Size,
+      WebSocket_Origin,
       Context_Lifetime);
 
    subtype Server_Parameter_Name is Parameter_Name
@@ -696,6 +704,9 @@ private
 
          WebSocket_Message_Queue_Size =>
            (Pos, Default.WebSocket_Message_Queue_Size),
+
+         WebSocket_Origin =>
+           (Regexp, False, Pattern => <>),
 
          Context_Lifetime =>
            (Dur, Default.Context_Lifetime));
