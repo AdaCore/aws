@@ -1638,6 +1638,7 @@ to be handled by one of the task, see Max_WebSocket_Handler above. The
 default value is @_WEBSOCKET_MESSAGE_QUEUE_SIZE_@.
 
 @item WebSocket_Origin (string)
+@anchor{WebSocket_Origin}
 @cindex WebSocket_Origin
 This is a regular expression which can be used to handle WebSockets
 originating from a specific domain. By default AWS handles WebSockets
@@ -4431,7 +4432,7 @@ running in the @code{.fr} domain. Note that @code{URI} and the
 The @code{Origin} value can be used by a server to handle only
 WebSockets originating from it's own domain. Restricting the origin of
 the WebSockets can be done with the @code{WEBSOCKET_ORIGIN} config
-parameter, @pxref{WEBSOCKET_ORIGIN}.
+parameter, @pxref{WebSocket_Origin}.
 
 @c ======================================================================
 
