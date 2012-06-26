@@ -34,6 +34,8 @@
 
 with Ada.Strings.Unbounded;
 
+with GNAT.Regexp;
+
 private with AWS.Containers.String_Vectors;
 private with AWS.Default;
 
@@ -474,7 +476,7 @@ private
    subtype Process_Parameter_Name is Parameter_Name
      range Session_Cleanup_Interval .. Context_Lifetime;
 
-   type Value_Type  is (Str, Dir, Nat, Pos, Dur, Bool, Str_Vect);
+   type Value_Type  is (Str, Dir, Nat, Pos, Dur, Bool, Str_Vect, Regexp);
 
    type Values (Kind : Value_Type := Str) is record
       case Kind is
@@ -498,6 +500,10 @@ private
 
          when Str_Vect =>
             Strs_Value : SV.Vector;
+
+         when Regexp =>
+            Is_Set     : Boolean;
+            Pattern    : GNAT.Regexp.Regexp;
       end case;
    end record;
 

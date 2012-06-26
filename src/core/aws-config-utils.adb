@@ -168,6 +168,11 @@ package body AWS.Config.Utils is
             when Bool =>
                Expected_Type := +"boolean";
                Param.Bool_Value := Boolean'Value (Value);
+
+            when Regexp =>
+               Expected_Type := +"regexp (string)";
+               Param.Pattern := GNAT.Regexp.Compile (Value);
+               Param.Is_Set  := True;
          end case;
 
       exception
