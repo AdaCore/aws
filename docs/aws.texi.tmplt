@@ -2166,6 +2166,10 @@ be specified @pxref{Hotplug module - server activation}.
 @cindex Push
 
 @noindent
+This protocol is obsolescent, it is hightly recommended to use the
+WebSockets now. @pxref{WebSockets}.
+
+@noindent
 Server Push is a feature that let the Web Server send continuously
 data to client's  Web Browser or client applications. The client does
 not have to reload at periodic time (which is what is called client
