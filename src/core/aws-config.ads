@@ -34,8 +34,8 @@
 
 with Ada.Strings.Unbounded;
 
-with AWS.Containers.String_Vectors;
-with AWS.Default;
+private with AWS.Containers.String_Vectors;
+private with AWS.Default;
 
 package AWS.Config is
 
