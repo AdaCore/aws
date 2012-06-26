@@ -359,6 +359,15 @@ package body AWS.Config.Set is
       O.P (Max_POST_Parameters).Pos_Value := Value;
    end Max_POST_Parameters;
 
+   ---------------------------
+   -- Max_WebSocket_Handler --
+   ---------------------------
+
+   procedure Max_WebSocket_Handler (Value : Positive) is
+   begin
+      Process_Options (Max_WebSocket_Handler).Pos_Value := Value;
+   end Max_WebSocket_Handler;
+
    ----------------
    -- MIME_Types --
    ----------------
@@ -574,6 +583,26 @@ package body AWS.Config.Set is
    begin
       O.P (Upload_Size_Limit).Pos_Value := Value;
    end Upload_Size_Limit;
+
+   ----------------------------------
+   -- WebSocket_Message_Queue_Size --
+   ----------------------------------
+
+   procedure WebSocket_Message_Queue_Size (Value : Positive) is
+   begin
+      Process_Options (WebSocket_Message_Queue_Size).Pos_Value := Value;
+   end WebSocket_Message_Queue_Size;
+
+   ----------------------
+   -- WebSocket_Origin --
+   ----------------------
+
+   procedure WebSocket_Origin (Value : String) is
+   begin
+      Process_Options (WebSocket_Origin).Is_Set := True;
+      Process_Options (WebSocket_Origin).Pattern :=
+        GNAT.Regexp.Compile (Value);
+   end WebSocket_Origin;
 
    --------------
    -- WWW_Root --

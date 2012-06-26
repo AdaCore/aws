@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="UTF-8" ?>
 <response>
    <replace id="xml3_status_bar">Entry is now read-only...</replace>
    <read_only id="xfield" value="true"/>

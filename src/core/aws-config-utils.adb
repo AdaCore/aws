@@ -168,6 +168,11 @@ package body AWS.Config.Utils is
             when Bool =>
                Expected_Type := +"boolean";
                Param.Bool_Value := Boolean'Value (Value);
+
+            when Regexp =>
+               Expected_Type := +"regexp (string)";
+               Param.Pattern := GNAT.Regexp.Compile (Value);
+               Param.Is_Set  := True;
          end case;
 
       exception
@@ -181,9 +186,10 @@ package body AWS.Config.Utils is
    begin
       if Name not in Param_Set'Range then
          declare
-            Not_Supported_Msg : constant String
-              := " option '" & Parameter_Name'Image (Name)
-              & "' not supported for this configuration context";
+            Not_Supported_Msg : constant String :=
+                                  " option '" & Parameter_Name'Image (Name)
+                                & "' not supported for this configuration"
+                                & " context";
          begin
             if Name in Process_Parameter_Name'Range then
                Error ("Per process" & Not_Supported_Msg);
@@ -192,10 +198,10 @@ package body AWS.Config.Utils is
             end if;
          end;
          return;
+
       else
          Set_Parameter (Param_Set (Name));
       end if;
-
    end Set_Parameter;
 
    -----------

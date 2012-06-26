@@ -10,7 +10,7 @@ fi
 ADA_KW="use package is in out exception function with type constant \
                 private of return range procedure begin end array record \
                 subtype generic limited access all tagged abstract renames \
-                pragma new case when null"
+                pragma new case when null overriding"
 
 if [ ! -f ada.sed ]; then
     printf 's/\([^@_]\)@\([^@_]\)/\\1@@\\2/\n' > ada.sed

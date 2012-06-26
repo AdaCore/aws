@@ -37,6 +37,10 @@ with Ada.Strings.Unbounded;
 with Ada.Text_IO;
 
 with GNAT.MD5;
+with GNAT.Regexp;
+
+with SHA.Process_Data;
+with SHA.Strings;
 
 with AWS.Attachments;
 with AWS.Digest;
@@ -49,22 +53,23 @@ with AWS.Messages;
 with AWS.MIME;
 with AWS.Net;
 with AWS.Net.Buffered;
+with AWS.Net.WebSocket.Registry;
 with AWS.Parameters;
 with AWS.Response.Set;
-with AWS.Session;
 with AWS.Server.Get_Status;
+with AWS.Session;
 with AWS.Status.Set;
 with AWS.Templates;
 with AWS.Translator;
-with AWS.Utils;
 with AWS.URL;
+with AWS.Utils;
 
 package body AWS.Server.HTTP_Utils is
 
    use Ada;
+   use Ada.Streams;
    use Ada.Strings;
    use Ada.Strings.Unbounded;
-   use Ada.Streams;
    use AWS.Templates;
 
    protected File_Upload_UID is
@@ -135,6 +140,16 @@ package body AWS.Server.HTTP_Utils is
                Content_Type  => "text/plain",
                Message_Body  => "Request " & URI & ASCII.LF
                & " trying to reach resource above the Web root directory.");
+
+            --  Check if we have a websockets request
+
+         elsif Headers.Values.Unnamed_Value_Exists
+           (Status.Connection (C_Stat), "upgrade", Case_Sensitive => False)
+           and then
+             Headers.Values.Unnamed_Value_Exists
+               (Status.Upgrade (C_Stat), "websocket", Case_Sensitive => False)
+         then
+            Answer := Response.Websocket;
 
          else
             --  Otherwise, check if a session needs to be created
@@ -413,15 +428,6 @@ package body AWS.Server.HTTP_Utils is
         (Start_Boundary, End_Boundary : String;
          Parse_Boundary               : Boolean)
       is
-         Name            : Unbounded_String;
-         Filename        : Unbounded_String;
-         Server_Filename : Unbounded_String;
-         Is_File_Upload  : Boolean;
-         Headers         : AWS.Headers.List;
-
-         End_Found       : Boolean := False;
-         --  Set to true when the end-boundary has been found
-
          function Target_Filename (Filename : String) return String;
          --  Returns the full path name for the file as stored on the
          --  server side.
@@ -439,6 +445,15 @@ package body AWS.Server.HTTP_Utils is
 
             return Upload_Path & Utils.Image (UID) & '.' & Filename;
          end Target_Filename;
+
+         Name            : Unbounded_String;
+         Filename        : Unbounded_String;
+         Server_Filename : Unbounded_String;
+         Is_File_Upload  : Boolean;
+         Headers         : AWS.Headers.List;
+
+         End_Found       : Boolean := False;
+         --  Set to true when the end-boundary has been found
 
       begin -- File_Upload
          --  Reach the boundary
@@ -651,9 +666,10 @@ package body AWS.Server.HTTP_Utils is
 
          function Check_EOF return Boolean is
 
-            Signature : constant Streams.Stream_Element_Array
-              := (1 => 13, 2 => 10)
-                   & Translator.To_Stream_Element_Array (Start_Boundary);
+            Signature : constant Streams.Stream_Element_Array :=
+                          (1 => 13, 2 => 10)
+                            & Translator.To_Stream_Element_Array
+                                (Start_Boundary);
 
             Buffer : Streams.Stream_Element_Array (1 .. Signature'Length);
             Index  : Streams.Stream_Element_Offset := Buffer'First;
@@ -683,8 +699,8 @@ package body AWS.Server.HTTP_Utils is
                end if;
 
                Get_File_Data.Buffer
-                 (Get_File_Data.Index .. Get_File_Data.Index + Index - 2)
-                 := Buffer (Buffer'First .. Index - 1);
+                 (Get_File_Data.Index .. Get_File_Data.Index + Index - 2) :=
+                 Buffer (Buffer'First .. Index - 1);
 
                Get_File_Data.Index := Get_File_Data.Index + Index - 1;
             end Write_Data;
@@ -824,13 +840,6 @@ package body AWS.Server.HTTP_Utils is
          Parse_Boundary               : Boolean;
          Root_Part_CID                : String)
       is
-         Server_Filename : Unbounded_String;
-         Content_Id      : Unbounded_String;
-         Headers         : AWS.Headers.List;
-
-         End_Found       : Boolean := False;
-         --  Set to true when the end-boundary has been found
-
          function Attachment_Filename (Extension : String) return String;
          --  Returns the full path name for the file as stored on the
          --  server side.
@@ -852,6 +861,13 @@ package body AWS.Server.HTTP_Utils is
                return Upload_Path & Utils.Image (UID) & '.' & Extension;
             end if;
          end Attachment_Filename;
+
+         Server_Filename : Unbounded_String;
+         Content_Id      : Unbounded_String;
+         Headers         : AWS.Headers.List;
+
+         End_Found       : Boolean := False;
+         --  Set to true when the end-boundary has been found
 
       begin -- Store_Attachments
          --  Reach the boundary
@@ -1234,12 +1250,10 @@ package body AWS.Server.HTTP_Utils is
       Socket_Taken : in out Boolean;
       Will_Close   : in out Boolean)
    is
-      LA : constant Line_Attribute.Attribute_Handle :=
-             Line_Attribute.Reference;
+      LA           : constant Line_Attribute.Attribute_Handle :=
+                       Line_Attribute.Reference;
 
-      use type Response.Data_Mode;
-
-      Status_Code : Messages.Status_Code;
+      Status_Code : Messages.Status_Code := Response.Status_Code (Answer);
       Length      : Resources.Content_Length_Type := 0;
 
       procedure Send_General_Header (Sock : Net.Socket_Type'Class);
@@ -1252,13 +1266,19 @@ package body AWS.Server.HTTP_Utils is
       procedure Send_Data;
       --  Send a text/binary data to the client
 
+      procedure Send_WebSocket_Header;
+      --  Send reply, accept the switching protocol
+
+      procedure Send_WebSocket_Forbidden_Header;
+      --  Send reply, forbidden
+
       ---------------
       -- Send_Data --
       ---------------
 
       procedure Send_Data is
-         use type Calendar.Time;
          use type AWS.Status.Request_Method;
+         use type Calendar.Time;
 
          type File_Status is (Changed, Up_To_Date, Not_Found);
 
@@ -1383,7 +1403,6 @@ package body AWS.Server.HTTP_Utils is
       -------------------------
 
       procedure Send_General_Header (Sock : Net.Socket_Type'Class) is
-         use type Messages.Cache_Option;
       begin
          --  Session
 
@@ -1427,7 +1446,6 @@ package body AWS.Server.HTTP_Utils is
       ----------------------
 
       procedure Send_Header_Only is
-         use type AWS.Status.Request_Method;
          Sock : constant Net.Socket_Type'Class := Status.Socket (C_Stat);
       begin
          --  First let's output the status line
@@ -1454,11 +1472,68 @@ package body AWS.Server.HTTP_Utils is
          Net.Buffered.Flush (Sock);
       end Send_Header_Only;
 
+      -------------------------------------
+      -- Send_WebSocket_Forbidden_Header --
+      -------------------------------------
+
+      procedure Send_WebSocket_Forbidden_Header is
+         Sock : constant Net.Socket_Type'Class := Status.Socket (C_Stat);
+      begin
+         --  First let's output the S403 status line
+
+         Net.Buffered.Put_Line (Sock, Messages.Status_Line (Messages.S403));
+         Net.Buffered.Put_Line (Sock, Messages.Content_Length (0));
+
+         --  End of header
+
+         Net.Buffered.New_Line (Sock);
+         Net.Buffered.Flush (Sock);
+      end Send_WebSocket_Forbidden_Header;
+
+      ---------------------------
+      -- Send_WebSocket_Header --
+      ---------------------------
+
+      procedure Send_WebSocket_Header is
+         Sock : constant Net.Socket_Type'Class := Status.Socket (C_Stat);
+      begin
+         --  First let's output the status line
+
+         Net.Buffered.Put_Line (Sock, Messages.Status_Line (Status_Code));
+
+         --  Send Cache-Control, Location, WWW-Authenticate and others
+         --  user defined header lines.
+
+         Response.Send_Header (Socket => Sock, D => Answer);
+
+         --  Send WebSocket-Accept handshake
+
+         declare
+            use SHA.Process_Data;
+            use SHA.Strings;
+
+            GUID : constant String :=
+                     "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
+            --  As specified into the RFC-6455
+            Key  : constant String :=
+                     Strings.Fixed.Trim
+                       (Status.Sec_WebSocket_Key (C_Stat), Strings.Both);
+         begin
+            Net.Buffered.Put_Line
+              (Sock,
+               Messages.Sec_WebSocket_Accept
+                 (String (B64_From_SHA (Digest_A_String (Key & GUID)))));
+         end;
+
+         --  End of header
+
+         Net.Buffered.New_Line (Sock);
+         Net.Buffered.Flush (Sock);
+      end Send_WebSocket_Header;
+
       use type Response.Data;
 
    begin
-      Status_Code := Response.Status_Code (Answer);
-
       case Response.Mode (Answer) is
          when Response.File | Response.File_Once | Response.Stream
             | Response.Message
@@ -1473,6 +1548,31 @@ package body AWS.Server.HTTP_Utils is
          when Response.Socket_Taken =>
             HTTP_Server.Slots.Socket_Taken (Line_Index);
             Socket_Taken := True;
+
+         when Response.WebSocket =>
+
+            if not AWS.Config.Is_WebSocket_Origin_Set
+              or else GNAT.Regexp.Match
+                (Status.Origin (C_Stat), AWS.Config.WebSocket_Origin)
+            then
+               Send_WebSocket_Header;
+               HTTP_Server.Slots.Socket_Taken (Line_Index);
+               Socket_Taken := True;
+               Will_Close := False;
+
+               --  Register this new WebSocket
+
+               Net.WebSocket.Registry.Register
+                 (Net.WebSocket.Registry.Constructor (Status.URI (C_Stat))
+                  (Socket  => Status.Socket (C_Stat),
+                   Request => C_Stat));
+
+            else
+               Socket_Taken := False;
+               Will_Close := True;
+
+               Send_WebSocket_Forbidden_Header;
+            end if;
 
          when Response.No_Data =>
             raise Constraint_Error

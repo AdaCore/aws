@@ -60,6 +60,10 @@ begin
    Insert (T, Assoc ("SOAP_VERSION", SOAP.Version));
    Insert (T, Assoc ("MAX_CONCURRENT_DOWNLOAD",
                      Image (Natural'(Default.Max_Concurrent_Download))));
+   Insert (T, Assoc ("MAX_WEBSOCKET_HANDLER",
+                     Image (Natural'(Default.Max_WebSocket_Handler))));
+   Insert (T, Assoc ("WEBSOCKET_MESSAGE_QUEUE_SIZE",
+                     Image (Natural'(Default.WebSocket_Message_Queue_Size))));
    Insert (T, Assoc ("MAX_CONNECT", Image (Natural'(Default.Max_Connection))));
    Insert (T, Assoc ("MIME_TYPES", Default.MIME_Types));
    Insert (T, Assoc ("KEEP_ALIVE_LIMIT",

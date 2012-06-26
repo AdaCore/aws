@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<response>
+   <replace id="from_user">@_MESSAGE_@</replace>
+   <apply_style id="data">
+     <attribute id="color" value="red"/>
+   </apply_style>
+</response>

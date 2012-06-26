@@ -1,2 +1,4 @@
 include/*.ad* no-precommit-check
 include/zlib/* no-precommit-check
+web_elements/javascripts/*.js no-precommit-check
+web_elements/notebook/*.js no-precommit-check

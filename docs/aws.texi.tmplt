@@ -1525,7 +1525,12 @@ Note that the total number of threads used by a server is:
 @item Max_POST_Parameters (positive)
 @cindex Max_POST_Parameters
 The maximum number of POST parameters supported by AWS. The default
-value is @file{@_MAX_POST_PARAMETERS_@}.
+value is @_MAX_POST_PARAMETERS_@.
+
+@item Max_WebSocket_Handler (positive)
+@cindex Max_WebSocket_Handler
+The maximum number of message to handle simultaenously. The default
+value is @_MAX_WEBSOCKET_HANDLER_@.
 
 @item MIME_Types (string)
 @cindex MIME_Types
@@ -1625,6 +1630,18 @@ The name of the up arrow image to use in the status page. The default is
 This is to set the directory where upload files must be stored. By
 default uploaded files are written in the current directory. The
 default is @file{@_UPLOAD_DIR_@}.
+
+@item WebSocket_Message_Queue_Size (positive)
+@cindex WebSocket_Message_Queue_Size
+This is the size of the queue containing incoming messages waiting
+to be handled by one of the task, see Max_WebSocket_Handler above. The
+default value is @_WEBSOCKET_MESSAGE_QUEUE_SIZE_@.
+
+@item WebSocket_Origin (string)
+@cindex WebSocket_Origin
+This is a regular expression which can be used to handle WebSockets
+originating from a specific domain. By default AWS handles WebSockets
+from any origins.
 
 @item WWW_Root (string)
 @cindex WWW_Root
@@ -2657,6 +2674,7 @@ Refer to the Ada spec for a complete API and usage description.
 * Web Elements::
 * Web Blocks::
 * Web Cross-References::
+* WebSockets::
 @end menu
 
 @c ----------------------------------------------------------------------
@@ -3502,7 +3520,8 @@ is possible to specify multiple attributes if needed.
 @noindent
 Here is an example of such XML document:
 
-@AWSEXP{<response>
+@AWSEXP{<?xml version="1.0" encoding="UTF-8" ?>
+<response>
    <replace id="xml_status_bar">Fill Widgets...</replace>
    <replace id="text1">Response from XML</replace>
    <replace id="text2">Another response for text2</replace>
@@ -3572,7 +3591,8 @@ answer and perform the actions according to the @code{XML} content.
 To set the placeholder with "@b{new text}", the @code{XML} document
 returned by the server must be:
 
-@AWSEXP{<response>
+@AWSEXP{<?xml version="1.0" encoding="UTF-8" ?>
+<response>
    <replace id="@b{placeholder}">@b{new text}</replace>
 </response>
 }
@@ -3581,7 +3601,8 @@ returned by the server must be:
 If we want also to clear the input field named @b{field} and to select the
 radio button named @b{radio1} we must return:
 
-@AWSEXP{<response>
+@AWSEXP{<?xml version="1.0" encoding="UTF-8" ?>
+<response>
    <replace id="@b{placeholder}">@b{new text}</replace>
    <clear id="@b{field}"/>
    <radio action="select" id="@b{radio1}"/>
@@ -3597,7 +3618,8 @@ A final comment, if the text returned by the server to replace a
 specific area is an @code{HTML} fragment, the content must be placed into a
 @code{CDATA} tag:
 
-@AWSEXP{<response>
+@AWSEXP{<?xml version="1.0" encoding="UTF-8" ?>
+<response>
    <replace id="item_id">
       <![CDATA[ @i{HTML CODE HERE} ]]>
    </replace>
@@ -3907,7 +3929,8 @@ Services.Web_Block.Registry.Register
 The @code{next} @code{Ajax} button is using an XML based response which
 is defined in @file{r_widget_counter.txml}:
 
-@AWSEXP{<response>
+@AWSEXP{<?xml version="1.0" encoding="UTF-8" ?>
+<response>
    <replace id="counter">@@_COUNTER_@@</replace>
 </response>}
 
@@ -4181,6 +4204,234 @@ and @code{Emacs}. It is then possible to navigate inside them easily.
 
 @noindent
 All @code{webxref} options are listed using the @code{-h} option.
+
+@c ======================================================================
+
+@node WebSockets
+@section WebSockets
+@cindex websockets
+@cindex web sockets
+
+@menu
+* Introduction to WebSockets::
+* WebSockets on the client::
+* WebSockets on the server::
+@end menu
+
+@node Introduction to WebSockets
+@subsection Introduction to WebSockets
+
+@noindent
+WebSockets are part of HTML5, the API is being standardized by the W3C
+and the protocol by the IETF (see RFC-6455). It is a bidirectional and
+full-duplex communication channel between the client and the
+server. Most Web Browsers are now supporting (at least part) of the
+WebSocket recommendation. On the client side, the WebSockets are
+programmed in JavaScript as done for Ajax for example.
+
+@noindent
+A WebSocket is always opened at the request of a client. This can be
+done on the same port as the main HTTP protocol. This is possible because
+the initial handshake to open a WebSocket is done in pure HTTP protocol. Past
+this initial handshake the socket is switching protocol from HTTP to the one
+called WebSocket protocol.
+
+@noindent
+It is not needed to know the protocol to use the WebSockets, AWS comes with
+some high level services on the server side and also on the client side.
+
+@node WebSockets on the client
+@subsection WebSockets on the client
+
+@noindent
+The WebSocket is created on the client side. As there is some differences
+between Web browsers, AWS provides a wrapper routine to create a
+WebSocket.
+
+@AWSEXP{ws = AWS.WebSocket.open('ws://localhost:8080/echo');}
+
+This basically create a WebSocket and contact the local server using
+port 8080.
+
+@noindent
+This method is declared into @file{aws.tjs} which must be included.
+
+@AWSEXP{@@@@INCLUDE@@@@@ aws.tjs}
+
+A WebSocket Javascript's object has four method's callbacks:
+
+@table @b
+@item onopen
+
+Called when the WebSocket has been opened. This means that the
+initial handshake with the server has been accepted. At this point the
+WebSocket is ready to send and received messages.
+
+@item onmessage
+
+Called for every incoming message. This callback receive a single
+parameter which is the event. The actual message data can be found in
+@b{e.data}.
+
+@item onclose
+
+Called when the WebSocket is closing. This means that the server has
+sent a close request. After this event it is not possible to send nor
+receive messages through this WebSocket.
+
+@item onerror
+
+Called when an error has occurred. This can be a lost connection for
+example. This callback takes a single parameter which is the error
+message.
+
+@end table
+
+@noindent
+AWS comes with default implementation of those callbacks. With the
+two optional WebSocket constructor parameters it can be configured to
+fit most needs.
+
+@AWSEXP{ws = AWS.WebSocket.open('ws://localhost:8080/echo', message_id, status_id);}
+
+@table @b
+@item message_id
+
+The id of the HTML element which will be used to display the incoming
+messages. This is most of the time the id of a @code{p} or @code{div} HTML
+element.
+
+@item status_id
+
+The id of the HTML element which will be used to display the status
+and error messages. For example when a connection is closed.
+@end table
+
+@noindent
+When those default callbacks are not what is needed it is always
+possible to redefine them.
+
+@AWSEXP{ws.onmessage = function (e) @{
+   code there
+@};}
+
+@noindent
+Likewise for the other events.
+
+@node WebSockets on the server
+@subsection WebSockets on the server
+
+@noindent
+The first step is to setup the server to dispatch the incoming
+messages to the proper WebSocket object. For this one needs to inherit
+from @code{AWS.Net.WebSocket.Object} and redefine at least two methods
+@code{Create} and @code{On_Message}:
+
+@table @b
+@item Create
+
+This is the constructor that will be used by the server to handle some
+WebSockets. This constructor will be associated to some URI, see below.
+
+@AWSEXP{@b{function} Create
+  (Socket  : Socket_Access;
+   Request : AWS.Status.Data) @b{return} Object'Class;}
+
+The default constructor creates a WebSocket of type
+@code{AWS.Net.WebSocket.Object}. It is not possible to receive events
+(close, open, error) using such object it is only possible to
+send messages to the clients.
+
+@item On_Open
+
+This is the callback that will be called when the WebSocket is opened.
+
+@AWSEXP{@b{procedure} On_Open
+  (Socket : @b{in out} Object; Message : String) @b{is null};}
+
+@item On_Message
+
+This is the callback that will be called for every message sent by the
+client on the corresponding WebSocket.
+
+@AWSEXP{@b{procedure} On_Message
+  (Socket : @b{in out} Object; Message : String);}
+
+The first parameter is the WebSocket itself, it is possible to send a
+message directly by using the associated @code{Send} method. Note that
+the default implementation supports the XML based Ajax actions.
+See @pxref{XML based Ajax} and can be used to redirect simple message
+to an HTML widget given it's id.
+
+@item On_Close
+
+This is the callback that will be called when the WebSocket is closed.
+
+@AWSEXP{@b{procedure} On_Close
+  (Socket : @b{in out} Object; Message : String) @b{is null};}
+
+@item On_Error
+
+This is the callback that will be called when an error occurs on the WebSocket.
+
+@AWSEXP{@b{procedure} On_Error
+  (Socket : @b{in out} Object; Message : String) @b{is null};}
+
+@end table
+
+@noindent
+When this is done, the constructor declared above needs to be
+registered to handle some WebSocket designated by the URI. For example
+to have this WebSocket handling all URI named @code{/echo}:
+
+@AWSEXP{Net.WebSocket.Registry.Register ("/echo", CB.Create'Access);}
+
+Where @code{CB.Create} is the constructor redefined for the new
+WebSocket class.
+
+@noindent
+The last step is to start the WebSocket server which are needed to
+handle the incoming messages.
+
+@AWSEXP{Net.WebSocket.Registry.Control.Start;}
+
+@noindent
+At this point all is setup to have AWS supports WebSockets. Sending
+messages can be done to a single client or by broadcasting to all
+clients for a specific URI. To send a message one need to create a
+@code{Net.WebSocket.Registry.Recipient} object. For example to
+broadcast a message to all Web clients having opened the @code{/echo}
+WebSocket:
+
+@AWSEXP{Rcp : Net.WebSocket.Registry.Recipient :=
+        Net.WebSocket.Registry.Create (URI => "/echo");
+
+Net.WebSocket.Registry.Send (Rcp, "A simple message");}
+
+@noindent
+As we have seen before, this will send a message to clients which will
+in turn trigger the @code{onmessage} Javascript method.
+
+@noindent
+It is also possible to send a message to clients from a specific
+origin by using the @code{Origin} information:
+
+@AWSEXP{Rcp : Net.WebSocket.Registry.Recipient :=
+        Net.WebSocket.Registry.Create (URI => "/echo"; Origin => ".*\.fr");
+
+Net.WebSocket.Registry.Send (Rcp, "A simple message");}
+
+@noindent
+The above recipent targets all WebSockets whose URI is @code{"/echo"}
+and that have been created from a Web page originating from a Web server
+running in the @code{.fr} domain. Note that @code{URI} and the
+@code{Origin} are regular expressions.
+
+@noindent
+The @code{Origin} value can be used by a server to handle only
+WebSockets originating from it's own domain. Restricting the origin of
+the WebSockets can be done with the @code{WEBSOCKET_ORIGIN} config
+parameter, @pxref{WEBSOCKET_ORIGIN}.
 
 @c ======================================================================
 
@@ -6506,6 +6757,9 @@ AWS User's API:
 * AWS.Net.Log.Callbacks::
 * AWS.Net.SSL::
 * AWS.Net.SSL.Certificate::
+* AWS.Net.WebSocket::
+* AWS.Net.WebSocket.Registry::
+* AWS.Net.WebSocket.Registry.Control::
 * AWS.Parameters::
 * AWS.POP::
 * AWS.Resources::
@@ -6769,6 +7023,27 @@ SOAP User's API:
 @cindex AWS.Net.SSL.Certificate
 
 @include aws-net-ssl-certificate.ads.texi
+
+@page
+@node AWS.Net.WebSocket
+@appendixsec AWS.Net.WebSocket
+@cindex AWS.Net.WebSocket
+
+@include aws-net-websocket.ads.texi
+
+@page
+@node AWS.Net.WebSocket.Registry
+@appendixsec AWS.Net.WebSocket.Registry
+@cindex AWS.Net.WebSocket.Registry
+
+@include aws-net-websocket-registry.ads.texi
+
+@page
+@node AWS.Net.WebSocket.Registry.Control
+@appendixsec AWS.Net.WebSocket.Registry.Control
+@cindex AWS.Net.WebSocket.Registry.Control
+
+@include aws-net-websocket-registry-control.ads.texi
 
 @page
 @node AWS.Parameters

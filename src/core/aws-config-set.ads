@@ -108,10 +108,6 @@ package AWS.Config.Set is
    --  value will be and less "connection refused" will be reported to the
    --  client.
 
-   procedure Max_Concurrent_Download (Value : Positive);
-   --  Control the maximum number of parallel downloads accepted by the
-   --  download manager.
-
    ----------
    -- Data --
    ----------
@@ -325,6 +321,19 @@ package AWS.Config.Set is
    procedure Context_Lifetime (Value : Duration);
    --  Number of seconds to keep a context if not used. After this period the
    --  context data is obsoleted and will be removed during next cleanup.
+
+   procedure Max_Concurrent_Download (Value : Positive);
+   --  Control the maximum number of parallel downloads accepted by the
+   --  download manager.
+
+   procedure Max_WebSocket_Handler (Value : Positive);
+   --  This is the max simultaneous connections handling WebSocket's messages
+
+   procedure WebSocket_Message_Queue_Size (Value : Positive);
+   --  This is the size of the queue containing incoming messages
+
+   procedure WebSocket_Origin (Value : String);
+   --  This is regular expression to restrict WebSocket to a specific origin
 
    procedure Parameter
      (Config        : in out Object;

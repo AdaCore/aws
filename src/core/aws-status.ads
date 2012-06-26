@@ -112,7 +112,7 @@ package AWS.Status is
 
    function Connection             (D : Data) return String;
    pragma Inline (Connection);
-   --  Get the value for "Connection:" parameter
+   --  Get the value for "Connection:" header
 
    function Content_Length         (D : Data) return Natural;
    pragma Inline (Content_Length);
@@ -163,6 +163,14 @@ package AWS.Status is
    function Preferred_Coding (D : Data) return Messages.Content_Encoding;
    --  Returns supported by AWS coding preferred by client from the
    --  Accept-Coding header.
+
+   function Upgrade (D : Data) return String;
+   pragma Inline (Upgrade);
+   --  Get value for "Upgrade:" header
+
+   function Sec_WebSocket_Key (D : Data) return String;
+   pragma Inline (Sec_WebSocket_Key);
+   --  Get value for "Sec-WebSocket-Key:" header
 
    -------------------------------------------
    -- Cross-Origin Resource Sharing Headers --

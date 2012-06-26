@@ -34,8 +34,10 @@
 
 with Ada.Strings.Unbounded;
 
-with AWS.Containers.String_Vectors;
-with AWS.Default;
+with GNAT.Regexp;
+
+private with AWS.Containers.String_Vectors;
+private with AWS.Default;
 
 package AWS.Config is
 
@@ -388,6 +390,21 @@ package AWS.Config is
    --  Number of seconds to keep a context if not used. After this period the
    --  context data is obsoleted and will be removed during next cleanup.
 
+   function Max_WebSocket_Handler return Positive;
+   pragma Inline (Max_WebSocket_Handler);
+   --  This is the max simultaneous connections handling WebSocket's messages
+
+   function WebSocket_Message_Queue_Size return Positive;
+   pragma Inline (WebSocket_Message_Queue_Size);
+   --  This is the size of the queue containing incoming messages
+
+   function Is_WebSocket_Origin_Set return Boolean;
+   pragma Inline (Is_WebSocket_Origin_Set);
+   --  Returns True if the Origin has been set
+
+   function WebSocket_Origin return GNAT.Regexp.Regexp;
+   --  This is regular expression to restrict WebSocket to a specific origin
+
 private
 
    package SV renames AWS.Containers.String_Vectors;
@@ -456,6 +473,9 @@ private
       Transient_Lifetime,
       Input_Line_Size_Limit,
       Max_Concurrent_Download,
+      Max_WebSocket_Handler,
+      WebSocket_Message_Queue_Size,
+      WebSocket_Origin,
       Context_Lifetime);
 
    subtype Server_Parameter_Name is Parameter_Name
@@ -464,7 +484,7 @@ private
    subtype Process_Parameter_Name is Parameter_Name
      range Session_Cleanup_Interval .. Context_Lifetime;
 
-   type Value_Type  is (Str, Dir, Nat, Pos, Dur, Bool, Str_Vect);
+   type Value_Type  is (Str, Dir, Nat, Pos, Dur, Bool, Str_Vect, Regexp);
 
    type Values (Kind : Value_Type := Str) is record
       case Kind is
@@ -488,6 +508,10 @@ private
 
          when Str_Vect =>
             Strs_Value : SV.Vector;
+
+         when Regexp =>
+            Is_Set     : Boolean;
+            Pattern    : GNAT.Regexp.Regexp;
       end case;
    end record;
 
@@ -674,6 +698,15 @@ private
 
          Max_Concurrent_Download =>
            (Pos, Default.Max_Concurrent_Download),
+
+         Max_WebSocket_Handler =>
+           (Pos, Default.Max_WebSocket_Handler),
+
+         WebSocket_Message_Queue_Size =>
+           (Pos, Default.WebSocket_Message_Queue_Size),
+
+         WebSocket_Origin =>
+           (Regexp, False, Pattern => <>),
 
          Context_Lifetime =>
            (Dur, Default.Context_Lifetime));

@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="UTF-8" ?>
 <response>
    <replace id="xml_status_bar">Fill Widgets...</replace>
    <replace id="text1">Response from XML</replace>

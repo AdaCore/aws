@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="UTF-8" ?>
 <response>
    <replace id="xml_status_bar">Mixed Fill/Clear...</replace>
    <replace id="text1">Another text</replace>

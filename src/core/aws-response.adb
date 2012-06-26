@@ -658,8 +658,7 @@ package body AWS.Response is
       Encoding      : Messages.Content_Encoding := Messages.Identity;
       Server_Close  : Boolean                   := True;
       Disposition   : Disposition_Mode          := None;
-      User_Filename : String                    := "")
-      return Data
+      User_Filename : String                    := "") return Data
    is
       function CD_Filename return String;
       pragma Inline (CD_Filename);
@@ -730,5 +729,21 @@ package body AWS.Response is
       Set.Cache_Control (Result, Cache_Control);
       return Result;
    end URL;
+
+   ---------------
+   -- Websocket --
+   ---------------
+
+   function Websocket return Data is
+      Result : Data;
+   begin
+      Set.Status_Code (Result, Messages.S101);
+      Set.Mode        (Result, WebSocket);
+      Set.Add_Header
+        (Result, Messages.Connection_Token, Messages.Upgrade_Token);
+      Set.Add_Header
+        (Result, Messages.Upgrade_Token, Messages.Websocket_Token);
+      return Result;
+   end Websocket;
 
 end AWS.Response;

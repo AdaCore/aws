@@ -1,4 +1,4 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <response>
-   <replace id="input1">Counter : @_COUNTER_@</replace>
+   <replace id="echo">ECHO: @_MESSAGE_@</replace>
 </response>

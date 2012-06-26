@@ -374,6 +374,15 @@ package body AWS.Messages is
       return Status_Messages (S).Reason_Phrase.all;
    end Reason_Phrase;
 
+   --------------------------
+   -- Sec_WebSocket_Accept --
+   --------------------------
+
+   function Sec_WebSocket_Accept (Key : String) return String is
+   begin
+      return Sec_WebSocket_Accept_Token & HD & Key;
+   end Sec_WebSocket_Accept;
+
    ----------------
    -- SOAPAction --
    ----------------
