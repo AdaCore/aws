@@ -526,7 +526,13 @@ package body AWS.Status is
 
    function Origin (D : Data) return String is
    begin
-      return Headers.Get (D.Header, Messages.Origin_Token);
+      if Headers.Exist (D.Header, Messages.Origin_Token) then
+         return Headers.Get (D.Header, Messages.Origin_Token);
+      else
+         --  Try with Sec-WebSocket-Origin which was used for WebSocket up to
+         --  version 10.
+         return Headers.Get (D.Header, Messages.Sec_WebSocket_Origin_Token);
+      end if;
    end Origin;
 
    ---------------
