@@ -125,6 +125,9 @@ library project Src is
 
    package Naming is
 
+      for Implementation_Suffix ("makefile") use ".txt";
+      for Implementation_Exceptions ("makefile") use ("makefile");
+
       -- Templates Parser
 
       for Specification ("Templates_Parser.Configuration")

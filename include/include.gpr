@@ -44,6 +44,8 @@ library project Include is
 
    package Compiler is
 
+      for Driver ("makefile") use "";
+
       case Shared.Build is
          when "Debug" =>
             for Default_Switches ("Ada") use
@@ -69,5 +71,11 @@ library project Include is
    -------------
 
    package Builder renames Shared.Builder;
+
+   ------------
+   -- Naming --
+   ------------
+
+   package Naming renames Shared.Naming;
 
 end Include;

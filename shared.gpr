@@ -129,6 +129,8 @@ abstract project Shared is
 
    package Compiler is
 
+      for Driver ("makefile") use "";
+
       case Build is
          when "Debug" =>
             for Default_Switches ("Ada") use Common_Options & Debug_Options;
@@ -164,5 +166,14 @@ abstract project Shared is
    package Builder is
       for Switches (others) use ("-m", "-j" & Processors);
    end Builder;
+
+   ------------
+   -- Naming --
+   ------------
+
+   package Naming is
+      for Implementation_Suffix ("makefile") use ".makefile";
+      for Implementation_Exceptions ("makefile") use ("makefile");
+   end Naming;
 
 end Shared;
