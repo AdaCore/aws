@@ -658,6 +658,15 @@ package body AWS.Config is
       return Process_Options (WebSocket_Origin).Pattern;
    end WebSocket_Origin;
 
+   ----------------------
+   -- WebSocket_Origin --
+   ----------------------
+
+   function WebSocket_Origin return String is
+   begin
+      return To_String (Process_Options (WebSocket_Origin).Regexp_Str);
+   end WebSocket_Origin;
+
    --------------
    -- WWW_Root --
    --------------

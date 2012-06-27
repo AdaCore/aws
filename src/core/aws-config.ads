@@ -405,6 +405,10 @@ package AWS.Config is
    function WebSocket_Origin return GNAT.Regexp.Regexp;
    --  This is regular expression to restrict WebSocket to a specific origin
 
+   function WebSocket_Origin return String;
+   --  This is the string regular expression to restrict WebSocket to a
+   --  specific origin.
+
 private
 
    package SV renames AWS.Containers.String_Vectors;
@@ -512,6 +516,7 @@ private
          when Regexp =>
             Is_Set     : Boolean;
             Pattern    : GNAT.Regexp.Regexp;
+            Regexp_Str : Unbounded_String;
       end case;
    end record;
 
@@ -706,7 +711,7 @@ private
            (Pos, Default.WebSocket_Message_Queue_Size),
 
          WebSocket_Origin =>
-           (Regexp, False, Pattern => <>),
+           (Regexp, False, Pattern => <>, Regexp_Str => Null_Unbounded_String),
 
          Context_Lifetime =>
            (Dur, Default.Context_Lifetime));

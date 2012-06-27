@@ -383,7 +383,7 @@
                 @_FREE_SLOTS_KEEP_ALIVE_LIMIT_@
             </td>
         </tr>
-        <tr class="background">
+        <tr>
             <td class="key">
                 Hotplug Port:
             </td>
@@ -391,7 +391,7 @@
                 @_HOTPLUG_PORT_@
             </td>
         </tr>
-        <tr>
+        <tr class="background">
             <td class="key">
                 Input Line Size Limit:
             </td>
@@ -399,7 +399,7 @@
                 @_INPUT_LINE_SIZE_LIMIT_@
             </td>
         </tr>
-        <tr class="background">
+        <tr>
             <td class="key">
                 Keep Alive Force Limit:
             </td>
@@ -407,7 +407,7 @@
                 @_KEEP_ALIVE_FORCE_LIMIT_@
             </td>
         </tr>
-        <tr>
+        <tr class="background">
             <td class="key">
                 Key (RSA):
             </td>
@@ -419,7 +419,7 @@
                 @@END_IF@@
             </td>
         </tr>
-        <tr class="background">
+        <tr>
             <td class="key">
                 Line Stack Size:
             </td>
@@ -427,12 +427,20 @@
                 @_LINE_STACK_SIZE_@ bytes
             </td>
         </tr>
-        <tr>
+        <tr class="background">
             <td class="key">
                 Max Concurrent Download:
             </td>
             <td class="data_color">
                 @_MAX_CONCURRENT_DOWNLOAD_@
+            </td>
+        </tr>
+        <tr>
+            <td class="key">
+                Max WebSocket Handler:
+            </td>
+            <td class="data_color">
+                @_MAX_WEBSOCKET_HANDLER_@
             </td>
         </tr>
         <tr class="background">
@@ -486,7 +494,7 @@
                 @_YES_NO:SESSION_@
             </td>
         </tr>
-         <tr class="background">
+        <tr class="background">
             <td class="key">
                 Server Host:
             </td>
@@ -579,6 +587,26 @@
             </td>
             <td class="data_color">
                 @_UPLOAD_SIZE_LIMIT_@ bytes
+            </td>
+        </tr>
+        <tr>
+            <td class="key">
+                WebSocket Message Queue Size:
+            </td>
+            <td class="data_color">
+                @_WEBSOCKET_MESSAGE_QUEUE_SIZE_@
+            </td>
+        </tr>
+        <tr class="background">
+            <td class="key">
+                WebSocket Origin:
+            </td>
+            <td class="data_color">
+                @@IF@@ @_WEBSOCKET_ORIGIN_@ /= ""
+                    @_WEBSOCKET_ORIGIN_@
+                @@ELSE@@
+                    Any origin
+                @@END_IF@@
             </td>
         </tr>
         <tr>

@@ -602,6 +602,8 @@ package body AWS.Config.Set is
       Process_Options (WebSocket_Origin).Is_Set := True;
       Process_Options (WebSocket_Origin).Pattern :=
         GNAT.Regexp.Compile (Value);
+      Process_Options (WebSocket_Origin).Regexp_Str :=
+        To_Unbounded_String (Value);
    end WebSocket_Origin;
 
    --------------

@@ -536,6 +536,15 @@ package body AWS.Server.Status is
       Insert (Result, Assoc ("RESOURCES_SERVED",
         Resources_Served (Server)));
 
+      Insert (Result, Assoc ("MAX_WEBSOCKET_HANDLER",
+        CNF.Max_WebSocket_Handler));
+
+      Insert (Result, Assoc ("WEBSOCKET_MESSAGE_QUEUE_SIZE",
+        Utils.Image (CNF.WebSocket_Message_Queue_Size)));
+
+      Insert (Result, Assoc ("WEBSOCKET_ORIGIN",
+        CNF.WebSocket_Origin));
+
       Log_Extended_Fields : declare
          Extended_Fields : Ada.Strings.Unbounded.Unbounded_String;
 
