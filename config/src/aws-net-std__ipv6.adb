@@ -43,12 +43,12 @@ package body AWS.Net.Std is
    No_Socket : constant C.int := C.int (-1);
    Failure   : constant C.int := C.int (-1);
 
-   type Unsigned_Lock is new Unsigned_8;
+   type Unsigned_Lock is mod 2**8;
+   pragma Atomic (Unsigned_Lock);
 
    type Socket_Hidden is record
       FD : C.int := No_Socket;
       RL : aliased Unsigned_Lock := 0; -- Flag to detect read competition
-      pragma Atomic (RL);
    end record;
 
    subtype In6_Addr is OS_Lib.In6_Addr;
