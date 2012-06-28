@@ -99,14 +99,6 @@ package body AWS.Server is
    begin
       Server.Accept_Sem.Seize;
 
-      if Server.Shutdown then
-         --  The server is being shutdown, raise an exception this will
-         --  terminate the line.
-
-         Server.Accept_Sem.Release;
-         raise Net.Socket_Error;
-      end if;
-
       declare
          To_Close : Net.Acceptors.Socket_List;
       begin
