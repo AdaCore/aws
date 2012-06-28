@@ -361,12 +361,13 @@ package body AWS.Log is
       Time_Part : String (1 .. 7);
 
    begin
-      Log.Filename_Prefix := To_Unbounded_String (Filename_Prefix);
-      Log.File_Directory  := To_Unbounded_String (File_Directory);
-      Log.Split           := Split;
-      Log.Size_Limit      := Size_Limit;
-      Log.Auto_Flush      := Auto_Flush;
-      Log.Header_Written  := False;
+      Log.Filename_Prefix      := To_Unbounded_String (Filename_Prefix);
+      Log.File_Directory       := To_Unbounded_String (File_Directory);
+      Log.Split                := Split;
+      Log.Size_Limit           := Size_Limit;
+      Log.Auto_Flush           := Auto_Flush;
+      Log.Header_Written       := False;
+      Log.Stop_Has_Been_Called := False;
 
       Filename := To_Unbounded_String (Prefix & ".log");
 
@@ -412,9 +413,10 @@ package body AWS.Log is
       Writer : Callback;
       Name   : String) is
    begin
-      Log.Writer         := Writer;
-      Log.Writer_Name    := To_Unbounded_String (Name);
-      Log.Header_Written := False;
+      Log.Writer               := Writer;
+      Log.Writer_Name          := To_Unbounded_String (Name);
+      Log.Header_Written       := False;
+      Log.Stop_Has_Been_Called := False;
    end Start;
 
    ----------
