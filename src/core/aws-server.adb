@@ -97,22 +97,7 @@ package body AWS.Server is
       end Accept_Error;
 
    begin
-      Server.Accept_Sem.Seize;
-
-      declare
-         To_Close : Net.Acceptors.Socket_List;
-      begin
-         Net.Acceptors.Get
-           (Server.Acceptor, New_Socket, To_Close, Accept_Error'Access);
-
-         Server.Accept_Sem.Release;
-         Net.Acceptors.Shutdown_And_Free (To_Close);
-      exception
-         when others =>
-            Server.Accept_Sem.Release;
-            Net.Acceptors.Shutdown_And_Free (To_Close);
-            raise;
-      end;
+      Net.Acceptors.Get (Server.Acceptor, New_Socket, Accept_Error'Access);
 
       if CNF.Security (Server.Properties)
         and then New_Socket'Tag /= Net.SSL.Socket_Type'Tag

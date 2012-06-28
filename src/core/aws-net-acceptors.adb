@@ -36,6 +36,8 @@ package body AWS.Net.Acceptors is
 
    Socket_Command : constant := 1;
 
+   procedure Shutdown_Internal (Acceptor : in out Acceptor_Type);
+
    -------------------
    -- Add_Listening --
    -------------------
@@ -81,6 +83,8 @@ package body AWS.Net.Acceptors is
 
       procedure Shutdown;
       pragma No_Return (Shutdown);
+
+      procedure Finalize;
 
       Too_Many_FD  : Boolean := False;
       Ready, Error : Boolean;
@@ -186,33 +190,35 @@ package body AWS.Net.Acceptors is
       end Add_Sockets;
 
       --------------
+      -- Finalize --
+      --------------
+
+      procedure Finalize is
+      begin
+         Acceptor.Semaphore.Release;
+      end Finalize;
+
+      --------------
       -- Shutdown --
       --------------
 
       procedure Shutdown is
       begin
-         while Sets.Count (Acceptor.Set) > 0 loop
-            Sets.Remove_Socket (Acceptor.Set, 1, Socket);
-            Socket.Shutdown;
-
-            --  We can free other sockets, because it is not
-            --  used anywhere else when it is in socket set.
-
-            Free (Socket);
-         end loop;
-
-         Acceptor.Servers.Clear;
-
+         Shutdown_Internal (Acceptor);
          raise Socket_Error;
       end Shutdown;
 
       First        : constant Boolean := True;
       Timeout      : array (Boolean) of Real_Time.Time_Span;
       Oldest_Idx   : Sets.Socket_Count;
+      Finalizer    : AWS.Utils.Finalizer (Finalize'Access);
+      pragma Unreferenced (Finalizer);
 
       Wait_Timeout : Real_Time.Time_Span;
 
    begin
+      Acceptor.Semaphore.Seize;
+
       if Sets.Count (Acceptor.Set) = 0 then
          --  After shutdown of the server socket
          raise Socket_Error;
@@ -350,6 +356,10 @@ package body AWS.Net.Acceptors is
    begin
       Get (Acceptor, Socket, To_Close, On_Error);
       Shutdown_And_Free (To_Close);
+   exception
+      when others =>
+         Shutdown_And_Free (To_Close);
+         raise;
    end Get;
 
    ---------------
@@ -556,15 +566,35 @@ package body AWS.Net.Acceptors is
 
       Acceptor.Box.Clear;
 
-      select
-         Acceptor.Servers.Wait_Empty;
-      or
-         delay 4.0;
+      --  Loop trying to shutdown directly or over Get routine
 
-         raise Program_Error with
-           "Could not shutdown acceptor " & Sets.Count (Acceptor.Set)'Img
-           & Acceptor.Last'Img & Acceptor.Index'Img;
-      end select;
+      for J in 1 .. 4 loop
+         --  If acceptor is not inside Get routine, we should make shutdown
+         --  directly.
+
+         select
+            Acceptor.Semaphore.Seize;
+            Shutdown_Internal (Acceptor);
+            Acceptor.Semaphore.Release;
+            return;
+         or
+            delay 0.0;
+         end select;
+
+         --  Close of signal socket could be detected inside Get routine and
+         --  shoutdown would be processed over there.
+
+         select
+            Acceptor.Servers.Wait_Empty;
+            return;
+         or
+            delay 1.0;
+         end select;
+      end loop;
+
+      raise Program_Error with
+        "Could not shutdown acceptor " & Sets.Count (Acceptor.Set)'Img
+        & Acceptor.Last'Img & Acceptor.Index'Img;
    end Shutdown;
 
    -----------------------
@@ -583,6 +613,27 @@ package body AWS.Net.Acceptors is
       end loop;
    end Shutdown_And_Free;
 
+   -----------------------
+   -- Shutdown_Internal --
+   -----------------------
+
+   procedure Shutdown_Internal (Acceptor : in out Acceptor_Type) is
+      use type Sets.Socket_Count;
+      Socket : Socket_Access;
+   begin
+      while Sets.Count (Acceptor.Set) > 0 loop
+         Sets.Remove_Socket (Acceptor.Set, 1, Socket);
+         Socket.Shutdown;
+
+         --  We can free other sockets, because it is not used anywhere else
+         --  when it is in socket set.
+
+         Free (Socket);
+      end loop;
+
+      Acceptor.Servers.Clear;
+   end Shutdown_Internal;
+
    ----------------
    -- Socket_Box --
    ----------------
@@ -596,7 +647,8 @@ package body AWS.Net.Acceptors is
       procedure Add
         (S : Socket_Access; Max_Size : Positive; Success : out Boolean) is
       begin
-         Success := Natural (Buffer.Length) < Max_Size;
+         Success := Natural (Buffer.Length) < Max_Size
+                      and then Acceptor.W_Signal /= null;
 
          if Success then
             Buffer.Append (S);
