@@ -4347,6 +4347,23 @@ The default constructor creates a WebSocket of type
 (close, open, error) using such object it is only possible to
 send messages to the clients.
 
+Here is an example on a custom socket:
+
+@AWSEXP{
+   @b{type} MySocket @b{is new} Net.WebSocket.Object @b{with null record};
+
+   @b{function} Create
+      (Socket  : Socket_Access;
+       Request : AWS.Status.Data) @b{return} MySocket'Class
+   @b{is}
+      @i{--  Note the call to the other version of @b{Create}}
+      @b{return}
+        (AWS.Net.WebSocket.Object
+            (AWS.Net.WebSocket.Create (Socket, Request))
+         @b{with null record});
+   @b{end} Create;
+}
+
 @item On_Open
 
 This is the callback that will be called when the WebSocket is opened.
