@@ -38,6 +38,8 @@ package AWS.Net.WebSocket is
    type Object is new Net.Socket_Type with private;
    type Object_Class is access all Object'Class;
 
+   No_Object : constant Object'Class;
+
    type Kind_Type
      is (Unknown, Connection_Open, Text, Binary, Connection_Close);
    --  Data Frame Kind
@@ -212,6 +214,10 @@ private
      (Socket : Object; Size : Natural) is null;
 
    overriding procedure Free (Socket : in out Object);
+
+   No_Object : constant Object'Class :=
+                 Object'(Net.Socket_Type with
+                         null, Request => <>, Version => 0, State => null);
 
    --  Error codes corresponding to all errors
 

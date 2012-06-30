@@ -60,8 +60,14 @@ package AWS.Net.WebSocket.Registry is
    --
    --  Note that both URI and Origin can be regular expressions.
 
-   procedure Send (To : Recipient; Message : String);
-   --  Send a message to the WebSocket designated by Origin and URI
+   procedure Send
+     (To        : Recipient;
+      Message   : String;
+      Except_To : Object'Class := No_Object);
+   --  Send a message to the WebSocket designated by Origin and URI. Do not
+   --  send this message to Except_To if set. It is often needed to send a
+   --  message to all registered sockets except the one which has sent the
+   --  message trigerring a response.
 
 private
 
