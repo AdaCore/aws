@@ -55,4 +55,10 @@ project Docs is
 
    package Builder renames Shared.Builder;
 
+   ------------
+   -- Naming --
+   ------------
+
+   package Naming renames Shared.Naming;
+
 end Docs;
