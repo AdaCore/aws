@@ -1555,17 +1555,17 @@ package body AWS.Server.HTTP_Utils is
               or else GNAT.Regexp.Match
                 (Status.Origin (C_Stat), AWS.Config.WebSocket_Origin)
             then
-               Send_WebSocket_Header;
-               HTTP_Server.Slots.Socket_Taken (Line_Index);
-               Socket_Taken := True;
-               Will_Close := False;
-
                --  Register this new WebSocket
 
                Net.WebSocket.Registry.Register
                  (Net.WebSocket.Registry.Constructor (Status.URI (C_Stat))
                   (Socket  => Status.Socket (C_Stat),
                    Request => C_Stat));
+
+               Send_WebSocket_Header;
+               HTTP_Server.Slots.Socket_Taken (Line_Index);
+               Socket_Taken := True;
+               Will_Close := False;
 
             else
                Socket_Taken := False;
