@@ -69,9 +69,6 @@ have tagged all obsolescent features with a pragma.
 Notes
 -----
 
-You can have a look at docs/TODO file to see what are the topics that we will
-probably implement in future releases.
-
 The OpenSSL libraries (optional) distributed are for Windows only. On UNIX
 you'll have to build the libraries from sources, it is quite easy to do
 so. This has been tested on GNU/Linux without trouble.
