@@ -43,7 +43,7 @@ package AWS.Net.SSL.Certificate is
    function Subject (Certificate : Object) return String;
    --  Returns the certificate's subject
 
-   function Issuer  (Certificate : Object) return String;
+   function Issuer (Certificate : Object) return String;
    --  Returns the certificate's issuer
 
 private
@@ -53,7 +53,7 @@ private
       Issuer  : Unbounded_String;
    end record;
 
-   Undefined : constant Object
-     := (Null_Unbounded_String, Null_Unbounded_String);
+   Undefined : constant Object :=
+                 (Null_Unbounded_String, Null_Unbounded_String);
 
 end AWS.Net.SSL.Certificate;

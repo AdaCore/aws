@@ -27,8 +27,8 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-with Ada.Strings.Fixed;
 with Ada.Streams.Stream_IO;
+with Ada.Strings.Fixed;
 with Ada.Text_IO;
 
 with AWS.Client.HTTP_Utils;
@@ -101,7 +101,7 @@ package body AWS.Client is
       User_Agent  : String          := Default.User_Agent)
       return HTTP_Connection is
    begin
-      return  Connection : HTTP_Connection do
+      return Connection : HTTP_Connection do
          Create (Connection, Host,
                  User, Pwd,
                  Proxy, Proxy_User, Proxy_Pwd,
