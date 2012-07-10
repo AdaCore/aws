@@ -30,6 +30,8 @@
 --  This package is used to build and register the active WebSockets. Some
 --  services to send or broadcast messages are also provided.
 
+with AWS.Status;
+
 private with GNAT.Regexp;
 
 package AWS.Net.WebSocket.Registry is
@@ -58,13 +60,20 @@ package AWS.Net.WebSocket.Registry is
    --  Note that both URI and Origin can be regular expressions.
 
    procedure Send
-     (To        : Recipient;
-      Message   : String;
-      Except_To : Object'Class := No_Object);
+     (To          : Recipient;
+      Message     : String;
+      Except_Peer : String := "");
    --  Send a message to the WebSocket designated by Origin and URI. Do not
-   --  send this message to Except_To if set. It is often needed to send a
-   --  message to all registered sockets except the one which has sent the
-   --  message trigerring a response.
+   --  send this message to the peer whose address is given by Except_Peer.
+   --  Except_Peer must be the address as reported by AWS.Net.Peer_Addr. It is
+   --  often needed to send a message to all registered sockets except the one
+   --  which has sent the message triggering a response.
+
+   procedure Send
+     (To      : Recipient;
+      Message : String;
+      Request : AWS.Status.Data);
+   --  As above but filter out the client having set the given request
 
 private
 

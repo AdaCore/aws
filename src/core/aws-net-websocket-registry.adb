@@ -127,7 +127,7 @@ package body AWS.Net.WebSocket.Registry is
       --  Returns if the Set is not empty
 
       procedure Send
-        (To : Recipient; Message : String; Except_To : Object'Class);
+        (To : Recipient; Message : String; Except_Peer : String);
       --  Send the given message to all matching WebSockets
 
       procedure Register (WebSocket : Object_Class);
@@ -321,7 +321,7 @@ package body AWS.Net.WebSocket.Registry is
       ----------
 
       procedure Send
-        (To : Recipient; Message : String; Except_To : Object'Class)
+        (To : Recipient; Message : String; Except_Peer : String)
       is
 
          procedure Send_To (Position : WebSocket_Set.Cursor);
@@ -334,7 +334,7 @@ package body AWS.Net.WebSocket.Registry is
             WebSocket : constant Object_Class :=
                           WebSocket_Set.Element (Position);
          begin
-            if (Except_To = No_Object or else WebSocket.all /= Except_To)
+            if (Except_Peer = "" or else WebSocket.Peer_Addr /= Except_Peer)
               and then
                 (not To.URI_Set
                  or else GNAT.Regexp.Match (WebSocket.URI, To.URI))
@@ -467,15 +467,23 @@ package body AWS.Net.WebSocket.Registry is
    ----------
 
    procedure Send
-     (To        : Recipient;
-      Message   : String;
-      Except_To : Object'Class := No_Object) is
+     (To          : Recipient;
+      Message     : String;
+      Except_Peer : String := "") is
    begin
-      DB.Send (To, Message, Except_To);
+      DB.Send (To, Message, Except_Peer);
    exception
       when others =>
          --  Should never fails even if the WebSocket is closed by peer
          null;
+   end Send;
+
+   procedure Send
+     (To      : Recipient;
+      Message : String;
+      Request : AWS.Status.Data) is
+   begin
+      Send (To, Message, Except_Peer => AWS.Status.Socket (Request).Peer_Addr);
    end Send;
 
    --------------
