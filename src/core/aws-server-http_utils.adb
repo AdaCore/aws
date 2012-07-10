@@ -53,7 +53,7 @@ with AWS.Messages;
 with AWS.MIME;
 with AWS.Net;
 with AWS.Net.Buffered;
-with AWS.Net.WebSocket.Registry;
+with AWS.Net.WebSocket.Registry.Watch;
 with AWS.Parameters;
 with AWS.Response.Set;
 with AWS.Server.Get_Status;
@@ -1557,7 +1557,7 @@ package body AWS.Server.HTTP_Utils is
             then
                --  Register this new WebSocket
 
-               Net.WebSocket.Registry.Register
+               Net.WebSocket.Registry.Watch
                  (Net.WebSocket.Registry.Constructor (Status.URI (C_Stat))
                   (Socket  => Status.Socket (C_Stat),
                    Request => C_Stat));
