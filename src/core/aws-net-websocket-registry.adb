@@ -462,20 +462,6 @@ package body AWS.Net.WebSocket.Registry is
       Factories.Insert (URI, Factory);
    end Register;
 
-   procedure Register (WebSocket : Object'Class) is
-      WS : constant Object_Class := new Object'Class'(WebSocket);
-   begin
-      --  Register WebSocket
-
-      DB.Register (WS);
-      DB.watch (WS);
-
-      --  Send a Connection_Open message
-
-      WS.State.Kind := Connection_Open;
-      WS.On_Open ("AWS WebSocket connection open");
-   end Register;
-
    ----------
    -- Send --
    ----------
@@ -558,5 +544,23 @@ package body AWS.Net.WebSocket.Registry is
       Message_Readers :=
         new Message_Reader_Set (1 .. Config.Max_WebSocket_Handler);
    end Start;
+
+   ----------------
+   -- Watch_Data --
+   ----------------
+
+   procedure Watch_Data (WebSocket : Object'Class) is
+      WS : constant Object_Class := new Object'Class'(WebSocket);
+   begin
+      --  Register WebSocket
+
+      DB.Register (WS);
+      DB.watch (WS);
+
+      --  Send a Connection_Open message
+
+      WS.State.Kind := Connection_Open;
+      WS.On_Open ("AWS WebSocket connection open");
+   end Watch_Data;
 
 end AWS.Net.WebSocket.Registry;
