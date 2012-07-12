@@ -1546,8 +1546,8 @@ default is @_RECEIVE_TIMEOUT_@ seconds.
 @cindex Reuse_Address
 Set the socket reuse address policy. If set to True the server will be
 able to bind to a socket that has just been released without the need of
-waiting. Enabling this feature is not secure and should probably used
-only for debugging purpose. The default is @_REUSE_ADDRESS_@.
+waiting. Enabling this feature may introduce security risks on some
+platforms. The default is @_REUSE_ADDRESS_@.
 
 @item Security_Mode (string)
 @cindex Security_Mode
