@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2002-2012, AdaCore                     --
+--                     Copyright (C) 2002-2013, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -123,7 +123,7 @@ package AWS.Net.SSL is
    --  security method used by AWS. Key_Filename must be specified if the key
    --  is not in the same file as the certificate. The Config object can be
    --  associated with all secure sockets sharing the same options. If
-   --  Exchange_Certificate is True the client will send it's certificate to
+   --  Exchange_Certificate is True the client will send its certificate to
    --  the server, if False only the server will send its certificate.
 
    procedure Release (Config : in out SSL.Config);
