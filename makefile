@@ -37,15 +37,18 @@ LIBRARY_TYPE = static
 ifeq (${OS}, Windows_NT)
 EXEEXT	= .exe
 SOEXT	= .dll
+OS      = Windows_NT
 else
 ifeq ($(UNAME), Darwin)
 SOEXT   = .dylib
+OS      = Darwin
 else
 ifeq ($(UNAME), HP-UX)
 SOEXT	= .sl
 else
 SOEXT	= .so
 endif
+OS      = UNIX
 endif
 EXEEXT	=
 endif
@@ -77,7 +80,7 @@ ALL_OPTIONS	= $(MAKE_OPT) SOCKET="$(SOCKET)" XMLADA="$(XMLADA)" \
 	SOEXT="$(SOEXT)" BUILD_DOC_SCRIPT="false" GNAT="$(GNAT)" \
 	T2A="../../$(BDIR)/static/tools/templates2ada" \
 	LIBRARY_TYPE="$(LIBRARY_TYPE)" PYTHON="$(PYTHON)" \
-	PLATFORM="$(PLATFORM)" ZLIB="$(ZLIB)"
+	PLATFORM="$(PLATFORM)" ZLIB="$(ZLIB)" OS="$(OS)"
 
 build_doc:
 	echo ""

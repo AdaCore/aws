@@ -37,7 +37,7 @@ setup_dir:
 	-$(MKDIR) -p $(SDIR)/src $(NSDIR)/src
 ifeq ($(PLATFORM), native)
 	-$(GPRBUILD) -p -XPRJ_BUILD=Debug -XLIBRARY_TYPE=static \
-		-XPLATFORM=native -Psetup
+		-XPLATFORM=native -XOS=$(OS) -Psetup
 endif
 
 setup_extlib:

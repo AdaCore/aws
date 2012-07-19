@@ -27,6 +27,15 @@ project Setup is
    for Object_Dir use "../" & Shared.Target_Dir & "/setup/obj";
    for Exec_Dir use "../" & Shared.Target_Dir & "/setup";
 
+   package Compiler is
+      case Shared.OS is
+         when "Darwin" =>
+            for Default_Switches ("C") use ("-fno-common");
+         when others =>
+            null;
+      end case;
+   end Compiler;
+
    package Ide renames Shared.Ide;
 
 end Setup;
