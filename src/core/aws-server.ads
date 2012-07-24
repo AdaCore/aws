@@ -453,6 +453,10 @@ private
       --  This is the socket set where server socket and keep alive sockets
       --  waiting for read availability.
 
+      Accept_Sem         : Utils.Semaphore;
+      --  Semaphore used to serialize the waiting of the available socket on
+      --  Acceptor.
+
       Properties         : CNF.Object := CNF.Get_Current;
       --  All server properties controled by the configuration file
 

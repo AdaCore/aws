@@ -35,7 +35,6 @@ with Ada.Exceptions;
 
 with AWS.Net;
 with AWS.Net.Generic_Sets;
-with AWS.Utils;
 
 package AWS.Net.Acceptors is
 
@@ -194,7 +193,6 @@ private
       Force_Length        : Sets.Socket_Count;
       Close_Length        : Sets.Socket_Count;
       Back_Queue_Size     : Positive;
-      Semaphore           : Utils.Semaphore;
       Constructor         : Socket_Constructor := Socket'Access;
    end record;
 
