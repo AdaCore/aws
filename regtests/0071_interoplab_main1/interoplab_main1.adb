@@ -44,6 +44,7 @@ procedure Interoplab_Main1 is
    use Ada.Strings.Unbounded;
 
    H_Server : Server.HTTP;
+   IPv6_Srv : Server.HTTP;
 
    function "+" (Str : String) return Unbounded_String
      renames To_Unbounded_String;
@@ -505,8 +506,8 @@ begin
    Server.Start (H_Server, CB'Unrestricted_Access, CNF);
 
    if Net.IPv6_Available then
-      Server.Add_Listening
-        (H_Server, "localhost", Tinteroplab.Server.Port, Net.FAMILY_INET6);
+      Config.Set.Protocol_Family (CNF, "FAMILY_INET6");
+      Server.Start (IPv6_Srv, CB'Unrestricted_Access, CNF);
    end if;
 
    T_echoVoid;
@@ -523,4 +524,8 @@ begin
    T_echoStructArray;
 
    Server.Shutdown (H_Server);
+
+   if Net.IPv6_Available then
+      Server.Shutdown (IPv6_Srv);
+   end if;
 end Interoplab_Main1;

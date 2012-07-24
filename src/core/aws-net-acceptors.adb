@@ -32,33 +32,10 @@ with Ada.Streams;
 package body AWS.Net.Acceptors is
 
    Signal_Index   : constant := 1;
-   First_Index    : constant := 2;
+   Server_Index   : constant := 2;
+   First_Index    : constant := 3;
 
    Socket_Command : constant := 1;
-
-   -------------------
-   -- Add_Listening --
-   -------------------
-
-   procedure Add_Listening
-     (Acceptor      : in out Acceptor_Type;
-      Host          : String;
-      Port          : Natural;
-      Family        : Family_Type := Family_Unspec;
-      Reuse_Address : Boolean     := False)
-   is
-      Server : constant Socket_Access :=
-         new Socket_Type'Class'(Acceptor.Constructor (False));
-   begin
-      Server.Bind
-        (Host => Host, Port => Port, Family => Family,
-         Reuse_Address => Reuse_Address);
-      Server.Listen (Queue_Size => Acceptor.Back_Queue_Size);
-
-      Give_Back (Acceptor, Server);
-
-      Acceptor.Servers.Add (Server);
-   end Add_Listening;
 
    ---------
    -- Get --
@@ -73,8 +50,6 @@ package body AWS.Net.Acceptors is
    is
       use type Sets.Socket_Count;
 
-      function Accept_Listening return Boolean;
-
       procedure Add_Sockets;
       --  Add sockets to the acceptor either from Accept_Socket or from
       --  Give_Back.
@@ -85,20 +60,21 @@ package body AWS.Net.Acceptors is
       Too_Many_FD  : Boolean := False;
       Ready, Error : Boolean;
 
-      ----------------------
-      -- Accept_Listening --
-      ----------------------
+      -----------------
+      -- Add_Sockets --
+      -----------------
 
-      function Accept_Listening return Boolean is
-         Server : constant Socket_Type'Class :=
-                    Sets.Get_Socket (Acceptor.Set, Acceptor.Index);
+      procedure Add_Sockets is
       begin
-         if not Server.Is_Listening then
-            return False;
-         end if;
+         --  Save Acceptor.Last to do not try to get status of new arrived
+         --  sockets until it wouldn't in the Wait call.
+
+         Acceptor.Last := Sets.Count (Acceptor.Set);
+
+         Sets.Is_Read_Ready (Acceptor.Set, Server_Index, Ready, Error);
 
          if Error then
-            Server.Raise_Socket_Error ("Accepting socket error");
+            Acceptor.Server.Raise_Socket_Error ("Accepting socket error");
 
          elsif Ready then
             declare
@@ -109,7 +85,7 @@ package body AWS.Net.Acceptors is
                --  take a long time inside Accept_Socket. We would make socket
                --  SSL later outside acceptor if necessary.
 
-               Server.Accept_Socket (New_Socket);
+               Acceptor.Server.Accept_Socket (New_Socket);
 
                Sets.Add
                  (Acceptor.Set,
@@ -135,15 +111,6 @@ package body AWS.Net.Acceptors is
             end;
          end if;
 
-         return True;
-      end Accept_Listening;
-
-      -----------------
-      -- Add_Sockets --
-      -----------------
-
-      procedure Add_Sockets is
-      begin
          Sets.Is_Read_Ready (Acceptor.Set, Signal_Index, Ready, Error);
 
          if Error then
@@ -201,8 +168,6 @@ package body AWS.Net.Acceptors is
             Free (Socket);
          end loop;
 
-         Acceptor.Servers.Clear;
-
          raise Socket_Error;
       end Shutdown;
 
@@ -232,13 +197,12 @@ package body AWS.Net.Acceptors is
          Wait_Timeout := Timeout (not First);
          Oldest_Idx   := 0;
 
-         Read_Ready : while Acceptor.Index <= Acceptor.Last loop
+         Read_Ready : loop
+            exit Read_Ready when Acceptor.Index > Acceptor.Last;
+
             Sets.Is_Read_Ready (Acceptor.Set, Acceptor.Index, Ready, Error);
 
-            if Accept_Listening then
-               Acceptor.Index := Acceptor.Index + 1;
-
-            elsif Error or else Ready then
+            if Error or else Ready then
                Sets.Remove_Socket (Acceptor.Set, Acceptor.Index, Socket);
 
                Acceptor.Last := Acceptor.Last - 1;
@@ -308,11 +272,6 @@ package body AWS.Net.Acceptors is
                S.Shutdown;
                Free (S); -- Don't use S.Free, it does not deallocate S
             end loop;
-
-            --  Save Acceptor.Last to do not try to get status of new arrived
-            --  sockets until it wouldn't in the Wait call.
-
-            Acceptor.Last := Sets.Count (Acceptor.Set);
 
             Error := False;
          exception
@@ -436,15 +395,12 @@ package body AWS.Net.Acceptors is
 
       use Real_Time;
 
-      Server : constant Socket_Access := New_Socket;
-
    begin
-      Server.Bind
+      Acceptor.Server := New_Socket;
+      Acceptor.Server.Bind
         (Host => Host, Port => Port, Family => Family,
          Reuse_Address => Reuse_Address);
-      Server.Listen (Queue_Size => Queue_Size);
-
-      Acceptor.Servers.Add (Server);
+      Acceptor.Server.Listen (Queue_Size => Queue_Size);
 
       Acceptor.R_Signal := New_Socket;
       Acceptor.W_Signal := New_Socket;
@@ -453,7 +409,7 @@ package body AWS.Net.Acceptors is
 
       Sets.Reset (Acceptor.Set);
       Sets.Add (Acceptor.Set, Acceptor.R_Signal, Sets.Input);
-      Sets.Add (Acceptor.Set, Server, Sets.Input);
+      Sets.Add (Acceptor.Set, Acceptor.Server, Sets.Input);
 
       Acceptor.Index               := First_Index;
       Acceptor.Last                := Sets.Count (Acceptor.Set);
@@ -474,52 +430,8 @@ package body AWS.Net.Acceptors is
    function Server_Socket
      (Acceptor : Acceptor_Type) return Socket_Type'Class is
    begin
-      return Acceptor.Servers.Get.First_Element.all;
+      return Acceptor.Server.all;
    end Server_Socket;
-
-   --------------------
-   -- Server_Sockets --
-   --------------------
-
-   function Server_Sockets (Acceptor : Acceptor_Type) return Socket_List is
-   begin
-      return Acceptor.Servers.Get;
-   end Server_Sockets;
-
-   ------------------------
-   -- Server_Sockets_Set --
-   ------------------------
-
-   protected body Server_Sockets_Set is
-
-      ---------
-      -- Add --
-      ---------
-
-      procedure Add (S : Socket_Access) is
-      begin
-         Sockets.Append (S);
-      end Add;
-
-      -----------
-      -- Clear --
-      -----------
-
-      procedure Clear is
-      begin
-         Sockets.Clear;
-      end Clear;
-
-      ---------
-      -- Get --
-      ---------
-
-      function Get return Socket_List is
-      begin
-         return Sockets;
-      end Get;
-
-   end Server_Sockets_Set;
 
    ----------------------------
    -- Set_Socket_Constructor --

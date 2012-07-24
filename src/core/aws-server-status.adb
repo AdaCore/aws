@@ -165,15 +165,6 @@ package body AWS.Server.Status is
       return Net.Acceptors.Server_Socket (Server.Acceptor);
    end Socket;
 
-   -------------
-   -- Sockets --
-   -------------
-
-   function Sockets (Server : HTTP) return Net.Acceptors.Socket_List is
-   begin
-      return Net.Acceptors.Server_Sockets (Server.Acceptor);
-   end Sockets;
-
    ----------------
    -- Start_Time --
    ----------------

@@ -36,6 +36,7 @@ procedure Test_WSDL is
    use AWS;
 
    H_Server : Server.HTTP;
+   IPv6_Srv : Server.HTTP;
    CNF      : Config.Object;
 
    procedure WSDL_Demo_Client is
@@ -90,15 +91,19 @@ begin
       --  to connect.
 
       if AWS.Server.Status.Is_IPv6 (H_Server) then
-         Server.Add_Listening
-           (H_Server, "localhost", R_Hello_Demo.Server.Port, Net.FAMILY_INET);
+         Config.Set.Protocol_Family (CNF, "FAMILY_INET");
       else
-         Server.Add_Listening
-           (H_Server, "localhost", R_Hello_Demo.Server.Port, Net.FAMILY_INET6);
+         Config.Set.Protocol_Family (CNF, "FAMILY_INET6");
       end if;
+
+      AWS.Server.Start (IPv6_Srv, CB'Unrestricted_Access, CNF);
    end if;
 
    WSDL_Demo_Client;
 
    Server.Shutdown (H_Server);
+
+   if Net.IPv6_Available then
+      Server.Shutdown (IPv6_Srv);
+   end if;
 end Test_WSDL;
