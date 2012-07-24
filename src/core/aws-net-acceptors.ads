@@ -171,7 +171,6 @@ private
       procedure Add (S : Socket_Access);
       function Get return Socket_List;
       procedure Clear;
-      entry Wait_Empty;
    private
       Sockets : Socket_List;
    end Server_Sockets_Set;

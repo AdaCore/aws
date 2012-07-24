@@ -439,10 +439,6 @@ package body AWS.Net.Acceptors is
       Server : constant Socket_Access := New_Socket;
 
    begin
-      if Sets.Count (Acceptor.Set) > 0 then
-         raise Constraint_Error with "Acceptor is not clear";
-      end if;
-
       Server.Bind
         (Host => Host, Port => Port, Family => Family,
          Reuse_Address => Reuse_Address);
@@ -455,11 +451,12 @@ package body AWS.Net.Acceptors is
       Acceptor.W_Signal.Socket_Pair (Acceptor.R_Signal.all);
       Acceptor.R_Signal.Set_Timeout (10.0);
 
+      Sets.Reset (Acceptor.Set);
       Sets.Add (Acceptor.Set, Acceptor.R_Signal, Sets.Input);
       Sets.Add (Acceptor.Set, Server, Sets.Input);
 
+      Acceptor.Index               := First_Index;
       Acceptor.Last                := Sets.Count (Acceptor.Set);
-      Acceptor.Index               := Acceptor.Last + 1;
       Acceptor.Timeout             := To_Time_Span (Timeout);
       Acceptor.Force_Timeout       := To_Time_Span (Force_Timeout);
       Acceptor.First_Timeout       := To_Time_Span (First_Timeout);
@@ -522,15 +519,6 @@ package body AWS.Net.Acceptors is
          return Sockets;
       end Get;
 
-      ----------------
-      -- Wait_Empty --
-      ----------------
-
-      entry Wait_Empty when Sockets.Is_Empty is
-      begin
-         null;
-      end Wait_Empty;
-
    end Server_Sockets_Set;
 
    ----------------------------
@@ -553,18 +541,7 @@ package body AWS.Net.Acceptors is
          Acceptor.W_Signal.Shutdown;
          Free (Acceptor.W_Signal);
       end if;
-
       Acceptor.Box.Clear;
-
-      select
-         Acceptor.Servers.Wait_Empty;
-      or
-         delay 4.0;
-
-         raise Program_Error with
-           "Could not shutdown acceptor " & Sets.Count (Acceptor.Set)'Img
-           & Acceptor.Last'Img & Acceptor.Index'Img;
-      end select;
    end Shutdown;
 
    -----------------------

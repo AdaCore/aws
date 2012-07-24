@@ -112,6 +112,7 @@ private
 
    type U_Socket is new Net.Socket_Type with record
       Server : Boolean := False;
+      Index  : Natural := 0;
    end record;
 
 end USock;

@@ -22,7 +22,4 @@ Content-Length: 22
 response from U_Socket
 --
 Shutdown on U_Socket
-Shutdown on U_Socket
-Shutdown on U_Socket
-Shutdown on U_Socket
 shutdown
