@@ -33,8 +33,13 @@ ZPATH = ./
 endif
 endif
 
-setup_dir:
-	-$(MKDIR) -p $(SDIR)/src $(NSDIR)/src
+$(SDIR)/src:
+	$(MKDIR) -p $(SDIR)/src
+
+$(NSDIR)/src:
+	$(MKDIR) -p $(NSDIR)/src
+
+$(NSDIR)/check_config$(EXEEXT): $(NSDIR)/src setup/check_config.c
 ifeq ($(PLATFORM), native)
 	-$(GPRBUILD) -p -XPRJ_BUILD=Debug -XLIBRARY_TYPE=static \
 		-XPLATFORM=native -XOS=$(OS) -Psetup
@@ -82,12 +87,12 @@ endif
 
 force: ;
 
-setup: setup_dir $(NSDIR)/src/aws-os_lib.ads setup_extlib
+setup: $(NSDIR)/src/aws-os_lib.ads setup_extlib
 
-$(NSDIR)/src/aws-os_lib.ads: makefile setup/check_config.c force
+$(NSDIR)/src/aws-os_lib.ads: $(SDIR)/src $(NSDIR)/check_config$(EXEEXT) force
 	echo Setup OS specific definitions
 ifeq ($(PLATFORM), native)
-	$(NSDIR)/check_config $(NSDIR)/src/aws-os_lib.ads
+	$(NSDIR)/check_config$(EXEEXT) $(NSDIR)/src/aws-os_lib.ads
 else
 	$(CP) src/aws-os_lib__$(PLATFORM).ads $(SDIR)/src/aws-os_lib.ads
 endif
