@@ -293,7 +293,18 @@ package body AWS.Net.WebSocket.Registry is
 
       entry Not_Empty when Count > 0 or else Signal is
       begin
-         Signal := False;
+         --  It was a signal, consume the one by sent
+
+         if Signal then
+            Signal := False;
+
+            declare
+               Data : Stream_Element_Array (1 .. 1);
+               Last : Stream_Element_Offset;
+            begin
+               AWS.Net.Std.Receive (Sig1, Data, Last);
+            end;
+         end if;
       end Not_Empty;
 
       --------------
