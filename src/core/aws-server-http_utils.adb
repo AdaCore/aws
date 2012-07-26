@@ -1557,15 +1557,16 @@ package body AWS.Server.HTTP_Utils is
             then
                --  Register this new WebSocket
 
+               Send_WebSocket_Header;
+
+               HTTP_Server.Slots.Socket_Taken (Line_Index);
+               Socket_Taken := True;
+               Will_Close := False;
+
                Net.WebSocket.Registry.Watch
                  (Net.WebSocket.Registry.Constructor (Status.URI (C_Stat))
                   (Socket  => Status.Socket (C_Stat),
                    Request => C_Stat));
-
-               Send_WebSocket_Header;
-               HTTP_Server.Slots.Socket_Taken (Line_Index);
-               Socket_Taken := True;
-               Will_Close := False;
 
             else
                Socket_Taken := False;
