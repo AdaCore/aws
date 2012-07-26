@@ -362,8 +362,8 @@ package AWS.Response is
    -- WebSockets --
    ----------------
 
-   function Websocket return Data;
-   --  WebSocket handshake from initial websocket connection
+   function WebSocket return Data;
+   --  WebSocket handshake from initial WebSocket connection
 
 private
 

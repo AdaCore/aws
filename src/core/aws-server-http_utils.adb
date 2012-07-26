@@ -149,7 +149,7 @@ package body AWS.Server.HTTP_Utils is
              Headers.Values.Unnamed_Value_Exists
                (Status.Upgrade (C_Stat), "websocket", Case_Sensitive => False)
          then
-            Answer := Response.Websocket;
+            Answer := Response.WebSocket;
 
          else
             --  Otherwise, check if a session needs to be created
