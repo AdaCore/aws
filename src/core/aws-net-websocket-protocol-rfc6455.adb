@@ -29,10 +29,15 @@
 
 --  This implements the WebSocket protocol as defined in RFC-6455
 
+with Ada.Strings.Fixed;
 with System;
 
 with GNAT.Byte_Swapping;
 
+with SHA.Process_Data;
+with SHA.Strings;
+
+with AWS.Messages;
 with AWS.Net.Buffered;
 
 package body AWS.Net.WebSocket.Protocol.RFC6455 is
@@ -353,5 +358,28 @@ package body AWS.Net.WebSocket.Protocol.RFC6455 is
          Send (Socket, O_Binary, Data);
       end if;
    end Send;
+
+   -----------------
+   -- Send_Header --
+   -----------------
+
+   procedure Send_Header
+     (Sock : Net.Socket_Type'Class; Request : AWS.Status.Data)
+   is
+      use SHA.Process_Data;
+      use SHA.Strings;
+
+      GUID : constant String :=
+               "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
+      --  As specified into the RFC-6455
+      Key  : constant String :=
+               Strings.Fixed.Trim
+                 (AWS.Status.Sec_WebSocket_Key (Request), Strings.Both);
+   begin
+      Net.Buffered.Put_Line
+        (Sock,
+         Messages.Sec_WebSocket_Accept
+           (String (B64_From_SHA (Digest_A_String (Key & GUID)))));
+   end Send_Header;
 
 end AWS.Net.WebSocket.Protocol.RFC6455;
