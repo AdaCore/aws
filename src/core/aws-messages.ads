@@ -154,6 +154,8 @@ package AWS.Messages is
    Sec_WebSocket_Accept_Token   : constant String := "Sec-WebSocket-Accept";
    Sec_WebSocket_Protocol_Token : constant String := "Sec-WebSocket-Protocol";
    Sec_WebSocket_Key_Token      : constant String := "Sec-WebSocket-Key";
+   Sec_WebSocket_Key1_Token     : constant String := "Sec-WebSocket-Key1";
+   Sec_WebSocket_Key2_Token     : constant String := "Sec-WebSocket-Key2";
    Sec_WebSocket_Version_Token  : constant String := "Sec-WebSocket-Version";
    Sec_WebSocket_Origin_Token   : constant String := "Sec-WebSocket-Origin";
    Chat_Token                   : constant String := "chat";

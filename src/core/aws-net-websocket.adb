@@ -34,6 +34,7 @@ with Interfaces;
 with AWS.Headers;
 with AWS.Messages;
 with AWS.Translator;
+with AWS.Net.WebSocket.Protocol.Draft76;
 with AWS.Net.WebSocket.Protocol.RFC6455;
 
 package body AWS.Net.WebSocket is
@@ -64,7 +65,19 @@ package body AWS.Net.WebSocket is
       is
          Headers : constant AWS.Headers.List := AWS.Status.Header (Request);
          Version : Natural := 0;
+         S_CB    : Send_Callback;
+         R_CB    : Receive_Callback;
       begin
+         if Headers.Exist (Messages.Sec_WebSocket_Key1_Token)
+           and then Headers.Exist (Messages.Sec_WebSocket_Key2_Token)
+         then
+            S_CB := Protocol.Draft76.Send'Access;
+            R_CB := Protocol.Draft76.Receive'Access;
+         else
+            S_CB := Protocol.RFC6455.Send'Access;
+            R_CB := Protocol.RFC6455.Receive'Access;
+         end if;
+
          if Headers.Exist (Messages.Sec_WebSocket_Version_Token) then
             declare
                Value : constant String :=
@@ -81,8 +94,8 @@ package body AWS.Net.WebSocket is
             Socket     => Socket,
             Request    => Request,
             Version    => Version,
-            Send_CB    => Protocol.RFC6455.Send'Access,
-            Receive_CB => Protocol.RFC6455.Receive'Access,
+            Send_CB    => S_CB,
+            Receive_CB => R_CB,
             State      => new Internal_State'
               (Remaining  => -1,
                Kind       => Unknown,

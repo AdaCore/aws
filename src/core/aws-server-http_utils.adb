@@ -50,6 +50,7 @@ with AWS.Messages;
 with AWS.MIME;
 with AWS.Net;
 with AWS.Net.Buffered;
+with AWS.Net.WebSocket.Protocol.Draft76;
 with AWS.Net.WebSocket.Protocol.RFC6455;
 with AWS.Net.WebSocket.Registry.Watch;
 with AWS.Parameters;
@@ -1493,7 +1494,8 @@ package body AWS.Server.HTTP_Utils is
       ------------------------------
 
       procedure Send_WebSocket_Handshake is
-         Sock : constant Net.Socket_Type'Class := Status.Socket (C_Stat);
+         Sock    : constant Net.Socket_Type'Class := Status.Socket (C_Stat);
+         Headers : constant AWS.Headers.List := Status.Header (C_Stat);
       begin
          --  First let's output the status line
 
@@ -1504,14 +1506,28 @@ package body AWS.Server.HTTP_Utils is
 
          Response.Send_Header (Socket => Sock, D => Answer);
 
-         --  Send WebSocket-Accept handshake
+         if Headers.Exist (Messages.Sec_WebSocket_Key1_Token)
+           and then Headers.Exist (Messages.Sec_WebSocket_Key2_Token)
+         then
+            --  End of header
 
-         Net.WebSocket.Protocol.RFC6455.Send_Header (Sock, C_Stat);
+            Net.Buffered.New_Line (Sock);
+            Net.Buffered.Flush (Sock);
 
-         --  End of header
+            --  Send body
 
-         Net.Buffered.New_Line (Sock);
-         Net.Buffered.Flush (Sock);
+            Net.WebSocket.Protocol.Draft76.Send_Body (Sock, C_Stat);
+
+         else
+            --  Send WebSocket-Accept handshake
+
+            Net.WebSocket.Protocol.RFC6455.Send_Header (Sock, C_Stat);
+
+            --  End of header
+
+            Net.Buffered.New_Line (Sock);
+            Net.Buffered.Flush (Sock);
+         end if;
       end Send_WebSocket_Handshake;
 
       use type Response.Data;
