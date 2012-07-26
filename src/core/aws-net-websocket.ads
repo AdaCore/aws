@@ -158,11 +158,22 @@ private
 
    type Internal_State_Access is access Internal_State;
 
+   type Send_Callback is access procedure
+     (Socket : Object;
+      Data   : Stream_Element_Array);
+
+   type Receive_Callback is access procedure
+     (Socket : Object;
+      Data   : out Stream_Element_Array;
+      Last   : out Stream_Element_Offset);
+
    type Object is new Net.Socket_Type with record
-      Socket  : Net.Socket_Access;
-      Request : AWS.Status.Data;
-      Version : Natural;
-      State   : Internal_State_Access;
+      Socket     : Net.Socket_Access;
+      Request    : AWS.Status.Data;
+      Version    : Natural;
+      Send_CB    : Send_Callback;
+      Receive_CB : Receive_Callback;
+      State      : Internal_State_Access;
    end record;
 
    --  Routines read/write from a WebSocket, this handles the WebSocket
@@ -216,8 +227,14 @@ private
    overriding procedure Free (Socket : in out Object);
 
    No_Object : constant Object'Class :=
-                 Object'(Net.Socket_Type with
-                         null, Request => <>, Version => 0, State => null);
+                 Object'
+                   (Net.Socket_Type with
+                    Socket      => null,
+                    Request     => <>,
+                    Version     => 0,
+                    Send_CB     => null,
+                    Receive_CB  => null,
+                    State       => null);
 
    --  Error codes corresponding to all errors
 

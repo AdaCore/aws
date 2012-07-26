@@ -39,9 +39,6 @@ with Ada.Text_IO;
 with GNAT.MD5;
 with GNAT.Regexp;
 
-with SHA.Process_Data;
-with SHA.Strings;
-
 with AWS.Attachments;
 with AWS.Digest;
 with AWS.Dispatchers;
@@ -53,6 +50,8 @@ with AWS.Messages;
 with AWS.MIME;
 with AWS.Net;
 with AWS.Net.Buffered;
+with AWS.Net.WebSocket.Protocol.Draft76;
+with AWS.Net.WebSocket.Protocol.RFC6455;
 with AWS.Net.WebSocket.Registry.Watch;
 with AWS.Parameters;
 with AWS.Response.Set;
@@ -149,7 +148,7 @@ package body AWS.Server.HTTP_Utils is
              Headers.Values.Unnamed_Value_Exists
                (Status.Upgrade (C_Stat), "websocket", Case_Sensitive => False)
          then
-            Answer := Response.Websocket;
+            Answer := Response.WebSocket;
 
          else
             --  Otherwise, check if a session needs to be created
@@ -1266,7 +1265,7 @@ package body AWS.Server.HTTP_Utils is
       procedure Send_Data;
       --  Send a text/binary data to the client
 
-      procedure Send_WebSocket_Header;
+      procedure Send_WebSocket_Handshake;
       --  Send reply, accept the switching protocol
 
       procedure Send_WebSocket_Forbidden_Header;
@@ -1490,12 +1489,13 @@ package body AWS.Server.HTTP_Utils is
          Net.Buffered.Flush (Sock);
       end Send_WebSocket_Forbidden_Header;
 
-      ---------------------------
-      -- Send_WebSocket_Header --
-      ---------------------------
+      ------------------------------
+      -- Send_WebSocket_Handshake --
+      ------------------------------
 
-      procedure Send_WebSocket_Header is
-         Sock : constant Net.Socket_Type'Class := Status.Socket (C_Stat);
+      procedure Send_WebSocket_Handshake is
+         Sock    : constant Net.Socket_Type'Class := Status.Socket (C_Stat);
+         Headers : constant AWS.Headers.List := Status.Header (C_Stat);
       begin
          --  First let's output the status line
 
@@ -1506,30 +1506,29 @@ package body AWS.Server.HTTP_Utils is
 
          Response.Send_Header (Socket => Sock, D => Answer);
 
-         --  Send WebSocket-Accept handshake
+         if Headers.Exist (Messages.Sec_WebSocket_Key1_Token)
+           and then Headers.Exist (Messages.Sec_WebSocket_Key2_Token)
+         then
+            --  End of header
 
-         declare
-            use SHA.Process_Data;
-            use SHA.Strings;
+            Net.Buffered.New_Line (Sock);
+            Net.Buffered.Flush (Sock);
 
-            GUID : constant String :=
-                     "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
-            --  As specified into the RFC-6455
-            Key  : constant String :=
-                     Strings.Fixed.Trim
-                       (Status.Sec_WebSocket_Key (C_Stat), Strings.Both);
-         begin
-            Net.Buffered.Put_Line
-              (Sock,
-               Messages.Sec_WebSocket_Accept
-                 (String (B64_From_SHA (Digest_A_String (Key & GUID)))));
-         end;
+            --  Send body
 
-         --  End of header
+            Net.WebSocket.Protocol.Draft76.Send_Body (Sock, C_Stat);
 
-         Net.Buffered.New_Line (Sock);
-         Net.Buffered.Flush (Sock);
-      end Send_WebSocket_Header;
+         else
+            --  Send WebSocket-Accept handshake
+
+            Net.WebSocket.Protocol.RFC6455.Send_Header (Sock, C_Stat);
+
+            --  End of header
+
+            Net.Buffered.New_Line (Sock);
+            Net.Buffered.Flush (Sock);
+         end if;
+      end Send_WebSocket_Handshake;
 
       use type Response.Data;
 
@@ -1557,7 +1556,7 @@ package body AWS.Server.HTTP_Utils is
             then
                --  Register this new WebSocket
 
-               Send_WebSocket_Header;
+               Send_WebSocket_Handshake;
 
                HTTP_Server.Slots.Socket_Taken (Line_Index);
                Socket_Taken := True;

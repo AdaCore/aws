@@ -30,74 +30,16 @@
 with Ada.Streams;
 with Ada.Unchecked_Deallocation;
 with Interfaces;
-with System;
-
-with GNAT.Byte_Swapping;
 
 with AWS.Headers;
 with AWS.Messages;
-with AWS.Net.Buffered;
 with AWS.Translator;
+with AWS.Net.WebSocket.Protocol.Draft76;
+with AWS.Net.WebSocket.Protocol.RFC6455;
 
 package body AWS.Net.WebSocket is
 
    use Ada.Streams;
-
-   type Bit is range 0 .. 1;
-   for Bit'Size use 1;
-
-   type Opcode is mod 15;
-   for Opcode'Size use 4;
-
-   O_Continuation     : constant Opcode := 16#0#;
-   O_Text             : constant Opcode := 16#1#;
-   O_Binary           : constant Opcode := 16#2#;
-   O_Connection_Close : constant Opcode := 16#8#;
-   O_Ping             : constant Opcode := 16#9#;
-   O_Pong             : constant Opcode := 16#A#;
-
-   pragma Warnings (Off, "*reverse bit*");
-   --  This is needed to kill warnings on big-endian targets
-
-   type Frame_Header is record
-      FIN            : Bit;
-      RSV1           : Bit;
-      RSV2           : Bit;
-      RSV3           : Bit;
-      Opcd           : Opcode;
-      Mask           : Bit;
-      Payload_Length : Integer range 0 .. 127;
-   end record;
-
-   for Frame_Header'Size use 16;
-   for Frame_Header'Alignment use 1;
-   for Frame_Header'Bit_Order use System.High_Order_First;
-
-   pragma Pack (Frame_Header);
-
-   for Frame_Header use record
-      --  Byte 1
-      FIN            at 0 range 0 .. 0;
-      RSV1           at 0 range 1 .. 1;
-      RSV2           at 0 range 2 .. 2;
-      RSV3           at 0 range 3 .. 3;
-      Opcd           at 0 range 4 .. 7;
-
-      --  Byte 2
-      Mask           at 1 range 0 .. 0;
-      Payload_Length at 1 range 1 .. 7;
-   end record;
-
-   pragma Warnings (On, "*reverse bit*");
-
-   type Masking_Key is new Stream_Element_Array (0 .. 3);
-   for Masking_Key'Size use 32;
-
-   procedure Send
-     (Socket : Object;
-      Opcd   : Opcode;
-      Data   : Stream_Element_Array);
-   --  Internal send procedure which handles control frames
 
    ------------
    -- Create --
@@ -123,7 +65,19 @@ package body AWS.Net.WebSocket is
       is
          Headers : constant AWS.Headers.List := AWS.Status.Header (Request);
          Version : Natural := 0;
+         S_CB    : Send_Callback;
+         R_CB    : Receive_Callback;
       begin
+         if Headers.Exist (Messages.Sec_WebSocket_Key1_Token)
+           and then Headers.Exist (Messages.Sec_WebSocket_Key2_Token)
+         then
+            S_CB := Protocol.Draft76.Send'Access;
+            R_CB := Protocol.Draft76.Receive'Access;
+         else
+            S_CB := Protocol.RFC6455.Send'Access;
+            R_CB := Protocol.RFC6455.Receive'Access;
+         end if;
+
          if Headers.Exist (Messages.Sec_WebSocket_Version_Token) then
             declare
                Value : constant String :=
@@ -137,10 +91,12 @@ package body AWS.Net.WebSocket is
 
          return Object'
            (Net.Socket_Type with
-            Socket    => Socket,
-            Request   => Request,
-            Version   => Version,
-            State     => new Internal_State'
+            Socket     => Socket,
+            Request    => Request,
+            Version    => Version,
+            Send_CB    => S_CB,
+            Receive_CB => R_CB,
+            State      => new Internal_State'
               (Remaining  => -1,
                Kind       => Unknown,
                Close_Sent => False,
@@ -321,168 +277,9 @@ package body AWS.Net.WebSocket is
    overriding procedure Receive
      (Socket : Object;
       Data   : out Stream_Element_Array;
-      Last   : out Stream_Element_Offset)
-   is
-      use GNAT;
-      use System;
-
-      procedure Read_Payload
-        (Length : Stream_Element_Offset; Mask : Boolean; Key : Masking_Key);
-      --  Read the Length bytes of the payload
-
-      ------------------
-      -- Read_Payload --
-      ------------------
-
-      procedure Read_Payload
-        (Length : Stream_Element_Offset; Mask : Boolean; Key : Masking_Key) is
-      begin
-         Last := Data'First + Length - 1;
-
-         if Length > 0 then
-            Socket.Socket.Receive (Data (Data'First .. Last), Last);
-
-            --  If the message is masked, apply it
-
-            if Mask then
-               for K in Data'First .. Last loop
-                  Data (K) := Data (K) xor Key ((K - Data'First) mod 4);
-               end loop;
-            end if;
-         end if;
-      end Read_Payload;
-
-      D_Header : Stream_Element_Array (1 .. 2) := (0, 0);
-      Header   : Frame_Header;
-      for Header'Address use D_Header'Address;
-
-      D_16     : Stream_Element_Array (1 .. 2);
-      for D_16'Alignment use Interfaces.Unsigned_16'Alignment;
-      L_16     : Interfaces.Unsigned_16;
-      for L_16'Address use D_16'Address;
-
-      D_64     : Stream_Element_Array (1 .. 8);
-      for D_64'Alignment use Interfaces.Unsigned_64'Alignment;
-      L_64     : Interfaces.Unsigned_64;
-      for L_64'Address use D_64'Address;
-
-      Mask     : Masking_Key;
-      To_Read  : Stream_Element_Offset;
+      Last   : out Stream_Element_Offset) is
    begin
-      pragma Assert (Data'Length > 10);
-      --  This is to ease reading frame header data
-
-      --  if a new message is expected, read header
-
-      if Socket.State.Remaining = -1 then
-         Socket.Socket.Receive (D_Header, Last);
-
-         if Header.Payload_Length = 126 then
-            Socket.Socket.Receive (D_16, Last);
-
-            if Default_Bit_Order = Low_Order_First then
-               Byte_Swapping.Swap2 (L_16'Address);
-            end if;
-
-            Socket.State.Remaining := Stream_Element_Offset (L_16);
-
-         elsif Header.Payload_Length = 127 then
-            Socket.Socket.Receive (D_64, Last);
-
-            if Default_Bit_Order = Low_Order_First then
-               Byte_Swapping.Swap8 (L_64'Address);
-            end if;
-
-            Socket.State.Remaining := Stream_Element_Offset (L_64);
-
-         else
-            Socket.State.Remaining :=
-              Stream_Element_Offset (Header.Payload_Length);
-         end if;
-
-         if Header.Mask = 1 then
-            Socket.Socket.Receive (Stream_Element_Array (Mask), Last);
-         end if;
-      end if;
-
-      --  Read payload data
-
-      To_Read := Stream_Element_Offset'Min
-        (Data'Length, Socket.State.Remaining);
-
-      if Data'Length >= Socket.State.Remaining then
-         --  Everything can be read now, next call will handle a new message
-         --  frame.
-         Socket.State.Remaining := -1;
-      else
-         Socket.State.Remaining := Socket.State.Remaining - To_Read;
-      end if;
-
-      case Header.Opcd is
-         when O_Text =>
-            Socket.State.Kind := Text;
-            Read_Payload (To_Read, Header.Mask = 1, Mask);
-
-         when O_Binary =>
-            Socket.State.Kind := Binary;
-            Read_Payload (To_Read, Header.Mask = 1, Mask);
-
-         when O_Connection_Close =>
-            Read_Payload (To_Read, Header.Mask = 1, Mask);
-
-            --  Check the error code if any
-
-            if Last - Data'First >= 1 then
-               --  The first two bytes are the status code
-               declare
-                  D : Stream_Element_Array (1 .. 2) :=
-                        Data (Data'First .. Data'First + 1);
-                  E : Interfaces.Unsigned_16;
-                  for E'Address use D'Address;
-               begin
-                  if Default_Bit_Order = Low_Order_First then
-                     Byte_Swapping.Swap2 (E'Address);
-                  end if;
-                  Socket.State.Errno := E;
-               end;
-
-               --  Remove the status code from the returned message
-
-               Data (Data'First .. Last - 2) := Data (Data'First + 2 .. Last);
-               Last := Last - 2;
-            end if;
-
-            --  If needed send a close frame
-
-            if not Socket.State.Close_Sent then
-               Socket.State.Close_Sent := True;
-
-               --  Just echo the status code we received as per RFC
-
-               Send (Socket, O_Connection_Close, Data (Data'First .. Last));
-            end if;
-
-            Socket.State.Kind := Connection_Close;
-
-         when O_Ping =>
-            Read_Payload (To_Read, Header.Mask = 1, Mask);
-
-            --  Just echo with the application data
-
-               Send (Socket, O_Pong, Data (Data'First .. Last));
-
-         when O_Pong =>
-            --  Nothing to do, this means we have sent a ping frame
-            null;
-
-         when O_Continuation =>
-            --  Not yet implemented
-            null;
-
-         when others =>
-            --  Opcode for future enhancement of the protocol
-            Socket.State.Kind := Unknown;
-      end case;
+      Socket.Receive_CB (Socket, Data, Last);
    end Receive;
 
    ----------
@@ -497,84 +294,10 @@ package body AWS.Net.WebSocket is
       Socket.Socket.Send (Data, Last);
    end Send;
 
-   procedure Send
-     (Socket : Object;
-      Opcd   : Opcode;
-      Data   : Stream_Element_Array)
-   is
-      use GNAT;
-      use System;
-
-      D_Header : Stream_Element_Array (1 .. 2) := (0, 0);
-      Header   : Frame_Header;
-      for Header'Address use D_Header'Address;
-
-      D_16     : Stream_Element_Array (1 .. 2);
-      for D_16'Alignment use Interfaces.Unsigned_16'Alignment;
-      L_16     : Interfaces.Unsigned_16;
-      for L_16'Address use D_16'Address;
-
-      D_64     : Stream_Element_Array (1 .. 8);
-      for D_64'Alignment use Interfaces.Unsigned_64'Alignment;
-      L_64     : Interfaces.Unsigned_64;
-      for L_64'Address use D_64'Address;
-   begin
-      Header.FIN := 1;
-      Header.Opcd := Opcd;
-      Header.Mask := 0;
-
-      --  Compute proper message length, see RFC-6455 for a full description
-      --
-      --  <= 125    Payload_Length is the actual length
-      --  <= 65536  The actual length is in the 2 following bytes
-      --            and set payload length to 126
-      --  otherwise The actual length is in the 8 following bytes
-      --            and set payload length to 127
-
-      if Data'Length <= 125 then
-         Header.Payload_Length := Data'Length;
-
-      elsif Data'Length <= 65536 then
-         Header.Payload_Length := 126;
-         L_16 := Data'Length;
-
-         if Default_Bit_Order = Low_Order_First then
-            Byte_Swapping.Swap2 (L_16'Address);
-         end if;
-
-      else
-         Header.Payload_Length := 127;
-         L_64 := Data'Length;
-
-         if Default_Bit_Order = Low_Order_First then
-            Byte_Swapping.Swap8 (L_64'Address);
-         end if;
-      end if;
-
-      --  Send header
-
-      Net.Buffered.Write (Socket, D_Header);
-
-      --  Send extended length if any
-
-      if Data'Length <= 125 then
-         null;
-      elsif Data'Length <= 65536 then
-         Net.Buffered.Write (Socket, D_16);
-      else
-         Net.Buffered.Write (Socket, D_64);
-      end if;
-
-      --  Send payload
-
-      Net.Buffered.Write (Socket, Data);
-
-      Net.Buffered.Flush (Socket);
-   end Send;
-
    procedure Send (Socket : in out Object; Message : String) is
    begin
-      Send (Socket, O_Text, Translator.To_Stream_Element_Array (Message));
+      Socket.State.Kind := Text;
+      Socket.Send_CB (Socket, Translator.To_Stream_Element_Array (Message));
    exception
       when E : others =>
          Socket.On_Error (Exception_Message (E));
