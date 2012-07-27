@@ -155,8 +155,9 @@ package body AWS.Net.WebSocket.Registry is
       Count : FD_Set.Socket_Count;
       WS    : Object_Class;
    begin
-      while not Shutdown_Signal loop
+      loop
          DB.Not_Empty;
+         exit when Shutdown_Signal;
 
          begin
             --  Wait indefinitely, this call will be released either by an
