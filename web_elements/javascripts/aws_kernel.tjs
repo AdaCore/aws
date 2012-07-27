@@ -756,15 +756,17 @@ AWS.WebSocket = new function() {
         ws = AWS.WebSocket.getTransport(url);
 
         if (ws == false) {
-            if (status_id != null)
-                document.getElementById(status_id).innerHTML =
-                  'Your browser does NOT support webSocket.';
+            if (status_id != null) {
+                var a = document.getElementById(status_id);
+                a.innerHTML = a.innerHTML + '<br>Your browser does NOT support webSocket.';
+            }
             return;
         }
 
         ws.onmessage = default_onmessage;
         ws.onerror = default_onerror;
         ws.onclose = default_onclose;
+        ws.onopen = default_onopen;
 
         if (message_id != null)
             ws.aws_message_id=message_id;
@@ -783,21 +785,34 @@ AWS.WebSocket = new function() {
 
       if (data.substring(0,5) == '<?xml')
          AWS.Ajax.XML.fromString(data);
-       else if (this.aws_message_id != null)
-         document.getElementById(this.aws_message_id).innerHTML = data;
+       else if (this.aws_message_id != null) {
+         var a = document.getElementById(this.aws_message_id);
+         a.innerHTML = a.innerHTML + "<br>" + data;
+       }
+   }
+
+   function default_onopen(e)
+   {
+      if (this.aws_status_id != null) {
+         var a = document.getElementById(this.aws_status_id);
+         a.innerHTML = a.innerHTML + '<br>WebSocket now opened';
+      }
    }
 
    function default_onclose(e)
    {
-      if (this.aws_status_id != null)
-         document.getElementById(this.aws_status_id).innerHTML =
-            'WebSocket now closed';
+      if (this.aws_status_id != null) {
+         var a = document.getElementById(this.aws_status_id);
+         a.innerHTML = a.innerHTML + '<br>WebSocket now closed';
+      }
    }
 
    function default_onerror(e)
    {
-      if (this.aws_status_id != null)
-         document.getElementById(this.aws_status_id).innerHTML = e.data;
+      if (this.aws_status_id != null) {
+         var a = document.getElementById(this.aws_status_id);
+         a.innerHTML = a.innerHTML + "<br>Error: " + e.data;
+      }
    }
 }
 

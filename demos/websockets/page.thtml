@@ -9,7 +9,8 @@
       var ws;
 
       function updateP(id, message) {
-        document.getElementById(id).innerHTML = message;
+        var a = document.getElementById(id);
+        a.innerHTML = a.innerHTML + "<br>" + message;
       }
 
       function newMessage() {
@@ -17,23 +18,34 @@
       }
 
       function startWS() {
-          updateP('data', 'empty');
+          var server = window.location.host;
+          updateP('server', 'Server is ' + server);
 
-          ws = AWS.WebSocket.open('ws://localhost:8080/echo', 'data', 'status');
-
+          ws = AWS.WebSocket.open('ws://' + server + '/echo', 'data', 'status');
           if (ws != false)
-             updateP('status', "Your browser does support webSocket.");
+             updateP('status', "Your browser supports webSocket.");
 
-          setTimeout ("newMessage()", 2000);
+          setTimeout (newMessage, 2000);
       };
     </script>
   </head>
 
-  <body onload="startWS();">
+  <body>
     <p>This is the main page, bellow is a simple websocket counter</p>
+    <p>Click <button onclick="startWS()" value="Here">Here</button> to start</p>
+
+    <p id="server"></p>
+
+    <h3>Data</h3>
     <p id="data"></p>
+
+    <h3>From user</h3>
     <p id="from_user"></p>
+
+    <h3>Echo</h3>
     <p id="echo"></p>
+
+    <h3>Status</h3>
     <p id="status"></p>
   </body>
 </html>

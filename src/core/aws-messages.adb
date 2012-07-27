@@ -40,7 +40,7 @@ package body AWS.Messages is
    subtype Status_Code_Image is String (1 .. 3);
 
    S100_Message : aliased constant String := "Continue";
-   S101_Message : aliased constant String := "Switching Protocols";
+   S101_Message : aliased constant String := "WebSocket Protocol Handshake";
 
    S102_Message : aliased constant String := "Processing";
    --  Introduced in the WebDAV HTTP extension, refer to RFC2518

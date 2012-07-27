@@ -20,6 +20,7 @@
 
 with Ada.Text_IO;
 
+with AWS.Config.Set;   use AWS.Config;
 with AWS.Default;
 with AWS.Net.Log;
 with AWS.Net.WebSocket.Registry.Control;
@@ -43,16 +44,21 @@ procedure WebSock is
    L   : Natural;
 
    WS  : Server.HTTP;
+   Config : AWS.Config.Object;
 
 begin
+   AWS.Config.Set.Reuse_Address (Config, True);
+
    Text_IO.Put_Line
      ("Call me on port" & Positive'Image (AWS.Default.Server_Port));
 
    --  To analyse the send/received data uncomment the line below
    --  Net.Log.Start (WebSock_CB.W_Log'Access);
 
-   Server.Start (WS, "WebSockets",
-                 Max_Connection => 2,
+   Server.Start (WS,
+                 Config         => Config,
+                 --  "WebSockets",
+                 --  Max_Connections => 2,
                  Callback       => WebSock_CB.HW_CB'Access);
 
    --  Start the WebSocket server, this is needed only to receive message
@@ -73,7 +79,7 @@ begin
       delay 1.0;
    end loop;
 
-   --  First send a large message (message whose length > 125, see RFC 6455)
+   --  First send a large message (message with length > 125, see RFC 6455)
 
    Net.WebSocket.Registry.Send (Rcp, "Large message:" & M & ':');
 

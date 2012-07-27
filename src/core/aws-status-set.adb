@@ -30,7 +30,6 @@
 with Ada.Characters.Handling;
 with Ada.Strings.Fixed;
 with Ada.Unchecked_Deallocation;
-
 with AWS.Headers.Set;
 with AWS.Headers.Values;
 with AWS.Messages;
@@ -522,6 +521,15 @@ package body AWS.Status.Set is
       begin
          if Content_Length /= "" then
             D.Content_Length := Integer'Value (Content_Length);
+
+         --  Special case for the websockets draft76: even though there is no
+         --  Content-Length header, the message contains 8 bytes that are part
+         --  of the challenge and must be available to AWS.
+
+         elsif AWS.Headers.Exist
+           (D.Header, Messages.Sec_WebSocket_Key1_Token)
+         then
+            D.Content_Length := 8;
          end if;
       end;
 

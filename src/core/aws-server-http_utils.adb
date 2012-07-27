@@ -1509,14 +1509,7 @@ package body AWS.Server.HTTP_Utils is
          if Headers.Exist (Messages.Sec_WebSocket_Key1_Token)
            and then Headers.Exist (Messages.Sec_WebSocket_Key2_Token)
          then
-            --  End of header
-
-            Net.Buffered.New_Line (Sock);
-            Net.Buffered.Flush (Sock);
-
-            --  Send body
-
-            Net.WebSocket.Protocol.Draft76.Send_Body (Sock, C_Stat);
+            Net.WebSocket.Protocol.Draft76.Send_Header (Sock, C_Stat);
 
          else
             --  Send WebSocket-Accept handshake

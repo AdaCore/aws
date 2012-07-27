@@ -43,7 +43,7 @@ package AWS.Net.WebSocket.Protocol.Draft76 is
       Last   : out Stream_Element_Offset);
    --  Receive and decode WebSocket data
 
-   procedure Send_Body
+   procedure Send_Header
      (Sock : Net.Socket_Type'Class; Request : AWS.Status.Data);
    --  Send specific header for this protocol
 

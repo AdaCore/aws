@@ -27,8 +27,9 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-with Ada.Strings.Fixed;
+with Ada.Exceptions; use Ada.Exceptions;
 with Ada.Strings.Maps.Constants;
+with Ada.Text_IO;  use Ada.Text_IO;
 with System;
 
 with GNAT.Byte_Swapping;
@@ -47,9 +48,30 @@ package body AWS.Net.WebSocket.Protocol.Draft76 is
    procedure Receive
      (Socket : Object;
       Data   : out Stream_Element_Array;
-      Last   : out Stream_Element_Offset) is
+      Last   : out Stream_Element_Offset)
+   is
+      Byte    : Stream_Element_Array (1 .. 1);
+      Ignored : Stream_Element_Offset;
    begin
-      null;
+      Ignored := 1;
+      Socket.Socket.Receive (Byte, Ignored);
+      if Byte (Byte'First) /= 0 then
+         Put_Line ("WebSocket 'received' did not receive a 0x00");
+      else
+         Last := Data'First;
+         loop
+            Ignored := 1;
+            Socket.Socket.Receive (Byte, Ignored);
+            exit when Byte (Byte'First) = 16#FF#;
+
+            Data (Last) := Byte (Byte'First);
+            Last := Last + 1;
+         end loop;
+      end if;
+
+   exception
+      when E : others =>
+         Put_Line ("Unexpected exception" & Exception_Information (E));
    end Receive;
 
    ----------
@@ -58,16 +80,26 @@ package body AWS.Net.WebSocket.Protocol.Draft76 is
 
    procedure Send
      (Socket : Object;
-      Data   : Stream_Element_Array) is
+      Data   : Stream_Element_Array)
+   is
+      D_Header : constant Stream_Element_Array (1 .. 1) := (1 => 16#00#);
+      D_Footer : constant Stream_Element_Array (1 .. 1) := (1 => 16#FF#);
    begin
-      null;
+      Net.Buffered.Write (Socket, D_Header);
+
+      --  ??? Should encode in UTF-8 (to make sure there is no 16#FF# byte in
+      --  the message)
+      Net.Buffered.Write (Socket, Data);
+
+      Net.Buffered.Write (Socket, D_Footer);
+      Net.Buffered.Flush (Socket);
    end Send;
 
-   ---------------
-   -- Send_Body --
-   ---------------
+   -----------------
+   -- Send_Header --
+   -----------------
 
-   procedure Send_Body
+   procedure Send_Header
      (Sock : Net.Socket_Type'Class; Request : AWS.Status.Data)
    is
       use System;
@@ -84,9 +116,9 @@ package body AWS.Net.WebSocket.Protocol.Draft76 is
 
       function WS_Key_Value (Key : String) return Interfaces.Unsigned_32 is
          use type Interfaces.Unsigned_32;
-
-         Spaces : constant Interfaces.Unsigned_32 :=
-                    Interfaces.Unsigned_32 (Strings.Fixed.Count (Key, " "));
+         Spaces : Interfaces.Unsigned_32 := 0;
+         Value  : Interfaces.Unsigned_32;
+         Result : Interfaces.Unsigned_32;
          N      : String (1 .. Key'Length);
          I      : Natural := 0;
 
@@ -99,16 +131,24 @@ package body AWS.Net.WebSocket.Protocol.Draft76 is
             then
                I := I + 1;
                N (I) := Key (K);
+            elsif Key (K) = ' ' then
+               Spaces := Spaces + 1;
             end if;
          end loop;
 
-         return Interfaces.Unsigned_32'Value (N (N'First .. I)) / Spaces;
+         Value := Interfaces.Unsigned_32'Value (N (N'First .. I));
+
+         --  ??? Should check that Spaces /= 0
+         --  ??? Should check that Value is an integral multiple of Spaces
+
+         Result := Value / Spaces;
+         return Result;
       end WS_Key_Value;
 
       --  Key 1
 
       K1 : constant String :=
-             Headers.Get_Values (Messages.Sec_WebSocket_Key1_Token);
+        Headers.Get_Values (Messages.Sec_WebSocket_Key1_Token);
       V1 : constant Interfaces.Unsigned_32 := WS_Key_Value (K1);
       B1 : Stream_Element_Array (1 .. 4);
       for B1'Address use V1'Address;
@@ -116,14 +156,15 @@ package body AWS.Net.WebSocket.Protocol.Draft76 is
       --  Key 2
 
       K2 : constant String :=
-             Headers.Get_Values (Messages.Sec_WebSocket_Key2_Token);
+        Headers.Get_Values (Messages.Sec_WebSocket_Key2_Token);
       V2 : constant Interfaces.Unsigned_32 := WS_Key_Value (K2);
       B2 : Stream_Element_Array (1 .. 4);
       for B2'Address use V2'Address;
 
       --  Body
 
-      B  : constant Stream_Element_Array := AWS.Status.Binary_Data (Request);
+      B  : constant Stream_Element_Array :=
+        AWS.Status.Binary_Data (Request);
 
       C  : MD5.Context;
       D  : MD5.Message_Digest;
@@ -131,6 +172,33 @@ package body AWS.Net.WebSocket.Protocol.Draft76 is
       for S'Address use D'Address;
 
    begin
+      if B'Length /= 8 then
+         Put_Line ("Error, could not read binary_data from request");
+      end if;
+
+      --  Send protocol-specific headers
+
+      Net.Buffered.Put_Line
+        (Sock,
+         AWS.Messages.Sec_WebSocket_Location_Token
+         & ": ws://"
+         & AWS.Status.Host (Request)
+         & AWS.Status.URI (Request));
+
+      Net.Buffered.Put_Line
+        (Sock,
+         AWS.Messages.Sec_WebSocket_Origin_Token
+         & ": " & AWS.Status.Origin (Request));
+
+      --  End of header
+
+      Net.Buffered.New_Line (Sock);
+
+      --  Send body of the handshake (ie answer the challenge)
+
+      --  This is only steps "4." and later of the draft protocol, the rest of
+      --  the handshake has already been conducted.
+
       if Default_Bit_Order = Low_Order_First then
          Byte_Swapping.Swap4 (B1'Address);
          Byte_Swapping.Swap4 (B2'Address);
@@ -159,6 +227,6 @@ package body AWS.Net.WebSocket.Protocol.Draft76 is
       end;
 
       Net.Buffered.Flush (Sock);
-   end Send_Body;
+   end Send_Header;
 
 end AWS.Net.WebSocket.Protocol.Draft76;
