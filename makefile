@@ -71,16 +71,13 @@ all: build
 
 ALL_OPTIONS	= $(MAKE_OPT) SOCKET="$(SOCKET)" XMLADA="$(XMLADA)" \
 	ASIS="$(ASIS)" EXEEXT="$(EXEEXT)" LDAP="$(LDAP)" DEBUG="$(DEBUG)" \
-	RM="$(RM)" CP="$(CP)" MV="$(MV)" MKDIR="$(MKDIR)" AR="$(AR)" \
-	GREP="$(GREP)" SED="$(SED)" DIFF="$(DIFF)" CHMOD="$(CHMOD)" \
-	GZIP="$(GZIP)" TAR="$(TAR)" DLLTOOL="$(DLLTOOL)" DLL2DEF="$(DLL2DEF)" \
-	WINDRES="$(WINDRES)" GPRBUILD="$(GPRBUILD)" \
-	AWK="$(AWK)" CAT="$(CAT)" GCC="$(GCC)" BDIR="$(BDIR)" \
+	RM="$(RM)" CP="$(CP)" MKDIR="$(MKDIR)" SED="$(SED)" GCC="$(GCC)" \
+	CHMOD="$(CHMOD)" WINDRES="$(WINDRES)" GPRBUILD="$(GPRBUILD)" \
 	NBDIR="$(NBDIR)" prefix="$(prefix)" ENABLE_SHARED="$(ENABLE_SHARED)" \
 	SOEXT="$(SOEXT)" BUILD_DOC_SCRIPT="false" GNAT="$(GNAT)" \
 	T2A="../../$(BDIR)/static/tools/templates2ada" \
 	LIBRARY_TYPE="$(LIBRARY_TYPE)" PYTHON="$(PYTHON)" \
-	PLATFORM="$(PLATFORM)" ZLIB="$(ZLIB)" OS="$(OS)"
+	BDIR="$(BDIR)" PLATFORM="$(PLATFORM)" ZLIB="$(ZLIB)" OS="$(OS)"
 
 build_doc:
 	echo ""
