@@ -503,8 +503,8 @@ package body AWS.Net.WebSocket.Registry is
    --------------
 
    procedure Shutdown is
-      procedure Unchecked_Free is
-        new Unchecked_Deallocation (Watcher, Watcher_Ref);
+      procedure Unchecked_Free is new
+        Unchecked_Deallocation (Watcher, Watcher_Ref);
       procedure Unchecked_Free is new
         Unchecked_Deallocation (Message_Reader_Set, Message_Reader_Set_Ref);
       procedure Unchecked_Free is new
