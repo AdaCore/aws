@@ -72,7 +72,7 @@ all: build
 ALL_OPTIONS	= $(MAKE_OPT) SOCKET="$(SOCKET)" XMLADA="$(XMLADA)" \
 	ASIS="$(ASIS)" EXEEXT="$(EXEEXT)" LDAP="$(LDAP)" DEBUG="$(DEBUG)" \
 	RM="$(RM)" CP="$(CP)" MKDIR="$(MKDIR)" SED="$(SED)" GCC="$(GCC)" \
-	CHMOD="$(CHMOD)" WINDRES="$(WINDRES)" GPRBUILD="$(GPRBUILD)" \
+	WINDRES="$(WINDRES)" GPRBUILD="$(GPRBUILD)" \
 	NBDIR="$(NBDIR)" prefix="$(prefix)" ENABLE_SHARED="$(ENABLE_SHARED)" \
 	SOEXT="$(SOEXT)" BUILD_DOC_SCRIPT="false" GNAT="$(GNAT)" \
 	T2A="../../$(BDIR)/static/tools/templates2ada" \
@@ -425,6 +425,4 @@ ifeq ($(OS), Windows_NT)
 	$(CP) $(I_LIB)/relocatable/*$(SOEXT) $(DESTDIR)$(I_BIN)
 endif
 	$(CP) $(CONFADC) $(DESTDIR)$(I_LIB)/relocatable
-	-$(CHMOD) a-w $(DESTDIR)$(I_LIB)/relocatable/*
 endif
-	-$(CHMOD) a-w $(DESTDIR)$(I_LIB)/static/*
