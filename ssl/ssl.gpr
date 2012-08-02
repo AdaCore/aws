@@ -29,8 +29,8 @@ library project SSL is
          for Languages use ("Ada", "Project file", "C");
          for Source_Dirs use (".", "../config/ssl", "../config/ssl/gnutls");
       when others =>
-         for Languages use ("Ada", "Project file");
-         for Source_Dirs use (".", "../config/ssl");
+         for Languages use ("Ada", "Project file", "C");
+         for Source_Dirs use (".", "../config/ssl", "../config/ssl/openssl");
    end case;
 
    for Object_Dir use "../" & Shared'Object_Dir & "/ssl";
