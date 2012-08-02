@@ -62,7 +62,7 @@ package body AWS.Net.SSL.Certificate is
    function Get (Socket : Socket_Type) return Object is
       O : Object;
    begin
-      raise Program_Error;
+      raise Program_Error with Error_Message;
       return O;
    end Get;
 
@@ -72,7 +72,7 @@ package body AWS.Net.SSL.Certificate is
 
    function Issuer (Certificate : Object) return String is
    begin
-      raise Program_Error;
+      raise Program_Error with Error_Message;
       return "";
    end Issuer;
 
@@ -92,7 +92,7 @@ package body AWS.Net.SSL.Certificate is
 
    function Subject (Certificate : Object) return String is
    begin
-      raise Program_Error;
+      raise Program_Error with Error_Message;
       return "";
    end Subject;
 
