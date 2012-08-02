@@ -50,7 +50,7 @@ package body AWS.Net.SSL.Certificate is
       if Code /= 0 then
          declare
             Error : constant String :=
-                      C.Strings.Value (TSSL.Gnutls_Strerror (Code));
+                      C.Strings.Value (TSSL.gnutls_strerror (Code));
          begin
             Net.Log.Error (Socket, Error);
             Ada.Exceptions.Raise_Exception (Socket_Error'Identity, Error);

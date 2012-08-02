@@ -723,7 +723,7 @@ private
    pragma Import (C, X509_NAME_print_ex, "X509_NAME_print_ex");
    pragma Import (C, SSL_CTX_set_verify, "SSL_CTX_set_verify");
    pragma Import (C, SSL_CTX_set_default_verify_paths,
-                    "SSL_CTX_set_default_verify_paths");
+                  "SSL_CTX_set_default_verify_paths");
    pragma Import (C, SSL_set_session, "SSL_set_session");
    pragma Import (C, SSL_get_session, "SSL_get_session");
    pragma Import (C, SSL_get1_session, "SSL_get1_session");
