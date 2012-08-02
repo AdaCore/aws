@@ -88,6 +88,9 @@ package body AWS.Net.SSL is
 
    Default_Config : constant Config := new TS_SSL;
 
+   Data_Index     : C.int;
+   --  Application specific data's index
+
    procedure Socket_Read (Socket : Socket_Type);
    --  Read encripted data from socket if necessary
 
@@ -1201,4 +1204,9 @@ begin
    TSSL.SSL_library_init;
    Locking.Initialize;
    Init_Random;
+
+   Data_Index :=
+     TSSL.SSL_CTX_get_ex_new_index
+       (0, TSSL.Null_Pointer, TSSL.Null_Pointer,
+        TSSL.Null_Pointer, TSSL.Null_Pointer);
 end AWS.Net.SSL;
