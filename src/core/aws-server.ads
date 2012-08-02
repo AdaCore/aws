@@ -163,6 +163,10 @@ package AWS.Server is
    --  server otherwise the default security options or options set in the
    --  config files will be used. After that the call will have no effect.
 
+   procedure Set_SSL_Config
+     (Web_Server : in out HTTP; SSL_Config : Net.SSL.Config);
+   --  Set the SSL configuration for this server
+
    procedure Set_Socket_Constructor
      (Web_Server         : in out HTTP;
       Socket_Constructor : Net.Socket_Constructor);

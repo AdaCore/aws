@@ -423,6 +423,12 @@ package body AWS.Server is
         (Web_Server.Acceptor, Socket_Constructor);
    end Set_Socket_Constructor;
 
+   procedure Set_SSL_Config
+     (Web_Server : in out HTTP; SSL_Config : Net.SSL.Config) is
+   begin
+      Web_Server.SSL_Config := SSL_Config;
+   end Set_SSL_Config;
+
    --------------------------------------
    -- Set_Unexpected_Exception_Handler --
    --------------------------------------
