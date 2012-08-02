@@ -510,6 +510,8 @@ package SSL.Thin is
    procedure SSL_CTX_set_verify
      (Ctx : SSL_CTX; Mode : int; Callback : Pointer);
 
+   function SSL_CTX_get_verify_mode (Ctx : SSL_CTX) return unsigned;
+
    procedure RAND_seed (Buf : Pointer; Num : Integer);
 
    function RAND_status return Integer;
@@ -764,6 +766,7 @@ private
    pragma Import (C, X509_STORE_CTX_get_current_cert,
                   "X509_STORE_CTX_get_current_cert");
    pragma Import (C, SSL_CTX_set_verify, "SSL_CTX_set_verify");
+   pragma Import (C, SSL_CTX_get_verify_mode, "SSL_CTX_get_verify_mode");
    pragma Import (C, SSL_CTX_set_default_verify_paths,
                   "SSL_CTX_set_default_verify_paths");
    pragma Import (C, SSL_set_session, "SSL_set_session");

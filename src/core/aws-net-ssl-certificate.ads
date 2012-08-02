@@ -27,7 +27,10 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
+with Ada.Calendar;
 with Ada.Strings.Unbounded;
+
+private with AWS.Utils;
 
 package AWS.Net.SSL.Certificate is
 
@@ -46,14 +49,36 @@ package AWS.Net.SSL.Certificate is
    function Issuer (Certificate : Object) return String;
    --  Returns the certificate's issuer
 
+   function Activation_Time (Certificate : Object) return Calendar.Time;
+   --  Certificate validity starting date
+
+   function Expiration_Time (Certificate : Object) return Calendar.Time;
+   --  Certificate validity ending date
+
+   --
+   --  Client verification support
+   --
+
+   type Verify_Callback is
+     access function (Cert : SSL.Certificate.Object) return Boolean;
+   --  Client certificate verification callback, must return True if Cert can
+   --  be accepted or False otherwise.
+
+   procedure Set_Verify_Callback
+     (Config : in out SSL.Config; Callback : Verify_Callback);
+   --  Register the callback to use to verify client's certificates
+
 private
 
    type Object is record
-      Subject : Unbounded_String;
-      Issuer  : Unbounded_String;
+      Subject    : Unbounded_String;
+      Issuer     : Unbounded_String;
+      Activation : Calendar.Time;
+      Expiration : Calendar.Time;
    end record;
 
    Undefined : constant Object :=
-                 (Null_Unbounded_String, Null_Unbounded_String);
+                 (Null_Unbounded_String, Null_Unbounded_String,
+                  Utils.AWS_Epoch, Utils.AWS_Epoch);
 
 end AWS.Net.SSL.Certificate;

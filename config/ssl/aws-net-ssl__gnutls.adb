@@ -831,6 +831,16 @@ package body AWS.Net.SSL is
       null;
    end Set_Session_Cache_Size;
 
+   -------------------------
+   -- Set_Verify_Callback --
+   -------------------------
+
+   procedure Set_Verify_Callback
+     (Config : in out SSL.Config; Callback : System.Address) is
+   begin
+      raise Program_Error with "verify callback not implemented on GNU/TLS.";
+   end Set_Verify_Callback;
+
    --------------
    -- Shutdown --
    --------------

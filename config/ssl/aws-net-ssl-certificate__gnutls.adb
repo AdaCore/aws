@@ -38,6 +38,15 @@ package body AWS.Net.SSL.Certificate is
 
    procedure Check_Error_Code (Code : C.int; Socket : Socket_Type'Class);
 
+   ---------------------
+   -- Activation_Time --
+   ---------------------
+
+   function Activation_Time (Certificate : Object) return Calendar.Time is
+   begin
+      return Certificate.Activation;
+   end Activation_Time;
+
    ----------------------
    -- Check_Error_Code --
    ----------------------
@@ -57,6 +66,15 @@ package body AWS.Net.SSL.Certificate is
          end;
       end if;
    end Check_Error_Code;
+
+   ---------------------
+   -- Expiration_Time --
+   ---------------------
+
+   function Expiration_Time (Certificate : Object) return Calendar.Time is
+   begin
+      return Certificate.Expiration;
+   end Expiration_Time;
 
    ---------
    -- Get --
@@ -107,10 +125,12 @@ package body AWS.Net.SSL.Certificate is
 
       TSSL.gnutls_x509_crt_deinit (Cert);
 
-      return (Subject => To_Unbounded_String
-                           (C.To_Ada (Subject (1 .. Subj_Len), False)),
-             Issuer   => To_Unbounded_String
-                           (C.To_Ada (Issuer (1 .. Iss_Len), False)));
+      return (Subject    => To_Unbounded_String
+                              (C.To_Ada (Subject (1 .. Subj_Len), False)),
+              Issuer     => To_Unbounded_String
+                              (C.To_Ada (Issuer (1 .. Iss_Len), False)),
+              Activation => Utils.AWS_Epoch,
+              Expiration => Utils.AWS_Epoch);
    end Get;
 
    ------------
@@ -121,6 +141,16 @@ package body AWS.Net.SSL.Certificate is
    begin
       return To_String (Certificate.Issuer);
    end Issuer;
+
+   -------------------------
+   -- Set_Verify_Callback --
+   -------------------------
+
+   procedure Set_Verify_Callback
+     (Config : in out SSL.Config; Callback : Verify_Callback) is
+   begin
+      raise Program_Error with "not implemented on GNU/TLS.";
+   end Set_Verify_Callback;
 
    -------------
    -- Subject --

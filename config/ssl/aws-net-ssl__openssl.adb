@@ -38,13 +38,16 @@ with Ada.Calendar;
 with Ada.Task_Attributes;
 with Ada.Task_Identification;
 with Ada.Task_Termination;
+with Ada.Unchecked_Conversion;
 with Ada.Unchecked_Deallocation;
 with Interfaces.C.Strings;
+
 with System.Memory;
 with System.Storage_Elements;
 
 with AWS.Config;
 with AWS.Net.Log;
+with AWS.Net.SSL.Certificate.Read;
 with AWS.OS_Lib;
 with AWS.Utils;
 
@@ -125,9 +128,9 @@ package body AWS.Net.SSL is
    --  secondary initialization is ignored.
 
    function Verify_Callback
-     (preverify_ok : Integer; ctx : System.Address) return Integer;
-   --  Dummy verify procedure that always return ok. This is needed to be able
-   --  to retreive the client's certificate.
+     (preverify_ok : C.int; ctx : TSSL.X509_STORE_CTX) return C.int;
+   --  This routine is needed to be able to retreive the client's certificate
+   --  and validate it thought the user's verification routine if provided.
 
    procedure Secure
      (Source : Net.Socket_Type'Class;
@@ -1117,6 +1120,10 @@ package body AWS.Net.SSL is
             if Exchange_Certificate then
                --  Client is requested to send its certificate once
 
+               Error_If
+                 (TSSL.SSL_CTX_set_ex_data
+                    (Context, Data_Index, TSSL.Null_Pointer) = -1);
+
                TSSL.SSL_CTX_set_verify
                  (Context,
                   TSSL.SSL_VERIFY_PEER + TSSL.SSL_VERIFY_CLIENT_ONCE,
@@ -1184,11 +1191,55 @@ package body AWS.Net.SSL is
    ---------------------
 
    function Verify_Callback
-     (preverify_ok : Integer; ctx : System.Address) return Integer
+     (preverify_ok : C.int; ctx : TSSL.X509_STORE_CTX) return C.int
    is
-      pragma Unreferenced (preverify_ok, ctx);
+      use type C.unsigned;
+      use type Net.SSL.Certificate.Verify_Callback;
+
+      function To_Callback is new Unchecked_Conversion
+        (System.Address, Net.SSL.Certificate.Verify_Callback);
+
+      CB      : aliased Net.SSL.Certificate.Verify_Callback;
+      SSL     : SSL_Handle;
+      SSL_CTX : TSSL.SSL_CTX;
+      Cert    : TSSL.X509;
+      Res     : C.int := preverify_ok;
+      Mode    : C.unsigned;
    begin
-      return 1;
+      --  The SSL structure
+
+      SSL := TSSL.X509_STORE_CTX_get_ex_data
+        (ctx, TSSL.SSL_get_ex_data_X509_STORE_CTX_idx);
+
+      --  The SSL context, this is the one we are looking for as it contains
+      --  the register callback.
+
+      SSL_CTX := TSSL.SSL_get_SSL_CTX (SSL);
+
+      --  Get the current verification mode
+
+      Mode := TSSL.SSL_CTX_get_verify_mode (SSL_CTX);
+
+      --  Get the certificate as stored into the context
+
+      Cert := TSSL.X509_STORE_CTX_get_current_cert (ctx);
+
+      --  Get the user's callback stored at the Data_Index
+
+      CB := To_Callback (TSSL.SSL_CTX_get_ex_data (SSL_CTX, Data_Index));
+
+      if CB /= null and then not CB (Net.SSL.Certificate.Read (Cert)) then
+         Res := 0;
+      end if;
+
+      --  If we did not ask to fail if no peer cert was received just
+      --  unconditionally returns 1 (OK).
+
+      if (Mode and TSSL.SSL_VERIFY_FAIL_IF_NO_PEER_CERT) = 0 then
+         return 1;
+      else
+         return Res;
+      end if;
    end Verify_Callback;
 
    -------------

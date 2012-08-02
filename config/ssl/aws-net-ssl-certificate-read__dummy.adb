@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2006-2012, AdaCore                     --
+--                       Copyright (C) 2012, AdaCore                        --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -27,73 +27,8 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-with AWS.Utils;
-
-package body AWS.Net.SSL.Certificate is
-
-   pragma Warnings (Off);
-
-   Error_Message : constant String := "SSL not supported.";
-
-   ---------------------
-   -- Activation_Time --
-   ---------------------
-
-   function Activation_Time (Certificate : Object) return Calendar.Time is
-   begin
-      raise Program_Error with Error_Message;
-      return Utils.AWS_Epoch;
-   end Activation_Time;
-
-   ---------------------
-   -- Expiration_Time --
-   ---------------------
-
-   function Expiration_Time (Certificate : Object) return Calendar.Time is
-   begin
-      raise Program_Error with Error_Message;
-      return Utils.AWS_Epoch;
-   end Expiration_Time;
-
-   ---------
-   -- Get --
-   ---------
-
-   function Get (Socket : Socket_Type) return Object is
-      O : Object;
-   begin
-      raise Program_Error;
-      return O;
-   end Get;
-
-   ------------
-   -- Issuer --
-   ------------
-
-   function Issuer (Certificate : Object) return String is
-   begin
-      raise Program_Error;
-      return "";
-   end Issuer;
-
-   -------------------------
-   -- Set_Verify_Callback --
-   -------------------------
-
-   procedure Set_Verify_Callback
-     (Config : in out SSL.Config; Callback : Verify_Callback) is
-   begin
-      raise Program_Error with Error_Message;
-   end Set_Verify_Callback;
-
-   -------------
-   -- Subject --
-   -------------
-
-   function Subject (Certificate : Object) return String is
-   begin
-      raise Program_Error;
-      return "";
-   end Subject;
-
-end AWS.Net.SSL.Certificate;
+function AWS.Net.SSL.Certificate.Read (X509 : System.Address) return Object is
+   pragma Unreferenced (X509);
+begin
+   return Undefined;
+end AWS.Net.SSL.Certificate.Read;
