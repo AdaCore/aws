@@ -82,6 +82,8 @@ package body AWS.Net.SSL is
 
       procedure Set_Session_Cache_Size (Size : Natural);
 
+      procedure Set_Verify_Callback (Callback : System.Address);
+
    private
       Context : TSSL.SSL_CTX := TSSL.Null_CTX;
    end TS_SSL;
@@ -634,6 +636,16 @@ package body AWS.Net.SSL is
       end if;
    end Set_Session_Cache_Size;
 
+   -------------------------
+   -- Set_Verify_Callback --
+   -------------------------
+
+   procedure Set_Verify_Callback
+     (Config : in out SSL.Config; Callback : System.Address) is
+   begin
+      Config.Set_Verify_Callback (Callback);
+   end Set_Verify_Callback;
+
    --------------
    -- Shutdown --
    --------------
@@ -1153,6 +1165,17 @@ package body AWS.Net.SSL is
                Larg => C.int (Size),
                Parg => TSSL.Null_Pointer) = -1);
       end Set_Session_Cache_Size;
+
+      -------------------------
+      -- Set_Verify_Callback --
+      -------------------------
+
+      procedure Set_Verify_Callback (Callback : System.Address) is
+      begin
+         Error_If
+           (TSSL.SSL_CTX_set_ex_data
+              (Context, Data_Index, Callback) = -1);
+      end Set_Verify_Callback;
 
    end TS_SSL;
 
