@@ -2454,7 +2454,7 @@ test server.
 @AWSEXP {$ openssl genrsa -rand <filename> -out ca-key.pem}
 
 @noindent
-Filename must be point to any file, this is used to initialized the
+Filename must point to any file, this is used to initialized the
 random seed.
 
 @item The Certificate
