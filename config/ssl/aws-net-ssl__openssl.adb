@@ -47,7 +47,7 @@ with System.Storage_Elements;
 
 with AWS.Config;
 with AWS.Net.Log;
-with AWS.Net.SSL.Certificate.Read;
+with AWS.Net.SSL.Certificate.Impl;
 with AWS.OS_Lib;
 with AWS.Utils;
 
@@ -1228,7 +1228,7 @@ package body AWS.Net.SSL is
 
       CB := To_Callback (TSSL.SSL_CTX_get_ex_data (SSL_CTX, Data_Index));
 
-      if CB /= null and then not CB (Net.SSL.Certificate.Read (Cert)) then
+      if CB /= null and then not CB (Net.SSL.Certificate.Impl.Read (Cert)) then
          Res := 0;
       end if;
 

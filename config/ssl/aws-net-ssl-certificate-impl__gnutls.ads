@@ -27,10 +27,9 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  Not yet implemented for GNU/TLS
+package AWS.Net.SSL.Certificate.Impl is
 
-function AWS.Net.SSL.Certificate.Read (X509 : System.Address) return Object is
-   pragma Unreferenced (X509);
-begin
-   return Undefined;
-end AWS.Net.SSL.Certificate.Read;
+   function Get (Socket : Socket_Type) return Object;
+   --  Read certificate from peer socket
+
+end AWS.Net.SSL.Certificate.Impl;

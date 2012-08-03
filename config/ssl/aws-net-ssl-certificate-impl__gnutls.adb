@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2006-2012, AdaCore                     --
+--                       Copyright (C) 2012, AdaCore                        --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -29,24 +29,20 @@
 
 with Ada.Calendar.Conversions;
 with Interfaces.C.Strings;
-with System;
 
 with AWS.Net.Log;
+with SSL.Thin;
 
-package body AWS.Net.SSL.Certificate is
+package body AWS.Net.SSL.Certificate.Impl is
 
    use Interfaces;
 
    procedure Check_Error_Code (Code : C.int; Socket : Socket_Type'Class);
 
-   ---------------------
-   -- Activation_Time --
-   ---------------------
-
-   function Activation_Time (Certificate : Object) return Calendar.Time is
-   begin
-      return Certificate.Activation;
-   end Activation_Time;
+   function Read
+     (Socket : Socket_Type'Class;
+      X509   : Standard.SSL.Thin.gnutls_x509_crt_t) return Object;
+   --  Read certificate data
 
    ----------------------
    -- Check_Error_Code --
@@ -68,15 +64,6 @@ package body AWS.Net.SSL.Certificate is
       end if;
    end Check_Error_Code;
 
-   ---------------------
-   -- Expiration_Time --
-   ---------------------
-
-   function Expiration_Time (Certificate : Object) return Calendar.Time is
-   begin
-      return Certificate.Expiration;
-   end Expiration_Time;
-
    ---------
    -- Get --
    ---------
@@ -86,6 +73,38 @@ package body AWS.Net.SSL.Certificate is
       use type System.Address;
       use type TSSL.a_gnutls_datum_t;
 
+      List_Size : aliased C.unsigned;
+      Datum     : constant TSSL.a_gnutls_datum_t :=
+                    TSSL.gnutls_certificate_get_peers
+                      (Socket.SSL, List_Size'Access);
+      Cert      : aliased TSSL.gnutls_x509_crt_t;
+      Result    : Object;
+   begin
+      if List_Size = 0 or else Datum = null then
+         return Undefined;
+      end if;
+
+      Check_Error_Code (TSSL.gnutls_x509_crt_init (Cert'Access), Socket);
+      Check_Error_Code
+        (TSSL.gnutls_x509_crt_import
+           (Cert, Datum.all, TSSL.GNUTLS_X509_FMT_DER),
+         Socket);
+
+      Result := Read (Socket, Cert);
+
+      TSSL.gnutls_x509_crt_deinit (Cert);
+
+      return Result;
+   end Get;
+
+   ----------
+   -- Read --
+   ----------
+
+   function Read
+     (Socket : Socket_Type'Class;
+      X509   : Standard.SSL.Thin.gnutls_x509_crt_t) return Object
+   is
       function To_Time (tv_sec : TSSL.time_t) return Calendar.Time;
       pragma Inline (To_Time);
       --  Convert a time_t to an Ada duration
@@ -103,12 +122,6 @@ package body AWS.Net.SSL.Certificate is
       Buffer_Size : constant := 256;
       --  Buffer size for the subject and issuer
 
-      List_Size : aliased C.unsigned;
-      Datum     : constant TSSL.a_gnutls_datum_t :=
-                    TSSL.gnutls_certificate_get_peers
-                      (Socket.SSL, List_Size'Access);
-      Cert      : aliased TSSL.gnutls_x509_crt_t;
-
       Subject  : aliased C.char_array := (1 .. Buffer_Size => C.nul);
       Subj_Len : aliased C.size_t := Buffer_Size;
       Issuer   : aliased C.char_array := (1 .. Buffer_Size => C.nul);
@@ -116,34 +129,22 @@ package body AWS.Net.SSL.Certificate is
 
       T_Activation, T_Expiration : TSSL.time_t;
    begin
-      if List_Size = 0 or else Datum = null then
-         return Undefined;
-      end if;
-
-      Check_Error_Code (TSSL.gnutls_x509_crt_init (Cert'Access), Socket);
-      Check_Error_Code
-        (TSSL.gnutls_x509_crt_import
-           (Cert, Datum.all, TSSL.GNUTLS_X509_FMT_DER),
-         Socket);
-
       Check_Error_Code
         (TSSL.gnutls_x509_crt_get_dn
-           (Cert,
+           (X509,
             C.Strings.To_Chars_Ptr (Subject'Unchecked_Access),
             Subj_Len'Access),
          Socket);
 
       Check_Error_Code
         (TSSL.gnutls_x509_crt_get_issuer_dn
-           (Cert,
+           (X509,
             C.Strings.To_Chars_Ptr (Issuer'Unchecked_Access),
             Iss_Len'Access),
          Socket);
 
-      T_Activation := TSSL.gnutls_x509_crt_get_activation_time (Cert);
-      T_Expiration := TSSL.gnutls_x509_crt_get_expiration_time (Cert);
-
-      TSSL.gnutls_x509_crt_deinit (Cert);
+      T_Activation := TSSL.gnutls_x509_crt_get_activation_time (X509);
+      T_Expiration := TSSL.gnutls_x509_crt_get_expiration_time (X509);
 
       return (Subject    => To_Unbounded_String
                               (C.To_Ada (Subject (1 .. Subj_Len), False)),
@@ -151,34 +152,6 @@ package body AWS.Net.SSL.Certificate is
                               (C.To_Ada (Issuer (1 .. Iss_Len), False)),
               Activation => To_Time (T_Activation),
               Expiration => To_Time (T_Expiration));
-   end Get;
+   end Read;
 
-   ------------
-   -- Issuer --
-   ------------
-
-   function Issuer (Certificate : Object) return String is
-   begin
-      return To_String (Certificate.Issuer);
-   end Issuer;
-
-   -------------------------
-   -- Set_Verify_Callback --
-   -------------------------
-
-   procedure Set_Verify_Callback
-     (Config : in out SSL.Config; Callback : Verify_Callback) is
-   begin
-      raise Program_Error with "not implemented on GNU/TLS.";
-   end Set_Verify_Callback;
-
-   -------------
-   -- Subject --
-   -------------
-
-   function Subject (Certificate : Object) return String is
-   begin
-      return To_String (Certificate.Subject);
-   end Subject;
-
-end AWS.Net.SSL.Certificate;
+end AWS.Net.SSL.Certificate.Impl;

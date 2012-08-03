@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2012, AdaCore                     --
+--                       Copyright (C) 2012, AdaCore                        --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -27,75 +27,18 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-with Ada.Unchecked_Conversion;
+package body AWS.Net.SSL.Certificate.Impl is
 
-with AWS.Net.SSL.Certificate.Read;
-
-package body AWS.Net.SSL.Certificate is
-
-   ---------------------
-   -- Activation_Time --
-   ---------------------
-
-   function Activation_Time (Certificate : Object) return Calendar.Time is
-   begin
-      return Certificate.Activation;
-   end Activation_Time;
-
-   ---------------------
-   -- Expiration_Time --
-   ---------------------
-
-   function Expiration_Time (Certificate : Object) return Calendar.Time is
-   begin
-      return Certificate.Expiration;
-   end Expiration_Time;
+   pragma Warnings (Off);
 
    ---------
    -- Get --
    ---------
 
    function Get (Socket : Socket_Type) return Object is
-      use type System.Address;
-
-      X509   : constant TSSL.X509 :=
-                 TSSL.SSL_get_peer_certificate (Socket.SSL);
-      Result : Object;
    begin
-      Result := Net.SSL.Certificate.Read (X509);
-      TSSL.X509_free (X509);
-      return Result;
+      raise Program_Error with "SSL not supported.";
+      return O : Object;
    end Get;
 
-   ------------
-   -- Issuer --
-   ------------
-
-   function Issuer  (Certificate : Object) return String is
-   begin
-      return To_String (Certificate.Issuer);
-   end Issuer;
-
-   -------------------------
-   -- Set_Verify_Callback --
-   -------------------------
-
-   procedure Set_Verify_Callback
-     (Config : in out SSL.Config; Callback : Verify_Callback)
-   is
-      function To_Address is new Unchecked_Conversion
-        (Net.SSL.Certificate.Verify_Callback, System.Address);
-   begin
-      Set_Verify_Callback (Config, To_Address (Callback));
-   end Set_Verify_Callback;
-
-   -------------
-   -- Subject --
-   -------------
-
-   function Subject (Certificate : Object) return String is
-   begin
-      return To_String (Certificate.Subject);
-   end Subject;
-
-end AWS.Net.SSL.Certificate;
+end AWS.Net.SSL.Certificate.Impl;

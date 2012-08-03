@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2006-2012, AdaCore                     --
+--                     Copyright (C) 2003-2012, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -27,13 +27,11 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-with AWS.Utils;
+with Ada.Unchecked_Conversion;
+
+with AWS.Net.SSL.Certificate.Impl;
 
 package body AWS.Net.SSL.Certificate is
-
-   pragma Warnings (Off);
-
-   Error_Message : constant String := "SSL not supported.";
 
    ---------------------
    -- Activation_Time --
@@ -41,8 +39,7 @@ package body AWS.Net.SSL.Certificate is
 
    function Activation_Time (Certificate : Object) return Calendar.Time is
    begin
-      raise Program_Error with Error_Message;
-      return Utils.AWS_Epoch;
+      return Certificate.Activation;
    end Activation_Time;
 
    ---------------------
@@ -51,8 +48,7 @@ package body AWS.Net.SSL.Certificate is
 
    function Expiration_Time (Certificate : Object) return Calendar.Time is
    begin
-      raise Program_Error with Error_Message;
-      return Utils.AWS_Epoch;
+      return Certificate.Expiration;
    end Expiration_Time;
 
    ---------
@@ -60,20 +56,17 @@ package body AWS.Net.SSL.Certificate is
    ---------
 
    function Get (Socket : Socket_Type) return Object is
-      O : Object;
    begin
-      raise Program_Error with Error_Message;
-      return O;
+      return Impl.Get (Socket);
    end Get;
 
    ------------
    -- Issuer --
    ------------
 
-   function Issuer (Certificate : Object) return String is
+   function Issuer  (Certificate : Object) return String is
    begin
-      raise Program_Error with Error_Message;
-      return "";
+      return To_String (Certificate.Issuer);
    end Issuer;
 
    -------------------------
@@ -81,9 +74,12 @@ package body AWS.Net.SSL.Certificate is
    -------------------------
 
    procedure Set_Verify_Callback
-     (Config : in out SSL.Config; Callback : Verify_Callback) is
+     (Config : in out SSL.Config; Callback : Verify_Callback)
+   is
+      function To_Address is new Unchecked_Conversion
+        (Net.SSL.Certificate.Verify_Callback, System.Address);
    begin
-      raise Program_Error with Error_Message;
+      Set_Verify_Callback (Config, To_Address (Callback));
    end Set_Verify_Callback;
 
    -------------
@@ -92,8 +88,7 @@ package body AWS.Net.SSL.Certificate is
 
    function Subject (Certificate : Object) return String is
    begin
-      raise Program_Error with Error_Message;
-      return "";
+      return To_String (Certificate.Subject);
    end Subject;
 
 end AWS.Net.SSL.Certificate;

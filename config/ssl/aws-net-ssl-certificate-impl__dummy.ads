@@ -27,7 +27,9 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-with System;
+package AWS.Net.SSL.Certificate.Impl is
 
-function AWS.Net.SSL.Certificate.Read (X509 : System.Address) return Object;
---  Returns a certificate object out of an opaque X509 certificate address
+   function Get (Socket : Socket_Type) return Object;
+   --  Read certificate from peer socket
+
+end AWS.Net.SSL.Certificate.Impl;

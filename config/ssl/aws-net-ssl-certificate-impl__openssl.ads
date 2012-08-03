@@ -27,8 +27,12 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-function AWS.Net.SSL.Certificate.Read (X509 : System.Address) return Object is
-   pragma Unreferenced (X509);
-begin
-   return Undefined;
-end AWS.Net.SSL.Certificate.Read;
+package AWS.Net.SSL.Certificate.Impl is
+
+   function Get (Socket : Socket_Type) return Object;
+   --  Read certificate from peer socket
+
+   function Read (X509 : Standard.SSL.Thin.X509) return Object;
+   --  Read certificate data
+
+end AWS.Net.SSL.Certificate.Impl;
