@@ -27,6 +27,7 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
+with Ada.Calendar.Conversions;
 with Interfaces.C.Strings;
 with System;
 
@@ -85,6 +86,20 @@ package body AWS.Net.SSL.Certificate is
       use type System.Address;
       use type TSSL.a_gnutls_datum_t;
 
+      function To_Time (tv_sec : TSSL.time_t) return Calendar.Time;
+      pragma Inline (To_Time);
+      --  Convert a time_t to an Ada duration
+
+      -------------
+      -- To_Time --
+      -------------
+
+      function To_Time (tv_sec : TSSL.time_t) return Calendar.Time is
+         use Ada;
+      begin
+         return Calendar.Conversions.To_Ada_Time (C.long (tv_sec));
+      end To_Time;
+
       Buffer_Size : constant := 256;
       --  Buffer size for the subject and issuer
 
@@ -98,6 +113,8 @@ package body AWS.Net.SSL.Certificate is
       Subj_Len : aliased C.size_t := Buffer_Size;
       Issuer   : aliased C.char_array := (1 .. Buffer_Size => C.nul);
       Iss_Len  : aliased C.size_t := Buffer_Size;
+
+      T_Activation, T_Expiration : TSSL.time_t;
    begin
       if List_Size = 0 or else Datum = null then
          return Undefined;
@@ -123,14 +140,17 @@ package body AWS.Net.SSL.Certificate is
             Iss_Len'Access),
          Socket);
 
+      T_Activation := TSSL.gnutls_x509_crt_get_activation_time (Cert);
+      T_Expiration := TSSL.gnutls_x509_crt_get_expiration_time (Cert);
+
       TSSL.gnutls_x509_crt_deinit (Cert);
 
       return (Subject    => To_Unbounded_String
                               (C.To_Ada (Subject (1 .. Subj_Len), False)),
               Issuer     => To_Unbounded_String
                               (C.To_Ada (Issuer (1 .. Iss_Len), False)),
-              Activation => Utils.AWS_Epoch,
-              Expiration => Utils.AWS_Epoch);
+              Activation => To_Time (T_Activation),
+              Expiration => To_Time (T_Expiration));
    end Get;
 
    ------------
