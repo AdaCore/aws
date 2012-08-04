@@ -352,6 +352,12 @@ package AWS.Config is
    --  server. Note that this option must not be used if the client is a Web
    --  Browser.
 
+   function Certificate_Required (O : Object) return Boolean;
+   pragma Inline (Certificate_Required);
+   --  Returns True if the server must abort the connection if the
+   --  client did not provide a certificate. If this option is set
+   --  the Exchange_Certificate must also be set.
+
    -------------------------
    -- Per Process options --
    -------------------------
@@ -431,6 +437,7 @@ private
       Key,
       Security_Mode,
       Exchange_Certificate,
+      Certificate_Required,
       Hotplug_Port,
       Max_Connection,
       Send_Buffer_Size,
@@ -660,6 +667,9 @@ private
 
          Exchange_Certificate =>
            (Bool, Default.Exchange_Certificate),
+
+         Certificate_Required =>
+           (Bool, Default.Certificate_Required),
 
          Case_Sensitive_Parameters =>
            (Bool, Default.Case_Sensitive_Parameters),

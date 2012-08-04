@@ -77,6 +77,7 @@ package body AWS.Net.SSL is
          Security_Mode        : Method;
          Key_Filename         : String;
          Exchange_Certificate : Boolean;
+         Certificate_Required : Boolean;
          Session_Cache_Size   : Positive);
 
       procedure Finalize;
@@ -371,6 +372,7 @@ package body AWS.Net.SSL is
       Security_Mode        : Method     := SSLv23;
       Key_Filename         : String     := "";
       Exchange_Certificate : Boolean    := False;
+      Certificate_Required : Boolean    := False;
       Session_Cache_Size   : Positive   := 16#4000#) is
    begin
       if Config = null then
@@ -379,7 +381,7 @@ package body AWS.Net.SSL is
 
       Config.Initialize
         (Certificate_Filename, Security_Mode, Key_Filename,
-         Exchange_Certificate, Session_Cache_Size);
+         Exchange_Certificate, Certificate_Required, Session_Cache_Size);
    end Initialize;
 
    -------------------------------
@@ -395,6 +397,7 @@ package body AWS.Net.SSL is
          Security_Mode        => Method'Value (CNF.Security_Mode (Default)),
          Key_Filename         => CNF.Key (Default),
          Exchange_Certificate => CNF.Exchange_Certificate (Default),
+         Certificate_Required => CNF.Certificate_Required (Default),
          Session_Cache_Size   => 16#4000#);
    end Initialize_Default_Config;
 
@@ -1001,6 +1004,7 @@ package body AWS.Net.SSL is
          Security_Mode        : Method;
          Key_Filename         : String;
          Exchange_Certificate : Boolean;
+         Certificate_Required : Boolean;
          Session_Cache_Size   : Positive)
       is
          type Meth_Func is access function return TSSL.SSL_Method;
@@ -1124,10 +1128,17 @@ package body AWS.Net.SSL is
                  (TSSL.SSL_CTX_set_ex_data
                     (Context, Data_Index, TSSL.Null_Pointer) = -1);
 
-               TSSL.SSL_CTX_set_verify
-                 (Context,
-                  TSSL.SSL_VERIFY_PEER + TSSL.SSL_VERIFY_CLIENT_ONCE,
-                  Verify_Callback'Address);
+               declare
+                  Mode : C.int :=
+                           TSSL.SSL_VERIFY_PEER + TSSL.SSL_VERIFY_CLIENT_ONCE;
+               begin
+                  if Certificate_Required then
+                     Mode := Mode + TSSL.SSL_VERIFY_FAIL_IF_NO_PEER_CERT;
+                  end if;
+
+                  TSSL.SSL_CTX_set_verify
+                    (Context, Mode, Verify_Callback'Address);
+               end;
             end if;
 
             if Certificate_Filename /= "" then

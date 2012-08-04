@@ -85,6 +85,7 @@ package body AWS.Net.SSL is
       CCC       : aliased TSSL.gnutls_certificate_credentials_t;
       DH_Params : aliased TSSL.gnutls_dh_params_t;
       RCC       : Boolean := False; -- Request client certificate
+      CREQ      : Boolean := False; -- Certificate is required
    end record;
 
    procedure Initialize
@@ -93,6 +94,7 @@ package body AWS.Net.SSL is
       Security_Mode        : Method  := SSLv23;
       Key_Filename         : String  := "";
       Exchange_Certificate : Boolean := False;
+      Certificate_Required : Boolean    := False;
       Session_Cache_Size   : Positive   := 16#4000#);
 
    procedure Session_Client (Socket : in out Socket_Type);
@@ -265,7 +267,8 @@ package body AWS.Net.SSL is
                Security_Mode        => Method'Value
                                          (CNF.Security_Mode (Default)),
                Key_Filename         => CNF.Key (Default),
-               Exchange_Certificate => CNF.Exchange_Certificate (Default));
+               Exchange_Certificate => CNF.Exchange_Certificate (Default),
+               Certificate_Required => CNF.Certificate_Required (Default));
 
             Done := True;
          end if;
@@ -355,6 +358,7 @@ package body AWS.Net.SSL is
       Security_Mode        : Method     := SSLv23;
       Key_Filename         : String     := "";
       Exchange_Certificate : Boolean    := False;
+      Certificate_Required : Boolean    := False;
       Session_Cache_Size   : Positive   := 16#4000#) is
    begin
       if Config = null then
@@ -367,6 +371,7 @@ package body AWS.Net.SSL is
          Security_Mode        => Security_Mode,
          Key_Filename         => Key_Filename,
          Exchange_Certificate => Exchange_Certificate,
+         Certificate_Required => Certificate_Required,
          Session_Cache_Size   => Session_Cache_Size);
    end Initialize;
 
@@ -376,9 +381,12 @@ package body AWS.Net.SSL is
       Security_Mode        : Method     := SSLv23;
       Key_Filename         : String     := "";
       Exchange_Certificate : Boolean    := False;
+      Certificate_Required : Boolean    := False;
       Session_Cache_Size   : Positive   := 16#4000#)
    is
+      pragma Unreferenced (Certificate_Required);
       pragma Unreferenced (Session_Cache_Size);
+
       use type TSSL.gnutls_anon_client_credentials_t;
       use type TSSL.gnutls_anon_server_credentials_t;
       use type TSSL.gnutls_certificate_credentials_t;
@@ -475,6 +483,7 @@ package body AWS.Net.SSL is
          end if;
 
          Config.RCC := Exchange_Certificate;
+         Config.CREQ := Certificate_Required;
       end if;
 
       if (Security_Mode = SSLv23
@@ -770,6 +779,7 @@ package body AWS.Net.SSL is
    procedure Session_Server (Socket : in out Socket_Type) is
       use TSSL;
       Session : aliased gnutls_session_t;
+      Setting : gnutls_certificate_request_t;
    begin
       Check_Config (Socket);
 
@@ -790,8 +800,14 @@ package body AWS.Net.SSL is
             Socket);
 
          if Socket.Config.RCC then
-            gnutls_certificate_server_set_request
-              (Session, GNUTLS_CERT_REQUEST);
+            if Socket.Config.CREQ then
+               Setting := GNUTLS_CERT_REQUIRE;
+            else
+               Setting := GNUTLS_CERT_REQUEST;
+            end if;
+
+            gnutls_certificate_server_set_request (Session, Setting);
+
          else
             gnutls_certificate_server_set_request
               (Session, GNUTLS_CERT_IGNORE);

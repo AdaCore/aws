@@ -1424,6 +1424,13 @@ new log file each day or month. The default is @_ERROR_LOG_SPLIT_MODE_@.
 If set to True it means that the client will be asked to send its
 certificate to the server. The default value is @_EXCHANGE_CERTIFICATE_@.
 
+@item Certificate_Required (boolean)
+@cindex Certificate_Required
+If set to True the server will reject all SSL connections if the
+client did not provide a certificate (be it valid or not). The
+@code{Exchange_Certificate} option must be set in this case. The
+default value is @_CERTIFICATE_REQUIRED_@.
+
 @item Force_Wait_For_Client_Timeout (duration)
 @cindex Force_Wait_For_Client_Timeout
 Number of seconds to timeout on waiting for a client request. This is a

@@ -145,6 +145,7 @@ package AWS.Default is
    Key                             : constant String  := "";
    Client_Certificate              : constant String  := "";
    Exchange_Certificate            : constant Boolean := False;
+   Certificate_Required            : constant Boolean := False;
    Check_URL_Validity              : constant Boolean := True;
 
 end AWS.Default;

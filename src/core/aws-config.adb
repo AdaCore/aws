@@ -98,6 +98,15 @@ package body AWS.Config is
       return To_String (O.P (Certificate).Str_Value);
    end Certificate;
 
+   --------------------------
+   -- Certificate_Required --
+   --------------------------
+
+   function Certificate_Required (O : Object) return Boolean is
+   begin
+      return O.P (Certificate_Required).Bool_Value;
+   end Certificate_Required;
+
    ------------------------
    -- Check_URL_Validity --
    ------------------------

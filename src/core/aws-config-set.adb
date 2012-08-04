@@ -79,6 +79,15 @@ package body AWS.Config.Set is
       O.P (Certificate).Str_Value := To_Unbounded_String (Filename);
    end Certificate;
 
+   --------------------------
+   -- Certificate_Required --
+   --------------------------
+
+   procedure Certificate_Required (O : in out Object; Value : Boolean) is
+   begin
+      O.P (Certificate_Required).Bool_Value := Value;
+   end Certificate_Required;
+
    ------------------------
    -- Check_URL_Validity --
    ------------------------
