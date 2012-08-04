@@ -1019,7 +1019,9 @@ package body AWS.Server is
             Exchange_Certificate =>
               CNF.Exchange_Certificate ((Web_Server.Properties)),
             Certificate_Required =>
-              CNF.Certificate_Required (Web_Server.Properties));
+              CNF.Certificate_Required (Web_Server.Properties),
+            Trusted_CA_Filename  =>
+              CNF.Trusted_CA (Web_Server.Properties));
       end if;
 
       --  Create the Web Server socket set

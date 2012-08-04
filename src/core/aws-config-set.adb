@@ -565,6 +565,15 @@ package body AWS.Config.Set is
       Process_Options (Transient_Lifetime).Dur_Value := Value;
    end Transient_Lifetime;
 
+   ----------------
+   -- Trusted_CA --
+   ----------------
+
+   procedure Trusted_CA (O : in out Object; Filename : String) is
+   begin
+      O.P (Trusted_CA).Str_Value := To_Unbounded_String (Filename);
+   end Trusted_CA;
+
    --------------
    -- Up_Image --
    --------------

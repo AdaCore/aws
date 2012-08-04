@@ -358,6 +358,13 @@ package AWS.Config is
    --  client did not provide a certificate. If this option is set
    --  the Exchange_Certificate must also be set.
 
+   function Trusted_CA (O : Object) return String;
+   pragma Inline (Trusted_CA);
+   --  Returns the filename containing a list of trusted CA, this is to be used
+   --  with the Exchange_Certificate option. The filename is on bundle of CAs
+   --  that can be trusted. A client certificate signed with one of those CA
+   --  will be accetped by the server.
+
    -------------------------
    -- Per Process options --
    -------------------------
@@ -438,6 +445,7 @@ private
       Security_Mode,
       Exchange_Certificate,
       Certificate_Required,
+      Trusted_CA,
       Hotplug_Port,
       Max_Connection,
       Send_Buffer_Size,
@@ -670,6 +678,9 @@ private
 
          Certificate_Required =>
            (Bool, Default.Certificate_Required),
+
+         Trusted_CA =>
+           (Str, To_Unbounded_String (Default.Trusted_CA)),
 
          Case_Sensitive_Parameters =>
            (Bool, Default.Case_Sensitive_Parameters),

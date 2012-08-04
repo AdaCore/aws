@@ -86,6 +86,7 @@ package body AWS.Net.SSL is
       DH_Params : aliased TSSL.gnutls_dh_params_t;
       RCC       : Boolean := False; -- Request client certificate
       CREQ      : Boolean := False; -- Certificate is required
+      CAfile    : C.Strings.chars_ptr := C.Strings.Null_Ptr;
    end record;
 
    procedure Initialize
@@ -95,6 +96,7 @@ package body AWS.Net.SSL is
       Key_Filename         : String  := "";
       Exchange_Certificate : Boolean := False;
       Certificate_Required : Boolean    := False;
+      Trusted_CA_Filename  : String     := "";
       Session_Cache_Size   : Positive   := 16#4000#);
 
    procedure Session_Client (Socket : in out Socket_Type);
@@ -328,6 +330,8 @@ package body AWS.Net.SSL is
          TSSL.gnutls_dh_params_deinit (Config.DH_Params);
          Config.DH_Params := null;
       end if;
+
+      C.Strings.Free (Config.CAfile);
    end Finalize;
 
    ----------
@@ -359,6 +363,7 @@ package body AWS.Net.SSL is
       Key_Filename         : String     := "";
       Exchange_Certificate : Boolean    := False;
       Certificate_Required : Boolean    := False;
+      Trusted_CA_Filename  : String     := "";
       Session_Cache_Size   : Positive   := 16#4000#) is
    begin
       if Config = null then
@@ -372,6 +377,7 @@ package body AWS.Net.SSL is
          Key_Filename         => Key_Filename,
          Exchange_Certificate => Exchange_Certificate,
          Certificate_Required => Certificate_Required,
+         Trusted_CA_Filename  => Trusted_CA_Filename,
          Session_Cache_Size   => Session_Cache_Size);
    end Initialize;
 
@@ -382,9 +388,10 @@ package body AWS.Net.SSL is
       Key_Filename         : String     := "";
       Exchange_Certificate : Boolean    := False;
       Certificate_Required : Boolean    := False;
+      Trusted_CA_Filename  : String     := "";
       Session_Cache_Size   : Positive   := 16#4000#)
    is
-      pragma Unreferenced (Certificate_Required);
+      pragma Unreferenced (Certificate_Required, Trusted_CA_Filename);
       pragma Unreferenced (Session_Cache_Size);
 
       use type TSSL.gnutls_anon_client_credentials_t;
@@ -484,6 +491,10 @@ package body AWS.Net.SSL is
 
          Config.RCC := Exchange_Certificate;
          Config.CREQ := Certificate_Required;
+
+         if Trusted_CA_Filename /= "" then
+            Config.CAfile := C.Strings.New_String (Trusted_CA_Filename);
+         end if;
       end if;
 
       if (Security_Mode = SSLv23
@@ -807,6 +818,18 @@ package body AWS.Net.SSL is
             end if;
 
             gnutls_certificate_server_set_request (Session, Setting);
+
+            if Socket.Config.CAfile /= C.Strings.Null_Ptr then
+               TSSL.gnutls_certificate_send_x509_rdn_sequence (Session, 0);
+
+               if TSSL.gnutls_certificate_set_x509_trust_file
+                 (Socket.Config.CSC,
+                  Socket.Config.CAfile,
+                  TSSL.GNUTLS_X509_FMT_PEM) = -1
+               then
+                  raise Socket_Error with "cannot set CA file " & "...";
+               end if;
+            end if;
 
          else
             gnutls_certificate_server_set_request

@@ -1627,6 +1627,12 @@ Specify the number of seconds to keep a transient page. After this
 period the transient page is obsoleted and will be removed during next
 cleanup. The default value is @_TRANSIENT_LIFETIME_@ seconds.
 
+@item Trusted_CA (string)
+@cindex Trusted_CA
+This must point to the file containing the list of trusted
+Certificate Authorities. The CA in this file will be used to verify
+the client certificate validity. The default values is @file{@_TRUSTED_CA_@}.
+
 @item Up_Image (string)
 @cindex Up_Image
 The name of the up arrow image to use in the status page. The default is

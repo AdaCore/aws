@@ -883,6 +883,9 @@ package SSL.Thin is
       crl_list      : a_gnutls_x509_crl_t;
       crl_list_size : C.int) return C.int;
 
+   procedure gnutls_certificate_send_x509_rdn_sequence
+     (session : gnutls_session_t; status : C.int);
+
    function gnutls_x509_crt_init
      (cert : access gnutls_x509_crt_t) return C.int;
 
@@ -1532,6 +1535,10 @@ private
 
    pragma Import
      (C, gnutls_certificate_set_x509_crl, "gnutls_certificate_set_x509_crl");
+
+   pragma Import
+     (C, gnutls_certificate_send_x509_rdn_sequence,
+      "gnutls_certificate_send_x509_rdn_sequence");
 
    pragma Import (C, gnutls_x509_crt_init, "gnutls_x509_crt_init");
    pragma Import (C, gnutls_x509_crt_deinit, "gnutls_x509_crt_deinit");

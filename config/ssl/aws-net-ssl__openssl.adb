@@ -78,6 +78,7 @@ package body AWS.Net.SSL is
          Key_Filename         : String;
          Exchange_Certificate : Boolean;
          Certificate_Required : Boolean;
+         Trusted_CA_Filename  : String;
          Session_Cache_Size   : Positive);
 
       procedure Finalize;
@@ -373,6 +374,7 @@ package body AWS.Net.SSL is
       Key_Filename         : String     := "";
       Exchange_Certificate : Boolean    := False;
       Certificate_Required : Boolean    := False;
+      Trusted_CA_Filename  : String     := "";
       Session_Cache_Size   : Positive   := 16#4000#) is
    begin
       if Config = null then
@@ -381,7 +383,8 @@ package body AWS.Net.SSL is
 
       Config.Initialize
         (Certificate_Filename, Security_Mode, Key_Filename,
-         Exchange_Certificate, Certificate_Required, Session_Cache_Size);
+         Exchange_Certificate, Certificate_Required,
+         Trusted_CA_Filename, Session_Cache_Size);
    end Initialize;
 
    -------------------------------
@@ -398,6 +401,7 @@ package body AWS.Net.SSL is
          Key_Filename         => CNF.Key (Default),
          Exchange_Certificate => CNF.Exchange_Certificate (Default),
          Certificate_Required => CNF.Certificate_Required (Default),
+         Trusted_CA_Filename  => CNF.Trusted_CA (Default),
          Session_Cache_Size   => 16#4000#);
    end Initialize_Default_Config;
 
@@ -1005,6 +1009,7 @@ package body AWS.Net.SSL is
          Key_Filename         : String;
          Exchange_Certificate : Boolean;
          Certificate_Required : Boolean;
+         Trusted_CA_Filename  : String;
          Session_Cache_Size   : Positive)
       is
          type Meth_Func is access function return TSSL.SSL_Method;
@@ -1093,6 +1098,18 @@ package body AWS.Net.SSL is
 
             Error_If
               (TSSL.SSL_CTX_check_private_key (Ctx => Context) /= 1);
+
+            if Trusted_CA_Filename /= "" then
+               declare
+                  CAfile : C.Strings.chars_ptr :=
+                             C.Strings.New_String (Trusted_CA_Filename);
+               begin
+                  Error_If
+                    (TSSL.SSL_CTX_load_verify_locations
+                       (Context, CAfile, C.Strings.Null_Ptr) /= 1);
+                  C.Strings.Free (CAfile);
+               end;
+            end if;
          end Set_Certificate;
 
          ------------------------
