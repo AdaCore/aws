@@ -367,6 +367,11 @@ authentication and basic authentication on the Web site.
 
 A simple program to test the Web Basic and Digest authentication feature.
 
+@item cert
+
+A secure server using a Certificate Authority and validating clients
+with certificate. This is the highest security level possible.
+
 @item com
 
 Two simples program that uses the @code{AWS} communication service.

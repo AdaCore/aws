@@ -16,7 +16,8 @@
 --  to http://www.gnu.org/licenses for a complete copy of the license.      --
 ------------------------------------------------------------------------------
 
---  Demos using certificate on both server and client
+--  Demos using certificates on both server and client and a
+--  Certificate Authority.
 
 with Ada.Text_IO;
 
@@ -34,7 +35,7 @@ procedure Cert is
    use AWS;
 
    WS  : Server.HTTP;
-   Cnf : Config.Object;
+   Cnf : Config.Object := Config.Get_Current;
    SSL : Net.SSL.Config;
 
 begin
@@ -44,20 +45,26 @@ begin
    Text_IO.Put_Line
      ("To see the client certificate it is needed to install one in");
    Text_IO.Put_Line
-     ("the Web Browser. The provided client.p12 (in this directory)");
+     ("the Web Browser. The provided aws-client.p12 (in this directory)");
    Text_IO.Put_Line
      ("can be installed into Firefox with:");
    Text_IO.Put_Line
      ("  preferences -> Advanced -> View Certificates -> Import");
    Text_IO.Put_Line
-     ("The certificate password is: aws");
+     ("The certificate password is: demo");
    Text_IO.New_Line;
 
    --  First configure SSL layer, this is needed to be able to have a
    --  callback to verify client's certificate.
 
    Net.SSL.Initialize
-     (SSL, Certificate_Filename => "cert.pem", Exchange_Certificate => True);
+     (SSL,
+      Certificate_Filename => "aws-server.crt",
+      Key_Filename         => "aws-server.key",
+      --  The 3 following configs are from aws.ini
+      Exchange_Certificate => Config.Exchange_Certificate (Cnf),
+      Certificate_Required => Config.Certificate_Required (Cnf),
+      Trusted_CA_Filename  => Config.Trusted_CA (Cnf));
 
    Net.SSL.Certificate.Set_Verify_Callback (SSL, Cert_CB.Verify_Cert'Access);
 

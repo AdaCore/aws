@@ -71,13 +71,9 @@ package body Cert_CB is
       Text_IO.Put_Line ("Client certificate from verify routine:");
       Display (Cert);
 
-      --  Always return OK, this is for the demo
+      --  Return verified status from the SSL layer
 
-      return True;
-
-      --  Note that we could check if the certificate has expired by
-      --  replying instead:
-      --  return Net.SSL.Certificate.Not_After (Cert) > Calendar.Clock;
+      return Net.SSL.Certificate.Verified (Cert);
    end Verify_Cert;
 
 end Cert_CB;
