@@ -1017,7 +1017,7 @@ package body AWS.Server is
             Security_Mode,
             CNF.Key (Web_Server.Properties),
             Exchange_Certificate =>
-              CNF.Exchange_Certificate ((Web_Server.Properties)),
+              CNF.Exchange_Certificate (Web_Server.Properties),
             Certificate_Required =>
               CNF.Certificate_Required (Web_Server.Properties),
             Trusted_CA_Filename  =>
