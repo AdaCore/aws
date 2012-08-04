@@ -146,7 +146,8 @@ package body AWS.Net.SSL.Certificate.Impl is
       T_Activation := TSSL.gnutls_x509_crt_get_activation_time (X509);
       T_Expiration := TSSL.gnutls_x509_crt_get_expiration_time (X509);
 
-      return (Subject    => To_Unbounded_String
+      return (Verified   => False,
+              Subject    => To_Unbounded_String
                               (C.To_Ada (Subject (1 .. Subj_Len), False)),
               Issuer     => To_Unbounded_String
                               (C.To_Ada (Issuer (1 .. Iss_Len), False)),

@@ -91,4 +91,13 @@ package body AWS.Net.SSL.Certificate is
       return To_String (Certificate.Subject);
    end Subject;
 
+   --------------
+   -- Verified --
+   --------------
+
+   function Verified (Certificate : Object) return Boolean is
+   begin
+      return Certificate.Verified;
+   end Verified;
+
 end AWS.Net.SSL.Certificate;

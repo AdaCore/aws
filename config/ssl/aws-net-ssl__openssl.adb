@@ -1256,7 +1256,10 @@ package body AWS.Net.SSL is
 
       CB := To_Callback (TSSL.SSL_CTX_get_ex_data (SSL_CTX, Data_Index));
 
-      if CB /= null and then not CB (Net.SSL.Certificate.Impl.Read (Cert)) then
+      if CB /= null
+        and then not CB
+          (Net.SSL.Certificate.Impl.Read (preverify_ok = 1, Cert))
+      then
          Res := 0;
       end if;
 

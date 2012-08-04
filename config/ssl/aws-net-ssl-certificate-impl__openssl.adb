@@ -44,7 +44,7 @@ package body AWS.Net.SSL.Certificate.Impl is
                  TSSL.SSL_get_peer_certificate (Socket.SSL);
       Result : Object;
    begin
-      Result := Read (X509);
+      Result := Read (False, X509);
       TSSL.X509_free (X509);
       return Result;
    end Get;
@@ -53,7 +53,9 @@ package body AWS.Net.SSL.Certificate.Impl is
    -- Read --
    ----------
 
-   function Read (X509 : TSSL.X509) return Object is
+   function Read
+     (Preverify_Ok : Boolean; X509 : TSSL.X509) return Object
+   is
 
       use Interfaces;
 
@@ -167,7 +169,8 @@ package body AWS.Net.SSL.Certificate.Impl is
          T_Expiration := TSSL.X509_get_notAfter (X509);
 
          return
-           (Subject    => To_Unbounded_String
+           (Verified   => Preverify_Ok,
+            Subject    => To_Unbounded_String
               (NAME_oneline (TSSL.X509_get_subject_name (X509))),
             Issuer     => To_Unbounded_String
               (NAME_oneline (TSSL.X509_get_issuer_name (X509))),
