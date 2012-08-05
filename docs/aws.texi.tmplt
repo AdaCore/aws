@@ -385,6 +385,11 @@ A simple demo using the dispatcher facility. @pxref{URI dispatcher}.
 The famous Hello World program. This is a server that will always
 return a Web page saying ``Hello World!''.
 
+@item hello_wsdl
+
+An hello world kind of application using a WSDL document for
+describing the messages format.
+
 @item hotplug
 
 A simple test for the hotplug feature.
@@ -470,6 +475,10 @@ A driver to browse the Web Elements library and see some examples.
 @item web_mail
 
 A simple Web Mail implementation that works on a @code{POP} mailbox.
+
+@item websockets
+
+A simple WebSocket demo.
 
 @item wps
 
