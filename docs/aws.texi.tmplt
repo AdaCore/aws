@@ -1635,7 +1635,7 @@ The name of the status page to used. The default is
 Specify the number of seconds between each run of the cleaner task to remove
 transient pages. The default value is @_TRANSIENT_CLEANUP_INTERVAL_@ seconds.
 
-@item Transient_Lifetime
+@item Transient_Lifetime (duration)
 @cindex Transient_Lifetime
 Specify the number of seconds to keep a transient page. After this
 period the transient page is obsoleted and will be removed during next
