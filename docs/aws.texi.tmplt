@@ -1366,6 +1366,11 @@ must be @var{admin})
 This is the URI to call the administrative page. This can be used when
 calling @code{AWS.Server.Start}. The default is @file{@_ADMIN_URI_@}.
 
+@item Case_Sensitive_Parameters (boolean)
+@cindex Case_Sensitive_Parameters
+If set to @code{True} the @code{HTTP} parameters are case
+sensitive. The default value is @_CASE_SENSITIVE_PARAMETERS_@.
+
 @item Certificate (string)
 @cindex Certificate (string)
 Set the certificate file to be used with the secure servers. The
@@ -1376,11 +1381,6 @@ by intermediate CA certificates if applicable and ending at the highest
 level (root) CA certificate. If the file contains only a single
 certificate, it can be followed by a private key. In this case the Key
 parameter (see below) must empty.
-
-@item Case_Sensitive_Parameters (boolean)
-@cindex Case_Sensitive_Parameters
-If set to @code{True} the @code{HTTP} parameters are case
-sensitive. The default value is @_CASE_SENSITIVE_PARAMETERS_@.
 
 @item Check_URL_Validity (boolean)
 @cindex Check_URL_Validity
