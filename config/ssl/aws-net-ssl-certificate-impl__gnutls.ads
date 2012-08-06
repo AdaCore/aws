@@ -27,9 +27,18 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
+with Interfaces.C;
+
 package AWS.Net.SSL.Certificate.Impl is
+
+   use Interfaces;
 
    function Get (Socket : Socket_Type) return Object;
    --  Read certificate from peer socket
+
+   function Read
+     (Status : C.unsigned;
+      X509   : Standard.SSL.Thin.gnutls_x509_crt_t) return Object;
+   --  Read certificate data
 
 end AWS.Net.SSL.Certificate.Impl;

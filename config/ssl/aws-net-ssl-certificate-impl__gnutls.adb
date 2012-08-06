@@ -37,11 +37,13 @@ package body AWS.Net.SSL.Certificate.Impl is
 
    use Interfaces;
 
-   procedure Check_Error_Code (Code : C.int; Socket : Socket_Type'Class);
+   procedure Check_Error_Code
+     (Code : C.int; Socket : access constant Socket_Type'Class);
 
    function Read
-     (Socket : Socket_Type'Class;
-      X509   : Standard.SSL.Thin.gnutls_x509_crt_t) return Object;
+     (Socket : access constant Socket_Type'Class;
+      Status : C.unsigned;
+      X509   : TSSL.gnutls_x509_crt_t) return Object;
    --  Read certificate data
 
    ----------------------
@@ -49,7 +51,7 @@ package body AWS.Net.SSL.Certificate.Impl is
    ----------------------
 
    procedure Check_Error_Code
-     (Code : C.int; Socket : Socket_Type'Class)
+     (Code : C.int; Socket : access constant Socket_Type'Class)
    is
       use type C.int;
    begin
@@ -58,7 +60,9 @@ package body AWS.Net.SSL.Certificate.Impl is
             Error : constant String :=
                       C.Strings.Value (TSSL.gnutls_strerror (Code));
          begin
-            Net.Log.Error (Socket, Error);
+            if Socket /= null then
+               Net.Log.Error (Socket.all, Error);
+            end if;
             Ada.Exceptions.Raise_Exception (Socket_Error'Identity, Error);
          end;
       end if;
@@ -84,13 +88,15 @@ package body AWS.Net.SSL.Certificate.Impl is
          return Undefined;
       end if;
 
-      Check_Error_Code (TSSL.gnutls_x509_crt_init (Cert'Access), Socket);
+      Check_Error_Code
+        (TSSL.gnutls_x509_crt_init (Cert'Access), Socket'Access);
+
       Check_Error_Code
         (TSSL.gnutls_x509_crt_import
            (Cert, Datum.all, TSSL.GNUTLS_X509_FMT_DER),
-         Socket);
+         Socket'Access);
 
-      Result := Read (Socket, Cert);
+      Result := Read (Socket'Access, 2, Cert);
 
       TSSL.gnutls_x509_crt_deinit (Cert);
 
@@ -102,9 +108,12 @@ package body AWS.Net.SSL.Certificate.Impl is
    ----------
 
    function Read
-     (Socket : Socket_Type'Class;
-      X509   : Standard.SSL.Thin.gnutls_x509_crt_t) return Object
+     (Socket : access constant Socket_Type'Class;
+      Status : C.unsigned;
+      X509   : TSSL.gnutls_x509_crt_t) return Object
    is
+      use type C.unsigned;
+
       function To_Time (tv_sec : TSSL.time_t) return Calendar.Time;
       pragma Inline (To_Time);
       --  Convert a time_t to an Ada duration
@@ -146,13 +155,25 @@ package body AWS.Net.SSL.Certificate.Impl is
       T_Activation := TSSL.gnutls_x509_crt_get_activation_time (X509);
       T_Expiration := TSSL.gnutls_x509_crt_get_expiration_time (X509);
 
-      return (Verified   => False,
+      return (Verified   => Status = 0,
               Subject    => To_Unbounded_String
                               (C.To_Ada (Subject (1 .. Subj_Len), False)),
               Issuer     => To_Unbounded_String
                               (C.To_Ada (Issuer (1 .. Iss_Len), False)),
               Activation => To_Time (T_Activation),
               Expiration => To_Time (T_Expiration));
+   end Read;
+
+   ----------
+   -- Read --
+   ----------
+
+   function Read
+     (Status : C.unsigned; X509 : TSSL.gnutls_x509_crt_t)
+      return Object
+   is
+   begin
+      return Read (null, Status, X509);
    end Read;
 
 end AWS.Net.SSL.Certificate.Impl;

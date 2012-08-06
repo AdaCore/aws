@@ -28,12 +28,14 @@
 ------------------------------------------------------------------------------
 
 with Ada.Directories;
+with Ada.Unchecked_Conversion;
 with Ada.Unchecked_Deallocation;
 
 with Interfaces.C.Strings;
 
 with AWS.Config;
 with AWS.Net.Log;
+with AWS.Net.SSL.Certificate.Impl;
 with AWS.Utils;
 
 package body AWS.Net.SSL is
@@ -87,6 +89,7 @@ package body AWS.Net.SSL is
       RCC       : Boolean := False; -- Request client certificate
       CREQ      : Boolean := False; -- Certificate is required
       CAfile    : C.Strings.chars_ptr := C.Strings.Null_Ptr;
+      Verify_CB : System.Address := System.Null_Address;
    end record;
 
    procedure Initialize
@@ -391,7 +394,6 @@ package body AWS.Net.SSL is
       Trusted_CA_Filename  : String     := "";
       Session_Cache_Size   : Positive   := 16#4000#)
    is
-      pragma Unreferenced (Certificate_Required, Trusted_CA_Filename);
       pragma Unreferenced (Session_Cache_Size);
 
       use type TSSL.gnutls_anon_client_credentials_t;
@@ -789,6 +791,9 @@ package body AWS.Net.SSL is
 
    procedure Session_Server (Socket : in out Socket_Type) is
       use TSSL;
+      use type C.Strings.chars_ptr;
+      use type System.Address;
+
       Session : aliased gnutls_session_t;
       Setting : gnutls_certificate_request_t;
    begin
@@ -837,6 +842,10 @@ package body AWS.Net.SSL is
          end if;
       end if;
 
+      --  Record the user's verify callback
+
+      TSSL.gnutls_session_set_ptr (Session, Socket.Config.Verify_CB);
+
       Session_Transport (Socket);
    end Session_Server;
 
@@ -877,7 +886,7 @@ package body AWS.Net.SSL is
    procedure Set_Verify_Callback
      (Config : in out SSL.Config; Callback : System.Address) is
    begin
-      raise Program_Error with "verify callback not implemented on GNU/TLS.";
+      Config.Verify_CB := Callback;
    end Set_Verify_Callback;
 
    --------------
@@ -930,9 +939,61 @@ package body AWS.Net.SSL is
    ---------------------
 
    function Verify_Callback (Session : TSSL.gnutls_session_t) return C.int is
-      pragma Unreferenced (Session);
+      use type Net.SSL.Certificate.Verify_Callback;
+      use type TSSL.a_gnutls_datum_t;
+
+      function To_Callback is new Unchecked_Conversion
+        (System.Address, Net.SSL.Certificate.Verify_Callback);
+
+      Status        : aliased C.unsigned;
+      CB            : aliased Net.SSL.Certificate.Verify_Callback;
+      Cert          : aliased TSSL.gnutls_x509_crt_t;
+      Cert_List     : TSSL.a_gnutls_datum_t;
+      Cert_List_Len : aliased C.unsigned;
+
    begin
-      return 0;
+      if TSSL.gnutls_certificate_verify_peers2
+        (Session, Status'Access) < 0
+      then
+         return TSSL.GNUTLS_E_CERTIFICATE_ERROR;
+      end if;
+
+      --  Get the peer certificate
+
+      Cert_List := TSSL.gnutls_certificate_get_peers
+        (Session, Cert_List_Len'Access);
+
+      if Cert_List = null then
+         return TSSL.GNUTLS_E_CERTIFICATE_ERROR;
+      end if;
+
+      if TSSL.gnutls_x509_crt_init (Cert'Access) < 0 then
+         return TSSL.GNUTLS_E_CERTIFICATE_ERROR;
+      end if;
+
+      if TSSL.gnutls_x509_crt_import
+        (Cert, Cert_List.all, TSSL.GNUTLS_X509_FMT_DER) < 0
+      then
+         return TSSL.GNUTLS_E_CERTIFICATE_ERROR;
+      end if;
+
+      --  Get the user's callback stored in the session
+
+      CB := To_Callback (TSSL.gnutls_session_get_ptr (Session));
+
+      if CB /= null
+        and then not CB (Net.SSL.Certificate.Impl.Read (Status, Cert))
+      then
+         Status := 1;
+      end if;
+
+      TSSL.gnutls_x509_crt_deinit (Cert);
+
+      if Status = 0 then
+         return 0;
+      else
+         return TSSL.GNUTLS_E_CERTIFICATE_ERROR;
+      end if;
    end Verify_Callback;
 
    -------------
