@@ -655,11 +655,12 @@ package body AWS.Net.SSL is
    -------------
 
    procedure Release (Config : in out SSL.Config) is
-      procedure Free is new Ada.Unchecked_Deallocation (TS_SSL, SSL.Config);
+      procedure Unchecked_Free is
+        new Ada.Unchecked_Deallocation (TS_SSL, SSL.Config);
    begin
       if Config /= null and then Config /= Default_Config'Access then
          Finalize (Config.all);
-         Free (Config);
+         Unchecked_Free (Config);
       end if;
    end Release;
 
