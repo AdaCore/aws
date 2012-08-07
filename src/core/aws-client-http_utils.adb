@@ -29,8 +29,8 @@
 
 with Ada.Characters.Handling;
 with Ada.Exceptions;
-with Ada.Strings.Unbounded;
 with Ada.Strings.Fixed;
+with Ada.Strings.Unbounded;
 
 with AWS.Digest;
 with AWS.Headers.Set;
@@ -101,6 +101,7 @@ package body AWS.Client.HTTP_Utils is
 
       if Security then
          --  This is a secure connection, set the SSL config for this socket
+
          Net.SSL.Set_Config
            (Net.SSL.Socket_Type (Connection.Socket.all),
             Connection.SSL_Config);

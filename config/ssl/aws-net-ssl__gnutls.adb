@@ -290,8 +290,12 @@ package body AWS.Net.SSL is
       Do_Handshake_Internal (Socket);
    end Do_Handshake;
 
+   ---------------------------
+   -- Do_Handshake_Internal --
+   ---------------------------
+
    procedure Do_Handshake_Internal (Socket : Socket_Type) is
-      Code : TSSL.ssize_t;
+      Code : C.int;
    begin
       loop
          Code := TSSL.gnutls_handshake (Socket.SSL);
@@ -613,7 +617,7 @@ package body AWS.Net.SSL is
      (Socket : Socket_Type) return Stream_Element_Count is
    begin
       return Stream_Element_Count
-               (TSSL.gnutls_record_check_pending (Socket.SSL));
+        (TSSL.gnutls_record_check_pending (Socket.SSL));
    end Pending;
 
    -------------
@@ -899,7 +903,7 @@ package body AWS.Net.SSL is
       Code : C.int;
       To_C : constant array (Shutmode_Type) of TSSL.gnutls_close_request_t :=
                (Shut_Read_Write => TSSL.GNUTLS_SHUT_RDWR,
-                Shut_Read       => TSSL.GNUTLS_SHUT_RDWR, -- Absend, use RDWR
+                Shut_Read       => TSSL.GNUTLS_SHUT_RDWR, -- Absent, use RDWR
                 Shut_Write      => TSSL.GNUTLS_SHUT_WR);
    begin
       loop
