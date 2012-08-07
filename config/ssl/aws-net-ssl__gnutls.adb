@@ -66,16 +66,16 @@ package body AWS.Net.SSL is
 
    package Locking is
 
-      function Init (Item : access Mutex_Access) return Integer;
+      function Init (Item : access Mutex_Access) return C.int;
       pragma Convention (C, Init);
 
-      function Destroy (Item : access Mutex_Access) return Integer;
+      function Destroy (Item : access Mutex_Access) return C.int;
       pragma Convention (C, Destroy);
 
-      function Lock (Item : access Mutex_Access) return Integer;
+      function Lock (Item : access Mutex_Access) return C.int;
       pragma Convention (C, Lock);
 
-      function Unlock (Item : access Mutex_Access) return Integer;
+      function Unlock (Item : access Mutex_Access) return C.int;
       pragma Convention (C, Unlock);
 
    end Locking;
@@ -554,7 +554,7 @@ package body AWS.Net.SSL is
       -- Destroy --
       -------------
 
-      function Destroy (Item : access Mutex_Access) return Integer is
+      function Destroy (Item : access Mutex_Access) return C.int is
          procedure Free is
            new Ada.Unchecked_Deallocation (Semaphore, Mutex_Access);
       begin
@@ -575,7 +575,7 @@ package body AWS.Net.SSL is
       -- Init --
       ----------
 
-      function Init (Item : access Mutex_Access) return Integer is
+      function Init (Item : access Mutex_Access) return C.int is
       begin
          if Working then
             Item.all := new Semaphore;
@@ -587,7 +587,7 @@ package body AWS.Net.SSL is
       -- Lock --
       ----------
 
-      function Lock (Item : access Mutex_Access) return Integer is
+      function Lock (Item : access Mutex_Access) return C.int is
       begin
          if Working then
             Item.all.Seize;
@@ -599,7 +599,7 @@ package body AWS.Net.SSL is
       -- Unlock --
       ------------
 
-      function Unlock (Item : access Mutex_Access) return Integer is
+      function Unlock (Item : access Mutex_Access) return C.int is
       begin
          if Working then
             Item.all.Release;
