@@ -63,6 +63,7 @@ package body AWS.Net.SSL is
    pragma Inline (Check_Config);
 
    procedure Do_Handshake_Internal (Socket : Socket_Type);
+   --  The real handshake is done here
 
    package Locking is
 
@@ -129,6 +130,7 @@ package body AWS.Net.SSL is
      (Source : Net.Socket_Type'Class;
       Target : out Socket_Type;
       Config : SSL.Config);
+   --  Make Target a secure socket for Source using the given configuration
 
    -------------------
    -- Accept_Socket --
