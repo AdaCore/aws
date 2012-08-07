@@ -102,7 +102,7 @@ procedure Cert is
       C     : Client.HTTP_Connection;
       Cert  : Net.SSL.Certificate.Object;
    begin
-      Client.Create (C, URL, Certificate => "client.pem");
+      Client.Create (C, URL, Certificate => "aws-client.pem");
 
       Cert := Client.Get_Certificate (C);
 
@@ -128,6 +128,9 @@ begin
    Config.Set.Max_Connection (Conf, 5);
    Config.Set.Security (Conf, True);
    Config.Set.Exchange_Certificate (Conf, True);
+   Config.Set.Trusted_CA (Conf, "private-ca.crt");
+   Config.Set.Certificate (Conf, "aws-server.crt");
+   Config.Set.Key (Conf, "aws-server.key");
 
    Server.Start (HTTP, CB'Unrestricted_Access, Conf);
 
