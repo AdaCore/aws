@@ -906,20 +906,25 @@ package body AWS.Net.SSL is
                 Shut_Read       => TSSL.GNUTLS_SHUT_RDWR, -- Absent, use RDWR
                 Shut_Write      => TSSL.GNUTLS_SHUT_WR);
    begin
-      loop
-         Code := TSSL.gnutls_bye (Socket.SSL, To_C (How));
+      if Socket.IO.Handshaken.all then
+         --  Must be done only after successful handshake
 
-         exit when Code = TSSL.GNUTLS_E_SUCCESS;
+         loop
+            Code := TSSL.gnutls_bye (Socket.SSL, To_C (How));
 
-         begin
-            Code_Processing
-              (Code, Socket,
-               Duration'Min (Net.Socket_Type (Socket).Timeout, 0.25));
-         exception when E : others =>
-            Net.Log.Error (Socket, Ada.Exceptions.Exception_Message (E));
-            exit;
-         end;
-      end loop;
+            exit when Code = TSSL.GNUTLS_E_SUCCESS;
+
+            begin
+               Code_Processing
+                 (Code, Socket,
+                  Duration'Min (Net.Socket_Type (Socket).Timeout, 0.25));
+            exception
+               when E : others =>
+                  Net.Log.Error (Socket, Ada.Exceptions.Exception_Message (E));
+                  exit;
+            end;
+         end loop;
+      end if;
 
       TSSL.gnutls_transport_set_ptr (Socket.SSL, 0);
 
