@@ -23,6 +23,10 @@ def generate_tags(filename):
                 tags.append("!ssl")
             else:
                 tags.append("ssl")
+                if value == "gnutls":
+                    tags.append("gnutls")
+                else:
+                    tags.append("!gnutls")
         else:
             if value == "true":
                 tags.append(key)
