@@ -92,6 +92,7 @@ package body AWS.Net.SSL is
       CREQ      : Boolean := False; -- Certificate is required
       CAfile    : C.Strings.chars_ptr := C.Strings.Null_Ptr;
       Verify_CB : System.Address := System.Null_Address;
+      Is_Server : Boolean := True;
    end record;
 
    procedure Initialize
@@ -789,6 +790,8 @@ package body AWS.Net.SSL is
            (gnutls_credentials_set (Socket.SSL, cred => Socket.Config.CCC),
             Socket);
       end if;
+
+      Socket.Config.Is_Server := False;
 
       Session_Transport (Socket);
    end Session_Client;
