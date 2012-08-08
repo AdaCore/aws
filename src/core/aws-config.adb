@@ -98,6 +98,15 @@ package body AWS.Config is
       return To_String (O.P (Certificate).Str_Value);
    end Certificate;
 
+   --------------------------
+   -- Certificate_Required --
+   --------------------------
+
+   function Certificate_Required (O : Object) return Boolean is
+   begin
+      return O.P (Certificate_Required).Bool_Value;
+   end Certificate_Required;
+
    ------------------------
    -- Check_URL_Validity --
    ------------------------
@@ -612,6 +621,15 @@ package body AWS.Config is
    begin
       return Process_Options (Transient_Lifetime).Dur_Value;
    end Transient_Lifetime;
+
+   ----------------
+   -- Trusted_CA --
+   ----------------
+
+   function Trusted_CA (O : Object) return String is
+   begin
+      return To_String (O.P (Trusted_CA).Str_Value);
+   end Trusted_CA;
 
    --------------
    -- Up_Image --

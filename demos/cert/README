@@ -1,0 +1,96 @@
+
+Here are some notes to:
+
+   1. Create a CA
+
+   2. Create a server certificate (signed by our CA)
+
+   3. Create a client certificate (signed by our CA)
+
+More information can be found a the AWS documentation.
+
+-----------------------------------
+Initialize OpenSSL CA on GNU/Debian
+-----------------------------------
+
+This heavily depends on the OS and distribution used. To initialize a demo
+CA on GNU/Debian is easy with a standard OpenSSL install see default_ca in
+/etc/ssl/openssl.cnf. So we can create the CA locally for the cert demo:
+
+$ mkdir demoCA
+$ mkdir demoCA/newcerts
+$ touch demoCA/index.txt
+$ echo ABCC > demoCA/serial
+
+----------------------------------
+Create a Certificate Authority key
+----------------------------------
+
+$ openssl genrsa -out private-ca.key 1024
+
+$ openssl req -new -key private-ca.key -out private-ca.csr
+
+   Country Name (2 letter code) [AU]:FR
+   State or Province Name (full name) [Some-State]:Ile de France
+   Locality Name (eg, city) []:Magny les Hameaux
+   Organization Name (eg, company) [Internet Widgits Pty Ltd]:AWS Team
+   Organizational Unit Name (eg, section) []:
+   Common Name (e.g. server FQDN or YOUR name) []:Pascal Obry
+   Email Address []:aws@obry.net
+
+   Please enter the following 'extra' attributes
+   to be sent with your certificate request
+   A challenge password []:letmein
+   An optional company name []:AWS Team
+
+$ openssl x509 -req -days 365 -in private-ca.csr -signkey private-ca.key -out private-ca.crt
+
+-----------------------------------------
+Create web server key signed with our CA
+----------------------------------------
+
+$ openssl genrsa -out aws-server.key 1024
+
+$ openssl req -new -key aws-server.key -out aws-server.csr
+
+   Country Name (2 letter code) [AU]:FR
+   State or Province Name (full name) [Some-State]:Ile de France
+   Locality Name (eg, city) []:Magny les Hameaux
+   Organization Name (eg, company) [Internet Widgits Pty Ltd]:AWS Team
+   Organizational Unit Name (eg, section) []:
+   Common Name (e.g. server FQDN or YOUR name) []:localhost
+   Email Address []:aws@obry.net
+
+   Please enter the following 'extra' attributes
+   to be sent with your certificate request
+   A challenge password []:certdemo
+   An optional company name []:AWS Team
+
+$ openssl ca -in aws-server.csr -cert private-ca.crt -keyfile private-ca.key -out aws-server.crt
+
+-----------------------------------------
+Create web browser key signed with our CA
+-----------------------------------------
+
+$ openssl genrsa -des3 -out aws-client.key 1024
+
+   Enter pass phrase for aws-client.key:letmein
+
+$ openssl req -new -key aws-client.key -out aws-client.csr
+
+   Country Name (2 letter code) [AU]:FR
+   State or Province Name (full name) [Some-State]:Ile de France
+   Locality Name (eg, city) []:Paris
+   Organization Name (eg, company) [Internet Widgits Pty Ltd]:AWS Team
+   Organizational Unit Name (eg, section) []:
+   Common Name (e.g. server FQDN or YOUR name) []:Jean Dupont
+   Email Address []:jean.dupont@nowhere.com
+
+   Please enter the following 'extra' attributes
+   to be sent with your certificate request
+   A challenge password []:letmein
+   An optional company name []:AWS Team
+
+$ openssl ca -in aws-client.csr -cert private-ca.crt -keyfile private-ca.key -out aws-client.crt
+
+$ openssl pkcs12 -export -clcerts -in aws-client.crt -inkey aws-client.key -out aws-client.p12

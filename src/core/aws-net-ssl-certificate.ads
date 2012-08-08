@@ -27,7 +27,10 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
+with Ada.Calendar;
 with Ada.Strings.Unbounded;
+
+private with AWS.Utils;
 
 package AWS.Net.SSL.Certificate is
 
@@ -46,14 +49,46 @@ package AWS.Net.SSL.Certificate is
    function Issuer (Certificate : Object) return String;
    --  Returns the certificate's issuer
 
+   function Activation_Time (Certificate : Object) return Calendar.Time;
+   --  Certificate validity starting date
+
+   function Expiration_Time (Certificate : Object) return Calendar.Time;
+   --  Certificate validity ending date
+
+   function Verified (Certificate : Object) return Boolean;
+   --  Returns True if the certificate has already been verified, this is
+   --  mostly interresting when used from the Verify_Callback below. If this
+   --  routine returns True it means that the certificate has already been
+   --  properly checked. If checked the certificate can be trusted and the
+   --  Verify_Callback should return True also. If it is False it is up to
+   --  the application to check the certificate into the Verify_Callback and
+   --  returns the appropriate status.
+   --
+   --  Client verification support
+   --
+
+   type Verify_Callback is
+     access function (Cert : SSL.Certificate.Object) return Boolean;
+   --  Client certificate verification callback, must return True if Cert can
+   --  be accepted or False otherwise. Such callback should generally return
+   --  the value returned by Verified above.
+
+   procedure Set_Verify_Callback
+     (Config : in out SSL.Config; Callback : Verify_Callback);
+   --  Register the callback to use to verify client's certificates
+
 private
 
    type Object is record
-      Subject : Unbounded_String;
-      Issuer  : Unbounded_String;
+      Verified   : Boolean;
+      Subject    : Unbounded_String;
+      Issuer     : Unbounded_String;
+      Activation : Calendar.Time;
+      Expiration : Calendar.Time;
    end record;
 
    Undefined : constant Object :=
-                 (Null_Unbounded_String, Null_Unbounded_String);
+                 (False, Null_Unbounded_String, Null_Unbounded_String,
+                  Utils.AWS_Epoch, Utils.AWS_Epoch);
 
 end AWS.Net.SSL.Certificate;

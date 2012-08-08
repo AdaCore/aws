@@ -66,20 +66,26 @@ abstract project AWS_Shared is
             for Specification ("SSL.Thin") use "ssl-thin__dummy.ads";
             for Implementation ("AWS.Net.SSL")
               use "aws-net-ssl__dummy.adb";
-            for Implementation ("AWS.Net.SSL.Certificate")
-              use "aws-net-ssl-certificate__dummy.adb";
+            for Specification ("AWS.Net.SSL.Certificate.Impl")
+              use "aws-net-ssl-certificate-impl__dummy.ads";
+            for Implementation ("AWS.Net.SSL.Certificate.Impl")
+              use "aws-net-ssl-certificate-impl__dummy.adb";
          when "openssl" =>
             for Specification ("SSL.Thin") use "ssl-thin__openssl.ads";
             for Implementation ("AWS.Net.SSL")
               use "aws-net-ssl__openssl.adb";
-            for Implementation ("AWS.Net.SSL.Certificate")
-              use "aws-net-ssl-certificate__openssl.adb";
+            for Specification ("AWS.Net.SSL.Certificate.Impl")
+              use "aws-net-ssl-certificate-impl__openssl.ads";
+            for Implementation ("AWS.Net.SSL.Certificate.Impl")
+              use "aws-net-ssl-certificate-impl__openssl.adb";
          when "gnutls" =>
             for Specification ("SSL.Thin") use "ssl-thin__gnutls.ads";
             for Implementation ("AWS.Net.SSL")
               use "aws-net-ssl__gnutls.adb";
-            for Implementation ("AWS.Net.SSL.Certificate")
-              use "aws-net-ssl-certificate__gnutls.adb";
+            for Specification ("AWS.Net.SSL.Certificate.Impl")
+              use "aws-net-ssl-certificate-impl__gnutls.ads";
+            for Implementation ("AWS.Net.SSL.Certificate.Impl")
+              use "aws-net-ssl-certificate-impl__gnutls.adb";
       end case;
 
    end Naming;

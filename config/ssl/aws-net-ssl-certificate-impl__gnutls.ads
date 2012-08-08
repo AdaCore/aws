@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2006-2012, AdaCore                     --
+--                       Copyright (C) 2012, AdaCore                        --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -27,39 +27,18 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-package body AWS.Net.SSL.Certificate is
+with Interfaces.C;
 
-   pragma Warnings (Off);
+package AWS.Net.SSL.Certificate.Impl is
 
-   ---------
-   -- Get --
-   ---------
+   use Interfaces;
 
-   function Get (Socket : Socket_Type) return Object is
-      O : Object;
-   begin
-      raise Program_Error;
-      return O;
-   end Get;
+   function Get (Socket : Socket_Type) return Object;
+   --  Read certificate from peer socket
 
-   ------------
-   -- Issuer --
-   ------------
+   function Read
+     (Status : C.unsigned;
+      X509   : Standard.SSL.Thin.gnutls_x509_crt_t) return Object;
+   --  Read certificate data
 
-   function Issuer (Certificate : Object) return String is
-   begin
-      raise Program_Error;
-      return "";
-   end Issuer;
-
-   -------------
-   -- Subject --
-   -------------
-
-   function Subject (Certificate : Object) return String is
-   begin
-      raise Program_Error;
-      return "";
-   end Subject;
-
-end AWS.Net.SSL.Certificate;
+end AWS.Net.SSL.Certificate.Impl;

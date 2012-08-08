@@ -431,6 +431,12 @@ package body AWS.Server is
         (Web_Server.Acceptor, Socket_Constructor);
    end Set_Socket_Constructor;
 
+   procedure Set_SSL_Config
+     (Web_Server : in out HTTP; SSL_Config : Net.SSL.Config) is
+   begin
+      Web_Server.SSL_Config := SSL_Config;
+   end Set_SSL_Config;
+
    --------------------------------------
    -- Set_Unexpected_Exception_Handler --
    --------------------------------------
@@ -1019,7 +1025,11 @@ package body AWS.Server is
             Security_Mode,
             CNF.Key (Web_Server.Properties),
             Exchange_Certificate =>
-              CNF.Exchange_Certificate ((Web_Server.Properties)));
+              CNF.Exchange_Certificate (Web_Server.Properties),
+            Certificate_Required =>
+              CNF.Certificate_Required (Web_Server.Properties),
+            Trusted_CA_Filename  =>
+              CNF.Trusted_CA (Web_Server.Properties));
       end if;
 
       --  Create the Web Server socket set

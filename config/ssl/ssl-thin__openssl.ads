@@ -81,12 +81,13 @@ package SSL.Thin is
       --  CRYPTO_EX_DATA ex_data; -- Do not need to translete it
    end record;
 
-   subtype SSL_Method is Pointer;
-   subtype SSL_CTX    is Pointer;
-   subtype SSL_Handle is Pointer;
-   subtype RSA        is Pointer;
-   subtype X509       is Pointer;
-   subtype X509_Name  is Pointer;
+   subtype SSL_Method     is Pointer;
+   subtype SSL_CTX        is Pointer;
+   subtype SSL_Handle     is Pointer;
+   subtype RSA            is Pointer;
+   subtype X509           is Pointer;
+   subtype X509_Name      is Pointer;
+   subtype X509_STORE_CTX is Pointer;
 
    Null_CTX    : SSL_CTX    renames Null_Pointer;
    Null_Handle : SSL_Handle renames Null_Pointer;
@@ -289,6 +290,15 @@ package SSL.Thin is
    --  but GNUTLS has a direct attributes order and I do not see such reverse
    --  in RFC2253.
 
+   type ASN1_STRING is record
+      length : int;
+      stype  : int;
+      data   : Interfaces.C.Strings.chars_ptr;
+   end record;
+   pragma Convention (C, ASN1_STRING);
+
+   subtype ASN1_UTCTIME is ASN1_STRING;
+
    --------------------------
    --  SSL mode constants. --
    --------------------------
@@ -461,6 +471,8 @@ package SSL.Thin is
 
    procedure SSL_set_shutdown (SSL : SSL_Handle; Mode : int);
 
+   function SSL_get_SSL_CTX (SSL : SSL_Handle) return SSL_CTX;
+
    ----------------------
    --  Crypto routines --
    ----------------------
@@ -498,11 +510,28 @@ package SSL.Thin is
    procedure SSL_CTX_set_verify
      (Ctx : SSL_CTX; Mode : int; Callback : Pointer);
 
+   function SSL_CTX_get_verify_mode (Ctx : SSL_CTX) return unsigned;
+
+   function SSL_CTX_load_verify_locations
+     (Cts : SSL_CTX; CAfile, CApath : Cstr.chars_ptr) return int;
+
    procedure RAND_seed (Buf : Pointer; Num : Integer);
 
    function RAND_status return Integer;
 
    procedure RAND_set_rand_method (Method : access Rand_Meth_St);
+
+   --  Connection data
+
+   function SSL_CTX_get_ex_new_index
+     (Args                          : long;
+      Argp                          : Pointer;
+      New_Func, Dup_Func, Free_Func : Pointer) return int;
+
+   function SSL_CTX_set_ex_data
+     (SSL : SSL_CTX; Idx : int; Arg : Pointer) return int;
+
+   function SSL_CTX_get_ex_data (SSL : SSL_CTX; Idx : int) return Pointer;
 
    --  Certificate
 
@@ -523,8 +552,19 @@ package SSL.Thin is
 
    function X509_get_subject_name (X509 : Thin.X509) return X509_Name;
    function X509_get_issuer_name (X509 : Thin.X509) return X509_Name;
+   function X509_get_notAfter
+     (X509 : Thin.X509) return access constant ASN1_STRING;
+   function X509_get_notBefore
+     (X509 : Thin.X509) return access constant ASN1_STRING;
 
    procedure SSL_CTX_set_default_verify_paths (Ctx : SSL_CTX);
+
+   function SSL_get_ex_data_X509_STORE_CTX_idx return int;
+
+   function X509_STORE_CTX_get_ex_data
+     (Ctx : X509_STORE_CTX; Idx : int) return SSL_Handle;
+
+   function X509_STORE_CTX_get_current_cert (Ctx : X509_STORE_CTX) return X509;
 
    -------------------
    --  BIO routines --
@@ -719,13 +759,28 @@ private
    pragma Import (C, X509_free, "X509_free");
    pragma Import (C, X509_get_subject_name, "X509_get_subject_name");
    pragma Import (C, X509_get_issuer_name, "X509_get_issuer_name");
+   pragma Import (C, X509_get_notAfter, "__aws_X509_get_notAfter");
+   pragma Import (C, X509_get_notBefore, "__aws_X509_get_notBefore");
    pragma Import (C, X509_NAME_oneline, "X509_NAME_oneline");
    pragma Import (C, X509_NAME_print_ex, "X509_NAME_print_ex");
+   pragma Import (C, SSL_get_ex_data_X509_STORE_CTX_idx,
+                  "SSL_get_ex_data_X509_STORE_CTX_idx");
+   pragma Import (C, X509_STORE_CTX_get_ex_data, "X509_STORE_CTX_get_ex_data");
+   pragma Import (C, X509_STORE_CTX_get_current_cert,
+                  "X509_STORE_CTX_get_current_cert");
    pragma Import (C, SSL_CTX_set_verify, "SSL_CTX_set_verify");
+   pragma Import (C, SSL_CTX_get_verify_mode, "SSL_CTX_get_verify_mode");
+   pragma Import (C, SSL_CTX_load_verify_locations,
+                  "SSL_CTX_load_verify_locations");
    pragma Import (C, SSL_CTX_set_default_verify_paths,
-                    "SSL_CTX_set_default_verify_paths");
+                  "SSL_CTX_set_default_verify_paths");
    pragma Import (C, SSL_set_session, "SSL_set_session");
    pragma Import (C, SSL_get_session, "SSL_get_session");
    pragma Import (C, SSL_get1_session, "SSL_get1_session");
    pragma Import (C, SSL_CTX_flush_sessions, "SSL_CTX_flush_sessions");
+   pragma Import (C, SSL_CTX_get_ex_new_index, "SSL_CTX_get_ex_new_index");
+   pragma Import (C, SSL_CTX_set_ex_data, "SSL_CTX_set_ex_data");
+   pragma Import (C, SSL_CTX_get_ex_data, "SSL_CTX_get_ex_data");
+   pragma Import (C, SSL_get_SSL_CTX, "SSL_get_SSL_CTX");
+
 end SSL.Thin;

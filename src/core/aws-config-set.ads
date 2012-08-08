@@ -298,6 +298,17 @@ package AWS.Config.Set is
    procedure Exchange_Certificate (O : in out Object; Value : Boolean);
    --  Set to True to request the client to send its certificate to the server
 
+   procedure Certificate_Required (O : in out Object; Value : Boolean);
+   --  Returns True if the server must abort the connection if the
+   --  client did not provide a certificate. If this option is set
+   --  the Exchange_Certificate must also be set.
+
+   procedure Trusted_CA (O : in out Object; Filename : String);
+   --  Returns the filename containing a list of trusted CA, this is to be used
+   --  with the Exchange_Certificate option. The filename is on bundle of CAs
+   --  that can be trusted. A client certificate signed with one of those CA
+   --  will be accetped by the server.
+
    -------------------------
    -- Per Process Options --
    -------------------------

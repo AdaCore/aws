@@ -100,6 +100,8 @@ package body AWS.Net.SSL is
       Security_Mode        : Method     := SSLv23;
       Key_Filename         : String     := "";
       Exchange_Certificate : Boolean    := False;
+      Certificate_Required : Boolean    := False;
+      Trusted_CA_Filename  : String     := "";
       Session_Cache_Size   : Positive   := 16#4000#) is
    begin
       raise Program_Error with Error_Message;
@@ -198,6 +200,16 @@ package body AWS.Net.SSL is
    begin
       null;
    end Set_Session_Cache_Size;
+
+   -------------------------
+   -- Set_Verify_Callback --
+   -------------------------
+
+   procedure Set_Verify_Callback
+     (Config : in out SSL.Config; Callback : System.Address) is
+   begin
+      raise Program_Error with Error_Message;
+   end Set_Verify_Callback;
 
    --------------
    -- Shutdown --

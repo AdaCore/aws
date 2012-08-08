@@ -883,6 +883,9 @@ package SSL.Thin is
       crl_list      : a_gnutls_x509_crl_t;
       crl_list_size : C.int) return C.int;
 
+   procedure gnutls_certificate_send_x509_rdn_sequence
+     (session : gnutls_session_t; status : C.int);
+
    function gnutls_x509_crt_init
      (cert : access gnutls_x509_crt_t) return C.int;
 
@@ -902,6 +905,12 @@ package SSL.Thin is
      (cert       : gnutls_x509_crt_t;
       buf        : CS.chars_ptr;
       sizeof_buf : access C.size_t) return C.int;
+
+   function gnutls_x509_crt_get_activation_time
+     (cert : gnutls_x509_crt_t) return time_t;
+
+   function gnutls_x509_crt_get_expiration_time
+     (cert : gnutls_x509_crt_t) return time_t;
 
    function gnutls_global_init return C.int;
 
@@ -1527,12 +1536,22 @@ private
    pragma Import
      (C, gnutls_certificate_set_x509_crl, "gnutls_certificate_set_x509_crl");
 
+   pragma Import
+     (C, gnutls_certificate_send_x509_rdn_sequence,
+      "gnutls_certificate_send_x509_rdn_sequence");
+
    pragma Import (C, gnutls_x509_crt_init, "gnutls_x509_crt_init");
    pragma Import (C, gnutls_x509_crt_deinit, "gnutls_x509_crt_deinit");
    pragma Import (C, gnutls_x509_crt_import, "gnutls_x509_crt_import");
    pragma Import (C, gnutls_x509_crt_get_dn, "gnutls_x509_crt_get_dn");
    pragma Import
      (C, gnutls_x509_crt_get_issuer_dn, "gnutls_x509_crt_get_issuer_dn");
+   pragma Import
+     (C, gnutls_x509_crt_get_activation_time,
+      "gnutls_x509_crt_get_activation_time");
+   pragma Import
+     (C, gnutls_x509_crt_get_expiration_time,
+      "gnutls_x509_crt_get_expiration_time");
 
    pragma Import (C, gnutls_global_init, "gnutls_global_init");
 

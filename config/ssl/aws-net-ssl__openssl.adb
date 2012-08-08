@@ -38,13 +38,16 @@ with Ada.Calendar;
 with Ada.Task_Attributes;
 with Ada.Task_Identification;
 with Ada.Task_Termination;
+with Ada.Unchecked_Conversion;
 with Ada.Unchecked_Deallocation;
 with Interfaces.C.Strings;
+
 with System.Memory;
 with System.Storage_Elements;
 
 with AWS.Config;
 with AWS.Net.Log;
+with AWS.Net.SSL.Certificate.Impl;
 with AWS.OS_Lib;
 with AWS.Utils;
 
@@ -74,6 +77,8 @@ package body AWS.Net.SSL is
          Security_Mode        : Method;
          Key_Filename         : String;
          Exchange_Certificate : Boolean;
+         Certificate_Required : Boolean;
+         Trusted_CA_Filename  : String;
          Session_Cache_Size   : Positive);
 
       procedure Finalize;
@@ -82,11 +87,16 @@ package body AWS.Net.SSL is
 
       procedure Set_Session_Cache_Size (Size : Natural);
 
+      procedure Set_Verify_Callback (Callback : System.Address);
+
    private
       Context : TSSL.SSL_CTX := TSSL.Null_CTX;
    end TS_SSL;
 
    Default_Config : constant Config := new TS_SSL;
+
+   Data_Index     : C.int;
+   --  Application specific data's index
 
    procedure Socket_Read (Socket : Socket_Type);
    --  Read encripted data from socket if necessary
@@ -120,9 +130,9 @@ package body AWS.Net.SSL is
    --  secondary initialization is ignored.
 
    function Verify_Callback
-     (preverify_ok : Integer; ctx : System.Address) return Integer;
-   --  Dummy verify procedure that always return ok. This is needed to be able
-   --  to retreive the client's certificate.
+     (preverify_ok : C.int; ctx : TSSL.X509_STORE_CTX) return C.int;
+   --  This routine is needed to be able to retreive the client's certificate
+   --  and validate it thought the user's verification routine if provided.
 
    procedure Secure
      (Source : Net.Socket_Type'Class;
@@ -363,6 +373,8 @@ package body AWS.Net.SSL is
       Security_Mode        : Method     := SSLv23;
       Key_Filename         : String     := "";
       Exchange_Certificate : Boolean    := False;
+      Certificate_Required : Boolean    := False;
+      Trusted_CA_Filename  : String     := "";
       Session_Cache_Size   : Positive   := 16#4000#) is
    begin
       if Config = null then
@@ -371,7 +383,8 @@ package body AWS.Net.SSL is
 
       Config.Initialize
         (Certificate_Filename, Security_Mode, Key_Filename,
-         Exchange_Certificate, Session_Cache_Size);
+         Exchange_Certificate, Certificate_Required,
+         Trusted_CA_Filename, Session_Cache_Size);
    end Initialize;
 
    -------------------------------
@@ -387,6 +400,8 @@ package body AWS.Net.SSL is
          Security_Mode        => Method'Value (CNF.Security_Mode (Default)),
          Key_Filename         => CNF.Key (Default),
          Exchange_Certificate => CNF.Exchange_Certificate (Default),
+         Certificate_Required => CNF.Certificate_Required (Default),
+         Trusted_CA_Filename  => CNF.Trusted_CA (Default),
          Session_Cache_Size   => 16#4000#);
    end Initialize_Default_Config;
 
@@ -630,6 +645,16 @@ package body AWS.Net.SSL is
          Config.Set_Session_Cache_Size (Size);
       end if;
    end Set_Session_Cache_Size;
+
+   -------------------------
+   -- Set_Verify_Callback --
+   -------------------------
+
+   procedure Set_Verify_Callback
+     (Config : in out SSL.Config; Callback : System.Address) is
+   begin
+      Config.Set_Verify_Callback (Callback);
+   end Set_Verify_Callback;
 
    --------------
    -- Shutdown --
@@ -983,6 +1008,8 @@ package body AWS.Net.SSL is
          Security_Mode        : Method;
          Key_Filename         : String;
          Exchange_Certificate : Boolean;
+         Certificate_Required : Boolean;
+         Trusted_CA_Filename  : String;
          Session_Cache_Size   : Positive)
       is
          type Meth_Func is access function return TSSL.SSL_Method;
@@ -1071,6 +1098,18 @@ package body AWS.Net.SSL is
 
             Error_If
               (TSSL.SSL_CTX_check_private_key (Ctx => Context) /= 1);
+
+            if Trusted_CA_Filename /= "" then
+               declare
+                  CAfile : C.Strings.chars_ptr :=
+                             C.Strings.New_String (Trusted_CA_Filename);
+               begin
+                  Error_If
+                    (TSSL.SSL_CTX_load_verify_locations
+                       (Context, CAfile, C.Strings.Null_Ptr) /= 1);
+                  C.Strings.Free (CAfile);
+               end;
+            end if;
          end Set_Certificate;
 
          ------------------------
@@ -1102,10 +1141,21 @@ package body AWS.Net.SSL is
             if Exchange_Certificate then
                --  Client is requested to send its certificate once
 
-               TSSL.SSL_CTX_set_verify
-                 (Context,
-                  TSSL.SSL_VERIFY_PEER + TSSL.SSL_VERIFY_CLIENT_ONCE,
-                  Verify_Callback'Address);
+               Error_If
+                 (TSSL.SSL_CTX_set_ex_data
+                    (Context, Data_Index, TSSL.Null_Pointer) = -1);
+
+               declare
+                  Mode : C.int :=
+                           TSSL.SSL_VERIFY_PEER + TSSL.SSL_VERIFY_CLIENT_ONCE;
+               begin
+                  if Certificate_Required then
+                     Mode := Mode + TSSL.SSL_VERIFY_FAIL_IF_NO_PEER_CERT;
+                  end if;
+
+                  TSSL.SSL_CTX_set_verify
+                    (Context, Mode, Verify_Callback'Address);
+               end;
             end if;
 
             if Certificate_Filename /= "" then
@@ -1151,6 +1201,17 @@ package body AWS.Net.SSL is
                Parg => TSSL.Null_Pointer) = -1);
       end Set_Session_Cache_Size;
 
+      -------------------------
+      -- Set_Verify_Callback --
+      -------------------------
+
+      procedure Set_Verify_Callback (Callback : System.Address) is
+      begin
+         Error_If
+           (TSSL.SSL_CTX_set_ex_data
+              (Context, Data_Index, Callback) = -1);
+      end Set_Verify_Callback;
+
    end TS_SSL;
 
    ---------------------
@@ -1158,11 +1219,58 @@ package body AWS.Net.SSL is
    ---------------------
 
    function Verify_Callback
-     (preverify_ok : Integer; ctx : System.Address) return Integer
+     (preverify_ok : C.int; ctx : TSSL.X509_STORE_CTX) return C.int
    is
-      pragma Unreferenced (preverify_ok, ctx);
+      use type C.unsigned;
+      use type Net.SSL.Certificate.Verify_Callback;
+
+      function To_Callback is new Unchecked_Conversion
+        (System.Address, Net.SSL.Certificate.Verify_Callback);
+
+      CB      : aliased Net.SSL.Certificate.Verify_Callback;
+      SSL     : SSL_Handle;
+      SSL_CTX : TSSL.SSL_CTX;
+      Cert    : TSSL.X509;
+      Res     : C.int := preverify_ok;
+      Mode    : C.unsigned;
    begin
-      return 1;
+      --  The SSL structure
+
+      SSL := TSSL.X509_STORE_CTX_get_ex_data
+        (ctx, TSSL.SSL_get_ex_data_X509_STORE_CTX_idx);
+
+      --  The SSL context, this is the one we are looking for as it contains
+      --  the register callback.
+
+      SSL_CTX := TSSL.SSL_get_SSL_CTX (SSL);
+
+      --  Get the current verification mode
+
+      Mode := TSSL.SSL_CTX_get_verify_mode (SSL_CTX);
+
+      --  Get the certificate as stored into the context
+
+      Cert := TSSL.X509_STORE_CTX_get_current_cert (ctx);
+
+      --  Get the user's callback stored at the Data_Index
+
+      CB := To_Callback (TSSL.SSL_CTX_get_ex_data (SSL_CTX, Data_Index));
+
+      if CB /= null
+        and then not CB
+          (Net.SSL.Certificate.Impl.Read (preverify_ok = 1, Cert))
+      then
+         Res := 0;
+      end if;
+
+      --  If we did not ask to fail if no peer cert was received just
+      --  unconditionally returns 1 (OK).
+
+      if (Mode and TSSL.SSL_VERIFY_FAIL_IF_NO_PEER_CERT) = 0 then
+         return 1;
+      else
+         return Res;
+      end if;
    end Verify_Callback;
 
    -------------
@@ -1201,4 +1309,9 @@ begin
    TSSL.SSL_library_init;
    Locking.Initialize;
    Init_Random;
+
+   Data_Index :=
+     TSSL.SSL_CTX_get_ex_new_index
+       (0, TSSL.Null_Pointer, TSSL.Null_Pointer,
+        TSSL.Null_Pointer, TSSL.Null_Pointer);
 end AWS.Net.SSL;

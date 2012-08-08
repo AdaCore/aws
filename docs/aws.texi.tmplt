@@ -367,6 +367,11 @@ authentication and basic authentication on the Web site.
 
 A simple program to test the Web Basic and Digest authentication feature.
 
+@item cert
+
+A secure server using a Certificate Authority and validating clients
+with certificate. This is the highest security level possible.
+
 @item com
 
 Two simples program that uses the @code{AWS} communication service.
@@ -379,6 +384,11 @@ A simple demo using the dispatcher facility. @pxref{URI dispatcher}.
 
 The famous Hello World program. This is a server that will always
 return a Web page saying ``Hello World!''.
+
+@item hello_wsdl
+
+An hello world kind of application using a WSDL document for
+describing the messages format.
 
 @item hotplug
 
@@ -465,6 +475,10 @@ A driver to browse the Web Elements library and see some examples.
 @item web_mail
 
 A simple Web Mail implementation that works on a @code{POP} mailbox.
+
+@item websockets
+
+A simple WebSocket demo.
 
 @item wps
 
@@ -1352,6 +1366,11 @@ must be @var{admin})
 This is the URI to call the administrative page. This can be used when
 calling @code{AWS.Server.Start}. The default is @file{@_ADMIN_URI_@}.
 
+@item Case_Sensitive_Parameters (boolean)
+@cindex Case_Sensitive_Parameters
+If set to @code{True} the @code{HTTP} parameters are case
+sensitive. The default value is @_CASE_SENSITIVE_PARAMETERS_@.
+
 @item Certificate (string)
 @cindex Certificate (string)
 Set the certificate file to be used with the secure servers. The
@@ -1362,11 +1381,6 @@ by intermediate CA certificates if applicable and ending at the highest
 level (root) CA certificate. If the file contains only a single
 certificate, it can be followed by a private key. In this case the Key
 parameter (see below) must empty.
-
-@item Case_Sensitive_Parameters (boolean)
-@cindex Case_Sensitive_Parameters
-If set to @code{True} the @code{HTTP} parameters are case
-sensitive. The default value is @_CASE_SENSITIVE_PARAMETERS_@.
 
 @item Check_URL_Validity (boolean)
 @cindex Check_URL_Validity
@@ -1423,6 +1437,13 @@ new log file each day or month. The default is @_ERROR_LOG_SPLIT_MODE_@.
 @cindex Exchange_Certificate
 If set to True it means that the client will be asked to send its
 certificate to the server. The default value is @_EXCHANGE_CERTIFICATE_@.
+
+@item Certificate_Required (boolean)
+@cindex Certificate_Required
+If set to True the server will reject all SSL connections if the
+client did not provide a certificate (be it valid or not). The
+@code{Exchange_Certificate} option must be set in this case. The
+default value is @_CERTIFICATE_REQUIRED_@.
 
 @item Force_Wait_For_Client_Timeout (duration)
 @cindex Force_Wait_For_Client_Timeout
@@ -1614,11 +1635,17 @@ The name of the status page to used. The default is
 Specify the number of seconds between each run of the cleaner task to remove
 transient pages. The default value is @_TRANSIENT_CLEANUP_INTERVAL_@ seconds.
 
-@item Transient_Lifetime
+@item Transient_Lifetime (duration)
 @cindex Transient_Lifetime
 Specify the number of seconds to keep a transient page. After this
 period the transient page is obsoleted and will be removed during next
 cleanup. The default value is @_TRANSIENT_LIFETIME_@ seconds.
+
+@item Trusted_CA (string)
+@cindex Trusted_CA
+This must point to the file containing the list of trusted
+Certificate Authorities. The CA in this file will be used to verify
+the client certificate validity. The default values is @file{@_TRUSTED_CA_@}.
 
 @item Up_Image (string)
 @cindex Up_Image
@@ -2413,7 +2440,10 @@ done, you can continue reading this section.
 
 @menu
 * Initialization::
-* Creating a test certificate::
+* Verify callback::
+* Self-signed certificate::
+* Using a Certificate Authority::
+* Security level::
 * Protocol::
 @end menu
 
@@ -2434,41 +2464,305 @@ rely on, you must have a valid certificate signed by one of the
 
 @noindent
 The certificate to be used must be specified before starting the
-secure server with @code{AWS.Server.Set_Security}.
+secure server with @code{AWS.Server.Set_Security}:
 
-@AWSEXP {AWS.Server.Set_Security (WS, Certificate_Filename => "/xyz/aws.pem");}
+@noindent
+With a key and certificate files:
 
-@node Creating a test certificate
-@subsection Creating a test certificate
-@cindex certificate
+@AWSEXP {AWS.Server.Set_Security
+  (WS,
+   Key_Filename         => "server.key",
+   Certificate_Filename => "server.crt");}
+
+@noindent
+Or with a self-contained certificate:
+
+@AWSEXP {AWS.Server.Set_Security (WS, Certificate_Filename => "aws.pem");}
+
+@noindent
+Or using the @code{certificate} configuration parameter,
+@pxref{Configuration options}.
+
+@node Verify callback
+@subsection Verify callback
+@cindex Verify callback
+
+@noindent
+First note that it is not necessary to use such callback to verify the
+certificate validity. @pxref{Using a Certificate Authority}.
+
+@noindent
+This callback will receive the client certificate as sent during SSL
+handshake between the server and the client. The certificate
+information can be checked for logging purpose or to impose some
+restriction. Generally this callback should return the value from
+@code{AWS.Net.SSL.Certificate.Verified}, see @pxref{AWS.Net.SSL.Certificate}.
+
+@noindent
+The Verified status of the certificate is the one that has been issued
+by the SSL implementation during certificate verification and can
+generally be trusted.
+
+@node Self-signed certificate
+@subsection Self-signed certificate
+@cindex Self-signed certificate
+
+@menu
+* Creating a server certificate::
+* Creating a client certificate::
+@end menu
+
+@node Creating a server certificate
+@subsubsection Creating a server certificate
+@cindex server certificate
 
 @noindent
 The goal here is not to replace the @code{OpenSSL} documentation but
-just to present one way to create a certificate for an @code{HTTPS}
-test server.
+just to present one way to create a self signed certificate for an
+@code{HTTPS} test server.
 
 @table @b
 
-@item The RSA key
+@item Generate a RSA key
 
-@AWSEXP {$ openssl genrsa -rand <filename> -out ca-key.pem}
+@AWSEXP {$ openssl genrsa -rand <filename> -out aws-server.key}
 
 @noindent
-Filename must be point to any file, this is used to initialized the
+Filename must point to any file, this is used to initialized the
 random seed.
 
-@item The Certificate
+@item Generate the certificate
 
-@AWSEXP {$ openssl req -new -x509 -days 730 -key ca-key.pem -out ca-cert.pem}
+@AWSEXP {$ openssl req -new -x509 -days 730 -key aws-server.key -out aws-server.cert}
 
-@item Create a single self contained file
+@item Create a single self contained file (optional)
 
-@AWSEXP {$ cat ca-key.pem ca-cert.pem > aws.pem}
+@AWSEXP {$ cat aws-server.key aws-server.cert > aws.pem}
 
 @end table
 
 @noindent
-A this point you can use @file{aws.pem} with your server.
+A this point you can use @file{aws.pem} with your server or the separate
+@file{server.key} and @file{server.crt} files.
+
+@node Creating a client certificate
+@subsubsection Creating a client certificate
+@cindex client certificate
+
+@noindent
+A certificate can also be used on a Web browser and passed to the
+server to have a strong client authentication. A client certificate
+must be @code{PKCS12}. The steps to generate such certificate are:
+
+@table @b
+
+@item Generate a RSA key
+
+@AWSEXP {$ openssl genrsa -des3 -out aws-client.key}
+
+@noindent
+Filename must point to any file, this is used to initialized the
+random seed.
+
+@item Generate the certificate
+
+@AWSEXP {$ openssl req -new -x509 -days 730 -key aws-client.key -out aws-client.cert}
+
+@item Create the corresponding PKCS12 certificate
+
+@AWSEXP {$ openssl pkcs12 -export -clcerts -in aws-client.cert
+    -inkey aws-client.key -out client.p12}
+@end table
+
+@node Using a Certificate Authority
+@subsection Using a Certificate Authority
+@cindex CA certificate
+
+@menu
+* Initializing the Certificate Authority::
+* Creating the Certificate Authority::
+* Creating a CA signed server certificate::
+* Creating a CA signed client certificate::
+@end menu
+
+@noindent
+In this section we will use a Certificate Authority to signed the
+server certificates and the client certificates. Using this method is
+required if the server must ensure that only clients with a valid
+certificate will be able to connect to the server. The server will
+verify that the client certificate received has been signed by a known
+Certificate Authority.
+
+@noindent
+Note that these checks are happening during the SSL handshake, so
+before the user's callback.
+
+@noindent
+For this to work the following configuration options must be used:
+
+@table @b
+@item Exchange_Certificate
+To request that the client certificate be sent.
+
+@item Trusted_CA
+The file containing the certificate of the Certificate Authority we
+trust. The CA which has signed the client's certificate.
+
+@item Certificate_Required
+If no certificate has been received from the client the server will
+reject the connection. If this is not set, we can still validate the
+client's certificate in the verify callback, @pxref{Verify callback}
+and for example log the connecting users.
+@end table
+
+@node Initializing the Certificate Authority
+@subsubsection Initializing the Certificate Authority
+@cindex CA, Certificate Authority
+
+@noindent
+First the Certificate Authority must be initialized on the
+computer. This is heavily dependent on the actual Operating System
+used, describing this part is out of scope of this document.
+
+@noindent
+On GNU/Debian the default setup (see default_ca in
+@file{/etc/ssl/openssl.cnf}) can be used to create a @b{demo}
+Certificate Authority locally to test this feature:
+
+@AWSEXP{$ mkdir demoCA
+$ mkdir demoCA/newcerts
+$ touch demoCA/index.txt
+$ echo ABCC > demoCA/serial}
+
+@node Creating the Certificate Authority
+@subsubsection Creating the Certificate Authority
+@cindex CA, Certificate Authority
+
+@table @b
+
+@item Generate a RSA key
+
+@AWSEXP {$ openssl genrsa -out private-ca.key 1024}
+
+@item Generate the certificate signing request
+
+@AWSEXP {$ openssl req -new -key private-ca.key -out private-ca.csr}
+
+@noindent
+During this step you'll be asked for information about the CA
+(Country, State or Province, Organization Name...).
+
+@item Create the CA certificate
+
+@AWSEXP {$ openssl x509 -req -days 365 -in private-ca.csr
+    -signkey private-ca.key -out private-ca.crt}
+
+@noindent
+This certificate will be used by AWS as the trusted CA,
+@pxref{Configuration options}.
+@end table
+
+@node Creating a CA signed server certificate
+@subsubsection Creating a CA signed server certificate
+@cindex server certificate
+
+@table @b
+
+@item Generate a RSA key
+
+@AWSEXP {$ openssl genrsa -out aws-server.key 1024}
+
+@item Generate the certificate signing request
+
+@AWSEXP {$ openssl req -new -key aws-server.key -out aws-server.csr}
+
+@noindent
+During this step you'll be asked for information about the server
+(Country, State or Province, Common Name...). Note that the
+Organization Name here must match the one from the CA and the Common
+Name should be the server fully qualified domain name.
+
+@item Create the server certificate, signed it with our CA
+
+@AWSEXP {$ openssl ca -in aws-server.csr -cert private-ca.crt
+    -keyfile private-ca.key -out aws-server.crt}
+
+@item Create a single self contained file (optional)
+
+@AWSEXP {$ cat aws-server.key aws-server.cert > aws.pem}
+@end table
+
+@node Creating a CA signed client certificate
+@subsubsection Creating a CA signed client certificate
+@cindex client certificate
+
+@table @b
+
+@item Generate a RSA key
+
+@AWSEXP {$ openssl genrsa -des3 -out aws-client.key 1024}
+
+@item Generate the certificate signing request
+
+@AWSEXP {$ openssl req -new -key aws-client.key -out aws-client.csr}
+
+@noindent
+During this step you'll be asked for information about the client
+(Country, State or Province, Common Name...). Note that the
+Organization Name here must match the one from the CA and the Common
+Name should be the client's one.
+
+@item Create the client certificate, signed it with our CA
+
+@AWSEXP {$ openssl ca -in aws-client.csr -cert private-ca.crt
+    -keyfile private-ca.key -out aws-client.crt}
+
+@item Create the corresponding PKCS12 certificate
+
+@AWSEXP {$ openssl pkcs12 -export -clcerts -in aws-client.crt
+    -inkey aws-client.key -out aws-client.p12}
+@end table
+
+@node Security level
+@subsection Security level
+@cindex Security level
+
+@noindent
+This table summarize the security level achieved with different
+settings of the security oriented configuration parameters.
+
+@multitable @columnfractions 0.45 0.10 0.15 0.15 0.15
+
+@item @b{Security}
+@tab @b{SSL} @tab @b{Exchange Certificate}
+@tab @b{Certificate Required} @tab @b{Trusted CA}
+
+@item
+
+@item Data between the client and the server are encrypted.
+@tab Yes @tab No @tab No @tab No
+
+@item
+
+@item Client can be identified, it is still possible to access the
+server without having a certificate.
+@tab Yes @tab Yes @tab No @tab No
+
+@item
+
+@item Client are identified, a certificate is required. The
+verification of the validity is up to the application using the verify
+callback.
+@tab Yes @tab Yes @tab Yes @tab No
+
+@item
+
+@item Client are identified and verified, the certificate must have
+been signed by a Certificate Authority. It is not possible to access
+the server without a valid certificate.
+@tab Yes @tab Yes @tab Yes @tab Yes
+
+@end multitable
 
 @node Protocol
 @subsection Protocol

@@ -15,6 +15,12 @@ of the feature.
 New features in AWS 2.11
 ------------------------
 
+NF-211-L725-030 Add support for client certificate verification (2012-08-05)
+
+   Add support for verification of client's certificate and Certificate
+   Authority. This is the highest level of security when strong
+   authentication of client connecting to a server is required.
+
 NF-211-L608-003 Add support for WebSocket (2012-06-25)
 
    Add support for the WebSocket bi-directional protocol between
