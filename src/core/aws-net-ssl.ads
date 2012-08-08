@@ -181,7 +181,7 @@ private
 
    type Socket_Type is new Net.Std.Socket_Type with record
       Config : SSL.Config := Null_Config;
-      SSL    : SSL_Handle := TSSL.Null_Handle;
+      SSL    : aliased SSL_Handle := TSSL.Null_Handle;
       IO     : TSSL.BIO_Access;
    end record;
 

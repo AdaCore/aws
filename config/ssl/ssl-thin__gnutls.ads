@@ -1232,8 +1232,8 @@ package SSL.Thin is
    function aws_gcry_set_thread_cbs
      (Thread_CBS : gcry_thread_cbs) return gcry_error_t;
    pragma Import (C, aws_gcry_set_thread_cbs, "__aws_gcry_set_thread_cbs");
-   --  Calls gcry_control (GCRYCTL_SET_THREAD_CBS, cbs) over C module gcry.c
-   --  because varargs does not supported in Ada directly.
+   --  Calls gcry_control (GCRYCTL_SET_THREAD_CBS, cbs) in C module gcry.c
+   --  because varargs are not supported in Ada.
 
    function gcry_strerror (Err : gcry_error_t) return CS.chars_ptr;
    pragma Import (C, gcry_strerror, "gcry_strerror");

@@ -63,19 +63,21 @@ package body AWS.Net.SSL is
    pragma Inline (Check_Config);
 
    procedure Do_Handshake_Internal (Socket : Socket_Type);
+   pragma Inline (Do_Handshake_Internal);
+   --  The real handshake is done here
 
    package Locking is
 
-      function Init (Item : access Mutex_Access) return Integer;
+      function Init (Item : access Mutex_Access) return C.int;
       pragma Convention (C, Init);
 
-      function Destroy (Item : access Mutex_Access) return Integer;
+      function Destroy (Item : access Mutex_Access) return C.int;
       pragma Convention (C, Destroy);
 
-      function Lock (Item : access Mutex_Access) return Integer;
+      function Lock (Item : access Mutex_Access) return C.int;
       pragma Convention (C, Lock);
 
-      function Unlock (Item : access Mutex_Access) return Integer;
+      function Unlock (Item : access Mutex_Access) return C.int;
       pragma Convention (C, Unlock);
 
    end Locking;
@@ -90,6 +92,7 @@ package body AWS.Net.SSL is
       CREQ      : Boolean := False; -- Certificate is required
       CAfile    : C.Strings.chars_ptr := C.Strings.Null_Ptr;
       Verify_CB : System.Address := System.Null_Address;
+      Is_Server : Boolean := True;
    end record;
 
    procedure Initialize
@@ -115,11 +118,11 @@ package body AWS.Net.SSL is
 
    Default_Config : aliased TS_SSL;
 
-   protected Default_Config_Synch is
+   protected Default_Config_Sync is
       procedure Create_Default_Config;
    private
       Done : Boolean := False;
-   end Default_Config_Synch;
+   end Default_Config_Sync;
 
    procedure Initialize_Default_Config;
    --  Initializes default config. It could be called more then once, because
@@ -129,6 +132,7 @@ package body AWS.Net.SSL is
      (Source : Net.Socket_Type'Class;
       Target : out Socket_Type;
       Config : SSL.Config);
+   --  Make Target a secure socket for Source using the given configuration
 
    -------------------
    -- Accept_Socket --
@@ -251,11 +255,11 @@ package body AWS.Net.SSL is
       end if;
    end Connect;
 
-   --------------------------
-   -- Default_Config_Synch --
-   --------------------------
+   -------------------------
+   -- Default_Config_Sync --
+   -------------------------
 
-   protected body Default_Config_Synch is
+   protected body Default_Config_Sync is
 
       ---------------------------
       -- Create_Default_Config --
@@ -279,7 +283,7 @@ package body AWS.Net.SSL is
          end if;
       end Create_Default_Config;
 
-   end Default_Config_Synch;
+   end Default_Config_Sync;
 
    ------------------
    -- Do_Handshake --
@@ -290,15 +294,39 @@ package body AWS.Net.SSL is
       Do_Handshake_Internal (Socket);
    end Do_Handshake;
 
+   ---------------------------
+   -- Do_Handshake_Internal --
+   ---------------------------
+
    procedure Do_Handshake_Internal (Socket : Socket_Type) is
-      Code : TSSL.ssize_t;
+      Code : C.int;
    begin
+      if Socket.IO.Handshaken.all then
+         return;
+      end if;
+
       loop
          Code := TSSL.gnutls_handshake (Socket.SSL);
 
          exit when Code = TSSL.GNUTLS_E_SUCCESS;
 
-         Code_Processing (Code, Socket);
+         if Code = TSSL.GNUTLS_E_INTERRUPTED
+           or else Code = TSSL.GNUTLS_E_AGAIN
+         then
+            if Socket.Config.Is_Server then
+               --  Yield otherwise we get a crash from GNU/TLS library and the
+               --  program terminates. After some analysis it looks like some
+               --  lock are not properly created if we do not yield here.
+               --  ??? Maybe a GNU/TLS bug in 3.0.20, to be checked with futur
+               --  version on regression test 0226_client_cert.
+               delay 0.01;
+
+               Code_Processing (Code, Socket, Timeout => 0.5);
+            end if;
+
+         else
+            Check_Error_Code (Code, Socket);
+         end if;
       end loop;
 
       Socket.IO.Handshaken.all := True;
@@ -529,7 +557,7 @@ package body AWS.Net.SSL is
 
    procedure Initialize_Default_Config is
    begin
-      Default_Config_Synch.Create_Default_Config;
+      Default_Config_Sync.Create_Default_Config;
    end Initialize_Default_Config;
 
    -------------
@@ -550,7 +578,7 @@ package body AWS.Net.SSL is
       -- Destroy --
       -------------
 
-      function Destroy (Item : access Mutex_Access) return Integer is
+      function Destroy (Item : access Mutex_Access) return C.int is
          procedure Free is
            new Ada.Unchecked_Deallocation (Semaphore, Mutex_Access);
       begin
@@ -571,7 +599,7 @@ package body AWS.Net.SSL is
       -- Init --
       ----------
 
-      function Init (Item : access Mutex_Access) return Integer is
+      function Init (Item : access Mutex_Access) return C.int is
       begin
          if Working then
             Item.all := new Semaphore;
@@ -583,7 +611,7 @@ package body AWS.Net.SSL is
       -- Lock --
       ----------
 
-      function Lock (Item : access Mutex_Access) return Integer is
+      function Lock (Item : access Mutex_Access) return C.int is
       begin
          if Working then
             Item.all.Seize;
@@ -595,7 +623,7 @@ package body AWS.Net.SSL is
       -- Unlock --
       ------------
 
-      function Unlock (Item : access Mutex_Access) return Integer is
+      function Unlock (Item : access Mutex_Access) return C.int is
       begin
          if Working then
             Item.all.Release;
@@ -613,7 +641,7 @@ package body AWS.Net.SSL is
      (Socket : Socket_Type) return Stream_Element_Count is
    begin
       return Stream_Element_Count
-               (TSSL.gnutls_record_check_pending (Socket.SSL));
+        (TSSL.gnutls_record_check_pending (Socket.SSL));
    end Pending;
 
    -------------
@@ -627,9 +655,7 @@ package body AWS.Net.SSL is
    is
       Code : TSSL.ssize_t;
    begin
-      if not Socket.IO.Handshaken.all then
-         Do_Handshake_Internal (Socket);
-      end if;
+      Do_Handshake_Internal (Socket);
 
       loop
          Code :=
@@ -651,11 +677,12 @@ package body AWS.Net.SSL is
    -------------
 
    procedure Release (Config : in out SSL.Config) is
-      procedure Free is new Ada.Unchecked_Deallocation (TS_SSL, SSL.Config);
+      procedure Unchecked_Free is
+        new Ada.Unchecked_Deallocation (TS_SSL, SSL.Config);
    begin
       if Config /= null and then Config /= Default_Config'Access then
          Finalize (Config.all);
-         Free (Config);
+         Unchecked_Free (Config);
       end if;
    end Release;
 
@@ -714,9 +741,7 @@ package body AWS.Net.SSL is
    is
       Code : TSSL.ssize_t;
    begin
-      if not Socket.IO.Handshaken.all then
-         Do_Handshake_Internal (Socket);
-      end if;
+      Do_Handshake_Internal (Socket);
 
       loop
          Code :=
@@ -763,24 +788,26 @@ package body AWS.Net.SSL is
 
    procedure Session_Client (Socket : in out Socket_Type) is
       use TSSL;
-      Session : aliased gnutls_session_t;
    begin
       Check_Config (Socket);
 
-      Check_Error_Code (gnutls_init (Session'Access, GNUTLS_CLIENT), Socket);
-
-      Socket.SSL := Session;
-
-      Check_Error_Code (gnutls_set_default_priority (Session), Socket);
+      Check_Error_Code
+        (gnutls_init (Socket.SSL'Access, GNUTLS_CLIENT), Socket);
 
       Check_Error_Code
-        (gnutls_credentials_set (Session, cred => Socket.Config.ACC), Socket);
+        (gnutls_set_default_priority (Socket.SSL), Socket);
+
+      Check_Error_Code
+        (gnutls_credentials_set
+           (Socket.SSL, cred => Socket.Config.ACC), Socket);
 
       if Socket.Config.CCC /= null then
          Check_Error_Code
-           (gnutls_credentials_set (Session, cred => Socket.Config.CCC),
+           (gnutls_credentials_set (Socket.SSL, cred => Socket.Config.CCC),
             Socket);
       end if;
+
+      Socket.Config.Is_Server := False;
 
       Session_Transport (Socket);
    end Session_Client;
@@ -794,25 +821,23 @@ package body AWS.Net.SSL is
       use type C.Strings.chars_ptr;
       use type System.Address;
 
-      Session : aliased gnutls_session_t;
       Setting : gnutls_certificate_request_t;
    begin
       Check_Config (Socket);
 
-      Check_Error_Code (gnutls_init (Session'Access, GNUTLS_SERVER), Socket);
+      Check_Error_Code
+        (gnutls_init (Socket.SSL'Access, GNUTLS_SERVER), Socket);
 
-      Socket.SSL := Session;
-
-      Check_Error_Code (gnutls_set_default_priority (Session), Socket);
+      Check_Error_Code (gnutls_set_default_priority (Socket.SSL), Socket);
 
       if Socket.Config.CSC = null then
          Check_Error_Code
-           (gnutls_credentials_set (Session, cred => Socket.Config.ASC),
+           (gnutls_credentials_set (Socket.SSL, cred => Socket.Config.ASC),
             Socket);
 
       else
          Check_Error_Code
-           (gnutls_credentials_set (Session, cred => Socket.Config.CSC),
+           (gnutls_credentials_set (Socket.SSL, cred => Socket.Config.CSC),
             Socket);
 
          if Socket.Config.RCC then
@@ -822,10 +847,10 @@ package body AWS.Net.SSL is
                Setting := GNUTLS_CERT_REQUEST;
             end if;
 
-            gnutls_certificate_server_set_request (Session, Setting);
+            gnutls_certificate_server_set_request (Socket.SSL, Setting);
 
             if Socket.Config.CAfile /= C.Strings.Null_Ptr then
-               TSSL.gnutls_certificate_send_x509_rdn_sequence (Session, 0);
+               TSSL.gnutls_certificate_send_x509_rdn_sequence (Socket.SSL, 0);
 
                if TSSL.gnutls_certificate_set_x509_trust_file
                  (Socket.Config.CSC,
@@ -838,13 +863,13 @@ package body AWS.Net.SSL is
 
          else
             gnutls_certificate_server_set_request
-              (Session, GNUTLS_CERT_IGNORE);
+              (Socket.SSL, GNUTLS_CERT_IGNORE);
          end if;
       end if;
 
       --  Record the user's verify callback
 
-      TSSL.gnutls_session_set_ptr (Session, Socket.Config.Verify_CB);
+      TSSL.gnutls_session_set_ptr (Socket.SSL, Socket.Config.Verify_CB);
 
       Session_Transport (Socket);
    end Session_Server;
@@ -899,23 +924,28 @@ package body AWS.Net.SSL is
       Code : C.int;
       To_C : constant array (Shutmode_Type) of TSSL.gnutls_close_request_t :=
                (Shut_Read_Write => TSSL.GNUTLS_SHUT_RDWR,
-                Shut_Read       => TSSL.GNUTLS_SHUT_RDWR, -- Absend, use RDWR
+                Shut_Read       => TSSL.GNUTLS_SHUT_RDWR, -- Absent, use RDWR
                 Shut_Write      => TSSL.GNUTLS_SHUT_WR);
    begin
-      loop
-         Code := TSSL.gnutls_bye (Socket.SSL, To_C (How));
+      if Socket.IO.Handshaken.all then
+         --  Must be done only after successful handshake
 
-         exit when Code = TSSL.GNUTLS_E_SUCCESS;
+         loop
+            Code := TSSL.gnutls_bye (Socket.SSL, To_C (How));
 
-         begin
-            Code_Processing
-              (Code, Socket,
-               Duration'Min (Net.Socket_Type (Socket).Timeout, 0.25));
-         exception when E : others =>
-            Net.Log.Error (Socket, Ada.Exceptions.Exception_Message (E));
-            exit;
-         end;
-      end loop;
+            exit when Code = TSSL.GNUTLS_E_SUCCESS;
+
+            begin
+               Code_Processing
+                 (Code, Socket,
+                  Duration'Min (Net.Socket_Type (Socket).Timeout, 0.25));
+            exception
+               when E : others =>
+                  Net.Log.Error (Socket, Ada.Exceptions.Exception_Message (E));
+                  exit;
+            end;
+         end loop;
+      end if;
 
       TSSL.gnutls_transport_set_ptr (Socket.SSL, 0);
 

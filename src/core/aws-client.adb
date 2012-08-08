@@ -230,9 +230,8 @@ package body AWS.Client is
 
       elsif Try_Count = 0 then
          Result := Response.Build
-                     (MIME.Text_Plain,
-                      Context & " request error. " & Message,
-                      Messages.S400);
+           (MIME.Text_Plain,
+            Context & " request error. " & Message, Messages.S400);
 
       else
          Result := Response.Empty;

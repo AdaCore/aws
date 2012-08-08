@@ -34,7 +34,10 @@ package AWS.Net.SSL.Certificate.Impl is
    use Interfaces;
 
    function Get (Socket : Socket_Type) return Object;
-   --  Read certificate from peer socket
+   --  Read certificate from peer socket. Note that GNU/TLS sends the client
+   --  certificate only of the server CA corresponds. This means that if no
+   --  CA is used this routine will return an empty certificate when trying to
+   --  retreive the client certificate.
 
    function Read
      (Status : C.unsigned;

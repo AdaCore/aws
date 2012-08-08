@@ -20,18 +20,18 @@
 --  that it uses HTTPS protocol. We test that output is the same as the non
 --  secure version.
 
-with Ada.Text_IO;
 with Ada.Exceptions;
+with Ada.Text_IO;
 
-with AWS.Server.Status;
 with AWS.Client;
 with AWS.Config.Set;
-with AWS.Status;
-with AWS.MIME;
-with AWS.Response;
-with AWS.Parameters;
 with AWS.Messages;
+with AWS.MIME;
 with AWS.Net.SSL.Certificate;
+with AWS.Parameters;
+with AWS.Response;
+with AWS.Server.Status;
+with AWS.Status;
 with AWS.URL;
 
 procedure Cert is
@@ -86,8 +86,8 @@ procedure Cert is
    end Display_Certificate;
 
    procedure Display_Certificate (Socket : Net.SSL.Socket_Type) is
-      Cert : constant Net.SSL.Certificate.Object
-        := Net.SSL.Certificate.Get (Socket);
+      Cert : constant Net.SSL.Certificate.Object :=
+               Net.SSL.Certificate.Get (Socket);
    begin
       Display_Certificate (Cert);
    end Display_Certificate;
@@ -102,7 +102,7 @@ procedure Cert is
       C     : Client.HTTP_Connection;
       Cert  : Net.SSL.Certificate.Object;
    begin
-      Client.Create (C, URL, Certificate => "client.pem");
+      Client.Create (C, URL, Certificate => "aws-client.pem");
 
       Cert := Client.Get_Certificate (C);
 
@@ -128,6 +128,9 @@ begin
    Config.Set.Max_Connection (Conf, 5);
    Config.Set.Security (Conf, True);
    Config.Set.Exchange_Certificate (Conf, True);
+   Config.Set.Trusted_CA (Conf, "private-ca.crt");
+   Config.Set.Certificate (Conf, "aws-server.crt");
+   Config.Set.Key (Conf, "aws-server.key");
 
    Server.Start (HTTP, CB'Unrestricted_Access, Conf);
 
