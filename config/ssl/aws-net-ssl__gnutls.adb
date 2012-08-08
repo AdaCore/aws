@@ -770,22 +770,22 @@ package body AWS.Net.SSL is
 
    procedure Session_Client (Socket : in out Socket_Type) is
       use TSSL;
-      Session : aliased gnutls_session_t;
    begin
       Check_Config (Socket);
 
-      Check_Error_Code (gnutls_init (Session'Access, GNUTLS_CLIENT), Socket);
-
-      Socket.SSL := Session;
-
-      Check_Error_Code (gnutls_set_default_priority (Session), Socket);
+      Check_Error_Code
+        (gnutls_init (Socket.SSL'Access, GNUTLS_CLIENT), Socket);
 
       Check_Error_Code
-        (gnutls_credentials_set (Session, cred => Socket.Config.ACC), Socket);
+        (gnutls_set_default_priority (Socket.SSL), Socket);
+
+      Check_Error_Code
+        (gnutls_credentials_set
+           (Socket.SSL, cred => Socket.Config.ACC), Socket);
 
       if Socket.Config.CCC /= null then
          Check_Error_Code
-           (gnutls_credentials_set (Session, cred => Socket.Config.CCC),
+           (gnutls_credentials_set (Socket.SSL, cred => Socket.Config.CCC),
             Socket);
       end if;
 
@@ -801,25 +801,23 @@ package body AWS.Net.SSL is
       use type C.Strings.chars_ptr;
       use type System.Address;
 
-      Session : aliased gnutls_session_t;
       Setting : gnutls_certificate_request_t;
    begin
       Check_Config (Socket);
 
-      Check_Error_Code (gnutls_init (Session'Access, GNUTLS_SERVER), Socket);
+      Check_Error_Code
+        (gnutls_init (Socket.SSL'Access, GNUTLS_SERVER), Socket);
 
-      Socket.SSL := Session;
-
-      Check_Error_Code (gnutls_set_default_priority (Session), Socket);
+      Check_Error_Code (gnutls_set_default_priority (Socket.SSL), Socket);
 
       if Socket.Config.CSC = null then
          Check_Error_Code
-           (gnutls_credentials_set (Session, cred => Socket.Config.ASC),
+           (gnutls_credentials_set (Socket.SSL, cred => Socket.Config.ASC),
             Socket);
 
       else
          Check_Error_Code
-           (gnutls_credentials_set (Session, cred => Socket.Config.CSC),
+           (gnutls_credentials_set (Socket.SSL, cred => Socket.Config.CSC),
             Socket);
 
          if Socket.Config.RCC then
@@ -829,10 +827,10 @@ package body AWS.Net.SSL is
                Setting := GNUTLS_CERT_REQUEST;
             end if;
 
-            gnutls_certificate_server_set_request (Session, Setting);
+            gnutls_certificate_server_set_request (Socket.SSL, Setting);
 
             if Socket.Config.CAfile /= C.Strings.Null_Ptr then
-               TSSL.gnutls_certificate_send_x509_rdn_sequence (Session, 0);
+               TSSL.gnutls_certificate_send_x509_rdn_sequence (Socket.SSL, 0);
 
                if TSSL.gnutls_certificate_set_x509_trust_file
                  (Socket.Config.CSC,
@@ -845,13 +843,13 @@ package body AWS.Net.SSL is
 
          else
             gnutls_certificate_server_set_request
-              (Session, GNUTLS_CERT_IGNORE);
+              (Socket.SSL, GNUTLS_CERT_IGNORE);
          end if;
       end if;
 
       --  Record the user's verify callback
 
-      TSSL.gnutls_session_set_ptr (Session, Socket.Config.Verify_CB);
+      TSSL.gnutls_session_set_ptr (Socket.SSL, Socket.Config.Verify_CB);
 
       Session_Transport (Socket);
    end Session_Server;
