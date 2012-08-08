@@ -63,6 +63,7 @@ package body AWS.Net.SSL is
    pragma Inline (Check_Config);
 
    procedure Do_Handshake_Internal (Socket : Socket_Type);
+   pragma Inline (Do_Handshake_Internal);
    --  The real handshake is done here
 
    package Locking is
@@ -299,6 +300,10 @@ package body AWS.Net.SSL is
    procedure Do_Handshake_Internal (Socket : Socket_Type) is
       Code : C.int;
    begin
+      if Socket.IO.Handshaken.all then
+         return;
+      end if;
+
       loop
          Code := TSSL.gnutls_handshake (Socket.SSL);
 
@@ -633,9 +638,7 @@ package body AWS.Net.SSL is
    is
       Code : TSSL.ssize_t;
    begin
-      if not Socket.IO.Handshaken.all then
-         Do_Handshake_Internal (Socket);
-      end if;
+      Do_Handshake_Internal (Socket);
 
       loop
          Code :=
@@ -721,9 +724,7 @@ package body AWS.Net.SSL is
    is
       Code : TSSL.ssize_t;
    begin
-      if not Socket.IO.Handshaken.all then
-         Do_Handshake_Internal (Socket);
-      end if;
+      Do_Handshake_Internal (Socket);
 
       loop
          Code :=
