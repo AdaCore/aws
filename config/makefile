@@ -36,8 +36,10 @@ endif
 $(SDIR)/src:
 	$(MKDIR) -p $(SDIR)/src
 
+ifneq ($(PLATFORM), native)
 $(NSDIR)/src:
 	$(MKDIR) -p $(NSDIR)/src
+endif
 
 $(NSDIR)/check_config$(EXEEXT): $(NSDIR)/src setup/check_config.c
 ifeq ($(PLATFORM), native)
