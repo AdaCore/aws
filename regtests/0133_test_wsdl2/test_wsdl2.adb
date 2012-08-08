@@ -41,6 +41,7 @@ procedure Test_WSDL2 is
    use type StockQuoteService.Types.ArrayOfFloat_Type;
 
    H_Server : AWS.Server.HTTP;
+   IPv6_Srv : AWS.Server.HTTP;
 
    package FIO is new Text_IO.Float_IO (Float);
 
@@ -129,17 +130,19 @@ begin
       --  to connect.
 
       if AWS.Server.Status.Is_IPv6 (H_Server) then
-         AWS.Server.Add_Listening
-           (H_Server, "localhost", StockQuoteService.Server.Port,
-            Net.FAMILY_INET);
+         Config.Set.Protocol_Family (CNF, "FAMILY_INET");
       else
-         AWS.Server.Add_Listening
-           (H_Server, "localhost", StockQuoteService.Server.Port,
-            Net.FAMILY_INET6);
+         Config.Set.Protocol_Family (CNF, "FAMILY_INET6");
       end if;
+
+      AWS.Server.Start (IPv6_Srv, CB'Unrestricted_Access, CNF);
    end if;
 
    WSDL_Demo_Client;
 
    AWS.Server.Shutdown (H_Server);
+
+   if Net.IPv6_Available then
+      AWS.Server.Shutdown (IPv6_Srv);
+   end if;
 end Test_WSDL2;
