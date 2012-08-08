@@ -116,11 +116,11 @@ package body AWS.Net.SSL is
 
    Default_Config : aliased TS_SSL;
 
-   protected Default_Config_Synch is
+   protected Default_Config_Sync is
       procedure Create_Default_Config;
    private
       Done : Boolean := False;
-   end Default_Config_Synch;
+   end Default_Config_Sync;
 
    procedure Initialize_Default_Config;
    --  Initializes default config. It could be called more then once, because
@@ -253,11 +253,11 @@ package body AWS.Net.SSL is
       end if;
    end Connect;
 
-   --------------------------
-   -- Default_Config_Synch --
-   --------------------------
+   -------------------------
+   -- Default_Config_Sync --
+   -------------------------
 
-   protected body Default_Config_Synch is
+   protected body Default_Config_Sync is
 
       ---------------------------
       -- Create_Default_Config --
@@ -281,7 +281,7 @@ package body AWS.Net.SSL is
          end if;
       end Create_Default_Config;
 
-   end Default_Config_Synch;
+   end Default_Config_Sync;
 
    ------------------
    -- Do_Handshake --
@@ -535,7 +535,7 @@ package body AWS.Net.SSL is
 
    procedure Initialize_Default_Config is
    begin
-      Default_Config_Synch.Create_Default_Config;
+      Default_Config_Sync.Create_Default_Config;
    end Initialize_Default_Config;
 
    -------------
