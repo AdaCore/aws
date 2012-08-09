@@ -2,7 +2,7 @@
 AWS 2.11 NEW FEATURES LIST
 ==========================
 
-Copyright (C) 2006-2011, AdaCore
+Copyright (C) 2006-2012, AdaCore
 
 This file contains a list of new features introduced in AWS.
 A full description of all AWS features can be found in the AWS
@@ -15,7 +15,7 @@ of the feature.
 New features in AWS 2.11
 ------------------------
 
-NF-211-L725-030 Add support for client certificate verification (2012-08-05)
+NF-211-L725-030 Add support for client certificate verification (2012-08-08)
 
    Add support for verification of client's certificate and Certificate
    Authority. This is the highest level of security when strong
