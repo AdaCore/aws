@@ -25,6 +25,9 @@ with "ssl_error_lib";
 library project SSL is
 
    case Shared.Socket is
+      when "std" =>
+         for Languages use ("Ada", "Project file");
+         for Source_Dirs use (".", "../config/ssl");
       when "gnutls" =>
          for Languages use ("Ada", "Project file", "C");
          for Source_Dirs use (".", "../config/ssl", "../config/ssl/gnutls");
