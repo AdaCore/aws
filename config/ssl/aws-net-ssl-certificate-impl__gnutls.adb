@@ -123,7 +123,6 @@ package body AWS.Net.SSL.Certificate.Impl is
       -------------
 
       function To_Time (tv_sec : TSSL.time_t) return Calendar.Time is
-         use Ada;
       begin
          return Calendar.Conversions.To_Ada_Time (C.long (tv_sec));
       end To_Time;
