@@ -28,6 +28,7 @@
 ------------------------------------------------------------------------------
 
 with Ada.Calendar.Conversions;
+with Ada.Calendar.Time_Zones;
 with Interfaces.C.Strings;
 
 with AWS.Net.Log;
@@ -112,6 +113,7 @@ package body AWS.Net.SSL.Certificate.Impl is
       Status : C.unsigned;
       X509   : TSSL.gnutls_x509_crt_t) return Object
    is
+      use type Ada.Calendar.Time;
       use type C.unsigned;
 
       function To_Time (tv_sec : TSSL.time_t) return Calendar.Time;
@@ -126,6 +128,9 @@ package body AWS.Net.SSL.Certificate.Impl is
       begin
          return Calendar.Conversions.To_Ada_Time (C.long (tv_sec));
       end To_Time;
+
+      TZ_Offset   : constant Duration :=
+                      Duration (Calendar.Time_Zones.UTC_Time_Offset) * 60.0;
 
       Buffer_Size : constant := 256;
       --  Buffer size for the subject and issuer
@@ -159,8 +164,8 @@ package body AWS.Net.SSL.Certificate.Impl is
                               (C.To_Ada (Subject (1 .. Subj_Len), False)),
               Issuer     => To_Unbounded_String
                               (C.To_Ada (Issuer (1 .. Iss_Len), False)),
-              Activation => To_Time (T_Activation),
-              Expiration => To_Time (T_Expiration));
+              Activation => To_Time (T_Activation) - TZ_Offset,
+              Expiration => To_Time (T_Expiration) - TZ_Offset);
    end Read;
 
    ----------
