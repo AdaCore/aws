@@ -72,7 +72,7 @@ begin
 
    Server.Start
      (WS, "Hello World",
-      Max_Connection => 1,
+      Max_Connection => 5,
       Security       => True,
       Port           => 4433,
       Callback       => Cert_CB.HW_CB'Access);
