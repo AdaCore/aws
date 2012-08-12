@@ -147,6 +147,7 @@ package AWS.Default is
    Exchange_Certificate            : constant Boolean := False;
    Certificate_Required            : constant Boolean := False;
    Trusted_CA                      : constant String  := "";
+   CRL_File                        : constant String  := "";
    Check_URL_Validity              : constant Boolean := True;
 
 end AWS.Default;

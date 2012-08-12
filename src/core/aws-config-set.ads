@@ -309,6 +309,10 @@ package AWS.Config.Set is
    --  that can be trusted. A client certificate signed with one of those CA
    --  will be accetped by the server.
 
+   procedure CRL_File (O : in out Object; Filename : String);
+   --  Returns the filename containing the Certificate Revocation List. This
+   --  list is used by the server to check for revoked certificate.
+
    -------------------------
    -- Per Process Options --
    -------------------------

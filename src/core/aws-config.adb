@@ -161,6 +161,15 @@ package body AWS.Config is
       return Process_Options (Context_Lifetime).Dur_Value;
    end Context_Lifetime;
 
+   --------------
+   -- CRL_File --
+   --------------
+
+   function CRL_File (O : Object) return String is
+   begin
+      return To_String (O.P (CRL_File).Str_Value);
+   end CRL_File;
+
    ----------------------------
    -- Directory_Browser_Page --
    ----------------------------
