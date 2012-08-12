@@ -45,7 +45,7 @@ begin
    Text_IO.Put_Line
      ("To see the client certificate it is needed to install one in");
    Text_IO.Put_Line
-     ("the Web Browser. The provided aws-client.p12 (in this directory)");
+     ("the Web Browser. The provided aws-client[12].p12 (in this directory)");
    Text_IO.Put_Line
      ("can be installed into Firefox with:");
    Text_IO.Put_Line
@@ -64,7 +64,8 @@ begin
       --  The 3 following configs are from aws.ini
       Exchange_Certificate => Config.Exchange_Certificate (Cnf),
       Certificate_Required => Config.Certificate_Required (Cnf),
-      Trusted_CA_Filename  => Config.Trusted_CA (Cnf));
+      Trusted_CA_Filename  => Config.Trusted_CA (Cnf),
+      CRL_Filename         => Config.CRL_File (Cnf));
 
    Net.SSL.Certificate.Set_Verify_Callback (SSL, Cert_CB.Verify_Cert'Access);
 
