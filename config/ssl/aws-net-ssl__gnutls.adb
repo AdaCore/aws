@@ -868,7 +868,9 @@ package body AWS.Net.SSL is
                   Socket.Config.CAfile,
                   TSSL.GNUTLS_X509_FMT_PEM) = -1
                then
-                  raise Socket_Error with "cannot set CA file " & "...";
+                  raise Socket_Error
+                    with "cannot set CA file "
+                      & C.Strings.Value (Socket.Config.CAfile);
                end if;
             end if;
 
