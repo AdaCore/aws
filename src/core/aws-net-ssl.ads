@@ -116,6 +116,7 @@ package AWS.Net.SSL is
       Exchange_Certificate : Boolean    := False;
       Certificate_Required : Boolean    := False;
       Trusted_CA_Filename  : String     := "";
+      CRL_Filename         : String     := "";
       Session_Cache_Size   : Positive   := 16#4000#);
    --  Initialize the SSL layer into Config. Certificate_Filename must point
    --  to a valid certificate. Security mode can be used to change the

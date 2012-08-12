@@ -125,6 +125,7 @@ begin
    Insert (T, Assoc ("MAX_POST_PARAMETERS", Default.Max_POST_Parameters));
    Insert (T, Assoc ("CERTIFICATE_REQUIRED", Default.Certificate_Required));
    Insert (T, Assoc ("TRUSTED_CA", Default.Trusted_CA));
+   Insert (T, Assoc ("CRL_FILE", Default.CRL_File));
 
    --  Generates the documentation
 

@@ -15,6 +15,13 @@ of the feature.
 New features in AWS 2.11
 ------------------------
 
+NF-211-L810-003 Add support for Certificate Revocation List (2012-08-13)
+
+   Add support for Certificate Revocation List (CRL) on a certificate
+   authority. Once a client's certificate is revoked and the CRL created
+   on the server the corresponding client won't be able to connect to
+   the server.
+
 NF-211-L725-030 Add support for client certificate verification (2012-08-08)
 
    Add support for verification of client's certificate and Certificate

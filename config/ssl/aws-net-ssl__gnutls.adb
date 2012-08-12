@@ -27,6 +27,7 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
+with Ada.Calendar;
 with Ada.Directories;
 with Ada.Unchecked_Conversion;
 with Ada.Unchecked_Deallocation;
@@ -83,16 +84,18 @@ package body AWS.Net.SSL is
    end Locking;
 
    type TS_SSL is record
-      ASC       : aliased TSSL.gnutls_anon_server_credentials_t;
-      ACC       : aliased TSSL.gnutls_anon_client_credentials_t;
-      CSC       : aliased TSSL.gnutls_certificate_credentials_t;
-      CCC       : aliased TSSL.gnutls_certificate_credentials_t;
-      DH_Params : aliased TSSL.gnutls_dh_params_t;
-      RCC       : Boolean := False; -- Request client certificate
-      CREQ      : Boolean := False; -- Certificate is required
-      CAfile    : C.Strings.chars_ptr := C.Strings.Null_Ptr;
-      Verify_CB : System.Address := System.Null_Address;
-      Is_Server : Boolean := True;
+      ASC            : aliased TSSL.Gnutls_Anon_Server_Credentials_T;
+      ACC            : aliased TSSL.Gnutls_Anon_Client_Credentials_T;
+      CSC            : aliased TSSL.gnutls_certificate_credentials_t;
+      CCC            : aliased TSSL.gnutls_certificate_credentials_t;
+      DH_Params      : aliased TSSL.Gnutls_Dh_Params_T;
+      RCC            : Boolean := False; -- Request client certificate
+      CREQ           : Boolean := False; -- Certificate is required
+      CAfile         : C.Strings.chars_ptr := C.Strings.Null_Ptr;
+      Verify_CB      : System.Address := System.Null_Address;
+      Is_Server      : Boolean := True;
+      CRL_File       : C.Strings.chars_ptr := C.Strings.Null_Ptr;
+      CRL_Time_Stamp : Calendar.Time := Utils.AWS_Epoch;
    end record;
 
    procedure Initialize
@@ -103,6 +106,7 @@ package body AWS.Net.SSL is
       Exchange_Certificate : Boolean := False;
       Certificate_Required : Boolean    := False;
       Trusted_CA_Filename  : String     := "";
+      CRL_Filename         : String     := "";
       Session_Cache_Size   : Positive   := 16#4000#);
 
    procedure Session_Client (Socket : in out Socket_Type);
@@ -395,6 +399,7 @@ package body AWS.Net.SSL is
       Exchange_Certificate : Boolean    := False;
       Certificate_Required : Boolean    := False;
       Trusted_CA_Filename  : String     := "";
+      CRL_Filename         : String     := "";
       Session_Cache_Size   : Positive   := 16#4000#) is
    begin
       if Config = null then
@@ -409,6 +414,7 @@ package body AWS.Net.SSL is
          Exchange_Certificate => Exchange_Certificate,
          Certificate_Required => Certificate_Required,
          Trusted_CA_Filename  => Trusted_CA_Filename,
+         CRL_Filename         => CRL_Filename,
          Session_Cache_Size   => Session_Cache_Size);
    end Initialize;
 
@@ -420,6 +426,7 @@ package body AWS.Net.SSL is
       Exchange_Certificate : Boolean    := False;
       Certificate_Required : Boolean    := False;
       Trusted_CA_Filename  : String     := "";
+      CRL_Filename         : String     := "";
       Session_Cache_Size   : Positive   := 16#4000#)
    is
       pragma Unreferenced (Session_Cache_Size);
@@ -524,6 +531,10 @@ package body AWS.Net.SSL is
 
          if Trusted_CA_Filename /= "" then
             Config.CAfile := C.Strings.New_String (Trusted_CA_Filename);
+         end if;
+
+         if CRL_Filename /= "" then
+            Config.CRL_File := C.Strings.New_String (CRL_Filename);
          end if;
       end if;
 
@@ -859,6 +870,31 @@ package body AWS.Net.SSL is
                then
                   raise Socket_Error with "cannot set CA file " & "...";
                end if;
+            end if;
+
+            if Socket.Config.CRL_File /= C.Strings.Null_Ptr then
+               declare
+                  use type Calendar.Time;
+
+                  TS : constant Calendar.Time :=
+                         Utils.File_Time_Stamp
+                           (C.Strings.Value (Socket.Config.CRL_File));
+               begin
+                  if Socket.Config.CRL_Time_Stamp = Utils.AWS_Epoch
+                    or else Socket.Config.CRL_Time_Stamp /= TS
+                  then
+                     Socket.Config.CRL_Time_Stamp := TS;
+                     if TSSL.gnutls_certificate_set_x509_crl_file
+                       (Socket.Config.CSC,
+                        Socket.Config.CRL_File,
+                        TSSL.GNUTLS_X509_FMT_PEM) = -1
+                     then
+                        raise Socket_Error
+                          with "cannot set CRL file "
+                            & C.Strings.Value (Socket.Config.CRL_File);
+                     end if;
+                  end if;
+               end;
             end if;
 
          else

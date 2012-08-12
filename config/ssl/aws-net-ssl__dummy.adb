@@ -102,6 +102,7 @@ package body AWS.Net.SSL is
       Exchange_Certificate : Boolean    := False;
       Certificate_Required : Boolean    := False;
       Trusted_CA_Filename  : String     := "";
+      CRL_Filename         : String     := "";
       Session_Cache_Size   : Positive   := 16#4000#) is
    begin
       raise Program_Error with Error_Message;
