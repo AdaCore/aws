@@ -1160,6 +1160,8 @@ package body AWS.Net.SSL is
             Error_If
               (TSSL.SSL_CTX_check_private_key (Ctx => Context) /= 1);
 
+            --  Set Trusted Certificate Authority if any
+
             if Trusted_CA_Filename /= "" then
                declare
                   CAfile : C.Strings.chars_ptr :=
