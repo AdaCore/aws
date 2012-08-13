@@ -2644,7 +2644,8 @@ Certificate Authority locally to test this feature:
 @AWSEXP{$ mkdir demoCA
 $ mkdir demoCA/newcerts
 $ touch demoCA/index.txt
-$ echo ABCC > demoCA/serial}
+$ echo ABCC > demoCA/serial
+$ echo 01 > demoCA/crlnumber}
 
 @node Creating the Certificate Authority
 @subsubsection Creating the Certificate Authority
