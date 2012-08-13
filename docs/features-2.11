@@ -15,6 +15,14 @@ of the feature.
 New features in AWS 2.11
 ------------------------
 
+NF-211-L813-020 Add option to control the session's id length (2012-08-13)
+
+   This option controls the length in hexadecimal characters of the
+   generated session id. The default size is not changed but it is now
+   possible to adjust (using the Session_Id_Length configuration option)
+   the size of this id to improve the security and lesser the collision
+   probability.
+
 NF-211-L810-003 Add support for Certificate Revocation List (2012-08-13)
 
    Add support for Certificate Revocation List (CRL) on a certificate

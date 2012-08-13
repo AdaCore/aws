@@ -31,6 +31,8 @@
 
 with Ada.Calendar;
 
+with AWS.Config;
+
 package AWS.Session is
 
    type Id is private;
@@ -209,7 +211,7 @@ package AWS.Session is
 
 private
 
-   type Id is new String (1 .. 11);
+   type Id is new String (1 .. Config.Session_Id_Length);
 
    No_Session : constant Id := (others => ' ');
 

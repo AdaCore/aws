@@ -539,13 +539,21 @@
         </tr>
         <tr>
             <td class="key">
+                Session Id Length:
+            </td>
+            <td class="data_color">
+                @_SESSION_ID_LENGTH_@
+            </td>
+        </tr>
+        <tr class="background">
+            <td class="key">
                 Session Lifetime:
             </td>
             <td class="data_color">
                 @_SESSION_LIFETIME_@ seconds
             </td>
         </tr>
-        <tr class="background">
+        <tr>
             <td class="key">
                 Session Name:
             </td>
@@ -553,7 +561,7 @@
                 @_SESSION_NAME_@
             </td>
         </tr>
-        <tr>
+        <tr class="background">
             <td class="key">
                 Transient Cleanup Interval:
             </td>
@@ -561,7 +569,7 @@
                 @_TRANSIENT_CLEANUP_INTERVAL_@ seconds
             </td>
         </tr>
-        <tr class="background">
+        <tr>
             <td class="key">
                 Transient Lifetime:
             </td>
@@ -569,7 +577,7 @@
                 @_TRANSIENT_LIFETIME_@ seconds
             </td>
         </tr>
-        <tr>
+        <tr class="background">
             <td class="key">
                 Upload Directory:
             </td>
@@ -581,7 +589,7 @@
                 @@END_IF@@
             </td>
         </tr>
-        <tr class="background">
+        <tr>
             <td class="key">
                 Upload Size Limit:
             </td>
@@ -589,7 +597,7 @@
                 @_UPLOAD_SIZE_LIMIT_@ bytes
             </td>
         </tr>
-        <tr>
+        <tr class="background">
             <td class="key">
                 WebSocket Message Queue Size:
             </td>
@@ -597,7 +605,7 @@
                 @_WEBSOCKET_MESSAGE_QUEUE_SIZE_@
             </td>
         </tr>
-        <tr class="background">
+        <tr>
             <td class="key">
                 WebSocket Origin:
             </td>
@@ -609,7 +617,7 @@
                 @@END_IF@@
             </td>
         </tr>
-        <tr>
+        <tr class="background">
             <td class="key">
                 WWW Root:
             </td>
@@ -948,7 +956,7 @@
             <a href="mailto:anisimkov@ada-ru.org">Dmitriy Anisimkov</a> | <a href="mailto:p.obry@wanadoo.fr">Pascal Obry</a>
         </p>
         <p>
-            Copyright (C) 2000-2010, AdaCore
+            Copyright (C) 2000-2012, AdaCore
         </p>
     </div>
 </body>

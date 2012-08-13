@@ -586,6 +586,15 @@ package body AWS.Config is
       return Process_Options (Session_Cleanup_Interval).Dur_Value;
    end Session_Cleanup_Interval;
 
+   -----------------------
+   -- Session_Id_Length --
+   -----------------------
+
+   function Session_Id_Length return Positive is
+   begin
+      return Process_Options (Session_Id_Length).Pos_Value;
+   end Session_Id_Length;
+
    ----------------------
    -- Session_Lifetime --
    ----------------------

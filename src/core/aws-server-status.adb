@@ -466,6 +466,8 @@ package body AWS.Server.Status is
 
       Insert (Result, Assoc ("SESSION", CNF.Session (Server.Properties)));
 
+      Insert (Result, Assoc ("SESSION_ID_LENGTH", CNF.Session_Id_Length));
+
       Insert (Result, Assoc ("SESSION_LIFETIME",
         Utils.Image (Session.Get_Lifetime)));
 

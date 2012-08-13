@@ -126,6 +126,7 @@ begin
    Insert (T, Assoc ("CERTIFICATE_REQUIRED", Default.Certificate_Required));
    Insert (T, Assoc ("TRUSTED_CA", Default.Trusted_CA));
    Insert (T, Assoc ("CRL_FILE", Default.CRL_File));
+   Insert (T, Assoc ("SESSION_ID_LENGTH", Default.Session_Id_Length));
 
    --  Generates the documentation
 

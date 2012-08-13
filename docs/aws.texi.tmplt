@@ -1619,6 +1619,11 @@ The name of the cookie session. This can be used to support sessions
 for multiple servers embedded into the same executable. The default is
 "@_SESSION_NAME_@".
 
+@item Session_Id_Length (positive)
+@cindex Session_Id_Length (positive)
+The length of the session id in hexadecimal characters. The default
+is @_SESSION_ID_LENGTH_@ characters.
+
 @item Session_Lifetime (duration)
 @cindex Session_Lifetime (duration)
 Number of seconds to keep session information. After this period a

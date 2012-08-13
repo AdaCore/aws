@@ -101,6 +101,7 @@ package AWS.Default is
    Session_Name                    : constant String   := "AWS";
    Session_Cleanup_Interval        : constant Duration := Five_Minutes;
    Session_Lifetime                : constant Duration := Ten_Minutes;
+   Session_Id_Length               : constant Positive := 11;
 
    --  Context
 

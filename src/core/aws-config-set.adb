@@ -529,6 +529,15 @@ package body AWS.Config.Set is
       Process_Options (Session_Cleanup_Interval).Dur_Value := Value;
    end Session_Cleanup_Interval;
 
+   -----------------------
+   -- Session_Id_Length --
+   -----------------------
+
+   procedure Session_Id_Length (Value : Positive) is
+   begin
+      Process_Options (Session_Id_Length).Pos_Value := Value;
+   end Session_Id_Length;
+
    ----------------------
    -- Session_Lifetime --
    ----------------------

@@ -384,6 +384,10 @@ package AWS.Config is
    --  Number of seconds to keep a session if not used. After this period the
    --  session data is obsoleted and will be removed during next cleanup.
 
+   function Session_Id_Length return Positive;
+   pragma Inline (Session_Id_Length);
+   --  Returns the size (number of hexadecimal characters) of the session id
+
    function Transient_Cleanup_Interval return Duration;
    pragma Inline (Transient_Cleanup_Interval);
    --  Number of seconds between each run of the cleaner task to remove
@@ -494,6 +498,7 @@ private
       --  Per process options
       Session_Cleanup_Interval,
       Session_Lifetime,
+      Session_Id_Length,
       Transient_Cleanup_Interval,
       Transient_Lifetime,
       Input_Line_Size_Limit,
@@ -721,6 +726,9 @@ private
 
          Session_Lifetime =>
            (Dur, Default.Session_Lifetime),
+
+         Session_Id_Length =>
+           (Pos, Default.Session_Id_Length),
 
          Transient_Cleanup_Interval =>
            (Dur, Default.Transient_Cleanup_Interval),

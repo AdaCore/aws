@@ -325,6 +325,9 @@ package AWS.Config.Set is
    --  Number of seconds to keep a session if not used. After this period the
    --  session data is obsoleted and will be removed during next cleanup.
 
+   procedure Session_Id_Length (Value : Positive);
+   --  Returns the size (number of hexadecimal characters) of the session id
+
    procedure Transient_Cleanup_Interval (Value : Duration);
    --  Number of seconds between each run of the cleaner task to remove
    --  transient pages.
