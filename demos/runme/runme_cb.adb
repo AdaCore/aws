@@ -17,8 +17,8 @@
 ------------------------------------------------------------------------------
 
 with AWS.Messages;
-with AWS.Session;
 with AWS.Parameters;
+with AWS.Session;
 
 package body Runme_CB is
 
@@ -131,8 +131,8 @@ package body Runme_CB is
             & "<p>I'm the runme demo. Note that this"
             & " message could have been"
             & " fetched on my file system..."
-            & "See <a href=""http://www.obry.net/archive/"
-            & "templates_parser.html"">Templates_Parser</a> :)"
+            & "See <a href=""http://libre.adacore.com/tools/aws/"">"
+            & "Templates_Parser</a> :)"
             & "<p>counter = " & Natural'Image (C)
             & "<p><img src=""/first_img"">"
             & "<p>Enter your name <form method=get action=/get-form>"
