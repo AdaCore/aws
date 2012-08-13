@@ -226,6 +226,19 @@ package body AWS.Net is
       return False;
    end Is_IPv6;
 
+   ------------------
+   -- Is_Listening --
+   ------------------
+
+   function Is_Listening (Socket : Socket_Type) return Boolean is
+   begin
+      --  Do not use SO_ACCEPCONN socket option because Mac OS/X version 10.8
+      --  does not support it. Would be better to use SO_ACCEPTCONN instead of
+      --  boolean flag when possible.
+
+      return Socket.C.Listening;
+   end Is_Listening;
+
    --------------------
    -- Is_Peer_Closed --
    --------------------

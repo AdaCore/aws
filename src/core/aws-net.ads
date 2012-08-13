@@ -201,7 +201,7 @@ package AWS.Net is
 
    function Is_IPv6 (Socket : Socket_Type) return Boolean;
 
-   function Is_Listening (Socket : Socket_Type) return Boolean is abstract;
+   function Is_Listening (Socket : Socket_Type) return Boolean;
    --  Returns true if the socket has been marked to accept connections with
    --  listen.
 
@@ -408,6 +408,7 @@ private
 
    type RW_Cache is record
       Ref_Count : Utils.Counter (Initial_Value => 1);
+      Listening : Boolean  := False; -- True if a listening (server) socket
       R_Cache   : Read_Cache (R_Cache_Size);
       W_Cache   : Write_Cache (W_Cache_Size);
    end record;
