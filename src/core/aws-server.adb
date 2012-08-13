@@ -1029,7 +1029,9 @@ package body AWS.Server is
             Certificate_Required =>
               CNF.Certificate_Required (Web_Server.Properties),
             Trusted_CA_Filename  =>
-              CNF.Trusted_CA (Web_Server.Properties));
+              CNF.Trusted_CA (Web_Server.Properties),
+            CRL_Filename         =>
+              CNF.CRL_File (Web_Server.Properties));
       end if;
 
       --  Create the Web Server socket set

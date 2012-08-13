@@ -150,6 +150,15 @@ package body AWS.Config.Set is
       Process_Options (Context_Lifetime).Dur_Value := Value;
    end Context_Lifetime;
 
+   --------------
+   -- CRL_File --
+   --------------
+
+   procedure CRL_File (O : in out Object; Filename : String) is
+   begin
+      O.P (CRL_File).Str_Value := To_Unbounded_String (Filename);
+   end CRL_File;
+
    ----------------------------
    -- Directory_Browser_Page --
    ----------------------------

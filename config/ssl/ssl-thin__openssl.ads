@@ -88,6 +88,11 @@ package SSL.Thin is
    subtype X509           is Pointer;
    subtype X509_Name      is Pointer;
    subtype X509_STORE_CTX is Pointer;
+   subtype X509_STORE     is Pointer;
+
+   type X509_LOOKUP        is new Pointer;
+   type X509_LOOKUP_METHOD is new Pointer;
+   type X509_VERIFY_PARAM  is new Pointer;
 
    Null_CTX    : SSL_CTX    renames Null_Pointer;
    Null_Handle : SSL_Handle renames Null_Pointer;
@@ -289,6 +294,26 @@ package SSL.Thin is
    --  XN_FLAG_RFC2253 macros has a XN_FLAG_DN_REV flag (reverse attributes),
    --  but GNUTLS has a direct attributes order and I do not see such reverse
    --  in RFC2253.
+
+   X509_V_FLAG_CB_ISSUER_CHECK      : constant := 16#1#;
+   X509_V_FLAG_USE_CHECK_TIME       : constant := 16#2#;
+   X509_V_FLAG_CRL_CHECK            : constant := 16#4#;
+   X509_V_FLAG_CRL_CHECK_ALL        : constant := 16#8#;
+   X509_V_FLAG_IGNORE_CRITICAL      : constant := 16#10#;
+   X509_V_FLAG_X509_STRICT          : constant := 16#20#;
+   X509_V_FLAG_ALLOW_PROXY_CERTS    : constant := 16#40#;
+   X509_V_FLAG_POLICY_CHECK         : constant := 16#80#;
+   X509_V_FLAG_EXPLICIT_POLICY      : constant := 16#100#;
+   X509_V_FLAG_INHIBIT_ANY          : constant := 16#200#;
+   X509_V_FLAG_INHIBIT_MAP          : constant := 16#400#;
+   X509_V_FLAG_NOTIFY_POLICY        : constant := 16#800#;
+   X509_V_FLAG_EXTENDED_CRL_SUPPORT : constant := 16#1000#;
+   X509_V_FLAG_USE_DELTAS           : constant := 16#2000#;
+   X509_V_FLAG_CHECK_SS_SIGNATURE   : constant := 16#4000#;
+
+   X509_FILETYPE_PEM     : constant := 1;
+   X509_FILETYPE_ASN1    : constant := 2;
+   X509_FILETYPE_DEFAULT : constant := 3;
 
    type ASN1_STRING is record
       length : int;
@@ -515,6 +540,9 @@ package SSL.Thin is
    function SSL_CTX_load_verify_locations
      (Cts : SSL_CTX; CAfile, CApath : Cstr.chars_ptr) return int;
 
+   function SSL_CTX_set1_param
+     (Ctx : SSL_CTX; Param : X509_VERIFY_PARAM) return int;
+
    procedure RAND_seed (Buf : Pointer; Num : Integer);
 
    function RAND_status return Integer;
@@ -565,6 +593,25 @@ package SSL.Thin is
      (Ctx : X509_STORE_CTX; Idx : int) return SSL_Handle;
 
    function X509_STORE_CTX_get_current_cert (Ctx : X509_STORE_CTX) return X509;
+
+   function SSL_CTX_get_cert_store (Ctx : SSL_CTX) return X509_STORE;
+
+   function X509_LOOKUP_file return X509_LOOKUP_METHOD;
+
+   function X509_STORE_add_lookup
+     (Store : X509_STORE; Method : X509_LOOKUP_METHOD) return X509_LOOKUP;
+
+   function X509_load_crl_file
+     (Context : X509_LOOKUP; File : Strings.chars_ptr; Typ : int) return int;
+
+   --  Verify param
+
+   function X509_VERIFY_PARAM_new return X509_VERIFY_PARAM;
+
+   function X509_VERIFY_PARAM_set_flags
+     (Param : X509_VERIFY_PARAM; Flags : unsigned_long) return int;
+
+   procedure X509_VERIFY_PARAM_free (Param : X509_VERIFY_PARAM);
 
    -------------------
    --  BIO routines --
@@ -739,6 +786,7 @@ private
 
    pragma Import (C, SSL_CTX_new, "SSL_CTX_new");
    pragma Import (C, SSL_CTX_free, "SSL_CTX_free");
+   pragma Import (C, SSL_CTX_set1_param, "SSL_CTX_set1_param");
 
    pragma Import (C, SSLv3_method, "SSLv3_method");
    pragma Import (C, SSLv3_server_method, "SSLv3_server_method");
@@ -768,6 +816,10 @@ private
    pragma Import (C, X509_STORE_CTX_get_ex_data, "X509_STORE_CTX_get_ex_data");
    pragma Import (C, X509_STORE_CTX_get_current_cert,
                   "X509_STORE_CTX_get_current_cert");
+   pragma Import (C, X509_VERIFY_PARAM_set_flags,
+                  "X509_VERIFY_PARAM_set_flags");
+   pragma Import (C, X509_VERIFY_PARAM_new, "X509_VERIFY_PARAM_new");
+   pragma Import (C, X509_VERIFY_PARAM_free, "X509_VERIFY_PARAM_free");
    pragma Import (C, SSL_CTX_set_verify, "SSL_CTX_set_verify");
    pragma Import (C, SSL_CTX_get_verify_mode, "SSL_CTX_get_verify_mode");
    pragma Import (C, SSL_CTX_load_verify_locations,
@@ -782,5 +834,9 @@ private
    pragma Import (C, SSL_CTX_set_ex_data, "SSL_CTX_set_ex_data");
    pragma Import (C, SSL_CTX_get_ex_data, "SSL_CTX_get_ex_data");
    pragma Import (C, SSL_get_SSL_CTX, "SSL_get_SSL_CTX");
+   pragma Import (C, SSL_CTX_get_cert_store, "SSL_CTX_get_cert_store");
+   pragma Import (C, X509_STORE_add_lookup, "X509_STORE_add_lookup");
+   pragma Import (C, X509_LOOKUP_file, "X509_LOOKUP_file");
+   pragma Import (C, X509_load_crl_file, "X509_load_crl_file");
 
 end SSL.Thin;

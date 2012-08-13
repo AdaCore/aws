@@ -1411,6 +1411,12 @@ Number of seconds to timeout on waiting for client to accept
 answer. This is a timeout for regular cleaning task. The default is
 @_CT_SERVER_RESPONSE_@ seconds.
 
+@item CRL_File (string)
+@cindex CRL_File, CRL
+This configuration option must point to a filename containing a CRL
+(Certificate Revocation List). This will make it possible to control
+client connecting to the server. The default values is @file{@_CRL_FILE_@}.
+
 @item Directory_Browser_Page (string)
 @cindex Directory_Browser_Page
 Specify the filename for the directory browser template page. The
@@ -2583,6 +2589,7 @@ random seed.
 * Creating the Certificate Authority::
 * Creating a CA signed server certificate::
 * Creating a CA signed client certificate::
+* Creating a Certificate Revocation List (CRL)::
 @end menu
 
 @noindent
@@ -2722,6 +2729,36 @@ Name should be the client's one.
 @AWSEXP {$ openssl pkcs12 -export -clcerts -in aws-client.crt
     -inkey aws-client.key -out aws-client.p12}
 @end table
+
+@node Creating a Certificate Revocation List (CRL)
+@subsubsection Creating a Certificate Revocation List (CRL)
+@cindex CRL
+@cindex Revocation
+
+@noindent
+A Certificate Revocation List is used to revoke some client's
+certificates. Those clients won't be able to connect to the secure
+server anymore. Using the CA created above the following commands can
+be used to create a CRL.
+
+@table @b
+
+@item Revoke the certificate
+
+@AWSEXP {$ openssl ca -cert private-ca.crt -keyfile private-ca.key
+    -revoke aws-client.crt}
+
+@item Generate the CRL
+
+@AWSEXP {$ openssl ca -cert private-ca.crt -keyfile private-ca.key
+    -gencrl -out crl.pem -crldays 30}
+@end table
+
+@noindent
+The file @file{crl.pem} is the one to install on the server using the
+CRL_File configuration option, @pxref{Configuration options}. This
+file contains the list of all revoked certificates for the
+corresponding CA.
 
 @node Security level
 @subsection Security level

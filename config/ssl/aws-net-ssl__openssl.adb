@@ -79,6 +79,7 @@ package body AWS.Net.SSL is
          Exchange_Certificate : Boolean;
          Certificate_Required : Boolean;
          Trusted_CA_Filename  : String;
+         CRL_Filename         : String;
          Session_Cache_Size   : Positive);
 
       procedure Finalize;
@@ -89,8 +90,13 @@ package body AWS.Net.SSL is
 
       procedure Set_Verify_Callback (Callback : System.Address);
 
+      procedure Check_CRL;
+      --  Check Certificate Revocation List, if this file has changed reload it
+
    private
-      Context : TSSL.SSL_CTX := TSSL.Null_CTX;
+      Context        : TSSL.SSL_CTX := TSSL.Null_CTX;
+      CRL_File       : C.Strings.chars_ptr := C.Strings.Null_Ptr;
+      CRL_Time_Stamp : Calendar.Time := Utils.AWS_Epoch;
    end TS_SSL;
 
    Default_Config : constant Config := new TS_SSL;
@@ -375,6 +381,7 @@ package body AWS.Net.SSL is
       Exchange_Certificate : Boolean    := False;
       Certificate_Required : Boolean    := False;
       Trusted_CA_Filename  : String     := "";
+      CRL_Filename         : String     := "";
       Session_Cache_Size   : Positive   := 16#4000#) is
    begin
       if Config = null then
@@ -384,7 +391,7 @@ package body AWS.Net.SSL is
       Config.Initialize
         (Certificate_Filename, Security_Mode, Key_Filename,
          Exchange_Certificate, Certificate_Required,
-         Trusted_CA_Filename, Session_Cache_Size);
+         Trusted_CA_Filename, CRL_Filename, Session_Cache_Size);
    end Initialize;
 
    -------------------------------
@@ -402,6 +409,7 @@ package body AWS.Net.SSL is
          Exchange_Certificate => CNF.Exchange_Certificate (Default),
          Certificate_Required => CNF.Certificate_Required (Default),
          Trusted_CA_Filename  => CNF.Trusted_CA (Default),
+         CRL_Filename         => CNF.CRL_File (Default),
          Session_Cache_Size   => 16#4000#);
    end Initialize_Default_Config;
 
@@ -980,6 +988,58 @@ package body AWS.Net.SSL is
 
    protected body TS_SSL is
 
+      ---------------
+      -- Check_CRL --
+      ---------------
+
+      procedure Check_CRL is
+         use type Ada.Calendar.Time;
+         use type C.Strings.chars_ptr;
+      begin
+         --  We need to load the CRL file if CRL_Time_Stamp is AWS_Epoch (it
+         --  has never been loaded) or the time stamp has changed on disk.
+
+         if CRL_File /= C.Strings.Null_Ptr then
+            declare
+               TS : constant Calendar.Time :=
+                      Utils.File_Time_Stamp (C.Strings.Value (CRL_File));
+            begin
+               if CRL_Time_Stamp = Utils.AWS_Epoch
+                 or else CRL_Time_Stamp /= TS
+               then
+                  CRL_Time_Stamp := TS;
+
+                  --  Load CRL
+
+                  declare
+                     Store  : constant TSSL.X509_STORE :=
+                                TSSL.SSL_CTX_get_cert_store (Context);
+                     Lookup : constant TSSL.X509_LOOKUP :=
+                                TSSL.X509_STORE_add_lookup
+                                  (Store, TSSL.X509_LOOKUP_file);
+                  begin
+                     Error_If
+                       (TSSL.X509_load_crl_file
+                          (Lookup, CRL_File, TSSL.X509_FILETYPE_PEM) /= 1);
+                  end;
+
+                  --  Setup context to check CRL
+
+                  declare
+                     Param : constant TSSL.X509_VERIFY_PARAM :=
+                               TSSL.X509_VERIFY_PARAM_new;
+                  begin
+                     Error_If
+                       (TSSL.X509_VERIFY_PARAM_set_flags
+                          (Param, TSSL.X509_V_FLAG_CRL_CHECK) < 0);
+                     Error_If (TSSL.SSL_CTX_set1_param (Context, Param) < 0);
+                     TSSL.X509_VERIFY_PARAM_free (Param);
+                  end;
+               end if;
+            end;
+         end if;
+      end Check_CRL;
+
       -------------------------
       -- Clear_Session_Cache --
       -------------------------
@@ -1010,6 +1070,7 @@ package body AWS.Net.SSL is
          Exchange_Certificate : Boolean;
          Certificate_Required : Boolean;
          Trusted_CA_Filename  : String;
+         CRL_Filename         : String;
          Session_Cache_Size   : Positive)
       is
          type Meth_Func is access function return TSSL.SSL_Method;
@@ -1099,6 +1160,8 @@ package body AWS.Net.SSL is
             Error_If
               (TSSL.SSL_CTX_check_private_key (Ctx => Context) /= 1);
 
+            --  Set Trusted Certificate Authority if any
+
             if Trusted_CA_Filename /= "" then
                declare
                   CAfile : C.Strings.chars_ptr :=
@@ -1109,6 +1172,13 @@ package body AWS.Net.SSL is
                        (Context, CAfile, C.Strings.Null_Ptr) /= 1);
                   C.Strings.Free (CAfile);
                end;
+            end if;
+
+            --  Set Certificate Revocation List if any
+
+            if CRL_Filename /= "" then
+               CRL_File := C.Strings.New_String (CRL_Filename);
+               Check_CRL;
             end if;
          end Set_Certificate;
 
