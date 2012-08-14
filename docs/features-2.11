@@ -15,6 +15,10 @@ of the feature.
 New features in AWS 2.11
 ------------------------
 
+NF-211-L813-027 Add support for certificate's serial number (2012-08-14)
+
+   It is now possible to retrieve a certificate serial number.
+
 NF-211-L813-020 Add option to control the session's id length (2012-08-13)
 
    This option controls the length in characters of the generated

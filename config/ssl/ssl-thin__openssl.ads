@@ -94,6 +94,8 @@ package SSL.Thin is
    type X509_LOOKUP_METHOD is new Pointer;
    type X509_VERIFY_PARAM  is new Pointer;
 
+   type BIGNUM             is new Pointer;
+
    Null_CTX    : SSL_CTX    renames Null_Pointer;
    Null_Handle : SSL_Handle renames Null_Pointer;
 
@@ -323,6 +325,7 @@ package SSL.Thin is
    pragma Convention (C, ASN1_STRING);
 
    subtype ASN1_UTCTIME is ASN1_STRING;
+   subtype ASN1_INTEGER is ASN1_STRING;
 
    --------------------------
    --  SSL mode constants. --
@@ -584,6 +587,8 @@ package SSL.Thin is
      (X509 : Thin.X509) return access constant ASN1_STRING;
    function X509_get_notBefore
      (X509 : Thin.X509) return access constant ASN1_STRING;
+   function X509_get_serialNumber
+     (X509 : Thin.X509) return access constant ASN1_INTEGER;
 
    procedure SSL_CTX_set_default_verify_paths (Ctx : SSL_CTX);
 
@@ -612,6 +617,24 @@ package SSL.Thin is
      (Param : X509_VERIFY_PARAM; Flags : unsigned_long) return int;
 
    procedure X509_VERIFY_PARAM_free (Param : X509_VERIFY_PARAM);
+
+   -------------------
+   -- ASN1 routines --
+   -------------------
+
+   function i2c_ASN1_INTEGER
+     (A  : access constant ASN1_INTEGER;
+      Pp : access Strings.chars_ptr) return int;
+
+   function ASN1_INTEGER_get (A : access constant ASN1_INTEGER) return long;
+
+   function ASN1_INTEGER_to_BN
+     (A  : access constant ASN1_INTEGER;
+      Pp : access Strings.chars_ptr) return BIGNUM;
+
+   function BN_bn2bin (BN : BIGNUM; Output : Strings.chars_ptr) return int;
+
+   function BN_bn2hex (BN : BIGNUM) return Strings.chars_ptr;
 
    -------------------
    --  BIO routines --
@@ -809,6 +832,7 @@ private
    pragma Import (C, X509_get_issuer_name, "X509_get_issuer_name");
    pragma Import (C, X509_get_notAfter, "__aws_X509_get_notAfter");
    pragma Import (C, X509_get_notBefore, "__aws_X509_get_notBefore");
+   pragma Import (C, X509_get_serialNumber, "X509_get_serialNumber");
    pragma Import (C, X509_NAME_oneline, "X509_NAME_oneline");
    pragma Import (C, X509_NAME_print_ex, "X509_NAME_print_ex");
    pragma Import (C, SSL_get_ex_data_X509_STORE_CTX_idx,
@@ -838,5 +862,10 @@ private
    pragma Import (C, X509_STORE_add_lookup, "X509_STORE_add_lookup");
    pragma Import (C, X509_LOOKUP_file, "X509_LOOKUP_file");
    pragma Import (C, X509_load_crl_file, "X509_load_crl_file");
+   pragma Import (C, i2c_ASN1_INTEGER, "i2c_ASN1_INTEGER");
+   pragma Import (C, ASN1_INTEGER_get, "ASN1_INTEGER_get");
+   pragma Import (C, ASN1_INTEGER_to_BN, "ASN1_INTEGER_to_BN");
+   pragma Import (C, BN_bn2bin, "BN_bn2bin");
+   pragma Import (C, BN_bn2hex, "BN_bn2hex");
 
 end SSL.Thin;

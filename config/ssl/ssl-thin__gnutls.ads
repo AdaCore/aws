@@ -906,6 +906,11 @@ package SSL.Thin is
       buf        : CS.chars_ptr;
       sizeof_buf : access C.size_t) return C.int;
 
+   function gnutls_x509_crt_get_serial
+     (cert       : gnutls_x509_crt_t;
+      buf        : CS.chars_ptr;
+      sizeof_buf : access C.size_t) return C.int;
+
    function gnutls_x509_crt_get_activation_time
      (cert : gnutls_x509_crt_t) return time_t;
 
@@ -1546,6 +1551,7 @@ private
    pragma Import (C, gnutls_x509_crt_get_dn, "gnutls_x509_crt_get_dn");
    pragma Import
      (C, gnutls_x509_crt_get_issuer_dn, "gnutls_x509_crt_get_issuer_dn");
+   pragma Import (C, gnutls_x509_crt_get_serial, "gnutls_x509_crt_get_serial");
    pragma Import
      (C, gnutls_x509_crt_get_activation_time,
       "gnutls_x509_crt_get_activation_time");

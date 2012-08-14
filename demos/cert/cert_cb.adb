@@ -37,6 +37,8 @@ package body Cert_CB is
       Text_IO.Put_Line
         ("  subject         : " & Net.SSL.Certificate.Subject (Cert));
       Text_IO.Put_Line
+        ("  serial number   : " & Net.SSL.Certificate.Serial_Number (Cert));
+      Text_IO.Put_Line
         ("  activation time : "
          & Calendar.Formatting.Image
            (Net.SSL.Certificate.Activation_Time (Cert)));
