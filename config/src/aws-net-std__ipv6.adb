@@ -638,15 +638,6 @@ package body AWS.Net.Std is
       return Name.Family = OS_Lib.AF_INET6;
    end Is_IPv6;
 
-   ------------------
-   -- Is_Listening --
-   ------------------
-
-   overriding function Is_Listening (Socket : Socket_Type) return Boolean is
-   begin
-      return Get_Int_Sock_Opt (Socket, OS_Lib.SO_ACCEPTCONN) > 0;
-   end Is_Listening;
-
    --------------------
    -- Is_Peer_Closed --
    --------------------
@@ -684,6 +675,8 @@ package body AWS.Net.Std is
       if C_Listen (Socket.S.FD, C.int (Queue_Size)) = Failure then
          Raise_Socket_Error (OS_Lib.Socket_Errno, Socket);
       end if;
+
+      Socket.C.Listening := True;
    end Listen;
 
    ---------------

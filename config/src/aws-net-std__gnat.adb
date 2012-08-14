@@ -31,7 +31,6 @@ with Ada.Strings.Maps;
 with Ada.Unchecked_Deallocation;
 
 with AWS.Net.Log;
-with AWS.OS_Lib;
 
 pragma Warnings (Off);
 --  Ignore warning about portability of the GNAT.Sockets.Constants, these
@@ -40,7 +39,6 @@ with GNAT.Sockets.Constants;
 pragma Warnings (On);
 
 with Interfaces.C;
-with System;
 
 package body AWS.Net.Std is
 
@@ -497,43 +495,6 @@ package body AWS.Net.Std is
          Raise_Exception (E, "Is_IPv6", Socket);
    end Is_IPv6;
 
-   ------------------
-   -- Is_Listening --
-   ------------------
-
-   overriding function Is_Listening (Socket : Socket_Type) return Boolean is
-      use Interfaces;
-      use type C.int;
-
-      function C_Getsockopt
-        (S       : Integer;
-         Level   : C.int;
-         OptName : C.int;
-         OptVal  : not null access C.int;
-         OptLen  : not null access C.int) return C.int;
-      pragma Import (Stdcall, C_Getsockopt, "getsockopt");
-
-      Res : aliased C.int := 0;
-      Len : aliased C.int := Res'Size / System.Storage_Unit;
-
-   begin
-      --  GNAT.Sockets.Get_Socket_Option does not have SO_ACCEPTCONN option
-      --  processing, at least in in GNAT GPL 2011. So we have to use direct
-      --  call to sockets API.
-
-      if C_Getsockopt
-           (S       => Socket.Get_FD,
-            Level   => OS_Lib.SOL_SOCKET,
-            OptName => OS_Lib.SO_ACCEPTCONN,
-            OptVal  => Res'Access,
-            OptLen  => Len'Access) = -1
-      then
-         Socket.Raise_Socket_Error (Error_Message (OS_Lib.Socket_Errno));
-      end if;
-
-      return Res > 0;
-   end Is_Listening;
-
    --------------------
    -- Is_Peer_Closed --
    --------------------
@@ -571,6 +532,7 @@ package body AWS.Net.Std is
       Queue_Size : Positive := 5) is
    begin
       Sockets.Listen_Socket (Socket.S.FD, Queue_Size);
+      Socket.C.Listening := True;
    exception
       when E : Sockets.Socket_Error =>
          Raise_Exception (E, "Listen", Socket);

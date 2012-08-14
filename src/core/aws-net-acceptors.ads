@@ -35,6 +35,7 @@ with Ada.Exceptions;
 
 with AWS.Net;
 with AWS.Net.Generic_Sets;
+with AWS.Utils;
 
 package AWS.Net.Acceptors is
 
@@ -68,6 +69,18 @@ package AWS.Net.Acceptors is
    --  If number of sockets became more then Close_Length, closest to timeout
    --  socket would be closed without timeout condition.
 
+   procedure Add_Listening
+     (Acceptor      : in out Acceptor_Type;
+      Host          : String;
+      Port          : Natural;
+      Family        : Family_Type := Family_Unspec;
+      Reuse_Address : Boolean     := False);
+   --  Add the binded/listening socket on host, port and protocol family. To be
+   --  able to connect web enabled application with others in the internal
+   --  network, and then give access for external clients by listening on
+   --  externally available address. Generally this is called from a different
+   --  task while the Get routine is blocked waiting for a socket.
+
    procedure Set_Socket_Constructor
      (Acceptor : in out Acceptor_Type; Constructor : Socket_Constructor);
 
@@ -99,11 +112,12 @@ package AWS.Net.Acceptors is
    --  Use this routine to shutdown and free list of sockets returned from Get
    --  routine above.
 
-   function Server_Socket
-     (Acceptor : Acceptor_Type) return Socket_Type'Class;
+   function Server_Socket (Acceptor : Acceptor_Type) return Socket_Type'Class;
    pragma Inline (Server_Socket);
-   --  return server accepting socket. Need only to show server socket FD in
-   --  server status page.
+   --  Returns main server accepting socket
+
+   function Server_Sockets (Acceptor : Acceptor_Type) return Socket_List;
+   --  Returns all listening server sockets
 
    procedure Give_Back
      (Acceptor : in out Acceptor_Type;
@@ -146,7 +160,7 @@ private
       procedure Clear;
 
    private
-      Buffer : Socket_Lists.List;
+      Buffer : Socket_List;
    end Socket_Box;
 
    type Socket_Data_Type is record
@@ -154,13 +168,22 @@ private
       First : Boolean;
    end record;
 
+   protected type Server_Sockets_Set is
+      procedure Add (S : Socket_Access);
+      function Get return Socket_List;
+      procedure Clear;
+      entry Wait_Empty;
+   private
+      Sockets : Socket_List;
+   end Server_Sockets_Set;
+
    package Sets is new Generic_Sets (Socket_Data_Type);
 
    type Acceptor_Type is tagged limited record
       Set                 : Sets.Socket_Set_Type;
       W_Signal            : Socket_Access;
       R_Signal            : Socket_Access;
-      Server              : Socket_Access;
+      Servers             : Server_Sockets_Set;
       Box                 : Socket_Box (Acceptor_Type'Access);
       Index               : Sets.Socket_Count;
       Last                : Sets.Socket_Count;
@@ -171,6 +194,7 @@ private
       Force_Length        : Sets.Socket_Count;
       Close_Length        : Sets.Socket_Count;
       Back_Queue_Size     : Positive;
+      Semaphore           : Utils.Semaphore;
       Constructor         : Socket_Constructor := Socket'Access;
    end record;
 

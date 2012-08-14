@@ -97,30 +97,7 @@ package body AWS.Server is
       end Accept_Error;
 
    begin
-      Server.Accept_Sem.Seize;
-
-      if Server.Shutdown then
-         --  The server is being shutdown, raise an exception this will
-         --  terminate the line.
-
-         Server.Accept_Sem.Release;
-         raise Net.Socket_Error;
-      end if;
-
-      declare
-         To_Close : Net.Acceptors.Socket_List;
-      begin
-         Net.Acceptors.Get
-           (Server.Acceptor, New_Socket, To_Close, Accept_Error'Access);
-
-         Server.Accept_Sem.Release;
-         Net.Acceptors.Shutdown_And_Free (To_Close);
-      exception
-         when others =>
-            Server.Accept_Sem.Release;
-            Net.Acceptors.Shutdown_And_Free (To_Close);
-            raise;
-      end;
+      Net.Acceptors.Get (Server.Acceptor, New_Socket, Accept_Error'Access);
 
       if CNF.Security (Server.Properties)
         and then New_Socket'Tag /= Net.SSL.Socket_Type'Tag
@@ -144,6 +121,21 @@ package body AWS.Server is
          return New_Socket;
       end if;
    end Accept_Socket_Serialized;
+
+   -------------------
+   -- Add_Listening --
+   -------------------
+
+   procedure Add_Listening
+     (Web_Server    : in out HTTP;
+      Host          : String;
+      Port          : Natural;
+      Family        : Net.Family_Type := Net.Family_Unspec;
+      Reuse_Address : Boolean         := False) is
+   begin
+      Net.Acceptors.Add_Listening
+        (Web_Server.Acceptor, Host, Port, Family, Reuse_Address);
+   end Add_Listening;
 
    ------------
    -- Config --

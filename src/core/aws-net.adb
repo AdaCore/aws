@@ -30,10 +30,10 @@
 with Ada.Strings.Fixed;
 with Ada.Unchecked_Deallocation;
 
-with AWS.Net.Poll_Events;
 with AWS.Net.Log;
-with AWS.Net.Std;
+with AWS.Net.Poll_Events;
 with AWS.Net.SSL;
+with AWS.Net.Std;
 
 with AWS.OS_Lib;
 
@@ -111,8 +111,8 @@ package body AWS.Net is
 
    overriding procedure Finalize (Socket : in out Socket_Type) is
       procedure Unchecked_Free is
-        new Unchecked_Deallocation (RW_Cache, RW_Cache_Access);
-      Cache     : RW_Cache_Access := Socket.C;
+        new Unchecked_Deallocation (RW_Data, RW_Data_Access);
+      Cache     : RW_Data_Access := Socket.C;
       Ref_Count : Natural;
    begin
       --  Ensure call is idempotent
@@ -193,7 +193,7 @@ package body AWS.Net is
    overriding procedure Initialize (Socket : in out Socket_Type) is
    begin
       if Socket.C = null then
-         Socket.C := new RW_Cache;
+         Socket.C := new RW_Data;
       end if;
    end Initialize;
 
@@ -225,6 +225,19 @@ package body AWS.Net is
    begin
       return False;
    end Is_IPv6;
+
+   ------------------
+   -- Is_Listening --
+   ------------------
+
+   function Is_Listening (Socket : Socket_Type) return Boolean is
+   begin
+      --  Do not use SO_ACCEPCONN socket option because Mac OS/X version 10.8
+      --  does not support it. Would be better to use SO_ACCEPTCONN instead of
+      --  boolean flag when possible.
+
+      return Socket.C.Listening;
+   end Is_Listening;
 
    --------------------
    -- Is_Peer_Closed --

@@ -41,8 +41,8 @@ with AWS.Utils;
 package AWS.Net is
 
    use Ada;
-   use Ada.Streams;
    use Ada.Exceptions;
+   use Ada.Streams;
 
    Socket_Error : exception;
    --  Raised by all routines below, a message will indicate the nature of
@@ -201,7 +201,7 @@ package AWS.Net is
 
    function Is_IPv6 (Socket : Socket_Type) return Boolean;
 
-   function Is_Listening (Socket : Socket_Type) return Boolean is abstract;
+   function Is_Listening (Socket : Socket_Type) return Boolean;
    --  Returns true if the socket has been marked to accept connections with
    --  listen.
 
@@ -406,21 +406,21 @@ private
       Last   : Stream_Element_Offset := 0;
    end record;
 
-   type RW_Cache is record
+   type RW_Data is record
       Ref_Count : Utils.Counter (Initial_Value => 1);
+      Listening : Boolean  := False; -- True if a listening (server) socket
       R_Cache   : Read_Cache (R_Cache_Size);
       W_Cache   : Write_Cache (W_Cache_Size);
    end record;
 
-   type RW_Cache_Access is access RW_Cache;
+   type RW_Data_Access is access RW_Data;
 
    type Socket_Type is abstract new Finalization.Controlled with record
-      C       : RW_Cache_Access;
-      Timeout : Duration        := Forever;
+      C       : RW_Data_Access;
+      Timeout : Duration := Forever;
    end record;
 
-   procedure Raise_Socket_Error
-     (Socket : Socket_Type'Class; Text : String);
+   procedure Raise_Socket_Error (Socket : Socket_Type'Class; Text : String);
    pragma No_Return (Raise_Socket_Error);
 
    function Error_Message (Errno : Integer) return String;

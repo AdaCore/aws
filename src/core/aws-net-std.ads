@@ -123,10 +123,6 @@ package AWS.Net.Std is
 
    overriding function Is_IPv6 (Socket : Socket_Type) return Boolean;
 
-   overriding function Is_Listening (Socket : Socket_Type) return Boolean;
-   --  Returns true if the socket has been marked to accept connections with
-   --  listen.
-
    function IPv6_Available return Boolean;
 
    function Host_Name return String;

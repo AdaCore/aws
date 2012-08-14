@@ -52,7 +52,10 @@ package AWS.Server.Status is
    --  in-memory string) served by the server.
 
    function Socket (Server : HTTP) return Net.Socket_Type'Class;
-   --  Returns the server's socket
+   --  Returns the main server's socket
+
+   function Sockets (Server : HTTP) return Net.Acceptors.Socket_List;
+   --  Returns all server's sockets
 
    function Port (Server : HTTP) return Positive;
    --  Returns the server's socket port

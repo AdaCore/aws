@@ -32,10 +32,35 @@ with Ada.Streams;
 package body AWS.Net.Acceptors is
 
    Signal_Index   : constant := 1;
-   Server_Index   : constant := 2;
-   First_Index    : constant := 3;
+   First_Index    : constant := 2;
 
    Socket_Command : constant := 1;
+
+   procedure Shutdown_Internal (Acceptor : in out Acceptor_Type);
+
+   -------------------
+   -- Add_Listening --
+   -------------------
+
+   procedure Add_Listening
+     (Acceptor      : in out Acceptor_Type;
+      Host          : String;
+      Port          : Natural;
+      Family        : Family_Type := Family_Unspec;
+      Reuse_Address : Boolean     := False)
+   is
+      Server : constant Socket_Access :=
+         new Socket_Type'Class'(Acceptor.Constructor (False));
+   begin
+      Server.Bind
+        (Host => Host, Port => Port, Family => Family,
+         Reuse_Address => Reuse_Address);
+      Server.Listen (Queue_Size => Acceptor.Back_Queue_Size);
+
+      Give_Back (Acceptor, Server);
+
+      Acceptor.Servers.Add (Server);
+   end Add_Listening;
 
    ---------
    -- Get --
@@ -50,6 +75,8 @@ package body AWS.Net.Acceptors is
    is
       use type Sets.Socket_Count;
 
+      function Accept_Listening return Boolean;
+
       procedure Add_Sockets;
       --  Add sockets to the acceptor either from Accept_Socket or from
       --  Give_Back.
@@ -57,24 +84,25 @@ package body AWS.Net.Acceptors is
       procedure Shutdown;
       pragma No_Return (Shutdown);
 
+      procedure Finalize;
+
       Too_Many_FD  : Boolean := False;
       Ready, Error : Boolean;
 
-      -----------------
-      -- Add_Sockets --
-      -----------------
+      ----------------------
+      -- Accept_Listening --
+      ----------------------
 
-      procedure Add_Sockets is
+      function Accept_Listening return Boolean is
+         Server : constant Socket_Type'Class :=
+                    Sets.Get_Socket (Acceptor.Set, Acceptor.Index);
       begin
-         --  Save Acceptor.Last to do not try to get status of new arrived
-         --  sockets until it wouldn't in the Wait call.
-
-         Acceptor.Last := Sets.Count (Acceptor.Set);
-
-         Sets.Is_Read_Ready (Acceptor.Set, Server_Index, Ready, Error);
+         if not Server.Is_Listening then
+            return False;
+         end if;
 
          if Error then
-            Acceptor.Server.Raise_Socket_Error ("Accepting socket error");
+            Server.Raise_Socket_Error ("Accepting socket error");
 
          elsif Ready then
             declare
@@ -85,7 +113,7 @@ package body AWS.Net.Acceptors is
                --  take a long time inside Accept_Socket. We would make socket
                --  SSL later outside acceptor if necessary.
 
-               Acceptor.Server.Accept_Socket (New_Socket);
+               Server.Accept_Socket (New_Socket);
 
                Sets.Add
                  (Acceptor.Set,
@@ -111,6 +139,15 @@ package body AWS.Net.Acceptors is
             end;
          end if;
 
+         return True;
+      end Accept_Listening;
+
+      -----------------
+      -- Add_Sockets --
+      -----------------
+
+      procedure Add_Sockets is
+      begin
          Sets.Is_Read_Ready (Acceptor.Set, Signal_Index, Ready, Error);
 
          if Error then
@@ -153,31 +190,35 @@ package body AWS.Net.Acceptors is
       end Add_Sockets;
 
       --------------
+      -- Finalize --
+      --------------
+
+      procedure Finalize is
+      begin
+         Acceptor.Semaphore.Release;
+      end Finalize;
+
+      --------------
       -- Shutdown --
       --------------
 
       procedure Shutdown is
       begin
-         while Sets.Count (Acceptor.Set) > 0 loop
-            Sets.Remove_Socket (Acceptor.Set, 1, Socket);
-            Socket.Shutdown;
-
-            --  We can free other sockets, because it is not
-            --  used anywhere else when it is in socket set.
-
-            Free (Socket);
-         end loop;
-
+         Shutdown_Internal (Acceptor);
          raise Socket_Error;
       end Shutdown;
 
       First        : constant Boolean := True;
       Timeout      : array (Boolean) of Real_Time.Time_Span;
       Oldest_Idx   : Sets.Socket_Count;
+      Finalizer    : AWS.Utils.Finalizer (Finalize'Access);
+      pragma Unreferenced (Finalizer);
 
       Wait_Timeout : Real_Time.Time_Span;
 
    begin
+      Acceptor.Semaphore.Seize;
+
       if Sets.Count (Acceptor.Set) = 0 then
          --  After shutdown of the server socket
          raise Socket_Error;
@@ -197,12 +238,13 @@ package body AWS.Net.Acceptors is
          Wait_Timeout := Timeout (not First);
          Oldest_Idx   := 0;
 
-         Read_Ready : loop
-            exit Read_Ready when Acceptor.Index > Acceptor.Last;
-
+         Read_Ready : while Acceptor.Index <= Acceptor.Last loop
             Sets.Is_Read_Ready (Acceptor.Set, Acceptor.Index, Ready, Error);
 
-            if Error or else Ready then
+            if Accept_Listening then
+               Acceptor.Index := Acceptor.Index + 1;
+
+            elsif Error or else Ready then
                Sets.Remove_Socket (Acceptor.Set, Acceptor.Index, Socket);
 
                Acceptor.Last := Acceptor.Last - 1;
@@ -273,6 +315,11 @@ package body AWS.Net.Acceptors is
                Free (S); -- Don't use S.Free, it does not deallocate S
             end loop;
 
+            --  Save Acceptor.Last to do not try to get status of new arrived
+            --  sockets until it wouldn't in the Wait call.
+
+            Acceptor.Last := Sets.Count (Acceptor.Set);
+
             Error := False;
          exception
             when E : Socket_Error =>
@@ -309,6 +356,10 @@ package body AWS.Net.Acceptors is
    begin
       Get (Acceptor, Socket, To_Close, On_Error);
       Shutdown_And_Free (To_Close);
+   exception
+      when others =>
+         Shutdown_And_Free (To_Close);
+         raise;
    end Get;
 
    ---------------
@@ -395,24 +446,30 @@ package body AWS.Net.Acceptors is
 
       use Real_Time;
 
+      Server : constant Socket_Access := New_Socket;
+
    begin
-      Acceptor.Server := New_Socket;
-      Acceptor.Server.Bind
+      if Sets.Count (Acceptor.Set) > 0 then
+         raise Constraint_Error with "Acceptor is not clear";
+      end if;
+
+      Server.Bind
         (Host => Host, Port => Port, Family => Family,
          Reuse_Address => Reuse_Address);
-      Acceptor.Server.Listen (Queue_Size => Queue_Size);
+      Server.Listen (Queue_Size => Queue_Size);
+
+      Acceptor.Servers.Add (Server);
 
       Acceptor.R_Signal := New_Socket;
       Acceptor.W_Signal := New_Socket;
       Acceptor.W_Signal.Socket_Pair (Acceptor.R_Signal.all);
       Acceptor.R_Signal.Set_Timeout (10.0);
 
-      Sets.Reset (Acceptor.Set);
       Sets.Add (Acceptor.Set, Acceptor.R_Signal, Sets.Input);
-      Sets.Add (Acceptor.Set, Acceptor.Server, Sets.Input);
+      Sets.Add (Acceptor.Set, Server, Sets.Input);
 
-      Acceptor.Index               := First_Index;
       Acceptor.Last                := Sets.Count (Acceptor.Set);
+      Acceptor.Index               := Acceptor.Last + 1;
       Acceptor.Timeout             := To_Time_Span (Timeout);
       Acceptor.Force_Timeout       := To_Time_Span (Force_Timeout);
       Acceptor.First_Timeout       := To_Time_Span (First_Timeout);
@@ -430,8 +487,61 @@ package body AWS.Net.Acceptors is
    function Server_Socket
      (Acceptor : Acceptor_Type) return Socket_Type'Class is
    begin
-      return Acceptor.Server.all;
+      return Acceptor.Servers.Get.First_Element.all;
    end Server_Socket;
+
+   --------------------
+   -- Server_Sockets --
+   --------------------
+
+   function Server_Sockets (Acceptor : Acceptor_Type) return Socket_List is
+   begin
+      return Acceptor.Servers.Get;
+   end Server_Sockets;
+
+   ------------------------
+   -- Server_Sockets_Set --
+   ------------------------
+
+   protected body Server_Sockets_Set is
+
+      ---------
+      -- Add --
+      ---------
+
+      procedure Add (S : Socket_Access) is
+      begin
+         Sockets.Append (S);
+      end Add;
+
+      -----------
+      -- Clear --
+      -----------
+
+      procedure Clear is
+      begin
+         Sockets.Clear;
+      end Clear;
+
+      ---------
+      -- Get --
+      ---------
+
+      function Get return Socket_List is
+      begin
+         return Sockets;
+      end Get;
+
+      ----------------
+      -- Wait_Empty --
+      ----------------
+
+      entry Wait_Empty when Sockets.Is_Empty is
+      begin
+         null;
+      end Wait_Empty;
+
+   end Server_Sockets_Set;
 
    ----------------------------
    -- Set_Socket_Constructor --
@@ -453,7 +563,38 @@ package body AWS.Net.Acceptors is
          Acceptor.W_Signal.Shutdown;
          Free (Acceptor.W_Signal);
       end if;
+
       Acceptor.Box.Clear;
+
+      --  Loop trying to shutdown directly or over Get routine
+
+      for J in 1 .. 4 loop
+         --  If acceptor is not inside Get routine, we should make shutdown
+         --  directly.
+
+         select
+            Acceptor.Semaphore.Seize;
+            Shutdown_Internal (Acceptor);
+            Acceptor.Semaphore.Release;
+            return;
+         or
+            delay 0.0;
+         end select;
+
+         --  Close of signal socket could be detected inside Get routine and
+         --  shoutdown would be processed over there.
+
+         select
+            Acceptor.Servers.Wait_Empty;
+            return;
+         or
+            delay 1.0;
+         end select;
+      end loop;
+
+      raise Program_Error with
+        "Could not shutdown acceptor " & Sets.Count (Acceptor.Set)'Img
+        & Acceptor.Last'Img & Acceptor.Index'Img;
    end Shutdown;
 
    -----------------------
@@ -472,6 +613,27 @@ package body AWS.Net.Acceptors is
       end loop;
    end Shutdown_And_Free;
 
+   -----------------------
+   -- Shutdown_Internal --
+   -----------------------
+
+   procedure Shutdown_Internal (Acceptor : in out Acceptor_Type) is
+      use type Sets.Socket_Count;
+      Socket : Socket_Access;
+   begin
+      while Sets.Count (Acceptor.Set) > 0 loop
+         Sets.Remove_Socket (Acceptor.Set, 1, Socket);
+         Socket.Shutdown;
+
+         --  We can free other sockets, because it is not used anywhere else
+         --  when it is in socket set.
+
+         Free (Socket);
+      end loop;
+
+      Acceptor.Servers.Clear;
+   end Shutdown_Internal;
+
    ----------------
    -- Socket_Box --
    ----------------
@@ -485,7 +647,8 @@ package body AWS.Net.Acceptors is
       procedure Add
         (S : Socket_Access; Max_Size : Positive; Success : out Boolean) is
       begin
-         Success := Natural (Buffer.Length) < Max_Size;
+         Success := Natural (Buffer.Length) < Max_Size
+                      and then Acceptor.W_Signal /= null;
 
          if Success then
             Buffer.Append (S);
