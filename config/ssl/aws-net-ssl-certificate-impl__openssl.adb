@@ -53,9 +53,7 @@ package body AWS.Net.SSL.Certificate.Impl is
    -- Read --
    ----------
 
-   function Read
-     (Preverify_Ok : Boolean; X509 : TSSL.X509) return Object
-   is
+   function Read (Preverify_Ok : Boolean; X509 : TSSL.X509) return Object is
 
       use Interfaces;
 

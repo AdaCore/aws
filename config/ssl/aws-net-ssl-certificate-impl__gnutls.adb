@@ -173,9 +173,7 @@ package body AWS.Net.SSL.Certificate.Impl is
    ----------
 
    function Read
-     (Status : C.unsigned; X509 : TSSL.gnutls_x509_crt_t)
-      return Object
-   is
+     (Status : C.unsigned; X509 : TSSL.gnutls_x509_crt_t) return Object is
    begin
       return Read (null, Status, X509);
    end Read;
