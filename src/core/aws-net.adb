@@ -111,8 +111,8 @@ package body AWS.Net is
 
    overriding procedure Finalize (Socket : in out Socket_Type) is
       procedure Unchecked_Free is
-        new Unchecked_Deallocation (RW_Cache, RW_Cache_Access);
-      Cache     : RW_Cache_Access := Socket.C;
+        new Unchecked_Deallocation (RW_Data, RW_Data_Access);
+      Cache     : RW_Data_Access := Socket.C;
       Ref_Count : Natural;
    begin
       --  Ensure call is idempotent
@@ -193,7 +193,7 @@ package body AWS.Net is
    overriding procedure Initialize (Socket : in out Socket_Type) is
    begin
       if Socket.C = null then
-         Socket.C := new RW_Cache;
+         Socket.C := new RW_Data;
       end if;
    end Initialize;
 
