@@ -1621,7 +1621,7 @@ for multiple servers embedded into the same executable. The default is
 
 @item Session_Id_Length (positive)
 @cindex Session_Id_Length (positive)
-The length of the session id in hexadecimal characters. The default
+The length of the session id in characters. The default
 is @_SESSION_ID_LENGTH_@ characters.
 
 @item Session_Lifetime (duration)

@@ -326,7 +326,7 @@ package AWS.Config.Set is
    --  session data is obsoleted and will be removed during next cleanup.
 
    procedure Session_Id_Length (Value : Positive);
-   --  Returns the size (number of hexadecimal characters) of the session id
+   --  Returns the length (number of characters) of the session id
 
    procedure Transient_Cleanup_Interval (Value : Duration);
    --  Number of seconds between each run of the cleaner task to remove

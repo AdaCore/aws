@@ -386,7 +386,7 @@ package AWS.Config is
 
    function Session_Id_Length return Positive;
    pragma Inline (Session_Id_Length);
-   --  Returns the size (number of hexadecimal characters) of the session id
+   --  Returns the length (number of characters) of the session id
 
    function Transient_Cleanup_Interval return Duration;
    pragma Inline (Transient_Cleanup_Interval);
