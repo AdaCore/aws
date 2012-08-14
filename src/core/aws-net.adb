@@ -30,10 +30,10 @@
 with Ada.Strings.Fixed;
 with Ada.Unchecked_Deallocation;
 
-with AWS.Net.Poll_Events;
 with AWS.Net.Log;
-with AWS.Net.Std;
+with AWS.Net.Poll_Events;
 with AWS.Net.SSL;
+with AWS.Net.Std;
 
 with AWS.OS_Lib;
 

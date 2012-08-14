@@ -41,8 +41,8 @@ with AWS.Utils;
 package AWS.Net is
 
    use Ada;
-   use Ada.Streams;
    use Ada.Exceptions;
+   use Ada.Streams;
 
    Socket_Error : exception;
    --  Raised by all routines below, a message will indicate the nature of
@@ -417,7 +417,7 @@ private
 
    type Socket_Type is abstract new Finalization.Controlled with record
       C       : RW_Cache_Access;
-      Timeout : Duration        := Forever;
+      Timeout : Duration := Forever;
    end record;
 
    procedure Raise_Socket_Error
