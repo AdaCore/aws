@@ -49,6 +49,9 @@ package AWS.Net.SSL.Certificate is
    function Issuer (Certificate : Object) return String;
    --  Returns the certificate's issuer
 
+   function Serial_Number (Certificate : Object) return String;
+   --  Returns the certificate's serial number
+
    function Activation_Time (Certificate : Object) return Calendar.Time;
    --  Certificate validity starting date
 
@@ -80,15 +83,16 @@ package AWS.Net.SSL.Certificate is
 private
 
    type Object is record
-      Verified   : Boolean;
-      Subject    : Unbounded_String;
-      Issuer     : Unbounded_String;
-      Activation : Calendar.Time;
-      Expiration : Calendar.Time;
+      Verified      : Boolean;
+      Subject       : Unbounded_String;
+      Issuer        : Unbounded_String;
+      Serial_Number : Unbounded_String;
+      Activation    : Calendar.Time;
+      Expiration    : Calendar.Time;
    end record;
 
    Undefined : constant Object :=
                  (False, Null_Unbounded_String, Null_Unbounded_String,
-                  Utils.AWS_Epoch, Utils.AWS_Epoch);
+                  Null_Unbounded_String, Utils.AWS_Epoch, Utils.AWS_Epoch);
 
 end AWS.Net.SSL.Certificate;

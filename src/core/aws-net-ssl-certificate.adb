@@ -69,6 +69,15 @@ package body AWS.Net.SSL.Certificate is
       return To_String (Certificate.Issuer);
    end Issuer;
 
+   -------------------
+   -- Serial_Number --
+   -------------------
+
+   function Serial_Number (Certificate : Object) return String is
+   begin
+      return To_String (Certificate.Serial_Number);
+   end Serial_Number;
+
    -------------------------
    -- Set_Verify_Callback --
    -------------------------

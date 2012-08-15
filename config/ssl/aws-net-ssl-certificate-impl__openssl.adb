@@ -53,9 +53,7 @@ package body AWS.Net.SSL.Certificate.Impl is
    -- Read --
    ----------
 
-   function Read
-     (Preverify_Ok : Boolean; X509 : TSSL.X509) return Object
-   is
+   function Read (Preverify_Ok : Boolean; X509 : TSSL.X509) return Object is
 
       use Interfaces;
 
@@ -74,6 +72,11 @@ package body AWS.Net.SSL.Certificate.Impl is
       --   YYMMDDhhmmssZ
       --   YYMMDDhhmmss+hh'mm'
       --   YYMMDDhhmmss-hh'mm'
+
+      function To_String
+        (Number : access constant TSSL.ASN1_INTEGER) return String;
+      --  Returns the string value for Number of the empty string if not
+      --  defined.
 
       ------------------
       -- NAME_oneline --
@@ -117,6 +120,34 @@ package body AWS.Net.SSL.Certificate.Impl is
               (Result, Idx, Idx + EMail'Length - 1, ",EMAIL=");
          end;
       end NAME_oneline;
+
+      ---------------
+      -- To_String --
+      ---------------
+
+      function To_String
+        (Number : access constant TSSL.ASN1_INTEGER) return String is
+      begin
+         if Number = null or else Number.data = C.Strings.Null_Ptr then
+            return "";
+
+         else
+            declare
+               N : TSSL.BIGNUM;
+               R : C.Strings.chars_ptr;
+            begin
+               N := TSSL.ASN1_INTEGER_to_BN (Number, null);
+               R := TSSL.BN_bn2hex (N);
+
+               declare
+                  V : constant String := C.Strings.Value (R);
+               begin
+                  C.Strings.Free (R);
+                  return V;
+               end;
+            end;
+         end if;
+      end To_String;
 
       -------------
       -- To_Time --
@@ -169,13 +200,15 @@ package body AWS.Net.SSL.Certificate.Impl is
          T_Expiration := TSSL.X509_get_notAfter (X509);
 
          return
-           (Verified   => Preverify_Ok,
-            Subject    => To_Unbounded_String
+           (Verified      => Preverify_Ok,
+            Subject       => To_Unbounded_String
               (NAME_oneline (TSSL.X509_get_subject_name (X509))),
-            Issuer     => To_Unbounded_String
+            Issuer        => To_Unbounded_String
               (NAME_oneline (TSSL.X509_get_issuer_name (X509))),
-            Activation => To_Time (T_Activation),
-            Expiration => To_Time (T_Expiration));
+            Serial_Number => To_Unbounded_String
+              (To_String (TSSL.X509_get_serialNumber (X509))),
+            Activation    => To_Time (T_Activation),
+            Expiration    => To_Time (T_Expiration));
       end if;
    end Read;
 

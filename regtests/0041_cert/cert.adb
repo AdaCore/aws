@@ -82,6 +82,7 @@ procedure Cert is
       else
          Put_Line ("Subject : " & Net.SSL.Certificate.Subject (Cert));
          Put_Line ("Issuer  : " & Net.SSL.Certificate.Issuer (Cert));
+         Put_Line ("Serial  : " & Net.SSL.Certificate.Serial_Number (Cert));
       end if;
    end Display_Certificate;
 

@@ -84,11 +84,11 @@ package body AWS.Net.SSL is
    end Locking;
 
    type TS_SSL is record
-      ASC            : aliased TSSL.Gnutls_Anon_Server_Credentials_T;
-      ACC            : aliased TSSL.Gnutls_Anon_Client_Credentials_T;
+      ASC            : aliased TSSL.gnutls_anon_server_credentials_t;
+      ACC            : aliased TSSL.gnutls_anon_client_credentials_t;
       CSC            : aliased TSSL.gnutls_certificate_credentials_t;
       CCC            : aliased TSSL.gnutls_certificate_credentials_t;
-      DH_Params      : aliased TSSL.Gnutls_Dh_Params_T;
+      DH_Params      : aliased TSSL.gnutls_dh_params_t;
       RCC            : Boolean := False; -- Request client certificate
       CREQ           : Boolean := False; -- Certificate is required
       CAfile         : C.Strings.chars_ptr := C.Strings.Null_Ptr;

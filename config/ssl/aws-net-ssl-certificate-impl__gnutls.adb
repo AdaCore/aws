@@ -120,6 +120,35 @@ package body AWS.Net.SSL.Certificate.Impl is
       pragma Inline (To_Time);
       --  Convert a time_t to an Ada duration
 
+      function To_Hex
+        (Str : C.char_array; Len : C.size_t) return Unbounded_String;
+      --  Convert Str to an hex string
+
+      ------------
+      -- To_Hex --
+      ------------
+
+      function To_Hex
+        (Str : C.char_array; Len : C.size_t) return Unbounded_String
+      is
+         use type C.size_t;
+         R : Unbounded_String;
+      begin
+         for K in Str'First .. Str'First + Len - 1 loop
+            declare
+               P : constant Natural := C.char'Pos (Str (K));
+            begin
+               --  Skip leading zero
+
+               if P /= 0 or else K > Str'First then
+                  Append (R, Utils.Hex (P, 2));
+               end if;
+            end;
+         end loop;
+
+         return R;
+      end To_Hex;
+
       -------------
       -- To_Time --
       -------------
@@ -141,6 +170,10 @@ package body AWS.Net.SSL.Certificate.Impl is
       Iss_Len  : aliased C.size_t := Buffer_Size;
 
       T_Activation, T_Expiration : TSSL.time_t;
+
+      Serial     : aliased C.char_array := (1 .. Buffer_Size => C.nul);
+      Serial_Len : aliased C.size_t := Buffer_Size;
+
    begin
       Check_Error_Code
         (TSSL.gnutls_x509_crt_get_dn
@@ -156,16 +189,24 @@ package body AWS.Net.SSL.Certificate.Impl is
             Iss_Len'Access),
          Socket);
 
+      Check_Error_Code
+        (TSSL.gnutls_x509_crt_get_serial
+           (X509,
+            C.Strings.To_Chars_Ptr (Serial'Unchecked_Access),
+            Serial_Len'Access),
+         Socket);
+
       T_Activation := TSSL.gnutls_x509_crt_get_activation_time (X509);
       T_Expiration := TSSL.gnutls_x509_crt_get_expiration_time (X509);
 
-      return (Verified   => Status = 0,
-              Subject    => To_Unbounded_String
-                              (C.To_Ada (Subject (1 .. Subj_Len), False)),
-              Issuer     => To_Unbounded_String
-                              (C.To_Ada (Issuer (1 .. Iss_Len), False)),
-              Activation => To_Time (T_Activation) - TZ_Offset,
-              Expiration => To_Time (T_Expiration) - TZ_Offset);
+      return (Verified      => Status = 0,
+              Subject       => To_Unbounded_String
+                                 (C.To_Ada (Subject (1 .. Subj_Len), False)),
+              Issuer        => To_Unbounded_String
+                                 (C.To_Ada (Issuer (1 .. Iss_Len), False)),
+              Serial_Number => To_Hex (Serial, Serial_Len),
+              Activation    => To_Time (T_Activation) - TZ_Offset,
+              Expiration    => To_Time (T_Expiration) - TZ_Offset);
    end Read;
 
    ----------
@@ -173,9 +214,7 @@ package body AWS.Net.SSL.Certificate.Impl is
    ----------
 
    function Read
-     (Status : C.unsigned; X509 : TSSL.gnutls_x509_crt_t)
-      return Object
-   is
+     (Status : C.unsigned; X509 : TSSL.gnutls_x509_crt_t) return Object is
    begin
       return Read (null, Status, X509);
    end Read;

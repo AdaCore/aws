@@ -5,8 +5,10 @@ Server started
 Server certificate as received by the client:
 Subject : C=FR,ST=Ile de France,O=AWS Team,CN=localhost,EMAIL=aws@obry.net
 Issuer  : C=FR,ST=Ile de France,L=Magny les Hameaux,O=AWS Team,CN=Pascal Obry,EMAIL=aws@obry.net
+Serial  : ABAA
 
 Client certificate as received by the server:
 Subject : C=FR,ST=Ile de France,O=AWS Team,CN=Jean Dupont,EMAIL=jean.dupont@nowhere.com
 Issuer  : C=FR,ST=Ile de France,L=Magny les Hameaux,O=AWS Team,CN=Pascal Obry,EMAIL=aws@obry.net
+Serial  : ABAB
 => simple ok
