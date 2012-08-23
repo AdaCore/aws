@@ -20,7 +20,7 @@
 
 with Ada.Text_IO;
 
-with AWS.Config.Set;   use AWS.Config;
+with AWS.Config.Set;
 with AWS.Default;
 with AWS.Net.Log;
 with AWS.Net.WebSocket.Registry.Control;
@@ -34,6 +34,7 @@ procedure WebSock is
 
    use Ada;
    use AWS;
+   use AWS.Config;
    use type AWS.Net.Socket_Access;
 
    Rcp : Net.WebSocket.Registry.Recipient :=
@@ -43,7 +44,7 @@ procedure WebSock is
    M   : String (1 .. 255);
    L   : Natural;
 
-   WS  : Server.HTTP;
+   WS     : Server.HTTP;
    Config : AWS.Config.Object;
 
 begin
@@ -55,11 +56,10 @@ begin
    --  To analyse the send/received data uncomment the line below
    --  Net.Log.Start (WebSock_CB.W_Log'Access);
 
-   Server.Start (WS,
-                 Config         => Config,
-                 --  "WebSockets",
-                 --  Max_Connections => 2,
-                 Callback       => WebSock_CB.HW_CB'Access);
+   Server.Start
+     (WS,
+      Config   => Config,
+      Callback => WebSock_CB.HW_CB'Access);
 
    --  Start the WebSocket server, this is needed only to receive message
    --  from the WebClient. It is always possible to send messages.

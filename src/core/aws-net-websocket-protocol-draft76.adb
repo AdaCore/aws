@@ -27,19 +27,22 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-with Ada.Exceptions; use Ada.Exceptions;
+with Ada.Exceptions;
 with Ada.Strings.Maps.Constants;
-with Ada.Text_IO;  use Ada.Text_IO;
+with Ada.Text_IO;
 with System;
 
 with GNAT.Byte_Swapping;
 with GNAT.MD5;
 
+with AWS.Headers;
 with AWS.Messages;
 with AWS.Net.Buffered;
-with AWS.Headers;
 
 package body AWS.Net.WebSocket.Protocol.Draft76 is
+
+   use Ada.Exceptions;
+   use Ada.Text_IO;
 
    -------------
    -- Receive --
@@ -55,6 +58,7 @@ package body AWS.Net.WebSocket.Protocol.Draft76 is
    begin
       Ignored := 1;
       Socket.Socket.Receive (Byte, Ignored);
+
       if Byte (Byte'First) /= 0 then
          Put_Line ("WebSocket 'received' did not receive a 0x00");
       else
@@ -102,8 +106,8 @@ package body AWS.Net.WebSocket.Protocol.Draft76 is
    procedure Send_Header
      (Sock : Net.Socket_Type'Class; Request : AWS.Status.Data)
    is
-      use System;
       use GNAT;
+      use System;
 
       Headers : constant AWS.Headers.List := AWS.Status.Header (Request);
 
@@ -131,6 +135,7 @@ package body AWS.Net.WebSocket.Protocol.Draft76 is
             then
                I := I + 1;
                N (I) := Key (K);
+
             elsif Key (K) = ' ' then
                Spaces := Spaces + 1;
             end if;
@@ -148,7 +153,7 @@ package body AWS.Net.WebSocket.Protocol.Draft76 is
       --  Key 1
 
       K1 : constant String :=
-        Headers.Get_Values (Messages.Sec_WebSocket_Key1_Token);
+             Headers.Get_Values (Messages.Sec_WebSocket_Key1_Token);
       V1 : constant Interfaces.Unsigned_32 := WS_Key_Value (K1);
       B1 : Stream_Element_Array (1 .. 4);
       for B1'Address use V1'Address;
@@ -156,7 +161,7 @@ package body AWS.Net.WebSocket.Protocol.Draft76 is
       --  Key 2
 
       K2 : constant String :=
-        Headers.Get_Values (Messages.Sec_WebSocket_Key2_Token);
+             Headers.Get_Values (Messages.Sec_WebSocket_Key2_Token);
       V2 : constant Interfaces.Unsigned_32 := WS_Key_Value (K2);
       B2 : Stream_Element_Array (1 .. 4);
       for B2'Address use V2'Address;
@@ -164,7 +169,7 @@ package body AWS.Net.WebSocket.Protocol.Draft76 is
       --  Body
 
       B  : constant Stream_Element_Array :=
-        AWS.Status.Binary_Data (Request);
+             AWS.Status.Binary_Data (Request);
 
       C  : MD5.Context;
       D  : MD5.Message_Digest;
