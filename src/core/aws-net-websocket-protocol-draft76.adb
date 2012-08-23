@@ -74,6 +74,8 @@ package body AWS.Net.WebSocket.Protocol.Draft76 is
       end if;
 
    exception
+      when AWS.Net.Socket_Error =>
+         null;
       when E : others =>
          Put_Line ("Unexpected exception" & Exception_Information (E));
    end Receive;
