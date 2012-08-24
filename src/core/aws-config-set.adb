@@ -269,6 +269,15 @@ package body AWS.Config.Set is
       O.P (Hotplug_Port).Pos_Value := Value;
    end Hotplug_Port;
 
+   ---------------------------
+   -- Input_Line_Size_Limit --
+   ---------------------------
+
+   procedure Input_Line_Size_Limit (Value : Positive) is
+   begin
+      Process_Options (Input_Line_Size_Limit).Pos_Value := Value;
+   end Input_Line_Size_Limit;
+
    ----------------------------
    -- Keep_Alive_Force_Limit --
    ----------------------------

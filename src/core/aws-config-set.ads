@@ -353,6 +353,9 @@ package AWS.Config.Set is
    procedure WebSocket_Origin (Value : String);
    --  This is regular expression to restrict WebSocket to a specific origin
 
+   procedure Input_Line_Size_Limit (Value : Positive);
+   --  Maximum length of an HTTP parameter.
+
    procedure Parameter
      (Config        : in out Object;
       Name          : String;
