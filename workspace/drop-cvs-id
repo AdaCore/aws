@@ -1,0 +1,16 @@
+#! /usr/bin/env python
+
+import re
+import sys
+import glob
+
+reg = re.compile ('^--  \$Id: .* Exp \$$\n\n',  re.MULTILINE)
+
+for J in sys.argv[1:]:
+   print J
+   f = open(J, 'r+w+');
+   fl = f.read()
+   f.seek(0)
+   f.write(reg.sub ('', fl, 1))
+   f.truncate()
+   f.close()
