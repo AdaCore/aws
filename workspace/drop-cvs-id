@@ -2,9 +2,8 @@
 
 import re
 import sys
-import glob
 
-reg = re.compile ('^--  \$Id: .* Exp \$$\n\n',  re.MULTILINE)
+reg = re.compile ('^--  \$Id: .* Exp \$$\n\n', re.MULTILINE)
 
 for J in sys.argv[1:]:
    print J
