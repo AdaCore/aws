@@ -30,7 +30,7 @@
 with Ada.Containers.Indefinite_Hashed_Maps;
 with Ada.Strings.Hash;
 
-with GNAT.SHA1;
+private with GNAT.SHA1;
 
 package AWS.Services.Web_Block.Context is
 
@@ -90,8 +90,8 @@ package AWS.Services.Web_Block.Context is
 
 private
 
-   use GNAT;
    use Ada;
+   use GNAT;
 
    package KV is new Containers.Indefinite_Hashed_Maps
      (String, String, Strings.Hash, "=");
