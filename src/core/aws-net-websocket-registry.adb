@@ -352,7 +352,7 @@ package body AWS.Net.WebSocket.Registry is
                  or else GNAT.Regexp.Match (WebSocket.URI, To.URI))
               and then
                 (not To.Origin_Set
-                 or else GNAT.Regexp.Match (WebSocket.Origin, To.URI))
+                 or else GNAT.Regexp.Match (WebSocket.Origin, To.Origin))
             then
                begin
                   WebSocket.Send (Message);
