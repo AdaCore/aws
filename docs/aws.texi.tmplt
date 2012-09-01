@@ -2468,7 +2468,7 @@ started. The only thing to do is to set the Start's Security parameter
 to True. This will start a server and activate the @code{SSL} layer by
 default. A secure server must use a valid certificate, the default one
 is @file{@_DEFAULT_CERTIFICATE_@}. This certificate has been
-created by the openssl tool and is valid until year 2008. Yet, this
+created by the @code{OpenSSL} tool and is valid until year 2008. Yet, this
 certificate has not been signed. To build a secure server user's can
 rely on, you must have a valid certificate signed by one of the
 @b{Certificate Authorities}.
