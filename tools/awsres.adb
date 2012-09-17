@@ -32,6 +32,7 @@ with Ada.Unchecked_Deallocation;
 
 with GNAT.Command_Line;
 with GNAT.Calendar.Time_IO;
+with GNAT.Regexp;
 
 with AWS.Resources.Streams.Disk;
 with AWS.Resources.Streams.ZLib;
@@ -47,9 +48,11 @@ procedure AwsRes is
 
    Syntax_Error : exception;
 
-   Version  : constant String := "1.2";
+   Version  : constant String := "1.3";
 
    Root_Pck : Unbounded_String := To_Unbounded_String ("res");
+   Output   : Unbounded_String := To_Unbounded_String (".");
+   Prefix   : Unbounded_String; --  prefix to resources names
    Quiet    : Boolean := False;
 
    RT_File  : Text_IO.File_Type;
@@ -60,6 +63,9 @@ procedure AwsRes is
 
    Compress : Boolean := False;
    --  By default resources are not compressed
+
+   Recursive : Boolean := False;
+   --  Do we need to recursively parse sub-directories
 
    procedure Create (Filename : String);
    --  Create resource package for Filename
@@ -72,6 +78,12 @@ procedure AwsRes is
 
    function Header return String;
    --  Returns file header (AWSRes version, date, time)
+
+   procedure Handle_Resource (Directory, Pattern : String);
+   --  Parse the given directory for resources files
+
+   function Output_Filename (Name : String) return String;
+   --  Returns the pathname for the output file
 
    ------------
    -- Create --
@@ -86,8 +98,8 @@ procedure AwsRes is
       --  Maximum number of data in a single line
 
       Unit_Name : constant String := Package_Name (Filename);
-      Pck_Name  : constant String := To_String (Root_Pck) & '-'
-        & Directories.Simple_Name (Unit_Name) & ".ads";
+      Pck_Name  : constant String :=
+                    To_String (Root_Pck) & '-' & Unit_Name & ".ads";
 
       Buffer    : Stream_Element_Array (1 .. 1_024 * 200);
       --  We need a buffer large enough to contain as much data as
@@ -114,7 +126,7 @@ procedure AwsRes is
 
       File_Time := Utils.File_Time_Stamp (Filename);
 
-      Text_IO.Create (O_File, Text_IO.Out_File, Pck_Name);
+      Text_IO.Create (O_File, Text_IO.Out_File, Output_Filename (Pck_Name));
 
       RS.Disk.Open (RS.Disk.Stream_Type (I_File.all), Filename);
 
@@ -223,11 +235,13 @@ procedure AwsRes is
       Text_IO.Put_Line (RT_File, "         Register");
 
       if Compress then
-         Text_IO.Put_Line (RT_File, "            ("""
-                           & Directories.Simple_Name (Filename) & ".gz"",");
+         Text_IO.Put_Line
+           (RT_File, "            ("""
+            & To_String (Prefix) & Filename & ".gz"",");
       else
-         Text_IO.Put_Line (RT_File, "            ("""
-                           & Directories.Simple_Name (Filename) & """,");
+         Text_IO.Put_Line
+           (RT_File, "            ("""
+            & To_String (Prefix) & Filename & """,");
       end if;
 
       Text_IO.Put_Line
@@ -248,6 +262,60 @@ procedure AwsRes is
         (R_File, "with " & To_String (Root_Pck) & '.' & Unit_Name & ';');
    end Create;
 
+   ---------------------
+   -- Handle_Resource --
+   ---------------------
+
+   procedure Handle_Resource (Directory, Pattern : String) is
+
+      use Directories;
+
+      File_And_Dir : constant Directories.Filter_Type :=
+                       (Directories.Directory | Ordinary_File => True,
+                        others                                => False);
+
+      Regexp       : constant GNAT.Regexp.Regexp :=
+                       GNAT.Regexp.Compile (Pattern, Glob => True);
+
+      procedure Handle (Directory_Entry : Directory_Entry_Type);
+
+      ------------
+      -- Handle --
+      ------------
+
+      procedure Handle (Directory_Entry : Directory_Entry_Type) is
+         Kind : File_Kind renames Directories.Kind (Directory_Entry);
+      begin
+         if Kind = Ordinary_File
+           and then GNAT.Regexp.Match (Simple_Name (Directory_Entry), Regexp)
+         then
+            if Directory = "." then
+               Create (Directories.Simple_Name (Directory_Entry));
+
+            else
+               Create
+                 (Compose
+                    (Directory, Directories.Simple_Name (Directory_Entry)));
+            end if;
+
+         elsif Recursive
+           and then Kind = Directories.Directory
+           and then Simple_Name (Directory_Entry) /= "."
+           and then Simple_Name (Directory_Entry) /= ".."
+         then
+            if Directory = "." then
+               Handle_Resource (Simple_Name (Directory_Entry), Pattern);
+            else
+               Handle_Resource
+                 (Compose (Directory, Simple_Name (Directory_Entry)), Pattern);
+            end if;
+         end if;
+      end Handle;
+
+   begin
+      Directories.Search (Directory, "*", File_And_Dir, Handle'Access);
+   end Handle_Resource;
+
    ------------
    -- Header --
    ------------
@@ -259,19 +327,32 @@ procedure AwsRes is
         (Calendar.Clock, "%B %d %Y at %T");
    end Header;
 
+   -----------------
+   -- Output_File --
+   -----------------
+
+   function Output_Filename (Name : String) return String is
+      O : constant String := To_String (Output);
+   begin
+      if O = "." then
+         return Name;
+      else
+         return Directories.Compose (O, Name);
+      end if;
+   end Output_Filename;
+
    ------------------
    -- Package_Name --
    ------------------
 
    function Package_Name (Filename : String) return String is
-      From : constant String := ".";
-      To   : constant String := "_";
+      From : constant String := "./";
+      To   : constant String := "__";
 
       Map  : constant Strings.Maps.Character_Mapping
         := Strings.Maps.To_Mapping (From, To);
    begin
-      return Strings.Fixed.Translate
-        (Directories.Simple_Name (Filename), Map);
+      return Strings.Fixed.Translate (Filename, Map);
    end Package_Name;
 
    ------------------------
@@ -284,9 +365,18 @@ procedure AwsRes is
         (Stop_At_First_Non_Switch => True);
 
       loop
-         case GNAT.Command_Line.Getopt ("r: h q z u") is
+         case GNAT.Command_Line.Getopt ("r: h q z u o: p: R") is
             when ASCII.NUL =>
                exit;
+
+            when 'o' =>
+               Output := To_Unbounded_String (GNAT.Command_Line.Parameter);
+
+            when 'R' =>
+               Recursive := True;
+
+            when 'p' =>
+               Prefix := To_Unbounded_String (GNAT.Command_Line.Parameter);
 
             when 'r' =>
                Root_Pck := To_Unbounded_String (GNAT.Command_Line.Parameter);
@@ -325,7 +415,9 @@ begin
    end if;
 
    Text_IO.Create (RT_File, Text_IO.Out_File);
-   Text_IO.Create (R_File, Text_IO.Out_File, To_String (Root_Pck) & ".adb");
+   Text_IO.Create
+     (R_File, Text_IO.Out_File,
+      Output_Filename (To_String (Root_Pck) & ".adb"));
 
    Text_IO.New_Line (R_File);
    Text_IO.Put_Line (R_File, Header);
@@ -346,12 +438,14 @@ begin
    Text_IO.Put_Line (RT_File, "      if not Initialized then");
    Text_IO.Put_Line (RT_File, "         Initialized := True;");
 
-   --  Parse all files
+   --  Parse directories/files
 
    loop
       declare
-         S : constant String
-           := GNAT.Command_Line.Get_Argument (Do_Expansion => True);
+         use Directories;
+
+         S : constant String :=
+               GNAT.Command_Line.Get_Argument (Do_Expansion => False);
       begin
          exit when S'Length = 0;
 
@@ -360,7 +454,15 @@ begin
          elsif S = "-u" then
             Compress := False;
          else
-            Create (S);
+            if Exists (S) and then Kind (S) = Directory then
+               Handle_Resource (S, "*.*");
+
+            elsif Simple_Name (S) = S then
+               Handle_Resource (".", S);
+
+            else
+               Handle_Resource (Containing_Directory (S), Simple_Name (S));
+            end if;
          end if;
       end;
    end loop;
@@ -386,7 +488,9 @@ begin
 
    --  Generate now the root package spec
 
-   Text_IO.Create (R_File, Text_IO.Out_File, To_String (Root_Pck) & ".ads");
+   Text_IO.Create
+     (R_File, Text_IO.Out_File,
+      Output_Filename (To_String (Root_Pck) & ".ads"));
 
    Text_IO.New_Line (R_File);
    Text_IO.Put_Line (R_File, Header);
@@ -408,10 +512,17 @@ exception
    when Syntax_Error =>
       Text_IO.Put_Line ("AWSRes - Resource Creator v" & Version);
       Text_IO.New_Line;
-      Text_IO.Put_Line ("Usage : awsres [-hrqzu] file1 [-zu] [file2...]");
+      Text_IO.Put_Line
+        ("Usage : awsres [-hopqrRzu] file1/dir1 [-zu] [file2/dir2...]");
       Text_IO.New_Line;
       Text_IO.Put_Line
         ("        -h      : display help");
+      Text_IO.Put_Line
+        ("        -o dir  : specify the output directory");
+      Text_IO.Put_Line
+        ("        -p str  : prefix all resource names with the given string");
+      Text_IO.Put_Line
+        ("        -R      : activate recursivity");
       Text_IO.Put_Line
         ("        -r name : name of the root package (default res)");
       Text_IO.Put_Line

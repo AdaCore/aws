@@ -1,0 +1,10 @@
+Resource root not found.
+Name root.txt
+: root file
+Name dir1/text1.txt
+: text 1
+Name dir1/sdir/text3.txt
+: text 3
+Resource dir1/sdir/text4.txt not found.
+Name dir2/text5.txt
+: text 5
