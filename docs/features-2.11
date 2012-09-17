@@ -15,6 +15,11 @@ of the feature.
 New features in AWS 2.11
 ------------------------
 
+NF-211-L914-020 Improve awsres (2012-09-17)
+
+   The awsres tool now supports recursivity and has a way to specify the
+   output directory for the generated files.
+
 NF-211-L813-027 Add support for certificate's serial number (2012-08-14)
 
    It is now possible to retrieve a certificate serial number.

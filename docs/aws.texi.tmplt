@@ -6462,15 +6462,28 @@ named @file{res} by default and a child package for each resource
 file.
 
 @noindent
-Usage: awsres [-hrquz] file1 [-uz] [file2...]
+Usage: awsres [-hopqrRuz] file1/dir1 [-uz] [file2/dir2...]
 
 @table @code
 
 @item -h
 Display help message.
 
+@item -o
+Specify the output directory, by default it is the current directory.
+
+@item -p name
+Append the specified prefix to the resource names.
+
 @item -q
 Quiet mode.
+
+@item -R
+Activate recursive behavior. In this mode @file{awsres} will parse recursively
+all subdirectories. If a directory is specified on the command line then all
+files in this directory and sub-directories will be added. If a file (possibly
+a pattern) is specificed on the command line then only files matching in
+directroy and sub-directories will be added.
 
 @item -r name
 Set the root unit name. Default is @code{res}.
