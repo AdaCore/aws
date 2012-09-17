@@ -30,8 +30,8 @@ with Ada.Strings.Unbounded;
 with Ada.Text_IO;
 with Ada.Unchecked_Deallocation;
 
-with GNAT.Command_Line;
 with GNAT.Calendar.Time_IO;
+with GNAT.Command_Line;
 with GNAT.Regexp;
 
 with AWS.Resources.Streams.Disk;
@@ -116,7 +116,7 @@ procedure AwsRes is
 
       First     : Boolean := True;
 
-      procedure Unchecked_Free is new Ada.Unchecked_Deallocation
+      procedure Unchecked_Free is new Unchecked_Deallocation
         (RS.Stream_Type'Class, RS.Stream_Access);
 
    begin
@@ -246,11 +246,12 @@ procedure AwsRes is
 
       Text_IO.Put_Line
         (RT_File, "             "
-           & To_String (Root_Pck) & '.' & Unit_Name & ".Content'Access,");
+         & To_String (Root_Pck) & '.' & Unit_Name & ".Content'Access,");
+
       Text_IO.Put_Line
         (RT_File, "             GNAT.Calendar.Time_Of ("
-           & GNAT.Calendar.Time_IO.Image
-               (File_Time, "%Y, %m, %d, %H, %M, %S, 0.0));"));
+         & GNAT.Calendar.Time_IO.Image
+           (File_Time, "%Y, %m, %d, %H, %M, %S, 0.0));"));
 
       if not Quiet then
          Text_IO.Put_Line ("  -> registered");
@@ -323,8 +324,7 @@ procedure AwsRes is
    function Header return String is
    begin
       return "--  AWSRes v" & Version & " - Genarated on " &
-        GNAT.Calendar.Time_IO.Image
-        (Calendar.Clock, "%B %d %Y at %T");
+        GNAT.Calendar.Time_IO.Image (Calendar.Clock, "%B %d %Y at %T");
    end Header;
 
    -----------------
@@ -349,8 +349,8 @@ procedure AwsRes is
       From : constant String := "./";
       To   : constant String := "__";
 
-      Map  : constant Strings.Maps.Character_Mapping
-        := Strings.Maps.To_Mapping (From, To);
+      Map  : constant Strings.Maps.Character_Mapping :=
+               Strings.Maps.To_Mapping (From, To);
    begin
       return Strings.Fixed.Translate (Filename, Map);
    end Package_Name;
@@ -451,8 +451,10 @@ begin
 
          if S = "-z" then
             Compress := True;
+
          elsif S = "-u" then
             Compress := False;
+
          else
             if Exists (S) and then Kind (S) = Directory then
                Handle_Resource (S, "*.*");
@@ -506,7 +508,7 @@ begin
 
    Text_IO.Close (R_File);
 
-   Ada.Command_Line.Set_Exit_Status (Ada.Command_Line.Success);
+   Command_Line.Set_Exit_Status (Command_Line.Success);
 
 exception
    when Syntax_Error =>
@@ -532,5 +534,5 @@ exception
       Text_IO.Put_Line
         ("        -q      : quiet mode");
 
-   Ada.Command_Line.Set_Exit_Status (Ada.Command_Line.Failure);
+   Command_Line.Set_Exit_Status (Command_Line.Failure);
 end AwsRes;
