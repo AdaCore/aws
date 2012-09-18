@@ -230,8 +230,9 @@ package body AWS.Client is
 
       elsif Try_Count = 0 then
          Result := Response.Build
-           (MIME.Text_Plain,
-            Context & " request error. " & Message, Messages.S400);
+                     (MIME.Text_Plain,
+                      Context & " request error. " & Message,
+                      Messages.S400);
 
       else
          Result := Response.Empty;
@@ -1128,10 +1129,8 @@ package body AWS.Client is
       Pref_Suf : constant String := "--";
       Boundary : constant String :=
                    "AWS_File_Upload-" & Utils.Random_String (8);
-
       CT        : constant String :=
                     Messages.Content_Type (MIME.Content_Type (Filename));
-
       CD        : constant String :=
                     Messages.Content_Disposition
                       ("form-data", "filename", Filename);
