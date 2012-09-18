@@ -15,6 +15,10 @@ of the feature.
 New features in AWS 2.11
 ------------------------
 
+NF-211-L814-008 Add progress support for client upload (2012-09-18)
+
+   An upload progress has been added for the AWS.Client.Upload API.
+
 NF-211-L914-020 Improve awsres (2012-09-17)
 
    The awsres tool now supports recursivity and has a way to specify the

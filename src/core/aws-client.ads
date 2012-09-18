@@ -239,7 +239,10 @@ package AWS.Client is
       Proxy_User : String          := No_Data;
       Proxy_Pwd  : String          := No_Data;
       Timeouts   : Timeouts_Values := No_Timeout;
-      Headers    : Header_List     := Empty_Header_List) return Response.Data;
+      Headers    : Header_List     := Empty_Header_List;
+      Progress   : access procedure
+        (Total, Sent : Stream_Element_Offset) := null)
+      return Response.Data;
    --  This is a file upload request. Filename file's content will be send to
    --  the server at address URL.
 
@@ -434,7 +437,9 @@ package AWS.Client is
       Result     : out Response.Data;
       Filename   : String;
       URI        : String          := No_Data;
-      Headers    : Header_List     := Empty_Header_List);
+      Headers    : Header_List     := Empty_Header_List;
+      Progress   : access procedure
+        (Total, Sent : Stream_Element_Offset) := null);
    --  Same as Upload above but using a Connection
 
    procedure SOAP_Post

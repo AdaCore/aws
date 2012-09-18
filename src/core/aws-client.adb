@@ -1122,7 +1122,9 @@ package body AWS.Client is
       Result     : out Response.Data;
       Filename   : String;
       URI        : String      := No_Data;
-      Headers    : Header_List := Empty_Header_List)
+      Headers    : Header_List := Empty_Header_List;
+      Progress   : access procedure
+        (Total, Sent : Stream_Element_Offset) := null)
    is
       use Ada.Real_Time;
       Stamp    : constant Time   := Clock;
@@ -1134,6 +1136,8 @@ package body AWS.Client is
       CD        : constant String :=
                     Messages.Content_Disposition
                       ("form-data", "filename", Filename);
+      File_Size : constant Stream_Element_Offset :=
+                    Stream_Element_Offset (Utils.File_Size (Filename));
 
       Try_Count     : Natural := Connection.Retry;
       Auth_Attempts : Auth_Attempts_Count := (others => 2);
@@ -1151,13 +1155,13 @@ package body AWS.Client is
 
       function Content_Length return Stream_Element_Offset is
       begin
-         return 2 * Boundary'Length                -- 2 boundaries
-           + 2                                     -- second one end with "--"
-           + 10                                    -- 5 lines with CR+LF
-           + CT'Length                             -- content length header
-           + CD'Length                             -- content disposition head
-           + Stream_Element_Offset (Utils.File_Size (Filename))
-           + 2;                                    -- CR+LF after file data
+         return 2 * Boundary'Length  -- 2 boundaries
+           + 2                       -- second one end with "--"
+           + 10                      -- 5 lines with CR+LF
+           + CT'Length               -- content length header
+           + CD'Length               -- content disposition head
+           + File_Size
+           + 2;                      -- CR+LF after file data
       end Content_Length;
 
       ---------------
@@ -1169,6 +1173,7 @@ package body AWS.Client is
          Buffer : Stream_Element_Array (1 .. 4_096);
          Last   : Stream_Element_Offset;
          File   : Stream_IO.File_Type;
+         Sent   : Stream_Element_Offset := 0;
       begin
          --  Send multipart message start boundary
 
@@ -1191,6 +1196,11 @@ package body AWS.Client is
          while not Stream_IO.End_Of_File (File) loop
             Stream_IO.Read (File, Buffer, Last);
             Net.Buffered.Write (Sock, Buffer (1 .. Last));
+
+            if Progress /= null then
+               Sent := Sent + Last;
+               Progress (File_Size, Sent);
+            end if;
          end loop;
 
          Stream_IO.Close (File);
@@ -1269,7 +1279,9 @@ package body AWS.Client is
       Proxy_User : String          := No_Data;
       Proxy_Pwd  : String          := No_Data;
       Timeouts   : Timeouts_Values := No_Timeout;
-      Headers    : Header_List     := Empty_Header_List) return Response.Data
+      Headers    : Header_List     := Empty_Header_List;
+      Progress   : access procedure
+        (Total, Sent : Stream_Element_Offset) := null) return Response.Data
    is
       Connection : HTTP_Connection;
       Result     : Response.Data;
@@ -1279,7 +1291,9 @@ package body AWS.Client is
               Persistent => False,
               Timeouts   => Timeouts);
 
-      Upload (Connection, Result, Filename, Headers => Headers);
+      Upload
+        (Connection, Result, Filename,
+         Headers => Headers, Progress => Progress);
 
       Close (Connection);
       return Result;
