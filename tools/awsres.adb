@@ -50,6 +50,10 @@ procedure AwsRes is
 
    Version  : constant String := "1.3";
 
+   Glob_Pat : constant Strings.Maps.Character_Set :=
+                Strings.Maps.To_Set ("*?");
+   --  Globbing patterns
+
    Root_Pck : Unbounded_String := To_Unbounded_String ("res");
    Output   : Unbounded_String := To_Unbounded_String (".");
    Prefix   : Unbounded_String; --  prefix to resources names
@@ -444,8 +448,11 @@ begin
       declare
          use Directories;
 
-         S : constant String :=
-               GNAT.Command_Line.Get_Argument (Do_Expansion => False);
+         S    : constant String :=
+                  GNAT.Command_Line.Get_Argument (Do_Expansion => False);
+         Glob : constant Boolean := Strings.Fixed.Index (S, Glob_Pat) /= 0;
+         Dir  : constant Natural :=
+                  Strings.Fixed.Index (S, "/\", Going => Strings.Backward);
       begin
          exit when S'Length = 0;
 
@@ -456,14 +463,19 @@ begin
             Compress := False;
 
          else
-            if Exists (S) and then Kind (S) = Directory then
+            if not Glob and then Exists (S) and then Kind (S) = Directory then
                Handle_Resource (S, "*.*");
 
-            elsif Simple_Name (S) = S then
+            --  No directory specified
+
+            elsif Dir = 0 then
                Handle_Resource (".", S);
 
+            --  A directory specified
+
             else
-               Handle_Resource (Containing_Directory (S), Simple_Name (S));
+               Handle_Resource
+                 (S (S'First .. Dir - 1), S (Dir + 1 .. S'Last));
             end if;
          end if;
       end;
