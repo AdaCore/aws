@@ -346,8 +346,8 @@ procedure AwsRes is
    ------------------
 
    function Package_Name (Filename : String) return String is
-      From : constant String := "./";
-      To   : constant String := "__";
+      From : constant String := "./\";
+      To   : constant String := "___";
 
       Map  : constant Strings.Maps.Character_Mapping :=
                Strings.Maps.To_Mapping (From, To);
