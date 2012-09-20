@@ -18,7 +18,7 @@
 
 .SILENT:
 
-LDIR = ../$(BDIR)/../common/lib/win32
+LDIR = ../$(BDIR)/../common/win32
 
 AWS_COFF	= $(LDIR)/aws.coff
 
