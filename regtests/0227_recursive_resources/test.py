@@ -22,7 +22,7 @@ create_res('dir2/text6', 'text 6')
 
 exec_cmd('awsres',
          ['-q', '-r', 'rdemo', '-R', '-o', 'rout',
-          'dir1/*.txt',
+          '"dir1/*.txt"',
           '*.txt',
           'dir2'])
 

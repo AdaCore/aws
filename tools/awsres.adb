@@ -238,15 +238,21 @@ procedure AwsRes is
 
       Text_IO.Put_Line (RT_File, "         Register");
 
-      if Compress then
-         Text_IO.Put_Line
-           (RT_File, "            ("""
-            & To_String (Prefix) & Filename & ".gz"",");
-      else
-         Text_IO.Put_Line
-           (RT_File, "            ("""
-            & To_String (Prefix) & Filename & """,");
-      end if;
+      declare
+         --  The resource name must not have back-slash
+         F_Name : constant String :=
+                    To_String (Prefix)
+                    & Strings.Fixed.Translate
+                      (Filename, Strings.Maps.To_Mapping ("\", "/"));
+      begin
+         if Compress then
+            Text_IO.Put_Line
+              (RT_File, "            (""" & F_Name & ".gz"",");
+         else
+            Text_IO.Put_Line
+              (RT_File, "            (""" & F_Name & """,");
+         end if;
+      end;
 
       Text_IO.Put_Line
         (RT_File, "             "
@@ -295,12 +301,10 @@ procedure AwsRes is
            and then GNAT.Regexp.Match (Simple_Name (Directory_Entry), Regexp)
          then
             if Directory = "." then
-               Create (Directories.Simple_Name (Directory_Entry));
+               Create (Simple_Name (Directory_Entry));
 
             else
-               Create
-                 (Compose
-                    (Directory, Directories.Simple_Name (Directory_Entry)));
+               Create (Compose (Directory, Simple_Name (Directory_Entry)));
             end if;
 
          elsif Recursive
@@ -449,10 +453,12 @@ begin
          use Directories;
 
          S    : constant String :=
-                  GNAT.Command_Line.Get_Argument (Do_Expansion => False);
+                  Utils.Dequote
+                    (GNAT.Command_Line.Get_Argument (Do_Expansion => False));
          Glob : constant Boolean := Strings.Fixed.Index (S, Glob_Pat) /= 0;
          Dir  : constant Natural :=
-                  Strings.Fixed.Index (S, "/\", Going => Strings.Backward);
+                  Strings.Fixed.Index
+                    (S, Strings.Maps.To_Set ("/\"), Going => Strings.Backward);
       begin
          exit when S'Length = 0;
 
@@ -474,8 +480,7 @@ begin
             --  A directory specified
 
             else
-               Handle_Resource
-                 (S (S'First .. Dir - 1), S (Dir + 1 .. S'Last));
+               Handle_Resource (S (S'First .. Dir - 1), S (Dir + 1 .. S'Last));
             end if;
          end if;
       end;

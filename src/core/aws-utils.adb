@@ -251,6 +251,21 @@ package body AWS.Utils is
          raise;
    end Decompress;
 
+   -------------
+   -- Dequote --
+   -------------
+
+   function Dequote (Str : String) return String is
+   begin
+      if Str'Length < 2
+        or else (Str (Str'First) /= '"' or else Str (Str'Last) /= '"')
+      then
+         return Str;
+      else
+         return Str (Str'First + 1 .. Str'Last - 1);
+      end if;
+   end Dequote;
+
    ---------------
    -- File_Size --
    ---------------
