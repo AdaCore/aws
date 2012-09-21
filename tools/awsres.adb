@@ -447,7 +447,8 @@ begin
          use Directories;
 
          S    : constant String :=
-                  GNAT.Command_Line.Get_Argument (Do_Expansion => False);
+                  Utils.Dequote
+                    (GNAT.Command_Line.Get_Argument (Do_Expansion => False));
          Glob : constant Boolean := Strings.Fixed.Index (S, Glob_Pat) /= 0;
          Dir  : constant Natural :=
                   Strings.Fixed.Index
