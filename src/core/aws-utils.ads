@@ -110,6 +110,9 @@ package AWS.Utils is
    --  Replace parameter is for replace the '"' inside of string.
    --  It is not replaced by default.
 
+   function Dequote (Str : String) return String;
+   --  Removes quotes if any around Str and return the resulting string
+
    function CRLF_2_Spaces (Str : String) return String;
    --  Returns an str in a single line. All CR and LF are converted to spaces,
    --  trailing spaces are removed.
