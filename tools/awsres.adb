@@ -295,12 +295,10 @@ procedure AwsRes is
            and then GNAT.Regexp.Match (Simple_Name (Directory_Entry), Regexp)
          then
             if Directory = "." then
-               Create (Directories.Simple_Name (Directory_Entry));
+               Create (Simple_Name (Directory_Entry));
 
             else
-               Create
-                 (Compose
-                    (Directory, Directories.Simple_Name (Directory_Entry)));
+               Create (Compose (Directory, Simple_Name (Directory_Entry)));
             end if;
 
          elsif Recursive
