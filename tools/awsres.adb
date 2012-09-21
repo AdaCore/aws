@@ -450,7 +450,8 @@ begin
                   GNAT.Command_Line.Get_Argument (Do_Expansion => False);
          Glob : constant Boolean := Strings.Fixed.Index (S, Glob_Pat) /= 0;
          Dir  : constant Natural :=
-                  Strings.Fixed.Index (S, "/\", Going => Strings.Backward);
+                  Strings.Fixed.Index
+                    (S, Strings.Maps.To_Set ("/\"), Going => Strings.Backward);
       begin
          exit when S'Length = 0;
 
