@@ -238,15 +238,21 @@ procedure AwsRes is
 
       Text_IO.Put_Line (RT_File, "         Register");
 
-      if Compress then
-         Text_IO.Put_Line
-           (RT_File, "            ("""
-            & To_String (Prefix) & Filename & ".gz"",");
-      else
-         Text_IO.Put_Line
-           (RT_File, "            ("""
-            & To_String (Prefix) & Filename & """,");
-      end if;
+      declare
+         --  The resource name must not have back-slash
+         F_Name : constant String :=
+                    To_String (Prefix)
+                    & Strings.Fixed.Translate
+                      (Filename, Strings.Maps.To_Mapping ("\", "/"));
+      begin
+         if Compress then
+            Text_IO.Put_Line
+              (RT_File, "            (""" & F_Name & ".gz"",");
+         else
+            Text_IO.Put_Line
+              (RT_File, "            (""" & F_Name & """,");
+         end if;
+      end;
 
       Text_IO.Put_Line
         (RT_File, "             "
