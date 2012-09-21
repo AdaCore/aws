@@ -472,8 +472,7 @@ begin
             --  A directory specified
 
             else
-               Handle_Resource
-                 (S (S'First .. Dir - 1), S (Dir + 1 .. S'Last));
+               Handle_Resource (S (S'First .. Dir - 1), S (Dir + 1 .. S'Last));
             end if;
          end if;
       end;
