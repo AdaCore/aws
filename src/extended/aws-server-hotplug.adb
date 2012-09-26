@@ -33,7 +33,7 @@ with Ada.Strings.Hash;
 with Ada.Strings.Unbounded;
 with Ada.Text_IO;
 
-with Strings_Cutter;
+with GNAT.String_Split;
 
 with AWS.Communication;
 with AWS.Communication.Server;
@@ -108,6 +108,9 @@ package body AWS.Server.Hotplug is
       use Ada;
       use Ada.Characters.Handling;
 
+      use GNAT;
+      use type GNAT.String_Split.Slice_Number;
+
       function "+"
         (Str : String)
          return Unbounded_String renames To_Unbounded_String;
@@ -115,7 +118,7 @@ package body AWS.Server.Hotplug is
       File   : Text_IO.File_Type;
       Buffer : String (1 .. 1_024);
       Last   : Natural;
-      Line   : Strings_Cutter.Cut_String;
+      Line   : String_Split.Slice_Set;
       N      : Natural := 0;
    begin
       Hotplug_Server.Start (Port, Web_Server, Host => Host);
@@ -126,9 +129,9 @@ package body AWS.Server.Hotplug is
       while not Text_IO.End_Of_File (File) loop
          Text_IO.Get_Line (File, Buffer, Last);
          N := N + 1;
-         Strings_Cutter.Create (Line, Buffer (1 .. Last), Separators => ":");
+         String_Split.Create (Line, Buffer (1 .. Last), Separators => ":");
 
-         if Strings_Cutter.Field_Count (Line) /= 4 then
+         if String_Split.Slice_Count (Line) /= 4 then
             declare
                Error_Message : constant String
                  := Authorization_File & ": format error in line "
@@ -140,11 +143,11 @@ package body AWS.Server.Hotplug is
          end if;
 
          Client_Handler.Add
-           (Client => Strings_Cutter.Field (Line, 1),
+           (Client => String_Split.Slice (Line, 1),
             Data   =>
-              (Password => +Strings_Cutter.Field (Line, 2),
-               Host     => +To_Lower (Strings_Cutter.Field (Line, 3)),
-               Port     => Positive'Value (Strings_Cutter.Field (Line, 4)),
+              (Password => +String_Split.Slice (Line, 2),
+               Host     => +To_Lower (String_Split.Slice (Line, 3)),
+               Port     => Positive'Value (String_Split.Slice (Line, 4)),
                Nonce    => Null_Nonce));
       end loop;
 
