@@ -33,12 +33,11 @@ with Ada.Strings.Fixed;
 with System;
 
 with GNAT.Byte_Swapping;
-
-with SHA.Process_Data;
-with SHA.Strings;
+with GNAT.SHA1;
 
 with AWS.Messages;
 with AWS.Net.Buffered;
+with AWS.Translator;
 
 package body AWS.Net.WebSocket.Protocol.RFC6455 is
 
@@ -366,8 +365,7 @@ package body AWS.Net.WebSocket.Protocol.RFC6455 is
    procedure Send_Header
      (Sock : Net.Socket_Type'Class; Request : AWS.Status.Data)
    is
-      use SHA.Process_Data;
-      use SHA.Strings;
+      use GNAT;
 
       GUID : constant String :=
                "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
@@ -376,10 +374,21 @@ package body AWS.Net.WebSocket.Protocol.RFC6455 is
                Strings.Fixed.Trim
                  (AWS.Status.Sec_WebSocket_Key (Request), Strings.Both);
    begin
-      Net.Buffered.Put_Line
-        (Sock,
-         Messages.Sec_WebSocket_Accept
-           (String (B64_From_SHA (Digest_A_String (Key & GUID)))));
+      declare
+         SHA : constant String := SHA1.Digest (Key & GUID);
+         --  The SHA-1 as a string
+         Hex  : Stream_Element_Array (1 .. SHA'Length / 2);
+         --  The SHA-1 as an hexadecimal array
+      begin
+         for K in 1 .. SHA'Length / 2 loop
+            Hex (Stream_Element_Offset (K)) :=
+              Stream_Element'Value ("16#" & SHA (K * 2 - 1 .. K * 2) & '#');
+         end loop;
+
+         Net.Buffered.Put_Line
+           (Sock,
+            Messages.Sec_WebSocket_Accept (Translator.Base64_Encode (Hex)));
+      end;
    end Send_Header;
 
 end AWS.Net.WebSocket.Protocol.RFC6455;
