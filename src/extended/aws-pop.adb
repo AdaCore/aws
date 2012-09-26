@@ -851,8 +851,8 @@ package body AWS.POP is
    -----------
 
    procedure Write (Attachment : POP.Attachment; Directory : String) is
-      use Streams;
       use AWS.Resources.Streams;
+      use Streams;
 
       Stream : Stream_Type renames Stream_Type (Attachment.Content.all);
 

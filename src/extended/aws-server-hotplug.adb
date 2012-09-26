@@ -133,9 +133,9 @@ package body AWS.Server.Hotplug is
 
          if String_Split.Slice_Count (Line) /= 4 then
             declare
-               Error_Message : constant String
-                 := Authorization_File & ": format error in line "
-                    & Natural'Image (N);
+               Error_Message : constant String :=
+                                 Authorization_File & ": format error in line "
+                                 & Natural'Image (N);
             begin
                Log.Write (Web_Server.Error_Log, Error_Message);
                raise Constraint_Error with Error_Message;
