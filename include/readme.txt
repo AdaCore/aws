@@ -4,13 +4,7 @@ distributed with AWS as a convenience but are not part of AWS.
 
 Note that all of them have a license compatible with AWS.
 
-* AI302/* are a preliminary version of the future Ada.Containers standard.
-  License GMGPL.
-
 * Strings_Cutter is from Pascal Obry.
-  License GMGPL.
-
-* MD5 implementation from GNAT.
   License GMGPL.
 
 * Memory_Streams generic package for sequential read/write data is from
@@ -42,7 +36,3 @@ Note that all of them have a license compatible with AWS.
 
 * ZLib-Ada Ada binding to ZLib is from Dmitriy Anisimkov.
   License GMGPL.
-
-* SHA implementation is from John Halleck.
-
-   Optional, not part of the AWS-HTTP distribution.

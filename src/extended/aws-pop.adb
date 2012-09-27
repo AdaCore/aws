@@ -32,7 +32,7 @@ with Ada.Strings.Fixed;
 with Ada.Unchecked_Deallocation;
 
 with GNAT.MD5;
-with Strings_Cutter;
+with GNAT.String_Split;
 
 with AWS.Headers.Set;
 with AWS.Headers.Values;
@@ -94,19 +94,22 @@ package body AWS.POP is
    --------
 
    function CC (Message : POP.Message; N : Natural := 0) return String is
+      use GNAT;
+
       CC_Values : constant String := Header (Message, "CC");
-      Cut_CC    : Strings_Cutter.Cut_String;
+      Cut_CC    : String_Split.Slice_Set;
    begin
       if N = 0 then
          return CC_Values;
 
       else
-         Strings_Cutter.Create (Cut_CC, CC_Values, ",");
+         String_Split.Create (Cut_CC, CC_Values, ",");
 
          declare
-            Result : constant String := Strings_Cutter.Field (Cut_CC, N);
+            Result : constant String :=
+                       String_Split.Slice
+                         (Cut_CC, String_Split.Slice_Number (N));
          begin
-            Strings_Cutter.Destroy (Cut_CC);
             return Strings.Fixed.Trim (Result, Strings.Both);
          end;
       end if;
@@ -799,19 +802,22 @@ package body AWS.POP is
    --------
 
    function To (Message : POP.Message; N : Natural := 0) return String is
+      use GNAT;
+
       To_Values : constant String := Header (Message, "To");
-      Cut_To    : Strings_Cutter.Cut_String;
+      Cut_To    : String_Split.Slice_Set;
    begin
       if N = 0 then
          return To_Values;
 
       else
-         Strings_Cutter.Create (Cut_To, To_Values, ",");
+         String_Split.Create (Cut_To, To_Values, ",");
 
          declare
-            Result : constant String := Strings_Cutter.Field (Cut_To, N);
+            Result : constant String :=
+                       String_Split.Slice
+                         (Cut_To, String_Split.Slice_Number (N));
          begin
-            Strings_Cutter.Destroy (Cut_To);
             return Strings.Fixed.Trim (Result, Strings.Both);
          end;
       end if;
@@ -845,8 +851,8 @@ package body AWS.POP is
    -----------
 
    procedure Write (Attachment : POP.Attachment; Directory : String) is
-      use Streams;
       use AWS.Resources.Streams;
+      use Streams;
 
       Stream : Stream_Type renames Stream_Type (Attachment.Content.all);
 
