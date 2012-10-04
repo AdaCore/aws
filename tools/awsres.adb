@@ -411,7 +411,7 @@ procedure AwsRes is
          raise Syntax_Error;
    end Parse_Command_Line;
 
-   Buffer : String (1 .. 100);
+   Buffer : String (1 .. 2_048);
    Last   : Natural;
 
 begin
