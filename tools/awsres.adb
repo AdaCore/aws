@@ -20,6 +20,7 @@
 --  files passed as argument.
 
 with Ada.Calendar;
+with Ada.Characters.Handling;
 with Ada.Command_Line;
 with Ada.Directories;
 with Ada.Integer_Text_IO;
@@ -360,7 +361,8 @@ procedure AwsRes is
       Map  : constant Strings.Maps.Character_Mapping :=
                Strings.Maps.To_Mapping (From, To);
    begin
-      return Strings.Fixed.Translate (Filename, Map);
+      return Characters.Handling.To_Lower
+        (Strings.Fixed.Translate (Filename, Map));
    end Package_Name;
 
    ------------------------
