@@ -19,6 +19,12 @@
 with "aws";
 
 project Deep_Res is
+
    for Source_Dirs use (".", "rout");
    for Main use ("deep_res.adb");
+
+   package Compiler is
+      for Default_Switches ("Ada") use ("-gnaty", "-gnatwe");
+   end Compiler;
+
 end Deep_Res;

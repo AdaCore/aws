@@ -144,6 +144,9 @@ procedure AwsRes is
       Text_IO.New_Line (O_File);
       Text_IO.Put_Line (O_File, Header);
       Text_IO.New_Line (O_File);
+      Text_IO.New_Line (O_File);
+      Text_IO.Put_Line (O_File, "pragma Style_Checks (Off);");
+      Text_IO.New_Line (O_File);
 
       Text_IO.Put_Line (O_File, "with Ada.Streams;");
       Text_IO.New_Line (O_File);
@@ -431,6 +434,8 @@ begin
 
    Text_IO.New_Line (R_File);
    Text_IO.Put_Line (R_File, Header);
+   Text_IO.New_Line (R_File);
+   Text_IO.Put_Line (R_File, "pragma Style_Checks (Off);");
    Text_IO.New_Line (R_File);
 
    Text_IO.New_Line (RT_File);
