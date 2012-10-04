@@ -144,7 +144,6 @@ procedure AwsRes is
       Text_IO.New_Line (O_File);
       Text_IO.Put_Line (O_File, Header);
       Text_IO.New_Line (O_File);
-      Text_IO.New_Line (O_File);
       Text_IO.Put_Line (O_File, "pragma Style_Checks (Off);");
       Text_IO.New_Line (O_File);
 
@@ -152,7 +151,7 @@ procedure AwsRes is
       Text_IO.New_Line (O_File);
 
       Text_IO.Put_Line (O_File, "package "
-                          & To_String (Root_Pck) & '.' & Unit_Name & " is");
+                        & To_String (Root_Pck) & '.' & Unit_Name & " is");
       Text_IO.New_Line (O_File);
 
       Text_IO.Put_Line (O_File, "   use Ada.Streams;");
