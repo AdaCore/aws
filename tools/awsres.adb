@@ -242,18 +242,34 @@ procedure AwsRes is
       Text_IO.Put_Line (RT_File, "         Register");
 
       declare
+         Max_Len : constant := 50;
+
          --  The resource name must not have back-slash
          F_Name : constant String :=
                     To_String (Prefix)
-                    & Strings.Fixed.Translate
-                      (Filename, Strings.Maps.To_Mapping ("\", "/"));
+                      & Strings.Fixed.Translate
+                          (Filename, Strings.Maps.To_Mapping ("\", "/"));
+         F, L   : Natural;
       begin
+         Text_IO.Put (RT_File, "            (""");
+
+         F := F_Name'First;
+
+         loop
+            L := Natural'Min (F_Name'Last, F + Max_Len);
+            Text_IO.Put (RT_File, F_Name (F .. L));
+            F := L + 1;
+
+            exit when F > F_Name'Last;
+
+            Text_IO.Put_Line (RT_File, """");
+            Text_IO.Put (RT_File, "             & """);
+         end loop;
+
          if Compress then
-            Text_IO.Put_Line
-              (RT_File, "            (""" & F_Name & ".gz"",");
+            Text_IO.Put_Line (RT_File, ".gz"",");
          else
-            Text_IO.Put_Line
-              (RT_File, "            (""" & F_Name & """,");
+            Text_IO.Put_Line (RT_File, """,");
          end if;
       end;
 
