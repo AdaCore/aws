@@ -20,6 +20,7 @@
 --  files passed as argument.
 
 with Ada.Calendar;
+with Ada.Characters.Handling;
 with Ada.Command_Line;
 with Ada.Directories;
 with Ada.Integer_Text_IO;
@@ -33,6 +34,7 @@ with Ada.Unchecked_Deallocation;
 with GNAT.Calendar.Time_IO;
 with GNAT.Command_Line;
 with GNAT.Regexp;
+with GNAT.SHA1;
 
 with AWS.Resources.Streams.Disk;
 with AWS.Resources.Streams.ZLib;
@@ -58,6 +60,7 @@ procedure AwsRes is
    Output   : Unbounded_String := To_Unbounded_String (".");
    Prefix   : Unbounded_String; --  prefix to resources names
    Quiet    : Boolean := False;
+   Ada_Name : Boolean := False;
 
    RT_File  : Text_IO.File_Type;
    --  Root temp file
@@ -143,12 +146,14 @@ procedure AwsRes is
       Text_IO.New_Line (O_File);
       Text_IO.Put_Line (O_File, Header);
       Text_IO.New_Line (O_File);
+      Text_IO.Put_Line (O_File, "pragma Style_Checks (Off);");
+      Text_IO.New_Line (O_File);
 
       Text_IO.Put_Line (O_File, "with Ada.Streams;");
       Text_IO.New_Line (O_File);
 
       Text_IO.Put_Line (O_File, "package "
-                          & To_String (Root_Pck) & '.' & Unit_Name & " is");
+                        & To_String (Root_Pck) & '.' & Unit_Name & " is");
       Text_IO.New_Line (O_File);
 
       Text_IO.Put_Line (O_File, "   use Ada.Streams;");
@@ -239,18 +244,34 @@ procedure AwsRes is
       Text_IO.Put_Line (RT_File, "         Register");
 
       declare
+         Max_Len : constant := 50;
+
          --  The resource name must not have back-slash
          F_Name : constant String :=
                     To_String (Prefix)
-                    & Strings.Fixed.Translate
-                      (Filename, Strings.Maps.To_Mapping ("\", "/"));
+                      & Strings.Fixed.Translate
+                          (Filename, Strings.Maps.To_Mapping ("\", "/"));
+         F, L   : Natural;
       begin
+         Text_IO.Put (RT_File, "            (""");
+
+         F := F_Name'First;
+
+         loop
+            L := Natural'Min (F_Name'Last, F + Max_Len);
+            Text_IO.Put (RT_File, F_Name (F .. L));
+            F := L + 1;
+
+            exit when F > F_Name'Last;
+
+            Text_IO.Put_Line (RT_File, """");
+            Text_IO.Put (RT_File, "             & """);
+         end loop;
+
          if Compress then
-            Text_IO.Put_Line
-              (RT_File, "            (""" & F_Name & ".gz"",");
+            Text_IO.Put_Line (RT_File, ".gz"",");
          else
-            Text_IO.Put_Line
-              (RT_File, "            (""" & F_Name & """,");
+            Text_IO.Put_Line (RT_File, """,");
          end if;
       end;
 
@@ -354,13 +375,22 @@ procedure AwsRes is
    ------------------
 
    function Package_Name (Filename : String) return String is
-      From : constant String := "./\";
-      To   : constant String := "___";
+      From : constant String := "./\-";
+      To   : constant String := "___x";
 
       Map  : constant Strings.Maps.Character_Mapping :=
                Strings.Maps.To_Mapping (From, To);
    begin
-      return Strings.Fixed.Translate (Filename, Map);
+      if Ada_Name then
+         return Characters.Handling.To_Lower
+           (Strings.Fixed.Translate (Filename, Map));
+
+      else
+         --  Else encode package name using SHA1, this it can start with a
+         --  digit prefix the result with "p_".
+
+         return "p_" & GNAT.SHA1.Digest (Filename);
+      end if;
    end Package_Name;
 
    ------------------------
@@ -373,9 +403,12 @@ procedure AwsRes is
         (Stop_At_First_Non_Switch => True);
 
       loop
-         case GNAT.Command_Line.Getopt ("r: h q z u o: p: R") is
+         case GNAT.Command_Line.Getopt ("a r: h q z u o: p: R") is
             when ASCII.NUL =>
                exit;
+
+            when 'a' =>
+               Ada_Name := True;
 
             when 'o' =>
                Output := To_Unbounded_String (GNAT.Command_Line.Parameter);
@@ -411,7 +444,7 @@ procedure AwsRes is
          raise Syntax_Error;
    end Parse_Command_Line;
 
-   Buffer : String (1 .. 100);
+   Buffer : String (1 .. 2_048);
    Last   : Natural;
 
 begin
@@ -429,6 +462,8 @@ begin
 
    Text_IO.New_Line (R_File);
    Text_IO.Put_Line (R_File, Header);
+   Text_IO.New_Line (R_File);
+   Text_IO.Put_Line (R_File, "pragma Style_Checks (Off);");
    Text_IO.New_Line (R_File);
 
    Text_IO.New_Line (RT_File);
@@ -534,6 +569,8 @@ exception
       Text_IO.Put_Line
         ("Usage : awsres [-hopqrRzu] file1/dir1 [-zu] [file2/dir2...]");
       Text_IO.New_Line;
+      Text_IO.Put_Line
+        ("        -a      : packages are named after the actual filenames");
       Text_IO.Put_Line
         ("        -h      : display help");
       Text_IO.Put_Line

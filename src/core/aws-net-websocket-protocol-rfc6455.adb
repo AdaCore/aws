@@ -377,7 +377,7 @@ package body AWS.Net.WebSocket.Protocol.RFC6455 is
       declare
          SHA : constant String := SHA1.Digest (Key & GUID);
          --  The SHA-1 as a string
-         Hex  : Stream_Element_Array (1 .. SHA'Length / 2);
+         Hex : Stream_Element_Array (1 .. SHA'Length / 2);
          --  The SHA-1 as an hexadecimal array
          --  ??? Use new service to retrieve the SHA-1 in binary format when
          --  GNAT GPL supports it.
