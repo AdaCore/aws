@@ -6466,6 +6466,9 @@ Usage: awsres [-hopqrRuz] file1/dir1 [-uz] [file2/dir2...]
 
 @table @code
 
+@item -a
+packages are named after the actual filenames
+
 @item -h
 Display help message.
 

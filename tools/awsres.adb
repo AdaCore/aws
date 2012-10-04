@@ -34,6 +34,7 @@ with Ada.Unchecked_Deallocation;
 with GNAT.Calendar.Time_IO;
 with GNAT.Command_Line;
 with GNAT.Regexp;
+with GNAT.SHA1;
 
 with AWS.Resources.Streams.Disk;
 with AWS.Resources.Streams.ZLib;
@@ -59,6 +60,7 @@ procedure AwsRes is
    Output   : Unbounded_String := To_Unbounded_String (".");
    Prefix   : Unbounded_String; --  prefix to resources names
    Quiet    : Boolean := False;
+   Ada_Name : Boolean := False;
 
    RT_File  : Text_IO.File_Type;
    --  Root temp file
@@ -379,8 +381,16 @@ procedure AwsRes is
       Map  : constant Strings.Maps.Character_Mapping :=
                Strings.Maps.To_Mapping (From, To);
    begin
-      return Characters.Handling.To_Lower
-        (Strings.Fixed.Translate (Filename, Map));
+      if Ada_Name then
+         return Characters.Handling.To_Lower
+           (Strings.Fixed.Translate (Filename, Map));
+
+      else
+         --  Else encode package name using SHA1, this it can start with a
+         --  digit prefix the result with "p_".
+
+         return "p_" & GNAT.SHA1.Digest (Filename);
+      end if;
    end Package_Name;
 
    ------------------------
@@ -393,9 +403,12 @@ procedure AwsRes is
         (Stop_At_First_Non_Switch => True);
 
       loop
-         case GNAT.Command_Line.Getopt ("r: h q z u o: p: R") is
+         case GNAT.Command_Line.Getopt ("a r: h q z u o: p: R") is
             when ASCII.NUL =>
                exit;
+
+            when 'a' =>
+               Ada_Name := True;
 
             when 'o' =>
                Output := To_Unbounded_String (GNAT.Command_Line.Parameter);
@@ -556,6 +569,8 @@ exception
       Text_IO.Put_Line
         ("Usage : awsres [-hopqrRzu] file1/dir1 [-zu] [file2/dir2...]");
       Text_IO.New_Line;
+      Text_IO.Put_Line
+        ("        -a      : packages are named after the actual filenames");
       Text_IO.Put_Line
         ("        -h      : display help");
       Text_IO.Put_Line
