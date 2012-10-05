@@ -58,13 +58,13 @@ procedure Deep_Res is
 
    D   : constant String :=
            "dir1_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
-           & "xxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
+           & "xxxxxxxxxxxxxxxxxxxxxxxx";
 
    SD  : constant String := D & '/' & "sdir_yyyyyyyyyyyyyyyyyyyyyy"
-           & "yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy";
+           & "yyyyyyyyyyyyyyyyyyyyyyyyyyyyyy";
 
    SSD : constant String := SD & '/' & "ssdir_zzzzzzzzzzzzzzzzzzz"
-           & "zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz";
+           & "zzzzzzzzzzzzzzzzzzzzzzzzzzzzzz";
 
 begin
    Test (SD & "/text3.txt");
