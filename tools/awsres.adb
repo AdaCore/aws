@@ -588,5 +588,5 @@ exception
       Text_IO.Put_Line
         ("        -q      : quiet mode");
 
-   Command_Line.Set_Exit_Status (Command_Line.Failure);
+      Command_Line.Set_Exit_Status (Command_Line.Failure);
 end AwsRes;
