@@ -23,6 +23,7 @@ with Ada.Calendar;
 with Ada.Characters.Handling;
 with Ada.Command_Line;
 with Ada.Directories;
+with Ada.Exceptions;
 with Ada.Integer_Text_IO;
 with Ada.Streams;
 with Ada.Strings.Fixed;
@@ -45,6 +46,7 @@ with ZLib;
 procedure AwsRes is
 
    use Ada;
+   use Ada.Exceptions;
    use Ada.Strings.Unbounded;
    use AWS;
 
@@ -133,7 +135,20 @@ procedure AwsRes is
 
       File_Time := Utils.File_Time_Stamp (Filename);
 
-      Text_IO.Create (O_File, Text_IO.Out_File, Output_Filename (Pck_Name));
+      begin
+         Text_IO.Create (O_File, Text_IO.Out_File, Output_Filename (Pck_Name));
+      exception
+         when Text_IO.Use_Error =>
+            Text_IO.New_Line;
+
+            if Ada_Name and Recursive then
+               raise Text_IO.Use_Error
+                 with "Filename too long, remove -a option when -R used";
+            else
+               raise Text_IO.Use_Error
+                 with "Cannot create embedded resource file";
+            end if;
+      end;
 
       RS.Disk.Open (RS.Disk.Stream_Type (I_File.all), Filename);
 
@@ -588,5 +603,10 @@ exception
       Text_IO.Put_Line
         ("        -q      : quiet mode");
 
-   Command_Line.Set_Exit_Status (Command_Line.Failure);
+      Command_Line.Set_Exit_Status (Command_Line.Failure);
+
+   when E : Text_IO.Use_Error =>
+      Text_IO.Put_Line (Exception_Message (E));
+
+      Command_Line.Set_Exit_Status (Command_Line.Failure);
 end AwsRes;
