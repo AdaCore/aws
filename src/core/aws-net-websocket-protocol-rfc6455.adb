@@ -86,7 +86,7 @@ package body AWS.Net.WebSocket.Protocol.RFC6455 is
       Payload_Length at 1 range 1 .. 7;
    end record;
 
-   pragma Warnings (On, "*reverse bit*");
+   pragma Warnings (On);
 
    type Masking_Key is new Stream_Element_Array (0 .. 3);
    for Masking_Key'Size use 32;
