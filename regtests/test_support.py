@@ -83,7 +83,7 @@ def gnatmake(prj):
 
 def gprbuild(prj):
     """Compile a project with gprbuild"""
-    cmd = ["gprbuild", "-p", "-cargs", "-gnat05", "-P" + prj,
+    cmd = ["gprbuild", "-p", "-gnat05", "-P" + prj,
            "-bargs", "-E"]
     if Env().testsuite_config.with_gprof:
         cmd = cmd + ["-cargs", "-pg", "-O2", "-largs", "-pg"]
