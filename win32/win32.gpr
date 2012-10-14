@@ -29,7 +29,7 @@ with "../shared";
 
 project Win32 is
 
-   case Shared.OS is
+   case Shared.S_Target is
       when "Windows_NT" =>
          for Languages use ("RC");
          for Source_Dirs use (".");

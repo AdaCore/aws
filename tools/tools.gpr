@@ -105,7 +105,7 @@ project Tools is
             null;
       end case;
 
-      case Shared.OS is
+      case Shared.S_Target is
          when "Windows_NT" =>
             for Default_Switches ("Ada")
                use Tools.Linker'Default_Switches ("Ada") &

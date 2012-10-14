@@ -25,15 +25,11 @@ ifeq  ($(ASIS), )
 ASIS=false
 endif
 
-ifeq  ($(TARGET), )
-TARGET=native
-endif
-
 ifneq  ($(ZLIB), true)
 ZLIB=false
 endif
 
-ifneq ($(TARGET), native)
+ifeq ($(PRJ_TARGET), vxworks)
 ifeq ($(ENABLE_SHARED), true)
 $(error shared libraries not supported on cross platforms)
 endif

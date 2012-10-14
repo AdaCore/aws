@@ -42,15 +42,10 @@ library project Src is
 
    --  For Windows OS native build add the Win32 directory
 
-   case Shared.Target is
-      when "native" =>
-         case Shared.OS is
-            when "Windows_NT" =>
-               for Languages use Project'Languages & ("C");
-               for Source_Dirs use Project'Source_Dirs & ("win32");
-            when others =>
-               null;
-         end case;
+   case Shared.S_Target is
+      when "Windows_NT" =>
+         for Languages use Project'Languages & ("C");
+         for Source_Dirs use Project'Source_Dirs & ("win32");
 
       when "vxworks" =>
          for Languages use Project'Languages & ("C");
@@ -68,7 +63,7 @@ library project Src is
          null;
 
       when "relocatable" =>
-         case Shared.OS is
+         case Shared.S_Target is
             when "Windows_NT" =>
                for Library_Options use ("-lwsock32", "-lws2_32");
             when others =>
@@ -77,7 +72,7 @@ library project Src is
 
          case Shared.LDAP is
             when "Installed" =>
-               case Shared.OS is
+               case Shared.S_Target is
                   when "Windows_NT" =>
                      for Library_Options use
                        Project'Library_Options & ("-lwldap32");
@@ -150,20 +145,18 @@ library project Src is
 
       --  Poll
 
-      case Shared.Target is
-           when "native" =>
-              case Shared.OS is
-                 when "Windows_NT" =>
-                    for Implementation ("AWS.Net.Poll_Events.Wait")
-                      use "aws-net-poll_events-wait__win32.adb";
-                 when others =>
-                    for Implementation ("AWS.Net.Poll_Events.Wait")
-                      use "aws-net-poll_events-wait__native.adb";
-              end case;
+      case Shared.S_Target is
+         when "Windows_NT" =>
+            for Implementation ("AWS.Net.Poll_Events.Wait")
+              use "aws-net-poll_events-wait__win32.adb";
 
            when "vxworks" =>
               for Implementation ("AWS.Net.Poll_Events.Wait")
                 use "aws-net-poll_events-wait__posix.adb";
+
+           when others =>
+              for Implementation ("AWS.Net.Poll_Events.Wait")
+                use "aws-net-poll_events-wait__native.adb";
       end case;
 
       --  SSL Lib

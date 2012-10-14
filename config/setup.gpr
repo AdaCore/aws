@@ -20,15 +20,15 @@ with "../shared";
 
 project Setup is
 
-   for Languages use ("C");
-   for Main use ("check_config.c");
+   for Languages use ("Ada");
+   for Main use ("xoscons.adb");
 
    for Source_Dirs use ("setup");
    for Object_Dir use "../" & Shared.Target_Dir & "/setup/obj";
    for Exec_Dir use "../" & Shared.Target_Dir & "/setup";
 
    package Compiler is
-      case Shared.OS is
+      case Shared.S_Target is
          when "Darwin" =>
             for Default_Switches ("C") use ("-fno-common");
          when others =>

@@ -23,9 +23,6 @@ abstract project Shared is
    type Build_Type is ("Debug", "Release");
    Build : Build_Type := external ("PRJ_BUILD", "Debug");
 
-   type OS_Type is ("UNIX", "Windows_NT", "Darwin");
-   OS : OS_Type := external ("OS", "UNIX");
-
    type Install_Status is ("Installed", "Disabled");
 
    Processors := External ("PROCESSORS", "2");
@@ -55,8 +52,10 @@ abstract project Shared is
    -- Target to build --
    ---------------------
 
-   type Target_Type is ("native", "vxworks");
-   Target : Target_Type := external ("PLATFORM", "native");
+   Target := external ("TARGET", "i686-pc-mingw32");
+
+   type S_Target_type is ("Windows_NT", "UNIX", "Darwin", "vxworks");
+   S_Target : S_Target_Type := external ("PRJ_TARGET");
 
    -----------------------
    -- Build directories --
@@ -141,7 +140,7 @@ abstract project Shared is
             for Default_Switches ("C") use ("-O2");
       end case;
 
-      case OS is
+      case S_Target is
          when "Darwin" =>
             for Default_Switches ("Ada")
               use Compiler'Default_Switches ("Ada") & ("-fno-common");

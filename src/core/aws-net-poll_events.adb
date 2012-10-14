@@ -137,7 +137,8 @@ package body AWS.Net.Poll_Events is
       use type C.long;
       use type OS_Lib.Events_Type;
       use type OS_Lib.FD_Type;
-      use type OS_Lib.timeval_field_t;
+      use type OS_Lib.timeval_tv_sec_t;
+      use type OS_Lib.timeval_tv_usec_t;
 
       function C_Select
         (Nfds      : C.int;
@@ -166,8 +167,9 @@ package body AWS.Net.Poll_Events is
 
       if Timeout >= 0 then
          Timeout_A := Timeout_V'Access;
-         Timeout_V.tv_sec  := OS_Lib.timeval_field_t  (Timeout / 1000);
-         Timeout_V.tv_usec := OS_Lib.timeval_field_t (Timeout rem 1000 * 1000);
+         Timeout_V.tv_sec  := OS_Lib.timeval_tv_sec_t  (Timeout / 1000);
+         Timeout_V.tv_usec :=
+           OS_Lib.timeval_tv_usec_t (Timeout rem 1000 * 1000);
       end if;
 
       FD_ZERO (Rfds);
