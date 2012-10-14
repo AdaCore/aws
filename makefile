@@ -72,12 +72,12 @@ all: build
 ALL_OPTIONS	= $(MAKE_OPT) SOCKET="$(SOCKET)" XMLADA="$(XMLADA)" \
 	ASIS="$(ASIS)" EXEEXT="$(EXEEXT)" LDAP="$(LDAP)" DEBUG="$(DEBUG)" \
 	RM="$(RM)" CP="$(CP)" MKDIR="$(MKDIR)" SED="$(SED)" GCC="$(GCC)" \
-	WINDRES="$(WINDRES)" GPRBUILD="$(GPRBUILD)" \
+	GPRBUILD="$(GPRBUILD)" ZLIB="$(ZLIB)" BDIR="$(BDIR)" \
 	NBDIR="$(NBDIR)" prefix="$(prefix)" ENABLE_SHARED="$(ENABLE_SHARED)" \
 	SOEXT="$(SOEXT)" BUILD_DOC_SCRIPT="false" GNAT="$(GNAT)" \
 	T2A="../../$(BDIR)/static/tools/templates2ada" \
 	LIBRARY_TYPE="$(LIBRARY_TYPE)" PYTHON="$(PYTHON)" \
-	BDIR="$(BDIR)" PLATFORM="$(PLATFORM)" ZLIB="$(ZLIB)" OS="$(OS)"
+	PLATFORM="$(PLATFORM)" OS="$(OS)"
 
 build_doc:
 	echo ""
