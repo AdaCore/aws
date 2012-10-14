@@ -54,7 +54,7 @@ package body AWS.Net.WebSocket.Protocol.RFC6455 is
    O_Ping             : constant Opcode := 16#9#;
    O_Pong             : constant Opcode := 16#A#;
 
-   pragma Warnings (Off, "*reverse bit*");
+   pragma Warnings (Off);
    --  This is needed to kill warnings on big-endian targets
 
    type Frame_Header is record
