@@ -1,11 +1,6 @@
 from test_support import *
 import os
 
-def create_res(name,content):
-    f=open(name,'w')
-    f.write(content)
-    f.close();
-
 os.mkdir('rout')
 
 name='dir_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'
