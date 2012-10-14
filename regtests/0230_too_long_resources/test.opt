@@ -1,1 +1,2 @@
 vxworks DEAD "require awsres"
+NT DEAD "filename = pathname limit"
