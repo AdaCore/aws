@@ -28,9 +28,10 @@ project DL_Lib is
 
    for Source_Files use ();
 
-   case Shared.OS is
-      when "Windows_NT" =>
+   case Shared.S_Target is
+      when "Windows_NT" | "vxworks" =>
          null;
+
       when others =>
          for Library_Dir use AWS_Lib_Shared.LIB_Path;
          for Library_Name use "dl";

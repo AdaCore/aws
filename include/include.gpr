@@ -56,7 +56,7 @@ library project Include is
               ("-gnat05", "-O2", "-gnatws", "-gnatn") & Shared.Global_Options;
       end case;
 
-      case Shared.OS is
+      case Shared.S_Target is
          when "Darwin" =>
             for Default_Switches ("Ada")
               use Compiler'Default_Switches ("Ada") & ("-fno-common");

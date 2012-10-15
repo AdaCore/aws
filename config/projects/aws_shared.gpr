@@ -26,10 +26,7 @@ abstract project AWS_Shared is
    Library_Type : Library_Kind :=
       external ("LIBRARY_TYPE", AWS_Config.Default_Library_Type);
 
-   type Target_Type is ("native", "vxworks");
-   Target : Target_Type := external ("PLATFORM", AWS_Config.Default_Target);
-
-   for Library_Dir use "../../aws/" & Target & "/" & Library_Type;
+   for Library_Dir use "../../aws/" & Library_Type;
 
    ------------
    -- Naming --

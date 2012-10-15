@@ -22,12 +22,11 @@ LIBGPR	= ../$(BDIR)/../../projects/aws_lib_shared.gpr
 LPATH	= $(dir $(shell $(GCC) -print-file-name=libssl.a))
 ZPATH	= $(dir $(shell $(GCC) -print-file-name=libz.a))
 SDIR	= ../$(BDIR)/../setup
-NSDIR	= ../$(NBDIR)/../setup
 
 #  For native platforms check if the Zlib is working fine and has a correct
 #  version. For embedded platforms we only check if the static libz exists.
 
-ifeq (${PLATFORM}, native)
+ifneq (${PRJ_TARGET}, vxworks)
 ifeq (${ZLIB}, false)
 ZPATH = ./
 endif
@@ -36,16 +35,14 @@ endif
 $(SDIR)/src:
 	$(MKDIR) -p $(SDIR)/src
 
-ifneq ($(PLATFORM), native)
-$(NSDIR)/src:
-	$(MKDIR) -p $(NSDIR)/src
+ifeq ($(PRJ_TARGET)), vxworks)
+$(SDIR)/src:
+	$(MKDIR) -p $(SDIR)/src
 endif
 
-$(NSDIR)/check_config$(EXEEXT): $(NSDIR)/src setup/check_config.c
-ifeq ($(PLATFORM), native)
+$(SDIR)/xoscons$(EXEEXT): $(SDIR)/src setup/xoscons.adb
 	-$(GPRBUILD) -p -XPRJ_BUILD=Debug -XLIBRARY_TYPE=static \
-		-XPLATFORM=native -XOS=$(OS) -Psetup
-endif
+		-XPRJ_TARGET=$(PRJ_TARGET) -XTARGET=$(TARGET) -Psetup xoscons
 
 setup_extlib:
 	echo "project AWS_Lib_Shared is" > $(LIBGPR)
@@ -65,7 +62,7 @@ ifeq (${SOCKET}, std)
 else
 	echo '   LIB_Path := "${LPATH}";' >> $(LIBGPR)
 	echo '   S_SSL_Lib := "ssl";' >> $(LIBGPR)
-ifeq (${OS}, Windows_NT)
+ifeq (${PRJ_TARGET}, Windows_NT)
 	echo '   R_SSL_Lib := "ssl32";' >> $(LIBGPR)
 	echo '   S_CRY_Lib := "crypto";' >> $(LIBGPR)
 	echo '   R_CRY_Lib := "eay32";' >> $(LIBGPR)
@@ -81,7 +78,11 @@ endif
 endif
 	echo '   --  libz' >> $(LIBGPR)
 ifeq (${ZPATH}, ./)
-	echo '   LIBZ_Path := "${prefix}/lib/aws/$(PLATFORM)/static";' >> $(LIBGPR)
+ifeq ($(IS_CROSS), false)
+	echo '   LIBZ_Path := "${prefix}/lib/aws/static";' >> $(LIBGPR)
+else
+	echo '   LIBZ_Path := "${prefix}/$(TARGET)/lib/aws/static";' >> $(LIBGPR)
+endif
 else
 	echo '   LIBZ_Path := "${ZPATH}";' >> $(LIBGPR)
 endif
@@ -89,18 +90,28 @@ endif
 
 force: ;
 
-setup: $(NSDIR)/src/aws-os_lib.ads setup_extlib
+setup: $(SDIR)/src/aws-os_lib.ads setup_extlib
 
-$(NSDIR)/src/aws-os_lib.ads: $(SDIR)/src $(NSDIR)/check_config$(EXEEXT) force
+$(SDIR)/src/aws-os_lib.ads: $(SDIR)/src $(SDIR)/xoscons$(EXEEXT) force
 	echo Setup OS specific definitions
-ifeq ($(PLATFORM), native)
-	$(NSDIR)/check_config$(EXEEXT) $(NSDIR)/src/aws-os_lib.ads
+	$(CP) setup/aws-os_lib-tmplt.c $(SDIR)/src
+ifeq ($(IS_CROSS), true)
+	( cd $(SDIR)/src; \
+		$(TARGET)-gcc -C -E -DTARGET=\"$(TARGET)\" aws-os_lib-tmplt.c  \
+			> aws-os_lib-tmplt.i; \
+		$(TARGET)-gcc -S aws-os_lib-tmplt.i; \
+		../xoscons aws-os_lib )
 else
-	$(CP) src/aws-os_lib__$(PLATFORM).ads $(SDIR)/src/aws-os_lib.ads
+	( cd $(SDIR)/src; \
+		gcc -C -E -DTARGET=\"$(TARGET)\" aws-os_lib-tmplt.c  \
+			> aws-os_lib-tmplt.i; \
+		gcc -S aws-os_lib-tmplt.i; \
+		../xoscons aws-os_lib )
 endif
+	$(RM) -f $(SDIR)/src/aws-os_lib-tmplt*
 
 install:
-	$(CP) $(SDIR)/src/aws-os_lib.ads $(DESTDIR)$(TI_INC)
+	$(CP) $(SDIR)/src/aws-os_lib.ads $(DESTDIR)$(I_INC)
 	$(CP) src/aws-net-*__* $(DESTDIR)$(I_INC)
 	$(CP) ssl/aws-net-ssl*__* $(DESTDIR)$(I_INC)
 	$(CP) ssl/ssl-thin__* $(DESTDIR)$(I_INC)

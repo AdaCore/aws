@@ -24,8 +24,8 @@ library project AWS_Libz is
 
    for Source_Files use ();
 
-   case AWS_Shared.Target is
-      when "native" =>
+   case AWS_Config.PRJ_TARGET is
+      when "Windows_NT" | "Darwin" | "UNIX" =>
          for Library_Name use "z";
          for Library_Dir use AWS_Lib_Shared.Libz_Path;
          for Library_Kind use AWS_Shared.Library_Type;

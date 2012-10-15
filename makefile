@@ -26,24 +26,21 @@ BROOTDIR=.build
 include makefile.conf
 #  default setup
 
--include makefile.setup
-#  user setup
-
 include makefile.checks
 #  consistency checks
 
 LIBRARY_TYPE = static
 
-ifeq (${OS}, Windows_NT)
+ifeq (${PRJ_TARGET}, Windows_NT)
 EXEEXT	= .exe
 SOEXT	= .dll
 OS      = Windows_NT
 else
-ifeq ($(UNAME), Darwin)
+ifeq ($(PRJ_TARGET), Darwin)
 SOEXT   = .dylib
 OS      = Darwin
 else
-ifeq ($(UNAME), HP-UX)
+ifeq ($(PRJ_TARGET), HP-UX)
 SOEXT	= .sl
 else
 SOEXT	= .so
@@ -55,12 +52,10 @@ endif
 
 ifeq ($(DEBUG), true)
 MAKE_OPT	=
-BDIR		= $(BROOTDIR)/$(PLATFORM)/debug
-NBDIR           = $(BROOTDIR)/native/debug
+BDIR		= $(BROOTDIR)/$(TARGET)/debug
 else
 MAKE_OPT	= -s
-BDIR		= $(BROOTDIR)/$(PLATFORM)/release
-NBDIR           = $(BROOTDIR)/native/release
+BDIR		= $(BROOTDIR)/$(TARGET)/release
 endif
 
 #############################################################################
@@ -73,11 +68,11 @@ ALL_OPTIONS	= $(MAKE_OPT) SOCKET="$(SOCKET)" XMLADA="$(XMLADA)" \
 	ASIS="$(ASIS)" EXEEXT="$(EXEEXT)" LDAP="$(LDAP)" DEBUG="$(DEBUG)" \
 	RM="$(RM)" CP="$(CP)" MKDIR="$(MKDIR)" SED="$(SED)" GCC="$(GCC)" \
 	GPRBUILD="$(GPRBUILD)" ZLIB="$(ZLIB)" BDIR="$(BDIR)" \
-	NBDIR="$(NBDIR)" prefix="$(prefix)" ENABLE_SHARED="$(ENABLE_SHARED)" \
+	prefix="$(prefix)" ENABLE_SHARED="$(ENABLE_SHARED)" \
 	SOEXT="$(SOEXT)" BUILD_DOC_SCRIPT="false" GNAT="$(GNAT)" \
 	T2A="../../$(BDIR)/static/tools/templates2ada" \
 	LIBRARY_TYPE="$(LIBRARY_TYPE)" PYTHON="$(PYTHON)" \
-	PLATFORM="$(PLATFORM)" OS="$(OS)"
+	TARGET="$(TARGET)" IS_CROSS=$(IS_CROSS)
 
 build_doc:
 	echo ""
@@ -152,30 +147,26 @@ else
 PRJ_BUILD=Release
 endif
 
-#  Target PLATFORM is the option for gprbuild --target option, PLATFORM is
-#  the name used in the project file.
-
-ifeq ($(strip $(findstring vxworks, $(TARGET))),vxworks)
-   PLATFORM=vxworks
+ifeq ($(IS_CROSS), true)
+TPREFIX=$(prefix)/$(TARGET)
 else
-   PLATFORM=$(TARGET)
+TPREFIX=$(prefix)
 endif
 
 #  Install directories
 
-I_BIN	= $(prefix)/bin
-I_INC	= $(prefix)/include/aws
-TI_INC	= $(prefix)/include/aws/$(PLATFORM)
-I_CPN	= $(prefix)/include/aws/components
-I_LIB	= $(prefix)/lib/aws/$(PLATFORM)
-I_GPR	= $(prefix)/lib/gnat
-I_AGP	= $(prefix)/lib/gnat/aws
-I_TPL	= $(prefix)/share/examples/aws/templates
-I_IMG	= $(prefix)/share/examples/aws/images
-I_SBN	= $(prefix)/share/examples/aws/bin
-I_WEL	= $(prefix)/share/examples/aws/web_elements
-I_DOC	= $(prefix)/share/doc/aws
-I_PLG	= $(prefix)/share/gps/plug-ins
+I_BIN	= $(TPREFIX)/bin
+I_INC	= $(TPREFIX)/include/aws
+I_CPN	= $(TPREFIX)/include/aws/components
+I_LIB	= $(TPREFIX)/lib/aws
+I_GPR	= $(TPREFIX)/lib/gnat
+I_AGP	= $(TPREFIX)/lib/gnat/aws
+I_TPL	= $(TPREFIX)/share/examples/aws/templates
+I_IMG	= $(TPREFIX)/share/examples/aws/images
+I_SBN	= $(TPREFIX)/share/examples/aws/bin
+I_WEL	= $(TPREFIX)/share/examples/aws/web_elements
+I_DOC	= $(TPREFIX)/share/doc/aws
+I_PLG	= $(TPREFIX)/share/gps/plug-ins
 
 GALL_OPTIONS := $(ALL_OPTIONS) \
 	PRJ_BUILD="$(PRJ_BUILD)" \
@@ -183,11 +174,10 @@ GALL_OPTIONS := $(ALL_OPTIONS) \
 	PRJ_ASIS="$(PRJ_ASIS)" \
 	PRJ_SOCKLIB="$(PRJ_SOCKLIB)" \
 	PRJ_LDAP="$(PRJ_LDAP)" \
+	PRJ_TARGET="$(PRJ_TARGET)" \
 	TP_XMLADA="$(TP_XMLADA)" \
-	PLATFORM="$(PLATFORM)" \
 	I_BIN="$(I_BIN)" \
 	I_INC="$(I_INC)" \
-	TI_INC="$(TI_INC)" \
 	I_CPN="$(I_CPN)" \
 	I_LIB="$(I_LIB)" \
 	I_GPR="$(I_GPR)" \
@@ -210,32 +200,33 @@ ${MODULES_CHECK}: force
 
 GPROPTS = -XPRJ_BUILD=$(PRJ_BUILD) -XPRJ_SOCKLIB=$(PRJ_SOCKLIB) \
 		-XPRJ_ASIS=$(PRJ_ASIS) -XPRJ_LDAP=$(PRJ_LDAP) \
-		-XPRJ_XMLADA=$(PRJ_XMLADA) -XSOCKET=$(SOCKET) \
-		-XPROCESSORS=$(PROCESSORS)
+		-XPRJ_XMLADA=$(PRJ_XMLADA) -XTARGET=$(TARGET) \
+		-XPROCESSORS=$(PROCESSORS) -XSOCKET=$(SOCKET) \
+		-XPRJ_TARGET=$(PRJ_TARGET)
 
 #######################################################################
 #  build
 
 build-native:
-	$(GPRBUILD) -p $(GPROPTS) -XPLATFORM=native \
-		-XLIBRARY_TYPE=static tools/tools.gpr
+	$(GPRBUILD) -p $(GPROPTS) -XLIBRARY_TYPE=static tools/tools.gpr
 ifeq (${ENABLE_SHARED}, true)
-	$(GPRBUILD) -p $(GPROPTS) -XPLATFORM=native \
-		-XLIBRARY_TYPE=relocatable src/src.gpr
+	$(GPRBUILD) -p $(GPROPTS) -XLIBRARY_TYPE=relocatable src/src.gpr
 endif
-	$(GPRBUILD) -p $(GPROPTS) -XPLATFORM=native \
-		-XLIBRARY_TYPE=static gps/gps_support.gpr
+	$(GPRBUILD) -p $(GPROPTS) -XLIBRARY_TYPE=static gps/gps_support.gpr
 	${MAKE} -C gps $(GALL_OPTIONS) after-build
 
 build-cross:
 	$(GPRBUILD) -p --target=$(TARGET) $(GPROPTS) \
-		-XPLATFORM=$(PLATFORM) -XLIBRARY_TYPE=static \
-		src/src.gpr
+		-XLIBRARY_TYPE=static tools/tools.gpr
+ifeq (${ENABLE_SHARED}, true)
+	$(GPRBUILD) -p --target=$(TARGET) $(GPROPTS) \
+		-XLIBRARY_TYPE=relocatable src/src.gpr
+endif
 
-ifeq (${TARGET}, native)
-build: build-native
-else
+ifeq (${IS_CROSS}, true)
 build: build-cross
+else
+build: build-native
 endif
 
 #######################################################################
@@ -249,13 +240,13 @@ endif
 	-$(GPRCLEAN) $(GPROPTS) -XLIBRARY_TYPE=static gps/gps_support.gpr
 
 clean-cross:
-	-$(GPRCLEAN) $(GPROPTS) --target=$(TARGET) -XLIBRARY_TYPE=static \
-		-XPLATFORM=$(PLATFORM) src/src.gpr
+	-$(GPRCLEAN) $(GPROPTS) --target=$(TARGET) \
+		-XLIBRARY_TYPE=static src/src.gpr
 
-ifeq (${TARGET}, native)
-clean: clean-native
-else
+ifeq (${IS_CROSS}, true)
 clean: clean-cross
+else
+clean: clean-native
 endif
 	-${MAKE} -C regtests $(GALL_OPTIONS) clean
 	-${MAKE} -C docs $(GALL_OPTIONS) clean
@@ -329,14 +320,9 @@ endif
 	echo '   Default_Library_Type := "'$(DEFAULT_LIBRARY_TYPE)'";' \
 		>> $(CONFGPR)
 	echo >> $(CONFGPR)
-	echo '   Default_Target := "'$(DEFAULT_TARGET)'";' >> $(CONFGPR)
-	echo >> $(CONFGPR)
-	echo '   type OS_Type is ("Windows_NT", "UNIX");' >> $(CONFGPR)
-ifeq ($(OS), Windows_NT)
-	echo '   OS : OS_Type := "Windows_NT";' >> $(CONFGPR)
-else
-	echo '   OS : OS_Type := "UNIX";' >> $(CONFGPR)
-endif
+	echo '   type Target_Type is ' >> $(CONFGPR)
+	echo '     ("Windows_NT", "Darwin", "UNIX", "vxworks");' >> $(CONFGPR)
+	echo '   PRJ_TARGET : Target_Type := "'$(PRJ_TARGET)'";' >> $(CONFGPR)
 	echo >> $(CONFGPR)
 	echo 'end AWS_Config;' >> $(CONFGPR)
 	echo 'pragma Source_File_Name' >> $(CONFADC)
@@ -367,7 +353,6 @@ setup_modules: $(MODULES_SETUP)
 gen_setup:
 	echo "prefix=$(prefix)" > makefile.setup
 	echo "DEFAULT_LIBRARY_TYPE=$(DEFAULT_LIBRARY_TYPE)" >> makefile.setup
-	echo "DEFAULT_TARGET=$(DEFAULT_TARGET)" >> makefile.setup
 	echo "ENABLE_SHARED=$(ENABLE_SHARED)" >> makefile.setup
 	echo "ZLIB=$(ZLIB)" >> makefile.setup
 	echo "XMLADA=$(XMLADA)" >> makefile.setup
@@ -385,7 +370,7 @@ setup_tp:
 	$(MAKE) -C templates_parser setup $(GALL_OPTIONS)
 
 install_clean:
-	$(RM) -fr $(DESTDIR)$(I_INC)/$(PLATFORM)
+	$(RM) -fr $(DESTDIR)$(I_INC)/$(TARGET)
 	$(RM) -fr $(DESTDIR)$(I_LIB)
 	$(RM) -fr $(DESTDIR)$(I_AGP)
 	$(RM) -fr $(DESTDIR)$(prefix)/share/examples/aws
@@ -395,7 +380,6 @@ install_clean:
 install_dirs: install_clean
 	$(MKDIR) -p $(DESTDIR)$(I_BIN)
 	$(MKDIR) -p $(DESTDIR)$(I_INC)
-	$(MKDIR) -p $(DESTDIR)$(TI_INC)
 	$(MKDIR) -p $(DESTDIR)$(I_CPN)
 	$(MKDIR) -p $(DESTDIR)$(I_LIB)/static
 ifeq (${ENABLE_SHARED}, true)
