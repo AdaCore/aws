@@ -477,6 +477,9 @@ procedure XOSCons is
       Value1 : Int_Value_Type;
       Value2 : Int_Value_Type;
       Res    : Boolean;
+
+   --  Start of processing for Parse_Cond
+
    begin
       Create (Sline, If_Line, " ");
 
@@ -491,15 +494,17 @@ procedure XOSCons is
          Res := Cond and (Value1 > Value2);
 
       elsif Slice (Sline, 3) = "<" then
-         Res := Cond and (Value1.Abs_Value < Value2.Abs_Value);
+         Res := Cond and (Value1 < Value2);
 
       elsif Slice (Sline, 3) = "=" then
-         Res := Cond and (Value1.Abs_Value = Value2.Abs_Value);
+         Res := Cond and (Value1 = Value2);
 
       elsif Slice (Sline, 3) = "/=" then
-         Res := Cond and (Value1.Abs_Value /= Value2.Abs_Value);
+         Res := Cond and (Value1 /= Value2);
+
       else
-         --  All others operators are not recognized
+         --  No other operator can be used
+
          Put_Line (Standard_Error, "unknown operator in " & If_Line);
          Res := False;
       end if;
