@@ -8,9 +8,9 @@ def create_res(name,content):
 
 os.mkdir('rout')
 
-D='dir1_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'
-SD=D + '/' + 'sdir_yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy'
-SSD=SD + '/' + 'ssdir_zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz'
+D='dir1_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'
+SD=D + '/' + 'sdir_yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy'
+SSD=SD + '/' + 'ssdir_zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz'
 
 os.mkdir(D)
 os.mkdir(SD)
