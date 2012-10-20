@@ -1,10 +1,10 @@
 
                             A W S - Ada Web Server
-                           2.11.0 release / SOAP 1.5
+                           3.1.0 release / SOAP 1.5
 
 Authors:
    Dmitriy Anisimkov
-   Pascal Obry                                          September 21st, 2011
+   Pascal Obry                                          October 20th, 2012
 
 
 
@@ -119,7 +119,7 @@ Templates_Parser sources:
 
 GNU/Ada - GNAT
 
-   You need at least GNAT 2009 GPL Edition or GNAT Pro 6.2.1.
+   You need at least GNAT 2012 GPL Edition or GNAT Pro 7.0
 
    http://libre.adacore.com/GNAT/
 
