@@ -1,4 +1,4 @@
-Known Problems fixed in AWS 2.11
+Known Problems fixed in AWS 3.0
 
 - L502-004 : Constraint error in Translator.To_String
   Problem:    When the bounds of the Stream_Element_Array parameter are

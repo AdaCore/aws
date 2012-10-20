@@ -1,6 +1,6 @@
-==========================
-AWS 2.11 NEW FEATURES LIST
-==========================
+=========================
+AWS 3.0 NEW FEATURES LIST
+=========================
 
 Copyright (C) 2006-2012, AdaCore
 
@@ -12,23 +12,23 @@ An ISO date (YYYY-MM-DD) appears in parentheses after the
 description line. This date shows the implementation date
 of the feature.
 
-New features in AWS 2.11
-------------------------
+New features in AWS 3.0
+-----------------------
 
-NF-211-L814-008 Add progress support for client upload (2012-09-18)
+NF-300-L814-008 Add progress support for client upload (2012-09-18)
 
    An upload progress has been added for the AWS.Client.Upload API.
 
-NF-211-L914-020 Improve awsres (2012-09-17)
+NF-300-L914-020 Improve awsres (2012-09-17)
 
    The awsres tool now supports recursivity and has a way to specify the
    output directory for the generated files.
 
-NF-211-L813-027 Add support for certificate's serial number (2012-08-14)
+NF-300-L813-027 Add support for certificate's serial number (2012-08-14)
 
    It is now possible to retrieve a certificate serial number.
 
-NF-211-L813-020 Add option to control the session's id length (2012-08-13)
+NF-300-L813-020 Add option to control the session's id length (2012-08-13)
 
    This option controls the length in characters of the generated
    session id. The default size is not changed but it is now possible
@@ -36,56 +36,56 @@ NF-211-L813-020 Add option to control the session's id length (2012-08-13)
    size of this id to improve the security and lesser the collision
    probability.
 
-NF-211-L810-003 Add support for Certificate Revocation List (2012-08-13)
+NF-300-L810-003 Add support for Certificate Revocation List (2012-08-13)
 
    Add support for Certificate Revocation List (CRL) on a certificate
    authority. Once a client's certificate is revoked and the CRL created
    on the server the corresponding client won't be able to connect to
    the server.
 
-NF-211-L725-030 Add support for client certificate verification (2012-08-08)
+NF-300-L725-030 Add support for client certificate verification (2012-08-08)
 
    Add support for verification of client's certificate and Certificate
    Authority. This is the highest level of security when strong
    authentication of client connecting to a server is required.
 
-NF-211-L608-003 Add support for WebSocket (2012-06-25)
+NF-300-L608-003 Add support for WebSocket (2012-06-25)
 
    Add support for the WebSocket bi-directional protocol between
    Web Browsers and AWS Web server.
 
-NF-211-L523-018 Support for EXTENDS and BLOCKS in templates parser (2012-05-24)
+NF-300-L523-018 Support for EXTENDS and BLOCKS in templates parser (2012-05-24)
 
    The templates parser now supports including a file while substituting
    parts of it.
 
-NF-211-L402-023 Implement URL.Resolve function for URL resolution (2012-05-12)
+NF-300-L402-023 Implement URL.Resolve function for URL resolution (2012-05-12)
 
    AWS.URL.Resolve function was implemented using RFC 3956 Section 5.2.
 
-NF-211-L301-022 Add support for session cookies (2012-03-05)
+NF-300-L301-022 Add support for session cookies (2012-03-05)
 
    A session cookie is one without a Max-Age attribute. Such cookies
    expire when the web browser is closed.
 
-NF-211-L221-032 AWS now supports IPv6 (2012-02-21)
+NF-300-L221-032 AWS now supports IPv6 (2012-02-21)
 
    AWS now supports IPv6, to enable IPv6 support:
 
       $ make IPv6=true setup
 
-NF-211-L120-005 Add support for limiting HTTP POST parameters (2012-02-08)
+NF-300-L120-005 Add support for limiting HTTP POST parameters (2012-02-08)
 
    It is now possible to limit the maximum number of POST parameters
    that AWS will handle. This is a per server configuration option
    whose default value is set to 100.
 
-NF-211-KB29-027 Add support for external log handling (2011-11-18)
+NF-300-KB29-027 Add support for external log handling (2011-11-18)
 
    It is now possible to provide callback routines for the log module.
    From there it is possible to store log data into a database or into
    syslog if needed.
 
-NF-211-K914-009 Templates parser now supports Utf-8 BOM (2011-10-27)
+NF-300-K914-009 Templates parser now supports Utf-8 BOM (2011-10-27)
 
    The templates parser now support files with leading Utf-8 BOM.

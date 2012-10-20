@@ -119,7 +119,7 @@ Templates_Parser sources:
 
 GNU/Ada - GNAT
 
-   You need at least GNAT 2009 GPL Edition or GNAT Pro 6.2.1.
+   You need at least GNAT 2012 GPL Edition or GNAT Pro 7.0
 
    http://libre.adacore.com/GNAT/
 
