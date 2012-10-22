@@ -1,5 +1,5 @@
 s,@_UNDERSCORE_@,_,g
-s,@_AWS_VERSION_@,2.11.0w,g
+s,@_AWS_VERSION_@,3.0.0,g
 s,@_SOAP_VERSION_@,1.5.0,g
 s,@_MAX_CONCURRENT_DOWNLOAD_@,25,g
 s,@_MAX_CONNECT_@,5,g
