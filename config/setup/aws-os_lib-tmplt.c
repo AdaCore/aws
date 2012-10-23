@@ -436,6 +436,44 @@ CND(FIONREAD, "How many bytes to read")
 
 /*
 
+   ---------------------------------------
+   -- getaddrinfo getnameinfo constants --
+   ---------------------------------------
+
+*/
+
+#ifndef AI_PASSIVE
+# define AI_PASSIVE -1
+#endif
+CND(AI_PASSIVE, "NULL nodename for accepting")
+
+#ifndef AI_CANONNAME
+# define AI_CANONNAME -1
+#endif
+CND(AI_CANONNAME, "Get the host official name")
+
+#ifndef AI_NUMERICSERV
+# define AI_NUMERICSERV -1
+#endif
+CND(AI_NUMERICSERV, "Service is a numeric string")
+
+#ifndef AI_NUMERICHOST
+# define AI_NUMERICHOST -1
+#endif
+CND(AI_NUMERICHOST, "Node is a numeric IP address")
+
+#ifndef EAI_SYSTEM
+# define EAI_SYSTEM -1
+#endif
+CND(EAI_SYSTEM, "Check errno for details")
+
+#ifndef NI_NUMERICHOST
+# define NI_NUMERICHOST -1
+#endif
+CND(NI_NUMERICHOST, "Numeric form of the hostname")
+
+/*
+
    ------------------
    -- Errno values --
    ------------------
@@ -538,6 +576,13 @@ CND(AF_INET, "IPv4 address family")
 # define HAVE_AF_INET6 1
 #endif
 CND(AF_INET6, "IPv6 address family")
+
+#ifndef AF_UNSPEC
+# define AF_UNSPEC -1
+#else
+# define HAVE_AF_UNSPEC 1
+#endif
+CND(AF_UNSPEC, "Unspecified address family")
 
 /*
 
