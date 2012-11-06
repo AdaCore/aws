@@ -184,7 +184,7 @@ package body AWS.LDAP.Client is
    ----------
 
    procedure Bind
-     (Dir      : in out Directory;
+     (Dir      : Directory;
       Login    : String;
       Password : String)
    is
@@ -200,7 +200,6 @@ package body AWS.LDAP.Client is
       Free (C_Password);
 
       if Res /= Thin.LDAP_SUCCESS then
-         Dir := Null_Directory;
          Raise_Error (Res, "Bind failed");
       end if;
    end Bind;

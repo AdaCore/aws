@@ -171,7 +171,7 @@ package AWS.LDAP.Client is
    --  server. Returns Null_Directory in case of error.
 
    procedure Bind
-     (Dir      : in out Directory;
+     (Dir      : Directory;
       Login    : String;
       Password : String);
    --  Bind to the server by providing a login and password
