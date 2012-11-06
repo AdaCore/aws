@@ -1,2 +1,6 @@
 Known Problems fixed in AWS 3.1
 
+- LB06-009: Memory leak in AWS.Client.LDAP.Bind
+  Problem:    When the connection is rejected it is not possible to
+              reclaim the memory associated with the LDAP structure.
+  Workaround: Copy the LDAP stucture before calling Bind.
