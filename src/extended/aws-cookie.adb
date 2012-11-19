@@ -159,7 +159,8 @@ package body AWS.Cookie is
       if Max_Age /= No_Max_Age then
          Append
            (Cookie_UString,
-            Messages.Max_Age_Token & "=" & Utils.Image (Max_Age) & "; ");
+            Messages.Max_Age_Token & "="
+            & Utils.Image (Natural (Max_Age)) & "; ");
       end if;
 
       if Comment /= "" then
