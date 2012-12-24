@@ -47,7 +47,7 @@ package AWS.Services.Dispatchers.URI is
       Action     : AWS.Dispatchers.Handler'Class;
       Prefix     : Boolean := False);
    --  Register URI to use the specified dispatcher. URI is the full string
-   --  that must match the ressource requested (with the leading /). If Prefix
+   --  that must match the resource requested (with the leading /). If Prefix
    --  is True, only the URI prefix is checked.
 
    procedure Register
@@ -62,7 +62,7 @@ package AWS.Services.Dispatchers.URI is
       URI        : String;
       Action     : AWS.Dispatchers.Handler'Class);
    --  Register URI to use the specified dispatcher. URI is a regular
-   --  expression that must match the ressource requested (with the leading /).
+   --  expression that must match the resource requested (with the leading /).
 
    procedure Register_Regexp
      (Dispatcher : in out Handler;

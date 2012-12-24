@@ -56,7 +56,7 @@ package AWS.Dispatchers is
 
    function Ref_Counter (Dispatcher : Handler) return Natural;
    --  Returns the reference counter for Handler. If 0 is returned then this
-   --  object is not referenced anymore, it is safe to deallocate ressources.
+   --  object is not referenced anymore, it is safe to deallocate resources.
 
    type Handler_Class_Access is access all Handler'Class;
 

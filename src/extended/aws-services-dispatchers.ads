@@ -39,7 +39,7 @@ package AWS.Services.Dispatchers is
    --  five of them:
    --
    --  URI (AWS.Services.Dispatchers.URI)
-   --     to dispatch to a callback depending of the ressource name.
+   --     to dispatch to a callback depending of the resource name.
    --
    --  Method (AWS.Services.Dispatchers.Method)
    --     to dispatch to a callback depending of the request method.

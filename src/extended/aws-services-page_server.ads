@@ -30,13 +30,13 @@
 --  The Callback is an implementation of a simple static Web page server. It
 --  will return the Web pages found in the Web server directory. If directory
 --  browsing is activated, it will be possible to browse directory content if
---  the requested ressource is a directory. There is two specials files that
+--  the requested resource is a directory. There is two specials files that
 --  are recognized:
 --
 --    404.thtml              The Web page returned if the requested page is
 --                           not found. This is a template with a single tag
 --                           variable named PAGE. It will be replaced by the
---                           ressource which was not found.
+--                           resource which was not found.
 --
 --                           Note that on Microsoft IE this page will be
 --                           displayed only if the total page size is bigger
