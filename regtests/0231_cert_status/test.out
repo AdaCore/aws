@@ -1,0 +1,13 @@
+Start main, wait for server to start...
+Server started
+
+Client certificate from verify routine:
+Subject    : C=FR,ST=Ile de France,L=Magny les Hameaux,O=AWS Team,CN=Pascal Obry,EMAIL=aws@obry.net
+Issuer     : C=FR,ST=Ile de France,L=Magny les Hameaux,O=AWS Team,CN=Pascal Obry,EMAIL=aws@obry.net
+Activation : 2013-01-10 12:11:00
+Expiration : 2012-12-31 12:11:00
+Verified   : FALSE
+Status     :  10
+Message    : certificate has expired
+
+Client connection closed by peer.

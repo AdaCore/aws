@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2012, AdaCore                     --
+--                     Copyright (C) 2003-2013, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -28,6 +28,8 @@
 ------------------------------------------------------------------------------
 
 with Ada.Unchecked_Conversion;
+
+with Interfaces.C;
 
 with AWS.Net.SSL.Certificate.Impl;
 
@@ -90,6 +92,24 @@ package body AWS.Net.SSL.Certificate is
    begin
       Set_Verify_Callback (Config, To_Address (Callback));
    end Set_Verify_Callback;
+
+   ------------
+   -- Status --
+   ------------
+
+   function Status (Certificate : Object) return Long_Integer is
+   begin
+      return Certificate.Status;
+   end Status;
+
+   --------------------
+   -- Status_Message --
+   --------------------
+
+   function Status_Message (Certificate : Object) return String is
+   begin
+      return Impl.Status_String (Interfaces.C.long (Certificate.Status));
+   end Status_Message;
 
    -------------
    -- Subject --

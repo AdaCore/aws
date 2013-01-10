@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                       Copyright (C) 2012, AdaCore                        --
+--                     Copyright (C) 2012-2013, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -29,6 +29,9 @@
 
 with Ada.Calendar.Conversions;
 with Ada.Calendar.Time_Zones;
+with Ada.Strings.Unbounded;
+with Ada.Unchecked_Conversion;
+
 with Interfaces.C.Strings;
 
 with AWS.Net.Log;
@@ -200,6 +203,7 @@ package body AWS.Net.SSL.Certificate.Impl is
       T_Expiration := TSSL.gnutls_x509_crt_get_expiration_time (X509);
 
       return (Verified      => Status = 0,
+              Status        => Long_Integer (Status),
               Subject       => To_Unbounded_String
                                  (C.To_Ada (Subject (1 .. Subj_Len), False)),
               Issuer        => To_Unbounded_String
@@ -218,5 +222,37 @@ package body AWS.Net.SSL.Certificate.Impl is
    begin
       return Read (null, Status, X509);
    end Read;
+
+   -------------------
+   -- Status_String --
+   -------------------
+
+   function Status_String (Status : C.long) return String is
+      use Strings.Unbounded;
+      use type C.unsigned_long;
+
+      function To_Value is new Ada.Unchecked_Conversion
+        (TSSL.gnutls_certificate_status_t, C.unsigned);
+
+      Status_Value : constant C.unsigned_long := C.unsigned_long (Status);
+      Message      : Unbounded_String;
+
+   begin
+      --  The GNU/TLS status is an unsigned long bitwise or’d
+      --  gnutls_certificate_status_t values or zero if the certificate is
+      --  trusted.
+
+      for S in TSSL.gnutls_certificate_status_t loop
+         if (Status_Value and C.unsigned_long (To_Value (S))) /= 0 then
+            if Message /= Null_Unbounded_String then
+               Append (Message, " ");
+            end if;
+
+            Append (Message, TSSL.gnutls_certificate_status_t'Image (S));
+         end if;
+      end loop;
+
+      return To_String (Message);
+   end Status_String;
 
 end AWS.Net.SSL.Certificate.Impl;

@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2012, AdaCore                     --
+--                     Copyright (C) 2000-2013, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -1303,6 +1303,7 @@ package body AWS.Net.SSL is
       Cert    : TSSL.X509;
       Res     : C.int := preverify_ok;
       Mode    : C.unsigned;
+      Status  : C.int;
    begin
       --  The SSL structure
 
@@ -1322,13 +1323,18 @@ package body AWS.Net.SSL is
 
       Cert := TSSL.X509_STORE_CTX_get_current_cert (ctx);
 
+      --  Get current error status, this will be stored into the certificate
+      --  by the read routine below. It will be available in the user's verify
+      --  callback if needed.
+
+      Status := TSSL.X509_STORE_CTX_get_error (ctx);
+
       --  Get the user's callback stored at the Data_Index
 
       CB := To_Callback (TSSL.SSL_CTX_get_ex_data (SSL_CTX, Data_Index));
 
       if CB /= null
-        and then not CB
-          (Net.SSL.Certificate.Impl.Read (preverify_ok = 1, Cert))
+        and then not CB (Net.SSL.Certificate.Impl.Read (Status, Cert))
       then
          Res := 0;
       end if;
