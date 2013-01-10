@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2012, AdaCore                     --
+--                     Copyright (C) 2003-2013, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -66,6 +66,15 @@ package AWS.Net.SSL.Certificate is
    --  Verify_Callback should return True also. If it is False it is up to
    --  the application to check the certificate into the Verify_Callback and
    --  returns the appropriate status.
+
+   function Status (Certificate : Object) return Long_Integer;
+   --  Returns the status for the certificate. This is to be used inside the
+   --  verify callback to know why the certificate has been rejected.
+
+   function Status_Message (Certificate : Object) return String;
+   --  Returns the error message for the current certificate status (as
+   --  returned by Status above).
+
    --
    --  Client verification support
    --
@@ -84,6 +93,7 @@ private
 
    type Object is record
       Verified      : Boolean;
+      Status        : Long_Integer;
       Subject       : Unbounded_String;
       Issuer        : Unbounded_String;
       Serial_Number : Unbounded_String;
@@ -92,7 +102,7 @@ private
    end record;
 
    Undefined : constant Object :=
-                 (False, Null_Unbounded_String, Null_Unbounded_String,
+                 (False, 0, Null_Unbounded_String, Null_Unbounded_String,
                   Null_Unbounded_String, Utils.AWS_Epoch, Utils.AWS_Epoch);
 
 end AWS.Net.SSL.Certificate;

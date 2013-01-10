@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                       Copyright (C) 2012, AdaCore                        --
+--                     Copyright (C) 2012-2013, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -33,6 +33,8 @@ with System;
 
 package body AWS.Net.SSL.Certificate.Impl is
 
+   use Interfaces;
+
    ---------
    -- Get --
    ---------
@@ -44,7 +46,7 @@ package body AWS.Net.SSL.Certificate.Impl is
                  TSSL.SSL_get_peer_certificate (Socket.SSL);
       Result : Object;
    begin
-      Result := Read (False, X509);
+      Result := Read (0, X509);
       TSSL.X509_free (X509);
       return Result;
    end Get;
@@ -53,11 +55,10 @@ package body AWS.Net.SSL.Certificate.Impl is
    -- Read --
    ----------
 
-   function Read (Preverify_Ok : Boolean; X509 : TSSL.X509) return Object is
-
-      use Interfaces;
+   function Read (Status : C.int; X509 : TSSL.X509) return Object is
 
       use type C.Strings.chars_ptr;
+      use type Interfaces.C.int;
       use type TSSL.Pointer;
 
       function NAME_oneline (Name : TSSL.X509_Name) return String;
@@ -200,7 +201,8 @@ package body AWS.Net.SSL.Certificate.Impl is
          T_Expiration := TSSL.X509_get_notAfter (X509);
 
          return
-           (Verified      => Preverify_Ok,
+           (Verified      => Status = 0,
+            Status        => Long_Integer (Status),
             Subject       => To_Unbounded_String
               (NAME_oneline (TSSL.X509_get_subject_name (X509))),
             Issuer        => To_Unbounded_String
@@ -211,5 +213,14 @@ package body AWS.Net.SSL.Certificate.Impl is
             Expiration    => To_Time (T_Expiration));
       end if;
    end Read;
+
+   -------------------
+   -- Status_String --
+   -------------------
+
+   function Status_String (Status : C.long) return String is
+   begin
+      return C.Strings.Value (TSSL.X509_verify_cert_error_string (Status));
+   end Status_String;
 
 end AWS.Net.SSL.Certificate.Impl;

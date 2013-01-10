@@ -1,0 +1,13 @@
+Start main, wait for server to start...
+Server started
+
+Client certificate from verify routine:
+Subject    : C=FR,ST=Ile de France,O=AWS Team,CN=Jean Dupont,EMAIL=jean.dupont@nowhere.com
+Issuer     : C=FR,ST=Ile de France,L=Magny les Hameaux,O=AWS Team,CN=Pascal Obry,EMAIL=aws@obry.net
+Activation : 2011-12-12 07:10:10
+Expiration : 2012-12-12 07:10:10
+Verified   : FALSE
+Status     :  1026
+Message    : GNUTLS_CERT_INVALID GNUTLS_CERT_EXPIRED
+
+Client connection closed by peer.

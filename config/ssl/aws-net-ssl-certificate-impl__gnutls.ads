@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                       Copyright (C) 2012, AdaCore                        --
+--                     Copyright (C) 2012-2013, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -43,5 +43,8 @@ package AWS.Net.SSL.Certificate.Impl is
      (Status : C.unsigned;
       X509   : Standard.SSL.Thin.gnutls_x509_crt_t) return Object;
    --  Read certificate data
+
+   function Status_String (Status : C.long) return String;
+   --  Returns the message string for status
 
 end AWS.Net.SSL.Certificate.Impl;
