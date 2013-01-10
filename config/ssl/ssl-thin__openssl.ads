@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                            Secure Sockets Layer                          --
 --                                                                          --
---                     Copyright (C) 2000-2012, AdaCore                     --
+--                     Copyright (C) 2000-2013, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -317,6 +317,40 @@ package SSL.Thin is
    X509_FILETYPE_ASN1    : constant := 2;
    X509_FILETYPE_DEFAULT : constant := 3;
 
+   X509_V_OK                                     : constant := 0;
+   X509_V_ERR_UNABLE_TO_GET_ISSUER_CERT          : constant := 2;
+   X509_V_ERR_UNABLE_TO_GET_CRL                  : constant := 3;
+   X509_V_ERR_UNABLE_TO_DECRYPT_CERT_SIGNATURE   : constant := 4;
+   X509_V_ERR_UNABLE_TO_DECRYPT_CRL_SIGNATURE    : constant := 5;
+   X509_V_ERR_UNABLE_TO_DECODE_ISSUER_PUBLIC_KEY : constant := 6;
+   X509_V_ERR_CERT_SIGNATURE_FAILURE             : constant := 7;
+   X509_V_ERR_CRL_SIGNATURE_FAILURE              : constant := 8;
+   X509_V_ERR_CERT_NOT_YET_VALID                 : constant := 9;
+   X509_V_ERR_CERT_HAS_EXPIRED                   : constant := 10;
+   X509_V_ERR_CRL_NOT_YET_VALID                  : constant := 11;
+   X509_V_ERR_CRL_HAS_EXPIRED                    : constant := 12;
+   X509_V_ERR_ERROR_IN_CERT_NOT_BEFORE_FIELD     : constant := 13;
+   X509_V_ERR_ERROR_IN_CERT_NOT_AFTER_FIELD      : constant := 14;
+   X509_V_ERR_ERROR_IN_CRL_LAST_UPDATE_FIELD     : constant := 15;
+   X509_V_ERR_ERROR_IN_CRL_NEXT_UPDATE_FIELD     : constant := 16;
+   X509_V_ERR_OUT_OF_MEM                         : constant := 17;
+   X509_V_ERR_DEPTH_ZERO_SELF_SIGNED_CERT        : constant := 18;
+   X509_V_ERR_SELF_SIGNED_CERT_IN_CHAIN          : constant := 19;
+   X509_V_ERR_UNABLE_TO_GET_ISSUER_CERT_LOCALLY  : constant := 20;
+   X509_V_ERR_UNABLE_TO_VERIFY_LEAF_SIGNATURE    : constant := 21;
+   X509_V_ERR_CERT_CHAIN_TOO_LONG                : constant := 22;
+   X509_V_ERR_CERT_REVOKED                       : constant := 23;
+   X509_V_ERR_INVALID_CA                         : constant := 24;
+   X509_V_ERR_PATH_LENGTH_EXCEEDED               : constant := 25;
+   X509_V_ERR_INVALID_PURPOSE                    : constant := 26;
+   X509_V_ERR_CERT_UNTRUSTED                     : constant := 27;
+   X509_V_ERR_CERT_REJECTED                      : constant := 28;
+   X509_V_ERR_SUBJECT_ISSUER_MISMATCH            : constant := 29;
+   X509_V_ERR_AKID_SKID_MISMATCH                 : constant := 30;
+   X509_V_ERR_AKID_ISSUER_SERIAL_MISMATCH        : constant := 31;
+   X509_V_ERR_KEYUSAGE_NO_CERTSIGN               : constant := 32;
+   X509_V_ERR_APPLICATION_VERIFICATION           : constant := 50;
+
    type ASN1_STRING is record
       length : int;
       stype  : int;
@@ -533,6 +567,8 @@ package SSL.Thin is
    function SSL_use_certificate_file
      (SSL : SSL_Handle; File : char_array; C_Type : int) return int;
 
+   function SSL_get_verify_result (SSL : SSL_Handle) return long;
+
    function SSL_CTX_check_private_key (Ctx : SSL_CTX) return int;
 
    procedure SSL_CTX_set_verify
@@ -598,6 +634,10 @@ package SSL.Thin is
      (Ctx : X509_STORE_CTX; Idx : int) return SSL_Handle;
 
    function X509_STORE_CTX_get_current_cert (Ctx : X509_STORE_CTX) return X509;
+
+   function X509_STORE_CTX_get_error (Ctx : SSL_CTX) return int;
+
+   function X509_verify_cert_error_string (Error : long) return Cstr.chars_ptr;
 
    function SSL_CTX_get_cert_store (Ctx : SSL_CTX) return X509_STORE;
 
@@ -775,6 +815,7 @@ private
    pragma Import (C, SSL_use_certificate_file, "SSL_use_certificate_file");
    pragma Import (C, SSL_use_PrivateKey_file, "SSL_use_PrivateKey_file");
    pragma Import (C, SSL_CTX_check_private_key, "SSL_CTX_check_private_key");
+   pragma Import (C, SSL_get_verify_result, "SSL_get_verify_result");
    pragma Import (C, SSL_read, "SSL_read");
    pragma Import (C, SSL_write, "SSL_write");
    pragma Import (C, SSL_peek, "SSL_peek");
@@ -840,6 +881,9 @@ private
    pragma Import (C, X509_STORE_CTX_get_ex_data, "X509_STORE_CTX_get_ex_data");
    pragma Import (C, X509_STORE_CTX_get_current_cert,
                   "X509_STORE_CTX_get_current_cert");
+   pragma Import (C, X509_STORE_CTX_get_error, "X509_STORE_CTX_get_error");
+   pragma Import (C, X509_verify_cert_error_string,
+                  "X509_verify_cert_error_string");
    pragma Import (C, X509_VERIFY_PARAM_set_flags,
                   "X509_VERIFY_PARAM_set_flags");
    pragma Import (C, X509_VERIFY_PARAM_new, "X509_VERIFY_PARAM_new");

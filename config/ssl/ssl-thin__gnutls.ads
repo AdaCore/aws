@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                            Secure Sockets Layer                          --
 --                                                                          --
---                      Copyright (C) 2005-2012, AdaCore                    --
+--                      Copyright (C) 2005-2013, AdaCore                    --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -357,6 +357,24 @@ package SSL.Thin is
       GNUTLS_HANDSHAKE_CLIENT_KEY_EXCHANGE => 16,
       GNUTLS_HANDSHAKE_FINISHED            => 20);
    for gnutls_handshake_description_t'Size use C.int'Size;
+
+   type gnutls_certificate_status_t is
+     (GNUTLS_CERT_INVALID,
+      GNUTLS_CERT_REVOKED,
+      GNUTLS_CERT_SIGNER_NOT_FOUND,
+      GNUTLS_CERT_SIGNER_NOT_CA,
+      GNUTLS_CERT_INSECURE_ALGORITHM,
+      GNUTLS_CERT_NOT_ACTIVATED,
+      GNUTLS_CERT_EXPIRED);
+   for gnutls_certificate_status_t use
+     (GNUTLS_CERT_INVALID            => 2,
+      GNUTLS_CERT_REVOKED            => 32,
+      GNUTLS_CERT_SIGNER_NOT_FOUND   => 64,
+      GNUTLS_CERT_SIGNER_NOT_CA      => 128,
+      GNUTLS_CERT_INSECURE_ALGORITHM => 256,
+      GNUTLS_CERT_NOT_ACTIVATED      => 512,
+      GNUTLS_CERT_EXPIRED            => 1024);
+   for gnutls_certificate_status_t'Size use C.int'Size;
 
    type gnutls_certificate_request_t is
      (GNUTLS_CERT_IGNORE,
