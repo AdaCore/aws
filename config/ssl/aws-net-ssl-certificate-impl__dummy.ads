@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                       Copyright (C) 2012, AdaCore                        --
+--                     Copyright (C) 2012-2013, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -27,9 +27,14 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
+with Interfaces.C;
+
 package AWS.Net.SSL.Certificate.Impl is
 
    function Get (Socket : Socket_Type) return Object;
    --  Read certificate from peer socket
+
+   function Status_String (Status : Interfaces.C.long) return String;
+   --  Returns the message string for status
 
 end AWS.Net.SSL.Certificate.Impl;

@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                       Copyright (C) 2012, AdaCore                        --
+--                     Copyright (C) 2012-2013, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -40,5 +40,16 @@ package body AWS.Net.SSL.Certificate.Impl is
       raise Program_Error with "SSL not supported.";
       return O : Object;
    end Get;
+
+   -------------------
+   -- Status_String --
+   -------------------
+
+   function Status_String (Status : Interfaces.C.long) return String is
+      pragma Unreferenced (Status);
+   begin
+      raise Program_Error with "SSL not supported.";
+      return "";
+   end Status_String;
 
 end AWS.Net.SSL.Certificate.Impl;
