@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2012, AdaCore                     --
+--                     Copyright (C) 2000-2013, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -74,7 +74,7 @@ package AWS.Services.Dispatchers.URI is
      (Dispatcher : in out Handler;
       URI        : String);
    --  Removes URI from the list. URI is either a name or a regexp and must
-   --  have exactaly the value used with Register.
+   --  have exactly the value used with Register.
 
    procedure Register_Default_Callback
      (Dispatcher : in out Handler;
