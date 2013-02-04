@@ -4,10 +4,6 @@ distributed with AWS as a convenience but are not part of AWS.
 
 Note that all of them have a license compatible with AWS.
 
-* Memory_Streams generic package for sequential read/write data is from
-  Dmitriy Anisimkov.
-  License GMGPL.
-
 * ZLib C sources is from Jean-loup Gailly and Mark Adler.
 
    Copyright (C) 1995-2003 Jean-loup Gailly and Mark Adler
@@ -30,6 +26,3 @@ Note that all of them have a license compatible with AWS.
 
    Jean-loup Gailly jloup@gzip.org
    Mark Adler madler@alumni.caltech.edu
-
-* ZLib-Ada Ada binding to ZLib is from Dmitriy Anisimkov.
-  License GMGPL.

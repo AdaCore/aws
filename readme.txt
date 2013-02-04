@@ -161,18 +161,6 @@ Windows Services API (optional):
       http://www.telepath.com/~dennison/Ted/SETI/SETI_Service.html
 
 
-License
--------
-
-AWS is distributed under a dual licencing. The AWS/GPL to be used with GNAT
-GPL Edition and AWS/GMGPL.
-
-AWS/GMGPL (GNAT Modified GPL) ensures that commercial applications can
-be built using AWS. Note that AWS comes with a set of components. Those
-components are using a license compatible with the AWS's one. For
-information about component's individual licenses see include/readme.txt.
-
-
 Reporting bugs
 --------------
 
