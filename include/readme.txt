@@ -4,9 +4,6 @@ distributed with AWS as a convenience but are not part of AWS.
 
 Note that all of them have a license compatible with AWS.
 
-* Strings_Cutter is from Pascal Obry.
-  License GMGPL.
-
 * Memory_Streams generic package for sequential read/write data is from
   Dmitriy Anisimkov.
   License GMGPL.
