@@ -130,20 +130,6 @@ XML/Ada (optional):
 
    http://libre.adacore.com/
 
-OpenSSL library (optional) :
-
-   Sources for UNIX or Win32:
-      http://www.openssl.org
-
-   binaries for Win32:
-      Included with the main AWS distribution (win32 directory).
-
-   Note that we have used and we distribute (for Win32 platform) OpenSSL
-   version 0.9.8b with this AWS release. OpenSSL has been built with
-   GNAT pro 5.04a with -O3 optimization level.
-
-   See OpenSSL license (docs/openssl.license).
-
 OpenLDAP library (optional) :
 
    Sources for UNIX or Win32:
