@@ -6,11 +6,17 @@ def create_res(name,content):
     f.write(content)
     f.close();
 
+def gen(c):
+    if os.environ.get("OS") == "Windows_NT":
+        return c * 20;
+    else:
+        return c * 50;
+
 os.mkdir('rout')
 
-D='dir1_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'
-SD=D + '/' + 'sdir_yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy'
-SSD=SD + '/' + 'ssdir_zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz'
+D='dir1_' + gen('x')
+SD=D + '/' + 'sdir_' + gen('y')
+SSD=SD + '/' + 'ssdir_' + gen('z')
 
 os.mkdir(D)
 os.mkdir(SD)
