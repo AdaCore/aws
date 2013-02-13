@@ -28,7 +28,6 @@
 ------------------------------------------------------------------------------
 
 with AWS.Config;
-with AWS.Default;
 with AWS.Resources.Streams;
 
 package AWS.Services.Transient_Pages is
@@ -39,7 +38,7 @@ package AWS.Services.Transient_Pages is
    procedure Register
      (URI      : String;
       Resource : AWS.Resources.Streams.Stream_Access;
-      Lifetime : Duration := Default.Transient_Lifetime);
+      Lifetime : Duration := Config.Transient_Lifetime);
    --  Register a new transient page, this page will be deleted after Lifetime
    --  seconds.
 

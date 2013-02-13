@@ -286,7 +286,7 @@ package body AWS.Services.Transient_Pages is
    procedure Register
      (URI      : String;
       Resource : AWS.Resources.Streams.Stream_Access;
-      Lifetime : Duration := Default.Transient_Lifetime)
+      Lifetime : Duration := Config.Transient_Lifetime)
    is
       use Real_Time;
    begin
