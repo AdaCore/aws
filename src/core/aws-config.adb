@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2012, AdaCore                     --
+--                     Copyright (C) 2000-2013, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -567,6 +567,15 @@ package body AWS.Config is
    begin
       return O.P (Server_Port).Nat_Value;
    end Server_Port;
+
+   ---------------------
+   -- Server_Priority --
+   ---------------------
+
+   function Server_Priority (O : Object) return System.Any_Priority is
+   begin
+      return O.P (Server_Priority).Nat_Value;
+   end Server_Priority;
 
    -------------
    -- Session --

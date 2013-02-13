@@ -1602,6 +1602,11 @@ port on the same machine, both being binded on different IP addresses.
 The name of the server. This can be used when calling
 @code{AWS.Server.Start}. The default is "@b{@_SERVER_NAME_@}".
 
+@item Server_Priority (natural)
+@cindex Server_Priority (natural)
+Priority of the task handling the HTTP protocol.
+The default is Default_Priority.
+
 @item Server_Port (integer)
 @cindex Server_Port
 The port where server will wait for incoming connections requests. This

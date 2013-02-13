@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2012, AdaCore                     --
+--                     Copyright (C) 2000-2013, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -74,6 +74,9 @@ package AWS.Config.Set is
 
    procedure Session_Name (O : in out Object; Value : String);
    --  Name of the cookie session
+
+   procedure Server_Priority (O : in out Object; Value : System.Any_Priority);
+   --  Set the priority used by the HTTP and WebSockets servers
 
    ----------------
    -- Connection --

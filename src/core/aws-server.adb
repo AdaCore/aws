@@ -1093,8 +1093,9 @@ package body AWS.Server is
       --  Initialize the connection lines
 
       Web_Server.Lines := new Line_Set'
-        (1 .. Max_Connection
-         => new Line (CNF.Line_Stack_Size (Web_Server.Properties)));
+        (1 .. Max_Connection => new Line
+           (Priority   => CNF.Server_Priority (Web_Server.Properties),
+            Stack_Size => CNF.Line_Stack_Size (Web_Server.Properties)));
 
       --  Set Shutdown to False here since it must be done before starting the
       --  lines.

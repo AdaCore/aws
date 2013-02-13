@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2012, AdaCore                     --
+--                     Copyright (C) 2000-2013, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -33,6 +33,7 @@
 --  return the default value as declared in AWS.Default.
 
 with Ada.Strings.Unbounded;
+with System;
 
 with GNAT.Regexp;
 
@@ -103,6 +104,10 @@ package AWS.Config is
    function Session_Name (O : Object) return String;
    pragma Inline (Session_Name);
    --  Name of the cookie session
+
+   function Server_Priority (O : Object) return System.Any_Priority;
+   pragma Inline (Server_Priority);
+   --  Set the priority used by the HTTP and WebSockets servers
 
    ----------------
    -- Connection --
@@ -448,6 +453,7 @@ private
       Protocol_Family,
       Server_Host,
       Server_Port,
+      Server_Priority,
       Security,
       Certificate,
       Key,
@@ -662,6 +668,9 @@ private
 
          Server_Port =>
            (Nat, Default.Server_Port),
+
+         Server_Priority =>
+           (Nat, Default.Server_Priority),
 
          Hotplug_Port =>
            (Pos, Default.Hotplug_Port),
