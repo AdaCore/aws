@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2012, AdaCore                     --
+--                     Copyright (C) 2000-2013, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -1690,8 +1690,8 @@ package body AWS.Server.Push is
 
       Write_Set : Write_Sets.Socket_Set_Type;
 
-      use Write_Sets;
       use Real_Time;
+      use Write_Sets;
 
       R_Signal : aliased Net.Socket_Type'Class := Socket (Security => False);
       Bytes    : Stream_Element_Array (1 .. 32);

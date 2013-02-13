@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2012, AdaCore                     --
+--                     Copyright (C) 2000-2013, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -385,8 +385,7 @@ package body AWS.Server is
       Task_Ptr : constant Line_Attribute.Attribute_Handle :=
                    Line_Attribute.Reference;
    begin
-      AWS.Log.Set_Field
-        (Task_Ptr.Server.Log, Task_Ptr.Log_Data, Id, Value);
+      AWS.Log.Set_Field (Task_Ptr.Server.Log, Task_Ptr.Log_Data, Id, Value);
    end Set_Field;
 
    ------------------
