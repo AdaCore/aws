@@ -1641,6 +1641,11 @@ Number of seconds between each run of the session cleanup task. This
 task will remove all session data that have been obsoleted. The
 default is @_SESSION_CLEANUP_INTERVAL_@ seconds.
 
+@item Session_Cleaner_Priority (natural)
+@cindex Session_Cleaner_Priority (natural)
+Priority of the task cleaning the session data.
+The default is Default_Priority.
+
 @item Status_Page (string)
 @cindex Status_Page
 The name of the status page to used. The default is

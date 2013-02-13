@@ -393,6 +393,10 @@ package AWS.Config is
    pragma Inline (Session_Id_Length);
    --  Returns the length (number of characters) of the session id
 
+   function Session_Cleaner_Priority return System.Any_Priority;
+   pragma Inline (Session_Cleaner_Priority);
+   --  Set the priority used by the session cleaner task
+
    function Transient_Cleanup_Interval return Duration;
    pragma Inline (Transient_Cleanup_Interval);
    --  Number of seconds between each run of the cleaner task to remove
@@ -505,6 +509,7 @@ private
       Session_Cleanup_Interval,
       Session_Lifetime,
       Session_Id_Length,
+      Session_Cleaner_Priority,
       Transient_Cleanup_Interval,
       Transient_Lifetime,
       Input_Line_Size_Limit,
@@ -738,6 +743,9 @@ private
 
          Session_Id_Length =>
            (Pos, Default.Session_Id_Length),
+
+         Session_Cleaner_Priority =>
+           (Nat, Default.Session_Cleaner_Priority),
 
          Transient_Cleanup_Interval =>
            (Dur, Default.Transient_Cleanup_Interval),

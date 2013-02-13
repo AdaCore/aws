@@ -540,6 +540,15 @@ package body AWS.Config.Set is
    end Session;
 
    ------------------------------
+   -- Session_Cleaner_Priority --
+   ------------------------------
+
+   procedure Session_Cleaner_Priority (Value : System.Any_Priority) is
+   begin
+      Process_Options (Session_Cleaner_Priority).Nat_Value := Value;
+   end Session_Cleaner_Priority;
+
+   ------------------------------
    -- Session_Cleanup_Interval --
    ------------------------------
 

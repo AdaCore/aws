@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2000-2012, AdaCore                     --
+--                     Copyright (C) 2000-2013, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -216,6 +216,7 @@ private
    No_Session : constant Id := (others => ' ');
 
    task type Cleaner is
+      pragma Priority (Config.Session_Cleaner_Priority);
       entry Stop;
       entry Force;
    end Cleaner;

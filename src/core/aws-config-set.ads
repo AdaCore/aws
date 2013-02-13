@@ -331,6 +331,9 @@ package AWS.Config.Set is
    procedure Session_Id_Length (Value : Positive);
    --  Returns the length (number of characters) of the session id
 
+   procedure Session_Cleaner_Priority (Value : System.Any_Priority);
+   --  Set the priority used by the session cleaner task
+
    procedure Transient_Cleanup_Interval (Value : Duration);
    --  Number of seconds between each run of the cleaner task to remove
    --  transient pages.

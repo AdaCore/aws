@@ -587,6 +587,15 @@ package body AWS.Config is
    end Session;
 
    ------------------------------
+   -- Session_Cleaner_Priority --
+   ------------------------------
+
+   function Session_Cleaner_Priority return System.Any_Priority is
+   begin
+      return Process_Options (Session_Cleaner_Priority).Nat_Value;
+   end Session_Cleaner_Priority;
+
+   ------------------------------
    -- Session_Cleanup_Interval --
    ------------------------------
 
