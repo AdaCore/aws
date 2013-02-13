@@ -334,6 +334,10 @@ package AWS.Config.Set is
    procedure Session_Cleaner_Priority (Value : System.Any_Priority);
    --  Set the priority used by the session cleaner task
 
+   procedure Service_Priority (Value : System.Any_Priority);
+   --  Set the priority used by the others services (SMTP server, Jabber
+   --  server, Push server...).
+
    procedure Transient_Cleanup_Interval (Value : Duration);
    --  Number of seconds between each run of the cleaner task to remove
    --  transient pages.

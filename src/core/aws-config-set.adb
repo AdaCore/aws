@@ -530,6 +530,15 @@ package body AWS.Config.Set is
       O.P (Server_Priority).Nat_Value := Value;
    end Server_Priority;
 
+   ----------------------
+   -- Service_Priority --
+   ----------------------
+
+   procedure Service_Priority (Value : System.Any_Priority) is
+   begin
+      Process_Options (Service_Priority).Nat_Value := Value;
+   end Service_Priority;
+
    -------------
    -- Session --
    -------------

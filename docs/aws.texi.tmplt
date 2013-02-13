@@ -1613,6 +1613,12 @@ The port where server will wait for incoming connections requests. This
 can be used when calling @code{AWS.Server.Start}. The default is
 @_SERVER_PORT_@.
 
+@item Service_Priority (natural)
+@cindex Service_Priority (natural)
+Priority of the tasks used by optional services like SMTP Server,
+Server Push, Jabber and the Transient Page cleaner.
+The default is Default_Priority.
+
 @item Session (boolean)
 @cindex Session
 Whether the session support must be activated or not. The default is

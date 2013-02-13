@@ -577,6 +577,15 @@ package body AWS.Config is
       return O.P (Server_Priority).Nat_Value;
    end Server_Priority;
 
+   ----------------------
+   -- Service_Priority --
+   ----------------------
+
+   function Service_Priority return System.Any_Priority is
+   begin
+      return Process_Options (Service_Priority).Nat_Value;
+   end Service_Priority;
+
    -------------
    -- Session --
    -------------

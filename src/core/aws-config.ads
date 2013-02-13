@@ -397,6 +397,11 @@ package AWS.Config is
    pragma Inline (Session_Cleaner_Priority);
    --  Set the priority used by the session cleaner task
 
+   function Service_Priority return System.Any_Priority;
+   pragma Inline (Service_Priority);
+   --  Set the priority used by the others services (SMTP server, Jabber
+   --  server, Push server...).
+
    function Transient_Cleanup_Interval return Duration;
    pragma Inline (Transient_Cleanup_Interval);
    --  Number of seconds between each run of the cleaner task to remove
@@ -513,6 +518,7 @@ private
       Session_Lifetime,
       Session_Id_Length,
       Session_Cleaner_Priority,
+      Service_Priority,
       Transient_Cleanup_Interval,
       Transient_Lifetime,
       Input_Line_Size_Limit,
@@ -750,6 +756,9 @@ private
 
          Session_Cleaner_Priority =>
            (Nat, Default.Session_Cleaner_Priority),
+
+         Service_Priority =>
+           (Nat, Default.Service_Priority),
 
          Transient_Cleanup_Interval =>
            (Dur, Default.Transient_Cleanup_Interval),

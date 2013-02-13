@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2008-2012, AdaCore                     --
+--                     Copyright (C) 2008-2013, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -29,6 +29,8 @@
 
 with AWS.SMTP.Messages;
 
+private with AWS.Config;
+
 package AWS.SMTP.Server is
 
    type Callback is access procedure (Message : Messages.Data);
@@ -47,6 +49,7 @@ package AWS.SMTP.Server is
 private
 
    task type Mail_Handler (Server : not null access Handle) is
+      pragma Priority (Config.Service_Priority);
       entry Start;
    end Mail_Handler;
 

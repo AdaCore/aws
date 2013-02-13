@@ -88,7 +88,9 @@ package body AWS.Services.Download is
 
    --  The task that handles the downloads
 
-   task type Download_Manager;
+   task type Download_Manager is
+      pragma Priority (Config.Service_Priority);
+   end Download_Manager;
 
    type Download_Manager_Access is access Download_Manager;
 

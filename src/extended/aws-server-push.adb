@@ -33,6 +33,7 @@ with Ada.Real_Time;
 with Ada.Text_IO;
 with Ada.Unchecked_Deallocation;
 
+with AWS.Config;
 with AWS.Messages;
 with AWS.MIME;
 with AWS.Net.Buffered;
@@ -186,6 +187,7 @@ package body AWS.Server.Push is
    end Waiter_Information;
 
    task Waiter is
+      pragma Priority (AWS.Config.Service_Priority);
       entry Resume;
    end Waiter;
 

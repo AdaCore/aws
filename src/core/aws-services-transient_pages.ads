@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2012, AdaCore                     --
+--                     Copyright (C) 2003-2013, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -27,6 +27,7 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
+with AWS.Config;
 with AWS.Default;
 with AWS.Resources.Streams;
 
@@ -53,6 +54,7 @@ private
    -------------------
 
    task type Cleaner is
+      pragma Priority (Config.Service_Priority);
       entry Stop;
    end Cleaner;
 
