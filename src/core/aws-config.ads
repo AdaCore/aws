@@ -440,6 +440,9 @@ package AWS.Config is
    --  This is the string regular expression to restrict WebSocket to a
    --  specific origin.
 
+   function WebSocket_Priority return System.Any_Priority;
+   --  Set the priority used by the WebSocket service
+
 private
 
    package SV renames AWS.Containers.String_Vectors;
@@ -517,6 +520,7 @@ private
       Max_WebSocket_Handler,
       WebSocket_Message_Queue_Size,
       WebSocket_Origin,
+      WebSocket_Priority,
       Context_Lifetime);
 
    subtype Server_Parameter_Name is Parameter_Name
@@ -767,6 +771,9 @@ private
 
          WebSocket_Origin =>
            (Regexp, False, Pattern => <>, Regexp_Str => Null_Unbounded_String),
+
+         WebSocket_Priority =>
+           (Nat, Default.WebSocket_Priority),
 
          Context_Lifetime =>
            (Dur, Default.Context_Lifetime));

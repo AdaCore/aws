@@ -670,6 +670,15 @@ package body AWS.Config.Set is
         To_Unbounded_String (Value);
    end WebSocket_Origin;
 
+   ------------------------
+   -- WebSocket_Priority --
+   ------------------------
+
+   procedure WebSocket_Priority (Value : System.Any_Priority) is
+   begin
+      Process_Options (WebSocket_Priority).Nat_Value := Value;
+   end WebSocket_Priority;
+
    --------------
    -- WWW_Root --
    --------------

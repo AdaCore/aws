@@ -1692,6 +1692,11 @@ This is a regular expression which can be used to handle WebSockets
 originating from a specific domain. By default AWS handles WebSockets
 from any origins.
 
+@item WebSocket_Priority (natural)
+@cindex WebSocket_Priority (natural)
+Priority of the task handling the WebSockets.
+The default is Default_Priority.
+
 @item WWW_Root (string)
 @cindex WWW_Root
 This option sets the Web Server root directory. All Web resources are

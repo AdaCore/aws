@@ -158,5 +158,6 @@ package AWS.Default is
    --  Priorities
 
    Server_Priority                 : constant Any_Priority := Default_Priority;
+   WebSocket_Priority              : constant Any_Priority := Default_Priority;
    Session_Cleaner_Priority        : constant Any_Priority := Default_Priority;
 end AWS.Default;

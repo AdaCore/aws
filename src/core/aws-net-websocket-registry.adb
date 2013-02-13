@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                       Copyright (C) 2012, AdaCore                        --
+--                     Copyright (C) 2012-2013, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -81,14 +81,18 @@ package body AWS.Net.WebSocket.Registry is
    --  wait call. This first entry is not a WebSocket and should be ignored in
    --  most code below.
 
-   task type Watcher;
+   task type Watcher is
+      pragma Priority (Config.WebSocket_Priority);
+   end Watcher;
 
    type Watcher_Ref is access all Watcher;
    --  This task is in charge of watching the WebSocket for incoming messages.
    --  It then places the WebSocket into a job queue to be processed by the
    --  reader tasks.
 
-   task type Message_Reader;
+   task type Message_Reader is
+      pragma Priority (Config.WebSocket_Priority);
+   end Message_Reader;
    --  Wait for WebSocket message to be ready, read them and call the Received
    --  callback. The a message has been read, the WebSocket is added back into
    --  the list of watched sockets.

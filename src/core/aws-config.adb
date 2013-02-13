@@ -721,6 +721,15 @@ package body AWS.Config is
       return To_String (Process_Options (WebSocket_Origin).Regexp_Str);
    end WebSocket_Origin;
 
+   ------------------------
+   -- WebSocket_Priority --
+   ------------------------
+
+   function WebSocket_Priority return System.Any_Priority is
+   begin
+      return Process_Options (WebSocket_Priority).Nat_Value;
+   end WebSocket_Priority;
+
    --------------
    -- WWW_Root --
    --------------
